@@ -1,0 +1,195 @@
+{
+  "generated_at": "2026-08-05T17:09:32.321141+00:00",
+  "produced_by": "sdk/scripts/closure_eval_battery/run_ph_battery.py",
+  "protocol": "demo-output/website/CLOSURE_EVALUATION_PROTOCOL.md",
+  "test_blindness": {
+    "scoring_calls": 0,
+    "test_ground_truth_reads": 0,
+    "how": "raising-stub guard armed and proven before any work; the ground-truth loader asserts the case against the PH train+validation whitelist before opening a file"
+  },
+  "model": "round-1 PH HistGradientBoostingRegressor x3, random_state=0, 21 PH training cases, 7 Pope-invariant features",
+  "validity_anchor": {
+    "pooled_validation_scaled_mae_this_run": 0.0876,
+    "recorded_round1_value": 0.0876,
+    "pooled_validation_rans_floor_this_run": 0.1298,
+    "matches": true
+  },
+  "station_convention": {
+    "stations_x_over_h": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "offset_axis": "2*Ux/Ub + x/H against y/H",
+    "citation": "Xiao, Wang & Ghanem, arXiv:1603.09656, Fig. 10 axis label 'x/H; 2Ux /Ub + x/H'; 'eight streamwise locations x/H = 1, ..., 8'",
+    "clipping_note": "stations beyond the case's own Lx/h are omitted (the para-database alpha family stretches the domain); the plotted range is recorded per case"
+  },
+  "per_case": {
+    "alpha_05_10071_4048": {
+      "group": "validation",
+      "n_cells": 15600,
+      "U_b_crest_from_LES": 0.96526,
+      "h": 1.0,
+      "Lx_over_h": 10.029,
+      "stations_plotted_x_over_h": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "scaled_mae_cells_rans": 0.0759,
+      "scaled_mae_cells_corrected": 0.0772,
+      "max_pointwise_error_rans": 0.5983,
+      "max_pointwise_error_corrected": 0.375
+    },
+    "alpha_05_10071_2024": {
+      "group": "validation",
+      "n_cells": 15600,
+      "U_b_crest_from_LES": 1.36052,
+      "h": 0.9988,
+      "Lx_over_h": 10.041,
+      "stations_plotted_x_over_h": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "scaled_mae_cells_rans": 0.1368,
+      "scaled_mae_cells_corrected": 0.0858,
+      "max_pointwise_error_rans": 1.3508,
+      "max_pointwise_error_corrected": 1.2534
+    },
+    "alpha_15_7929_4048": {
+      "group": "validation",
+      "n_cells": 15600,
+      "U_b_crest_from_LES": 0.92923,
+      "h": 1.002,
+      "Lx_over_h": 7.881,
+      "stations_plotted_x_over_h": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "scaled_mae_cells_rans": 0.0916,
+      "scaled_mae_cells_corrected": 0.0463,
+      "max_pointwise_error_rans": 0.2264,
+      "max_pointwise_error_corrected": 0.1954
+    },
+    "alpha_15_7929_2024": {
+      "group": "validation",
+      "n_cells": 15600,
+      "U_b_crest_from_LES": 1.30808,
+      "h": 1.0008,
+      "Lx_over_h": 7.89,
+      "stations_plotted_x_over_h": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "scaled_mae_cells_rans": 0.1957,
+      "scaled_mae_cells_corrected": 0.131,
+      "max_pointwise_error_rans": 0.4642,
+      "max_pointwise_error_corrected": 0.328
+    },
+    "alpha_10_9000_3036": {
+      "group": "train",
+      "n_cells": 15600,
+      "U_b_crest_from_LES": 1.02026,
+      "h": 1.002,
+      "Lx_over_h": 8.945,
+      "stations_plotted_x_over_h": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "scaled_mae_cells_rans": 0.1304,
+      "scaled_mae_cells_corrected": 0.0371,
+      "max_pointwise_error_rans": 0.3563,
+      "max_pointwise_error_corrected": 0.1698
+    },
+    "alpha_05_7071_3036": {
+      "group": "train",
+      "n_cells": 15600,
+      "U_b_crest_from_LES": 1.09804,
+      "h": 1.0016,
+      "Lx_over_h": 7.03,
+      "stations_plotted_x_over_h": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "scaled_mae_cells_rans": 0.0552,
+      "scaled_mae_cells_corrected": 0.0589,
+      "max_pointwise_error_rans": 0.5012,
+      "max_pointwise_error_corrected": 0.4126
+    },
+    "alpha_15_10929_3036": {
+      "group": "train",
+      "n_cells": 15600,
+      "U_b_crest_from_LES": 0.98855,
+      "h": 1.002,
+      "Lx_over_h": 10.862,
+      "stations_plotted_x_over_h": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "scaled_mae_cells_rans": 0.1676,
+      "scaled_mae_cells_corrected": 0.0662,
+      "max_pointwise_error_rans": 0.3233,
+      "max_pointwise_error_corrected": 0.18
+    }
+  },
+  "figures": [
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/ph_profiles_alpha_05_10071_4048.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/ph_profiles_alpha_05_10071_2024.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/ph_profiles_alpha_15_7929_4048.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/ph_profiles_alpha_15_7929_2024.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/ph_profiles_alpha_10_9000_3036.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/ph_profiles_alpha_05_7071_3036.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/ph_profiles_alpha_15_10929_3036.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/ph_scatter_validation.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/ph_error_maps_validation.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/ph_scatter_train.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/ph_error_maps_train.png"
+  ],
+  "compute": {
+    "elapsed_seconds": 181.9,
+    "cores_cap": 2
+  }
+}

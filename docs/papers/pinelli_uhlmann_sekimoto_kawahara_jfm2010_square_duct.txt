@@ -1,0 +1,1429 @@
+City Research Online
+City St George’s, University of London
+
+Citation: Pinelli, A., Uhlmann, M., Sekimoto, A. & Kawahara, G. (2010). Reynolds
+number dependence of mean flow structure in square duct turbulence. Journal of
+Fluid Mechanics, 644, pp. 107-122. doi: 10.1017/s0022112009992242
+This is the accepted version of the paper.
+This version of the publication may differ from the final published version. To cite
+this item please consult the publisher's version.
+
+Permanent repository link: https://openaccess.city.ac.uk/id/eprint/15264/
+Link to published version: https://doi.org/10.1017/s0022112009992242
+
+Copyright and Reuse: Copyright and Moral Rights remain with the author(s) and/or
+copyright holders. Copies of full items can be used for personal research or study,
+educational, or not-for-profit purposes without prior permission or charge, unless otherwise
+indicated, provided that the authors, title and full bibliographic details are credited, a
+hyperlink and/or URL is given for the original metadata page and the content is not changed
+in any way. For full details of reuse please refer to City Research Online policy.
+City Research Online:
+
+http://openaccess.city.ac.uk/
+
+publications@citystgeorges.ac.uk
+
+Under consideration for publication in J. Fluid Mech.
+
+1
+
+Reynolds number dependence of mean flow
+structure in square duct turbulence
+A L F R E D O P I N E L L I1 , M A R K U S U H L M A N N2 ,
+A T S U S H I S E K I M O T O 3 A N D G E N T A K A W A H A R A3
+1
+
+2
+
+Modeling and Numerical Simulation Unit, CIEMAT, 28040 Madrid, Spain
+Turbulent Flow Group, Institute for Hydromechanics, University of Karlsruhe, Germany
+3
+Department of Mechanical Science, Osaka University, 560-8531 Osaka, Japan
+(Received 4 August 2009)
+
+We have performed direct numerical simulations of turbulent flows in a square duct
+considering a range of Reynolds numbers spanning from a marginal state up to fully developed turbulent states at low Reynolds numbers. The main motivation stems from the
+relatively poor knowledge about the basic physical mechanisms that are responsible for
+one of the most outstanding feature of this class of turbulent flows: Prandtl’s secondary
+motion of second kind. In particular, the focus is upon the role of flow structures in its
+generation and in its characterization when increasing the Reynolds number. We will
+present a two-fold scenario. On one hand, buffer layer structures determine the distribution of mean streamwise vorticity. On the other hand, the shape and the quantitative
+character of the mean secondary flow, defined through the mean cross stream function,
+are influenced by motions taking place at larger scales. It will be shown that high velocity
+streaks are preferentially located in the corner region (e.g., less than 50 wall units apart
+from a side wall), flanked by low velocity ones. These locations are determined by the
+positioning of quasi streamwise vortices with a preferential sign of rotation in agreement
+with the above described velocity streaks’ positions. This preferential arrangement of the
+classical buffer layer structures determines the pattern of the mean streamwise vorticity
+which approaches the corners with increasing Reynolds number. On the other hand, the
+center of the mean secondary flow, defined as the position of the extrema of the mean
+cross stream function (computed using the mean streamwise vorticity), remains at a constant location departing from the mean streamwise vorticity field for larger Reynolds
+numbers, i.e. it scales in outer units. This paper also presents a detailed validation of the
+numerical technique including a comparison of the numerical results with data obtained
+from a companion experiment.
+
+1. Introduction
+The turbulent flow through a square duct represents one of the simplest geometrical
+configurations that exhibit secondary flow of the second kind, as classified by Prandtl
+(1926). Secondary motions of the second kind are mean flows induced by turbulence
+fluctuations themselves. The existence of such secondary mean motion in this geometrical
+configuration is well known since the experiments by Nikuradse (1926) who was the first
+to measure it indirectly. The mean motion in the streamwise direction is also characterized
+by a non negligible deformation of the primary mean velocity profile that presents a nonuniform distribution of the skin friction coefficient along the edges. Previous experimental
+measurements of the flow in a square duct (Brundrett & Baines 1964; Gessner 1973;
+
+2
+
+A. Pinelli, M. Uhlmann, A. Sekimoto and G. Kawahara
+
+Melling & Whitelaw 1976) as well as direct and large eddy simulations (Gavrilakis 1992;
+Madabushi & Vanka 1991) have provided useful reference data for the mean velocities
+and the Reynolds stress tensor. Those studies were mainly focused upon the budget of
+the averaged flow equations, while not providing much information on the underlying
+physical mechanisms responsible for the formation of secondary flow. Huser & Biringen
+(1993) attempted to relate the appearance of secondary flow to an interaction of ejection
+events between adjacent walls in the corner region. In a recent paper (Uhlmann et al.
+2007), we have considered in detail the case of the marginal Reynolds number regime
+in this geometry. By marginal regime we mean the limiting behavior of the turbulent
+flow at Reynolds numbers on the verge of relaminarization (i.e., bulk Reynolds number
+in the order of 1100 corresponding to a friction Reynolds number of about 80). In this
+regime, strong evidence has been presented that the buffer layer coherent structures play
+a crucial role in the appearance of secondary flow of Prandtl’s second kind and in the
+deformation of the mean streamwise velocity profile. In particular, it has been shown
+that the deformation of the mean streamwise velocity profile is due to the presence of
+a persistent low velocity streak preferentially located over the center of the edges. Also
+it has been shown that there exists a matching between the preferential positions of
+quasi-streamwise vortices flanking the streak and the pattern of the mean secondary
+vorticity. Similar mean flow patterns have been observed in a recent study (Biau et al.
+2008) that analyzed the time evolution of initial streamwise sub-optimal disturbances
+at a value of the Reynolds number close to relaminarization. When considering higher
+Reynolds numbers, other effects may appear. First of all, motions at different scales
+would play a role whereas in the low Reynolds number cases the cross-stream scale of
+coherent structures is comparable with the duct width. Also the length of the edge of
+the square cross section expressed in wall coordinates increases therefore allowing for the
+simultaneous presence of multiple pairs of high and low velocity streaks, meaning that
+in the flow region close to the center of each edge the flow would behave more and more
+like a turbulent plane Poiseuille flow without any preferential positioning of the buffer
+layer structures.
+The main motivation of the present paper is to further pursue the idea that the secondary flow is a footprint of the coherent motions embedded in the turbulent flow.
+Evidences of this conjecture will be given by means of numerical results obtained by
+direct numerical simulation performed at higher Reynolds numbers (i.e., higher than the
+marginal one) where several pairs of streaks and associated streamwise vortices can be
+accommodated simultaneously near each wall (i.e. at the same streamwise location, but
+separated in the spanwise coordinate). In particular, we propose a scenario in which
+the position of the center of the mean secondary vortices (the location of the extrema
+of the mean streamwise vorticity) is determined by the preferential positioning of quasi
+streamwise vortices associated with a high speed streak located close to each one of the
+corners. On the other hand, the change of the pattern of the mean secondary velocity
+streamlines at higher Reynolds numbers is induced by the presence of motions at larger
+scales. Before introducing and motivating our main conclusions, the numerical code is
+briefly illustrated together with comparisons with both previous numerical studies and
+experimental results.
+
+2. Numerical Methodology
+We are considering an incompressible flow in a duct with a square cross-section and
+infinite stream-wise extension. The Cartesian coordinates are (x, y, z) with x being the
+stream-wise direction and y − z the cross stream plane [−h, h] × [−h, h] (see sketch in
+
+Reynolds number dependence of mean flow structure in square duct turbulence
+
+3
+
+y/h
+
+1
+−1
+
+1
+
+x
+
+z/h
+−1
+
+L
+H=2h
+
+Figure 1. Coordinates system and geometry of the duct
+
+figure 1). The time evolution of the velocity vector u = (u, v, w) (u along x, v along y
+and w along the z direction) and of the pressure p are governed by the incompressible
+Navier-Stokes equations
+∂t u + ∇p = −(u · ∇)u +
+
+1
+∇2 u ,
+Reb
+
+∇ ·u = 0,
+
+(2.1a)
+(2.1b)
+
+written in non dimensional form with density fixed to unity and the Reynolds number,
+Reb = Ub h/ν, formed with the bulk velocity Ub , the duct semi height h and the kinematic
+viscosity ν. For convenience, we also
+p introduce the definition of the friction Reynolds
+number as Reτ = uτ h/ν with uτ = τw /ρ the friction velocity, τw being the wall shear
+stress averaged in time and on the four limiting walls and ρ the constant density.
+The velocity vector is subject to the no-slip and impermeable conditions at the walls,
+while periodic conditions are specified at the cross stream boundary faces.
+We employ an incremental-pressure projection method for splitting the system (2.1)
+into two fractional steps. Using a semi-implicit scheme for the viscous terms and a
+three-step low-storage Runge-Kutta method with an explicit treatment for the non-linear
+terms, the semi-discrete system can be written as follows:
+u∗ − uk−1
+k−1
+k−2
+= −γk [(u · ∇)u]
+− ζk [(u · ∇)u]
+∆t
+
+αk 2 ∗
+−2αk ∇pk−1 +
+∇ u + uk−1
+Reb
+∇ · u∗
+∇2 φk =
+2αk ∆t
+k
+u = u∗ − 2αk ∆t∇φk
+αk ∆t 2 k
+∇ φ
+pk = pk−1 + φk −
+Reb
+
+(2.2a)
+(2.2b)
+(2.2c)
+(2.2d )
+
+where k = 1, 2, 3 is the Runge-Kutta step count (with k = 0 equivalent to the previous time step and k = 3 being the next time step) and u∗ the predicted intermediate
+
+4
+
+A. Pinelli, M. Uhlmann, A. Sekimoto and G. Kawahara
+
+velocity. The auxiliary variable φ, sometimes called “pseudo-pressure”, is the projector
+k
+onto the divergence free space. The boundary condition for φ in (2.2b) is ∂φ
+∂n = 0 for
+all the Runge-Kutta sub steps, being n the normal direction to the wall. The following set of coefficients (Verzicco & Orlandi 1996) leads to overall second-order temporal
+accuracy
+both velocity
+pressure in the
+of the computational domain:
+ 4 for
+ 8 and
+ interior
+1 1
+5 3
+5
+17
+αk = 15
+, 15
+, 6 , γk = 15
+, 12
+, 4 and ζk = 0, − 60
+, − 12
+. On the walls, due to the use
+of the fractional step scheme, the no-slip condition is verified up to an error of O(∆t2 ν).
+In the worst case (corresponding to the lowest considered Reynolds number), the slip
+error was kept below 10−4 Ub by adjusting the time step ∆t accordingly. Flow variables
+are expanded in space by means of truncated Fourier series in the streamwise direction,
+while Chebyshev polynomials are used in the two cross-stream directions. The collocation
+points in the cross-stream directions are the standard Gauss-Chebyshev-Lobatto points,
+while a grid of equispaced nodes is defined in the streamwise direction. The non-linear
+terms in (2.2a) are evaluated in physical space whereas the linear explicit terms are evaluated in spectral space. The fields are transformed back and forth by means of FFT
+and FCT. Dealiasing according to the 2/3-rule is performed in the Fourier direction only.
+The solution of the Helmholtz equations for the predicted velocity components (2.2a) and
+the Poisson equation for pseudo-pressure (2.2b) are carried out in physical space for each
+streamwise wave number by means of a fast diagonalization technique (Haldenwang et al.
+1984). All the simulated cases have been computed imposing a constant flow rate. To
+this end, the Fourier zero mode of the stream-wise velocity component is adjusted after
+each Runge-Kutta sub-step in the predictor phase. In particular, an unknown constant
+pressure gradient A∗ is introduced in (2.2a) when considering the zero Fourier component
+of the predicted streamwise velocity û∗0 (y, z) :
+
+
+
+Re
+(2.3)
+û∗0 (y, z) = F̂0 uk−1 , uk−2 , pk−1 + A∗ ,
+∇2 −
+αk ∆t
+where F̂0 contains all the contributions from explicit terms in equation (2.2a) to the
+zero mode . The solution of problem (2.3) is decomposed as a linear combination of two
+contributions. The first one û10 is the solution of (2.3) with A∗ = 0, while the second û20
+is obtained solving the problem
+
+
+Re
+∇2 −
+û2 (y, z) = 1.
+(2.4)
+αk ∆t 0
+Both solutions are obtained using Dirichlet homogeneous conditions on the square boundary. The final solution is assembled as
+û∗0 (y, z) = û10 + A∗ û20
+with A∗ obtained from the requirement:
+Z
+Z
+Qf =
+û10 dydz + A∗
+û20 dydz
+Ω
+
+(2.5)
+
+(2.6)
+
+Ω
+
+with Qf = 4 h2 Ub the desired flow rate through section Ω.
+
+3. Validation
+With the aim of validating the numerical method outlined in the previous section, we
+present a comparison of our results with both reference numerical results and with a set
+of experimental data. In particular, we have considered a fully turbulent case at Reb =
+
+Reynolds number dependence of mean flow structure in square duct turbulence
+0
+
+0
+
+−0.2
+
+−0.2
+
+−0.4
+
+−0.4
+
+y/h
+
+5
+
+y/h
+
+−0.6
+
+−0.6
+
+−0.8
+
+−0.8
+
+−1
+
+0
+
+1
+hui/Ub
+
+2
+
+−1
+−0.02
+
+0
+
+0.02
+hwi/Ub
+
+Figure 2. Mean velocity components at z/h = −0.7: streamwise component (left), cross stream
+component (right). Present DNS results (——Reb = 3500 – – – –Reb = 2205) compared to reference DNS data (◦) and experimental data (•).
+
+2205, as previously simulated by Gavrilakis (1992) and another case at a slightly higher
+Reynolds number (i.e., Reb = 3535) for which a set of experimental data (Kawahara
+et al. 2000) is available. Our simulations were both performed with a streamwise period
+of Lx /h = 4π, which can be considered sufficiently long in order to allow for an adequate
+decay of the two-point velocity correlations (Gavrilakis 1992, figure 3). For the lower
+Reynolds number case, we used 128 Fourier modes, corresponding to a streamwise grid
+spacing of ∆x+ = 14.7 (here and in the following, the superscript + stands for wall units:
+l+ = l/δv with δv = ν/uτ the viscous length scale); 97 Chebyshev modes are employed
+in each cross-stream direction, leading to a spacing of 0.08 ≤ ∆y + , ∆z + ≤ 4.9. The time
+step was fixed at ∆t Ub /h = 1.93 × 10−2, approximately corresponding to a CF L = 0.22.
+Statistics were accumulated over an interval of tstat Ub /h = 8000. It is worth mentioning
+that the time accumulated to compute statistical quantities is significantly larger than the
+one presented in the reference work (Gavrilakis 1992). In order to confirm that the actual
+streamwise discretization was fine enough to capture the behavior of typical buffer layer
+structures, higher resolution computations have been undertaken at Reb = 2205 using
+192 Fourier modes in the streamwise direction (∆x+ < 10). No substantial difference
+(less than 4%) has been found in the second order statistics of the velocity field. For
+the higher Reynolds number case, 192 Fourier modes were employed in the streamwise
+direction leading to the same wall coordinates spacing as in the previous case. In the cross
+stream plane, 129 nodes were used in both wall normal directions obtaining a grid spacing
+of 0.07 ≤ ∆y + , ∆z + ≤ 5.2. The temporal resolution was ∆t Ub /h = 0.5 × 10−3. Statistics,
+for the second case, were accumulated over a period of tstat Ub /h = 5800. Details about
+the reference cases can be found in Gavrilakis (1992) and in Kawahara et al. (2000).
+In what follows we give a brief summary of the latter since the original work has never
+been published in English. The set of data was collected from experiments conducted in
+fully-developed turbulent flow in a straight water-duct (kinematic viscosity ν = 0.94 ×
+10−2 cm2 /s). The duct has a square cross-section of an internal width 2 h = 100mm and is
+about 9m long. The bulk velocity in the duct was set at a value of Ub = 6.6cm/s leading to
+
+6
+
+y/h
+
+a)
+
+A. Pinelli, M. Uhlmann, A. Sekimoto and G. Kawahara
+0
+
+0
+
+−0.2
+
+−0.2
+
+−0.4
+
+−0.4
+
+y/h
+
+−0.6
+
+−0.6
+
+b)
+
+−0.8
+
+−1
+
+−0.8
+
+0
+
+0.1
+′ ′ 1/2
+
+hu u i
+
+0
+
+0.1
+
+0.2
+′ ′ 1/2
+
+/Ub
+
+hu u i
+
+0
+
+0
+
+−0.2
+
+−0.2
+
+−0.4
+
+/Ub
+
+−0.4
+
+y/h
+
+y/h
+
+y/h
+
+−1
+
+0.2
+
+c)
+
+−0.6
+
+d)
+
+−0.8
+
+−1
+
+−0.6
+
+−0.8
+
+0
+
+0.05
+′
+
+0.1
+′ 1/2
+
+hw w i
+
+/Ub
+
+−1
+
+0
+
+0.05
+′
+
+′ 1/2
+
+hw w i
+
+0.1
+/Ub .
+
+Figure 3. Profiles of the rms of the streamwise and cross stream velocity components at two
+different positions along one edge. Streamwise component, hu′ u′ i1/2 /Ub , at z/h = −0.3 (a) and
+at z/h = −0.7 (b). Cross stream component, hw′ w′ i1/2 /Ub , at z/h = −0.3 (c) and at z/h = −0.7
+(d). Lines and symbols same as in figure 2
+
+a Reynolds number of Reb = Ub h/ν = 3535. A Dantec model 60X two-component LDV
+system was used to obtain the instantaneous axial and wall-normal velocity components
+at 37 × 40 positions in one quadrant of the full cross-section 136 h downstream of the
+duct inlet. The spanwise component was also obtained from the wall-normal one under
+the assumption of symmetry with respect to the corner bisector of the duct. The laser
+light source of the LDV system is 6W Argon-ion laser Spectra-Physics 2017, and Doppler
+signals were processed by Dantec burst spectral analyzer 57X20, 57X35. The dimension of
+the measuring volume was 48µm×48µm×399µm in the axial, wall-normal, and spanwise
+
+Reynolds number dependence of mean flow structure in square duct turbulence
+
+7
+
+1.5
+
+1
+|ν∂hui/∂z|
+τw
+
+0.5
+
+0
+−200
+
+−100
+
+0
+
+100
+
+200
+
+y+
+Figure 4. Mean local wall stress, normalized by the average over the whole wall, as a function
+of the distance along the wall in wall units. Symbols indicate the value of the bulk Reynolds
+number: ▽, Reb = 1077; ◦, Reb = 1400; 2, Reb = 1753; △, Reb = 2205; ⋄, Reb = 2600; ∗,
+Reb = 3500
+
+directions respectively. At each measuring position, the data rate of Doppler signals
+ranged from 100Hz to 200Hz, and the total number of the signals was 105 − 1.2 × 105 .
+Next we present a comparison of the aforementioned reference data (numerical and
+experimental) against results obtained with our DNS. All the comparisons will be provided in external units because of the experimental uncertainties in determining the skin
+friction velocity in the experiments. First, we compare and characterize the mean flow.
+Figure 2 (left) shows a nearly perfect collapse of our mean streamwise velocity profile
+(here and throughout the rest of the paper, the operator h i stands for time and streamwise average) as compared to reference data at section z/h = −0.7. In the same figure,
+the profiles of the mean cross-stream velocity component are provided (right) at the same
+section. A certain level of disagreement with the experimental data is clearly visible far
+from the wall. Nonetheless, it should be noted that in the core region hwi is orders of
+magnitude smaller than Ub . Therefore, even small deformation of the turbulence field
+by an uncertainty problem in the experimental apparatus could significantly affect the
+results.
+Next, we compare the profile of the normal Reynolds stresses. In figures 3(a) and
+3(b) profiles of the rms of streamwise velocity fluctuations (i.e., u′ = u − hui) from our
+DNS are compared with the reference data at two different positions along the edge.
+A similar set of profiles, at the same locations, for the rms of the transversal velocity
+component (w′ = w − hwi) is given in figures 3(c) and 3(d) . Our DNS results for the
+normal Reynolds stresses are in excellent agreement with the experimental data. The
+comparison with the data of Gavrilakis (1992) again yields a very close match, except for
+the profile in figure 3(b) (i.e. for hu′ u′ i1/2 /Ub at z/h = −0.7), where a visible difference
+is observed from the buffer layer outward. This discrepancy is probably due to the fact
+that the time interval during which statistics were accumulated was substantially shorter
+in the study of Gavrilakis.
+
+8
+
+A. Pinelli, M. Uhlmann, A. Sekimoto and G. Kawahara
+
+4. Reynolds Number Dependence
+Despite extensive study of the turbulent flow in a square duct using a variety of numerical
+techniques there remain significant questions about the scaling properties of the mean
+secondary flow and the associated distortion of the mean streamwise velocity profile.
+In what follows we will address the scaling of characteristic positions related to cross
+stream and streamwise mean motion within a range of marginal to low Reynolds numbers
+(Reb ≤ 3500). In this framework we will propose a physical explanation, in terms of
+coherent structure dynamics, of the pattern and scaling of the mean secondary motion.
+All the simulations have been carried out in a careful manner with a time step such
+that CF L ≤ 0.25 while keeping the slip error below 0.5 × 10−4 Ub and by choosing the
+number of collocation nodes to guarantee a grid spacing verifying ∆x+ ≤ 15, and 0.05 ≤
+∆y + ≤ 5 (same spacing criterion for ∆z + ). Statistical quantities were accumulated over
+time intervals tstat Ub /h ≥ 7000. Also, all the computations have been carried out using
+comparable domain sizes: [−1, 1] × [−1, 1] × Lx /h, with Lx = 10.97 h to 12.57 h.
+4.1. Mean streamwise structure
+Firstly, in order to characterize the shape of the mean streamwise profile, we present in
+figure 4 the mean local wall stress along one edge in wall coordinates. The skin friction
+coefficients, obtained averaging in time and along the streamwise direction, are in good
+1
+1
+agreement with the empirical formula: f − 2 = 2 log10 (2.25 Reb f 2 ) − 0.8, f being the
+skin friction factor defined by f = 8u2τ /Ub2 (Jones 1976). At this level, it is important to
+mention that the above given empirical formula estimates that the length of the edge of
+the square in wall units spans the range 2 h+ ∈ [160, 450] for the considered interval of
+Reynolds numbers (i.e., Reb ∈ [1077, 3500]). From the dimension of the square, expressed
+in wall units, one may anticipate an upper bound for the number of wall velocity streaks
+statistically facing each one of the four walls since the average distance between streaks of
+different velocity sign is of the order of 50+ (Kim et al. 1987). Therefore, for the lowest
+Reynolds number, one would expect an arrangement of a maximum of three velocity
+streaks, while for the highest an arrangement of a maximum of nine velocity streaks
+can be anticipated. Indeed, this argument is confirmed by figure 4. At the lowest values
+of the Reynolds number the profiles present two maxima and one minimum, indicating
+that a low velocity streak, flanked by two high velocity ones, is located preferentially
+at the center of the edge. At Reb = 2205 and Reb = 2600, the situation changes since
+now the edge, measured in wall units (2h+ ≃ 300 and ≃ 350, respectively), can host up
+to 5 streaks of different sign. Figure 4 reveals that the sequence is, from one corner to
+the mid edge location, high-low-high with a high velocity streak located preferentially
+close to the center of the edge. At even higher Reb more extrema can be detected but
+their values far from the corners have a clear trend to smooth out approaching the wallaveraged mean value. On the other hand, a persistent fast streak is always detected close
+to the corner (visible in figure 4 close to the extrema). The reason for the flattening
+of the local mean skin friction coefficient is strongly related to the relaxation of the
+aforementioned geometrical constraint: at very low Reynolds number the positioning
+of the streaks is imposed by the geometry; when increasing the Reynolds number, the
+probability of finding either a high or a low velocity streak at a certain edge position,
+except in the corner region, becomes more and more uniform like in the case of turbulent
+Poiseuille flow. The discrete dependency of the number of allowed streaks as a function
+of the Reynolds number also reflects upon the distance to the corner of the high and low
+velocity streaks closest to it. As can be seen in figure 5, at low Reynolds numbers (i.e.,
+1077 ≤ Reb ≤ 2000) the low velocity streak is preferentially located at the center of the
+edge, since the half width of the edge, scaled in wall units h+ , increases correspondingly
+
+Reynolds number dependence of mean flow structure in square duct turbulence
+
+9
+
+150
+
+125
+
+100
+
+d+
+w
+
+75
+
+50
+
+25
+1000
+
+1500
+
+2000
+
+2500
+
+3000
+
+3500
+
+Reb
+Figure 5. Distance to the corner d+
+w , in wall units, of the location along the edge of maximum
+and minimum of τw closest to the corner as a function of Reb . ◦ is the position of maximum
+shear, the crosses represent the position of the location of minimum shear. Different crosses are
+used to highlight the discrete behavior of low velocity streak positioning. Dashed line is duct
+half width in wall units h+ as a function of Reb .
+
+The location of maximum shear has a clear trend to level off with increasing Reb at a value
+of about 50+ units. On the other hand, at approximately Reb = 2000 (corresponding
+to Reτ ≃ 120), the position of the minimum has a sharp change indicating that the
+wall, above this value, is hosting an average of 5 streaks. At higher Reynolds numbers,
+other jumps will probably appear consistently with the appearance of more velocity
+streaks on average along the edge. As further evidence of preferential streak locations
+as a function of Reynolds number, in figure 6 the time evolution of the location of low
+speed streaks along one edge is given in viscous coordinates at different bulk Reynolds
+numbers. These locations are instantaneously identified as the position of the minimum
+values of streamwise averaged wall shear stress. It can be seen that at the lowest Reynolds
+number a single low speed streak smoothly meanders about the center of the edge. When
+increasing the Reynolds number more than one simultaneous streak is detected. At the
+highest Reynolds number the path followed by the low speed streaks becomes less and
+less predictable without displaying any favorite positioning. This behavior is consistent
+with the observed flattening of the local mean skin friction of figure 4. Also, it should be
+noted that regions close to the corners (i.e., y + ≃ ±200) are seldom visited by low speed
+streaks. A more quantitative analysis can be obtained by considering the probability
+density function (p.d.f.) of the positioning of low and high speed streaks along the edge
+together with their intensities. In figure 7 the p.d.f. of the locations of low velocity streaks
+is presented in both outer and inner units. It is observed that an increase of the Reynolds
+number has the effect of equidistributing the probability of finding a low speed streak
+along the edge, except close to the corner region where the probability goes to zero,
+irrespective of the Reynolds number. Also, it can be noticed that the appearance of new
+local extrema in the p.d.f. is consistent with the jumps in the locations of the distance
+to the corner of the point of minimal wall shear when increasing the Reynolds number
+
+10
+
+A. Pinelli, M. Uhlmann, A. Sekimoto and G. Kawahara
+
+a) 50
+
+0
+
+y + −50
+
+0
+
+1000
+
+2000
+
+3000
+
+4000
+
+5000
+
+6000
+
+7000
+
+4000
+
+5000
+
+6000
+
+7000
+
+4000
+
+5000
+
+6000
+
+7000
+
+4000
+
+5000
+
+6000
+
+7000
+
+tu2τ /ν
+b)
+y+
+
+100
+0
+−100
+0
+
+1000
+
+2000
+
+3000
+tu2τ /ν
+
+c)
+
+100
+
+y+
+
+0
+−100
+0
+
+1000
+
+2000
+
+3000
+tu2τ /ν
+
+200
+d)
+y+
+
+0
+
+−200
+0
+
+1000
+
+2000
+
+3000
+tu2τ /ν
+
+Figure 6. Time evolution of position of minimum of the streamwise averaged wall shear stress
+at z/h = 1: a) Reb = 1100, b) Reb = 1500, c) Reb = 2205 and d) Reb = 3500.
+
+(cf. figure 5). In figure 8, the same analysis as in figure 7 is given for the high velocity
+streaks. At the lowest value of Reb the most probable scenario are two high velocity
+streaks flanking a low velocity one preferentially located at the edge midpoint. As for the
+case of low velocity streaks, when increasing Reynold number the probability of finding a
+high velocity streak along the edge becomes more and more uniform. The only locations
+that display a higher probability of hosting high speed streaks are the corner regions as
+opposed to the preferential absence of low velocity ones.
+4.2. Mean cross flow structure
+When focusing upon the mean value of the cross-stream velocity components, the well
+known pattern of mean secondary flow in the cross-plane of the square duct consisting of
+eight vortices, one counter-rotating pair being located above each of the four wall planes
+is observed. Their sense of rotation is such that the secondary flow on the diagonals is
+directed towards the corners (Gavrilakis 1992). Figure 9 displays isolines of the mean
+cross streamfunction hψi(y, z) computed from ∇2 hψi(y, z) = −hωx i for three different
+Reynolds numbers (Reb = 1077, Reb = 2205 and Reb = 3500). Qualitatively, the figure
+shows that the pattern of the secondary cross mean flow is more and more stretched as Reb
+increases. A possible conjecture to explain the distorsion of the mean cross motion can be
+given in terms of superposition of contributions from instantaneous streamwise vorticity
+at different scales. At the lowest Reynolds number value, the flow is marginally turbulent:
+production and dissipation scales are not separated and their statistical footprint leads to
+
+Reynolds number dependence of mean flow structure in square duct turbulence
+4
+
+0.09
+
+3.5
+
+0.08
+0.07
+
+3
+
+a)
+
+11
+
+b) 0.06
+
+2.5
+
+0.05
+
+2
+0.04
+
+1.5
+
+0.03
+
+1
+
+0.02
+
+0.5
+
+0.01
+
+0
+−1
+
+−0.5
+
+0
+
+0.5
+
+0
+0
+
+1
+
+50
+
+100
+
+150
+
+200
+
+250
+
+h+ + y +
+
+y/h
+
+Figure 7. Probability density function of low speed streak positions computed considering the
+instantaneous location of the minimum value of wall skin friction: a) in outer units and b) in
+inner units (the origin has been translated to the corner). Lines correspond to: ——, Reb = 1100;
+—•—, Reb = 1500; -- · -- · -- , Reb = 2200; - - - -, Reb = 3500.
+2.5
+
+0.08
+0.07
+
+2
+0.06
+
+b)
+
+a)
+1.5
+
+0.05
+0.04
+
+1
+
+0.03
+0.02
+
+0.5
+0.01
+
+0
+−1
+
+−0.5
+
+0
+
+y/h
+
+0.5
+
+1
+
+0
+0
+
+50
+
+100
+
+150
+
+200
+
+250
+
+h+ + y +
+
+Figure 8. Probability density function of high speed streak positions computed considering the
+instantaneous location of the maximum value of wall skin friction: a) in outer units and b) in
+inner units (the origin has been translated to the corner). Lines and symbols as in figure 7.
+
+a smooth secondary flow as shown in Uhlmann et al. (2007). At higher Reynolds number
+values, vortical structures on a wider scale range appear. A lower bound for the latter
+are the quasi streamwise vortices associated with near-wall velocity streaks (dissipation
+scale). An upper bound is determined by the geometrical constraints (largest scales). In
+figure 10, contours of hωx i(y, z) are given at the same three Reynolds numbers considered
+in figure 9. At Reb = 1077, the pattern of mean streamwise vorticity resembles the one of
+the mean streamfunction, except for the layer of mirrored wall vorticity. At higher Reb
+values, the shapes of mean streamwise vorticity and streamfunction progressively depart
+from each other. In particular, the vortex centers and the stagnation points display a
+completely different behavior.
+A more quantitative analysis of the dependence of the extrema of hωx i(y, z) and
+hψi(y, z) upon the Reynolds number is shown in figures 11 and 12. Here, the positions
+of the extrema in terms of distance from the wall at z/h = −1 and distance from the
+wall at y/h = −1 of the mean isolines below the bisector in the quadrant [−1, 0] × [−1, 0]
+are given in both external and wall coordinates as a function of Reb and Reτ . It is
+clearly observed that when increasing the Reynolds number the location of the extrema
+of mean vorticity and streamfunction separates. Also, the discrete change of the number
+
+12
+
+A. Pinelli, M. Uhlmann, A. Sekimoto and G. Kawahara
+(a)
+
+y
+h
+
+(b)
+
+(c)
+
+0
+
+0
+
+0
+
+−0.25
+
+−0.25
+
+−0.25
+
+y
+h
+
+−0.5
+
+−0.75
+
+−1
+−1
+
+y
+h
+
+−0.5
+
+−0.75
+
+−0.75
+
+−0.5
+
+−0.25
+
+−1
+−1
+
+0
+
+−0.5
+
+−0.75
+
+−0.75
+
+z/h
+
+−0.5
+
+−0.25
+
+−1
+−1
+
+0
+
+−0.75
+
+z/h
+
+−0.5
+
+−0.25
+
+0
+
+z/h
+
+Figure 9. Streamlines hψi(y, z) of secondary mean flow computed using hvi and hwi averaged
+over all quadrants (with increment [maxhψi−minhψi]/30). Dashed lines correspond to clockwise
+rotation, continuous lines to counterclockwise motion. (a) Reb = 1077; (b) Reb = 2205 and (c)
+Reb = 3500. Only [−1, 0] × [−1, 0] quadrant shown.
+(a)
+
+y
+h
+
+(b)
+
+(c)
+
+0
+
+0
+
+0
+
+−0.25
+
+−0.25
+
+−0.25
+
+y
+h
+
+−0.5
+
+−0.75
+
+−1
+−1
+
+y
+h
+
+−0.5
+
+−0.75
+
+−0.75
+
+−0.5
+
+z/h
+
+−0.25
+
+0
+
+−1
+−1
+
+−0.5
+
+−0.75
+
+−0.75
+
+−0.5
+
+z/h
+
+−0.25
+
+0
+
+−1
+−1
+
+−0.75
+
+−0.5
+
+−0.25
+
+0
+
+z/h
+
+Figure 10. Iso-contours of hωx i(y, z) of secondary mean flow averaged over all quadrants (with
+increment [maxhωx i−minhωx i]/30). Dashed lines correspond to negative values, continuous lines
+to positive ones. (a) Reb = 1077; (b) Reb = 2205 and (c) Reb = 3500. Only [−1, 0] × [−1, 0]
+quadrant shown.
+
+of allowed streaks along the edge, as previously discussed, reflects clearly in the jump
+of the tangential distance (i.e. the distance to z/h = −1) of the minimum of hωx i at
+Reb ≃ 2000 (Reτ ≃ 150) as reflected in figure 11(a, b). This observation provides further
+evidence that the pattern of the mean streamwise vorticity is associated with the near
+wall coherent structures. Indeed, the position of the minimum of the mean streamwise
+vorticity has a clear trend to scale with viscous units, indicating a dependence on the
+wall structures. Moreover, the distance to the wall at z/h = −1 expressed in viscous
+units remains relatively constant and approximately corresponds to the position of the
+maximum of hωx′ ωx′ i in a plane channel flow (Jiménez & Moin 1991) that is located
+between 20+ and 30+ .
+When considering the locations of the extrema of the streamfunction at higher Reynolds
+numbers a different behavior is found. The normal distance of the stagnation point scales
+in external units (c.f. figure 12). Such a behavior of the stream function of the mean cross
+components of velocity when increasing Reb suggests that organized large scale velocity
+structures may participate in determining the shape of the mean secondary cross flow.
+The large scale motions are of course bounded in size by the geometrical dimension of
+the duct and therefore, one may expect the mean cross-stream motion to display pat-
+
+Reynolds number dependence of mean flow structure in square duct turbulence
+1
+
+13
+
+125
+
+(a)
+
+(b)
+0.8
+
+100
+
+0.6
+
+75
+
+s+
+
+s/h
+0.4
+
+50
+
+0.2
+
+25
+
+0
+
+1000
+
+1500
+
+2000
+
+2500
+
+3000
+
+3500
+
+0
+50
+
+4000
+
+100
+
+Reb
+
+150
+
+200
+
+250
+
+Reτ
+
+Figure 11. Positions of extrema of hωx i: (a) external coordinates vs Reb and (b) wall coordinates
+vs Reτ . Symbols: ◦ distance to z/h = −1; × distance to y/h = −1 (see dashed lines in figure 10)
+1
+
+125
+
+(a)
+
+(b)
+0.8
+
+100
+
+0.6
+
+75
+
+s/h
+
+s+
+0.4
+
+50
+
+0.2
+
+25
+
+0
+
+1000
+
+1500
+
+2000
+
+2500
+
+Reb
+
+3000
+
+3500
+
+4000
+
+0
+50
+
+100
+
+150
+
+200
+
+250
+
+Reτ
+
+Figure 12. Positions of extrema of hψi(y, z): (a) external coordinates vs Reb and (b) wall
+coordinates vs Reτ . Symbols: ◦ distance to z/h = −1; × distance to y/h = −1 (see solid lines
+in figure 9)
+
+terns that scale with the dimension of the latter (i.e., occupying the entire cross section)
+independently of the value of Reb .
+Further evidence of the direct relation between coherent structures and mean secondary
+vorticity can be provided by carrying out a vortex eduction study. Here we extend the
+analysis of Uhlmann et al. (2007) to higher Reynolds numbers. In particular, we have
+detected coherent vortices in each cross-sectional plane of a number of instantaneous
+flow fields by means of the criterion proposed by Kida & Miura (1998): vortex cores are
+detected by identifying low pressure regions with an additional condition for swirling
+motion. The educed positions of coherent vortex centers have been stored together with
+the corresponding local value of the streamwise vorticity for a Reynolds number of Reb =
+2200. The resulting probability of occurrence of negative vortex centers is shown in
+figure 13(a). In figure 13(b) the occurrence of positive vortex centers is displayed. Finally,
+in figure 13(c) the algebraic difference, averaged over the four quadrants, of the p.d.f given
+in (b) and the p.d.f in (a) is shown. The original difference (not shown) is relatively noisy,
+which stems from the fact that we are computing a field quantity from a discrete set of
+vortex centers. For this reason we have computed the mean between the quadrants.
+We observe that the local maxima of the p.d.f. of the vortex positions, when taking into
+account the sign of rotation, bear a clear resemblance to the mean secondary flow vorticity
+
+14
+
+A. Pinelli, M. Uhlmann, A. Sekimoto and G. Kawahara
+
+pattern accumulated over the same interval (cf. figure 10b). This observation confirms
+that the mean streamwise vorticity pattern is a statistical portrait of the most probable
+locations of the quasi-streamwise vortices that are preferentially located in the corner
+regions. Furthermore, figure 13(c) presents a distribution of the p.d.f. in the close-to-thewall regions consistent with the fact that, at this Reynolds number (i.e., Reb = 2200), the
+most probable configuration on each edge is of two stronger high velocity streaks close
+to the corners and a milder one at the edge center (see figure 8). Indeed, the preferential
+location of the quasi-streamwise vortices (two counter rotating cores for each octant)
+induces a preferential positioning of fast velocity streaks in the same regions.
+
+5. Conclusions
+We have presented a numerical technique to simulate turbulent flows in infinitely long
+square ducts at constant flow rate. The numerical method has been validated against
+data from reference DNS and laboratory experiments.
+Our analysis of the DNS results has focused upon the dynamical mechanisms that
+lead to the behavior of mean velocity values when increasing the Reynolds number:
+deformation of the mean streamwise velocity and the shape of mean secondary flow. It has
+been found that the mean streamwise velocity component depends upon the number of
+statistically allowed velocity streaks in the square. When increasing the Reynolds number
+the variation of wall shear along the spanwise coordinate smoothes out gradually except
+in the corner region where low velocity streaks are inhibited. In order to understand
+the scaling of the mean cross stream velocity components, we have considered both the
+behavior of the mean streamwise vorticity and of the mean cross stream function. The
+two quantities are shown to collapse at the lowest Reynolds number while progressively
+departing from each other when increasing the Reynolds number value. Evidence has
+been given that mean streamwise vorticity strongly depends upon statistically preferred
+location of the quasi-streamwise vortices associated with the pair of fast/slow streaks
+closest to the corner. Therefore a viscous scaling can be stated for such a mean quantity.
+On the other hand it has been found that the positions of the stagnation points of the
+mean cross flow streamfunction do not scale in viscous units but rather in external ones.
+The difference between the behavior of mean streamwise vorticity and mean streamfunction in the crossflow plane stems from the fact that the latter is obtained as the
+solution of a Poisson equation (∇2 hψi = −hωx i) with the former as r.h.s. Therefore, the
+streamfunction exhibits non-local behavior (i.e. vorticity at any location influences the
+streamfunction everywhere), much alike the dependence between the pressure field and
+the divergence of the convective terms. As a consequence, there is no obvious reason why
+both quantities should scale equally. The precise implications of the relation between
+mean vorticity and streamfunction in duct flow, however, is beyond the scope of the
+present paper.
+Within the considered range of Reynolds numbers, evidence has been given that the
+mean properties of the flow field depend upon the preferred positioning of buffer layer
+coherent structures. In particular, below Reb ≃ 2000 all the flow scales collapse, thus
+making all the mean quantities a direct footprint of the actual most probable location
+of those structures: mean streamwise vorticity, mean cross stream function and the loci
+of the extrema of wall shear stress. At bulk Reynolds numbers higher than 2200, the
+influence of the coherent structures just reflects in the shape of the mean streamwise
+vorticity field and in the location of the local maximum of wall stress closest to the
+corner. The range of Reb around 2100 is a transitional regime in which the region facing
+the edge bisector starts behaving like a plane channel flow.
+
+Reynolds number dependence of mean flow structure in square duct turbulence
+(a)
+
+(b)
+
+1
+
+y
+h
+
+−1
+−1
+
+(c)
+1
+
+1
+
+y
+h
+
+0
+
+0
+
+z/h
+
+1
+
+y
+h
+
+0
+
+−1
+−1
+
+15
+
+0
+
+z/h
+
+1
+
+0
+
+−1
+−1
+
+0
+
+1
+
+z/h
+
+Figure 13. Statistical data for the case with Reb = 2205 and Lx /h = 4π, accumulated from
+1000 flow fields over a time interval of 1000h/Ub . (a) gray levels indicate .1(.1).9 times the
+maximum probability of occurrence of vortex centers with negative streamwise vorticity (white
+maximum, black minimum); (b) the probability for vortices with positive streamwise vorticity;
+(c) the difference of the probabilities of the location of positive (b) and negative vortex centers
+(a) averaged on the four quadrants (replicated on each quadrant for convenience).
+
+In this range of Reynolds numbers the shape of the mean streamwise vorticity field,
+the local maximum of the wall shear near the corner, the local maximum of the wall
+shear on the wall bisector and the local minimum of the wall shear near the corner can
+be related to the distribution of the coherent structures.
+To further investigate the eventual role of other, larger scales upon the mean flow
+structure higher Reynolds number simulations will be undertaken in the future.
+The collaboration between the groups was supported by the Center of Excellence for
+Research and Education on Complex Functional Mechanical Systems (COE program of
+the Ministry of Education, Culture, Sport, Science, and Technology of Japan). M.U. was
+supported by the Spanish Ministry of Education and Science under contract DPI-2002040550-C07-04. G.K. was partially supported by a Grant-in-Aid for Scientific Research
+(B) from the Japanese Society for the Promotion of Science.
+REFERENCES
+Biau, D., Soueid, H. & Bottaro, A. 2008 Transition to turbulence in duct flow. J. Fluid
+Mech. 596, 133–142.
+Brown, D.L., Cortez, R. & Minion, M.L. 2001 Accurate projection methods for the incompressible Navier-Stokes equations. J. Comput. Phys. 168, 464–499
+Brundrett, E. & Baines, W. 1964 The production and diffusion of vorticity in duct flow. J.
+Fluid Mech. 19, 375–394.
+Gavrilakis, S. 1992 Numerical simulation of low-Reynolds-number turbulent flow through a
+straight square duct. J. Fluid Mech. 244, 101–129.
+Gessner, F. 1973 The origin of secondary flow in turbulent flow along a corner. J. Fluid Mech.
+58, 1–25.
+Haldenwang, P., Labrosse, G., Abboudi, S. & Deville, M. 1984 Chebyshev 3-d spectral
+and 2-d pseudo-spectral solvers for the Helmholtz equation. J. Comput. Phys. 55, 115–128.
+Huser, A. & Biringen, S. 1993 Direct numerical simulation of turbulent flow in a square duct.
+J. Fluid Mech. 257, 65–95.
+Jiménez, J. & Moin, P. 1991 The minimal flow unit in near-wall turbulence. J. Fluid Mech.
+225, 213–240.
+Jones, O. 1976 An improvement in the calculation of turbulent friction in rectangular ducts.
+ASME J. Fluids Eng. 98, 173–181.
+
+16
+
+A. Pinelli, M. Uhlmann, A. Sekimoto and G. Kawahara
+
+Kawahara, G., Ayukawa, K., Ochi, J. Ono, F. & Kamada, E. 2000 Wall shear stress and
+Reynolds stresses in a low Reynolds number turbulent square duct flow Trans. JSME B
+66 (641), 95–102, (in Japanese).
+Kida, S. & Miura, H. 1998 Swirl condition in low-pressure vortices. J. Phys. Soc. Japan 67 (7),
+2166–2169.
+Kim, J., Moin, P. & Moser, R.D. 1987 Turbulence statistics in fully developed channel flow
+at low Reynolds number. J. Fluid Mech. 177, 133–166.
+Madabhushi, R.K. & Vanka, S. P. 1991 Large eddy simulation of turbulence-driven secondary
+flow in a square duct. Phys. of Fluids A 3 (11), 2734–2745.
+Melling, A. & Whitelaw, J. 1976 Turbulent flow in a rectangular duct. J. Fluid Mech. 78,
+289–315.
+Nikuradse, J. 1926 Untersuchungen über die Geschwindigkeitsverteilung in turbulenten
+Strömungen. PhD Thesis, Göttingen. VDI Forsch. 281.
+Prandtl, L. 1926 Über die ausgebildete turbulenz. Verh. 2nd Intl Kong. Fur Tech. Mech.,
+Zurich [English transl. NACA Tech. Memo. 435]
+Uhlmann, M., Pinelli, A., Kawahara,. G. & Sekimoto, A. 2007 Marginally turbulent flow
+in a square duct. J. Fluid Mech. 588, 153–162.
+Verzicco, R. & Orlandi, P. 1996 A finite-difference scheme for three-dimensional incompressible flows in cylindrical coordinates. J. Comput. Phys. 123, 402–414.
+
+

@@ -1,0 +1,165 @@
+# Capture of https://turbmodels.larc.nasa.gov/Other_LES_Data/2dhill_periodic.html (redirected to https://tmbwg.github.io/turbmodels/Other_LES_Data/2dhill_periodic.html) captured 2026-08-05 by Certonomous lab
+
+LES: 2-D Periodic Hill
+
+ [LINK:#main-content] 
+
+ 
+ 
+
+ 
+
+ 
+ 
+ 
+
+ Turbulence Modeling Resource
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+LES: 2-D Periodic Hill
+
+Return to: [LINK:../other_les.html] Data from LES - Intro Page
+
+Return to: [LINK:../index.html] Turbulence Modeling Resource Home Page
+
+ 
+
+The data on this page were provided by [LINK:mailto:lionel.temmerman@numeca.be] L. Temmerman, Y. Bentaleb, and M. Leschziner.
+
+This LES case is for 2-D separating flow over periodic hills.
+This is a similar case to that computed using DNS with a compressible code, documented on the page:
+ [LINK:../Other_DNS_Data/2dhill_periodic_compress.html] DNS: 2-D Compressible Periodic Hill; however this LES is at a higher Reynolds number.
+The LES was run using an incompressible code, and has been documented in several publications:
+
+Frohlich, J., Mellen, C. P., Rodi, W., Temmerman, L., and
+Leschziner, M. A., 2005. "Highly resolved large-eddy simulation of
+separated flow in a channel with streamwise
+periodic constrictions," J. Fluid Mech. 526, pp. 19-66,
+ [LINK:https://doi.org/10.1017/S0022112004002812] https://doi.org/10.1017/S0022112004002812.
+
+Temmerman, L., Leschziner, M. A., Mellen, C. P., and 
+Frohlich, J., 2003.
+"Investigation of wall-function approximations and
+subgrid-scale models in large eddy simulation of separated
+flow in a channel with streamwise periodic constrictions," Int. J. Heat and Fluid Flow 24, pp. 157-180,
+ [LINK:https://doi.org/10.1016/S0142-727X(02)00222-9] https://doi.org/10.1016/S0142-727X(02)00222-9.
+
+Jang, Y. J., Leschziner, M. A., Abe, K., and Temmerman, L., 2002.
+"Investigation of Anisotropy-Resolving Turbulence
+Models by Reference to Highly-Resolved LES Data
+for Separated Flow," Flow, Turbulence, and Combustion 69, pp. 161-203,
+ [LINK:https://doi.org/10.1023/A:1024764307706] https://doi.org/10.1023/A:1024764307706.
+
+Temmerman, L. and Leschziner, M. A., 2001.
+"Large Eddy Simulation of separated flow in a streamwise periodic channel construction,"
+Int. Symp. on Turbulence and Shear Flow Phenomena, Stockholm, June 27-29.
+
+Mellen, C. P., Frohlich, J., and Rodi, W., 2000.
+"Large Eddy Simulation of the flow over periodic hills," 16th IMACS World Congress, Lausanne. 
+
+A subset of this LES data is also available on the 
+ [LINK:http://cfd.mace.manchester.ac.uk/ercoftac] ERCOFTAC Database Classic Collection, Case 81.
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+Some relevant information is given here, but the 
+interested reader is referred to the above publications (or ERCOFTAC website) for complete details:
+
+Hill crest, h = 28 mm
+
+Hill crests are separated by Lx = 9h
+
+Channel height Ly = 3.035h
+
+Reynolds number (based on Ub and h) = 10595
+
+Ub is the bulk velocity at the crest of the first hill
+
+The flow is periodic in the streamwise direction
+
+Separation is near x=0.2h and reattachment is near 4.6-4.7h
+
+Long-time averaged LES data are provided below (on a grid
+normalized to hill height h=1).
+These results are from a grid with approximately 4.7 million grid cells, covering a spanwise extent of 4.5 h with 186 cells in the
+spanwise direction.
+Additional details about the LES grid and methodology can be found in the above 
+references.
+
+ [LINK:2Dhill_periodic/hill-geometry.dat] 
+ Hill geometry definition
+
+ [LINK:2Dhill_periodic/README_gridpoints_hill.txt] README_gridpoints_hill.txt
+
+ [LINK:https://www.nasa.gov/wp-content/uploads/2025/11/hill-grid-dat.zip?emrc=69669f40bd6f3] 
+ Grid points in x-y plane, zipped file hill_grid.dat.zip
+
+ 
+
+ [LINK:2Dhill_periodic/README_p_vel_and_turb_hill.txt] README_p_vel_and_turb_hill.txt
+
+ [LINK:https://www.nasa.gov/wp-content/uploads/2025/11/hill-les-avgresults-dat.zip?emrc=69669f40bddcd] 
+ Average pressures, velocities & turbulence quantities, zipped file hill_LES_avgresults.dat.zip
+
+ 
+
+ [LINK:2Dhill_periodic/README_budgets_hill.txt] README_budgets_hill.txt
+
+ [LINK:https://www.nasa.gov/wp-content/uploads/2025/11/hill-les-budgets-all-dat.zip?emrc=69669f40be013] 
+ Budget terms, zipped file hill_LES_budgets_all.dat.zip
+
+Note:
+related experimental data and different LES and DNS results for the 2-D hill are available from the 
+ [LINK:https://kbwiki.ercoftac.org/w/index.php?title=Abstr:2D_Periodic_Hill_Flow] ERCOFTAC Knowledge Base Wiki,
+case number UFR3-30.
+
+ 
+
+ 
+
+Auxiliary postprocessed information (not part of the original LES data set
+from Temmerman et al):
+
+ [LINK:2Dhill_periodic/README_vel_derivs_hill.txt] README_vel_derivs_hill.txt
+
+ [LINK:https://www.nasa.gov/wp-content/uploads/2025/11/hill-les-vel-derivs-derived-dat.zip?emrc=69669f40bdb6b] 
+ Postprocessed velocity derivatives, zipped file hill_LES_vel_derivs-derived.dat.zip
+
+ [LINK:2Dhill_periodic/hill_LES_cf_digitized.dat] Approximate wall Cf from LES (digitized)
+
+ 
+
+Return to: [LINK:../other_les.html] Data from LES - Intro Page
+
+Return to: [LINK:../index.html] Turbulence Modeling Resource Home Page
+
+ 
+
+ 
+
+ 
+
+Page Curators: [LINK:mailto:ethan.a.vogel@nasa.gov] Ethan Vogel,
+ [LINK:mailto:clark.c.pederson@nasa.gov] Clark Pederson 
+
+Last Updated: 01/13/2026

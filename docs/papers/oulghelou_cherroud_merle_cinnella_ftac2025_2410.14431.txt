@@ -1,0 +1,3303 @@
+Machine-learning-assisted Blending of
+Data-Driven Turbulence Models
+
+arXiv:2410.14431v2 [physics.flu-dyn] 3 Mar 2025
+
+Mourad Oulghelou1,2*† , Soufiane Cherroud3† , Xavier Merle3 ,
+Paola Cinnella1
+1* Institut Jean Le Rond D’Alembert, Sorbonne Université,
+
+4 Place Jussieu, Paris, 75005, France.
+2 Computing and Data Science Institute, Sorbonne Université,
+
+4 Place Jussieu, Paris, 75005, France.
+3 DynFluid Laboratory, Arts et Métiers Institute of Technology,
+
+155 bd. de l’Hôpital, Paris, 75013 , France.
+*Corresponding author(s). E-mail(s):
+mourad.oulghelou@sorbonne-universite.fr;
+Contributing authors: soufiane.cherroud@ensam.eu;
+xavier.merle@ensam.eu; paola.cinnella@sorbonne-universite.fr;
+† These authors contributed equally to this work.
+Abstract
+We present a machine learning–based framework for blending data-driven turbulent closures in the Reynolds-Averaged Navier–Stokes (RANS) equations, aimed
+at improving their generalizability across diverse flow regimes. Specialized models
+(hereafter referred to as “experts”) are trained via sparse Bayesian learning and
+symbolic regression for distinct flow classes, including turbulent channel flows,
+separated flows, and a near sonic axisymmetric jet. These experts are then combined intrusively within the RANS equations using weighting functions, initially
+derived via a Gaussian kernel on a dataset spanning equilibrium shear conditions
+to separated flows. Finally, a Random Forest Regressor is trained to map local
+physical features to these weighting functions, enabling deployment in previously
+unseen scenarios. We evaluate the resulting blended model on three representative
+test cases: a turbulent zero-pressure-gradient flat plate, a wall-mounted hump,
+and a NACA0012 airfoil at various angles of attack, ranging from fully attached to
+near-stall conditions. Results for these 2D flows show that the proposed strategy
+adapts to local flow characteristics, effectively leveraging the strengths of individual models and consistently selecting the most suitable expert in each region.
+
+1
+
+Notably, the blended model also demonstrates robustness for flow configurations
+not included in the training set, underscoring its potential as a practical and
+generalizable framework for RANS turbulence modeling.
+Keywords: Data-driven models, Symbolic Regression, Model mixtures, turbulence
+models
+
+1 Introduction
+Turbulence models are a crucial component of Computational Fluid Dynamics (CFD)
+solvers for engineering applications, which mostly rely on the Reynolds-Averaged
+Navier-Stokes (RANS) equations. Most modeling efforts target unclosed terms, known
+as Reynolds Stresses, which represent the contribution of the unresolved turbulent
+scales to the transport of mean flow momentum. Although a considerable number
+of models have been developed with varying degrees of success in predicting flows
+(see [1–5] for overviews), none has been shown to be systematically superior or hopeless [1], and turbulence modeling continues to be an active area of research [6]. Most
+RANS turbulence models are known to face challenges with complex flows involving
+turbulence nonequilibrium, strong gradients, separations, shocks, and 3D effects. The
+shortcomings are particularly significant for the so-called linear eddy viscosity models (LEVM), which rely on Boussinesq’s hypothesis of a linear relationship between
+the turbulent stresses and the mean flow deformation [3, 7]. Despite their limitations, LEVM remain the most widely used turbulence models in industrial flow solvers
+because of their good tradeoff between accuracy, computational cost, and robustness.
+Efforts to enhance LEVM include rotation corrections [8], non-linear models [9], elliptic
+relaxation models [10], algebraic and explicit algebraic Reynolds Stress models [11–
+14], and full Reynolds Stress Models [15]. However, most of these more sophisticated
+models have had limited success in CFD applications due to their higher cost and
+lower robustness; they also involve numerous adjustable coefficients, often calibrated
+against a limited set of so-called “canonical flows”, which correspond to simplified turbulence states that, while occurring in subregions of more general flows, are not fully
+representative of the flow behavior in complex configurations. Overall, the variety of
+model formulations and associated closure coefficients represent a significant source of
+uncertainty in flow simulations [16].
+Over the past decade, Machine Learning (ML) has emerged as an attractive
+option for enhancing turbulence models by relaxing some of the simplifying modeling
+assumptions and by leveraging the information contained in high-fidelity data sets
+[16–19]. Various flavors of ML-supported turbulence models have been proposed,
+most of which consist of learning some form of correction terms from the data to
+improve the representation of the Reynolds Stresses, the auxiliary equations used
+to describe the evolution of turbulent scales, or both. The corrections are generally
+learned for specific flow classes, e.g. separated flows [20–24], airfoils [25, 26], wind
+turbine wakes [27], secondary flows [28] and, more rarely, on several flows simultaneously [29, 30]. While data-driven models learned on narrow flow classes can
+
+2
+
+significantly improve accuracy over baseline models, they do not generalize to radically different flows, and often deteriorate the representation of canonical flows for
+which the baseline models where calibrated. On the other hand, multi-flow learning
+may lead to a soft compromise solution, thus limiting potential improvements over
+standard models [31]. Enriching the set of features used to represent the data-driven
+corrections helps improving generalizability but, even so, distinct models are needed
+to accurately represent flows involving different physical processes, i.e. free-shear or
+wall-bounded flows. In addition to multi-flow training, so-called progressive augmentation techniques [32], consisting in learning corrective terms for specific flow classes
+(e.g. separated flows [33] or secondary flows [34]) while preserving the attached
+boundary layer representation, have been shown able to capture a wider set of flows.
+However, complex flows involving various processes simultaneously (e.g. separation
+and secondary flows) may still require the introduction of thresholding functions to
+activate or deactivate each correction as required.
+An attractive alternative is represented by so-called mixture models [35–39], which
+consist in blending together the predictions of a set of competing models. Initially
+introduced for quantifying model-form uncertainties (i.e. uncertainties associated with
+the model mathematical structure) [40–42]), they also offer promise for improving the
+model predictive performance by promoting (downgrading) the component models in
+the mixture in the regions where they perform the worst.
+In a previous work, some of the present authors showed the potential of adopting mixture-of-expert approaches [43, 44] in turbulence modeling [36, 37]. Inspired to
+Bayesian model averaging techniques [45], a convex linear combination of the component model outputs is used to estimate the posterior probability distribution of some
+quantity of interest (QoI), with combination weights trained on high-fidelity data. The
+component models are assigned high weights in regions where they perform best, and
+low ones in regions of high inaccuracy. Such regions are identified through a set of local
+flow features, and weighting functions are learned under the form of input/output relationships between the input features and the local model weights. The latter can be
+interpreted as local model probabilities, and an estimate of the turbulence modeling
+uncertainty can be obtained as the variance of the individual component model solutions. While such “external” or “non-intrusive” mixtures of turbulence model solutions
+have proven effective in predicting a variety of flows not seen at training and in estimating modeling uncertainties [36, 37], their aggregated flow fields are in general not
+a solution of the governing equations, i.e. they do not satisfy mass and energy conservation principles. Furthermore, similar to other uncertainty quantification approaches,
+external model mixtures require a new flow to be simulated multiple times using each
+component model. If NM models are used, the computational cost of the aggregated
+prediction is equivalent to that of NM simulations.
+On the other hand, some authors have proposed internal model blending strategies, which consist of first combining a set of alternative turbulence models and then
+propagating the mixture through the mean flow equations. For instance, [35] and [38]
+have trained classifiers alongside data-driven models, to identify regions where the
+flow is similar to the conditions seen at training. Ref. [39] has proposed an internal
+
+3
+
+model mixture using the posterior variances of stochastic data-driven models (represented as Gaussian processes) to build the weights. It is worth noting that several
+well-established turbulence models in the literature also use heuristic blending functions to activate certain terms in specific flow regions. One the best known examples
+is the k − ω SST model, which was originally developed as a mixture of the k − ϵ and
+k − ω models [46].
+In this work, we build on the space-dependent model aggregation (XMA) approach
+initially proposed in [36] for mixing the predictions of a set of competing turbulence
+models, selected among some popular models from the literature. The methodology
+has been further developed in [37], where the XMA has been used to aggregate the
+solutions of a set of data-driven turbulence models trained on selected flow classes.
+Here, we propose to use XMA for internally blending a set of flow-specific data-driven
+turbulence model corrections, or ”experts”. Like in external XMA, we use weighting functions trained across several flow cases. The blended data-driven corrections
+are then applied to a baseline model and propagated altogether through the RANS
+equations to predict a new flow. Because the resulting flow fields are obtained as solutions of the RANS equations supplemented with the blended data-driven model, they
+satisfy the conservation principles. Furthermore, since a single simulation is now necessary to formulate predictions, the computational cost of the internal blending method
+is reduced compared to external XMA. As a downside, the proposed approach does
+not deliver estimates of the predictive uncertainty as naturally as the external model
+aggregation. The workflows in Figure 1 and Figure 2 illustrate the difference between
+the external model aggregation and the present internal model blending.
+The remainder of this paper is organized as follows. In Section 2, we recall the
+data-driven framework used to train expert models for selected flow classes. Section
+3 introduces the proposed blending strategy and the methodology used to learn the
+model weighting functions. In Section 4, we present and discuss the results for training
+and test two-dimensional turbulent flow scenarios, highlighting the improvements in
+predictive accuracy and physical fidelity. Finally, in Section 5, we draw conclusions
+and outline potential avenues for future research.
+
+2 Data-driven augmentation of RANS models
+We investigate data-driven turbulence models supplementing the incompressible
+RANS equations for a constant-property fluid, written as:
+
+(
+
+∂i Ui
+Uj ∂j Ui
+
+= 0, h
+
+i
+= ∂j − ρ1 P + ν∂j Ui − τij ,
+
+where Ui is the mean velocity, ρ is the constant density, P is the mean pressure and ν
+is the constant kinematic viscosity. The Reynolds-stress τij is the target of modelling.
+This symmetric, positive semi-definite, second-order tensor can be decomposed into
+4
+
+Fig. 1: Workflow of the external model aggregation of [36, 37].
+
+Fig. 2: Workflow of internal model blending (present work).
+
+5
+
+an anisotropic part aij = 2kbij and an isotropic part 23 kδij
+
+
+
+1
+τij = 2k bij + δij ,
+3
+
+(1)
+
+where k is the turbulent kinetic energy and δij the Kroenecker symbol. In the baseline
+model, the non-dimensional anisotropy
+ tensor bij is
+ represented as a linear function of
+∂Uj
+1 ∂Ui
++
+via the scalar eddy viscosity νt :
+the mean-strain rate tensor Sij =
+2 ∂xj
+∂xi
+bij ≈ b0ij = −
+
+νt
+Sij
+k
+
+which is known to be a rather simplistic representation of the physical reality (see e.g.
+[3]).
+Furthermore, additional modeling assumptions are used to relate νt to the mean
+flow variables and turbulent properties. In the k-ω SST model [46], νt is computed
+using two auxiliary transport equations for k and for the specific dissipation rate
+ω. Both equations contain several unclosed terms that are generally modeled on the
+ground of dimensional considerations and empirical closure coefficients. As a consequence, the modeled turbulent kinetic energy budget differs from the exact one, e.g.
+obtained from a well-resolved DNS, and this leads to significant discrepancies between
+the turbulent scales derived from the modeled k and ω and the exact ones.
+Hereafter, we follow the approach initially proposed in [21], and we augment the
+baseline constitutive relation by adding a corrective term b∆
+ij :
+bij = b0ij + b∆
+ij .
+
+(2)
+
+This additive correction, leaving the linear term unaltered, has the benefit of enhanced
+numerical stability [47]. Furthermore, we also augment the k−ω transport equations to
+account for modeling discrepancies with the exact turbulent kinetic energy equation.
+Finally, the augmented transport equations are:
+
+
+
+Uj ∂j k = Pk + Rk − β ∗ ωk + ∂j DkEff ∂j k ,
+
+
+Uj ∂j ω = γ(Pek + Rk ) − βω 2 + ∂j DωEff ∂j ω + CDkω ,
+
+(3)
+(4)
+
+where
+
+
+∗
+Pk = min 2(νt Sij − kb∆
+ij )∂j Ui ; c1 β kω ,
+
+
+√
+c1 ∗
+k
+)∂
+U
+;
+β
+ω
+max{a
+ω;
+b
+F
+S}
+.
+Pek = min 2(Sij − b∆
+j i
+1
+1 2
+νt ij
+a1
+1
+CDkω = 2αω2 (∂i k)(∂i ω),
+ω
+(5)
+6
+
+and the remaining auxiliary equations and parameters of k-ω SST model are given in
+Appendix B. Given k and ω, the eddy viscosity νt is updated as follows
+
+νt =
+
+a1 k
+√
+,
+max(a1 ω, SF23 )
+
+with S = 2Sij Sij
+
+(6)
+
+It is important to note that the transport equations (3) and (4) are augmented with
+the correction term Rk , which corrects the inadequacies in the modeled turbulence
+kinetic energy equation. The target corrective terms b∆
+ij and Rk are extracted from
+high-fidelity data using the k-corrective frozen RANS approach of [21], which consists
+in passively solving the transport equations for the auxiliary turbulent quantities using
+the high-fidelity mean flow data and turbulent kinetic energy. This allows to estimate
+a modeled turbulence time scale ω −1 as well as the residual term Rk . The reader is
+referred to [21, 23] for more details.
+Note that the present data-driven augmentation procedure is not restricted to
+the k-ω SST model and can be extended to other two-equation models, such as the
+k-ϵ model and its variants (see e.g. [48]). Of course, in that case the experts models
+must be retrained using the SBL-SpaRTA algorithm adapted to the new model. In
+the following, we focus on the k-ω SST model, for which data-driven corrections for
+several flow classes have been provided in previous work [37]. .
+
+2.1 Data-driven models : specialized experts
+Modeling ansatzs for the corrective terms b∆
+ij and Rk are obtained by projecting them
+onto an invariant tensor basis. Specifically, the extra anisotropy b∆
+ij is projected onto
+the minimal integrity bases initially proposed in [12] and reformulated in [13]:
+
+b∆
+ij =
+
+10
+X
+n=1
+
+(n)
+
+∗
+αn∆ (I1 , · · · , I5 ) Tij (Sij
+, Ω∗ij ),
+
+(n)
+
+(7)
+
+where the Tij tensor basis is constructed from the non-dimensional strain and rotation
+∗
+rates (Sij
+and Ω∗ij , respectively), and the functions αn depend on a set of associated
+invariants I1 , · · · , I5 . For the two-dimensional flows of interest here, only three of these
+tensor basis functions and two invariants are needed:
+(1)
+
+∗
+∗
+I1 = Smn
+Snm
+,
+
+(2)
+
+I2 = Ω∗mn Ω∗nm ,
+
+∗
+Tij = Sij
+,
+∗ ∗
+∗
+Tij = Sik
+Ωkj − Ω∗ik Skj
+,
+1
+(3)
+∗ ∗
+∗
+∗
+Tij = Sik
+Skj − δij Smn
+Snm
+,
+3
+
+7
+
+1
+∗
+with Sij
+= Sij /ω, Ω∗ij = Ωij /ω and Ωij =
+(∂j Ui − ∂i Uj ). Then, the extra
+2
+anisotropy correction tensor reduces to:
+b∆
+ij =
+
+3
+X
+
+(n)
+
+∗
+αn∆ (I1 , I2 ) Tij (Sij
+, Ω∗ij ).
+
+(8)
+
+n=1
+
+Following [21] and [23], the scalar correction term Rk is expressed as a ”productionlike” term, modeled as the inner product of a second-order symmetric tensor bR
+ij and
+the mean velocity gradient (see [48] for an alternative, ”dissipation-like” formulation):
+Rk = 2k bR
+ij ∂j Ui ,
+
+(9)
+
+∆
+where bR
+ij is represented with the same tensor basis as bij
+
+bR
+ij =
+
+3
+X
+
+(n)
+
+∗
+αnR (I1 , I2 ) Tij (Sij
+, Ω∗ij ).
+
+(10)
+
+n=1
+
+Using the preceding representations, the modeling target is now represented by the
+functions αn∆,R .
+The αn∆ and αnR are learned from data by means of a symbolic regression algorithm.
+Specifically, the Symbolic Bayesian Learning Sparse Regression of Turbulent stress
+Anisotropy (SBL-SpaRTA) of [23] is used to regress the α functions from a large
+dictionary of monomials of the invariants I1 and I2 . The reader is referred to [23] for
+details about the SBL-SpaRTA algorithm.
+
+3 Machine-learning-based model blending
+In [37], SBL-SpaRTA has been used to train data-driven corrections of the k-ω SST
+for various flow cases, including turbulent channel flows, zero-pressure-gradient and
+adverse-pressure-gradient boundary layers, an axisymmetric near-sonic jet, and separated flows. As an outcome, sparse symbolic models have been identified whose
+parameters are endowed with Gaussian posterior probability distributions. Such models have been shown to outperform the other models for flows similar to those used for
+their training, but to be inaccurate when applied to flows significantly different from
+those in their training sets. For instance, the separated flow model and jet model, do
+not predict correctly the law of the wall for attached wall-bounded flows; conversely,
+the attached-flow models perform poorly for separated flows or jets. For that reason,
+we call them ”expert”, ”specialized” or ”customized” models. Notably, models for
+channel flows and boundary layers are found to be quite similar and relatively close
+to the baseline. For this reason, [37] proposes a model aggregation method (XMA) to
+account for the uncertainty introduced by data-driven RANS models for complex flows
+involving multiple physical processes simultaneously (in particular, attached boundary layers, separation, and free shear). While the XMA approach shows potential for
+8
+
+Models
+
+Data-driven corrections
+
+Training cases
+
+∆
+
+MSST
+MANSJ
+
+MSEP
+
+b = [0]
+
+N/A
+
+b∆
+R = [0]
+b∆ = [(0.25 ± 7.26 · 10−3 )] T (1)
+
+PIV of near sonic axisymmetric jet [50]
+
+−5
+b∆
+R = [0] ± 6.55 · 10
+
+LES of periodic-hills (PH) at
+Re = 10595 [51, 52]
+DNS of converging-diverging
+channel (CD) at Re = 13600 [53]
+LES of curved backward-facing step
+(CBFS) at Re = 13700 [54]
+
+b∆ = [(5.21 ± 0.0173)] T (2)
+
+(1)
+b∆
+R = [(0.681 ± 0.02)] T
+
+Table 1: Experts selected for model aggregation.
+
+capturing a diverse set of two-dimensional flows not seen at training, it does not provide a single model, but rather delivers an aggregate of individual model predictions
+along with an uncertainty estimate. The averaged prediction is obtained by simulating the new flow several times with different expert models, and is not expected to
+satisfy the governing equations, as also shown by the workflow in Fig. 1.
+To overcome the limitations of individual expert models and promote generality, we
+follow an idea similar to XMA, but we aggregate the data-driven corrections (internal
+model aggregation or blending) instead than their solutions. This approach is no longer
+an uncertainty quantification method, but provides instead a blended data-driven correction that is expected to be more universal than the component expert models. For
+simplicity, we consider only three ”expert” models in the following of the study, namely,
+the baseline model (denoted MSST ), which is selected as the ”expert” for attached wallbounded flows, and the expert models for separated flows and jets, noted MSEP and
+MANSJ . The expression of these three models, alongside the sources of the data used
+for their training, are given in Table 1. More details about model training can be found
+in [37]. In the table, the data-driven model parameters are reported with the corresponding standard deviations, since SBL-SpaRTA delivers stochastic models endowed
+with posterior probability distributions. Given that the posterior model variances are
+small compared to the mean, the model parameters will be treated as deterministic
+in the following to simplify the presentation. However, it is also possible to apply the
+proposed aggregation methodology to models with parametric uncertainties, see [49]
+for more details.
+The proposed internal blending strategy is based on the space-dependent
+aggregation of a set of expert data-driven model corrections, namely M =
+{MSST , MSEP , MANSJ }, as reported in Table 1. The resulting blended model is denoted
+as Mblend . It is worth noting that the MANSJ model used in this study differs slightly
+9
+
+from the version reported in [37]. However, this variation does not significantly impact
+the results, as both models yield nearly identical outcomes.
+Unlike the external, non-intrusive model aggregation approach of [37], which consists in blending the output quantities of interest (QoI) (such as velocity, pressure,
+etc.) obtained by solving the RANS equations under different models, the internal
+blending strategy mixes a set of alternative corrections of the anisotropy tensor and
+R
+of the turbulent kinetic energy equation. Specifically, the corrective tensors b∆
+ij and bij
+are formulated as a convex combination of the experts corrections, using
+a
+data-driven
+P
+set of weighting functions wM that satisfy the convexity constraint M ∈M wM = 1:
+b∆
+ij =
+
+X
+
+wM b∆,M
+,
+ij
+
+bR
+ij =
+
+M ∈M
+
+X
+
+wM bR,M
+.
+ij
+
+(11)
+
+M ∈M
+
+The weighting functions are designed to dynamically adjust in space, based on
+a set of local flow features, so to assign high weights to the experts that are most
+likely to perform accurately based on the local flow conditions, and low weights to the
+unsuitable ones. Following [37], we adopt a set of eleven features derived from [55],
+noted η(x) = η1 (x), ..., η11 (x) and described in the Appendix A, which have been
+widely used in the literature to represent data-driven corrections. Second, we define
+the exact model weights as:
+G(δ L , δ̄)
+ωL = X
+G(δ M , δ̄)
+M ∈M
+
+where G is a function that depends on the model outputs for some observed QoI
+{δ M }M ∈M , and on the corresponding ground truth values δ̄, extracted from a highfidelity database. Note that by construction the weights ωL sum up to 1.We chose G
+to be the Gaussian kernel, given for σ > 0 by
+||δ L − δ̄||22
+G(δ , δ̄) = exp −
+2σ 2
+L
+
+
+
+
+(12)
+
+The function G assigns higher weights to models that are closer to the ground truth
+data δ̄ and lower weights to those that are farther away. The bandwidth parameter σ
+controls how fast the weight decreases
+with increasing errors, and it is sought from a
+
+set of user-defined values E = 1, 10−1 , 10−2 , 10−3 , 10−4 using a grid search method.
+The optimal choice of σ is based on the minimal distance between high-fidelity QoI
+and the average expert model output based on the Gaussian weights wM , i.e,
+
+!
+σopt = argmin
+σ∈E
+
+X
+M ∈M
+
+wM (σ) δ
+
+M
+
+− δ̄
+
+2
+
+In the current paper, the velocity along the x-axis is selected as the quantity for
+determining the optimal weights. Throughout the document, we use the notation Ux,M
+to refer to the modelled x-velocity for model M , U x for the high-fidelity counterpart,
+10
+
+and U ref (with the superscript ”ref”) to denote the reference velocity used for normalization (e.g., inlet velocity, velocity at the jet nozzle, etc).
+The next step in the blending strategy consists in selecting and training a machine
+learning model to express the input/output relation between the features and the
+Gaussian model weights. To accomplish this, we first collect a diverse dataset of highfidelity data, including experiments, DNS and LES data. The selected flows for training
+are described in Table 2. The training flows are then cross-simulated with each of the
+experts in the set M. The modeled x-velocities and their high-fidelity counterparts
+are then used to calculate the exact Gaussian weights for each model at the observation points locations. The flow physical features can then be estimated at these same
+points. Obviously, the expert models in M do not predict the same flow features. In
+the non-intrusive space-dependent aggregation approach from [36], the features are
+assembled as a uniformly weighted average of those of the expert models, which mitigates the risk of overlooking flow patterns that are not captured by the baseline model.
+In the present work, we adopt the simpler choice of [37] and use the features predicted
+by the baseline model. The argument for this choice is that the expert data-driven
+models have been learned to correct the baseline in the training environments. Further
+studies of feature selection and estimation in prediction environments are warranted
+as future work.
+Finally, given the baseline features and the exact weights at each observation location
+in the training set, we solve a machine learning regression problem of the form
+
+ ML
+η(x) = η1 (x), ..., η11 (x) −−→ {wM (x)}M ∈M
+{z
+}
+|
+{z
+} W |
+baseline model local features
+
+(13)
+
+local model weights
+
+where W : η −→ {wM }M ∈M is a highly nonlinear mapping to be determined. In
+the present study we approximate the features/weights mapping by means of a Random Forest Regressor (RFR), as previously done in [36, 37]. RFRs are chosen due to
+their ability to capture complex, non-linear relationships, providing a robust and flexible predictive model. However, they can exhibit non-smooth behavior. Alternative
+choices, such as Gaussian process regressors or neural networks could be also used (see
+[49] for a comparison of RFR and Gaussian process regressors).
+Once the mapping W has been learned, the RFR weighting functions are used to
+build the blended model corrections (11). The latter are finally propagated through
+the RANS solver to make predictions of the training flow cases or of new, unseen
+flows. The training and prediction workflows of the blending strategy are summarized
+through the Algorithms 1 and 2.
+
+3.1 Training of weighting functions
+The features/weights mapping W is trained using the RFR function from the
+scikit-learn Python library [56]. The RFR model has been configured with 100
+estimators (trees) and a minimum of one sample per leaf. The quality of the splits is
+assessed using the squared error criterion. At each split, seven features were randomly
+selected, and a fixed random state has been employed to ensure reproducibility. The
+model has been trained on 80% of the dataset, while the remaining 20% is reserved
+11
+
+Algorithm 1: Training of the features/weights mapping W.
+Input: Set of expert models M, training HF flow data
+Output: Trained RFR model W
+1 Step 1: Simulations on training cases
+for each training flow case (e.g., turbulent channel, CD, CBFS, PH, ANSJ)
+do
+2
+for each model M ∈ M do
+3
+Run RANS to convergence using model M ;
+4
+Extract streamwise velocity Ux,M ;
+5
+end
+6
+Step 2: Compute Gaussian weights
+Using the modelled x-velocity {Ux,M }M ∈M and its high-fidelity
+counterpart, evaluate the corresponding Gaussian weights {ωM }M ∈M at
+all observation points for the current training case;
+7
+Step 3: Extract the features
+Evaluate local flow features η using the baseline model solution at all
+observation points;
+8 end
+9 Step 4: Learn the mapping W
+Train the Random Forest to learn the mapping
+W : η → {wM }M ∈M
+Save the learned model W;
+for testing. The dataset includes all available observations of the velocity along the
+x-axis and the corresponding eleven physical features from [55], for all training cases.
+These cases include RANS data for a turbulent channel flow at Reτ = 1000, PIV
+data for the Axisymmetric Near Sonic Jet (ANSJ) case [50], and LES or DNS data
+for the Curved Backward-Facing Step (CBFS), Converging-Diverging (CD) channel,
+and Periodic Hills (PH) cases (refer to Table 1 for reference). The specific mesh points
+from which the data were retrieved for each case are given in Table 2.
+The performance of the RFR model was evaluated using the R2 criterion, which
+is commonly used to assess the predictive power of regression models. The R2 score,
+also known as the coefficient of determination, is calculated as:
+2
+
+PN
+
+R = 1 − Pi=1
+N
+
+(yi − ŷi )2
+
+2
+i=1 (yi − ȳ)
+
+where yi are the true values, ŷi are the predicted values, and ȳ is the mean of the
+true values. It measures how well the model fits the data by comparing the variance
+explained by the model to the total variance in the true values. For our application,
+the R2 score for the training data was 0.991, indicating an excellent fit to the data
+12
+
+Algorithm 2: Prediction of a flow scenario
+Input: Flow scenario information; Trained RFR mapping W.
+Output: RANS blended-model solution
+1 Step 1: Run RANS simulation using the baseline k − ω SST model.
+Step 2: Compute the set of local flow features η from the converged
+baseline solution.
+2
+
+3
+
+Step 3: Use the trained RFR W(η) to predict local model weights at each
+prediction location, {wM }M ∈M .
+R
+Step 4: Assemble the blended RANS corrections b∆
+ij and bij and use them to
+augment the baseline model k-ω SST
+X
+X
+b∆
+wM b∆,M
+, bR
+wM bR,M
+;
+ij =
+ij =
+ij
+ij
+M ∈M
+
+4
+
+M ∈M
+
+Step 5: Solve the augmented RANS equations for the flow scenario until
+convergence
+
+Case
+
+Location of Points
+
+ANSJ
+CD
+Channel
+PH
+CBFS
+
+DOFs within the subdomain: (x/Djet , y/Djet ) ∈ [1, 22] × [0, 1.4]
+All DOFs
+All DOFs
+All DOFs
+All DOFs
+
+Table 2: Information on the training data used to learn the features/weights mapping by the RFR.
+
+the model was trained on. For the test data, the R2 score was 0.99, demonstrating as
+well a strong predictive accuracy on unseen data by the RFR.
+For a more detailed evaluation of the learned RFR performance, we investigate
+the distribution of the predicted weights versus the exact Gaussian weights, as shown
+in Fig. 3a. The scattered weights correspond to all models MANSJ , MSST , and MSEP .
+It can be seen that most of the training samples, representing 80% of the data, lie
+within a narrow band along the diagonal. This indicates that the RFR has successfully
+captured the relationship between the flow physical features and the corresponding
+model weights for the training set. Furthermore, in Fig. 3b, we report the histogram
+depicting the discrepancies between the predicted and exact weights. All three weights
+are represented here as well. The histogram is strongly peaked at zero, suggesting that
+the deviations between the predicted and actual weights for the training set are small
+throughout. To further evaluate the generalization performance of the trained RFR,
+we examine the test set, representing the remaining 20% of the total data. In Fig. 3c,
+the scatter plot for the predicted versus exact weights for the test samples is shown.
+13
+
+Similar to the training set, the test samples also follow the diagonal closely, and the
+distribution of discrepancies shown in Fig. 3d is strongly peaked at zero, indicating
+that the RFR has generalized well to the unseen test data. These results provide strong
+confidence in deploying the trained RFR across both the training and test cases.
+80
+
+1.0
+
+70
+0.8
+60
+50
+
+wRF R
+
+Density
+
+0.6
+
+0.4
+
+40
+30
+20
+
+0.2
+
+10
+0.0
+0
+0.0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+−0.6
+
+1.0
+
+wexact
+
+(a) Scatter plot of predicted vs. exact weights
+for the training set, representing 80% of the
+total data set.
+
+−0.4
+
+−0.2
+
+0.0
+
+0.2
+
+0.4
+
+0.6
+
+wRF R − wexact
+
+(b) Error histogram for the discrepancies
+between predicted and exact weights for the
+training set.
+80
+
+1.0
+
+70
+0.8
+60
+
+wRF R
+
+Density
+
+0.6
+
+0.4
+
+50
+40
+30
+20
+
+0.2
+
+10
+0.0
+0
+0.0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+−0.4
+
+1.0
+
+wexact
+
+(c) Scatter plot of predicted vs. exact weights
+for the test set, representing 20% of the total
+data set.
+
+−0.2
+
+0.0
+
+0.2
+
+0.4
+
+0.6
+
+wRF R − wexact
+
+(d) Error histogram for the discrepancies
+between predicted and exact weights for the
+test set.
+
+Fig. 3: Comparison of predicted weights versus exact weights using the RFR, and
+the distribution of prediction errors. The scatter plots highlight the accuracy of the
+predictions, and the histograms show the density of discrepancies between exact and
+predicted weights.
+
+14
+
+4 Numerical Results
+In this section, we evaluate the performance of the proposed blending model across a
+series of 2D turbulent flow cases, including both training and test scenarios. We begin
+by applying the blended model to the flow cases used for training both the weighting
+functions and the expert models. We verify that the blended model consistently assigns
+higher weights to the expert model specifically trained for the given flow configuration,
+demonstrating its ability to adapt to known cases. Then, we assess the generalization
+capability of the blending model by testing it on unseen flow cases, highlighting its
+robustness and predictive accuracy beyond the training dataset.
+
+4.1 Flow solver
+The data-driven models resulting from the SBL-SpaRTA algorithm are implemented
+within a modified version of the open-source finite-volume solver OpenFoam v23-06
+[57]. In the numerical tests presented below, the governing equations are solved using
+SIMPLE algorithm. The linear upwinding is applied to the convective terms, while
+viscous terms are approximated with a second-order central difference scheme. The
+solution is advanced to the steady state by using a Gauss-Seidel smoother. For each
+case, we used the same computational settings and the same grids as in [21], to which
+we refer for more details. The grids are fine enough to ensure that the discretization
+error is negligible compared to the effect of the turbulence model.
+
+4.2 Validation of the Mblend on the training flows
+4.2.1 Turbulent Channel Flow Reτ = 1000
+The first case considered in the training of the blending model is the turbulent channel
+flow at Reτ = 1000, where the baseline MSST model is expected to perform optimally.
+The grid used in RANS simulations is composed of 40 × 60 cells and it is refined near
+the walls to resolve the viscous sublayer.
+The non-dimensionalized velocity profiles at x = 0.97 in Figure 4a show that, as
+expected, the MSST model aligns almost perfectly with the theoretical profiles and
+reference DNS data, requiring no significant adjustments. The accuracy of this model
+is further illustrated by its low mean absolute error (mae) value, as shown in Table 3,
+and the absolute errors of the velocity profiles in Figure 4b, which reveal consistently
+small deviations across y + , especially in the log-law region. In contrast, while the
+MSEP model provides a reasonable prediction, it exhibits a deviation from ground
+truth results, particularly noticeable in log-law region. The deviation is due to the
+increased amount of eddy viscosity generated by the corrected model, which has been
+trained to compensate the under-dissipative nature of the baseline model for strongly
+separated flows (see [23, 37]). The discrepancy is mirrored in the mae values and error
+profiles, which, though higher than those of the MSST model, still indicate acceptable
+performance. The MANSJ model, on the other hand, significantly overpredicts the flow
+velocity, and its error profiles reflect large discrepancies, particularly in the log-law
+region, showcasing its inadequacy for this flow scenario. In fact, the MANSJ correction
+tends to strongly reduce the eddy viscosity of the baseline model to compensate for the
+15
+
+so-called jet anomaly [3]. However, the correction destroys the accuracy for attached
+wall-bounded flows.
+Of note, for this training flow case the blended model predominantly selects the
+baseline model, which is assigned a weight very close to one throughout the channel
+height. The contributions from the inaccurate MSEP and MANSJ are effectively ruled
+out, according to their low performance scores.
+102
+
+40
+
++
+
+U =y
+
+20
+10
+
+|U + − U +|
+
+U+
+
+30
++
+
+100
+
+10−2
+
++ +B
+1 ln y
+
++
+U = κ
+
+0 0
+10
+
+101
+
+102
+
+10−4 0
+10
+
+103
+
+101
+
+y+
+
+102
+y+
+
+(a) Wall-normal profiles of the velocity
+
+(b) Absolute errors
+
+Fig. 4: Turbulent channel flow at Reτ = 1000. The legend denotes the following:
+) DNS [58], (
+) MANSJ , (
+) MSST , (
+) MSEP , (
+) Mblend , and
+(
+(
+) theoretical law of the wall with the Kármán constants κ = 0.41 and B = 5.2.
+
+QoI
+
+MANSJ
+
+MSST
+
+MSEP
+
+Mblend
+
+U+
+
+8.97
+
+0.44
+
+2.41
+
+0.44
+
++
+
+Table 3: mae for U for the turbulent
+channel flow case Reτ = 1000. Shading
+represents error magnitude, with darker
+shades indicating higher error.
+
+4.2.2 Axis-symmetric near sonic jet flow
+The axisymmetric near-sonic jet flow case from [50], also used to train the expert model
+correction MANSJ , features a jet from the ARN2 nozzle with a radius of 1 inch and
+a jet exit Mach number of Mjet = 0.985. The numerical setup follows the description
+given in the NASA turbulence modeling resource https://turbmodels.larc.nasa.gov/
+jetnearsonic val.html, and we use a structured grid constituted of three blocks with
+25×25, 16×25, and 65×57 points, which was found sufficient for the present purpose.
+As shown in Figure 5b, the expert MANSJ model provides as expected the most
+accurate velocity profiles at least in the far jet region, with a low mae (Table 4). The
+MSST model, underpredicts the velocity, resulting in a higher mae (a known anomaly
+16
+
+103
+
+of most two-equation models), while the MSEP model significantly underpredicts the
+velocity leading to the largest mae. These trends are confirmed by the absolute error
+profiles (Figure 5c) where MANSJ maintains the smallest errors, while MSEP model
+exhibits the largest deviations throughout.
+The blended model achieves an intermediate mae which is close to that of the
+best performing model. As depicted in Figure 5d, the blending weights are initially
+distributed fairly equally among the models at the jet entrance, reflecting an effort
+to combine their contributions. As the flow develops through the shear layers, the
+relevance of MSEP and MSST decreases, leading to a reduction in their respective
+weights. Downstream of the jet, the MANSJ model becomes the dominant.
+Further analysis of the velocity distribution along the jet axis (Figure 6a) shows
+that the MANSJ model provides the closest match to the ground truth data, with MSST
+underpredicting the velocity and MSEP significantly underperforming. The blended
+model offers a reasonable compromise between the MANSJ and MSST models, capturing
+the essential flow characteristics with relatively low errors (Figure 6b). The weight
+distribution along the axis (Figure 6c) further confirms the dynamic adjustment, with
+the MANSJ model taking over in regions where its performance is critical, while the
+other models contribute less further downstream.
+QoI
+
+MANSJ
+
+MSST
+
+MSEP
+
+Mblend
+
+U/Uref
+
+0.04
+
+0.09
+
+0.16
+
+0.07
+
+Table 4: mae on the normalized streamwise velocity in the near-sonic axisymmetric jet flow. Shading represents error
+magnitude, with darker shades indicating
+higher error.
+
+4.2.3 Separated Flow Cases
+Hereafter, we present selected results from three separated-flow training cases, whose
+key parameters are summarized in Table 5, along with the original test case references.
+The converging-diverging channel case [53] is characterized by Re = 12600, based on
+inlet conditions, the channel half-height L = h/2, the maximum inlet velocity Umax ,
+and the inlet kinematic viscosity. The flow is fully developed at the inlet, with a friction Reynolds number Reτ ≈ 600. The channel geometry contracts and then diverges
+smoothly, leading to a strong adverse-pressure gradient and resulting separation. The
+periodic hills case [51] consists in the flow through a channel with periodic restrictions
+(hills), and exhibits Re = 10595 (based on the hill height and the bulk velocity at
+the crest of the first hill) ; here, the flow separates behind each curved hill and reattaches before the next crest. Finally, the curved backward facing step case [54], with
+Re = 13700 based on the step height L and center-channel inlet velocity Uin , features
+boundary-layer separation over the curved step. In this configuration, the upstream
+duct is 8.52 L high, and measurements at x/L = −7.34 show a boundary layer with
+17
+
+y/Djet
+
+1
+
+0
+−1
+2
+
+5
+
+(a) PIV time-average velocity [50].
+(b) Streamwise
+x/Djet
+
+20
+
+velocity
+
+across
+
+profiles
+
+1
+y/Djet
+
+1
+y/Djet
+
+10
+15
+x/Djet + 5Ux/Uxref
+
+0
+
+0
+−1
+
+−1
+2
+
+2
+
+5
+10
+15
+20
+ref
+x/Djet + 10|Ux/Uxref − U x/U x |
+
+5
+
+10
+15
+x/Djet + 3wm
+
+20
+
+(d) Weight distributions across x/Djet
+
+(c) Velocity absolute errors across x/Djet
+
+Fig. 5: Streamwise velocity, absolute errors and blending weights distributions for the
+axisymmetric near-sonic jet flow at stations x/Djet ∈ {2, 5, 10, 15, 20} with Djet is the
+nozzle radius. The legend denotes the following: (
+) PIV [50], (
+) MANSJ ,
+(
+) MSST , (
+) MSEP , (
+) Mblend .
+
+Reθ ≈ 1190 and a thickness of about 0.8 L. As shown in Table 5, each case uses a
+characteristic length L and a specific velocity scale (Umax , U , or Uin ) for the Reynolds
+number definition. Grid sizes used in the 2D RANS simulations are also reported.
+
+Case
+
+Re
+
+Re definition
+
+L
+
+Grid Size (2D)
+
+Reference
+
+CD
+PH
+CBFS
+
+12600
+10595
+13700
+
+Re = Umax L/ν
+Re = Ub L/ν
+Re = Uin L/ν
+
+Channel half-height
+Hill height
+Step height
+
+140 × 100
+120 × 130
+140 × 150
+
+[53]
+[51]
+[54]
+
+Table 5: Overview of the separated-flow cases and their Reynolds number definitions based on the characteristic lengths, and the 2D grid resolutions used in
+RANS simulations.
+
+As expected, the MSEP model consistently performs well across all the considered
+separated flow training cases, particularly in regions of separation and reattachment.
+The velocity profiles are in good agreement with the high fidelity data for the PH
+18
+
+Ux/Uxref
+
+ref
+
+|Ux/Uxref − U x/U x |
+
+1.0
+10−2
+
+0.8
+
+10−4
+
+0.6
+
+10−6
+
+0.4
+5
+
+10
+x/Djet
+
+15
+
+5
+
+(a) Streamwise velocity along jet-axis
+
+10
+x/Djet
+
+15
+
+(b) Absolute errors along jet-axis
+
+1.00
+
+wm
+
+0.75
+0.50
+0.25
+0.00
+5
+
+10
+x/Djet
+
+15
+
+(c) Weight distributions along jet axis
+
+Fig. 6: Streamwise velocity, absolute errors and blending weights distribution along
+the jet axis. Djet is the nozzle radius and the legend denotes the following: (
+)
+PIV [50], (
+) MANSJ , (
+) MSST , (
+) MSEP , (
+) Mblend .
+
+case (Fig. 7b) and the CBFS (not shown). However, the CD case is more challenging,
+because it is characterized by a small separation bubble in the divergent that cannot
+be captured by RANS model, even after data-driven correction. Nonetheless, the
+MSEP improves the baseline model (see Fig. 8b), even if the solution exhibits discrepancies with respect to the reference. On the contrary, the MANSJ model exhibits very
+poor performance for all the separated cases, for which it incorrectly predicts massive
+separation. The relative performance of the three expert models are better reflected
+in the error profiles, displayed in Figures 7c and 8c.
+The blended model offers a fair performance across all separated flow cases. It
+effectively captures the flow dynamics in both attached and separated flow regions.
+This results in improved accuracy for the predicted velocity profiles with respect to the
+baseline model, especially in the separated regions. Inspection of the weight profiles
+(Figures 7d and 8d) reveals that the MSEP model is consistently assigned the highest
+weight, particularly in regions of strong separation, while the MSST model is promoted
+in attached flow regions. The MANSJ model is always assigned low weights, reflecting
+its limited applicability in wall-bounded flow scenarios.
+The blended model also improves the predicted skin friction along the bottom wall,
+as shown in Figure 9 for the three separated-flow cases. By leveraging the dominant
+19
+
+contribution of MSEP in the separated regions, the blended model more effectively captures the effects of the strong adverse-pressure gradients and the reattachment zones.
+In the attached flow portions of these internal flows, MSST typically remains the main
+contributor, ensuring accuracy in regions where the baseline model already performs
+well. This complementary interplay between MSEP and MSST is further illustrated in
+Table 6, which compares the predicted separation bubbles against available LES/DNS
+reference data. The varying degrees of gray shading emphasize the error intensity of
+the bubble prediction with the various models.
+Although each expert model tends to over- or under-predict specific aspects of the
+separation or reattachment, the blended solution generally reduces the error across all
+three configurations. In particular, MSEP alone often yields excessively shortened or
+delayed recirculation zones in certain cases, while MSST can exaggerate bubble lengths.
+MANSJ , which was trained with jet-like free-shear features in mind, generally performs
+poorly in these wall-driven separations, significantly overestimating the length of the
+recirculation. In contrast, Mblend blends the beneficial traits of each expert, usually
+aligning more closely with the reference data from LES or DNS.
+For a better quantification of the predictive accuracy of the various models, we
+report in Table 7 the mae for all models and cases, computed on velocity profiles and
+skin friction along the bottom walls. It is noteworthy that, although the MSEP model
+is more accurate than the other experts in separated regions, it can still lead to higher
+overall errors than the MSST because of its lower performance in attached regions.
+On the other hand, the blended model generally outperforms the specialized models,
+showing that the features/weight mapping effectively selects the most suitable experts
+according to the local flow physics.
+
+5 Application to untrained scenarios
+In this section, we assess the predictive capabilities of the blended data-driven model
+for three test cases, selected from the NASA turbulence modeling testing challenge [6],
+that were not included in the databases used for training the experts or the weighting
+functions. The configuration and grid resolutions used for this set of RANS simulations
+are reported in Table 8.
+The first test case is an incompressible 2D zero-pressure-gradient boundary layer
+(ZPGBL) with unit Reynolds number of 5 × 106 , originally reported in [61] and later
+included in the 1968 AFOSR-IFP Stanford Conference on turbulent flows [64], which
+serves to check non-regression of the baseline model’s accuracy in attached wallbounded flows . This flow develops under essentially constant pressure conditions along
+the streamwise direction and represents a canonical validation for turbulence models
+designed to handle boundary layers without significant separations or compressibility
+effects.
+The second test case is the 2D NASA Wall-Mounted Hump (WMH) flow at
+Re = 936 000 [62]. This more complex configuration exhibits flow acceleration on
+the fore portion of the hump, boundary-layer separation, reattachment downstream
+of the crest, and eventual redevelopment of the boundary layer. These features
+test the model’s ability to capture strong adverse-pressure gradients, separation,
+20
+
+Model
+LES [59]
+MANSJ
+MSST
+MSEP
+Mblend
+
+Start x/L
+
+End x/L
+
+Length
+
+Periodic Hill (PH)
+0.21
+4.7
+0.25
+8.23
+0.25
+7.67
+0.25
+4.4
+0.265
+4.82
+
+4.49
+7.98
+7.42
+4.15
+4.555
+
+Converging-Diverging (CD) Channel
+DNS [53]
+5.75
+6.60
+0.85
+MANSJ
+5.48
+12.13
+6.65
+MSST
+6.01
+9.42
+3.41
+MSEP
+7.02
+7.85
+0.83
+Mblend
+6.14
+8.19
+2.05
+Curved Backward-Facing Step (CBFS)
+LES [54, 60]
+0.81
+4.36
+3.55
+MANSJ
+0.81
+6.33
+5.52
+MSST
+1.06
+4.65
+3.59
+MSEP
+1.33
+3.84
+2.51
+Mblend
+1.08
+4.52
+3.44
+
+Table 6: Separation bubble measure for
+PH, CBFS, and CD cases. Light gray shading represents deviation from LES/DNS,
+with darker shades indicating higher error.
+
+QoI
+
+MANSJ
+
+MSST
+
+MSEP
+
+U/Uref
+Cf
+
+2.01
+3.53 · 10−3
+
+U/Uref
+Cf
+
+Converging-Diverging (CD) Channel
+1.93
+0.07
+0.03
+0.03
+4.31 · 10−3
+2.83 · 10−3
+2.61 · 10−3
+2.15 · 10−3
+
+U/Uref
+Cf
+
+Curved Backward-Facing Step (CBFS)
+0.03
+0.01
+0.02
+0.01
+1.51 · 10−3
+4.83 · 10−4
+1.08 · 10−3
+5.05 · 10−4
+
+Periodic Hill (PH)
+1.37
+0.06
+2.37 · 10−3
+2.65 · 10−3
+
+Mblend
+0.09
+2.07 · 10−3
+
+Table 7: mae on the normalized streamwise velocity U/Uref
+and the skin friction coefficient Cf for the PH, CD, and
+CBFS cases. Shading represents error magnitude, with
+darker shades indicating higher error.
+
+and subsequent reattachment, a well-known challenge for classical eddy viscosity
+approaches.
+21
+
+3
+
+y/L
+
+2
+1
+0
+
+0
+
+2
+
+(a) LES long-time-average velocity [52]
+
+4
+6
+x/L + Ux/Uxref
+
+8
+
+(b) Streamwise velocity.
+3
+
+2
+
+2
+
+y/L
+
+y/L
+
+3
+
+1
+
+1
+0
+
+0
+
+2
+
+4
+6
+ref
+x/L + |Ux/Uxref − U x/U x |
+
+0
+
+8
+
+0
+
+2
+
+4
+x/L + wm
+
+6
+
+8
+
+(d) Weight distributions.
+
+(c) Absolute errors
+
+Fig. 7: Streamwise velocity, absolute errors and blending weights for the PH case,
+at various stations x/L ∈ {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} with L the channel half-height (full
+channel height = 2L). The legend denotes the following: (
+) LES [52], (
+)
+MANSJ , (
+) MSST , (
+) MSEP , (
+) Mblend .
+
+Case
+ZPGBL
+WMH
+NACA0012
+
+Re
+
+L
+
+Grid Size (2D)
+
+Reference
+
+5 × 106
+9.36 × 105
+6 × 106
+
+1 unit length
+hump’s chord
+airfoil chord
+
+545 × 385
+409 × 109
+225 × 65
+
+[61]
+[62]
+[63]
+
+Table 8: Overview of the test cases and their characteristic Reynolds
+numbers based on L, along with the 2D grid resolutions used in the
+RANS simulations. For the three cases the Reynolds number is based
+on the freestream conditions and the reference length L given in the
+table. The NACA0012 is simulated over a range of angles of attack
+from 0◦ to 18◦ .
+
+The third test case is the flow over a NACA0012 airfoil at a chord-based Reynolds
+number of 6 million and at various angles of attack ranging from 0◦ to 18◦ . A summary
+of experimental data can be found in [63]. This configuration is frequently used to
+evaluate turbulence models for external aerodynamic applications, especially under
+conditions that can range from mildly separated flows at moderate angles of attack
+22
+
+1.5
+
+y/L
+
+1.0
+0.5
+0.0
+
+6
+
+(a) DNS long-time average velocity [53]
+
+8
+10
+x/L + Ux/Uxref
+
+12
+
+(b) Streamwise velocity
+1.5
+
+1.0
+
+1.0
+
+y/L
+
+y/L
+
+1.5
+
+0.5
+
+0.5
+0.0
+
+6
+
+8
+10
+ref
+x/L + |Ux/Uxref − U x/U x |
+
+0.0
+
+12
+
+6
+
+8
+10
+x/L + wm/2
+
+12
+
+(d) Weight distributions
+
+(c) Absolute error
+
+Fig. 8: Streamwise velocity, absolute errors and blending weights for the CD case, at
+various stations x/L ∈ {5.5, 6.2, 6.8, 7.6, 8.5, 9.5, 10.3, 11.1, 11.8} with L the channel
+) DNS [53], (
+) MANSJ ,
+half-height. The legend denotes the following: (
+(
+) MSST , (
+) MSEP , (
+) Mblend .
+
+to stronger separations. As the angle of attack increases, the flow may encounter
+significant adverse-pressure gradients at the leading edge or the upper surface, making
+it a demanding test of the blended model’s capacity to predict separation and complex
+lift-related phenomena.
+
+5.1 Assessing training features coverage in the latent space
+Prior to applying the blended model to unseen cases, we first analyze the distribution
+of the flow features used as input to the RFR during training. The vector η contains
+11 physical features, each representing different aspects of the flow. To inspect the
+capability of the RFR model to generalize effectively to new, unseen cases, we reduce
+this 11-dimensional feature space into a two-dimensional latent space, with the latent
+variable denoted ζ. This dimensionality reduction helps to visually assess whether
+the flow cases used for training adequately capture the variability of the test cases.
+Before applying the dimensionality reduction techniques, we perform a pre-processing
+step using k-means clustering to reduce the density of data points in feature space.
+This is done to enhance the clarity of the subsequent analysis and allow for a more
+interpretable visualization of the latent structures. After clustering, we apply three
+23
+
+0.03
+0.02
+Cf
+
+Cf
+
+0.02
+0.01
+
+0.01
+0.00
+
+0.00
+0
+
+2
+
+4
+x/L
+
+6
+
+8
+
+0.0
+
+2.5
+
+5.0
+
+7.5
+
+10.0
+
+12.5
+
+x/L
+
+(a) PH
+
+(b) CD
+
+Cf
+
+0.005
+
+0.000
+
+−2.5
+
+0.0
+
+2.5
+x/L
+
+5.0
+
+7.5
+
+(c) CBFS
+
+Fig. 9: Skin friction distributions along the bottom wall for the PH, CD, and CBFS
+cases. L refers to channel half-height for CD, the step height for CBFS and hill crest
+for PH. The legend denotes the following: (
+) DNS for CD [53], LES for PH
+[59] and LES for CBFS [54, 60], (
+) MANSJ , (
+) MSST , (
+) MSEP , (
+) Mblend .
+
+dimensionality reduction techniques: PCA (Principal Component Analysis) [65], tSNE (t-distributed Stochastic Neighbor Embedding) [66], and autoencoders [67, 68],
+to examine the distribution of features.
+In the latent space, for clarity, we represent the spread and variance of the latent
+features using covariance regions, visualized as ellipses. These regions are constructed
+by calculating the covariance matrix of the latent variables ζ for each dataset, capturing how the data points are distributed in the two-dimensional space. The covariance
+matrix Σ is computed as:
+N
+
+Σ=
+
+1 X
+(ζi − ζ)(ζi − ζ)T ,
+N i=1
+
+where N is the number of data points, ζi are the latent variables, and ζ is their mean.
+The covariance matrix describes the extent to which the latent variables co-vary with
+each other. To visualize the variability, we compute the eigen-decomposition of Σ to
+determine the axes of the ellipses. These ellipses provide an intuitive representation
+of the latent space structure, illustrating how well the test cases are covered by the
+training data. For PCA, t-SNE or autoencoders, the axes of the ellipses correspond to
+24
+
+the principal components, which represent the directions of maximum variance. The
+lengths of the axes are determined using the eigenvalues λi of the covariance matrix,
+scaled by a confidence factor derived from the chi-square distribution. Specifically,
+the ellipses define a “95% confidence region” that encloses approximately 95% of the
+probability mass under the assumption of a multivariate Gaussianpdistribution. For
+2
+a bivariate Gaussian distribution, the scaling factor
+√ is given by χ2 (0.95), where
+χ22 (0.95) ≈ 5.99. This leads to a scaling factor
+of
+5.99
+≈
+2.45,
+meaning
+that the
+√ √
+ellipse axes are given by: width, height = 2.45( λ1 , λ2 ).
+To analyze features in the latent space, we begin by visualizing the data distribution using principal component analysis (PCA), which projects high-dimensional
+features onto directions of maximum variance. As shown in Figure 10a, all three test
+cases (the 2D zero-pressure-gradient boundary layer, the wall-mounted hump, and the
+NACA0012 at angles of attack ranging from 0◦ to 18◦ ) lie within the overall variance regions spanned by the training data. This indicates that, in terms of large-scale
+global structures, the training set provides a reasonable coverage of the feature space.
+Nonetheless, we do observe a set of outliers, particularly for the NACA0012, suggesting
+that some aspects of high-lift flow physics are less densely represented in the original
+training database.
+To gain insight into potential non-linear dependencies that PCA might overlook, we
+apply the t-SNE (t-distributed stochastic neighbor embedding) algorithm [69], which
+prioritizes preserving the local neighborhood of each point in the high-dimensional
+space. Figure 10b shows that t-SNE clusters the test features more distinctly, while
+still revealing that the majority of points for all three test cases remain embedded in
+or near the training data regions. Here, the distribution of outliers associated with
+the NACA0012 case become more apparent, underscoring that a subset of the airfoil
+flow conditions, especially at higher angles of attack, deviate from the more moderate
+conditions captured by the training data. The 2D boundary layer and wall-mounted
+hump cases, by contrast, show less pronounced outliers, suggesting that their underlying flow features are more in line with the training-set physics. Autoencoders further
+illustrate the distribution of test data within the latent space by learning non-linear
+representations that facilitate near-accurate reconstruction of the original features. As
+shown in Figure 10c, the autoencoder effectively maps both the 2D boundary layer
+and wall-mounted hump test data closely within the general variance regions spanned
+by the training cases. While the NACA0012 flow still presents apparent outliers.
+Altogether, these dimensionality-reduction techniques confirm that the training
+data broadly encompasses the feature space relevant to the test scenarios, with a
+certain degree of extrapolation required, most prominently for the NACA0012. While
+the 2D projections cannot fully capture every subtlety of the 11-dimensional feature
+space, the combined evidence from PCA, t-SNE, and autoencoders indicates that
+the training data is sufficiently representative to support robust prediction on these
+untrained flows. Any residual outliers in the latent space highlight potential avenues for
+refining the training database to better capture the non-linear flow physics encountered
+in more complex flows.
+
+25
+
+60
+
+0.020
+
+0.6
+40
+
+0.015
+
+0.005
+
+latent variable 2
+
+latent variable 2
+
+latent variable 2
+
+0.4
+0.010
+
+20
+
+0
+
+−20
+
+0.2
+
+0.0
+
+0.000
+−0.2
+
+−40
+−0.005
+
+−0.4
+−0.010
+
+−0.005
+
+0.000
+
+0.005
+
+latent variable 1
+
+(a) PCA
+
+Channel
+
+0.010
+
+−60
+
+−40
+
+−20
+
+0
+
+20
+
+latent variable 1
+
+40
+
+60
+
+−0.50
+
+(b) t-SNE
+
+Jet
+
+Separated (PH, CD, CBFS)
+
+−0.25
+
+0.00
+
+0.25
+
+0.50
+
+0.75
+
+1.00
+
+1.25
+
+latent variable 1
+
+(c) Autoencoders
+
+WMH
+
+2DZP
+
+NACA-0012
+
+Fig. 10: Latent space projection of the physical flow features using PCA, t-SNE, and
+autoencoders. The ellipses represent variance regions based on the covariance matrix
+of the latent variables, with axes proportional to the square roots of the eigenvalues.
+These ellipses visualize the 95% confidence region, indicating where the majority of
+the training data is concentrated.
+
+5.1.1 2D Zero-pressure-gradient boundary layer flow (ZPGBL)
+We first focus on the 2D ZPGBL flow. The velocity profiles normalized with respect
+to wall units at x = 0.97 are presented in Figure 11a. Similar to the training channel
+flow case, the MSST model exhibits excellent agreement with the experimental data
+from [61] and theoretical predictions, supported by its low mae, as shown in Table 9.
+The MSEP model, while slightly under-predicts the velocity in the logarithmic region,
+still manages to capture the overall boundary layer trend reasonably well. In contrast,
+the MANSJ model significantly over-predicts the velocity across the entire boundary
+layer. The blended model on the other hand strikes a good balance, outperforming
+both the MSEP and MANSJ models even if it does not quite reach the accuracy of the
+MSST model.
+Regarding the blending weight behavior along y + , Figure 11c shows that, contrary
+to expectations, the MSST model does not dominate the weight distribution along y + .
+Instead, the MANSJ model gains significant weight in the logarithmic region. This indicates that the shifts in model contributions in the log-law region have little impact on
+the overall accuracy. Despite these variations, the blended model remains robust due
+to the balanced contributions from all models, ensuring consistent and reliable predictions across different regions of the boundary layer. When looking at the blending
+behavior along the wall (Figure 11d), we observe that the MSEP and MSST models
+dominate, with MSEP contributing most strongly, followed by MSST . Meanwhile, the
+MANSJ model has minimal influence along the wall. The weights distributions allows
+26
+
+the blended model to achieve a balanced prediction of Cf , resulting in a low mae after
+the best performing model MSST .
+Both the prediction of Cf and U + illustrate the idea of automatic model adaptation. In fact, without prior knowledge of the best performing individual model, the
+blending approach delivers quite close results to this last by automatically weighting different models appropriately. We also notice that, while the weight distribution
+exhibits small oscillations, probably due to irregularity in the random forest regressor, these do not appear to translate into oscillations in the numerical solution. In the
+future, such defect could be improved by replacing random forests with a smoother
+regressor, e.g. Gaussian Processes.
+
+40
+0.005
+U + = y+
+
+20
+10
+
+Cf
+
+U+
+
+30
+
+0.003
+
++ +B
+1 ln y
+
++
+U = κ
+
+0 0
+10
+
+0.004
+
+0.002
+10
+
+1
+
+10
+
+2
+
+10
+
+3
+
+0.0
+
+0.5
+
+y+
+
+(a) Wall-normal profiles of the velocity.
+
+1.0
+x/L
+
+1.5
+
+2.0
+
+(b) Friction coefficient Cf .
+0.6
+0.5
+wm
+
+wm
+
+0.6
+
+0.4
+
+0.4
+0.3
+0.2
+
+0.2
+100
+
+101
+
+102
+y
+
+0.1
+
+103
+
++
+
+(c) Weight distribution along y+.
+
+0.5
+
+1.0
+x/L
+
+1.5
+
+(d) Weights along the wall.
+
+Fig. 11: 2D Zero-pressure-gradient boundary layer flow case. Top row: velocity profile
+and skin friction distribution. Bottom row: blending weights along the wall normal
+coordinate and along the wall. The legend denotes the following: (
+) law-ofthe-wall based on Coles’ mean velocity profile [70, 71], (
+) experimental data
+of Wieghardt [61], (
+) MANSJ , (
+) MSST , (
+) MSEP , (
+) Mblend , and (
+)
+theoretical prediction with the Kármán constants κ = 0.41 and B = 5.2.
+
+27
+
+QoI
+
+MANSJ
+
+MSST
+
+MSEP
+
+Mblend
+
+Cf
+U+
+
+1.1 × 10−3
+
+8.4 × 10−5
+
+3.7 × 10−4
+
+6.27
+
+0.42
+
+1.7 × 10−4
+0.7
+
+1.45
++
+
+Table 9: mae for Cf and U for the Turbulent Flat
+Plate flow. Shading represents error magnitude, with
+darker shades indicating higher error.
+
+5.1.2 Wall-Mounted Hump (WMH)
+Our second test case is the turbulent flow through a channel with a wall-mounted
+hump. The velocity profiles and their respective absolute errors at various streamwise stations are presented in Figures 12b and 12c. For this case, the MSEP model
+exhibits overall good performance compared to the other expert models. Specifically,
+it improves the representation of the velocity profiles in the separated region downstream of the hump with respect to the baseline model MSST , although it predicts
+earlier reattachment than observed in the reference experimental data [62, 72, 73].
+In contrast, the MANSJ model performs similarly to the training separated cases and
+largely overestimates the extent of the separation bubble.
+The weight profiles (Figure 12d) show that MSST and MSEP are nearly equally
+weighted in the attached flow region upstream of the separation, while MSEP takes
+precedence in the recirculation region and beyond. The MANSJ model, on the other
+hand, is assigned lower weights throughout both the attached boundary layer and the
+separated region. Interestingly, all weights tend to converge towards a value of 1/3 in
+the core flow, indicating that this region is insensitive to the specific turbulence model
+used. The blended model’s solution closely mirrors that of MSEP , with additional
+contributions from the other expert models helping to improve the prediction of the
+reattachment point.
+The pressure and skin friction coefficient distributions along the bottom wall
+(Figures 13a and 13b) further highlight that the blended model strikes a compromise
+between the baseline MSST , which overpredicts the extent of the separated region, and
+the MSEP model, which underpredicts it, while minimizing the influence of the outlier
+MANSJ model, as evidenced by Figure 13c. The blended model’s performance is further reflected in the distribution of weights along the bottom wall, where the MSEP
+model dominates, followed by MSST , contributing to a balanced and accurate prediction of the skin friction coefficient Cf . The MANSJ model has minimal influence in this
+region, reinforcing the reliability of the blended model’s output. The predicted separation bubble characteristics are summarized in Table 11, where the start and end of the
+separation region, as well as its overall length, are compared against experimental data
+[73]. The baseline MSST model and MANSJ both overestimate the bubble length, with
+MANSJ displaying the most pronounced discrepancy, whereas MSEP slightly underpredicts the reattachment point. Notably, the blended model Mblend closely matches
+the experimental data, with an accurate prediction of the bubble length, underscoring how the dynamic weighting scheme effectively capitalizes on the strengths of each
+expert model and mitigates their weaknesses.
+28
+
+In summary, the blended model performs well across the different quantities evaluated in this test case. It benefits from the strengths of each expert model, particularly
+MSEP and MSST , while effectively minimizing the errors contributed by MANSJ . This
+balanced behavior is evident in both the velocity profiles and skin friction distributions. The blended model achieves the lowest mae for two out of the three metrics
+considered, as highlighted in Table 10, confirming its superior overall performance.
+0.25
+
+y/L
+
+0.20
+0.15
+0.10
+0.05
+0.00
+
+(a) RANS velocity obtained by Mblend
+
+0.25
+
+0.50
+0.75
+1.00
+x/L + Ux/(10 Uxref)
+
+1.25
+
+1.50
+
+(b) Velocity profiles across x/L locations.
+0.25
+
+0.15
+0.10
+
+y/L
+
+y/L
+
+0.20
+
+0.05
+
+0.15
+0.10
+0.05
+
+0.00
+0.6
+
+0.8
+1.0
+1.2
+ref
+x/L + |Ux/Uxref − U x/U x |/5
+
+0.00
+
+1.4
+
+0.25
+
+0.50
+
+0.75
+1.00
+x/L + wm/10
+
+1.25
+
+1.50
+
+(d) Weight distributions
+
+(c) Absolute errors.
+
+Fig. 12: Horizontal velocity, mae and weighting functions at various streamwise stations of the WMH flow domain. L is the the bump ”chord” and the legend denotes
+the following: (
+) experimental data [62, 72], (
+) MANSJ , (
+) MSST , (
+)
+MSEP , (
+) Mblend .
+
+QoI
+
+MANSJ
+
+MSST
+
+MSEP
+
+Mblend
+
+U/Uref
+Cf
+Cp
+
+0.24
+2.17 · 10−3
+0.09
+
+0.06
+7.53 · 10−4
+0.03
+
+0.06
+4.21 · 10−4
+0.05
+
+0.04
+3.86 · 10−4
+0.04
+
+Table 10: mae on the normalized streamwise velocity
+U/Uref , Cf , and Cp for the WMH flow. Shading represents error magnitude, with darker shades indicating higher
+error.
+
+29
+
+0.5
+0.006
+0.0
+Cf
+
+Cp
+
+0.004
+
+−0.5
+−1.0
+−0.5
+
+0.002
+0.000
+
+0.0
+
+0.5
+
+1.0
+x/L
+
+1.5
+
+2.0
+
+2.5
+
+−0.5
+
+(a) Pressure coefficient Cp .
+
+0.0
+
+0.5
+
+1.0
+x/L
+
+1.5
+
+2.0
+
+(b) Friction coefficient Cf .
+
+wm
+
+0.5
+0.4
+0.3
+0.2
+0.25
+
+0.50
+
+0.75
+x/L
+
+1.00
+
+1.25
+
+1.50
+
+(c) Weights distribution along the wall.
+
+Fig. 13: Pressure coefficient and skin friction coefficient with the weights distributions
+along the bottom wall for the WMH flow case. L is the the bump ”chord” and the
+legend denotes the following: (
+) experimental data [73], (
+) MANSJ , (
+)
+MSST , (
+) MSEP , (
+) Mblend .
+
+5.1.3 NACA0012
+As a final test case, we consider the flow over a NACA0012 airfoil with a chord
+length L = 1 m, at a Reynolds number of Re = 6 × 106 . Geometry and grid files are
+provided by the NASA Turbulence Modeling Resource website [74]. As this configuration involves an external aerodynamic flow at a higher Reynolds number than the
+training data, it presents an extrapolative scenario to test and push to the limit the
+generalizability of the proposed blending turbulence-modeling approach.
+Figure 14 presents isocontours of the velocity magnitude and selected streamlines of
+the baseline model solution at three angles of attack: 0◦ , 10◦ , and 15◦ . Across this
+range, the boundary layer on the suction side thickens, and incipient or fully separated
+flow regions may form as the incidence increases. To benchmark model predictions,
+the NACA0012 airfoil was tested at angles of attack ranging from 0◦ up to 18◦ . This
+wide sweep allows us to evaluate each turbulence model’s performance under both
+lightly loaded and more heavily separated conditions.
+Figure 15 compares the drag and lift coefficients obtained from the baseline MSST
+model, the separated-flow–oriented MSEP model, the jet-flow–inspired MANSJ model,
+and the blended strategy Mblend against experimental data from Ladson [75], Gregory & O’Reilly [76], and Abbott & von Doenhoff [77]. From these curves, MANSJ
+30
+
+2.5
+
+Model
+Experiment [73]
+MANSJ
+MSST
+MSEP
+Mblend
+
+Start x/L
+
+End x/L
+
+Length
+
+0.62
+0.62
+0.62
+0.62
+0.62
+
+1.15
+1.7
+1.24
+1.03
+1.14
+
+0.53
+1.08
+0.62
+0.41
+0.52
+
+Table 11: Separation Bubble measure for
+Wall-Mounted Hump (WMH) Case. Shading represents error magnitude with respect
+to experiment, with darker shades indicating
+higher error.
+
+exhibits the largest discrepancies, especially at moderate to high angles of attack,
+whereas both MSST and MSEP align more closely with the measured trends. Of note,
+the MSST performs better than MSEP for most of the present flows, the latter model
+being too dissipative. This indicates that MSEP should be replaced or supplemented
+with another expert model better suited for the flow at stake.
+Despite the underperfomance of MSEP , the Mblend model adaptively weights contributions from MSST , MSEP , and MANSJ , suppressing poorly suited corrections in regions
+of the flow where they degrade accuracy. Figure 16 show examples of surface pressure Cp and skin friction Cf at three angles of attack, together with local blending
+weights along the upper and lower airfoil surfaces. As expected, MANSJ receives minimal weights across most of the chord, while MSST and MSEP dominate depending on
+the local flow regime. In moderately separated regions on the suction side, the MSEP
+corrections become more influential, reflecting its specialization for adverse-pressuregradient and separated flows. Meanwhile, MSST retains its presence in more attached
+zones.
+Overall, by combining multiple expert models, Mblend avoids the dominant errors of
+any single approach. Despite the higher Reynolds number and distinct flow geometry, the blended framework succeeds in replicating key aerodynamic characteristics,
+including lift-curve slope, drag behavior, and surface-pressure profiles. This indicates
+a promising ability to generalize beyond the original training data. Such robustness
+is indispensable in industrial and research applications where designers must reliably
+predict off-design conditions or new configurations. By adaptively filtering out unhelpful contributions from less-relevant models (here, MANSJ is rarely favored), Mblend
+offers a pragmatic, automatic alternative to relying on a single turbulence model across
+diverse aerodynamic flow regimes.
+
+6 Conclusions
+This work introduced a novel machine learning-based methodology for blending expert
+data-driven models, trained for specific flow classes, to improve the performance of the
+k-ω SST model across diverse flow configurations. The key feature of this approach is
+the intrusive internal blending mechanism within the RANS equations, which differs
+31
+
+(a) Angle 0◦
+
+(b) Angle 10◦
+
+(c) Angle 15◦
+
+Fig. 14: Streamlines of the 2D NACA0012 flow for the blended model Mblend at
+different angles of attack.
+
+0.20
+
+0.20
+
+1.5
+
+0.10
+
+1.0
+0.5
+
+0.05
+0.00
+
+Drag Cd
+
+0.15
+
+Lift Cl
+
+Drag Cd
+
+0.15
+
+0.05
+
+0.0
+0
+
+5
+
+10
+Angle, deg
+
+0
+
+15
+
+0.10
+
+5
+
+10
+Angle, deg
+
+0.00
+
+15
+
+0.0
+
+0.5
+
+1.0
+Lift Cl
+
+1.5
+
+0.5
+
+1.0
+Lift Cl
+
+1.5
+
+(a) Drag and lift coefficients for the NACA 0012.
+
+1.5
+
+0.02
+
+Drag Cd
+
+0.03
+
+Lift Cl
+
+Drag Cd
+
+0.03
+
+1.0
+
+0.02
+
+0.5
+0.01
+
+0.01
+
+0.0
+0
+
+5
+
+10
+Angle, deg
+
+15
+
+0
+
+5
+
+10
+Angle, deg
+
+15
+
+0.0
+
+(b) Drag and lift coefficients for the NACA 0012 with MANSJ omitted for clarity.
+
+Fig. 15: Comparison of turbulence model predictions for the NACA0012 airfoil. In
+(a), all models (MANSJ , MSST , MSEP , Mblend ) are shown, while (b) omits the MANSJ
+model for better clarity. Symbols for reference data: (
+) Ladson [75], (
+)
+Gregory & O’Reilly [76], and (
+) Abbott & von Doenhoff [77]. Symbols for
+turbulence models: ( ) MSST , ( ) MSEP , and ( ) Mblend .
+
+from existing non-intrusive external blending methods [37]. This internal blending provides a unified solution by applying model corrections directly via weighting functions
+predicted by RFR, which are trained using the solutions of the expert models.
+32
+
+0.004
+Cf
+
+0.2
+
+0.4 0.6
+x/c
+
+0.40
+
+0.8
+
+0.35
+
+0.30
+
+0.000
+
+−0.5
+0.0
+
+0.40
+0.35
+
+0.002
+
+0.0
+
+0.45
+
+wm|y<0
+
+0.5
+
+0.45
+
+wm|y>0
+
+0.006
+
+Cp
+
+1.0
+
+0.30
+
+0.25
+0.0
+
+0.2
+
+0.4 0.6
+x/c
+
+0.8
+
+0.25
+0.25
+
+1.0
+
+0.50
+x/c
+
+0.75
+
+0.25
+
+0.50
+x/c
+
+0.75
+
+0.25
+
+0.50
+x/c
+
+0.75
+
+0.25
+
+0.50
+x/c
+
+0.75
+
+(a) Angle of attack 0◦
+
+0.03
+
+0.45
+
+0.45
+
+0.40
+
+0.40
+
+0.35
+
+0.01
+
+−4
+−6
+0.0
+
+0.2
+
+0.4 0.6
+x/c
+
+0.35
+
+0.30
+
+0.30
+
+0.25
+
+0.00
+
+0.8
+
+wm|y<0
+
+−2
+
+wm|y>0
+
+0.02
+Cf
+
+Cp
+
+0
+
+0.0
+
+0.2
+
+0.4 0.6
+x/c
+
+0.8
+
+0.25
+0.25
+
+1.0
+
+0.50
+x/c
+
+0.75
+
+(b) Angle of attack 10◦
+0.45
+
+0.40
+
+0.40
+
+wm|y>0
+
+0.03
+
+−5.0
+
+0.35
+
+0.02
+
+0.35
+
+0.30
+
+−7.5
+
+0.30
+
+0.01
+
+−10.0
+0.0
+
+0.45
+
+0.04
+Cf
+
+Cp
+
+−2.5
+
+0.05
+
+wm|y<0
+
+0.0
+
+0.00
+0.2
+
+0.4 0.6
+x/c
+
+0.8
+
+0.25
+0.0
+
+0.2
+
+0.4 0.6
+x/c
+
+0.8
+
+1.0
+
+0.25
+0.25
+
+0.50
+x/c
+
+0.75
+
+(c) Angle of attack 15◦
+
+Fig. 16: Surface pressure (first column), skin friction (second column), and blending
+weights on the upper (third column) and lower (fourth column) airfoil surfaces for the
+NACA0012 at three angles of attack (0◦ , 10◦ , and 15◦ ). Symbols for reference data:
+(
+) Ladson [75], (
+) Gregory & O’Reilly [76], and (
+) Abbott
+& von Doenhoff [77]. Symbols for turbulence models:(
+) MANSJ , (
+) MSST , (
+)
+MSEP , (
+) Mblend .
+
+The proposed blending approach operates in two distinct phases: an offline learning
+phase and an online prediction phase. During the offline phase, a mixture of available experts is selected, where each expert model is tailored to specialize in a specific
+flow regime. RFR are employed to dynamically adjust the contribution of each expert
+model based on local flow features. The available expert models used in this paper
+33
+
+were trained across various flow regimes, including attached boundary layers, separated flows, and free-shear flows (such as an axisymmetric jet). The flexibility of the
+weighting functions ensures that the most relevant expert models dominate in regions
+where they perform best, while less suitable models are downweighted. In the online
+phase, the computational process is streamlined into two steps. First, a baseline simulation is run to extract key flow features. Then, the blended correction formed by the
+RFR is propagated within the RANS solver.
+To evaluate the effectiveness of the proposed methodology, the model was tested
+on several training and test flow cases from the NASA turbulence modeling testing
+challenge [6]. The test cases include the 2D zero-pressure-gradient flat plate flow,
+the separated flow over a wall-mounted hump, and a NACA0012 airfoil flow at high
+Reynolds number. The results demonstrate that the blended model outperforms the
+baseline MSST model in flow configurations where the baseline model struggles, and
+that are sufficiently close to the training flows. Notably, in certain cases, the blended
+model even surpasses the best-performing individual expert models. Moreover, its
+accurate predictions of lift, drag, and surface-pressure distributions on the untrained
+NACA0012 flows, which differ significantly from the training configurations, highlight
+the model’s ability to generalize beyond the flow configurations present in the training
+data.
+Looking ahead, future work should focus on developing a more optimal set of input
+features characterizing flow regions dominated by different physical dynamics and
+hence allowing to better allocate weights to the expert models. For instance, automatic
+clustering techniques could be employed to identify homogeneous data sets, allowing
+for more targeted expert model training [78]. Feature normalization is another critical
+aspect worth of further investigation, since this could contribute improving generalizability by limiting extrapolation. Extending the methodology to more complex
+three-dimensional flows by incorporating additional expert models will be essential for
+validating the approach in more challenging configurations. This will require training expert model corrections accounting for 3D effects. Another important avenue
+for future work is exploring online training of the weighting functions and optimizing
+feature selection to better capture the flow characteristics. Finally, nonlinear model
+combinations could also be considered, such as transformer models [79]), hierarchical
+mixtures of experts [44], and Kolmogorov-Arnold Neural Networks [80].
+Addressing these challenges will enhance the accuracy and adaptability of the
+blended model, ensuring its robustness across a broader range of flow configurations.
+
+Funding information
+The authors gratefully acknowledge the support of the Institute for Scientific Computing and Data Science of Sorbonne University for providing the necessary resources
+and environment for this research under internal project “LearnFLUIDS” (MachineLEARNing for FLUID Simulations).
+34
+
+Feature
+
+Description
+
+η1
+
+Normalized Q criterion
+
+Formula
+||Ω||2 − ||S||2
+||Ω||2 + ||S||2
+
+η2
+
+Turbulence intensity
+
+k
+0.5Ui Ui + k
+
+η3
+
+Turbulent Reynolds
+number
+
+η4
+
+η5
+
+Pressure gradient
+along streamline
+Ratio of turbulent
+time scale to mean
+strain time scale
+
+√
+
+kλ
+,2
+50ν
+
+min
+
+Uk
+
+s
+
+Feature
+
+Description
+
+η6
+
+Viscosity ratio
+
+η7
+
+Ratio of pressure
+normal stresses to
+normal shear stresses
+
+η8
+
+Non-orthogonality
+marker between velocity
+and its gradient [83]
+
+!
+
+∂P
+∂xk
+
+η9
+
+Ratio of convection to
+production of k
+
+η10
+
+Ratio of total Reynolds
+stresses to normal
+Reynolds stresses
+
+∂P
+∂P ∂P
+Ui Ui + Ul
+∂xj ∂xj
+∂xl
+||S||k
+||S||k + ε
+
+Formula
+νT
+100ν + νT
+r
+∂P ∂P
+∂xi ∂xi
+
+s
+
+s
+
+∂P ∂P
+∂U 2
++ 0.5ρ k
+∂xj ∂xj
+∂xk
+∂Uk
+Uk Ul
+∂xl
+∂Ui
+∂Um
+∂Ui
+Um
++ Ui Uj
+∂xj
+∂xj
+∂xj
+∂k
+Ui
+∂xi
+∂k
+|u′j u′l Sjl | + Ul
+∂xl
+
+Un Un Ui
+
+||u′i u′j ||
+
+k + ||u′i u′j ||
+
+Table 12: List of input features used to train the weighting functions for the blended
+model.
+
+A Input features
+To incorporate information about the local flow physics, we selected a set of physical
+flow features among those initially introduced in [55], and summarized in Table 12.
+The latter are supplemented by an additional feature proposed in Ref. [81]:
+η11 =
+
+Pk
+Pk + ϵ
+
+which introduces information about turbulent flow regimes for which the baseline
+model k − ω SST delivers reliable predictions. Specifically, η11 is valuable in representing scenarios such as freely decaying turbulence, characterized by Pk → 0 (hence,
+η11 → 0), and equilibrium turbulence, where Pk ≈ ϵ, leading to η11 → 21 .
+These heuristic features were chosen based on expert judgement for their relevance
+to turbulence modeling. For instance, the Q-criterion is used to detect vortical regions,
+the turbulent kinetic energy, and its ratios to local strain or dissipation rate are used
+to detect the local state of turbulence, etc.
+Of note, the present choice is mostly based on practical implementation reasons
+and previous work by the present and other authors, but it is most likely not optimal. In addition, while the present features are, by construction, bounded within -1
+and 1 to improve generalizability, other nondimensionalization choices could be imagined. Finally, unsupervised machine learning and latent space analysis could be use to
+automatically extract a best set of features from the training data, but such features
+would hardly be physically interpretable.
+A systematic framework called LIFE (“Learning and Inference assisted by Featurespace Engineering”) for selecting suitable features for turbulence and transition model
+augmentation has been recently proposed in [82]. More research is warranted in the
+future for finding a set of more optimal, non-dimensional and interpretable features.
+35
+
+B Constants and auxiliary relations for the k-ω SST
+The constants of k-ω SST model are given bellow
+
+(
+"
+!
+#
+)!4 
+√
+k 500ν
+4αω2 k
+,
+F1 = tanh  min min max
+,
+,
++ 2 ; 10
+β ∗ ωy y 2 ω
+CDkω
+y
+
++
+CDkω
+= max CDkω , 10−10 ,
+
+!
+)!2 
+(
+√
+2 k 500ν
+,
+,
+; 100
+F2 = tanh  min max
+β ∗ ωy y 2 ω
+"
+4 #
+
+ν
+,
+F3 = 1 − tanh min 150 2 ; 10
+ωy
+F23 = F2 F3 , if F3 is enabled, or F2 otherwise,
+DkEff = ν + αk (F 1)νt ,
+DωEff = ν + αω (F 1)νt
+where y is blending function distance and αk (F 1), αω (F 1) are blending functions given
+by
+αk (F1 ) = F1 αk1 + (1 − F1 )αk2
+αω (F1 ) = F1 αω1 + (1 − F1 )αω2
+and
+αk = (0.85, 1), αω = (0.5, 0.856),
+γ = (5/9, 0.44), β = (0.075, 0.0828).
+β ∗ = 0.09, a1 = 0.31, b1 = 1, c1 = 10
+
+References
+[1] Spalart, P.: Strategies for turbulence modelling and simulations. International
+Journal of Heat and Fluid Flow 21, 252–263 (2000)
+[2] Pope, S.B.: Turbulent Flows. Cambridge University Press, Cambridge, UK (2000)
+[3] Wilcox, D.C.: Turbulence Modeling for CFD, 3rd edn. DCW Industries, La
+Canada, California (2006)
+[4] P. Spalart: Philosophies and fallacies in turbulence modeling. Progress in
+Aerospace Sciences 74, 1–15 (2015)
+[5] Durbin, P.A.: Some recent developments in turbulence closure modeling. Annual
+Review of Fluid Mechanics 50, 77–103 (2018)
+36
+
+[6] Rumsey, C., Coleman, G.: Nasa symposium on turbulence modeling: Roadblocks,
+and the potential for machine learning. Technical report, NASA Ames Research
+Center Moffett Field, CA, United States (2022)
+[7] Schmitt, F.G.: About Boussinesq’s turbulent viscosity hypothesis: historical
+remarks and a direct evaluation of its validity. Comptes Rendus Mécanique 335,
+617–627 (2007)
+[8] Spalart, P., Shur, M.: On the sensitization of simple turbulence models to rotation
+and curvature. Aerospace Science and Technology 1, 297–302 (1997)
+[9] Speziale, C.: On nonlinear k-l and k-ϵ models of turbulence. Journal of Fluid
+Mechanics 178, 459–475 (1987)
+[10] Durbin, P.: Near-wall turbulence closure modelling without damping functions.
+Theoretical and Computational Fluid Dynamics 3, 1–13 (1991)
+[11] Rodi, W.: A new algebraic relation for calculating the Reynolds stresses.
+Gesellschaft Angewandte Mathematik und Mechanik Workshop Paris France 56,
+219 (1976)
+[12] Pope, S.B.: A more general effective-viscosity hypothesis. Journal of Fluid
+Mechanics 72(2), 331–340 (1975)
+[13] Gatski, T.B., Speziale, C.G.: On explicit algebraic stress models for complex
+turbulent flows. Journal of Fluid Mechanics 254, 59–78 (1993)
+[14] Wallin, S., Johansson, A.V.: An explicit algebraic Reynolds stress model for
+incompressible and compressible turbulent flows. Journal of Fluid Mechanics 403,
+89–132 (2000)
+[15] Speziale, C.: A review of Reynolds Stress models for Turbulent shear flows.
+Technical Report NASA-CR-195054, NASA (1995)
+[16] Xiao, H., Cinnella, P.: Quantification of model uncertainty in RANS simulations:
+A review. Progress in Aerospace Sciences 108, 1–31 (2019)
+[17] Duraisamy, K., Iaccarino, G., Xiao, H.: Turbulence modeling in the age of data.
+Annual Review of Fluid Mechanics 51, 357–377 (2019)
+[18] Duraisamy, K.: Perspectives on machine learning-augmented Reynolds-Averaged
+and Large Eddy Simulation models of turbulence. Physical Review Fluids 6,
+050504 (2021)
+[19] Sandberg, R.D., Zhao, Y.: Machine-learning for turbulence and heat-flux model
+development: A review of challenges associated with distinct physical phenomena
+and progress to date. International Journal of Heat and Fluid Flow 95, 108983
+(2022)
+37
+
+[20] Weatheritt, J., Sandberg, R.: A novel evolutionary algorithm applied to algebraic
+modifications of the RANS stress–strain relationship. Journal of Computational
+Physics 325, 22–37 (2016)
+[21] Schmelzer, M., Dwight, R.P., Cinnella, P.: Discovery of algebraic Reynolds-stress
+models using sparse symbolic regression. Flow, Turbulence and Combustion
+104(2), 579–603 (2020)
+[22] Volpiani, P.S., Meyer, M., Franceschini, L., Dandois, J., Renac, F., Martin, E.,
+Marquet, O., Sipp, D.: Machine learning-augmented turbulence modeling for
+RANS simulations of massively separated flows. Physical Review Fluids 6(6),
+064607 (2021)
+[23] Cherroud, S., Merle, X., Cinnella, P., Gloerfelt, X.: Sparse bayesian learning of explicit algebraic reynolds-stress models for turbulent separated flows.
+International Journal of Heat and Fluid Flow 98, 109047 (2022)
+[24] Volpiani, P.S., Bernardini, R.F., Franceschini, L.: Neural network-based eddyviscosity correction for RANS simulations of flows over bi-dimensional bumps.
+International Journal of Heat and Fluid Flow 97, 109034 (2022)
+[25] Singh, A.P., Medida, S., Duraisamy, K.: Machine-learning-augmented predictive
+modeling of turbulent separated flows over airfoils. AIAA journal 55(7), 2215–
+2227 (2017)
+[26] Holland, J.R., Baeder, J.D., Duraisamy, K.: Towards integrated field inversion
+and machine learning with embedded neural networks for RANS modeling. In:
+AIAA Scitech 2019 Forum, p. 1884 (2019)
+[27] Steiner, J., Dwight, R.P., Viré, A.: Data-driven RANS closures for wind turbine
+wakes under neutral conditions. Computers & Fluids 233, 105213 (2022)
+[28] Amarloo, A., Cinnella, P., Iosifidis, A., Forooghi, P., Abkar, M.: Data-driven
+reynolds stress models based on the frozen treatment of reynolds stress tensor
+and reynolds force vector. Physics of Fluids 35(7) (2023)
+[29] Wang, J.-X., Wu, J.-L., Xiao, H.: Physics-informed machine learning approach
+for reconstructing Reynolds stress modeling discrepancies based on dns data.
+Physical Review Fluids 2(3), 034603 (2017)
+[30] Wu, J.-L., Xiao, H., Paterson, E.: Physics-informed machine learning approach
+for augmenting turbulence models: A comprehensive framework. Physical Review
+Fluids 3(7), 074602 (2018)
+[31] Fang, Y., Zhao, Y., Waschkowski, F., Ooi, A.S., Sandberg, R.D.: Toward more
+general turbulence models via multicase computational-fluid-dynamics-driven
+training. AIAA Journal 61(5), 2100–2115 (2023)
+
+38
+
+[32] Bin, Y., Chen, L., Huang, G., Yang, X.I.: Progressive, extrapolative machine
+learning for near-wall turbulence modeling. Physical Review Fluids 7(8), 084610
+(2022)
+[33] Amarloo, A., Rincón, M.J., Reclari, M., Abkar, M.: Progressive augmentation of
+turbulence models for flow separation by multi-case computational fluid dynamics
+driven surrogate optimization. Physics of Fluids 35(12) (2023)
+[34] Rincón, M.J., Amarloo, A., Reclari, M., Yang, X.I., Abkar, M.: Progressive
+augmentation of reynolds stress tensor models for secondary flow prediction
+by computational fluid dynamics driven surrogate optimisation. International
+Journal of Heat and Fluid Flow 104, 109242 (2023)
+[35] Matai, R., Durbin, P.: Zonal eddy viscosity models based on machine learning.
+Flow, Turbulence and Combustion 103, 93–109 (2019)
+[36] Zordo-Banliat, M., Dergham, G., Merle, X., Cinnella, P.: Space-dependent turbulence model aggregation using machine learning. Journal of Computational
+Physics 497, 112628 (2024)
+[37] Cherroud, S., Merle, X., Cinnella, P., Gloerfelt, X.: Space-dependent aggregation
+of stochastic data-driven turbulence models. Journal of Computational Physics,
+113793 (2025)
+[38] Lozano-Durán, A., Bae, H.J.: Machine learning building-block-flow wall model
+for large-eddy simulation. Journal of Fluid Mechanics 963, 35 (2023)
+[39] Ho, J., Pepper, N., Dodwell, T.: Probabilistic machine learning to improve generalisation of data-driven turbulence modelling. Computers & Fluids, 106443
+(2024)
+[40] Edeling, W.N., Cinnella, P., Dwight, R.P., Bijl, H.: Bayesian estimates of parameter variability in the k–ε turbulence model. Journal of Computational Physics
+258, 73–94 (2014)
+[41] Edeling, W.N., Cinnella, P., Dwight, R.P.: Predictive RANS simulations via
+Bayesian model-scenario averaging. Journal of Computational Physics 275, 65–91
+(2014)
+[42] Edeling, W.N., Schmelzer, M., Dwight, R.P., Cinnella, P.: Bayesian predictions
+of Reynolds-Averaged Navier-Stokes uncertainties using maximum a posteriori
+estimates. AIAA Journal 56(5), 2018–2029 (2018)
+[43] Yuksel, S.E., Wilson, J.N., Gader, P.D.: Twenty Years of Mixture of Experts.
+IEEE transactions on neural networks and learning systems 23(8), 1177–1193
+(2012)
+
+39
+
+[44] Jordan, M.I., Jacobs, R.A.: Hierarchical mixtures of experts and the em algorithm. Neural Computation 6(2), 181–214 (1994)
+[45] Hoeting, J.A., Madigan, D., Raftery, A.E., Volinsky, C.T.: Bayesian model averaging: a tutorial (with comments by m. clyde, david draper and ei george, and a
+rejoinder by the authors. Statistical science 14(4), 382–417 (1999)
+[46] Menter, F.R.: Improved two-equation k-omega turbulence models for aerodynamic flows. Technical report, A (1992)
+[47] Weatheritt, J., Pichler, R., Sandberg, R.D., Laskowski, G., Michelassi, V.:
+Machine learning for turbulence model development using a high-fidelity hpt cascade simulation. In: Turbo Expo: Power for Land, Sea, and Air, vol. 50794, pp.
+02–41015 (2017). American Society of Mechanical Engineers
+[48] Stöcker, Y., Golla, C., Jain, R., Fröhlich, J., Cinnella, P.: Dns-based turbulent
+closures for sediment transport using symbolic regression. Flow, Turbulence and
+Combustion 112(1), 217–241 (2024)
+[49] Cherroud, S.: Sparse bayesian learning and adaptative aggregation of data-driven
+turbulence models. PhD thesis, Arts et Métiers Institute of Technology (2023)
+[50] Bridges, J., Wernet, M.: Establishing consensus turbulence statistics for hot
+subsonic jets. In: 16th AIAA/CEAS Aeroacoustics Conference, p. 3751 (2010)
+[51] Breuer, M., Peller, N., Rapp, C., Manhart, M.: Flow over periodic hills–numerical
+and experimental study in a wide range of Reynolds numbers. Computers &
+Fluids 38(2), 433–457 (2009)
+[52] Temmerman, L., Leschziner, M.A., Mellen, C.P., Frohlich, J.: Investigation of
+subgrid-scale models and wall-damping functions in large-eddy simulation of separated flow in a channel with streamwise periodic constrictions. International
+Journal of Heat and Fluid Flow 24(2), 157–180 (2001)
+[53] Laval, J.-P., Marquillie, M.: Direct numerical simulations of converging–diverging
+channel flow. In: Kassinos, S.C., Lázaro, B.J., Reynard, G. (eds.) Progress in
+Wall Turbulence: Understanding and Modeling, pp. 203–209. Springer, Berlin,
+Germany (2011)
+[54] Bentaleb, Y., Lardeau, S., Leschziner, M.A.: Large-eddy simulation of turbulent
+boundary layer separation from a rounded step. Journal of Turbulence (13), 4
+(2012)
+[55] Ling, J., Templeton, J.: Evaluation of machine learning algorithms for prediction
+of regions of high Reynolds-Averaged Navier-Stokes uncertainty. Physics of Fluids
+27(8), 085103 (2015)
+
+40
+
+[56] Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O.,
+Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A.,
+Cournapeau, D., Brucher, M., Perrot, M., Duchesnay, E.: Scikit-learn: Machine
+learning in python. Journal of Machine Learning Research 12, 2825–2830 (2011)
+[57] OpenFOAM Foundation: Openfoam - the open source computational fluid
+dynamics toolbox (2023). Version 10
+[58] Lee, M., Moser, R.D.: Direct numerical simulation of turbulent channel flow up
+to Re τ ≈ 5200. Journal of Fluid Mechanics 774, 395–415 (2015)
+[59] Fröhlich, J., Mellen, C.P., Rodi, W., Temmerman, L., Leschziner, M.A.: Highly
+resolved large-eddy simulation of separated flow in a channel with streamwise
+periodic constrictions. Journal of Fluid Mechanics 526, 19–66 (2005)
+[60] Lardeau, S., Leschziner, M.A.: The interaction of round synthetic jets with a
+turbulent boundary layer separating from a rounded ramp. Journal of Fluid
+Mechanics 683, 172–211 (2011)
+[61] Wieghardt, K., Tillmann, W.: On the turbulent friction layer for rising pressure.
+Technical Report NASA TM 1314 (1951)
+[62] Greenblatt, D., Paschal, K.B., Yao, C.-S., Harris, J., Schaeffler, N.W., Washburn,
+A.E.: Experimental investigation of separation control part 1: baseline and steady
+suction. AIAA journal 44(12), 2820–2830 (2006)
+[63] McCroskey, W.: A critical assessment of wind tunnel results for the naca 0012
+airfoil. Technical Report NASA TM 100019 (1987)
+[64] Coles, D.E., Hirst, E.A.: Computation of turbulent boundary layers. In: Proceedings of AFOSR-IFP Stanford Conference, vol. 2 (1968)
+[65] Sirovich, L.: Turbulence and the dynamics of coherent structures, parts i-iii.
+Quarterly of Applied Mathematics 45, 561–590 (1987)
+[66] Maaten, L.v.d., Hinton, G.: Visualizing data using t-sne. Journal of Machine
+Learning Research 9(Nov), 2579–2605 (2008)
+[67] Rumelhart, D.E., Hinton, G.E., Williams, R.J.: Learning internal representations by error propagation. In: Rumelhart, D.E., McClelland, J.L. (eds.) Parallel
+Distributed Processing: Explorations in the Microstructure of Cognition, Vol. 1:
+Foundations, pp. 318–362. MIT Press, Cambridge, MA (1986)
+[68] Hinton, G.E., Salakhutdinov, R.R.: Reducing the dimensionality of data with
+neural networks. Science 313(5786), 504–507 (2006)
+[69] Maaten, L., Hinton, G.: Visualizing data using t-sne. Journal of machine learning
+research 9(11) (2008)
+41
+
+[70] Coles, D.: The law of the wake in the turbulent boundary layer. Journal of Fluid
+Mechanics 1(2), 191–226 (1956)
+[71] Bardina, J., Ferziger, J.H., Reynolds, W.C.: Turbulence modeling validation,
+testing, and development. Technical Report NASA TM 110446, Moffett Field,
+California (April 1997)
+[72] Greenblatt, D., Paschal, K.B., Yao, C.-S., Harris, J.: Experimental investigation
+of separation control part 2: zero mass-flux oscillatory blowing. AIAA journal
+44(12), 2831–2845 (2006)
+[73] Naughton, J.W., Viken, S., Greenblatt, D.: Skin friction measurements on the
+nasa hump model. AIAA Journal 44(6), 1255–1265 (2006)
+[74] Resource, N.T.M.: NASA Turbulence Modeling Resource: Turbulence Model
+Benchmark Cases. https://turbmodels.larc.nasa.gov. Accessed: 2024-09-06
+(2024)
+[75] Ladson, C.L.: Effects of independent variation of mach and reynolds numbers
+on the low-speed aerodynamic characteristics of the naca 0012 airfoil section.
+NASA Technical Memorandum 4074, NASA (October 1988). https://ntrs.nasa.
+gov/citations/19880019495
+[76] Gregory, N., O’Reilly, C.L.: Low-speed aerodynamic characteristics of naca 0012
+aerofoil sections, including the effects of upper-surface roughness simulation hoar
+frost. Reports and Memoranda 3726, Royal Aircraft Establishment (January
+1970)
+[77] Abbott, I.H., Doenhoff, A.E.: Theory of Wing Sections: Including a Summary of
+Airfoil Data. Dover Publications, New York (1959)
+[78] Roques, C., Dergham, G., Merle, X., Cinnella, P.: Non-intrusive space-dependent
+aggregation of updated RANS models via Bayesian calibration and machine
+learning. In: IProceeding of the 4th International ERCOFTAC Symposium on
+Engineering Turbulence Modelling and Measurements (2023)
+[79] Fang, Y., Reissmann, M., Pacciani, R., Zhao, Y., Ooi, A.S., Marconcini, M.,
+Akolekar, H.D., Sandberg, R.D.: Exploiting a transformer architecture for simultaneous development of transition and turbulence models for turbine flow
+predictions. In: Turbo Expo: Power for Land, Sea, and Air, vol. 88070, pp.
+12–32023 (2024). American Society of Mechanical Engineers
+[80] Liu, Z., Wang, Y., Vaidya, S., Ruehle, F., Halverson, J., Soljačić, M.,
+Hou, T.Y., Tegmark, M.: Kan: Kolmogorov-arnold networks. arXiv preprint
+arXiv:2404.19756 (2024)
+
+42
+
+[81] Girimaji, S.: Machine learning, scale resolving simulations and the future of predictive computations of engineering flows: A perspective. In: 2022 Symposium
+on Turbulence Modeling: Roadblocks, and the Potential for Machine Learning
+(2022)
+[82] Srivastava, V., Duraisamy, K.: Generalizable physics-constrained modeling using
+learning and inference assisted by feature-space engineering. Physical Review
+Fluids 6(12), 124602 (2021)
+[83] Gorlé, C., Iaccarino, G.: A framework for epistemic uncertainty quantification
+of turbulent scalar flux models for Reynolds-Averaged Navier-Stokes simulations.
+Physics of Fluids 25(5), 055105 (2013)
+
+43
+
+

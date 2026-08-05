@@ -1,0 +1,251 @@
+arXiv:2603.28884v1 [physics.flu-dyn] 30 Mar 2026
+
+The Closure Challenge: a benchmark task for machine
+learning in turbulence modelling
+Ryley McConkey1*† , Tyler Buchanan2* , Tess Smidt1 , Abigail Bodner1 , Richard Dwight2 ,
+and Paola Cinnella3
+1
+
+Center for Computational Science and Engineering, Massachusetts Institute of Technology, United States
+2
+Aerodynamics Group, Faculty of Aerospace Engineering, TU Delft, The Netherlands
+3
+Institut Jean Le Rond D’Alembert, Sorbonne University, France
+*
+Equal contribution.
+†
+Corresponding author: rmcconke@mit.edu.
+
+Abstract
+We introduce a field-wide benchmark challenge for machine learning in Reynolds-averaged Navier-Stokes
+(RANS) turbulence modelling. Though open-source datasets exist for training data-driven turbulence closure models, the field has been notably lacking a standard benchmark metric and test dataset. The Closure Challenge is a curated collection of open-source datasets and evaluation code that remedies this
+problem. We provide a variety of high-fidelity training data in a standardized format, including mean velocity gradients. The test cases (periodic hills, square duct, and NASA wall-mounted hump) evaluate
+Reynolds number and geometry generalization, two key issues in the field. We present results from three
+early submissions to the challenge. This is an ongoing challenge, intended to continuously spur innovation in machine learning for turbulence modelling. Our goal is for this benchmark to become the standard evaluation for new machine learning frameworks in RANS. The Closure Challenge is available at:
+https://github.com/rmcconke/closure-challenge-benchmark.
+
+1
+
+Introduction
+
+The field of ML augmented RANS modelling has seen significant interest for at least a decade. Many
+methodologies have been proposed. However, a critical problem slowing progress in the field is the absence of an open-source benchmark dataset with clear evaluation criteria. In order to compare a new
+technique against an existing technique, significant effort is required. We aim to eliminate this required
+effort and greatly accelerate progress in the field by implementing a benchmark dataset for ML in RANS.
+This mirrors the use of field-wide benchmarks in many other scientific machine learning domains, such
+as protein structure prediction [1], materials property prediction [2], catalyst discovery [3], PDE surrogate
+modelling [4], and weather forecasting [5].
+Our goal is to create a challenging dataset that represents the actual state of ML-augmented RANS
+turbulence modelling. We aim to propose challenging generalization tasks, with the goal that over time,
+techniques which generalize better will rise to the top of the leaderboard. We do not want to cast the field
+in an overly optimistic light; we want to provide a hard challenge that will motivate new ideas in the field.
+This is an ongoing challenge. It is not associated with any particular conference or event. This running
+leaderboard aims to summarize the state of the art in the field of ML for RANS turbulence modelling. We aim
+to make it a standard requirement to test future methodologies on this dataset, thereby greatly accelerating
+progress in this field.
+The primary source of information for this challenge is the github repository: https://github.com/
+rmcconke/closure-challenge-benchmark. This document outlines the task and philosophy of the chal-
+
+1
+
+lenge, as well as the current results. We intend to update it periodically as more submissions become
+available.
+
+2
+
+Challenge task and rules
+
+The benchmark task is to predict the flow field for a series of test cases on a specified CFD mesh. All other
+decisions are left to the submitter.
+Notably, we leave the training and validation dataset up to the submitter. We would prefer having a
+standardized training and validation dataset in order to separate the performance of a modelling technique
+from the data it was trained on. However, the complexities associated with implementing current techniques,
+and previous lack of a field-wide benchmark mean that each research group has their own code, training
+datasets, and local infrastructure. Therefore, to lower the barrier to entry, we only standardize the test
+dataset. You are free to use your own training and validation data.
+
+2.1
+
+Test cases
+
+The test cases cannot be used in any way at training time. You can train on similar flows to the test cases
+(for example, different parametric variations of the periodic hills case). More details of the provided datasets
+are given in Section 3.
+The only strict rule with this challenge is: it is forbidden to train or validate on any of the test cases.
+As of March 2026, the test cases are:
+• Periodic hills: (Re = 5600)
+– α = 1.5, L = 13.929H, h = 4.048H
+– α = 1.5, L = 13.929H, h = 2.024H
+– α = 1.5, L = 4.071H, h = 4.048H
+– α = 1.5, L = 4.071H, h = 2.024H
+• Square duct:
+– Reτ = 360, AR = 1
+– Reτ = 360, AR = 3
+– Reτ = 180, AR = 14
+• NASA wall-mounted hump.
+Please check the challenge website for a current list of test cases.
+
+2.2
+
+Submission
+
+You must submit your predictions on the provided meshes for each of the test cases. The Python evaluation package for the challenge is open-source and available on pypi. Instructions for using the evaluation
+package to preview your score are given at https://github.com/rmcconke/closure-challenge.
+Please check the main challenge github page for current instructions on how to submit your predictions.
+As of March 2026, submissions are via email.
+
+2
+
+2.3
+
+Scoring
+
+As of March 2026, the score is calculated as follows:
+Score =
+
+1
+
+X
+
+Ncases
+
+c
+
+1
+
+Nc
+X
+
+Nc |U|c i=1
+
+Ũi − Utrue,i
+
+(1)
+
+where c indexes the test cases, Ncases is the total number of test cases, Nc is the number of evaluation
+points in test case c, | · | denotes the Euclidean vector magnitude, Ũi is the predicted velocity vector
+PNc
+|Utrue,i | is the mean
+at point i, Utrue,i is the reference (DNS/LES) velocity vector, and |U|c = N1c i=1
+velocity magnitude over test case c. The scaling by |U|c ensures that each test case contributes on a
+comparable scale regardless of its characteristic velocity. The overall score can be interpreted as the
+average fractional velocity error across all test cases; for example, a score of 0.05 indicates that predictions
+are off by approximately 5% of the mean velocity magnitude on average. A lower score indicates better
+agreement with the reference data.
+
+3
+
+Datasets
+
+The following fields are available for each of the datasets:
+• RANS predictions with the k-ω SST turbulence model
+• DNS or LES ”ground truth” data, including mean velocity gradients.
+We include the velocity gradients, as we note that many current frameworks require this information at
+training time. Since there is no standardized training dataset for this challenge, we provide this data purely
+for convenience and to lower the barrier to entry for the challenge.
+The full list of included datasets is continuously updated on the challenge github page. As of March
+2026, the included datasets are:
+• 2D flows
+– Periodic hills, 29 parametric variations (Re = 5600) [6]
+– Periodic hills, Re = 10595 [7]
+– Square and rectangular ducts [8, 9, 10, 11]
+– Curved backward-facing step [7]
+– NASA wall-mounted hump [7]
+• 3D flows
+– Wing-body junction flow, Re = 1.15 × 105 [12, 13]
+– Ahmed body wake, Re = 7.60 × 105 [14, 15, 16]
+– FAITH hill flow, Re = 5.00 × 105 [7]
+Figure 1 shows the test cases chosen for the periodic hills dataset.
+
+4
+
+Current status and future directions
+
+The initial challenge involved submission from three groups. This submission and initial evaluation was synchronized with the 3rd European Research Commission on Flow, Turbulence, and Combustion (ERCOFTAC) Machine Learning for Fluid Dynamics workshop. However, this is a continuously running benchmark,
+not associated with any event. The github page will be updated with any new submissions. Table 1 presents
+
+3
+
+Figure 1: Cases for the periodic hills dataset (reproduced from [6] with red boxes added).
+
+Rank
+1
+2
+3
+∗
+
+Table 1: Leaderboard as of March 2026.
+Authors
+Reissmann, Fang, and Sandberg [17, 18]
+Wu and Zhang [19]
+Montoya, Oulghelou, and Cinnella [20]∗
+
+Overall
+0.0595
+0.0624
+0.0779
+
+Pretrained model from [20] only, without fine-tuning on the challenge datasets.
+
+the leaderboard as of March 2026. Details from each of the early submitters are available on the github
+page.
+As of March 2026, the challenge is implemented and running for the 2D flows. 3D data is currently
+available on the challenge page. We intend to add an additional challenge and leaderboard for 3D flows in
+the future.
+
+References
+[1] Andriy Kryshtafovych, Torsten Schwede, Maya Topf, Krzysztof Fidelis, and John Moult. Critical assessment of methods of protein structure prediction (CASP)—round XIV. Proteins, 89(12):1607–1617,
+2021.
+[2] Alexander Dunn, Qi Wang, Alex Ganose, Daniel Dopp, and Anubhav Jain. Benchmarking materials property prediction methods: The Matbench test set and Automatminer reference algorithm. npj
+Computational Materials, 6(1):138, 2020.
+
+4
+
+[3] Lowik Chanussot, Abhishek Das, Siddharth Goyal, Thibaut Lavril, Muhammed Shuaibi, Morgane Riviere, Kevin Tran, Javier Heras-Domingo, Caleb Ho, Weihua Hu, Aini Palizhati, Anuroop Sriram, Brandon Wood, Junwoong Yoon, Devi Parikh, C. Lawrence Zitnick, and Zachary Ulissi. Open Catalyst 2020
+(OC20) dataset and community challenges. ACS Catalysis, 11(10):6059–6072, 2021.
+[4] Makoto Takamoto, Timothy Praditia, Raphael Leiteritz, Dan MacKinlay, Francesco Alesiani, Dirk
+Pflüger, and Mathias Niepert. PDEBench: An Extensive Benchmark for Scientific Machine Learning. In 36th Conference on Neural Information Processing Systems (NeurIPS 2022) Track on Datasets
+and Benchmarks, 2022.
+[5] Stephan Rasp, Peter D. Dueben, Sebastian Scher, Jonathan A. Weyn, Soukayna Mouatadid, and
+Nils Thuerey. Weatherbench: A benchmark data set for data-driven weather forecasting. Journal of
+Advances in Modeling Earth Systems, 12(11), November 2020.
+[6] Heng Xiao, Jin-Long Wu, Sylvain Laizet, and Lian Duan. Flows over periodic hills of parameterized
+geometries: A dataset for data-driven turbulence modeling from direct simulations. Computers &
+Fluids, 200:104431, 2020.
+[7] Chris Rumsey. Turbulence modeling resource. Langley Research Center, 2021.
+[8] R. Vinuesa, P. Schlatter, and H. M. Nagib. Secondary flow in turbulent ducts with increasing aspect
+ratio. Phys. Rev. Fluids, 3:054606, May 2018.
+[9] Ricardo Vinuesa, Azad Noorani, Adrián Lozano-Durán, George K. El Khoury, Philipp Schlatter, Paul F.
+Fischer, and Hassan M. Nagib and. Aspect ratio effects in turbulent duct flows studied through direct
+numerical simulation. Journal of Turbulence, 15(10):677–706, 2014.
+[10] Ricardo Vinuesa, Cezary Prus, Philipp Schlatter, and Hassan M. Nagib. Convergence of numerical
+simulations of turbulent wall-bounded flows and mean cross-flow structure of rectangular ducts. Meccanica, 51(12):3025–3042, Dec 2016.
+[11] Ricardo Vinuesa, Philipp Schlatter, and Hassan M. Nagib and. On minimum aspect ratio for duct flow
+facilities and the role of side walls in generating secondary flows. Journal of Turbulence, 16(6):588–
+606, 2015.
+[12] D. D. Apsley and M. Leschziner. Investigation of advanced turbulence models for the flow in a generic
+wing-body junction. Flow, Turbulence and Combustion, 67:25–55, 2001.
+[13] F. Bassi, L. Botti, A. Colombo, A. Ghidoni, and F. Massa. On the development of an implicit highorder discontinuous Galerkin method for DNS and implicit LES of turbulent flows. European Journal of
+Mechanics, B/Fluids, 55(2):367–379, 2016.
+[14] S. R. Ahmed, G. Ramm, and G. Faltin. Some salient features of the time-averaged ground vehicle
+wake. Technical Report 840300, SAE, 1984.
+[15] H. Lienhart, C. Stoots, and S. Becker. Flow and turbulence structures in the wake of a simplified car
+model (Ahmed model). In DGLR Fach Symposium der AG STAB. Stuttgart University, 2000.
+[16] H. Lienhart and S. Becker. Flow and turbulence structure in the wake of a simplified car model.
+Technical Report 2003-01-0656, SAE, 2003.
+[17] Maximilian Reissmann, Yuan Fang, Andrew S. H. Ooi, and Richard D. Sandberg. Constraining genetic
+symbolic regression via semantic backpropagation. Genetic Programming and Evolvable Machines,
+26(1):12, 2025.
+[18] Jack Weatheritt and Richard Sandberg. A novel evolutionary algorithm applied to algebraic modifications of the rans stress–strain relationship. Journal of Computational Physics, 325:22–37, 2016.
+
+5
+
+[19] Chenyu Wu, Shaoguang Zhang, and Yufei Zhang. Development of a generalizable data-driven turbulence model: Conditioned field inversion and symbolic regression. AIAA Journal, 63(2):687–706,
+2025.
+[20] Mourad Oulghelou, Soufiane Cherroud, Xavier Merle, and Paola Cinnella. Machine-learning-assisted
+blending of data-driven turbulence models. Flow, Turbulence and Combustion, 115(3):1095–1132,
+2025.
+
+6
+
+

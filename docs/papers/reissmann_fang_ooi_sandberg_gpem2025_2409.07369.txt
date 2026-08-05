@@ -1,0 +1,1879 @@
+Constraining Genetic Symbolic Regression via
+Semantic Backpropagation
+Maximilian Reissmann1*, Yuan Fang1 , Andrew S. H. Ooi1 ,
+Richard D. Sandberg1
+
+arXiv:2409.07369v2 [math.OC] 17 Nov 2024
+
+1* Department of Mechanical Engineering, University of Melbourne,
+
+Grattan Street, Melbourne, 3010, Victoria, Australia.
+
+*Corresponding author(s). E-mail(s):
+reissmannm@student.unimelb.edu.au;
+Contributing authors: yuanfang1@student.unimelb.edu.au;
+a.ooi@unimelb.edu.au; richard.sandberg@unimelb.edu.au;
+Abstract
+Evolutionary symbolic regression approaches are powerful tools that can approximate an explicit mapping between input features and observation for various
+problems. However, ensuring that explored expressions maintain consistency with
+domain-specific constraints remains a crucial challenge. While neural networks
+are able to employ additional information like conservation laws to achieve more
+appropriate and robust approximations, the potential remains unrealized within
+genetic algorithms. This disparity is rooted in the inherent discrete randomness of
+recombining and mutating to generate new mapping expressions, making it challenging to maintain and preserve inferred constraints or restrictions in the course
+of the exploration. To address this limitation, we propose an approach centered on
+semantic backpropagation incorporated into the Gene Expression Programming
+(GEP), which integrates domain-specific properties in a vector representation as
+corrective feedback during the evolutionary process. By creating backward rules
+akin to algorithmic differentiation and leveraging pre-computed subsolutions, the
+mechanism allows the enforcement of any constraint within an expression tree by
+determining the misalignment and propagating desired changes back. To illustrate the effectiveness of constraining GEP through semantic backpropagation,
+we take the constraint of physical dimension as an example. This framework is
+applied to discover physical equations from the Feynman lectures. Results have
+shown not only an increased likelihood of recovering the original equation but
+also notable robustness in the presence of noisy data.
+
+1
+
+Keywords: Gene Expression Programming, Semantic Backpropagation, Symbolic
+regression
+
+1 Introduction
+The ability to track, store, and access vast amounts of data, in conjunction with
+the advent of an increasing landscape of machine learning algorithms, has emerged
+as a promising avenue to scientific discovery [1], engineering design [2], or biomedical research [3]. Here, regression approaches not only offer the opportunity to explore
+underlying patterns but also yield the potential to elaborate data-driven models for
+enabling promising prediction capabilities. However, a majority of existing methods
+often fail to achieve generalizability for out-of-training-distribution scenarios or struggle to capture underlying principles that govern natural phenomena when attempting
+to map the observations [4]. These issues become even more critical when the number of features increases, implying a vast amount of possibilities to construct such a
+model, extending the development time and the model uncertainty.
+Strategies such as regularization and constraint-based approaches have been
+developed to address the generalization gap and narrow the search space. Notably,
+techniques relying on neural networks are more accessible for advanced regularization due to their internal continuous weight representation and their differentiation
+mechanism [5, 6]. While these approaches have gained significant traction, there have
+been only a few attempts within the field of evolutionary computation. Nevertheless,
+evolutionary approaches, such as Genetic Programming (GP)[7] or Gene Expression
+Programming (GEP) [8], can handle non-smooth optimization problems and navigate
+high-dimensional, non-convex error surfaces, making them very versatile and applicable on a wide range of diverse problems. Here, strategies mitigating the effect of an
+increasing search space can be pointed to methods enforcing constraints [9], such as
+strict typing [10] or grammar-based construction [11, 12], exist. More recently, success was achieved by employing regularization utilizing domain-specific properties to
+modify the loss function [13, 14].
+Still, regularization alone has key limitations, e.g., requiring case-dependent manual tuning of regularization parameters [15] and potentially extending exploration
+time by suppressing promising candidate solutions in early iterations [13]. On the
+other hand, methods like strongly typed [16] or grammar-guided [17] GP necessitate
+substantial modifications to genetic operators [18] while suffering from low population diversity due to the initialization procedure [19]. Moreover, these approaches
+demonstrate weaker performance compared to other methods [20].
+Strategies aiming to infer sub-solutions with a more heuristic approach, such as
+semantic backpropagation [21], exist but are currently only featuring as a search
+operator on the regression target.
+To address this shortcoming, we propose integrating semantic backpropagation
+within GEP. The study introduces a methodology for formulating and employing constraints derived from the relationship between inputs and outputs, mapped into a
+
+2
+
+continuous space. Based on that formulation, a metric and the backpropagation mechanism can be utilized to infer the desired changes within the candidate solution. A case
+study by enforcing dimensional homogeneity of physical units is provided to exemplify
+the formulation of constraints and the application of backpropagation. By conducting
+a commonly utilized benchmark for symbolic regression (SRBench [20]) that, in comparison to other approaches, we demonstrate the framework’s capability to enforce and
+maintain a constraint, limiting the number of possible combinations and, therefore,
+restricting the search space.
+The study begins with a brief overview of related work. In section 3, we describe the
+methodology of incorporating physical knowledge, explaining the details of the synergy
+between the semantic backpropagation and the physical constraints, as well as the
+details of the algorithmic integration. Thereafter, section 4 presents the experimental
+setup, the employed metrics, and the test scenarios performed, followed by a discussion
+of the results. The last section concludes this work and outlines future work.
+
+2 Related Work
+This section starts by defining the relevant terminology and further examines the
+current state of symbolic regression methodologies, focusing on evolutionary methods.
+Subsequently, we outline methodologies that incorporate domain-specific knowledge
+into optimization processes.
+
+2.1 Symbolic Regression
+Assuming a regression task is given through a data set consisting of input features
+{x0 , . . . , xn } = X and a target value y, where we seek to find a mapping function
+fˆ so that fˆ(X) ≈ y. Employing symbolic regression restricts the model formulation
+fˆ to be an algebraic equation composed of various functions gk from a pre-defined
+function space Ω, combining a subset of X and various floating-point numbers or
+constants. Compared to regression methods relying on neural network architectures,
+the symbolic ones emphasize their advantage according to interpretability and better
+generalizability [4].
+However, these methods come with their challenges, as the problem of identifying
+an appropriate matching function has been proven to be NP-Hard (nondeterministic
+polynomial time) [22]. This implies that assuming P ̸= N P , whereby P signifies the
+problems solvable in polynomial time, no algorithm exists to solve all instances in
+polynomial time of this problem.
+Currently, the field of symbolic regression is still primarily dominated by metaheuristic approaches like genetic algorithms [7, 23–30]. Here, the direction for the
+optimization finds its role model within biological evolution. A randomly initialized
+start population, representing a set of different equations, is optimized over many
+generations. An assessment based on an error metric takes place in each generation,
+preceding the application of various modifications of the candidate solutions. Building
+upon Koza’s research [7], subsequent studies have implemented different techniques to
+enhance the efficiency of the exploration. These include specialized encoding schemes,
+predefined assumptions, more effective genetic search operators [21, 31], and strategies
+3
+
+for parallel processing and optimized hardware utilization [32]. Despite these improvements, the poor scaling to larger problems, low search efficiency, and unpredictable
+convergence remain significant issues [33].
+Techniques developed in recent years, like the equation learner (EQL) [34] and the
+Deep Symbolic Regression (DSR) Framework [35], aim to improve the search efficiency
+and suggest a more systematic procedure by using a neural network, hence driving
+the exploration through gradient information. The previously mentioned approach
+integrates mathematical operators into a classical neural network forward pass and
+employs gradient descent. In contrast, DSR utilizes reinforcement learning, a riskseeking policy, to refine the prediction of a more appropriate equation. Notably, while
+first-order optimization methods demonstrate proficiency in local search regions, they
+might end up with a sub-optimal solution. In further studies, this challenge has motivated the development of hybrid methods using the properties of meta-heuristics as
+well as the guided feedback from a gradient, for instance, the neural guided genetic
+programming [36] or the reinforcement GEP[8].
+Yet, the problem of excessive convergence time due to the large number of iterations
+required to infer a sufficient solution that fits the data remains. Here, the advent
+of large language models shifts the focus from an intensive search process to the
+training of parameter-intensive neural networks. Particularly, approaches like [33, 37–
+40] demonstrate that learning a large sample set of equations with their corresponding
+input- and output spaces allows a close inference, at least for the spatial dimension
+that has been seen during the training. Furthermore, they also try to approximate
+numerical constants using a second-order optimization. For example, the End-to-End
+Symbolic regression proposed by Kamienny et al. [33] demonstrated on the Feynman
+data set included within the SRBench [20] that for reaching a comparable result of the
+R2 -score, the inference time is around 100 times smaller compared to the evolutionary
+GP-Gomea [29]. Nevertheless, these approaches become less accurate in the next token
+prediction when the feature space increases, necessitating enhanced decoding methods
+[41], which also increases the risk of an extended exploration time and results in
+further considerations on mitigating or restricting the search space. Moreover, recent
+transformer-based approaches for symbolic regression face limitations, mainly when
+dealing with out-of-distribution datasets [41].
+
+2.2 Consideration of a Dimensional Constraint
+In case X is recorded by observing a physical system, each feature xi represents a
+physical quantity having a dimension ϕi . For instance, when attempting to determine
+a velocity, a feature x1 might represent a distance with dimension ϕ1 = [m] (meters)
+while another feature x2 could be time, having dimension ϕ2 = [s] (seconds). Hence, the
+target can be derived as the composition of ϕ1 and ϕ2 signifying velocity (v = x1 /x2 )
+with dimension [m/s]. This extends the initial given target for fˆ(X) ≈ y, to also satisfy
+dimensional homogeneity ϕf = ϕy . Imposing such an additional constraint reduces the
+number of valid combinations between functions and features, implying a restriction
+on the search space. In the subsequent study, we refer to a candidate solution as
+invalid if ϕf ̸= ϕy . A common first step in analyzing a data set involves techniques like
+normalization or non-dimensionalization of each feature. This process standardizes the
+4
+
+range of the quantities within the data set and ensures that the contributions to the
+final result are comparable. Regardless, in a significant portion of scientific equations,
+the input features are assigned physical dimensions, representing real-world quantities.
+The dimensions provide insight into how the quantities are linked to the given solution.
+However, most of the aforementioned approaches emphasize minimizing a numerical
+loss between the prediction of the generated function and the target values or trying
+to achieve a less complex equation regarding the function composition. With this
+idea in mind, some approaches started incorporating the homogeneity of the physical
+dimensions as a constraint to restrict the feature space and enable a more consistent
+representation of possible solutions.
+The study of Udrescu and Tegmark [42] and the subsequent enhanced version
+[43] describes a framework, referred to as AI Feynman, where the dimensional analysis marks the initial step. A mechanism determines new variables before proceeding
+to subsequent stages, ensuring a proper scaling of the physical quantities (nondimensionalization). In a further study, Bakarji et al. [44] proposed three methods, all
+relying on the Buckingham-Pi theorem [45] - a principle utilized in engineering science
+facilitating the identification of appropriate combinations of considered quantities for
+non-dimensionalization. Before employing Brunton et al.’s proposed approach [1], the
+author implemented the dimensions as a constraint on the optimization, specifically
+as a bias prescribing the construction of the first layer of a neural network (BuckiNet).
+Tenachi et al. [46] extended the DSR approach [35] to a physical, symbolic optimization to take the physical dimensions of the data set into account. Here, the constraint
+is given upfront and acts in the way of a grammar-guided construction rule during the
+sampling. The authors demonstrate that this improves the rate of finding the baseline
+solution by approximately a factor of three compared to the original DSR. Particularly
+in the field of evolutionary methods, Matcheva et al. [47] demonstrated that initial
+restrictions through a dimensional analysis provide robust analytical models. Grundner et al. [14] incorporate the information about dimensionalized quantities utilizing
+an implementation referred to as PySR [25] to extract more coherent and robust models within the domain of astrophysics. Within that implementation, the dimensional
+consistency is enforced by adding a penalty on top of the regression loss. Further
+examples, particularly utilizing GEP, are proposed by [13] and [48] conducting function approximation within the domain of fluid mechanics. While the first proposed
+method by Bleh et al. [13] discards invalid solutions, reducing the exploration capabilities, Ma et al. [48] expands the search until the best expression meets the dimensional
+homogeneity, which further increases the time.
+These observations from the literature strongly support the assumption that
+dimensional information can guide the exploration of metaheuristics and lead to more
+precise and robust approximations. Consequently, our approach seeks to establish
+dimensional homogeneity through a heuristic correction. To the authors’ knowledge,
+no prior study has specifically explored the application of semantic backpropagation to physical constraints, and in particular physical dimensions, nor its effects on
+exploratory processes. Furthermore, the concept has not been adapted to the methodology of the GEP to date. Therefore, we integrate semantic backpropagation into GEP
+to enforce the physical unit constraints during the generation of physical equations.
+
+5
+
+The performance of this proposed algorithm will be compared to other approaches
+mentioned above.
+
+3 Methodology
+This section starts with a brief overview of the GEP approach and the applied genetic
+operators. While alternative evolutionary methods exist, GEP was chosen for its efficient handling of complex expressions through genotype-phenotype separation, and
+due to more robust performance compared to GP [49, 50]. By pointing out changes
+in the underlying representation of the expression (genotype) caused by modifications
+through the evolutionary process, we can identify issues that need to be addressed
+to take constraints into account without restricting the exploration capability. Subsequently, we introduce a representation, providing a continuous description of feature
+properties. This representation is derived from the concrete example involving physical
+dimensions, enabling the application of a distance metric. The last part of the section
+introduces the concept of semantic backpropagation and proposes the algorithmic
+changes incorporated into the evolutionary method.
+
+3.1 Preliminaries
+The methodology of the GEP can be depicted as a particular variant of Genetic Programming [28, 51], whereby the most significant adjustment is characterized through a
+decoupling of the geno- and phenotype. Here, the former consists of a linear sequence
+with a fixed size (2n+1). The sequence follows the construction rule such that the first
+n-positions, known as the head, may contain both terminal (x1 , x2 , ..) and non-terminal
+symbols (+, −, ×, ...), while the remaining n+1, the tail, exclusively includes terminals.
+We construct the phenotype as an expression tree by decoding the sequence from left
+to right. For instance, with a head length of two and a genotype of [×, ×, 1, q, E], the
+phenotype can be determined as illustrated in Fig. 1 a.), whereby the part responsible
+for constructing the expression is also anointed as Karva expression (K-expression).
+The K-expression, a linear string, serves as an intermediate representation that bridges
+the genotype and phenotype, containing only the active symbols that contribute to
+the expression tree’s construction. This linear structure and the decoding mechanism
+facilitate tracing and the capability of systematic manipulation of the genetic material while preserving structural integrity, which is fundamental to our methodological
+approach. An overview of the entities employed in the GEP is provided in the appendix
+(A); for additional details, the reader is referred to [28]. The optimization is performed
+by assessing samples of randomly generated expressions (population) and evolving
+their genotypes by applying different canonical genetic operators, including mutation
+or crossover. This procedure is repeated over many iterations (generations) until a
+stop criterion is met.
+While the static definition of the sequence ensures algebraic validity for the usage
+of the terminals and non-terminals, it does not take into account the other consistency
+requirements, like the example of the physical dimensional homogeneity. Furthermore,
+the genetic operators not only facilitate exploration, but they also carry the risk
+of eliminating viable sub-solutions [51], affecting an underlying system that tries to
+6
+
+a.)
+
+E
+
+x
+
+1
+
+b.)
+
+x
+
+x
+
+E
+
++
+
+q
+
+1
+
+q
+
+Fig. 1 Expression tree built up in pre-order presenting the impact of a mutation operation (indicated
+by the dashed line), altering the expression from the tree given in a.) to the one represented in b.).
+Here, the equation sought represents the description of the electric force, given the electric field (E)
+and the electric charge (q). Integrating the physical dimension into the evaluation, the resulting tree,
+particularly the operation 1 + q, leads to a violation.
+
+achieve consistency. Referring to the previous example [×, ×, 1, q, E] and assigning the
+corresponding physical dimension to each symbol, the evaluation of the tree in Fig. 1
+a.) yields a correct solution. In detail, E represents the electrical field through [V/m]
+(Volt per meter), q the electric charge given in [C] (Coulomb) and the value one is
+dimensionless. Here, the application of the mutation operator leads to a tree with
+the structure depicted in Fig. 1 b.), which does not align with the expected physical
+quantity and may be rejected by a constraint despite being possibly close to a ground
+truth solution. Furthermore, by applying the full range of genetic operators proposed
+by Fereirra [28], the probability of such violations would increase.
+
+3.2 Structural Homogeneity
+While the majority of regression techniques often focus on a loss value [28–30, 33, 37,
+40, 41], pointing to the numerical magnitude produced by the mathematical model,
+formulas, and procedures from areas such as physics [52], chemistry [53] or biology
+[54] suggest that the structural validity of a model can provide crucial insights. This
+structure, grounded in scientific principles, not only allows the derivation of the proportion for the contribution of possible input features but also imposes constraints on
+the possible configurations of the solution. To leverage the information, a mapping is
+required, satisfying properties such as order and continuity to employ a distance metric, which is able to guide the exploration. Here, a link to a more general approach
+can be developed by utilizing some key concepts of the expression tree and abstracting it as a graph G = (V, E) (connected graph without cycles) [55], where V defines a
+set of vertices, also referred to as nodes, connected by the edges E. To further specify certain properties, techniques such as graph neural networks [56] assign particular
+features represented as a continuous feature vector akin to [53, 54]. Through defined
+functions corresponding to the transitional properties of the nodes, the feature vectors can be aggregated. Subsequently, an error metric can be employed to determine
+the distance between the output and an expected value. Minimizing that discrepancy
+necessitates a change within the graph. Since we define a constraint, such as the feature vectors are constant according to the source nodes, the change directly affects a
+node or a segment.
+
+7
+
+a)
+[kg]
+
+1
+
+0
+
+[m]
+
+0
+
+1
+
+[s]
+
+0
+
+0
+
+[A]
+
+0
+
+0
+
+0
+
+0 0
++
+0 0 0
++
+-3 0 0
++
+0 0 -1
+
+0
+
+0
+
+0
+
+0
+
+0
+
+0
+
+0
+
+0
+
+1
+
+0
+
+0
+
+0
+
+0
+
+0
+
+0
+
+0
+
+b)
+0
++
+0
+
+0
+
+0
+
+0
+
+1
+
+0
+
+0
+
++
+c)
+1
+
+1
+
+-2 0
+
+0
+
+Fig. 2 Representation and composition of different physical dimensions based on the basis units.
+Here, a.) depicts the dimension of the electrical field E and b.) the electrical charge q. The employed
+operation on the two quantities results in a force, which can be described by the composition in c.).
+
+Throughout various domains, such a feature vector can be developed, for instance,
+representing the orbital states of the valence configuration when dealing with chemical reactions [53] or language model extracted protein sequences within a biomedical
+area [54]. For the example investigated within this study, we demonstrate the feature
+mapping as well as the definition of the function utilized for the aggregation on the
+physical dimension, particularly the international system of the physical basis units
+(SI-unit System).
+This approach provides a unique system for standardizing measurements and
+making their values comparable across different domains [57]. It consists of seven fundamental units, each representing a specific physical dimension: mass (kilogram - [kg]),
+length (meter - [m]), time (second - [s]), temperature (Kelvin - [K]), current (Ampere
+- [A]), quantity (mole - [mol]), and luminous intensity (candela - [cd]). Their composition via mathematical operators leads to more complex representations of a physical
+quantity. According to the application for existing optimization frameworks, packages
+available can be found within the PySR implementation [25] or provided through SciPy
+[58]. Similar to Bleh et al. [13], we utilize a system based on a vector representation.
+This is not only due to its simplicity but also because it provides an essential part of
+establishing a distance metric concerning the semantic backpropagation methodology.
+As done in the software OpenFOAM [59], the information is projected into a one-hot
+encoded vector with a length of seven, whereby each position corresponds to one of
+these dimensions.
+Based on that representation, more complex relations can be created by increasing
+or decreasing the number at each position. Referring to the example given in Fig 1
+a.), where Coulomb’s law is expressed as the product of the electric charge (q) and
+the electric field (E), the dimension can be calculated as demonstrated in Fig. 2.
+Subfigure a.) signifies the dimension for E. The operations for the dimensions related
+to the multiplication of the features lead to the addition yielding the corresponding
+unit ([kg · m · s−3 · A−1 ] =⇒ [V/m]). A comprehensive explanation of various SI-unit
+8
+
+Table 1 Physical dimension transformation rules for evaluating expression in both forward and
+backward directions. ϕc represents the resulting physical dimension, while ϕa and ϕb mark the
+inputs.
+Operator
+
+Forward
+Rule
+
+Backward
+Rule
+
+Comment
+
+c=a+b
+
+ϕc := ϕa = ϕb
+
+c=a−b
+
+ϕc := ϕa = ϕb
+
+c=a∗b
+c = a/b
+n
+c=a
+√
+c= a
+c = sin(a); c = cos(a); ..
+
+ϕc := ϕa + ϕb
+ϕc := ϕa − ϕb
+ϕc := n ∗ ϕa
+ϕc := ϕa /2
+ϕc := 0 ∗ ϕa
+
+ϕa := ϕc
+ϕb := ϕc
+ϕa := ϕc
+ϕb := ϕc
+ref. appendix
+ref. appendix
+ϕa := ϕc /n
+ϕa := 2 ∗ ϕc
+ϕa := 0 ∗ ϕc
+
+c = log(a); c = exp(a); ..
+
+ϕc := 0 ∗ ϕa
+
+ϕa := 0 ∗ ϕc
+
+Entries of a and b needs to be
+the same on every position
+ref. ’+’ operation
+the same on every position
+Pointwise addition
+Pointwise subtraction
+Dimension is multiplied by n
+Dimension is divided by two
+Result becomes dimensionless
+Input needs to be dimensionless
+Result is dimensionless
+Input needs to be dimensionless
+
+compositions is provided in Appendix B. Subfigure b.) depicts the representation for q,
+obtained from ([s·A] =⇒ [C]). Finally, Subfigure c.) illustrates how the mathematical
+operation of the two quantities induces a force, which is represented by its physical
+dimension ([kg · m · s−2 ] =⇒ [N]).
+Given that the mathematical operator on the particular symbol does not satisfy
+the evaluation of the physical dimensions, we define a set of rules for performing the
+assessment. Here, Table 1 lists the transformation for the standard functions employed
+within the utilized framework. The letters a and b signify two arbitrary physical
+quantities with their corresponding [·] dimensional representation. Applying addition
+or subtraction requires that both values correspond to the same physical dimension.
+We can employ arithmetic functions as depicted in Table 1 for the additional operators.
+Particularly, the forward operations are related to the evaluation path from the input
+to the output, and the backward one describes the utilization from the output to the
+inputs.
+
+3.3 Semantic Backpropagation
+As indicated in Fig. 1, the application of genetic operators needs to be encapsulated
+within a mechanism that verifies dimensional homogeneity and corrects any detected
+discrepancies. Besides those mentioned above and grammar-guided approaches like
+[46, 60, 61], methods that take intermediate states and program semantics into account
+exist. Here, semantic backpropagation, introduced by Pawlak et al. [21] and applied
+to the field of genetic programming [29], provides a technique on how to manipulate
+the expression according to a particular purpose, referred to the desired semantics.
+Expressions are typically evaluated using a hierarchical computational graph depicted
+as a tree, which can be decomposed into sub-trees fˆ(x) = fˆ2 (fˆ1 (x), x). Traversing
+from the leaves upward, each node contributes an intermediate result, enabling the
+tracing of the performed executions and relating them to the output. Sub-trees yielding
+identical results demonstrate shared semantics, which can simplify expressions without
+losing their semantic value. Moreover, semantic backpropagation assumes that the
+9
+
+0 1 0 0
+? ? ? ?
+
+b.)
+
+/
+
+1 1 0 0
+1 1 0 0
+
++
+
++
+
+1 1 0 0
+1 1 0 0
+a.)
+
+m
+
+1
+
+m
+
+1
+
+r
+
+1
+
+m
+
+2
+
+1 0 0 0
+? ? ? ?
+
+c
+
+0 0 0 0
+0
+
+m
+
+r
+
+2
+
+2
+
+c.)
+
+1 0 0 0
+
+Fig. 3 Expression tree built up in pre-order presenting an example approximation for exploring the
+equation that calculates the center of gravity. The blue boxes illustrate the vector presentations of
+the desired physical dimension, while the red boxes present the calculated units. Starting from a.)
+and following the red arrows towards the output, the dimension can be evaluated. A misalignment
+b.) initiates a process, propagating residual information to the underlying sub-trees (blue arrows),
+where changes are enforced, here at c.).
+
+desired semantics for a function fˆ can be achieved by retaining the structure of fˆ and
+adapting iteratively the inner functions fˆ2 and fˆ1 through heuristic inversion [62]. A
+lookup into a library can be performed at each node to determine whether the sub-tree
+can be replaced by a composition meeting the desired semantics, similar to the rule
+application for algorithmic differentiation [63]. The library can be established either
+in advance, based on the features and a maximum tree height, or dynamically within
+the course of the exploration.
+Fig. 3 depicts an approximation fˆ close to the equation that calculates the center of
+gravity depending on two different masses (m1 , m2 ) and their corresponding position
+(r1 , r2 ). The desired semantics (ϕfˆ), here provided through the vector representation
+of the physical dimension, are given with the problem that requires to be solved. While
+the expected output ought to be a ‘length’, the evaluation by executing the forward
+path (red arrows) leads to an invalid dimension (red box at b.)). Instead of discarding
+the whole expression like in [13], that information, according to the misalignment, is
+utilized to modify the expression. After quantifying the distance, the backpropagation
+process is initiated (b.)). The first node encountered signifies a divide operator that
+splits fˆ into fˆ1 and fˆ2 . In the subsequent layer, the intermediate states ϕfˆ1 and ϕfˆ2 are
+analyzed along with the algebraic rules defined in Table 1, whereby backward signifies
+the direction from the output to the input. As ϕfˆ2 is undefined, caused by a violation
+of the desired constraint, here an underlying mismatch of the dimension, the residual
+for further propagation is calculated by: −[?, ?, ?, ?, . . . ] = [0, 1, 0, 0 . . . ]−[1, 1, 0, 0, . . . ],
+resulting in [1, 0, 0, 0, . . . ] as desired semantic for ϕfˆ2 . This procedure is repeated in the
+subsequent subtree, where the misalignment can be pointed to the application of the
+addition function to m0 ([1, 0, 0, 0, . . . ]) and an arbitrary constant c0 ([0, 0, 0, 0, . . . ]),
+resulting in a substitution of an equivalent symbol. The example outlines the particular
+algorithmic traits necessary to incorporate the concept into GEP. These mechanisms
+encompass establishing a library containing different semantics, selecting an appropriate distance metric, identifying the genetic entity to which the corrections are applied,
+and establishing rules to guide information propagation to subsequent branches:
+
+10
+
+1. Library of Semantics: The library can be described mathematically as a multiset partition (S) of the union of the terminal and the non-terminal symbol set,
+where each element (Si ∈ S) satisfies defined conditions. These include that Si
+can be transformed into a constant or an algebraic equation, yielding a valid physical dimension ϕ, and does meet the restriction according to the element count
+(∀i ∈ {1, . . . , |S|}, |Si | ≤ head length), analogous to the maximum tree depth in
+GP [21, 29]. Utilizing ϕ and |Si |, this can transform S into a hash table structure
+whereby the key, defined by these quantities, is assigned to a list containing multisets (keyϕ,|Si | → fˆ0 , . . . , fˆi ). During the runtime, the substitution procedure fetches
+an entry based on the key and randomly selects an entry from the obtained list.
+2. Distance Metric: This measure indicates how close the semantics of fˆ and f are, and
+it further provides a value to fetch the closest candidate from the library. Within
+this study, the measure dϕ applied for determining the distance between two vector
+representations ϕa and ϕb is given by the Euclidean distance (elementwise):
+dϕ (ϕa , ϕb ) =
+
+
+1X
+(ϕa − ϕb )2 .
+7
+
+(1)
+
+3. Adaptable entities: A core aspect of GEP’s internal mechanisms is that all genetic
+operators are employed on the genotype representation only. To ensure dimensional
+homogeneity through phenotype evaluation, changes inferred via semantic backpropagation are applied to the K-expression. The overall gene length constrains
+the maximum length of any particular replacement. While GP relies on techniques
+like ‘Random Disered Operator’ (RDO) or ‘Approximately Geometric Semantic
+Crossover’ (AGX) [64], which randomly selects a node, the introduced operator
+follows the expression tree in a systematic traversing order. Specifically, it determines the potential replacement of a sub-tree according to the desired semantics,
+leveraging the existing database.
+4. Backpropagation rules: Traversing through the expression, at each node, a decision is required on how to split the information to propagate further or enforce a
+change based on a matching library entry. Here, some ideas derived from algorithmic differentiation are utilized [63]. Next to the standard forward execution, we
+define a backward pass, enabling the capability to delegate residuals to the intermediate states. This residual contains a fraction of the backpropagated vector and
+is calculated by a defined backward rule (ref. Table 1).
+Due to the inherent nature of heuristic approaches, the correction process may
+not achieve the expected dimensional homogeneity. This scenario could arise if, for
+instance, the problem is not fully described in terms of the features, the library does
+not contain a suitable candidate, or the parameter selected for the GEP is insufficient
+to create an equation appropriate for the problem. Apart from an adjustment of the
+hyperparameters, a regularization in the form of a loss penalty similar to [14, 44] or
+the formulation of a further objective can be introduced to guide the exploration:
+
+
+
+L̂(Y, X, fˆ) = L(Y, fˆ(X)) + λ · dϕ (ϕY , ϕfˆ(X) ) .
+
+11
+
+(2)
+
+Here, L signifies an arbitrary loss function, fˆ an equation approximated by the GEP,
+and the variable λ controls the magnitude of the penalty term, defining the magnitude
+of how the dimensional homogeneity influences the search.
+The subsequent algorithm (ref. 1) summarizes the detailed steps undertaken to
+preserve dimensional homogeneity. Here, we utilize the pre-computed library (L) to
+perform the correction for a population (P). The objective is to ensure that the
+corrected candidates show a high probability of matching the physical dimension of
+the target f , within a small tolerance ϵ. The ‘propagate change’ function recursively
+attempts to correct sub-trees according to the inserted dimension. The function initializes by setting the homogeneity variable to false, indicating that the dimensional
+consistency condition is not yet satisfied. This is followed by evaluating whether the
+dimension of the inserted expression ϕg already satisfies the target dimension ϕt (Line
+3 - Algorithm 1). If this condition is met, the function terminates and returns true,
+bypassing subsequent ‘else’ branches. Otherwise, the algorithm proceeds by retrieving the left child node of g (gl ) and computing its corresponding target dimension
+(ϕtl ) based on the arithmetic operation rule associated with g (Line 7 - Algorithm
+1). When the dimension of (gl ) deviates from ϕtl , the algorithm attempts to fetch an
+appropriate replacement from the library L (Line 12 - Algorithm 1) before propagating the dimensional correction to the underlying child nodes of (gl ). Upon reaching a
+termination criterion for (gl ), the function applies an identical sequence of operations
+to the right child node of g. To mitigate the disruptive effects of genetic operators
+on dimensional homogeneity, the correction process is implemented before evaluation
+takes place, using several attempts for the correction.
+
+12
+
+Algorithm 1 Perform Semantic Backpropagation for Dimensional Correction
+Require: P, L
+Ensure: dϕ (ϕfˆi , ϕf ) < ϵ, ∀fˆi ∈ P
+1: function propagate change(g, ϕt )
+2:
+homogeneity ⇐ false
+3:
+if dϕ (ϕt , ϕg ) < ϵ then
+4:
+homogeneity ⇐ true
+▷ Set true if dimensional homogeneity is satisfied
+5:
+else
+6:
+gl ⇐ get node lef t(g)
+7:
+ϕtl ⇐ rule(g)
+▷ determine node target by rule - 1
+8:
+if dϕ (ϕtl , ϕgl ) < ϵ then
+9:
+homogeneity ⇐ true
+▷ homogeneity for left node satisfied
+10:
+else
+11:
+if ϕtl ∈ L then
+▷ Appropriate replacement in library?
+12:
+gl ⇐ get(L, ϕtl )
+▷ retrieve replacement for node
+13:
+else
+14:
+homogeneity ⇐ propagate change(gl , ϕtl )
+15:
+end if
+16:
+end if
+17:
+gr ⇐ get node right(g)
+18:
+ϕtr ⇐ rule(g)
+▷ determine node target by rule - 1
+19:
+if dϕ (ϕtr , ϕgr ) > ϵ then
+20:
+if ϕtr ∈ L then
+21:
+gr ⇐ get(L, ϕtr )
+▷ retrieve replacement for node
+22:
+else
+23:
+homogeneity ⇐ propagate change(gr , ϕtr ) ∧ homogeneity
+24:
+end if
+25:
+end if
+26:
+end if
+27:
+return homogeneity
+28: end function
+29: for each fˆi ∈ P do
+30:
+gi ⇐ convert(fˆi )
+▷ create the computational graph
+31:
+for each ∈ cycles do
+▷ pre-defined number of cycles
+32:
+if propagate change(gi , ϕf ) then
+33:
+break
+34:
+end if
+35:
+end for
+36: end for
+
+13
+
+4 Results and Discussion
+In the subsequent section, we quantify and discuss the influence of dimensional homogeneity on the performance of genetic exploration. We provide a brief overview of the
+employed benchmark, the adapted parametrization of the GEP implementation, and
+the utilized error metrics. Subsequently, we first compare the influence of the proposed
+extension on the GEP within a small test environment to evaluate its effects by focusing on error distribution and functional complexity. Here, the term small refers to a
+limitation of epochs and the population size. In a subsequent consideration, we then
+employ the configuration yielding the highest performance and compare it against different approaches from the literature using a more competitive amount of candidate
+solutions and a larger population size. The hardware utilized was a 32-core server
+(CPU-AMD-3.6GHz).
+
+4.1 Benchmark
+To evaluate the performance of the proposed extension, we utilize a benchmark for
+symbolic regression established by La Cava et al. [20], referred to as SRBench. The
+benchmark provides the results of various state-of-the-art methods such as GP-Gomea
+[29], AI-Feynman, or the DSR approach conducted on different datasets. Table 2 lists
+the approaches from the set. The repository comprises 252 datasets with equations
+from the Feynman Symbolic Regression Database (Feynman Lectures on Physics
+[52]), the Strogaz repository, and several real-world data sets outlined as Black-BoxProblems. The datasets are categorized into different difficulty levels, referred to as
+‘easy,’ ‘medium’, or ‘hard’. Additionally, the SRBench suggests a set of rules and
+metrics according to the comparability. The incorporated rules are an upper limit
+of evaluations (106 ), the maximum time, the number of independent trials, and the
+consideration of the train and test split for the particular cases. Following the benchmark guidelines, we conducted approximately 100 instances from the Feynman dataset
+across ten independent trials. For each trial, we randomly shuffled and split a total
+of 10,000 data points into training and test sets, using a 0.75/0.25 ratio, respectively.
+The maximum number of candidate evaluations during the exploration is set to the
+mentioned upper bound. To facilitate dimensional analysis, the benchmark cases were
+extended with a dictionary providing the dimension information for each symbol within
+each equation.
+We also consider different levels of noise sampled from a normal distribution
+utilizing the root mean square value and add it to the target [20]:
+
+r
+y˜i = yi + η | η ∼ N
+
+0, γ
+
+1 X 2
+y
+N
+
+!
+.
+
+(3)
+
+Here, γ takes the values {0.001, 0.01, 0.1}, evaluating how well the method performs
+under different levels of uncertainty.
+
+14
+
+The assessment takes place by using the suggested metrics, which includes the
+R2 -score (elaborated on the validation set):
+R2 (Y, X, fˆ) = 1 −
+
+Pn
+2
+ˆ
+i=1 (yi − f (xi ))
+P
+.
+n
+2
+i=1 (yi − ȳ)
+
+(4)
+
+This metric describes how well the model predictions explain a portion of the variance in the dependent variables of the data set, whereby a value of one indicates
+a perfect fit, and zero or less suggests inadequate explanatory capabilities. Additionally, performance measurements include the run time, the average complexity of
+the approximation, and the accuracy according to the recovery of the ground truth
+symbolic expression. The first mentioned is determined by counting the contained
+symbols within the simplified equation, whereby we employ the ‘Symbolics.jl’ library
+[65] instead of ‘SymPy’ [66]. In terms of accuracy, given an approximation fˆ(x, θ̂)
+expressed as functional compositions using the features xn and the explored coefficients
+θ̂, symbolic accuracy (||f − fˆ||Ψ ) can be calculated as follows [20]:
+
+
+ˆ
+ˆ
+
+True, f − f = 0 ∨ f − f = a, where a ∈ R is constant,
+ˆ
+||f − f ||Ψ = True, f /fˆ = 1 ∨ f /fˆ = a, where a ∈ R is constant,
+
+
+False, otherwise.
+
+(5)
+
+Averaging the occurrence of ||f − fˆ||Ψ over the number of tests then expresses the
+rate of how often the algorithm could find the true equation (symbolic solution rate).
+
+4.2 Hyperparameter Setup
+The trials are performed utilizing an in-house version of the GEP (implemented in
+Julia [67]), with a parameter configuration derived from previous suggestions [28] and
+outlined in Table 2. It is worth noting that both the solution quality and the convergence time are highly sensitive to these hyperparameter settings, which ideally are
+tailored to each problem’s specific complexity. In our research, the primary objective
+is to examine the effects of the consideration of physical dimensions rather than to
+surpass the performance of existing algorithms. The fitness measurement of a candidate solution to drive the exploration is given by mean squared error (MSE) with an
+adaptable regularization term:
+n
+1X
+ˆ
+L̂(Y, X, f ) =
+(yi − fˆ(xi ))2 + λ · dϕ .
+n i=1
+
+(6)
+
+Since the comparison also includes the widely applied approach of discarding or
+penalizing the fitness value, the error function is adapted using the following
+regularization:
+(
+∥ϕY − ϕfˆ(X) ∥2 , homogeneity violated,
+dϕ (Y, X, fˆ) =
+(7)
+∞,
+otherwise.
+15
+
+Table 2 Parameterization of the Evolutionary Method. The first column delineates the
+parameter name, the second column yields the corresponding value, and the third
+column provides additional context.
+Parameter
+
+Value
+
+Comment
+
+Population size
+(GEP Test / SRBench)
+Generations
+(GEP Test / SRBench)
+Head length
+
+500 / 1000
+1000 / 1500
+
+Number of genes
+Tournament size
+
+3
+3
+
+Mating proportion
+
+0.5
+
+Mutation probability
+
+0.2
+
+Inversion probability
+
+0.1
+
+One-point crossover
+probability
+Two-point crossover
+probability
+Non-terminal set
+
+0.5
+
+Maximum number of
+candidate solutions
+Maximum number of
+iterations
+Maximum positions
+non-terminals in a gene
+Number of sub-expressions
+Number of contenders in the
+tournament
+Fraction of the population for
+for recreation
+Chance of random gene
+modification
+Probability of sequence
+reversal (classic GEP operator)
+Chance of single-point
+genetic exchange
+Chance of two-point
+genetic exchange
+Available mathematical
+operators
+Available input features
+Method for constant
+optimization
+
+Terminal set
+Coefficient-Optimizer
+
+8
+
+0.4
+{+, −, ∗, /,plog, exp, sin(),
+cos(), ()2 , ()}
+x1 , ..., xn
+Conjugated gradient
+
+The first line of the equation (7) evaluates an L2-norm between the resulting dimension
+evaluating fˆ and the dimension of the target values Y. The choice of the λ values,
+taken from the set {0, 0.1, 1, 10}, is intended to study the effect of the search direction.
+A value of 0 for λ represents the baseline method. The intermediate values are likely
+to influence the metric in smaller error ranges, while the higher values could dominate
+even in more extensive error regimes (when L̂ ≈ 103 ). The second line is applied when
+the evaluation is invalid due to a mismatch of the utilized algebraic operations and
+the dimensions similar to Fig. 3.
+
+4.3 Evaluation
+Before comparing the proposed approach with existing methods in the literature, we
+first examine the capabilities of our introduced technique with respect to the standard
+GEP and the different quantities of the regularization.
+
+4.3.1 Comparative Analysis of GEP
+Analyzing the R2 -scores calculated from the test dataset across the conducted test trials and further separating them into their distinct categories (Fig. 4), we observe that
+candidate solutions employing fitness regularization underperform compared to both
+
+16
+
+Noise Level: γ =0
+
+Noise Level: γ =0.01
+
+Noise Level: γ =0.1
+
+1.0
+
+R2-Score
+
+0.8
+0.6
+0.4
+0.2
+0.0
+L
+
+0.1dφ
+1dφ
+10dφ
+Regularization/Method
+
+sbp(dφ)
+
+L
+
+0.1dφ
+1dφ
+10dφ
+Regularization/Method
+
+sbp(dφ)
+
+L
+
+0.1dφ
+1dφ
+10dφ
+Regularization/Method
+
+sbp(dφ)
+
+Fig. 4 Boxplot, R2 -score comparison of the best-explored candidate solutions (y-axis) between the
+proposed (SBP) and standard method GEP with varying fitness regularization (λ ∈ {0.1, 1, 10}) (xaxis) across increasing levels of noise γ ∈ {0, 0.01, 0.1}. The individual colors for each category signify
+the separation into a degree of difficulty (green-/), ‘medium’ (orange-..), and ‘hard’ (blue-x). Here, a
+score of one outlines a perfect match.
+
+the standard method (L) and the proposed method (sbp(ϕ)). Contrary to the expectation based on the difficulty level, this strategy (λ ∈ {0.1, 1, 10}) reveals its highest
+dispersion for the category labeled as ‘medium’ (orange bar), particularly for λ = 10.
+Within the outlined test scenario for γ = 0, the median for the mentioned category
+shifts from 0.87 to 0.74, up to 22% lower than the standard GEP. The performance
+further deteriorates when γ > 0 is inferred onto the target value, also considerably
+affecting the ‘easy’ samples while only slightly degrading the ‘hard’ ones, on average
+from 1.0 to 0.86 and 0.88 to 0.78, respectively.
+This phenomenon relates to the magnitude of the regression error in combination
+with the violation that occurred. Since the ‘easy’ samples often consist of only two
+to three features, the chance to achieve dimensional homogeneity is relatively high,
+even without correcting them, making them less likely to be dominated by loss regularization. The ‘hard’ samples, on the other hand, face a high probability of violating
+that property. Still, due to their complex nature and the difficulty of exploring them,
+the regression loss exceeds the magnitude of the violation penalty, leading to a negligible influence. In contrast, most of the ‘medium’ samples also yield a considerable
+degree of freedom. Yet, the likelihood is higher that the approximation shows a loss
+where the magnitude is close to the regularization, indicating a high efficiency of the
+search algorithm. By following this trend, we can anticipate that further incrementing
+(λ → ∞), which emulates the discarding of a candidate solution akin to [13], mitigates
+that success according to that score. This results in an extension of the exploration
+time to achieve a similar result to the standard approach. This observation aligns with
+the literature, where regularization increases training efforts.
+Comparing the proposed technique, which aims to ensure dimensional homogeneity,
+to the standard method, the median of the score not only is increased for the varying
+difficulty (easy, medium, hard) cases but also outperforms the standard procedure
+17
+
+Noise Level: γ =0
+
+30
+
+Noise Level: γ =0.01
+
+Noise Level: γ =0.1
+
+Expression Complexity
+
+25
+20
+15
+10
+5
+L
+
+0.1dφ
+1dφ
+10dφ
+Regularization/Method
+
+sbp(dφ)
+
+L
+
+0.1dφ
+1dφ
+10dφ
+Regularization/Method
+
+sbp(dφ)
+
+L
+
+0.1dφ
+1dφ
+10dφ
+Regularization/Method
+
+sbp(dφ)
+
+Fig. 5 Comparison of the complexity of the expression for the final generation using the specified
+function from the Symbolics.jl library [65] (y-axis). Here, the expression complexity is further outlined for different levels of added noise (γ ∈ {0, 0.01, 0.1}), the varying regularization (λ ∈ {0.1, 1, 10}),
+and the introduced method. The individual colors for each category signify the separation into a
+degree of difficulty: ‘easy’ (green-/), ‘medium’ (orange-..), and ‘hard’ (blue-x). A smaller number indicates a less complex expression.
+
+on the three depicted noise levels. This is reflected in a decrease of the dispersion,
+a shift of the median towards a higher R2 -score, and a mitigation of the negative
+influence of the noise. Notably, for the most challenging samples (purple bar), our novel
+approach improves the performance by 4.24%, 4.87%, and 13.45% for γ ∈ {0, 0.01, 0.1},
+respectively.
+Model complexity, particularly size, serves as an additional criterion for assessing
+solution quality in symbolic regression. Beyond accuracy comparisons with groundtruth solutions, complementary studies like [13, 14, 48] indicate that the size of the
+model relates to the robustness. Larger models are more prone to overfitting the given
+dataset, are less reliable when extrapolating beyond the range of the training data,
+and are more difficult to interpret. Here, Fig. 5 offers insight into the complexity of
+the explored models achieving the scores mentioned before. The comparison accounts
+for the variation of the chosen penalty and the increasing noise level. As expected,
+independent of the adaptation, the pattern of the median complexity shows coherence
+with the difficulty level, marking the lowest scores for the ‘easy’ ones and higher
+values for the ‘hard’ examples. Introducing noise (γ = 0.1) induces subtle shifts in
+the respective medians towards more complex functional representations when only
+relying on the data as a source of information. This effect is particularly noticeable
+when employing the standard method for ’easy’ equations, yielding complexity ranges
+of 14.0 − 18.0. In contrast, methods utilizing loss penalties or dimensional correction
+encounter only slight changes of 8% or remain stable at seven.
+Regularization positively influences the complexity of the candidate solution by
+comparing the achieved scores between the different techniques, which gets even
+more significant when dimensional consistency dominates the search. Relating this
+to the results from Fig. 4, we can emphasize that this loss in complexity negatively
+
+18
+
+affects the predictive capabilities. Contrary to using the backpropagation to enforce
+homogeneity, it demonstrates lower complexities, here up to 45% smaller than the
+standard method and up 22% compared to the regularization. Moreover, the proposed technique exhibits better robustness in the presence of noise. The enhanced
+stability can be explained by the fact that noise primarily affects the data, while
+the underlying physical relationship of the feature, expressed through dimensional
+homogeneity, remains intact.
+Statistical Significance
+The metrics compared in Fig. 4 and Fig. 5 can be further evaluated with a focus on
+their statistical significance. Fig. 6 illustrates heatmaps displaying the statistical comparisons across various noise levels (γ ∈ {0, 0.01, 0.1}), with the first row signifying
+the achieved R2 -Score and the second row showing the results on the complexity of
+the approximated equations. Similar to [20], we employed the Wilcoxon signed-rank
+test pairwise between the approaches (method1, method2), using the Bonferroni
+correction [68] to determine the threshold α. The null hypothesis posits that method1
+and method2 demonstrate equivalent performance, with rejection occurring when the
+p-value falls below α. The values outlining the statistical significance for the R2 -Score
+reflect the results presented in Fig. 4. The application of varying penalty terms on the
+loss function for violating the homogeneity reveals marginal statistical significance
+p < α for γ = 0 (0.01dϕ to 1dϕ and 10ϕ ), with diminishing effects as target noise
+increases. In contrast, the proposed approach demonstrates strong significance to both
+regularization (p < 1.0e−3 · α) and at least (p < 1.0e−1 · α) to the GEP across the
+conducted noise levels. Examining the expression complexity at γ = 0, regularization
+with the highest penalty term (10dϕ ) exhibits significantly different behavior from
+the standard method, while implementations with lower penalties (1dϕ and 0.1dϕ )
+yield results comparable to the standard approach. As target noise increases, the
+complexity diverges more. Notably, analogous to the R2 -Score analysis, the semantic
+backpropagation method demonstrates statistically significant differences from the
+comparative method across all noise levels.
+
+4.3.2 SRBench Comparision
+Fig. 7 summarizes the performance of the GEP and the proposed extension (outlined as
+‘SBP-GEP’) against the listed methods within the SRBench, and the results published
+by Tenachi et al. [46]. Moreover, we included a method that utilizes the technique
+of discarding invalid candidate solutions (‘GEP-Discard’). Here, the ranking (y-axis)
+is elucidated by the symbolic solution rate (Eqn. 5) in descending order. It further
+outlines the statistics according to the achieved R2 when employing the candidate
+solutions on the test set and the simplified complexity. Regarding the symbolic solution
+rate, it is noteworthy that the standard GEP implementation already outperforms
+the other approaches. The performance significantly deteriorates when employing a
+discarding approach (‘GEP-Discard’), with a solution rate decreasing by 89% and the
+R2 score dropping by 87%. This degradation can be attributed to two main factors: (1)
+the absence of valid individuals in the initial population and (2) the limited number of
+valid candidate solutions during optimization. For case (1), the optimization stagnated
+
+19
+
+Fig. 6 Heatmap outlining the pair-wise comparison according to the statistical significance over the
+different levels of target noise (γ ∈ {0, 0.01, 0.1}) for the R2 -Score (plots first row) and the complexity
+of the expression (plots second row). Similar to [20], the Wilcoxon signed-rank test was employed
+while using the Bonferroni correction for determining the threshold α. The color intensity corresponds
+to the degree of statistical significance, where grey indicates no significant difference between methods
+(i.e., method1 and method2 exhibit statistically equivalent performance). Darker shades represent
+stronger statistical significance.
+
+with all individuals showing inf fitness, while case (2) suffered from a low diversity
+within the population that prevented a wide exploration.
+When focusing specifically on the different evolutionary methods, this translates
+to a rate that, on average, surpasses the AFP FE by 45%, gplearn by 81%, the GPGOMEA approximately more than two times, and the SBP-GP more than eight times.
+Akin to gplearn, the chosen base approach for our extension (GEP) demonstrates a
+low dispersion under inferring noise (from γ = 0 to γ = 0.1), where the solution
+rate faces a drop of 8.59% (from 30.84 - 28.19), compared to AFP FE with 50% or
+GP-GOMEA with 93%.
+Using the information on dimensional homogeneity, we can further improve the
+average performance of the GEP by 33%, from 30.3 to 44.27. Referring to the
+other methods, only the PhySO approach, also incorporating the physical dimensions, demonstrates a higher solution rate (up to 38%). Apart from the fact that this
+approach shows a higher solution rate when measuring the R2 -test-score, the proposed
+method performs slightly better in this category. When focusing on the simplified
+complexity, the equations explored by the SBP-GEP range approximately at the same
+level.
+
+20
+
+Fig. 7 Pairplot comparing the performance of various methods listed in SRBench [20] and
+recently published [46] utilizing the Feynman dataset with different levels of target noise (γ ∈
+{0, 0.001, 0.01, 0.1}). Metrics include symbolic solution rate, the R2 -test score, and the simplified
+complexity. SBP-GEP∗ denotes the GEP method utilizing semantic backpropagation to constrain
+solution with dimensional homogeneity, GEP∗ represents our basic implementation of Ferreira’s [28]
+approach, and GEP-Discard∗ signifies a naive approach of discarding invalid candidates.
+
+5 Conclusion & Future work
+This study proposed a methodology for incorporating constraints through semantic
+backpropagation into GEP. The example explored here is ensuring dimensional homogeneity. We adapted and included a vector representation for assigning properties to
+our input features, allowing the application of algebraic operations and introducing a
+distance metric. To determine the effectiveness of our method and the quality of the
+resultant solutions, a series of tests on ten different trials using the Feynman data set
+was conducted. We first compared the methodology against the most common strategy
+(regularization) and further against the methods listed in the SRBench.
+The results clearly outline the better performance compared to the regularization
+method, leading to a better score and more coherent candidate solutions regarding
+their functional complexity. Furthermore, results from the SRBench emphasize that
+the developed method and the implemented standard can outperform other existing
+approaches from the literature.
+Enhancing the GEP by introducing a dimension-aware semantic backpropagation
+mechanism enables the algorithm to systematically propagate information through
+the expression tree, facilitating targeted modifications that guide dimensional homogeneity. Therefore, this evolutionary method now generates approximations aligning
+with the physical dimensions, bridging the gap between data-driven exploration and
+physics-informed modeling.
+Further work would be considered to improve the algorithm further. A critical aspect of the methodology is the existence of appropriate solutions stored in a
+library. Instead of random tree permutations, grammar-guided approaches [69] or language model-based approaches [70] could be applied. Furthermore, the operator can
+
+21
+
+be extended and reformulated to satisfy further relations or symmetries of feature
+compositions.
+Acknowledgements:. This research was supported by The University of Melbourne’s Research Computing Services and the Petascale Campus Initiative. The work
+was supported by a Melbourne Research Scholarship provided by the University of
+Melbourne.
+
+Declarations
+Conflicts of Interest
+The authors declare no conflicts of interest.
+
+Code Availability
+Code and experimental setup available: GeneExpressionProgramming.jl
+
+22
+
+Appendix A
+
+Entities of Gene Expression
+Programming
+
+The subsequent part introduces the key entities utilized within the GEP, which are
+motivated by leveraging advantages from the Genetic Algorithm (GA) [71] and the
+Genetic Programming (GP) [7]. While the first mentioned supports an efficient application of the genetic operators, the second one finds its strength in describing complex
+expression trees [28]. Therefore, this approach distinguishes between the genotype
+(genome) and the phenotype (expression tree).
+
+A.1
+
+Genotype
+
+Akin to GA, each candidate solution within GEP is encoded as a linear string of fixed
+length but employing arbitrary symbols rather than a binary symbol set. This linear
+representation, the genome, can be further separated into genes, each consisting of a
+head and a tail section. Sequence A1 illustrates a typical gene structure:
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9 10 11 12
+
+p
+() ∗ + a b − c d a b c d d
+
+(A1)
+
+The gene structure comprises two distinct regions:
+• Head [positions 0-5]: Contains both terminal and non-terminal symbols
+• Tail [positions 6-12]: Contains exclusively terminal symbols
+To ensure a valid tree construction during decoding, the tail length must satisfy the
+relationship: tail = head + 1.
+
+A.2
+
+Phenotype
+
+The decoding process constructs the expression tree by traversing the sequence A1
+from left to right until all leaf nodes are populated with terminal symbols. Consequently, not all symbols in the gene sequence are necessarily incorporated into the final
+expression tree. For the example given A2, the decoding terminates at position seven,
+with the positions [0-7] forming the Karva expression. The unused symbols (Equation
+A2 I) remain in the genome, serving as material in case genetic operators introduce
+additional non-terminal symbols into the head region [0-5].
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9 10 11 12
+
+p
+() ∗ + a b − c d | |a b {z
+c d d}
+
+(A2)
+
+(I)
+
+Based on the findings in [72], the construction is performed in pre-order instead of the
+initially utilized level-order method, resulting in an expression tree illustrated in Fig.
+A1:
+
+23
+
+*
++
+
+-
+
+Fig. A1 Expression tree built up in pre-order presents the phenotype for the sequence in Eqn. A2.
+
+Appendix B
+
+Basics of Physical Dimension
+
+The following section presents a comprehensive overview of the International System
+of Units (SI).
+
+B.1
+
+Base Units
+
+The system comprises seven units (or physical dimensions) constituting a foundation
+for physical measurement and calculations (Table B1 [57]):
+Table B1 Base Dimensions and Corresponding SI Units
+Physical Quantity
+Mass
+Length
+Time
+Temperature
+Amount of Substance
+Electric Current
+Luminous Intensity
+
+Dimension
+[M ]
+[L]
+[T ]
+[Θ]
+[N ]
+[I]
+[J]
+
+Unit Name
+kilogram
+meter
+second
+kelvin
+mole
+ampere
+candela
+
+Symbol
+kg
+m
+s
+K
+mol
+A
+cd
+
+Under applying certain mathematical functions, the rules as listed in Table B2 are
+utilized:
+Table B2 Rules for Dimensional Analysis Operations
+Operation
+Addition/Subtraction
+Multiplication
+Division
+Powers
+Square Root
+
+Rule
+Same dimensions only
+Dimensions multiply
+Dimensions divide
+Exponents apply to all factors
+Halves all exponents
+
+24
+
+Example
+[M ] + [M ] = [M ]
+[M ] · [LT −2 ] = [M LT −2 ]
+[M LT −2 ]/[L2 ] = [M L−1 T −2 ]
+2
+2 2
+[M
+p L] = [M L ]
+[M 2 L2 ] = [M L]
+
+B.2
+
+Derived Units
+
+By employing these SI units and their corresponding mathematical operations, further
+units can be established [73]. Table B3 highlights frequently encountered dimension
+compositions:
+
+Table B3 Common Encountered Quantities: Units/ Dimensions
+Physical Quantity
+
+Dimension
+
+Unit Name
+
+Symbol
+
+SI Base Units
+
+Force
+Energy
+Power
+Pressure
+Velocity
+Acceleration
+Density
+Electric Charge
+Electric Potential
+Resistance
+Magnetic Flux
+
+[M LT −2 ]
+
+newton
+joule
+watt
+pascal
+meter per second
+meter per second squared
+kilogram per cubic meter
+coulomb
+volt
+ohm
+weber
+
+N
+J
+W
+Pa
+m/s
+m/s2
+kg/m3
+C
+V
+Ω
+Wb
+
+kg·m·s−2
+kg·m2 ·s−2
+kg·m2 ·s−3
+kg·m−1 ·s−2
+m·s−1
+m·s−2
+kg·m−3
+A·s
+kg·m2 ·s−3 ·A−1
+kg·m2 ·s−3 ·A−2
+kg·m2 ·s−2 ·A−1
+
+Appendix C
+
+[M L2 T −2 ]
+[M L2 T −3 ]
+[M L−1 T −2 ]
+[LT −1 ]
+[LT −2 ]
+[M L−3 ]
+[IT ]
+[M L2 T −3 I −1 ]
+[M L2 T −3 I −2 ]
+[M L2 T −2 I −1 ]
+
+Semantic Backpropagation
+
+The subsequent contains supplementary material outlining technical details according
+to the proposed method.
+
+C.1
+
+Backward Rules
+
+Akin to the training of neural networks, the backward pass is employed in many
+iterations to adjust the elements of the computational graph [63]. We must define
+operators propagating information back to emulate this for the introduced method.
+Table 1 indicates that for operators like ‘+’ or ‘−’, this is straightforward because
+these do not transform intermediate states of ϕ. In contrast, the multiplication and
+division operation has a significant impact. Therefore, their rules consist of defined
+algorithmic steps that consider various cases to determine which fraction of the target
+dimension should be further propagated to the corresponding underlying sub-tree.
+• Backward rule multiplication depicted in algorithm 2:
+
+25
+
+Algorithm 2 Perform Multiplication Rule
+Require: fˆi , ϕc
+▷ ϕc target dimension
+Ensure: ϕa , ϕb
+▷ calculated residual target dimensions
+1: gi ⇐ convert(fˆi )
+2: ϕtl ⇐ ϕ(get node lef t(gi ))
+3: ϕtr ⇐ ϕ(get node right(gi ))
+4: if dϕ (ϕtl , ϕc ) < ϵ then
+5:
+ϕa ⇐ dϕ (ϕtl
+6:
+ϕb ⇐ ϕc − ϕa
+▷ Employing the inverse to the forward operation
+7: else if dϕ (ϕrl , ϕc ) < ϵ then
+8:
+ϕb ⇐ dϕ (ϕtl )
+9:
+ϕa ⇐ ϕc − ϕb
+▷ Employing the inverse to the forward operation
+10: else
+▷ Split the dimension for further propagation
+11:
+ϕa ⇐ ϕc − ϕc ÷ 2
+12:
+ϕb ⇐ ϕc − ϕa
+13: end if
+14: return ϕa , ϕb
+• Backward rule division outlined in algorithm 3:
+Algorithm 3 Perform Division Rule
+Require: fˆi , ϕc
+▷ ϕc target dimension
+Ensure: ϕa , ϕb
+▷ calculated residual target dimensions
+1: gi ⇐ convert(fˆi )
+2: ϕtl ⇐ ϕ(get node lef t(gi ))
+3: ϕtr ⇐ ϕ(get node right(gi ))
+4: if dϕ (ϕtl , ϕc ) < ϵ then
+5:
+ϕa ⇐ dϕ (ϕtl
+6:
+ϕb ⇐ −(ϕc + ϕa )
+▷ Employing the inverse to the forward operation
+7: else if dϕ (ϕrl , ϕc ) < ϵ then
+8:
+ϕb ⇐ dϕ (ϕtl )
+9:
+ϕa ⇐ ϕc + ϕb
+▷ Employing the inverse to the forward operation
+10: else
+▷ Split the dimension for further propagation
+11:
+ϕa ⇐ ϕc − ϕc ÷ 2
+12:
+ϕb ⇐ −(ϕc + ϕa )
+13: end if
+14: return ϕa , ϕb
+
+C.2
+
+Function Library
+
+Applying a search operator based on semantic backpropagation as proposed in [21]
+requires a library to store the desired candidate solution. This library can be initialized
+in advance or filled up during runtime. Referring to a problem from the domain of
+26
+
+Fig. C2 Pairplot comparing the performance of various methods listed in SRBench [20] and
+recently published [46] utilizing the Feynman dataset on different levels of target noise (γ ∈
+{0, 0.001, 0.01, 0.1}). Metrics include the symbolic solution rate, the R2 -test-score, and the execution
+time. The latter metric was multiplied by the threads employed. SBP-GEP∗ denotes the GEP method
+utilizing semantic backpropagation to ensure dimensional homogeneity, SBP Lib∗ the dimensionbased library, while GEP∗ represents our basic implementation of Ferreira’s [28] approach.
+
+symbolic regression, where we can describe such stored representations as trees, the
+question of the number of stored subsolutions, the corresponding memory overhead,
+the consistency, and the acceptable amount of time for fetching these intermediate
+states arises:
+1. Memory overhead: The overhead of the memory once depends on the total number of trees and the internal tree representation. In our GEP implementation, we
+have chosen a more data-oriented design. Instead of focusing on code readability
+or object abstraction, the gene information is stored as an integer representation
+in an array (max alignment eight bytes per entry), whereby the size is restricted
+by the head length (hl) (hyperparameter 2). Constructing the library is an iterative process, inserting new non-terminals and complementing them with terminals
+or the sub-trees created. Leveraging this process, an upper limit can be estimated
+by conducting the theoretical analysis of search space scaling outlined by Jiang et
+al. [31]. Given the terminals as m and the non-terminals as o, the size of the search
+space with l internal nodes scales with:
+
+
+
+l−1
+O (4(m + 1)o) 2 .
+
+(C3)
+
+Based on that, the upper limit can be estimated:
+|Lib(o, m, hl)| =
+
+hl 
+X
+
+min(105 , (4(m + 1)o)
+
+i
+
+27
+
+hl−1
+2
+
+)
+
+
+
+(C4)
+
+where 105 limits the amount of newly generated candidates according to practical
+reasons. Assuming m = 7 as the average inputs, hl = 8 and o = 9 lead to approximately 3.9 ∗ 105 . Moreover, the array of length hl and the mentioned alignment
+(8 Byte per position using Int64) yields a library of around 25Mb memory. Which
+can be further optimized by considering UInt32 or UInt8.
+2. Overhead Computational Time: Applying a correction mechanism to a large
+proportion of the population raises further questions about the effect of the runtime, including the time for the library creation and execution. The overhead
+was quantified by monitoring the execution throughout the experimental process.
+Fig. (C.2) (right-panel) provides an indication of the required time, including the
+different noise levels multiplied by the threads utilized. The results demonstrate
+while the proposed method offers superior performance compared to the standard
+approach, it extends the execution by approximately two to 2.5 times.
+3. Consistency: Library construction adheres to predefined rules to avoid homogeneity violations (ref. Eqn. 7), preventing arithmetic issues or the occurrence of
+redundant nested functions like (exp(log(cos(...)))). Since these entries are utilized
+to accomplish a beneficial exploration, we expect them to be appropriate for the
+given task. To test this hypothesis, we conduct the same test setup as in 4 and
+compare the R2 (Eqn. 4) as well the solution rate (Eqn. 5). In detail, we employ
+all entries that match the target physical dimension in combination with coefficient
+optimization. The result presented in Fig. C2 reveals that the entries outer show
+similar performance to the gplearn. Relating this to the amount of complexity that
+can show up and the number of equations within the ‘easy’ set implies that the
+content can at least discover approximately 50% from the mentioned subset. On
+the contrary, the R2 is dominated by the low accuracy of the candidate solutions
+for ‘medium’ and ‘hard’ cases.
+
+28
+
+References
+[1] Brunton, S.L., Proctor, J.L., Kutz, N.J.: Discovering governing equations from
+data by sparse identification of nonlinear dynamical systems. Proceedings of the
+National Academy of Sciences of the United States of America 113(15), 3932–
+3937 (2016)
+[2] Li, J., Du, X., Martins, J.R.R.A.: Machine learning in aerodynamic shape
+optimization. Progress in Aerospace Sciences 134, 100849 (2022)
+[3] Vamathevan, J., Clark, D., Czodrowski, P., Dunham, I., Ferran, E., Lee, G., Li,
+B., Madabhushi, A., Shah, P., Spitzer, M., Zhao, S.: Applications of machine
+learning in drug discovery and development. Nature Reviews Drug Discovery
+18(6), 463–477 (2019)
+[4] Makke, N., Chawla, S.: Interpretable scientific discovery with symbolic regression:
+A review. Artificial Intelligence Review 57(1), 2 (2024)
+[5] Raissi, M., Perdikaris, P., Karniadakis, G.E.: Physics-informed neural networks:
+A deep learning framework for solving forward and inverse problems involving
+nonlinear partial differential equations. Journal of Computational Physics 378,
+686–707 (2019)
+[6] Greydanus, S., Dzamba, M., Yosinski, J.: Hamiltonian neural networks. In: Proceedings of the 33rd International Conference on Neural Information Processing
+Systems. Curran Associates Inc., Red Hook, NY, USA (2019)
+[7] Koza, J.R.: Genetic Programming: On the Programming of Computers by Means
+of Natural Selection. A Bradford book. Bradford, Cambridge, Massachusetts
+(1992)
+[8] Zhang, H., Zhou, A.: Rl-gep: Symbolic regression via gene expression programming and reinforcement learning. In: 2021 International Joint Conference on
+Neural Networks (IJCNN), pp. 1–8 (2021)
+[9] Janikow, C.Z.: A methodology for processing problem constraints in genetic
+programming. Computers and Mathematics with Applications 32(8), 97–113
+(1996)
+[10] Montana, D.J.: Strongly typed genetic programming. Evolutionary Computation
+3(2), 199–230 (1995)
+[11] Sobania, D.: On the generalizability of programs synthesized by grammar-guided
+genetic programming. In: Genetic Programming: 24th European Conference,
+EuroGP 2021, Held as Part of EvoStar 2021, Virtual Event, April 7–9, 2021,
+Proceedings 24, pp. 130–145 (2021). Springer
+
+29
+
+[12] Ramos Criado, P., Barrios Rolanı́a, D., Manrique, D., Serrano, E.: Grammatically
+uniform population initialization for grammar-guided genetic programming. Soft
+Computing 24(15), 11265–11282 (2020)
+[13] Bleh, A., Geiser, G.: Finding transition models using dimensional analysis gene
+expression programming. In: AIAA SciTech 2024 Forum, p. 1573 (2024)
+[14] Grundner, A., Beucler, T., Gentine, P., Eyring, V.: Data-Driven Equation
+Discovery of a Cloud Cover Parameterization. e2023MS003763 2023MS003763
+(2024)
+[15] Ni, J., Rockett, P.: Tikhonov regularization as a complexity measure in multiobjective genetic programming. IEEE Transactions on Evolutionary Computation
+19, 157–166 (2015)
+[16] Montana, D.J.: Strongly Typed Genetic Programming. Evolutionary Computation 3(2), 199–230 (1995)
+[17] O’Neill, M., Ryan, C.: Grammatical evolution. IEEE Transactions on Evolutionary Computation 5(4), 349–358 (2001)
+[18] McKay, B., Hoài, N., Whigham, P., Shan, Y., O’Neill, M.: Grammar-based genetic
+programming: a survey. Genetic Programming and Evolvable Machines 11, 365–
+396 (2010)
+[19] Ratle, A., Sebag, M.: Genetic programming and domain knowledge: Beyond the
+limitations of grammar-guided machine discovery, pp. 211–220 (2007)
+[20] La Cava, W., Burlacu, B., Virgolin, M., Kommenda, M., Orzechowski, P., França,
+F.O., Jin, Y., Moore, J.H.: Contemporary symbolic regression methods and
+their relative performance. Advances in neural information processing systems
+2021(DB1), 1 (2021)
+[21] Pawlak, T.P., Wieloch, B., Krawiec, K.: Semantic backpropagation for designing
+search operators in genetic programming. IEEE Transactions on Evolutionary
+Computation 19(3), 326–340 (2015)
+[22] Virgolin, M., Pissis, S.P.: Symbolic regression is np-hard. Transactions on Machine
+Learning Research
+[23] McKay, B., Willis, M.J., W. Barton, G.: Using a tree-structured genetic algorithm
+to perform symbolic regression, 487–492 (1995)
+[24] Augusto, D.A., Barbosa, H.J.C.: Symbolic regression via genetic programming.
+In: Proceedings. Vol.1. Sixth Brazilian Symposium on Neural Networks, pp. 173–
+178 (2000)
+[25] Cranmer, M.: Interpretable Machine Learning for Science with PySR and
+30
+
+SymbolicRegression.jl (2023)
+[26] Stephens, T.: gplearn: Genetic Programming in Python, with a scikitlearn inspired API. Online; accessed [06.2021] (2015). https://github.com/
+trevorstephens/gplearn
+[27] He, B., Lu, Q., Yang, Q., Luo, J., Wang, Z.: Taylor genetic programming for symbolic regression. In: Proceedings of the Genetic and Evolutionary Computation
+Conference. GECCO ’22, pp. 946–954. ACM, New York, NY, USA (2022)
+[28] Ferreira, C.: Gene Expression Programming: Mathematical Modeling by an
+Artificial Intelligence. Studies in Computational Intelligence. Springer, Berlin
+(2006)
+[29] Virgolin, M., Alderliesten, T., Witteveen, C., Bosman, P.A.N.: Improving
+model-based genetic programming for symbolic regression of small expressions.
+Evolutionary Computation 29(2), 211–237 (2021)
+[30] Kasten, C., Fahr, J., Klein, M.: An Efficient Way of Introducing Gender Into Evolutionary Algorithms. IEEE Transactions on Evolutionary Computation 27(4),
+1005–1014 (2023)
+[31] Jiang, N., Xue, Y.: Symbolic regression via control variable genetic programming.
+In: Machine Learning and Knowledge Discovery in Databases: Research Track,
+pp. 178–195. Springer, Cham (2023)
+[32] Baeta, F., Correia, J., Martins, T., Machado, P.: TensorGP – Genetic Programming Engine in TensorFlow. Springer, Cham (2021)
+[33] Kamienny, P.A., D’Ascoli, S., Lample, G., Charton, F.: End-to-end Symbolic Regression with Transformers. Advances in Neural Information Processing
+Systems 35, 1–20 (2022)
+[34] Sahoo, S., Lampert, C., Martius, G.: Learning equations for extrapolation and
+control. In: Proceedings of the 35th International Conference on Machine Learning. Proceedings of Machine Learning Research, vol. 80, pp. 4442–4450. PMLR,
+Stockholm, Sweden (2018)
+[35] Petersen, B.K., Landajuela, M.L., Mundhenk, T.N., Santiago, C.P., Kim, S.K.,
+Kim, J.T.: Deep Symbolic Regression: Recovering Mathematical Expressions
+From Data Via Risk-Seeking Policy Gradients. ICLR 2021 - 9th International
+Conference on Learning Representations (2021)
+[36] Mundhenk, N.T., Santiago, C.P., Landajuela, M., Faissol, D.M., Glatt, R.,
+Petersen, B.K.: Symbolic Regression via Neural-Guided Genetic Programming Population Seeding. Advances in Neural Information Processing Systems
+30(NeurIPS), 24912–24923 (2021)
+
+31
+
+[37] Valipour, M., You, B., Panju, M., Ghodsi, A.: SymbolicGPT: A Generative
+Transformer Model for Symbolic Regression (2021) arXiv:2106.14131
+[38] Biggio, L., Bendinelli, T., Lucchi, A., Parascandolo, G.: A Seq2Seq approach to
+Symbolic Regression (NeurIPS), 1–7 (2020)
+[39] Biggio, L., Bendinelli, T., Neitz, A., Lucchi, A., Parascandolo, G.: Neural Symbolic Regression that Scales. Proceedings of Machine Learning Research 139,
+936–945 (2021)
+[40] Vastl, M., Kulhánek, J., Kubalı́k, J., Derner, E., Babuška, R.: Symformer: Endto-end symbolic regression using transformer-based architecture. IEEE Access 12,
+37840–37849 (2024)
+[41] Kamienny, P.-A., Lample, G., Lamprier, S., Virgolin, M.: Deep generative symbolic regression with Monte-Carlo-Tree-Search. In: Krause, A., Brunskill, E.,
+Cho, K., Engelhardt, B., Sabato, S., Scarlett, J. (eds.) Proceedings of the 40th
+International Conference on Machine Learning. Proceedings of Machine Learning
+Research, vol. 202, pp. 15655–15668. PMLR, Honolulu, Hawaii, USA (2023)
+[42] Udrescu, S.-M., Tegmark, M.: Ai feynman: A physics-inspired method for
+symbolic regression. Science Advances 6(16), 2631 (2020)
+[43] Udrescu, S.M., Tan, A., Feng, J., Neto, O., Wu, T., Tegmark, M.: AI Feynman
+2.0: Pareto-optimal symbolic regression exploiting graph modularity. Advances
+in Neural Information Processing Systems 2020-Decem(NeurIPS), 1–12 (2020)
+[44] Bakarji, J., Callaham, J., Brunton, S.L., Kutz, J.N.: Dimensionally consistent
+learning with Buckingham Pi. Nature Computational Science 2(12), 834–844
+(2022)
+[45] Buckingham, E.: On physically similar systems; illustrations of the use of
+dimensional equations. Physical review 4(4), 345 (1914)
+[46] Tenachi, W., Ibata, R., Diakogiannis, F.I.: Deep symbolic regression for physics
+guided by units constraints: toward the automated discovery of physical laws.
+The Astrophysical Journal 959(2), 99 (2023)
+[47] Matchev, K.T., Matcheva, K., Roman, A.: Analytical modeling of exoplanet
+transit spectroscopy with dimensional analysis and symbolic regression. The
+Astrophysical Journal 930(1), 33 (2022)
+[48] Ma, W., Zhang, J., Feng, K., Xing, H., Wen, D.: Dimensional homogeneity
+constrained gene expression programming for discovering governing equations.
+Journal of Fluid Mechanics 985, 12 (2024)
+[49] Faradonbeh, R.S., Salimi, A., Monjezi, M., Ebrahimabadi, A., Moormann, C.:
+
+32
+
+Roadheader performance prediction using genetic programming (gp) and gene
+expression programming (gep) techniques. Environmental Earth Sciences 76(16),
+584 (2017)
+[50] Faradonbeh, R.S., Armaghani, D.J., Monjezi, M., Mohamad, E.T.: Genetic programming and gene expression programming for flyrock assessment due to mine
+blasting. International Journal of Rock Mechanics and Mining Sciences 88,
+254–264 (2016)
+[51] Zhong, J., Feng, L., Ong, Y.S.: Gene expression programming: A survey. IEEE
+Computational Intelligence Magazine 12(3), 54–72 (2017)
+[52] Feynman, R.P.R.P.: The Feynman Lectures on Physics vol. 3, p. 29. AddisonWesley Pub. Co., Reading, Mass. (1963-1965). Vol. 2 has subtitle: The Electromagnetic Field; Vol. 3 has subtitle: Quantum Mechanics. Includes bibliographical
+references and indexes.
+[53] Reiser, P., Neubert, M., Eberhard, A., Torresi, L., Zhou, C., Shao, C., Metni, H.,
+Hoesel, C., Schopmans, H., Sommer, T., Friederich, P.: Graph neural networks
+for materials science and chemistry. Communications Materials 3(1), 93 (2022)
+[54] Jha, K., Saha, S., Singh, H.: Prediction of protein–protein interaction using graph
+neural networks. Scientific Reports 12(1), 8360 (2022)
+[55] Cappart, Q., Chételat, D., Khalil, E.B., Lodi, A., Morris, C.J., Veličković, P.:
+Combinatorial optimization and reasoning with graph neural networks. Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence,
+4348–4355 (2021)
+[56] Wang, J.: A survey on graph neural networks. EAI Endorsed Transactions on
+E-Learning 8 (2023)
+[57] Wiersma, D.S., Mana, G.: The fundamental constants of physics and the
+International System of Units. vol. 32, pp. 655–663. Springer (2021)
+[58] Virtanen, P., Gommers, R., Oliphant, T.E., Haberland, M., Reddy, T., Cournapeau, D., Burovski, E., Peterson, P., Weckesser, W., Bright, J., van der Walt,
+S.J., Brett, M., Wilson, J., Millman, K.J., Mayorov, N., Nelson, A.R.J., Jones, E.,
+Kern, R., Larson, E., Carey, C.J., Polat, İ., Feng, Y., Moore, E.W., VanderPlas,
+J., Laxalde, D., Perktold, J., Cimrman, R., Henriksen, I., Quintero, E.A., Harris, C.R., Archibald, A.M., Ribeiro, A.H., Pedregosa, F., van Mulbregt, P., SciPy
+1.0 Contributors: SciPy 1.0: Fundamental Algorithms for Scientific Computing in
+Python. Nature Methods 17, 261–272 (2020)
+[59] The OpenFOAM Foundation: OpenFOAM: The Open Source CFD Toolbox.
+Online (2024). https://openfoam.org/
+
+33
+
+[60] O’Neill, M., Ryan, C.: Grammatical evolution. IEEE Transactions on Evolutionary Computation 5(4), 349–358 (2001)
+[61] Sun, S., Ouyang, R., Zhang, B., Zhang, T.Y.: Data-driven discovery of formulas
+by symbolic regression. MRS Bulletin 44(7), 559–564 (2019)
+[62] Szubert, M., Kodali, A., Ganguly, S., Das, K., Bongard, J.: Semantic forward
+propagation for symbolic regression, vol. 9921, pp. 364–374 (2016)
+[63] Wang, L., Zhao, J.: Algorithmic differentiation. In: Architecture of Advanced
+Numerical Analysis Systems: Designing a Scientific Computing System using
+OCaml, pp. 49–75. Apress, Berkeley, CA (2023)
+[64] Pawlak, P.T., Wieloch, B., Krawiec, K.: Semantic backpropagation for designing search operators in genetic programming. Trans. Evol. Comp 19(3), 326–340
+(2015)
+[65] Gowda, S., Ma, Y., Cheli, A., Gwozdz, M., Shah, V.B., Edelman, A., Rackauckas,
+C.: High-performance symbolic-numerics via multiple dispatch. arXiv preprint
+arXiv:2105.03949 (2021)
+[66] Meurer, A., Smith, C.P., Paprocki, M., Čertı́k, O., Kirpichev, S.B., Rocklin, M.,
+Kumar, A., Ivanov, Moore, J.K., Singh, S., Rathnayake, T., Vig, S., Granger,
+B.E., Muller, R.P., Bonazzi, F., Gupta, H., Vats, S., Johansson, F., Pedregosa, F.,
+Curry, M.J., Terrel, A.R., Roučka, Saboo, A., Fernando, I., Kulal, S., Cimrman,
+R., Scopatz, A.: Sympy: symbolic computing in python. PeerJ Computer Science
+3, 103 (2017)
+[67] Bezanson, J., Karpinski, S., Shah, V.B., Edelman, A.: Julia: A fast dynamic
+language for technical computing. arXiv preprint arXiv:1209.5145 (2012)
+[68] Demšar, J.: Statistical comparisons of classifiers over multiple data sets. J. Mach.
+Learn. Res. 7, 1–30 (2006)
+[69] Crochepierre, L., Boudjeloud-Assala, L., Barbesant, V.: A Reinforcement Learning Approach to Domain-Knowledge Inclusion Using Grammar Guided Symbolic
+Regression (2022)
+[70] Reissmann, M., Fang, Y., Ooi, S.H., Sandberg, R.D.: Accelerating evolutionary exploration through language model-based transfer learning. arXiv preprint
+arXiv:2406.05166 (2024)
+[71] Holland, J.H.: Genetic Algorithms. Scientific American 267(1), 66–73 (1992)
+[72] Li, X., Zhou, C., Xiao, W., Nelson, P.C.: Prefix gene expression programming.
+(2005)
+[73] Taylor, B.N.: Guide for the use of the International System of Units (SI).
+34
+
+NIST Special Publication 811, National Institute of Standards and Technology,
+Gaithersburg, MD (1995)
+
+35
+
+

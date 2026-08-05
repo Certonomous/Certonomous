@@ -1,0 +1,74 @@
+{
+  "generated_at": "2026-08-05T17:20:14.787938+00:00",
+  "produced_by": "sdk/scripts/closure_eval_battery/run_duct_battery.py",
+  "protocol": "demo-output/website/CLOSURE_EVALUATION_PROTOCOL.md",
+  "test_blindness": {
+    "scoring_calls": 0,
+    "test_ground_truth_reads": 0
+  },
+  "model": "round-4 variant D: 7 Pope invariants + d/d_max, target (U_LES-U_RANS)/mean|U_RANS|, HistGradientBoostingRegressor x3, random_state=0, 4 DUCT training cases",
+  "validity_anchor": {
+    "AR_7_Ret_180_corrected_scaled_mae_this_run": 0.0135,
+    "pre_registered_value": 0.01345,
+    "source": "closure_challenge_duct_reynolds_transfer.json"
+  },
+  "secondary_flow_convention": {
+    "quantity": "|U_inplane| = sqrt(Uy^2 + Uz^2), normalised by U_b",
+    "layout": "lower-left quadrant, streamwise direction out of the page",
+    "reference_arrow": "U_b/10",
+    "citation": "Ling, Kurzawski & Templeton, JFM 2016 (OSTI 1333570), Fig. 6 'Reference arrows of length Ub /10 shown at the top of each plot'; Fig. 4 'Only the lower left quadrant of the duct is shown, and the streamwise flow direction is out of the page.'",
+    "intensity_scalar_is_our_extension": true
+  },
+  "per_case": {
+    "AR_7_Ret_180": {
+      "role": "validation",
+      "n_cells": 15463,
+      "aspect_ratio": 7.0,
+      "U_b_volume_weighted_rans": 39.075,
+      "scaled_mae_cells_rans": 0.0807,
+      "scaled_mae_cells_corrected": 0.0135,
+      "secondary_flow_intensity_rans": 1.1540739413458654e-17,
+      "secondary_flow_intensity_corrected": 0.0029687107778206966,
+      "secondary_flow_intensity_truth": 0.002655880497737053,
+      "secondary_flow_recovered_fraction": 1.1178
+    },
+    "AR_1_Ret_180": {
+      "role": "train",
+      "n_cells": 2209,
+      "aspect_ratio": 1.0,
+      "U_b_volume_weighted_rans": 37.5,
+      "scaled_mae_cells_rans": 0.1073,
+      "scaled_mae_cells_corrected": 0.0341,
+      "secondary_flow_intensity_rans": 5.386835962535024e-18,
+      "secondary_flow_intensity_corrected": 0.004347683206883142,
+      "secondary_flow_intensity_truth": 0.006296890117330531,
+      "secondary_flow_recovered_fraction": 0.6904
+    },
+    "AR_3_Ret_180": {
+      "role": "train",
+      "n_cells": 6627,
+      "aspect_ratio": 3.0,
+      "U_b_volume_weighted_rans": 38.715,
+      "scaled_mae_cells_rans": 0.1112,
+      "scaled_mae_cells_corrected": 0.0224,
+      "secondary_flow_intensity_rans": 6.359618203209536e-18,
+      "secondary_flow_intensity_corrected": 0.004394116832415186,
+      "secondary_flow_intensity_truth": 0.005053518561074621,
+      "secondary_flow_recovered_fraction": 0.8695
+    }
+  },
+  "figures": [
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/duct_secondary_flow_AR_7_Ret_180.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/duct_profiles_AR_7_Ret_180.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/duct_secondary_flow_AR_1_Ret_180.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/duct_profiles_AR_1_Ret_180.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/duct_secondary_flow_AR_3_Ret_180.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/duct_profiles_AR_3_Ret_180.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/duct_scatter.png",
+    "/home/ubuntu/Certonomous/demo-output/website/closure_eval/duct_error_maps.png"
+  ],
+  "compute": {
+    "elapsed_seconds": 50.5,
+    "cores_cap": 2
+  }
+}

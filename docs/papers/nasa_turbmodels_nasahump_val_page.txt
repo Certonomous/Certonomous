@@ -1,0 +1,390 @@
+# Capture of https://turbmodels.larc.nasa.gov/nasahump_val.html (redirected to https://tmbwg.github.io/turbmodels/nasahump_val.html) captured 2026-08-05 by Certonomous lab
+
+2D NASA Wall-Mounted Hump Separated Flow Validation Case
+
+ [LINK:#main-content] 
+
+ 
+ 
+
+ 
+
+ 
+ 
+ 
+
+ Turbulence Modeling Resource
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+Return to: [LINK:index.html] Turbulence Modeling Resource Home Page
+
+ 
+
+2DWMH: 2D NASA Wall-Mounted Hump Separated Flow Validation
+Case
+
+The purpose here is to provide a 
+validation case for turbulence models. Unlike verification, which seeks to 
+establish that a model has been implemented correctly, validation compares 
+CFD results against data in an effort to establish a model's ability to 
+reproduce physics. This case is "Case 3" from the 
+ [LINK:Other_exp_Data/cfdval2004_exp.html] NASA CFDVAL2004 Workshop.
+At this time, for consistency, the same set of best-practice structured grids are provided here that
+were used at the workshop. As such, they also include the interior chamber and flow-control slot.
+However, for the purposes of this particular no-flow-control validation case, there is no mass flow through the
+bottom chamber wall.
+Experimental data are provided here for comparison from from Greenblatt et al.
+
+The experiment is described in detail at the 
+ [LINK:Other_exp_Data/cfdval2004_exp.html] NASA CFDVAL2004 Workshop webpage.
+It is a Wall-mounted Glauert-Goldschmied type body, geometrically similar to that employed by Seifert and Pack 
+(AIAA Journal, Vol. 40, No. 7, July 2002, pp. 1363-1372,
+ [LINK:https://doi.org/10.2514/2.1796] https://doi.org/10.2514/2.1796). 
+Full details of the current case are given in the references
+listed below. The model is mounted between two glass endplate frames and both leading edge and trailing edges 
+are faired smoothly with a wind tunnel splitter plate. This is a nominally two-dimensional experiment, treated as
+such for the CFD validation.
+
+The primary focus of this case is to assess the ability of turbulence models to
+predict 2-D separation from a smooth body (caused by adverse pressure gradient) as well as
+subsequent reattachment and boundary layer recovery. 
+Since its introduction, this particular case (as well as its sister cases with flow control)
+has proved to be a challenge for all known RANS
+models. Models tend to underpredict the turbulent shear stress in the separated shear layer,
+and therefore tend to predict too long a separation bubble.
+
+For this case, the reference freestream velocity is approximately 34.6 m/s (M=0.1).
+Incoming fully turbulent boundary layer thickness at position x/c=-2.14 is approximately 35 mm, or about 8%c
+(the bump "chord" is 420 mm).
+The back pressure is chosen to achieve the desired flow. The upstream
+"run" length is chosen to allow the fully turbulent boundary layer
+to develop naturally, and achieve approximately the correct boundary layer thickness
+upstream of the hump. The upper
+boundary is modeled in the CFD as an inviscid (slip) wall, and it includes a contour to its shape to
+approximately account for the blockage caused by the end plates in the experiment.
+
+This case can be run either with or without the plenum (the plenum was present in the experiment, but
+for the no-flow-control case, it is not crucial to include).
+The original grids from the CFDVAL2004 workshop included the plenum; they are provided in the first grid link below.
+A new set of grids has also been created without the plenum; they are provided in the second grid link below.
+The following plots show the layout of this case, along with the boundary conditions.
+"Pt" refers to total pressure, "P" refers to
+static pressure, and "Tt" refers to total temperature.
+The Reynolds number for this case is the same as that used for the 2004 workshop: 936,000. Note that
+this differs slightly from the Reynolds number in the Greenblatt et al reference from 2006,
+which reports Re=929,000. This small difference of less than 1 percent is deemed to be insignificant. 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ [LINK:nasahump_grids_workshop.html] GRIDS from CFDVAL2004 workshop (with plenum)
+
+ [LINK:nasahump_grids.html] GRIDS (no plenum)
+
+Some of the experimental data for this case will be shown below. 
+The profiles of interest are at x/c = -2.14, 0.65, 0.8, 0.9, 1.0, 1.1, 1.2, and 1.3.
+
+The experimental data references are:
+
+Greenblatt, D., Paschal, K. B., Yao, C.-S., Harris, J., Schaeffler, N. W., Washburn, A. E.,
+"Experimental Investigation of Separation Control Part 1: Baseline and Steady Suction,"
+AIAA Journal, Vol. 44, No. 12, 2006, pp. 2820-2830, 
+ [LINK:https://doi.org/10.2514/1.13817] https://doi.org/10.2514/1.13817.
+
+Greenblatt, D., Paschal, K. B., Yao, C.-S., Harris, J.,
+"Experimental Investigation of Separation Control Part 2: Zero Mass-Flux Oscillatory Blowing,"
+AIAA Journal, Vol. 44, No. 12, 2006, pp. 2831-2845,
+ [LINK:https://doi.org/10.2514/1.19324] https://doi.org/10.2514/1.19324.
+
+Naughton, J. W., Viken, S. A., Greenblatt, D., "Skin-Friction Measurements on the NASA Hump Model," 
+AIAA Journal, Vol. 44, No. 6, 2006, pp. 1255-1265,
+ [LINK:https://doi.org/10.2514/1.14192] https://doi.org/10.2514/1.14192.
+
+The full set of experimental data are available from:
+ [LINK:Other_exp_Data/CFDVAL2004/case3expdata.html] CFDVAL2004 Case 3 Experimental Data webpage.
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+The experimental data for these plots can be found in the following files:
+ [LINK:Nasahump_validation/noflow_cp.exp.dat] noflow_cp.exp.dat,
+ [LINK:Nasahump_validation/noflow_cf.exp.dat] noflow_cf.exp.dat,
+ [LINK:Nasahump_validation/noflow_u_inflow.exp.dat] noflow_u_inflow.exp.dat, and
+ [LINK:Nasahump_validation/noflow_vel_and_turb.exp.dat] noflow_vel_and_turb.exp.dat, and
+ [LINK:https://www.nasa.gov/wp-content/uploads/2026/01/noflow-piv-exp.zip?emrc=696f8b38e253a] Noflow_PIV_exp.zip.
+
+More extensive experimental data for this case - and for other cases including flow control - can be found at the
+ [LINK:Other_exp_Data/CFDVAL2004/case3expdata.html] 
+NASA CFDVAL2004 Workshop Webpage for Case 3 Experimental Data.
+
+ 
+
+ 
+
+What to Expect on grids from CFDVAL2004 workshop:
+
+ 
+
+ 
+
+ 
+RESULTS
+
+ 
+ 
+LINK TO EQUATIONS
+
+ 
+ 
+ [LINK:modelreadiness.html] MRR Level
+
+ 
+ 
+
+ 
+
+ 
+ [LINK:nasahump_val_workshop_sa.html] SA
+
+ 
+ 
+ [LINK:spalart.html#sa] SA eqns
+
+ 
+ 
+4
+
+ 
+ 
+
+ 
+
+ 
+ [LINK:nasahump_val_workshop_sst.html] SSTm
+
+ 
+ 
+ [LINK:sst.html#sst-std] SSTm eqns
+
+ 
+ 
+3
+
+ 
+ 
+
+ 
+
+ 
+ [LINK:nasahump_val_workshop_ssglrrrsm.html] SSG/LRR-RSM-w2012
+
+ 
+ 
+ [LINK:rsm-ssglrr.html#ssg-lrrRSM] SSG/LRR-RSM-w2012 eqns
+
+ 
+ 
+3
+
+ 
+ 
+
+ 
+
+ 
+ [LINK:nasahump_val_workshop_kkl-meah.html] K-kL-MEAH2015m
+
+ 
+ 
+ [LINK:kkl.html#kkl-meah2015] K-kL-MEAH2015m eqns
+
+ 
+ 
+3
+
+ 
+ 
+
+ 
+
+(Other turbulence model results may be added in the future.)
+
+ 
+
+ 
+
+What to Expect on grids with no plenum:
+
+ 
+
+ 
+
+ 
+RESULTS
+
+ 
+ 
+LINK TO EQUATIONS
+
+ 
+ 
+ [LINK:modelreadiness.html] MRR Level
+
+ 
+ 
+
+ 
+
+ 
+ [LINK:nasahump_val_sa.html] SA
+
+ 
+ 
+ [LINK:spalart.html#sa] SA eqns
+
+ 
+ 
+4
+
+ 
+ 
+
+ 
+
+ 
+ [LINK:nasahump_val_sarc.html] SA-RC
+
+ 
+ 
+ [LINK:spalart.html#saRC] SA-RC eqns
+
+ 
+ 
+3
+
+ 
+ 
+
+ 
+
+ 
+ [LINK:nasahump_val_sst.html] SSTm
+
+ 
+ 
+ [LINK:sst.html#sst-std] SSTm eqns
+
+ 
+ 
+3
+
+ 
+ 
+
+ 
+
+ 
+ [LINK:nasahump_val_bsl.html] BSLm
+
+ 
+ 
+ [LINK:bsl.html#bsl-std] BSLm eqns
+
+ 
+ 
+2
+
+ 
+ 
+
+ 
+
+ 
+ [LINK:nasahump_val_ssglrrrsm.html] SSG/LRR-RSM-w2012
+
+ 
+ 
+ [LINK:rsm-ssglrr.html#ssg-lrrRSM] SSG/LRR-RSM-w2012 eqns
+
+ 
+ 
+3
+
+ 
+ 
+
+ 
+
+ 
+ [LINK:nasahump_val_kkl-meah.html] K-kL-MEAH2015
+
+ 
+ 
+ [LINK:kkl.html#kkl-meah2015] K-kL-MEAH2015 eqns
+
+ 
+ 
+3
+
+ 
+ 
+
+ 
+
+(Other turbulence model results may be added in the future.)
+
+Note that the OVERFLOW code has documented its results for this validation case (for the SA-noft2 and SST
+turbulence models) in [LINK:Papers/NAS_Technical_Report_NAS-2016-01.pdf] NAS Technical Paper 2016-01 (pdf file)
+(18.3 MB) by Jespersen, Pulliam, and Childs.
+
+ 
+
+ 
+
+Return to: [LINK:index.html] Turbulence Modeling Resource Home Page
+
+ 
+
+ 
+
+ 
+
+Page Curators: [LINK:mailto:ethan.a.vogel@nasa.gov] Ethan Vogel,
+ [LINK:mailto:clark.c.pederson@nasa.gov] Clark Pederson 
+
+Last Updated: 01/23/2026

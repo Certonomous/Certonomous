@@ -1,0 +1,3583 @@
+Computers & Fluids 38 (2009) 433–457
+
+Contents lists available at ScienceDirect
+
+Computers & Fluids
+j o u r n a l h o m e p a g e : w w w . e l s e v i e r . c o m / l o c a t e / c o m p fl u i d
+
+Flow over periodic hills – Numerical and experimental study in a wide range
+of Reynolds numbers
+M. Breuer a,*, N. Peller b, Ch. Rapp b, M. Manhart b
+a
+b
+
+Lehrstuhl für Strömungsmechanik, Universität Erlangen-Nürnberg, D-91058 Erlangen, Germany
+Fachgebiet Hydromechanik, Technische Universität München, D-80290 München, Germany
+
+a r t i c l e
+
+i n f o
+
+Article history:
+Received 4 February 2008
+Received in revised form 16 May 2008
+Accepted 19 May 2008
+Available online 28 May 2008
+
+a b s t r a c t
+The paper presents a detailed analysis of the ﬂow over smoothly contoured constrictions in a plane channel. This conﬁguration represents a generic case of a ﬂow separating from a curved surface with welldeﬁned ﬂow conditions which makes it especially suited as benchmark case for computing separated
+ﬂows. The hills constrict the channel by about one third of its height and are spaced at a distance of 9
+hill heights. This setup follows the investigation of Fröhlich et al. [Fröhlich J, Mellen CP, Rodi W, Temmerman L, Leschziner MA. Highly resolved large-eddy simulation of separated ﬂow in a channel with
+streamwise periodic constrictions. J Fluid Mech 2005;526:19–66] and complements it by numerical
+and experimental data over a wide range of Reynolds numbers. We present results predicted by direct
+numerical simulations (DNS) and highly resolved large-eddy simulations (LES) achieved by two completely independent codes. Furthermore, these numerical results are supported by new experimental
+data from PIV measurements. The conﬁguration in the numerical study uses periodic boundary conditions in streamwise and spanwise direction. In the experimental setup periodicity is achieved by an array
+of 10 hills in streamwise direction and a large spanwise extent of the channel. The assumption of periodicity in the experiment is checked by the pressure drop between consecutive hill tops and PIV measurements. The focus of this study is twofold: (i) Numerical and experimental data are presented
+which can be referred to as reference data for this widely used standard test case. Physical peculiarities
+and new ﬁndings of the case under consideration are described and conﬁrmed independently by different
+codes and experimental data. Mean velocity and pressure distributions, Reynolds stresses, anisotropyinvariant maps, and instantaneous quantities are shown. (ii) Extending previous studies the ﬂow over
+periodic hills is investigated in the wide range of Reynolds numbers covering 100 6 Re 6 10; 595. Starting
+at very low Re the evolution and existence of physical phenomena such as a tiny recirculation region at
+the hill crest are documented. The limit to steady laminar ﬂow as well as the transition to a fully turbulent ﬂow stage are presented. For 700 6 Re 6 10; 595 turbulent statistics are analyzed in detail. Carefully,
+undertaken DNS and LES predictions as well as cross-checking between different numerical and experimental results build the framework for physical investigations on the ﬂow behavior. New interesting features of the ﬂow were found.
+Ó 2008 Elsevier Ltd. All rights reserved.
+
+1. Introduction
+1.1. Case deﬁnition
+The prediction of ﬂow separation from curved surfaces and subsequent reattachment is complicated by several phenomena
+including irregular movement of the separation and reattachment
+lines in space and time, strong interactions with the outer ﬂow,
+transition from a boundary layer type of ﬂow to a separated shear
+layer with failure of the law-of-the wall and standard model
+assumptions for either attached ﬂows or free shear layers. The
+* Corresponding author. Fax: +49 9131 852 9579.
+E-mail addresses: mbreuer@lstm.uni-erlangen.de (M. Breuer), n.peller@bv.
+tum.de (N. Peller).
+0045-7930/$ - see front matter Ó 2008 Elsevier Ltd. All rights reserved.
+doi:10.1016/j.compﬂuid.2008.05.002
+
+improvement of ﬂow prediction by Reynolds-averaged Navier–
+Stokes (RANS) simulation or large-eddy simulation (LES) in such
+ﬂows is dependent on reliable data of generic test cases including
+the main features of the respective ﬂow phenomena. The ﬂow over
+periodically arranged hills in a channel as proposed by Mellen et al.
+[33] has been used as benchmark test case since it represents welldeﬁned boundary conditions, can be computed at affordable costs
+and nevertheless inherits all the features of a ﬂow separating from
+a curved surface and reattaching on a ﬂat plate. The geometry of
+the test case is shown in Fig. 1. The dimensions of the domain
+are Lx ¼ 9:0h, Ly ¼ 3:036h, and Lz ¼ 4:5h, where h denotes the hill
+height.
+In order to motivate why this case is especially useful for basic
+investigations of the performance of turbulence models – not only
+subgrid-scale (SGS) models but also statistical models in the RANS
+
+434
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+Fig. 1. Sketch of the ﬂow geometry and snapshot of instantaneous streamwise
+velocity at Re ¼ 5600.
+
+context –, and other issues such as wall modeling, the history how
+this test case was established is brieﬂy sketched.
+Almeida et al. [1,2] experimentally investigated the ﬂow behind
+two-dimensional model hills. Two different conﬁgurations were
+considered, i.e., the ﬂow over a single hill and the ﬂow over periodic hills. In 1995 these experiments were chosen as the basis of
+a test case at the ERCOFTAC/IAHR workshop held in Karlsruhe by
+Rodi et al. [42]. In order to select the least demanding conﬁguration, the periodic arrangement without side walls was considered.
+However, the calculations carried out for this test case highlighted
+a number of serious problems and open questions, see [33]. This
+concerns the unknown inﬂuence of the side walls in the experiment not taken into account in the predictions. Since the aspect ratio in the experiment was small (almost square cross-section), it
+was expected that the spanwise conﬁnement provoked spanwise
+variations. Furthermore, the predictions at the workshop [42] have
+cast doubt on the true periodicity of the experimental setup leading to the fact that simulations and experiment were not comparable. Another critical point is the high Reynolds number. Based on
+the hill height h and the mean centerline velocity the Reynolds
+number was Re ¼ 60; 000. Since the channel height in the experiment was large (Ly ¼ 6:071h), the corresponding Reynolds number
+based on Ly is even about six times larger resulting in high computational costs for the conﬁguration chosen. This problem even increases if the single hill case is considered for which suitable
+experimental data are available. The unknown effect of the side
+walls remains for this case. Therefore, a new conﬁguration was
+deﬁned by Mellen et al. [33], which leans on the experimental setup by Almeida et al. [1] but avoids the problems discussed above.
+The re-deﬁnition of the test case also allows to meet a number of
+desiderata judged to be associated with a good test case for LES studies [33,48]. The ﬂow has to contain the key generic phenomena of
+interest, whilst being amenable to a simulation at economically tolerable cost. The new geometry is sketched in Fig. 1. The shape of the
+hill is taken from the study of Almeida et al. [1]. An accurate geometric speciﬁcation is available in form of a polynomial ansatz [2].
+First, compared with Almeida et al.’s conﬁguration the distance
+between two hill crests in streamwise direction was doubled. This
+increased distance allows the ﬂow to reattach naturally between
+successive hills, providing a signiﬁcant post-reattachment-recovery region on the ﬂat plate between the two hills prior to the reacceleration over the next hill. From the numerical and modeling
+point of view this modiﬁcation means that reattachment is now
+strongly inﬂuenced by wall modeling, SGS modeling, and grid
+arrangement issues. This aspect was not obvious in the original
+conﬁguration since reattachment was dictated by the presence of
+the windward face of the consecutive hill.
+Second, the original channel height was halved. This measure reduces the computational effort and allows a higher aspect ratio Lz =Ly .
+Third, the side walls existing in the original experimental setup
+of Almeida et al. [1] are removed and instead periodicity in the
+spanwise direction is assumed. Based on additional investigations
+by Mellen et al. [33] a spanwise extension of the computational domain of Lz ¼ 4:5h was recommended for LES or hybrid LES–RANS
+predictions.
+
+Fourth, the Reynolds number was reduced and set to
+Re ¼ 10; 595 where Re ¼ U B h=m is based on the hill height h, the bulk
+velocity U B taken at the crest of the ﬁrst hill and the kinematic viscosity m of the ﬂuid. Furthermore, the ﬂow is assumed to be periodic
+in the streamwise direction which represents a simple way out of
+the dilemma to specify appropriate inﬂow boundary conditions
+for LES or DNS. For that purpose the increase of the distance between two consecutive hills described above is beneﬁcial too, since
+it enhances the streamwise decorrelation. Thus, a well-deﬁned ﬂow
+state independent of inﬂow conditions is achieved.
+As a consequence the resulting geometrically simple test case
+offers a number of important features challenging from the point
+of view of turbulence modeling and simulation. The pressure-induced separation takes place from a continuous curved surface
+and reattachment is observed at the ﬂat plate (see Fig. 1). Hence,
+these ﬂow features are sensitive to numerical and modeling
+aspects. Therefore, this conﬁguration was already a test case at
+various workshops, e.g., the ERCOFTAC/IAHR/COST Workshops on
+Reﬁned Turbulence Modeling in 2001 [22] and 2002 [29], respectively. Consequently, a variety of predicted results using RANS as
+well as LES are available which can only be partially cited in the
+succeeding section.
+1.2. Previous studies
+The periodic hill ﬂow test case has been studied so far pursuing
+two main objectives, either the modeling and simulation issue or the
+physical issue. Regarding the ﬁrst, it is used as a benchmark case to
+investigate the ability of RANS and LES to resolve separation from a
+curved geometry. Furthermore, the ﬂow is also an interesting case
+to study the physical mechanisms of separation on curved surfaces
+in more detail.
+1.2.1. Modeling and simulation issue
+Besides the workshops mentioned above [22,29] a few more
+studies on the modeling and simulation issue should be provided
+ﬁrst emphasizing on LES. Temmerman and Leschziner [47] investigated the periodic hill ﬂow at Re ¼ 10; 595 using LES. The emphasis
+was on the effectiveness of different combinations of subgrid-scale
+models and wall functions on relatively coarse grids. The accuracy
+was judged by reference to a wall-resolved simulation (lower wall
+only) on a grid with about 4.6 million nodes. It was demonstrated
+[47] that even gross-ﬂow parameters, such as the length of the separation bubble, are very sensitive to modeling approximations (SGS
+and wall models) and the grid quality. A similar investigation was
+carried out by Mellen et al. [33] assessing the impact of different
+SGS models and the effect of grid reﬁnement. In the succeeding
+study by Temmerman et al. [48] the previous efforts of both groups
+were combined and a comparative investigation was carried out
+applying three grids, six SGS models and eight practices of approximating the near-wall region. Again the coarse-grid simulations
+were judged by wall-resolved simulations using the ﬁne grid mentioned above and two independent codes. The simulations on
+coarse grids highlighted the outstanding importance of an adequate
+streamwise resolution of the ﬂow in the vicinity of the separation
+line. The main reason is the high sensitivity of the reattachment position to that of the separation. Furthermore, the near-wall treatment was found to be more inﬂuential on the quality of the
+results obtained on coarse grids than the subgrid-scale modeling.
+In the meantime several studies used this test case to evaluate
+the performance not only for coarse-grid LES predictions but also
+for different kinds of hybrid LES–RANS approaches including
+detached-eddy simulations (DES), see, e.g. [10,12,14,43]. The latter
+for example was a collaborative effort involving ﬁve different ﬂow
+solvers used by ﬁve different groups in order to cover a broad range
+of numerical methods and implementations. All simulations were
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+conducted on the same grid with approximately one million cells
+and compared to a highly resolved LES by Breuer [9]. Overall the
+DES predictions and also LES predictions on the same grid were
+found to be in good agreement with the reference data. Further
+coarsening of the grid did not alter the performance of DES substantially unless the LES–RANS interface moves outside the boundary layer on the crest of the hill. In that situation a massive
+deterioration of the results was detected.
+To evaluate the performance of wall models for LES of attached
+ﬂows the turbulent plane channel ﬂow [25,34] is the standard test
+case. That is due to its geometrical simplicity including two homogeneous directions which allow the application of periodic boundary conditions avoiding inﬂow and outﬂow boundary conditions
+completely. For the development and investigation of wall models
+for separated ﬂows, the channel ﬂow with periodic constrictions
+has nearly reached an equivalent status and meaning. Similar to
+the plane channel the computational setup of the hill ﬂow is simple
+owing to the possibility to apply periodic boundary conditions
+twice. However, for the hill case the ﬂow separates from a curved
+surface and a large back-ﬂow region emerges. Further downstream
+the ﬂow reattaches and is accelerated at the windward side of the
+hill. Therefore, the separation and reattachment process can be
+studied in detail and wall models developed for attached and separated ﬂows can be evaluated based on this ﬂow.
+As mentioned above, Temmerman et al. [48] investigated the
+predictive accuracy of different wall models based on this case. It
+was clearly shown that the predictions provided by classical wall
+models developed for attached ﬂows are not satisfactory if the
+wall-nearest computational point is located outside the viscous
+sublayer. This renders the case as a sensitive platform to develop
+and improve wall models. For example, Manhart et al. [32] used
+this ﬂow to evaluate a modiﬁed law of the wall for the viscous sublayer which accounts for the effect of both, the wall shear stress
+and the pressure gradient in the streamwise direction which plays
+an important role for separated ﬂows. They analyzed the performance of this new formulation based on DNS data of the hill ﬂow
+at Re ¼ 5600. In similar investigations Breuer et al. [11,13] developed a new wall modeling strategy for separated ﬂows. It allows
+to derive enhanced wall models which also take the streamwise
+pressure gradient into account. Moreover, the concept of artiﬁcial
+viscosity used for that purpose makes an accurate description of
+the physics of the ﬂow in the wall-nearest region possible. Statistical evaluations of highly resolved LES data for the hill ﬂow case
+using non-linear stochastic estimation were carried out in order
+to determine the important physical dependence involved in the
+new wall model, namely the ratio of the thickness of the viscous
+sublayer to the height of the wall-nearest cell. The results show
+that the enhanced wall model yields reliable predictions for separated ﬂows. The agreement with the reference data was found to
+be much better than the results obtained by no-slip boundary conditions or classical wall models such as those by Schumann [44]
+and Werner and Wengle [49].
+
+435
+
+features of the ﬂow. Based on that interesting observations such
+as the very high level of spanwise velocity ﬂuctuations in the
+post-reattachment zone on the windward hill side were explained.
+This phenomenon revealed to be a result of the ‘splatting’ of largescale eddies originating from the shear layer and convected downstream towards the windward slope. That explains why RANS simulations even when applying second-moment closures can not
+capture the ﬂow ﬁeld accurately. As stated by the authors [18],
+the identiﬁcation of other structures by means of structure-identiﬁcation methods turned out to be difﬁcult, mainly because of the
+high Reynolds number.
+In [12] a preliminary study was carried out in which the
+Reynolds number effect was investigated for the ﬁrst time. Interesting ﬂow features such as the variation of the reattachment
+length were found. Furthermore, the existence of a tiny recirculation at the foot of the windward face of the hill reported in [18]
+was conﬁrmed for Re ¼ 10; 595. That and other ﬁndings motivated
+to study the ﬂow under varying Reynolds numbers more deeply.
+1.3. Goals and outline of the present study
+The objective of the present investigation is concerned with the
+physical issue of the periodic hill ﬂow. Compared to the comprehensive study by Fröhlich et al. [18] it differs in a certain number
+of aspects. The ﬁrst issue concerns the fundamentals of the investigations which besides two independent numerical simulation
+techniques also relies on experimental measurements (PIV) which
+were especially carried out for this work recently. The second
+important point is the extension to a wide range of Reynolds numbers including the one studied before, for which compared to [18] a
+reﬁned simulation including the resolution of the upper wall region was performed. The extension to a broad range of Reynolds
+numbers allows one on the one hand to take also direct numerical
+simulations into account using grids with up to about a quarter of a
+billion grid points. On the other hand the inﬂuence of the Reynolds
+number on the statistical data as well as on the dynamical ﬂow
+structures could be analyzed in detail. Since the key features of
+massively separated ﬂows are assumed to be only weakly dependent on Re, structure-identiﬁcation methods could be applied to
+the low-Re cases involved.
+The remainder of the paper is organized as follows: In Section 2
+the experimental setup is described. The computational methodologies and the numerical parameters pertaining to the simulations
+reported later are given in Section 3. That includes a thorough analysis of the resolution issue for both grid types applied. Section 4
+delivers cross-comparisons between the different numerical
+results and the measured data. The inﬂuence of the Reynolds
+numbers on statistical as well as structural features of the ﬂow
+ﬁeld will be highlighted in Section 5. Conclusions are ﬁnally
+presented in Section 6.
+
+2. Experimental setup
+1.2.2. Physical issue
+Concerning the physical issue a comprehensive investigation for
+the periodic hill ﬂow at Re ¼ 10; 595 was carried out by Fröhlich et
+al. [18] based on LES predictions with about 4.6 million nodes and
+two independent codes. By the arguments given in Section 1.1 and
+especially the distinct post-reattachment-recovery region it is justiﬁed why the chosen conﬁguration stands out from the crowd of
+investigations on ﬂows over wavy-terrain geometries. A detailed
+analysis was carried out including the evaluation of the budgets
+for all Reynolds stress components, anisotropy measures, and spectra. The emphasis was on elucidating the turbulence mechanisms
+associated with separation, recirculation and acceleration. The statistical data were supported by investigations on the structural
+
+A water channel has been set up to investigate the ﬂow experimentally (see Fig. 2). Water was chosen as its density is 800 times
+higher than that of air and its kinematic viscosity is 13 times lower.
+At the same model scale and Reynolds number the pressure in
+water is 4.5 times higher than in air and therefore easier to determine. The corresponding ratio for the characteristic times is 13.
+This issue contributes to higher accuracy especially in instantaneous ﬂows [15]. The water was ﬁltered, decalciﬁed and
+chlorinated to avoid disturbances from lime stone and bioﬁlm on
+the boundaries of the channel.
+A well with a maximum discharge of 70 l/s pumps the water
+from a reservoir through a pipe with a diffuser into an intake
+
+436
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+tops can be seen as constant from hill four on. The spanwise pressure distribution on the leeward and windward side of the hill is
+constant in the range of accuracy of the pressure cells as well.
+2.2. Velocity measurements
+
+Fig. 2. Experimental setup for the ﬂow over periodic hills.
+
+reservoir that damps ﬂuctuations. Several ﬁxtures such as sieves,
+air intake ﬁlters and barriers abate the structures evolving from
+the entering jet. The rectangular channel which is 3:036h high
+and 18h wide is directly attached to the intake reservoir that is
+18h wide as well. The dimensions of the model relate to the hill
+height h that was chosen to be 50 mm. The wider extend in the
+spanwise direction in comparison to the computational domain
+was chosen to accomplish homogeneity in the center part of the
+channel [40]. The ﬁrst part of the channel that is 10h in length is
+followed by round ﬂow straighteners that are approximately
+0:44h in diameter and 10h long. A distance of 20h lies between
+the ﬂow straighteners and the foot of the ﬁrst hill. In total 10 hills
+were chosen to achieve periodicity in the streamwise direction
+[40], whereas the measurement section is between hill seven and
+eight. A rectangular section of 34h lies between the foot of hill
+10 and the outlet reservoir. The water levels in the intake and outlet reservoir determine the pressure gradient and with it the Reynolds number.
+The material mainly used is polyvinylchloride. Plexiglas and
+glass were chosen for the cover and the walls of the channel at
+the measurement section. The hills were cast from polyurethane
+in monolithic blocks. The achieved degree of accuracy of the setup
+is 6 0:01h.
+To check the periodicity in the streamwise direction 19 holes
+were drilled into the top cover of the channel at local positions
+x=h ¼ 1:3 and x=h ¼ 6:3 (see Fig. 3). They are located one hill height
+off the center plane in order not to disturb the PIV measurements
+that were carried out in the center. For control of the homogeneity
+in the spanwise direction the pressure was recorded at 14 locations
+at local positions z=h ¼ 1:2 and z=h ¼ 7:8 at hill eight.
+
+The velocity measurements were conducted with a two-dimensional PIV system. A 190 mJ NdYAG laser emitting 532 nm pulses
+was used to generate a light sheet that was 0.7 mm wide. The
+images were recorded with a 4 MPx CCD camera. They were
+streamed through a RAID system so that 10,000 double frames
+could be recorded at a frame rate of 7.25 f/s. The duration of the
+experiment corresponds to 335 ﬂow-through times for Re ¼ 5600
+and 634 ﬂow-through times for Re ¼ 10; 595, where the ﬂowthrough time is based on the distance between two consecutive
+hills and the bulk velocity U B . Laser light reﬂections at the walls
+were avoided by adjusting the camera position in the particular
+optical axis. Therefore, six camera positions were necessary recording partially overlapping frames with a length/height of 2048 px,
+corresponding to 289 mm or 5.79 hill heights (see Fig. 3). The size
+of the interrogation areas is 32  32 pixels. They are overlapping
+by half of their side length. The spatial resolution corresponds to
+Ds ¼ 2:279 mm or 0:046 hill heights. Table 1 shows ratios of the
+side length of the interrogation areas Ds and the smallest scales
+in the DNS. The Kolmogorov scale gmin was taken from the DNS
+using MGLET (see case 8 in Table 3) at Re ¼ 5600 and scaled by
+Re3=4 for Re ¼ 10; 595. Since the smallest Kolmogorov length is locally varying, an averaged value denoted gmean provides a more
+reasonable estimation on the spatial resolution and thus this ratio
+is added in Table 1.
+2.2.1. Seeding particles
+The puriﬁed water was seeded with hollow glass spheres. The
+major advantage of these particles is their dispersion behavior in
+water. They do not cluster and bright scattering leads to high-contrast images. The diameters of the spheres range from 8 lm to
+12 lm, whereas their density varies from 0.1 g/cm3 to 1.5 g/cm3.
+The Stokes number of the particles, deﬁned as
+
+St ¼
+
+tp
+tk
+
+with the Kolmogorov time scale
+
+rﬃﬃﬃ
+tk ¼
+
+2.1. Pressure measurements
+Two pressure cells with an effective range of 1000 Pa and a speciﬁc error of 0.1% were chosen to acquire the pressure drop and the
+spanwise pressure distribution. The pressure was recorded relatively to the one on hill crest eight. It was acquired at a sample rate
+of 1000 Hz until the change in variance was less than 5  105 .
+Instantaneous data could not be evaluated, nevertheless, the mean
+values contributed to prove the comparability of the experiment to
+the numerical simulations in terms of periodicity and homogeneity
+[40]. At Re ¼ 5600 the pressure drops between consecutive hill
+
+Frame 1
+
+ð1Þ
+
+m
+
+
+ð2Þ
+
+Table 1
+Spatial resolution Ds of the PIV measurements with respect to the Kolmogorov scale g
+at three different streamwise locations
+Re
+
+Ratio
+
+x/h = 0.5
+
+x/h = 1.0
+
+x/h = 6.0
+
+5600
+5600
+10,595
+10,595
+
+Ds =gmin
+Ds =gmean
+Ds =gmin
+Ds =gmean
+
+29.4
+17.2
+47.5
+27.8
+
+26.8
+17.5
+23.3
+28.3
+
+23.4
+16.0
+37.7
+25.8
+
+Frame 2
+
+Frame 3
+
+Pressure holes
+
+3.036
+2
+1
+0
+9
+
+0
+Hill 6
+
+Frame 4
+
+Hill 7
+
+Frame 5
+
+Frame 6
+
+9
+Hill 8
+
+Fig. 3. Measurement section between hill seven and eight.
+
+18
+Hill 9
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+Table 2
+Variation of the Reynolds number in the experiment
+Nominal Re
+
+Remin
+
+Remax
+
+5600
+10,595
+
+5184
+10,979
+
+5291
+11,144
+
+and the particle time scale,
+
+tp ¼
+
+qp d2p
+;
+qf 18m
+
+ð3Þ
+
+was calculated to check their behavior in the ﬂow. The maximum
+Stokes number as a result of max , the maximum dissipation in the
+ﬂow ﬁeld from the DNS using MGLET (see case 8 in Table 3) at
+Re ¼ 5600, the greatest particle diameter dp and the highest ratio
+of the particle’s and ﬂuid’s density qp =qf is St ¼ 1:32  102  1.
+Hence, it can be assumed that the particles follow the ﬂow within
+a sufﬁciently short time scale.
+2.2.2. PIV algorithm
+The minimum intensity image was subtracted from the individual images before the pixel intensity was doubled. The wide intensity distribution leads to high correlation peaks. For saving
+computational time cross-correlations have been conducted in
+Fourier space, using a so-called ‘Recursive Nyquist Grid’. The velocity vectors were considered as valid if the magnitude of the
+streamwise component was within ½0:75U B ; 1:7U B  and the magnitude of the vertical component was within ½0:75U B ; 0:75U B .
+Afterwards the vectors were median-ﬁltered, while a deviation of
+0:4U B from 3  3 surrounding vectors was tolerated. Skipped vectors were interpolated by means of 5  5 surrounding vectors.
+These vectors determine the initial shift of the second frame interrogation areas for the second processing run. After the ﬁnal step
+about 1% of the vectors were interpolated.
+The post-processing was conducted for data using ﬁrst correlation peak vectors only and for data including also the interpolated
+vectors. A comparison of the two differently obtained results
+showed no deviations.
+2.2.3. Conduction of the experiments
+The experimental conditions were controlled through simultaneous temperature and discharge measurements (by a magneto
+inductive device, MID) at all times. Slight temperature variations
+(6 0:4 K) during the individual experimental runs led to changes
+in viscosity by less than 1.0%. The discharge was adjusted by a slide
+valve that can only be handled with a certain accuracy. With these
+boundary conditions, the Reynolds numbers achieved in the six
+individual experimental runs for each Reynolds number varied
+slightly as shown in Table 2.
+The velocity ﬁelds of the six different frames were merged into
+joint proﬁles through integrations of the velocity proﬁles in overlapping parts of the six frames. These factors were counterchecked
+with the ratios of mean discharges recorded by the MID. The normalization of the velocities and the Reynolds stresses was done
+with respect to U B that was acquired from the integration of the
+velocity proﬁle at hill crest seven.
+3. Numerical setup: methods and modeling approaches
+3.1. Governing equations
+For the DNS predictions of the present study we solve the threedimensional, time-dependent Navier–Stokes equations for an
+incompressible ﬂuid which reads in its dimensionless form:
+
+oui
+¼ 0;
+oxi
+oui oðui uj Þ
+op
+1 o2 ui
+¼
+þ
+:
+þ
+ox
+ox
+Re
+ot
+ox2j
+j
+i
+
+437
+
+ð4Þ
+ð5Þ
+
+Here, ui , p and Re are the Cartesian velocity components, the pressure and the Reynolds number, respectively. In the LES predictions
+only the large energy-carrying eddies are computed directly
+whereas the inﬂuence of the small eddies has to be modeled by a
+subgrid-scale model. Consequently, the governing equations (4)
+and (5) have to be ﬁltered in space leading to the so-called ﬁltered
+Navier–Stokes equations which are similar to the original set of
+equations but contain the additional subgrid-scale stress tensor
+[8,39]. Its task is to mimic the inﬂuence of the non-resolved
+small-scale structures on the resolved large eddies.
+3.2. Numerical methodologies
+The numerical part of the present study relies on two completely independent codes based on either curvilinear body-ﬁtted
+grids with a colocated variable arrangement or Cartesian non-uniform grids using a staggered conﬁguration. The objective is to present highly reliable results obtained by carefully cross-checking
+between the outcome of both numerical schemes and additional
+experimental data. Afterwards the investigations concentrate on
+the physical aspects of the ﬂow considered.
+In the following, both codes are described brieﬂy. For a more detailed description we refer to [5–8] for the code LESOCC and
+[30,31,35] for the code MGLET. No attempt is made to explain all
+advantages and drawbacks of each method which would go beyond the scope of the present paper.
+3.2.1. Finite-volume code LESOCC
+LESOCC solves the (ﬁltered) Navier–Stokes equations based on a
+three-dimensional
+ﬁnite-volume
+method
+for
+arbitrary
+non-orthogonal and non-staggered block-structured grids (see,
+e.g., Fig. 4). The spatial discretization of all ﬂuxes is based on
+central differences of second-order accuracy. Time advancement
+is performed by a predictor–corrector scheme. A low-storage
+multi-stage Runge–Kutta method (three substeps, second-order
+accuracy) is applied for integrating the momentum equations in
+the predictor step. Within the corrector step the Poisson equation
+for the pressure correction is solved implicitly by the incomplete
+LU decomposition method of Stone [46]. Explicit time marching
+works well for DNS and LES with small time steps which are necessary to resolve turbulence motion in time. In order to ensure
+the coupling of pressure and velocity ﬁelds on non-staggered grids,
+the momentum interpolation technique of Rhie and Chow [41] is
+used. For modeling the non-resolvable subgrid scales, two different
+models are implemented, namely the well-known Smagorinsky
+model [45] with Van Driest damping near solid walls and the
+dynamic approach with a Smagorinsky base model proposed by
+Germano et al. [19] and modiﬁed by Lilly [26]. In order to stabilize
+the dynamic model, averaging of the numerator and the denominator in the relation for the determination of the Smagorinsky
+value [19,26] was carried out in the spanwise homogeneous
+direction and also in time using a recursive digital low-pass ﬁlter
+[5,8]. The code and the implemented SGS models were validated
+on a variety of different test cases. For more information on this
+issue, please refer to [5–8].
+LESOCC is highly vectorized and additionally parallelized by domain decomposition (see Fig. 4) with explicit message-passing
+based on MPI allowing efﬁcient computations especially on vector-parallel machines and SMP clusters. The present simulations
+were carried out on the SMP-system Hitachi SR8000-F1, applying
+8 nodes (= 64 processors). Related to the usage of a single Hitachi
+
+438
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+y
+x
+Fig. 4. Cross-section (x–y) of the curvilinear grid; every fourth grid line is shown; thick lines depict block boundaries.
+
+Fig. 5. Cross-section (x–y) of the Cartesian grid; every 15th grid line is shown.
+
+node, the computing time per time step and control volume (CV) is
+about 2  106 s.
+3.2.2. Finite-volume code MGLET
+MGLET is based on a ﬁnite-volume formulation for non-uniform Cartesian grids with a staggered arrangement of the spatially
+ﬁltered variables (see, e.g., Fig. 5). The spatial discretization of the
+convective and diffusive ﬂuxes is based on second-order central
+differences. The momentum equations are advanced in time by a
+fractional time stepping using either an explicit second-order central leapfrog scheme (case 51) or a third-order Runge–Kutta scheme
+(cases 3 and 8). For the solution of the Poisson equation for the pressure the ‘strongly implicit procedure’ (SIP) by Stone [46] is implemented. For the representation of the hill geometry in the
+Cartesian grid an immersed boundary technique is used. All Cartesian cells lying inside the body are excluded from the computation.
+The excluded cells are determined by the intersection of the hill
+geometry with the Cartesian cells. The geometry of the hills is represented by a triangle mesh. The immersed boundary technique provides a smooth representation of the body surface in the Cartesian
+mesh by using third-order least squares interpolation for the interface cells [35]. This method prevents instabilities which are present
+in high-order Lagrange interpolation schemes. The code is used for
+DNS and LES simulations. It has been shown by several authors that
+second-order accuracy can be sufﬁcient for DNS of ﬂows provided
+the grid resolution is sufﬁcient [16,17,30].
+MGLET is highly vectorized and parallelized by domain decomposition using MPI. The simulations were performed on the Hitachi
+SR8000-F1, whereupon the DNS at Re ¼ 2800 used 24 nodes and
+the DNS at Re ¼ 5600 used 32 nodes. Related to the usage of a single Hitachi node, the computing time per time step and CV is about
+9:6  107 s for the DNS at Re ¼ 5600. For more information on the
+code, please refer to [31].
+
+1
+
+Reason: Runge–Kutta scheme not available at that time.
+
+Hence, both codes are relying on the ﬁnite-volume method and
+are second-order accurate in space and time. The intrinsic difference is the type of grids used and related to that the representation
+of curved or oblique boundaries of the integration domain.
+3.3. Boundary conditions and simulation parameters
+Since the grid resolution in the vicinity of the wall is sufﬁcient to
+resolve the viscous sublayer (see Section 3.4), the no-slip and impermeability boundary condition is used at the wall in both codes. The
+ﬂow is assumed to be periodic in the streamwise direction and thus
+periodic boundary conditions are applied. Similar to the turbulent
+plane channel ﬂow case the non-periodic behavior of the pressure
+distribution can be accounted for by adding the mean pressure gradient as a source term to the momentum equation in streamwise
+direction. Two alternatives exist. Either the pressure gradient is
+ﬁxed which might lead to an unintentional mass ﬂux in the conﬁguration or the mass ﬂux is kept constant which requires to adjust the
+mean pressure gradient in time. Since a ﬁxed Reynolds number can
+only be guaranteed by a ﬁxed mass ﬂux, the second option is chosen
+using the method proposed by Benocci and Pinelli [4].
+Furthermore, the ﬂow is assumed to be homogeneous in spanwise direction and periodic boundary conditions are applied, too.
+For that purpose the use of an adequate domain size in the spanwise direction is of major importance in order to obtain reliable
+and physically reasonable results. To assure this criterion the
+two-point correlations in the spanwise direction have to vanish
+in the half-width of the domain size chosen. Based on the investigations by Mellen et al. [33] a spanwise extension of the computational domain of Lz ¼ 4:5h is used in all computations presented.
+This extension of the domain was also used in the investigation
+by Fröhlich et al. [18]. It represents a well-balanced compromise
+between spanwise extension and spanwise resolution.
+Table 3 summarizes the most important parameters of the simulations available. Ntot denotes the total number of grid points
+used; the corresponding number of control volumes is slightly
+lower. Although a direct comparison of the number of grid points
+
+439
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+Table 3
+Parameters of the simulations performed
+Case
+
+Re
+
+Simulation
+
+N tot =106
+
+1.2
+N span
+
+Dt=103
+
+T avg
+
+Code
+
+1
+
+1
+
+700
+
+DNS
+
+13.1
+
+200
+
+0.5
+
+1581
+
+LESOCC
+
+0.8
+
+2
+3
+
+1400
+1400
+
+DNS
+DNS
+
+13.1
+20.0
+
+200
+132
+
+1.1
+1.5
+
+1249
+540
+
+LESOCC
+MGLET
+
+0.6
+
+4
+5
+
+2800
+2800
+
+DNS
+DNS
+
+13.1
+48.0
+
+200
+304
+
+2.0
+1.0
+
+1249
+562
+
+LESOCC
+MGLET
+
+6
+7
+8
+
+5600
+5600
+5600
+
+DNS
+LES
+DNS
+
+13.1
+13.1
+231.0
+
+200
+200
+404
+
+2.0
+2.0
+1.0
+
+1214
+1303
+343
+
+LESOCC
+LESOCC
+MGLET
+
+9
+
+10,595
+
+LES
+
+13.1
+
+200
+
+1.8
+
+1277
+
+LESOCC
+
+used by LESOCC and MGLET in one x–y plane is not reasonable, at
+least the number of points equidistantly distributed in the spanwise direction, N span , can be compared.
+The dimensionless time-step size Dt is also tabulated in Table 3,
+where the time is normalized by the ratio of the hill height h and
+the bulk velocity U B taken at the crest of the hill. To reduce statistical errors due to insufﬁcient sampling to a reasonable minimum,
+the ﬂow ﬁeld was averaged in spanwise direction and in time over
+a long period of DT avg which is also given in Table 3. Partially, DT avg
+covers a time interval of about 140 ﬂow-through times.
+3.4. Resolution issues
+In this section the choice of grids used in the present study will
+be motivated. It is divided into two subsections for the different
+numerical methods applied. Nevertheless, similar criteria are used
+to determine the appropriate grid design for both numerical
+schemes. Satisfying these criteria leads to different restrictions
+for both methods which are pointed out in the following. We start
+with the curvilinear grid design for the wall-resolved LES prediction at the highest Reynolds number chosen, i.e., Re ¼ 10; 595.
+3.4.1. Curvilinear grids
+For the simulation at Re ¼ 10; 595 LESOCC applies a curvilinear
+block-structured grid consisting of Ntot ¼ 13:1 million grid points
+corresponding to a total of about 12.4 million control volumes.
+The grid points are clustered in the vicinity of the lower wall, the
+upper wall, and the region where the free shear layer appears. Besides classical quality criteria such as orthogonality and smoothness, two main issues motivated the distribution of the grid
+points in space. These are the resolution of the near-wall region
+and of the inner domain.
+To evaluate the ﬁrst concern, the most important quality criterion is the distribution of non-dimensional yþ values deﬁned by
+denotes
+the distance of the cell center
+yþ ¼ Dycc us =m where Dyp
+cc ﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃ
+ﬃ
+from the wall and us ¼ sw =q describes the shear stress velocity.
+Note that due to the cell-centered variable arrangement Dycc is half
+of the corresponding cell height Dy. Fig. 6 depicts the yþ distribution along the lower wall at all Reynolds numbers considered. At
+Re ¼ 10; 595 the values are below 0.45 with a mean value of about
+0.2 except at the windward side of the hill. Here, the largest values
+of the wall shear stress are observed and the yþ value reaches its
+maximum of about 1.2. Hence, the lower wall is well resolved.
+Regarding the wall-normal resolution the grid satisﬁes the requirements of a wall-resolved LES prediction. Compared to [18] who
+employed in their highly resolved simulations a curvilinear grid
+with about 4.6 million CVs (196  128  186) especially the number of grid points in the wall-normal direction was increased to
+220 in the present investigation. Furthermore, the simulations resolve not only the lower wall (the hills) in more detail but also resolve the upper wall by a DNS-like representation (yþ 6 0:95 at
+Re ¼ 10; 595). Thus in contrast to [18] the application of wall func-
+
+LESOCC: LES, Re = 10595
+LESOCC: LES, Re = 5600
+LESOCC: DNS, Re = 2800
+LESOCC: DNS, Re = 1400
+LESOCC: DNS, Re = 700
+
+0.4
+0.2
+0
+-0.2
+0
+
+2
+
+4
+
+6
+
+8
+
+Fig. 6. Distribution of yþ along the lower wall at different Re using LESOCC.
+
+tions is avoided. That allows to establish the inﬂuence of the resolution of the upper wall on the results. To prove the enhanced
+resolution, some numbers are provided. For instance, the cell sizes
+at the hill crest, which is a key region for the periodic hill ﬂow are
+in the current case Dxcrest =h ¼ 0:026 and Dycrest =h ¼ 2:0  103
+whereas the corresponding values in [18] are Dxcrest =h ¼ 0:032
+and Dycrest =h ¼ 3:3  103 , respectively. Owing to the increased
+resolution in streamwise and spanwise direction the cell sizes expressed in wall units are below Dxþ ¼ 20 and Dzþ ¼ 9 and thus
+lower than in [18] and substantially lower than the recommendations for wall-resolved LES given by Piomelli and Chasnov [38].
+That also holds at the windward slope of the hill where the largest
+shear stresses are found.
+To evaluate the second concern, the resolution of the inner
+region, it is reasonable to estimate the size of the smallest scales
+given by the Kolmogorov length g ¼ ðm3 =Þ1=4 . In order to determine this quantity within the wall-resolved LES prediction, the dissipation tensor ij was predicted and averaged in time and in
+spanwise direction. It has to be mentioned that this procedure represents only a rough estimate of ij since on the one hand the
+diminutive SGS contribution is not included and on the other hand
+the present grid might slightly underestimate the dissipation tensor. Based on the dissipation rate  ¼ 1=2ii and the kinematic viscosity m of the ﬂuid, g can be determined and compared to the ﬁlter
+width D ¼ ðDx  Dy  DzÞ1=3 applied. In Fig. 7 proﬁles of D=g are
+shown at three different locations, x=h ¼ 0:5, 1.0 and 6.0, respectively. With respect to the estimation given by Pope [39] that the
+maximum dissipation takes place at a length scale of about 24g,
+these structures are resolved by at least 4–5 grid points at
+x=h ¼ 0:5. At x=h ¼ 1:0 and 6.0 the maximum of D=g is about 6.3
+and thus at least about four times smaller than the decisive scales
+found by Pope [39]. Consequently, the grid allows to resolve a
+
+3
+
+x / h = 0.5
+x / h = 1.0
+x / h = 6.0
+
+2.5
+2
+1.5
+1
+0.5
+0
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+Fig. 7. Proﬁles of D=g at three different vertical positions: x=h ¼ 0:5, 1:0, and 6:0;
+curvilinear grid used by LESOCC for the wall-resolved LES prediction at
+Re ¼ 10; 595.
+
+440
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+substantial part of the dissipation. Overall the values D=g are smaller than in [18]. Especially, in the vicinity of the upper wall the situation is strongly improved.
+As explained above the generation of the grid for LESOCC was
+designed for the wall-resolved LES predictions at Re ¼ 10; 595.
+Regarding the lower Reynolds numbers considered, the grid was
+not modiﬁed when Re was reduced. The reason is twofold. On
+the one hand a grid which is sufﬁciently ﬁne for a certain Reynolds
+number should also be adequate for a lower Re. That is visible for
+example in Fig. 6 which depicts the distributions of yþ along the
+lower wall for all Re. The shear stress increases with decreasing
+Reynolds numbers, but for ﬁxed U B and h the viscosity also increases with decreasing Re. As a result the average and maximum
+yþ values are strongly reduced. Consequently, with decreasing Re
+the resolution becomes better and better. Thus by applying the
+same grid for the comparison of two Re, the effect of the grid is
+completely excluded from the consideration. On the other hand
+the intention was to perform DNS predictions for the lowest Reynolds numbers considered, i.e., at Re ¼ 700, 1400, and 2800. Consequently, the grid should be sufﬁciently ﬁne for a DNS at Re ¼ 2800.
+That is exactly the Reynolds number in the classical plane channel
+ﬂow predictions [25,34] who applied a grid of about 2 million
+points. In the present case a six times ﬁner grid is applied which
+accounts for the more complex ﬂow ﬁeld and the lower accuracy
+of the numerical method. Besides the criteria discussed in detail
+above, a further evidence of the adequacy of the grid for DNS at
+Re 6 2800 is provided by two simulations carried out at
+Re ¼ 5600 (see Table 3). One simulation was done as a wall-resolved LES using the dynamic SGS model (case 7) and the other
+was carried out without a subgrid-scale model (case 6). As will
+be discussed below, only marginal deviations were found between
+both cases. That is a clear hint that for the further reduced Reynolds numbers Re 6 2800 the grid used delivers results which
+can be regarded as DNS.
+In accordance with [18] the simulation at Re ¼ 10; 595 (case 9)
+was performed with the dynamic Smagorinsky model. Owing to
+the increased resolution the ratio of mt =m found in the present prediction is smaller than in the previous study. Moreover, by applying two different SGS models which delivered strongly differing
+eddy-viscosity values, Fröhlich et al. [18] have shown that the
+inﬂuence of this deviation on the LES prediction is low if a very ﬁne
+grid is used as in the present case. That conﬁrms that the present
+simulation is not materially inferior to a DNS near the walls.
+Besides, for some additional simulations at very low Reynolds
+number between 100 and 700 to be discussed in Section 5.5, a
+coarser grid with 164  100  64 CVs was used.
+
+3.4.2. Cartesian grids
+Also for the Cartesian grid used by MGLET the Kolmogorov
+scale in the domain and the resolution at the wall based on the
+wall shear stress are the most important criteria. Additional criteria have been established for the immersed boundary method. A
+ﬁrst evaluation of these criteria has been obtained by preliminary
+simulations with relatively coarse grids. The ﬁnally computed values then conﬁrmed these resolution estimations [36].
+For the DNS at Re ¼ 2800 (case 5) the grid is reﬁned by geometric stretching in y-direction close to the hill surface where strong
+gradients must be resolved. The stretching factors are kept below
+3%. Due to the Cartesian grid the reﬁnement in y-direction is not
+exactly wall normal at all positions of the geometry. The grid spacings in streamwise and spanwise direction are equidistant. The
+simulation yields 48 million grid points.
+For the DNS at Re ¼ 5600 (case 8) the mesh is additionally
+stretched in x-direction. It is reﬁned more closely according to
+the average wall shear stress at the bottom wall. Fig. 8 shows a
+plot of the grid spacings in x- and y-direction as well as the
+þ
+wall-normal distance of the pressure cell center d from the
+þ
+geometry. d is a measure to check the variation in the distance
+of grid points, which exists in immersed boundaries. If the variation is bounded as observed in Fig. 8, the body surface is well resolved even when it is not grid aligned. Determining the grid
+spacing and stretching is an iterative procedure in order to minimize the amount of grid cells used, because for Cartesian grids
+small grid spacing leads to a large number of grid points also in
+regions where it is not needed. Therefore, it is important to reduce
+the number of grid points by stretching at positions with low wall
+shear stress and condensing the number of grid points at locations
+þ
+with high wall shear stress. The wall-normal distance d should
+þ
+remain at (or below) d  1 over the complete domain (see Fig.
+8). The stretching factor is also required to stay below 3% for
+the DNS.
+The resulting grid spacing with respect to the Kolmogorov
+length scale D=g can be seen in Fig. 9 for the same three representative positions as discussed in the section about the curvilinear
+grid. The inner domain is well resolved and the grid spacing does
+not exceed 2.2 times the Kolmogorov length scale. This also resolves scales well beyond the maximum dissipation rate at 24g
+as stated by Pope [39]. As it is known that the smallest scales exist
+in the turbulent boundary layer, Fig. 9 shows that the grid stretching compensates for the decrease in Kolmogorov length scale. The
+ratio D=g remains small at the wall.
+Stretching and condensing the grid in x- and y-direction also
+effects the aspect ratio of the cells. For the DNS prediction
+(case 8) the aspect ratio Dx=Dy is depicted in Fig. 8. It varies over
+
+9
+
+aspect-ratio
+Δx++
+Δy+
+d
+
+8
+
+Δx+; Δy+; d+
+
+7
+6
+5
+4
+3
+2
+1
+0
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+x/h
+Fig. 8. Properties of the grid used by MGLET for the DNS prediction at Re ¼ 5600 (case 8). Shown are grid spacings in wall units for x- and y-direction. Aspect ratio Dx=Dy and
+þ
+resulting distance d in wall units are plotted.
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+3
+
+with case 8 providing numerical data on an extremely ﬁne Cartesian grid (231 million grid points) which based on the outcome
+of Section 3.4 is beyond all doubt a well-resolved DNS. The crosscomparison was also conducted for Re ¼ 1400. However, since no
+new ﬁndings compared to the outcome presented in the following
+sections resulted, for the sake of brevity this Reynolds number is
+omitted here.
+
+x / h = 0.5
+x / h = 1.0
+x / h = 6.0
+
+2.5
+2
+1.5
+1
+0.5
+0
+0.8
+
+1
+
+1.2
+
+1.4
+
+1.6
+
+1.8
+
+441
+
+2
+
+2.2
+
+Fig. 9. Proﬁles of D=g at three different vertical positions: x=h ¼ 0:5, 1:0, and 6:0;
+Cartesian grid used by MGLET for the DNS prediction at Re ¼ 5600 (case 8).
+
+the domain length since the grid stretching in x- and y-direction is
+adapted to the regions of high wall shear stress.
+This leads to an optimization procedure for the grid generation
+in Cartesian meshes with immersed boundaries. It consists of four
+þ
+criteria: (i) Keeping the absolute wall-normal distance at d  1,
+(ii) the stretching ratio at  3%, (iii) the aspect ratio below 9 and
+(iv) assuring small grid spacings in relation to the Kolmogorov
+length scale in the entire domain. Applying these criteria the
+DNS grid (case 8) yields 231 million grid points.
+With the same optimization procedure the grid for the DNS at
+Re ¼ 1400 (case 3) is designed. Considering the lower Reynolds
+number, less points are needed and the grid consists of 20 million
+grid points.
+4. Cross-comparison of results
+4.1. Numerical results at Re = 2800 and 5600
+Before investigating the ﬂow physics and working out the inﬂuence of the Reynolds number, a cross-comparison of the results
+achieved by the different methods is carried out. For that purpose
+two different Reynolds numbers will be considered. According to
+Table 3 two DNS predictions are available at Re ¼ 2800. Case 4
+was performed by LESOCC using a curvilinear grid and case 5 is
+based on MGLET using a Cartesian grid with about 3.5 times more
+grid points. At Re ¼ 5600 case 7 is taken into account which
+denotes a wall-resolved LES prediction on the curvilinear grid. On
+the same grid a simulation without any SGS model was carried out
+(see case 6 in Table 3). However, the deviations found between
+cases 6 and 7 are marginal. This outcome is consistent with the
+very low eddy viscosities observed in case 7 which demonstrate
+that the resolution is nearly sufﬁcient for a DNS (mt =m < 0:5 for
+nearly all grid points of the instantaneous ﬂow ﬁeld). Nevertheless,
+as a matter of conﬁdence the wall-resolved LES prediction (case 7)
+is preferred for the cross-comparison. These results are compared
+
+4.1.1. Global view of the ﬂow
+A global view of the ﬂow from the DNS at Re ¼ 5600 is given by
+the streamlines plot of the averaged ﬂow ﬁeld in Fig. 10 (case 8,
+Table 3). The ﬂow separates at the hill crest at x=h  0:18 and forms
+a large separation bubble reaching to x=h  5:1. The separation in
+this case is not only due to an adverse pressure gradient but also
+the result of the strong streamwise curvature of the lower wall.
+Fig. 11(a) displays the distribution of the averaged wall shear
+stress sw on the lower wall for the cases mentioned above. At both
+Re the ﬂow separates shortly behind the hill crest where with
+increasing Re the separation point is moving upstream as visible
+in Fig. 22. Reattachment takes place about 5.1–5.4 hill heights behind the crest where both codes predict a somewhat larger recirculation length at Re ¼ 2800 compared with Re ¼ 5600. Fig. 22
+displaying the separation and reattachment length predicted by
+both codes clearly shows that the results are in excellent agreement regarding these integral quantities (see Section 5 for a detailed discussion of this issue).
+Downstream of the reattachment region a small recirculation
+zone just before the second hill at x=h  7 is found which forms
+in all simulations. Along the ascent the wall shear stress strongly
+increases and reaches its maximum shortly before the hill crest.
+As will be discussed in detail in Section 5, the peak values of sw
+strongly increases with decreasing Re. The overall comparison of
+sw in Fig. 11(a) shows on the one hand an excellent agreement between the results of both codes at Re ¼ 2800 and 5600 except at
+the windward side of the hill. On the other hand the dependence
+of the wall shear stress on the Reynolds number can be clearly
+appreciated (see Section 5 for a detailed discussion).
+The deviations between the predictions of LESOCC and MGLET
+observed at the windward side are attributed to the immersed
+boundary technique used on the Cartesian grid. It is much more
+elaborated to reconstruct the wall shear stress for the immersed
+boundary technique than for the curvilinear approach. The body
+surface is not aligned with the Cartesian grid and velocity values
+or derivatives of velocities, respectively, must be transformed into
+the wall-aligned coordinate system. As mentioned in Section 3.4.2
+there is a variation in the wall-normal distance when considering
+the position of the velocity and pressure variables. In addition to
+that the variables are staggered and must be interpolated onto
+the same position. These two drawbacks, (i) the variation and (ii)
+the staggered arrangement make it difﬁcult to reconstruct the wall
+shear stress along oblique walls accurately. However, the deviation
+in the wall shear stress does not seem to be an indication for
+
+Fig. 10. Streamlines of the time-averaged ﬂow ﬁeld predicted by DNS at Re ¼ 5600 (case 8, Table 3).
+
+442
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+deﬁciencies in the overall ﬂow ﬁeld. Velocity proﬁles (see Section
+4.1.2) at the position of maximum wall shear stress agree well
+for the Cartesian and the curvilinear grid.
+Finally, Fig. 11(b) depicts the distribution of the averaged pressure along the lower wall. As expected a plateau is observed in the
+recirculation region which is longer at Re ¼ 2800 than at Re ¼ 5600
+and thus consistent with the reattachment lengths found at both
+Re. Similar to sw some small deviations between the simulations
+by LESOCC and MGLET are found which are again mainly attributed to difference in the discretization especially along the inclined
+slopes. However, since in incompressible ﬂows the pressure distribution shows an elliptic behavior, this discrepancy is already visible in front of the windward side of the hill. A second reason
+causing some minor deviations with respect to the maximum of
+the averaged pressure occurring at about x=h ¼ 7:8 for Re ¼ 5600
+is given by the fact that one simulation represents an LES (case
+7) whereas the other is a DNS (case 8). If the SGS model is switched
+off as it was done in case 6, the agreement between the results of
+LESOCC and MGLET (not shown here) is slightly better with respect to the maximum, thus a small inﬂuence of the SGS model
+is present in case 7.
+
+0.03
+LESOCC: LES, Re = 5600
+LESOCC: DNS, Re = 2800
+MGLET : DNS, Re = 5600
+MGLET : DNS, Re = 2800
+
+0.02
+
+0.01
+
+Re = 5600
+
+0
+
+Re = 2800
+0
+
+2
+
+4
+
+6
+
+8
+
+0.6
+
+LESOCC: LES, Re = 5600
+LESOCC: DNS, Re = 2800
+MGLET : DNS, Re = 5600
+0.4 MGLET : DNS, Re = 2800
+0.5
+
+0.3
+Re = 5600
+0.2
+Re = 2800
+
+0.1
+0
+-0.1
+0
+
+2
+
+4
+
+6
+
+8
+
+Fig. 11. Comparison of predictions by LESOCC and MGLET for the averaged wall
+shear stress sw and the averaged pressure distribution hpi at the lower wall for two
+different Reynolds numbers, i.e., Re ¼ 2800 (cases 4 and 5) and 5600 (cases 7 and 8
+in Table 3, respectively).
+
+4.1.2. Averaged velocity and Reynolds stress proﬁles
+Fig. 12 shows exemplarily the distribution of the averaged
+streamwise velocity hUi=U B at four different vertical positions in
+the ﬂow ﬁeld, i.e., x=h ¼ 0:5, 2, 4, and 6. The ﬁrst position is located
+shortly after the separation line and crosses the strong shear layer;
+the second proﬁle is at the beginning of the ﬂat ﬂoor and hence
+within the main recirculation region. The third one is located near
+the end of the recirculation bubble and ﬁnally the last is positioned
+behind the main separation region in the reattached ﬂow. At both
+Re the agreement observed between the results obtained by the
+different numerical methods is excellent. Only marginal deviations
+
+3
+
+3
+
+2.5
+2.5
+2
+
+LESOCC: LES, Re = 5600
+LESOCC: DNS, Re = 2800
+MGLET: DNS, Re = 5600
+MGLET: DNS, Re = 2800
+
+2
+1.5
+1
+
+1.5
+
+0.5
+1
+-0.2
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+1.2
+
+0
+-0.4 -0.2
+
+3
+
+3
+
+2.5
+
+2.5
+
+2
+
+2
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+-0.2
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.6
+
+0.8
+
+0.8
+
+1
+
+1.2
+
+0
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+1.2
+
+0
+
+0.2
+
+0.4
+
+1
+
+1.2
+
+Fig. 12. Comparison of predictions by LESOCC and MGLET based on the streamwise velocity proﬁles hUi=U B at four different locations (x=h ¼ 0:5, 2, 4, and 6) and two
+different Reynolds numbers, i.e., Re ¼ 2800 (cases 4 and 5) and 5600 (cases 7 and 8 in Table 3, respectively).
+
+443
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+3
+
+3
+
+2.5
+
+2.5
+LESOCC: Re = 5600
+LESOCC: Re = 2800
+MGLET: Re = 5600
+MGLET: Re = 2800
+
+2
+1.5
+
+2
+1.5
+
+1
+
+1
+Re = 2800
+
+Re = 5600
+
+0.5
+0
+-0.06
+
+-0.04
+
+-0.02
+
+0.5
+
+0
+
+0.02
+
+0.04
+
+0.06
+
+0
+-0.1
+
+-0.08
+
+-0.06
+
+-0.04
+
+-0.02
+
+0
+
+0.02
+
+Fig. 13. Comparison of predictions by LESOCC and MGLET based on the normal velocity proﬁles hVi=U B at two different locations (x=h ¼ 2 and 4) and two different Reynolds
+numbers, i.e., Re ¼ 2800 (cases 4 and 5) and 5600 (cases 7 and 8 in Table 3, respectively).
+
+are found. For example, MGLET predicts slightly larger back-ﬂow
+velocities at x=h ¼ 4 for Re ¼ 2800 compared with the data of
+LESOCC. This marginal deviation is still visible further downstream
+at x=h ¼ 6 close to the lower wall. Besides that the proﬁles resulting from the two independent simulation techniques lie on top of
+each other at both Re.
+Fig. 13 depicts the distribution of the averaged normal velocity
+hVi=U B at two locations in the middle and near the end of the recirculation bubble, i.e., x=h ¼ 2, and 4. To evaluate this quantity it has
+to be taken into account that the normal velocity hVi is about a factor of 20 (x=h ¼ 2) or 10 (x=h ¼ 4) smaller than the streamwise
+velocity hUi, respectively. At both Reynolds number the agreement
+
+3
+
+between the predictions by MGLET and LESOCC is extremely good.
+Small deviations are visible near the extrema, especially at x=h ¼ 4.
+However, expressed in terms of the bulk velocity U B the maximum
+deviation of hVi=U B is about 0.4% and hence acceptable.
+Furthermore, Figs. 14–16 display the resolved Reynolds stresses
+hu0 u0 i=U 2B , hv0 v0 i=U 2B , and hu0 v0 i=U 2B at the same locations as in Fig. 13.
+The two main observations are as follows: First, a clear trend is
+obvious concerning the variation of the Reynolds stresses with
+varying Reynolds numbers. This issue will be addressed in detail
+in Section 5. Second, a reasonable agreement is found between
+the predictions based on the two different codes at both Re. Similar
+to the normal velocity component hVi small deviations are visible
+
+3
+LESOCC: Re = 5600
+LESOCC: Re = 2800
+MGLET: Re = 5600
+MGLET: Re = 2800
+
+2.5
+2
+
+2.5
+2
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+
+0
+0
+
+0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09
+
+0
+
+0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09
+
+Fig. 14. Comparison of predictions by LESOCC and MGLET based on the normal Reynolds stress hu0 u0 i=U 2B at two different locations (x=h ¼ 2 and 4) and two different
+Reynolds numbers, i.e., Re ¼ 2800 (cases 4 and 5) and 5600 (cases 7 and 8 in Table 3, respectively).
+
+3
+
+3
+
+LESOCC: LES, Re = 5600
+LESOCC: DNS, Re = 2800
+MGLET: DNS, Re = 5600
+MGLET: DNS, Re = 2800
+
+2.5
+2
+
+2.5
+2
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+
+0
+0
+
+0.01
+
+0.02
+
+0.03
+
+0.04
+
+0.05
+
+0.06
+
+0
+
+0.01
+
+0.02
+
+0.03
+
+0.04
+
+0.05
+
+Fig. 15. Comparison of predictions by LESOCC and MGLET based on the normal Reynolds stress hv0 v0 i=U 2B at two different locations (x=h ¼ 2 and 4) and two different Reynolds
+numbers, i.e., Re ¼ 2800 (cases 4 and 5) and 5600 (cases 7 and 8 in Table 3, respectively).
+
+444
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+3
+
+3
+
+LESOCC: LES, Re = 5600
+LESOCC: DNS, Re = 2800
+MGLET: DNS, Re = 5600
+MGLET: DNS, Re = 2800
+
+2.5
+
+2.5
+
+2
+
+2
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+-0.04
+
+-0.03
+
+-0.02
+
+-0.01
+
+0
+-0.03
+
+0
+
+-0.02
+
+-0.01
+
+0
+
+0.01
+
+Fig. 16. Comparison of predictions by LESOCC and MGLET based on the shear stress hu0 v0 i=U 2B at two different locations (x=h ¼ 2 and 4) and two different Reynolds numbers,
+i.e., Re ¼ 2800 (cases 4 and 5) and 5600 (cases 7 and 8 in Table 3, respectively).
+
+near the extrema occurring in the free shear layer. Except in this
+narrow region the normal stresses and the shear stress belonging
+to a certain Re agree satisfactorily. The extremely well-resolved
+prediction by MGLET at Re ¼ 5600 (case 8 in Table 3) shows the
+largest peak values for hu0 u0 i=U 2B . The extrema of the normal stress
+hv0 v0 i=U 2B as well as the shear stress hu0 v0 i=U 2B in the shear layer
+(x=h ¼ 2) are also slightly larger than the results predicted by
+LESOCC (case 7). The deviations found at this Reynolds number
+can be explained by the fact that the last is an LES prediction
+whereas MGLET provides DNS data. The modeled stress contributions, although known to be small, are not taken into account in
+the LES data at Re ¼ 5600 in Figs. 14–16.
+4.2. Numerical results at Re = 10,595
+Furthermore, the wall-resolved LES prediction by LESOCC
+(case 9) is compared with literature data [18]. For this comparison
+3
+
+one should bear in mind that both simulations are based on similar
+numerical techniques (second-order accurate in space and time
+using curvilinear grids), but the main issues from Section 3.4 about
+the resolution should be recapitulated. The present grid consists of
+about three times more grid points than that used in [18] whereby
+the increased number of points is especially applied in the wallnormal direction to resolve also the upper wall and thus to avoid
+wall functions.
+Fig. 17 depicts a comparison at three different locations
+(x=h ¼ 0:5, 2, and 6) showing averaged velocity proﬁles for hUi=U B
+and hVi=U B as well as turbulent quantities such as the resolved turbulent kinetic energy hki=U 2B ¼ 0:5ðhu0 u0 i þ hv0 v0 i þ hw0 w0 iÞ=U 2B and
+the shear stress hu0 v0 i=U 2B . For the streamwise velocity component
+hUi=U B it is obvious that a very good agreement can be observed
+in the lower part of the computational domain close to the lower
+wall. Solely in the vicinity of the upper wall deviations are visible
+which can be assigned to the application of wall functions in [18].
+3
+
+2.5
+
+2.5
+
+LESOCC: Re = 10,595
+
+2
+
+2
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+-0.2
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+1.2
+
+3
+
+0
+-0.06
+
+-0.04
+
+-0.02
+
+0
+
+0.02
+
+0.04
+
+-0.01
+
+0
+
+0.06
+
+3
+
+2.5
+
+2.5
+
+LESOCC: Re = 10,595
+
+2
+
+2
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+
+0
+0
+
+0.02
+
+0.04
+
+0.06
+
+0.08
+
+0.1
+
+-0.03
+
+-0.02
+
+Fig. 17. Comparison of LES predictions by LESOCC at Re ¼ 10; 595 (case 9 in Table 3) and literature data [18] at three different locations (x=h ¼ 0:5, 2, and 6): (a) streamwise
+velocity hUi=U B ; (b) normal velocity hVi=U B ; (c) resolved turbulent kinetic energy hki=U 2B ; (d) resolved shear stress hu0 v0 i=U 2B .
+
+445
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+The streamwise velocity component hUi=U B is underpredicted here
+and shows a non-smooth behavior. The resolution was quite coarse
+in that case in [18] partially leading to wiggles in the solution as
+obvious in Fig. 17(b) for the wall-normal velocity component
+hVi=U B . The deﬁcits resulting from the usage of wall functions at
+the upper wall are also detectable in the turbulent quantities, e.g.,
+the location of the peak value of hki=U 2B is shifted away from the
+upper wall and the shear stress proﬁle hu0 v0 i=U 2B strongly deviates
+from the wall-resolved LES prediction (case 9) in this region. Since
+the total mass ﬂux through the channel was ﬁxed, the underprediction of hUi=U B in the vicinity of the upper wall has a certain inﬂuence
+on the overall ﬂow development. Nevertheless, the agreement
+between the present wall-resolved LES prediction (case 9) and
+the literature data [18] is satisfactory and further validates the
+former.
+4.3. Comparison between experimental and numerical results at Re
+= 5600 and 10,595
+Finally, the experimental data at two different Reynolds numbers (Re ¼ 5600 and 10,595) are compared with the most accurate
+predictions. At Re ¼ 5600 the DNS data achieved by MGLET (case 8
+in Table 3) are taken into account, whereas at Re ¼ 10; 595 the
+highly resolved LES carried out by LESOCC (case 9 in Table 3) is
+considered. Fig. 18 depicts averaged velocity proﬁles for hUi=U B
+and hVi=U B at four streamwise positions of x=h ¼ 0:5, 2, 4, and 6.
+Regarding the mean streamwise velocity hUi=U B the agreement between predictions and measurements is very good for both Reynolds numbers. Minor deviations are solely visible in the region
+of the shear layer where the measurements show slightly higher
+velocities and in the post-reattachment region where the experimental data exhibit a faster recovery. As observed before, the vertical velocity component hVi=U B is about one order of magnitude
+smaller than the streamwise component and thus more sensitive.
+
+3
+2.5
+2
+1.5
+
+Nevertheless, the match between experiments and simulations is
+fully satisfactory. The largest deviations are found at x=h ¼ 2,
+whereas all other proﬁles exhibit a closer agreement. It should
+be noted here that regarding the minor deviations found the same
+trend is observed for both Re independent of the simulation method applied which indicates some systematic reason for this
+behavior.
+Furthermore, the measurements and predictions should be
+compared with respect to the Reynolds stresses. In the following
+the experimental data at Re ¼ 10; 595 are taken into account and
+compared to the LES prediction (case 9, see Table 3). For that purpose, Fig. 19 displays the three measured components of the
+Reynolds stress tensor at three different locations (x=h ¼ 0:5, 2,
+and 6). Looking at the streamwise Reynolds stress (Fig. 19(a)),
+the measured and predicted data are found to be in close agreement at x=h ¼ 0:5 and 2. Solely in the post-reattachment region
+at x=h ¼ 6 the measured peak values of hu0 u0 i=U 2B are at most 10%
+higher than in the predictions. Nevertheless, the location of the
+peak values and the distributions itself are in close accordance
+with the predictions. The vertical Reynolds stress hv0 v0 i=U 2B
+depicted in Fig. 19(b) shows even a better agreement than the
+streamwise component. In case of the Reynolds shear stress
+hu0 v0 i=U 2B (Fig. 19(c)) the deviations observed are of similar magnitude as for the vertical component. Nevertheless, the agreement
+between the PIV measurement and the LES prediction is highly
+satisfactory.
+During the measurements it was found that the determination
+of the stresses is getting more and more challenging with decreasing Re. For the case of Re ¼ 5600 it leads to the outcome that the
+proﬁles of the Reynolds stresses are similarly shaped, but the
+experimentally determined stresses exceed the numerical ones
+(case 8 in Table 3) systematically. Pump ﬂuctuations were considered to be the reason for that, but high-pass ﬁltering excluded this
+cause.
+
+3
+2.5
+
+MGLET: Re = 5600
+Exp., x/h = .5
+Exp., x/h = 2.
+Exp.: x/h = 4.
+Exp.: x/h = 6.
+
+2
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+
+0
+-0.2
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+1.2
+
+3
+2.5
+2
+1.5
+
+-0.1
+
+-0.05
+
+0
+
+0.05
+
+0.1
+
+-0.1
+
+-0.05
+
+0
+
+0.05
+
+0.1
+
+3
+2.5
+
+LESOCC: Re = 10,595
+Exp., x/h = .5
+Exp., x/h = 2.
+Exp., x/h = 4.
+Exp., x/h = 6.
+
+2
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+
+0
+-0.2
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+1.2
+
+Fig. 18. Comparison of measurements and predictions (case 8 for Re ¼ 5600 and case 9 for Re ¼ 10; 595, see Table 3) at four different locations (x=h ¼ 0:5, 2, 4, and 6): (a)
+hUi=U B at Re ¼ 5600; (b) hVi=U B at Re ¼ 5600; (c) hUi=U B at Re ¼ 10; 595; (d) hVi=U B at Re ¼ 10; 595.
+
+446
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+3
+
+3
+LESOCC: Re = 10,595
+Exp., x/h = .5
+Exp., x/h = 2.
+Exp., x/h = 6.
+
+2.5
+2
+
+2.5
+2
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+
+0
+0
+
+0.02
+
+0.04
+
+0.06
+
+0.08
+
+0.1
+
+0.12
+
+0
+
+0.02
+
+0.04
+
+0.06
+
+3
+2.5
+2
+1.5
+1
+0.5
+0
+-0.04
+
+-0.03
+
+-0.02
+
+-0.01
+
+0
+
+Fig. 19. Comparison of measurements and predictions (case 9, see Table 3) for Re ¼ 10; 595, at three different locations x=h ¼ 0:5, 2, and 6.
+
+In conclusion, the variety of cross-comparisons carried out have
+demonstrated that the predicted data are reliable.
+5. Inﬂuence of the Reynolds number
+After the extensive validations carried out in the previous sections (i.e., CFD vs. CFD, CFD vs. literature, CFD vs. experiment), in
+the following the ﬂow over periodic hills will be investigated in
+wide range of Reynolds numbers, i.e., 100 6 Re 6 10; 595. Based
+on this series of simulations, some peculiar features of the ﬂow
+ﬁeld become evident. Here, the evolution and existence of physical
+phenomena with respect to the Reynolds number is documented.
+The investigation starts with an overview over the global ﬂow ﬁeld
+based on averaged integral quantities such as the wall shear stress
+and pressure distribution along the lower wall. Then the ﬂow
+development is studied based on the averaged ﬂow ﬁeld and the
+distribution of the Reynolds stresses leading to an investigation
+on the anisotropy of the ﬂow. Furthermore, the length scales occurring at varying Re will be analyzed. Finally, the instantaneous dynamic behavior of the ﬂow will be considered which will shed
+more light onto the ﬂow structures and mechanism involved.
+5.1. Global averaged properties
+
+Fig. 20. Comparison of averaged streamwise velocity hUi=U B and streamlines at
+two different Reynolds numbers (Re ¼ 700 and 10,595).
+
+A global view of the ﬂow for the lowest as well as the highest
+Reynolds number investigated is given by the distribution of the
+averaged streamwise velocity hUi=U B and the streamlines of the
+averaged ﬂow in Fig. 20. Obviously, the ﬂow ﬁeld does not change
+dramatically within this Re range. The recirculation bubble at
+Re ¼ 10; 595 is smaller and slightly thinner than at Re ¼ 700. Furthermore, the back-ﬂow velocity increases with increasing Re. It
+is noteworthy to recall that at Re ¼ 700 the plane channel ﬂow
+without constrictions would deﬁnitely be in the laminar regime
+what is unambiguously not the case here.
+
+Fig. 21(a) displays the distribution of the wall shear stress sw on
+the lower wall for all Reynolds numbers. Based on this comparison
+of the DNS and the well-resolved LES predictions, the dependence
+of sw on Re can be clearly appreciated.
+The ﬁrst observation is that the peak values of sw strongly increase with decreasing Re. That is obvious for the values found at
+the hill crest (x=h ¼ 0), the minimum in the recirculation region
+(x=h  2—5), and the maximum at the shoulder of the second hill
+(x=h  8:6). The increase is monotonous but non-linear with Re.
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+0.05
+
+LES, Re = 10595
+LES, Re = 5600
+DNS, Re = 2800
+DNS, Re = 1400
+DNS, Re = 700
+
+0.04
+0.03
+0.02
+0.01
+
+Re = 10595
+
+0
+
+Re = 700
+
+-0.01
+0
+
+2
+
+4
+
+6
+
+8
+
+0.4
+
+0.2
+LES, Re = 10595
+LES, Re = 5600
+DNS, Re = 2800
+DNS, Re = 1400
+DNS, Re = 700
+
+0
+
+-0.2
+0
+
+2
+
+4
+
+6
+
+8
+
+Fig. 21. Distribution of the averaged wall shear stress sw and the averaged pressure
+distribution hpi along the lower wall for ﬁve different Reynolds numbers,
+predictions by LESOCC.
+
+In order to understand this behavior, two contrary effects have to
+be considered playing an important role. Based on the deﬁnition
+of the wall shear stress sw ¼ loV parallel =on it is on the one hand
+obvious that sw increases with decreasing Re since for ﬁxed U B
+and h the viscosity has to increase. On the other hand the velocity
+gradient at the wall is decreasing when Re is reduced as will be
+shown in the next section. Thus both opposite inﬂuences are
+superimposed yielding this non-linear behavior.
+The ﬂow separates shortly behind the hill crest at all Re. As
+shown in Fig. 22 the separation point moves upstream from
+xS =h  0:45 at Re ¼ 100 to xS =h  0:3 at Re ¼ 700 and ﬁnally to
+xS =h  0:18 at Re ¼ 5600 but then settles down at a slightly larger
+
+6
+
+0.45
+LESOCC
+LESOCC
+MGLET
+MGLET
+
+0.4
+
+447
+
+value of xS =h  0:19 at Re ¼ 10; 595. The undulations in the wall
+shear stress at the beginning of the main recirculation bubble seem
+to be geometry related and not much affected by Reynolds number
+effects. This statement is supported by the observation that the
+undulations are visible in all simulations using LESOCC but also
+for the predictions based on MGLET (compare Fig. 11(a)).
+Past the hill the main recirculation region follows with a nearly
+constant pressure plateau in a large part of the separation bubble
+(Fig. 21(b)). The reattachment position xR =h displayed in Fig. 22 decreases from Re ¼ 100 to 1400. Between Re ¼ 1400 and Re ¼ 2800 a
+sudden change can be observed in Fig. 22. The reattachment length
+xR =h increases again in this narrow Re-range. Afterwards, a clear
+trend concerning the reattachment length is visible for Re P 2800
+where xR =h decreases again with increasing Re. Since this phenomenon is consistently predicted by both independent codes, it is assumed to be no numerical artifact. The corresponding values of
+the reattachment lengths are xR =h ¼ 5:24; 5:19; 5:41; 5:09, and
+4.69 for Re ¼ 700 to 10,595, respectively. A similar behavior of the
+reattachment length with increasing Re has been observed for the
+backward-facing step ﬂow by Armaly et al. [3]. This observation also
+explains why with increasing Re there is no continuous trend visible
+for the averaged pressure distribution depicted in Fig. 21(b).
+Interestingly, a small region with positive averaged wall shear
+stress is found within the main separation bubble at Re ¼ 1400
+by both codes (case 2 and 3). That leads to a tiny counterclockwise
+rotating structure in the region x=h  0:6–0.8 at the falling edge of
+the hill which is depicted in Fig. 23. Contrarily, at the higher Re
+numbers sw is negative in the entire recirculation region and thus
+no such tiny structure is detected. This special feature solely
+observed at Re ¼ 1400 might be an explanation for the non-monotonous behavior of the reattachment length xR =h. However, the
+interpretation has to be done with care, since one has to bear in
+mind that the data presented are averaged in time and in homogeneous direction. Animations of the ﬂow ﬁeld at the low Reynolds
+number cases have clearly shown that along the falling edge of
+the hill intermittently attached ﬂow regions can be detected which
+explain the positive wall shear stress.
+In the post-reattachment zone a tiny recirculation region is detected in front of the second hill at x=h  7:0—7:4. This feature is
+found for all Re > 200 investigated, but again the largest extension
+of this structure is observed at Re ¼ 2800 (see Fig. 24). On the
+windward side of the second hill the ﬂow is strongly accelerated
+(see also Fig. 21(b) for the pressure distribution) leading to a distinctive peak of sw shortly before the hill crest at x=h  8:6. The
+peak value of sw signiﬁcantly increases with decreasing Re. Downstream of that position the pressure gradient suddenly changes
+from favorable to adverse yielding a strong drop of the wall shear
+stress between x=h  8:6—9:0 for all Re. At the hill crest, just before
+
+5.75
+5.5
+
+0.35
+
+x /h
+
+xS /h
+
+R
+
+5.25
+
+0.3
+Reattachment
+
+5
+
+0.25
+4.75
+0.2
+
+Separation
+
+0
+
+5000
+
+1000 0
+
+4.5
+
+Re
+Fig. 22. Separation length and reattachment length vs. Reynolds number; comparison of predictions by LESOCC and MGLET (values for Re < 700 are based on coarsegrid simulation mentioned in Section 5.5).
+
+Fig. 23. Tiny bubble with positive averaged wall shear stress found within the main
+recirculation region at the falling edge of the hill at Re ¼ 1400 visualized by the
+averaged streamwise velocity hUi=U B and streamlines.
+
+448
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+Fig. 24. Tiny recirculation bubble in front of the second hill at Re ¼ 2800 visualized
+by the averaged streamwise velocity hUi=U B and streamlines.
+
+wall shear stress with increasing Re deﬁnitely supports this observation. Furthermore, an additional simulation at Re ¼ 22; 400 (not
+shown here) assists the decreasing sw at x=h  0 and thus delivers
+further evidence. It should be noted in this context that right on
+the hill crest the boundary is ﬂat.
+An explanation for this tiny recirculation zone in the averaged
+ﬂow ﬁeld can be found in the instantaneous data. Irregularly the
+ﬂow in the vicinity of the hill crest already separates at x=h  8:8
+generating additional eddies. These partially strong eddies are
+transported downstream and affect the ﬂow supposed to separate
+on the curved wall. Therefore, also the separation on the leeward
+side is strongly inﬂuenced by the ﬂow phenomena appearing before or at the crest. Since this early separation before the hill crest
+is only detected temporarily, it is hardly visible in the averaged
+ﬂow ﬁeld.
+5.2. Averaged velocity and Reynolds stress proﬁles
+
+the main separation, a tiny recirculation zone forms solely at the
+highest Re. This phenomenon was not observed before. It is unlikely that it is an artifact because a clear downwards trend of the
+
+3
+
+In this section certain positions in the ﬂow will be investigated
+more closely. For that purpose the mean ﬂow velocities hUi=U B and
+
+3
+
+2.5
+
+2.5
+
+LES, Re = 10595
+LES, Re = 5600
+DNS, Re = 2800
+DNS, Re = 1400
+DNS, Re = 700
+
+2
+
+2
+
+1.5
+
+1.5
+1
+
+1
+-0.2
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+1.2
+
+-0.02
+
+3
+
+3
+
+2.5
+
+2.5
+
+2
+
+2
+
+1.5
+
+1.5
+
+1
+
+1
+0
+
+0.02
+
+0.04
+
+0.06
+
+0.08
+
+0.1
+
+0
+
+3
+
+3
+
+2.5
+
+2.5
+
+2
+
+2
+
+1.5
+
+1.5
+
+1
+
+1
+0
+
+0.01
+
+0.02
+
+0.03
+
+0.04
+
+0.05
+
+0.06
+
+0.07
+
+-0.015
+
+0
+
+0.02
+
+0.01
+
+-0.01
+
+0.04
+
+0.06
+
+0.02
+
+-0.005
+
+0.08
+
+0.1
+
+0.03
+
+0.12
+
+0.04
+
+0
+
+Fig. 25. Proﬁles of the streamwise velocity hUi=U B , the normal velocity hVi=U B , and the resolved Reynolds stresses hu0 u0 i=U 2B , hv0 v0 i=U 2B , hw0 w0 i=U 2B , and hu0 v0 i=U 2B at position
+x=h ¼ 0:05 for ﬁve different Reynolds numbers, predictions by LESOCC.
+
+449
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+hVi=U B as well as all non-zero Reynolds stresses are depicted at
+four locations, i.e., x=h ¼ 0:05 (close to the hill crest), x=h ¼ 2 (in
+the middle of the main recirculation region), x=h ¼ 4 (close to the
+end of the main recirculation region), and x=h ¼ 8 (at the windward side of the second hill). The corresponding plots can be found
+in Figs. 25–28.
+It is visible at all positions shown that on both walls the velocity
+gradients of hUi=U B increase with increasing Re and owing to a
+ﬁxed mass ﬂow rate the maximum of the streamwise velocity is
+decreasing (compare also Fig. 20). The change in the slope can be
+seen most clearly at the upper wall. Furthermore, the back-ﬂow
+velocity in the middle of the main recirculation region (x=h ¼ 2) increases with increasing Re and overall the recirculation bubble becomes slightly thinner. A clear trend is also obvious for hVi=U B . For
+example at x=h ¼ 0:05 the maximum and at x=h ¼ 4 the minimum
+signiﬁcantly increase with decreasing Re, respectively.
+Concerning the Reynolds stresses the following observations can
+be made. At the beginning of the free shear layer at x=h ¼ 0:05 the
+peak value of hu0 u0 i=U 2B is strongest at Re ¼ 10; 595, whereas only
+about half of the strength is found at Re ¼ 700. The ﬂuctuations in
+
+3
+
+wall-normal direction hv0 v0 i=U 2B are, however, of the same size for
+all Re. Since the development of the free shear layer is shifted downstream for decreasing Re (see Fig. 29), similar peak values of
+hu0 u0 i=U 2B and hu0 v0 i=U 2B are already observed at x=h ¼ 2 for all Re.
+Thus these extrema appearing in the free shear layer are approximately independent of Re. Furthermore, with increasing Re the positions of the extrema are shifted closer to the lower wall which is in
+accordance with the thinner recirculation region mentioned above.
+The size of the peak values of the two other Reynolds stresses
+hv0 v0 i=U 2B and hw0 w0 i=U 2B , however, decrease with decreasing Re.
+Another clear trend can be seen for the free shear layer which
+broadens with increasing Re. That is obvious in the distribution
+of all Reynolds stresses depicted in Fig. 26 at x=h ¼ 2. Moreover,
+the peak values of hu0 u0 i=U 2B and hw0 w0 i=U 2B in the vicinity of the
+upper wall increase with increasing Re and move closer to the
+walls as expected for a turbulent ﬂow in the vicinity of a plane
+wall.
+Close to the end of the recirculation bubble at x=h ¼ 4 and past
+the bubble at x=h ¼ 6 (not shown here) the situation is different.
+Here, the peak values of hu0 v0 i=U 2B increase strongly with decreasing
+
+3
+
+2.5
+
+2.5
+
+LES, Re = 10595
+LES, Re = 5600
+DNS, Re = 2800
+DNS, Re = 1400
+DNS, Re = 700
+
+2
+1.5
+
+2
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+-0.4 -0.2
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+1.2
+
+0
+-0.06 -0.04 -0.02
+
+3
+
+3
+
+2.5
+
+2.5
+
+2
+
+2
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+
+0
+
+0.02 0.04 0.06 0.08
+
+0.1
+
+0.03
+
+0.05
+
+0.06
+
+0
+
+0.01
+
+0
+0
+
+0.02
+
+0.04
+
+0.06
+
+0.08
+
+0.1
+
+0
+
+0.01
+
+0
+-0.04
+
+-0.03
+
+3
+
+3
+
+2.5
+
+2.5
+
+2
+
+2
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+0
+
+0.01
+
+0.02
+
+0.03
+
+0.04
+
+0.05
+
+0.06
+
+0.02
+
+-0.02
+
+0.04
+
+-0.01
+
+Fig. 26. Proﬁles of the streamwise velocity hUi=U B , the normal velocity hVi=U B , and the resolved Reynolds stresses hu0 u0 i=U 2B , hv0 v0 i=U 2B , hw0 w0 i=U 2B , and hu0 v0 i=U 2B at position
+x=h ¼ 2:0 for ﬁve different Reynolds numbers, predictions by LESOCC.
+
+450
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+3
+
+3
+
+2.5
+
+2.5
+
+LES, Re = 10595
+LES, Re = 5600
+DNS, Re = 2800
+DNS, Re = 1400
+DNS, Re = 700
+
+2
+1.5
+
+2
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+-0.2
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+1.2
+
+0
+-0.14 -0.12 -0.1 -0.08 -0.06 -0.04 -0.02
+
+3
+
+3
+
+2.5
+
+2.5
+
+2
+
+2
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+
+0
+
+0.02
+
+0
+0
+
+0.02
+
+0.04
+
+0.06
+
+0.08
+
+0.1
+
+0
+
+0.02
+
+0.04
+
+0.06
+
+0
+-0.04
+
+-0.02
+
+0
+
+0.02
+
+3
+
+3
+
+2.5
+
+2.5
+
+2
+
+2
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+0
+
+0.02
+
+0.04
+
+0.06
+
+Fig. 27. Proﬁles of the streamwise velocity hUi=U B , the normal velocity hVi=U B , and the resolved Reynolds stresses hu0 u0 i=U 2B , hv0 v0 i=U 2B , hw0 w0 i=U 2B , and hu0 v0 i=U 2B at position
+x=h ¼ 4:0 for ﬁve different Reynolds numbers, predictions by LESOCC.
+
+Re. Contrarily to x=h ¼ 2 the peak values of all normal Reynolds
+stresses at x=h ¼ 4 and 6 also increase with decreasing Re. An
+explanation for the opposite behavior found at the different locations can be given based on Fig. 29 which depicts exemplarily
+the distribution of the turbulent kinetic energy for the lowest
+and the highest Reynolds number investigated. This comparison
+clearly shows that the peak values of hki=U 2B are of similar size at
+both Re but shifted downstream for the low-Re case compared with
+the high-Re case. Thus, lower ﬂuctuations are found for example at
+x=h ¼ 2 for Re ¼ 700 compared with Re ¼ 10; 595, whereas further
+downstream larger peak values exist for the low-Re ﬂow.
+In principle, the same trend as observed at x=h ¼ 4 and 6 can
+also be seen at the windward slope of the second hill, i.e., at
+x=h ¼ 8. The most interesting feature is here the observation that
+the maximum of the spanwise Reynolds stress hw0 w0 i=U 2B in the
+vicinity of the wall is nearly independent of the Reynolds number.
+As discussed in [18] this phenomenon reveals to be the result of
+the ‘splatting’ of large-scale eddies originating from the shear layer
+and convected downstream towards the windward slope. Thus, the
+distribution of hw0 w0 i=U 2B in Fig. 28(e) delivers a clear hint that the
+
+same mechanism must play an important role also for the lowest
+Reynolds number considered. Consequently, the phenomenon
+has to be nearly independent of Re. That explains why the distributions of the mean velocities and Reynolds stresses are very similar
+close to the windward slope of the second hill at x=h ¼ 8.
+5.3. Anisotropy-invariant investigations
+Lumley and Newman [27] and Lumley [28] found that the state
+of turbulence can be characterized by the amount of anisotropy
+that prevails in the ﬂow. The anisotropy of a ﬂow can be derived
+from the Reynolds stresses sij ¼ qhui uj i by subtracting the isotropic part from sij and normalizing with sss ¼ qhus us i. This leads to
+the non-dimensional anisotropy tensor
+
+aij ¼
+
+hui uj i 1
+ dij ;
+2hki 3
+
+ð6Þ
+
+with the turbulent kinetic energy hki ¼ 1=2hus us i and the Kronecker
+delta dij . The tensor aij has three scalar invariants:
+
+451
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+3
+
+3
+
+2.5
+
+LES, Re = 10595
+LES, Re = 5600
+DNS, Re = 2800
+DNS, Re = 1400
+DNS, Re = 700
+
+2
+1.5
+
+2.5
+2
+1.5
+1
+
+1
+
+0.5
+
+0.5
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+1.2
+
+0
+
+3
+
+3
+
+2.5
+
+2.5
+
+2
+
+2
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.05
+
+0.1
+
+0.15
+
+0.2
+
+0.25
+
+0.5
+
+0.5
+0
+
+0.01
+
+0.02
+
+0.03
+
+0.04
+
+0.05
+
+0
+
+0.01
+
+0.02
+
+0.03
+
+0.04
+
+-0.03
+
+-0.02
+
+-0.01
+
+0
+
+0.01
+
+3
+
+3
+
+2.5
+
+2.5
+
+2
+
+2
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+0
+
+0.02
+
+0.04
+
+0.06
+
+0.08
+
+Fig. 28. Proﬁles of the streamwise velocity hUi=U B , the normal velocity hVi=U B , and the resolved Reynolds stresses hu0 u0 i=U 2B , hv0 v0 i=U 2B , hw0 w0 i=U 2B , and hu0 v0 i=U 2B at position
+x=h ¼ 8:0 for ﬁve different Reynolds numbers, predictions by LESOCC.
+
+aii ¼ 0;
+
+II ¼ aij aji ;
+
+III ¼ aij ajk aki :
+
+ð7Þ
+
+By cross-plotting II and III, the state of turbulence in a ﬂow can be
+displayed with respect to its anisotropy. If the scalar invariants II
+and III are evaluated for the case of a two-component turbulence
+(one component of the velocity ﬂuctuations is negligibly small compared with the other two), this leads to II ¼ 2=9 þ 2III. Doing the
+same for the axisymmetric turbulence (two components are equal
+in magnitude) yields II ¼ 3=2ð4=3jIIIjÞ2=3 . Hence, if these relations
+are cross-plotted as done in Fig. 30, they deﬁne a narrow region
+called the anisotropy-invariant map. It was shown by Lumley [28]
+that all physically realizable turbulence has to lie within this small
+region. However, different states of turbulence are represented by
+different parts of the map.
+The boundaries of the invariant map describe the limiting states
+of turbulence [24]. Isotropic turbulence is found at the lower corner point of the map (origin in Fig. 30) where II ¼ III ¼ 0, hence
+the anisotropy is zero. The left branch of the map (III < 0) describes
+axisymmetric turbulence in which one component of the velocity
+ﬂuctuations is smaller than the other two. In the literature, this
+
+is sometimes referred to as ‘pancake’ type of turbulence. The simplest example of this type is the passage of grid turbulence through
+axisymmetric contraction. In contrast, the axisymmetric turbulence on the right side (III > 0) is characterized by one ﬂuctuating
+component which dominates over the other two. This, for example,
+holds for grid turbulence through axisymmetric expansion and is
+called ‘cigar’-like turbulence. The remaining boundary line on top
+of the map is the limiting case of a two-component turbulence as
+it can be found in the direct vicinity of walls. Here, the wall-normal
+component of the velocity ﬂuctuations is tending towards zero,
+leaving only the wall-parallel components. The corner point on
+the left-hand side of the anisotropy-invariant map represents a
+turbulence state in which only two ﬂuctuating components of
+equal intensity exist called two-component isotropic turbulence.
+Finally, the right top end of the map describes one-component turbulence, which consists merely of one ﬂuctuating component.
+In order to compare the lowest and the highest Reynolds number regarding the anisotropy of turbulence, Fig. 30 displays the
+states of turbulence along four streamwise locations in the ﬂow
+ﬁeld, namely x=h ¼ 2, 4, 6, and 8. The points at the upper and lower
+
+452
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+Fig. 29. Comparison of turbulent kinetic energy hki=U 2B at two different Reynolds
+numbers (Re ¼ 700 and 10,595).
+
+wall are denoted by ‘U’ and ‘L’, respectively. First, it has to be remarked that taking the entire ﬂow into account all states indeed
+lie within the invariant map (not shown here), as it is required
+by realizability constraints. Second, as requested, the end points
+of the streamwise proﬁles at both walls are found at the two-component limit for both Re. At the upper wall the anisotropy is larger
+for Re ¼ 10; 595 than for Re ¼ 700 and thus the U-point at all locations considered is shifted to the right towards the one-component
+limit. Contrarily, at the lower wall the L-point is shifted to the left
+towards the two-component isotropic limit at Re ¼ 10; 595 in comparison with Re ¼ 700. In the vicinity of the upper wall the wellknown behavior of the invariants for a plane channel ﬂow can be
+observed, i.e., progressing along the ‘axisymmetric expansion’ line
+in the log-region towards the one-component limit and settling
+down at the two-component limit at the wall. The main difference
+between both Re is given by larger extrema found at Re ¼ 10; 595.
+When approaching the lower wall at x=h ¼ 2 a fundamental deviation is found for both Re. In the high-Re case the approach occurs
+mostly along the ‘axisymmetric contraction’ line (III < 0), whereas
+for the low-Re case the approach is closer to the ‘axisymmetric
+expansion’ line (III > 0). However, looking at the situation further
+downstream (x=h ¼ 4) in the region of the main recirculation bubble,
+the trace in the anisotropy-invariant map is similar for both Re.
+
+0.4
+
+0.4
+
+0.35
+t
+nen
+
+0.35
+
+U
+
+po
+
+m
+-Co
+
+Tw
+U
+
+0.25
+
+U
+0.2
+
+L
+
+0.2
+
+L
+
+0
+
+0.1
+0.05
+
+Re = 700
+Re = 10595
+0
+
+ic
+etr
+mm ion
+isy act
+Ax ontr
+C
+
+0.05
+
+ic
+etr n
+mm tio
+isy rac
+Ax ont
+C
+
+0.1
+
+L
+L
+
+0.15
+
+Ax
+i
+Ex sym
+pa me
+ns tri
+ion c
+
+0.15
+
+m
+-Co
+
+o
+
+II
+
+II
+
+o
+
+Tw
+
+0.25
+
+ent U
+
+pon
+
+0.3
+
+Ax
+i
+Ex sym
+pa me
+ns tri
+ion c
+
+0.3
+
+Re = 700
+Re = 10595
+
+0
+
+0.05
+
+0
+
+0.05
+
+III
+
+III
+
+0.4
+
+0.4
+
+0.35
+
+0.35
+t
+
+en
+pon
+om U
+C
+o
+
+L
+
+L
+
+U
+0.2
+
+L
+
+0.1
+Re = 700
+Re = 10595
+
+0
+
+0.05
+
+III
+
+0.05
+0
+
+ic
+etr n
+mm tio
+isy rac
+Ax ont
+C
+
+0
+
+ic
+etr n
+mm tio
+isy rac
+Ax ont
+C
+
+0.05
+
+U
+
+0.15
+
+Ax
+i
+Ex sym
+pa me
+ns tri
+ion c
+
+0.15
+0.1
+
+Tw
+
+0.25
+
+Ax
+i
+Ex sym
+pa me
+ns tri
+ion c
+
+0.2
+
+m
+-Co
+
+o
+
+Tw
+
+0.25
+
+ent L U
+
+pon
+
+0.3
+
+II
+
+II
+
+0.3
+
+Re = 700
+Re = 10595
+0
+
+0.05
+
+III
+
+Fig. 30. Anisotropy-invariant mapping at four streamwise locations and at two different Reynolds numbers (Re ¼ 700 and 10,595); ‘L’ and ‘U’ denote the end points of the
+trace at the lower and upper wall, respectively.
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+453
+
+Fig. 31. Comparison of (instantaneous) vorticity component xz normal to the cross-section at 11 different Reynolds numbers (Re ¼ 100–10,595) at an arbitrarily chosen
+instant in time; cases (a)–(f) were computed on a coarser grid as described in Section 5.4.
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+Coming from the area of high anisotropy in the region of the onecomponent limit (vicinity of the upper wall) with decreasing distance to the lower wall the trace in the invariant map ﬁrst progresses
+towards the isotropic limit, nestles against the ‘axisymmetric expansion’ line and ﬁnally comes close to the ‘axisymmetric contraction’
+line stopping at the two-component limit. As mentioned in [18] this
+signiﬁes a behavior very different from that in a log-law layer of an
+attached ﬂow. The corresponding end points are at (Re ¼ 10; 595)
+or very close to (Re ¼ 700) the left corner point of the anisotropyinvariant map, i.e., the two-component isotropic turbulence.
+Basically, the same observation can be also made at x=h ¼ 6.
+Thus the qualitative disagreement found at x=h ¼ 2 is again resulting from the delayed development of the ﬂow in streamwise direction at Re ¼ 700 compared with Re ¼ 10; 595 as shown in Fig. 29.
+At x=h ¼ 8 the states of turbulence deviate for the upper part of
+the computational domain. That is the result of a much thicker
+boundary layer for the low-Re case (see Fig. 28). However, close
+to the windward side of the second hill where the ﬂow is strongly
+accelerated again, the two-component state at the wall itself is approached coming from the ‘axisymmetric expansion’ line (III > 0)
+in both cases. That means that one component is dominating over
+the other two. Reconsidering the proﬁles of the Reynolds stresses
+at x=h ¼ 8 in Fig. 28, it is clear that the spanwise component
+hw0 w0 i is substantially larger close to the wall than both other normal Reynolds stresses. That holds for all Re investigated and is a direct result of the ‘splatting’ effect mentioned above. As shown in
+[18] for Re ¼ 10; 595, the pressure–strain correlation in the Reynolds stress equation is the major source of gain for hw0 w0 i.
+In summary, the anisotropy-invariant map demonstrates that
+physically similar observations can be made for both Re. Partially,
+the development is shifted downstream for the low-Re case as seen
+before leading to disagreements, e.g., at x=h ¼ 2. Nevertheless, in
+spite of more pronounced extrema observed for the high-Re case,
+the states of turbulence are comparable at both Re.
+5.4. Length scales in the ﬂow ﬁeld
+Fig. 31 displays a snapshot of the instantaneous vorticity distribution at an arbitrary instant in time at different Reynolds numbers including a series of Reynolds numbers not mentioned
+before, i.e., Re ¼ 100, 200, 300, 400, 500, and 600. For these lowRe cases it was not necessary to apply the very ﬁne curvilinear grid
+described in Section 3.4.1. Instead, a body-ﬁtted grid with about 1
+million CVs (164  100  64) was generated. Comparisons of results obtained on this grid and those of the ﬁne grid at Re ¼ 700
+served as an evidence that the coarse grid is sufﬁcient to resolve
+all ﬂow features in this Re range.
+The series depicted in Fig. 31 clearly demonstrates how the
+scales in the ﬂow ﬁeld become smaller with increasing Re. Based
+on the well-known relation g=L  Re3=4 for the Kolmogorov length
+g describing the smallest length scales in a turbulent ﬂow, the ratio
+between the length scales at two different Re can be estimated.
+Assuming that the largest scale L restricted by the geometry stays
+constant, the maximal ratio of the smallest length scales is about
+20 for the instantaneous cases depicted in Fig. 31(b)–(k).
+For the low-Re cases the shear layer developing past the hill is distinctively visible followed by the well-known Kelvin–Helmholtz
+instability. With increasing Re the region where this instability is observed ﬁrst, moves upstream and comes very close to the hill crest.
+Furthermore, a lot of small-scale vortices are visible in this area so
+that the origin of the Kelvin–Helmholtz instability is hardly visible.
+5.5. Instantaneous dynamics of the ﬂow
+Based on the outcome of Sections 5.1–5.4 which showed that
+the important ﬂow features are very similar in a wide range of
+
+Reynolds numbers, the idea came up to investigate the dynamics
+of the ﬂow ﬁeld ﬁrst at low Reynolds numbers. The objective is
+to study the dynamic behavior of the large-scale structures in the
+ﬂow which at low Re are not overwhelmed by small-scale eddies.
+Thus structure-identiﬁcation methods such as the k2 criterion by
+Jeong and Hussain [23] can be applied to the low-Re cases involved.
+As mentioned above, for that purpose additional simulations
+were carried out at a series of Reynolds numbers in the range
+100 6 Re 6 700 using a curvilinear grid with about 1 million CVs.
+All simulations were started from scratch with two-dimensional
+initial conditions deﬁned by U=U B ¼ 1 (except at the walls) and
+V=U B ¼ W=U B ¼ 0.
+At the lowest Reynolds number considered, i.e., Re ¼ 100, the
+ﬂow is found to reach steady-state after about 100 dimensionless
+time units which is equivalent to about 11 ﬂow-through times (see
+Fig. 31(a)). The ﬂow separates past the hill crest at about
+x=h ¼ 0:45 and forms a large recirculation region which ﬁlls the lower portion of the entire constriction completely. Thus reattachment
+is observed in this case at the rising edge of the second hill at about
+x=h ¼ 7:73. No three-dimensional structures can be detected.
+The situation changes completely when the Reynolds number is
+increased to Re ¼ 200 (Fig. 31(b)). Now and for all other higher Re
+the ﬂow remains unsteady all the time. Up to about 140 dimensionless time units the ﬂow ﬁeld at Re ¼ 200 is two-dimensional.
+However, after this initial phase ﬁrst three-dimensional ﬂow structures develop which are detected by monitoring the spanwise
+velocity component W. With increasing Re the initial two-dimensional stage is shortened so that at Re ¼ 700 ﬁrst three-dimensional phenomena can be found at about 50 dimensionless time
+units past the initial stage. The corresponding snapshots of the
+instantaneous vorticity distribution at an arbitrary instant at all
+low-Re cases considered are displayed in Fig. 31(a)–(g).
+Fig. 32 displays one-dimensional spectra of the spanwise velocity component W recorded for a point close to the rising slope of
+the second hill (x=h ¼ 8:3; y=h ¼ 0:72). The frequency f is normalized by U B and h. Three different Reynolds numbers are taken into
+account. At the lowest Reynolds number considered (Re ¼ 200) the
+spectrum is already continuous as expected for a turbulent ﬂow.
+With increasing Re the spectrum extends towards higher frequencies as visible at the change-over from Re ¼ 200 to 700. This trend
+continues for the change-over from Re ¼ 700 to 10,595. Based on
+this observation it is clear that the low-Re cases indeed represent
+fully turbulent ﬂow ﬁelds deﬁned by a continuous spectrum. In
+addition to the analysis of the statistical data carried out in Sections 5.1–5.4, this ﬁnding is an additional evidence why the main
+ﬂow features responsible for the dynamic behavior of the ﬂow
+are found to be similar.
+
+100000
+10000
+1000
+
+PSD
+
+454
+
+100
+10
+1
+0.1
+0.01
+0.01
+
+Re = 200
+Re = 700
+Re = 10,595
+
+0.1
+
+1
+
+10
+
+f
+Fig. 32. Spectra of the velocity component W close to the rising slope of the second
+hill (x=h ¼ 8:3; y=h ¼ 0:72) for three different Reynolds numbers.
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+455
+
+Fig. 33. Iso-surface of k2 (second eigenvalue of S2 þ X2 , here k2 ¼ 0:1); criterion used for structure identiﬁcation [23]; Re ¼ 200; six different phases in time representing
+one ﬂow-through time.
+
+In order to identify characteristic structures in the ﬂow, the
+lowest Reynolds number at which the ﬂow is found to be threedimensional and instantaneous is investigated based on structureidentiﬁcation methods [23]. For that purpose Fig. 33 depicts ﬂow
+structures at six instants in time which represents an interval of
+one ﬂow-through time. Three important ﬂow features have to be
+mentioned. On the one hand elongated streamwise structures (denoted A in Fig. 33(a)) inclined to the wall are detected in the vicinity
+of the upper plane wall. They show a strong similarity to well-known
+streaks and are convected downstream with the mean ﬂow.
+On the other hand a variety of structures highly elongated in the
+streamwise direction (denoted B) are found close to the concave
+wall in front of the second hill. They are either generated by an
+instability due to the effect of the centrifugal forces ﬁrst described
+by Görtler [20] or the Craik–Leibovich type-2 instability [37]. In the
+literature a controversy about the question which of these mechanisms is responsible for the generation of these longitudinal vortices in sheared ﬂows over rigid wavy walls still exists (see, e.g.
+[18,21] and the references cited therein) with a tendency towards
+the latter. In the present study these vortices are extremely long at
+the low-Re case considered. They extend over the hill crest and owing to the periodic boundary conditions applied at least until half
+of the succeeding constriction. Similar to the ﬁrst kind of structures
+a convective transport takes place in streamwise direction. In an
+experimental investigation of a channel ﬂow with a wavy wall
+[21], similar streamwise structures were found above the hill crest
+for both laminar and turbulent ﬂows. Furthermore, Fröhlich et al.
+[18] studied this ﬂow phenomenon in great detail based on their
+LES predictions of the periodic hill ﬂow at Re ¼ 10; 595. Although
+the identiﬁcation of the structures at this Re is much more difﬁcult
+
+than for the low-Re case taken into account here, the outcome also
+supports the present ﬁndings. As expected and demonstrated in
+Fig. 31, the length scales in the ﬂow increase with decreasing Reynolds number so that the extension of the structures especially in
+streamwise direction are substantially smaller in [18] than for the
+case depicted in Fig. 33.
+Finally, structures denoted C developing in the region of the free
+shear layer (see region of strong vorticity in Fig. 31(b)) have to be
+mentioned. They are visible for instance in Fig. 33(e) and are
+originally aligned and elongated in spanwise direction. Here, the
+well-known Kelvin–Helmholtz instability is responsible for their
+generation. With increasing Reynolds number these structures become more and more obvious (see, e.g., vorticity plots in Fig.
+31(d)–(f) for Re ¼ 400, 500, and 600). Animations of the ﬂow ﬁeld
+over a longer time interval showed that these structures change
+their orientation towards the streamwise direction when convected downstream. This phenomenon is perceptible in Fig. 33(a)
+which depicts similar structures at a later state, again denoted C.
+At this stage oblique structures have already developed which
+are mainly elongated in streamwise direction but are still inclined
+in spanwise direction.
+6. Conclusions
+The paper presents a complementary numerical/experimental
+investigation2 on the turbulent ﬂow over a periodic arrangement
+
+2
+The DNS, LES and experimental data will be published on the ERCOFTAC database,
+http://cfd.mace.manchester.ac.uk/ercoftac/.
+
+456
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+
+of hills [33] at varying Reynolds numbers in the range
+100 6 Re 6 10; 595. A large number of different simulations using
+DNS and LES on very ﬁne grids were carried out applying two fully
+independent numerical methods. Cross-comparison was done in
+three steps. In a ﬁrst step the results of both codes are compared
+against each other. Then the predicted data are checked by crosscomparison with data from the literature [18]. Based on both steps
+the quality of the present predictions was carefully proven. Besides
+this purely numerical assessment in a third step PIV measurements
+were performed in a water channel involving 10 hills in streamwise
+direction and a large aspect ratio. These experimental data place further conﬁdence on the results presented here.
+The results achieved by this complementary study do not only
+support prior ﬁndings [18] at Re ¼ 10; 595. Furthermore, the series
+of predictions for the broad range of Reynolds numbers considered
+shed new light on the ﬂow. In particular, the existence of a small
+recirculation at the foot of the windward face of the hill was conﬁrmed for Re ¼ 10; 595 but also exists for 200 < Re < 10; 595. Besides, a tiny recirculation on the hill crest which has not been
+discussed before was found which solely exists at the highest Re. This
+was possible due to a new LES prediction with increased resolution
+supported by a series of DNS at lower Reynolds numbers. These data
+also allowed to investigate the behavior of the separation and reattachment length as a function of the Reynolds number. The separation length past the hill crest was found to continuously decrease
+with increasing Re until it reaches at minimum at Re ¼ 5600 and
+slightly increases again for Re ¼ 10; 595. Even more exciting is the
+non-monotonous behavior of the reattachment length, which with
+one exception also decreases with increasing Re but shows a local
+minimum at Re ¼ 1400. Interestingly, a small counter-rotating ﬂow
+structure with positive averaged wall shear stress was detected
+within the main recirculation region at the falling edge of the hill between x=h  0:6 and 0:8. This phenomenon is exclusively visible at
+this Reynolds number and provides an explanation for the variations
+of the reattachment length.
+Based on the analysis of the Reynolds stresses and the behavior
+of the ﬂow in the anisotropy-invariant map, it is obvious that the
+development of the shear layer past the hill crest is delayed and
+thus shifted downstream at Re ¼ 700 compared to Re ¼ 10; 595.
+If this downstream shift is taken into consideration, similar states
+of turbulence can be found at both limiting Reynolds numbers with
+more distinctive extrema observed for the high-Re case. The similarity is especially pronounced for the ‘splatting’ phenomenon of
+large-scale eddies originating from the shear layer and convected
+downstream towards the windward slope as described in [18]. In
+this ﬂow region the spanwise velocity ﬂuctuations hw0 w0 i=U 2B show
+nearly the same peak values and distribution for all Re studied.
+Nevertheless, in the remaining domain clear trends in the distributions of the mean velocities, Reynolds stresses, anisotropies and
+the wall shear stresses were found. As mentioned above that led
+for example to the observation of the tiny recirculation bubble at
+the hill crest at Re ¼ 10; 595.
+Furthermore, the length scales appearing in the turbulent ﬂow
+ﬁeld at varying Re and the dynamic behavior of the ﬂow were
+investigated taking even smaller Reynolds number into account.
+At Re ¼ 100 the ﬂow is found to be steady and two-dimensional.
+The situation changes completely at Re P 200 for which a threedimensional instantaneous and chaotic ﬂow ﬁeld is observed.
+The corresponding spectrum at this and any higher Reynolds number considered comprises a fully continuous spectrum which extends towards higher frequencies with increasing Re. Three main
+ﬂow structures can be detected already in the lowest-Re case.
+These are streaky structures close to the upper wall, streamwise
+vortices close to the concave wall in front of the second hill, and
+vortical structures induced by the Kelvin–Helmholtz instability of
+the free shear layer.
+
+Acknowledgements
+Both numerical projects were ﬁnancially supported by the
+Deutsche Forschungsgemeinschaft within the French–German programme ‘LES for Complex Flows’ (FOR 507), i.e., BR 1847/8 and Ma
+2062/3-3. Additionally, the experimental investigations were supported by DFG, i.e., Ma 2062/7-1. The authors gratefully acknowledge many fruitful discussions with members of this research
+programme on this case. The computations were partially carried
+out on the German Federal Top-Level Computers Hitachi SR
+8000-F1 and SGI ALTIX at LRZ Munich. All kinds of support are
+gratefully acknowledged.
+
+References
+[1] Almeida GP, Durao DFG, Heitor MV. Wake ﬂows behind two-dimensional
+model hills. Exp Thermal Fluid Sci 1993;7:87–101.
+[2] Almeida GP, Durao DFG, Heitor MV. ERCOFTACdatabase, classic collection, test
+case C18. 2D Model Hill Wake Flows. <http://cfd.me.umist.ac.uk>; 1993.
+[3] Armaly BF, Durst F, Pereira JCF, Schönung B. Experimental and theoretical
+investigation of backward-facing step ﬂow. J Fluid Mech 1983;127:473–96.
+[4] Benocci C, Pinelli A. The role of the forcing term in the large-eddy simulation of
+equilibrium channel ﬂow. In: Rodi W, Ganić EN, editors. Engineering
+turbulence modeling and experiments 1. Elsevier; 1990. p. 287–96.
+[5] Breuer M, Rodi W. Large-eddy simulation of complex turbulent ﬂows of
+practical interest. In: Hirschel EH, editor. Flow simulation with highperformance computers II. Notes on
+numerical ﬂuid mechanics, vol.
+52. Vieweg; 1996. p. 258–74.
+[6] Breuer M. Large-eddy simulation of the sub-critical ﬂow past a circular
+cylinder: numerical and modeling aspects. Int J Numer Methods Fluids
+1998;28:1281–302.
+[7] Breuer M. A challenging test case for large-eddy simulation: high Reynolds
+number circular cylinder ﬂow. Int J Heat Fluid Flow 2000;21(5):648–54.
+[8] Breuer M. Direkte Numerische Simulation und Large-Eddy Simulation
+turbulenter Strömungen auf Hochleistungsrechnern, Habilitationsschrift,
+Universität Erlangen-Nürnberg, Berichte aus der Strömungstechnik. Shaker;
+2002, ISBN: 3-8265-9958-6.
+[9] Breuer M. New reference data for the hill ﬂow test case. <http://
+www.hy.bv.tum.de/DFG-CNRS/>; 2005.
+[10] Breuer M, Jaffrézic B, Šarić S, Jakirlić S, Deng G, Chikhaoui O, et al. Issues in
+hybrid LES–RANS and coarse grid LES of separated ﬂows. In: EUROMECH
+colloquium 469, large-eddy simulation of complex ﬂows. TU Dresden,
+Germany; October 6–8, 2005.
+[11] Breuer M, Kniazev B, Abel M. Development of wall models for LES of separated
+ﬂows. In: Lamballais E, Friedrich R, Geurts BJ, Métais O, editors. Sixth
+international ERCOFTAC workshop on DNS and LES: DLES-6, Poitiers, France,
+September 12–14, 2005. ERCOFTAC Series, Direct and Large-Eddy Simulation
+VI, vol. 10. New York: Springer Science; 2006. p. 373–80, ISBN-10 1-40204909-9.
+[12] Breuer M, Jaffrézic B, Peller N, Manhart M, Fröhlich J, Hinterberger Ch, et al. A
+comparative study of the turbulent ﬂow over a periodic arrangement of
+smoothly contoured hills. In: Lamballais E, Friedrich R, Geurts BJ, Métais O,
+editors. Sixth international ERCOFTAC workshop on DNS and LES: DLES-6,
+Poitiers, France, September 12–14, 2005, ERCOFTAC Series. Direct and LargeEddy Simulation VI, vol. 10. New York: Springer Science; 2006. p. 635–42,
+ISBN-10 1-4020-4909-9.
+[13] Breuer M, Kniazev B, Abel M. Development of wall models for LES of separated
+ﬂows using statistical evaluations. Comput Fluids 2007;36(5):817–37.
+[14] Breuer M, Jaffrézic B, Arora K. Hybrid LES–RANS technique based on a oneequation near-wall model. J Theor Comput Fluid Dyn 2008;22(3–4):157–87.
+[15] Eckelmann H. Einführung in die Strömungsmesstechnik, Leitfaden der
+angewandten Mathematik und Mechanik, 74, Teubner; 1997 .
+[16] Eggels JGM, Unger F, Weiss MH, Westerweel J, Adrian RJ, Friedrich R, et al. Fully
+developed turbulent pipe ﬂow: a comparison between direct numerical
+simulation and experiment. J Fluid Mech 1994;268:175–209.
+[17] Friedrich R, Hüttl T, Manhart M, Wagner C. Direct numerical simulation of
+incompressible turbulent ﬂows. Comput Fluids 2001;30(5):555–79.
+[18] Fröhlich J, Mellen CP, Rodi W, Temmerman L, Leschziner MA. Highly resolved
+large-eddy simulation of separated ﬂow in a channel with streamwise periodic
+constrictions. J Fluid Mech 2005;526:19–66.
+[19] Germano M, Piomelli U, Moin P, Cabot WH. A dynamic subgrid-scale eddy
+viscosity model. Phys Fluids A 1991;3(7):1760–5.
+[20] Görtler H, Über eine dreidimensionale Instabilität laminarer Grenzschichten
+an konkaven Wänden. Nachr Ges Wiss Göttingen, Math-Phys Klassse, Neue
+Folge I 1940;2:1–26.
+[21] Günther A, von Rohr PR. Large-scale structures in a developed ﬂow over a
+wavy terrain. J Fluid Mech 2003;478:257–85.
+[22] Jakirlić S, Jester-Zürker R, Tropea C. editors. 9th ERCOFTAC/IAHR/COST
+workshop on reﬁned ﬂow modeling. Germany: Darmstadt University of
+Technology; October 4–5, 2001.
+
+M. Breuer et al. / Computers & Fluids 38 (2009) 433–457
+[23] Jeong J, Hussain F. On the identiﬁcation of a vortex. J Fluid Mech
+1995;285:69–94.
+[24] Jovanović J. Statistical dynamics of turbulence. Springer; 2004.
+[25] Kim J, Moin P, Moser RD. Turbulence statistics in fully developed channel ﬂow
+at low Reynolds number. J Fluid Mech 1987;177:133–66.
+[26] Lilly DK. A proposed modiﬁcation of the Germano subgrid-scale closure
+method. Phys Fluids A 1992;4(3):633–5.
+[27] Lumley JL, Newman G. The return to isotropy of homogeneous turbulence. J
+Fluid Mech 1977;82:161–78.
+[28] Lumley JL. Computational modeling of turbulent ﬂows. Adv Appl Mech
+1978;18:123–76.
+[29] Manceau R, Bonnet JP, Leschziner MA, Menter F, editors. 10th Joint
+ERCOFTAC(SIG-15)/IAHR/QNET-CFD workshop on reﬁned ﬂow modeling.
+France: Université de Poitiers; October 10–11, 2002.
+[30] Manhart M, Friedrich R. DNS of a turbulent boundary layer with separation. Int
+J Heat Fluid Flow 2002;23(5):572–81.
+[31] Manhart M. A zonal grid algorithm for DNS of turbulent boundary layers.
+Comput Fluids 2004;33(3):435–61.
+[32] Manhart M, Peller N, Brun C. Near-wall scaling for turbulent boundary layers
+with adverse pressure gradient. J Theor Comput Fluid Dyn 2008;22(3–
+4):243–60.
+[33] Mellen CP, Fröhlich J, Rodi W. Large-eddy simulation of the ﬂow over periodic
+hills, In: Deville M, Owens R, editors. Proceedings of 16th IMACS world
+congress, Lausanne, Switzerland. CD-ROM; 2000.
+[34] Moser RD, Kim J, Mansour NN. Direct numerical simulation of turbulent
+channel ﬂow up to Res ¼ 590. Phys Fluids A 1999;11(4):943–5.
+[35] Peller N, Le Duc A, Tremblay F, Manhart M. High-order stable interpolations for
+immersed boundary methods. Int J Numer Methods Fluids 2006;52:1175–93.
+[36] Peller N, Manhart M. Turbulent channel ﬂow with periodic hill constrictions.
+Notes on numerical ﬂuid mechanics and multidisciplinary design 92. New
+results in numerical and experimental ﬂuid mechanics. Edition V. New York:
+Springer; 2006. p. 504–12, ISBN 3-540-33286-3.
+[37] Phillips WRC, Wu Z. On the instability of wave-catalyzed longitudinal vortices
+in strong shear. J Fluid Mech 1994;272:235–54.
+[38] Piomelli U, Chasnov JR. Large-eddy simulations: theory and applications. In:
+Hallbäck M, Henningson DS, Johansson AV, Alfredson PH, editors. Turbulence
+and transition modeling. Kluwer; 1996. p. 269–331.
+
+457
+
+[39] Pope SB. Turbulent ﬂows. Cambridge University Press; 2000.
+[40] Rapp Ch, Manhart M. Experimental investigations on the turbulent ﬂow
+over a periodic hill geometry. In: Fifth international symposium on
+turbulence and shear ﬂow phenomena, August 27–29, 2007, Garching,
+Germany.
+[41] Rhie CM, Chow WL. A numerical study of the turbulent ﬂow past an isolated
+airfoil with trailing edge separation. AIAA J 1983;21:1525–32.
+[42] Rodi W, Bonnin CJ, Buchal T, editors. In: Proceedings of the ERCOFTAC
+workshop on data bases and testing of calculation methods for turbulent
+ﬂows. In association with 4th ERCOFTAC/IAHR workshop on reﬁned ﬂow
+modeling. Germany: University of Karlsruhe; April 3–7, 1995.
+[43] Šarić S, Jakirlić S, Breuer M, Jaffrézic B, Deng G, Chikhaoui O,et al. Evaluation of
+detached-eddy simulations for predicting the ﬂow over periodic hills. In: Eric
+Cancès and Jean-Frédéric Gerbeau, editors. ESAIM Proceedings CEMRACS 2005
+(Centre d’été Mathématique de Recherche Avancée en Calcul Scientiﬁque).
+Computational aeroacoustics and computational ﬂuid dynamics in turbulent
+ﬂows, Marseille, France, July
+18–August 26, 2005. vol. 16, 2007. p.
+133–45.
+[44] Schumann U. Subgrid-scale model for ﬁnite-difference simulations of
+turbulent ﬂows in plane channels and annuli. J Comput Phys 1975;18:
+376–404.
+[45] Smagorinsky J. General circulation experiments with the primitive equations,
+I, the basic experiment. Mon Weather Rev 1963;91:99–165.
+[46] Stone HL. Iterative solution of implicit approximations of multidimensional
+partial differential equations. SIAM J Numer Anal 1968;5:530–58.
+[47] Temmerman L, Leschziner MA. Large-eddy simulation of separated ﬂow in a
+streamwise periodic channel constriction. In: Lindborg A, Johansson E, Eaton J,
+Humphrey J, Kasagi N, Leschziner M, Sommerfeld M, editors.
+Second
+international symposium turbulence and shear ﬂow phenomena, Stockholm,
+June 27–29, 2001. p. 399–404.
+[48] Temmerman L, Leschziner MA, Mellen CP, Fröhlich J. Investigation of wallfunction approximations and subgrid-scale models in large-eddy simulation of
+separated ﬂow in a channel with periodic constrictions. Int J Heat Fluid Flow
+2003;24:157–80.
+[49] Werner H, Wengle H. Large-eddy simulation of turbulent ﬂow over and around
+a cube in a plate channel. In: F.Durst et al., editors. 8th Symposium on
+turbulent shear ﬂows. Springer; 1993.
+
+

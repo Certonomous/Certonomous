@@ -1,0 +1,2481 @@
+AIAA-2004-2220
+nd
+
+2 AIAA Flow Control Conference, June 28 – July 1, 2004, Portland, OR
+
+A Separation Control CFD Validation Test Case
+Part 1: Baseline & Steady Suction
+David Greenblatt,* Keith B. Paschal,† Chung-Sheng Yao‡
+Jerome Harris,§ Norman W. Schaeffler** and Anthony E. Washburn††
+Flow Physics and Control Branch, NASA Langley Research Center, Hampton VA 2361-2199
+Low speed flow separation over a wall-mounted hump, and its control using steady
+suction, were studied experimentally in order to generate a data set for a workshop aimed at
+validating CFD turbulence models. The baseline and controlled data sets comprised static
+and dynamic surface pressure measurements, flow field measurements using Particle Image
+Velocimetry (PIV) and wall shear stress obtained via oil-film interferometry. In addition to
+the specific test cases studied, surface pressures for a wide variety of conditions were
+reported for different Reynolds numbers and suction rates. Stereoscopic PIV and oil-film
+flow visualization indicated that the baseline separated flow field was mainly twodimensional. With the application of control, some three-dimensionality was evident in the
+spanwise variation of pressure recovery, reattachment location and spanwise pressure
+fluctuations. Part 2 of this paper, under preparation for the AIAA Meeting in Reno 2005,
+considers separation control by means of zero-efflux oscillatory blowing.
+
+Nomenclature
+A
+c
+h
+H
+Q
+Cf
+Cm
+CP
+C′P
+Cµ
+
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+
+projected model area, s×c
+model chord-length
+model height
+distance between model base and tunnel ceiling
+suction flow rate
+wall shear-stress coefficient
+mass-flow coefficient, Q/ U∞A
+time mean pressure coefficient
+rms pressure coefficient
+momentum coefficient, m& u j / qA
+
+k
+m&
+M
+q
+Re
+Reθ
+u,v,w
+uj
+
+=
+=
+=
+=
+=
+=
+=
+=
+
+acceleration parameter, − (ν / ρU ∞3 ) / dp / dx
+suction mass flow rate
+Mach number
+free-stream dynamic pressure
+Reynolds number based on model chord-length
+Reynolds number based on momentum thickness
+fluctuating velocities in directions x,y,z
+slot velocity
+
+*
+
+NRC Research Associate, Flow Physics & Control Branch, Mail Stop 170, Senior Member.
+Aerospace Engineer, Flow Physics & Control Branch, Mail Stop 170. Member.
+‡
+Aerospace Engineer, Flow Physics & Control Branch, Mail Stop 170.
+§
+Optical Engineering Technician, Flow Physics & Control Branch, Mail Stop 170.
+**
+Research Scientist, Flow Physics & Control Branch, Mail Stop 170. Member.
+††
+Research Engineer, Flow Physics & Control Branch, Mail Stop 170. Senior Member.
+Copyright © 2004 by the American Institute of Aeronautics and Astronautics, Inc. Under the copyright claimed
+herein, the U.S. Government has a royalty-free license to exercise all rights for Governmental purposes. All other
+rights are reserved by the copyright owner.
+†
+
+1
+American Institute of Aeronautics and Astronautics
+
+U,V,W
+U∞
+x,y,z
+s
+
+δ
+θ
+
+T
+
+=
+=
+=
+=
+=
+=
+
+mean velocities in directions x,y,z
+free-stream velocity
+coordinate directions measured from the model leading edge
+model span
+boundary layer thickness
+boundary layer momentum thickness
+
+I.
+
+Introduction
+
+he understanding and prediction of separated flows have posed a significant challenge for many decades. With
+the advent and prevalence of CFD a large number of modeling approaches and turbulence models have become
+available. A widely-accepted approach is to validate turbulence models by comparing predictions with reliable
+experimental data sets. Progress has been made primarily by studying separation over nominally two-dimensional or
+axi-symmetric geometries. Two classic examples are the incompressible flow over a backward facing step (e.g.
+Driver & Seegmiller1 and Yang et al.2) and the transonic flow negotiating an ax-symmetric bump (Bachalo and
+Johnson3).
+The reemergence of active flow control as a technology with potential application in aerodynamics, has spawned
+an urgent need to develop turbulence models with a predictive capability. In the context of separation, the
+introduction of periodic disturbances is known to exert control over a wide variety of aerodynamic flows. Control is
+particularly effective when applied in a nominally two-dimensional manner, for example, at the leading-edge of a
+wing or at the shoulder of a deflected flap.4 Despite intuitive understanding of the flow, at present there is no
+accepted theoretical model that can adequately explain or describe the observed effects of the leading parameters
+such as reduced frequency and momentum input. This difficulty stems partly from the superposition of coherent
+structures and turbulence where the former are usually driven by at least one instability mechanism.
+Present attempts to develop turbulence models are hampered in one way or another by incomplete data sets,
+uncertain or undocumented inflow and boundary conditions, or inadequate flow-field measurements. With these
+deficiencies identified, a decision was made to conduct an experimental investigation of a low-speed separated flow
+subjected to active separation control. The investigation formed part of a CFD validation workshop sponsored
+jointly by NASA LaRC, the European Research Community On Flow, Turbulence And Combustion (ERCOFTAC),
+the U.S. Air Force Office of Scientific Research (AFOSR), the International Association of Hydraulic Engineering
+and Research (IAHR), QNET-CFD, and the National Institute of Aerospace (NIA). The purpose of this workshop
+was to bring together an international group of computational fluid dynamics practitioners to assess the current
+capabilities of different classes of turbulent flow solution methodologies to predict flow fields induced by zeroefflux oscillatory jets. A summary of the pertinent computations can be found in Rumsey et al.5 The present case
+was referred to as case 3 of the workshop and further details can be found at
+http://cfdval2004.larc.nasa.gov/case3.html.
+The present test case involved a wall-mounted hump model, originally designed by Seifert & Pack6 and tested in
+a cryogenic pressurized facility. The model was selected because the resulting separated flow field appears to be
+virtually insensitive to Reynolds number and inflow conditions and a detailed surface pressure data base already
+exists. In addition, the resulting separated flow is amenable and responsive to active control via steady suction or
+blowing as well as zero-efflux oscillatory blowing. The global objective of this investigation was to provide a
+complete data set that could readily be used by the CFD community as a separation control CFD validation test case.
+Flow control problems are unique in the sense that they generally involve a so-called “baseline” state where no
+control is applied and a “controlled” state where the active flow control method is applied. Thus accurate separation
+control prediction must be preceded by adequate prediction of the baseline state. In an attempt to address this
+dichotomy, the baseline case was approached as a test case itself, with the generally accepted measurements of
+surface pressures, the flow field and wall shear stress.
+For the application of active flow control, a graded approach was adopted with a view to assisting CFD
+prediction. This involved the application of separation control via steady suction prior to the application of zeroefflux oscillatory blowing. Both suction and oscillatory blowing were introduced in a nominally two-dimensional
+manner. Steady suction was achieved via a vacuum pump, while zero-efflux oscillatory blowing was achieved by
+means of a specially designed actuator. The present paper reports the data associated with the baseline case and
+control by means of steady suction. Part 2 of this paper7 reports on the data associated with zero-efflux oscillatory
+blowing.
+
+2
+American Institute of Aeronautics and Astronautics
+
+II.
+
+Scope & Layout
+
+For the remainder of this paper, §III describes the model and wind tunnel installation and compares it with the
+high Reynolds number setup of ref 6. §IV describes the main measurement techniques employed as well as the
+errors or uncertainties associated with each one. §V describes the different test cases and the rationale behind their
+selection. This is followed by the presentation of the main experimental data and is divided into a description of the
+baseline data (§VI) and the steady suction separation control data (§VII). The paper closes with a summary of the
+main findings, followed by a brief overview of the main challenges faced, and the data sets to be presented, in part 2
+of this paper (§VIII).
+
+III.
+
+Experimental Setup
+
+A. Model & Wind Tunnel Installation
+The experiment was performed on a wall-mounted Modified Glauert Hump model,6 consisting of a relatively
+long fore body and a relatively short concave ramp comprising the aft part of the model (fig. 1a). A two-dimensional
+(2-D) slot located at x/c≈65%, that led to an interior plenum, spanned the model between the fore body and ramp.
+The model was constructed from aluminum, with the exception of a stainless steel slot lip section. The leading and
+trailing edges were faired smoothly with a splitter-plate (figs. 1a and 1b), and the model was mounted between two
+endplates with aluminum frames and glass interiors (fig. 1b). The experiments were performed in the NASA
+Langley 20′′×28′′ shear flow tunnel. The flow was nominally two-dimensional, with side-wall effects (3-D flow)
+expected near the endplates. The characteristic reference “chord” length of the model is defined here as the length of
+the hump on the wall, i.e. c=420mm and its maximum thickness is h=53.7mm. Seifert & Pack6 used the body virtual
+leading-edge to define their chord length; presently the entire hump length is used as the chord length. As a result of
+this, the current scaled (non-dimensional) coordinates of the overall body shape are slightly different from those of
+ref. 6. A simple rescaling operation can recover it. The model is 584mm wide and side-mounted endplates are each
+approximately 235mm high and 864mm long. Prior to installing the model, it was subjected to a detailed quality and
+assurance regimen where body coordinates were measured along multiple spanwise and chordwise cuts (fig. 2).
+Maximum spanwise variations in surface geometry over the central half of the model were 35microns (0.00825% of
+chord). Spanwise slot width measurements showed an asymmetry that varied from 0.79mm to 0.74mm from left to
+right (looking upstream). A suction manifold was attached to the plenum that connected to a vacuum pump
+(Qmax=66 liters/s) via heavy-gauge flexible tubing.
+The tunnel dimensions at the test section were 771mm wide by 508mm high, but the hump model was mounted
+on a splitter-plate (12.7mm thick), yielding a nominal test section height H=382mm (distance from the splitter-plate
+to the top wall, see fig. 3a). The ceiling was instrumented along its entire length with 30 pressure ports. The splitterplate extended 1935mm upstream of the model’s leading-edge. The trailing edge of the splitter-plate, which was
+1129mm downstream of the model’s leading-edge, was equipped with a flap (95mm long), that was deflected 24°
+upwards to reduce circulation around the splitter-plate and avoid separation at the leading-edge. The boundary layer
+was tripped at splitter-plate leading-edge (#60 grit), resulting in a fully-developed turbulent boundary layer
+(δ/h≈0.57) at 2.14 chord lengths upstream of the model leading-edge, i.e. the “inflow” condition. The tunnel
+medium was air at sea level.
+The present model was designed to be geometrically similar to that of ref. 6 and physically larger by a factor of
+2. A comparison of the measured centerline surface geometry, non-dimensionalized with respect to c for both
+models, showed a difference in model height of 1%. The models differed mainly with respect to their slot
+geometries: the present slot-width is smaller relative to the chord and has a sharper downstream edge (see fig. 4).
+The installations differed in that the present model was mounted on a splitter-plate, while that of Ref. 6 was mounted
+on the tunnel floor (c.f. figs. 3a and 3b). The suction manifold and pressure tubing introduced partial blockage on the
+lower side of the splitter plate, resulting in net circulation around the splitter plate (ceiling pressures are shown in
+fig. 3c). This was ameliorated by means of the trailing-edge flap. Furthermore, the relative height of the model to the
+test section height differed by a factor of about 1.6. Finally, the Reynolds number ranges were substantially
+different, with that of the present investigation being typically twenty times smaller (see table 1).
+
+3
+American Institute of Aeronautics and Astronautics
+
+Table 1. A comparison of conditions in the cryogenic facility with those in the present facility.
+Investigation
+Ref [6]
+
+Re range (106)
+2.4 - 26
+
+M
+0.25
+
+Present
+
+0.372 - 1.115
+
+≤0.12
+
+IV.
+
+Inflow δ/h
+~0.56
+at x/c = –1.25
+~0.57
+at x/c = –2.14
+
+Inflow Reθ (103)
+47 - 149
+
+h/H
+8%
+
+Installation
+tunnel floor
+
+7.2
+
+13%
+
+splitter plate
+
+Measurement Techniques & Accuracy
+
+The model was equipped with 153 center-span static pressure ports (0.5mm diameter) and 20 dynamic pressure
+ports (0.25mm diameter) in the vicinity of the separated flow region (figs. 5a and 5b). Sixteen spanwise pressure
+ports were located on the fore body (x/c=0.19) and on the ramp at (x/c=0.86) (fig. 5b). An array of electret-type
+microphones was also mounted in the separated flow region, but data acquired from these are not reported in this
+paper. Two-dimensional PIV data was acquired in a plane, along the model centerline and normal to the surface,
+from the vicinity just upstream of the slot to well beyond the reattachment location at x/c≈1.4 (fig. 5a). Stereoscopic
+PIV (3-D) data was acquired in planes perpendicular to the flow direction, arranged to intersect the 2-D plane at
+x/c=0.7 to 1.3 in steps of approximately 0.1. For the baseline case, oil-film interferometry was used to quantify the
+skin friction over the entire model, from the region upstream of the hump to beyond the reattachment location. Light
+from an extended monochromatic light source was utilized for this purpose, as shown in fig. 5c, where the
+restrictions imposed by the 20′′×28′′ setup mandated that this type of system be used (see Naughton et al.12 for more
+details). At the inflow location (x/c = –2.14), pitot-probe and hot-wire anemometer data were compared with 2-D
+and 3-D PIV. Inflow skin friction was also documented using oil-film interferometry.
+A. Static & Dynamic Pressures
+A Pressure Systems “System 8400” high-speed pressure scanner, in conjunction with 10” inch water column
+scanning modules, was used for all static pressure measurements. Where possible, instrumentation was stowed under
+the hollow fore body and ramp sections of the model in order to minimize blockage under the splitter plate.
+Dynamic pressure measurements were made by means of 20, 1psi miniature piezoresistive pressure transducers.
+Both static and dynamic pressure transducers were calibrated in-situ prior to each run. Typical mean pressures at the
+test conditions were acquired and averaged over a 60 second time interval (tU∞/c≈5000). Both static and dynamic CP
+data was repeatable to within ±0.001.
+B. Flow Field Measurements
+The PIV setup included an Nd:YAG double-pulsed 100mJ Laser and two 1024x1280 CCD cameras installed
+with either 100mm or 200mm Nikon Macro lenses depending on the required resolution. Smoke particles (specific
+gravity 1.022) were generated by means of a standard smoke generator and the largest particles were on the order of
+4-5 microns as measured by a commercial aerodynamic particle sizer. The accuracy of both the mean and
+fluctuation components of 2-D and 3-D PIV velocity measurements was assessed by means of in-situ direct
+comparison at the inflow location. 3-D data were generated by span-averaging the central half of the measurement
+area. For the mean flow, PIV data was compared directly with that of a standard flattened pitot-tube (see fig. 6a).
+Apart from the region very near the wall, where neither the pitot-probe nor the PIV data are reliable, the 2-D PIV
+measurements varied by no more than 1% when compared with the pitot-probe data. However, the 3-D PIV
+consistently under-predicted the velocity by approximately 3% of U∞. This bias was consistent across the
+measurement area (fig. 6b) with variations typically <3% of U∞. Consequently, 3-D PIV was used as a tool for
+identifying spanwise variations in the flow, but the absolute velocities were not relied upon as being sufficiently
+accurate.
+Particle frequency response plays an important role in the accuracy of turbulent stress measurements.
+Measurement accuracy was assessed directly by measuring the inflow u′ boundary layer with both PIV and hot-wire
+anemometer, in order to estimate whether the seeding particles had a small enough mass to respond to small scale
+motions in the flow. The data was further analyzed using the method of Adrian8 to determine the particle response
+characteristics and that of Kistler11 to determine an upper frequency limit of the flow in question. The hotwire
+spectra were filtered based on a linear model of particle-lag as a function of flow properties, particle size and applied
+acceleration.9 The 2-D PIV data are shown together with the unfiltered and filtered hotwire data in fig. 6c. The 2-D
+results are consistent with the results of the particle sizer, namely that the particle diameter is on the order of 4
+microns. The 3-D PIV under-predicted the u′ hot wire data by approximately 20% (not shown) and consequently
+4
+American Institute of Aeronautics and Astronautics
+
+these data were not relied upon directly for the turbulence statistics. At low u′ levels the PIV measurements overpredict values relative the hotwire due to the inherent noise in the system. Additional details of the PIV error
+estimation in the present facility is discussed further in the Appendix.
+C. Suction Mass Flowrate
+The suction mass flow rate was determined by m& = ρQ , where the air density ρ was calculated from the
+delivery pressure and temperature, and the suction flow rate Q was measured directly by means of a turbine
+flowmeter. The main source of error was due to the turbine meter, where ∆m& / m& ≈ ∆Q / Q ≤ 2% . Consequently,
+∆Cm / Cm ≤ 2% and ∆Cµ / Cµ ≤ 4% .
+D. Oil-film Interferometry
+Surface shear stress was measured, and limited flow visualization was performed, on the model surface using
+oil-film interferometry. The technique is briefly described here, but a full description of the specific methods and
+challenges can be found in Naughton et al.12 A thin mylar sheet, chosen for its reflection properties and ease of
+application, was placed on the model from upstream of the leading edge to downstream of the reattachment location.
+Mylar sheets were also placed along the location corresponding approximately to the baseline and suction
+reattachment lines on the half span of the model defined by –0.5<z/s<0. Thin oil-films of varying viscosity were
+placed on the sheet and thinned at a rate proportional to the shear stress acting on them. Light from an extended
+monochromatic light source reflected from the oil and model surfaces and was recorded on a digital camera. Shear
+stress was inferred by measuring the thickness of the oil at a specific time, using interferometry as described in
+detail by Naughton.12 Surface pressure taps were used to determine the corresponding locations of shear stress on
+the model.
+
+V.
+
+Test Cases
+
+Both uncontrolled (baseline) and controlled flow (steady suction) scenarios were considered for approximately
+370,000≤Re≤1,10,000 corresponding to 0.04≤M≤0.12. One baseline test case (Re=929,000, M=0.100 with no
+control) and one control test case [Re=929,000, M=0.100, m& =0.01518 kg/s, corresponding to Cµ=0.241% (or
+Cm=0.15%; see discussion in §VII)] were selected for detailed 2-D and 3-D PIV flow field measurements. The
+control test case was chosen to exert substantial control over the separation region, without entirely eliminating the
+bubble. Elimination of the bubble was not considered desirable for the control test case as this approximates an
+inviscid flow and would not be appropriate for evaluating the prediction methods. Furthermore, the test case was
+chosen to correspond to control previously performed under identical non-dimensional conditions at high Reynolds
+numbers.6
+Although a single baseline and a single control test case were selected, static and dynamic pressure data were
+acquired for a wide variety of conditions, most notably different slot suction rates and Reynolds numbers. A number
+of dimensionless suction rates at various Reynolds numbers were chosen to correspond to those of ref. 6. The
+purpose was to evaluate the effect of Reynolds number and provide additional data to those wishing to conduct
+sensitivity studies such as, for example, studying the effect of increasing or decreasing the suction rate from the test
+condition.
+
+VI.
+
+The Baseline Flow
+
+A. Preliminary Considerations
+A general description of the flow is provided with respect to fig. 7a and 7b, which show mean and rms surface
+pressure coefficients and wall shear stress respectively. Mean pressures from both static and dynamic pressure
+transducers are shown. Flow approaching the model leading-edge decelerates but does not separate. Immediately
+downstream of the leading-edge, the boundary layer is subjected to a strong favorable pressure gradient (k>3.0×10-6,
+for 0.05<x/c<0.1). The low Cf in this region, followed by the large Cf change between x/c=0.07 and 0.11 may
+indicate relaminarization close to the leading-edge, followed immediately downstream by re-transition (fig. 7b). The
+pressure gradient then relaxes over the region of the fore-body defined approximately by 0.1<x/c<0.5. A CP anomaly
+can be seen at x/c≈0.48 as a result of a 5 micron step (0.0012% w.r.t chord) at the join (x/c=0.472) between the
+aluminum fore body and the stainless steel lip section. At x/c≈0.6 in the region of strong convex curvature, the
+pressure increases abruptly and separation occurs at x/c≈0.665 (determined by 2-D PIV; see discussion below and
+table 2). The flow remains separated over the relatively short concave ramp in the aft part of the body and reattaches
+5
+American Institute of Aeronautics and Astronautics
+
+downstream of the trailing edge at x/c≈1.1 (see table 2 and discussion below). Downstream of reattachment the
+boundary layer recovers under a near zero pressure gradient. Towards the end of the splitter plate, the flow
+decelerates slightly due to the presence of the trailing edge flap.
+Initial surface pressure data was acquired using the original design of the endplates. It was discovered that the aft
+solid section of the aluminum endplates partially blocked optical access for 3-D PIV measurements. This access
+problem was somewhat alleviated by shortening the endplate. This modification did not measurably affect the static
+and dynamic pressure distributions over the entire model as shown in fig. 7a.
+B. Effect of Reynolds Number & Setup Details
+Fig. 8 shows the baseline mean and rms surface CP data, from both dynamic and static pressure ports, in the
+separated flow region as a function of Reynolds number. The test case for the baseline with no control is indicated
+on the figure. For Re≥557,400 there is no significant Reynolds number effect in either the mean or rms quantities.
+Negligible differences were also observed at x/c<0.5 and x/c>1.5. Fig. 9 shows CP data for the present test case
+compared with the high Re data of ref. 6. (The reference pressure in ref. 6 was adjusted by 0.266% in order to match
+their inflow CP with the present data.) The CP data near separation are virtually identical, although the high
+Reynolds number case has a slightly longer bubble than that of the present case. This small difference is possibly a
+Reynolds number effect or a facility artifact, but is most probably due to the relatively minor geometry differences
+in the vicinity of the slot (see fig. 3). In both instances, the slots are not externally sealed. In addition, there is a
+notable difference in the minimum CP (the “suction peak”) upstream of the slot, just downstream of x/c≈0.35. This
+was assumed to be due to the difference in the ratio of model height to tunnel height for the two cases, namely
+h/H=8% (ref. 6) versus 13% (present setup; see table 1). This assumption was supported by CFD for the two
+configurations where the suction peak difference was computed as being ~0.1 (Rumsey, private communication).
+The general trend in C′P in the separated and reattaching region is similar for both cases although the absolute values
+differ by about 30%. The differences are probably due to the Reynolds number disparity or the conditions prevailing
+downstream of the suction peaks, which act as an effective boundary condition for the separated flows. The higher
+C′P in the reattaching region is consistent with the presently observed shorter bubble length.
+The sensitivity of the separated region to the presence of the control slot was investigated. This was achieved by
+comparing surface mean and fluctuating pressures for the case of an open slot with the case of a slot sealed
+externally, for several Reynolds numbers. In the case of the open slot, the plenum is sealed at the base of the suction
+manifold. The data presented in figure 10 shows that the presence of the slot has a negligible effect on either the
+mean or the fluctuating pressures. On the basis of this finding, all subsequent flow field data were acquired with the
+slot open.
+C. Baseline Flow Field & Two-Dimensionality
+To map the baseline test case flow field from upstream of separation (x/c=0.62) to downstream of reattachment
+(x/c=1.4) the field was divided into four zones, three of which overlapped. A composite plot showing the streamwise
+velocity contour (U) is shown in fig. 11. Both velocity components (U,V) and well as turbulence stresses
+( uu , vv and uv ) could be extracted from this data at arbitrary x/c for comparison with CFD. Separation and
+reattachment points were estimated from this data (see table 2) where higher resolution data was acquired in the
+vicinity of the slot.
+Flow two-dimensionality in the separated and reattachment region was assessed via three methods (see fig. 5b):
+(a) by considering the spanwise pressures on the ramp in the separated region; (b) performing 3-D PIV
+measurements in planes perpendicular to the flow direction; and (c) by means of the surface oil-film flow
+visualization. Spanwise surface pressure were also measured on the fore body of the model.
+Spanwise pressures are shown in fig. 12 for both fore body (x/c=0.19) and ramp (x/c=0.86) pressure ports at
+various Reynolds numbers. The spanwise variations are small, e.g. at the test condition, the pressure variation over
+the central half of the model (–0.25≤z/s≤0.25) is ∆CP=±0.005. Departures from two-dimensionality are mainly near
+the wall. Streamwise velocity components of 3-D PIV data acquired upstream of reattachment, near reattachment
+and downstream of reattachment, over 20% of the span, are shown in figs. 13a to 13c respectively. These data show
+small departures from two-dimensionality and the spanwise variations are on the order of the 3-D PIV accuracy.
+Maximum in plane velocities V and W (not shown) were typically 3% of U∞.
+Examples of 2-D and 3-D PIV mean velocity and turbulence profiles, in the vicinity of reattachment, are shown
+in figs. 14a to 14d and 14e to 14h respectively. U is the streamwise component and V is the component normal to the
+splitter-plate. 3-D data is based on a span-average of the center 10% of the model span, comprising 36 individual
+profiles. The mean velocity data is consistent with the inflow observations discussed in 6a, namely that the 3-D PIV
+6
+American Institute of Aeronautics and Astronautics
+
+under-predicted mean velocity profiles by as much as 3% of the maximum. The turbulence profile measurements
+were shown to under-predict the actual values based on arguments presented with respect to fig. 6c. Note, however,
+that in the free shear layer the energy is contained at lower frequencies than in the attached boundary layer. In
+addition, the 3-D predictions show a vast improvement over the inflow turbulence measurements.
+Several attempts were made at assessing the two-dimensionality of the reattachment line using china clay and
+micro tufts. Neither gave sufficiently good resolution. Consequently, oil-film interferometry was used where
+reattachment (Cf =0) was determined by interpolating wall shear stress data (see fig. 7b and ref. 12 for more details).
+Moreover, reattachment line two-dimensionality was assessed by exploiting the flow visualization attribute of oilfilm interferometry. This was achieved by placing oil drops on the mylar sheet located in the vicinity of the
+reattachment line (see fig. 15), where Cf ≈0. Note that these images have been exposed to the flow for a relatively
+long time (approximately 10 minutes) and the oil viscosity was relatively low (20cs). Therefore, the interpretation of
+these images must be done with some care.
+The oil-films show both the qualitative magnitude of shear stress, which is proportional to the fringe spacing,
+and the direction in which the shear stress acts. The reattachment line is essentially two-dimensional and, for most
+films, the downstream and upstream flow directions can be clearly identified. Although the reattachment line is
+essentially two-dimensional, there appears to be a cross-flow component with the shear stress apparently acting
+perpendicular to the reattachment line at some locations. Note, however, that this shear stress is extremely low as
+can be seen by comparing the fringe-spacing on the reattachment line (x/c=1.11) with that at x/c=1.06 and 1.17. Note
+that for some of the oil-films, including those close to the endplates, the shear stress was not large enough to
+generate fringes during the run.
+Table 2. A comparison of measured separation and reattachment location.
+Separation Measurements
+Reattachment Measurements & Estimates
+Case
+2-D PIV Centerline
+Oil-film (off centerline)
+2-D PIV (centerline)
+Baseline
+0.665±0.005
+1.11±0.003
+1.10±0.005
+Control
+0.680±0.005
+0.94±0.005
+0.92±0.005
+
+VII.
+
+C′Pmax
+1.08
+0.90
+
+Control via Steady Suction
+
+For the suction test case, control was applied via the two-dimensional slot using a suction rate of 0.01518 kg/s at
+Re=929,000. Details of the suction setup and uncertainties are discussed in §III and §IV. Although not required for
+the test case, control was applied at various suction rates and for the same dimensionless conditions at different
+Reynolds numbers. A number of test cases were selected to yield the same dimensionless conditions as that of ref 6.
+(Suction rates are often expressed as a mass flux coefficient,13 presently Cm=0.15%. Seifert & Pack6 used Cµ, to
+allow direct comparison with oscillatory cases.)
+A. Effect of Suction Rate and Reynolds Number
+The effect of gradually increasing the suction rate from 0kg/s (baseline) is shown in fig. 16. Application of
+suction accelerates the flow upstream of the slot, increases the pressure downstream thereof, and shortens the bubble
+length. Suction rates less than and greater than the test case Cµ were acquired to allow the option of conducting a
+sensitivity study. A comparison of pressure data at the test condition is shown for various Reynolds numbers,
+including that of ref. 6 in fig. 17. There appears to be a small Reynolds number effect in that control becomes
+slightly more effective with increasing Reynolds number. This trend is also consistent with that of ref. 6, despite the
+differences in control slot design. To check this trend, additional data was acquired at a higher suction rate
+(Cµ~0.456%) for different Reynolds numbers and showed similar trends to those at lower Cµ~0.241% (fig. 18).
+B. Controlled Flow Field & Two-Dimensionality
+The streamwise velocity field for the control test case is shown in the composite plot of fig. 19. As in the
+baseline case, the field was divided into four zones, both velocity components (U,V) and well as turbulence stresses
+( uu , vv and uv ) could be extracted from this data at arbitrary x/c for comparison with CFD. Separation and
+reattachment points were again estimated from this data (see table 2) and compared with oil-film data.
+Ramp pressures at x/c=0.86 are shown in fig. 20, which correspond to the cases shown in fig. 16. With a
+small amount of suction (Cm=0.0527%), the spanwise pressures increase in unison. As the suction flowrate increases
+further, the pressures appear to develop a mild wave-like structure with maximum pressure recovery near the model
+7
+American Institute of Aeronautics and Astronautics
+
+center span with pressure minima at z/s≈±0.25. The pressure signature becomes more pronounced with increasing
+suction rate. Note, furthermore, that the signature is asymmetric, with a larger overall pressure recovery at z/s<0,
+where this is most probably due to the slot width asymmetry that varies from 0.79mm to 0.74mm from z/s= –0.5 to
+0.5.
+Further evidence of three-dimensionality can be seen from the C′P data shown in fig. 21. Just beyond x/c=1.0
+a C′P discontinuity can be seen where the dynamic pressure ports are not aligned along the same spanwise line
+(shown in the lower part of the figure). Thus, although the static pressures only show a mild variation near the center
+span, there is evidence of spanwise variation in the pressure fluctuations. 3-D PIV data of streamwise velocity near
+the reattachment location (fig. 22a), however, did not show significant three-dimensional features. Although crossflow velocities W≈0.1U∞ were detected near the wall. Downstream of separation (figs. 22b and 22c) the flow
+maintains an essentially two-dimensional character, where the apparent spanwise variation in streamwise velocity is
+on the order of the 3-D PIV accuracy. Optical blockage as a result of the aft part of the endplate frame precluded 3D PIV measurements just upstream of reattachment.
+As in the baseline case, examples of 2-D and 3-D PIV mean velocity and turbulence profiles, in the vicinity of
+reattachment, are shown in figs. 23a to 23d and 23e to 23h, respectively. 3-D data is based on a span-average of 10%
+of the center span as in the baseline case. These data are similar to the baseline data and similar descriptions and
+arguments apply as before. Flow visualization using oil-film interferometry was also used as before (fig. 24.).
+However, the oil drops were placed on the ramp and were subject to the effect of gravity. In order to ameliorate this
+problem, the oil was applied at different locations for several individual runs, as this allowed a shorter time between
+applying the films and establishing the test condition flow in the tunnel. The reattachment location was identified as
+being at x/c≈0.94 in the region defined by z/s<0. (see table 2). Consistent with the higher cross-flow velocities near
+the wall, the cross-flow shear stress was larger than in the baseline case. Furthermore, 2-D PIV at the centerline
+showed reattachment to be at x/c≈0.92, which is consistent with the greater pressure recovery near the centerline
+(fig. 20). Thus, three-dimensional effects appear stronger than in the in the baseline case, but still do not appear to
+play a dominant role in the flow.
+In addition to the existing cases, it was desired to fully eliminate the bubble by means of control. However, the
+vacuum pump capacity was insufficient to achieve this (insufficient Cµ) at the test Reynolds number. Thus, a lower
+Reynolds number was employed for this purpose and the results are show in figs. 25a and 25b. It is evident that the
+bubble is full eliminated at Cµ≈2.6, although the pressure is fairly uniform in the central part of the model
+(–0.25<z/s<0.25). However, the pressure decreases near the endplates whereas it increases in the cases when the
+bubble was not fully eliminated. This may be evidence of streamwise vortices in the corners between the ramp and
+endplates.
+
+VIII.
+
+Summary & Future Work
+
+To summarize, it was concluded that the baseline flow was essentially two-dimensional and although minor
+time-mean three-dimensional features may be present, these are not in the form of dominant flow structures. When
+control is applied, a mild but measurable three-dimensional effect is observed. This manifests itself in the form of a
+variation in the spanwise pressure recovery, variations in spanwise pressure fluctuations, and a cross-flow
+component identified using oil-films and 3-D PIV.
+The second phase of this investigation, to be presented in part 2 of this paper, involves separation control via
+zero-efflux oscillatory blowing introduced from the spanwise slot.7 This was achieved by means of a rigid piston,
+that was secured to the base of the plenum by means of a flexible membrane. The piston was driven externally by
+six voice-coil based actuator modules [ATEAM (Aero and Thermally Engineered Actuator Modules) actuators
+designed and provided by J. Kiedaisch, H. Nagib and their associates from IIT], providing maximum slot velocities
+of approximately 80m/s at frequencies ranging from 60Hz to 500Hz.
+A number of factors were taken into account when calibrating the slot. In summary, the slot calibration was
+required fulfill a number of requirements listed below:
+• The calibration was required to be experimentally reliable and computationally implementable.
+• The calibration measurements were required to be representative of the momentum added to the flow.
+• Substantial spanwise uniformity (two-dimensionality) was required.
+• “Tunnel-off” calibration versus “tunnel-on” calibration issues were to be addressed.
+To date, surface static and dynamic pressures over the model have been acquired for a wide variety of flow
+control conditions. At the test condition (Re=929,000, M=0.100, peak slot velocity = 26.6m/s; forcing frequency =
+138.5Hz), the corresponding non-dimensional control parameters were Cµ=0.11% and F+=0.84. Detailed phaselocked 2-D PIV measurements at 36 phases have been made at the test condition from upstream of the slot to
+8
+American Institute of Aeronautics and Astronautics
+
+beyond the reattachment location (cf. fig. 7a). In addition, phase-locked 3-D PIV measurements, corresponding
+approximately to the locations shown in fig. 7b, will be available in part 2 of the paper.
+
+Appendix: PIV Error Estimation
+A further check on the accuracy of the 2-D PIV system was performed prior to installing the model, by
+comparing the zero pressure gradient boundary layer 2-D stress tensor to classical measurements.10 The freestream
+velocity was 10m/s and the boundary layer thickness was similar to that downstream of the hump model at 4.5m
+downstream the leading edge of the splitter plate (see fig. A1). Overall the agreement for all components of the
+stress tensor was good with errors typically less than 10% of peak values, apart from the over-predictions at low rms
+values as discussed above. The opposite trend is seen in the Reynolds stress and may be due to the higher
+uncertainty in that particular stress component for the hotwire measurements. For this flow, the 4 micron particle has
+sufficient frequency response to respond to the scales of motion responsible for stress generation.
+For the inflow condition, the particle’s frequency response is no longer sufficient relative to the scales of motion
+in the flow. In this case the boundary layer is much thinner and the free-stream velocity much higher, relative to the
+10m/s boundary layer, leading to larger high frequency content.
+Using the reference turbulent boundary layer data (U∞=10m/s) estimates of the random error were determined by
+considering the spread in the rms measurements over a small area, in the absence of any bias. The small area is the
+field of view of the camera which was 19mm x 19mm. It was observed that the random error in the rms
+measurements were proportional to the spread of the rms data in this small area of the flow field. Based on this
+assumption, the random error is proportional to the resolution of the PIV system.
+*
+*
+Resolution of the digital PIV system may be defined as R = U max
+/ N Pζ , where U max
+is the maximum
+measured velocity, N P is the number of pixels and ζ is the sub pixel accuracy. Typically the maximum velocity
+measured is set to a displacement of 8 pixels. Sub pixel accuracy is on the order of 10 units/pixel or better. The sub
+pixel accuracy can be seen by plotting the wall-normal velocity (V) versus the wall-normal coordinate for the
+*
+reference boundary layer (U∞=10m/s). The spread in the V component was indeed on the order of U max
+/100, and
+corresponded to the resolution of the digital system.
+An estimate of the rms random error can now be determined based on the resolution of the digital system.14 By
+*
+/100. Again by direct
+direct comparison, one finds that the spread in the rms data is approximately 0.8 U max
+comparison of the U∞=10m/s boundary layer data, the Reynolds stress data is indeed bounded by our estimated
+uncertainty which is determined by:
+
+[
+
+ε uv / uv = (ε u′ / u ′)2 + (ε v′ / v ′)2
+where ε u′ = ε v = 0.8 * R
+
+]
+
+1/ 2
+
+Applying this analysis to the stress data downstream of the hump model, the estimated uncertainty, taking into
+account the bias error, is 20% or less. In this case, in order to be conservative, the random errors ( ε u′ and ε v ′ ) were
+set to the PIV resolution. It was also assumed that the bias error in vrms was equal to that determined from the urms
+measurements. Consequently
+
+(ε u′ / u ′)Total = [(ε u′ / u ′)2 + (ε u′ / u ′)2bias ]
+
+1/ 2
+
+(ε v′ / v ′)Total = [(ε v′ / v ′)2 + (ε v′ / v ′)2bias ]
+
+, and
+
+1/ 2
+
+where ε u′ = ε v′ = R .
+
+Acknowledgments
+This work was performed while the first author held a National Research Council–NASA Langley Research
+Center Associateship. The authors wish to thank W. L. Sellers III, M. J. Walsh, L. P. Melton, C. L. Rumsey, S. A.
+Viken, P. Balakumar, and J. W. Naughton (University of Wyoming) for their many insightful suggestions and
+comments. The authors also wish to thank R. L. Clark, R. S. Geouge, T. E. Fowler and M. Bell for their excellent
+technical support.
+
+9
+American Institute of Aeronautics and Astronautics
+
+References
+1
+
+Driver, D. M. and Seegmiller, H. L., “Features of a reattaching turbulent shear layer in divergent channel flow”, AIAA
+Journal, Vol. 23, pg163, 1985.
+2
+Yang, J. T., Tsai, B. B. and Tsai, G. L., “Separated-reattaching flow over a backstep with uniform normal mass bleed”,
+Journal of Fluids Engineering, Vol. 116, pg. 29, 1994.
+3
+Bachalo, W. D. and Johnson, D. A., “Transonic turbulent boundary-layer separation generated on an axisymmetric flow
+model”, AIAA Journal, Vol. 24, pp. 437-443, 1986.
+4
+Greenblatt, D. and Wygnanski, I., “Control of separation by periodic excitation”, Progress in Aerospace Sciences, Volume
+37, Issue 7, pp. 487-545, 2000.
+5
+Rumsey, C., Gatski, T., Sellers, W., Vatsa, V., Viken, S., “Summary of the 2004 CFD Validation Workshop on Synthetic
+Jets and Turbulent Separation Control”, AIAA-2004-2217, 34th AIAA Fluid Dynamics Conference and Exhibit, Portland,
+Oregon, 28 June - 1 July 2004.
+6
+Seifert, A. and Pack, L. G., “Active Flow Separation Control on Wall-Mounted Hump at High Reynolds Numbers,” AIAA
+Journal, Vol. 40, No. 7, July 2002.
+7
+Greenblatt, D., Paschal, K. B., Yao, C. S. and Harris, J., “Separation Control Over a Wall-Mounted Hump. Part 2. ZeroEfflux Oscillatory Blowing” To be presented at the 43rd AIAA Aerospace Sciences Meeting and Exhibit, Reno 2005.
+8
+Adrian, R. J., “Laser Velocimetry”, Chapter 5 in Fluid Mechanics Measurements, pp. 190-191, ed. Richard Goldstein, 1983.
+9
+Adrian, R. J., “Particle-Imaging Techniques for Experimental Fluid Mechanics”, Annual Review of Fluid Mechanics, 23,
+pp. 261-304, 1991.
+10
+Klebanoff, P. S., “Characteristics of Turbulence in a Boundary Layer with Zero Pressure Gradient”, NACA Report No.
+1247, 1955.
+11
+Kistler, A. L., “Fluctuation Measurements in a Supersonic Turbulent Boundary Layer”, The Physics of Fluids, Vol. 2, No.
+3, May-June 1959.
+12
+Naughton, J., Viken, S. and Greenblatt, D., “Wall shear stress measurements on the NASA hump model for CFD
+validation”, AIAA Paper 2004-2607, 34th AIAA Fluid Dynamics Conference and Exhibit, Portland, Oregon, 28 June - 1 July
+2004.
+13
+Poisson-Quinton, Ph. and Lepage, L., “Survey of French research on the control of boundary layer and circulation”, in
+Lachmann, G. V., “Boundary layer and Flow Control. Its Principles and Application”, Volume 1, pp. 21-73, Pergamon Press,
+New York, 1961.
+14
+Coleman, H. W. and Steele, Jr., W. G., “Experimentation and Uncertainty Analysis for Engineers”, Ch. 2 & 3, John Wiley
+and Sons, Inc., 1989.
+
+10
+American Institute of Aeronautics and Astronautics
+
+Fore body
+
+Ceiling pressure taps
+
+stainless steel
+slot lip section
+
+slot location
+
+y
+
+splitter
+plate
+
+0.04≤Ma≤0.12
+370,000≤Re≤1,100,000
+elliptical LE
+with trip
+
+ramp
+
+“inflow”
+location
+
+h/H=0.13
+
+H
+TE Flap
+
+x/c = –2.14
+
+x
+h
+
+x
+(a)
+
+plenum
+suction manifold
+
+partial blockage
+
+suction manifold or actuator
+
+splitter plate
+
+c
+
+Figure 1a. Cross-section schematic through the model showing its various
+components and the coordinate system used (end plates not shown).
+
+Ma=0.25
+
+h/H=0.08
+
+2,400,000≤Re≤26,000,000
+
+H
+
+h
+
+(b)
+
+Figure 3. A comparison the (a) present wind tunnel setup
+with that of (b) ref. 6.
+
+endplate frames
+splitter plate
+
+model
+
+-0.5
+Re=557,400; M=0.06
+Re=743,200; M=0.08
+Re=929,000, M=0.10
+
+y
+
+Re=1,114,800; M=0.12
+
+-0.25
+
+U
+
+z
+
+Re=557,400, M=0.06, Cµ=0.254%
+Re=743,200, M=0.08, Cµ=0.242%
+
+glass
+
+CP
+
+Re=929,000, M=0.1, Cµ=0.241%
+Re=1,114,800, M=0.12, Cµ=0.248%
+
+0
+
+Figure 1b. Isometric view showing the model mounted on the
+splitter plate with end plates in place.
+
+0.25
+
+splitter plate LE
+
+measurement of
+inflow conditions
+
+model location
+
+end of entrance
+contraction
+
+start of
+tunnel diffuser
+
+0.5
+0
+
+1000
+
+2000
+
+3000
+
+4000
+
+5000
+
+Tunnel Location (mm)
+
+Figure 3c. Tunnel ceiling pressures for both baseline and
+controlled cases.
+-0.434
+
+-0.217
+
+0.0
+
+0.250
+
+0.508 (mm)
+0.13
+Measured Surface Geometry
+
+y/c
+
+20''x28'' model surface geometry
+
+0.12
+
+0.11
+
+Figure 2. Plan view showing the measured model surface geometry
+relative to the two-dimensional theoretical specification.
+
+Ref. 6 surface geometry
+
+0.1
+0.6
+
+0.62
+
+0.64
+
+x/c
+
+0.66
+
+0.68
+
+0.7
+
+Figure 4. Close-up comparison of the measured model
+geometries in the vicinity of the slot for the present model with
+that of ref. 6.
+11
+American Institute of Aeronautics and Astronautics
+
+(a)
+
+centerline static
+pressure ports
+
+30
+
+y/c
+
+-0.2
+
+33
+
+2D PIV measurement area
+
+0
+
+x/c 0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+1.2
+
+33
+
+32
+
+1.4
+
+20
+y (mm)
+
+endplate location
+
+(b)
+
+stereo PIV
+measurement planes
+
+dynamic
+pressure ports
+
+32
+
+31
+
+30
+
+31
+30
+
+29
+
+29
+
+28
+
+10
+27
+
+z/s
+
+24
+
+x/c
+
+27
+
+26
+25
+
+0
+
+-50
+
+slot location
+microphone
+array
+
+forebody spanwise
+pressure ports
+
+0
+
+z (mm)
+
+Figure 6b. 3-D PIV inflow mean velocity profile showing
+spanwise errors introduced as a result of the Stereoscopic
+calibration technique.
+
+ramp spanwise
+pressure ports
+
+endplate location
+
+24
+
+23
+
+22
+
+28
+
+Figure 5. Schematics showing the (a) centerline layout
+of the pressure ports and 2-D PIV measurement
+locations, (b) spanwise distribution of pressure ports
+and 3-D PIV measurement locations.
+
+system noise
+30
+
+2-D PIV
+Hotwire Data
+Filtered Hotwire Data - 5 microns
+Filtered Hotwire Data - 10 microns
+
+25
+
+y (mm)
+
+20
+
+15
+
+10
+
+5
+
+0
+
+Figure 5c. Schematic of the oil-film interferometry setup
+(see ref. 12).
+
+0
+
+0.02
+
+0.04
+
+u'/U
+
+0.06
+
+0.08
+
+Figure 6c. Inflow streamwise turbulence profile showing
+the effect of finite particle size on 2-D PIV data.
+
+-1
+
+40
+
+0.3
+
+aft portion of
+endplates removed
+
+Re=929,000; M=0.10
+
+3% of U max
+
+-0.75
+
+0.25
+
+Pitot Tube
+2-D PIV
+
+y (mm)
+
+30
+
+Stereo (3-D) PIV
+
+CP
+
+-0.5
+
+0.2
+
+glass
+
+1% of U max
+-0.25
+
+0.15
+
+0
+
+0.1
+
+20
+
+0.25
+
+0.05
+
+Original End-Plate Configuration
+
+Slot location
+
+10
+
+C'P
+
+Shortened End-Plate Configuration
+
+0.5
+
+0
+-1
+
+0
+
+-0.5
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+x/c
+0
+
+10
+
+20
+
+30
+
+40
+
+U (m/sec)
+
+Figure 6a. Inflow mean velocity profile at x/c=–2.14
+corresponding to the tunnel center-span.
+
+Figure 7a. Mean and fluctuating pressures on the model and
+splitter-plate in its original configuration and with the endplates
+shortened.
+
+12
+American Institute of Aeronautics and Astronautics
+
+0.3
+
+-1
+
+8
+
+Re=557,400; M=0.06 (slot open)
+Re=929,000; M=0.10 (slot open)
+
+-0.75
+
+6
+
+Re=1,114,800; M=0.12 (slot open)
+
+0.25
+
+Re=557,400; M=0.06 (slot sealed)
+Re=929,000; M=0.1 (slot sealed)
+
+Cf
+
+Re=1,114,800; M=0.12 (slot sealed)
+
+-0.5
+4
+
+0.2
+
+CP
+reattachment determined
+by interpolation
+
+k>3.0x10-6
+
+2
+
+-0.25
+
+0.15
+
+0
+
+0.1
+
+slot
+location
+
+0
+
+0.05
+
+0.25
+Slot
+
+-2
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+x/c 1
+
+1.2
+
+1.4
+
+1.6
+
+0
+
+0.5
+0.5
+
+Figure 7b. Wall shear stress coefficient data over the
+model. See ref. 12 for more details.
+-1
+
+0.75
+
+1
+
+1.25
+
+x/c
+
+Figure 10. The effect of the slot on surface pressures for
+different of Reynolds numbers.
+
+0.3
+Re=371,600; M=0.04
+Re=557,400; M=0.06
+Re=743,200; M=0.08
+
+-0.6
+
+Re=929,000; M=0.10
+
+0.225
+
+test case
+
+Re=1,114,800; M=0.12
+
+0.2
+
+-0.2
+
+0.15
+
+CP'
+0.2
+
+0.075
+
+slot
+location
+
+-6 -3 0
+
+0.75
+
+1
+
+1.25
+
+1.5
+
+x/c
+
+Figure 8. The effect of Reynolds number on surface pressures
+including the test case Reynolds number.
+
+9 12 15 18 21 24 27 30 33 36
+
+0.05
+0
+0.6
+
+0
+0.5
+
+6
+
+0.1
+
+reattachment
+location
+
+0.6
+
+3
+
+0.15
+
+y/c
+
+CP
+
+0.8
+
+1
+
+1.2
+
+x/c
+
+1.4
+
+Figure 11. The superposition of four blocks of 2-D PIV Ucomponent data, from upstream of separation to downstream of the
+reattachment region for the baseline case (in m/s).
+
+0.3
+
+-1
+Re=929,000; M=0.10
+
+: test case
+
+Re=2,400,000, M=0.25 (Ref. 6)
+
+-1
+
+Re=16,000,000, M=0.25 (Ref. 6)
+
+0.225
+
+-0.6
+
+-0.75
+leading-edge spanwise ports
+
+CP
+0.15
+
+-0.2
+
+CP
+
+-0.5
+trailing-edge spanwise ports
+
+CP'
+
+-0.25
+Re=371,600; M=0.04
+
+0.075
+
+0.2
+
+Re=557,400; M=0.06
+
+0
+
+slot location
+
+Re=743,200; M=0.08
+Re=929,000; M=0.10
+
+0.25
+0.6
+-0.5
+
+Re=1,114,800; M=0.12
+
+0
+-0.25
+
+0
+
+0.25
+
+0.5
+
+0.75
+
+x/c
+
+1
+
+1.25
+
+1.5
+
+Figure 9. A comparison of the test case surface pressure with
+that of ref. 6 at high Reynolds numbers.
+
+0.5
+-0.5
+
+-0.25
+
+0
+
+0.25
+
+0.5
+
+z/span
+
+Figure 12. Spanwise pressure uniformity on the fore body
+(x/c=0.19) and in the separated region on the ramp (x/c=0.86).
+
+13
+American Institute of Aeronautics and Astronautics
+
+(a) Baseline: x/c=1.0
+
+y/s
+
+0.05
+
+12
+
+22
+
+20
+
+16
+
+26
+18
+
+14
+
+10
+
+12
+8
+
+6
+
+10
+
+8
+
+-0.1
+
+-0.05
+
+0
+
+0.05
+
+z/s
+
+0
+
+0.1
+
+-0.1
+
+10
+
+14
+
+26
+
+24
+
+22
+
+20
+
+0.05
+
+8
+
+6
+4
+
+2
+-4
+
+20
+
+16
+
+12
+
+-4
+
+0
+
+18
+
+28
+
+26
+
+24
+
+22
+
+14
+
+0
+
+-2
+
+24
+20
+
+0.05
+
+6
+
+4
+
+2
+
+0
+
+16
+
+26
+
+20
+
+18
+
+16
+
+y/s
+
+18
+
+30
+
+30
+28
+
+30
+
+28
+
+26
+
+y/s
+
+24
+
+(c) Baseline: x/c=1.2
+
+(b) Baseline: x/c=1.1
+
+30
+
+16
+
+14
+
+12
+
+12
+10
+8
+
+2
+
+-0.05
+
+0
+
+z/s
+
+0.05
+
+0.1
+
+8
+6
+
+0
+
+-0.1
+
+-0.05
+
+0
+
+0.05
+
+z/s
+
+0.1
+
+y (mm)
+
+Figure 13. 3-D PIV measurements of streamwise velocity U acquired (a) upstream of reattachment, (b)
+approximately at reattachment, and (c) downstream of reattachment.
+
+60
+
+(a) Baseline: x/c = 1.0
+
+(b) Baseline: x/c = 1.1
+
+(c) Baseline: x/c = 1.2
+
+50
+
+2-D PIV
+Stereo PIV
+
+2-D PIV
+Stereo PIV
+
+2-D PIV
+Stereo PIV
+
+40
+30
+
+U
+
+V
+
+U
+
+V
+
+(d) Baseline: x/c = 1.3
+2-D PIV
+Stereo PIV
+
+U
+
+V
+
+U
+
+V
+
+20
+10
+0
+
+0
+
+10
+
+30
+
+0
+
+10
+
+40
+vv
+
+uv
+
+20
+
+30
+
+40
+
+0
+
+10
+
+20
+
+30
+
+uu
+vv
+
+uv
+
+10
+
+20
+
+30
+
+2-D PIV
+Stereo PIV
+
+vv
+
+uv
+
+uv
+
+40
+
+(h) Baseline: x/c = 1.3
+
+uu
+
+vv
+
+20
+
+0
+
+2-D PIV
+Stereo PIV
+
+2-D PIV
+Stereo PIV
+
+uu
+
+40
+
+(g) Baseline: x/c = 1.2
+
+( f ) Baseline: x/c = 1.1
+
+2-D PIV
+Stereo PIV
+
+50
+
+30
+
+40
+
+(e) Baseline: x/c = 1.0
+
+60
+
+y (mm)
+
+20
+
+uu
+
+10
+0
+
+50
+
+0
+
+50
+
+0
+
+50
+
+0
+
+50
+
+Figure 14. A comparison of 2-D and span-averaged 3-D velocity and turbulence profiles in vicinity of reattachment
+for the baseline case.
+
+reattachment line
+x/c=1.11
+x/c=1.0
+
+x/c=1.1
+
+x/c=1.2
+
+Figure 15. Oil-film flow visualization over one half of the model span (–0.5<z/s<0) near the reattachment
+location for the baseline case.
+
+14
+American Institute of Aeronautics and Astronautics
+
+-1.5
+Baseline
+Cµ=0.0296%, Cm=0.0527%
+Cµ=0.0755%, Cm=0.0841%
+
+-1
+
+Re=929,000, M=0.1
+
+Cµ=0.241%, Cm=0.150%
+
+0.2
+-6 -3 0
+
+Cµ=0.473%, Cm=0.210%
+
+CP
+
+3
+
+6
+
+9 12 15 18 21 24 27 30 33 36
+
+0.15
+
+y/c
+
+Cµ=0.726%, Cm=0.261%
+-0.5
+
+0.1
+
+0.05
+0
+0.6
+
+0
+
+0.5
+0.5
+
+0.8
+
+1
+
+1.2
+
+x/c
+
+1.4
+
+Figure 19. The superposition of four blocks of 2-D PIV Ucomponent data, from upstream of separation to downstream
+of the reattachment region for the controlled case (in m/s).
+
+Slot
+
+0.75
+
+1
+
+1.25
+
+x/c
+
+1.5
+
+Figure 16. The effect of increasing separation control via steady
+suction from the two-dimensional slot, including the control test
+case.
+-1.5
+0.4
+
+-1
+
+Baseline
+Cµ=0.0296%, Cm=0.0527%
+
+Re=557,400, M=0.06, Cµ=0.254%
+Re=743,200, M=0.08, Cµ=0.242%
+0.3
+
+Re=929,000, M=0.1
+
+Cµ=0.241%, Cm=0.150%
+Cµ=0.473%, Cm=0.210%
+
+CP
+
+Re=1,114,800, M=0.12, Cµ=0.248%
+
+CP
+
+Cµ=0.0755%, Cm=0.0841%
+
+-1
+
+Re=929,000, M=0.10, Cµ=0.241% :Test Case
+
+-0.6
+
+Cµ=0.726%, Cm=0.261%
+
+Re=16,000,000, M=0.25, Cµ=0.242% (Ref. 6)
+
+-0.5
+0.2
+
+-0.2
+
+CP'
+0
+0.1
+
+0.2
+Reattachment
+region
+
+Slot location
+
+0.5
+-0.5
+
+0
+
+0.6
+0.6
+
+0.8
+
+1
+
+1.2
+
+x/c
+
+-0.25
+
+0
+
+1.4
+
+z/span
+
+0.25
+
+0.5
+
+Figure 20. The effect of increasing suction control on
+spanwise pressures on the ramp at x/c=0.86.
+
+Figure 17. The effect of Reynolds number on control via
+steady suction at the test condition for the present setup as
+well as that of ref. 6.
+0.4
+
+-1
+Re=557,400, M=0.06, Cµ=0.462%
+
+0.15
+
+Baseline
+Cµ=0.0296%, Cm=0.0527%
+Cµ=0.0755%, Cm=0.0841%
+Cµ=0.241%, Cm=0.150%
+Cµ=0.473%, Cm=0.210%
+Cµ=0.726%, Cm=0.261%
+
+Re=743,200, M=0.08, Cµ=0.463%
+Re=929,000, M=0.10, Cµ=0.473%
+
+-0.6
+
+0.3
+
+0.12
+
+Re=1,114,800, M=0.12, Cµ=0.455%
+Re=16,000,000, M=0.25, Cµ=0.456% (Ref. 6)
+
+CP
+
+C'P
+
+0.5
+
+Re=929,000, M=0.1
+
+0.4
+
+0.09
+
+0.3
+
+0.06
+
+0.2
+
+0.2
+
+-0.2
+
+C
+0.1
+
+0.2
+
+0.1
+
+0.03
+Slot
+
+Spanwise pressure-tap layout
+
+Slot location
+
+0
+
+0
+
+0
+
+0.6
+0.6
+
+z/span
+
+0.8
+
+1
+
+x/c
+
+1.2
+
+0.5
+
+0.75
+
+1.25
+
+1.5
+
+x/c
+
+1.4
+
+Figure 18. The effect of Reynolds number on control via
+steady suction at a greater suction rate than the test condition
+for the present setup as well as that of ref. 6.
+
+1
+
+Figure 21. The effect of increasing suction control on the
+rms pressures in the reattachment region.
+
+15
+American Institute of Aeronautics and Astronautics
+
+22
+
+18
+
+20
+
+y/s
+
+16
+
+6
+
+16
+
+14
+
+12
+
+10
+
+6
+
+4
+2
+
+-0.05
+
+0.05
+
+4
+6
+12
+82
+
+10
+
+8
+
+-0.1
+
+18
+
+4
+
+0.05
+
+z/s
+
+0.1
+
+24
+
+22
+
+-0.1
+
+0.05
+16
+
+14
+
+0
+
+26
+24
+22
+
+20
+
+18
+
+16
+
+6
+
+30
+
+28
+26
+
+20
+
+8
+
+(c) Cµ=0.241%: x/c=1.1
+
+30
+
+28
+
+24
+
+10
+
+2
+
+0
+
+20
+12
+18
+28
+
+30
+
+26
+
+y/s
+
+0.05
+
+28
+2216 20
+24
+14
+10
+
+endplate frame
+optical blockage
+
+24
+
+0
+
+(b) Cµ=0.241%: x/c=1.0
+
+18
+
+30
+28
+26
+
+y/s
+
+(a) Cµ=0.241%: x/c=0.95
+
+30
+16
+610
+26
+
+8
+
+0
+
+0.05
+
+z/s
+
+18
+16
+
+14
+
+6
+
+4
+
+-0.05
+
+20
+18
+
+12
+10
+
+0
+
+0.1
+
+8
+
+-0.1
+
+16
+
+1214
+10
+
+-0.05
+
+0
+
+8
+6
+
+z/s
+
+0.05
+
+y (mm)
+
+Figure 22. 3-D PIV measurements of streamwise velocity U acquired near reattachment for the controlled case.
+
+60
+
+(a) Cµ=0.241%: x/c = 1.0
+
+(b) Cµ=0.241%: x/c = 1.1
+
+(c) Cµ=0.241%: x/c = 1.2
+
+(d) Cµ=0.241%: x/c=1.3
+
+50
+
+2-D PIV
+Stereo PIV
+
+2-D PIV
+Stereo PIV
+
+2-D PIV
+Stereo PIV
+
+2-D PIV
+Stereo PIV
+
+40
+30
+
+U
+
+V
+
+V
+
+V
+
+U
+
+V
+
+U
+
+U
+
+20
+10
+0
+
+0
+
+10
+
+40
+
+0
+
+10
+
+20
+
+uv
+
+30
+
+uu
+
+vv
+
+30
+
+40
+
+0
+
+10
+
+20
+
+30
+
+40
+
+0
+
+10
+
+2-D PIV
+Stereo PIV
+
+20
+
+30
+
+40
+
+(h) Cµ=0.241%: x/c = 1.3
+
+(g) Cµ=0.241%: x/c = 1.2
+
+(f) Cµ=0.241%: x/c = 1.1
+
+2-D PIV
+Stereo PIV
+
+50
+y (mm)
+
+30
+
+(e) Cµ=0.241%: x/c = 1.0
+
+60
+
+40
+
+20
+
+2-D PIV
+Stereo PIV
+
+2-D PIV
+Stereo PIV
+
+uu
+
+uv
+
+uu
+
+uv
+
+vv
+
+vv
+
+20
+
+uv
+
+vv
+
+uu
+
+10
+0
+
+50
+
+0
+
+50
+
+0
+
+50
+
+0
+
+50
+
+Figure 23. A comparison of 2-D and span-averaged 3-D velocity and turbulence profiles in vicinity of reattachment
+for the controlled case.
+
+reattachment Location
+x/c=0.94±0.005
+x/c=0.85
+
+x/c=1.0
+Figure 24. Oil-film flow visualization over one half of the model span (–0.5<z/s<0) near the reattachment location for the
+controlled case.
+
+16
+American Institute of Aeronautics and Astronautics
+
+-1
+
+-1.5
+
+0.4
+
+-1.3
+
+Baseline
+Cµ=0.254%
+
+C'P
+-0.2
+
+Cµ=0.254%
+
+CP
+
+0.3
+
+Cµ=2.587%
+
+CP
+
+Baseline
+
+-1.1
+
+Cµ=0.719%
+
+-0.6
+
+0.2
+
+-0.9
+
+Cµ=0.719%
+
+-0.7
+
+Cµ=2.587%
+
+-0.5
+-0.3
+
+0.2
+
+0.1
+Slot
+
+0.1
+
+0.6
+
+0
+0.5
+
+-0.1
+
+0.7
+
+0.9
+
+1.1
+
+1.3
+
+0.3
+-0.5
+
+Figure 25a. Bubble pressure distributions for high Cµ.
+
+-0.25
+
+0
+
+0.25
+
+0.5
+
+z/span
+
+x/c
+
+Figure 25b. Spanwise bubble pressure distributions for
+high Cµ.
+
+Symbols: Ref. 10
+Lines:
+PIV data
+
+Figure A1. Comparison of PIV turbulence statistics
+with the data of Klebanoff.10
+
+17
+American Institute of Aeronautics and Astronautics
+
+

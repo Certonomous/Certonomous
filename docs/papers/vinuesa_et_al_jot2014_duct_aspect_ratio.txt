@@ -1,0 +1,1300 @@
+This article was downloaded by: [ETH Zurich]
+On: 08 September 2014, At: 00:48
+Publisher: Taylor & Francis
+Informa Ltd Registered in England and Wales Registered Number: 1072954 Registered
+office: Mortimer House, 37-41 Mortimer Street, London W1T 3JH, UK
+
+Journal of Turbulence
+Publication details, including instructions for authors and
+subscription information:
+http://www.tandfonline.com/loi/tjot20
+
+Aspect ratio effects in turbulent duct
+flows studied through direct numerical
+simulation
+a
+
+b
+
+c
+
+Ricardo Vinuesa , Azad Noorani , Adrián Lozano-Durán , George K.
+b
+
+b
+
+d
+
+El Khoury , Philipp Schlatter , Paul F. Fischer & Hassan M. Nagib
+
+a
+
+a
+
+MMAE Department, Illinois Institute of Technology, Chicago, IL,
+USA
+b
+
+Linné FLOW Centre, KTH Mechanics, Stockholm, Sweden
+
+c
+
+School of Aeronautics, Universidad Politécnica de Madrid,
+Madrid, Spain
+d
+
+MCS, Argonne National Laboratory, Argonne, IL, USA
+Published online: 25 Jul 2014.
+
+To cite this article: Ricardo Vinuesa, Azad Noorani, Adrián Lozano-Durán, George K. El Khoury,
+Philipp Schlatter, Paul F. Fischer & Hassan M. Nagib (2014) Aspect ratio effects in turbulent duct
+flows studied through direct numerical simulation, Journal of Turbulence, 15:10, 677-706, DOI:
+10.1080/14685248.2014.925623
+To link to this article: http://dx.doi.org/10.1080/14685248.2014.925623
+
+PLEASE SCROLL DOWN FOR ARTICLE
+Taylor & Francis makes every effort to ensure the accuracy of all the information (the
+“Content”) contained in the publications on our platform. However, Taylor & Francis,
+our agents, and our licensors make no representations or warranties whatsoever as to
+the accuracy, completeness, or suitability for any purpose of the Content. Any opinions
+and views expressed in this publication are the opinions and views of the authors,
+and are not the views of or endorsed by Taylor & Francis. The accuracy of the Content
+should not be relied upon and should be independently verified with primary sources
+of information. Taylor and Francis shall not be liable for any losses, actions, claims,
+proceedings, demands, costs, expenses, damages, and other liabilities whatsoever
+or howsoever caused arising directly or indirectly in connection with, in relation to or
+arising out of the use of the Content.
+This article may be used for research, teaching, and private study purposes. Any
+substantial or systematic reproduction, redistribution, reselling, loan, sub-licensing,
+systematic supply, or distribution in any form to anyone is expressly forbidden. Terms &
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Conditions of access and use can be found at http://www.tandfonline.com/page/termsand-conditions
+
+Journal of Turbulence, 2014
+Vol. 15, No. 10, 677–706, http://dx.doi.org/10.1080/14685248.2014.925623
+
+Aspect ratio effects in turbulent duct flows studied through direct
+numerical simulation
+Ricardo Vinuesaa∗ , Azad Nooranib , Adrián Lozano-Duránc , George K. El Khouryb ,
+Philipp Schlatterb , Paul F. Fischerd and Hassan M. Nagiba
+a
+
+MMAE Department, Illinois Institute of Technology, Chicago, IL, USA; b Linné FLOW Centre, KTH
+Mechanics, Stockholm, Sweden; c School of Aeronautics, Universidad Politécnica de Madrid,
+Madrid, Spain; d MCS, Argonne National Laboratory, Argonne, IL, USA
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+(Received 24 December 2013; accepted 11 May 2014)
+Three-dimensional effects in turbulent duct flows, i.e., sidewall boundary layers and
+secondary motions, are studied by means of direct numerical simulation (DNS). The
+spectral element code Nek5000 is used to compute turbulent duct flows with aspect
+ratios 1–7 (at Reb, c = 2800, Reτ , c ≃ 180) and aspect ratio 1 (at Reb, c = 5600,
+Reτ , c ≃ 330), in streamwise-periodic boxes of length 25h. The total number of grid
+points ranges from 28 to 145 million, and the pressure gradient is adjusted iteratively in
+order to keep the same bulk Reynolds number in the centreplane with changing aspect
+ratio. Turbulence is initiated via a trip forcing active during the initial stages of the
+simulation, and the statistical convergence of the data is discussed both in terms of
+transient approach and averaging period. Spanwise variations in wall shear, mean-flow
+profiles, and turbulence statistics are analysed as a function of aspect ratio, and also
+compared with the spanwise-periodic channel (as idealisation of an infinite aspect ratio
+duct). The computations show good agreement with experimental measurements carried
+out in parallel at the Illinois Institute of Technology (IIT) in Chicago, and highlight the
+relevance of sidewall boundary layers and secondary vortices in the physics of the duct
+flow. The rich array of secondary vortices extending throughout the upper and lower
+walls of the duct, and their dependence on Reynolds number and aspect ratio, had not
+been reported in the literature before.
+Keywords: wall turbulence; turbulent duct flow; direct numerical simulation; secondary
+motions; three-dimensional flows; secondary vortices/motions
+
+1. Introduction
+The flow of fluids in ducts with rectangular cross section is frequently encountered in a
+variety of environmental, technical and even biological applications. Typical engineering
+examples of duct flows can be found in urban drainage systems, ventilation systems and
+combustion engines. In addition, rectangular duct flows with different aspect ratios (ARs)
+(where AR = W/H is the ratio of the duct total width to its total height) serve as a
+great platform to study the impact of three-dimensional (3D) effects on flow properties
+which are relevant from a design perspective, such as wall shear, pressure drop, etc. Apart
+from a general description of turbulence developing in duct flow, one of the goals of
+the present study is to help elucidate the effect of a turbulent secondary flow (which,
+as defined by Prandtl [1], is a generic term used to denote the mean cross-flow field) in
+∗
+
+Corresponding author. Email: rvinuesa@hawk.iit.edu
+
+
+C 2014 Taylor & Francis
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+678
+
+R. Vinuesa et al.
+
+near-wall turbulence. In general, near-wall turbulent structures in wall-bounded shear flows
+primarily scale in terms of the so-called viscous length √
+scale ∗ = ν/uτ (where ν is the
+fluid kinematic viscosity, and the friction velocity uτ = τw /ρ is computed in terms the
+wall shear stress τ w and the fluid density ρ), which might be very small as the Reynolds
+number Re is increased. However, according to computational results by Jiménez [2] and
+several experimental studies by Kim and Adrian [3], Guala et al. [4] and Monty et al. [5],
+very large-scale motions with lengths from 5h to 20h are found in fully developed turbulent
+channel and pipe flows (h being the channel half-height or pipe radius). These structures,
+being the strongest in the outer region of the turbulent wall-bounded flow, extend throughout
+the overlap layer and even leave their footprint quite close to the wall. Thus, large-scale
+motions play an important role in the dynamics of turbulent duct flows.
+Two mechanisms present in the duct produce 3D effects in the mean flow: the boundary
+layers growing along the sidewalls of the duct, and the secondary motions produced at the
+duct corners. Despite the wide range of available direct numerical simulation (DNS) data
+for channel flows [6–8], all these simulations were carried out assuming periodicity of the
+domain in the streamwise (x) and spanwise (z) directions. Whereas the first assumption
+implies that the flow is fully developed in x, the second one leads to a homogeneous channel
+in z. As discussed by Vinuesa [9], the combination of the two previously mentioned effects
+(not captured by the z-periodic channel) leads to different skin friction predictions at the
+core of the duct, that do not agree with the periodic channel. In an experimental duct flow,
+the first 3D effect influencing the physics at the core is the growth of the boundary layers
+located at the sidewalls. Their growth leads to increased momentum in the core of the flow,
+which eventually increases the measured wall shear along the bottom plate. The other 3D
+effect present in the experimental duct is the secondary flow field in the y–z plane, normal
+to the streamwise direction x. According to Prandtl [1], there are two kinds of secondary
+flows: skew-induced (Prandtl’s first kind), and Reynolds-stress-induced (Prandtl’s second
+kind). Additional insight on the contributions from the two types of secondary motion can
+be gained by analysing the mean streamwise vorticity transport equation [10] (where the
+mean streamwise vorticity x is computed in our frame of reference as ∂W/∂y − ∂V/∂z):
+U
+
+
+ 2
+∂x
+∂x
+∂ x
+∂x
+∂ 2 x
+∂ 2 x
++V
++W
+=ν
++
++
+∂x
+∂y
+∂z
+∂x 2
+∂y 2
+∂z2
+
+ 2
+∂
+∂U
+∂U
+∂U
+∂2
+∂2
++ y
++ z
++
+(v 2 − w 2 ).
+− 2 (−vw) +
++ x
+2
+∂x
+∂y
+∂z
+∂y
+∂z
+∂y∂z
+
+(1)
+
+The terms on the left-hand side of Equation (1) and the first three terms on the right-hand
+side correspond to mean flow convection and viscous diffusion of streamwise vorticity,
+respectively. Then, the terms on the second line are associated with the secondary flow,
+where the first three terms produce secondary motions of the first kind and the rest are
+responsible for the ones of the second kind, which are the focus of this study. More
+precisely, the vortex stretching and tilting produced by the mean velocity gradient which
+lead to the first kind of secondary motion in curved geometries are not present in the fully
+developed straight duct flows discussed here. Thus, secondary vortices of the second kind
+are produced by the deviatoric Reynolds shear stress vw and the cross-stream Reynolds
+stress difference v 2 − w 2 . It is important to note that the secondary flows of the second kind,
+unlike those of the first kind, are entirely due to turbulence, and are absent in laminar flows.
+As can be observed in Figure 1(a), the secondary motions in a square duct consist of eight
+streamwise vortices, two counter-rotating in each corner, with the flow directed towards
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Journal of Turbulence
+
+679
+
+Figure 1. (a) Contour lines of the primary mean flow U, and vectors of the secondary mean flow V
+and W for a DNS at a Reynolds number based on bulk velocity Reb = 1205 (this figure corresponds
+to Figure 3 in Uhlmann et al. [11]). (b) Sketch of the mean flow U in the corner region of a straight
+duct (this figure corresponds to Figure 1 in Gessner [12]).
+
+the corners along the bisectors. Although this kind of secondary flow is relatively weak
+(about 2%–3% of the bulk velocity [13], as opposed to up to 10% or more for skew-induced
+secondary flow), its effect on the mean velocity distribution is important. Gessner and Jones
+[14] and Gessner [12] studied the interaction between secondary flows, streamwise mean
+velocity and turbulent velocity fluctuations by means of low-AR duct flow experiments. This
+interaction is sketched in (b), which shows how the secondary flow modifies the primary
+mean flow by comparing the laminar and turbulent cases. As postulated by Prandtl [15],
+the secondary motions convect mean velocity from regions of large shear (along the walls)
+towards regions of low shear (along the corner bisectors). This reduced mean velocity near
+the wall actually leads to a reduced wall shear stress value. Therefore, the two competing
+mechanisms have opposite effects on the flow: the sidewall boundary layers increase the
+wall shear at the centre of the duct (through acceleration of the core), and the secondary
+motions reduce it due to the transport of mean velocity from the centre towards the corner
+bisectors.
+As mentioned above, rectangular duct flows allow us to study secondary motions in
+relatively simple geometries, although they are also present in even simpler geometries
+such as in the flow around convex or concave corners [10]. The study of secondary motions
+is of great importance because they are also present in more complicated configurations
+used in engineering applications, such as diffusers, turbine blades or wings, but their
+actual impact on flow physics is largely unknown. In fact, industrial computations of these
+flows are mainly based on Reynolds-averaged Navier–Stokes (RANS) models, which fail
+to accurately predict secondary motions either because they assume an overly simplified
+anisotropy of the Reynolds stress tensor (models based on the Boussinesq eddy viscosity
+assumption) or due to the empirical approximations used in the models of the Reynolds
+stresses (stress transport models). Therefore, another important goal of the present project
+is to understand the influence of 3D effects on near-wall turbulence, in order to provide
+engineers and model developers accurate information to improve currently available RANS
+models [16]. An interesting study by Spalart [17] shows the potential of improving RANS
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+680
+
+R. Vinuesa et al.
+
+models through deeper understanding of the flow physics: he used a constitutive relation for
+the Reynolds stress tensor different from Boussinesq’s, which essentially considered a more
+accurate anisotropy of the Reynolds stresses. Not only he was able to reproduce secondary
+motions in a square duct flow, but also he obtained significantly improved agreement
+with experimental skin friction distributions compared with the Boussinesq-based RANS
+computations.
+Although the oil film interferometry measurements by Vinuesa [9] show a relationship
+between skin friction and AR, it is difficult to independently analyse the two factors
+responsible for this effect due to experimental limitations. Numerical simulations are, in
+principle, able to provide data accessible at any point of the domain, without the constraints
+of probe size and experimental design. Therefore, we carried out DNSs of turbulent duct
+flows at moderate Reynolds numbers with several AR configurations (as described in
+Section 2), with the aim of assessing the respective contributions from both 3D effects. In
+addition to achieving a better understanding of the mechanisms leading to the change in
+skin friction with AR, the proposed simulations substantially enrich the currently limited
+database of turbulent duct flows available in the literature. Most numerical studies are
+focused on the square duct, such as the DNSs by Raisei et al. [18] up to Reτ = 600,
+Uhlmann et al. [11] and Pinelli et al. [19] at Reτ values up to 300, Huser and Biringen [13]
+at Reτ = 300 and Gavrilakis [20] at Reτ = 150 (note that the friction Reynolds number
+is defined as Reτ = huτ /ν). Large eddy simulations (LESs) of the square duct case were
+performed by Madabhushi and Vanka [21] at Reτ = 180 and by Breuer and Rodi [22] at
+Reτ = 150. Breuer and Rodi also performed an LES of a higher Reynolds number square
+duct (Reb = 56, 690, based on duct hydraulic diameter and bulk velocity, more than 10
+times higher than the Reb = 4410 of their low-Re case), although they found significant
+disagreement with experimental data. Even fewer studies on rectangular ducts can be found
+in the literature, where the AR = 3.33 duct flow at Reτ ≃ 300 computed by Ohlsson et al.
+[23] as part of their DNS of a 3D diffuser and the LESs of Choi and Park [24] at Reτ ≃
+150 in an AR range from 1 to 4 are the most relevant. It is important to note that most of
+these simulations were performed in short computational boxes, on the order of one-fourth
+the length considered in the present study.
+
+2. Description of the numerical simulations
+The present computational study of turbulent duct flows was carried out by performing
+DNSs. This approach is based on directly computing all the spatial and temporal scales of
+the turbulent flow. Since the size of the smallest scales increases with the distance from the
+wall, the computational mesh needs to be adapted to account for this inhomogeneity. Thus,
+the grid spacing has to be very fine close to the wall and it is progressively coarsened as
+the core is approached, roughly following the evolution of the Kolmogorov scale. Another
+requirement for reliable DNSs is the use of a numerical discretisation which allows for
+an accurate representation of all scales. Thus, high-order numerical methods are required.
+These requirements were taken into account when designing the computational set-up.
+The computations considered in the present study were carried out on the Cray XE6
+machine ‘Lindgren’ at the PDC Center for Parallel Computers at KTH in Stockholm
+(Sweden), the Blue Gene/P machine ‘Intrepid’ at the ALCF from Argonne National
+Laboratory in Chicago (USA) and the Cray XT5 machine ‘Louhi’ at the CSCIT Center
+for Science in Espoo (Finland). They required from 2048 to 16,384 cores, and a messagepassing interface (MPI) was employed for parallelisation.
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Journal of Turbulence
+
+681
+
+2.1. Numerical algorithm
+The code Nek5000, developed by Fischer et al. [25] at the Argonne National Laboratory (nek5000.mcs.anl.gov), and based on the spectral element method (SEM) originally
+proposed by Patera [26], was used in this project. In this code, the incompressible Navier–
+Stokes equations are cast in weak form, so they are multiplied by a test function and
+integrated over the domain. The spatial discretisation is done by means of the Galerkin
+approximation, following the PN − PN−2 formulation by Maday and Patera [27], where the
+pressure is associated with polynomials two degrees lower than the velocity. The velocity
+space is of Nth-order Lagrange polynomial interpolants hN
+i (x), based on tensor-product
+arrays of Gauss–Lobatto–Legendre (GLL) quadrature points on each local element e ,
+e = 1, . . ., E. If jN ∈ [−1, 1] denotes one of the (N + 1) GLL quadrature points and δ ij is
+N
+the Kronecker delta, the condition hN
+i (εj ) = δij is satisfied. Thus, the 3D velocity vector is
+interpolated within a spectral element by means of three Lagrange polynomials of order N.
+The tensor-product structure allows the use of several optimised routines for matrix
+operations (developed by Fischer [28]) to solve the final system of equations. The nonlinear
+terms are treated explicitly by third-order extrapolation (EXT3), whereas the viscous terms
+are treated implicitly by a third-order backward differentiation scheme (BDF3) leading to
+a linear symmetric Stokes system for the basis coefficient vectors un and pn to be solved
+at every time step: Hun − DT pn = Bf n , Dun = 0. To solve the final problem, velocity
+and pressure are decoupled and solved iteratively using conjugate gradients and the
+generalized minimal residual (GMRES) method with scalable Jacobi and additive Schwarz
+preconditioners, respectively. For the latter, fast parallel coarse-grid solvers scaling up to
+hundreds of thousands of processors are used [29,30]. Nek5000 is written in Fortran77/C
+and employs MPI for parallelism. As part of this project, new capabilities have been added
+to Nek5000, in particular with regards to the computation of the complete turbulence
+statistics and data storage. Furthermore, this code has already been widely validated for its
+use in DNSs of wall-bounded turbulent flows, for example, in the pipe flow computations
+up to Reτ = 1000 carried out by El Khoury et al. [31] and the curved pipe flow by Noorani
+et al. [32], employing a similar structure of the turbulence statistics. For all runs in the
+current campaign, full Reynolds-stress budgets are computed and stored, and an in-depth
+analysis of these will be presented in future publications.
+
+2.2. Duct flow cases
+All the DNSs of turbulent duct flows were carried out in computational boxes of streamwise
+length Lx = 25h (where h is the duct half-height), which are long enough to capture the
+longest streamwise turbulent structures according to experimental measurements in pipe
+flow (Guala et al. [4]) and DNSs of turbulent channel flows (Jiménez and Hoyas [33]). The
+same length (in outer units) was also used for the complementary DNSs of straight [31]
+and curved [32] pipe flows. Periodicity is imposed in the streamwise direction, which leads
+to fully developed flow. Therefore, spectral elements were distributed uniformly along x,
++
+< 10 (where the superindex ‘+’ is used to
+and their spacing was chosen so that xmax
+denote scaling with the length and velocity scales ∗ and uτ ). The wall-normal length was
+Ly = 2h in all the cases, whereas the spanwise length Lz was set to yield the different ARs
+under consideration. The mesh in the non-homogeneous directions (y and z) was designed
++
+was below five wall units, and we have at least four
+so that the maximum spacing ymax
++
+grid points below y = 1. In these two directions, the spectral elements were located
+according to the Gauss–Lobatto–Chebyshev distribution close to the wall, and using a
+
+682
+
+R. Vinuesa et al.
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Table 1. Summary of turbulent duct flow cases computed in the present study. Averaging
+periods are also expressed in flow-through times, TA Ub /Lx , to allow comparison with other
+computational studies in the literature.
+AR
+
+Reτ , c
+
+Reb
+
+Reb, c
+
+Grid points
+
+ETT∗S
+
+ETT∗A
+
+TA Ub /Lx
+
+ε
+
+1
+3
+5
+7
+1
+
+178
+178
+176
+177
+323
+
+2500
+2581
+2592
+2575
+5086
+
+2796
+2786
+2775
+2747
+5605
+
+28 million
+62 million
+96 million
+130 million
+145 million
+
+30
+58
+28
+28
+26
+
+1750
+1100
+280
+630
+112
+
+237
+154
+40
+88
+17
+
+1.08 × 10−3
+1.79 × 10−4
+3.46 × 10−4
+3.07 × 10−4
+8.87 × 10−4
+
+uniform distribution in the core region. Those two distributions were blended respecting
+the two previous restrictions and not exceeding the growth of the Kolmogorov scale.
+Another aspect of this computational campaign was to study in detail the dependence
+of the centreplane duct conditions on the AR, and to contrast experimental and numerical
+results. In the experiment by Vinuesa [9], the centreline velocity Uc was kept constant for
+different ARs by using a proportional-integral-derivative (PID) controller which regulated
+the mass flow accordingly. Here, we replicated that approach through the following iterative
+process: in Nek5000, the pressure gradient is adjusted implicitly at each time step in order
+to obtain a fixed bulk velocity over the whole cross section Ub = 1. As an input to the
+simulation, one provides the bulk Reynolds number Reb = Ub h/ν, which can be interpreted
+as reflecting the kinematic viscosity ν since h is the length scale. However, the goal is
+not to fix the cross-sectional bulk velocity Ub , but the centreplane Reynolds number Reb, c
+instead. Therefore, we used preliminary runs to iteratively adjust the input Reb necessary
+for obtaining certain target centreplane Reynolds numbers; i.e., in our case 2800 and
+5600 (which, for channel flows, would correspond to Reτ ≃ 180 and 330, respectively).
+Then, the resulting Reb values were used on the final runs to obtain Reynolds number
+values at the centreplane as close as possible to the target. Therefore, variations in local
+friction (Uc+ = Uc /uτ and Reτ , c ) are uniquely due to AR effects. All the duct cases under
+consideration here are summarised in Table 1.
+Although the idea was to obtain Reb, c values of 2800 and 5600, Table 1 shows small
+deviations between the actual values in the computations and the expected ones (the highest
+discrepancy, 1.9%, is observed in the AR 7 case). This is due to the fact that several
+preliminary runs became necessary to tune the value of Reb with higher accuracy than 1%,
+and this increased the computational cost of the study excessively. However, it is possible to
+use the data in Table 1 to obtain empirical expressions for the Reb value required to obtain a
+particular Reb, c . Figure 2(a) shows, for all the AR cases, the Reb value necessary to obtain
+Reb, c = 2800. The uncorrected values are the ones shown in Table 1, which do not yield the
+exact target Reb, c , and the corrected ones were obtained as Reb, corr = 2800 Reb, orig /Reb, c .
+The best fit to the corrected data leads to the following empirical equation that can be used
+to obtain the necessary input Reb to yield Reb, c = 2800 with a particular AR:
+Reb = −293 AR−0.29 + 2800.
+
+(2)
+
+Note that the asymptotic condition Reb → 2800 as AR → ∞ was used to determine the
+best fit. A similar procedure was followed with the two square duct cases at two different
+Reynolds numbers as shown in Figure 2(b): both original and uncorrected Reb values used
+to achieve Reb, c = 2800 and 5600 are shown, and the following empirical formula is
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Journal of Turbulence
+
+683
+
+Figure 2. Original and corrected input Reb values used to obtain (a) Reb, c = 2800 in terms of the
+duct aspect ratio and (b) Reb, c = 2800 and 5600 for a square duct flow.
+
+obtained:
+Reb = 0.905 Reb,c .
+
+(3)
+
+In this case, we enforced the condition Reb → 0 as Reb, c → 0. Note that Equations (2)
+and (3) are obtained from the limited amount of cases available at this point, and further
+refinements with additional Reynolds number and AR cases are required for more accurate
+expressions.
+The initial profile was a laminar duct flow expansion [34] with a wall-normal volume
+force tripping (active only during the initial stage of the runs) analogous to the one used
+in the spatially developing boundary layer simulation by Schlatter and Örlu [35]. One of
+the reasons to use the tripping proposed by Schlatter and Örlu [35] instead of, for instance,
+high-frequency random noise is the fact that using the latter with ARs of 3 and larger, at
+Reb, c ≃ 2800, leads to relaminarisation of the flow. In the square duct case, the interaction
+between secondary motions, sidewall boundary layers and centreplane flow is very strong;
+therefore, even if the initial Gaussian disturbance becomes progressively attenuated, the
+flow is already unstable enough to sustain turbulence. However, this is not the case for
+larger ARs, possibly due to the less significant impact of the secondary motions at the core.
+The random volume force tripping considered here consists of a spanwise line disturbance
+
+R. Vinuesa et al.
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+684
+
+Figure 3. Front view (at x/h = 22) of turbulent field from the aspect ratio 3 case with
+Reτ , c ≃ 180. Visualisations at 4, 16, 32, 52 and 100 convective time units from the beginning
+of the simulation, ordered from top to bottom. Streamwise velocity is plotted in all the panels, with
+dark blue representing zero velocity and dark red representing the maximum velocity for each plot.
+
+with amplitude, spanwise length scale and temporal frequency depending on the particular
+cases. This disturbance is located at a streamwise distance of around x = 12h measured
+from the inlet, and emulates experimental tripping conditions. The turbulent field of the
+AR = 3 case with Reb, c ≃ 2800, at convective times of 4, 16, 32, 52 and 100 (where time
+non-dimensionalisation is done in terms of bulk velocity Ub and duct half-height h), is
+shown in Figures 3–5. Note that in all the simulations, fifth-order elements were considered
+through the initial stage of 0–50 convective time units when the trip forcing was active. This
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Journal of Turbulence
+
+685
+
+Figure 4. Top view (at y/h = + 0.5) of turbulent field from the aspect ratio 3 case with Reτ , c ≃ 180.
+Visualisations at 4, 16, 32, 52 and 100 convective time units from the beginning of the simulation,
+ordered from left to right. Streamwise velocity is plotted in all the panels, with dark blue representing
+zero velocity and dark red representing the maximum velocity for each plot. Arrow indicates flow
+direction.
+
+Figure 5. Side view (at z/h = + 2) of turbulent field from the aspect ratio 3 case with Reτ , c ≃
+180. Visualisations at 4, 16, 32, 52 and 100 convective time units from the beginning of the simulation,
+ordered from top to bottom. Streamwise velocity is plotted in all the panels, with dark blue representing
+zero velocity and dark red representing the maximum velocity for each plot. Arrow indicates flow
+direction.
+
+686
+
+R. Vinuesa et al.
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Figure 6. Instantaneous visualisation of streamwise vorticity from the aspect ratio 3 case with
+Reτ , c ≃ 180, extracted at x/h = 10. Pseudo-colours plotted in the range (− 5, 5), with dark blue
+denoting minimum and dark red maximum values.
+
+polynomial order was increased to seven within the period of 50–100 convective time units.
+After this smooth transition where the actual flow is settled down in a turbulent state, and
+for the rest of the simulation, the final resolution (polynomial order N = 11) was applied. It
+is interesting to observe how the breakdown from the initial laminar profile extends to the
+whole field, eventually leading to a self-sustained turbulent process which does not require
+forcing anymore.
+An instantaneous visualisation of streamwise vorticity corresponding to the AR 3 case
+at Reτ , c ≃ 180 is shown in Figure 6, generated as an in-plane cross-sectional view at
+a streamwise distance x = 10h from the beginning of the computational domain. This
+figure clearly shows the complex nature of the turbulent flow observed in the duct, where
+small vortices are responsible for turbulent transport of momentum close to the walls, and
+larger energy-containing eddies are found closer to the central region. The spectral mesh
+considered in this simulation is also shown in one quadrant, with thicker lines representing
+spectral elements and thinner ones showing the location of the nodes. The continuity of
+streamwise contours across spectral elements shows the high quality of the mesh employed
+in these simulations, and the accuracy of the numerical set-up described here.
+Motivated by the necessity of well-converged statistics, Vinuesa et al. [36] developed
+a convergence criterion for wall-bounded turbulent flow simulations which is briefly described here. The idea is to identify what the starting time TS (required to avoid initial transients) and the minimum averaging period TA should be in order to obtain well-converged
+statistics. To this end, we generate a contour map with all the possible (TS , TA ) combinations
+obtained from our data, and define a convergence indicator, ε, that should asymptotically
+decay to 0 as statistical convergence is approached. The state of convergence for the statistics is defined in terms of the following momentum balance in the streamwise direction at
+the duct centreplane:
+−
+
+2 +
++
+2 +
+∂uv +
+∂P +
+−1 ∂ U
++ ∂U
+−1 ∂ U
++
+Re
+−
+−
+V
++
+Re
+= 0.
+∂x +
+∂y +2
+∂y +
+∂y +
+∂z+2
+
+(4)
+
+Note that, unlike channel flows, the duct does not exhibit a linear total shear stress distribution. This is because the two last terms in Equation (4) are zero for channel flows, which
+leads after integration to the linear profile. The approach considered here is, therefore, a
+generalisation of a criterion only valid for channel flows. A sample contour map for the AR
+5 case, with Reb, c ≃ 2800, is shown in Figure 7. According to this figure, a starting time
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Journal of Turbulence
+
+687
+
+TS of 100, and an averaging period TA = 1000 convective time units, lead to a convergence
+level of ε = 3.46 × 10−4 . The convergence indicator is defined as the L2 norm of the residual from Equation (4). In order to compare starting and averaging periods from different
+simulations, we define the normalised eddy turnover time ETT∗ , which accounts for the
+ratio between the box size and the one from the minimum log layer box discussed by Flores
+and Jiménez [37]. Normalised starting times and averaging periods, together with ε values
+from the various simulations, are also reported in Table 1.
+In order to further assess the convergence method described above, we computed
+instantaneous and accumulated Reb,c values corresponding to the AR 5 case at Reτ , c ≃ 180.
+Figure 8(a) shows the complete time history of Reb, c , where the decreasing trend found
+for TUb /h < 100 confirms the value TS = 100 obtained from Figure 7. After that point, an
+averaging period of TA = 1000 convective time units yields the average value Reb,c = 2775.
+This averaging period is sufficient to obtain converged statistics at the centreplane, as can
+be observed in the accumulated Reb, c curve shown in Figure 8(b): starting at TS = 100,
+progressively longer averaging periods lead to an accumulated Reb, c curve that eventually
+levels off at the final value of 2775. It is important to note that even if this criterion confirms
+the conclusions regarding convergence previously discussed, this method is not objective,
+in the sense that the converged state is not known a priori. On the other hand, Equation (4)
+is satisfied at the centreplane in a converged duct flow, and therefore, defines an objective
+convergence criterion.
+
+Figure 7. Contour plot of duct convergence indicator in logarithmic scale calculated in the
+xycentreplane, log10 (ε), versus starting times and averaging periods in convective time units. Data
+extracted from DNS of aspect ratio 5 duct flow carried out in the present study. Optimum conditions,
+TS = 100 and TA = 1000, indicated by (•).
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+688
+
+R. Vinuesa et al.
+
+Figure 8. (a) Instantaneous Reb, c time history for the aspect ratio 5 case computed at Reτ , c ≃ 180
+and (b) accumulated Reb, c in terms of the averaging period TA , considering TS = 100.
+
+The importance of establishing an appropriate convergence
+√criterion is highlighted in
+Figure 9, where we show the cross-flow velocity magnitude V 2 + W 2 from the AR 3
+case computed at Reτ , c ≃ 180, obtained by averaging over different intervals. Note that
+the flow exhibits very different features when averaging periods of 179, 357, 536 and 714
+normalised eddy turnover times ETT∗A (corresponding to 25, 50, 75 and 100 flow-through
+times) are considered. In addition to this consideration, the effect of applying the two
+possible symmetries in the flow (about the z = 0 and y = 0 planes) is also evaluated by
+Figure 9, leading to a much cleaner visualisation of the flow. Note that application of these
+symmetries effectively increases the record of averaged statistical data, which is equivalent
+to averaging for longer periods without applying any symmetry. However, using the two
+symmetries in the flow does not correspond to increasing the averaging period by a factor
+of 4 as one could expect since the flow in the four corners is not independent, especially
+the flow is highly correlated on the two left and the two right corners.
+3. Skin friction results at the duct centreplane
+The 3D effects present in the duct and absent in the canonical turbulent channel flow are
+responsible for two energy fluxes impacting the flow at the duct centreplane: first, the
+sidewall boundary layers accelerate the core of the duct, thus injecting energy towards the
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Journal of Turbulence
+
+689
+
+√
+Figure 9. Cross-flow velocity magnitude V 2 + W 2 from the aspect ratio 3 case computed at
+Reτ , c ≃ 180, obtained by averaging over periods of (from top to bottom) 179, 357, 536 and
+714 normalised eddy turnover times ETT∗A . No symmetries applied on the left, and the two symmetries
+of the flow have been applied on the right.
+
+centreplane, leading to higher wall shear in the mid-plane. Second, the secondary motions
+of Prandtl’s second kind convect mean velocity from the near-wall region towards the core
+of the duct, extracting energy from the centreplane to dissipate it at the corner bisectors,
+therefore, reducing wall shear. This is shown in Figure 10, which presents Uc+ = Uc /uτ
+obtained from the DNSs discussed here for the various AR cases, compared with reference
+channel flow data by del Álamo et al. [6] for the Reτ = 180 case, and computed by us using
+the fully spectral code Simson [38] for the Reτ = 330 case. The first important observation
+inferred from this figure is the fact that AR 3 exhibits higher skin friction than AR 1.
+However, AR 5 shows lower skin friction than 3, and the next case (AR = 7) shows a wall
+shear value slightly lower. The standard deviations shown in Figure 10 are computed as
+follows: after each run, we store 2D statistics of the flow (using the streamwise periodicity)
+averaged over a particular period. At the end, we obtain the mean statistics by averaging the
+files generated in this process, weighted by the corresponding averaging period of each file.
+The same procedure is followed to calculate the standard deviation, knowing the difference
+between each file and the mean, together with the corresponding
+averaging intervals.
+√
+Figures 11–14 show the cross-flow velocity magnitude V 2 + W 2 , the in-plane streamlines and the in-plane distribution of streamwise velocity for ARs 1, 3, 5 and 7, computed
+for Reτ , c ≃ 180. The streamlines show how in the AR 3 case the mean streamwise vortices
+along the top and bottom plates start to spread in the spanwise direction, leading to arrays
+of counter-rotating vortices spanning the width of the duct in the higher AR cases. As
+discussed by Vinuesa [9], these vortices (absent in the 2D channel) play an important role,
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+690
+
+R. Vinuesa et al.
+
+Figure 10. Inner-scaled centreline velocity Uc+ , extracted at the duct centreplane, as a function of
+aspect ratio for the DNSs of turbulent duct flow computed here, and reference channel flow DNSs by
+del Álamo et al. [6] (Reτ = 180), and computed by us as a part of this study using the fully spectral
+code Simson [38] (Reτ = 330). Standard deviations in the Uc+ values computed from the duct DNSs
+are also shown.
+
+together with the sidewall boundary layers, in determining the physics at the core of the duct
+which lead to the trends observed in Figure 10. The formation of the array of secondary
+vortices along the top and bottom walls has not been discussed in the literature before,
+although Monty, in his PhD work [39], conjectured about the existence of such an array of
+vortices.
+Figure 15 shows the cross-flow velocity magnitude and in-plane streamlines for the
+square duct case computed at Reτ , c ≃ 330. The size of the vortices and streamline patterns
+are similar to the ones computed at Reτ , c ≃ 180, although, as discussed by Vinuesa et al.
+[36], the secondary motions in the lower Reynolds number cases exhibit a more unsteady
+behaviour. This means that the evolution in time of mean flow properties at low Reynolds
+numbers reflects significant fluctuations, thus requiring longer averaging periods to obtain
+converged turbulent statistics.
+For increasing AR, the centre of the primary corner vortices moves from the sidewall
+towards the duct centreplane; at AR = 1, the position is at about z ≃ 0.5h away from the
+wall, whereas the same measure is as large as z ≃ 2h for AR = 7. Judging the changes
+from AR = 5 to AR = 7, it appears that this value has largely converged. However, as
+AR increases, the primary corner vortices also increase in width; i.e., in the z-direction. A
+second (broad) maximum can be seen in the stream function for AR = 7, located about
+z ≃ 3h away from the side wall; even this second peak appears to have converged for the
+higher AR cases. Depending on the case and also the choice of particular quadrant, one can
+
+691
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Journal of Turbulence
+
+√
+Figure 11. Cross-flow velocity magnitude V 2 + W 2 (left), contours of the stream function (centre)
+and streamwise velocity (right) for the AR = 1 duct case computed at Reτ , c ≃ 180. A measure for
+convergence is the difference between the four corners of the duct, as no averaging of these was
+performed.
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+692
+
+R. Vinuesa et al.
+
+√
+Figure 12. Cross-flow velocity magnitude V 2 + W 2 (top), contours of the stream function
+(middle) and streamwise velocity (bottom) for the AR = 3 duct case computed at Reτ , c ≃ 180.
+A measure for convergence is the difference between the four corners of the duct, as no averaging of
+these was performed.
+
+clearly see an array of the smaller and weaker vortices, that are all counter-rotating, and
+essentially fill the whole space from the side wall to the duct centreplane.
+Note that from our more recent experience, the convergence of these additional vortices
+is very difficult and requires enormous amounts of computer time, much larger than what
+is needed to acquire converged statistics of the flow, as discussed earlier. This clearly
+demonstrates that these vortices are consecutively getting weaker, and that their z-position
+is not exactly fixed over time, as opposed to the first one or two generations of corner
+vortices. In particular, the second point is clearly illustrated in the various streamline plots
+and manifests itself in the different appearance of the various quadrants. If averaging over
+the four quadrants is applied (which is only used in the right side of Figure 9 in this paper),
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Journal of Turbulence
+
+693
+
+√
+Figure 13. Cross-flow velocity magnitude V 2 + W 2 (top), contours of the stream function
+(middle) and streamwise velocity (bottom) for the AR = 5 duct case computed at Reτ , c ≃ 180.
+A measure for convergence is the difference between the four corners of the duct, as no averaging of
+these was performed.
+
+the vortices tend to get much weaker and even disappear. However, this is not an indication
+that the vortices would not exist and contribute to an increased mean redistribution of
+momentum, but rather that long averaging periods mask their presence due to their changing
+position. Therefore, future studies should use more advanced detection and conditional
+averaging schemes to develop a full characterisation of location, strength and lifetime of
+these vortices. It is also important to understand that streamwise periodic computations of
+such flows enhance the decay of these secondary flow vortices with increasing time of the
+computation. Such conditions are not reflected in experimental studies of nominally the
+same flow geometries, where at best a short downstream section of the facility represents
+fully developed conditions.
+
+4. Statistics, turbulent kinetic energy and coherent structures
+4.1. Mean statistics
+After discussing some of the most important features of the dynamics taking place in the
+duct, the basic turbulent statistics from our computations are compared with reference
+channel flow data (z-periodic). It is important to stress the fact that the local uτ has to
+be used in order to scale the velocity profile at any particular z location, as opposed to
+the common practice of using the uτ value averaged over the duct width. If one wants to
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+694
+
+R. Vinuesa et al.
+
+√
+Figure 14. Cross-flow velocity magnitude V 2 + W 2 (top), contours of the stream function
+(middle) and streamwise velocity (bottom) for the AR = 7 duct case computed at Reτ , c ≃ 180.
+A measure for convergence is the difference between the four corners of the duct, as no averaging of
+these was performed.
+
+study the local physics and interactions, the spanwise variation of wall shear has to be also
++
+considered, which is very significant in the cases of streamwise turbulence intensity u2
+and Reynolds shear stresses uv. Figures 16 and 17 display the inner-scaled mean velocity
++
++
+profile U + , streamwise and spanwise turbulence intensities u2 and w 2 , and Reynolds
+shear stress uv, for the AR 1 and 7 cases computed at Reτ , c ≃ 180. These figures also show
+the centreplane profile, the spanwise evolution of the various profiles and the reference
+channel flow from Moser et al. [8] at nominally the same Reynolds number (Reb, channel ≃
+Reb, c, duct ≃ 2800).
+For the square duct case, the mean flow progressively evolves with z towards a profile
+that is not far from the channel at the centreplane (although the values of the von Kármán
+coefficients differ: κ = 0.355 for the duct and 0.406 for the channel). The wall-normal
+velocity profile obtained via integrating the field in the spanwise direction significantly
+differs from the other two, especially as y = h is approached, which is a consequence of
+the abrupt variations experienced in z. This effect is attenuated for higher ARs since the
+wall shear distribution becomes more uniform throughout the core region of the duct. With
+respect to the streamwise turbulence intensity, the centreplane of the duct exhibits a slightly
+larger peak value than the channel, but the most significant effect is that the prominent
+peaks reached close to y ≃ h at spanwise locations half way between the wall and the core,
+z ≃ ±0.5h. These peaks exceed the centreplane peak values by a factor of 2. This effect is
+not observed in the spanwise turbulence intensity, and may be associated with elongated
+intermittent streamwise structures arising from the secondary vortices. These may also
+be connected with wall-normal shear transport, since this region is also characterised by
+positive values of the Reynolds shear stress uv. Additional comparisons of the statistics
+among ARs can be observed in Figure 18, where mean flow and streamwise turbulence
+
+695
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Journal of Turbulence
+
+√
+Figure 15. Cross-flow velocity magnitude V 2 + W 2 (left), contours of the stream function (centre)
+and streamwise velocity (right) for the AR = 1 duct case computed at Reτ , c ≃ 330. A measure for
+convergence is the difference between the four corners of the duct, as no averaging of these was
+performed.
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+696
+
+R. Vinuesa et al.
+
+Figure 16. Square duct statistics at Reτ , c ≃ 180: (a) mean flow, (b) streamwise and (c) spanwise
+turbulence intensities, and (d) Reynolds shear stress. Inner scaling is used considering the local uτ
+at each location, where lighter grey is associated with profiles close to the sidewall, and darker
+grey corresponds to profiles closer to the centreplane. Blue corresponds to the duct profile at the
+centreplane, red to the channel flow profile by Moser et al. [8] at nominally the same Reb, c and
+green is the wall-normal profile obtained after averaging the field in the spanwise direction. Dashed
+lines correspond to average values of the profiles in the y-direction, so blue and red lines correspond
+to centreplane conditions, whereas the green one represents a quantity averaged over the whole
+cross-sectional area.
+
+intensity profiles at the duct centreplane are shown. In this figure, the Uc+ trend presented in
+Figure 10 can also be observed, together with the differences in inner regions of the mean
+flow of the various cases. Interestingly, the mean profiles from ARs 5 and 7 are similar
+and both differ from the channel flow behaviour, but when focusing on the streamwise
+turbulence intensity, one finds that ARs 3 and 7 are the ones showing better agreement with
+the channel, while ARs 1 and 5 exhibit quite larger peak values. Note that the discrepancy in
+the peak of the streamwise turbulence intensity is not due to the small differences in Reτ , c
+among the various cases that can be observed in Table 1. The largest difference with respect
+to the peak from the channel flow is found for the square duct case (7.2%), and the smallest
+deviation is obtained for the AR 7 duct (0.9%). We evaluated the order of magnitude of the
++
+changes in the maximum of u2 for variations in Reτ , c like the ones shown in Table 1 by
+using the following empirical equation developed by Hutchins et al. [40] for zero pressure
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Journal of Turbulence
+
+697
+
+Figure 17. Aspect ratio 7 duct statistics at Reτ , c ≃ 180: (a) mean flow, (b) streamwise and
+(c) spanwise turbulence intensities, and (d) Reynolds shear stress. Inner scaling is used considering the local uτ at each location, where lighter grey is associated with profiles close to the sidewall,
+and darker grey corresponds to profiles closer to the centreplane. Blue corresponds to the duct profile
+at the centreplane, red to the channel flow profile by Moser et al. [8] at nominally the same Reb, c
+and green is the wall-normal profile obtained after averaging the field in the spanwise direction.
+Dashed lines correspond to average values of the profiles in the y-direction, so blue and red lines
+correspond to centreplane conditions, whereas the green one represents a quantity averaged over the
+whole cross-sectional area.
+
+gradient (ZPG) boundary layers:
++
+
+u2 max = 1.0747 log10 (Reτ ) + 4.8371,
+
+(5)
++
+
+where infinitely small hot-wire anemometers are assumed. The discrepancy in u2 max between the square duct and the channel flow due to differences in Reynolds number would be
+0.01%, and in the case of the AR = 7 duct, 0.06% (an order of magnitude smaller than the
+difference obtained in our simulations). These results are a manifestation of the complex
+and non-monotonic mechanisms present in the flow with increasing ARs.
+Another interesting comparison can be done between Figures 16 and 19, both showing
+square duct flows, at Reτ , c ≃ 180 and 330, respectively. The spanwise variation of the
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+698
+
+R. Vinuesa et al.
+
+Figure 18. Mean flow (left) and streamwise turbulence intensity (right) scaled in inner units, obtained
+at the duct centreplane. Aspect ratios 1, 3, 5 and 7 at Reτ , c ≃ 180 are considered, and the channel by
+Moser et al. [8] at nominally the same Reb, c is also shown as a reference.
+
+statistics is quite similar, except for the mean flow where the higher Reynolds number allows
+larger separation of scales. Interestingly, the spanwise profiles with larger values than the
+centreplane (around y + ≃ 25) in Figure 16 are located in the same region in Figure 19. In
+other words, that is a consequence of the interaction between the secondary motions and
+the near-wall region, and larger Reynolds numbers with sufficient scale separation are not
+likely to be significantly affected by this phenomenon.
+
+4.1.1. Comparison with other numerical studies
+As discussed in Section 1, other numerical studies of turbulent duct flow are available
+in the literature, mainly focused on the square duct case. Several numerical schemes and
+computational domains are considered in the various studies; therefore, in this section
+we compare basic statistics obtained from our square duct cases with the other reference simulations to assess similarities and differences, and try to evaluate the impact of
+the various computational parameters on the results. Mean velocity and streamwise turbulence intensity profiles from several studies [13,19,20] and the simulations presented
+here are compared in Figure 20, both at the duct centreplane and close to the corner
+(z = 0.75h). The first relevant observation that can be extracted from Figure 20(a) is the
+prominent hump exhibited by the mean velocity profile computed by Huser and Biringen
+[13] compared with the other cases, which starts at around y + ≃ 10 and extends almost
+throughout the entire boundary layer. The numerical scheme used by Huser and Biringen
+is fourth-order accurate, and therefore should not lead to such differences in the results.
+A plausible explanation for this discrepancy is the length of the computational domain in
+the streamwise direction (Lx = 6.4h), which is much shorter than the others, and therefore,
+could be truncating the contributions of the longest structures to the streamwise component
+of the velocity. In fact, Huser and Biringen [13] compared their statistics with the LES work
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Journal of Turbulence
+
+699
+
+Figure 19. Aspect ratio 1 duct statistics at Reτ , c ≃ 330: (a) mean flow, (b) streamwise and
+(c) spanwise turbulence intensities, and (d) Reynolds shear stress. Inner scaling is used considering the local uτ at each location, where lighter grey is associated with profiles close to the sidewall,
+and darker grey corresponds to profiles closer to the centreplane. Blue corresponds to the duct profile
+at the centreplane, red to the channel flow profile computed by us as a part of this study using the fully
+spectral code Simson [38] at nominally the same Reb = 5800, and green is the wall-normal profile
+obtained after averaging the field in the spanwise direction. Dashed lines correspond to average values
+of the profiles in the y-direction, so blue and red lines correspond to centreplane conditions, whereas
+the green one represents a quantity averaged over the whole cross-sectional area.
+
+by Madabhushi and Vanka [21] at a very similar Reynolds number and same Lx , with very
+good agreement between both data-sets. The second observation from Figure 20(a) is the
+fact that the duct computed by Gavrilakis [20] shows very good agreement with our data
+in the outer region, although it shows an overshoot in the buffer region. The computational
+box by Gavrilakis is very long (Lx = 20π h), but the numerical scheme proposed by him
+is only second-order accurate, which explains the deviations observed in the buffer region.
+In fact, more recent data by Garilakis at Reτ ≃ 250 based on a spectral element scheme
+(available to us through private communication) shows excellent agreement with the results presented here. Finally, the mean velocity profiles at the duct centreplane computed
+by Pinelli et al. [19] agree very well with our results in the buffer layer and part of the
+logarithmic region, which was expected since their numerical scheme is spectral. A very
+subtle overshoot is observed for y + > 60 compared with the profiles by Gavrilakis and the
+ones presented in this study. This could be attributed to a slightly short computational box,
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+700
+
+R. Vinuesa et al.
+
+Figure 20. Inner-scaled mean velocity profiles (left) and streamwise turbulence intensities (right)
+evaluated at the duct centreplane – (a) and (b) – and at z ≃ 0.75 h – (c) and (d) – for the square
+duct flow computed in various studies. Solid lines represent cases at comparable Reynolds numbers,
+and dashed lines are used with higher Re profiles. ( ) Pinelli et al. [19], ( ) Gavrilakis [20], ( )
+Huser and Biringen [13] and (−) present work. The local uτ at each spanwise location is used for
+non-dimensionalisation, and symmetries in the flow are exploited to improve the accuracy of the
+various curves.
+
+since the Lx chosen by Pinelli et al. is 4π h, and as can be observed in Figure 1(b) from a
+complementary study by Uhlmann et al. [11], this length may not be sufficient to completely
+characterise the square duct flow. Interestingly, the subtle overshoots observed in the data
+by Pinelli et al. at the duct centreplane do not appear at z = 0.75h (see Figure 20(c)), but
+the deviations in the buffer region from the profile by Gavrilakis are larger at this particular
+location.
+With respect to the streamwise turbulence intensity at the duct centreplane, the
+duct computed by Huser and Biringen shows a prominent near-wall peak, much larger
+than the one exhibited by the other simulations, as observed in Figure 20(b). This figure also shows some disagreement between Gavrilakis’ and our results in the buffer
+region, as in the mean flow, and excellent agreement between the low-Re case computed by Pinelli et al. and the one presented here. It is, however, interesting to note
+that the higher Re case from Pinelli et al. shows a lower peak value than the low
+Re profile, as opposed to the trend observed in our results. A possible explanation
+
+Journal of Turbulence
+
+701
+
+for this is the somewhat insufficient resolution in the streamwise direction (around
+x + ≃ 14 based on centreline friction velocity). This is interesting because the spanwise turbulence intensity (not shown) shows increasingly higher peak values at higher
+Reynolds numbers, both in our simulations and the ones by Pinelli et al. The near-wall peak
+also shows an increasing trend for progressively higher Reynolds numbers at z = 0.75h,
+the result which is consistent among all the data-sets. Thus, deviations between the results
+discussed in this study and the ones by Pinelli et al. are present at the duct centreplane,
+but not closer to the corner, where the Reynolds stress gradients producing the secondary
+motions have a stronger effect than the contributions from the streamwise structures.
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+4.2. Turbulent kinetic energy budgets
+A detailed analysis of the mean statistics obtained from the 3D ducts has provided some
+relevant information on the flow physics and the mechanisms responsible for the skin friction
+dependence with AR discussed in Section 3. Energy transfer throughout the different flow
+regions in the wall-normal direction is assessed by the study of the various components of
+the turbulent kinetic energy (TKE) budget, and their respective contributions in different
+locations. The TKE is defined as k = (u2 + v 2 + w 2 )/2, and its transport equation is
+obtained as half the sum of the diagonal terms from the Reynolds stress transport equation:
+∂k
+= Pk + εk + k + Dk + Tk − Ck ,
+∂t
+
+(6)
+
+where the various terms in the budget are defined as follows:
+(i) Production Pk = −ui uj ∂Ui /∂xj
+(ii) Dissipation εk = −ν ∂ui /∂xj ∂ui /∂xj
+(iii) Pressure diffusion k = −ρ −1 ∂ (pui ) /∂xi
+(iv) Viscous diffusion Dk = (ν/2) ∂ 2 (ui ui ) /∂xj2
+
+
+(v) Turbulent diffusion Tk = −(1/2) ∂ ui ui uj /∂xj
+(vi) Convection Ck = uj /2 ∂ (ui ui ) /∂xj
+The TKE budget corresponding to the AR 3 case with Reτ , c ≃ 180 is shown in
+Figure 21(a) and 21(b) at the duct centreplane (z = 0), and close to the corner (z =
+2.75 h), respectively. The sum of all the terms in the budgets from both locations is on
+the order of 10−6 (the L2 norms of the residuals are 3.5 × 10−6 and 2.3 × 10−6 ), which
+indicates that all the terms are sufficiently converged. In fact, the TKE budget from a
+turbulent channel flow computed by Hoyas and Jiménez [41], included here for comparison
+purposes, exhibits an L2 norm of the residual equal to 7.7 × 10−4 , which is also considered
+to be sufficiently converged. This consideration is in agreement with the discussion from
+Figure 9, and confirms that even if very long averaging times are required to obtain fully
+converged secondary motions, it is possible to calculate sufficiently converged velocity
+profiles with shorter averaging times, especially if the symmetries in the flow are exploited
+to this end.
+With respect to the budget at the centreplane shown in Figure 21(a), it is interesting to
+observe that it is in close agreement with the one from the channel, with small discrepancies
+especially in the peak from the production curve and the inflection point in the dissipation
+profile stemming essentially from differences in the centreplane skin friction uτ , c . The
+production peak, which takes a value of 0.23, is located at y + = 12, slightly below the peak
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+702
+
+R. Vinuesa et al.
+
+Figure 21. Turbulent kinetic energy budgets from the aspect ratio 3 case at Reτ , c ≃ 180, normalised
+by u4τ /ν, at (a) the centreplane (z = 0) and (b) close to the corner (z = 2.75h). The various terms
+are represented by the following: ( ) production Pk , ( ) dissipation εk , ( ) pressure diffusion k , ( )
+viscous diffusion Dk , ( ) turbulent diffusion Tk and ( ) convection Ck . The sum of all the terms in
+the budgets are shown by (−). (c) and (d): The mean statistics at z = 0 and z = 2.75hin terms of
++
++
+y + are shown as follows: ( ) 1 · U + , ( ) 2 · u2 , ( ) 12 · w2 , ( ) −16 · uv + . Channel flow data by
+Hoyas and Jiménez [41] at nominally same Reynolds number is also shown in (a) and (c) with dashed
+lines for comparison. The local uτ at each spanwise location is used for non-dimensionalisation, and
+symmetries in the flow are exploited to improve the accuracy of the various curves.
+
+in streamwise turbulence intensity as expected. The production peak in the buffer layer
+is essentially balanced by dissipation, and viscous and turbulent diffusion, whereas close
+to the wall, the viscous diffusion becomes positive and it is this term the one balancing
+dissipation. Farther away from the wall, for y + > 40, the dominant terms in the budget are
+production and dissipation which progressively decay as the core of the flow is approached.
+The curves observed in Figure 21(a) for the different terms in the budget are qualitatively
+the same in the range −2h ≤ z ≤ 2h, although the peak values become progressively
+attenuated, for example, at z = 2h, the production peak drops from 0.23 to 0.19, and the
+absolute value of dissipation at this same location is reduced from 0.12 to 0.10.
+On the other hand, the budget found closer to the corner (at z = 2.75h), as shown in
+Figure 21(b), is significantly different. The production peak and the inflection point from the
+dissipation curve are also found slightly below the peak in streamwise turbulence intensity,
+but in this case, these two terms are not as dominant in the buffer region compared with
+the others, although production is still balanced by dissipation, and viscous and turbulent
+diffusion. It is important to note that the corner region exhibits much lower turbulence
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Journal of Turbulence
+
+703
+
+intensity levels than the core, with a production peak value that is less than half the one
+observed at the centreplane (0.09). As expected, the production curve is similar to the u2 ,
+which yields an interesting behaviour at this particular location: at y + = 40, the streamwise turbulence intensity reaches a local minimum and so does the production, whereas
+the dissipation reaches a local maximum. In addition to this, the turbulent diffusion, which
+is now positive, also reaches a maximum and balances, together with the production, the
+dissipation. The increased value in Tk arises from the triple product ui ui uj , which, in turn,
+is directly affected by the secondary vortex at this location. This explains the momentum
+transport from regions of large shear to regions of low shear, as depicted in Figure 1, and
+to the authors’ knowledge, this is the first time that it is reported in the literature. This is
+quite remarkable, since the magnitude of the secondary motion is merely 2% of the bulk
+velocity, and it plays a significant role in wall-turbulence energy distribution. Comparing with Figure 21(d), it is possible to observe how even farther away from the wall, at
+y + ≃ 73, u2 exhibits an inflection point and the Reynolds shear stress uv reaches a local
+minimum; these are reflected in the appearance of inflection points in both production
+and dissipation curves at this exact location, where the effect of the secondary vortex is
+less significant. Finally, at y + ≃ 118, the turbulence intensity levels off, and from this
+point to the centreline of the duct, both production and dissipation balance each other
+and show roughly constant values of around 0.045. This further highlights the importance
+of u2 in the mechanisms leading to energy exchange throughout the different turbulent
+scales, but also the impact of secondary motions and 3D effects on these particular physical
+phenomena.
+
+4.3. Coherent structures
+To conclude our analysis of AR effects in turbulent duct flows, we show some visualisations
+of coherent vortices in the flow. We consider the Q criterion [42] to define the structures
+shown in Figures 22 and 23 for the AR 3 and 7 cases computed at Reτ , c ≃ 180. These figures
+show, on the one hand, that the resolution considered for our computations was clearly
+sufficient for the adequate characterisation of the flow. On the other hand, Vinuesa [9]
+reported that the coherent vortices are much more elongated than the equivalent structures
+found in turbulent channels [6], and that the ‘forest’ of structures is much less densely
+populated. In addition, several regions at both walls essentially depleted of vortices can be
+identified, which is also not the same as in 2D channel flow. Note that in 2D channels at
+the quite low Reynolds numbers considered in this study, there is only little energy in the
+large-scale outer-layer structures that could lead to such a modulating effect on the near-wall
+structures. However, the secondary flow induced by the side walls in ducts can act in exactly
+such a way, and lead to a more modulated velocity signal; this effect could be transported
+towards the duct centre via the cascade of smaller counter-rotating secondary-flow vortices
+as discussed above. The turbulence vortices attached to the sidewalls also follow different
+dynamics than the ones from the channel, and further work at higher Reynolds numbers
+and ARs is required for a complete characterisation at a phenomenological level.
+
+5. Summary and conclusions
+DNSs of turbulent duct flows with ARs 1, 3, 5 and 7 at Reτ , c ≃ 180, and AR 1 at
+Reτ , c ≃ 330 have been carried out using three large supercomputing centres around the
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+704
+
+R. Vinuesa et al.
+
+Figure 22. Coherent vortices defined using the Q criterion [42] extracted from the aspect ratio 3
+duct case at Reτ , c ≃ 180. Blue structures are closer to the lower walls, red structures to the upper
+one, and they get lighter as they approach to the core of the duct. Flow is from lower left corner to
+upper right.
+
+world. The highly scalable SEM code developed by Fischer et al. [25] was used, and highefficiency MPI was also employed. The goal of these computations is to further understand
+experimental measurements of wall shear stress carried out at IIT Chicago [9]. Analysis of
+the computational results and their evolution with AR leads to some interesting physical
+conclusions: as one increases the AR from 1 to 3, the skin friction at the core of the duct
+
+Figure 23. Coherent vortices defined using the Q criterion [42] extracted from the aspect ratio 7
+duct case at Reτ , c ≃ 180. Blue structures are closer to the lower walls, red structures to the upper
+one, and they get lighter as they approach to the core of the duct. Flow is from lower left corner to
+upper right.
+
+Journal of Turbulence
+
+705
+
+also increases. However, if the AR is further increased to 5 or 7, the skin friction decreases
+with AR. This is in agreement with the high AR experimental data (with AR from 12.8
+to 48) by Vinuesa [9]. The 3D effects responsible for the skin friction dependence on
+AR, i.e., secondary vortices and sidewall boundary layers, can be observed in the database
+presented here, as well as their evolution with Re and AR. It is interesting to note that the
+array of secondary vortices present in the duct, which significantly impacts the flow physics
+at the core, has not been reported in the literature before and confirms some of Monty’s
+conjectures [39] about duct flow dynamics. While such vortical secondary motions are
+extremely difficult to detect in experiments, their presence can have significant impact on
+the flow and make it impossible to replicate z- periodic channel flows in the laboratory.
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+Acknowledgements
+We are grateful for all the help and insightful input provided by Dr Aleks Obabko of Argonne National
+Laboratory, in relation to the Nek5000 software.
+
+References
+[1] L. Prandtl, Über die ausgebildete Turbulenz [Turbulent Flow], Verh. 2nd Intl Kong. NACA
+Tech. Memo 62, 2nd Intl Kong. für Tech. Mech., Zürich. 1926, p. 435.
+[2] J. Jiménez, The largest scales of turbulent wall flows, Annual Research Briefs, Center for
+Turbulence Research, 1998, pp. 137–154.
+[3] K.C. Kim and R.J. Adrian, Very large-scale motion in the outer layer, Phys. Fluids 11 (1999),
+pp. 417–422.
+[4] M. Guala, S.E. Hommema, and R.J. Adrian, Large-scale and very-large-scale motions in
+turbulent pipe flow, J. Fluid Mech. 554 (2006), pp. 521–542.
+[5] J.P. Monty, J.A. Stewart, R.C. Williams, and M.S. Chong, Large-scale features in turbulent
+pipe and channel flows, J. Fluid Mech. 589 (2007), pp. 147–156.
+[6] J.C. del Álamo, J. Jiménez, P. Zandonade, and R.D. Moser, Scaling of the energy spectra of
+turbulent channels, J. Fluid Mech. 500 (2004), pp. 135–144.
+[7] J. Jiménez, J.C. del Álamo, and O. Flores, The large-scale dynamics of near-wall turbulence,
+J. Fluid Mech. 505 (2004), pp. 179–199.
+[8] R.D. Moser, J. Kim, and N.N. Mansour, Direct numerical simulation of turbulent channel flow
+up to Reτ = 590, Phys. Fluids 11(4) (1999), pp. 943–945.
+[9] R. Vinuesa, Synergetic computational and experimental studies of wall-bounded turbulent
+flows and their two-dimensionality, Illinois Institute of Technology, Chicago, IL, 2013.
+[10] K.A.M. Moinuddin, P.N. Joubert, and M.S. Chong, Experimental investigation of turbulencedriven secondary motion over a streamwise external corner, J. Fluid Mech. 511 (2004), pp.
+1–23.
+[11] M. Uhlmann, A. Pinelli, G. Kawahara, and A. Sekimoto, Marginally turbulent flow in a square
+duct, J. Fluid Mech. 588 (2007), pp. 153–162.
+[12] F.B. Gessner, The origin of secondary flow in turbulent flow along a corner, J. Fluid Mech. 58
+(1973), pp. 1–25.
+[13] A. Huser and S. Biringen, Direct numerical simulation of turbulent flow in a square duct,
+J. Fluid Mech. 257 (1993), pp. 65–95.
+[14] F.B. Gessner and J.B. Jones, On some aspects of fully-developed turbulent flow in rectangular
+channels, J. Fluid Mech. 23 (1965), pp. 689–713.
+[15] L. Prandtl, Essentials of Fluid Dynamics, Vol. 58, Blackie, Glasgow, 1952.
+[16] B.E. Launder, Phenomenological modeling: present... and future?, in Whither Turbulence?
+Turbulence at the Crossroads, J. L. Lumley, ed., Lecture Notes in Physics Vol. 357, Blackie &
+Son, Glasgow, 1990, p. 342.
+[17] P.R. Spalart, Strategies for turbulence modelling and simulations, Int. J. Heat Fluid Flow 21
+(2000), pp. 252–263.
+[18] H. Raisei, U. Piomelli, and A. Pollard, Evaluation of turbulence models using Direct Numerical
+Simulation and Large-Eddy Simulation data, J. Fluids Eng. 133 (2011), 021203, pp. 1–10.
+
+Downloaded by [ETH Zurich] at 00:48 08 September 2014
+
+706
+
+R. Vinuesa et al.
+
+[19] A. Pinelli, M. Uhlmann, A. Sekimoto, and G. Kawahara, Reynolds number dependence of mean
+flow structure in square duct turbulence, J. Fluid Mech. 644 (2009), pp. 107–122.
+[20] S. Gavrilakis, Numerical simulation of low-Reynolds-number turbulent flow through a straight
+square duct, J. Fluid Mech. 244 (1992), pp. 101–129.
+[21] R.K. Madabhushi and S.P. Vanka, Large eddy simulation of turbulence-driven secondary flow
+in a square duct, Phys. Fluids 3 (1991), pp. 2734–2745.
+[22] M. Breuer and W. Rodi, Large-eddy simulation of turbulent flow through a straight square
+duct and a 180◦ bend, in Direct and Large-Eddy Simulation I, P.R. Voke, L. Kleiser, and J.-P.
+Chollet, eds., Kluwer Academic Publishers, 1994, pp. 273–285.
+[23] J. Ohlsson, P. Schlatter, P.F. Fischer, and D. Henningson, Direct numerical simulation of
+separated flow in a three-dimensional diffuser, J. Fluid Mech. 650 (2010), pp. 307–318.
+[24] H.S. Choi and T.S. Park, The influence of streamwise vortices on turbulent heat transfer in
+rectangular ducts with various aspect ratios, Int. J. Heat Fluid Flow 40 (2013), pp. 1–14.
+[25] P.F. Fischer, J. Kruse, J. Mullen, H. Tufo, J. Lottes, and S. Kerkemeier, NEK5000:
+open source spectral element CFD solver (2008). Available at http://nek5000.mcs.anl.gov/
+index.php/MainPage.
+[26] A.T. Patera, A spectral element method for fluid dynamics: laminar flow in a channel expansion,
+J. Comput. Phys. 54 (1984), pp. 468–488.
+[27] Y. Maday and A.T. Patera Spectral element methods for the Navier– Stokes equations, in State
+of the Art Surveys in Computational Mechanics, A.K. Noor, ed., ASME, New York, 1989,
+pp. 71–143.
+[28] P.F. Fischer, An overlapping Schwarz method for spectral element solution of the incompressible
+Navier-Stokes equations, J. Comput. Phys. 133 (1997), pp. 84–101.
+[29] P.F. Fischer, J. Lottes, D. Pointer, and A. Siegel, Petascale algorithms for reactor hydrodynamics,
+J. Phys. Conf. Series 125 (2008), 012076, pp. 1–5.
+[30] H.M. Tufo and P.F. Fischer, Fast parallel direct solvers for coarse grid problems, J. Parallel
+Distrib. Comput. 61 (2001), pp. 151–177.
+[31] G.K. El Khoury, P. Schlatter, A. Noorani, P.F. Fischer, G. Brethouwer, and A.V. Johansson,
+Direct Numerical simulation of turbulent pipe flow at moderately high Reynolds numbers, Flow
+Turbul. Combust. 91 (2013), pp. 475–495.
+[32] A. Noorani, G.K. El Khoury, and P. Schlatter, Evolution of turbulence characteristics from
+straight to curved pipes, Int. J. Heat Fluid Flow 41 (2013), pp. 16–26.
+[33] J. Jiménez and S. Hoyas, Turbulent fluctuations above the buffer layer of wall-bounded flows,
+J. Fluid Mech. 611 (2010), pp. 215–236.
+[34] R.L. Panton, Incompressible Flow, 2nd ed., Wiley-Interscience, Hoboken, NJ, 1996.
+[35] P. Schlatter and R. Örlü, Turbulent boundary layers at moderate Reynolds numbers. Inflow
+length and tripping effects, J. Fluid Mech. 710 (2012), pp. 5–34.
+[36] R. Vinuesa, P. Schlatter, and H.M. Nagib, Convergence in numerical simulations of wallbounded turbulent flows, preprint (2014).
+[37] O. Flores and J. Jiménez, Hierarchy of minimal flow units in the logarithmic layer, Phys. Fluids
+22 (2010), 071704, pp. 1–4.
+[38] M. Chevalier, P. Schlatter, A. Lundbladh, and D.S. Henningson, A pseudospectral solver
+for incompressible boundary layer flows, Tech. Rep. TRITA-MEK, KTH Mechanics, Stockholm, 2007. J.P. Monty, Developments in Smooth Wall Turbulent Duct Flows, University of
+Melbourne, 2005.
+[40] N. Hutchins, T.B. Nickels, I. Marusic, and M.S. Chong, Hot-wire spatial resolution issues in
+wall-bounded turbulence, J. Fuid Mech. 635 (2009), pp. 103–136.
+[41] S. Hoyas and J. Jiménez, Reynolds number effects on the Reynolds-stress budgets in turbulent
+channels, Phys. Fluids 20 (2008), 101511, pp. 1–8.
+[42] J.C.R. Hunt, A.A. Wray, and P. Moin, Eddies, Streams, and Convergence Zones in Turbulent
+Flows, in Proceedings of the Summer Program, Stanford N.A.S.A. Center for Turbulence
+Research, CTR-S88, 1988, pp. 193–208.
+
+
