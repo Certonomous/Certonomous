@@ -177,7 +177,7 @@ def figure_streamwise_profiles(case, C, fields, Ub, h, outpath):
 
 def figure_scatter(pool, outpath, note):
     """D3: 1:1 scatter, one panel per velocity component."""
-    fig, axes = plt.subplots(1, 3, figsize=(12.0, 4.2))
+    fig, axes = plt.subplots(1, 3, figsize=(12.0, 5.0))
     rng = np.random.default_rng(0)
     for ax, (label, comp) in zip(axes, [("$U_x$", 0), ("$U_y$", 1), ("$U_z$", 2)]):
         t = pool["truth"][:, comp]
@@ -199,7 +199,7 @@ def figure_scatter(pool, outpath, note):
         ax.set_title(label, fontsize=10)
     axes[0].legend(fontsize=7, loc="upper left", markerscale=4, framealpha=0.9)
     fig.suptitle(note, fontsize=9)
-    fig.tight_layout(rect=(0, 0, 1, 0.93))
+    fig.tight_layout(rect=(0, 0.01, 1, 0.93))
     fig.savefig(outpath, dpi=160)
     plt.close(fig)
 

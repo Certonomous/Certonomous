@@ -406,6 +406,15 @@ was trained on.** This is the in-sample form of the covariate-shift finding
 the C1 decline gate was built for, and it is reported here because the
 battery surfaced it, not because it flatters the entry.
 
+The maps say *how* it gets worse, which the −0.0013 does not. On
+`alpha_05_10071_4048` the RANS error is a diffuse mid-channel band; the
+corrected field's error is **concentrated into a bright strip along the
+lower wall**, roughly doubled there. The correction has not spread its error
+around — it has relocated it into the near-wall region, which is where a
+downstream user would care most and where the challenge metric's
+equal-weight-per-point averaging cares least. `ph_error_maps_validation.png`,
+top row.
+
 ### 4.4 What was not done, and why
 
 - **No hump-class battery.** `NASA_2DWMH` is a test case, so its truth is

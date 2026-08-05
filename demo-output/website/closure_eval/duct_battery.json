@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-05T17:20:14.787938+00:00",
+  "generated_at": "2026-08-05T17:38:14.541577+00:00",
   "produced_by": "sdk/scripts/closure_eval_battery/run_duct_battery.py",
   "protocol": "demo-output/website/CLOSURE_EVALUATION_PROTOCOL.md",
   "test_blindness": {
@@ -68,7 +68,7 @@
     "/home/ubuntu/Certonomous/demo-output/website/closure_eval/duct_error_maps.png"
   ],
   "compute": {
-    "elapsed_seconds": 50.5,
+    "elapsed_seconds": 46.7,
     "cores_cap": 2
   }
 }

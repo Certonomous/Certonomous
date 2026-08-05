@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-05T17:09:32.321141+00:00",
+  "generated_at": "2026-08-05T17:37:27.210733+00:00",
   "produced_by": "sdk/scripts/closure_eval_battery/run_ph_battery.py",
   "protocol": "demo-output/website/CLOSURE_EVALUATION_PROTOCOL.md",
   "test_blindness": {
@@ -189,7 +189,7 @@
     "/home/ubuntu/Certonomous/demo-output/website/closure_eval/ph_error_maps_train.png"
   ],
   "compute": {
-    "elapsed_seconds": 181.9,
+    "elapsed_seconds": 37.5,
     "cores_cap": 2
   }
 }

@@ -105,7 +105,7 @@ def figure_profiles(case, geom, C, U_rans, U_corr, U_true, Ub, outpath):
 def figure_scatter(pool, outpath, population_note):
     """M2: 1:1 scatter, one panel per quantity, black 1:1 line."""
     quantities = [("$U_x$", 0), ("$U_y$", 1), (r"$\|U\|$", None)]
-    fig, axes = plt.subplots(1, 3, figsize=(12.0, 4.2))
+    fig, axes = plt.subplots(1, 3, figsize=(12.0, 5.0))
     rng = np.random.default_rng(0)
     for ax, (label, comp) in zip(axes, quantities):
         def q(field):
@@ -129,7 +129,7 @@ def figure_scatter(pool, outpath, population_note):
         ax.set_title(f"{label}", fontsize=10)
     axes[0].legend(fontsize=7, loc="upper left", markerscale=4, framealpha=0.9)
     fig.suptitle(population_note, fontsize=9)
-    fig.tight_layout(rect=(0, 0, 1, 0.94))
+    fig.tight_layout(rect=(0, 0.01, 1, 0.93))
     fig.savefig(outpath, dpi=160)
     plt.close(fig)
 
