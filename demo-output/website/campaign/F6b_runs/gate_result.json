@@ -1,0 +1,91 @@
+{
+  "ubar": 0.72,
+  "nu": 9.438414346389807e-05,
+  "Re_H": 7628,
+  "rungs": {
+    "coarse": {
+      "cells": 7728,
+      "nx": 84,
+      "ny": 92,
+      "time_written": 3418,
+      "crossings_x_over_h": [
+        0.2789,
+        7.6436
+      ],
+      "separation_x_over_h": 0.2789,
+      "reattachment_x_over_h": 7.6436,
+      "utau_max": 0.104209,
+      "utau_mean": 0.031461,
+      "profile_scaled_mae_percent": {
+        "x0": 8.425,
+        "x1": 7.035,
+        "x2": 7.877,
+        "x3": 9.65,
+        "x4": 14.716,
+        "x5": 15.987,
+        "x6": 18.842,
+        "x7": 16.885,
+        "x8": 12.697
+      },
+      "profile_scaled_mae_overall_percent": 12.457
+    },
+    "medium": {
+      "cells": 15600,
+      "nx": 120,
+      "ny": 130,
+      "time_written": 5997,
+      "crossings_x_over_h": [
+        0.2604,
+        7.6472
+      ],
+      "separation_x_over_h": 0.2604,
+      "reattachment_x_over_h": 7.6472,
+      "utau_max": 0.107535,
+      "utau_mean": 0.031422,
+      "profile_scaled_mae_percent": {
+        "x0": 8.45,
+        "x1": 7.182,
+        "x2": 8.159,
+        "x3": 10.453,
+        "x4": 15.292,
+        "x5": 16.459,
+        "x6": 19.422,
+        "x7": 17.047,
+        "x8": 12.924
+      },
+      "profile_scaled_mae_overall_percent": 12.821
+    },
+    "fine": {
+      "cells": 31280,
+      "nx": 170,
+      "ny": 184,
+      "time_written": 6000,
+      "crossings_x_over_h": [
+        0.2463,
+        7.6546
+      ],
+      "separation_x_over_h": 0.2463,
+      "reattachment_x_over_h": 7.6546,
+      "utau_max": 0.10756,
+      "utau_mean": 0.031341,
+      "profile_scaled_mae_percent": {
+        "x0": 8.187,
+        "x1": 6.869,
+        "x2": 7.823,
+        "x3": 10.32,
+        "x4": 15.174,
+        "x5": 16.217,
+        "x6": 19.118,
+        "x7": 17.035,
+        "x8": 12.738
+      },
+      "profile_scaled_mae_overall_percent": 12.609
+    }
+  },
+  "shipped_mesh_anchor": {
+    "crossings_x_over_h": [
+      0.259015,
+      7.643895
+    ]
+  }
+}

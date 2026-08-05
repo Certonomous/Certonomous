@@ -139,7 +139,7 @@ boundary
         type cyclic;
         neighbourPatch outlet;
         transform translational;
-        separationVector (-{LX} 0 0);
+        separationVector ({LX} 0 0);
         faces ((0 4 7 3));
     }}
     outlet
@@ -147,7 +147,7 @@ boundary
         type cyclic;
         neighbourPatch inlet;
         transform translational;
-        separationVector ({LX} 0 0);
+        separationVector (-{LX} 0 0);
         faces ((1 2 6 5));
     }}
     frontAndBack

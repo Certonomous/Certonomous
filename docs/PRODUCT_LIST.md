@@ -68,7 +68,15 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - [x] F4 hypersonic blunt body vs Billig standoff (+ SWBLI stretch).
 - [-] F6a NASA hump [gate reached]. Pass with *; overpredicted bubble length (k-SST diffusion suspect).
       1. Try different models. 2. If confirmed → epistemic-uncertainty showcase. Also `w1-hump-challenge-conditions` (approved, 60).
-- [ ] F6b periodic hills vs ERCOFTAC.
+- [-] F6b periodic hills vs ERCOFTAC. **Gate verdict 2026-08-05, on OUR OWN mesh this time** (the 2026-07-29 gate used the
+      benchmark's shipped grid and could not separate model error from grid error). Verification PASS: our ERCOFTAC-polynomial
+      mesh reattaches at x/h 7.6472 vs the shipped mesh's 7.6439, **0.043%** against a pre-registered ±5%, and the point moves
+      only 1.4% over a fourfold cell range. Physics **FAIL, as pre-registered**: 7.6472 vs the literature band 4.21–4.70
+      (Rapp & Manhart 2011 exp / Breuer 2009 LES / Fröhlich 2005 LES), **+72% on the band midpoint**. Profiles 12.82% scaled MAE.
+      4 of 5 pre-registered predictions held. `campaign/F6b_ERCOFTAC_{PREREGISTRATION,RESULTS}.md`, 24.6+ core-min.
+      **Open successor, not a cross-off:** the 62,400-cell rung does not converge and its residuals sit on a flat plateau —
+      either under-relaxation or genuine unsteadiness, undecided on purpose. Docket
+      `f6b-why-the-finest-hill-will-not-converge` (55). Stays uncrossed until that is answered.
 - [-] F6c duct vs DNS. Captures 0% of anisotropy — structural model deficiency, not us. Research-result candidate;
       `closure-duct-tensor-basis-carrier` proposal (120) is the constructive follow-up.
 - [ ] NACA 0012 wall credential re-grade: W3 found the published Cd (0.01205, outside ±30% band) is not reproducible —

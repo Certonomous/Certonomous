@@ -1,22 +1,29 @@
 {
- "id": "w2-the-duct-zero-stated-as-a-structural-limit-with-a-falsifier",
- "well": "W2",
- "objective": "State the duct secondary-flow zero as a structural limit of the linear eddy-viscosity class, defended from the integrity basis the lab has read, with a pre-registered falsifier run before the claim is published",
- "rationale": "The gate measurement stands: uncorrected k-omega SST produces exactly zero secondary flow on both scored ducts, machine precision near 1e-15 of bulk, where the reference field carries 2.22 and 2.07 percent of bulk velocity, and the supervisor analysis bounded that missing flow at no more than 24 percent of the duct error, so this is a deficiency statement rather than a score lever. The lab has since read the primary source: a linear closure keeps only the first tensor of the ten-tensor basis, and the transverse block that drives secondary flow of the second kind sits in the second and third tensors, measured on duct training cases at 71 and 91 percent of their magnitude. The constructive half is already on the docket as the tensor-basis carrier; this is the analysis half, turning a table row plus a read primary source into a stateable, defended result with its falsification attached. The falsifier names its instrument: the toolchain's shipped quadratic eddy-viscosity closure, run once on the smallest training duct's existing mesh, graded by the same cross-plane velocity probe the gate measurement used, whose resolution already expressed a zero at 1e-15 and a signal at 2 percent, so the criterion is expressible by the instrument. Prediction, written before the run: the quadratic closure produces nonzero transverse mean flow at the percent-of-bulk scale, because its added term carries exactly the normal-stress anisotropy the linear term cannot. If it also reads zero on the same mesh, the structural claim is refuted as stated and the zero becomes a setup question, which would redirect the duct effort before any carrier is built. Axis scores: gate three over ten on knowledge per core-min, zero wall row, zero challenge columns because the analysis produces no scored predictions. No new family enters; the duct family and its meshes are already in the lab, and the one solve is a discriminating control on it.",
- "gate": "The written result states what the linear class drops, cites the measured zero and the read basis at their provenance tiers, and does not publish without the falsifier's outcome on the page: nonzero transverse mean flow from the quadratic closure on the same mesh confirms the structural reading, a second zero refutes it, and either outcome is recorded with the run's artifacts retained under the campaign",
- "est_core_min": 10,
- "predicted_memory_gb": 2.0,
- "predicted_usd": 0.137,
- "cost_basis": "estimate anchored to measured runs: the gate measurement itself cost zero new core-min by reusing converged baselines, the duct meshes run 2,209 to 31,819 cells, and the sparse regression rung measured 137 core-min for two far larger frozen cases plus nine propagations, so one quadratic-closure solve on the smallest training duct is priced at ten and the analysis at zero",
- "expected_knowledge_gain": "Two distinguishable outcomes, each changing a decision: the falsifier produces transverse flow and the lab owns a defended structural result that fixes the ordering of the reproduction ladder and names the floor no scalar correction crosses, or it reads zero and the deficiency stops being attributable to the closure class, which stops the tensor-basis carrier from being built on a wrong premise",
- "source_kind": "gate",
- "citations": [
-  "demo-output/website/ACTIVE_RESEARCH.md Campaign F6, F6c section",
-  "demo-output/website/campaign/W2_POPE_1975_INTEGRITY_BASIS.md",
-  "demo-output/website/closure_challenge_C2_error_decomposition.md",
-  "Pope, JFM 72 331 to 340, 1975, READ IN FULL 2026-08-02"
- ],
- "in_sample_verdict": "Clean. The structural statement is about a model class, not about any scored case; the one solve runs on a training duct, the scored test ducts are never opened by it, nothing is fitted, and no score call is made. The gate measurement it interprets read baseline predictions on test geometries, which the rules permit; no test data enters any trained or tuned object here.",
- "status": "proposed",
- "created_at": "2026-08-04T15:25:00Z"
+    "id": "w2-the-duct-zero-stated-as-a-structural-limit-with-a-falsifier",
+    "well": "W2",
+    "objective": "State the duct secondary-flow zero as a structural limit of the linear eddy-viscosity class, defended from the integrity basis the lab has read, with a pre-registered falsifier run before the claim is published",
+    "rationale": "The gate measurement stands: uncorrected k-omega SST produces exactly zero secondary flow on both scored ducts, machine precision near 1e-15 of bulk, where the reference field carries 2.22 and 2.07 percent of bulk velocity, and the supervisor analysis bounded that missing flow at no more than 24 percent of the duct error, so this is a deficiency statement rather than a score lever. The lab has since read the primary source: a linear closure keeps only the first tensor of the ten-tensor basis, and the transverse block that drives secondary flow of the second kind sits in the second and third tensors, measured on duct training cases at 71 and 91 percent of their magnitude. The constructive half is already on the docket as the tensor-basis carrier; this is the analysis half, turning a table row plus a read primary source into a stateable, defended result with its falsification attached. The falsifier names its instrument: the toolchain's shipped quadratic eddy-viscosity closure, run once on the smallest training duct's existing mesh, graded by the same cross-plane velocity probe the gate measurement used, whose resolution already expressed a zero at 1e-15 and a signal at 2 percent, so the criterion is expressible by the instrument. Prediction, written before the run: the quadratic closure produces nonzero transverse mean flow at the percent-of-bulk scale, because its added term carries exactly the normal-stress anisotropy the linear term cannot. If it also reads zero on the same mesh, the structural claim is refuted as stated and the zero becomes a setup question, which would redirect the duct effort before any carrier is built. Axis scores: gate three over ten on knowledge per core-min, zero wall row, zero challenge columns because the analysis produces no scored predictions. No new family enters; the duct family and its meshes are already in the lab, and the one solve is a discriminating control on it.",
+    "gate": "The written result states what the linear class drops, cites the measured zero and the read basis at their provenance tiers, and does not publish without the falsifier's outcome on the page: nonzero transverse mean flow from the quadratic closure on the same mesh confirms the structural reading, a second zero refutes it, and either outcome is recorded with the run's artifacts retained under the campaign",
+    "est_core_min": 10,
+    "predicted_memory_gb": 2.0,
+    "predicted_usd": 0.137,
+    "cost_basis": "estimate anchored to measured runs: the gate measurement itself cost zero new core-min by reusing converged baselines, the duct meshes run 2,209 to 31,819 cells, and the sparse regression rung measured 137 core-min for two far larger frozen cases plus nine propagations, so one quadratic-closure solve on the smallest training duct is priced at ten and the analysis at zero",
+    "expected_knowledge_gain": "Two distinguishable outcomes, each changing a decision: the falsifier produces transverse flow and the lab owns a defended structural result that fixes the ordering of the reproduction ladder and names the floor no scalar correction crosses, or it reads zero and the deficiency stops being attributable to the closure class, which stops the tensor-basis carrier from being built on a wrong premise",
+    "source_kind": "gate",
+    "citations": [
+        "demo-output/website/ACTIVE_RESEARCH.md Campaign F6, F6c section",
+        "demo-output/website/campaign/W2_POPE_1975_INTEGRITY_BASIS.md",
+        "demo-output/website/closure_challenge_C2_error_decomposition.md",
+        "Pope, JFM 72 331 to 340, 1975, READ IN FULL 2026-08-02"
+    ],
+    "in_sample_verdict": "Clean. The structural statement is about a model class, not about any scored case; the one solve runs on a training duct, the scored test ducts are never opened by it, nothing is fitted, and no score call is made. The gate measurement it interprets read baseline predictions on test geometries, which the rules permit; no test data enters any trained or tuned object here.",
+    "status": "approved",
+    "created_at": "2026-08-04T15:25:00Z",
+    "decided_at": "2026-08-05T16:20:00Z",
+    "decision_note": "approved under Katie's blanket approval 2026-08-05",
+    "claim": {
+        "claimed_by": "research-agent w3-qcr-rank2-parity (closure session)",
+        "claimed_at": "2026-08-05T16:20:00Z",
+        "note": "Falsifier arm claimed jointly with w3-qcr-constitutive-term-for-rank2-parity: the quadratic-constitutive instrument is QCR2000 (c_r=0.3) on the smallest training duct's existing mesh, graded by the same duct_secondary_flow.py probe. Prediction stands as pre-registered: nonzero transverse mean flow at the percent-of-bulk scale."
+    }
 }
