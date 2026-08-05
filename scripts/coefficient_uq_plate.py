@@ -270,16 +270,30 @@ def run_one(tag: str, x: np.ndarray | None, *, restart: bool = True,
     return rec
 
 
+def concurrency_now() -> tuple[int, int]:
+    """(dafoam containers up, how many solves this run may hold at once).
+
+    Each dafoam container is launched at --cpus=2, so the cores it is entitled
+    to are the ones this run must not take. What is left over, halved to leave
+    the box headroom, is the concurrency -- which is why a busy box slows this
+    study down instead of stopping it, and why a saturated one stops it.
+    """
+    busy = dafoam_containers()
+    free = os.cpu_count() or 4
+    free -= 2 * busy
+    return busy, max(0, min(MAX_CONCURRENT, free // 2))
+
+
 def solve_set(jobs: list[tuple[str, np.ndarray | None]]) -> list[dict[str, Any]]:
     """Run a set of solves with strict, bounded concurrency."""
-    busy = dafoam_containers()
-    limit = max(1, MAX_CONCURRENT - busy)
+    busy, limit = concurrency_now()
     deadline = time.monotonic() + 1800
-    while busy >= 3 and time.monotonic() < deadline:
-        print(f"[queue] {busy} dafoam containers up; waiting", flush=True)
+    while limit < 1 and time.monotonic() < deadline:
+        print(f"[queue] {busy} dafoam containers up, no free cores; waiting",
+              flush=True)
         time.sleep(60)
-        busy = dafoam_containers()
-        limit = max(1, MAX_CONCURRENT - busy)
+        busy, limit = concurrency_now()
+    limit = max(1, limit)
     print(f"[queue] {busy} dafoam containers; running {limit} solves at a time",
           flush=True)
     out: list[dict[str, Any]] = []
@@ -484,9 +498,45 @@ def stage_solve(only: str | None) -> None:
         save_results(data)
 
 
+def stage_verify(n: int = 2) -> None:
+    """Cold-start replicas of samples already solved by restart.
+
+    Restarting from a converged field is the whole reason this study fits in
+    its budget, and the lab has been bitten before by a restart that walked off
+    the state it restarted from. So two of the training samples are re-solved
+    from the original initial condition with no restart at all, and the two Cd
+    values are compared. If they disagree by anything approaching the band, the
+    band is an artefact of the restart and the study says so.
+    """
+    data = load_results()
+    train = data.get("train") or []
+    if not train:
+        raise SystemExit("no training samples to verify")
+    picks = [train[0], train[len(train) // 2]]
+    checks = []
+    for rec in picks[:n]:
+        x = np.array(rec["x"])
+        cold = run_one(f"cold_{rec['tag']}", x, restart=False, iterations=5000)
+        delta = cold["cd"] - rec["cd"]
+        checks.append({
+            "tag": rec["tag"],
+            "cd_restart": rec["cd"], "cd_cold": cold["cd"],
+            "delta": delta,
+            "delta_pct_of_cd": 100.0 * delta / rec["cd"],
+            "cold_iterations": cold["iterations"],
+            "cold_core_minutes": cold["core_minutes"],
+            "cold_flat": cold["flat"],
+        })
+        print(f"[verify] {rec['tag']} restart {rec['cd']:.9f} vs cold "
+              f"{cold['cd']:.9f} ({100.0 * delta / rec['cd']:+.4f}%)", flush=True)
+    data["restart_verification"] = checks
+    save_results(data)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("stage", choices=["preregister", "baseline", "solve"])
+    ap.add_argument("stage", choices=["preregister", "baseline", "solve",
+                                      "verify", "analyze"])
     ap.add_argument("--only", choices=["train", "valid", "nominal"])
     args = ap.parse_args()
     RUN_ROOT.mkdir(parents=True, exist_ok=True)
@@ -494,8 +544,13 @@ def main() -> None:
         preregister()
     elif args.stage == "baseline":
         stage_baseline()
-    else:
+    elif args.stage == "solve":
         stage_solve(args.only)
+    elif args.stage == "verify":
+        stage_verify()
+    else:
+        from coefficient_uq_plate_analysis import analyze  # noqa: WPS433
+        analyze()
 
 
 if __name__ == "__main__":

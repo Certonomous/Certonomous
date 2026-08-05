@@ -2,7 +2,7 @@
   "body": "tmr_flatplate_fine",
   "study": "coefficient-uncertainty propagation ladder",
   "docket_item": "r2-closure-coefficient-uncertainty",
-  "status": "pre-registered",
+  "status": "complete",
   "preregistered_utc": "2026-08-05T17:11:47Z",
   "preregistration_contract": "Written and committed BEFORE any sample was solved. Sample count, seeds, coefficient box, derived-coefficient map, quantities of interest, convergence gate and the surrogate designs below are the design of record; anything that had to change afterwards is recorded in `deviations` with its reason, and the seeds make the sample points themselves reproducible without trusting this file.",
   "case": {
@@ -497,9 +497,682 @@
   },
   "budget_core_min": 100,
   "citations": [
-    "Schaefer, Hosder, West, Rumsey, Carlson and Kleb, 'Uncertainty Quantification of Turbulence Model Closure Coefficients for Transonic Wall-Bounded Flows', AIAA Journal 55(1), 2017, pp. 195-213",
-    "Schaefer, Cary, Mani and Spalart, 'Uncertainty Quantification and Sensitivity Analysis of SA Turbulence Model Coefficients in Two and Three Dimensions', AIAA 2017-1710",
-    "Menter, 'Two-Equation Eddy-Viscosity Turbulence Models for Engineering Applications', AIAA Journal 32(8), 1994, pp. 1598-1605 (log-layer relation for gamma_i)",
-    "NASA Turbulence Modeling Resource, 2D zero-pressure-gradient flat plate, SST-V grid-convergence data (turbmodels.larc.nasa.gov)"
-  ]
+    "Schaefer, J., West, T., Hosder, S., Rumsey, C., Carlson, J.-R., and Kleb, W., \"Uncertainty Quantification of Turbulence Model Closure Coefficients for Transonic Wall-Bounded Flows,\" AIAA Journal, Vol. 55, No. 1, 2017, pp. 195-213, doi:10.2514/1.J054902. Conference version AIAA Paper 2015-2461; NASA NTRS 20160005982. SST intervals: Table 3.",
+    "Georgiadis, N. J., and Yoder, D. A., \"Recalibration of the Shear Stress Transport Model to Improve Calculation of Shock Separated Flows,\" NASA/TM-2013-217851, AIAA Paper 2013-0685, February 2013.",
+    "Menter, F. R., private communication with J. Schaefer, June 2014, quoted in AIAA Journal 55(1) 2017: a1 may only be increased.",
+    "Bailey, S. C. C., Vallikivi, M., Hultmark, M., and Smits, A. J., \"Estimating the value of von Karman's constant in turbulent pipe flow,\" Journal of Fluid Mechanics, Vol. 749, 2014, pp. 79-98.",
+    "Wilcox, D. C., Turbulence Modeling for CFD, 3rd ed., DCW Industries, 2006.",
+    "Menter, F. R., \"Two-Equation Eddy-Viscosity Turbulence Models for Engineering Applications,\" AIAA Journal, Vol. 32, No. 8, 1994, pp. 1598-1605.",
+    "Hosder, S., Walters, R. W., and Balch, M., \"Point-Collocation Nonintrusive Polynomial Chaos Method for Stochastic Computational Fluid Dynamics,\" AIAA Journal, Vol. 48, No. 12, 2010.",
+    "Platteeuw, P. D. A., Loeven, G. J. A., and Bijl, H., \"Uncertainty Quantification Applied to the k-epsilon Model of Turbulence Using the Probabilistic Collocation Method,\" AIAA Paper 2008-2150, 2008 (prior art; metadata only, full text not opened).",
+    "NASA Turbulence Modeling Resource, 2D zero-pressure-gradient flat plate, SST-V grid-convergence data (turbmodels.larc.nasa.gov; mirror tmbwg.github.io/turbmodels)."
+  ],
+  "source_verification": {
+    "verified_utc": "2026-08-05T17:15:00Z",
+    "how": "The docket item recorded the intervals numerically but cited the paper only by title. Every interval below was read off the source's own Table 3 in the NASA NTRS copy of the conference version (ntrs.nasa.gov/api/citations/20160005982), which is the full text; the AIAA Journal version is paywalled and was NOT opened, so a number that changed between conference and journal would not have been caught.",
+    "table_3_verbatim": {
+      "sigma_k1": {
+        "standard": 0.85,
+        "interval": [
+          0.7,
+          1.0
+        ]
+      },
+      "sigma_k2": {
+        "standard": 1.0,
+        "interval": [
+          0.8,
+          1.2
+        ]
+      },
+      "sigma_w1": {
+        "standard": 0.5,
+        "interval": [
+          0.3,
+          0.7
+        ]
+      },
+      "sigma_w2": {
+        "standard": 0.856,
+        "interval": [
+          0.7,
+          1.0
+        ]
+      },
+      "betaStar_over_beta1": {
+        "standard": 1.2,
+        "interval": [
+          1.19,
+          1.31
+        ]
+      },
+      "betaStar_over_beta2": {
+        "standard": 1.087,
+        "interval": [
+          1.05,
+          1.45
+        ]
+      },
+      "betaStar": {
+        "standard": 0.09,
+        "interval": [
+          0.0784,
+          0.1024
+        ]
+      },
+      "kappa": {
+        "standard": 0.41,
+        "interval": [
+          0.38,
+          0.42
+        ]
+      },
+      "a1": {
+        "standard": 0.31,
+        "interval": [
+          0.31,
+          0.4
+        ]
+      }
+    },
+    "every_docketed_interval_matched": true,
+    "provenance_per_interval": {
+      "betaStar": "Wilcox states tau_xy/k = 3/10 so betaStar = (tau_xy/k)^2 = 9/100; the interval comes from the source AUTHOR ASSUMING tau_xy/k in [0.28, 0.32]. It is an assumed range around a quoted value, not a measured one, and the docket item's phrase 'from Wilcox's measured stress ratio' overstates it. Wilcox, Turbulence Modeling for CFD, 3rd ed., 2006.",
+      "a1": "upper bound from Georgiadis and Yoder, NASA/TM-2013-217851: 'values of a1 greater than 0.40 were very similar to the unbounded BSL model. Therefore, the range of a1 investigated here was restricted to 0.31 <= a1 <= 0.40.' The increase-only rule is a PRIVATE COMMUNICATION from Menter to the first author, June 2014, quoted in the source: 'One can only increase a1 - decreasing it interferes with the log layer calibration.' Cite it as a private communication; there is no Menter publication behind it.",
+      "sigma_w1": "verified at [0.3, 0.7]. The source reuses its Wilcox-2006 intervals for coefficients the models share, but sigma_w's W2006 interval is [0.5, 0.7]; the SST table widens the lower bound to 0.3 and gives no reason.",
+      "betaStar_over_beta1": "from Wilcox's betaStar/beta0 = 1.25 +/- 0.06, set for W2006 (whose own standard value is 1.2712) and reused for SST. NOTE THE ASYMMETRY: SST's standard value 1.20 sits 0.01 above the interval's lower bound, so this coefficient is very nearly one-sided upward and beta1 can essentially only decrease.",
+      "betaStar_over_beta2": "numbers verified, RATIONALE NOT PUBLISHED. The source states no derivation for [1.05, 1.45]; the surrounding text says only that 'little more information is available regarding plausible domains for SST closure coefficients.' This study uses the interval as published and says here that it rests on nothing the reader can check.",
+      "kappa": "[0.38, 0.42] from Bailey, Vallikivi, Hultmark and Smits, JFM 749 (2014): kappa = 0.40 +/- 0.02 in turbulent pipe flow. The interval is centred on 0.40 while SST's standard value is 0.41, so the nominal is NOT the interval midpoint. Held at 0.41 here."
+    },
+    "log_layer_relation": {
+      "equations": "gamma_i = beta_i/betaStar - sigma_wi kappa^2 / sqrt(betaStar), the source's Eqs. (26)-(27), identical to the NASA Turbulence Modeling Resource SST page and to Menter 1994.",
+      "does_the_source_enforce_it": "INFERRED, NOT QUOTED. gamma1 and gamma2 are introduced as derived and do not appear among the nine coefficients Table 3 varies, and the source perturbs the RATIOS betaStar/beta_i rather than beta_i, which only makes sense if gamma is reconstructed. No sentence says so.",
+      "why_it_matters_in_openfoam": "OpenFOAM's kOmegaSST exposes gamma1 and gamma2 as free coefficients with hard-coded defaults and has no kappa at all. Perturbing betaStar, beta_i or sigma_w without writing gamma yourself does not reproduce the source's design - it breaks log-layer consistency - and perturbing kappa does nothing whatever. This study writes gamma1 and gamma2 for every sample for that reason."
+    },
+    "method_design_confirmed_against_source": "point-collocation non-intrusive polynomial chaos, Latin hypercube points, Legendre basis for bounded epistemic inputs, polynomial order 2 and oversampling ratio 2.0 - all four stated verbatim in the source's Section IV. This study's registered design matches all four.",
+    "no_published_band_to_compare_against": "The source does not run a flat plate; its cases are the axisymmetric transonic bump and RAE 2822. The study that does - Erb and Hosder, Computers & Fluids 227 (2021) 105027, SST coefficient UQ on the TMR 2D zero-pressure-gradient plate - is paywalled and was not opened, so its numbers are NOT in this record and this study's band is not claimed to agree or disagree with any published flat-plate band.",
+    "corrections_to_the_docket_entry": [
+      "conference version is AIAA 2015-2461 (AIAA AVIATION, Dallas, June 2015), not AIAA 2015-0430",
+      "author order is Schaefer, West, Hosder, Rumsey, Carlson, Kleb - West is second, not third",
+      "the betaStar interval is assumed by the source's author around Wilcox's quoted ratio, not measured by Wilcox",
+      "Platteeuw, Loeven and Bijl (AIAA 2008-2150) is prior art for chaos applied to RANS coefficients but is not cited by this source and is not its method basis; the method citation is Hosder, Walters and Balch, AIAA Journal 48(12), 2010"
+    ]
+  },
+  "box_is_a_subset": {
+    "sampled": 5,
+    "varied_by_the_source": 9,
+    "held_and_why": "sigma_k1, sigma_k2 and sigma_w2 carry published intervals in the same table and are HELD at their standard values here, and kappa is held at 0.41. The docket item put five coefficients in the box and this study honours that box. The consequence is stated rather than left to be noticed: an envelope over 5 of the 9 published intervals is a LOWER BOUND on the envelope over all nine. Widening to nine is named as follow-up, not claimed here."
+  },
+  "completed_utc": "2026-08-05T17:36:12Z",
+  "deviations_from_preregistration": [],
+  "samples_solved": {
+    "train_planned": 42,
+    "train_used": 42,
+    "valid_planned": 10,
+    "valid_used": 10,
+    "dropped_for_flatness": [],
+    "worst_cd_tail_spread": 2.869380000009719e-08
+  },
+  "baselines": {
+    "openfoam_default": {
+      "cd": 0.0028342538677,
+      "cf_station": 0.0026747849116543518,
+      "iterations": 2846,
+      "cd_tail_spread": 1.4077999998390878e-09
+    },
+    "log_layer_constrained_nominal": {
+      "cd": 0.0028465168981,
+      "cf_station": 0.0026868191762875115,
+      "iterations": 1438,
+      "cd_tail_spread": 1.0614000000089274e-09
+    },
+    "difference": {
+      "cd": 1.2263030399999996e-05,
+      "cd_pct": 0.43267226481555293,
+      "cf_station_pct": 0.4499152279768382,
+      "meaning": "the measured cost of OpenFOAM's rounded gamma1 = 5/9 against the log-layer-consistent 0.553167. It is reported because it is the size of the error a coefficient study makes when it perturbs betaStar and leaves gamma alone.",
+      "constrained_coefficients": {
+        "betaStar": 0.09,
+        "a1": 0.31,
+        "alphaOmega1": 0.5,
+        "beta1": 0.075,
+        "beta2": 0.0828,
+        "gamma1": 0.5531666666666668,
+        "gamma2": 0.4403546666666667
+      }
+    },
+    "reference": {
+      "cfl3d_sst_v": {
+        "cd": 0.0028259696,
+        "cf097": 0.00266477116
+      },
+      "fun3d_sst_v": {
+        "cd": 0.00277329,
+        "cf097": 0.00265845195545244
+      },
+      "our_cd_vs_cfl3d_pct": 0.2931477996083215,
+      "our_cf_vs_cfl3d_pct": 0.37578279908852397
+    }
+  },
+  "restart_verification": [
+    {
+      "tag": "train_00",
+      "cd_restart": 0.0029851562677,
+      "cd_cold": 0.0029852378738,
+      "delta": 8.160610000034971e-08,
+      "delta_pct_of_cd": 0.00273372958338377,
+      "cold_iterations": 2749,
+      "cold_core_minutes": 1.336,
+      "cold_flat": true
+    },
+    {
+      "tag": "train_21",
+      "cd_restart": 0.0031140574243,
+      "cd_cold": 0.0031141529174,
+      "delta": 9.549309999993746e-08,
+      "delta_pct_of_cd": 0.0030665169901741,
+      "cold_iterations": 2856,
+      "cold_core_minutes": 1.3927,
+      "cold_flat": true
+    }
+  ],
+  "propagation": {
+    "cd": {
+      "quantity": "Cd",
+      "baseline_openfoam_default": 0.0028342538677,
+      "reference": {
+        "code": "CFL3D SST-V",
+        "value": 0.0028259696,
+        "second_code": "FUN3D SST-V",
+        "second_value": 0.00277329,
+        "source": "NASA TMR grid-convergence data at this cell count"
+      },
+      "monte_carlo": {
+        "n": 42,
+        "min": 0.0023311059177,
+        "max": 0.0031887189613,
+        "envelope_width": 0.0008576130436,
+        "mean": 0.0028741625320071428,
+        "std": 0.00022654574046353698,
+        "percentile_5": 0.00248436546201,
+        "percentile_95": 0.003169627397935,
+        "central_90_width": 0.0006852619359250002,
+        "reading_note": "envelope is the interval reading of an epistemic box; the percentile and standard-deviation figures exist only under the sampling distribution assumed over that box and are never folded into a quadrature as if they were measured scatter",
+        "reference": 0.0028259696,
+        "envelope_pct_of_reference": 30.347567914389455,
+        "reference_inside_envelope": true,
+        "method": "direct propagation: 42 maximin-Latin-hypercube samples of the 5-coefficient box, one solve each on the held mesh",
+        "baseline_inside_envelope": true
+      },
+      "polynomial_chaos": {
+        "order_1": {
+          "order": 1,
+          "n_terms": 6,
+          "n_samples": 42,
+          "oversampling_ratio": 7.0,
+          "mean": 0.0028739249220887846,
+          "std": 0.00020699154952775667,
+          "variance": 4.284550157590174e-08,
+          "fit_rmse": 6.448982085248973e-05,
+          "loo_rmse": 7.768361671151196e-05,
+          "loo_q2": 0.879548418825361,
+          "design_condition_number": 1.613193268547339,
+          "sobol_first_order": {
+            "betaStar": 0.006477,
+            "a1": 0.03169,
+            "sigma_w1": 0.959044,
+            "betaStar_over_beta1": 0.002789,
+            "betaStar_over_beta2": 0.0
+          },
+          "sobol_total": {
+            "betaStar": 0.006477,
+            "a1": 0.03169,
+            "sigma_w1": 0.959044,
+            "betaStar_over_beta1": 0.002789,
+            "betaStar_over_beta2": 0.0
+          },
+          "basis": "orthonormal Legendre products (uniform germ)",
+          "fit": "point-collocation least squares (non-intrusive)",
+          "notes": [
+            "leave-one-out Q2 = 0.880: the expansion does not reproduce points it did not see, so its variance shares are a reading of the fit, not of the response"
+          ],
+          "holdout_rmse": 5.546145723319811e-05,
+          "holdout_q2": 0.924376126730924,
+          "holdout_max_abs_error": 8.246197420730232e-05,
+          "band": {
+            "n": 200000,
+            "min": 0.002418872151322956,
+            "max": 0.0033192428521474364,
+            "envelope_width": 0.0009003707008244802,
+            "mean": 0.002874105752843751,
+            "std": 0.00020665951389559862,
+            "percentile_5": 0.002551724784505783,
+            "percentile_95": 0.0031959050724736124,
+            "central_90_width": 0.0006441802879678295,
+            "reading_note": "envelope is the interval reading of an epistemic box; the percentile and standard-deviation figures exist only under the sampling distribution assumed over that box and are never folded into a quadrature as if they were measured scatter",
+            "reference": 0.0028259696,
+            "envelope_pct_of_reference": 31.860594000178917,
+            "reference_inside_envelope": true
+          }
+        },
+        "order_2": {
+          "order": 2,
+          "n_terms": 21,
+          "n_samples": 42,
+          "oversampling_ratio": 2.0,
+          "mean": 0.0028683657221974614,
+          "std": 0.00021040559800390636,
+          "variance": 4.427051567138144e-08,
+          "fit_rmse": 2.326024363349283e-05,
+          "loo_rmse": 5.9858437310305374e-05,
+          "loo_q2": 0.9284838080520037,
+          "design_condition_number": 5.066339571692592,
+          "sobol_first_order": {
+            "betaStar": 0.004232,
+            "a1": 0.047724,
+            "sigma_w1": 0.921963,
+            "betaStar_over_beta1": 0.000375,
+            "betaStar_over_beta2": 0.002983
+          },
+          "sobol_total": {
+            "betaStar": 0.021845,
+            "a1": 0.063877,
+            "sigma_w1": 0.925198,
+            "betaStar_over_beta1": 0.004038,
+            "betaStar_over_beta2": 0.007765
+          },
+          "basis": "orthonormal Legendre products (uniform germ)",
+          "fit": "point-collocation least squares (non-intrusive)",
+          "notes": [],
+          "holdout_rmse": 3.836341061470888e-05,
+          "holdout_q2": 0.9638164823940918,
+          "holdout_max_abs_error": 9.3952040598999e-05,
+          "band": {
+            "n": 200000,
+            "min": 0.0021457207417294906,
+            "max": 0.0032149052745523983,
+            "envelope_width": 0.0010691845328229077,
+            "mean": 0.0028685683322912507,
+            "std": 0.00021026655843402458,
+            "percentile_5": 0.0024979118551074373,
+            "percentile_95": 0.0031485856377171627,
+            "central_90_width": 0.0006506737826097253,
+            "reading_note": "envelope is the interval reading of an epistemic box; the percentile and standard-deviation figures exist only under the sampling distribution assumed over that box and are never folded into a quadrature as if they were measured scatter",
+            "reference": 0.0028259696,
+            "envelope_pct_of_reference": 37.834254580194624,
+            "reference_inside_envelope": true
+          }
+        }
+      },
+      "gaussian_process": {
+        "kernel": "anisotropic squared exponential + nugget",
+        "hyperparameters_by": "marginal likelihood maximisation",
+        "n_samples": 42,
+        "signal_std": 0.0002340491237884563,
+        "noise_std": 2.7623127434916263e-08,
+        "lengthscales_unit_box": {
+          "betaStar": 1.94958,
+          "a1": 0.54411,
+          "sigma_w1": 0.22233,
+          "betaStar_over_beta1": 20.08554,
+          "betaStar_over_beta2": 17.68481
+        },
+        "loo_rmse": 2.16557926716133e-05,
+        "loo_q2": 0.9906394406409197,
+        "loo_z_rms": 0.8730201560369165,
+        "log_marginal_likelihood": 16.255647942968153,
+        "calibration_note": "loo_z_rms is the RMS of the held-out residual divided by the posterior standard deviation the process claimed for it; near 1 the process's own error bars are honest, well above 1 they are too narrow and below 1 too wide",
+        "holdout_rmse": 3.882291977322314e-05,
+        "holdout_q2": 0.9629444935470257,
+        "holdout_max_abs_error": 0.0001191676503273678,
+        "holdout_z_rms": 2.909829133611862,
+        "band": {
+          "n": 200000,
+          "min": 0.002274509892727707,
+          "max": 0.0032165831829831103,
+          "envelope_width": 0.0009420732902554033,
+          "mean": 0.002876939599976068,
+          "std": 0.0002092459822233103,
+          "percentile_5": 0.0025050052366360894,
+          "percentile_95": 0.003149856277093925,
+          "central_90_width": 0.0006448510404578355,
+          "reading_note": "envelope is the interval reading of an epistemic box; the percentile and standard-deviation figures exist only under the sampling distribution assumed over that box and are never folded into a quadrature as if they were measured scatter",
+          "reference": 0.0028259696,
+          "envelope_pct_of_reference": 33.33628536752141,
+          "reference_inside_envelope": true
+        }
+      },
+      "band_comparison": {
+        "envelope_width": {
+          "monte_carlo": 0.0008576130436,
+          "polynomial_chaos_order_2": 0.0010691845328229077,
+          "gaussian_process": 0.0009420732902554033
+        },
+        "std": {
+          "monte_carlo": 0.00022654574046353698,
+          "polynomial_chaos_order_2": 0.00021026655843402458,
+          "gaussian_process": 0.0002092459822233103
+        },
+        "chaos_std_vs_mc_pct": -7.185825695156946,
+        "process_std_vs_mc_pct": -7.636320243686557,
+        "reading": "the standard deviations are the comparable pair: all three are computed over the same assumed uniform box. The ENVELOPES are not directly comparable -- the direct one is a minimum over 42 solves and the surrogate ones are minima over 200,000 surrogate evaluations, so the surrogate envelopes should be wider whenever the surrogates are trustworthy, and that is what makes them useful"
+      }
+    },
+    "cf_station": {
+      "quantity": "Cf at x = 0.970084071",
+      "baseline_openfoam_default": 0.0026747849116543518,
+      "reference": {
+        "code": "CFL3D SST-V",
+        "value": 0.00266477116,
+        "second_code": "FUN3D SST-V",
+        "second_value": 0.00265845195545244,
+        "source": "NASA TMR grid-convergence data at this cell count"
+      },
+      "monte_carlo": {
+        "n": 42,
+        "min": 0.002196664427333043,
+        "max": 0.0029957338768330033,
+        "envelope_width": 0.0007990694494999602,
+        "mean": 0.002705870258440729,
+        "std": 0.00021016906223189657,
+        "percentile_5": 0.0023429424598864356,
+        "percentile_95": 0.0029779396697125382,
+        "central_90_width": 0.0006349972098261027,
+        "reading_note": "envelope is the interval reading of an epistemic box; the percentile and standard-deviation figures exist only under the sampling distribution assumed over that box and are never folded into a quadrature as if they were measured scatter",
+        "reference": 0.00266477116,
+        "envelope_pct_of_reference": 29.986419152778588,
+        "reference_inside_envelope": true,
+        "method": "direct propagation: 42 maximin-Latin-hypercube samples of the 5-coefficient box, one solve each on the held mesh",
+        "baseline_inside_envelope": true
+      },
+      "polynomial_chaos": {
+        "order_1": {
+          "order": 1,
+          "n_terms": 6,
+          "n_samples": 42,
+          "oversampling_ratio": 7.0,
+          "mean": 0.002705647452952851,
+          "std": 0.0001920409152935899,
+          "variance": 3.687971314679977e-08,
+          "fit_rmse": 6.0344128396265866e-05,
+          "loo_rmse": 7.269079226183823e-05,
+          "loo_q2": 0.8774575199672312,
+          "design_condition_number": 1.613193268547339,
+          "sobol_first_order": {
+            "betaStar": 0.00635,
+            "a1": 0.030517,
+            "sigma_w1": 0.960374,
+            "betaStar_over_beta1": 0.002758,
+            "betaStar_over_beta2": 2e-06
+          },
+          "sobol_total": {
+            "betaStar": 0.00635,
+            "a1": 0.030517,
+            "sigma_w1": 0.960374,
+            "betaStar_over_beta1": 0.002758,
+            "betaStar_over_beta2": 2e-06
+          },
+          "basis": "orthonormal Legendre products (uniform germ)",
+          "fit": "point-collocation least squares (non-intrusive)",
+          "notes": [
+            "leave-one-out Q2 = 0.877: the expansion does not reproduce points it did not see, so its variance shares are a reading of the fit, not of the response"
+          ],
+          "holdout_rmse": 5.183437189818966e-05,
+          "holdout_q2": 0.9231861589272271,
+          "holdout_max_abs_error": 7.734630193108024e-05,
+          "band": {
+            "n": 200000,
+            "min": 0.0022842244087153667,
+            "max": 0.003117529314275102,
+            "envelope_width": 0.0008333049055597353,
+            "mean": 0.0027058155797503127,
+            "std": 0.0001917331352738273,
+            "percentile_5": 0.0024068046028918586,
+            "percentile_95": 0.0030042585825050296,
+            "central_90_width": 0.0005974539796131709,
+            "reading_note": "envelope is the interval reading of an epistemic box; the percentile and standard-deviation figures exist only under the sampling distribution assumed over that box and are never folded into a quadrature as if they were measured scatter",
+            "reference": 0.00266477116,
+            "envelope_pct_of_reference": 31.271161969485412,
+            "reference_inside_envelope": true
+          }
+        },
+        "order_2": {
+          "order": 2,
+          "n_terms": 21,
+          "n_samples": 42,
+          "oversampling_ratio": 2.0,
+          "mean": 0.002700436904547679,
+          "std": 0.00019530155829116557,
+          "variance": 3.814269867095754e-08,
+          "fit_rmse": 2.1819440034620865e-05,
+          "loo_rmse": 5.602549890017761e-05,
+          "loo_q2": 0.9272053728488348,
+          "design_condition_number": 5.066339571692592,
+          "sobol_first_order": {
+            "betaStar": 0.004089,
+            "a1": 0.045917,
+            "sigma_w1": 0.923328,
+            "betaStar_over_beta1": 0.000376,
+            "betaStar_over_beta2": 0.003054
+          },
+          "sobol_total": {
+            "betaStar": 0.021834,
+            "a1": 0.062086,
+            "sigma_w1": 0.927016,
+            "betaStar_over_beta1": 0.004153,
+            "betaStar_over_beta2": 0.008147
+          },
+          "basis": "orthonormal Legendre products (uniform germ)",
+          "fit": "point-collocation least squares (non-intrusive)",
+          "notes": [],
+          "holdout_rmse": 3.574245359105636e-05,
+          "holdout_q2": 0.9634764884792437,
+          "holdout_max_abs_error": 8.764709097870997e-05,
+          "band": {
+            "n": 200000,
+            "min": 0.0020228722343553973,
+            "max": 0.0030200479722488926,
+            "envelope_width": 0.0009971757378934953,
+            "mean": 0.002700622738991515,
+            "std": 0.00019517388060924967,
+            "percentile_5": 0.0023555864766050443,
+            "percentile_95": 0.0029590103910679373,
+            "central_90_width": 0.0006034239144628931,
+            "reading_note": "envelope is the interval reading of an epistemic box; the percentile and standard-deviation figures exist only under the sampling distribution assumed over that box and are never folded into a quadrature as if they were measured scatter",
+            "reference": 0.00266477116,
+            "envelope_pct_of_reference": 37.4206893583123,
+            "reference_inside_envelope": true
+          }
+        }
+      },
+      "gaussian_process": {
+        "kernel": "anisotropic squared exponential + nugget",
+        "hyperparameters_by": "marginal likelihood maximisation",
+        "n_samples": 42,
+        "signal_std": 0.0002177098480514629,
+        "noise_std": 2.5626921507524205e-08,
+        "lengthscales_unit_box": {
+          "betaStar": 1.95623,
+          "a1": 0.53669,
+          "sigma_w1": 0.22316,
+          "betaStar_over_beta1": 20.08554,
+          "betaStar_over_beta2": 19.18852
+        },
+        "loo_rmse": 1.936065124248941e-05,
+        "loo_q2": 0.9913070379362715,
+        "loo_z_rms": 0.8661296656920108,
+        "log_marginal_likelihood": 16.22547137384487,
+        "calibration_note": "loo_z_rms is the RMS of the held-out residual divided by the posterior standard deviation the process claimed for it; near 1 the process's own error bars are honest, well above 1 they are too narrow and below 1 too wide",
+        "holdout_rmse": 3.562762393837054e-05,
+        "holdout_q2": 0.9637107894142045,
+        "holdout_max_abs_error": 0.00010956663447574469,
+        "holdout_z_rms": 2.8588310678231825,
+        "band": {
+          "n": 200000,
+          "min": 0.00214550364377921,
+          "max": 0.0030205945687641527,
+          "envelope_width": 0.0008750909249849426,
+          "mean": 0.002708996792118319,
+          "std": 0.00019405791232010784,
+          "percentile_5": 0.0023634578088879044,
+          "percentile_95": 0.0029601423096788115,
+          "central_90_width": 0.0005966845007909071,
+          "reading_note": "envelope is the interval reading of an epistemic box; the percentile and standard-deviation figures exist only under the sampling distribution assumed over that box and are never folded into a quadrature as if they were measured scatter",
+          "reference": 0.00266477116,
+          "envelope_pct_of_reference": 32.839252320073236,
+          "reference_inside_envelope": true
+        }
+      },
+      "band_comparison": {
+        "envelope_width": {
+          "monte_carlo": 0.0007990694494999602,
+          "polynomial_chaos_order_2": 0.0009971757378934953,
+          "gaussian_process": 0.0008750909249849426
+        },
+        "std": {
+          "monte_carlo": 0.00021016906223189657,
+          "polynomial_chaos_order_2": 0.00019517388060924967,
+          "gaussian_process": 0.00019405791232010784
+        },
+        "chaos_std_vs_mc_pct": -7.134818732788319,
+        "process_std_vs_mc_pct": -7.66580472915276,
+        "reading": "the standard deviations are the comparable pair: all three are computed over the same assumed uniform box. The ENVELOPES are not directly comparable -- the direct one is a minimum over 42 solves and the surrogate ones are minima over 200,000 surrogate evaluations, so the surrogate envelopes should be wider whenever the surrogates are trustworthy, and that is what makes them useful"
+      }
+    }
+  },
+  "composed_band": {
+    "quantity": "flat-plate Cd",
+    "combined_95": null,
+    "contributions": {},
+    "largest": null,
+    "missing": [
+      "input",
+      "numerical",
+      "model"
+    ],
+    "withheld": {},
+    "channels": {
+      "input": {
+        "quantified": false,
+        "band_abs": null,
+        "method": null,
+        "screening_estimate": false
+      },
+      "numerical": {
+        "quantified": false,
+        "band_abs": null,
+        "method": null,
+        "screening_estimate": false
+      },
+      "model": {
+        "quantified": false,
+        "band_abs": null,
+        "method": null,
+        "screening_estimate": false
+      }
+    },
+    "covers_all_channels": false,
+    "coverage_statement": "No channel of flat-plate Cd carries a figure, so there is no total; the channels are reported unquantified.",
+    "combined_by": "chief_engineer.uq.combine_expanded (root sum of squares, 95 percent, over the quantified channels only)",
+    "working_value": 0.0028342538677,
+    "coefficient_interval": {
+      "low": 0.0023311059177,
+      "high": 0.0031887189613,
+      "width": 0.0008576130436,
+      "n_samples": 42,
+      "method": "joint 42-sample maximin Latin hypercube over the five published SST coefficient intervals, log-layer consistency enforced, held mesh, restarted from converged",
+      "citations": [
+        "Schaefer, West, Hosder, Rumsey, Carlson and Kleb, AIAA Journal 55(1), 2017, Table 3"
+      ],
+      "carried_as": "interval",
+      "in_quadrature": false,
+      "why_not_in_quadrature": "an epistemic interval has no density behind it; turning its width into a sigma so it can be squared into an RSS invents the density and reports a total the evidence does not support",
+      "working_value": 0.0028342538677,
+      "width_pct_of_working": 30.25886471828135,
+      "working_inside": true
+    },
+    "coefficient_interval_note": "reported alongside the combined band, not inside it"
+  },
+  "channel_table": [
+    {
+      "channel": "input",
+      "state": "unquantified",
+      "band_abs": null,
+      "method": null,
+      "screening_estimate": false,
+      "note": null
+    },
+    {
+      "channel": "numerical",
+      "state": "unquantified",
+      "band_abs": null,
+      "method": null,
+      "screening_estimate": false,
+      "note": null
+    },
+    {
+      "channel": "model",
+      "state": "unquantified",
+      "band_abs": null,
+      "method": null,
+      "screening_estimate": false,
+      "note": null
+    }
+  ],
+  "core_minutes": 44.67,
+  "plots": [
+    "band_comparison.png",
+    "cf_band.png",
+    "sobol_shares.png",
+    "surrogate_validation.png"
+  ],
+  "samples_record": "demo-output/website/r2-coefficient-uq-flatplate/samples.json",
+  "dominance_diagnostic": {
+    "question": "does the leading coefficient act directly, or through gamma1?",
+    "gamma1_range_over_samples": [
+      0.38081506615862387,
+      0.6682712559715377
+    ],
+    "gamma1_at_constrained_nominal": 0.5531666666666668,
+    "pearson_r_cd_vs_gamma1": -0.9165589440875455,
+    "pearson_r_cd_vs_each_coefficient": {
+      "betaStar": -0.0035017456011932793,
+      "a1": 0.33877157596128143,
+      "sigma_w1": 0.9372807405929112,
+      "betaStar_over_beta1": 0.28890666839880463,
+      "betaStar_over_beta2": 0.12735259329299956
+    },
+    "who_owns_gamma1_variance": {
+      "betaStar": 0.0256,
+      "a1": 0.0,
+      "sigma_w1": 0.8732,
+      "betaStar_over_beta1": 0.1025,
+      "betaStar_over_beta2": 0.0
+    },
+    "cd_from_gamma1_alone_loo_q2": 0.8435484333791174,
+    "finding": "sigma_w1 owns the band because sigma_w1 owns gamma1. gamma1 is not a free coefficient in this study -- it is reconstructed from the log-layer relation, in which sigma_w1 enters with the largest lever -- and Cd tracks gamma1 far more tightly than it tracks any coefficient sampled directly. THE CONSEQUENCE FOR COMPARISON: a coefficient study that leaves gamma at its default while moving sigma_w1 is moving only the omega-equation diffusion and will find sigma_w1 nearly inert. The motorbike stage of this docket item is such a study. The two studies' sigma_w1 rankings are therefore not the same quantity and must not be read against each other."
+  },
+  "findings": {
+    "band_dwarfs_the_validation_discrepancy": "The case's own agreement with CFL3D is +0.29% on Cd. The joint coefficient band is 8.576e-04 wide, 30.3% of the reference value \u2014 about 104 times the discrepancy the validation is usually reported as. A validated case is not a case with a small model channel; it is a case whose closure happened to be calibrated near the answer.",
+    "log_layer_correction_exceeds_the_validation_discrepancy": "Simply making gamma1 consistent with the log-layer relation, at otherwise nominal coefficients, moves Cd by +0.433% \u2014 larger than the +0.29% gap to CFL3D that this case is validated on. The rounding of gamma1 to 5/9 in OpenFOAM's defaults is not a rounding as far as this QoI is concerned.",
+    "dominant_coefficient": "sigma_w1, total-effect variance share 0.925, with the other four sharing 0.075. See dominance_diagnostic: the effect runs through the derived gamma1.",
+    "published_ranking_does_not_transfer": "The source paper finds betaStar dominant for drag and skin friction in transonic wall-bounded flow. Here betaStar's total-effect share is 0.022 and its correlation with Cd is essentially zero. The ranking measured on this incompressible zero-pressure-gradient plate is not the published transonic one, which is what running it was for.",
+    "the_process_surrogate_is_overconfident": "Its held-out z-RMS is 2.91: on the ten solves it never saw, its errors are about three times the posterior standard deviation it claimed for them. Its MEAN is good (held-out Q2 0.9629) and its band agrees with the direct one, but its own error bars are not yet a trustworthy statement about a point it has not solved, and are not used as one anywhere in this record.",
+    "the_three_propagations_agree": "Chaos and process surrogate land within 7.6% of the direct standard deviation, on held-out data neither saw. On this response the cheap fits are not buying accuracy over direct sampling \u2014 they are buying the variance decomposition and the ability to interrogate the box without solving again."
+  },
+  "validation_comparison": {
+    "reference": "CFL3D SST-V at this cell count",
+    "our_cd": 0.0028342538677,
+    "reference_cd": 0.0028259696,
+    "E_cd": 8.284267700000084e-06,
+    "E_cd_pct": 0.2931477996083215,
+    "model_channel_not_completed_here": "V&V-20's direct mechanism needs u_val^2 = u_num^2 + u_input^2 + u_D^2 and this pass measured none of those three on this body, so E is reported as a comparison and the model channel is left honestly unquantified rather than set to |E|."
+  },
+  "follow_ups": [
+    "route certificate.py's uncertainty section through uncertainty_band.compose (deliberately not done in this pass: the certificate path took a truthfulness fix in 4925fafb and should land its own change with its own test pass)",
+    "widen the box from the docketed 5 coefficients to all 9 the source varies (sigma_k1, sigma_k2, sigma_w2, kappa); this study's envelope is a lower bound on that one",
+    "store a numerical channel for this body from the existing TMR grid ladder so the model channel can be completed by the direct mechanism",
+    "re-read the motorbike stage's sigma_w1 ranking with gamma recomputed, since the two studies' sigma_w1 are not currently the same quantity"
+  ],
+  "budget_core_min_remaining": 55.33
 }

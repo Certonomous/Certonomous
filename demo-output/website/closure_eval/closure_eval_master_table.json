@@ -1,0 +1,353 @@
+{
+  "generated_at": "2026-08-05T17:36:03.206798+00:00",
+  "produced_by": "sdk/scripts/closure_eval_battery/build_master_table.py",
+  "scoring_calls": 0,
+  "ground_truth_reads": 0,
+  "leaderboard_as_published": [
+    {
+      "rank": 1,
+      "authors": "Reissmann, Fang, and Sandberg",
+      "overall": 0.0595,
+      "per_case": {
+        "alpha_15_13929_4048": 0.0592,
+        "alpha_15_13929_2024": 0.1339,
+        "alpha_05_4071_4048": 0.0606,
+        "alpha_05_4071_2024": 0.076,
+        "AR_1_Ret_360": 0.0387,
+        "AR_3_Ret_360": 0.0341,
+        "AR_14_Ret_180": 0.0325,
+        "NASA_2DWMH": 0.0412
+      }
+    },
+    {
+      "rank": 2,
+      "authors": "Wu and Zhang",
+      "overall": 0.0624,
+      "per_case": {
+        "alpha_15_13929_4048": 0.0813,
+        "alpha_15_13929_2024": 0.1195,
+        "alpha_05_4071_4048": 0.0569,
+        "alpha_05_4071_2024": 0.0848,
+        "AR_1_Ret_360": 0.0455,
+        "AR_3_Ret_360": 0.0399,
+        "AR_14_Ret_180": 0.035,
+        "NASA_2DWMH": 0.0364
+      }
+    },
+    {
+      "rank": 3,
+      "authors": "Liu, Wang, Zhao, and Xiao",
+      "overall": 0.0737,
+      "per_case": {
+        "alpha_15_13929_4048": 0.06,
+        "alpha_15_13929_2024": 0.1308,
+        "alpha_05_4071_4048": 0.0613,
+        "alpha_05_4071_2024": 0.0769,
+        "AR_1_Ret_360": 0.0875,
+        "AR_3_Ret_360": 0.0805,
+        "AR_14_Ret_180": 0.0548,
+        "NASA_2DWMH": 0.0377
+      }
+    },
+    {
+      "rank": 4,
+      "authors": "Montoya, Oulghelou, and Cinnella",
+      "overall": 0.0779,
+      "per_case": {
+        "alpha_15_13929_4048": 0.068,
+        "alpha_15_13929_2024": 0.1364,
+        "alpha_05_4071_4048": 0.0591,
+        "alpha_05_4071_2024": 0.0882,
+        "AR_1_Ret_360": 0.0895,
+        "AR_3_Ret_360": 0.0866,
+        "AR_14_Ret_180": 0.0487,
+        "NASA_2DWMH": 0.0464
+      }
+    }
+  ],
+  "leaderboard_source": "/home/ubuntu/closure-challenge-benchmark/README.md",
+  "leaderboard_row_count_readme": 4,
+  "leaderboard_row_count_preprint_table1": 3,
+  "our_round4": {
+    "overall": 0.0654,
+    "per_case": {
+      "alpha_15_13929_4048": 0.0501,
+      "alpha_15_13929_2024": 0.1011,
+      "alpha_05_4071_4048": 0.0461,
+      "alpha_05_4071_2024": 0.0719,
+      "AR_1_Ret_360": 0.0811,
+      "AR_3_Ret_360": 0.0775,
+      "AR_14_Ret_180": 0.0325,
+      "NASA_2DWMH": 0.0632
+    },
+    "submitted_to_organisers": false
+  },
+  "rans_floor_per_case": {
+    "alpha_15_13929_4048": 0.132,
+    "alpha_15_13929_2024": 0.2049,
+    "alpha_05_4071_4048": 0.0461,
+    "alpha_05_4071_2024": 0.0719,
+    "AR_1_Ret_360": 0.1288,
+    "AR_3_Ret_360": 0.1243,
+    "AR_14_Ret_180": 0.059,
+    "NASA_2DWMH": 0.0621
+  },
+  "metric_vs_physics_rows": [
+    {
+      "case": "alpha_15_13929_4048",
+      "kind": "PH-corrected",
+      "score_sub": 0.0501,
+      "score_floor": 0.132,
+      "div_sub": 0.1045932178643845,
+      "div_floor": 0.0018035637752954285,
+      "div_ratio": 57.992525297449966
+    },
+    {
+      "case": "alpha_15_13929_2024",
+      "kind": "PH-corrected",
+      "score_sub": 0.1011,
+      "score_floor": 0.2049,
+      "div_sub": 0.09671601094524035,
+      "div_floor": 0.0007821857899430992,
+      "div_ratio": 123.64838659658601
+    },
+    {
+      "case": "alpha_05_4071_4048",
+      "kind": "declined (raw RANS)",
+      "score_sub": 0.0461,
+      "score_floor": 0.0461,
+      "div_sub": 0.004651860770973583,
+      "div_floor": 0.004651860770973583,
+      "div_ratio": 1.0
+    },
+    {
+      "case": "alpha_05_4071_2024",
+      "kind": "declined (raw RANS)",
+      "score_sub": 0.0719,
+      "score_floor": 0.0719,
+      "div_sub": 0.002725058005214362,
+      "div_floor": 0.002725058005214362,
+      "div_ratio": 1.0
+    },
+    {
+      "case": "AR_1_Ret_360",
+      "kind": "duct-corrected",
+      "score_sub": 0.0811,
+      "score_floor": 0.1288,
+      "div_sub": 0.02287374645477075,
+      "div_floor": 2.3553762601307646e-17,
+      "div_ratio": 971129192475636.9
+    },
+    {
+      "case": "AR_3_Ret_360",
+      "kind": "duct-corrected",
+      "score_sub": 0.0775,
+      "score_floor": 0.1243,
+      "div_sub": 0.030774508755074138,
+      "div_floor": 6.925906746767252e-17,
+      "div_ratio": 444339057401234.9
+    },
+    {
+      "case": "AR_14_Ret_180",
+      "kind": "duct-corrected",
+      "score_sub": 0.0325,
+      "score_floor": 0.059,
+      "div_sub": 0.03407002623114441,
+      "div_floor": 4.571479733446652e-17,
+      "div_ratio": 745273482935413.4
+    },
+    {
+      "case": "NASA_2DWMH",
+      "kind": "PH-corrected",
+      "score_sub": 0.0632,
+      "score_floor": 0.0621,
+      "div_sub": 0.006636519093041388,
+      "div_floor": 0.004348543387797329,
+      "div_ratio": 1.5261476087980324
+    }
+  ],
+  "ph_battery": {
+    "alpha_05_10071_4048": {
+      "group": "validation",
+      "n_cells": 15600,
+      "U_b_crest_from_LES": 0.96526,
+      "h": 1.0,
+      "Lx_over_h": 10.029,
+      "stations_plotted_x_over_h": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "scaled_mae_cells_rans": 0.0759,
+      "scaled_mae_cells_corrected": 0.0772,
+      "max_pointwise_error_rans": 0.5983,
+      "max_pointwise_error_corrected": 0.375
+    },
+    "alpha_05_10071_2024": {
+      "group": "validation",
+      "n_cells": 15600,
+      "U_b_crest_from_LES": 1.36052,
+      "h": 0.9988,
+      "Lx_over_h": 10.041,
+      "stations_plotted_x_over_h": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "scaled_mae_cells_rans": 0.1368,
+      "scaled_mae_cells_corrected": 0.0858,
+      "max_pointwise_error_rans": 1.3508,
+      "max_pointwise_error_corrected": 1.2534
+    },
+    "alpha_15_7929_4048": {
+      "group": "validation",
+      "n_cells": 15600,
+      "U_b_crest_from_LES": 0.92923,
+      "h": 1.002,
+      "Lx_over_h": 7.881,
+      "stations_plotted_x_over_h": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "scaled_mae_cells_rans": 0.0916,
+      "scaled_mae_cells_corrected": 0.0463,
+      "max_pointwise_error_rans": 0.2264,
+      "max_pointwise_error_corrected": 0.1954
+    },
+    "alpha_15_7929_2024": {
+      "group": "validation",
+      "n_cells": 15600,
+      "U_b_crest_from_LES": 1.30808,
+      "h": 1.0008,
+      "Lx_over_h": 7.89,
+      "stations_plotted_x_over_h": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "scaled_mae_cells_rans": 0.1957,
+      "scaled_mae_cells_corrected": 0.131,
+      "max_pointwise_error_rans": 0.4642,
+      "max_pointwise_error_corrected": 0.328
+    },
+    "alpha_10_9000_3036": {
+      "group": "train",
+      "n_cells": 15600,
+      "U_b_crest_from_LES": 1.02026,
+      "h": 1.002,
+      "Lx_over_h": 8.945,
+      "stations_plotted_x_over_h": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "scaled_mae_cells_rans": 0.1304,
+      "scaled_mae_cells_corrected": 0.0371,
+      "max_pointwise_error_rans": 0.3563,
+      "max_pointwise_error_corrected": 0.1698
+    },
+    "alpha_05_7071_3036": {
+      "group": "train",
+      "n_cells": 15600,
+      "U_b_crest_from_LES": 1.09804,
+      "h": 1.0016,
+      "Lx_over_h": 7.03,
+      "stations_plotted_x_over_h": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "scaled_mae_cells_rans": 0.0552,
+      "scaled_mae_cells_corrected": 0.0589,
+      "max_pointwise_error_rans": 0.5012,
+      "max_pointwise_error_corrected": 0.4126
+    },
+    "alpha_15_10929_3036": {
+      "group": "train",
+      "n_cells": 15600,
+      "U_b_crest_from_LES": 0.98855,
+      "h": 1.002,
+      "Lx_over_h": 10.862,
+      "stations_plotted_x_over_h": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "scaled_mae_cells_rans": 0.1676,
+      "scaled_mae_cells_corrected": 0.0662,
+      "max_pointwise_error_rans": 0.3233,
+      "max_pointwise_error_corrected": 0.18
+    }
+  },
+  "duct_battery": {
+    "AR_7_Ret_180": {
+      "role": "validation",
+      "n_cells": 15463,
+      "aspect_ratio": 7.0,
+      "U_b_volume_weighted_rans": 39.075,
+      "scaled_mae_cells_rans": 0.0807,
+      "scaled_mae_cells_corrected": 0.0135,
+      "secondary_flow_intensity_rans": 1.1540739413458654e-17,
+      "secondary_flow_intensity_corrected": 0.0029687107778206966,
+      "secondary_flow_intensity_truth": 0.002655880497737053,
+      "secondary_flow_recovered_fraction": 1.1178
+    },
+    "AR_1_Ret_180": {
+      "role": "train",
+      "n_cells": 2209,
+      "aspect_ratio": 1.0,
+      "U_b_volume_weighted_rans": 37.5,
+      "scaled_mae_cells_rans": 0.1073,
+      "scaled_mae_cells_corrected": 0.0341,
+      "secondary_flow_intensity_rans": 5.386835962535024e-18,
+      "secondary_flow_intensity_corrected": 0.004347683206883142,
+      "secondary_flow_intensity_truth": 0.006296890117330531,
+      "secondary_flow_recovered_fraction": 0.6904
+    },
+    "AR_3_Ret_180": {
+      "role": "train",
+      "n_cells": 6627,
+      "aspect_ratio": 3.0,
+      "U_b_volume_weighted_rans": 38.715,
+      "scaled_mae_cells_rans": 0.1112,
+      "scaled_mae_cells_corrected": 0.0224,
+      "secondary_flow_intensity_rans": 6.359618203209536e-18,
+      "secondary_flow_intensity_corrected": 0.004394116832415186,
+      "secondary_flow_intensity_truth": 0.005053518561074621,
+      "secondary_flow_recovered_fraction": 0.8695
+    }
+  }
+}
