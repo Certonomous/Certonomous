@@ -163,9 +163,17 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       → NEW ITEM (from this cross-off): **Run the Dow program's first two rungs** — absorption fraction on CBFS
       (does eddy-viscosity form absorb 70–92% of model error on our case, as Dow found on his?) + the statistical step
       with the limiter/null-space diagnosis.
-- [ ] UQ propagation ladder on a validated cheap case: Monte Carlo coefficient sampling → non-intrusive polynomial chaos
-      (feeds `r2-closure-coefficient-uncertainty`, approved 60) → surrogate/GP over coefficient space → dynamically-orthogonal /
-      ROM-type propagation (scoped honestly; intrusive DO documented before attempted). [dispatched 2026-08-05]
+- [x] UQ propagation ladder, first rung DONE on the TMR flat plate (fa4191f5/ecb5bdbe, 44.7/100 core-min, pre-registered
+      6c3f850a): MC (42 solves) vs order-2 PCE (held-out Q² 0.964) vs GP (0.963) agree; coefficient band = 30.3% of the
+      reference Cd — **~104x the +0.29% validation discrepancy** ("a validated case is one whose closure was calibrated
+      near the answer"). Dominant coefficient σ_w1 (0.925 total-effect) via γ1 ownership, adversarially traced; published
+      transonic ranking does NOT transfer. Provenance of the docket's intervals audited: 3 of 5 provenances corrected
+      (one rests on a private communication). GP error bars ~3x too narrow — recorded, used nowhere. Modules landed with
+      28 tests: `uncertainty_band.py` + `pce_surrogate.py` (numpy-native — no chaospy/sklearn on box). DO declined with
+      falsifier. γ1-rounding finding: OpenFOAM's 5/9 rounding moves Cd more than the validation gap.
+      → NEW ITEMS (from this cross-off): **certificate wire-in** of the band module (documented, needs its own test pass
+      after 4925fafb) + **Dow band-validation rung** (~160 core-min proposal: does the propagated band contain truth on a
+      held-out case).
 - [ ] Band machinery: a module that attaches an uncertainty band (numerical + coefficient + model-form channels, per
       UNCERTAINTY-DOCTRINE) to every published case result; wire into the certificate/report path.
 - [ ] Standing model-form batch (the never-idle engine): same case x RANS-model matrix x regime sweep on validated families;
