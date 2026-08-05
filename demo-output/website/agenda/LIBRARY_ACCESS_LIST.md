@@ -284,3 +284,75 @@ would let the lab verify completeness instead of assuming it.
 
 Both year discrepancies are recorded and not resolved. Cite whichever artifact
 is actually read, and say which one it was.
+
+---
+
+### Added 2026-08-05 — the Dow structural-uncertainty line, and it adds only one row
+
+The reading of Eric Dow's MIT work on structural uncertainty in RANS models
+went after four artifacts. **Three of the four were open and are read; one is
+closed and is the only thing on this page that needs her.** The list gets
+longer by one, and the three that closed themselves are recorded here because
+each of them was reached by a route this page did not previously know about.
+
+**7. Dow and Wang 2011, the complex-flows paper. The one that needs her.**
+
+**Eric Dow, Qiqi Wang**, *Uncertainty Quantification of Structural
+Uncertainties in RANS Simulations of Complex Flows*, **AIAA Paper 2011-3865**,
+20th AIAA Computational Fluid Dynamics Conference, 2011, doi
+`10.2514/6.2011-3865`.
+
+**Tried and failed, four routes, all 2026-08-05 17:13 UTC:** Unpaywall on the
+DOI returns `is_oa: false`, `oa_status: closed`, zero open-access locations.
+OpenAlex on the DOI returns `any_repository_has_fulltext: false` with the AIAA
+landing page as its only location. Semantic Scholar on the DOI returns an
+empty `openAccessPdf.url`. And four constructed filenames under the second
+author's own MIT paper directory — the directory that served the companion
+paper below — all return HTTP 404. **The author-copy route is the one that
+worked for the companion and it does not work for this one**, which is why the
+failure is recorded as established rather than assumed.
+
+**The one section needed:** whether this paper reports a **coverage result** —
+a fraction, or any quantitative statement, of how often the propagated 2σ band
+contains the DNS truth on the two-dimensional random-geometry cases. The SM
+thesis reports the same study qualitatively and says the bands are too narrow
+in the words "typically fall outside" and "mostly contained", with no number
+anywhere.
+
+**What changes.** The lab is filing a band-validation proposal whose entire
+content is a coverage fraction on a held-out case, and the thesis gives it no
+published number to predict against. If this paper prints one, the proposal
+gets a pre-registered target from the literature instead of an open-ended
+measurement, and the lab's band can be compared to a published band rather than
+only to itself. If it prints none, that absence is itself the finding: **the
+method's own originating publications never quantified the coverage of the
+bands they proposed**, which is a strong sentence for any write-up and one the
+lab must not assert until this paper has been looked at. Full reading at
+`campaign/W2_DOW_STRUCTURAL_UQ_READING.md`, which asserts nothing from this
+artifact, not even from its title.
+
+**Priority: after item 1.** It sharpens a proposal; it cannot overturn anything
+already written down.
+
+#### The three that closed themselves, and the route lesson in the first one
+
+| Paper | Identifier | Availability check, 2026-08-05 | Outcome |
+| --- | --- | --- | --- |
+| Dow and Wang, *Quantification of Structural Uncertainties in the k − ω Turbulence Model*, AIAA 2011-1762, 52nd SDM Conference, Denver, 2011 | `10.2514/6.2011-1762` | **closed** on Unpaywall and OpenAlex, zero open-access locations, 17:13 UTC | **READ IN FULL.** The second author's own MIT page serves the PDF at HTTP 200. Held on disk with a text extraction |
+| Dow, *Quantification of structural uncertainties in RANS turbulence models*, SM thesis, MIT Aeronautics and Astronautics, 2011 | handle `1721.1/68407` | green open access, DSpace bitstream, HTTP 200 | **READ IN FULL.** It is a Masters thesis and the record should not promote it. No Dow PhD thesis on this subject exists; his 2015 doctorate is on compressor-blade tolerancing |
+| Sapsis and Lermusiaux, *Dynamically orthogonal field equations for continuous stochastic dynamical systems*, Physica D 238, 2009 | `10.1016/j.physd.2009.09.017` | **closed** on Unpaywall, OpenAlex and Semantic Scholar, zero open-access locations. The first author's group server, which advertises a copy, **does not resolve from this box at all** on either protocol | **Not needed.** The first author's PhD thesis, handle `1721.1/65282`, is green open access and its chapter 3 states in its own abstract that it is the article's material. Chapters 3 and 4 read in full |
+
+**The route lesson, and it is the exact inverse of item 1.** Item 1 records an
+author-hosted link that was advertised and dead, and concluded the paper was
+genuinely closed. Here an aggregator says closed on three independent indexes
+and the author's own institutional page serves the full paper — while the
+**index** of that same directory returns 403, so the file is reachable only by
+exact filename and no crawler will ever find it. **The aggregator verdict and
+the author's own server are independent checks and neither substitutes for the
+other.** A paper is established closed only when both have been tried, and this
+page has now been burned in both directions.
+
+**And one that is closed but costs nothing**, recorded so nobody spends her
+access on it: the Physica D row above. The thesis is the same material by the
+author's own statement, it is open, and it has been read. Requesting the
+journal version would buy the typesetting.

@@ -1,0 +1,1076 @@
+52nd AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics and Materials Conference<BR> 19th
+4 - 7 April 2011, Denver, Colorado
+
+AIAA 2011-1762
+
+Quantification of Structural Uncertainties in the k − ω
+Turbulence Model
+Eric Dow∗and Qiqi Wang†
+Massachusetts Institute of Technology, Cambridge, MA, 02139
+
+This work describes a new method for building a statistical model for the structural
+uncertainties in the k − ω turbulence model. An inverse RANS problem is solved using the
+adjoint method to determine the turbulent viscosity that produces the flow field closest to
+that predicted by direct numerical simulation. We describe the difference in the turbulent
+viscosity field inferred by the inverse RANS problem and turbulent viscosity field predicted
+by RANS as a Gaussian random field, and develop a statistical model of this random field
+using maximum likelihood estimation. The resulting statistical model is used to propagate
+uncertainty to engineering quantities of interest using non-intrusive techniques. Results
+for turbulent flow in a periodic straight walled channel are presented and analyzed.
+
+Nomenclature
+J
+u
+UDN S
+νT
+ν
+p
+δu
+δp
+δνT
+δν
+δJ
+û
+p̂
+L
+σ
+λ
+uτ
+δ
+νT,eff
+
+Objective function
+RANS velocity field
+DNS mean velocity field
+Turbulent viscosity
+Laminar viscosity
+RANS pressure field
+Velocity perturbation field
+Pressure perturbation field
+Turbulent viscosity perturbation field
+Laminar viscosity perturbation field
+Objective function perturbation
+Adjoint velocity field
+Adjoint pressure field
+Likelihood function
+Process variance
+Correlation length
+Friction velocity
+Channel half-width
+DNS effective turbulent viscosity
+
+I.
+
+Introduction
+
+When the effects of turbulence on an engineering system’s performance must be determined, the most
+popular approach is to solve the Reynolds averaged Navier-Stokes (RANS) equations, which employ RANS
+models to estimate the effects of turbulence. Since RANS models seek to compute only the statistically
+averaged flow field, relatively coarse meshes and large timesteps can be used as compared to higher fidelity
+methods such as large eddy simulation or direct numerical simulation (DNS). The reduced computational
+∗ PhD student, Department of Aeronautics and Astronautics, Room 37-442, MIT, Cambridge, MA 02139, AIAA Student
+Member
+† Professor, Department of Aeronautics and Astronautics, Room 37-408, MIT, Cambridge, MA 02139, AIAA Member
+
+1 of 12
+American
+Institute
+Aeronautics
+Copyright © 2011 by the American Institute of Aeronautics and
+Astronautics,
+Inc. All of
+rights
+reserved. and Astronautics
+
+effort required to solve the RANS equations has made them a popular choice for computing flows where the
+effects of turbulence must be included, but a limited amount of computational power is available. Despite
+this popularity, the flow field computed using RANS models can exhibit significant uncertainty, which in turn
+leads to uncertainty in the quantities of interest.1 These uncertainties are referred to as model or structural
+uncertainties. In engineering applications, this uncertainty can greatly complicate the design process, since
+it may be difficult to determine whether a perceived increase in performance is due to uncertainty in the
+computed quantities of interest. This motivates the need for a priori estimates of the structural uncertainties
+in RANS models.
+Due to the importance of RANS models in industry, many attempts have been made to quantify the
+structural uncertainties in RANS simulations. The work of Platteeuw et. al. uses a collection of experimental
+results and direct numerical simulations to determine the distributions of the closure coefficients of the k − 
+model. These uncertainties are then propagated using the Probabilistic Collocation Method.2 The emphasis
+of this work is on the efficient propagation of uncertainty rather than the characterization of the sources of
+uncertainty. For example, the assumed distributions of some parameters must be guessed, due to a lack of
+available experimental data. The work of Oliver and Moser focuses more on the characterization of these
+sources of uncertainty.3 In this work, the closure coefficients of the the Spalart-Allmaras RANS model are
+treated as random variables. The probability distributions of these tuning parameters are calculated by
+solving a Bayesian inverse problem based on experimental calibration data. Gaussian noise is added to
+the random model parameters on the state level, and the magnitude and correlation length of this noise is
+estimated by solving a separate Bayesian inverse problem. Their results agree well with experimental data,
+but their method is restricted to simple flows since only a small set of parameters is included in the inverse
+model.
+Other efforts have sought to improve the accuracy of RANS models by comparing to direct numerical
+simulation. Since DNS resolves all of the relevant scales of turbulent motion, the results are extremely high
+fidelity, and have thus been used to determine the accuracy of turbulence models. Some recent examples
+include the work of Venayagamoorthy et. al., where the results of direct numerical simulation are used to
+develop trends for the various tuning parameters of the k −  model for stratified flows.4 They note that the
+DNS results do not always present clear trends, and that it may be up to the modeler to choose the trend
+they feel most appropriate. Kim et al. provide a detailed comparison between the results of DNS with a
+variety of RANS models for turbulent mixed convection. They conclude that some models are superior in
+capturing the effects of buoyancy, and that the performance of these models is highly sensitive to the choice
+of tuning parameters. Comparisons like these shed significant light on the uncertainties in RANS models,
+but typically must be performed on a case by case basis.
+We propose a predictive method for quantifying the structural uncertainties in RANS simulations which
+does not rely upon calibration data from experimental measurements. Instead, the structural uncertainties
+are estimated by comparing the results of RANS simulations to the results of direct numerical simulations.
+We use adjoint based inverse modeling to compute the “true” turbulent viscosity field from ensemble averaged
+DNS results. Compared to Bayesian inversion, adjoint based inversion is significantly more computationally
+efficient for such large scale problems. A statistical model for the discrepancy between the true turbulent
+viscosity and that computed using RANS is constructed using maximum likelihood estimation. Rather than
+treating the model input parameters as random variables, we model the discrepancy as a Gaussian random
+field, and use maximum likelihood estimation to determine the covariance function that is most likely to have
+generated the observed results. This statistical model for the structural uncertainties is used to determine
+the uncertainty in engineering quantities of interest.
+It is important to note that, while this work focuses on quantifying uncertainties in the k − ω turbulence model, our approach is entirely generalizable to any eddy viscosity model, both linear and nonlinear.
+Throughout the process of constructing the statistical model, we only consider the output of the turbulence
+model, namely the turbulent viscosity field. Since all eddy viscosity models use the turbulent viscosity to
+relate the Reynolds stresses to the mean rate of strain, our approach applies independent of the method by
+which the turbulent viscosity field is computed. We have chosen to focus on the Wilcox k − ω turbulence
+model due to its popularity in industry and its ease of use.6
+Section II describes our approach for modeling the structural uncertainties in RANS turbulence models.
+Section III presents the results of applying our methodology to model the structural uncertainties in turbulent
+flow through a straight walled channel. Section IV describes future extensions of this work.
+
+2 of 12
+American Institute of Aeronautics and Astronautics
+
+II.
+
+Estimating the structural uncertainty in RANS models
+
+In this section we develop our strategy for quantifying the structural uncertainties in RANS simulations.
+Our approach can be decomposed into three steps. An inverse modeling step solves an inverse problem to
+determine the discrepancy between the RANS turbulent viscosity and the turbulent viscosity inferred from
+DNS. A statistical model is then developed by synthesizing the results generated from the inverse modeling
+step. Finally, this statistical model is used to propagate the uncertainty to the quantities of interest.
+A.
+
+Inverse modeling of the turbulent viscosity
+
+1.
+
+The inverse RANS problem
+
+The purpose of the inverse RANS modeling is to compute the “true” turbulent viscosity field that produces
+the most accurate RANS flow solution as compared to the flow solution computed using DNS. Under the
+assumption that the DNS is sufficiently accurate, we use the time-averaged flow field from the DNS to
+calibrate the turbulent viscosity in the RANS simulation. Specifically, we measure the discrepancy between
+the two flow solutions by considering the L2 norm of the difference between the flow fields computed using
+RANS and DNS:
+J = ||u(νT ) − UDN S ||2L2 .
+
+(1)
+
+Here u(νT ) corresponds to the RANS flow field produced by a specified turbulent viscosity field νT . The
+initial estimate of νT is calculated using the Wilcox k − ω turbulence model. The inverse RANS problem
+can be cast as a constrained optimization problem whereby we seek to minimize the objective function J:
+min J s.t. νT ≥ 0.
+νT
+
+(2)
+
+In the optimization iterations, the turbulent viscosity is decoupled from the transport scalars and is treated
+as a parameter to be optimized. In each iteration, we solve the mean flow equations with an additional
+prescribed turbulent viscosity. This optimization problem is ill-posed due to the existence of regions where
+the mean velocity gradient is zero, e.g. at the centerline of an axisymmetric flow field. In these regions, the
+solution is insensitive to variations in the turbulent viscosity, and the problem becomes ill-posed. We adopt
+a regularization procedure whereby an additional regularization term is added to the objective function
+to ensure that the problem remains well-posed. The regularization term used in this work measures the
+smoothness of the turbulent viscosity field. With the addition of the regularization term, the optimization
+problem then takes the form:
+min ||u(νT ) − UDN S ||2L2 + ε||∇νT ||2L2 s.t. νT ≥ 0.
+νT
+
+(3)
+
+The regularization scaling parameter ε is chosen to be small relative to the geometric length scales of the
+problem to ensure that the optimized turbulent viscosity field is not overly smoothed.
+2.
+
+Solution to the inverse RANS problem using the adjoint method
+
+The optimization problem described by equation (3) is both high-dimensional and nonlinear. The problem
+is high-dimensional since the value of the true turbulent viscosity must be inferred at each node in the mesh
+used in the solution of the RANS equations, which typically numbers in the thousands. Efficient optimization
+methods have been devised for handling such problems which rely on determining the stationary point of
+the objective function of interest. Specifically, the quasi-Newton methods are a popular choice for such
+problems where only gradient information is available. For this work, we employ the low-memory extension
+of the Broyden-Fletcher-Goldfarb-Shanno (L-BFGS) method. This method computes an approximation to
+the Hessian matrix from a small collection of vectors representing the gradient and position at previous
+optimization iterations.7 For this work, the NLopt library, which includes an efficient implementation of the
+L-BFGS algorithm, is used to perform the optimization.8 We also transform the constrained optimization
+problem given in equation (3) to an unconstrained problem by considering the log of the turbulent viscosity
+field. The transformed sensitivity gradient can of course be computed from the original sensitivity gradient
+as
+∂J
+∂J
+= νT
+.
+(4)
+∂ log(νT )
+∂νT
+3 of 12
+American Institute of Aeronautics and Astronautics
+
+Optimizing log(νT ) ensures that the turbulent viscosity will remain nonnegative assuming the initial RANS
+solution produces a nonnegative turbulent viscosity.
+The efficiency of optimizing complex, nonlinear objective functions such as that described above is often
+determined by the cost of computing the values of the objective function and sensitivity gradient. Indeed, for
+this problem, the computational cost of the L-BFGS update procedure is orders of magnitude smaller than
+the cost of calculating the function and gradient values at each iteration. It is thus important to develop low
+cost methods of computing these values. Computing the objective function value requires the RANS mean
+velocity field to be computed for a specified turbulent viscosity field. Since the turbulent viscosity field is
+imposed for all but the initial optimization iteration, the full RANS equations need not be solved, and only
+the equations for the mean velocity and pressure fields must be computed. Thus, the objective function
+value can be computed at a lower cost than solving the full RANS equations.
+The sensitivity gradient requires a more careful treatment. The simplest approach would use finite differences to determine the sensitivity of the objective function to changes in the turbulent viscosity. However,
+this would require (Nnodes + 1) evaluations of the objective function to determine the sensitivity gradient,
+where Nnodes is the number of nodes in the mesh. Thus, the cost of computing the sensitivity gradient using
+finite differences would be orders of magnitude more expensive than computing the objective function for
+a typical mesh, rendering the optimization problem intractable. A more efficient means of computing the
+sensitivity gradient relies on the solution of an adjoint problem. The system of equations arising from the
+adjoint problem can be solved with roughly the same computational effort as the RANS equations. Moreover, the structure of the adjoint equations closely resembles that of the original RANS equations, so the
+same solution techniques can be applied with only minor modifications. Thus, the adjoint approach is a
+very attractive alternative to computing the sensitivity gradient, and has been used in many optimization
+applications involving the solution of PDEs.9
+To derive the adjoint equations for the RANS inverse problem, we start with the linearized Navier-Stokes
+equations for steady incompressible flow:
+u · ∇δu + δu · ∇u + ∇δp − ∇ · ((δν + δνT )∇u) − ∇ · ((ν + νT )∇δu) = 0,
+
+(5)
+
+∇ · δu = 0.
+
+(6)
+
+Note that the density is taken to be unity everywhere. We introduce adjoint variables û and p̂, corresponding
+to the adjoint velocity and adjoint pressure, respectively. The first variation of the objective function can
+be written as
+Z
+δJ =
+2(u − UDN S ) · δu.
+(7)
+Ω
+
+The regularization term is not incorporated directly into the adjoint equations, since the sensitivity of the
+regularization term with respect to the turbulent viscosity is computed directly. Dotting the adjoint velocity
+û into equation (5), and adding the product of the adjoint pressure p̂ to equation (6) gives
+(u · ∇δu) · û +
+
+(δu · ∇u) · û + (∇δp) · u
+−(∇ · ((δν + δνT )∇u)) · û − (∇ · ((ν + νT )∇δu)) · û + p̂(∇ · δu) = 0.
+
+(8)
+
+Integrating by parts over the domain Ω and adding the result to equation (7) gives
+Z
+δJ
+
+=
+
+Z
+2(u − UDN S ) · δu +
+(δν + δνT )∇u : ∇û
+Ω
+Ω
+Z
++
+δu · (−u · ∇û + ∇u · û − ν∇2 û + ∇p̂) − δp∇ · û
+Ω
+Z
++
+δp(û · ~n − ν((∇δu) · û) · ~n − δν((∇u) · û) · ~n.
+
+(9)
+
+∂Ω
+
+Finally, we set all terms involving δu or δp to zero to obtain equations (10) and (11).
+−û · ∇u + u · ∇û + ∇ · ((ν + νT )∇û) − ∇p̂ = −2(u − UDN S )
+4 of 12
+American Institute of Aeronautics and Astronautics
+
+(10)
+
+∇ · û = 0.
+
+(11)
+
+Equations (10) and (11) are the adjoint equations that must be solved in the domain of interest. The adjoint
+velocity must also satisfy the following homogeneous Dirichlet boundary condition at solid boundaries:
+û(x) = 0, x ∈ ∂Ω.
+
+(12)
+
+Once the adjoint velocity field has been computed from the adjoint equations, the sensitivity of the objective
+function can be calculated as
+δJ
+= ∇û : ∇u.
+δνT
+
+(13)
+
+The contribution of the regularization term to the sensitivity gradient is computed directly from the discretization of the spatial gradient operator. Since the regularization term is computed numerically, we
+must determine the sensitivity of the numerical approximation of the regularization term with respect to
+changing the nodal values the turbulent viscosity. Thus, the computation of the sensitivity gradient for the
+regularization term is implementation dependent.
+B.
+
+Statistical modeling of structural uncertainties
+
+The inverse modeling step described above computes a true turbulent viscosity field, which we denote as
+νT? . We would like to construct a statistical model of the discrepancy between the true turbulent viscosity
+field and that predicted using the k − ω model, which we denote as νTk−ω . Specifically, we model the logdiscrepancy in the turbulent viscosity field, denoted as X = log(νT? ) − log(νTk−ω ), as a zero mean stationary
+Gaussian random field. We model the log-discrepancy to ensure that turbulent viscosity field generated by
+sampling X is nonnegative. The spatial correlation of this field is described using a covariance function. In
+this work, we consider the squared exponential covariance function, given as:
+
+
+−(log(yi ) − log(yj ))2
+2
+cov(yi , yj ) = σ exp
+,
+(14)
+2λ2
+where yi and yj are spatial coordinates. The parameters σ and λ are not known a priori, but must be
+determined using statistical analysis. The squared exponential covariance function represents the belief that
+the log-discrepancy varies smoothly in space.
+To estimate the parameters of the covariance function, we employ maximum likelihood estimation (MLE).
+This approach seeks to determine the set of parameters that is most likely to have generated the observed
+turbulent viscosity discrepancy. Since we model the discrepancy as a Gaussian random field, the probability
+density function of the discrepancy is described by a zero mean multivariate Gaussian, that is:
+
+
+1
+1 T
+−1
+fX (x|σ, λ) =
+x
+Σ(σ,
+λ)
+x
+,
+(15)
+exp
+−
+2
+(2π)k/2 |Σ(σ, λ)|1/2
+where Σ(σ, λ) is the covariance matrix, and k is the dimension of the random vector of discrepancies X,
+i.e. the number of nodes in the mesh. The likelihood function L can be thought of as the unnormalized
+probability distribution of the parameter set taking particular values, conditioned on the observed data x,
+and is computed directly from the conditional probability fX (x|σ, λ):10
+L(σ, λ|x) = fX (x|σ, λ).
+
+(16)
+
+Here, x is the observed turbulent viscosity log-discrepancy field. To determine the parameter set (σ, λ)
+that is most likely to have generated the realized discrepancy field, we determine the parameter set that
+maximizes the likelihood function. For computational convenience, we maximize the log-likelihood function
+log(L), which is obviously monotonically related to the likelihood function.
+C.
+
+Propagation of structural uncertainties
+
+Quantifying the uncertainty in quantities of interest requires propagation of the uncertainty in the turbulent
+viscosity field. For simplicity, we exploit non-intrusive techniques to perform the uncertainty propagation.
+
+5 of 12
+American Institute of Aeronautics and Astronautics
+
+This involves sampling the statistical model and computing the quantities of interest for these samples.
+These results are then used to estimate the statistics, such as the mean and variance, of the quantities of
+interest. We are currently using the Monte Carlo method to estimate the statistics, but plan to eventually
+implement methods such as sparse-grid stochastic collocation, which produce more accurate estimates of the
+statistics for a given level of computational effort.
+We turn to the Karhunen-Loève (K-L) expansion to sample the log-discrepancy Gaussian random field.
+For a given geometry, we compute the discrete K-L expansion of the random field:
+X(y, θ) ≈
+
+N
+K-L p
+X
+
+λi xi (y)φi (θ),
+
+(17)
+
+i=1
+
+where the (λi , xi (y)) are eigenvalue/eigenvector pairs of the covariance matrix, and φi (θ) ∼ N (0, 1) are
+independent normally distributed random variables.11,12 The number of K-L modes NK-L used to construct
+the K-L expansion depends on the decay rate of the λi , and usually is much smaller than dim (y). Since the
+log-discrepancy typically varies smoothly in space, we can approximate the full K-L expansion quite well
+with very small NK-L . To generate a sample, we sample the φi (θ) from the standard normal, and reconstruct
+X(y, θ) from the K-L expansion.
+
+III.
+
+Results
+
+In this section, we present results for turbulent flow through a straight walled channel. For this test
+case, we perform the inverse modeling and statistical inference steps for flow at a specified friction Reynolds
+number, and propagate these results to determine the uncertainty in the flow solution at higher friction
+Reynolds numbers.
+A.
+
+Results for the RANS inverse problem
+
+We first consider flow through a periodic straight walled channel at Reτ = 180, which approximately equates
+to Re = 5, 600. The friction Reynolds number is defined as
+Reτ ≡
+
+uτ δ
+,
+ν
+
+(18)
+
+p
+where the friction velocity is given by uτ ≡ τw /ρ. Since a straight walled periodic geometry is used, the
+flow only varies in the direction normal to the walls, the y direction. The problem is also symmetric, and
+the computational domain extends from the channel wall at y/δ = 0 to the channel centerline at y/δ = 1.
+For flow in a periodic straight walled channel, the adjoint equations simplify to a one-dimensional elliptic
+equation:
+
+
+d
+dû
+(ν + νT )
+= −2 (u − UDN S ) ,
+(19)
+dy
+dy
+û(0) = 0
+
+dû
+= 0.
+dy y=1
+
+The sensitivity of the objective function to the turbulent viscosity can be computed as
+dû du
+δJ
+=−
+.
+δνT
+dy dy
+
+(20)
+
+Equation (19) can be solved numerically using, in this case, the finite element method. We also incorporate
+the regularization term into the computed sensitivity gradient. To compute the forcing term for the adjoint
+equation, we use results from the DNS database provided by Moser et al.13 The results from this database
+represent the long time average of the flow field at three friction Reynolds numbers: Reτ = 180, Reτ = 395,
+and Reτ = 590. The initial velocity and turbulent viscosity profiles are determined using the Wilcox k − ω
+turbulence model. At each optimization iteration, the RANS equations are solved to determine the objective
+function value, and the adjoint equations are solved to compute the sensitivity gradient. These values are
+used to update the turbulent viscosity field until the change in the objective function is sufficiently small.
+
+6 of 12
+American Institute of Aeronautics and Astronautics
+
+10
+
+10
+
+10
+
+0
+
+-1
+
+-2
+
+J
+
+10
+
+1
+
+10
+
+10
+
+10
+
+10
+
+-3
+
+-4
+
+-5
+
+-6
+
+0
+
+20
+
+40
+
+60
+
+80
+
+100
+
+Iteration
+
+Figure 1. Objective function values during optimization.
+
+Figure 2 shows the results of the optimization procedure for the straight walled channel. The objective
+function value decreases from an initial value J = 6.3127 × 10−1 to J = 4.6796 × 10−6 after 100 optimization
+iterations. The path taken by the L-BFGS algorithm is shown in figure 1. The initial velocity profile predicted
+by the Wilcox k − ω model is lower everywhere except very close to the wall in the log law region, with
+a maximum relative error of approximately 10%. The optimized velocity profile matches the DNS velocity
+profile very well, with a maximum relative error of approximately 1%. The figure on the right depicts the
+initial and optimized turbulent viscosity profile. The DNS viscosity profile represents the effective turbulent
+viscosity computed using a simple force balance relation:
+
+νT,eff =
+
+1
+∂UDN S
+(1 − y/δ) ∂y
+
+−1
+,
+
+(21)
+
+where the velocity gradient values have been provided in the DNS database. We observe that the optimized
+turbulent viscosity profile is nearly identical to the DNS effective turbulent viscosity, even near the channel
+centerline where the solution is relatively insensitive to changes in the turbulent viscosity.
+It is important to note the importance of the regularization term for this problem. Equation (20) and
+the homogeneous Neumann boundary condition enforced at y/δ = 1, which arises due to the symmetry of
+the problem, imply that the sensitivity gradient of J at the channel centerline is identically zero. Physically,
+this agrees with the intuition that changing the viscosity in regions where the velocity gradient is zero does
+not affect the resulting flow field. This means that the optimization routine will never change the value of
+the turbulent viscosity at y/δ = 1, and the resulting optimization problem is ill-posed. This ill-posedness
+manifests itself in the form of oscillations in the optimized turbulent viscosity profile near the channel
+centerline. The plot shown at the bottom of figure 2 demonstrates this issue. The optimized turbulent
+viscosity profile shows good agreement until y/δ = 0.4, where oscillations appear and grow up to y/δ = 1.0.
+Since the velocity gradient is small in the region 0.4 < y/δ < 1.0, the oscillations in the viscosity field do not
+significantly affect the computed velocity profile. However, since we ultimately model the discrepancy in the
+turbulent viscosity field, these oscillations will impact our statistical model. The regularization term remedies
+this issue by introducing a nonzero gradient at y/δ = 1. To determine the proper value of the regularization
+parameter, the value of ε was increased until significant improvement was made in the agreement between
+the DNS effective and RANS optimized viscosity fields after 100 optimization steps. Ultimately, a value of
+ε = 1.0 × 10−4 was selected. As seen in figure 1, most of the change in the objective function J is made
+during the first fifty optimization iterations, where the magnitude of J is much larger than ε. Once the DNS
+and RANS velocity profiles match and J is small compared to ε, the regularization term becomes dominant,
+and further iterations damp the oscillations in the viscosity field.
+
+7 of 12
+American Institute of Aeronautics and Astronautics
+
+20
+
+0.10
+
+Initial
+DNS
+Optimized
+
+0.08
+
+15
+
+Initial
+DNS
+Optimized
+
+0.06
+
+u
+
+T
+
+10
+
+
+
+0.04
+5
+
+0.2
+
+0.4
+
+y/
+
+0.6
+
+0.8
+
+0.000.0
+
+1.0
+
+(a) Velocity profile
+
+0.10
+0.08
+
+0.2
+
+0.4
+
+y/
+
+0.6
+
+0.8
+
+(b) Viscosity profile with regularization
+
+Initial
+DNS
+Optimized
+
+0.06
+
+T
+
+00.0
+
+0.02
+
+
+
+0.04
+0.02
+0.000.0
+
+0.2
+
+0.4
+
+y/
+
+0.6
+
+0.8
+
+1.0
+
+(c) Viscosity profile without regularization
+Figure 2. Initial and optimized velocity and viscosity profiles compared to DNS results.
+
+8 of 12
+American Institute of Aeronautics and Astronautics
+
+1.0
+
+B.
+
+Statistical modeling for the straight walled channel
+
+The results of the RANS inverse problem presented above were used to construct the statistical model using
+maximum likelihood estimation to estimate the parameters of the covariance function. Figure 3 shows the
+spatial variation of the log-discrepancy in the turbulent viscosity versus log(y/δ). To model the field depicted
+
+0.6
+
+)
+
+0.4
+
+
+
+log( T ) log( Tk
+
+
+
+0.2
+
+
+
+
+
+
+
+
+0.0
+
+0.2
+
+0.4
+
+0.6
+
+8
+
+7
+
+6
+
+5
+
+4
+
+log(y/)
+
+3
+
+2
+
+1
+
+0
+
+Figure 3. Spatial variation of the turbulent viscosity log-discrepancy.
+
+in figure 3, we determine the set of parameters that maximizes the log-likelihood function. The log-likelihood
+function is computed as
+
+N 
+i 2
+1X
+(X T vΣ
+)
+i
+log(L) = −
+log(σΣ
+)−
+,
+(22)
+2 i=1
+λi
+i
+i
+are the singular values and singular vectors of the covariance matrix, respectively. Clearly,
+and vΣ
+where σΣ
+if any of the singular values of Σ are zero, the value of log(L) is not well-defined. To address this issue, we
+assume that a small error e has been made in the estimation of the true turbulent viscosity field, so that the
+log-discrepancy is actually given by
+!
+!
+νT? + e
+e
+νT?
+X = log
+≈ log
++ ?.
+(23)
+k−ω
+k−ω
+ν
+νT
+νT
+T
+
+In computing the log-likelihood function, we add (e/νT? )2 to the diagonal of the covariance matrix Σ, since
+the error term relates to the variance of the Gaussian field. The value of e is chosen to be small relative to
+the largest singular value of Σ. In this work, we have chosen e = 10−6 . Decreasing e below this value does
+not change the estimated parameter set.
+In general, the log-likelihood function is nonlinear in the parameter set. In that case, determining the
+parameter set that maximizes the log-likelihood requires some sort of gradient-free optimization method.
+For this work, since the dimension of the parameter set is small, we simply plot the log-likelihood function
+for a large number of parameter sets and observe where the maximum value occurs. Figure 4 shows a plot
+of the log-likelihood function as a function of the parameter set (σ, λ). We note that the parameter set
+(σ, λ) = (0.1898, 0.1532) maximizes the log-likelihood function, and this set is used in the statistical model.
+C.
+
+Uncertainty propagation
+
+For each friction Reynolds number considered, 500 Monte Carlo simulations were performed to propagate
+the uncertainty. Sample turbulent viscosity profiles are generated by sampling from the Gaussian random
+field with the parameter set determined using MLE. Figure 6 shows five sample turbulent viscosity profiles
+and the corresponding sample velocity profiles for flow at Reτ = 180. We observe that the turbulent sample
+viscosity fields vary smoothly in space. Figure 5 shows the mean and variance of the computed samples. The
+solid blue line represents the mean velocity profile computed from the Monte Carlo samples. We note that
+9 of 12
+American Institute of Aeronautics and Astronautics
+
+150
+
+0.16
+
+50
+
+0.1
+
+0
+
+0.08
+
+−50
+
+0.06
+
+−100
+
+0.04
+
+−150
+
+0.02
+
+−200
+
+λ
+
+0.12
+
+0.1
+
+0.15
+
+0.2
+σ
+
+0.25
+
+log(L)
+
+100
+
+0.14
+
+0.3
+
+Figure 4. Contours of log-likelihood function, showing maximum value at (σ, λ) = (0.1898, 0.1532).
+
+the DNS velocity profile mostly falls within the 2σ error bars (the shaded pink regions). The error bars grow
+larger towards the channel centerline, reflecting the fact that the level of uncertainty in the velocity profile
+near the wall is small relative to the uncertainty near the centerline. This agrees with the results presented
+in figure 2, which show that the velocity discrepancy between the RANS and DNS solution is small very
+near the wall, and remains nearly constant outside of this region.
+
+IV.
+
+Conclusion and Future Work
+
+We have presented a new approach for quantifying the structural uncertainties in RANS turbulence
+models. This work differs from most previous attempts in that we do not rely upon experimental results
+to perform model inversion. Whereas previous efforts have relied upon Bayesian inversion to estimate the
+probability distributions of the turbulence model parameters, the use of the adjoint method to perform model
+inversion in this setting is unique to our approach. Since we attribute the uncertainty in the RANS solution to
+uncertainty in the turbulent viscosity, our approach is completely generalizable to any eddy viscosity model.
+In principle, extending our approach to quantify the structural uncertainties in other turbulence modeling
+techniques is only a matter of reformulating the adjoint problem. Future work will include extending this
+methodology to more complex flows. This will involve constructing a database of DNS and RANS results
+generated by considering flow through simple, randomly generated geometries, and performing the same
+inversion and statistical modeling steps described in this work. We also plan to explore more efficient
+non-intrusive techniques to perform the uncertainty propagation, which will be a must for quantifying the
+uncertainty in more complex two- and three-dimensional flows.
+
+Acknowledgments
+The authors would like to thank Professor Steven Johnson at MIT for his helpful suggestions regarding
+the NLopt code. This work was funded by Pratt and Whitney and a subcontract of the DOE Predictive
+Science Academic Alliance Program (PSAAP) from Stanford to MIT.
+
+References
+1 Revell, A., Iaccarino, G., and Wu, X., “Advanced RANS Modeling of Wingtip Vortex Flows,” Annual Research Briefs,
+
+Center for Turbulence Research, NASA-AMES, 2006, pp. 73-85.
+2 Platteeuw, P.D.A., Loeven G.J.A., and Bijl H., “Uncertainty Quantification Applied to the k −  Model of Turbulence
+Using the Probabilistic Collocation Method,” 49th AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics, and
+Materials Conference, 2008, AIAA Paper 2008-2015.
+3 Oliver, T., and Moser., R., “Uncertainty Quantification for RANS Turbulence Model Predictions,” American Physical
+
+10 of 12
+American Institute of Aeronautics and Astronautics
+
+25
+
+25
+
+20
+
+20
+
+15
+
+15
+
+u
+
+u
+
+10
+
+10
+
+5
+
+5
+
++2σ
+
++2σ
+
+−2σ
+
+00.0
+
+−2σ
+
+Mean
+DNS
+0.2
+
+0.4
+
+y/δ
+
+0.6
+
+0.8
+
+Mean
+DNS
+
+00.0
+
+1.0
+
+0.2
+
+0.4
+
+(a) Reτ = 180
+
+y/δ
+
+0.6
+
+0.8
+
+1.0
+
+0.8
+
+1.0
+
+(b) Reτ = 395
+
+25
+
+20
+
+u
+
+15
+
+10
+
+5
+
++2σ
+
+−2σ
+
+Mean
+DNS
+
+00.0
+
+0.2
+
+0.4
+
+y/δ
+
+0.6
+
+0.8
+
+1.0
+
+(c) Reτ = 590
+Figure 5. Monte Carlo simulation results for three friction Reynolds numbers.
+
+0.12
+
+20
+
+0.10
+
+15
+
+
+
+u
+
+T
+
+0.08
+
+0.06
+
+10
+
+0.04
+
+5
+
+0.02
+
+0.00
+0.0
+
+0.2
+
+0.4
+
+y/
+
+0.6
+
+0.8
+
+0
+0.0
+
+1.0
+
+0.2
+
+(a) Turbulent viscosity
+
+0.4
+
+y/
+
+0.6
+
+(b) Velocity
+
+Figure 6. Realizations of turbulent viscosity and velocity from Monte Carlo simulation at Reτ = 180.
+
+11 of 12
+American Institute of Aeronautics and Astronautics
+
+Society, 62nd Annual Meeting of the APS Division of Fluid Dynamics, 2009.
+4 Venayagamoorthy, S.K., Koseff, J.R., Ferziger, J.H., and Shih, L.H., “Testing of RANS Turbulence Models for Stratified
+Flows Based on DNS Data,” Annual Research Briefs, Center for Turbulence Research, NASA-AMES, 2003, pp. 127-138.
+5 Kim, W.S., He, S., and Jackson, J.D., “Assessment by Comparison with DNS DATA of Turbulence Models Used in
+Simulations of Mixed Convection,” International Journal of Heat and Mass Transfer, Vol. 51, 2008, pp. 1293-1312.
+6 Wilcox, D. C., Turbulence Modeling for CFD, Griffin Printing, Glendale, CA, 1993.
+7 Nocedal, J., “Updating Quasi-Newton Matrices with Limited Storage,” Mathematics of Computation, Vol. 35, 1980, pp.
+773-782.
+8 Johnson, S. G., “The NLopt nonlinear-optimization package,” http://ab-initio.mit.edu/nlopt.
+9 Jameson, A., “Aerodynamic Shape Optimization Using the Adjoint Method,” Von Karman Institute Lecture Series
+2003-02, Brussels, 2003.
+10 Myung, J., “Tutorial on Maximum Likelihood Estimation,” Journal of Mathematical Psychology, Vol. 47, 2003, pp.
+90-100.
+11 Le Maı̂tre, O.P., and Knio O.M., Spectral Methods for Uncertainty Quantification: With Applications to Computational
+Fluid Dynamics. Springer, New York, 2010, pp. 17-21.
+12 Chen, H., Wang Q., Hu, R., and Constantine, P., “Conditional Sampling and Experiment Design For Quantifying
+Manufacturing Error of Transonic Airfoil,” 49th AIAA Aerospace Sciences Meeting, 2011, AIAA Paper 2011-658.
+13 Moser, R. D., Kim, J., and Mansour, N. N., “Direct Numerical Simulation of Turbulent Channel Flow up to Re = 590,”
+τ
+Physics of Fluids, Vol. 11, No. 4, 1999, pp. 943-945.
+
+12 of 12
+American Institute of Aeronautics and Astronautics
+
+

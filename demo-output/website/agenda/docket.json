@@ -3266,8 +3266,15 @@
     "docs/papers/wu_zhang_sst_qcrc_challenge_description.pdf",
     "demo-output/website/dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md"
    ],
-   "status": "proposed",
-   "created_at": "2026-08-04T15:45:00Z"
+   "status": "approved",
+   "created_at": "2026-08-04T15:45:00Z",
+   "decided_at": "2026-08-05T16:20:00Z",
+   "decision_note": "approved under Katie's blanket approval 2026-08-05",
+   "claim": {
+    "claimed_by": "research-agent w3-qcr-rank2-parity (closure session)",
+    "claimed_at": "2026-08-05T16:20:00Z",
+    "note": "Claimed under Katie's blanket approval 2026-08-05. Executes the QCR term as primal-first on the AR_1_Ret_180 training duct; doubles as the pre-registered falsifier instrument for w2-the-duct-zero-stated-as-a-structural-limit-with-a-falsifier."
+   }
   },
   {
    "id": "w5-near-threshold-ill-conditioned-regime",
@@ -4512,8 +4519,15 @@
     "Pope, JFM 72 331 to 340, 1975, READ IN FULL 2026-08-02"
    ],
    "in_sample_verdict": "Clean. The structural statement is about a model class, not about any scored case; the one solve runs on a training duct, the scored test ducts are never opened by it, nothing is fitted, and no score call is made. The gate measurement it interprets read baseline predictions on test geometries, which the rules permit; no test data enters any trained or tuned object here.",
-   "status": "proposed",
-   "created_at": "2026-08-04T15:25:00Z"
+   "status": "approved",
+   "created_at": "2026-08-04T15:25:00Z",
+   "decided_at": "2026-08-05T16:20:00Z",
+   "decision_note": "approved under Katie's blanket approval 2026-08-05",
+   "claim": {
+    "claimed_by": "research-agent w3-qcr-rank2-parity (closure session)",
+    "claimed_at": "2026-08-05T16:20:00Z",
+    "note": "Falsifier arm claimed jointly with w3-qcr-constitutive-term-for-rank2-parity: the quadratic-constitutive instrument is QCR2000 (c_r=0.3) on the smallest training duct's existing mesh, graded by the same duct_secondary_flow.py probe. Prediction stands as pre-registered in the proposal: nonzero transverse mean flow at the percent-of-bulk scale."
+   }
   },
   {
    "id": "w3-a-verdict-protocol-for-mesh-draw-sensitive-credentials",
@@ -4569,6 +4583,35 @@
    "measured_core_min": 12.2,
    "measured_basis": "ledger.txt in /home/ubuntu/certonomous-runs/W4-a4-du0check/: wall seconds times the --cpus=2 cap per arm, three container runs (3.20 + 3.03 + 5.97), against 8 estimated and a 15 hard cap; the documentation amendments were zero solver cost as the cost basis predicted. The overrun past 8 bought the FD step study the first np=1 arm forced (see outcome).",
    "outcome": "W4, 2026-08-05. GATE MET on all three clauses. (1) Every papers-touching citation in UPSTREAM_BUG_REPORT_decomposition_adjoint.md and LIAISON_RESEARCH_adjoint_conditioning.md now carries READ IN FULL with section or table location (AIAA J 2020 Tables 2/3; C&F 2018 Tables 4-5, sections 2.9/3.1; PAS 2019 section 5.1 + Conclusions). (2) The contradicts-a-published-claim header is replaced by the fills-a-declared-hole framing quoting the survey's Conclusions sentence verbatim ('We do not have scalability data for the Jacobian-free (operator overloading) and the full-code AD (operator overloading) options because we run the adjoint computation only in serial in the ADODG Case 3 (Sec. 5.1).'), the why-unnoticed section is rewritten citable line by line against the papers' own protocol tables including the tape-tool lineage point (survey benchmarked dco/c++, shipped v5 records with CoDiPack, and the v4/v5 rewrite has no archival method paper), and the novelty sweep's community evidence is folded in (63 searches/10 venues; #946 with antecedent #379 as the strongest near-miss, pre-answering the known-issue-with-coupled-patches and decomposition-only-affects-convergence replies; scotch as the unwarned shipped default, pyDAFoam.py:590). Report status stays NOT FILED; filing remains Katie's call. (3) The dCD/du0 arm ran per decomposition with each run's own central-FD column beside its analytic value, same check_totals protocol, prediction pre-registered in W4-a4-du0check/PREDICTION.md before any run. RESULT, prediction REFUTED: the pre-registered call was scotch-fails-at-1-to-10-percent, and instead dCD/du0 is decomposition-INVARIANT on the defect case (np=1 analytic 7.8376e-03 vs own FD 7.5690e-03, 3.55 percent; np=4-scotch 7.8496e-03 vs 7.5711e-03, 3.68 percent, h=0.4; the 3.5-3.7 percent is a decomposition-independent loose-tolerance protocol floor, established by the step-study row h=1e-3 -> 11.3 percent whose signal sits at the primal CD-repeatability floor -- the step decision was made after the first np=1 arm and before any np=4 number existed, recorded in PREDICTION.md). The pre-named alternative obtained in stronger form than proposed: not only does the papers' Table-4-class check measure a derivative class the defect spares, but UNPREDICTED, in the staged papers-protocol configuration (farfield inletOutlet + patchVelocity input, both edits disclosed and identical across arms) the established shape-row defect DOES NOT FIRE under scotch -- dCD/dshape 2.4062e-01 vs own FD 2.4066e-01, 0.019 percent, where the established configuration reads 8.95 percent on the same mesh and partition; the scotch analytic itself moved 2.2086e-01 -> 2.4062e-01. The defect is therefore measured to be configuration-sensitive at fixed mesh and partition; the two staging edits are confounded and the separating control (np=4-scotch, inletOutlet farfield, no patchV input, ~3-5 core-min) is named in the report as follow-up territory, not run, because the 15 core-min hard cap had 2.8 left. Nothing re-grades the established 8.95 percent, which stands supervisor-verified on its own configuration. Amendments beyond the report: three-discriminators proposal citation annotated to READ IN FULL two-claims reading in the proposal file and its docket mirror; liaison memo Target 2 dated correction block; novelty sweep section 3 matching correction; synthesis section 5 marked applied. Records: UPSTREAM_BUG_REPORT_decomposition_adjoint.md, /home/ubuntu/certonomous-runs/W4-a4-du0check/ (PREDICTION.md, ledger.txt, du0_np1.log, du0_np1b.log, du0_np4scotch.log)."
+  },
+  {
+   "id": "w3-qcr-forward-on-the-ducts-is-the-rank-1-route",
+   "well": "W3",
+   "objective": "Run the untrained QCR2000 term forward on the benchmark's duct validation case and then, under a rule frozen beforehand, on the three scored test ducts, because the whole deficit to rank 1 lives in two of them and the term that closes it needs no training at all",
+   "rationale": "The deficit to rank 1 is +0.005913 on the overall and it is not spread across the board: we already beat Reissmann on four of eight cases by a combined -0.00756, while AR_1_Ret_360 and AR_3_Ret_360 alone contribute +0.01073, which is 1.8 times the entire gap. The arithmetic that follows is the whole proposal: matching the RANK-2 entry's duct scores, 0.0455 and 0.0399, and changing nothing else on the board, gives 0.056288 against Reissmann's 0.059525. Not parity, rank 1, by 0.0032, without touching the hump or the hills. Why the ducts are lost is now a measured statement rather than an inference. The board splits on one column: Reissmann and Wu-Zhang both solve a modified equation, and the three entrants at or below us all post-process a converged field. The method-priority review of 2026-08-05 reached the same finding from the literature instead of the leaderboard, reporting that inside the turbulence-closure literature its sweep found no other post-hoc velocity correction at all and that every located data-driven RANS correction re-enters the equations. Two independent lines, neither collected to say it. And on 2026-08-05 the mechanism itself was measured on this box (the W3 QCR duct falsifier record): stock SST produces duct secondary flow at 3e-16 of bulk against a reference 0.66 to 0.81 percent on all four training ducts, so a post-hoc regression is being asked to synthesise from features an entire flow structure the underlying solve does not contain. The QCR library built for the falsifier arm closes it: on the same meshes, with k and omega transport unchanged, untrained Ccr1 = 0.3 recovers 79 to 93 percent of the reference in-plane magnitude at Pearson r 0.877 to 0.953, and cuts scaled MAE by 33 to 57 percent on all four training ducts. Round 4's demonstrated failure mechanism was feature extrapolation, Re_y at 1.85x and 2.07x the trained maximum on exactly the two ducts we trail; QCR has no training range and cannot extrapolate, so the single axis that has cost this entry points does not apply to it. It also carries the smallest leakage surface of anything the lab could submit, because nothing is fitted and so nothing could have been fitted on the wrong data.",
+   "est_core_min": 95,
+   "predicted_memory_gb": 4.0,
+   "predicted_usd": 1.3,
+   "cost_basis": "Measured, from this box on 2026-08-05, and the anchors are QCR arms of the same model on the same duct family: AR_10_Ret_180 at 22,090 cells and 3,000 iterations cost 8.15 core-min, AR_3_Ret_180 at 6,627 cells and 1,725 iterations cost 3.03 core-min, both recorded in the falsifier run's ledger. Scaling by cells and by each case's own shipped baseline iteration count gives AR_7_Ret_180 validation 7 plus a 7 core-min SST control, AR_1_Ret_360 1, AR_3_Ret_360 4 and AR_14_Ret_180 28, a 47 core-min subtotal, times 1.5 for the cap-stop reruns AR_5 and AR_10 already demonstrated today, times a further contingency to 95. Interpolation to the 1,000 evaluation points reuses existing round-4 machinery at zero solver cost. The library build is done and cost about 30 s of single-core compile, so unlike the two sibling W3 items this proposal has no unpriced build half: the QCR turbulence model builds first-pass clean with stock wmake against the host v2606 install and needs no DAFoam rebuild, because the stress divergence is virtual on the turbulence model and no solver is patched.",
+   "gate": "The validation arm runs FIRST and is reported whatever it says: SST and QCR on AR_7_Ret_180, the benchmark's own suggested duct validation case, scored against its LES field, with the ratio recorded before any test duct is solved. Then an all-or-none application rule, frozen in writing before the test ducts run and honoured against the known round-4 duct scores, decides whether QCR ships on all three test ducts or none. The item closes when the round-5 per-case table exists from ONE scoring call with that rule honoured, or when the validation arm fails the frozen threshold and the route is recorded as declined on validation evidence, which closes it just as well and much more cheaply.",
+   "expected_knowledge_gain": "Two distinguishable outcomes, both decision-changing. The central estimate transferring today's measured training-duct ratios to the published test floors is 0.0617, rank 2, with a band from 0.05905, rank 1 outright, to 0.0666, a regression on today's entry; that spread is why the validation arm is mandatory rather than ornamental. Either way the lab learns what an untrained in-PDE constitutive term is worth on the scored ducts, which is the quantity both the rank-2 parity item and the tensor-basis carrier are ultimately arguing about, and it learns it for a fraction of what either costs. The route also degrades gracefully: it contains no beta, so the S1 plateau that just re-priced the learned-beta routes leaves it untouched.",
+   "source_kind": "challenge",
+   "hard_criterion": "6",
+   "citations": [
+    "The rank-1 campaign plan, this session's costed route ranking",
+    "The W3 QCR duct falsifier record, measured 2026-08-05",
+    "The C2 closure-challenge error decomposition",
+    "The closure methods comparison and evidence audit of 2026-08-04",
+    "The round-4 duct entry of record and its leaderboard comparison",
+    "Spalart, Int. J. Heat and Fluid Flow 21(3) 252-263, 2000, the QCR2000 constitutive relation and its untrained c_r of 0.3",
+    "The W2 reading of the Wu and Zhang destruction-term field inversion",
+    "The rank-2 entry's own description document, equation 1, READ IN FULL 2026-08-04",
+    "The benchmark README's train, validation and test split table",
+    "The method-priority review of 2026-08-05, which found every located data-driven RANS correction re-enters the equations"
+   ],
+   "in_sample_verdict": "The falsifier work this rests on is clean: four training ducts, no test duct opened, nothing fitted, no scoring call. THIS item does open test cases, and the hazard is named rather than waved through. The model itself has zero leakage surface, because Ccr1 = 0.3 is Spalart's published constant adopted untrained and no object here is fitted to anything. The live hazard is elsewhere and it is selection: we already know we score 0.0811, 0.0775 and 0.0325 on the three test ducts, so any protocol that lets those numbers choose between the QCR field and the existing ML field is test-truth-informed model selection, the same defect C2 named and refused, one level up. The all-or-none rule exists solely to remove that degree of freedom, the validation case AR_7_Ret_180 is the benchmark's own suggested duct validation case and is not a test case, and Ccr1 is never to be tuned, because the moment it is fitted the route loses the no-training-range property that is its entire advantage and acquires a leakage surface it does not currently have.",
+   "status": "proposed",
+   "created_at": "2026-08-05T17:35:00Z"
   }
  ]
 }
