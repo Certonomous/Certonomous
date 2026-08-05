@@ -191,3 +191,67 @@ entry.
 
 *Nothing below this line existed when this file was committed. The calibration and main
 runs launch only after this commit lands.*
+
+---
+
+## Amendment 1 — dated 2026-08-05, after the calibration run and before the main run
+
+The calibration run (2026-08-04 18:46:34–19:02:06Z, 932 s at 2 cpus, **31.07 core-min**,
+`S1-cbfs-inversion/ledger.csv`, `log.calib`) did not deliver a marginal per-eval cost. It
+delivered a defect, and the defect forces a mechanism change. Recorded here as a dated
+amendment, not a silent edit; nothing in §1–§3 (label, loss, data, bounds, optimizer
+algorithm, convergence criterion) changes.
+
+**What was measured (log.calib):**
+1. Eval 1 (initial `run_model`, cold from `0/`): varianceU = `1.5279278906359758e-02`,
+   **bit-identical** to the W4 baseline. J = 1.0 exactly. The control holds.
+2. The optimizer's first objective call re-ran the primal **in-process from the
+   in-memory converged state** ("Running Primal Solver 002"), and that restarted primal
+   **diverged**: p initial residual 0.025 at its first iteration (vs ~1e-6 converged),
+   wandering to **0.2148 at the endTime-2500 cap**, omega/k pinned at their 1e-16 floors
+   ("Bounding omega>1e-16" every iteration, omega residual ~1e-27 = equation decoupled),
+   varianceU drifted 0.015279 → 0.016945 (+10.9%). DAFoam printed
+   "Primal solution failed!" — **and then continued into the adjoint anyway** (same
+   trap family as the unchecked `decomposePar` exit status, S1 §4 fault 3).
+3. The adjoint assembled at that unconverged state **stagnates flat**: KSP residual
+   4.6413e-02 → 4.6118e-02 over 1000 iterations (0.64%), reason **-3**, where W4's
+   verified solve at the properly converged state fell six decades and converged at 667.
+   (Initial residual 4.641e-02 = lambda_QoI x 7.0916e-04 — the RHS scaling behaves
+   exactly as arithmetic predicts; the stagnation is the state, not the scaling.)
+
+**Consequence:** in-process multi-evaluation optimization (one persistent DAFoam
+process, `ScipyOptimizeDriver`) is **structurally unavailable on this case** — every
+post-first evaluation would solve primal and adjoint at a state the restarted SIMPLE
+iteration has walked away from. This is a real finding about the stack on CBFS and goes
+in the result document.
+
+**Mechanism change:** the L-BFGS-B loop moves **outside the process**. A host-side
+SciPy L-BFGS-B (same algorithm, same bounds [0.2, 4.0], same maxcor 10 / maxls 8 /
+ftol 1e-10 / gtol 1e-6) calls, per evaluation, a **fresh container process** running the
+verified `compute_totals` configuration with `-betafile` — byte-for-byte the W4 FD
+protocol shape (fresh process, `sudo rm -rf processor*` cold reset, cold start from
+`0/`, one primal + one adjoint), which is the shape under which the objective is proven
+bit-reproducible and the gradient FD-verified. lambda_QoI scaling and the L2 penalty
+(value and gradient, both analytic) are composed on the host. The first evaluation at
+beta = 1 doubles as a control: varianceU must reproduce `1.5279278906359758e-02` and the
+gradient must match W4's archived `cbfs_beta_grad.npy`.
+
+**Cost model re-based, and the §5 amendment rule applied:** the marginal per-eval cost
+is now the **cold** compute_totals — 16.4 core-min at 4 ranks/4 cpus (measured twice by
+W4), ~16–17.5 core-min at 4 ranks/2 cpus (sweep §6 oversubscription data). That is
+**within 1.1x of the §5 model**, so the arithmetic stands; what is refuted is only the
+amortization assumption behind it (in-process warm primals do not exist anymore).
+Ledger: 31.07 core-min spent; **eval cap 32**; the driver refuses to launch an
+evaluation whose projected completion would cross **585 core-min** cumulative, and the
+last ~15 are reserved for the final-state write-out of §6. Per the supervisor's resume
+instruction a sibling agent will be solving concurrently: **--cpus=2 for every
+evaluation**, recorded per launch in `ledger.csv`.
+
+**Checkpoint/restart bookkeeping under the new mechanism:** history line + beta
+checkpoint per evaluation (unchanged cadence, now trivially crash-safe since every
+evaluation is its own process); accepted-iterate snapshots via the optimizer callback;
+on any abort the last accepted iterate is the partial result. The two-stage
+curvature-loss disclosure in §4 is void (single continuous L-BFGS-B run).
+
+*Nothing below this amendment existed when it was committed; the main run launches only
+after it lands.*
