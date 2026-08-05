@@ -18,9 +18,18 @@ Proposal schema (drafted and inbox alike)::
 
     {id, objective, rationale, citations: [display titles only],
      est_core_min, cost_basis, expected_knowledge_gain, source_kind,
-     status: proposed|approved|approved-queued|dismissed|done,
+     hard_criterion, status: proposed|approved|approved-queued|dismissed|done,
      created_at, decided_at?, dismiss_reason?, outcome?, mission_id?,
      launch_prompt?}
+
+``hard_criterion`` is the case-selection charter's hardness floor made a
+field (P-3.1, carried out 2026-08-05): every proposal filed from
+``SCHEMA_REQUIRED_FROM`` names the numbered HARD criterion it satisfies, or
+one of the closed set of answers that charter's own text already allows, and
+an absent or unrecognised value is refused at intake. Proposals created
+before that date are grandfathered where they stand: the 221 docket entries
+of 2026-08-04 are not rewritten, and three of them state their criterion in
+prose only, which the grandfather line accepts and the field now forbids.
 
 A proposal marked ``done`` carries an ``outcome``: one sentence saying what
 the work actually found, with the numbers in it. Without that field a done
@@ -46,10 +55,12 @@ visible so a refusal is never a silent drop.
 
 Ranking heuristic (deterministic, the whole of it):
 
-* Each proposal earns gain points by source kind — closing a failed or
-  inconclusive gate is worth 3, unlocking a deferred capability or extending
-  a measured ledger trend is worth 2, a report follow-on is worth 1, and an
-  inbox proposal from another agent defaults to 2.
+* Each proposal earns gain points by source kind, from `_GAIN_POINTS`, which
+  covers every kind in use: challenge 4, measurement and gate 3, capability,
+  ledger, reading and inbox 2, report 1. An unrecognised kind is a proposal
+  violation at intake from `SCHEMA_REQUIRED_FROM` (P-1.1, carried out
+  2026-08-05); rows grandfathered before that date still rank on the default
+  and are recorded in `unscored_kinds()` rather than silently.
 * rank value = gain points / max(est_core_min, 1.0). The 1-core-minute floor
   keeps near-zero screening costs from dividing to infinity.
 * Sort: rank value descending, then objective (case-folded) ascending, then
@@ -102,8 +113,48 @@ _GAIN_POINTS = {
     "ledger": 2.0,
     "reading": 2.0,        # W2, fills compute-idle; cheap and it unblocks W1
     "report": 1.0,
+    "inbox": 2.0,          # read_inbox's default for a file naming no kind;
+                           # it was always documented as scoring 2 and was
+                           # never in this table, so it scored 2 by falling
+                           # through. Stated now (P-1.1, 2026-08-05).
 }
 _GAIN_DEFAULT = 2.0
+
+# The date the two intake refusals below start binding (P-1.1 and P-3.1,
+# both carried out 2026-08-05 under the standing charter-iteration
+# directive). Proposals created before this date are grandfathered where
+# they stand: the docket's existing entries are never rewritten and never
+# refused retroactively, they only stop being the pattern for new ones. A
+# proposal carrying no created_at at all is treated as new, because every
+# path that builds one stamps the date and a dateless record has nothing to
+# be grandfathered by.
+SCHEMA_REQUIRED_FROM = "2026-08-05"
+
+# The closed value set for `hard_criterion`. The six numbers are the owner's
+# six HARD criteria (CASE_SELECTION_CHARTER.md section 2; the list is hers
+# and closed). The five words are not new policy: each one is an answer the
+# case-selection charter's own text already allows, rendered filable so that
+# requiring the field does not refuse work the charter permits.
+HARD_CRITERIA = ("1", "2", "3", "4", "5", "6")
+HARD_CRITERION_WORDS = (
+    # Extends a family already on the record. Charter 3 section 4 binds
+    # families "the lab has not run before"; the floor for this one was
+    # answered when the family entered, and the follow-on says so.
+    "existing-family",
+    # Charter 3 section 3's two allowed cylinder-class purposes, which
+    # section 9 already requires labelled at launch rather than afterwards.
+    "regression-test",
+    "instrument-check",
+    # The proposal starts no flow case at all: a reading, a report rewrite,
+    # a process or protocol change. Charter 3 governs which CASES the lab
+    # starts; a proposal that starts none says so, and if pursuing it later
+    # starts a family, that filing owes its own criterion.
+    "no-case",
+    # A new family genuinely below the floor, said out loud so the written
+    # approval it needs is asked for rather than discovered. This is
+    # recommendation A's own cost sentence made a filable value.
+    "below-floor",
+)
 # Ranking floor in core-minutes: a near-free screen must not rank at infinity.
 RANK_FLOOR_CORE_MIN = 1.0
 
@@ -261,6 +312,64 @@ def premise_violations(proposal: dict, repo: Path | None = None) -> list[str]:
     return found
 
 
+def _schema_binds(proposal: dict) -> bool:
+    """Whether the 2026-08-05 intake refusals apply to this proposal.
+
+    The grandfather line is the created_at date, which is machine-decidable
+    and honest about what it is: a migration boundary, not a security
+    boundary. Old records stand as filed; new ones carry the fields.
+    """
+    created = str(proposal.get("created_at") or "")[:10]
+    return not created or created >= SCHEMA_REQUIRED_FROM
+
+
+def source_kind_violations(proposal: dict) -> list[str]:
+    """Refuse an unrecognised source_kind instead of scoring it silently.
+
+    P-1.1's measured failure: three kinds in real use fell through to the
+    default and 24 of 55 proposals ranked on a number nobody had stated,
+    including every challenge-aligned proposal, which axis C exists to
+    promote. Any stated value is better than an unstated one, so a kind the
+    gain table does not carry is a violation at intake rather than a default
+    at ranking time. Grandfathered rows still rank on the default (see
+    gain_points) so an old docket never stops loading.
+    """
+    if not _schema_binds(proposal):
+        return []
+    kind = str(proposal.get("source_kind") or "")
+    if kind in _GAIN_POINTS:
+        return []
+    stated = ", ".join(sorted(_GAIN_POINTS))
+    return [f"source_kind: {kind or '<absent>'} carries no stated gain "
+            f"score and would rank on a silent default; the stated kinds "
+            f"are {stated}"]
+
+
+def hard_criterion_violations(proposal: dict) -> list[str]:
+    """Refuse a proposal that does not name its hardness-floor answer.
+
+    P-3.1: the floor moves from discipline into the harness, the same move
+    D12 made for orphaned collectors after writing the rule down failed to
+    change the rate. The value is one of the owner's six criteria by number,
+    or one of the closed answers charter 3's own text allows (see
+    HARD_CRITERION_WORDS). Prose in the rationale, which is how the three
+    2026-08-04 proposals stated it, no longer satisfies the field.
+    """
+    if not _schema_binds(proposal):
+        return []
+    value = proposal.get("hard_criterion")
+    normalised = str(value).strip() if value is not None else ""
+    if normalised in HARD_CRITERIA or normalised in HARD_CRITERION_WORDS:
+        return []
+    allowed = ("1 to 6 (CASE_SELECTION_CHARTER.md section 2) or one of "
+               + ", ".join(HARD_CRITERION_WORDS))
+    if not normalised:
+        return [f"hard_criterion: absent; every proposal names the "
+                f"hardness-floor answer it rides on: {allowed}"]
+    return [f"hard_criterion: {normalised!r} is outside the closed list: "
+            f"{allowed}"]
+
+
 def proposal_violations(proposal: dict) -> list[str]:
     """Style-rail violations across every visible field of a proposal."""
     found: list[str] = []
@@ -271,6 +380,8 @@ def proposal_violations(proposal: dict) -> list[str]:
         for label in text_violations(str(citation)):
             found.append(f"citation: {label}")
     found.extend(cost_basis_violations(proposal))
+    found.extend(source_kind_violations(proposal))
+    found.extend(hard_criterion_violations(proposal))
     return found
 
 
@@ -370,6 +481,7 @@ def proposal_id(objective: str) -> str:
 def _proposal(*, objective: str, rationale: str, citations: list[str],
               est_core_min: float | None, cost_basis: str,
               expected_knowledge_gain: str, source_kind: str,
+              hard_criterion: str,
               launch_prompt: str | None = None) -> dict | None:
     """Build one schema-complete proposal; a proposal whose text breaks the
     style rails is dropped (never silently rewritten into something the
@@ -383,6 +495,7 @@ def _proposal(*, objective: str, rationale: str, citations: list[str],
         "cost_basis": _clean(cost_basis),
         "expected_knowledge_gain": _clean(expected_knowledge_gain),
         "source_kind": source_kind,
+        "hard_criterion": str(hard_criterion).strip(),
         "status": "proposed",
         "created_at": _now_iso(),
     }
@@ -394,18 +507,21 @@ def _proposal(*, objective: str, rationale: str, citations: list[str],
 
 
 # Kinds that fell through to the default, recorded so the gap is visible.
-# Refusing an unknown kind outright would be the stricter fix, but agents file
-# proposals continuously and a hard refusal drops work on the floor. Ranking on
-# the default is survivable; ranking on the default and nobody KNOWING is what
-# let three kinds sit unscored across 24 proposals.
+# From SCHEMA_REQUIRED_FROM an unknown kind is refused at intake
+# (source_kind_violations), so this ledger's remaining job is the
+# grandfathered rows: entries already on the docket rank on the default and
+# are recorded here rather than silently, because an old docket must always
+# load and rank, and a filter nobody can see is a filter nobody can question.
 _UNSCORED_KINDS: set[str] = set()
 
 
 def unscored_kinds() -> set[str]:
     """Source kinds seen that carry no explicit gain score.
 
-    Non-empty means the ranking is partly running on the default and
-    `_GAIN_POINTS` needs a decision, not that anything has crashed.
+    Non-empty means the ranking is partly running on the default for
+    grandfathered rows and `_GAIN_POINTS` needs a decision, not that
+    anything has crashed. New proposals cannot add to this set: an unknown
+    kind is refused at intake from SCHEMA_REQUIRED_FROM.
     """
     return set(_UNSCORED_KINDS)
 
@@ -506,7 +622,13 @@ def draft_report_proposals() -> list[dict]:
                     "this lab" if deferred else
                     "Answers a follow-on question the mission report filed "
                     "on the record"),
-                source_kind="capability" if deferred else "report")
+                source_kind="capability" if deferred else "report",
+                # A report's next-investigation line is a topic, not a case:
+                # it selects no geometry, no regime and no instrument
+                # (charter 1 disqualifier 12 measured nine of nine such
+                # items never becoming runnable work). The filing that turns
+                # one into a case owes the criterion; this one starts none.
+                hard_criterion="no-case")
             if proposal:
                 out.append(proposal)
     return out
@@ -549,7 +671,10 @@ def draft_tmr_proposals() -> list[dict]:
             "A second verification case earned against the reference "
             "ladders, adding a curved wall and pressure gradient to the "
             "verified set"),
-        source_kind="capability")
+        source_kind="capability",
+        # The next case of the verification sequence already on the record:
+        # the flat plate is measured, the resource card names this one.
+        hard_criterion="existing-family")
     return [proposal] if proposal else []
 
 
@@ -580,7 +705,8 @@ def _draft_tmr_naca0012(bump: dict) -> dict:
         expected_knowledge_gain=(
             "A lifting-surface verification credential with published "
             "reference polars, completing the resource's core sequence"),
-        source_kind="capability")
+        source_kind="capability",
+        hard_criterion="existing-family")
 
 
 # Bodies the router can stage from a plain-language prompt, so an approval
@@ -679,7 +805,10 @@ def draft_gate_proposals() -> list[dict]:
                 expected_knowledge_gain=(
                     f"A conclusive observed order and a tighter numerical "
                     f"band for the {body} drag"),
-                source_kind="gate")
+                source_kind="gate",
+                # A further rung on a ladder the record already holds; the
+                # floor was answered when the family entered.
+                hard_criterion="existing-family")
             if proposal:
                 out.append(proposal)
 
@@ -749,6 +878,7 @@ def draft_gate_proposals() -> list[dict]:
                     f"measured account of why the setup misses the "
                     f"reference"),
                 source_kind="gate",
+                hard_criterion="existing-family",
                 launch_prompt=_LAUNCHABLE_BODIES.get(str(name)))
             if proposal:
                 out.append(proposal)
@@ -796,7 +926,9 @@ def draft_ledger_proposals() -> list[dict]:
         expected_knowledge_gain=(
             "Confirms or bounds the loss trend where the current sweep "
             "stops, and relocates the optimum if it lies past 80 degrees"),
-        source_kind="ledger")
+        source_kind="ledger",
+        # Extends the sweep of a family the ledger already measures.
+        hard_criterion="existing-family")
     return [proposal] if proposal else []
 
 
@@ -835,6 +967,15 @@ def read_inbox() -> list[dict]:
             "status": status if status in STATUSES else "proposed",
             "created_at": str(data.get("created_at") or _now_iso()),
         }
+        # The hardness-floor field rides in from the file when it carries
+        # one. A file created from SCHEMA_REQUIRED_FROM without it is
+        # refused below by hard_criterion_violations; older files are
+        # grandfathered on their own created_at, which is why the field is
+        # optional here and not defaulted: defaulting it would answer the
+        # floor question on the filer's behalf.
+        hard = data.get("hard_criterion")
+        if hard is not None and str(hard).strip():
+            item["hard_criterion"] = str(hard).strip()
         launch_prompt = _clean(data.get("launch_prompt") or "")
         if launch_prompt:
             item["launch_prompt"] = launch_prompt

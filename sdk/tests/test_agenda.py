@@ -123,6 +123,7 @@ def _fixture_records(root: Path) -> None:
         "rationale": "Reading program proposal from a cited method text.",
         "citations": ["Saltelli, Global Sensitivity Analysis"],
         "est_core_min": 6, "source_kind": "reading",
+        "hard_criterion": "no-case",
         "expected_knowledge_gain": "Variance apportioned across inputs"})
     # Duplicate objective of the ledger drafter's proposal: must dedupe.
     _write_json(inbox / "dupe.json", {
@@ -255,6 +256,15 @@ class DraftingFromRecords(_EnvMixin, unittest.TestCase):
                "source_kind": "gate"}
         self.assertTrue(agenda.proposal_violations(bad))
 
+    def test_every_draft_names_its_hardness_floor_answer(self):
+        """P-3.1: a drafted proposal is a new proposal, so every one carries
+        a machine-readable hard_criterion from the closed list."""
+        allowed = set(agenda.HARD_CRITERIA) | set(agenda.HARD_CRITERION_WORDS)
+        for proposal in agenda.draft_all():
+            self.assertIn(proposal.get("hard_criterion"), allowed,
+                          f"{proposal['objective']}: hard_criterion "
+                          f"{proposal.get('hard_criterion')!r}")
+
     def test_dedupe_by_objective(self):
         proposals = agenda.draft_all()
         objectives = [agenda.normalize_objective(p["objective"])
@@ -364,6 +374,87 @@ class StyleRails(_EnvMixin, unittest.TestCase):
                                 f"{proposal['objective']}: empty {field}")
             self.assertTrue(proposal["citations"],
                             f"{proposal['objective']}: no citation")
+
+
+class SchemaRails(unittest.TestCase):
+    """P-1.1 and P-3.1, carried out 2026-08-05: an unknown source_kind and a
+    missing or unrecognised hard_criterion are proposal violations at intake
+    for new proposals, and grandfathered rows keep loading and ranking."""
+
+    @staticmethod
+    def _proposal(created="2026-08-05T08:00:00+00:00", kind="gate",
+                  hard="existing-family"):
+        item = {"id": "agp-schema-fixture", "objective": "o",
+                "rationale": "r", "citations": ["c"], "est_core_min": 2.0,
+                "cost_basis": "estimate", "expected_knowledge_gain": "g",
+                "source_kind": kind, "status": "proposed",
+                "created_at": created}
+        if hard is not None:
+            item["hard_criterion"] = hard
+        return item
+
+    def test_a_compliant_new_proposal_passes(self):
+        self.assertEqual(agenda.proposal_violations(self._proposal()), [])
+
+    def test_an_unknown_source_kind_is_refused_not_defaulted(self):
+        found = agenda.proposal_violations(self._proposal(kind="vibes"))
+        self.assertTrue(any(f.startswith("source_kind:") for f in found),
+                        found)
+
+    def test_every_kind_in_use_carries_a_stated_score(self):
+        """The docket in use carries these eight kinds; every one scores
+        explicitly, so no new proposal ranks on the silent default."""
+        for kind in ("gate", "capability", "ledger", "report", "measurement",
+                     "reading", "challenge", "inbox"):
+            self.assertEqual(
+                agenda.proposal_violations(self._proposal(kind=kind)), [],
+                f"{kind} refused at intake")
+
+    def test_a_missing_hard_criterion_is_refused(self):
+        found = agenda.proposal_violations(self._proposal(hard=None))
+        self.assertTrue(any(f.startswith("hard_criterion:") for f in found),
+                        found)
+
+    def test_a_value_outside_the_closed_list_is_refused(self):
+        for bad in ("7", "0", "hardish", "criterion 3"):
+            found = agenda.proposal_violations(self._proposal(hard=bad))
+            self.assertTrue(
+                any(f.startswith("hard_criterion:") for f in found),
+                f"{bad!r} was accepted")
+
+    def test_the_six_numbers_pass_as_int_or_string(self):
+        for good in ("1", "6", 3, "existing-family", "regression-test",
+                     "instrument-check", "no-case", "below-floor"):
+            self.assertEqual(
+                agenda.proposal_violations(self._proposal(hard=good)), [],
+                f"{good!r} refused")
+
+    def test_grandfathered_rows_are_not_refused_retroactively(self):
+        """The 221 docket entries of 2026-08-04 are never rewritten: an old
+        created_at exempts a row from both new field checks, and it still
+        ranks (on the default, recorded in unscored_kinds)."""
+        old = self._proposal(created="2026-08-04T12:00:00+00:00",
+                             kind="somekind-nobody-scored", hard=None)
+        self.assertEqual(agenda.proposal_violations(old), [])
+        self.assertEqual(agenda.rank_value(old),
+                         agenda._GAIN_DEFAULT / 2.0)
+        self.assertIn("somekind-nobody-scored", agenda.unscored_kinds())
+
+    def test_a_dateless_proposal_is_new_by_assumption(self):
+        found = agenda.proposal_violations(self._proposal(created="",
+                                                          hard=None))
+        self.assertTrue(any(f.startswith("hard_criterion:") for f in found))
+
+    def test_the_real_docket_still_loads_and_ranks(self):
+        """Grandfathering is only real if the seeded docket, two of whose
+        rows carry no source_kind at all, ranks without a refusal."""
+        docket = (Path(__file__).resolve().parents[2] / "demo-output"
+                  / "website" / "agenda" / "docket.json")
+        if not docket.exists():
+            self.skipTest("no docket in this tree")
+        rows = json.loads(docket.read_text(encoding="utf-8"))["proposals"]
+        ranked_rows = agenda.ranked(rows)
+        self.assertEqual(len(ranked_rows), len(rows))
 
 
 class _FakeAudit:

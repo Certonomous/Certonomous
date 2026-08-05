@@ -1,6 +1,6 @@
 # Certonomous Case Selection Charter
 
-Version 1.1, dated 2026-08-01. Governs which cases the lab starts. It binds
+Version 1.2, dated 2026-08-05. Governs which cases the lab starts. It binds
 overnight work, unattended work and anything an agent picks up on its own
 initiative, which is the whole point of writing it down.
 
@@ -11,6 +11,13 @@ agree with section 2, which has always judged the regime, so the lab now has
 one definition of hardness instead of two. Nothing else moved, and nothing got
 easier: a bare cylinder in creeping flow is refused on both surfaces exactly as
 it was.
+
+**What changed in 1.2.** Section 9's proposal became the harness, under the
+standing charter-iteration directive: `hard_criterion` is a required field on
+every proposal filed from 2026-08-05, refused at intake when absent or outside
+the closed list, with the migration story and the value set recorded in
+section 9. The floor itself did not move by a millimetre; what moved is where
+it is checked.
 
 ## 1. The line
 
@@ -276,12 +283,53 @@ It is not inventing policy now; it is recording a ruling that was made.
   the ruling keeps. The camera half of this rule is not mechanizable and is
   applied by a person.
 
-**PROPOSAL.** Nobody has ruled on this. The cleanest mechanical enforcement
-would be a required `hard_criterion` field on the proposal JSON schema, refused
-at intake when absent or when set to a value outside the closed list in section
-2. That moves the floor from discipline into the harness, which is the move
-D12 already made for orphaned collectors after writing the rule down
+**Carried out 2026-08-05, under the standing charter-iteration directive; the
+proposal it enacts is P-3.1 and her veto over it stands.** `hard_criterion` is
+a required field on the proposal schema, refused at intake when absent or when
+set to a value outside the closed list: `hard_criterion_violations` in
+`sdk/chief_engineer/agenda.py`, running inside `proposal_violations`, which is
+the same intake path that already refuses a missing cost and a superseded cost
+basis. That moves the floor from discipline into the harness, which is the
+move D12 already made for orphaned collectors after writing the rule down
 demonstrably failed to reduce the rate.
+
+**The closed value set.** The six criteria by number, `1` through `6`, from
+section 2, whose list is hers and stays closed. Plus five word values, none of
+which is new policy; each is an answer this charter's own text already allows,
+rendered filable so that requiring the field does not refuse work the charter
+permits:
+
+| value | traces to |
+| --- | --- |
+| `existing-family` | Section 4 binds families "the lab has not run before"; a follow-on inside a family already on the record answers the floor by pointing at that entry. |
+| `regression-test` | Section 3's first allowed purpose, which this section already required labelled at launch rather than afterwards. |
+| `instrument-check` | Section 3's second allowed purpose, same labelling rule. |
+| `no-case` | This charter governs which cases the lab starts; a proposal that starts none (a reading, a report rewrite, a process change) says so, and the later filing that does start a family owes its own criterion. |
+| `below-floor` | Section 1's escape: a new family below HARD needs written approval, and this value is how a proposal asks for it out loud instead of being discovered. |
+
+**The extension of the value list beyond the six numbers is the lab's
+rendering, not hers**, and it is the one judgement in this enforcement: the
+five words were added because a field restricted to the six numbers would have
+refused regression tests, instrument checks and readings, all of which the
+charter permits. Striking any of the five is a one-line change and the check
+follows.
+
+**Migration, stated so nobody rewrites history to satisfy a new field.** The
+221 docket entries existing on 2026-08-04 are grandfathered where they stand,
+on their own `created_at`, and are not rewritten. Three of them, filed
+2026-08-04 in commit `2eb00350`, state their criterion in prose inside the
+rationale ("HARD criterion 1, three-dimensional separated flow on the Ahmed 25
+degree body, an existing family") and carry no machine-readable field; that
+was the discipline working as well as prose can, and it is exactly the form
+the field now replaces, because prose is what the harness could not check.
+Three older entries from 2026-07-25 already carry `hard_criterion: 3` and pass
+the new check unchanged. Every drafter in `agenda.py` now writes the field,
+and an inbox file created from 2026-08-05 without it is refused, never
+defaulted: defaulting would answer the floor question on the filer's behalf.
+
+What remains a review discipline, honestly: whether the named value is TRUE of
+the case. A field check reads the field, not the regime. Section 2's judgement
+stays a person's.
 
 ## Related
 

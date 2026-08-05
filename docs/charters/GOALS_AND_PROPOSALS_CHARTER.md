@@ -1,12 +1,21 @@
 # Certonomous Goals and Research Proposal Charter
 
-Version 1.1, dated 2026-07-31. Governs what the lab optimizes for when it
+Version 1.2, dated 2026-08-05. Governs what the lab optimizes for when it
 drafts its own work. It applies to every proposal that reaches the agenda
 inbox, and therefore to every night the lab spends unattended.
 
 Version 1.1 adds disqualifier 10, the archive replay a detection rule owes
 before it is adopted, after S7 was measured firing on two thirds of the lab's
 completed steady runs.
+
+Version 1.2 records two things that moved from proposal to harness under the
+standing charter-iteration directive, both reversible by her word. P-1.1: the
+gain table in section 2 now states a score for every source kind in use, and
+an unrecognised kind is refused at intake instead of silently scoring the
+default. P-3.1, charter 3's half: `hard_criterion` is a required field on
+every proposal filed from 2026-08-05, so section 5's fourth requirement stops
+being marked proposed and section 7's honesty list shrinks by one line. The
+221 docket entries predating the date are grandfathered where they stand.
 
 ## 1. The line
 
@@ -45,34 +54,44 @@ surfaces it as "expected knowledge gain per core minute, deterministic".
 
     rank_value = gain_points(source_kind) / max(est_core_min, 1.0)
 
-Gain points by `source_kind`:
+Gain points by `source_kind`, and from version 1.2 the table below is the
+whole of it, because an unrecognised kind no longer scores anything:
 
 | source_kind | points | what it buys |
 | --- | --- | --- |
+| `challenge` | 4.0 | Moves a scored column of the benchmark challenge, the one axis with an exact metric. |
+| `measurement` | 3.0 | A number against a stated criterion, which is what `gate` scores. |
 | `gate` | 3.0 | A pass or fail verdict on a stated criterion. |
 | `capability` | 2.0 | Something the lab could not do before. |
 | `ledger` | 2.0 | Rows the fleet learns from. |
+| `reading` | 2.0 | A reading that yields a proposal; cheap, and it unblocks measured work. |
+| `inbox` | 2.0 | A filed proposal naming no kind; the long-documented inbox default, now stated in the table instead of reached by falling through it. |
 | `report` | 1.0 | A written finding with no new measurement. |
-| anything else | 2.0 | The default. |
+| anything else | refused | A proposal violation at intake from 2026-08-05, never a silent default. |
 
 The one-core-minute floor exists so that near-zero screening costs do not
 divide to infinity. Sort order is descending rank value, then the case-folded
 objective, then the id, so the ordering is deterministic and two agents ranking
 the same docket get the same queue. Tests pin both properties.
 
-**A live defect, stated here because a charter that flatters the machinery is
-useless.** The docket in use carries `source_kind` values that the gain table
-does not contain: `measurement`, `reading` and `challenge`. Every one of them
-silently takes the default of 2.0. That includes four challenge-aligned
-proposals costed at 150, 200, 250 and 327 core-minutes, which are exactly the
-proposals the third axis exists to promote and which are currently ranked as if
-they were ordinary. The ranking is not wrong so much as blind on its most
-important cases.
-
-> **PROPOSAL.** Nobody has ruled on this. Extend the gain table to cover the
-> values actually in use, and make an unrecognised `source_kind` a proposal
-> violation rather than a silent default. A default that fires on 24 of 55
-> proposals is not a default, it is the rule.
+**The defect version 1.1 disclosed here is closed, in two dated steps.** The
+disclosure was: the docket carried `measurement`, `reading` and `challenge`
+and the table carried none of them, so 24 of 55 proposals ranked on a silent
+default of 2.0, including every challenge-aligned proposal, which are exactly
+the proposals the third axis exists to promote. The table half landed
+2026-07-30 (commit `f2689232`), and its values differ from the trio P-1.1
+drafted, on stated grounds rather than drift: the standing priority order puts
+the challenge and the uncertainty layer first, so `challenge` scores 4.0
+rather than the drafted 3.0 and `reading` 2.0 rather than 1.5, because the
+drafted values would have let ladder work outrank challenge work on every tie,
+which is the inversion the fix existed to remove. The refusal half landed
+2026-08-05: `source_kind_violations` in `sdk/chief_engineer/agenda.py` makes
+an unrecognised kind a proposal violation at intake. Docket rows created
+before 2026-08-05 are grandfathered so an old docket always loads; they rank
+on the default and are recorded in `unscored_kinds()` rather than silently.
+Both halves are the lab's numbers carried out under the standing iteration
+directive, and P-1.1 in `PROPOSALS_OPEN.md` records them for her to overturn
+with a word.
 
 **The cost estimate is a prediction and is graded.** `est_core_min` is written
 before the run and compared against the measured core-minutes afterwards. A
@@ -270,8 +289,8 @@ tie-breakers and not deductions. They are refusals.
 The schema is `sdk/chief_engineer/agenda.py` and it is authoritative:
 
     {id, objective, rationale, citations, est_core_min, cost_basis,
-     expected_knowledge_gain, source_kind, status, created_at,
-     decided_at?, dismiss_reason?, mission_id?, launch_prompt?}
+     expected_knowledge_gain, source_kind, hard_criterion, status,
+     created_at, decided_at?, dismiss_reason?, mission_id?, launch_prompt?}
 
 Statuses are `proposed`, `approved`, `approved-queued`, `dismissed`, `done`.
 A proposal approved when the machine has no room becomes `approved-queued`
@@ -286,8 +305,13 @@ requirements on content, not new fields, except where marked.
 - **`rationale` names the axis scores.** All three, including the zeros.
 - **`cost_basis` names how the estimate was reached**, so it can be graded
   afterwards.
-- **A `hard_criterion` field**, proposed in charter 3, carrying the numbered
-  HARD criterion the case meets.
+- **A `hard_criterion` field, required from 2026-08-05** on every new
+  proposal, carrying the numbered HARD criterion the case meets or one of
+  the closed answers charter 3's own text allows (`existing-family`,
+  `regression-test`, `instrument-check`, `no-case`, `below-floor`; the
+  value set and its tracing live in `CASE_SELECTION_CHARTER.md` section 9).
+  Absent or unrecognised is refused at intake. Proposals created before
+  that date are grandfathered where they stand.
 
 ## 6. Worked examples
 
@@ -328,11 +352,13 @@ good proposal.
   crash mid-write cannot leave a truncated docket. L-2's ledger backup is why
   that matters.
 
-What is not enforced mechanically today: axis B and axis C scores, the
-prediction requirement, and the hardness criterion. All three are review
-disciplines until somebody writes the check, and pretending otherwise would be
-the exact failure this charter's own section 2 defect disclosure exists to
-avoid.
+What is not enforced mechanically today: axis B and axis C scores, and the
+prediction requirement. Both are review disciplines until somebody writes the
+check, and pretending otherwise would be the exact failure this charter's own
+section 2 defect disclosure exists to avoid. The hardness criterion left this
+list on 2026-08-05: `hard_criterion_violations` refuses a new proposal that
+does not name its floor answer, and what remains a review discipline is
+whether the named value is true of the case, which no field check can read.
 
 ## Related
 
