@@ -1,6 +1,6 @@
 # Certonomous Literature Review Charter
 
-Version 1.1, dated 2026-07-31. Governs every reading the lab does: overnight
+Version 1.2, dated 2026-08-05. Governs every reading the lab does: overnight
 reading programs, no-compute review tasks, a single paper fetched to settle an
 argument, and any citation that reaches a record, a certificate, a proposal or
 a camera surface.
@@ -9,6 +9,13 @@ Version 1.1 adds the in-sample reproduction clause to section 7 and the gate
 that enforces it to section 8. A reading is where a scored benchmark case gets
 proposed as a training case, so the rule has to sit here as well as in the
 verification charter. Nothing in 1.0 was weakened.
+
+Version 1.2 records P-2.1's tier half as a landed review aid rather than a
+proposal: section 8 now names `sdk/scripts/citation_tier_audit.py`, the two
+rules it adopted, the third it measured and did not adopt, and the 2026-08-05
+abstract-tier defect all three were written from. Nothing in the tier table
+itself changed, and the fourth tier the records use is reported rather than
+blessed.
 
 ## 1. The line
 
@@ -211,12 +218,44 @@ What exists:
   against an unnamed reference on camera, and `scripts/audit_transcripts.sh`
   runs over the camera surfaces.
 
-**PROPOSAL.** Nobody has ruled on this. A `scripts/audit_citations.sh` that
-walks every markdown record for citation-shaped strings and flags any that
-carry no provenance tier within the same block would catch the tier omission
-mechanically. It cannot check truth, only discipline, and it should be written
-as a review aid with expected false positives, exactly as
-`audit_camera_discretion.sh` is.
+**P-2.1's tier half, CARRIED OUT 2026-08-05 as a review aid at WARN, under
+the standing charter-iteration directive.**
+`sdk/scripts/citation_tier_audit.py` runs over the charters, the standards,
+the docket and the website records. It reports and never repairs, its exit
+status stays 0 unless `--strict` is given, and a block carrying its own dated
+correction is not reported again.
+
+Two rules are adopted, and each reads a clause of this charter:
+
+- **A quantity asserted beside a tier below READ IN FULL.** Section 2's table
+  and section 7's first NEVER. The checker cannot read the abstract, so it
+  cannot know whether the assertion is literal; what it sees is the shape the
+  defect takes, a number standing beside a tier that licenses no numbers.
+- **A tier this charter does not define.** Section 2 says there is no fourth
+  tier, and SEARCH-EXCERPT is one. It was coined in a liaison memo and reads
+  as narrower than PAYWALLED. Reported, not rewritten: whether this charter
+  gains the tier or the records lose it is the owner's call.
+
+**A third rule was measured and NOT adopted**, which is charter 1
+disqualifier 10 applied to this file's own checker. The original proposal's
+"citation-shaped string with no tier in the same block" fires on 24 blocks of
+the 392 records, 19 in one file, 15 of them rows of published
+reference-comparison tables. That is the false-positive family P-2.1's own
+entry predicted and the shape of the withdrawn S7. It ships behind
+`--untiered`, off by default, with the replay recorded in the module's own
+docstring.
+
+**The incident that motivated the adopted rules, on the record.** The DAFoam
+journal paper was cited at abstract tier for "average adjoint derivative
+error under 0.1 percent at up to 1536 cores", and the full read on 2026-08-05
+found the abstract joining two disjoint experiments: the 1536 cores is a
+runtime-only scaling measurement on a 10.1M-cell mesh, the under-0.1 percent
+an accuracy study on 102,912 cells at an unstated core count, both belonging
+to an architecture the lab's measurement did not touch. An upstream bug
+report's framing had been built on the join.
+`demo-output/website/dafoam/DAFOAM_PAPERS_VERIFICATION_PROTOCOLS.md` section
+5 carries the corrections, commit `bf6ac53b`. Every one of them was found by
+a person reading the paper; nothing mechanical looked at the tier.
 
 ## Related
 

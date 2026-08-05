@@ -1,6 +1,6 @@
 # Certonomous Goals and Research Proposal Charter
 
-Version 1.2, dated 2026-08-05. Governs what the lab optimizes for when it
+Version 1.3, dated 2026-08-05. Governs what the lab optimizes for when it
 drafts its own work. It applies to every proposal that reaches the agenda
 inbox, and therefore to every night the lab spends unattended.
 
@@ -16,6 +16,15 @@ default. P-3.1, charter 3's half: `hard_criterion` is a required field on
 every proposal filed from 2026-08-05, so section 5's fourth requirement stops
 being marked proposed and section 7's honesty list shrinks by one line. The
 221 docket entries predating the date are grandfathered where they stand.
+
+Version 1.3 moves disqualifier 10 itself into the harness, under the same
+directive and the same grandfather line: a proposal whose own text adds a
+detection or monitor rule, a log signature or a detector is refused at intake
+unless it carries an `archive_replay` record naming the corpus, the fire
+count, the fatal count and the behaviour on the motivating case.
+`archive_replay_violations` in `sdk/chief_engineer/agenda.py` is the check,
+S12's replay line is the pattern, and P-1.4 in `PROPOSALS_OPEN.md` records it
+for her to overturn with a word.
 
 ## 1. The line
 
@@ -226,19 +235,35 @@ tie-breakers and not deductions. They are refusals.
 8. **No stated cost, or a cost over the rung cap with no escalation.**
    Charter 6.
 9. **Training or validating on challenge test-case data.** Section 2, axis C.
-10. **A detection rule with no archive replay. PROPOSAL, nobody has ruled on
-    this**, and it is written here because the gap is measured rather than
-    theoretical. A proposal that adds a rule,
+10. **A detection rule with no archive replay. CARRIED OUT 2026-08-05 as an
+    intake refusal, under the standing charter-iteration directive; hers to
+    overturn.** A proposal that adds a rule,
     a signature, a gate or a check which will fire on the lab's own work states
     what it does to the archive before it is adopted: the corpus it was replayed
     against, the number of logs it fires on, the number it calls fatal, and its
     behaviour on the case that motivated it. S7 entered without one and was
     later measured firing on 68 of 106 archived steady logs and reaching FATAL
     on 65, every one of them a completed run whose results are on the record.
-    The verification charter's section 5 carries the rule; this is the intake
-    refusal that makes it bite. A rule is an instrument and section 1 applies to
-    it unchanged: a rule that fires on everything cannot come out more than one
-    way.
+    The verification charter's section 5 carries the rule; the intake refusal
+    that makes it bite is `archive_replay_violations` in
+    `sdk/chief_engineer/agenda.py`: from 2026-08-05, a proposal whose own text
+    proposes a detection or monitor rule is refused unless it carries an
+    `archive_replay` record with all four fields (`corpus`, `fires`, `fatal`,
+    `motivating_case`); older docket rows are grandfathered on their own
+    `created_at`, the same line P-1.1 and P-3.1 use. **S12 is the exemplar the
+    check names**: before adoption it was replayed over 760 quantity-histories
+    from 380 archived coefficient files, 718 gradeable, 36 fires, 0 fatal,
+    firing on the flat-plate rung stopped at 15000 and staying silent on the
+    same case settled at 21000 (`docs/standards/MONITOR_STANDARD.md` section
+    3.1). A zero fire count is a measurement and passes; arriving without the
+    measurement is how S7 got in, and is what is refused. **The one judgement
+    in it, stated so she can strike it**: the trigger is textual, a tight
+    pattern over objective and rationale, because the source kinds are a
+    closed set and none of them is "detection rule". The patterns prefer a
+    false negative (caught at review) to a false positive (honest work
+    refused), and the tests pin both directions. A rule is an instrument and
+    section 1 applies to it unchanged: a rule that fires on everything cannot
+    come out more than one way.
 11. **A premise quoted from a stored artifact that nobody opened.** A proposal
     whose rationale quotes values, counts or a verdict taken from a stored
     record cites the file that holds them. The refusal is cheap to clear, and
@@ -290,7 +315,8 @@ The schema is `sdk/chief_engineer/agenda.py` and it is authoritative:
 
     {id, objective, rationale, citations, est_core_min, cost_basis,
      expected_knowledge_gain, source_kind, hard_criterion, status,
-     created_at, decided_at?, dismiss_reason?, mission_id?, launch_prompt?}
+     created_at, decided_at?, dismiss_reason?, mission_id?, launch_prompt?,
+     archive_replay?}
 
 Statuses are `proposed`, `approved`, `approved-queued`, `dismissed`, `done`.
 A proposal approved when the machine has no room becomes `approved-queued`
@@ -312,6 +338,10 @@ requirements on content, not new fields, except where marked.
   value set and its tracing live in `CASE_SELECTION_CHARTER.md` section 9).
   Absent or unrecognised is refused at intake. Proposals created before
   that date are grandfathered where they stand.
+- **An `archive_replay` record, required from 2026-08-05** on any proposal
+  that adds a detection or monitor rule, carrying `corpus`, `fires`,
+  `fatal` and `motivating_case`. Disqualifier 10 is the rule; this is the
+  field it lands in, and a proposal that starts no rule owes nothing here.
 
 ## 6. Worked examples
 
@@ -359,6 +389,10 @@ section 2 defect disclosure exists to avoid. The hardness criterion left this
 list on 2026-08-05: `hard_criterion_violations` refuses a new proposal that
 does not name its floor answer, and what remains a review discipline is
 whether the named value is true of the case, which no field check can read.
+Disqualifier 10 left it the same day: `archive_replay_violations` refuses a
+new detection-rule proposal that carries no replay record, and what remains a
+review discipline is whether the stated replay is true of the archive, which
+is the same residue the hardness field carries and for the same reason.
 
 ## Related
 

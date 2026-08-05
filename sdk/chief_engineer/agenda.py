@@ -20,7 +20,7 @@ Proposal schema (drafted and inbox alike)::
      est_core_min, cost_basis, expected_knowledge_gain, source_kind,
      hard_criterion, status: proposed|approved|approved-queued|dismissed|done,
      created_at, decided_at?, dismiss_reason?, outcome?, mission_id?,
-     launch_prompt?}
+     launch_prompt?, archive_replay?}
 
 ``hard_criterion`` is the case-selection charter's hardness floor made a
 field (P-3.1, carried out 2026-08-05): every proposal filed from
@@ -30,6 +30,13 @@ an absent or unrecognised value is refused at intake. Proposals created
 before that date are grandfathered where they stand: the 221 docket entries
 of 2026-08-04 are not rewritten, and three of them state their criterion in
 prose only, which the grandfather line accepts and the field now forbids.
+
+``archive_replay`` is charter 1 disqualifier 10 made a field (P-1.4,
+carried out 2026-08-05): a proposal that adds a detection or monitor rule,
+a log signature or a detector — anything that will fire on the lab's own
+work — carries a record of what it does to the archive before it is
+adopted, or it is refused at intake. See ``archive_replay_violations`` for
+the required fields and the S12 replay that is the pattern.
 
 A proposal marked ``done`` carries an ``outcome``: one sentence saying what
 the work actually found, with the numbers in it. Without that field a done
@@ -370,6 +377,83 @@ def hard_criterion_violations(proposal: dict) -> list[str]:
             f"{allowed}"]
 
 
+# --------------------------------------------------------------------------
+# Archive-replay rail -- charter 1 disqualifier 10 (P-1.4)
+# --------------------------------------------------------------------------
+#
+# A rule is an instrument, and an instrument that was never pointed at the
+# archive is a hypothesis in a uniform. S7 is the measured reason: adopted on
+# reasoning alone, later replayed firing on 68 of 106 archived steady logs
+# and reaching FATAL on 65, every one a completed run whose results are on
+# the record (C-2, withdrawn). The pattern a new rule follows instead is
+# S12's: before adoption it was replayed over 760 quantity-histories from
+# 380 archived coefficient.dat files, 718 gradeable, and the record states
+# the corpus, the fire count (36, 4.74 percent), the fatal count (0) and its
+# behaviour on the motivating case (fires on the flat-plate rung stopped at
+# 15000, silent on the same case settled at 21000). MONITOR_STANDARD.md
+# section 3.1 carries that line, and this rail requires every new
+# detection-rule proposal to arrive with one of its own.
+#
+# The trigger is textual because the source kinds are a closed set and none
+# of them is "detection rule": a proposal that proposes one says so in its
+# objective or rationale. The patterns are deliberately tight -- "rule",
+# "gate" and "check" alone appear all over ordinary proposals -- so a false
+# negative slips a rule past intake to be caught at review, while a false
+# positive would refuse honest work, which is the worse error here.
+_DETECTION_RULE_SHAPE = re.compile(
+    r"\b(?:detection|detector|monitor(?:ing)?)\s+rule\b"
+    r"|\blog[\s-]signatures?\b"
+    r"|\bnew\s+(?:signature|detector)\b"
+    r"|\b(?:add|adds|adding|adopt|adopts|introduce|introduces)\b"
+    r"[^.!?]{0,80}\b(?:detection rule|signature|detector)\b", re.I)
+
+# What an archive-replay record states, each the disqualifier's own words:
+# the corpus it was replayed against, the number of logs it fires on, the
+# number it calls fatal, and its behaviour on the case that motivated it.
+ARCHIVE_REPLAY_FIELDS = ("corpus", "fires", "fatal", "motivating_case")
+
+
+def is_detection_rule_proposal(proposal: dict) -> bool:
+    """Whether the proposal's own text says it adds a rule that will fire
+    on the lab's work."""
+    text = (str(proposal.get("objective") or "") + " "
+            + str(proposal.get("rationale") or ""))
+    return bool(_DETECTION_RULE_SHAPE.search(text))
+
+
+def archive_replay_violations(proposal: dict) -> list[str]:
+    """Refuse a detection-rule proposal that has not met the archive.
+
+    P-1.4: disqualifier 10 moves from review discipline into the harness,
+    the same move P-3.1 made for the hardness floor. A proposal whose text
+    proposes a detection or monitor rule carries an ``archive_replay``
+    record naming the corpus, the fire count, the fatal count and the
+    behaviour on the motivating case -- the four things the disqualifier
+    names, and the four things S12's replay line states. Fires may be zero
+    is a finding too (S2 fires on nothing); what is refused is arriving
+    without the measurement, which is exactly how S7 got in.
+    """
+    if not _schema_binds(proposal) or not is_detection_rule_proposal(proposal):
+        return []
+    pattern = ("the S12 unsettled-stop replay is the pattern: 760 "
+               "quantity-histories from 380 archived coefficient files, "
+               "36 fires, 0 fatal, and the motivating rung fired on while "
+               "its settled sibling stayed silent")
+    replay = proposal.get("archive_replay")
+    if not isinstance(replay, dict) or not replay:
+        return [f"archive_replay: absent on a detection-rule proposal; "
+                f"a rule states what it does to the archive before "
+                f"adoption ({pattern})"]
+    missing = [name for name in ARCHIVE_REPLAY_FIELDS
+               if str(replay.get(name) if replay.get(name) is not None
+                      else "").strip() == ""]
+    if missing:
+        return [f"archive_replay: states no {', '.join(missing)}; every "
+                f"replay record carries {', '.join(ARCHIVE_REPLAY_FIELDS)} "
+                f"({pattern})"]
+    return []
+
+
 def proposal_violations(proposal: dict) -> list[str]:
     """Style-rail violations across every visible field of a proposal."""
     found: list[str] = []
@@ -382,6 +466,7 @@ def proposal_violations(proposal: dict) -> list[str]:
     found.extend(cost_basis_violations(proposal))
     found.extend(source_kind_violations(proposal))
     found.extend(hard_criterion_violations(proposal))
+    found.extend(archive_replay_violations(proposal))
     return found
 
 
@@ -976,6 +1061,14 @@ def read_inbox() -> list[dict]:
         hard = data.get("hard_criterion")
         if hard is not None and str(hard).strip():
             item["hard_criterion"] = str(hard).strip()
+        # The archive-replay record rides in whole when the file carries
+        # one, for the same reason hard_criterion is not defaulted: a
+        # detection-rule file that arrives without it is refused below by
+        # archive_replay_violations rather than quietly excused, and the
+        # replay is the filer's measurement, never this reader's to invent.
+        replay = data.get("archive_replay")
+        if isinstance(replay, dict) and replay:
+            item["archive_replay"] = {str(k): v for k, v in replay.items()}
         launch_prompt = _clean(data.get("launch_prompt") or "")
         if launch_prompt:
             item["launch_prompt"] = launch_prompt

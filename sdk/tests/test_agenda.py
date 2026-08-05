@@ -457,6 +457,102 @@ class SchemaRails(unittest.TestCase):
         self.assertEqual(len(ranked_rows), len(rows))
 
 
+class ArchiveReplayRail(_EnvMixin, unittest.TestCase):
+    """P-1.4, carried out 2026-08-05: a proposal whose own text adds a
+    detection or monitor rule carries an archive-replay record naming the
+    corpus, the fires, the fatals and the motivating case, or it is refused
+    at intake. S12's replay over 760 quantity-histories is the pattern;
+    S7, adopted without one and measured firing on 68 of 106 completed
+    runs, is the reason."""
+
+    REPLAY = {
+        "corpus": "760 quantity-histories from 380 archived coefficient "
+                  "files, 718 gradeable",
+        "fires": 36, "fatal": 0,
+        "motivating_case": "fires on the flat-plate rung stopped at 15000, "
+                           "silent on the same case settled at 21000"}
+
+    @staticmethod
+    def _proposal(rationale, created="2026-08-05T08:00:00+00:00",
+                  replay=None):
+        item = {"id": "agp-replay-fixture", "objective": "o",
+                "rationale": rationale, "citations": ["c"],
+                "est_core_min": 2.0, "cost_basis": "estimate",
+                "expected_knowledge_gain": "g", "source_kind": "gate",
+                "hard_criterion": "no-case", "status": "proposed",
+                "created_at": created}
+        if replay is not None:
+            item["archive_replay"] = replay
+        return item
+
+    DETECTION = ("Adds a monitor rule that stops a run when the residual "
+                 "history goes quiet before its target.")
+
+    def test_a_detection_rule_without_a_replay_is_refused(self):
+        found = agenda.proposal_violations(self._proposal(self.DETECTION))
+        self.assertTrue(any(f.startswith("archive_replay:") for f in found),
+                        found)
+        self.assertTrue(any("S12" in f for f in found), found)
+
+    def test_a_detection_rule_with_a_full_replay_passes(self):
+        item = self._proposal(self.DETECTION, replay=dict(self.REPLAY))
+        self.assertEqual(agenda.proposal_violations(item), [])
+
+    def test_a_zero_fire_replay_is_a_measurement_not_an_omission(self):
+        """S2 fires on nothing and that replay line stands; 0 is stated."""
+        replay = dict(self.REPLAY, fires=0)
+        item = self._proposal(self.DETECTION, replay=replay)
+        self.assertEqual(agenda.proposal_violations(item), [])
+
+    def test_an_incomplete_replay_names_what_it_is_missing(self):
+        replay = {k: v for k, v in self.REPLAY.items() if k != "fatal"}
+        found = agenda.proposal_violations(
+            self._proposal(self.DETECTION, replay=replay))
+        self.assertTrue(any(f.startswith("archive_replay:") and "fatal" in f
+                            for f in found), found)
+
+    def test_an_ordinary_proposal_owes_no_replay(self):
+        item = self._proposal("The refinement study ended inconclusive and "
+                              "a further rung can settle the observed order.")
+        self.assertEqual(agenda.proposal_violations(item), [])
+        self.assertFalse(agenda.is_detection_rule_proposal(item))
+
+    def test_grandfathered_rows_are_not_refused_retroactively(self):
+        old = self._proposal(self.DETECTION,
+                             created="2026-08-04T12:00:00+00:00")
+        self.assertEqual(agenda.proposal_violations(old), [])
+
+    def test_the_inbox_carries_a_replay_record_through(self):
+        """A compliant detection-rule file keeps its measurement on ingest;
+        the same file without one is skipped, never quietly excused."""
+        self._snap_env()
+        self._clear_env()
+        root = Path(tempfile.mkdtemp(prefix="agenda-replay-"))
+        self.addCleanup(shutil.rmtree, root, True)
+        _point_env_at(root)
+        inbox = root / "agenda" / "proposals"
+        _write_json(inbox / "with-replay.json", {
+            "objective": "Detect the quiet stall",
+            "rationale": self.DETECTION, "citations": ["Monitor standard"],
+            "est_core_min": 1.0, "source_kind": "measurement",
+            "hard_criterion": "no-case",
+            "expected_knowledge_gain": "A measured rule",
+            "archive_replay": dict(self.REPLAY)})
+        _write_json(inbox / "without-replay.json", {
+            "objective": "Detect the loud stall",
+            "rationale": self.DETECTION, "citations": ["Monitor standard"],
+            "est_core_min": 1.0, "source_kind": "measurement",
+            "hard_criterion": "no-case",
+            "expected_knowledge_gain": "An unmeasured rule"})
+        loaded = agenda.read_inbox()
+        objectives = {p["objective"] for p in loaded}
+        self.assertIn("Detect the quiet stall", objectives)
+        self.assertNotIn("Detect the loud stall", objectives)
+        kept = next(p for p in loaded
+                    if p["objective"] == "Detect the quiet stall")
+        self.assertEqual(kept["archive_replay"]["fires"], 36)
+
+
 class _FakeAudit:
     def __init__(self, fits: bool):
         self.fits = fits
