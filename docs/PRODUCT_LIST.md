@@ -195,6 +195,19 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - INFRA: auto-stop blind spot closed — `scripts/session_keepalive.sh` (f02a3a90) holds the box only while the supervision
   session is actively writing; self-expires at 45 idle min / 24 h. Armed now; armed first thing every session.
 
+### 2026-08-05 (afternoon, post session-limit recovery)
+- INCIDENT: the account session limit killed the supervisor and all four working agents at ~18:53Z on 08-04; the box
+  auto-stopped overnight. Zero scientific loss — every agent's pre-registration was committed before its compute
+  launched (e6321e95, 99f5d41d, 73fa6a33). All four agents resumed from transcripts 15:00Z. Lesson memorized
+  (session-limit-kills-the-fleet); keepalive re-armed.
+- NOVELTY ESTABLISHED (3c74dc03): 63 searches / 10 venues, zero prior reports of either defect; scotch never mentioned
+  upstream while shipping as default; #946 is the near-miss and pre-answers the stock replies; sub-LU = sanctioned
+  PETSc remedy. Papers verdict (bf6ac53b): the parallel Jacobian-free operator was verified once, in serial, on purpose.
+- DISPATCHED (Katie's asks): two Opus LaTeX reports (closure-challenge campaign; DAFoam defect case); charter iteration
+  agent (P-1.1 gain table + source_kind refusal, P-3.1 hard_criterion field, P-6.2 gross/cleaned spend labels,
+  P-7.1 threshold recommendation drafted for Katie). Resumed: defect reach, CBFS inversion, closure gaps G1-G4,
+  papers-protocol arm.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
