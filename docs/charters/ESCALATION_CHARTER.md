@@ -459,3 +459,18 @@ none of them has a check, which is the honest state of it.
 - `docs/charters/REPORTING_CHARTER.md`. The waiting list section of the morning
   report.
 - `LESSONS.md` L-1, L-12, L-16, L-18, P1.
+
+### 9.6. Staging is by explicit path, never by sweep (added 2026-08-05, supervisor)
+
+Two agents' staged files were swallowed into other agents' commits in one
+afternoon because concurrent workers ran `git add -A` / `git add .` on the
+shared tree. Both times the content survived and the narrative did not — the
+files landed under another commit's message, and a provenance note had to be
+committed after the fact to keep the log auditable (`ecb5bdbe` is the pattern).
+
+Rule: on a tree where more than one agent works, every commit stages its files
+BY EXPLICIT PATH. `git add -A`, `git add .`, and `git commit -a` are forbidden.
+An agent that finds foreign hunks in a file it must commit stages its own hunks
+only (the split-patch precedent from the warp-carry session). A commit whose
+message does not describe every file in it is a record defect, same class as a
+mislabeled measurement.
