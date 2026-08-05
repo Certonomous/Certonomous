@@ -1,0 +1,505 @@
+{
+  "body": "tmr_flatplate_fine",
+  "study": "coefficient-uncertainty propagation ladder",
+  "docket_item": "r2-closure-coefficient-uncertainty",
+  "status": "pre-registered",
+  "preregistered_utc": "2026-08-05T17:11:47Z",
+  "preregistration_contract": "Written and committed BEFORE any sample was solved. Sample count, seeds, coefficient box, derived-coefficient map, quantities of interest, convergence gate and the surrogate designs below are the design of record; anything that had to change afterwards is recorded in `deviations` with its reason, and the seeds make the sample points themselves reproducible without trusting this file.",
+  "case": {
+    "name": "NASA TMR 2D zero-pressure-gradient flat plate, fine level",
+    "case_dir": "models/tmr/flatplate/fine",
+    "cells": 13056,
+    "tmr_nodes": "137x97",
+    "solver": "simpleFoam (incompressible)",
+    "closure": "kOmegaSST",
+    "re_per_unit_length": 5000000.0,
+    "u_inf": 1.0,
+    "nu": 2e-07,
+    "why_this_case": "cheapest case the lab owns that has a trusted published reference: 80.9 s serial for the cold baseline, and its Cd sits +0.29% from the CFL3D SST-V value, so the coefficient band can be read against a real reference rather than only against itself",
+    "reference": {
+      "cfl3d_sst_v": {
+        "cd": 0.0028259696,
+        "cf097": 0.00266477116
+      },
+      "fun3d_sst_v": {
+        "cd": 0.00277329,
+        "cf097": 0.00265845195545244
+      },
+      "source": "turbmodels.larc.nasa.gov, models/tmr/reference/"
+    }
+  },
+  "coefficients": [
+    {
+      "name": "betaStar",
+      "openfoam": "betaStar",
+      "nominal": 0.09,
+      "interval": [
+        0.0784,
+        0.1024
+      ]
+    },
+    {
+      "name": "a1",
+      "openfoam": "a1",
+      "nominal": 0.31,
+      "interval": [
+        0.31,
+        0.4
+      ],
+      "note": "increased only; the nominal IS the lower bound"
+    },
+    {
+      "name": "sigma_w1",
+      "openfoam": "alphaOmega1",
+      "nominal": 0.5,
+      "interval": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "name": "betaStar_over_beta1",
+      "openfoam": "beta1 (derived)",
+      "nominal": 1.2,
+      "interval": [
+        1.19,
+        1.31
+      ]
+    },
+    {
+      "name": "betaStar_over_beta2",
+      "openfoam": "beta2 (derived)",
+      "nominal": 1.0869565217391304,
+      "interval": [
+        1.05,
+        1.45
+      ]
+    }
+  ],
+  "held_fixed": {
+    "kappa": {
+      "value": 0.41,
+      "note": "its published interval [0.38, 0.42] is named in the docket item but kappa is not one of the five coefficients that item put in the box; held so the box stays the docketed one"
+    },
+    "sigma_w2 (alphaOmega2)": {
+      "value": 0.856
+    },
+    "mesh": "held; no refinement in this study",
+    "numerics": "held; fvSchemes, fvSolution and relaxation unchanged"
+  },
+  "derived_coefficient_map": {
+    "beta1": "betaStar / (betaStar/beta1)",
+    "beta2": "betaStar / (betaStar/beta2)",
+    "gamma_i": "beta_i/betaStar - sigma_wi kappa^2 / sqrt(betaStar) (Menter 1994 log-layer relation), recomputed for EVERY sample including the nominal one",
+    "why": "OpenFOAM's kOmegaSST reads gamma1 and gamma2 as free coefficients. Moving betaStar or beta_i without recomputing gamma leaves the model off its own log layer, which is a different model, not a perturbed one. Enforcing the relation at the nominal point does not reproduce OpenFOAM's defaults (gamma1 0.553167 vs 5/9 = 0.555556, 0.43% apart; gamma2 0.440355 vs 0.44, 0.08% apart), so this study solves BOTH nominal points and reports the difference as a measured number instead of absorbing it into the band."
+  },
+  "quantities_of_interest": [
+    {
+      "name": "cd",
+      "definition": "plate drag coefficient, Aref = 2, magUInf = 1, forceCoeffs on patch plate"
+    },
+    {
+      "name": "cf_station",
+      "definition": "skin friction at the TMR station x = 0.970084071"
+    }
+  ],
+  "design": {
+    "sampling": "maximin Latin hypercube, best of 400 draws",
+    "marginals": "uniform over each published interval. STATED ASSUMPTION: the intervals are epistemic, so the uniform is a sampling choice made to get a density the chaos and process fits need, not a claim about how the coefficients are distributed. The interval-valued reading of the result is the min/max envelope, which is reported alongside every probabilistic band and is the number the model channel may carry.",
+    "n_train": 42,
+    "seed_train": 20260805,
+    "n_valid": 10,
+    "seed_valid": 20260806,
+    "n_train_rationale": "21 terms in a total-order-2 polynomial chaos expansion over 5 variables, at the oversampling ratio of 2 the source paper uses for its point-collocation fits",
+    "joint_not_one_at_a_time": "every sample moves all five coefficients at once; the motorbike stage of this docket item ran one-at-a-time corners and its own report states that band is a lower bound on the joint range",
+    "train_points": [
+      [
+        0.09394952,
+        0.35761911,
+        0.53807803,
+        1.30007278,
+        1.10419554
+      ],
+      [
+        0.08071545,
+        0.32446163,
+        0.40596205,
+        1.30986672,
+        1.34563751
+      ],
+      [
+        0.08130973,
+        0.32714223,
+        0.6150569,
+        1.24156159,
+        1.38892797
+      ],
+      [
+        0.07932903,
+        0.39010752,
+        0.36419731,
+        1.28800116,
+        1.14447173
+      ],
+      [
+        0.09610613,
+        0.39717818,
+        0.60414196,
+        1.30539641,
+        1.05574603
+      ],
+      [
+        0.08751327,
+        0.36841607,
+        0.51852903,
+        1.26414022,
+        1.07083986
+      ],
+      [
+        0.08429405,
+        0.32806835,
+        0.50692858,
+        1.19722813,
+        1.3339353
+      ],
+      [
+        0.08645686,
+        0.38659182,
+        0.66017798,
+        1.29177115,
+        1.28182938
+      ],
+      [
+        0.09821662,
+        0.3448386,
+        0.59086554,
+        1.24826538,
+        1.40866788
+      ],
+      [
+        0.09270607,
+        0.32967348,
+        0.62564524,
+        1.29712428,
+        1.11755997
+      ],
+      [
+        0.09019925,
+        0.37252115,
+        0.33415159,
+        1.24682652,
+        1.20541603
+      ],
+      [
+        0.0919771,
+        0.38202152,
+        0.6693532,
+        1.22000505,
+        1.3806517
+      ],
+      [
+        0.09633731,
+        0.31008865,
+        0.41911914,
+        1.19323052,
+        1.11300457
+      ],
+      [
+        0.09265039,
+        0.34901784,
+        0.3932022,
+        1.2354434,
+        1.23820483
+      ],
+      [
+        0.09698775,
+        0.36170382,
+        0.64194713,
+        1.28287122,
+        1.36436947
+      ],
+      [
+        0.0830164,
+        0.33606717,
+        0.30079459,
+        1.23751112,
+        1.06706974
+      ],
+      [
+        0.10194413,
+        0.32124746,
+        0.3266783,
+        1.19010397,
+        1.22447532
+      ],
+      [
+        0.08183119,
+        0.38493338,
+        0.40387282,
+        1.20383027,
+        1.42123411
+      ],
+      [
+        0.07847455,
+        0.33831925,
+        0.3144436,
+        1.3027123,
+        1.17237194
+      ],
+      [
+        0.09363086,
+        0.39372643,
+        0.5575679,
+        1.29380336,
+        1.39825359
+      ],
+      [
+        0.09503184,
+        0.35550806,
+        0.35700636,
+        1.2140938,
+        1.36386444
+      ],
+      [
+        0.07968284,
+        0.354599,
+        0.64333402,
+        1.25024181,
+        1.21419924
+      ],
+      [
+        0.1011428,
+        0.35100792,
+        0.6047714,
+        1.25825453,
+        1.09197046
+      ],
+      [
+        0.0988532,
+        0.3132679,
+        0.34329565,
+        1.20521907,
+        1.42685844
+      ],
+      [
+        0.08038831,
+        0.31891335,
+        0.43172271,
+        1.27337623,
+        1.182032
+      ],
+      [
+        0.08607153,
+        0.38853749,
+        0.37924041,
+        1.20034863,
+        1.25345887
+      ],
+      [
+        0.09777119,
+        0.37169524,
+        0.49241857,
+        1.27922936,
+        1.16174779
+      ],
+      [
+        0.10148714,
+        0.37878545,
+        0.36760382,
+        1.28584242,
+        1.14958856
+      ],
+      [
+        0.0992654,
+        0.34698004,
+        0.46527937,
+        1.25376934,
+        1.34454735
+      ],
+      [
+        0.09447557,
+        0.36746346,
+        0.68247195,
+        1.21719163,
+        1.26344999
+      ],
+      [
+        0.09112699,
+        0.31667977,
+        0.47184692,
+        1.20822158,
+        1.29970408
+      ],
+      [
+        0.08550821,
+        0.3356434,
+        0.48540236,
+        1.21039973,
+        1.13349664
+      ],
+      [
+        0.08937913,
+        0.37504222,
+        0.44205774,
+        1.23135799,
+        1.31352497
+      ],
+      [
+        0.10059592,
+        0.37740374,
+        0.52460314,
+        1.22678263,
+        1.29175747
+      ],
+      [
+        0.088205,
+        0.34129539,
+        0.45218277,
+        1.25967587,
+        1.08485082
+      ],
+      [
+        0.08263454,
+        0.33216153,
+        0.5743607,
+        1.27640356,
+        1.44920668
+      ],
+      [
+        0.08895605,
+        0.36363355,
+        0.54234669,
+        1.22398263,
+        1.1898009
+      ],
+      [
+        0.09061596,
+        0.34237099,
+        0.45812005,
+        1.26983514,
+        1.24479324
+      ],
+      [
+        0.08797201,
+        0.39277995,
+        0.57940755,
+        1.22989753,
+        1.31728239
+      ],
+      [
+        0.08405435,
+        0.35980126,
+        0.6995423,
+        1.27158762,
+        1.20176402
+      ],
+      [
+        0.08491274,
+        0.39965748,
+        0.54832894,
+        1.24117393,
+        1.43105091
+      ],
+      [
+        0.09990959,
+        0.31501979,
+        0.67422406,
+        1.26522524,
+        1.27802643
+      ]
+    ],
+    "valid_points": [
+      [
+        0.09812222,
+        0.37402155,
+        0.45581554,
+        1.25169425,
+        1.06894983
+      ],
+      [
+        0.10156716,
+        0.36148849,
+        0.48676792,
+        1.26456604,
+        1.35442356
+      ],
+      [
+        0.09325008,
+        0.39024591,
+        0.55208512,
+        1.21790248,
+        1.25580013
+      ],
+      [
+        0.08910131,
+        0.34155614,
+        0.38130605,
+        1.19507008,
+        1.39936947
+      ],
+      [
+        0.07870752,
+        0.32030509,
+        0.63729052,
+        1.23129371,
+        1.17311415
+      ],
+      [
+        0.08401382,
+        0.37201826,
+        0.30880625,
+        1.24548844,
+        1.24426324
+      ],
+      [
+        0.08666362,
+        0.3501688,
+        0.50271178,
+        1.29863769,
+        1.10101463
+      ],
+      [
+        0.09638534,
+        0.33182874,
+        0.3576916,
+        1.20312939,
+        1.1526698
+      ],
+      [
+        0.08215904,
+        0.3125228,
+        0.61906266,
+        1.28533495,
+        1.41148002
+      ],
+      [
+        0.0927862,
+        0.39591021,
+        0.66218771,
+        1.28678086,
+        1.31629876
+      ]
+    ]
+  },
+  "solve_protocol": {
+    "restart": "every sample restarts from the converged baseline field",
+    "iterations": 1500,
+    "iterations_evidence": "measured on a probe restart: Cd at 1500 iterations differs from Cd at 2000 by 3.5e-8 (0.0013% of Cd), against a band expected in the percent range",
+    "flatness_gate": 1e-07,
+    "gate_meaning": "Cd peak-to-peak over the final 50 iterations; a sample that fails is reported as a failure, not quietly dropped",
+    "concurrency": "at most 5 native serial solves, reduced by the number of dafoam containers up"
+  },
+  "planned_analysis": {
+    "monte_carlo": "empirical band from the training samples: min/max envelope, mean, sigma, 5-95 percentile",
+    "polynomial_chaos": "non-intrusive point-collocation PCE on the Legendre basis (uniform germ), total order 1 and 2, least squares, leave-one-out scored; Sobol indices from the expansion coefficients",
+    "surrogate": "Gaussian process, anisotropic squared exponential plus nugget, hyperparameters by marginal likelihood, leave-one-out and held-out validation",
+    "comparison": "all three bands on the SAME sample set, plus the held-out set both surrogates are scored on"
+  },
+  "budget_core_min": 100,
+  "citations": [
+    "Schaefer, Hosder, West, Rumsey, Carlson and Kleb, 'Uncertainty Quantification of Turbulence Model Closure Coefficients for Transonic Wall-Bounded Flows', AIAA Journal 55(1), 2017, pp. 195-213",
+    "Schaefer, Cary, Mani and Spalart, 'Uncertainty Quantification and Sensitivity Analysis of SA Turbulence Model Coefficients in Two and Three Dimensions', AIAA 2017-1710",
+    "Menter, 'Two-Equation Eddy-Viscosity Turbulence Models for Engineering Applications', AIAA Journal 32(8), 1994, pp. 1598-1605 (log-layer relation for gamma_i)",
+    "NASA Turbulence Modeling Resource, 2D zero-pressure-gradient flat plate, SST-V grid-convergence data (turbmodels.larc.nasa.gov)"
+  ]
+}
