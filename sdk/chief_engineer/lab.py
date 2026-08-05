@@ -361,6 +361,14 @@ def validate_against_reference(*, measured_cd: float, reference: dict,
     source = reference.get("source", "the cited reference")
     cd_cmp, basis_note = _rebase(measured_cd, reference,
                                  planform_area=planform_area, frontal_area=frontal_area)
+    # ONE figure, judged and quoted. The comparison is stored and served
+    # rounded to 4 decimals (``compared_cd``), so the error and the
+    # percentage the reason prints are computed from that same rounded
+    # figure. Grading from the unrounded value made the naca4412 card print
+    # "16%" beside a Cd of 0.0183 that recomputes to 16.59% against its
+    # reference: a reader who divides the card's own numbers must land on
+    # the percentage the card prints.
+    cd_cmp = round(cd_cmp, 4)
     relative_error = abs(cd_cmp - cd_ref) / abs(cd_ref) if cd_ref else None
     # A reference can only validate a solve when it is itself trustworthy and
     # the ladder behind the solve has settled. Both checks are driven purely
@@ -699,9 +707,15 @@ def displayed_credential(record: dict, *, reference: dict | None = None,
     display["grid_conclusive"] = grid_conclusive
     # ONE consistently rebased number: the figure a surface prints and the
     # percentage it prints beside it have to come from the same measurement on
-    # the same area basis, whichever rung is being shown.
+    # the same area basis, whichever rung is being shown. Rounded to 4
+    # decimals, exactly as ``validate_against_reference`` rounds the
+    # ``compared_cd`` it grades and quotes a percentage of -- the published
+    # wall serves this field while the live panel serves ``compared``, and
+    # the two surfaces printing two roundings of the same coefficient under
+    # one reason string is how the naca4412 card came to display a value its
+    # own percentage could not be recomputed from.
     if measured is not None:
-        display["on_reference_basis"] = f"{measured * ratio:.4g}"
+        display["on_reference_basis"] = f"{round(measured * ratio, 4):g}"
 
     if reference and reference.get("cd") is not None and measured is not None:
         verdict = validate_against_reference(

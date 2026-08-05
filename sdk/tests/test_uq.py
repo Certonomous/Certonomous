@@ -553,7 +553,11 @@ class RealNaca4412Ladder(unittest.TestCase):
         self.assertIn("low-confidence estimate", verdict["reason"])
         self.assertIn("inconclusive", verdict["reason"])
         # The comparison is still reported in full; only the chip is refused.
-        self.assertAlmostEqual(verdict["comparison"]["relative_error"], 0.036,
+        # The error is stated on the same 4-decimal compared figure the card
+        # serves (0.0289 vs 0.030), so a reader who divides the card's own
+        # numbers lands on the percentage it prints; 0.036 was the error of
+        # the unrounded coefficient, which no surface displays.
+        self.assertAlmostEqual(verdict["comparison"]["relative_error"], 0.0367,
                                places=3)
 
     def test_each_blocker_stands_on_its_own(self):
