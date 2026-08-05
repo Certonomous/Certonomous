@@ -68,6 +68,23 @@ per se, not by rank count, not by one specific mesh.**
 | N6 | **CBFS** (21,000-cell conformal blockMesh — `constant/polyMesh` carries NO cellLevel — beta-field DVs, 21,000 components, `varianceU` objective, `dafoam-subpclu:v1` + `DAFOAM_SUBPC_TYPE=lu` exactly as the record arm) | np=4 `simple` 4x1x1 vs the np=4 `scotch` RECORD arm (`W4-adjoint-pc-unblock/cbfs_beta`, FD at 3 cells on record: 0.085% / 0.059% / 0.199%) | `compute_totals`; both arms' gradient vectors mapped to serial cell ordering via each arm's own `cellProcAddressing` (rank-concatenation convention verified before use) | **decomposition-invariant**: mapped analytic agrees at the three recorded FD cells to **<= 1%** per component, vector norms to <= 2%. Conformal mesh + different DV type (volume field, not shape) both stay clean |
 | N7 (contingent — runs only if N4 fires) | Ahmed-35 | scotch psi vs np=1 operator | the cross-residual instrument of the discriminators session (`W4-a4-discriminators/runScript_w4.py` tasks `w4_dump`/`w4_crossres`, `build_maps.py`), sign convention **A^T psi = -b**: the instrument computes `Atpsi - b`, so own-operator logs print the degenerate `ratio=2.0` and the reported numbers are exact offline corrections `res + 2b` from the dumped vectors — stated per the amended M1 caption | cross-residual **>= 10x ||b||** under the np=1 operator, concentrated on momentum rows of partition-interface cells; np=1 control at its ~1e-04-ish floor |
 
+**N8 (added 2026-08-05 15:12Z, registered BEFORE the arm ran; commit history is the
+witness).** During the survey for the invariance-gate item, the last unchecked
+published gradient turned out to be `naca0015_sail_coarse` (np=3, published PASS,
+patched-regrade 0.0246% CD/shape) — and its `constant/polyMesh` carries
+`cellLevel`: it is a snappyHexMesh-refined mesh, which falsifies the docket
+rationale's premise that "A4 is the only case in either ladder carrying
+snappyHexMesh hanging-node refinement" (the pre-ladder sail is snappy too, 63,920
+cells, 23x A4's size). Arm N8: sail check_totals, patched IDWarp, np=3 `simple`
+3x1x1 vs the np=3 `scotch` record (`W5-regrade/sail_patched_checktotals.log`).
+Prediction: **decomposition-invariant at the graded level — CD/shape aggregate
+rel. err vs its own FD stays <= 0.5%, and the analytic shape components shift <= 1%
+from the scotch-arm record**; registered on the grounds that the sail's own-FD
+agreement at 0.0246% under scotch already bounds any operator-error contraction
+into THIS objective as tiny, and FD is decomposition-invariant to ~0.4% on the A4
+precedent. If instead the analytic shifts > 1%, the published sail PASS is
+decomposition-lucky and the defect reaches a fourth case at gradient level.
+
 Scoring discipline: each prediction is scored HELD / NOT HELD / NOT SCORED exactly
 as written above; no post-hoc bands.
 
