@@ -474,3 +474,16 @@ An agent that finds foreign hunks in a file it must commit stages its own hunks
 only (the split-patch precedent from the warp-carry session). A commit whose
 message does not describe every file in it is a record defect, same class as a
 mislabeled measurement.
+
+#### 9.6a. Amendment, 2026-08-07: staging by path is not committing by path
+
+Four collisions in one day proved 9.6 as written insufficient: `git add <paths>`
+followed by `git commit` still commits the ENTIRE shared index, sweeping every
+sibling's staged files (6cd6b5bb swallowed a 40-page report update and named
+only the smaller riders; d52446e7 and 770436f9 have their own provenance
+repairs). The rule sharpens to its mechanically safe form: on the shared tree,
+commit with `git commit -- <paths>` (or `--only`) in a single step, so the
+commit contains exactly the named paths regardless of what else sits staged.
+`git add` remains fine; the bare `git commit` after it is what the rule now
+forbids. Every provenance-repair commit today followed the ecb5bdbe pattern;
+with this amendment they should stop being needed.
