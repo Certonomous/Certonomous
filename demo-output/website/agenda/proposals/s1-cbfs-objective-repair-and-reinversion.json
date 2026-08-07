@@ -14,6 +14,13 @@
   "demo-output/website/dafoam/ladder-b/S1_CBFS_INVERSION_PREREGISTRATION.md",
   "demo-output/website/campaign/W2_WU_ZHANG_DESTRUCTION_FIML_READING.md"
  ],
- "status": "proposed",
- "created_at": "2026-08-07T20:20:00Z"
+ "status": "approved",
+ "created_at": "2026-08-07T20:20:00Z",
+ "decided_at": "2026-08-07T20:15:00Z",
+ "decision_note": "Approved under Katie's blanket approval; Stage 1 milestone item (the corrected foundation Stage 2 needs). Pre-registration-first, hard 450 core-min cap, gates set fresh from the repaired baseline before the inversion launches.",
+ "claim": {
+  "claimed_by": "solver-agent s1-cbfs-objective-repair (S1 session)",
+  "claimed_at": "2026-08-07T20:15:00Z",
+  "note": "Claimed under Katie's blanket approval 2026-08-07. Order of work: restore the benchmark's CBFS inlet into the case 0/U with the diff documented; commit the re-baseline prediction BEFORE any solve; re-baseline; FD re-verification on 3 components at the repaired state; set G1/G2 fresh from the repaired baseline by dated amendment; re-run the surviving out-of-process driver at --cpus=2. Do not start this item elsewhere."
+ }
 }
