@@ -216,3 +216,25 @@ never ran; fixed in `4925fafb` by keeping the measured figure on the page as a
 note while the channel stays unquantified. The ruling's principle stands for
 completed studies; its blind spot is recorded here because a ruling that
 creates a truthfulness defect owes the record the correction in its own file.
+
+## R12. A canonical reference grid may carry a model-form band above the mesh gate, in writing
+
+Ruled 2026-08-07, on the Cases family supervisor's escalation (C2): every family-N
+cell fails the 70-degree non-orthogonality gate at 85.70 degrees, because the grid
+is NASA's own TMR C-grid, whose far-wake skew is characteristic of the topology
+the whole verification community standardises on.
+
+The ruling: for MODEL-FORM BANDING ONLY, a grid that is the reference community's
+own canonical verification grid is exempt from the lab's mesh-quality gate,
+because the band measures inter-model spread on a fixed grid — it needs the same
+grid, not a compliant one, and swapping in a home-built compliant grid would
+break the family's comparability with the reference it exists to be compared to.
+Three conditions, all mandatory: (1) the exemption is stated on the band artifact
+itself with the failing number beside it; (2) physics gates and credential
+verdicts still require compliant meshes — this exemption never travels to them;
+(3) the exemption names its grid provenance (who published it, where). A quiet
+exemption would have been L-30's defect wearing new clothes; this one is loud.
+
+Consequence: the family-N regrade under the design gate is approved (~18
+core-min, the supervisor's own filed estimate), with the exemption implemented
+in the runner as a per-family flag that requires all three conditions.
