@@ -1,0 +1,42 @@
+{
+  "alpha_deg": 10.0,
+  "cell_id": "N_a10_kEpsilon",
+  "cells": 3584,
+  "converged": false,
+  "core_min": 1.088,
+  "excluded_reasons": [
+    "non-orthogonality 85.6987 > 70"
+  ],
+  "family": "N",
+  "group": "N_a10",
+  "iteration_backstop": 12000,
+  "iterations": 10431,
+  "mesh": {
+    "aspect_ratio_note": "advisory only per Mesh Standard 3.3; never a lone rejection",
+    "breaches": [
+      "non-orthogonality 85.6987 > 70"
+    ],
+    "max_aspect_ratio": 20650841.43,
+    "max_non_ortho": 85.69872592,
+    "max_skewness": 0.5068662781
+  },
+  "model": "kEpsilon",
+  "params": {
+    "alpha_deg": 10.0
+  },
+  "qoi": {
+    "Cd": 0.014226789043,
+    "Cl": 1.0801964408
+  },
+  "qoi_source": "coefficient.dat",
+  "ranks": 1,
+  "regime": "a10",
+  "residual_control_met": true,
+  "settle_s12": {
+    "detail": null,
+    "unsettled": false
+  },
+  "timestamp": "2026-08-07T20:19:55Z",
+  "toolchain": "native OpenFOAM v2606 (openfoam2606 launcher)",
+  "wall_seconds": 65.3
+}

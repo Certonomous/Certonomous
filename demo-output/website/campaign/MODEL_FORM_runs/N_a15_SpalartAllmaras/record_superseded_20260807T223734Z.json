@@ -1,0 +1,19 @@
+{
+  "cell_id": "N_a15_SpalartAllmaras",
+  "converged": false,
+  "core_min": 1.519,
+  "excluded_reasons": [
+    "runner error: coarse: Cd still moving (1.5e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+  ],
+  "family": "N",
+  "group": "N_a15",
+  "model": "SpalartAllmaras",
+  "params": {
+    "alpha_deg": 15.0
+  },
+  "qoi": {},
+  "ranks": 1,
+  "regime": "a15",
+  "timestamp": "2026-08-07T20:25:03Z",
+  "wall_seconds": 91.1
+}

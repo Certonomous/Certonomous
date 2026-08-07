@@ -1,0 +1,19 @@
+{
+  "cell_id": "N_a0_realizableKE",
+  "converged": false,
+  "core_min": 1.778,
+  "excluded_reasons": [
+    "runner error: coarse: Cd still moving (0.000849 peak-to-peak over the last 50 iterations); not defensible as steady"
+  ],
+  "family": "N",
+  "group": "N_a0",
+  "model": "realizableKE",
+  "params": {
+    "alpha_deg": 0.0
+  },
+  "qoi": {},
+  "ranks": 1,
+  "regime": "a0",
+  "timestamp": "2026-08-07T20:16:49Z",
+  "wall_seconds": 106.7
+}

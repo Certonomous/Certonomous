@@ -1,9 +1,9 @@
 {
   "cells_recorded": 32,
   "cells_total_designed": 32,
-  "core_min_total": 35.61,
+  "core_min_total": 35.03,
   "design": "demo-output/website/campaign/MODEL_FORM_BATCH_DESIGN.md",
-  "generated_utc": "2026-08-07T20:28:32Z",
+  "generated_utc": "2026-08-07T22:42:08Z",
   "groups": [
     {
       "bands": {},
@@ -120,137 +120,228 @@
     },
     {
       "bands": {},
-      "core_min": 6.484,
+      "core_min": 6.679,
       "excluded": [
         {
           "cell_id": "N_a0_SpalartAllmaras",
           "model": "SpalartAllmaras",
-          "qoi_if_it_had_counted": {},
+          "qoi_if_it_had_counted": {
+            "Cd": 0.014861565104,
+            "Cl": -0.00019004487318
+          },
           "reasons": [
-            "runner error: coarse: Cd still moving (9.79e-06 peak-to-peak over the last 50 iterations); not defensible as steady"
+            "residualControl not met (stopped on the backstop)",
+            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (9.79e-06 peak-to-peak over the last 50 iterations); not defensible as steady"
           ]
         },
         {
           "cell_id": "N_a0_kEpsilon",
           "model": "kEpsilon",
-          "qoi_if_it_had_counted": {},
+          "qoi_if_it_had_counted": {
+            "Cd": 0.014640321612,
+            "Cl": -1.1472584084e-05
+          },
           "reasons": [
-            "runner error: coarse: Cd still moving (2.52e-07 peak-to-peak over the last 50 iterations); not defensible as steady"
+            "residualControl not met (stopped on the backstop)",
+            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.52e-07 peak-to-peak over the last 50 iterations); not defensible as steady"
           ]
         },
         {
           "cell_id": "N_a0_kOmegaSST",
           "model": "kOmegaSST",
-          "qoi_if_it_had_counted": {},
+          "qoi_if_it_had_counted": {
+            "Cd": 0.0086151837566,
+            "Cl": -0.024994109559
+          },
           "reasons": [
-            "runner error: coarse: Cd still moving (5.95e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+            "residualControl not met (stopped on the backstop)",
+            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (5.95e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
           ]
         },
         {
           "cell_id": "N_a0_realizableKE",
           "model": "realizableKE",
-          "qoi_if_it_had_counted": {},
+          "qoi_if_it_had_counted": {
+            "Cd": 0.0046159936704,
+            "Cl": 0.00016787582045
+          },
           "reasons": [
-            "runner error: coarse: Cd still moving (0.000849 peak-to-peak over the last 50 iterations); not defensible as steady"
+            "residualControl not met (stopped on the backstop)",
+            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.000849 peak-to-peak over the last 50 iterations); not defensible as steady"
           ]
         }
       ],
       "family": "N",
       "group": "N_a0",
+      "mesh_gate_exemption": {
+        "failing": [
+          "max non-orthogonality 85.70 deg vs the 70 deg hard gate"
+        ],
+        "grid_provenance": "NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against",
+        "ruling": "R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07)",
+        "scope": "model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them",
+        "statement": "Mesh Standard hard gate EXEMPT under R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07): max non-orthogonality 85.70 deg vs the 70 deg hard gate, on the reference community's own grid -- NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against. Scope: model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them."
+      },
       "models_converged": [],
       "n_converged": 0,
       "n_excluded": 4,
       "regime": "a0"
     },
     {
-      "bands": {},
-      "core_min": 5.019,
+      "bands": {
+        "Cd": {
+          "argmax": "kEpsilon",
+          "argmin": "kOmegaSST",
+          "band": [
+            0.0044951723391,
+            0.014226789043
+          ],
+          "members": {
+            "kEpsilon": 0.014226789043,
+            "kOmegaSST": 0.0044951723391
+          },
+          "n_converged": 2,
+          "reference": {
+            "CFL3D SST (897x257)": {
+              "contained": true,
+              "value": 0.012362110998
+            }
+          },
+          "spread_abs": 0.0097316167039,
+          "spread_rel": 1.0395937162015902
+        },
+        "Cl": {
+          "argmax": "kOmegaSST",
+          "argmin": "kEpsilon",
+          "band": [
+            1.0801964408,
+            1.1164336572
+          ],
+          "members": {
+            "kEpsilon": 1.0801964408,
+            "kOmegaSST": 1.1164336572
+          },
+          "n_converged": 2,
+          "reference": {
+            "CFL3D SST (897x257)": {
+              "contained": false,
+              "value": 1.0778080613
+            }
+          },
+          "spread_abs": 0.036237216399999994,
+          "spread_rel": 0.032993462516054436
+        }
+      },
+      "core_min": 4.899,
       "excluded": [
         {
           "cell_id": "N_a10_SpalartAllmaras",
           "model": "SpalartAllmaras",
-          "qoi_if_it_had_counted": {},
-          "reasons": [
-            "runner error: coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady"
-          ]
-        },
-        {
-          "cell_id": "N_a10_kEpsilon",
-          "model": "kEpsilon",
           "qoi_if_it_had_counted": {
-            "Cd": 0.014226789043,
-            "Cl": 1.0801964408
+            "Cd": 0.016192147753,
+            "Cl": 1.0290489902
           },
           "reasons": [
-            "non-orthogonality 85.6987 > 70"
-          ]
-        },
-        {
-          "cell_id": "N_a10_kOmegaSST",
-          "model": "kOmegaSST",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.0044951723391,
-            "Cl": 1.1164336572
-          },
-          "reasons": [
-            "non-orthogonality 85.6987 > 70"
+            "residualControl not met (stopped on the backstop)",
+            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady"
           ]
         },
         {
           "cell_id": "N_a10_realizableKE",
           "model": "realizableKE",
-          "qoi_if_it_had_counted": {},
+          "qoi_if_it_had_counted": {
+            "Cd": 0.12365825561,
+            "Cl": 0.53120103226
+          },
           "reasons": [
-            "runner error: coarse: Cd still moving (0.13 peak-to-peak over the last 50 iterations); not defensible as steady"
+            "residualControl not met (stopped on the backstop)",
+            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.13 peak-to-peak over the last 50 iterations); not defensible as steady"
           ]
         }
       ],
       "family": "N",
       "group": "N_a10",
-      "models_converged": [],
-      "n_converged": 0,
-      "n_excluded": 4,
+      "mesh_gate_exemption": {
+        "failing": [
+          "max non-orthogonality 85.70 deg vs the 70 deg hard gate"
+        ],
+        "grid_provenance": "NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against",
+        "ruling": "R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07)",
+        "scope": "model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them",
+        "statement": "Mesh Standard hard gate EXEMPT under R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07): max non-orthogonality 85.70 deg vs the 70 deg hard gate, on the reference community's own grid -- NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against. Scope: model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them."
+      },
+      "models_converged": [
+        "kEpsilon",
+        "kOmegaSST"
+      ],
+      "n_converged": 2,
+      "n_excluded": 2,
       "regime": "a10"
     },
     {
       "bands": {},
-      "core_min": 6.679,
+      "core_min": 6.025,
       "excluded": [
         {
           "cell_id": "N_a15_SpalartAllmaras",
           "model": "SpalartAllmaras",
-          "qoi_if_it_had_counted": {},
+          "qoi_if_it_had_counted": {
+            "Cd": 0.14600431583,
+            "Cl": 0.6791396496
+          },
           "reasons": [
-            "runner error: coarse: Cd still moving (1.5e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+            "residualControl not met (stopped on the backstop)",
+            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (1.5e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
           ]
         },
         {
           "cell_id": "N_a15_kEpsilon",
           "model": "kEpsilon",
-          "qoi_if_it_had_counted": {},
+          "qoi_if_it_had_counted": {
+            "Cd": 0.0350416722,
+            "Cl": 1.3954923878
+          },
           "reasons": [
-            "runner error: coarse: Cd still moving (2.3e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+            "residualControl not met (stopped on the backstop)",
+            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.3e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
           ]
         },
         {
           "cell_id": "N_a15_kOmegaSST",
           "model": "kOmegaSST",
-          "qoi_if_it_had_counted": {},
+          "qoi_if_it_had_counted": {
+            "Cd": 0.028799828651,
+            "Cl": 1.3263851993
+          },
           "reasons": [
-            "runner error: coarse: Cd still moving (8.11e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+            "residualControl not met (stopped on the backstop)",
+            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (8.11e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
           ]
         },
         {
           "cell_id": "N_a15_realizableKE",
           "model": "realizableKE",
-          "qoi_if_it_had_counted": {},
+          "qoi_if_it_had_counted": {
+            "Cd": 0.15548547695,
+            "Cl": 0.54889632245
+          },
           "reasons": [
-            "runner error: coarse: Cd still moving (0.17 peak-to-peak over the last 50 iterations); not defensible as steady"
+            "residualControl not met (stopped on the backstop)",
+            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.17 peak-to-peak over the last 50 iterations); not defensible as steady"
           ]
         }
       ],
       "family": "N",
       "group": "N_a15",
+      "mesh_gate_exemption": {
+        "failing": [
+          "max non-orthogonality 85.70 deg vs the 70 deg hard gate"
+        ],
+        "grid_provenance": "NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against",
+        "ruling": "R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07)",
+        "scope": "model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them",
+        "statement": "Mesh Standard hard gate EXEMPT under R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07): max non-orthogonality 85.70 deg vs the 70 deg hard gate, on the reference community's own grid -- NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against. Scope: model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them."
+      },
       "models_converged": [],
       "n_converged": 0,
       "n_excluded": 4,

@@ -1,8 +1,8 @@
 # Model-form band — converged cells only
 
-Generated 2026-08-07T20:28:32Z by `sdk/scripts/model_form_batch.py --band`. Design and pre-registration: `MODEL_FORM_BATCH_DESIGN.md`.
+Generated 2026-08-07T22:42:08Z by `sdk/scripts/model_form_batch.py --band`. Design and pre-registration: `MODEL_FORM_BATCH_DESIGN.md`.
 
-32 of 32 designed cells have run, 35.61 core-min spent.
+32 of 32 designed cells have run, 35.03 core-min spent.
 
 The band is the min/max across CONVERGED members of a group. An unconverged cell is excluded and named -- the NASA hump lesson: the band that failed to contain the experiment was the band that still had an unconverged member in it.
 
@@ -24,32 +24,44 @@ Excluded from the band:
   - kOmegaSST: residualControl not met (stopped on the backstop)
   - realizableKE: residualControl not met (stopped on the backstop)
 
-## N_a0 (0 converged, 4 excluded, 6.48 core-min)
+## N_a0 (0 converged, 4 excluded, 6.68 core-min)
+
+**Mesh-gate exemption on this group (R12):** Mesh Standard hard gate EXEMPT under R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07): max non-orthogonality 85.70 deg vs the 70 deg hard gate, on the reference community's own grid -- NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against. Scope: model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them.
 
 
 Excluded from the band:
-  - SpalartAllmaras: runner error: coarse: Cd still moving (9.79e-06 peak-to-peak over the last 50 iterations); not defensible as steady
-  - kEpsilon: runner error: coarse: Cd still moving (2.52e-07 peak-to-peak over the last 50 iterations); not defensible as steady
-  - kOmegaSST: runner error: coarse: Cd still moving (5.95e-05 peak-to-peak over the last 50 iterations); not defensible as steady
-  - realizableKE: runner error: coarse: Cd still moving (0.000849 peak-to-peak over the last 50 iterations); not defensible as steady
+  - SpalartAllmaras: residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (9.79e-06 peak-to-peak over the last 50 iterations); not defensible as steady
+  - kEpsilon: residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.52e-07 peak-to-peak over the last 50 iterations); not defensible as steady
+  - kOmegaSST: residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (5.95e-05 peak-to-peak over the last 50 iterations); not defensible as steady
+  - realizableKE: residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.000849 peak-to-peak over the last 50 iterations); not defensible as steady
 
-## N_a10 (0 converged, 4 excluded, 5.02 core-min)
+## N_a10 (2 converged, 2 excluded, 4.90 core-min)
+
+**Mesh-gate exemption on this group (R12):** Mesh Standard hard gate EXEMPT under R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07): max non-orthogonality 85.70 deg vs the 70 deg hard gate, on the reference community's own grid -- NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against. Scope: model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them.
+
+- **Cd: 0.00449517 to 0.0142268** (spread 0.009732, 103.96% of the mean; low kOmegaSST, high kEpsilon)
+  - kEpsilon: 0.0142268
+  - kOmegaSST: 0.00449517
+  - reference CFL3D SST (897x257): 0.0123621 — **CONTAINED** by this band
+- **Cl: 1.0802 to 1.11643** (spread 0.03624, 3.30% of the mean; low kEpsilon, high kOmegaSST)
+  - kEpsilon: 1.0802
+  - kOmegaSST: 1.11643
+  - reference CFL3D SST (897x257): 1.07781 — **NOT contained** by this band
+
+Excluded from the band:
+  - SpalartAllmaras: residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady
+  - realizableKE: residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.13 peak-to-peak over the last 50 iterations); not defensible as steady
+
+## N_a15 (0 converged, 4 excluded, 6.03 core-min)
+
+**Mesh-gate exemption on this group (R12):** Mesh Standard hard gate EXEMPT under R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07): max non-orthogonality 85.70 deg vs the 70 deg hard gate, on the reference community's own grid -- NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against. Scope: model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them.
 
 
 Excluded from the band:
-  - SpalartAllmaras: runner error: coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady
-  - kEpsilon: non-orthogonality 85.6987 > 70
-  - kOmegaSST: non-orthogonality 85.6987 > 70
-  - realizableKE: runner error: coarse: Cd still moving (0.13 peak-to-peak over the last 50 iterations); not defensible as steady
-
-## N_a15 (0 converged, 4 excluded, 6.68 core-min)
-
-
-Excluded from the band:
-  - SpalartAllmaras: runner error: coarse: Cd still moving (1.5e-05 peak-to-peak over the last 50 iterations); not defensible as steady
-  - kEpsilon: runner error: coarse: Cd still moving (2.3e-05 peak-to-peak over the last 50 iterations); not defensible as steady
-  - kOmegaSST: runner error: coarse: Cd still moving (8.11e-05 peak-to-peak over the last 50 iterations); not defensible as steady
-  - realizableKE: runner error: coarse: Cd still moving (0.17 peak-to-peak over the last 50 iterations); not defensible as steady
+  - SpalartAllmaras: residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (1.5e-05 peak-to-peak over the last 50 iterations); not defensible as steady
+  - kEpsilon: residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.3e-05 peak-to-peak over the last 50 iterations); not defensible as steady
+  - kOmegaSST: residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (8.11e-05 peak-to-peak over the last 50 iterations); not defensible as steady
+  - realizableKE: residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.17 peak-to-peak over the last 50 iterations); not defensible as steady
 
 ## P_re1e6 (4 converged, 0 excluded, 1.04 core-min)
 

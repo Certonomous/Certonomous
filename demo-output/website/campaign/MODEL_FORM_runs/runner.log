@@ -346,3 +346,91 @@
 [2026-08-07T20:28:32Z] [tmr-naca:coarse] simpleFoam finished in 115.0 s
 [2026-08-07T20:28:32Z] N_a15_realizableKE: EXCLUDED (runner error: coarse: Cd still moving (0.17 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {}; 1.95 core-min (session 18.18/60.0)
 [2026-08-07T20:28:32Z] model-form batch stopping: 18.18 core-min spent this run
+[2026-08-07T22:24:24Z] model-form batch starting: 12 cell(s) in scope, budget 20.0 core-min
+[2026-08-07T22:24:24Z] queue gate: 1 solver container(s) live (s1inv_eval008), under the ceiling of 3; proceeding
+[2026-08-07T22:24:24Z] N_a0_kOmegaSST: superseding an excluded record (runner error: coarse: Cd still moving (5.95e-05 peak-to-peak over the last 50 iterations); not defensible as steady)
+[2026-08-07T22:24:24Z] N_a0_kOmegaSST: starting
+[2026-08-07T22:24:24Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T22:24:26Z] [tmr-naca:coarse] a0 simpleFoam started
+[2026-08-07T22:26:05Z] [tmr-naca:coarse] simpleFoam finished in 98.8 s
+[2026-08-07T22:26:05Z] N_a0_kOmegaSST: EXCLUDED (residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (5.95e-05 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {'Cd': 0.0086151837566, 'Cl': -0.024994109559}; 1.68 core-min (session 1.68/20.0)
+[2026-08-07T22:26:05Z] queue gate: 1 solver container(s) live (s1inv_eval008), under the ceiling of 3; proceeding
+[2026-08-07T22:26:05Z] N_a0_SpalartAllmaras: superseding an excluded record (runner error: coarse: Cd still moving (9.79e-06 peak-to-peak over the last 50 iterations); not defensible as steady)
+[2026-08-07T22:26:05Z] N_a0_SpalartAllmaras: starting
+[2026-08-07T22:26:06Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T22:26:07Z] [tmr-naca:coarse] a0 simpleFoam started
+[2026-08-07T22:27:33Z] [tmr-naca:coarse] simpleFoam finished in 85.7 s
+[2026-08-07T22:27:34Z] N_a0_SpalartAllmaras: EXCLUDED (residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (9.79e-06 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {'Cd': 0.014861565104, 'Cl': -0.00019004487318}; 1.46 core-min (session 3.14/20.0)
+[2026-08-07T22:27:34Z] queue gate: 1 solver container(s) live (s1inv_eval008), under the ceiling of 3; proceeding
+[2026-08-07T22:27:34Z] N_a0_kEpsilon: superseding an excluded record (runner error: coarse: Cd still moving (2.52e-07 peak-to-peak over the last 50 iterations); not defensible as steady)
+[2026-08-07T22:27:34Z] N_a0_kEpsilon: starting
+[2026-08-07T22:27:35Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T22:27:37Z] [tmr-naca:coarse] a0 simpleFoam started
+[2026-08-07T22:29:22Z] [tmr-naca:coarse] simpleFoam finished in 105.9 s
+[2026-08-07T22:29:23Z] N_a0_kEpsilon: EXCLUDED (residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.52e-07 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {'Cd': 0.014640321612, 'Cl': -1.1472584084e-05}; 1.81 core-min (session 4.95/20.0)
+[2026-08-07T22:29:23Z] queue gate: 1 solver container(s) live (s1inv_eval008), under the ceiling of 3; proceeding
+[2026-08-07T22:29:23Z] N_a0_realizableKE: superseding an excluded record (runner error: coarse: Cd still moving (0.000849 peak-to-peak over the last 50 iterations); not defensible as steady)
+[2026-08-07T22:29:23Z] N_a0_realizableKE: starting
+[2026-08-07T22:29:24Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T22:29:26Z] [tmr-naca:coarse] a0 simpleFoam started
+[2026-08-07T22:31:07Z] [tmr-naca:coarse] simpleFoam finished in 101.4 s
+[2026-08-07T22:31:08Z] N_a0_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.000849 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {'Cd': 0.0046159936704, 'Cl': 0.00016787582045}; 1.73 core-min (session 6.68/20.0)
+[2026-08-07T22:31:08Z] queue gate: 1 solver container(s) live (s1inv_eval008), under the ceiling of 3; proceeding
+[2026-08-07T22:31:08Z] N_a10_kOmegaSST: superseding an excluded record (non-orthogonality 85.6987 > 70)
+[2026-08-07T22:31:08Z] N_a10_kOmegaSST: starting
+[2026-08-07T22:31:08Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T22:31:10Z] [tmr-naca:coarse] a10 simpleFoam started
+[2026-08-07T22:31:59Z] [tmr-naca:coarse] simpleFoam finished in 49.2 s
+[2026-08-07T22:31:59Z] [tmr:coarse] Cd=0.004495 Cl=1.11643 iters=8210 NOT settled wall=50s
+[2026-08-07T22:31:59Z] N_a10_kOmegaSST: CONVERGED; qoi {'Cd': 0.0044951723391, 'Cl': 1.1164336572}; 0.85 core-min (session 7.53/20.0)
+[2026-08-07T22:31:59Z] queue gate: 1 solver container(s) live (s1inv_eval009), under the ceiling of 3; proceeding
+[2026-08-07T22:31:59Z] N_a10_SpalartAllmaras: superseding an excluded record (runner error: coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady)
+[2026-08-07T22:31:59Z] N_a10_SpalartAllmaras: starting
+[2026-08-07T22:32:00Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T22:32:01Z] [tmr-naca:coarse] a10 simpleFoam started
+[2026-08-07T22:33:04Z] [tmr-naca:coarse] simpleFoam finished in 63.1 s
+[2026-08-07T22:33:05Z] N_a10_SpalartAllmaras: EXCLUDED (residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {'Cd': 0.016192147753, 'Cl': 1.0290489902}; 1.08 core-min (session 8.62/20.0)
+[2026-08-07T22:33:05Z] queue gate: 1 solver container(s) live (s1inv_eval009), under the ceiling of 3; proceeding
+[2026-08-07T22:33:05Z] N_a10_kEpsilon: superseding an excluded record (non-orthogonality 85.6987 > 70)
+[2026-08-07T22:33:05Z] N_a10_kEpsilon: starting
+[2026-08-07T22:33:05Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T22:33:07Z] [tmr-naca:coarse] a10 simpleFoam started
+[2026-08-07T22:34:08Z] [tmr-naca:coarse] simpleFoam finished in 61.8 s
+[2026-08-07T22:34:09Z] [tmr:coarse] Cd=0.014227 Cl=1.08020 iters=10431 NOT settled wall=63s
+[2026-08-07T22:34:09Z] N_a10_kEpsilon: CONVERGED; qoi {'Cd': 0.014226789043, 'Cl': 1.0801964408}; 1.06 core-min (session 9.68/20.0)
+[2026-08-07T22:34:09Z] queue gate: 1 solver container(s) live (s1inv_eval009), under the ceiling of 3; proceeding
+[2026-08-07T22:34:09Z] N_a10_realizableKE: superseding an excluded record (runner error: coarse: Cd still moving (0.13 peak-to-peak over the last 50 iterations); not defensible as steady)
+[2026-08-07T22:34:09Z] N_a10_realizableKE: starting
+[2026-08-07T22:34:10Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T22:34:11Z] [tmr-naca:coarse] a10 simpleFoam started
+[2026-08-07T22:36:03Z] [tmr-naca:coarse] simpleFoam finished in 112.1 s
+[2026-08-07T22:36:04Z] N_a10_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.13 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {'Cd': 0.12365825561, 'Cl': 0.53120103226}; 1.90 core-min (session 11.58/20.0)
+[2026-08-07T22:36:04Z] queue gate: 1 solver container(s) live (s1inv_eval009), under the ceiling of 3; proceeding
+[2026-08-07T22:36:04Z] N_a15_kOmegaSST: superseding an excluded record (runner error: coarse: Cd still moving (8.11e-05 peak-to-peak over the last 50 iterations); not defensible as steady)
+[2026-08-07T22:36:04Z] N_a15_kOmegaSST: starting
+[2026-08-07T22:36:05Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T22:36:06Z] [tmr-naca:coarse] a15 simpleFoam started
+[2026-08-07T22:37:33Z] [tmr-naca:coarse] simpleFoam finished in 86.7 s
+[2026-08-07T22:37:34Z] N_a15_kOmegaSST: EXCLUDED (residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (8.11e-05 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {'Cd': 0.028799828651, 'Cl': 1.3263851993}; 1.48 core-min (session 13.06/20.0)
+[2026-08-07T22:37:34Z] queue gate: 1 solver container(s) live (s1inv_eval009), under the ceiling of 3; proceeding
+[2026-08-07T22:37:34Z] N_a15_SpalartAllmaras: superseding an excluded record (runner error: coarse: Cd still moving (1.5e-05 peak-to-peak over the last 50 iterations); not defensible as steady)
+[2026-08-07T22:37:34Z] N_a15_SpalartAllmaras: starting
+[2026-08-07T22:37:34Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T22:37:36Z] [tmr-naca:coarse] a15 simpleFoam started
+[2026-08-07T22:38:57Z] [tmr-naca:coarse] simpleFoam finished in 80.8 s
+[2026-08-07T22:38:57Z] N_a15_SpalartAllmaras: EXCLUDED (residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (1.5e-05 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {'Cd': 0.14600431583, 'Cl': 0.6791396496}; 1.38 core-min (session 14.44/20.0)
+[2026-08-07T22:38:57Z] queue gate: 1 solver container(s) live (s1inv_eval009), under the ceiling of 3; proceeding
+[2026-08-07T22:38:57Z] N_a15_kEpsilon: superseding an excluded record (runner error: coarse: Cd still moving (2.3e-05 peak-to-peak over the last 50 iterations); not defensible as steady)
+[2026-08-07T22:38:57Z] N_a15_kEpsilon: starting
+[2026-08-07T22:38:58Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T22:38:59Z] [tmr-naca:coarse] a15 simpleFoam started
+[2026-08-07T22:40:21Z] [tmr-naca:coarse] simpleFoam finished in 81.9 s
+[2026-08-07T22:40:22Z] N_a15_kEpsilon: EXCLUDED (residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.3e-05 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {'Cd': 0.0350416722, 'Cl': 1.3954923878}; 1.40 core-min (session 15.84/20.0)
+[2026-08-07T22:40:22Z] queue gate: 1 solver container(s) live (s1inv_eval009), under the ceiling of 3; proceeding
+[2026-08-07T22:40:22Z] N_a15_realizableKE: superseding an excluded record (runner error: coarse: Cd still moving (0.17 peak-to-peak over the last 50 iterations); not defensible as steady)
+[2026-08-07T22:40:22Z] N_a15_realizableKE: starting
+[2026-08-07T22:40:22Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T22:40:24Z] [tmr-naca:coarse] a15 simpleFoam started
+[2026-08-07T22:42:07Z] [tmr-naca:coarse] simpleFoam finished in 103.6 s
+[2026-08-07T22:42:08Z] N_a15_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.17 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {'Cd': 0.15548547695, 'Cl': 0.54889632245}; 1.76 core-min (session 17.60/20.0)
+[2026-08-07T22:42:08Z] model-form batch stopping: 17.60 core-min spent this run

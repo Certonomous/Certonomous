@@ -1,19 +1,53 @@
 {
+  "alpha_deg": 15.0,
   "cell_id": "N_a15_kOmegaSST",
+  "cells": 3584,
   "converged": false,
-  "core_min": 1.669,
+  "core_min": 1.483,
   "excluded_reasons": [
-    "runner error: coarse: Cd still moving (8.11e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+    "residualControl not met (stopped on the backstop)",
+    "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (8.11e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
   ],
   "family": "N",
   "group": "N_a15",
+  "iteration_backstop": 12000,
+  "iterations": 12000,
+  "mesh": {
+    "aspect_ratio_note": "advisory only per Mesh Standard 3.3; never a lone rejection",
+    "breaches": [
+      "non-orthogonality 85.6987 > 70"
+    ],
+    "max_aspect_ratio": 20650841.43,
+    "max_non_ortho": 85.69872592,
+    "max_skewness": 0.5068662781
+  },
+  "mesh_gate_exemption": {
+    "failing": [
+      "max non-orthogonality 85.70 deg vs the 70 deg hard gate"
+    ],
+    "grid_provenance": "NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against",
+    "ruling": "R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07)",
+    "scope": "model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them",
+    "statement": "Mesh Standard hard gate EXEMPT under R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07): max non-orthogonality 85.70 deg vs the 70 deg hard gate, on the reference community's own grid -- NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against. Scope: model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them."
+  },
   "model": "kOmegaSST",
   "params": {
     "alpha_deg": 15.0
   },
-  "qoi": {},
+  "qoi": {
+    "Cd": 0.028799828651,
+    "Cl": 1.3263851993
+  },
+  "qoi_source": "coefficient.dat",
   "ranks": 1,
   "regime": "a15",
-  "timestamp": "2026-08-07T20:23:31Z",
-  "wall_seconds": 100.1
+  "residual_control_met": false,
+  "settle_s12": {
+    "detail": null,
+    "unsettled": false
+  },
+  "timestamp": "2026-08-07T22:37:34Z",
+  "toolchain": "native OpenFOAM v2606 (openfoam2606 launcher)",
+  "wall_seconds": 89.0,
+  "workflow_error": "coarse: Cd still moving (8.11e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
 }

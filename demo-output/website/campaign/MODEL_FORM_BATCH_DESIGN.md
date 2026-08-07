@@ -299,6 +299,26 @@ carried in `sdk/scripts/model_form_batch.py` with its reason.
   (compliant regeneration vs a defended distributed-grid clause), not
   quietly exempted. The study record (`tmr_flatplate_modelform.json`)
   is family-P-scoped and needs no change.
+- **2026-08-07 22:24:24Z — approved family-N regrade under ruling R12**
+  (`docs/charters/SUPERVISOR_RULINGS.md`): `--redo-excluded --family N
+  --max-core-min 20`, launched detached (`setsid`), survived a mid-run
+  credit kill (parent died ~22:20Z session-side; the solver child, PID
+  123323, ran on) and finished 22:42:08Z at **17.60 core-min** against the
+  20 cap (supervisor's estimate ~18). The C2 escalation was resolved by R12,
+  not by this batch: the mesh gate is EXEMPT for model-form banding only on
+  the TMR-distributed C-grid, stated on the band artifact with the failing
+  number (85.70° vs the 70° gate) and the grid provenance, per the ruling's
+  three mandatory conditions (per-family flag in the runner; physics-gate
+  purposes refuse it; pinned by `sdk/tests/test_model_form_r12.py`). Result
+  under the §4 gate with the exemption active: **N_a10 2 converged
+  (kOmegaSST, kEpsilon) → first family-N band** — Cd 0.00449517 to
+  0.0142268 (CFL3D 897×257 reference 0.0123621 CONTAINED), Cl 1.08020 to
+  1.11643 (CFL3D 1.07781 NOT contained, 0.22% below the floor); **N_a0 and
+  N_a15 0 converged / 4 excluded — honestly no band**, every exclusion now
+  carrying the §4 reason (`residualControl not met (stopped on the
+  backstop)`) with the workflow's tail-50 rule named beside it rather than
+  in place of it. The 12 superseded records are kept beside the new ones
+  (`record_superseded_20260807T22*.json`).
 
 ## 9. Deviations recorded up front
 
