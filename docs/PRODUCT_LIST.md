@@ -99,7 +99,11 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       SETTLE VERDICT (b63fbfbf, 13.6 core-min): flipped rotor SETTLES — first gateable band F8 ever produced (p2p 17.9%
       of Q_ref) — but torque is +138 N·m MOTORING-SIGNED vs 800 N·m; pre-registered sign rule refuses the milestone.
       Both directions now measured: NEITHER extracts power → blade pitch/twist/mirroring geometry defect, not numerics.
-      Zero-compute STL-orientation audit dispatched BEFORE any transient spend (would re-measure the defect at 100x cost).
+      STL AUDIT (0e769064, 0 core-min): geometry EXONERATED — chord to 2-3mm and twist EXACT vs TP-500-29955 Table A-1,
+      no mirror, AoA +3.2/+5.2/+4.1 deg textbook attached; the flip evidence re-read correctly (the flipped run WAS the
+      backwards one; its +138 N·m is expected reverse-drag). Real anomaly = the original direction's non-convergence,
+      prime suspect impulsive start (missing potentialFoam init — F5b's exact disease and cure). Decisive ~14 core-min
+      potentialFoam-init arm dispatched with the turbine-signed ≈−800 N·m prediction pre-registered.
 - [ ] AIAA DPW: study public data/methodology, then attempt CRM/DPW-class case (converged primal first).
       A6 wing-alone primal now matches DAFoam's published tutorial baseline to 0.0067% (provisional — see 4E A6).
       `w1-dpw5-hex-three-level-ladder` proposed (400).
