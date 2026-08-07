@@ -439,6 +439,55 @@ Contingent arms, authorized ONLY if clause (ii) fires:
 Cost basis: 2.6–3.1 core-min per A1 check arm (measured, R1); contingents ~9
 more. Session hard cap 30 core-min against the docket estimate of 25.
 
+## AMENDMENT 6 — R7f, registered 2026-08-07 AFTER the two R7 arms ran and BEFORE any further arm (commit history is the witness)
+
+What triggered this: R7's registered escape clause fired in a direction no
+registered band anticipated. Measured before this amendment was written (both
+arms rc=0, full numbers in the results section below): the np=1 control reads
+CD/shape **92.8%** against its own FD — dirty, so R7 cannot be scored against
+its FD-relative bands — while the np=4-scotch arm reads the SAME analytic to
+0.039% (vector), the SAME FD to 1e-6, the SAME 92.8% error, and the same
+Krylov count (95/96 vs 96/97). Whatever broke agreement broke it identically
+at both decompositions. Two separating arms, predictions registered before
+either runs:
+
+- **R7f1** (`a1lim_np1_h3e3`): byte-identical restage of `a1lim_np1` with the
+  ONE edit `check_totals` step 1e-3 -> 3e-3 (the step-check magnitude the R2
+  guard registered for exactly this symptom class — FD magnitude differing
+  from the analytic by > 20%). **Prediction: the FD is NOT step-stable — the
+  CD/shape FD vector at 3e-3 differs from the 1e-3 FD vector by >= 20%
+  (vector-relative), i.e. the limiter has made this case's shape response
+  kinked at the FD scale and the 93% is an unresolved-FD artifact, not a
+  serial AD conviction.** Named alternative, the loud one: FD stable to
+  <= 2% with the analytic unchanged means the limiter's SERIAL reverse tape
+  is genuinely wrong at ~93% on this case — a decomposition-INDEPENDENT
+  defect class this lab has not previously seen (every prior defect here
+  vanished at np=1) — reported loudly and separately from the decomposition
+  claim. Middle band 2–20%: partial step-dependence, scored NOT HELD,
+  reported as measured.
+- **R7f2** (`a1limdef_np1`): the R6b one-word lever at np=1 — `div(phi,U)`
+  `bounded Gauss linearUpwind default` (unlimited; the V-form/family change
+  of the R7 staging retained), step 1e-3. **Prediction: clean, CD/shape rel.
+  err vs own FD <= 0.5% — the limiter word, not the `linearUpwindV` ->
+  `linearUpwind` family change, carries the serial gap.** Named alternative:
+  dirty means the family change itself broke serial agreement, the R7 staging
+  does not isolate the limiter, and the acquisition verdict must be re-scoped
+  to "A4's scheme pair transplanted", reported as such.
+
+What needs NO new arm and is scored now, exactly once, on the
+decomposition-invariance instrument (the instrument R1's clause (ii) already
+used as a subclause): **the acquisition question itself.** Analytic
+np=1-vs-np=4-scotch 3.9e-04 vector-relative (max component 0.20%, median
+0.04%), FD columns 1e-6 apart, equal Krylov counts, `Decomposition method
+scotch [4]` verified in-log. Whatever the 93% is, it is not
+decomposition-borne: **the defect did NOT acquire on the second mesh family**,
+and the docket gate's second branch (conjunction insufficient off the Ahmed
+family; the n=1-family confound stands) obtains on this instrument, with the
+FD-band caveat disclosed.
+
+Cost: R7f1 ~6.5 core-min (measured, the limited np=1 arm), R7f2 ~3.5.
+Running total 8.80 of the 30 cap.
+
 ---
 
 # RESULTS
