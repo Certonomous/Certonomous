@@ -370,6 +370,15 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - LOOSE END noted: untracked F7a_R1/res16_alphaco sweep dirs (08-05 15:28, unowned by any known agent) — triage whether
   this is committed-work residue or an orphaned F7a-fix attempt before anything overwrites it.
 
+- BRANCH HYPOTHESIS HELD — the defect has its mechanism (robustness campaign, 25f52868..0076a73, 128.3/150 core-min,
+  L-37): the slope limiter's min/max selection is the gate — one-word edit collapses gradient error 8.95%→0.849% and the
+  OPERATOR-level cross-residual 329x→0.0135x||b|| (24,300-fold). The BC lever only HIDES the defect (inletOutlet reads
+  0.019% in check_totals while its operator misses by 1.047x||b|| — L-36 measured in the act). Hanging nodes eliminated
+  (conformal mesh still fires, 2.82%); under refinement the conditioning collapse TRAVELS with the limiter (with it: no
+  adjoint at all; without: 149-iter convergence). The bug is now named and 30-second-reproducible. Dispatched: the one
+  decisive acquisition arm (A1 + limiter + BC — kills or confirms the n=1-family confound) + the supervisor sweep of the
+  headline numbers. Upstream report NOT FILED until both land.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
