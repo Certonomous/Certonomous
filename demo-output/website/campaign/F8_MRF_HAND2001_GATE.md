@@ -374,3 +374,54 @@ defect**.
    oscillates, that is finally the genuine unsteadiness the transient
    branch exists for, and the transient case inherits a quantified target:
    settle to within the §1 cap of 800 N·m.
+
+## 11. §10 item 1 — pre-registration of the initialised +omega re-run (2026-08-07, before launch)
+
+Authorised by the supervisor as the final rider. **Written before the case
+directory exists.** One convention correction carried on the record: the
+rider's brief phrased the prediction as "≈−800 N·m"; for THIS run the
+rotation is the original ω = +7.5398 about +x, and power extraction means
+torque parallel to omega, so **turbine-signed here is Mx > 0** — the −800
+convention belonged to the flipped case in §7. The magnitude prediction is
+unchanged.
+
+**Case:** `phase6_mrf_pfinit`, copied from `phase6_mrf` (same mesh, same
++omega MRFProperties, same BCs), with exactly three declared changes:
+(1) `potentialFoam -writephi` initialisation before the solve — the §10
+prime-suspect fix, the F5b cure applied to this family for the first time;
+(2) reduced relaxation, p 0.3 → 0.2, U 0.7 → 0.5, nuTilda 0.7 → 0.5;
+(3) endTime 1500 from a fresh start (a writeInterval-250 multiple, so final
+fields persist). **2 MPI ranks per the supervisor's instruction** — a
+declared deviation from this case's own prior 4-rank runs, accepted because
+decomposition perturbs a steady SIMPLE solve only at linear-solver
+tolerance; core-min cost is rank-independent.
+
+**Window, declared now:** t = 1000–1500 inclusive (11 samples at
+writeInterval 50).
+
+**Settle gate, declared now:** identical conventions to §7 — UNSETTLED if
+relative drift ≥ 1e-3 AND monotone fraction ≥ 0.90 over the window;
+gateability cap: window peak-to-peak ≤ 400 N·m (50% of Q_ref = 800 N·m,
+secondary tier per §2).
+
+**Quantified prediction (the diagnosis put at risk):** the solve settles
+**turbine-signed, window mean Mx ∈ [+400, +1200] N·m** (800 ± the cap), with
+p2p within the 400 N·m cap. MILESTONE requires all four: settled + cap met +
+Mx > 0 + 800 N·m inside [mean − p2p/2, mean + p2p/2].
+
+**FAIL branches, each a result:**
+- (a) settles motoring-signed (Mx < 0) → the impulsive-start hypothesis is
+  refuted as the sole cause; §10 item 2 (MRF term audit vs the DAFoam
+  tutorial) is next.
+- (b) settles turbine-signed but 800 N·m outside the band → F8 has a real,
+  quantified bias to chase (model/BC investigation), and the MRF milestone
+  is a bias statement rather than a pass.
+- (c) will not settle (S12 fires or cap exceeded) → with initialisation and
+  geometry both clean, the oscillation is genuine unsteadiness; the
+  steady-MRF branch closes finally and the transient branch inherits the
+  quantified target (settle within 400 N·m of 800).
+
+**Predicted cost:** 1500 iterations at the measured ≈0.58 core-s/iteration ≈
+**14.5 core-min** (wall ≈ 7.3 min at 2 ranks).
+
+*Nothing below this line existed when the run was launched.*
