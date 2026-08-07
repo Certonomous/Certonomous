@@ -12,8 +12,8 @@
  "expected_knowledge_gain": "Either the Ahmed body's non-monotone ladder gets a named physical cause rather than a hypothesis, or the cause is eliminated and the defect is somewhere else. Both slants' validation credentials are blocked behind this ladder, and no amount of refinement will move it",
  "source_kind": "gate",
  "citations": [
-  "demo-output/website/campaign/R4_ASYMPTOTIC_RESULTS.md sections 3 and 6",
-  "demo-output/website/campaign/W1_AHMED_LADDER_DISPOSITION.md",
+  "The R4 asymptotic-ladder results record, sections 3 and 6",
+  "The W1 Ahmed ladder disposition record",
   "Ahmed, Ramm & Faltin 1984, SAE 840300"
  ],
  "in_sample_verdict": "Not applicable. Nothing is fitted, inverted or calibrated: this is a forward solve of a published experimental configuration, and the Ahmed body is not a scored case of the closure challenge.",

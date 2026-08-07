@@ -11,11 +11,12 @@
  "cost_basis": "measured. The alpha 0 coarse rung is the TMR 113x33 grid at 3,584 cells and ran 5,000 iterations in 95.2 seconds at one rank, which is 3,584 cells per rank and 1.59 core-minutes. Four schemes at a 15,000-iteration budget is 4 x 4.8, about 19 core-minutes, plus meshing already on disk and margin. ONE rank is correct here and four would be wrong: at 3,584 cells, four ranks would put 896 cells per rank, far below the 5,600 cells per rank inversion point, so parallel would cost more core-minutes and buy nothing",
  "expected_knowledge_gain": "Either the TMR airfoil ladder has a scheme that reaches a steady state, which unblocks two items, or it does not and two approved items totalling 753 core-minutes are asking this solver for something it cannot produce",
  "source_kind": "gate",
+ "hard_criterion": "instrument-check",
  "citations": [
-  "demo-output/website/tmr/naca0012_status.json, findings_2026_07_25",
-  "demo-output/website/tmr/C4_naca0012_closure.md",
-  "demo-output/website/campaign/W1_TMR_NACA0012_DISPOSITION.md",
-  "docs/charters/CASE_SELECTION_CHARTER.md section 3"
+  "The TMR NACA 0012 status record, findings of 2026-07-25",
+  "The C4 NACA 0012 closure record",
+  "The W1 TMR NACA 0012 disposition record",
+  "The case-selection charter, section 3"
  ],
  "in_sample_verdict": "Not applicable. Nothing is fitted, inverted or calibrated, and the NACA 0012 airfoil is not a scored case of the closure challenge. It is a numerical-scheme comparison against a settle criterion, with no reference value claimed.",
  "status": "proposed",

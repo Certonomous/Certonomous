@@ -10,10 +10,11 @@
  "cost_basis": "measured this campaign: A1 check_totals arms cost 2.6-3.1 core-min each at --cpus=2; a fired-defect crossres protocol on a 26k-state case costs ~13 core-min (upw/io levers, ledgered); reserve for one FD step-check",
  "expected_knowledge_gain": "Decides whether the branch-conjunction trigger is mesh-family-agnostic, which is the difference between an upstream report that says 'any case with a limited scheme and a freestream BC is exposed under scotch' and one that says 'we have one exposed mesh family'. Also the cheapest remaining probe of the open primalMinResTol confound: A1 runs at 1e-8, so a fired defect there kills the loose-primal co-ingredient hypothesis in the same run.",
  "source_kind": "gate",
+ "hard_criterion": "instrument-check",
  "citations": [
-  "demo-output/website/dafoam/DEFECT_ROBUSTNESS_mesh_and_setup.md",
-  "demo-output/website/dafoam/UPSTREAM_BUG_REPORT_decomposition_adjoint.md Addendum 2026-08-07",
-  "demo-output/website/dafoam/VERIFICATION_reach_matrix_supervisor_sweep.md commit 192c970c"
+  "The defect-robustness mesh-and-setup record, R6 and R7 sections",
+  "The decomposition-adjoint upstream bug report draft, addendum 2026-08-07",
+  "The reach-matrix supervisor verification sweep, commit 192c970c"
  ],
  "status": "done",
  "created_at": "2026-08-07T20:04:00Z",
