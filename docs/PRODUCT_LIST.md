@@ -96,7 +96,10 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       the rotor was set spinning AGAINST its power-extracting direction — the case never operated as a turbine;
       flipped omega calms the history 21x. Citation conflation in our own docket untangled (TP-500-29494 Simms vs
       TP-500-29955 Hand; 800 N·m is secondary-tier, corroborated 3 ways incl. P=Qω≈6 kW). Flipped-omega settle
-      (~13 core-min) running as rider; transient branch is the fallback.
+      SETTLE VERDICT (b63fbfbf, 13.6 core-min): flipped rotor SETTLES — first gateable band F8 ever produced (p2p 17.9%
+      of Q_ref) — but torque is +138 N·m MOTORING-SIGNED vs 800 N·m; pre-registered sign rule refuses the milestone.
+      Both directions now measured: NEITHER extracts power → blade pitch/twist/mirroring geometry defect, not numerics.
+      Zero-compute STL-orientation audit dispatched BEFORE any transient spend (would re-measure the defect at 100x cost).
 - [ ] AIAA DPW: study public data/methodology, then attempt CRM/DPW-class case (converged primal first).
       A6 wing-alone primal now matches DAFoam's published tutorial baseline to 0.0067% (provisional — see 4E A6).
       `w1-dpw5-hex-three-level-ladder` proposed (400).
