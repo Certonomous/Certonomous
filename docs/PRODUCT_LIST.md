@@ -408,6 +408,13 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   close. The mechanism claims are now defended end-to-end; only the acquisition arm stands between the upstream report
   and filing-ready.
 
+- ACQUISITION ARM: THIRD OUTCOME (0263d950..d63b3212, 15.2/30 core-min, L-38): A1 did NOT acquire the decomposition
+  defect — instead the limiter breaks A1's SERIAL adjoint (92.8% CD, sign flip, vs step-stable FD; one-word lever →
+  0.121%), decomposition-INVARIANT wrongness ("invariance certifies consistency, not correctness"). Upstream report
+  scope honestly narrowed (decomposition variant = one mesh family on present evidence) and GAINS a single-process
+  one-word reproducer. Sweep of the serial finding dispatched (the FD-kink question gets full seriousness before
+  anything is filing-ready). primalMinResTol co-ingredient hypothesis gains weight.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
