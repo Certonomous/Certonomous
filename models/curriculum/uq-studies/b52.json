@@ -54,9 +54,18 @@
       "near_body_shell_level": 2,
       "max_cell_level": 4,
       "note": "background blockMesh divisions scaled up again (55x49x82); same recipe as finer2/fine-uq/production, system/ copied verbatim from study-b52-finer2-uq with only blockMeshDict changed. Solved at 2 MPI ranks hierarchical n (2 1 1), identical to fine-uq and finer2, 220529 cells/rank. Pre-registered at demo-output/website/campaign/B52_RUNG7_PREREGISTRATION.md (commit d92a87f0) before the solver was launched; the pre-registered prediction that Cd would rise again is scored FALSE."
+    },
+    {
+      "tag": "rung8",
+      "cells": 836136,
+      "cd": 0.047942443,
+      "mission": "b52-rung8-uq",
+      "near_body_shell_level": 2,
+      "max_cell_level": 4,
+      "note": "background blockMesh divisions scaled (55x49x82) -> (69 62 103), a deliberate cell-count doubling (h-ratio 1.238 vs rung7, departing from the family's constant r~1.09; stated in the pre-registration before meshing). Everything else copied verbatim from study-b52-rung7-uq (b52.stl md5 c27eec6c710f0a937ec8cfe84aec2cfe). 2 MPI ranks hierarchical n (2 1 1), 300 iterations. Pre-registered at demo-output/website/campaign/B52_RUNG8_PREREGISTRATION.md (commit 48cfedfb) before any mesh existed; the prediction that Cd lands inside the family span (ladder is mesh noise, not a direction) scored TRUE."
     }
   ],
-  "updated_utc": "2026-08-02T06:10:43Z",
+  "updated_utc": "2026-08-07T20:45:00Z",
   "fingerprint": "ed675052cbc1ff14",
   "numerical": {
     "dim": 3,
@@ -64,27 +73,28 @@
       0.5,
       2.5
     ],
-    "observed_order": null,
-    "order_used": null,
-    "clamped": false,
-    "band_abs": 0.005068533750000005,
-    "monotone": false,
+    "observed_order": 28.675,
+    "order_used": 2.5,
+    "clamped": true,
+    "band_abs": 0.000493085737441357,
+    "monotone": true,
     "conclusive": false,
-    "method": "rungs not monotone; conservative band, largest spread times 1.25",
+    "method": "3-mesh study (r = 1.24), observed order p = 28.67; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
     "guards": {
       "distinct_rungs": true,
-      "monotone": false
+      "monotone": true,
+      "order_window": false,
+      "increment_trend": true,
+      "extrapolation_sanity": true
     },
     "guards_failed": [
-      "monotone"
+      "order_window"
     ],
-    "not_conclusive_guard": "monotone",
-    "dropped_from_fit": [
-      "cells",
-      "values"
-    ],
-    "band_rel": 0.10739,
-    "value_working": 0.04719920575166667
+    "not_conclusive_guard": "order_window",
+    "richardson_extrapolated": 0.0479418271477908,
+    "band_rel": 0.01029,
+    "value_working": 0.047942443,
+    "note": "fit takes the finest three (330950/441057/836136). The p=28.7 is the signature of a noise-dominated increment ratio: e21=-2.78e-4 is 15% of the measured mesh-construction noise floor (1.91e-3). conclusive false, reportable_band None."
   },
   "recipe_audit": {
     "finding": "coarse and medium rungs used nearBody refinement-shell level 1 (max overall cell level 3); intermediate, production, fine-uq, and finer2 used nearBody level 2 (max overall cell level 4). Confirmed both from log.snappyHexMesh ('Refinement level N for all cells inside nearBody' and the 'Cells per refinement level' histograms) and from sdk/scripts/run_uq_studies.py's own documented castellated-level floor/degenerate-ladder issue. Only {intermediate, production, fine-uq, finer2, rung7} share one refinement recipe (background-mesh density is the only thing that varies); coarse and medium are not extrapolation-comparable to the other four and should not be mixed into a single Richardson/GCI fit with them.",
@@ -93,14 +103,16 @@
       193880,
       255358,
       330950,
-      441057
+      441057,
+      836136
     ],
     "valid_family_cd": [
       0.049053,
       0.047196,
       0.049573,
       0.052275,
-      0.04822
+      0.04822,
+      0.047942
     ]
   },
   "provenance": [
@@ -235,5 +247,66 @@
       },
       "record": "demo-output/website/campaign/W3_MESH_NOISE_FLOOR_RESULTS.md"
     }
+  },
+  "eighth_rung": {
+    "measured_utc": "2026-08-07T20:45:00Z",
+    "cells": 836136,
+    "cd": 0.047942443,
+    "cd_convention": "mean over the final 20 percent of the force history (60 of 300 rows)",
+    "log": "/home/ubuntu/certonomous-runs/study-b52-rung8-uq/postProcessing/forceCoeffs1/0/coefficient.dat",
+    "window_2sigma": 9.231e-06,
+    "window_2sigma_over_cd_pct": 0.019,
+    "window_2sigma_over_increment_pct": 3.32,
+    "halves_drift_150_225_vs_225_300": -6.804e-06,
+    "simple_converged_messages": 0,
+    "h_ratio_vs_rung7": 1.2377,
+    "ranks": 2,
+    "cells_per_rank": 418068,
+    "cost_core_min": 19.1,
+    "est_core_min": 20.0,
+    "increment_vs_rung7": -0.000278,
+    "increment_over_mesh_noise_floor": 0.15,
+    "surface_resolution_audit": {
+      "hypothesis": "recipe holds surface resolution flat while background scales (pre-registered in proposal b52-eighth-rung-with-the-alternative-preregistered, commit 9ee82a35, before any face count was read)",
+      "decision_rule": "fit b in n_faces ~ N^b on the valid family; flat if b<1/3, uniform-like if b in [0.55,0.80]",
+      "measured_b": 0.707,
+      "pairwise_b": [
+        0.593,
+        0.802,
+        0.82,
+        0.57
+      ],
+      "faces_per_rung": {
+        "135779": 6098,
+        "193880": 7533,
+        "255358": 9395,
+        "330950": 11621,
+        "441057": 13688,
+        "836136": 21270
+      },
+      "mean_surface_size_m": {
+        "135779": 0.543,
+        "193880": 0.489,
+        "255358": 0.436,
+        "330950": 0.395,
+        "441057": 0.365,
+        "836136": 0.292
+      },
+      "verdict": "REFUTED -- the recipe refines the surface like uniform refinement; the non-monotonicity keeps its measured explanation, the 1.91e-3 mesh-construction noise floor"
+    },
+    "mesh_topology_note": "body patch reads 'multiply connected (shared edge)' where rungs 5-7 read 'ok (closed singly connected)'; checkMesh still Mesh OK, max non-orth 57.55, max skew 3.948",
+    "verdict_moved": true,
+    "which_numbers_moved": {
+      "monotone": "false -> true (finest-three fit; the six-rung sequence overall is still non-monotone)",
+      "observed_order": "None -> 28.675 fitted, clamped, NOT used (order_window guard fails)",
+      "not_conclusive_guard": "monotone -> order_window",
+      "band_abs": "0.005068533750000005 -> 0.000493085737441357 (fallback at p=2.5)",
+      "band_rel": "0.10739 -> 0.01029",
+      "conclusive": "false -> false (unchanged)",
+      "reportable_band": "None -> None (unchanged; no band is quoted either time)"
+    },
+    "flattering_move_check": "band_abs falls 10x but uq.reportable_band refuses it both before and after, so no reportable number improved. The monotone flag flipping true on a triple whose increment is 15% of the mesh noise floor is noise falling in one direction, and the record says so rather than claiming asymptotic behaviour; conclusive stays false.",
+    "record": "demo-output/website/campaign/B52_RUNG8_RESULTS.md",
+    "preregistration": "demo-output/website/campaign/B52_RUNG8_PREREGISTRATION.md"
   }
 }

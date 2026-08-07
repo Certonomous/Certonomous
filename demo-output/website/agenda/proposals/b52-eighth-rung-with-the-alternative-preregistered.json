@@ -18,13 +18,14 @@
   "The next-cases slate, item 2"
  ],
  "launch_prompt": "B-52 eighth refinement rung. Read demo-output/website/campaign/NEXT_CASES_SLATE.md item 2, models/curriculum/uq-studies/b52.json and B52_RUNG7_PREREGISTRATION.md first. DO THE ZERO-COMPUTE HALF FIRST and write it down before generating any mesh: for each of the six existing rung meshes, report the aircraft-patch surface face count and the minimum and mean surface cell size against that rung's total cell count. The recipe scales the background blockMesh divisions while holding near_body_shell_level 2 and max_cell_level 4, so the hypothesis under test is that surface resolution is flat while total cells nearly double. If it is flat, that is the primary result and it explains seven non-monotone rungs; say so before the eighth rung's number exists, so the finding cannot be accused of following the answer. Then the rung: same recipe, system/ copied verbatim from study-b52-rung7-uq with only blockMeshDict changed, background divisions scaled again from 55x49x82 to roughly 880,000 cells, 2 MPI ranks, 300 iterations as every rung before it. Pre-register the Cd prediction AND the alternative before launching, and note in the pre-registration that rung 7's rise prediction scored FALSE so a second monotonicity prediction is a repeat bet. Recompute the observed order through the lab's own uq.eca_hoekstra_band and record the conclusive flag as it falls -- do not clamp it. Budget 20 core-min for the solve plus meshing, setsid, poll logs inline, and watch the iteration count: the cost basis prices the grid only and iterations are the term that overruns. Record: evidence file in demo-output/website/campaign/, docket update on agp-1dec50b65c2f and this item, honest verdict.",
- "status": "approved",
+ "status": "done",
  "created_at": "2026-08-05T17:18:00Z",
- "decided_at": "2026-08-05T17:43:28Z",
+ "decided_at": "2026-08-07T20:50:00Z",
  "decision_note": "approved under Katie's blanket approval 2026-08-05, next-cases slate rank_value 0.150 (slate rank 2); blanket, not per-item, so the proposal's own gate and cost basis still govern what runs",
  "claim": {
   "claimed_by": "solver-agent next-cases-slate-top-two (W1 session)",
   "claimed_at": "2026-08-05T17:43:28Z",
-  "note": "Claimed together as the top two of the 2026-08-05 next-cases slate (commit 9ee82a35). F8 analysis first, B52 rung second, per the slate ordering."
- }
+  "note": "Released on completion, 2026-08-07. Full record: demo-output/website/campaign/B52_RUNG8_RESULTS.md; case retained at /home/ubuntu/certonomous-runs/study-b52-rung8-uq."
+ },
+ "outcome": "Eighth rung run 2026-08-07 under pre-registration (B52_RUNG8_PREREGISTRATION.md, commit 48cfedfb, written before any mesh existed). Cd(836,136) = 0.047942443, settled (final-60 2-sigma 9.2e-6), increment vs rung7 -2.78e-4 = 15% of the measured 1.91e-3 mesh-construction noise floor -- the pre-registered prediction that the ladder is noise, not a direction, scored TRUE. The pre-registered alternative (surface resolution flat while cells double) was measured and REFUTED: surface faces scale as N^0.707, inside the uniform-refinement window. Refit through uq.eca_hoekstra_band: finest triple monotone but observed order 28.7 (noise ratio), order_window guard fails, conclusive false, reportable_band None. 19.1 core-min vs est 20. Full record: demo-output/website/campaign/B52_RUNG8_RESULTS.md; models/curriculum/uq-studies/b52.json eighth_rung."
 }

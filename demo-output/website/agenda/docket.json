@@ -2643,9 +2643,12 @@
    "cost_basis": "estimate; the finest rung holds 441,057 cells and the next roughly doubles it. the iteration count is NOT priced here: this ladder stores cells per rung and no iterations, and measured cost rises about linearly with iterations while cells barely move within a family, so this figure prices the grid alone and the settling is the term that can overrun",
    "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the B-52 Stratofortress-class airframe drag",
    "source_kind": "gate",
-   "status": "proposed",
+   "status": "done",
    "created_at": "2026-08-02T05:51:37+00:00",
-   "well": "W3"
+   "well": "W3",
+   "decided_at": "2026-08-07T20:50:00Z",
+   "outcome": "Eighth rung run 2026-08-07 under pre-registration (B52_RUNG8_PREREGISTRATION.md, commit 48cfedfb, written before any mesh existed). Cd(836,136) = 0.047942443, settled (final-60 2-sigma 9.2e-6), increment vs rung7 -2.78e-4 = 15% of the measured 1.91e-3 mesh-construction noise floor -- the pre-registered prediction that the ladder is noise, not a direction, scored TRUE. The pre-registered alternative (surface resolution flat while cells double) was measured and REFUTED: surface faces scale as N^0.707, inside the uniform-refinement window. Refit through uq.eca_hoekstra_band: finest triple monotone but observed order 28.7 (noise ratio), order_window guard fails, conclusive false, reportable_band None. 19.1 core-min vs est 20. Full record: demo-output/website/campaign/B52_RUNG8_RESULTS.md; models/curriculum/uq-studies/b52.json eighth_rung.",
+   "decision_note": "approved under Katie's blanket approval 2026-08-05, executed via proposal b52-eighth-rung-with-the-alternative-preregistered (slate rank 2)"
   },
   {
    "id": "credential-layer-coverage-gate",
