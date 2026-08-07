@@ -270,6 +270,17 @@ carried in `sdk/scripts/model_form_batch.py` with its reason.
    `record.json`, and the restarted runner skipped them. The one cell a kill
    can cost is the one in flight, as designed.
 
+## 8b. Launch log
+
+- **2026-08-07 20:10:20Z — family N launched detached** (`setsid`, PID 10186):
+  `python3 sdk/scripts/model_form_batch.py --family N --max-core-min 60
+  --max-queue-wait 3600`. 12 cells in scope, queue gate open (0 solver
+  containers live at launch), first cell `N_a0_kOmegaSST` solving at 20:10:22Z.
+  Runner log: `MODEL_FORM_runs/runner.log`. Expected to finish or exhaust its
+  60 core-min budget within roughly an hour of wall clock (single core);
+  whichever session comes next collects with `--list` then `--band` /
+  `--study` — no reattachment needed, every completed cell self-ledgers.
+
 ## 9. Deviations recorded up front
 
 1. **SA freestream is the TMR SA specification, not the SST one.** SpalartAllmaras
