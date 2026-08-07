@@ -19,6 +19,13 @@
   "The next-cases slate, item 1"
  ],
  "launch_prompt": "F8 NREL Phase VI, gate the forces that already exist. Do NOT start a new solve first. Read demo-output/website/campaign/NEXT_CASES_SLATE.md item 1 and the F8 section of campaign/CAMPAIGN_STATUS.md. Step 1, zero compute: write the pre-registration BEFORE reading any force number -- declare the averaging window over the existing history in F8_runs/phase6_mrf/postProcessing/bladeForces, and declare the maximum band width (as a percentage of the published torque) beyond which you will report NO VERDICT rather than a pass or a fail. Step 2: fetch NREL/TP-500-29494 (Hand et al. 2001) and extract the low-speed-shaft torque at the 7 m/s Sequence S point; if the tabulated value cannot be reached, stop and report BLOCKED at 0 core-min rather than substituting a secondary source without stating its provenance tier. Step 3: convert the existing bladeForces history to low-speed-shaft torque in the published quantity's own units and sign convention -- state the conversion explicitly, it is the step most likely to be wrong, and a torque that is off by the rotor radius or the blade count is the failure mode to guard against. Step 4: report the window mean, the peak-to-peak spread, and the verdict against the pre-declared band. Budget 6 core-min, 4 ranks, setsid, poll logs inline. Record: evidence file in demo-output/website/campaign/, docket update on this item, honest verdict -- a NO VERDICT with the band measured is a result and must not be dressed up as a fail or a pass.",
- "status": "proposed",
- "created_at": "2026-08-05T17:17:00Z"
+ "status": "approved",
+ "created_at": "2026-08-05T17:17:00Z",
+ "decided_at": "2026-08-05T17:43:28Z",
+ "decision_note": "approved under Katie's blanket approval 2026-08-05, next-cases slate rank_value 0.500 (slate rank 1); blanket, not per-item, so the proposal's own gate and cost basis still govern what runs",
+ "claim": {
+  "claimed_by": "solver-agent next-cases-slate-top-two (W1 session)",
+  "claimed_at": "2026-08-05T17:43:28Z",
+  "note": "Claimed together as the top two of the 2026-08-05 next-cases slate (commit 9ee82a35). F8 analysis first, B52 rung second, per the slate ordering."
+ }
 }
