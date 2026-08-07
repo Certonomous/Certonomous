@@ -91,8 +91,15 @@ note, which the STATUS file's own idiom requires:
   ("Round 4 — 0.0654 …, the entry of record"), the per-case table caption
   ("Round-4 values are the entry of record"), and the NO-GO section's
   closing "Round 4 stands as the entry of record" — all contradict the
-  updated abstract/leaderboard of the same document. **Dated superseded
-  notes added in the fix commit** (text-only, no number rewritten).
+  updated abstract/leaderboard of the same document. **Disposition
+  amended at fix time**: a concurrent session holds an in-flight rewrite
+  of this file (818 insertions, uncommitted) which this review verified
+  already repairs all three spots ("Round 5 — 0.056647 …, the entry of
+  record"; "Round 4 stood"). This supervisor therefore did NOT touch the
+  file — editing it would have collided with and part-committed another
+  session's work. Residual: the rewritten abstract still quotes the
+  0.002878 margin without the seed bound; carried to F1's pre-send-audit
+  flag.
 - `agenda/CHALLENGE_LANDSCAPE.md` §1 row and §5 ("The entry of record is
   0.0654") — a document whose §5 exists to police exactly this staleness.
   **Dated note added.**
@@ -271,3 +278,18 @@ zero-crossing QoI arrives.
 
 Nothing in this review changes the entry of record. The scoring-call ledger
 stands at 6; this review made no call and opened no test ground truth.
+
+**Provenance note on this file's own commit (recorded, not hidden).** This
+review and the guidelines were first committed with a shared git index that
+another session had pre-staged; the supervisor split the commit, and in the
+race window the concurrently running docket session committed the combined
+index — so this review and
+`CLOSURE_FAMILY_SUPERVISION_GUIDELINES.md` entered history inside commit
+`d52446e7` ("Docket: every standing negative verdict…") alongside that
+session's proposal batch, under its message rather than this review's. The
+content is byte-identical to what this review wrote; no history was
+rewritten after the race was discovered, because other sessions were
+already building on the tip. Lesson filed for the family: in this shared
+tree, commit with `git commit --only <paths>` in a single step — a
+stage-then-commit or reset-then-recommit sequence is a race against the
+rest of the fleet.

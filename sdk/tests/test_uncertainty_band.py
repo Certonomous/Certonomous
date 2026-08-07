@@ -112,6 +112,19 @@ class ChannelTable(unittest.TestCase):
                  if r["state"] == "quantified"}
         self.assertEqual(shown, set(band["contributions"]))
 
+    def test_bare_zero_is_refused_not_quantified(self):
+        # Family supervision review 2026-08-07, finding F8: a bare 0.0 used
+        # to pass as "quantified, zero, full coverage" -- the exact
+        # unquantified-as-zero shortcut rule 1 exists to stop.
+        with self.assertRaises(ValueError):
+            ub.compose({"model": 0.0, "numerical": 0.1, "input": None})
+        # A measured zero remains expressible, as a record with a method.
+        band = ub.compose({"model": {"band_abs": 0.0, "method": "measured"},
+                           "numerical": 0.1, "input": None})
+        self.assertAlmostEqual(band.combined, 0.1, places=12)
+        self.assertIn("model", band["contributions"])
+        self.assertNotIn("model", band["missing"])
+
     def test_screening_estimates_stay_labelled_through_composition(self):
         band = ub.compose({"model": {"band_abs": 0.02,
                                      "method": "inter-closure spread",

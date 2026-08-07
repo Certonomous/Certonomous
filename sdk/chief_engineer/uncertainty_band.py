@@ -83,6 +83,13 @@ def _figure(record: Any) -> float | None:
     if record is None:
         return None
     if isinstance(record, (int, float)):
+        if float(record) == 0.0:
+            raise ValueError(
+                "a bare 0.0 was passed as a channel band. Unquantified is "
+                "not zero: pass None for a channel that was never measured, "
+                "or a record {'band_abs': 0.0, 'method': ...} for a zero "
+                "that was genuinely measured. (Family supervision review "
+                "2026-08-07, finding F8.)")
         return abs(float(record))
     if isinstance(record, Mapping):
         value = record.get("band_abs")

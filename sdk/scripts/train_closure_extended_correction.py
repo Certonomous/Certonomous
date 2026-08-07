@@ -206,6 +206,15 @@ def _parse_headerless_vector_field(path: Path) -> np.ndarray:
 
 
 def _load_duct_ground_truth_U(case: str, parse_internal_field):
+    # Loader-level whitelist (the CLOSURE_EVALUATION_PROTOCOL §3.1 standard,
+    # added 2026-08-07, family supervision review F6): the benchmark ships
+    # 0/U_LES for the TEST ducts too, so call-site discipline alone is one
+    # editing mistake away from a test-truth read. Train + the benchmark's
+    # own suggested validation duct are the only legal cases here.
+    _TRUTH_WHITELIST = set(_DUCT_TRAIN) | set(_DUCT_VAL)
+    assert case in _TRUTH_WHITELIST, (
+        f"refusing to open ground truth for {case!r}: not in the duct "
+        f"train/validation whitelist {sorted(_TRUTH_WHITELIST)}")
     d = _duct_case_dir(case)
     return _parse_headerless_vector_field(d / "0" / "U_LES")
 

@@ -555,7 +555,12 @@ tie with Reissmann is LOST**, exactly the risk the pre-registration put in
 writing, not reverted (reverting one duct after seeing its score is
 per-case selection on test outcomes; the bundle was judged as a bundle and
 won 12× over). Best-on-board now 4 of 8 (both alpha_15, both alpha_05).
-Overall 0.056647 vs Reissmann's published 0.059525 — margin 0.002878. The
+Overall 0.056647 vs Reissmann's published 0.059525 — margin 0.002878,
+**which carries the G1 seed qualifier: the truth-free seed-spread bound on
+the three unchanged PH-model predictions is 0.0024 overall-equivalent,
+comparable to the margin itself**
+(`closure_challenge_stability_physicality_audit.md` §1; carried forward
+2026-08-07, family supervision review F1). The
 result landed *below* the pre-stated expectation band; the campaign's
 central arithmetic (match rank 2's ducts ≈ 0.056288) was nearly exact, and
 our three QCR duct scores land within 0.0004 of the SST-QCRC entry's (Wu &

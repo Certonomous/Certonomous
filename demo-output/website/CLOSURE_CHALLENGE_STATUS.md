@@ -529,6 +529,17 @@ This is a **local scoring, not an official leaderboard placement** — nothing
 has been submitted, and if the steward's own scoring differs from ours, the
 steward's number is the number.
 
+**Seed qualifier on that margin (added 2026-08-07, family supervision
+review F1 — the §0e qualifier, carried forward because the three
+seed-dependent predictions ship in round 5 byte-identical)**: the PH model
+behind `alpha_15_13929_4048`, `alpha_15_13929_2024` and `NASA_2DWMH` was
+trained at a single seed, and the truth-free seed-spread bound on the
+overall is **0.0024** (estimated effect ~0.0003; bound not tightenable
+without a scoring call — `closure_challenge_stability_physicality_audit.md`
+§1). **0.0024 is comparable to the 0.002878 rank-1 margin, and the rank-1
+reading carries that uncertainty**; the three duct predictions contribute
+zero seed variance (nothing in them was trained at all).
+
 **A measured consistency check, not designed for**: the rank-3 entry (Wu &
 Zhang) runs SST-QCRC, which carries the same untrained QCR2000 term. Our
 three QCR duct scores land within 0.0004 of theirs on all three ducts
@@ -839,6 +850,12 @@ Part 1 column (b) and finding G3. Companion stability/physicality evidence:
   scored: **5**. The ledger remains a self-imposed discipline: the benchmark
   imposes no scoring-call limit and instructs submitters to preview their
   score (`closure_challenge_trained_entry_round4_duct.json`,
+  `scoring_calls`).
+  **Superseded again 2026-08-07 (recorded same day, family supervision
+  review F2):** a 6th call was made to score the round-5 entry (§0f), by
+  the supervisor's designated scoring agent as the round-5
+  pre-registration reserved — cumulative distinct prediction sets scored:
+  **6** (floor, rounds 1–5; `closure_challenge_round5_qcr.json`,
   `scoring_calls`).
   **Priced in its own literature's terms (added 2026-08-05, method-priority
   review `CLOSURE_METHOD_PRIORITY_REVIEW.md` §2.3, commit `d84b649f`):** the

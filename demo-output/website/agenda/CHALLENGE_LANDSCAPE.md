@@ -97,6 +97,15 @@ exactly why it is worth knowing now rather than in January.
 The sweep reported the closure entry as **0.0676** and as leading **five of
 eight** cases. **Both are superseded and neither may be used.**
 
+> **Superseded 2026-08-07 (family supervision review F3).** The entry of
+> record is now **round 5: overall 0.0566, rank 1 of 5 scored locally at
+> benchmark commit `deb91557`** — a local scoring, not an official
+> placement, carrying the seed qualifier of
+> `CLOSURE_CHALLENGE_STATUS.md` §0f — and best-on-board is **4 of 8**.
+> The §1 row's "scores 0.0654" and the bullets below stand as this sweep's
+> dated 2026-08-02 record; per this section's own rule, the superseded
+> numbers may not be used.
+
 * The entry of record is **0.0654**, not 0.0676, since round 4's duct change
   (`closure_challenge_trained_entry_round4_duct.json`). 0.0676 is the round-3
   figure.
