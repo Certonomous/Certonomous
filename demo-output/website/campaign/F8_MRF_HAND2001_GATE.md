@@ -544,6 +544,60 @@ the band → a real quantified bias to chase. Predicted cost ≈ 13.5 core-min
 
 *Nothing below this line existed when arm A was launched.*
 
+## 16. Arm A result: the corrected initialisation lands in the same basin — the steady branch closes the third way
+
+Init clean by its own numbers: potentialFoam (MRF inactive) continuity error
+5.7e-7, 1.8 s. simpleFoam, original relaxation, 1500 iterations, 446 s at
+2 ranks = **14.9 core-min**: no divergence (14 bounding events against
+§12's 692), no convergence sentence, and the blade moment oscillates from
+the first sample exactly as the original run does — window t=1000–1500:
+
+| §11/§15 test | measured | verdict |
+| --- | --- | --- |
+| S12 unsettled (drift ≥ 1e-3 AND mono ≥ 0.90) | drift 1.14, mono 0.600 | does not fire — oscillation, not travel |
+| cap: p2p ≤ 400 N·m | **3634.6 N·m (454% of Q_ref)** | **OVER — not gateable** |
+| sign | mean **−1004.2 N·m** | **motoring-signed** |
+| prediction: turbine-signed ∈ [+400, +1200] | −1004.2 | **FALSE** |
+
+**The pre-registered prediction is scored FALSE and the diagnosis chain is
+complete.** One variable was changed (the initial field, now divergence-free
+and blade-conforming) and the solution reproduced the original limit cycle
+almost exactly (original window: mean −1037, p2p 7679; arm A: −1004, 3635).
+So: geometry verified correct (§10), frame terms verified correct to the
+source line (§14), initialisation now tested clean (this arm) — and the
++omega steady solution still oscillates motoring-signed with an ungateable
+band.
+
+**THE STEADY-MRF BRANCH IS CLOSED, THREE WAYS ON EVIDENCE:**
+1. the existing history's mean is not a measurement (§3 — band 960% of the
+   cap);
+2. every configuration suspect is eliminated — geometry (§10), frame/flux
+   conventions (§14), initialisation (arm A);
+3. the corrected single-variable re-run reproduces the limit cycle rather
+   than escaping it (§16).
+
+What steady tools cannot decide — whether the oscillation is genuinely
+unsteady rotor-wake physics or a SIMPLE algorithm that cannot reach the
+attached solution — is precisely the transient branch's question, and it
+inherits the quantified target this record built: **settle the low-speed-
+shaft torque, turbine-signed (+Mx for +omega), with a window band ≤ 400 N·m,
+against the 800 N·m secondary-tier reference (Processes 12(9):1994 Table 6,
+digitised from Hand et al. 2001).** The product list's "MRF first, then
+transient" has completed its first clause on evidence.
+
+## 17. Cost, final (supersedes §13)
+
+| item | core-min |
+| --- | --- |
+| gate (existing history + reference fetch) | 0 |
+| omega-flip confirmation (600 iters, 4 ranks) | 5.8 |
+| step-2 settle extension (1500 iters, 4 ranks) | 13.6 |
+| step-1 STL-orientation audit (§10) | 0 |
+| §11 initialised re-run (diverged) | 13.4 |
+| §14 MRF flux/frame audit | 0 |
+| §15/§16 arm A (corrected init, original relaxation) | 14.9 |
+| **total across the item and its riders** | **47.7** |
+
 ## 13. Cost, final (supersedes §9)
 
 | item | core-min |
