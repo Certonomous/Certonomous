@@ -199,6 +199,19 @@ GRAD n=21000 norm=1.4558046603e-05 min=-4.694367e-07 max=1.916019e-06
 on a closure-relevant case in this lab** — the object whose absence blocked Stage 1,
 C2 and the duct line.
 
+> **Correction, dated 2026-08-07 (S1 inversion coverage audit).** The parenthetical
+> above — "the case's real nonuniform inlet is thereby restored rather than
+> overridden" — is wrong. Switching the DV to beta stopped the *per-iteration*
+> overwrite, but the on-disk `0/U` this case inherited had already been overwritten
+> by the patchV pilot: Ux = 0.72 uniform on all 150 inlet faces, against the
+> benchmark's own inlet profile (bulk 0.9149, 0.202→1.005), with the two files'
+> Uz noise columns identical — the mechanism fingerprint. Every objective value in
+> this document (1.5279278906359758e-02 included) was computed under that
+> 0.72-uniform inlet. The gate is unaffected — FD-vs-adjoint agreement is a property
+> of the objective as built — but the loss itself carries a 27% inlet bulk mismatch
+> against `0/UData`, with the consequences measured in
+> `S1_CBFS_INVERSION_RESULT.md` §4.
+
 ### 5d. FD verification: gate met, at 13–45x the required tightness
 
 S1's protocol: fresh process per point, cold reset of the processor dirs, central

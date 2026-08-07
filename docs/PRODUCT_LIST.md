@@ -23,6 +23,11 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       staged for a fresh budget.
       Note: DAFoam's native beta hook is on omega *production*; destruction-term hook needs a model patch
       (`w3-beta-on-omega-destruction-model-patch`).
+      FIRST INVERSION RUN 2026-08-04→07 (`S1_CBFS_INVERSION_RESULT.md`, 335.98/600 core-min, pre-registered e6321e95):
+      machinery PROVEN (17 converged adjoints, ‖g‖ down 106x, bit-identical controls), both gates FAIL for a measured
+      reason — the case inlet is the patchV pilot's 0.72-uniform overwrite of the benchmark's 0.9149-bulk profile, so
+      the loss floor is an irreducible 27% mass-flux mismatch (W4 §5c corrected, dated addendum). Successor:
+      `s1-cbfs-objective-repair-and-reinversion` (proposed). Stage 2 blocked on it.
 - [x] Stage 2 learn the closure from inverted fields (GP line optional pre-registered GP-vs-trees bake-off).
 - [x] Stage 3 pre-registered zero-shot transfer test.
 - [-] C2 error decomposition vs the top-4 gap. Decomposition DONE and thrice-corrected (`closure_challenge_C2_error_decomposition.md`):
@@ -367,6 +372,19 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - RESUMED THREADS: branch-hypothesis survey ("A1 has no limiter — this changes R1's interpretation"; seven-case scheme
   survey at zero cost); QCR AR_7 validation arm + topology check; S1 reference-coverage audit (the 30%-RMS-vs-LES
   credibility question) + limiter mask; model-form batch cell collection; slate-toppers (F8 forces gate, B52 rung).
+- S1 CBFS INVERSION CLOSED (335.98/600 core-min, `S1_CBFS_INVERSION_RESULT.md`): the lab's first actual field inversion
+  on a closure-relevant case ran end to end — 17 converged sub-LU adjoints, gradient norm down 106x, eval-1 control
+  bit-identical to W4 (objective AND gradient) — and **both pre-registered gates FAIL** (J_qoi −0.149% vs the ≤0.70 bar;
+  window fraction 29.0% vs >50%). The coverage audit found the cause and it is an OBJECTIVE DEFECT, not a closure
+  result: the case's `0/U` inlet is the patchV pilot's 0.72-uniform write-back over the benchmark's 0.9149-bulk profile
+  (identical Uz noise columns = the fingerprint), so the varianceU loss floor is a 27% mass-flux mismatch no beta can
+  remove (85.1% of loss at y>2; 3.7% in the physics window). W4 §5c's "real inlet restored" sentence CORRECTED (dated
+  addendum). Second defect named: in-process primal restart walks off the converged state and DAFoam proceeds into the
+  adjoint on a failed primal (prereg Amendment 1). Limiter-mask test: SST shear-stress limiter binds on 49.5% of the
+  top-decile |beta−1| cells vs 7.7% base rate — the production hook is structurally weak exactly where beta wants to
+  act. → NEW ITEM: `s1-cbfs-objective-repair-and-reinversion` (PROPOSED — restore the benchmark inlet, re-verify FD,
+  re-baseline with a pre-stated prediction, re-run the surviving driver; w3 destruction patch stays the term-parity
+  follow-on). Stage 2 stays blocked; nothing from this beta field may train anything.
 - LOOSE END noted: untracked F7a_R1/res16_alphaco sweep dirs (08-05 15:28, unowned by any known agent) — triage whether
   this is committed-work residue or an orphaned F7a-fix attempt before anything overwrites it.
 
