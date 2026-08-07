@@ -1,6 +1,34 @@
---- /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/src/DALinearEqn.C	2026-07-12 12:48:48.000000000 +0000
-+++ /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/src/DALinearEqn.patched.C	2026-08-04 15:16:00.000000000 +0000
-@@ -264,6 +264,25 @@
+sub-LU unblock patch for DAFoam DALinearEqn.C (fiml-adjoint-conditioning-unblock)
+=================================================================================
+Target: DAFoam v5-series source tree as shipped in dafoam/opt-packages:latest
+        (in-container repo root: /home/dafoamuser/dafoam/repos/dafoam).
+Apply from the DAFoam repo root (the directory containing src/):
+        git apply DALinearEqn_subpclu.patch
+    or  patch -p1 < DALinearEqn_subpclu.patch
+
+Regenerated 2026-08-07 per SUPERVISOR_FAMILY_REVIEW_2026-08-07.md finding B-2:
+the previous committed diff carried absolute headers into a session-ephemeral
+scratchpad and failed `git apply` outright. This version uses repo-relative
+a/ b/ headers and passes `git apply --check` against the stock source extracted
+from dafoam/opt-packages:latest (verified 2026-08-07).
+
+Content provenance (verified hunk-by-hunk against the container):
+  * The 19-line DAFOAM_SUBPC_TYPE=lu block is byte-identical to the change
+    applied in the deployed image dafoam-subpclu:v1 (extracted and diffed
+    against stock 2026-08-07). All recorded sub-LU results (W4 unblock,
+    reason 2 / 667 iters, FD-verified gradient) were produced by that block.
+  * NEXT-REBUILD DELTA (finding B-1): the `else if` warn block for
+    unrecognized non-empty DAFOAM_SUBPC_TYPE values is NEW in this patch and
+    is NOT in the currently built dafoam-subpclu:v1 library. It changes no
+    numeric path (behavior stays stock ILU); it only adds an Info warning.
+    Do not expect the warning line in logs from the v1 image; it lands at the
+    next image rebuild. Until then, drivers must keep asserting the
+    "DAFOAM_SUBPC_TYPE=lu: ASM sub-block PC set to complete LU" Info line
+    before trusting any sub-LU result (FAMILY_SUPERVISION_GUIDELINES.md).
+
+--- a/src/adjoint/DALinearEqn/DALinearEqn.C
++++ b/src/adjoint/DALinearEqn/DALinearEqn.C
+@@ -264,6 +264,38 @@
  
          // The subpc type will almost always be ILU
          PCType localPCType = PCILU;
@@ -21,6 +49,19 @@
 +            if (i == 0)
 +            {
 +                Info << "DAFOAM_SUBPC_TYPE=lu: ASM sub-block PC set to complete LU" << endl;
++            }
++        }
++        // B-1 hardening (2026-08-07, SUPERVISOR_FAMILY_REVIEW_2026-08-07.md):
++        // any OTHER non-empty value (LU, Lu, trailing space, superlu, ...) used
++        // to fall through SILENTLY to stock ILU -- a run believed patched could
++        // be stock with no in-log tell. Warn loudly; behavior still stock ILU.
++        else if (subPCTypeEnv && subPCTypeEnv[0] != '\0')
++        {
++            if (i == 0)
++            {
++                Info << "WARNING: DAFOAM_SUBPC_TYPE set to unrecognized value '"
++                     << subPCTypeEnv << "'; only 'lu' (exact, lowercase) is"
++                     << " recognized. ASM sub-block PC remains stock ILU." << endl;
 +            }
 +        }
          PCSetType(MLRsubpc, localPCType);
