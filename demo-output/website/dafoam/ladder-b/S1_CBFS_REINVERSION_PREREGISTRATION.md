@@ -147,3 +147,97 @@ Wu/Zhang's destruction-term numbers (C2, R6).
 
 *Nothing below this line existed when this file was committed. Stage A launches only
 after this commit lands.*
+
+---
+
+## Amendment 1 — dated 2026-08-07 ~21:15 UTC, after stages A–C and BEFORE the inversion launches
+
+Everything below is measured; the inversion has not started. Ledger at this writing:
+**96.57 core-min** of the 450 hard cap (`S1-cbfs-reinversion/ledger.csv`, every line
+START/END epochs).
+
+### A. Predictions graded — the repair worked
+
+- **P1 PASS, beyond the prediction:** repaired-case baseline varianceU at beta = 1 is
+  **6.1508898849929790e-04** at the original 1e-6 tolerance (log.baseA, converged
+  Time = 340) — a **24.8x collapse** from the corrupted 1.5279278906359758e-02,
+  against the predicted "< 7.6e-3". The inlet diagnosis stands.
+- Inlet-adjacent bulk (x < −7): RANS Ux **0.9148** vs LES 0.9153, ratio **1.0005** —
+  the 27% mass-flux floor is gone.
+- **P2 PASS:** y > 2 share of Σ|U−UData|² fell **85.1% → 25.6%**; the physics window
+  (0≤x/h≤6, 0≤y/h≤2) rose **3.7% → 41.2%** while holding 8.4% of cells; near-wall
+  y < 0.5 carries 56.5%. Audit arithmetic identical to the failed run's coverage audit,
+  on the reconstructed 340 fields (varianceU cross-check: Σ/(3N) reproduces the printed
+  objective to 13 digits).
+
+### B. A protocol change forced by measurement: primalMinResTol 1e-6 → 1e-8 for every run of this item
+
+The first FD sweep at the pre-declared protocol (tol 1e-6, h = 0.05, cells 5363 /
+5428 / 5491 — largest |g| plus two distinct neighborhoods: step crest (−0.23, 1.99),
+downstream recovery (10.25, 1.24), upstream channel (−2.19, 2.04)) **missed the 1%
+bar**: rel errs 25.9% / 32.0% / 32.2%, zero sign flips, fd/adj ≈ 0.7 on all three —
+recorded, not softened. Diagnosis, then the discriminating experiment:
+
+- The repaired case's cold primal now starts far from its solution (the 0/ internal
+  field is the corrupted-inlet converged state) and **stops at the first 1e-6
+  crossing** (stop iters scattered 383–458 across the six FD runs), leaving O(tol)
+  state error that systematically under-develops a one-cell beta perturbation's
+  response. The corrupted-era FD never saw this because its initial condition already
+  matched its (defective) BCs.
+- **Experiment:** the same FD pair at cell 5363 with the primal run to
+  primalMinResTol 1e-8 (runs to the endTime-2500 cap; final residuals U ~1e-10,
+  p ~2e-8, omega ~1e-9, k stalled at 3.7e-7 — inside DAFoam's own
+  primalMinResTolDiff=100 acceptance): rel err **25.9% → 0.032%**. The adjoint was
+  right; the 1e-6 stop was polluting the FD.
+
+Consequence, fixed now: **every solver run of this item — FD, anchor, every inversion
+evaluation, the final write-out — runs at `-primalTol 1e-8`** (runScript.py change:
+tolerance became a CLI argument, default untouched at 1e-6). Baseline at 1e-8:
+**6.1509017109920479e-04** (shifts the 1e-6 value in the 7th digit; anchor8 primal and
+the independent fd8_base primal reproduce it bit-identically). Measured per-eval cost
+at 1e-8: primal ~230 s + adjoint (anchor8 total 599 s wall at 2 cpus =
+**19.97 core-min**; the adjoint converged reason 2, 675 iters, at the deeper state).
+
+### C. FD re-verification — PASS at the amended protocol
+
+Central h = 0.05, fresh container + cold reset per point, vs the anchor8 gradient
+(‖g‖ = 1.2218e-4, 8.4x the corrupted objective's — the repaired loss carries real
+signal):
+
+| cell | neighborhood | central FD | adjoint g[i] | rel err |
+|---|---|---|---|---|
+| 5363 | step crest (−0.23, 1.99) | 4.076105013940e-05 | 4.077412370787e-05 | **0.032%** |
+| 5428 | downstream recovery (10.25, 1.24) | 2.679847905604e-05 | 2.676772294906e-05 | **0.115%** |
+| 5491 | upstream channel (−2.19, 2.04) | 2.825074702834e-05 | 2.824832243684e-05 | **0.009%** |
+
+Zero sign flips; all under the 1% bar at W4's own order. The sub-LU adjoint machinery
+is re-anchored on the repaired objective.
+
+### D. Gate numbers, fixed before launch
+
+- **lambda_QoI = 1.6257778891393064e+03** = 1 / 6.1509017109920479e-04 (anchor8).
+- **G1:** normalized J_qoi ≤ **0.70** at the last accepted iterate within budget,
+  i.e. varianceU ≤ **4.3056e-04**.
+- **G2:** > 50% of top-decile |beta_final − 1| cells inside **0 ≤ x/h ≤ 6,
+  0 ≤ y/h ≤ 2** — the window is CONFIRMED by the stage-A audit (it now carries 41.2%
+  of the loss with 8.4% of cells, the largest loss-per-cell concentration; the
+  pre-registered shape stands unchanged).
+- lambda_L2 = 1e-5 as pre-declared in §5; achieved penalty fraction reported vs
+  Wu/Zhang's 10–20% band.
+
+### E. Revised budget and driver deltas
+
+Spent 96.57 (stages A–C including the 1e-6 FD miss, its diagnosis, and the tol-1e-8
+re-sweep — every run billed). Remaining: **EVAL_CAP = 16** evaluations (eval 1 is the
+beta = 1 control against anchor8), driver BUDGET_STOP = 435 with EVAL_EST = 22,
+~15 core-min reserved for the final-state write-out. At the measured ~20 core-min/eval
+the cap projects to ~416 total — under the 450 hard cap with margin for the write-out.
+
+Driver `invert_lbfgsb.py` deltas vs the failed run's file, complete list: BASE path;
+LQOI (above); LL2 1e-4 → 1e-5; EVAL_CAP 32 → 16; BUDGET_STOP 585 → 435; EVAL_EST
+18 → 22; eval command gains `-primalTol 1e-8`; eval-1 control reference
+W4's archived gradient → this item's `grad_anchor8.npy`. Optimizer, bounds,
+checkpoint cadence, ledger mechanics: byte-identical.
+
+*Nothing below this amendment existed when it was committed; the inversion launches
+only after it lands.*
