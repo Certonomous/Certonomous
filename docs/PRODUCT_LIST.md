@@ -97,9 +97,10 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - [x] F1 ONERA M6 transonic wing vs AGARD Cp stations.
 - [ ] F10 real 3D viscous RANS batch family (replace the panel-method stand-in).
 - [-] F8 NREL Phase VI wind turbine (MRF, then transient). GATE: NO VERDICT — unconverged forces not gateable
-      (p2p spread 960% of the 800 N·m reference, 19.2x the pre-registered cap; L-24). MECHANISM FOUND (75d5a4ca):
-      the rotor was set spinning AGAINST its power-extracting direction — the case never operated as a turbine;
-      flipped omega calms the history 21x. Citation conflation in our own docket untangled (TP-500-29494 Simms vs
+      (p2p spread 960% of the 800 N·m reference, 19.2x the pre-registered cap; L-24). ~~MECHANISM FOUND (75d5a4ca):
+      the rotor was set spinning AGAINST its power-extracting direction~~ *(superseded by the §10 STL audit below —
+      geometry exonerated; the flip run was the backwards one; struck 2026-08-07 per the Cases supervisor's R4)*.
+      Citation conflation in our own docket untangled (TP-500-29494 Simms vs
       TP-500-29955 Hand; 800 N·m is secondary-tier, corroborated 3 ways incl. P=Qω≈6 kW). Flipped-omega settle
       SETTLE VERDICT (b63fbfbf, 13.6 core-min): flipped rotor SETTLES — first gateable band F8 ever produced (p2p 17.9%
       of Q_ref) — but torque is +138 N·m MOTORING-SIGNED vs 800 N·m; pre-registered sign rule refuses the milestone.
