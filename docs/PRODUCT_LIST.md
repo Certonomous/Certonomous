@@ -181,8 +181,13 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       held-out case).
 - [ ] Band machinery: a module that attaches an uncertainty band (numerical + coefficient + model-form channels, per
       UNCERTAINTY-DOCTRINE) to every published case result; wire into the certificate/report path.
-- [ ] Standing model-form batch (the never-idle engine): same case x RANS-model matrix x regime sweep on validated families;
-      spread recorded as the model-form channel. [dispatched 2026-08-05]
+- [x] Standing model-form batch (the never-idle engine) — BUILT AND PRODUCING (a8f2329a/691eb11f, 22.5/120 core-min):
+      idempotent queue-gated runner survived two kills + a power cycle with zero lost cells; 20/32 cells done.
+      First bands: plate re5e6 spread 62.4% across 4 closures, CONTAINS CFL3D SST-V; re1e6 and re2e7 banded with
+      exclusions named; Family B honestly refuses a band (all closures stall/FPE — gate evidence). Family N launching
+      detached. (`MODEL_FORM_BATCH_DESIGN.md`, `MODEL_FORM_BAND.{json,md}`, study record in house format.)
+      → NEW ITEM (from this cross-off): **realizableKE wall-treatment question** (high-Re model on y+<1 grid — the
+      batch's first ambition item) + fold the model-form channel into the certificate band via `uncertainty_band.py`.
 
 ## 4H. AI charters — iterated daily
 - [x] Goals & research-proposal charter.
