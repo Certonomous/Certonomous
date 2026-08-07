@@ -480,6 +480,16 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   headers are dead paths (git apply fails; regeneration dispatched); DISC-6 (tex frames inletOutlet as clean) relayed to
   the tex owner. The supervision structure caught real defects on day one.
 
+- INFRA SUPERVISOR FIRST PASS (675e2873): suite 1159/0; four medium defects FIXED with tests — incl. 19 inbox files
+  silently dropped at intake (two of them today's S1 proposals; closure supervisor triaging) and the keepalive's
+  single-sample disarm (K-1). Chief reconciliations done: two orphaned claims released on their delivered substance,
+  two early closures given outcomes (72f6ef6a). All four family supervisors have now completed first passes — the
+  structure found and fixed real defects in every family on day one.
+- NEW Katie decision item (K-3, needs root): /usr/local/bin/auto-stop.sh's busy pattern omits pisoFoam, foamRun,
+  reconstructPar, decomposePar, checkMesh, and Certonomous/scripts — a future case using those alone could be
+  powered off mid-run. One-line pattern edit, root-owned. (K-2 ruled: the 45-min stale window stands — bounded
+  cost when a session is genuinely quiet; active campaigns are covered by the double hold.)
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
