@@ -90,3 +90,14 @@ if the ladder behaves, the generator owns the pathology and the family unblocks.
 Review discipline note: every diagnostic above is falsifiable, costed, and names which way each
 outcome moves the record. None requires a scoring call. Filing mechanics delegated to the docket
 agent; wording above is binding.
+
+## 11. (Added same day) Family-N a10 band — Cl NOT contained (0.22% below the band floor)
+The first N band (post-R12 regrade, 43ac7287) contains CFL3D's Cd but misses Cl by 0.22% — on a
+TWO-member band (kOmegaSST, kEpsilon; SA and realizableKE excluded on residualControl). Taught: an
+n=2 model-form band is a lower bound on the true spread, and a miss this small at n=2 is more likely
+under-membership than model-family failure.
+**New diagnostic:** [FILE] one arm (~10 core-min): converge a third member at a10 — SA under an
+adjusted-but-preregistered settle criterion (its exclusion was residualControl, not divergence) —
+and re-state containment at n=3. If Cl still sits outside, the miss is real and the aero-family
+bands need a membership-minimum rule; if it enters, the rule becomes "no containment verdict below
+n=3", which is worth having either way. Criterion: existing-family.
