@@ -1679,3 +1679,32 @@ cross-check), not more gradients; (3) when a case's FD will not resolve (the
 objective drift sits at the FD's numerator scale), decomposition-invariance of
 the analytic is the remaining usable instrument — and its passing still certifies
 only that case's contraction.
+
+## L-37. When a differentiated code is wrong in parallel, suspect a recorded BRANCH first — and verify any "fixing" lever at operator level before calling anything safe
+
+**What happened.** The decomposition-adjoint campaign (2026-08-05, docket
+follow-up to `w4-does-the-decomposition-defect-reach-other-cases`) closed its
+mechanism hunt on a one-word edit: `div(phi,U)` `bounded Gauss linearUpwind
+limited` -> `linearUpwind default` — same scheme family, same order, same
+halo-exchanged gradient-correction term, only the limiter's min/max stencil
+selection removed — took the np=4-scotch gradient error from 8.95% to 0.849%,
+the adjoint Krylov count from 590 to 41, and the serial-operator cross-residual
+from 329x ||b|| to 0.0135x. With that, every defect this lab has traced in this
+toolchain is one class: a BRANCH recorded on the reverse tape whose selection
+interacts wrongly with processor boundaries (the slope limiter's stencil
+min/max; the freestreamVelocity flux-sign switch; IDWarp's degenerate-rotation
+guard, L-29). And the complementary trap: the OTHER lever that "cleans" the
+defect (swapping the farfield BC to inletOutlet) leaves the operator wrong at
+1.047x ||b|| — 163,600x the np=1 floor — under a check_totals reading 0.019%.
+Calling that configuration "safe" would have shipped a hidden wrong operator;
+only the cross-residual instrument told the two levers apart.
+
+**The rule.** (1) In a reverse-AD parallel-inconsistency hunt, enumerate the
+BRANCHES the tape records (limiters, switching/mixed BCs, guards, min/max/abs)
+and one-knob them before theorizing about halo exchanges in general — a branch
+is removable with a one-line dictionary edit, which makes it the cheapest
+discriminator available. (2) Any lever that turns a gradient error off must be
+re-verified at OPERATOR level (L-35's cross-check) before the configuration is
+described as unaffected: a lever can fix the operator or merely rotate the
+objective's contraction away from the damage, and the gradient number cannot
+distinguish them. State which one you measured.
