@@ -45,9 +45,14 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - [ ] M3 hybridization experiments (each with a named hypothesis).
 
 ## 4B. Closure benchmark challenge
-- [x] ~~Current 0.0741 vs rank-4 target 0.0779~~ SUPERSEDED: entry of record is **round 4, 0.0654, rank 3 of 5**
-      (Reissmann 0.0595 · Wu&Zhang 0.0624 · **us 0.0654** · Liu 0.0737 · Montoya 0.0779). Gap to rank 2: 0.0030.
-      Best-on-board 5 of 8 cases; last only on NASA_2DWMH. 5 scoring calls used (self-imposed discipline; no benchmark limit).
+- [x] ~~0.0741~~ → ~~round 4, 0.0654, rank 3~~ → **ROUND 5, 0.056647, RANK 1 OF 5** (scored locally at benchmark commit
+      deb91557; 07a7fe9e; the 6th pre-registered call, ACCEPTED mechanically under the criterion frozen at 0bade54a
+      before any solve): **us 0.0566** · Reissmann 0.0595 · Wu&Zhang 0.0624 · Liu 0.0737 · Montoya 0.0779. The whole
+      delta is the ducts (untrained QCR2000: AR_1 0.0811→0.0455, AR_3 0.0775→0.0400); AR_14's tie LOST (+0.0029) exactly
+      as priced in writing, not reverted per the bundle's terms; our QCR ducts land within 0.0004 of Wu&Zhang's published
+      ducts — same term, independent solve, same answer. Caveat everywhere: LOCAL scoring, not an official placement.
+      → NEW ITEM (from this cross-off): **closure.html coherent rewrite** under Katie's GUI conventions (page still
+      shows round 4) — dispatched 2026-08-07.
 - [x] alpha=15,AR14 status: still best-on-board, but AR_14 lead collapsed to 0.00003 after round 4's un-reverted duct regression —
       must not be reported as a comfortable win.
 - [x] Find out challenge policies / whether Certonomous can submit. DONE (`CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §1–§4):
