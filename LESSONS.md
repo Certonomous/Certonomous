@@ -1708,3 +1708,35 @@ re-verified at OPERATOR level (L-35's cross-check) before the configuration is
 described as unaffected: a lever can fix the operator or merely rotate the
 objective's contraction away from the damage, and the gradient number cannot
 distinguish them. State which one you measured.
+
+## L-38. An invariance check can pass because both sides are wrong together — decomposition-invariance certifies consistency, not correctness
+
+**What happened.** The acquisition arm of the decomposition-adjoint campaign
+(2026-08-07, docket `w4-defect-acquisition-on-a-second-mesh-family`) installed
+the defect's two measured ingredients (`freestreamVelocity` + `linearUpwind
+limited`/`cellLimited Gauss linear 1`) on the clean structured NACA0012. The
+np=1 and np=4-scotch analytics agreed to 3.9e-04 (vector), the FD columns to
+1e-6, the Krylov counts to within one iteration — a textbook pass of the
+decomposition-invariance gate this lab adopted after A4
+(`w4-decomposition-invariance-is-a-gate`). Both analytics were also **92.8%
+wrong** against their own step-stable finite difference (FD moved 2.1% between
+steps 1e-3 and 3e-3 — 44x too little to explain the gap; every FD-leg primal
+converged to 1e-8; one gradient component sign-flipped). The one-word lever
+`limited` -> `default` took the serial error from 92.8% to 0.121%: the
+`cellLimited` limiter's reverse tape is wrong on this case with no processor
+boundary anywhere — the first decomposition-INDEPENDENT member of the
+recorded-branch defect class (L-37), which until now had "vanishes at np=1"
+as an unstated family property.
+
+**The rule.** (1) Invariance instruments (decomposition, ordering, rank-count,
+restart) detect INCONSISTENCY between two evaluations of the same tape; a
+tape that is wrong identically in both evaluations sails through every one of
+them. Never promote an invariance pass to a correctness verdict unless at
+least one side of the comparison is anchored to an external reference — an
+own-run FD with a step-check, or an independently evaluated operator (L-35).
+(2) The converse of L-37's trigger: a recorded branch can corrupt the reverse
+sweep in SERIAL, with the parallel machinery innocent — so when a serial
+gradient check fails against a step-stable FD, put the tape's branches
+(limiters, switching BCs, guards) at the top of the suspect list there too,
+before FD-quality theories; the branch is still the cheapest one-line
+discriminator available.

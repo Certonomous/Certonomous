@@ -15,6 +15,17 @@
   "demo-output/website/dafoam/UPSTREAM_BUG_REPORT_decomposition_adjoint.md Addendum 2026-08-07",
   "demo-output/website/dafoam/VERIFICATION_reach_matrix_supervisor_sweep.md commit 192c970c"
  ],
- "status": "proposed",
- "created_at": "2026-08-07T20:04:00Z"
+ "status": "done",
+ "created_at": "2026-08-07T20:04:00Z",
+ "decided_at": "2026-08-07T20:07:00Z",
+ "decision_note": "approved under Katie's blanket approval + investigation priority, 2026-08-07",
+ "claim": {
+  "claimed_by": "investigation-agent w4-defect-acquisition (R7 session)",
+  "claimed_at": "2026-08-07T20:07:00Z",
+  "note": "Released on completion, 2026-08-07. Full record: DEFECT_ROBUSTNESS_mesh_and_setup.md R7/R7f sections and /home/ubuntu/certonomous-runs/W4-defect-robustness/ (a1lim_*, a1limdef_*, ledger_r7.txt)."
+ },
+ "completed_at": "2026-08-07T20:35:00Z",
+ "measured_core_min": 15.16,
+ "measured_basis": "ledger_r7.txt (kept separate from the audited 21-line ledger.txt per supervisor sweep 8bd47b35): wall seconds x the --cpus=2 cap, four container runs (6.40 + 2.40 + 3.63 + 2.73), against 25 estimated and a 30 hard cap. The two extra np=1 arms past the registered pair bought the R7f separation the third outcome forced, registered before they ran (aa7fcddc).",
+ "outcome": "W4, 2026-08-07. GATE RESOLVED, on the third outcome no band anticipated, all predictions pre-registered (0263d950, aa7fcddc). The gate's two branches keyed on FD-relative error with a clean np=1 control; the np=1 control came back DIRTY (CD/shape 92.8% vs its own step-stable FD), so neither branch fired as worded. The acquisition question was scored on the decomposition-invariance instrument, registered in Amendment 6 before the separating arms ran: analytic np=1-vs-np=4-scotch 3.9e-04 (vector), FD 1e-6, Krylov counts equal -- the defect did NOT acquire; the conjunction (limiter x freestreamVelocity x scotch cut) is measured INSUFFICIENT off the Ahmed family; the n=1-family confound STANDS, and the loose-primalMinResTol co-ingredient hypothesis gains weight (A1 runs 1e-8 and is decomposition-clean with both ingredients installed). The dirty control is itself the session's discovery: the cellLimited limiter breaks the SERIAL adjoint on A1 (92.8% CD, 7.9% CL, one sign flip, FD step-stable to 2.1%), one-word lever limited->default takes it to 0.121% -- the first decomposition-INDEPENDENT member of the recorded-branch defect class, and a single-process reproducer for upstream. Cross-residual NOT run (its authorization was contingent on an acquisition that did not occur; degenerate for a serial gap). Upstream-report addendum updated (still NOT FILED) with the null, the serial finding, and the supervisor sweep's four corrections (719 KSP erratum, 163,548 precision, crossres2 gap, floor-unit banding)."
 }

@@ -474,7 +474,10 @@ revised; both revisions are stated here rather than silently edited above.**
    8.95%: `div(phi,U)` `bounded Gauss linearUpwind limited` -> `linearUpwind
    default` (the ONLY edit; `limited` names the case's `cellLimited Gauss
    linear 1` gradScheme, `default` its unlimited `Gauss linear`) gives
-   CD/shape 0.849% vs its own FD, adjoint KSP 590 -> 41 iterations, and — the
+   CD/shape 0.849% vs its own FD, adjoint KSP 719 -> 41 iterations (719
+   corrected from a mis-transcribed 590 per the supervisor sweep
+   `VERIFICATION_defect_robustness_supervisor_sweep.md`, commit 8bd47b35 —
+   the collapse is 17.5x, larger than first claimed), and — the
    operator-level conviction — the cross-residual of the mapped scotch psi
    under the serial operator collapses from **329x ||b|| to 0.0135x ||b||**
    (np=1 floor of that configuration 2.0e-06; instrument and sign convention
@@ -502,9 +505,15 @@ revised; both revisions are stated here rather than silently edited above.**
    cross-residual instrument, run this session on the inletOutlet-farfield
    configuration (limiter retained): the mapped np=4-scotch psi leaves a true
    residual of **1.047x ||b||** under that configuration's own serial
-   operator — 163,600x its np=1 floor (6.4e-06) — while its `check_totals`
+   operator — 163,548x its np=1 floor (6.402838e-06; full precision per the
+   supervisor sweep, both roundings 1.6e5) — while its `check_totals`
    reads 0.019%. For calibration, this report convicts the Ahmed-35 case on a
-   5.45x ratio. The BC swap therefore does not fix the parallel operator; it
+   5.45x ratio. (Disclosed per the supervisor sweep: no crossres2-style
+   state-override control was run for either lever; the linearization-state
+   confound is bounded indirectly — the established configuration's crossres2
+   moved its 329x by a 4th-digit amount, and the sibling scheme-lever row
+   puts the whole protocol-noise floor at 1.35e-02, 77x below the 1.047
+   signal.) The BC swap therefore does not fix the parallel operator; it
    shrinks THIS objective's contraction with the error (the mechanism the
    lab's L-36 documents). Any filed version must not describe
    inletOutlet-family configurations as unaffected: **they are affected and
@@ -523,7 +532,10 @@ revised; both revisions are stated here rather than silently edited above.**
    carry it, and the defect side of the survey remains one mesh family. The
    experiment that would give the report a second independent mesh family —
    the same clean airfoil with BOTH the freestream BC and a `cellLimited`
-   convection scheme installed — is named and not yet run; a tutorial-based
+   convection scheme installed — is named and not yet run **[UPDATE
+   2026-08-07: now run; see the acquisition addendum below — the defect did
+   NOT acquire, and the arm surfaced a SERIAL limiter-adjoint error
+   instead]**; a tutorial-based
    reproducer (submission-readiness table above) should simply include a
    `cellLimited`/`limited` convection scheme from the start, since that is
    the shipped-default scheme family of DAFoam's own Ahmed and bluff-body
@@ -535,3 +547,45 @@ single code object — the reverse sweep of the limiter evaluation
 (`cellLimited`/`limitedGrad` family) at processor boundaries — plus the
 already-named freestream BC update, and the one-word lever gives any
 maintainer a 30-second on/off reproduction.
+
+## Addendum 2026-08-07, acquisition arm (still NOT FILED): the conjunction does not transplant — and the limiter's tape is wrong in SERIAL on the second case
+
+**Status unchanged: NOT FILED ANYWHERE.** Evidence:
+`DEFECT_ROBUSTNESS_mesh_and_setup.md` R7/R7f sections (pre-registration
+commits 0263d950, aa7fcddc), run artifacts
+`/home/ubuntu/certonomous-runs/W4-defect-robustness/` (`a1lim_*`,
+`a1limdef_*`, `ledger_r7.txt`). Two things a filed version must carry:
+
+1. **The decomposition defect remains a one-mesh-family observation, now by
+   the strongest available test.** Both measured ingredients (the
+   `freestreamVelocity` farfield AND the `linearUpwind limited` /
+   `cellLimited Gauss linear 1` pair) installed together on the clean
+   structured NACA0012, np=4 shipped-default scotch (jagged cut, 120/131
+   oblique faces): the analytic is decomposition-invariant to 3.9e-04
+   (vector), the FD to 1e-6, Krylov counts equal. The trigger conjunction is
+   measured INSUFFICIENT off the Ahmed family. A filed reproducer must not
+   claim "any case with a limited scheme and a freestream BC is exposed
+   under scotch"; the exposed set is, on present evidence, the Ahmed
+   background-mesh family, with the loose `primalMinResTol` 1e-4 (both
+   defective cases) versus tight 1e-8 (this null) still standing as an
+   unseparated co-ingredient candidate.
+2. **A second, decomposition-INDEPENDENT defect fell out of the same arm,
+   and it is cheaper to reproduce than the first: the limiter breaks the
+   SERIAL adjoint on the NACA0012.** With `div(phi,U)` `bounded Gauss
+   linearUpwind limited` + `gradSchemes limited cellLimited Gauss linear 1`
+   on the 4,032-cell structured airfoil (np=1, no decomposition anywhere),
+   `check_totals` reads CD/shape **92.8%** against its own step-stable FD
+   (FD moves 2.1% between steps 1e-3 and 3e-3 — 44x too little to explain
+   the gap; every FD-leg primal converged to 1e-8), CL/shape 7.9%, one CD
+   component sign-flipped. The one-word lever `limited` -> `default` takes
+   it to **0.121%**. This is the same recorded-branch object as the
+   decomposition defect (the `cellLimited` min/max stencil selection), wrong
+   through a different excitation: serial contraction error here,
+   parallel-inconsistent reverse there (and on A4 the serial error is only
+   0.34% — the excitation is case-dependent, as a data-dependent branch's
+   would be). For a maintainer this is the better entry point: a
+   single-process reproducer with a one-word on/off switch, no MPI in the
+   loop. The instrumented-rebuild search space named above (the
+   `cellLimited`/`limitedGrad` reverse sweep) is unchanged — this addendum
+   adds that its output is measurably wrong even before any processor
+   boundary is involved.
