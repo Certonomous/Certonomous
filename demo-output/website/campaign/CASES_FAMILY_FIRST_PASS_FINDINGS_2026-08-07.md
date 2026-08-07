@@ -243,6 +243,33 @@ a timestamp-only delta (`updated_utc`), and an untracked
 2026-08-07) belongs to the marine line's triage. Neither is this pass's to
 adjudicate; both left untouched.
 
+### R9 (disposition, added 2026-08-07 late) — the relayed "inbox file" w3-a-verdict-protocol-for-mesh-draw-sensitive-credentials is neither a duplicate nor a refinement
+
+The closure supervisor's refused-inbox triage (8aa97635) relayed this file to
+the Cases family. Checked against the 2026-08-04 docket filing (2eb00350):
+**there is exactly one file with one identity** —
+`agenda/proposals/w3-a-verdict-protocol-for-mesh-draw-sensitive-credentials.json`
+IS the 2026-08-04 filing (its only pre-existing commit is 2eb00350), because
+`agenda.inbox_dir()` and the proposals directory are the same directory and
+the docket entry of that name was generated from this very file. So neither
+of the two anticipated branches (duplicate → dismiss; refinement → merge)
+describes reality. What actually happened: the citation rail that landed
+AFTER the filing (the accepted idiom: artifact names, no paths, no
+extensions) refuses the file's three full-path `.md` citations on every
+docket refresh, which is how a legitimately-filed, still-`proposed` item
+ended up on the refused list — the same failure class the closure supervisor
+repaired for eleven of their own files in 8aa97635. Disposition, per that
+commit's own convention: the three citations rewritten in the accepted idiom
+("The W3 NACA 0012 verdict-not-reproducible record", "The W3 NACA 4412
+resolution-scatter record", "The W3 published-rung replicates record"),
+nothing else touched. Verified: `read_inbox()` now accepts the file
+(status `proposed`, source_kind `capability` intact), `refused_inbox()` no
+longer lists it, and its existing docket entry stands unchanged. The pairing
+the coordinator noted is real and already wired: `b52-replicate-meshes-at-
+rung-6` cites this protocol as its instrument, and both are now clean on the
+rails. The five files still refused all belong to the W1/W4 (DAFoam/infra)
+relays, not this family.
+
 ## Part 4 — family-N collection outcome
 
 The detached run (launched 20:10:20Z, PID 10186) **completed and self-folded
