@@ -378,6 +378,67 @@ whole carrier at finer resolution.
 
 Cost ~20 core-min; with R4 this closes the session inside the 150 cap.
 
+## AMENDMENT 5 — R7, the acquisition arm, registered 2026-08-07 BEFORE its arms ran (docket `w4-defect-acquisition-on-a-second-mesh-family`; commit history is the witness)
+
+The scheme survey's named next experiment (item 3 of the survey section below),
+now approved and claimed: install BOTH measured ingredients of the conjunction
+on the clean structured NACA0012 and measure whether the case ACQUIRES the
+defect. Staging (`run_a1lim_arm.sh`, extending `run_a1fs_arm.sh` — the R1 edit
+set is inherited byte-identically and re-asserted in-driver):
+
+- R1's edits verbatim: `0.orig/U`/`0/U` `inout` `inletOutlet` ->
+  `freestreamVelocity` at the case's own aoa0; `patchV` stripped everywhere;
+  `primalBC` loses `U0`; CD/CL forces to `fixedDirection` at the record's
+  physical directions.
+- THE new edit, A4's limited convection installed on A1's `fvSchemes`:
+  `div(phi,U)` `bounded Gauss linearUpwindV grad(U)` -> `bounded Gauss
+  linearUpwind limited`, and `gradSchemes` gains the entry `limited
+  cellLimited Gauss linear 1` (the same token pair A4's defective
+  configuration resolves). **Disclosed:** this edit swaps the V-form of the
+  scheme as well as installing the limiter branch; the contingent control R7c
+  below isolates the one word within the same family, exactly as R6b did on
+  A4.
+- A1's own `primalMinResTol` 1e-8 is left untouched — so a fired defect here
+  simultaneously kills the loose-primal co-ingredient hypothesis (R3b's open
+  confound), because this case has no loose primal.
+- Arms: `a1lim_np1` (np=1) and `a1lim_np4scotch` (np=4, shipped-default
+  scotch, verified in-log), both `check_totals` step 1e-3 central abs, patched
+  IDWarp stamped in-log, `--cpus=2`.
+
+**Registered prediction R7 (the conjunction hypothesis, limiter x
+freestreamVelocity x cut): (i) np=1 control clean — CD/shape rel. err vs own
+FD <= 0.5%; (ii) the defect ACQUIRES on the second mesh family — np=4-scotch
+CD/shape rel. err vs its own FD >= 2%, with the analytic shifted >= 2% from
+the np=1 analytic while the two FD columns agree to <= 0.5%.** Named
+alternative, decisive per the docket gate: both arms <= 0.5% means the
+conjunction is INSUFFICIENT off the Ahmed family — the trigger needs a
+mesh-family/cut-topology axis after all, the n=1-family confound STANDS on the
+defect side, and the upstream report must scope its reproducer to the Ahmed
+family or a co-ingredient it carries. Gray zone 0.5–2%: scored NOT HELD,
+reported as an intermediate excitation with the numbers. If the np=1 control
+itself is dirty or the primal fails under the new scheme, the arm is reported
+unmeasurable, not scored.
+
+Contingent arms, authorized ONLY if clause (ii) fires:
+
+- **R7c** (`a1limdef_np4scotch`): same case, `div(phi,U)` `bounded Gauss
+  linearUpwind default` — the R6b one-word lever, np=4 scotch. Prediction:
+  <= 0.5% (the limiter branch, not the `linearUpwindV` -> `linearUpwind`
+  family change, carries the acquisition).
+- **R7x** (`a1lim_d_np1`, `a1lim_d_np4scotch`, `a1lim_crossres`): the
+  discriminators' dump/crossres instrument grafted into the staged A1
+  runScript, method unmodified (`writeJacobians: ["adjointIndexing"]`; offline
+  np4->np1 map by `build_maps_a1lim.py`, a re-pathed copy of
+  `build_maps_upw.py` with its validation gates intact; sign convention as
+  amended — own-operator lines print the degenerate `ratio=2.000000e+00`, the
+  reported cross ratio is the offline correction `r = res + 2b`). Prediction:
+  the mapped scotch psi leaves a cross-residual **>= 50x ||b||** under the
+  serial operator (the wrong-operator class), with the np=1 control at
+  <= 1e-3 x ||b||.
+
+Cost basis: 2.6–3.1 core-min per A1 check arm (measured, R1); contingents ~9
+more. Session hard cap 30 core-min against the docket estimate of 25.
+
 ---
 
 # RESULTS
