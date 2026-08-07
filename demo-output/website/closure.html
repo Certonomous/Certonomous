@@ -71,6 +71,10 @@
   .steps b{display:block;font-size:20px;margin-bottom:5px;color:var(--ink)}
   .steps span{color:var(--dim);font-size:17.5px;display:block;max-width:80ch}
   .steps .num{font-family:var(--mono);color:var(--ink);font-weight:600}
+  figure{margin:26px 0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  figure img{width:100%;height:auto;display:block;border-radius:6px}
+  figcaption{color:var(--dim);font-size:15.5px;margin-top:12px;line-height:1.5;max-width:none}
+  figcaption b{color:var(--ink)}
   footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);color:var(--dim);font-size:15px}
   code{font-family:var(--mono);font-size:15px;background:var(--panel);padding:2px 6px;border-radius:5px}
 </style>
@@ -88,8 +92,12 @@
 
 <div class="banner">
   <span class="tag t-gold">UNSUBMITTED</span>
-  <div>This is our <b>entry of record</b>, scored on our own hardware by the benchmark's own unmodified
-  code. Nothing has been sent to the benchmark steward. We are not on the leaderboard and hold no rank.</div>
+  <span class="tag t-good">RANK 1 OF 5 — SCORED LOCALLY</span>
+  <div>Our entry of record scores <b>0.0566 — the best overall number on the board</b> as of benchmark
+  commit <code>deb91557</code>, scored on our own hardware by the benchmark's own unmodified code. That is
+  a <b>local scoring, not an official placement</b>: nothing has been sent to the benchmark steward, we are
+  not on the leaderboard and hold no rank, and if the steward's own scoring differs from ours, the
+  steward's number is the number.</div>
 </div>
 
 <!-- ===================== THE MAIN POINT ===================== -->
@@ -97,20 +105,22 @@
   <div class="kpi flat"><div class="n a sm">0.1036</div><div class="l">where standard CFD lands</div>
     <div class="f">the industry-standard turbulence model, uncorrected. Our own measurement of it,
     on the benchmark's scorer — the benchmark publishes no baseline figure of its own</div></div>
-  <div class="kpi hero"><div class="n g">0.0654</div><div class="l">our entry of record</div>
-    <div class="f">36.9% closer to reality than the standard solve — was 0.0676 until the duct fix below</div></div>
-  <div class="kpi"><div class="n">2 of 8</div><div class="l">cases our model clearly leads</div>
-    <div class="f">plus one lead of 0.00003, two led by the untouched baseline after our gate
-    withheld the model, and three we are behind on — the arithmetic is in §3</div></div>
-  <div class="kpi"><div class="n">5</div><div class="l">scoring attempts, ever</div>
-    <div class="f">a discipline we set ourselves, not a benchmark limit — the benchmark has none.
-    No parameter was ever fitted to a test score; what one did change is what we built next, §2</div></div>
+  <div class="kpi hero"><div class="n g">0.0566</div><div class="l">our entry of record</div>
+    <div class="f">45.3% closer to reality than the standard solve — rank 1 of 5 scored locally,
+    not an official placement; was 0.0654 until round 5, §4</div></div>
+  <div class="kpi"><div class="n sm">0.0029</div><div class="l">below the published leader</div>
+    <div class="f">Reissmann's 0.0595, quoted at benchmark commit <code>deb91557</code>. Read it with
+    the seed-uncertainty bound of up to 0.0024 attached, §5 — the margin and the bound are comparable</div></div>
+  <div class="kpi"><div class="n">6</div><div class="l">scoring calls, ever</div>
+    <div class="f">a discipline we set ourselves, not a benchmark limit — the benchmark has none and
+    tells entrants to preview their scores. Round 5's one call was accepted mechanically against a
+    criterion frozen before the call, §2 and §4</div></div>
 </div>
 
 <div class="note"><b>What the score is, in one line.</b> Every test case is a real flow measured by
 high-fidelity simulation. The benchmark picks 1,000 fixed points in each flow and asks: how far off is your
 predicted velocity, on average, as a fraction of the true speed? <b>0.1036 means the standard solve is about
-10% wrong. 0.0654 means we are about 6.5% wrong.</b> Lower is better. The final score is the plain average
+10% wrong. 0.0566 means we are about 5.7% wrong.</b> Lower is better. The final score is the plain average
 across all eight cases.</div>
 
 <!-- ===================== 1 ===================== -->
@@ -127,7 +137,38 @@ look good on the data they were built from and fall apart on anything else — s
 deliberately chosen to be a different Reynolds number and a different geometry from anything you trained on.</div>
 
 <!-- ===================== 2 ===================== -->
-<h2>2 · The part we are most proud of, and it cost us</h2>
+<h2>2 · Four rounds, one direction — and a refusal in every one of them</h2>
+<p class="lede">The score did not arrive in one clever step. It moved
+<b>0.0741 → 0.0676 → 0.0654 → 0.0566</b> across four scored rounds, and every step was bought by
+paying for honesty in advance: each round left a known free improvement on the table, or put an
+existing win at risk in writing, rather than let a test score choose what to submit.</p>
+
+<div class="scroll"><table>
+<thead><tr><th>Round</th><th class="n">Overall</th><th>What moved it</th><th>What it refused</th></tr></thead>
+<tbody>
+<tr><td>2</td><td class="n">0.0741</td><td>first full trained correction across all eight flows</td>
+    <td>the 0.0066 answer-key shortcut, §3</td></tr>
+<tr><td>3</td><td class="n">0.0676</td><td>a blind decline gate withheld the correction where it hurt</td>
+    <td>took the honest route to 0.0001 <em>behind</em> the refused shortcut</td></tr>
+<tr><td>4</td><td class="n">0.0654</td><td>Reynolds-invariant duct features fixed a measured extrapolation failure</td>
+    <td>a +0.0022 regression on one duct, left standing rather than reverted by the answer key</td></tr>
+<tr class="us"><td>5</td><td class="n">0.0566</td><td>the untrained QCR physics term replaced the fitted duct correction, §4</td>
+    <td>a best-on-board tie put at risk in writing before the call — lost, and left standing</td></tr>
+</tbody></table></div>
+
+<div class="note gold"><b>The ledger, and how the last call was authorized.</b> Six scoring calls, ever:
+the uncorrected floor, then rounds 1 through 5 — one call per prediction set, self-imposed; the benchmark
+sets no limit and instructs submitters to preview their scores. Round 5's call was reserved to a designated
+scoring agent, made only after four independent pre-score checks passed (the five unchanged files
+hash-matched to the round-4 manifest, all eight files well-formed, the point-ordering proof re-run fresh,
+the pre-registration's own hash table matched to the bytes on disk), and judged by a criterion committed
+before the call existed: <b>accept if and only if the overall beats 0.065438</b>. It scored 0.056647.
+<b>The verdict was mechanical — no judgement was exercised after the number existed</b>, and the rule that
+decided <em>what</em> was in the submission had been frozen earlier still, before the first validation
+iteration was ever run (§4).</div>
+
+<!-- ===================== 3 ===================== -->
+<h2>3 · The part we are most proud of, and it cost us</h2>
 <p class="lede">Round 2 of our entry scored <b>0.0741</b>. Then our own audit found something
 uncomfortable: on three of the eight cases, our trained correction was making the answer
 <b>worse than not correcting at all</b>.</p>
@@ -175,35 +216,149 @@ and declines — then builds the version that survives scrutiny and reports the 
 The full account, including the fact that the idea for the gate came from a scoring call, is written
 into the submission record itself so a reviewer finds it there rather than discovering it.</div>
 
-<!-- ===================== 3 ===================== -->
-<h2>3 · Where the score actually stands</h2>
-<p class="lede">Stated plainly: <b>this score does not beat the field.</b> If it were submitted today it
-would sit third of five, between Wu and Zhang and the current third place. It is unsubmitted, so it sits
-nowhere at all.</p>
+<!-- ===================== 4 ===================== -->
+<h2>4 · Round 5: the ducts go to physics instead of a fit</h2>
+<p class="lede">The three square-duct flows were our worst family. The road to fixing them ran through
+one public mis-diagnosis we corrected ourselves, one measured mechanism, and finally the decision to
+<b>stop fitting and put the physics inside the solver</b> — under a shipping rule frozen before the first
+validation run existed.</p>
+
+<div class="note"><b>How round 4 got the ducts partly right, and where it hit the wall.</b> We first
+blamed the duct deficit on a genuine degeneracy in the model's inputs — and then killed our own diagnosis
+with arithmetic: the same degeneracy holds in identical measure on the duct we <em>win</em>, so it could
+not explain the ones we lost. The measured mechanism was simpler and worse: a gradient-boosted tree cannot
+extrapolate — past its training edge it returns a constant — every duct the rules let us learn from sits at
+a single Reynolds number, and two of the three test ducts sit at <b>double</b> it, pushing one input
+1.85–2.07× past everything the model had ever seen. Round 4's Reynolds-invariant refit bought
+0.0919 → 0.0811 and 0.0862 → 0.0775 on those two ducts — real, but still roughly double the leaders —
+and no legal duct truth exists at the doubled Reynolds number, so a <em>trained</em> fix for the rest of
+the gap could never be validated in advance. Full record: the duct feature-degeneracy and
+Reynolds-transfer audits.</div>
+
+<div class="note"><b>Round 5's move: a term with no training data has no training range.</b> QCR2000 is a
+constitutive correction published by Spalart in 2000 — one constant, 0.3, taken as published, fitted to
+nothing, sitting inside the flow equations rather than bolted on afterwards. The claim was structural:
+round 4's extrapolation failure <em>cannot recur by the same mechanism</em>, because there is no training
+edge to walk off. But "cannot fail the old way" is not "cannot fail" — which is why every degree of
+freedom was closed in writing before any solve ran. Two audit findings pushed the same direction: the
+fitted correction restored the ducts' secondary-flow <em>intensity</em> while drawing the wrong
+<em>topology</em> (one vortex where the truth has a counter-rotating pair), and its post-hoc fields
+violated mass conservation at ~10<sup>15</sup>× the baseline solver's level, because a cell-wise
+correction respects no conservation law.</div>
+
+<ol class="steps">
+  <li class="hit">
+    <b>The rule was frozen before the first validation iteration existed</b>
+    <span>Committed 2026-08-05, before any solve: QCR ships on <b>all three</b> test ducts or on
+    <b>none</b>, decided solely by the benchmark's own suggested validation duct — error ratio
+    ≤ <span class="num">0.70</span> of the standard solve's, secondary-flow correlation
+    r ≥ <span class="num">0.85</span>, both solves fully converged. The duct where we held a
+    best-on-board tie got <b>no exemption</b>: the freeze names it, says QCR may well be worse there,
+    and accepts the possible loss in writing — because protecting it per-case would mean choosing by a
+    known test score.</span>
+  </li>
+  <li class="hit">
+    <b>The validation duct passed every clause</b>
+    <span>Ratio <span class="num">0.4770</span>, r <span class="num">0.9284</span>, both arms converged on
+    their own residual controls. Gate verdict: ALL. A usage-limit kill terminated the whole agent fleet
+    minutes after the freeze — and recovery was cheap precisely because the rule was already committed:
+    the test arms ran two days later under a rule that could not have drifted.</span>
+  </li>
+  <li class="hit">
+    <b>The submission was pre-registered before the one scoring call</b>
+    <span>Accept criterion (beat round 4's <span class="num">0.065438</span>), expectation band
+    (<span class="num">0.059–0.0666</span>) and the tie-loss risk statement all committed first. Only the
+    three duct files changed; the other five were copied byte-identical and hash-asserted. The test truth
+    files were never copied into the run tree — <b>not merely unread; absent</b>. Solver cost:
+    37 core-minutes against a 95-minute budget.</span>
+  </li>
+  <li class="hit">
+    <b>One call, mechanical verdict: 0.0566, accept</b>
+    <span>The two doubled-Reynolds ducts — exactly where the extrapolation mechanism said the gain lived —
+    improved <span class="num">0.0811 → 0.0455</span> and <span class="num">0.0775 → 0.0400</span>; the
+    in-range duct gave back <span class="num">+0.0029</span>. Overall <span class="num">0.056647</span>
+    against the pre-stated criterion: accept, entry of record. It landed below the expectation band's best
+    end; the campaign's central arithmetic (match rank 2's duct scores ≈ <span class="num">0.0563</span>)
+    was nearly exact, and the band itself was mis-centred pessimistic. Recorded, not celebrated.</span>
+  </li>
+</ol>
+
+<figure>
+  <img src="campaign/duct_secondary_flow_AR_7_validation_qcr.png"
+       alt="Three-panel comparison of in-plane secondary flow in the validation duct: standard RANS (zero secondary flow), QCR (counter-rotating corner-vortex pair), and LES truth (counter-rotating corner-vortex pair)">
+  <figcaption><b>Why the ducts moved: QCR draws the true counter-rotating corner-vortex pair where the
+  fitted correction drew one vortex.</b> The validation duct's cross-section (lower-left quadrant, flow out
+  of the page). Top: the standard solve has <em>exactly zero</em> secondary flow — 10<sup>&minus;16</sup>
+  of the bulk speed, machine zero, which is the structural blind spot the ducts are scored on. Bottom: the
+  truth has a counter-rotating vortex pair in the corner with two distinct centres. Middle: the untrained
+  QCR term reproduces that pair — same positions, same sense, same flanking high-speed wall lobes — at a
+  mean intensity of 4.65&times;10<sup>&minus;3</sup> of bulk against the truth's
+  4.90&times;10<sup>&minus;3</sup>. Our round-4 <em>fitted</em> correction restored this intensity but drew
+  a single vortex in place of the pair. Visible deficit, stated: the truth's weak tertiary recirculations
+  near the centreplane (left of z/h ≈ 1.5) are smoothed into elongated lobes. This figure was declared a
+  reported diagnostic — not a gate clause — in the freeze, so it could not be recruited afterwards as a
+  post-hoc selector in either direction.</figcaption>
+</figure>
+
+<div class="note warn"><b>The pre-registered risk materialised, and we are volunteering it: the tie is
+lost.</b> Round 4 held a nominal 0.00003-level tie for best-on-board on the aspect-ratio-14 duct. The
+freeze put that tie at risk in writing; the risk landed: <span class="num" style="font-family:var(--mono)">
+0.0325 → 0.0353</span> (+0.0029), the tie is gone, the case falls to 3rd of 5, and our best-on-board count
+drops <b>5 of 8 → 4 of 8</b>. It is <b>not reverted</b>: putting the old file back on that one duct after
+seeing its score would be per-case selection on test outcomes — the same reason the round-2 shortcut and
+the round-4 regression were left standing. The bundle was judged as a bundle, and the bundle wins:
+−0.0731 combined on the two ducts that improved, against +0.0029 on the one that regressed.</div>
+
+<div class="note gold"><b>Whose numbers the duct scores really are — and the check that proves it.</b> The
+published rank-2 entry (Wu &amp; Zhang) runs a model carrying the same untrained QCR term. Our three duct
+scores land within <b>0.0004 of theirs on all three ducts</b> (0.0455 vs 0.0455, 0.0400 vs 0.0399, 0.0353
+vs 0.0350) — independent solves, same constitutive term, same answer. So stated at its real size: the duct
+signal is <b>Spalart's 25-year-old published term</b>, not a Certonomous invention, exactly as the decline
+gate in §3 has published ancestors. What is ours is narrower and we claim only it: the measured diagnosis
+that ruled the trained route out, the topology evidence above, and the frozen all-or-none rule that shipped
+the term blind — including onto the duct where it lost us a tie.</div>
+
+<div class="note"><b>A physicality debt paid off in the same round.</b> Our own audit had flagged that the
+round-4 duct fields, being post-hoc cell-wise corrections, violated mass conservation with a divergence
+~10<sup>15</sup>× the baseline solver's — a recorded cost of that method class. The QCR duct fields are the
+output of a converged solve, so conservation is enforced by construction: measured through the identical
+audit operator, their residual divergence is <b>27–63× lower</b> than the fields they replace —
+solver-consistency small, not model-structure large. The audit finding is closed for the duct family.</div>
+
+<!-- ===================== 5 ===================== -->
+<h2>5 · Where the score actually stands</h2>
+<p class="lede">Stated plainly: <b>as of benchmark commit <code>deb91557</code>, scored locally through
+the benchmark's own unmodified scorer, 0.0566 is the best overall number on the board</b> — 0.0029 below
+the published leader. It is unsubmitted, so officially it sits nowhere at all, and the margin carries a
+seed-uncertainty bound of comparable size, below.</p>
 
 <div class="scroll"><table>
-<thead><tr><th>Public leaderboard</th><th class="n">Overall</th><th></th></tr></thead>
+<thead><tr><th>Public leaderboard (benchmark commit <code>deb91557</code>)</th><th class="n">Overall</th><th></th></tr></thead>
 <tbody>
+<tr class="us"><td>— · Certonomous, round 5</td><td class="n">0.0566</td><td><span class="tag t-gold">UNSUBMITTED · RANK 1 OF 5 SCORED LOCALLY · NO OFFICIAL RANK</span></td></tr>
 <tr><td>1 · Reissmann, Fang, and Sandberg</td><td class="n">0.0595</td><td></td></tr>
 <tr><td>2 · Wu and Zhang</td><td class="n">0.0624</td><td></td></tr>
-<tr class="us"><td>— · Certonomous</td><td class="n">0.0654</td><td><span class="tag t-gold">UNSUBMITTED · NO RANK</span></td></tr>
 <tr><td>3 · Liu, Wang, Zhao, and Xiao</td><td class="n">0.0737</td><td></td></tr>
 <tr><td>4 · Montoya, Oulghelou, and Cinnella</td><td class="n">0.0779</td><td></td></tr>
 <tr><td>Standard uncorrected simulation</td><td class="n">0.1036</td><td><span class="tag t-flat">beaten overall by all five — but not on every case</span></td></tr>
 </tbody></table></div>
 
-<p class="lede"><b>Stability note (2026-08-05):</b> the 0.0654 was trained at a single random seed, and the
-model behind three of its eight predictions is genuinely seed-dependent (327,600 training cells exceed the
-histogram binning subsample of the library used). Retrained at eight seeds without touching test truth:
-the estimated seed uncertainty on the overall is about <span class="num">0.0003</span>, but a truth-free
-bound cannot rule out movement up to <span class="num">0.0024</span> — comparable to the
-<span class="num">0.0030</span> gap to second place. The gap above should be read with that uncertainty
-attached. Evidence: <code>closure_challenge_stability_physicality_audit.md</code>.</p>
+<p class="lede"><b>Stability note (audited 2026-08-05, re-scoped for round 5):</b> three of the eight
+predictions — both steep-hill cases and the NASA hump, byte-identical since round 3 — come from a model
+whose 327,600 training cells exceed the fitting library's binning subsample, making those predictions
+genuinely seed-dependent. Retrained at eight seeds without touching test truth: the estimated seed
+uncertainty on the overall is about <span class="num" style="font-family:var(--mono)">0.0003</span>, but a
+truth-free bound cannot rule out movement up to <span class="num" style="font-family:var(--mono)">0.0024</span>
+— <b>comparable to the 0.0029 margin over the published leader</b>. The rank-1 reading above must carry
+that uncertainty. The three duct predictions now contribute zero seed variance: nothing in them was
+trained at all. Evidence: <code>closure_challenge_stability_physicality_audit.md</code>.</p>
 
 <p class="lede" style="margin-top:34px">Case by case, against the best score any published entry has
 achieved on that case — and, in the fourth column, against the untouched standard simulation the
-organisers hand to every entrant. <b>Two clear leads, one lead of 0.00003, two rows where the leader is
-the baseline and not us, and three we are behind on.</b></p>
+organisers hand to every entrant. <b>The board-best number sits in our column on 4 of 8 cases — two
+genuinely ours, two the organisers' own baseline. On the other four we are behind: two ducts within
+published precision of Wu &amp; Zhang, one duct where we lost our former tie on purpose, and the hump
+where we are last.</b></p>
 <div class="scroll"><table>
 <thead><tr><th>Test flow</th><th class="n">Best published</th><th class="n">Certonomous</th><th class="n">Uncorrected</th><th></th></tr></thead>
 <tbody>
@@ -211,21 +366,21 @@ the baseline and not us, and three we are behind on.</b></p>
 <tr class="us"><td>Periodic hill, steep, fine</td><td class="n">0.1195</td><td class="n win">0.1011</td><td class="n">0.2049</td><td><span class="tag t-gold">OUR MODEL LEADS</span></td></tr>
 <tr><td>Periodic hill, shallow, coarse</td><td class="n">0.0569</td><td class="n">0.0461</td><td class="n">0.0461</td><td><span class="tag t-flat">BASELINE, NOT OUR MODEL</span></td></tr>
 <tr><td>Periodic hill, shallow, fine</td><td class="n">0.0760</td><td class="n">0.0719</td><td class="n">0.0719</td><td><span class="tag t-flat">BASELINE, NOT OUR MODEL</span></td></tr>
-<tr class="us"><td>Square duct, aspect ratio 14</td><td class="n">0.0325</td><td class="n">0.0325</td><td class="n">0.0590</td><td><span class="tag t-open">AHEAD BY 0.00003 — a tie</span></td></tr>
-<tr><td>Square duct, aspect ratio 1</td><td class="n">0.0387</td><td class="n lose">0.0811</td><td class="n">0.1288</td><td><span class="tag t-open">3rd of 5 — was last</span></td></tr>
-<tr><td>Square duct, aspect ratio 3</td><td class="n">0.0341</td><td class="n lose">0.0775</td><td class="n">0.1243</td><td><span class="tag t-open">3rd of 5 — was 4th</span></td></tr>
+<tr><td>Square duct, aspect ratio 1</td><td class="n">0.0387</td><td class="n">0.0455</td><td class="n">0.1288</td><td><span class="tag t-open">2nd of 5 — was 3rd; ties Wu &amp; Zhang at published precision</span></td></tr>
+<tr><td>Square duct, aspect ratio 3</td><td class="n">0.0341</td><td class="n">0.0400</td><td class="n">0.1243</td><td><span class="tag t-open">3rd of 5 — 0.03998 against Wu &amp; Zhang's 0.0399</span></td></tr>
+<tr><td>Square duct, aspect ratio 14</td><td class="n">0.0325</td><td class="n lose">0.0353</td><td class="n">0.0590</td><td><span class="tag t-open">3rd of 5 — the tie for best, lost as pre-registered (§4)</span></td></tr>
 <tr><td>NASA wall-mounted hump</td><td class="n">0.0364</td><td class="n lose">0.0632</td><td class="n">0.0621</td><td><span class="tag t-open">LAST — and worse than not correcting</span></td></tr>
 </tbody></table></div>
 
-<div class="note warn"><b>The two rows marked "baseline, not our model" — and why we stopped calling them
-wins.</b> On those two flows our submitted file <em>is</em> the untouched standard simulation. We checked
+<div class="note warn"><b>The two rows marked "baseline, not our model" — and why we do not count them as
+ours.</b> On those two flows our submitted file <em>is</em> the untouched standard simulation. We checked
 this rather than asserting it: the shipped prediction was re-derived from the organisers' own supplied
 field and matches our submitted file to 5&times;10<sup>&minus;10</sup>, which is the file's own write
 precision. The gate withheld our model and passed the plain physics solve straight through.
 <b>0.0461 and 0.0719 are therefore not our numbers.</b> They are properties of a file every entrant is
-handed for free, and anyone submitting it unchanged scores exactly the same. This page used to count them
-toward "five cases where we lead." That was true arithmetic and misleading attribution, and it is now
-corrected in both directions — the headline count above and this table.</div>
+handed for free, and anyone submitting it unchanged scores exactly the same. This page once counted them
+toward "five cases where we lead"; that was true arithmetic and misleading attribution, and both the
+headline count and this table have carried the correction since.</div>
 
 <div class="note gold"><b>What is genuinely ours there, stated at its real size.</b> Cross the uncorrected
 column against the full published leaderboard and something sharp falls out: on <b>exactly two of the eight
@@ -235,66 +390,30 @@ test case when it made those two calls. <b>The claim we can defend is about the 
 score:</b> a train-only rule found, blind, the two flows on which the entire field of published methods
 damages the answer. Knowing when not to act is the contribution. The two numbers it produced are not.</div>
 
-<!-- ===================== 4 ===================== -->
-<h2>4 · What is not solved</h2>
-<p class="lede">Three of the eight cases still trail. The ducts improved sharply once we found what was
-actually wrong — and what was actually wrong was <em>not</em> what this page said for the past two days.</p>
+<!-- ===================== 6 ===================== -->
+<h2>6 · What is not solved</h2>
+<p class="lede">The hump is still last, the duct numbers are borrowed physics, and the scientific question
+that beat our trained model — transfer to a doubled Reynolds number — was routed around, not answered.</p>
 
-<div class="note warn"><b>We had the duct diagnosis wrong, and the correction is the finding.</b> This page
-previously blamed the duct deficit on two of the model's seven inputs being mathematically forced to zero on
-every duct. That degeneracy is real — across 41,971 cells of duct training data those two never exceed
-3&times;10<sup>&minus;14</sup>, and across 50,000 randomly generated shear states they are exactly zero, by
-algebra — but it <b>cannot</b> be the explanation, for a reason that is pure arithmetic:
-<b>those same two inputs are equally zero on the duct we score best on the board on.</b> A flaw present in
-identical measure on the case we win and the cases we lose does not distinguish between them. We had
-published a true fact as a cause, and it was not the cause.</div>
+<div class="note warn"><b>The NASA hump is our only last-place case, and the improvement we keep
+refusing.</b> No training data for the hump exists anywhere in the benchmark, and on it our correction
+makes the answer <em>worse</em> than leaving it alone — 0.0632 against 0.0621. Submitting the untouched
+solve there is one file copy, breaks no rule, and is worth about <b>0.00014</b> off the overall score
+(0.05665 → 0.05651, arithmetic on our own recorded per-case numbers, not a new scoring call). We are not
+taking it. The only reason to single out that one case is that the benchmark told us its score, and
+choosing what to submit case by case from the answer key is the exact thing the one rule exists to stop.
+<b>That makes four refusals on the same grounds — the 0.0066 in §3, the round-4 and round-5 duct
+regressions in §2 and §4, and this, the smallest of them.</b> An improvement that comes from leakage is
+worth less than no improvement, so the honest number stays on the board and this paragraph stays with it.</div>
 
-<div class="note"><b>Re-derived from scratch, and the degeneracy is worse than we said.</b> Rather than
-inherit our own correction we re-measured it on all eight duct cases. Two further identities hold that we
-had never written down: a third input is the exact negative of the first, to the last bit, and a fourth is
-minus half the first squared, to 3&times;10<sup>&minus;16</sup>. <b>Five of the seven inputs carry one
-independent number between them on a duct, not five.</b> The reason is that the standard solve produces no
-swirl at all in a straight duct — the sideways velocity is 10<sup>&minus;15</sup> against a forward speed of
-order 10 — so its velocity-gradient tensor is pure shear and everything built from it collapses to a single
-shear magnitude. That makes the blind spot a property of <em>the baseline we are correcting</em>, not of duct
-geometry: the real flow has swirl, which is precisely what the standard model misses. On the periodic hills
-the same four identities are violated by factors between 10<sup>&minus;3</sup> and 2, so nothing there is
-degenerate and the test is not vacuous. <b>None of this changes the verdict.</b> The identities hold in the
-same measure on the duct we win, so they still do not explain the deficit — and a k-nearest-neighbour bound
-says that inside the Reynolds number we are allowed to train on, these inputs retain enough information to
-reach 0.011–0.027 against floors of 0.069–0.107. The inputs are not what binds. Transfer is.</div>
-
-<div class="note"><b>One hypothesis we tested and killed.</b> Every input the model sees is a rotation-blind
-scalar, so on a square duct it must return the identical correction at a point and at its mirror image
-across the diagonal — while the truth swaps two velocity components between them. That looked like a hard
-error floor we had built in by construction. It is not: the unreachable part is <b>0.012%</b> of the
-correction's energy, because the real duct flow obeys the same mirror symmetry the inputs do. A clean
-prediction, measured, refuted, and reported rather than dropped.</div>
-
-<div class="grid">
-  <div class="kpi"><div class="n sm">1.85&times;</div><div class="l">how far past its training range we pushed the model</div>
-    <div class="f">On the two ducts we lose, one input — the local turbulent Reynolds number — reaches 1.85
-    and 2.07 times the largest value the model ever saw while learning. On the duct we win, 0.90 times.</div></div>
-  <div class="kpi"><div class="n sm">&minus;0.0108</div><div class="l">what the fix bought on the worst duct</div>
-    <div class="f">0.0919 → 0.0811 on aspect ratio 1, and 0.0862 → 0.0775 on aspect ratio 3. Last on the
-    board to third of five.</div></div>
-  <div class="kpi"><div class="n sm">83%</div><div class="l">of the error removed on the held-out duct</div>
-    <div class="f">Against 75% for the previous model, on the benchmark's own suggested validation case —
-    measured before the fix was ever scored.</div></div>
-  <div class="kpi"><div class="n sm">+0.0022</div><div class="l">a second regression we did not revert</div>
-    <div class="f">The same fix made the aspect-ratio-14 duct slightly worse. Reverting it there means
-    choosing by the answer key, so it stands — as the NASA hump's +0.0011 does.</div></div>
-</div>
-
-<div class="note"><b>What was actually wrong, in one line.</b> A gradient-boosted tree cannot extrapolate: past
-the edge of its training data it stops responding and returns a constant. Every square duct the rules let us
-learn from sits at a single Reynolds number, so when the benchmark handed us two ducts at double that, one
-input walked off the end of everything the model had ever seen. <b>The fix was to give the model a
-Reynolds-invariant sense of where it is between the walls, and to have it predict the correction as a
-fraction of the flow's own speed rather than in metres per second.</b> The prediction that follows from the
-diagnosis is specific: the two ducts that were out of range should improve and the one that was in range
-should not. That is exactly what happened, on all three, which is the strongest evidence we have that the
-mechanism is the right one this time.</div>
+<div class="note warn"><b>And the ducts are better, not solved.</b> All three duct scores now sit within
+0.0004 of the published entry that carries the same QCR term — and behind the leader on every one of them
+(0.0387, 0.0341, 0.0325 against our 0.0455, 0.0400, 0.0353). The untrained term sets a strong floor; it
+does not close the gap to Reissmann. And the question that actually defeated round 4 — how a trained
+correction transfers to a Reynolds number the rules give no truth for — remains open: round 5 sidestepped
+it with physics that has no training range rather than answering it. The ambition, stated as ambition and
+not a plan of record: a hump route with the same frozen-rule shape, and a trained duct closure good enough
+to beat the untrained term that just replaced it.</div>
 
 <div class="note warn"><b>And the gate is not our invention. We checked.</b> Before claiming the decline gate as a
 contribution we searched for prior art properly, and found it. A classifier that reads only the uncorrected
@@ -305,41 +424,31 @@ left to us is narrow and we state it that way: our gate decides for a whole flow
 it is trained to predict the <em>baseline's</em> error rather than how unfamiliar the flow looks, and when it
 declines it submits the plain uncorrected solve and says so. This is a recombination with a modification,
 not a new method class, and every citation behind that sentence was fetched and checked rather than
-recalled.</div>
+recalled. The duct term carries the same honesty one section up: Spalart published it in 2000, and a
+leaderboard entry already runs it.</div>
 
-<div class="note warn"><b>What is still not solved.</b> The NASA hump is now the only case we are last on,
-and no training data for it exists anywhere in the benchmark. The duct fix is validated on every held-out
-set the rules permit — but <b>none of those is a test of Reynolds transfer at a doubled flow speed</b>, which
-is what the two hard ducts actually demand, because every duct we may legally fit on has the same Reynolds
-number. The fix is motivated by a measured mechanism and proven to do no harm; it was not proven in advance
-to close the gap. It closed it partly. We are still well behind the leaders on both.</div>
-
-<div class="note warn"><b>And the improvement we are refusing this time.</b> On the NASA hump our correction
-makes the answer <em>worse</em> than leaving it alone — 0.0632 against 0.0621. Submitting the untouched
-solve there is one file copy, breaks no rule, and is worth about <b>0.00014</b> off the overall score
-(0.06543 → 0.06529, arithmetic on our own recorded per-case numbers, not a new scoring call). We are not
-taking it. The only reason to single out that one case is that the benchmark told us its score, and choosing
-what to submit case by case from the answer key is the exact thing the one rule exists to stop —
-the same reason the 0.0066 in §2 and the aspect-ratio-14 regression above were both left standing.
-<b>This is the third time this lab has declined a free improvement on these grounds, and it is the smallest
-of the three.</b> An improvement that comes from leakage is worth less than no improvement, so the honest
-number stays on the board and this paragraph stays with it.</div>
-
-<div class="note"><b>And the honest bottom line.</b> The correction is applied to an already-finished
-simulation as a post-processing step; it does not change the underlying physics equations. It has been
-measured on eight flows from one public benchmark. It has not been submitted, has not been reviewed by
-anyone outside this lab, and does not hold a rank. Everything above is reproducible from the records in
-this repository, scored by code we did not write.</div>
+<div class="note"><b>And the honest bottom line.</b> Of the eight predictions, three carry our trained
+post-processing correction, two are the organisers' own untouched solve that our gate passed through, and
+three are a fresh converged solve of a 25-year-old published turbulence term with nothing fitted to
+anything. The entry has been measured on eight flows from one public benchmark. It has not been submitted,
+has not been reviewed by anyone outside this lab, and holds no official rank — rank 1 of 5 is our local
+scoring at a pinned benchmark commit, with a seed-uncertainty bound comparable to its margin. Everything
+above is reproducible from the records in this repository, scored by code we did not write.</div>
 
 <footer>
   Sources: <code>closure-challenge-benchmark</code> public leaderboard and rules (repo
   <code>deb91557</code>) · benchmark scoring package <code>closure_challenge</code> at commit
   <code>1c4e22c8</code>, used unmodified — the commit, not the <code>0.2.1</code> string the
   package reports itself as, which names an older metric revision than the code we ran ·
-  the gated entry of record, the RANS reference floor, the decline gate and its audit,
-  the C1 error-estimator audit, the C2 error-decomposition audit, and the duct
-  feature-degeneracy and Reynolds-transfer audits, each held complete and unredacted in
-  the lab's permanent record.
+  round-5 entry of record <code>closure_challenge_round5_qcr.json</code> with submission files and
+  manifest in <code>closure_challenge_submission_round5/</code> · the frozen rule
+  <code>campaign/R5_RULE_FREEZE.md</code> and pre-registration
+  <code>campaign/R5_PREREGISTRATION.md</code>, both committed before the numbers they govern existed ·
+  validation record <code>campaign/R5_validation_AR7.json</code> and the forward-solve machine record ·
+  the gated entry of record for rounds 1–4, the RANS reference floor, the decline gate and its audit,
+  the C1 error-estimator audit, the C2 error-decomposition audit, the seed-stability and field-physicality
+  audit, and the duct feature-degeneracy and Reynolds-transfer audits, each held complete and unredacted
+  in the lab's permanent record.
 </footer>
 
 </div>
