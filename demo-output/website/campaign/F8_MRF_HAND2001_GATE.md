@@ -250,3 +250,52 @@ is NO VERDICT (unsettled), and the steady-MRF branch is closed a second time
 on evidence, making the transient branch the filed next step.
 
 *Nothing below this line existed when the restart was launched.*
+
+## 8. Step 2 result: it settles, and it settles wrong-signed — no milestone
+
+Restart resumed genuinely (first new log line `Time = 501`), ran to t=2000,
+203.8 s × 4 ranks = **13.6 core-min** (predicted 14.5). Still zero
+"SIMPLE solution converged". Read against §7, clause by clause:
+
+| pre-registered test | measured | verdict |
+| --- | --- | --- |
+| S12 unsettled (drift ≥ 1e-3 AND mono ≥ 0.90) | drift −0.164, mono fraction 0.700 | does NOT fire |
+| cap: window p2p ≤ 400 N·m | **143.2 N·m** (17.9% of Q_ref) | within |
+| sign (turbine = Mx < 0 for −x rotation) | window mean **+138.0 N·m** | **MOTORING — wrong sign** |
+| 800 N·m inside [|m|−p2p/2, |m|+p2p/2] | band [66.5, 209.6] | outside, −82.7% |
+
+**Verdict: settled by the declared rule, wrong sign — NO MILESTONE**, exactly
+the outcome the §7 sign rule refused to dress up. The prediction (turbine-
+signed by t=2000) scored **FALSE**; named risk (a) is what happened: the
+decline from +761.8 decayed onto a positive plateau wobbling around
++100–230 N·m instead of crossing zero. One honesty note recorded against our
+own rule: the S12 clause requires drift AND monotone travel, and this window
+wobbles with a −16% halves-drift, so "settled" here means "not travelling
+monotonically", not "flat"; the p2p cap is what carries the gateability
+finding, and it passes.
+
+**What this means for the diagnosis, and why it sharpens step 1 rather than
+opening the transient branch:** the case has now been run in both rotation
+directions on the same mesh. With +omega it oscillates violently around
+−1000 N·m (opposing rotation); with −omega it settles calmly at +138 N·m
+(opposing rotation again). **Neither direction extracts power.** A geometry
+that motors both ways at |λ| = 5.4 with a torque magnitude 6× below the
+measurement is a blade at the wrong pitch/twist orientation (mirrored STL,
+mis-set tip pitch, or an inflow/axis inconsistency) — a configuration
+defect, not a numerics one and not yet a frozen-rotor limitation. The
+steady-MRF branch therefore stays closed for gating (twice over: the
+original history is ungateable at 960% of the cap, and the calmed flipped
+history gates FAIL-by-configuration at −82.7%), and **the filed next step is
+the §5 step-1 STL-orientation audit at zero compute — before any transient
+core-minute is spent on a rotor that may be built wrong.** Running the
+transient branch on an unaudited geometry would spend two orders of
+magnitude more compute measuring the same defect.
+
+## 9. Cost, final
+
+| item | core-min |
+| --- | --- |
+| gate (existing history + reference fetch) | 0 |
+| omega-flip confirmation (600 iters) | 5.8 |
+| step-2 settle extension (1500 iters, rider approval) | 13.6 |
+| **total** | **19.4** (6 approved on the item + ~13 rider estimate; measured 19.4 vs 19 authorised) |
