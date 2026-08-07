@@ -158,8 +158,8 @@ answer" — the error should be invariant to every knob below.
   (error leaving the band) says the 8.95% carries a primal-convergence
   component — REOPENS the converged-wrong-answer reading, reported loudly.
 - **R3c Krylov restart** (`a4knob_restart60`): `adjEqnOption` gains
-  `"gmresRestart": 60` (shipped default 1000; the record solve took 590
-  iterations, so restart-60 forces ~10 restart cycles where the record ran
+  `"gmresRestart": 60` (shipped default 1000; the record solve took 719
+  iterations, so restart-60 forces ~12 restart cycles where the record ran
   restart-free). **Prediction: analytic within 0.1% of 2.2086e-01 and rel.
   err within [8.6%, 9.3%]** (the record's gmresRelTol-1e-10 precedent:
   converged-wrong is tolerance- and restart-independent). Named alternative:
@@ -194,7 +194,7 @@ Gauss upwind` and `gradSchemes default cellLimited Gauss linear 1`, on the same
 A4 mesh and the same np=4 scotch partition where the established configuration
 reads 8.95%, the analytic reads 3.0977e-01 against its own FD 3.0906e-01 —
 **0.228%, the clean class** (and the adjoint KSP converges in 68 iterations
-against the record's 590). The registered decision rule ("error <= 1% means the
+against the record's 719). The registered decision rule ("error <= 1% means the
 defect is scheme-specific — REOPENS the mechanism question, reported loudly")
 has fired. R3a turned TWO knobs in one arm, so it cannot say which; these two
 arms separate them, exactly as N9 separated the BC from the patchV
@@ -366,7 +366,7 @@ correction retained).
 **Registered prediction R2b: with the limiter branch removed the refined-mesh
 adjoint CONVERGES (`PetscConvergedReason` 2, well inside 1000 iterations) and
 its analytic agrees with its own FD to <= 2%.** Reasoning: on the coarse mesh
-the same edit took the KSP from 590 iterations to 41 and the error from 8.95%
+the same edit took the KSP from 719 iterations to 41 and the error from 8.95%
 to 0.849%; if the limiter branch is the carrier of both the operator error and
 the conditioning collapse, refinement should not resurrect either. Named
 alternative, registered: if the refined arm ALSO fails to converge, the
@@ -543,7 +543,7 @@ Gauss linear 1`, everything else byte-identical to the established arm:
 
 | arm | CD/shape analytic | FD (own run) | rel. err | CD0 | adjoint KSP |
 |---|---|---|---|---|---|
-| established (record) | 2.2086e-01 | 2.4258e-01 | **8.95%** | 0.1529749 | 590 iters, reason 2 |
+| established (record) | 2.2086e-01 | 2.4258e-01 | **8.95%** | 0.1529749 | 719 iters, reason 2 |
 | R3a schemes | 3.0977e-01 | 3.0906e-01 | **0.228%** | 0.1854378 | **68 iters**, reason 2 |
 
 **Registered prediction (>= 4%) NOT HELD; the registered decision rule
@@ -553,7 +553,7 @@ from the 2.4e-01 class to the 3.1e-01 class — but the invariant under test is
 each arm's analytic against its OWN FD in its OWN run, and by that invariant
 the same mesh and the same scotch partition go from catastrophically wrong to
 clean. The adjoint's conditioning collapses too: 68 Krylov iterations against
-590.
+719.
 
 Two knobs moved together here, so R3a alone convicts neither; the separating
 arms R3a1/R3a2 were registered (commit above) before either ran.
@@ -562,7 +562,7 @@ arms R3a1/R3a2 were registered (commit above) before either ran.
 
 | arm | edit (one line of `fvSchemes`) | analytic | FD (own run) | rel. err | KSP iters |
 |---|---|---|---|---|---|
-| established (record) | — | 2.2086e-01 | 2.4258e-01 | **8.95%** | 590 |
+| established (record) | — | 2.2086e-01 | 2.4258e-01 | **8.95%** | 719 |
 | **R3a1** `a4knob_divupwind` | `div(phi,U)` -> `bounded Gauss upwind` | 2.7681e-01 | 2.7670e-01 | **0.041%** | 41 |
 | **R3a2** `a4knob_gradlim` | `gradSchemes default` -> `cellLimited Gauss linear 1` | 3.1706e-01 | 3.2562e-01 | **2.63%** | 780 |
 
@@ -597,7 +597,7 @@ under a linear-algebra setting — the record's 1e-10 `gmresRelTol` arm already
 showed the converged answer is tolerance-independent, and nothing here
 contradicts it. What restart-60 shows is that the defective configuration's
 adjoint operator is hard enough that a restarted GMRES stagnates completely
-where the restart-free solve took 590 iterations — beside R3a's 68-iteration
+where the restart-free solve took 719 iterations — beside R3a's 68-iteration
 solve on the clean-scheme configuration, the conditioning tracks the defect.
 Recorded as a measured outcome of the registered arm, not reinterpreted into a
 pass.
@@ -635,7 +635,7 @@ Four convection schemes, same mesh, same np=4 scotch cut, same
 
 | `div(phi,U)` | limiter branch? | 2nd order? | grad-correction term? | analytic | FD (own run) | rel. err | KSP iters |
 |---|---|---|---|---|---|---|---|
-| `linearUpwind limited` (established) | **YES** | yes | yes | 2.2086e-01 | 2.4258e-01 | **8.95%** | 590 |
+| `linearUpwind limited` (established) | **YES** | yes | yes | 2.2086e-01 | 2.4258e-01 | **8.95%** | 719 |
 | **`linearUpwind default`** (R6b) | **no** | yes | **yes** | 2.0572e-01 | 2.0399e-01 | **0.849%** | 41 |
 | `Gauss linear` (R6a) | no | yes | no | 2.0299e-01 | 2.0267e-01 | **0.157%** | 223 |
 | `upwind` (R3a1) | no | no | no | 2.7681e-01 | 2.7670e-01 | **0.041%** | 41 |
@@ -646,7 +646,7 @@ one-word edit: `limited` names A4's `cellLimited Gauss linear 1` gradScheme,
 the same gradient-correction term still evaluated and still requiring a halo
 exchange — **the only thing removed is the min/max selection over the stencil**,
 and the error falls by a factor of 10.5 while the adjoint's Krylov count falls
-from 590 to 41. **R6a prediction HELD** (0.157%). The registered loud
+from 719 to 41. **R6a prediction HELD** (0.157%). The registered loud
 alternative — R6b dirty, which would have refuted the hypothesis — did not
 occur.
 
@@ -698,7 +698,7 @@ both. But the two rows are not the same result, and the record says so plainly:
 - **The BC lever does NOT fix the operator — it hides the defect.** At
   1.047x ||b|| the `inletOutlet` configuration's scotch adjoint still fails to
   satisfy its own serial adjoint system by a residual the size of the
-  right-hand side itself, and **163,600x its own np=1 floor**. For scale, the
+  right-hand side itself, and **163,548x its own np=1 floor**. For scale, the
   reach campaign convicted the Ahmed-35 case of carrying the wrong-operator
   defect at **5.45x ||b||**; 1.05x is the same order of wrongness, and it sits
   underneath a `check_totals` that reads 0.019%. This is L-36's failure mode
@@ -832,7 +832,7 @@ Three things this table does:
 2. **The missing ingredient is named, and it is not the mesh family: it is a
    BRANCH in the differentiated path.** The limiter in `linearUpwind limited`
    gates the defect (R6b: remove only the min/max selection and 8.95% -> 0.849%
-   with the analytic decomposition-invariant at printed precision, KSP 590 ->
+   with the analytic decomposition-invariant at printed precision, KSP 719 ->
    41), and the seven-case scheme survey above shows the limiter separates the
    defective cases from the clean ones perfectly — including retro-explaining
    R1's own null.
@@ -841,7 +841,7 @@ Three things this table does:
    fires at 2.82%).
 4. **A clean gradient is not a clean operator, and this session caught the
    difference in the act.** The BC lever leaves the operator wrong at
-   1.047x ||b|| (163,600x its own floor) under a `check_totals` reading
+   1.047x ||b|| (163,548x its own floor) under a `check_totals` reading
    0.019%; the scheme lever collapses the operator error 24,300x. The lab's
    own L-36 predicted exactly this and it is now measured on the two levers
    that matter for what gets told upstream.
@@ -875,7 +875,7 @@ Three things this table does:
 | R3c (gmresRestart 60) | analytic within 0.1%, error in [8.6%, 9.3%] | **NOT HELD (by stall)**: GMRES stagnates at 2.51e-02, no answer produced |
 | R4 (conformal same-geometry) | defect still fires >= 2% | **HELD** (2.82%) |
 | R5a (scheme lever, operator level) | crossres <= 5x \|\|b\|\| | **HELD** (0.0135x; collapse by 24,300x — the lever FIXES the operator) |
-| R5b (BC lever, operator level) | crossres <= 5x \|\|b\|\| | **HELD numerically (1.047x), loud in substance**: 163,600x its own floor — the lever HIDES the defect, L-36's mode measured in the act |
+| R5b (BC lever, operator level) | crossres <= 5x \|\|b\|\| | **HELD numerically (1.047x), loud in substance**: 163,548x its own floor — the lever HIDES the defect, L-36's mode measured in the act |
 | R6a (`Gauss linear`) | clean <= 1% | **HELD** (0.157%) |
 | R6b (`linearUpwind default`) | clean <= 1% (load-bearing branch clause) | **HELD** (0.849%) |
 | R6b-control (np=1) | within factor 2 of 0.849% | **NOT HELD** (0.016%) — named alternative obtains: a small real decomposition effect (~0.8%, FD-column-dominated) survives the limiter removal |
@@ -900,3 +900,132 @@ the wrong driver cost ~10 s of container start-up before it was killed; it
 never reached the solver and is not ledgered.
 
 
+
+---
+
+# RESULTS — R7 acquisition session, 2026-08-07 (docket `w4-defect-acquisition-on-a-second-mesh-family`)
+
+## R7 — both ingredients installed on the clean airfoil: the defect does NOT acquire, and something nobody registered arrives instead
+
+Staging asserted in-driver (`run_a1lim_arm.sh`): R1's edit set re-applied
+byte-identically (`grep -c patchVelocity` prints 0; `freestreamVelocity`
+asserted in `0.orig/U`), plus `div(phi,U)` `bounded Gauss linearUpwind
+limited` with `gradSchemes` `limited cellLimited Gauss linear 1` — A4's
+defective token pair. Patched IDWarp stamped in-log; the np=4 log reads
+`Decomposition method scotch [4]` (same 4,032-cell mesh as R1, hence R1's
+measured cut: 131 internal faces, 120 oblique). Every primal leg, including
+all FD legs, converged to the case's own `primalMinResTol` 1e-8.
+
+| A1 + `freestreamVelocity` + limiter | CD/shape analytic | FD (own run) | rel. err | CL/shape rel. err | adjoint KSP |
+|---|---|---|---|---|---|
+| np=1 (`a1lim_np1.log`) | 1.066449e-01 | 6.194868e-02 | **92.8%** | 7.86% | 95/96, reason 2 |
+| np=4 scotch (`a1lim_np4scotch.log`) | 1.066142e-01 | 6.194874e-02 | **92.8%** | 7.87% | 96/97, reason 2 |
+
+- **Clause (i) NOT HELD — the np=1 control is dirty at 92.8%**, so per the
+  registered escape clause R7 is **NOT SCORED against its FD-relative
+  bands**. Clause (ii) is therefore unevaluable as worded.
+- **The acquisition question itself is scored on the decomposition-invariance
+  instrument, exactly as Amendment 6 registered:** analytic np=1-vs-np=4
+  **3.9e-04** vector-relative (max component 0.20%, median 0.04%), FD columns
+  **1e-6** apart, CL analytic 3.8e-05 apart, Krylov counts equal (95/96 vs
+  96/97 — no conditioning excitation; A4's defective configuration reads 719
+  against its clean arms' 41). Whatever is wrong here is wrong IDENTICALLY at
+  both decompositions: **the defect did NOT acquire on the second mesh
+  family.** The docket gate's second branch obtains: the conjunction
+  (limiter x `freestreamVelocity` x scotch cut) is measured **insufficient**
+  off the Ahmed family, and the n=1-family confound on the defect side
+  STANDS. The remaining separating candidates are unchanged and now
+  sharpened: the Ahmed mesh family / cut topology, or the loose
+  `primalMinResTol` 1e-4 — A1 runs 1e-8, and with BOTH ingredients installed
+  at 1e-8 it is decomposition-clean, so the loose-primal co-ingredient
+  hypothesis (R3b's open confound) SURVIVES and gains weight rather than
+  dying as a fired defect would have killed it.
+
+## R7f — the separating arms: the FD is (essentially) step-stable, the one-word control is clean, and the 92.8% is the LIMITER'S SERIAL TAPE
+
+| arm | edit vs `a1lim_np1` | CD/shape analytic | FD (own run) | rel. err |
+|---|---|---|---|---|
+| **R7f1** `a1lim_np1_h3e3` | FD step 1e-3 -> 3e-3 | 1.066449e-01 (unchanged) | 6.216543e-02 | 93.7% |
+| **R7f2** `a1limdef_np1` | `linearUpwind limited` -> `linearUpwind default` (one word) | 6.516374e-02 | 6.522800e-02 | **0.121%** |
+
+- **R7f1 scored NOT HELD, middle band:** the FD vector moves **2.10%**
+  (vector-relative; per-component max 15.1%, concentrated in the one
+  component whose analytic sign flips) — above the 2% clean clause by 0.10
+  points, far under the registered 20%. Stated in substance rather than spun:
+  a 2.1% step-wobble is **44x too small** to account for a 92.8% gap, the FD
+  magnitude is 6.2e-02 at both steps, and the analytic is byte-identical
+  across steps. The FD reference is essentially resolved and the discrepancy
+  lives in the analytic.
+- **R7f2 prediction HELD (0.121%; CL 0.018%; KSP 32).** One word separates
+  0.121% from 92.8% at np=1 — the same `limited` -> `default` lever as R6b,
+  now convicting the limiter branch IN SERIAL on the second mesh family. The
+  V-form/family change and the added `gradSchemes` entry are exonerated
+  (R7f2 carries both and is clean), as is the R1 edit set (0.043% on record).
+
+**The new finding, stated as what it is:** on A1, `cellLimited Gauss linear
+1` feeding `linearUpwind` breaks the **serial** adjoint — CD/shape 92.8%, CL
+7.9%, one CD component sign-flipped, decomposition-invariant to 4e-04. Every
+defect previously traced in this toolchain vanished at np=1; this one does
+not. The limiter's recorded branch is now implicated in two distinct
+excitations: the decomposition cross-term on the Ahmed family (8.95%,
+operator cross-residual 329x ||b||) and a serial contraction error on the
+structured airfoil (92.8%, no decomposition needed). On A4 the same token
+pair reads 0.34% at np=1 — the serial excitation is case-dependent, which is
+exactly what a wrongly-differentiated data-dependent branch would produce
+(different meshes activate different limiter branches at the converged
+state). Mechanism-to-a-line remains open; the search space named for the
+upstream report (the `cellLimited`/`limitedGrad` reverse sweep) is unchanged
+and now has a SERIAL reproducer, which is far cheaper to instrument than a
+parallel one.
+
+**What this does to the trigger claim:** unchanged for the Ahmed-family
+decomposition defect (all of R1–R6 stand), but the campaign's framing "the
+branch defect is a parallel inconsistency" acquires a measured exception: the
+branch can also be wrong serially. And a doctrine-level warning is now
+measured in this lab's own record: **decomposition-invariance certifies
+consistency, not correctness** — `a1lim` passes the invariance gate to 4e-04
+while being 92.8% wrong against a step-stable FD.
+
+## Scored predictions, R7 session
+
+| arm | registered prediction | outcome |
+|---|---|---|
+| R7 np=1 control | clean <= 0.5% | **NOT HELD** (92.8%) — registered escape clause fired: R7 not scored on FD bands |
+| R7 np=4 scotch | acquisition: >= 2% vs own FD, analytic shift >= 2% | **NOT SCORED on FD bands**; on the Amendment-6 invariance instrument: **NO acquisition** (analytic shift 3.9e-04, FD shift 1e-6) — conjunction insufficient off the Ahmed family, n=1 confound stands |
+| R7f1 step-check 3e-3 | FD not step-stable (>= 20%) | **NOT HELD — middle band** (2.10% vector, 15.1% max component); loud alternative obtains in substance: the 92.8% is the analytic, not the FD |
+| R7f2 one-word unlimited control | clean <= 0.5% | **HELD** (0.121%) — the limiter word carries the serial gap |
+| R7c / R7x contingents | authorized only if clause (ii) fired | correctly NOT RUN (no fire); note the crossres band lesson below |
+
+Every score is against the registered wording (commits 0263d950, aa7fcddc),
+committed before the arm ran; none reworded after measurement.
+
+## Erratum applied to this record, per the supervisor sweep (`VERIFICATION_defect_robustness_supervisor_sweep.md`, commit 8bd47b35)
+
+- **719, not 590:** the established scotch np=4 KSP count is 719 in every log
+  that ran it; "590" was a mis-transcription from the simple-2x2x1 arm's log.
+  Corrected at every site in this document (R3a/R3c/R6/R2b tables and prose,
+  finding 2). The erratum is in our favor: the conditioning collapse is
+  719 -> 41 = **17.5x**, larger than previously claimed.
+- **163,548, not 163,600:** the R5b floor ratio restated at full precision
+  (1.047165 / 6.402838e-06; both round to 1.6e5) — display-precision hygiene.
+- **Named protocol gap carried forward:** no crossres2-style state-override
+  control was run for either R5 lever; the linearization-state confound is
+  bounded indirectly (crossres2 precedent: 4th-digit effect on the
+  established 329x; sibling scheme-lever protocol floor 1.35e-02, 77x below
+  the 1.047 signal). The conclusion survives; the ~0.4 core-min control
+  should be bought next time the container is warm.
+- **Banding lesson, applied to this session's own registration:** future
+  cross-residual verdict bands must be registered in units of the
+  configuration's own np=1 floor, not absolute x ||b|| (the R5 <= 5x band
+  was mis-calibrated by ~5 orders). This session's R7x band (">= 50x ||b||")
+  repeated the absolute-units mistake; R7x did not run, so the lesson costs
+  nothing this time.
+
+## Cost ledger (R7 session, `ledger_r7.txt` — kept separate from the audited 21-line `ledger.txt` per the sweep)
+
+Four arms, all rc=0: a1lim_np1 6.40 + a1lim_np4scotch 2.40 + a1lim_np1_h3e3
+3.63 + a1limdef_np1 2.73 = **15.16 core-min** of the 30 hard cap (docket
+estimate 25). The np=1 limited arm costs 2x its unlimited sibling because the
+limited primal takes 434 SIMPLE iterations to reach 1e-8 against ~240. Zero
+further solver cost: the acquisition verdict, the step-stability numbers, and
+all cross-comparisons are offline arithmetic on the four logs.
