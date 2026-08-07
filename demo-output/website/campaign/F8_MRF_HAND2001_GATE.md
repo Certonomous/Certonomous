@@ -472,6 +472,78 @@ the ORIGINAL relaxation; (arm 2) if arm 1 diverges too, original uniform
 init at reduced relaxation. Either arm isolates one variable; both inherit
 the §11 gate and prediction verbatim.
 
+## 14. §10 item 2 executed: the MRF flux/frame audit — three conventions verified correct, one concrete defect named, with source lines (2026-08-07, zero compute)
+
+Read against the OpenFOAM v2606 sources installed on this box
+(`/usr/lib/openfoam/openfoam2606/`).
+
+**(1) Omega sign vs verified handedness — CONSISTENT.** `MRFProperties`:
+omega +7.5398 about axis (1 0 0); §10 established the blade geometry is
+built for +x rotation. No sign defect.
+
+**(2) nonRotatingPatches — COMPLETE AND CORRECT.** `(sides inlet outlet)`
+excluded; `blade` included. `simpleFoam/UEqn.H:3` calls
+`MRF.correctBoundaryVelocity(U)`, and `MRFZone.cxx:508–535` overwrites every
+included-patch face velocity to `Omega ^ (Cf − origin)` each iteration — so
+the blade wall rotates correctly despite `0.orig/U`'s
+`fixedValue uniform (0 0 0)` (that entry is dead text, not a defect).
+
+**(3) cellZone coverage — COMPLETE.** `log.topoSet`: `cellSet allcells`
+230,135 → `cellZoneSet region0` 230,135 = every cell in the mesh.
+
+**(4) The flux question — CONCRETE DEFECT FOUND, and it convicts §11's
+initialisation, not the case.** The convention chain:
+
+- simpleFoam stores the flux RELATIVE on zone faces: `pEqn.H:5`
+  `MRF.makeRelative(phiHbyA)`, `pEqn.H:37` `phi = phiHbyA − pEqn.flux()`,
+  with the Coriolis term added at `UEqn.H:8` (`MRF.DDt(U)`).
+- potentialFoam solves in the relative frame (`potentialFoam.C:165`
+  `MRF.makeRelative(phi)`) but then `potentialFoam.C:187`
+  `MRF.makeAbsolute(phi)` and `:193` `U = fvc::reconstruct(phi)`, writing U
+  (`:201`) and, under `-writephi`, phi (`:206`) — both ABSOLUTE.
+- `makeAbsolute` adds `Omega ^ (C − origin)` over every zone cell and face
+  (`MRFZone.cxx:447–489`). **This zone is the whole domain**, so the §11
+  initial U field contained the frame's full solid-body sweep — |Ω×r| up to
+  ~150 m/s at the domain corners against a 7 m/s physical inflow.
+
+The §11 run was therefore initialised with a domain-wide hurricane and asked
+to unwind it through `inletOutlet` far-field patches: the log agrees —
+iterations 1–2 look healthy (Ux 0.38 → 0.14, continuity 4e-4), then the
+nuTilda bounding cascade builds (692 events) and the forces grow
+exponentially from t≈50. The "F5b cure" was borrowed from a case with no
+rotating frame; **in a whole-domain MRF zone, `potentialFoam -writephi`
+initialisation is actively toxic**, and the divergence needed no second
+variable. (For completeness: the original run's `createPhi` startup flux is
+also absolute, but that inconsistency lasts exactly one pressure solve and
+every MRF tutorial survives it — it is not the disease.)
+
+**Consequence:** the §12 two-arm split collapses to one corrected arm, per
+the supervisor's re-scope authority. Reduced relaxation is no longer
+implicated by any evidence and is dropped.
+
+## 15. Amendment to §11 (dated 2026-08-07, before the arm is launched): the one corrected arm
+
+**Arm A (the only arm):** initialise with potentialFoam run with the MRF
+zone **deactivated** (`active false` during the init step only) — a pure
+absolute-frame potential flow past the stationary blade: divergence-free,
+blade-conforming, impulsive pressure transient removed, **no frame sweep and
+no phi file written**. Then restore `active true` and run simpleFoam at the
+**ORIGINAL relaxation** (p 0.3, U 0.7, nuTilda 0.7). Exactly one variable
+differs from the original limit-cycling run: the initial U/p field.
+
+**Gate, window, cap and prediction inherited from §11 verbatim:** window
+t=1000–1500, UNSETTLED iff drift ≥ 1e-3 AND mono ≥ 0.90, p2p cap 400 N·m,
+prediction turbine-signed mean Mx ∈ [+400, +1200] N·m, milestone = all four
+conditions. Branches, updated per §14: (a) settles motoring-signed or (c)
+oscillates/diverges → with geometry (§10), frame terms (§14) and
+initialisation (this arm) all clean or tested, **the steady branch closes
+the third way** and the transient branch inherits the quantified target
+(settle within 400 N·m of 800); (b) settles turbine-signed with 800 outside
+the band → a real quantified bias to chase. Predicted cost ≈ 13.5 core-min
+(1500 iterations, 2 ranks).
+
+*Nothing below this line existed when arm A was launched.*
+
 ## 13. Cost, final (supersedes §9)
 
 | item | core-min |
@@ -481,4 +553,5 @@ the §11 gate and prediction verbatim.
 | step-2 settle extension (1500 iters, 4 ranks) | 13.6 |
 | step-1 STL-orientation audit (§10) | 0 |
 | §11 initialised re-run (1500 iters, 2 ranks, diverged) | 13.4 |
-| **total across the item and its riders** | **32.8** |
+| §14 MRF flux/frame audit | 0 |
+| **total across the item and its riders** | **32.8** (before arm A) |
