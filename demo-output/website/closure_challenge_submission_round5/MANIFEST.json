@@ -1,0 +1,144 @@
+{
+  "generated_at": "2026-08-07T20:45:02+00:00",
+  "measured_date": "2026-08-07",
+  "purpose": "The eight submittable prediction CSVs for the Closure Challenge, round 5 (the entry of record, overall 0.0566, ACCEPTED under the R5 pre-registration's criterion overall < 0.065438), hashed and verified. The three duct CSVs are untrained-QCR2000 forward solves; the five non-duct CSVs are byte-identical to the round-4 submission and hash-asserted against its manifest, so its gate provenance is their provenance.",
+  "produced_by": "the round-5 scoring agent, 2026-08-07, alongside the one pre-registered scoring call",
+  "reproduces": "demo-output/website/closure_challenge_round5_qcr.json",
+  "scoring_calls_made_by_this_run": 1,
+  "scoring_call_note": "This manifest was written by the same session that made the one pre-registered round-5 scoring call (the lab's 6th cumulative distinct prediction set scored). The benchmark imposes no scoring-call limit; the ledger is a self-imposed discipline, stricter than the rules require, and is not compliance with any benchmark rule.",
+  "independent_pre_score_verification": {
+    "performed_by": "the scoring agent, fresh, not trusting the producing agent",
+    "unchanged_5_csvs_sha256_match_round4_manifest": true,
+    "all_8_csvs_1000x3_finite": true,
+    "points_order_check_rerun_fresh": {
+      "script": "sdk/scripts/closure_round5_points_order_check.py",
+      "ordering_verified": true,
+      "max_abs_row_diff": {
+        "AR_1_Ret_360": 4.915031581731455e-08,
+        "AR_3_Ret_360": 4.7770171818228846e-08,
+        "AR_14_Ret_180": 4.995776237137761e-09
+      }
+    },
+    "preregistration_sha256_section_matches_disk_all_8": true,
+    "verdict": "ALL FOUR CHECKS PASS; the call proceeded"
+  },
+  "format": {
+    "layout": "flat {case}.csv inside a test/ directory",
+    "precedent": "matches accepted submissions wu, montoya and wang at benchmark commit deb91557",
+    "rows": 1000,
+    "cols": 3,
+    "header": null,
+    "delimiter": ",",
+    "numeric_format": "%.10g"
+  },
+  "harness": {
+    "benchmark_repo_commit": "deb91557184af3cb95f5190494ec52d8f2c6a0d1",
+    "eval_package_repo_commit": "1c4e22c8ac6b2e5f978ba6918f4f44b2db66d162",
+    "eval_package_version_string_note": "The package's __init__ reports __version__ = '0.2.1' while pyproject.toml at this commit declares 0.3.1 ('v0.3.1: vector magnitude metric, mean over cases'). Upstream never bumped __version__. Cite the commit hash, not the version string."
+  },
+  "verification_against_prior_rounds": {
+    "unchanged_cases_sha256_match_round4_manifest": true,
+    "unchanged_cases_sha256_match_round5_preregistration": true,
+    "duct_csvs_sha256_match_round5_preregistration": true,
+    "duct_csvs_ordering_verified_by_fresh_rerun_of_points_order_check": true,
+    "benchmark_repo_commit_matches_round4_manifest": true,
+    "eval_package_repo_commit_matches_round4_manifest": true
+  },
+  "recorded_scores": {
+    "overall": 0.0566,
+    "overall_full": 0.056647191704213645,
+    "per_case": {
+      "alpha_15_13929_4048": 0.0501,
+      "alpha_15_13929_2024": 0.1011,
+      "alpha_05_4071_4048": 0.0461,
+      "alpha_05_4071_2024": 0.0719,
+      "AR_1_Ret_360": 0.0455,
+      "AR_3_Ret_360": 0.04,
+      "AR_14_Ret_180": 0.0353,
+      "NASA_2DWMH": 0.0632
+    },
+    "source": "closure_challenge_round5_qcr.json (round-5 run, official call #6, 2026-08-07)"
+  },
+  "files": {
+    "AR_14_Ret_180": {
+      "file": "test/AR_14_Ret_180.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "286610c0488d202c84c389b18befc2d1352fbbbbef7ae125066f9e289fa699ce",
+      "all_finite": true,
+      "prediction_source": "QCR2000 forward solve (kOmegaSSTQCR, Ccr1=0.3 untrained, library commit 303247bb; sdk/scripts/closure_round5_qcr_forward.py; pre-registered in campaign/R5_PREREGISTRATION.md @ e865076b, rule frozen in campaign/R5_RULE_FREEZE.md @ 0bade54a)"
+    },
+    "AR_1_Ret_360": {
+      "file": "test/AR_1_Ret_360.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "bb8d61fbbfd99f5099628cedf7b76a203558daa87e3235006b0c8527ea703e7e",
+      "all_finite": true,
+      "prediction_source": "QCR2000 forward solve (kOmegaSSTQCR, Ccr1=0.3 untrained, library commit 303247bb; sdk/scripts/closure_round5_qcr_forward.py; pre-registered in campaign/R5_PREREGISTRATION.md @ e865076b, rule frozen in campaign/R5_RULE_FREEZE.md @ 0bade54a)"
+    },
+    "AR_3_Ret_360": {
+      "file": "test/AR_3_Ret_360.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "c567ff25577a20a2ac8afa8b434ea2c5ceb647c9307389021641ac89e33b4789",
+      "all_finite": true,
+      "prediction_source": "QCR2000 forward solve (kOmegaSSTQCR, Ccr1=0.3 untrained, library commit 303247bb; sdk/scripts/closure_round5_qcr_forward.py; pre-registered in campaign/R5_PREREGISTRATION.md @ e865076b, rule frozen in campaign/R5_RULE_FREEZE.md @ 0bade54a)"
+    },
+    "NASA_2DWMH": {
+      "file": "test/NASA_2DWMH.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "cf8e023c7b8fcb0572a1189977cbfebbb8f4f76b0d59f305aebca2e3e0fba686",
+      "all_finite": true,
+      "prediction_source": "round-2 trained correction, unchanged (byte-identical to rounds 3 and 4)"
+    },
+    "alpha_05_4071_2024": {
+      "file": "test/alpha_05_4071_2024.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "af9cccda9c322b87e2d89f79829b74152f23c8829f7f32d1d92afcca68033b4e",
+      "all_finite": true,
+      "prediction_source": "raw RANS floor (gate says DECLINE), unchanged (byte-identical to rounds 3 and 4)"
+    },
+    "alpha_05_4071_4048": {
+      "file": "test/alpha_05_4071_4048.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "0c3865984218474ad83c97eb0be37389385dd446fcff499b510bd72839b2db4c",
+      "all_finite": true,
+      "prediction_source": "raw RANS floor (gate says DECLINE), unchanged (byte-identical to rounds 3 and 4)"
+    },
+    "alpha_15_13929_2024": {
+      "file": "test/alpha_15_13929_2024.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "1d49b9e3135a76096046479b56883a680dc0b036b1f2876b0d9ae2c54f7b54b7",
+      "all_finite": true,
+      "prediction_source": "corrected (round-1 PH model, gate says APPLY), unchanged (byte-identical to rounds 3 and 4)"
+    },
+    "alpha_15_13929_4048": {
+      "file": "test/alpha_15_13929_4048.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "e7b28d5357decf691f21b1b685c641ae054f421575e97bbb94f9cf0dafbbf3e9",
+      "all_finite": true,
+      "prediction_source": "corrected (round-1 PH model, gate says APPLY), unchanged (byte-identical to rounds 3 and 4)"
+    }
+  }
+}

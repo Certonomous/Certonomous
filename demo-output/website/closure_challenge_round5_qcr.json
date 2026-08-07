@@ -1,0 +1,200 @@
+{
+  "generated_at": "2026-08-07T20:45:02+00:00",
+  "purpose": "Round 5: DUCT-only change. The untrained QCR2000 constitutive term (kOmegaSSTQCR, Ccr1 = 0.3, nothing fitted to anything) replaces the round-4 ML duct correction on all three test ducts, forward-solved to convergence on the shipped meshes. The five non-duct predictions are byte-identical to round 4. Scored once, under the round-5 pre-registration, by the supervisor's designated scoring agent.",
+  "pre_registration": "demo-output/website/campaign/R5_PREREGISTRATION.md @ e865076b, written after the forward solves and before any scoring call; accept criterion (overall < 0.065438), expectation band (0.059-0.0666) and the AR_14 risk statement all frozen there. Application rule frozen earlier still: R5_RULE_FREEZE.md @ 0bade54a, before the first validation iteration existed. Gate verdict ALL on AR_7_Ret_180 evidence (R5_validation_AR7.json): V1 ratio 0.4770 <= 0.70, V2 r 0.9284 >= 0.85, V3 both arms converged on residualControl.",
+  "item": "w3-qcr-forward-on-the-ducts-is-the-rank-1-route",
+  "model": {
+    "RASModel": "kOmegaSSTQCR",
+    "Ccr1": 0.3,
+    "trained": false,
+    "library_commit": "303247bb",
+    "library_sha256": "b741839596bc8624789652fdc69b476594dc24419edd21faedac004e2c1cc808",
+    "provenance": "Spalart QCR2000, Int. J. Heat Fluid Flow 21(3) 252-263 (2000), published constant adopted untrained; k/omega transport unchanged; run fresh from the shipped 0/ fields on the shipped meshes, schemes and fvSolution untouched; forward record closure_challenge_round5_qcr_forward.json"
+  },
+  "independent_pre_score_verification": {
+    "performed_by": "the scoring agent, fresh, not trusting the producing agent",
+    "unchanged_5_csvs_sha256_match_round4_manifest": true,
+    "all_8_csvs_1000x3_finite": true,
+    "points_order_check_rerun_fresh": {
+      "script": "sdk/scripts/closure_round5_points_order_check.py",
+      "ordering_verified": true,
+      "max_abs_row_diff": {
+        "AR_1_Ret_360": 4.915031581731455e-08,
+        "AR_3_Ret_360": 4.7770171818228846e-08,
+        "AR_14_Ret_180": 4.995776237137761e-09
+      }
+    },
+    "preregistration_sha256_section_matches_disk_all_8": true,
+    "verdict": "ALL FOUR CHECKS PASS; the call proceeded"
+  },
+  "unchanged_cases_sha256": {
+    "alpha_15_13929_4048": "e7b28d5357decf691f21b1b685c641ae054f421575e97bbb94f9cf0dafbbf3e9",
+    "alpha_15_13929_2024": "1d49b9e3135a76096046479b56883a680dc0b036b1f2876b0d9ae2c54f7b54b7",
+    "alpha_05_4071_4048": "0c3865984218474ad83c97eb0be37389385dd446fcff499b510bd72839b2db4c",
+    "alpha_05_4071_2024": "af9cccda9c322b87e2d89f79829b74152f23c8829f7f32d1d92afcca68033b4e",
+    "NASA_2DWMH": "cf8e023c7b8fcb0572a1189977cbfebbb8f4f76b0d59f305aebca2e3e0fba686"
+  },
+  "changed_cases_sha256": {
+    "AR_1_Ret_360": "bb8d61fbbfd99f5099628cedf7b76a203558daa87e3235006b0c8527ea703e7e",
+    "AR_3_Ret_360": "c567ff25577a20a2ac8afa8b434ea2c5ceb647c9307389021641ac89e33b4789",
+    "AR_14_Ret_180": "286610c0488d202c84c389b18befc2d1352fbbbbef7ae125066f9e289fa699ce"
+  },
+  "official_test_harness_result": {
+    "round5_overall": 0.0566,
+    "round5_overall_full": 0.056647191704213645,
+    "round5_per_case": {
+      "alpha_15_13929_4048": 0.0501,
+      "alpha_15_13929_2024": 0.1011,
+      "alpha_05_4071_4048": 0.0461,
+      "alpha_05_4071_2024": 0.0719,
+      "AR_1_Ret_360": 0.0455,
+      "AR_3_Ret_360": 0.04,
+      "AR_14_Ret_180": 0.0353,
+      "NASA_2DWMH": 0.0632
+    },
+    "round5_per_case_full": {
+      "alpha_15_13929_4048": 0.05010529499681675,
+      "alpha_15_13929_2024": 0.10111218200472648,
+      "alpha_05_4071_4048": 0.04610779144551565,
+      "alpha_05_4071_2024": 0.07186293244687289,
+      "AR_1_Ret_360": 0.04547044480564218,
+      "AR_3_Ret_360": 0.039982156323801255,
+      "AR_14_Ret_180": 0.035338619029087186,
+      "NASA_2DWMH": 0.0631981125812468
+    },
+    "round4_overall": 0.0654,
+    "round4_overall_full": 0.06543140783850523,
+    "round4_per_case": {
+      "alpha_15_13929_4048": 0.0501,
+      "alpha_15_13929_2024": 0.1011,
+      "alpha_05_4071_4048": 0.0461,
+      "alpha_05_4071_2024": 0.0719,
+      "AR_1_Ret_360": 0.0811,
+      "AR_3_Ret_360": 0.0775,
+      "AR_14_Ret_180": 0.0325,
+      "NASA_2DWMH": 0.0632
+    },
+    "rans_identity_floor_per_case": {
+      "alpha_15_13929_4048": 0.132,
+      "alpha_15_13929_2024": 0.2049,
+      "alpha_05_4071_4048": 0.0461,
+      "alpha_05_4071_2024": 0.0719,
+      "AR_1_Ret_360": 0.1288,
+      "AR_3_Ret_360": 0.1243,
+      "AR_14_Ret_180": 0.059,
+      "NASA_2DWMH": 0.0621
+    },
+    "delta_vs_round4": -0.0088,
+    "delta_vs_round4_full": -0.008784216134291586,
+    "improves_on_round4": true,
+    "unchanged_5_cases_scored_identically_to_round4": true
+  },
+  "verdict": {
+    "accept_criterion": "overall < 0.065438 (R5_PREREGISTRATION.md section 5)",
+    "measured_overall": 0.056647191704213645,
+    "verdict": "ACCEPT",
+    "consequence": "Round 5 is the entry of record. Round 4 is superseded.",
+    "expectation_band_prestated": "0.059-0.0666",
+    "where_it_landed": "0.0566 - below (better than) the band's best end. The campaign's central arithmetic (matching rank 2's duct scores gives ~0.056288) was nearly exact: measured 0.056647. The band itself was mis-centred pessimistic; recorded, not celebrated."
+  },
+  "the_AR_14_risk_statement_scored": {
+    "risk_as_prestated": "Round 4 scores 0.0325 on AR_14_Ret_180, a 0.00003-level tie with rank 1, and this submission puts that tie at risk. Decided in the freeze, before validation ran: all-or-none, AR_14 follows the rule, the possible loss accepted in writing.",
+    "outcome": "The risk materialised. AR_14_Ret_180 regressed 0.0324698 -> 0.0353386 (+0.0029); the nominal best-on-board tie with Reissmann (published 0.0325) is LOST, and the case falls to 3 of 5 (behind Reissmann 0.0325 and Wu & Zhang 0.0350). Best-on-board count drops 5 of 8 -> 4 of 8.",
+    "not_reverted": "Per the pre-registration's own terms the regression is reported exactly as the round-2 NASA regression was, not quietly reverted: a post-hoc revert of any single duct after seeing its score would be per-case selection on test outcomes. The bundle is judged as a bundle, and the bundle wins: the two Ret_360 ducts improved -0.0356 and -0.0375 against AR_14's +0.0029.",
+    "risk_side_signal_scored": "The pre-stated risk-side signal (AR_10's weakest training ratio, AR_14 extending that trend axis) pointed the right way: AR_14 is the one duct QCR made worse. The pre-stated comfort-side signal (AR_7 at 0.477/0.928) was also right about the family: all three ducts landed within 0.0004 of the rank-2 SST-QCRC entry's published duct scores."
+  },
+  "scoring_calls": {
+    "this_run": 1,
+    "cumulative_distinct_prediction_sets_scored": 6,
+    "history": "floor, round 1, round 2, round 3, round 4, round 5",
+    "made_by": "the supervisor's designated scoring agent, 2026-08-07, per the pre-registration's reservation of the call",
+    "note": "The benchmark imposes NO scoring-call limit and instructs submitters to preview their score. This ledger is a self-imposed discipline, not compliance with a rule."
+  },
+  "leaderboard_comparison_dated_2026_08_07": {
+    "source": "closure-challenge-benchmark README at commit deb91557, scored locally with the eval package at commit 1c4e22c8 (the same harness rounds 1-4 used); all four entrants' published per-case and overall values quoted from that README",
+    "caveat": "Local scoring, not an official leaderboard placement. We are UNSUBMITTED. Ranks are as-of benchmark commit deb91557.",
+    "overall": {
+      "ours_round5": 0.0566,
+      "Reissmann_Fang_Sandberg": 0.0595,
+      "Wu_Zhang": 0.0624,
+      "Liu_Wang_Zhao_Xiao": 0.0737,
+      "Montoya_Oulghelou_Cinnella": 0.0779
+    },
+    "our_rank_overall": "RANK 1 of 5, scored locally at deb91557 - 0.056647 vs Reissmann's published 0.059525, margin 0.002878",
+    "per_case_published_at_deb91557": {
+      "alpha_15_13929_4048": {
+        "ours_r5": 0.0501,
+        "Reissmann": 0.0592,
+        "Wu_Zhang": 0.0813,
+        "Liu_Wang": 0.06,
+        "Montoya": 0.068,
+        "our_case_rank": "1 of 5"
+      },
+      "alpha_15_13929_2024": {
+        "ours_r5": 0.1011,
+        "Reissmann": 0.1339,
+        "Wu_Zhang": 0.1195,
+        "Liu_Wang": 0.1308,
+        "Montoya": 0.1364,
+        "our_case_rank": "1 of 5"
+      },
+      "alpha_05_4071_4048": {
+        "ours_r5": 0.0461,
+        "Reissmann": 0.0606,
+        "Wu_Zhang": 0.0569,
+        "Liu_Wang": 0.0613,
+        "Montoya": 0.0591,
+        "our_case_rank": "1 of 5"
+      },
+      "alpha_05_4071_2024": {
+        "ours_r5": 0.0719,
+        "Reissmann": 0.076,
+        "Wu_Zhang": 0.0848,
+        "Liu_Wang": 0.0769,
+        "Montoya": 0.0882,
+        "our_case_rank": "1 of 5"
+      },
+      "AR_1_Ret_360": {
+        "ours_r5": 0.0455,
+        "Reissmann": 0.0387,
+        "Wu_Zhang": 0.0455,
+        "Liu_Wang": 0.0875,
+        "Montoya": 0.0895,
+        "our_case_rank": "2 of 5 nominally (ours 0.045470 vs Wu & Zhang's published four-decimal 0.0455 - a tie at published precision), behind Reissmann"
+      },
+      "AR_3_Ret_360": {
+        "ours_r5": 0.04,
+        "Reissmann": 0.0341,
+        "Wu_Zhang": 0.0399,
+        "Liu_Wang": 0.0805,
+        "Montoya": 0.0866,
+        "our_case_rank": "3 of 5 nominally (ours 0.039982 vs Wu & Zhang's published 0.0399 - within published-precision noise)"
+      },
+      "AR_14_Ret_180": {
+        "ours_r5": 0.0353,
+        "Reissmann": 0.0325,
+        "Wu_Zhang": 0.035,
+        "Liu_Wang": 0.0548,
+        "Montoya": 0.0487,
+        "our_case_rank": "3 of 5 - the round-4 nominal tie for best is lost, per the pre-registered risk"
+      },
+      "NASA_2DWMH": {
+        "ours_r5": 0.0632,
+        "Reissmann": 0.0412,
+        "Wu_Zhang": 0.0364,
+        "Liu_Wang": 0.0377,
+        "Montoya": 0.0464,
+        "our_case_rank": "5 of 5 - the one case where we are last on the board, unchanged"
+      }
+    },
+    "best_on_board_count": "4 of 8 (both alpha_15 cases, both alpha_05 cases). Was 5 of 8: AR_14's nominal 0.00003 lead is gone.",
+    "qcr_vs_rank2_duct_consistency": "The rank-2 entry (Wu & Zhang) runs SST-QCRC, which carries the same untrained QCR2000 term. Our three QCR duct scores land within 0.0004 of theirs on all three ducts (0.0455 vs 0.0455, 0.0400 vs 0.0399, 0.0353 vs 0.0350) - independent solves, same constitutive term, same answer. The duct signal is the QCR term itself, and the campaign's route arithmetic (match rank 2's ducts, keep our board, take rank 1) is measured, not modelled."
+  },
+  "what_the_result_confirms": "The route's claim was structural: an untrained in-PDE term has no training range, so round 4's Re_y-extrapolation failure mechanism cannot recur. Measured: the two Ret_360 ducts - exactly where round 4's extrapolation cost lived - improved by -0.0356 and -0.0375, while AR_14 (inside the old trained range, where round 4 was already nearly optimal) gave back +0.0029. Improvement concentrated where the mechanism said it would, on a term with nothing fitted to anything.",
+  "cost": {
+    "solver_core_min_total_measured": 37.0,
+    "budget_core_min": 95,
+    "detail": "AR_7 SST 5.4 + AR_7 QCR 5.1 (validation pair) + AR_1 0.2 + AR_3 1.4 + AR_14 24.8; per-arm ledger in R5_PREREGISTRATION.md section 7 and the run tree /home/ubuntu/certonomous-runs/w3-qcr-rank1/. Scoring itself: seconds, 2-core cap, no solver call."
+  },
+  "submission_package_note": "Katie's send-package (CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md) now carries the stronger entry: round 5, overall 0.0566, locally rank 1 at deb91557. Items 6-7 (author names, Katie's proofread and approval) remain the only things between the package and the steward."
+}

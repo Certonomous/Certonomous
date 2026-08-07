@@ -1060,3 +1060,43 @@ stale between 2026-07-30 and 2026-08-02 because the lab improved the pages they 
 and both were ours. **Any further edit to `closure.html` can restale a citation in
 here, and nothing checks that automatically.** Re-run this audit at the moment Katie
 approves, not before — the value of the check is in being the last thing done.
+
+---
+
+## 10. ADDENDUM 2026-08-07 — this package now carries the round-5 entry: 0.0566, locally rank 1
+
+Everything above describes the round-3/round-4 entries. On 2026-08-07 the
+pre-registered round-5 scoring call (the lab's 6th cumulative) was made and
+**accepted: the entry of record is now round 5, overall 0.0566** —
+**rank 1 of 5 scored locally at benchmark commit `deb91557`** (0.056647 vs
+Reissmann's published 0.059525). Local scoring, not an official placement;
+if the steward's own scoring differs from ours, the steward's number is the
+number (§5's rule, unchanged).
+
+What changed in the package's payload:
+
+- **The 8 CSVs to send are now
+  `demo-output/website/closure_challenge_submission_round5/test/`** (hashes
+  in that directory's `MANIFEST.json`). The five non-duct CSVs are
+  byte-identical to the round-3/4 submissions, so every disclosure above
+  about the PH gate and the NASA prediction stands as written.
+- **The three duct predictions are no longer an ML correction at all.** They
+  are converged forward solves of the untrained QCR2000 constitutive term
+  (`kOmegaSSTQCR`, `Ccr1 = 0.3`, Spalart 2000's published constant, nothing
+  fitted to anything), applied all-or-none under a rule frozen at
+  `0bade54a` before any solve and passed on the benchmark's own suggested
+  validation duct. §5.3's leakage-disclosure story gets *simpler* for the
+  ducts: there is no trained duct model left in the entry to disclose.
+- **One disclosure must be updated, not softened**: `AR_14_Ret_180`
+  regressed 0.0325 → 0.0353 and its 0.00003 nominal best-on-board tie is
+  lost — the pre-registration accepted that risk in writing before the
+  score existed, and the regression is reported, not reverted. Best-on-board
+  is now **4 of 8**, not 5 of 8; §5.3 and the cover email's item 2 must say
+  4 and cite §0f of `CLOSURE_CHALLENGE_STATUS.md`.
+- Full round-5 record: `closure_challenge_round5_qcr.json`;
+  pre-registration `campaign/R5_PREREGISTRATION.md` (@ `e865076b`).
+
+**Items 6 and 7 of §5.6 remain OUTSTANDING and remain Katie's.** Nothing
+moves without them. Per §9.4, re-run the quotation audit at the moment of
+approval — this addendum itself restales any quoted position claims above
+(0.0654, "5 of 8", rank 3), all of which are now historical.

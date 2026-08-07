@@ -1,10 +1,15 @@
-# Closure Challenge — status as of 2026-08-04 (round 4 is the entry of record)
+# Closure Challenge — status as of 2026-08-07 (round 5 is the entry of record)
 
 Read-only status report except for the new §0 and §0b below. All figures are
 quoted from already-recorded, re-derivable artifacts; sources are cited per
 section. **Updated 2026-08-04**: §0e added (round 4, 2026-07-31, overall
 **0.0654**, the entry of record); §2, §3 and §5 carry dated superseded notes
 rather than rewritten round-3 numbers, per this file's own convention.
+**Updated 2026-08-07**: §0f added (round 5, 2026-08-07, overall **0.0566**,
+the entry of record, **rank 1 of 5 scored locally at benchmark commit
+`deb91557`** — a local scoring, not an official placement; we remain
+unsubmitted). §0e and the round-4 columns below stand unchanged as the
+superseded record.
 
 Sources: `/home/ubuntu/closure-challenge-benchmark/README.md` (benchmark
 rules + public leaderboard); `demo-output/website/closure_challenge_rans_floor.json`;
@@ -340,7 +345,7 @@ fitting at all, feature extraction on 8 cases only.
 
 ---
 
-## 0e. Round 4 (2026-07-31) — a duct-only change; the entry of record is now 0.0654
+## 0e. Round 4 (2026-07-31) — a duct-only change; the entry of record is now 0.0654 *(superseded as entry of record by round 5, §0f, 2026-08-07)*
 
 **Result: overall 0.0676 → 0.0654** (Δ −0.0022; full-precision
 0.06543140783850523). Round 3 (§0) is superseded as the entry of record; its
@@ -437,6 +442,134 @@ entry `demo-output/website/ACTIVE_RESEARCH.md`, Ladder C (commit
 
 ---
 
+## 0f. Round 5 (2026-08-07) — the untrained QCR term takes the ducts; the entry of record is now 0.0566, rank 1 scored locally
+
+**One sentence**: replacing the round-4 ML duct correction with a converged
+forward solve of the untrained QCR2000 constitutive term (`kOmegaSSTQCR`,
+`Ccr1 = 0.3`, nothing fitted to anything) on the three test ducts — all
+other five CSVs byte-identical to round 4 — moved the overall **0.0654 →
+0.0566** (−0.0088), which is **below Reissmann's published 0.059525**:
+**rank 1 of 5, scored locally at benchmark commit `deb91557`**, dated
+2026-08-07, not an official leaderboard placement; we remain unsubmitted.
+
+**The pre-registration was honoured to the letter.** Accept criterion,
+expectation band and the AR_14 risk statement were all frozen in
+`campaign/R5_PREREGISTRATION.md` (commit `e865076b`) before the call; the
+all-or-none application rule was frozen earlier still
+(`campaign/R5_RULE_FREEZE.md`, commit `0bade54a`, before the first
+validation iteration existed) and passed ALL on the validation duct
+(`campaign/R5_validation_AR7.json`: ratio 0.4770 ≤ 0.70, r 0.9284 ≥ 0.85,
+both arms converged on `residualControl`).
+
+**Independent pre-score verification** (run fresh by the scoring agent, not
+trusted from the producing session): (a) the 5 unchanged CSVs SHA-256-match
+the round-4 manifest; (b) all 8 CSVs are 1000×3 finite; (c)
+`closure_round5_points_order_check.py` re-run fresh — ordering verified, max
+row-wise deviation 4.9e-8; (d) the pre-registration's §3 hash table matches
+the bytes on disk for all 8 files. All four checks passed before the call.
+
+**The one call** (the 6th cumulative — see ledger below) through the
+benchmark's own unmodified scorer (eval package commit `1c4e22c8`, the
+identical local-scoring path rounds 1–4 used):
+
+| Case | Floor | Round 4 | **Round 5** | Δ | Board rank (at `deb91557`) |
+|---|---|---|---|---|---|
+| alpha_15_13929_4048 | 0.1320 | 0.0501 | **0.0501** (unchanged) | 0 | **1 of 5** |
+| alpha_15_13929_2024 | 0.2049 | 0.1011 | **0.1011** (unchanged) | 0 | **1 of 5** |
+| alpha_05_4071_4048 | 0.0461 | 0.0461 | **0.0461** (unchanged) | 0 | **1 of 5** |
+| alpha_05_4071_2024 | 0.0719 | 0.0719 | **0.0719** (unchanged) | 0 | **1 of 5** |
+| AR_1_Ret_360 | 0.1288 | 0.0811 | **0.0455** | **−0.0356** | 2 of 5 nominally (0.045470 vs Wu & Zhang's published 0.0455 — a tie at published precision) |
+| AR_3_Ret_360 | 0.1243 | 0.0775 | **0.0400** | **−0.0375** | 3 of 5 nominally (0.039982 vs Wu & Zhang's published 0.0399) |
+| AR_14_Ret_180 | 0.0590 | 0.0325 | **0.0353** | **+0.0029** | 3 of 5 — **the nominal best-on-board tie is lost** (see below) |
+| NASA_2DWMH | 0.0621 | 0.0632 | **0.0632** (unchanged) | 0 | 5 of 5 (unchanged, still our only last-place case) |
+| **OVERALL** | 0.1036 | 0.0654 | **0.0566** (0.056647) | **−0.0088** | **1 of 5, scored locally** |
+
+The five unchanged cases scored **identically** to round 4, as their
+byte-identity requires; the entire delta is the duct family.
+
+**Verdict, mechanically, per the pre-registered criterion**: 0.056647 <
+0.065438 → **ACCEPT. Round 5 is the entry of record**; round 4 is
+superseded. The result landed *below* the pre-stated expectation band
+(0.059–0.0666) — the campaign's central arithmetic ("matching rank 2's duct
+scores gives ≈ 0.056288") was nearly exact at 0.056647, and the band itself
+was mis-centred pessimistic. Recorded, not celebrated.
+
+**The AR_14 risk statement, scored against its outcome**: the
+pre-registration said, before the call, that round 4's 0.00003-level
+best-on-board tie on `AR_14_Ret_180` was put at risk and the possible loss
+accepted in writing. **The risk materialised**: AR_14 regressed 0.0324698 →
+0.0353386 (+0.0029), the tie with Reissmann (published 0.0325) is lost, and
+the case falls to 3 of 5 (behind Reissmann and Wu & Zhang's 0.0350).
+Best-on-board count drops **5 of 8 → 4 of 8**. Per the pre-registration's
+own terms the regression is reported exactly as the round-2 NASA regression
+was — **not reverted**: a post-hoc revert of any single duct after seeing
+its score would be per-case selection on test outcomes. The bundle was
+judged as a bundle, and the bundle wins by 12× (−0.0731 combined on the two
+Ret_360 ducts against +0.0029 on AR_14). The pre-stated risk-side signal
+(AR_10's weakest training ratio, AR_14 extending that trend axis) pointed
+the right way: AR_14 is the one duct QCR made worse.
+
+**Standings** (every number quoted from the benchmark README at commit
+`deb91557`; ours scored locally through the unmodified eval package at
+`1c4e22c8`):
+
+| Rank | Entry | Overall | alpha_15 _4048 | alpha_15 _2024 | alpha_05 _4048 | alpha_05 _2024 | AR_1 | AR_3 | AR_14 | NASA |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **1** | **ours, round 5 (UNSUBMITTED, scored locally)** | **0.0566** | **0.0501** | **0.1011** | **0.0461** | **0.0719** | 0.0455 | 0.0400 | 0.0353 | 0.0632 |
+| 2 | Reissmann, Fang, and Sandberg | 0.0595 | 0.0592 | 0.1339 | 0.0606 | 0.0760 | 0.0387 | 0.0341 | 0.0325 | 0.0412 |
+| 3 | Wu and Zhang | 0.0624 | 0.0813 | 0.1195 | 0.0569 | 0.0848 | 0.0455 | 0.0399 | 0.0350 | 0.0364 |
+| 4 | Liu, Wang, Zhao, and Xiao | 0.0737 | 0.0600 | 0.1308 | 0.0613 | 0.0769 | 0.0875 | 0.0805 | 0.0548 | 0.0377 |
+| 5 | Montoya, Oulghelou, and Cinnella | 0.0779 | 0.0680 | 0.1364 | 0.0591 | 0.0882 | 0.0895 | 0.0866 | 0.0487 | 0.0464 |
+
+**RANK 1, stated plainly and with its caveat in the same breath**: as of
+benchmark commit `deb91557`, scored locally on 2026-08-07 through the
+benchmark's own unmodified scorer, our round-5 entry's 0.056647 is the best
+overall number on the board, 0.002878 below Reissmann's published 0.059525.
+This is a **local scoring, not an official leaderboard placement** — nothing
+has been submitted, and if the steward's own scoring differs from ours, the
+steward's number is the number.
+
+**A measured consistency check, not designed for**: the rank-3 entry (Wu &
+Zhang) runs SST-QCRC, which carries the same untrained QCR2000 term. Our
+three QCR duct scores land within 0.0004 of theirs on all three ducts
+(0.0455/0.0455, 0.0400/0.0399, 0.0353/0.0350) — independent solves, same
+constitutive term, same answer. The duct signal is the QCR term itself.
+
+**What the result confirms**: the route's claim was structural — an
+untrained in-PDE term has no training range, so round 4's demonstrated
+`Re_y`-extrapolation failure cannot recur by the same mechanism.
+Improvement concentrated exactly where that mechanism said it would: the two
+Ret_360 ducts (−0.0356, −0.0375), with a small loss where round 4 was
+already nearly optimal (+0.0029 on AR_14). Also closed here: audit finding
+G2 for the duct family — the submitted duct fields now come from a converged
+SIMPLE solve (rms ∇·U cut 27–63× against the fields they replace;
+pre-registration §6).
+
+**Scoring-call ledger**: this was **1** new official scoring call — the
+**6th** cumulative distinct prediction set scored (floor, rounds 1–5). The
+ledger is a self-imposed discipline: the benchmark imposes **no**
+scoring-call limit and instructs submitters to preview their score. The call
+was made by the supervisor's designated scoring agent, as the
+pre-registration reserved.
+
+**Compute**: solver total 37.0 core-min measured against the item's 95
+core-min budget (per-arm ledger, pre-registration §7); the scoring itself
+ran seconds at a 2-core cap with no solver call.
+
+**Provenance**: entry of record
+`demo-output/website/closure_challenge_round5_qcr.json`; submission CSVs +
+manifest `demo-output/website/closure_challenge_submission_round5/`
+(8 files, all hashes recorded and cross-asserted); pre-registration
+`campaign/R5_PREREGISTRATION.md` (@ `e865076b`); rule freeze
+`campaign/R5_RULE_FREEZE.md` (@ `0bade54a`); validation record
+`campaign/R5_validation_AR7.json`; forward-solve machine record
+`closure_challenge_round5_qcr_forward.json`; solver scripts
+`sdk/scripts/closure_round5_qcr_forward.py`,
+`sdk/scripts/closure_round5_points_order_check.py`; run tree
+`/home/ubuntu/certonomous-runs/w3-qcr-rank1/`.
+
+---
+
 ## 1. The metric, precisely
 
 - **Per-case score**: scaled MAE = `mean(||U_pred − U_true||)` over the
@@ -449,6 +582,14 @@ entry `demo-output/website/ACTIVE_RESEARCH.md`, Ladder C (commit
   reimplements the metric.
 
 ## 2. All 8 test cases — floor, our score, rank-2, and best on the board
+
+> **Superseded 2026-08-07, see §0f.** The entry of record is now **round 5:
+> overall 0.0566**, and the three duct rows and both "lead the board"
+> columns below have moved (AR_1 0.0811 → 0.0455, AR_3 0.0775 → 0.0400,
+> AR_14 0.0325 → 0.0353 with its nominal best-on-board tie lost;
+> best-on-board 5 of 8 → 4 of 8). §0f carries the full per-case and
+> standings tables at benchmark commit `deb91557`. The table below stands
+> unchanged as the round-3/round-4 record.
 
 *(Round-4 column added 2026-08-04; the round-3 column stands unchanged as
 the superseded record. The five non-duct rows are byte-identical between the
@@ -471,18 +612,28 @@ withholds the correction and reports raw RANS, which itself beats every
 published entry there), and `AR_14_Ret_180` — the last of these now by a
 0.00003 margin that must not be reported as a comfortable win (§0e).
 
-Full public leaderboard (`closure-challenge-benchmark/README.md`):
+Full public leaderboard (`closure-challenge-benchmark/README.md`; round-5
+row added 2026-08-07 per §0f — ours is a local scoring, not an official
+placement):
 
 | Rank | Authors | Overall |
 |---|---|---|
+| — | **ours (unsubmitted, round 5, entry of record — locally rank 1, §0f)** | **0.0566** |
 | 1 | Reissmann, Fang, and Sandberg | 0.0595 |
 | 2 | Wu and Zhang | 0.0624 |
-| — | **ours (unsubmitted, round 4, entry of record)** | **0.0654** |
+| — | ours (unsubmitted, round 4, superseded 2026-08-07) | 0.0654 |
 | — | ours (unsubmitted, round 3, superseded) | 0.0676 |
 | 3 | Liu, Wang, Zhao, and Xiao | 0.0737 |
 | 4 | Montoya, Oulghelou, and Cinnella | 0.0779 |
 
 ## 3. Our overall number and position
+
+> **Superseded again 2026-08-07, see §0f.** The entry of record is now
+> **round 5: overall 0.0566** (`closure_challenge_round5_qcr.json`),
+> **rank 1 of 5 scored locally at benchmark commit `deb91557`** — 0.002878
+> below Reissmann's published 0.059525. Still unsubmitted; local scoring,
+> not an official placement. The notes below stand as the superseded
+> round-3/round-4 record.
 
 > **Superseded 2026-07-31 (recorded 2026-08-04), see §0e.** The entry of
 > record is now **round 4: overall 0.0654**
@@ -787,9 +938,20 @@ Part 1 column (b) and finding G3. Companion stability/physicality evidence:
   4 ranks, GATE REACHED, reattachment over-predicted by +63% to +66%). Record:
   `demo-output/website/dafoam/f6b_periodic_hills/F6b_periodic_hills.md`.
 
-## The closure metric moved: 0.0741 → 0.0676 → 0.0654
+## The closure metric moved: 0.0741 → 0.0676 → 0.0654 → 0.0566
 
-**Round 4 (§0e, the entry of record) took the duct family**: Variant D
+**Round 5 (§0f, the entry of record) took the ducts again, this time with
+physics instead of a fit**: the untrained QCR2000 constitutive term, forward
+solved to convergence on the three test ducts under a rule frozen before any
+solve, moved the metric **−0.0088, from 0.0654 to 0.0566** — below
+Reissmann's published 0.059525, **rank 1 of 5 scored locally at benchmark
+commit `deb91557`** (local scoring, not an official placement; still
+unsubmitted). Cost: AR_14's nominal 0.00003 best-on-board tie, put at risk
+in writing before the call and lost as the pre-registration said it might
+be (+0.0029 there against −0.0731 on the two Ret_360 ducts). The 6th
+cumulative scoring call.
+
+**Round 4 (§0e, superseded 2026-08-07) took the duct family**: Variant D
 (Reynolds-invariant `d/d_max` feature, velocity-scale-normalised target,
 pre-registered on `AR_7_Ret_180`) moved the metric **−0.0022, from 0.0676 to
 0.0654**, cutting the gap to rank 2 from 0.0052 to 0.0030. The improvement

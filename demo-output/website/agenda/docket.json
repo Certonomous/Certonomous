@@ -3625,7 +3625,7 @@
     "The method-priority review of 2026-08-05, which found every located data-driven RANS correction re-enters the equations"
    ],
    "in_sample_verdict": "The falsifier work this rests on is clean: four training ducts, no test duct opened, nothing fitted, no scoring call. THIS item does open test cases, and the hazard is named rather than waved through. The model itself has zero leakage surface, because Ccr1 = 0.3 is Spalart's published constant adopted untrained and no object here is fitted to anything. The live hazard is elsewhere and it is selection: we already know we score 0.0811, 0.0775 and 0.0325 on the three test ducts, so any protocol that lets those numbers choose between the QCR field and the existing ML field is test-truth-informed model selection, the same defect C2 named and refused, one level up. The all-or-none rule exists solely to remove that degree of freedom, the validation case AR_7_Ret_180 is the benchmark's own suggested duct validation case and is not a test case, and Ccr1 is never to be tuned, because the moment it is fitted the route loses the no-training-range property that is its entire advantage and acquires a leakage surface it does not currently have.",
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-08-05T17:35:00Z",
    "decided_at": "2026-08-05T17:39:39+00:00",
    "decision_note": "Approved under Katie's blanket approval + rank-1 directive ('continue until #1'), 2026-08-05",
@@ -3633,7 +3633,9 @@
     "claimed_by": "research-agent w3-qcr-rank1-route (closure session)",
     "claimed_at": "2026-08-05T17:39:39+00:00",
     "note": "Claimed under Katie's blanket approval 2026-08-05. Executes Route A1 per CLOSURE_RANK1_CAMPAIGN.md: validation-duct-first, all-or-none rule frozen before any solve, converged-only, HARD STOP before scoring (round-5 scoring call reserved for the supervisor)."
-   }
+   },
+   "closed_at": "2026-08-07T20:45:02+00:00",
+   "outcome": "Closed per its own gate: the round-5 per-case table exists from ONE scoring call with the frozen rule honoured. The rule (R5_RULE_FREEZE.md @ 0bade54a, frozen before the first validation iteration existed) passed ALL on AR_7_Ret_180 (ratio 0.4770 <= 0.70, r 0.9284 >= 0.85, both arms converged on residualControl), QCR shipped on all three test ducts, and the supervisor's designated scoring agent made the one pre-registered call on 2026-08-07 - the lab's 6th cumulative. Result: overall 0.0654 -> 0.056647 (-0.0088), ACCEPT under the pre-registered criterion (< 0.065438), and the item's title claim is measured true: RANK 1 of 5 scored locally at benchmark commit deb91557 (0.056647 vs Reissmann's published 0.059525, margin 0.002878) - a local scoring, not an official placement; still unsubmitted. Per-case: AR_1_Ret_360 0.0811 -> 0.0455, AR_3_Ret_360 0.0775 -> 0.0400, AR_14_Ret_180 0.0325 -> 0.0353 - the pre-accepted risk materialised, the 0.00003 nominal best-on-board tie is lost and not reverted (per-case revert after seeing the score is the selection the rule forbids); best-on-board 5 of 8 -> 4 of 8. The proposal's own arithmetic (match rank 2's ducts -> 0.056288) was nearly exact, and the three QCR duct scores land within 0.0004 of the SST-QCRC entry's published duct scores. Measured cost: 37.0 solver core-min against the 95 budgeted (AR_7 SST 5.4 + AR_7 QCR 5.1 + AR_1 0.2 + AR_3 1.4 + AR_14 24.8; ledger in R5_PREREGISTRATION.md section 7). Records: closure_challenge_round5_qcr.json, closure_challenge_submission_round5/ (8 CSVs + MANIFEST), CLOSURE_CHALLENGE_STATUS.md section 0f, campaign/R5_PREREGISTRATION.md @ e865076b, R5_validation_AR7.json."
   },
   {
    "id": "r7-locate-the-strouhal-onset",
