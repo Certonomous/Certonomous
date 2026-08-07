@@ -458,3 +458,80 @@ at printed precision to the patchV-registered arm's 2.4062e-01. So:
 For the instrumented-rebuild proposal this narrows the first place to look to
 the reverse-mode treatment of the freestream-family (flux-switching mixed) BC
 update inside the global tape, in combination with processor-patch updates.
+
+## Addendum 2026-08-07 (robustness campaign; still NOT FILED): the trigger is a recorded BRANCH — the slope limiter gates the defect, and one previously "clean" configuration is wrong at operator level
+
+**Status unchanged: NOT FILED ANYWHERE.** Evidence:
+`DEFECT_ROBUSTNESS_mesh_and_setup.md` (pre-registration commits 25f52868,
+671f40bb, c22b0f00, b0aa6102, 4ea782e3 — every prediction committed before its
+arm ran), run artifacts `/home/ubuntu/certonomous-runs/W4-defect-robustness/`.
+**If this report is filed, two claims made earlier in this document must be
+revised; both revisions are stated here rather than silently edited above.**
+
+1. **The gating ingredient is the slope limiter in the U-convection scheme —
+   a one-word reproduction lever a maintainer will want.** On the same
+   2,777-cell mesh and the same default-scotch np=4 partition that reads
+   8.95%: `div(phi,U)` `bounded Gauss linearUpwind limited` -> `linearUpwind
+   default` (the ONLY edit; `limited` names the case's `cellLimited Gauss
+   linear 1` gradScheme, `default` its unlimited `Gauss linear`) gives
+   CD/shape 0.849% vs its own FD, adjoint KSP 590 -> 41 iterations, and — the
+   operator-level conviction — the cross-residual of the mapped scotch psi
+   under the serial operator collapses from **329x ||b|| to 0.0135x ||b||**
+   (np=1 floor of that configuration 2.0e-06; instrument and sign convention
+   exactly as in the reproduction protocol above). Removing the limiter but
+   keeping the second-order gradient-correction term is what isolates the
+   min/max stencil selection as the carrier; `bounded Gauss upwind` (0.041%)
+   and `bounded Gauss linear` (0.157%) corroborate, and the case's
+   `gradSchemes default` limited instead (`cellLimited Gauss linear 1`,
+   convection untouched) MODULATES the error (8.95% -> 2.63%) without curing
+   it. With the limiter present the defect also survives mesh changes: a
+   conformal remesh of the same geometry (2,336 cells, `cellLevel` uniformly
+   0 — no hanging nodes anywhere) still reads 2.82%, and one uniform
+   background-refinement level up (19,619 cells) the scotch adjoint does not
+   converge at all (GMRES stagnates at 1.7e-02, reason -3, at the 1000-iter
+   cap) while the SAME refined mesh with the limiter removed converges in 149
+   iterations to 0.777%. The trigger condition now reads: **a
+   branch-carrying recorded computation (the slope limiter's min/max stencil
+   selection; the freestreamVelocity flux-sign switch) x a decomposition cut
+   that excites its reverse sweep** — consistent with the localization above
+   (interface-cell momentum rows) and with the tape-recorded branch being the
+   thing whose reverse is parallel-inconsistent.
+2. **Correction to the N9 claim above ("with `inletOutlet` in its place ...
+   the same tape machinery produce a clean operator"): the inletOutlet
+   configuration's operator is NOT clean — only its gradient is.** The same
+   cross-residual instrument, run this session on the inletOutlet-farfield
+   configuration (limiter retained): the mapped np=4-scotch psi leaves a true
+   residual of **1.047x ||b||** under that configuration's own serial
+   operator — 163,600x its np=1 floor (6.4e-06) — while its `check_totals`
+   reads 0.019%. For calibration, this report convicts the Ahmed-35 case on a
+   5.45x ratio. The BC swap therefore does not fix the parallel operator; it
+   shrinks THIS objective's contraction with the error (the mechanism the
+   lab's L-36 documents). Any filed version must not describe
+   inletOutlet-family configurations as unaffected: **they are affected and
+   silent.** (The 2.4062e-01 analytic of the N9 arm was independently
+   reproduced this session to all sixteen printed digits from a separately
+   staged case, `io_d_np4scotch`.)
+3. **Correction to the breadth wording above, third iteration:** the
+   "necessary ingredient" framing for `freestreamVelocity` survives (it is
+   still measured necessary on A4 by N9), but sufficiency now has a direct
+   counterexample: `freestreamVelocity` transplanted onto a clean structured
+   NACA0012 (4,032 cells, conformal, jagged np=4 scotch cut — 120 of 131 cut
+   faces oblique) with its UNLIMITED convection scheme left in place produces
+   an analytic invariant to 1.6e-07 across np=1/np=4-scotch. The seven-case
+   survey's BC correlate is thereby explained: every clean case lacks the
+   limiter (verified from each `fvSchemes` on disk), both defective cases
+   carry it, and the defect side of the survey remains one mesh family. The
+   experiment that would give the report a second independent mesh family —
+   the same clean airfoil with BOTH the freestream BC and a `cellLimited`
+   convection scheme installed — is named and not yet run; a tutorial-based
+   reproducer (submission-readiness table above) should simply include a
+   `cellLimited`/`limited` convection scheme from the start, since that is
+   the shipped-default scheme family of DAFoam's own Ahmed and bluff-body
+   tutorials.
+
+The submission-readiness table above gains one row implicitly: "mechanism to a
+line" is still NOT DONE, but the instrumented-rebuild search space is now a
+single code object — the reverse sweep of the limiter evaluation
+(`cellLimited`/`limitedGrad` family) at processor boundaries — plus the
+already-named freestream BC update, and the one-word lever gives any
+maintainer a 30-second on/off reproduction.
