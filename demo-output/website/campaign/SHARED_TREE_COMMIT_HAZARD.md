@@ -93,3 +93,27 @@ intent cannot catch a mechanism that reads different state, and the only
 defence is to verify the result rather than the intention — which is the same
 lesson the lab already learned about mesh gates and settle criteria, arriving
 from an unexpected direction.
+
+## Second instance, 2026-08-07 — and a reset can displace a neighbour's commit
+
+The docket filing commit `d52446e7` names fifteen files in its message and
+contains seventeen. The two extras,
+`demo-output/website/CLOSURE_FAMILY_SUPERVISION_GUIDELINES.md` and
+`demo-output/website/CLOSURE_FAMILY_SUPERVISION_REVIEW_2026-08-07.md`, are the
+closure-family supervisor's work, staged while that agent was reworking its own
+commit; the index-vs-argument-list gap this file documents swept them in. Their
+own sentence is the reset-away commit `f5e27f28` in the reflog ("The family
+gets its first supervisor's pass: nine findings recorded before a single
+fix..."). The files themselves are correct and in the tree; only the message
+over them is somebody else's.
+
+The repair attempt then found the second edge of the same hazard: a
+`git reset --soft HEAD~1` issued to rework `d52446e7` landed after ANOTHER
+agent had already committed on top, so the reset displaced the neighbour's
+commit `770436f9` instead of the intended one. No content was lost — the
+displaced tree matched the worktree exactly, and all eight of its files
+returned to history under `cfd9214e` and `6cd6b5bb` — but the displacement is
+why `770436f9` appears only in the reflog. Rule from both edges: on this tree,
+after any commit, run `git show --name-only HEAD` and compare against the
+paths you named; and never `git reset HEAD~1` on a shared branch without first
+re-reading `git log -1` to prove HEAD is still the commit you think it is.
