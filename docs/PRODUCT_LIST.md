@@ -452,6 +452,21 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   27pp compiled companion, every headline claim survived an independent adversarial sweep. Both upstream reports await
   only Katie's filing decision.
 
+### 2026-08-07 (night) — Katie's restructuring directive executed
+- SUBMISSIONS PARKED at Katie's word: nothing external gets sent; both LaTeX reports stay current via their designated
+  agents (round-5/rank-1 update and the complete defect-class update both in flight, Opus writers).
+- SUPERVISOR NEGATIVE-VERDICT REVIEW (personal, binding): `demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md`
+  — all 10 standing negative verdicts reviewed, 11 new diagnostics proposed and being filed (5 pre-approved: F5c inlet
+  audit, F8 BEM cross-check, S10 replay, QCR-on-hills, A3 sub-LU arm — the A3 one closes a real gap: the unblock tool
+  was never carried to the family it was invented near).
+- NEW CHALLENGE SLATE (Katie's 2D+3D tables) adopted as the standing hard-case program; scoping agent producing
+  `campaign/CHALLENGE_SLATE_2026-08.md` (status map, capability gaps with unlock rungs — FSI / compressible multiphase /
+  free surface / rotating — reference-data verification, gain-table ranking, top-3 filed).
+- SUPERVISION STRUCTURE STOOD UP: three Fable family supervisors launched (DAFoam/adjoint; Closure+UQ; Cases/campaigns)
+  — each doing its first pass now: family-state blind-spot review, written supervision guidelines, and a personal
+  line-by-line code check of its two highest-risk artifacts. SUPERVISION_CHARTER.md being written; chief retains
+  scoring authorization, cross-family arbitration, negative-verdict reviews, list custody.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
