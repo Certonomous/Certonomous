@@ -1,6 +1,6 @@
 # Open proposals across the charters
 
-Version 2.3, dated 2026-08-05. Every point in the eight charters where the lab
+Version 2.4, dated 2026-08-07. Every point in the nine charters where the lab
 is **proposing** rather than **recording**, collected so the owner can react to
 the whole set without reading the whole set.
 
@@ -8,6 +8,24 @@ Everything listed here needs her decision. Everything not listed here traces to
 a recorded instruction, an existing standards document, or a lesson. That
 distinction is the reason this file exists: the lab must never present its own
 invention as her policy.
+
+**What changed in 2.4: four of her rulings folded in, and none of them is
+answerable here because none of them is open.** Her 2026-08-07 instructions
+landed in the charters as records, not proposals: a ninth charter,
+`SUPERVISION_CHARTER.md` v1.0, carries the family-supervisor structure, the
+four personal checks and the model designation rule; the verification charter
+(v1.4, section 16) carries the negative-verdict review, whose inaugural
+instance and its eleven filed diagnostics were on the record before the
+clause was; the case-selection charter (v1.3, section 10) records the
+adoption of her challenge slate as the standing hard-case program, with new
+capabilities entering by pre-registered rungs; and the goals charter (v1.4,
+section 8) records that submission actions are parked at her discretion while
+challenge and measurement work continues at full priority. The count of open
+items in this file did not move in either direction: nothing was closed by
+these rulings and nothing new is asked. Where an existing entry touches a
+ruling, the ruling wins — in particular, any option anywhere in this file
+whose effect would be an external send is read under the goals charter's
+section 8 parking until she says otherwise.
 
 **What changed in 2.3, and the distinction 2.2 introduced still holds:
 carried out is not ruled on.** Two more proposals became landed, tested code
@@ -944,3 +962,14 @@ invention:
   that is already landed in code: the certificate's interval guard,
   `reportable_band` and `not_conclusive_reason` in `uq.py`, and the monitor
   reading `FLAG_MULTIPLE` rather than a literal.
+- The family-supervisor structure, the four personal checks, and the model
+  designation rule. Hers, 2026-08-07. The supervision charter is the record
+  of them, and the one thing in it that is the lab's rendering rather than
+  her instruction is named there: the family scope table's wording.
+- The negative-verdict review. Hers, 2026-08-07, with the inaugural instance
+  written before the clause. Charter 4 section 16.
+- The challenge slate as the standing hard-case program, and the
+  capability-rung entry rule. Hers, 2026-08-07. Charter 3 section 10; the
+  per-case details belong to the slate's scoping document.
+- Submission actions parked, work continuing at full priority. Hers,
+  2026-08-07. Charter 1 section 8.

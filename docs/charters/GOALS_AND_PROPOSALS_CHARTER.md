@@ -1,6 +1,6 @@
 # Certonomous Goals and Research Proposal Charter
 
-Version 1.3, dated 2026-08-05. Governs what the lab optimizes for when it
+Version 1.4, dated 2026-08-07. Governs what the lab optimizes for when it
 drafts its own work. It applies to every proposal that reaches the agenda
 inbox, and therefore to every night the lab spends unattended.
 
@@ -29,6 +29,12 @@ rather than an opinion: axis B's drafted 0 to 3 scale is replayed against the
 wall and the docket in section 2, and the finding is that its top two anchors
 do not separate anything the lab has. Nothing about axis B is enacted; the
 question of whether the axis exists stays hers.
+
+Version 1.4 adds section 8, recording the owner's 2026-08-07 instruction that
+submission actions are parked at her discretion. It changes no axis, no
+disqualifier and no ranking: what it changes is that a class of actions that
+was always hers to send is now recorded as held, so no proposal spends its
+rationale arguing for a send that is not on offer.
 
 ## 1. The line
 
@@ -464,6 +470,31 @@ Disqualifier 10 left it the same day: `archive_replay_violations` refuses a
 new detection-rule proposal that carries no replay record, and what remains a
 review discipline is whether the stated replay is true of the archive, which
 is the same residue the hardness field carries and for the same reason.
+
+## 8. Submission actions are parked
+
+> **RECORDED, not proposed. Owner's instruction, 2026-08-07: every
+> "submission" action is parked at her discretion. Challenge and measurement
+> work continues at full priority. Nothing external gets sent.**
+
+A submission action is anything whose completing step sends the lab's work
+outside under the company's name: the closure-challenge entry, the upstream
+DAFoam report, a workshop entry, contacting a steward. Ruling R9 already held
+that these are hers because they are outward-facing; this instruction adds
+the parking: they are not merely awaiting her word, they are held until she
+says otherwise, and no proposal, brief or morning report treats a send as
+pending work.
+
+**What this does not change, stated so nobody over-reads it.** The work that
+would feed a submission keeps its full standing on every axis. Axis C scores
+challenge work exactly as before; a proposal that improves a scored case by d
+still moves the overall by d/8 and still ranks on it. Prepared submission
+artifacts — the draft, the disclosures, the prediction files, the
+reproducible report — are kept current and are not dismantled, because
+parked is not cancelled. What no longer exists is any reading under which
+readiness slides into sending: the ruling R8 precedent, prepared and not
+sent, is now the standing state for the whole class rather than a per-item
+deferral.
 
 ## Related
 

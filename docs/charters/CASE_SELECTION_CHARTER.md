@@ -1,6 +1,6 @@
 # Certonomous Case Selection Charter
 
-Version 1.2, dated 2026-08-05. Governs which cases the lab starts. It binds
+Version 1.3, dated 2026-08-07. Governs which cases the lab starts. It binds
 overnight work, unattended work and anything an agent picks up on its own
 initiative, which is the whole point of writing it down.
 
@@ -18,6 +18,14 @@ every proposal filed from 2026-08-05, refused at intake when absent or outside
 the closed list, with the migration story and the value set recorded in
 section 9. The floor itself did not move by a millimetre; what moved is where
 it is checked.
+
+**What changed in 1.3.** Section 10 records the owner's adoption, on
+2026-08-07, of a standing hard-case program: her challenge slate of 2D and 3D
+benchmark cases, every entry over the floor by construction, with new
+capabilities entering by pre-registered rungs rather than by leaping to the
+hardest case. The section records the adoption and the entry rule; the
+per-case details belong to the slate's own scoping document, not to this
+charter.
 
 ## 1. The line
 
@@ -330,6 +338,56 @@ defaulted: defaulting would answer the floor question on the filer's behalf.
 What remains a review discipline, honestly: whether the named value is TRUE of
 the case. A field check reads the field, not the regime. Section 2's judgement
 stays a person's.
+
+## 10. The standing hard-case program, adopted 2026-08-07
+
+> **RECORDED, not proposed. The owner adopted her challenge slate on
+> 2026-08-07 as the lab's standing hard-case program.** Every entry on it
+> passes the section 1 floor by construction, which is what makes it
+> recordable in one section: nothing on the slate ever needs the below-floor
+> escape, and a night spent on any of it is a night spent over the floor.
+
+The slate, by name, so that "is this case on the program" is a word match
+rather than a memory:
+
+**The 2D table.** Turek-Hron FSI3, the Hysing rising bubble, shock-bubble
+interaction, deep dynamic stall, the NASA wall-mounted hump, Rayleigh-Taylor
+instability, the periodic hills, NACA 4412 trailing-edge separation, the
+backward-facing step, and double Mach reflection.
+
+**The 3D table.** CRM-HL, CRM/DPW, NASA Rotor 37, the NASA Juncture Flow,
+KCS/KVLCC2, DLR-F6, ONERA M6, DrivAer/Ahmed, the Taylor-Green vortex, the
+supersonic duct, and Caradonna-Tung.
+
+**The scoping document owns the per-case details.** Per-case references,
+hardness criteria by number, regimes, meshes and sequencing live in
+`demo-output/website/campaign/CHALLENGE_SLATE_2026-08.md`, being produced
+concurrently with this revision, and this charter deliberately does not
+duplicate them: a case detail stated in two places is already wrong in one of
+them, which is the verification charter's restated-constant clause applied to
+prose. What this charter records is the adoption and the one entry rule below,
+because those are selection policy and the rest is scoping.
+
+**The entry rule for new capabilities.** Several slate entries need
+capabilities the lab does not have today: fluid-structure interaction,
+compressible multiphase, free surface at ship scale, rotating machinery.
+Those capabilities enter through **pre-registered capability rungs**, not by
+leaping to the hardest case that needs them. A capability rung is a case that
+exercises the new capability in a regime where the answer is checkable, with
+its pre-registration committed before compute per the standing OPS rule, and
+it is labelled a capability rung at launch the same way section 3 labels a
+regression test: before it produces a number, never after. The slate's
+hardest entries are the destination, and F7a already taught what the shortcut
+costs — a free-surface family entered at full difficulty produced a headline
+finding that was a metric artifact twice over, and the retraction cost more
+than a rung would have.
+
+**What this section does not change.** The floor, the six criteria, and the
+approval path for anything below the floor are exactly as they were. A slate
+case still clears section 4 before its family starts: reference named,
+disqualifying regime stated, detector and mesh checked against the mechanism.
+Adoption answers "is this case worth starting". It answers nothing about any
+result, which is the verification charter's problem, same as ever.
 
 ## Related
 

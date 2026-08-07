@@ -12,7 +12,7 @@ named files, bright lines and worked examples rather than principles. A clause
 you cannot point at a decision and say "that broke it" is decoration, and it
 gets deleted at the next revision.
 
-## The eight
+## The nine
 
 | # | Charter | The one line it turns on |
 | --- | --- | --- |
@@ -24,6 +24,7 @@ gets deleted at the next revision.
 | 6 | [Compute budget](COMPUTE_BUDGET_CHARTER.md) | Every budget is measured, and every hold on the box expires by itself. |
 | 7 | [Escalation](ESCALATION_CHARTER.md) | The lab decides what is reversible and cheap. Everything else goes to the docket. |
 | 8 | [Reporting](REPORTING_CHARTER.md) | Six sections, fixed order, every morning, including the mornings with nothing good in them. From version 2.0 the headings are fixed strings, so a missing section fails a match rather than a taste test. |
+| 9 | [Supervision](SUPERVISION_CHARTER.md) | Every big task family has a standing supervisor, and four kinds of check are done by a supervisor personally or they have not been done. |
 
 ## How to read one
 
@@ -55,7 +56,7 @@ Everything not marked that way traces to a recorded instruction, an existing
 standards document, or a lesson. The distinction matters more than any single
 clause: the lab must never present its own invention as the owner's policy.
 
-`PROPOSALS_OPEN.md` collects every open marker across all eight in one place,
+`PROPOSALS_OPEN.md` collects every open marker across all nine in one place,
 so the owner can react to the whole set without reading the whole set. From
 version 2.0 it also carries the conflicts, which are rulings rather than
 proposals, and the escalations the weekly audit turns up. Every item in it is

@@ -1,6 +1,6 @@
 # Certonomous Verification Charter
 
-Version 1.3, dated 2026-07-31. Defines what counts as done. It binds every
+Version 1.4, dated 2026-08-07. Defines what counts as done. It binds every
 solve, every gradient check, every ladder rung and every number that reaches a
 record, a certificate or a camera surface.
 
@@ -22,6 +22,11 @@ three rungs and certified on four without the fit changing. And section 14,
 attribution, after three findings in one week travelled to the wrong file, the
 wrong family and the wrong body. Section 4 gains the settle criterion and
 section 6 gains four display clauses.
+
+Version 1.4 adds section 16, the negative-verdict review, on the owner's
+instruction of 2026-08-07 and with its inaugural instance already on the
+record. It weakens nothing: section 8 still ships failed gates as documented
+failures, and section 16 is about what happens the morning after one ships.
 
 ## 1. The line
 
@@ -1134,6 +1139,55 @@ figure in this section is labelled as a patched-versus-unpatched comparison
 rather than as a validated gradient. Section 8 still governs what may be
 claimed from any of it.
 
+## 16. A negative verdict triggers a supervisor review
+
+Section 8 makes a failed gate a result. This section is about the day after:
+a negative verdict closes a question, and left alone it quietly closes the
+diagnostics behind it too, because nothing in the lab's machinery ever asks a
+FAIL what should be measured next.
+
+> **Every negative verdict — a gate FAIL, a NO-GO, a no-verdict, a refuted
+> prediction — triggers a supervisor review that proposes new diagnostics,
+> and the review is recorded.** Owner's instruction, 2026-08-07.
+
+**The inaugural instance is the pattern, and it is cited rather than
+paraphrased:** `demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md`,
+written personally by the chief supervisor, covering every standing negative
+verdict on the record in one pass — ten of them, from the periodic hills'
+physics FAIL to the TMR aspect-ratio pathology. Its eleven filed diagnostics
+set the bar for what a review proposes. Precisely: the review marks thirteen
+diagnostics `[FILE]`, of which two ride existing approved runs (the standing
+model-form batch gains the hills, the approved hump run gains a QCR arm) and
+eleven are standalone filings to the docket. Every one is falsifiable,
+costed, carries its hardness or source rationale, and names which way each
+outcome moves the record. None requires a scoring call.
+
+**What a review contains, per entry.** The verdict as it stands, what it
+actually taught, and the new diagnostics proposed, each costed. A review
+entry that proposes nothing says why nothing is proposable, which is itself a
+finding.
+
+**What a review is not.**
+
+1. **It is not an appeal.** The verdict stands as graded; section 8 still
+   forbids widening a gate after a result misses it, and a review that
+   softens a verdict has become the thing this charter exists to prevent.
+2. **It is not a bypass of intake.** Every diagnostic the review files is a
+   proposal like any other and clears charter 1's disqualifiers on its own:
+   prediction first, a stated cost, a hardness answer, an archive replay if
+   it adds a rule.
+3. **It is not delegable below supervisor level.** The judgments are the
+   supervisor's; only the filing mechanics may be dispatched. The inaugural
+   review says exactly this in its own header, and the supervision charter's
+   section 4 keeps the review on the chief's retained list.
+
+**Enforcement.** A negative verdict on the record with no review citing it is
+a findable gap: the verdict vocabulary of section 2 is fixed, so the set of
+FAILs, NO-GOs and refuted predictions is enumerable, and each is matched
+against a review artifact or it is a violation. That matching is a review
+discipline today, stated honestly; the artifact-per-instance convention
+exists so a checker can be written against it.
+
 ## Related
 
 - `docs/charters/RESULT_PRIORITY_CHARTER.md`. Which quantity wins when two
@@ -1144,5 +1198,7 @@ claimed from any of it.
 - `docs/charters/LITERATURE_CHARTER.md`. Section 7 carries the intake side of
   section 11: a reading is where a scored case gets proposed as a training case.
 - `docs/UNCERTAINTY-DOCTRINE.md`. The three channels every result carries.
+- `docs/charters/SUPERVISION_CHARTER.md`. Who conducts the section 16 review,
+  and the four checks a supervisor performs personally.
 - `LESSONS.md` L-3, L-7, L-14, L-15, L-16, L-19, L-21, L-22, L-24, L-25, L-26,
   L-27, L-28, P1, P3, D12.
