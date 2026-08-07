@@ -418,8 +418,11 @@ the first objection a maintainer will raise.
 
 The values in Table~\ref{tab:crossres} appear in no log, and the original record's caption
 cited a log that contradicts them on its face. The instrument
-(\artifact{runScript\_w4.py}, tasks \artifact{w4\_dump} / \artifact{w4\_crossres}) computes
+(\artifact{runScript\_w4.py}, tasks \artifact{w4\_dump} / \artifact{w4\_crossres}) computed
 \texttt{res = Atpsi - b}, whereas the system OpenMDAO seeds is \(A^{\mathsf T}\psi = -b\).
+\emph{(Past tense as of 2026-08-07: the instrument has since been repaired ---
+see the note closing this subsection. Every number in this document was measured under the
+convention described here.)}
 Every arm's log therefore prints the sign-degenerate \texttt{ratio=2.000000e+00} for its
 own-operator check, and none of the record's own-operator numbers --- the
 \(1.14\times10^{-4}\) floor, the \(1.2\times10^{-3}\) self-consistency, the
@@ -455,6 +458,29 @@ The defensible citation for Table~\ref{tab:crossres} is therefore the dumped vec
 stated sign correction --- not \artifact{d\_crossres.log}. Anyone reproducing this protocol
 should fix the convention in the instrument rather than offline; \artifact{w4\_crossres2},
 written later, has the sign right and its log matches its numbers.
+
+\paragraph{Note added 2026-08-07: the instrument has been repaired, and the repair confirms
+the corrections.} This document's own instruction --- fix the convention in the instrument
+rather than offline --- had not been executed, and a family supervision pass filed that as a
+standing high-severity finding: the two reused tasks still carried the wrong sign, and
+\artifact{w4x\_res\_*.npy} (needing \(+2b\)) sat beside \artifact{w4x2\_res\_*.npy} (already
+the true residual) under same-family filenames with nothing declaring which. Both sites now
+compute \texttt{res = Atpsi + b}; every W4D/crossres log line prints an explicit convention
+banner; and the sign-fixed task writes a distinct \artifact{w4xf\_res\_*.npy} prefix so
+pre-fix and post-fix dumps cannot be conflated
+(\artifact{SUPERVISOR\_FAMILY\_REVIEW\_2026-08-07.md}, item A-1, OUTCOME FIXED; sibling
+repo-side commit \commit{9796f90f}).
+
+The repair doubles as a fourth independent reproduction of the correction, and it is the
+cleanest of the four because it removes the offline arithmetic entirely. Run on the existing
+np=1 dump with \textbf{no offline correction at all}: the old convention prints the
+degenerate \(\lVert A^{\mathsf T}\psi - b\rVert/\lVert b\rVert = 2.000000\), the new
+convention prints \(\lVert A^{\mathsf T}\psi + b\rVert/\lVert b\rVert =
+\mathbf{1.140697\times10^{-4}}\) --- equal to \emph{every digit} of the published offline
+\(\mathrm{res}+2b\) value of Table~\ref{tab:crossres}'s floor. The offline corrections are
+therefore no longer only exact by derivation and reproducible by re-derivation; they are
+independently confirmed by a tool that never performs them. No published number moves, and
+none was re-derived from a post-fix output.
 
 \subsection{Localization}
 
@@ -1754,9 +1780,21 @@ upstream today.
 is one option plumb, and is backed by both a measured unblock and named-PETSc-developer
 precedent. Our local implementation is one hunk at \artifact{DALinearEqn.C:266}
 (\artifact{demo-output/website/dafoam/subpclu\_patch/DALinearEqn\_subpclu.patch},
-\commit{1cd44c04}); its default-off behaviour was verified by re-running the unpatched
-configuration on the patched image and reproducing the \(-9\) at iteration 0 with all 13
-residual digits intact.
+regenerated at \commit{9796f90f}); its default-off behaviour was verified by re-running the
+unpatched configuration on the patched image and reproducing the \(-9\) at iteration 0 with
+all 13 residual digits intact. \emph{Added 2026-08-07:} the committed diff is now
+mechanically applicable. The version this document originally cited carried absolute headers
+into a scratch directory that no longer exists, so \texttt{git apply} failed on the very file
+cited as the reproduction diff --- filed by a family supervision pass and fixed by
+regenerating against the stock \artifact{DALinearEqn.C} extracted from the shipped image with
+\artifact{a/src/adjoint/\allowbreak DALinearEqn/DALinearEqn.C} headers.
+\textbf{\texttt{git apply --check} now PASSES} from the DAFoam repository root, and the
+19-line applied block was verified byte-identical to the change in the deployed
+\artifact{dafoam-subpclu:v1} image. One declared delta: the regenerated patch adds a warning
+on a set-but-unrecognized \texttt{DAFOAM\_SUBPC\_TYPE} value (\texttt{LU}, \texttt{Lu}, a
+trailing space --- all of which previously fell through to stock ILU in silence), and the v1
+image is \emph{not} rebuilt, so that warning exists in patch text only and drivers must keep
+asserting the sub-LU log line until a rebuild lands.
 
 \subsection{What the change does \emph{not} fix}
 
@@ -1856,7 +1894,11 @@ them. The material ones appear in the body of this document; the consolidated li
 \toprule
 found & disposition \\
 \midrule
-The cross-residual table's numbers appear in no log; the instrument carried a sign error and every arm's log prints a degenerate \texttt{ratio=2.000000e+00} & Stated in full, Section~\ref{sec:signconv}; values are exact offline corrections and reproduce three ways including a fresh serial run \\
+The cross-residual table's numbers appear in no log; the instrument carried a sign error and every arm's log prints a degenerate \texttt{ratio=2.000000e+00} & Stated in full, Section~\ref{sec:signconv}; values are exact offline corrections and reproduce three ways including a fresh serial run. \emph{The instrument itself was repaired 2026-08-07} --- and reproduces the floor to every digit with no correction at all, which makes the repair a fourth reproduction \\
+\addlinespace
+The instrument was left unrepaired after the sweep said to repair it, and was then reused twice with two same-family filename conventions and nothing declaring which & Filed by a family supervision pass as standing and high-severity; fixed at both sites with a convention banner and a distinct post-fix output prefix. No published number moves \\
+\addlinespace
+The committed sub-PC diff carried absolute headers into a directory that no longer exists, so \texttt{git apply} failed on the file this document cites as its reproduction diff & Regenerated with repo-relative headers, \texttt{git apply --check} PASS, applied block verified byte-identical to the deployed image \\
 The either-copy confound bound silently used the assembled matrix --- the instrument the same record discredits & Disclosed here; immaterial by a \(30\times\) margin even when inflated by the full assembled-vs-AD discrepancy \\
 The cited coloring-crash log no longer exists (the runner truncates per attempt; three attempts shared a tag) & Claim re-established statically in the shipped container, by code rather than by the cited log \\
 The residual-function-identity loophole was left unacknowledged & Closed from the prior record's per-run FD column, and now stated in the body as its own subsection \\
@@ -2089,7 +2131,12 @@ satisfy.
 #    SIGN CONVENTION: OpenMDAO seeds -dF/dW, so the system is  A^T psi = -b.
 #    An instrument computing (A^T psi - b) prints a degenerate ratio of exactly
 #    2.0 for its own-operator control -- that is the tell that the sign is wrong.
-#    Correct offline as res + 2b, or fix the instrument.
+#    Correct offline as res + 2b, or -- better, and done here on 2026-08-07 --
+#    fix the instrument: both reused tasks now compute (A^T psi + b), every log
+#    line prints a convention banner, and the fixed task writes a distinct
+#    w4xf_res_*.npy prefix so pre-fix dumps (needing +2b) cannot be conflated
+#    with true residuals. The repaired tool reproduces the np=1 floor
+#    1.140697e-04 with NO offline correction, to every digit.
 
 # 4. Judge against the SERIAL operator's own floor, not against zero:
 #      np=1 control ......... 1.14e-04 of ||b||   <- the floor
@@ -2192,7 +2239,12 @@ mesh.verifyWarpDeriv(dXv_warp, solverVec=False, dofStart=0, dofEnd=5)
 
 \begin{lstlisting}[language=bash]
 docker run -d --name dafoam-build dafoam/opt-packages:latest sleep infinity
-# patch src/adjoint/DALinearEqn/DALinearEqn.C at line 266 (one hunk, env-gated)
+# Apply the committed diff (one hunk at DALinearEqn.C:266, env-gated). Since
+# 2026-08-07 the diff carries repo-relative a/ b/ headers and is mechanically
+# applicable -- run this from the directory containing src/, in-container
+# /home/dafoamuser/dafoam/repos/dafoam:
+git apply --check demo-output/website/dafoam/subpclu_patch/DALinearEqn_subpclu.patch
+git apply         demo-output/website/dafoam/subpclu_patch/DALinearEqn_subpclu.patch
 # then, INSIDE the container, for each of the three AD modes:
 source /home/dafoamuser/dafoam/loadDAFoam.sh          # original
 cd repos/dafoam && wmakeLnInclude src/adjoint && (cd src/adjoint && wmake -j 8)
@@ -2221,6 +2273,7 @@ artifact & what it holds \\
 \artifact{DEFECT\_ROBUSTNESS\_mesh\_and\_setup.md} (pre-registration \commit{25f52868}, results \commit{49631723}, R7 \commit{85dfbe68}) & The robustness and acquisition campaigns: the scheme ladder, the two levers at operator level, the conformal pair, the refinement arms, the seven-case survey, the serial variant, and every registered prediction scored as written \\
 \artifact{VERIFICATION\_defect\_robustness\_supervisor\_sweep.md} (\commit{8bd47b35}) & Adversarial sweep of the robustness campaign: cross-residuals recomputed from raw vectors, map rebuilt bit-for-bit, the 590/719 erratum, three named protocol gaps \\
 \artifact{VERIFICATION\_A1\_serial\_limiter\_supervisor\_sweep.md} (\commit{0858e640}) & Adversarial sweep of the serial variant: byte-level config audit, independent re-extraction, and the one-sided-slope reconstruction that closed the FD-kink hypothesis at zero cost \\
+\artifact{SUPERVISOR\_FAMILY\_REVIEW\_2026-08-07.md} & The instrument-level review the number sweeps cannot do: unit assumptions, silent fallbacks, reuse traps. Sources the sign-convention repair (A-1) and the applicable sub-PC diff (B-2), each with its OUTCOME line \\
 \artifact{DAFOAM\_PAPERS\_VERIFICATION\_PROTOCOLS.md} (\commit{bf6ac53b}) & Three method papers read in full; the protocol table of Section~\ref{sec:whynot} \\
 \artifact{LIAISON\_NOVELTY\_SWEEP\_decomposition\_defect.md} (\commit{3c74dc03}) & 63 searches, 10 venues, the query log, the near-misses, the PETSc precedent \\
 \artifact{ROOTCAUSE\_getRotationMatrix3d.md}, \artifact{PATCH\_getRotationMatrix3d.md} & The line, the mechanism, the derivation-before-code, the acceptance results \\
@@ -2228,7 +2281,7 @@ artifact & what it holds \\
 \artifact{ladder-b/W4\_ADJOINT\_PC\_UNBLOCK.md} & The conditioning wall, the offline ladder, the sub-LU unblock, the FD gate \\
 \artifact{VERIFICATION\_cbfs\_unblock\_supervisor\_sweep.md} (\commit{9c19ccc8}) & Adversarial sweep of D3: image-vs-diff audit, recomputed FD table, new cell, cold regression \\
 \artifact{DEFECT\_REACH\_decomposition\_cases.md} (\commit{99f5d41d}) & The pre-registered reach matrix, since scored and audited (sweep \commit{192c970c}) \\
-\artifact{subpclu\_patch/DALinearEqn\_subpclu.patch} (\commit{1cd44c04}) & The one-hunk sub-PC source diff \\
+\artifact{subpclu\_patch/DALinearEqn\_subpclu.patch} (\commit{1cd44c04}, regenerated \commit{9796f90f}) & The one-hunk sub-PC source diff. Repo-relative headers since the regeneration; \texttt{git apply --check} passes from the DAFoam repo root \\
 \artifact{rotation\_branch/idwarp\_v2.6.2\_degenerate\_branch\_fix.patch} & The four-line derivative correction (2 files, +44 lines) \\
 \artifact{PROOF.md} \S25.5, \S23--24, \S25.2--25.3 & The primary measurement record \\
 \artifact{LESSONS.md} L-29 -- L-38 & The method-of-investigation thread \\
