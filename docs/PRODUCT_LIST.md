@@ -91,11 +91,21 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 ## 4D. 3D case families
 - [x] F1 ONERA M6 transonic wing vs AGARD Cp stations.
 - [ ] F10 real 3D viscous RANS batch family (replace the panel-method stand-in).
-- [ ] F8 NREL Phase VI wind turbine (MRF, then transient).
+- [-] F8 NREL Phase VI wind turbine (MRF, then transient). GATE: NO VERDICT — unconverged forces not gateable
+      (p2p spread 960% of the 800 N·m reference, 19.2x the pre-registered cap; L-24). MECHANISM FOUND (75d5a4ca):
+      the rotor was set spinning AGAINST its power-extracting direction — the case never operated as a turbine;
+      flipped omega calms the history 21x. Citation conflation in our own docket untangled (TP-500-29494 Simms vs
+      TP-500-29955 Hand; 800 N·m is secondary-tier, corroborated 3 ways incl. P=Qω≈6 kW). Flipped-omega settle
+      (~13 core-min) running as rider; transient branch is the fallback.
 - [ ] AIAA DPW: study public data/methodology, then attempt CRM/DPW-class case (converged primal first).
       A6 wing-alone primal now matches DAFoam's published tutorial baseline to 0.0067% (provisional — see 4E A6).
       `w1-dpw5-hex-three-level-ladder` proposed (400).
-- [ ] B52: figure out why mesh doesn't converge smoothly (docket `agp-1dec50b65c2f` 8th rung, 20 core-min).
+- [x] B52: why the mesh doesn't converge smoothly — ANSWERED (dfc50ee8, 19.1/20 core-min, pre-registered 48cfedfb):
+      the ladder is NOISE — rung 8's increment (−2.78e-4) is 15% of the measured 1.91e-3 mesh-noise floor; the
+      surface-resolution alternative REFUTED by its own decision rule (faces scale N^0.707, inside the uniform-like
+      window); refit honestly conclusive:false. Docket item closed done.
+      → NEW ITEM (from this cross-off): **B52 floor decision** — either a noise-floor-reducing recipe change
+      (pre-registered) or documented retirement of the ladder at its floor with the family moved to regression duty.
 
 ## 4E. DAFoam ladder — investigation root-caused; regrades in progress
 - [-] A1 NACA 0012 drag min, FD-verified adjoint. FAIL against SHIPPED toolchain stands, but fully root-caused:
