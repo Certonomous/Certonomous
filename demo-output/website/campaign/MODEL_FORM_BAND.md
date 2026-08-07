@@ -1,8 +1,8 @@
 # Model-form band — converged cells only
 
-Generated 2026-08-07T20:07:46Z by `sdk/scripts/model_form_batch.py --band`. Design and pre-registration: `MODEL_FORM_BATCH_DESIGN.md`.
+Generated 2026-08-07T20:28:32Z by `sdk/scripts/model_form_batch.py --band`. Design and pre-registration: `MODEL_FORM_BATCH_DESIGN.md`.
 
-20 of 32 designed cells have run, 17.43 core-min spent.
+32 of 32 designed cells have run, 35.61 core-min spent.
 
 The band is the min/max across CONVERGED members of a group. An unconverged cell is excluded and named -- the NASA hump lesson: the band that failed to contain the experiment was the band that still had an unconverged member in it.
 
@@ -23,6 +23,33 @@ Excluded from the band:
   - kEpsilon: residualControl not met (stopped on the backstop)
   - kOmegaSST: residualControl not met (stopped on the backstop)
   - realizableKE: residualControl not met (stopped on the backstop)
+
+## N_a0 (0 converged, 4 excluded, 6.48 core-min)
+
+
+Excluded from the band:
+  - SpalartAllmaras: runner error: coarse: Cd still moving (9.79e-06 peak-to-peak over the last 50 iterations); not defensible as steady
+  - kEpsilon: runner error: coarse: Cd still moving (2.52e-07 peak-to-peak over the last 50 iterations); not defensible as steady
+  - kOmegaSST: runner error: coarse: Cd still moving (5.95e-05 peak-to-peak over the last 50 iterations); not defensible as steady
+  - realizableKE: runner error: coarse: Cd still moving (0.000849 peak-to-peak over the last 50 iterations); not defensible as steady
+
+## N_a10 (0 converged, 4 excluded, 5.02 core-min)
+
+
+Excluded from the band:
+  - SpalartAllmaras: runner error: coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady
+  - kEpsilon: non-orthogonality 85.6987 > 70
+  - kOmegaSST: non-orthogonality 85.6987 > 70
+  - realizableKE: runner error: coarse: Cd still moving (0.13 peak-to-peak over the last 50 iterations); not defensible as steady
+
+## N_a15 (0 converged, 4 excluded, 6.68 core-min)
+
+
+Excluded from the band:
+  - SpalartAllmaras: runner error: coarse: Cd still moving (1.5e-05 peak-to-peak over the last 50 iterations); not defensible as steady
+  - kEpsilon: runner error: coarse: Cd still moving (2.3e-05 peak-to-peak over the last 50 iterations); not defensible as steady
+  - kOmegaSST: runner error: coarse: Cd still moving (8.11e-05 peak-to-peak over the last 50 iterations); not defensible as steady
+  - realizableKE: runner error: coarse: Cd still moving (0.17 peak-to-peak over the last 50 iterations); not defensible as steady
 
 ## P_re1e6 (4 converged, 0 excluded, 1.04 core-min)
 

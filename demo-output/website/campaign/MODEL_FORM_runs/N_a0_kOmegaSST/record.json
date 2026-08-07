@@ -1,0 +1,19 @@
+{
+  "cell_id": "N_a0_kOmegaSST",
+  "converged": false,
+  "core_min": 1.695,
+  "excluded_reasons": [
+    "runner error: coarse: Cd still moving (5.95e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+  ],
+  "family": "N",
+  "group": "N_a0",
+  "model": "kOmegaSST",
+  "params": {
+    "alpha_deg": 0.0
+  },
+  "qoi": {},
+  "ranks": 1,
+  "regime": "a0",
+  "timestamp": "2026-08-07T20:12:02Z",
+  "wall_seconds": 101.7
+}

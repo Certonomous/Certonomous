@@ -273,3 +273,76 @@
 [2026-08-07T20:03:08Z] [tmr:medium] checkMesh finished in 0.3 s
 [2026-08-07T20:03:24Z] P_re1e6_SpalartAllmaras: CONVERGED; qoi {'Cd': 0.003680462131}; 0.27 core-min (session 0.27/5.0)
 [2026-08-07T20:03:24Z] model-form batch stopping: 0.27 core-min spent this run
+[2026-08-07T20:10:20Z] model-form batch starting: 12 cell(s) in scope, budget 60.0 core-min
+[2026-08-07T20:10:20Z] N_a0_kOmegaSST: starting
+[2026-08-07T20:10:21Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T20:10:22Z] [tmr-naca:coarse] a0 simpleFoam started
+[2026-08-07T20:12:02Z] [tmr-naca:coarse] simpleFoam finished in 99.1 s
+[2026-08-07T20:12:02Z] N_a0_kOmegaSST: EXCLUDED (runner error: coarse: Cd still moving (5.95e-05 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {}; 1.70 core-min (session 1.70/60.0)
+[2026-08-07T20:12:02Z] N_a0_SpalartAllmaras: starting
+[2026-08-07T20:12:02Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T20:12:04Z] [tmr-naca:coarse] a0 simpleFoam started
+[2026-08-07T20:13:25Z] [tmr-naca:coarse] simpleFoam finished in 80.7 s
+[2026-08-07T20:13:25Z] N_a0_SpalartAllmaras: EXCLUDED (runner error: coarse: Cd still moving (9.79e-06 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {}; 1.38 core-min (session 3.08/60.0)
+[2026-08-07T20:13:25Z] queue gate: 1 solver container(s) live (distracted_newton), under the ceiling of 3; proceeding
+[2026-08-07T20:13:25Z] N_a0_kEpsilon: starting
+[2026-08-07T20:13:25Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T20:13:27Z] [tmr-naca:coarse] a0 simpleFoam started
+[2026-08-07T20:15:02Z] [tmr-naca:coarse] simpleFoam finished in 95.5 s
+[2026-08-07T20:15:02Z] N_a0_kEpsilon: EXCLUDED (runner error: coarse: Cd still moving (2.52e-07 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {}; 1.63 core-min (session 4.71/60.0)
+[2026-08-07T20:15:02Z] queue gate: 1 solver container(s) live (distracted_newton), under the ceiling of 3; proceeding
+[2026-08-07T20:15:02Z] N_a0_realizableKE: starting
+[2026-08-07T20:15:03Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T20:15:05Z] [tmr-naca:coarse] a0 simpleFoam started
+[2026-08-07T20:16:49Z] [tmr-naca:coarse] simpleFoam finished in 104.3 s
+[2026-08-07T20:16:49Z] N_a0_realizableKE: EXCLUDED (runner error: coarse: Cd still moving (0.000849 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {}; 1.78 core-min (session 6.48/60.0)
+[2026-08-07T20:16:49Z] queue gate: 1 solver container(s) live (angry_burnell), under the ceiling of 3; proceeding
+[2026-08-07T20:16:49Z] N_a10_kOmegaSST: starting
+[2026-08-07T20:16:50Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T20:16:51Z] [tmr-naca:coarse] a10 simpleFoam started
+[2026-08-07T20:17:42Z] [tmr-naca:coarse] simpleFoam finished in 50.6 s
+[2026-08-07T20:17:42Z] [tmr:coarse] Cd=0.004495 Cl=1.11643 iters=8210 NOT settled wall=52s
+[2026-08-07T20:17:42Z] N_a10_kOmegaSST: EXCLUDED (non-orthogonality 85.6987 > 70); qoi {'Cd': 0.0044951723391, 'Cl': 1.1164336572}; 0.88 core-min (session 7.36/60.0)
+[2026-08-07T20:17:42Z] N_a10_SpalartAllmaras: starting
+[2026-08-07T20:17:43Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T20:17:44Z] [tmr-naca:coarse] a10 simpleFoam started
+[2026-08-07T20:18:49Z] [tmr-naca:coarse] simpleFoam finished in 65.3 s
+[2026-08-07T20:18:49Z] N_a10_SpalartAllmaras: EXCLUDED (runner error: coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {}; 1.12 core-min (session 8.48/60.0)
+[2026-08-07T20:18:49Z] queue gate: 1 solver container(s) live (s1re_fdanchor), under the ceiling of 3; proceeding
+[2026-08-07T20:18:49Z] N_a10_kEpsilon: starting
+[2026-08-07T20:18:50Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T20:18:51Z] [tmr-naca:coarse] a10 simpleFoam started
+[2026-08-07T20:19:55Z] [tmr-naca:coarse] simpleFoam finished in 63.3 s
+[2026-08-07T20:19:55Z] [tmr:coarse] Cd=0.014227 Cl=1.08020 iters=10431 NOT settled wall=64s
+[2026-08-07T20:19:55Z] N_a10_kEpsilon: EXCLUDED (non-orthogonality 85.6987 > 70); qoi {'Cd': 0.014226789043, 'Cl': 1.0801964408}; 1.09 core-min (session 9.57/60.0)
+[2026-08-07T20:19:55Z] queue gate: 1 solver container(s) live (s1re_fdanchor), under the ceiling of 3; proceeding
+[2026-08-07T20:19:55Z] N_a10_realizableKE: starting
+[2026-08-07T20:19:56Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T20:19:57Z] [tmr-naca:coarse] a10 simpleFoam started
+[2026-08-07T20:21:51Z] [tmr-naca:coarse] simpleFoam finished in 114.1 s
+[2026-08-07T20:21:51Z] N_a10_realizableKE: EXCLUDED (runner error: coarse: Cd still moving (0.13 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {}; 1.93 core-min (session 11.50/60.0)
+[2026-08-07T20:21:51Z] queue gate: 2 solver container(s) live (recursing_dirac, s1re_fdanchor), under the ceiling of 3; proceeding
+[2026-08-07T20:21:51Z] N_a15_kOmegaSST: starting
+[2026-08-07T20:21:52Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T20:21:54Z] [tmr-naca:coarse] a15 simpleFoam started
+[2026-08-07T20:23:31Z] [tmr-naca:coarse] simpleFoam finished in 97.8 s
+[2026-08-07T20:23:31Z] N_a15_kOmegaSST: EXCLUDED (runner error: coarse: Cd still moving (8.11e-05 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {}; 1.67 core-min (session 13.17/60.0)
+[2026-08-07T20:23:32Z] queue gate: 2 solver container(s) live (eloquent_kare, s1re_fdanchor), under the ceiling of 3; proceeding
+[2026-08-07T20:23:32Z] N_a15_SpalartAllmaras: starting
+[2026-08-07T20:23:32Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T20:23:33Z] [tmr-naca:coarse] a15 simpleFoam started
+[2026-08-07T20:25:03Z] [tmr-naca:coarse] simpleFoam finished in 89.2 s
+[2026-08-07T20:25:03Z] N_a15_SpalartAllmaras: EXCLUDED (runner error: coarse: Cd still moving (1.5e-05 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {}; 1.52 core-min (session 14.69/60.0)
+[2026-08-07T20:25:03Z] queue gate: 1 solver container(s) live (s1re_fdanchor), under the ceiling of 3; proceeding
+[2026-08-07T20:25:03Z] N_a15_kEpsilon: starting
+[2026-08-07T20:25:03Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T20:25:05Z] [tmr-naca:coarse] a15 simpleFoam started
+[2026-08-07T20:26:35Z] [tmr-naca:coarse] simpleFoam finished in 90.3 s
+[2026-08-07T20:26:35Z] N_a15_kEpsilon: EXCLUDED (runner error: coarse: Cd still moving (2.3e-05 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {}; 1.54 core-min (session 16.23/60.0)
+[2026-08-07T20:26:35Z] queue gate: 1 solver container(s) live (s1re_fd_5363_plus), under the ceiling of 3; proceeding
+[2026-08-07T20:26:35Z] N_a15_realizableKE: starting
+[2026-08-07T20:26:36Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-07T20:26:37Z] [tmr-naca:coarse] a15 simpleFoam started
+[2026-08-07T20:28:32Z] [tmr-naca:coarse] simpleFoam finished in 115.0 s
+[2026-08-07T20:28:32Z] N_a15_realizableKE: EXCLUDED (runner error: coarse: Cd still moving (0.17 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {}; 1.95 core-min (session 18.18/60.0)
+[2026-08-07T20:28:32Z] model-form batch stopping: 18.18 core-min spent this run

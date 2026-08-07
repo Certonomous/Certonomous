@@ -508,13 +508,18 @@ def read_history(post_dir: Path) -> dict[str, list[float]]:
 # Queue gate
 # ---------------------------------------------------------------------------
 
-def live_solver_containers() -> list[str]:
+def live_solver_containers() -> list[str] | None:
+    """Names of live solver containers, or ``None`` when docker cannot be
+    asked -- the caller must not read a failed query as an empty machine
+    (finding C5, CASES_FAMILY_FIRST_PASS_FINDINGS_2026-08-07.md)."""
     try:
         proc = subprocess.run(
             ["sudo", "docker", "ps", "--format", "{{.Names}}\t{{.Image}}"],
             capture_output=True, text=True, timeout=60)
     except (OSError, subprocess.SubprocessError):
-        return []
+        return None
+    if proc.returncode != 0:
+        return None
     names = []
     for line in proc.stdout.splitlines():
         low = line.lower()
@@ -528,6 +533,12 @@ def wait_for_slot(log: Callable[[str], None], *, max_wait: float) -> bool:
     waited = 0.0
     while True:
         live = live_solver_containers()
+        if live is None:
+            # Availability over deadlock, but never silently: the yield
+            # discipline is disengaged and the log says so.
+            log("queue gate: docker query FAILED; gate is blind this cell, "
+                "proceeding anyway (recorded, not silent)")
+            return True
         if len(live) < CONTAINER_CEILING:
             if live:
                 log(f"queue gate: {len(live)} solver container(s) live "
@@ -563,7 +574,7 @@ def _write_record(cell: Cell, record: dict[str, Any]) -> None:
 
 def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
            returncode: int, qoi_names: Sequence[str],
-           settle_on: str) -> dict[str, Any]:
+           settle_on: str, *, backstop: int | None = None) -> dict[str, Any]:
     """Apply the pre-registered gate and build the cell record."""
     log_text = (remote / "log.simpleFoam").read_text(errors="replace") \
         if (remote / "log.simpleFoam").exists() else ""
@@ -602,7 +613,15 @@ def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
         reasons.append(f"solver exit code {returncode}")
     reasons.extend(logv["fatal"])
     if not logv["residual_control_met"]:
-        reasons.append("residualControl not met (stopped on the backstop)")
+        # "stopped on the backstop" only when the run actually reached it: a
+        # cell that crashed at iteration 45 did not stop on any backstop
+        # (finding C6 -- the three B_re1p2e7 FPE records carried this wording
+        # untruthfully; their verdicts were right, the evidence text was not).
+        last = logv["last_iteration"]
+        if backstop is not None and last is not None and last >= backstop:
+            reasons.append("residualControl not met (stopped on the backstop)")
+        else:
+            reasons.append("residualControl not met")
     if settle["unsettled"]:
         reasons.append("S12 unsettled stop on " + settle_on)
     reasons.extend(meshv["breaches"])
@@ -667,7 +686,7 @@ def run_cell_P_or_B(cell: Cell, log: Callable[[str], None], *,
     result = tv._foam(["simpleFoam"], remote, "log.simpleFoam", timeout=5400)
     wall = time.monotonic() - start
     record = _grade(cell, remote, out_dir, wall, result.returncode,
-                    qoi_names, settle_on)
+                    qoi_names, settle_on, backstop=backstop)
     record["cells"] = level.cells
     record["iteration_backstop"] = backstop
     record["patch"] = patch_name
@@ -680,22 +699,51 @@ def run_cell_P_or_B(cell: Cell, log: Callable[[str], None], *,
 
 def run_cell_N(cell: Cell, log: Callable[[str], None], *,
                backstop: int = BATCH_BACKSTOP) -> dict[str, Any]:
-    """NACA 0012 on the TMR-distributed C-grid, one alpha, one closure."""
+    """NACA 0012 on the TMR-distributed C-grid, one alpha, one closure.
+
+    ``run_naca_level`` applies the TMR ladder's OWN settle/extraction rules
+    (absolute tail-50 spread, ``_extract_record``) and raises when they fail.
+    Those rules are not this batch's pre-registered gate, so a raise is
+    caught, named on the record, and the on-disk evidence is still graded
+    under the design section 4 gate (finding C1,
+    CASES_FAMILY_FIRST_PASS_FINDINGS_2026-08-07.md). A workflow-flagged cell
+    stays EXCLUDED regardless of how it grades -- conservative on purpose --
+    but its gate detail and QoI values are recorded rather than lost.
+    """
     level = [lv for lv in tv.NACA_LEVELS if lv.name == "coarse"][0]
     alpha = float(cell.params["alpha_deg"])
     out_dir = cell.out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
-    start = time.monotonic()
-    with naca_model_context(cell.model):
-        tv.run_naca_level(level, alpha, out_dir, log, iterations=backstop)
-    wall = time.monotonic() - start
     remote = Path(tv._RUN_ROOT) / f"tmr-naca-a{alpha:g}-{level.name}"
-    record = _grade(cell, remote, out_dir, wall, 0, ("Cd", "Cl"), "Cl")
-    record["cells"] = level.cells
-    record["iteration_backstop"] = backstop
-    record["alpha_deg"] = alpha
-    shutil.rmtree(remote, ignore_errors=True)
-    return record
+    start = time.monotonic()
+    workflow_error: str | None = None
+    try:
+        with naca_model_context(cell.model):
+            try:
+                tv.run_naca_level(level, alpha, out_dir, log,
+                                  iterations=backstop)
+            except RuntimeError as exc:
+                workflow_error = str(exc)
+        wall = time.monotonic() - start
+        # returncode 0 on the clean path is guaranteed by run_naca_level's
+        # own raise-on-nonzero (finding C4); a raise lands in workflow_error
+        # and the gate below reads the solver log itself.
+        record = _grade(cell, remote, out_dir, wall, 0, ("Cd", "Cl"), "Cl",
+                        backstop=backstop)
+        if workflow_error is not None:
+            record["workflow_error"] = workflow_error
+            record["converged"] = False
+            record["excluded_reasons"].append(
+                "workflow settle/extraction rule fired (not this batch's "
+                f"gate): {workflow_error}")
+        record["cells"] = level.cells
+        record["iteration_backstop"] = backstop
+        record["alpha_deg"] = alpha
+        return record
+    finally:
+        # Cleanup on every path: the runner-error path used to leak the run
+        # directory (finding C7).
+        shutil.rmtree(remote, ignore_errors=True)
 
 
 def run_cell(cell: Cell, log: Callable[[str], None], *,
@@ -1014,6 +1062,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         f"{args.max_core_min:.1f} core-min")
     for cell in cells:
         record_path = cell.out_dir / "record.json"
+        existing: dict[str, Any] | None = None
         if record_path.exists():
             existing = json.loads(record_path.read_text())
             redo = (args.redo_excluded and not existing["converged"]
@@ -1023,18 +1072,22 @@ def main(argv: Sequence[str] | None = None) -> int:
             if not redo:
                 log(f"{cell.cell_id}: already recorded, skipping")
                 continue
-            # Superseded, never deleted: the reason a cell was excluded is
-            # what a later reading of this batch needs.
-            stamp = _now().replace(":", "").replace("-", "")
-            record_path.rename(cell.out_dir / f"record_superseded_{stamp}.json")
-            log(f"{cell.cell_id}: superseding an excluded record "
-                f"({'; '.join(existing['excluded_reasons'])})")
         if spent >= args.max_core_min:
             log(f"budget reached ({spent:.2f} core-min); stopping before "
                 f"{cell.cell_id}")
             break
         if not wait_for_slot(log, max_wait=args.max_queue_wait):
             break
+        if existing is not None:
+            # Superseded, never deleted: the reason a cell was excluded is
+            # what a later reading of this batch needs. Renamed only AFTER
+            # the budget and queue checks pass: renaming earlier could leave
+            # a cell with no live record when the session stopped between
+            # the rename and the run (finding C3).
+            stamp = _now().replace(":", "").replace("-", "")
+            record_path.rename(cell.out_dir / f"record_superseded_{stamp}.json")
+            log(f"{cell.cell_id}: superseding an excluded record "
+                f"({'; '.join(existing['excluded_reasons'])})")
         log(f"{cell.cell_id}: starting")
         began = time.monotonic()
         try:

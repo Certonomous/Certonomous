@@ -1,9 +1,9 @@
 {
-  "cells_recorded": 20,
+  "cells_recorded": 32,
   "cells_total_designed": 32,
-  "core_min_total": 17.43,
+  "core_min_total": 35.61,
   "design": "demo-output/website/campaign/MODEL_FORM_BATCH_DESIGN.md",
-  "generated_utc": "2026-08-07T20:07:46Z",
+  "generated_utc": "2026-08-07T20:28:32Z",
   "groups": [
     {
       "bands": {},
@@ -117,6 +117,144 @@
       "n_converged": 0,
       "n_excluded": 4,
       "regime": "re3e6"
+    },
+    {
+      "bands": {},
+      "core_min": 6.484,
+      "excluded": [
+        {
+          "cell_id": "N_a0_SpalartAllmaras",
+          "model": "SpalartAllmaras",
+          "qoi_if_it_had_counted": {},
+          "reasons": [
+            "runner error: coarse: Cd still moving (9.79e-06 peak-to-peak over the last 50 iterations); not defensible as steady"
+          ]
+        },
+        {
+          "cell_id": "N_a0_kEpsilon",
+          "model": "kEpsilon",
+          "qoi_if_it_had_counted": {},
+          "reasons": [
+            "runner error: coarse: Cd still moving (2.52e-07 peak-to-peak over the last 50 iterations); not defensible as steady"
+          ]
+        },
+        {
+          "cell_id": "N_a0_kOmegaSST",
+          "model": "kOmegaSST",
+          "qoi_if_it_had_counted": {},
+          "reasons": [
+            "runner error: coarse: Cd still moving (5.95e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+          ]
+        },
+        {
+          "cell_id": "N_a0_realizableKE",
+          "model": "realizableKE",
+          "qoi_if_it_had_counted": {},
+          "reasons": [
+            "runner error: coarse: Cd still moving (0.000849 peak-to-peak over the last 50 iterations); not defensible as steady"
+          ]
+        }
+      ],
+      "family": "N",
+      "group": "N_a0",
+      "models_converged": [],
+      "n_converged": 0,
+      "n_excluded": 4,
+      "regime": "a0"
+    },
+    {
+      "bands": {},
+      "core_min": 5.019,
+      "excluded": [
+        {
+          "cell_id": "N_a10_SpalartAllmaras",
+          "model": "SpalartAllmaras",
+          "qoi_if_it_had_counted": {},
+          "reasons": [
+            "runner error: coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady"
+          ]
+        },
+        {
+          "cell_id": "N_a10_kEpsilon",
+          "model": "kEpsilon",
+          "qoi_if_it_had_counted": {
+            "Cd": 0.014226789043,
+            "Cl": 1.0801964408
+          },
+          "reasons": [
+            "non-orthogonality 85.6987 > 70"
+          ]
+        },
+        {
+          "cell_id": "N_a10_kOmegaSST",
+          "model": "kOmegaSST",
+          "qoi_if_it_had_counted": {
+            "Cd": 0.0044951723391,
+            "Cl": 1.1164336572
+          },
+          "reasons": [
+            "non-orthogonality 85.6987 > 70"
+          ]
+        },
+        {
+          "cell_id": "N_a10_realizableKE",
+          "model": "realizableKE",
+          "qoi_if_it_had_counted": {},
+          "reasons": [
+            "runner error: coarse: Cd still moving (0.13 peak-to-peak over the last 50 iterations); not defensible as steady"
+          ]
+        }
+      ],
+      "family": "N",
+      "group": "N_a10",
+      "models_converged": [],
+      "n_converged": 0,
+      "n_excluded": 4,
+      "regime": "a10"
+    },
+    {
+      "bands": {},
+      "core_min": 6.679,
+      "excluded": [
+        {
+          "cell_id": "N_a15_SpalartAllmaras",
+          "model": "SpalartAllmaras",
+          "qoi_if_it_had_counted": {},
+          "reasons": [
+            "runner error: coarse: Cd still moving (1.5e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+          ]
+        },
+        {
+          "cell_id": "N_a15_kEpsilon",
+          "model": "kEpsilon",
+          "qoi_if_it_had_counted": {},
+          "reasons": [
+            "runner error: coarse: Cd still moving (2.3e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+          ]
+        },
+        {
+          "cell_id": "N_a15_kOmegaSST",
+          "model": "kOmegaSST",
+          "qoi_if_it_had_counted": {},
+          "reasons": [
+            "runner error: coarse: Cd still moving (8.11e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+          ]
+        },
+        {
+          "cell_id": "N_a15_realizableKE",
+          "model": "realizableKE",
+          "qoi_if_it_had_counted": {},
+          "reasons": [
+            "runner error: coarse: Cd still moving (0.17 peak-to-peak over the last 50 iterations); not defensible as steady"
+          ]
+        }
+      ],
+      "family": "N",
+      "group": "N_a15",
+      "models_converged": [],
+      "n_converged": 0,
+      "n_excluded": 4,
+      "regime": "a15"
     },
     {
       "bands": {

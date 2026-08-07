@@ -280,6 +280,25 @@ carried in `sdk/scripts/model_form_batch.py` with its reason.
   60 core-min budget within roughly an hour of wall clock (single core);
   whichever session comes next collects with `--list` then `--band` /
   `--study` — no reattachment needed, every completed cell self-ledgers.
+- **2026-08-07 20:28:32Z — family N COMPLETE; collected by the Cases family
+  supervisor same evening.** All 12 cells ran (18.18 of 60 core-min); the
+  runner's own end-of-loop band rebuild folded them (band artifact
+  generated_utc 20:28:32Z, 32/32 designed cells, 35.61 core-min total).
+  Result: **N_a0, N_a10, N_a15 each 0 converged / 4 excluded — family N has
+  no band**, the design's own legitimate outcome, with two caveats found in
+  the supervisor's line-by-line check and recorded in
+  `CASES_FAMILY_FIRST_PASS_FINDINGS_2026-08-07.md`: (C1) 10 of 12 cells were
+  excluded by the TMR workflow's absolute tail-50 settle rule rather than
+  this batch's own §4 gate (spot checks show they fail the §4 gate too —
+  backstop-stopped without residualControl — so the no-band verdict stands;
+  the runner is fixed so future cells are always graded under §4, existing
+  records left as written pending an approved `--redo-excluded` pass); and
+  (C2) the TMR-distributed C-grid's max non-orthogonality of 85.70° fails
+  the §4.4 mesh gate for every N cell, so family N as designed can never
+  band on this grid — a pre-registration blind spot escalated to the chief
+  (compliant regeneration vs a defended distributed-grid clause), not
+  quietly exempted. The study record (`tmr_flatplate_modelform.json`)
+  is family-P-scoped and needs no change.
 
 ## 9. Deviations recorded up front
 

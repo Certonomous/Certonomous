@@ -289,3 +289,22 @@ needs its price corrected before launch and item 6 needs its reference resolved
 before launch, and both of those are stated above rather than filed as separate
 proposals, because neither is a case and the charter's `no-case` value exists
 for exactly that distinction.
+
+## Corrections (2026-08-07, Cases family supervisor — original text above left in place)
+
+1. **Item 1's reference citation was a conflation**, discovered when the item
+   was executed (`F8_MRF_HAND2001_GATE.md` §2): NREL/TP-500-29494 is *Simms et
+   al.* (blind-comparison report, torque as figures only); the Hand et al.
+   author list this slate quotes belongs to TP-500-29955, which publishes no
+   mean-torque table. The 800 N·m at 7 m/s the gate ultimately used is
+   secondary tier (Processes 12(9):1994 Table 6). Item 1 itself is complete:
+   verdict NO VERDICT as pre-registered, steady-MRF branch closed three ways
+   (F8 gate §16).
+2. **Item 3 quotes "Re_H = 37,500"** — the rounding the F5c record's own
+   exact-parameters block explicitly rejected: Driver–Seegmiller's step-height
+   Reynolds number is ≈36,000 (`F5bc_unsteady_statistics.md`, "Exact published
+   parameters"). The reattachment reference 6.26 ± 0.10 is unaffected.
+3. **Item 2 is complete** (B52 rung 8 run 2026-08-07, `B52_RUNG8_RESULTS.md`):
+   Cd inside the span as predicted, surface-resolution alternative refuted at
+   b = 0.707, ladder still `conclusive: false` — now held by `order_window`
+   (fitted p = 28.7, a noise signature) instead of `monotone`.

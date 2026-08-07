@@ -39,6 +39,15 @@ direct inspection to be the classic ERCOFTAC/Breuer periodic-hill geometry:
   `meanVelocityForce` fvOption holding `Ubar = 0.72`.
 - `nu = 9.438414346389807e-05`, with an explicit source-code comment
   `Re_H=10595` in `constant/transportProperties` — `Re_H = Ubar * h / nu`.
+  *Correction, 2026-08-07 (Cases family supervisor):* that identity is false —
+  0.72/9.438e-05 = 7628, not 10595. The case IS at the canonical Re_H:
+  `meanVelocityForce` holds the domain-mean velocity at 0.72, and the
+  literature's Re_H is built on the bulk velocity through the constricted
+  crest section, measured at 0.9982 from the converged medium field of the
+  2026-08-05 in-house ladder, giving Re_H = 10,576 (within 0.2% of 10,595).
+  Full derivation and both numbers: `campaign/F6b_ERCOFTAC_RESULTS.md` §1b,
+  which indicts this line and the 2026-08-05 pre-registration together. The
+  original text above is left in place per the correction convention.
 - Mesh: 15,600 cells, 2D (`frontAndBack` empty), `bottomWall`/`topWall` = 120
   faces each.
 - 9 standard sampling stations `x0..x8` at `x/h = 0, 1, 2, ..., 8` (the
