@@ -1,0 +1,25 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  Whole-domain MRF cellZone (region0), same pattern as the DAFoam
+  NREL6_Wind_Turbine tutorial: every cell belongs to the single rotating
+  frame; inlet/outlet/sides are marked nonRotatingPatches in MRFProperties.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version 2.0;
+    format  ascii;
+    class   dictionary;
+    object  topoSetDict;
+}
+
+actions
+(
+    { name allcells; type cellSet; action clear; }
+    { name allcells; type cellSet; action invert; }
+    {
+        name    region0;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        sourceInfo { set allcells; }
+    }
+);

@@ -1,0 +1,64 @@
+FoamFile
+{
+    version 2.0;
+    format  ascii;
+    class   dictionary;
+    object  fvSolution;
+}
+
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-7;
+        relTol          0.05;
+    }
+
+    "(U|nuTilda)"
+    {
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+        tolerance       1e-8;
+        relTol          0.1;
+        nSweeps         1;
+    }
+
+    // potentialFoam initialisation only (the B-52 family's own convention)
+    Phi { solver GAMG; smoother DIC; tolerance 1e-6; relTol 0.01; }
+}
+
+potentialFlow
+{
+    nNonOrthogonalCorrectors 10;
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 1;
+    consistent              no;
+
+    // Fields the SA model actually transports (p, U, nuTilda). A stop
+    // criterion referencing k/omega would never fire under SA -- known
+    // trap, see LESSONS.md.
+    residualControl
+    {
+        p       1e-4;
+        U       1e-4;
+        nuTilda 1e-4;
+    }
+}
+
+relaxationFactors
+{
+    fields
+    {
+        p 0.2;
+    }
+    equations
+    {
+        U       0.5;
+        nuTilda 0.5;
+    }
+}

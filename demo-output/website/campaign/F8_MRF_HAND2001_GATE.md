@@ -425,3 +425,60 @@ Mx > 0 + 800 N·m inside [mean − p2p/2, mean + p2p/2].
 **14.5 core-min** (wall ≈ 7.3 min at 2 ranks).
 
 *Nothing below this line existed when the run was launched.*
+
+## 12. §11 result: the run DIVERGED — no pre-registered branch fired, and the record says so rather than picking the nearest one
+
+One mechanical addition was needed before the solver would start and is
+recorded: `fvSolution` had no `Phi` solver entry, so potentialFoam could not
+run; the `Phi { GAMG; DIC; 1e-6; 0.01 }` block and
+`potentialFlow { nNonOrthogonalCorrectors 10; }` were copied from the B-52
+family's own fvSolution (first attempt aborted at 0 solver cost; case
+relaunched clean).
+
+**Result:** potentialFoam converged in 2.2 s; simpleFoam ran all 1500
+iterations without aborting, and the blade moment **diverged exponentially
+from the first sample** — Mx = −1.5e4 at t=50, −1.5e8 at t=250, −1e27 at
+t=850, −2.5e99 at t=1500. The window statistics are meaningless and are not
+quoted as physics. The settle verdict is **FAILED RUN (numerical
+divergence)** — which is none of §11's three branches: (a) and (b) require a
+settled field and (c) described bounded oscillation, not exponential
+blow-up. The prediction (turbine-signed, +400 to +1200 N·m) is scored **not
+evaluable — the run it bet on did not produce a flow**.
+
+**The monitor standard called this one:** at t=1500 the Ux residual reads
+1.4e-8 — "converged" to any residual-only monitor — while p sits at 0.51 and
+the force history is at 1e99, with 692 `bounding nuTilda` lines along the
+way. That is S10, divergence behind a converged residual, detected here the
+way S12/L-24 prescribe: from the quantity, not the residual block.
+
+**What can and cannot be concluded, honestly:** §11 changed TWO things at
+once (potentialFoam initialisation AND reduced relaxation), so this
+divergence cannot be attributed to either alone — a confound of this
+record's own making, named as such. The mechanism suspicion for the next
+test: `potentialFoam -writephi` writes an **absolute** potential-flow flux,
+and inside a whole-domain MRF zone simpleFoam expects the frame's relative
+correction on the face flux — an initial phi missing the ω×r face
+contribution is a large spurious mass source at iteration 1, and the F5b
+cure this plan borrowed came from a non-rotating case. The impulsive-start
+hypothesis for the original limit cycle is NOT refuted (this run never
+tested it — it replaced one bad start with a worse one), and the §10 item-2
+MRF term audit now rises in priority since flux/frame handling is implicated
+twice.
+
+**Filed next step (not run — the rider's budget is spent):** split the
+confound at ~14 core-min per arm: (arm 1) potentialFoam init WITHOUT
+`-writephi` (U/p only, let simpleFoam build its own MRF-consistent flux) at
+the ORIGINAL relaxation; (arm 2) if arm 1 diverges too, original uniform
+init at reduced relaxation. Either arm isolates one variable; both inherit
+the §11 gate and prediction verbatim.
+
+## 13. Cost, final (supersedes §9)
+
+| item | core-min |
+| --- | --- |
+| gate (existing history + reference fetch) | 0 |
+| omega-flip confirmation (600 iters, 4 ranks) | 5.8 |
+| step-2 settle extension (1500 iters, 4 ranks) | 13.6 |
+| step-1 STL-orientation audit (§10) | 0 |
+| §11 initialised re-run (1500 iters, 2 ranks, diverged) | 13.4 |
+| **total across the item and its riders** | **32.8** |
