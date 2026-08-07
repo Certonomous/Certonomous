@@ -359,6 +359,17 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   (f6b-why-the-finest-hill-will-not-converge, 55). Slate ranked 8 families; two premise corrections (F5c OOM refuted;
   F8 MRF already run, unconverged); slate-toppers dispatched (F8 forces gate vs Hand 2001; B52 8th rung).
 
+### 2026-08-07 (evening) — fourth fleet death survived; the day's two verdicts resume
+- INCIDENT 4: weekly limit killed the five working agents ~17:45Z on 08-05; credits restored 08-07 19:59Z (two-day gap,
+  box power-cycled). All five resumed from transcript; both keepalives armed through 08-08 19:59Z. The QCR agent froze
+  its round-5 rule in a COMMIT before dying (0bade54a: all three ducts or none, decided by AR_7 alone, AR_14 tie at
+  risk in writing) — the pre-register-first discipline survived its fourth test.
+- RESUMED THREADS: branch-hypothesis survey ("A1 has no limiter — this changes R1's interpretation"; seven-case scheme
+  survey at zero cost); QCR AR_7 validation arm + topology check; S1 reference-coverage audit (the 30%-RMS-vs-LES
+  credibility question) + limiter mask; model-form batch cell collection; slate-toppers (F8 forces gate, B52 rung).
+- LOOSE END noted: untracked F7a_R1/res16_alphaco sweep dirs (08-05 15:28, unowned by any known agent) — triage whether
+  this is committed-work residue or an orphaned F7a-fix attempt before anything overwrites it.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
