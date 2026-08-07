@@ -199,3 +199,54 @@ In cost order:
 | gate (read existing history, fetch reference) | 0 |
 | omega-flip confirmation run (600 iters, 4 ranks, 87 s) | 5.8 |
 | **total, vs 6 approved** | **5.8** |
+
+## 7. Step 2 of the diagnosis plan — pre-registration (2026-08-07, before launch)
+
+Authorised by the supervisor under the blanket approval as a rider on this
+item: settle the flipped-omega case. **Written before the extension is
+launched; the only flip-case data in context is the t=50–600 history already
+recorded in §4** (12 samples, +761.8 declining monotonically to +365.5).
+
+**Run:** restart `phase6_mrf_omegaflip` from its latest written fields
+(t=500 — the t=600 stop wrote no fields because 600 is not a writeInterval
+multiple, the known endTime trap; noted so the restart provenance is clean),
+`endTime` 2000, `startFrom latestTime`, everything else untouched. 4 MPI
+ranks — the F8 case's own convention from every prior run of this mesh (the
+2-rank convention belongs to the B-52 family, not this one). Predicted cost:
+1500 iterations at the measured 0.145 s/iter wall ≈ 218 s × 4 ranks ≈
+**14.5 core-min**.
+
+**Averaging window, declared now:** t = 1500–2000 inclusive (final 500
+iterations, 11 samples at writeInterval 50).
+
+**Settle gate, declared now (monitor-standard S12):** over the window,
+relative drift = (mean of second half − mean of first half)/|window mean|,
+monotone fraction = largest directional fraction of successive steps.
+UNSETTLED if relative drift ≥ 1e-3 AND monotone fraction ≥ 0.90. Also
+gateability cap, same convention as §1: window peak-to-peak spread must be
+≤ 50% of the 800 N·m reference (≤ 400 N·m).
+
+**Torque gate, declared now:** if settled and within the cap — PASS if
+800 N·m lies inside [|mean| − p2p/2, |mean| + p2p/2]; FAIL, reported as a
+result, if outside; NO VERDICT if the cap or S12 trips. Q_ref = 800 N·m,
+secondary tier per §2, unchanged.
+
+**Sign rule, declared now:** rotation is −x (omega = −7.5398), so a
+power-extracting turbine carries mean aero torque Mx < 0 (parallel to
+omega). The raw sign is reported. **If the window mean settles positive
+(anti-parallel — motoring), the configuration is still not a turbine and no
+MRF milestone is claimed regardless of magnitude agreement**; the step-1
+STL-orientation audit then becomes the blocker and the verdict is recorded
+as "settled, wrong sign". A milestone claim requires settled + cap met +
+turbine sign + 800 N·m inside the band.
+
+**Prediction, weak and stated as such:** at t=600 the history was still
+falling at ≈0.55 N·m/iter with no visible deceleration; if that continues it
+crosses zero near t≈1265 and reads turbine-signed by t=2000. Predicted: the
+window lands turbine-signed (Mx < 0). Named risks, either reported as
+written: (a) it decays to a positive (motoring) plateau — then step 1 is the
+blocker; (b) it is still travelling at t=2000 — then S12 fires, the verdict
+is NO VERDICT (unsettled), and the steady-MRF branch is closed a second time
+on evidence, making the transient branch the filed next step.
+
+*Nothing below this line existed when the restart was launched.*
