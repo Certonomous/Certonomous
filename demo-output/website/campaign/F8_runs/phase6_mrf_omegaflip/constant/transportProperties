@@ -1,0 +1,12 @@
+FoamFile
+{
+    version 2.0;
+    format  ascii;
+    class   dictionary;
+    object  transportProperties;
+}
+
+// Sea-level air at ~15 C, matching NASA Ames 80x120 test-section conditions
+// (p ~ 101 kPa, T ~ 288 K) used in the UAE Phase VI report NREL/TP-500-29494.
+transportModel  Newtonian;
+nu              [0 2 -1 0 0 0 0] 1.4805e-05;

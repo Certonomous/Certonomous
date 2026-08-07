@@ -1,0 +1,23 @@
+FoamFile
+{
+    version 2.0;
+    format  ascii;
+    class   dictionary;
+    object  MRFProperties;
+}
+
+// UAE Phase VI Sequence S: fixed rotor speed 72 RPM = 7.5398 rad/s.
+// Whole-domain single MRF zone (region0 = every cell), same pattern as the
+// DAFoam NREL6_Wind_Turbine tutorial this case is derived from. Far-field
+// patches are declared non-rotating so the free-stream BCs stay in the
+// absolute (wind-tunnel) frame.
+MRF
+{
+    active              true;
+    selectionMode       cellZone;
+    cellZone            region0;
+    nonRotatingPatches  (sides inlet outlet);
+    axis                (1 0 0);
+    origin              (0 0 0);
+    omega               -7.5398; // FLIPPED: diagnosis test, original was +7.5398
+}

@@ -1,0 +1,56 @@
+FoamFile
+{
+    version 2.0;
+    format  ascii;
+    class   dictionary;
+    object  fvSolution;
+}
+
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-7;
+        relTol          0.05;
+    }
+
+    "(U|nuTilda)"
+    {
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+        tolerance       1e-8;
+        relTol          0.1;
+        nSweeps         1;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 1;
+    consistent              no;
+
+    // Fields the SA model actually transports (p, U, nuTilda). A stop
+    // criterion referencing k/omega would never fire under SA -- known
+    // trap, see LESSONS.md.
+    residualControl
+    {
+        p       1e-4;
+        U       1e-4;
+        nuTilda 1e-4;
+    }
+}
+
+relaxationFactors
+{
+    fields
+    {
+        p 0.3;
+    }
+    equations
+    {
+        U       0.7;
+        nuTilda 0.7;
+    }
+}

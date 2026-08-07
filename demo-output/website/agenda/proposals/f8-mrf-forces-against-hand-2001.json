@@ -19,13 +19,14 @@
   "The next-cases slate, item 1"
  ],
  "launch_prompt": "F8 NREL Phase VI, gate the forces that already exist. Do NOT start a new solve first. Read demo-output/website/campaign/NEXT_CASES_SLATE.md item 1 and the F8 section of campaign/CAMPAIGN_STATUS.md. Step 1, zero compute: write the pre-registration BEFORE reading any force number -- declare the averaging window over the existing history in F8_runs/phase6_mrf/postProcessing/bladeForces, and declare the maximum band width (as a percentage of the published torque) beyond which you will report NO VERDICT rather than a pass or a fail. Step 2: fetch NREL/TP-500-29494 (Hand et al. 2001) and extract the low-speed-shaft torque at the 7 m/s Sequence S point; if the tabulated value cannot be reached, stop and report BLOCKED at 0 core-min rather than substituting a secondary source without stating its provenance tier. Step 3: convert the existing bladeForces history to low-speed-shaft torque in the published quantity's own units and sign convention -- state the conversion explicitly, it is the step most likely to be wrong, and a torque that is off by the rotor radius or the blade count is the failure mode to guard against. Step 4: report the window mean, the peak-to-peak spread, and the verdict against the pre-declared band. Budget 6 core-min, 4 ranks, setsid, poll logs inline. Record: evidence file in demo-output/website/campaign/, docket update on this item, honest verdict -- a NO VERDICT with the band measured is a result and must not be dressed up as a fail or a pass.",
- "status": "approved",
+ "status": "done",
  "created_at": "2026-08-05T17:17:00Z",
- "decided_at": "2026-08-05T17:43:28Z",
+ "decided_at": "2026-08-07T20:16:27Z",
  "decision_note": "approved under Katie's blanket approval 2026-08-05, next-cases slate rank_value 0.500 (slate rank 1); blanket, not per-item, so the proposal's own gate and cost basis still govern what runs",
  "claim": {
   "claimed_by": "solver-agent next-cases-slate-top-two (W1 session)",
   "claimed_at": "2026-08-05T17:43:28Z",
-  "note": "Claimed together as the top two of the 2026-08-05 next-cases slate (commit 9ee82a35). F8 analysis first, B52 rung second, per the slate ordering."
- }
+  "note": "Released on completion, 2026-08-07. Full record: demo-output/website/campaign/F8_MRF_HAND2001_GATE.md; diagnostic case retained at demo-output/website/campaign/F8_runs/phase6_mrf_omegaflip/."
+ },
+ "outcome": "NO VERDICT, reported as the result the gate defined for it. Pre-registered window t=2000-3000, cap 50% of the published torque; measured band 7678.7 N-m peak-to-peak = 960% of the 800 N-m reference (secondary tier: Processes 12(9):1994 Table 6, digitised from Hand et al. 2001; the docket's TP-500-29494 citation was a conflation -- that is Simms et al.'s blind-comparison report with figure-only torque, and Hand et al.'s TP-500-29955 publishes no torque table). Window mean |Mx| 1037.1 N-m (+29.6% vs reference) is void per the cap. Unconverged forces are not gateable; the steady-MRF branch closes on evidence. The budget's confirmation restart (5.8 of 6 core-min) found the mechanism lead: mean aero torque opposes the set rotation direction, and flipping omega calms the history 21x (p2p 132.8 vs 2831.6 N-m over t=300-600 on the identical mesh). Deliverable per the unconverged branch: the convergence-fix diagnosis plan in F8_MRF_HAND2001_GATE.md section 5."
 }

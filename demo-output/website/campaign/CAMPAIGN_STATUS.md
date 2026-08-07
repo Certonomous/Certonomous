@@ -458,7 +458,7 @@ Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
 | **F7b** | Wigley hull | – | – | – | – | **BLOCKED** (F7a gate fail) | – | – | – | 0 |
 | **F7c** | Workshop hull | – | – | – | – | **BLOCKED** (F7b blocked) | – | – | – | 0 |
 | **F4** | Hypersonic blunt (M6-8, cylinder) | M=6-8 | Inviscid hypersonic | 2D | Steady | Feasibility→Physics→**Gate** | Billig standoff / mod. Newtonian Cp | standoff +0.7-2.3%; Cp RMS 3.87-3.91% | **GATE REACHED** | 14.66 |
-| **F8** | Rotating machinery (MRF, UAE Phase VI Seq. S, 7 m/s) | – | Turbulent, rotating frame | 3D | Steady MRF | Physics attempted, **UNCONVERGED** | Hand et al. 2001, NREL/TP-500-29494 (found, not yet applied) | force still oscillating +-30% at t=1500, no "SIMPLE solution converged" | **NOT A RESULT** (see below) | not gated |
+| **F8** | Rotating machinery (MRF, UAE Phase VI Seq. S, 7 m/s) | – | Turbulent, rotating frame | 3D | Steady MRF | Physics attempted, **UNCONVERGED**; gate run 2026-08-07 | Hand et al. 2001 (800 N·m at 7 m/s, secondary tier; TP numbers corrected, see F8 note) | torque band 7679 N·m p-p = 960% of reference, cap was 50% | **NO VERDICT — unconverged forces not gateable; MRF branch closed** | 5.8 |
 | **F9** | Pulsatile valve (fixed-leaflet orifice) | Re~8.4e3 pipe | Pulsatile laminar, orifice | Axisym | Unsteady | Feasibility→Physics→**Gate** | Womersley (1955) profile; own steady map; ROM | Gate1 PASS (-1.6%/+0.2%); Gate2 FAIL (20-414%, cause ID'd); Gate3 -94.0% vs ROM (pre-registered) | **GATE REACHED, mixed** | <35 |
 | **F10** | 3D RANS batch | – | – | – | – | **NOT STARTED** | – | – | no record | 0 |
 
@@ -510,6 +510,18 @@ yet — see below). Corrected 2026-07-29 night session per L-1.
   instability. Next test is qualitatively different (transient rotating
   frame), not merely longer. Logged as a genuine Group 3 solver convergence
   failure in `NOT_PASSING_REGISTER.md`, not glossed over.
+  **Update 2026-08-07 (`f8-mrf-forces-against-hand-2001`, slate item 1): the
+  Hand et al. gate was run under pre-registration and returned NO VERDICT —
+  the window (t=2000–3000) torque band is 7678.7 N·m peak-to-peak, 960% of
+  the published 800 N·m against a pre-declared 50% cap; unconverged forces
+  are not gateable and the steady-MRF branch is closed on evidence. The
+  citation is corrected (TP-500-29494 is Simms et al.'s blind-comparison
+  report, figure-only; TP-500-29955 is Hand et al.'s configurations report,
+  no torque table; numeric 800 N·m is secondary-tier from Processes
+  12(9):1994 Table 6). A 5.8 core-min omega-flip diagnostic found the
+  mechanism lead: the mean aero torque opposes the set rotation direction,
+  and reversing omega calms the history 21× on the same mesh. Full record
+  and the convergence-fix diagnosis plan: `F8_MRF_HAND2001_GATE.md`.**
 - **F9 (Pulsatile valve):** **GATE REACHED, mixed**, see above — this line
   was wrong ("out of scope, needs moving-mesh" describes a *different*,
   harder case than the fixed-leaflet idealization that was actually built

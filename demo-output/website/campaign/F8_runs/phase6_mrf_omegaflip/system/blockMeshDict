@@ -1,0 +1,73 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F8 rotating machinery -- NREL Phase VI (UAE) MRF feasibility mesh.
+  Background box, coarsened from the DAFoam NREL6_Wind_Turbine tutorial box
+  (-10..30 x, -20..20 y/z) but with far fewer base blocks so snappyHexMesh
+  refinement stays inside this project's proven cell-count ceiling.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version 2.0;
+    format  ascii;
+    class   dictionary;
+    object  blockMeshDict;
+}
+
+convertToMeters 1;
+
+vertices
+(
+    (-10.0 -20.0 -20.00)
+    ( 30.0 -20.0 -20.00)
+    (-10.0  20.0 -20.00)
+    ( 30.0  20.0 -20.00)
+    (-10.0 -20.0  20.00)
+    ( 30.0 -20.0  20.00)
+    (-10.0  20.0  20.00)
+    ( 30.0  20.0  20.00)
+);
+
+blocks
+(
+    hex (0 1 3 2 4 5 7 6) (18 18 18) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces
+        (
+            (0 2 6 4)
+        );
+    }
+
+    sides
+    {
+        type patch;
+        faces
+        (
+            (0 1 5 4)
+            (2 3 7 6)
+            (0 1 3 2)
+            (4 6 7 5)
+        );
+    }
+
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (1 3 7 5)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
