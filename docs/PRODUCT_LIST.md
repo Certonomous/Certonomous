@@ -425,6 +425,15 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   one-word reproducer. Sweep of the serial finding dispatched (the FD-kink question gets full seriousness before
   anything is filing-ready). primalMinResTol co-ingredient hypothesis gains weight.
 
+- A1 SERIAL SWEEP CONFIRMED 5/5 (0858e640, 0.00 core-min): the kink trap — the one axis that could gut the finding —
+  was found unaddressed in the record (F1), then CLOSED from existing logs: smooth components can't be kink artifacts,
+  and the branchy component's adjoint lies outside the FD's branch bracket, wrong side of zero, 3x magnitude.
+  **THE DAFOAM CASE FILE IS FILING-READY, COMPLETE**: limiter-tape mechanism (operator-proven, 24,270-fold collapse
+  verified), parallel variant (one mesh family, honestly scoped), serial variant (one-word single-process reproducer,
+  kink-closed), novelty (63 searches), why-unnoticed (from the papers' own protocols), sub-LU remedy (PETSc-sanctioned),
+  27pp compiled companion, every headline claim survived an independent adversarial sweep. Both upstream reports await
+  only Katie's filing decision.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
