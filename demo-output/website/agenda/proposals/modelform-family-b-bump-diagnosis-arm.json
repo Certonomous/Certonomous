@@ -1,0 +1,22 @@
+{
+ "id": "modelform-family-b-bump-diagnosis-arm",
+ "well": "W3",
+ "objective": "Run one diagnosis arm of model-form family B, the bump at a doubled iteration cap with per-quantity settle tracking, to decide slow-but-convergent against genuinely stalled, which decides whether family B gets a band or a documented exclusion",
+ "rationale": "Family B produced no band: all four closures stalled, and the archived rung never met its residual criterion either, so the family's absence from the band rests on runs that never finished deciding. One arm at double the archived cap, with each quantity's settle state tracked separately, separates the two readings. Slow but convergent means the family re-enters the band with a stated cap; genuinely stalled means the family receives a documented exclusion instead of a silent hole. Either way the band's coverage statement becomes honest",
+ "gate": "One closure from the family at double the archived iteration cap, with the cap and the per-quantity settle criteria declared before the run. Outcome one: the quantities settle and the residual criterion is met, so the family is slow but convergent, the archived verdict is revised to under-iterated, and family B re-enters the band with its cap stated. Outcome two: the histories plateau at the doubled cap, so the family is genuinely stalled and receives a documented exclusion. Both outcomes are written into the band's coverage statement",
+ "est_core_min": 15,
+ "predicted_memory_gb": 2.0,
+ "predicted_usd": 0.205,
+ "cost_basis": "estimate, the review's figure: one closure at twice the archived rung's iteration cap, about twice the archived rung's recorded spend",
+ "expected_knowledge_gain": "Whether family B belongs in the model-form band or in a documented exclusion, decided by measurement instead of by the ambiguity of runs that stopped on a backstop, which makes the band's coverage claim honest either way",
+ "source_kind": "gate",
+ "hard_criterion": "instrument-check",
+ "citations": [
+  "The supervisor review of standing negative verdicts, 2026-08-07, section 9",
+  "The model-form band record, where family B's four stalled closures are logged",
+  "The model-form batch design record"
+ ],
+ "launch_prompt": "Model-form family B, bump diagnosis arm. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 9 and demo-output/website/campaign/MODEL_FORM_BAND.md first. Pick one closure from family B, double the archived iteration cap, and declare the cap and per-quantity settle criteria BEFORE launch. Solve with the settle watcher discipline (setsid; beware the coefficient-file rename on restart). Verdict: slow but convergent, or genuinely stalled, per the declared criteria; update the band's coverage statement accordingly. Budget 15 core-min. Record: evidence file in demo-output/website/campaign/, docket update on this item, honest verdict.",
+ "status": "proposed",
+ "created_at": "2026-08-07T22:10:00Z"
+}

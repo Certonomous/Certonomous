@@ -1,0 +1,23 @@
+{
+ "id": "r5-alpha05-weighted-loss-variant",
+ "well": "W5",
+ "objective": "Train a spatially weighted loss variant of the declined regime correction on the same split, offline and validation-only, weighting by local truth magnitude or by the metric's own point density, to test whether the error relocation was an artifact of equal-weight training",
+ "rationale": "The regime model went NO-GO on its own pre-registered cap: the boundary moved instead of vanishing, which is the recorded mechanism finding, and the census showed the correction relocating error into the strip the metric weights least. That leaves one cheap, well-posed question: is the relocation a property of the correction or of the equal-weight loss it was trained under. A variant weighted by local truth magnitude or by the metric's own point density, trained on the same split with nothing else changed, answers it offline. Its pre-registration must state the same hurt-cap discipline that killed the predecessor, so a GO cannot be manufactured by weakening the rule that produced the NO-GO",
+ "gate": "Pre-registered before training, carrying the same hurt-cap discipline that produced the predecessor's NO-GO. Outcome one: the weighted variant stops relocating error into the metric's weakly sampled strip on the validation split, so the relocation was an artifact of equal-weight training and a successor candidate has a stated mechanism. Outcome two: the relocation persists under weighting, so it is structural to the correction and the regime route stays closed on evidence. No test case is opened and no scoring call is made; the work is validation-only by construction",
+ "est_core_min": 0,
+ "predicted_memory_gb": 0.5,
+ "predicted_usd": 0.0,
+ "cost_basis": "zero solver core-minutes, the review's own costing: offline fitting of the sklearn class on data already on disk, and the predecessor's measured cost was about two core-minutes of wall at a two-core cap, which is the scale expected here",
+ "expected_knowledge_gain": "Whether the error relocation that ended the regime route belongs to the correction or to its training loss, which is the difference between a closed road and a mislabelled one, bought without opening a test case or launching a solver",
+ "source_kind": "challenge",
+ "hard_criterion": "no-case",
+ "citations": [
+  "The supervisor review of standing negative verdicts, 2026-08-07, section 7",
+  "The R5 regime-model pre-registration, whose section 4 records the NO-GO on the pre-declared cap",
+  "The product list, where the mechanism finding on the moving boundary is recorded",
+  "The closure evaluation protocol, where the census locates the relocated error"
+ ],
+ "launch_prompt": "Alpha 05 regime route, weighted-loss variant. Offline, validation-only, no test case opened, open() guard armed as the predecessor had it. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 7 and demo-output/website/closure_challenge_R5_ALPHA05_REGIME_PREREGISTRATION.md first. Pre-register BEFORE training: the weighting (local truth magnitude, and separately the metric's own point density), the identical split, and the identical hurt-cap discipline that produced the predecessor's NO-GO. Train, then report relocation on the validation split beside the equal-weight predecessor. Record: evidence file beside the R5 records, docket update on this item, honest verdict.",
+ "status": "proposed",
+ "created_at": "2026-08-07T22:10:00Z"
+}

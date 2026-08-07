@@ -1,0 +1,23 @@
+{
+ "id": "f6a-hump-qcr-arm-on-the-challenge-run",
+ "well": "W1",
+ "objective": "Add a QCR2000 arm to the approved NASA hump challenge-conditions run when it executes, so the two-leg separated-flow pattern gets the same constitutive probe on both legs",
+ "rationale": "The hump's bubble-length overprediction is the same family of failure as the hills', and the model-form matrix at challenge conditions is already approved on the docket. Attaching one QCR2000 arm to that run when it executes costs only the marginal solve, because the mesh and setup are the approved run's own, and it completes the pattern: whatever the hills arm finds about anisotropy, the hump answers with the same probe on the same terms, so the two legs become comparable instead of merely similar.",
+ "gate": "The arm runs only when the approved challenge-conditions run executes, on that run's mesh and settings, with the QCR2000 term the single change. Outcome one: the bubble length moves materially toward the measured reattachment, and the constitutive finding is compared leg against leg with the hills arm. Outcome two: no material change, and the constitutive route is ruled out on this leg too. The cross-leg comparison is the deliverable, so the arm reports beside the hills result rather than alone",
+ "est_core_min": 8,
+ "predicted_memory_gb": 2.0,
+ "predicted_usd": 0.109,
+ "cost_basis": "estimate, the review's marginal figure: the arm shares the approved challenge-conditions run's mesh and setup, so only one additional closure solve is priced",
+ "expected_knowledge_gain": "The two-leg pattern probed identically on both legs: either anisotropy repairs separated-region length on hump and hills alike, which is a constitutive-form finding worth stating once for the class, or the legs answer differently and the difference itself localises the mechanism",
+ "source_kind": "gate",
+ "hard_criterion": "existing-family",
+ "citations": [
+  "The supervisor review of standing negative verdicts, 2026-08-07, section 2",
+  "The hump challenge-conditions proposal already approved on the docket",
+  "The F6a epistemic case record, where the reattachment overprediction stands",
+  "Spalart, Strategies for turbulence modelling and simulations, the QCR2000 constitutive relation"
+ ],
+ "launch_prompt": "F6a NASA hump, QCR2000 arm. This arm is contingent: it runs when the approved w1-hump-challenge-conditions run executes, on its mesh and settings. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 2 first. Add one solve with the QCR2000 term active and nothing else changed, and report the bubble length beside the baseline arm and beside the hills QCR result. Budget 8 core-min marginal. Record: evidence in the challenge-run's own results file, docket update on this item, honest verdict.",
+ "status": "proposed",
+ "created_at": "2026-08-07T22:10:00Z"
+}

@@ -1,0 +1,25 @@
+{
+ "id": "f5c-inlet-development-audit",
+ "well": "W1",
+ "objective": "Audit the F5c backward-facing step inlet against Driver and Seegmiller's stated boundary-layer development, verifying that our inlet reproduces the reference boundary-layer thickness at the step within the experiment's tolerance, before any new solve is spent on the case",
+ "rationale": "The F5c record shows converged solves landing a factor of four to twelve short on reattachment and wandering across configurations, and the out-of-memory premise that once excused the case is dead, refuted by our own record. The classic backward-facing step trap is an inlet that never develops the boundary layer the experiment had at the step, and a miss this large smells like it. The reference states a developed layer of given thickness there. Reading our inlet and existing fields against that statement costs nothing, and the review orders it first for exactly that reason: it is the cheapest hypothesis and it must be cleared before the unsteady probe spends anything",
+ "gate": "The audit reads our inlet condition and the existing solution fields and compares boundary-layer thickness at the step against the value and tolerance the experiment states. Outcome one: our thickness sits outside the tolerance, the inlet owns a share of the factor-of-four-to-twelve failure, and repairing inlet development precedes all further spending on the case. Outcome two: our thickness sits inside, the inlet is exonerated on the record, and the unsteady probe run becomes the next diagnostic in the declared order",
+ "est_core_min": 0,
+ "predicted_memory_gb": 0.5,
+ "predicted_usd": 0.0,
+ "cost_basis": "zero compute: the audit reads the existing inlet specification and stored fields against the reference's stated thickness; no new solve is launched",
+ "expected_knowledge_gain": "Either the mechanism behind the largest unexplained failure on the campaign record, found for free in the inlet, or a clean exoneration that licenses the unsteady probe as the next diagnostic, with the order of spending decided by evidence rather than appetite",
+ "source_kind": "measurement",
+ "hard_criterion": "existing-family",
+ "citations": [
+  "The supervisor review of standing negative verdicts, 2026-08-07, section 5",
+  "The F5b and F5c unsteady statistics record, where the factor-of-four-to-twelve reattachment failure is measured",
+  "The next-cases slate, item 3, whose diagnosis plan these diagnostics sharpen",
+  "Driver and Seegmiller, Features of a reattaching turbulent shear layer in divergent channel flow, 1985"
+ ],
+ "launch_prompt": "F5c backward-facing step, inlet-development audit. Zero compute. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 5, demo-output/website/campaign/F5bc_unsteady_statistics.md, and item 3 of demo-output/website/campaign/NEXT_CASES_SLATE.md first. Pre-register the reference boundary-layer thickness at the step and the experiment's tolerance BEFORE reading our fields. Then read the F5c inlet specification and stored fields under demo-output/website/campaign/F5c_runs/ and report delta over step height at the step against the reference. Verdict per the declared tolerance; if the inlet fails, state the repair before proposing any run. Record: evidence file in demo-output/website/campaign/, docket update on this item, honest verdict.",
+ "status": "approved",
+ "created_at": "2026-08-07T22:10:00Z",
+ "decided_at": "2026-08-07T22:10:00Z",
+ "decision_note": "supervisor review 2026-08-07 under Katie's standing green light"
+}

@@ -1,0 +1,25 @@
+{
+ "id": "a3-m6-vcoarse-adjoint-sub-lu-arm",
+ "well": "W4",
+ "objective": "Run one arm of the ONERA M6 vcoarse adjoint with the sub-preconditioner set to LU together with the liaison's transonic preconditioner lead, neither of which has ever been set on our M6 runs, to learn whether the conditioning block that predates the sub-LU tool still stands",
+ "rationale": "A3 closed as blocked: adjoint breakdown at every mesh size tested, regardless of memory headroom. But the block predates the sub-LU unblock that later cleared the incompressible family, and that unblock was never carried to M6; separately, the liaison's research found the official transonic tutorial setting a transonic preconditioner option our M6 records never set. That is a gap, not a verdict, and one arm on the cheapest mesh closes it either way: convergence reopens the A3 ladder and gives the breakdown story its epilogue, and a second breakdown confirms the conditioning wall beyond the incompressible family with both known unblocks tested",
+ "gate": "One adjoint solve on the vcoarse M6 mesh with the sub-preconditioner set to LU and the transonic preconditioner option set as the official transonic tutorial sets it, nothing else changed from the archived arm. Outcome one: the adjoint converges, the A3 ladder reopens, and the breakdown record gains an epilogue naming the settings that were missing. Outcome two: the adjoint breaks down again, and the conditioning wall is confirmed beyond the incompressible family, with both known unblocks on the record as tested and insufficient",
+ "est_core_min": 30,
+ "predicted_memory_gb": 6.0,
+ "predicted_usd": 0.41,
+ "cost_basis": "estimate, the review's figure: the vcoarse M6 adjoint has run before and failed by breakdown rather than by walltime, and the two settings change conditioning rather than problem size, so the archived arm's spend is the anchor",
+ "expected_knowledge_gain": "Either the A3 ladder reopened by a setting that already existed, which converts a blocked family into a running one for the cost of a single arm, or the conditioning wall confirmed as real beyond the incompressible family, which is the epilogue the breakdown record currently lacks",
+ "source_kind": "gate",
+ "hard_criterion": "existing-family",
+ "citations": [
+  "The supervisor review of standing negative verdicts, 2026-08-07, section 8",
+  "The DAFoam adjoint memory envelope record, where breakdown at every M6 point is measured",
+  "The liaison research record on adjoint conditioning, lead 1.5, the transonic preconditioner option",
+  "The CBFS unblock verification sweep, where the sub-LU setting cleared the incompressible family"
+ ],
+ "launch_prompt": "A3 ONERA M6, sub-LU plus transonic preconditioner arm. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 8, demo-output/website/dafoam/ADJOINT_MEMORY_ENVELOPE.md, and lead 1.5 of demo-output/website/dafoam/LIAISON_RESEARCH_adjoint_conditioning.md first. One arm: the archived vcoarse M6 adjoint case with DAFOAM_SUBPC_TYPE=lu and transonicPCOption set as the official transonic NACA0012 tutorial sets it, nothing else changed. Pre-register both outcomes before launch. Budget 30 core-min; dispatch as a solver agent, setsid, poll logs inline. Record: evidence file in demo-output/website/dafoam/, docket update on this item, honest verdict.",
+ "status": "approved",
+ "created_at": "2026-08-07T22:10:00Z",
+ "decided_at": "2026-08-07T22:10:00Z",
+ "decision_note": "supervisor review 2026-08-07 under Katie's standing green light"
+}

@@ -1,0 +1,23 @@
+{
+ "id": "f6b-model-form-matrix-on-the-hills",
+ "well": "W3",
+ "objective": "Run the model-form matrix on the ERCOFTAC periodic hills, the standing batch's four closure families on the medium rung of our own verified mesh, to learn whether any closure enters the literature reattachment band and whether the inter-model band contains it",
+ "rationale": "The hills closed with a physics FAIL, reattachment 72 percent long against the literature band, and the failure was verified onto the model rather than onto us: our own mesh agrees with the shipped grid to 0.043 percent with 0.097 percent grid sensitivity. What the verdict taught is that SST overpredicts separated-region length on the hills the same way it does on the hump, a two-leg pattern. The standing model-form batch already runs four closure families on other cases; extending its family set to the hills asks the two questions the verdict left open, whether any closure enters the band and whether the inter-model band contains the reference, and feeds the epistemic-uncertainty showcase directly.",
+ "gate": "Four solves, one per closure family, on the medium rung of the verified in-house hills mesh, each read against the published reattachment band under outcomes declared before launch. Outcome one: at least one closure lands inside the literature band, which locates the failure in closure choice rather than in the class. Outcome two: none does but the inter-model band contains the reference, which is the epistemic-uncertainty result. Outcome three: even the inter-model band excludes the reference, which is a class-level finding. No scoring call is made; the matrix reports whichever outcome the runs deliver",
+ "est_core_min": 35,
+ "predicted_memory_gb": 2.0,
+ "predicted_usd": 0.478,
+ "cost_basis": "estimate, the review's own figure: four closures at the medium rung of a ladder whose rungs this campaign has already run and logged, so the per-solve price is anchored to the family's recorded spend rather than to a guess",
+ "expected_knowledge_gain": "Either a closure that works on the hills, which redirects the two-leg separated-flow finding from the class to the closure, or a measured inter-model band whose relation to the reference is exactly what the epistemic-uncertainty showcase needs from its training-class flow",
+ "source_kind": "measurement",
+ "hard_criterion": "existing-family",
+ "citations": [
+  "The supervisor review of standing negative verdicts, 2026-08-07, section 1",
+  "The F6b ERCOFTAC results record, including the in-house mesh verification of the failure",
+  "The model-form batch design record",
+  "Rapp and Breuer and Froehlich, the periodic hill reattachment band from the literature"
+ ],
+ "launch_prompt": "F6b periodic hills, model-form matrix. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 1 and demo-output/website/campaign/F6b_ERCOFTAC_RESULTS.md first. Extend the standing batch (sdk/scripts/model_form_batch.py) family set to the hills: four closure families on the medium rung of the in-house verified mesh under demo-output/website/campaign/F6b_runs/, same settle discipline as the batch's other cases. Pre-register the three outcomes before the first solve. Budget 35 core-min total; setsid, poll logs inline. Record: evidence file in demo-output/website/campaign/, docket update on this item, honest verdict.",
+ "status": "proposed",
+ "created_at": "2026-08-07T22:10:00Z"
+}

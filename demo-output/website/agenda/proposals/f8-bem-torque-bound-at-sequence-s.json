@@ -1,0 +1,25 @@
+{
+ "id": "f8-bem-torque-bound-at-sequence-s",
+ "well": "W1",
+ "objective": "Bound what any attached-flow steady solution could deliver for the NREL Phase VI Sequence S torque at seven metres per second, by a zero-compute blade-element calculation from the published S809 polars and the verified chord and twist",
+ "rationale": "The steady branch closed three ways: geometry exonerated to the millimetre, frame terms audited to source lines, initialisation tested single-variable, and the motoring limit cycle persisted through all of it. What no record yet holds is the hand calculation the case invites: blade-element torque at Sequence S from published S809 polars and the chord and twist this lab has already verified against the reference geometry. That number bounds every attached-flow steady solution at once. If it lands near the published plus 800 newton metre turbine-signed torque, the limit cycle is numerical or basin behaviour; if blade-element theory is itself ambiguous at tip speed ratio 5.4, the case is intrinsically unsteady and the transient branch stops being optional.",
+ "gate": "The calculation is written down before any comparison: blade-element torque at Sequence S from published S809 polars and the verified chord and twist, with its sensitivity to polar source stated beside it. Outcome one: the blade-element torque lands near the published plus 800 newton metre turbine-signed value, so an attached steady solution exists in principle and the persisting limit cycle is numerical or basin behaviour. Outcome two: the blade-element result is itself ambiguous at tip speed ratio 5.4, so the case is intrinsically unsteady and the transient branch is mandatory. Either way the transient branch inherits a quantified bound",
+ "est_core_min": 0,
+ "predicted_memory_gb": 0.5,
+ "predicted_usd": 0.0,
+ "cost_basis": "zero compute by construction: a blade-element hand calculation from published polars and the chord and twist already verified on the record; no solver is launched",
+ "expected_knowledge_gain": "The cheapest decisive statement available about the F8 family: whether the steady branch failed because the flow refuses a steady description or because the solver sits in the wrong basin, which is exactly the fork the transient branch needs answered before it spends",
+ "source_kind": "measurement",
+ "hard_criterion": "instrument-check",
+ "citations": [
+  "The supervisor review of standing negative verdicts, 2026-08-07, section 3",
+  "The F8 record gating the existing MRF blade forces against Hand and colleagues 2001, including the geometry exoneration",
+  "The published S809 airfoil polars",
+  "Hand, Simms, Fingersh, Jager, Cotrell, Schreck and Larwood, the NREL Unsteady Aerodynamics Experiment Phase VI report, 2001"
+ ],
+ "launch_prompt": "F8 NREL Phase VI, blade-element bound. Zero compute. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 3 and demo-output/website/campaign/F8_MRF_HAND2001_GATE.md sections 3 and 10 first (the verified chord, twist and station angles of attack are there). Pre-register the calculation and its polar source before computing the number. Compute blade-element torque at Sequence S, 7 m/s, from published S809 polars plus the verified chord and twist; state sensitivity to polar choice. Compare against the plus 800 N-m turbine-signed reference the gate record carries, with its provenance tier. Record: evidence file in demo-output/website/campaign/, docket update on this item, honest verdict.",
+ "status": "approved",
+ "created_at": "2026-08-07T22:10:00Z",
+ "decided_at": "2026-08-07T22:10:00Z",
+ "decision_note": "supervisor review 2026-08-07 under Katie's standing green light"
+}

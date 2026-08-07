@@ -1,0 +1,22 @@
+{
+ "id": "b52-replicate-meshes-at-rung-6",
+ "well": "W3",
+ "objective": "Build two same-recipe replicate meshes at rung 6 of the B52 ladder with seed-varied castellation and measure the drag spread against the measured 1.91e-3 floor, applying the mesh-draw-sensitivity protocol to its second family",
+ "rationale": "The B52 ladder's verdict answered the family's question: the increment is noise, 15 percent of the measured 1.91e-3 floor. The remaining question is the floor's origin, and the lab already owns the instrument for it: the verdict protocol for mesh-draw-sensitive credentials, which decides by replicate meshes rather than by argument. Two same-recipe meshes at rung 6 with varied seed put the floor to that test. If the replicates reproduce it, the recipe owns the floor and castellation is the named mechanism; if they sit well below it, the floor is iteration-history noise and the settle gate is the instrument that needs work.",
+ "gate": "Two replicate meshes from the identical recipe with varied seed, solved at the standing settings, the drag spread read against the 1.91e-3 floor, and the dividing line between outcomes written into the pre-registration before either mesh is built. Outcome one: the replicate spread reproduces the floor, so the recipe owns it and castellation is the named mechanism. Outcome two: the spread sits well below the floor, so the floor is iteration-history noise and the settle gate needs work. Either outcome closes the floor's origin on evidence",
+ "est_core_min": 14,
+ "predicted_memory_gb": 2.0,
+ "predicted_usd": 0.191,
+ "cost_basis": "estimate, the review's figure: two meshes and two solves at rung 6, priced beside the measured rung costs the B52 ladder's own records carry",
+ "expected_knowledge_gain": "The origin of the noise floor that ended the B52 ladder, assigned either to the meshing recipe or to iteration history, and a second family measured under the replicate protocol, which was adopted precisely to be applied beyond its first case",
+ "source_kind": "measurement",
+ "hard_criterion": "existing-family",
+ "citations": [
+  "The supervisor review of standing negative verdicts, 2026-08-07, section 4",
+  "The B52 rung 8 results record, where the ladder's verdict and the 1.91e-3 floor are measured",
+  "The verdict protocol for mesh-draw-sensitive credentials on the docket"
+ ],
+ "launch_prompt": "B52, replicate meshes at rung 6. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 4 and demo-output/website/campaign/B52_RUNG8_RESULTS.md first, then the protocol proposal w3-a-verdict-protocol-for-mesh-draw-sensitive-credentials on the docket. Pre-register the dividing line between recipe-owned and iteration-noise outcomes BEFORE meshing. Build two rung 6 meshes from the identical snappy recipe with varied seed, solve at the standing settings with the settle discipline, and report the Cd spread against the 1.91e-3 floor. Budget 14 core-min; setsid, poll logs inline. Record: evidence file in demo-output/website/campaign/, docket update on this item, honest verdict.",
+ "status": "proposed",
+ "created_at": "2026-08-07T22:10:00Z"
+}

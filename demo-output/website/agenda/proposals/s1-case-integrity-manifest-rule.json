@@ -1,0 +1,23 @@
+{
+ "id": "s1-case-integrity-manifest-rule",
+ "well": "S1",
+ "objective": "Add a case-integrity rule to the standards: any case directory used as a reference or objective source gets a manifest of input checksums recorded at validation time, and any writer to that directory invalidates the badge until the case is re-validated",
+ "rationale": "The S1 first inversion failed both gates because its objective was measuring a corrupted inlet: a pilot's write-back had overwritten reference fields and nothing existed to notice. The diagnosis is done and the reinversion is underway; the meta-lesson is the part worth institutionalising. A checksum manifest recorded when a case is validated, with the badge invalidated by any subsequent writer, would have caught the write-back at cost zero. This is a standards addition, an amendment to the mesh standard and the verification charter, not a run",
+ "gate": "The rule text lands in the mesh standard and the verification charter with the manifest fields named, and the S1 reference directory receives the first manifest. The falsifier is the motivating case replayed: computing the manifest on the S1 reference directory as it stood before the repair must flag the overwritten inlet fields, at zero solver cost. If the manifest as specified would not have caught the S1 write-back, the rule is wrong as written and goes back for redrafting rather than adoption",
+ "est_core_min": 2,
+ "predicted_memory_gb": 0.5,
+ "predicted_usd": 0.027,
+ "cost_basis": "estimate: a standards text amendment plus one checksum manifest computed over the S1 reference directory; no solver work anywhere in it",
+ "expected_knowledge_gain": "The class of failure that wasted the first S1 inversion becomes detectable at cost zero for every future reference or objective case, and the badge stops asserting an integrity nobody is checking",
+ "source_kind": "capability",
+ "hard_criterion": "instrument-check",
+ "citations": [
+  "The supervisor review of standing negative verdicts, 2026-08-07, section 6",
+  "The S1 CBFS inversion result record, where the write-back and the corrupted objective are diagnosed",
+  "The mesh standard",
+  "The verification charter"
+ ],
+ "launch_prompt": "Case-integrity manifest rule. Standards work, not a run. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 6 and demo-output/website/dafoam/ladder-b/S1_CBFS_INVERSION_RESULT.md first. Draft the rule into docs/standards/MESH_STANDARD.md and docs/charters/VERIFICATION_CHARTER.md: manifest of input checksums at validation time on any directory used as a reference or objective source; any writer invalidates the badge until re-validation. Then run the falsifier: compute the manifest over the S1 reference directory pre-repair state and show it flags the overwritten inlet fields. If it would not have caught the write-back, redraft instead of adopting. Record: the amended standards, evidence note beside the S1 record, docket update on this item.",
+ "status": "proposed",
+ "created_at": "2026-08-07T22:10:00Z"
+}

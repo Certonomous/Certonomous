@@ -1,0 +1,23 @@
+{
+ "id": "tmr-naca0012-alternative-generator-mesh",
+ "well": "W6",
+ "objective": "Build one TMR NACA 0012 mesh at matched cell count from an alternative generator, a C-grid per the resource recipe or an unstructured equivalent, and rerun the ladder point to learn whether the aspect-ratio pathology under refinement belongs to the generator",
+ "rationale": "The standing finding attributes the NACA 0012 aspect-ratio pathology under refinement to the mesh generator, and the family is blocked on it. A finding that convicts a tool owes the tool a control: one mesh at matched cell count from a different generator, run at the standing settings, decides ownership. If the ladder behaves on the alternative mesh, the generator owns the pathology and the family unblocks on the new generator; if the pathology reproduces, the conviction was wrong and the finding is corrected on the record",
+ "gate": "One mesh at matched cell count from a different generator, solved at the standing settings and read against the same ladder criteria as the blocked family. Outcome one: the ladder behaves on the alternative mesh, the generator owns the pathology, the standing finding is confirmed by its own control, and the NACA 0012 family unblocks on the new generator. Outcome two: the pathology reproduces at matched cell count, ownership moves off the generator, and the standing finding is corrected rather than left convicting the wrong tool",
+ "est_core_min": 20,
+ "predicted_memory_gb": 2.0,
+ "predicted_usd": 0.273,
+ "cost_basis": "estimate, the review's figure: one mesh build and one solve at a cell count matched to the blocked ladder point, priced beside that point's recorded spend",
+ "expected_knowledge_gain": "The generator conviction tested by the control it never had: either the NACA 0012 family unblocks on an alternative generator, or the standing finding is corrected before it misdirects any more work",
+ "source_kind": "gate",
+ "hard_criterion": "existing-family",
+ "citations": [
+  "The supervisor review of standing negative verdicts, 2026-08-07, section 10",
+  "The standing generator finding on aspect-ratio growth under refinement",
+  "The TMR mesh aspect-ratio record of the 4G campaign",
+  "The NASA Turbulence Modeling Resource verification cases and their grid recipes"
+ ],
+ "launch_prompt": "TMR NACA 0012, alternative-generator control. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 10, demo-output/website/dafoam/GENERATOR_FINDING_pyhyp_aspect_ratio.md, and demo-output/website/campaign/4G_tmr_mesh_aspect_ratio.md first. Build one mesh at a cell count matched to the blocked ladder point: blockMesh C-grid per the TMR recipe, or gmsh if the C-grid cannot be matched. Verify the aspect-ratio profile of the new mesh BEFORE solving, then solve at the standing settings and grade against the same ladder criteria. Pre-register both outcomes. Budget 20 core-min; setsid, poll logs inline. Record: evidence file beside the generator finding, docket update on this item, honest verdict.",
+ "status": "proposed",
+ "created_at": "2026-08-07T22:10:00Z"
+}

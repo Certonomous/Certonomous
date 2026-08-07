@@ -1,0 +1,25 @@
+{
+ "id": "f6b-qcr2000-on-the-hills",
+ "well": "W3",
+ "objective": "Run the untrained QCR2000 constitutive term forward on the periodic hills medium rung and rule, under a discriminator frozen before launch, whether anisotropy moves the reattachment toward the literature band or leaves the omega budget implicated",
+ "rationale": "The ducts proved that the QCR2000 term resurrects missing physics cheaply, and the hills' verified failure is adverse-pressure-gradient separation, where anisotropy also matters. The review declared either outcome instructive before the run: an improvement implicates constitutive form on the second leg of the two-leg pattern, and no change implicates the omega budget instead. The failure itself is already verified onto the model on our own mesh, so whatever this arm finds lands on the closure and not on the grid.",
+ "gate": "One solve on the medium rung of the verified in-house hills mesh with the QCR2000 quadratic constitutive term active and nothing else changed. The discriminator is frozen before launch: a move of reattachment toward the literature band larger than the ladder's own grid-sensitivity spread implicates constitutive form and earns anisotropy a place on the hills; a change within that spread implicates the omega budget and closes the constitutive route for this leg. Either verdict is reported as the instructive result the review declared it to be",
+ "est_core_min": 12,
+ "predicted_memory_gb": 2.0,
+ "predicted_usd": 0.164,
+ "cost_basis": "estimate, the review's figure: one closure solve on the existing medium rung at the standing settings, priced beside the recorded cost of the rung it reuses",
+ "expected_knowledge_gain": "A constitutive-form verdict on the second leg of the two-leg separated-flow pattern, cheap because the mesh and settings already exist: either anisotropy is the missing physics on the hills as it was on the ducts, or the omega budget is named as the place the error lives instead",
+ "source_kind": "gate",
+ "hard_criterion": "existing-family",
+ "citations": [
+  "The supervisor review of standing negative verdicts, 2026-08-07, section 1",
+  "The F6b ERCOFTAC results record, including the in-house mesh verification of the failure",
+  "The QCR duct falsifier record, where the term resurrected the secondary flow",
+  "Spalart, Strategies for turbulence modelling and simulations, the QCR2000 constitutive relation"
+ ],
+ "launch_prompt": "F6b periodic hills, QCR2000 arm. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 1, demo-output/website/campaign/F6b_ERCOFTAC_RESULTS.md and demo-output/website/campaign/W3_QCR_DUCT_FALSIFIER.md first. Copy the medium rung under demo-output/website/campaign/F6b_runs/, activate the QCR2000 term exactly as the duct run did, change nothing else, and freeze the discriminator (move vs the ladder's grid-sensitivity spread) before launch. Budget 12 core-min; setsid, poll logs inline. Record: evidence file in demo-output/website/campaign/, docket update on this item, honest verdict.",
+ "status": "approved",
+ "created_at": "2026-08-07T22:10:00Z",
+ "decided_at": "2026-08-07T22:10:00Z",
+ "decision_note": "supervisor review 2026-08-07 under Katie's standing green light"
+}

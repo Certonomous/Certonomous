@@ -1,0 +1,24 @@
+{
+ "id": "f8-s10-replay-of-the-mrf-limit-cycle",
+ "well": "W7",
+ "objective": "Replay rules S10 and S12 of the monitor standard, as written, against the F8 steady rotor histories that diverged behind a converged residual, and record whether the standard catches its newest specimen",
+ "rationale": "The F8 closure produced a real specimen of the failure S10 was written for: a re-run that diverged while the convergence reporting read clean, named as such in the gate record. The standard's own discipline, the archive-replay rule the charters now enforce, is that a specimen this good goes to the replay corpus and the rules meet it as written, with no reinterpretation. The question is narrow and falsifiable: do S10 and S12, exactly as their clauses stand, fire on this run's stored histories. The histories already exist on disk, so the answer costs nothing but the reading.",
+ "gate": "The run's stored histories are read against the clauses of S10 and S12 exactly as written, with no reinterpretation. Outcome one: a clause fires, and the standard is confirmed on a specimen from the failure class it was designed for. Outcome two: nothing fires as written, and the record names the exact clause that failed to bind, which is the input the standard's amendment process requires. A miss is a finding about the standard, not about the run, and is filed as one",
+ "est_core_min": 0,
+ "predicted_memory_gb": 0.5,
+ "predicted_usd": 0.0,
+ "cost_basis": "zero compute: the force and residual histories already exist on disk and the replay only reads them; nothing is solved",
+ "expected_knowledge_gain": "Either the monitor standard demonstrated working on the newest real specimen of divergence behind a converged residual, or the precise clause gap that let the specimen through, stated in the form the amendment process consumes",
+ "source_kind": "gate",
+ "hard_criterion": "instrument-check",
+ "citations": [
+  "The supervisor review of standing negative verdicts, 2026-08-07, section 3",
+  "The monitor standard, rules S10 and S12 and the replay discipline of section 3.1",
+  "The F8 record gating the existing MRF blade forces against Hand and colleagues 2001, where the diverged re-run is named as the S10 class"
+ ],
+ "launch_prompt": "F8, monitor-standard replay. Zero compute. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 3, docs/standards/MONITOR_STANDARD.md (S10 clauses a through c, S12, and the section 3.1 replay pattern), and demo-output/website/campaign/F8_MRF_HAND2001_GATE.md section 12 first. Apply S10 and S12 verbatim to the stored histories of the diverged re-run and the limit-cycle runs under demo-output/website/campaign/F8_runs/. Report per clause: fires or does not, with the history lines quoted. If nothing fires, name the clause gap in the amendment-process form. Record: evidence file in demo-output/website/campaign/, docket update on this item, honest verdict.",
+ "status": "approved",
+ "created_at": "2026-08-07T22:10:00Z",
+ "decided_at": "2026-08-07T22:10:00Z",
+ "decision_note": "supervisor review 2026-08-07 under Katie's standing green light"
+}

@@ -1,0 +1,23 @@
+{
+ "id": "f5c-unsteady-probe-run",
+ "well": "W1",
+ "objective": "Run one unsteady probe solve of the F5c backward-facing step, contingent on the inlet audit coming back clean, to test whether a steady solver on a genuinely unsteady reattachment region wanders exactly as the record shows",
+ "rationale": "Second diagnostic in the review's cost order, and it runs only if the inlet audit exonerates the inlet. The recorded failure is not just magnitude but behaviour: converged solves whose reattachment wanders across six numerical configurations, plus a second separation with no counterpart in the reference. A steady solver applied to a flow whose reattachment region is genuinely unsteady wanders in exactly that way, so one unsteady solve discriminates between a formulation mismatch and a setup defect that survived the audit.",
+ "gate": "Runs only if the inlet audit exonerates the inlet. One unsteady solve long enough for the reattachment statistics to distinguish a stationary mean from a wandering one. Outcome one: the reattachment region is genuinely unsteady and its time mean lands near the reference, which explains the steady wandering and reassigns the family to the unsteady branch. Outcome two: the unsteady mean reproduces the steady failure, so the defect is in the setup rather than the formulation, and the audit trail narrows to what remains. A partial result is reported rather than overspending, because unsteady cases have overrun this lab by fifteen to twenty five times before",
+ "est_core_min": 25,
+ "predicted_memory_gb": 2.0,
+ "predicted_usd": 0.342,
+ "cost_basis": "estimate, the review's figure, and stated as one: the lab's relevant measurement is that unsteady siblings of steady cases have run fifteen to twenty five times longer at a Courant-limited step, so the item reports a partial result rather than spending past the figure",
+ "expected_knowledge_gain": "Whether the backward-facing step failure is a steady formulation applied to an unsteady flow, which would close the wandering mystery and reassign the family, or a setup defect that survives both the inlet audit and the unsteady probe, which would narrow the remaining suspect list to something small enough to enumerate",
+ "source_kind": "gate",
+ "hard_criterion": "existing-family",
+ "citations": [
+  "The supervisor review of standing negative verdicts, 2026-08-07, section 5",
+  "The F5b and F5c unsteady statistics record, where the wandering reattachment is measured",
+  "The next-cases slate, item 3",
+  "Driver and Seegmiller, Features of a reattaching turbulent shear layer in divergent channel flow, 1985"
+ ],
+ "launch_prompt": "F5c backward-facing step, unsteady probe. CONTINGENT: do not launch until the inlet-development audit (f5c-inlet-development-audit) has exonerated the inlet on the record. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 5 and demo-output/website/campaign/F5bc_unsteady_statistics.md first. One pimpleFoam solve of the existing F5c case at a Courant-limited step, long enough for reattachment statistics to separate a stationary mean from a wandering one; probe wall shear along the bottom wall every step. Pre-register both outcomes before launch. Budget 25 core-min and report a partial result rather than spending past it; setsid, poll logs inline. Record: evidence file in demo-output/website/campaign/, docket update on this item, honest verdict.",
+ "status": "proposed",
+ "created_at": "2026-08-07T22:10:00Z"
+}
