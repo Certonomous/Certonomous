@@ -1,0 +1,101 @@
+{
+  "generated_at": "2026-08-07T20:36:29.909240+00:00",
+  "item": "w3-qcr-forward-on-the-ducts-is-the-rank-1-route",
+  "rule_freeze": "demo-output/website/campaign/R5_RULE_FREEZE.md @ 0bade54a, written and committed before any solve",
+  "model": {
+    "RASModel": "kOmegaSSTQCR",
+    "Ccr1": 0.3,
+    "trained": false,
+    "library_commit": "303247bb",
+    "library_sha256": "b741839596bc8624789652fdc69b476594dc24419edd21faedac004e2c1cc808"
+  },
+  "validation_gate": {
+    "case": "AR_7_Ret_180",
+    "Ubar_ms": 39.074999999999996,
+    "n_cells": 15463,
+    "ref_sec_rms_pct_Ubar": 0.7011238740006293,
+    "sst_sec_rms_pct_Ubar": 1.1843121160252578e-15,
+    "sst_scaledMAE": 0.08388088040593908,
+    "sst_inplane_r": -0.15098937113826422,
+    "sst_inplane_rms_ratio": 1.6891624432463626e-15,
+    "qcr_sec_rms_pct_Ubar": 0.6436208105789758,
+    "qcr_scaledMAE": 0.040009513678108115,
+    "qcr_inplane_r": 0.9283853826518279,
+    "qcr_inplane_rms_ratio": 0.9179844453255604,
+    "ratio_qcr_over_sst_scaledMAE": 0.4769801352165504,
+    "V1_pass_ratio_le_0.70": true,
+    "V2_pass_r_ge_0.85": true,
+    "V3_pass_converged": true,
+    "gate_ALL_OR_NONE": "ALL"
+  },
+  "scoring_calls_made_by_this_run": 0,
+  "arms": {
+    "AR_7_Ret_180_sst": {
+      "iterations": 4652,
+      "cap": 12000,
+      "converged_on_residualControl": true,
+      "rms_div_U": 7.392279091549552e-12,
+      "rms_gradU_frobenius": 105089.09586150106,
+      "div_over_grad": 7.034296975294163e-17
+    },
+    "AR_7_Ret_180_qcr": {
+      "iterations": 4660,
+      "cap": 12000,
+      "converged_on_residualControl": true,
+      "rms_div_U": 61.09351674950862,
+      "rms_gradU_frobenius": 105364.54570021937,
+      "div_over_grad": 0.0005798299261245847
+    },
+    "AR_1_Ret_360_qcr": {
+      "iterations": 395,
+      "cap": 3000,
+      "converged_on_residualControl": true,
+      "rms_div_U": 344.6167924350502,
+      "rms_gradU_frobenius": 404784.5048074056,
+      "div_over_grad": 0.0008513586571181056
+    },
+    "AR_3_Ret_360_qcr": {
+      "iterations": 1956,
+      "cap": 6000,
+      "converged_on_residualControl": true,
+      "rms_div_U": 168.7761755507276,
+      "rms_gradU_frobenius": 319605.8080989335,
+      "div_over_grad": 0.0005280760589259479
+    },
+    "AR_14_Ret_180_qcr": {
+      "iterations": 8947,
+      "cap": 14000,
+      "converged_on_residualControl": true,
+      "rms_div_U": 57.246129071709234,
+      "rms_gradU_frobenius": 105240.41357210379,
+      "div_over_grad": 0.0005439557592814662
+    }
+  },
+  "duct_csvs_sha256": {
+    "AR_1_Ret_360": "bb8d61fbbfd99f5099628cedf7b76a203558daa87e3235006b0c8527ea703e7e",
+    "AR_3_Ret_360": "c567ff25577a20a2ac8afa8b434ea2c5ceb647c9307389021641ac89e33b4789",
+    "AR_14_Ret_180": "286610c0488d202c84c389b18befc2d1352fbbbbef7ae125066f9e289fa699ce"
+  },
+  "unchanged_cases_sha256": {
+    "alpha_15_13929_4048": "e7b28d5357decf691f21b1b685c641ae054f421575e97bbb94f9cf0dafbbf3e9",
+    "alpha_15_13929_2024": "1d49b9e3135a76096046479b56883a680dc0b036b1f2876b0d9ae2c54f7b54b7",
+    "alpha_05_4071_4048": "0c3865984218474ad83c97eb0be37389385dd446fcff499b510bd72839b2db4c",
+    "alpha_05_4071_2024": "af9cccda9c322b87e2d89f79829b74152f23c8829f7f32d1d92afcca68033b4e",
+    "NASA_2DWMH": "cf8e023c7b8fcb0572a1189977cbfebbb8f4f76b0d59f305aebca2e3e0fba686"
+  },
+  "what_ships": {
+    "changed": [
+      "AR_14_Ret_180",
+      "AR_1_Ret_360",
+      "AR_3_Ret_360"
+    ],
+    "unchanged": [
+      "alpha_15_13929_4048",
+      "alpha_15_13929_2024",
+      "alpha_05_4071_4048",
+      "alpha_05_4071_2024",
+      "NASA_2DWMH"
+    ],
+    "rule": "all-or-none, frozen 0bade54a; verdict ALL on AR_7 evidence"
+  }
+}

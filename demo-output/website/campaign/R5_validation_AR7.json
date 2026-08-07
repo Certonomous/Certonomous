@@ -1,0 +1,19 @@
+{
+  "case": "AR_7_Ret_180",
+  "Ubar_ms": 39.074999999999996,
+  "n_cells": 15463,
+  "ref_sec_rms_pct_Ubar": 0.7011238740006293,
+  "sst_sec_rms_pct_Ubar": 1.1843121160252578e-15,
+  "sst_scaledMAE": 0.08388088040593908,
+  "sst_inplane_r": -0.15098937113826422,
+  "sst_inplane_rms_ratio": 1.6891624432463626e-15,
+  "qcr_sec_rms_pct_Ubar": 0.6436208105789758,
+  "qcr_scaledMAE": 0.040009513678108115,
+  "qcr_inplane_r": 0.9283853826518279,
+  "qcr_inplane_rms_ratio": 0.9179844453255604,
+  "ratio_qcr_over_sst_scaledMAE": 0.4769801352165504,
+  "V1_pass_ratio_le_0.70": true,
+  "V2_pass_r_ge_0.85": true,
+  "V3_pass_converged": true,
+  "gate_ALL_OR_NONE": "ALL"
+}
