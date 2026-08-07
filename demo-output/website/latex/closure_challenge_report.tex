@@ -43,7 +43,7 @@
 \large A post-hoc RANS correction entry, its verification record,\\
 and the field-inversion line behind it}
 \author{Certonomous CFD Laboratory}
-\date{5 August 2026}
+\date{7 August 2026}
 
 \begin{document}
 \maketitle
@@ -54,9 +54,12 @@ and the field-inversion line behind it}
 \small
 \textbf{Status.} Nothing has been submitted to the Closure Challenge. No account has been
 created and the benchmark steward has not been contacted. The entry described here
-(overall \textbf{0.0654}, round 4) is an internally measured position against the public
-leaderboard, not an official ranking. The submission package exists, is audited, and is
-one email away; the decision to send it rests with Katie Kim.
+(overall \textbf{0.056647}, round 5) is an internally measured position against the public
+leaderboard, \textbf{scored locally} through the benchmark's own unmodified scorer at
+benchmark commit \code{deb91557}; it is not an official ranking, and where this document
+says \emph{rank 1} it means rank 1 on that local scoring. The submission package exists,
+is audited, and is one email away. It is \textbf{held at the owner's discretion} --- not
+withdrawn, not abandoned, not sent; the decision rests with Katie Kim.
 \end{minipage}}
 \end{center}
 
@@ -64,27 +67,30 @@ one email away; the decision to send it rests with Katie Kim.
 \noindent
 This report records what the Certonomous CFD laboratory has done in the Closure Challenge,
 a public benchmark for machine learning in turbulence modelling stewarded by Ryley McConkey
-(MIT). Our entry of record scores \textbf{0.0654} on the benchmark's own unmodified scorer,
-which would place it third of five against the current public leaderboard, between
-Wu \& Zhang (0.0624) and Liu, Wang, Zhao \& Xiao (0.0737), and 36.9\% below the 0.1036
-scored by submitting the supplied RANS fields unchanged. The method is a post-hoc velocity
-field correction --- the only entry on the board that does not re-solve the governing
-equations with its correction folded in --- combined with a train-only \emph{decline gate}
-that withholds the correction on whole cases where it predicts the correction would do
-harm, and a pre-registration discipline under which every model choice is frozen in a
-committed document before the prediction set it selects is ever scored. We state the costs
-of that method class as plainly as its benefits: our submitted fields do not satisfy
-continuity, and as of yesterday the departure is measured rather than unmentioned --- about
-10\% of the local velocity-gradient scale on the two corrected hills and 2.3--3.4\% on the
-ducts, against baselines that are divergence-free to the operator floor; two of the five
-leaderboard-best rows we hold are the organisers' own baseline rather than our model; and
-one of the remaining three is a lead of 0.00003 that must not be described as a comfortable
-win. The report also documents the parallel
-field-inversion line, which in the last week moved from a hard numerical blocker
-(\code{PetscConvergedReason: -9}, reproduced on two cases and five matrix orderings) to
-the laboratory's first converged, finite-difference-verified closure-relevant adjoint
-gradient: 21{,}000 design variables on the curved backward-facing step, agreeing with
-central differences to 0.021--0.199\% on four independently chosen cells.
+(MIT). Our entry of record scores \textbf{0.056647} on the benchmark's own unmodified
+scorer, which is the best overall number on the board as published at benchmark commit
+\code{deb91557} --- \textbf{rank 1 of 5, scored locally}, 0.002878 below Reissmann, Fang \&
+Sandberg's published 0.059525, and 45.3\% below the 0.1036 scored by submitting the
+supplied RANS fields unchanged. That rank is our own local scoring of an unsubmitted entry
+and is stated with that caveat everywhere it appears in this report. The entry is now
+\emph{two} method classes rather than one, and round 5 is the reason: five of the eight
+predictions remain post-hoc velocity-field corrections, two of them withheld by a
+train-only \emph{decline gate} that submits the untouched baseline where it predicts
+correction would do harm, while the three ducts are converged forward solves of an
+untrained QCR2000 constitutive term with nothing fitted to anything --- adopted at
+Spalart's published constant and shipped on all three ducts or none, under a rule frozen
+before the first validation iteration existed. We state the costs as plainly as the
+benefits: the two corrected hills still violate continuity at about 10\% of the local
+velocity-gradient scale, where the ducts, now coming out of a solve, no longer do
+(27--63$\times$ cleaner than the fields they replace); the round-4 lead of 0.00003 on
+\code{AR\_14\_Ret\_180} was priced as at-risk in writing before the run, was lost, and was
+not reverted; and two of the four leaderboard-best rows we now hold are the organisers'
+own baseline rather than our model. The report also documents the parallel field-inversion
+line, which in the last week moved from a hard numerical blocker
+(\code{PetscConvergedReason: -9}, reproduced on two cases and five matrix orderings) to the
+laboratory's first converged, finite-difference-verified closure-relevant adjoint gradient
+--- and then to a negative result: the first inversion failed both of its pre-registered
+gates, and the post-run audit found the objective, not the method, at fault.
 \end{abstract}
 
 \vspace{4pt}
@@ -138,7 +144,7 @@ Three properties of the rules matter to everything that follows.
 \item \textbf{There is no scoring-call limit, and there cannot be one.} The evaluation
   package ships the test ground truth locally and the README instructs submitters to
   preview their score; \code{evaluate\_by\_case()} is documented public API. Our
-  five-calls-ever ledger (\S\ref{sec:ledger}) is therefore a self-imposed discipline,
+  six-calls-in-total ledger (\S\ref{sec:ledger}) is therefore a self-imposed discipline,
   \emph{stricter} than the benchmark requires, and must never be described as compliance
   with a rule that does not exist.
 \end{enumerate}
@@ -186,15 +192,17 @@ correctly (\artifact{CLOSURE\_CHALLENGE\_SUBMISSION\_DRAFT.md} \S7.5).
 \centering
 \small
 \caption{The public leaderboard, with our entry of record at its internally measured
-position. We are unsubmitted; this is not an official ranking.}
+position. We are unsubmitted; this is a local scoring, not an official ranking. Published
+ranks are the board's own; ours is where our number falls in it.}
 \label{tab:board}
 \begin{tabular}{clc}
 \toprule
 Rank & Entry & Overall \\
 \midrule
+--- & \textbf{Certonomous (unsubmitted, round 5, entry of record)} & \textbf{0.056647} \\
 1 & Reissmann, Fang \& Sandberg & 0.0595 \\
 2 & Wu \& Zhang & 0.0624 \\
---- & \textbf{Certonomous (unsubmitted, round 4, entry of record)} & \textbf{0.0654} \\
+--- & Certonomous (unsubmitted, round 4, superseded) & 0.0654 \\
 --- & Certonomous (unsubmitted, round 3, superseded) & 0.0676 \\
 3 & Liu, Wang, Zhao \& Xiao & 0.0737 \\
 4 & Montoya, Oulghelou \& Cinnella & 0.0779 \\
@@ -204,7 +212,17 @@ Rank & Entry & Overall \\
 \end{tabular}
 \end{table}
 
-Two cautions attach to that table and are repeated wherever it appears.
+\noindent\textbf{Rank 1, stated once with its caveat attached, and never stated without
+it.} As of benchmark commit \code{deb91557}, scored on 2026-08-07 through the benchmark's
+own unmodified scorer on the identical local path rounds 1--4 used, our round-5 entry's
+0.056647 is the best overall number on that board, 0.002878 below Reissmann's published
+0.059525. \textbf{This is a local scoring and not an official leaderboard placement.}
+Nothing has been submitted; no steward has scored us; if the steward's own scoring differs
+from ours, the steward's number is the number. Every appearance of ``rank 1'' below
+carries this sentence by reference (\artifact{CLOSURE\_CHALLENGE\_STATUS.md} \S0f;
+\artifact{closure\_challenge\_round5\_qcr.json}).
+
+Two further cautions attach to that table and are repeated wherever it appears.
 
 \begin{itemize}
 \item \textbf{The 0.1036 floor is our own number.} The script that produces it
@@ -215,7 +233,8 @@ Two cautions attach to that table and are repeated wherever it appears.
   (\artifact{CLOSURE\_CHALLENGE\_SUBMISSION\_DRAFT.md} \S7.2).
 \item \textbf{Position claims go stale.} The challenge is ongoing with no deadline; the
   board has been unchanged since 2026-05-04 but can change without notice. Every position
-  claim in this document is dated 5 August 2026.
+  claim in this document is dated 7 August 2026. A rank-1 claim goes stale faster than a
+  rank-3 claim did, because it is the row a new entrant most easily displaces.
 \end{itemize}
 
 %=====================================================================
@@ -237,6 +256,23 @@ this laboratory, so ``correct the answer'' is our own paraphrase of the family v
 structurally distinct from FIML, TBNN, SpaRTA and
 eigenvalue perturbation, all of which correct something inside the equations before
 re-solving (\artifact{CLOSURE\_CHALLENGE\_STATUS.md} \S4, commit \code{b9cb56a2}).
+
+\paragraph{Update, 2026-08-07 --- that description is now true of five predictions and
+false of three.} Round 5 replaced the duct correction with a converged forward solve of an
+untrained QCR2000 constitutive term (\S\ref{sec:round5}). The entry of record is therefore
+a \textbf{hybrid}, and this report says so at the front rather than letting the old
+one-line self-description stand: \code{alpha\_15\_13929\_4048},
+\code{alpha\_15\_13929\_2024} and \code{NASA\_2DWMH} are post-hoc corrected velocity
+fields; \code{alpha\_05\_4071\_4048} and \code{alpha\_05\_4071\_2024} are the organisers'
+own unmodified solve, withheld by the gate; and \code{AR\_1\_Ret\_360},
+\code{AR\_3\_Ret\_360} and \code{AR\_14\_Ret\_180} are our own SIMPLE solves of a modified
+constitutive relation, in which the correction most certainly does re-enter the governing
+equations. \textbf{The claim ``unique among the five in not re-solving'' has been retired,
+not softened}: on three of eight cases we now do what everyone above us was doing, and
+\S\ref{sec:round5} records that we did it because the measurement said the post-hoc class
+could not reach the duct structure at all. Everything below that describes the post-hoc
+class describes five of our eight predictions, and this report marks which is which
+wherever the distinction bites.
 
 \paragraph{Correction, 2026-08-05 --- the family we are in now carries its citation.} The
 passage above previously placed the method in a taxonomy, named four families we are not,
@@ -285,8 +321,10 @@ the velocity field directly sidesteps it. This citation defends the choice of ta
 principled rather than merely cheap; it says nothing about the continuity cost measured
 in \S\ref{sec:stability} and must not be used to soften it.
 
-Two model objects stand behind the six corrected predictions of the entry of record
-(\artifact{CLOSURE\_METHODS\_COMPARISON.md} \S1.1):
+Two model objects stood behind the six corrected predictions of round 4, and one of them
+--- the periodic-hill model, behind three of them --- still ships in the entry of record
+(\artifact{CLOSURE\_METHODS\_COMPARISON.md} \S1.1). Variant D is described here because it
+is the model round 5 displaced and because \S\ref{sec:round5} is unreadable without it:
 
 \begin{itemize}
 \item \textbf{The periodic-hill (PH) model} --- three \code{HistGradientBoostingRegressor}s,
@@ -301,6 +339,17 @@ Two model objects stand behind the six corrected predictions of the entry of rec
   (adding a Reynolds-invariant $d/d_{\max}$) with a velocity-scale-normalised target,
   $(\mathbf{U}_{\text{LES}} - \mathbf{U}_{\text{RANS}})/\overline{|\mathbf{U}_{\text{RANS}}|}$
   per case, trained on the four suggested training ducts, 41{,}971 cells.
+  \textbf{Superseded on 2026-08-07}: it appears in no round-5 prediction.
+\item \textbf{The duct model of record, \code{kOmegaSSTQCR}} --- and it is not a model
+  object in the machine-learning sense at all. It is a $\sim$180-line OpenFOAM library
+  deriving from stock \code{kOmegaSST} and overriding \code{divDevRhoReff}, implementing
+  Spalart's QCR2000 quadratic constitutive relation
+  $\tau_{ij} = \tau^{l}_{ij} - c_r(O_{ik}\tau^{l}_{kj} - \tau^{l}_{ik}O_{kj})$ at
+  $c_r = 0.3$, the published constant, \textbf{untrained}; $k$ and $\omega$ transport
+  inherited unchanged. \textbf{It has no training set, no fitted parameter, no feature
+  vector and therefore no leakage surface.} Its provenance and its falsifier record are
+  \S\ref{sec:qcr} (\artifact{campaign/W3\_QCR\_DUCT\_FALSIFIER.md};
+  \code{sdk/openfoam/qcr/kOmegaSSTQCR/}, library commit \code{303247bb}).
 \end{itemize}
 
 Round 2 required building a feature pipeline the benchmark does not ship for the duct and
@@ -390,11 +439,16 @@ choice was pre-registered before the round-2 scoring call; Variant D was pre-reg
 the benchmark's own suggested duct validation case \code{AR\_7\_Ret\_180} before any test
 score for it existed
 (\artifact{closure\_challenge\_duct\_reynolds\_transfer.json}, commit
-\code{d0992da2}); the round-5 candidate wrote down its accept/reject rule, then
-\emph{failed its own pre-declared gate and was not scored} (\S\ref{sec:nogo}).
+\code{d0992da2}); the \code{alpha\_05} regime candidate wrote down its accept/reject rule,
+then \emph{failed its own pre-declared gate and was not scored} (\S\ref{sec:nogo}); and
+round 5 froze the rule that decides where its model is applied \emph{before the first
+validation iteration existed}, then accepted its own result mechanically
+(\S\ref{sec:frozenrule}).
 
-Pre-registration that only ever ratifies is decoration. The R5 no-go is the evidence that
-this one binds.
+Pre-registration that only ever ratifies is decoration. The \code{alpha\_05} no-go is the
+evidence that this one can say no; round 5 is the evidence that it can also say yes
+without anybody's judgement being exercised after the number existed. Both halves are
+needed and the laboratory now has both.
 
 \paragraph{Whose discipline this is, added 2026-08-05.} Neither half of this practice is
 ours, and the method-priority review found this the element our records named the fewest
@@ -410,7 +464,7 @@ Reliable Leaderboard for Machine Learning Competitions}, arXiv:1502.04585, ICML 
 PMLR 37 (abstract read 2026-08-05). Their abstract prices our answer for us: repeated
 evaluation against a holdout lets participants overfit it, and existing approaches
 ``resort to poorly understood heuristics such as limiting the bit precision of answers
-and the rate of re-submission.'' \textbf{Our five-call ledger is rate limiting --- one of
+and the rate of re-submission.'' \textbf{Our scoring-call ledger is rate limiting --- one of
 those heuristics, self-imposed --- and it should be read as harm reduction rather than a
 guarantee.} Blum \& Hardt build a principled alternative and we do not implement it. What
 we did not find in that literature is an entrant imposing either discipline on itself,
@@ -426,28 +480,30 @@ two rows first, because they are the ones that cost us.
 \begin{table}[h]
 \centering
 \footnotesize
-\caption{The five entries, dimension by dimension. ``Absent from their documents'' means
-absent from the sources read --- two submission documents, one notebook plus info file, and
-two full papers --- and is stated as an absence in those sources, not as a claim about any
-laboratory's unpublished practice.}
+\caption{The five entries, dimension by dimension, with our column updated to round 5.
+``Absent from their documents'' means absent from the sources read --- two submission
+documents, one notebook plus info file, and two full papers --- and is stated as an absence
+in those sources, not as a claim about any laboratory's unpublished practice.}
 \label{tab:dimensions}
 \begin{tabular}{L{2.3cm}L{2.5cm}L{2.1cm}L{2.1cm}L{2.1cm}L{2.1cm}}
 \toprule
 Dimension & \textbf{Certonomous} & Reissmann & Wu \& Zhang & Liu et al. & Montoya et al. \\
 \midrule
 Corrected object &
-\textbf{velocity field, post-hoc} &
+\textbf{velocity field, post-hoc} (5 cases); \textbf{untrained QCR2000} in the constitutive
+relation (3 ducts) &
 anisotropy + SST coefficients &
 $\beta$ on $\omega$-destruction + fixed QCR &
 TBNN anisotropy $+$ $k$--$\omega$ coefficients, coupled &
 blended tensor-basis + $R_k$ \\
 \addlinespace
 Re-solved with the correction &
-\textbf{no --- unique among the five} &
+\textbf{on 3 of 8, from round 5}; no on the other 5 &
 yes (inferred) & yes & yes & yes \\
 \addlinespace
 Conservation satisfied by the submitted field &
-\textbf{no --- and now measured} (\S\ref{sec:stability}) &
+\textbf{ducts yes, by construction (round 5); hills no --- measured}
+(\S\ref{sec:stability}) &
 yes, by construction & yes & yes & yes \\
 \addlinespace
 Trains on a scored case &
@@ -467,25 +523,31 @@ Pre-registration before scoring &
 \textbf{yes} & absent & absent & absent & absent \\
 \addlinespace
 Scoring-call ledger &
-\textbf{yes, 5 calls, self-imposed} &
+\textbf{yes, 6 calls, self-imposed} &
 none visible & none visible & none visible & none visible \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The first three rows are the honest headline of this report. \textbf{Every entrant above us
-ships a method whose output satisfies the governing equations by construction; ours does
-not.} The submitted corrected field is a cell-wise machine-learning output added to a
-solenoidal RANS solution, and it does not satisfy continuity by construction. No
+The first three rows were the honest headline of this report when every one of our
+predictions was post-hoc, and half of that headline still stands. On the five cases where
+we correct a converged field, the submitted field is a cell-wise machine-learning output
+added to a solenoidal RANS solution and it does not satisfy continuity by construction. No
 realizability question arises --- we predict velocity, not Reynolds stresses, so that
 column is not-applicable rather than passed --- but $\nabla\cdot\mathbf{U}$ is a real
-property of a submitted field and until this week nobody had measured it. It has now been
-measured against a threshold fixed before the run, and the finding is material and against
-us (\S\ref{sec:stability}).
+property of a submitted field, and it was measured against a threshold fixed before the run
+with a finding material and against us (\S\ref{sec:stability}). \textbf{The other half of
+the headline was answered by changing the method rather than by arguing with the
+measurement}: the three duct predictions now come out of a converged SIMPLE solve, whose
+pressure equation enforces continuity on the face fluxes, and their measured RMS
+$\nabla\cdot\mathbf{U}$ fell by 27--63$\times$ against the fields they replace
+(\S\ref{sec:round5}). Of the two costs this section stated before the results, one is
+retired on three cases and one is unchanged on five.
 
-The compensating claim is narrow and we keep it narrow: among the five entries on this
-board, ours is the only one that will decline to correct a whole case and submit the
-baseline instead, and the only one that freezes its choices in advance of scoring.
+The compensating claims stay narrow. Among the five entries on this board, ours is the only
+one that will decline to correct a whole case and submit the baseline instead; the only one
+that freezes its choices in advance of scoring; and, now, the only one whose duct
+predictions are produced by a term with no fitted parameter anywhere in it.
 
 %=====================================================================
 \section{Results, round by round}
@@ -513,11 +575,18 @@ baseline instead, and the only one that freezes its choices in advance of scorin
   correct on cases it had never been evaluated on, matching its validation performance
   exactly. The movement, $-$0.0065, matched the $-$0.0066 predicted by the round-2 error
   decomposition almost exactly. Compute: 83\,s wall on a two-core cap, peak RSS 356\,MB.
-\item[Round 4 --- 0.0654 ($\Delta$ $-$0.0022), the entry of record.] A duct-only change.
+\item[Round 4 --- 0.0654 ($\Delta$ $-$0.0022).] A duct-only change.
   Variant D replaced the round-2/3 duct model on all three ducts. The five non-duct
   predictions are \emph{byte-identical} to round 3 --- copied, not regenerated, and
   SHA-256-verified against the entry manifest --- so the entire delta is attributable to
   the duct family and the gate's behaviour is untouched.
+\item[Round 5 --- 0.056647 ($\Delta$ $-$0.0088), the entry of record.] A duct-only change
+  again, and the largest single movement since round 2. The untrained QCR2000 term
+  replaced Variant D on all three ducts, by forward solve rather than by correction; the
+  same five non-duct predictions carried through byte-identical for a second round. The
+  delta is again wholly the duct family, and it is the round in which the laboratory
+  stopped trying to predict a flow structure and started solving for it
+  (\S\ref{sec:round5}).
 \end{description}
 
 Round 4's diagnosis was pre-registered and its sign pattern was predicted before it was
@@ -531,30 +600,122 @@ concentrated on the two extrapolating cases and little or none elsewhere. Measur
 $-$0.0108, $-$0.0087, and $+$0.0022. The sign pattern matches on all three
 (\artifact{CLOSURE\_CHALLENGE\_STATUS.md} \S0e).
 
+\subsection{Round 5: the untrained term takes the ducts}
+\label{sec:round5}
+
+Round 5 changed three predictions and nothing else. On \code{AR\_1\_Ret\_360},
+\code{AR\_3\_Ret\_360} and \code{AR\_14\_Ret\_180} the round-4 machine-learned $\delta
+\mathbf{U}$ was discarded and the case was re-solved from the shipped \code{0/} fields on
+the shipped mesh, with the shipped schemes and \code{fvSolution} untouched, under
+\code{kOmegaSSTQCR} at $c_r = 0.3$. \textbf{Nothing in those three predictions was fitted
+to anything.} The other five CSVs were copied from the round-4 submission and
+hash-asserted against its manifest inside the producing script, so the whole movement is
+again the duct family (\artifact{campaign/R5\_PREREGISTRATION.md} \S3, commit
+\code{e865076b}).
+
+Every quantity that could select a model was fixed before the number existed, and the
+mechanics of that are \S\ref{sec:frozenrule}. The result of applying them
+(\artifact{closure\_challenge\_round5\_qcr.json};
+\artifact{CLOSURE\_CHALLENGE\_STATUS.md} \S0f):
+
+\begin{center}
+\small
+\begin{tabular}{lccc}
+\toprule
+Case & Round 4 & \textbf{Round 5} & $\Delta$ \\
+\midrule
+\code{AR\_1\_Ret\_360}  & 0.0811 & \textbf{0.045470} & $-$0.0356 \\
+\code{AR\_3\_Ret\_360}  & 0.0775 & \textbf{0.039982} & $-$0.0375 \\
+\code{AR\_14\_Ret\_180} & 0.0325 & \textbf{0.035339} & $+$0.0029 \\
+\midrule
+\textbf{Overall} & \textbf{0.065431} & \textbf{0.056647} & $\mathbf{-0.0088}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The five unchanged cases scored identically to round 4, as their byte-identity requires ---
+which is also the cheapest available check that the harness was driven the same way twice.
+
+Three things about that table are worth stating in the order the record forces them.
+
+\begin{enumerate}
+\item \textbf{The improvement landed where the pre-registered mechanism said it would, on a
+  term with nothing fitted to anything.} Round 4's measured failure mode was feature
+  extrapolation: \code{Re\_y} reached $1.85\times$ and $2.07\times$ the trained maximum on
+  the two \code{Ret\_360} ducts, and a gradient-boosted tree cannot extrapolate. A
+  constitutive relation with a published constant \emph{has no trained range}, so that
+  mechanism cannot recur --- and the two \code{Ret\_360} ducts, exactly where the
+  extrapolation cost lived, are the two that moved, by $-$0.0356 and $-$0.0375. The one
+  duct inside the old trained range, where round 4 was already close to the board's best,
+  is the one that gave ground.
+\item \textbf{The pre-stated expectation band was wrong in our favour, and that is recorded
+  rather than enjoyed.} The pre-registration's band was 0.059--0.0666 --- rank 1 at its
+  best end, a regression at its worst. The result landed at 0.056647, \emph{below the good
+  end of our own band}. What was nearly exact was the campaign's plain arithmetic: matching
+  the rank-2 entry's published duct scores was computed in advance to give $\approx$
+  0.056288, against a measured 0.056647. The band was mis-centred pessimistic; the
+  arithmetic underneath it was not (\artifact{CLOSURE\_RANK1\_CAMPAIGN.md} \S1).
+\item \textbf{The cost was 37.0 solver core-min against a 95 core-min budget}, per-arm
+  ledger in the pre-registration \S7, with every QCR solve stopping on its own
+  \code{residualControl} and no cap-stop anywhere in the route --- a clause the freeze
+  wrote in as route-voiding and never had to exercise.
+\end{enumerate}
+
+\subsection{What round 5 cost on \code{AR\_14\_Ret\_180}, priced in writing and paid}
+\label{sec:ar14}
+
+\noindent\fbox{\begin{minipage}{0.95\textwidth}
+\small
+\textbf{The risk statement, and its outcome, in the order they happened.} Before any test
+duct was solved, the rule freeze recorded that round 4's 0.00003-level best-on-board lead
+on \code{AR\_14\_Ret\_180} was \emph{put at risk} by an all-or-none rule, named the
+training-side evidence pointing that way (\code{AR\_10\_Ret\_180}, the largest-aspect-ratio
+training duct, had QCR's weakest ratio at 0.664 and weakest correlation at 0.877, and
+\code{AR\_14} extends that trend axis), and \textbf{accepted the possible loss in writing}.
+\textbf{The risk materialised.} \code{AR\_14\_Ret\_180} went 0.0324698 $\rightarrow$
+0.0353386, $+$0.0029; the nominal tie with Reissmann's published 0.0325 is \textbf{lost};
+the case falls to 3 of 5, behind Reissmann and behind Wu \& Zhang's 0.0350; and our
+best-on-board count drops from 5 of 8 to \textbf{4 of 8}. The risk-side signal was right
+about which duct, and the comfort-side signal (\code{AR\_7\_Ret\_180} at 0.477 and 0.928,
+far inside the bars) was right about the family.
+\end{minipage}}
+
+\medskip
+It was not reverted, and the reason is the reason nothing else in this record is reverted:
+a post-hoc revert of one duct after seeing its score is per-case selection on test
+outcomes, which is what the benchmark's one strict rule exists to prevent. The bundle is
+judged as a bundle. \textbf{The bundle wins by roughly twelve to one} --- $-$0.0731
+combined on the two \code{Ret\_360} ducts against $+$0.0029 here --- and that ratio is the
+argument for all-or-none rules generally, not a reason to feel comfortable about this
+particular case. \emph{We traded a nominal 0.00003 lead we had already told our own
+readers not to call a win, for 0.0088 on the overall. We would take that trade again; we
+would also have had to take it had the arithmetic gone the other way, which is the whole
+point of writing it down first.}
+
 \subsection{The per-case ledger}
 
 \begin{table}[h]
 \centering
 \footnotesize
-\caption{Per-case scaled MAE across rounds, against the RANS-identity floor, rank 2, and
-the best published score on each case. Lower is better. Round-4 values are the entry of
-record.}
+\caption{Per-case scaled MAE across rounds, against the RANS-identity floor, the published
+rank-1 entry, and the best published score on each case. Lower is better. Round-5 values
+are the entry of record; round 2 is omitted for width and appears in \S3.1.}
 \label{tab:percase}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lccccccl}
 \toprule
-Case & Floor & R2 & R3 & \textbf{R4} & Rank 2 & Best & Attribution \\
+Case & Floor & R3 & R4 & \textbf{R5} & Reissmann & Best pub. & Attribution \\
 \midrule
-\code{alpha\_15\_13929\_4048} & 0.1320 & 0.0501 & 0.0501 & \textbf{0.0501} & 0.0813 & 0.0592 & \textbf{our model leads} \\
-\code{alpha\_15\_13929\_2024} & 0.2049 & 0.1011 & 0.1011 & \textbf{0.1011} & 0.1195 & 0.1195 & \textbf{our model leads} \\
-\code{alpha\_05\_4071\_4048} & 0.0461 & 0.0723 & 0.0461 & \textbf{0.0461} & 0.0569 & 0.0569 & \emph{baseline, declined} \\
-\code{alpha\_05\_4071\_2024} & 0.0719 & 0.0974 & 0.0719 & \textbf{0.0719} & 0.0848 & 0.0760 & \emph{baseline, declined} \\
-\code{AR\_1\_Ret\_360}       & 0.1288 & 0.0919 & 0.0919 & \textbf{0.0811} & 0.0455 & 0.0387 & behind, 3rd of 5 \\
-\code{AR\_3\_Ret\_360}       & 0.1243 & 0.0862 & 0.0862 & \textbf{0.0775} & 0.0399 & 0.0341 & behind, 3rd of 5 \\
-\code{AR\_14\_Ret\_180}      & 0.0590 & 0.0303 & 0.0303 & \textbf{0.0325} & 0.0350 & 0.0325 & lead of 0.00003 only \\
-\code{NASA\_2DWMH}           & 0.0621 & 0.0632 & 0.0632 & \textbf{0.0632} & 0.0364 & 0.0364 & behind, last on board \\
+\code{alpha\_15\_13929\_4048} & 0.1320 & 0.0501 & 0.0501 & \textbf{0.0501} & 0.0592 & 0.0592 & \textbf{our model leads} \\
+\code{alpha\_15\_13929\_2024} & 0.2049 & 0.1011 & 0.1011 & \textbf{0.1011} & 0.1339 & 0.1195 & \textbf{our model leads} \\
+\code{alpha\_05\_4071\_4048} & 0.0461 & 0.0461 & 0.0461 & \textbf{0.0461} & 0.0606 & 0.0569 & \emph{baseline, declined} \\
+\code{alpha\_05\_4071\_2024} & 0.0719 & 0.0719 & 0.0719 & \textbf{0.0719} & 0.0760 & 0.0760 & \emph{baseline, declined} \\
+\code{AR\_1\_Ret\_360}       & 0.1288 & 0.0919 & 0.0811 & \textbf{0.0455} & 0.0387 & 0.0387 & 2nd of 5; ties rank 2 at published precision \\
+\code{AR\_3\_Ret\_360}       & 0.1243 & 0.0862 & 0.0775 & \textbf{0.0400} & 0.0341 & 0.0341 & 3rd of 5, within published-precision noise of rank 2 \\
+\code{AR\_14\_Ret\_180}      & 0.0590 & 0.0303 & 0.0325 & \textbf{0.0353} & 0.0325 & 0.0325 & 3rd of 5; the 0.00003 lead was priced and lost \\
+\code{NASA\_2DWMH}           & 0.0621 & 0.0632 & 0.0632 & \textbf{0.0632} & 0.0412 & 0.0364 & behind, last on board \\
 \midrule
-\textbf{Overall} & \textbf{0.1036} & \textbf{0.0741} & \textbf{0.0676} & \textbf{0.0654} & \textbf{0.0624} & --- & rank 3 of 5 \\
+\textbf{Overall} & \textbf{0.1036} & \textbf{0.0676} & \textbf{0.0654} & \textbf{0.056647} & \textbf{0.0595} & --- & rank 1 of 5, scored locally \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -562,8 +723,9 @@ Case & Floor & R2 & R3 & \textbf{R4} & Rank 2 & Best & Attribution \\
 \subsection{How the ``best on board'' count must be reported}
 \label{sec:attribution}
 
-Arithmetically we hold the best score on the public board on five of eight cases. That
-count was on our public page as a headline and \textbf{we took it down ourselves}, because
+Arithmetically we hold the best score on the public board on four of eight cases --- five
+until round 5 spent one of them (\S\ref{sec:ar14}). That count was on our public page as a
+headline and \textbf{we took it down ourselves}, because
 it is true arithmetic and misleading attribution
 (\artifact{CLOSURE\_CHALLENGE\_SUBMISSION\_DRAFT.md} \S8.2). On
 \code{alpha\_05\_4071\_4048} and \code{alpha\_05\_4071\_2024} our submitted field \emph{is}
@@ -576,19 +738,29 @@ scores exactly the same. The honest attribution is Table~\ref{tab:attribution}.
 \begin{table}[h]
 \centering
 \small
-\caption{Attribution of the eight test cases, replacing the retired ``5 of 8'' headline.}
+\caption{Attribution of the eight test cases at round 5, replacing the retired ``5 of 8''
+headline. The ``nominal lead only'' row is empty because round 5 spent the case that
+occupied it.}
 \label{tab:attribution}
 \begin{tabular}{L{5.0cm}cL{7.2cm}}
 \toprule
 Attribution & Count & Cases \\
 \midrule
 Our model, clear lead & \textbf{2} & \code{alpha\_15\_13929\_4048}, \code{alpha\_15\_13929\_2024} \\
-Our model, nominal lead only & 1 & \code{AR\_14\_Ret\_180} \\
+Our model, nominal lead only & 0 & --- (was \code{AR\_14\_Ret\_180}; lost in round 5) \\
 The baseline led; the gate withheld our model & \textbf{2} & \code{alpha\_05\_4071\_4048}, \code{alpha\_05\_4071\_2024} \\
-Behind & 3 & \code{AR\_1\_Ret\_360}, \code{AR\_3\_Ret\_360}, \code{NASA\_2DWMH} \\
+Behind & 4 & \code{AR\_1\_Ret\_360}, \code{AR\_3\_Ret\_360}, \code{AR\_14\_Ret\_180}, \code{NASA\_2DWMH} \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\noindent The uncomfortable reading of that table is the one to state: \textbf{our overall
+number is now first on the board while our own model holds a clear lead on two cases out of
+eight.} The rank comes from having no bad case rather than from having many best ones ---
+two declined baselines that beat every published entry, two ducts brought to the level of
+the entry whose constitutive term we adopted, and one case (\code{NASA\_2DWMH}) where we
+are last and know it. An unweighted mean over eight cases rewards exactly that shape, and
+a reader is entitled to know the shape and not only the mean.
 
 What \emph{is} defensible is a better finding than the one it replaces, and it is about the
 selection rather than the score: crossing the recorded per-case floor against the published
@@ -599,7 +771,7 @@ cases, having never seen a test case, identified blind the two flows on which ev
 published method in this field damages the answer. That is a finding about the benchmark
 which the steward may value more than our own number, and the draft cover email says so.
 
-\subsection{The \code{AR\_14\_Ret\_180} regression, deliberately not reverted}
+\subsection{The same case, refused twice: a pattern rather than an incident}
 
 Round 4 improved two ducts and made a third worse: \code{AR\_14\_Ret\_180} went from 0.0303
 to 0.0325, $+$0.0022. It was not reverted, and the reason is the same reason the NASA
@@ -608,15 +780,23 @@ hump's $+$0.0011 was not reverted in round 2: choosing per case between two mode
 exactly what the benchmark's one strict rule exists to prevent. Variant D was frozen on
 validation evidence and applied to all three ducts or none. It was applied to all three.
 
+Round 5 put the identical choice to the laboratory a second time, on the identical case,
+with a bigger prize for cheating and a bigger loss for not: $+$0.0029 this time, and a
+best-on-board row spent rather than merely narrowed (\S\ref{sec:ar14}). \textbf{The answer
+was the same, and it was written down before the number existed rather than defended after
+it.} A discipline that survives one test is a claim; a discipline that survives the same
+test twice, the second time at a higher price, is a practice.
+
 \medskip
 \noindent\fbox{\begin{minipage}{0.95\textwidth}
 \small
-\textbf{Margin warning, stated so it cannot be misquoted.} \code{AR\_14\_Ret\_180}'s
-best-on-board lead over Reissmann collapsed from 0.0022 to \textbf{0.00003} (ours
-0.0324698, against the published four-decimal 0.0325). \textbf{That is a nominal lead, not
-a meaningful one, and it must not be reported as a comfortable win.} The same case carries
-the entry's weakest numerical-provenance column, which makes any unmeasured numerical slop
-on it material.
+\textbf{Retired warning, kept visible rather than deleted.} Earlier versions of this report
+carried a standing warning that \code{AR\_14\_Ret\_180}'s best-on-board lead over Reissmann
+had collapsed from 0.0022 to \textbf{0.00003} (ours 0.0324698, against the published
+four-decimal 0.0325) and must never be reported as a comfortable win. That warning is now
+moot in the only way a margin warning ever becomes moot: \textbf{the margin was spent.} It
+is left in the record because a laboratory that quietly deletes its own cautions once they
+stop applying has taught its readers nothing about how it will treat the next one.
 \end{minipage}}
 
 \subsection{Three refusals}
@@ -632,17 +812,19 @@ taking it would have required choosing what to submit case by case from the answ
   of the same term in round 3 and cost 0.0001. The laboratory's own compliance audit calls
   this ``the most defensible decision in the record''.
 \item \textbf{The \code{AR\_14\_Ret\_180} revert, refused in round 4} --- worth 0.0022 on
-  one case, 0.000275 on the mean.
-\item \textbf{0.00014, refused in 2026-08-01.} On \code{NASA\_2DWMH} our correction is
-  worse than not correcting (0.0632 against a floor of 0.0621); submitting the untouched
-  solve there is one file copy, breaks no benchmark rule, and would move the overall from
-  0.06543 to 0.06529. The only reason to single out that one case is that the benchmark
-  told us its score. It is the smallest of the three refusals and it was refused on
-  identical grounds (\artifact{CLOSURE\_CHALLENGE\_SUBMISSION\_DRAFT.md} \S8.3).
+  one case, 0.000275 on the mean --- \textbf{and refused again in round 5}, at 0.0029 on
+  the case and 0.00036 on the mean (\S\ref{sec:ar14}).
+\item \textbf{0.00014, refused in 2026-08-01 and still refused.} On \code{NASA\_2DWMH} our
+  correction is worse than not correcting (0.0632 against a floor of 0.0621); submitting
+  the untouched solve there is one file copy, breaks no benchmark rule, and would move the
+  overall from 0.056647 to 0.056510 --- the arithmetic is unchanged by round 5, only its
+  starting point is. The only reason to single out that one case is that the benchmark told
+  us its score. It is the smallest of the refusals and it was refused on identical grounds
+  (\artifact{CLOSURE\_CHALLENGE\_SUBMISSION\_DRAFT.md} \S8.3).
 \end{enumerate}
 
 %=====================================================================
-\section{Where the deficit lives, and what separates us from rank 2}
+\section{Where the deficit lived, and how the ducts closed it}
 %=====================================================================
 
 \subsection{The decomposition, and the mechanism it found}
@@ -730,12 +912,17 @@ shipped as legal training data
 found two of our own quotations had gone stale \emph{because we improved the pages they
 cited} (\S\ref{sec:integrity}).
 
-\subsection{The ducts: what is structurally missing}
+\subsection{The ducts: what was structurally missing}
+\label{sec:ductmissing}
 
-The deficit is the ducts. Rank 2 reaches 0.0455 and 0.0399 on \code{AR\_1} and \code{AR\_3}
-where we reach 0.0811 and 0.0775; those two cases were 62.9\% of the round-2 gap and remain
-the dominant term. Four measured findings explain why, and none of them is fixable by more
-model capacity on the present inputs.
+The deficit was the ducts, and this subsection is kept in the past tense it has earned
+rather than rewritten as though the diagnosis had always been obvious. Through round 4, the
+published rank-2 entry reached 0.0455 and 0.0399 on \code{AR\_1} and \code{AR\_3} where we
+reached 0.0811 and 0.0775; those two cases were 62.9\% of the round-2 gap and remained the
+dominant term through four rounds. Four measured findings explain why, and \textbf{not one
+of them was fixable by more model capacity on the present inputs} --- which is the finding
+that eventually forced the method change of \S\ref{sec:round5} rather than another
+retraining.
 
 \begin{enumerate}
 \item \textbf{A proven algebraic degeneracy.} Uncorrected RANS produces \emph{exactly} zero
@@ -781,9 +968,137 @@ already smaller than our streamwise-only remainder ($\sim$7.0\%, $\sim$6.6\%). A
 eddy-viscosity-style correction --- exactly what the field-inversion line targets --- is
 well aimed at the dominant term, not wasted against an anisotropy-only gap.
 
-\subsection{What the two entries above us do that we do not}
+\subsection{The measurement that named the problem: the amount was right, the structure was
+wrong}
+\label{sec:census}
 
-\paragraph{Versus Reissmann, Fang \& Sandberg (0.0595, gap 0.0059).} Gene-expression-programming
+The finding that turned four rounds of duct diagnosis into a decision came from an
+evaluation census run on our own fields, not from the leaderboard
+(\artifact{CLOSURE\_EVALUATION\_PROTOCOL.md} \S4.1; figures under
+\artifact{closure\_eval/}). Its instrument is a streamline panel of the in-plane secondary
+flow, and its result is a single sentence: \textbf{our duct correction restores 69--112\% of
+the true secondary-flow \emph{intensity} while drawing the wrong \emph{topology}.} On the
+square duct the LES field carries a counter-rotating corner-vortex pair --- two distinct
+centres either side of the corner bisector, the canonical structure --- and the corrected
+field draws \textbf{one} vortex. On \code{AR\_7\_Ret\_180} the correction reproduces the
+near-side-wall pair convincingly for $z/h > 5.5$ and replaces the truth's rich multi-vortex
+region near the centreplane ($z/h < 1.5$) with a single smooth sweep.
+
+Two things follow, and the second is the one that changed the plan.
+
+\begin{itemize}
+\item \textbf{An intensity scalar cannot tell those fields apart, and neither can the
+  challenge metric}, which is a weaker scalar still. This is the concrete demonstration,
+  on our own submitted family, that the score is satisfiable without the flow being right
+  --- a caution we would rather publish about ourselves than have a referee derive.
+\item \textbf{It is the a-posteriori confirmation of the a-priori degeneracy of
+  \S\ref{sec:ductmissing}.} Two of the seven features are provably zero on this entire
+  family; the feature set is structurally short of what generating the correct vortex
+  topology would require. \emph{Asking a regression to synthesise, from features, a flow
+  structure that the underlying solve does not contain at all is not a capacity problem.}
+  That sentence is the whole argument for round 5, and it was measured before round 5 was
+  proposed rather than assembled afterwards to justify it.
+\end{itemize}
+
+\subsection{The falsifier: the duct zero is a property of the closure class}
+\label{sec:qcr}
+
+Before anything was applied to a test duct, the structural claim was given a falsifier and
+run against it on \emph{training} cases only
+(\artifact{campaign/W3\_QCR\_DUCT\_FALSIFIER.md}, 2026-08-05; the three scored test ducts
+were not opened). The pre-registered instrument was the toolchain's own quadratic
+constitutive closure, run once on the smallest training duct's existing mesh, with
+thresholds fixed in advance: in-plane RMS above 0.1\% of bulk confirms the claim, below
+1e-10 refutes it, between is indeterminate.
+
+Neither OpenFOAM tree the laboratory holds ships QCR, so it was written: a $\sim$180-line
+library overriding \code{divDevRhoReff}, which reading the source showed to be
+\emph{virtual on the turbulence model} rather than owned by the solver --- so this is a
+turbulence-model-class change and no solver is patched or rebuilt. That fact is what made
+the route cheap, and it was measured rather than assumed.
+
+\begin{center}
+\footnotesize
+\begin{tabular}{lcc}
+\toprule
+\code{AR\_1\_Ret\_180}: same mesh, BCs, forcing, schemes & in-plane RMS, \% of $U_b$ & converged \\
+\midrule
+stock \code{kOmegaSST} & 3.16e-16 & 401 iters, \code{residualControl} \\
+\code{kOmegaSSTQCR}, $c_r = 0.3$ & \textbf{0.6239} & 401 iters, \code{residualControl} \\
+reference LES/DNS field & 0.7570 & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Verdict: the structural claim is confirmed}, at six times the confirming threshold
+and 82\% of the reference field's own in-plane magnitude. Because a confirming direction is
+the weaker inference, it was strengthened twice rather than accepted: a $c_r = 0$ control
+on the same new library reproduces stock \code{kOmegaSST} \textbf{bit for bit}
+($\max|\Delta \mathbf{U}| = 0.0$), so the library adds nothing but the QCR term and the QCR
+term is the entire cause; and the recovered in-plane field correlates with the reference at
+Pearson $r = +0.953$, so it is the reference's own vortex structure with the correct sign
+and not merely nonzero. Extended to all four training ducts the scaled MAE fell by
+33.5--57.5\%, from an untrained constant. Three caveats travel with those numbers and are
+kept: they are all-cell computations on training cases and are \emph{not} challenge scores;
+\code{AR\_5} and \code{AR\_10} are cap-stopped rather than converged, so their absolute
+values carry an unquantified settling residue while the paired comparison stays fair; and
+QCR undershoots consistently, at 0.82--0.90 of the reference in-plane magnitude and never
+above it --- the systematic slight weakness a trained coefficient would take up, and
+consistent with the published entry that carries this term also carrying a trained
+$\beta$ beside it.
+
+\subsection{What round 5 drew}
+\label{sec:topology}
+
+The census asked for topology, so topology is what the round-5 validation was checked
+against --- on the benchmark's own suggested validation duct, using the census's own
+unmodified instrument, and recorded in the pre-registration as a \emph{reported diagnostic
+and not a gate clause}, so that it could not quietly become a fourth criterion after the
+fact (\artifact{campaign/R5\_PREREGISTRATION.md} \S2).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{../campaign/duct_secondary_flow_AR_7_validation_qcr.png}
+\caption{In-plane secondary flow on the validation duct \code{AR\_7\_Ret\_180}, lower-left
+quadrant, streamwise direction out of the page; panel layout after Ling et al.,
+\emph{J.\ Fluid Mech.} (2016), per the instrument's own header. \textbf{Top:} the
+$k$--$\omega$ SST baseline, which has no in-plane flow to stream --- the field is zero to
+machine precision (mean $7.04\times10^{-18}$ of $U_b$). \textbf{Middle:} the untrained
+\code{kOmegaSSTQCR} solve, mean $4.65\times10^{-3}$ of $U_b$. \textbf{Bottom:} the LES
+truth, mean $4.90\times10^{-3}$. Panel statistics are over all 15{,}463 solver cells with
+no averaging. Source: \artifact{campaign/duct\_secondary\_flow\_AR\_7\_validation\_qcr.png}.}
+\label{fig:topology}
+\end{figure}
+
+\textbf{The answer is yes, and it is the answer the post-hoc field could not give.} QCR
+draws the counter-rotating corner-vortex pair with two distinct centres --- one near
+$z/h \approx 6.1$, $y/h \approx 0.5$ and a second tight against the side wall near
+$z/h \approx 6.85$, $y/h \approx 0.55$ --- in the same positions, with the same sense, and
+with the same flanking high-speed wall lobes as the LES panel. Mean in-plane magnitude is
+$4.65\times10^{-3}$ of bulk against the truth's $4.90\times10^{-3}$, and the visible
+deficit is stated rather than cropped: the LES's weak tertiary recirculations near the
+centreplane ($z/h < 1.5$) are smoothed into elongated lobes. \emph{The structure the ducts
+are scored on losing is the corner pair, and the untrained in-PDE term produces it where
+the trained post-hoc field, restoring the right amount of the wrong thing, could not.}
+
+\paragraph{Independent corroboration nobody designed for.} The published entry ranked
+second before round 5 --- Wu \& Zhang's SST-QCRC --- carries the same untrained QCR2000
+term inside a larger model. Our three duct scores land \textbf{within 0.0004 of theirs on
+all three ducts}: 0.045470 against a published 0.0455, 0.039982 against 0.0399, 0.035339
+against 0.0350. Different laboratories, different implementations, independent solves, the
+same constitutive term, the same answer to four decimals. Two readings are available and
+both belong in the record: it is a strong external check that our library implements the
+term correctly, \emph{and} it says the duct signal is the QCR term itself rather than
+anything we added around it. We claim only the first as a credit to us.
+
+\subsection{What the two entries we passed do that we still do not}
+
+\emph{Heading changed 2026-08-07; the two readings below are unchanged. They were written
+when both entries were ahead of us on the overall. Between them they are still ahead of us
+on four of the eight cases, and a passed entry is not a refuted one.}
+
+\paragraph{Versus Reissmann, Fang \& Sandberg (0.0595; we are 0.0029 ahead on the overall
+and behind on all three ducts).} Gene-expression-programming
 symbolic regression of an anisotropic Reynolds-stress correction, fitted concurrently with
 a differential-evolution refit of the $k$--$\omega$ SST coefficients
 (lineage: Weatheritt \& Sandberg, \emph{J.\ Comput.\ Phys.} 325 (2016) 22--37;
@@ -795,9 +1110,11 @@ same duct family we do, AR 1--10 at $Re_\tau = 180$: \textbf{the difference is n
 is model form.} Where we beat them: both \code{alpha\_15} cases (0.0501/0.1011 against
 0.0592/0.1339) and both declined \code{alpha\_05} cases.
 
-\paragraph{Versus Wu \& Zhang (0.0624, gap 0.0030).} One training flow, a five-constant
+\paragraph{Versus Wu \& Zhang (0.0624; we are 0.0058 ahead on the overall and level with
+them on the ducts to four decimals).} One training flow, a five-constant
 symbolic law, and a re-solve beat our 21-case gradient-boosted model everywhere outside the
-periodic-hill family. Their SST-QCRC combines a fixed, untrained QCR-style quadratic
+periodic-hill family --- and the way we closed that gap was to adopt half their model.
+Their SST-QCRC combines a fixed, untrained QCR-style quadratic
 Reynolds-stress term ($c_r = 0.3$, ``directly adopted'', no data-driven training) with a
 learned multiplicative field $\beta_{\mathrm{CND}}$ on the $\omega$-destruction term
 obtained by conditioned field inversion and PySR symbolic regression; the final law is three
@@ -807,23 +1124,31 @@ SST-QCRC Model}, the entry's own description document; backing paper Wu, Zhang \
 \emph{AIAA J.} 63(2):687--706 (2025), DOI 10.2514/1.J064416, arXiv:2402.16355). What they do
 that we do not is \textbf{correct causes rather than symptoms} --- the $\omega$ equation
 rather than the velocity field --- and buy generalisation from compactness. The QCR term
-supplies duct secondary flow they never trained for.
+supplies duct secondary flow they never trained for. \textbf{What still separates us is the
+learned half}: they invert and regress a $\beta_{\mathrm{CND}}$ field on top of the
+constitutive term, and we ship the constitutive term alone. On the ducts that
+half is now worth, by measurement, at most 0.0004 --- the whole distance between their
+published duct scores and ours (\S\ref{sec:topology}).
 
 \paragraph{An external finding worth recording.} Per their own paper's main-text Table 1,
 the NASA wall-mounted hump --- the same flow as the scored \code{NASA\_2DWMH} --- is one of
-the nine training flows of the rank-3 entry's method (Liu, Wang, Zhao \& Xiao,
-arXiv:2509.17189). \textbf{Stated as an observation from their own table, not as an
+the nine training flows of Liu, Wang, Zhao \& Xiao's method (arXiv:2509.17189). \textbf{Stated as an observation from their own table, not as an
 accusation}: the paper is not the submission, and whether the leaderboard entry retrained
 excluding the hump is not determinable from public sources.
 
 %=====================================================================
-\section{The field-inversion line: blocked, unblocked, verified}
+\section{The field-inversion line: blocked, unblocked, verified --- and then negative}
 %=====================================================================
 
 The decomposition points at a scalar eddy-viscosity-style correction inside the equations.
 That is the FIML family, and reproducing it is the laboratory's Ladder-B line. Over the
-last week it moved from a hard blocker to the first converged, verified closure-relevant
-gradient.
+last fortnight it moved from a hard blocker to the first converged, verified
+closure-relevant gradient, and then to a negative result whose cause was found rather than
+guessed: \textbf{the inversion missed its pre-registered bar by two orders of magnitude,
+and the objective --- not the adjoint, not the optimizer, not the term choice --- was
+where the defect lived} (\S\ref{sec:s1result}--\S\ref{sec:reinversion}). It is the most
+useful section of this report for a reader trying to judge whether the laboratory's
+successes are selected.
 
 \subsection{Capability established, and a deviation disclosed}
 
@@ -916,6 +1241,7 @@ The mechanism was then located rather than guessed
 \end{itemize}
 
 \subsection{The unblock, and what it cost}
+\label{sec:fdverif}
 
 \artifact{dafoam/ladder-b/W4\_ADJOINT\_PC\_UNBLOCK.md} (commit
 \code{1cd44c04}) closes it. The runtime-options route was tested first and found
@@ -1043,13 +1369,14 @@ consequences are three:
   the paper where OpenFOAM's built-in DDES shield would silently supply 20.
 \end{enumerate}
 
-\subsection{What is running now}
+\subsection{The inversion that ran, and the gates it failed}
+\label{sec:s1result}
 
-The Stage 1 CBFS inversion is pre-registered and under way
+The Stage 1 CBFS inversion was pre-registered
 (\artifact{dafoam/ladder-b/S1\_CBFS\_INVERSION\_PREREGISTRATION.md},
 commit \code{e6321e95}), written before any inversion iteration ran and while the only
 existing numbers were the baseline objective and the single verified gradient at $\beta = 1$.
-It fixes, in advance: the loss
+It fixed, in advance: the loss
 $J(\beta) = \lambda_{\mathrm{QoI}}\,\mathrm{varianceU}(\beta) + \lambda_{L2}\sum_j(\beta_j-1)^2$
 with $\lambda_{\mathrm{QoI}} = 65.448114804931393$ so that the data term equals exactly 1 at
 $\beta = 1$ (Wu \& Zhang's own normalisation) and $\lambda_{L2} = 10^{-4}$ declared at the
@@ -1058,14 +1385,122 @@ and the lower bound ours by choice and disclosed as such; L-BFGS-B rather than t
 because SciPy's SLSQP would allocate a dense $3.749\times10^9$-double workspace --- 30.0\,GB,
 the whole of this host's RAM --- at 21{,}000 design variables; a hard budget cap of 600
 core-min with a stop rule that records a capped run as \emph{capped, not converged}; and two
-success criteria, a 30\% reduction in the data term and a requirement that more than half of
-the top-decile $\beta$ deviations fall inside a pre-declared spatial window around the
-recirculation bubble and separated shear layer.
+success criteria, a 30\% reduction in the data term (G1) and a requirement that more than
+half of the top-decile $\beta$ deviations fall inside a pre-declared spatial window around
+the recirculation bubble and separated shear layer (G2).
 
-It also fixes its own label before any result exists: \textbf{this is a production-term
-inversion}, at $\sim$36 evaluations against Wu \& Zhang's $\sim$140 SLSQP iterations, with a
-field-variance loss rather than their 30 sparse points --- three independent reasons no
-number it produces may be set beside theirs as like-for-like.
+It also fixed its own label before any result existed: \textbf{this is a production-term
+inversion}, with a field-variance loss rather than Wu \& Zhang's 30 sparse points --- two
+independent reasons no number it produces may be set beside theirs as like-for-like.
+
+\paragraph{It ran, and it failed both gates.} 335.98 core-min against the 600 cap; 17
+evaluations, every adjoint converged (reason 2, 667 iterations, every evaluation log); 10
+accepted L-BFGS-B iterations with monotone descent; gradient norm down $106\times$
+(9.528e-4 $\rightarrow$ 9.011e-6); zero cells pinned at either bound. \textbf{G1: the
+normalised data term fell to 0.99851 against a $\leq 0.70$ bar --- a reduction of
+0.149\%, one two-hundredth of what was pre-registered. G2: 29.0\% of the top-decile
+$|\beta - 1|$ cells sit in the declared window, against a $>50\%$ bar}
+(\artifact{dafoam/ladder-b/S1\_CBFS\_INVERSION\_RESULT.md}). Both are recorded as failed
+gates with no softening, and the stop is named for what it was: a decision at the plateau
+after 17 evaluations, not the optimizer's own convergence test and not the budget cap.
+
+The controls held throughout, which is what makes the failure interpretable rather than
+merely disappointing: evaluation 1 reproduced the W4 baseline objective to all 17 digits
+and the W4 archived gradient \emph{bit-identically}, maximum absolute difference exactly
+zero; and a fresh cold process at the final $\beta$ reproduced the final objective to all
+digits.
+
+\subsection{Why it failed: the objective, not the method}
+\label{sec:s1diagnosis}
+
+The post-run coverage audit found the cause, and it is a defect of ours in the case setup
+rather than a fact about turbulence closure. \textbf{The case's inlet boundary condition
+was not the benchmark's inlet.} Our \code{0/U} carried $U_x = 0.72$ uniform on all 150
+inlet faces where the benchmark's own CBFS case ships a developed profile
+(0.202 $\rightarrow$ 1.005, bulk mean 0.9149). The mechanism is pinned rather than
+inferred: \textbf{the $U_z$ noise columns of the two files are byte-identical}, so ours is
+the benchmark's file with $U_x$ and $U_y$ overwritten --- the leftover write-back of an
+earlier boundary-velocity pilot.
+
+The consequence is arithmetic. The \code{varianceU} loss was comparing a 0.72-bulk RANS
+flow against a 0.915-bulk LES reference: \textbf{a 27\% mass-flux mismatch that no interior
+turbulence correction can remove.} 85.1\% of the total loss sat at $y > 2$, far above the
+step, in what should be trivially matched channel flow; the physics window the inversion
+exists to act in held 3.7\%. Along the FD-verified gradient, a first-order 30\% reduction
+would have required a step of norm $\sim$315 in $\beta$-space, roughly 2.2 per cell,
+outside any physical bound. \emph{The optimizer honestly minimised the loss it was given;
+the loss was measuring the inlet and not the closure. The 0.149\% plateau is the honest
+optimum of the wrong objective.}
+
+Three consequences are carried rather than filed away.
+
+\begin{itemize}
+\item \textbf{One sentence of W4's record is corrected in place.} W4 \S5c said the case's
+  ``real nonuniform inlet is thereby restored rather than overridden''. The $\beta$ design
+  variable did stop overwriting the inlet each iteration, but the on-disk \code{0/U} it
+  inherited had already been overwritten; nonuniform-in-$U_z$-noise passed for nonuniform.
+  A correction addendum is filed against W4. \textbf{W4's own gate is unaffected}:
+  finite-difference agreement is a property of the objective as built, and it stands.
+\item \textbf{A second real defect was bought on the way in.} DAFoam's primal restarted
+  in-process from its own converged state \emph{walks away from it} ($p$ residual 1e-6
+  $\rightarrow$ 0.21, $\omega$ and $k$ pinned at their 1e-16 floors), prints ``Primal
+  solution failed!'', and proceeds into the adjoint anyway, which then stagnates flat at
+  reason $-3$. In-process multi-evaluation optimisation is structurally unavailable on this
+  case; the loop ran out-of-process, one fresh container per evaluation, at the same
+  16.4 core-min the cost model already stated.
+\item \textbf{Nothing from that $\beta$ field may train anything.} It is an artifact of a
+  defective loss. Stage 2 is blocked pending the repair, and is recorded as blocked rather
+  than as pending.
+\end{itemize}
+
+\subsection{The re-inversion, in flight}
+\label{sec:reinversion}
+
+The repair was pre-registered before any solver run of it, on a fresh case copy with the
+corrupted case left untouched as evidence, and with a falsifiable prediction attached to the
+diagnosis so that the diagnosis could be wrong in public
+(\artifact{dafoam/ladder-b/S1\_CBFS\_REINVERSION\_PREREGISTRATION.md}, commit
+\code{a11ccd41}): \emph{P1 --- the loss floor collapses, baseline \code{varianceU} falls
+from 1.528e-2 to below 7.6e-3; if it is still $\sim$1.4e-2 the inlet diagnosis was wrong
+and that is the headline of the item.}
+
+Stages A--C are measured, at 96.57 core-min of a 450 core-min hard cap, and the inversion
+itself has not yet started:
+
+\begin{itemize}
+\item \textbf{P1 passes beyond its prediction.} The repaired baseline is
+  \textbf{6.1509e-04}, a \textbf{24.8$\times$ collapse} against a prediction of merely
+  ``more than half''. Inlet-adjacent bulk is now 0.9148 against the LES 0.9153, ratio
+  1.0005: the mass-flux floor is gone.
+\item \textbf{P2 passes.} The $y > 2$ free-channel share of the loss fell from 85.1\% to
+  25.6\%, and the physics window rose from 3.7\% to \textbf{41.2\%} while holding 8.4\% of
+  the cells --- the largest loss-per-cell concentration in the domain, which is where a
+  closure correction should be asked to act.
+\item \textbf{A protocol change was forced by a measurement that first looked like a
+  failure.} The re-verification finite differences missed their own 1\% bar at 25.9--32.2\%
+  on three cells. The diagnosis was that the repaired case's cold primal now starts far
+  from its solution and stops at the first 1e-6 crossing, leaving $O(\mathrm{tol})$ state
+  error that under-develops a one-cell perturbation's response. The discriminating
+  experiment --- the same finite-difference pair at 1e-8 --- moved that cell from 25.9\% to
+  \textbf{0.032\%}. \emph{The adjoint was right; the tolerance was polluting the finite
+  difference.} Every solver run of the item now runs at 1e-8, and the re-anchored sweep is
+  0.032\%, 0.115\% and 0.009\% on three cells in distinct mesh neighbourhoods, zero sign
+  flips, all inside W4's own order of agreement.
+\item \textbf{The gate numbers were fixed by dated amendment before the driver launches},
+  re-based to the repaired baseline rather than inherited: $\lambda_{\mathrm{QoI}} =
+  1.6258\times10^{3}$, G1 at $\mathrm{varianceU} \leq 4.3056\times10^{-4}$, G2's window
+  confirmed against the stage-A audit rather than assumed, and $\lambda_{L2}$ cut tenfold
+  to $10^{-5}$ with the reasoning disclosed --- the failed run plateaued at an exact
+  penalty balance ($|g_{\mathrm{pen}}|/|g_{\mathrm{QoI}}| = 0.998$, $\cos = 0.9995$),
+  which the repaired gradient, 8.4$\times$ larger, should not reproduce.
+\end{itemize}
+
+\noindent The honest summary of this line is therefore neither the triumph of
+\S\ref{sec:fdverif} nor the failure of \S\ref{sec:s1result} alone: \textbf{a verified
+gradient was used to minimise a loss, the minimisation worked, and the loss turned out to
+be measuring our own broken boundary condition --- which the pre-registered gates caught,
+and which nothing else in the run would have.} A gate that only ever passes would have let
+this ship.
 
 %=====================================================================
 \section{Verification and integrity}
@@ -1109,11 +1544,91 @@ not a violation of the rule as written; residual risk low but non-zero, and inte
 rather than factual.} It belongs in the submission's cover material so that a reviewer
 \emph{finds} it written down rather than discovers it.
 
+\paragraph{Round 5's leakage surface, and why it is the smallest the entry has ever
+carried.} The soft leakage above is a statement about \emph{motivation}, and round 5's
+motivation was as adaptive as any: we knew our three duct scores. What round 5 removes is
+the channel through which knowing them could act. Nothing in the three duct predictions is
+fitted to anything, so there is no parameter that could have been fitted on the wrong data;
+the test cases were opened for RANS inputs and mesh only, and the \code{*\_LES} files were
+never copied into the run tree, so test truth was not merely unread but \textbf{absent from
+the working directory}; and the one degree of freedom through which known scores could have
+entered --- choosing which ducts get which model --- was removed in advance by an
+all-or-none rule, which is the subject of the next subsection.
+
+\subsection{The frozen rule, and a result nobody had to accept}
+\label{sec:frozenrule}
+
+Round 5 is the round in which the laboratory's pre-registration discipline was asked to do
+the harder of its two jobs. Saying no to a candidate that fails its own gate costs nothing
+but the candidate. Saying \emph{yes} --- accepting a number mechanically, including its
+losses, with no discretion left to exercise --- is the half that decides whether the
+discipline is real, and it is the half a laboratory only gets to demonstrate when the
+result is good.
+
+\medskip
+\noindent\fbox{\begin{minipage}{0.95\textwidth}
+\small
+\textbf{The order of events, which is the whole claim.}
+\begin{enumerate}
+\item \textbf{2026-08-05T17:41Z --- the application rule is frozen and committed
+  (\code{R5\_RULE\_FREEZE.md} at \code{0bade54a}), \emph{before the first validation
+  iteration existed}.} QCR ships on all three test ducts if and only if, on the benchmark's
+  own suggested validation duct \code{AR\_7\_Ret\_180}: \textbf{V1} QCR's scaled MAE is
+  $\leq 0.70\times$ SST's; \textbf{V2} the in-plane Pearson $r$ is $\geq 0.85$; \textbf{V3}
+  both arms converge on their own \code{residualControl} within the cap. Otherwise none.
+  The all-or-none form was chosen precisely because per-case selection is the one place
+  known test scores could enter.
+\item \textbf{The validation duct is solved and the clauses are read off it.} V1: 0.0400
+  against 0.0839, ratio \textbf{0.4770}. V2: \textbf{0.9284}. V3: both arms stopped by
+  \code{residualControl} at 4{,}652 and 4{,}660 iterations against a 12{,}000 cap.
+  \textbf{Verdict ALL. No clause was added, dropped, or re-thresholded after the freeze}
+  (\artifact{campaign/R5\_validation\_AR7.json}).
+\item \textbf{The accept criterion is frozen before the scoring call} (\code{e865076b}):
+  the submission improves on the entry of record \emph{iff} overall $< 0.065438$, with the
+  expectation band 0.059--0.0666 and the \code{AR\_14} risk statement written down in the
+  same document.
+\item \textbf{Four independent pre-score checks are run fresh by the scoring agent}, not
+  trusted from the producing session: the five unchanged CSVs SHA-256-match the round-4
+  manifest; all eight CSVs are $1000\times3$ and finite; the evaluation-point ordering
+  check is re-run from scratch, maximum row-wise deviation 4.9e-8; and the
+  pre-registration's own hash table matches the bytes on disk for all eight files. All four
+  passed, and only then did the call proceed.
+\item \textbf{The call returns 0.056647, which is less than 0.065438, so the criterion
+  says ACCEPT.} Round 5 became the entry of record by arithmetic.
+\end{enumerate}
+\textbf{No judgement was exercised after the number existed.} The acceptance, the
+non-revert of \code{AR\_14}, and the reporting of a lost best-on-board row were all
+determined by documents committed before the number was produced --- by a different agent
+than the one that produced it.
+\end{minipage}}
+
+\medskip
+Two honest qualifications belong beside that box, in the same spirit as the ones beside the
+gate.
+
+\begin{itemize}
+\item \textbf{A frozen rule is only as good as the evidence it acts on, and ours acted on
+  one validation case.} \code{AR\_7\_Ret\_180} is the benchmark's own suggested duct
+  validation case and it is a single case at $Re_\tau = 180$. \textbf{No legal duct truth
+  exists anywhere in this benchmark at $Re_\tau = 360$}, so the transfer to the two
+  \code{Ret\_360} test ducts was defended structurally --- an untrained term has no trained
+  range --- and not empirically. That argument was written down before the run, and ``cannot
+  fail the old way'' was explicitly not claimed to be ``cannot fail''.
+\item \textbf{The band was wrong and the rule was not.} A pre-registration whose
+  expectation band misses low is a pre-registration whose author did not know the answer,
+  which is the condition under which freezing rules is worth anything. We record the miss
+  as a miss (\S\ref{sec:round5}) rather than presenting 0.056647 as the number we expected.
+\end{itemize}
+
 \subsection{The scoring-call ledger}
 \label{sec:ledger}
 
-Five distinct prediction sets have ever been scored against the eight test cases' ground
-truth: the RANS-identity floor, and rounds 1 through 4. The unit counted is
+Six distinct prediction sets have ever been scored against the eight test cases' ground
+truth: the RANS-identity floor, and rounds 1 through 5. The sixth call was made on
+2026-08-07 by the supervisor's designated scoring agent --- not by the session that built
+round 5, which stubbed every scoring and truth entry point of the evaluation package and
+verified itself armed before touching the first case, and which stated in its
+pre-registration that the call belonged to somebody else. The unit counted is
 \emph{distinct prediction sets}, which is a defensible and meaningful unit --- and the
 compliance audit caught a docstring claiming something stronger and demonstrably false
 (``exactly one call'' where the same run makes four invocations across two prediction sets,
@@ -1144,7 +1659,10 @@ credibility rests on the unverified assumption, each costed as a proposal:
   bin edges --- hence the trees, hence three of the eight predictions --- depend on the
   seed, against a gap to rank 2 of 0.0030.
 \item[G2 --- no physicality check on any corrected field.] $\nabla\cdot\mathbf{U}$ never
-  measured, on the one dimension every other entrant gets by construction.
+  measured, on the one dimension every other entrant gets by construction. \textbf{Closed
+  twice}: as a measurement on 2026-08-05, returning a material finding against us, and as a
+  \emph{defect} for the duct family on 2026-08-07, when round 5 replaced those fields with
+  solves (\S\ref{sec:stability}).
 \item[G3 --- baseline convergence evidence exists but is uncited] for all eight
   predictions. It matters twice over on the two declined cases, where the shipped solve
   \emph{is} our submission. \textbf{Closed 2026-08-05}
@@ -1296,27 +1814,61 @@ Three things follow, and none of them is an excuse:
   continuity at $\sim$10\% of the gradient scale on the two corrected hills and 2.3--3.4\%
   on the three ducts. That is far above the operator floor, so it is the field and not the
   operator.
-\item \textbf{The scoring metric never sees it.} Nothing here changes 0.0654. But it is
-  exactly what a referee of the description document will ask, and per the pre-registered
-  consequence it is carried into the submission's disclosure section --- ``we measured it
-  and here is the number'' beats silence, even when the number is against us.
+\item \textbf{The scoring metric never sees it.} Nothing measured here changed round 4's
+  0.0654. But it is exactly what a referee of the description document will ask, and per the
+  pre-registered consequence it is carried into the submission's disclosure section --- ``we
+  measured it and here is the number'' beats silence, even when the number is against us.
 \item \textbf{The two declined cases are, again, the strongest rows.} Their ratio is exactly
   1.000 because the gate's ``off'' state ships the organisers' own solve and inherits its
   physicality untouched. The one part of our submission that is physical by construction is
   the part where our model does not appear.
 \end{itemize}
 
-This is also the measured case for the field-inversion line of \S5. The argument for moving
-the correction \emph{inside} the equations had been an argument from taxonomy and from the
-duct decomposition; it is now an argument from a number on our own submitted fields. A
-correction that re-enters the PDE and is re-solved returns a field satisfying continuity
-because the solver enforces it --- which is precisely what the four entries above and below
-us get for free, and precisely what Stage 1 is being built to give us.
+\paragraph{G2, closed for the duct family --- by changing the method, not the threshold.}
+Round 5's three duct predictions are the output of a converged SIMPLE solve, in which
+continuity is enforced by the pressure equation on the face fluxes rather than asserted
+afterwards. Pushed through the \emph{identical} Green--Gauss operator the G2 audit used
+(\artifact{closure\_challenge\_round5\_qcr\_forward.json};
+\artifact{campaign/R5\_PREREGISTRATION.md} \S6):
+
+\begin{center}
+\small
+\begin{tabular}{lccc}
+\toprule
+Case & round-4 ML field, RMS $\nabla\cdot\mathbf{U}$ & round-5 QCR field & improvement \\
+\midrule
+\code{AR\_1\_Ret\_360}  & 9{,}160 & \textbf{345} & 27$\times$ \\
+\code{AR\_3\_Ret\_360}  & 9{,}749 & \textbf{169} & 58$\times$ \\
+\code{AR\_14\_Ret\_180} & 3{,}584 & \textbf{57}  & 63$\times$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Stated at the precision it deserves rather than rounded into a slogan: the
+\emph{cell-centred} Green--Gauss divergence of the QCR fields is \textbf{not} the baseline's
+machine zero, because SIMPLE enforces continuity on face fluxes and the explicit QCR stress
+divergence enters the cell-to-face (Rhie--Chow) consistency at the 5e-4-of-gradient level.
+What is true is narrower and sufficient: a 27--63$\times$ reduction on the identical
+operator against the fields it replaces, and a residual non-solenoidality that is
+\textbf{solver-consistency small rather than model-structure large}. G2 is closed for the
+duct family and remains open, measured and disclosed for the two corrected hills at
+$\sim$10\%.
+
+This whole finding is also the measured case for the field-inversion line of \S5, and round
+5 is the first instalment of it. The argument for moving the correction \emph{inside} the
+equations had been an argument from taxonomy and from the duct decomposition; the G2 audit
+made it an argument from a number on our own submitted fields; and round 5 acted on it with
+the cheapest in-PDE term available. A correction that re-enters the PDE and is re-solved
+returns a field satisfying continuity because the solver enforces it --- which is precisely
+what every other entry on this board gets for free, what we now get on three cases, and
+what Stage 1 is being built to give us on the rest.
 
 \subsection{The pre-registration that said no}
 \label{sec:nogo}
 
-The clearest evidence that the discipline binds is the round-5 candidate
+The clearest evidence that the discipline can refuse is the \code{alpha\_05} regime
+candidate --- filed under an ``R5'' name it never earned, because it was never scored and
+never became a round
 (\artifact{closure\_challenge\_R5\_ALPHA05\_REGIME\_PREREGISTRATION.md},
 commit \code{be642415}). C2 had recommended training a second, regime-specific model as
 strictly better than gating, because it recovers the term instead of merely declining to
@@ -1331,7 +1883,8 @@ leave-one-out delta existed. Measured:
 \begin{table}[h]
 \centering
 \small
-\caption{The R5 pre-declared gate, and what the measurements did to it.}
+\caption{The \code{alpha\_05} regime candidate's pre-declared gate, and what the
+measurements did to it.}
 \begin{tabular}{L{6.2cm}L{6.6cm}c}
 \toprule
 Rule & Measured & Verdict \\
@@ -1348,7 +1901,11 @@ $-$0.0195 over 10 cases, 8 of 10 improved, two by more than 0.035 & PASS \\
 \end{table}
 
 \textbf{Verdict: NO-GO. The rules were not revisited after the numbers, the scoring call was
-not authorised, and nothing was scored.} Round 4 stands as the entry of record.
+not authorised, and nothing was scored.} Round 4 stood as the entry of record, and the
+duct route of \S\ref{sec:round5} --- not this one --- eventually became round 5. Read
+beside \S\ref{sec:frozenrule}, the pair is the point: the same machinery refused a
+candidate it had built and accepted one it had priced pessimistically, and in neither case
+did anyone choose after the fact.
 
 \paragraph{The rule has a name, and ours is the weaker version of it (added 2026-08-05).}
 ``Adopt the retrained model only if it is certified not to be worse than the incumbent''
@@ -1419,6 +1976,20 @@ design that does not lean on a single in-regime validation case.
   gate was found to be specific to \code{-5}; \code{-9} never fools it. It matters in the
   safe direction --- the blocked cases were never at risk of silently returning a wrong
   gradient.
+\item \textbf{``The only entry on the board that does not re-solve'' was retired on
+  2026-08-07}, not softened. It became false of three of our eight predictions the moment
+  round 5 shipped, and the self-description at the front of \S\ref{sec:method} now leads
+  with that rather than qualifying it in a footnote.
+\item \textbf{``4 of 8'' replaced ``5 of 8''} on the best-on-board count, by losing a row
+  we had already told our readers not to count as a win (\S\ref{sec:ar14}). The retired
+  margin warning is left in place rather than deleted.
+\item \textbf{One sentence of the W4 unblock record was found false by our own follow-up
+  audit and corrected in place}: the field-inversion case's inlet had been overwritten by
+  an earlier pilot, so the claim that its ``real nonuniform inlet is thereby restored''
+  was wrong, and the inversion built on it minimised the wrong objective
+  (\S\ref{sec:s1diagnosis}). The defect was ours, was found by us, and was found by an
+  audit run \emph{after} the run had already failed its gates --- which is the order in
+  which such things are usually not found.
 \end{itemize}
 
 %=====================================================================
@@ -1428,68 +1999,88 @@ design that does not lean on a single in-regime validation case.
 \subsection{The technical path}
 
 \begin{description}
-\item[Duct parity is the largest available term.] Matching the best published entry on the
-  two aspect ratios we trail is worth about 0.011 on the overall --- more than the entire
-  0.0059 gap to rank 1. Every move currently visible in that family is either contaminated
-  by knowledge of per-case test outcomes or needs evidence this benchmark cannot supply, so
-  a structural route has been filed instead: the scalar-invariant feature set is provably
-  three-dimensional on a duct while the tensor basis is not. Measured on two duct training
-  cases, the second basis tensor carries 1.87--2.36$\times$ the norm of the first, with 71\%
-  of its magnitude and 91\% of the third tensor's in the transverse block that generates
-  secondary flow. That is a specific structural argument for the duct family belonging to a
-  tensor-basis ansatz.
-\item[Rank-2 parity needs two components, not one.] The $\beta$-on-destruction model patch
-  is specified line by line against installed source and filed; the untrained QCR
-  constitutive term is filed separately. Landing only the first reproduces the paper's
-  inversion capability, not the deployed rank-2 model, and no score from it may be compared
-  like-for-like.
-\item[Stage 1 is running.] The CBFS production-term inversion is pre-registered, budgeted at
-  600 core-min, checkpointed every evaluation, and labelled in advance. It can establish that
-  the verified gradient drives an actual descent on a closure-relevant case, where a
-  production-term $\beta$ wants to move on CBFS, and the real per-iteration price that Stage
-  2 planning needs. It cannot establish anything about destruction-term physics, about
-  generalisation, or about any benchmark score --- and it says so before it runs.
-\item[The hump remains open, honestly named.] Its blocker is now Krylov convergence rate
-  against a memory envelope rather than a singular factorisation. A Richardson-wrapped
-  configuration capping the restart basis is staged and unrun, awaiting a fresh budget.
+\item[The duct term is spent, and it was the largest one.] Through round 4 the two
+  \code{Ret\_360} ducts were 1.8 times the entire deficit to the published rank-1 entry, in
+  one flow family. Round 5 took them, and what is left of that family is 0.0068 and 0.0059
+  against Reissmann on \code{AR\_1} and \code{AR\_3} plus the 0.0029 given back on
+  \code{AR\_14}. \textbf{Nothing else on the board is now worth what the ducts were}, and
+  the next-largest single term is the hump at 0.0220 on one case, which \S4 has already
+  established cannot be legitimately attacked.
+\item[Full rank-2 parity is now a smaller target than it looked.] The remaining measured
+  target is the other half of the model we half-adopted. The deployed SST-QCRC is the
+  untrained QCR term \emph{plus} a conditioned
+  $\beta$ on $\omega$ destruction. We now ship the first half and match their duct scores to
+  0.0004, which prices the second half on this family at essentially nothing
+  (\S\ref{sec:topology}). The $\beta$-on-destruction model patch remains specified line by
+  line against installed source and filed --- but it is filed as a \emph{physics} question
+  about term choice (\S\ref{sec:s1diagnosis}), not as a score route, and no score from it
+  may be compared like-for-like with theirs.
+\item[Stage 1 has reported, and the honest label is: machinery yes, result no.] The CBFS
+  production-term inversion ran to 335.98 of its 600 core-min cap and failed both
+  pre-registered gates because its objective was measuring an overwritten inlet. The repair
+  is pre-registered with a falsifiable prediction, the prediction passed at 24.8$\times$,
+  the finite-difference gate is re-anchored on the repaired objective at 0.009--0.115\%,
+  and the re-inversion is in flight against a 450 core-min cap
+  (\S\ref{sec:reinversion}). \textbf{What it can establish is unchanged and still modest};
+  what it has already established is that this laboratory's gates catch its own defects.
+\item[The hump remains open, honestly named.] Its adjoint blocker is Krylov convergence
+  rate against a memory envelope rather than a singular factorisation; a Richardson-wrapped
+  configuration capping the restart basis is staged and unrun. Its \emph{entry} blocker is
+  different and unmoved: no legal held-out flow sits at the hump's Reynolds number, the
+  nearest donor extrapolates on 7 of 7 features, and we already know the case's score --- so
+  any model choice made today is made by somebody who has seen it. One untried probe would
+  answer the physics question legally (QCR forward on CBFS, a training case), and it is
+  correctly priced at 78 core-min rather than the 10 an earlier draft claimed.
 \item[Audit items.] Four of the six are closed: G1 and G2 both returned material findings
-  against pre-registered thresholds, and G3 and G4 landed on 2026-08-05. What remains is
-  G5, which widens the gate's evidence base from 4 held-out decisions to 25 by
-  leave-one-out over all periodic-hill cases, and G6, which is free if folded into the
-  retraining runs.
+  against pre-registered thresholds, G3 and G4 landed on 2026-08-05, and G2 was then closed
+  a second time for the duct family by round 5. What remains is G5, which widens the gate's
+  evidence base from 4 held-out decisions to 25 by leave-one-out over all periodic-hill
+  cases, and G6, which is free if folded into the retraining runs. \textbf{Both remaining
+  items are about the periodic-hill model} --- which, after round 5, is the only learned
+  object left in the entry.
 \end{description}
 
 \subsection{Submission status}
 
-The package exists and is audited. The eight CSVs are written, 1000 rows by 3 columns,
-comma-delimited and header-free, verified finite and round-trip accurate below 5e-8, with
-mean velocity magnitudes falling inside the band spanned by all four accepted submissions on
-all eight cases --- a check that would catch a point-ordering, column-ordering or units
-blunder at zero scoring cost. Both defects the compliance audit found (the false docstring;
-the non-existent submittable artifact) are closed, the evaluation package is cited by commit
-hash rather than by its misleading version string, and the flagged preprint quotations have
-been verified verbatim.
+The package exists, is audited, and now carries the stronger entry. The eight CSVs are
+written, 1000 rows by 3 columns, comma-delimited and header-free, verified finite and
+round-trip accurate below 5e-8, with mean velocity magnitudes falling inside the band
+spanned by all four accepted submissions on all eight cases --- a check that would catch a
+point-ordering, column-ordering or units blunder at zero scoring cost. All eight round-5
+files are hashed and cross-asserted, five of them against round 4's own manifest. Both
+defects the compliance audit found (the false docstring; the non-existent submittable
+artifact) are closed, the evaluation package is cited by commit hash rather than by its
+misleading version string, and the flagged preprint quotations have been verified verbatim.
 
-The description document's disclosures are fixed and non-negotiable: the method class and
-its weakness relative to the family it is ranked against; that two submitted fields are the
-uncorrected baseline and any leaderboard-best status there belongs to the baseline; the full
+The description document's disclosures are fixed and non-negotiable, and round 5 changed
+what several of them say rather than whether they appear: that the entry is now two method
+classes and which cases belong to which; that two submitted fields are the uncorrected
+baseline and any leaderboard-best status there belongs to the baseline; that the duct
+predictions carry an untrained published constant and nothing fitted; the full
 adaptive-leakage history in our own words; the executable train/validation/test assertions;
-that the hump regression was not reverted and why; the duct feature degeneracy as a negative
-result we would rather publish than have inferred from our scores; the scoring-call count
-correctly framed as self-imposed; the measured continuity cost of \S\ref{sec:stability} and
-the measured seed-uncertainty qualifier on the rank-2 gap; the prior art, split as \S2.2
-splits it into classifiers that \emph{identify} and classifiers that \emph{control}, with
-no sentence presenting confidence-gated correction as novel; and --- added 2026-08-05 and
-mandatory --- the Hanna et al.\ citation for the method class itself, with its delta
-stated (\S\ref{sec:method}).
+that the hump regression was not reverted and why, and that the \code{AR\_14\_Ret\_180}
+regression was not reverted either and was priced in writing first; the duct feature
+degeneracy as a negative result we would rather publish than have inferred from our scores;
+the scoring-call count, now six, correctly framed as self-imposed; the measured continuity
+cost of \S\ref{sec:stability} on the five post-hoc predictions and its 27--63$\times$
+improvement on the three duct predictions; the seed-uncertainty qualifier on every gap
+statement; the prior art, split as \S2.2 splits it into classifiers that \emph{identify}
+and classifiers that \emph{control}, with no sentence presenting confidence-gated
+correction as novel; the Hanna et al.\ citation for the post-hoc method class, with its
+delta stated (\S\ref{sec:method}); and Spalart's QCR2000 as the source of the duct term,
+adopted untrained and credited plainly rather than described as ours.
 
 \medskip
-\noindent What remains is not technical. Two items are outstanding and both are Katie's: the
-author line and reference URL, and the proofread and approval without which nothing moves.
-Two questions are drafted for the steward and unsent --- whether a company name is acceptable
-on a leaderboard row, and whether any terms of use apply to a commercial entity training on
-data whose repositories carry no licence file at all. \textbf{As of today the only thing
-between this package and the steward is Katie.}
+\noindent \textbf{And the package is not being sent today.} What remains is not technical:
+the author line and reference URL, and the proofread and approval without which nothing
+moves. Two questions are drafted for the steward and unsent --- whether a company name is
+acceptable on a leaderboard row, and whether any terms of use apply to a commercial entity
+training on data whose repositories carry no licence file at all. \textbf{Submission is
+held at the owner's discretion.} That is a status, not a verdict: the package is complete
+and audited, nothing about it is blocked, and no part of this report should be read as
+saying the work was abandoned or the route closed. The number stands, dated, scored
+locally, with every caveat this document attaches to it; the decision to put it in front of
+a steward is Katie's, and it is hers to take at whatever moment she judges right.
 
 \appendix
 %=====================================================================
@@ -1508,9 +2099,10 @@ Artifact & Commit & What it carries \\
 Artifact & Commit & What it carries \\
 \midrule
 \endhead
-\artifact{CLOSURE\_CHALLENGE\_STATUS.md} & \code{b9cb56a2} &
-Rounds 1--4 history; the metric; per-case tables; feature-expressivity and generalisation
-studies \\
+\artifact{CLOSURE\_CHALLENGE\_STATUS.md} & \code{07a7fe9e} (\S0f), \code{b9cb56a2}
+(\S4) &
+Rounds 1--5 history; the metric; per-case tables; feature-expressivity and generalisation
+studies; \S0f is the round-5 entry of record \\
 \artifact{CLOSURE\_METHODS\_COMPARISON.md} & \code{ac2f37ee} &
 Metric read from the evaluation code; entrant dossiers; the dimension-by-dimension
 comparison; gap findings G1--G6 \\
@@ -1540,8 +2132,30 @@ run; results \S1--\S2 \\
 & G2 raw record: 37 cases, RMS divergence before and after correction \\
 \artifact{closure\_challenge\_submission\_round4/MANIFEST.json} &
 \code{30fd6d7a} & All eight submission CSVs hashed; closes G4 \\
+\artifact{closure\_challenge\_round5\_qcr.json} & \code{07a7fe9e} &
+\textbf{The entry of record}: the sixth scoring call, its per-case table, the four
+pre-score checks, the AR\_14 risk statement scored against its outcome \\
+\artifact{campaign/R5\_RULE\_FREEZE.md} & \code{0bade54a} &
+The all-or-none application rule, frozen before the first validation iteration existed \\
+\artifact{campaign/R5\_PREREGISTRATION.md} & \code{e865076b} &
+Round 5: gate receipts, per-case hashes, risks, accept criterion, topology check,
+continuity table, cost ledger \\
+\artifact{campaign/R5\_validation\_AR7.json} & \code{e865076b} &
+V1/V2/V3 measured on the validation duct \\
+\artifact{closure\_challenge\_round5\_qcr\_forward.json} & \code{e865076b} &
+Forward-solve machine record; QCR divergence through the G2 operator \\
+\artifact{campaign/duct\_secondary\_flow\_AR\_7\_validation\_qcr.png} & \code{e865076b} &
+Figure~\ref{fig:topology}: SST, QCR and LES in-plane streamlines \\
+\artifact{campaign/W3\_QCR\_DUCT\_FALSIFIER.md} & \code{303247bb} &
+The QCR library, the falsifier verdict, the $c_r = 0$ bit-exact control, the four-duct
+battery \\
+\artifact{CLOSURE\_RANK1\_CAMPAIGN.md} & \code{0afd7e61} &
+The costed routes, the duct arithmetic, and the de-ranking of the learned-$\beta$ route on
+its own measurement \\
+\artifact{CLOSURE\_EVALUATION\_PROTOCOL.md} & \code{3a05ca70} &
+The metric census: structure-versus-amount, score-versus-physicality \\
 \artifact{closure\_challenge\_trained\_entry\_round4\_duct.json} &
-\code{4c2f3562} & The entry of record \\
+\code{4c2f3562} & The round-4 entry, superseded \\
 \artifact{closure\_challenge\_duct\_reynolds\_transfer.json} &
 \code{d0992da2} & The round-4 pre-registration \\
 \artifact{dafoam/ladder-b/S1\_FIML\_FIELD\_INVERSION.md} &
@@ -1551,7 +2165,12 @@ run; results \S1--\S2 \\
 \artifact{dafoam/VERIFICATION\_cbfs\_unblock\_supervisor\_sweep.md} &
 \code{9c19ccc8} & Independent adversarial verification of that claim \\
 \artifact{dafoam/ladder-b/S1\_CBFS\_INVERSION\_PREREGISTRATION.md} &
-\code{e6321e95} & The inversion now running, pre-registered \\
+\code{e6321e95} & The first inversion, pre-registered before it ran \\
+\artifact{dafoam/ladder-b/S1\_CBFS\_INVERSION\_RESULT.md} & \code{c3903781} &
+Both gates failed; the inlet-corruption diagnosis; the primal-restart defect \\
+\artifact{dafoam/ladder-b/S1\_CBFS\_REINVERSION\_PREREGISTRATION.md} &
+\code{a11ccd41} & The repair, its graded predictions, the 1e-8 protocol change, and the
+gate numbers fixed before launch \\
 \artifact{campaign/W2\_WU\_ZHANG\_DESTRUCTION\_FIML\_READING.md} &
 \code{393ad74f} & Both Wu artifacts read in full; the patch specification \\
 \bottomrule
@@ -1611,6 +2230,13 @@ run; results \S1--\S2 \\
   106899 (2025), DOI 10.1016/j.compfluid.2025.106899, arXiv:2504.06758.
 \item Schmelzer, Dwight \& Cinnella (SpaRTA). \emph{Flow, Turbulence and Combustion} 104,
   579--603, DOI 10.1007/s10494-019-00089-x.
+\item Spalart, P.\,R. \emph{Strategies for turbulence modelling and simulations}
+  (QCR2000). \emph{Int.\ J.\ Heat and Fluid Flow} 21(3) (2000) 252--263. \emph{The source
+  of the quadratic constitutive relation and of the constant $c_r = 0.3$ used untrained in
+  the three round-5 duct predictions. Cited at metadata-only tier: the constant and the
+  relation were taken from the rank-2 entry's own description document, which adopts them
+  from this paper; the paper itself has not been read in full in this laboratory, and no
+  sentence of it is quoted.}
 \item Pope, S.\,B. \emph{A more general effective-viscosity hypothesis}. \emph{J.\ Fluid
   Mech.} 72 (1975) 331--340.
 \item He, Mader, Martins \& Maki. \emph{DAFoam: An Open-Source Adjoint Framework for
@@ -1623,8 +2249,10 @@ run; results \S1--\S2 \\
 
 \vfill
 \noindent\rule{\textwidth}{0.4pt}\\
-{\footnotesize Prepared by the Certonomous CFD laboratory, 5 August 2026. Nothing in this
-document has been sent to the benchmark steward. Every position claim is dated; the
-challenge is ongoing and the public leaderboard can change without notice.}
+{\footnotesize Prepared by the Certonomous CFD laboratory, 7 August 2026. Nothing in this
+document has been sent to the benchmark steward; submission is held at the owner's
+discretion. Every score in it was produced by the benchmark's own unmodified scorer run
+locally, and every position claim is a local one, dated: the challenge is ongoing and the
+public leaderboard can change without notice.}
 
 \end{document}
