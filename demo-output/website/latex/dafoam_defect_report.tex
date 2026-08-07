@@ -51,11 +51,12 @@
 \hbadness=10000
 \tolerance=3000
 
-\title{\bfseries A decomposition-dependent adjoint in DAFoam v5\\
-\large and two adjacent defects of the MACH-Aero toolchain:\\
-the IDWarp rotation guard, and the ILU conditioning wall}
+\title{\bfseries One defect class in the MACH-Aero adjoint:\\
+a branch recorded on a differentiated path\\
+\large the slope limiter in parallel, the slope limiter in serial,\\
+the IDWarp rotation guard --- and the ILU conditioning wall beside them}
 \author{Certonomous CFD Lab}
-\date{2026-08-05}
+\date{2026-08-07}
 
 \begin{document}
 \maketitle
@@ -77,14 +78,38 @@ evaluated under the serial reverse-AD operator, leaves a residual of \(329\times
 b\rVert\) against that operator's own \(1.14\times10^{-4}\) floor --- concentrated in the
 \(x\)-momentum rows of partition-interface cells. The parallel matrix-free
 transposed-Jacobian product is not the transpose Jacobian of the residual it claims to
-differentiate. We report the phenomenon, the discriminators that convicted the operator
-and exonerated every other candidate, the localization, why no published verification
-could have caught it, and two adjacent findings from the same forensic arc: an IDWarp
-degenerate-branch guard that differentiates to a hard zero at exactly the state every
-gradient evaluation uses (root-caused, patched in four lines, and answering a five-year-old
-open upstream issue), and an ASM sub-block ILU factorization whose failure is broken by
-the PETSc developers' own sanctioned escalation to complete LU. \textbf{Nothing in this
-document has been filed upstream.}
+differentiate.
+
+What carries it is now named to one word. Changing \texttt{div(phi,U)} from
+\texttt{bounded Gauss linearUpwind limited} to \texttt{bounded Gauss linearUpwind default}
+--- same scheme family, same order, the same halo-exchanged gradient-correction term still
+evaluated, with only the limiter's min/max selection over the stencil removed --- takes the
+gradient error from \(8.95\%\) to \(0.849\%\), the adjoint Krylov count from 719 to 41, and
+the cross-residual from \(329\times\lVert b\rVert\) to
+\(1.35\times10^{-2}\times\lVert b\rVert\): a 24{,}270-fold collapse of the operator error,
+recomputed from the raw dumped vectors by an independent sweep. The other lever that cleans
+this gradient does not clean the operator. Swapping the farfield \texttt{U} boundary
+condition leaves the transposed-Jacobian product wrong at \(1.047\times\lVert b\rVert\) ---
+163{,}548 times its own serial floor --- underneath a \texttt{check\_totals} reading
+\(0.019\%\). An earlier revision of this document called that configuration clean. It is not
+safe; it is quiet.
+
+The same recorded branch then broke a case with no processor boundary in it at all.
+Installed on a 4{,}032-cell structured NACA0012, the limiter drives the \emph{serial}
+adjoint to \(92.8\%\) against its own step-stable finite difference, with one of eight
+gradient components sign-flipped --- and the identical one-word edit returns \(0.121\%\).
+Both decompositions of that case agree to \(3.9\times10^{-4}\) while both are \(92.8\%\)
+wrong: invariance certifies consistency, not correctness.
+
+We report the phenomenon, the discriminators that convicted the operator and exonerated
+every other candidate, the localization, the campaign that named the branch and separated
+the fix from the disguise, the serial variant and its single-process reproducer, why no
+published verification could have caught any of it, and two adjacent findings from the same
+forensic arc: an IDWarp degenerate-branch guard that differentiates to a hard zero at
+exactly the state every gradient evaluation uses (root-caused, patched in four lines, and
+answering a five-year-old open upstream issue), and an ASM sub-block ILU factorization whose
+failure is broken by the PETSc developers' own sanctioned escalation to complete LU.
+\textbf{Nothing in this document has been filed upstream.}
 \end{abstract}
 
 \vspace{-0.5em}
@@ -94,8 +119,11 @@ document has been filed upstream.}
 This document is the extended, citable companion to two prepared-but-unfiled reports,
 \artifact{demo-output/website/dafoam/UPSTREAM\_BUG\_REPORT\_decomposition\_adjoint.md}
 and \artifact{demo-output/website/dafoam/UPSTREAM\_BUG\_REPORT\_mesh\_warpDeriv.md}. It does
-not replace them. Where our own record was found defective by our own verification, the
-defect is printed here rather than repaired silently.
+not replace them. Both remain \textbf{PREPARED}: complete, carrying the 2026-08-07 addenda
+these sections summarise, and \emph{held}. Submissions are parked at the owner's discretion;
+whether any of this is sent upstream is the lab principal's call, not the authors'. Where
+our own record was found defective by our own verification, the defect is printed here
+rather than repaired silently.
 \end{minipage}}
 \end{center}
 
@@ -105,9 +133,10 @@ defect is printed here rather than repaired silently.
 \section{Summary of findings}
 %======================================================================
 
-Three findings, from three weeks of forensic work on the MACH-Aero/DAFoam toolchain. Two
-are defects in shipped code; the third is a wall in a shipped default with a remedy that
-is one option away.
+Four findings, from four weeks of forensic work on the MACH-Aero/DAFoam toolchain. Three
+of them are one defect class --- a \emph{branch} recorded on a differentiated path, whose
+selection the reverse sweep gets wrong --- in two repositories, in parallel and in serial.
+The fourth is a wall in a shipped default with a remedy that is one option away.
 
 \begin{table}[htbp]
 \centering
@@ -116,15 +145,24 @@ is one option away.
 \toprule
 \textbf{Finding} & \textbf{Where} & \textbf{Headline measurement} & \textbf{Status} \\
 \midrule
-D1. Decomposition-dependent adjoint
-& DAFoam v5, matrix-free (Jacobian-free) adjoint; parallel reverse-AD transposed-Jacobian product
-& Gradient error 8.95\% at np=4 \texttt{scotch} vs 0.00054\% at np=4 \texttt{simple} 4x1x1 on the same mesh, same script, same container. Cross-residual of the converged \texttt{scotch} adjoint under the serial operator: \(3.288\times10^{2}\) of \(\lVert b\rVert\), against a \(1.14\times10^{-4}\) serial floor
-& Mechanism named at subsystem level; not traced to a line. Report drafted, \textbf{not filed}. No prior report anywhere (63 searches, 10 venues) \\
+\multicolumn{4}{@{}L{15.2cm}@{}}{\emph{The class: a branch recorded on a differentiated path.}}\\
+\addlinespace
+D1. The limiter, in parallel: a decomposition-dependent adjoint
+& DAFoam v5, matrix-free (Jacobian-free) adjoint; \texttt{cellLimited Gauss linear 1} feeding \texttt{linearUpwind}, recorded on the reverse tape across processor boundaries
+& Gradient error 8.95\% at np=4 \texttt{scotch} vs 0.00054\% at np=4 \texttt{simple} 4x1x1 on the same mesh, same script, same container. Cross-residual of the converged \texttt{scotch} adjoint under the serial operator: \(3.288\times10^{2}\) of \(\lVert b\rVert\), against a \(1.14\times10^{-4}\) serial floor. \textbf{One word of \artifact{fvSchemes}} (\texttt{limited} \(\rightarrow\) \texttt{default}) takes those to 0.849\% and \(1.35\times10^{-2}\), and the Krylov count from 719 to 41
+& Mechanism named to a recorded construct, not to a source line. Report drafted with two addenda, \textbf{not filed}. No prior report of the decomposition phenomenon anywhere (63 searches, 10 venues); the limiter result post-dates that sweep and has had none \\
+\addlinespace
+D1s. The same limiter, in serial
+& Same \texttt{cellLimited} feeding \texttt{linearUpwind}, on A1's 4{,}032-cell structured NACA0012 at np=1 --- no processor boundary anywhere in the case
+& \(\mathrm{d}C_D/\mathrm{d}(\mathrm{shape})\) 92.8\% against its own finite difference, which moves 2.10\% between \(h=10^{-3}\) and \(3\times10^{-3}\) --- 44x too little to explain the gap; \(C_L\)/shape 7.9\%; one of eight components sign-flipped, with both one-sided FD slopes on the wrong side of zero from the analytic. np=1 and np=4 agree to \(3.9\times10^{-4}\) while both are 92.8\% wrong. The same one-word edit reads 0.121\%
+& Decomposition-independent --- the first in this class. Single-process reproducer, one-word on/off. Carried into the D1 report as its 2026-08-07 addendum, \textbf{not filed} \\
 \addlinespace
 D2. Degenerate-branch rotation guard
 & IDWarp 2.6.2, \artifact{src/utils/vectorUtils.f90:58}, reverse mode \artifact{vectorUtils\_b.f90:123--128}
 & \artifact{warpDeriv} discards the surface-normal-rotation term exactly whenever current normals equal reference normals --- the state of every gradient evaluation. 210\%/213\% (upstream's own test), 634\% sign flip, 207\%/122\% sign flips; all collapse to FD-truncation level under a four-line analytic-limit patch, primal md5-identical
 & Root cause confirmed by repair. Matches open upstream issue \artifact{mdolab/idwarp\#57} (2021-07-14, zero comments). Comment-on-\#57 prepared, \textbf{not filed} \\
+\addlinespace
+\multicolumn{4}{@{}L{15.2cm}@{}}{\emph{Adjacent: a shipped default whose own remedy ladder does not contain its remedy.}}\\
 \addlinespace
 D3. ILU conditioning wall
 & DAFoam v5, \artifact{DALinearEqn.C:\allowbreak 266--267}: ASM sub-block PC hard-coded to \texttt{PCILU}
@@ -132,16 +170,29 @@ D3. ILU conditioning wall
 & Fixed locally by a one-hunk, default-off source patch. PETSc-sanctioned remedy; PR-ready in principle, \textbf{not filed} \\
 \bottomrule
 \end{tabular}
-\caption{The three findings. Sources: Sections~\ref{sec:decomp}, \ref{sec:idwarp},
-\ref{sec:pc} respectively.}
+\caption{The four findings. Sources: Sections~\ref{sec:decomp}, \ref{sec:serial},
+\ref{sec:idwarp}, \ref{sec:pc} respectively.}
 \end{table}
 
-\paragraph{What links them.} All three are invisible to the checks that ship with the
-tools. D2's discarded term sums to \emph{exactly} zero over the surface, and the sum is the
-only quantity upstream's test asserts on. D1 produces a gradient that is self-consistent
-under the decomposition it was measured on, and no published verification varies the
-decomposition. D3 announces itself loudly --- but the documented remedy ladder does not
-contain the remedy. Each was found by measuring the thing the instrument was not looking at.
+\paragraph{What links the first three.} A guard, a limiter, and a switching boundary
+condition are the same kind of object: a \texttt{min}, a \texttt{max}, an \texttt{abs}, or an
+\texttt{if} evaluated on data and then recorded on a tape. Reverse-mode AD differentiates
+the branch that was taken, correctly and by design. What it cannot do is know that the
+branch it recorded is the wrong function of the inputs --- a constant where the true map has
+a first-order term (D2), or a selection whose stencil reaches across a processor face and
+whose reverse does not (D1), or one that is simply mis-swept in a single process (D1s). The
+class is cheap to hunt once it is named: every member here is removable by a one-line
+dictionary edit or a four-line derivative, which makes it the cheapest discriminator
+available, and it was one such edit that closed D1's mechanism hunt.
+
+\paragraph{What links all four.} They are invisible to the checks that ship with the tools.
+D2's discarded term sums to \emph{exactly} zero over the surface, and the sum is the only
+quantity upstream's test asserts on. D1 produces a gradient that is self-consistent under the
+decomposition it was measured on, and no published verification varies the decomposition.
+D1s is self-consistent across decompositions too --- it passes the invariance gate this lab
+adopted after D1, to \(3.9\times10^{-4}\), while being 92.8\% wrong. D3 announces itself
+loudly, but the documented remedy ladder does not contain the remedy. Each was found by
+measuring the thing the instrument was not looking at.
 
 %======================================================================
 \section{The decomposition-dependent adjoint}
@@ -440,7 +491,8 @@ cuts \textbf{4} (0.88\%) and \texttt{simple} 4x1x1 cuts \textbf{68} (14.91\%).
 \emph{The decomposition that cuts seventeen times more refinement interfaces is the accurate
 one.} The hypothesis is refuted, not merely unconfirmed.
 
-\subsection{The mechanism, named --- and what is not claimed}
+\subsection{The mechanism, named at operator level}
+\label{sec:mechop}
 
 \paragraph{Named.} Under decomposition, DAFoam v5's reverse-mode AD product
 \((\partial R/\partial W)^{\mathsf T} v\) --- the global-tape shell operator the adjoint KSP
@@ -459,12 +511,23 @@ mislabels (hence the \(16.5\times\) norm inflation); and the gradient contractio
 follows: converged wrong answer, tolerance invariance, decomposition dependence,
 primal/FD/RHS invariance, and the near-invariance of the lab's conformal-mesh cases.
 
-\paragraph{Not claimed.} The defective source line. The candidate surface is the reverse-AD
-handling of inter-processor halo exchange inside the recorded residual evaluation --- the
-CoDiPack tape over OpenFOAM processor-boundary updates --- and pinning the line requires an
-instrumented rebuild of \artifact{libDASolver.so}. What \emph{is} pinned: the subsystem, the
-spatial signature (interface-cell \(x\)-momentum rows), the orientation dependence, and the
-discriminating instrument that any candidate fix must satisfy.
+\paragraph{Not claimed, at the time this was first written.} The defective source line. The
+candidate surface was stated as the reverse-AD handling of inter-processor halo exchange
+inside the recorded residual evaluation --- the tape over OpenFOAM processor-boundary
+updates --- and pinning the line requires an instrumented rebuild of
+\artifact{libDASolver.so}. What was pinned: the subsystem, the spatial signature
+(interface-cell \(x\)-momentum rows), the orientation dependence, and the discriminating
+instrument that any candidate fix must satisfy.
+
+\paragraph{What has since been pinned.} The construct the tape records. A campaign
+registered to attack a different weakness came back with the carrier in the case's own
+\artifact{fvSchemes}: the slope limiter's \texttt{min}/\texttt{max} selection over a stencil
+that reaches halo cells. One word removes it, and removing it collapses the operator error
+by four and a half orders of magnitude (Section~\ref{sec:branch}). The line is still not
+pinned --- but the search space has narrowed from ``the tape over halo exchange'' to ``the
+reverse sweep of \texttt{cellLimited}/\texttt{limitedGrad}'', and it now has a
+\emph{single-process} reproducer to instrument (Section~\ref{sec:serial}), which is far
+cheaper than a parallel one.
 
 \paragraph{A continuum, not a binary.} The FD-exact \texttt{simple} 4x1x1 \(\psi\) still
 leaves \(9.4\times10^{-2}\) of \(\lVert b\rVert\) under the serial operator --- roughly
@@ -571,10 +634,463 @@ and the causal weight of the trigger claim sits there; the survey is corroborati
 proof. This addendum supersedes the in-progress markers for the reach matrix elsewhere in
 this document (the artifact index and the open-items list).
 
+\emph{Two corrections to this addendum, both from work that came after it and both printed
+in the sections below.} First, the necessity claim survives but sufficiency does not: the
+same BC installed on a clean case from a different mesh family produces no defect at all
+(Section~\ref{sec:eliminated}), and the ingredient the survey was missing turns out to be the
+limiter. Second, and more consequentially, the N9 control was read here as putting the
+\texttt{inletOutlet} configuration ``in the clean class''. That is true of its gradient and
+false of its operator, and the difference was measured
+(Section~\ref{sec:levers}). The sentence to keep is not that
+\texttt{inletOutlet} is safe.
+
 Two record facts the matrix already leans on need no new run. First, the np=2-clean /
 np=3-dirty contrast (0.26\% vs 6.05\%) rules out rank count as the trigger by itself.
 Second, the ``cut through the refinement region'' discriminator is already on record
-backwards, as set out in the localization above.
+backwards, as set out in the localization above --- and, since this paragraph was written,
+forwards as well, by a controlled pair (Section~\ref{sec:eliminated}).
+
+\subsection{The branch, named to one word}
+\label{sec:branch}
+
+The campaign that named the carrier was not looking for it. It was registered to attack the
+weakness the reach sweep had named --- every defective measurement in this lab lived on one
+2{,}777-cell Ahmed background mesh --- by transplanting the trigger onto a second mesh
+family, by refining the first one, and by turning setup knobs that should not matter
+(\artifact{DEFECT\_ROBUSTNESS\_mesh\_and\_setup.md}: pre-registration \commit{25f52868},
+amendments \commit{671f40bb}, \commit{c22b0f00}, \commit{b0aa6102}, \commit{4ea782e3},
+results \commit{49631723}; run artifacts under
+\artifact{/home/ubuntu/certonomous-runs/W4-defect-robustness/}).
+
+The knob arm was registered as a formality. R3a changed the discretization --- convection
+scheme and default gradient scheme together --- with the prediction that the error would stay
+\(\ge 4\%\), because ``the defect lives in the reverse tape of the parallel coupling, which
+every convection/gradient scheme feeds through the same processor-patch machinery.'' It came
+back at \textbf{0.228\%}, on the same mesh and the same \texttt{scotch} partition that reads
+8.95\%, and the registered decision rule --- ``error \(\le 1\%\) means the defect is
+scheme-specific --- REOPENS the mechanism question, reported loudly'' --- fired. R3a had
+moved two knobs, so it convicted neither. Two separating arms were registered before either
+ran; then two sharper ones. The result is a ladder of four convection schemes --- plus the
+gradient-scheme arm tested alongside them --- in which every row keeps the same mesh, the same
+np=4 \texttt{scotch} cut and the same \texttt{freestreamVelocity} farfield, and is judged
+against its own in-run finite difference.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{@{}L{4.0cm}ccc rrrr@{}}
+\toprule
+\texttt{div(phi,U)} & limiter & 2nd & grad-corr.\ & analytic & FD (own run) & rel.\ err & KSP \\
+\midrule
+\texttt{linearUpwind limited} (established) & \textbf{yes} & yes & yes & 2.2086e-01 & 2.4258e-01 & \textbf{8.95\%} & 719 \\
+\texttt{linearUpwind default} (R6b) & no & yes & \textbf{yes} & 2.0572e-01 & 2.0399e-01 & \textbf{0.849\%} & \textbf{41} \\
+\texttt{Gauss linear} (R6a) & no & yes & no & 2.0299e-01 & 2.0267e-01 & 0.157\% & 223 \\
+\texttt{upwind} (R3a1) & no & no & no & 2.7681e-01 & 2.7670e-01 & 0.041\% & 41 \\
+\addlinespace
+\texttt{gradSchemes default} limited only (R3a2) & \textbf{yes} & yes & yes & 3.1706e-01 & 3.2562e-01 & 2.63\% & 780 \\
+\bottomrule
+\end{tabular}
+\caption{The scheme ladder. ``limiter'' is the \texttt{min}/\texttt{max} selection over the
+stencil; ``grad-corr.'' is the face correction that needs a halo exchange of neighbour values
+in the forward sweep and its transpose in the reverse. Every row's error is its own analytic
+against its own run's finite difference; the discretizations differ, so the analytic columns
+legitimately differ too. R6b is the load-bearing row. Every number re-extracted from the
+logs by the supervisor sweep. The last row keeps the convection limiter and limits the
+\emph{default} gradient scheme instead: it modulates the magnitude by 3.4x and cures
+nothing.}
+\label{tab:schemeladder}
+\end{table}
+
+\paragraph{R6b is one word, and the sweep checked that literally.} \texttt{limited} names
+A4's \texttt{cellLimited Gauss linear 1} gradient scheme; \texttt{default} names its
+unlimited \texttt{Gauss linear}. A \texttt{diff} of the two case directories shows exactly
+one changed line, in \artifact{system/fvSchemes}, with \artifact{fvSolution},
+\artifact{controlDict}, \artifact{decomposeParDict}, \artifact{blockMeshDict},
+\artifact{snappyHexMeshDict}, the whole of \artifact{0.orig} and \artifact{runScript.py} all
+byte-identical. Same scheme family, same order, the same gradient-correction term still
+evaluated and still requiring its halo exchange. \textbf{The only thing removed is the
+selection.}
+
+The registration named the outcome that would have refuted the hypothesis, in advance: ``if
+R6b is DIRTY (\(\ge 4\%\)) while R3a1 was clean, the limiter branch is NOT the carrier ---
+the second-order gradient-correction TERM is, branch or no branch, and the supervisor's
+unifying hypothesis is REFUTED for this defect and must be reported as refuted.'' R6b came
+back at 0.849\%. Read across the rows, three candidates die by a row that keeps everything
+else: the scheme's \emph{order} is not it (R6a is second order and clean), the
+halo-exchanged \emph{gradient correction} is not it (R6b keeps it and is clean), and the
+default gradient scheme is not the gate (R3a2 keeps the limiter and stays dirty at 64x the
+clean floor). And the conditioning travels with the same word: \textbf{719 Krylov iterations
+to 41, a 17.5x collapse}, on an operator whose only change is that a \texttt{min}/\texttt{max}
+left the tape.
+
+\paragraph{The control that refuses to call it a complete cure.} A registered follow-up ran
+the identical unlimited discretization at np=1, predicting the surviving 0.849\% would prove
+to be that discretization's own protocol floor. It is not: np=1 reads \textbf{0.016\%}, the
+prediction is NOT HELD, and a real decomposition effect at \(\sim0.8\%\) survives the limiter
+removal. Reading the two rows together locates it, and the location matters: the
+\emph{analytic} is 2.0572e-01 at both np=1 and np=4 \texttt{scotch} --- identical at all five
+printed digits --- while the FD column moves 2.0568e-01 \(\rightarrow\) 2.0399e-01. With the
+limiter gone the adjoint itself is decomposition-invariant at printed precision, and the
+remainder is an FD-column shift, not an analytic error.
+
+\paragraph{The erratum, which runs in our favour.} The adversarial sweep of this campaign
+found exactly one factual error anywhere in it, and it was ours: the established
+\texttt{scotch} np=4 Krylov count had been written \textbf{590} in six places. A fleet-wide
+grep places ``590 iterations'' in exactly one log --- \artifact{a4\_simple2x2x1.log}, a
+\emph{different} arm, the \texttt{simple} 2x2x1 partition at 1.40\% error. Every log that ran
+the established arm reads \textbf{719}, fifteen of them. Corrected at every site; the
+correction enlarges the claim, because the conditioning collapse is 719 \(\rightarrow\) 41 =
+\textbf{17.5x}, not the 14.4x that was reported
+(\artifact{VERIFICATION\_defect\_robustness\_supervisor\_sweep.md}, \commit{8bd47b35}: six
+axes, five CONFIRMED, one CONFIRMED WITH A NAMED ERRATUM).
+
+\subsection{Operator or contraction: the two levers are not the same kind of fix}
+\label{sec:levers}
+
+By this point two edits were known to clean this gradient: the farfield BC swap
+(\texttt{freestreamVelocity} \(\rightarrow\) \texttt{inletOutlet}, the reach matrix's N9
+control) and the limiter removal. Both had been measured only with \texttt{check\_totals}.
+This lab's own L-36 is the standing warning that a passing gradient check certifies a
+contraction, not an operator --- so R5 was registered to ask which kind of fix each lever is,
+with the loud alternative written out in advance: \emph{``if either lever leaves the
+cross-residual \(\ge 50\times\lVert b\rVert\) while its gradient is clean, then that lever
+does NOT fix the operator --- it only rotates the objective's adjoint direction away from the
+corrupted subspace, exactly L-36's failure mode, the operator is still wrong for every other
+objective and DV on that case, and the upstream report's framing must change from `these
+configurations are safe' to `these configurations hide it.'\,''}
+
+The instrument is Section~\ref{sec:signconv}'s cross-residual, unmodified, with each lever's
+own configuration supplying its own serial operator and its own floor.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\begin{tabular}{@{}L{5.4cm}rrrr@{}}
+\toprule
+configuration (all np=4 \texttt{scotch}, same mesh, same cut) & gradient err & \(\lVert A^{\mathsf T}\psi + b\rVert / \lVert b\rVert\) & its own np=1 floor & ratio to floor \\
+\midrule
+established (\texttt{freestreamVelocity} + \texttt{linearUpwind limited}) & 8.95\% & \textbf{3.2881e+02} & 1.1407e-04 & \(3.0\times10^{6}\) \\
+R5a --- scheme lever (\texttt{upwind}, BC kept) & 0.041\% & \textbf{1.354841e-02} & 1.998129e-06 & \(6.8\times10^{3}\) \\
+R5b --- BC lever (\texttt{inletOutlet}, limiter kept) & 0.019\% & \textbf{1.047165e+00} & 6.402838e-06 & \(1.6\times10^{5}\) \\
+\bottomrule
+\end{tabular}
+\caption{The two levers at operator level. Every figure recomputed by the supervisor sweep
+from the raw dumped vectors with its own scripts: the staged corrected residuals equal its
+own \(\mathrm{res}+2b\) to the last bit, its independently rebuilt np4\(\rightarrow\)np1
+permutation equals the staged input exactly (\texttt{np.array\_equal} true, both levers), and
+the sign convention was verified rather than assumed --- the correction is the only reading
+under which the np=1 controls collapse.}
+\label{tab:levers}
+\end{table}
+
+\paragraph{The scheme lever fixes the operator.} \(328.81 \rightarrow 0.013548\) is a
+collapse by a factor of \textbf{24{,}270}. The np=4 analytic also matches np=1 to
+\(2.5\times10^{-5}\). Removing the limiter branch does not rotate the objective away from the
+damage; the damage is gone.
+
+\paragraph{The BC lever hides the defect.} At \(1.047\times\lVert b\rVert\) the
+\texttt{inletOutlet} configuration's \texttt{scotch} adjoint fails to satisfy its own serial
+adjoint system by a residual the size of the right-hand side itself --- \textbf{163{,}548
+times its own np=1 floor} --- underneath a \texttt{check\_totals} reading 0.019\%. For scale,
+the reach campaign convicted the Ahmed-35 case of carrying the wrong-operator defect at
+\(5.45\times\lVert b\rVert\); \(1.05\) is the same order of wrongness. This is L-36's failure
+mode caught in the act: the gradient is clean because the contraction is small, not because
+the operator is right. \textbf{The configurations this lab called safe are not safe; they are
+quiet.} That is the most consequential sentence the campaign produced, and it is a correction
+to this document's own earlier text rather than a claim about anyone else's.
+
+\paragraph{Three disclosures the sweep required, printed rather than resolved.} \emph{(a)}
+The registered band was \(\le 5\times\lVert b\rVert\), and by that wording alone \emph{both}
+levers HELD --- \(1.047\) is a collapse from \(329\). The substance, that one lever hides
+rather than fixes, rests on the floor-ratio criterion, which was \emph{not} a registered band.
+The sweep says so plainly, and says the band was mis-calibrated by roughly five orders of
+magnitude against the actual np=1 floors (\(10^{-6}\) to \(10^{-4}\)). The extra-registration
+reading runs against the lab's own prior framing, so nothing is smuggled --- but future
+cross-residual bands go in units of the configuration's own floor, not of \(\lVert b\rVert\).
+\emph{(b)} No state-override control was run for either lever, so the
+linearization-state confound is bounded only indirectly: by the established arm's own
+precedent (328.808 with the confound removed against 328.814 without --- a fourth-digit
+effect) and by the sibling scheme lever putting the entire protocol floor at
+\(1.35\times10^{-2}\), 77x below the 1.047 signal. The conclusion survives; the
+\(\sim\)0.4 core-min control is unbought and is on the open list. \emph{(c)} One
+corroboration fell out free: the BC-lever dump prints
+\texttt{framework\_dCDdshape=2.406182395247966e-01}, the N9 record value to all sixteen
+digits, from a separately staged case directory and a different task.
+
+\subsection{What the campaign eliminated, and the confound it did not}
+\label{sec:eliminated}
+
+\paragraph{Hanging nodes, refuted forwards.} Section~\ref{sec:decomp}'s localization refuted
+the refinement-interface hypothesis backwards --- the accurate decomposition is the one that
+cuts seventeen times more refinement interfaces. R4 refuted it forwards, with the controlled
+pair the reach record had to list as untested: A4's own recipe, same STL, same background
+\artifact{blockMesh}, same \artifact{0.orig}, same \artifact{fvSchemes} with the limiter
+present, and the two snappy refinement levels dropped to zero.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}L{4.6cm}L{4.4cm}rrr@{}}
+\toprule
+mesh & hanging nodes & analytic & FD (own run) & rel.\ err \\
+\midrule
+A4 coarse (record) & 502 cells at \artifact{cellLevel} 1, 456 interface faces & 2.2086e-01 & 2.4258e-01 & 8.95\% \\
+A4 conformal (R4) & \textbf{none} (2{,}336 cells, \artifact{cellLevel} uniformly 0) & 1.8315e-01 & 1.8847e-01 & \textbf{2.82\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+Prediction \(\ge 2\%\): HELD. Same geometry, refinement removed, nothing else changed, and
+the defect is still there at 70x the clean floor. The magnitude drop from 8.95\% carries no
+mechanism claim --- removing refinement changes the mesh, hence the cut, hence the
+contraction, which the reach campaign already measured as case- and objective-specific.
+
+\paragraph{Refinement: the conditioning collapse travels with the limiter.} One uniform
+refinement of the background mesh (19{,}619 cells, 1{,}040 at \artifact{cellLevel} 1) could
+not be scored as registered, for a reason worth more than the arm: in the established
+configuration the np=4 \texttt{scotch} \emph{adjoint does not converge at all}. GMRES exhausts
+\texttt{gmresMaxIters} 1000 at KSP residual 1.7188e-02 with \texttt{PetscConvergedReason: -3},
+\texttt{solve\_linear} raises, and no analytic exists to compare against anything (33.60
+core-min, charged in full). R2 is scored NOT SCORED --- unmeasurable as staged --- and the
+failure is itself the datum. It rhymes with the restart arm: with the limiter present the
+operator is badly enough conditioned that a \emph{restarted} GMRES stagnates on the coarse
+mesh (\texttt{gmresRestart} 60, stalled at 2.5079e-02 with five digits of no progress over
+the last hundred iterations) and an \emph{unrestarted} one stagnates on the refined mesh,
+while the clean-scheme arms converge in 38--68 iterations on the same coarse mesh.
+
+The substitute arm asked the refinement question the remaining budget could answer, and
+answered it: the same 19{,}619-cell mesh with the single R6b word removed \emph{converges} ---
+\texttt{PetscConvergedReason: 2} at 149 iterations, where the limited configuration exhausted
+1000 --- at 7.2627e-02 against its own FD 7.3195e-02, \textbf{0.777\%}. That is the same scale
+as the coarse mesh's unlimited 0.849\%. One refinement level up, the limiter is the difference
+between no adjoint solution at all and a converged one, and the small surviving effect neither
+vanishes nor grows.
+
+\paragraph{The transplant that did not fire, and what it cost.} R1 mirrored the reach
+matrix's N9 in reverse: where N9 removed the farfield BC from the defective case, R1
+installed it on a clean one --- A1's 4{,}032-cell structured conformal NACA0012, a different
+mesh family in every respect. Registered prediction: the defect fires, \(\ge 2\%\). It did
+not. np=1 reads 0.043\%, np=4 \texttt{scotch} reads 0.043\%, and the two analytics are
+\(1.55\times10^{-7}\) apart. The obvious escape --- ``A1's cut is too benign to excite
+anything'' --- was closed at zero solver cost with the reach campaign's own cut classifier:
+A1's np=4 \texttt{scotch} cut is \textbf{131 internal faces of which 120 are oblique}, no
+axis-aligned normal to 0.999, which is the maximally jagged mixed-orientation family the
+reach matrix identified as catastrophic; A4's own cut is 328 faces (143 \(x\) / 7 \(y\) /
+159 \(z\) / 19 oblique). And the transplant did land: baseline \(C_D\) moved 0.52\% from the
+record configuration, the same order as the 0.44\% shift N9 measured going the other way.
+\textbf{\texttt{freestreamVelocity} is necessary but not sufficient, now by measurement
+rather than by the absence of a test.}
+
+\paragraph{The survey that retro-explains the null, and the two correlates it cannot rank.}
+A zero-cost read of all seven cases' on-disk \artifact{system/fvSchemes} shows why R1 was
+always going to be clean: A1's convection gradient is \emph{unlimited}, so the arm was
+missing an ingredient. The limiter separates the seven cases exactly as the BC does --- both
+defective cases carry \texttt{linearUpwind limited} with \texttt{cellLimited Gauss linear 1};
+all five clean cases carry an unlimited \texttt{linearUpwind}/\texttt{linearUpwindV}. So does
+a third variable: \artifact{primalMinResTol} is 1e-4 on both defective cases and 1e-6 or 1e-8
+on all five clean ones. \emph{Three perfect correlates, one seven-case survey, no ranking
+available from it.} What breaks the symmetry is the within-case controls, and they exist for
+two of the three: N9 swaps the BC alone on A4 and cleans the gradient; R6b removes the
+limiter alone on A4 and cleans the \emph{operator} (Table~\ref{tab:levers}). The
+primal-tolerance lever has no within-case control at all, because DAFoam treats an unreached
+\artifact{primalMinResTol} as a primal \emph{failure} rather than a depth setting --- the
+registered R3b arm raises \texttt{AnalysisError: Primal solution failed!} before any adjoint
+runs. The knob is a gate, not a control. \textbf{That confound stays open and is recorded as
+open.} One candidate is eliminated outright: the turbulence model is not a correlate ---
+kOmegaSST sits on both sides, defective on A4 and Ahmed-35, clean on CBFS.
+
+\paragraph{The limit of what the campaign establishes.} Every arm that moved the defect is a
+within-case control on A4: one mesh, one geometry. The cross-case survey corroborates and is
+itself a confounded correlate. The one experiment that would have broken the one-family
+confound --- both ingredients installed on a clean case from another mesh family --- was named
+in the record as the next arm and deliberately not improvised, because it was in no registered
+edit set and the budget did not cover its full protocol. It was registered and run two days
+later. It is the subject of the next section, and it did not do what either registered branch
+expected.
+
+%======================================================================
+\section{The same branch, in serial}
+\label{sec:serial}
+%======================================================================
+
+The outstanding experiment was named in the record before it was approved: install
+\emph{both} measured ingredients --- the freestream farfield BC and the limited convection
+scheme --- on the clean structured NACA0012, and measure whether the case \emph{acquires} the
+defect. It was registered as such, with its edit set, its bands, and its escape clauses
+(Amendment 5, \commit{0263d950}, committed seven seconds before the first arm launched), and
+run on 2026-08-07. The registration named two outcomes: acquisition, which would give the
+defect a second mesh family, or a null, which would confirm the one-family confound and force
+the upstream report to scope its reproducer. It produced a third.
+
+\subsection{The arm}
+
+\begin{table}[htbp]
+\centering\footnotesize
+\begin{tabular}{@{}L{3.9cm}rrrrl@{}}
+\toprule
+A1 + \texttt{freestreamVelocity} + limiter & \(C_D\)/shape analytic & FD (own run) & rel.\ err & \(C_L\)/shape & adjoint KSP \\
+\midrule
+np=1 (\artifact{a1lim\_np1.log}) & 1.066449e-01 & 6.194868e-02 & \textbf{92.8\%} & 7.86\% & 95/96, reason 2 \\
+np=4 \texttt{scotch} (\artifact{a1lim\_np4scotch.log}) & 1.066142e-01 & 6.194874e-02 & \textbf{92.8\%} & 7.87\% & 96/97, reason 2 \\
+\bottomrule
+\end{tabular}
+\caption{The acquisition arm. Both arms rc=0; every one of the seventeen primal solves per
+log (baseline plus eight design variables at \(\pm h\)) reached the case's own
+\artifact{primalMinResTol} 1e-8, worst final residual \(9.99\times10^{-9}\), none exiting on
+the iteration cap. Staging asserted in-driver; the np=4 log reads \texttt{Decomposition
+method scotch [4]}.}
+\label{tab:a1lim}
+\end{table}
+
+The registration's clause (i) was a \emph{control}: the np=1 arm should read \(\le 0.5\%\), as
+its unlimited sibling did (0.043\%). It reads 92.8\%. The registered escape clause therefore
+fired --- ``if the np=1 control itself is dirty \ldots\ the arm is reported unmeasurable, not
+scored'' --- and R7 is NOT SCORED against its FD-relative bands; clause (ii) is unevaluable as
+worded. Two facts then have to be pulled apart, and the amendment that does it
+(\commit{aa7fcddc}) was committed with the two numbers in hand and before either separating
+arm ran, which is stated here rather than glossed.
+
+\paragraph{The acquisition question, answered: no.} On the decomposition-invariance
+instrument the two rows are the same run twice. The analytics are
+\(3.9\times10^{-4}\) apart in vector-relative terms (per-component max 0.197\%, median
+0.040\%); the FD columns \(4.3\times10^{-6}\) apart, \(1.9\times10^{-7}\) in the worst single
+component; the \(C_L\) analytics \(3.8\times10^{-5}\); the Krylov counts 95/96 against 96/97
+--- \emph{no conditioning excitation at all}, where A4's defective configuration reads 719
+against its clean arms' 41. Whatever is wrong here is wrong identically at both
+decompositions. \textbf{The defect did not acquire on the second mesh family.} The trigger
+conjunction --- limiter \(\times\) \texttt{freestreamVelocity} \(\times\) jagged
+\texttt{scotch} cut --- is measured \emph{insufficient} off the Ahmed background family, and
+the one-family confound on the defect side stands. The remaining separating candidates
+sharpen rather than disappear: the Ahmed mesh family or its cut topology, or the loose
+\artifact{primalMinResTol}. A1 runs 1e-8, and with both ingredients installed at 1e-8 it is
+decomposition-clean --- so the loose-primal co-ingredient hypothesis \emph{gains} weight here,
+where a fired defect would have killed it.
+
+One caveat is owed and the supervisor sweep required it be stated as a word rather than a
+hedge: \textbf{the invariance instrument on which this verdict is scored was adopted after
+the numbers were in hand.} It echoes a subclause the R1 registration already used, and no
+registered band could read a \(3.9\times10^{-4}\) shift as acquisition, so the inference is
+forced --- but the instrument choice is post-hoc relative to the R7 registration, and this
+document says so.
+
+\subsection{Convicting the analytic, not the finite difference}
+
+\begin{table}[htbp]
+\centering\footnotesize
+\begin{tabular}{@{}L{3.2cm}L{4.6cm}rrr@{}}
+\toprule
+arm & edit vs \artifact{a1lim\_np1} & analytic & FD (own run) & rel.\ err \\
+\midrule
+R7f1 \artifact{a1lim\_np1\_h3e3} & \texttt{check\_totals} step 1e-3 \(\rightarrow\) 3e-3 & 1.066449e-01 & 6.216543e-02 & 93.7\% \\
+R7f2 \artifact{a1limdef\_np1} & \texttt{linearUpwind limited} \(\rightarrow\) \texttt{... default} (one word) & 6.516374e-02 & 6.522800e-02 & \textbf{0.121\%} \\
+\bottomrule
+\end{tabular}
+\caption{The separating arms, both registered before either ran. R7f1's analytic is
+byte-identical to the 1e-3 arm's at every printed digit --- only the FD column moves. The
+sweep's byte audit: R7f1's only changed input is one line of \artifact{runScript.py};
+R7f2's is one word of \artifact{system/fvSchemes}.}
+\end{table}
+
+The step check was registered to convict the finite difference: the prediction was that the
+FD would \emph{not} be step-stable, the limiter having kinked the shape response at the FD
+scale, and that the 93\% would be an unresolved-FD artifact rather than a conviction of the
+serial AD. It came back at 2.10\% vector-relative (per-component max 15.14\%), scored NOT HELD
+in the middle band by a tenth of a point --- and read in substance rather than spun, a 2.1\%
+step wobble is \textbf{44x too small} to account for a 92.8\% gap, the FD magnitude is
+6.2e-02 at both steps, and the analytic is byte-identical across them. The FD reference is
+essentially resolved; the discrepancy lives in the analytic.
+
+R7f2 then puts one word between 0.121\% and 92.8\%, \emph{at np=1}: the same
+\texttt{limited} \(\rightarrow\) \texttt{default} lever that cleaned the operator on A4, now
+convicting the limiter branch in serial on the second mesh family (\(C_L\) 0.018\%, KSP 32).
+Everything else the staging touched is exonerated by the same arm, because R7f2 carries it
+all: the \texttt{linearUpwindV} \(\rightarrow\) \texttt{linearUpwind} family swap, the added
+\texttt{gradSchemes} entry, and the R1 boundary-condition edit set (0.043\% on record).
+
+\subsection{The attack that could have killed it}
+
+There is a classic finite-difference trap for a branchy scheme, and it had to be closed. If
+the limiter's selection flips between the \(+h\) and \(-h\) legs, a central difference
+measures a kink average rather than a slope --- and a \emph{symmetric} kink at the base point
+is step-invariant under central differencing, so the two-step check above cannot exclude it by
+itself. The record registered the kink hypothesis and then tested it only by step stability.
+The adversarial sweep named that gap and closed it at zero solver cost, from data the
+record's own logs already carried: each FD leg prints its converged \(C_D\), so the
+\emph{one-sided} slopes were free all along.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}crrrrr@{}}
+\toprule
+component & central FD & forward & backward & fwd/bwd asym. & analytic \\
+\midrule
+0 & \(-0.009054\) & \(-0.008926\) & \(-0.009182\) & 2.8\% & \(\mathbf{-0.034900}\) \\
+1 & \(-0.020342\) & \(-0.019338\) & \(-0.021345\) & 9.9\% & \(\mathbf{-0.037237}\) \\
+4 & \(+0.037311\) & \(+0.037465\) & \(+0.037158\) & 0.8\% & \(\mathbf{+0.061443}\) \\
+5 & \(+0.040489\) & \(+0.040656\) & \(+0.040322\) & 0.8\% & \(\mathbf{+0.064415}\) \\
+\textbf{6} & \(+0.008497\) & \(\mathbf{+0.009660}\) & \(\mathbf{+0.007334}\) & \textbf{27.4\%} & \(\mathbf{-0.025912}\) \\
+\bottomrule
+\end{tabular}
+\caption{One-sided slopes at \(h=10^{-3}\), reconstructed from the FD legs' own printed
+converged \(C_D\) values. The same reconstruction rebuilds the log's printed central-difference
+vector to \(4.7\times10^{-9}\) absolute at both step sizes, which validates the leg ordering,
+the step, and the framework's arithmetic before anything is inferred from it.}
+\label{tab:onesided}
+\end{table}
+
+Three readings, and the finding survives all three.
+
+\begin{itemize}
+\item \textbf{On the components carrying most of the gap there is no kink to blame.} For
+0, 1, 4 and 5 the two one-sided slopes agree to within 10\%: the function is locally smooth at
+the FD scale, and the analytic still misses by 65--285\%.
+\item \textbf{On the one component that \emph{is} branchy, the kink cannot rescue the
+adjoint.} Component 6 --- the sign-flipped one --- shows 27.4\% asymmetry at \(h=10^{-3}\),
+growing to 91\% at \(3\times10^{-3}\): real limiter chatter. But \emph{both} one-sided slopes
+are positive at \emph{both} steps, all four secants falling between \(+0.0053\) and
+\(+0.0143\), while the analytic reads \(-0.025912\). The analytic lies outside the
+[backward, forward] bracket, on the wrong side of zero, at three times the magnitude. No
+branch selection available to the finite difference produces a negative slope there.
+\item \textbf{Triangulation, also free.} The limited case's FD vector sits at cosine
+\textbf{0.994} to the \emph{unlimited} case's analytic --- which R7f2 validated against its own
+FD at 0.121\% --- while the limited analytic sits at cosine 0.90 to its own FD. Three of the
+four instruments agree with each other; the limited serial adjoint is alone.
+\end{itemize}
+
+\noindent
+The sweep's recommendation is adopted here as protocol, because it is strictly stronger than a
+second step size and costs nothing: for this symptom class, reconstruct the one-sided slopes
+from the FD legs' printed objective values. It belongs in the registration, not in the
+post-mortem.
+
+\subsection{What the serial variant is, and what it changes}
+
+\begin{itemize}
+\item \textbf{It is decomposition-independent, and it broke a family property before anyone
+had written that property down.} Every defect this lab had traced in this toolchain vanished
+at np=1. This one does not.
+\item \textbf{It is the same object as D1.} \texttt{cellLimited}'s \texttt{min}/\texttt{max}
+stencil selection, recorded on the reverse tape, wrong through a different excitation: a
+parallel inconsistency on the Ahmed family, a serial contraction error on the airfoil. On A4
+the identical token pair reads only 0.34\% at np=1 --- the serial excitation is
+\emph{case-dependent}, which is exactly what a wrongly-differentiated \emph{data-dependent}
+branch would produce, since different meshes activate different branches at the converged
+state.
+\item \textbf{It is far cheaper to file.} A maintainer needs one process, one 4{,}032-cell
+structured case, and one word of \artifact{fvSchemes}. No MPI in the loop, no partitioner, no
+mapping instrument, no cross-residual protocol. The instrumented-rebuild search space is
+unchanged --- the \texttt{cellLimited}/\texttt{limitedGrad} reverse sweep --- and now has a
+single-process reproducer to instrument.
+\item \textbf{It costs the campaign's framing a clause.} ``The branch defect is a parallel
+inconsistency'' is now measured to have an exception: the branch can be wrong serially, with
+the parallel machinery innocent.
+\item \textbf{It cost this lab an instrument's warrant.} The decomposition-invariance gate
+adopted after A4 passes here to \(3.9\times10^{-4}\) on a case that is 92.8\% wrong.
+\emph{Invariance instruments detect inconsistency between two evaluations of the same tape; a
+tape that is wrong identically in both sails through every one of them.} Never promote an
+invariance pass to a correctness verdict unless at least one side is anchored to an external
+reference --- an own-run finite difference with a step check, or an independently evaluated
+operator.
+\end{itemize}
 
 %======================================================================
 \section{Why it was never caught}
@@ -635,6 +1151,30 @@ graph partitioning.} The one snappy-mesh verification --- C\&F 2018's Ahmed body
 defect's own geometry family --- is of the v1 explicitly FD-assembled Jacobian, an
 architecture in which a tape-recording defect cannot exist, at an unstated decomposition.
 \end{enumerate}
+
+\paragraph{The corpus checks the derivative class this defect spares.} The serial variant of
+Section~\ref{sec:serial} looks at first like it should embarrass point 2 rather than support
+it: if the limiter's tape can be 92.8\% wrong in a single process, why did the corpus's one
+\emph{serial} verification of the shipped operator family return ten-digit agreement? Two
+answers, both readable straight off Table~\ref{tab:papers}, and together they are the sharpest
+statement of the gap this section can make.
+
+\emph{First, the corpus's parallel evidence is entirely about the other architecture.} The
+only two verifications run in (implied) parallel --- and the only one run on a
+refinement-interface mesh, C\&F 2018's Ahmed body, our defect's own geometry family --- measure
+the v1 explicitly FD-assembled Jacobian. A finite-difference column re-evaluates the residual,
+branches and all: branch \emph{selection} is differenced there, not recorded. A mis-taped
+branch cannot exist in that architecture. Every parallel accuracy number in the corpus is a
+measurement of the derivative class this defect spares, taken in the configuration where it
+could not appear.
+
+\emph{Second, the one measurement that does exercise the recorded tape is a single case at a
+single converged state, and our own arms show why that cannot generalise for a data-dependent
+branch.} The same \texttt{cellLimited}/\texttt{linearUpwind} token pair reads 92.8\% at np=1 on
+the structured NACA0012 and 0.34\% at np=1 on the Ahmed body. A branch that is not activated
+asymmetrically at the state you verify at is a branch you verify past. Ten digits on one
+structured wing certify that wing's tape at that state --- which is precisely what the survey
+claims and no more.
 
 \paragraph{A published claim, corrected against ourselves.} An earlier draft of our own
 upstream report asserted that ``the toolchain's journal paper reports average adjoint
@@ -736,15 +1276,26 @@ fetched raw 2026-08-04: \texttt{self.decomposeParDict = \{"method": "scotch", ..
 \paragraph{The remaining gaps are not novelty gaps.} They are, unchanged: a reproducer on a
 stock upstream tutorial rather than a lab-built case, and mechanism to a line.
 
+\paragraph{One novelty gap that is new, and is stated rather than assumed away.} The sweep
+above ran on 2026-08-04 and was aimed at the decomposition \emph{phenomenon}: whether anyone
+had reported a DAFoam gradient that is converged and wrong under one decomposition and correct
+under another. The limiter result post-dates it by a day and the serial variant by three, and
+\textbf{neither has been through a novelty sweep of its own}. Nothing here claims priority for
+``the slope limiter's reverse tape is wrong''; what is claimed about it is measured, not
+surveyed. Closing that gap is cheap and belongs before any filing --- the more so because the
+serial variant is the entry point a maintainer would actually run.
+
 %======================================================================
 \section{The IDWarp rotation guard}
 \label{sec:idwarp}
 %======================================================================
 
-This defect is independent of Section~\ref{sec:decomp} --- it is geometric, serial, and lives
-in a different repository --- but it was found in the same arc, it contaminated the same
-gradients, and it had to be removed before the decomposition measurements could be trusted.
-It is also the cleanest of the three: root cause named to a line, confirmed by repair.
+This defect is independent of Section~\ref{sec:decomp} in code and in provenance --- it is
+geometric, serial, and lives in a different repository --- but it was found in the same arc, it
+contaminated the same gradients, and it had to be removed before the decomposition
+measurements could be trusted. It is not independent \emph{in kind}: a guard is a branch, and
+Section~\ref{sec:branch} arrives at the same object from the other end. It is also the
+cleanest member of the class: root cause named to a line, confirmed by repair.
 
 \subsection{The line}
 
@@ -1230,13 +1781,13 @@ different and honestly-named problem.
 
 Every headline claim in this document has survived an independent adversarial sweep. That
 phrase is used precisely, and this section says what it buys, because a reader assessing
-three unfiled defect claims is entitled to know what standard they were held to.
+four unfiled defect claims is entitled to know what standard they were held to.
 
 \subsection{What a supervisor sweep is}
 
 A verification agent is dispatched with the posture that \textbf{the claim is wrong until it
 survives attack}. It does not review the record; it re-derives the record. Concretely, across
-the four sweeps behind this document:
+the six sweeps behind this document:
 
 \begin{itemize}
 \item \textbf{Independent instruments, not re-runs of the lab's scripts.} The mechanism sweep
@@ -1262,20 +1813,42 @@ lucky triple would not survive that.
 \item \textbf{Cold reproduction of the control, not just the treatment.} The env-off
 regression was re-run cold by the sweep, on a fresh case copy: reason, iteration count, and
 all 13 residual digits matched independently of anything the original session wrote.
+\item \textbf{Recomputation from raw vectors, trusting no staged intermediate.} The robustness
+sweep recomputed both of Table~\ref{tab:levers}'s cross-residuals with its own NumPy from the
+dumped vectors (1.354841e-02 and 1.047165e+00), rebuilt the np4\(\rightarrow\)np1 permutation
+from the raw addressing files --- its reconstruction equals the staged input under
+\texttt{np.array\_equal}, for both levers --- verified the sign convention rather than
+assuming it, and confirmed \emph{in code} that the instrument's operator is the matrix-free
+AD product the KSP uses and never the assembled matrix dumped alongside it.
+\item \textbf{A byte-level audit of the ``one word'' claims, because they are load-bearing.}
+\texttt{diff} of the R6b case against the established source: one changed line, in
+\artifact{fvSchemes}, everything else \texttt{cmp}-clean. \texttt{diff -r} of the serial arm
+against the clean case it was built from: the single differing input file is
+\artifact{system/fvSchemes}, two lines; and its one-word control differs by exactly one word.
+\item \textbf{A free check the record never ran, found by attacking the record's own logic.}
+The serial-limiter sweep judged the record's step-stability test logically insufficient
+against a symmetric FD kink --- correctly --- and then closed the hole at zero cost by mining
+the one-sided slopes out of the FD legs' own printed converged \(C_D\) values
+(Table~\ref{tab:onesided}), first validating the reconstruction by rebuilding the printed
+central-difference vector from the same values to \(4.7\times10^{-9}\).
 \item \textbf{The ledger is audited to the second.} Billed walls were reconciled against log
 mtimes and internal timings --- e.g.\ five offline runs plus a 600~s kill summing to 693.04~s
 against 693 billed; a memory trace whose first and last samples bracket 816~s against 819
-billed; nine finite-difference runs whose per-run walls sum to \emph{exactly} 642.
+billed; nine finite-difference runs whose per-run walls sum to \emph{exactly} 642; and 21
+robustness-campaign lines re-summing to exactly 128.28 with all 21 per-line
+\texttt{wall}\(\times\)\texttt{cpus} arithmetic checks passing.
 \end{itemize}
 
 \subsection{What the sweeps actually found}
 
-They did not rubber-stamp. Across the four sweeps the claims survived on every axis --- and
-the sweeps still returned a defect list, which is printed here rather than repaired quietly.
-The mechanism sweep found five bookkeeping and provenance defects; the phenomenon sweep found
-two documentation defects and three wording over-reads; the rotation and conditioning sweeps
-found no defect and two presentation caveats between them. The material ones appear in the
-body of this document; the consolidated list:
+They did not rubber-stamp. Across the six sweeps the claims survived on every axis --- one of
+them ``CONFIRMED WITH A NAMED ERRATUM'' --- and the sweeps still returned a defect list, which
+is printed here rather than repaired quietly. The mechanism sweep found five bookkeeping and
+provenance defects; the phenomenon sweep found two documentation defects and three wording
+over-reads; the rotation and conditioning sweeps found no defect and two presentation caveats
+between them; the robustness sweep found one factual error and named three protocol gaps; the
+serial-limiter sweep found no error, named two, and ran the check whose absence was one of
+them. The material ones appear in the body of this document; the consolidated list:
 
 \begin{table}[htbp]
 \centering\small
@@ -1292,6 +1865,16 @@ A misprinted relative spread (1.7e-06 for 1.7e-05) and an over-broad ``any group
 A cost figure of 12.63 core-min that should read 12.80, repeated in a commit message & Corrected in place, with the arithmetic shown \\
 Two headline numbers quoted in different units in a one-line summary; an ``improves 34--115x'' claim that passes over a fourth row degrading 0.389\% to 0.505\% & Both carried into this document with the footnote attached \\
 Provenance stamps missing from the headline sweep's logs & Mitigated by a stamped independent re-run of one cell and a stamped pair reproducing the same two numbers \\
+\addlinespace
+The established arm's adjoint Krylov count was written 590 in six places; 590 belongs to a different arm (\texttt{simple} 2x2x1, 1.40\% error), and fifteen logs of the established arm read 719 & Corrected at every site, here and in the source record. The correction enlarges the claim: the conditioning collapse is 17.5x, not the 14.4x reported \\
+\addlinespace
+The R5 verdict bands were registered in absolute multiples of \(\lVert b\rVert\) and mis-calibrated by \(\sim\)5 orders against the actual np=1 floors; by the registered wording alone, the lever that \emph{hides} the defect counts as a collapse & Printed with the split stated (Section~\ref{sec:levers}): the substance rests on a floor-ratio criterion that was not a registered band, and it runs against the lab's own prior framing. Future cross-residual bands go in units of the configuration's own floor \\
+\addlinespace
+No state-override control was run for either R5 lever, so the linearization-state confound is bounded only indirectly & Named in the body with both bounds; the \(\sim\)0.4 core-min control is unbought and is on the open list \\
+\addlinespace
+The serial arm's step-stability check cannot, by itself, exclude a symmetric FD kink --- and the closing check was already free inside the record's own logs & Run by the sweep and printed as Table~\ref{tab:onesided}; adopted as the registered closing move for this symptom class \\
+\addlinespace
+The ``no acquisition'' verdict is scored on an instrument adopted after the arm's numbers were in hand & Labelled post-hoc in the body in so many words, per the sweep, rather than merely caveated \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1315,6 +1898,19 @@ mechanism. P5 and P6 both held; P7's designed control came out only partially cl
 reported at its real strength, with the genuinely clean instance found elsewhere.
 \item The reach matrix (Section~\ref{sec:decomp}) registered seven arms with numeric bands and
 an explicit decision rule for refutation, at \commit{99f5d41d}, before any arm ran.
+\item The robustness campaign registered nine arms across a pre-registration and four
+amendments, every amendment committed \emph{seconds} before its arms launched --- the sweep
+reconciled each commit timestamp against ledger completion minus wall (17:14:47Z before a
+17:15:08 start, and three more of the same shape) and found the ordering intact every time.
+Its scoring runs harsh: \textbf{four NOT HELD and two NOT SCORED}, including the arm whose
+failure named the carrier (R3a: registered \(\ge 4\%\), measured 0.228\%) and one whose
+``direction held, magnitude under the band'' is reported as NOT HELD rather than upgraded. The
+load-bearing clean clause, R6b, was registered together with the result that would have
+refuted the whole hypothesis.
+\item The acquisition arm registered an escape clause for a dirty control, and the clause
+fired: the np=1 control read 92.8\%, so the arm is reported NOT SCORED against its own bands
+rather than re-read into a result. Its contingent arms were authorized only on a fire that did
+not happen, and were correctly not run.
 \end{itemize}
 
 \subsection{Cost, stated including the overruns}
@@ -1332,12 +1928,21 @@ Mechanism supervisor sweep (one 9~s container run; everything else arithmetic on
 Phenomenon supervisor sweep (one np=2 \artifact{check\_totals}) & 2.90 & $\sim$30 \\
 Conditioning unblock (7 entries: offline ladder, regression control, two converged solves, hump attempt, 9-point FD sweep) & 185.0 & 240 \\
 Conditioning supervisor sweep & 18.3 & 22 \\
+Robustness campaign (21 ledger lines: two refined-mesh arms, four scheme knobs, the conformal pair, two levers at three container tasks each) & 128.28 & 150 \\
+\quad --- of which one arm that produced no gradient at all (refined mesh, limiter present, adjoint diverged), charged in full & 33.60 & \\
+Acquisition arm and its two separating arms (4 runs, all rc=0) & 15.16 & 30 \\
+Robustness supervisor sweep (offline: raw-vector recomputation, byte diffs, two cut re-classifications) & 0.00 & \\
+Serial-limiter supervisor sweep (offline: log mining, one-sided-slope reconstruction) & 0.00 & \\
 \bottomrule
 \end{tabular}
 \caption{Solver cost. The one overrun --- 26\% on the discriminators --- is confined entirely
 to the coloring-off arm, and the record volunteers that the second forced attempt should not
 have been launched after the first showed unbounded memory growth rather than a slow finish.
-Every run is billed at full cap occupancy for its whole wall clock, including both kills.}
+Every run is billed at full cap occupancy for its whole wall clock, including both kills and
+including the refined-mesh arm that returned a failure instead of a number. The two most
+recent sweeps cost \emph{nothing}: both re-derived their verdicts from artifacts already on
+disk, and the check that decided the serial finding (Table~\ref{tab:onesided}) came out of
+logs the record had already written and not read.}
 \end{table}
 
 \subsection{The lessons this arc produced}
@@ -1374,6 +1979,29 @@ instance's own floor. It is a mat-vec, not a solve: seconds, not core-minutes. T
 map vectors across decompositions with the integer addressing files (sign on flipped faces),
 never coordinate matching, and validate the map on the primal state first; and diff operator
 \emph{actions} on mapped vectors, never operator \emph{entries}.
+\item \textbf{L-36.} \emph{A gradient check certifies a contraction, not an operator} --- and
+the two do not scale together. Passing \artifact{check\_totals} at one configuration certifies
+the contraction of the operator's error with that one objective's adjoint direction: almost no
+information about the operator, none about other objectives, other design variables, or other
+decompositions. The converse holds too: a large measured operator defect does not imply the
+published gradients are badly wrong. Never extrapolate a passing gradient check across
+configurations; when an operator defect is suspected, measure the operator.
+\item \textbf{L-37.} When a differentiated code is wrong in parallel, \emph{suspect a recorded
+branch first} --- limiters, switching or mixed boundary conditions, guards,
+\texttt{min}/\texttt{max}/\texttt{abs} --- and one-knob them before theorizing about halo
+exchange in general, because a branch is removable by a one-line dictionary edit and is
+therefore the cheapest discriminator available. And any lever that turns a gradient error off
+must be re-verified at \emph{operator} level before the configuration is described as
+unaffected: a lever can fix the operator or merely rotate the contraction away from the
+damage, and the gradient number cannot tell them apart. State which one you measured.
+\item \textbf{L-38.} \emph{An invariance check can pass because both sides are wrong
+together.} Decomposition-, ordering-, rank-count- and restart-invariance detect
+\emph{inconsistency} between two evaluations of the same tape; a tape wrong identically in both
+sails through all of them. Never promote an invariance pass to a correctness verdict unless one
+side is anchored to an external reference. And the converse of L-37's trigger: a recorded
+branch can corrupt the reverse sweep in \emph{serial}, with the parallel machinery innocent ---
+so when a serial gradient check fails against a step-stable finite difference, put the tape's
+branches at the top of the suspect list there too, before FD-quality theories.
 \end{itemize}
 
 %======================================================================
@@ -1410,7 +2038,7 @@ docker run -e DAFOAM_SUBPC_TYPE=lu ... dafoam-subpclu:v1
 #   DAFOAM_SUBPC_TYPE=lu: ASM sub-block PC set to complete LU
 
 # The IDWarp workaround, for anyone who needs a consistent gradient today
-# (mesh-quality price NOT measured -- see Section 4.7):
+# (mesh-quality price NOT measured -- see Section 5.7):
 meshOptions = {..., "useRotations": False, ...}
 \end{lstlisting}
 
@@ -1473,6 +2101,76 @@ Lab scripts implementing this: \artifact{W4-a4-discriminators/runScript\_w4.py} 
 \artifact{w4\_dump}, \artifact{w4\_crossres}, \artifact{w4\_crossres2}),
 \artifact{build\_maps.py}, \artifact{analyze\_mats.py}.
 
+\subsection{The two one-word reproducers}
+
+Both defects of the branch class in DAFoam are switched on and off by a single token in
+\artifact{system/fvSchemes}. Neither needs a rebuild, a patch, or a lab artifact. The token is
+the same in both.
+
+\begin{lstlisting}
+// system/fvSchemes -- the switch, both cases
+gradSchemes
+{
+    default  Gauss linear;                    // unlimited
+    limited  cellLimited Gauss linear 1;      // the branch: min/max over the stencil
+}
+divSchemes
+{
+    div(phi,U)  bounded Gauss linearUpwind limited;   // defect ON
+//  div(phi,U)  bounded Gauss linearUpwind default;   // defect OFF -- one word
+}
+// Same scheme family, same order, the same gradient-correction term still evaluated
+// and still needing its halo exchange. Only the selection leaves the tape.
+\end{lstlisting}
+
+\paragraph{(A) Parallel --- the decomposition-dependent adjoint.} A4, 2{,}777-cell
+snappy-refined Ahmed body, \texttt{freestreamVelocity} farfield, np=4 shipped-default
+\texttt{scotch}, \artifact{check\_totals} at step 1e-3 central:
+
+\begin{lstlisting}
+limited:  dCD/dshape 2.2086e-01  vs own FD 2.4258e-01  ->  8.95 %   KSP 719
+default:  dCD/dshape 2.0572e-01  vs own FD 2.0399e-01  ->  0.849%   KSP  41
+# and at operator level, by the cross-residual protocol above:
+limited:  ||A^T psi + b|| = 3.288e+02 x ||b||   (serial floor 1.14e-04)
+default:  ||A^T psi + b|| = 1.355e-02 x ||b||   (serial floor 2.00e-06)
+# Control, same discretization at np=1:  0.016 %  -- the ~0.8 % that survives
+# is an FD-column shift; the analytic reads 2.0572e-01 at BOTH decompositions.
+\end{lstlisting}
+
+\paragraph{(B) Serial --- one process, no MPI in the loop.} A1, 4{,}032-cell structured
+NACA0012 with the \texttt{freestreamVelocity} farfield installed (\texttt{inout} patch;
+\texttt{freestreamValue uniform (9.959800351 0.895754972 0)} at the case's own
+\(\alpha_0\)), \artifact{primalMinResTol} 1e-8, \textbf{np=1}:
+
+\begin{lstlisting}
+limited:  dCD/dshape 1.066449e-01  vs own FD 6.194868e-02  ->  92.8 %  (CL 7.86%)
+default:  dCD/dshape 6.516374e-02  vs own FD 6.522800e-02  ->  0.121%  (CL 0.018%)
+# One of the eight components (index 6) is sign-flipped: AN -0.02591213
+# against FD +0.00849673.  Krylov 95/96 vs 32.  No decomposition anywhere.
+\end{lstlisting}
+
+\paragraph{The closing check this symptom class needs, and it is free.} Before attributing a
+serial analytic-vs-FD gap to a limiter, rule out the finite difference --- and rule it out
+\emph{properly}, because a symmetric kink at the base point is invariant under a change of
+central-difference step and will survive a two-step check. The FD legs have already printed
+what is needed:
+
+\begin{lstlisting}[language=Python]
+# Each central-difference leg prints its own converged objective. Mine them:
+#   forward  slope = (J(+h) - J(0)) / h
+#   backward slope = (J(0) - J(-h)) / h
+# 1. Validate the reconstruction first: rebuilding the framework's printed
+#    central-difference vector from the same mined values must agree (here:
+#    4.7e-09 absolute, at both h = 1e-3 and 3e-3).
+# 2. A kink splits the two one-sided slopes apart. A smooth function does not.
+# 3. The verdict is whether the ANALYTIC lies inside [backward, forward].
+#    Measured here on the sign-flipped component: forward +0.009660,
+#    backward +0.007334 (27.4% asymmetry -- real limiter chatter), all four
+#    secants across both steps in [+0.0053, +0.0143], analytic -0.025912.
+#    Outside the bracket, wrong side of zero, 3x the magnitude: no branch
+#    selection available to the FD produces that. The adjoint is convicted.
+\end{lstlisting}
+
 \subsection{Reproducing the IDWarp defect in isolation}
 
 No DAFoam, no OpenFOAM, no pyGeo, no CFD --- IDWarp's own test mesh, options, displacement and
@@ -1518,19 +2216,22 @@ artifact & what it holds \\
 \artifact{VERIFICATION\_A4\_decomposition\_supervisor\_sweep.md} (\commit{27d25762}) & The verified phenomenon table, five verification axes, the hanging-node refutation \\
 \artifact{DISCRIMINATORS\_A4\_decomposition\_mechanism.md} (+ 2026-08-04 amendments) & The four discriminators, the cross-residual, the localization, the coloring-off finding \\
 \artifact{VERIFICATION\_A4\_mechanism\_supervisor\_sweep.md} (\commit{8e0a08bc}) & Adversarial sweep of the mechanism: independent map, independent scripts, fresh serial run, five defects found \\
-\artifact{UPSTREAM\_BUG\_REPORT\_decomposition\_adjoint.md} (\commit{cd573df3}) & The prepared, unfiled report (D1), cited here at its committed state. A further amendment from the papers-protocol work --- carrying the two-claims correction of Section~\ref{sec:whynot} into the report's own header, plus the 2018 paper's own \artifact{dCD/du0} check run at two decompositions --- was in progress while this document was written and may have landed since \\
+\artifact{UPSTREAM\_BUG\_REPORT\_decomposition\_adjoint.md} & The prepared, unfiled report (D1). It now carries the papers-protocol correction of Section~\ref{sec:whynot} in its own header, the reach addendum, a 2026-08-07 robustness addendum (``the trigger is a recorded BRANCH \ldots\ and one previously `clean' configuration is wrong at operator level''), and a 2026-08-07 acquisition addendum carrying D1s. Still NOT FILED \\
 \artifact{UPSTREAM\_BUG\_REPORT\_mesh\_warpDeriv.md} & The prepared, unfiled report (D2) \\
+\artifact{DEFECT\_ROBUSTNESS\_mesh\_and\_setup.md} (pre-registration \commit{25f52868}, results \commit{49631723}, R7 \commit{85dfbe68}) & The robustness and acquisition campaigns: the scheme ladder, the two levers at operator level, the conformal pair, the refinement arms, the seven-case survey, the serial variant, and every registered prediction scored as written \\
+\artifact{VERIFICATION\_defect\_robustness\_supervisor\_sweep.md} (\commit{8bd47b35}) & Adversarial sweep of the robustness campaign: cross-residuals recomputed from raw vectors, map rebuilt bit-for-bit, the 590/719 erratum, three named protocol gaps \\
+\artifact{VERIFICATION\_A1\_serial\_limiter\_supervisor\_sweep.md} (\commit{0858e640}) & Adversarial sweep of the serial variant: byte-level config audit, independent re-extraction, and the one-sided-slope reconstruction that closed the FD-kink hypothesis at zero cost \\
 \artifact{DAFOAM\_PAPERS\_VERIFICATION\_PROTOCOLS.md} (\commit{bf6ac53b}) & Three method papers read in full; the protocol table of Section~\ref{sec:whynot} \\
 \artifact{LIAISON\_NOVELTY\_SWEEP\_decomposition\_defect.md} (\commit{3c74dc03}) & 63 searches, 10 venues, the query log, the near-misses, the PETSc precedent \\
 \artifact{ROOTCAUSE\_getRotationMatrix3d.md}, \artifact{PATCH\_getRotationMatrix3d.md} & The line, the mechanism, the derivation-before-code, the acceptance results \\
 \artifact{VERIFICATION\_rotation\_patch\_supervisor\_sweep.md} (\commit{6782d33a}) & Adversarial sweep of D2: math re-derived, own driver, own reproduction \\
 \artifact{ladder-b/W4\_ADJOINT\_PC\_UNBLOCK.md} & The conditioning wall, the offline ladder, the sub-LU unblock, the FD gate \\
 \artifact{VERIFICATION\_cbfs\_unblock\_supervisor\_sweep.md} (\commit{9c19ccc8}) & Adversarial sweep of D3: image-vs-diff audit, recomputed FD table, new cell, cold regression \\
-\artifact{DEFECT\_REACH\_decomposition\_cases.md} (\commit{99f5d41d}) & The pre-registered reach matrix. Results in progress at the time of writing \\
+\artifact{DEFECT\_REACH\_decomposition\_cases.md} (\commit{99f5d41d}) & The pre-registered reach matrix, since scored and audited (sweep \commit{192c970c}) \\
 \artifact{subpclu\_patch/DALinearEqn\_subpclu.patch} (\commit{1cd44c04}) & The one-hunk sub-PC source diff \\
 \artifact{rotation\_branch/idwarp\_v2.6.2\_degenerate\_branch\_fix.patch} & The four-line derivative correction (2 files, +44 lines) \\
 \artifact{PROOF.md} \S25.5, \S23--24, \S25.2--25.3 & The primary measurement record \\
-\artifact{LESSONS.md} L-29 -- L-35 & The method-of-investigation thread \\
+\artifact{LESSONS.md} L-29 -- L-38 & The method-of-investigation thread \\
 \midrule
 \multicolumn{2}{@{}l}{\textbf{Run directories: \artifact{/home/ubuntu/certonomous-runs/}}}\\
 \artifact{W4-a4-stepsweep/} & The phenomenon table's per-cell logs \\
@@ -1538,6 +2239,7 @@ artifact & what it holds \\
 \artifact{W4-a4-verify-audit/} & The mechanism sweep's own staged case, own mapped vectors, \artifact{audit\_crossres.log} \\
 \artifact{VERIFY-a4-np2-20260804/} & The independent re-run of one phenomenon cell \\
 \artifact{W4-defect-reach/} & The reach matrix's arms and \artifact{ledger.txt} \\
+\artifact{W4-defect-robustness/} & The scheme ladder, the lever dumps and cross-residuals, the conformal and refined meshes, the A1 acquisition arms; \artifact{ledger.txt} (21 audited lines) and \artifact{ledger\_r7.txt} \\
 \artifact{W5-idwarp-source/}, \artifact{W5-patch/}, \artifact{W5-rotation-branch/} & IDWarp source clone, patched clone, and the A5 case copies \\
 \artifact{W4-adjoint-pc-unblock/} & Offline petsc4py ladder, CBFS and hump runs, the 9-point FD sweep \\
 \artifact{W4-verify-sweep/} & The conditioning sweep's isolated case copy and its own logs \\
@@ -1547,14 +2249,31 @@ artifact & what it holds \\
 \subsection{What is still open}
 
 \begin{enumerate}
-\item \textbf{D1, mechanism to a line.} The subsystem is named and the spatial signature is
-pinned; the defective source line is not. Reaching it requires an instrumented rebuild of
-\artifact{libDASolver.so}.
+\item \textbf{D1/D1s, mechanism to a line.} The subsystem, the spatial signature and now the
+recorded construct are named --- the limiter's \texttt{min}/\texttt{max} selection, switched by
+one word --- but the defective source line in the
+\texttt{cellLimited}/\texttt{limitedGrad} reverse sweep is not. Reaching it still requires an
+instrumented rebuild of \artifact{libDASolver.so}; what has changed is that the reproducer to
+instrument can now be a single process (Section~\ref{sec:serial}).
 \item \textbf{D1, reproducer on a stock upstream tutorial.} The measured case is lab-built
 --- its mesh recipe and case directories are archived and shippable, but it is not an official
 tutorial. A tutorial-based reproducer varying the \artifact{decomposeParDict} daOption on an
 official case should exist before filing.
-\item \textbf{D1, reach.} The pre-registered breadth matrix has run but is not yet scored.
+\item \textbf{D1, the one-mesh-family confound.} Not repaired --- \emph{confirmed}, twice, by
+the two sharpest tests available: the BC alone transplanted onto a clean case from another mesh
+family does nothing, and both ingredients together do nothing either. Every decomposition-borne
+measurement in this lab still lives on one 2{,}777-cell Ahmed background family. A filed
+reproducer must scope itself accordingly.
+\item \textbf{D1, the unseparated third correlate.} \artifact{primalMinResTol} is 1e-4 on both
+defective cases and 1e-6/1e-8 on all five clean ones, and it has no within-case control,
+because DAFoam treats an unreached tolerance as a primal failure rather than a depth setting.
+Whether a loose primal is a necessary co-ingredient is unmeasured, and the acquisition null
+raised rather than lowered its standing.
+\item \textbf{D1, the unbought operator control.} No state-override control was run for either
+lever of Table~\ref{tab:levers}; the linearization-state confound is bounded indirectly and the
+\(\sim\)0.4 core-min direct control should be taken next time a container is warm.
+\item \textbf{D1s, novelty.} The community sweep predates the limiter findings and has not
+been re-run for them. No priority is claimed, and the gap should close before any filing.
 \item \textbf{D2, the primary reference.} The IDWarp AIAA paper is unread and unobtainable
 from this host; the ``undocumented'' characterisation rests on code, docs and release notes
 only, and is stated conditionally throughout.
@@ -1571,9 +2290,12 @@ unrun.
 \vspace{1em}
 \begin{center}
 \fbox{\begin{minipage}{0.94\textwidth}
-\small\textbf{Filing status, restated.} Nothing in this document has been filed, sent, or
-posted. Whether any of it is submitted upstream is the lab principal's decision, not the
-authors'. The two prepared reports and the comment-on-\#57 remain drafts.
+\small\textbf{Filing status, restated plainly.} Nothing in this document has been filed, sent,
+or posted --- not the decomposition report, not its three addenda, not the comment
+on \artifact{mdolab/idwarp\#57}, not the sub-PC pull request. All of it is
+\textbf{PREPARED and HELD}. Submissions are parked at the owner's discretion, and whether any
+of it goes upstream is the lab principal's decision, not the authors'. This document is what
+the case file looks like while it waits.
 \end{minipage}}
 \end{center}
 

@@ -467,6 +467,18 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   line-by-line code check of its two highest-risk artifacts. SUPERVISION_CHARTER.md being written; chief retains
   scoring authorization, cross-family arbitration, negative-verdict reviews, list custody.
 
+- SLATE SCOPED (cfd9214e): 10/21 already ours; capability gaps MEASURED (solids4Foam/preCICE/blastFoam not installed —
+  each enters via an install+tutorial rung); F7a premise corrected (sign-flip was retracted; standing FAIL is dry-bed
+  film friction, mechanism-diagnosed); 3 proposals filed (double Mach, F5c sequence, TGV — ranked on instrument grounds
+  with the disagreement vs the chief's guess stated); top-2 runnable dispatched (hump-at-challenge-conditions repriced
+  + QCR arm; double Mach).
+- CHARTERS: nine now — SUPERVISION_CHARTER v1.0, verification v1.4 (negative-verdict rule), case-selection v1.3 (slate
+  adopted), goals v1.4 (submissions parked), PROPOSALS_OPEN v2.4 (beec7da1, 61 tests green).
+- DAFOAM FAMILY SUPERVISOR FIRST PASS (770436f9): five currency lags fixed; found A-1 HIGH — the sign error is STILL in
+  the reusable cross-residual instrument (fix dispatched before any maintainer touches it) and B-2 — the cited patch's
+  headers are dead paths (git apply fails; regeneration dispatched); DISC-6 (tex frames inletOutlet as clean) relayed to
+  the tex owner. The supervision structure caught real defects on day one.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

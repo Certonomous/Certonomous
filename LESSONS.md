@@ -1688,14 +1688,18 @@ mechanism hunt on a one-word edit: `div(phi,U)` `bounded Gauss linearUpwind
 limited` -> `linearUpwind default` — same scheme family, same order, same
 halo-exchanged gradient-correction term, only the limiter's min/max stencil
 selection removed — took the np=4-scotch gradient error from 8.95% to 0.849%,
-the adjoint Krylov count from 590 to 41, and the serial-operator cross-residual
-from 329x ||b|| to 0.0135x. With that, every defect this lab has traced in this
+the adjoint Krylov count from ~~590~~ **719** to 41 *(corrected 2026-08-07 per
+the defect-robustness supervisor sweep, commit 8bd47b35: 719 in every log that
+ran the established arm; "590" was mis-transcribed from the simple-2x2x1 arm —
+the collapse is 17.5x, larger than first written)*, and the serial-operator
+cross-residual from 329x ||b|| to 0.0135x. With that, every defect this lab has traced in this
 toolchain is one class: a BRANCH recorded on the reverse tape whose selection
 interacts wrongly with processor boundaries (the slope limiter's stencil
 min/max; the freestreamVelocity flux-sign switch; IDWarp's degenerate-rotation
 guard, L-29). And the complementary trap: the OTHER lever that "cleans" the
 defect (swapping the farfield BC to inletOutlet) leaves the operator wrong at
-1.047x ||b|| — 163,600x the np=1 floor — under a check_totals reading 0.019%.
+1.047x ||b|| — 163,548x the np=1 floor (full precision per the same sweep;
+both roundings 1.6e5) — under a check_totals reading 0.019%.
 Calling that configuration "safe" would have shipped a hidden wrong operator;
 only the cross-residual instrument told the two levers apart.
 
