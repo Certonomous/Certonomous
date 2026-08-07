@@ -162,6 +162,27 @@ every W4X/W4D line, and bump the output prefix so old and new dumps cannot be
 conflated. Do not re-derive any published number from post-fix outputs
 without noting the convention change.]
 
+> **OUTCOME 2026-08-07: FIXED** (fix agent; runs-tree files, not in git;
+> repo-side record in commit 9796f90f's sibling, this file). Both sites in
+> `runScript_w4.py` now compute `res = Atpsi + b`; every W4D/crossres log
+> line prints an explicit convention banner ("residual convention:
+> r = Atpsi + b for the system A^T psi = -b"); the sign-fixed `w4_crossres`
+> writes `w4xf_res_*.npy` and logs as **W4XF**, so pre-fix `w4x_res_*.npy`
+> (needs +2b) can never be conflated with true residuals
+> (`w4x2_res_*.npy` always was the true residual). A future-runs-only header
+> states that all historical numbers stand (corrected offline, documented).
+> The sibling source copy `W4-a4-du0check/runScript_du0.py` carried the same
+> defect and got the same fix. `run_arm.sh`'s tail grep extended to W4XF.
+> No script copies exist under the repo tree (grep `w4_crossres`: markdown
+> references only); `run_r5_dump.sh` and `run_a35_dump.sh` copy the now-fixed
+> canonical directly, so R5/R7x reuse inherits the fix. In-arm historical
+> `runScript.py` copies were left untouched as evidence of what ran.
+> **Control reproduction on the existing d_np1 dump, no offline correction:**
+> old convention ||Atpsi-b||/||b|| = 2.000000e+00 (degenerate); new
+> convention ||Atpsi+b||/||b|| = **1.140697e-04** (~floor), equal to every
+> digit with the documented offline `res + 2b` correction of the published
+> `w4x_res_np1.npy`.
+
 **A-2. SEVERITY MEDIUM: map validation is advisory, not enforced.**
 `build_maps.py:99-115` prints the duplicated-phi copy agreement and mapped
 primal-state agreement but asserts on neither; a failed validation still
@@ -170,6 +191,22 @@ runs pass (2.7e-15), but a reuse with a subtly wrong map would emit its
 warning into a log nobody greps and keep going. [fix-forward: hard-fail when
 `d_copies.max()` exceeds a registered tolerance (the family floor is machine
 precision; anything above ~1e-12 x scale is a wrong map), and non-zero exit.]
+
+> **OUTCOME 2026-08-07: FIXED** (fix agent; `build_maps.py`, runs tree).
+> Every validation is now a GATE: duplicate-copy disagreement above
+> 1e-12 x max|w| (env `W4_MAPTOL_DUPSCALE`) or mapped primal-state relative
+> error above 1e-2 (env `W4_MAPTOL_REL`) writes NO `psi_on_np1.npy` /
+> `map_np4_to_np1.npz` for the arm and exits 1, and any pre-existing
+> `psi_on_np1.npy` is removed up front so a failed run cannot leave a stale
+> valid-looking file. Calibration note recorded in the script: this file's
+> line above conflated two floors -- 2.7e-15 is the DUPLICATE-COPY agreement
+> (machine precision, gated at 1e-12 x scale as prescribed); the mapped
+> primal-state agreement on the published dumps is 2.0e-3/2.8e-3
+> (independent reconvergence at primalMinResTol 1e-4), so that gate defaults
+> to 1e-2 (a wrong map leaves O(1)). Tested on the published dumps:
+> positive run passes all gates, exit 0, regenerated `psi_on_np1.npy`
+> byte-identical to the published files for all three arms; negative run
+> (`W4_MAPTOL_DUPSCALE=1e-30`) exits 1 and refuses to write psi.
 
 **A-3. SEVERITY MEDIUM: hardcoded absolute paths with no case-identity
 assertion.** `build_maps.py:24` (`BASE = .../W4-a4-discriminators`),
@@ -183,6 +220,20 @@ not the dumps against the intended arm. [fix-forward: take BASE/arm from
 argv; assert identity by comparing the dumps' `w4_meta_rank0.json` CD0
 against the arm log being analyzed.]
 
+> **OUTCOME 2026-08-07: PARTIALLY FIXED / PARTIALLY DEFERRED** (fix agent).
+> FIXED: case-identity assertions land in both directions. `w4_dump` now
+> records `globalAdjSize`, `globalStatesNorm`, and the residual convention in
+> `w4_meta_rank*.json` (post-fix dumps only), and `build_maps.py` asserts at
+> load: per-rank size sums vs ownership range, np1 meta size vs the parsed
+> indexing, arm-vs-np1 CD0 agreement within 1e-4 (env `W4_IDTOL_CD0`;
+> measured reconvergence spread ~7e-6, so a stale prior-campaign path with a
+> different case fails loudly), and the new meta fields when present. All
+> identity checks are gates (nonzero exit, no psi written). DEFERRED: BASE
+> is still a hand-edited constant (argv migration not taken in this pass);
+> the re-pathed derivative copies `build_maps_{a35,upw,io,a1lim}.py` remain
+> pre-fix and should be re-derived from the fixed canonical before any
+> reuse.
+
 **A-4. SEVERITY MEDIUM (already bit once, still unfixed): the driver
 truncates evidence logs on re-run.** `run_arm.sh:46` writes
 `> "$BASE/${TAG}.log"` per attempt; three nocolor attempts shared a TAG and
@@ -191,12 +242,22 @@ destroyed the cited crash log (the mechanism sweep's citation erratum,
 [fix-forward: append an attempt-stamped log name, or refuse to run if
 `${TAG}.log` exists.]
 
+> **OUTCOME 2026-08-07: FIXED** (fix agent; `run_arm.sh`). Any existing
+> `${TAG}.log` is rotated to `${TAG}.log.prev.<UTC-stamp>` before the run;
+> `${TAG}.log` always holds the latest attempt, and no re-run can destroy a
+> prior attempt's evidence. `bash -n` clean.
+
 **A-5. SEVERITY MEDIUM (latent footgun): empty-TAG deletes the campaign.**
 `run_arm.sh:12-14`: `TAG="$1"; D="$BASE/$TAG"; sudo rm -rf "$D"`. `set -u`
 catches a MISSING argument but not an EMPTY one: `run_arm.sh "" 4 ...` makes
 `D="$BASE/"` and `sudo rm -rf` removes the whole discriminators directory —
 dumps, ledger, and all. [fix-forward: `[ -n "$TAG" ]` and reject TAG
 containing `/` or `.`.]
+
+> **OUTCOME 2026-08-07: FIXED** (fix agent; `run_arm.sh`). A `case` guard
+> before any `rm` rejects empty TAG, TAG containing `/` or a space, and the
+> `.`/`..` dot dirs, exit 2. Unit-tested: `""` and `"../evil"` refused,
+> a normal tag proceeds.
 
 **A-6. SEVERITY LOW-MEDIUM: objective name "CD" hardcoded in the b
 evaluation.** `runScript_w4.py:197,281,321` pass the literal `"CD"` to
@@ -206,6 +267,9 @@ not established whether a wrong name fails loudly or returns a zero vector —
 a zero b would silently zero every ratio's denominator reference. Any graft
 (as R7x plans) must verify `||b||` in-log against the case's own scale.
 
+> **OUTCOME 2026-08-07: DEFERRED** (not in this fix pass's reproducibility
+> scope; the in-log ||b|| line already prints for any graft to check).
+
 **A-7. SEVERITY LOW: the capture hook takes the LAST reverse seed.**
 `runScript_w4.py:22-30,236` (`_captures[-1]`). Correct for this model (one
 objective, one warper call); on a model with multiple functions or
@@ -213,10 +277,15 @@ constraints the captured `dCD/dXv` could silently belong to a different
 function. Fine as used; a reuse hazard to keep in mind for any multi-function
 graft.
 
+> **OUTCOME 2026-08-07: DEFERRED** (correct as used; hazard documented here).
+
 **A-8. SEVERITY LOW: crossres tasks glob `psi_on_np1_*.npy` from the staging
 dir.** `runScript_w4.py:286,324`. Stale psi files from a previous lever staged
 in the same dir are silently included. Mitigated because tags name their arm;
 worth a staging-dir hygiene line in the driver.
+
+> **OUTCOME 2026-08-07: DEFERRED** (mitigation by arm-named tags stands; note
+> that post-fix crossres runs also self-identify by the W4XF banner).
 
 ### Artifact B — the sub-LU patch and its env-switch plumbing
 
@@ -236,6 +305,14 @@ set to complete LU` line in-log (the W4 record does). [fix-forward: warn on
 any set-but-unrecognized value; make drivers assert the Info line before
 trusting any sub-LU result — now codified in the guidelines.]
 
+> **OUTCOME 2026-08-07: FIXED IN PATCH TEXT, REBUILD DEFERRED** (fix agent;
+> commit 9796f90f). The regenerated `DALinearEqn_subpclu.patch` warns via an
+> Info line on any set-but-unrecognized non-empty `DAFOAM_SUBPC_TYPE` value
+> (behavior stays stock ILU; no numeric path touched). The deployed
+> `dafoam-subpclu:v1` image is NOT rebuilt: the warn is recorded in the patch
+> file's header as the next-rebuild delta, and drivers must keep asserting
+> the sub-LU Info line per the guidelines until that rebuild lands.
+
 **B-2. SEVERITY LOW-MEDIUM: the committed diff is not mechanically
 applicable.** The patch headers are absolute paths into a session-ephemeral
 scratchpad (`/tmp/claude-1000/.../scratchpad/src/DALinearEqn.C`) rather than
@@ -245,9 +322,23 @@ referenced tree no longer exists. The tex cites this file as the reproduction
 diff. [fix-forward: regenerate the diff with repo-relative a/ b/ headers;
 content unchanged.]
 
+> **OUTCOME 2026-08-07: FIXED** (fix agent; commit 9796f90f). Regenerated
+> against the stock `DALinearEqn.C` extracted from
+> `dafoam/opt-packages:latest` with `a/src/adjoint/DALinearEqn/DALinearEqn.C`
+> headers; `git apply --check` PASSES from the DAFoam repo root (expected
+> working directory documented in the patch header: the directory containing
+> `src/`, in-container `/home/dafoamuser/dafoam/repos/dafoam`). Content
+> verified: the 19-line applied block is byte-identical to the modified file
+> extracted from the deployed `dafoam-subpclu:v1` container (stock + block
+> reproduces that file exactly); the only addition beyond it is the B-1 warn,
+> declared in the header as not-yet-built.
+
 **B-3. SEVERITY INFO: per-block getenv.** The check runs inside the sub-block
 loop (guarded print at `i == 0`); repeated getenv is constant and harmless.
 No unit assumptions; no numeric path touched when off. No further findings.
+
+> **OUTCOME 2026-08-07: NO ACTION** (info only; unchanged in the regenerated
+> patch).
 
 ---
 
@@ -278,7 +369,10 @@ executed before the R7x contingent or any new cross-residual arm runs).
   upstream-filing-relevant: the reproduction protocol in the unfiled report
   and the tex tells a maintainer to run an instrument whose logs print
   degenerate ratios. Recommend the fix-forward lands before any filing
-  decision reaches Katie.
+  decision reaches Katie. *(2026-08-07 later: landed — see the A-1 outcome
+  block; the instrument now prints the correct convention with an explicit
+  banner, and the np1 control reproduces the corrected floor with no offline
+  step.)*
 2. **DISC-6** must land in the tex before it is treated as citable; item 1
   of it (inletOutlet framed as clean) is a safety-relevant contradiction of
   the report of record.
