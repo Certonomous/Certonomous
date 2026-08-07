@@ -12,8 +12,8 @@
  "source_kind": "reading",
  "citations": [
   "Zhao, Akolekar, Weatheritt, Michelassi & Sandberg, RANS Turbulence Model Development using CFD-Driven Machine Learning, J. Comput. Phys. 2020, arXiv 1902.09075v2, sections 3.2 and 4.2, READ IN FULL 2026-08-02",
-  "demo-output/website/campaign/W2_CFD_DRIVEN_TRAINING_READING.md sections 1 and 3",
-  "demo-output/website/campaign/W1_bump_nasa_grids.md section 4"
+  "The W2 CFD-driven training reading, sections 1 and 3",
+  "The W1 NASA bump grids record, section 4"
  ],
  "in_sample_verdict": "Not applicable, and it cannot become applicable. Nothing is fitted, inverted or calibrated: the deliverable is an arithmetic note over rates already measured. If a CFD-driven search is ever proposed here, the in-sample question arrives with it and not with this costing, and it will be sharp, because a cost function built on sparse mean-flow data is exactly the shape that tempts a lab toward the scored cases that ship experimental profiles.",
  "status": "proposed",

@@ -12,10 +12,10 @@
  "source_kind": "capability",
  "hard_criterion": "no-case",
  "citations": [
-  "demo-output/website/campaign/W2_DOW_STRUCTURAL_UQ_PROGRAM.md sections 0 and 2",
-  "demo-output/website/campaign/W2_DOW_STRUCTURAL_UQ_READING.md section 1",
-  "demo-output/website/campaign/F6d_random_matrix_uq.md",
-  "demo-output/website/dafoam/ladder-b/S1_CBFS_INVERSION_PREREGISTRATION.md",
+  "The W2 Dow structural UQ program record, sections 0 and 2",
+  "The W2 Dow structural UQ reading, section 1",
+  "The F6d random-matrix UQ record",
+  "The S1 CBFS inversion pre-registration, ladder B",
   "Dow and Wang, Quantification of Structural Uncertainties in the k omega Turbulence Model, AIAA paper 2011-1762, sections II B and III B, tier READ IN FULL 2026-08-05, held in the papers directory",
   "Dow, SM thesis, MIT Aeronautics and Astronautics 2011, handle 1721.1/68407, sections 3.3.2 and 3.4.1, tier READ IN FULL 2026-08-05"
  ],

@@ -13,8 +13,8 @@
  "citations": [
   "Pope, JFM 72 331 to 340, 1975, equations 3.1 to 3.3 and section 5 p. 336, READ IN FULL 2026-08-02",
   "Ling, Kurzawski & Templeton, SAND2016-7345J, manuscript p. 6, equations 1 and 2, READ IN FULL",
-  "demo-output/website/campaign/W2_POPE_1975_INTEGRITY_BASIS.md sections 2.3 and 2.4",
-  "sdk/scripts/pope_1975_basis_check.py"
+  "The W2 Pope 1975 integrity-basis record, sections 2.3 and 2.4",
+  "The Pope 1975 basis check script in the lab's scripts tree"
  ],
  "in_sample_verdict": "Not applicable. No training data of any kind; the test is algebra on a synthetic simple-shear gradient and compares against expressions printed in the paper.",
  "status": "proposed",

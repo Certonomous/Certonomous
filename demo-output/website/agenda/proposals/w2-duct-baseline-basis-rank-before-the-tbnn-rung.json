@@ -7,15 +7,15 @@
  "est_core_min": 0,
  "predicted_memory_gb": 2.0,
  "predicted_usd": 0.0,
- "cost_basis": "estimate; reads duct fields already on disk and does linear algebra on 3x3 tensors per cell. The comparable audit, closure_duct_anisotropy_expressivity.py, measured 41,971 cells in 17.3 seconds on a 2-core cap",
+ "cost_basis": "estimate; reads duct fields already on disk and does linear algebra on 3x3 tensors per cell. The comparable audit, the duct anisotropy expressivity script, measured 41,971 cells in 17.3 seconds on a 2-core cap",
  "expected_knowledge_gain": "An a priori score against a rank-deficient representation cannot be read as model quality until the floor set by the rank is on the page beside it",
  "source_kind": "reading",
  "citations": [
   "Pope, JFM 72 331 to 340, 1975, p. 334, READ IN FULL 2026-08-02",
-  "demo-output/website/campaign/W2_POPE_1975_INTEGRITY_BASIS.md section 2.5",
-  "sdk/scripts/pope_1975_basis_check.py",
-  "demo-output/website/closure_challenge_duct_anisotropy_expressivity.json",
-  "demo-output/website/campaign/W2_TBNN_SPARTA_READING.md"
+  "The W2 Pope 1975 integrity-basis record, section 2.5",
+  "The Pope 1975 basis check script in the lab's scripts tree",
+  "The duct anisotropy expressivity record",
+  "The W2 TBNN and SpaRTA reading"
  ],
  "in_sample_verdict": "Clean, and it tightens rather than loosens the existing boundary. It reads only the four duct TRAINING cases the correction model already trains on, AR_1_Ret_180, AR_3_Ret_180, AR_5_Ret_180 and AR_10_Ret_180, exactly the scope the existing duct expressivity audit declared. The validation case AR_7_Ret_180 and the three scored test cases AR_1_Ret_360, AR_3_Ret_360 and AR_14_Ret_180 are never opened, and no score call is made. It fits nothing: the rank of a basis is a property of the baseline field, not of any model.",
  "status": "proposed",

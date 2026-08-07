@@ -12,11 +12,11 @@
  "source_kind": "measurement",
  "hard_criterion": "existing-family",
  "citations": [
-  "demo-output/website/campaign/W2_DOW_STRUCTURAL_UQ_PROGRAM.md section 0",
-  "demo-output/website/campaign/W2_DOW_STRUCTURAL_UQ_READING.md section 4",
-  "demo-output/website/campaign/W2_SPARTA_FROZEN_CBFS.md sections 2 to 4",
-  "demo-output/website/campaign/W2_SPARTA_CBFS_DATA_FORENSICS.md",
-  "sdk/scripts/dow_2011_table42_check.py",
+  "The W2 Dow structural UQ program record, section 0",
+  "The W2 Dow structural UQ reading, section 4",
+  "The W2 SpaRTA frozen CBFS record, sections 2 to 4",
+  "The W2 SpaRTA CBFS data forensics record",
+  "The Dow thesis Table 4.2 check script in the lab's scripts tree",
   "Dow, Quantification of Structural Uncertainties in RANS Turbulence Models, SM thesis, MIT Aeronautics and Astronautics 2011, handle 1721.1/68407, Table 4.2 and section 4.5.2, tier READ IN FULL 2026-08-05, held in the papers directory"
  ],
  "status": "proposed",

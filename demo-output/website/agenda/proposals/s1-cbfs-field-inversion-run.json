@@ -10,14 +10,15 @@
  "expected_knowledge_gain": "The lab's first field inversion on a closure-relevant case; where a production-term beta wants to move on CBFS; the measured per-iteration price Stage 2 planning needs",
  "source_kind": "measurement",
  "citations": [
-  "demo-output/website/dafoam/ladder-b/W4_ADJOINT_PC_UNBLOCK.md",
-  "demo-output/website/dafoam/VERIFICATION_cbfs_unblock_supervisor_sweep.md",
-  "demo-output/website/campaign/W2_WU_ZHANG_DESTRUCTION_FIML_READING.md",
-  "demo-output/website/dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md"
+  "The W4 adjoint preconditioner unblock record, ladder B",
+  "The supervisor verification sweep of the CBFS unblock",
+  "The W2 reading of the Wu and Zhang destruction-term field inversion",
+  "The S1 FIML field inversion plan, ladder B"
  ],
  "status": "done",
  "result_note": "Ran 2026-08-04 to 2026-08-07, 335.98 of 600 core-min. Machinery worked end to end (17 converged adjoints, gradient norm down 106x, bit-identical eval-1 and final-state controls); BOTH pre-registered gates FAIL (J_qoi 0.99851 vs <=0.70; window fraction 29.0% vs >50%). Primary cause measured, not guessed: the case inlet is the patchV pilot's 0.72-uniform overwrite of the benchmark's 0.9149-bulk profile, so the loss floor is a 27% mass-flux mismatch no beta can remove. Two defects named with primary evidence (inlet overwrite; in-process primal restart walk-off with the adjoint proceeding on a failed primal). Full record: S1_CBFS_INVERSION_RESULT.md. Successor filed: s1-cbfs-objective-repair-and-reinversion.",
  "created_at": "2026-08-04T18:50:00Z",
  "decided_at": "2026-08-04T18:50:00Z",
- "decision_note": "Approved under Katie's standing authorization (full approval granted for the filed proposals; Stage 1 CBFS inversion dispatched with pre-registration-first and the 600 core-min cap in the PRODUCT_LIST dispatch note). Pre-registration committed before any inversion run."
+ "decision_note": "Approved under Katie's standing authorization (full approval granted for the filed proposals; Stage 1 CBFS inversion dispatched with pre-registration-first and the 600 core-min cap in the PRODUCT_LIST dispatch note). Pre-registration committed before any inversion run.",
+ "outcome": "Ran 2026-08-04 to 2026-08-07, 335.98 of 600 core-min. Machinery worked end to end (17 converged adjoints, gradient norm down 106x, bit-identical eval-1 and final-state controls); BOTH pre-registered gates FAIL (J_qoi 0.99851 against the 0.70 bar; window fraction 29.0 percent against the 50 percent bar). Primary cause measured, not guessed: the case inlet was the patchV pilot's 0.72-uniform overwrite of the benchmark's 0.9149-bulk profile, a 27 percent mass-flux mismatch no interior beta can remove. Full record: the S1 CBFS inversion result, ladder B. Successor filed and running: s1-cbfs-objective-repair-and-reinversion."
 }

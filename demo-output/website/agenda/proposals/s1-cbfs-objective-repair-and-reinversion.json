@@ -10,9 +10,9 @@
  "expected_knowledge_gain": "Whether a production-term beta can actually move a well-posed CBFS velocity loss -- the question the defective objective masked -- and the corrected foundation Stage 2 needs",
  "source_kind": "measurement",
  "citations": [
-  "demo-output/website/dafoam/ladder-b/S1_CBFS_INVERSION_RESULT.md",
-  "demo-output/website/dafoam/ladder-b/S1_CBFS_INVERSION_PREREGISTRATION.md",
-  "demo-output/website/campaign/W2_WU_ZHANG_DESTRUCTION_FIML_READING.md"
+  "The S1 CBFS inversion result record, ladder B, where both gate failures and the inlet overwrite are measured",
+  "The S1 CBFS inversion pre-registration, ladder B",
+  "The W2 reading of the Wu and Zhang destruction-term field inversion"
  ],
  "status": "approved",
  "created_at": "2026-08-07T20:20:00Z",
@@ -22,5 +22,6 @@
   "claimed_by": "solver-agent s1-cbfs-objective-repair (S1 session)",
   "claimed_at": "2026-08-07T20:15:00Z",
   "note": "Claimed under Katie's blanket approval 2026-08-07. Order of work: restore the benchmark's CBFS inlet into the case 0/U with the diff documented; commit the re-baseline prediction BEFORE any solve; re-baseline; FD re-verification on 3 components at the repaired state; set G1/G2 fresh from the repaired baseline by dated amendment; re-run the surviving out-of-process driver at --cpus=2. Do not start this item elsewhere."
- }
+ },
+ "hard_criterion": "existing-family"
 }

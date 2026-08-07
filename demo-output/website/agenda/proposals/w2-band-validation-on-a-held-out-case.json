@@ -12,10 +12,10 @@
  "source_kind": "gate",
  "hard_criterion": "existing-family",
  "citations": [
-  "demo-output/website/campaign/W2_DOW_STRUCTURAL_UQ_PROGRAM.md sections 2 and 3",
-  "demo-output/website/campaign/W2_DOW_STRUCTURAL_UQ_READING.md section 1",
-  "demo-output/website/campaign/F6d_random_matrix_uq.md",
-  "demo-output/website/campaign/F6a_epistemic_band.md",
+  "The W2 Dow structural UQ program record, sections 2 and 3",
+  "The W2 Dow structural UQ reading, section 1",
+  "The F6d random-matrix UQ record",
+  "The F6a epistemic band record",
   "Dow, SM thesis, MIT Aeronautics and Astronautics 2011, handle 1721.1/68407, sections 3.4.3, 4.5.4 and chapter 5, tier READ IN FULL 2026-08-05, held in the papers directory"
  ],
  "status": "proposed",
