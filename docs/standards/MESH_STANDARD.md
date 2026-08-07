@@ -47,6 +47,16 @@ actually achieve, using the NASA TMR flat-plate grids on disk under
   but record the warning.
 - Lab evidence: motorcycle case at max non-ortho 65.0 converged with one
   corrector; the airliner-class hex meshes sit far below the gate.
+- Exemption on record, 2026-08-07 (ruling R12,
+  `docs/charters/SUPERVISOR_RULINGS.md`): for MODEL-FORM BANDING ONLY, a grid
+  that is the reference community's own canonical verification grid may carry
+  a band above this gate — first instance the TMR-distributed NACA 0012
+  coarse C-grid at max non-orthogonality 85.70 degrees vs this 70-degree
+  gate. The ruling owns the exemption and sets its three mandatory
+  conditions (stated on the band artifact with the failing number, scoped to
+  banding only, grid provenance named); this note is a pointer, not a change
+  to the gate. Physics gates and credential verdicts still require compliant
+  meshes.
 
 ### 3.2 Max skewness: hard gate 4, boundary faces included
 

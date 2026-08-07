@@ -86,6 +86,74 @@ S12_MONOTONE_TOL = 0.90
 # Mesh Standard 3.1/3.2 hard gates.
 MAX_NON_ORTHO = 70.0
 MAX_SKEWNESS = 4.0
+
+# R12 mesh-gate exemption (docs/charters/SUPERVISOR_RULINGS.md, ruled
+# 2026-08-07 on the Cases family supervisor's C2 escalation). A grid that is
+# the reference community's own canonical verification grid may carry a
+# MODEL-FORM BAND above the lab's mesh gate, because the band measures
+# inter-model spread on a fixed grid -- it needs the same grid, not a
+# compliant one, and a home-built compliant replacement would break the
+# family's comparability with the reference it exists to be compared to.
+# Three conditions, all mandatory and all enforced in code
+# (sdk/tests/test_model_form_r12.py pins them):
+#   1. the exemption is stated on the band artifact itself, with the failing
+#      number beside it (apply_mesh_gate builds the statement from the cell's
+#      own measured checkMesh values -- no number, no exemption);
+#   2. the exemption is scoped to model-form banding only -- physics gates
+#      and credential verdicts still require compliant meshes, and
+#      mesh_gate_exemption() raises for any other purpose;
+#   3. the exemption names its grid provenance (who published it, where).
+R12_BANDING_PURPOSE = "model-form banding"
+
+MESH_GATE_EXEMPT_FAMILIES: dict[str, dict[str, str]] = {
+    # Family N solves the TMR-distributed NACA 0012 coarse C-grid whose
+    # far-wake skew is characteristic of the topology the verification
+    # community standardises on: max non-orthogonality 85.70 deg vs the
+    # 70 deg Mesh Standard 3.1 hard gate.
+    "N": {
+        "ruling": ("R12, docs/charters/SUPERVISOR_RULINGS.md "
+                   "(ruled 2026-08-07)"),
+        "scope": ("model-form banding only; physics gates and credential "
+                  "verdicts still require compliant meshes and this "
+                  "exemption never travels to them"),
+        "grid_provenance": (
+            "NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, "
+            "n0012_113-33.p3dfmt as distributed "
+            "(turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) "
+            "-- the verification community's canonical grid family, the "
+            "same family whose 897x257 member carries the published CFL3D "
+            "references this batch compares against"),
+    },
+}
+
+_R12_REQUIRED_FIELDS = ("ruling", "scope", "grid_provenance")
+for _family, _info in MESH_GATE_EXEMPT_FAMILIES.items():
+    _missing = [f for f in _R12_REQUIRED_FIELDS if not _info.get(f)]
+    if _missing:
+        raise RuntimeError(
+            f"R12 exemption for family {_family} is missing mandatory "
+            f"field(s) {_missing}; all three ruling conditions are "
+            "required before the flag exists at all")
+
+
+def mesh_gate_exemption(family: str, purpose: str) -> dict[str, str] | None:
+    """The R12 exemption for ``family``, or ``None`` if it has none.
+
+    ``purpose`` must be ``R12_BANDING_PURPOSE``: ruling condition 2 scopes
+    the exemption to model-form banding only, so any physics-gate or
+    credential path that reaches for it is refused with a raise rather than
+    quietly granted.
+    """
+    info = MESH_GATE_EXEMPT_FAMILIES.get(family)
+    if info is None:
+        return None
+    if purpose != R12_BANDING_PURPOSE:
+        raise RuntimeError(
+            f"R12 mesh-gate exemption for family {family} is scoped to "
+            f"{R12_BANDING_PURPOSE!r} only and is REFUSED for purpose "
+            f"{purpose!r}: physics gates and credential verdicts still "
+            "require compliant meshes (ruling R12, condition 2)")
+    return info
 # Queue gate: this batch yields while the DAFoam/OpenFOAM fleet is busy.
 CONTAINER_CEILING = 3
 CONTAINER_POLL_SECONDS = 60.0
@@ -446,6 +514,46 @@ def mesh_verdict(check_text: str) -> dict[str, Any]:
                                   "never a lone rejection")}
 
 
+def apply_mesh_gate(meshv: dict[str, Any], family: str
+                    ) -> tuple[list[str], dict[str, Any] | None]:
+    """Mesh-gate exclusion reasons for the banding gate, R12-aware.
+
+    Returns ``(reasons, exemption)``. For a family without an R12 entry the
+    breaches pass through untouched and ``exemption`` is ``None``. For an
+    exempt family, MEASURED breaches move off the exclusion reasons and into
+    an exemption record whose statement carries the failing number(s) beside
+    the gate value (ruling condition 1) and the grid provenance (condition
+    3). An unreadable checkMesh is never exempted: without the measured
+    number the statement the ruling demands cannot be written, so the cell
+    stays excluded on the unreadable-mesh reason.
+    """
+    breaches = list(meshv["breaches"])
+    failing: list[str] = []
+    non_ortho = meshv.get("max_non_ortho")
+    if non_ortho is not None and non_ortho > MAX_NON_ORTHO:
+        failing.append(f"max non-orthogonality {non_ortho:.2f} deg vs the "
+                       f"{MAX_NON_ORTHO:g} deg hard gate")
+    skew = meshv.get("max_skewness")
+    if skew is not None and skew > MAX_SKEWNESS:
+        failing.append(f"max skewness {skew:.2f} vs the "
+                       f"{MAX_SKEWNESS:g} hard gate")
+    if family not in MESH_GATE_EXEMPT_FAMILIES or not failing:
+        return breaches, None
+    info = mesh_gate_exemption(family, R12_BANDING_PURPOSE)
+    assert info is not None
+    exemption = dict(info)
+    exemption["failing"] = failing
+    exemption["statement"] = (
+        "Mesh Standard hard gate EXEMPT under " + info["ruling"] + ": "
+        + "; ".join(failing)
+        + ", on the reference community's own grid -- "
+        + info["grid_provenance"] + ". Scope: " + info["scope"] + ".")
+    # Only the measured hard-gate breaches are exempted; anything else
+    # (unreadable checkMesh) stays an exclusion reason.
+    remaining = [b for b in breaches if "unreadable" in b]
+    return remaining, exemption
+
+
 def settle_verdict_s12(series: Sequence[float]) -> dict[str, Any]:
     """Monitor Standard S12 on the QoI history. Scale-free by construction."""
     finding = detect_unsettled_stop(list(series))
@@ -624,7 +732,8 @@ def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
             reasons.append("residualControl not met")
     if settle["unsettled"]:
         reasons.append("S12 unsettled stop on " + settle_on)
-    reasons.extend(meshv["breaches"])
+    mesh_reasons, mesh_exemption = apply_mesh_gate(meshv, cell.family)
+    reasons.extend(mesh_reasons)
     if any(v is None for v in qoi.values()):
         reasons.append("QoI missing from the coefficient history")
 
@@ -640,6 +749,7 @@ def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
         "residual_control_met": logv["residual_control_met"],
         "settle_s12": settle,
         "mesh": meshv,
+        "mesh_gate_exemption": mesh_exemption,
         "wall_seconds": round(wall_seconds, 1),
         "core_min": round(wall_seconds / 60.0, 3),
         "ranks": 1,
@@ -790,6 +900,11 @@ def build_band(records: Sequence[dict[str, Any]]) -> dict[str, Any]:
             "regime": rec["regime"], "converged": [], "excluded": [],
             "core_min": 0.0})
         grp["core_min"] = round(grp["core_min"] + rec.get("core_min", 0.0), 3)
+        if rec.get("mesh_gate_exemption"):
+            # Ruling R12 condition 1: the exemption is stated on the band
+            # artifact itself. Every cell of a group shares one grid, so the
+            # group carries the statement once, failing number and all.
+            grp["mesh_gate_exemption"] = rec["mesh_gate_exemption"]
         if rec["converged"]:
             grp["converged"].append(rec)
         else:
@@ -868,6 +983,10 @@ def band_markdown(band: dict[str, Any]) -> str:
                      f"{grp['n_excluded']} excluded, "
                      f"{grp['core_min']:.2f} core-min)")
         lines.append("")
+        if grp.get("mesh_gate_exemption"):
+            lines.append("**Mesh-gate exemption on this group (R12):** "
+                         + grp["mesh_gate_exemption"]["statement"])
+            lines.append("")
         for qoi, entry in sorted(grp["bands"].items()):
             if entry.get("band") is None:
                 lines.append(f"- **{qoi}: no band** — {entry['why']}. "
