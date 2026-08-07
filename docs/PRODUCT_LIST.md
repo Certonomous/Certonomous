@@ -402,6 +402,12 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   decisive acquisition arm (A1 + limiter + BC — kills or confirms the n=1-family confound) + the supervisor sweep of the
   headline numbers. Upstream report NOT FILED until both land.
 
+- ROBUSTNESS SWEEP CONFIRMED 6/6 (8bd47b35, 0.00 core-min — all offline): cross-residual pair reproduced to the digit
+  (1.3548e-02 and 1.0472e+00 x||b||); the one-word edit verified literally one changed line; erratum in our favor
+  (719 not 590 iterations — collapse is 17.5x, larger than claimed); four small fixes routed to the acquisition agent's
+  close. The mechanism claims are now defended end-to-end; only the acquisition arm stands between the upstream report
+  and filing-ready.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
