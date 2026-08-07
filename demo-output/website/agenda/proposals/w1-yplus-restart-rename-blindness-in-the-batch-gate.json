@@ -2,7 +2,7 @@
  "id": "w1-yplus-restart-rename-blindness-in-the-batch-gate",
  "well": "W1",
  "objective": "Close the same y+ restart-rename blindness in the mega-batch y+ gate that was just found and fixed in the bump collector, or show it cannot fire there",
- "rationale": "Found 2026-08-02 while fixing the bump ladder's own collector, and reported rather than edited because sdk/workflows/mega_batch.py is a shared module whose tests are currently red from another well's in-flight work. OpenFOAM renames a function object's output to name_time.dat when the file already exists on a restart. The lab already knows this for coefficient.dat, and stitch.py handles it for the force histories; tmr_verification globs coefficient*.dat and wallShearStress_*.raw with the wildcard and so is safe. The one function object nobody wildcarded is y+. In the bump ladder this published the medium rung's y+ from iteration 5,000 beside a Cd from iteration 16,000, recovered only by reading the renamed yPlus_10000.dat that sat beside a header-only yPlus.dat; the correction moved the numbers by 0.002 to 0.02 percent, small in magnitude and not in kind. mega_batch.py line 635 does sorted(rglob('yPlus.dat')) and feeds the result straight into yplus_gate_pass, which raises RuntimeError when it fails, so this is a GATE reading a possibly stale value rather than a reported number. Two things make it latent rather than live and both need checking rather than assuming: a single-run case never triggers the rename, and the sort is over path strings so directory names sort lexically rather than numerically while the directories are named for a run's START time in any case. The question is whether any mega-batch row has ever been restarted, and the ledger can answer it.",
+ "rationale": "Found 2026-08-02 while fixing the bump ladder's own collector, and reported rather than edited because the mega-batch workflow is a shared module whose tests were red from another well's in-flight work at the time. OpenFOAM renames a function object's output by appending the restart time when the file already exists on a restart. The lab already knows this for the coefficient history, and the bump ladder's stitcher handles it for the force histories; the TMR verification workflow reads both the coefficient files and the wall-shear files through wildcards and so is safe. The one function object nobody wildcarded is y+. In the bump ladder this published the medium rung's y+ from iteration 5,000 beside a Cd from iteration 16,000, recovered only by reading the renamed, time-suffixed y+ file that sat beside a header-only original; the correction moved the numbers by 0.002 to 0.02 percent, small in magnitude and not in kind. The mega-batch collector sorts a recursive glob for the bare y+ filename and feeds the last match straight into its y+ gate, which raises when it fails, so this is a GATE reading a possibly stale value rather than a reported number. Two things make it latent rather than armed, and both need checking rather than assuming: a single-run case never triggers the rename, and the sort is over path strings so directories sort lexically while they are named for a run's start time in any case. The question is whether any mega-batch row has ever been restarted, and the ledger can answer it.",
  "gate": "Either the y+ read in mega_batch is made to select by the Time written inside the file across yPlus*.dat, matching the fix now in the bump collector, or the ledger is shown to contain no restarted row and the finding is recorded as latent with the evidence that it cannot currently fire",
  "est_core_min": 0,
  "predicted_memory_gb": 0.5,
@@ -11,10 +11,10 @@
  "expected_knowledge_gain": "A gate that raises on a value it may have read from the wrong iteration is worse than a reported number that is wrong, because it decides rather than informs",
  "source_kind": "report",
  "citations": [
-  "demo-output/website/campaign/W1_bump_nasa_grids.md section 6",
-  "demo-output/website/campaign/W1_runs/collect.py",
-  "sdk/workflows/mega_batch.py line 635",
-  "sdk/workflows/tmr_verification.py lines 970 and 985, which wildcard correctly and are the counter-example"
+  "Bump ladder campaign record, NASA grids, section 6",
+  "Bump ladder collection script, the repaired collector",
+  "Mega-batch workflow, the y+ gate read",
+  "TMR verification workflow, the wildcarded reads that are the counter-example"
  ],
  "in_sample_verdict": "Not applicable. Nothing is fitted, inverted or calibrated; this is a defect in how a measurement is read off disk.",
  "status": "proposed",
