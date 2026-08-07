@@ -108,10 +108,13 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       no mirror, AoA +3.2/+5.2/+4.1 deg textbook attached; the flip evidence re-read correctly (the flipped run WAS the
       backwards one; its +138 N·m is expected reverse-drag). Real anomaly = the original direction's non-convergence,
       prime suspect impulsive start. INIT ARM DIVERGED (27dd8f86, 13.4 core-min): forces → 1e99 behind a 1.4e-8 Ux
-      residual — a live S10 specimen (divergence behind a converged residual), prediction honestly scored NOT EVALUABLE
-      (no branch fit a run with no flow); the agent named its own two-knob confound. New suspicion: -writephi absolute
-      flux vs MRF relative-flux convention (F5b's cure came from a non-rotating case). Sequenced next: zero-compute MRF
-      flux/frame audit (twice-implicated), then the single-variable split arms it informs. F8 total 32.8 core-min.
+      residual — a live S10 specimen. AUDIT + ARM A (76cf1aa4/1bb059a5): the divergence fully explained —
+      potentialFoam's makeAbsolute baked the frame's solid-body sweep into the whole-domain zone (~150 m/s vs 7 m/s
+      inflow; source-line citations MRFZone.cxx:447-489, potentialFoam.C:187) — we initialised a hurricane. Frame terms
+      audited clean; single-variable corrected arm reproduces the original motoring limit cycle. **STEADY-MRF CLOSED
+      THREE WAYS on evidence** (geometry / frame terms / initialisation); transient branch inherits the quantified
+      target (turbine-signed, ≤400 N·m band vs 800 N·m). "MRF first" clause complete on a measurement trail.
+      F8 total 47.7 core-min.
 - [ ] AIAA DPW: study public data/methodology, then attempt CRM/DPW-class case (converged primal first).
       A6 wing-alone primal now matches DAFoam's published tutorial baseline to 0.0067% (provisional — see 4E A6).
       `w1-dpw5-hex-three-level-ladder` proposed (400).
