@@ -171,14 +171,13 @@ value is claimed from it.
 
 In cost order:
 
-1. **Zero compute — rotation-direction audit.** Establish from the blade STL
-   itself (S809 camber orientation, twist sign) which rotation direction this
-   geometry is built for, and compare against the DAFoam
-   `NREL6_Wind_Turbine` tutorial this case's MRFProperties says it derives
-   from (axis, omega sign, and STL handedness together). The original case's
-   +7.5398 about +x with inflow +x is now the prime suspect; the flip test
-   moved the history by 21× in width, which is what a wrong-direction fix
-   would do.
+1. **Zero compute — rotation-direction audit.** *EXECUTED 2026-08-07, see
+   §10: the geometry is exonerated — chord, twist distribution, handedness
+   and camber all match TP-500-29955 for the original +x rotation, and the
+   defect hunt moves to the §10 BC/frame list, led by the missing
+   potentialFoam initialisation.* (Original text: establish from the blade
+   STL itself which rotation direction this geometry is built for; the
+   original +7.5398 about +x was then the prime suspect.)
 2. **~13 core-min — settle the flipped case.** Extend `phase6_mrf_omegaflip`
    to t≈2000 (measured rate 0.145 core-s/iteration at 4 ranks). Gate its
    torque under the same pre-registration discipline: window, 400 N·m cap,
@@ -298,4 +297,80 @@ magnitude more compute measuring the same defect.
 | gate (existing history + reference fetch) | 0 |
 | omega-flip confirmation (600 iters) | 5.8 |
 | step-2 settle extension (1500 iters, rider approval) | 13.6 |
+| step-1 STL-orientation audit (§10, second rider) | 0 |
 | **total** | **19.4** (6 approved on the item + ~13 rider estimate; measured 19.4 vs 19 authorised) |
+
+## 10. Step 1 executed: the geometry is EXONERATED, and it convicts the flip run instead (2026-08-07, zero compute)
+
+The §5 step-1 audit was run entirely on the STL and existing outputs — no
+solver launched. Sections were cut from `blade.stl` (330,950 triangles) at
+r/R = 0.30, 0.63, 0.95 on both blades and measured against Hand et al.
+TP-500-29955 Table A-1 (chord/twist, twist axis 30% chord, S809 root to tip,
+Sequence S tip pitch 3°).
+
+**(1) Chord and twist:**
+
+| r/R | chord measured | chord published | geometric angle vs rotor plane, measured | published twist + 3° pitch |
+| --- | --- | --- | --- | --- |
+| 0.30 | 0.713 m | 0.711 m | +19.1° | 17.3° |
+| 0.63 | 0.545 m | 0.542 m | +5.9° | 4.1° |
+| 0.95 | 0.382 m | 0.381 m | +3.3° | 1.5° |
+
+Chord matches to 2–3 mm at every station. The measured **twist distribution
+matches exactly**: Δ(0.30R→0.95R) = 15.8° measured vs 15.76° published. The
+uniform +1.8° offset at all three stations is the max-distance-chord
+measurement bias on a cambered section (and/or ≤2° of pitch), not a twist
+error — a constant offset cannot produce a motoring rotor.
+
+**(2) Handedness:** blade− sections are blade+ sections mapped by
+(x, y, z) → (x, −y, −z) — a **proper 180° rotation about the x axis**, not a
+reflection. No STL mirror defect.
+
+**(3) Orientation and camber:** for ω = +7.5398 (the ORIGINAL setting),
+blade+ moves toward −y and the relative wind arrives from the −y/−x
+quadrant. Measured blade+ LE at (−0.070, −0.202): pointing exactly there
+(LE identified by thickness — 0.085 m at 8% chord vs 0.019 m at 92%). The
+camber midline bulges toward +x (downwind) — suction side downwind, correct
+for a turbine. With 1/3 axial induction the geometry meets the flow at
+**AoA +3.2° / +5.2° / +4.1°** at the three stations — textbook attached
+operation at the Sequence S 7 m/s point. Instrument sanity: the +omega run's
+window-mean thrust is +811.5 N, positive and the right order against the
+experiment's ~1.2 kN, so the forces object and axes read correctly.
+
+**VERDICT: the geometry is built correctly for the original +x rotation.**
+Which revises §8's inference, and the record says so plainly: "neither
+direction extracts power" was the wrong reading. The −omega flip run was the
+genuinely backwards configuration, and its calm +138 N·m IS the expected
+drag torque of a rotor dragged backwards — the flip test measured a
+correctly-built blade running in reverse, not a defect. The real anomaly is
+the original +omega run: correct geometry at +4° attached-flow AoA should
+drive at ≈+800 N·m, and instead the solution oscillates violently around
+−1000 N·m (motoring). A correct geometry producing a stalled, oscillating,
+torque-reversed field is a **flow-solution defect, not a configuration
+defect**.
+
+**Where the hunt moves (BC/frame terms, in cost order):**
+
+1. **Impulsive start** — the prime suspect, and the family already owns the
+   fix: `runSolve.sh` goes straight from uniform (7,0,0) into
+   simpleFoam+MRF with no `potentialFoam -writephi` initialisation. F5b hit
+   exactly this ("impulsive-start divergence, fixed by potentialFoam
+   -writephi"), and the B-52 family runs potentialFoam before every solve.
+   An impulsive MRF start sheds a massive starting vortex, stalls the
+   blade, and a steady SIMPLE solve can limit-cycle in that stalled basin
+   indefinitely — which reproduces every symptom on the record: torque
+   opposing rotation (drag of a stalled rotor), plausible thrust, violent
+   oscillation that more iterations never fix. Re-run +omega with
+   potentialFoam init and reduced relaxation: ~14 core-min at the measured
+   rate, to be filed/approved before running.
+2. **MRF term audit against the derivation source** — the whole-domain
+   `region0` zone with `nonRotatingPatches (sides inlet outlet)` follows
+   the DAFoam NREL6 tutorial pattern; verify against that tutorial the
+   omega sign convention, the nonRotatingPatches list, and that the
+   cellZone genuinely covers every cell (topoSet log), before trusting the
+   frame terms.
+3. **Relaxation/scheme sensitivity** only if 1–2 exonerate themselves —
+   and if a properly-initialised, properly-framed +omega solve still
+   oscillates, that is finally the genuine unsteadiness the transient
+   branch exists for, and the transient case inherits a quantified target:
+   settle to within the §1 cap of 800 N·m.
