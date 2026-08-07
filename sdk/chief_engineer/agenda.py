@@ -352,6 +352,27 @@ def source_kind_violations(proposal: dict) -> list[str]:
             f"are {stated}"]
 
 
+def outcome_violations(proposal: dict) -> list[str]:
+    """Refuse a done proposal that does not say what the work found.
+
+    The module's own rule (docstring, and set_status enforces it): a
+    proposal marked ``done`` carries an ``outcome``, or the panel shows what
+    the lab hoped to learn and never what it learned. Until the 2026-08-07
+    family supervision pass (finding A-2) the invariant bound only in
+    set_status, so an inbox file arriving with status done and no outcome
+    rode through intake; two such records reached the docket by direct edit.
+    Same grandfather line as the other schema rails: old records stand as
+    filed, new ones carry the field.
+    """
+    if not _schema_binds(proposal):
+        return []
+    if (str(proposal.get("status") or "") == "done"
+            and not str(proposal.get("outcome") or "").strip()):
+        return ["status: done with no outcome; a proposal cannot be closed "
+                "without saying what closing it found"]
+    return []
+
+
 def hard_criterion_violations(proposal: dict) -> list[str]:
     """Refuse a proposal that does not name its hardness-floor answer.
 
@@ -467,6 +488,7 @@ def proposal_violations(proposal: dict) -> list[str]:
     found.extend(source_kind_violations(proposal))
     found.extend(hard_criterion_violations(proposal))
     found.extend(archive_replay_violations(proposal))
+    found.extend(outcome_violations(proposal))
     return found
 
 
@@ -728,7 +750,13 @@ def draft_tmr_proposals() -> list[dict]:
         return []
     bump = _load_json(_tmr_card_path().parent / "bump_sst.json")
     if isinstance(bump, dict) and bump.get("grids"):
-        return [_draft_tmr_naca0012(bump)]
+        # _proposal returns None when a style rail trips, so the guard the
+        # flat-plate branch has always had applies here too: a rail-trip is
+        # a dropped proposal, never a None riding into draft_all to crash
+        # the whole docket refresh (found in the 2026-08-07 family
+        # supervision pass, finding A-1).
+        naca = _draft_tmr_naca0012(bump)
+        return [naca] if naca else []
     grids = card["grids"]
     fine = grids[-1] if grids else {}
     comparison = card.get("comparison") or {}
@@ -763,7 +791,7 @@ def draft_tmr_proposals() -> list[dict]:
     return [proposal] if proposal else []
 
 
-def _draft_tmr_naca0012(bump: dict) -> dict:
+def _draft_tmr_naca0012(bump: dict) -> dict | None:
     """With flat plate and bump both measured, the sequence's next case."""
     grids = bump.get("grids") or []
     wall_core_min = sum(float(g.get("wall_seconds") or 0) for g in grids) / 60.0
@@ -1017,10 +1045,25 @@ def draft_ledger_proposals() -> list[dict]:
     return [proposal] if proposal else []
 
 
+# Inbox files refused at intake, keyed by filename so repeated refreshes
+# update rather than duplicate. Same reasoning as _REFUSED_COST_BASES: a
+# skipped file used to vanish without a trace, and on 2026-08-07 nineteen of
+# fifty-six inbox files were being silently dropped, two of them filed that
+# same day and destined never to reach the docket with nothing anywhere
+# saying so (family supervision pass, finding A-3). A filter nobody can see
+# is a filter nobody can question.
+_REFUSED_INBOX: dict[str, dict] = {}
+
+
+def refused_inbox() -> list[dict]:
+    """Every inbox file the last reads refused, with its violations."""
+    return [dict(entry) for _, entry in sorted(_REFUSED_INBOX.items())]
+
+
 def read_inbox() -> list[dict]:
     """Proposals other overnight agents dropped as JSON files. Each file is
     schema-checked and style-checked; a file that breaks the rails is skipped
-    rather than displayed."""
+    rather than displayed, and the skip is recorded in ``refused_inbox()``."""
     root = inbox_dir()
     if not root.exists():
         return []
@@ -1028,9 +1071,15 @@ def read_inbox() -> list[dict]:
     for path in sorted(root.glob("*.json")):
         data = _load_json(path)
         if not isinstance(data, dict):
+            _REFUSED_INBOX[path.name] = {
+                "file": path.name, "id": "", "objective": "",
+                "violations": ["file: not a JSON object"]}
             continue
         objective = _clean(data.get("objective") or "")
         if not objective:
+            _REFUSED_INBOX[path.name] = {
+                "file": path.name, "id": str(data.get("id") or ""),
+                "objective": "", "violations": ["objective: absent"]}
             continue
         est = data.get("est_core_min")
         try:
@@ -1087,8 +1136,13 @@ def read_inbox() -> list[dict]:
                 continue
             item[key] = (_clean(str(value)) if key != "decided_at"
                          else str(value))
-        if proposal_violations(item):
+        violations = proposal_violations(item)
+        if violations:
+            _REFUSED_INBOX[path.name] = {
+                "file": path.name, "id": item["id"],
+                "objective": item["objective"], "violations": violations}
             continue
+        _REFUSED_INBOX.pop(path.name, None)
         out.append(item)
     return out
 

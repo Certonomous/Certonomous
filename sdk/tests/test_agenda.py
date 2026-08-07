@@ -28,6 +28,7 @@ import tempfile
 import threading
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from chief_engineer import agenda
 
@@ -183,6 +184,47 @@ class DraftingFromRecords(_EnvMixin, unittest.TestCase):
                     if "NACA 0012" in p["objective"])
         # Cost is anchored to the measured bump ladder, never invented.
         self.assertIn("core minutes on this machine", naca["cost_basis"])
+
+    def test_a_rail_tripped_naca_draft_is_dropped_not_none(self):
+        # Finding A-1, family supervision pass 2026-08-07: _proposal returns
+        # None on a style-rail trip, and the NACA 0012 branch used to hand
+        # that None straight into draft_all, which crashes on
+        # proposal["objective"]. A rail-trip is a dropped proposal, never a
+        # crashed refresh.
+        _write_json(self.root / "bump_sst.json", {
+            "grids": [{"cells": 3520, "wall_seconds": 102.0}]})
+        with mock.patch.object(agenda, "_draft_tmr_naca0012",
+                               return_value=None):
+            self.assertEqual(agenda.draft_tmr_proposals(), [])
+            for proposal in agenda.draft_all():  # must not raise
+                self.assertIsInstance(proposal, dict)
+
+    def test_a_skipped_inbox_file_is_recorded_not_silent(self):
+        # Finding A-3, family supervision pass 2026-08-07: nineteen of
+        # fifty-six real inbox files were being silently dropped at intake.
+        # A refusal is visible or it is a filter nobody can question.
+        agenda.read_inbox()
+        refused = {entry["file"]: entry for entry in agenda.refused_inbox()}
+        self.assertIn("bad.json", refused)
+        self.assertTrue(refused["bad.json"]["violations"])
+        self.assertEqual(refused["bad.json"]["objective"], "Read this website")
+        # An accepted file is not in the refused ledger.
+        self.assertNotIn("reading-1.json", refused)
+
+    def test_an_inbox_done_without_outcome_is_refused_at_intake(self):
+        # Finding A-2, family supervision pass 2026-08-07: the module's own
+        # done-requires-outcome rule bound only in set_status, so an inbox
+        # file arriving already closed but with no outcome rode through.
+        _write_json(self.root / "agenda" / "proposals" / "closed.json", {
+            "objective": "Close this quietly",
+            "rationale": "r", "citations": [],
+            "source_kind": "reading", "hard_criterion": "no-case",
+            "status": "done",
+            "created_at": "2026-08-07T00:00:00+00:00"})
+        objectives = {p["objective"] for p in agenda.read_inbox()}
+        self.assertNotIn("Close this quietly", objectives)
+        refused = {entry["file"] for entry in agenda.refused_inbox()}
+        self.assertIn("closed.json", refused)
 
     def test_rationales_cite_the_actual_record(self):
         by_objective = {p["objective"]: p for p in agenda.draft_all()}
@@ -439,6 +481,23 @@ class SchemaRails(unittest.TestCase):
         self.assertEqual(agenda.rank_value(old),
                          agenda._GAIN_DEFAULT / 2.0)
         self.assertIn("somekind-nobody-scored", agenda.unscored_kinds())
+
+    def test_a_done_proposal_without_an_outcome_is_refused(self):
+        # Finding A-2, 2026-08-07: the docstring's done-requires-outcome
+        # rule now binds at intake for schema-bound records, not only in
+        # set_status.
+        item = self._proposal()
+        item["status"] = "done"
+        found = agenda.proposal_violations(item)
+        self.assertTrue(any(f.startswith("status: done") for f in found),
+                        found)
+        item["outcome"] = "the work found the number and it is stated"
+        self.assertEqual(agenda.proposal_violations(item), [])
+
+    def test_a_grandfathered_done_row_is_not_refused_for_its_outcome(self):
+        old = self._proposal(created="2026-08-04T12:00:00+00:00")
+        old["status"] = "done"
+        self.assertEqual(agenda.proposal_violations(old), [])
 
     def test_a_dateless_proposal_is_new_by_assumption(self):
         found = agenda.proposal_violations(self._proposal(created="",

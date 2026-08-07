@@ -165,16 +165,19 @@ class LabStatsTests(unittest.TestCase):
         self.assertEqual(len(closure["target_per_case"]), 8)
         self.assertIn("rmcconke/closure-challenge-benchmark", closure["repo"])
         # our_score is not invented: it is the gated entry of record, scored
-        # through the benchmark's own unmodified code (evidence: demo-output/
-        # website/closure_challenge_trained_entry_round3_gated.json), and the
-        # zero-training RANS-identity floor it moved from stands beside it
+        # through the benchmark's own unmodified code, and the zero-training
+        # RANS-identity floor it moved from stands beside it
         # (closure_challenge_rans_floor.json). Nothing has been submitted, and
         # the entry text says so plainly every time this card is rendered.
-        self.assertEqual(closure["our_score"], 0.0676)
+        # The pin moves when the entry of record moves and only then: round 5
+        # (0.056647, ACCEPT, the sixth pre-registered scoring call, commit
+        # 07a7fe9e) superseded round 3's 0.0676 on 2026-08-07, and the stale
+        # pin was caught by the family supervision pass the same day.
+        self.assertEqual(closure["our_score"], 0.0566)
         self.assertEqual(closure["floor_overall"], 0.1036)
         self.assertFalse(closure["submitted"])
         self.assertEqual(len(closure["our_per_case"]), 8)
-        for stated in ("0.0676 overall", "five of the eight test cases",
+        for stated in ("0.0566 overall", "four of the eight test cases",
                        "Not yet submitted to the benchmark's steward."):
             self.assertIn(stated, closure["our_entry"])
         for forbidden in ("trend", "indicative", "real solve"):

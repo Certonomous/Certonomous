@@ -66,6 +66,13 @@ case "${1:-status}" in
     # The literal "Certonomous/sdk" below is what auto-stop.sh greps for.
     setsid nohup bash -c "
         # Certonomous/sdk session keepalive $TOKEN (holds while the Claude session writes)
+        # A single empty sample is not proof the session is gone: find can
+        # fail transiently, and one bad read used to disarm this guard
+        # permanently and silently (family supervision pass 2026-08-07,
+        # finding K-1). Three consecutive empty samples (~6 min) are required
+        # before the holder concludes there is nothing left to hold for; the
+        # hard cap still bounds the worst case.
+        misses=0
         while [ \"\$(date +%s)\" -lt $cap_end ]; do
             newest=0
             for d in ${SESSION_DIRS[*]}; do
@@ -73,7 +80,13 @@ case "${1:-status}" in
                 t=\$(find \"\$d\" -type f -printf '%T@\n' 2>/dev/null | sort -rn | head -n1 | cut -d. -f1)
                 [ -n \"\$t\" ] && [ \"\$t\" -gt \"\$newest\" ] && newest=\$t
             done
-            [ \"\$newest\" -eq 0 ] && exit 0
+            if [ \"\$newest\" -eq 0 ]; then
+                misses=\$(( misses + 1 ))
+                [ \"\$misses\" -ge 3 ] && exit 0
+                sleep 120
+                continue
+            fi
+            misses=0
             age=\$(( ( \$(date +%s) - newest ) / 60 ))
             [ \"\$age\" -ge $STALE_MINUTES ] && exit 0
             sleep 120
