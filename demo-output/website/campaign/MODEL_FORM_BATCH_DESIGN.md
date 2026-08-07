@@ -222,6 +222,54 @@ Everything needed is on disk; nothing lives in an agent's head.
   `B_re3e6_kEpsilon`, `N_a10_SpalartAllmaras`. A cell is never renamed; adding
   a regime adds ids and leaves the existing ones alone.
 
+## 8a. Addendum, 2026-08-07: what the first twenty cells taught
+
+Written after families P and B ran (20 of 32 cells), across two usage-limit
+kills (2026-08-05 ~17:20Z and ~17:45Z) and one two-day power-cycle gap. The
+design above is unchanged; these are measured corrections to the runner, each
+carried in `sdk/scripts/model_form_batch.py` with its reason.
+
+1. **The ladder's iteration cap is a settle-watcher number, not a
+   residualControl allowance.** `iteration_backstop()` returns 3000 on these
+   grids because the TMR ladder stops on coefficient flatness; this batch's
+   gate is `residualControl`, and at 3000 nine of the first twenty cells were
+   guillotined mid-descent. The batch now carries its own
+   `BATCH_BACKSTOP = 12000` (`--iteration-backstop`). Re-runs at 12000
+   converted first-pass exclusions into 4 more converged cells.
+2. **An excluded record is superseded, never deleted.** `--redo-excluded`
+   renames the old record to `record_superseded_<stamp>.json` beside the new
+   one, so the reason a cell was once excluded survives its rehabilitation.
+3. **The bump family fails its gate honestly, and the failure stands.** At
+   12000 iterations every B_re3e6 cell is S12-settled on Cd but still above
+   the U 1e-08 target (U initial residual ~2.4e-06 and crawling), so all four
+   are EXCLUDED and B_re3e6 has **no band** — the pre-registered gate applied
+   to a case whose own archived rung also never met residualControl (the
+   bump-coarse archive is a 4000-iteration cap stop). At Re 1.2e7 the three
+   k-family models FPE within ~45 iterations (S1 FATAL); only SA runs, and it
+   stalls. Family B is evidence about the gate, not a band, and is recorded
+   as such rather than re-run on softer terms.
+4. **SA on the flat plate converges but its `coefficient.dat` does not
+   survive collection** — reproduced twice; the log carries the full Cd
+   table each iteration while the copied postProcessing tree has yPlus and
+   wallShearStress but no forceCoeffs output. The runner now falls back to
+   parsing the coefficient history from the solver log and stamps
+   `qoi_source` on the record, so the cell is graded on the same S12 test
+   either way. Root cause not yet identified; filed as an observation.
+4b. **The realizableKE members deserve a raised eyebrow, stated here rather
+   than discovered later.** Its one converged flat-plate cell (re1e6) reads
+   Cd 0.000935, 3.9x below the SST member, and its other two regimes stall.
+   realizableKE is a high-Re formulation and these are y+ < 1 wall-resolved
+   grids; `epsilonWallFunction lowReCorrection` is the standard treatment but
+   the combination is delicate. The cell met the mechanical gate, so it is in
+   the band per the pre-registration — and it is the reason the re1e6 spread
+   is 156% of the mean. A follow-up that runs realizableKE on a wall-function
+   mesh of the same case would say whether that member is model-form spread
+   or wall-treatment artifact; filed as the batch's first ambition item.
+5. **Resumability is proven, three times.** Both kills and the power cycle
+   cost zero completed cells: every finished cell had already written its
+   `record.json`, and the restarted runner skipped them. The one cell a kill
+   can cost is the one in flight, as designed.
+
 ## 9. Deviations recorded up front
 
 1. **SA freestream is the TMR SA specification, not the SST one.** SpalartAllmaras

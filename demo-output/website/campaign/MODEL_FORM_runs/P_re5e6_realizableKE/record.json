@@ -1,0 +1,40 @@
+{
+  "cell_id": "P_re5e6_realizableKE",
+  "cells": 3264,
+  "converged": false,
+  "core_min": 1.24,
+  "excluded_reasons": [
+    "residualControl not met (stopped on the backstop)"
+  ],
+  "family": "P",
+  "group": "P_re5e6",
+  "iteration_backstop": 12000,
+  "iterations": 12000,
+  "mesh": {
+    "aspect_ratio_note": "advisory only per Mesh Standard 3.3; never a lone rejection",
+    "breaches": [],
+    "max_aspect_ratio": 69042.82289,
+    "max_non_ortho": 0.0,
+    "max_skewness": 8.004862337e-15
+  },
+  "model": "realizableKE",
+  "nu": 2e-07,
+  "params": {
+    "re_per_length": 5000000.0
+  },
+  "patch": "plate",
+  "qoi": {
+    "Cd": 0.00041704548908
+  },
+  "ranks": 1,
+  "re_per_length": 5000000.0,
+  "regime": "re5e6",
+  "residual_control_met": false,
+  "settle_s12": {
+    "detail": null,
+    "unsettled": false
+  },
+  "timestamp": "2026-08-05T17:31:47Z",
+  "toolchain": "native OpenFOAM v2606 (openfoam2606 launcher)",
+  "wall_seconds": 74.4
+}

@@ -90,6 +90,18 @@ MAX_SKEWNESS = 4.0
 CONTAINER_CEILING = 3
 CONTAINER_POLL_SECONDS = 60.0
 
+# Iteration backstop, and why it is this batch's own number rather than the
+# ladder's. ``tv.iteration_backstop`` sizes a run for the SETTLE WATCHER,
+# which stops a rung the moment its coefficient goes flat; on these grids it
+# returns 3000. This batch has no watcher: its gate is the case's own
+# ``residualControl``, so 3000 is not a backstop here, it is a guillotine.
+# Measured on the first pass of families P and B, 2026-08-05: nine of twenty
+# cells stopped at exactly 3000 with the residual still falling, and the
+# archived bump-coarse rung itself was asked for 4000 and still finished with
+# a moving tail. 12000 is four times the deepest converged cell of that pass
+# (P_re1e6_kOmegaSST at 2230) and three times the archived bump budget.
+BATCH_BACKSTOP = 12000
+
 
 # ---------------------------------------------------------------------------
 # The matrix
@@ -312,6 +324,21 @@ def patch_case(case_dir: Path, model: str, *, nu: float,
         path.write_text(transform(path.read_text(), extra), newline="\n")
 
 
+def set_backstop(case_dir: Path, iterations: int) -> None:
+    """Raise the run's iteration backstop without touching anything else.
+
+    The writers size ``endTime`` from ``tv.iteration_backstop``, which is the
+    settle watcher's number (see BATCH_BACKSTOP). ``writeInterval`` follows it
+    so the case still writes exactly one field set at the end.
+    """
+    path = Path(case_dir) / "system" / "controlDict"
+    text = path.read_text()
+    text = re.sub(r"endTime\s+\d+;", f"endTime         {iterations};", text)
+    text = re.sub(r"writeInterval\s+\d+;",
+                  f"writeInterval   {iterations};", text)
+    path.write_text(text, newline="\n")
+
+
 @contextmanager
 def naca_model_context(model: str) -> Iterator[None]:
     """Run ``tv.run_naca_level`` under one closure.
@@ -391,22 +418,32 @@ def log_verdict(log_text: str) -> dict[str, Any]:
 def mesh_verdict(check_text: str) -> dict[str, Any]:
     """Mesh Standard 3.1/3.2 hard gates from the case's own checkMesh."""
     non_ortho = skew = aspect = None
-    hit = re.search(r"Max non-orthogonality = ([0-9.eE+-]+)", check_text)
+    # checkMesh's own wording, taken from this batch's first log rather than
+    # guessed: the non-orthogonality line is a "Max: <v> average: <v>" pair,
+    # skewness is an "= <v>" line, and aspect ratio is only printed at all
+    # when cells exceed the reporting threshold.
+    hit = re.search(r"Mesh non-orthogonality Max:\s*([0-9.eE+-]+)", check_text)
     if hit:
         non_ortho = float(hit.group(1))
     hit = re.search(r"Max skewness = ([0-9.eE+-]+)", check_text)
     if hit:
         skew = float(hit.group(1))
-    hit = re.search(r"Max aspect ratio = ([0-9.eE+-]+)", check_text)
+    hit = re.search(r"Max aspect ratio:?\s*=?\s*([0-9.eE+-]+)", check_text)
     if hit:
         aspect = float(hit.group(1))
     breaches = []
-    if non_ortho is not None and non_ortho > MAX_NON_ORTHO:
+    if non_ortho is None:
+        breaches.append("checkMesh non-orthogonality unreadable")
+    elif non_ortho > MAX_NON_ORTHO:
         breaches.append(f"non-orthogonality {non_ortho:g} > {MAX_NON_ORTHO:g}")
-    if skew is not None and skew > MAX_SKEWNESS:
+    if skew is None:
+        breaches.append("checkMesh skewness unreadable")
+    elif skew > MAX_SKEWNESS:
         breaches.append(f"skewness {skew:g} > {MAX_SKEWNESS:g}")
     return {"max_non_ortho": non_ortho, "max_skewness": skew,
-            "max_aspect_ratio": aspect, "breaches": breaches}
+            "max_aspect_ratio": aspect, "breaches": breaches,
+            "aspect_ratio_note": ("advisory only per Mesh Standard 3.3; "
+                                  "never a lone rejection")}
 
 
 def settle_verdict_s12(series: Sequence[float]) -> dict[str, Any]:
@@ -416,6 +453,26 @@ def settle_verdict_s12(series: Sequence[float]) -> dict[str, Any]:
         return {"unsettled": False, "detail": None}
     detail = finding if isinstance(finding, dict) else {"finding": str(finding)}
     return {"unsettled": True, "detail": detail}
+
+
+_LOG_COEFF_RE = re.compile(r"^\s+(C[dls])\s*:\s+(-?[0-9][0-9eE.+-]*)",
+                           re.MULTILINE)
+
+
+def history_from_log(log_text: str) -> dict[str, list[float]]:
+    """The coefficient history as the solver's own log printed it.
+
+    Fallback for a cell whose ``coefficient.dat`` did not survive collection
+    (seen once on P_re1e6_SpalartAllmaras, 2026-08-05: the solve converged,
+    the log carries the full Cd table, and the dat file was absent from the
+    copied postProcessing tree). The log block prints one ``Cd :`` /
+    ``Cl :`` line per write, total first, so the parse takes the first
+    number on the line and skips the (f)/(r) split rows by construction.
+    """
+    out: dict[str, list[float]] = {}
+    for name, value in _LOG_COEFF_RE.findall(log_text):
+        out.setdefault(name, []).append(float(value))
+    return out
 
 
 def read_history(post_dir: Path) -> dict[str, list[float]]:
@@ -516,6 +573,12 @@ def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
         src = remote / name
         if src.exists():
             shutil.copy2(src, out_dir / name)
+    # A 12000-iteration solver log is ~18 MB and the archive keeps dozens of
+    # cells; the log is evidence and is kept, compressed. Everything the gate
+    # reads was read above, from the uncompressed original.
+    big = out_dir / "log.simpleFoam"
+    if big.exists() and big.stat().st_size > 1_000_000:
+        subprocess.run(["gzip", "-f", str(big)], check=False)
     post = remote / "postProcessing"
     if post.exists():
         shutil.rmtree(out_dir / "postProcessing", ignore_errors=True)
@@ -524,6 +587,10 @@ def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
     logv = log_verdict(log_text)
     meshv = mesh_verdict(check_text)
     history = read_history(out_dir / "postProcessing")
+    qoi_source = "coefficient.dat"
+    if not history.get(settle_on):
+        history = history_from_log(log_text)
+        qoi_source = "solver log (coefficient.dat absent from collection)"
     qoi: dict[str, float | None] = {}
     for name in qoi_names:
         series = history.get(name)
@@ -549,6 +616,7 @@ def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
         "converged": not reasons,
         "excluded_reasons": reasons,
         "qoi": qoi,
+        "qoi_source": qoi_source,
         "iterations": logv["converged_at"] or logv["last_iteration"],
         "residual_control_met": logv["residual_control_met"],
         "settle_s12": settle,
@@ -561,7 +629,8 @@ def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
     }
 
 
-def run_cell_P_or_B(cell: Cell, log: Callable[[str], None]) -> dict[str, Any]:
+def run_cell_P_or_B(cell: Cell, log: Callable[[str], None], *,
+                    backstop: int = BATCH_BACKSTOP) -> dict[str, Any]:
     """Flat plate (P) or bump in channel (B): blockMesh families."""
     if cell.family == "P":
         level = [lv for lv in tv.LEVELS if lv.name == "medium"][0]
@@ -587,6 +656,7 @@ def run_cell_P_or_B(cell: Cell, log: Callable[[str], None]) -> dict[str, Any]:
     patch_case(case_dir, cell.model, nu=nu, k_inf=k_inf, nut_inf=nut_inf,
                omega_inf_old=omega_base, omega_inf_new=omega_inf,
                nut_inf_old=nut_base)
+    set_backstop(case_dir, backstop)
 
     remote = Path(tv._RUN_ROOT) / f"modelform-{cell.cell_id}"
     out_dir = cell.out_dir
@@ -599,6 +669,7 @@ def run_cell_P_or_B(cell: Cell, log: Callable[[str], None]) -> dict[str, Any]:
     record = _grade(cell, remote, out_dir, wall, result.returncode,
                     qoi_names, settle_on)
     record["cells"] = level.cells
+    record["iteration_backstop"] = backstop
     record["patch"] = patch_name
     record["nu"] = nu
     record["re_per_length"] = float(cell.params["re_per_length"])
@@ -607,7 +678,8 @@ def run_cell_P_or_B(cell: Cell, log: Callable[[str], None]) -> dict[str, Any]:
     return record
 
 
-def run_cell_N(cell: Cell, log: Callable[[str], None]) -> dict[str, Any]:
+def run_cell_N(cell: Cell, log: Callable[[str], None], *,
+               backstop: int = BATCH_BACKSTOP) -> dict[str, Any]:
     """NACA 0012 on the TMR-distributed C-grid, one alpha, one closure."""
     level = [lv for lv in tv.NACA_LEVELS if lv.name == "coarse"][0]
     alpha = float(cell.params["alpha_deg"])
@@ -615,20 +687,22 @@ def run_cell_N(cell: Cell, log: Callable[[str], None]) -> dict[str, Any]:
     out_dir.mkdir(parents=True, exist_ok=True)
     start = time.monotonic()
     with naca_model_context(cell.model):
-        tv.run_naca_level(level, alpha, out_dir, log)
+        tv.run_naca_level(level, alpha, out_dir, log, iterations=backstop)
     wall = time.monotonic() - start
     remote = Path(tv._RUN_ROOT) / f"tmr-naca-a{alpha:g}-{level.name}"
     record = _grade(cell, remote, out_dir, wall, 0, ("Cd", "Cl"), "Cl")
     record["cells"] = level.cells
+    record["iteration_backstop"] = backstop
     record["alpha_deg"] = alpha
     shutil.rmtree(remote, ignore_errors=True)
     return record
 
 
-def run_cell(cell: Cell, log: Callable[[str], None]) -> dict[str, Any]:
+def run_cell(cell: Cell, log: Callable[[str], None], *,
+             backstop: int = BATCH_BACKSTOP) -> dict[str, Any]:
     if cell.family in ("P", "B"):
-        return run_cell_P_or_B(cell, log)
-    return run_cell_N(cell, log)
+        return run_cell_P_or_B(cell, log, backstop=backstop)
+    return run_cell_N(cell, log, backstop=backstop)
 
 
 # ---------------------------------------------------------------------------
@@ -773,6 +847,76 @@ def band_markdown(band: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def write_study() -> Path:
+    """The flat-plate model-form study, in the uq-studies house format.
+
+    Follows the shape ``models/curriculum/uq-studies/motorBike.json`` already
+    uses for its ``closures`` key: model -> value for a converged member,
+    model -> {"excluded": reason} for one that failed its gate. One
+    ``closures`` block per regime, the band beside it, and the doctrine's own
+    rule stated on the record: the band is an interval and never enters the
+    RSS quadrature.
+    """
+    sys.path.insert(0, str(_SDK_ROOT))
+    from chief_engineer import uq
+
+    records = [r for r in load_records() if r["family"] == "P"]
+    regimes: dict[str, Any] = {}
+    provenance: list[str] = []
+    for tag in P_REGIMES:
+        members = [r for r in records if r["regime"] == tag]
+        if not members:
+            continue
+        closures: dict[str, Any] = {}
+        for rec in sorted(members, key=lambda r: r["model"]):
+            provenance.append(rec["cell_id"])
+            if rec["converged"]:
+                closures[rec["model"]] = rec["qoi"]["Cd"]
+            else:
+                closures[rec["model"]] = {
+                    "excluded": "; ".join(rec["excluded_reasons"])}
+        values = [v for v in closures.values() if isinstance(v, float)]
+        entry: dict[str, Any] = {
+            "re_per_length": P_REGIMES[tag],
+            "closures": closures,
+            "n_converged": len(values),
+        }
+        if len(values) >= 2:
+            entry["model_form_band_cd"] = [min(values), max(values)]
+            entry["spread_abs"] = max(values) - min(values)
+        else:
+            entry["model_form_band_cd"] = None
+            entry["why_no_band"] = (f"{len(values)} converged member(s); "
+                                    "a band needs at least 2")
+        refs = REFERENCES.get(("P", tag), {}).get("Cd")
+        if refs and entry["model_form_band_cd"]:
+            lo, hi = entry["model_form_band_cd"]
+            entry["reference"] = {src: {"value": val,
+                                        "contained": lo <= val <= hi}
+                                  for src, val in refs.items()}
+        regimes[tag] = entry
+    study = {
+        "body": "tmr_flatplate_modelform",
+        "case": ("TMR 2-D zero-pressure-gradient flat plate, medium rung "
+                 "(3264 cells, TMR 69x49), simpleFoam, "
+                 "native OpenFOAM v2606"),
+        "quantity": "Cd (plate drag, Aref = plate area 2)",
+        "method": ("inter-model spread across kOmegaSST, SpalartAllmaras, "
+                   "kEpsilon and realizableKE on an identical mesh, schemes "
+                   "and residual targets; band = min/max over CONVERGED "
+                   "members only, per the pre-registered gate in "
+                   "demo-output/website/campaign/MODEL_FORM_BATCH_DESIGN.md. "
+                   "The band is an interval, carried beside the other "
+                   "channels and never converted to a sigma inside the RSS "
+                   "quadrature."),
+        "regimes": regimes,
+        "provenance": provenance,
+        "design": "demo-output/website/campaign/MODEL_FORM_BATCH_DESIGN.md",
+        "band_artifact": "demo-output/website/campaign/MODEL_FORM_BAND.json",
+    }
+    return uq.save_study("tmr_flatplate_modelform", study)
+
+
 def write_band() -> dict[str, Any]:
     band = build_band(load_records())
     BAND_JSON.write_text(json.dumps(band, indent=2, sort_keys=True) + "\n",
@@ -811,9 +955,25 @@ def main(argv: Sequence[str] | None = None) -> int:
                              "slot before giving up (this batch always yields)")
     parser.add_argument("--list", action="store_true",
                         help="print every cell and its state, run nothing")
+    parser.add_argument("--iteration-backstop", type=int,
+                        default=BATCH_BACKSTOP,
+                        help="iteration cap per cell; the gate is the case's "
+                             "own residualControl, this only bounds a cell "
+                             "that never meets it")
+    parser.add_argument("--redo-excluded", action="store_true",
+                        help="re-run cells whose record says EXCLUDED, "
+                             "superseding the old record rather than deleting "
+                             "it (record_superseded_<timestamp>.json is kept "
+                             "beside the new one)")
+    parser.add_argument("--redo-reason", default=None,
+                        help="with --redo-excluded, only cells whose reasons "
+                             "contain this substring")
     parser.add_argument("--band", action="store_true",
                         help="rebuild the band artifact from the records "
                              "already on disk, run nothing")
+    parser.add_argument("--study", action="store_true",
+                        help="write the flat-plate model-form study record "
+                             "into models/curriculum/uq-studies, run nothing")
     args = parser.parse_args(argv)
 
     cells = all_cells()
@@ -837,6 +997,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"{cell.cell_id:36s} {state}")
         return 0
 
+    if args.study:
+        print(write_study())
+        return 0
+
     if args.band:
         band = write_band()
         print(json.dumps({"groups": len(band["groups"]),
@@ -849,9 +1013,22 @@ def main(argv: Sequence[str] | None = None) -> int:
     log(f"model-form batch starting: {len(cells)} cell(s) in scope, budget "
         f"{args.max_core_min:.1f} core-min")
     for cell in cells:
-        if (cell.out_dir / "record.json").exists():
-            log(f"{cell.cell_id}: already recorded, skipping")
-            continue
+        record_path = cell.out_dir / "record.json"
+        if record_path.exists():
+            existing = json.loads(record_path.read_text())
+            redo = (args.redo_excluded and not existing["converged"]
+                    and (args.redo_reason is None
+                         or any(args.redo_reason in r
+                                for r in existing["excluded_reasons"])))
+            if not redo:
+                log(f"{cell.cell_id}: already recorded, skipping")
+                continue
+            # Superseded, never deleted: the reason a cell was excluded is
+            # what a later reading of this batch needs.
+            stamp = _now().replace(":", "").replace("-", "")
+            record_path.rename(cell.out_dir / f"record_superseded_{stamp}.json")
+            log(f"{cell.cell_id}: superseding an excluded record "
+                f"({'; '.join(existing['excluded_reasons'])})")
         if spent >= args.max_core_min:
             log(f"budget reached ({spent:.2f} core-min); stopping before "
                 f"{cell.cell_id}")
@@ -861,7 +1038,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         log(f"{cell.cell_id}: starting")
         began = time.monotonic()
         try:
-            record = run_cell(cell, log)
+            record = run_cell(cell, log,
+                              backstop=args.iteration_backstop)
         except Exception as exc:  # a failed cell is data, not a crash
             wall = time.monotonic() - began
             record = {

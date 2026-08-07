@@ -1,0 +1,275 @@
+[2026-08-05T17:11:40Z] model-form batch starting: 1 cell(s) in scope, budget 10.0 core-min
+[2026-08-05T17:11:40Z] queue gate: 4 solver containers live (>= 3); waiting
+[2026-08-05T17:12:40Z] queue gate: 4 solver containers live (>= 3); waiting
+[2026-08-05T17:13:40Z] queue gate: 4 solver containers live (>= 3); waiting
+[2026-08-05T17:14:40Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:14:40Z] P_re5e6_kOmegaSST: starting
+[2026-08-05T17:14:40Z] [tmr:medium] blockMesh started
+[2026-08-05T17:14:41Z] [tmr:medium] blockMesh finished in 0.4 s
+[2026-08-05T17:14:41Z] [tmr:medium] checkMesh started
+[2026-08-05T17:14:41Z] [tmr:medium] checkMesh finished in 0.4 s
+[2026-08-05T17:14:48Z] P_re5e6_kOmegaSST: CONVERGED; qoi {'Cd': 0.0027811695632}; 0.12 core-min (session 0.12/10.0)
+[2026-08-05T17:14:48Z] model-form batch stopping: 0.12 core-min spent this run
+[2026-08-05T17:15:44Z] model-form batch starting: 20 cell(s) in scope, budget 80.0 core-min
+[2026-08-05T17:15:44Z] queue gate: 4 solver containers live (>= 3); waiting
+[2026-08-05T17:16:44Z] queue gate: 4 solver containers live (>= 3); waiting
+[2026-08-05T17:17:44Z] queue gate: 4 solver containers live (>= 3); waiting
+[2026-08-05T17:18:44Z] queue gate: 4 solver containers live (>= 3); waiting
+[2026-08-05T17:19:44Z] queue gate: 4 solver containers live (>= 3); waiting
+[2026-08-05T17:20:44Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:20:44Z] P_re1e6_kOmegaSST: starting
+[2026-08-05T17:20:44Z] [tmr:medium] blockMesh started
+[2026-08-05T17:20:45Z] [tmr:medium] blockMesh finished in 0.3 s
+[2026-08-05T17:20:45Z] [tmr:medium] checkMesh started
+[2026-08-05T17:20:45Z] [tmr:medium] checkMesh finished in 0.4 s
+[2026-08-05T17:21:00Z] P_re1e6_kOmegaSST: CONVERGED; qoi {'Cd': 0.0036499104984}; 0.25 core-min (session 0.25/80.0)
+[2026-08-05T17:21:00Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:21:00Z] P_re1e6_SpalartAllmaras: starting
+[2026-08-05T17:21:00Z] [tmr:medium] blockMesh started
+[2026-08-05T17:21:00Z] [tmr:medium] blockMesh finished in 0.3 s
+[2026-08-05T17:21:00Z] [tmr:medium] checkMesh started
+[2026-08-05T17:21:01Z] [tmr:medium] checkMesh finished in 0.3 s
+[2026-08-05T17:21:18Z] P_re1e6_SpalartAllmaras: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.0036804665655}; 0.29 core-min (session 0.54/80.0)
+[2026-08-05T17:21:18Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:21:18Z] P_re1e6_kEpsilon: starting
+[2026-08-05T17:21:18Z] [tmr:medium] blockMesh started
+[2026-08-05T17:21:18Z] [tmr:medium] blockMesh finished in 0.3 s
+[2026-08-05T17:21:18Z] [tmr:medium] checkMesh started
+[2026-08-05T17:21:19Z] [tmr:medium] checkMesh finished in 0.3 s
+[2026-08-05T17:21:32Z] P_re1e6_kEpsilon: CONVERGED; qoi {'Cd': 0.0068460023914}; 0.22 core-min (session 0.76/80.0)
+[2026-08-05T17:21:32Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:21:32Z] P_re1e6_realizableKE: starting
+[2026-08-05T17:21:32Z] [tmr:medium] blockMesh started
+[2026-08-05T17:21:32Z] [tmr:medium] blockMesh finished in 0.3 s
+[2026-08-05T17:21:32Z] [tmr:medium] checkMesh started
+[2026-08-05T17:21:33Z] [tmr:medium] checkMesh finished in 0.3 s
+[2026-08-05T17:21:51Z] P_re1e6_realizableKE: CONVERGED; qoi {'Cd': 0.00093508159922}; 0.30 core-min (session 1.06/80.0)
+[2026-08-05T17:21:51Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:21:51Z] P_re5e6_kOmegaSST: starting
+[2026-08-05T17:21:51Z] [tmr:medium] blockMesh started
+[2026-08-05T17:21:51Z] [tmr:medium] blockMesh finished in 0.4 s
+[2026-08-05T17:21:51Z] [tmr:medium] checkMesh started
+[2026-08-05T17:21:51Z] [tmr:medium] checkMesh finished in 0.4 s
+[2026-08-05T17:22:00Z] P_re5e6_kOmegaSST: CONVERGED; qoi {'Cd': 0.0027811695632}; 0.14 core-min (session 1.20/80.0)
+[2026-08-05T17:22:00Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:22:00Z] P_re5e6_SpalartAllmaras: starting
+[2026-08-05T17:22:00Z] [tmr:medium] blockMesh started
+[2026-08-05T17:22:00Z] [tmr:medium] blockMesh finished in 0.4 s
+[2026-08-05T17:22:00Z] [tmr:medium] checkMesh started
+[2026-08-05T17:22:01Z] [tmr:medium] checkMesh finished in 0.4 s
+[2026-08-05T17:22:08Z] P_re5e6_SpalartAllmaras: CONVERGED; qoi {'Cd': 0.0028852903314}; 0.12 core-min (session 1.32/80.0)
+[2026-08-05T17:22:08Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:22:08Z] P_re5e6_kEpsilon: starting
+[2026-08-05T17:22:08Z] [tmr:medium] blockMesh started
+[2026-08-05T17:22:09Z] [tmr:medium] blockMesh finished in 0.4 s
+[2026-08-05T17:22:09Z] [tmr:medium] checkMesh started
+[2026-08-05T17:22:09Z] [tmr:medium] checkMesh finished in 0.4 s
+[2026-08-05T17:22:18Z] P_re5e6_kEpsilon: CONVERGED; qoi {'Cd': 0.005000818817}; 0.15 core-min (session 1.47/80.0)
+[2026-08-05T17:22:18Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:22:18Z] P_re5e6_realizableKE: starting
+[2026-08-05T17:22:18Z] [tmr:medium] blockMesh started
+[2026-08-05T17:22:18Z] [tmr:medium] blockMesh finished in 0.4 s
+[2026-08-05T17:22:18Z] [tmr:medium] checkMesh started
+[2026-08-05T17:22:19Z] [tmr:medium] checkMesh finished in 0.4 s
+[2026-08-05T17:22:43Z] P_re5e6_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.00041704550688}; 0.41 core-min (session 1.88/80.0)
+[2026-08-05T17:22:43Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:22:43Z] P_re2e7_kOmegaSST: starting
+[2026-08-05T17:22:43Z] [tmr:medium] blockMesh started
+[2026-08-05T17:22:44Z] [tmr:medium] blockMesh finished in 0.4 s
+[2026-08-05T17:22:44Z] [tmr:medium] checkMesh started
+[2026-08-05T17:22:44Z] [tmr:medium] checkMesh finished in 0.5 s
+[2026-08-05T17:22:52Z] P_re2e7_kOmegaSST: CONVERGED; qoi {'Cd': 0.0022008770892}; 0.13 core-min (session 2.01/80.0)
+[2026-08-05T17:22:52Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:22:52Z] P_re2e7_SpalartAllmaras: starting
+[2026-08-05T17:22:52Z] [tmr:medium] blockMesh started
+[2026-08-05T17:22:53Z] [tmr:medium] blockMesh finished in 0.5 s
+[2026-08-05T17:22:53Z] [tmr:medium] checkMesh started
+[2026-08-05T17:22:53Z] [tmr:medium] checkMesh finished in 0.4 s
+[2026-08-05T17:23:23Z] P_re2e7_SpalartAllmaras: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.0023909310049}; 0.50 core-min (session 2.52/80.0)
+[2026-08-05T17:23:23Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:23:23Z] P_re2e7_kEpsilon: starting
+[2026-08-05T17:23:23Z] [tmr:medium] blockMesh started
+[2026-08-05T17:23:24Z] [tmr:medium] blockMesh finished in 0.3 s
+[2026-08-05T17:23:24Z] [tmr:medium] checkMesh started
+[2026-08-05T17:23:24Z] [tmr:medium] checkMesh finished in 0.3 s
+[2026-08-05T17:23:33Z] P_re2e7_kEpsilon: CONVERGED; qoi {'Cd': 0.0038508453353}; 0.15 core-min (session 2.66/80.0)
+[2026-08-05T17:23:33Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:23:33Z] P_re2e7_realizableKE: starting
+[2026-08-05T17:23:33Z] [tmr:medium] blockMesh started
+[2026-08-05T17:23:33Z] [tmr:medium] blockMesh finished in 0.3 s
+[2026-08-05T17:23:33Z] [tmr:medium] checkMesh started
+[2026-08-05T17:23:34Z] [tmr:medium] checkMesh finished in 0.3 s
+[2026-08-05T17:23:57Z] P_re2e7_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.0002082632717}; 0.39 core-min (session 3.06/80.0)
+[2026-08-05T17:23:57Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:23:57Z] B_re3e6_kOmegaSST: starting
+[2026-08-05T17:23:57Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:23:58Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:23:58Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:23:58Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-05T17:24:35Z] B_re3e6_kOmegaSST: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.0034442451338}; 0.62 core-min (session 3.68/80.0)
+[2026-08-05T17:24:35Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:24:35Z] B_re3e6_SpalartAllmaras: starting
+[2026-08-05T17:24:35Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:24:36Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:24:36Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:24:36Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-05T17:25:07Z] B_re3e6_SpalartAllmaras: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.0036322381687}; 0.52 core-min (session 4.20/80.0)
+[2026-08-05T17:25:07Z] queue gate: 2 solver container(s) live (s1inv_eval016, elastic_joliot), under the ceiling of 3; proceeding
+[2026-08-05T17:25:07Z] B_re3e6_kEpsilon: starting
+[2026-08-05T17:25:07Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:25:08Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:25:08Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:25:08Z] [tmr:coarse] checkMesh finished in 0.4 s
+[2026-08-05T17:25:45Z] B_re3e6_kEpsilon: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.006501691144}; 0.61 core-min (session 4.81/80.0)
+[2026-08-05T17:25:45Z] queue gate: 1 solver container(s) live (s1inv_eval016), under the ceiling of 3; proceeding
+[2026-08-05T17:25:45Z] B_re3e6_realizableKE: starting
+[2026-08-05T17:25:45Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:25:45Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:25:45Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:25:45Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-05T17:26:25Z] B_re3e6_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.0026772158802}; 0.66 core-min (session 5.47/80.0)
+[2026-08-05T17:26:25Z] queue gate: 1 solver container(s) live (s1inv_eval016), under the ceiling of 3; proceeding
+[2026-08-05T17:26:25Z] B_re1p2e7_kOmegaSST: starting
+[2026-08-05T17:26:25Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:26:25Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:26:25Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:26:26Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-05T17:26:28Z] B_re1p2e7_kOmegaSST: EXCLUDED (solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop)); qoi {'Cd': -1.8526294975e+30}; 0.04 core-min (session 5.52/80.0)
+[2026-08-05T17:26:28Z] queue gate: 1 solver container(s) live (s1inv_eval016), under the ceiling of 3; proceeding
+[2026-08-05T17:26:28Z] B_re1p2e7_SpalartAllmaras: starting
+[2026-08-05T17:26:28Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:26:29Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:26:29Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:26:29Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-05T17:27:05Z] B_re1p2e7_SpalartAllmaras: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.0030144793666}; 0.61 core-min (session 6.12/80.0)
+[2026-08-05T17:27:06Z] queue gate: 1 solver container(s) live (s1inv_eval016), under the ceiling of 3; proceeding
+[2026-08-05T17:27:06Z] B_re1p2e7_kEpsilon: starting
+[2026-08-05T17:27:06Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:27:06Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:27:06Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:27:06Z] [tmr:coarse] checkMesh finished in 0.4 s
+[2026-08-05T17:27:09Z] B_re1p2e7_kEpsilon: EXCLUDED (solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop)); qoi {'Cd': -1.7057198539e+39}; 0.04 core-min (session 6.16/80.0)
+[2026-08-05T17:27:09Z] queue gate: 1 solver container(s) live (s1inv_eval016), under the ceiling of 3; proceeding
+[2026-08-05T17:27:09Z] B_re1p2e7_realizableKE: starting
+[2026-08-05T17:27:09Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:27:09Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:27:09Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:27:09Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-05T17:27:12Z] B_re1p2e7_realizableKE: EXCLUDED (solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop)); qoi {'Cd': -4.1791267267e+43}; 0.04 core-min (session 6.20/80.0)
+[2026-08-05T17:27:12Z] model-form batch stopping: 6.20 core-min spent this run
+[2026-08-05T17:30:14Z] model-form batch starting: 20 cell(s) in scope, budget 45.0 core-min
+[2026-08-05T17:30:14Z] P_re1e6_kOmegaSST: already recorded, skipping
+[2026-08-05T17:30:14Z] P_re1e6_SpalartAllmaras: superseding an excluded record (residualControl not met (stopped on the backstop))
+[2026-08-05T17:30:14Z] queue gate: 1 solver container(s) live (s1inv_eval017), under the ceiling of 3; proceeding
+[2026-08-05T17:30:14Z] P_re1e6_SpalartAllmaras: starting
+[2026-08-05T17:30:14Z] [tmr:medium] blockMesh started
+[2026-08-05T17:30:14Z] [tmr:medium] blockMesh finished in 0.3 s
+[2026-08-05T17:30:14Z] [tmr:medium] checkMesh started
+[2026-08-05T17:30:15Z] [tmr:medium] checkMesh finished in 0.3 s
+[2026-08-05T17:30:32Z] P_re1e6_SpalartAllmaras: EXCLUDED (QoI missing from the coefficient history); qoi {'Cd': None}; 0.28 core-min (session 0.28/45.0)
+[2026-08-05T17:30:32Z] P_re1e6_kEpsilon: already recorded, skipping
+[2026-08-05T17:30:32Z] P_re1e6_realizableKE: already recorded, skipping
+[2026-08-05T17:30:32Z] P_re5e6_kOmegaSST: already recorded, skipping
+[2026-08-05T17:30:32Z] P_re5e6_SpalartAllmaras: already recorded, skipping
+[2026-08-05T17:30:32Z] P_re5e6_kEpsilon: already recorded, skipping
+[2026-08-05T17:30:32Z] P_re5e6_realizableKE: superseding an excluded record (residualControl not met (stopped on the backstop))
+[2026-08-05T17:30:32Z] queue gate: 1 solver container(s) live (s1inv_eval017), under the ceiling of 3; proceeding
+[2026-08-05T17:30:32Z] P_re5e6_realizableKE: starting
+[2026-08-05T17:30:32Z] [tmr:medium] blockMesh started
+[2026-08-05T17:30:32Z] [tmr:medium] blockMesh finished in 0.3 s
+[2026-08-05T17:30:32Z] [tmr:medium] checkMesh started
+[2026-08-05T17:30:32Z] [tmr:medium] checkMesh finished in 0.3 s
+[2026-08-05T17:31:47Z] P_re5e6_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.00041704548908}; 1.24 core-min (session 1.52/45.0)
+[2026-08-05T17:31:47Z] P_re2e7_kOmegaSST: already recorded, skipping
+[2026-08-05T17:31:47Z] P_re2e7_SpalartAllmaras: superseding an excluded record (residualControl not met (stopped on the backstop))
+[2026-08-05T17:31:47Z] queue gate: 3 solver containers live (>= 3); waiting
+[2026-08-05T17:32:47Z] queue gate: 7 solver containers live (>= 3); waiting
+[2026-08-05T17:33:47Z] queue gate: 6 solver containers live (>= 3); waiting
+[2026-08-05T17:34:47Z] queue gate: 3 solver containers live (>= 3); waiting
+[2026-08-05T17:35:47Z] queue gate: 4 solver containers live (>= 3); waiting
+[2026-08-05T17:36:47Z] queue gate: 2 solver container(s) live (gifted_shockley, s1inv_eval017), under the ceiling of 3; proceeding
+[2026-08-05T17:36:47Z] P_re2e7_SpalartAllmaras: starting
+[2026-08-05T17:36:47Z] [tmr:medium] blockMesh started
+[2026-08-05T17:36:47Z] [tmr:medium] blockMesh finished in 0.3 s
+[2026-08-05T17:36:47Z] [tmr:medium] checkMesh started
+[2026-08-05T17:36:48Z] [tmr:medium] checkMesh finished in 0.3 s
+[2026-08-05T17:38:31Z] P_re2e7_SpalartAllmaras: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.0023909310049}; 1.71 core-min (session 3.24/45.0)
+[2026-08-05T17:38:31Z] P_re2e7_kEpsilon: already recorded, skipping
+[2026-08-05T17:38:31Z] P_re2e7_realizableKE: superseding an excluded record (residualControl not met (stopped on the backstop))
+[2026-08-05T17:38:31Z] P_re2e7_realizableKE: starting
+[2026-08-05T17:38:31Z] [tmr:medium] blockMesh started
+[2026-08-05T17:38:31Z] [tmr:medium] blockMesh finished in 0.3 s
+[2026-08-05T17:38:31Z] [tmr:medium] checkMesh started
+[2026-08-05T17:38:31Z] [tmr:medium] checkMesh finished in 0.3 s
+[2026-08-05T17:39:44Z] P_re2e7_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.00020826327171}; 1.20 core-min (session 4.44/45.0)
+[2026-08-05T17:39:44Z] B_re3e6_kOmegaSST: superseding an excluded record (residualControl not met (stopped on the backstop))
+[2026-08-05T17:39:44Z] queue gate: 3 solver containers live (>= 3); waiting
+[2026-08-05T17:40:44Z] queue gate: 2 solver container(s) live (jovial_shaw, s1inv_final), under the ceiling of 3; proceeding
+[2026-08-05T17:40:44Z] B_re3e6_kOmegaSST: starting
+[2026-08-05T17:40:44Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:40:44Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:40:44Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:40:44Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-05T17:43:02Z] B_re3e6_kOmegaSST: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.0034384709177}; 2.30 core-min (session 6.74/45.0)
+[2026-08-05T17:43:02Z] B_re3e6_SpalartAllmaras: superseding an excluded record (residualControl not met (stopped on the backstop))
+[2026-08-05T17:43:02Z] queue gate: 1 solver container(s) live (jovial_shaw), under the ceiling of 3; proceeding
+[2026-08-05T17:43:02Z] B_re3e6_SpalartAllmaras: starting
+[2026-08-05T17:43:02Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:43:03Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:43:03Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:43:03Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-05T17:44:56Z] B_re3e6_SpalartAllmaras: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.003620157562}; 1.89 core-min (session 8.63/45.0)
+[2026-08-05T17:44:56Z] B_re3e6_kEpsilon: superseding an excluded record (residualControl not met (stopped on the backstop))
+[2026-08-05T17:44:56Z] queue gate: 1 solver container(s) live (jovial_shaw), under the ceiling of 3; proceeding
+[2026-08-05T17:44:56Z] B_re3e6_kEpsilon: starting
+[2026-08-05T17:44:56Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:44:57Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:44:57Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:44:57Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-05T17:47:30Z] B_re3e6_kEpsilon: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.0064910246156}; 2.55 core-min (session 11.18/45.0)
+[2026-08-05T17:47:30Z] B_re3e6_realizableKE: superseding an excluded record (residualControl not met (stopped on the backstop))
+[2026-08-05T17:47:30Z] queue gate: 1 solver container(s) live (jovial_shaw), under the ceiling of 3; proceeding
+[2026-08-05T17:47:30Z] B_re3e6_realizableKE: starting
+[2026-08-05T17:47:30Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:47:31Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:47:31Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:47:31Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-05T17:49:58Z] B_re3e6_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.0079311004343}; 2.45 core-min (session 13.63/45.0)
+[2026-08-05T17:49:58Z] B_re1p2e7_kOmegaSST: superseding an excluded record (solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop))
+[2026-08-05T17:49:58Z] B_re1p2e7_kOmegaSST: starting
+[2026-08-05T17:49:58Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:49:58Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:49:58Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:49:59Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-05T17:50:01Z] B_re1p2e7_kOmegaSST: EXCLUDED (solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop); QoI missing from the coefficient history); qoi {'Cd': None}; 0.04 core-min (session 13.67/45.0)
+[2026-08-05T17:50:01Z] B_re1p2e7_SpalartAllmaras: superseding an excluded record (residualControl not met (stopped on the backstop))
+[2026-08-05T17:50:01Z] B_re1p2e7_SpalartAllmaras: starting
+[2026-08-05T17:50:01Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:50:01Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:50:01Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:50:02Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-05T17:52:16Z] B_re1p2e7_SpalartAllmaras: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.0030055537805}; 2.24 core-min (session 15.91/45.0)
+[2026-08-05T17:52:16Z] B_re1p2e7_kEpsilon: superseding an excluded record (solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop))
+[2026-08-05T17:52:16Z] B_re1p2e7_kEpsilon: starting
+[2026-08-05T17:52:16Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:52:16Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:52:16Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:52:17Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-05T17:52:19Z] B_re1p2e7_kEpsilon: EXCLUDED (solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop); QoI missing from the coefficient history); qoi {'Cd': None}; 0.04 core-min (session 15.94/45.0)
+[2026-08-05T17:52:19Z] B_re1p2e7_realizableKE: superseding an excluded record (solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop))
+[2026-08-05T17:52:19Z] B_re1p2e7_realizableKE: starting
+[2026-08-05T17:52:19Z] [tmr:coarse] blockMesh started
+[2026-08-05T17:52:19Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-05T17:52:19Z] [tmr:coarse] checkMesh started
+[2026-08-05T17:52:19Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-05T17:52:21Z] B_re1p2e7_realizableKE: EXCLUDED (solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop); QoI missing from the coefficient history); qoi {'Cd': None}; 0.04 core-min (session 15.98/45.0)
+[2026-08-05T17:52:21Z] model-form batch stopping: 15.98 core-min spent this run
+[2026-08-07T20:03:08Z] model-form batch starting: 1 cell(s) in scope, budget 5.0 core-min
+[2026-08-07T20:03:08Z] P_re1e6_SpalartAllmaras: superseding an excluded record (QoI missing from the coefficient history)
+[2026-08-07T20:03:08Z] P_re1e6_SpalartAllmaras: starting
+[2026-08-07T20:03:08Z] [tmr:medium] blockMesh started
+[2026-08-07T20:03:08Z] [tmr:medium] blockMesh finished in 0.3 s
+[2026-08-07T20:03:08Z] [tmr:medium] checkMesh started
+[2026-08-07T20:03:08Z] [tmr:medium] checkMesh finished in 0.3 s
+[2026-08-07T20:03:24Z] P_re1e6_SpalartAllmaras: CONVERGED; qoi {'Cd': 0.003680462131}; 0.27 core-min (session 0.27/5.0)
+[2026-08-07T20:03:24Z] model-form batch stopping: 0.27 core-min spent this run

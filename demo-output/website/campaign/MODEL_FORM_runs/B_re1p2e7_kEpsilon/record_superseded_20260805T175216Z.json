@@ -1,0 +1,41 @@
+{
+  "cell_id": "B_re1p2e7_kEpsilon",
+  "cells": 3520,
+  "converged": false,
+  "core_min": 0.039,
+  "excluded_reasons": [
+    "solver exit code -8",
+    "S1 floating point exception",
+    "residualControl not met (stopped on the backstop)"
+  ],
+  "family": "B",
+  "group": "B_re1p2e7",
+  "iterations": 38,
+  "mesh": {
+    "aspect_ratio_note": "advisory only per Mesh Standard 3.3; never a lone rejection",
+    "breaches": [],
+    "max_aspect_ratio": 2136801.242,
+    "max_non_ortho": 12.7657156,
+    "max_skewness": 0.07165972814
+  },
+  "model": "kEpsilon",
+  "nu": 8.333333333333334e-08,
+  "params": {
+    "re_per_length": 12000000.0
+  },
+  "patch": "bump",
+  "qoi": {
+    "Cd": -1.7057198539e+39
+  },
+  "ranks": 1,
+  "re_per_length": 12000000.0,
+  "regime": "re1p2e7",
+  "residual_control_met": false,
+  "settle_s12": {
+    "detail": null,
+    "unsettled": false
+  },
+  "timestamp": "2026-08-05T17:27:09Z",
+  "toolchain": "native OpenFOAM v2606 (openfoam2606 launcher)",
+  "wall_seconds": 2.4
+}

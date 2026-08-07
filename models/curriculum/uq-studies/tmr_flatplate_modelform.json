@@ -1,0 +1,86 @@
+{
+  "body": "tmr_flatplate_modelform",
+  "case": "TMR 2-D zero-pressure-gradient flat plate, medium rung (3264 cells, TMR 69x49), simpleFoam, native OpenFOAM v2606",
+  "quantity": "Cd (plate drag, Aref = plate area 2)",
+  "method": "inter-model spread across kOmegaSST, SpalartAllmaras, kEpsilon and realizableKE on an identical mesh, schemes and residual targets; band = min/max over CONVERGED members only, per the pre-registered gate in demo-output/website/campaign/MODEL_FORM_BATCH_DESIGN.md. The band is an interval, carried beside the other channels and never converted to a sigma inside the RSS quadrature.",
+  "regimes": {
+    "re1e6": {
+      "re_per_length": 1000000.0,
+      "closures": {
+        "SpalartAllmaras": 0.003680462131,
+        "kEpsilon": 0.0068460023914,
+        "kOmegaSST": 0.0036499104984,
+        "realizableKE": 0.00093508159922
+      },
+      "n_converged": 4,
+      "model_form_band_cd": [
+        0.00093508159922,
+        0.0068460023914
+      ],
+      "spread_abs": 0.0059109207921800005
+    },
+    "re5e6": {
+      "re_per_length": 5000000.0,
+      "closures": {
+        "SpalartAllmaras": 0.0028852903314,
+        "kEpsilon": 0.005000818817,
+        "kOmegaSST": 0.0027811695632,
+        "realizableKE": {
+          "excluded": "residualControl not met (stopped on the backstop)"
+        }
+      },
+      "n_converged": 3,
+      "model_form_band_cd": [
+        0.0027811695632,
+        0.005000818817
+      ],
+      "spread_abs": 0.0022196492538000003,
+      "reference": {
+        "CFL3D SST-V (3264 cells)": {
+          "value": 0.00278506994,
+          "contained": true
+        },
+        "FUN3D SST-V (3264 cells)": {
+          "value": 0.002678684,
+          "contained": false
+        }
+      }
+    },
+    "re2e7": {
+      "re_per_length": 20000000.0,
+      "closures": {
+        "SpalartAllmaras": {
+          "excluded": "residualControl not met (stopped on the backstop)"
+        },
+        "kEpsilon": 0.0038508453353,
+        "kOmegaSST": 0.0022008770892,
+        "realizableKE": {
+          "excluded": "residualControl not met (stopped on the backstop)"
+        }
+      },
+      "n_converged": 2,
+      "model_form_band_cd": [
+        0.0022008770892,
+        0.0038508453353
+      ],
+      "spread_abs": 0.0016499682460999997
+    }
+  },
+  "provenance": [
+    "P_re1e6_SpalartAllmaras",
+    "P_re1e6_kEpsilon",
+    "P_re1e6_kOmegaSST",
+    "P_re1e6_realizableKE",
+    "P_re5e6_SpalartAllmaras",
+    "P_re5e6_kEpsilon",
+    "P_re5e6_kOmegaSST",
+    "P_re5e6_realizableKE",
+    "P_re2e7_SpalartAllmaras",
+    "P_re2e7_kEpsilon",
+    "P_re2e7_kOmegaSST",
+    "P_re2e7_realizableKE"
+  ],
+  "design": "demo-output/website/campaign/MODEL_FORM_BATCH_DESIGN.md",
+  "band_artifact": "demo-output/website/campaign/MODEL_FORM_BAND.json",
+  "updated_utc": "2026-08-07T20:07:46Z"
+}

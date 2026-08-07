@@ -1,0 +1,268 @@
+{
+  "cells_recorded": 20,
+  "cells_total_designed": 32,
+  "core_min_total": 17.43,
+  "design": "demo-output/website/campaign/MODEL_FORM_BATCH_DESIGN.md",
+  "generated_utc": "2026-08-07T20:07:46Z",
+  "groups": [
+    {
+      "bands": {},
+      "core_min": 2.352,
+      "excluded": [
+        {
+          "cell_id": "B_re1p2e7_SpalartAllmaras",
+          "model": "SpalartAllmaras",
+          "qoi_if_it_had_counted": {
+            "Cd": 0.0030055537805
+          },
+          "reasons": [
+            "residualControl not met (stopped on the backstop)"
+          ]
+        },
+        {
+          "cell_id": "B_re1p2e7_kEpsilon",
+          "model": "kEpsilon",
+          "qoi_if_it_had_counted": {
+            "Cd": null
+          },
+          "reasons": [
+            "solver exit code -8",
+            "S1 floating point exception",
+            "residualControl not met (stopped on the backstop)",
+            "QoI missing from the coefficient history"
+          ]
+        },
+        {
+          "cell_id": "B_re1p2e7_kOmegaSST",
+          "model": "kOmegaSST",
+          "qoi_if_it_had_counted": {
+            "Cd": null
+          },
+          "reasons": [
+            "solver exit code -8",
+            "S1 floating point exception",
+            "residualControl not met (stopped on the backstop)",
+            "QoI missing from the coefficient history"
+          ]
+        },
+        {
+          "cell_id": "B_re1p2e7_realizableKE",
+          "model": "realizableKE",
+          "qoi_if_it_had_counted": {
+            "Cd": null
+          },
+          "reasons": [
+            "solver exit code -8",
+            "S1 floating point exception",
+            "residualControl not met (stopped on the backstop)",
+            "QoI missing from the coefficient history"
+          ]
+        }
+      ],
+      "family": "B",
+      "group": "B_re1p2e7",
+      "models_converged": [],
+      "n_converged": 0,
+      "n_excluded": 4,
+      "regime": "re1p2e7"
+    },
+    {
+      "bands": {},
+      "core_min": 9.19,
+      "excluded": [
+        {
+          "cell_id": "B_re3e6_SpalartAllmaras",
+          "model": "SpalartAllmaras",
+          "qoi_if_it_had_counted": {
+            "Cd": 0.003620157562
+          },
+          "reasons": [
+            "residualControl not met (stopped on the backstop)"
+          ]
+        },
+        {
+          "cell_id": "B_re3e6_kEpsilon",
+          "model": "kEpsilon",
+          "qoi_if_it_had_counted": {
+            "Cd": 0.0064910246156
+          },
+          "reasons": [
+            "residualControl not met (stopped on the backstop)"
+          ]
+        },
+        {
+          "cell_id": "B_re3e6_kOmegaSST",
+          "model": "kOmegaSST",
+          "qoi_if_it_had_counted": {
+            "Cd": 0.0034384709177
+          },
+          "reasons": [
+            "residualControl not met (stopped on the backstop)"
+          ]
+        },
+        {
+          "cell_id": "B_re3e6_realizableKE",
+          "model": "realizableKE",
+          "qoi_if_it_had_counted": {
+            "Cd": 0.0079311004343
+          },
+          "reasons": [
+            "residualControl not met (stopped on the backstop)"
+          ]
+        }
+      ],
+      "family": "B",
+      "group": "B_re3e6",
+      "models_converged": [],
+      "n_converged": 0,
+      "n_excluded": 4,
+      "regime": "re3e6"
+    },
+    {
+      "bands": {
+        "Cd": {
+          "argmax": "kEpsilon",
+          "argmin": "realizableKE",
+          "band": [
+            0.00093508159922,
+            0.0068460023914
+          ],
+          "members": {
+            "SpalartAllmaras": 0.003680462131,
+            "kEpsilon": 0.0068460023914,
+            "kOmegaSST": 0.0036499104984,
+            "realizableKE": 0.00093508159922
+          },
+          "n_converged": 4,
+          "spread_abs": 0.0059109207921800005,
+          "spread_rel": 1.5646197294704411
+        }
+      },
+      "core_min": 1.04,
+      "excluded": [],
+      "family": "P",
+      "group": "P_re1e6",
+      "models_converged": [
+        "SpalartAllmaras",
+        "kEpsilon",
+        "kOmegaSST",
+        "realizableKE"
+      ],
+      "n_converged": 4,
+      "n_excluded": 0,
+      "regime": "re1e6"
+    },
+    {
+      "bands": {
+        "Cd": {
+          "argmax": "kEpsilon",
+          "argmin": "kOmegaSST",
+          "band": [
+            0.0022008770892,
+            0.0038508453353
+          ],
+          "members": {
+            "kEpsilon": 0.0038508453353,
+            "kOmegaSST": 0.0022008770892
+          },
+          "n_converged": 2,
+          "spread_abs": 0.0016499682460999997,
+          "spread_rel": 0.5452888055209577
+        }
+      },
+      "core_min": 3.194,
+      "excluded": [
+        {
+          "cell_id": "P_re2e7_SpalartAllmaras",
+          "model": "SpalartAllmaras",
+          "qoi_if_it_had_counted": {
+            "Cd": 0.0023909310049
+          },
+          "reasons": [
+            "residualControl not met (stopped on the backstop)"
+          ]
+        },
+        {
+          "cell_id": "P_re2e7_realizableKE",
+          "model": "realizableKE",
+          "qoi_if_it_had_counted": {
+            "Cd": 0.00020826327171
+          },
+          "reasons": [
+            "residualControl not met (stopped on the backstop)"
+          ]
+        }
+      ],
+      "family": "P",
+      "group": "P_re2e7",
+      "models_converged": [
+        "kEpsilon",
+        "kOmegaSST"
+      ],
+      "n_converged": 2,
+      "n_excluded": 2,
+      "regime": "re2e7"
+    },
+    {
+      "bands": {
+        "Cd": {
+          "argmax": "kEpsilon",
+          "argmin": "kOmegaSST",
+          "band": [
+            0.0027811695632,
+            0.005000818817
+          ],
+          "members": {
+            "SpalartAllmaras": 0.0028852903314,
+            "kEpsilon": 0.005000818817,
+            "kOmegaSST": 0.0027811695632
+          },
+          "n_converged": 3,
+          "reference": {
+            "CFL3D SST-V (3264 cells)": {
+              "contained": true,
+              "value": 0.00278506994
+            },
+            "FUN3D SST-V (3264 cells)": {
+              "contained": false,
+              "value": 0.002678684
+            }
+          },
+          "spread_abs": 0.0022196492538000003,
+          "spread_rel": 0.6242405342009871
+        }
+      },
+      "core_min": 1.653,
+      "excluded": [
+        {
+          "cell_id": "P_re5e6_realizableKE",
+          "model": "realizableKE",
+          "qoi_if_it_had_counted": {
+            "Cd": 0.00041704548908
+          },
+          "reasons": [
+            "residualControl not met (stopped on the backstop)"
+          ]
+        }
+      ],
+      "family": "P",
+      "group": "P_re5e6",
+      "models_converged": [
+        "SpalartAllmaras",
+        "kEpsilon",
+        "kOmegaSST"
+      ],
+      "n_converged": 3,
+      "n_excluded": 1,
+      "regime": "re5e6"
+    }
+  ],
+  "models": [
+    "kOmegaSST",
+    "SpalartAllmaras",
+    "kEpsilon",
+    "realizableKE"
+  ],
+  "rule": "min/max over CONVERGED cells only; a group with fewer than two converged members has no band. Excluded cells are named with their reasons. The band is an interval and is never converted to a sigma or folded into an RSS total.",
+  "title": "Model-form band, inter-model spread on validated cases"
+}

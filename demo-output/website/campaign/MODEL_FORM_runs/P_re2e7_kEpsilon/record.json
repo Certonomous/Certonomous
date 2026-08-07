@@ -1,0 +1,37 @@
+{
+  "cell_id": "P_re2e7_kEpsilon",
+  "cells": 3264,
+  "converged": true,
+  "core_min": 0.148,
+  "excluded_reasons": [],
+  "family": "P",
+  "group": "P_re2e7",
+  "iterations": 1113,
+  "mesh": {
+    "aspect_ratio_note": "advisory only per Mesh Standard 3.3; never a lone rejection",
+    "breaches": [],
+    "max_aspect_ratio": 69042.82289,
+    "max_non_ortho": 0.0,
+    "max_skewness": 8.004862337e-15
+  },
+  "model": "kEpsilon",
+  "nu": 5e-08,
+  "params": {
+    "re_per_length": 20000000.0
+  },
+  "patch": "plate",
+  "qoi": {
+    "Cd": 0.0038508453353
+  },
+  "ranks": 1,
+  "re_per_length": 20000000.0,
+  "regime": "re2e7",
+  "residual_control_met": true,
+  "settle_s12": {
+    "detail": null,
+    "unsettled": false
+  },
+  "timestamp": "2026-08-05T17:23:33Z",
+  "toolchain": "native OpenFOAM v2606 (openfoam2606 launcher)",
+  "wall_seconds": 8.9
+}
