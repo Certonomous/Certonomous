@@ -107,8 +107,11 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       STL AUDIT (0e769064, 0 core-min): geometry EXONERATED — chord to 2-3mm and twist EXACT vs TP-500-29955 Table A-1,
       no mirror, AoA +3.2/+5.2/+4.1 deg textbook attached; the flip evidence re-read correctly (the flipped run WAS the
       backwards one; its +138 N·m is expected reverse-drag). Real anomaly = the original direction's non-convergence,
-      prime suspect impulsive start (missing potentialFoam init — F5b's exact disease and cure). Decisive ~14 core-min
-      potentialFoam-init arm dispatched with the turbine-signed ≈−800 N·m prediction pre-registered.
+      prime suspect impulsive start. INIT ARM DIVERGED (27dd8f86, 13.4 core-min): forces → 1e99 behind a 1.4e-8 Ux
+      residual — a live S10 specimen (divergence behind a converged residual), prediction honestly scored NOT EVALUABLE
+      (no branch fit a run with no flow); the agent named its own two-knob confound. New suspicion: -writephi absolute
+      flux vs MRF relative-flux convention (F5b's cure came from a non-rotating case). Sequenced next: zero-compute MRF
+      flux/frame audit (twice-implicated), then the single-variable split arms it informs. F8 total 32.8 core-min.
 - [ ] AIAA DPW: study public data/methodology, then attempt CRM/DPW-class case (converged primal first).
       A6 wing-alone primal now matches DAFoam's published tutorial baseline to 0.0067% (provisional — see 4E A6).
       `w1-dpw5-hex-three-level-ladder` proposed (400).
