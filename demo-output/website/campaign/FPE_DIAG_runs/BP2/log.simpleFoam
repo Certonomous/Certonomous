@@ -1,0 +1,1881 @@
+==== LEVER-ECHO BEGIN ====
+case /home/ubuntu/certonomous-runs/fpediag-BP2
+---- LEVER-ECHO file system/fvSchemes sha256 2e1b1d55a30e403b2bcd1a4530a81d7496c8050ce26e30b1223a2a80274b9bd1 ----
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+
+
+ddtSchemes      { default steadyState; }
+gradSchemes     { default Gauss linear; }
+laplacianSchemes { default Gauss linear corrected; }
+snGradSchemes   { default corrected; }
+
+divSchemes
+{
+    // Momentum second order; turbulence advection first-order upwind.
+    // The A/B on the coarse grid: linearUpwind on k and omega left a
+    // persistent leading-edge bounding oscillation (5997 bounding events,
+    // residuals plateaued); upwind removed every bounding event and let the
+    // run converge through residualControl. Turbulence advection is
+    // negligible against production and destruction in this boundary layer,
+    // and the measured observed order reports whatever the ladder delivers.
+    // The "bounded" form is a steady-state device and is dropped for the
+    // time-accurate runs.
+    default                         none;
+    div(phi,U)                      bounded Gauss linearUpwind grad(U);
+    div(phi,k)                      bounded Gauss upwind;
+    div(phi,omega)                  bounded Gauss upwind;
+    div(phi,epsilon)                  bounded Gauss upwind;
+    div((nuEff*dev2(T(grad(U)))))   Gauss linear;
+}
+interpolationSchemes { default linear; }
+wallDist        { method meshWave; }
+---- LEVER-ECHO file system/fvSolution sha256 828898cf60eb945ebfb8e0cb1c289f5246da07295cf92facecf51a59f81766d2 ----
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+
+
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-09;
+        relTol          0.01;
+    }
+    "(U|k|omega|epsilon)"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-10;
+        relTol          0.01;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 0;
+    consistent      no;
+    residualControl
+    {
+        p               1e-06;
+        U               1e-08;
+        "(k|omega|epsilon)"     1e-08;
+    }
+}
+
+relaxationFactors
+{
+    fields    { p 0.3; }
+    equations { U 0.7; k 0.7; omega 0.7; epsilon 0.7; }
+}
+---- LEVER-ECHO file constant/turbulenceProperties sha256 645a54d33e11ecb46044a45216dba7dcde03bfe821186f7f1b26bc380584328a ----
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      turbulenceProperties;
+}
+
+
+simulationType  RAS;
+RAS
+{
+    RASModel        kEpsilon;
+    turbulence      on;
+    printCoeffs     on;
+}
+---- LEVER-ECHO file constant/transportProperties sha256 339431ad728e28f79067bd2b8a5e30313359dab39d7e7dd3d8a78cfd095296bf ----
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      transportProperties;
+}
+
+
+transportModel  Newtonian;
+nu              8.333333333333334e-08;
+---- LEVER-ECHO file 0/U sha256 6bae699921f93d819a2a42ce95782f7721763c80fcaf8b381697cfff140c63e5 ----
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (1.0 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform (1.0 0 0);
+    }
+    outlet
+    {
+        type            zeroGradient;
+    }
+    top
+    {
+        type            symmetry;
+    }
+    bump
+    {
+        type            noSlip;
+    }
+    bottomSym
+    {
+        type            symmetry;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+---- LEVER-ECHO file 0/epsilon sha256 1c7dbf522ddb5b6908c8a4fa28e47913fab471384dd74d165200dbe9d4d8045d ----
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      epsilon;
+}
+
+dimensions      [0 2 -3 0 0 0 0];
+
+internalField   uniform 6.075e-06;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 6.075e-06;
+    }
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 6.075e-06;
+        value           uniform 6.075e-06;
+    }
+    top
+    {
+        type            symmetry;
+    }
+    bump
+    {
+        type            epsilonWallFunction;
+        lowReCorrection true;
+        value           uniform 6.075e-06;
+    }
+    bottomSym
+    {
+        type            symmetry;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+---- LEVER-ECHO file 0/k sha256 fae97b262c1b61814e7488864dd191a463b989a6666a4938d0448c5d675aed49 ----
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      k;
+}
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 2.25e-07;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 2.25e-07;
+    }
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 2.25e-07;
+        value           uniform 2.25e-07;
+    }
+    top
+    {
+        type            symmetry;
+    }
+    bump
+    {
+        type            kLowReWallFunction;
+        value           uniform 1e-12;
+    }
+    bottomSym
+    {
+        type            symmetry;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+---- LEVER-ECHO file 0/nut sha256 664ec6b1b60383e61be26d4f16797fd1f7e6d43871c229e5817e8beaec12801d ----
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      nut;
+}
+
+dimensions      [0 2 -1 0 0 0 0];
+
+internalField   uniform 7.5e-10;
+
+boundaryField
+{
+    inlet
+    {
+        type            calculated;
+        value           uniform 0;
+    }
+    outlet
+    {
+        type            calculated;
+        value           uniform 0;
+    }
+    top
+    {
+        type            symmetry;
+    }
+    bump
+    {
+        type            nutLowReWallFunction;
+        value           uniform 0;
+    }
+    bottomSym
+    {
+        type            symmetry;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+---- LEVER-ECHO file 0/omega sha256 1699768c75901e2e93e90c7bf6d694f28d6b22f7c059da1e7697327e03b48c62 ----
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      omega;
+}
+
+dimensions      [0 0 -1 0 0 0 0];
+
+internalField   uniform 300;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 300;
+    }
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 300;
+        value           uniform 300;
+    }
+    top
+    {
+        type            symmetry;
+    }
+    bump
+    {
+        type            omegaWallFunction;
+        blended         true;
+        value           uniform 300;
+    }
+    bottomSym
+    {
+        type            symmetry;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+---- LEVER-ECHO file 0/p sha256 e49c98b993a13e7a40ad19e08c51741837ecdeeec0356810d74129718ac46e59 ----
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      p;
+}
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    inlet
+    {
+        type            zeroGradient;
+    }
+    outlet
+    {
+        type            fixedValue;
+        value           uniform 0;
+    }
+    top
+    {
+        type            symmetry;
+    }
+    bump
+    {
+        type            zeroGradient;
+    }
+    bottomSym
+    {
+        type            symmetry;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+==== LEVER-ECHO END ====
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : simpleFoam
+Date   : Aug 08 2026
+Time   : 23:11:24
+Host   : ip-172-31-43-247
+PID    : 74424
+I/O    : uncollated
+Case   : /home/ubuntu/certonomous-runs/fpediag-BP2
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-06
+    field U	 tolerance 1e-08
+    field "(k|omega|epsilon)"	 tolerance 1e-08
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kEpsilon
+RAS
+{
+    RASModel        kEpsilon;
+    turbulence      on;
+    printCoeffs     on;
+    Cmu             0.09;
+    C1              1.44;
+    C2              1.92;
+    C3              0;
+    sigmak          1;
+    sigmaEps        1.3;
+    twoLayerTreatment false;
+    ReyStar         200;
+    ReyFactor       0.05;
+}
+
+No MRF models present
+
+No finite volume options present
+
+Starting time loop
+
+forceCoeffs forceCoeffs1:
+    rho: rhoInf
+    Freestream density (rhoInf) set to 1
+    Not including porosity effects
+    magUInf: 1
+    lRef   : 1.5
+    Aref   : 1.5
+    rhoInf : 1
+    Selecting all coefficients
+    - Drag force: Cd
+    - Drag force front: Cd(f)
+    - Drag force rear: Cd(r)
+    - Lift force: Cl
+    - Lift force front: Cl(f)
+    - Lift force rear: Cl(r)
+    - Pitch moment: CmPitch
+    - Roll moment: CmRoll
+    - Yaw moment: CmYaw
+    - Side force: Cs
+    - Side force front: Cs(f)
+    - Side force rear: Cs(r)
+
+
+wallShearStress wallShearStress1:
+    processing (1) wall patches:
+        bump
+
+Sampled surface:
+    bump -> raw
+        sampledPatch: bump : patches:(bump)
+
+Time = 1
+
+smoothSolver:  Solving for Ux, Initial residual = 1, Final residual = 0.002882075191, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 1, Final residual = 0.004120092384, No Iterations 3
+GAMG:  Solving for p, Initial residual = 1, Final residual = 0.009884801058, No Iterations 140
+time step continuity errors : sum local = 6.365781348e-06, global = 6.353118238e-07, cumulative = 6.353118238e-07
+smoothSolver:  Solving for epsilon, Initial residual = 0.0188507961, Final residual = 1.642544876e-05, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 1, Final residual = 9.76289608e-05, No Iterations 1
+ExecutionTime = 0.07 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 1.327070849 in cell 518 at location (0.9012363811 0.02784883452 0.5)
+    min(epsilon) = 1.824804378e-06 in cell 3519 at location (21.15799684 4.313357368 0.5)
+    max(epsilon) = 0.09097802437 in cell 582 at location (0.9012363791 0.02785474879 0.5)
+    min(k) = 5.250810367e-13 in cell 505 at location (0.5987656616 0.0278468104 0.5)
+    max(k) = 1.771351578e-05 in cell 581 at location (0.8782339491 0.03299619253 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.371620863e-09 in cell 560 at location (0.3889036334 0.0004852801954 0.5)
+    min(p) = -1.021849072 in cell 646 at location (0.9012363881 0.02786289989 0.5)
+    max(p) = 1.196582591 in cell 505 at location (0.5987636189 0.02784883452 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	0.129319047	0.1103579646	0.01896108239	0
+    Cd(f):	0.0953670595	0.08559041334	0.009776646163	0
+    Cd(r):	0.03395198751	0.02476755128	0.009184436226	0
+    Cl:	-0.09212260799	-0.09123429309	-0.0008883149061	0
+    Cl(f):	-0.1394379484	-0.1395196155	8.166705322e-05	0
+    Cl(r):	0.04731534045	0.04828532241	-0.0009699819593	0
+    CmPitch:	-0.09337664445	-0.09390246896	0.0005258245063	0
+    CmRoll:	0.030707536	0.03041143103	0.0002961049687	0
+    CmYaw:	0.043106349	0.03678598821	0.006320360796	0
+    Cs:	-1.868913835e-20	-1.976424243e-20	1.075104078e-21	0
+    Cs(f):	0.043106349	0.03678598821	0.006320360796	0
+    Cs(r):	-0.043106349	-0.03678598821	-0.006320360796	0
+
+Time = 2
+
+smoothSolver:  Solving for Ux, Initial residual = 0.06027224173, Final residual = 8.941000108e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.586841229, Final residual = 0.003705241657, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.9130397981, Final residual = 0.008772912633, No Iterations 31
+time step continuity errors : sum local = 0.0002170870338, global = -5.247678754e-05, cumulative = -5.184147571e-05
+smoothSolver:  Solving for epsilon, Initial residual = 0.001299085263, Final residual = 3.349643596e-06, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.07257105697, Final residual = 2.435019058e-05, No Iterations 1
+ExecutionTime = 0.08 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 5.629600172 in cell 1018 at location (0.621766022 0.03317829397 0.5)
+    min(epsilon) = 5.481393426e-07 in cell 3519 at location (21.15799684 4.313357368 0.5)
+    max(epsilon) = 0.3876754273 in cell 576 at location (0.7617788937 0.04967073365 0.5)
+    min(k) = 2.978806955e-13 in cell 505 at location (0.5987656616 0.0278468104 0.5)
+    max(k) = 5.031381172e-05 in cell 576 at location (0.7617788937 0.04967073365 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.112208276e-09 in cell 1267 at location (0.4595070234 0.004715557735 0.5)
+    min(p) = -0.8115061361 in cell 644 at location (0.8551774327 0.03789320352 0.5)
+    max(p) = 0.7885438722 in cell 502 at location (0.5295566189 0.0133902437 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	0.08637872123	0.07461574191	0.01176297932	0
+    Cd(f):	0.06000573428	0.05570622804	0.004299506235	0
+    Cd(r):	0.02637298696	0.01890951387	0.007463473088	0
+    Cl:	-0.05044912098	-0.05519507126	0.00474595028	0
+    Cl(f):	-0.1100870332	-0.1105244961	0.0004374628871	0
+    Cl(r):	0.05963791223	0.05532942484	0.004308487393	0
+    CmPitch:	-0.08486247272	-0.08292696047	-0.001935512253	0
+    CmRoll:	0.01681637366	0.01839835709	-0.001581983427	0
+    CmYaw:	0.02879290708	0.02487191397	0.003920993108	0
+    Cs:	-1.217677992e-20	-1.554876004e-20	3.371980121e-21	0
+    Cs(f):	0.02879290708	0.02487191397	0.003920993108	0
+    Cs(r):	-0.02879290708	-0.02487191397	-0.003920993108	0
+
+Time = 3
+
+smoothSolver:  Solving for Ux, Initial residual = 0.02006365023, Final residual = 1.978925782e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.05139128513, Final residual = 0.0001235929267, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8145307391, Final residual = 0.008001493614, No Iterations 53
+time step continuity errors : sum local = 0.0001398066665, global = 3.983129219e-05, cumulative = -1.201018352e-05
+smoothSolver:  Solving for epsilon, Initial residual = 0.0004547323837, Final residual = 9.291859027e-08, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.009235382784, Final residual = 5.668018593e-06, No Iterations 1
+ExecutionTime = 0.09 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 4.27635957 in cell 1017 at location (0.5987635764 0.02803703879 0.5)
+    min(epsilon) = 1.6465374e-07 in cell 3519 at location (21.15799684 4.313357368 0.5)
+    max(epsilon) = 0.4839935739 in cell 575 at location (0.7382211063 0.04967073365 0.5)
+    min(k) = 1.459808459e-12 in cell 505 at location (0.5987656616 0.0278468104 0.5)
+    max(k) = 6.523278593e-05 in cell 575 at location (0.7382211063 0.04967073365 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.275172197e-09 in cell 1073 at location (0.4124632091 0.001400752033 0.5)
+    min(p) = -1.122273936 in cell 506 at location (0.6217660456 0.03299028379 0.5)
+    max(p) = 0.6073688443 in cell 520 at location (0.9472974738 0.01782940725 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-0.02758469353	-0.03578227485	0.008197581318	0
+    Cd(f):	-0.03791914247	-0.04061234158	0.002693199111	0
+    Cd(r):	0.01033444894	0.004830066729	0.005504382207	0
+    Cl:	0.07238038711	0.06816361246	0.004216774643	0
+    Cl(f):	0.02161965417	0.02118734242	0.0004323117497	0
+    Cl(r):	0.05076073294	0.04697627005	0.003784462893	0
+    CmPitch:	-0.01457053939	-0.01289446381	-0.001676075572	0
+    CmRoll:	-0.0241267957	-0.02272120415	-0.001405591548	0
+    CmYaw:	-0.009194897844	-0.01192742495	0.002732527106	0
+    Cs:	4.333886738e-21	-1.500733573e-21	5.83462031e-21	0
+    Cs(f):	-0.009194897844	-0.01192742495	0.002732527106	0
+    Cs(r):	0.009194897844	0.01192742495	-0.002732527106	0
+
+Time = 4
+
+smoothSolver:  Solving for Ux, Initial residual = 0.006160229876, Final residual = 2.753126221e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.03709316892, Final residual = 0.000364817835, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8017658481, Final residual = 0.007922064273, No Iterations 38
+time step continuity errors : sum local = 0.0001161460967, global = -3.648615864e-05, cumulative = -4.849634216e-05
+smoothSolver:  Solving for epsilon, Initial residual = 0.0001361700048, Final residual = 7.717407375e-08, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.002937436125, Final residual = 3.74745531e-06, No Iterations 1
+ExecutionTime = 0.1 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 8.361880635 in cell 951 at location (0.5527024764 0.01796189747 0.5)
+    min(epsilon) = 4.946025094e-08 in cell 3519 at location (21.15799684 4.313357368 0.5)
+    max(epsilon) = 0.5153512181 in cell 576 at location (0.7617788937 0.04967073365 0.5)
+    min(k) = 1.024234761e-12 in cell 506 at location (0.6217680462 0.032988242 0.5)
+    max(k) = 6.764705091e-05 in cell 575 at location (0.7382211063 0.04967073365 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.334764698e-09 in cell 1139 at location (0.4595071973 0.004364952252 0.5)
+    min(p) = -1.859436299 in cell 506 at location (0.6217660456 0.03299028379 0.5)
+    max(p) = 1.086980707 in cell 520 at location (0.9472974738 0.01782940725 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-0.07388523406	-0.08062146412	0.006736230067	0
+    Cd(f):	-0.08404048385	-0.08677925786	0.002738774012	0
+    Cd(r):	0.01015524979	0.006157793736	0.003997456055	0
+    Cl:	0.1412936005	0.1394055774	0.001888023064	0
+    Cl(f):	0.09505689234	0.09497141875	8.547359053e-05	0
+    Cl(r):	0.04623670812	0.04443415864	0.001802549474	0
+    CmPitch:	0.02441009211	0.02526863005	-0.0008585379417	0
+    CmRoll:	-0.04709786682	-0.0464685258	-0.0006293410215	0
+    CmYaw:	-0.02462841135	-0.02687382137	0.002245410022	0
+    Cs:	1.008109116e-20	5.51682035e-21	4.564270806e-21	0
+    Cs(f):	-0.02462841135	-0.02687382137	0.002245410022	0
+    Cs(r):	0.02462841135	0.02687382137	-0.002245410022	0
+
+Time = 5
+
+smoothSolver:  Solving for Ux, Initial residual = 0.02002727309, Final residual = 3.542015683e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.08870843477, Final residual = 0.0006254158057, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8728330493, Final residual = 0.008589653304, No Iterations 27
+time step continuity errors : sum local = 0.0001973214139, global = 5.884217e-05, cumulative = 1.034582785e-05
+smoothSolver:  Solving for epsilon, Initial residual = 0.0001037945896, Final residual = 7.246198581e-08, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.001270088106, Final residual = 3.121095596e-06, No Iterations 1
+ExecutionTime = 0.12 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 7.1844986 in cell 1016 at location (0.5757593138 0.02290452442 0.5)
+    min(epsilon) = 1.485754511e-08 in cell 3519 at location (21.15799684 4.313357368 0.5)
+    max(epsilon) = 0.6177168337 in cell 582 at location (0.9012363791 0.02785474879 0.5)
+    min(k) = 3.821872792e-13 in cell 504 at location (0.5757613604 0.02271407446 0.5)
+    max(k) = 7.642395985e-05 in cell 576 at location (0.7617788937 0.04967073365 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.336006964e-09 in cell 3164 at location (1.868706413 0.0003763674455 0.5)
+    min(p) = -0.965029578 in cell 954 at location (0.6217660296 0.033122371 0.5)
+    max(p) = 0.6927167023 in cell 520 at location (0.9472974738 0.01782940725 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-0.04200693849	-0.04782567134	0.005818732849	0
+    Cd(f):	-0.04327447513	-0.04620992163	0.002935446497	0
+    Cd(r):	0.001267536641	-0.001615749711	0.002883286352	0
+    Cl:	0.06681301765	0.06689125787	-7.824021877e-05	0
+    Cl(f):	0.06640045963	0.06655358962	-0.0001531299887	0
+    Cl(r):	0.0004125580263	0.0003376682564	7.488976992e-05	0
+    CmPitch:	0.0329939508	0.03310796068	-0.0001140098793	0
+    CmRoll:	-0.02227100588	-0.02229708596	2.608007292e-05	0
+    CmYaw:	-0.01400231283	-0.01594189045	0.001939577616	0
+    Cs:	5.223664255e-21	3.983938948e-21	1.239725307e-21	0
+    Cs(f):	-0.01400231283	-0.01594189045	0.001939577616	0
+    Cs(r):	0.01400231283	0.01594189045	-0.001939577616	0
+
+Time = 6
+
+smoothSolver:  Solving for Ux, Initial residual = 0.02741068381, Final residual = 3.243647327e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.1440178963, Final residual = 0.0005332416449, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.7174654504, Final residual = 0.007120733338, No Iterations 40
+time step continuity errors : sum local = 0.0001192558786, global = 3.414530184e-05, cumulative = 4.449112969e-05
+smoothSolver:  Solving for epsilon, Initial residual = 0.0001163611934, Final residual = 8.163655424e-08, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0006513834261, Final residual = 2.996158584e-06, No Iterations 1
+ExecutionTime = 0.13 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 4.320003222 in cell 952 at location (0.5757593308 0.02284848571 0.5)
+    min(epsilon) = 4.463151228e-09 in cell 3519 at location (21.15799684 4.313357368 0.5)
+    max(epsilon) = 0.5234573338 in cell 574 at location (0.7146991876 0.04835209319 0.5)
+    min(k) = 2.123342984e-13 in cell 507 at location (0.6448244093 0.03787705885 0.5)
+    max(k) = 7.377344869e-05 in cell 576 at location (0.7617788937 0.04967073365 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.316211928e-09 in cell 83 at location (-0.01171875016 9.463125444e-05 0.5)
+    min(p) = -0.2131705838 in cell 1466 at location (0.6217657879 0.03490218091 0.5)
+    max(p) = 1.516245572 in cell 504 at location (0.5757593758 0.02271612657 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	0.03419906423	0.02936356161	0.00483550262	0
+    Cd(f):	0.053099934	0.05043872577	0.002661208228	0
+    Cd(r):	-0.01890086976	-0.02107516416	0.002174294391	0
+    Cl:	-0.1080012056	-0.1072708349	-0.0007303707553	0
+    Cl(f):	-0.0219274157	-0.02183342159	-9.399410522e-05	0
+    Cl(r):	-0.08607378995	-0.0854374133	-0.0006363766501	0
+    CmPitch:	0.03207318713	0.03180199585	0.0002711912724	0
+    CmRoll:	0.03600040188	0.03575694496	0.0002434569184	0
+    CmYaw:	0.01139968808	0.009787853871	0.001611834207	0
+    Cs:	-7.5832059e-21	-9.442964722e-21	1.859758823e-21	0
+    Cs(f):	0.01139968808	0.009787853871	0.001611834207	0
+    Cs(r):	-0.01139968808	-0.009787853871	-0.001611834207	0
+
+Time = 7
+
+smoothSolver:  Solving for Ux, Initial residual = 0.01279089908, Final residual = 4.667210724e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.07567549843, Final residual = 0.0007566965592, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8601635722, Final residual = 0.008098172881, No Iterations 33
+time step continuity errors : sum local = 0.0001086794464, global = -3.136383507e-05, cumulative = 1.312729461e-05
+smoothSolver:  Solving for epsilon, Initial residual = 7.503149476e-05, Final residual = 6.873430743e-08, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0004642431956, Final residual = 3.045003474e-06, No Iterations 1
+ExecutionTime = 0.14 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 4.508964179 in cell 952 at location (0.5757593308 0.02284848571 0.5)
+    min(epsilon) = 1.340724744e-09 in cell 3519 at location (21.15799684 4.313357368 0.5)
+    max(epsilon) = 0.4408785899 in cell 574 at location (0.7146991876 0.04835209319 0.5)
+    min(k) = 1.190149359e-13 in cell 507 at location (0.6448244093 0.03787705885 0.5)
+    max(k) = 7.009925258e-05 in cell 575 at location (0.7382211063 0.04967073365 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.334425427e-09 in cell 83 at location (-0.01171875016 9.463125444e-05 0.5)
+    min(p) = -0.3494871253 in cell 521 at location (0.9704433811 0.0133902437 0.5)
+    max(p) = 0.8353955713 in cell 632 at location (0.5757593691 0.02273020683 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	0.04179546372	0.03804738608	0.003748077644	0
+    Cd(f):	0.04046130671	0.03867314699	0.001788159723	0
+    Cd(r):	0.001334157011	-0.0006257609097	0.00195991792	0
+    Cl:	-0.05869072455	-0.05894836184	0.0002576372956	0
+    Cl(f):	-0.05670003552	-0.05686239235	0.0001623568305	0
+    Cl(r):	-0.001990689025	-0.00208596949	9.528046509e-05	0
+    CmPitch:	-0.02735467325	-0.02738821143	3.353818269e-05	0
+    CmRoll:	0.01956357485	0.01964945395	-8.587909852e-05	0
+    CmYaw:	0.01393182124	0.01268246203	0.001249359215	0
+    Cs:	-5.997281272e-21	-7.178519999e-21	1.181238727e-21	0
+    Cs(f):	0.01393182124	0.01268246203	0.001249359215	0
+    Cs(r):	-0.01393182124	-0.01268246203	-0.001249359215	0
+
+Time = 8
+
+smoothSolver:  Solving for Ux, Initial residual = 0.008811167032, Final residual = 2.439031444e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.05758995324, Final residual = 0.0004644511161, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.9240544928, Final residual = 0.009139434006, No Iterations 23
+time step continuity errors : sum local = 0.0002271598378, global = -6.696808492e-05, cumulative = -5.384079031e-05
+smoothSolver:  Solving for epsilon, Initial residual = 9.305492095e-05, Final residual = 1.54894989e-07, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0004870034421, Final residual = 3.264524624e-06, No Iterations 1
+ExecutionTime = 0.15 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 8.17651183 in cell 1145 at location (0.5987635352 0.02822061963 0.5)
+    min(epsilon) = 4.0275638e-10 in cell 3519 at location (21.15799684 4.313357368 0.5)
+    max(epsilon) = 0.4984041057 in cell 575 at location (0.7382211063 0.04967073365 0.5)
+    min(k) = 5.265250641e-14 in cell 507 at location (0.6448244093 0.03787705885 0.5)
+    max(k) = 8.294216066e-05 in cell 575 at location (0.7382211063 0.04967073365 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.381215135e-09 in cell 95 at location (-0.01171875016 0.0001354640243 0.5)
+    min(p) = -0.3934456921 in cell 1481 at location (0.9704442324 0.01530968501 0.5)
+    max(p) = 0.3238623319 in cell 821 at location (0.5063045659 0.009614707231 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	0.02677092038	0.02362524066	0.003145679724	0
+    Cd(f):	-0.000984793723	-0.002313916165	0.001329122442	0
+    Cd(r):	0.0277557141	0.02593915682	0.001816557282	0
+    Cl:	0.04311076174	0.04237960948	0.0007311522595	0
+    Cl(f):	-0.03830042518	-0.03852803175	0.0002276065724	0
+    Cl(r):	0.08141118692	0.08090764123	0.0005035456871	0
+    CmPitch:	-0.05985580605	-0.05971783649	-0.0001379695573	0
+    CmRoll:	-0.01437025391	-0.01412653649	-0.0002437174198	0
+    CmYaw:	0.008923640127	0.007875080219	0.001048559908	0
+    Cs:	-2.007635296e-21	-2.460761373e-21	4.531260773e-22	0
+    Cs(f):	0.008923640127	0.007875080219	0.001048559908	0
+    Cs(r):	-0.008923640127	-0.007875080219	-0.001048559908	0
+
+Time = 9
+
+smoothSolver:  Solving for Ux, Initial residual = 0.007987866963, Final residual = 9.153678441e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.02673308078, Final residual = 0.0001245408964, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8167614563, Final residual = 0.008132745755, No Iterations 33
+time step continuity errors : sum local = 0.000152323001, global = 6.392544751e-05, cumulative = 1.00846572e-05
+smoothSolver:  Solving for epsilon, Initial residual = 0.0001365948678, Final residual = 1.412763898e-07, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0003540336317, Final residual = 3.396502202e-06, No Iterations 1
+ExecutionTime = 0.16 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 4.685181276 in cell 1081 at location (0.5987635592 0.02811421718 0.5)
+    min(epsilon) = 1.209908604e-10 in cell 3519 at location (21.15799684 4.313357368 0.5)
+    max(epsilon) = 0.498242588 in cell 575 at location (0.7382211063 0.04967073365 0.5)
+    min(k) = 3.674471043e-14 in cell 505 at location (0.5987656616 0.0278468104 0.5)
+    max(k) = 8.771685339e-05 in cell 575 at location (0.7382211063 0.04967073365 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.544344098e-09 in cell 95 at location (-0.01171875016 0.0001354640243 0.5)
+    min(p) = -2.059338606 in cell 504 at location (0.5757593758 0.02271612657 0.5)
+    max(p) = 0.2337663788 in cell 786 at location (1.181803381 4.656021689e-05 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-0.02960837193	-0.03257726864	0.002968896707	0
+    Cd(f):	-0.07644405452	-0.07778437204	0.001340317522	0
+    Cd(r):	0.04683568259	0.04520710341	0.001628579185	0
+    Cl:	0.1849196057	0.1844872132	0.0004323924948	0
+    Cl(f):	0.02177252444	0.02165904185	0.0001134825818	0
+    Cl(r):	0.1631470812	0.1628281713	0.000318909913	0
+    CmPitch:	-0.0706872784	-0.07058456473	-0.0001027136656	0
+    CmRoll:	-0.06163986856	-0.06149573772	-0.0001441308316	0
+    CmYaw:	-0.009869457309	-0.01085908955	0.0009896322358	0
+    Cs:	7.484931508e-21	6.360901769e-21	1.124029738e-21	0
+    Cs(f):	-0.009869457309	-0.01085908955	0.0009896322358	0
+    Cs(r):	0.009869457309	0.01085908955	-0.0009896322358	0
+
+Time = 10
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00650416412, Final residual = 1.881343123e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.09496266531, Final residual = 0.0007682210319, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8797166651, Final residual = 0.007862862861, No Iterations 13
+time step continuity errors : sum local = 0.0002222893667, global = -7.249639755e-05, cumulative = -6.241174035e-05
+smoothSolver:  Solving for epsilon, Initial residual = 0.0002357874892, Final residual = 2.822383362e-07, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0006188609934, Final residual = 3.465211474e-06, No Iterations 1
+ExecutionTime = 0.17 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 19.04429021 in cell 1221 at location (0.8782340229 0.03350822588 0.5)
+    min(epsilon) = 3.63469244e-11 in cell 3447 at location (21.15799684 0.6281604705 0.5)
+    max(epsilon) = 0.5570745886 in cell 644 at location (0.8551774327 0.03789320352 0.5)
+    min(k) = 2.766457572e-14 in cell 507 at location (0.6448244093 0.03787705885 0.5)
+    max(k) = 8.543113642e-05 in cell 575 at location (0.7382211063 0.04967073365 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.835418285e-09 in cell 95 at location (-0.01171875016 0.0001354640243 0.5)
+    min(p) = -1.383997861 in cell 504 at location (0.5757593758 0.02271612657 0.5)
+    max(p) = 0.3985638934 in cell 848 at location (1.134663718 0.0002202425453 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-0.02360973354	-0.02671271625	0.003102982712	0
+    Cd(f):	-0.05583780157	-0.05749674483	0.00165894326	0
+    Cd(r):	0.03222806804	0.03078402858	0.001444039452	0
+    Cl:	0.1320988044	0.1324211601	-0.0003223557112	0
+    Cl(f):	0.03984246766	0.03994174505	-9.927738726e-05	0
+    Cl(r):	0.09225633675	0.09247941508	-0.000223078324	0
+    CmPitch:	-0.02620693454	-0.02626883501	6.190046836e-05	0
+    CmRoll:	-0.04403293481	-0.04414038671	0.0001074519037	0
+    CmYaw:	-0.007869911179	-0.008904238749	0.001034327571	0
+    Cs:	3.477316607e-21	4.1950476e-21	-7.177309937e-22	0
+    Cs(f):	-0.007869911179	-0.008904238749	0.001034327571	0
+    Cs(r):	0.007869911179	0.008904238749	-0.001034327571	0
+
+Time = 11
+
+smoothSolver:  Solving for Ux, Initial residual = 0.008420759656, Final residual = 1.842345386e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.02865449227, Final residual = 0.0001149147682, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8521273749, Final residual = 0.008209716945, No Iterations 38
+time step continuity errors : sum local = 0.0001904253162, global = -8.058022744e-05, cumulative = -0.0001429919678
+smoothSolver:  Solving for epsilon, Initial residual = 0.002589993888, Final residual = 3.684132145e-07, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0003912166126, Final residual = 3.618826628e-06, No Iterations 1
+ExecutionTime = 0.18 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 8.954420109 in cell 1222 at location (0.9012364973 0.02836731224 0.5)
+    min(epsilon) = 1.092102084e-11 in cell 3447 at location (21.15799684 0.6281604705 0.5)
+    max(epsilon) = 0.3821497114 in cell 575 at location (0.7382211063 0.04967073365 0.5)
+    min(k) = 1.29485972e-14 in cell 505 at location (0.5987656616 0.0278468104 0.5)
+    max(k) = 8.170831597e-05 in cell 575 at location (0.7382211063 0.04967073365 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 2.174801221e-09 in cell 95 at location (-0.01171875016 0.0001354640243 0.5)
+    min(p) = -1.050323096 in cell 518 at location (0.9012363811 0.02784883452 0.5)
+    max(p) = 2.44492814 in cell 506 at location (0.6217660456 0.03299028379 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	0.0428700201	0.03996464326	0.002905376845	0
+    Cd(f):	0.04074958171	0.03914426751	0.001605314195	0
+    Cd(r):	0.002120438395	0.0008203757451	0.00130006265	0
+    Cl:	-0.05794371497	-0.05748583765	-0.000457877317	0
+    Cl(f):	-0.001433551178	-0.001310012847	-0.0001235383312	0
+    Cl(r):	-0.05651016379	-0.0561758248	-0.0003343389858	0
+    CmPitch:	0.02753830631	0.02743290598	0.0001054003273	0
+    CmRoll:	0.01931457166	0.01916194588	0.0001526257723	0
+    CmYaw:	0.0142900067	0.01332154775	0.0009684589484	0
+    Cs:	-5.44786887e-21	9.617918646e-22	-6.409660735e-21	0
+    Cs(f):	0.0142900067	0.01332154775	0.0009684589484	0
+    Cs(r):	-0.0142900067	-0.01332154775	-0.0009684589484	0
+
+Time = 12
+
+smoothSolver:  Solving for Ux, Initial residual = 0.009538336503, Final residual = 2.376397161e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.229209971, Final residual = 0.001583682822, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.7845731389, Final residual = 0.007734169978, No Iterations 37
+time step continuity errors : sum local = 0.0001557160163, global = 7.673840699e-05, cumulative = -6.62535608e-05
+smoothSolver:  Solving for epsilon, Initial residual = 0.001158400824, Final residual = 4.699923554e-07, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0003613015958, Final residual = 3.507014314e-07, No Iterations 2
+ExecutionTime = 0.19 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 4.449028749 in cell 1014 at location (0.5295565364 0.0135789956 0.5)
+    min(epsilon) = 3.300691824e-12 in cell 3399 at location (21.15799684 0.1738689608 0.5)
+    max(epsilon) = 0.5353313102 in cell 574 at location (0.7146991876 0.04835209319 0.5)
+    min(k) = 4.486410798e-15 in cell 505 at location (0.5987656616 0.0278468104 0.5)
+    max(k) = 7.684097696e-05 in cell 575 at location (0.7382211063 0.04967073365 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 2.904011781e-09 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -3.75118736 in cell 518 at location (0.9012363811 0.02784883452 0.5)
+    max(p) = 1.377395611 in cell 570 at location (0.6217660509 0.03299619253 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	0.0655816198	0.06327753138	0.002304088421	0
+    Cd(f):	-0.006694595826	-0.007592796743	0.0008982009163	0
+    Cd(r):	0.07227621562	0.07087032812	0.001405887505	0
+    Cl:	0.1184562172	0.1176946873	0.000761529883	0
+    Cl(f):	-0.03271314796	-0.03280389908	9.075112214e-05	0
+    Cl(r):	0.1511693651	0.1504985864	0.0006707787609	0
+    CmPitch:	-0.09194125654	-0.09165124272	-0.0002900138194	0
+    CmRoll:	-0.03948540572	-0.03923156243	-0.0002538432943	0
+    CmYaw:	0.02186053993	0.02109251046	0.0007680294738	0
+    Cs:	-1.08379714e-20	-9.30334604e-21	-1.534625357e-21	0
+    Cs(f):	0.02186053993	0.02109251046	0.0007680294738	0
+    Cs(r):	-0.02186053993	-0.02109251046	-0.0007680294738	0
+
+Time = 13
+
+smoothSolver:  Solving for Ux, Initial residual = 0.006170839808, Final residual = 1.596199424e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.09733100314, Final residual = 0.0005695834868, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8657481715, Final residual = 0.008546838625, No Iterations 27
+time step continuity errors : sum local = 0.000246496167, global = 9.935416898e-05, cumulative = 3.310060818e-05
+smoothSolver:  Solving for epsilon, Initial residual = 0.0006754003502, Final residual = 9.652294831e-07, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0003677511691, Final residual = 3.834767021e-07, No Iterations 2
+ExecutionTime = 0.2 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 10.02081833 in cell 952 at location (0.5757593308 0.02284848571 0.5)
+    min(epsilon) = 1.208985019e-12 in cell 472 at location (-2.093674917 4.313357368 0.5)
+    max(epsilon) = 0.4058437022 in cell 574 at location (0.7146991876 0.04835209319 0.5)
+    min(k) = 2.476931692e-15 in cell 505 at location (0.5987656616 0.0278468104 0.5)
+    max(k) = 6.732174025e-05 in cell 574 at location (0.7146991876 0.04835209319 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 4.075556989e-09 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -1.537136506 in cell 518 at location (0.9012363811 0.02784883452 0.5)
+    max(p) = 0.5947530497 in cell 1478 at location (0.9012368086 0.0297627102 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	0.008228673861	0.006327038895	0.001901634966	0
+    Cd(f):	-0.02889880194	-0.02976345308	0.0008646511381	0
+    Cd(r):	0.03712747581	0.03609049198	0.001036983828	0
+    Cl:	0.09903941663	0.09878091759	0.0002584990345	0
+    Cl(f):	-0.02529123842	-0.02548831679	0.0001970783661	0
+    Cl(r):	0.124330655	0.1242692344	6.142066839e-05	0
+    CmPitch:	-0.07481094673	-0.07487877558	6.782884885e-05	0
+    CmRoll:	-0.03301313888	-0.03292697253	-8.616634482e-05	0
+    CmYaw:	0.002742891287	0.002109012965	0.0006338783219	0
+    Cs:	-2.861766439e-21	-7.861586487e-21	4.999820048e-21	0
+    Cs(f):	0.002742891287	0.002109012965	0.0006338783219	0
+    Cs(r):	-0.002742891287	-0.002109012965	-0.0006338783219	0
+
+Time = 14
+
+smoothSolver:  Solving for Ux, Initial residual = 0.004312028269, Final residual = 8.691464666e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.06677172787, Final residual = 0.0003139099222, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8017313275, Final residual = 0.007935613337, No Iterations 34
+time step continuity errors : sum local = 0.0001966001844, global = 8.103782763e-05, cumulative = 0.0001141384358
+smoothSolver:  Solving for epsilon, Initial residual = 0.0007235505329, Final residual = 1.177682616e-06, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0003081452663, Final residual = 3.920188994e-07, No Iterations 2
+ExecutionTime = 0.22 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 9.55083251 in cell 1222 at location (0.9012364973 0.02836731224 0.5)
+    min(epsilon) = 4.145144945e-13 in cell 472 at location (-2.093674917 4.313357368 0.5)
+    max(epsilon) = 0.3148350038 in cell 574 at location (0.7146991876 0.04835209319 0.5)
+    min(k) = 3.539953915e-15 in cell 505 at location (0.5987656616 0.0278468104 0.5)
+    max(k) = 7.744549352e-05 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 5.652002542e-09 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -3.234261854 in cell 506 at location (0.6217660456 0.03299028379 0.5)
+    max(p) = 1.579630957 in cell 519 at location (0.9242406242 0.02271612657 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-0.0757377767	-0.07750816113	0.001770384432	0
+    Cd(f):	-0.07921891957	-0.0800866633	0.0008677437351	0
+    Cd(r):	0.003481142864	0.002578502167	0.0009026406972	0
+    Cl:	0.1240500936	0.1239977482	5.234544309e-05	0
+    Cl(f):	0.01955516849	0.01940915409	0.0001460143983	0
+    Cl(r):	0.1044949252	0.1045885941	-9.366895516e-05	0
+    CmPitch:	-0.04246987834	-0.04258972001	0.0001198416767	0
+    CmRoll:	-0.04135003122	-0.04133258273	-1.744848103e-05	0
+    CmYaw:	-0.02524592557	-0.02583605371	0.0005901281441	0
+    Cs:	1.417519484e-20	3.688334748e-21	1.04868601e-20	0
+    Cs(f):	-0.02524592557	-0.02583605371	0.0005901281441	0
+    Cs(r):	0.02524592557	0.02583605371	-0.0005901281441	0
+
+Time = 15
+
+smoothSolver:  Solving for Ux, Initial residual = 0.004221547584, Final residual = 1.197561816e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.1621090896, Final residual = 0.001080956569, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.7855176697, Final residual = 0.007707060513, No Iterations 28
+time step continuity errors : sum local = 0.0001898194171, global = 7.359298449e-05, cumulative = 0.0001877314203
+smoothSolver:  Solving for epsilon, Initial residual = 0.0005456378693, Final residual = 1.147385702e-06, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0002958470986, Final residual = 3.881517884e-07, No Iterations 2
+ExecutionTime = 0.22 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 6.315010799 in cell 1338 at location (0.6217659119 0.03398878494 0.5)
+    min(epsilon) = 1.717443389e-13 in cell 473 at location (-1.186612683 4.313357368 0.5)
+    max(epsilon) = 0.3998765689 in cell 580 at location (0.8551774458 0.03788506449 0.5)
+    min(k) = 3.794574629e-15 in cell 505 at location (0.5987656616 0.0278468104 0.5)
+    max(k) = 9.157149788e-05 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 7.705739018e-09 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -1.514608181 in cell 506 at location (0.6217660456 0.03299028379 0.5)
+    max(p) = 1.083744151 in cell 965 at location (0.8782339704 0.033122371 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-0.04321401852	-0.04531770804	0.002103689521	0
+    Cd(f):	-0.03216838348	-0.03319800438	0.0010296209	0
+    Cd(r):	-0.01104563504	-0.01211970366	0.001074068621	0
+    Cl:	0.03168412266	0.03161745108	6.667158105e-05	0
+    Cl(f):	0.02717903719	0.02727151973	-9.24825398e-05	0
+    Cl(r):	0.004505085473	0.004345931352	0.0001591541209	0
+    CmPitch:	0.01133697586	0.01146279419	-0.0001258183303	0
+    CmRoll:	-0.01056137422	-0.01053915036	-2.222386035e-05	0
+    CmYaw:	-0.01440467284	-0.01510590268	0.0007012298402	0
+    Cs:	1.020962853e-20	4.340280331e-21	5.869348196e-21	0
+    Cs(f):	-0.01440467284	-0.01510590268	0.0007012298402	0
+    Cs(r):	0.01440467284	0.01510590268	-0.0007012298402	0
+
+Time = 16
+
+smoothSolver:  Solving for Ux, Initial residual = 0.004423730257, Final residual = 1.488052338e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.09586376699, Final residual = 0.0005519933311, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8841505277, Final residual = 0.008586834273, No Iterations 33
+time step continuity errors : sum local = 0.000303035272, global = -0.0001338097235, cumulative = 5.39216968e-05
+smoothSolver:  Solving for epsilon, Initial residual = 0.000411547218, Final residual = 1.652037296e-06, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.000293694435, Final residual = 3.771638266e-07, No Iterations 2
+ExecutionTime = 0.23 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 17.56426387 in cell 1287 at location (0.9242408513 0.02343758634 0.5)
+    min(epsilon) = 1.053226385e-13 in cell 474 at location (-0.6667053805 4.313357368 0.5)
+    max(epsilon) = 0.2965361722 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(k) = 6.37778357e-15 in cell 505 at location (0.5987656616 0.0278468104 0.5)
+    max(k) = 0.0001082392031 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.026218979e-08 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -0.6346256494 in cell 516 at location (0.8551774335 0.03787916532 0.5)
+    max(p) = 2.067270511 in cell 506 at location (0.6217660456 0.03299028379 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	0.04341142621	0.04137151497	0.002039911241	0
+    Cd(f):	0.05534265549	0.05433536809	0.001007287402	0
+    Cd(r):	-0.01193122928	-0.01296385312	0.00103262384	0
+    Cl:	-0.1009108271	-0.1009488318	3.800465692e-05	0
+    Cl(f):	0.006696180319	0.006824198688	-0.0001280183685	0
+    Cl(r):	-0.1076070075	-0.1077730305	0.0001660230254	0
+    CmPitch:	0.05715159389	0.05729861459	-0.0001470206969	0
+    CmRoll:	0.03363694238	0.0336496106	-1.266821897e-05	0
+    CmYaw:	0.0144704754	0.01379050499	0.0006799704138	0
+    Cs:	-1.071974852e-21	4.820130369e-21	-5.892105221e-21	0
+    Cs(f):	0.0144704754	0.01379050499	0.0006799704138	0
+    Cs(r):	-0.0144704754	-0.01379050499	-0.0006799704138	0
+
+Time = 17
+
+smoothSolver:  Solving for Ux, Initial residual = 0.006522296392, Final residual = 1.491058848e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.01949229704, Final residual = 7.397589874e-05, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.7728120303, Final residual = 0.007715254703, No Iterations 38
+time step continuity errors : sum local = 0.0002121456782, global = -9.529399666e-05, cumulative = -4.137229986e-05
+smoothSolver:  Solving for epsilon, Initial residual = 0.0006650120286, Final residual = 1.505938355e-06, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0002433339605, Final residual = 3.677652123e-07, No Iterations 2
+ExecutionTime = 0.25 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 11.02954026 in cell 1287 at location (0.9242408513 0.02343758634 0.5)
+    min(epsilon) = 7.724289981e-14 in cell 390 at location (-0.6667053805 0.4556285959 0.5)
+    max(epsilon) = 0.3457714995 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(k) = 2.02812727e-15 in cell 505 at location (0.5987656616 0.0278468104 0.5)
+    max(k) = 0.0001285483012 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.327494527e-08 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -2.051567275 in cell 519 at location (0.9242406242 0.02271612657 0.5)
+    max(p) = 2.85905619 in cell 506 at location (0.6217660456 0.03299028379 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	0.1161522417	0.1144140131	0.00173822852	0
+    Cd(f):	0.07511909254	0.07421904525	0.0009000472957	0
+    Cd(r):	0.04103314911	0.04019496788	0.0008381812244	0
+    Cl:	-0.05112891515	-0.05103611604	-9.279910704e-05	0
+    Cl(f):	-0.03708006007	-0.03706491545	-1.514461693e-05	0
+    Cl(r):	-0.01404885508	-0.01397120059	-7.765449011e-05	0
+    CmPitch:	-0.01151560249	-0.01154685743	3.125493659e-05	0
+    CmRoll:	0.01704297172	0.01701203868	3.093303568e-05	0
+    CmYaw:	0.03871741388	0.03813800438	0.0005794095067	0
+    Cs:	-1.797278327e-20	-1.646903478e-20	-1.503748494e-21	0
+    Cs(f):	0.03871741388	0.03813800438	0.0005794095067	0
+    Cs(r):	-0.03871741388	-0.03813800438	-0.0005794095067	0
+
+Time = 18
+
+smoothSolver:  Solving for Ux, Initial residual = 0.004969566157, Final residual = 2.309299594e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.03435153661, Final residual = 0.00025661605, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8360059745, Final residual = 0.007912115392, No Iterations 32
+time step continuity errors : sum local = 0.0002691574786, global = -0.0001131623474, cumulative = -0.0001545346472
+smoothSolver:  Solving for epsilon, Initial residual = 0.00050096987, Final residual = 2.783552661e-06, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0003672450069, Final residual = 3.460783894e-07, No Iterations 2
+ExecutionTime = 0.25 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 14.22327512 in cell 1018 at location (0.621766022 0.03317829397 0.5)
+    min(epsilon) = 6.327764311e-14 in cell 475 at location (-0.3687064194 4.313357368 0.5)
+    max(epsilon) = 0.4086864024 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(k) = 1e-15 in cell 505 at location (0.5987656616 0.0278468104 0.5)
+    max(k) = 0.0001536017912 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.663557208e-08 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -4.34109669 in cell 519 at location (0.9242406242 0.02271612657 0.5)
+    max(p) = 0.8151522169 in cell 890 at location (0.6217660344 0.03308180746 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	0.08926593721	0.08803795385	0.001227983354	0
+    Cd(f):	-0.04686110524	-0.04711158881	0.0002504835738	0
+    Cd(r):	0.1361270424	0.1351495427	0.0009774997802	0
+    Cl:	0.2744822215	0.2733916972	0.00109052431	0
+    Cl(f):	-0.05644662094	-0.05663519623	0.0001885752863	0
+    Cl(r):	0.3309288425	0.3300268934	0.0009019490233	0
+    CmPitch:	-0.1936877317	-0.1933310448	-0.0003566868685	0
+    CmRoll:	-0.09149407384	-0.09113056574	-0.0003635081032	0
+    CmYaw:	0.0297553124	0.02934598462	0.0004093277847	0
+    Cs:	-3.3471634e-20	-4.437899609e-20	1.09073621e-20	0
+    Cs(f):	0.0297553124	0.02934598462	0.0004093277847	0
+    Cs(r):	-0.0297553124	-0.02934598462	-0.0004093277847	0
+
+Time = 19
+
+smoothSolver:  Solving for Ux, Initial residual = 0.003757363306, Final residual = 1.161933815e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.02466755484, Final residual = 0.0001148219054, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8894491505, Final residual = 0.008864706307, No Iterations 36
+time step continuity errors : sum local = 0.000399910901, global = -0.0001873353953, cumulative = -0.0003418700426
+smoothSolver:  Solving for epsilon, Initial residual = 0.002045210664, Final residual = 3.33130081e-06, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0003995430005, Final residual = 3.391506703e-07, No Iterations 2
+ExecutionTime = 0.27 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 13.12969527 in cell 1289 at location (0.970443701 0.01411305622 0.5)
+    min(epsilon) = 5.843299333e-14 in cell 367 at location (-0.3687064194 0.2397106285 0.5)
+    max(epsilon) = 0.4846489714 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(k) = 1e-15 in cell 505 at location (0.5987656616 0.0278468104 0.5)
+    max(k) = 0.0001838682238 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 2.020486297e-08 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -8.392907036 in cell 506 at location (0.6217660456 0.03299028379 0.5)
+    max(p) = 0.7242468216 in cell 516 at location (0.8551774335 0.03787916532 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-0.09933170865	-0.1005092864	0.001177577724	0
+    Cd(f):	-0.2173233386	-0.21802122	0.0006978813715	0
+    Cd(r):	0.11799163	0.1175119336	0.0004796963528	0
+    Cl:	0.5029724529	0.5032997304	-0.000327277528	0
+    Cl(f):	0.01177697497	0.0115917676	0.0001852073635	0
+    Cl(r):	0.4911954779	0.4917079628	-0.0005124848915	0
+    CmPitch:	-0.2397092515	-0.2400580976	0.0003488461275	0
+    CmRoll:	-0.1676574843	-0.1677665768	0.0001090925093	0
+    CmYaw:	-0.03311056955	-0.03350309546	0.0003925259081	0
+    Cs:	-4.526777704e-21	-4.71140421e-20	4.258726439e-20	0
+    Cs(f):	-0.03311056955	-0.03350309546	0.0003925259081	0
+    Cs(r):	0.03311056955	0.03350309546	-0.0003925259081	0
+
+Time = 20
+
+smoothSolver:  Solving for Ux, Initial residual = 0.004998090479, Final residual = 1.6275921e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.03577643379, Final residual = 0.0001762462743, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.7502827691, Final residual = 0.007427211085, No Iterations 71
+time step continuity errors : sum local = 0.0003767021916, global = 0.0001964453922, cumulative = -0.0001454246504
+smoothSolver:  Solving for epsilon, Initial residual = 0.002424759936, Final residual = 5.600464455e-06, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0005051482209, Final residual = 4.789399823e-06, No Iterations 1
+ExecutionTime = 0.28 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 19.96737785 in cell 1029 at location (0.878233978 0.03317829397 0.5)
+    min(epsilon) = 5.125363866e-14 in cell 368 at location (-0.1979002385 0.2397106284 0.5)
+    max(epsilon) = 1.08568382 in cell 709 at location (0.8782339528 0.03301556477 0.5)
+    min(k) = 1.771280182e-15 in cell 519 at location (0.9242386395 0.02271407446 0.5)
+    max(k) = 0.0002186031335 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 2.160526332e-08 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -9.492843795 in cell 506 at location (0.6217660456 0.03299028379 0.5)
+    max(p) = 11.93526361 in cell 521 at location (0.9704433811 0.0133902437 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-0.257931857	-0.2594441623	0.001512305283	0
+    Cd(f):	-0.070428221	-0.07128613806	0.0008579170576	0
+    Cd(r):	-0.187503636	-0.1881580242	0.0006543882251	0
+    Cl:	-0.1756131225	-0.1753078292	-0.0003052932487	0
+    Cl(f):	0.129182769	0.1291776836	5.085349942e-06	0
+    Cl(r):	-0.3047958914	-0.3044855128	-0.0003103785986	0
+    CmPitch:	0.2169893302	0.2168315982	0.0001577319743	0
+    CmRoll:	0.05853770749	0.05843594307	0.0001017644162	0
+    CmYaw:	-0.08597728566	-0.08648138742	0.0005041017609	0
+    Cs:	5.979959672e-20	3.62662426e-20	2.353335412e-20	0
+    Cs(f):	-0.08597728566	-0.08648138742	0.0005041017609	0
+    Cs(r):	0.08597728566	0.08648138742	-0.0005041017609	0
+
+Time = 21
+
+smoothSolver:  Solving for Ux, Initial residual = 0.007890004565, Final residual = 5.807645173e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.04344724062, Final residual = 0.0003811962923, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.9261609905, Final residual = 0.00898236071, No Iterations 48
+time step continuity errors : sum local = 0.0009977851926, global = -0.0005479812224, cumulative = -0.0006934058728
+smoothSolver:  Solving for epsilon, Initial residual = 0.02096358587, Final residual = 5.70636398e-06, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0005269211001, Final residual = 4.763856065e-06, No Iterations 1
+ExecutionTime = 0.29 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 92.67159463 in cell 954 at location (0.6217660296 0.033122371 0.5)
+    min(epsilon) = 4.813301728e-14 in cell 369 at location (-0.09999804668 0.2397106285 0.5)
+    max(epsilon) = 1.923871657 in cell 644 at location (0.8551774327 0.03789320352 0.5)
+    min(k) = 1e-15 in cell 505 at location (0.5987656616 0.0278468104 0.5)
+    max(k) = 0.0002596383614 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 2.290525871e-08 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -3.634666476 in cell 762 at location (0.6217660403 0.03303104351 0.5)
+    max(p) = 14.00164419 in cell 518 at location (0.9012363811 0.02784883452 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-0.1646790598	-0.1665282364	0.001849176581	0
+    Cd(f):	0.1719816999	0.1706516812	0.00133001872	0
+    Cd(r):	-0.3366607597	-0.3371799176	0.0005191578613	0
+    Cl:	-0.7629636895	-0.7617473982	-0.001216291288	0
+    Cl(f):	0.1066265079	0.1068994615	-0.0002729535421	0
+    Cl(r):	-0.8695901974	-0.8686468597	-0.000943337746	0
+    CmPitch:	0.4881083527	0.4877731606	0.000335192102	0
+    CmRoll:	0.2543212298	0.2539157994	0.0004054304294	0
+    CmYaw:	-0.05489301993	-0.05550941213	0.0006163921938	0
+    Cs:	8.13502434e-20	9.751686045e-20	-1.616661704e-20	0
+    Cs(f):	-0.05489301993	-0.05550941213	0.0006163921938	0
+    Cs(r):	0.05489301993	0.05550941213	-0.0006163921938	0
+
+Time = 22
+
+smoothSolver:  Solving for Ux, Initial residual = 0.05150411045, Final residual = 0.0001116829261, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.03328548738, Final residual = 7.821241027e-05, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8651262594, Final residual = 0.008395493189, No Iterations 52
+time step continuity errors : sum local = 0.0007925151121, global = -0.0004147312727, cumulative = -0.001108137145
+smoothSolver:  Solving for epsilon, Initial residual = 0.02534090899, Final residual = 4.881430769e-06, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0005689526012, Final residual = 5.135967421e-06, No Iterations 1
+ExecutionTime = 0.31 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 58.39817911 in cell 890 at location (0.6217660344 0.03308180746 0.5)
+    min(epsilon) = 4.455097931e-14 in cell 357 at location (-0.09999804668 0.1738689609 0.5)
+    max(epsilon) = 0.7922829622 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(k) = 1e-15 in cell 504 at location (0.5757613604 0.02271407446 0.5)
+    max(k) = 0.0003098996024 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 2.404414721e-08 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -9.992756373 in cell 645 at location (0.8782339588 0.03300433493 0.5)
+    max(p) = 81.70856557 in cell 506 at location (0.6217660456 0.03299028379 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	1.090896123	1.088468597	0.002427526111	0
+    Cd(f):	2.109209351	2.106162297	0.003047054028	0
+    Cd(r):	-1.018313228	-1.0176937	-0.0006195279166	0
+    Cl:	-4.691283868	-4.685783995	-0.005499872917	0
+    Cl(f):	-0.4171894233	-0.4167884013	-0.000401022007	0
+    Cl(r):	-4.274094445	-4.268995594	-0.00509885091	0
+    CmPitch:	1.928452511	1.926103596	0.002348914451	0
+    CmRoll:	1.563761289	1.561927998	0.001833290972	0
+    CmYaw:	0.3636320411	0.3628228658	0.0008091753704	0
+    Cs:	1.923030948e-19	4.810762264e-19	-2.887731316e-19	0
+    Cs(f):	0.3636320411	0.3628228658	0.0008091753704	0
+    Cs(r):	-0.3636320411	-0.3628228658	-0.0008091753704	0
+
+Time = 23
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0536632977, Final residual = 0.0001534019701, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.2580036637, Final residual = 0.0008446094782, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.6612559599, Final residual = 0.006419266347, No Iterations 46
+time step continuity errors : sum local = 0.001057810382, global = -0.0005481146338, cumulative = -0.001656251779
+smoothSolver:  Solving for epsilon, Initial residual = 0.02386913005, Final residual = 4.221165503e-05, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.001723445253, Final residual = 5.28540339e-06, No Iterations 1
+ExecutionTime = 0.32 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 103.6855257 in cell 1157 at location (0.8782340028 0.03336168507 0.5)
+    min(epsilon) = 4.235040641e-14 in cell 358 at location (-0.04388275209 0.1738689608 0.5)
+    max(epsilon) = 13.95083809 in cell 582 at location (0.9012363791 0.02785474879 0.5)
+    min(k) = 1e-15 in cell 504 at location (0.5757613604 0.02271407446 0.5)
+    max(k) = 0.0003720608349 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 2.504838499e-08 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -30.66407805 in cell 777 at location (0.9704433964 0.01343116474 0.5)
+    max(p) = 67.49676639 in cell 506 at location (0.6217660456 0.03299028379 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	1.12948977	1.12803258	0.001457190789	0
+    Cd(f):	1.034540109	1.036710885	-0.002170775147	0
+    Cd(r):	0.09494966094	0.091321695	0.003627965936	0
+    Cl:	-1.409385673	-1.418083784	0.008698111625	0
+    Cl(f):	-0.6307075693	-0.6307836397	7.607042418e-05	0
+    Cl(r):	-0.7786781033	-0.7873001445	0.008622041201	0
+    CmPitch:	0.07398526702	0.07825825241	-0.004272985389	0
+    CmRoll:	0.4697952242	0.4726945948	-0.002899370542	0
+    CmYaw:	0.3764965901	0.3760108598	0.0004857302629	0
+    Cs:	1.473274677e-19	2.255492199e-19	-7.822175215e-20	0
+    Cs(f):	0.3764965901	0.3760108598	0.0004857302629	0
+    Cs(r):	-0.3764965901	-0.3760108598	-0.0004857302629	0
+
+Time = 24
+
+smoothSolver:  Solving for Ux, Initial residual = 0.04613644318, Final residual = 0.0001569806777, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.08224679566, Final residual = 0.0002830523285, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.9204754693, Final residual = 0.008976062375, No Iterations 65
+time step continuity errors : sum local = 0.002789259004, global = 0.001548256713, cumulative = -0.0001079950667
+smoothSolver:  Solving for epsilon, Initial residual = 0.3899548077, Final residual = 8.964770047e-07, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0005432580776, Final residual = 4.733330058e-06, No Iterations 1
+bounding k, min: 8.349277932e-16 max: 0.0004445133649 average: 4.614870221e-06
+ExecutionTime = 0.35 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 451.7808206 in cell 1017 at location (0.5987635764 0.02803703879 0.5)
+    min(epsilon) = 3.999654157e-14 in cell 346 at location (-0.04388275209 0.1261111239 0.5)
+    max(epsilon) = 4.216391654 in cell 582 at location (0.9012363791 0.02785474879 0.5)
+    min(k) = 1e-15 in cell 1084 at location (0.6679824193 0.04250608181 0.5)
+    max(k) = 0.0004445133649 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 2.590286664e-08 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -141.2686137 in cell 646 at location (0.9012363881 0.02786289989 0.5)
+    max(p) = 109.6853855 in cell 517 at location (0.8782339544 0.03299028379 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	0.4954216994	0.4988264771	-0.003404777747	0
+    Cd(f):	-1.005260934	-1.002690301	-0.002570633302	0
+    Cd(r):	1.500682633	1.501516778	-0.0008341444454	0
+    Cl:	3.758915351	3.756310618	0.002604733284	0
+    Cl(f):	-0.4367496917	-0.4386666847	0.001916993006	0
+    Cl(r):	4.195665043	4.194977303	0.0006877402779	0
+    CmPitch:	-2.316207367	-2.316821994	0.0006146263642	0
+    CmRoll:	-1.252971784	-1.252103539	-0.0008682444281	0
+    CmYaw:	0.1651405665	0.1662754924	-0.001134925916	0
+    Cs:	-7.592694897e-19	-1.37333136e-18	6.140618699e-19	0
+    Cs(f):	0.1651405665	0.1662754924	-0.001134925916	0
+    Cs(r):	-0.1651405665	-0.1662754924	0.001134925916	0
+
+Time = 25
+
+smoothSolver:  Solving for Ux, Initial residual = 0.06076332869, Final residual = 8.905844997e-05, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.08745325404, Final residual = 0.0001378904302, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8758704158, Final residual = 0.008618075467, No Iterations 197
+time step continuity errors : sum local = 0.004379953643, global = -0.002790579622, cumulative = -0.002898574688
+smoothSolver:  Solving for epsilon, Initial residual = 0.2894715849, Final residual = 2.323210704e-05, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.006774718718, Final residual = 3.900901207e-06, No Iterations 1
+ExecutionTime = 0.39 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 463.0617271 in cell 1161 at location (0.9704435454 0.01376311033 0.5)
+    min(epsilon) = 3.839018912e-14 in cell 346 at location (-0.04388275209 0.1261111239 0.5)
+    max(epsilon) = 122.4490901 in cell 714 at location (0.9936954283 0.009577710542 0.5)
+    min(k) = 1e-15 in cell 504 at location (0.5757613604 0.02271407446 0.5)
+    max(k) = 0.0005285109088 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 2.657956655e-08 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -1331.282701 in cell 505 at location (0.5987636189 0.02784883452 0.5)
+    max(p) = 106.4672109 in cell 517 at location (0.8782339544 0.03299028379 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-16.32246495	-16.31693677	-0.005528172499	0
+    Cd(f):	-31.89629975	-31.88594596	-0.0103537919	0
+    Cd(r):	15.5738348	15.56900919	0.004825619404	0
+    Cl:	71.20520183	71.18243272	0.02276911696	0
+    Cl(f):	6.637602993	6.635716569	0.001886424398	0
+    Cl(r):	64.56759884	64.54671615	0.02088269256	0
+    CmPitch:	-28.96499792	-28.95549979	-0.009498134082	0
+    CmRoll:	-23.73506728	-23.72747757	-0.007589705653	0
+    CmYaw:	-5.440821649	-5.438978925	-0.001842724166	0
+    Cs:	-2.006197894e-19	-3.338496295e-18	3.137876505e-18	0
+    Cs(f):	-5.440821649	-5.438978925	-0.001842724166	0
+    Cs(r):	5.440821649	5.438978925	0.001842724166	0
+
+Time = 26
+
+smoothSolver:  Solving for Ux, Initial residual = 0.09760879501, Final residual = 6.449535894e-05, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0.2931687861, Final residual = 0.0002189679325, No Iterations 3
+GAMG:  Solving for p, Initial residual = 0.8449724445, Final residual = 0.008351699401, No Iterations 75
+time step continuity errors : sum local = 0.01947725012, global = 0.00936576024, cumulative = 0.006467185551
+smoothSolver:  Solving for epsilon, Initial residual = 0.3543309191, Final residual = 0.0001485704671, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.07978741808, Final residual = 1.312036625e-06, No Iterations 1
+bounding k, min: 6.208161932e-16 max: 0.002694671809 average: 8.621156772e-06
+ExecutionTime = 0.41 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 1645.428593 in cell 1030 at location (0.9012364236 0.02803703879 0.5)
+    min(epsilon) = 3.675394037e-14 in cell 359 at location (-0.01171875016 0.1738689608 0.5)
+    max(epsilon) = 1353.599627 in cell 707 at location (0.8320175811 0.04226669986 0.5)
+    min(k) = 1e-15 in cell 1020 at location (0.6679824196 0.04242912684 0.5)
+    max(k) = 0.002694671809 in cell 706 at location (0.8087251376 0.04583588568 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 2.684955548e-08 in cell 23 at location (-0.01171875016 8.44664213e-06 0.5)
+    min(p) = -1873.04246 in cell 760 at location (0.5757593584 0.02275696953 0.5)
+    max(p) = 160.5763089 in cell 521 at location (0.9704433811 0.0133902437 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-23.32268609	-23.35477363	0.03208754325	0
+    Cd(f):	-38.56238796	-38.62691879	0.06453082955	0
+    Cd(r):	15.23970187	15.27214516	-0.0324432863	0
+    Cl:	80.70313475	80.84859592	-0.1454611738	0
+    Cl(f):	12.01014395	12.03504358	-0.02489962922	0
+    Cl(r):	68.6929908	68.81355234	-0.1205615445	0
+    CmPitch:	-28.34142342	-28.38925438	0.04783095766	0
+    CmRoll:	-26.90104492	-26.94953197	0.04848705792	0
+    CmYaw:	-7.774228697	-7.784924544	0.01069584775	0
+    Cs:	6.376346506e-18	8.848809677e-18	-2.472463171e-18	0
+    Cs(f):	-7.774228697	-7.784924544	0.01069584775	0
+    Cs(r):	7.774228697	7.784924544	-0.01069584775	0
+
+Time = 27
+
+smoothSolver:  Solving for Ux, Initial residual = 0.2825906194, Final residual = 0.0001428551873, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.2508009349, Final residual = 0.0001073356879, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8266337699, Final residual = 0.008193610285, No Iterations 115
+time step continuity errors : sum local = 0.01384176073, global = -0.01039539045, cumulative = -0.003928204895
+smoothSolver:  Solving for epsilon, Initial residual = 0.4015520398, Final residual = 2.101589261e-08, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.002610736581, Final residual = 2.011427329e-06, No Iterations 1
+bounding k, min: 5.389695446e-16 max: 0.001749094137 average: 1.05752626e-05
+ExecutionTime = 0.43 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 938.6588098 in cell 966 at location (0.9012364107 0.02798105801 0.5)
+    min(epsilon) = 3.531035155e-14 in cell 2400 at location (0.01178188157 0.239710082 0.5)
+    max(epsilon) = 406.8775652 in cell 707 at location (0.8320175811 0.04226669986 0.5)
+    min(k) = 1e-15 in cell 1020 at location (0.6679824196 0.04242912684 0.5)
+    max(k) = 0.001749094137 in cell 769 at location (0.7853008112 0.04838683774 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 4.265390321e-08 in cell 769 at location (0.7853008112 0.04838683774 0.5)
+    min(p) = -16259.31398 in cell 709 at location (0.8782339528 0.03301556477 0.5)
+    max(p) = 31006.97327 in cell 505 at location (0.5987636189 0.02784883452 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	172.2145957	172.1031988	0.1113968666	0
+    Cd(f):	768.8041629	768.5538879	0.2502749339	0
+    Cd(r):	-596.5895672	-596.4506891	-0.1388780673	0
+    Cl:	-2048.090595	-2047.506866	-0.5837295017	0
+    Cl(f):	-40.48833055	-40.51729121	0.02896066547	0
+    Cl(r):	-2007.602265	-2006.989574	-0.6126901672	0
+    CmPitch:	983.556967	983.2361416	0.3208254163	0
+    CmRoll:	682.696865	682.5022885	0.1945765006	0
+    CmYaw:	57.40486522	57.36773293	0.03713228887	0
+    Cs:	1.578471563e-16	3.243353517e-16	-1.664881955e-16	0
+    Cs(f):	57.40486522	57.36773293	0.03713228887	0
+    Cs(r):	-57.40486522	-57.36773293	-0.03713228887	0
+
+Time = 28
+
+smoothSolver:  Solving for Ux, Initial residual = 0.6789229048, Final residual = 0.004002276073, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.5425865712, Final residual = 0.002997377377, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.6457234692, Final residual = 0.006376714983, No Iterations 98
+time step continuity errors : sum local = 0.1351965581, global = -0.08064951004, cumulative = -0.08457771493
+smoothSolver:  Solving for epsilon, Initial residual = 0.3966420323, Final residual = 1.74889114e-05, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0001810664004, Final residual = 2.621431794e-09, No Iterations 1
+bounding k, min: 5.268567375e-16 max: 0.003114336201 average: 1.341729755e-05
+ExecutionTime = 0.46 s  ClockTime = 0 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 20221.69201 in cell 633 at location (0.5987636119 0.02786289989 0.5)
+    min(epsilon) = 3.320573862e-14 in cell 2273 at location (0.03535016442 0.1261109727 0.5)
+    max(epsilon) = 6639.156742 in cell 584 at location (0.9472974788 0.01783533213 0.5)
+    min(k) = 1e-15 in cell 1020 at location (0.6679824196 0.04242912684 0.5)
+    max(k) = 0.003114336201 in cell 769 at location (0.7853008112 0.04838683774 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 3.407801311e-08 in cell 672 at location (0.01178506027 2.794777148e-05 0.5)
+    min(p) = -11894.90855 in cell 517 at location (0.8782339544 0.03299028379 0.5)
+    max(p) = 15688.72727 in cell 569 at location (0.5987636209 0.02785474879 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	71.12032953	76.84781277	-5.727483236	0
+    Cd(f):	44.47477162	57.47558816	-13.00081653	0
+    Cd(r):	26.64555791	19.37222461	7.273333296	0
+    Cl:	-26.74382058	-57.15504532	30.41122474	0
+    Cl(f):	-20.80035088	-23.10632684	2.305975961	0
+    Cl(r):	-5.943469698	-34.04871848	28.10524878	0
+    CmPitch:	-7.42844059	5.471195821	-12.89963641	0
+    CmRoll:	8.914606859	19.05168177	-10.13707491	0
+    CmYaw:	23.70677651	25.61593759	-1.909161079	0
+    Cs:	1.027082204e-16	1.380426784e-16	-3.533445804e-17	0
+    Cs(f):	23.70677651	25.61593759	-1.909161079	0
+    Cs(r):	-23.70677651	-25.61593759	1.909161079	0
+
+Time = 29
+
+smoothSolver:  Solving for Ux, Initial residual = 0.2742222344, Final residual = 0.002000292816, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.2514630561, Final residual = 0.001683576273, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.978584007, Final residual = 0.009673627111, No Iterations 47
+time step continuity errors : sum local = 0.2997018599, global = 0.1497577649, cumulative = 0.06518004999
+smoothSolver:  Solving for epsilon, Initial residual = 0.4794280483, Final residual = 1.070971108e-06, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 4.809352189e-05, Final residual = 6.805772006e-10, No Iterations 1
+bounding k, min: 3.000052944e-16 max: 0.006262174053 average: 1.810092214e-05
+ExecutionTime = 0.47 s  ClockTime = 1 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 70475.79353 in cell 507 at location (0.6448225665 0.03787916532 0.5)
+    min(epsilon) = 3.229572829e-14 in cell 2402 at location (0.05890940787 0.239710082 0.5)
+    max(epsilon) = 300335.2434 in cell 571 at location (0.6448225542 0.03788506449 0.5)
+    min(k) = 1e-15 in cell 234 at location (-0.6667053805 0.006996396612 0.5)
+    max(k) = 0.006262174053 in cell 769 at location (0.7853008112 0.04838683774 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 3.271087908e-08 in cell 608 at location (0.01178506042 1.664502081e-05 0.5)
+    min(p) = -386294.293 in cell 569 at location (0.5987636209 0.02785474879 0.5)
+    max(p) = 1988692.896 in cell 507 at location (0.6448225665 0.03787916532 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	9678.474014	9660.03183	18.44218398	0
+    Cd(f):	16176.30482	16113.22854	63.07627651	0
+    Cd(r):	-6497.830804	-6453.196712	-44.63409252	0
+    Cl:	-34011.20343	-33849.63788	-161.5655535	0
+    Cl(f):	-3363.206246	-3357.140945	-6.065300447	0
+    Cl(r):	-30647.99719	-30492.49694	-155.5002531	0
+    CmPitch:	13642.39547	13567.678	74.71747633	0
+    CmRoll:	11337.06781	11283.21263	53.85518451	0
+    CmYaw:	3226.158005	3220.01061	6.147394661	0
+    Cs:	-1.659793089e-15	-1.778214745e-15	1.184216557e-16	0
+    Cs(f):	3226.158005	3220.01061	6.147394661	0
+    Cs(r):	-3226.158005	-3220.01061	-6.147394661	0
+
+Time = 30
+
+smoothSolver:  Solving for Ux, Initial residual = 0.492085264, Final residual = 0.0001747940506, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0.452437965, Final residual = 0.000142231362, No Iterations 3
+GAMG:  Solving for p, Initial residual = 0.9113104957, Final residual = 0.008633714851, No Iterations 46
+time step continuity errors : sum local = 0.6711060121, global = 0.536277935, cumulative = 0.601457985
+smoothSolver:  Solving for epsilon, Initial residual = 0.07646311816, Final residual = 4.974455446e-08, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.001095691014, Final residual = 8.289531731e-09, No Iterations 1
+bounding k, min: 3.000000041e-16 max: 0.01760160675 average: 3.382000747e-05
+ExecutionTime = 0.48 s  ClockTime = 1 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 77389.88033 in cell 521 at location (0.9704433811 0.0133902437 0.5)
+    min(epsilon) = 2.362500875e-14 in cell 261 at location (-0.09999804668 0.0133099067 0.5)
+    max(epsilon) = 12312513.77 in cell 648 at location (0.947297476 0.0178435025 0.5)
+    min(k) = 1e-15 in cell 221 at location (-1.186612683 0.005071165294 0.5)
+    max(k) = 0.01760160675 in cell 641 at location (0.785300812 0.04836021231 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 3.007039988e-06 in cell 513 at location (0.7853008099 0.04834620427 0.5)
+    min(p) = -1979091.17 in cell 518 at location (0.9012363811 0.02784883452 0.5)
+    max(p) = 1535540.284 in cell 507 at location (0.6448225665 0.03787916532 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	21021.22494	20969.55131	51.67362566	0
+    Cd(f):	-24730.34135	-24652.71242	-77.62892829	0
+    Cd(r):	45751.56629	45622.26373	129.3025539	0
+    Cl:	105722.8615	105412.4642	310.3972233	0
+    Cl(f):	-10211.30166	-10185.16721	-26.13444827	0
+    Cl(r):	115934.1631	115597.6314	336.5316716	0
+    CmPitch:	-63072.73239	-62891.39933	-181.3330599	0
+    CmRoll:	-35240.95382	-35137.48808	-103.4657411	0
+    CmYaw:	7007.07498	6989.850438	17.22454189	0
+    Cs:	-1.728802933e-14	-1.791874531e-14	6.307159774e-16	0
+    Cs(f):	7007.07498	6989.850438	17.22454189	0
+    Cs(r):	-7007.07498	-6989.850438	-17.22454189	0
+
+Time = 31
+
+smoothSolver:  Solving for Ux, Initial residual = 0.6436847027, Final residual = 0.002287487072, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.5516492611, Final residual = 0.001940529033, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.8733080758, Final residual = 0.008589912356, No Iterations 44
+time step continuity errors : sum local = 2.487211281, global = 1.007968372, cumulative = 1.609426357
+smoothSolver:  Solving for epsilon, Initial residual = 0.01719998447, Final residual = 4.095430969e-06, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0229042083, Final residual = 4.850150772e-09, No Iterations 1
+bounding k, min: 3.002090501e-16 max: 0.01232080064 average: 3.034164176e-05
+ExecutionTime = 0.49 s  ClockTime = 1 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 283646.1377 in cell 515 at location (0.8320175858 0.04224146622 0.5)
+    min(epsilon) = 2.90225114e-14 in cell 394 at location (-0.04388275209 0.4556285959 0.5)
+    max(epsilon) = 266610118.1 in cell 578 at location (0.8087251391 0.04581656308 0.5)
+    min(k) = 1e-15 in cell 221 at location (-1.186612683 0.005071165294 0.5)
+    max(k) = 0.01232080064 in cell 769 at location (0.7853008112 0.04838683774 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.388586831e-07 in cell 11 at location (-0.01171875016 2.500000025e-06 0.5)
+    min(p) = -1111319.682 in cell 521 at location (0.9704433811 0.0133902437 0.5)
+    max(p) = 12089119.26 in cell 515 at location (0.8320175858 0.04224146622 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-4391.128397	-4218.571501	-172.5568954	0
+    Cd(f):	242523.1924	242285.3292	237.8632147	0
+    Cd(r):	-246914.3208	-246503.9007	-410.4201101	0
+    Cl:	-734156.2699	-733183.8449	-972.4249873	0
+    Cl(f):	-14358.65093	-14381.87028	23.21935129	0
+    Cl(r):	-719797.6189	-718801.9746	-995.6443386	0
+    CmPitch:	352719.484	352210.0522	509.431845	0
+    CmRoll:	244718.7566	244394.615	324.1416624	0
+    CmYaw:	-1463.709466	-1406.1905	-57.51896513	0
+    Cs:	-3.865725677e-14	-3.908061263e-14	4.233558607e-16	0
+    Cs(f):	-1463.709466	-1406.1905	-57.51896513	0
+    Cs(r):	1463.709466	1406.1905	57.51896513	0
+
+Time = 32
+
+smoothSolver:  Solving for Ux, Initial residual = 0.3628704568, Final residual = 0.001929635365, No Iterations 6
+smoothSolver:  Solving for Uy, Initial residual = 0.3942799612, Final residual = 0.001643349941, No Iterations 7
+GAMG:  Solving for p, Initial residual = 0.8862446358, Final residual = 0.00879306205, No Iterations 75
+time step continuity errors : sum local = 1583.836044, global = 44.30208778, cumulative = 45.91151414
+smoothSolver:  Solving for epsilon, Initial residual = 0.2409534537, Final residual = 1.059833892e-06, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.5912737294, Final residual = 2.459764135e-05, No Iterations 1
+bounding k, min: 3.00103219e-16 max: 0.7706245388 average: 0.001035976447
+ExecutionTime = 0.51 s  ClockTime = 1 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 8579671.241 in cell 516 at location (0.8551774335 0.03787916532 0.5)
+    min(epsilon) = 7.11687966e-14 in cell 2727 at location (0.1765383969 1.193939553 0.5)
+    max(epsilon) = 2617528894 in cell 705 at location (0.7853008106 0.04837140587 0.5)
+    min(k) = 1e-15 in cell 225 at location (-0.09999804668 0.005071165294 0.5)
+    max(k) = 0.7706245388 in cell 3205 at location (7.937146992 0.00100763212 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 0.004678407169 in cell 3205 at location (7.937146992 0.00100763212 0.5)
+    min(p) = -153439597.5 in cell 516 at location (0.8551774335 0.03787916532 0.5)
+    max(p) = 311232553.9 in cell 507 at location (0.6448225665 0.03787916532 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	4703322.582	4698828.444	4494.137776	0
+    Cd(f):	4463248.461	4463975.104	-726.6435907	0
+    Cd(r):	240074.1214	234853.34	5220.781367	0
+    Cl:	-6334761.509	-6343682.647	8921.137437	0
+    Cl(f):	-1866637.16	-1865268.645	-1368.515235	0
+    Cl(r):	-4468124.349	-4478414.001	10289.65267	0
+    CmPitch:	1300743.594	1306572.678	-5829.083954	0
+    CmRoll:	2111587.17	2114560.882	-2973.712479	0
+    CmYaw:	1567774.194	1566276.148	1498.045925	0
+    Cs:	1.336890919e-13	1.392902997e-13	-5.601207771e-15	0
+    Cs(f):	1567774.194	1566276.148	1498.045925	0
+    Cs(r):	-1567774.194	-1566276.148	-1498.045925	0
+
+Time = 33
+
+smoothSolver:  Solving for Ux, Initial residual = 0.5066558541, Final residual = 0.001891285582, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.3947916508, Final residual = 0.002986449171, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.9992823515, Final residual = 0.009876681954, No Iterations 57
+time step continuity errors : sum local = 1094.560688, global = -169.1867544, cumulative = -123.2752402
+smoothSolver:  Solving for epsilon, Initial residual = 0.1657004734, Final residual = 2.034607162e-07, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.8898586078, Final residual = 0.0002519350274, No Iterations 1
+bounding k, min: 3.000000022e-16 max: 1750681.091 average: 715.6373131
+ExecutionTime = 0.53 s  ClockTime = 1 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 3836249.264 in cell 580 at location (0.8551774458 0.03788506449 0.5)
+    min(epsilon) = 2.066435174e-12 in cell 2667 at location (0.270792235 0.8660155794 0.5)
+    max(epsilon) = 1.136836674e+10 in cell 565 at location (0.5063045926 0.009558248384 0.5)
+    min(k) = 1e-15 in cell 208 at location (-2.093674918 0.003674710941 0.5)
+    max(k) = 1750681.091 in cell 3048 at location (5.176191412 2.500000025e-06 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 2907.173449 in cell 3048 at location (5.176191412 2.500000025e-06 0.5)
+    min(p) = -1.404516686e+11 in cell 3445 at location (7.937146992 0.6281604705 0.5)
+    max(p) = 4.81824008e+10 in cell 3518 at location (12.7540798 4.313357368 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	84780397.52	84779512.8	884.7207758	0
+    Cd(f):	-1.937741601e+10	-1.937741768e+10	1670.965914	0
+    Cd(r):	1.946219641e+10	1.946219719e+10	-786.2451386	0
+    Cl:	5.825941863e+10	5.825942231e+10	-3685.816579	0
+    Cl(f):	-260669792.8	-260669367.5	-425.3034487	0
+    Cl(r):	5.852008842e+10	5.852009168e+10	-3260.513131	0
+    CmPitch:	-2.939037911e+10	-2.939038052e+10	1417.604841	0
+    CmRoll:	-1.941980621e+10	-1.941980744e+10	1228.605526	0
+    CmYaw:	28260132.51	28259837.6	294.9069253	0
+    Cs:	2.472588676e-10	2.919323344e-10	-4.467346683e-11	0
+    Cs(f):	28260132.51	28259837.6	294.9069253	0
+    Cs(r):	-28260132.51	-28259837.6	-294.9069253	0
+
+Time = 34
+
+smoothSolver:  Solving for Ux, Initial residual = 0.04724496354, Final residual = 0.0002974060675, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.1818810579, Final residual = 0.0003141361646, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.9915727334, Final residual = 0.009761699167, No Iterations 19
+time step continuity errors : sum local = 49573.68156, global = -23342.98334, cumulative = -23466.25858
+smoothSolver:  Solving for epsilon, Initial residual = 0.05043179769, Final residual = 0.0003275782644, No Iterations 3
+smoothSolver:  Solving for k, Initial residual = 0.0007113452804, Final residual = 5.394895639e-06, No Iterations 6
+bounding k, min: 3.000000002e-16 max: 217702264.4 average: 292162.9918
+ExecutionTime = 0.54 s  ClockTime = 1 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 1.980825257e+11 in cell 516 at location (0.8551774335 0.03787916532 0.5)
+    min(epsilon) = 8.156435231e-10 in cell 2664 at location (0.2001507823 0.8660155795 0.5)
+    max(epsilon) = 7.247501519e+13 in cell 3063 at location (21.15799684 8.44664213e-06 0.5)
+    min(k) = 1e-15 in cell 196 at location (-2.093674918 0.002661801611 0.5)
+    max(k) = 217702264.4 in cell 3229 at location (7.937146992 0.001927094237 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 3026739480 in cell 534 at location (1.276083849 2.500000025e-06 0.5)
+    min(p) = -1.1352107e+13 in cell 1285 at location (0.8782340503 0.03371025546 0.5)
+    max(p) = 1.318383669e+14 in cell 517 at location (0.8782339544 0.03299028379 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-1.121331666e+12	-1.121111926e+12	-219739849.1	0
+    Cd(f):	1.069307463e+12	1.069402742e+12	-95278168.46	0
+    Cd(r):	-2.19063913e+12	-2.190514668e+12	-124461680.7	0
+    Cl:	-4.88991989e+12	-4.889876114e+12	-43775268.32	0
+    Cl(f):	4.119134946e+11	4.119156984e+11	-2203810.442	0
+    Cl(r):	-5.301833384e+12	-5.301791813e+12	-41571457.88	0
+    CmPitch:	2.856873439e+12	2.856853756e+12	19683823.72	0
+    CmRoll:	1.629973297e+12	1.629958705e+12	14591756.11	0
+    CmYaw:	-3.737772221e+11	-3.737039754e+11	-73246616.38	0
+    Cs:	-5.62481075e-07	-5.62922653e-07	4.415779275e-10	0
+    Cs(f):	-3.737772221e+11	-3.737039754e+11	-73246616.38	0
+    Cs(r):	3.737772221e+11	3.737039754e+11	73246616.38	0
+
+Time = 35
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0166775811, Final residual = 7.874509148e-05, No Iterations 5
+smoothSolver:  Solving for Uy, Initial residual = 0.002703884028, Final residual = 6.077246934e-06, No Iterations 7
+GAMG:  Solving for p, Initial residual = 0.9999998499, Final residual = 0.004539726606, No Iterations 31
+time step continuity errors : sum local = 6780021866, global = 191397.4062, cumulative = 167931.1476
+smoothSolver:  Solving for epsilon, Initial residual = 0.9999008516, Final residual = 7.888413031e-06, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 7.00292932e-09, Final residual = 1.281018646e-11, No Iterations 1
+bounding k, min: 3e-16 max: 3.984833048e+14 average: 1.779542359e+11
+ExecutionTime = 0.55 s  ClockTime = 1 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 3.625798104e+17 in cell 518 at location (0.9012363811 0.02784883452 0.5)
+    min(epsilon) = 6.075e-06 in cell 0 at location (-25 2.500000025e-06 0.5)
+    max(epsilon) = 1.265742916e+21 in cell 589 at location (1.063995923 0.002268656029 0.5)
+    min(k) = 1e-15 in cell 203 at location (-0.01171875016 0.002661801611 0.5)
+    max(k) = 3.984833048e+14 in cell 605 at location (1.441074697 8.44664213e-06 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.177484807e+23 in cell 525 at location (1.063995898 0.002262713417 0.5)
+    min(p) = -2.357609712e+22 in cell 518 at location (0.9012363811 0.02784883452 0.5)
+    max(p) = 4.397478927e+22 in cell 1030 at location (0.9012364236 0.02803703879 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	4.884499628e+20	4.88450529e+20	-5.661302469e+14	0
+    Cd(f):	-4.896689063e+20	-4.896686321e+20	-2.741332443e+14	0
+    Cd(r):	9.781188691e+20	9.781191611e+20	-2.919970026e+14	0
+    Cl:	2.201681663e+21	2.20168169e+21	-2.679563739e+13	0
+    Cl(f):	-2.125990234e+20	-2.125990177e+20	-5.680549018e+12	0
+    Cl(r):	2.414280686e+21	2.414280707e+21	-2.111508837e+13	0
+    CmPitch:	-1.313439855e+21	-1.313439863e+21	7.717269676e+12	0
+    CmRoll:	-7.338938877e+20	-7.338938966e+20	8.931879129e+12	0
+    CmYaw:	1.628166543e+20	1.62816843e+20	-1.887100823e+14	0
+    Cs:	-54.00259235	-106.8813464	52.87875402	0
+    Cs(f):	1.628166543e+20	1.62816843e+20	-1.887100823e+14	0
+    Cs(r):	-1.628166543e+20	-1.62816843e+20	1.887100823e+14	0
+
+Time = 36
+
+smoothSolver:  Solving for Ux, Initial residual = 0.6989000965, Final residual = 0.006043611578, No Iterations 4
+smoothSolver:  Solving for Uy, Initial residual = 0.9998421042, Final residual = 0.008632849442, No Iterations 4
+GAMG:  Solving for p, Initial residual = 0.9999998426, Final residual = 0.009418323437, No Iterations 28
+time step continuity errors : sum local = 1.124324516e+13, global = 8.126133488e+12, cumulative = 8.126133656e+12
+smoothSolver:  Solving for epsilon, Initial residual = 0.1296260295, Final residual = 5.151888203e-11, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.0001151218961, Final residual = 6.128928782e-07, No Iterations 5
+bounding k, min: 3e-16 max: 2.281891311e+25 average: 6.626261117e+21
+ExecutionTime = 0.56 s  ClockTime = 1 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 7.381158375e+18 in cell 524 at location (1.040492619 0.003991382962 0.5)
+    min(epsilon) = 6.075e-06 in cell 0 at location (-25 2.500000025e-06 0.5)
+    max(epsilon) = 2.170080505e+32 in cell 652 at location (1.040492626 0.004005516677 0.5)
+    min(k) = 1e-15 in cell 203 at location (-0.01171875016 0.002661801611 0.5)
+    max(k) = 2.281891311e+25 in cell 591 at location (1.111096368 0.0004852801744 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 1.109868407e+25 in cell 539 at location (1.393934455 2.500000025e-06 0.5)
+    min(p) = -2.011690161e+39 in cell 526 at location (1.087536669 0.001133943349 0.5)
+    max(p) = 2.70635934e+41 in cell 525 at location (1.063995898 0.002262713417 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-6.65061812e+38	-6.65061812e+38	-1.025363966e+15	0
+    Cd(f):	2.929944406e+39	2.929944406e+39	2.936538495e+15	0
+    Cd(r):	-3.595006218e+39	-3.595006218e+39	-3.961902461e+15	0
+    Cl:	-9.787425935e+39	-9.787425935e+39	-1.034766143e+16	0
+    Cl(f):	2.003603557e+39	2.003603557e+39	1.997545491e+15	0
+    Cl(r):	-1.179102949e+40	-1.179102949e+40	-1.234520692e+16	0
+    CmPitch:	6.897316524e+39	6.897316524e+39	7.171376208e+15	0
+    CmRoll:	3.262475312e+39	3.262475312e+39	3.449220478e+15	0
+    CmYaw:	-2.216872707e+38	-2.216872707e+38	-3.417879886e+14	0
+    Cs:	-8.065532243e+20	-8.065532243e+20	-0.02685287524	0
+    Cs(f):	-2.216872707e+38	-2.216872707e+38	-3.417879886e+14	0
+    Cs(r):	2.216872707e+38	2.216872707e+38	3.417879886e+14	0
+
+Time = 37
+
+smoothSolver:  Solving for Ux, Initial residual = 0.6677415683, Final residual = 0.005774138126, No Iterations 4
+smoothSolver:  Solving for Uy, Initial residual = 0.00915810084, Final residual = 8.063515859e-05, No Iterations 4
+GAMG:  Solving for p, Initial residual = 0.7245212232, Final residual = 0.007224242144, No Iterations 10
+time step continuity errors : sum local = 6.00120184e+21, global = -4.547812176e+21, cumulative = -4.547812168e+21
+smoothSolver:  Solving for epsilon, Initial residual = 0.05684513275, Final residual = 1.005391471e-08, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 1.493424869e-11, Final residual = 1.493424869e-11, No Iterations 0
+ExecutionTime = 0.57 s  ClockTime = 1 s
+
+fieldMinMax fpeMinMax write:
+    min(mag(U)) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(mag(U)) = 2.899874902e+27 in cell 502 at location (0.5295566189 0.0133902437 0.5)
+    min(epsilon) = 6.075e-06 in cell 0 at location (-25 2.500000025e-06 0.5)
+    max(epsilon) = 1.07918533e+48 in cell 588 at location (1.040492622 0.003997324823 0.5)
+    min(k) = 1e-15 in cell 203 at location (-0.01171875016 0.002661801611 0.5)
+    max(k) = 2.281891311e+25 in cell 591 at location (1.111096368 0.0004852801744 0.5)
+    min(nut) = 0 in cell 480 at location (0.01178506064 0 0.5)
+    max(nut) = 3.717428508e+12 in cell 3052 at location (1.51171875 8.44664213e-06 0.5)
+    min(p) = -8.56546943e+41 in cell 517 at location (0.8782339544 0.03299028379 0.5)
+    max(p) = 1.300239243e+43 in cell 527 at location (1.111096365 0.0004793340989 0.5)
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-1.705719854e+39	-1.705719854e+39	3.303240648e+24	0
+    Cd(f):	1.236625132e+41	1.236625132e+41	9.67003925e+23	0
+    Cd(r):	-1.25368233e+41	-1.25368233e+41	2.336236723e+24	0
+    Cl:	-3.735461193e+41	-3.735461193e+41	2.053849197e+24	0
+    Cl(f):	9.487618016e+40	9.487618016e+40	-4.837721602e+23	0
+    Cl(r):	-4.684222995e+41	-4.684222995e+41	2.537621357e+24	0
+    CmPitch:	2.816492398e+41	2.816492398e+41	-1.510696759e+24	0
+    CmRoll:	1.245153731e+41	1.245153731e+41	-6.846163989e+23	0
+    CmYaw:	-5.685732846e+38	-5.685732846e+38	1.101080216e+24	0
+    Cs:	-3.422093968e+21	-3.422093968e+21	-5331341.481	0
+    Cs(f):	-5.685732846e+38	-5.685732846e+38	1.101080216e+24	0
+    Cs(r):	5.685732846e+38	5.685732846e+38	-1.101080216e+24	0
+
+Time = 38
+
+smoothSolver:  Solving for Ux, Initial residual = 0.476666599, Final residual = 0.8237945551, No Iterations 1000
+smoothSolver:  Solving for Uy, Initial residual = 0.3726573751, Final residual = 0.7746701047, No Iterations 1000
+[stack trace]
+=============
+#1  Foam::sigFpe::sigHandler(int) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+#2  ? in /lib/x86_64-linux-gnu/libc.so.6
+#3  Foam::scalarProduct<double, double>::type Foam::sumProd<double>(Foam::UList<double> const&, Foam::UList<double> const&) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+#4  Foam::PCG::scalarSolve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+#5  Foam::GAMGSolver::solveCoarsestLevel(Foam::Field<double>&, Foam::Field<double> const&) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+#6  Foam::GAMGSolver::Vcycle(Foam::PtrList<Foam::lduMatrix::smoother> const&, Foam::Field<double>&, Foam::Field<double> const&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::PtrList<Foam::Field<double>>&, Foam::PtrList<Foam::Field<double>>&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+#7  Foam::GAMGSolver::solve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+#8  Foam::fvMatrix<double>::solveSegregated(Foam::dictionary const&) in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+#9  ? in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+#10  Foam::fvMesh::solve(Foam::fvMatrix<double>&, Foam::dictionary const&) const in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+#11  ? in <platforms>/linux64GccDPInt32Opt/bin/simpleFoam
+#12  ? in /lib/x86_64-linux-gnu/libc.so.6
+#13  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+#14  ? in <platforms>/linux64GccDPInt32Opt/bin/simpleFoam
+=============

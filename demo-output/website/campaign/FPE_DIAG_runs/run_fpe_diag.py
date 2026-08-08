@@ -60,6 +60,7 @@ def add_function_object(control_text: str, fo: str) -> str:
 
 def grade(remote: Path, out_dir: Path, name: str, wall: float,
           returncode: int, extras: dict) -> dict:
+    out_dir.mkdir(parents=True, exist_ok=True)
     log_text = (remote / "log.simpleFoam").read_text(errors="replace") \
         if (remote / "log.simpleFoam").exists() else ""
     for item in ("log.simpleFoam", "log.checkMesh", "log.potentialFoam"):

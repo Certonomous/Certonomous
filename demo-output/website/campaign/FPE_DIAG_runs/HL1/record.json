@@ -1,0 +1,71 @@
+{
+  "core_min": 2.963,
+  "crashed": false,
+  "fatal": [],
+  "geometry": "hills",
+  "last_iteration": 3000,
+  "lever": "k/epsilon seeded per-cell from converged SST field (medium/5997), eps=0.09*k*omega",
+  "levers_verified_active": {
+    "basis": "launcher echo, hash-bound to the dictionaries that ran (Verification Charter v1.5 section 9)",
+    "verified": [
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/U",
+        "file": "0/U",
+        "sha256": "9ac9f5d6d511f143e641553d0537d9c8e70370c13feed7f53b3fb3757945c793"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/epsilon",
+        "file": "0/epsilon",
+        "sha256": "23211600d54a882f57a9c04d1999e4cec43aa1de3a3bae1c2066d03e574c84cb"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/k",
+        "file": "0/k",
+        "sha256": "87e94e2f4b6b48dfb8710fb6791d7a4ae498c4d0ca34adcddae169c4b838e8cf"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/nut",
+        "file": "0/nut",
+        "sha256": "65f4bbcb51dcb35753b00c489d9319a1cdbcdc408bc6f362ab6cc9f057e153d0"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/omega",
+        "file": "0/omega",
+        "sha256": "ac629681cfff19635ff23ae84bc0aa5cd1bc6d6b35b6871646230d169ac58b9e"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/p",
+        "file": "0/p",
+        "sha256": "85858d28595f16d78e5a96acbd7f7a7989a03ba660b509b1449e83e16b3685ae"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file constant/transportProperties",
+        "file": "constant/transportProperties",
+        "sha256": "579f636b7ea9bb48c7eda8b6de26e6c646a3d3487665a78e8d70a87036101d70"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file constant/turbulenceProperties",
+        "file": "constant/turbulenceProperties",
+        "sha256": "645a54d33e11ecb46044a45216dba7dcde03bfe821186f7f1b26bc380584328a"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSchemes",
+        "file": "system/fvSchemes",
+        "sha256": "b41b7447ec6a15783530462150fc859db22e5f722913fd632c4588221cba18b5"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSolution",
+        "file": "system/fvSolution",
+        "sha256": "ff7115869c1215c8d3ee48954e6c968115a6bc429e3f9c9615a3e63640e6b082"
+      }
+    ]
+  },
+  "model": "kEpsilon",
+  "phase": 2,
+  "prereg": "campaign/FPE_DIAG_runs/FPE_DIAG_PREREGISTRATION.md",
+  "residual_control_met": false,
+  "returncode": 0,
+  "run": "HL1",
+  "timestamp": "2026-08-08T23:14:24Z",
+  "wall_seconds": 177.8
+}

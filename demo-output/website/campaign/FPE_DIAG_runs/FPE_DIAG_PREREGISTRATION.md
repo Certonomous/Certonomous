@@ -98,3 +98,57 @@ via the arm script with per-run records in `FPE_DIAG_runs/<run>/record.json`;
 watch handoff: the script and `FPE_DIAG_runs/driver.log` are the state.
 
 *Nothing below this line existed when the arm was launched.*
+
+## Outcome (2026-08-08, arm complete 23:14:50Z)
+
+Pre-registration committed `0be92103`; first launch aborted on a driver bug
+(the grading helper copied logs before creating its output directory — fixed,
+zero solver loss, the probe had already run), relaunch 23:11Z clean.
+**Total 3.54 of 25 core-min.**
+
+| run | result | detail |
+| --- | --- | --- |
+| HP1 (hills kEpsilon, monitored) | crashed iter **13** | archived crash iter 13 — **exact** reproduction |
+| BP1 (bump kOmegaSST, monitored) | crashed iter **44** | archived 44 — exact |
+| BP2 (bump kEpsilon, monitored) | crashed iter **38** | archived 38 — exact |
+| HL1 (hills lever: per-cell SST-seeded k/epsilon) | **SURVIVED** 3,000 | zero fatals, 230× past the crash point |
+| BL1 (bump lever: potentialFoam init) | **SURVIVED** 2,000 | zero fatals, 45× past the crash point |
+
+**What the monitoring named (D2's question):** two different roads to the
+one death site. Hills: the **turbulence fields explode globally from the
+uniform derived initialization** — at the crash, min(epsilon) = 4.96e+45
+(the *minimum*, everywhere), max(k) = 4.7e+108, max(nut) = 2.4e+153 — the
+absurd viscosity locks U (explaining the frozen ~1e-7 momentum residuals)
+before the pressure solve dies. Bump: a **local momentum divergence** —
+max|U| = 9.4e+22 at (x = 0.81, y = 0.046), the near-wall aft-bump region,
+with k spiking locally (4.7e+6 near-wall at x = 0.6) and omega at 1.6e+11 —
+the impulsive uniform start at nu = 8.3e-8, turbulence secondary.
+
+**Verdict, per the pre-registered mapping: SHARED-BY-CLASS
+(initialization)** — the declared alternative of D3, in its exact frozen
+wording: both crashes are initialization-class and both levers remove them,
+even though the mechanisms differ in detail (hills: the uniform
+epsilon-from-constants derivation is the trigger, cured by evaluating the
+same identity on the converged SST field per cell; bump: the impulsive
+uniform start at the 20× Reynolds step, cured by the family's precedented
+potentialFoam init). Not GEOMETRY-SPECIFIC as primarily predicted, and not
+the filing's original single-shared-mechanism either.
+
+**Predictions scored:** D1 HELD (three exact-iteration reproductions,
+against a ±10 window). D2 HELD (different collapsing quantities and regions,
+in the predicted directions). D3 FALSIFIED in its primary wording — BL1
+survived — with the pre-declared alternative firing as written.
+
+**Lever-activity proof:** every record carries the mechanical
+`levers_verified_active` (launcher echo, hash-bound dictionaries) — the
+first family records under the ea0f7d9d adoption; born-clean held on every
+launch (checkMesh beside each case before its solver).
+
+**What this buys, and what it does not:** four dead k-family cells across
+two families now have named, tested, initialization-class cures — but per
+this arm's own gate, nothing is admitted here. Recommended successor (for
+the chief's docket pass, not run): re-run the four FPE cells through the
+standing batch with the two seeding fixes as declared, pre-registered
+initialization changes (`--redo-excluded`, own prereg), letting the standing
+gate decide membership; family B's bands and family H's kEpsilon member
+would be the payoff if they then converge.

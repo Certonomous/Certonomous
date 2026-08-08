@@ -18,7 +18,8 @@
   "The model-form batch design, deviation 2 on the derived epsilon freestream",
   "LESSONS entry L-40 on lever activity proof"
  ],
- "status": "approved",
+ "status": "done",
  "decision_note": "Approved by the chief 2026-08-08 as the second family-H successor, paired with entry 9 per the chief's pairing instruction; filed by the Cases family supervisor, to run after the extension arm clears the box.",
- "created_at": "2026-08-08T03:08:00Z"
+ "created_at": "2026-08-08T03:08:00Z",
+ "outcome": "Executed 2026-08-08 at 3.54 of 25 core-min (prereg 0be92103 before launch). All three instrumented probes reproduced their archived crashes to the exact iteration (13/44/38). The monitoring named two different roads to one death site: hills kEpsilon's turbulence fields explode globally from the uniform derived initialization (min epsilon 4.96e+45, max nut 2.4e+153, viscosity-locked U) while the bump diverges locally in momentum from the impulsive uniform start at the 20x Reynolds step (max U 9.4e+22 near-wall aft-bump). Both levers removed their crashes: SST-seeded per-cell k/epsilon survived 3000 iterations on the hills, potentialFoam init survived 2000 on the bump. VERDICT per the pre-registered mapping: SHARED-BY-CLASS (initialization) -- the pre-declared alternative, fired in its frozen wording after the primary geometry-specific prediction was falsified by BL1's survival. Nothing admitted to any band from this arm; recommended successor filed in the outcome section: re-run the four FPE cells through the standing batch with the two initialization fixes declared, letting the standing gate decide membership. Records with mechanical levers_verified_active: campaign/FPE_DIAG_runs/."
 }
