@@ -24,6 +24,23 @@ Same family as (1). The model-form matrix at challenge conditions is already app
 (`w1-hump-challenge-conditions`, 60). **New diagnostic:** [FILE] add a QCR arm to that run when it
 executes (marginal cost ~8 core-min) so the two-leg pattern gets the same constitutive probe on both legs.
 
+**Outcome (2026-08-08, chief review of the executed arm):** both diagnostics ran at challenge
+conditions (pre-reg 74797a57, results 9d711efb). Gate V passed against the verified F6a answer to
+the fourth digit; Gate P failed on reattachment at +13.92% — inside the +12–16% window the
+pre-registration predicted, so the two-leg SST bubble bias is now CONFIRMED at challenge
+conditions, not merely carried over. The QCR arm returned outcome two: +0.0022 x/c AWAY from
+experiment against a 0.010 materiality bar — the constitutive/anisotropy route is ruled out on the
+hump leg, and the omega budget (separated-shear-layer stress magnitude) is implicated. Set against
+the ducts, where the same untrained QCR was decisive (0.0811→0.0455), this is a clean separation
+of "anisotropy missing" (ducts) from "shear stress mis-scaled" (hump). The hills leg
+(`f6b-qcr2000-on-the-hills`) stays pending and now carries more weight: it decides whether the
+separation generalizes.
+**Next diagnostic:** [FILE] a1 shear-stress-limiter sensitivity arm on the hump (~6 core-min at
+the now-measured price): single parameter, identical mesh — if reattachment moves materially with
+the limiter, the mis-scaled-stress hypothesis gains a mechanism, not just an implication; if it
+does not, the budget question moves upstream to the omega production/destruction balance.
+Criterion: existing-family; the pre-registration must state a materiality bar before launch.
+
 ## 3. F8 NREL Phase VI — steady-MRF closed three ways, motoring limit cycle persists
 Geometry exonerated to the millimeter, frame terms audited to source lines, initialization tested
 single-variable. Taught: the steady branch cannot host this physics, and the S10 divergence-behind-
