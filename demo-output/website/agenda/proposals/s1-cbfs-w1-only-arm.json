@@ -1,0 +1,20 @@
+{
+ "id": "s1-cbfs-w1-only-arm",
+ "well": "S1",
+ "objective": "Window-only (W1) reinversion on the repaired CBFS case: the weighted-arm machinery with a single-box loss whose support matches G2's accounting term-for-term",
+ "rationale": "The weighted arm proved localization follows the loss support cell-for-cell (79.7 percent of top-decile in the W2 support vs 14.1 base rate, 0.0 percent free-channel) but split its effort between the window (42.7) and the recovery strip (37.0) because both were in the loss; a W1-only loss is the apples-to-apples test of G2's window-only bar. Everything needed is built and verified: the FD-gated boxToCell variance (one box is a config subset of the passed two-box gate), the -primalTol 1e-8 protocol, the warm-start and masking machinery, the exact DV-to-serial permutation, the entry-7 hurt-cap discipline. ~150 core-min class.",
+ "est_core_min": 150.0,
+ "predicted_memory_gb": 8.0,
+ "cost_basis": "measured on this case: ~19-20 core-min per compute_totals eval at 1e-8 uncontended, ~8 per primal; masked-to-window control 8 + FD spot-check on the one-box config ~25 + ~5 evals ~100 + write-out ~9",
+ "gate": "NOT RUNNABLE YET -- see decision_note trigger. If triggered: pre-registration first, per-step commits, its own masked-to-W1 control, FD re-check on the one-box objective, G1 re-based to the W1 baseline, G2 unchanged, hurt cap carried forward",
+ "expected_knowledge_gain": "Whether the window-only bar is passable when the loss support equals the metric support -- and the loss-support design datum the S1-with-priors phase needs either way",
+ "source_kind": "measurement",
+ "citations": [
+  "demo-output/website/dafoam/ladder-b/S1_CBFS_WEIGHTED_ARM_RESULT.md",
+  "demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md",
+  "docs/CAPABILITY_STRATEGY.md"
+ ],
+ "status": "proposed",
+ "created_at": "2026-08-08T23:15:00Z",
+ "decision_note": "NO-GO FOR NOW by chief ruling at entry-12 close (commit 7b758783): approved in principle with a NAMED TRIGGER -- the S1-with-priors design phase (CAPABILITY_STRATEGY section 3), which must decide loss support anyway and consumes this arm's sharpened question (loss-support vs metric-support accounting, quantified at 42.7/37.0) as a design input. Do not claim, price, or launch before that phase opens; the regularization-provenance table in S1_CBFS_WEIGHTED_ARM_RESULT.md is the bridge document."
+}
