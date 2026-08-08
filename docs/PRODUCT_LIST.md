@@ -551,6 +551,33 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - Watcher discipline note: two resumed agents parked on waiters that died with them (the known antipattern) — both
   watches were taken over by the chief inline; no work was lost either time.
 
+### 2026-08-08 (pre-dawn) — the review's diagnostics all execute, and three "mysteries" die of measurement
+- QCR CLASS SENTENCE HARDENED (1a14e90b activity check, hold lifted df755b49): "QCR2000 resurrects anisotropy-driven
+  secondary flow and does not touch 2D separated-shear-layer bubble length" — three legs (ducts decisive, hump null,
+  hills null), with the nulls adversarially defended: model selection in both logs, wall-shear deltas 9–19% on
+  identical grids, pressure/velocity movement no stress-formula can fake, momentum-equation wiring cited to file:line.
+- THE a1 KNOB MEASURED (2544c9af): converged hump curve 0.31→0.34→0.40 monotone toward experiment, d(reatt)/d(a1)
+  ≈ −1.66 just above stock flattening to −0.27 — the stress-magnitude route has a mechanism; still fails Gate P at
+  +9.4% (predicted). Reconciled against two previously-uncited 2026-08-01 arms; citation defect dated.
+- F5c: THE 4–12× CATASTROPHE NEVER EXISTED (6d806733 audit, a10ebc31 corrections): wallShearStress sign convention,
+  proven at fe121af2 NINE DAYS AGO and never absorbed by the records — corrected reading −10.5% with wander; inlet
+  clean at reference station; unsteady-probe arm retargeted at the honest question. Meta-lesson L-39 (06517346):
+  verdicts age silently; run the reconciliation sweep before diagnosing any standing mystery.
+- F8: THE FORK RESOLVED BY ARITHMETIC (6d806733): pre-registered 4-arm BEM gives +686 to +793 N·m attached at λ=5.42
+  — an attached steady solution exists in principle, so the motoring limit cycle is solver basin behavior; transient
+  branch keeps its confirmed ≤400 N·m target; the +1.8° STL-offset ambiguity closed as the tip-chord pitch convention.
+- S10d ADOPTED (a217d393, MONITOR_STANDARD v1.4): the replay found NO CATCH five clauses deep on our own divergence
+  specimen; the amendment was adopted only after the Infra family reproduced the full replay itself — 974 histories,
+  5 true fires (incl. three dpw5 divergences the old corpus never ingested), zero false positives; suite 1182/0.
+- S1 WEIGHTED LINE: capturable at 0.9494/0.9468 vs the 0.70 bar (2c475ab5/71dbf5a8) — the weighted reinversion arm
+  (250 core-min) approved behind an 8-core-min nonlocality control; Stage 2 held for the weighted successor's β;
+  no G2-bar revision (the bar caught a real property of the loss).
+- LADDER V PASS 1 COMPLETE (9a21d65c): V1–V5/V7/V10 all PASS — the score reproduced to the last digit in a fresh venv,
+  leakage asserts run live with a negative control, one duct traced unbroken end-to-end, untrained-QCR proven
+  structurally. Every rung runnable before a send exists has run; status ledger in the protocol doc (223c3b84).
+- IN FLIGHT at changelog time: hills model-form matrix (family H, pre-reg 28e14422), A3 sub-LU adjoint arm, S1
+  nonlocality control → FD gate → weighted arm.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

@@ -102,6 +102,18 @@ CHIEF-ENDORSED for adoption; application routed to the Infra family with the cor
 One overstatement to correct in the F8 gate record: §12's "converged to any residual-only
 monitor" — p sat at 0.51 and S6 does flag it; the true gap is the FATAL conversion (dated note
 ordered).
+**S10d ADOPTED (same day, a217d393):** the Infra family re-ran the full replay with its own hands
+— 974 histories, fires on exactly 5 (the two F8 specimens at 83–85 orders of magnitude, plus
+three dpw5-committee-probe histories at 21–30 orders, verified genuinely diverged on their own
+records), zero false positives across 969. MONITOR_STANDARD v1.4; the corpus rail now ingests
+forces-object histories so the specimen class can never again sit outside the glob; suite 1182/0
+with the specimen firing from its own file on disk in the test set. One evidence discrepancy was
+found and resolved honestly (the archived replay JSON held only half the corpus; the full claim
+lived in prose — the rerun confirmed both halves and the numbers now live in the structured
+record). The S6/S4 FATAL-conversion question was judged closed by S10d itself, with the
+revisit condition written into the standard. This thread — from "does the standard catch our own
+specimen?" through NO-CATCH-five-clauses-deep to an adopted rule with a reproduced replay line —
+is the archive-replay charter working end to end.
 
 ## 4. B52 — the ladder is noise (increment 15% of the measured 1.91e-3 floor)
 Taught: the family's question was answered; the remaining question is the floor's origin.
