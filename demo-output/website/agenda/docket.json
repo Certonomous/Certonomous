@@ -5302,6 +5302,31 @@
    "cost_basis_previous": "Estimate, anchored on our own measured throughput and deliberately conservative. Rung A6 converged 579072 cells in 38.4 core-min for 1000 iterations, which is 6.6e-5 core-min per cell per 1000 iterations. The coarsest workshop grid is 2661338 cells, so one angle of attack at 3000 iterations scales to about 530 core-min, and the six specified angles to about 3200 core-min. Rounded to 3600 to allow for a high-lift case needing more iterations to settle than a cruise wing does. This is the largest single compute request on the docket and it is a real commitment, not a screen. Memory is the genuine risk and is not established: A6 held 30 GB free at 579072 cells but this grid is 4.6 times larger, so the first action must be a memory probe on a single angle before the remaining five are queued. Dollars: zero for the grids, which are anonymous public downloads. Any attendance fee is a separate decision and is not established for this edition",
    "repriced_at": "2026-08-01T05:00:00Z",
    "repriced_note": "Repriced 2026-08-01 from a direct measurement on the real committee grid: it runs on this machine at 4.55 GiB of 30.6, so memory was never the risk. Two agents probed this item independently and reached the same measured rate; the 14-rank figure of 6,390 core-min is kept. Evidence and method: the hlpw6 directory under the site root. Submission mechanics, which no compute number covers, are recorded there in the submission gate note."
+  },
+  {
+   "id": "f6a-hump-a1-limiter-sensitivity",
+   "well": "W1",
+   "objective": "Measure whether the NASA hump reattachment responds to the SST shear-stress limiter constant a1, turning the omega-budget implication from the executed QCR arm into a mechanism or sending the question upstream",
+   "rationale": "The challenge-conditions run confirmed the bubble bias at +13.92 percent on a verified pipeline and the QCR2000 arm returned a null at the pre-registered materiality bar, ruling out the constitutive route on the hump leg and implicating the separated-shear-layer stress magnitude. The limiter is the single named constant that caps exactly that stress: in the limited regime the eddy viscosity is proportional to a1, and the limiter is expected active in a separated shear layer. Two variations, a1 at 0.28 and 0.34, bracket the stock 0.31 by roughly ten percent, the spread the literature itself carries for Bradshaw's structure parameter that a1 encodes. If reattachment moves materially with a1, the mis-scaled-stress hypothesis gains a mechanism with a measured sensitivity slope; if it does not, the limiter is exonerated and the budget question moves upstream to the omega production and destruction balance, exactly as the review's outcome block frames it. Prediction, registered before any solve in the pre-registration file: the limiter is active in the bubble, a1 at 0.34 shortens the bubble past the materiality bar toward the experiment without repairing it to the gate",
+   "gate": "Declared in W1_HUMP_A1_PREREGISTRATION.md before any solve: identical shipped mesh and residualControl as the executed SST leg, a1 the single change per arm, materiality bar 0.010 x over c on reattachment per arm against the executed SST leg's 1.2531. Outcome one, mechanism: either arm moves reattachment by at least the bar, and the sensitivity slope with sign is the finding. Outcome two, upstream: both arms move less than the bar, and the omega production and destruction balance inherits the question. An arm that fails residualControl by the cap is reported unconverged and ungated",
+   "est_core_min": 12,
+   "predicted_memory_gb": 4.0,
+   "predicted_usd": 0.164,
+   "cost_basis": "measured: the executed challenge-conditions SST leg on the identical case converged in 1922 iterations for 5.58 core-min gross, wall times four ranks; two arms price at 11.2 plus extraction margin",
+   "expected_knowledge_gain": "Either the first mechanism-level fact about the hump bubble bias on this record, a measured d reattachment by d a1 with sign, or a clean exoneration of the limiter that narrows the omega-budget question to production and destruction terms before anyone prices a term-level probe",
+   "source_kind": "gate",
+   "hard_criterion": "existing-family",
+   "citations": [
+    "The supervisor review of standing negative verdicts, 2026-08-07, entry 2 outcome block of 2026-08-08 ordering this arm",
+    "The executed challenge-conditions record, SST and QCR legs, whose verified baseline this arm compares against",
+    "Menter, Two-equation eddy-viscosity turbulence models for engineering applications, AIAA J 32(8), 1994, the a1 limiter and its Bradshaw-parameter basis",
+    "NASA Turbulence Modeling Resource, wall-mounted hump validation case"
+   ],
+   "launch_prompt": "F6a hump, a1 limiter sensitivity. Read W1_HUMP_A1_PREREGISTRATION.md and run exactly it: two simpleFoam solves on the challenge case, kOmegaSSTCoeffs a1 0.28 and 0.34, nothing else changed from the executed SST leg; extract reattachment with the same hump_gate_analysis.py; verdict per the registered outcomes; evidence appended to the W1 hump results line; docket outcome on this item.",
+   "status": "approved",
+   "created_at": "2026-08-08T02:05:00Z",
+   "decided_at": "2026-08-08T02:05:00Z",
+   "decision_note": "Ordered by the chief's entry-2 outcome block (commit 0a764729) and approved in the chief's resume directive of 2026-08-08 to the Cases-family solver agent; filed by that agent per the intake conventions with the review's wording carried."
   }
  ]
 }
