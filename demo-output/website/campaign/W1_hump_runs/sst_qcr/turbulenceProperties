@@ -1,0 +1,36 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      turbulenceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType RAS;
+
+// DEVIATION (F6a, documented, same pattern as ladder B2): original
+// RASModel was AugmentedkOmegaSST with "baseline true" (a custom model from
+// libfrozenIncompressibleTurbulenceModels.so that reduces to stock SST when
+// baseline=true and beta=1, i.e. no field-inversion correction active).
+// That library is not available (see controlDict). Substituted stock
+// kOmegaSST. omegaMin left at OpenFOAM's default since AugmentedkOmegaSST's
+// omegaMin=0.1 is a model-specific parameter not applicable to stock SST.
+RAS
+{
+    RASModel        kOmegaSSTQCR;
+
+    turbulence      on;
+
+    printCoeffs     on;
+}
+
+// ************************************************************************* //
