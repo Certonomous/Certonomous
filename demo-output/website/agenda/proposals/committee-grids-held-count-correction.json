@@ -1,0 +1,17 @@
+{
+ "id": "committee-grids-held-count-correction",
+ "objective": "One-line correction to demo-output/website/committee-grids/PREDICTIONS.md: the prose says 'Four of fourteen held' while the record's own scoring table marks FIVE predictions held (P1, P2, P5, P6, P13) -- the record's owner reconciles prose to table (or documents which table row is mis-marked), dated, supersede-not-delete",
+ "criterion": "instrument-check",
+ "rationale": "Found by the 2026-08-08 calibration scorecard sweep (campaign/CALIBRATION_SCORECARD_2026-08.md): the committee-grids prediction record grades 14 pre-registered predictions and its summary sentence disagrees with its own scoring table by one. The scorecard counted from the table as the auditable artifact, per chief ruling, and files this correction request rather than silently choosing. A prediction record whose own held-count is internally inconsistent corrupts every downstream calibration statistic that cites it; the fix is one dated line by the record's owner (L-32: the record moves first, satellites are not the record).",
+ "citations": [
+  "demo-output/website/committee-grids/PREDICTIONS.md (table rows P1,P2,P5,P6,P13 marked held; prose line 'Four of fourteen held')",
+  "demo-output/website/campaign/CALIBRATION_SCORECARD_2026-08.md section 6",
+  "LESSONS.md L-32"
+ ],
+ "est_core_min": 0,
+ "cost_basis": "measured; a one-line dated edit by the record owner, no runs",
+ "expected_knowledge_gain": "The calibration cohort's committee-grids rows become internally consistent and next quarter's scorecard can cite the record without carrying a discrepancy flag",
+ "source_kind": "report",
+ "status": "proposed",
+ "created_at": "2026-08-08"
+}

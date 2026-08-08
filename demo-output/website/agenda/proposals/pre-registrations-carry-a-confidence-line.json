@@ -1,0 +1,20 @@
+{
+ "id": "pre-registrations-carry-a-confidence-line",
+ "objective": "The pre-registration template gains one line per prediction -- 'confidence: X%' -- so every prediction the lab writes down carries a stated probability, and the quarterly calibration scorecard can draw a real reliability curve instead of only a hit rate",
+ "criterion": "instrument-check",
+ "rationale": "The first calibration scorecard (demo-output/website/campaign/CALIBRATION_SCORECARD_2026-08.md) swept every graded prediction from 2026-08-01 to 2026-08-08: N=98 across 27 records, 55 held / 35 failed / 4 partial / 4 not-evaluable, a 61% hit rate on decisive grades. Zero of the 98 carries a numeric confidence -- the only '95% confidence' string in the estate is a certificate-template labelling defect the Verification Charter already records for removal -- so the strategy's reliability-curve item ('of the predictions asserted at 70%, did 70% hold?') and the agentic-confidence study (does 70% mean 70%?) are uncomputable this quarter: the outcomes exist, the stated probabilities do not. The raw material is demonstrably there: the records hedge ordinally and the hedges are informative -- 'the risky one' (F6b Gate V), 'the file's own weakest claim' (F6b prediction 4, which failed), 'weak and stated as such' (F8 step 2, which failed), 'the number most likely to miss' (R7's cost estimate, which missed by 38%). In at least three cases the verbally-flagged weakest prediction is exactly the one that failed; the lab has ordinal self-knowledge and has never written it as a number. Mechanics: (1) every pre-registration's predictions section attaches 'confidence: X%' per prediction (integer percent, author's honest credence that the prediction as worded will grade HELD); (2) the outcome section grades against the same wording as today, unchanged; (3) cost estimates get the same line, which also feeds the cost-model-v2 item; (4) the quarterly scorecard bins predictions by stated confidence and reports observed frequency per bin -- the first reliability curve becomes computable one quarter after adoption; (5) no gate or verdict ever depends on the stated confidence (it is an instrument reading, not a criterion), so the line cannot be gamed into softening a gate -- a 10%-confidence prediction that fails still fails.",
+ "citations": [
+  "demo-output/website/campaign/CALIBRATION_SCORECARD_2026-08.md",
+  "docs/CAPABILITY_STRATEGY.md section 1 (calibration scorecard; agentic-confidence study)",
+  "demo-output/website/campaign/F6b_ERCOFTAC_PREREGISTRATION.md (verbal hedging specimen: 'this is the risky prediction')",
+  "demo-output/website/campaign/F8_MRF_HAND2001_GATE.md section 7 ('Prediction, weak and stated as such' -- scored FALSE)",
+  "demo-output/website/campaign/R7_STROUHAL_SPACING_PREREGISTRATION.md section 5 ('the number most likely to miss' -- missed)",
+  "docs/charters/VERIFICATION_CHARTER.md (the mislabelled '95% confidence interval' template defect)"
+ ],
+ "est_core_min": 0,
+ "cost_basis": "measured; a one-line template addition plus the scorecard's existing sweep -- no solver time, no new runs",
+ "expected_knowledge_gain": "Reliability curves become computable from the next quarter of pre-registrations: the lab learns whether its stated 70% means 70%, which prediction classes it is over- or under-confident on (gate-reproduction predictions ran ~100% held this cohort while physics-outcome predictions ran well below 50%), and cost forecasting gains the same channel; the ordinal hedging the records already do becomes a scored instrument instead of prose",
+ "source_kind": "report",
+ "status": "proposed",
+ "created_at": "2026-08-08"
+}
