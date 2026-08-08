@@ -373,3 +373,35 @@ shear layer; dated retraction on the result doc).
    trains on the weighted successor's field, not eval-16's.
 4. The continuation arm is now DEPRIORITIZED below the weighted arm permanently — capturability
    answered the question the continuation arm was priced to answer.
+
+**Weighted-arm outcome (2026-08-08 night, preregs 33f18095/06aeb417/8d817b2b each pre-solve,
+close 91fe03b3): both gates FAIL, and the failure decomposition is again worth more than a pass
+would have been.** The gated sequence held: the masked-β nonlocality control PASSED decisively
+(R_W1 masked 0.9458 vs 0.9494 full — 99.6% of the window fix survives amputating every deviating
+out-of-window cell, so the fix is local, full stop); the FD gate passed at 0.033%/0.007%/0.029%
+with the exact permutation used for cell naming this time. The arm then ran to its budget guard
+through the seventh fleet kill: G1w failed at 0.05713 vs ≤0.05320 — ONE EVAL SHORT, still
+descending at ~0.004/eval, with ~16 core-min of the budget billed to A3 host contention rather
+than its own compute; G2 failed at 42.7% vs >50, UP from 26.9%, with the agent's own G2-pass
+prediction graded WRONG for a measured reason: localization followed the loss support
+cell-for-cell (79.7% of top-decile in W2 support vs 14.1% base rate, 0.0% in the free channel,
+relocation collapsed), but the recovery strip — which held 30% of the warm-start error and sits
+legitimately inside the W2 loss — drew late effort that G2's window-only accounting does not
+count.
+**Chief adjudication of the three handed-up options:**
+1. **Localization (option 3): ANSWERED.** 79.7% in-support / 0.0% free-channel kills the
+   relocation pathology as a live concern. The remaining G2 gap is a loss-support vs
+   metric-support ACCOUNTING mismatch, quantified (window 42.7 / strip 37.0) — not a model
+   failure, not a placement failure.
+2. **Eval-8 completion (option 1): APPROVED, tightly.** One eval (~28 core-min), under a dated
+   budget amendment that shows the contention arithmetic (the budget bought 7 evals of work and
+   ~16 core-min of someone else's walltime) and hard-stops after eval 8; G1w is graded on its
+   ORIGINAL bar either way. This is distinct from the hills cap-chasing we refused: there the
+   projections were falsified; here the descent rate held and the shortfall is a billing
+   artifact. If G1w still fails at eval 8, it fails for real and is recorded so.
+3. **The W1-only arm (option 2): approved in principle, launch decision AFTER eval 8.** If G1w
+   passes and the G2 gap is accounting-only, W1-only sharpens into the clean test of whether
+   matching loss support to metric support term-for-term closes G2 — and it feeds the
+   S1-with-priors line (CAPABILITY_STRATEGY §3) whose regularization-provenance table the result
+   doc already carries.
+4. **Stage 2 REMAINS HELD** — the ruling conditioned training on gates passing; they did not.
