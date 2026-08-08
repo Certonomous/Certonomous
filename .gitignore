@@ -80,3 +80,9 @@ demo-output/website/dafoam/f6d_random_matrix_uq/ens/
 demo-output/website/dafoam/f6d_random_matrix_uq/signdemo/
 demo-output/website/dafoam/f6d_random_matrix_uq/signcheck/
 demo-output/website/dafoam/f6d_random_matrix_uq/f6a_recheck/
+
+# LaTeX build artifacts
+demo-output/website/latex/*.aux
+demo-output/website/latex/*.log
+demo-output/website/latex/*.out
+demo-output/website/latex/*.toc
