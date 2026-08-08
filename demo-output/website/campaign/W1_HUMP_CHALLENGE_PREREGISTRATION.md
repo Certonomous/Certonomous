@@ -126,3 +126,8 @@ The QCR2000 term is the single change. Outcomes, defined now:
 
 ---
 *Nothing below this line existed when the runs were launched.*
+
+**Dated citation note, 2026-08-08 (Ladder V rung V5; additive only):** the
+QCR2000 term named throughout is Spalart, P. R., "Strategies for turbulence
+modelling and simulations," *Int. J. Heat Fluid Flow* **21**(3), 252–263
+(2000); `Ccr1 = 0.3` is that paper's published constant, untouched.

@@ -105,3 +105,8 @@ within the factor-3 rule); the original 60 would have been wrong by 10.8×.
 - `f6a-hump-qcr-arm-on-the-challenge-run`: executed with the challenge run
   per its own contingency clause; outcome two recorded; the cross-leg table
   above is the deliverable, with the hills cell honestly pending.
+
+**Dated citation note, 2026-08-08 (Ladder V rung V5; additive only):** the
+QCR2000 term named throughout is Spalart, P. R., "Strategies for turbulence
+modelling and simulations," *Int. J. Heat Fluid Flow* **21**(3), 252–263
+(2000); `Ccr1 = 0.3` is that paper's published constant, untouched.

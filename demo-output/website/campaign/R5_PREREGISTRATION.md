@@ -197,3 +197,9 @@ converged fields, `ledger.txt`).
 *Nothing below this line existed when this file was committed; the round-5
 per-case table does not exist yet, and producing it is the supervisor's
 call.*
+
+**Dated citation note, 2026-08-08 (Ladder V rung V5; additive only, no
+frozen clause touched):** the QCR2000 term this record names throughout is
+Spalart, P. R., "Strategies for turbulence modelling and simulations,"
+*Int. J. Heat Fluid Flow* **21**(3), 252–263 (2000); `Ccr1 = 0.3` is that
+paper's published constant, adopted untouched.

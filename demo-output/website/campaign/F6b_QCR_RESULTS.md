@@ -68,3 +68,8 @@ the finest-rung non-convergence successor stands unchanged.
 | `f6b-qcr2000-on-the-hills` | 12 | **9.17** |
 | `f6a-hump-a1-limiter-sensitivity` | 12 | 20.68 (graded in its own record) |
 | session total vs the 45 hard cap | — | ≈ 43 of 45 |
+
+**Dated citation note, 2026-08-08 (Ladder V rung V5; additive only):** the
+QCR2000 term named throughout is Spalart, P. R., "Strategies for turbulence
+modelling and simulations," *Int. J. Heat Fluid Flow* **21**(3), 252–263
+(2000); `Ccr1 = 0.3` is that paper's published constant, untouched.
