@@ -3787,10 +3787,12 @@
     "The CBFS unblock verification sweep, where the sub-LU setting cleared the incompressible family"
    ],
    "launch_prompt": "A3 ONERA M6, sub-LU plus transonic preconditioner arm. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 8, demo-output/website/dafoam/ADJOINT_MEMORY_ENVELOPE.md, and lead 1.5 of demo-output/website/dafoam/LIAISON_RESEARCH_adjoint_conditioning.md first. One arm: the archived vcoarse M6 adjoint case with DAFOAM_SUBPC_TYPE=lu and transonicPCOption set as the official transonic NACA0012 tutorial sets it, nothing else changed. Pre-register both outcomes before launch. Budget 30 core-min; dispatch as a solver agent, setsid, poll logs inline. Record: evidence file in demo-output/website/dafoam/, docket update on this item, honest verdict.",
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-08-07T22:10:00Z",
    "decided_at": "2026-08-07T22:10:00Z",
-   "decision_note": "supervisor review 2026-08-07 under Katie's standing green light"
+   "decision_note": "supervisor review 2026-08-07 under Katie's standing green light",
+   "executed_at": "2026-08-08T02:30:51Z",
+   "outcome": "NOT EVALUABLE AT THE VCOARSE RUNG, pre-registered branch, neither gate outcome claimed. The arm never reached the adjoint or the primal: DAFoam's mesh-quality gate rejected the archived vcoarse mesh (23 negative-volume cells, max aspect ratio 2.08e+95, max non-orthogonality 135.3 deg, 144 wrong face pyramids, Failed 5 mesh checks), and the defect is proven congenital -- the preserved July-28 pre-repair decomposition carries the identical 23 negatives to the last digit, all clumped at the pyHyp tip trailing-edge collapse on the 4x-coarsened surface (generator-owned). The record's old SEGV/corrupted-field story is rediagnosed en route: two orphan autoPatches (auto4/auto5, the wing lower surface and TE base) that the tutorial createPatchDict never mapped; the pre-registered patch merge repaired that cleanly and the run got past the old failure point. Both levers therefore remain untested on M6 and the question stays open; bonus finding recorded in the pre-registration: every archived M6/A6 script's transonicPCOption: 2 is dead code for DARhoSimpleCFoam (only ==1 exists in DAResidualRhoSimpleCFoam.C:173), so no archived M6 run ever had an active transonic PC. Re-file candidates reported, not run: the 21,840-cell sweep mesh (passes the gate, carries the -5 on record) or a regenerated vcoarse from a 3x surface. Spend: 0.53 of 30 core-min on the arm proper. Pre-reg 12d3a7a3 (02:29:17Z, before launch t0 02:30:51Z); result A3_SUBLU_RESULT.md, 54a2f2ff."
   },
   {
    "id": "w5-a1-a5-full-fd-tables-under-patched-warp",
