@@ -29,9 +29,16 @@ length. **Chief caveat before that sentence hardens:** both separated-class legs
 null from a silently inactive model is indistinguishable from a null from real physics — an
 independent QCR-activity check (fields differ between SST and QCR runs by more than roundoff,
 model selection verified in the archived dicts, by an agent that ran neither) is ordered as the
-adversarial defense; the class sentence is provisional until it reports. The hills' remaining
-diagnostic (model-form matrix, ~35 core-min) stays proposed and is next in the family queue after
-the activity check clears.
+adversarial defense; the class sentence is provisional until it reports.
+**Hold LIFTED (same day, 1a14e90b):** the check returned ACTIVE on both legs with the strongest
+possible evidence class — selection lines and Ccr1 banners in both logs, wall-shear deltas of
+8.97%/18.8% max on identical grids, and the confound-closers: pressure extrema and internal |ΔU|
+move too (up to 4.9% of Ubar on the hills), which no stress-definition formula can produce, plus
+the momentum-equation wiring cited to kOmegaSSTQCR.C:142-154 through UEqn.H:9. Fields materially
+different + reattachment unmoved = the nulls are physics. The class sentence STANDS as a
+record-grade finding: QCR2000 resurrects anisotropy-driven secondary flow and does not touch 2D
+separated-shear-layer bubble length. The hills model-form matrix (~35 core-min) is next in the
+family queue.
 
 ## 2. F6a NASA hump — bubble-length overprediction (pass with asterisk)
 Same family as (1). The model-form matrix at challenge conditions is already approved
@@ -77,6 +84,25 @@ a-converged-residual specimen is real. **New diagnostics:**
   charters now enforce): does S10/S12 as written catch this run's history? 0 core-min.
 - The transient branch inherits the quantified target (turbine-signed, ≤400 N·m band) — already filed.
 
+**Outcome (2026-08-08, chief review of both executed diagnostics — 6d806733):** the BEM
+cross-check RESOLVED THE FORK: four pre-registered arms spanning pitch convention, polar
+treatment, and Cd+50% give Q = +686 to +793 N·m turbine-signed, fully attached (α 4.8–8.2°,
+a ≤ 0.26) at λ = 5.42 — an attached steady solution exists in principle within −14% to −1% of the
++800 N·m reference, so the motoring limit cycle (≈−1004 N·m) is solver basin behavior, not
+intrinsic unsteadiness. The transient branch keeps its ≤400 N·m target with the bound now
+independently confirmed, and the BEM's tip-chord convention reproduced §10's "+1.8° STL offset"
+exactly, closing that ambiguity. The S10 replay found the OPPOSITE of comfort: NO CATCH, five
+clauses deep — every detector as written stays silent on the archived divergence (floor-bounds
+masking, residual eleven orders above the S10c floor, sample-count floor, monotonicity ridden by
+oscillation, and a corpus glob that never ingests the history at all); the gap that converts
+"Mx = 10⁹⁹ behind a 10⁻⁸ residual" into FATAL simply does not exist. The filed S10d
+magnitude-explosion amendment arrives with its adoption evidence already attached (974 archived
+histories replayed: fires on exactly the 5 genuinely diverged runs, zero false positives) —
+CHIEF-ENDORSED for adoption; application routed to the Infra family with the corpus widening.
+One overstatement to correct in the F8 gate record: §12's "converged to any residual-only
+monitor" — p sat at 0.51 and S6 does flag it; the true gap is the FATAL conversion (dated note
+ordered).
+
 ## 4. B52 — the ladder is noise (increment 15% of the measured 1.91e-3 floor)
 Taught: the family's question was answered; the remaining question is the floor's origin.
 **New diagnostic:** [FILE] two same-recipe replicate meshes at rung 6 (seed-varied snappy), Cd spread
@@ -92,6 +118,23 @@ The OOM premise is dead (our own record refuted it). **New diagnostics, ordered 
 - [FILE] If the inlet is clean: one unsteady probe run (~25 core-min) — a steady solver on a flow
   with a genuinely unsteady reattachment region wanders exactly as recorded.
 - The slate's diagnosis plan (NEXT_CASES_SLATE item 3) stands; these two sharpen its order.
+
+**Outcome (2026-08-08, chief review of the executed audit — 6d806733): this entry's premise was
+dead on arrival, and the audit is what found it.** The 4–12× reattachment error NEVER EXISTED:
+commit fe121af2 (2026-07-31) had already proven it was the OpenFOAM wallShearStress sign
+convention (lower-wall τ_x is negative under attached flow; the archived sign_convention_control
+run is the proof), giving a corrected x_r/H ≈ 5.6 = −10.5% vs Driver–Seegmiller — and neither
+`F5bc_unsteady_statistics.md` nor this review entry was ever updated. A finding proven in the
+repo nine days ago was still being treated as an open mystery by the chief's own review; this is
+the strongest argument yet for the case-integrity/record-reconciliation discipline entry 6
+proposed. The inlet itself: clean at the reference station (δ/h +0.3%, Re_θ +5.0%, inside the
+declared ±10%), mildly under-developed at the step (Re_θ −4.6%), owned by the uniform-k inlet
+whose equilibrium-k repair already exists unrun (`--inlet-bl-turbulence`). Rulings: (1) the
+record correction is ordered — F5bc_unsteady_statistics.md gets the dated sign-convention
+amendment; (2) the unsteady-probe arm STAYS LIVE but retargeted at the honest question: a −10.5%
+steady miss with wander, not a 4–12× catastrophe — its pre-registration must be rewritten against
+the corrected numbers before launch, and the equilibrium-k inlet repair becomes its cheap first
+leg.
 
 ## 6. S1 first inversion — both gates FAIL (objective was measuring a corrupted inlet)
 Diagnosed and reinverting. The meta-lesson is the one to institutionalize:
