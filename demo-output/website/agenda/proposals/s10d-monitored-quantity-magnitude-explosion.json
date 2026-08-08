@@ -15,9 +15,17 @@
   "The zero-compute diagnostics record of 2026-08-08, task 3, where the no-catch is measured clause by clause",
   "The monitor standard, S10 and S12 and standing rule 6",
   "The F8 record gating the MRF blade forces against Hand and colleagues 2001, section 12, where the specimen is named",
-  "The archived replay artifacts s10_replay/replay_result.json and s10_replay/s10d_corpus_replay.json"
+  "The archived replay artifacts beside the F8 runs: the clause-by-clause specimen replay and the corpus replay"
  ],
+ "archive_replay": {
+  "corpus": "974 monitored-quantity histories across both corpus roots: coefficient Cd and Cl plus forces-object moment and force x-columns; rerun by the adopting family supervisor on 2026-08-08",
+  "fires": "5, every one a run the record already names diverged: the two F8 specimen histories at 83.3 and 84.5 orders and three dpw5 committee-probe histories at 20.9 to 29.5 orders",
+  "fatal": "5 of 5, the branch severity being FATAL; zero completed-run false positives across the remaining 969",
+  "motivating_case": "fires on both F8 specimen histories that S10a, S10b, S10c and S12 all measurably miss, and stays silent on the settled flat-plate twin and every completed run"
+ },
  "launch_prompt": "Monitor standard amendment S10d. Zero compute. Read demo-output/website/campaign/ZERO_COMPUTE_DIAGNOSTICS_2026-08-08.md task 3 and the two replay artifacts under demo-output/website/campaign/F8_runs/s10_replay/ first. Implement detect_magnitude_explosion in sdk/chief_engineer/log_signatures.py exactly as pre-registered in the proposal gate, wire it into LogMonitor for monitored-quantity histories, extend sdk/scripts/replay_s12_unsettled_stop.py's corpus glob to moment.dat and force.dat, add the archive-sweep test asserting the five named histories and no sixth, and update docs/standards/MONITOR_STANDARD.md with the rule, its replay line, and its severity. FATAL on fire.",
- "status": "proposed",
- "created_at": "2026-08-08T00:00:00Z"
+ "status": "done",
+ "created_at": "2026-08-08T00:00:00Z",
+ "decided_at": "2026-08-08T02:28:44+00:00",
+ "outcome": "Adopted as Monitor Standard v1.4 after the family supervisor reran the pre-adoption replay: 974 histories across both corpus roots, fires on exactly 5, FATAL on 5, all runs the record already names diverged, zero completed-run false positives across the remaining 969. The branch is implemented exactly as pre-registered, wired beside S12 at the settle-audit collection point, the replay rail's corpus now ingests forces-object histories, and the archive-sweep test holds the fire set. Chief-endorsed in the negative-verdict review entry 3 before adoption."
 }

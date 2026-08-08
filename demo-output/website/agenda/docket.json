@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-07T22:52:59+00:00",
+ "generated_at": "2026-08-08T02:28:44+00:00",
  "proposals": [
   {
    "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -154,6 +154,51 @@
    "launch_prompt": "Alpha 05 regime route, weighted-loss variant. Offline, validation-only, no test case opened, open() guard armed as the predecessor had it. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 7 and demo-output/website/closure_challenge_R5_ALPHA05_REGIME_PREREGISTRATION.md first. Pre-register BEFORE training: the weighting (local truth magnitude, and separately the metric's own point density), the identical split, and the identical hurt-cap discipline that produced the predecessor's NO-GO. Train, then report relocation on the validation split beside the equal-weight predecessor. Record: evidence file beside the R5 records, docket update on this item, honest verdict.",
    "status": "proposed",
    "created_at": "2026-08-07T22:10:00Z"
+  },
+  {
+   "id": "no-containment-verdict-below-n3",
+   "objective": "Adopt the rule that a model-form band states a containment verdict against a reference only at three or more converged members; below that the band reports its interval and says why no verdict is stated",
+   "rationale": "The family-N a10 band demonstrated the failure this rule prevents, end to end and pre-registered: at n=2 the band missed the reference Cl by 0.22 percent and the negative-verdict review's entry 11 read the miss as under-membership rather than model-family failure; the pre-registered third-member arm then measured exactly that, with the SA member entering 0.051 below the two-member floor -- the n=2 band was a lower bound on the true spread by a factor of 2.4 on Cl -- and the reference moved from NOT contained to CONTAINED with no change to any member already present. A min-max interval over two draws from a model family is a lower bound on the family's spread, so a NOT-contained verdict at n=2 is a statement about membership, not about the family, and the batch's own design already refuses bands below two members for the same structural reason. The rule: containment verdicts (contained or not contained) print only for groups with three or more converged members; a two-member group prints its interval with the annotation that no containment verdict is stateable at n=2. Existing artifacts are regenerated, not rewritten by hand, and the flat-plate P_re2e7 group's containment lines are the known rows this rule will touch.",
+   "citations": [
+    "The supervisor negative-verdict review of 2026-08-07, entry 11",
+    "The N a10 third-member pre-registration and its outcome section",
+    "The model-form band artifact, group N a10, n=2 and n=3 states",
+    "The model-form batch design, band rule section"
+   ],
+   "est_core_min": 0.0,
+   "cost_basis": "measured at zero: the rule is a band-builder change plus a regeneration from records already on disk; no solver runs",
+   "expected_knowledge_gain": "The band artifact stops being able to publish a membership artifact as a model-family verdict; the a10 case becomes the documented precedent with both states on the record",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-08-08T02:20:00Z",
+   "hard_criterion": "instrument-check"
+  },
+  {
+   "id": "s10d-monitored-quantity-magnitude-explosion",
+   "objective": "Amend Monitor Standard S10 with a fourth branch, S10d magnitude explosion in a monitored quantity, and widen the S12 replay corpus to forces-object histories, so the F8 divergence-behind-a-converged-residual specimen stops being invisible to the standard as written",
+   "rationale": "The approved replay (f8-s10-replay-of-the-mrf-limit-cycle, executed 2026-08-08) found a full no-catch: on the phase6_mrf_pfinit run whose blade moment reached minus 2.5e99 newton metres behind a 1.4e-8 momentum residual, S10a is silent because all 692 bound lines are floor bounds on nuTilda, S10b is silent because the smallest normalised residual in the log is 1.86e-9, eleven orders above the 1e-20 floor, S10c is silent because simpleFoam prints no unnormalised norm block, and S12 is silent twice over: the history holds 30 samples against the rule's 40-sample floor, and even with the floor removed the monotone clause reads 0.79 against 0.90 because exponential divergence rides on an oscillation. S6 and S4 raise FLAGs that say unconverged, which is the same thing they say about a mild stall; nothing in the standard converts a quantity at 1e99 into a FATAL. The rule that is missing reads the quantity's magnitude, not its drift",
+   "citations": [
+    "The zero-compute diagnostics record of 2026-08-08, task 3, where the no-catch is measured clause by clause",
+    "The monitor standard, S10 and S12 and standing rule 6",
+    "The F8 record gating the MRF blade forces against Hand and colleagues 2001, section 12, where the specimen is named",
+    "The archived replay artifacts beside the F8 runs: the clause-by-clause specimen replay and the corpus replay"
+   ],
+   "est_core_min": 0.0,
+   "cost_basis": "zero compute: the detection function is pure arithmetic on histories already on disk, and the pre-adoption corpus replay has already been run and archived",
+   "expected_knowledge_gain": "The standard's strongest failure class, divergence behind a converged residual, gains coverage on the solver family that prints no norm block and no ceiling clip; the archive-replay rail gains the force and moment histories it currently cannot see",
+   "source_kind": "gate",
+   "status": "done",
+   "created_at": "2026-08-08T00:00:00Z",
+   "hard_criterion": "instrument-check",
+   "archive_replay": {
+    "corpus": "974 monitored-quantity histories across both corpus roots: coefficient Cd and Cl plus forces-object moment and force x-columns; rerun by the adopting family supervisor on 2026-08-08",
+    "fires": "5, every one a run the record already names diverged: the two F8 specimen histories at 83.3 and 84.5 orders and three dpw5 committee-probe histories at 20.9 to 29.5 orders",
+    "fatal": "5 of 5, the branch severity being FATAL; zero completed-run false positives across the remaining 969",
+    "motivating_case": "fires on both F8 specimen histories that S10a, S10b, S10c and S12 all measurably miss, and stays silent on the settled flat-plate twin and every completed run"
+   },
+   "launch_prompt": "Monitor standard amendment S10d. Zero compute. Read demo-output/website/campaign/ZERO_COMPUTE_DIAGNOSTICS_2026-08-08.md task 3 and the two replay artifacts under demo-output/website/campaign/F8_runs/s10_replay/ first. Implement detect_magnitude_explosion in sdk/chief_engineer/log_signatures.py exactly as pre-registered in the proposal gate, wire it into LogMonitor for monitored-quantity histories, extend sdk/scripts/replay_s12_unsettled_stop.py's corpus glob to moment.dat and force.dat, add the archive-sweep test asserting the five named histories and no sixth, and update docs/standards/MONITOR_STANDARD.md with the rule, its replay line, and its severity. FATAL on fire.",
+   "decided_at": "2026-08-08T02:28:44+00:00",
+   "outcome": "Adopted as Monitor Standard v1.4 after the family supervisor reran the pre-adoption replay: 974 histories across both corpus roots, fires on exactly 5, FATAL on 5, all runs the record already names diverged, zero completed-run false positives across the remaining 969. The branch is implemented exactly as pre-registered, wired beside S12 at the settle-audit collection point, the replay rail's corpus now ingests forces-object histories, and the archive-sweep test holds the fire set. Chief-endorsed in the negative-verdict review entry 3 before adoption."
   },
   {
    "id": "w3-what-the-burst-was-solving",
@@ -2812,6 +2857,26 @@
    "measured_core_min_unstated": "'11200 evaluations, 0.44 s measured against a 6 core-minute estimate' gives seconds with no rank or core count, so core-minutes are not derivable without assuming one"
   },
   {
+   "id": "n-a10-third-member-under-an-adjusted-settle-criterion",
+   "objective": "Converge a third member of the family-N a10 model-form band: Spalart-Allmaras under an adjusted-but-preregistered settle criterion, then re-state containment of the CFL3D references at n=3",
+   "rationale": "The first family-N band, produced after the R12 regrade, contains the reference Cd but misses the reference Cl by 0.22 percent on a two-member band, and the negative-verdict review's entry 11 rules that a miss this small at n=2 indicts the membership before the models: an n=2 min-max band is a lower bound on the true spread. SA's exclusion was residualControl non-attainment, not divergence: the archived 12000-iteration run shows the pressure residual on a flat plateau near 2.5e-6 against its 1e-6 target from iteration 2000 to 12000 and nuTilda floored at 1.6e-8 against 1e-8, while the lift coefficient holds an 8.6e-6 peak-to-peak over the final 2000 iterations, 278 times below the 2.4e-3 containment gap the band decision turns on. That is an unreachable-tolerance stop of the same class the periodic-hill record already closed by setting reachable criteria, not an unconverged flow. The arm re-runs the SA cell with numerics, schemes and residual targets untouched, and replaces only the declaration of done: a pre-registered plateau-plus-decision-scale criterion committed before the solve, chosen from the archived run's measured floors and from the containment gap rather than from anything the new run does. Either n=3 outcome writes a rule: if the reference Cl enters, the standing rule proposal is that no containment verdict is stated below three members; if it stays outside on a three-member band, the miss is real and aero-family bands need a membership-minimum rule.",
+   "citations": [
+    "The supervisor negative-verdict review of 2026-08-07, entry 11, wording binding",
+    "The model-form band artifact, group N a10, generated after the R12 regrade",
+    "The archived N a10 Spalart-Allmaras cell record and its superseded predecessor",
+    "Supervisor ruling R12 on canonical reference grids, banding scope only",
+    "The Cases family first-pass findings record, findings C1 and C2"
+   ],
+   "est_core_min": 10.0,
+   "cost_basis": "measured: the identical SA cell ran twice at 1.08 and 1.12 core-min for 12000 iterations on one core; ten covers the re-run with an eightfold margin for a longer tail",
+   "expected_knowledge_gain": "Either the family's first aero band gains a third member and the lab gains the rule that containment verdicts need at least three members, or the miss survives a three-member band and the lab gains a measured case for a membership-minimum rule on aero bands. Both outcomes convert a 0.22 percent anomaly into an operating rule; the arm also measures SA's solve-to-solve reproducibility on the canonical C-grid at one core-minute",
+   "source_kind": "measurement",
+   "status": "done",
+   "created_at": "2026-08-08T02:05:00Z",
+   "hard_criterion": "existing-family",
+   "outcome": "Executed 2026-08-08 at 1.07 of 10 core-min, pre-registration committed ten seconds before launch (9374f807). SA reproduced the archived run to every printed digit (Cl 1.0290489902, Cd 0.016192147753) and met every clause of the adjusted criterion with 28x and 54x margins on the decision-scaled caps; all three predictions HELD. At n=3 the Cl band [1.0290490, 1.1164337] CONTAINS CFL3D's 1.0778081 -- the 0.22 percent n=2 miss was under-membership exactly as entry 11 read it, the third member entering 0.051 below the old floor. Declared branch fired: rule proposal no-containment-verdict-below-n3 filed. One wrapper defect found and fixed in the act: the runner's workflow-error conservatism briefly outranked the registered criterion; the record was corrected to the pre-registered wording with the superseded record retained, all documented in the pre-registration's outcome section."
+  },
+  {
    "id": "w3-locationinmesh-lands-on-a-symmetry-plane",
    "well": "W3",
    "objective": "Move the generated case's mesh seed off the symmetry planes it currently sits exactly on",
@@ -2879,6 +2944,32 @@
    },
    "outcome": "Falsifier RUN and fired as pre-registered: SST+QCR2000 on the same duct mesh produces in-plane secondary flow at 0.6239% of bulk vs stock SST 3.16e-16 and LES 0.7570% \u2014 the structural-limit claim is CONFIRMED (commit 303247bb; Ccr1=0 control reproduces stock exactly). Claim released by chief reconciliation 2026-08-07 after the infra supervisor flagged it orphaned; the claiming agent delivered the substance and never wrote the release.",
    "measured_core_min": 24.95
+  },
+  {
+   "id": "f6a-hump-a1-limiter-sensitivity",
+   "well": "W1",
+   "objective": "Measure whether the NASA hump reattachment responds to the SST shear-stress limiter constant a1, turning the omega-budget implication from the executed QCR arm into a mechanism or sending the question upstream",
+   "rationale": "The challenge-conditions run confirmed the bubble bias at +13.92 percent on a verified pipeline and the QCR2000 arm returned a null at the pre-registered materiality bar, ruling out the constitutive route on the hump leg and implicating the separated-shear-layer stress magnitude. The limiter is the single named constant that caps exactly that stress: in the limited regime the eddy viscosity is proportional to a1, and the limiter is expected active in a separated shear layer. Two variations, a1 at 0.28 and 0.34, bracket the stock 0.31 by roughly ten percent, the spread the literature itself carries for Bradshaw's structure parameter that a1 encodes. If reattachment moves materially with a1, the mis-scaled-stress hypothesis gains a mechanism with a measured sensitivity slope; if it does not, the limiter is exonerated and the budget question moves upstream to the omega production and destruction balance, exactly as the review's outcome block frames it. Prediction, registered before any solve in the pre-registration file: the limiter is active in the bubble, a1 at 0.34 shortens the bubble past the materiality bar toward the experiment without repairing it to the gate",
+   "gate": "Declared in W1_HUMP_A1_PREREGISTRATION.md before any solve: identical shipped mesh and residualControl as the executed SST leg, a1 the single change per arm, materiality bar 0.010 x over c on reattachment per arm against the executed SST leg's 1.2531. Outcome one, mechanism: either arm moves reattachment by at least the bar, and the sensitivity slope with sign is the finding. Outcome two, upstream: both arms move less than the bar, and the omega production and destruction balance inherits the question. An arm that fails residualControl by the cap is reported unconverged and ungated",
+   "est_core_min": 12,
+   "predicted_memory_gb": 4.0,
+   "predicted_usd": 0.164,
+   "cost_basis": "measured: the executed challenge-conditions SST leg on the identical case converged in 1922 iterations for 5.58 core-min gross, wall times four ranks; two arms price at 11.2 plus extraction margin",
+   "expected_knowledge_gain": "Either the first mechanism-level fact about the hump bubble bias on this record, a measured d reattachment by d a1 with sign, or a clean exoneration of the limiter that narrows the omega-budget question to production and destruction terms before anyone prices a term-level probe",
+   "source_kind": "gate",
+   "hard_criterion": "existing-family",
+   "citations": [
+    "The supervisor review of standing negative verdicts, 2026-08-07, entry 2 outcome block of 2026-08-08 ordering this arm",
+    "The executed challenge-conditions record, SST and QCR legs, whose verified baseline this arm compares against",
+    "Menter, Two-equation eddy-viscosity turbulence models for engineering applications, AIAA J 32(8), 1994, the a1 limiter and its Bradshaw-parameter basis",
+    "NASA Turbulence Modeling Resource, wall-mounted hump validation case"
+   ],
+   "launch_prompt": "F6a hump, a1 limiter sensitivity. Read W1_HUMP_A1_PREREGISTRATION.md and run exactly it: two simpleFoam solves on the challenge case, kOmegaSSTCoeffs a1 0.28 and 0.34, nothing else changed from the executed SST leg; extract reattachment with the same hump_gate_analysis.py; verdict per the registered outcomes; evidence appended to the W1 hump results line; docket outcome on this item.",
+   "status": "done",
+   "created_at": "2026-08-08T02:05:00Z",
+   "decided_at": "2026-08-08T02:05:00Z",
+   "decision_note": "Ordered by the chief's entry-2 outcome block (commit 0a764729) and approved in the chief's resume directive of 2026-08-08 to the Cases-family solver agent; filed by that agent per the intake conventions with the review's wording carried.",
+   "outcome": "Run 2026-08-08 against the pre-registration committed d05b83c3. OUTCOME ONE, mechanism: the converged a1=0.34 arm moves reattachment -0.0498 x/c toward experiment, five times the 0.010 bar, without repairing the gate (1.2033 vs 1.100, +9.4 percent). The a1=0.28 arm hit the 5000 cap unconverged on the omega clause alone (8.6e-10 vs 1e-10 with U, p, k all under target) and is reported ungated with labelled numbers. RECONCILIATION RECORDED: the registry surfaced prior a1 arms this proposal and the ordering review both failed to cite -- the 2026-08-01 F6a diffusion study already measured a1=0.40 converged at 1.1873 and a1=0.25 NOT_CONVERGED at 10,324 iterations; the sign was on the record and this arm CONFIRMS it, adding the interior points that show the sensitivity is monotone and sublinear, d(reatt)/d(a1) about -1.66 per unit a1 on [0.31,0.34] flattening to -0.27 on [0.34,0.40], and reproducing the low-a1 convergence pathology at a second value. Citation defect on the review outcome block and this filing, dated in the results record. Cost 20.7 core-min gross vs 12 approved, factor 1.72, inside the factor-3 grading; the unpriced term was the settling of the arm whose settling behaviour the uncited record already exhibited. Evidence: campaign/W1_HUMP_A1_RESULTS.md."
   },
   {
    "id": "w4-upstream-report-why-unnoticed-from-the-papers-own-protocols",
@@ -3464,6 +3555,24 @@
    "launch_prompt": "F5c backward-facing step, unsteady probe. CONTINGENT: do not launch until the inlet-development audit (f5c-inlet-development-audit) has exonerated the inlet on the record. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 5 and demo-output/website/campaign/F5bc_unsteady_statistics.md first. One pimpleFoam solve of the existing F5c case at a Courant-limited step, long enough for reattachment statistics to separate a stationary mean from a wandering one; probe wall shear along the bottom wall every step. Pre-register both outcomes before launch. Budget 25 core-min and report a partial result rather than spending past it; setsid, poll logs inline. Record: evidence file in demo-output/website/campaign/, docket update on this item, honest verdict.",
    "status": "proposed",
    "created_at": "2026-08-07T22:10:00Z"
+  },
+  {
+   "id": "w1-naca0012-dissipation-study",
+   "objective": "Run the dissipation study the NACA 0012 status record names as its honest next step, on one rung, and decide whether the TMR airfoil ladder is reachable by any scheme this solver has",
+   "rationale": "The status record's own findings say a time-accurate solve with averaged coefficients, or a dissipation study, is the honest next step. The first half is priced out: the C4 closure measured 11,700 to 30,300 core-minutes for ONE rung to reach 30 convective units, and about 117,000 to 303,000 for the hundreds of convective units the scoping proposal itself asked for. The second half has never been filed, and nothing anywhere in the docket asks it. It is also nearly free, and most of it is already measured. Second-order momentum advection gives a sustained force oscillation that never decays, antisymmetric on a symmetric case with Cl swings of 0.3 at alpha 0. First-order momentum is perfectly steady and unusable, Cd 0.0229 and overdiffused. TVD limitedLinear sits between them: the cycle drops to about 3e-4 around Cd 0.0090 and never flattens over 15,000 iterations. The feedback is localised to the wake and trailing-edge convection. What has never been done is to walk that axis systematically on one rung and ask whether ANY admissible scheme reaches the settle criterion, because if none does, two approved items totalling 753 core-minutes are asking for something this solver configuration cannot produce, and that is worth knowing for about twenty. The mesh is not the escape route: measured 2026-08-02 directly from the published node array, the 2.645e7 maximum cell edge ratio is NASA's own grid geometry rather than converter damage, and the conversion is faithful to the point, its 29,152 points being 225 by 65 by 2 nodes less exactly the 49 coincident wake-cut pairs per plane.",
+   "citations": [
+    "The TMR NACA 0012 status record, findings of 2026-07-25",
+    "The C4 NACA 0012 closure record",
+    "The W1 TMR NACA 0012 disposition record",
+    "The case-selection charter, section 3"
+   ],
+   "est_core_min": 25.0,
+   "cost_basis": "measured. The alpha 0 coarse rung is the TMR 113x33 grid at 3,584 cells and ran 5,000 iterations in 95.2 seconds at one rank, which is 3,584 cells per rank and 1.59 core-minutes. Four schemes at a 15,000-iteration budget is 4 x 4.8, about 19 core-minutes, plus meshing already on disk and margin. ONE rank is correct here and four would be wrong: at 3,584 cells, four ranks would put 896 cells per rank, far below the 5,600 cells per rank inversion point, so parallel would cost more core-minutes and buy nothing",
+   "expected_knowledge_gain": "Either the TMR airfoil ladder has a scheme that reaches a steady state, which unblocks two items, or it does not and two approved items totalling 753 core-minutes are asking this solver for something it cannot produce",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-08-02",
+   "hard_criterion": "instrument-check"
   },
   {
    "id": "w4-a4-the-last-unprobed-link",
@@ -4654,6 +4763,23 @@
    "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
   },
   {
+   "id": "w1-ahmed-25-unsteady-formulation",
+   "objective": "Ask the Ahmed 25 degree slant the question R4 ended on: whether the ladder fails because the steady equations do not possess the solution it is converging towards, by running the same body unsteady and comparing the time-mean drag against the steady rungs",
+   "rationale": "R4 measured a uniformly refined five-rung constant-ratio ladder on this body and it is non-monotone: increments minus 5.442e-03, minus 5.367e-03, then plus 8.895e-04, a fit of p equal to 0.175 outside the credible window, and a Richardson extrapolation of minus 0.0845, a negative drag coefficient. Its sixth rung at 834,351 cells did not converge in 4,000 iterations, with a final-window 2 sigma of 6.26 percent of its own value, six times the ladder increments the whole study is made of, and iterations to convergence had run 158, 212, 220, 623, 1668 before it. R4 section 6 states the conclusion in its own words: refining this ladder further is not the way to settle the Ahmed body, the next rung costs more and converges less, and the question is a formulation question, steady versus unsteady, not a grid question. It also states the mechanism as a hypothesis: the 25 degree slant sits on the drag crisis where the C-pillar vortices and the slant separation bubble trade places, so finer meshes resolve more of an unsteadiness the steady formulation is not allowed to have. That hypothesis has never been tested, and no item anywhere in the docket asks it. A closed item whose named next question was never filed is an unfinished item, and this is the successor R4 earned. HARD on criterion 1, three-dimensional separated flow with a documented bistable wake, and on criterion 3, because the reported quantity is a statistic of an unsteady field.",
+   "citations": [
+    "The R4 asymptotic-ladder results record, sections 3 and 6",
+    "The W1 Ahmed ladder disposition record",
+    "Ahmed, Ramm & Faltin 1984, SAE 840300"
+   ],
+   "est_core_min": 120.0,
+   "cost_basis": "measured, not defaulted. R4 solved the c3 mesh (254,911 cells) steady in 3.39 core-minutes on 4 ranks at 63,728 cells per rank, and c4 (454,691 cells) in 16.74. An unsteady solve on c3 is priced at roughly 30 times its steady cost, for a startup transient plus an averaging window long enough to state a band, giving about 100 core-minutes, plus meshing at about 1 core-minute and margin. Four ranks stays: 63,728 cells per rank is an order of magnitude above the 5,600 cells per rank inversion point. If the transient will not settle into a statistically stationary state the item stops and reports that, which is itself the answer to the question asked",
+   "expected_knowledge_gain": "Either the Ahmed body's non-monotone ladder gets a named physical cause rather than a hypothesis, or the cause is eliminated and the defect is somewhere else. Both slants' validation credentials are blocked behind this ladder, and no amount of refinement will move it",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-08-02",
+   "hard_criterion": "1 and 3"
+  },
+  {
    "id": "w1-f5b-pitching-naca0012",
    "well": "W1",
    "objective": "Complete the F5b pitching NACA 0012 dynamic-stall physics and gate rungs",
@@ -5303,32 +5429,6 @@
    "cost_basis_previous": "Estimate, anchored on our own measured throughput and deliberately conservative. Rung A6 converged 579072 cells in 38.4 core-min for 1000 iterations, which is 6.6e-5 core-min per cell per 1000 iterations. The coarsest workshop grid is 2661338 cells, so one angle of attack at 3000 iterations scales to about 530 core-min, and the six specified angles to about 3200 core-min. Rounded to 3600 to allow for a high-lift case needing more iterations to settle than a cruise wing does. This is the largest single compute request on the docket and it is a real commitment, not a screen. Memory is the genuine risk and is not established: A6 held 30 GB free at 579072 cells but this grid is 4.6 times larger, so the first action must be a memory probe on a single angle before the remaining five are queued. Dollars: zero for the grids, which are anonymous public downloads. Any attendance fee is a separate decision and is not established for this edition",
    "repriced_at": "2026-08-01T05:00:00Z",
    "repriced_note": "Repriced 2026-08-01 from a direct measurement on the real committee grid: it runs on this machine at 4.55 GiB of 30.6, so memory was never the risk. Two agents probed this item independently and reached the same measured rate; the 14-rank figure of 6,390 core-min is kept. Evidence and method: the hlpw6 directory under the site root. Submission mechanics, which no compute number covers, are recorded there in the submission gate note."
-  },
-  {
-   "id": "f6a-hump-a1-limiter-sensitivity",
-   "well": "W1",
-   "objective": "Measure whether the NASA hump reattachment responds to the SST shear-stress limiter constant a1, turning the omega-budget implication from the executed QCR arm into a mechanism or sending the question upstream",
-   "rationale": "The challenge-conditions run confirmed the bubble bias at +13.92 percent on a verified pipeline and the QCR2000 arm returned a null at the pre-registered materiality bar, ruling out the constitutive route on the hump leg and implicating the separated-shear-layer stress magnitude. The limiter is the single named constant that caps exactly that stress: in the limited regime the eddy viscosity is proportional to a1, and the limiter is expected active in a separated shear layer. Two variations, a1 at 0.28 and 0.34, bracket the stock 0.31 by roughly ten percent, the spread the literature itself carries for Bradshaw's structure parameter that a1 encodes. If reattachment moves materially with a1, the mis-scaled-stress hypothesis gains a mechanism with a measured sensitivity slope; if it does not, the limiter is exonerated and the budget question moves upstream to the omega production and destruction balance, exactly as the review's outcome block frames it. Prediction, registered before any solve in the pre-registration file: the limiter is active in the bubble, a1 at 0.34 shortens the bubble past the materiality bar toward the experiment without repairing it to the gate",
-   "gate": "Declared in W1_HUMP_A1_PREREGISTRATION.md before any solve: identical shipped mesh and residualControl as the executed SST leg, a1 the single change per arm, materiality bar 0.010 x over c on reattachment per arm against the executed SST leg's 1.2531. Outcome one, mechanism: either arm moves reattachment by at least the bar, and the sensitivity slope with sign is the finding. Outcome two, upstream: both arms move less than the bar, and the omega production and destruction balance inherits the question. An arm that fails residualControl by the cap is reported unconverged and ungated",
-   "est_core_min": 12,
-   "predicted_memory_gb": 4.0,
-   "predicted_usd": 0.164,
-   "cost_basis": "measured: the executed challenge-conditions SST leg on the identical case converged in 1922 iterations for 5.58 core-min gross, wall times four ranks; two arms price at 11.2 plus extraction margin",
-   "expected_knowledge_gain": "Either the first mechanism-level fact about the hump bubble bias on this record, a measured d reattachment by d a1 with sign, or a clean exoneration of the limiter that narrows the omega-budget question to production and destruction terms before anyone prices a term-level probe",
-   "source_kind": "gate",
-   "hard_criterion": "existing-family",
-   "citations": [
-    "The supervisor review of standing negative verdicts, 2026-08-07, entry 2 outcome block of 2026-08-08 ordering this arm",
-    "The executed challenge-conditions record, SST and QCR legs, whose verified baseline this arm compares against",
-    "Menter, Two-equation eddy-viscosity turbulence models for engineering applications, AIAA J 32(8), 1994, the a1 limiter and its Bradshaw-parameter basis",
-    "NASA Turbulence Modeling Resource, wall-mounted hump validation case"
-   ],
-   "launch_prompt": "F6a hump, a1 limiter sensitivity. Read W1_HUMP_A1_PREREGISTRATION.md and run exactly it: two simpleFoam solves on the challenge case, kOmegaSSTCoeffs a1 0.28 and 0.34, nothing else changed from the executed SST leg; extract reattachment with the same hump_gate_analysis.py; verdict per the registered outcomes; evidence appended to the W1 hump results line; docket outcome on this item.",
-   "status": "done",
-   "created_at": "2026-08-08T02:05:00Z",
-   "decided_at": "2026-08-08T02:05:00Z",
-   "decision_note": "Ordered by the chief's entry-2 outcome block (commit 0a764729) and approved in the chief's resume directive of 2026-08-08 to the Cases-family solver agent; filed by that agent per the intake conventions with the review's wording carried.",
-   "outcome": "Run 2026-08-08 against the pre-registration committed d05b83c3. OUTCOME ONE, mechanism: the converged a1=0.34 arm moves reattachment -0.0498 x/c toward experiment, five times the 0.010 bar, without repairing the gate (1.2033 vs 1.100, +9.4 percent). The a1=0.28 arm hit the 5000 cap unconverged on the omega clause alone (8.6e-10 vs 1e-10 with U, p, k all under target) and is reported ungated with labelled numbers. RECONCILIATION RECORDED: the registry surfaced prior a1 arms this proposal and the ordering review both failed to cite -- the 2026-08-01 F6a diffusion study already measured a1=0.40 converged at 1.1873 and a1=0.25 NOT_CONVERGED at 10,324 iterations; the sign was on the record and this arm CONFIRMS it, adding the interior points that show the sensitivity is monotone and sublinear, d(reatt)/d(a1) about -1.66 per unit a1 on [0.31,0.34] flattening to -0.27 on [0.34,0.40], and reproducing the low-a1 convergence pathology at a second value. Citation defect on the review outcome block and this filing, dated in the results record. Cost 20.7 core-min gross vs 12 approved, factor 1.72, inside the factor-3 grading; the unpriced term was the settling of the arm whose settling behaviour the uncited record already exhibited. Evidence: campaign/W1_HUMP_A1_RESULTS.md."
   }
  ]
 }
