@@ -57,6 +57,7 @@ from typing import Any, Callable, Sequence
 from chief_engineer.head_engineer import parse_coefficient_history
 from chief_engineer.log_signatures import (detect_magnitude_explosion,
                                            detect_unsettled_stop)
+from chief_engineer import lever_echo
 
 _HERE = Path(__file__).resolve()
 _REPO_ROOT = _HERE.parents[2]
@@ -923,6 +924,18 @@ def _foam(args: list[str], cwd: Path, log_name: str,
     command = [*_run_prefix(), *args]
     log_path = Path(cwd) / log_name
     with log_path.open("w") as log_file:
+        # Lever echo at t=0 for SOLVER launches (Verification Charter v1.5
+        # section 9, adopted 2026-08-08): the four lever classes stock
+        # OpenFOAM never echoes -- schemes, `consistent`, BC types, silent
+        # dictionary values -- enter the run log fenced and hash-bound, so
+        # `levers_verified_active` is satisfiable at write time. Utility
+        # logs stay pristine for their parsers.
+        if args and args[0] in lever_echo.SOLVERS:
+            try:
+                log_file.write(lever_echo.echo_block(Path(cwd)))
+                log_file.flush()
+            except OSError:
+                pass
         return subprocess.run(command, stdout=log_file,
                               stderr=subprocess.STDOUT, cwd=str(cwd),
                               timeout=timeout)

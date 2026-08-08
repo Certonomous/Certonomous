@@ -57,6 +57,7 @@ if str(_SDK_ROOT) not in sys.path:
 
 from workflows import tmr_verification as tv  # noqa: E402
 from chief_engineer.log_signatures import detect_unsettled_stop  # noqa: E402
+from chief_engineer import lever_echo  # noqa: E402
 
 REPO_ROOT = _SDK_ROOT.parent
 OUT_ROOT = REPO_ROOT / "demo-output" / "website" / "campaign" / "MODEL_FORM_runs"
@@ -868,6 +869,10 @@ def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
         "params": cell.params,
         "converged": not reasons,
         "excluded_reasons": reasons,
+        # Charter v1.5 section 9: which dictionary levers the launcher
+        # proved at t=0, cited by hash from the log's own echo block; a
+        # pre-adoption log says plainly that its levers are unverifiable.
+        "levers_verified_active": lever_echo.levers_verified_active(log_text),
         "qoi": qoi,
         "qoi_source": qoi_source,
         "iterations": logv["converged_at"] or logv["last_iteration"],
@@ -1194,6 +1199,7 @@ def run_cell_H(cell: Cell, log: Callable[[str], None], *,
         "params": cell.params,
         "converged": not reasons,
         "excluded_reasons": reasons,
+        "levers_verified_active": lever_echo.levers_verified_active(log_text),
         "qoi": qoi,
         "qoi_source": "wallShearStress crossings (bottom wall, final time)",
         "crossings_x_over_h": [round(c, 6) for c in crossings],

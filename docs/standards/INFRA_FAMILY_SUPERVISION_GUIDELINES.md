@@ -1,5 +1,10 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.1, dated 2026-08-08. Adds section 1.7, the lever-echo convention,
+on the dead-lever audit's evidence (126 lever/conclusion pairs verified from
+runtime logs; all 16 unverifiable entries trace to four lever classes stock
+OpenFOAM structurally never echoes). Nothing in 1.0 is weakened.
+
 Version 1.0, dated 2026-08-07. Issued by the standing Infrastructure/Standards
 family supervisor under `docs/charters/SUPERVISION_CHARTER.md` v1.0, section 2.
 The family: the sdk (chief_engineer modules, scripts, tests), the standards
@@ -104,6 +109,27 @@ family:
   section 4.
 - **Cross-family surface changes**: any edit to agenda rails or morning
   report checks that changes what another family's filings are refused for.
+
+### 1.7. The lever prints its own banner, or the launcher echoes the dict
+
+Verification Charter v1.5 section 9's ``levers_verified_active`` is
+satisfiable at write time, never retroactively (adopted 2026-08-08):
+
+- **Launcher echo.** Solver launches through the sanctioned paths
+  (`scripts/launch_solve.sh`; the workflows' shared solver runner) write a
+  fenced LEVER-ECHO block at the head of the run log: fvSchemes,
+  fvSolution, the constant/ lever dictionaries and the 0/ boundary files,
+  each hash-bound by sha256 to the exact bytes that ran
+  (`sdk/chief_engineer/lever_echo.py`). Utility logs stay pristine.
+- **Patch banners.** Any lab-built patch that adds a lever prints an
+  activation banner AND leaves a distinguishable off-state, and hard-fails
+  on unrecognized values instead of falling back silently -- the sub-LU
+  pattern, whose archived negative control is the exemplar.
+- **Records.** A ``levers_verified_active`` entry cites either the lever's
+  own banner line or the echo block's line for that file; a record built
+  from a log with no echo says plainly that its dictionary levers are
+  unverifiable from it. A pre-registration whose plan leans on a lever
+  from the four echo-less classes names how the echo will exist.
 
 ## 2. Findings record, first personal-check pass (2026-08-07)
 

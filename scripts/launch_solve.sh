@@ -169,8 +169,38 @@ LOG="$REG/${NAME}_${STAMP}.log"
 JOB="$REG/${NAME}_${STAMP}.job"
 REC="$REG/${NAME}_${STAMP}.done"
 
+# ---- 1.5 lever echo (Verification Charter v1.5 section 9, 2026-08-08) -----
+# The four lever classes stock OpenFOAM never echoes -- fvSchemes tokens,
+# fvSolution `consistent`, BC types, silent dictionary values -- go into the
+# run log at t=0, each file hash-bound by sha256, so levers_verified_active
+# is satisfiable at write time instead of failing retroactively. The block
+# is fenced; nothing that parses solver output needs to change.
+if [ -n "${CASE:-}" ] && [ -d "$CASE" ]; then
+    {
+        echo "==== LEVER-ECHO BEGIN ===="
+        echo "case $CASE"
+        for rel in system/fvSchemes system/fvSolution \
+                   constant/turbulenceProperties constant/transportProperties \
+                   constant/thermophysicalProperties constant/MRFProperties; do
+            f="$CASE/$rel"
+            [ -f "$f" ] || continue
+            echo "---- LEVER-ECHO file $rel sha256 $(sha256sum "$f" | cut -d' ' -f1) ----"
+            cat "$f"
+        done
+        if [ -d "$CASE/0" ]; then
+            for f in "$CASE"/0/*; do
+                [ -f "$f" ] || continue
+                rel="0/$(basename "$f")"
+                echo "---- LEVER-ECHO file $rel sha256 $(sha256sum "$f" | cut -d' ' -f1) ----"
+                cat "$f"
+            done
+        fi
+        echo "==== LEVER-ECHO END ===="
+    } > "$LOG" 2>/dev/null || true
+fi
+
 # ---- 2. launch detached, capture the REAL pid -----------------------------
-setsid nohup "$@" > "$LOG" 2>&1 < /dev/null &
+setsid nohup "$@" >> "$LOG" 2>&1 < /dev/null &
 PID=$!
 cat > "$JOB" <<EOF
 JOB_NAME="$NAME"
