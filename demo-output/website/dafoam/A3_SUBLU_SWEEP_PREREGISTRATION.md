@@ -92,3 +92,30 @@ compute_totals`, canonical `loadDAFoam.sh` invocation. Launch setsid-detached vi
 core-min). Pre-launch process check re-run at launch. Result: appended to
 `A3_SUBLU_RESULT.md`; docket `a3-m6-vcoarse-adjoint-sub-lu-arm` outcome updated inline,
 own entry only.
+
+## 8. Addendum, 2026-08-08T02:52Z — §1's "inert" claim FALSIFIED by launch attempt 1; repair and relaunch, pre-registered before attempt 2
+
+Attempt 1 (t0 1786156818 = 02:40:18Z, ledger rc=1 at t1 1786156834, 16 s = 1.07 core-min)
+died before the adjoint KSP, and taught two things about the archived case state that §1 got
+wrong:
+
+1. **The leftover `0.0001` dirs are NOT inert.** DAFoam's `renameSolution`
+   (`pyDAFoam.py:1543`) moves the fresh primal writeout (time 1000) to `0.0001` before the
+   adjoint solve and hard-raises `"0.0001 already exists, moving failed!"` when the record
+   run's writeout is still there. This is what killed attempt 1.
+2. **DAFoam writes the primal end state back into time 0** — after attempt 1,
+   `processor0/0/U` is bit-identical to `processor0/1000/U`. Every variant run since the
+   record run did the same, so attempt 1's primal started WARM (converged fields at time 0):
+   1000 steps in 10.13 s vs the record's cold-start ~270 s, ending at a state that differs
+   from the record writeout by up to 2.2% of |U|max (two near-converged plateaus of the same
+   flow). A warm start is NOT the record arm's condition.
+
+Repair, applied before attempt 2 and preserving everything: `processor*/0.0001` (the record
+writeout), `processor*/1000` and the overwritten `processor*/0` moved to
+`_prior_state_backup_20260808/`; pristine uniform initial fields restored with
+`decomposePar -fields` onto the UNTOUCHED partition (serial `0/` verified byte-identical to
+`0.orig` first; the decomposition and the `dRdWColoring_4.bin` cache are exactly the record
+run's — apples-to-apples preserved). Attempt 2 is therefore the record arm cold-start plus
+the two levers, nothing else. Attempt 1's log is preserved as
+`sublu_tpc1_computetotals_attempt1.log`. Spend so far against the 30 core-min: 0.53 (vcoarse)
++ 1.07 (attempt 1) = 1.60. Everything else in this pre-registration is unchanged.
