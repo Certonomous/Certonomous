@@ -88,3 +88,63 @@ before the optimization spends anything.** Est: anchor ~20 + 6 primals ~48.
 
 *Committed before any Part B solve. Part C is written after the FD verdict, before
 any optimization eval.*
+
+---
+
+## Part B result (dated 2026-08-08 ~03:5x UTC) — FD gate PASS, every fixed check met
+
+Anchor (`log.anchorw`, 16.83 core-min): reference-point prints **5319 and 3591
+exactly**; **one** adjoint solve (reason 2, 676 iters, 344 s — the ExecComp
+composition added no second solve, and the anchor came in UNDER the one-adjoint
+~20 basis); **Jw_raw = 27.465931825190644 vs the fixed 27.4659 cross-check** (6
+digits). FD at the amended protocol, serial locations via the exact permutation
+(all three in the separated shear layer, ranks 1/4/10 of |g|):
+
+| DV | serial cell (centre) | central FD | adjoint g[i] | rel err |
+|---|---|---|---|---|
+| 5363 | 187 (0.446, 0.995) | 2.446580640724e+00 | 2.447392936993e+00 | **0.033%** |
+| 5491 | 471 (1.089, 0.900) | 1.696887479641e+00 | 1.696765133887e+00 | **0.007%** |
+| 5361 | 185 (0.119, 1.018) | 1.213798837353e+00 | 1.214147250266e+00 | **0.029%** |
+
+Zero sign flips, all under the 1% bar. Arm spend at this writing: **68.96 of 250.**
+
+## Part C — the weighted optimization (committed before any optimization eval)
+
+- **Warm start: `beta_masked`** (per Part A's disclosed decision). L-BFGS-B curvature
+  starts cold; same optimizer settings and [0.2, 4.0] bounds as every S1 run.
+- **Objective:** J = LQOI_w · Jw_raw + LL2 · Σ(beta−1)², LQOI_w =
+  **1/27.465931825190644** (normalized Jw = 1 at beta = 1), **LL2 = 1e-5 kept**
+  (disclosed: at the warm start the penalty term is 0.00245 against a QoI term of
+  0.07170 — 3.4% of the warm-start QoI, inside a subordinate-prior regime; achieved
+  fraction reported vs the 10–20% band as always).
+- **Eval-1 control, fixed now:** the driver's first evaluation (at `beta_masked`)
+  must reproduce Jw_raw = **1.9694433692980655** (host-side Σ_W2 from the maskctl
+  fields) to ≥ 10 digits — same-protocol state reproduction, the control this arm's
+  warm start admits.
+- **Budget:** EVAL_CAP = 8, BUDGET_STOP = 238 (of the 250 hard cap; ~12 reserved for
+  final write-out + audit), EVAL_EST = 20. Checkpoints and self-ledger unchanged from
+  the S1 driver (driver deltas disclosed in the record with a diff).
+- **Gates, fixed now:**
+  - **G1w:** final normalized Jw ≤ **0.05320** — i.e. the weighted run must
+    match-or-beat on the W2 support what the full equal-weight beta achieved there
+    (R_W2 = 0.9468), starting from the amputated 0.07170. A retention floor is
+    included: any final above the 0.07170 warm-start value is an outright fail.
+  - **G2, the point of the arm:** > 50% of top-decile |beta_final − 1| cells (global
+    ranking, all 21,000, same accounting as every S1 G2) inside the window
+    0≤x/h≤6, 0≤y/h≤2 — the SAME bar the equal-weight run failed at 26.9%.
+  - **Hurt cap (entry-7, carried forward):** on the final fields vs the repaired
+    baseline, W2-support hurt < 10% of W2 gross reduction; y>2 relocation census
+    reported loudly, no cap.
+- **Prediction, stated now:** G2 passes — with the loss blind to y>2, the optimizer
+  has no QoI incentive to grow deviations there, and the L2 prior actively shrinks
+  the out-of-support remnant; top-decile membership should concentrate into the
+  window and the recovery strip (window share predicted > 50%, recovery strip
+  reported alongside).
+- **W4 sparse-point registered variant:** defined (30-point probePoint grid, Ux), NOT
+  run inside this arm unless the optimization closes with ≥ 30 core-min of headroom;
+  if run, it is a re-grade of the SAME final beta under the variant loss, never a
+  second optimization.
+- A stop at plateau, cap, or budget is recorded as what it is (charter §4).
+
+*Committed before the first optimization eval. Nothing below this line existed at
+commit time.*
