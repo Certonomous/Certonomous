@@ -118,3 +118,32 @@ adjusted-but-preregistered settle criterion (its exclusion was residualControl, 
 and re-state containment at n=3. If Cl still sits outside, the miss is real and the aero-family
 bands need a membership-minimum rule; if it enters, the rule becomes "no containment verdict below
 n=3", which is worth having either way. Criterion: existing-family.
+
+## 12. (Added 2026-08-08) S1 reinversion — G1 PASS, G2 FAIL (26.9% vs the pre-registered >50%)
+The reinversion on the repaired inlet (records in `dafoam/ladder-b/S1_CBFS_REINVERSION_*.md`)
+passed G1 decisively (−74.2% where the corrupted objective managed −0.149%) and failed G2 — but
+the failure DECOMPOSES, and the decomposition is the finding: window error −94.9%, near-wall
+−95.9%, with 77.6% of the residual loss sitting at y>2 where the reference-level mismatch lives,
+and the optimizer was budget-capped still descending (J_qoi 0.25847 at eval 16). Two hypotheses
+survive: budget-limited (it would have gotten there) or loss-placement (equal-weight training
+spends effort where the metric doesn't look — the same relocation mechanism entry 7 caught in the
+closure family, now measured a second way; the limiter-overlap growth to 51.6% of the top decile
+is the second Dow-style argument).
+**New diagnostics:**
+- [FILE] The entry-7 weighted-loss variant EXTENDED to the S1 objective, offline and validation-
+  only first (~0 solver core-min, sklearn-class): re-weight the existing eval-16 residual field by
+  window/near-wall membership and ask whether the achieved β field already contains the window
+  answer under a loss that looks at it. This is now the highest-information-per-core-min arm in
+  the family — two independent measurements point at it. If it says the window is capturable, a
+  weighted REINVERSION arm (priced separately, ~250 core-min class) gets filed; if not, G2's bar
+  itself is interrogating reference-level mismatch, not model correction, and the bar needs a
+  documented revision proposal — not a quiet one.
+- [FILE] Continuation arm, second priority: warm-start from beta_final under the same lambdas
+  with a pre-registered plateau stop rule — decides budget-limited vs structurally-stuck directly,
+  but at ~26 core-min/eval it waits behind the offline variant's answer.
+- The agent's own named follow-up (TV regularization term) stays filed as-is.
+**Stage-2 ruling (the hand-off was flagged to me):** Stage 2 HOLDS until the offline weighted-loss
+variant reports. Training an ML generalizer on a β field known to under-serve the window would
+bake the placement defect into the learned model; the variant is cheap and decides within the day
+whether Stage 2 trains on this β or on a weighted successor's. Training-legality is unaffected
+(CBFS is a training case; nothing scored).
