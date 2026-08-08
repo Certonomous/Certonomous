@@ -115,3 +115,31 @@ checkpoint train. Reconciliation was, again, a file read.
 - `S1_CBFS_WEIGHTED_ARM_PREREGISTRATION.md` (parts A/B/C, each committed pre-solve)
 - `S1_CBFS_WEIGHTED_LOSS_VARIANT.md` (the offline verdict this arm tested in the flow)
 - `S1_CBFS_REINVERSION_RESULT.md`, `SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md` entry 12
+
+---
+
+## Addendum — dated 2026-08-08 ~23:0x UTC: the eval-8 completion (budget amendment 1, b0e31fa5; chief approval d66f82a5)
+
+The approved completion ran as amended: warm restart from `beta_final`, two
+evaluations, hard stop, **267.07 core-min against the amended 278 cap**.
+
+- **Eval 8a (re-anchor/control):** Jw_raw = 1.5691341426975098 — reproduces the
+  final-state control to **all digits, reldiff exactly 0.0**; ‖g‖ = 8.453e-3 matches
+  the eval-7 record.
+- **Eval 8b (the step):** ACCEPTED, J_qoi **0.05713020 → 0.05710277** (−2.7e-5).
+- **G1w: FAIL, final** — 0.05710 against the original ≤ 0.05320 bar, graded at the
+  restart's last accepted iterate per the amendment's no-relitigation clause.
+
+**Read honestly, both ways.** The −0.004/eval extrapolation that motivated the
+completion did NOT materialize: the restart's first step is steepest descent under
+cold curvature (the amendment disclosed exactly this), and it bought 150x less than
+the live optimizer's recent steps. What a live 8th evaluation with six curvature
+pairs would have achieved is now unmeasurable — the kill destroyed that state — so
+the record says: **G1w failed at every state actually reachable within the approved
+budgets, and the budget-limited hypothesis for G1w is UNRESOLVABLE as posed, not
+vindicated.** The arm's standing conclusions are unchanged: localization is
+answered (d66f82a5 item 1), the W1-only arm decision is the chief's go/no-go with
+this number in hand, Stage 2 stays held.
+
+`beta_final_ext.npy` (the accepted eval-8b iterate) is on disk, unwritten to fields
+per the amendment; a field write-out is a separate ~8.5 core-min decision if wanted.
