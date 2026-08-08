@@ -622,6 +622,26 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   work already moving (A3 preconditioning → Saad proof case; pyHyp characterization + birth certificates → mesh
   science; S1 → Bayesian inverse problems); each enters the docket with its proxy as hard criterion.
 
+### 2026-08-08 (night) — entry 8 closes record-grade, and the lab measures itself for the first time
+- ENTRY 8 CLOSED (551a7ba5/e4280b79/9bb948b2, review 7376ccc1): the negative control reproduced the record M6 failure
+  BIT-FOR-BIT (entire stall sequence, terminal denormal, every digit) from the same starting state as the converged
+  arm — identical state, opposite outcomes, one token. The FD table makes the M6 gradient a usable number (AoA 0.18%,
+  max-gradient component 0.93%, two small signals honestly unverdicted); the adjoint is bit-reproducible across three
+  runs. The warm-start audit: every record-grade conclusion COLD-CLEAN; two non-load-bearing warm flags ruled (no
+  regrade on R5/M6 dumps; D3 variant nulls require cold rerun before citation). The A3 ladder climbs on as normal
+  family work; the Opus .tex owner is reshaping the M6 chapter now (conditioning-wall → dead-lever with measured
+  epilogue).
+- FIRST IMPROVEMENT DASHBOARD + CALIBRATION SCORECARD (5b58d684, strategy §1 slow-burn): repeat-incident rate 2/40
+  lessons (5%); lessons→preflight conversion 10/40 full + 10 partial (the one repeated-and-unenforced lesson, L-1/L-39
+  reconciliation sweeps, named priority); median time-to-root-cause 58 h (range 0.09 h → 214 h, the dead lever);
+  re-audit survival 307/315 pooled (97.5%) with the negative-verdict level reported separately at 4/7; orphans counted
+  honestly (9 one-off dirs + 299 unledgered batch samples + 1 orphaned pre-registration). Calibration: N=98 graded
+  predictions, 61% held; cost median ~0.77 record-level with exactly two factor-3 breaches; the basis-split finding
+  ("the predictor is the basis, not a factor": measured-basis worst 1.84×, forecast-basis worst 13.55×); ZERO
+  predictions carry numeric confidence but verbal-ordinal hedging is measurably well-calibrated (the flagged-weakest
+  clause repeatedly the one that failed — five instances). Confidence-line proposal filed so the machinery starts
+  capturing what reliability curves need; committee-grids held-count contradiction filed for correction.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
