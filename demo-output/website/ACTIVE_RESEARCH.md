@@ -763,10 +763,12 @@ submission. BOTH ARE NOW CLEARED (2026-07-30, later the same day):**
 2. ~~**No submittable artifact exists.**~~ **FIXED — the eight CSVs now exist**, at
    `demo-output/website/closure_challenge_submission/test/{case}.csv`, written by
    `sdk/scripts/export_closure_submission_csvs.py` in 69.7s on the 2-core cap.
-   *(Round-3 set; the round-4 entry of record carries its own eight CSVs at
+   *(Round-3 set; round 4 carries its own eight CSVs at
    `closure_challenge_submission_round4/test/`, with the five non-duct files
-   byte-identical, SHA-256-verified, and the submission draft now quotes
-   0.0654.)*
+   byte-identical, SHA-256-verified. The round-5 entry of record carries its
+   eight CSVs at `closure_challenge_submission_round5/test/`, hashed in
+   `campaign/R5_PREREGISTRATION.md` §3 and format-verified against the accepted
+   submissions at benchmark commit `deb91557` — Ladder V rung V7, 2026-08-08.)*
 
    | Check | Result |
    | --- | --- |
@@ -813,8 +815,10 @@ the eight CSVs exist, and the version label is superseded by the commit hash
 Outstanding: **Katie fills the author names and the reference URL, and Katie
 proofreads and approves.** Nothing moves before that.
 
-Ambition ahead: get the sign-off, and put the entry on the board where its 0.0654
-can be independently rescored by someone outside this lab — the first external
+Ambition ahead: get the sign-off, and put the entry on the board where its score
+— 0.0654 when this was written; 0.0566 since round 5 superseded it on 2026-08-07;
+submissions parked by Katie 2026-08-07 pending the Ladder V gate — can be
+independently rescored by someone outside this lab — the first external
 check this result would ever have had.
 
 ### C2 — where the deficit lives

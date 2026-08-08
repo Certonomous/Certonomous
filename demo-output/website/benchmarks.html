@@ -60,24 +60,29 @@
 <!-- ===================== 1 ===================== -->
 <h2>1 · Active ML turbulence-closure challenge</h2>
 <p class="lede">A public, ongoing research benchmark with a strict rule: training or validating on any
-test case withdraws the submission. Each version scored once, in a single pre-registered call — four
-calls total across three rounds of refinement.</p>
+test case withdraws the submission. Each version scored once, in a single pre-registered call — six
+calls total across five rounds of refinement. As of round 5 (2026-08-07) the entry of record scores
+<b>0.0566 — rank 1 of 5, scored locally</b> at benchmark commit <code>deb91557</code>: a local
+scoring, not an official leaderboard placement; nothing has been submitted.</p>
 
 <div class="grid">
-  <div class="kpi hero"><div class="n g">5 of 8</div><div class="l">cases best on the board</div>
+  <div class="kpi hero"><div class="n g">4 of 8</div><div class="l">cases best on the board</div>
     <div class="f">better than every published entry</div></div>
-  <div class="kpi"><div class="n">0.0676</div><div class="l">overall score</div>
-    <div class="f">34.7% below the uncorrected baseline</div></div>
-  <div class="kpi"><div class="n">4</div><div class="l">scoring calls, total</div>
+  <div class="kpi"><div class="n">0.0566</div><div class="l">overall score</div>
+    <div class="f">45.3% below the uncorrected baseline — rank 1 of 5 scored locally, not an
+    official placement</div></div>
+  <div class="kpi"><div class="n">6</div><div class="l">scoring calls, total</div>
     <div class="f">one per model version, each pre-registered</div></div>
   <div class="kpi"><div class="n">7 days</div><div class="l">from first line of code</div>
     <div class="f">part-time, one laptop, then cloud</div></div>
 </div>
 
 <p class="lede" style="margin-top:26px"><b style="color:var(--ink)">Cases where we lead the entire
-public leaderboard.</b> Score is a scaled velocity error; lower is better. Two of these five are cases
+public leaderboard.</b> Score is a scaled velocity error; lower is better. Two of these four are cases
 where a trained correction was tried and found to hurt, so a test-blind gate — trained and checked
-only on non-test cases — withholds it and reports the uncorrected physics solve instead.</p>
+only on non-test cases — withholds it and reports the uncorrected physics solve instead. (Round 4
+held a nominal 0.00003-level tie for best on a fifth case, AR_14_Ret_180; round 5 spent it, knowingly,
+per the pre-registered risk statement.)</p>
 <div class="scroll"><table>
 <thead><tr><th>Test case</th><th class="n">Best published</th><th class="n">Certonomous</th><th class="n">Margin</th><th></th></tr></thead>
 <tbody>
@@ -85,19 +90,19 @@ only on non-test cases — withholds it and reports the uncorrected physics solv
 <tr class="us"><td>alpha_15_13929_2024</td><td class="n">0.1195</td><td class="n">0.1011</td><td class="n win">−15.4%</td><td><span class="tag t-gold">#1</span></td></tr>
 <tr class="us"><td>alpha_05_4071_4048</td><td class="n">0.0569</td><td class="n">0.0461</td><td class="n win">−19.0%</td><td><span class="tag t-gold">#1</span></td></tr>
 <tr class="us"><td>alpha_05_4071_2024</td><td class="n">0.0760</td><td class="n">0.0719</td><td class="n win">−5.4%</td><td><span class="tag t-gold">#1</span></td></tr>
-<tr class="us"><td>AR_14_Ret_180</td><td class="n">0.0325</td><td class="n">0.0303</td><td class="n win">−6.8%</td><td><span class="tag t-gold">#1</span></td></tr>
 </tbody></table></div>
 
 <p class="lede" style="margin-top:26px">Improvement over the uncorrected reference on those cases and
-the square ducts.</p>
+the square ducts (round 5: the three duct predictions come from a converged forward solve of the
+untrained QCR2000 physics term — nothing fitted to anything).</p>
 <div class="scroll"><table>
 <thead><tr><th>Test case</th><th class="n">Uncorrected</th><th class="n">Certonomous</th><th class="n">Improvement</th></tr></thead>
 <tbody>
+<tr><td>AR_3_Ret_360</td><td class="n">0.1243</td><td class="n">0.0400</td><td class="n win">−67.8%</td></tr>
+<tr><td>AR_1_Ret_360</td><td class="n">0.1288</td><td class="n">0.0455</td><td class="n win">−64.7%</td></tr>
 <tr><td>alpha_15_13929_4048</td><td class="n">0.1320</td><td class="n">0.0501</td><td class="n win">−62.0%</td></tr>
 <tr><td>alpha_15_13929_2024</td><td class="n">0.2049</td><td class="n">0.1011</td><td class="n win">−50.7%</td></tr>
-<tr><td>AR_14_Ret_180</td><td class="n">0.0590</td><td class="n">0.0303</td><td class="n win">−48.6%</td></tr>
-<tr><td>AR_3_Ret_360</td><td class="n">0.1243</td><td class="n">0.0862</td><td class="n win">−30.7%</td></tr>
-<tr><td>AR_1_Ret_360</td><td class="n">0.1288</td><td class="n">0.0919</td><td class="n win">−28.6%</td></tr>
+<tr><td>AR_14_Ret_180</td><td class="n">0.0590</td><td class="n">0.0353</td><td class="n win">−40.2%</td></tr>
 </tbody></table></div>
 
 <div class="note"><b>What makes the score defensible.</b> Every scoring call is a single call, pre-registered
@@ -107,7 +112,11 @@ were reconstructed from raw mesh geometry and validated against the shipped fiel
 only, agreeing to r = 0.9997–1.0000. On two cases the trained correction was found, honestly, to make
 the result worse than the uncorrected physics solve; rather than quietly discard that finding, a small
 decline-gate was trained and checked on non-test cases only, then applied once — it correctly withholds
-the correction on exactly those two cases.</div>
+the correction on exactly those two cases. In round 5 the trained duct correction was replaced outright
+by the untrained QCR2000 constitutive term under a rule frozen before any solve. Two caveats travel with
+the rank: the 0.0029 margin over the published leader carries a truth-free seed-uncertainty bound of
+comparable size (0.0024) on the three trained predictions, and the rank is local — the steward's own
+scoring, if the entry is ever submitted, is the number that counts.</div>
 
 <!-- ===================== 2 ===================== -->
 <h2>2 · Gradient verification — discrete adjoint against finite difference</h2>
@@ -209,7 +218,7 @@ two mechanisms and the one that survives scrutiny. The corrections are recorded 
 the two we found by checking claims we liked.</div>
 
 <footer>
-  Sources: closure-challenge harness, four pre-registered scoring calls across three rounds ·
+  Sources: closure-challenge harness, six pre-registered scoring calls across five rounds ·
   discrete adjoint with finite-difference verification ·
   AGARD AR-138 · NASA Turbulence Modeling Resource · Ahmed, Ramm &amp; Faltin (1984) ·
   Roshko–Williamson correlation · Billig (1967) · benchmark DNS reference fields.

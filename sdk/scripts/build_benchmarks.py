@@ -15,16 +15,20 @@ Re-run near end of shift so the numbers reflect the final ledger count::
 
 The closure-challenge board is the PUBLIC leaderboard target only; no entry has
 been SUBMITTED to the benchmark's steward. ``our_score`` is our internally
-measured, auditable position against that public board: a trained + gated
-entry, scored through the benchmark's own unmodified code across four
+measured, auditable position against that public board: the round-5 entry of
+record, scored through the benchmark's own unmodified code across six
 pre-registered scoring calls (RANS-identity floor -> round-1 periodic-hills
 correction -> round-2 extended to ducts/NASA hump -> round-3 test-blind
-decline-gate). Evidence and re-runnable scripts:
+decline-gate -> round-4 Reynolds-invariant duct rescale -> round-5 untrained
+QCR2000 forward solve on the ducts). Evidence and re-runnable scripts:
 demo-output/website/closure_challenge_rans_floor.json,
 closure_challenge_trained_entry.json, closure_challenge_trained_entry_round2.json,
-closure_challenge_trained_entry_round3_gated.json (sdk/scripts/
+closure_challenge_trained_entry_round3_gated.json,
+closure_challenge_trained_entry_round4_duct.json,
+closure_challenge_round5_qcr.json (sdk/scripts/
 run_closure_challenge_evidence.py, train_closure_periodic_hill_correction.py,
-train_closure_extended_correction.py, apply_closure_ph_gate.py). Update this
+train_closure_extended_correction.py, apply_closure_ph_gate.py,
+closure_round4_duct_rescale.py, closure_round5_qcr_forward.py). Update this
 dict whenever a new round changes ``our_score`` -- do not let it go stale
 relative to those JSON records, which are the source of truth.
 """
@@ -76,14 +80,18 @@ _SOLVER_LABEL = {
 # rank is the error to guard against here.
 # No entry has been SUBMITTED to the benchmark's steward -- "our_score" below
 # is this lab's own internally measured position against the public board,
-# current as of round 3
-# (closure_challenge_trained_entry_round3_gated.json, measured 2026-07-29).
+# current as of round 5, the entry of record
+# (closure_challenge_round5_qcr.json, scored 2026-08-07, commit 07a7fe9e:
+# overall 0.056647, rank 1 of 5 scored locally at benchmark commit deb91557 --
+# a local scoring, not an official placement).
 # This literal is the single source for the status text: build_benchmarks.py
 # writes it into benchmarks.json, and lab_stats.research_programs() reads it
 # back from that file rather than holding its own copy. KEEP THIS IN SYNC:
 # if a later round changes the official score, update this dict in the same
 # commit, or this generator will silently regress the public page to a stale
-# round on its next run.
+# round on its next run. (That regression happened once: the round-5 session
+# hand-updated benchmarks.json and wall.json but left this literal at round 3;
+# Ladder V rung V7 caught and fixed it on 2026-08-08.)
 _CLOSURE = {
     "name": "Closure-challenge benchmark",
     "status": "ACTIVE RESEARCH",
@@ -91,15 +99,19 @@ _CLOSURE = {
     "target_rank": 4,
     "target_overall": 0.0779,
     "target_per_case": [0.068, 0.1364, 0.0591, 0.0882, 0.0895, 0.0866, 0.0487, 0.0464],
-    "our_entry": "Trained + gated entry scored 0.0676 overall through the benchmark's own "
-                 "unmodified harness across four pre-registered scoring calls (RANS-identity "
-                 "floor, round-1 periodic-hills correction, round-2 extended to ducts and NASA "
-                 "hump, round-3 test-blind decline-gate). Best result on the public board on "
-                 "five of the eight test cases. Not yet submitted to the benchmark's steward.",
+    "our_entry": "Entry of record (round 5, 2026-08-07) scored 0.0566 overall through the "
+                 "benchmark's own unmodified harness across six pre-registered scoring calls "
+                 "(RANS-identity floor, round-1 periodic-hills correction, round-2 extended "
+                 "to ducts and NASA hump, round-3 test-blind decline-gate, round-4 "
+                 "Reynolds-invariant duct rescale, round-5 untrained QCR2000 forward solve "
+                 "on the ducts). Rank 1 of 5 scored locally at benchmark commit deb91557 - a "
+                 "local scoring, not an official placement. Best result on the public board "
+                 "on four of the eight test cases. Not yet submitted to the benchmark's "
+                 "steward.",
     "rans_identity_floor_overall": 0.1036,   # zero-training reference floor; see comment above
     "rans_identity_floor_per_case": [0.132, 0.2049, 0.0461, 0.0719, 0.1288, 0.1243, 0.059, 0.0621],
-    "our_score": 0.0676,   # round-3 gated entry (best measured position to date)
-    "our_per_case": [0.0501, 0.1011, 0.0461, 0.0719, 0.0919, 0.0862, 0.0303, 0.0632],
+    "our_score": 0.0566,   # round-5 entry of record (0.056647 full precision, scored locally)
+    "our_per_case": [0.0501, 0.1011, 0.0461, 0.0719, 0.0455, 0.04, 0.0353, 0.0632],
 }
 
 # Speed benchmark — measured on this machine, 2026-07-23 (BG-1's NACA 4412

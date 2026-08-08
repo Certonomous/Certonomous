@@ -132,7 +132,8 @@ def main() -> None:
         "scoring_call_limit_note": (
             "The benchmark imposes no scoring-call limit. It ships the test ground truth "
             "in the evaluation package and instructs submitters to preview their score. "
-            "The lab's ledger (five distinct prediction sets scored, ever) is a "
+            "The lab's ledger (five distinct prediction sets scored as of this round-4 "
+            "manifest; six after round 5's 2026-08-07 call) is a "
             "self-imposed discipline, stricter than the rules require, and is not "
             "compliance with any benchmark rule."),
         "format": r3["format"],

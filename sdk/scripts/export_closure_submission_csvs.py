@@ -22,11 +22,13 @@ NO SCORING CALL IS MADE, AND THAT IS ENFORCED IN CODE, NOT PROMISED IN PROSE
 ---------------------------------------------------------------------------
 The benchmark imposes NO limit on scoring calls -- it ships the test ground
 truth in the package and its README instructs submitters to preview their
-score. The lab's "four official scoring calls, ever" is a SELF-IMPOSED
+score. The lab's scoring-call ledger ("four official scoring calls, ever" as
+this round-3-era script was written; the cumulative count is six after round
+5's 2026-08-07 call) is a SELF-IMPOSED
 discipline, stricter than the rules require, and must never be described as
 compliance with a benchmark rule. This script keeps that discipline: writing
 a CSV of an already-scored prediction set buys no new information, so it must
-not consume a fifth call.
+not consume a new call.
 
 Rather than merely omitting the calls, ``_forbid_scoring()`` below replaces
 every function in the evaluation package that can read the test ground-truth
