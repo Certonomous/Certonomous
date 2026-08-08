@@ -119,6 +119,20 @@ and re-state containment at n=3. If Cl still sits outside, the miss is real and 
 bands need a membership-minimum rule; if it enters, the rule becomes "no containment verdict below
 n=3", which is worth having either way. Criterion: existing-family.
 
+**Outcome (2026-08-08, chief review of the executed arm):** the under-membership reading was
+correct. SA converged under the adjusted-but-preregistered criterion (pre-reg 9374f807 at
+02:01:52Z, launch 02:02:02Z — ordering proven by the runner quoting the prereg path; outcome
+06b78343) at 1.07 of 10 core-min, bit-identical to the archived excluded run. At n=3 the Cl band
+[1.0290490, 1.1164337] CONTAINS CFL3D's 1.0778081; the third member entered 0.051 BELOW the old
+floor — the n=2 band under-stated the Cl spread by 2.4×, which is the quantitative version of
+"an n=2 band is a lower bound on the true spread". The declared branch fired: the rule proposal
+`no-containment-verdict-below-n3` is filed (instrument-check, archive replay as its adoption
+gate). Bonus finding: the arm exposed a wrapper defect — the runner stamped `admitted: true` and
+excluded anyway (the C1-fix conservatism outranking the registered criterion); fixed, with the
+wrong record superseded-not-deleted and a correction block naming the chain. I endorse the rule
+proposal for adoption once its archive replay runs: no containment verdict, pass or fail, below
+three converged members.
+
 ## 12. (Added 2026-08-08) S1 reinversion — G1 PASS, G2 FAIL (26.9% vs the pre-registered >50%)
 The reinversion on the repaired inlet (records in `dafoam/ladder-b/S1_CBFS_REINVERSION_*.md`)
 passed G1 decisively (−74.2% where the corrupted objective managed −0.149%) and failed G2 — but
