@@ -1,0 +1,24 @@
+{
+ "id": "kfamily-fpe-shared-diagnosis-bump-and-hills",
+ "well": "cases",
+ "objective": "One diagnosis arm for the S1 floating-point-exception crash class that has now hit the k-family closures in two geometries: the bump at high Re within about 45 iterations and the hills kEpsilon at iteration 13",
+ "rationale": "Family B's re1p2e7 group lost kEpsilon, kOmegaSST and realizableKE to sigFpe crashes within about 45 iterations, and family H's kEpsilon died the same S1 death at iteration 13 on a fully compliant mesh where kOmegaSST converges cleanly. Two geometries, one crash signature, and one shared construction: both families carry this batch's derived-epsilon pieces -- an epsilon field built from Cmu k omega with epsilonWallFunction lowReCorrection on wall-resolved grids -- which makes a single root cause plausible and worth one arm rather than two. What a SHARED root cause would look like, stated in advance: the FPE traceback names the same equation and the same region in both geometries (the epsilon or k equation at wall-adjacent or freestream-boundary cells, a division on collapsing k or epsilon), and one lever -- seeding epsilon from the converged same-case kOmegaSST field's k and omega instead of the uniform derivation, or an epsilonMin floor -- removes the crash in BOTH. What geometry-specific causes would look like: tracebacks naming different equations or stages (the hills' meanVelocityForce interplay at iteration 13 versus the bump's high-Re freestream scaling at 45), or a lever that fixes one geometry and not the other. Either answer routes the batch's k-family coverage: shared means one initialization fix re-opens four dead cells across two families; specific means the exclusions are case physics and stand. The arm inherits review entry 9's per-quantity settle-monitoring design: every probe writes per-iteration min and max of k, epsilon and nut beside the residuals, so the collapse is watched in the quantity, not inferred from the crash line.",
+ "gate": "Deliverable is the named crash mechanism per geometry with the runtime evidence attached: the sigFpe traceback or last-iteration field state, the per-quantity min-max history to the crash, the shared-vs-specific verdict against the two pre-stated signatures, and one lever arm per geometry with its outcome. Per L-40, any lever cited as tested carries the runtime-log line proving it was active. No band changes and no member admissions flow from this arm; a rescued cell re-enters only through the standing gate under its own record",
+ "est_core_min": 25,
+ "predicted_memory_gb": 2.0,
+ "predicted_usd": 0.343,
+ "cost_basis": "measured where it can be: the crashes themselves cost 0.04 to 0.07 core-min each to reproduce, the instrumented probes are the same seconds-scale runs with monitoring on, and the priced bulk is the two lever arms if they survive to run -- family H's kEpsilon at the measured 7 core-min class and one bump cell at the measured 2.3 core-min class, with margin",
+ "expected_knowledge_gain": "Either one initialization defect explains four dead cells across two families and the k-family coverage of the standing batch re-opens for the cost of a seeding change, or the crash class is shown geometry-specific and the exclusions harden into case findings. Both outcomes also hand the monitor standard a worked example of per-quantity crash forensics on the S1 class",
+ "source_kind": "measurement",
+ "hard_criterion": "instrument-check",
+ "citations": [
+  "The supervisor negative-verdict review of 2026-08-07, entries 1 and 9",
+  "The model-form band artifact, groups B re1p2e7 and H re10595",
+  "The family H hills pre-registration and its outcome section",
+  "The model-form batch design, deviation 2 on the derived epsilon freestream",
+  "LESSONS entry L-40 on lever activity proof"
+ ],
+ "status": "approved",
+ "decision_note": "Approved by the chief 2026-08-08 as the second family-H successor, paired with entry 9 per the chief's pairing instruction; filed by the Cases family supervisor, to run after the extension arm clears the box.",
+ "created_at": "2026-08-08T03:08:00Z"
+}

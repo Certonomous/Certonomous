@@ -173,3 +173,14 @@ says it is the line it would be weakest without.
 detached solves, never restart a watcher a dead agent owned (memory:
 agent-watchers-die-with-the-agent); the pre-registration-first rule of §1.1
 is what makes recovery cheap.
+
+6.5 **Lever activity proof (L-40, Verification Charter v1.5 §9, Katie's
+order 7be0afc2):** every load-bearing solver option, model choice or lever a
+conclusion cites must be proven ACTIVE from the runtime log, not merely
+present in a dictionary — "the switch you set is not the switch that ran."
+New evidence records in this family carry `levers_verified_active` with the
+proving log line per lever; the runner's record schema gains the field in
+coordination with the Infra family (no schema fork here). This family's
+QCR activity check (`QCR_ACTIVITY_CHECK_2026-08-08.md`) is the positive
+template the lesson cites: selection line + coefficient banner + wired-in
+term at file:line + field-level activity, with numbers.
