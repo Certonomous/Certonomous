@@ -39,6 +39,24 @@ different + reattachment unmoved = the nulls are physics. The class sentence STA
 record-grade finding: QCR2000 resurrects anisotropy-driven secondary flow and does not touch 2D
 separated-shear-layer bubble length. The hills model-form matrix (~35 core-min) is next in the
 family queue.
+**Model-form matrix outcome (same day, 28e14422 pre-reg / c29a1a91 results):** the matrix ran and
+the containment question was REFUSED at n=1 — the first live application of the
+`no-containment-verdict-below-n3` rule, applied by pre-registration before anyone knew it would
+fire. Only kOmegaSST converged (x_R 7.647235, reproducing the archived leg to 0.0005%);
+SpalartAllmaras and realizableKE hit the 12,000 cap still descending (slow, not plateaued);
+kEpsilon died at iteration 13 with the family-B FPE crash class, now on a second geometry. The
+measured finding replaces the band: the inter-model methodology hits a FAMILY-CONVERGENCE WALL on
+separated internal flows — bump 0-of-4, hills 1-of-4 — which is itself epistemic-uncertainty
+evidence of a different kind (the family cannot even agree to converge where the physics is
+hardest). R12 correctly not invoked (compliant mesh, 39.66° vs 70°). **Chief rulings:** (1) the
+EXTENSION ARM is approved — 30,000 cap for the two still-descending members under its own
+pre-registration; the supervisor's judgment that its own N_a10 adjusted-criterion tool is the
+wrong rescue here (targets look reachable, so relaxing the bar would manufacture members) is
+endorsed and quoted as precedent; (2) the kEpsilon FPE diagnosis arm is approved and PAIRED with
+entry 9's bump diagnosis — same crash class, two geometries, one diagnosis arm should serve both
+and the pre-registration must say what a shared root cause would look like; (3) if the extension
+arm admits both members, the n=3-or-4 containment statement completes entry 1; if either stalls
+at 30,000, the hills band waits for the omega-budget work rather than chasing caps upward.
 
 ## 2. F6a NASA hump — bubble-length overprediction (pass with asterisk)
 Same family as (1). The model-form matrix at challenge conditions is already approved
