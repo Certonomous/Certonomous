@@ -490,6 +490,23 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   powered off mid-run. One-line pattern edit, root-owned. (K-2 ruled: the 45-min stale window stands — bounded
   cost when a session is genuinely quiet; active campaigns are covered by the double hold.)
 
+### 2026-08-08 (night) — sixth fleet death survived; Ladder V goes on the record before any send exists
+- CREDIT EXHAUSTION #3 (the sixth fleet kill overall, ~23:41–00:50 UTC; credits restored 12:50am, recovery started
+  01:53). Zero scientific loss again: pre-registrations were committed before every in-flight compute. The box itself
+  never rebooted (up since Aug 7 19:28), so the kill took the agents but left the tree; both keepalives verified —
+  filming hold live to 19:59 UTC, session keepalive re-armed (auto-stop currently reads the lab BUSY).
+- ALL FOUR KILLED AGENTS RESUMED from transcript with kill time + surviving state: Cases supervisor (file + run review
+  entry 11's n=3 SA arm, pre-registration first), hump/double-Mach runner (three uncommitted outcomes + the 22:52:59
+  docket-rail regeneration to verify and land), Infra supervisor (its pytest suite FINISHED as the kill hit per the
+  chief's watcher — collect the tally, land the y+ gate fix at mega_batch.py:635 + retrospective), S1 reinversion
+  (driver did NOT survive this time — last run-dir write 23:41 with no reboot to blame; diagnose from its ledger,
+  warm-start from checkpoint).
+- LADDER V RECORDED (ac4a83e1, `campaign/LADDER_V_TRIPLE_VERIFICATION.md`): the triple-verification protocol that
+  blocks any future round-5 send — three passes, three different minds, three directions of attack (re-derive /
+  adversarial / cold reproduction), 13 rungs, no self-grading, send gate ends at Sanaa's hands and Katie's. Submissions
+  stay parked; the gate is recorded BEFORE any send exists, which is the anti-hindsight discipline applied to
+  ourselves. Rungs V2/V7/V10 are executable now as record-hardening and may be run as normal docket items.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
