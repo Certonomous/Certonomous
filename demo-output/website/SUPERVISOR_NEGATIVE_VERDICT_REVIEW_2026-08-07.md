@@ -170,6 +170,26 @@ the liaison's transonicPCOption lead (never set on our M6 runs; the official tra
 it). ~30 core-min. If it converges, A3's ladder reopens and the DIVERGED_BREAKDOWN story gets its
 epilogue; if not, the conditioning wall is confirmed beyond the incompressible family.
 
+**Outcome (2026-08-08, chief review of the executed arm — 54a2f2ff, docket c6f4644f): NOT
+EVALUABLE, the pre-registered branch fired, and the arm earned its cost three times over at 0.53
+of 30 core-min.** DAFoam's mesh gate rejected the archived vcoarse mesh before any iteration ran:
+23 negative-volume cells, aspect ratio 2.08e+95, non-orthogonality 135.3° — adversarially
+defended (standalone checkMesh reproduces every figure; the preserved July-28 decomposition
+carries the identical 23 negatives to the last digit). The mesh was born broken by the pyHyp tip
+collapse on the 4× coarsened surface — which makes it a SECOND SPECIMEN of entry 10's
+generator-owned aspect-ratio pathology, on a different geometry. Larger finding: **`
+transonicPCOption: 2` is dead code for DARhoSimpleCFoam** (only `== 1` exists at
+DAResidualRhoSimpleCFoam.C:173; `== 2` lives in the Turbo solver) — every archived M6 script set
+2, so NO archived M6 adjoint ever ran with an active transonic preconditioner, and the A3
+"conditioning wall at every mesh size" was measured entirely with that lever silently off. The
+liaison's lead is thereby upgraded from "never set" to "set but inert". Also en route: the
+record's "SEGV during decomposePar" rediagnosed as two orphan autoPatch patches unmapped by the
+tutorial createPatchDict — the old wrapper ran the solver on half-written processor dirs.
+**Chief ruling — the RE-FILE is approved:** the same two levers (sub-LU + transonicPCOption: 1,
+now known-active) on the 21,840-cell archived sweep mesh, which passes the mesh gate and matches
+the proposal's cost basis, ~30 core-min. The question entry 8 asked is still open and now sharper:
+the wall has never been probed with the preconditioner actually on.
+
 ## 9. Model-form family B (bump) — no band, all four closures stall
 The archived rung never met residualControl either. **New diagnostic:** [FILE] one diagnosis arm
 (~15 core-min): the bump at doubled iteration cap with per-quantity settle monitoring — decides
@@ -180,6 +200,10 @@ documented exclusion. Criterion: instrument-check.
 Standing finding (`GENERATOR_FINDING_pyhyp_aspect_ratio.md`). **New diagnostic:** [FILE] one mesh
 from an alternative generator (blockMesh C-grid per the TMR recipe or gmsh) at matched cell count:
 if the ladder behaves, the generator owns the pathology and the family unblocks. ~20 core-min.
+*(2026-08-08 note: the A3 arm under entry 8 surfaced a second specimen — the archived M6 vcoarse
+mesh was born with 23 negative-volume cells and aspect ratio 2.08e+95 from the pyHyp tip collapse
+on a 4× coarsened surface. The pathology is now cross-geometry; this diagnostic's priority rises
+accordingly.)*
 
 ---
 Review discipline note: every diagnostic above is falsifiable, costed, and names which way each
