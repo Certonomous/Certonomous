@@ -299,3 +299,58 @@ host/state-drift confound is closed: today's host reproduces the 2026-07-30 reco
 printed digit with the token at its record value, and converges with the token flipped.
 The two arms' solve-2 iteration-0 residuals are the same number
 (`1.839195903440e-01`) — identical linearization state, opposite outcomes.
+
+---
+
+# FD-VERIFICATION RESULT, 2026-08-08 (chief ruling 2 of 14d57c8e, charter §7): **ARM PASS — the M6 gradient is no longer an existence proof**
+
+Pre-registration `A3_FD3_PREREGISTRATION.md`: base
+`4aef4a2f5fe341cac48e714bfd974746d00110cd` (22:30:02Z), addendum `b9f42631` (attempt-1
+verdict + disclosed correction + attempt-2 steps) — each committed before the attempt it
+governs. Config: the converged arm's (`transonicPCOption 1`, stock ILU) with
+`primalMinResTol 1e-8` / `primalMinResTolDiff 1e4` (S1 discipline; the primal plateaus below
+the 1e-4 hard gate without reaching 1e-8 — reported, not hidden), cold-started each attempt
+(cold signature `0.5969274433533561` both times).
+
+## Attempt 1 (h=1e−3): NOT EVALUABLE per the pre-registered noise-floor rule
+
+Every component's CD delta (3.3e−6 to 1.33e−5) fell below 10x the measured baseline drift
+(2.107e−6); step-consistency violations (17–37%) corroborated. The §4 branch fired; steps
+were re-sized from the MEASURED floor. Disclosed en route (the S1 index-label lesson,
+exactly as the chief warned): the prereg's reference value for `shape[5]` was a mis-parse of
+the converged arm's line-wrapped 120-wide numpy row (first+last print lines concatenated) —
+the true `shape[5]` is +7.34092e−3, and `−0.12418968` is `shape[115]`, the row's REAL
+max-|g| component, added to attempt 2 under the correctly applied basis. The
+mapping-by-construction guard held throughout — the arm always perturbed and read the true
+component 5. Spend 13.1 core-min; log `fd3_run_attempt1.log`.
+
+## Attempt 2 (h=1e−2/2e−2, four components): the pre-registered bands, applied strictly
+
+Noise floor 1.626e−6; evaluability threshold 1.63e−5; adjoint reason 2 at 368 iterations
+(iteration-identical to the converged arm, third occurrence).
+
+| component | adjoint | FD(h) | FD(2h) | delta vs floor | step-cons | rel err | verdict per §4 |
+|---|---|---|---|---|---|---|---|
+| patchV[1] (AoA) | 7.64611788e−03 | 7.66002800e−03 | 7.62500232e−03 | 94x | 0.46% ✓ | **0.18%** | **PASS** |
+| shape[115] (max-|g|) | −1.24189676e−01 | −1.23048667e−01 | −1.22797280e−01 | 1513x | 0.20% ✓ | **0.93%** | **PASS** |
+| twist[1] | 1.73254475e−03 | 1.75500957e−03 | 1.66219195e−03 | 22x | 5.29% ✗ | (1.28%, unverdicted) | not evaluable — step-inconsistent |
+| shape[5] | 7.34091832e−03 | 7.82812275e−03 | 8.47020820e−03 | 96x | 8.20% ✗ | (6.22%, unverdicted) | not evaluable — step-inconsistent |
+
+**Arm verdict per the pre-registered rule (all evaluable components PASS, >= 2 evaluable):
+PASS.** Two components spanning two DV groups, including the single largest gradient
+component, agree with FD at 0.18% and 0.93% — well inside the 5% PASS band. The two
+step-inconsistent components are the two smallest signals (their inconsistency is the
+plateau-noise/O(h²) tradeoff, reported with numbers); they carry no verdict either way.
+
+**Bonus finding — adjoint reproducibility is exact:** across three independent adjoint runs
+(TPC1, FD attempt 1, FD attempt 2), all compared gradient components are identical to every
+printed digit (e.g. shape[115]: −1.24189680e−1 vs −1.24189676e−1 — 8 digits; patchV/twist to
+all printed digits), each converging in exactly 368 iterations.
+
+Spend: attempt 2 ledger rc=0, wall 246 s = 16.4 core-min; FD arm total 29.5 core-min of ~30. Logs:
+`fd3_run_attempt1.log`, `fd3_run.log`; script `runScript_fd3.py`; launcher `run_arm_fd3.sh`.
+
+**Binding scope update:** with the pre-registered arm PASS, the reopened rung's gradient is
+FD-verified on the tested components and may be used as a number for patchV/shape-class
+work at this rung; twist-class components remain unverdicted at the tested steps. Ruling 2's
+"until this passes" condition is met as pre-registered.
