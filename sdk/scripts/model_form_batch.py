@@ -408,6 +408,53 @@ def patch_case(case_dir: Path, model: str, *, nu: float,
         path.write_text(transform(path.read_text(), extra), newline="\n")
 
 
+def read_scalar_internal(path: Path) -> list[float]:
+    """A nonuniform scalar internalField as a plain list."""
+    text = Path(path).read_text(errors="replace")
+    hit = re.search(
+        r"internalField\s+nonuniform\s+List<scalar>\s*\n(\d+)\s*\n\(", text)
+    if not hit:
+        raise RuntimeError(f"{path}: no nonuniform scalar internalField")
+    count = int(hit.group(1))
+    vals = [float(t) for t in text[hit.end():].split(")", 1)[0].split()]
+    if len(vals) != count:
+        raise RuntimeError(f"{path}: {len(vals)} values, header says {count}")
+    return vals
+
+
+def write_seeded_field(template: Path, out: Path, obj: str,
+                       values: Sequence[float]) -> None:
+    """The template's boundaryField carrying a nonuniform internalField."""
+    text = Path(template).read_text()
+    text = re.sub(r"object\s+\w+;", f"object      {obj};", text)
+    body = ("internalField   nonuniform List<scalar>\n"
+            f"{len(values)}\n(\n"
+            + "\n".join(f"{v:.10g}" for v in values) + "\n)\n;")
+    text = re.sub(r"internalField\s+uniform\s+[0-9eE.+-]+;", body, text, 1)
+    Path(out).write_text(text, newline="\n")
+
+
+def ensure_phi_solver(case_dir: Path) -> None:
+    """potentialFoam needs a Phi solver block (the F8 section 12 lesson)."""
+    path = Path(case_dir) / "system" / "fvSolution"
+    text = path.read_text()
+    if re.search(r"^\s*Phi\b", text, re.MULTILINE):
+        return
+    text = text.replace("solvers\n{", """solvers
+{
+    Phi
+    {
+        solver          GAMG;
+        smoother        DIC;
+        tolerance       1e-06;
+        relTol          0.01;
+    }
+""", 1)
+    if "potentialFlow" not in text:
+        text += "\npotentialFlow\n{\n    nNonOrthogonalCorrectors 10;\n}\n"
+    path.write_text(text, newline="\n")
+
+
 def set_backstop(case_dir: Path, iterations: int) -> None:
     """Raise the run's iteration backstop without touching anything else.
 
@@ -900,7 +947,8 @@ def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
 
 def run_cell_P_or_B(cell: Cell, log: Callable[[str], None], *,
                     backstop: int = BATCH_BACKSTOP,
-                    adjusted_settle: dict[str, Any] | None = None
+                    adjusted_settle: dict[str, Any] | None = None,
+                    seeded_init: dict[str, Any] | None = None
                     ) -> dict[str, Any]:
     """Flat plate (P) or bump in channel (B): blockMesh families."""
     if cell.family == "P":
@@ -936,11 +984,36 @@ def run_cell_P_or_B(cell: Cell, log: Callable[[str], None], *,
                        lambda root, lv: case_dir, log)
     assert_mesh_certified_at_entry(remote, cell.family, cell.cell_id)
     start = time.monotonic()
+    init_note: dict[str, Any] | None = None
+    if seeded_init and seeded_init.get("kind") == "potentialFoam":
+        # Declared, pre-registered initialization change (FPE diagnosis arm
+        # verdict: the impulsive uniform start owns the bump crash class).
+        ensure_phi_solver(remote)
+        pf = tv._foam(["potentialFoam"], remote, "log.potentialFoam",
+                      timeout=900)
+        shutil.copy2(remote / "log.potentialFoam",
+                     out_dir / "log.potentialFoam")
+        init_note = {"kind": "potentialFoam",
+                     "prereg": seeded_init.get("prereg"),
+                     "potentialFoam_returncode": pf.returncode}
+        if pf.returncode != 0:
+            wall = time.monotonic() - start
+            record = _grade(cell, remote, out_dir, wall, pf.returncode,
+                            qoi_names, settle_on, backstop=backstop)
+            record["initialization"] = init_note
+            record["converged"] = False
+            record["excluded_reasons"].append(
+                "declared potentialFoam initialization failed")
+            shutil.rmtree(remote, ignore_errors=True)
+            shutil.rmtree(case_root, ignore_errors=True)
+            return record
     result = tv._foam(["simpleFoam"], remote, "log.simpleFoam", timeout=5400)
     wall = time.monotonic() - start
     record = _grade(cell, remote, out_dir, wall, result.returncode,
                     qoi_names, settle_on, backstop=backstop,
                     adjusted_settle=adjusted_settle)
+    if init_note is not None:
+        record["initialization"] = init_note
     record["cells"] = level.cells
     record["iteration_backstop"] = backstop
     record["patch"] = patch_name
@@ -1089,7 +1162,8 @@ def _hills_field_from_omega(omega_text: str, model: str) -> tuple[str, str]:
 
 
 def run_cell_H(cell: Cell, log: Callable[[str], None], *,
-               backstop: int = H_BACKSTOP) -> dict[str, Any]:
+               backstop: int = H_BACKSTOP,
+               seeded_init: dict[str, Any] | None = None) -> dict[str, Any]:
     """Periodic hills, one closure, on the verified F6b medium case.
 
     Pre-registration: campaign/MODEL_FORM_H_HILLS_PREREGISTRATION.md. The
@@ -1143,6 +1217,21 @@ def run_cell_H(cell: Cell, log: Callable[[str], None], *,
     ctrl = remote / "system" / "controlDict"
     ctrl.write_text(re.sub(r"endTime\s+\d+;", f"endTime         {backstop};",
                            ctrl.read_text()), newline="\n")
+    init_note: dict[str, Any] | None = None
+    if seeded_init and seeded_init.get("kind") == "sst_seeded_kepsilon":
+        # Declared, pre-registered initialization change (FPE diagnosis arm
+        # verdict: the uniform derived-epsilon init owns the hills crash).
+        # Same identity as the uniform derivation, evaluated per cell on the
+        # converged same-case kOmegaSST field.
+        donor = Path(seeded_init["donor"])
+        k_sst = read_scalar_internal(donor / "k")
+        omega_sst = read_scalar_internal(donor / "omega")
+        eps = [C_MU * kv * wv for kv, wv in zip(k_sst, omega_sst)]
+        write_seeded_field(remote / "0" / "k", remote / "0" / "k", "k", k_sst)
+        write_seeded_field(remote / "0" / "epsilon", remote / "0" / "epsilon",
+                           "epsilon", eps)
+        init_note = {"kind": "sst_seeded_kepsilon", "donor": str(donor),
+                     "prereg": seeded_init.get("prereg")}
 
     assert_mesh_certified_at_entry(remote, cell.family, cell.cell_id,
                                    fallback=out_dir)
@@ -1211,6 +1300,7 @@ def run_cell_H(cell: Cell, log: Callable[[str], None], *,
         "cells": 15600,
         "iteration_backstop": backstop,
         "prereg": "campaign/MODEL_FORM_H_HILLS_PREREGISTRATION.md",
+        "initialization": init_note,
         "wall_seconds": round(wall, 1),
         "core_min": round(wall / 60.0, 3),
         "ranks": 1,
@@ -1223,17 +1313,20 @@ def run_cell_H(cell: Cell, log: Callable[[str], None], *,
 
 def run_cell(cell: Cell, log: Callable[[str], None], *,
              backstop: int = BATCH_BACKSTOP,
-             adjusted_settle: dict[str, Any] | None = None) -> dict[str, Any]:
+             adjusted_settle: dict[str, Any] | None = None,
+             seeded_init: dict[str, Any] | None = None) -> dict[str, Any]:
     if cell.family in ("P", "B"):
         return run_cell_P_or_B(cell, log, backstop=backstop,
-                               adjusted_settle=adjusted_settle)
+                               adjusted_settle=adjusted_settle,
+                               seeded_init=seeded_init)
     if cell.family == "H":
         # H's own default applies only when the caller passed the batch
         # default; an explicit --iteration-backstop override is honored
         # (the min() this replaces would have silently capped the approved
         # 30,000-iteration extension arm at 12,000).
         h_backstop = H_BACKSTOP if backstop == BATCH_BACKSTOP else backstop
-        return run_cell_H(cell, log, backstop=h_backstop)
+        return run_cell_H(cell, log, backstop=h_backstop,
+                          seeded_init=seeded_init)
     return run_cell_N(cell, log, backstop=backstop,
                       adjusted_settle=adjusted_settle)
 
@@ -1520,6 +1613,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--redo-reason", default=None,
                         help="with --redo-excluded, only cells whose reasons "
                              "contain this substring")
+    parser.add_argument("--seeded-init", default=None, metavar="SPEC.json",
+                        help="path to a COMMITTED pre-registered per-cell "
+                             "initialization spec ({cell_id: {kind: ...}}); "
+                             "changes only the initial fields, never the "
+                             "gate; stamped into each record's "
+                             "initialization block")
     parser.add_argument("--adjusted-settle", default=None, metavar="SPEC.json",
                         help="path to a COMMITTED pre-registered settle "
                              "criterion spec; replaces only the convergence-"
@@ -1570,6 +1669,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     adjusted_settle: dict[str, Any] | None = None
     if args.adjusted_settle:
         adjusted_settle = json.loads(Path(args.adjusted_settle).read_text())
+    seeded_specs: dict[str, Any] = {}
+    if args.seeded_init:
+        seeded_specs = json.loads(Path(args.seeded_init).read_text())
     spent = 0.0
     log(f"model-form batch starting: {len(cells)} cell(s) in scope, budget "
         f"{args.max_core_min:.1f} core-min"
@@ -1609,7 +1711,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             record = run_cell(cell, log,
                               backstop=args.iteration_backstop,
-                              adjusted_settle=adjusted_settle)
+                              adjusted_settle=adjusted_settle,
+                              seeded_init=seeded_specs.get(cell.cell_id))
         except Exception as exc:  # a failed cell is data, not a crash
             wall = time.monotonic() - began
             record = {

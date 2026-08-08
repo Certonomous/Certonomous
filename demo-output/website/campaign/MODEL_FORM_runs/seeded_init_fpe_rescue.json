@@ -1,0 +1,19 @@
+{
+  "H_re10595_kEpsilon": {
+    "kind": "sst_seeded_kepsilon",
+    "donor": "/home/ubuntu/Certonomous/demo-output/website/campaign/F6b_runs/medium/5997",
+    "prereg": "demo-output/website/campaign/MODEL_FORM_FPE_RESCUE_PREREGISTRATION.md"
+  },
+  "B_re1p2e7_kEpsilon": {
+    "kind": "potentialFoam",
+    "prereg": "demo-output/website/campaign/MODEL_FORM_FPE_RESCUE_PREREGISTRATION.md"
+  },
+  "B_re1p2e7_kOmegaSST": {
+    "kind": "potentialFoam",
+    "prereg": "demo-output/website/campaign/MODEL_FORM_FPE_RESCUE_PREREGISTRATION.md"
+  },
+  "B_re1p2e7_realizableKE": {
+    "kind": "potentialFoam",
+    "prereg": "demo-output/website/campaign/MODEL_FORM_FPE_RESCUE_PREREGISTRATION.md"
+  }
+}
