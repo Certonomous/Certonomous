@@ -72,6 +72,12 @@ nothing for what Boussinesq mis-scales (turbulent shear stress in a
 separated layer). If the hills arm lands the same way, that is one sentence
 for the class; the hills row stays empty until its own run says so.
 
+**Dated addendum, 2026-08-08:** the hills arm has now run its own
+registration (`F6b_QCR_PREREGISTRATION.md`, results `F6b_QCR_RESULTS.md`):
+**outcome N, +0.034 x/h away from the band against a 0.10 bar** — the
+pending cell above resolves to null and the class sentence is earned. The
+row above is left as written per the correction conventions.
+
 ## Predictions, scored clause-by-clause
 
 1. Gate V within ±0.005 — **TRUE** (0.0000 / 0.0003).

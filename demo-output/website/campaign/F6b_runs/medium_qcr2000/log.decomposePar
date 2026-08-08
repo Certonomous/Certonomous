@@ -1,0 +1,98 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : decomposePar -force
+Date   : Aug 08 2026
+Time   : 02:04:54
+Host   : ip-172-31-43-247
+PID    : 230992
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/demo-output/website/campaign/F6b_runs/medium_qcr2000
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 185
+    Unknown compression specifier 'uncompressed' using compression off
+
+
+Decomposing mesh
+
+Create mesh
+
+Calculating distribution of cells
+Decomposition method scotch [2] (region region0)
+
+Finished decomposition in 0.01 s
+
+Calculating original mesh data
+
+Distributing cells to processors
+
+Distributing faces to processors
+
+Distributing points to processors
+
+Constructing processor meshes
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 185
+    Unknown compression specifier 'uncompressed' using compression off
+
+Processor 0
+    Number of cells = 7800
+    Number of points = 15972
+    Number of faces shared with processor 1 = 120
+    Number of processor patches = 1
+    Number of processor faces = 120
+    Number of boundary faces = 15850
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 185
+    Unknown compression specifier 'uncompressed' using compression off
+
+Processor 1
+    Number of cells = 7800
+    Number of points = 15972
+    Number of faces shared with processor 0 = 120
+    Number of processor patches = 1
+    Number of processor faces = 120
+    Number of boundary faces = 15850
+
+Number of processor faces = 120
+Max number of cells = 7800 (0% above average 7800)
+Max number of processor patches = 1 (0% above average 1)
+Max number of faces between processors = 120 (0% above average 120)
+
+
+Time = 0
+
+Processor 0: field transfer
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 185
+    Unknown compression specifier 'uncompressed' using compression off
+Processor 1: field transfer
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 185
+    Unknown compression specifier 'uncompressed' using compression off
+
+End
+

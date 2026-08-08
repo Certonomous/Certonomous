@@ -1,0 +1,166 @@
+FoamFile
+{ version 2.0; format ascii; class dictionary; object controlDict; }
+// f6b-qcr2000-on-the-hills single change: lab-built QCR2000 term
+libs ( "libkOmegaSSTQCRTurbulenceModels.so" );
+
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         12000;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   6000;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression uncompressed;
+timeFormat      general;
+timePrecision   12;
+runTimeModifiable false;
+
+functions
+{
+    wallShearStress
+    {
+        type wallShearStress; libs (fieldFunctionObjects);
+        patches (bottomWall topWall);
+        executeControl writeTime; writeControl writeTime;
+    }
+    singleGraph_x0
+    {
+        type sets; libs (sampling);
+        setFormat raw; interpolationScheme cellPoint;
+        fields (U p k omega nut);
+        executeControl writeTime; writeControl writeTime;
+        sets
+        (
+            line
+            {
+                type midPoint; axis xyz;
+                start (0.0001 0 0); end (0.0001 3.035 0);
+            }
+        );
+    }
+    singleGraph_x1
+    {
+        type sets; libs (sampling);
+        setFormat raw; interpolationScheme cellPoint;
+        fields (U p k omega nut);
+        executeControl writeTime; writeControl writeTime;
+        sets
+        (
+            line
+            {
+                type midPoint; axis xyz;
+                start (1.0001 0 0); end (1.0001 3.035 0);
+            }
+        );
+    }
+    singleGraph_x2
+    {
+        type sets; libs (sampling);
+        setFormat raw; interpolationScheme cellPoint;
+        fields (U p k omega nut);
+        executeControl writeTime; writeControl writeTime;
+        sets
+        (
+            line
+            {
+                type midPoint; axis xyz;
+                start (2.0001 0 0); end (2.0001 3.035 0);
+            }
+        );
+    }
+    singleGraph_x3
+    {
+        type sets; libs (sampling);
+        setFormat raw; interpolationScheme cellPoint;
+        fields (U p k omega nut);
+        executeControl writeTime; writeControl writeTime;
+        sets
+        (
+            line
+            {
+                type midPoint; axis xyz;
+                start (3.0001 0 0); end (3.0001 3.035 0);
+            }
+        );
+    }
+    singleGraph_x4
+    {
+        type sets; libs (sampling);
+        setFormat raw; interpolationScheme cellPoint;
+        fields (U p k omega nut);
+        executeControl writeTime; writeControl writeTime;
+        sets
+        (
+            line
+            {
+                type midPoint; axis xyz;
+                start (4.0001 0 0); end (4.0001 3.035 0);
+            }
+        );
+    }
+    singleGraph_x5
+    {
+        type sets; libs (sampling);
+        setFormat raw; interpolationScheme cellPoint;
+        fields (U p k omega nut);
+        executeControl writeTime; writeControl writeTime;
+        sets
+        (
+            line
+            {
+                type midPoint; axis xyz;
+                start (5.0001 0 0); end (5.0001 3.035 0);
+            }
+        );
+    }
+    singleGraph_x6
+    {
+        type sets; libs (sampling);
+        setFormat raw; interpolationScheme cellPoint;
+        fields (U p k omega nut);
+        executeControl writeTime; writeControl writeTime;
+        sets
+        (
+            line
+            {
+                type midPoint; axis xyz;
+                start (6.0001 0 0); end (6.0001 3.035 0);
+            }
+        );
+    }
+    singleGraph_x7
+    {
+        type sets; libs (sampling);
+        setFormat raw; interpolationScheme cellPoint;
+        fields (U p k omega nut);
+        executeControl writeTime; writeControl writeTime;
+        sets
+        (
+            line
+            {
+                type midPoint; axis xyz;
+                start (7.0001 0 0); end (7.0001 3.035 0);
+            }
+        );
+    }
+    singleGraph_x8
+    {
+        type sets; libs (sampling);
+        setFormat raw; interpolationScheme cellPoint;
+        fields (U p k omega nut);
+        executeControl writeTime; writeControl writeTime;
+        sets
+        (
+            line
+            {
+                type midPoint; axis xyz;
+                start (8.0001 0 0); end (8.0001 3.035 0);
+            }
+        );
+    }
+
+}
