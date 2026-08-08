@@ -18,7 +18,8 @@
   "The L-40 hazard class precedent: an instrument silently not doing what its configuration says"
  ],
  "launch_prompt": "pydafoam silent warm-start audit. Read A3_SUBLU_SWEEP_PREREGISTRATION.md addendum 1 and the gate of this proposal first. Log forensics only, zero solver compute. Inventory every archived case dir with multiple runs, apply the four cold-vs-warm signatures, produce the per-conclusion verdict table (COLD-CLEAN / WARM-CONTAMINATED / INDETERMINATE), starting with the B3 reordering 2x2, the D3 sweep variants, and the R5 dumps. Add the cold-start restoration step to FAMILY_SUPERVISION_GUIDELINES.md on completion. No conclusion is rewritten by this audit; flags go to the chief for regrade decisions.",
- "status": "proposed",
+ "status": "approved",
  "created_at": "2026-08-08T03:30:00Z",
- "decision_note": "filed by the entry-8 solver agent under chief ruling 3 of 2026-08-08, for chief pricing -- explicitly NOT self-executed"
+ "decision_note": "approved by chief ruling 3 of the entry-8 epilogue (14d57c8e), as priced: log-forensics only, zero solver core-min; executed by the filing agent per the same ruling",
+ "decided_at": "2026-08-08T22:45:00Z"
 }
