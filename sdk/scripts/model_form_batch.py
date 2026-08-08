@@ -637,6 +637,36 @@ def apply_mesh_gate(meshv: dict[str, Any], family: str
     return remaining, exemption
 
 
+def assert_mesh_certified_at_entry(remote: Path, family: str, label: str,
+                                   *, fallback: Path | None = None) -> None:
+    """Refuse the solver launch on an uncertified or gate-breaching mesh.
+
+    Mesh birth certificate, Verification Charter v1.5 section 9, adopted
+    2026-08-08: this batch already retained its checkMesh logs and applied
+    the hard gates -- but POST HOC, as banding-gate exclusion after the
+    solve had already spent its wall time. This is the same record read
+    BEFORE launch: an absent or unreadable checkMesh record, or a hard-gate
+    breach outside an R12 family exemption, refuses the launch with the
+    reason stated. The exemption logic is apply_mesh_gate's own, so nothing
+    a family ruling admits post hoc is refused pre-launch.
+    """
+    check = Path(remote) / "log.checkMesh"
+    if not check.exists() and fallback is not None:
+        check = Path(fallback) / "log.checkMesh"
+    if not check.exists():
+        raise RuntimeError(
+            f"{label}: no checkMesh record beside the case; the solver does "
+            f"not launch on an uncertified mesh (Verification Charter v1.5 "
+            f"section 9, born clean or it does not enter)")
+    meshv = mesh_verdict(check.read_text(errors="replace"))
+    reasons, _ = apply_mesh_gate(meshv, family)
+    if reasons:
+        raise RuntimeError(
+            f"{label}: mesh refused at entry, not excluded after the solve: "
+            + "; ".join(reasons)
+            + " (Verification Charter v1.5 section 9)")
+
+
 def settle_verdict_s12(series: Sequence[float]) -> dict[str, Any]:
     """Monitor Standard S12 on the QoI history. Scale-free by construction."""
     finding = detect_unsettled_stop(list(series))
@@ -899,6 +929,7 @@ def run_cell_P_or_B(cell: Cell, log: Callable[[str], None], *,
     out_dir.mkdir(parents=True, exist_ok=True)
     tv._stage_and_mesh(level, case_root, out_dir, str(remote),
                        lambda root, lv: case_dir, log)
+    assert_mesh_certified_at_entry(remote, cell.family, cell.cell_id)
     start = time.monotonic()
     result = tv._foam(["simpleFoam"], remote, "log.simpleFoam", timeout=5400)
     wall = time.monotonic() - start
@@ -1108,6 +1139,8 @@ def run_cell_H(cell: Cell, log: Callable[[str], None], *,
     ctrl.write_text(re.sub(r"endTime\s+\d+;", f"endTime         {backstop};",
                            ctrl.read_text()), newline="\n")
 
+    assert_mesh_certified_at_entry(remote, cell.family, cell.cell_id,
+                                   fallback=out_dir)
     start = time.monotonic()
     result = tv._foam(["simpleFoam"], remote, "log.simpleFoam", timeout=7200)
     wall = time.monotonic() - start

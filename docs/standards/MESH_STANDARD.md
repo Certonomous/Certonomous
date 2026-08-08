@@ -1,5 +1,21 @@
 # Certonomous Mesh Standard
 
+Version 1.1, dated 2026-08-08. **Adds exactly one mechanism, the mesh birth
+certificate, and changes no gate value.** The Verification Charter's v1.5
+section 9 clause -- born clean or it does not enter; a mesh whose birth
+certificate is missing is quarantined from new work -- gets its mechanics
+(section 6 below), adopted by the infrastructure family after the 2026-08-08
+archive sweep measured the gap: 178 unique reachable meshes, 105 already
+certified, 47 certified clean by the sweep, exactly one born broken (the A3
+vcoarse pyHyp mesh, 23 negative-volume cells, aspect ratio 2.08e95, three
+case entries with zero certificate checks), and one structural hole -- the
+mesh caches, which stored bare polyMesh with no quality record behind 400+
+run directories even where the generating workflow HAD run checkMesh. The
+adopting supervisor re-verified the sweep's evidence by hand before adoption:
+the born-broken specimen's checkMesh reproduces digit-for-digit, a born-clean
+certificate reproduces digit-for-digit, and the dedupe-by-points-hash claim
+holds on the largest shared-mesh family. Nothing else in 1.0 is changed.
+
 Version 1.0, dated 2026-07-25. Produced by the overnight reading program (R1).
 Governs every mesh-quality gate the lab enforces before a solve is admitted as
 evidence. Gates change only through the governed path: an edit to
@@ -142,6 +158,41 @@ context signal.
    owner sees it before any surface shows it.
 3. A test that pins a gate value is updated only when the new value is the
    cited, defensible one, and the update says so.
+
+## 6. The mesh birth certificate (v1.1, 2026-08-08)
+
+The charter clause this implements is one sentence: every mesh entering an
+archive, a pre-registration or a ladder rung carries its checkMesh record at
+creation, and a mesh whose record is missing is quarantined from new work
+until checkMesh is run and attached.
+
+- **The certificate.** ``birth_certificate.json`` beside the ``polyMesh``
+  directory it certifies (`sdk/chief_engineer/mesh_certificate.py`),
+  carrying ``points_sha256`` (the hash that binds it to exactly one mesh),
+  ``verdict``, ``cells``, ``max_aspect_ratio``, ``max_non_orthogonality``,
+  ``max_skewness``, ``hard_errors``, ``generator`` and ``created_at``, with
+  the checkMesh log retained beside it. The verdict basis is the audit's:
+  hard checkMesh errors (negative volumes, wrong-oriented face pyramids,
+  non-orthogonality errors, skewness errors, pathology-range aspect-ratio
+  flags) make a mesh ``broken``; the high-aspect-ratio-only signature of the
+  reference-grid family is ``flagged`` and admissible per section 3.3;
+  ``-allGeometry`` advisories indict nothing.
+- **The chokepoints.** All three mesh-cache layers enforce it: the head
+  engineer's WSL cache, the DAFoam docker cache (the pyHyp entry path, the
+  pathology's generator), and the shock-bench module cache the unsteady
+  workflows share. Save writes the certificate from the case's own checkMesh
+  record (running checkMesh at save when the workflow has not yet); lookup
+  treats an entry without a matching-hash accepted certificate as NOT
+  cached, which is the charter's quarantine (pre-rule entries re-mesh once
+  and re-enter certified); restore copies the certificate into the case
+  beside the mesh. The geometry workflow saves after its quality gate so the
+  certificate is the gate's own persisted reading, and the model-form batch
+  refuses a solver launch on an absent, unreadable or gate-breaching record
+  (R12 family exemptions preserved through the batch's own exemption logic)
+  instead of excluding the cell after the wall time is spent.
+- **A failed check never certifies.** A certificate is a record of a check
+  that ran: a save whose checkMesh record is absent or unparseable writes
+  nothing, and the entry stays quarantined at lookup.
 
 ## Sources
 

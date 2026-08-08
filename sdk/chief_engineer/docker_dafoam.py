@@ -28,6 +28,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
+from . import mesh_certificate
+
 DOCKER_IMAGE = "dafoam/opt-packages:latest"
 RUN_ROOT = Path.home() / "certonomous-runs"
 MESH_CACHE_ROOT = RUN_ROOT / ".mesh-cache"
@@ -224,10 +226,23 @@ class DockerDAFoamEngineer:
         poly = cache / "polyMesh"
         if not (poly / "points").exists() and not (poly / "points.gz").exists():
             return False
+        # Mesh birth certificate (Verification Charter v1.5 section 9,
+        # adopted 2026-08-08). This is the pyHyp entry path -- the A3
+        # vcoarse mesh entered a case three times through reconstruction
+        # because nothing here asked for its record. An entry without a
+        # matching-hash accepted certificate is NOT cached: pre-rule
+        # entries re-mesh once and re-enter certified.
+        admitted, _ = mesh_certificate.certificate_admits(cache)
+        if not admitted:
+            return False
         dest = self.remote_case / "constant" / "polyMesh"
         if dest.exists():
             shutil.rmtree(dest)
         shutil.copytree(poly, dest)
+        certificate = cache / mesh_certificate.CERTIFICATE_NAME
+        if certificate.exists():
+            shutil.copy2(certificate,
+                         dest.parent / mesh_certificate.CERTIFICATE_NAME)
         # The cell count lives in a log this restore never generates (that
         # log is only written by a fresh preProcessing.sh run); the sidecar
         # written at save time is the mesh's own reported count, carried
@@ -251,6 +266,34 @@ class DockerDAFoamEngineer:
         cells = self.mesh_cell_count()
         if cells:
             (cache / "cells.txt").write_text(str(cells))
+        # Birth certificate at cache-save, from a real host checkMesh run on
+        # the case (the toolchain is native on this box). The pyHyp
+        # generator writes no quality record of its own, which is exactly
+        # how a mesh with 23 negative-volume cells and aspect ratio 2.08e95
+        # sat in this cache class as a usable rung. If checkMesh cannot run
+        # or its log does not parse, no certificate is written and the
+        # entry stays quarantined at lookup.
+        check_log = self.remote_case / "log.checkMesh"
+        if not check_log.exists():
+            try:
+                preamble = ("for rc in /usr/lib/openfoam/openfoam*/etc/"
+                            "bashrc; do source \"$rc\" >/dev/null 2>&1; "
+                            "break; done; ")
+                result = subprocess.run(
+                    ["bash", "-c", preamble + "checkMesh -noTopology"],
+                    cwd=str(self.remote_case), capture_output=True,
+                    text=True, timeout=1200)
+                check_log.write_text(result.stdout + result.stderr,
+                                     errors="replace")
+            except (OSError, subprocess.TimeoutExpired):
+                pass
+        if check_log.exists():
+            written = mesh_certificate.write_certificate(
+                cache,
+                check_log_text=check_log.read_text(errors="replace"),
+                generator="pyHyp via DAFoam preProcessing")
+            if written:
+                shutil.copy2(check_log, cache / "log.checkMesh")
 
     # -- solve cache ----------------------------------------------------------
 

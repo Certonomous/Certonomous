@@ -24,6 +24,7 @@ Everything here is orchestration and analysis — solvers do the physics.
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import shlex
@@ -32,6 +33,7 @@ import subprocess
 import threading
 import time
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, Callable, Sequence
@@ -968,8 +970,36 @@ class HeadEngineer:
         safe = re.sub(r"[^A-Za-z0-9._-]", "_", cache_key)
         return f"{MESH_CACHE_ROOT}/{safe}"
 
+    def _cache_certificate_state(self, cache: str) -> tuple[dict | None, str]:
+        """The cache entry's birth certificate and the live points hash,
+        read in one shell round trip. Returns (certificate dict or None,
+        sha256 hex or empty string)."""
+        from . import mesh_certificate
+        probe = self._wsl(
+            f"cat {cache}/{mesh_certificate.CERTIFICATE_NAME} 2>/dev/null; "
+            f"echo __CERT_SEP__; "
+            f"for f in points points.gz; do "
+            f"test -f {cache}/polyMesh/$f && sha256sum {cache}/polyMesh/$f "
+            f"&& break; done", timeout=300)
+        head, _, tail = probe.stdout.partition("__CERT_SEP__")
+        try:
+            certificate = json.loads(head)
+        except ValueError:
+            certificate = None
+        digest = tail.split()[0] if tail.split() else ""
+        return (certificate if isinstance(certificate, dict) else None,
+                digest)
+
     def cached_mesh_available(self, cache_key: str) -> bool:
-        """True when a snapped mesh for this body is already cached (warm run)."""
+        """True when a snapped mesh for this body is already cached (warm run).
+
+        Mesh birth certificate (Verification Charter v1.5 section 9,
+        adopted 2026-08-08): a cache entry without a matching-hash accepted
+        certificate is NOT cached -- the charter's quarantine. Pre-rule
+        entries (bare polyMesh, no quality record, the structural gap the
+        2026-08-08 audit measured across 400+ run dirs) re-mesh once and
+        re-enter certified.
+        """
         if os.environ.get("CERTONOMOUS_MESH_CACHE") == "0":
             return False
         cache = self._mesh_cache_dir(cache_key)
@@ -981,7 +1011,16 @@ class HeadEngineer:
             f"( test -f {cache}/polyMesh/points || test -f {cache}/polyMesh/points.gz ) && "
             f"( test -f {cache}/polyMesh/owner  || test -f {cache}/polyMesh/owner.gz  ) "
             f"&& echo CACHED", timeout=120)
-        return "CACHED" in probe.stdout
+        if "CACHED" not in probe.stdout:
+            return False
+        from . import mesh_certificate
+        certificate, digest = self._cache_certificate_state(cache)
+        return bool(
+            certificate
+            and digest
+            and certificate.get("points_sha256") == digest
+            and str(certificate.get("verdict") or "")
+            in mesh_certificate.ACCEPTED_VERDICTS)
 
     def restore_cached_mesh(self, cache_key: str) -> bool:
         """Copy the cached snapped mesh into this case, skipping the mesh build.
@@ -993,16 +1032,28 @@ class HeadEngineer:
         if not self.cached_mesh_available(cache_key):
             return False
         cache = self._mesh_cache_dir(cache_key)
+        from . import mesh_certificate
         restored = self._wsl(
             f"mkdir -p {self.remote_case}/constant && "
             f"rm -rf {self.remote_case}/constant/polyMesh && "
             f"cp -r {cache}/polyMesh {self.remote_case}/constant/polyMesh && "
+            f"cp {cache}/{mesh_certificate.CERTIFICATE_NAME} "
+            f"{self.remote_case}/constant/ 2>/dev/null; "
             f"test -f {self.remote_case}/constant/polyMesh/points && echo RESTORED",
             timeout=300)
         return "RESTORED" in restored.stdout
 
     def save_mesh_to_cache(self, cache_key: str) -> None:
-        """Cache this case's snapped mesh so the next run of this body is warm."""
+        """Cache this case's snapped mesh so the next run of this body is warm.
+
+        The birth certificate is written beside the cached polyMesh at save,
+        from the case's own checkMesh record (collected here if the caller
+        has not already run ``collect_mesh_stats``), hash-bound to the
+        cached points file. A save that cannot produce a parseable checkMesh
+        record writes no certificate, and the entry is then quarantined at
+        the next lookup instead of silently reused -- L-40: the switch that
+        ran must be provable from the artifact.
+        """
         if os.environ.get("CERTONOMOUS_MESH_CACHE") == "0":
             return
         cache = self._mesh_cache_dir(cache_key)
@@ -1010,6 +1061,41 @@ class HeadEngineer:
             f"test -f {self.remote_case}/constant/polyMesh/points && "
             f"mkdir -p {cache} && rm -rf {cache}/polyMesh && "
             f"cp -r {self.remote_case}/constant/polyMesh {cache}/polyMesh || true",
+            timeout=300)
+        from . import mesh_certificate
+        log_path = self.out_root / "log.checkMesh"
+        if not log_path.exists():
+            try:
+                self.collect_mesh_stats()
+            except Exception:
+                return
+        if not log_path.exists():
+            return
+        payload = mesh_certificate.parse_check_log(
+            log_path.read_text(errors="replace"))
+        if payload.get("cells") in (None, 0):
+            return
+        _, digest = self._cache_certificate_state(cache)
+        if not digest:
+            return
+        certificate = {
+            "points_sha256": digest,
+            "verdict": payload.get("verdict"),
+            "cells": payload.get("cells"),
+            "max_aspect_ratio": payload.get("max_aspect_ratio"),
+            "max_non_orthogonality": payload.get("max_non_orthogonality"),
+            "max_skewness": payload.get("max_skewness"),
+            "hard_errors": payload.get("hard_errors", []),
+            "generator": "snappyHexMesh via head engineer",
+            "created_at": datetime.now(timezone.utc).isoformat(
+                timespec="seconds"),
+        }
+        body = json.dumps(certificate, indent=1)
+        self._wsl(
+            f"cat > {cache}/{mesh_certificate.CERTIFICATE_NAME} "
+            f"<<'BIRTH_CERT_EOF'\n{body}\nBIRTH_CERT_EOF\n"
+            f"cat > {cache}/log.checkMesh <<'BIRTH_LOG_EOF'\n"
+            f"{log_path.read_text(errors='replace')}\nBIRTH_LOG_EOF",
             timeout=300)
 
     def clear_mesh_cache(self, cache_key: str) -> None:

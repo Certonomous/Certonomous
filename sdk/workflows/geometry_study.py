@@ -1382,7 +1382,8 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
             mesh_key = f"{label}-rung-{tag}-s{lo}{hi}{block_note}"
             note = f"refinement rung {tag}: surface level ({lo} {hi})"
             roster.set(_NUM, note, "working")
-            if not rung.restore_cached_mesh(mesh_key):
+            mesh_warm = rung.restore_cached_mesh(mesh_key)
+            if not mesh_warm:
                 for step, command in (
                         ("surfaceFeatureExtract", "surfaceFeatureExtract"),
                         ("blockMesh", "blockMesh"),
@@ -1390,7 +1391,6 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
                     result = rung._run_step(step, command, 5400)
                     ledger.spend(result.seconds,
                                  f"{step} rung {tag} ({result.seconds:.0f}s)")
-                rung.save_mesh_to_cache(mesh_key)
             reset = rung._wsl(
                 f"cd {rung.remote_case} && test -d 0.orig && rm -rf 0 && "
                 f"cp -r 0.orig 0 && echo RESET")
@@ -1400,6 +1400,13 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
             cells = int(stats.get("cells", 0))
             if not cells:
                 raise RuntimeError(f"rung {tag}: checkMesh reported no cells")
+            if not mesh_warm:
+                # Cache-save AFTER the quality collection, so the birth
+                # certificate is written from the gate's own persisted
+                # checkMesh record instead of a second run (Verification
+                # Charter v1.5 section 9; the reading used to be transient,
+                # which is the L-40 gap the 2026-08-08 audit measured).
+                rung.save_mesh_to_cache(mesh_key)
             solve_key = f"{label}-{tag}-c{cells}-i{rung_iters}"
             if not rung.restore_cached_solve(solve_key):
                 # THE WARM RUNG SPENDS NOTHING. Ruling R10. What used to sit
@@ -1946,14 +1953,18 @@ def main(request: str | None = None, params: dict | None = None,
                 result = engineer._run_step(step, command, 5400)
                 ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
                 stage_row(stage_name, result.seconds, note)
-            # Cache the freshly snapped mesh so the next run of this body is warm.
-            engineer.save_mesh_to_cache(label)
 
         if familiar:
             # The tutorial case keeps its fields in 0.orig; a generated case
             # writes 0/ directly and must not have it swept away.
             engineer._wsl(f"cd {engineer.remote_case} && rm -rf 0 && cp -r 0.orig 0")
         stats = engineer.collect_mesh_stats()
+        if not warm:
+            # Cache the freshly snapped mesh so the next run of this body is
+            # warm -- after the quality collection, so the birth certificate
+            # is written from the gate's own persisted checkMesh record
+            # (Verification Charter v1.5 section 9) rather than a second run.
+            engineer.save_mesh_to_cache(label)
 
         def _remesh(retry_index: int) -> None:
             # The keep-trying rule re-runs the whole mesh chain under the

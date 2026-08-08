@@ -28,6 +28,7 @@ for _d in (F3_DIR, F4_DIR):
         sys.path.insert(0, str(_d))
 
 from chief_engineer.head_engineer import MESH_CACHE_ROOT, SOLVE_CACHE_ROOT
+from chief_engineer import mesh_certificate
 
 FOAM_BASHRC = "/usr/lib/openfoam/openfoam2606/etc/bashrc"
 
@@ -82,30 +83,65 @@ def cached_mesh_available(key: str) -> bool:
     if os.environ.get("CERTONOMOUS_MESH_CACHE") == "0":
         return False
     poly = _cache_dir(MESH_CACHE_ROOT, key) / "polyMesh"
-    return _mesh_file(poly, "points") and _mesh_file(poly, "owner")
+    if not (_mesh_file(poly, "points") and _mesh_file(poly, "owner")):
+        return False
+    # Mesh birth certificate (Verification Charter v1.5 section 9, adopted
+    # 2026-08-08): a cache entry without a matching-hash certificate is NOT
+    # cached. Pre-rule entries re-mesh once and re-enter certified.
+    admitted, _ = mesh_certificate.certificate_admits(poly.parent)
+    return admitted
 
 
 def restore_cached_mesh(case_dir: Path, key: str) -> bool:
-    """Copy a cached mesh into the case. True on a warm hit."""
+    """Copy a cached mesh into the case. True on a warm hit.
+
+    The birth certificate travels with the mesh: it is asserted at entry
+    (a broken or uncertified cache entry is a cold miss, never a restore)
+    and copied beside the case's own polyMesh so the case carries the
+    record the charter requires.
+    """
     if not cached_mesh_available(key):
         return False
     cache = _cache_dir(MESH_CACHE_ROOT, key)
     dest = Path(case_dir) / "constant" / "polyMesh"
     shutil.rmtree(dest, ignore_errors=True)
     shutil.copytree(cache / "polyMesh", dest)
+    certificate = cache / mesh_certificate.CERTIFICATE_NAME
+    if certificate.exists():
+        shutil.copy2(certificate, dest.parent
+                     / mesh_certificate.CERTIFICATE_NAME)
     return (dest / "points").exists()
 
 
 def save_mesh_to_cache(case_dir: Path, key: str) -> None:
     if os.environ.get("CERTONOMOUS_MESH_CACHE") == "0":
         return
-    src = Path(case_dir) / "constant" / "polyMesh"
+    case_dir = Path(case_dir)
+    src = case_dir / "constant" / "polyMesh"
     if not (src / "points").exists():
         return
     cache = _cache_dir(MESH_CACHE_ROOT, key)
     shutil.rmtree(cache, ignore_errors=True)
     cache.mkdir(parents=True, exist_ok=True)
     shutil.copytree(src, cache / "polyMesh")
+    # Certificate at cache-save. The charter wants the checkMesh record AT
+    # CREATION, so when the workflow has not yet produced one (the cylinder
+    # flow used to checkMesh after caching), it is run here -- seconds, per
+    # run_checkmesh's own docstring. A save without a parseable record
+    # writes no certificate, and an uncertified entry is quarantined at the
+    # next lookup rather than silently reused.
+    check_log = case_dir / "log.checkMesh"
+    if not check_log.exists():
+        try:
+            sh("checkMesh -noTopology", case_dir, check_log)
+        except Exception:
+            pass
+    if check_log.exists():
+        written = mesh_certificate.write_certificate(
+            cache, check_log_text=check_log.read_text(errors="replace"),
+            generator="shock-bench workflow (blockMesh family)")
+        if written:
+            shutil.copy2(check_log, cache / "log.checkMesh")
 
 
 def _time_dirs(case_dir: Path) -> list[str]:
