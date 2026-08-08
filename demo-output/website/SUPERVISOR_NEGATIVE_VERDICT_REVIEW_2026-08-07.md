@@ -19,6 +19,20 @@ same way it does on the hump — a two-leg pattern.
   improvement implicates constitutive form, no change implicates the omega budget.
 - The finest-rung non-convergence discriminator is already filed (`f6b-why-the-finest-hill-will-not-converge`, 55) — unchanged.
 
+**Outcome (2026-08-08, chief review of the executed QCR arm):** null — reattachment 7.6814 vs
+SST's 7.6472, +0.034 x/h against a 0.10 bar, away from the 4.21–4.7 band; the +72% FAIL stands
+untouched (results 2544c9af; the resized 12,000 cap earned its keep at 6,177 iterations — the
+inherited cap would have guillotined the run 177 iterations short). Combined with the hump null
+and the ducts' decisive win, the record now carries a three-leg class sentence: QCR2000
+resurrects anisotropy-driven secondary flow and does not touch 2D separated-shear-layer bubble
+length. **Chief caveat before that sentence hardens:** both separated-class legs are NULLS, and a
+null from a silently inactive model is indistinguishable from a null from real physics — an
+independent QCR-activity check (fields differ between SST and QCR runs by more than roundoff,
+model selection verified in the archived dicts, by an agent that ran neither) is ordered as the
+adversarial defense; the class sentence is provisional until it reports. The hills' remaining
+diagnostic (model-form matrix, ~35 core-min) stays proposed and is next in the family queue after
+the activity check clears.
+
 ## 2. F6a NASA hump — bubble-length overprediction (pass with asterisk)
 Same family as (1). The model-form matrix at challenge conditions is already approved
 (`w1-hump-challenge-conditions`, 60). **New diagnostic:** [FILE] add a QCR arm to that run when it
@@ -41,7 +55,16 @@ the limiter, the mis-scaled-stress hypothesis gains a mechanism, not just an imp
 does not, the budget question moves upstream to the omega production/destruction balance.
 Criterion: existing-family; the pre-registration must state a materiality bar before launch.
 
-## 3. F8 NREL Phase VI — steady-MRF closed three ways, motoring limit cycle persists
+**a1-arm outcome (2026-08-08, chief review):** OUTCOME ONE — mechanism. The converged a1=0.34 arm
+moved reattachment −0.0498 x/c toward experiment, five times the materiality bar, while still
+failing Gate P at +9.4% (the pre-registration predicted exactly this shape: material movement
+without a pass). Reconciled against the registry's previously-uncited 2026-08-01 a1 arms
+(a1=0.40 converged at 1.1873; a1=0.25 not converged — citation defect dated by the runner), the
+converged curve 0.31→0.34→0.40 is monotone and sublinear: d(reatt)/d(a1) ≈ −1.66 per unit a1
+just above stock, flattening to −0.27 beyond — the stress-magnitude route now carries a named
+knob with a measured slope, and the low-a1 convergence pathology is reproduced at a second value.
+The omega-budget implication from the QCR null is upgraded to a mechanism-backed finding,
+subject to the same QCR-activity check ordered under entry 1. — steady-MRF closed three ways, motoring limit cycle persists
 Geometry exonerated to the millimeter, frame terms audited to source lines, initialization tested
 single-variable. Taught: the steady branch cannot host this physics, and the S10 divergence-behind-
 a-converged-residual specimen is real. **New diagnostics:**
