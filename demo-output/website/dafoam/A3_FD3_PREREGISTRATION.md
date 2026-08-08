@@ -72,3 +72,35 @@ handoff if the turn ends mid-run). Host re-checked at launch (S1/Cases agents re
 the box). Budget ~30 core-min (14 warm primals at the ~10–30 s scale + 2 adjoint solves at
 ~110 s record). Result appended to `A3_SUBLU_RESULT.md`; docket entry updated inline, own
 entry only.
+
+## 6. Addendum, 2026-08-08T22:41Z — attempt 1 verdict (NOT EVALUABLE at h=1e−3 per §4), a §2 reference-value correction disclosed, and attempt 2 pre-registered
+
+**Attempt 1** (t0 1786228265 = 22:31:05Z, rc=0, 197 s = 13.1 core-min; log preserved as
+`fd3_run_attempt1.log`) executed the full §3 protocol. Verdict per the §4 mapping, applied
+exactly: measured noise floor |baseline drift| = 2.107e−6 on CD = 3.85e−2; every component's
+CD delta (3.3e−6 to 1.33e−5) sits BELOW the 10x floor (2.1e−5); step-consistency violations
+(17–37%) corroborate noise domination. **All three components not evaluable at h=1e−3; arm
+NOT EVALUABLE at this step size** — the §4 branch reserved for exactly this, reported with
+the noise measurements. The adjoint itself: reason 2 at 368 iterations, iteration-identical
+to the converged arm.
+
+**Disclosed correction (the S1 index-label lesson, fired as warned):** §2's reference value
+for `shape[5]` (−0.12418968) was WRONG — a mis-parse of the converged arm's line-wrapped
+numpy print, which concatenated the 120-wide CD/shape row's first and last lines. The true
+archived `shape[5]` is **+7.34092e−3**, and attempt 1's own adjoint reproduces it to every
+printed digit (7.34091831960848e−3) — as do patchV[1] and twist[1] to six digits:
+**cross-run adjoint reproducibility is exact on all three components.** The
+mapping-by-construction guard held (the arm perturbed and read the true component 5
+throughout); only the prereg's quoted reference number was wrong. Consequence for the
+selection basis: −0.12418968 is actually `shape[115]` — the TRUE max-|CD/shape| component;
+`shape[5]` was picked off the bad reference and is not the group maximum.
+
+**Attempt 2, pre-registered before relaunch:** identical protocol and bands with two changes:
+1. Steps h = 1e−2, 2h = 2e−2 — sized from the MEASURED noise floor: predicted CD deltas
+   (2h|g|) of 1.5e−4 (patchV[1], 73x floor), 3.5e−5 (twist[1], 16x), 1.5e−4 (shape[5], 70x),
+   2.5e−3 (shape[115], 1180x) — all evaluable if the floor holds; perturbations remain
+   physically small (±0.01 deg / ±0.01 FFD units).
+2. Components: the original three (kept for attempt-1 continuity) PLUS `shape[115]`
+   (reference −1.24189680e−1), the §2 selection basis now correctly applied.
+Everything else unchanged (§4 bands, cold start, config); ~17 core-min predicted, arm total
+~30. Log `fd3_run.log`, same ledger convention.
