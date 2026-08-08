@@ -429,3 +429,29 @@ count.
    S1-with-priors line (CAPABILITY_STRATEGY §3) whose regularization-provenance table the result
    doc already carries.
 4. **Stage 2 REMAINS HELD** — the ruling conditioned training on gates passing; they did not.
+
+**ENTRY 12 CLOSED (2026-08-08 night, amendment b0e31fa5 / grading d932d007): G1w FAIL, for
+real, and the honesty is the asset.** The amendment surfaced a fact the approval could not have
+priced — the seventh kill destroyed the L-BFGS-B curvature state and the retention rule had
+deleted the last gradient, so "one more eval" did not exist at one eval's price. The re-scoped
+two-eval warm restart reproduced the final-state control to all digits (reldiff exactly 0.0),
+took its step, and bought 150× less descent than the live optimizer's recent steps. Graded on
+the original bar with the pre-committed no-relitigation clause: 0.05710 vs ≤0.05320. The agent
+graded its own extension motivation WRONG: the −0.004/eval extrapolation did not materialize,
+and the record now says the budget-limited hypothesis is UNRESOLVABLE AS POSED, not vindicated —
+G1w failed at every state actually reachable within the approved budgets.
+**Chief final rulings on the S1 line:**
+1. **W1-only arm: NO-GO for now.** It stays approved-in-principle with a named trigger: the
+   S1-with-priors design phase (CAPABILITY_STRATEGY §3), which must decide loss support anyway
+   and will consume the sharpened question (does matching loss support to metric support close
+   G2?) as a design input rather than a 150-core-min standalone. The line's current state is a
+   complete finding: window capturable offline (0.9494), localization solved (79.7%/0.0%),
+   gates honestly failed, every grading pre-committed.
+2. **beta_final_ext field write: SKIP** — the .npy is the datum; the ~8.5 core-min field write
+   happens when a consumer exists, not before.
+3. **Stage 2's hold now has a named unblock:** the priors-line redesign, not another equal-weight
+   or reweighted L-BFGS-B pass. The regularization-provenance table the result doc carries is
+   the bridge.
+4. The wrong-prediction gradings (the G2-pass prediction and the extension motivation, both with
+   measured reasons) go to the calibration scorecard's next cohort — this entry is now the
+   scorecard's best specimen of the discipline working.
