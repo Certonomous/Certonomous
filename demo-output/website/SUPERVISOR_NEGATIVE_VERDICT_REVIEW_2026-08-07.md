@@ -305,6 +305,23 @@ The archived rung never met residualControl either. **New diagnostic:** [FILE] o
 "slow but convergent" vs "genuinely stalled", which decides whether family B gets a band or a
 documented exclusion. Criterion: instrument-check.
 
+**Outcome (2026-08-08 late night, via the paired k-family FPE diagnosis — pre-reg 0be92103,
+results 9c4fbef4, 3.54 of 25 core-min):** the pairing answered MORE than this entry asked. All
+four archived crashes reproduced to the EXACT iteration; mechanisms named per geometry — the
+bump's is LOCAL MOMENTUM DIVERGENCE from the impulsive uniform start at the 20× Reynolds step
+(max|U| 9.4e+22 near-wall aft-bump), the hills kEpsilon's is GLOBAL turbulence-field explosion
+from the uniform derived initialization (min ε 4.96e+45, nut 2.4e+153, viscosity-locking U —
+which also explains the frozen momentum residuals). Verdict per the frozen mapping:
+SHARED-BY-CLASS (initialization) — the pre-declared alternative fired in its exact wording after
+the primary geometry-specific prediction fell to the levers' survival: per-cell SST-seeded
+k/epsilon ran 230× past the hills crash, potentialFoam init 45× past the bump's. **Chief ruling:
+the recommended successor is APPROVED** — re-run the four dead cells through the standing batch
+with the declared seeding fixes, the standing gate deciding admission exactly as for any member
+(no criterion softening; a cell that converges under a physically-better initialization is a
+member, full stop). If they admit, family B may get its first band and family H new members —
+both restatements under the standing rules, pre-registered. These records carried the family's
+first mechanical `levers_verified_active` under ea0f7d9d.
+
 ## 10. TMR NACA 0012 — aspect-ratio pathology under refinement (generator-owned)
 Standing finding (`GENERATOR_FINDING_pyhyp_aspect_ratio.md`). **New diagnostic:** [FILE] one mesh
 from an alternative generator (blockMesh C-grid per the TMR recipe or gmsh) at matched cell count:
@@ -313,6 +330,18 @@ if the ladder behaves, the generator owns the pathology and the family unblocks.
 mesh was born with 23 negative-volume cells and aspect ratio 2.08e+95 from the pyHyp tip collapse
 on a 4× coarsened surface. The pathology is now cross-geometry; this diagnostic's priority rises
 accordingly.)*
+
+**Outcome (2026-08-08 late night, 41f0e1df, ≈0.4 of ~20 core-min): GENERATOR-OWNED, by the
+pre-declared rule.** Exact cell-count twins from an in-house blockMesh C-grid under pyHyp's own
+refinement moves: pyHyp's max aspect ratio grows ×1.71 under refinement while the C-grid's
+IMPROVES (×0.945), near-wall max AR 37.4 vs the 87.6 class. pyHyp's unscaled-smoothing
+hyperbolic march owns the pathology; the recipe and geometry are exonerated; the TMR family
+unblocks, and CAPABILITY_STRATEGY §2's mesh-science proof gains its generator matrix half.
+Note for the record's own health: the G3 smoke solve was REFUSED by the day-old born-clean gate
+(non-orthogonality 70.11° vs the 70° bar, 0.16% over from the far-field arcs) and the record
+keeps the refusal rather than tuning the mesh post-hoc — the machinery adopted this evening
+gating its own family's arm the same night. A gate-compliant solvability successor is named if
+the capability proof needs it.
 
 ---
 Review discipline note: every diagnostic above is falsifiable, costed, and names which way each
