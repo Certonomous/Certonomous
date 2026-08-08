@@ -204,8 +204,20 @@ B_REGIMES = {"re3e6": 3.0e6, "re1p2e7": 1.2e7}
 # Family N: TMR NACA 0012 coarse C-grid, angle of attack as the regime axis at
 # the case's own Re = 6e6.
 N_REGIMES = {"a0": 0.0, "a10": 10.0, "a15": 15.0}
+# Family H: the periodic hills on the lab's VERIFIED F6b medium mesh (Gate V
+# 0.043%), one regime (the canonical Re_H station), reattachment as the QoI.
+# Added 2026-08-08 per negative-verdict review entry 1; pre-registration:
+# campaign/MODEL_FORM_H_HILLS_PREREGISTRATION.md. The mesh is COMPLIANT
+# (non-ortho 39.66 / skew 0.226 vs gates 70 / 4) -- R12 is not involved.
+H_REGIMES = {"re10595": None}
+H_SOURCE_CASE = (REPO_ROOT / "demo-output" / "website" / "campaign"
+                 / "F6b_runs" / "medium")
+H_BACKSTOP = 12000   # ~2x both measured attainments (SST 5997, QCR 6177)
+H_NU = 9.438414346389807e-05
+H_K_INIT = 0.00375
+H_OMEGA_INIT = 0.11022703842524302
 
-FAMILY_CAP_CORE_MIN = {"P": 20.0, "B": 30.0, "N": 60.0}
+FAMILY_CAP_CORE_MIN = {"P": 20.0, "B": 30.0, "N": 60.0, "H": 35.0}
 
 
 def all_cells() -> list[Cell]:
@@ -219,6 +231,9 @@ def all_cells() -> list[Cell]:
     for tag, alpha in N_REGIMES.items():
         for model in MODELS:
             cells.append(Cell("N", tag, model, {"alpha_deg": alpha}))
+    for tag in H_REGIMES:
+        for model in MODELS:
+            cells.append(Cell("H", tag, model, {}))
     return cells
 
 
@@ -968,12 +983,213 @@ def run_cell_N(cell: Cell, log: Callable[[str], None], *,
         shutil.rmtree(remote, ignore_errors=True)
 
 
+def _hills_crossings(case_dir: Path, time_name: str) -> list[float]:
+    """Bottom-wall skin-friction sign changes, x/h ascending, linear-
+    interpolated -- the F6b gate.py logic, with the wall single-valued in x."""
+    sys.path.insert(0, str(REPO_ROOT / "demo-output" / "website" / "dafoam"
+                           / "f6b_periodic_hills" / "case_breuer_re10595"))
+    import foam_io as fio
+    mesh = case_dir / "constant" / "polyMesh"
+    pts = fio.read_points(str(mesh / "points"))
+    faces = fio.read_faces(str(mesh / "faces"))
+    start, n = fio.read_boundary(str(mesh / "boundary"))["bottomWall"]
+    cent = fio.face_centroids(pts, faces, start, n)
+    tau, _ = fio.read_vector_boundary_field(
+        str(case_dir / time_name / "wallShearStress"), "bottomWall")
+    order = sorted(range(len(cent)), key=lambda i: cent[i][0])
+    x = [cent[i][0] for i in order]
+    # Cf sign = -tau_x sign (attached flow drags the wall in -x by OpenFOAM's
+    # convention here); scale cannot move a zero crossing.
+    cf = [-tau[i][0] for i in order]
+    out = []
+    for i in range(len(cf) - 1):
+        if cf[i] == 0.0:
+            continue
+        if (cf[i] > 0) != (cf[i + 1] > 0):
+            frac = cf[i] / (cf[i] - cf[i + 1])
+            out.append(x[i] + frac * (x[i + 1] - x[i]))
+    return out
+
+
+def _hills_first_crossing_is_separation(case_dir: Path, time_name: str,
+                                        crossings: Sequence[float]) -> bool:
+    """G3 direction check: the wall must be attached (Cf > 0) upstream of
+    the first crossing."""
+    sys.path.insert(0, str(REPO_ROOT / "demo-output" / "website" / "dafoam"
+                           / "f6b_periodic_hills" / "case_breuer_re10595"))
+    import foam_io as fio
+    mesh = case_dir / "constant" / "polyMesh"
+    pts = fio.read_points(str(mesh / "points"))
+    faces = fio.read_faces(str(mesh / "faces"))
+    start, n = fio.read_boundary(str(mesh / "boundary"))["bottomWall"]
+    cent = fio.face_centroids(pts, faces, start, n)
+    tau, _ = fio.read_vector_boundary_field(
+        str(case_dir / time_name / "wallShearStress"), "bottomWall")
+    order = sorted(range(len(cent)), key=lambda i: cent[i][0])
+    first = crossings[0]
+    upstream = [-tau[i][0] for i in order if cent[i][0] < first]
+    return bool(upstream) and upstream[0] > 0
+
+
+def _hills_field_from_omega(omega_text: str, model: str) -> tuple[str, str]:
+    """(field name, field text) for the model's extra field, derived from
+    the case's own 0/omega exactly as the pre-registration froze it."""
+    if model in ("kEpsilon", "realizableKE"):
+        eps = C_MU * H_K_INIT * H_OMEGA_INIT
+        text = _retype_field(omega_text, obj="epsilon",
+                             dimensions="[0 2 -3 0 0 0 0]", value=eps,
+                             wall_type="epsilonWallFunction", wall_value=None)
+        text = text.replace("type epsilonWallFunction;",
+                            "type epsilonWallFunction; lowReCorrection true;")
+        text = text.replace("type            epsilonWallFunction;",
+                            "type            epsilonWallFunction;\n"
+                            "        lowReCorrection true;")
+        return "epsilon", text
+    text = _retype_field(omega_text, obj="nuTilda",
+                         dimensions="[0 2 -1 0 0 0 0]",
+                         value=SA_NUTILDA_OVER_NU * H_NU,
+                         wall_type="fixedValue", wall_value=0.0)
+    return "nuTilda", text
+
+
+def run_cell_H(cell: Cell, log: Callable[[str], None], *,
+               backstop: int = H_BACKSTOP) -> dict[str, Any]:
+    """Periodic hills, one closure, on the verified F6b medium case.
+
+    Pre-registration: campaign/MODEL_FORM_H_HILLS_PREREGISTRATION.md. The
+    gate differs from the coefficient families by declared deviation: the
+    settle clause is the case's own residualControl sentence plus the
+    exactly-two-crossings steady-bubble rule (with the G3 direction check);
+    there is no coefficient history on this case.
+    """
+    extra = EXTRA_FIELD[cell.model] if cell.model != "kOmegaSST" else None
+    remote = Path(tv._RUN_ROOT) / f"modelform-{cell.cell_id}"
+    out_dir = cell.out_dir
+    out_dir.mkdir(parents=True, exist_ok=True)
+    shutil.rmtree(remote, ignore_errors=True)
+    remote.mkdir(parents=True)
+    for sub in ("0", "constant", "system"):
+        shutil.copytree(H_SOURCE_CASE / sub, remote / sub)
+    shutil.copy2(H_SOURCE_CASE / "log.checkMesh", out_dir / "log.checkMesh")
+
+    (remote / "constant" / "turbulenceProperties").write_text(
+        turbulence_properties_for(cell.model), newline="\n")
+    if extra:
+        field_name, field_text = _hills_field_from_omega(
+            (remote / "0" / "omega").read_text(), cell.model)
+        (remote / "0" / field_name).write_text(field_text, newline="\n")
+        sol_path = remote / "system" / "fvSolution"
+        sol = sol_path.read_text()
+        if field_name == "nuTilda":
+            # clone the omega solver block; epsilon already has one
+            sol = sol.replace(
+                "    omega\n    {",
+                "    nuTilda\n    {\n"
+                "        solver          PBiCG;\n"
+                "        preconditioner  DILU;\n"
+                "        tolerance       1e-09;\n"
+                "        relTol          0.1;\n"
+                "    }\n\n    omega\n    {", 1)
+        sol = sol.replace("        omega   1e-6;",
+                          f"        omega   1e-6;\n"
+                          f"        {field_name} 1e-6;", 1)
+        sol = sol.replace("    omega   0.7;",
+                          f"    omega   0.7;\n    {field_name} 0.7;", 1)
+        sol_path.write_text(sol, newline="\n")
+        sch_path = remote / "system" / "fvSchemes"
+        sch = sch_path.read_text()
+        sch = sch.replace(
+            "    div(phi,omega)  bounded Gauss linearUpwind grad(U);",
+            "    div(phi,omega)  bounded Gauss linearUpwind grad(U);\n"
+            f"    div(phi,{field_name}) bounded Gauss linearUpwind grad(U);",
+            1)
+        sch_path.write_text(sch, newline="\n")
+    ctrl = remote / "system" / "controlDict"
+    ctrl.write_text(re.sub(r"endTime\s+\d+;", f"endTime         {backstop};",
+                           ctrl.read_text()), newline="\n")
+
+    start = time.monotonic()
+    result = tv._foam(["simpleFoam"], remote, "log.simpleFoam", timeout=7200)
+    wall = time.monotonic() - start
+    log_text = (remote / "log.simpleFoam").read_text(errors="replace")
+    shutil.copy2(remote / "log.simpleFoam", out_dir / "log.simpleFoam")
+    big = out_dir / "log.simpleFoam"
+    if big.stat().st_size > 1_000_000:
+        subprocess.run(["gzip", "-f", str(big)], check=False)
+
+    logv = log_verdict(log_text)
+    meshv = mesh_verdict((out_dir / "log.checkMesh").read_text(errors="replace"))
+    times = sorted(int(p.name) for p in remote.iterdir()
+                   if p.name.isdigit() and int(p.name) > 0)
+    reasons: list[str] = []
+    if result.returncode != 0:
+        reasons.append(f"solver exit code {result.returncode}")
+    reasons.extend(logv["fatal"])
+    if not logv["residual_control_met"]:
+        last = logv["last_iteration"]
+        if last is not None and last >= backstop:
+            reasons.append("residualControl not met (stopped on the backstop)")
+        else:
+            reasons.append("residualControl not met")
+    reasons.extend(meshv["breaches"])
+    qoi: dict[str, float | None] = {"x_R_over_h": None, "x_S_over_h": None}
+    crossings: list[float] = []
+    if times:
+        t_name = str(times[-1])
+        # preserve the final fields with the archive
+        shutil.copytree(remote / t_name, out_dir / t_name,
+                        dirs_exist_ok=True)
+        try:
+            crossings = _hills_crossings(remote, t_name)
+        except Exception as exc:
+            reasons.append(f"crossing extraction failed: {exc}")
+        if len(crossings) == 2 and _hills_first_crossing_is_separation(
+                remote, t_name, crossings):
+            qoi["x_S_over_h"] = round(crossings[0], 6)
+            qoi["x_R_over_h"] = round(crossings[1], 6)
+        elif crossings or not any("extraction failed" in r for r in reasons):
+            reasons.append(
+                f"no steady bubble: {len(crossings)} skin-friction sign "
+                "changes (a steady separation bubble has exactly 2, "
+                "separation first)")
+    else:
+        reasons.append("no written time directory")
+
+    record = {
+        "cell_id": cell.cell_id, "group": cell.group_id,
+        "family": cell.family, "regime": cell.regime, "model": cell.model,
+        "params": cell.params,
+        "converged": not reasons,
+        "excluded_reasons": reasons,
+        "qoi": qoi,
+        "qoi_source": "wallShearStress crossings (bottom wall, final time)",
+        "crossings_x_over_h": [round(c, 6) for c in crossings],
+        "iterations": logv["converged_at"] or logv["last_iteration"],
+        "residual_control_met": logv["residual_control_met"],
+        "mesh": meshv,
+        "mesh_note": ("COMPLIANT F6b medium mesh (Gate V 0.043%); "
+                      "R12 not involved"),
+        "cells": 15600,
+        "iteration_backstop": backstop,
+        "prereg": "campaign/MODEL_FORM_H_HILLS_PREREGISTRATION.md",
+        "wall_seconds": round(wall, 1),
+        "core_min": round(wall / 60.0, 3),
+        "ranks": 1,
+        "toolchain": "native OpenFOAM v2606 (openfoam2606 launcher)",
+        "timestamp": _now(),
+    }
+    shutil.rmtree(remote, ignore_errors=True)
+    return record
+
+
 def run_cell(cell: Cell, log: Callable[[str], None], *,
              backstop: int = BATCH_BACKSTOP,
              adjusted_settle: dict[str, Any] | None = None) -> dict[str, Any]:
     if cell.family in ("P", "B"):
         return run_cell_P_or_B(cell, log, backstop=backstop,
                                adjusted_settle=adjusted_settle)
+    if cell.family == "H":
+        return run_cell_H(cell, log, backstop=min(backstop, H_BACKSTOP))
     return run_cell_N(cell, log, backstop=backstop,
                       adjusted_settle=adjusted_settle)
 
@@ -1004,6 +1220,15 @@ REFERENCES = {
                    "Cd": {"CFL3D SST (897x257)": 1.2362110998e-2}},
     ("N", "a15"): {"Cl": {"CFL3D SST (897x257)": 1.5067867358},
                    "Cd": {"CFL3D SST (897x257)": 2.2186245406e-2}},
+    # Family H: the literature reattachment band from the F6b
+    # pre-registration's own table. Primary containment test per the H
+    # pre-registration = the band midpoint; the individual sources are the
+    # secondary read.
+    ("H", "re10595"): {"x_R_over_h": {
+        "literature band midpoint 4.455 (PRIMARY containment test)": 4.455,
+        "Rapp & Manhart 2011 (exp)": 4.21,
+        "Froehlich et al. 2005 (LES, 4.6-4.7 midpoint)": 4.65,
+        "Breuer et al. 2009 (LES)": 4.69}},
 }
 
 
@@ -1225,7 +1450,8 @@ def _logger() -> Callable[[str], None]:
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--family", action="append", choices=["P", "B", "N"],
+    parser.add_argument("--family", action="append",
+                        choices=["P", "B", "N", "H"],
                         help="restrict to one or more families (repeatable)")
     parser.add_argument("--model", action="append", choices=list(MODELS))
     parser.add_argument("--regime", action="append")
