@@ -67,9 +67,15 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       .tex — and fixed the last two drifts (benchmarks.html was a round-3 fossil; two present-tense 0.0654 sentences
       scoped). One surviving latent defect killed in the same pass: build_benchmarks.py's literal still said round 3
       and would have silently regressed the public page on its next run.
-      → NEW ITEM (from this cross-off): **Ladder V early rungs V1/V3/V4/V5 as record-hardening** (clean-env score
-      re-derivation; leakage assertions executed live; one duct traced end-to-end by hand; QCR provenance proof) —
-      executable now despite the submission park, per LADDER_V_TRIPLE_VERIFICATION.md.
+      → NEW ITEM (from this cross-off): ~~**Ladder V early rungs V1/V3/V4/V5 as record-hardening**~~ DONE same day
+      (9a21d65c): all four PASS — score reproduced to the last digit in a fresh venv, leakage asserts executed live
+      with a negative control, AR_1 traced unbroken end-to-end, untrained-QCR proven structurally. Ladder V now stands
+      V1–V5/V7/V10 all PASS (status ledger in LADDER_V_TRIPLE_VERIFICATION.md); the remaining rungs are exactly the
+      set that needs a real submission package.
+      → NEW ITEM (from that cross-off): **Model-form matrix on the periodic hills** (review entry 1's remaining
+      diagnostic, ~35 core-min, chief-approved 2026-08-08): do any of the four closures enter the Rapp/Breuer/Fröhlich
+      band, and does the inter-model band contain it? Feeds the epistemic-uncertainty showcase; the QCR null (activity-
+      verified, 1a14e90b) makes the inter-model band the last cheap probe on the hills before the omega-budget work.
 
 ## 4C. 2D case families
 - [x] F2 transonic RAE2822.

@@ -82,3 +82,21 @@ V7 (both defects), V10 (cross-surface sweep), and V2 (the pre-registration table
 live send and harden the record whether or not the entry ever goes out. They may be run as normal
 docket items. V1/V3/V4/V5 may also be run early as record-hardening. V6/V8/V9/V11/V12 bind to a
 concrete submission package and wait for unpark.
+
+## Status ledger (chief-maintained)
+
+| Rung | Verdict | Evidence | Date |
+|------|---------|----------|------|
+| V1 | **PASS** | 0.056647191704213645 reproduced to the last digit in a fresh venv (pkg 0.3.1 @ 1c4e22c8, benchmark fresh-cloned @ deb91557); duct CSVs regenerated from raw fields byte-identical — `LADDER_V_RUNGS_V1_V3_V4_V5_2026-08-08.md`, 9a21d65c | 2026-08-08 |
+| V2 | **PASS** | criterion 0bade54a predates every solve it judged; 6th call matches its pre-registration clause by clause — `LADDER_V_RUNGS_V2_V7_V10_2026-08-08.md`, 49f71b8c | 2026-08-08 |
+| V3 | **PASS** | assertion block executed live with a negative control; §4.1 citations re-anchored (+13 line shift), all claims hold; four gate decisions reproduced train-only | 2026-08-08 |
+| V4 | **PASS** | AR_1_Ret_360 traced unbroken config→mesh→395-iter log→field→interpolation→CSV (sha256 bb8d61fb…)→0.04547044480564218 | 2026-08-08 |
+| V5 | **PASS** | in-house authorship @ 303247bb, .so hash matches record; untrained proven structurally (only new coefficient is Spalart's published 0.3); five campaign records got dated additive citation notes | 2026-08-08 |
+| V6 | waits for unpark | binds to a concrete submission package | — |
+| V7 | **PASS** | docstring fix verified at call sites + three further stale count claims fixed (incl. build_benchmarks.py page-regression fossil); round-5 artifact format-verified vs accepted submissions | 2026-08-08 |
+| V8, V9 | wait for unpark | bind to cover email / description document | — |
+| V10 | **PASS** | all surfaces round-5 consistent after two drift fixes (benchmarks.html fossil; ACTIVE_RESEARCH tense) | 2026-08-08 |
+| V11, V12, V13 | wait for unpark | cold reproduction + skeptic's report + close-out bind to the send | — |
+
+Every rung that can run before a send exists has run, and passed. What remains is exactly the set
+that needs a real submission package — the record is as hard as it can get while parked.
