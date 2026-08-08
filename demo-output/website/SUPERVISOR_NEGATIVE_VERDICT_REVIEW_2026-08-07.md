@@ -321,6 +321,20 @@ with the declared seeding fixes, the standing gate deciding admission exactly as
 member, full stop). If they admit, family B may get its first band and family H new members —
 both restatements under the standing rules, pre-registered. These records carried the family's
 first mechanical `levers_verified_active` under ea0f7d9d.
+**Rescue outcome (same night, 1083e4c4 / d23bedab): the crash class is CURED — zero S1/S2 across
+all four cells — which is mechanism proof by cure.** Family B's crashes converted to honest
+residualControl stalls (band correctly refused at 0 admissions; its exclusions are now about
+convergence, not floating-point death). Family H's kEpsilon ADMITTED at 8,780 iterations with a
+steady bubble: x_R 3.5774, UNDERSHOOTING the literature band exactly as the parent
+pre-registration's declared alternative named. H stands at n=2 with the interval [3.5774,
+7.6472] stated and the verdict REFUSED — the n<3 rule's first genuinely LOAD-BEARING
+application: the interval brackets every reference (4.21–4.69 around the 4.455 midpoint) and the
+rule bars the verdict anyway, because two models straddling truth is not yet evidence the family
+brackets it. n=3 was pre-declared unreachable (SA excluded on physics, realizableKE closed at
+the 30k boundary), so this is H's settled form pending the omega-budget work. One deviation
+named and repaired (a launch-filter cross-product leaked one unseeded out-of-scope cell;
+accidental record retained as out-of-scope, the boundary record restored, cost split honestly:
+18.16 in-scope of 25).
 
 ## 10. TMR NACA 0012 — aspect-ratio pathology under refinement (generator-owned)
 Standing finding (`GENERATOR_FINDING_pyhyp_aspect_ratio.md`). **New diagnostic:** [FILE] one mesh
