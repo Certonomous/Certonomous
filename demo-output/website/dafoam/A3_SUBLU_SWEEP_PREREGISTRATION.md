@@ -119,3 +119,20 @@ run's — apples-to-apples preserved). Attempt 2 is therefore the record arm col
 the two levers, nothing else. Attempt 1's log is preserved as
 `sublu_tpc1_computetotals_attempt1.log`. Spend so far against the 30 core-min: 0.53 (vcoarse)
 + 1.07 (attempt 1) = 1.60. Everything else in this pre-registration is unchanged.
+
+## 9. Addendum 2, 2026-08-08T02:56Z — attempt 2 OOM-killed at the 10g cap during the sub-LU factorization; cap raised to 20g for attempt 3
+
+Attempt 2 (t0 1786157138 = 02:45:38Z, rc=137 at t1 1786157355; 217 s = 14.5 core-min) delivered
+BOTH pre-declared activity proofs — the DAOption dump reads `transonicPCOption 1;` and the
+banner `DAFOAM_SUBPC_TYPE=lu: ASM sub-block PC set to complete LU` printed at PC setup — the
+cold primal ran its 1000 steps and renamed cleanly (the §8 repair worked), the PC matrix
+assembled (1233 colors), and the run died at `Solving Linear Equation...` by kernel
+`CONSTRAINT_MEMCG` oom-kill inside the container cgroup (dmesg: `Memory cgroup out of memory:
+Killed process (python)`). §7's 10g cap was calibrated on the record's ILU peak (5,876.6 MiB);
+the complete-LU sub-block factorization needs more — a memory fact about the lever itself,
+worth recording. Attempt 3: identical in every respect except `--memory=20g` (host check at
+amendment time: 27 GB available, the only other container steady at 1.4 GiB — the 6 GB host
+floor holds even at cap). Log preserved as `sublu_tpc1_computetotals_attempt2.log`. Spend:
+1.60 + 14.5 = 16.1 core-min of 30; attempt 3's KSP runs to its reason codes even if that
+overruns the envelope (a killed KSP answers nothing) — measured spend will be reported against
+the 30 either way.
