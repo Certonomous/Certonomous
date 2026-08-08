@@ -606,6 +606,22 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - COMMIT-EVERYTHING SWEEPS at Katie's order before she stepped away: cd34b0a7 + 7475417d; tree clean at that point,
   subsequent agent landings layer on top.
 
+### 2026-08-08 (evening) — seventh fleet death survived; Katie's capability strategy adopted
+- SESSION-LIMIT KILL #7 (~03:40 UTC, reset 6:40am; Katie returned 22:22). The box survived 19 hours with both
+  keepalives expired (resident servers held the busy pattern); zero scientific loss — every in-flight arm had its
+  pre-registration committed. Session keepalive re-armed. Five agents resumed with kill states: Cases (extension-arm
+  records on disk uncommitted — grade + containment statement), dead-lever auditor (annotation files mid-write in
+  tree — verify hunks, finish, commit), Infra (mesh-certificate adoption mid-verification), A3 (negative control
+  never launched — from pre-reg), S1 (weighted runScript — reconcile control/FD-gate state from its ledger first).
+- CAPABILITY STRATEGY ADOPTED (docs/CAPABILITY_STRATEGY.md, 47e52caa): Katie's five-section program — self-improvement
+  machinery, hard numerics (proven-by-solving-our-own-problems), probability/UQ as the moat, performance, sequencing.
+  Read carefully: "Now-to-send: Ladder V only" holds the send queue for Ladder V alone (NOT an unpark; submissions
+  stay parked until Katie says send). §1 slow-burn started per rule 3: the improvement dashboard + calibration
+  scorecard agent is running its first monthly cut from existing records, including the pre-registration
+  confidence-line proposal that starts capturing what reliability curves need. §2/§3 proven-by items map onto live
+  work already moving (A3 preconditioning → Saad proof case; pyHyp characterization + birth certificates → mesh
+  science; S1 → Bayesian inverse problems); each enters the docket with its proxy as hard criterion.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
