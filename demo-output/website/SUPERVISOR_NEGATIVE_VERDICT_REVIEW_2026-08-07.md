@@ -161,3 +161,28 @@ variant reports. Training an ML generalizer on a β field known to under-serve t
 bake the placement defect into the learned model; the variant is cheap and decides within the day
 whether Stage 2 trains on this β or on a weighted successor's. Training-legality is unaffected
 (CBFS is a training case; nothing scored).
+
+**Outcome (2026-08-08, chief review of the executed variant):** CAPTURABLE, decisively — R_W1
+0.9494 and R_W2 0.9468 against the 0.70 pre-registered bar (pre-reg 2c475ab5 committed before any
+weighted number existed; results 71dbf5a8), with the hurt cap clean where it binds (near-wall
+hurt exactly zero). The relocation census makes entry 7's mechanism concrete here: 35.0% of gross
+reduction was spent HURTING y>2 — but outside the physics regions, exactly where the equal-weight
+loss pointed the effort — and the trajectory decomposition shows it temporally (in/out-window
+effort ratio 11.2 → 3.7 after J_qoi passed ~0.44: window harvested first, then the pivot). The
+Wu/Zhang-style sparse-point proxy agrees with the primaries (0.9340). The agent also disclosed
+and corrected a labeling error pre-compute: the FD "neighborhood spread" claim was a
+serial-vs-DV-index confusion (the FD values stand; all three verified cells are in the separated
+shear layer; dated retraction on the result doc).
+**Chief rulings on the recommendation:**
+1. The weighted reinversion arm (`s1-cbfs-weighted-reinversion-arm`, 250 core-min) is APPROVED,
+   with its own pre-flight as filed and in this order: the ~8 core-min masked-β nonlocality
+   control FIRST — it is the one thing offline analysis cannot rule out, and if the in-window fix
+   turns out to ride on out-of-window β through the flow, the arm's premise weakens and it comes
+   back to me before the 250 is spent — then the FD gate on the new objective configuration, then
+   pre-registered optimization under the same budget-guard discipline that served S1.
+2. NO G2-bar revision, agreed: the bar caught a real property of the equal-weight loss. The fix
+   belongs in the loss, and the record now says so with numbers.
+3. Stage 2 REMAINS HELD until the weighted arm delivers its β; if the arm's gates pass, Stage 2
+   trains on the weighted successor's field, not eval-16's.
+4. The continuation arm is now DEPRIORITIZED below the weighted arm permanently — capturability
+   answered the question the continuation arm was priced to answer.
