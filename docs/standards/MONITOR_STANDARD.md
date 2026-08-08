@@ -1,5 +1,19 @@
 # Certonomous Monitor Standard
 
+Version 1.4, dated 2026-08-08. **Adds exactly one rule, S10d magnitude
+explosion, as a fourth branch of S10, and widens the archive-replay rail's
+corpus to forces-object histories. Withdraws nothing.** The amendment exists
+because the archive-replay discipline did its job on the standard itself: the
+F8 divergence specimen — a blade moment at −2.5e99 N·m behind a 1.4e-8
+momentum residual, the second real member of S10's own class — was replayed
+through every clause on 2026-08-08 and caught by none, for measured,
+structural reasons recorded in the S10d entry. The rule was adopted through
+the innovation path with its replay line attached (974 histories, 5 fires,
+all on runs the record already names diverged, zero completed-run false
+positives), chief-endorsed in the negative-verdict review of 2026-08-07 entry
+3, and the replay was rerun by the adopting family supervisor's own hands
+before this version was written. Nothing else in 1.3 is changed.
+
 Version 1.3, dated 2026-08-02. **Adds exactly one rule, S12 unsettled stop, and
 withdraws nothing.** S12 closes both of the failure modes section 3.4 recorded
 as having no rule at all — item 2, a rung stopped and recorded as settled, and
@@ -425,6 +439,66 @@ it and refers to it:
   by line and assert that the withdrawn run is fatal on all three branches
   while the healthy coarse solve of the same case raises nothing at all.
 
+**S10d, magnitude explosion in a monitored quantity** (added v1.4,
+2026-08-08; proposal `s10d-monitored-quantity-magnitude-explosion`,
+chief-endorsed in the negative-verdict review of 2026-08-07 entry 3).
+
+- **The run this branch was designed against, and why a, b and c all miss
+  it.** The F8 `phase6_mrf_pfinit` specimen: blade moment at −2.5e99 N·m
+  behind a 1.4e-8 momentum residual, the class's second real member and the
+  first the standard missed. The zero-compute replay of 2026-08-08 measured
+  the silence clause by clause: S10a sees 692 bound lines and every one is a
+  floor bound on nuTilda — wrong direction; S10b's smallest normalised
+  residual is 1.86e-9, eleven orders above its 1e-20 floor; S10c's required
+  unnormalised-norm block does not exist in a plain simpleFoam log; S12
+  fails first on its 40-sample length floor and then, floor removed, on its
+  monotone clause (0.79 against 0.90) because exponential divergence rides
+  on an oscillation. The branch that was missing reads the quantity's
+  magnitude, not its drift.
+- **Detection.** Over the monitored-quantity history with the first tenth of
+  samples excluded as startup, let m be the median magnitude of the first
+  half of the remainder. Fires when the final magnitude is at least
+  **1e6 · m** *and* the last **five** magnitude steps all increase. Both are
+  required: the ratio names an explosion rather than a scale change, and the
+  climbing tail names one in progress rather than a quantity that grew and
+  settled at a new scale.
+- **Replay line (standing rule 6), run before adoption and rerun by the
+  adopting supervisor.** Corpus **974 monitored-quantity histories** across
+  `demo-output` (194) and `/home/ubuntu/certonomous-runs` (780):
+  `coefficient.dat` Cd and Cl plus forces-object `moment.dat`/`force.dat`
+  total_x columns. **Fires on exactly 5, FATAL on 5, zero completed-run
+  false positives across the remaining 969.** Every fire is a run the
+  record already names diverged: the two F8 specimen histories at 83.3 and
+  84.5 orders — caught by nothing else in this standard — and three
+  dpw5-committee-probe histories at 20.9 to 29.5 orders from runs recorded
+  "diverged, signal 8", an S1 overlap of the same acceptable kind S3
+  carries. Reproduce with
+  `demo-output/website/campaign/F8_runs/s10_replay/s10d_corpus_replay.py`.
+- **The rail clause.** The same amendment widens
+  `sdk/scripts/replay_s12_unsettled_stop.py`'s corpus to forces-object
+  `moment.dat`/`force.dat` histories: the specimen lived in exactly such a
+  file, so the coefficient-only glob meant the archive-replay rail could not
+  ingest the standard's own best specimen at all.
+- **What is deliberately not added.** S6 and S4 FLAG this specimen saying
+  only "unconverged" — the same words they use for a mild stall — and the
+  adopting review considered a separate FLAG-to-FATAL conversion clause for
+  that pair. Judged unnecessary: S10d *is* the conversion rule for the class
+  (the magnitude is the evidence that separates a catastrophe from a stall),
+  and a stall without explosion is honestly a FLAG. If a future specimen
+  stalls fatally without tripping the magnitude clause, that is a new rule's
+  motivating case and it enters through the innovation path with its own
+  replay line, not by escalating S6 here.
+- Severity: **FATAL**. Action: no quantity computed from that state is
+  evidence, whatever the residual block reads; triage as a divergence and
+  withdraw any number already published from it.
+- Status: implemented (`detect_magnitude_explosion` in
+  `sdk/chief_engineer/log_signatures.py`, exactly as pre-registered in the
+  proposal's gate field; wired beside S12 at the settle-audit collection
+  point in `sdk/workflows/tmr_verification.py`, so every history read there
+  records both verdicts). Tests assert the motivating specimen fires from
+  its file on disk, the archive sweep names the known fires and no others,
+  and the settled flat-plate histories stay silent.
+
 ### S12. Unsettled stop (proposal `w7-cap-stopped-is-a-monitor-signature`)
 
 **Adopted 2026-08-02.** Closes section 3.4 item 2, and is the first rule in this
@@ -508,6 +582,7 @@ work that was fine.
 | S10 divergence behind a converged residual | **383 archived solver logs**, and 157 for the norm branch | **exactly 1**, the withdrawn run | **validated, and the strongest rule here.** A test sweeps the whole archive and fails if a second log is ever named. |
 | S11 system operations | every run, by design | **every run** | **outside the ladder, and correctly so.** See 3.3. |
 | S12 unsettled stop | **760 quantity-histories** from 380 archived `coefficient.dat` files, 718 gradeable | **36 (4.74%), 0 fatal** | **validated 2026-08-02, on one case against itself.** Fires on the flat-plate rung stopped at 15000 (relative drift −4.131e−03, monotone 1.000) and is silent on the same case at 21000 once settled (+3.716e−07, 0.552). The first rule here that reads a coefficient history rather than the residual block. |
+| S10d magnitude explosion | **974 quantity-histories** across both corpus roots: coefficient Cd/Cl plus forces-object total_x (the v1.4 rail widening) | **5, FATAL on 5** | **validated 2026-08-08, replay rerun by the adopting supervisor.** Fires on the two F8 specimen histories (83.3 and 84.5 orders, caught by nothing else here) and three dpw5 histories from runs recorded "diverged, signal 8". Zero completed-run false positives across the remaining 969. The second history-reading rule, and the first FATAL among them. |
 
 ~~**Seven of eleven rules have never been replayed against the archive.**~~
 **Superseded 2026-08-01: six of the seven have now been replayed, and the

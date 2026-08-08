@@ -37,6 +37,7 @@ from chief_engineer.log_signatures import (
     detect_residual_norm_contradiction,
     detect_residual_stall,
     detect_system_operations,
+    detect_magnitude_explosion,
     detect_unsettled_stop,
     percentile,
     unsettled_window,
@@ -692,6 +693,133 @@ class UnsettledStopTests(unittest.TestCase):
         series = archived_coefficient(FLATPLATE_SETTLED)
         self.assertEqual(len(series), 21000)
         self.assertIsNone(detect_unsettled_stop(series, quantity="Cd"))
+
+
+F8_SPECIMEN_DIR = (Path(__file__).resolve().parents[2] / "demo-output"
+                   / "website" / "campaign" / "F8_runs" / "phase6_mrf_pfinit"
+                   / "postProcessing" / "bladeForces" / "0")
+
+
+class MagnitudeExplosionTests(unittest.TestCase):
+    """Monitor Standard S10d (v1.4): a monitored quantity that has left its
+    own run's scale by six orders and is still climbing. Adopted 2026-08-08
+    on the F8 specimen every other clause misses; the replay line is 974
+    histories, 5 fires, all on runs the record names diverged, and the
+    archive-sweep test below holds that count."""
+
+    def test_a_settled_history_is_silent(self):
+        series = [1.0 + (0.001 if i % 2 else -0.001) for i in range(400)]
+        self.assertIsNone(detect_magnitude_explosion(series))
+
+    def test_an_exploding_history_is_fatal(self):
+        """Exponential growth reaching six orders with a climbing tail."""
+        series = [1.0 * (1.5 ** i) for i in range(100)]
+        finding = detect_magnitude_explosion(series, quantity="Mx")
+        self.assertIsNotNone(finding)
+        self.assertEqual(finding["kind"], "magnitude-explosion")
+        self.assertEqual(finding["severity"], SEVERITY_FATAL)
+        self.assertEqual(finding["quantity"], "Mx")
+        self.assertGreater(finding["orders"], 6.0)
+
+    def test_sign_is_ignored_magnitude_is_the_finding(self):
+        """The F8 specimen explodes NEGATIVE; the rule reads |q|."""
+        series = [-1.0 * (1.5 ** i) for i in range(100)]
+        self.assertIsNotNone(detect_magnitude_explosion(series))
+
+    def test_a_quantity_that_grew_and_settled_is_silent(self):
+        """Well past six orders of growth, but the tail is flat: a scale
+        change that settled is not an explosion in progress."""
+        series = [2.0 ** min(i, 60) for i in range(90)] + [2.0 ** 60] * 10
+        self.assertIsNone(detect_magnitude_explosion(series))
+
+    def test_an_oscillating_explosion_still_fires(self):
+        """The S12 counterfactual on the specimen read monotone 0.79 because
+        exponential divergence rides on an oscillation; the magnitude tail
+        still climbs every step, which is what this branch reads."""
+        series = [((-1.0) ** i) * (1.3 ** i) for i in range(80)]
+        self.assertIsNotNone(detect_magnitude_explosion(series))
+
+    def test_too_short_to_judge_is_silent(self):
+        self.assertIsNone(detect_magnitude_explosion(
+            [1.0 * (10.0 ** i) for i in range(19)]))
+
+    def test_zero_reference_is_silent_not_a_crash(self):
+        self.assertIsNone(detect_magnitude_explosion(
+            [0.0] * 90 + [float(i) for i in range(1, 11)]))
+
+    @unittest.skipUnless(F8_SPECIMEN_DIR.exists(),
+                         "archived F8 specimen not present")
+    def test_fires_on_the_specimen_every_other_clause_misses(self):
+        """The motivating case, from its own file on disk: blade moment at
+        -2.5e99 behind a 1.4e-8 momentum residual, silent through S10a, S10b,
+        S10c and S12 (the measured no-catch of 2026-08-08)."""
+        for name, at_least_orders in (("moment.dat", 83.0),
+                                      ("force.dat", 84.0)):
+            with self.subTest(file=name):
+                series = archived_coefficient(F8_SPECIMEN_DIR / name)
+                finding = detect_magnitude_explosion(series, quantity=name)
+                self.assertIsNotNone(finding)
+                self.assertEqual(finding["severity"], SEVERITY_FATAL)
+                self.assertGreater(finding["orders"], at_least_orders)
+                # And S12, as written, genuinely cannot see it: the history
+                # is under its 40-sample floor.
+                self.assertIsNone(detect_unsettled_stop(series))
+
+    @unittest.skipUnless(FLATPLATE_SETTLED.exists(),
+                         "archived flat-plate ladder not present")
+    def test_silent_on_the_settled_flat_plate(self):
+        self.assertIsNone(detect_magnitude_explosion(
+            archived_coefficient(FLATPLATE_SETTLED), quantity="Cd"))
+
+    def test_archive_sweep_names_the_known_fires_and_no_others(self):
+        """The adoption replay, held as a standing assertion over the
+        demo-output half of the corpus (194 histories at adoption): exactly
+        the two F8 specimen histories fire, nothing else joins unnoticed.
+        The certonomous-runs half (780 histories, the three dpw5 fires) is
+        swept when that root exists on the host."""
+        repo = Path(__file__).resolve().parents[2]
+        fires: list[str] = []
+        graded = 0
+
+        def sweep(root: Path) -> None:
+            nonlocal graded
+            if not root.exists():
+                return
+            for dat in sorted(root.rglob("coefficient.dat")):
+                for column in (1, 4):  # Cd, Cl positions
+                    series = archived_coefficient(dat, column=column)
+                    if not series:
+                        continue
+                    graded += 1
+                    if detect_magnitude_explosion(series):
+                        fires.append(f"{dat}:{column}")
+            for pattern in ("moment.dat", "force.dat"):
+                for dat in sorted(root.rglob(pattern)):
+                    if ("bladeForces" not in str(dat)
+                            and "forces" not in str(dat)):
+                        continue
+                    series = archived_coefficient(dat, column=1)
+                    if not series:
+                        continue
+                    graded += 1
+                    if detect_magnitude_explosion(series):
+                        fires.append(f"{dat}:1")
+
+        sweep(repo / "demo-output")
+        expected = {f"{F8_SPECIMEN_DIR / 'moment.dat'}:1",
+                    f"{F8_SPECIMEN_DIR / 'force.dat'}:1"}
+        self.assertEqual(set(fires), expected,
+                         "a history outside the adoption replay's named set "
+                         "fires S10d; treat it as a finding, not a test fix")
+        self.assertGreater(graded, 150)
+
+        external = Path("/home/ubuntu/certonomous-runs")
+        if external.exists():
+            fires.clear()
+            sweep(external)
+            self.assertTrue(
+                all("dpw5-committee-probe" in f for f in fires), fires)
+            self.assertEqual(len(fires), 3, fires)
 
 
 if __name__ == "__main__":

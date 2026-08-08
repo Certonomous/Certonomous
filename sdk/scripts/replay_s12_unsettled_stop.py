@@ -14,6 +14,15 @@ file contributes up to two quantity-histories, Cd and Cl, because L-24's rule
 is that a quantity converges and not a run -- a file whose Cd has settled and
 whose Cl has not is one fire, not zero.
 
+WIDENED 2026-08-08 (Monitor Standard v1.4, proposal
+s10d-monitored-quantity-magnitude-explosion): the corpus also ingests
+forces-object `moment.dat` and `force.dat` total_x histories. The F8
+divergence specimen -- a blade moment at -2.5e99 behind a converged momentum
+residual -- lived in exactly such a file, so the coefficient-only glob meant
+the archive-replay rail could not see the standard's own best specimen at
+all. A history the rail cannot ingest is a history no replay will ever
+grade, which is the rail gap this widening closes.
+
 WHAT IT DOES NOT MEASURE. A false-positive rate. Firing on an archived run is
 not by itself an error: the archive contains runs that genuinely stopped early,
 which is the whole reason the rule exists. What the sweep bounds is how much a
@@ -137,9 +146,61 @@ def main() -> int:
     by_stop: dict[str, int] = {}
     corpus_by_stop: dict[str, int] = {}
 
+    def forces_series(path: Path) -> list[float]:
+        """total_x (column 1 after Time) of a forces-object dat file, read
+        positionally: forces files write parenthesised vector headers that
+        defeat name lookup, and total_x is column 1 in both file kinds."""
+        out: list[float] = []
+        try:
+            text = path.read_text(errors="replace")
+        except OSError:
+            return out
+        for line in text.splitlines():
+            s = line.strip().replace("(", " ").replace(")", " ")
+            if not s or s.startswith("#"):
+                continue
+            parts = s.split()
+            try:
+                out.append(float(parts[1]))
+            except (ValueError, IndexError):
+                continue
+        return out
+
     for root in roots:
         if not root.exists():
             continue
+        # The 2026-08-08 widening: forces-object histories enter the corpus.
+        for pattern in ("moment.dat", "force.dat"):
+            for path in sorted(root.rglob(pattern)):
+                if ("bladeForces" not in str(path)
+                        and "forces" not in str(path)):
+                    continue
+                series = forces_series(path)
+                if len(series) < 5:
+                    continue
+                files += 1
+                case = find_case(path)
+                reason = stop_reason(case)
+                histories += 1
+                corpus_by_stop[reason] = corpus_by_stop.get(reason, 0) + 1
+                finding = detect_unsettled_stop(
+                    series, quantity=f"{pattern}:total_x",
+                    stop_reason=reason)
+                if finding:
+                    by_stop[reason] = by_stop.get(reason, 0) + 1
+                    fires.append({
+                        "case": str(case),
+                        "path": str(path),
+                        "quantity": f"{pattern}:total_x",
+                        "iterations": finding["iterations"],
+                        "window": finding["window"],
+                        "rel_drift": finding["rel_drift"],
+                        "rel_drift_per_100_iterations":
+                            finding["rel_drift_per_100_iterations"],
+                        "monotone": finding["monotone"],
+                        "stop_reason": reason,
+                        "severity": finding["severity"],
+                    })
         for path in sorted(root.rglob("coefficient.dat")):
             columns = read_columns(path)
             if not columns:

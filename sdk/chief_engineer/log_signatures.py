@@ -30,9 +30,14 @@ agenda (``docs/standards/MONITOR_STANDARD.md``):
   here whose severity is about the machine rather than the numbers.
 - S12 unsettled stop: a run that ended -- at its iteration cap, or on its own
   residual criterion -- while the coefficient it is quoted for was still
-  travelling in one direction. The only rule here that reads a monitored
+  travelling in one direction. The first rule here that reads a monitored
   quantity's history rather than the residual block, which is the boundary
   Monitor Standard 3.4 item 3 records.
+- S10d magnitude explosion: a monitored quantity whose final magnitude has
+  left its own run's scale by six orders while still climbing. The second
+  history-reading rule, adopted 2026-08-08 after the archived F8 divergence
+  specimen (blade moment at minus 2.5e99 behind a 1.4e-8 momentum residual)
+  was replayed through every clause of the standard and caught by none.
 
 Every detector is a pure function over plain numbers and sequences, so each
 is unit-testable without a solver. Detectors only name findings, each with a
@@ -875,6 +880,109 @@ def detect_unsettled_stop(
         "rel_drift_tol": rel_drift_tol,
         "monotone_min": monotone_min,
         "stop_reason": stop_reason,
+    }
+
+
+# --------------------------------------------------------------------------
+# S10d magnitude explosion (Monitor Standard v1.4, adopted 2026-08-08)
+# --------------------------------------------------------------------------
+#
+# WHY S10a-c AND S12 ALL MISS THE CLASS'S SECOND MEMBER. The archived F8
+# specimen (phase6_mrf_pfinit) carries a blade moment at -2.5e99 N m behind a
+# 1.4e-8 momentum residual, and the zero-compute replay of 2026-08-08 measured
+# the silence clause by clause: S10a sees only floor bounds (692 lines, all
+# nuTilda, wrong direction), S10b's smallest residual is 1.86e-9, eleven
+# orders above its 1e-20 floor, S10c's required norm block does not exist in a
+# plain simpleFoam log, and S12 fails first on its 40-sample length floor and
+# then on its monotone clause (0.79 < 0.90) because exponential divergence
+# rides on an oscillation. S6 and S4 raise FLAGs that say "unconverged" --
+# the same words they use for a mild stall. Nothing converted a monitored
+# quantity at 1e99 into a FATAL. This rule reads the magnitude, not the drift.
+#
+# THE RULE, EXACTLY AS PRE-REGISTERED (proposal
+# s10d-monitored-quantity-magnitude-explosion, gate field): over the history
+# with the first tenth excluded as startup, m is the median magnitude of the
+# first half of the remainder; FATAL when the final magnitude is at least
+# 1e6 * m AND the last five magnitude steps all increase. The AND clause is
+# what separates an explosion in progress from a quantity that legitimately
+# grew and settled at a new scale.
+#
+# REPLAY LINE (standing rule 6), rerun by the adopting supervisor's own hands
+# on 2026-08-08: corpus 974 monitored-quantity histories across demo-output
+# (194) and certonomous-runs (780) -- coefficient.dat Cd and Cl plus
+# forces-object moment.dat/force.dat x-columns. Fires on exactly 5, every one
+# a run the record already names diverged: the two F8 specimen histories at
+# 83.3 and 84.5 orders (caught by nothing else in this module) and three
+# dpw5-committee-probe histories at 20.9 to 29.5 orders from runs recorded
+# "diverged, signal 8" (an S1 overlap of the same acceptable kind S3 carries).
+# Zero completed-run false positives across the remaining 969.
+
+MAGNITUDE_EXPLOSION_RATIO = 1.0e6
+MAGNITUDE_EXPLOSION_TAIL_STEPS = 5
+MAGNITUDE_EXPLOSION_MIN_SAMPLES = 20
+MAGNITUDE_EXPLOSION_STARTUP_FRACTION = 0.10
+
+MAGNITUDE_EXPLOSION_ACTION = (
+    "the monitored quantity has left its own run's scale by six orders and "
+    "is still climbing: the field state behind it is not evidence, whatever "
+    "the residual block reads. Stop, triage as a divergence, and withdraw "
+    "any number already published from this state"
+)
+
+
+def detect_magnitude_explosion(
+    series: Sequence[float],
+    *,
+    quantity: str = "Cd",
+    ratio: float = MAGNITUDE_EXPLOSION_RATIO,
+    tail_steps: int = MAGNITUDE_EXPLOSION_TAIL_STEPS,
+) -> dict[str, Any] | None:
+    """A monitored quantity exploding in magnitude (Monitor Standard S10d).
+
+    ``series`` is the monitored quantity at every sample, oldest first. The
+    first tenth is excluded as startup; the median magnitude of the first
+    half of the remainder is the run's own reference scale. Fires when the
+    final magnitude is at least ``ratio`` times that reference AND the last
+    ``tail_steps`` magnitude steps all increase -- an explosion in progress,
+    not a quantity that moved to a new scale and settled there.
+
+    Returns a finding dict or ``None``. Pure function: no I/O, no state.
+    """
+    values = [float(v) for v in series]
+    n = len(values)
+    if n < MAGNITUDE_EXPLOSION_MIN_SAMPLES:
+        return None
+    body = [abs(v) for v in
+            values[max(1, int(n * MAGNITUDE_EXPLOSION_STARTUP_FRACTION)):]]
+    half = body[: len(body) // 2]
+    if not half:
+        return None
+    ordered = sorted(half)
+    mid = len(ordered) // 2
+    median_ref = (ordered[mid] if len(ordered) % 2
+                  else 0.5 * (ordered[mid - 1] + ordered[mid]))
+    final = body[-1]
+    if median_ref <= 0.0 or not math.isfinite(median_ref):
+        return None
+    if not (final >= ratio * median_ref):
+        return None
+    tail = body[-(tail_steps + 1):]
+    if len(tail) < tail_steps + 1:
+        return None
+    if not all(b > a for a, b in zip(tail, tail[1:])):
+        return None
+    orders = math.log10(final / median_ref) if final > 0 else float("inf")
+    return {
+        "kind": "magnitude-explosion",
+        "severity": SEVERITY_FATAL,
+        "action": MAGNITUDE_EXPLOSION_ACTION,
+        "quantity": quantity,
+        "samples": n,
+        "median_reference": median_ref,
+        "final_magnitude": final,
+        "orders": orders,
+        "ratio_threshold": ratio,
+        "tail_steps": tail_steps,
     }
 
 

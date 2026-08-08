@@ -55,7 +55,8 @@ from pathlib import Path
 from typing import Any, Callable, Sequence
 
 from chief_engineer.head_engineer import parse_coefficient_history
-from chief_engineer.log_signatures import detect_unsettled_stop
+from chief_engineer.log_signatures import (detect_magnitude_explosion,
+                                           detect_unsettled_stop)
 
 _HERE = Path(__file__).resolve()
 _REPO_ROOT = _HERE.parents[2]
@@ -264,6 +265,13 @@ def final_coefficient(dat_text: str, column: str = "Cd",
     later, by a replay, if at all. The spread this function already returned
     cannot answer it: spread has no direction, so a truncated ramp and a settled
     wobble of the same amplitude are indistinguishable in it.
+
+    And S10d's verdict under ``"explosion"`` (Monitor Standard v1.4): the
+    FATAL finding when the history's final magnitude has left the run's own
+    scale by six orders and is still climbing, otherwise ``None``. Wired at
+    the same collection point as S12 for the same reason: the F8 specimen
+    showed a history can explode while every residual-block rule stays
+    silent, so the question is asked wherever a history is read.
     """
     history = parse_coefficient_history(dat_text)
     series = history.get(column)
@@ -274,7 +282,8 @@ def final_coefficient(dat_text: str, column: str = "Cd",
             "spread": max(window) - min(window),
             "iterations": len(series),
             "unsettled": detect_unsettled_stop(series, quantity=column,
-                                               stop_reason=stop_reason)}
+                                               stop_reason=stop_reason),
+            "explosion": detect_magnitude_explosion(series, quantity=column)}
 
 
 # ---------------------------------------------------------------------------
