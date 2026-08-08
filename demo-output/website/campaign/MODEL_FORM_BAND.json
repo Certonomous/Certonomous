@@ -1,13 +1,13 @@
 {
   "cells_recorded": 36,
   "cells_total_designed": 36,
-  "core_min_total": 83.52,
+  "core_min_total": 101.5,
   "design": "demo-output/website/campaign/MODEL_FORM_BATCH_DESIGN.md",
-  "generated_utc": "2026-08-08T03:46:17Z",
+  "generated_utc": "2026-08-08T23:55:14Z",
   "groups": [
     {
       "bands": {},
-      "core_min": 2.352,
+      "core_min": 11.806,
       "excluded": [
         {
           "cell_id": "B_re1p2e7_SpalartAllmaras",
@@ -23,39 +23,30 @@
           "cell_id": "B_re1p2e7_kEpsilon",
           "model": "kEpsilon",
           "qoi_if_it_had_counted": {
-            "Cd": null
+            "Cd": 0.004905634694
           },
           "reasons": [
-            "solver exit code -8",
-            "S1 floating point exception",
-            "residualControl not met (stopped on the backstop)",
-            "QoI missing from the coefficient history"
+            "residualControl not met (stopped on the backstop)"
           ]
         },
         {
           "cell_id": "B_re1p2e7_kOmegaSST",
           "model": "kOmegaSST",
           "qoi_if_it_had_counted": {
-            "Cd": null
+            "Cd": 0.0026875770242
           },
           "reasons": [
-            "solver exit code -8",
-            "S1 floating point exception",
-            "residualControl not met (stopped on the backstop)",
-            "QoI missing from the coefficient history"
+            "residualControl not met (stopped on the backstop)"
           ]
         },
         {
           "cell_id": "B_re1p2e7_realizableKE",
           "model": "realizableKE",
           "qoi_if_it_had_counted": {
-            "Cd": null
+            "Cd": 0.018377370481
           },
           "reasons": [
-            "solver exit code -8",
-            "S1 floating point exception",
-            "residualControl not met (stopped on the backstop)",
-            "QoI missing from the coefficient history"
+            "residualControl not met (stopped on the backstop)"
           ]
         }
       ],
@@ -121,21 +112,55 @@
     {
       "bands": {
         "x_R_over_h": {
-          "band": null,
+          "argmax": "kOmegaSST",
+          "argmin": "kEpsilon",
+          "band": [
+            3.577406,
+            7.647235
+          ],
           "members": {
+            "kEpsilon": 3.577406,
             "kOmegaSST": 7.647235
           },
-          "why": "1 converged member(s); a band needs at least 2"
+          "n_converged": 2,
+          "reference": {
+            "Breuer et al. 2009 (LES)": {
+              "contained": true,
+              "value": 4.69
+            },
+            "Froehlich et al. 2005 (LES, 4.6-4.7 midpoint)": {
+              "contained": true,
+              "value": 4.65
+            },
+            "Rapp & Manhart 2011 (exp)": {
+              "contained": true,
+              "value": 4.21
+            },
+            "literature band midpoint 4.455 (PRIMARY containment test)": {
+              "contained": true,
+              "value": 4.455
+            }
+          },
+          "spread_abs": 4.069829,
+          "spread_rel": 0.725159762347856
         },
         "x_S_over_h": {
-          "band": null,
+          "argmax": "kEpsilon",
+          "argmin": "kOmegaSST",
+          "band": [
+            0.260358,
+            0.423019
+          ],
           "members": {
+            "kEpsilon": 0.423019,
             "kOmegaSST": 0.260358
           },
-          "why": "1 converged member(s); a band needs at least 2"
+          "n_converged": 2,
+          "spread_abs": 0.162661,
+          "spread_rel": 0.47605055481820435
         }
       },
-      "core_min": 48.499,
+      "core_min": 57.028,
       "excluded": [
         {
           "cell_id": "H_re10595_SpalartAllmaras",
@@ -146,20 +171,6 @@
           },
           "reasons": [
             "no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)"
-          ]
-        },
-        {
-          "cell_id": "H_re10595_kEpsilon",
-          "model": "kEpsilon",
-          "qoi_if_it_had_counted": {
-            "x_R_over_h": null,
-            "x_S_over_h": null
-          },
-          "reasons": [
-            "solver exit code -8",
-            "S1 floating point exception",
-            "residualControl not met",
-            "no written time directory"
           ]
         },
         {
@@ -178,10 +189,11 @@
       "family": "H",
       "group": "H_re10595",
       "models_converged": [
+        "kEpsilon",
         "kOmegaSST"
       ],
-      "n_converged": 1,
-      "n_excluded": 3,
+      "n_converged": 2,
+      "n_excluded": 2,
       "regime": "re10595"
     },
     {

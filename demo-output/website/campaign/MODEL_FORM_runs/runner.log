@@ -466,3 +466,33 @@
 [2026-08-08T03:17:05Z] H_re10595_realizableKE: starting
 [2026-08-08T03:46:17Z] H_re10595_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop); no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)); qoi {'x_R_over_h': None, 'x_S_over_h': None}; 29.18 core-min (session 41.66/65.0)
 [2026-08-08T03:46:17Z] model-form batch stopping: 41.66 core-min spent this run
+[2026-08-08T23:23:19Z] model-form batch starting: 6 cell(s) in scope, budget 25.0 core-min
+[2026-08-08T23:23:19Z] B_re1p2e7_kOmegaSST: superseding an excluded record (solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop); QoI missing from the coefficient history)
+[2026-08-08T23:23:19Z] B_re1p2e7_kOmegaSST: starting
+[2026-08-08T23:23:19Z] [tmr:coarse] blockMesh started
+[2026-08-08T23:23:20Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-08T23:23:20Z] [tmr:coarse] checkMesh started
+[2026-08-08T23:23:20Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-08T23:26:14Z] B_re1p2e7_kOmegaSST: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.0026875770242}; 2.89 core-min (session 2.89/25.0)
+[2026-08-08T23:26:14Z] B_re1p2e7_kEpsilon: superseding an excluded record (solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop); QoI missing from the coefficient history)
+[2026-08-08T23:26:14Z] B_re1p2e7_kEpsilon: starting
+[2026-08-08T23:26:14Z] [tmr:coarse] blockMesh started
+[2026-08-08T23:26:14Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-08T23:26:14Z] [tmr:coarse] checkMesh started
+[2026-08-08T23:26:15Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-08T23:29:12Z] B_re1p2e7_kEpsilon: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.004905634694}; 2.95 core-min (session 5.84/25.0)
+[2026-08-08T23:29:12Z] B_re1p2e7_realizableKE: superseding an excluded record (solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop); QoI missing from the coefficient history)
+[2026-08-08T23:29:12Z] B_re1p2e7_realizableKE: starting
+[2026-08-08T23:29:12Z] [tmr:coarse] blockMesh started
+[2026-08-08T23:29:13Z] [tmr:coarse] blockMesh finished in 0.3 s
+[2026-08-08T23:29:13Z] [tmr:coarse] checkMesh started
+[2026-08-08T23:29:13Z] [tmr:coarse] checkMesh finished in 0.3 s
+[2026-08-08T23:32:57Z] B_re1p2e7_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop)); qoi {'Cd': 0.018377370481}; 3.73 core-min (session 9.57/25.0)
+[2026-08-08T23:32:57Z] H_re10595_kOmegaSST: already recorded, skipping
+[2026-08-08T23:32:57Z] H_re10595_kEpsilon: superseding an excluded record (solver exit code -8; S1 floating point exception; residualControl not met; no written time directory)
+[2026-08-08T23:32:57Z] H_re10595_kEpsilon: starting
+[2026-08-08T23:41:33Z] H_re10595_kEpsilon: CONVERGED; qoi {'x_R_over_h': np.float64(3.577406), 'x_S_over_h': np.float64(0.423019)}; 8.60 core-min (session 18.16/25.0)
+[2026-08-08T23:41:33Z] H_re10595_realizableKE: superseding an excluded record (residualControl not met (stopped on the backstop); no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first))
+[2026-08-08T23:41:33Z] H_re10595_realizableKE: starting
+[2026-08-08T23:52:59Z] H_re10595_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop); no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)); qoi {'x_R_over_h': None, 'x_S_over_h': None}; 11.42 core-min (session 29.59/25.0)
+[2026-08-08T23:52:59Z] model-form batch stopping: 29.59 core-min spent this run

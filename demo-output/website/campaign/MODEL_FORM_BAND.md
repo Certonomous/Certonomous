@@ -1,19 +1,19 @@
 # Model-form band — converged cells only
 
-Generated 2026-08-08T03:46:17Z by `sdk/scripts/model_form_batch.py --band`. Design and pre-registration: `MODEL_FORM_BATCH_DESIGN.md`.
+Generated 2026-08-08T23:55:14Z by `sdk/scripts/model_form_batch.py --band`. Design and pre-registration: `MODEL_FORM_BATCH_DESIGN.md`.
 
-36 of 36 designed cells have run, 83.52 core-min spent.
+36 of 36 designed cells have run, 101.50 core-min spent.
 
 The band is the min/max across CONVERGED members of a group. An unconverged cell is excluded and named -- the NASA hump lesson: the band that failed to contain the experiment was the band that still had an unconverged member in it.
 
-## B_re1p2e7 (0 converged, 4 excluded, 2.35 core-min)
+## B_re1p2e7 (0 converged, 4 excluded, 11.81 core-min)
 
 
 Excluded from the band:
   - SpalartAllmaras: residualControl not met (stopped on the backstop)
-  - kEpsilon: solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop); QoI missing from the coefficient history
-  - kOmegaSST: solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop); QoI missing from the coefficient history
-  - realizableKE: solver exit code -8; S1 floating point exception; residualControl not met (stopped on the backstop); QoI missing from the coefficient history
+  - kEpsilon: residualControl not met (stopped on the backstop)
+  - kOmegaSST: residualControl not met (stopped on the backstop)
+  - realizableKE: residualControl not met (stopped on the backstop)
 
 ## B_re3e6 (0 converged, 4 excluded, 9.19 core-min)
 
@@ -24,14 +24,21 @@ Excluded from the band:
   - kOmegaSST: residualControl not met (stopped on the backstop)
   - realizableKE: residualControl not met (stopped on the backstop)
 
-## H_re10595 (1 converged, 3 excluded, 48.50 core-min)
+## H_re10595 (2 converged, 2 excluded, 57.03 core-min)
 
-- **x_R_over_h: no band** — 1 converged member(s); a band needs at least 2. Members: {'kOmegaSST': 7.647235}
-- **x_S_over_h: no band** — 1 converged member(s); a band needs at least 2. Members: {'kOmegaSST': 0.260358}
+- **x_R_over_h: 3.57741 to 7.64724** (spread 4.07, 72.52% of the mean; low kEpsilon, high kOmegaSST)
+  - kEpsilon: 3.57741
+  - kOmegaSST: 7.64724
+  - reference literature band midpoint 4.455 (PRIMARY containment test): 4.455 — **CONTAINED** by this band
+  - reference Rapp & Manhart 2011 (exp): 4.21 — **CONTAINED** by this band
+  - reference Froehlich et al. 2005 (LES, 4.6-4.7 midpoint): 4.65 — **CONTAINED** by this band
+  - reference Breuer et al. 2009 (LES): 4.69 — **CONTAINED** by this band
+- **x_S_over_h: 0.260358 to 0.423019** (spread 0.1627, 47.61% of the mean; low kOmegaSST, high kEpsilon)
+  - kEpsilon: 0.423019
+  - kOmegaSST: 0.260358
 
 Excluded from the band:
   - SpalartAllmaras: no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)
-  - kEpsilon: solver exit code -8; S1 floating point exception; residualControl not met; no written time directory
   - realizableKE: residualControl not met (stopped on the backstop); no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)
 
 ## N_a0 (0 converged, 4 excluded, 6.68 core-min)

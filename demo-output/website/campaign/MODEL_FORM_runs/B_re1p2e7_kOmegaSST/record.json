@@ -2,17 +2,69 @@
   "cell_id": "B_re1p2e7_kOmegaSST",
   "cells": 3520,
   "converged": false,
-  "core_min": 0.042,
+  "core_min": 2.893,
   "excluded_reasons": [
-    "solver exit code -8",
-    "S1 floating point exception",
-    "residualControl not met (stopped on the backstop)",
-    "QoI missing from the coefficient history"
+    "residualControl not met (stopped on the backstop)"
   ],
   "family": "B",
   "group": "B_re1p2e7",
+  "initialization": {
+    "kind": "potentialFoam",
+    "potentialFoam_returncode": 0,
+    "prereg": "demo-output/website/campaign/MODEL_FORM_FPE_RESCUE_PREREGISTRATION.md"
+  },
   "iteration_backstop": 12000,
-  "iterations": 44,
+  "iterations": 12000,
+  "levers_verified_active": {
+    "basis": "launcher echo, hash-bound to the dictionaries that ran (Verification Charter v1.5 section 9)",
+    "verified": [
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/U",
+        "file": "0/U",
+        "sha256": "023219141d51b37ac4e4732811f6fc7bd9f25d1da648c7e90893c2a594b05221"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/k",
+        "file": "0/k",
+        "sha256": "fae97b262c1b61814e7488864dd191a463b989a6666a4938d0448c5d675aed49"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/nut",
+        "file": "0/nut",
+        "sha256": "664ec6b1b60383e61be26d4f16797fd1f7e6d43871c229e5817e8beaec12801d"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/omega",
+        "file": "0/omega",
+        "sha256": "1699768c75901e2e93e90c7bf6d694f28d6b22f7c059da1e7697327e03b48c62"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/p",
+        "file": "0/p",
+        "sha256": "e49c98b993a13e7a40ad19e08c51741837ecdeeec0356810d74129718ac46e59"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file constant/transportProperties",
+        "file": "constant/transportProperties",
+        "sha256": "339431ad728e28f79067bd2b8a5e30313359dab39d7e7dd3d8a78cfd095296bf"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file constant/turbulenceProperties",
+        "file": "constant/turbulenceProperties",
+        "sha256": "a6a7b81e40bb34d179018f7e932648cf89368786aefd76a5e7b4d4d3c043afc8"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSchemes",
+        "file": "system/fvSchemes",
+        "sha256": "20f95fbaf0aaddd6219c21b13aaf97977158e9860a27cff994e78ed3142bb230"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSolution",
+        "file": "system/fvSolution",
+        "sha256": "eb6f65823eae1fc6761d3491546780bd84c1db277fd25d928a3c621cd4fb8791"
+      }
+    ]
+  },
   "mesh": {
     "aspect_ratio_note": "advisory only per Mesh Standard 3.3; never a lone rejection",
     "breaches": [],
@@ -20,6 +72,7 @@
     "max_non_ortho": 12.7657156,
     "max_skewness": 0.07165972814
   },
+  "mesh_gate_exemption": null,
   "model": "kOmegaSST",
   "nu": 8.333333333333334e-08,
   "params": {
@@ -27,8 +80,9 @@
   },
   "patch": "bump",
   "qoi": {
-    "Cd": null
+    "Cd": 0.0026875770242
   },
+  "qoi_source": "coefficient.dat",
   "ranks": 1,
   "re_per_length": 12000000.0,
   "regime": "re1p2e7",
@@ -37,7 +91,7 @@
     "detail": null,
     "unsettled": false
   },
-  "timestamp": "2026-08-05T17:50:01Z",
+  "timestamp": "2026-08-08T23:26:14Z",
   "toolchain": "native OpenFOAM v2606 (openfoam2606 launcher)",
-  "wall_seconds": 2.5
+  "wall_seconds": 173.6
 }

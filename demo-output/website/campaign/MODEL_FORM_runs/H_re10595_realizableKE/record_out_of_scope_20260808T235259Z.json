@@ -1,18 +1,16 @@
 {
-  "cell_id": "B_re1p2e7_kEpsilon",
-  "cells": 3520,
+  "cell_id": "H_re10595_realizableKE",
+  "cells": 15600,
   "converged": false,
-  "core_min": 2.951,
+  "core_min": 11.424,
+  "crossings_x_over_h": [],
   "excluded_reasons": [
-    "residualControl not met (stopped on the backstop)"
+    "residualControl not met (stopped on the backstop)",
+    "no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)"
   ],
-  "family": "B",
-  "group": "B_re1p2e7",
-  "initialization": {
-    "kind": "potentialFoam",
-    "potentialFoam_returncode": 0,
-    "prereg": "demo-output/website/campaign/MODEL_FORM_FPE_RESCUE_PREREGISTRATION.md"
-  },
+  "family": "H",
+  "group": "H_re10595",
+  "initialization": null,
   "iteration_backstop": 12000,
   "iterations": 12000,
   "levers_verified_active": {
@@ -21,82 +19,75 @@
       {
         "evidence": "LEVER-ECHO block at head of the solver log, file 0/U",
         "file": "0/U",
-        "sha256": "023219141d51b37ac4e4732811f6fc7bd9f25d1da648c7e90893c2a594b05221"
+        "sha256": "9ac9f5d6d511f143e641553d0537d9c8e70370c13feed7f53b3fb3757945c793"
       },
       {
         "evidence": "LEVER-ECHO block at head of the solver log, file 0/epsilon",
         "file": "0/epsilon",
-        "sha256": "1c7dbf522ddb5b6908c8a4fa28e47913fab471384dd74d165200dbe9d4d8045d"
+        "sha256": "5ba443a48051f0476094ef372032c593811583f3c2bc60a555e2c86450bf2cf1"
       },
       {
         "evidence": "LEVER-ECHO block at head of the solver log, file 0/k",
         "file": "0/k",
-        "sha256": "fae97b262c1b61814e7488864dd191a463b989a6666a4938d0448c5d675aed49"
+        "sha256": "ece3ad221e347bee7628a0ade9312e60ac180aa144399d45458330278a6a6345"
       },
       {
         "evidence": "LEVER-ECHO block at head of the solver log, file 0/nut",
         "file": "0/nut",
-        "sha256": "664ec6b1b60383e61be26d4f16797fd1f7e6d43871c229e5817e8beaec12801d"
+        "sha256": "65f4bbcb51dcb35753b00c489d9319a1cdbcdc408bc6f362ab6cc9f057e153d0"
       },
       {
         "evidence": "LEVER-ECHO block at head of the solver log, file 0/omega",
         "file": "0/omega",
-        "sha256": "1699768c75901e2e93e90c7bf6d694f28d6b22f7c059da1e7697327e03b48c62"
+        "sha256": "ac629681cfff19635ff23ae84bc0aa5cd1bc6d6b35b6871646230d169ac58b9e"
       },
       {
         "evidence": "LEVER-ECHO block at head of the solver log, file 0/p",
         "file": "0/p",
-        "sha256": "e49c98b993a13e7a40ad19e08c51741837ecdeeec0356810d74129718ac46e59"
+        "sha256": "85858d28595f16d78e5a96acbd7f7a7989a03ba660b509b1449e83e16b3685ae"
       },
       {
         "evidence": "LEVER-ECHO block at head of the solver log, file constant/transportProperties",
         "file": "constant/transportProperties",
-        "sha256": "339431ad728e28f79067bd2b8a5e30313359dab39d7e7dd3d8a78cfd095296bf"
+        "sha256": "579f636b7ea9bb48c7eda8b6de26e6c646a3d3487665a78e8d70a87036101d70"
       },
       {
         "evidence": "LEVER-ECHO block at head of the solver log, file constant/turbulenceProperties",
         "file": "constant/turbulenceProperties",
-        "sha256": "645a54d33e11ecb46044a45216dba7dcde03bfe821186f7f1b26bc380584328a"
+        "sha256": "5fbe3d3eb8c47fbf20358d2103acf27a08752db149013bf75d87c9df2941bd67"
       },
       {
         "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSchemes",
         "file": "system/fvSchemes",
-        "sha256": "2e1b1d55a30e403b2bcd1a4530a81d7496c8050ce26e30b1223a2a80274b9bd1"
+        "sha256": "b41b7447ec6a15783530462150fc859db22e5f722913fd632c4588221cba18b5"
       },
       {
         "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSolution",
         "file": "system/fvSolution",
-        "sha256": "a15973d722f616b2e1afbb1b1d753c3cee68e2cb1402f5d3b236230720873a92"
+        "sha256": "ff7115869c1215c8d3ee48954e6c968115a6bc429e3f9c9615a3e63640e6b082"
       }
     ]
   },
   "mesh": {
     "aspect_ratio_note": "advisory only per Mesh Standard 3.3; never a lone rejection",
     "breaches": [],
-    "max_aspect_ratio": 2136801.242,
-    "max_non_ortho": 12.7657156,
-    "max_skewness": 0.07165972814
+    "max_aspect_ratio": 15.2913785051,
+    "max_non_ortho": 39.6646131281,
+    "max_skewness": 0.226127224662
   },
-  "mesh_gate_exemption": null,
-  "model": "kEpsilon",
-  "nu": 8.333333333333334e-08,
-  "params": {
-    "re_per_length": 12000000.0
-  },
-  "patch": "bump",
+  "mesh_note": "COMPLIANT F6b medium mesh (Gate V 0.043%); R12 not involved",
+  "model": "realizableKE",
+  "params": {},
+  "prereg": "campaign/MODEL_FORM_H_HILLS_PREREGISTRATION.md",
   "qoi": {
-    "Cd": 0.004905634694
+    "x_R_over_h": null,
+    "x_S_over_h": null
   },
-  "qoi_source": "coefficient.dat",
+  "qoi_source": "wallShearStress crossings (bottom wall, final time)",
   "ranks": 1,
-  "re_per_length": 12000000.0,
-  "regime": "re1p2e7",
+  "regime": "re10595",
   "residual_control_met": false,
-  "settle_s12": {
-    "detail": null,
-    "unsettled": false
-  },
-  "timestamp": "2026-08-08T23:29:12Z",
+  "timestamp": "2026-08-08T23:52:59Z",
   "toolchain": "native OpenFOAM v2606 (openfoam2606 launcher)",
-  "wall_seconds": 177.1
+  "wall_seconds": 685.4
 }
