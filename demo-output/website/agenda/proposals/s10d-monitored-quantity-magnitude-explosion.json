@@ -1,0 +1,23 @@
+{
+ "id": "s10d-monitored-quantity-magnitude-explosion",
+ "well": "W7",
+ "objective": "Amend Monitor Standard S10 with a fourth branch, S10d magnitude explosion in a monitored quantity, and widen the S12 replay corpus to forces-object histories, so the F8 divergence-behind-a-converged-residual specimen stops being invisible to the standard as written",
+ "rationale": "The approved replay (f8-s10-replay-of-the-mrf-limit-cycle, executed 2026-08-08) found a full no-catch: on the phase6_mrf_pfinit run whose blade moment reached minus 2.5e99 newton metres behind a 1.4e-8 momentum residual, S10a is silent because all 692 bound lines are floor bounds on nuTilda, S10b is silent because the smallest normalised residual in the log is 1.86e-9, eleven orders above the 1e-20 floor, S10c is silent because simpleFoam prints no unnormalised norm block, and S12 is silent twice over: the history holds 30 samples against the rule's 40-sample floor, and even with the floor removed the monotone clause reads 0.79 against 0.90 because exponential divergence rides on an oscillation. S6 and S4 raise FLAGs that say unconverged, which is the same thing they say about a mild stall; nothing in the standard converts a quantity at 1e99 into a FATAL. The rule that is missing reads the quantity's magnitude, not its drift",
+ "gate": "The proposed rule, replayed before adoption per standing rule 6: over a monitored-quantity history with the first tenth excluded as startup, let m be the median magnitude of the first half of the remainder; FATAL when the final magnitude is at least 1e6 times m and the last five magnitude steps all increase. Replay line, already run (s10d_corpus_replay.py, 2026-08-08): 974 histories graded across demo-output and certonomous-runs, coefficient.dat plus forces-object dat files; fires on exactly 5, all from runs the record already names diverged: the two F8 specimen histories at 83 and 85 orders, which nothing currently catches, and three dpw5-committee-probe histories at 21 to 30 orders from runs recorded as diverged with signal 8, an S1 overlap of the same acceptable kind S3 has. Zero completed-run false positives. Second clause: the S12 replay corpus glob adds moment.dat and force.dat total_x histories, closing the rail gap that kept this specimen out of the corpus entirely",
+ "est_core_min": 0,
+ "predicted_memory_gb": 0.5,
+ "predicted_usd": 0.0,
+ "cost_basis": "zero compute: the detection function is pure arithmetic on histories already on disk, and the pre-adoption corpus replay has already been run and archived",
+ "expected_knowledge_gain": "The standard's strongest failure class, divergence behind a converged residual, gains coverage on the solver family that prints no norm block and no ceiling clip; the archive-replay rail gains the force and moment histories it currently cannot see",
+ "source_kind": "gate",
+ "hard_criterion": "instrument-check",
+ "citations": [
+  "The zero-compute diagnostics record of 2026-08-08, task 3, where the no-catch is measured clause by clause",
+  "The monitor standard, S10 and S12 and standing rule 6",
+  "The F8 record gating the MRF blade forces against Hand and colleagues 2001, section 12, where the specimen is named",
+  "The archived replay artifacts s10_replay/replay_result.json and s10_replay/s10d_corpus_replay.json"
+ ],
+ "launch_prompt": "Monitor standard amendment S10d. Zero compute. Read demo-output/website/campaign/ZERO_COMPUTE_DIAGNOSTICS_2026-08-08.md task 3 and the two replay artifacts under demo-output/website/campaign/F8_runs/s10_replay/ first. Implement detect_magnitude_explosion in sdk/chief_engineer/log_signatures.py exactly as pre-registered in the proposal gate, wire it into LogMonitor for monitored-quantity histories, extend sdk/scripts/replay_s12_unsettled_stop.py's corpus glob to moment.dat and force.dat, add the archive-sweep test asserting the five named histories and no sixth, and update docs/standards/MONITOR_STANDARD.md with the rule, its replay line, and its severity. FATAL on fire.",
+ "status": "proposed",
+ "created_at": "2026-08-08T00:00:00Z"
+}

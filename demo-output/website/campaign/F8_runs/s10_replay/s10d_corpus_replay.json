@@ -1,0 +1,23 @@
+{
+ "corpus": {
+  "coefficient_histories": 170,
+  "forces_histories": 24
+ },
+ "fires": [
+  {
+   "file": "demo-output/website/campaign/F8_runs/phase6_mrf_pfinit/postProcessing/bladeForces/0/moment.dat",
+   "quantity": "moment.dat:total_x",
+   "orders": 83.3,
+   "median_ref": 1.2408203e+16,
+   "final": 2.47147388e+99
+  },
+  {
+   "file": "demo-output/website/campaign/F8_runs/phase6_mrf_pfinit/postProcessing/bladeForces/0/force.dat",
+   "quantity": "force.dat:total_x",
+   "orders": 84.5,
+   "median_ref": 1228492690000000.0,
+   "final": 3.7903807e+99
+  }
+ ],
+ "fire_count": 2
+}
