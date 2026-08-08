@@ -1189,7 +1189,12 @@ def run_cell(cell: Cell, log: Callable[[str], None], *,
         return run_cell_P_or_B(cell, log, backstop=backstop,
                                adjusted_settle=adjusted_settle)
     if cell.family == "H":
-        return run_cell_H(cell, log, backstop=min(backstop, H_BACKSTOP))
+        # H's own default applies only when the caller passed the batch
+        # default; an explicit --iteration-backstop override is honored
+        # (the min() this replaces would have silently capped the approved
+        # 30,000-iteration extension arm at 12,000).
+        h_backstop = H_BACKSTOP if backstop == BATCH_BACKSTOP else backstop
+        return run_cell_H(cell, log, backstop=h_backstop)
     return run_cell_N(cell, log, backstop=backstop,
                       adjusted_settle=adjusted_settle)
 

@@ -1,0 +1,456 @@
+J . Pluid Mech. (1975), vol. 72, part 2, pp. 331-340                             331
+Printed i n Great B r i t a i n
+
+
+            A more general effective-viscosity hypothesis
+                                      By S. B. P O P E
+                Department of Mechanical Engineering, Imperial College, London
+
+                  (Received 4 December 1974 and in revised form 27 March 1975)
+
+A discussion of the applicability of an effective-viscosityapproach to turbulent
+flow suggests that there are flow situations where the approach is valid andyet
+present hypotheses fail. The general form of an effective-viscosity formulation
+is shown to be a finite tensor polynomial. For two-dimensional flows, the co-
+efficients of this polynomial are evaluated from the modelled Reynolds-stress
+equations of Launder, Reece & Rodi (1975). The advantage of the proposed
+effective-viscosityformulation, equation (4.3), over isotropic-viscosity hypoth-
+eses is that the whole velocity-gradient tensor affects the predicted Reynolds
+stresses. Two notable consequences of this are that (i) the complete Reynolds-
+stress tensor is realistically modelled and (ii)the influence of streamline curvature
+on the Reynolds stresses is incorporated.
+
+
+1. Introduction
+   An effective-viscosity hypothesis relates the Reynolds stresses solely to the
+rates of strain of the fluid and to scalar quantities. The validity of such a hypo-
+thesis depends upon two conditions: first, the flow must be such that the
+Reynolds stresses are solely a function of those quantities considered and, second,
+the predicted Reynolds stresses must reflect experimental observations. Clearly,
+if the first condition is satisfied, then an effective-viscosity hypothesis exists
+that will satisfy the second. The object of this work is to obtain a more realistic
+effective-viscosityhypothesis than those currently employed.
+   The f i s t effective-viscosityhypothesis was proposed by Boussinesq (1877) :
+
+
+(where Ul,zis the only non-zero (mean) velocity gradient and peffis the effective
+viscosity). This formula has been used with considerable success by, among
+others, Ng (1971) for wall boundary layers and by Rodi (1972) for free shear
+flows. However, Bradshaw (1 973) has observed that the Boussinesq hypothesis
+fails for boundary layers over curved surfaces and inferred that this failure is
+due to the form of the stress-strain relation rather than to the inapplicability of
+an effective-viscosityapproach.
+   For flows in which more than one Reynolds stress is needed to close the mean
+momentum equations, the Boussinesq hypothesis may be generalized to give the
+isotropic-viscosity assumption
+332                                  8. B. Pope
+where k is the turbulence kinetic energy. While (1.2) has been used, with success,
+in recirculating flows (e.g. Runchal & Spalding 1971),it cannot be held to repre-
+sent the Reynolds-stress tensor. For example, in nearly homogeneous shear flow
+(where, as will be shown in the next section, an effective-viscosity approach is
+valid) Champagne, Harris & Corrsin (1970) measured
+             all = 0.3, cc22 = -0.18, a33= -0.12, aI2= 0-33,
+                                      -
+where                           aij = uiuj/ZC- $aij,
+whereas, at best, (1.2) will predict
+                         a,, = a22= a,, = 0, aI2= 0.33.
+Thus the mechanism that causes the inequality of the normal stresses cannot be
+accounted for with an isotropic-viscosity hypothesis. However, it was argued
+above that, in a situation where an effective-viscosityapproach is valid, there is
+an effective-viscosity hypothesis that will predict the Reynolds stresses correctly.
+   The failure of isotropic viscosity hypotheses to give correct predictions of
+many flow situations is due either to inapplicability of an effective-viscosity
+approach or to inadequacy of the isotropic-viscosityhypotheses. By formulating
+an improved effective-viscosity hypothesis, it is the object of this work to
+remove the latter cause of failure.
+   The approach adopted in the next two sections, that of formulating a con-
+stitutive relation for the Reynolds stresses, is similar to that employed by Lumley
+(1970).First the quantities to be included in the constitutive relation are deter-
+mined and then it is shown that the relation between these quantities may be
+expressed as a finite tensor polynomial to form the general effective-viscosity
+hypothesis. I n forming the tensor polynomial Lumley (1970) made illicit use
+of the alternating tensor density and so the result and some of the conclusions
+based upon it were incorrect.
+
+
+2. The effective-viscosity approach
+   The basic assumption of an effective-viscosityhypothesis is that the Reynolds
+stresses are uniquely related to the rates of strain and local scalar quantities.
+As this assumption is not valid for all flows, it is necessary to define the restricted
+class of flows for which it is valid. I n addition, in order t o effect closure, the
+number of scalar quantities that need be considered must be limited.
+   An effective-viscosity assumption implies that the stresses are determined
+locally whereas the exact Reynolds-stress equations show that they may be
+convected by both the mean and fluctuating velocities. For an effective-viscosity
+assumption to be valid, these transport terms must be negligible. It is readily
+seen, from the transport equations, that the triple correlation (which accounts
+for turbulent convection) will be zero only when the Reynolds stresses and con-
+sequcntiy the rates of strain are homogeneous. Thus homogeneity of the rates
+of’strain is a necessary condition for the effective-viscosityapproach t o be valid.
+   Lumley (1970) shows that the mean velocity field and boundary values of the
+fluctuating velocity are sufficient to determine the Reynolds stresses and assumes
+that, far from boundaries, the boundary conditions serve at most to set the
+                  A more general effective-viscosity hypothesis                333
+levels of the time and length scales. With this assumption it follows that in a
+homogeneous flow (where the rates of strain contain all the information about
+the velocity field) the Reynolds stresses are a function of the rates of strain and
+scaling parameters only.
+   On dimensional grounds, at least two scaling parameters are needed to relate
+the Reynolds stresses to the rates of strain. These two scales may be chosen as a
+velocity scale v and a time scale r ; v2 provides the dimensions of stress and r
+may be used to non-dimensionalize the rate of strain. Two scaling parameters
+that may be derived from the mean velocity field are
+                        0, =   (qq)$,
+                                    7, = (7&qp.
+However v, may not be chosen as the velocity scale because, although U, changes
+under a Galilean transformation,     does not. Also since the macro time scale
+of turbulence, defined by
+                                  rt = k/e,
+where 6 is the turbulence dissipation rate, has been found to be independent of
+r, in simple shear flows (Lumley 1970), the two scaling parameters must be
+independent of the mean velocity field. Two scaling parameters are sufficient
+provided that all macroscales of turbulence are proportional; this assumption
+can be justified only at high Reynolds numbers, when any influence of the
+laminar viscosity may be excluded. Various authors’ proposals for the two
+scaling parameters are given in Launder & Spalding (1972, p. 95). A convenient
+choice, and the one employed below, is that of k and E . The fact that rt and r,
+are independent in any real flow situation means that the flow cannot be homo-
+geneous and consequently some transport of Reynolds stresses occurs. However,
+in nearly homogeneous flows, where local effects dominate transport effects,
+an effectivo-viscosity hypothesis may provide an adequate representation of the
+Reynolds stresses.
+   The restrictions, assumptions and conclusions of the above argument may be
+stated thus: for a high Reynolds number nearly homogeneous flow,the Reynolds
+stresses are uniquely related to the rates of strain and two independent scaling
+parameters, provided that all macroscales are proportional and that the boundary
+conditions affect only the scaling parameters.
+
+
+3. The general effective-viscosity hypothesis
+   In $2, physical arguments were employed to limit the number of quantities
+needed to determine the Reynolds stresses. I n this section, by applying dimen-
+sional analysis, imposing invariance under co-ordinate transformation and
+exploiting the tensor properties of q,and      w,the form of the general stress-
+strain relation will be deduced.
+   The two scaling parameters k and e may be used to normalize the Reynolds
+stresses and the rates of strain as follows:
+                               aii = ”i”j/k - #aij,                           (3.1)
+                               Sij =   S ( W (Q, + q,d,
+                                                j                             (3.2)
+334                                      8. B. Pope
+a and s are non-dimensional symmetric tensors with zero trace (sii = 0 owing to
+incompressibility) and w is non-dimensional and antisymmetric. The task of
+             -
+determining uiujis equivalent to that of determining aij and, on dimensional
+grounds, sijand w i j contain all the information given by I%, E and qlj. Thus
+                                    a,.
+                                     13 = a 23
+                                            ..(s,w).                            (3.4)
+I n continuum mechanics the assumption of material difference is frequently
+made in order to remove the dependence of a upon o,however, as indicated
+by Lumley (1970), such an assumption is unfounded in the present context.
+For simplicity the following abbreviated notation will be introduced:
+                 sw = sikwki, so sw = sikwklslmwmj, etc.,
+                  s2 = sikskj,    (92)   = sikski, etc.,    I = &.
+(This is equivalent to considering the matrices associated with the tensors.)
+  The most general expression for (3.4)is an infinite tensor polynomial:
+
+
+
+where the coefficients C may be functions of the invariants {sai   SQZw k . .}.
+   Fortunately, owing to the Cayley-Hamilton theorem, the number of inde-
+pendent invariants and linearly independent second-order tensors that may be
+formed from s and o is finite. This means that the infinite polynomial (3.5) may
+be expressed as a finite polynomial and that the coefficients G are functions of
+a finite number of invariants. Since a is symmetric and has zero trace, only
+independent tensors with these properties need be considered.
+   For flows in which the velocity and the variation of mean quantities in one
+co-ordinate direction are zero, s and w may be taken as two-dimensionaltensors.
+As the number of linearly independent tensors and invariants in two dimensions
+is significantly less than in the general case, the two- and three-dimensional
+forms are treated separately.
+   The independent tensors and invariants are determined in appendix A. For
+two-dimensionalflows there are only three linearly independent tensors T which
+are symmetric and have zero trace:
+                  To= +I8 - $I2,? T1= S, T2=z sw - US.
+There are two non-zero independent invariants :
+
+In the general three-dimensional case there are ten tensors and five invariants:
+           T I = S,                       T2= sw -US,
+           T3= s2-,)'s(I+                 T4 = w2- $I{w~}>,
+
+           T5 = u s 2- S ~ O ,             T6 = 0%+ SW' - $l{sw2),
+           T' = WSCO'- O'SO,              T * =S O S ~ - S ~ O S ,
+                        +-                        , IO = C O S ~ C -
+            T9 = 0 . 9 5 ~ S'CO' - ~ I ( S ~ W ~ >T                O ~w2s2w
+
+   t I, and I, are the Kronecker deltas appropriate to two and three dimensions respec-
+tively. The propriety of the use of 1, is verified in appendix A.
+                   A more general effective-viscosity hypothesis                                  335
+and                    {s2>, {@, {s3>, {WZS), ( 0 2 s 2 ) .
+The infinite tensor polynomial (3.5) may now be expressed in the closed form
+                                         a=
+                                                 A
+                                                     GATA                                         (3.6)
+( 0 6 h 6 2 in two dimensions; I < h < I0 in three), or reverting to the unnor-
+malized Reynolds stress, the general expression for any (tensor invariant)
+effective-viscosityhypothesis is
+                                 -
+                                 u U ~ U ~=   $kSij + k 2 CAT;-.                                  (3.7)
+                                                        A
+The significance of (3.6) is that the Reynolds stresses are known functions of a
+finite number of known tensors and the same number of unknown scalars. The
+unknown scalars are in turn functions of a finite number of known invariants,
+For example, the task of formulating an effective-viscosityhypothesis for two-
+dimensional flows has been reduced to that of determining three scalars which
+may be functions of only two invariants.
+
+
+4. Proposed effective-viscosity hypothesis
+   I n order to complete the effective-viscosityhypothesis, the unknown functions
+G appearing in (3.6) must be determined. This will be done for two-dimensional
+flows by relating the general effective-viscosity hypothesis t o the modelled
+Reynolds-stress equation of Launder et d.(1975).
+   I n order to reduce this equation to one solely in terms of Reynolds stresses
+and velocity gradients it is necessary to model the transport resulting from small
+departures from homogeneity. This is done through the algebraic stress model
+suggested by Rodi (1972):
+                        -                                      -
+           transport of u4zciM ( F , / k )(transport of k ) = (viui/k)( P - e ) , (4.1)
+where P is the production rate of turbulence kinetic energy. Applying (4.1) to
+the Reynolds-stress equation of Launder et al. (1975) gives
+     ("i./k) ( P- 6) = -            q,k -      Uiik   q& - $€aij- C,(E/k)
+                                                                     -(Ti&             - $kSij)
+                                         +&C2+8) (-         U j , k + ~ p?&+$P&,)
+                                                                          k
+                                         - &( 300,- 2) k ( q , j q,i)
+                                                                    -
+                                                                      +
+or, in the present notation,
+                                         +A(  gc, - 2)      (w +
+                                                              Uk,j uj~,q  Uk,,i $PSij),+
+                a = -g[b,s+b2(as+sa-21,{as))-b,(ao-wa)],            (44
+where      b, = A, b, = gi(5--9C2), b, = &(7C2+1),  g = (C,+P/e-l)-1.
+C, and C, are constants appearing in the modelled Reynolds-stress equation, for
+which values of 1.5 and 0.4,respectively, were suggested.
+  Equation (4.2), which is a set of simultaneous equations, may be expressed
+as an explicit relation of the form of (3.6) (see appendix B):
+                   a = -2C,[s+gb,(so-os)+gb2{s2)(gI,-                          12)],              (4.3)
+ where                  cp
+                         = @,g( 1 - 2 { 0 2} b23g2 - g b ; g 2 { S 2 } ) - ?
+                                                                                                   (4.4)
+336                                  X. B. Pope
+  The proposed effective-viscosity hypothesis (4.3)is of the form of (3.6) with
+
+                GO = 4Cll gb2{s2}, G1 = - 2Cp, G2 = -2Cpgb,.
+The Reynolds-stress equation of Launder et al. (1975), the algebraic stress model
+and the proposed effective-viscosity hypothesis will all predict the same Reynolds
+stresses provided that the transport is well modelled by (4.1).
+   For practical purposes (4.3) may be simplified. If the Reynolds stresses are
+only required to effect closure in the mean momentum equations and t o calcu-
+late the production rate of kinetic energy, then only the part             ofwj
+that is anisotropic in the plane normal to the direction of homogeneity need be
+specified. Reverting to standard notation, (4.3) may be written as
+
+
+
+
+   A solution of the mean momentum equations using ui"i as given by (4.3) or
+        as given by (4.5) will produce identical results. Equation (4.5) differs
+from an isotropic-viscosity hypothesis only by the inclusion of the last tepm.
+
+
+5. Discussion
+   The advantages of the proposed effective-viscosity hypothesis over isotropic-
+viscosity hypotheses may be demonstrated by comparing the values of the
+Reynolds stress predicted by each in a simple flow. For this purpose a flow in
+which U, is the only non-zero component of the mean velocity and x 2 the only
+direction of variation is considered below.
+  For this flow the general effective-viscosity formulation (3.6)gives
+
+                   "1,   = -*Go                    - 8GZ[(k/4U1,2l2)
+                   "22   = -*Go                    + -kG2"k/d U1,2I2>
+                   a33=      $Go,
+                   a12 =            &W/4 q , z ,
+                   a,, = a2, = 0.
+
+   It may be seen that G1 does not influence the normal stresses and that GO
+and G2 do not influence the shear stress. A finite value of G2 causes a,, and aZ2
+t o differ and Go enables a,, to depart from zero. Clearly, if Go and G2 are set to
+zero, as is the case in an isotropic-viscosity hypothesis, then the observed dif-
+ferences between the normal stresses cannot be predicted. This inherent deficiency
+in isotropic-viscosity hypotheses suggests that they will provide an inadequate
+closure for more complex flows, where more than one component of the Reynolds
+stress is required to close the mean momentum equations.
+   The choice of G1,and consequently C     ., is of paramount importance as it
+dictates the predicted shear-stress level. Figure 1 shows the variation of C,,
+given by (4.4)) as a function of (r and Q, where d = (i{s2})*  and s1 = ( - &{w2))*.
+                    A more general effective-viscosity hypothesis                 337
+
+
+
+
+                    2
+                              0.06   ’
+
+                2
+                !
+
+                    1                                          -
+
+
+                                                               i
+
+                    0                    1             2
+                                             U
+
+                             1. Variation of Cp with u and a.
+                        FIQURE
+
+This variation of CFmay be compared with previous suggestions:
+             Prandtl-Kolmogorov                            C, = constant,
+             Bradshaw, Ferriss & Atwell (1967)T            C, cc rl,
+             Rodi (1972)                               c, = q p / +
+While the two latter expressions are in accord with the present proposal in that
+they predict a decrease in Cpwith increasing r , none of the above expressions
+allows for any dependence of Cpupon the rotation invariant Q. This omission is
+tantamount to assuming that the Reynolds stresses are materially indifferent;
+that is, to assuming that the Reynolds stresses are unaffected by solid-body
+rotations. The use of this unfounded assumption is most likely responsible for
+the short-comings of these isotropic-viscosity hypotheses in predicting flows
+with streamline curvature.
+   While the proposed effective-viscosity hypothesis has advantages over iso-
+tropic hypotheses, its predictions are identical to those of the algebraic stress
+model and it has the disadvantage of being restricted to two-dimensional flows.
+(The three-dimensional form is so intractable as to be of no value.) However the
+solution of the mean momentum equations expressed in terms of the effective-
+viscosity formula offers two advantages over the use of the algebraic stress
+relation. First, the inter-relation between strain and stress is retained within the
+differential equation, thus increasing numerical stability, and second, the time-
+consuming solution of the algebraic stress (simultaneous)equations is not needed.
+   A solution procedure based on an isotropic-viscosity hypothesis may use the
+proposed formulation simply by evaluating C, through (4.4)and including the
+additional term in (4.5).
+  f a cc s/a may be considered as a tensor-invariant expression of Bradshaw’shypothesis
+alz = constant.
+    22                                                                      FLM 72
+338                                S. B. Pope
+
+Appendix A
+                      Tensor functions in two dimensions
+Consider three arbitrary two-dimensional second-order tensors a, b and C. The
+Cayley-Hamilton theorem states that
+                           c2 =   c{c}-~12({c}2-{c~)).                      (A 1)
+Substituting c = a+ b into (A 1) gives
+                    ab+ ba = a{b}+ b{a}- 12({a}{b}-{ab})                    (A 2)
+and post multiplying (A 2) by b
+                                                    +
+                     bab = &(a- I,{a}) ({b},- {b2}) b{ab}.                (A 3)
+   Provided that the transposes of a and b may be expressed as linear functions
+of a and b, a general polynomial term in a and b is given by
+                           P = aal bpi a%bh...aan bPm,                      (A 4)
+where aiand pi may take any positive integer value. Define the extension of P as
+n + m and the partial orders of Pin a and b to be max aiand max pirespectively.
+   If the partial order of P is greater than one, it may be reduced to a sum of
+polynomials of partial order one by repeated substitution of (A 1). If the exten-
+sion of these polynomials is greater than two they may be reduced to a sum of
+polynomials of extension less than twoby repeated application of (A 3). Of the two
+possible tensor functions of extension two (ab and ba) only one is independent
+owing to (A 2). Thus the independent tensor functions are I,, a, b and ab (or ba).
+
+       Independent invariants of two second-order tensors in two dimensions
+Any invariant may be formed by taking the trace of the general polynomial
+expression P. If P may be reduced to polynomials of lesser partial order and
+extension, then {P} will be given by the trace of the reduced polynomials. Thus
+the independent invariants may be taken as the traces of all the linearly indepen-
+dent tensors and the invariants required to reduce the general polynomial, i.c.
+{a>,{b}, {ab), {aZ}and {b2}.
+
+                          Application to the present situation
+Section 3 requires the determination of all the independent tensor functions that
+are symmetric and have zero trace and the independent invariants that may be
+formed from s and w. s is symmetric and has zero trace, o is antisymmetric.
+  In general the tensor functions will be I,, s, w and sw. From these, only two
+tensor functions may be formed that are symmetric and have zero trace, viz.
+5 and 50-ws.      However, although the velocity field is two-dimensional, the
+Reynolds-stress tensor is not. The tensor functions must therefore be expressed
+as three-dimensional tensors, and the three-dimensional Kronecker delta I,
+must be included. This Ieads to the further tensor function $I3-&I2. Thus the
+complete sel; is +I3- $I,, s and sw -0s.
+  Of the five possible independent invariants, only two are non-zero: {s2}and
+                   A more general efjeective-viscosity hypothesis                         339
+(0,).Possible doubts concerning the practice of mixing two- and three-dimen-
+sional tensors can be dispelled. If, for example, the direction x3 is the one in
+which there is no variation, then
+
+
+
+
+Clearly I, expressed in three dimensions is not an isotropic tensor in that it may
+change under a Cartesian transformation. However, as a preferential co-
+ordinate system has been chosen, it is sufficient that I, transforms correctly
+within the restrictions of that system. That is, so long as I, transforms as an
+isotropic tensor for all transformations in the xl,x, plane, as it does, it is a pro-
+perly defined and behaved quantity.
+
+             Independent tensors a d invariants i n three dimensions
+The procedure used in two dimensions is also applicable to three dimensions.
+The procedure is reported by Spencer & Rivlin (1959, 1960) and the results for
+this situation are quoted in the text.
+
+
+Appendix B. Evaluations of the functions G
+ Since the tensors T are all linearly independent functions of s and o it is
+possible to define scalar functions H and J as follows:
+                                                    } I:yHhTh,
+                            TYS+ STY- $ l , ( s T ~ =                                   (B 1)
+                                                             h
+
+                                 TYW- UTY= C yJ’Th.                                     (B 2)
+                                                       h
+
+Substituting (3.6), (B 1) and (B 2) into (4.2)gives
+
+
+As the T ’ s are independent, their coefficients on either side of (B 3) may be
+equated;           CY = -g(b16,y+b2CGhAHY-b3CG‘hJy).                                    (B 4)
+                                               h                  h
+
+Hence, having evaluated H and J with the aid of (A 1)-(A 3), there results a set
+of simultaneous equations for G :
+                        ,   Go = 2b,g(s2}G1,
+                            G1 = - g(bl - ib2Go- 2b3(02}G’),
+                            G2 = b3gG1.
+Solving for G and substituting in ( 3 . 6 )gives
+                  a = - 2 C p [ s + g b , ( s o - ~ s ) + g b , { s 2 } ( ~ 1 312)1,
+                                                                                 -
+where                   cp= Bgb,( 1 - 2g2b;{02} - $ b ; g 2 ( S 2 ) ) - ?
+                                                                                       22-2
+340                                  8.B. Pope
+
+                                  REFERENCES
+BOUSSINESQ,  T. V. 1877 M8m. pres. Acad. Sci., 3rd edn, Paris XXIII, p. 46.
+BRADSHAW,   P. 1973 Effects of streamline curvature on turbulent flow. AGARDograph,
+   no. 169.
+BRADSHAW,   P., FERRISS,D. H. & ATWELL,N. P. 1967 Calculation of boundary-layer
+   development using the turbulent energy equation. J . Fluid Mech. 28, 593-616.
+CHAMPAGNE, F. M., HARRIS,  V. G. & CORRSIN,S. 1970 Experiments on nearly homo-
+   geneous turbulent shear flow. J . .Fluid Mech. 41, 81-139.
+LAUNDER,B . E., REECE,G. J. & RODI, W. 1975 Progress in the development of a
+   Reynolds-stress turbulence closure. J . Fluid Mech. 68, 537-566.
+LAUNDER,B. E. & SPALDING,    D. B. 1972 Mathematical Models of Turbulence. Academic.
+LUMLEY,J. L. 1970 Towards a turbulent constitutive relation. J . Fluid Mech. 4f, 413-
+    434.
+NG, K. H. 1971 Predictions of turbulent boundary-layer developments using a two-
+   equation model of turbulence. Ph.D. thesis, University of London.
+SPENCER, A. J. M. & RIVLIN,R. S. 1959 The theory of matrix polynomials and its appli-
+   cation to the mechanics of isotropic continua. Arch. Rat. Mech. Anal. 2, 309-336.
+SPENCER, A. J. M. & RIVLIN,R. S. 1960 Further results in the theory of matrix poly-
+   nomials. Arch. Rat. Mech. A n d . 4, 214-230.
+RODI,W. 1972 The prediction of free turbulent boundary layers by use of a two-equation
+   model of turbulence. Ph.D. thesis, University of London. (See also Imperial College,
+   Mech. Engng Dept. Rep. HTS/72/24.)
+RUNCHAL, A. K. & SPALDINU,  D. B.,1971 Steady turbulent flow and heat transfer down-
+   stream of a sudden enlargement in a pipe of circular cross-section. Imperial College,
+   Mech. Engng Dept. Rep. EF/TN/A/39.
+

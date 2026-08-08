@@ -1,0 +1,63 @@
+\contentsline {section}{\numberline {1}The challenge, and the metric it is scored on}{4}{section.1}%
+\contentsline {subsection}{\numberline {1.1}What the benchmark is}{4}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}The metric, read from the evaluation code}{4}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}The public leaderboard, and where we stand}{5}{subsection.1.3}%
+\contentsline {section}{\numberline {2}Our approach}{5}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Method class, stated at its real strength}{5}{subsection.2.1}%
+\contentsline {paragraph}{Update, 2026-08-07 --- that description is now true of five predictions and false of three.}{6}{section*.2}%
+\contentsline {paragraph}{Correction, 2026-08-05 --- the family we are in now carries its citation.}{6}{section*.3}%
+\contentsline {paragraph}{The published argument for the target choice.}{7}{section*.4}%
+\contentsline {subsection}{\numberline {2.2}The do-no-harm gate}{7}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Pre-registration}{9}{subsection.2.3}%
+\contentsline {paragraph}{Whose discipline this is, added 2026-08-05.}{9}{section*.5}%
+\contentsline {subsection}{\numberline {2.4}The costs of this method class, stated before the results}{9}{subsection.2.4}%
+\contentsline {section}{\numberline {3}Results, round by round}{10}{section.3}%
+\contentsline {subsection}{\numberline {3.1}The arc}{10}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Round 5: the untrained term takes the ducts}{11}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}What round 5 cost on {\small \ttfamily \let \_\textunderscore \allowbreak AR\_14\_Ret\_180}, priced in writing and paid}{12}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}The per-case ledger}{12}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}How the ``best on board'' count must be reported}{12}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}The same case, refused twice: a pattern rather than an incident}{13}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}Three refusals}{14}{subsection.3.7}%
+\contentsline {section}{\numberline {4}Where the deficit lived, and how the ducts closed it}{14}{section.4}%
+\contentsline {subsection}{\numberline {4.1}The decomposition, and the mechanism it found}{14}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Self-correction as a working practice}{15}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}The ducts: what was structurally missing}{15}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}The measurement that named the problem: the amount was right, the structure was wrong}{16}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}The falsifier: the duct zero is a property of the closure class}{17}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}What round 5 drew}{18}{subsection.4.6}%
+\contentsline {paragraph}{Independent corroboration nobody designed for.}{18}{section*.6}%
+\contentsline {subsection}{\numberline {4.7}What the two entries we passed do that we still do not}{19}{subsection.4.7}%
+\contentsline {paragraph}{Versus Reissmann, Fang \& Sandberg (0.0595; we are 0.0029 ahead on the overall and behind on all three ducts).}{19}{section*.7}%
+\contentsline {paragraph}{Versus Wu \& Zhang (0.0624; we are 0.0058 ahead on the overall and level with them on the ducts to four decimals).}{19}{section*.8}%
+\contentsline {paragraph}{An external finding worth recording.}{19}{section*.9}%
+\contentsline {section}{\numberline {5}The field-inversion line: blocked, unblocked, verified --- and then negative}{19}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Capability established, and a deviation disclosed}{20}{subsection.5.1}%
+\contentsline {paragraph}{A protocol defect found by auditing our own logs.}{20}{section*.10}%
+\contentsline {subsection}{\numberline {5.2}The blocker, and its mechanism}{21}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}The unblock, and what it cost}{21}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Independent adversarial verification}{22}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}What the rank-2 method actually is, and what a reproduction must copy}{23}{subsection.5.5}%
+\contentsline {subsection}{\numberline {5.6}The inversion that ran, and the gates it failed}{23}{subsection.5.6}%
+\contentsline {paragraph}{It ran, and it failed both gates.}{23}{section*.11}%
+\contentsline {subsection}{\numberline {5.7}Why it failed: the objective, not the method}{24}{subsection.5.7}%
+\contentsline {subsection}{\numberline {5.8}The re-inversion, in flight}{24}{subsection.5.8}%
+\contentsline {section}{\numberline {6}Verification and integrity}{25}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Leakage guards, in code rather than in prose}{25}{subsection.6.1}%
+\contentsline {paragraph}{The residual soft leakage, disclosed by us before anyone asks.}{26}{section*.12}%
+\contentsline {paragraph}{Round 5's leakage surface, and why it is the smallest the entry has ever carried.}{26}{section*.13}%
+\contentsline {subsection}{\numberline {6.2}The frozen rule, and a result nobody had to accept}{26}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}The scoring-call ledger}{27}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}The adversarial methods audit}{28}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}Seed stability and field physicality: the lines drawn before the measurements}{29}{subsection.6.5}%
+\contentsline {paragraph}{G1, measured.}{29}{section*.14}%
+\contentsline {paragraph}{G2, measured --- and the finding is against us.}{30}{section*.15}%
+\contentsline {paragraph}{G2, closed for the duct family --- by changing the method, not the threshold.}{30}{section*.16}%
+\contentsline {subsection}{\numberline {6.6}The pre-registration that said no}{31}{subsection.6.6}%
+\contentsline {paragraph}{The rule has a name, and ours is the weaker version of it (added 2026-08-05).}{32}{section*.17}%
+\contentsline {subsection}{\numberline {6.7}Corrections and withdrawals register}{32}{subsection.6.7}%
+\contentsline {section}{\numberline {7}Outlook}{33}{section.7}%
+\contentsline {subsection}{\numberline {7.1}The technical path}{33}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Submission status}{34}{subsection.7.2}%
+\contentsline {section}{\numberline {A}Provenance index}{35}{appendix.A}%
+\contentsline {section}{\numberline {B}External works cited}{37}{appendix.B}%
