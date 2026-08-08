@@ -1,9 +1,9 @@
 {
   "cells_recorded": 36,
   "cells_total_designed": 36,
-  "core_min_total": 64.2,
+  "core_min_total": 83.52,
   "design": "demo-output/website/campaign/MODEL_FORM_BATCH_DESIGN.md",
-  "generated_utc": "2026-08-08T02:57:17Z",
+  "generated_utc": "2026-08-08T03:46:17Z",
   "groups": [
     {
       "bands": {},
@@ -135,7 +135,7 @@
           "why": "1 converged member(s); a band needs at least 2"
         }
       },
-      "core_min": 29.178,
+      "core_min": 48.499,
       "excluded": [
         {
           "cell_id": "H_re10595_SpalartAllmaras",
@@ -145,7 +145,6 @@
             "x_S_over_h": null
           },
           "reasons": [
-            "residualControl not met (stopped on the backstop)",
             "no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)"
           ]
         },

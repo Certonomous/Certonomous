@@ -1,8 +1,8 @@
 # Model-form band — converged cells only
 
-Generated 2026-08-08T02:57:17Z by `sdk/scripts/model_form_batch.py --band`. Design and pre-registration: `MODEL_FORM_BATCH_DESIGN.md`.
+Generated 2026-08-08T03:46:17Z by `sdk/scripts/model_form_batch.py --band`. Design and pre-registration: `MODEL_FORM_BATCH_DESIGN.md`.
 
-36 of 36 designed cells have run, 64.20 core-min spent.
+36 of 36 designed cells have run, 83.52 core-min spent.
 
 The band is the min/max across CONVERGED members of a group. An unconverged cell is excluded and named -- the NASA hump lesson: the band that failed to contain the experiment was the band that still had an unconverged member in it.
 
@@ -24,13 +24,13 @@ Excluded from the band:
   - kOmegaSST: residualControl not met (stopped on the backstop)
   - realizableKE: residualControl not met (stopped on the backstop)
 
-## H_re10595 (1 converged, 3 excluded, 29.18 core-min)
+## H_re10595 (1 converged, 3 excluded, 48.50 core-min)
 
 - **x_R_over_h: no band** — 1 converged member(s); a band needs at least 2. Members: {'kOmegaSST': 7.647235}
 - **x_S_over_h: no band** — 1 converged member(s); a band needs at least 2. Members: {'kOmegaSST': 0.260358}
 
 Excluded from the band:
-  - SpalartAllmaras: residualControl not met (stopped on the backstop); no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)
+  - SpalartAllmaras: no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)
   - kEpsilon: solver exit code -8; S1 floating point exception; residualControl not met; no written time directory
   - realizableKE: residualControl not met (stopped on the backstop); no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)
 

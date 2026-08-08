@@ -98,3 +98,64 @@ solver's own "Selecting RAS turbulence model" line, per the family's QCR
 activity-check template.
 
 *Nothing below this line existed when the extension was launched.*
+
+## Outcome (2026-08-08, collected 22:25Z after the seventh fleet kill)
+
+**Provenance of this pre-registration, stated as planned:** the file and the
+dispatch-clamp fix entered history inside the chief's commit-everything sweep
+`cd34b0a7` (03:04:05Z, authorship claimed here); launch 03:04:27Z — 22
+seconds later. The kill (~03:40Z session limit) took the supervisor's
+watcher, not the runner: both cells finished and self-ledgered (03:17:05Z,
+03:46:17Z), the runner wrote its own stopping line, and zero results were
+lost — the detachment discipline's seventh proof.
+
+**Cost: 41.66 of 65 core-min.** Verdicts against the parent gate verbatim:
+
+| member | verdict | detail |
+| --- | --- | --- |
+| SpalartAllmaras | **EXCLUDED — converged, bubble-less** | `SIMPLE solution converged in 12361 iterations` (inside the cap, ahead of the 14–18k projection); **residualControl MET** — and the converged bottom wall has **0 of 120 faces in reversed flow: attached everywhere**. Clause 3 excludes it: no separation bubble exists in SA's steady solution, so no x_R exists to band. |
+| realizableKE | **EXCLUDED — stalled at the boundary** | 30,000-cap stop without the sentence (the 19–24k projection FALSIFIED — the descent slowed further); 0 crossings on the unconverged field (informational only). **The pre-declared boundary fires: no cap beyond 30,000.** A measured non-convergence at 5× the fast member's attainment; the hills band waits for the omega-budget work. |
+
+**The SA finding, stated with its evidence and nothing more:** this is the
+named-risk branch of P2, statable only because the sentence printed — a
+closure that *steadies to no bubble* on the periodic hills, against a
+literature in which every reference separates (x_R 4.21–4.70). Measured
+character: mean nut 0.61× the SST field's — NOT an over-diffusive blob;
+the attachment is a property of the distribution, not the magnitude.
+Candidate confound flagged for the record, not resolved here: SA's nuTilda
+in a fully cyclic domain has no sustaining inflow, and whether an
+attached-everywhere SA hills solution matches the SA literature or smells
+like a self-sustainment artifact is a zero-compute literature question,
+recommended to the liaison.
+
+**Predictions, scored as written:** P1 FALSIFIED (conjunctive — SA reached
+the sentence at 12,361, realizableKE never did). P2 FALSIFIED by its own
+named risk, in the risk's exact wording. P3 NOT EVALUABLE (no admitted
+extensions).
+
+**L-40 lever proofs (guideline 6.5):**
+- raised cap ACTIVE: SA's convergence at iteration 12,361 lies beyond the
+  old 12,000 cap that would have guillotined it — the run itself proves the
+  lever; realizableKE's log carries `Time = 30000`.
+- model selection ACTIVE: `Selecting RAS turbulence model SpalartAllmaras`
+  / `... realizableKE` in each run's own log.
+
+## The completed containment statement for review entry 1
+
+**Family-H membership final: n = 1 (kOmegaSST alone). The containment
+verdict is REFUSED — no band exists at n = 1** (the batch's ≥2 band rule,
+before the n<3 clause is even reached), and with the no-cap-beyond-30,000
+boundary now exercised, the refusal is not provisional but the family's
+settled answer at this rung. Entry 1's two questions, final form:
+
+1. **Does any closure enter [4.21, 4.70]?** No closure is measured inside
+   it, and the modes of failure are now fully characterized: kOmegaSST
+   converges +72% above the band; SpalartAllmaras converges to a solution
+   with **no bubble at all**; kEpsilon dies in an S1 FPE at iteration 13;
+   realizableKE will not converge by 30,000.
+2. **Does the inter-model band contain it?** There is no inter-model band
+   to ask about: the four-closure family produces exactly one member on
+   this case under a uniform gate. **The hills' model-form channel is a
+   family-convergence wall, not a spread measurement** — the epistemic
+   finding entry 1 actually bought, now complete on its own pre-declared
+   terms.

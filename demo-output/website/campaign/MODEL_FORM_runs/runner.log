@@ -460,3 +460,9 @@
 [2026-08-08T03:04:30Z] queue gate: 2 solver container(s) live (s1wa_eval001, a3_sublu_tpc1_n15), under the ceiling of 3; proceeding
 [2026-08-08T03:04:30Z] H_re10595_SpalartAllmaras: superseding an excluded record (residualControl not met (stopped on the backstop); no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first))
 [2026-08-08T03:04:30Z] H_re10595_SpalartAllmaras: starting
+[2026-08-08T03:17:05Z] H_re10595_SpalartAllmaras: EXCLUDED (no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)); qoi {'x_R_over_h': None, 'x_S_over_h': None}; 12.48 core-min (session 12.48/65.0)
+[2026-08-08T03:17:05Z] queue gate: 2 solver container(s) live (s1wa_eval002, a3_sublu_tpc1_n15), under the ceiling of 3; proceeding
+[2026-08-08T03:17:05Z] H_re10595_realizableKE: superseding an excluded record (residualControl not met (stopped on the backstop); no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first))
+[2026-08-08T03:17:05Z] H_re10595_realizableKE: starting
+[2026-08-08T03:46:17Z] H_re10595_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop); no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)); qoi {'x_R_over_h': None, 'x_S_over_h': None}; 29.18 core-min (session 41.66/65.0)
+[2026-08-08T03:46:17Z] model-form batch stopping: 41.66 core-min spent this run

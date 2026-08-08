@@ -2,7 +2,7 @@
   "cell_id": "H_re10595_realizableKE",
   "cells": 15600,
   "converged": false,
-  "core_min": 29.177,
+  "core_min": 11.923,
   "crossings_x_over_h": [],
   "excluded_reasons": [
     "residualControl not met (stopped on the backstop)",
@@ -10,8 +10,8 @@
   ],
   "family": "H",
   "group": "H_re10595",
-  "iteration_backstop": 30000,
-  "iterations": 30000,
+  "iteration_backstop": 12000,
+  "iterations": 12000,
   "mesh": {
     "aspect_ratio_note": "advisory only per Mesh Standard 3.3; never a lone rejection",
     "breaches": [],
@@ -31,7 +31,7 @@
   "ranks": 1,
   "regime": "re10595",
   "residual_control_met": false,
-  "timestamp": "2026-08-08T03:46:17Z",
+  "timestamp": "2026-08-08T02:57:17Z",
   "toolchain": "native OpenFOAM v2606 (openfoam2606 launcher)",
-  "wall_seconds": 1750.6
+  "wall_seconds": 715.4
 }
