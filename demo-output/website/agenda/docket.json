@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-08T02:28:44+00:00",
+ "generated_at": "2026-08-08T22:59:53+00:00",
  "proposals": [
   {
    "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -1867,6 +1867,28 @@
    "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
   },
   {
+   "id": "the-lever-prints-its-own-banner-or-the-launcher-echoes-the-dict",
+   "objective": "Close the four structurally echo-less lever classes found by the dead-lever audit: every load-bearing solver lever must either print its own runtime banner (sub-LU style) or be echoed into the run log by the launcher at t=0, so charter v1.5 section 9 levers_verified_active is satisfiable at write time instead of failing retroactively",
+   "rationale": "The 2026-08-08 dead-lever audit (the dead-lever audit record of 2026-08-08) verified 126 lever-conclusion pairs from runtime logs and found that every one of its 16 unverifiable-from-logs entries traces to four lever classes that stock OpenFOAM structurally never echoes: (1) fvSchemes tokens -- no scheme selection is ever printed on success, which is why the TMR NACA 0012 scheme-substitution root cause, the A3 Stage-2 shock-scheme claim, and six DEFECT_ROBUSTNESS scheme arms rest on field-delta inference instead of an echo; (2) fvSolution 'consistent yes' (SIMPLEC) -- simpleFoam prints identical 'SIMPLE:' banners either way, which is why the F5c -10.5% headline's algorithm attribution and the Ahmed A4 baseline half are unverifiable forever from existing logs; (3) boundary-condition types -- never echoed at runtime, distinguishable only through outcome shifts (the freestreamVelocity-vs-inletOutlet arms' CD0 discriminator); (4) dictionary values with no printout -- mu in thermophysicalProperties, MRF omega magnitude/sign. The positive template already exists in the lab twice over: the DALinearEqn sub-LU patch prints 'DAFOAM_SUBPC_TYPE=lu: ASM sub-block PC set to complete LU' at activation, the archive holds a negative control proving the off-state (cbfs_regress log: no banner, reason -9), and every conclusion-bearing sub-LU run asserts the banner before trusting the result; DAFoam's daOptions dump and OpenFOAM's turbulence-model printCoeffs are the same pattern natively. Proposed mechanics, report-only, for Infra to adopt with their own verification: (a) the common launch wrappers (the sanctioned solve launcher and the sdk workflow builders that assemble cases) echo the scheme dictionary, the solution dictionary, the MRF and thermophysical dictionaries and the boundary-condition files into the run log before invoking the solver, delimited with a LEVER-ECHO header and the case path plus a sha256 of each file so the echo is bound to the artifact that ran; (b) any lab-built patch that adds a lever must print an activation banner AND leave a distinguishable off-state (the sub-LU B-1 hazard -- unrecognized env values silently fall back to stock with no tell -- is what the banner-assert discipline exists to catch; new patches should hard-fail on unrecognized values instead of falling through); (c) the record-writing convention gains the assertion pattern: a levers_verified_active entry cites either the code's own banner line or the launcher's LEVER-ECHO block line, and a pre-registration naming a lever from classes 1-4 is rejected at filing unless the plan's launcher does the echo. Cost is zero solver time; the alternative is what the audit measured -- 16 conclusions that must carry unverifiable-from-logs on their face because the evidence was structurally impossible to have kept.",
+   "citations": [
+    "The dead-lever audit record of 2026-08-08",
+    "The verification charter, section 9, the levers-verified-active field",
+    "The lessons record, L-40",
+    "The sub-LU preconditioner patch, whose activation banner is the exemplar",
+    "The QCR activity check of 2026-08-08",
+    "The F5bc unsteady statistics record, the 2026-08-08 lever caveat"
+   ],
+   "est_core_min": 0.0,
+   "cost_basis": "measured; the audit that produced the class inventory is already spent, the mechanics are launcher/wrapper code changes with no solver time",
+   "expected_knowledge_gain": "The four lever classes that today can only be verified by field-delta inference or not at all become log-provable at launch for every future run; levers_verified_active stops being retroactively unsatisfiable, and the F5c-class failure (a load-bearing algorithm attribution with no possible surviving evidence) becomes unreachable",
+   "source_kind": "report",
+   "status": "done",
+   "created_at": "2026-08-08",
+   "hard_criterion": "instrument-check",
+   "decided_at": "2026-08-08T22:59:53+00:00",
+   "outcome": "Adopted with the family guidelines at v1.1 section 1.7 after the supervisor retested the structural claim on a live log: the running hills arm's solver log greps zero for scheme tokens or the consistent flag, and the sub-LU activation banner named as the template is in the archived patch. Implemented: the fenced hash-bound lever echo module, wired into the workflows' shared solver runner for every solver launch and into the sanctioned solve launcher, with the mechanical levers-verified-active field on both model-form record paths that says plainly when a log carries no echo. Utility logs stay pristine. Suite 1210 passed with zero failures."
+  },
+  {
    "id": "w1-yplus-restart-rename-blindness-in-the-batch-gate",
    "objective": "Close the same y+ restart-rename blindness in the mega-batch y+ gate that was just found and fixed in the bump collector, or show it cannot fire there",
    "rationale": "Found 2026-08-02 while fixing the bump ladder's own collector, and reported rather than edited because the mega-batch workflow is a shared module whose tests were red from another well's in-flight work at the time. OpenFOAM renames a function object's output by appending the restart time when the file already exists on a restart. The lab already knows this for the coefficient history, and the bump ladder's stitcher handles it for the force histories; the TMR verification workflow reads both the coefficient files and the wall-shear files through wildcards and so is safe. The one function object nobody wildcarded is y+. In the bump ladder this published the medium rung's y+ from iteration 5,000 beside a Cd from iteration 16,000, recovered only by reading the renamed, time-suffixed y+ file that sat beside a header-only original; the correction moved the numbers by 0.002 to 0.02 percent, small in magnitude and not in kind. The mega-batch collector sorts a recursive glob for the bare y+ filename and feeds the last match straight into its y+ gate, which raises when it fails, so this is a GATE reading a possibly stale value rather than a reported number. Two things make it latent rather than armed, and both need checking rather than assuming: a single-run case never triggers the rename, and the sort is over path strings so directories sort lexically while they are named for a run's start time in any case. The question is whether any mega-batch row has ever been restarted, and the ledger can answer it.",
@@ -2118,6 +2140,27 @@
    ],
    "status": "proposed",
    "created_at": "2026-08-01T08:18:22Z"
+  },
+  {
+   "id": "a-mesh-enters-with-its-birth-certificate-or-not-at-all",
+   "objective": "Give the mesh birth-certificate rule (Verification Charter v1.5 section 9) its mechanics: the certificate lives beside the mesh, hash-bound to it, and every workflow that lets a mesh enter a case asserts it at entry",
+   "rationale": "The 2026-08-08 archive sweep (the mesh birth-certificate audit record of 2026-08-08) found 178 unique reachable meshes: 105 already certified, 47 clean-but-uncertified, and exactly one born broken -- the A3 vcoarse pyHyp mesh, which entered a case three times under reconstruction because nothing at entry asked for its certificate. The single biggest gap is structural, not individual: the mesh cache stores bare polyMesh with no quality record, so 400+ act-six, act-seven, act-nine and study run dirs carry a mesh with no record beside it even though geometry_study's gate DID run checkMesh at generation -- the reading was transient (L-40: the switch that ran must be provable from the artifact). Proposed mechanics, report-only, for Infra to adopt with their own verification: (1) certificate = log.checkMesh beside the case (existing convention) plus a hash-bound certificate sidecar beside every .mesh-cache entry carrying points_sha256, verdict, cells, maxAR, maxNonOrtho, maxSkew, generator, created_at. (2) Insertion points: the head engineer's mesh-cache save (~line 1006) writes the certificate at cache-save; cached_mesh_available (~971) treats a cache entry without a matching-hash certificate as NOT cached, which is the charter's quarantine; restore_cached_mesh (~986) asserts hash+verdict at entry and copies the certificate into the case. the DAFoam docker engine's mesh-cache mirror (~lines 216 to 250) gets identical mechanics -- this is the pyHyp entry path, the pathology's generator. the geometry workflow persists the log its gate judged (mesh_quality_reading ~455, retry_mesh_quality ~590, rung builder ~1388-1402) into the case dir and hands it to save_mesh_to_cache. the model-form batch script, already the exemplar (retained logs, hard gates at mesh_verdict ~569), adds assert-at-entry so an absent or unreadable log.checkMesh refuses the solver launch instead of surfacing as post-hoc exclusion. (3) Pre-registrations and docket items naming a mesh rung carry its points_sha256 plus verdict so a born-broken mesh cannot re-enter under a new case name.",
+   "citations": [
+    "The mesh birth-certificate audit record of 2026-08-08",
+    "The verification charter, section 9, mesh birth certificate",
+    "The lessons record, L-40 companion paragraph",
+    "The A3 sub-LU result record, where the born-broken specimen is indicted",
+    "The pyHyp aspect-ratio generator finding"
+   ],
+   "est_core_min": 0.0,
+   "cost_basis": "measured; the audit's own 85 s of serial checkMesh is already spent, the mechanics themselves are code changes with no solver time",
+   "expected_knowledge_gain": "Every mesh that enters an archive, a pre-registration, or a ladder rung is provably born clean at the artifact level, and a missing certificate is a refusal at entry rather than a forensic finding months later; the A3 vcoarse failure mode (same broken mesh, three case reconstructions, zero certificate checks) becomes unreachable",
+   "source_kind": "report",
+   "status": "done",
+   "created_at": "2026-08-08",
+   "hard_criterion": "instrument-check",
+   "decided_at": "2026-08-08T22:59:53+00:00",
+   "outcome": "Adopted as Mesh Standard v1.1 section 6 after the supervisor re-verified the audit by hand: the born-broken A3 vcoarse specimen's checkMesh reproduces digit-for-digit (aspect ratio 2.08e95, 23 negative-volume cells), a born-clean certificate reproduces digit-for-digit, and the dedupe-by-points-hash claim holds. Implemented at all three mesh-cache layers plus a fourth chokepoint the proposal missed (the shock-bench module cache two unsteady workflows share): certificate at save from the case's own checkMesh record, quarantine at lookup for any entry without a matching-hash accepted certificate, certificate carried into the case at restore, the geometry workflow saving after its gate so the certificate is the gate's own persisted reading, and the model-form batch refusing a launch on an uncertified or breaching mesh with R12 exemptions preserved. A failed check never certifies. 22 tests; suite 1210 passed with zero failures."
   },
   {
    "id": "w7-two-agents-one-question",
@@ -3532,6 +3575,25 @@
    "hard_criterion": "existing-family",
    "launch_prompt": "F5c backward-facing step, supervisor-ordered diagnostic sequence (SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 5 -- its wording is binding; NEXT_CASES_SLATE.md item 3 has the background). Existing cases: demo-output/website/campaign/F5c_runs/ (six runs, three rungs, plus sign_convention_control). Step 0, zero compute: re-verify the step-height nondimensionalisation in the reattachment post-processing (slate item 3 candidate b) -- recompute x_r/H by hand from one raw wall-shear profile; if the metric is wrong, stop, that is the finding. Step 1, zero compute: extract the boundary-layer profile immediately upstream of the step from the existing converged fields, measure delta/H, and compare against Driver & Seegmiller's stated inlet condition at its experimental tolerance (their TM and the AIAA paper state the boundary layer at the step; cite the exact number you grade against WITH its source before comparing). If the audit FAILS: write the verdict, file the inlet-repair successor with its own prediction, do NOT spend the probe run. Step 2 (only if step 1 clean): one pimpleFoam probe run at the middle rung resolution, ~25 core-min budget, with instantaneous reattachment-location sampling (wall-shear sign change, written every time step over a stated window after transients); verdict per the pre-registered gate. Retain everything under F5c_runs/ per the retained-artifact rule; evidence file in demo-output/website/campaign/; docket update on this item; correct the product-list F5c line if it still carries the OOM framing.",
    "dismiss_reason": "Superseded 2026-08-07 by the supervisor review filings f5c-inlet-development-audit (approved) and f5c-unsteady-probe-run (proposed): the two-item structure is binding because the probe is conditional on the audit outcome, and this combined filing carried no docket entry. Chief reconciliation of the concurrent duplicate noted by the filing agent."
+  },
+  {
+   "id": "kfamily-fpe-shared-diagnosis-bump-and-hills",
+   "objective": "One diagnosis arm for the S1 floating-point-exception crash class that has now hit the k-family closures in two geometries: the bump at high Re within about 45 iterations and the hills kEpsilon at iteration 13",
+   "rationale": "Family B's re1p2e7 group lost kEpsilon, kOmegaSST and realizableKE to sigFpe crashes within about 45 iterations, and family H's kEpsilon died the same S1 death at iteration 13 on a fully compliant mesh where kOmegaSST converges cleanly. Two geometries, one crash signature, and one shared construction: both families carry this batch's derived-epsilon pieces -- an epsilon field built from Cmu k omega with epsilonWallFunction lowReCorrection on wall-resolved grids -- which makes a single root cause plausible and worth one arm rather than two. What a SHARED root cause would look like, stated in advance: the FPE traceback names the same equation and the same region in both geometries (the epsilon or k equation at wall-adjacent or freestream-boundary cells, a division on collapsing k or epsilon), and one lever -- seeding epsilon from the converged same-case kOmegaSST field's k and omega instead of the uniform derivation, or an epsilonMin floor -- removes the crash in BOTH. What geometry-specific causes would look like: tracebacks naming different equations or stages (the hills' meanVelocityForce interplay at iteration 13 versus the bump's high-Re freestream scaling at 45), or a lever that fixes one geometry and not the other. Either answer routes the batch's k-family coverage: shared means one initialization fix re-opens four dead cells across two families; specific means the exclusions are case physics and stand. The arm inherits review entry 9's per-quantity settle-monitoring design: every probe writes per-iteration min and max of k, epsilon and nut beside the residuals, so the collapse is watched in the quantity, not inferred from the crash line.",
+   "citations": [
+    "The supervisor negative-verdict review of 2026-08-07, entries 1 and 9",
+    "The model-form band artifact, groups B re1p2e7 and H re10595",
+    "The family H hills pre-registration and its outcome section",
+    "The model-form batch design, deviation 2 on the derived epsilon freestream",
+    "LESSONS entry L-40 on lever activity proof"
+   ],
+   "est_core_min": 25.0,
+   "cost_basis": "measured where it can be: the crashes themselves cost 0.04 to 0.07 core-min each to reproduce, the instrumented probes are the same seconds-scale runs with monitoring on, and the priced bulk is the two lever arms if they survive to run -- family H's kEpsilon at the measured 7 core-min class and one bump cell at the measured 2.3 core-min class, with margin",
+   "expected_knowledge_gain": "Either one initialization defect explains four dead cells across two families and the k-family coverage of the standing batch re-opens for the cost of a seeding change, or the crash class is shown geometry-specific and the exclusions harden into case findings. Both outcomes also hand the monitor standard a worked example of per-quantity crash forensics on the S1 class",
+   "source_kind": "measurement",
+   "status": "approved",
+   "created_at": "2026-08-08T03:08:00Z",
+   "hard_criterion": "instrument-check"
   },
   {
    "id": "f5c-unsteady-probe-run",
