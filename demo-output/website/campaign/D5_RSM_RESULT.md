@@ -125,3 +125,19 @@ trap, and `scripts/case_preflight.sh`, which now catches
 `residualControl` naming a field the selected turbulence model does not
 transport *before* a run starts, rather than after it grinds to a
 half-million-iteration cap.
+
+## 2026-08-08 audit-trap warning (dead-lever audit `DEAD_LEVER_AUDIT_2026-08-08.md`, 946e4a26)
+
+**`D5_rsm_runs/{SSG,LRR,EBRSM}/log.run` are NOT those runs' solver logs.** Each
+is a copy of the kOmegaSST duct-baseline DONOR case's log (its `Case` header
+line 16 names `dafoam/ladder-b/duct_baseline/AR_1_Ret_360`; line 55 selects
+kOmegaSST) — an artifact of the case dirs having been cloned from the donor. A
+reader verifying this record's model levers from the case dirs alone would
+wrongly conclude the RSM models never ran. **The real runtime proofs live in
+the solve registry:** `solve_registry/d5_SSG_20260729T022019Z.log:55`
+"Selecting RAS turbulence model SSG" (Case line `:16` = `D5_rsm_runs/SSG`),
+`d5_LRR_20260729T022019Z.log:55`, `d5_EBRSM_20260729T022019Z.log:55`, plus the
+continuation/restart logs `d5b_SSG_…:46`, `d5b_LRR_…:46`,
+`d5g_EBRSM_20260729T023927Z.log:46` — the same logs this record's 2026-07-30
+residual re-verification already read. Conclusions unaltered; this note exists
+so no future auditor mistakes the donor copies for dead levers.

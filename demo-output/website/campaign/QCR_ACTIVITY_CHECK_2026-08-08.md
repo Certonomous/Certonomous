@@ -98,3 +98,13 @@ move → **the nulls are real physics on both separated legs, and the
 three-leg class sentence stands on its evidence.** The hold at review
 entries 1–2 is the chief's to lift; this record changes nothing in the
 review file and edits no leg's own records. Cost: 0 solver core-min.
+
+## 2026-08-08 addendum — the hills SST control leg's citation gets its log line (dead-lever audit `DEAD_LEVER_AUDIT_2026-08-08.md`, 946e4a26)
+
+The check-1 table's hills SST control row cited "(2026-08-05 gate record)"
+without a solver-log line, because `F6b_runs/medium/` keeps no `log.simpleFoam`.
+The audit located the run's genuine log in the solve registry:
+`demo-output/website/solve_registry/f6b2_medium_20260805T171046Z.log:50`
+"Selecting RAS turbulence model kOmegaSST", whose `Case` header names
+`campaign/F6b_runs/medium`. All four legs of check 1 now carry runtime
+selection lines; nothing else in this record changes.

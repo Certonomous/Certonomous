@@ -63,6 +63,14 @@ converged" message appears in the original
 `/home/ubuntu/certonomous-runs/study-cube-2904cb/log.simpleFoam`, nor in
 either of tonight's; all three ran to the fixed 300-iteration cap.
 
+> **[Path repaired 2026-08-08, dead-lever audit `DEAD_LEVER_AUDIT_2026-08-08.md`
+> 946e4a26: `certonomous-runs/study-cube-2904cb/` no longer exists on disk. The
+> production run's log survives at
+> `/home/ubuntu/Certonomous/mission-output/geometry-study/study-cube/log.simpleFoam`
+> (kOmegaSST selection at `:56`), where the zero-convergence-line finding was
+> re-verified — still 0 occurrences, exactly as recorded above. The replicates'
+> logs remain at `/home/ubuntu/certonomous-runs/w3-published-rung-cube/{a,b}/`.]**
+
 Final-20%-window statistics from each run's own `coefficient.dat`:
 
 | run | ranks | cells | mean Cd | 2σ | as % of Cd | as % of the published ±0.0078 |
