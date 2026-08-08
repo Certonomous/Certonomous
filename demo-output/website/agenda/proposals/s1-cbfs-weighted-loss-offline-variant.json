@@ -1,0 +1,26 @@
+{
+ "id": "s1-cbfs-weighted-loss-offline-variant",
+ "well": "S1",
+ "objective": "Offline, validation-only weighted-loss variant on the S1 CBFS reinversion: re-weight the existing eval-16 residual field by window/near-wall membership and determine whether the achieved beta field already contains the window answer under a loss that actually looks at it",
+ "rationale": "Supervisor review entry 12 (SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md, commit 94349b83): the reinversion's G2 fail decomposes -- window error -94.9 percent, near-wall -95.9 percent, 77.6 percent of residual loss at y>2 where reference-level mismatch lives -- leaving two live hypotheses (budget-limited vs loss-placement). This is the entry-7 spatially-weighted-loss diagnostic extended to the S1 objective: criterion existing-family, highest information per core-min in the family (two independent measurements point at it). Computed entirely from fields already on disk (repaired baseline at cbfs_inv/340, final at cbfs_inv/2500, beta checkpoints, ledgered J history); pre-registration commits the weighting schemes on stated grounds, the entry-7 hurt-cap discipline, and the outcome mapping BEFORE any number is computed. Capturable -> a weighted reinversion arm (~250 core-min class) is filed as its own priced item; not capturable -> a documented G2-bar revision proposal, loudly. Stage 2 HOLDS on this variant's answer per the entry-12 ruling.",
+ "est_core_min": 0.0,
+ "predicted_memory_gb": 1.0,
+ "cost_basis": "zero solver core-min: host-side arithmetic (numpy) on written OpenFOAM fields and existing checkpoints; the only new artifact is the DV-to-serial permutation, recovered exactly from cellProcAddressing at zero compute",
+ "gate": "Pre-registered verdict rule fixed before computing: CAPTURABLE iff the achieved beta's weighted-loss reduction R >= 0.70 under BOTH primary schemes (W1 window-only, W2 window-plus-near-wall) AND the entry-7 hurt cap holds inside the weighted regions (hurt < 10 percent of gross reduction); otherwise NOT CAPTURABLE. Sensitivity schemes reported, never deciding",
+ "expected_knowledge_gain": "Whether G2's fail is a placement-of-effort artifact of the equal-weight loss (window answer already in hand) or a real inability of the production-term beta to serve the window -- the branch point entry 12 holds Stage 2 on",
+ "source_kind": "measurement",
+ "citations": [
+  "demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md",
+  "demo-output/website/dafoam/ladder-b/S1_CBFS_REINVERSION_RESULT.md",
+  "demo-output/website/dafoam/ladder-b/S1_CBFS_REINVERSION_PREREGISTRATION.md"
+ ],
+ "status": "approved",
+ "created_at": "2026-08-08T02:30:00Z",
+ "decided_at": "2026-08-08T02:30:00Z",
+ "decision_note": "Filed and dispatched by the supervisor's entry-12 ruling (highest-information arm; Stage 2 holds on its answer). Zero solver budget; pre-registration-first.",
+ "claim": {
+  "claimed_by": "solver-agent s1-cbfs-objective-repair (S1 session)",
+  "claimed_at": "2026-08-08T02:30:00Z",
+  "note": "Dispatched directly by the supervisor's entry-12 ruling as the follow-on to s1-cbfs-objective-repair-and-reinversion. Offline only; the continuation arm and the TV follow-up wait behind this verdict. Do not start this item elsewhere."
+ }
+}
