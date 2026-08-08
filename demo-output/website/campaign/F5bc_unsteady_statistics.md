@@ -123,6 +123,22 @@ catastrophe. The equilibrium-k inlet repair (`--inlet-bl-turbulence`, built and 
 `backstep_case.py`) becomes its **cheap first leg**, and the arm's pre-registration **must be
 rewritten against the corrected numbers before any launch**.
 
+**2026-08-08 lever caveat (charter v1.5 §9, unverifiable-from-logs; ordered by the chief on the
+dead-lever audit `DEAD_LEVER_AUDIT_2026-08-08.md`, 946e4a26).** The −10.5% corrected headline's
+attribution to "the SIMPLEC coarse case" — and every SIMPLE-vs-SIMPLEC row in the diagnostic
+table above — **cannot be verified from any runtime log, existing or possible**: (a) the six
+original diagnostic runs' solver logs were never archived (`F5c_runs/` holds only
+`sign_convention_control`; the extended run's case lived in a since-deleted scratchpad, see the
+case path at `solve_registry/f5c_extended_simplec20k_20260730T042423Z.log:10`); (b) even a
+surviving log could not prove it, because simpleFoam prints identical `SIMPLE:` banners whether
+`fvSolution` sets `consistent yes` or not — OpenFOAM never echoes the flag. THE SWITCH YOU SET IS
+NOT THE SWITCH THAT RAN: the algorithm attribution rests on this record's configuration
+statements, not on log evidence, and this caveat travels on the −10.5% number's face. Binding on
+the retargeted unsteady-probe arm (`f5c-unsteady-probe-run`): its rewritten pre-registration's
+**first act must regenerate this number with provable levers** — archived case dirs, logs
+retained, and the algorithm choice made log-provable (cat `fvSolution` into the run log at
+launch, per the instrumentation proposal filed with the audit).
+
 ---
 
 ## F5b — Pitching NACA 0012 Dynamic Stall
