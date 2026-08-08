@@ -275,6 +275,30 @@ gradient-accuracy claim made.
    chapter changes shape: the conditioning-wall narrative becomes a dead-lever narrative with a
    measured epilogue.
 
+**ENTRY 8 CLOSED (2026-08-08 night, 551a7ba5 / e4280b79 / 9bb948b2): all three rulings executed;
+"one token was the wall" is now record-grade.**
+- The negative control reproduced the record failure BIT-FOR-BIT: iteration-0 residual, the
+  entire printed CL stall sequence, and the terminal denormal (3.945602898014e-308) all match
+  the 2026-07-30 record to every digit, from the same starting number as the converged arm
+  (1.839195903440e-01). Identical state, opposite outcomes, one token. Causation nailed at 8.53
+  core-min.
+- The FD arm PASSED per its pre-registered rule: AoA 0.18%, the true max-gradient component
+  (shape[115]) 0.93%; two small-signal components honestly unverdicted as step-inconsistent
+  rather than forced. The adjoint is bit-reproducible across three independent runs. The M6
+  gradient is a NUMBER now, not an existence proof. The S1 index-label lesson fired en route
+  (a wrapped-row mis-parse) and the discipline caught it pre-verdict — disclosed, corrected.
+- The warm-start audit: every record-grade conclusion COLD-CLEAN by construction (staged
+  per-arm copies, bit-identical first continuity errors). Two WARM flags, neither load-bearing.
+  **Chief rulings on the discretion items:** (1) the R5/M6 matrix dumps get NO regrade — ~2%
+  warm state drift under order-of-magnitude conclusions doesn't move anything; a dated
+  cross-reference note on the R5 record pointing at WARMSTART_AUDIT.md suffices; (2) the D3 n15
+  variant-lever nulls stand as flagged: cold rerun REQUIRED before any future citation — that
+  requirement is the record now; (3) the honest invalidation of the priced fast-warm-primal
+  signature, replaced by the validated 55× continuity-error discriminator, is exactly what the
+  audit-plan discipline is for.
+- The A3 ladder's climb (taller rungs, now with the PC active and an FD-verified gradient
+  protocol) resumes as normal family work through the docket. The .tex handoff fires now.
+
 ## 9. Model-form family B (bump) — no band, all four closures stall
 The archived rung never met residualControl either. **New diagnostic:** [FILE] one diagnosis arm
 (~15 core-min): the bump at doubled iteration cap with per-quantity settle monitoring — decides
