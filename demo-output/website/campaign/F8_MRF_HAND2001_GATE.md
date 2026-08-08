@@ -472,6 +472,24 @@ the ORIGINAL relaxation; (arm 2) if arm 1 diverges too, original uniform
 init at reduced relaxation. Either arm isolates one variable; both inherit
 the §11 gate and prediction verbatim.
 
+**Dated note (2026-08-08, chief-ordered per entry 3 of
+`demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md`, outcome block at
+commit df755b49; evidence: the S10/S12 monitor-standard replay in
+`demo-output/website/campaign/ZERO_COMPUTE_DIAGNOSTICS_2026-08-08.md` Task 3, commit
+6d806733):** this section's claim that the run read "'converged' to any residual-only
+monitor" **overstates**. The replay of the archived history with the standard's own detector
+functions, verbatim, shows p sat at 0.51 — loudly unconverged — and detector **S6 does flag
+the run** (residual stall on p and nuTilda against the case's declared `residualControl`
+1e-4), so a residual-only monitor was not, in fact, uniformly satisfied. The true gap the
+specimen exposes is narrower and worse: the flags that fire say only "unconverged" —
+FLAG-class, same as a mild stall — and **no rule in the standard converts a
+monitored-quantity magnitude explosion (Mx ~ 1e99 behind a 1e-8 momentum residual) into
+FATAL**. That gap is exactly what the filed S10d amendment
+(`agenda/proposals/s10d-monitored-quantity-magnitude-explosion.json`) addresses, with its
+adoption evidence already attached (974 archived histories replayed: fires on exactly the 5
+genuinely diverged runs, zero false positives); adoption is routed to the Infra family. The
+original wording above stands unedited per the supersede-don't-delete convention.
+
 ## 14. §10 item 2 executed: the MRF flux/frame audit — three conventions verified correct, one concrete defect named, with source lines (2026-08-07, zero compute)
 
 Read against the OpenFOAM v2606 sources installed on this box

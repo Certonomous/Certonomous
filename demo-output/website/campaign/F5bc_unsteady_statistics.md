@@ -45,6 +45,11 @@ Solver: `simpleFoam` (incompressible, steady RANS), kOmegaSST.
 | 5 | Freestream turbulence assumption | Tu=2%/μt/μ=10 vs. Tu=0.5%/μt/μ=1 | Crossing locations unchanged to within 0.1H. **Ruled out.** |
 
 ### Verdict
+> **[SUPERSEDED 2026-08-08 — see the dated amendment at the end of this F5c section.]** The
+> "4–12× reattachment error" below was an instrument sign-convention defect, not physics; the
+> corrected reading is x_r/H ≈ 5.6 = −10.5% vs Driver–Seegmiller. The original text is retained
+> unedited per the supersede-don't-delete convention.
+
 **GATE NOT REACHED — reported as a documented, unresolved finding, not a shipped result**, per the campaign's hard rule against shipping a failed gate as a pass. This is a genuinely different (and more severe) failure mode than the one the task brief anticipated ("linear eddy-viscosity RANS under-predicts, landing near 5–6H"): the deviation here is 4–12×, not 15–20%, and it does not converge under mesh refinement, wall-treatment correction, or algorithm change — it wanders. The leading remaining hypothesis (not tested within this session's budget) is that this specific case exhibits real low-frequency unsteadiness that needs an unsteady (pimpleFoam, time-averaged) solve rather than steady SIMPLE/SIMPLEC; a second candidate is the imposed *uniform* k/omega inlet profile (vs. a real turbulent boundary layer's near-wall TKE peak), which was never itself varied in shape, only in bulk level.
 
 ### Pressure-recovery distribution
@@ -80,6 +85,43 @@ Recorded (bottomWallDownstream Cp vs x/H) in `F5c_runs/*/pressure_profile.json` 
 **The more likely origin, found in `NOT_PASSING_REGISTER.md` (GROUP 1: ADJOINT MEMORY WALL) and `demo-output/website/dafoam/DAFOAM_CASE_STATUS.md` (§B3):** this lab has a real, well-documented "adjoint memory wall" affecting several DAFoam adjoint cases on large meshes (A3 ONERA M6 fine/coarsened — confirmed OOM during Jacobian-coloring and again during the GMRES linear solve; naca0015_sail_medium and naca4412_wing_coarse — consistent truncation pattern; and **B3 CBFS field-inversion pilot — a *curved backward-facing step*, DAFoam `DASimpleFoam` adjoint case**, whose `check_totals` GMRES solve returns `PETSc KSPConvergedReason = -9` (DIVERGED_NANORINF — NaN/Inf detected before any GMRES progress), reproduced across 4 independent configurations). B3 is under active investigation this same session (`demo-output/website/dafoam/ladder-b/B3_work/CBFS/` has uncommitted changes as of this task). B3 CBFS genuinely combines both halves of the claim — memory exhaustion in the adjoint pipeline *and* NaN/Inf ("blow-up") gradients — on a case that shares the words "backward-facing step" with F5c but is otherwise unrelated: different geometry (curved vs. flat step), different solver (DAFoam adjoint vs. plain `simpleFoam`), different failure family (Group 1 memory wall vs. Group 3 solver convergence). A handoff note written late in a long session, referring to "the backward-facing-step case," has an obvious way to cross the two. That is the best-supported account of how the claim formed, though it is inference from the available records, not a recovered primary document — it is offered as the likely explanation, not asserted as proven provenance.
 
 **Net effect on F5c's status:** unchanged from the verdict above (GATE NOT REACHED, reattachment length off by 4–12×, non-monotonic under SIMPLEC). The "OOM/gradient blow-up" framing should not be repeated for F5c going forward; if it needs a home, it belongs on B3 CBFS (`NOT_PASSING_REGISTER.md` §B3), where it is already correctly recorded.
+
+### 2026-08-08 AMENDMENT — the "4–12× reattachment error" never existed: wallShearStress sign-convention defect, corrected reading x_r/H ≈ 5.6 (−10.5%)
+
+**Ordered by the chief supervisor per entry 5 of
+`demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md` (outcome block of
+2026-08-08, commit df755b49), on the evidence of the inlet-development audit in
+`demo-output/website/campaign/ZERO_COMPUTE_DIAGNOSTICS_2026-08-08.md` Task 1 (commit 6d806733).
+The original text above is retained unedited; this amendment supersedes it — nothing is deleted.**
+
+**The correction.** The "4–12× reattachment error" this record's Physics/Verdict sections are
+built on was an instrument defect, not a flow result: the original F5c detector read OpenFOAM's
+`wallShearStress` function object with the sign backwards. On a lower wall the object returns
+τ_x **negative** under attached forward flow (`ssp = (−Sfp/magSfp) & Reffp` with
+`Reff = −nuEff·devTwoSymm(grad(U))`), so the neg→pos crossing the detector called "reattachment
+at 0.5–1.5H" was actually the downstream edge of the secondary corner eddy, and the "second,
+unexplained separation at x/H ≈ 6–8 persisting to exit" was the real reattachment followed by
+ordinary attached flow. This was proven at commit **fe121af2 (2026-07-31)** — nine days before
+this amendment — by the archived **`sign_convention_control`** run (plain channel, no step:
+attached forward flow, τ_x negative at all 100 wall faces,
+`evidence/wallShearStress_bottomWall_iter322.raw`), and documented in
+`sdk/workflows/backstep_case.py::parse_wall_raw`; neither this record nor the review was updated
+at the time, which is the record-reconciliation failure the chief's review names.
+
+**The corrected reading:** under the correct sign the same archived solutions reattach in the
+≈5.6–8H crossing family this record had mislabelled as a "second separation" — the SIMPLEC coarse
+case at **x_r/H ≈ 5.6, i.e. −10.5% versus Driver–Seegmiller's 6.26 ± 0.10** — inside the
+documented linear-eddy-viscosity underprediction family, not 4–12× outside it. The evidence-record
+table's x_r/H column and every deviation percentage above are readings of the mislabelled
+corner-eddy crossing and are superseded accordingly; the pre-fix SIMPLEC "wandering"
+(non-monotonic 1.07–1.49H) is, under the corrected sign, wandering of the corner-eddy edge — the
+primary reattachment's own wander has not yet been measured cleanly.
+
+**Arm retargeting (chief ruling, same entry):** the unsteady-probe arm (`f5c-unsteady-probe-run`)
+**stays live but retargeted at the honest question** — a −10.5% steady miss with wander, not a
+catastrophe. The equilibrium-k inlet repair (`--inlet-bl-turbulence`, built and unrun in
+`backstep_case.py`) becomes its **cheap first leg**, and the arm's pre-registration **must be
+rewritten against the corrected numbers before any launch**.
 
 ---
 
