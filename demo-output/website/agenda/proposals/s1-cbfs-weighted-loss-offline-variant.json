@@ -14,13 +14,15 @@
   "demo-output/website/dafoam/ladder-b/S1_CBFS_REINVERSION_RESULT.md",
   "demo-output/website/dafoam/ladder-b/S1_CBFS_REINVERSION_PREREGISTRATION.md"
  ],
- "status": "approved",
+ "status": "done",
+ "result_note": "Computed 2026-08-08, zero solver core-min as priced. VERDICT: CAPTURABLE on the pre-registered rule -- R_W1 window-only 0.9494, R_W2 window+near-wall 0.9468 (bar 0.70), entry-7 hurt cap clean (window 1.74 percent, W2 1.02, near-wall exactly zero); sparse-point sensitivity agrees (0.9340); region-equalized 0.6348 reported, driven by the loud relocation census (y>2 hurt/gross 35.0 percent, remainder 19.8 -- entry 7's mechanism, operating exactly where the equal-weight loss looks and the window does not). Trajectory decomposition: out-of-window effort share tripled in the run's second half (in/out rms ratio 11.2 -> 3.7), the temporal form of the placement hypothesis. Bonus finding: exact DV-to-serial permutation recovered from cellProcAddressing (5.1e-15), retracting the reinversion FD 'neighborhood' labels by dated addendum (numbers unaffected; all three verified components sit in the separated shear layer). Action per the pre-registered mapping: s1-cbfs-weighted-reinversion-arm filed priced at ~250 core-min (proposed, not self-approved) with a masked-beta nonlocality control in its pre-flight; no G2-bar revision -- the bar caught a real property of the loss. Full record: S1_CBFS_WEIGHTED_LOSS_VARIANT.md.",
  "created_at": "2026-08-08T02:30:00Z",
  "decided_at": "2026-08-08T02:30:00Z",
  "decision_note": "Filed and dispatched by the supervisor's entry-12 ruling (highest-information arm; Stage 2 holds on its answer). Zero solver budget; pre-registration-first.",
  "claim": {
   "claimed_by": "solver-agent s1-cbfs-objective-repair (S1 session)",
   "claimed_at": "2026-08-08T02:30:00Z",
-  "note": "Dispatched directly by the supervisor's entry-12 ruling as the follow-on to s1-cbfs-objective-repair-and-reinversion. Offline only; the continuation arm and the TV follow-up wait behind this verdict. Do not start this item elsewhere."
+  "note": "Dispatched directly by the supervisor's entry-12 ruling as the follow-on to s1-cbfs-objective-repair-and-reinversion. Offline only; the continuation arm and the TV follow-up wait behind this verdict. Do not start this item elsewhere.",
+  "released_at": "2026-08-08T02:55:00Z"
  }
 }

@@ -88,3 +88,72 @@ uncapped regions are exactly where entry 7's blind-strip mechanism would hide.
   window signal was spent?
 
 *Nothing below this line existed when this file was committed.*
+
+---
+
+## Part II — results (computed 2026-08-08 ~02:4x UTC, zero solver core-min)
+
+### A1 + A2: verdict inputs
+
+| scheme | baseline Σw·d² | final Σw·d² | R | bar |
+|---|---|---|---|---|
+| **W1 window-only (primary)** | 15.9587 | 0.8075 | **0.9494** | ≥ 0.70 ✓ |
+| **W2 window ∪ near-wall (primary)** | 27.4659 | 1.4618 | **0.9468** | ≥ 0.70 ✓ |
+| W3 region-equalized (sensitivity) | — | — | 0.6348 | reported |
+| W4 Wu/Zhang sparse proxy, 27 unique cells, Ux only (sensitivity) | 0.23186 | 0.01531 | **0.9340** | reported |
+
+Hurt census (entry-7): window **1.74%** of gross reduction (183 cells), W2 support
+**1.02%**, near-wall outside window **exactly 0.00%** (zero hurt cells) — both primary
+caps hold with 5–10x margin. **Relocation census, loud:** y>2 hurt = 1.1531 over
+4,288 cells against only 3.2939 gross reduction there (**35.0%**); remainder 19.8%.
+The entry-7 relocation mechanism is real in this run — but it operates **outside** the
+physics regions, in exactly the free-channel band where the equal-weight loss told the
+optimizer to work. W3's sub-bar value is driven by that: its 1/share weighting hands
+the 3.5%-share remainder a 28x weight, so the sensitivity scheme is mostly measuring
+the relocation, consistently with the primary story, and it does not decide. W4 — the
+reproduction target's own loss shape — agrees with the primaries (0.9340).
+
+### VERDICT: CAPTURABLE, per the pre-registered rule
+
+The achieved beta field already contains the window answer under every loss that
+looks at the window (R = 0.93–0.95 across three independent shapes). G2's 26.9% is a
+placement-of-effort artifact of equal-weight training combined with a
+population-imbalanced accounting: the bar demands >1,050 of the global top-decile
+2,100 cells from a 1,773-cell window — i.e. >59% of ALL window cells must outrank
+19,227 outside cells — while the loss actively directs late-run effort outside.
+
+### A4: the trajectory decomposition says the same thing in time
+
+rms(beta−1) in-window vs out (exact DV→serial permutation), against accepted J_qoi:
+
+| iter | J_qoi | rms in-window | rms outside | ratio in/out |
+|---|---|---|---|---|
+| 1 | 0.95879 | 0.0045 | 0.0005 | 9.9 |
+| 3 | 0.46109 | 0.0881 | 0.0078 | 11.2 |
+| 5 | 0.43742 | 0.0961 | 0.0107 | 9.0 |
+| 7 | 0.28719 | 0.3012 | 0.0650 | 4.6 |
+| 9 | 0.26690 | 0.3441 | 0.0869 | 4.0 |
+| 11 | 0.25847 | 0.3602 | 0.0966 | 3.7 |
+
+Effort is window-dominant throughout (ratio never below 3.7), but the out-of-window
+share **triples in the second half** (ratio 11.2 → 3.7 from iter 3 to 11) — the
+optimizer harvested the window first and was mid-pivot toward the y>2 residual when
+the budget guard stopped it. The temporal form of the placement hypothesis, confirmed.
+
+### Stated limit of the offline analysis
+
+Beta acts on the flow nonlocally; this analysis cannot prove that the achieved
+IN-window deviations alone (with out-of-window beta reset to 1) preserve R_W1. That
+is a single ~8 core-min masked-beta validation solve, recommended as the pre-flight
+control of the weighted reinversion arm — not run here, per this item's zero-solver
+scope.
+
+### Action per the pre-registered mapping
+
+Weighted REINVERSION arm filed as its own priced item:
+`s1-cbfs-weighted-reinversion-arm` (proposed, NOT self-approved) — W2-shaped weighted
+variance loss, the W4 sparse-point form named as its pre-registered variant, the
+masked-beta control in its pre-flight, ~250 core-min class. The continuation arm
+stays second-priority per the entry-12 ruling; the TV follow-up stays filed as-is.
+No G2-bar revision is proposed — the bar did its job (it caught a real property of
+the equal-weight loss), and the fix belongs in the loss, not the bar.

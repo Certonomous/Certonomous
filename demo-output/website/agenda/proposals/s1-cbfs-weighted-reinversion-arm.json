@@ -1,0 +1,19 @@
+{
+ "id": "s1-cbfs-weighted-reinversion-arm",
+ "well": "S1",
+ "objective": "Weighted reinversion on the repaired CBFS case: the same verified production-term beta inversion driven by a W2-shaped loss (window plus near-wall variance) that looks only where the model-form error lives, with the Wu/Zhang sparse-point form as the pre-registered variant",
+ "rationale": "Filed by the pre-registered outcome mapping of s1-cbfs-weighted-loss-offline-variant (verdict CAPTURABLE: the achieved equal-weight beta already delivers R=0.9494 window / 0.9468 window+near-wall / 0.9340 sparse-point reductions with the entry-7 hurt cap clean at 1.0-1.7 percent, while the equal-weight loss relocated error into y>2 at 35 percent hurt/gross and tripled the out-of-window effort share in the run's second half). A loss that stops looking at the free channel removes the placement defect at its source instead of revising G2's bar. Pre-flight control, first solve of the item: ONE masked-beta validation run_model (achieved beta inside window+near-wall, 1 elsewhere, ~8 core-min) to measure how much of R_W1 the in-window deviations alone retain -- the nonlocality check the offline variant could not do; its result gates whether the inversion restarts from masked beta or from 1. Requires a weighted-variance objective the current DAFunction does not expose: either DAFunction variance with a cell-source restriction or the probePoint sparse form -- EITHER WAY the new objective configuration gets its own FD gate (3 components, 1 percent bar, -primalTol 1e-8 protocol) before any optimization, per the reinversion item's own lesson. G1-class gate re-based to the weighted baseline; G2 re-scored as-is (prediction: passes when the loss stops paying for y>2). Stage 2 trains on whichever beta survives this arm, per the entry-12 hold.",
+ "est_core_min": 250.0,
+ "predicted_memory_gb": 8.0,
+ "cost_basis": "measured on the repaired case at -primalTol 1e-8, --cpus=2: ~20 core-min per compute_totals evaluation (16 evals ran at 320.13), ~8 per primal-only run. Budget: masked-beta control 8 + FD gate on the new objective ~40 + ~9-10 evaluations ~200 = ~250. Fewer evals than the equal-weight run needed: the A4 trajectory shows the window signal was largely harvested by eval 12",
+ "gate": "Pre-registration before any solve, as always: (1) masked-beta control reported with a pre-stated retention prediction; (2) FD gate 3 components under 1 percent on the weighted objective; (3) G1w: weighted J_qoi falls to <= 0.70 of the weighted baseline within budget; (4) G2 unchanged (>50 percent top-decile in window) -- scored against the SAME bar the equal-weight run failed, which is the point; (5) hurt cap: window+near-wall hurt < 10 percent of gross, y>2 relocation census reported loudly with no cap",
+ "expected_knowledge_gain": "Whether removing the free-channel term from the loss localizes the correction (G2 pass) without losing the window answer -- the direct test of the placement hypothesis, and the beta field Stage 2 would actually train on",
+ "source_kind": "measurement",
+ "citations": [
+  "demo-output/website/dafoam/ladder-b/S1_CBFS_WEIGHTED_LOSS_VARIANT.md",
+  "demo-output/website/dafoam/ladder-b/S1_CBFS_REINVERSION_RESULT.md",
+  "demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md"
+ ],
+ "status": "proposed",
+ "created_at": "2026-08-08T02:50:00Z"
+}

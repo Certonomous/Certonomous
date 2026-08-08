@@ -193,3 +193,23 @@ out-of-process execution plus per-eval checkpoints again made recovery a file re
 - `S1_CBFS_INVERSION_RESULT.md` (the failed run and the diagnosis this item executed)
 - `W4_ADJOINT_PC_UNBLOCK.md` (the adjoint capability; §5c correction addendum)
 - `W2_WU_ZHANG_DESTRUCTION_FIML_READING.md` (loss conventions; the w3 spec)
+
+---
+
+## Correction addendum — dated 2026-08-08 (weighted-loss variant prep)
+
+The FD cell "neighborhood" labels in headline item 5 and §3's context ("step crest /
+downstream recovery / upstream channel", cells 5363/5428/5491) are **wrong**: they
+applied serial-order cell centres to DV-order indices. The exact DV→serial
+permutation (recovered from `cellProcAddressing`, verified to 5.1e-15 against the
+written beta field) places all three components in the **separated shear layer just
+downstream of the crest** — serial cells 187/330/471 at (0.446, 0.995),
+(0.930, 0.926), (1.089, 0.900). The FD **measurements stand unchanged** (perturbation
+and gradient share the same DV indexing; 0.032%/0.115%/0.009%, no sign flips); what
+is retracted is the "three distinct mesh neighborhoods" spread claim — the verified
+components are the |g| ranks 1, 5, 4, clustered where the top of the gradient
+distribution physically lives. The same mislabeling caveat plausibly applies to
+W4 §5d's cell labels on the corrupted objective (flagged to W4's owner, not edited
+here). Every loss-geography, G2, and limiter audit in this document is unaffected:
+those were computed on written serial-order fields with serial centres throughout.
+Full detail: `S1_CBFS_WEIGHTED_LOSS_VARIANT.md` §0b.
