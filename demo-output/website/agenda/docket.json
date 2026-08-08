@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-07T22:48:18+00:00",
+ "generated_at": "2026-08-07T22:52:59+00:00",
  "proposals": [
   {
    "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -1835,8 +1835,15 @@
    "cost_basis": "estimate; a read over the existing ledger plus at most a few lines of collection code and its test. No solver. The equivalent fix in the bump collector took no compute at all",
    "expected_knowledge_gain": "A gate that raises on a value it may have read from the wrong iteration is worse than a reported number that is wrong, because it decides rather than informs",
    "source_kind": "report",
-   "status": "proposed",
-   "created_at": "2026-08-02"
+   "status": "done",
+   "created_at": "2026-08-02",
+   "claim": {
+    "claimed_by": "infrastructure family supervisor (supervision pass session)",
+    "claimed_at": "2026-08-07T22:51:32+00:00",
+    "note": "Released on completion, 2026-08-07. Executing both halves of the gate under the coordinator's directive: Time-based selection in the mega-batch y+ read with a renamed-restart regression test, plus the ledger retrospective."
+   },
+   "decided_at": "2026-08-07T22:52:59+00:00",
+   "outcome": "Both halves of the gate closed. The mega-batch y+ gate now selects its state by the Time written inside the file across the wildcarded y+ outputs, matching the bump collector's repair, with a regression test that builds the renamed-restart layout and proves the fresh state wins where the old read picked a header-only leftover. The retrospective found zero affected rows: all 52 Ahmed ledger rows are single-attempt, every attempt builds in a wiped case directory since the family's first commit, and the 17 surviving case directories hold no renamed file, no multi-run time directory and no header-only original. The finding was latent, never armed, and the ledger stands."
   },
   {
    "id": "w7-s7-withdraw-or-keep",
@@ -2712,10 +2719,11 @@
     "NASA Turbulence Modeling Resource, wall-mounted hump",
     "closure-challenge-benchmark"
    ],
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-31T08:18:16Z",
    "decided_at": "2026-07-31T22:18:09Z",
-   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+   "outcome": "Run 2026-08-07 at the repriced 6 core-min against the pre-registered two-gate record (W1_HUMP_CHALLENGE_PREREGISTRATION.md, committed 74797a57 before any solve). Gate V PASS: the fresh SST leg reproduces the verified F6a answer to 0.0000/0.0003 x/c against a 0.005 tolerance and sits inside NASA's own published SST window. Gate P vs CFDVAL2004 at +/-5%: separation 0.6544 vs 0.665 (-1.59%) PASS; reattachment 1.2531 vs 1.100 (+13.92%) FAIL -- the documented linear-eddy-viscosity bubble-length bias, now confirmed at the challenge conditions on a verified pipeline, exactly as predicted in the registration. Measured cost 5.58 core-min gross (wall x 4 ranks) vs 6 approved -- the repricing verified itself; the original 60 would have missed by 10.8x. Evidence: campaign/W1_HUMP_CHALLENGE_RESULTS.md; registry w1hump_challenge_sst_20260807T224139Z."
   },
   {
    "id": "w8-a-hurt-cap-that-states-where-it-came-from",
@@ -2756,8 +2764,9 @@
     "Spalart, Strategies for turbulence modelling and simulations, the QCR2000 constitutive relation"
    ],
    "launch_prompt": "F6a NASA hump, QCR2000 arm. This arm is contingent: it runs when the approved w1-hump-challenge-conditions run executes, on its mesh and settings. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 2 first. Add one solve with the QCR2000 term active and nothing else changed, and report the bubble length beside the baseline arm and beside the hills QCR result. Budget 8 core-min marginal. Record: evidence in the challenge-run's own results file, docket update on this item, honest verdict.",
-   "status": "proposed",
-   "created_at": "2026-08-07T22:10:00Z"
+   "status": "done",
+   "created_at": "2026-08-07T22:10:00Z",
+   "outcome": "Executed 2026-08-07 with the challenge-conditions run per this item's own contingency clause, under the negative-verdict review section 2 pre-approval, kOmegaSSTQCR the single change on the identical mesh and settings. OUTCOME TWO as pre-registered with a 0.010 x/c materiality bar: reattachment moved +0.0022 x/c (away from experiment), separation -0.0006; the QCR2000 constitutive term does not touch the hump bubble. The constitutive/anisotropy route is ruled out on this leg; the omega budget (separated-shear-layer stress magnitude) is implicated -- the review's own dichotomy, decided. Cross-leg table delivered in campaign/W1_HUMP_CHALLENGE_RESULTS.md with the ducts row (QCR large: 0.0811->0.0455, 0.0775->0.0400) and the hills row honestly PENDING until f6b-qcr2000-on-the-hills runs its own registration. Cost 4.71 core-min gross vs 8 approved. Registry w1hump_challenge_sstqcr_20260807T224152Z."
   },
   {
    "id": "r4-b3-nonfinite-primal-state",
@@ -3387,10 +3396,11 @@
    "cost_basis": "estimate anchored to measured siblings: the hypersonic blunt body rungs on the same solver ran at single digit core minutes per mesh at comparable cell counts, and the 20 prices two rungs of an explicit two dimensional Euler solve near sixty thousand and a quarter million cells, plus margin for the acoustic time step at Mach 10; no double Mach history exists in the lab, so the figure is an estimate and is graded against the measured cost afterwards per the charter's factor three rule",
    "expected_knowledge_gain": "Three distinguishable outcomes, each changing a decision. A pass extends the compressible credential line from steady shock positions to an unsteady self similar shock structure, and the case becomes the standing regression anchor for any future flux or limiter change on the compressible stack. A fail on the trajectory angle with a clean locator is a real finding about the central upwind flux on strong unsteady reflections and bounds what the lab may claim for the supersonic line. A no verdict at zero solves means the locator cannot express the tolerance, which prices the detector work this family needs before it can be graded at all",
    "source_kind": "measurement",
-   "status": "proposed",
+   "status": "done",
    "created_at": "2026-08-07T22:30:00Z",
    "hard_criterion": "2",
-   "launch_prompt": "Double Mach reflection, Woodward-Colella 1984, on rhoCentralFoam (native openfoam2606, the F3/F4 stack -- see demo-output/website/campaign/F3_supersonic_exact_theory.md and F4_hypersonic_blunt_body.md for the proven conventions). Step 1, zero compute, BEFORE any mesh exists: write the pre-registration -- (a) choose ONE formulation and state it: inclined-shock on a rectangular domain (shock at 60 degrees to the wall starting at x0=1/6, post-shock states on left inlet and on the bottom ahead of x0, time-dependent top boundary tracking the shock -- the fiddly part) OR a physical 30-degree ramp mesh with a normal Mach 10 shock; do not run both, one variable per rung; (b) extract the reference primary triple-point trajectory angle from Woodward & Colella's own figures, state its provenance tier and digitisation uncertainty; (c) declare the tolerance and the locator increment (density-gradient shock locator; increment is set by cell size -- F3's lesson says this is the weak instrument, check it can express the tolerance at both resolutions or stop at NO VERDICT with zero solves). Step 2: coarse rung (~240x60 or equivalent, gamma=1.4, inviscid, endTime 0.2); step 3: fine rung (~960x240). Extract the triple-point trajectory from a time series of shock positions, not one frame. Report PASS/FAIL/NO VERDICT against the pre-registered gate; record the wall-jet qualitative state at each rung as the dissipation note, not as a gate. Budget 20 core-min, 4 ranks, setsid for the solves, retain logs, controlDict, and the locator script under demo-output/website/campaign/DMR_runs/ per the retained-artifact rule. Evidence file in demo-output/website/campaign/, docket update on this item."
+   "launch_prompt": "Double Mach reflection, Woodward-Colella 1984, on rhoCentralFoam (native openfoam2606, the F3/F4 stack -- see demo-output/website/campaign/F3_supersonic_exact_theory.md and F4_hypersonic_blunt_body.md for the proven conventions). Step 1, zero compute, BEFORE any mesh exists: write the pre-registration -- (a) choose ONE formulation and state it: inclined-shock on a rectangular domain (shock at 60 degrees to the wall starting at x0=1/6, post-shock states on left inlet and on the bottom ahead of x0, time-dependent top boundary tracking the shock -- the fiddly part) OR a physical 30-degree ramp mesh with a normal Mach 10 shock; do not run both, one variable per rung; (b) extract the reference primary triple-point trajectory angle from Woodward & Colella's own figures, state its provenance tier and digitisation uncertainty; (c) declare the tolerance and the locator increment (density-gradient shock locator; increment is set by cell size -- F3's lesson says this is the weak instrument, check it can express the tolerance at both resolutions or stop at NO VERDICT with zero solves). Step 2: coarse rung (~240x60 or equivalent, gamma=1.4, inviscid, endTime 0.2); step 3: fine rung (~960x240). Extract the triple-point trajectory from a time series of shock positions, not one frame. Report PASS/FAIL/NO VERDICT against the pre-registered gate; record the wall-jet qualitative state at each rung as the dissipation note, not as a gate. Budget 20 core-min, 4 ranks, setsid for the solves, retain logs, controlDict, and the locator script under demo-output/website/campaign/DMR_runs/ per the retained-artifact rule. Evidence file in demo-output/website/campaign/, docket update on this item.",
+   "outcome": "Run 2026-08-07 against DMR_PREREGISTRATION.md (committed 74797a57 before any mesh), including the dated pre-launch amendment: the canon carries no reachable numeric triple-point band (W&C paywalled, Kemm read in full, Vevek paywalled, LAVA conventions-only, DTIC 403), so the gates stood on exact incident-shock kinematics plus structure and self-similarity detectors. Gate V PASS both rungs: Mach-10 shock position error +0.0034/+0.0040 vs +/-0.0231 (0.15%/0.17% of travel), fine rung better. Gate P2 rung-to-rung PASS: chi 9.07 vs 8.21 deg constrained (|d|=0.87<=1.5), free-slope 9.94/9.89 (0.05 deg across 2x refinement). Two clauses FAILED AS WRITTEN and stay: P1's two-kink leading-front detector (the secondary triple point lives on the reflected shock -- a registration-geometry defect; the 30-contour deliverable plainly shows the full double-Mach structure at 1/120) and P2's intercept clause (offset constant in CELLS across rungs, 21.6 vs 21.2 -- instrument threshold bias, vanishing under refinement, not a self-similarity breach). Jet clause PASS both rungs. chi published as a measurement. Cost 2.4 vs 20 filed -- the estimate graded against itself at ~8x cheap-side, outside the factor-3 rule, decomposition recorded; a 1/240 successor prices at ~15 from this measurement. Evidence: campaign/DMR_RESULTS.md, campaign/DMR_runs/."
   },
   {
    "id": "dafoam-simplec-comparison-audit",
