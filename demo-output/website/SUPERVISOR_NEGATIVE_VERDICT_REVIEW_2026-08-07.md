@@ -208,6 +208,27 @@ now known-active) on the 21,840-cell archived sweep mesh, which passes the mesh 
 the proposal's cost basis, ~30 core-min. The question entry 8 asked is still open and now sharper:
 the wall has never been probed with the preconditioner actually on.
 
+**Re-file outcome (same day, 0b4f3005 / b4c4d017): NOT EVALUABLE ON THIS HOST — a second
+not-evaluable with a DIFFERENT blocker, and the interpretation discipline held.** The mesh gate
+passed pre-launch this time (checkMesh asserted before the pre-reg committed: Mesh OK, aspect
+608, non-orth 61.5°), both levers carried their L-40 activity proofs in the log (DAOption dump
+`transonicPCOption 1;` + the sub-LU banner — the first M6 run ever with the transonic PC live),
+and then sub-LU's factorization proved memory-bound on M6's 6-field np=4 sub-blocks: OOM at 10g,
+19.94 GiB + 12 GB swap at the 20g cap with ZERO completed KSP blocks in 28 min, killed under the
+host-protection floor. The agent refused to map a memory death onto "conditioning wall
+confirmed" — correct, and quoted as precedent: a not-evaluable that names its blocker beats a
+false confirmation. Spend 127.5 of 30 core-min (4.25×), incurred inside the pre-registered
+runs-to-reason-codes commitment and ended by the host floor, which outranks it — accepted, graded.
+**Chief rulings:** (1) the **transonicPCOption:1-ALONE arm is approved** (~28 core-min, fits the
+record's 5.9 GiB ILU envelope) — it tests the never-active lever solo and is the sharpest
+remaining question; (2) sub-LU at np=8/16 is DEFERRED behind it — if PC-alone converges, the
+sub-block-size engineering question becomes moot for A3; (3) the **silent warm-start finding**
+(pyDAFoam writes the primal end state back into time 0, so every rerun silently warm-starts;
+renameSolution hard-raises on leftover time dirs, pyDAFoam.py:1543) is ordered FILED as its own
+proposal for the DAFoam family: an L-40-class hazard in the state dimension — "the cold start you
+assumed is not the start that ran" — with a priced audit of which archived rerun-based
+conclusions could have been warm-started. Filed for chief pricing, not self-executed.
+
 ## 9. Model-form family B (bump) — no band, all four closures stall
 The archived rung never met residualControl either. **New diagnostic:** [FILE] one diagnosis arm
 (~15 core-min): the bump at doubled iteration cap with per-quantity settle monitoring — decides
