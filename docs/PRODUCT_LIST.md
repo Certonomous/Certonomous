@@ -642,6 +642,22 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   clause repeatedly the one that failed — five instances). Confidence-line proposal filed so the machinery starts
   capturing what reliability curves need; committee-grids held-count contradiction filed for correction.
 
+### 2026-08-08 (late night) — the L-40 loop closes: lesson to charter to audits to adopted machinery in one day
+- BOTH STANDARDS ADOPTED (ea0f7d9d + 4a8c92b4, suite 1210/0 over both together): mesh birth certificates live at all
+  FOUR cache/entry chokepoints — the Infra verifier found a fourth the proposal missed (shock_bench's module-level
+  cache) — with hash-bound certificates, quarantine-at-lookup, refuse-launch-pre-solve, R12 exemptions preserved, 22
+  new tests; lever instrumentation live as lever_echo.py (sha256-bound echo blocks, hard-fail on unrecognized values,
+  mechanical `levers_verified_active` builder wired into the shared solver runner and both model-form record paths,
+  schema-via-Infra for the Cases family). MESH_STANDARD v1.1; family guidelines v1.1; every verification done with
+  the adopter's own hands (born-broken specimen reproduced digit-for-digit; the no-echo claim retested on a LIVE log).
+- The full L-40 arc, for the record: Katie's order (morning) → LESSONS L-40 + Verification Charter v1.5 (7be0afc2) →
+  dead-lever audit 126-verified/none-new (946e4a26) + mesh audit 178-swept/one-born-broken (f41e969f) → retroactive
+  annotations landed (e9a651e9) → enforcement machinery adopted and green (ea0f7d9d). The gap the charter admitted
+  ("nothing mechanical verifies a dispatch's levers") is now closed mechanically for solver launches.
+- S1 LINE CLOSED end-to-end (8b7b6489): four fleet deaths spanned, zero lost work, every failed gate pre-committed,
+  both wrong predictions graded with measured reasons; W1-only filed with its priors-design trigger; Stage 2's hold
+  carries a named unblock.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
