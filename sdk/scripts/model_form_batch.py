@@ -458,6 +458,74 @@ def naca_model_context(model: str) -> Iterator[None]:
 # ---------------------------------------------------------------------------
 
 _CONVERGED_RE = re.compile(r"SIMPLE solution converged in (\d+) iterations")
+_RESID_RE = re.compile(r"Solving for (\w+), Initial residual = ([0-9.eE+-]+)")
+
+
+def residual_history(log_text: str) -> dict[str, list[float]]:
+    """Initial residual per field, in log order (p appears once per
+    corrector; medians below make that harmless)."""
+    out: dict[str, list[float]] = {}
+    for name, val in _RESID_RE.findall(log_text):
+        out.setdefault(name, []).append(float(val))
+    return out
+
+
+def _median(values: Sequence[float]) -> float:
+    ordered = sorted(values)
+    return ordered[len(ordered) // 2]
+
+
+def adjusted_settle_verdict(log_text: str, history: dict[str, list[float]],
+                            spec: dict[str, Any]) -> tuple[bool, dict[str, Any]]:
+    """The pre-registered adjusted settle criterion, evaluated mechanically.
+
+    Replaces ONLY the convergence-sentence clause (gate criterion 2) for a
+    cell whose record shows an unreachable-tolerance stop; every threshold
+    comes from the committed spec file the pre-registration froze
+    (see ``--adjusted-settle``), never from this run. Clauses: each named
+    residual's final-quarter median is under its cap (one decade above the
+    standard target) and has fallen less than ``plateau_factor`` from the
+    previous quarter (demonstrably floored); each named QoI's trailing
+    ``tail_iters`` peak-to-peak is at or under its decision-scaled cap.
+    """
+    detail: dict[str, Any] = {"residual_plateau": {}, "qoi_tail_p2p": {}}
+    ok = True
+    factor = float(spec.get("plateau_factor", 2.0))
+    tail = int(spec.get("tail_iters", 2000))
+    residuals = residual_history(log_text)
+    for field_name, cap in (spec.get("residual_floor") or {}).items():
+        series = residuals.get(field_name) or []
+        n = len(series)
+        if n < 8:
+            detail["residual_plateau"][field_name] = {
+                "error": f"history has {n} samples; too short to judge"}
+            ok = False
+            continue
+        quarter = max(n // 4, 1)
+        last = _median(series[-quarter:])
+        prev = _median(series[-2 * quarter:-quarter])
+        floored = last >= prev / factor
+        under = last <= float(cap)
+        detail["residual_plateau"][field_name] = {
+            "median_final_quarter": last, "median_previous_quarter": prev,
+            "floored_within_factor": factor, "floored": floored,
+            "cap": float(cap), "under_cap": under}
+        ok = ok and floored and under
+    for qoi, cap in (spec.get("qoi_p2p_max") or {}).items():
+        series = history.get(qoi) or []
+        if len(series) < tail:
+            detail["qoi_tail_p2p"][qoi] = {
+                "error": f"history has {len(series)} samples; "
+                         f"shorter than the {tail} tail window"}
+            ok = False
+            continue
+        window = series[-tail:]
+        p2p = max(window) - min(window)
+        met = p2p <= float(cap)
+        detail["qoi_tail_p2p"][qoi] = {"p2p": p2p, "cap": float(cap),
+                                       "tail_iters": tail, "met": met}
+        ok = ok and met
+    return ok, detail
 
 
 def log_verdict(log_text: str) -> dict[str, Any]:
@@ -682,7 +750,8 @@ def _write_record(cell: Cell, record: dict[str, Any]) -> None:
 
 def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
            returncode: int, qoi_names: Sequence[str],
-           settle_on: str, *, backstop: int | None = None) -> dict[str, Any]:
+           settle_on: str, *, backstop: int | None = None,
+           adjusted_settle: dict[str, Any] | None = None) -> dict[str, Any]:
     """Apply the pre-registered gate and build the cell record."""
     log_text = (remote / "log.simpleFoam").read_text(errors="replace") \
         if (remote / "log.simpleFoam").exists() else ""
@@ -720,16 +789,27 @@ def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
     if returncode != 0:
         reasons.append(f"solver exit code {returncode}")
     reasons.extend(logv["fatal"])
+    adjusted_admit = False
+    adjusted_detail: dict[str, Any] | None = None
     if not logv["residual_control_met"]:
-        # "stopped on the backstop" only when the run actually reached it: a
-        # cell that crashed at iteration 45 did not stop on any backstop
-        # (finding C6 -- the three B_re1p2e7 FPE records carried this wording
-        # untruthfully; their verdicts were right, the evidence text was not).
-        last = logv["last_iteration"]
-        if backstop is not None and last is not None and last >= backstop:
-            reasons.append("residualControl not met (stopped on the backstop)")
-        else:
-            reasons.append("residualControl not met")
+        if adjusted_settle is not None:
+            adjusted_admit, adjusted_detail = adjusted_settle_verdict(
+                log_text, history, adjusted_settle)
+        if not adjusted_admit:
+            # "stopped on the backstop" only when the run actually reached
+            # it: a cell that crashed at iteration 45 did not stop on any
+            # backstop (finding C6 -- the three B_re1p2e7 FPE records
+            # carried this wording untruthfully; their verdicts were right,
+            # the evidence text was not).
+            last = logv["last_iteration"]
+            if backstop is not None and last is not None and last >= backstop:
+                reasons.append(
+                    "residualControl not met (stopped on the backstop)")
+            else:
+                reasons.append("residualControl not met")
+            if adjusted_detail is not None:
+                reasons.append(
+                    "adjusted settle criterion NOT met (see settle_criterion)")
     if settle["unsettled"]:
         reasons.append("S12 unsettled stop on " + settle_on)
     mesh_reasons, mesh_exemption = apply_mesh_gate(meshv, cell.family)
@@ -737,7 +817,7 @@ def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
     if any(v is None for v in qoi.values()):
         reasons.append("QoI missing from the coefficient history")
 
-    return {
+    record: dict[str, Any] = {
         "cell_id": cell.cell_id, "group": cell.group_id,
         "family": cell.family, "regime": cell.regime, "model": cell.model,
         "params": cell.params,
@@ -756,10 +836,22 @@ def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
         "toolchain": "native OpenFOAM v2606 (openfoam2606 launcher)",
         "timestamp": _now(),
     }
+    if adjusted_settle is not None:
+        record["settle_criterion"] = {
+            "kind": "adjusted, pre-registered",
+            "prereg": adjusted_settle.get("prereg"),
+            "spec": {k: v for k, v in adjusted_settle.items()
+                     if k != "prereg"},
+            "measured": adjusted_detail,
+            "admitted_in_place_of_residual_control": adjusted_admit,
+        }
+    return record
 
 
 def run_cell_P_or_B(cell: Cell, log: Callable[[str], None], *,
-                    backstop: int = BATCH_BACKSTOP) -> dict[str, Any]:
+                    backstop: int = BATCH_BACKSTOP,
+                    adjusted_settle: dict[str, Any] | None = None
+                    ) -> dict[str, Any]:
     """Flat plate (P) or bump in channel (B): blockMesh families."""
     if cell.family == "P":
         level = [lv for lv in tv.LEVELS if lv.name == "medium"][0]
@@ -796,7 +888,8 @@ def run_cell_P_or_B(cell: Cell, log: Callable[[str], None], *,
     result = tv._foam(["simpleFoam"], remote, "log.simpleFoam", timeout=5400)
     wall = time.monotonic() - start
     record = _grade(cell, remote, out_dir, wall, result.returncode,
-                    qoi_names, settle_on, backstop=backstop)
+                    qoi_names, settle_on, backstop=backstop,
+                    adjusted_settle=adjusted_settle)
     record["cells"] = level.cells
     record["iteration_backstop"] = backstop
     record["patch"] = patch_name
@@ -808,7 +901,9 @@ def run_cell_P_or_B(cell: Cell, log: Callable[[str], None], *,
 
 
 def run_cell_N(cell: Cell, log: Callable[[str], None], *,
-               backstop: int = BATCH_BACKSTOP) -> dict[str, Any]:
+               backstop: int = BATCH_BACKSTOP,
+               adjusted_settle: dict[str, Any] | None = None
+               ) -> dict[str, Any]:
     """NACA 0012 on the TMR-distributed C-grid, one alpha, one closure.
 
     ``run_naca_level`` applies the TMR ladder's OWN settle/extraction rules
@@ -839,7 +934,7 @@ def run_cell_N(cell: Cell, log: Callable[[str], None], *,
         # own raise-on-nonzero (finding C4); a raise lands in workflow_error
         # and the gate below reads the solver log itself.
         record = _grade(cell, remote, out_dir, wall, 0, ("Cd", "Cl"), "Cl",
-                        backstop=backstop)
+                        backstop=backstop, adjusted_settle=adjusted_settle)
         if workflow_error is not None:
             record["workflow_error"] = workflow_error
             record["converged"] = False
@@ -857,10 +952,13 @@ def run_cell_N(cell: Cell, log: Callable[[str], None], *,
 
 
 def run_cell(cell: Cell, log: Callable[[str], None], *,
-             backstop: int = BATCH_BACKSTOP) -> dict[str, Any]:
+             backstop: int = BATCH_BACKSTOP,
+             adjusted_settle: dict[str, Any] | None = None) -> dict[str, Any]:
     if cell.family in ("P", "B"):
-        return run_cell_P_or_B(cell, log, backstop=backstop)
-    return run_cell_N(cell, log, backstop=backstop)
+        return run_cell_P_or_B(cell, log, backstop=backstop,
+                               adjusted_settle=adjusted_settle)
+    return run_cell_N(cell, log, backstop=backstop,
+                      adjusted_settle=adjusted_settle)
 
 
 # ---------------------------------------------------------------------------
@@ -1135,6 +1233,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--redo-reason", default=None,
                         help="with --redo-excluded, only cells whose reasons "
                              "contain this substring")
+    parser.add_argument("--adjusted-settle", default=None, metavar="SPEC.json",
+                        help="path to a COMMITTED pre-registered settle "
+                             "criterion spec; replaces only the convergence-"
+                             "sentence clause for the cells this run grades, "
+                             "with every threshold and measurement stamped "
+                             "into the record's settle_criterion block")
     parser.add_argument("--band", action="store_true",
                         help="rebuild the band artifact from the records "
                              "already on disk, run nothing")
@@ -1176,9 +1280,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
 
     log = _logger()
+    adjusted_settle: dict[str, Any] | None = None
+    if args.adjusted_settle:
+        adjusted_settle = json.loads(Path(args.adjusted_settle).read_text())
     spent = 0.0
     log(f"model-form batch starting: {len(cells)} cell(s) in scope, budget "
-        f"{args.max_core_min:.1f} core-min")
+        f"{args.max_core_min:.1f} core-min"
+        + (f"; ADJUSTED settle criterion from {args.adjusted_settle} "
+           f"(prereg {adjusted_settle.get('prereg')})"
+           if adjusted_settle else ""))
     for cell in cells:
         record_path = cell.out_dir / "record.json"
         existing: dict[str, Any] | None = None
@@ -1211,7 +1321,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         began = time.monotonic()
         try:
             record = run_cell(cell, log,
-                              backstop=args.iteration_backstop)
+                              backstop=args.iteration_backstop,
+                              adjusted_settle=adjusted_settle)
         except Exception as exc:  # a failed cell is data, not a crash
             wall = time.monotonic() - began
             record = {

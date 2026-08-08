@@ -1,0 +1,7 @@
+{
+  "prereg": "demo-output/website/campaign/N_A10_THIRD_MEMBER_PREREGISTRATION.md",
+  "residual_floor": {"p": 1e-05, "Ux": 1e-07, "nuTilda": 1e-07},
+  "plateau_factor": 2.0,
+  "tail_iters": 2000,
+  "qoi_p2p_max": {"Cl": 2.4e-04, "Cd": 2.0e-04}
+}
