@@ -1,0 +1,5 @@
+[2026-08-08T23:16:13Z] alternative-generator arm starting (prereg GEN_ALT_PREREGISTRATION.md)
+[2026-08-08T23:17:07Z] alternative-generator arm starting (prereg GEN_ALT_PREREGISTRATION.md)
+[2026-08-08T23:17:07Z] alt_coarse: cells 4032, max AR 240.212, non-ortho 70.1272, skew 0.565175
+[2026-08-08T23:17:08Z] alt_refined: cells 14720, max AR 227.041, non-ortho 70.1146, skew 0.689015
+[2026-08-08T23:17:08Z] max-AR refinement factor: alternative 0.9451692671473532 vs pyHyp 1.71

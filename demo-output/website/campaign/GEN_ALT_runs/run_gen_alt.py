@@ -65,6 +65,18 @@ def build_and_certify(name: str, level: NacaGridLevel,
         + '\napplication simpleFoam;\nstartFrom startTime;\nstartTime 0;\n'
           'stopAt endTime;\nendTime 1;\ndeltaT 1;\nwriteControl timeStep;\n'
           'writeInterval 1;\n', newline="\n")
+    # Any OpenFOAM utility needs these two present, even for a mesh-only case.
+    (remote / "system" / "fvSchemes").write_text(
+        tv._foam_header("dictionary", "fvSchemes", "system")
+        + "\nddtSchemes { default steadyState; }\n"
+          "gradSchemes { default Gauss linear; }\n"
+          "divSchemes { default none; }\n"
+          "laplacianSchemes { default Gauss linear corrected; }\n"
+          "interpolationSchemes { default linear; }\n"
+          "snGradSchemes { default corrected; }\n", newline="\n")
+    (remote / "system" / "fvSolution").write_text(
+        tv._foam_header("dictionary", "fvSolution", "system")
+        + "\nsolvers { }\n", newline="\n")
     out_dir = HERE / name
     out_dir.mkdir(parents=True, exist_ok=True)
     t0 = time.monotonic()

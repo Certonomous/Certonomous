@@ -1,0 +1,24 @@
+{
+  "birth_certificate": "checkMesh -allGeometry at creation, log beside the mesh",
+  "cells": 14720,
+  "core_min": 0.012,
+  "generator": "transonic_airfoil.transonic_blockmesh_dict (blockMesh C-grid)",
+  "level": {
+    "first_cell": 0.002,
+    "n_surf_quarter": 38,
+    "n_wake": 39,
+    "ny": 64
+  },
+  "mesh": {
+    "aspect_ratio_note": "advisory only per Mesh Standard 3.3; never a lone rejection",
+    "breaches": [
+      "non-orthogonality 70.1146 > 70"
+    ],
+    "max_aspect_ratio": 227.041,
+    "max_non_ortho": 70.1146,
+    "max_skewness": 0.689015
+  },
+  "prereg": "campaign/GEN_ALT_runs/GEN_ALT_PREREGISTRATION.md",
+  "run": "alt_refined",
+  "timestamp": "2026-08-08T23:17:08Z"
+}

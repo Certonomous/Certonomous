@@ -1,0 +1,45 @@
+{
+  "alt_max_ar_refinement_factor": 0.9451692671473532,
+  "alternative": {
+    "alt_coarse": {
+      "aspect_ratio_note": "advisory only per Mesh Standard 3.3; never a lone rejection",
+      "breaches": [
+        "non-orthogonality 70.1272 > 70"
+      ],
+      "cells": 4032,
+      "max_aspect_ratio": 240.212,
+      "max_non_ortho": 70.1272,
+      "max_skewness": 0.565175
+    },
+    "alt_refined": {
+      "aspect_ratio_note": "advisory only per Mesh Standard 3.3; never a lone rejection",
+      "breaches": [
+        "non-orthogonality 70.1146 > 70"
+      ],
+      "cells": 14720,
+      "max_aspect_ratio": 227.041,
+      "max_non_ortho": 70.1146,
+      "max_skewness": 0.689015
+    }
+  },
+  "near_wall_band_max_ar": {
+    "alt_refined_within_1_chord": 37.4,
+    "note": "band per the 4G convention (within ~1 chord of the airfoil); measured from checkMesh -writeFields aspectRatio + cell centres",
+    "pyhyp_same_band_reference": 87.6
+  },
+  "pyhyp_max_ar_refinement_factor": 1.711,
+  "pyhyp_measured": {
+    "coarse": {
+      "cells": 4032,
+      "max_ar": 97.87,
+      "max_nonortho": 22.7,
+      "max_skew": 1.43
+    },
+    "refined": {
+      "cells": 14720,
+      "max_ar": 167.5,
+      "max_nonortho": 27.0,
+      "max_skew": 0.86
+    }
+  }
+}

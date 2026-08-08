@@ -1,0 +1,121 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : checkMesh -allGeometry
+Date   : Aug 08 2026
+Time   : 23:17:07
+Host   : ip-172-31-43-247
+PID    : 77431
+I/O    : uncollated
+Case   : /home/ubuntu/certonomous-runs/genalt-alt_coarse
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+--> FOAM Warning : 
+    From static Foam::instantList Foam::timeSelector::select0(Foam::Time&, const Foam::argList&)
+    in file db/Time/timeSelector.C at line 284
+    No time specified or available, selecting 'constant'
+Create mesh for time = constant
+
+Check mesh...
+    Enabling all geometry checks.
+
+Time = constant
+
+Mesh stats 
+    points:           8338
+    internal points:  0
+    faces:            16265
+    internal faces:   7927
+    cells:            4032
+    faces per cell:   6
+    boundary patches: 4
+    point zones:      0
+    face zones:       0
+    cell zones:       0
+
+Overall number of cells of each type:
+    hexahedra:     4032
+    prisms:        0
+    wedges:        0
+    pyramids:      0
+    tet wedges:    0
+    tetrahedra:    0
+    polyhedra:     0
+
+Checking topology...
+    Boundary definition OK.
+    Cell to face addressing OK.
+    Point usage OK.
+    Upper triangular ordering OK.
+    Face vertices OK.
+    Number of regions: 1 (OK).
+
+Checking patch topology for multiply connected surfaces...
+    Patch               Faces    Points     Surface topology  Bounding box
+    airfoil             84       168      ok (non-closed singly connected)   (0 -0.0592679 0) (1 0.0592679 1)
+    inflow              105      212      ok (non-closed singly connected)   (-24 -25 0) (50 25 1)
+    outflow             85       172      ok (non-closed singly connected)   (1 -25 0) (50 25 1)
+    frontAndBack        8064     8338     ok (non-closed singly connected)   (-24 -25 0) (50 25 1)
+    ".*"                8338     8338     ok (closed singly connected)       (-24 -25 0) (50 25 1)
+
+
+Checking faceZone topology for multiply connected surfaces...
+    No faceZones found.
+
+Checking basic cellZone addressing...
+    No cellZones found.
+
+Checking basic pointZone addressing...
+    No pointZones found.
+
+Checking geometry...
+    Overall domain bounding box (-24 -25 0) (50 25 1)
+    Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)
+    Mesh has 2 solution (non-empty) directions (1 1 0)
+    All edges aligned with or perpendicular to non-empty directions.
+    Boundary openness (3.25698e-18 -1.50322e-18 -4.18238e-16) OK.
+    Max cell openness = 2.49211e-16 OK.
+    Max aspect ratio = 240.212 OK.
+    Minimum face area = 7.17172e-06. Maximum face area = 28.7427.  Face area magnitudes OK.
+    Min volume = 7.17172e-06. Max volume = 28.7427.  Total volume = 3430.82.  Cell volumes OK.
+    Mesh non-orthogonality Max: 70.1272 average: 22.1472
+   *Number of severely non-orthogonal (> 70 degrees) faces: 2.
+    Non-orthogonality check OK.
+  <<Writing 2 non-orthogonal faces to set nonOrthoFaces
+    Face pyramids OK.
+    Max skewness = 0.565175 OK.
+    Coupled point location match (average 0) OK.
+    Face tets OK.
+    Min/max edge length = 0.00186553 13.8186 OK.
+    All angles in faces OK.
+    Face flatness (1 = flat, 0 = butterfly) : min = 1  average = 1
+    All face flatness OK.
+    Cell determinant (wellposedness) : minimum: 2.17584e-05 average: 0.163596
+ ***Cells with small determinant (< 0.001) found, number of cells: 56
+  <<Writing 56 under-determined cells to set cellDeterminant
+    Concave cell check OK.
+    Face interpolation weight : minimum: 0.0525679 average: 0.444397
+    Face interpolation weight check OK.
+    Face volume ratio : minimum: 0.0557117 average: 0.778817
+    Face volume ratio check OK.
+
+Failed 1 mesh checks.
+
+End
+
