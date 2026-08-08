@@ -2935,10 +2935,11 @@
     "Spalart, Strategies for turbulence modelling and simulations, the QCR2000 constitutive relation"
    ],
    "launch_prompt": "F6b periodic hills, QCR2000 arm. Read demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md section 1, demo-output/website/campaign/F6b_ERCOFTAC_RESULTS.md and demo-output/website/campaign/W3_QCR_DUCT_FALSIFIER.md first. Copy the medium rung under demo-output/website/campaign/F6b_runs/, activate the QCR2000 term exactly as the duct run did, change nothing else, and freeze the discriminator (move vs the ladder's grid-sensitivity spread) before launch. Budget 12 core-min; setsid, poll logs inline. Record: evidence file in demo-output/website/campaign/, docket update on this item, honest verdict.",
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-08-07T22:10:00Z",
    "decided_at": "2026-08-07T22:10:00Z",
-   "decision_note": "supervisor review 2026-08-07 under Katie's standing green light"
+   "decision_note": "supervisor review 2026-08-07 under Katie's standing green light",
+   "outcome": "Run 2026-08-08 against F6b_QCR_PREREGISTRATION.md (committed d05b83c3): the verified medium rung, kOmegaSSTQCR the single change, converged in 6,177 iterations -- the registered 12,000 cap earned its sizing, since the inherited 6,000 cap would have guillotined the arm unconverged. OUTCOME N: reattachment 7.6814 vs SST 7.6472, +0.034 x/h away from the 4.21-4.7 band against a 0.10 bar; the +72 percent FAIL stands untouched. This decides the review's open question: the ducts-vs-hump separation GENERALISES -- on one untrained QCR2000 library the ducts are decisive (0.0811 to 0.0455), the hump null (+0.0022 x/c), the hills null (+0.034 x/h). Class sentence earned: QCR2000 resurrects anisotropy-driven secondary flow and does not touch 2D separated-shear-layer bubble length; the constitutive route is closed for the separated class on this record and the stress-magnitude route carries the a1 mechanism measured concurrently. One deviation recorded: the pre-registration said 4 ranks, the rung's own instrument is 2 ranks and was followed. Cost 9.17 core-min gross vs 12 approved. Evidence: campaign/F6b_QCR_RESULTS.md."
   },
   {
    "id": "b52-replicate-meshes-at-rung-6",
@@ -5323,10 +5324,11 @@
     "NASA Turbulence Modeling Resource, wall-mounted hump validation case"
    ],
    "launch_prompt": "F6a hump, a1 limiter sensitivity. Read W1_HUMP_A1_PREREGISTRATION.md and run exactly it: two simpleFoam solves on the challenge case, kOmegaSSTCoeffs a1 0.28 and 0.34, nothing else changed from the executed SST leg; extract reattachment with the same hump_gate_analysis.py; verdict per the registered outcomes; evidence appended to the W1 hump results line; docket outcome on this item.",
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-08-08T02:05:00Z",
    "decided_at": "2026-08-08T02:05:00Z",
-   "decision_note": "Ordered by the chief's entry-2 outcome block (commit 0a764729) and approved in the chief's resume directive of 2026-08-08 to the Cases-family solver agent; filed by that agent per the intake conventions with the review's wording carried."
+   "decision_note": "Ordered by the chief's entry-2 outcome block (commit 0a764729) and approved in the chief's resume directive of 2026-08-08 to the Cases-family solver agent; filed by that agent per the intake conventions with the review's wording carried.",
+   "outcome": "Run 2026-08-08 against the pre-registration committed d05b83c3. OUTCOME ONE, mechanism: the converged a1=0.34 arm moves reattachment -0.0498 x/c toward experiment, five times the 0.010 bar, without repairing the gate (1.2033 vs 1.100, +9.4 percent). The a1=0.28 arm hit the 5000 cap unconverged on the omega clause alone (8.6e-10 vs 1e-10 with U, p, k all under target) and is reported ungated with labelled numbers. RECONCILIATION RECORDED: the registry surfaced prior a1 arms this proposal and the ordering review both failed to cite -- the 2026-08-01 F6a diffusion study already measured a1=0.40 converged at 1.1873 and a1=0.25 NOT_CONVERGED at 10,324 iterations; the sign was on the record and this arm CONFIRMS it, adding the interior points that show the sensitivity is monotone and sublinear, d(reatt)/d(a1) about -1.66 per unit a1 on [0.31,0.34] flattening to -0.27 on [0.34,0.40], and reproducing the low-a1 convergence pathology at a second value. Citation defect on the review outcome block and this filing, dated in the results record. Cost 20.7 core-min gross vs 12 approved, factor 1.72, inside the factor-3 grading; the unpriced term was the settling of the arm whose settling behaviour the uncited record already exhibited. Evidence: campaign/W1_HUMP_A1_RESULTS.md."
   }
  ]
 }
