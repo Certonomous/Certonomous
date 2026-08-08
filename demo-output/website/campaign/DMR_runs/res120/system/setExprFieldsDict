@@ -1,0 +1,23 @@
+FoamFile
+{
+    version 2.0; format ascii; class dictionary; location "system"; object setExprFieldsDict;
+}
+
+expressions
+(
+    pInit
+    {
+        field p;
+        expression #{ (pos().x() < 1.0/6.0 + pos().y()/sqrt(3.0)) ? 116.5 : 1.0 #};
+    }
+    TInit
+    {
+        field T;
+        expression #{ (pos().x() < 1.0/6.0 + pos().y()/sqrt(3.0)) ? 20.3875 : 1.0 #};
+    }
+    UInit
+    {
+        field U;
+        expression #{ (pos().x() < 1.0/6.0 + pos().y()/sqrt(3.0)) ? vector(7.1449625, -4.125, 0.0) : vector(0, 0, 0) #};
+    }
+);

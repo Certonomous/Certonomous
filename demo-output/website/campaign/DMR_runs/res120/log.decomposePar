@@ -1,0 +1,101 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : decomposePar -force
+Date   : Aug 07 2026
+Time   : 22:44:07
+Host   : ip-172-31-43-247
+PID    : 180670
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/demo-output/website/campaign/DMR_runs/res120
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+
+
+Decomposing mesh
+
+Create mesh
+
+Calculating distribution of cells
+Decomposition method scotch [4] (region region0)
+
+Finished decomposition in 0.03 s
+
+Calculating original mesh data
+
+Distributing cells to processors
+
+Distributing faces to processors
+
+Distributing points to processors
+
+Constructing processor meshes
+
+Processor 0
+    Number of cells = 14478
+    Number of points = 29442
+    Number of faces shared with processor 1 = 122
+    Number of faces shared with processor 2 = 120
+    Number of processor patches = 2
+    Number of processor faces = 242
+    Number of boundary faces = 29198
+
+Processor 1
+    Number of cells = 14442
+    Number of points = 29368
+    Number of faces shared with processor 0 = 122
+    Number of processor patches = 1
+    Number of processor faces = 122
+    Number of boundary faces = 29244
+
+Processor 2
+    Number of cells = 14388
+    Number of points = 29270
+    Number of faces shared with processor 0 = 120
+    Number of faces shared with processor 3 = 129
+    Number of processor patches = 2
+    Number of processor faces = 249
+    Number of boundary faces = 29019
+
+Processor 3
+    Number of cells = 14292
+    Number of points = 29070
+    Number of faces shared with processor 2 = 129
+    Number of processor patches = 1
+    Number of processor faces = 129
+    Number of boundary faces = 28939
+
+Number of processor faces = 371
+Max number of cells = 14478 (0.54166667% above average 14400)
+Max number of processor patches = 2 (33.333333% above average 1.5)
+Max number of faces between processors = 249 (34.231806% above average 185.5)
+
+
+Time = 0
+Using dynamicCode for patch top on field T at line 57651 in "/home/ubuntu/Certonomous/demo-output/website/campaign/DMR_runs/res120/0/T/boundaryField/top"
+Using dynamicCode for patch top on field p at line 57651 in "/home/ubuntu/Certonomous/demo-output/website/campaign/DMR_runs/res120/0/p/boundaryField/top"
+Using dynamicCode for patch top on field U at line 57651 in "/home/ubuntu/Certonomous/demo-output/website/campaign/DMR_runs/res120/0/U/boundaryField/top"
+
+Processor 0: field transfer
+Processor 1: field transfer
+Processor 2: field transfer
+Processor 3: field transfer
+
+End
+
