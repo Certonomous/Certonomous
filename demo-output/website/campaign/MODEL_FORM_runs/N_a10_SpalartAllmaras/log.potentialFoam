@@ -8,10 +8,10 @@
 Build  : _481094f-20260618 OPENFOAM=2606 version=2606
 Arch   : "LSB;label=32;scalar=64"
 Exec   : potentialFoam -writephi
-Date   : Aug 07 2026
-Time   : 22:32:01
+Date   : Aug 08 2026
+Time   : 02:02:03
 Host   : ip-172-31-43-247
-PID    : 160071
+PID    : 224972
 I/O    : uncollated
 Case   : /home/ubuntu/certonomous-runs/tmr-naca-a10-coarse
 nProcs : 1
@@ -54,7 +54,7 @@ DICPCG:  Solving for Phi, Initial residual = 0.009313161694, Final residual = 0.
 DICPCG:  Solving for Phi, Initial residual = 0.009229686588, Final residual = 0.0001608903841, No Iterations 6
 Continuity error = 8.509013115e-07
 Interpolated velocity error = 0.0001799205813
-ExecutionTime = 0.12 s  ClockTime = 0 s
+ExecutionTime = 0.11 s  ClockTime = 1 s
 
 End
 

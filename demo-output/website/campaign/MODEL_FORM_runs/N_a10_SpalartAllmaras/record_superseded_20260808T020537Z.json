@@ -2,14 +2,11 @@
   "alpha_deg": 10.0,
   "cell_id": "N_a10_SpalartAllmaras",
   "cells": 3584,
-  "converged": true,
+  "converged": false,
   "core_min": 1.072,
-  "correction": {
-    "date": "2026-08-08",
-    "prereg": "demo-output/website/campaign/N_A10_THIRD_MEMBER_PREREGISTRATION.md",
-    "what": "the 02:03:07Z record excluded this cell on the workflow's absolute tail-50 rule even though every clause of the pre-registered adjusted criterion (committed 9374f807, before the run) was met and stamped admitted; the runner's conservative workflow-error clause outranked the registered criterion -- a wrapper defect, fixed in the same commit as this correction. The registered criterion decides; the superseded record and the workflow's message are retained."
-  },
-  "excluded_reasons": [],
+  "excluded_reasons": [
+    "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady"
+  ],
   "family": "N",
   "group": "N_a10",
   "iteration_backstop": 12000,
@@ -102,8 +99,7 @@
         "p": 1e-05
       },
       "tail_iters": 2000
-    },
-    "workflow_rule_superseded": "workflow tail-50 rule fired but is replaced by the pre-registered criterion: coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady"
+    }
   },
   "settle_s12": {
     "detail": null,

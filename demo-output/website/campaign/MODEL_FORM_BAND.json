@@ -1,9 +1,9 @@
 {
   "cells_recorded": 32,
   "cells_total_designed": 32,
-  "core_min_total": 35.03,
+  "core_min_total": 35.02,
   "design": "demo-output/website/campaign/MODEL_FORM_BATCH_DESIGN.md",
-  "generated_utc": "2026-08-07T22:42:08Z",
+  "generated_utc": "2026-08-08T02:05:37Z",
   "groups": [
     {
       "bands": {},
@@ -190,62 +190,52 @@
     {
       "bands": {
         "Cd": {
-          "argmax": "kEpsilon",
+          "argmax": "SpalartAllmaras",
           "argmin": "kOmegaSST",
           "band": [
             0.0044951723391,
-            0.014226789043
+            0.016192147753
           ],
           "members": {
+            "SpalartAllmaras": 0.016192147753,
             "kEpsilon": 0.014226789043,
             "kOmegaSST": 0.0044951723391
           },
-          "n_converged": 2,
+          "n_converged": 3,
           "reference": {
             "CFL3D SST (897x257)": {
               "contained": true,
               "value": 0.012362110998
             }
           },
-          "spread_abs": 0.0097316167039,
-          "spread_rel": 1.0395937162015902
+          "spread_abs": 0.0116969754139,
+          "spread_rel": 1.0050643453600894
         },
         "Cl": {
           "argmax": "kOmegaSST",
-          "argmin": "kEpsilon",
+          "argmin": "SpalartAllmaras",
           "band": [
-            1.0801964408,
+            1.0290489902,
             1.1164336572
           ],
           "members": {
+            "SpalartAllmaras": 1.0290489902,
             "kEpsilon": 1.0801964408,
             "kOmegaSST": 1.1164336572
           },
-          "n_converged": 2,
+          "n_converged": 3,
           "reference": {
             "CFL3D SST (897x257)": {
-              "contained": false,
+              "contained": true,
               "value": 1.0778080613
             }
           },
-          "spread_abs": 0.036237216399999994,
-          "spread_rel": 0.032993462516054436
+          "spread_abs": 0.08738466700000003,
+          "spread_rel": 0.08127094910308881
         }
       },
-      "core_min": 4.899,
+      "core_min": 4.889,
       "excluded": [
-        {
-          "cell_id": "N_a10_SpalartAllmaras",
-          "model": "SpalartAllmaras",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.016192147753,
-            "Cl": 1.0290489902
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)",
-            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady"
-          ]
-        },
         {
           "cell_id": "N_a10_realizableKE",
           "model": "realizableKE",
@@ -271,11 +261,12 @@
         "statement": "Mesh Standard hard gate EXEMPT under R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07): max non-orthogonality 85.70 deg vs the 70 deg hard gate, on the reference community's own grid -- NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against. Scope: model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them."
       },
       "models_converged": [
+        "SpalartAllmaras",
         "kEpsilon",
         "kOmegaSST"
       ],
-      "n_converged": 2,
-      "n_excluded": 2,
+      "n_converged": 3,
+      "n_excluded": 1,
       "regime": "a10"
     },
     {

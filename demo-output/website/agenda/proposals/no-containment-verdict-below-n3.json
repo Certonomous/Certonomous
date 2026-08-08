@@ -1,0 +1,22 @@
+{
+ "id": "no-containment-verdict-below-n3",
+ "well": "cases",
+ "objective": "Adopt the rule that a model-form band states a containment verdict against a reference only at three or more converged members; below that the band reports its interval and says why no verdict is stated",
+ "rationale": "The family-N a10 band demonstrated the failure this rule prevents, end to end and pre-registered: at n=2 the band missed the reference Cl by 0.22 percent and the negative-verdict review's entry 11 read the miss as under-membership rather than model-family failure; the pre-registered third-member arm then measured exactly that, with the SA member entering 0.051 below the two-member floor -- the n=2 band was a lower bound on the true spread by a factor of 2.4 on Cl -- and the reference moved from NOT contained to CONTAINED with no change to any member already present. A min-max interval over two draws from a model family is a lower bound on the family's spread, so a NOT-contained verdict at n=2 is a statement about membership, not about the family, and the batch's own design already refuses bands below two members for the same structural reason. The rule: containment verdicts (contained or not contained) print only for groups with three or more converged members; a two-member group prints its interval with the annotation that no containment verdict is stateable at n=2. Existing artifacts are regenerated, not rewritten by hand, and the flat-plate P_re2e7 group's containment lines are the known rows this rule will touch.",
+ "gate": "Adopted only with the archive replay on the record, per the charter's rule-entry condition: the band builder re-run over every stored group, with counts of which containment lines the rule suppresses or annotates and the before and after of each. The known expected firings are the two-member groups; a replay that suppresses nothing or suppresses three-member groups fails the rule's own entry condition and the rule is not adopted",
+ "est_core_min": 0,
+ "predicted_memory_gb": 1.0,
+ "predicted_usd": 0.0,
+ "cost_basis": "measured at zero: the rule is a band-builder change plus a regeneration from records already on disk; no solver runs",
+ "expected_knowledge_gain": "The band artifact stops being able to publish a membership artifact as a model-family verdict; the a10 case becomes the documented precedent with both states on the record",
+ "source_kind": "measurement",
+ "hard_criterion": "instrument-check",
+ "citations": [
+  "The supervisor negative-verdict review of 2026-08-07, entry 11",
+  "The N a10 third-member pre-registration and its outcome section",
+  "The model-form band artifact, group N a10, n=2 and n=3 states",
+  "The model-form batch design, band rule section"
+ ],
+ "status": "proposed",
+ "created_at": "2026-08-08T02:20:00Z"
+}

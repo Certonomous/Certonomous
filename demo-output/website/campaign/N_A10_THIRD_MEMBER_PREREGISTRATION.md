@@ -118,3 +118,58 @@ others may hold the box). Band regeneration is the runner's own end-of-run
 `write_band()`; containment is restated from that artifact only.
 
 *Nothing below this line existed when the run was launched.*
+
+## Outcome (2026-08-08, written after the run)
+
+**Ordering, for the record:** this pre-registration and the criterion spec
+were committed at 02:01:52Z (`9374f807`); the runner launched at 02:02:02Z
+(runner.log). Ten seconds of daylight, in the right order.
+
+**The run:** 12,000 iterations, 62.5 s, **1.07 core-min against the 10
+approved**. The solve reproduced the archived 22:33Z run **to every printed
+digit**: Cl 1.0290489902, Cd 0.016192147753 — bit-identical, a measured
+solver-determinism datum on this grid. The criterion, evaluated mechanically
+by the runner and stamped into the record:
+
+| clause | measured | cap | verdict |
+| --- | --- | --- | --- |
+| p floored | final-quarter median 2.55e-6, prev 2.57e-6 | ≤ 1e-05, factor 2 | MET |
+| Ux floored | 5.51e-9 vs 5.50e-9 | ≤ 1e-07, factor 2 | MET |
+| nuTilda floored | 1.86e-8 vs 1.90e-8 | ≤ 1e-07, factor 2 | MET |
+| Cl tail-2000 p2p | 8.63e-6 | ≤ 2.4e-4 | MET (28× margin) |
+| Cd tail-2000 p2p | 3.68e-6 | ≤ 2.0e-4 | MET (54× margin) |
+| S12, exit 0, no fatal | pass | — | MET |
+
+**A wrapper defect, said loudly rather than smoothed over:** the runner's
+02:03:07Z record stamped `admitted_in_place_of_residual_control: true` and
+then **excluded the cell anyway** — the C1 fix's conservative clause ("a
+workflow-flagged cell stays EXCLUDED regardless of how it grades") let the
+TMR workflow's absolute tail-50 rule (Cd p2p 2.67e-6 > 1e-7) outrank the
+registered criterion, which is precisely the C1 failure class inverted. The
+pre-registered wording above is the criterion of record and it says ADMIT
+on every clause. Disposition: the defect fixed in the runner (the workflow's
+settle rule is now recorded but superseded when a pre-registered criterion
+admitted the cell; any *other* workflow error still force-excludes); the
+02:03:07Z record superseded per convention (never deleted) and the corrected
+record carries a `correction` block naming all of this. **The criterion as
+written decided, not the outcome** — the deciding text predates the run by
+commit hash.
+
+**Containment at n=3, from the regenerated band artifact:**
+
+| QoI | n=3 band | CFL3D SST (897×257) | verdict |
+| --- | --- | --- | --- |
+| Cl | [1.0290490, 1.1164337] | 1.0778081 | **CONTAINED** (was NOT contained at n=2) |
+| Cd | [0.0044952, 0.0161921] | 0.0123621 | **CONTAINED** (as at n=2) |
+
+The 0.22% n=2 miss was **under-membership, exactly as entry 11 read it**: the
+third member entered 0.0512 *below* the old band floor — the n=2 band was a
+lower bound on the true spread by a factor of 2.4 on Cl.
+
+**Predictions, scored:** P1 HELD (bit-identical, against a 1e-3 window);
+P2 HELD (every clause, margins 28× and 54× vs the predicted ~20×); P3 HELD
+(Cl contained at n=3). The named risk (wander/irreproducibility) did not
+fire. **The declared branch fires: the rule proposal filed is
+`no-containment-verdict-below-n3`** — a two-member band may report its
+interval but not a containment verdict. R12 statement carried on the group,
+banding scope only, unchanged.

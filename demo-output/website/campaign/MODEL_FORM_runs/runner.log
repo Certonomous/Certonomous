@@ -434,3 +434,11 @@
 [2026-08-07T22:42:07Z] [tmr-naca:coarse] simpleFoam finished in 103.6 s
 [2026-08-07T22:42:08Z] N_a15_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.17 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {'Cd': 0.15548547695, 'Cl': 0.54889632245}; 1.76 core-min (session 17.60/20.0)
 [2026-08-07T22:42:08Z] model-form batch stopping: 17.60 core-min spent this run
+[2026-08-08T02:02:02Z] model-form batch starting: 1 cell(s) in scope, budget 10.0 core-min; ADJUSTED settle criterion from demo-output/website/campaign/MODEL_FORM_runs/adjusted_settle_n_a10.json (prereg demo-output/website/campaign/N_A10_THIRD_MEMBER_PREREGISTRATION.md)
+[2026-08-08T02:02:02Z] N_a10_SpalartAllmaras: superseding an excluded record (residualControl not met (stopped on the backstop); workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady)
+[2026-08-08T02:02:02Z] N_a10_SpalartAllmaras: starting
+[2026-08-08T02:02:02Z] [tmr-naca:coarse] patches {'defaultFaces': 'unused', 'auto0': 'outer', 'auto1': 'frontAndBack', 'auto2': 'frontAndBack', 'auto3': 'airfoil', 'auto4': 'outer'}, thickness 1, lift axis z
+[2026-08-08T02:02:04Z] [tmr-naca:coarse] a10 simpleFoam started
+[2026-08-08T02:03:06Z] [tmr-naca:coarse] simpleFoam finished in 62.5 s
+[2026-08-08T02:03:07Z] N_a10_SpalartAllmaras: EXCLUDED (workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {'Cd': 0.016192147753, 'Cl': 1.0290489902}; 1.07 core-min (session 1.07/10.0)
+[2026-08-08T02:03:07Z] model-form batch stopping: 1.07 core-min spent this run

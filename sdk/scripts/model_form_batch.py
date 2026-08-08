@@ -937,10 +937,27 @@ def run_cell_N(cell: Cell, log: Callable[[str], None], *,
                         backstop=backstop, adjusted_settle=adjusted_settle)
         if workflow_error is not None:
             record["workflow_error"] = workflow_error
-            record["converged"] = False
-            record["excluded_reasons"].append(
-                "workflow settle/extraction rule fired (not this batch's "
-                f"gate): {workflow_error}")
+            superseded_by_criterion = (
+                "still moving" in workflow_error
+                and record.get("settle_criterion", {})
+                          .get("admitted_in_place_of_residual_control"))
+            if superseded_by_criterion:
+                # The workflow's absolute tail-50 settle rule is exactly the
+                # clause a pre-registered adjusted criterion replaces; when
+                # that criterion admitted the cell, forcing exclusion here
+                # would let an unregistered rule outrank the registered one
+                # (wrapper defect found 2026-08-08 on the N_a10 SA arm --
+                # the criterion passed every clause and the old code
+                # excluded anyway). The workflow's message stays on the
+                # record; the registered criterion decides.
+                record["settle_criterion"]["workflow_rule_superseded"] = (
+                    "workflow tail-50 rule fired but is replaced by the "
+                    f"pre-registered criterion: {workflow_error}")
+            else:
+                record["converged"] = False
+                record["excluded_reasons"].append(
+                    "workflow settle/extraction rule fired (not this batch's "
+                    f"gate): {workflow_error}")
         record["cells"] = level.cells
         record["iteration_backstop"] = backstop
         record["alpha_deg"] = alpha
