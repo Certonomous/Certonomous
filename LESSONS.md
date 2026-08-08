@@ -1744,3 +1744,34 @@ gradient check fails against a step-stable FD, put the tape's branches
 (limiters, switching BCs, guards) at the top of the suspect list there too,
 before FD-quality theories; the branch is still the cheapest one-line
 discriminator available.
+
+## L-39. A verdict is stale the moment a later commit touches its evidence — reconcile the record before diagnosing the mystery
+
+On 2026-08-08 the chief's negative-verdict review carried F5c's "converged
+solves 4–12× wrong on reattachment, wandering" as an open mystery and
+proposed diagnostics for it — while commit fe121af2, nine days older, had
+already PROVEN the 4–12× reading was the OpenFOAM wallShearStress sign
+convention (lower-wall tau_x is negative under attached flow; the archived
+sign_convention_control run is the proof), with the honest miss being
+−10.5%. The review's own zero-compute inlet audit is what surfaced the
+stale premise: the audit's first act was to read the case's full commit
+history, and the "mystery" dissolved before any new measurement was taken.
+
+The failure mode is not sloppiness at writing time — the verdict WAS
+accurate when recorded. It is that verdicts age silently: a later commit
+can refute a standing conclusion without touching the file that states it,
+and every downstream reader (including the chief) then inherits a dead
+premise dressed as an open question. The S1 corrupted-inlet episode (L-33's
+neighborhood, entry 6's manifest rule) is the same disease on input files;
+this is the record-file variant.
+
+The rule: before carrying ANY standing verdict into a review, a filing, or
+a new diagnostic's premise, run the reconciliation sweep first — `git log
+--follow` on the case's records AND its code paths since the verdict's
+date, asking one question: does any later commit touch this conclusion's
+evidence? Cost is one log read; the alternative was two filed diagnostics
+aimed at a number that did not exist. Corollary for record hygiene: a
+commit that refutes a standing record MUST amend that record in the same
+commit (supersede-not-delete), because "the proof exists somewhere in the
+repo" is indistinguishable from "unproven" to every future reader who
+starts from the record file.
