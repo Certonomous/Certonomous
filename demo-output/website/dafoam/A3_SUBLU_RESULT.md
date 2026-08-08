@@ -124,3 +124,77 @@ Case dir `/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-vcoarse/`: `run_arm.
 `sublu_tpc1_computetotals.log`, ledger `.t0/.rc/.t1`, `_stale_processor_dirs_run1/` (preserved
 pre-repair decomposition), archived `check_totals_run{1,2}.log` (untouched). Repo:
 `A3_SUBLU_PREREGISTRATION.md` (12d3a7a3), this file.
+
+---
+
+# RE-FILE RESULT, 2026-08-08: the 21,840-cell sweep arm (chief-approved same session)
+
+Pre-registration `A3_SUBLU_SWEEP_PREREGISTRATION.md`: base 054d10b2 (02:39:53Z, after the
+pre-launch checkMesh PASS it asserts), addendum 1 f77b2607 (cold-start repair), addendum 2
+7f207f65 (20g cap) — each committed before the attempt it governs.
+
+## Verdict up front
+
+**NOT EVALUABLE ON THIS HOST — no KSP reason code was obtainable inside the 30 GB machine's
+memory envelope; NEITHER entry-8 outcome is claimed, and the conditioning question stays
+open.** Both levers were proven ACTIVE in-log for the first time on any M6 run — and the
+sub-LU lever then turned out to be memory-infeasible at this rung on this host. A deliberate
+interpretation note on prereg §5's letter: §5 counted "crash/OOM before a reason prints" as
+FAILED, but mapping a MEMORY death onto "the conditioning wall is confirmed" would be false —
+memory and convergence are this family's two separate blockers (`ADJOINT_MEMORY_ENVELOPE.md`,
+Option 2 verdict), and these attempts died entirely on the memory one. Stated per the hump
+precedent: sub-LU turns the question from a `-5` into a memory-envelope problem — a different,
+honestly-named problem (`FAMILY_SUPERVISION_GUIDELINES.md`, R-5 note).
+
+## The three attempts (ledger `.t0/.rc/.t1` in the sweep case dir)
+
+| attempt | t0 (UTC) | wall | rc | died at | cause |
+|---|---|---|---|---|---|
+| 1 | 02:40:18 (1786156818) | 16 s | 1 | `renameSolution` | leftover record `0.0001` collision (`pyDAFoam.py:1543` hard-raise); also exposed the warm-start trap — DAFoam writes the primal end state back into time 0 (`0/U` == `1000/U` bit-exact), so the primal ran 1000 steps in 10.13 s from prior runs' converged fields | 
+| 2 | 02:45:38 (1786157138) | 217 s | 137 | sub-LU factorization | kernel `CONSTRAINT_MEMCG` oom-kill at the 10g cap (dmesg) — cold primal + rename clean after the addendum-1 repair; BOTH activity proofs in-log |
+| 3 | 02:51:06 (1786157466) | 1,672 s | 137 | `Solving Linear Equation...` | host-protection kill at 03:18:57Z (family precedent: A3 fine-mesh attempt 3): container grazed the 20g cap (19.94 GiB observed), host swap grew to 12 GB with active swap-in, MemAvailable fell to 2 GB — through the 6 GB floor; **zero completed KSP iteration blocks in 27.9 min** (the first `Main iteration 100` print never appeared) |
+
+Spend, reported against the approved 30 core-min: vcoarse 0.53 + attempts 1–3
+(16+217+1,672)x4/60 = 127.0 → **127.5 core-min total, 4.25x the envelope** — the overrun
+happened inside attempt 3 under addendum 2's pre-registered "runs to its reason codes"
+commitment and was terminated only by the host floor, which outranks it.
+
+## Launch evidence with the PC-active proofs (attempt 2 and 3 logs, identical config)
+
+- `transonicPCOption 1;` in the DAOption dump (the record log reads `2;` at its line 410) —
+  the first M6 run ever with the transonic PC live (`DAResidualRhoSimpleCFoam.C:173`).
+- `DAFOAM_SUBPC_TYPE=lu: ASM sub-block PC set to complete LU` at PC setup, followed by the
+  stock option echo (`ILU PC Fill Level: 0`, `Mat ReOrdering: natural`, `GMRES Restart: 200`,
+  `GMRES Max Iterations: 1000`) — config otherwise bit-identical to the record arm.
+- Logs preserved: `sublu_tpc1_computetotals_attempt{1,2,3}.log` in
+  `/home/ubuntu/certonomous-runs/A3-onera-m6-sweep-n15_21840/`.
+
+## What was measured (real findings, all new)
+
+1. **The sub-LU lever's cost on M6 6-field sub-blocks is a different regime.** At np=4
+   (~5,460 cells/rank, ~38k unknowns per ASM sub-block, `DARhoSimpleCFoam`'s 6 transported
+   fields), the complete-LU factorization needs >10 GiB (attempt 2's oom-kill), ~20 GiB
+   resident plus 12 GB swap (attempt 3), and had completed no 100-iteration KSP block after
+   27.9 min — against the record ILU run's 5,876.6 MiB TOTAL and 82 s per 100 iterations. On
+   CBFS (np=4, 21,000 cells, incompressible, smaller blocks) the same switch fit easily and
+   converged in ~16 core-min. The lever's feasibility is block-size- and field-count-bound,
+   and M6 at np=4 is beyond this host.
+2. **Wrapper facts** now on the record for anyone re-running archived DAFoam cases:
+   `renameSolution` hard-raises on a leftover `0.0001` (`pyDAFoam.py:1543`), and the end
+   state is written back into time 0, silently warm-starting every subsequent run (attempt
+   1's 10 s primal, end state 2.2% |U| off the record writeout). Cold-start restoration =
+   move `0.0001`+`1000`+overwritten `0` aside, `decomposePar -fields` from the pristine
+   serial `0/` (partition and coloring cache untouched).
+3. The checkMesh gate discipline worked: asserted PASS pre-launch, and no mesh gate fired.
+
+## Undone / open, explicitly
+
+- The conditioning question — does an ACTIVE transonic PC (with or without sub-LU) move the
+  M6 `-5`? — remains unanswered. Two cheap, named follow-ups for the chief, neither run
+  (budget already 4.25x over): (a) **transonicPCOption:1 ALONE** on this case — stock ILU
+  memory (5.9 GiB fits easily), record-anchored ~28 core-min, tests the never-active PC lever
+  solo; (b) sub-LU at **np=8/np=16** — halving/quartering the ASM sub-block size attacks the
+  LU fill superlinearly, though the Option-3 aggregate-memory lesson must be re-checked in
+  the factorization-dominated regime.
+- Case state preserved: attempt 3's writeout and overwritten time-0 left in place;
+  `_prior_state_backup_20260808/` holds the record writeout and every prior state.
