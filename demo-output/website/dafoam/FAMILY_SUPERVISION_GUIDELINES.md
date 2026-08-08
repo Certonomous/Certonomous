@@ -210,3 +210,25 @@ Escalate BEFORE acting on any of these; a session does not decide them alone:
 - Reports/tex quote each number in its stated units and carry the
   counter-instances (CD/twist degrading; the R6b 0.849% vs 0.041% floors)
   wherever the headline improvement is quoted.
+
+## 8. Cold-start restoration before any archived-case rerun (the warm-start hazard, 2026-08-08)
+
+pyDAFoam writes the primal end state back into the time-0 directory at run end
+(`0/U` becomes bit-identical to the final writeout), so the SECOND run of any
+case dir silently warm-starts — "the cold start you assumed is not the start
+that ran" — and `renameSolution` (pyDAFoam.py:1543) hard-raises on a leftover
+`0.0001`. Provenance: the entry-8 campaign (A3_SUBLU_SWEEP_PREREGISTRATION.md
+addendum f77b2607; audit WARMSTART_AUDIT.md). Standing rule, per the approved
+`pydafoam-silent-warmstart-state-hazard` instrument-check:
+
+1. Before rerunning ANY archived case dir: move `processor*/0.000*` and the
+   overwritten `processor*/0` aside (preserve, never delete), then
+   `decomposePar -fields` from the pristine serial `0/` (verify serial `0/`
+   against `0.orig` first). Partition and coloring caches stay untouched.
+2. Prove the cold start IN THE LOG: the first `Time step continuity errors`
+   value must match the case's known cold-from-uniform signature (bit-stable
+   across runs; 55x above the warm value on the M6 rung it was validated on).
+3. For A/B lever arms, prefer the staged-copy pattern (one fresh case subdir
+   per arm, the W4 reordering/unblock layout) — structurally immune, and it
+   leaves the bit-identical first-continuity-error line as the state-control
+   proof.
