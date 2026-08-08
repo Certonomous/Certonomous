@@ -229,6 +229,34 @@ proposal for the DAFoam family: an L-40-class hazard in the state dimension — 
 assumed is not the start that ran" — with a priced audit of which archived rerun-based
 conclusions could have been warm-started. Filed for chief pricing, not self-executed.
 
+**PC-alone outcome (same day, 11b90d25 / 9450b681): CONVERGED — entry 8's outcome one fires and
+the A3 LADDER REOPENS.** KSP reason 2 twice: CD in 368 iterations, CL in 383, healthy norms, full
+totals dictionary — the first M6-family adjoint convergence and the first M6 gradient in the
+lab's history, at 7.33 core-min inside the ILU envelope with zero sub-LU. The nail: the record's
+CL solve stalled at 1.839160961071e-01 for 300+ iterations before collapsing; this arm STARTS at
+the same value to four significant digits and descends straight through the stall point, with the
+config echo otherwise bit-identical and the cold start proven in-log (initial continuity 0.597
+from uniform). One token — `transonicPCOption 2 → 1` — was the wall at this rung. Sub-LU is
+thereby demoted from blocker to curiosity at this rung. Scope honestly held: one rung, no
+gradient-accuracy claim made.
+**Chief rulings on what makes this bulletproof and useful:**
+1. **Negative-control arm APPROVED (~30 core-min):** rerun the record configuration
+   (`transonicPCOption 2`, everything else identical, cold-started) on today's host and
+   pre-register the expectation — stall at the known value and DIVERGED_BREAKDOWN. The one
+   confound left on "one token was the wall" is host/state drift since the record run; a
+   first-in-history claim earns its control. If the control CONVERGES, the token story is wrong
+   and the finding reverts to open.
+2. **FD-verification arm APPROVED (charter §7 — no adjoint ships without its FD table):
+   3-component FD at this rung against the converged gradient, S1's primalTol discipline
+   (1e-8), pre-registered tolerance. Until it passes, the gradient is an existence proof, not a
+   number anyone may use.
+3. **The warm-start audit is PRICED AND APPROVED as filed** (zero solver core-min,
+   log-forensics, four validated cold/warm signatures, verdict table over B3/D3/R5 first) —
+   execution after the two arms above.
+4. The DAFoam defect report (.tex) owner gets this thread when the control lands — the M6
+   chapter changes shape: the conditioning-wall narrative becomes a dead-lever narrative with a
+   measured epilogue.
+
 ## 9. Model-form family B (bump) — no band, all four closures stall
 The archived rung never met residualControl either. **New diagnostic:** [FILE] one diagnosis arm
 (~15 core-min): the bump at doubled iteration cap with per-quantity settle monitoring — decides
