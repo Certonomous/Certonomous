@@ -38,3 +38,53 @@ the measurement reported to the chief before any further spend.
 
 *Committed before the control solve runs. Parts B and C do not exist yet; they are
 written only after the control verdict, each before its own solves.*
+
+---
+
+## Part A result (dated 2026-08-08 ~03:1x UTC) — control PASS, arm proceeds
+
+One cold `run_model` at `beta_masked.npy`, 7.80 core-min (`log.maskctl`, converged
+protocol as registered): **R_W1(masked) = 0.9458** against full-beta 0.9494 — the
+window fix retains 99.6% of its reduction with every out-of-window deviation
+amputated. R_W2(masked) = 0.9283 (vs 0.9468). Both far above the 0.70 stop trigger;
+the prediction (≥ 0.80) is exceeded. Confirmatory detail: the y>2 error reverts
+toward baseline (9.448 vs baseline 9.914; full beta had pushed it to 7.774) — the
+out-of-window beta was serving the free channel and only the free channel. W2 hurt
+census under masked beta: 1.01%. **The nonlocality concern is measured dead; the
+optimization will warm-start from `beta_masked` (disclosed: L-BFGS-B curvature starts
+cold — scipy carries no cross-process Hessian state).**
+
+## Part B — FD gate on the weighted objective configuration (committed before its solves)
+
+**The new objective, exactly:**
+
+```
+Jw_raw = 5319 * varUwin + 3591 * varUrec        (= sum of |U-UData|^2 over the W2 support)
+```
+
+- `varUwin`: DAFoam `variance`, mode=field, **source=boxToCell**, box min (0, 0, −1),
+  max (6, 2, 1) — the G2 window, 1,773 cells (no cell centre sits on any box face;
+  verified against the centres field).
+- `varUrec`: same, box min (6, −1, −1), max (16, 0.5, 1) — the recovery-floor strip,
+  1,197 cells. The two boxes are disjoint and their union is cell-for-cell the
+  2,970-cell W2 support the masked control validated.
+- Coefficients 5319/3591 = 3 x cell-count (the variance function divides by its
+  nRefPoints = 3 per cell for a 3-component vector; the printed "Find N reference
+  points" must show 5319 and 3591 or the item stops).
+- Composition: an `om.ExecComp` sums the two function outputs into the single
+  objective `Jw`; reverse mode seeds both partials into **one** state-adjoint RHS, so
+  the per-eval cost stays one adjoint. This claim is not assumed — it is exactly what
+  the FD gate verifies end-to-end, and the anchor's wall time is reported against the
+  one-adjoint ~20 core-min basis.
+- **Cross-check, fixed now:** the anchor's Jw_raw at beta=1 must reproduce the
+  offline W2 baseline **27.4659** (host arithmetic on the same fields) to ~4 digits.
+
+**FD protocol (the established discipline, unchanged):** anchor `compute_totals` of
+Jw at beta=1, `-primalTol 1e-8` (~20 core-min); central differences h=0.05, fresh
+container + cold reset per point, 3 components from the top of the weighted
+gradient's |g| distribution, serial locations reported **via the exact permutation**
+this time. **Bar: all three rel errs < 1%, zero sign flips; a miss stops the item
+before the optimization spends anything.** Est: anchor ~20 + 6 primals ~48.
+
+*Committed before any Part B solve. Part C is written after the FD verdict, before
+any optimization eval.*
