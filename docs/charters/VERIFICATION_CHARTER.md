@@ -1,8 +1,16 @@
 # Certonomous Verification Charter
 
-Version 1.4, dated 2026-08-07. Defines what counts as done. It binds every
+Version 1.5, dated 2026-08-08. Defines what counts as done. It binds every
 solve, every gradient check, every ladder rung and every number that reaches a
 record, a certificate or a camera surface.
+
+Version 1.5 adds the lever-activity clause to section 9 (L-40, Katie's order of
+2026-08-08): a load-bearing solver option must be proven ACTIVE in the runtime
+log, not merely present in the input dictionary, before any conclusion citing
+it ships — after the A3 record was found to have measured its "conditioning
+wall" entirely under a transonicPCOption value that is dead code for the
+solver that ran. It also adds the mesh birth-certificate rule to section 9.
+Nothing in 1.4 was weakened.
 
 Version 1.1 adds section 6, the display layer, after four defects were found in
 one day in the space between a correct number and the words printed next to it.
@@ -805,6 +813,26 @@ reads them as being in tension has read the demo charter's scope clause wrong.
 - The case dictionaries, so the setup is inspectable.
 - The gate verdict and the reference identity.
 - The detector resolution for every quantity reported, per section 5.
+- **`levers_verified_active` (v1.5, L-40): every load-bearing option** — each
+  solver option, flag, model choice or lever the conclusion's reasoning cites
+  (preconditioners, turbulence-model switches, scheme selections, MRF settings,
+  adjoint modes) — **listed with the runtime-log line proving it actually ran.**
+  THE SWITCH YOU SET IS NOT THE SWITCH THAT RAN: "configured" and "active" are
+  different claims, and only the second is evidence. A dictionary entry can be
+  dead code for the solver that executed (the A3 record measured its
+  "conditioning wall" entirely under `transonicPCOption: 2`, which exists only
+  in a different solver's source; every archived M6 script set it and none of
+  them ran it). A conclusion citing a lever with no activity proof FAILS
+  REVIEW; if the archived log cannot prove activity either way, the lever is
+  reported **unverifiable-from-logs** and the conclusion carries that caveat on
+  its face.
+- **Mesh birth certificate (v1.5): every mesh entering an archive, a
+  pre-registration or a ladder rung carries its checkMesh record at creation.**
+  Born clean or it does not enter; a mesh whose birth certificate is missing is
+  quarantined from new work until checkMesh is run and attached. (The A3
+  vcoarse mesh was born with 23 negative-volume cells and aspect ratio 2.08e95
+  and sat in the archive as a usable rung; the pyHyp tip-collapse pathology is
+  cross-geometry, per the TMR NACA 0012 finding and the M6 specimen.)
 
 **Retained under the campaign, not left in scratch.** L-27, and it applies to
 work done outside the batch machinery, which is exactly the work that gets

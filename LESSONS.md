@@ -1775,3 +1775,32 @@ commit that refutes a standing record MUST amend that record in the same
 commit (supersede-not-delete), because "the proof exists somewhere in the
 repo" is indistinguishable from "unproven" to every future reader who
 starts from the record file.
+
+## L-40. The switch you set is not the switch that ran — a lever is evidence only when the log proves it was active
+
+Katie's codification, 2026-08-08, from the A3 sub-LU arm's discovery: every
+archived ONERA M6 adjoint script set `transonicPCOption: 2`, and `== 2` is
+dead code for DARhoSimpleCFoam — the option exists only in the Turbo solver's
+source (DAResidualRhoSimpleCFoam.C:173 accepts only `== 1`). Every archived
+M6 conditioning-wall conclusion was therefore measured with the transonic
+preconditioner silently OFF while the record implied it had been tried. The
+dictionaries said configured; the runtime said nothing ran.
+
+The rule: any solver option, flag, model choice, or lever that is
+LOAD-BEARING for a conclusion must have its activity confirmed in the runtime
+log — not its presence in the input dictionary — before the conclusion ships.
+"Configured" and "active" are different claims; only the second is evidence.
+The QCR activity check earlier the same night is the positive template: it
+did not trust `turbulenceProperties` naming the model, it demanded the
+selection line and the coefficient banner in the solver's own log, plus field
+deltas no formula could fake.
+
+Enforcement (Verification Charter v1.5 §9): the evidence-record schema gains
+`levers_verified_active` — each load-bearing option listed with the log line
+proving it ran. A conclusion citing an unverified lever fails review; a lever
+the archived logs cannot prove either way ships as unverifiable-from-logs on
+the conclusion's face. Companion rule, same charter bump: every mesh entering
+an archive, pre-registration, or ladder rung carries its checkMesh birth
+certificate — born clean or it doesn't enter (the A3 vcoarse mesh sat in the
+archive born-broken: 23 negative cells, aspect ratio 2.08e95, pyHyp tip
+collapse — the same generator pathology as TMR NACA 0012, now cross-geometry).
