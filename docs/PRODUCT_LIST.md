@@ -51,17 +51,25 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       delta is the ducts (untrained QCR2000: AR_1 0.0811→0.0455, AR_3 0.0775→0.0400); AR_14's tie LOST (+0.0029) exactly
       as priced in writing, not reverted per the bundle's terms; our QCR ducts land within 0.0004 of Wu&Zhang's published
       ducts — same term, independent solve, same answer. Caveat everywhere: LOCAL scoring, not an official placement.
-      → NEW ITEM (from this cross-off): **closure.html coherent rewrite** under Katie's GUI conventions (page still
-      shows round 4) — dispatched 2026-08-07.
-- [x] alpha=15,AR14 status: still best-on-board, but AR_14 lead collapsed to 0.00003 after round 4's un-reverted duct regression —
-      must not be reported as a comfortable win.
+      → NEW ITEM (from this cross-off): **closure.html coherent rewrite** under Katie's GUI conventions — DONE
+      (page is round-5 current; consistency re-verified by Ladder V rung V10, 49f71b8c).
+- [x] alpha=15,AR14 status (superseded by round 5, kept for history): AR_14 is now 3 of 5 and best-on-board is 4 of 8
+      after the priced-in-writing round-5 tie loss (+0.0029); the earlier "best-on-board with a 0.00003 lead" reading
+      is obsolete — must not be reported as a comfortable win, and per V8's banned-claims list, not as "best-on-board"
+      either.
 - [x] Find out challenge policies / whether Certonomous can submit. DONE (`CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §1–§4):
       steward Ryley McConkey (MIT); no eligibility clause, no fee, no deadline, no scoring limit; leakage rule audited in code, not violated.
       Two flagged ambiguities: company name in Authors column; no license on benchmark/training-data repos.
       → NEW ITEM (from this cross-off): **Submission send package** — Katie fills author names + reference URL, approves,
       sends the email (with the alpha_05-rows-are-baseline disclosure); ask steward about the two ambiguities in the same email.
-- [ ] Update the Active Research board with movement. REOPENED: board still headlines round 3 / 0.0676; round 4 never
-      written to it. Update dispatched 2026-08-04.
+- [x] Update the Active Research board with movement. DONE and verified twice: round-5 rewrite landed, then Ladder V
+      rung V10 (49f71b8c) swept every surface — closure.html, wall.json/html, benchmarks.json, ACTIVE_RESEARCH.md, the
+      .tex — and fixed the last two drifts (benchmarks.html was a round-3 fossil; two present-tense 0.0654 sentences
+      scoped). One surviving latent defect killed in the same pass: build_benchmarks.py's literal still said round 3
+      and would have silently regressed the public page on its next run.
+      → NEW ITEM (from this cross-off): **Ladder V early rungs V1/V3/V4/V5 as record-hardening** (clean-env score
+      re-derivation; leakage assertions executed live; one duct traced end-to-end by hand; QCR provenance proof) —
+      executable now despite the submission park, per LADDER_V_TRIPLE_VERIFICATION.md.
 
 ## 4C. 2D case families
 - [x] F2 transonic RAE2822.
@@ -506,6 +514,36 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   adversarial / cold reproduction), 13 rungs, no self-grading, send gate ends at Sanaa's hands and Katie's. Submissions
   stay parked; the gate is recorded BEFORE any send exists, which is the anti-hindsight discipline applied to
   ourselves. Rungs V2/V7/V10 are executable now as record-hardening and may be run as normal docket items.
+
+### 2026-08-08 (early morning) — the resumed fleet lands everything, and three review entries get their outcomes
+- HUMP AT CHALLENGE CONDITIONS (74797a57 pre-reg, 9d711efb results): Gate V passed to the fourth digit against the
+  verified F6a answer; Gate P reattachment FAIL at +13.92% — INSIDE the pre-registered +12–16% prediction window, so
+  the two-leg SST bubble bias is confirmed at challenge conditions. The QCR arm returned a null (+0.0022 x/c away from
+  experiment, bar 0.010): constitutive/anisotropy ruled out on the hump leg, omega budget implicated — a clean
+  separation from the ducts, where the same untrained QCR was decisive. Review entry 2 outcome + a new a1-limiter
+  diagnostic recorded (0a764729); the a1 arms (0.28/0.34) and QCR-on-hills are running now under a chief-owned watcher.
+- DOUBLE MACH REFLECTION first result (84933043): Gate V passed both rungs (shock-position error 0.15%/0.17% of
+  travel), rung-to-rung self-similarity passed (free slope within 0.05° across 2× refinement); two gate clauses failed
+  AS WRITTEN and were kept + diagnosed as instrument defects (registration geometry; a threshold constant in cells).
+  Honest amendment discipline: no reachable numeric triple-point band in the accessible canon, so the gates stand on
+  kinematics + structure detection, stated before launch. The DMR cost estimate graded ~8× cheap-side vs the 45-cap
+  session (measured 2.4 vs 20 filed) — decomposition recorded.
+- INFRA y+ GATE FIX LANDED (590f5542): suite 1172/0 (tally collected from the pre-kill run, not re-run); retrospective
+  proved the restart-rename blindness NEVER fired on a published row (three independent evidence lines: single-attempt
+  ledger, structural rmtree, zero renamed files in surviving dirs). Docket item closed on both halves.
+- S1 REINVERSION CLOSED (1c3bb2f6): the driver had finished on its own budget guard BEFORE the kill. G1 PASS — −74.2%
+  on the repaired objective (the corrupted one managed −0.149%); FD re-verified to 0.03–0.12% after a dated primalTol
+  amendment. G2 FAIL (26.9% vs >50%) but the failure decomposes: 77.6% of residual loss sits at y>2 where the
+  reference-level mismatch lives, budget-capped still descending. Review ENTRY 12 (94349b83): weighted-loss variant
+  promoted to highest-information arm (two independent measurements now point at loss placement), continuation arm
+  waits behind it, and STAGE 2 HOLDS — no generalizer trains on a β field known to under-serve the window.
+- ENTRY 11 ARM EXECUTED (9374f807 pre-reg, 06b78343 outcome): SA converged at a10 under the adjusted-but-preregistered
+  criterion, 1.07 of 10 core-min — at n=3 the Cl band CONTAINS CFL3D (the third member entered 0.051 BELOW the old
+  floor; the n=2 band under-stated Cl spread by 2.4×). The declared branch fired: `no-containment-verdict-below-n3`
+  rule proposal filed with archive replay as its adoption gate — chief-endorsed (583b8c87). Bonus: the arm exposed and
+  fixed a wrapper defect (admitted-but-excluded precedence collision), wrong record superseded-not-deleted.
+- Watcher discipline note: two resumed agents parked on waiters that died with them (the known antipattern) — both
+  watches were taken over by the chief inline; no work was lost either time.
 
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
