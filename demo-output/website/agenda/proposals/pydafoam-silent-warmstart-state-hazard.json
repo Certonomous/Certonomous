@@ -18,8 +18,10 @@
   "The L-40 hazard class precedent: an instrument silently not doing what its configuration says"
  ],
  "launch_prompt": "pydafoam silent warm-start audit. Read A3_SUBLU_SWEEP_PREREGISTRATION.md addendum 1 and the gate of this proposal first. Log forensics only, zero solver compute. Inventory every archived case dir with multiple runs, apply the four cold-vs-warm signatures, produce the per-conclusion verdict table (COLD-CLEAN / WARM-CONTAMINATED / INDETERMINATE), starting with the B3 reordering 2x2, the D3 sweep variants, and the R5 dumps. Add the cold-start restoration step to FAMILY_SUPERVISION_GUIDELINES.md on completion. No conclusion is rewritten by this audit; flags go to the chief for regrade decisions.",
- "status": "approved",
+ "status": "done",
  "created_at": "2026-08-08T03:30:00Z",
  "decision_note": "approved by chief ruling 3 of the entry-8 epilogue (14d57c8e), as priced: log-forensics only, zero solver core-min; executed by the filing agent per the same ruling",
- "decided_at": "2026-08-08T22:45:00Z"
+ "decided_at": "2026-08-08T22:45:00Z",
+ "executed_at": "2026-08-08T22:55:00Z",
+ "outcome": "Executed as priced (zero solver core-min, log forensics; WARMSTART_AUDIT.md 9bb948b2). Nine-row verdict table: every record-grade conclusion COLD-CLEAN -- the W4 reordering/unblock studies ran each arm in its own staged case copy with bit-identical first continuity errors (state-controlled by construction), and the entry-8 chain carries in-log cold proofs. Two WARM flags, neither overturning anything: the D3 n15 variant-lever nulls (logs lost with the interrupted session, mechanism certain, nothing currently cites them, cold rerun required before any future citation) and the R5/M6 matrix dumps (state ~2 percent warm-drifted, order-of-magnitude conclusions robust, flagged for chief discretion). Priced signature (a) fast-warm-primal found INVALID and disclosed -- cold and warm primals both take ~10 s at this rung; the validated discriminator is the first continuity-error value (55x cold/warm separation, bit-stable across six cold runs). Guidelines section 8 added (ccf18d2f): cold-start restoration recipe, in-log cold proof requirement, staged-copy pattern. Regrade decisions left to the chief per the proposal's terms."
 }
