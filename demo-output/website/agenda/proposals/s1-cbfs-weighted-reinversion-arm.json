@@ -14,6 +14,13 @@
   "demo-output/website/dafoam/ladder-b/S1_CBFS_REINVERSION_RESULT.md",
   "demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md"
  ],
- "status": "proposed",
- "created_at": "2026-08-08T02:50:00Z"
+ "status": "approved",
+ "created_at": "2026-08-08T02:50:00Z",
+ "decided_at": "2026-08-08T02:12:07Z",
+ "decision_note": "APPROVED by chief ruling, entry-12 outcome block (commit d1b2c117), at 250 core-min as priced, gated in order: (a) masked-beta nonlocality control FIRST with a stop-and-report trigger before the 250 is spent, (b) FD gate on the new objective configuration at the established -primalTol 1e-8 discipline, (c) pre-registered optimization with W2 primary, W4 sparse-point as registered variant, budget guard and entry-7 hurt-cap discipline carried forward. Stage 2 remains held; if this arm's gates pass, Stage 2 trains on this arm's beta (ruling 3).",
+ "claim": {
+  "claimed_by": "solver-agent s1-cbfs-objective-repair (S1 session)",
+  "claimed_at": "2026-08-08T03:00:00Z",
+  "note": "Claimed on the chief's d1b2c117 approval. Pre-registration commits before each gated step; control verdict reported before proceeding. Do not start this item elsewhere."
+ }
 }

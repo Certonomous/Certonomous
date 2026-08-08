@@ -1,0 +1,20 @@
+{
+ "id": "s1-cbfs-continuation-arm",
+ "well": "S1",
+ "objective": "Continuation of the S1 CBFS equal-weight reinversion: warm-start L-BFGS-B from beta_final (eval 16) under the same lambdas with a pre-registered plateau stop rule, to decide budget-limited vs structurally-stuck directly",
+ "rationale": "Named by supervisor review entry 12 (second priority, ~26 core-min/eval class) as the direct discriminator between the budget-limited and loss-placement hypotheses for the G2 fail. Filed here so the ruling on it has a filing to live on: the offline weighted-loss variant (s1-cbfs-weighted-loss-offline-variant, verdict CAPTURABLE at R 0.93-0.95) answered the question this arm was priced to answer, and the chief's entry-12 outcome ruling (commit d1b2c117, ruling 4) DEPRIORITIZES this arm below the weighted reinversion arm PERMANENTLY. Note per the same ruling: revisit only if the weighted arm somehow fails to resolve the placement question its control and gates are built to resolve; do not claim or price ahead of s1-cbfs-weighted-reinversion-arm under any circumstances.",
+ "est_core_min": 260.0,
+ "predicted_memory_gb": 8.0,
+ "cost_basis": "same measured basis as the reinversion: ~20 core-min per compute_totals evaluation at -primalTol 1e-8 and --cpus=2, ~10-12 evaluations plus write-out; the Hessian approximation would restart cold from beta_final (scipy L-BFGS-B carries no serialized curvature state across processes), disclosed as costing early steps",
+ "gate": "Would require its own pre-registration (plateau stop rule fixed in advance) if ever un-deprioritized; none is written because the arm is not runnable under the standing ruling",
+ "expected_knowledge_gain": "Whether the equal-weight descent was still buying window improvement or only chasing the y>2 reference-level residual -- now already answered in substance by the weighted-loss variant's trajectory decomposition (in/out effort ratio 11.2 -> 3.7)",
+ "source_kind": "measurement",
+ "citations": [
+  "demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md",
+  "demo-output/website/dafoam/ladder-b/S1_CBFS_WEIGHTED_LOSS_VARIANT.md",
+  "demo-output/website/dafoam/ladder-b/S1_CBFS_REINVERSION_RESULT.md"
+ ],
+ "status": "proposed",
+ "created_at": "2026-08-08T03:00:00Z",
+ "decision_note": "PERMANENTLY DEPRIORITIZED below s1-cbfs-weighted-reinversion-arm by chief ruling d1b2c117 (entry-12 outcome, ruling 4): capturability answered the question this arm was priced to answer. Filed for the record, not for execution."
+}

@@ -242,6 +242,21 @@ correct derivative measured against a resolvable objective. 9 primals, 642 s wal
 is FD-verified on at least 3 components to the same order as S1's 2.67%" — is met,
 on the CBFS branch, with all evidence on disk.**
 
+> **Caution note, dated 2026-08-08 (added by the S1 reinversion agent; caveat only,
+> no conclusion above is contested).** The §5d phrase "three cells from three
+> distinct mesh neighborhoods" may rest on a serial-vs-DV indexing confusion: the
+> beta DV vector is NOT in serial cell order, and cell centres looked up at DV
+> indices label the wrong cells. On the S1 reinversion this exact error mislabeled
+> all three FD cells; the true DV→serial permutation (concatenated
+> `processor*/constant/polyMesh/cellProcAddressing`, verified to 5.1e-15 against a
+> written beta field) placed them all in the separated shear layer. The FD
+> *measurements* are index-consistent and unaffected — perturbation and gradient
+> share the DV indexing — only spatial/neighborhood labels are at risk. If §5d's
+> cells 5491/6740/12486 were located via serial centres at DV indices, their
+> neighborhood claims need re-derivation through the permutation. Evidence path:
+> `/home/ubuntu/certonomous-runs/S1-cbfs-reinversion/cbfs_inv/dv_to_serial_perm.npy`
+> and `S1_CBFS_WEIGHTED_LOSS_VARIANT.md` §0b.
+
 ## 6. The liaison memo, answered lead by lead
 
 - **Lead 1.1** (deployed-source shift check): done first — the deployed
