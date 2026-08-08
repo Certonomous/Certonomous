@@ -442,3 +442,17 @@
 [2026-08-08T02:03:06Z] [tmr-naca:coarse] simpleFoam finished in 62.5 s
 [2026-08-08T02:03:07Z] N_a10_SpalartAllmaras: EXCLUDED (workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.67e-06 peak-to-peak over the last 50 iterations); not defensible as steady); qoi {'Cd': 0.016192147753, 'Cl': 1.0290489902}; 1.07 core-min (session 1.07/10.0)
 [2026-08-08T02:03:07Z] model-form batch stopping: 1.07 core-min spent this run
+[2026-08-08T02:28:03Z] model-form batch starting: 4 cell(s) in scope, budget 35.0 core-min
+[2026-08-08T02:28:03Z] queue gate: 1 solver container(s) live (s1wa_anchorw), under the ceiling of 3; proceeding
+[2026-08-08T02:28:03Z] H_re10595_kOmegaSST: starting
+[2026-08-08T02:34:50Z] H_re10595_kOmegaSST: CONVERGED; qoi {'x_R_over_h': np.float64(7.647235), 'x_S_over_h': np.float64(0.260358)}; 6.77 core-min (session 6.77/35.0)
+[2026-08-08T02:34:50Z] queue gate: 1 solver container(s) live (s1wa_fdw_5363_plus), under the ceiling of 3; proceeding
+[2026-08-08T02:34:50Z] H_re10595_SpalartAllmaras: starting
+[2026-08-08T02:45:15Z] H_re10595_SpalartAllmaras: EXCLUDED (residualControl not met (stopped on the backstop); no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)); qoi {'x_R_over_h': None, 'x_S_over_h': None}; 10.42 core-min (session 17.19/35.0)
+[2026-08-08T02:45:15Z] queue gate: 1 solver container(s) live (s1wa_fdw_5491_minus), under the ceiling of 3; proceeding
+[2026-08-08T02:45:15Z] H_re10595_kEpsilon: starting
+[2026-08-08T02:45:19Z] H_re10595_kEpsilon: EXCLUDED (solver exit code -8; S1 floating point exception; residualControl not met; no written time directory); qoi {'x_R_over_h': None, 'x_S_over_h': None}; 0.07 core-min (session 17.25/35.0)
+[2026-08-08T02:45:19Z] queue gate: 1 solver container(s) live (s1wa_fdw_5491_minus), under the ceiling of 3; proceeding
+[2026-08-08T02:45:19Z] H_re10595_realizableKE: starting
+[2026-08-08T02:57:17Z] H_re10595_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop); no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)); qoi {'x_R_over_h': None, 'x_S_over_h': None}; 11.92 core-min (session 29.18/35.0)
+[2026-08-08T02:57:17Z] model-form batch stopping: 29.18 core-min spent this run
