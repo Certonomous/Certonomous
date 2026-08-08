@@ -456,3 +456,7 @@
 [2026-08-08T02:45:19Z] H_re10595_realizableKE: starting
 [2026-08-08T02:57:17Z] H_re10595_realizableKE: EXCLUDED (residualControl not met (stopped on the backstop); no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)); qoi {'x_R_over_h': None, 'x_S_over_h': None}; 11.92 core-min (session 29.18/35.0)
 [2026-08-08T02:57:17Z] model-form batch stopping: 29.18 core-min spent this run
+[2026-08-08T03:04:27Z] model-form batch starting: 2 cell(s) in scope, budget 65.0 core-min
+[2026-08-08T03:04:30Z] queue gate: 2 solver container(s) live (s1wa_eval001, a3_sublu_tpc1_n15), under the ceiling of 3; proceeding
+[2026-08-08T03:04:30Z] H_re10595_SpalartAllmaras: superseding an excluded record (residualControl not met (stopped on the backstop); no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first))
+[2026-08-08T03:04:30Z] H_re10595_SpalartAllmaras: starting
