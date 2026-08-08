@@ -268,3 +268,34 @@ occurrences — env unset, stock preconditioner), cold-started per the warm-star
   uniform fields; no pre-existing `0.0001`; rename clean.
 - Log: `tpc1_computetotals.log` in the sweep case dir; script `runScript_tpc1.py`;
   launcher `run_arm_tpc1.sh`.
+
+---
+
+# NEGATIVE-CONTROL RESULT, 2026-08-08 (chief ruling 1 of 14d57c8e): **the record `-5` REPRODUCES BIT-FOR-BIT — causation NAILED**
+
+Pre-registration `A3_TPC1_CONTROL_PREREGISTRATION.md` commit
+`31eede16fe5e47671dd3ed50944dc28a63fd8494` (22:25:38Z), launch t0 = 1786227962 (22:26:02Z),
+after the 03:40Z fleet kill (resume protocol: paper trail checked — no prior control prereg
+existed; no solver ran in the gap; host rebooted, idle at launch). Script: the archived
+`runScript.py` itself, zero edits; full diff vs the converged arm's script = the single token
+(`transonicPCOption` 2 vs 1). Identity/cold proofs in-log: `transonicPCOption 2;` echoed, no
+sub-LU banner, initial continuity error `0.5969274433533561` — **bit-identical to the
+converged arm's cold-start value**, on the same partition and coloring cache.
+
+## Outcome per the pre-registered mapping: the control FAILS exactly as expected
+
+| solve | iterations | reason | signature vs the 2026-07-30 record |
+|---|---|---|---|
+| CD | 400 | **−5** | iteration-0 residual `2.120880199369e-02` — bit-identical to the record; terminal denormal 6.544171804409e−310 (record 6.467896765713e−310 — same sub-normal breakdown artifact, differing only in denormal garbage digits) |
+| CL | 600 | **−5** | the ENTIRE printed stall sequence bit-identical to the record: `1.839195903440e-01`, `1.839114940558e-01`, `1.839524885689e-01`, `1.839160961071e-01`, `1.865300757639e-01`, `1.841505669984e-01`, terminal denormal `3.945602898014e-308` — every digit |
+
+rc=0 (the wrapper's known false-success), wall 128 s = **8.53 core-min of ~30 approved**.
+Log: `ctrl_computetotals.log`; launcher `run_arm_ctrl.sh`.
+
+**The causal statement, now earned:** on one host, one day, one cold-start protocol, one case
+state (cold signature bit-identical between arms), the ONLY difference between double
+DIVERGED_BREAKDOWN and double reason-2 convergence is `transonicPCOption` 2 → 1. The
+host/state-drift confound is closed: today's host reproduces the 2026-07-30 record to every
+printed digit with the token at its record value, and converges with the token flipped.
+The two arms' solve-2 iteration-0 residuals are the same number
+(`1.839195903440e-01`) — identical linearization state, opposite outcomes.
