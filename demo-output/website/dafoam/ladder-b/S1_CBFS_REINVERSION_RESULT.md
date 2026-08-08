@@ -165,12 +165,12 @@ generalization position.**
 
 | stage | core-min |
 |---|---|
-| stage A: re-baseline primal + reconstruct (P1/P2 graded) | 1.80 |
+| stage A: re-baseline primal + reconstruct (P1/P2 graded) | 1.73 |
 | stage B: FD anchor at 1e-6 (superseded, disclosed) | 15.13 |
 | stage C: FD sweep at 1e-6 — the miss that bought the diagnosis | 8.84 |
 | tol-1e-8 diagnostic (base + one pair) | 20.84 |
 | stage B2: anchor8 + remaining FD pairs at 1e-8 | 50.03 |
-| evaluations 1–16 (fresh-container compute_totals at 1e-8, --cpus=2) | 320.06 |
+| evaluations 1–16 (fresh-container compute_totals at 1e-8, --cpus=2) | 320.13 |
 | final-state cold control + write-out + centres | 8.10 |
 | **total vs 450 hard cap** | **424.80** |
 
