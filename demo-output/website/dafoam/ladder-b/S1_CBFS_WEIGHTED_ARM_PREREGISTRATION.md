@@ -148,3 +148,42 @@ Zero sign flips, all under the 1% bar. Arm spend at this writing: **68.96 of 250
 
 *Committed before the first optimization eval. Nothing below this line existed at
 commit time.*
+
+---
+
+## Budget Amendment 1 — dated 2026-08-08 ~22:40 UTC, before the eval-8 completion launches (chief approval d66f82a5)
+
+**Contention arithmetic, as required:** the 250-core-min budget bought 7 evaluations
+of work plus ~16 core-min of the A3 arm's walltime — evals 1–2 billed 27.1 and 26.5
+core-min against the 18.7–20.1 uncontended basis measured on evals 5–7 (ledger lines
+eval001–eval007; the ledger bills cpus × wall with no contention discount, by
+design). The descent rate held to the stop (−0.004/eval over the last three); the
+shortfall is a billing artifact, which is the basis of the d66f82a5 approval.
+
+**Material fact the approval could not have priced, disclosed before launch: the
+driver is dead and "one more eval" does not exist at one eval's price.** The driver
+completed via its BudgetStop exception at ~03:4xZ; the SciPy L-BFGS-B instance and
+its 6 curvature pairs died with the process (no serialized state, as the equal-weight
+prereg already disclosed for restarts), and the driver's own gradient-retention rule
+(keep eval 1 and every 10th) deleted `grad_eval007`. The cheapest faithful
+continuation is therefore a **warm restart from `beta_final` costing TWO
+evaluations**: eval-8a re-anchors (J, g) at the stopped point (doubles as a control —
+its Jw_raw must reproduce 1.5691341426975098 to all digits) and eval-8b takes the
+step (steepest-descent-first under cold curvature, disclosed; both prior S1 restarts
+accepted their first line-search trial).
+
+**Amended numbers, fixed now:**
+- EVAL_CAP = 2 (8a + 8b), **hard stop after 8b regardless of outcome**.
+- Amended item cap: **278 core-min** (= 229.07 + 2 × 24 conservative under the
+  current host load: a pytest suite and four vspaero workers hold load ~4; measured
+  uncontended basis 18.7–20.1). No field write-out inside this amendment — the
+  eval-8b beta checkpoint stays on disk and any write-out is a separate priced
+  decision.
+- **G1w grading, unchanged bar:** graded at the restart's last ACCEPTED iterate
+  against the ORIGINAL ≤ 0.05320. If the line search rejects the single step (a
+  third trial would breach the cap), the step is recorded unaccepted and **G1w
+  stands FAILED at 0.05713** — no re-litigation.
+- W1-only arm: launch decision held for the chief's go/no-go after this result
+  (d66f82a5 item 3).
+
+*Committed before eval-8a launches.*
