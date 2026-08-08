@@ -198,3 +198,73 @@ commitment and was terminated only by the host floor, which outranks it.
   the factorization-dominated regime.
 - Case state preserved: attempt 3's writeout and overwritten time-0 left in place;
   `_prior_state_backup_20260808/` holds the record writeout and every prior state.
+
+---
+
+# TPC1-ALONE RESULT, 2026-08-08: **CONVERGED — the A3 ladder REOPENS**
+
+Chief ruling 1, executed under pre-registration `A3_TPC1_ARM_PREREGISTRATION.md` commit
+`13c244cd4eeefd9812fb3ceef97f0fff68c0db00` (03:23:37Z; launch t0 = 1786159446 = 03:24:06Z).
+Ruling 2 noted on the record per instruction: **sub-LU at np=8/16 is DEFERRED behind this
+arm's answer** — and this arm's answer has now mooted its urgency.
+
+## The outcome, per the pre-registered mapping
+
+> If it converges, A3's ladder reopens and the DIVERGED_BREAKDOWN story gets its epilogue...
+
+**It converges. Both solves. First time in this family's history, at any mesh size, ever.**
+
+| solve | iterations | `PetscConvergedReason` | KSP residual path |
+|---|---|---|---|
+| CD | 368 | **2** (KSP_CONVERGED_RTOL) | → 2.045016030763e−06 at 70.57 s |
+| CL | 383 | **2** (KSP_CONVERGED_RTOL) | 1.839195903440e−01 → 1.831279779570e−05 at 101.71 s |
+
+KSP tail (CL, the raw log): `Main iteration 0 ... 1.839195903440e-01` → `100 ...
+6.860607017414e-02` → `200 ... 4.465425154088e-03` → `300 ... 1.889945072962e-04` → `383 ...
+1.831279779570e-05` → `**Completed**! Total iterations: 383. PetscConvergedReason: 2.`
+Healthy norms throughout — NOT the denormal false-success pattern; zero NaN anywhere; rc=0;
+the full totals dictionary printed (CD and CL wrt twist, shape, patchV) — **the first M6
+adjoint gradient this lab has ever produced.**
+
+**The nail:** the record `-5` run's CL solve sat STALLED at `1.839160961071e-01` for 300+
+iterations before its denormal collapse. This arm's CL solve STARTS at `1.839195903440e-01` —
+the same linearization state to four significant digits — and descends straight through the
+record's stall point to convergence. Same mesh, same partition, same coloring cache, same
+ILU(0)/natural/restart-200 stack (config echo verified identical; **zero** sub-LU banner
+occurrences — env unset, stock preconditioner), cold-started per the warm-start repair
+(initial continuity error 0.597 from uniform fields). One token changed: `transonicPCOption`
+2 → 1.
+
+## What this means for the record
+
+- **Entry 8, outcome one, fires cleanly: A3's ladder reopens, and the DIVERGED_BREAKDOWN
+  story gets its epilogue** — the record's wall was, at least at this rung, the INACTIVE
+  transonic PC. Every archived M6 `-5` (21,840 / 42,120 / 79,560 / 99,840 cells) ran with
+  `transonicPCOption: 2` as silent dead code for `DARhoSimpleCFoam`; the solver's own
+  transonic mitigation (`DAResidualRhoSimpleCFoam.C:172–176`, drop `fvm::div(phid,p)` from
+  the PC pressure equation) was never on. Activating it converts the double `-5` into double
+  reason-2 at 368/383 iterations on the identical configuration.
+- The sub-LU lever was never needed at this rung; its np=8/16 variant stays DEFERRED
+  (ruling 2) and is now a curiosity rather than a blocker.
+- **Scope, stated precisely:** this is ONE rung (21,840 cells). Whether TPC1 alone reopens
+  the taller rungs (42k/80k/99.8k — where memory walls also live) is the reopened ladder's
+  next question, not this arm's claim.
+- **No gradient-accuracy claim is made.** Reason-2 convergence is the entry-8 criterion and
+  it is met; the totals dictionary exists but the family's standing FD-verification rule
+  applies before any gradient number is used or published. That verification is the reopened
+  ladder's first task.
+
+## Launch evidence, guards, spend
+
+- Ledger: t0 1786159446, rc **0**, t1 1786159556 — **wall 110 s = 7.33 core-min of the ~28
+  approved.** Campaign total (vcoarse + 3 sub-LU attempts + this): 134.9 core-min.
+- Activity proof: `transonicPCOption 1;` in the DAOption dump (L-40-class proof pre-declared
+  in prereg §2). No sub-LU banner (env unset, required absent).
+- Memory guard (prereg §3): never threatened — run completed inside the 10g cap with rc=0 in
+  110 s; host at 27 GB available throughout the arm's window; no OOM, no cap-grazing, no
+  floor approach. (Peak not sampled — the run outpaced the poll cadence; the guard's
+  tripwires are what was pre-registered, and none fired.)
+- Cold start proven in-log: initial `Time step continuity errors: sum local = 0.597` from
+  uniform fields; no pre-existing `0.0001`; rename clean.
+- Log: `tpc1_computetotals.log` in the sweep case dir; script `runScript_tpc1.py`;
+  launcher `run_arm_tpc1.sh`.
