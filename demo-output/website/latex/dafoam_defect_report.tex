@@ -54,9 +54,10 @@
 \title{\bfseries One defect class in the MACH-Aero adjoint:\\
 a branch recorded on a differentiated path\\
 \large the slope limiter in parallel, the slope limiter in serial,\\
-the IDWarp rotation guard --- and the ILU conditioning wall beside them}
+the IDWarp rotation guard, the ILU conditioning wall ---\\
+and two configurations the solver accepted and did not run}
 \author{Certonomous CFD Lab}
-\date{2026-08-07}
+\date{2026-08-08}
 
 \begin{document}
 \maketitle
@@ -109,6 +110,25 @@ forensic arc: an IDWarp degenerate-branch guard that differentiates to a hard ze
 exactly the state every gradient evaluation uses (root-caused, patched in four lines, and
 answering a five-year-old open upstream issue), and an ASM sub-block ILU factorization whose
 failure is broken by the PETSc developers' own sanctioned escalation to complete LU.
+
+A fourth section, added 2026-08-08, reports a failure of a different kind, found while
+carrying that last remedy to a transonic case --- and corrects a claim of our own. This lab's
+record held that the ONERA M6 discrete adjoint was blocked by conditioning at every mesh size
+tested, \texttt{PetscConvergedReason: -5} from 21{,}840 to 99{,}840 cells. Every one of those
+runs set \texttt{transonicPCOption: 2}, which is dead code for the solver that read it:
+\artifact{DAResidualRhoSimpleCFoam.C:173} implements only \texttt{== 1}, and \texttt{== 2}
+lives in a different solver's source. The option parses, warns nothing, and takes no branch.
+Setting it to \texttt{1} --- one token, on the identical configuration, same mesh, same
+partition, same coloring cache, stock ILU --- converts both diverged solves into
+\texttt{reason 2} at 368 and 383 iterations, and the converged \(C_L\) solve begins at
+\(1.839195903440\times10^{-1}\), the number the record's own run stalled on, and descends
+through it. A pre-registered negative control at the record value reproduces the recorded
+failure bit for bit --- iteration-0 residual, the whole printed stall sequence, the terminal
+denormal \(3.945602898014\times10^{-308}\) --- and a pre-registered finite-difference table
+verifies two of four probed gradient components at 0.18\% and 0.93\%, with the other two
+reported unverdicted rather than forced. The wall was real; at this rung its cause was
+misattributed. A second silent configuration is reported beside it: the wrapper writes the
+primal end state back into time~0, so the cold start you assumed is not the start that ran.
 \textbf{Nothing in this document has been filed upstream.}
 \end{abstract}
 
@@ -120,10 +140,13 @@ This document is the extended, citable companion to two prepared-but-unfiled rep
 \artifact{demo-output/website/dafoam/UPSTREAM\_BUG\_REPORT\_decomposition\_adjoint.md}
 and \artifact{demo-output/website/dafoam/UPSTREAM\_BUG\_REPORT\_mesh\_warpDeriv.md}. It does
 not replace them. Both remain \textbf{PREPARED}: complete, carrying the 2026-08-07 addenda
-these sections summarise, and \emph{held}. Submissions are parked at the owner's discretion;
+these sections summarise, and \emph{held}. The two silent-configuration findings of
+Section~\ref{sec:deadlever} have no prepared report at all --- only the measured record cited
+there. Submissions are parked at the owner's discretion;
 whether any of this is sent upstream is the lab principal's call, not the authors'. Where
 our own record was found defective by our own verification, the defect is printed here
-rather than repaired silently.
+rather than repaired silently --- including, in Section~\ref{sec:deadlever}, a causal claim of
+ours that this lab's own arms overturned.
 \end{minipage}}
 \end{center}
 
@@ -133,18 +156,28 @@ rather than repaired silently.
 \section{Summary of findings}
 %======================================================================
 
-Four findings, from four weeks of forensic work on the MACH-Aero/DAFoam toolchain. Three
+Six findings, from four weeks of forensic work on the MACH-Aero/DAFoam toolchain. Three
 of them are one defect class --- a \emph{branch} recorded on a differentiated path, whose
 selection the reverse sweep gets wrong --- in two repositories, in parallel and in serial.
-The fourth is a wall in a shipped default with a remedy that is one option away.
+The fourth is a wall in a shipped default with a remedy that is one option away. The last two
+share a shape with each other and not with the first four: configuration the tool accepts and
+does not run --- an option that is dead code for the solver that read it, and a state rewrite
+that no log line announces.
 
-\begin{table}[htbp]
-\centering
-\footnotesize
-\begin{tabular}{@{}L{2.4cm}L{3.1cm}L{5.9cm}L{3.2cm}@{}}
+{\footnotesize
+\begin{longtable}{@{}L{2.4cm}L{3.1cm}L{5.9cm}L{3.2cm}@{}}
 \toprule
 \textbf{Finding} & \textbf{Where} & \textbf{Headline measurement} & \textbf{Status} \\
 \midrule
+\endfirsthead
+\toprule
+\textbf{Finding} & \textbf{Where} & \textbf{Headline measurement} & \textbf{Status} \\
+\midrule
+\endhead
+\bottomrule
+\caption{The six findings. Sources: Sections~\ref{sec:decomp}, \ref{sec:serial},
+\ref{sec:idwarp}, \ref{sec:pc}, and \ref{sec:deadlever} for the last two.}\\
+\endlastfoot
 \multicolumn{4}{@{}L{15.2cm}@{}}{\emph{The class: a branch recorded on a differentiated path.}}\\
 \addlinespace
 D1. The limiter, in parallel: a decomposition-dependent adjoint
@@ -168,11 +201,20 @@ D3. ILU conditioning wall
 & DAFoam v5, \artifact{DALinearEqn.C:\allowbreak 266--267}: ASM sub-block PC hard-coded to \texttt{PCILU}
 & \texttt{PetscConvergedReason: -9} (\texttt{DIVERGED\_NANORINF}) at iteration 0 on a 21{,}000-cell closure case becomes \texttt{reason 2} in 667 iterations under complete LU in the sub-blocks; the resulting 21{,}000-component field-inversion gradient verifies against central differences at 0.085\%, 0.059\%, 0.199\%
 & Fixed locally by a one-hunk, default-off source patch. PETSc-sanctioned remedy; PR-ready in principle, \textbf{not filed} \\
-\bottomrule
-\end{tabular}
-\caption{The four findings. Sources: Sections~\ref{sec:decomp}, \ref{sec:serial},
-\ref{sec:idwarp}, \ref{sec:pc} respectively.}
-\end{table}
+\addlinespace
+\multicolumn{4}{@{}L{15.2cm}@{}}{\emph{A second class: configuration the solver accepts and does not run.}}\\
+\addlinespace
+D4. An option that is dead code for the solver reading it
+& DAFoam v5, \artifact{DAResidualRhoSimpleCFoam.C:173} (only \texttt{== 1} implemented); \texttt{== 2} exists at \artifact{DAResidualTurboFoam.C:176}, a different solver. Read by an unvalidated \texttt{getOption} lookup and echoed back live in the settings dump
+& Every archived ONERA M6 adjoint in this lab set \texttt{transonicPCOption: 2} and none of them ran it, so the recorded ``conditioning wall at every mesh size'' (\(-5\) at 21{,}840--99{,}840 cells) was measured with the transonic preconditioner silently off. On the 21{,}840-cell rung, \(2\rightarrow1\) alone --- identical mesh, partition, coloring cache, stock ILU --- takes both solves from \texttt{DIVERGED\_BREAKDOWN} to \texttt{reason 2} at 368/383 iterations. Pre-registered negative control at the record value reproduces the record bit for bit; FD table PASSES on 2 of 4 probed components (0.18\%, 0.93\%)
+& Our own claim corrected, at one rung. Upstream behaviour --- silent acceptance of an inapplicable value --- described, \textbf{not filed}; no prepared report exists \\
+\addlinespace
+D5. A state rewrite with no log line
+& DAFoam v5 \artifact{pyDAFoam}: the primal end state is written back into the time-0 directory (\artifact{0/U} bit-identical to \artifact{1000/U}); \artifact{pyDAFoam.py:1543} then hard-raises on the leftover time directory it created
+& Every rerun of a case directory silently warm-starts. Discriminator: first \texttt{Time step continuity errors}, cold-from-uniform 0.597 vs warm 0.0107 (\(55\times\)), bit-reproducible across six cold starts. Audited backwards over nine conclusion-bearing records at zero solver cost: seven cold-clean (staged per-arm copies, bit-identical start states), two flagged, none load-bearing
+& Instrument hazard, measured and audited. \textbf{Not filed} \\
+\end{longtable}
+}
 
 \paragraph{What links the first three.} A guard, a limiter, and a switching boundary
 condition are the same kind of object: a \texttt{min}, a \texttt{max}, an \texttt{abs}, or an
@@ -185,14 +227,24 @@ class is cheap to hunt once it is named: every member here is removable by a one
 dictionary edit or a four-line derivative, which makes it the cheapest discriminator
 available, and it was one such edit that closed D1's mechanism hunt.
 
-\paragraph{What links all four.} They are invisible to the checks that ship with the tools.
+\paragraph{What links all six.} They are invisible to the checks that ship with the tools.
 D2's discarded term sums to \emph{exactly} zero over the surface, and the sum is the only
 quantity upstream's test asserts on. D1 produces a gradient that is self-consistent under the
 decomposition it was measured on, and no published verification varies the decomposition.
 D1s is self-consistent across decompositions too --- it passes the invariance gate this lab
 adopted after D1, to \(3.9\times10^{-4}\), while being 92.8\% wrong. D3 announces itself
-loudly, but the documented remedy ladder does not contain the remedy. Each was found by
-measuring the thing the instrument was not looking at.
+loudly, but the documented remedy ladder does not contain the remedy. D4 and D5 are the
+degenerate case of the same problem: the instrument reports the dictionary, and the dictionary
+is not the run --- an option echoed back verbatim while no branch takes it, and a start state
+replaced between runs with nothing printed. Each was found by measuring the thing the
+instrument was not looking at.
+
+\paragraph{What D4 and D5 cost, and why they are here.} Neither is a wrong number. D4 produced
+nine days of correct measurements assembled into an incorrect causal sentence --- the expensive
+kind of defect, because every individual figure survives the audit. D5 produced no wrong
+conclusion at all, on this evidence, and is reported because the audit that established that is
+the only reason anyone knows. A defect report that only lists other people's wrong numbers is
+not the same document as one that lists the ways a toolchain can quietly make you wrong.
 
 %======================================================================
 \section{The decomposition-dependent adjoint}
@@ -1767,6 +1819,9 @@ live discussion threads) is: \texttt{renumberMesh -overwrite}; \texttt{pcFillLev
 \(\rightarrow\) 2; \texttt{jacMatReOrdering} rcm \(\rightarrow\) nd/natural;
 \texttt{gmresRestart}/\texttt{gmresMaxIters} up; \texttt{asmOverlap} up; upwind schemes;
 (since 2025-12) kahip decomposition; and \texttt{transonicPCOption} for transonic cases.
+That last rung has a trapdoor of its own, reported in Section~\ref{sec:deadlever}: the value
+this lab's transonic scripts carried on it is dead code for the solver they ran, accepted
+without a warning and echoed back as though live.
 \textbf{Nothing in that ladder changes the sub-PC type; the ILU choice itself is never
 questioned upstream}, and no upstream doc, issue or discussion mentions ILU singularity, zero
 pivots, or a direct/sub-direct factorization at all --- under 8 targeted searches plus 4
@@ -1811,6 +1866,362 @@ The run was stopped deliberately at roughly iteration 900 when host available me
 Stated for whoever picks this up: \textbf{the hump blocker is no longer the singular
 factorization --- it is Krylov convergence rate against a memory envelope}, which is a
 different and honestly-named problem.
+
+\emph{Added 2026-08-08.} The same envelope bounds where this remedy can be carried at all.
+Taken to a compressible transonic case --- ONERA M6, 21{,}840 cells, np=4, six transported
+fields, \(\sim\)38k unknowns per ASM sub-block --- the complete-LU factorization was
+OOM-killed at a 10~GB cap and, at 20~GB, held 19.94~GiB resident plus 12~GB of host swap while
+completing \emph{zero} hundred-iteration KSP blocks in 27.9 minutes, against the same case's
+stock-ILU run at 5{,}876.6~MiB total and 82~s per hundred iterations. Feasibility of the sub-LU
+switch is block-size- and field-count-bound, not case-count-bound: CBFS fits, M6 at np=4 does
+not. That case turned out not to need it --- Section~\ref{sec:deadlever}.
+
+%======================================================================
+\section{The option that parsed and did nothing}
+\label{sec:deadlever}
+%======================================================================
+
+Section~\ref{sec:pc} reported a wall that was where it looked, and a remedy for it. This
+section reports the case that remedy was carried to next, where the wall was real and its
+cause was not what the record said. The misattribution was this lab's own, in this lab's own
+records, and the correction is printed here at the same length as the claim it replaces.
+
+\subsection{The record this section corrects}
+
+From 2026-07-29 the record read as follows. The ONERA M6 family --- compressible, transonic,
+\texttt{DARhoSimpleCFoam} --- returns \texttt{PetscConvergedReason: -5}
+(\texttt{DIVERGED\_BREAKDOWN}) on \emph{both} adjoint solves at every mesh size tried:
+21{,}840, 42{,}120, 79{,}560 and 99{,}840 cells, while an incompressible case of this lab's
+converges cleanly at 63{,}920. Memory was excluded --- the smallest failing case peaks at
+5.9~GB with more than 20~GB free --- and a dedicated conditioning campaign
+(\artifact{R5\_ADJOINT\_CONDITIONING.md}) measured what could be measured about the operator:
+
+\begin{itemize}
+\item The assembled preconditioner matrix \artifact{dRdWTPC} (\(200{,}360^2\), 22{,}017{,}324
+nonzeros), dumped with a stock \texttt{-ksp\_view\_pmat} and analysed offline, carries a
+\textbf{diagonal magnitude spread of \(1.48\times10^{14}\) --- 14.17 decades}, essentially the
+dynamic range of a double.
+\item \texttt{normalizeResiduals: None} converts the denormal collapse into honest \(-3\)
+stagnation, three times, on both objectives independently --- and \emph{worsens} the measured
+diagonal spread to 16.14 decades, which is how the record came to name ``a second, still-live
+layer of ill-conditioning.''
+\item Both attempts to strengthen the preconditioner from that sane baseline ---
+\texttt{pcFillLevel} \(0\rightarrow1\), and the literature-precedented nested-Richardson wrap
+(\texttt{globalPCIters}/\texttt{localPCIters} \(=3\)) --- reintroduce the collapse, in four
+independent solves, at exactly iteration 1000: the GMRES restart boundary.
+\item Jacobian colour count does not separate the converging cases from the diverging ones
+(1{,}999 colours on a converging incompressible case against 1{,}233--1{,}391 on every
+diverging compressible one).
+\end{itemize}
+
+The failure also lies about itself, and the record caught that much: when the residual
+denormal-collapses toward zero the relative-ratio gate in
+\artifact{DALinearEqn::\allowbreak solveLinearEqn} is trivially satisfied, so a \(-5\) run
+prints \emph{``Residual tolerance satisfied, solution finished!''} and carries on to the next
+objective. Every claim above was measured, is reproducible, and still stands as measured. What
+was wrong was the sentence they were assembled into: \emph{the M6 adjoint is blocked by
+conditioning at every mesh size}.
+
+\subsection{The lever that was never pulled}
+
+Every archived M6 run --- the ladder logs, all seven R5 campaign logs at line 489, the
+reordering pair, the 21{,}840-cell sweep baseline at line 410 --- echoes
+\texttt{transonicPCOption 2;} in its own daOptions dump. Read the solver that consumed it,
+verbatim from the shipped image:
+
+\begin{lstlisting}
+// src/adjoint/DAResidual/DAResidualRhoSimpleCFoam.C:171-176
+    // for PC we do not include the div(phid, p) term, this improves the convergence
+    if (isPC && daOption_.getOption<label>("transonicPCOption") == 1)
+    {
+        pEqn -= fvm::div(phid, p_, divPhidPScheme);
+    }
+\end{lstlisting}
+
+That is the only comparison against \texttt{transonicPCOption} in the file. A branch on
+\texttt{== 2} does exist --- at \artifact{DAResidualTurboFoam.C:176}, in a different solver,
+doing something else entirely (dropping the off-diagonal terms of the \(\phi\) residual).
+\artifact{pyDAFoam.py:396} initialises the option to \(-1\) and documents it, verbatim:
+\emph{``Which options to use to improve the adjoint equation convergence of transonic
+conditions / This is used only for transonic solvers such as DARhoSimpleCFoam''} --- naming as
+its example the solver for which the value our scripts carried does nothing at all.
+
+The value is read through a plain \texttt{getOption<label>} lookup. It is not validated, not
+range-checked, and not reported: the run prints \texttt{transonicPCOption 2;} in its settings
+echo --- which is a faithful report of the \emph{dictionary}, and says nothing about the
+\emph{solver} --- and then takes no branch. So the sentence the record could not write until
+2026-08-08: \textbf{no archived M6 adjoint, at any mesh size, ever ran with an active
+transonic preconditioner.} The wall was characterised in full with the mitigation built for
+exactly that symptom silently off --- and that mitigation is a rung on the upstream remedy
+ladder quoted in Section~\ref{sec:pc} (``\texttt{transonicPCOption} for transonic cases''),
+the rung a \texttt{DARhoSimpleCFoam} user in trouble is told to try.
+
+The finding is due to the pre-registration of an unrelated arm
+(\artifact{A3\_SUBLU\_PREREGISTRATION.md} \S2, \commit{12d3a7a3}), which went to the source to
+state what the lever \emph{was} before pulling it, and found it inert. It cost nothing and it
+invalidated an attribution nine days old.
+
+\subsection{Two not-evaluables, printed at their cost}
+
+The arc from that discovery to a converged adjoint ran through two arms that produced no
+answer to the question asked, and both are printed here because their blockers are findings.
+
+\paragraph{The mesh that was born broken.} The first arm targeted the ladder's cheapest rung,
+an archived 24{,}960-cell ``vcoarse'' M6 mesh. DAFoam's own quality gate rejected it before
+iteration zero: \emph{``Failed 5 mesh checks''} --- 23 negative-volume cells (minimum
+\(-3.302747834736008\times10^{-9}\)), 25 cells at aspect ratio \(2.077\times10^{95}\),
+non-orthogonality \(135.3^\circ\), 144 incorrectly oriented face pyramids, skewness 55.4.
+Adversarially defended two ways: stock \texttt{checkMesh}, outside DAFoam, reproduces every
+figure; and the preserved July-28 decomposition of the \emph{pre-repair} geometry carries the
+identical 23 negative cells to the last digit under an offline divergence-theorem volume
+computation. The mesh was born broken --- a pyHyp extrusion collapse at the wing-tip trailing
+edge on a \(4\times\)-coarsened surface, which makes it a second, cross-geometry specimen of
+the generator pathology this lab already had on record for NACA 0012
+(\artifact{GENERATOR\_FINDING\_pyhyp\_aspect\_ratio.md}). It also rediagnosed the archived
+``SEGV during \texttt{decomposePar}'': two orphan \texttt{autoPatch} patches (\texttt{auto4},
+176 faces; \texttt{auto5}, 11 faces) unmapped by the tutorial \artifact{createPatchDict}, so
+\texttt{decomposePar} failed \emph{cleanly} and the old wrapper launched the solver anyway
+against half-written \artifact{processor*} directories. Cost: 0.53 core-min of 30. The mesh
+birth-certificate rule in the lab's verification charter (v1.5 \S9) comes from this arm.
+
+\paragraph{The remedy of Section~\ref{sec:pc}, which does not fit here.} The re-file carried
+both levers --- \texttt{DAFOAM\_SUBPC\_TYPE=lu} and \texttt{transonicPCOption: 1} --- onto the
+21{,}840-cell sweep mesh, which passes the gate (asserted \emph{before} the pre-registration
+was committed). Both were proven active in-log, the first time on any M6 run. The sub-LU
+factorization then proved memory-infeasible on this case: OOM-killed at a 10~GB cap, and at a
+20~GB cap 19.94~GiB resident plus 12~GB of host swap with \textbf{zero completed
+100-iteration KSP blocks in 27.9 minutes} --- against the record ILU run's 5{,}876.6~MiB total
+and 82~s per hundred iterations. The lever's feasibility is block-size- and field-count-bound:
+CBFS at np=4 is 21{,}000 incompressible cells and fits easily (Section~\ref{sec:pc}); M6 at
+np=4 is \(\sim\)38k unknowns per ASM sub-block across six transported fields, and does not.
+The arm spent 127.5 core-min against 30 and was ended by a host-memory floor, both stated on
+its face. Its verdict was recorded as \emph{not evaluable, memory}: mapping a memory death
+onto ``the conditioning wall is confirmed'' would have been a false confirmation of the very
+sentence that was about to be overturned.
+
+\subsection{The epilogue: one token, on the identical configuration}
+
+The third arm changed one token against the archived \artifact{runScript.py} ---
+\texttt{transonicPCOption} \(2\rightarrow1\), the complete functional diff --- with no sub-LU
+(\texttt{DAFOAM\_SUBPC\_TYPE} unset, stock ASM/ILU(0)), the same mesh, the same partition, the
+same coloring cache, the same \texttt{natural} ordering and 200-vector restart, cold-started
+from uniform fields.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\begin{tabular}{@{}lL{2.0cm}rL{6.4cm}@{}}
+\toprule
+solve & configuration & its & KSP residual path (printed every 100 iterations) \\
+\midrule
+\(C_D\) & \texttt{tpc 2} (record) & 400 & \(2.120880199369\times10^{-2}\) flat through 300, then denormal \(6.467896765713\times10^{-310}\); \textbf{reason \(-5\)} \\
+\(C_D\) & \texttt{tpc 1} & \textbf{368} & \(\rightarrow 2.045016030763\times10^{-6}\), 70.6~s; \textbf{reason 2} \\
+\addlinespace
+\(C_L\) & \texttt{tpc 2} (record) & 600 & \(1.839195903440\times10^{-1}\) \(\rightarrow\) stall at \(1.839160961071\times10^{-1}\) for 300+ iterations, then denormal \(3.945602898014\times10^{-308}\); \textbf{reason \(-5\)} \\
+\(C_L\) & \texttt{tpc 1} & \textbf{383} & \(1.839195903440\times10^{-1} \rightarrow 6.86\times10^{-2} \rightarrow 4.47\times10^{-3} \rightarrow 1.89\times10^{-4} \rightarrow 1.831279779570\times10^{-5}\), 101.7~s; \textbf{reason 2} \\
+\bottomrule
+\end{tabular}
+\caption{The one-token arm against the 2026-07-30 record, same case directory, same 21{,}840-cell
+mesh. Record: \artifact{run\_opt5\_onera\_n15\_21840.log}. Converged arm:
+\artifact{tpc1\_computetotals.log}, pre-registration \commit{13c244cd}, result
+\commit{11b90d25}. Healthy norms throughout, no NaN anywhere, \texttt{rc=0}, and the full
+totals dictionary printed --- \textbf{the first converged M6-family adjoint, and the first M6
+gradient, in this lab's history}, at 7.33 core-min of the \(\sim\)28 approved.}
+\label{tab:tpc1}
+\end{table}
+
+The line worth reading twice is the \(C_L\) start value. The record's solve sat at
+\(1.839160961071\times10^{-1}\) for three hundred iterations before collapsing; the converged
+solve \emph{starts} at \(1.839195903440\times10^{-1}\) --- the same linearization state to four
+significant digits --- and descends straight through the record's stall point to convergence.
+Same operator, same right-hand side, same starting residual: what changed is a term dropped
+from the preconditioner's pressure equation.
+
+\subsection{The control that could have taken it back}
+
+A first-in-history convergence claim on a nine-day-old failure has one obvious confound:
+host and case-state drift between 2026-07-30 and today. The pre-registered negative control
+(\commit{31eede16}, filed before launch) ran the archived \artifact{runScript.py} itself, zero
+edits, on today's host, cold-started, with the expectation written down in advance --- stall at
+the known value, \texttt{DIVERGED\_BREAKDOWN} --- and the falsifier stated: \emph{if the
+control converges, the token story is wrong and the finding reverts to open}.
+
+It did not converge. It reproduced the record \textbf{bit for bit}
+(\artifact{ctrl\_computetotals.log}, \commit{551a7ba5}):
+
+\begin{table}[htbp]
+\centering\footnotesize
+\begin{tabular}{@{}lL{9.6cm}l@{}}
+\toprule
+solve & printed sequence, control vs the 2026-07-30 record & match \\
+\midrule
+\(C_D\) & \(2.120880199369\)e-2, \(2.115399810107\)e-2, \(2.118080629916\)e-2,
+\(2.111512927865\)e-2 (iterations 0--300), then denormal & every digit \\
+\(C_L\) & \(1.839195903440\)e-1, \(1.839114940558\)e-1, \(1.839524885689\)e-1,
+\(1.839160961071\)e-1, \(1.865300757639\)e-1, \(1.841505669984\)e-1, terminal denormal
+\(3.945602898014\)e-308 & every digit \\
+\bottomrule
+\end{tabular}
+\caption{The negative control against the record. Both solves \(-5\), at 400 and 600
+iterations. The elapsed times are not comparable and are not compared --- the record run
+computed its Jacobian coloring from scratch and this one reused the cached
+\artifact{dRdWColoring\_4.bin} --- but every printed residual is. The terminal \(C_D\) denormals differ
+(\(6.544171804409\times10^{-310}\) against \(6.467896765713\times10^{-310}\)): that is
+sub-normal garbage below any meaningful precision, and it is reported rather than rounded
+into agreement. Cold-start signature \texttt{0.5969274433533561}, bit-identical to the
+converged arm's. 8.53 core-min.}
+\label{tab:m6control}
+\end{table}
+
+The causal statement this earns, and no more: on one host, one day, one cold-start protocol,
+with the two arms' \(C_L\) solves starting from the same printed number, the only difference
+between double \texttt{DIVERGED\_BREAKDOWN} and double \texttt{reason 2} is
+\texttt{transonicPCOption} \(2\rightarrow1\). Identical state, opposite outcomes, one token.
+
+One incidental result falls out of the control: both M6 arms ran on
+\artifact{dafoam-subpclu:v1} --- the patched image of Section~\ref{sec:pc} --- with the switch
+unset, and the control reproduced, to every printed digit, a record measured on the stock
+image. That is a default-off regression for the sub-PC patch on a second case, a different
+solver, and a failure mode the patch was never aimed at.
+
+\subsection{The gradient, and the two components it does not certify}
+
+The converged solve produces a gradient; by this lab's charter (\S7) that gradient is an
+existence proof until it has a finite-difference table. The pre-registration
+(\commit{4aef4a2f}, addendum \commit{b9f42631}) fixed the components, the steps, the
+noise-floor rule and the pass band before either attempt ran, under the tight-primal
+discipline (\texttt{primalMinResTol} \(10^{-8}\); disclosed on its face: the primal plateaus
+below the \(10^{-4}\) hard gate without reaching \(10^{-8}\)).
+
+Attempt 1 at \(h=10^{-3}\) landed in the pre-registered \emph{not evaluable} branch --- every
+component's objective delta sat below ten times the measured baseline drift
+(\(2.107\times10^{-6}\)) --- and the steps were re-sized from the measured floor rather than
+argued. It also fired this lab's own index-label lesson: the pre-registration's reference value
+for \texttt{shape[5]} was a mis-parse of a line-wrapped 120-column numpy row, and the true
+maximum-magnitude component is \texttt{shape[115]}. The perturbation was always applied to the
+component named, by construction, so no number moved; the mis-parse was disclosed and the real
+maximum component added to attempt 2.
+
+\begin{table}[htbp]
+\centering\scriptsize
+\begin{tabular}{@{}L{2.6cm}rrrrrl@{}}
+\toprule
+component & adjoint & FD(\(h\)) & FD(\(2h\)) & \(\Delta\)/floor & step-cons. & verdict \\
+\midrule
+\texttt{patchV[1]} (AoA) & \(7.64611788\)e-3 & \(7.66002800\)e-3 & \(7.62500232\)e-3 & 94 & 0.46\% & \textbf{PASS, 0.18\%} \\
+\texttt{shape[115]} (max \(\lvert g\rvert\)) & \(-1.24189676\)e-1 & \(-1.23048667\)e-1 & \(-1.22797280\)e-1 & 1513 & 0.20\% & \textbf{PASS, 0.93\%} \\
+\texttt{twist[1]} & \(1.73254475\)e-3 & \(1.75500957\)e-3 & \(1.66219195\)e-3 & 22 & 5.29\% & \emph{no verdict} (1.28\%) \\
+\texttt{shape[5]} & \(7.34091832\)e-3 & \(7.82812275\)e-3 & \(8.47020820\)e-3 & 96 & 8.20\% & \emph{no verdict} (6.22\%) \\
+\bottomrule
+\end{tabular}
+\caption{Attempt 2, \(h=10^{-2}\) and \(2\times10^{-2}\), noise floor \(1.626\times10^{-6}\),
+adjoint \texttt{reason 2} at 368 iterations --- iteration-identical to the converged arm, third
+occurrence. Arm verdict per the pre-registered rule (\(\ge2\) evaluable components, all
+evaluable components inside the 5\% band): \textbf{PASS}. \(\Delta\)/floor is the objective
+delta in multiples of the measured noise floor; step-cons.\ is the change between the two
+steps, whose pre-registered gate is 5\%. The two step-inconsistent rows are
+the two smallest signals; their bracketed relative errors are printed for the reader and carry
+\textbf{no verdict in either direction} --- the honest reading is that the step-consistency
+gate, not the agreement, is what failed there. \artifact{A3\_FD3\_PREREGISTRATION.md},
+result \commit{e4280b79}.}
+\label{tab:m6fd}
+\end{table}
+
+Two components spanning two design-variable groups, one of them the largest gradient component
+in the vector, agree with central differences at 0.18\% and 0.93\%. Alongside that: the adjoint
+is bit-reproducible across three independent runs (\texttt{shape[115]} reads
+\(-1.24189680\)e-1 and \(-1.24189676\)e-1 on separate runs; every compared component agrees to
+all printed digits; all three converge in exactly 368 iterations). What this table licenses is
+stated narrowly: the gradient may be used as a number for \texttt{patchV}- and
+\texttt{shape}-class work \emph{at this rung, at the tested steps}. \texttt{twist}-class
+components remain unverdicted.
+
+\subsection{The second silent configuration: the time-0 rewrite}
+
+The same arc surfaced a second way for a configuration to be silently not what it says. At the
+end of a primal, \texttt{pyDAFoam} writes the end state back into the time-0 directory: on this
+case \artifact{0/U} came out bit-identical to \artifact{1000/U} (\commit{f77b2607}). Nothing in the log announces
+it. Every subsequent run of that case directory therefore starts from the previous run's
+converged fields --- and the wrapper's own \texttt{renameSolution} then hard-raises
+(\artifact{pyDAFoam.py:1543}) on the leftover \texttt{0.0001} directory it created, so the
+natural repair (delete the leftover time directory, rerun) clears the obstacle while leaving
+the overwritten time~0 in place. The failure mode is the dangerous kind: the run proceeds, and
+the cold start you assumed is not the start that ran.
+
+Caught inside this campaign --- an arm whose ``cold'' primal ran its full 1000 steps in 10~s
+from the previous run's converged fields, finishing 2.2\% in \(\lVert U\rVert\) from the
+record's own writeout --- it was then audited backwards across the lab's DAFoam record
+(\artifact{WARMSTART\_AUDIT.md}, \commit{9bb948b2}; zero solver cost, log forensics only). The
+audit's own priced discriminator failed first and is reported as such: ``a warm primal is an
+order of magnitude faster'' is \emph{invalid} on this rung --- cold and warm primals both take
+\(\sim\)10~s, and the contrast the proposal had priced was coloring-computation time. The
+surviving discriminator is the first \texttt{Time step continuity errors} value: cold-from-uniform
+\(0.597\) against warm \(0.0107\), a \(55\times\) separation, and bit-reproducible ---
+\emph{six} independent cold starts print \texttt{0.5969274433533561} to all 16 digits.
+
+Nine conclusion-bearing records were graded against it. Seven are \textbf{cold-clean}, most of
+them by construction: the W4 studies ran each arm in its own staged case copy, which is
+structurally immune to the hazard, and their first continuity errors are bit-identical across
+arms --- including the reordering ladder and the sub-LU unblock of Section~\ref{sec:pc}, whose
+comparisons are therefore provably same-state. Two carry flags, neither load-bearing: a set of
+M6 lever nulls whose logs were lost with a session scratchpad (formally indeterminate, mechanism
+certain --- and the record now requires a cold rerun before any of them is ever cited again),
+and the R5 matrix dumps quoted at the head of this section, which were assembled about a warm state
+\(\sim\)2\% off in \(\lVert U\rVert\) and whose conclusions are order-of-magnitude spreads
+(14 decades) that such a drift cannot move. No record-grade conclusion was overturned, and the
+audit rewrote none of them; the flags are printed here for the same reason they were printed
+there.
+
+\subsection{What is reportable here, and what is not}
+
+Two behaviours in this section are properties of the shipped tools rather than of this lab's
+cases, and they are the reason it sits in a defect report at all:
+
+\begin{enumerate}
+\item \textbf{A configuration option that parses cleanly and does nothing for the solver
+reading it.} \texttt{transonicPCOption: 2} is a legal value --- for
+\texttt{DAResidualTurboFoam}. Given to \texttt{DARhoSimpleCFoam} it raises nothing, warns
+nothing, and is echoed back in the settings dump exactly as a live option would be. The
+information needed to reject it is available at the point of use: the solver knows its own
+type. A warning at option-read time on an out-of-range value, or a documented per-solver
+applicability table, would have converted nine days of misattributed conditioning work into a
+one-line log message. This is not the branch class of Sections~\ref{sec:decomp}--\ref{sec:idwarp}
+and it is not a wrong number; it is a usability and diagnosability defect, and its blast
+radius is measured: every M6 conclusion in this lab's archive, one of which was wrong.
+\item \textbf{A state rewrite with no log line.} The time-0 overwrite is defensible as a
+restart convenience and indefensible as a silent one, particularly in a wrapper whose own
+rename step then fails on the artifact it just produced. Anyone A/B-testing an archived DAFoam
+case is exposed, and the exposure is invisible in the log unless you know to read the first
+continuity error.
+\end{enumerate}
+
+Neither is filed. Neither has a prepared upstream report of the kind Sections~\ref{sec:decomp}
+and~\ref{sec:idwarp} carry; what exists is the measured record cited throughout this section.
+The shape a filing would take is small in both cases --- a validation warning, and a log line
+--- and that smallness is the argument for it.
+
+\subsection{Scope, stated against ourselves}
+
+\begin{itemize}
+\item \textbf{One rung.} Everything in the epilogue is 21{,}840 cells. The taller rungs of the
+M6 ladder --- 42{,}120, 79{,}560, 99{,}840 --- have \emph{not} been rerun with the
+preconditioner active, and the memory envelope that blocks the sub-LU lever also lives up
+there. ``One token was the wall'' is a statement about this rung and nothing above it.
+\item \textbf{The old measurements stand.} The 14.17-decade diagonal spread, the
+\texttt{normalizeResiduals} signature change, the restart-boundary collapses and the colour
+counts are all still true as measured. What is withdrawn is the causal sentence they were
+assembled into. A wall that one token removes was not, at this rung, a wall of conditioning ---
+and the operator can be badly scaled and still solvable with the right preconditioner.
+\item \textbf{The gradient claim is Table~\ref{tab:m6fd} and nothing wider.} Two components
+verified at two steps; two unverdicted; no claim about the other components of a vector with
+hundreds of them, no optimization run behind it.
+\item \textbf{The upstream ladder claim is unchanged.} Section~\ref{sec:pc}'s finding --- that
+no documented remedy changes the sub-PC type --- is not affected by this section. The
+\texttt{transonicPCOption} rung of that same ladder is live and useful; the defect is that a
+wrong value on it fails silently.
+\item \textbf{Nothing here is filed}, and the lever-activity discipline that produced it is now
+this lab's rule rather than its discovery (L-40, verification charter v1.5 \S9): a load-bearing
+option is evidence only when a runtime log proves it ran.
+\end{itemize}
 
 %======================================================================
 \section{Methods: adversarial verification as practice}
@@ -1921,6 +2332,30 @@ The ``no acquisition'' verdict is scored on an instrument adopted after the arm'
 \end{tabular}
 \end{table}
 
+\subsection{Two audits larger than a sweep}
+
+A supervisor sweep re-derives one claim. Twice in this arc a single finding was large enough
+to force a sweep of the \emph{archive}, and both are reported with their negative results
+because that is what an audit is for.
+
+\textbf{The dead-lever audit} (\artifact{DEAD\_LEVER\_AUDIT\_2026-08-08.md},
+\commit{946e4a26}) ran the D4 question against every conclusion-bearing record the lab holds:
+each sentence leaning on a named solver option, and each such option hunted in the archived
+\emph{runtime} logs rather than the input dictionaries. Zero solver cost, read-only. Result:
+about 125 distinct lever/conclusion pairs \textbf{verified} against a quoted log line, 16
+reported \textbf{unverifiable-from-logs} (the logs are gone or never printed the banner --- and
+per the charter those conclusions now carry that caveat on their faces), and four
+\textbf{found dead}. Only one of the four reopens a conclusion, and it is D4 itself. The
+headline is a null: \emph{no new conclusion-reopening dead lever was found anywhere in the
+archive}. That null is worth more than the finding that prompted it, and it is the reason D4 is
+reported as one specimen rather than as a pattern in this lab's work.
+
+\textbf{The warm-start audit} (\artifact{WARMSTART\_AUDIT.md}, \commit{9bb948b2}) did the same
+for D5's state hazard across nine conclusion-bearing records, also at zero solver cost, and is
+described in Section~\ref{sec:deadlever}. It is the one audit here that began by invalidating
+its own priced instrument --- the ``warm primals are an order of magnitude faster'' signature
+does not exist on this case --- and proceeded on a discriminator it validated instead.
+
 \subsection{Pre-registration}
 
 Predictions are committed to the repository \emph{before} the runs that test them, and scored
@@ -1953,6 +2388,17 @@ refuted the whole hypothesis.
 fired: the np=1 control read 92.8\%, so the arm is reported NOT SCORED against its own bands
 rather than re-read into a result. Its contingent arms were authorized only on a fire that did
 not happen, and were correctly not run.
+\item The M6 arc of Section~\ref{sec:deadlever} ran five pre-registrations in one day
+(\commit{12d3a7a3}, \commit{054d10b2}, \commit{13c244cd}, \commit{31eede16},
+\commit{4aef4a2f}), each committed before the launch it governs, two of them carrying
+addenda committed before the attempt \emph{they} govern. Its scoring is the point:
+the registered \emph{not evaluable} branch fired \textbf{three times} --- twice on arms that
+never reached an adjoint, once on a finite-difference step below its own measured noise floor
+--- and each is reported as not evaluable with its blocker named, rather than read into the
+verdict the campaign wanted. The negative control was registered \emph{with its falsifier}
+(``if the control converges, the token story is wrong and the finding reverts to open''), and
+the FD arm's pass rule (\(\ge2\) evaluable components, all evaluable ones inside 5\%) was
+fixed before the components were.
 \end{itemize}
 
 \subsection{Cost, stated including the overruns}
@@ -1975,11 +2421,24 @@ Robustness campaign (21 ledger lines: two refined-mesh arms, four scheme knobs, 
 Acquisition arm and its two separating arms (4 runs, all rc=0) & 15.16 & 30 \\
 Robustness supervisor sweep (offline: raw-vector recomputation, byte diffs, two cut re-classifications) & 0.00 & \\
 Serial-limiter supervisor sweep (offline: log mining, one-sided-slope reconstruction) & 0.00 & \\
+\addlinespace
+\multicolumn{3}{@{}l}{\emph{The M6 arc of Section~\ref{sec:deadlever}, one day, five pre-registrations:}}\\
+\quad vcoarse arm (mesh gate, no iteration run) & 0.53 & 30 \\
+\quad sub-LU + PC re-file, three attempts (OOM, host-floor kill) & 127.0 & 30 \\
+\quad the one-token arm --- both adjoints converged & 7.33 & $\sim$28 \\
+\quad negative control (record configuration, reproduced) & 8.53 & $\sim$30 \\
+\quad FD verification, two attempts & 29.5 & $\sim$30 \\
+\quad dead-lever audit and warm-start audit (log forensics only) & 0.00 & \\
 \bottomrule
 \end{tabular}
-\caption{Solver cost. The one overrun --- 26\% on the discriminators --- is confined entirely
+\caption{Solver cost. Two overruns. The first --- 26\% on the discriminators --- is confined
+entirely
 to the coloring-off arm, and the record volunteers that the second forced attempt should not
 have been launched after the first showed unbounded memory growth rather than a slow finish.
+The second is larger and worse-looking: the M6 sub-LU re-file spent \(4.25\times\) its budget,
+inside a pre-registered commitment to run to its reason codes, and was stopped by a host-memory
+floor rather than by its own budget. It bought a measured infeasibility and no reason code.
+The arm that answered the question cost 7.33 core-min.
 Every run is billed at full cap occupancy for its whole wall clock, including both kills and
 including the refined-mesh arm that returned a failure instead of a number. The two most
 recent sweeps cost \emph{nothing}: both re-derived their verdicts from artifacts already on
@@ -2044,6 +2503,15 @@ side is anchored to an external reference. And the converse of L-37's trigger: a
 branch can corrupt the reverse sweep in \emph{serial}, with the parallel machinery innocent ---
 so when a serial gradient check fails against a step-stable finite difference, put the tape's
 branches at the top of the suspect list there too, before FD-quality theories.
+\item \textbf{L-40.} \emph{The switch you set is not the switch that ran.} Any option, flag,
+model choice or lever that is load-bearing for a conclusion must have its activity confirmed in
+the \emph{runtime log} --- not its presence in the input dictionary --- before the conclusion
+ships. ``Configured'' and ``active'' are different claims and only the second is evidence: a
+dictionary entry can be dead code for the solver that executed it, and the settings echo will
+print it back either way. Where the archived log cannot settle it, the conclusion ships marked
+\emph{unverifiable-from-logs} rather than quietly assumed. The companion rule from the same arc:
+a mesh entering an archive, a pre-registration or a ladder rung carries its \texttt{checkMesh}
+record from creation --- born clean or it does not enter.
 \end{itemize}
 
 %======================================================================
@@ -2062,7 +2530,7 @@ image / package & identity \\
 \artifact{dafoam/opt-packages:latest} & DAFoam 5.0.0, OpenFOAM v2506, PETSc 3.15.5. The stock toolchain; all phenomenon and mechanism measurements \\
 IDWarp 2.6.2 (inside the above) & digest \artifact{sha256:9d45679d55fd\allowbreak 47f5ca7afd99\allowbreak cabb86c7c272\allowbreak 9cf2acf34c43\allowbreak 8eb33af5290f07fc}; installed \artifact{idwarp/*.py} md5-identical to tag \texttt{v2.6.2}, tag commit \commit{647fd8fc} \\
 patched IDWarp & scratch clone at \artifact{/home/ubuntu/certonomous-runs/W5-patch/idwarp}; \texttt{git diff} byte-identical to \artifact{rotation\_branch/idwarp\_v2.6.2\_degenerate\_branch\_fix.patch} (2 files, +44 lines). Mounted, never installed in place \\
-\artifact{dafoam-subpclu:v1} & local-only \texttt{docker commit} of the stock image with one hunk at \artifact{DALinearEqn.C:266} rebuilt in all three AD modes. Nothing pushed \\
+\artifact{dafoam-subpclu:v1} & local-only \texttt{docker commit} of the stock image with one hunk at \artifact{DALinearEqn.C:266} rebuilt in all three AD modes. Nothing pushed. All three M6 arms of Section~\ref{sec:deadlever} ran on this image with \texttt{DAFOAM\_SUBPC\_TYPE} \emph{unset} --- and the negative control reproduced, to every printed digit, a record measured on the stock image: a default-off regression on a second case \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2218,6 +2686,47 @@ what is needed:
 #    selection available to the FD produces that. The adjoint is convicted.
 \end{lstlisting}
 
+\subsection{The third one-token reproducer, and how to prove it ran}
+
+Section~\ref{sec:deadlever}'s switch is one integer in \artifact{daOptions}, on a transonic
+case run with \texttt{DARhoSimpleCFoam}. It needs no patch, no rebuild and no image:
+
+\begin{lstlisting}[language=Python]
+daOptions = {
+    # ...
+    "transonicPCOption": 2,   # accepted, echoed, and DEAD for this solver
+#   "transonicPCOption": 1,   # the live branch: DAResidualRhoSimpleCFoam.C:173
+}
+# Only == 1 is implemented for DARhoSimpleCFoam; == 2 is DAResidualTurboFoam.C:176.
+# pyDAFoam.py:396 initialises it to -1 and documents it for "transonic solvers
+# such as DARhoSimpleCFoam". Nothing validates the value at read time.
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash]
+# The echo below is NOT proof the branch ran -- it is a dump of the dictionary,
+# and it prints the dead value exactly as it prints the live one:
+grep "transonicPCOption" run.log
+#     transonicPCOption 2;      <- reads identically whether or not it does anything
+
+# What the option DOES is drop fvm::div(phid,p) from the PC pressure equation.
+# On a case that fails, the discriminating evidence is the reason code itself:
+grep "PetscConvergedReason" run.log
+#   Total iterations: 400. PetscConvergedReason: -5    (tpc 2, both solves)
+#   Total iterations: 368. PetscConvergedReason:  2    (tpc 1, CD)
+#   Total iterations: 383. PetscConvergedReason:  2    (tpc 1, CL)
+
+# CAUTION, two traps in this exact workflow (both measured, D4/D5 section):
+# 1. A -5 run prints "Residual tolerance satisfied, solution finished!" -- the
+#    denormal-collapsed residual passes the relative-ratio gate. Read the reason
+#    code, never the sentence.
+# 2. Re-running in the same case directory silently warm-starts: pyDAFoam wrote
+#    the previous run's end state into time 0. Verify the start state in-log --
+#    cold-from-uniform prints its own signature and warm prints ~55x lower:
+grep -m1 "Time step continuity errors" run.log
+#   ... sum local = 0.5969274433533561     <- cold, this case, six runs, 16 digits
+#   ... sum local = 0.0107                 <- warm: a previous run's converged fields
+\end{lstlisting}
+
 \subsection{Reproducing the IDWarp defect in isolation}
 
 No DAFoam, no OpenFOAM, no pyGeo, no CFD --- IDWarp's own test mesh, options, displacement and
@@ -2283,8 +2792,12 @@ artifact & what it holds \\
 \artifact{DEFECT\_REACH\_decomposition\_cases.md} (\commit{99f5d41d}) & The pre-registered reach matrix, since scored and audited (sweep \commit{192c970c}) \\
 \artifact{subpclu\_patch/DALinearEqn\_subpclu.patch} (\commit{1cd44c04}, regenerated \commit{9796f90f}) & The one-hunk sub-PC source diff. Repo-relative headers since the regeneration; \texttt{git apply --check} passes from the DAFoam repo root \\
 \artifact{rotation\_branch/idwarp\_v2.6.2\_degenerate\_branch\_fix.patch} & The four-line derivative correction (2 files, +44 lines) \\
+\artifact{A3\_SUBLU\_RESULT.md} & The M6 arc end to end, in the order it happened: the mesh-gate not-evaluable, the memory-bound sub-LU re-file, the converged one-token arm (\commit{11b90d25}), the bit-for-bit negative control (\commit{551a7ba5}), the FD table (\commit{e4280b79}) \\
+\artifact{A3\_SUBLU\_PREREGISTRATION.md} (\commit{12d3a7a3}), \artifact{A3\_SUBLU\_SWEEP\_PREREGISTRATION.md} (\commit{054d10b2}), \artifact{A3\_TPC1\_ARM\_PREREGISTRATION.md} (\commit{13c244cd}), \artifact{A3\_TPC1\_CONTROL\_PREREGISTRATION.md} (\commit{31eede16}), \artifact{A3\_FD3\_PREREGISTRATION.md} (\commit{4aef4a2f}) & The five pre-registrations of Section~\ref{sec:deadlever}, each committed before the launch it governs. \S2 of the first is where \texttt{transonicPCOption: 2} was found dead \\
+\artifact{R5\_ADJOINT\_CONDITIONING.md}, \artifact{ADJOINT\_MEMORY\_ENVELOPE.md}, \artifact{PROOF.md} \S25.2 & The M6 conditioning record as measured --- each now carrying its dated dead-lever annotation (\commit{e9a651e9}) \\
+\artifact{WARMSTART\_AUDIT.md} (\commit{9bb948b2}) & D5: the nine-row verdict table, the invalidated signature, the \(55\times\) discriminator \\
 \artifact{PROOF.md} \S25.5, \S23--24, \S25.2--25.3 & The primary measurement record \\
-\artifact{LESSONS.md} L-29 -- L-38 & The method-of-investigation thread \\
+\artifact{LESSONS.md} L-29 -- L-40 & The method-of-investigation thread \\
 \midrule
 \multicolumn{2}{@{}l}{\textbf{Run directories: \artifact{/home/ubuntu/certonomous-runs/}}}\\
 \artifact{W4-a4-stepsweep/} & The phenomenon table's per-cell logs \\
@@ -2296,6 +2809,8 @@ artifact & what it holds \\
 \artifact{W5-idwarp-source/}, \artifact{W5-patch/}, \artifact{W5-rotation-branch/} & IDWarp source clone, patched clone, and the A5 case copies \\
 \artifact{W4-adjoint-pc-unblock/} & Offline petsc4py ladder, CBFS and hump runs, the 9-point FD sweep \\
 \artifact{W4-verify-sweep/} & The conditioning sweep's isolated case copy and its own logs \\
+\artifact{A3-onera-m6-sweep-n15\_21840/} & The 21{,}840-cell M6 rung: the 2026-07-30 record (\artifact{run\_opt5\_onera\_n15\_21840.log}), the three sub-LU attempts, and the three arms of Section~\ref{sec:deadlever} --- \artifact{tpc1\_\allowbreak computetotals.log}, \artifact{ctrl\_\allowbreak computetotals.log}, \artifact{fd3\_run\{\_attempt1,\}.log} --- with their launchers, scripts and \artifact{.t0/.rc/.t1} ledgers \\
+\artifact{A3-onera-m6-adjoint-vcoarse/} & The born-broken rung: the mesh-gate abort, the standalone \texttt{checkMesh} reproduction, and the preserved pre-repair decomposition that carries the same 23 negative cells \\
 \bottomrule
 \end{longtable}
 
@@ -2338,6 +2853,28 @@ False} under large deformation has not been measured.
 \item \textbf{D3, the hump.} Krylov convergence rate against a memory envelope. A prepared
 configuration wrapping the exact sub-solve in Richardson with a capped restart is staged but
 unrun.
+\item \textbf{D4, the taller rungs.} The epilogue is one rung, 21{,}840 cells. Whether
+\texttt{transonicPCOption: 1} alone converges the 42{,}120-, 79{,}560- and 99{,}840-cell rungs
+is unmeasured, and the memory envelope that blocked the sub-LU lever lives up there too. Until
+those run, ``one token was the wall'' is a claim about the smallest rung only.
+\item \textbf{D4, the gradient's unverified components.} Two probed components carry no verdict
+(\texttt{twist[1]}, \texttt{shape[5]}, both step-inconsistent at the tested steps), and the
+remaining components of the vector are unprobed. No optimization has been run on this gradient.
+The primal reaches its plateau below the \(10^{-4}\) hard gate without attaining the requested
+\(10^{-8}\), which is disclosed on the FD arm's face and is the likeliest floor under the two
+unverdicted rows.
+\item \textbf{D4, the mechanism.} \emph{Why} dropping \(\mathrm{div}(\phi_d,p)\) from the
+preconditioner's pressure equation converts breakdown into convergence on this case is not
+demonstrated here --- only that it does, reproducibly and against a control. The 14-decade
+diagonal spread of the assembled PC matrix has not been re-measured with the option active.
+\item \textbf{D4/D5, the unverifiable levers.} The dead-lever audit left 16 lever/conclusion
+pairs whose activity no surviving log can settle; per the charter they ship marked
+unverifiable-from-logs rather than assumed. Separately, one set of M6 lever nulls is
+warm-start-flagged with its logs lost: nothing currently cites them, and the standing
+requirement is a cold rerun before any of them is cited again.
+\item \textbf{D5, upstream's intent.} Whether the time-0 rewrite is deliberate (a restart
+convenience) or incidental is not established from the source here; the finding as stated is
+about its silence, not its existence.
 \end{enumerate}
 
 \vspace{1em}
@@ -2345,7 +2882,9 @@ unrun.
 \fbox{\begin{minipage}{0.94\textwidth}
 \small\textbf{Filing status, restated plainly.} Nothing in this document has been filed, sent,
 or posted --- not the decomposition report, not its three addenda, not the comment
-on \artifact{mdolab/idwarp\#57}, not the sub-PC pull request. All of it is
+on \artifact{mdolab/idwarp\#57}, not the sub-PC pull request, and not the two
+silent-configuration findings of Section~\ref{sec:deadlever}, which have no prepared report
+at all. All of it is
 \textbf{PREPARED and HELD}. Submissions are parked at the owner's discretion, and whether any
 of it goes upstream is the lab principal's decision, not the authors'. This document is what
 the case file looks like while it waits.
