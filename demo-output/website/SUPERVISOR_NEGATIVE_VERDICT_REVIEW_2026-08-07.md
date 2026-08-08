@@ -58,6 +58,24 @@ and the pre-registration must say what a shared root cause would look like; (3) 
 arm admits both members, the n=3-or-4 containment statement completes entry 1; if either stalls
 at 30,000, the hills band waits for the omega-budget work rather than chasing caps upward.
 
+**Entry 1 FINAL (2026-08-08 evening, be10a049 — the extension arm completes it):** family-H
+membership settles at n = 1 and the containment refusal is no longer provisional — it is the
+family's answer at this rung, with the pre-declared no-cap-beyond-30,000 boundary exercised as
+written. The four failure modes are now fully characterized and they are four DIFFERENT modes:
+kOmegaSST converges +72% above the literature band; SpalartAllmaras CONVERGES BUBBLE-LESS
+(residualControl met at 12,361 iterations, bottom wall attached on all 120 faces — no x_R exists
+in its steady solution to band, and at 0.61× SST's mean nut it is not an over-diffusive blob);
+kEpsilon dies in an S1 FPE at iteration 13; realizableKE stalls at 30,000 with its descent
+projection falsified. The epistemic finding entry 1 actually bought: on the hills, model-form
+disagreement expresses as a FAMILY-CONVERGENCE WALL — the closures cannot even agree to produce
+comparable steady solutions — which is a stronger and different statement than a wide band, and
+the showcase should present it as such. Open threads carried forward: the paired k-family FPE
+diagnosis (78495ab2, queued), the SA nuTilda-in-a-cyclic-domain self-sustainment question
+(flagged to the liaison at zero compute), and the omega-budget work that the hills band now
+formally waits on. The kill-resilience note deserves its line: the seventh fleet death took the
+supervisor's watcher mid-arm and the detached runner self-ledgered both records and its own
+stopping line — zero loss, the discipline's seventh proof.
+
 ## 2. F6a NASA hump — bubble-length overprediction (pass with asterisk)
 Same family as (1). The model-form matrix at challenge conditions is already approved
 (`w1-hump-challenge-conditions`, 60). **New diagnostic:** [FILE] add a QCR arm to that run when it
