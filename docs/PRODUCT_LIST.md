@@ -578,6 +578,34 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - IN FLIGHT at changelog time: hills model-form matrix (family H, pre-reg 28e14422), A3 sub-LU adjoint arm, S1
   nonlocality control → FD gate → weighted arm.
 
+### 2026-08-08 (morning) — Katie's L-40 order codified, both audits executed, and the review keeps eating its own entries
+- L-40 CODIFIED (7be0afc2): "the switch you set is not the switch that ran" — LESSONS.md L-40 + Verification Charter
+  v1.5 §9: `levers_verified_active` (load-bearing options need the log line proving they ran; unverified fails review)
+  and the mesh birth certificate (born clean or it doesn't enter; certificate-less meshes quarantined).
+- AUDIT 1, DEAD LEVERS (946e4a26): 126 lever/conclusion pairs VERIFIED with ~180 quoted log lines; 16 distinct
+  unverifiable-from-logs; 4 found-dead — NONE NEW, NONE REOPENING (the A3 specimen already reopened; three
+  previously-caught). Blast radius of the dead transonic PC mapped across every archived M6 adjoint log; retroactive
+  annotations + the F5c SIMPLEC caveat + secondary record fixes ordered and in progress. Structural finding: four
+  lever classes have no possible activity echo in stock logs — self-printing-banner instrumentation proposal filed
+  for Infra adoption.
+- AUDIT 2, MESH BIRTH CERTIFICATES (f41e969f): 178 unique meshes swept (from 5,303 dirs; dedup by points md5);
+  105 pre-certified (spot-checks match digit-for-digit), 67 newly certified clean, 41+2 unreachable (listed),
+  **exactly ONE born-broken — the known A3 vcoarse; the pyHyp pathology did NOT strike beyond the two specimens.**
+  No numeric conclusion ever rested on the broken mesh. Biggest structural gap: the mesh cache stores bare polyMesh
+  with no quality record — the entry-with-certificate proposal is filed with line-level insertion points; Infra
+  adoption dispatched.
+- HILLS MODEL-FORM MATRIX (c29a1a91): containment REFUSED at n=1 — the first live firing of no-containment-below-n3,
+  by pre-registration. Family-convergence wall now has two geometries (bump 0/4, hills 1/4); kEpsilon's FPE crash
+  class reproduced on the hills. Extension arm (30k cap, RUNNING) + paired FPE diagnosis (78495ab2) approved; the
+  no-cap-chasing boundary pre-declared.
+- A3 RE-FILE (0b4f3005): both levers L-40-proven active for the first time in M6 history; sub-LU is MEMORY-bound on
+  M6 block sizes (>20 GiB, zero KSP blocks) — the agent's refusal to call a memory death a conditioning confirmation
+  is quoted as precedent. PC-alone arm approved and RUNNING (the never-active lever solo, in the known envelope).
+  New DAFoam finding filed for pricing: pyDAFoam silently warm-starts every rerun (writes primal end state into
+  time 0) — the L-40 hazard in the state dimension.
+- COMMIT-EVERYTHING SWEEPS at Katie's order before she stepped away: cd34b0a7 + 7475417d; tree clean at that point,
+  subsequent agent landings layer on top.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
