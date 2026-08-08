@@ -2637,6 +2637,17 @@ mid-investigation. **The reordering cannot be the shared setting behind the M6-f
 "none has had the reordering varied" is the opposite of the truth for them: they were never run on
 anything else.** Cost of establishing this: zero compute.
 
+> **2026-08-08 retroactive dead-lever annotation (ordered by the chief; dead-lever audit
+> `DEAD_LEVER_AUDIT_2026-08-08.md`, 946e4a26).** The same daOptions dumps read above also echo
+> `transonicPCOption 2;` in every M6-family log (`A3-onera-m6-transonic/check_totals_run*.log`,
+> `W4-m6-reordering/m6_{natural,rcm}.log:489`, the R5 campaign logs). That value is dead code for
+> `DARhoSimpleCFoam` — `DAResidualRhoSimpleCFoam.C:173` accepts only `== 1`; `== 2` exists only in
+> `DAResidualTurboFoam.C:176` — so **no archived M6 adjoint, including every run in this section,
+> ran with an active transonic preconditioner** (entry-8 outcome blocks 08a87cc7, 5f0c328e). This
+> section's conclusion (reordering is not the M6 blocker) is unaltered; it was measured, as now
+> stated explicitly, with the transonic PC OFF. The PC-alone arm now running is the live test of
+> whether an active transonic PC moves the M6 wall.
+
 **CBFS is the one case in the list where it genuinely had never been varied, and there it
 generalises.** One-token change against B3's own `runScript.py`, 21,000 cells / 4 ranks = **5,250
 cells per rank**, `compute_totals`, np=4:

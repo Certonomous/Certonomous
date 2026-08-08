@@ -251,3 +251,19 @@ than trusting the `.done` file alone. Flagged here rather than silently worked
 around because it is the same class of error (trusting a derived completion
 signal over the primary process state) this project has already named twice
 (L-15, L-16).
+
+## 2026-08-08 retroactive dead-lever annotation (ordered by the chief; dead-lever audit `DEAD_LEVER_AUDIT_2026-08-08.md`, 946e4a26)
+
+Every M6-family run this record measures echoed `transonicPCOption 2;` in its
+daOptions dump (all seven `r5_*` campaign logs at `:489`;
+`run_opt5_onera_n15_21840.log:410`). **That value is dead code for
+`DARhoSimpleCFoam`: `DAResidualRhoSimpleCFoam.C:173` accepts only `== 1`;
+`== 2` exists only in `DAResidualTurboFoam.C:176`. No archived M6 adjoint —
+here or anywhere — ran with an active transonic preconditioner** (finding:
+`A3_SUBLU_PREREGISTRATION.md` §2, 12d3a7a3; entry-8 outcome blocks 08a87cc7,
+5f0c328e). Nothing in this record's conclusions is altered: the record never
+claimed the transonic PC had been tried, and the `-5`/`-3` characterization,
+the `normalizeResiduals` finding, and the fill/Richardson/budget arms stand as
+measured — measured, as now stated explicitly, with the transonic PC OFF.
+Whether an ACTIVE transonic PC moves the M6 wall is an open question; the
+PC-alone arm now running is the live test of exactly that.

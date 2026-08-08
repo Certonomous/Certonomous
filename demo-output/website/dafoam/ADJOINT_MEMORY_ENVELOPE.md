@@ -604,3 +604,32 @@ signature match), and
 `PetscConvergedReason: 2` confirmation was read from). Solve registry
 completion records (survive session interruptions):
 `demo-output/website/solve_registry/d3_*`.
+
+## 2026-08-08 retroactive annotations (ordered by the chief; dead-lever audit `DEAD_LEVER_AUDIT_2026-08-08.md`, 946e4a26)
+
+**1. Transonic-PC dead lever.** Every M6-family adjoint measured in this record
+echoed `transonicPCOption 2;` in its daOptions dump (e.g.
+`A3-onera-m6-sweep-n15_21840/run_opt5_onera_n15_21840.log:410`). That value is
+dead code for `DARhoSimpleCFoam` (`DAResidualRhoSimpleCFoam.C:173` accepts only
+`== 1`; `== 2` exists only in `DAResidualTurboFoam.C:176`): **no archived M6
+adjoint ran with an active transonic preconditioner** (entry-8 outcome blocks
+08a87cc7, 5f0c328e). The envelope's conclusions are unaltered — the record
+never claimed the transonic PC was tried — but the M6 `-5` wall documented here
+was measured with that lever OFF; the PC-alone arm now running is the live test
+of whether an active transonic PC moves it.
+
+**2. Options 1–2 lost their solver logs (charter v1.5 §9 status).** The solver
+logs for Option 1 (`adjUseColoring=False`, incl. the quoted
+`Conflicting Colors Found!` FATAL block) and Option 2 (the sparsify arms'
+option echoes and A3-coarse reason codes) lived in the session scratchpad
+(`982d6244…/scratchpad/logs/`) and died with it — they are
+**unreconstructible**. What survives: the 2-line collector stubs
+(`d3_coloring_off_A1_v2/.v3`, `d3_sparsify_*`), whose exit codes, wall times,
+and peak-RSS figures match this record digit-for-digit, plus an independent
+surviving proof of the Option-1 lever class on A4
+(`W4-a4-discriminators/d_np4scotch_nocolor.log:483` `adjUseColoring 0;`).
+Per §9, Options 1–2's lever-activity and reason-code claims therefore ship
+**unverifiable-from-logs** (memory/wall figures corroborated by stubs; lever
+activity unsupported by any surviving runtime log). Options 4–5 and the
+headline envelope are unaffected — their raw logs survive and were re-verified
+line-by-line in the audit.
