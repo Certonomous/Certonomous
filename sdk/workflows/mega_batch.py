@@ -489,6 +489,58 @@ def _ahmed_add_yplus_function(control_dict_path: Path) -> None:
     control_dict_path.write_text(text[: -len(marker)] + yplus_block)
 
 
+def _latest_yplus(post_root: Path, patch: str) -> tuple[dict, float, str] | None:
+    """The y+ state chosen by the Time written INSIDE the file, never by
+    glob order or by directory name.
+
+    This is the bump collector's repair applied to this reader (docket item
+    w1-yplus-restart-rename-blindness-in-the-batch-gate). Three traps, all
+    measured on the bump ladder before this existed here:
+
+    1. postProcessing time directories are named for a run's START time, so
+       sorting directory names does not sort states.
+    2. OpenFOAM renames a function object's output to ``<name>_<time>.dat``
+       when the file already exists on a restart -- exactly as it does for
+       coefficient.dat, which the coefficient read above already survives by
+       globbing ``coefficient*.dat``. A bare ``yPlus.dat`` glob then reads a
+       header-only leftover or a stale first-run state.
+    3. Keeping the last parse of an arbitrary iteration order lets the
+       filesystem decide which state is reported.
+
+    So: glob ``yPlus*.dat``, parse every candidate, and select by the
+    largest Time stamp any data row carries. Returns (parsed y+ dict,
+    that Time, source path relative to post_root) or None if nothing
+    parseable exists. In this batch every attempt starts from a wiped case
+    directory, so the renamed layout cannot arise from the runner itself
+    (measured: zero renamed files across every surviving case, zero retried
+    Ahmed indices in the ledger); this read stops being wrong the day that
+    invariant slips rather than the day somebody notices.
+    """
+    best: tuple[float, dict, Path] | None = None
+    for path in sorted(post_root.rglob("yPlus*.dat")):
+        text = path.read_text(errors="replace")
+        parsed = parse_yplus_dat(text, patch=patch)
+        if not parsed:
+            continue
+        stamps = []
+        for line in text.splitlines():
+            parts = line.split()
+            if not parts or parts[0].startswith("#"):
+                continue
+            try:
+                stamps.append(float(parts[0]))
+            except ValueError:
+                continue
+        if not stamps:
+            continue
+        stamp = max(stamps)
+        if best is None or stamp > best[0]:
+            best = (stamp, parsed, path)
+    if best is None:
+        return None
+    return best[1], best[0], best[2].relative_to(post_root).as_posix()
+
+
 def _ahmed_refinement_for_reynolds(reynolds: float) -> int:
     """Mesh refinement level, following Reynolds number -- see F10_YPLUS_FIX.md.
 
@@ -632,9 +684,11 @@ def _run_ahmed_viscous(index: int, design: dict[str, float], work_root: Path) ->
                if cl_series else None)
 
     # ---- Gate 4: y+ range achieved ----
-    yplus_files = sorted((case_dir / "postProcessing").rglob("yPlus.dat"))
-    yplus = (parse_yplus_dat(yplus_files[-1].read_text(errors="replace"), patch="body")
-             if yplus_files else None)
+    # Selected by the Time inside the file across yPlus*.dat, never by a
+    # bare-filename glob whose last match a restart rename can leave stale
+    # or header-only (see _latest_yplus).
+    yplus_hit = _latest_yplus(case_dir / "postProcessing", patch="body")
+    yplus = yplus_hit[0] if yplus_hit else None
     yplus_gate_pass = yplus is not None and AHMED_YPLUS_LOW <= yplus["average"] <= AHMED_YPLUS_HIGH
     if not yplus_gate_pass:
         raise RuntimeError(
@@ -663,6 +717,10 @@ def _run_ahmed_viscous(index: int, design: dict[str, float], work_root: Path) ->
         "yplus_min": yplus["min"],
         "yplus_max": yplus["max"],
         "yplus_avg": yplus["average"],
+        # So a reader can check the y+ is the state the Cd beside it came
+        # from (the bump collector records the same pair of facts).
+        "yplus_time": yplus_hit[1],
+        "yplus_source": yplus_hit[2],
         "residual_max_UUUp": residual_max,
         "residuals": residuals,
         "solver_iterations": times[-1],

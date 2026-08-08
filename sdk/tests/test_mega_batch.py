@@ -118,6 +118,80 @@ class LedgerTests(unittest.TestCase):
                 mega_batch.design_for_index = original
 
 
+class LatestYplusTests(unittest.TestCase):
+    """Docket item w1-yplus-restart-rename-blindness-in-the-batch-gate: the
+    y+ gate selects its state by the Time written inside the file, never by
+    a bare-filename glob whose last match a restart rename leaves stale or
+    header-only. The layout below is the bump ladder's measured incident:
+    a first-run state in the start-time-0 directory, and a restart directory
+    holding a header-only yPlus.dat beside the renamed real one."""
+
+    HEADER = ("# y+ ()\n"
+              "# Time \tpatch \tmin \tmax \taverage\n")
+
+    @staticmethod
+    def _row(time, patch, lo, hi, avg):
+        return f"{time}\t{patch}\t{lo}\t{hi}\t{avg}\n"
+
+    def _write(self, root: Path, rel: str, text: str) -> None:
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+
+    def test_fresh_state_wins_over_rename_layout(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            post = Path(tmp)
+            # First run: states through iteration 5000, directory named 0
+            # for the run's START time.
+            self._write(post, "yPlus1/0/yPlus.dat",
+                        self.HEADER
+                        + self._row(2500, "body", 40.0, 900.0, 210.0)
+                        + self._row(5000, "body", 45.0, 950.0, 230.0))
+            # Restart: OpenFOAM renamed the real output and left a
+            # header-only yPlus.dat beside it.
+            self._write(post, "yPlus1/10000/yPlus.dat", self.HEADER)
+            self._write(post, "yPlus1/10000/yPlus_10000.dat",
+                        self.HEADER
+                        + self._row(12000, "body", 60.0, 1100.0, 300.0)
+                        + self._row(16000, "body", 62.0, 1200.0, 320.0))
+            hit = mega_batch._latest_yplus(post, patch="body")
+            self.assertIsNotNone(hit)
+            parsed, stamp, source = hit
+            self.assertEqual(stamp, 16000.0)
+            self.assertEqual(parsed["average"], 320.0)
+            self.assertEqual(source, "yPlus1/10000/yPlus_10000.dat")
+            # And the read this replaces would have picked the header-only
+            # file: last in filename-sorted order among bare yPlus.dat,
+            # which parses to nothing.
+            bare = sorted(post.rglob("yPlus.dat"))
+            self.assertEqual(bare[-1].as_posix(),
+                             (post / "yPlus1/10000/yPlus.dat").as_posix())
+            from workflows.tmr_verification import parse_yplus_dat
+            self.assertIsNone(parse_yplus_dat(
+                bare[-1].read_text(), patch="body"))
+
+    def test_single_run_layout_is_unchanged(self):
+        # The ordinary case: one run, one file. Same answer as before.
+        with tempfile.TemporaryDirectory() as tmp:
+            post = Path(tmp)
+            self._write(post, "yPlus1/0/yPlus.dat",
+                        self.HEADER
+                        + self._row(250, "body", 150.7, 1897.8, 583.0))
+            hit = mega_batch._latest_yplus(post, patch="body")
+            parsed, stamp, source = hit
+            self.assertEqual(stamp, 250.0)
+            self.assertEqual(parsed["average"], 583.0)
+            self.assertEqual(source, "yPlus1/0/yPlus.dat")
+
+    def test_nothing_parseable_is_none_not_a_crash(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            post = Path(tmp)
+            self._write(post, "yPlus1/0/yPlus.dat", self.HEADER)
+            self.assertIsNone(mega_batch._latest_yplus(post, patch="body"))
+            self.assertIsNone(mega_batch._latest_yplus(
+                Path(tmp) / "absent", patch="body"))
+
+
 class LabStatsTests(unittest.TestCase):
     def test_lifetime_counters_from_ledger(self):
         with tempfile.TemporaryDirectory() as d:
