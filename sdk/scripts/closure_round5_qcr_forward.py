@@ -23,8 +23,13 @@ the round-4 precedent (closure_round4_duct_rescale.py used it as
 "coordinates only"; closure_divergence_audit.py's guard is the stub pattern).
 
 NO SCORING CALL. This script makes none and proves it by armed stubs. The
-round-5 scoring decision belongs to the supervisor; the ledger stays at 5
-distinct prediction sets scored.
+round-5 scoring decision belongs to the supervisor; as of THIS SCRIPT'S RUN
+(2026-08-07, before the call) the ledger stood at 5 distinct prediction sets
+scored. Scoped to its own run because the standing count has since moved:
+the supervisor's designated scoring agent made the round-5 call later the
+same day and the cumulative ledger is now SIX (floor, rounds 1-5). Nothing
+in this file made or makes a call; only the sentence describing the ledger
+needed a date on it. (Ladder V rung V7, re-run under Pass 2, 2026-08-11.)
 
 Physicality (audit G2): the QCR fields come out of a solenoidal SIMPLE solve,
 so unlike the round-4 post-hoc deltaU they satisfy continuity by

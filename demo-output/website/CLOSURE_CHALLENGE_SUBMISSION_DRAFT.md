@@ -484,6 +484,38 @@ dated wherever it appears.
 
 ## 5. Draft submission package — FOR PROOFREADING, NOT FOR SENDING
 
+> ## ⛔ BLOCKING BANNER — §5 IS ROUND-4 TEXT AND MUST NOT BE SENT AS IT STANDS
+>
+> *Added by Ladder V Pass 2 (rung V8), 2026-08-11. Nothing below was rewritten; a
+> banner was added so that the mismatch is impossible to proofread past. The
+> claims table with per-sentence verdicts is in
+> `campaign/LADDER_V_PASS2_2026-08-11.md`.*
+>
+> **§5.1–§5.6 were written on 2026-07-30 against round 3 and patched to round 4 on
+> 2026-07-31. §10 replaced the payload with the round-5 CSVs but did not rewrite
+> §5.** The result is a package whose *attachment* and whose *cover letter*
+> disagree, which is the single worst defect this ladder could find, because it is
+> the one a proofreader is least likely to see:
+>
+> | § | says | payload actually is | verdict |
+> |---|---|---|---|
+> | §5.4 subject line + body | *"overall 0.0654"* | the eight round-5 CSVs score **0.056647** | **FAIL — the email would announce a score that is not the attachment's score.** The steward would rescore, get a different number than the letter claims, and the first impression of an entry built entirely on precise self-accounting would be an arithmetic contradiction |
+> | §5.1 item 1 | CSVs at `closure_challenge_submission/test/` | round 5 ships from `closure_challenge_submission_round5/test/` (§10) | **FAIL — wrong directory** |
+> | §5.2 claims table | 0.0654 / per-case round-4 row / "improvement −0.0382, 36.9%" | round 5: 0.056647, ducts 0.0455 / 0.0400 / 0.0353, improvement **−0.0470, 45.3% below the 0.1036 floor** | **FAIL — every row stale** |
+> | §5.3 item 7 | *"four distinct prediction sets scored"* | **six** (floor, rounds 1–5) | **FAIL — a scoring-call count claim, the exact defect class §4.4 exists for** |
+> | §5.3 item 2 + §5.4 item 2 | the two baseline rows, correct | still correct, but §10 requires the best-on-board count stated as **4 of 8**, not 5 | **INCOMPLETE — §10's instruction is unexecuted** |
+> | §5.1 item 3 | *"a description document … containing §5.3 and §5.4"* | **no such document exists anywhere in the repository** | **FAIL — §5.3 is a specification of what a description document must disclose; it is not one.** Searched the tree: the only description document present is `docs/papers/wu_zhang_sst_qcrc_challenge_description.pdf`, a *competitor's*, held as the format precedent |
+> | §5.4, §5.2 | no rank claim of any kind | round 5 is rank 1 scored locally | **the V8 rank-claim rule is therefore not yet engaged here** — but the moment a round-5 number is written into either, the rank claim arrives with it and must carry the qualitative clause containing the literal string `not statistically decided`, **and must now carry P(rank 1) = 68% with its 2–100% interval** (chief ruling 2026-08-11 withdrew the internal-only gate on that figure: Pass 3 recomputed it from public data in a minute, so withholding it buys nothing and only looks concealed) |
+> | §5.3 | discloses the round-2 leakage only | the **round-5** route was chosen while the per-case test scores were known | **FAIL, and this is the worst finding in the package.** `campaign/R5_RULE_FREEZE.md` concedes it in the lab's own words and then closes every remaining degree of freedom — that sentence is the entry's best asset and it lives in a file that does not travel. Discharged by the description document written at `closure_challenge_submission_round5/DESCRIPTION_DOCUMENT.md`, disclosure 3b |
+> | §5.3 items 6, 8, 9 | round-4 disclosures | item 6 describes an ML duct model no longer in the entry; item 8 overstates the continuity defect (round-5 ducts measure 5.3e-4–8.5e-4, not 2.3–3.4%); item 9 anchors the seed bound to the wrong comparison | **FAIL — 3 of 9 disclosures no longer describe the attached files** (Pass 3, D5). Item 8 is the rare stale disclosure that is *unfair to the entrant* |
+> | §5.2 | *"Reissmann's published 0.059525"* | the README publishes **0.0595**; 0.059525 is the mean of eight *rounded* per-case values; a like-for-like re-score gives **0.0595338** | **FAIL on the word "published"** — the figure is not reproducible from the source it names. Like-for-like margin **0.0028863**, against which the 0.002419 seed bound covers **84%** (Pass 3, D6) |
+>
+> **Nothing here is a rule violation and nothing here is new work** — it is §10's
+> own instruction list, unexecuted, plus one thing §10 did not notice (the missing
+> description document). **Rewriting §5 is not this pass's call**: it is Katie's
+> package, and items 6 and 7 of §5.6 are hers. This banner exists so that no one
+> can reach §5.4, find it clean prose, and send it.
+
 ### 5.1 What would be sent
 
 1. A `test/` directory containing eight files, 1000 rows × 3 columns, comma-delimited,

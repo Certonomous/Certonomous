@@ -189,6 +189,31 @@ lab's "do no harm" in the authors' own words.
 > the best-matched prior art we have found.** Recorded here so that the temptation is
 > written down before anyone feels it.
 
+#### The firewall, discharged as a compliance FACT (Ladder V Pass 2, rung V9, 2026-08-11)
+
+The paragraph above is a *prohibition*, written before the pull was felt. This is the
+*fact* that discharges it, so the entry can state compliance rather than only intent. It
+is stated as a chronology, because chronology is the only form of this claim that cannot
+be argued with:
+
+| fact | evidence |
+|---|---|
+| The shipped `NASA_2DWMH` prediction is byte-identical across rounds 3, 4 and 5 | round-5 CSV `sha256 cf8e023c7b8f…`, `filecmp` against `closure_challenge_submission_round4/test/` — identical; §0f records the case as unchanged, Δ = 0 |
+| That prediction was written **before** this paper was mentioned in the repository at all | the round-3 entry landed at `cb0694d1` / `f5c98f96` (2026-07-29); the CSV last moved at `fe121af2` (2026-07-31T06:53Z). The first commit anywhere in this repository containing the string `2504.06758` is `92840d8c` (2026-07-31T23:13Z) — **16 h later**, and abstract-only |
+| It was written **three days before** the paper was read in full | full text read at `15530f97` (2026-08-02T05:30Z), whose own subject line records the outcome: *"reading it closes a route rather than opening one"* |
+| No Appendix-D coefficient, and no artifact of that model, exists anywhere in this repository | `grep -rniE "buchanan\|RITA\|2504\.06758\|lacatus"` over the tree returns **zero hits in any executable file**. The three apparent code hits (`sdk/chief_engineer/uq.py`, `sdk/chief_engineer/openfoam.py`, `sdk/scripts/closure_eval_battery/build_master_table.py`) are substring matches inside the word *autho**rita**tive*. Every real hit is prose in a record |
+| The round-5 duct change carries nothing from it either | the only new coefficient in the entry is `Ccr1 = 0.3`, Spalart (2000)'s published QCR2000 constant; nothing is fitted (Ladder V rung V5, `303247bb`) |
+
+**One use of the paper does touch the hump, and it is disclosed rather than denied.**
+`closure_challenge_C6_hump_decision.md` cites this paper for the hump's Reynolds number
+(Re_h = 9.3×10⁵, their §2.4 / Table 2) — a **property of the benchmark's own test case**,
+not a coefficient and not an output of their model. It was used to argue that CBFS is
+*not* a close donor for the hump, i.e. to **close** Route B, which was then withdrawn.
+Nothing from that citation entered any submitted field: the hump prediction it concerned
+is the same bytes it was three days before the paper was opened.
+
+**Verdict: the firewall holds, and it holds by date rather than by assurance.**
+
 > **This matters for how the entry is written.** **Tyler Buchanan and Richard Dwight are
 > both co-authors of the Closure Challenge paper itself** (McConkey, Buchanan, Smidt,
 > Bodner, Dwight, Cinnella, arXiv [2603.28884](https://arxiv.org/abs/2603.28884)).

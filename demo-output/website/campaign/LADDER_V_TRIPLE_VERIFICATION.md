@@ -51,11 +51,21 @@ supervisors' four personal checks apply per the supervision charter.
   claim, internal or external, must carry **P(rank 1) and the not-decided pairs**. A rank claim
   that states a placement without stating the probability that the placement survives case
   resampling, and without naming which pairwise comparisons are undecided (currently Reissmann and
-  Wu & Zhang; Liu and Montoya are decided), fails this rung. Internal surfaces carry the figure
+  Wu & Zhang; Liu and Montoya are decided), fails this rung. ~~Internal surfaces carry the figure
   itself (P(rank 1) = 68%); external surfaces carry the qualitative clause only — the figure is
-  internal by the item's own gate and may not be published. Both wordings contain the literal
+  internal by the item's own gate and may not be published.~~ Both wordings contain the literal
   string `not statistically decided`, which is the token V10's cross-surface sweep greps for.
   Source: `campaign/PROBABILITY_OF_RANK_2026-08-10.md`.
+  **V8 amendment, 2026-08-11 (chief ruling, protocol edit — the internal/external split above is
+  WITHDRAWN).** Pass 3 recomputed the figure as **0.674 from public data in about a minute**, with
+  no access to the internal document. A figure an outsider reproduces trivially is not protected by
+  being withheld; it only looks concealed, and it looks that way to the exact reader the disclosure
+  strategy exists to convince. **The figure now travels with the entry.** Every rank claim,
+  internal or external, carries P(rank 1) **and its interval** (an eight-case sample cannot pin it
+  tighter than 2–100% at 95%) **and** the not-decided pairs. One new prohibition replaces the old
+  split: **no surface may state the figure without the interval** — a bare 68% is a worse claim
+  than none, because 68% sounds settled and eight cases do not support settled. Every other
+  banned-claims rule stands unchanged.
 - **V9. Prior-art completeness**: the §7.4 split carried verbatim into the description (identify
   vs control papers correctly separated); the Buchanan-coefficients firewall stated as a
   compliance fact; a final check that nothing in the entry's history warm-started from, calibrated

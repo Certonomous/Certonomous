@@ -269,28 +269,36 @@ def check_closure_entry_of_record() -> Result:
     superseded round."""
     wall = _load_json(WALL)
     closure = ((wall.get("counters") or {}).get("research") or {}).get("closure") or {}
-    round3 = _load_json(WEB / "closure_challenge_trained_entry_round3_gated.json")
-    if "__error__" in round3:
+    # The entry of record is ROUND 5 since 2026-08-07 (commit 07a7fe9e). This
+    # check was pinned to the round-3 file and so failed the wall for being
+    # CORRECT: it reported "wall says 0.0566, the entry of record scores 0.0676".
+    # Re-pinned by Ladder V Pass 2 (V6/V10, 2026-08-11). When a later round
+    # lands, repoint this file and the counts below in the same commit --
+    # a guard that cries wolf is worse than no guard, because the cheapest way
+    # to silence it is to "fix" the surface that was right.
+    entry = _load_json(WEB / "closure_challenge_round5_qcr.json")
+    if "__error__" in entry:
         return Result("closure entry of record", WARN,
-                      "round-3 entry file not readable; cannot verify the wall")
+                      "round-5 entry file not readable; cannot verify the wall")
 
     published_score = closure.get("our_score")
     published_text = str(closure.get("our_entry") or "")
 
     # The entry of record's own overall score, from its own file.
     current = None
-    for key in ("round3_gated_overall", "overall", "gated_overall"):
-        if isinstance(round3.get(key), (int, float)):
-            current = float(round3[key])
+    for key in ("round5_overall", "overall", "round3_gated_overall", "gated_overall"):
+        if isinstance(entry.get(key), (int, float)):
+            current = float(entry[key])
             break
     if current is None:
-        stack = [round3]
+        stack = [entry]
         while stack and current is None:
             node = stack.pop()
             if isinstance(node, dict):
                 for key, value in node.items():
                     if key.endswith("overall") and isinstance(value, (int, float)) \
-                            and "round2" not in key:
+                            and "round2" not in key and "round4" not in key \
+                            and "floor" not in key:
                         current = float(value)
                         break
                     if isinstance(value, (dict, list)):
@@ -300,18 +308,31 @@ def check_closure_entry_of_record() -> Result:
 
     problems = []
     if current is not None and published_score is not None:
-        if abs(float(published_score) - current) > 1e-9:
+        # The wall publishes the score at its own precision (4 dp since round 5,
+        # where the record carries full float precision). Compare at the wall's
+        # precision: quoting 0.0566 for 0.056647191704213645 is quoting it, and
+        # an exact-equality test here would fail the wall for rounding.
+        dp = len(str(published_score).split(".")[-1]) if "." in str(published_score) else 0
+        if abs(round(current, dp) - float(published_score)) > 10 ** -(dp + 3):
             problems.append(
                 f"our_score: wall says {published_score}, the entry of record "
-                f"scores {current}")
+                f"scores {current} (compared at the wall's {dp} dp)")
     if re.search(r"\ba single\b.{0,40}scoring call", published_text, re.I):
         problems.append(
-            "our_entry claims a single scoring call; the record documents four "
-            "official calls (floor, round 1, round 2, round 3)")
-    if re.search(r"\bthree of the eight\b", published_text, re.I):
+            "our_entry claims a single scoring call; the record documents six "
+            "official calls (floor, rounds 1-5) -- the unit being counted is "
+            "DISTINCT PREDICTION SETS SCORED, and the benchmark imposes no "
+            "scoring-call limit of any kind")
+    if re.search(r"\b(three|five) of the eight\b", published_text, re.I):
         problems.append(
-            "our_entry claims best on three of eight cases; round 3 records "
-            "five of eight")
+            "our_entry quotes a stale best-on-board count; round 5 records "
+            "four of eight (the AR_14 tie was lost, priced in writing)")
+    if re.search(r"best.{0,60}\bfour of the eight\b", published_text, re.I) \
+            and "belongs to the baseline" not in published_text:
+        problems.append(
+            "our_entry states best-on-board 4 of 8 without the disclosure that "
+            "two of those four rows are the organisers' own unmodified RANS "
+            "field (SUBMISSION_DRAFT sec 4.7, the highest-priority disclosure)")
     if problems:
         return Result("closure entry of record", FAIL,
                       f"{len(problems)} stale claim(s) on the credentials wall",

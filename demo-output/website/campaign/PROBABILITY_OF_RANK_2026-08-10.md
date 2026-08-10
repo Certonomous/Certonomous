@@ -1,6 +1,42 @@
 # Probability of rank — a posterior over our score against the board
 
-**2026-08-10. INTERNAL ONLY. This number never appears in any external claim.**
+> # ⚠ THE INTERNAL-ONLY GATE ON THIS FIGURE IS WITHDRAWN — chief ruling, 2026-08-11
+>
+> *Recorded by Ladder V Pass 2 at the chief's direction. The header below, the
+> propagation rule in the next section, and every "INTERNAL ONLY" marking in this
+> document are **superseded on the question of who may see the number**. Nothing
+> else in the document changes: the arithmetic, the caveats, the four-clause
+> companion and the sweep token all stand exactly as written.*
+>
+> **What changed, and why the reversal is right.** Pass 3 (cold reproduction,
+> `campaign/LADDER_V_PASS3_COLD_2026-08-11.md`) computed **0.674** from public
+> data — the README's published board plus our own eight CSVs — in about a
+> minute, with no access to this document. That is decisive, and it is decisive in
+> the direction of publishing:
+>
+> - **A figure an outsider reproduces trivially is not protected by being
+>   withheld.** The withholding buys nothing.
+> - **It costs credibility.** A number that is obviously computable, obviously
+>   computed, and conspicuously absent reads as concealed rather than careful —
+>   and it reads that way to precisely the reader whose good opinion the whole
+>   disclosure strategy is built to earn.
+> - **It is the honest half of the rank claim.** Publishing "rank 1" while
+>   withholding "and here is how little that survives resampling" inverts the
+>   lab's own standard.
+>
+> **The figure now travels with the entry**, carrying its interval (an eight-case
+> sample cannot pin it tighter than 2–100% at 95%) and its not-decided pairs
+> (Reissmann, Wu & Zhang). **Every other banned-claims rule stands unchanged**, and
+> so does the requirement that both wordings contain the literal string
+> `not statistically decided`.
+>
+> **The one thing the reversal does not license:** the figure may not be stated
+> without its interval. A bare "68%" is a worse claim than no figure at all,
+> because 68% sounds settled and 2–100% is what the eight cases actually support.
+
+**2026-08-10. ~~INTERNAL ONLY. This number never appears in any external claim.~~
+SUPERSEDED 2026-08-11 — see the banner above. The figure is publishable, with its
+interval and its not-decided pairs attached.**
 
 > **On the face of this document, three times over.**
 > 1. **INTERNAL.** This figure is for the house to reason with. It is not to be
@@ -15,15 +51,19 @@
 >    scoring-call ledger stands at **6** and is unchanged. Every number below is
 >    arithmetic over per-case scores that were already on disk.
 
-### The propagation rule — STANDING, confirmed by the chief 2026-08-10
+### The propagation rule — ~~STANDING, confirmed by the chief 2026-08-10~~ AMENDED 2026-08-11
 
 Inherit this rather than re-deciding it. When a ruling orders this figure
 propagated to surfaces, some of which are public:
 
 - **Internal surfaces carry the figure** — `P(rank 1) = 68%`, the 2–100% band,
   the leave-one-out numbers.
-- **Public surfaces — anything shipping in `dist/` — carry the qualitative
-  clause only**, never the figure: the margin sits against a per-case spread five
+- ~~**Public surfaces — anything shipping in `dist/` — carry the qualitative
+  clause only**, never the figure~~ **— WITHDRAWN 2026-08-11 (banner at the head
+  of this document).** Public surfaces may now carry the figure, and the entry's
+  own cover material must. What they may never carry is the figure *without* its
+  interval. The qualitative clause is still required everywhere and is still the
+  thing the sweep token lives in: the margin sits against a per-case spread five
   times larger, the standing is two cases wide, `AR_1` and `AR_3` are ties below
   published precision.
 - **Both wordings contain the literal string `not statistically decided`**, which
@@ -279,8 +319,71 @@ check would quietly under-report.
 | 13 | `closure_challenge_round5_qcr.json` | internal | the machine record; appended as a sibling key, the dated block and all CSV hashes untouched |
 | 14 | `docs/PRODUCT_LIST.md` | internal | **chief-owned**, done at `a57d8d3b`; not edited here |
 | 15 | `campaign/PROBABILITY_OF_RANK_2026-08-10.md` | internal | this document — the source of the figure |
+| 16 | `latex/closure_challenge_report.tex` | internal | **added after this list was written** — see the note below |
 
-**Grep count V10 checks against: 15.**
+**Grep count V10 checks against: 16 CLAIM-BEARING SURFACES** *(was 15;
+re-measured by Ladder V Pass 2, 2026-08-11)* **— plus a growing count of
+verification records, which is why a bare integer is the wrong check.**
+
+> **Correction, 2026-08-11 — the count moved the same day this list was written,
+> and the list did not.** §7 above records the `.tex` under *"Routed elsewhere"*:
+> it asserted rank 1 at ten sites and the chief routed it to its Opus owner
+> rather than tokening it here. **That owner then did the work**, at `15f2921a`
+> (2026-08-10T16:23:32Z, *"Every rank-1 claim gains its probability and its
+> not-decided pairs"*) — **21 minutes after** `a57d8d3b`, the commit this
+> document cites as the last propagation. So the file moved from *routed* to
+> *compliant* between the writing of this list and the next sweep, and the
+> stated count of 15 was already one short when it was written down.
+>
+> **A grep for `not statistically decided` across the repository now returns 16
+> files, and every one of the 16 is a surface that should carry it** — the 15
+> tabled above plus the `.tex`. Verified 2026-08-11: no case-variant misses (a
+> case-insensitive grep returns the same 16), and no new false positive was
+> tokened. The `.tex` names both undecided pairs, carries both paired *t*
+> statistics, and marks the 68% figure *"internal figure"* at its own §-level.
+>
+> **Standing note for whoever runs V10 next, because this will recur:** a routed
+> surface is not an excluded surface — it is a surface whose *owner* differs.
+> When it comes back compliant the count changes, so **re-measure the count, do
+> not read it off this table.** The table is the audit of *which* surfaces are
+> right; the grep is the authority on *how many*.
+>
+> **And the bare integer is now the wrong check outright — retire it.** During
+> this very sweep the raw grep went 16 → 17 while the sweep was running, because
+> a concurrently-executing Ladder V pass wrote its own report
+> (`campaign/LADDER_V_PASS3_COLD_2026-08-11.md`) and the token appears in it
+> legitimately, exactly as it appears in row 8's protocol document. Pass 2's own
+> report takes it to 18. **A verification record that quotes the rule is not a
+> surface making a rank claim**, and a check of the form *"the count must equal
+> N"* will now fail every time the ladder does its job. **The check V10 should
+> run is the invariant, not the integer:**
+>
+> 1. **No claim-bearing surface makes a rank claim without the token** — the 16
+>    rows above, each re-read, not counted.
+> 2. **No file carries the token where "rank 1" does not mean our standing** —
+>    the 14 audited false positives below stay untokened.
+> 3. ~~**No external surface carries the 68% figure**~~ **— REPLACED by the
+>    2026-08-11 reversal.** The new invariant is **no surface carries the figure
+>    without its interval.** *(Measurement taken before the reversal, kept as the
+>    record of the state the gate was in: the six externals — rows 3–7, 9 —
+>    carried the token and zero instances of the figure; the ten internals carried
+>    both. Under the new rule those six are now* under*-disclosed rather than
+>    correctly gated, and bringing them up is a follow-on item, not a defect of
+>    this sweep.)*
+>
+> All three held on 2026-08-11 **as the rules stood when they were measured**.
+> Records that merely *quote* the rule — pass reports, this document, row 8 — are
+> outside the count by construction.
+>
+> **One open risk, named and not fixed here (not this pass's file to edit).** The
+> `.tex` is described in its own commit message as *"the closure line written
+> down for an outsider"*, and it prints `P(rank 1) = 68%` at twelve sites. It does
+> not ship in `dist/` (checked: `dist/certonomous-demo/` contains
+> `site/{closure,benchmarks}.html` and `wall/` only, no LaTeX), so it is not a
+> public surface today and no gate is breached today. But an internal-only figure
+> living twelve times over in a document written to be handed to an outsider is
+> one decision away from a breach, and the decision would not feel like one.
+> Raised to the chief and to the `.tex`'s owner rather than edited.
 
 ### Deliberately NOT tokened — 14 false positives
 
