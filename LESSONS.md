@@ -1882,3 +1882,20 @@ and could not see) beside its counts, and any audit whose headline is a
 NEGATIVE finding — nothing found, nothing dead, nothing missing — carries a
 positive-control line proving the search would have found the thing had it been
 there.
+
+**Corollary, earned the same day the lesson was written.** The re-check ordered
+to test the FIRST audit for this blindness tripped over it in turn: the
+verifier's opening positive control returned nothing because an unscoped 79 GB
+sweep hit its timeout before reaching the directory it was aiming at. A null
+that is a TIMEOUT is not a null that is an absence, and the two are
+indistinguishable from the output alone. So the positive control needs its own
+success condition — the control must be seen to SUCCEED (a known specimen
+found, a non-empty result, an exit code read), never merely to return. An
+instrument that fails silently fails the same way whether the corpus is empty
+or unreachable.
+
+The re-check's substantive result is worth recording beside the method: 0 of 20
+rows changed classification, and the first audit turned out never to have been
+gz-blind at all — it quotes decompressed line numbers in eight rows. The
+suspicion was correct to raise and wrong in fact, which is the ordinary and
+healthy outcome of assuming yourself wrong until defended.
