@@ -125,6 +125,16 @@ Same technique as F3: peak `|d(rho)/d(distance)|` along a sample line, here radi
 >
 > **Not a withdrawal.** The record's numbers stand; what is missing is the measurement its own sentence presumes. Original text retained.
 
+> ### **[CORRECTED 2026-08-10, same day, BEFORE the approved 7.5 core-min was spent — my restatement above was wrong twice, and the approved run is declined.]**
+>
+> **1. The record's "scatter" is TEMPORAL scatter, and it WAS measured.** §4 reports it per rung — 3.5% coarse, 2.3% medium, 0.4–0.8% fine — as an explicit snapshot band from 3 late-time writes, and sets each deviation against its own band. The sentence *"scatter does not fully explain it"* means the resolution-to-resolution swings (2.66 and 8.3 points) **exceed those measured bands**. It is not a claim about an unmeasured quantity; it is a claim about a measured one, made carefully.
+>
+> **2. Mesh-draw scatter cannot exist for this ladder.** `F4_runs/make_cylinder_case.py` builds a deterministic structured polar O-grid from `RES` = (nθ, nr) with `RADIAL_GRADING` fixed. **The same parameters give a byte-identical mesh every time — there is no second draw to take.** Draw scatter is a property of snappyHexMesh's nondeterministic castellation, and this ladder has no snappy in it.
+>
+> **3. The record had already named the true cause**, which my restatement talked past: *"a genuine, resolution-dependent systematic bias in the peak-density-gradient detector itself — where exactly the discrete gradient maximum falls shifts as the number of cells sampling the smeared shock changes."* **That is a detector-resolution effect**, the same class as F5c's reattachment detector, and it is diagnosed, not left open.
+>
+> **The approved ≈7.5 core-min is therefore NOT spent.** There is nothing for it to measure. **This record needs no draw-scatter evidence and never did.**
+
 
 **Verdict: PASS, with the above caveats stated plainly rather than buried.** Two of three fine-mesh cases (M=6, M=7) show a real ~2–2.3% high bias against Billig's 1967 correlation, resolved above measurement noise — a solid pass, well inside the correlation's own expected scatter against experimental data (Billig's own paper reports comparisons to experiment with several-percent scatter). The third (M=8) agrees even more closely (+0.70%) but that close agreement is not distinguishable from its own ~0.8% measurement noise, so it should be read as "consistent with Billig," not as "resolved to 0.7%." None of the three fine-mesh cases show a deviation large enough to indicate a wrong answer; the honest statement is "standoff agrees with Billig to within 0.7–2.3%, resolved above noise for M=6–7 and within the noise floor for M=8," not a single clean number.
 

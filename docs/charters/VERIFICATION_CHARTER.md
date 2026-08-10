@@ -1336,6 +1336,50 @@ Where the published draw sits in its own distribution is reported and **never
 graded**: at n = 3 a draw is an extremum with prior probability 2/3 under no
 selection at all.
 
+**SCOPE — the rule applies only where a DRAW EXISTS. Added 2026-08-10 the same
+day, on finding that it did not.**
+
+**Mesh-draw scatter is a property of a NONDETERMINISTIC generator.**
+snappyHexMesh's castellation is nonlinear in the background lattice, so two
+meshes built to one recipe genuinely differ — that is what makes a *draw* a
+sample of anything. **A deterministic structured `blockMesh` generator produces a
+byte-identical mesh from the same parameters. There is no second draw to take,
+and the scatter this rule asks for is identically zero by construction.**
+
+> **On a deterministic generator the rule is satisfied by STATING that, not by
+> measuring.** Demanding a measurement there would be demanding a number that
+> cannot exist.
+
+**This was found by pre-flighting an approved run rather than by running it.**
+All 11 campaign-record ladders restated as *"clean, no scatter measured"* — F3,
+F4, F6b, F7, TMR bump, the NASA bump grids, the lid-driven cavity, DPW8 — turned
+out to use deterministic structured generators. **The ≈7.5 core-min approved for
+F4 was declined because there was nothing for it to measure**, and the
+restatements on all 11 were corrected. Only the snappyHexMesh bodies (B-52,
+Ahmed, the NACA wings, motorBike, cube, the sail) have a draw distribution at
+all.
+
+**A related trap, from the same finding.** F4's record says *"scatter does not
+fully explain it"* — and the scatter it means is **temporal snapshot scatter,
+which it measured per rung**. A restatement that reads "scatter" as *mesh-draw*
+scatter mis-describes the claim it is annotating. **Check which scatter a record
+means before annotating it for lacking one.**
+
+**FORM OF A RESTATEMENT — a restatement names the recipe class, because the class
+determines what the absence means.** Added 2026-08-10 on the chief's ruling.
+*"No scatter measured here"* means two different things:
+
+| class | what the absence means |
+| --- | --- |
+| **CLEAN** (one knob moves per rung) | the feature is **one measurement away from real** — its increments are genuine discretization increments |
+| **CONFOUNDED** (more than one knob moves) | the feature is **unsupported twice over** — its increments were never discretization increments, so the missing scatter is the lesser problem |
+| **UNDETERMINABLE** (rung cases no longer exist) | **neither** the recipe nor the scatter can now be established at all |
+
+A reader who cannot tell those apart would draw the wrong conclusion from an
+honest sentence. **Every restatement states the class**, sourced from a recipe
+audit (`campaign/LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md` is the corpus-wide
+one).
+
 **Calibration convention, binding on every retrofit verdict.** The bar separating
 "the scatter is structured" from "the scatter is broad" is **calibrated by
 simulation against the null before the draws exist**, never chosen after — so
