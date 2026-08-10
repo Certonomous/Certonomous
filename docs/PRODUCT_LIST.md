@@ -1961,6 +1961,33 @@ clock-audit rule asks for.]*
   the concession. Two reservations recorded — the last word goes to a rules argument, and it is ranked below the
   best-on-board count, *"which is not the judgement its own prose makes."*
 
+### 2026-08-10 (night) — the bundle shipped a recording of the run Katie's own script warns against
+
+- **ALL FOUR STALE DEFECTS ARE GONE FROM THE SHIPPING ARTIFACT**, verified by extracting the committed zip and
+  grepping the extraction rather than the sources (892f11f7 / dc5b12bd): hero 0.0654 → **0.0566**, KPI 0.0676 →
+  **0.0566**, the stats file corrected to round 5 with the right scoring-call count, and **the struck prior-art
+  sentence returns ZERO hits anywhere in the bundle.** Historical values correctly survive — the per-round table and
+  the *"was 0.0654 until round 5"* supersession note are not stale claims.
+- **THE FINDING THAT OUTRANKS THE REBUILD, and it is shoot-critical.** The rebuild replaced all four mission
+  recordings, and one swap is a **correction rather than a side effect**: the bundle that has been shipping carried
+  an aircraft recording **with no wing-geometry upload**, exploring the wrong span ladder at the wrong areas.
+  `LAPTOP_SHOOT.md:177` — **Katie's own script** — names this exact failure: *"a run without it searches a different
+  span ladder and lands on a different wing."* **The shipping bundle contained a recording of the run the script
+  warns against.** The rebuild replaces it with the correct act; all four acts are complete in both, nothing
+  truncated. Verified read-only that the swap moves the bundle TOWARD what the script describes.
+- **A DISTINCT FAILURE MODE, deliberately not filed under today's other one.** `check_bundle_drift()` **explicitly
+  covers all three site pages** and, run against the committed bundle, returned **FAIL with 18 items naming the two
+  stale pages**. This is NOT a check that structurally could not see its target — the check worked, and **its output
+  did not reach a rebuild for ten days.** A check that fails loudly into a void is a different disease from one that
+  fails silently, and conflating them would send the wrong fix. After the rebuild it returns **PASS, zero items** —
+  end-to-end verification, stronger than four greps coming back clean.
+- **RULING ON THE GITIGNORED DIRECTORY: IT STAYS**, on the agent's reasoning, which reverses the obvious call.
+  It is a build output and nothing deploys from it — but **the drift check compares against it**, so deleting the
+  stale copy would remove the one thing correctly reporting the staleness. *"The directory is the check's eyes; the
+  ignore entry is the blindfold on everything else."* What let it drift invisibly was never its existence but its
+  **gitignoring**, since the lab's grep wrapper honours ignore files. Regenerated in place; tree and shipped artifact
+  now match byte-for-byte.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
