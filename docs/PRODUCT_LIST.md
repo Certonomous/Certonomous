@@ -1657,6 +1657,37 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   re-check of an existing mesh, and a provenance field that cannot express what happened gets filled in with something
   false by whoever next needs it.
 
+### 2026-08-10 (closing 19) — the forgery channel was worse than reported, and the fix broke on its own corpus first
+
+- **THE CHANNEL HAD NOTHING IN ITS WAY.** Reproduced before fixing: `checkMesh` prints its mesh stats **early**, so a
+  log that dies in the geometry checks still carries a cell count. It therefore passed the parser as `clean` AND
+  passed the cell-count refusal — the guard described as the only thing standing between a crashed run and a
+  certificate **does not cover the live case at all**; it only catches a crash before the stats line. Such a log
+  would have minted a clean certificate outright.
+- **Fixed by asking DID THE CHECK RUN before WHAT DID IT FIND** (06f747e8, suite 1268 passed): a third verdict
+  `unverified` when a fatal marker appears, when the log never reaches checkMesh's own terminating `End`, or when no
+  cell count exists. **`unverified` is deliberately NOT `broken`** — checked-and-found-bad and we-don't-know are
+  different facts, and collapsing them would impugn a mesh whose only fault is a missing log, the opposite error and
+  just as wrong. The cell-count guard is KEPT as a second line rather than the only one, and a hand-rolled
+  certificate path that inherited none of these refusals now states its own. **Completion marker calibrated, not
+  guessed: 105 of 105 real logs end with `End`, 0 carry a fatal marker; re-run after the fix gives 90 clean / 8
+  flagged / 7 broken / 0 newly unverified — the corpus split is unchanged. Exposure: ZERO**, all 95 minted
+  certificates re-checked under the fixed parser, none reclassified, no revocation owed.
+- **THE FIX BROKE ON ITS OWN CORPUS FIRST, and it is the most literal instance of the campaign's own rule.** A draft
+  pattern included `Floating point exception` — which appears in the **startup banner of a HEALTHY log**
+  (`sigFpe : Enabling floating point exception trapping`) — misreading all 105 real logs as crashes. The term was
+  added AFTER calibration and BEFORE re-validation, and was caught only by re-running the calibration over the whole
+  corpus rather than the single sample under test. **The fix for "you changed it, did you re-run the check" failed
+  exactly that way.** Recorded in the module comment beside the pattern, so the next person to widen it sees what
+  widening cost. Eighth self-audit instance of the campaign.
+- **A quieter finding with a long tail:** three long-standing test fixtures turned out to be synthetic logs **lacking
+  the terminator real `checkMesh` always emits** — standing in for output the world does not produce. Made faithful
+  rather than relaxing the parser to accept them.
+- The provenance constant was added matching the Cases family's hand-written string **exactly**, so their three
+  certificates are already conformant and need no migration — and those are the same three meshes refused earlier for
+  stating no cell count of their own, which a fresh check then supplied.
+- **All three families now report AT REST, each having demonstrated it rather than asserted it.**
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
