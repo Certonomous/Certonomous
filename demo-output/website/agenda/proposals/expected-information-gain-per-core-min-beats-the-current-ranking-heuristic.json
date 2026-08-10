@@ -17,6 +17,8 @@
  "hard_criterion": "instrument-check",
  "sequencing": "Dispatchable now. Strategy rule 3 slow-burn, zero solver cost, and it does not change any ranking until the lookback is graded.",
  "gate": "STRATEGY PROOF CLAUSE, verbatim: 'Information-theoretic experiment design: expected-information-gain for the agenda ranking -> PROOF: proposals ranked by EIG/core-min, beating the current heuristic on a lookback test.' Operationalised: the lookback runs over the closed docket items whose outcomes the record grades, both rankings computed from information available before each item ran, and beating means a stated rank-correlation or top-k precision against the recorded outcomes with the comparison metric fixed before either ranking is computed. The denominator uses the cost basis split the scorecard measured, so a forecast-priced cost is not treated as equal in quality to a measured one. The prior over outcomes is declared: this quarter it is the ordinal proxy read from the records' own hedging, that limitation is stated in the result, and the ranking in force is not changed on an inconclusive lookback.",
- "status": "proposed",
- "created_at": "2026-08-10T15:10:00Z"
+ "status": "approved",
+ "created_at": "2026-08-10T15:10:00Z",
+ "decided_at": "2026-08-10T00:00:00Z",
+ "decision_note": "chief approval 2026-08-10"
 }
