@@ -2014,6 +2014,31 @@ clock-audit rule asks for.]*
   nobody had asked *what does this select, and what does it silently drop?* **Ninth instance this campaign of the
   instrument, rather than the reasoning, being the defect.**
 
+### 2026-08-10 (night) — the gate ships, verified through served HTML, and a test that could have blamed a colleague
+
+- **WARN → FAIL ON ABSENCE SHIPPED** (`54cf11bb`, alone and revertable in one move; rebuild separate at `a1545dbd`).
+  All four conditions met. The message now says what absence MEANS: *"the drift detector for the shipped artifact is
+  OFF, not merely uninformative"*, with the detail that a stale zip beside it would report clean.
+- **Verified END-TO-END through served HTML, not by unit test**: build → drift check (PASS, 56/56 byte-for-byte) →
+  extract as the instructions say → run the console → fetch the pages. All four pages 200; **the served hero reads
+  0.0566, the served KPI reads 0.0566, and the struck prior-art sentence returns zero hits over HTTP.** That is the
+  artifact as a viewer receives it, which is the only frame that matters for a shipped bundle.
+- **A TEST DESIGN FINDING WORTH MORE THAN THE GATE.** The first control arm was written against the live repo bundle
+  and failed — because another family committed a file in the nine minutes between the rebuild and the test run.
+  **"A test whose control arm depends on no other agent committing reports other people's work as its own
+  failure."** Rewritten hermetic against a synthetic tree, with both control arms kept so the fix cannot degrade
+  into fail-always. In a fleet where six agents commit concurrently, a test with an ambient dependency is a
+  false-accusation channel.
+- **The one genuine surprise was the detector working.** The drift check went FAIL again minutes after passing —
+  another family's commit — and was rebuilt to absorb it. **A one-file gap caught within nine minutes** is the best
+  available evidence that the check is worth keeping armed, and it arrived by accident during the pass arguing for
+  arming it.
+- Two mid-run anomalies were diagnosed rather than worked around, and **both were the agent's own** — a console that
+  auto-increments its port and reports the port it chose (queried at the old one), and a process-kill pattern
+  matching its own command line. Neither was a defect in the artifact or the change.
+- **The agent's timing judgement, requested and given:** ship it. *"The risk of leaving it is a silent detector
+  through a shoot; the risk of taking it is a FAIL that correctly tells you to run one command."*
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
