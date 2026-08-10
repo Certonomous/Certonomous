@@ -199,8 +199,55 @@ REC="$REG/${NAME}_${STAMP}.done"
 # is L-6, the exact trap this launcher exists to close; `--check`, the
 # collector and every kill in this file key on that pid.
 
+# ---- 1.6 the rank count that actually ran (L-40, resource dimension) -------
+# `--ranks` is a number the CALLER declares, and the collector below multiplies
+# by it: core-minutes = wall x ranks / 60. Nothing used to check it against the
+# command. A declared rank count nobody verified is the container runner's rank
+# clamp with the clamp taken out -- the cost arithmetic is still wrong and
+# still silent, and it feeds every pre-registration, every cost grading and the
+# calibration scorecard's measured basis.
+#
+# This reads the ARGUMENT VECTOR, which is what will be exec'd -- not a string
+# to be split. When the command nests a shell (`bash -c "..."`), the real
+# invocation is inside a string this cannot see, and the answer is
+# UNVERIFIABLE, stated: an unchecked number reported as checked is the whole
+# defect, so a null here says so rather than guessing serial.
+RANKS_OBSERVED=""
+_prev=""
+_nested=0
+for _a in "$@"; do
+    case "$_a" in
+        -c) _nested=1 ;;
+    esac
+    case "$_prev" in
+        -np|-n|--np|--n)
+            case "$_a" in
+                ''|*[!0-9]*) : ;;
+                *) RANKS_OBSERVED="$_a" ;;
+            esac ;;
+    esac
+    _prev="$_a"
+done
+if [ "$_nested" = "1" ]; then
+    RANKS_OBSERVED="UNVERIFIABLE"
+elif [ -z "$RANKS_OBSERVED" ]; then
+    RANKS_OBSERVED=1                     # no mpirun in the vector: serial
+fi
+if [ -n "$RANKS" ] && [ "$RANKS_OBSERVED" != "UNVERIFIABLE" ] \
+   && [ "$RANKS" != "$RANKS_OBSERVED" ]; then
+    echo "RANK MISMATCH: --ranks says $RANKS, the command runs $RANKS_OBSERVED."
+    echo "         Cost is computed from what RAN ($RANKS_OBSERVED), not from"
+    echo "         what was declared, and both are recorded in the run log's"
+    echo "         RUNTIME-ENVELOPE block and in the completion record."
+fi
+# What the cost is actually priced on, so the collector and the record agree.
+RANKS_EFFECTIVE="$RANKS_OBSERVED"
+[ "$RANKS_EFFECTIVE" = "UNVERIFIABLE" ] && RANKS_EFFECTIVE="$RANKS"
+
 # ---- 2. launch detached, capture the REAL pid -----------------------------
 setsid nohup env LEVER_ECHO_DECLARED_CASE="${CASE:-}" \
+    LEVER_ECHO_DECLARED_RANKS="${RANKS:-}" \
+    LEVER_ECHO_OBSERVED_RANKS="${RANKS_OBSERVED:-}" \
     bash -c 'python3 /home/ubuntu/Certonomous/scripts/lever_echo_emit.py 2>/dev/null || true
 exec "$@"' bash "$@" >> "$LOG" 2>&1 < /dev/null &
 PID=$!
@@ -238,7 +285,11 @@ setsid nohup bash -c '
         # value are indistinguishable to anything reading this file later.
         echo "item:     '"${ITEM:-UNATTRIBUTED}"'"
         echo "attribution: '"$ATTRIB"'"
-        echo "ranks:    '"${RANKS:-UNSTATED}"'"
+        echo "ranks:    '"${RANKS:-UNSTATED}"' (declared)"
+        echo "ranks_observed: '"$RANKS_OBSERVED"'  (read from the argument"
+        echo "          vector that was exec'"'"'d; UNVERIFIABLE when the command"
+        echo "          nests a shell whose contents this cannot see)"
+        echo "ranks_priced_on: '"$RANKS_EFFECTIVE"'  (cost below uses THIS)"
         echo "est_core_min: '"${EST:-UNSTATED}"'"
         WALL_S=$(( $(date -u +%s) - '"$EPOCH"' ))
         # NOTE: no apostrophes in this block. It lives inside a single-quoted
@@ -249,8 +300,8 @@ setsid nohup bash -c '
         # figure with an undeclared bias is worse than one with a declared bias,
         # and on a short run 15 s is the whole measurement.
         echo "wall_s:   $WALL_S  (upper bound; the collector polls every 15 s)"
-        if [ -n "'"$RANKS"'" ]; then
-            echo "core_min: $(python3 -c "print(round($WALL_S * '"$RANKS"' / 60.0, 3))" 2>/dev/null || echo UNSTATED)"
+        if [ -n "'"$RANKS_EFFECTIVE"'" ]; then
+            echo "core_min: $(python3 -c "print(round($WALL_S * '"$RANKS_EFFECTIVE"' / 60.0, 3))" 2>/dev/null || echo UNSTATED)"
         else
             echo "core_min: NOT DERIVABLE (no rank count was given at launch)"
         fi
@@ -276,8 +327,8 @@ setsid nohup bash -c '
             echo "             difference is scheduling contention, not work. It does"
             echo "             NOT see memory-bandwidth contention, so it is a bound"
             echo "             on one kind of contention and not a quiet-box proof.)"
-            if [ -n "'"$RANKS"'" ]; then
-                echo "core_min_cpu: $(python3 -c "print(round($CPU_S * '"$RANKS"' / 60.0, 3))" 2>/dev/null || echo UNSTATED)  (PRICE ON THIS, not core_min: the"
+            if [ -n "'"$RANKS_EFFECTIVE"'" ]; then
+                echo "core_min_cpu: $(python3 -c "print(round($CPU_S * '"$RANKS_EFFECTIVE"' / 60.0, 3))" 2>/dev/null || echo UNSTATED)  (PRICE ON THIS, not core_min: the"
                 echo "             B-52 rung-7 record measured a basis taken from a wall"
                 echo "             clock that was 35 percent contention)"
             fi

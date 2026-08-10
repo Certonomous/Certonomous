@@ -41,6 +41,27 @@ def main() -> int:
             f"reason lever_echo is not importable: {type(exc).__name__}\n"
             "==== LEVER-ECHO REFUSED END ====\n")
         return 0
+    # The runtime envelope first: what actually bound this run. `--ranks` is
+    # a number the CALLER declares and the lab's cost arithmetic multiplies by
+    # (core-minutes = wall x ranks / 60), and nothing used to check it against
+    # the `-np` in the command that ran. A declared rank count nobody verified
+    # is the rank-clamp defect with the clamp removed: the arithmetic is still
+    # wrong and still silent.
+    declared_ranks = os.environ.get("LEVER_ECHO_DECLARED_RANKS") or None
+    observed_ranks = os.environ.get("LEVER_ECHO_OBSERVED_RANKS") or None
+    if declared_ranks or observed_ranks:
+        sys.stdout.write(lever_echo.runtime_envelope_block(
+            ranks_declared=declared_ranks,
+            ranks_observed=observed_ranks,
+            # NOT_COMPARABLE, not UNCAPPED: "no limit was applied" and "these
+            # two numbers cannot be compared" are different facts, and the
+            # envelope exists so a later reader never has to guess which.
+            ranks_agree=("NOT_COMPARABLE"
+                         if observed_ranks in (None, "UNVERIFIABLE")
+                         or declared_ranks is None
+                         else str(declared_ranks == observed_ranks)),
+            cost_basis=("ranks_observed" if observed_ranks
+                        not in (None, "UNVERIFIABLE") else "ranks_declared")))
     declared = os.environ.get("LEVER_ECHO_DECLARED_CASE") or None
     try:
         sys.stdout.write(

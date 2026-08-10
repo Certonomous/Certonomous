@@ -1354,6 +1354,29 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   zero `birth_certificate.json` files exist under any cube or sail path. The audit's certified count meant something
   weaker than it read.
 
+### 2026-08-10 (night, tail) — the rank clamp had a twin one level up, in the launcher, on the same arithmetic
+
+- **THE ENVELOPE WORK HAD A TAIL, AND IT WAS THE SAME DEFECT.** `launch_solve.sh --ranks` is a number the CALLER
+  declares; the collector multiplies by it (core-min = wall × ranks / 60); **nothing checked it against the command.**
+  That is the container's rank clamp with the clamp removed — cost still wrong, still silent, feeding every
+  pre-registration, every cost grading and the calibration scorecard's measured basis.
+- **THE LAUNCHER NOW READS THE RANK COUNT FROM THE ARGUMENT VECTOR IT IS ABOUT TO EXEC** (`-np N`) — the invocation
+  itself, not a string to be split. Agreement is silent and prices on the observed value; disagreement prints a loud
+  `RANK MISMATCH`, records `ranks` / `ranks_observed` / `ranks_priced_on` in the completion record and the
+  RUNTIME-ENVELOPE block, and **prices on what RAN**; a command nesting a shell reports `UNVERIFIABLE` and falls back
+  with the fallback named, because a number reported as checked when it was not is the whole defect.
+  **Demonstrated: a run declaring 8 ranks while executing `-np 2` now records `core_min: 0.5`. It used to bill 2.0 —
+  four times the truth, silently.**
+- **ONE SUITE FAILURE, TRIAGED AND ESCALATED RATHER THAN COMMITTED AROUND** (Infra §1.2). `test_aircraft_optimization
+  ::ShootRoundTests::test_the_fleet_comes_up_once_and_goes_down_once` fails on its `_SolvedApi` subtest, roster shape
+  `[0, 14, 9, 0]`. **Not this pass's doing, established rather than asserted**: it reproduces with this pass's
+  uncommitted files stashed, and the workflow contains zero references to anything touched. Diagnosis for its owner —
+  `n_slots = min(granted, len(grid))` is 14 while `n_par = min(granted, len(finalists))` is 9, so the fleet changes
+  size mid-run; the code comment states the contract as "it used to drop back to ZERO… and climb again", and
+  `[0,14,9,0]` never returns to zero, so it meets the stated intent while failing the encoded `len(shape) == 3`.
+  Whether the assertion or the workflow drifted is the owner's call. It also fails standalone every time, so its
+  suite-green history implies an outcome that depends on test ordering.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

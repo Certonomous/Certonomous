@@ -1,5 +1,10 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.10, dated 2026-08-10 (night). Adds 10.4, the declared-vs-observed
+rank count in `launch_solve.sh` -- the tail of the section 10 work, and the
+same defect on the same cost arithmetic -- and 10.5, a suite failure triaged
+as a finding rather than committed around.
+
 Version 1.9, dated 2026-08-10 (night). Adds section 10: a runner that
 silently overrides a caller's declared resource limit is L-40 in the resource
 dimension, and the container runner this family owns had two worse instances
@@ -1047,6 +1052,58 @@ verified from the execution, never from the declaration.
 launchers in this lab now disagree about what they enforce (`docker_dafoam`
 sets no CPU cap by default, the arm scripts set `--cpus=4`) -- a second
 instance of the two-implementations problem section 1.8 names.
+
+### 10.4. The tail: a declared rank count nobody checked
+
+Section 10 fixed a runner that substituted its own limit. The same defect was
+one level up, in this family's own launcher, on the same arithmetic.
+`launch_solve.sh --ranks` is a number the CALLER declares, and the collector
+multiplies by it -- core-minutes = wall x ranks / 60 -- and **nothing checked
+it against the command.** That is the container's rank clamp with the clamp
+removed: the cost is still wrong and still silent, and it feeds every
+pre-registration, every cost grading and the calibration scorecard's measured
+basis.
+
+Now the launcher reads the rank count from the ARGUMENT VECTOR it is about to
+exec (`-np N`), which is the invocation itself and not a string to be split:
+
+- declared and observed **agree** -> nothing said, cost priced on the observed
+  value;
+- they **disagree** -> a loud `RANK MISMATCH` at launch, both numbers written
+  into the run log's `RUNTIME-ENVELOPE` block and into the completion record
+  (`ranks`, `ranks_observed`, `ranks_priced_on`), and **cost priced on what
+  RAN**;
+- the command **nests a shell** (`bash -c "..."`) whose contents the vector
+  cannot see -> `UNVERIFIABLE`, stated, cost falling back to the declared
+  value with the fallback named. A null that says so is the point; a number
+  reported as checked when it was not is the whole defect.
+
+Demonstrated: a run declaring 8 ranks while executing `-np 2` now records
+`core_min: 0.5`. Before, it billed 2.0 -- **four times the truth, silently.**
+
+### 10.5. A suite failure triaged, not committed around
+
+`test_aircraft_optimization.py::ShootRoundTests::
+test_the_fleet_comes_up_once_and_goes_down_once` fails on its `_SolvedApi`
+subtest: roster shape `[0, 14, 9, 0]` against an assertion of three
+transitions. **Not this pass's doing, established rather than asserted** -- it
+reproduces with this pass's two uncommitted files stashed, and
+`aircraft_optimization` contains zero references to anything section 10
+touched.
+
+The diagnosis, for its owner: `n_slots = min(granted, len(grid))` is 14 and
+`n_par = min(granted, len(finalists))` is 9, so the fleet changes size between
+the screening sweep and the finalist wave. The code comment beside it states
+the contract as *"it used to drop back to zero between the screening sweep and
+the finalist wave and climb again"* -- and `[0, 14, 9, 0]` never returns to
+zero, so it satisfies the stated intent while failing the encoded assertion
+`len(shape) == 3`. Either the assertion is stricter than the contract it
+documents, or the workflow has drifted from it; **that is the owner's call and
+not this family's**, per 1.2's rule that a test weakened without naming the
+contract that moved is a rail-bypass. Escalated under 1.6.
+
+Also worth the owner's read: it fails standalone every time, which means the
+suite-green history implies its outcome depends on test ordering.
 
 ## Related
 
