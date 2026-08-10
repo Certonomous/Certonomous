@@ -872,6 +872,31 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   protocol is the L-5/L-6/D12 failure family, where a defect orphans solves rather than losing an echo.
 - Infra guidelines v1.3, new §1.8: **evidence is derived from what executed, never from what was declared.**
 
+### 2026-08-10 (night, late) — six launch paths that lost evidence are closed, and the one that would have risked runs is refused
+
+- **P-4.1 RULED THE NIGHT IT WAS FILED: C+D approved, full consolidation (B) REFUSED**, on the reason the family filed
+  it with, now standing policy — the detached path is what every long solve uses, its PID/exit-file protocol is the
+  L-5/L-6/D12 failure family, and a defect there ORPHANS SOLVES rather than losing an echo. We do not accept a small
+  chance of losing runs to buy a large certainty of gaining echoes. That is L-45's asymmetry applied to a migration
+  rather than to a gate, and it is the second time in one night the same reasoning decided a question.
+- **FAMILY CODE NOW HAS ONE LAUNCHER DEFINITION** (`tmr_verification._foam`) and one place that decides what counts as
+  a solve (`lever_echo.launches_a_solver`). The four detached/watched solver paths route through the same emitter the
+  sanctioned launcher uses; `coefficient_uq_plate.py`'s private `_foam` is deleted (behaviour proved identical —
+  `_run_prefix()` resolves to exactly the `openfoam2606` the copy hardcoded, and additionally honours
+  `OPENFOAM_RUN_PREFIX`); `naca4412_credential_repair.py`'s private `run()` is deleted rather than left unused,
+  because a second launcher sitting in a file is a second launcher somebody adds a call to. Suite 1230/0 (from 1222/0).
+- **THREE PROPERTIES OF THE DETACHED WRAPPER ARE LOAD-BEARING AND EACH HAS A TEST**, because each is one edit from
+  being lost: the echo comes from that shell's own working directory (L-45); `$?` is read immediately after the solver
+  so `solve.exit` still carries the SOLVER's exit code — a leak there would collect a failed solve as a successful one;
+  and the emitter creates the log rather than Python pre-seeding it, so the callers' `if not log_path.exists(): raise`
+  launch check still tests whether the shell ran. Pre-seeding would have silently made that safety check vacuous,
+  which is the exact shape of defect this whole pass is about.
+- **THE WORK FOUND ONE MORE, AND IT WENT LIVE WHILE BEING FIXED.** The `-postProcess` over-fire filed as *latent* in
+  the v1.2 sweep became real the moment `naca4412` was re-pointed at the shared runner: `simpleFoam -postProcess -func
+  yPlus` would have written a lever echo into a utility log. A solver binary that integrates nothing is not a solve,
+  and keying on the solver NAME alone cannot see that — the same class of mistake as keying on `args[0]`, found by the
+  consolidation that was fixing the first one.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

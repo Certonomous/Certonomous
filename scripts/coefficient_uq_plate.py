@@ -60,7 +60,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "sdk"))
 
 from workflows.tmr_verification import (  # noqa: E402
-    CF_STATION, CFL3D_SST_V, FUN3D_SST_V, cf_at, final_coefficient,
+    CF_STATION, CFL3D_SST_V, FUN3D_SST_V, _foam, cf_at, final_coefficient,
     parse_wall_shear_raw,
 )
 
@@ -171,12 +171,14 @@ def design_points(n: int, seed: int) -> np.ndarray:
 # Solving
 # ---------------------------------------------------------------------------
 
-def _foam(args: list[str], cwd: Path, log_name: str,
-          timeout: float = 1800.0) -> subprocess.CompletedProcess:
-    with (cwd / log_name).open("w") as log:
-        return subprocess.run(["openfoam2606", *args], stdout=log,
-                              stderr=subprocess.STDOUT, cwd=str(cwd),
-                              timeout=timeout)
+# NOTE: this module used to carry its own `_foam`, a private copy of the
+# shared runner that hardcoded the `openfoam2606` launcher and emitted no
+# lever echo. It was one of six solver-launch paths in the repo that could not
+# satisfy the verification charter's `levers_verified_active`, so every solve
+# from this study reported its dictionary levers as unverifiable. Deleted
+# 2026-08-10 in favour of the shared runner (P-4.1, option C+D): one launcher,
+# one echo, and `_run_prefix()` honours OPENFOAM_RUN_PREFIX where the private
+# copy could not.
 
 
 def dafoam_containers() -> int:

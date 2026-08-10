@@ -34,6 +34,7 @@ SDK = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SDK))
 
 from chief_engineer.external_aero import analyse_surface, build_case  # noqa: E402
+from workflows import tmr_verification as tv  # noqa: E402
 
 RUN_ROOT = Path.home() / "certonomous-runs"
 GEOMETRY = SDK / "geometry" / "naca4412_wing.stl"
@@ -85,21 +86,31 @@ def target_first_layer_thickness(chord: float, velocity: float, viscosity: float
     }
 
 
-def run(cmd: list[str], cwd: Path, log_name: str, timeout: float) -> str:
-    log_path = cwd / log_name
-    _log(f"  $ {' '.join(cmd)}  (cwd={cwd})")
-    with log_path.open("w") as fh:
-        proc = subprocess.run(cmd, cwd=cwd, stdout=fh, stderr=subprocess.STDOUT,
-                              timeout=timeout)
-    text = log_path.read_text(errors="replace")
-    if proc.returncode != 0:
-        tail = "\n".join(text.splitlines()[-25:])
-        raise RuntimeError(f"{cmd[0]} failed (exit {proc.returncode}) in {cwd}:\n{tail}")
-    return text
+# `run()`, the generic private launcher this module used to carry, is DELETED
+# rather than left unused: a second launcher sitting in a file is a second
+# launcher somebody adds a call to. Its one caller was `foam()` below, which
+# now goes through the shared runner.
 
 
 def foam(case: Path, args: list[str], log_name: str, timeout: float = 1800.0) -> str:
-    return run(["openfoam2606", *args], case, log_name, timeout)
+    """OpenFOAM through the SHARED runner, keeping this module's contract.
+
+    This used to be `run(["openfoam2606", *args], ...)` -- a private launcher,
+    one of six in the repo, and one of the four that emitted no lever echo, so
+    the parallel `mpirun -np N simpleFoam -parallel` solve below produced a log
+    from which `levers_verified_active` could never be satisfied. Re-pointed
+    2026-08-10 (P-4.1, option C+D). The raise-on-failure and return-the-text
+    contract this module's callers rely on is preserved here rather than
+    pushed onto them; only the launching moves.
+    """
+    _log(f"  $ {' '.join(args)}  (cwd={case})")
+    proc = tv._foam(args, case, log_name, timeout=timeout)
+    text = (case / log_name).read_text(errors="replace")
+    if proc.returncode != 0:
+        tail = "\n".join(text.splitlines()[-25:])
+        raise RuntimeError(f"{args[0]} failed (exit {proc.returncode}) in "
+                           f"{case}:\n{tail}")
+    return text
 
 
 def build(tag: str, refinement: int, layer_sizing: dict) -> Path:

@@ -930,22 +930,64 @@ def _foam(args: list[str], cwd: Path, log_name: str,
         # dictionary values -- enter the run log fenced and hash-bound, so
         # `levers_verified_active` is satisfiable at write time. Utility
         # logs stay pristine for their parsers.
-        # The membership test is over ALL arguments, not args[0]: a parallel
-        # launch spells the solver as `mpirun -np N <solver> -parallel`, and
-        # an args[0]-only test would silently skip the echo on exactly the
-        # runs a lever gate matters most on (B52 rung-6 replicate arm,
-        # B52_RUNG6_REPLICATE_PREREGISTRATION.md section 6 G4). No caller in
-        # the repo passes `mpirun` today, so this is a no-op for every
-        # existing call site.
-        if any(arg in lever_echo.SOLVERS for arg in args):
-            try:
-                log_file.write(lever_echo.echo_block(Path(cwd)))
+        # Both decisions -- whether this launch is a solve at all, and what
+        # the block says -- live in `lever_echo`, so the six launchers this
+        # lab had cannot drift apart about what counts as proof (P-4.1,
+        # option C+D). The membership test is over ALL arguments, not
+        # args[0]: a parallel launch spells the solver `mpirun -np N <solver>
+        # -parallel`, and an args[0]-only test silently skipped the echo on
+        # exactly the runs a lever gate matters most on (commit 199e9d17).
+        # `cwd` feeds both the echo and subprocess's own cwd below, so the
+        # block describes the directory that executes (L-45).
+        try:
+            block = lever_echo.echo_if_solver(args, Path(cwd))
+            if block:
+                log_file.write(block)
                 log_file.flush()
-            except OSError:
-                pass
+        except OSError:
+            pass
         return subprocess.run(command, stdout=log_file,
                               stderr=subprocess.STDOUT, cwd=str(cwd),
                               timeout=timeout)
+
+
+#: The canonical lever-echo emitter, the same one `scripts/launch_solve.sh`
+#: uses. Run from INSIDE a detached solve's own shell so the block describes
+#: the directory that process is actually in (L-45).
+_LEVER_ECHO_EMIT = (Path(__file__).resolve().parents[2] / "scripts"
+                    / "lever_echo_emit.py")
+
+
+def _detached_solve_wrapper(command: list[str], log_name: str,
+                            exit_name: str = "solve.exit") -> str:
+    """The shell one-liner a detached solve runs, with the lever echo.
+
+    Adopted 2026-08-10 (P-4.1, option C+D). The detached paths built this
+    string themselves and launched straight into `bash -c`, so they were four
+    of the six solver launches in the repo that emitted no echo at all: a
+    record from any of them honestly reported `unverifiable`, and the longest
+    solves the lab runs are exactly the ones that went through here.
+
+    Three properties are load-bearing and each is one edit away from being
+    lost:
+
+    * the echo is emitted BY THIS SHELL, from its own working directory,
+      which `Popen(cwd=...)` sets to the case -- never from a path passed in
+      alongside describing it (L-45);
+    * ``$?`` is read immediately after the solver, so ``solve.exit`` still
+      carries the SOLVER's exit code and the polling protocol is untouched;
+    * the emitter creates ``log_name`` rather than the caller pre-seeding it,
+      so a caller's "did the log appear?" launch check still tests whether
+      the shell ran, instead of testing whether Python wrote a file.
+
+    The emitter always exits 0 and its stderr is discarded: a solve is never
+    prevented from launching by its own bookkeeping. A missing block costs a
+    verification; a failed launch costs the run.
+    """
+    return (f"python3 {shlex.quote(str(_LEVER_ECHO_EMIT))} > {log_name} "
+            f"2>/dev/null || true; "
+            f"{shlex.join(command)} >> {log_name} 2>&1; "
+            f"echo $? > {exit_name}")
 
 
 def _copy_best_effort(src: Path, dst: Path) -> None:
@@ -1253,6 +1295,15 @@ def _run_simplefoam_to_settle(level: GridLevel, remote: str,
     command = [*_run_prefix(), "simpleFoam"]
     log_path = remote_dir / "log.simpleFoam"
     with log_path.open("w") as log_file:
+        # Lever echo (L-40 / charter section 9). There is no shell here to
+        # emit it from, so it is written from the SAME `remote_dir`
+        # expression that becomes this process's cwd on the next line --
+        # bound at the point of use, with no second path that could differ.
+        try:
+            log_file.write(lever_echo.echo_block_for_run_dir(remote_dir))
+            log_file.flush()
+        except OSError:
+            pass
         proc = subprocess.Popen(command, stdout=log_file,
                                 stderr=subprocess.STDOUT, cwd=str(remote_dir))
         try:
@@ -1309,8 +1360,7 @@ def launch_level_solver(level: GridLevel, case_root: Path, out_dir: Path,
     # the caller polls from a later invocation; the exit code is written to
     # solve.exit since nothing stays around to capture a return value.
     command = [*_run_prefix(), "simpleFoam"]
-    wrapper = (f"{shlex.join(command)} > log.simpleFoam 2>&1; "
-              f"echo $? > solve.exit")
+    wrapper = _detached_solve_wrapper(command, "log.simpleFoam")
     subprocess.Popen(["bash", "-c", wrapper], cwd=str(remote_dir),
                      start_new_session=True, stdin=subprocess.DEVNULL,
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -1429,8 +1479,7 @@ def launch_level_solver_parallel(level: GridLevel, case_root: Path,
     log_path.unlink(missing_ok=True)
     command = [*_run_prefix(), "mpirun", "-np", str(ranks), "simpleFoam",
               "-parallel"]
-    wrapper = (f"{shlex.join(command)} > log.simpleFoam 2>&1; "
-              f"echo $? > solve.exit")
+    wrapper = _detached_solve_wrapper(command, "log.simpleFoam")
     subprocess.Popen(["bash", "-c", wrapper], cwd=str(remote_dir),
                      start_new_session=True, stdin=subprocess.DEVNULL,
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -3184,8 +3233,7 @@ def run_naca_level(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
         log_path = remote_dir / "log.simpleFoam"
         log_path.unlink(missing_ok=True)
         command = [*_run_prefix(), "simpleFoam"]
-        wrapper = (f"{shlex.join(command)} > log.simpleFoam 2>&1; "
-                  f"echo $? > solve.exit")
+        wrapper = _detached_solve_wrapper(command, "log.simpleFoam")
         subprocess.Popen(["bash", "-c", wrapper], cwd=str(remote_dir),
                          start_new_session=True, stdin=subprocess.DEVNULL,
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

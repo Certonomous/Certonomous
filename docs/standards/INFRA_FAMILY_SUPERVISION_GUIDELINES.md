@@ -1,5 +1,13 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.4, dated 2026-08-10 (night). Records P-4.1 as approved — option C+D
+landed, option B (full consolidation) REFUSED and the refusal adopted as
+policy — in section 5, and closes the six false-negative launch paths section
+3.3 left open. Family code now has one launcher definition and one place that
+decides what counts as a solve. A latent over-fire in 3.3 went live during the
+work and was closed with it: a solver binary running `-postProcess` is not a
+solve.
+
 Version 1.3, dated 2026-08-10 (night). Closes the one false-POSITIVE channel
 v1.2's sweep found: `launch_solve.sh` minted its lever echo from a
 caller-supplied `--case` while the command ran under `setsid nohup "$@"` in
@@ -361,15 +369,15 @@ checked for the absence of an error would have passed against the defect.
 | --- | --- | --- |
 | `tmr_verification.py:_foam` echo predicate | membership over all args | **FIXED** at `199e9d17` |
 | same, residual | an exact-string NAME set | **VULNERABLE (note).** A solver spelled as a path (`/…/bin/simpleFoam`) or behind a wrapper (`foamJob`, `foamExec`) is still invisible. No caller does this today. |
-| `tmr_verification.py:1253` `_run_settle_watched_solver` | builds `[*_run_prefix(), "simpleFoam"]` and `Popen`s it, bypassing `_foam` | **VULNERABLE.** No echo, ever. |
-| `tmr_verification.py:1311` `launch_level_solver` (detached) | same bypass | **VULNERABLE** |
-| `tmr_verification.py:1430` `launch_level_solver` parallel detached | same bypass, mpirun-spelled | **VULNERABLE** |
-| `tmr_verification.py:3186` NACA detached branch | same bypass | **VULNERABLE** |
+| `tmr_verification.py:1253` `_run_settle_watched_solver` | builds `[*_run_prefix(), "simpleFoam"]` and `Popen`s it | **FIXED** (section 5). Echo written from the same `remote_dir` expression that becomes the process's cwd. |
+| `tmr_verification.py:1311` `launch_level_solver` (detached) | same bypass | **FIXED** (section 5), via `_detached_solve_wrapper`. |
+| `tmr_verification.py:1430` `launch_level_solver` parallel detached | same bypass, mpirun-spelled | **FIXED** (section 5) |
+| `tmr_verification.py:3186` NACA detached branch | same bypass | **FIXED** (section 5) |
 | `scripts/launch_solve.sh:177` | `[ -d "$CASE" ]` — a caller-supplied PATH STRING | **FIXED** 2026-08-10 night (section 4). Was the worst of the set: nothing bound `--case` to where the command runs, so a mismatch minted an echo of dictionaries that did NOT run at the head of a log of a solve that did — the set's only false-POSITIVE channel. |
 | `scripts/launch_solve.sh`, same block | echo written into the registry `$LOG` | **SAFE (corrected).** v1.2 filed this as a false negative; that was wrong. The launcher redirects the launched command's own stdout/stderr into `$LOG`, so for a `launch_solve.sh` run the registry log IS the run log and the echo heads it. The note stands only for a caller who additionally redirects inside its own command. |
-| `scripts/coefficient_uq_plate.py:174` | a private `_foam` copy that launches `simpleFoam` | **VULNERABLE.** No echo at all; a second runner diverged from the sanctioned one. |
-| `sdk/scripts/naca4412_credential_repair.py:101` | private `foam()`, mpirun-spelled solves | **VULNERABLE.** No echo. |
-| `sdk/scripts/naca4412_credential_repair.py:157` | `simpleFoam -postProcess -func yPlus` — a UTILITY spelled with a solver name | **Latent over-fire.** Harmless today because that runner has no echo; it would pollute `log.yPlus` if routed through `_foam`. The pristine-utility guard in 3.2 pins the boundary. |
+| `scripts/coefficient_uq_plate.py:174` | a private `_foam` copy that launches `simpleFoam` | **FIXED** (section 5): deleted, re-pointed at the shared runner. |
+| `sdk/scripts/naca4412_credential_repair.py:101` | private `foam()`, mpirun-spelled solves | **FIXED** (section 5): private `run()` deleted, `foam()` delegates to the shared runner. |
+| `sdk/scripts/naca4412_credential_repair.py:157` | `simpleFoam -postProcess -func yPlus` — a UTILITY spelled with a solver name | **FIXED** (section 5). The over-fire became live the moment that script was re-pointed at the shared runner, so `lever_echo.UTILITY_FLAGS` now excludes `-postProcess`: a solver binary that integrates nothing is not a solve. |
 | `mesh_certificate.certificate_admits` | re-hashes the points file actually present | **SAFE.** Hash-bound, not path-bound; a certificate cannot drift onto another mesh. |
 | `mesh_certificate` cache write/lookup | `points_sha256` binding | **SAFE** |
 | `certificate_admits` on a decomposed case | certifies `constant/polyMesh`, while an mpirun solve reads `processor*/constant/polyMesh` | **SAFE (note).** The processor meshes are derived from the certified one; recorded so the gap stays a known gap. |
@@ -484,6 +492,57 @@ running solves through six launchers has an enforcement surface it cannot
 reason about, and patching six is how it becomes seven —
 `docs/charters/PROPOSALS_OPEN.md`, one-launcher consolidation, migration cost
 priced.
+
+## 5. P-4.1 as approved: C+D landed, B refused (2026-08-10, night)
+
+Chief approved option C+D and **refused option B, full consolidation**, on the
+reason the family filed it with, now policy: *the detached path is what every
+long solve uses, its PID/exit-file protocol is the L-5/L-6/D12 failure family,
+and a defect there ORPHANS SOLVES rather than losing an echo. We do not accept
+a small chance of losing runs to buy a large certainty of gaining echoes.*
+That is L-45's asymmetry applied to a migration instead of to a gate. Suite
+**1230 passed, 0 failed, 161 subtests** (from 1222/152).
+
+**One launcher definition now exists in family code**
+(`tmr_verification._foam`), and one place decides what counts as a solve
+(`lever_echo.launches_a_solver` / `echo_if_solver`).
+
+- **The four detached/watched paths** route through
+  `tmr_verification._detached_solve_wrapper`, which calls the same
+  `scripts/lever_echo_emit.py` the sanctioned launcher uses. Three properties
+  are load-bearing and each is one edit from being lost, so each has a test:
+  the echo is emitted by that shell from its own working directory (L-45);
+  `$?` is read immediately after the solver so **`solve.exit` still carries
+  the SOLVER's exit code** — if the emitter's status ever leaked in, a failed
+  solve would be collected as a successful one; and **the emitter creates the
+  log, not Python**, so the callers' `if not log_path.exists(): raise` launch
+  check still tests whether the shell ran instead of testing whether Python
+  wrote a file. Pre-seeding from Python would have silently made that safety
+  check vacuous, which is the shape of defect this whole pass is about.
+- **The watched path** has no shell to emit from, so its echo is written from
+  the same `remote_dir` expression that becomes `Popen(cwd=...)` on the next
+  line — bound at the point of use, with no second path that could differ.
+- **`scripts/coefficient_uq_plate.py`'s private `_foam` is deleted** and
+  re-pointed at the shared runner. Behaviour verified identical: the deleted
+  copy hardcoded `openfoam2606` and `_run_prefix()` resolves to exactly
+  `['openfoam2606']` on this host, while additionally honouring
+  `OPENFOAM_RUN_PREFIX`, which the private copy could not.
+- **`naca4412_credential_repair.py`'s private `run()` is deleted** — not left
+  unused, because a second launcher sitting in a file is a second launcher
+  somebody adds a call to. Its `foam()` now delegates to the shared runner
+  while keeping this module's raise-on-failure/return-the-text contract, so
+  the change does not push error handling onto ten call sites.
+- **The `-postProcess` over-fire, filed as latent in 3.3, became live** the
+  moment that script was re-pointed: `simpleFoam -postProcess -func yPlus`
+  would have written an echo into a utility log. `lever_echo.UTILITY_FLAGS`
+  now excludes it. **A solver binary that integrates nothing is not a solve**,
+  and keying on the solver NAME alone cannot see that — the same class of
+  mistake as keying on `args[0]`, found by the consolidation that was fixing
+  the first one.
+
+**Reported as drift, not edited** (other families' campaign scripts, chief is
+routing them): `W1_runs/run_rung.py:39`, `W1_runs/build_case.py:29`,
+`F5_runs/cylinder_ladder.py:465`.
 
 ## Related
 

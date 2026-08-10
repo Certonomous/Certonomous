@@ -49,6 +49,42 @@ SOLVERS = frozenset({
 })
 
 
+#: Flags that turn a solver binary into a post-processing utility. A launch
+#: spelled ``simpleFoam -postProcess -func yPlus`` runs no solve: it writes a
+#: utility log whose parsers expect utility output, and there is no "the
+#: switch that ran" question to answer because nothing was integrated. The
+#: solver-name test alone cannot tell the two apart, which is the same class
+#: of mistake as testing ``args[0]`` -- keying on a spelling instead of on
+#: what the invocation does.
+UTILITY_FLAGS = frozenset({"-postProcess"})
+
+
+def launches_a_solver(args: list[str]) -> bool:
+    """Whether this argument vector actually RUNS a solver.
+
+    Membership is over ALL arguments, never ``args[0]``: a parallel launch
+    spells the solver ``mpirun -np N <solver> -parallel``, and an
+    ``args[0]``-only test silently skipped the echo on exactly the runs a
+    lever gate matters most on (fixed 2026-08-10, commit 199e9d17).
+    """
+    if any(arg in UTILITY_FLAGS for arg in args):
+        return False
+    return any(arg in SOLVERS for arg in args)
+
+
+def echo_if_solver(args: list[str], run_dir: Path) -> str:
+    """The echo block when ``args`` launches a solver in ``run_dir``, and the
+    empty string otherwise -- the one place that decision is made.
+
+    Every launcher in the lab routes its echo through this: the shared runner,
+    the detached solve wrapper, and the two workflow scripts that used to
+    carry private copies. One predicate and one format, because two
+    implementations of a proof format are two things that can disagree about
+    what was proved.
+    """
+    return echo_block_for_run_dir(run_dir) if launches_a_solver(args) else ""
+
+
 def _echo_targets(case_dir: Path) -> list[Path]:
     case_dir = Path(case_dir)
     targets = [case_dir / rel for rel in ECHO_FILES]

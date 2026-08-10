@@ -293,6 +293,97 @@ class RunDirectoryBindingTests(unittest.TestCase):
         self.assertNotIn(lever_echo._FILE_MARK, out)
 
 
+class SolverInvocationTests(unittest.TestCase):
+    """`launches_a_solver` is the one place the lab decides whether a launch
+    is a solve. Six launchers used to answer it separately, or not at all."""
+
+    def test_a_solver_at_any_argument_position_is_a_solve(self):
+        for args in (["simpleFoam"],
+                     ["mpirun", "-np", "2", "simpleFoam", "-parallel"],
+                     ["mpirun", "-np", "48", "rhoSimpleFoam", "-parallel"],
+                     ["potentialFoam", "-writephi"]):
+            with self.subTest(args=args):
+                self.assertTrue(lever_echo.launches_a_solver(args))
+
+    def test_utilities_are_not_solves(self):
+        for args in (["blockMesh"], ["checkMesh", "-allGeometry"],
+                     ["decomposePar", "-force"], ["reconstructPar"],
+                     ["mpirun", "-np", "2", "redistributePar", "-parallel"]):
+            with self.subTest(args=args):
+                self.assertFalse(lever_echo.launches_a_solver(args))
+
+    def test_a_solver_binary_running_postprocess_is_not_a_solve(self):
+        """`simpleFoam -postProcess -func yPlus` integrates nothing; its log
+        belongs to a utility parser and there is no switch-that-ran question
+        to answer. Keying on the solver NAME alone cannot see this, which is
+        the same mistake as keying on args[0]."""
+        self.assertFalse(lever_echo.launches_a_solver(
+            ["simpleFoam", "-postProcess", "-func", "yPlus", "-latestTime"]))
+
+    def test_echo_if_solver_returns_the_block_or_nothing(self):
+        tmp = Path(tempfile.mkdtemp(prefix="lever-invoke-"))
+        self.addCleanup(shutil.rmtree, tmp, True)
+        case = _fixture_case(tmp)
+        block = lever_echo.echo_if_solver(["simpleFoam"], case)
+        self.assertIn("system/fvSchemes", lever_echo.parse_echo(block))
+        self.assertEqual(lever_echo.echo_if_solver(["blockMesh"], case), "")
+
+
+class DetachedSolveWrapperTests(unittest.TestCase):
+    """The four detached/watched solver paths inside `tmr_verification` used
+    to launch straight into `bash -c` with no echo at all -- and they are the
+    paths the LONGEST solves use. Routed through the canonical emitter
+    2026-08-10 (P-4.1 C+D). The exit-file protocol is untouched, and these
+    tests are what says so."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="lever-detach-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.case = _fixture_case(self.tmp)
+
+    def _run(self, command: list[str]) -> tuple[str, str]:
+        wrapper = tv._detached_solve_wrapper(command, "log.simpleFoam")
+        subprocess.run(["bash", "-c", wrapper], cwd=str(self.case),
+                       timeout=120, capture_output=True)
+        return ((self.case / "log.simpleFoam").read_text(errors="replace"),
+                (self.case / "solve.exit").read_text().strip())
+
+    def test_the_detached_wrapper_emits_the_echo_before_the_solver(self):
+        text, _ = self._run(["/bin/echo", "solver-output-here"])
+        self.assertTrue(text.startswith(lever_echo.BEGIN))
+        echoed = lever_echo.parse_echo(text)
+        self.assertEqual(
+            echoed["system/fvSolution"],
+            hashlib.sha256(
+                (self.case / "system" / "fvSolution").read_bytes()).hexdigest())
+        self.assertIn("solver-output-here", text)
+        self.assertLess(text.index(lever_echo.END),
+                        text.index("solver-output-here"))
+
+    def test_solve_exit_still_carries_the_SOLVERS_exit_code(self):
+        """The protocol every detached poll depends on. If the echo command's
+        status ever leaked into `solve.exit`, a failed solve would be
+        collected as a successful one."""
+        _, code = self._run(["/bin/sh", "-c", "exit 7"])
+        self.assertEqual(code, "7", "solve.exit did not carry the solver's "
+                                    "exit code -- the polling protocol broke")
+
+    def test_a_successful_solve_still_writes_zero(self):
+        _, code = self._run(["/bin/true"])
+        self.assertEqual(code, "0")
+
+    def test_the_log_is_created_by_the_shell_not_by_python(self):
+        """The callers' launch check is `if not log_path.exists(): raise`.
+        Pre-seeding the log from Python would make that check vacuous, so the
+        emitter must be what creates it."""
+        wrapper = tv._detached_solve_wrapper(["/bin/true"], "log.simpleFoam")
+        self.assertFalse((self.case / "log.simpleFoam").exists(),
+                         "building the wrapper must not itself write the log")
+        self.assertIn("lever_echo_emit.py", wrapper)
+        self.assertTrue(tv._LEVER_ECHO_EMIT.exists(),
+                        f"the emitter is missing at {tv._LEVER_ECHO_EMIT}")
+
+
 class LaunchSolveEchoTests(unittest.TestCase):
     """The launcher end-to-end: `scripts/launch_solve.sh` must emit the block
     from the launched process's own working directory."""

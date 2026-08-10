@@ -625,12 +625,22 @@ and get written approval, which is the point.
 
 ### Charter 4, verification
 
-#### P-4.1. The lab launches solvers eight different ways, and two of them enforce the lever gate
+#### P-4.1. The lab launches solvers eight different ways, and two of them enforce the lever gate. RULED: C+D, and B REFUSED
 
-**NEW in 2.5 (2026-08-10, night), from the Infra family's L-45 pass.** Filed
-rather than enacted, because the cheap half is a family fix and the expensive
-half touches the detached-solve protocol that three lessons (L-5, L-6, D12)
-exist to protect.
+**Filed and ruled the same night, 2026-08-10, from the Infra family's L-45
+pass.** Chief's ruling: **C+D approved as recommended; option B, full
+consolidation, REFUSED — and the refusal's reason adopted as standing
+policy.** The detached path is what every long solve uses, its PID/exit-file
+protocol is the L-5/L-6/D12 failure family, and a defect there ORPHANS SOLVES
+rather than losing an echo: *we do not accept a small chance of losing runs to
+buy a large certainty of gaining echoes.* L-45's asymmetry, applied to a
+migration instead of to a gate.
+
+C+D landed the same night (Infra guidelines v1.4 section 5; suite 1230/0).
+Family code now carries one launcher definition and one place that decides
+what counts as a solve. The three campaign scripts below are other families'
+and are left as reported drift for the chief to route. **The entry is kept in
+full because the reasoning is the reusable part, not the verdict.**
 
 **The finding.** Charter §9's `levers_verified_active` is only as good as the
 launch paths that emit the echo. A sweep of every solver launch in the repo
