@@ -158,6 +158,29 @@ vs the 1.91e-3 floor — the mesh-draw-sensitivity protocol (`w3-a-verdict-proto
 second family. ~14 core-min. If replicates reproduce the floor, the recipe owns it (castellation);
 if not, the floor is iteration-history noise and the settle gate needs work.
 
+**Outcome (2026-08-10, pre-reg 5c6825c7 / results e40eceb3, 17.2 core-min against a 21.4 self-declared
+bar): REPRODUCE — the RECIPE owns the floor.** D6 = 1.35994e-3 = 0.710× the 1.9146e-3 floor against a
+pre-fixed ≥0.50× bar; the refuting branch is beaten with margin (both replicates settle to
+0.028–0.030% of |Cd| and D6 is 94.6× the larger 2σ), so the settle gate needs no work.
+Castellation-driven draw sensitivity, as the protocol's second family predicted.
+**But the reading larger than the verdict, and it is the one that matters:** three draws at this ONE
+rung span 5.35e-3 — 2.80× the floor and **1.32× the −4.055e-3 rung 6→7 increment, the largest single
+increment anywhere in the B-52's valid family. The ladder's "turn" therefore sits INSIDE its own
+single-rung draw scatter.** W3 estimated that spread at ±47% from a rung-7 pair; measured with three
+draws it is ±132%. Entry 4 asked where the floor came from and got its answer; what it also bought is
+that a feature the family has treated as structure is not resolved by the data underneath it.
+**Chief rulings:** (1) an audit is ordered of every standing claim that rests on the B-52 ladder's
+turn — each either gains this scatter as a stated uncertainty or is withdrawn; (2) the G1 refusal is
+a finding in its own right and stands: the background-cell product does NOT control delivered cell
+count (+0.22% product → +6.5% cells), which is a recipe-level defect worth its own note; (3) the
+agent's G4 replicate-equality clause failed AS WRITTEN and I UPHOLD its judgment to let the verdict
+stand — the two mismatched fields are potentialFoam outputs on different meshes (0.orig
+byte-identical, all eight lever/BC files hash-matched), so the clause was mis-specified, not the
+result; its amendment for future arms is approved; (4) the arm hit L-42 head-on hours after the
+lesson was written — a rerun re-meshed over a finished solve and destroyed it, ~8.7 core-min bought
+nothing — and the guards are now fixed; the lesson earning its keep the same day is worth the
+record.
+
 ## 5. F5c backward-facing step — converged solves 4–12× wrong on reattachment, wandering
 The OOM premise is dead (our own record refuted it). **New diagnostics, ordered by cost:**
 - [FILE] Inlet-development audit first (0 core-min): Driver–Seegmiller's reference has a developed
