@@ -128,13 +128,12 @@ denormal \(3.945602898014\times10^{-308}\) --- and a pre-registered finite-diffe
 verifies two of four probed gradient components at 0.18\% and 0.93\%, with the other two
 reported unverdicted rather than forced. The next rung up, 42{,}120 cells, converges too --- 987
 and 1171 iterations, with all three of its probed components evaluable, step-consistent and
-inside 0.28\% --- so the correction now rests on two rungs rather than one. A third is
-pre-registered and unrun. The same dead lever turns out to have manufactured a second, longer-lived
-error: this lab's recorded finding that \emph{strengthening} the preconditioner reintroduces
-collapse on this family is an artifact of the inactive option, and with it active the two
-strengthening levers are the largest iteration cuts measured (\(-36\%\), \(-44\%\)) and neither
-collapses. The wall was real; its cause, and the anomaly built beside it, were both properties
-of a configuration that never ran. A second silent configuration is reported alongside: the
+inside 0.28\% --- so the correction rests on two rungs rather than one. The third rung,
+79{,}560 cells, does \emph{not} converge: it stagnates flat at a cap 1.6 times the predicted
+requirement with memory comfortable, which places a ceiling on the reopened ladder somewhere
+between 42{,}120 and 79{,}560 cells and breaks the two-rung iteration-scaling law by kind
+rather than by degree. The wall was real; at the rungs below that ceiling its cause was
+misattributed. A second silent configuration is reported alongside: the
 wrapper writes the primal end state back into time~0, so the cold start you assumed is not the
 start that ran. \textbf{Nothing in this document has been filed upstream.}
 \end{abstract}
@@ -213,8 +212,8 @@ D3. ILU conditioning wall
 \addlinespace
 D4. An option that is dead code for the solver reading it
 & DAFoam v5, \artifact{DAResidualRhoSimpleCFoam.C:173} (only \texttt{== 1} implemented); \texttt{== 2} exists at \artifact{DAResidualTurboFoam.C:176}, a different solver. Read by an unvalidated \texttt{getOption} lookup and echoed back live in the settings dump
-& Every archived ONERA M6 adjoint in this lab set \texttt{transonicPCOption: 2} and none of them ran it, so the recorded ``conditioning wall at every mesh size'' (\(-5\) at 21{,}840--99{,}840 cells) was measured with the transonic preconditioner silently off. \(2\rightarrow1\) alone --- identical mesh, partition, coloring cache, stock ILU --- takes both solves from \texttt{DIVERGED\_BREAKDOWN} to \texttt{reason 2} at \textbf{two} rungs (21{,}840 cells: 368/383 iterations; 42{,}120 cells: 987/1171). Pre-registered negative control at the record value reproduces the record bit for bit; FD tables PASS at both rungs (rung 1: 2 of 4 probed components, 0.18\%/0.93\%; rung 2: all three, 0.0077\%/0.2740\%/0.0172\%). A second standing conclusion falls with it: R5's ``strengthening the PC reintroduces collapse'' is an artifact of the same dead lever --- with the PC active, fill-1 and Richardson are the two largest iteration cuts measured (\(-36\%\), \(-44\%\)) and neither collapses
-& Two of our own claims corrected, at two rungs; a third rung pre-registered and unrun. Upstream behaviour --- silent acceptance of an inapplicable value --- described, \textbf{not filed}; no prepared report exists \\
+& Every archived ONERA M6 adjoint in this lab set \texttt{transonicPCOption: 2} and none of them ran it, so the recorded ``conditioning wall at every mesh size'' (\(-5\) at 21{,}840--99{,}840 cells) was measured with the transonic preconditioner silently off. \(2\rightarrow1\) alone --- identical mesh, partition, coloring cache, stock ILU --- takes both solves from \texttt{DIVERGED\_BREAKDOWN} to \texttt{reason 2} at \textbf{two} rungs (21{,}840 cells: 368/383 iterations; 42{,}120 cells: 987/1171). Pre-registered negative control at the record value reproduces the record bit for bit; FD tables PASS at both rungs (rung 1: 2 of 4 probed components, 0.18\%/0.93\%; rung 2: all three, 0.0077\%/0.2740\%/0.0172\%). Rung 3 (79{,}560 cells) stagnates flat at a 4{,}000 cap with memory comfortable (11.65 of 22~GiB): a ceiling, bracketed and not located. A second recorded conclusion is rescoped rather than reversed: R5's ``strengthening the PC reintroduces collapse'' is real and \emph{mesh-dependent} --- with the PC active, Richardson is the largest iteration cut at 21{,}840 cells (\(-44\%\)) and collapses at the first restart boundary at 42{,}120
+& One claim of ours corrected and one rescoped, at two verified rungs under a measured ceiling. Upstream behaviour --- silent acceptance of an inapplicable value --- described, \textbf{not filed}; no prepared report exists \\
 \addlinespace
 D5. A state rewrite with no log line
 & DAFoam v5 \artifact{pyDAFoam}: the primal end state is written back into the time-0 directory (\artifact{0/U} bit-identical to \artifact{1000/U}); \artifact{pyDAFoam.py:1543} then hard-raises on the leftover time directory it created
@@ -247,13 +246,15 @@ replaced between runs with nothing printed. Each was found by measuring the thin
 instrument was not looking at.
 
 \paragraph{What D4 and D5 cost, and why they are here.} Neither is a wrong number. D4 produced
-nine days of correct measurements assembled into \emph{two} incorrect sentences --- the
-expensive kind of defect, because every individual figure survives the audit. The first was
-causal: a wall attributed to conditioning. The second was worse and outlived it by weeks: a
-spurious \emph{anomaly}, that strengthening the preconditioner reintroduces collapse on this
-family, which made every documented escalation look counterproductive and shaped the remedy
-ladder this lab was willing to climb. Both dissolved when the option was activated
-(Section~\ref{sec:artifact}). A wrong wall stops work; a wrong anomaly redirects it. D5
+nine days of correct measurements assembled into one incorrect sentence and one over-general
+one --- the expensive kind of defect, because every individual figure survives the audit. The
+first was causal: a wall attributed to conditioning, and it dissolves when the option is
+activated. The second outlived it by weeks and is subtler: the recorded finding that
+strengthening the preconditioner reintroduces collapse on this family, which made every
+documented escalation look counterproductive. That observation turns out to be \emph{true and
+mesh-dependent} --- it reproduces on a live preconditioner one rung up --- so what the dead
+lever cost there was not the finding but its width (Section~\ref{sec:artifact}). A wrong wall
+stops work; a correct observation recorded at the wrong scope redirects it. D5
 produced no wrong conclusion at all, on this evidence, and is reported because the audit that
 established that is the only reason anyone knows. A defect report that only lists other
 people's wrong numbers is not the same document as one that lists the ways a toolchain can
@@ -1969,6 +1970,17 @@ exactly that symptom silently off --- and that mitigation is a rung on the upstr
 ladder quoted in Section~\ref{sec:pc} (``\texttt{transonicPCOption} for transonic cases''),
 the rung a \texttt{DARhoSimpleCFoam} user in trouble is told to try.
 
+\paragraph{The search space, stated, because a deadness claim without one is not a finding.}
+This lab learned that rule the expensive way two days later (Section~\ref{sec:audits}), so the
+claim above is stated with its own reach attached. In the shipped image,
+\texttt{grep -rn transonicPCOption} over the entire \artifact{src/adjoint} tree and
+\artifact{pyDAFoam.py} --- not one file, and including \texttt{.H} headers --- returns exactly
+four source occurrences: \artifact{DAResidualRhoSimpleCFoam.C:173} (\texttt{== 1}),
+\artifact{DAResidualTurboFoam.C:161} (\texttt{== 1}) and \artifact{:176} (\texttt{== 2}), and
+the \artifact{pyDAFoam.py:396} default of \(-1\). Line 173 is the only occurrence in the file
+that governs the solver these cases ran, and it tests \texttt{== 1}. The claim is a claim about
+that search space, and the search space is the build's.
+
 The finding is due to the pre-registration of an unrelated arm
 (\artifact{A3\_SUBLU\_PREREGISTRATION.md} \S2, \commit{12d3a7a3}), which went to the source to
 state what the lever \emph{was} before pulling it, and found it inert. It cost nothing and it
@@ -2222,10 +2234,12 @@ cold-start proofs, and --- before attempt 2 returned --- a written prediction of
 near iteration 1{,}250 from the observed decades-per-hundred-iterations slope. Measured: 1{,}171,
 correct in direction and conservative by 7\%.
 
-\subsection{The anomaly that was also an artifact}
+\subsection{The anomaly that was over-generalised, not invented}
 \label{sec:artifact}
 
-\emph{Added 2026-08-10.} The dead lever cost more than one sentence. R5 recorded a second
+\emph{Added 2026-08-10; corrected the same day, and the correction is the point of the
+subsection.} The dead lever cost a second sentence as well --- though not the whole of it, as
+this document briefly claimed. R5 recorded a second
 result, four independent solves deep: from the sane baseline, \emph{strengthening} the
 preconditioner --- \texttt{pcFillLevel} \(0\rightarrow1\), or the literature-precedented nested
 Richardson wrap --- \textbf{reintroduced} the catastrophic collapse, at exactly the restart
@@ -2261,27 +2275,132 @@ costs wall. 22.7 core-min against 35--45 approved.
 \label{tab:triage}
 \end{table}
 
-The two levers R5 recorded as collapse-inducing are the two largest iteration cuts on the
-board. The mechanism is unremarkable once the token is understood, and that is the point:
-strengthening a preconditioner assembled around a term that should have been dropped makes a
-bad approximation \emph{better resolved}, not better --- and with the term correctly dropped,
-ordinary numerical-linear-algebra intuition returns. A stronger incomplete factorization
-clusters the spectrum, and the iteration count falls.
+The two levers R5 recorded as collapse-inducing came back as the two largest iteration cuts on
+the board, and at 15:41Z on 2026-08-10 the record was amended to say what that appeared to
+mean: that the collapse had been an artifact of the dead configuration all along.
 
-So the accounting on this defect has a second line. A silently-ignored option did not only
-produce a false causal sentence about the \emph{wall}; it produced a false \emph{anomaly about
-remedies}, and the anomaly was the more expensive of the two, because a wrong wall stops work
-while a wrong anomaly redirects it. Every documented escalation this family could have reached
-for looked, on the record, like it made things worse.
+\paragraph{Three minutes later, that amendment was falsified by its own author.} At 15:44Z the
+stage-0 transfer arm of the next rung returned. It is the Richardson lever at \textbf{42{,}120
+cells with the transonic preconditioner ACTIVE} --- the only change from the arm that had
+converged there at 987/1171 iterations, with \texttt{transonicPCOption 1;} in the dump, the
+cold signature, and no sub-LU banner:
 
-Scope, held as the triage itself held it: this was measured at 21{,}840 cells and does not
-prove transfer to a taller rung --- a lever's benefit can be mesh-dependent. Rung 3's
-pre-registration (\commit{3e585b07}, filed, \emph{not run}) therefore carries a rung-2
-confirmation arm as its stage 0 and adopts the Richardson lever only if that arm reproduces a
-material cut. Richardson is recommended there over the wall-cheapest lever for a reason worth
-stating, since it runs against the ranking: at 79{,}560 cells the binding constraint is memory
-(17{,}603.8~MiB measured on that member), and Richardson is the only one of the three winners
-that buys its iteration cut with no additional memory at all.
+\begin{lstlisting}
+Main iteration 200  KSP Residual norm 9.490658670647e-154
+**Completed**! Total iterations: 200. PetscConvergedReason: -5.  152.66 s   (CD)
+Main iteration 200  KSP Residual norm 0.000000000000e+00
+**Completed**! Total iterations: 200. PetscConvergedReason: -5.  228.32 s   (CL)
+\end{lstlisting}
+
+Collapse to \emph{exactly} zero at iteration 200 --- which is \texttt{gmresRestart}, the first
+restart boundary. That is R5's recorded signature reproduced verbatim, on a live
+preconditioner. The retraction was withdrawn on the record's own face within the hour, at the
+same prominence it had been written (\commit{5aa3a142}), and this document carries the
+corrected claim rather than the one it would have preferred.
+
+\paragraph{What is actually true, stated at the width the measurements support.} R5's
+\emph{observation} stands and is now reproduced under a working configuration. Only its
+\emph{scope} was too broad. The corrected sentence is that the strengthening collapse is
+\textbf{real and mesh-dependent}: with the preconditioner active, Richardson helps at 21{,}840
+cells and collapses at 42{,}120.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\begin{tabular}{@{}lllL{5.2cm}@{}}
+\toprule
+mesh & transonic PC & fill 1 & Richardson \\
+\midrule
+21{,}840 (rung 1) & \textbf{active} & reason 2, 236/250 & reason 2, 209/211 \\
+42{,}120 (rung 2) & \textbf{active} & not tested & \(-5\), collapse at iteration 200 \\
+21{,}840 (R5, as recorded) & dead & \(-5\), collapse & \(-5\), collapse \\
+\bottomrule
+\end{tabular}
+\caption{The three measurements that fix the scope. The dead lever cost the causal sentence
+about the \emph{wall}; it did not invent the collapse. \artifact{R5\_ADJOINT\_CONDITIONING.md},
+2026-08-10 correction at \commit{5aa3a142}.}
+\label{tab:strengthen}
+\end{table}
+
+\paragraph{A candidate mechanism, labelled unproven.} Both rung-1 strengthened arms converged
+in 209--250 iterations --- inside roughly one 200-iteration restart cycle --- and so met their
+first restart with an already-tiny residual. The rung-2 Richardson arm met its first restart
+with the residual still near \(1.4\times10^{-1}\), and died there. The candidate rule is that a
+strengthened preconditioner destabilises the GMRES restart recomputation, and whether that
+bites depends on whether convergence completes before the restart matters --- which is a
+function of mesh size. On that reading R5 saw collapse at 21{,}840 cells because a dead
+preconditioner left it far from convergence at its own restart. Two supporting points, one
+falsifiable prediction --- \emph{fill 1 should also collapse at 42{,}120 cells} --- and that
+arm has not been run. It is stated here as a hypothesis and is not established.
+
+So the accounting on this defect has a second line, and it is narrower than the one this
+document carried before this rung: the silently-ignored option produced a false causal sentence
+about the wall, and it caused a true observation about remedies to be recorded at the wrong
+width. The lab then reasoned around an over-general anomaly for weeks --- every documented
+escalation looked, on the record, like it made things worse everywhere, when it makes things
+worse only above some mesh size the ladder has not located. A wrong wall stops work; a
+correct observation with the wrong scope redirects it.
+
+One operational consequence, and it is the reason the transfer arm existed: the
+pre-registration's plan to adopt Richardson for the next rung is \textbf{void}. Stage 0 was
+mandatory before adoption, it failed, and it stopped that rung from launching on a lever that
+would have collapsed it --- for 15.93 core-min.
+
+\subsection{The third rung, and the ceiling it found}
+\label{sec:ceiling}
+
+\emph{Added 2026-08-10.} Rung 3, 79{,}560 cells, ran the baseline configuration after stage 0
+voided the lever, with the cap raised to 4{,}000 --- 1.6 times the pre-registered requirement.
+It did not converge, and this time the negative reason code is the finding rather than a
+budget:
+
+\begin{table}[htbp]
+\centering\footnotesize
+\begin{tabular}{@{}L{4.6cm}L{4.4cm}L{4.4cm}@{}}
+\toprule
+ & rung 2 \(C_L\): \(-3\) as \emph{budget} & rung 3 \(C_D\): \(-3\) as \emph{wall} \\
+\midrule
+total residual reduction & \textbf{1{,}407\(\times\)}, monotone & \textbf{1.31\(\times\)} \\
+behaviour at the cap & still descending \(\sim3\times\) per 100 iterations & \textbf{flat} \\
+residual, iteration 1300 \(\rightarrow\) 4000 & --- (converged at 1171) & \(1.615246604817\)e-2 \(\rightarrow\) \(1.615245992220\)e-2: \(3.79\times10^{-7}\) relative over 2{,}700 iterations \\
+resolved by raising the cap? & \textbf{yes} --- converged at 1171, iteration-1000 residual matching to ten digits & \textbf{no} --- at the observed rate the \(10^{-4}\) relative target is unreachable \\
+\bottomrule
+\end{tabular}
+\caption{Why one \(-3\) is a knob and the other is a wall. \textbf{The distinction was
+pre-registered before either was seen} (rung 2's filing: \emph{``a \(-3\) at exactly the cap
+with monotone descent is reported as budget-limited, not as a wall''}), which is what licenses
+using it now. Rung 3's \(C_D\) residual moves in the sixth significant figure across the last
+2{,}700 iterations; \(C_L\) was never attempted, DAFoam raising
+\texttt{AnalysisError(``Adjoint solution failed!'')} after \(C_D\).
+\artifact{A3\_RUNG3\_N52\_RESULT.md}.}
+\label{tab:ceiling}
+\end{table}
+
+\textbf{And it is not a memory death, which is exactly what makes a conditioning verdict
+sayable here.} Peak container usage 11.65~GiB against a 22~GiB cap, host \texttt{MemAvailable}
+never below 17~GB, no swap growth, no OOM: the memory guard never approached tripping. This
+lab's standing rule --- a memory death is NOT EVALUABLE and never a conditioning verdict, the
+rule that governed the sub-LU arm --- cuts the other way here. Memory was comfortable and the
+solver still would not converge.
+
+\paragraph{The ceiling, bracketed and deliberately not located.} Two rungs converge and pass
+their FD gates with the transonic preconditioner active; the third stagnates on the same
+configuration with memory to spare. \textbf{The reopened ladder's ceiling lies between 42{,}120
+and 79{,}560 cells.} Nothing here says 79{,}560 \emph{is} the boundary --- the bracket is two
+measured points, not a location --- and nothing here says the M6 adjoint is unreachable at that
+size by any means; it says the configuration that works at two rungs stagnates at this one.
+Nor is it claimed that stagnation and the earlier breakdown share a mechanism: a flat stall at
+a cap and a collapse to a denormal are different signatures, and this arm identifies neither.
+
+\paragraph{The exponent breaks by kind.} Rung 2's measured scaling predicted
+\(C_D\approx2{,}570\) iterations here. The measurement is \emph{no convergence at all} --- a
+falsification not by 20\% or 50\% but by kind. \textbf{A two-point slope in this family is a
+description of two points, not a cost law}, and any extrapolation toward the 399{,}360-cell
+class is now foreclosed by measurement rather than by caution. That is worth more than a third
+confirming rung would have been, and it is the answer the rung was launched to get.
+
+The conditional FD arm was correctly not launched --- stage 1 did not converge, so its
+\(\sim\)60--70 core-min were not spent --- and the rung closed at 111.0 core-min against
+170--190 approved, under budget because a pre-registered gate did its job.
 
 \subsection{The second silent configuration: the time-0 rewrite}
 
@@ -2352,23 +2471,23 @@ The shape a filing would take is small in both cases --- a validation warning, a
 \subsection{Scope, stated against ourselves}
 
 \begin{itemize}
-\item \textbf{Two rungs, not a ladder.} 21{,}840 and 42{,}120 cells both converge and both pass
-their FD gate with the preconditioner active, where the archived record had a double \(-5\) at
-each. Above them nothing has been rerun: 79{,}560 cells is pre-registered
-(\commit{3e585b07}) and \emph{not launched}, 99{,}840 and the production-class meshes are not
-priced at all, and at those sizes the memory wall the envelope measured is a separate blocker
-from conditioning. ``One token was the wall'' is a statement about two rungs and nothing above
-them. The iteration-scaling exponents (1.50 and 1.70) are fitted to exactly two points and are
-the next thing that can break.
-\item \textbf{The old measurements stand; two of the sentences built on them do not.} The
-14.17-decade diagonal spread, the \texttt{normalizeResiduals} signature change, the
-restart-boundary collapses and the colour counts are all still true as measured, on the
-configuration they were measured on. What is withdrawn is the causal sentence they were
-assembled into --- and, since 2026-08-10, the second sentence too: that strengthening the
-preconditioner reintroduces collapse on this family (Section~\ref{sec:artifact}). Both were
-properties of the dead configuration. A wall that one token removes was not, at these rungs, a
-wall of conditioning, and an operator can be badly scaled and still solvable with the right
-preconditioner.
+\item \textbf{Two rungs, and then a ceiling.} 21{,}840 and 42{,}120 cells both converge and
+both pass their FD gate with the preconditioner active, where the archived record had a double
+\(-5\) at each. 79{,}560 cells does not converge, on ample memory
+(Section~\ref{sec:ceiling}), so ``one token was the wall'' is a statement about two rungs and
+explicitly not about the family. The ceiling is \emph{bracketed} between those two sizes and
+\textbf{not located}: no intermediate mesh has been run, 99{,}840 and the production-class
+meshes are untouched, and nothing here claims 79{,}560 cells is unreachable by other means.
+The iteration-scaling exponents (1.50 and 1.70) are withdrawn as a predictive law by their own
+test; they describe two points.
+\item \textbf{The old measurements stand; one sentence built on them is withdrawn and one is
+rescoped.} The 14.17-decade diagonal spread, the \texttt{normalizeResiduals} signature change,
+the restart-boundary collapses and the colour counts are all still true as measured, on the
+configuration they were measured on. Withdrawn: the causal sentence they were assembled into.
+Rescoped, not withdrawn: that strengthening the preconditioner reintroduces collapse --- real,
+reproduced on a live preconditioner at rung 2, and mesh-dependent
+(Section~\ref{sec:artifact}). This document asserted the stronger, wrong version of that
+correction for part of one day and prints both the claim and its falsification.
 \item \textbf{The gradient claim is Tables~\ref{tab:m6fd} and~\ref{tab:m6fdr2} and nothing
 wider.} Two verified components at rung 1 (two unverdicted), three at rung 2; no claim about
 the other components of a vector with hundreds of them, at either rung, and no optimization run
@@ -2494,11 +2613,13 @@ The ``no acquisition'' verdict is scored on an instrument adopted after the arm'
 \end{tabular}
 \end{table}
 
-\subsection{Two audits larger than a sweep}
+\subsection{Two audits larger than a sweep --- one of which was itself wrong}
+\label{sec:audits}
 
 A supervisor sweep re-derives one claim. Twice in this arc a single finding was large enough
 to force a sweep of the \emph{archive}, and both are reported with their negative results
-because that is what an audit is for.
+because that is what an audit is for. One of the two then produced a false positive of its own,
+which is reported here at more length than its successes.
 
 \textbf{The dead-lever audit} (\artifact{DEAD\_LEVER\_AUDIT\_2026-08-08.md},
 \commit{946e4a26}) ran the D4 question against every conclusion-bearing record the lab holds:
@@ -2507,10 +2628,28 @@ each sentence leaning on a named solver option, and each such option hunted in t
 about 125 distinct lever/conclusion pairs \textbf{verified} against a quoted log line, 16
 reported \textbf{unverifiable-from-logs} (the logs are gone or never printed the banner --- and
 per the charter those conclusions now carry that caveat on their faces), and four
-\textbf{found dead}. Only one of the four reopens a conclusion, and it is D4 itself. The
+\textbf{found dead}. Only one of the four reopened a conclusion, and it is D4 itself. The
 headline is a null: \emph{no new conclusion-reopening dead lever was found anywhere in the
 archive}. That null is worth more than the finding that prompted it, and it is the reason D4 is
 reported as one specimen rather than as a pattern in this lab's work.
+
+\textbf{One of those four found-dead verdicts was itself manufactured, and it is the more
+instructive half of the audit.} On 2026-08-10 a container-side re-read refuted the entry
+recording that \texttt{DASimpleFoam} silently ignores \texttt{consistent yes}: SIMPLEC
+\emph{is} implemented, in the primal at \artifact{pEqnSimple.H:27} and in the adjoint at
+\artifact{DAResidualSimpleFoam.C:189}, both carrying the textbook
+\texttt{rAtU = 1/(1/rAU - UEqn.H1())} form, in both images. The original search
+scanned \artifact{DASimpleFoam.C} and \artifact{DASolver.C} and found only two unrelated
+comments --- \textbf{the file list, not the search string, was the defect}: the equations live
+in a \texttt{.H} include and in the \texttt{DAResidual} class. The blast radius is real and is
+recorded rather than absorbed: that false deadness had already been adopted as the stated cause
+of a 22.05\% cross-code discrepancy on another case in this lab, and that cause is now
+retracted (\commit{7ca80f8d}) --- the discrepancy stands and is unexplained again, which is
+worse than never having explained it, because the search for the real cause stopped for weeks.
+A false \textbf{found-dead} is not a missing finding; it is an invented one, and it propagates.
+D4's own verdict was re-verified against that standard, with its search space printed on its
+face (Section~\ref{sec:deadlever}), and the audit's own record now carries the split:
+\commit{35a91e0e}, one confirmed with provenance, one refuted.
 
 \textbf{The warm-start audit} (\artifact{WARMSTART\_AUDIT.md}, \commit{9bb948b2}) did the same
 for D5's state hazard across nine conclusion-bearing records, also at zero solver cost, and is
@@ -2581,7 +2720,7 @@ by 7\%, and logged in the calibration cohort as a hit.
 \subsection{Cost, stated including the overruns}
 
 \begin{table}[htbp]
-\centering\footnotesize
+\centering\scriptsize
 \begin{tabular}{@{}L{7.0cm}rr@{}}
 \toprule
 work & spent (core-min) & budget \\
@@ -2599,7 +2738,7 @@ Acquisition arm and its two separating arms (4 runs, all rc=0) & 15.16 & 30 \\
 Robustness supervisor sweep (offline: raw-vector recomputation, byte diffs, two cut re-classifications) & 0.00 & \\
 Serial-limiter supervisor sweep (offline: log mining, one-sided-slope reconstruction) & 0.00 & \\
 \addlinespace
-\multicolumn{3}{@{}l}{\emph{The M6 arc of Section~\ref{sec:deadlever}, one day, five pre-registrations:}}\\
+\multicolumn{3}{@{}l}{\emph{The M6 arc of Section~\ref{sec:deadlever}, 2026-08-08 to 2026-08-10, eight pre-registrations:}}\\
 \quad vcoarse arm (mesh gate, no iteration run) & 0.53 & 30 \\
 \quad sub-LU + PC re-file, three attempts (OOM, host-floor kill) & 127.0 & 30 \\
 \quad the one-token arm --- both adjoints converged & 7.33 & $\sim$28 \\
@@ -2608,6 +2747,7 @@ Serial-limiter supervisor sweep (offline: log mining, one-sided-slope reconstruc
 \quad dead-lever audit and warm-start audit (log forensics only) & 0.00 & \\
 \quad rung 2 (42{,}120 cells): two convergence attempts and the FD arm & 99.5 & $\sim$47 \\
 \quad lever triage, three staged arms on the working configuration & 22.7 & 35--45 \\
+\quad rung 3 (79{,}560 cells): stage-0 transfer test 15.9 + stagnation arm 95.1 & 111.0 & 170--190 \\
 \bottomrule
 \end{tabular}
 \caption{Solver cost. Two overruns. The first --- 26\% on the discriminators --- is confined
@@ -2620,7 +2760,11 @@ floor rather than by its own budget. It bought a measured infeasibility and no r
 The arm that answered the question cost 7.33 core-min. Rung 2 then overran by
 \(2.1\times\) for a reason worth more than the overrun: it was priced off cell count, and
 iteration count on this family scales at cells\(^{1.5\text{--}1.7}\). That mis-pricing is
-corrected in the next rung's filing rather than absorbed.
+corrected in the next rung's filing rather than absorbed. Rung 3 then came in \emph{under}
+budget for the only good reason --- a pre-registered gate refused to spend the conditional FD
+arm's 60--70 core-min on a stage that had not converged --- and its 15.9-core-min stage-0 test
+is the cheapest line in this table relative to what it prevented: a 95-core-min arm launched on
+a lever now known to collapse at that size.
 Every run is billed at full cap occupancy for its whole wall clock, including both kills and
 including the refined-mesh arm that returned a failure instead of a number. The two most
 recent sweeps cost \emph{nothing}: both re-derived their verdicts from artifacts already on
@@ -2694,6 +2838,15 @@ print it back either way. Where the archived log cannot settle it, the conclusio
 \emph{unverifiable-from-logs} rather than quietly assumed. The companion rule from the same arc:
 a mesh entering an archive, a pre-registration or a ladder rung carries its \texttt{checkMesh}
 record from creation --- born clean or it does not enter.
+\item \textbf{L-43, second corollary.} \emph{A found-dead verdict is a claim about
+implementation, and implementation hides in include files.} Where L-40 says a lever is evidence
+only when the log proves it ran, this is the failure in the opposite direction and it does more
+damage: a false ``the code ignores this'' is not a missing finding but an invented one, and it
+propagates into whatever it was used to explain. A deadness claim about C++ requires the
+build's view rather than a file's --- the whole source tree, \texttt{.H} includes and derived
+classes included --- and any verdict of the form ``the code ignores X'' is downgraded to ``not
+found in the files searched, which were \ldots'' unless the search space is stated. A negative
+claim without its search space is not a finding.
 \end{itemize}
 
 %======================================================================
@@ -2978,7 +3131,7 @@ artifact & what it holds \\
 \artifact{A3\_SUBLU\_PREREGISTRATION.md} (\commit{12d3a7a3}), \artifact{A3\_SUBLU\_SWEEP\_PREREGISTRATION.md} (\commit{054d10b2}), \artifact{A3\_TPC1\_ARM\_PREREGISTRATION.md} (\commit{13c244cd}), \artifact{A3\_TPC1\_CONTROL\_PREREGISTRATION.md} (\commit{31eede16}), \artifact{A3\_FD3\_PREREGISTRATION.md} (\commit{4aef4a2f}) & The five pre-registrations of Section~\ref{sec:deadlever}, each committed before the launch it governs. \S2 of the first is where \texttt{transonicPCOption: 2} was found dead \\
 \artifact{A3\_RUNG2\_N28\_RESULT.md} (\commit{4e982b4a}) & Rung 2: both solves converged, the three-component FD pass, the refused \(-3\) proven a budget knob to ten digits, the measured iteration-scaling exponents, and the independent agent's three items \\
 \artifact{A3\_TRIAGE\_LEVERS\_PREREGISTRATION.md} (\commit{cfd6b5ff}, results \S8 at \commit{3ac8257e}) & The three levers on the working configuration, and the overturning of R5's collapse-on-strengthening prior \\
-\artifact{A3\_RUNG3\_N52\_PREREGISTRATION.md} (\commit{3e585b07}) & Rung 3 as filed and unrun: the certified 79{,}560-cell member, the adopted lever with its mandatory rung-2 transfer arm, the exponent's falsifiable prediction, the price stated up front \\
+\artifact{A3\_RUNG3\_N52\_PREREGISTRATION.md} (\commit{3e585b07}), \artifact{A3\_RUNG3\_N52\_RESULT.md} & Rung 3 as filed --- the certified member, the adopted lever with its mandatory transfer arm, the exponent's falsifiable prediction, the price up front --- and as measured: the transfer test's collapse, the stagnation, the memory evidence that makes the verdict sayable, and the ceiling stated as a bracket \\
 \artifact{R5\_ADJOINT\_CONDITIONING.md}, \artifact{ADJOINT\_MEMORY\_ENVELOPE.md}, \artifact{PROOF.md} \S25.2 & The M6 conditioning record as measured --- each now carrying its dated dead-lever annotation (\commit{e9a651e9}) \\
 \artifact{D3\_VARIANT\_COLD\_RERUN\_PREREGISTRATION.md} \S6 (\commit{8c9b06c7}) & The 11 warm-flagged variant nulls, retired as superseded rather than rerun, with the reasoning stated at both sites \\
 \artifact{WARMSTART\_AUDIT.md} (\commit{9bb948b2}) & D5: the nine-row verdict table, the invalidated signature, the \(55\times\) discriminator \\
@@ -2997,6 +3150,7 @@ artifact & what it holds \\
 \artifact{W4-verify-sweep/} & The conditioning sweep's isolated case copy and its own logs \\
 \artifact{A3-onera-m6-sweep-n15\_21840/} & The 21{,}840-cell M6 rung: the 2026-07-30 record (\artifact{run\_opt5\_onera\_n15\_21840.log}), the three sub-LU attempts, and the three arms of Section~\ref{sec:deadlever} --- \artifact{tpc1\_\allowbreak computetotals.log}, \artifact{ctrl\_\allowbreak computetotals.log}, \artifact{fd3\_run\{\_attempt1,\}.log} --- with their launchers, scripts and \artifact{.t0/.rc/.t1} ledgers \\
 \artifact{A3-onera-m6-adjoint-vcoarse/} & The born-broken rung: the mesh-gate abort, the standalone \texttt{checkMesh} reproduction, and the preserved pre-repair decomposition that carries the same 23 negative cells \\
+\artifact{A3-rung3-n52/}, \artifact{A3-stage0-n28-richardson/} & Rung 3's stagnation arm (\artifact{rung3\_stage1.log}, the flat 4{,}000-iteration residual, birth certificate and \artifact{log.checkMesh}) and the stage-0 transfer test whose \(-5\) at iteration 200 voided the adopted lever \\
 \artifact{A3-rung2-n28-tpc1/} & Rung 2's staged copy (the archived member left pristine): both attempt logs, the FD log, the launchers and ledgers, \artifact{log.checkMesh} and the \artifact{constant/birth\_certificate.json} sidecar this rung was admitted on \\
 \bottomrule
 \end{longtable}
@@ -3040,13 +3194,14 @@ False} under large deformation has not been measured.
 \item \textbf{D3, the hump.} Krylov convergence rate against a memory envelope. A prepared
 configuration wrapping the exact sub-solve in Richardson with a capped restart is staged but
 unrun.
-\item \textbf{D4, the taller rungs.} Two rungs are verified (21{,}840 and 42{,}120 cells).
-Rung 3 at 79{,}560 is pre-registered with its mesh certified, its lever adopted, its price
-stated and a falsifiable prediction on the record (\(C_D\approx1{,}460\),
-\(C_L\approx1{,}904\) under the adopted lever) --- and it has \emph{not been launched}.
-99{,}840 cells and above are unpriced, and the memory envelope that blocked the sub-LU lever
-lives up there. Until rung 3 runs, the iteration-scaling exponents are a two-point fit, and
-``one token was the wall'' is a claim about two rungs.
+\item \textbf{D4, the ceiling is bracketed and not located.} Two rungs are verified
+(21{,}840 and 42{,}120 cells); 79{,}560 stagnates on ample memory. No mesh between those two
+sizes has been run, and one arm at an intermediate size would halve the bracket for an
+estimated 40--60 core-min. 99{,}840 cells and above are untouched. Nothing is claimed about
+whether a different configuration reaches 79{,}560 --- the named and unrun candidate is the
+restart lever (\texttt{gmresRestart} \(200\rightarrow1000\)), whose mechanism, retaining
+search directions instead of discarding them twenty times, matches the observed failure mode
+and whose memory cost that rung can afford.
 \item \textbf{D4, the gradient's unverified components.} At rung 1 two probed components carry
 no verdict (\texttt{twist[1]}, \texttt{shape[5]}, both step-inconsistent at the tested steps);
 rung 2's three are all evaluable, which locates that failure in the small signals rather than
@@ -3061,9 +3216,15 @@ account in Section~\ref{sec:artifact} of why strengthening then helps is a plaus
 argument consistent with the measurements, not a derivation. The 14-decade diagonal spread of
 the assembled PC matrix has not been re-measured with the option active, and that measurement
 is cheap.
-\item \textbf{D4, the lever transfer.} The triage's iteration cuts are measured at 21{,}840
-cells only. Whether they survive a mesh doubling is the unrun stage 0 of rung 3, and a null
-there reverts rung 3 to its baseline pricing.
+\item \textbf{D4, the restart hypothesis.} The mechanism offered for why strengthening the
+preconditioner helps at one rung and collapses at the next --- that it destabilises the GMRES
+restart recomputation, and that whether this bites depends on whether convergence completes
+inside the first restart cycle --- has two supporting points and is \textbf{unproven}. Its
+falsifiable prediction is that fill~1 also collapses at 42{,}120 cells. That arm is cheap and
+has not been run.
+\item \textbf{D4, the two negative signatures.} Whether the stagnation at rung 3 and the
+denormal breakdown at the archived rungs share a mechanism is not established; they are
+different signatures and no arm here identifies either.
 \item \textbf{D4/D5, the unverifiable levers.} The dead-lever audit left 16 lever/conclusion
 pairs whose activity no surviving log can settle; per the charter they ship marked
 unverifiable-from-logs rather than assumed. Separately, the 11 warm-flagged M6 variant nulls
