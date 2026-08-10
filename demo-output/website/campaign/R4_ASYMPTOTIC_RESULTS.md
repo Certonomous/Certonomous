@@ -117,6 +117,28 @@ two rungs came from a different mesh family.
 * **Not a decomposition artefact.** Every rung ran at 4 ranks. The stored
   production rung was solved at a different decomposition, which is exactly why
   c1 was re-solved rather than reused.
+> ### CAVEAT, 2026-08-10 (chief ruling `99340df8`) — this claim is UNDER ACTIVE TEST
+>
+> **The headline below is NOT amended and NOT withdrawn.** What is known, and what a
+> reader must meet before the claim:
+>
+> The replicate control below (c4/c4b) sits at the turn's **upper** end. The turn's
+> **lower** end, c3, was a single draw until 2026-08-10. **One same-recipe redraw at
+> c3 — `(99 21 58)`, 251 113 cells, a mesh CLEANER than the original and converged
+> on `residualControl` in 203 iterations — returns Cd = 0.079827008 against c3's
+> 0.073992743.** That is **5.834 × 10⁻³: 6.6× the c3 → c4 increment this section's
+> turn consists of, and 60× the c4/c4b difference below.** Cl moves with it
+> (+22%), so it is a change of flow state rather than of arithmetic.
+>
+> Re-estimated with c3 as the mean of its two draws, the increment **flips sign**:
+> +8.895 × 10⁻⁴ → −1.979 × 10⁻³.
+>
+> **Status: n = 2 of a planned 4** (`R4_AHMED_TURN_DRAW_SCATTER_RESULTS.md`,
+> `f534760f`; leg 2 pre-registered `f4dec659`). **n = 2 cannot separate genuine
+> large scatter from one anomalous draw**, which is exactly what the further draws
+> are for. The chief's ruling: n = 2 moves a caveat, not a headline. This is the
+> caveat.
+
 * **Not one unlucky mesh.** This one was not pre-registered — it was run because
   the turn-up is the whole finding and a single mesh should not carry it. **c4b**
   is an independent mesh at the same resolution: divisions (123 27 73) against
