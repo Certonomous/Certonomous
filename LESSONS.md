@@ -2167,3 +2167,34 @@ attractors, a far stronger claim than "the codes used different algorithms",
 never demonstrated, and moot in any case because both runs used the same
 algorithm. The gap it purported to explain remains genuinely unexplained, which
 the record says.
+
+
+## L-51. A search has a method and a FRAME — "a different route" governs the method; nothing governs the frame unless you make it
+
+L-49 said a second route must differ in kind. One did — structural (reading
+mesh dictionaries) versus textual (reading the records) — and its readings were
+correct on every case it examined. It was still wrong on its headline, twice:
+it reported that a confound "had never been written down" when two bodies
+carried an audit saying exactly that, and that "exactly one ladder is known to
+be a ladder" when four purpose-built ones existed.
+
+Neither was a reading error. Both were **frame errors**: the first generalised
+"absent on the five ladders I queried" to bodies it had never asked about; the
+second enumerated with a glob (`study-<body>*`) that structurally could not
+reach the replacement families, which live under other names. The method read
+its sample correctly and the sample was not the population.
+
+> A route is defined by two things: how it reads, and what it reads.
+> "Different in kind" governs the first. Nothing governs the second unless you
+> make it.
+
+Guards, all cheap: **state the frame explicitly** — a stated frame is
+falsifiable, an implied one is not; **ask what the frame structurally cannot
+contain** (a glob's shape, a directory's boundary, a field that only some
+records carry); and **never conclude absence from a search that did not look
+there**, which is L-43's rule about reach applied to the corpus rather than the
+instrument.
+
+Worth noting where it recurred: inside an audit whose own author had cited the
+reach lesson that same morning. Knowing a rule and applying it to the search you
+are currently running are different acts.

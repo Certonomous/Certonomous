@@ -1377,6 +1377,25 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   Whether the assertion or the workflow drifted is the owner's call. It also fails standalone every time, so its
   suite-green history implies an outcome that depends on test ordering.
 
+### 2026-08-10 (closing 11) — five confounded ladders turn out to be one generator defect, with its fix already filed
+
+- **THE SWEEP CORRECTED ITS OWN HEADLINE, TWICE** (3e1956e4), and both errors were FRAME errors rather than reading
+  errors — now **L-51**. "Nobody had written the confound down" was false (two bodies carry an audit saying exactly
+  that; the pre-flight had queried only the five retrofit ladders and generalised to bodies it never asked about),
+  and "exactly one ladder is known to be a ladder" was badly wrong (the enumeration glob structurally could not
+  reach the purpose-built replacement families, which live under other names). **Corrected picture: 5 confounded,
+  ≥13 clean, 3 undeterminable, 3 not grid ladders.**
+- **THE FINDING ONLY THE SECOND ROUTE COULD REACH, and it changes the shape of the problem entirely: all five
+  confounded ladders come from ONE code path.** `geometry_study.py::refinement_rungs()` — whose own docstring admits
+  that when the level floor would make two rungs identical, the coarser one *also scales the background divisions so
+  the cell budgets stay distinct*. **The guard checks distinctness, not comparability.** So this is one generator
+  defect with five downstream victims, not five independent failures — and **its fix is already filed as docket item
+  #75**, with four of the five bodies already carrying a single-recipe replacement family.
+- The verified fact stands on both wings: coarse→medium moves the background only, while medium→production holds the
+  divisions exactly and moves surface, region and feature levels — so those rungs' differences cannot be read as
+  discretization increments. The draw-scatter measurements on those bodies remain valid AS scatter; what does not
+  survive is treating the stored rungs as a ladder.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
