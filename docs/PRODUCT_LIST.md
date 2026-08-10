@@ -1477,6 +1477,39 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   three scripts this family owns; **29 tracked scripts carry a shebang and no exec bit** and are reported, not
   mass-chmodded. Suite 1261/0.
 
+### 2026-08-10 (closing 14) — the rank channel never fired, and the mesh audit's "exactly one born-broken" is SUPERSEDED
+
+- **RANK RETROSPECTIVE: A MEASURED ZERO** (02475da2). Of 146 completion records, **3 carry a rank declaration and
+  all 3 agree** — declared 4, executed `-np 4`. No core-minute figure in the registry is mis-priced, so no cost
+  grading, factor-3 verdict or calibration-scorecard input is affected. The executed count was recovered by **two
+  independent routes** reading what the execution itself wrote; **route (a) returned nothing on all three**, and a
+  null from one instrument is not an absence, so route (b) carried it — with a planted mismatch caught by both.
+  Reach stated: the other 143 records carry no cost fields at all, so no mis-priced figure can exist from them.
+- **CORRECTION TO THIS MORNING'S HEADLINE — "exactly ONE born-broken mesh" is SUPERSEDED.** The minting pass refused
+  10 of 105 rows, and **7 of those are a discrepancy in the audit itself**: each is marked CERTIFIED while **the log
+  it cites parses to HARD ERRORS under the audit's own verdict rule** — three `rae2822-meshcheck` meshes with
+  NEGATIVE-VOLUME CELLS, and `tmr-bump-finer` at aspect ratio **2.23e6**, above the pyHyp threshold and far above the
+  NASA-grid signature the audit itself documents as a flag. The audit trusted pre-existing logs without re-parsing
+  them; re-parsing changes the count. (3 further rows state no cell count of their own, so the cross-check cannot
+  run.) **No certificate was written for any of the 10** — minting a `broken` one would quarantine another family's
+  mesh on a parser's say-so, and an absent certificate already quarantines it, so the conservative action and the
+  honest one coincide and the ruling stays with each owner. **95 minted, 0 minted-but-refused.**
+- The cross-check was the load-bearing part: every mint had to show the log's cell count equals the mesh's own
+  `nCells` read from the polyMesh header — without it the pass would have re-created by hand exactly the drift the
+  hash binding exists to prevent, *the fix for a class being where that class reappears*. Provenance is on each
+  file's face (`retrospective-from-archived-log`, log path, both mtimes, cross-check result), and **6 of 95 rest on
+  a log written before the points file** — cell counts agree so size is unchanged, and the ordering is disclosed
+  rather than relied upon.
+- **A real over-count found and recorded rather than fixed:** each of the three declared launches ran serial meshing
+  AND several parallel solves under one scalar rank declaration, so its `core_min` prices the serial phase at 4×.
+  Different defect from the one being retrospected; named, not absorbed.
+- **The lab's only sanctioned launcher is tracked as NON-EXECUTABLE** — it has worked solely because every working
+  tree happened to carry the bit locally, and a fresh clone could not run it. Latent since the file was created,
+  surfaced when a rewrite dropped the local bit and the family's own tests went red. Fixed for the three scripts
+  that family owns; **29 tracked scripts carry a shebang and no exec bit**, reported rather than mass-changed.
+- Seventh self-audit instance: the agent's own reach check had a fallback that made an ABSENT line read as a value,
+  inflating its first count — caught by refusing to accept a surprising number.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
