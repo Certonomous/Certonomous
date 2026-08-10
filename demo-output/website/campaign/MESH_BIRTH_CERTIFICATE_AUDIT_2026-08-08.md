@@ -455,3 +455,68 @@ instances). Paths relative to `/home/ubuntu/certonomous-runs/`.
 | `w3-qcr-rank1/AR_1_Ret_360_qcr/constant/polyMesh` | 1 | no generation log on disk | none -> issued this sweep | BORN CLEAN (maxAR 1880.59, 3025 cells; advisory flags only) |
 | `w3-qcr-rank1/AR_3_Ret_360_qcr/constant/polyMesh` | 1 | no generation log on disk | none -> issued this sweep | BORN CLEAN (maxAR 1708.72, 8748 cells; advisory flags only) |
 | `w3-qcr-rank1/AR_7_Ret_180_qcr/constant/polyMesh` | 2 | no generation log on disk | none -> issued this sweep | BORN CLEAN (maxAR 871.975, 15463 cells; advisory flags only) |
+
+---
+
+## AMENDMENT, 2026-08-10 — **"CERTIFIED (pre-existing record)" means a LOG exists, not a certificate. The measured number is 0 of 105.**
+
+Ordered by the chief after the ladder-scatter retrofit found that neither the `cube` nor the
+`naca0015_sail` mesh carried a certificate despite both appearing in this audit's certified
+column. Treated as a claim to be re-measured, not as a wording tidy-up, because this is the class
+of defect this audit was written to catch.
+
+### The two readings, stated side by side
+
+- **What the column says:** `CERTIFIED (pre-existing record)`, contributing **105** to the summary
+  row *"CERTIFIED before this audit (record verified present) | 105 | 655"* (`:52`).
+- **What it means:** a **`log.checkMesh` was found** for that mesh — in its own directory, its
+  `logs/`, or a parent naming the case (`:33`). That is genuine evidence the check *ran*.
+- **What it does NOT mean:** that a `birth_certificate.json` exists. The certificate is the
+  artifact the Mesh Standard v1.1 gate actually requires, and this audit never wrote one — its own
+  proposal to do so (`:228`) was never executed.
+
+### The measurement
+
+Every one of the 105 rows was resolved to its mesh root on disk and checked for a certificate
+file beside its `polyMesh`:
+
+| | count |
+|---|---|
+| rows marked `CERTIFIED (pre-existing record)` | **105** |
+| paths that resolve on disk | **105** (all) |
+| **carrying an actual `birth_certificate.json`** | **0** |
+| carrying a `log.checkMesh` only | **105** |
+
+Corroborating from the other direction: **33** `birth_certificate.json` files exist anywhere under
+`certonomous-runs/` and `Certonomous/`, of which **29 were written today (2026-08-10)** — so only
+**4 predate today, and none of them is among these 105.**
+
+### The operational consequence, which is the part that matters
+
+**Mesh Standard v1.1's own checker refuses all 105.** `certificate_admits()` requires a
+certificate file, a `points_sha256` matching the mesh actually present, and an accepted verdict; a
+`log.checkMesh` satisfies none of those. So every mesh in this column is **quarantined at the v1.1
+gate** — which is exactly what happened, unprompted, to both ONERA M6 members certified during
+today's A3 work and to both of the retrofit ladders.
+
+**The honest restatement of this audit's headline:** its 105 are **CHECKED BUT UNCERTIFIED** —
+the evidence exists, the artifact does not. **The certificate coverage the lab believes it has
+from this audit is notional.** Nothing here says those meshes are bad: the audit's verdict rule
+(hard errors read from the log) is sound and its BORN CLEAN findings stand. What is wrong is that
+the word "CERTIFIED" names an artifact that was never written, and downstream machinery believes
+the word.
+
+### The fix, priced and offered rather than executed
+
+Minting is mechanical and needs **no solver**: `sdk/chief_engineer/mesh_certificate.write_certificate`
+already accepts a checkMesh log (`check_log_text=`), parses it with this audit's own verdict rule,
+and hash-binds the result to the points file present. A scripted pass over the 105 would mint from
+the logs this audit already located — **~0 core-min of compute, one agent-session of file IO**,
+with per-mesh failures (log unparseable, points file since changed, hash mismatch) reported rather
+than papered over, since a certificate is a record of a check that ran and a mesh whose points
+have changed since its log must be re-checked, not certified from stale evidence.
+
+**Not executed here.** These meshes belong to other families and the audit's own proposal for this
+is filed at `:228`; the retrofit agent measured the gap and is reporting it, not unilaterally
+writing 105 files into other families' cases. Recommended owner: Infra, alongside the launcher
+resource-cap item already routed there.
