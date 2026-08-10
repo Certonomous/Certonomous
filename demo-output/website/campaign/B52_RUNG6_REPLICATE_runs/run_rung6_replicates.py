@@ -167,10 +167,37 @@ def gate_g2(remote: Path, name: str) -> tuple[bool, str]:
 # solve and read
 
 
+def solve_is_complete(remote: Path) -> bool:
+    """A finished solve already on disk: the full 300-iteration log and the
+    force history beside it. Re-entering this script must never re-spend a
+    solve that has already been paid for."""
+    log_path = remote / "log.simpleFoam"
+    if not log_path.exists():
+        return False
+    text = log_path.read_text(errors="replace")
+    if "\nEnd\n" not in text:
+        return False
+    return bool(list((remote / "postProcessing" / "forceCoeffs1")
+                     .glob("*/coefficient.dat")))
+
+
 def solve(remote: Path, name: str) -> dict:
     admitted, reason = gate_g2(remote, name)
     if not admitted:
         raise RuntimeError(f"{name}: mesh refused at entry: {reason}")
+    if solve_is_complete(remote):
+        log_text = (remote / "log.simpleFoam").read_text(errors="replace")
+        exec_t = clock_t = None
+        for m in re.finditer(
+                r"ExecutionTime = ([0-9.]+) s\s+ClockTime = (\d+) s", log_text):
+            exec_t, clock_t = float(m.group(1)), float(m.group(2))
+        log(f"{name}: reusing completed solve, ClockTime {clock_t}s")
+        return {"solve_wall_s": None, "returncode": 0, "reused": True,
+                "execution_time_s": exec_t, "clock_time_s": clock_t,
+                "core_min_clock": round((clock_t or 0) * RANKS / 60.0, 3),
+                "core_min_exec": round((exec_t or 0) * RANKS / 60.0, 3),
+                "levers_verified_active":
+                    lever_echo.levers_verified_active(log_text)}
     shutil.rmtree(remote / "0", ignore_errors=True)
     shutil.copytree(remote / "0.orig", remote / "0")
     start = time.monotonic()
@@ -279,6 +306,39 @@ def main() -> int:
     for name, candidates in DRAWS.items():
         attempts = []
         admitted_case = None
+        # L-42, met head-on by this arm's own first run: a rerun in place
+        # destroys the evidence its record depends on. If the case directory
+        # already holds a certified mesh whose cell count G1 admits, that is
+        # this replicate's admitted draw -- the loop must NOT re-stage earlier
+        # candidates over it, because re-staging wipes any completed solve.
+        # The refused attempts are recoverable from driver.log; a destroyed
+        # solve is not.
+        settled = RUNS / f"study-b52-{name}-uq"
+        settled_cert = mesh_certificate.read_certificate(settled / "constant") \
+            if settled.exists() else None
+        if settled_cert is not None and g1_solo(settled_cert.get("cells", 0)):
+            bmd = settled / "system" / "blockMeshDict"
+            triple = re.search(r"\((\d+) (\d+) (\d+)\) simpleGrading",
+                               bmd.read_text()) if bmd.exists() else None
+            divisions = tuple(int(g) for g in triple.groups()) if triple \
+                else tuple(candidates[0])
+            cells = settled_cert["cells"]
+            log(f"{name}: case already holds an ADMITTED certified mesh "
+                f"{divisions} at {cells} cells; not re-staging (L-42)")
+            results[name] = {
+                "divisions": list(divisions), "case": str(settled),
+                "draw_attempts": [{
+                    "divisions": list(divisions), "cells": cells,
+                    "deviation_vs_rung6": (cells - RUNG6_CELLS) / RUNG6_CELLS,
+                    "admitted": True,
+                    "max_skewness": settled_cert.get("max_skewness"),
+                    "max_non_orthogonality":
+                        settled_cert.get("max_non_orthogonality"),
+                    "certificate_verdict": settled_cert.get("verdict"),
+                    "note": "carried from an earlier invocation of this arm; "
+                            "refused attempts are in driver.log"}],
+                "mesh_wall_s": None, "certificate": settled_cert}
+            continue
         for divisions in candidates[:MAX_ATTEMPTS]:
             # Reuse a mesh this arm already built and certified for this exact
             # triple, so a re-draw of one replicate never re-spends the other.
@@ -385,14 +445,36 @@ def main() -> int:
             "d6_over_rung7_to_8_increment": d6 / 2.78e-4,
         },
         "cost_core_min": {
-            "mesh": round(sum(r["mesh_wall_s"] for r in results.values())
-                          / 60.0, 3),
+            "mesh": round(sum(r["mesh_wall_s"] or 0.0
+                              for r in results.values()) / 60.0, 3),
+            "mesh_note": ("wall time is recorded only for meshes this "
+                          "invocation built; a mesh reused from an earlier "
+                          "invocation of this same arm contributes 0 here and "
+                          "its measured wall is in driver.log"),
             "solve_clock": round(sum(r["core_min_clock"]
                                      for r in results.values()), 3),
             "solve_exec": round(sum(r["core_min_exec"]
                                     for r in results.values()), 3),
         },
     }
+    # A refused draw is evidence (G1 fired on 6c's first attempt and that is a
+    # finding about the generator, not bookkeeping). Re-entering this script
+    # must never shorten the attempt history, so any attempts recorded by an
+    # earlier invocation are merged forward, de-duplicated by division triple.
+    try:
+        prior = json.loads((HERE / "record.json").read_text())
+    except (OSError, ValueError):
+        prior = {}
+    for name, prior_rep in (prior.get("replicates") or {}).items():
+        if name not in record["replicates"]:
+            continue
+        merged = list(prior_rep.get("draw_attempts") or [])
+        seen = {tuple(a["divisions"]) for a in merged}
+        for attempt in record["replicates"][name].get("draw_attempts") or []:
+            if tuple(attempt["divisions"]) not in seen:
+                merged.append(attempt)
+        if merged:
+            record["replicates"][name]["draw_attempts"] = merged
     (HERE / "record.json").write_text(
         json.dumps(record, indent=2, sort_keys=True, default=str) + "\n")
     log(f"VERDICT {v['branch']}: D6={d6:.6e} = {v['d6_over_floor']:.3f} x floor")
