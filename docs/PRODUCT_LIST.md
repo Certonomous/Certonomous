@@ -1522,6 +1522,31 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   **seven instances**, and the agent's closing note is the one to keep: *not one was found by suspecting myself in
   the abstract — every one came from running the check that would fail if the work were wrong.*
 
+### 2026-08-10 (closing 15) — fresh measurement settles all seven: four rows wrong, three exonerated and certified
+
+- **THE STALE-LOG HYPOTHESIS IS ELIMINATED** (8845be5f). Fresh `checkMesh` on all seven refused rows agrees with each
+  cited log **exactly** — verdict, cell count, aspect ratio and the full hard-error list, to the digit. So the logs
+  describe these meshes as they now stand, and **what is wrong is the rows, not the logs**. The stronger claim only
+  became available with the measurement, and only then.
+- **Four rows are WRONG.** Three `rae2822-meshcheck` meshes reproduce **negative-volume cells**, wrong-oriented face
+  pyramids, non-orthogonality and skewness errors — broken meshes marked `CERTIFIED`. `tmr-bump-finer` is broken **by
+  the standard's own aspect-ratio threshold** (2,230,928.97 against 1e6) and NOT by a geometric error — it has no
+  negative volumes, a weaker failure, stated separately rather than blurred into the other three. **No `broken`
+  certificate written for any of the four**: an absent certificate already quarantines, so writing one buys no
+  protection and asserts a verdict the standard does not need.
+- **Three rows are EXONERATED and now certified.** The `w1-bump-nasa-grids` trio had been refused for a different
+  reason — their `polyMesh` headers genuinely lack a cell count, as expected for converted NASA grids, so the
+  cross-check could not run. **Re-running `checkMesh` performs that cross-check a different way — counting the mesh
+  directly instead of reading a note about it** — and the counts matched the logs exactly. Certificates minted from
+  the fresh run; three meshes move from quarantined to admitted. Permitted here where it is not for the four,
+  because this is a NEW MEASUREMENT rather than a re-parse.
+- **Frame stated first, and the corpus count deliberately NOT restated:** the finding covers exactly these seven
+  meshes as they exist on disk at 19:19 UTC. Within that frame, four fail the audit's own verdict rule. **Nothing
+  follows about the other 98** — and the agent refused to extrapolate a corpus figure from a seven-mesh frame,
+  naming it as precisely the error its own recipe sweep made twice earlier today.
+- Honest next question flagged rather than proposed: whether the 95 rows minted from archived logs deserve the same
+  fresh-`checkMesh` treatment. Priced at ~0.07 core-min each, **≈7 core-min for all 95.**
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
