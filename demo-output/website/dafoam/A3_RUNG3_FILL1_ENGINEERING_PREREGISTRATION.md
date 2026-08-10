@@ -59,3 +59,63 @@ The 15 core-min figure buys roughly 250 iterations, which cannot distinguish a s
 descent — the control was still nominally moving in its sixth digit at 400. If the chief prefers
 the 15 exactly, the cap drops to 400 and the arm answers only "does it beat the control at 400",
 losing the chance to see convergence at all. I have chosen the 800 cap and flagged the overrun.
+
+---
+
+# §5. RESULT: **STALLS — fill level is not the lever either. It becomes the ninth refuted candidate.**
+
+Ledger rc=1, wall 508 s = **33.9 core-min** (estimated 32; the ~15 approved was flagged as
+insufficient before launch). Proofs in-log: `ILU PC Fill Level: 1`, `transonicPCOption 1;`, no
+sub-LU banner, cold start. Peak memory **14.33 GiB** against the predicted 14.6–15.7 GiB range
+and the 22 GiB cap — the arithmetic held again.
+
+| | control (fill 0) | fill 1 | |
+|---|---|---|---|
+| residual @ iteration 400 | 1.615428631404e−02 | 8.687780770929e−03 | **1.859x better** |
+| residual @ iteration 800 | — | 8.512086557474e−03 | only **2.0% further** than its own 400 |
+| total reduction from 2.1213e−02 | 1.31x | 2.49x | |
+| reason | −3 | **−3** | |
+
+**Against the pre-registered 10x materiality bar, 1.859x is a STALL, not a partial.** §3's third
+branch fires as written: fill level joins the elimination table as the ninth refuted candidate,
+and the rung-3 ceiling stands **unqualified** — no boundary condition is added, because none was
+earned. The knob did not converge it, so the question of whether a convergence would have been
+allowed to retro-justify the diagnosis never arises; the guard is recorded as having been in
+place beforehand regardless.
+
+## §5.1 The one genuinely surprising number, and what it does NOT license
+
+Mid-cycle preconditioned condition estimates, measured at the identical point of the identical
+cycle (iteration 300, restart 200, i.e. 100 iterations into cycle two):
+
+| | control (fill 0) | fill 1 |
+|---|---|---|
+| `sMax/sMin` @300 | 1.379e+10 / 0.294228 = **4.69e+10** | 254.03 / 0.153029 = **1.66e+03** |
+
+**ILU(1) improves the preconditioned condition estimate by roughly seven orders of magnitude —
+and the solve still stalls, at 1.9x.** (Readings at iterations 200/400/600 print `1./1.=1.`:
+those are exact restart boundaries where the Hessenberg estimate is empty, so only mid-cycle
+values are comparable; at iteration 700 fill 1 reads 1.76e+03 and at 800, 1.08e+04.)
+
+Stated plainly because it cuts against the tidy story: **κ estimated from the Krylov cycle is not
+predicting convergence here.** A seven-decade improvement in that estimate buys 1.9x in residual.
+Two readings are consistent with it and this arm cannot separate them:
+(i) `KSPComputeExtremeSingularValues` reports extremes of the *current cycle's* Hessenberg matrix,
+a lower bound over the visited subspace rather than the operator's true spectrum — so the control's
+4.69e+10 may be measuring how badly the cycle is spanning the space, not the conditioning itself;
+(ii) the true obstruction is not spectral condition at all but something the Krylov estimate does
+not see (e.g. a near-defective/non-normal operator, where eigenvalue or singular-value clustering
+does not govern GMRES convergence at all — Saad's own caution that for non-normal matrices the
+spectrum alone tells you nothing about GMRES behaviour).
+
+**Reading (ii) would explain the entire elimination table**, including why every scale-, structure-
+and decomposition-based remedy has failed: non-normality is invisible to all of them. **I am not
+claiming it.** It is a hypothesis this arm generated and did not test, it would need a departure-
+from-normality measurement on the assembled operator to become a finding, and — per §1 — nothing
+here revises the Saad arm's NOT-MET verdict or its published elimination table.
+
+## §5.2 Elimination table, updated
+
+Ninth entry: **ILU fill level** — `pcFillLevel 1` at rung 3 improves the mid-cycle condition
+estimate by ~10^7 and the residual by 1.9x, and does not converge (`-3` at 800, flat after 400).
+Recorded as an engineering result with no mechanism attached, exactly as pre-registered.
