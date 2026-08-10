@@ -1008,6 +1008,33 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   byte-untouched with the withdrawal placed on its results record. A boundary case was disclosed rather than hidden —
   the agent's own F5c pre-registration correction predates its outcome, which L-44 does not reach.
 
+### 2026-08-10 (capstone) — the tenth candidate falls, and the A3 investigation closes with a precisely bounded unknown
+
+- **NON-NORMALITY REFUTED — and it goes the OTHER way** (pre-reg 7783f603, results 15b64e81, **0 of a 25 core-min
+  cap**: both operators were already on disk from the diagnosis arms, so the decisive measurement was 81 seconds of
+  offline numpy). Normalized Frobenius departure from normality: **rung 2, which CONVERGES, measures 4.299e-03;
+  rung 3, which STALLS, measures 2.651e-03.** Ratio 0.617 against a pre-registered bar of 3.0, with non-overlapping
+  confidence intervals — the stalling rung is measurably LESS non-normal than the converging one, by 1.62×. A
+  resolved difference, not a null from noise. **The agent's own fill-1 arm generated the hypothesis and its own
+  follow-up refuted it** — the outcome it had written it should be most willing to report, and the one that arrived.
+- Step 1 refuted the competing reading at zero cost, from logs already on disk: within-run variability of the Krylov
+  condition estimate is at most 6.5×, while the fill0→fill1 jump is ~2.5e+07 — six to seven orders apart, so the
+  estimator-artifact explanation cannot account for it. **Unplanned bonus control:** two different arms hours apart
+  return near-identical estimates at matched iterations, validating the instrument's reproducibility AND
+  independently re-confirming that doubling the Schwarz overlap did nothing.
+- **Limitation stated because it bounds the claim in both directions:** this measures DAFoam's assembled `dRdWTPC`,
+  not the matrix-free Jacobian nor the preconditioned operator whose normality actually governs GMRES — which this
+  build never assembles. Honest scope: the non-normality of the operator DAFoam builds its preconditioner FROM does
+  not distinguish the converging rung from the stalling one, and therefore fails to explain the table. It does not
+  prove the preconditioned operator is well-behaved.
+- **THE A3 INVESTIGATION CLOSES. Ten candidate causes tested and refuted by measurement:** method breakdown, Krylov
+  subspace size, field separation, geometric localisation, mesh volume scaling, diagonal-spread magnitude, one-level
+  Schwarz overlap, stronger PC application, ILU fill level, non-normality. The surviving statement: **the rung-3 wall
+  is real, it is not memory, and nothing this build exposes — and nothing measurable on the operator it assembles —
+  distinguishes it from the rung that converges.** What remains unexplained is now precisely bounded rather than
+  vaguely open, and the capability-boundary defect (f29378d9) names why the next class of remedy cannot be attempted
+  here at all without a source change. From "blocked at every mesh size, cause unknown" to that, in one campaign.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
