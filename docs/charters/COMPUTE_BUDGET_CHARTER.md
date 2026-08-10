@@ -374,7 +374,7 @@ three are review disciplines.
 
 ## A per-cell rate borrowed across solver families is a factor wearing a basis's clothes
 
-**Added 2026-08-11 (D5), from a repricing caught before it was quoted.** The
+**Added 2026-08-10 (D5), from a repricing caught before it was quoted.** The
 standing finding of this lab's calibration work is that *the predictor is the
 basis, not a factor*: estimates priced from a prior measurement of the same
 body have never over-run by more than 1.84x, while forecast-based estimates

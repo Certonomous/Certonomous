@@ -2,7 +2,12 @@
 
 **Owner: Pass-3 (A11 cold reproduction + A12 skeptic's report).**
 **Frame: outside reviewer, no prior contact with this lab's closure-challenge work.**
-**Written 2026-08-11 (work performed 2026-08-10 UTC on this box).**
+**Written 2026-08-10 (work performed 2026-08-10 UTC on this box).**
+
+> **Filename date note, added 2026-08-10 by the V15 corrections pass (finding F2).**
+> This file is named `LADDER_V_PASS3_COLD_2026-08-11.md` and was written on
+> **2026-08-10**. The filename is deliberately NOT renamed — committed reports cite
+> this path. Read it as a label, not a date.
 
 ---
 

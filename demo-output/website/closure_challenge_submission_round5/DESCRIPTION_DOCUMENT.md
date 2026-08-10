@@ -8,7 +8,7 @@ cover letter]`
 **Affiliation:** Certonomous
 **Reference:** `[KATIE TO FILL — repository or write-up URL]`
 
-> **Status of this document.** DRAFT, NOT SENT. Written 2026-08-11 by Ladder V
+> **Status of this document.** DRAFT, NOT SENT. Written 2026-08-10 by Ladder V
 > Pass 2 to discharge package defect D3 (Pass 3, cold reproduction: *"the
 > description document does not exist"*). Submissions are PARKED by standing
 > instruction. Two fields above need Katie and are marked; **no value in them has

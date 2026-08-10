@@ -1,6 +1,11 @@
 # Ladder V, Pass 2 — adversarial audit of the round-5 Closure Challenge entry
 
-**Rungs V6, V7, V8, V9, V10. Executed 2026-08-11. Owner: the Pass-2 adversarial agent.**
+**Rungs V6, V7, V8, V9, V10. Executed 2026-08-10. Owner: the Pass-2 adversarial agent.**
+
+> **Filename date note, added 2026-08-10 by the V15 corrections pass (finding F2).**
+> This file is named `LADDER_V_PASS2_2026-08-11.md` and was written on **2026-08-10**
+> (`date -u`; every commit of it carries a 2026-08-10 committer date). The filename is
+> deliberately NOT renamed — committed reports cite this path. Read it as a label.
 
 Brief: **assume the entry is wrong until it is defended.** I produced none of the
 work below — not the pre-registration, not the solves, not the scoring call, not
@@ -242,7 +247,7 @@ supports it → verdict. **8 FAIL, 3 INCOMPLETE, 6 PASS.**
 | **C11** | official-rank language | — | **PASS, and the corpus is disciplined about it.** 24 hits swept; every one is a *disclaimer* ("local scoring, not an official placement"). `closure.html` states it hardest: *"holds no official rank"*. One hit reads "leaderboard rank 1" of **Reissmann**, which is a true statement about the published board and is on the audited false-positive list |
 | **C12** | soft-adaptive-leakage disclosure in the lab's own words | round-3 JSON `leakage_statement` | **PASS for rounds 1–3** — the verbatim *"That is soft, adaptive leakage, and it is real"* is carried. **See C7 for round 5** |
 | **C13** | rank claim carries P(rank 1), interval, and named not-decided pairs | `campaign/PROBABILITY_OF_RANK_2026-08-10.md` | **PASS on all 16 claim-bearing surfaces.** Each names Reissmann and Wu & Zhang as undecided (t = −0.495, −0.953) and Liu and Montoya as decided (98.7%, 99.8%); each carries the literal token |
-| **C14** | the internal/external split on the figure | chief ruling | **WITHDRAWN 2026-08-11, and the reversal is right.** Pass 3 computed **0.674 from public data in about a minute**. A figure an outsider reproduces trivially is not protected by being withheld — it only looks concealed, to exactly the reader the disclosure strategy exists to convince. **The figure now travels with the entry.** Recorded in `PROBABILITY_OF_RANK` (banner + amended propagation rule), `LADDER_V_TRIPLE_VERIFICATION` (V8 amendment) and the new description document. **One new prohibition replaces the split: no surface may state the figure without its interval** — a bare 68% is a worse claim than none, because 68% sounds settled and 2–100% is what eight cases support |
+| **C14** | the internal/external split on the figure | chief ruling | **WITHDRAWN 2026-08-10, and the reversal is right.** Pass 3 computed **0.674 from public data in about a minute**. A figure an outsider reproduces trivially is not protected by being withheld — it only looks concealed, to exactly the reader the disclosure strategy exists to convince. **The figure now travels with the entry.** Recorded in `PROBABILITY_OF_RANK` (banner + amended propagation rule), `LADDER_V_TRIPLE_VERIFICATION` (V8 amendment) and the new description document. **One new prohibition replaces the split: no surface may state the figure without its interval** — a bare 68% is a worse claim than none, because 68% sounds settled and 2–100% is what eight cases support |
 | **C15** | §4.7's asymmetry argument | §4.7 | **INCOMPLETE — never extended to the three QCR rows.** §4.7 reasons about credit for the *declined* rows only. The same asymmetry now applies to the ducts: a published 25-year-old term any entrant may run, which the entry above us already runs, and whose scores land within 0.0004 of theirs. Written into the description document's §2 table and §6 |
 | **C16** | the seed bound against the margin | `closure_challenge_stability_physicality_audit.md` §1 | **INCOMPLETE → now quantified.** Against the like-for-like margin the bound of **0.002419 covers 84%** (0.002419 / 0.0028863 = 0.838). I verified this arithmetic rather than inheriting it: with the *rounded* 0.0024 it computes to 83.1–83.4%, so the 84% figure is correct **only** with the unrounded bound, and the description document states both unrounded |
 | **C17** | *(an asset, not a defect)* on the two declined cases the supplied baseline beats **all four** published entries | §0f, independently verified by Pass 3 | **PASS, and it should be stated as what it is.** This is a finding about the benchmark — every entrant made those two cases worse by touching them — and it does not depend on our score at all. It is stated in the description document as a property of the benchmark, deliberately *not* folded into our result |
@@ -330,7 +335,7 @@ locally** at `deb91557`; six scoring calls; AR_14 tie **lost**; best-on-board
 | `CLOSURE_CHALLENGE_STATUS.md` §0f | **PASS** — the most complete surface in the corpus |
 | `wall/wall.html` | **PASS** — renders `wall.json`, no literal of its own |
 | `docs/PRODUCT_LIST.md` (**READ-ONLY — chief-owned, not edited**) | **PASS, and better than at last report.** Round-5 current, token, figure, AR_14 correction, and it already carries the baseline disclosure. **Both stale notes reported by the 2026-08-08 sweep have been cleared.** One trivial observation: §4B cites `b2aa6887` for the propagation while `PROBABILITY_OF_RANK` §7 cites `a57d8d3b`; both are defensible (source-of-ruling vs this-file's-edit) and **no action is requested** |
-| `latex/closure_challenge_report.tex` (owner: its Opus writer — NOT EDITED) | **PASS on numbers and prior art**, and it carried the identify/control split correctly while the public page did not. **One risk raised, not fixed:** its own commit message calls it *"the closure line written down for an outsider"* and it prints the probability figure at twelve sites. Under the old gate that was a standing hazard; under the 2026-08-11 reversal it is no longer a breach — but its owner should confirm every one of the twelve now carries the interval, which is the new requirement |
+| `latex/closure_challenge_report.tex` (owner: its Opus writer — NOT EDITED) | **PASS on numbers and prior art**, and it carried the identify/control split correctly while the public page did not. **One risk raised, not fixed:** its own commit message calls it *"the closure line written down for an outsider"* and it prints the probability figure at twelve sites. Under the old gate that was a standing hazard; under the 2026-08-10 reversal it is no longer a breach — but its owner should confirm every one of the twelve now carries the interval, which is the new requirement |
 | **`dist/certonomous-demo.zip`** (**TRACKED, and it ships**) | **FAIL — reported, NOT fixed.** The tracked bundle, committed `c83c7240` on 2026-08-01, contains `site/closure.html` and `site/benchmarks.html` carrying **0.0654 and 0.0676**, zero caveats, zero sweep token. `dist/certonomous-demo/` is gitignored, so the `.zip` is the artifact of record. The propagation rule says *"anything shipping in `dist/`"* — this is literally that, and **no V10 surface list has ever included it.** Rebuilding a demo bundle is not this pass's call; **raised to the chief** |
 | `closure_challenge_submission_round5/` | **FAIL → FIXED** — package had no README and no description document (§3c). Both now exist; the README's integrity command was executed verbatim, 8/8 OK |
 
@@ -357,7 +362,7 @@ count was always a proxy for:
 2. no file carries the token where "rank 1" does not mean our standing — the 14
    audited false positives stay untokened: **holds**;
 3. ~~no external surface carries the figure~~ → **no surface carries the figure
-   without its interval** (the 2026-08-11 reversal).
+   without its interval** (the 2026-08-10 reversal).
 
 Measured before the reversal and kept as the record of the gate's final state:
 the six external surfaces carried the token and **zero** instances of the figure;
@@ -431,6 +436,6 @@ await Katie.** The send gate stays shut.
 
 ---
 
-**Signed: the Ladder V Pass-2 owner (adversarial), 2026-08-11.**
+**Signed: the Ladder V Pass-2 owner (adversarial), 2026-08-10.**
 Rungs V6, V7, V8, V9, V10 executed. Zero scoring calls; ledger unchanged at 6.
 Nothing was sent.

@@ -189,7 +189,7 @@ lab's "do no harm" in the authors' own words.
 > the best-matched prior art we have found.** Recorded here so that the temptation is
 > written down before anyone feels it.
 
-#### The firewall, discharged as a compliance FACT (Ladder V Pass 2, rung V9, 2026-08-11)
+#### The firewall, discharged as a compliance FACT (Ladder V Pass 2, rung V9, 2026-08-10)
 
 The paragraph above is a *prohibition*, written before the pull was felt. This is the
 *fact* that discharges it, so the entry can state compliance rather than only intent. It

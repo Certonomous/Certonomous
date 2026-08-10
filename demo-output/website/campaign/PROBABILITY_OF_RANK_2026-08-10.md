@@ -1,6 +1,6 @@
 # Probability of rank — a posterior over our score against the board
 
-> # ⚠ THE INTERNAL-ONLY GATE ON THIS FIGURE IS WITHDRAWN — chief ruling, 2026-08-11
+> # ⚠ THE INTERNAL-ONLY GATE ON THIS FIGURE IS WITHDRAWN — chief ruling, 2026-08-10
 >
 > *Recorded by Ladder V Pass 2 at the chief's direction. The header below, the
 > propagation rule in the next section, and every "INTERNAL ONLY" marking in this
@@ -35,7 +35,7 @@
 > because 68% sounds settled and 2–100% is what the eight cases actually support.
 
 **2026-08-10. ~~INTERNAL ONLY. This number never appears in any external claim.~~
-SUPERSEDED 2026-08-11 — see the banner above. The figure is publishable, with its
+SUPERSEDED 2026-08-10 — see the banner above. The figure is publishable, with its
 interval and its not-decided pairs attached.**
 
 > **On the face of this document, three times over.**
@@ -51,7 +51,7 @@ interval and its not-decided pairs attached.**
 >    scoring-call ledger stands at **6** and is unchanged. Every number below is
 >    arithmetic over per-case scores that were already on disk.
 
-### The propagation rule — ~~STANDING, confirmed by the chief 2026-08-10~~ AMENDED 2026-08-11
+### The propagation rule — ~~STANDING, confirmed by the chief 2026-08-10~~ AMENDED 2026-08-10 (later the same day)
 
 Inherit this rather than re-deciding it. When a ruling orders this figure
 propagated to surfaces, some of which are public:
@@ -59,7 +59,7 @@ propagated to surfaces, some of which are public:
 - **Internal surfaces carry the figure** — `P(rank 1) = 68%`, the 2–100% band,
   the leave-one-out numbers.
 - ~~**Public surfaces — anything shipping in `dist/` — carry the qualitative
-  clause only**, never the figure~~ **— WITHDRAWN 2026-08-11 (banner at the head
+  clause only**, never the figure~~ **— WITHDRAWN 2026-08-10 (banner at the head
   of this document).** Public surfaces may now carry the figure, and the entry's
   own cover material must. What they may never carry is the figure *without* its
   interval. The qualitative clause is still required everywhere and is still the
@@ -322,10 +322,10 @@ check would quietly under-report.
 | 16 | `latex/closure_challenge_report.tex` | internal | **added after this list was written** — see the note below |
 
 **Grep count V10 checks against: 16 CLAIM-BEARING SURFACES** *(was 15;
-re-measured by Ladder V Pass 2, 2026-08-11)* **— plus a growing count of
+re-measured by Ladder V Pass 2, 2026-08-10)* **— plus a growing count of
 verification records, which is why a bare integer is the wrong check.**
 
-> **Correction, 2026-08-11 — the count moved the same day this list was written,
+> **Correction, 2026-08-10 — the count moved the same day this list was written,
 > and the list did not.** §7 above records the `.tex` under *"Routed elsewhere"*:
 > it asserted rank 1 at ten sites and the chief routed it to its Opus owner
 > rather than tokening it here. **That owner then did the work**, at `15f2921a`
@@ -337,7 +337,7 @@ verification records, which is why a bare integer is the wrong check.**
 >
 > **A grep for `not statistically decided` across the repository now returns 16
 > files, and every one of the 16 is a surface that should carry it** — the 15
-> tabled above plus the `.tex`. Verified 2026-08-11: no case-variant misses (a
+> tabled above plus the `.tex`. Verified 2026-08-10: no case-variant misses (a
 > case-insensitive grep returns the same 16), and no new false positive was
 > tokened. The `.tex` names both undecided pairs, carries both paired *t*
 > statistics, and marks the 68% figure *"internal figure"* at its own §-level.
@@ -363,7 +363,7 @@ verification records, which is why a bare integer is the wrong check.**
 > 2. **No file carries the token where "rank 1" does not mean our standing** —
 >    the 14 audited false positives below stay untokened.
 > 3. ~~**No external surface carries the 68% figure**~~ **— REPLACED by the
->    2026-08-11 reversal.** The new invariant is **no surface carries the figure
+>    2026-08-10 reversal.** The new invariant is **no surface carries the figure
 >    without its interval.** *(Measurement taken before the reversal, kept as the
 >    record of the state the gate was in: the six externals — rows 3–7, 9 —
 >    carried the token and zero instances of the figure; the ten internals carried
@@ -371,7 +371,7 @@ verification records, which is why a bare integer is the wrong check.**
 >    correctly gated, and bringing them up is a follow-on item, not a defect of
 >    this sweep.)*
 >
-> All three held on 2026-08-11 **as the rules stood when they were measured**.
+> All three held on 2026-08-10 **as the rules stood when they were measured**.
 > Records that merely *quote* the rule — pass reports, this document, row 8 — are
 > outside the count by construction.
 >

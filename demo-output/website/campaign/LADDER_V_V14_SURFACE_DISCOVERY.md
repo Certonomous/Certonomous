@@ -215,7 +215,7 @@ fixture, changelog, commit message, or numeric coincidence.
 **Adjacent finding, same class, not a score literal.** The mechanical sweep also
 surfaced the *"INTERNAL ONLY; the 68% figure never appears in an external claim"*
 gate on P(rank 1) still live in `CLOSURE_CHALLENGE_STATUS.md` §0f (≈544–545) and
-`agenda/CHALLENGE_LANDSCAPE.md` (§5 block). The V8 amendment of 2026-08-11
+`agenda/CHALLENGE_LANDSCAPE.md` (§5 block). The V8 amendment of 2026-08-10
 **withdrew** that internal/external split — the figure now travels with the entry.
 Reported to those files' owners; outside this rung's literal set, recorded because
 a search found it and a list would not have.

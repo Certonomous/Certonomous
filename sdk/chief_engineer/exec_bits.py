@@ -51,7 +51,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 #: Adoption date of the waiver register below.
-WAIVER_REGISTER_DATED = "2026-08-11"
+WAIVER_REGISTER_DATED = "2026-08-10"
 
 #: Tracked scripts a fresh clone MUST be able to execute, with the reason.
 REQUIRED_EXECUTABLE = {

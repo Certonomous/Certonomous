@@ -272,7 +272,7 @@ def check_closure_entry_of_record() -> Result:
     # The entry of record is ROUND 5 since 2026-08-07 (commit 07a7fe9e). This
     # check was pinned to the round-3 file and so failed the wall for being
     # CORRECT: it reported "wall says 0.0566, the entry of record scores 0.0676".
-    # Re-pinned by Ladder V Pass 2 (V6/V10, 2026-08-11). When a later round
+    # Re-pinned by Ladder V Pass 2 (V6/V10, 2026-08-10). When a later round
     # lands, repoint this file and the counts below in the same commit --
     # a guard that cries wolf is worse than no guard, because the cheapest way
     # to silence it is to "fix" the surface that was right.

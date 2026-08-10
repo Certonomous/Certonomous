@@ -1,4 +1,10 @@
-# Instrument integrity — 2026-08-11, Katie's dispatch section C
+# Instrument integrity — 2026-08-10, Katie's dispatch section C
+
+> **Filename date note, added 2026-08-10 by the V15 corrections pass (finding F2).**
+> This file is named `INSTRUMENT_INTEGRITY_2026-08-11.md` and was created on
+> **2026-08-10** (`date -u`; commit `2026-08-10 21:20:01 +0000`). The filename is
+> deliberately NOT renamed — committed reports cite this path, and a rename breaks
+> the citations that make them checkable. Read the filename as a label, not a date.
 
 Executed by the Infrastructure and Standards family supervisor.
 

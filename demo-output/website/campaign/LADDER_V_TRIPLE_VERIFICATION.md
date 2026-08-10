@@ -56,7 +56,7 @@ supervisors' four personal checks apply per the supervision charter.
   internal by the item's own gate and may not be published.~~ Both wordings contain the literal
   string `not statistically decided`, which is the token V10's cross-surface sweep greps for.
   Source: `campaign/PROBABILITY_OF_RANK_2026-08-10.md`.
-  **V8 amendment, 2026-08-11 (chief ruling, protocol edit — the internal/external split above is
+  **V8 amendment, 2026-08-10 (chief ruling, protocol edit — the internal/external split above is
   WITHDRAWN).** Pass 3 recomputed the figure as **0.674 from public data in about a minute**, with
   no access to the internal document. A figure an outsider reproduces trivially is not protected by
   being withheld; it only looks concealed, and it looks that way to the exact reader the disclosure

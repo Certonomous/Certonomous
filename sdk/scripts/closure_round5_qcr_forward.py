@@ -29,7 +29,7 @@ scored. Scoped to its own run because the standing count has since moved:
 the supervisor's designated scoring agent made the round-5 call later the
 same day and the cumulative ledger is now SIX (floor, rounds 1-5). Nothing
 in this file made or makes a call; only the sentence describing the ledger
-needed a date on it. (Ladder V rung V7, re-run under Pass 2, 2026-08-11.)
+needed a date on it. (Ladder V rung V7, re-run under Pass 2, 2026-08-10.)
 
 Physicality (audit G2): the QCR fields come out of a solenoidal SIMPLE solve,
 so unlike the round-4 post-hoc deltaU they satisfy continuity by

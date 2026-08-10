@@ -2,7 +2,7 @@
 
 **This package is DRAFT and has not been sent. Submissions are parked.**
 
-Written 2026-08-11 by Ladder V Pass 2, to discharge cold-reproduction defects
+Written 2026-08-10 by Ladder V Pass 2, to discharge cold-reproduction defects
 D1 (*"the package never says where the benchmark or the scorer is"*), D4
 (*"every provenance pointer dangles on receipt"*) and D10 (*"the package does not
 name itself"*). Pass 3 reproduced our score bit-for-bit but had to find the

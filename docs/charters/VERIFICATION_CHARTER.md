@@ -1,10 +1,10 @@
 # Certonomous Verification Charter
 
-Version 1.6, dated 2026-08-11. Defines what counts as done. It binds every
+Version 1.6, dated 2026-08-10. Defines what counts as done. It binds every
 solve, every gradient check, every ladder rung and every number that reaches a
 record, a certificate or a camera surface.
 
-Version 1.6 adds two clauses on Katie's dispatch of 2026-08-11, both earned the
+Version 1.6 adds two clauses on Katie's dispatch of 2026-08-10, both earned the
 night before: **absence of error evidence is not evidence of a clean result**
 (section 9), after a parser returned `clean` on a log where the tool had
 fatally errored; and **a rule can over-reach as easily as under-reach**
