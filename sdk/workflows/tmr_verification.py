@@ -930,7 +930,14 @@ def _foam(args: list[str], cwd: Path, log_name: str,
         # dictionary values -- enter the run log fenced and hash-bound, so
         # `levers_verified_active` is satisfiable at write time. Utility
         # logs stay pristine for their parsers.
-        if args and args[0] in lever_echo.SOLVERS:
+        # The membership test is over ALL arguments, not args[0]: a parallel
+        # launch spells the solver as `mpirun -np N <solver> -parallel`, and
+        # an args[0]-only test would silently skip the echo on exactly the
+        # runs a lever gate matters most on (B52 rung-6 replicate arm,
+        # B52_RUNG6_REPLICATE_PREREGISTRATION.md section 6 G4). No caller in
+        # the repo passes `mpirun` today, so this is a no-op for every
+        # existing call site.
+        if any(arg in lever_echo.SOLVERS for arg in args):
             try:
                 log_file.write(lever_echo.echo_block(Path(cwd)))
                 log_file.flush()
