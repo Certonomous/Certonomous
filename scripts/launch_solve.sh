@@ -155,12 +155,50 @@ if [ "$OVER" = "1" ]; then
 fi
 
 # ---- 1. preflight gate ----------------------------------------------------
+# THIS GATE USED TO FAIL FALSE. The condition was `[ -x "$PF" ] && [ -d "$CASE" ]`,
+# so a preflight script that was present but NOT EXECUTABLE skipped the whole gate
+# and the launch proceeded -- silently, with no line in the output saying the case
+# had not been checked. That was not hypothetical: `scripts/case_preflight.sh` was
+# tracked mode 100644, so EVERY FRESH CLONE of this repo launched without the
+# preflight D12 promises "the caller cannot forget". This box masked it because its
+# working copy carried the bit locally while the index did not.
+#
+# The rule the fix encodes: ask whether the check RAN before asking what it found,
+# and give "did not run" its own verdict instead of folding it into the pass. An
+# absent preflight and a passing preflight are different facts.
 PF=/home/ubuntu/Certonomous/scripts/case_preflight.sh
-if [ -x "$PF" ] && [ -d "$CASE" ]; then
-    if ! "$PF" "$CASE" --quiet; then
-        echo "REFUSING TO LAUNCH: $CASE failed preflight. Fix it, do not override."
-        exit 1
+if [ -d "$CASE" ]; then
+    PF_HOW=""
+    if [ -x "$PF" ]; then
+        PF_HOW=exec
+    elif [ -f "$PF" ]; then
+        # Present but not executable: run it through its interpreter rather than
+        # treating a missing mode bit as a clean bill of health.
+        PF_HOW=bash
+        echo "NOTE: $PF is not executable; running it via bash. Fix its exec bit."
     fi
+    case "$PF_HOW" in
+        exec)
+            if ! "$PF" "$CASE" --quiet; then
+                echo "REFUSING TO LAUNCH: $CASE failed preflight. Fix it, do not override."
+                exit 1
+            fi
+            ;;
+        bash)
+            if ! bash "$PF" "$CASE" --quiet; then
+                echo "REFUSING TO LAUNCH: $CASE failed preflight. Fix it, do not override."
+                exit 1
+            fi
+            ;;
+        *)
+            # The third verdict. Not a pass and not a failure -- unknown, said out
+            # loud, because a reader who sees no preflight line otherwise cannot
+            # tell "checked and clean" from "never checked". Whether an absent
+            # preflight should REFUSE rather than warn is a chief's call and is
+            # deliberately not decided here.
+            echo "PREFLIGHT NOT RUN: $PF is missing. The case was NOT checked; this is not a pass."
+            ;;
+    esac
 fi
 
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
