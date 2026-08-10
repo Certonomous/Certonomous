@@ -164,10 +164,17 @@ pre-fixed ≥0.50× bar; the refuting branch is beaten with margin (both replica
 0.028–0.030% of |Cd| and D6 is 94.6× the larger 2σ), so the settle gate needs no work.
 Castellation-driven draw sensitivity, as the protocol's second family predicted.
 **But the reading larger than the verdict, and it is the one that matters:** three draws at this ONE
-rung span 5.35e-3 — 2.80× the floor and **1.32× the −4.055e-3 rung 6→7 increment, the largest single
-increment anywhere in the B-52's valid family. The ladder's "turn" therefore sits INSIDE its own
-single-rung draw scatter.** W3 estimated that spread at ±47% from a rung-7 pair; measured with three
-draws it is ±132%. Entry 4 asked where the floor came from and got its answer; what it also bought is
+rung span 5.35e-3 — 2.80× the floor — and the rung 6→7 increment (−4.055e-3) is the largest single
+increment anywhere in the B-52's valid family, so the ladder's "turn" is not clearly separable from
+its own mesh-construction scatter.
+**[CORRECTED 2026-08-10 night, prompted by the auditing agent's own self-amendment 9fa86946 — this
+block first said the turn sits INSIDE the scatter "at 1.32×", and that comparison was wrong in my
+words as well as in the source I took it from.]** The 1.32× set a RANGE over three draws against a
+PAIRWISE difference — the very error W3 §3 had already corrected itself on, repeated by the agent
+and then repeated again by me. Done like-for-like, converting every estimator to a common σ (an
+increment carries √2σ), the honest statement is: **the turn is 0.91–2.38× its own mesh-construction
+uncertainty — NOT established as signal (which needs ≥3×) and NOT established as noise. Three draws
+cannot separate those two.** Every grade in the turn audit is against that bracket, not my headline. Entry 4 asked where the floor came from and got its answer; what it also bought is
 that a feature the family has treated as structure is not resolved by the data underneath it.
 **Chief rulings:** (1) an audit is ordered of every standing claim that rests on the B-52 ladder's
 turn — each either gains this scatter as a stated uncertainty or is withdrawn; (2) the G1 refusal is
@@ -206,6 +213,34 @@ amendment; (2) the unsteady-probe arm STAYS LIVE but retargeted at the honest qu
 steady miss with wander, not a 4–12× catastrophe — its pre-registration must be rewritten against
 the corrected numbers before launch, and the equilibrium-k inlet repair becomes its cheap first
 leg.
+
+**Stage A outcome (2026-08-10 night, pre-reg 3734270d + d64565c1 / results 27a94361, 16.44 core-min
+against an approved 15.51): OUTCOME O3 FIRES — the −10.5% is WITHDRAWN to *unmeasured*, and F5c now
+has no headline reattachment number.** M1 failed: the same configuration run four times longer
+returns x_r/H = 6.996, 1.396 H from the 5.6 headline against a 0.81 H bar. The agent refused the
+flattering read available to it — a 2,000-iteration leg lands within 0.036 H of the headline — on
+two grounds, the second better than the first: L-44 forbids moving the goalpost to the leg that
+agrees, and that leg's OWN x_r history swings 6.56 H across the second half of its run. The 5.6 was
+one sample of a moving quantity, never a measurement. M2 PROVEN: two legs echoed different
+fvSolution hashes and `consistent yes;` is now literally readable inside the archived gzipped log,
+hash-bound — the charter's "unverifiable forever" gap on this case is CLOSED. The agent then
+reported that it had set its own M2 bar too low (the 1.313 H algorithm difference is a fifth of the
+internal wander, and the lever is confounded with relaxation) rather than quietly rescoring it.
+**THE FINDING THAT WAS NOT ONE OF ITS BARS, AND IT IS THE BIGGEST OF THE ARM: no F5c run has ever
+converged.** The 8,000-iteration leg sits 66× off its p gate and 847× off Uy; the archived
+20,000-iteration run never converged either. The original record's "deep numerical convergence" read
+the LINEAR solver's final residuals rather than SIMPLE's initial ones. Everything downstream of
+"converged solves that wander" — including this entry's own framing, which I wrote — rests on a word
+that was never earned.
+**Chief rulings:** (1) the item does NOT retire as premise-dead; it is RE-POSED, and the agent's
+formulation is adopted verbatim: *you cannot ask whether a flow is unsteady until the steady solve
+is shown able to converge*. (2) Stage B stays UNAPPROVED and its price is recorded as UNPRICEABLE
+rather than 35–39 core-min — 8,000 iterations is measured-insufficient on a mesh 3× cheaper, so that
+figure is a floor, and calling it an estimate would be exactly the forecast-basis error the
+calibration scorecard warns about. (3) The three record corrections this forces are ORDERED, each as
+a dated amendment and never a revision (the convergence claim, the withdrawn headline, this entry's
+framing). (4) The ≈2.4 core-min isolating run separating the algorithm lever from relaxation is
+APPROVED — it converts a bar its own author called too low into a real attribution.
 
 ## 6. S1 first inversion — both gates FAIL (objective was measuring a corrupted inlet)
 Diagnosed and reinverting. The meta-lesson is the one to institutionalize:
