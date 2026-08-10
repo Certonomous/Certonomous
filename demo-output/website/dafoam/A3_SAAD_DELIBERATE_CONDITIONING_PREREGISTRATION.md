@@ -229,3 +229,83 @@ that rather than substituting a reachable knob and calling it the proof.*
 **Price update, flagged again:** diagnosis actually cost 32.1 core-min against the 25 estimated;
 with this arm (~26) the total reaches **~58 core-min against the ~35 approved**. The overrun is
 disclosed here before the arm runs, not after.
+
+---
+
+# §D. OUTCOME: **the pre-registered falsifier fired. The proof clause is NOT met, and the diagnosis was wrong in the way it said it might be.**
+
+The arm (`A3-saad-overlap2`, rc=1, 443 s = **29.5 core-min**) ran identically to the rung-3
+diagnostic in every respect except `asmOverlap: 1 → 2`, confirmed in its own log
+(`ASM Overlap: 2`, `transonicPCOption 1;`, no sub-LU banner) — a controlled pair by construction.
+
+| | control (overlap 1) | arm (overlap 2) | ratio |
+|---|---|---|---|
+| `sMax/sMin` @ iteration 300 | 4.68685e+10 | 4.58939e+10 | **0.979** |
+| `sMax/sMin` @ iteration 400 | 9.57203e+10 | 1.01665e+11 | **1.062** |
+| residual @ iteration 400 | 1.615428631404e-02 | 1.665009430707e-02 | **1.031 (worse)** |
+| reason | −3 | −3 | — |
+
+§C's prediction was explicit: *"sMax/sMin must fall materially below 9.57e+10 and the residual
+must descend further than the overlap-1 control."* **Neither happened.** Doubling the overlap
+moved the preconditioned condition number by 2–6% — noise — and left the residual marginally
+worse. §C's stated alternative therefore fires verbatim: **"the ill-conditioning is not
+Schwarz-mediated, the diagnosis above is wrong in that stated way, and the ceiling is intrinsic
+to ILU-class preconditioning of this operator."**
+
+**The proof clause is NOT met.** Katie's §2 item does not land. Recording that in the same words
+I would have used for a success.
+
+## What was eliminated, which is what this arm actually bought
+
+Every structural explanation for the rung-3 wall that this build can reach has now been tested
+and refuted **by measurement rather than by argument**:
+
+| candidate cause | how it was refuted |
+|---|---|
+| Krylov method breakdown (orthogonality loss) | true residual tracks recursive to 7–12 digits |
+| Krylov subspace too small | 5x window bought 1.65x (restart challenge, `0dc6a050`) |
+| field-block separation → field-split | top-2000 extremes flat across all 6 slots; every slot spans 13+ decades |
+| geometric localization (tip TE pathology) | extremes diffuse; spatial std ≈ whole mesh; *less* near-wing than average |
+| mesh volume spread imprinted on the diagonal | r = −0.135, slope −0.100 across 10 decades of volume |
+| **diagonal spread magnitude** | **rung 2 = 14.40 decades and converges; rung 3 = 14.47 and does not** |
+| one-level Schwarz deficiency (overlap) | κ unchanged (0.979x, 1.062x) at doubled overlap |
+| stronger PC application (Richardson) | collapses at rung 2 (`feb79e45`) |
+
+What survives is a **negative characterization with a number**: the rung-3 adjoint operator, as
+ASM+ILU(0) preconditioning sees it, has κ ≈ 10^11, and that value is **insensitive to every
+preconditioner parameter this build exposes**. The remedy classes the evidence now points to —
+a two-level method with a coarse space, or a different PC family (`PCFIELDSPLIT`, `PCGAMG`), or a
+restart-free/augmented Krylov method (`lgmres`, `dgmres`) — are precisely the ones §0 established
+are **UNREACHABLE without recompiling `libDASolver.so`** (`KSPSetType` and `PCSetType` both
+override `KSPSetFromOptions`). This is the R4-shaped outcome my rule pre-registered: **the
+remedy is blocked, and I report that rather than substituting a reachable knob and calling it
+the proof.**
+
+**The knob I did not run, and why.** `pcFillLevel: 1` is reachable and was a material winner at
+rung 1 (−36% iterations). It is untested at rung 3 and might converge it. **I did not run it,
+because the diagnosis does not indict dropped fill** — I never measured the dropping — so a
+convergence there would be knob-luck, not proof, and the honesty clause of §0 forbids dressing it
+as the latter. It is named here as the obvious next *engineering* attempt, explicitly separated
+from the proof.
+
+## Consequence for the capability strategy's own wording
+
+§2's clause reads *"diagonal-spread diagnosis → chosen preconditioner → converged"*. **The
+diagonal-spread route is now measured to be a dead end for this case**: the spread is 14.4
+decades at the rung that converges and 14.5 at the rung that does not. Any future attempt at this
+clause should not begin from diagonal spread, and the strategy's phrasing should be updated to
+say so — flagged for the chief, not edited here, since it is Katie's document.
+
+## Spend
+
+| step | core-min |
+|---|---|
+| rung-3 diagnostic (κ, true-residual, 983 MB pmat) | 25.9 |
+| rung-2 dump (the A5 comparison that killed the spread hypothesis) | 6.2 |
+| offline analysis (diagonal, blocks, geometry, volume) | 0 |
+| the chosen arm (asmOverlap 2) | 29.5 |
+| **total** | **61.6 against ~35 approved (1.8x)** |
+
+Flagged at 45 before the diagnosis, updated to 58 before the arm, landing at 61.6. The overrun is
+real; what it bought is the elimination table above and the refutation of the strategy's own
+stated route, on a case where the alternative was to keep trying knobs.
