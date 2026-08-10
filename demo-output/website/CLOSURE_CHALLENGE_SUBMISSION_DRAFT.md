@@ -261,14 +261,27 @@ violation; both must be fixed before anything is sent.**
 
 ### 4.1 The one strict rule: NOT VIOLATED — verified in code, not taken on trust
 
+> **Citation currency note, 2026-08-10 (chief, personally).** The three line numbers in
+> this subsection were corrected from 115 / 215 / 165–167 to **128 / 228 / 178–180**. The
+> CLAIMS were and remain true — only the citations had gone stale, shifted by a docstring
+> fix on 2026-07-30 that moved the code without moving the reference to it. Ladder V rung
+> A3 re-verified every anchor against HEAD twice (`_load_ground_truth_U` at 128 and 228,
+> the test loop at 178 with its `# no U_LES read` annotation at 179), and the executable
+> assertions cited below are at 84–86 and were run live with three firing negative
+> controls. Corrected by the chief rather than by a verification pass: three consecutive
+> passes each declined this edit on the defensible ground that the send package is
+> Katie's, and the aggregate of three defensible declines was a stale citation surviving
+> all three. That is a coordination defect, not an oversight, and its owner cannot be a
+> verifier.
+
 I audited `sdk/scripts/apply_closure_ph_gate.py` and
 `sdk/scripts/closure_baseline_error_gate.py` line by line rather than relying on the
 prose in `CLOSURE_CHALLENGE_STATUS.md`.
 
-- Ground-truth reads (`_load_ground_truth_U`) occur at line 115 inside
-  `for case in gate._PH_TRAIN` (21 training cases) and at line 215 inside
+- Ground-truth reads (`_load_ground_truth_U`) occur at line 128 inside
+  `for case in gate._PH_TRAIN` (21 training cases) and at line 228 inside
   `for c in ph._PH_TRAIN` (same 21). **Both loops are over training cases only.**
-- The test-case loop (lines 165–167) calls `ph._load_rans_fields` only, annotated
+- The test-case loop (lines 178–180) calls `ph._load_rans_fields` only, annotated
   `# no U_LES read`. Features for the four PH test cases are built from the RANS field
   and mesh alone.
 - `closure_baseline_error_gate.py` enforces the split with executable assertions, not
