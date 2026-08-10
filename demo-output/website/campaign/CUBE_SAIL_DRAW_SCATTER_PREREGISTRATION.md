@@ -124,3 +124,103 @@ Staged copies per draw, memory arithmetic stated before each launch, setsid + `.
 ledger, polled inline, cost flagged progressively rather than at the end. Per-ladder reporting
 order, per the chief: **certification result first, then the bar with its calibration, then the
 verdict** and whether the published feature restates, withdraws, or is unverifiable at source.
+
+---
+
+# §8. `naca0015_sail` — SCOPE SCREEN FIRED: **OUT OF SCOPE. No draws run; 4.8–8.1 core-min not spent.**
+
+The §2 screen, pre-committed before any survey, returns **out of scope** for the sail.
+
+**Every published record reports exactly what §17 carves out and nothing more.** Rung values, an
+observed order (1.696), a conservative band (`band_abs` 7.2069e-03), and `conclusive: false` —
+`models/curriculum/uq-studies/naca0015_sail.json:34-47`, `W3_GUARD_SWEEP.md:36`,
+`docket.json` item `agp-7273e7f80ddc`. The ladder is strictly decreasing: **there is no turn, no
+oscillation, and no non-monotonicity asserted anywhere in the corpus.** The sail has no
+credentials-wall row at all (`wall.json` carries no entry; `validation_tiers.json:391-402` lists
+it as BENCHMARK CASE with no numerical/grid block), so there is no public shape claim to restate.
+
+**The one judgement call, stated so a reader can disagree with it rather than discover it.** The
+study json carries passing guard fields `"monotone": true` and `"increment_trend": true`
+(`:41,:43`). §17 reaches *"monotonicity used as an argument"*. My reading: these are **internal
+verdict machinery** — inputs to a `conclusive` determination — not a published claim about the
+shape of the increments, and **nothing in the corpus argues from them**. A record that said *"the
+sail's increments shrink, therefore it is converging"* would fire the rule; no record says that.
+I record the alternative reading explicitly: anyone who counts a passing `monotone` guard as a
+shape claim would put the sail in scope, and the cost of that disagreement is 4.8–8.1 core-min.
+
+**And the sail would survive anyway, on evidence already banked.** It carries the strongest
+draw-scatter record of the five ladders (`naca0015_sail.json:92-119`,
+`W3_PUBLISHED_RUNG_REPLICATES.md`): n=2 at the production rung, mesh-generation scatter
+**5.314e-04 — 138.8x this body's own iterative 2σ**, cleanly separable and real, and **7.4% of
+the 7.207e-03 envelope the row publishes**, with the control reproducing the stored Cd to
+2.91e-06. Its envelope is measured to be conservative against its own mesh scatter.
+
+**Verdict: the rule does not reach `naca0015_sail`. No restatement, no withdrawal, no draws.**
+The retrofit's five-ladder scope is corrected to four for the rule's purposes, and my half's
+price drops from 8.0–13.5 to the cube line alone.
+
+# §9. `cube` — FEATURE CONFIRMED, and the turn rung is GONE. A reconstruction gate is required before any draw.
+
+**In scope, decisively.** Non-monotonicity is asserted as this ladder's verdict on at least five
+live surfaces: `cube.json:34,36,42,44` (`"monotone": false`, `guards_failed: ["monotone"]`,
+`"rungs not monotone; conservative band…"`), `W3_GUARD_SWEEP.md:38` and its json,
+`docket.json:3324`, `NOT_PASSING_REGISTER.md:596` (*"non-monotone ladder"*), and the
+credentials-wall row's inconclusive reason (`wall.json:267-283`). Two records additionally raise
+an **oscillation** reading, hedged and labelled `mechanism_named_not_claimed`
+(`W3_CUBE_SETTLE_RESULTS.md:64-67`, `cube.json:166`).
+
+**The blocking discovery: the rung the feature turns on does not exist on disk, and neither do
+its dictionaries.** The turn is at the **medium** rung (103,934 cells). Per the survey:
+`cube-rung-coarse` and `cube-rung-medium` have **no case directory anywhere, no points file, no
+mesh** — because `sdk/scripts/run_uq_studies.py:80-85` clears the body-keyed mesh cache before
+each rung *by design* (*"a ladder MUST NOT reuse a different rung's mesh"*), so **only the finest
+rung's mesh survives**. The cube's coarse/medium `blockMeshDict`/`snappyHexMeshDict` were never
+archived either (the sail at least kept a `blockMeshDict.scaled`).
+
+**The existing replicate evidence is at the wrong rung and it failed.** `cube.json:88-149` is n=2
+at the **production** rung, and it reports its own failure: *"The mesh scatter CANNOT be extracted
+from this experiment on this body… at 1.488e-02 it is the same size as run A's own iterative
+2-sigma of 1.4686e-02"* — and that control did not reproduce the stored Cd (apart 4.217e-03).
+So under §17 there is **no draw-scatter evidence at the rung the feature turns on**, which is
+precisely the gap the retrofit exists to close.
+
+## §9.1 PRE-REGISTERED RECONSTRUCTION GATE — fixed before any mesh is built
+
+I will not declare the cube unverifiable-at-source without testing whether the rung is
+reproducible, and I will not draw against a rung I cannot show is the archived one. The B-52
+precedent required the replicates be **proven same-recipe by checksum**; for cube's medium rung
+that checksum is impossible because the reference dictionaries are gone. **Cell count is the
+available fingerprint, and it is a sharp one.**
+
+**Gate:** regenerate the medium rung through the archived code path from the body's production
+dictionaries at the medium refinement setting, then:
+
+- **Regenerated cell count == 103,934 exactly** → the recipe is reproduced, the rung is
+  **verified-by-fingerprint**, and the draws proceed (§3's bar unchanged, §4's prediction
+  unchanged). The match is recorded as the evidence standing in for the missing checksum.
+- **Regenerated cell count != 103,934** → the rung that produced the published Cd cannot be
+  reproduced from what survives, so **draw scatter at the turn rung cannot be measured against the
+  archived recipe**. The cube's feature is then marked **UNVERIFIABLE AT SOURCE** per the chief's
+  ruling — neither restated nor withdrawn — with the regenerated count reported beside the
+  archived one so the size of the discrepancy is on the record.
+- **Regeneration fails or the code path no longer produces this rung** → same UNVERIFIABLE AT
+  SOURCE verdict, with the failure quoted.
+
+Certification (§6) applies to every mesh that does come into existence, before any solve.
+
+# §10. Record-hygiene finding, reported because a live record is wrong about disk state
+
+`DEAD_LEVER_AUDIT_2026-08-08.md:323,364` and `W3_PUBLISHED_RUNG_REPLICATES.md:67` state that
+`certonomous-runs/study-cube-2904cb/` *"no longer exists on disk"* / was *"deleted"*. **It exists
+now**, complete with `constant/polyMesh/points`, `processor0–15` and `log.simpleFoam`; the same
+applies to `study-naca0015_sail-fdd45c`, which `W3_LADDER_RECIPE_AUDIT.md:160` treats as a sole
+survivor. Flagged rather than fixed — those are other agents' records — but any conclusion resting
+on the cube production case being unavailable should be re-checked, and the case is available for
+anyone who needs it.
+
+**Also inherited, not created here:** the 2026-08-08 birth-certificate audit marked
+`.mesh-cache/cube`, `.mesh-cache/naca0015_sail`, `w3-published-rung-cube/b` and
+`w3-published-rung-naca0015_sail/b` as *"CERTIFIED (pre-existing record)"* — but that verdict
+means **a `log.checkMesh` exists, not that a certificate file was written.** A repo-wide find
+returns 28 `birth_certificate.json` files and **none is under a cube or sail path.** So the
+certification gate mints these from scratch, exactly as the chief's ruling anticipated.
