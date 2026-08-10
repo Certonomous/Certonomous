@@ -2049,3 +2049,37 @@ The same arm settled what the disagreement had been blamed on: the SIMPLEC
 attribution standing since 2026-07-29 is MISATTRIBUTED, not merely unproven —
 the algorithm moves 2.911 H and does not clear its bar, while relaxation moves
 4.224 H and does.
+
+
+## L-48. Check the premise the offered options share — and record a gap as a gap, never as a constraint
+
+The chief routed five campaign launch paths with a choice: migrate them to a
+vector-taking launcher, or mark them permanently unverifiable. Both options
+rested on the same premise — that these paths launch solvers through arbitrary
+shell strings, which cannot be parsed to decide what ran without keying on a
+spelling (the defect class this campaign exists to close).
+
+The executing agent checked the premise instead of choosing. **24 of 24
+commands across the five files contain zero shell metacharacters**: they are
+argument vectors merely *spelled* as strings, and the `bash -c` wrapper exists
+for one visible reason, sourcing the OpenFOAM environment — which the shared
+launcher already resolves. Nothing needs splitting. Both offered options were
+answers to a question that did not exist, and the correct move was to refuse
+both and say why. (It supplied a positive control: the same detector does flag
+`cd X && solver > log`, `solver | tee log`, and a `for` loop as genuine shell
+strings, so the negative was measured rather than assumed — L-43.)
+
+Two rules come out of it.
+
+**Verify the premise the options share.** A choice presented by a supervisor
+carries an assumption, and the assumption is the part nobody re-derives
+because it arrived with authority. An agent that picks well from a false menu
+has done worse than one that rejects the menu.
+
+**A gap invites a fix; a constraint forbids one.** The agent also declined to
+mark the paths "permanently unverifiable", on the grounds that writing a limit
+into a standard when measurement says the limit is not there is worse than
+leaving the gap open. False constraints are self-perpetuating: the next reader
+inherits them as settled, and the cheap fix nobody attempts is invisible
+forever. Record what is missing; never record what is impossible unless you
+have measured the impossibility.
