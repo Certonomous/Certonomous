@@ -979,6 +979,35 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   latent, because that condition is a dependency and the next change is as likely to remove it as preserve it.
   "Not exploitable yet" and "not a defect" are different verdicts.
 
+### 2026-08-10 (closing) — the B-52 turn is withdrawn, and a convergence check that needs no residual
+
+- **THE B-52 LADDER'S "TURN" IS WITHDRAWN AS A CLAIM (chief ruling), on two independent grounds.** (1) The
+  pre-registered closure arm (f4ccfe92 / c12c876b, 23.7 of ~31 core-min) returned INDETERMINATE as its own
+  pre-registration had predicted it might — but T_hi = 2.445 < 3.0 **EXCLUDES SIGNAL**, which is exactly what the
+  audit needed. (2) The decisive fact needs no statistics at all: **the published turn is literally
+  max(rung 6) − min(rung 7) of the eight draws.** Re-estimated from ALL of them the increment is
+  **+8.2e-5 ± 1.2e-3 (t = 0.071) — 49× smaller than the published value, OPPOSITE in sign, and smaller than the
+  ~1.8e-4 bias from not matching the two rungs' resolutions.** A selected extremum is not a measurement. The agent
+  labelled this re-analysis unregistered; the ruling rests on the arithmetic of how the number was constructed, which
+  needs no pre-registration to be true.
+- **The agent WITHDREW ITS OWN approved extension ask** (+46.2 core-min): at the measured T̂ it would not have reached
+  a verdict either, NOISE is unreachable at any n, and MARGINAL vs INDETERMINATE has identical consequences for all
+  26 audit grades. Declining approved compute because the answer would not change a single downstream decision is
+  the discipline working at its most expensive point.
+- **L-47 — a convergence check immune to instrument error.** The F5c isolating arm (9eaefc7f / 881866b9) completed a
+  2×2 factorial and found relaxation alone moves reattachment 4.224 H while the algorithm moves 2.911 H and does not
+  clear its bar: **the SIMPLEC attribution standing since 2026-07-29 is MISATTRIBUTED, not merely unproven.** The
+  general instrument is the finding: relaxation factors cannot move a converged fixed point, so two solves differing
+  only in relaxation disagreeing by a factor of 2.6 is proof of non-convergence **that never consults a residual** —
+  immune to the exact error class that started this thread (a record reading the linear solver's final residuals
+  instead of SIMPLE's initial ones).
+- F5c's three corrections landed as dated amendments across EIGHT records (7f4c2657), including LESSONS L-39 and a
+  source docstring; the re-posed item is filed with `est_core_min` deliberately NULL, because recording a floor as an
+  estimate manufactures the same false confidence the band ruling just corrected.
+- Frozen-artifact ruling applied: exactly one of the four withdrawal targets was frozen (R4's pre-registration), left
+  byte-untouched with the withdrawal placed on its results record. A boundary case was disclosed rather than hidden —
+  the agent's own F5c pre-registration correction predates its outcome, which L-44 does not reach.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

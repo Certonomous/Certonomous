@@ -2020,3 +2020,32 @@ could satisfy accidentally, and (b) every consumer that discovers files by
 pattern rather than by exact name, and state both lists in the change. A
 pattern-matching consumer is an undeclared interface; adding a file to a
 directory is editing that interface whether you meant to or not.
+
+
+## L-47. Two solves differing only in relaxation must agree — disagreement proves non-convergence without reading a single residual
+
+The F5c thread began with a record that claimed "deep numerical convergence"
+while reading the LINEAR solver's final residuals instead of SIMPLE's initial
+ones, and everything built on that word was wrong for a year. The arm that
+closed the thread produced the check that would have caught it, and the check
+needs no residual at all.
+
+Relaxation factors are a path parameter: they change how a steady solve
+approaches its fixed point, and they cannot change where the fixed point is.
+So two runs of the same case differing ONLY in relaxation must agree at
+convergence, to within the settle tolerance. In the F5c 2x2 factorial they
+disagreed by a factor of 2.6 in reattachment length — 4.224 step-heights from
+relaxation alone. That is a proof of non-convergence that is immune to
+misreading a residual, misconfiguring a gate, or reading the wrong solver's
+number, because it never consults one.
+
+Use it as a cheap standing check wherever a steady result matters: run the
+case twice with materially different relaxation, and require agreement inside
+the settle bar before any physics claim is made. It costs one extra solve and
+it is the only convergence evidence in the lab that cannot be defeated by an
+instrument error, since the instrument is the physics.
+
+The same arm settled what the disagreement had been blamed on: the SIMPLEC
+attribution standing since 2026-07-29 is MISATTRIBUTED, not merely unproven —
+the algorithm moves 2.911 H and does not clear its bar, while relaxation moves
+4.224 H and does.
