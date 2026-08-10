@@ -1,566 +1,567 @@
 {
-  "cells_recorded": 36,
-  "cells_total_designed": 36,
-  "core_min_total": 101.5,
-  "design": "demo-output/website/campaign/MODEL_FORM_BATCH_DESIGN.md",
-  "generated_utc": "2026-08-08T23:55:14Z",
-  "groups": [
+ "lever_activity_caveat": "**Lever-activity caveat (charter v1.5 section 9, added 2026-08-10 by chief ruling on the batch dead-lever audit).** A band means nothing unless its members differ ONLY in the closure. For the 32 of 36 cells that predate the launcher lever echo (adopted 2026-08-08, `ea0f7d9d`), that premise is asserted from the runner's construction and is NOT proven from artifacts: stock `simpleFoam` never echoes `fvSchemes`, `fvSolution` or boundary-condition types, so no archived log can confirm or deny that the non-closure settings were identical across members. The closure lever itself IS proven for all 36 (each cell's `Selecting RAS turbulence model` banner matches its record). Positive control: the 4 cells that DO carry the echo \u2014 `B_re1p2e7_kEpsilon`, `B_re1p2e7_kOmegaSST`, `B_re1p2e7_realizableKE`, `H_re10595_kEpsilon` \u2014 prove the premise outright, because the echo writes the dictionaries' full text into the log. Ruling: the bands STAND with this caveat on their face; no re-run is justified for a premise the runner's code establishes by construction. See `DEAD_LEVER_AUDIT_BATCH_2026-08-10.md` finding U-1.",
+ "cells_recorded": 36,
+ "cells_total_designed": 36,
+ "core_min_total": 101.5,
+ "design": "demo-output/website/campaign/MODEL_FORM_BATCH_DESIGN.md",
+ "generated_utc": "2026-08-08T23:55:14Z",
+ "groups": [
+  {
+   "bands": {},
+   "core_min": 11.806,
+   "excluded": [
     {
-      "bands": {},
-      "core_min": 11.806,
-      "excluded": [
-        {
-          "cell_id": "B_re1p2e7_SpalartAllmaras",
-          "model": "SpalartAllmaras",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.0030055537805
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)"
-          ]
-        },
-        {
-          "cell_id": "B_re1p2e7_kEpsilon",
-          "model": "kEpsilon",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.004905634694
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)"
-          ]
-        },
-        {
-          "cell_id": "B_re1p2e7_kOmegaSST",
-          "model": "kOmegaSST",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.0026875770242
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)"
-          ]
-        },
-        {
-          "cell_id": "B_re1p2e7_realizableKE",
-          "model": "realizableKE",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.018377370481
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)"
-          ]
-        }
-      ],
-      "family": "B",
-      "group": "B_re1p2e7",
-      "models_converged": [],
-      "n_converged": 0,
-      "n_excluded": 4,
-      "regime": "re1p2e7"
+     "cell_id": "B_re1p2e7_SpalartAllmaras",
+     "model": "SpalartAllmaras",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.0030055537805
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)"
+     ]
     },
     {
-      "bands": {},
-      "core_min": 9.19,
-      "excluded": [
-        {
-          "cell_id": "B_re3e6_SpalartAllmaras",
-          "model": "SpalartAllmaras",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.003620157562
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)"
-          ]
-        },
-        {
-          "cell_id": "B_re3e6_kEpsilon",
-          "model": "kEpsilon",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.0064910246156
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)"
-          ]
-        },
-        {
-          "cell_id": "B_re3e6_kOmegaSST",
-          "model": "kOmegaSST",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.0034384709177
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)"
-          ]
-        },
-        {
-          "cell_id": "B_re3e6_realizableKE",
-          "model": "realizableKE",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.0079311004343
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)"
-          ]
-        }
-      ],
-      "family": "B",
-      "group": "B_re3e6",
-      "models_converged": [],
-      "n_converged": 0,
-      "n_excluded": 4,
-      "regime": "re3e6"
+     "cell_id": "B_re1p2e7_kEpsilon",
+     "model": "kEpsilon",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.004905634694
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)"
+     ]
     },
     {
-      "bands": {
-        "x_R_over_h": {
-          "argmax": "kOmegaSST",
-          "argmin": "kEpsilon",
-          "band": [
-            3.577406,
-            7.647235
-          ],
-          "members": {
-            "kEpsilon": 3.577406,
-            "kOmegaSST": 7.647235
-          },
-          "n_converged": 2,
-          "reference": {
-            "Breuer et al. 2009 (LES)": {
-              "contained": true,
-              "value": 4.69
-            },
-            "Froehlich et al. 2005 (LES, 4.6-4.7 midpoint)": {
-              "contained": true,
-              "value": 4.65
-            },
-            "Rapp & Manhart 2011 (exp)": {
-              "contained": true,
-              "value": 4.21
-            },
-            "literature band midpoint 4.455 (PRIMARY containment test)": {
-              "contained": true,
-              "value": 4.455
-            }
-          },
-          "spread_abs": 4.069829,
-          "spread_rel": 0.725159762347856
-        },
-        "x_S_over_h": {
-          "argmax": "kEpsilon",
-          "argmin": "kOmegaSST",
-          "band": [
-            0.260358,
-            0.423019
-          ],
-          "members": {
-            "kEpsilon": 0.423019,
-            "kOmegaSST": 0.260358
-          },
-          "n_converged": 2,
-          "spread_abs": 0.162661,
-          "spread_rel": 0.47605055481820435
-        }
-      },
-      "core_min": 57.028,
-      "excluded": [
-        {
-          "cell_id": "H_re10595_SpalartAllmaras",
-          "model": "SpalartAllmaras",
-          "qoi_if_it_had_counted": {
-            "x_R_over_h": null,
-            "x_S_over_h": null
-          },
-          "reasons": [
-            "no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)"
-          ]
-        },
-        {
-          "cell_id": "H_re10595_realizableKE",
-          "model": "realizableKE",
-          "qoi_if_it_had_counted": {
-            "x_R_over_h": null,
-            "x_S_over_h": null
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)",
-            "no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)"
-          ]
-        }
-      ],
-      "family": "H",
-      "group": "H_re10595",
-      "models_converged": [
-        "kEpsilon",
-        "kOmegaSST"
-      ],
-      "n_converged": 2,
-      "n_excluded": 2,
-      "regime": "re10595"
+     "cell_id": "B_re1p2e7_kOmegaSST",
+     "model": "kOmegaSST",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.0026875770242
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)"
+     ]
     },
     {
-      "bands": {},
-      "core_min": 6.679,
-      "excluded": [
-        {
-          "cell_id": "N_a0_SpalartAllmaras",
-          "model": "SpalartAllmaras",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.014861565104,
-            "Cl": -0.00019004487318
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)",
-            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (9.79e-06 peak-to-peak over the last 50 iterations); not defensible as steady"
-          ]
-        },
-        {
-          "cell_id": "N_a0_kEpsilon",
-          "model": "kEpsilon",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.014640321612,
-            "Cl": -1.1472584084e-05
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)",
-            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.52e-07 peak-to-peak over the last 50 iterations); not defensible as steady"
-          ]
-        },
-        {
-          "cell_id": "N_a0_kOmegaSST",
-          "model": "kOmegaSST",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.0086151837566,
-            "Cl": -0.024994109559
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)",
-            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (5.95e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
-          ]
-        },
-        {
-          "cell_id": "N_a0_realizableKE",
-          "model": "realizableKE",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.0046159936704,
-            "Cl": 0.00016787582045
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)",
-            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.000849 peak-to-peak over the last 50 iterations); not defensible as steady"
-          ]
-        }
-      ],
-      "family": "N",
-      "group": "N_a0",
-      "mesh_gate_exemption": {
-        "failing": [
-          "max non-orthogonality 85.70 deg vs the 70 deg hard gate"
-        ],
-        "grid_provenance": "NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against",
-        "ruling": "R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07)",
-        "scope": "model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them",
-        "statement": "Mesh Standard hard gate EXEMPT under R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07): max non-orthogonality 85.70 deg vs the 70 deg hard gate, on the reference community's own grid -- NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against. Scope: model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them."
-      },
-      "models_converged": [],
-      "n_converged": 0,
-      "n_excluded": 4,
-      "regime": "a0"
-    },
-    {
-      "bands": {
-        "Cd": {
-          "argmax": "SpalartAllmaras",
-          "argmin": "kOmegaSST",
-          "band": [
-            0.0044951723391,
-            0.016192147753
-          ],
-          "members": {
-            "SpalartAllmaras": 0.016192147753,
-            "kEpsilon": 0.014226789043,
-            "kOmegaSST": 0.0044951723391
-          },
-          "n_converged": 3,
-          "reference": {
-            "CFL3D SST (897x257)": {
-              "contained": true,
-              "value": 0.012362110998
-            }
-          },
-          "spread_abs": 0.0116969754139,
-          "spread_rel": 1.0050643453600894
-        },
-        "Cl": {
-          "argmax": "kOmegaSST",
-          "argmin": "SpalartAllmaras",
-          "band": [
-            1.0290489902,
-            1.1164336572
-          ],
-          "members": {
-            "SpalartAllmaras": 1.0290489902,
-            "kEpsilon": 1.0801964408,
-            "kOmegaSST": 1.1164336572
-          },
-          "n_converged": 3,
-          "reference": {
-            "CFL3D SST (897x257)": {
-              "contained": true,
-              "value": 1.0778080613
-            }
-          },
-          "spread_abs": 0.08738466700000003,
-          "spread_rel": 0.08127094910308881
-        }
-      },
-      "core_min": 4.889,
-      "excluded": [
-        {
-          "cell_id": "N_a10_realizableKE",
-          "model": "realizableKE",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.12365825561,
-            "Cl": 0.53120103226
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)",
-            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.13 peak-to-peak over the last 50 iterations); not defensible as steady"
-          ]
-        }
-      ],
-      "family": "N",
-      "group": "N_a10",
-      "mesh_gate_exemption": {
-        "failing": [
-          "max non-orthogonality 85.70 deg vs the 70 deg hard gate"
-        ],
-        "grid_provenance": "NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against",
-        "ruling": "R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07)",
-        "scope": "model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them",
-        "statement": "Mesh Standard hard gate EXEMPT under R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07): max non-orthogonality 85.70 deg vs the 70 deg hard gate, on the reference community's own grid -- NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against. Scope: model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them."
-      },
-      "models_converged": [
-        "SpalartAllmaras",
-        "kEpsilon",
-        "kOmegaSST"
-      ],
-      "n_converged": 3,
-      "n_excluded": 1,
-      "regime": "a10"
-    },
-    {
-      "bands": {},
-      "core_min": 6.025,
-      "excluded": [
-        {
-          "cell_id": "N_a15_SpalartAllmaras",
-          "model": "SpalartAllmaras",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.14600431583,
-            "Cl": 0.6791396496
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)",
-            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (1.5e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
-          ]
-        },
-        {
-          "cell_id": "N_a15_kEpsilon",
-          "model": "kEpsilon",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.0350416722,
-            "Cl": 1.3954923878
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)",
-            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.3e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
-          ]
-        },
-        {
-          "cell_id": "N_a15_kOmegaSST",
-          "model": "kOmegaSST",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.028799828651,
-            "Cl": 1.3263851993
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)",
-            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (8.11e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
-          ]
-        },
-        {
-          "cell_id": "N_a15_realizableKE",
-          "model": "realizableKE",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.15548547695,
-            "Cl": 0.54889632245
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)",
-            "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.17 peak-to-peak over the last 50 iterations); not defensible as steady"
-          ]
-        }
-      ],
-      "family": "N",
-      "group": "N_a15",
-      "mesh_gate_exemption": {
-        "failing": [
-          "max non-orthogonality 85.70 deg vs the 70 deg hard gate"
-        ],
-        "grid_provenance": "NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against",
-        "ruling": "R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07)",
-        "scope": "model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them",
-        "statement": "Mesh Standard hard gate EXEMPT under R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07): max non-orthogonality 85.70 deg vs the 70 deg hard gate, on the reference community's own grid -- NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against. Scope: model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them."
-      },
-      "models_converged": [],
-      "n_converged": 0,
-      "n_excluded": 4,
-      "regime": "a15"
-    },
-    {
-      "bands": {
-        "Cd": {
-          "argmax": "kEpsilon",
-          "argmin": "realizableKE",
-          "band": [
-            0.00093508159922,
-            0.0068460023914
-          ],
-          "members": {
-            "SpalartAllmaras": 0.003680462131,
-            "kEpsilon": 0.0068460023914,
-            "kOmegaSST": 0.0036499104984,
-            "realizableKE": 0.00093508159922
-          },
-          "n_converged": 4,
-          "spread_abs": 0.0059109207921800005,
-          "spread_rel": 1.5646197294704411
-        }
-      },
-      "core_min": 1.04,
-      "excluded": [],
-      "family": "P",
-      "group": "P_re1e6",
-      "models_converged": [
-        "SpalartAllmaras",
-        "kEpsilon",
-        "kOmegaSST",
-        "realizableKE"
-      ],
-      "n_converged": 4,
-      "n_excluded": 0,
-      "regime": "re1e6"
-    },
-    {
-      "bands": {
-        "Cd": {
-          "argmax": "kEpsilon",
-          "argmin": "kOmegaSST",
-          "band": [
-            0.0022008770892,
-            0.0038508453353
-          ],
-          "members": {
-            "kEpsilon": 0.0038508453353,
-            "kOmegaSST": 0.0022008770892
-          },
-          "n_converged": 2,
-          "spread_abs": 0.0016499682460999997,
-          "spread_rel": 0.5452888055209577
-        }
-      },
-      "core_min": 3.194,
-      "excluded": [
-        {
-          "cell_id": "P_re2e7_SpalartAllmaras",
-          "model": "SpalartAllmaras",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.0023909310049
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)"
-          ]
-        },
-        {
-          "cell_id": "P_re2e7_realizableKE",
-          "model": "realizableKE",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.00020826327171
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)"
-          ]
-        }
-      ],
-      "family": "P",
-      "group": "P_re2e7",
-      "models_converged": [
-        "kEpsilon",
-        "kOmegaSST"
-      ],
-      "n_converged": 2,
-      "n_excluded": 2,
-      "regime": "re2e7"
-    },
-    {
-      "bands": {
-        "Cd": {
-          "argmax": "kEpsilon",
-          "argmin": "kOmegaSST",
-          "band": [
-            0.0027811695632,
-            0.005000818817
-          ],
-          "members": {
-            "SpalartAllmaras": 0.0028852903314,
-            "kEpsilon": 0.005000818817,
-            "kOmegaSST": 0.0027811695632
-          },
-          "n_converged": 3,
-          "reference": {
-            "CFL3D SST-V (3264 cells)": {
-              "contained": true,
-              "value": 0.00278506994
-            },
-            "FUN3D SST-V (3264 cells)": {
-              "contained": false,
-              "value": 0.002678684
-            }
-          },
-          "spread_abs": 0.0022196492538000003,
-          "spread_rel": 0.6242405342009871
-        }
-      },
-      "core_min": 1.653,
-      "excluded": [
-        {
-          "cell_id": "P_re5e6_realizableKE",
-          "model": "realizableKE",
-          "qoi_if_it_had_counted": {
-            "Cd": 0.00041704548908
-          },
-          "reasons": [
-            "residualControl not met (stopped on the backstop)"
-          ]
-        }
-      ],
-      "family": "P",
-      "group": "P_re5e6",
-      "models_converged": [
-        "SpalartAllmaras",
-        "kEpsilon",
-        "kOmegaSST"
-      ],
-      "n_converged": 3,
-      "n_excluded": 1,
-      "regime": "re5e6"
+     "cell_id": "B_re1p2e7_realizableKE",
+     "model": "realizableKE",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.018377370481
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)"
+     ]
     }
-  ],
-  "models": [
-    "kOmegaSST",
+   ],
+   "family": "B",
+   "group": "B_re1p2e7",
+   "models_converged": [],
+   "n_converged": 0,
+   "n_excluded": 4,
+   "regime": "re1p2e7"
+  },
+  {
+   "bands": {},
+   "core_min": 9.19,
+   "excluded": [
+    {
+     "cell_id": "B_re3e6_SpalartAllmaras",
+     "model": "SpalartAllmaras",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.003620157562
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)"
+     ]
+    },
+    {
+     "cell_id": "B_re3e6_kEpsilon",
+     "model": "kEpsilon",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.0064910246156
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)"
+     ]
+    },
+    {
+     "cell_id": "B_re3e6_kOmegaSST",
+     "model": "kOmegaSST",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.0034384709177
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)"
+     ]
+    },
+    {
+     "cell_id": "B_re3e6_realizableKE",
+     "model": "realizableKE",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.0079311004343
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)"
+     ]
+    }
+   ],
+   "family": "B",
+   "group": "B_re3e6",
+   "models_converged": [],
+   "n_converged": 0,
+   "n_excluded": 4,
+   "regime": "re3e6"
+  },
+  {
+   "bands": {
+    "x_R_over_h": {
+     "argmax": "kOmegaSST",
+     "argmin": "kEpsilon",
+     "band": [
+      3.577406,
+      7.647235
+     ],
+     "members": {
+      "kEpsilon": 3.577406,
+      "kOmegaSST": 7.647235
+     },
+     "n_converged": 2,
+     "reference": {
+      "Breuer et al. 2009 (LES)": {
+       "contained": true,
+       "value": 4.69
+      },
+      "Froehlich et al. 2005 (LES, 4.6-4.7 midpoint)": {
+       "contained": true,
+       "value": 4.65
+      },
+      "Rapp & Manhart 2011 (exp)": {
+       "contained": true,
+       "value": 4.21
+      },
+      "literature band midpoint 4.455 (PRIMARY containment test)": {
+       "contained": true,
+       "value": 4.455
+      }
+     },
+     "spread_abs": 4.069829,
+     "spread_rel": 0.725159762347856
+    },
+    "x_S_over_h": {
+     "argmax": "kEpsilon",
+     "argmin": "kOmegaSST",
+     "band": [
+      0.260358,
+      0.423019
+     ],
+     "members": {
+      "kEpsilon": 0.423019,
+      "kOmegaSST": 0.260358
+     },
+     "n_converged": 2,
+     "spread_abs": 0.162661,
+     "spread_rel": 0.47605055481820435
+    }
+   },
+   "core_min": 57.028,
+   "excluded": [
+    {
+     "cell_id": "H_re10595_SpalartAllmaras",
+     "model": "SpalartAllmaras",
+     "qoi_if_it_had_counted": {
+      "x_R_over_h": null,
+      "x_S_over_h": null
+     },
+     "reasons": [
+      "no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)"
+     ]
+    },
+    {
+     "cell_id": "H_re10595_realizableKE",
+     "model": "realizableKE",
+     "qoi_if_it_had_counted": {
+      "x_R_over_h": null,
+      "x_S_over_h": null
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)",
+      "no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)"
+     ]
+    }
+   ],
+   "family": "H",
+   "group": "H_re10595",
+   "models_converged": [
+    "kEpsilon",
+    "kOmegaSST"
+   ],
+   "n_converged": 2,
+   "n_excluded": 2,
+   "regime": "re10595"
+  },
+  {
+   "bands": {},
+   "core_min": 6.679,
+   "excluded": [
+    {
+     "cell_id": "N_a0_SpalartAllmaras",
+     "model": "SpalartAllmaras",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.014861565104,
+      "Cl": -0.00019004487318
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)",
+      "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (9.79e-06 peak-to-peak over the last 50 iterations); not defensible as steady"
+     ]
+    },
+    {
+     "cell_id": "N_a0_kEpsilon",
+     "model": "kEpsilon",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.014640321612,
+      "Cl": -1.1472584084e-05
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)",
+      "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.52e-07 peak-to-peak over the last 50 iterations); not defensible as steady"
+     ]
+    },
+    {
+     "cell_id": "N_a0_kOmegaSST",
+     "model": "kOmegaSST",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.0086151837566,
+      "Cl": -0.024994109559
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)",
+      "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (5.95e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+     ]
+    },
+    {
+     "cell_id": "N_a0_realizableKE",
+     "model": "realizableKE",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.0046159936704,
+      "Cl": 0.00016787582045
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)",
+      "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.000849 peak-to-peak over the last 50 iterations); not defensible as steady"
+     ]
+    }
+   ],
+   "family": "N",
+   "group": "N_a0",
+   "mesh_gate_exemption": {
+    "failing": [
+     "max non-orthogonality 85.70 deg vs the 70 deg hard gate"
+    ],
+    "grid_provenance": "NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against",
+    "ruling": "R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07)",
+    "scope": "model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them",
+    "statement": "Mesh Standard hard gate EXEMPT under R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07): max non-orthogonality 85.70 deg vs the 70 deg hard gate, on the reference community's own grid -- NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against. Scope: model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them."
+   },
+   "models_converged": [],
+   "n_converged": 0,
+   "n_excluded": 4,
+   "regime": "a0"
+  },
+  {
+   "bands": {
+    "Cd": {
+     "argmax": "SpalartAllmaras",
+     "argmin": "kOmegaSST",
+     "band": [
+      0.0044951723391,
+      0.016192147753
+     ],
+     "members": {
+      "SpalartAllmaras": 0.016192147753,
+      "kEpsilon": 0.014226789043,
+      "kOmegaSST": 0.0044951723391
+     },
+     "n_converged": 3,
+     "reference": {
+      "CFL3D SST (897x257)": {
+       "contained": true,
+       "value": 0.012362110998
+      }
+     },
+     "spread_abs": 0.0116969754139,
+     "spread_rel": 1.0050643453600894
+    },
+    "Cl": {
+     "argmax": "kOmegaSST",
+     "argmin": "SpalartAllmaras",
+     "band": [
+      1.0290489902,
+      1.1164336572
+     ],
+     "members": {
+      "SpalartAllmaras": 1.0290489902,
+      "kEpsilon": 1.0801964408,
+      "kOmegaSST": 1.1164336572
+     },
+     "n_converged": 3,
+     "reference": {
+      "CFL3D SST (897x257)": {
+       "contained": true,
+       "value": 1.0778080613
+      }
+     },
+     "spread_abs": 0.08738466700000003,
+     "spread_rel": 0.08127094910308881
+    }
+   },
+   "core_min": 4.889,
+   "excluded": [
+    {
+     "cell_id": "N_a10_realizableKE",
+     "model": "realizableKE",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.12365825561,
+      "Cl": 0.53120103226
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)",
+      "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.13 peak-to-peak over the last 50 iterations); not defensible as steady"
+     ]
+    }
+   ],
+   "family": "N",
+   "group": "N_a10",
+   "mesh_gate_exemption": {
+    "failing": [
+     "max non-orthogonality 85.70 deg vs the 70 deg hard gate"
+    ],
+    "grid_provenance": "NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against",
+    "ruling": "R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07)",
+    "scope": "model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them",
+    "statement": "Mesh Standard hard gate EXEMPT under R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07): max non-orthogonality 85.70 deg vs the 70 deg hard gate, on the reference community's own grid -- NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against. Scope: model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them."
+   },
+   "models_converged": [
     "SpalartAllmaras",
     "kEpsilon",
+    "kOmegaSST"
+   ],
+   "n_converged": 3,
+   "n_excluded": 1,
+   "regime": "a10"
+  },
+  {
+   "bands": {},
+   "core_min": 6.025,
+   "excluded": [
+    {
+     "cell_id": "N_a15_SpalartAllmaras",
+     "model": "SpalartAllmaras",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.14600431583,
+      "Cl": 0.6791396496
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)",
+      "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (1.5e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+     ]
+    },
+    {
+     "cell_id": "N_a15_kEpsilon",
+     "model": "kEpsilon",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.0350416722,
+      "Cl": 1.3954923878
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)",
+      "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (2.3e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+     ]
+    },
+    {
+     "cell_id": "N_a15_kOmegaSST",
+     "model": "kOmegaSST",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.028799828651,
+      "Cl": 1.3263851993
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)",
+      "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (8.11e-05 peak-to-peak over the last 50 iterations); not defensible as steady"
+     ]
+    },
+    {
+     "cell_id": "N_a15_realizableKE",
+     "model": "realizableKE",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.15548547695,
+      "Cl": 0.54889632245
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)",
+      "workflow settle/extraction rule fired (not this batch's gate): coarse: Cd still moving (0.17 peak-to-peak over the last 50 iterations); not defensible as steady"
+     ]
+    }
+   ],
+   "family": "N",
+   "group": "N_a15",
+   "mesh_gate_exemption": {
+    "failing": [
+     "max non-orthogonality 85.70 deg vs the 70 deg hard gate"
+    ],
+    "grid_provenance": "NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against",
+    "ruling": "R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07)",
+    "scope": "model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them",
+    "statement": "Mesh Standard hard gate EXEMPT under R12, docs/charters/SUPERVISOR_RULINGS.md (ruled 2026-08-07): max non-orthogonality 85.70 deg vs the 70 deg hard gate, on the reference community's own grid -- NASA Langley Turbulence Modeling Resource NACA 0012 C-grid, n0012_113-33.p3dfmt as distributed (turbmodels.larc.nasa.gov, mirror tmbwg.github.io/turbmodels) -- the verification community's canonical grid family, the same family whose 897x257 member carries the published CFL3D references this batch compares against. Scope: model-form banding only; physics gates and credential verdicts still require compliant meshes and this exemption never travels to them."
+   },
+   "models_converged": [],
+   "n_converged": 0,
+   "n_excluded": 4,
+   "regime": "a15"
+  },
+  {
+   "bands": {
+    "Cd": {
+     "argmax": "kEpsilon",
+     "argmin": "realizableKE",
+     "band": [
+      0.00093508159922,
+      0.0068460023914
+     ],
+     "members": {
+      "SpalartAllmaras": 0.003680462131,
+      "kEpsilon": 0.0068460023914,
+      "kOmegaSST": 0.0036499104984,
+      "realizableKE": 0.00093508159922
+     },
+     "n_converged": 4,
+     "spread_abs": 0.0059109207921800005,
+     "spread_rel": 1.5646197294704411
+    }
+   },
+   "core_min": 1.04,
+   "excluded": [],
+   "family": "P",
+   "group": "P_re1e6",
+   "models_converged": [
+    "SpalartAllmaras",
+    "kEpsilon",
+    "kOmegaSST",
     "realizableKE"
-  ],
-  "rule": "min/max over CONVERGED cells only; a group with fewer than two converged members has no band. Excluded cells are named with their reasons. The band is an interval and is never converted to a sigma or folded into an RSS total.",
-  "title": "Model-form band, inter-model spread on validated cases"
+   ],
+   "n_converged": 4,
+   "n_excluded": 0,
+   "regime": "re1e6"
+  },
+  {
+   "bands": {
+    "Cd": {
+     "argmax": "kEpsilon",
+     "argmin": "kOmegaSST",
+     "band": [
+      0.0022008770892,
+      0.0038508453353
+     ],
+     "members": {
+      "kEpsilon": 0.0038508453353,
+      "kOmegaSST": 0.0022008770892
+     },
+     "n_converged": 2,
+     "spread_abs": 0.0016499682460999997,
+     "spread_rel": 0.5452888055209577
+    }
+   },
+   "core_min": 3.194,
+   "excluded": [
+    {
+     "cell_id": "P_re2e7_SpalartAllmaras",
+     "model": "SpalartAllmaras",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.0023909310049
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)"
+     ]
+    },
+    {
+     "cell_id": "P_re2e7_realizableKE",
+     "model": "realizableKE",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.00020826327171
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)"
+     ]
+    }
+   ],
+   "family": "P",
+   "group": "P_re2e7",
+   "models_converged": [
+    "kEpsilon",
+    "kOmegaSST"
+   ],
+   "n_converged": 2,
+   "n_excluded": 2,
+   "regime": "re2e7"
+  },
+  {
+   "bands": {
+    "Cd": {
+     "argmax": "kEpsilon",
+     "argmin": "kOmegaSST",
+     "band": [
+      0.0027811695632,
+      0.005000818817
+     ],
+     "members": {
+      "SpalartAllmaras": 0.0028852903314,
+      "kEpsilon": 0.005000818817,
+      "kOmegaSST": 0.0027811695632
+     },
+     "n_converged": 3,
+     "reference": {
+      "CFL3D SST-V (3264 cells)": {
+       "contained": true,
+       "value": 0.00278506994
+      },
+      "FUN3D SST-V (3264 cells)": {
+       "contained": false,
+       "value": 0.002678684
+      }
+     },
+     "spread_abs": 0.0022196492538000003,
+     "spread_rel": 0.6242405342009871
+    }
+   },
+   "core_min": 1.653,
+   "excluded": [
+    {
+     "cell_id": "P_re5e6_realizableKE",
+     "model": "realizableKE",
+     "qoi_if_it_had_counted": {
+      "Cd": 0.00041704548908
+     },
+     "reasons": [
+      "residualControl not met (stopped on the backstop)"
+     ]
+    }
+   ],
+   "family": "P",
+   "group": "P_re5e6",
+   "models_converged": [
+    "SpalartAllmaras",
+    "kEpsilon",
+    "kOmegaSST"
+   ],
+   "n_converged": 3,
+   "n_excluded": 1,
+   "regime": "re5e6"
+  }
+ ],
+ "models": [
+  "kOmegaSST",
+  "SpalartAllmaras",
+  "kEpsilon",
+  "realizableKE"
+ ],
+ "rule": "min/max over CONVERGED cells only; a group with fewer than two converged members has no band. Excluded cells are named with their reasons. The band is an interval and is never converted to a sigma or folded into an RSS total.",
+ "title": "Model-form band, inter-model spread on validated cases"
 }

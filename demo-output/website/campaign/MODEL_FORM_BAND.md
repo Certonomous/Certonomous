@@ -6,6 +6,8 @@ Generated 2026-08-08T23:55:14Z by `sdk/scripts/model_form_batch.py --band`. Desi
 
 The band is the min/max across CONVERGED members of a group. An unconverged cell is excluded and named -- the NASA hump lesson: the band that failed to contain the experiment was the band that still had an unconverged member in it.
 
+**Lever-activity caveat (charter v1.5 section 9, added 2026-08-10 by chief ruling on the batch dead-lever audit).** A band means nothing unless its members differ ONLY in the closure. For the 32 of 36 cells that predate the launcher lever echo (adopted 2026-08-08, `ea0f7d9d`), that premise is asserted from the runner's construction and is NOT proven from artifacts: stock `simpleFoam` never echoes `fvSchemes`, `fvSolution` or boundary-condition types, so no archived log can confirm or deny that the non-closure settings were identical across members. The closure lever itself IS proven for all 36 (each cell's `Selecting RAS turbulence model` banner matches its record). Positive control: the 4 cells that DO carry the echo — `B_re1p2e7_kEpsilon`, `B_re1p2e7_kOmegaSST`, `B_re1p2e7_realizableKE`, `H_re10595_kEpsilon` — prove the premise outright, because the echo writes the dictionaries' full text into the log. Ruling: the bands STAND with this caveat on their face; no re-run is justified for a premise the runner's code establishes by construction. See `DEAD_LEVER_AUDIT_BATCH_2026-08-10.md` finding U-1.
+
 ## B_re1p2e7 (0 converged, 4 excluded, 11.81 core-min)
 
 

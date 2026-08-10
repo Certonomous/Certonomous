@@ -54,16 +54,41 @@ any record's self-description.
 
 | classification | pairs | note |
 | --- | --- | --- |
-| **VERIFIED** (log line quoted) | **133** | 130 MODEL_FORM/FPE + 3 mega-batch |
-| **UNVERIFIABLE-FROM-LOGS** | **67** | 62 of them merge into ONE structural finding (U-1); 5 distinct others |
+| **VERIFIED** (log line quoted) | **165** | 162 MODEL_FORM/FPE + 3 mega-batch |
+| **UNVERIFIABLE-FROM-LOGS** | **69** | 64 of them merge into ONE structural finding (U-1); 5 distinct others |
 | **FOUND-DEAD** | **0** | no lever anywhere in the batch family was set-but-not-run |
 
 **Headline: no dead lever was found in the batch family.** The two conclusions
 that most needed proof — the model-form bands' closure attribution and the
 N_a10 third member's admission — both verify cleanly and independently against
-the archived logs. The audit's real product is the unverifiable list: **62 of
-the 67 are one premise** (that the band's members differ only in closure), and
+the archived logs. The audit's real product is the unverifiable list: **64 of
+the 69 are one premise** (that the band's members differ only in closure), and
 one is a live record whose corroborating log was destroyed by a later rerun.
+
+---
+
+## Dated correction, 2026-08-10 (same day, by the author of this file)
+
+The counts above were corrected within hours of first publication, while
+applying chief ruling 2 of 2026-08-10. **The first published version read 133
+VERIFIED / 67 UNVERIFIABLE and described U-1 as affecting "31 of 36" cells. Both
+were arithmetic errors in this audit, not new evidence.**
+
+- Exactly **4** governing `record.json` files carry `levers_verified_active`
+  (`B_re1p2e7_kEpsilon`, `B_re1p2e7_kOmegaSST`, `B_re1p2e7_realizableKE`,
+  `H_re10595_kEpsilon`), not 5. The 5th echo record is
+  `H_re10595_realizableKE/record_out_of_scope_…json` — the leaked rerun of U-2,
+  which is not a governing record. So U-1 affects **32** cells, and the
+  affected-cell list printed in U-1 always had 32 entries: the prose disagreed
+  with this audit's own list.
+- The VERIFIED total under-counted its own table: the rows sum to 162 for
+  MODEL_FORM plus 3 for mega-batch. `residual_control_met` is true on 14 cells,
+  not 15.
+
+No classification changed and no conclusion moves. Recorded here rather than
+silently repaired, on the same principle that put the withdrawn first-pass
+headline on this file's face: an audit that hides its own corrections is asking
+to be trusted on exactly the thing it failed at.
 
 ---
 
@@ -101,7 +126,7 @@ and all 36 per-cell converged/excluded verdicts.
 | Closure / RAS model selection | **36** | VERIFIED | Every cell's `record.json` `"model"` matches the `Selecting RAS turbulence model X` banner in its own log, 36 for 36. `N_a10_SpalartAllmaras/log.simpleFoam.gz:45`, `N_a10_kEpsilon/log.simpleFoam.gz:45`, `N_a10_kOmegaSST/log.simpleFoam.gz:45`, `H_re10595_kEpsilon/log.simpleFoam.gz:31576`, `P_re5e6_kOmegaSST/log.simpleFoam.gz:45` |
 | `printCoeffs` coefficient dump | 36 | VERIFIED | `P_re5e6_kOmegaSST/log.simpleFoam.gz:43-52` — `Selecting incompressible transport model Newtonian` (`:43`), `Selecting RAS turbulence model kOmegaSST` (`:45`), `printCoeffs on;` (`:51`), `alphaK1 0.85;` (`:52`) |
 | Stop condition (backstop vs residualControl) | **36** → 35 | VERIFIED | Systematic cross-check of `record.json` `iterations` against the log's own last `Time = N`: **35 of 36 agree exactly.** The single mismatch is U-2. |
-| `residualControl` convergence gate | 15 | VERIFIED | `SIMPLE solution converged in N iterations` matches the record's iteration count on every converged cell. `N_a10_kEpsilon/log.simpleFoam.gz:296323` (10431), `N_a10_kOmegaSST/log.simpleFoam.gz:229971` (8210), `H_re10595_kEpsilon/log.simpleFoam.gz:145855` (8780), `H_re10595_kOmegaSST/log.simpleFoam.gz:78269` (5997) |
+| `residualControl` convergence gate | 14 | VERIFIED | `SIMPLE solution converged in N iterations` matches the record's iteration count on every converged cell. `N_a10_kEpsilon/log.simpleFoam.gz:296323` (10431), `N_a10_kOmegaSST/log.simpleFoam.gz:229971` (8210), `H_re10595_kEpsilon/log.simpleFoam.gz:145855` (8780), `H_re10595_kOmegaSST/log.simpleFoam.gz:78269` (5997) |
 | Iteration backstop 12,000, active and binding | 1 | VERIFIED | `N_a10_SpalartAllmaras/log.simpleFoam.gz:324077` reads `Time = 12000` with **no** convergence banner anywhere in the file; record carries `iterations: 12000`, `residual_control_met: false`. The backstop stopped the run. |
 | Raised cap 30,000 (family-H extension) | 1 | VERIFIED | `H_re10595_SpalartAllmaras/log.simpleFoam.gz:148550` — `SIMPLE solution converged in 12361 iterations`. 12,361 lies beyond the old 12,000 cap, so the raised cap was necessarily active. Independently reproduces the prereg's own claim at `MODEL_FORM_H_EXTENSION_PREREGISTRATION.md:136-141`. |
 | `potentialFoam` initialization | 15 | VERIFIED | A separate `log.potentialFoam` is archived per cell: 3 × `B_re1p2e7_*` and all 12 `N_a*_*`. |
@@ -130,13 +155,13 @@ reproduces from the archived log.
 
 | lever | pairs | class | evidence |
 | --- | --- | --- | --- |
-| Seeded init `sst_seeded_kepsilon` (donor field, not a uniform seed) | 5 | VERIFIED | The launcher echo embeds the initial fields' full text in the log. `H_re10595_kEpsilon/log.simpleFoam.gz:242+` — `0/epsilon` is `nonuniform List<scalar>` of **15600** per-cell values; `:15861+` — `0/k` likewise. A uniform seed would read `uniform`. The donor is named at `H_re10595_kEpsilon/record.json` (`F6b_runs/medium/5997`). |
-| `levers_verified_active`, hash-bound | 5 | VERIFIED (mechanical) | `H_re10595_kEpsilon/record.json:20-74`, basis `"launcher echo, hash-bound to the dictionaries that ran (Verification Charter v1.5 section 9)"`. Same on the 3 `B_re1p2e7_*` rescue records and the 1 out-of-scope `H_re10595_realizableKE` record. |
+| Seeded init `sst_seeded_kepsilon` (donor field, not a uniform seed) | 4 | VERIFIED | The launcher echo embeds the initial fields' full text in the log. `H_re10595_kEpsilon/log.simpleFoam.gz:242+` — `0/epsilon` is `nonuniform List<scalar>` of **15600** per-cell values; `:15861+` — `0/k` likewise. A uniform seed would read `uniform`. The donor is named at `H_re10595_kEpsilon/record.json` (`F6b_runs/medium/5997`). |
+| `levers_verified_active`, hash-bound | 4 | VERIFIED (mechanical) | `H_re10595_kEpsilon/record.json:20-74`, basis `"launcher echo, hash-bound to the dictionaries that ran (Verification Charter v1.5 section 9)"`. Same on the 3 `B_re1p2e7_*` rescue records. A 5th echo record exists but is NOT a governing record: `H_re10595_realizableKE/record_out_of_scope_20260808T235259Z.json`, the leaked rerun of U-2. |
 
 **This is the family's good news, and it is worth stating plainly.** The
 lever-echo mechanism adopted at `ea0f7d9d` does not merely hash the dictionaries
 — it writes their **entire text** into the solver log, delimited by
-`==== LEVER-ECHO BEGIN ====` / `END`. For the five cells that carry it, levers
+`==== LEVER-ECHO BEGIN ====` / `END`. For the four governing cells that carry it, levers
 OpenFOAM structurally never echoes become log-provable:
 
 ```
@@ -148,8 +173,9 @@ H_re10595_kEpsilon/log.simpleFoam.gz:31489  bottomWall { type nutLowReWallFuncti
 H_re10595_kEpsilon/log.simpleFoam.gz:31504  bottomWall { type omegaWallFunction; value uniform 0.110227…; }
 ```
 
-Those three wall-function lines verify, for these five cells only, three of the
-four boundary-condition levers declared at `MODEL_FORM_BATCH_DESIGN.md:335-338`.
+Those three wall-function lines verify, for these four governing cells only,
+three of the four boundary-condition levers declared at
+`MODEL_FORM_BATCH_DESIGN.md:335-338`.
 **Where `levers_verified_active` is present the verification is mechanical and
 this audit says so rather than re-deriving it.**
 
@@ -165,7 +191,7 @@ this audit says so rather than re-deriving it.**
 
 ## UNVERIFIABLE-FROM-LOGS — the list
 
-### U-1. The band's "only the closure differs" premise, 31 of 36 members (62 pairs)
+### U-1. The band's "only the closure differs" premise, 32 of 36 members (64 pairs)
 
 **This is the audit's principal finding.** A model-form band means nothing
 unless its members differ *only* in the closure. That sameness is asserted in
@@ -183,13 +209,13 @@ zgrep -c "WallFunction|lowReCorrection"  N_a10_kEpsilon/log.simpleFoam.gz  →  
 zgrep -c "linearUpwind|Gauss|divScheme"  N_a10_kEpsilon/log.simpleFoam.gz  →  0
 ```
 
-For the 5 lever-echo cells the premise is fully proven (above). For the other
-**31** it cannot be proven or disproven from the logs — 31 cells × 2 lever
-classes (schemes/solution; wall-function BCs) = **62 pairs**. Nothing suggests
+For the 4 lever-echo cells the premise is fully proven (above). For the other
+**32** it cannot be proven or disproven from the logs — 32 cells × 2 lever
+classes (schemes/solution; wall-function BCs) = **64 pairs**. Nothing suggests
 the premise is false; it is simply unevidenced, and per charter §9 it must ride
 on the bands' faces as unverifiable-from-logs.
 
-The 31 predate `ea0f7d9d` (2026-08-08 22:59:34Z) and **can never be repaired
+The 32 predate `ea0f7d9d` (2026-08-08 22:59:34Z) and **can never be repaired
 retroactively** — `sdk/chief_engineer/lever_echo.py`'s own docstring concedes
 that for these classes "no discipline at record-writing time can recover the
 evidence afterwards." The only route to proof is re-running the cells under the
