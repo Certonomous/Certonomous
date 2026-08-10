@@ -96,3 +96,106 @@ string** for every arm, setsid + `.t0/.rc/.t1` ledger, polled inline, explicit h
 outlives the turn. Arms run **sequentially** (the memory guard forces ordering; the graded metric
 is per-arm and contention-insensitive). Results appended here as §6; docket updated inline, own
 entry only. R11: shipped-toolchain verdicts stand unchanged beside every patched-image result.
+
+---
+
+# §6. RESULTS — **both arms fail. Eleventh and twelfth eliminations.**
+
+Both ran on `dafoam-kspopts:v1`, `DAFOAM_SUBPC_TYPE` unset, cold-started, with the identical
+base script as the control — so the only difference is `PETSC_OPTIONS`. **Both arms report the
+same iteration-0 residual as the control, `2.121343646203e-02`, which establishes
+commensurability directly rather than by assumption.**
+
+## Arm 1 — `-ksp_type lgmres`: FAILS
+
+**Verification readback (Binding 2), quoted before grading:**
+```
+KSP Object: 4 MPI processes
+  type: lgmres
+    restart=200, ... aug. dimension=2
+  maximum iterations=400, tolerances: relative=0.0001
+  right preconditioning
+  using UNPRECONDITIONED norm type for convergence test
+```
+The type took effect; **restart=200 was preserved because the arm carried it explicitly** — the
+Gate B lesson doing exactly the job it was included for — and the norm type matches the control,
+so the residuals are directly comparable.
+
+**Result: `-3` at 400 iterations, residual `8.236875832365e-02`.** That is **5.10x WORSE than the
+control** (`1.615428631404e-02`) and **3.88x above its own iteration-0 value**. 291 s = 19.4
+core-min.
+
+*Anomaly disclosed rather than binned:* a residual rising above its own starting value is not
+what a GMRES-family method should produce, so this is flagged rather than quietly filed as a
+stall. Either the solve genuinely diverged, or LGMRES's augmented recurrence reports an
+intermediate norm differently in this PETSc build. **This arm cannot separate those**, and it
+does not need to for its verdict: under either reading the method did not converge and did not
+descend. Graded a STALL per Binding 3.
+
+## Arm 2 — `-pc_type gamg -pc_gamg_sym_graph true`: FAILS
+
+**Verification readback:**
+```
+PC Object: 4 MPI processes
+  type: gamg
+    type is MULTIPLICATIVE, levels=4 cycles=v
+```
+The option took effect and GAMG built a **4-level hierarchy** — confirming the patch unlocks the
+**preconditioner family**, not just the Krylov type.
+
+**Result: `PetscConvergedReason: -5` at 200 iterations, residual `7.554080154832e+179`.** The
+solve diverged catastrophically: barely moving at iteration 100 (`2.120914790716e-02`, from
+`2.121343646203e-02`) and then exploding by 180 orders of magnitude.
+
+**Memory was never a factor** — peak **7.0 GiB**, host never strained. *Disclosed launcher
+discrepancy:* the shared runner hardcodes `--memory=16g` while §4 stated a 22 GiB cap against a
+predicted 13–15 GiB peak. The tighter cap was **never approached** (7.0 of 16 GiB), so it had no
+effect on the result — but the mismatch between what I pre-registered and what I ran is recorded
+rather than passed over.
+
+**Arm stopped after its graded solve.** CD — the graded solve throughout this campaign — had
+returned `-5`; the CL solve was continuing on this family's known `-5` false-success path and
+would have added ~30 core-min for no additional information. Ledger rc=137 at 1,575 s. **This
+arm therefore billed 105.0 core-min against 25.9 estimated**, the overrun being GAMG's setup and
+per-iteration cost, which I had no measured basis for and under-priced from the ILU baseline.
+
+## §6.1 Verdict, bounded exactly as Binding 1 requires
+
+**Neither previously-unreachable remedy converges rung 3.** The elimination table gains its
+**eleventh (augmented-restart Krylov)** and **twelfth (algebraic multigrid)** entries. Per
+Binding 1, this is *not* vindication of the ceiling: the shipped-toolchain verdict already stood
+on its own and is untouched by anything run on a patched image.
+
+**Scope, stated so nobody over-reads it in either direction:** this tested **two off-the-shelf
+members of the class, at documented defaults**, on a nonsymmetric transonic adjoint. It did
+**not** test the class in a tuned form — GAMG's defaults target elliptic/SPD-like operators even
+with `sym_graph`, and a convection-dominated compressible adjoint is outside that envelope, so
+arm 2 is evidence that **off-the-shelf AMG fails here**, not that a coarse-space method cannot
+work. A physics-appropriate coarse space, or AMG with smoothers chosen for this operator, remains
+untested and is not cheap.
+
+**What the arms did prove beyond their own verdicts:** the patched escape hatch genuinely works
+on both axes — a Krylov type (`lgmres`) and an entire preconditioner family (`gamg`, 4 levels)
+were selected at runtime on a build where both were previously unreachable. **That is the defect
+report's cost made concrete**: a user reaching for either of these on the shipped build gets
+silence, and the two arms above are what they would have been unable to try.
+
+**A third instance of the campaign's standing caveat:** the Krylov condition estimate again
+failed to predict convergence. Arm 1 reported `sMax/sMin` 2.70e+05 and arm 2 7.71e+17, against
+the control's 9.57e+10 — six orders of spread in the estimate across arms whose convergence
+behaviour ranged only from *stalling* to *worse*. With fill-1's 10^7 improvement buying 1.9x,
+that is now three independent arms saying the same thing: **this estimate is not the instrument
+for this question.**
+
+## §6.2 Spend
+
+| arm | core-min | vs estimate |
+|---|---|---|
+| arm 1 lgmres | 19.4 | 25.9 — under |
+| arm 2 gamg | 105.0 | 25.9 — **4.1x over** |
+| **stage 2 total** | **124.4** | ~52 — **2.4x over** |
+
+The overrun is arm 2 alone and its cause is nameable: I priced both arms off the ILU baseline's
+per-iteration cost, and GAMG's hierarchy setup plus V-cycle cost has no relation to it. **The
+correction for any future AMG arm: price the setup phase separately, and cap on wall rather than
+on iterations when the per-iteration cost is unknown.**
