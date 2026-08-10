@@ -232,8 +232,16 @@ amendment, so nothing signals that §3 is superseded. Read the tail, not §3.
   with evidence linked; `[-]` = attempted, blocked or failed with diagnosis;
   `[~]` = done in substance, pending adversarial verification (assume wrong
   until defended). Every cross-off adds a new item.
-- **Lines 11-261.** Sections 4A-4I, the actual checklist. 57 items at last
-  count: 32 done, 14 open, 11 blocked.
+- **Lines 11-261.** Sections 4A-4I, the actual checklist. **60 items measured at
+  2026-08-10 21:16 UTC: 33 `[x]`, 14 `[ ]`, 12 `[-]`, 1 `[~]`.**
+  *[CORRECTED 2026-08-10 21:16 — this line first read "57 items: 32 done, 14
+  open, 11 blocked", a count inherited from a survey taken twenty minutes
+  earlier and not re-measured before writing. It was wrong in three of four
+  figures by the time it was committed, because the product list is written
+  continuously and grew by 27 lines during the survey itself. The original is
+  retained here rather than overwritten, per §8.1, and it is left in place
+  deliberately: it is this document's own first instance of the defect it
+  documents, and a count copied without a stamp is exactly D-5's mechanism.]*
 - **The last three `###` changelog entries only.** Not the whole changelog: it
   holds 53 entries of which 44 are dated 2026-08-10, disambiguated by
   parentheticals like "(closing 19)" and "(night, last)" that are not unique
