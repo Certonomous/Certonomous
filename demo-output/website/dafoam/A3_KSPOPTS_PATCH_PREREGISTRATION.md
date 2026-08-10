@@ -98,3 +98,85 @@ polled inline, explicit handoff if a run outlives the turn. Memory guard unchang
 under 6 GB; 16g cap). **R11 discipline: the shipped-toolchain verdicts stand unchanged; every
 patched-image result is recorded beside them, never in place of them.** The patch is committed
 to the repo beside `subpclu_patch/DALinearEqn_subpclu.patch`.
+
+---
+
+# §6. RESULTS — **both gates PASS. Fix (a) works and is behaviour-neutral by default.**
+
+Image built and tagged **`dafoam-kspopts:v1`** (`d9d2aed02e36`, 10 GB). **`dafoam-subpclu:v1`
+(`ba2d16ab9d57`) and `dafoam/opt-packages:latest` (`9d45679d55fd`) are untouched and reachable** —
+verified by `docker images` after the commit. Build: all three AD targets rebuilt rc=0 in **29 s
+wall at `-j 8`** (original 9 s, ADR+ADF 20 s); `WM_AD_MODE` restored to its original `ADF`;
+`libDASolver{,ADR,ADF}.so` all relinked. Patch archived at
+`kspopts_patch/DALinearEqn_kspopts.patch` (3f631c4d) beside the subpclu one — 28 lines, one call
+relocated. Every arm below records its image tag in its own `lever_echo.txt`.
+
+## GATE A — REGRESSION: **PASS, bit-identical**
+
+Rung 1's converged arm on `dafoam-kspopts:v1`, `PETSC_OPTIONS` unset, `DAFOAM_SUBPC_TYPE` unset,
+cold-started (`lever_echo.txt` records `IMAGE=dafoam-kspopts:v1`, `PETSC_OPTIONS=[]`):
+
+```
+**Completed**! Total iterations: 368. PetscConvergedReason: 2.   (CD)
+**Completed**! Total iterations: 383. PetscConvergedReason: 2.   (CL)
+Time step continuity errors : sum local = 0.5969274433533561
+```
+
+**368 / 383, reason 2 on both — exactly the counts measured on the shipped-lineage image
+(11b90d25) and reproduced twice since**, with the cold signature matching to all 16 digits.
+rc=0, 130 s = 8.67 core-min.
+
+**This is the answer to the maintainer's first objection, by measurement: honouring
+`KSPSetFromOptions` changes nothing when no options are set.** Iteration counts are the sharpest
+equality test available — any change in the assembled solver stack would move them, and they did
+not move at all. The override is **not** load-bearing, so fix (a) stands as the recommended
+remedy and does not need re-grading.
+
+## GATE B — RESTORATION: **PASS**
+
+Same case, same image, `PETSC_OPTIONS="-ksp_type fgmres -ksp_view"`:
+
+```
+KSP Object: 4 MPI processes
+  type: fgmres
+    restart=30, using Classical (unmodified) Gram-Schmidt Orthogonalization ...
+```
+
+**`type: fgmres`, where the shipped build reports `type: gmres`.** The escape hatch is open:
+`-ksp_type` now takes effect. 126 s = 8.4 core-min.
+
+### Two findings from Gate B that belong in the upstream report
+
+1. **Overriding the type resets PETSc-level settings that DAFoam applied to the old object.** The
+   view reports `restart=30` — PETSc's default — not the `gmresRestart: 200` from `daOptions`,
+   because `KSPSetType` rebuilds the KSP's internal state and DAFoam's `KSPGMRESSetRestart(200)`
+   ran earlier against the previous type. Consequence, and it is correct "user override wins"
+   semantics rather than a bug: **a user who overrides `-ksp_type` must also pass
+   `-ksp_gmres_restart` (and any other GMRES-family setting) if they want DAFoam's values.**
+   Gate B's run then hit `-3` at 1000 iterations, which is exactly what restart 30 buys against
+   restart 200's 368 — the non-convergence is the small restart, not the patch.
+2. **The `printInfo` echo remains stale**, as disclosed in §1: with `-ksp_type fgmres` in force,
+   the log still prints `Solver Type: gmres` and `GMRES Restart: 200` from `daOptions`. This is
+   the L-40 hazard in its purest form — the log names a switch that did not run. **The upstream
+   recommendation is therefore fix (a) PLUS an effective-value echo** (`KSPGetType`/`PCGetType`
+   after the options call), and the defect record now says so with this run as its evidence.
+
+## §6.1 Spend
+
+| step | core-min |
+|---|---|
+| patch + rebuild (3 AD targets, 29 s at `-j 8`) | 3.87 |
+| image commit (31 s) | 0.52 |
+| Gate A regression | 8.67 |
+| Gate B restoration | 8.40 |
+| **total** | **21.5 against ~15 approved (1.4x)** |
+
+The overrun is Gate B: I priced it as a seconds-long 1-iteration `-ksp_view` check and ran the
+full solve instead. That was worth it — the full run is what produced the `restart=30` finding
+and the stale-echo evidence, both of which go upstream — but it was more than I said, and it is
+recorded as an overrun rather than folded into the estimate.
+
+**Stage 2 is now unblocked and is NOT started**: the previously-unreachable remedy class
+(`lgmres`/`dgmres`, `gamg`, `fieldsplit`, `sub_pc_type lu`) is reachable on this image, and per
+its own framing must be run as a first honest test of that class, not as a rescue attempt — and
+with the Gate B lesson applied: any `-ksp_type` override must carry its own restart setting.
