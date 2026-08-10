@@ -1267,6 +1267,34 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   absent line and an unrecorded value are indistinguishable to a later reader. A resource cap is a lever, and charter
   §9 says a lever is verified from the execution, never the declaration. Suite 1258/0, 0 core-min. Guidelines v1.9 §10.
 
+### 2026-08-10 (closing 8) — the runner was substituting its own values, and the policy that overrode a pre-registration is in no version control
+
+- **A SILENT RANK DOWNGRADE, worse than the instance that prompted the sweep** (16c3047e, suite 1258/0, zero
+  core-min): the container runner carried `min(DEFAULT_RANKS, max(1, ranks))` — ask for MORE ranks than the default
+  and you silently get fewer, **while the pre-registration and the core-minute figure (`wall × ranks / 60`) both go
+  on citing the number you asked for.** The reported memory case was a default; this was an ACTIVE CLAMP, and it sits
+  directly under the lab's cost arithmetic. Verified harmless in fact — both existing callers pass the default, so no
+  published core-minute figure is affected — and now a stated refusal naming the alternative rather than a silent
+  substitution. Asking for FEWER ranks is still honoured.
+- **`--cpus` was never set at all**, while DAFoam pre-registrations have been declaring `--cpus=3`/`--cpus=4` for
+  weeks. Every one of those declarations was unenforced and nothing said so. Now honoured when given.
+- **The reported instance is not in version-controlled code at all — and that is the bigger finding.** No
+  `--memory=16g` literal exists in `sdk/` or `scripts/`; the cap lives in **four UNTRACKED shell scripts in the run
+  tree**. So the pre-registration is version-controlled and **the thing that overrode it is not**: no review, no
+  diff, no history covers the numbers binding every A3 arm. Routed to the DAFoam family to reconcile. Reach stated
+  honestly per L-43's corollary: the first sweep of the 65 GB run tree hit its timeout, and a timeout null is not an
+  absence, so it was re-run scoped.
+- **The rule adopted, and it generalises past resources:** *a runner may not quietly substitute its own value for a
+  declared one — it honours it, or it refuses out loud, and either way the log records what actually bound.*
+  Implemented as a fenced RUNTIME-ENVELOPE block at the head of each container step log carrying the EFFECTIVE
+  memory, cpus, ranks, timeout and image; a limit nobody applied records as `UNCAPPED` rather than being omitted,
+  because an absent line and an unrecorded value are indistinguishable to a later reader.
+- Two defects closed in passing rather than left: the log archiver now lives canonically in one module (a second copy
+  would have broken the one-implementation-per-evidence-format rule written three commits earlier), and the container
+  step log now supersedes rather than overwrites — an unflagged L-42 site in the sweeping agent's own module. One
+  item stays open and routed: **two launchers now disagree about what they enforce**, which is the
+  two-implementations problem in its second instance.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
