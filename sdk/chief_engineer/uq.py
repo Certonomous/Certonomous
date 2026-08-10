@@ -260,6 +260,25 @@ def ladder_band(cells: Sequence[float], values: Sequence[float],
     # outside the window is already non-conclusive below and is not
     # double-penalized.
     #
+    # AMENDED 2026-08-10 (chief ruling 7abb0ba3;
+    # demo-output/website/campaign/B52_TURN_WITHDRAWAL_2026-08-10.md):
+    # the B-52 ladder's TURN is WITHDRAWN as a claim, and with it the phrase
+    # 'its Cd increments GROW with refinement' as a statement about this
+    # ladder -- the published -4.055e-3 increment is max(rung 6) minus
+    # min(rung 7) of eight same-recipe draws, and re-estimated from all of
+    # them it is +8.2e-5 +/- 1.2e-3, opposite in sign.
+    # THE GUARD BEHAVIOUR AND EVERY CONSTANT HERE ARE UNCHANGED AND MUST
+    # STAY UNCHANGED: this ladder should still be rejected, and now for a
+    # firmer reason. What is corrected is the sentence justifying the
+    # guard, not the guard. Standing weakness recorded, not patched (chief
+    # ruling 6): extrapolation_sanity's 0.15 is calibrated between exactly
+    # two fixtures whose UPPER anchor is this ladder, and a Richardson
+    # extrapolate on a noise-dominated triple is not a stable quantity, so
+    # the '16x below the bad case' margin is not a measurement of anything.
+    # The comment below already said this number needs re-deriving from
+    # more than two fixtures rather than nudging; that hypothetical is now
+    # a measured defect in one of the two.
+    #
     # EVERY GUARD IS EVALUATED, ALWAYS. The verdict below is unchanged -- a
     # ladder outside the order window is still declined on the order window
     # and is still not double-penalized -- but the guards that did not decide

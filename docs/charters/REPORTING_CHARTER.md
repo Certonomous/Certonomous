@@ -311,6 +311,25 @@ order exists and looks sane, which is the check most readers actually perform.
 `demo-output/website/campaign/NOT_PASSING_REGISTER.md` lines 516 and 548;
 `models/curriculum/uq-studies/b52.json` and `naca4412_wing.json`.
 
+> **[AMENDED 2026-08-10 — chief ruling `7abb0ba3`. The B-52 ladder's "turn" is WITHDRAWN as a
+> claim; see `demo-output/website/campaign/B52_TURN_WITHDRAWAL_2026-08-10.md`.
+> **The teaching example STANDS and gets stronger, not weaker.** What changes is the REASON to
+> reject the ladder. It was *"its increments grow, so it is a divergence"*. It is now: **the
+> increments were never measured against the mesh-construction scatter of their own rungs, and
+> when they finally were, the largest of them turned out to be `max(rung 6) − min(rung 7)` of
+> eight same-recipe draws — a selected extremum, re-estimating to +8.2e-5 ± 1.2e-3, opposite in
+> sign.** That is a better lesson because it generalises to EVERY ladder rather than to diverging
+> ones: a credible-looking `p` can sit on top of differences nobody has bounded. The specific
+> phrases *"its increments grow at every step"* and *"it is a divergence"* are withdrawn as
+> statements about this ladder; `uq.reportable_band` returning `None` was correct then and is
+> correct now. Original text retained above.]**
+
+> **[CITATION HAZARD, flagged and fixed the same day: this paragraph cites
+> `NOT_PASSING_REGISTER.md` BY LINE NUMBER, and that register received a dated amendment on
+> 2026-08-10 which moves every line below the insertion point. A by-line-number citation across
+> files rots silently on any edit. Read the citation as pointing to the register's **§B-52
+> entry**, by heading, not by line.]**
+
 **A rung that stopped at its cap is reported cap-stopped, not settled.** An
 iteration cap is a budget, not a convergence criterion. The 208896-cell flat
 plate rung was asked for 15000 iterations; at 15000 its Cd read 0.0028936144511,

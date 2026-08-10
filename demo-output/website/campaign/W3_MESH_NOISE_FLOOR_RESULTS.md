@@ -152,6 +152,8 @@ instead of rung7 gives the same verdict field for field: `monotone` false, no
 observed order, held by `monotone`, `reportable_band` None. Only `band_abs`
 moves, 0.00506853 → 0.00337750.
 
+**[WITHDRAWN 2026-08-10 — chief ruling `7abb0ba3`. The B-52 ladder's "turn" is withdrawn as a claim: the published −4.055e-3 is max(rung 6) − min(rung 7) of eight same-recipe draws, and re-estimated from all of them the rung 6→7 increment is +8.2e-5 ± 1.2e-3 (t = 0.071) — 49× smaller, opposite in sign, and smaller than the resolution-mismatch bias. A selected extremum is not a measurement. See `campaign/B52_TURN_WITHDRAWAL_2026-08-10.md`. Original text retained below.]** The replacement is not a wider band on the same central value: the rung 6→7 increment re-estimated from eight draws is **+8.2e-5 ± 1.2e-3**.
+
 So the B-52's finding stands as published, with one number attached that was
 not there before: **the turn is −4.055 × 10⁻³ ± 47% from mesh construction
 alone**, on a body whose iterative noise at the same rung is 3.584 × 10⁻⁵.

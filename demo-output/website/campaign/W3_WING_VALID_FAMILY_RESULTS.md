@@ -179,6 +179,8 @@ None of them shows the shrinking increments an asymptotic ladder requires:
 | NACA 4412 (4 rungs, tonight) | −1.173e-3, −1.532e-3, +2.973e-3 | turns, **inside the mesh scatter** |
 | NACA 0012 (4 rungs, tonight) | −1.646e-3, −1.927e-3, −4.412e-5 | flattens, **inside the mesh scatter** |
 
+**[WITHDRAWN 2026-08-10 — chief ruling `7abb0ba3`. The B-52 ladder's "turn" is withdrawn as a claim: the published −4.055e-3 is max(rung 6) − min(rung 7) of eight same-recipe draws, and re-estimated from all of them the rung 6→7 increment is +8.2e-5 ± 1.2e-3 (t = 0.071) — 49× smaller, opposite in sign, and smaller than the resolution-mismatch bias. A selected extremum is not a measurement. See `campaign/B52_TURN_WITHDRAWAL_2026-08-10.md`. Original text retained below.]** One of the four no longer turns, so the COUNT does not survive; the table does, amended.
+
 **Four for four.** The recipe audit found a real defect and blamed the wrong
 thing for the symptom. What the corpus looks like once the defect is removed
 is a set of flows whose drag stops responding cleanly to refinement somewhere

@@ -115,7 +115,7 @@ of which are about the denominator rather than the ranking:
   ladder grades itself: Cd across seven rungs is 0.05512, 0.04477, 0.04905,
   0.04720, 0.04957, 0.05228, 0.04822 at 40,656 → 441,057 cells
   (`models/curriculum/uq-studies/b52.json`), `monotone: false`,
-  `conclusive: false`, band taken as largest spread × 1.25 = 0.00507.
+  `conclusive: false`, **[AMENDED 2026-08-10 — the B-52 ladder's "turn" is WITHDRAWN as a claim (chief ruling `7abb0ba3`); see `campaign/B52_TURN_WITHDRAWAL_2026-08-10.md`. The band figure below predates rung 8 and carries no draw scatter. Original text retained.]** band taken as largest spread × 1.25 = 0.00507.
 - **Mesh source:** the same recipe, `system/` copied verbatim, background
   blockMesh divisions scaled again from rung 7's 55×49×82. Roughly 880,000
   cells.

@@ -222,7 +222,7 @@ and two of the eight comparisons moved in the "wrong" direction (error grew
 slightly with refinement) rather than shrinking. **This is not read as a
 grid-convergence failure of the kind already on this project's own register**
 (the naca4412/Ahmed/B-52 mesh ladders, where refinement swung results by
-tens of percent and sometimes flipped sign) — the magnitudes here are two
+tens of percent and sometimes flipped sign) **[AMENDED 2026-08-10 — the B-52 ladder's "turn" is WITHDRAWN as a claim (chief ruling `7abb0ba3`); see `campaign/B52_TURN_WITHDRAWAL_2026-08-10.md`. This statement is read with that withdrawal attached. Original text retained.]** *On the B-52 it was MESH CONSTRUCTION that swung the result, not refinement; the contrast this sentence draws survives with the mechanism corrected.* — the magnitudes here are two
 orders of magnitude smaller and the mesh topology/scheme were held fixed
 between resolutions, unlike those cases. It is read as: **both resolutions
 already sit on a shared, few-tenths-of-a-percent plateau relative to Ghia's

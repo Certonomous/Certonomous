@@ -522,6 +522,14 @@ def b52_fourth_rung() -> None:
     Placement reasoning: the non-monotone signature is a dip at the medium
     rung (coarse 0.0551 at 40,656 cells, medium 0.0448 at 107,489, production
     0.0472 at 193,880). A rung near that dip tests whether the finest segment
+
+    AMENDED 2026-08-10 (chief ruling 7abb0ba3): the ladder's turn is
+    withdrawn as a claim and the 'dip' this placement reasoned from is not
+    established -- see demo-output/website/campaign/B52_TURN_WITHDRAWAL_2026-08-10.md.
+    Two things blunt this note rather than invalidate it: the coarse and
+    medium rungs quoted here were later excluded from the valid family by
+    b52.json's own recipe_audit (different refinement recipe), and the rung
+    this function places was run long ago. No code change follows.
     of the ladder is itself monotone, and when it is, the Eca and Hoekstra
     fit lands on the production mesh, the mesh the act actually reports. A
     rung finer than production (surface level (4 5)) would roughly double the

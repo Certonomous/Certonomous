@@ -1,3 +1,14 @@
+"""
+AMENDED 2026-08-10 (chief ruling 7abb0ba3): this generator emits proposal text
+containing claims about the B-52 ladder's "turn", which is WITHDRAWN as a claim --
+see demo-output/website/campaign/B52_TURN_WITHDRAWAL_2026-08-10.md.
+The published -4.055e-3 turn is max(rung 6) minus min(rung 7) of eight same-recipe
+draws; re-estimated from all of them the increment is +8.2e-5 +/- 1.2e-3, opposite in
+sign. A REGENERATION FROM THIS SCRIPT WOULD REINTRODUCE THE WITHDRAWN TEXT into the
+docket, which is why the generator is amended alongside its output rather than after
+it. The emitted strings are left byte-identical so the historical filings stay
+reproducible; this header is the correction.
+"""
 #!/usr/bin/env python3
 """Append the supervisor's research proposals to the agenda docket.
 

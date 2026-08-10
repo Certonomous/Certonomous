@@ -32,6 +32,8 @@ The alternative outcome named in G4 is the one that happened: *"If Cd instead
 falls, or the increment shrinks, the divergence is not a constant-rate one and
 the ladder has a turning point between 330 950 and 441 057 cells."*
 
+**[WITHDRAWN 2026-08-10 — chief ruling `7abb0ba3`. The B-52 ladder's "turn" is withdrawn as a claim: the published −4.055e-3 is max(rung 6) − min(rung 7) of eight same-recipe draws, and re-estimated from all of them the rung 6→7 increment is +8.2e-5 ± 1.2e-3 (t = 0.071) — 49× smaller, opposite in sign, and smaller than the resolution-mismatch bias. A selected extremum is not a measurement. See `campaign/B52_TURN_WITHDRAWAL_2026-08-10.md`. Original text retained below.]**
+
 **So the B-52's ladder does not diverge. It oscillates.** Down, up, up, down,
 with the swings getting wider: 0.001857, 0.002377, 0.002702, 0.004055. The
 reading this record has carried since 2026-07-31 — "successive Cd increments
@@ -149,7 +151,11 @@ mesh-dependent on this snapped-hex family, and consistent with a turning point
 that a sixth rung would cross again. R4 met the same wall on the Ahmed 25°
 from the other direction — a valid constant-ratio family that turned at its
 fourth rung — and found there that iterations-to-convergence ran 158, 212,
-220, 623, 1668, then never. **Two of this lab's two genuine single-knob
+220, 623, 1668, then never.
+
+**[WITHDRAWN 2026-08-10 — chief ruling `7abb0ba3`. The B-52 ladder's "turn" is withdrawn as a claim: the published −4.055e-3 is max(rung 6) − min(rung 7) of eight same-recipe draws, and re-estimated from all of them the rung 6→7 increment is +8.2e-5 ± 1.2e-3 (t = 0.071) — 49× smaller, opposite in sign, and smaller than the resolution-mismatch bias. A selected extremum is not a measurement. See `campaign/B52_TURN_WITHDRAWAL_2026-08-10.md`. Original text retained below.]** *The Ahmed 25° half is NOT withdrawn: it has a single replicate pair, exactly the standing the B-52's turn had before this measurement, and it is the open question this withdrawal leaves behind.*
+
+**Two of this lab's two genuine single-knob
 ladders now both turn.** That is the finding worth taking further, and it is a
 finding about steady RANS on refined snapped-hex meshes, not about either
 body.

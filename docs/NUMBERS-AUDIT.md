@@ -152,6 +152,8 @@ opening 87.5 deg (sweep-table input band 1253 +- 398 Pa; orifice 415 mm2).
 The 85.0 deg evaluation reproduces the ledger's cited 1267 Pa exactly.
 Channels re-measured at the new winner: input 397.6, numerical 76.5,
 model 98.9, RSS 95% = 417. The 80 deg / 1327 Pa rows above remain correct
+**[AMENDED 2026-08-10 — the B-52 ladder's "turn" is WITHDRAWN as a claim (chief ruling `7abb0ba3`); see `campaign/B52_TURN_WITHDRAWAL_2026-08-10.md`. This statement is read with that withdrawal attached. Original text retained.]** *The B-52 band is not an uncertainty for that body: it is 10.85× smaller than one rung's measured mesh-construction scatter. See `b52.json`'s `band_caveat` and `mesh_draw_scatter`.*
+
 as the audit record of the pre-extension sweep. B-52 numerical band is
 now +-0.00536 on Cd over a 4-rung ladder (still non-monotone; conservative
 rule; see uq-studies/b52.json).

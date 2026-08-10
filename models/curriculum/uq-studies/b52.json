@@ -65,7 +65,7 @@
       "note": "background blockMesh divisions scaled (55x49x82) -> (69 62 103), a deliberate cell-count doubling (h-ratio 1.238 vs rung7, departing from the family's constant r~1.09; stated in the pre-registration before meshing). Everything else copied verbatim from study-b52-rung7-uq (b52.stl md5 c27eec6c710f0a937ec8cfe84aec2cfe). 2 MPI ranks hierarchical n (2 1 1), 300 iterations. Pre-registered at demo-output/website/campaign/B52_RUNG8_PREREGISTRATION.md (commit 48cfedfb) before any mesh existed; the prediction that Cd lands inside the family span (ladder is mesh noise, not a direction) scored TRUE."
     }
   ],
-  "updated_utc": "2026-08-10T16:55:00Z",
+  "updated_utc": "2026-08-10T17:40:00Z",
   "fingerprint": "ed675052cbc1ff14",
   "numerical": {
     "dim": 3,
@@ -154,7 +154,8 @@
       "193880_to_255358": 0.002377,
       "255358_to_330950": 0.002702
     },
-    "finding": "Iterative error is ruled out. Neither finest rung prints OpenFOAM's 'SIMPLE solution converged' message, so convergence was measured from the force history rather than assumed: both are stationary to a final-window 2-sigma of 1.07e-05 (fine-uq) and 2.25e-06 (finer2), with halves-drift below 1e-06. The finer rung is the MORE settled of the two, not the less. Those figures are two to three orders of magnitude below the 2.702e-03 grid increment they would have to explain. The increments grow because the discretization does, and the ladder is diverging for a reason more iterations cannot reach."
+    "finding": "Iterative error is ruled out. Neither finest rung prints OpenFOAM's 'SIMPLE solution converged' message, so convergence was measured from the force history rather than assumed: both are stationary to a final-window 2-sigma of 1.07e-05 (fine-uq) and 2.25e-06 (finer2), with halves-drift below 1e-06. The finer rung is the MORE settled of the two, not the less. Those figures are two to three orders of magnitude below the 2.702e-03 grid increment they would have to explain. The increments grow because the discretization does, and the ladder is diverging for a reason more iterations cannot reach. || WITHDRAWN 2026-08-10 (chief ruling 7abb0ba3, see campaign/B52_TURN_WITHDRAWAL_2026-08-10.md). The B-52 ladder's TURN is withdrawn as a claim: the published -4.055e-3 is max(rung 6) - min(rung 7) of eight same-recipe draws, and re-estimated from all of them the rung 6->7 increment is +8.2e-5 +/- 1.2e-3 (t = 0.071) -- 49x smaller, opposite in sign, and smaller than the resolution-mismatch bias. A selected extremum is not a measurement. Original text retained. APPLIES TO THE FINAL SENTENCE ONLY. 'the ladder is diverging for a reason more iterations cannot reach' SURVIVES -- iterative error really is ruled out. 'The increments grow because the discretization does' is WITHDRAWN: the increments are not established to grow, and the one increment now measured against draw scatter is consistent with zero. Everything above this sentence -- the per-rung 2-sigma figures and the settledness reading -- is unaffected and was reconfirmed by the replicate arms.",
+    "finding_amended_2026_08_10": "WITHDRAWN 2026-08-10 (chief ruling 7abb0ba3, see campaign/B52_TURN_WITHDRAWAL_2026-08-10.md). The B-52 ladder's TURN is withdrawn as a claim: the published -4.055e-3 is max(rung 6) - min(rung 7) of eight same-recipe draws, and re-estimated from all of them the rung 6->7 increment is +8.2e-5 +/- 1.2e-3 (t = 0.071) -- 49x smaller, opposite in sign, and smaller than the resolution-mismatch bias. A selected extremum is not a measurement. Original text retained. APPLIES TO THE FINAL SENTENCE ONLY. 'the ladder is diverging for a reason more iterations cannot reach' SURVIVES -- iterative error really is ruled out. 'The increments grow because the discretization does' is WITHDRAWN: the increments are not established to grow, and the one increment now measured against draw scatter is consistent with zero. Everything above this sentence -- the per-rung 2-sigma figures and the settledness reading -- is unaffected and was reconfirmed by the replicate arms."
   },
   "dimensionality": {
     "dim": 3,
@@ -210,7 +211,7 @@
       "255358_to_330950": 0.002702,
       "330950_to_441057": -0.004055
     },
-    "finding": "The ladder does not diverge monotonically; it turns. The fourth increment is NEGATIVE and is the largest in magnitude of the four, at 113 times the rung's own window 2-sigma, so the turn is signal and not iterative noise. Mesh quality does not explain it: max non-orthogonality 64.641 against finer2's 64.647, max skewness 3.535 against 3.999. Decomposition does not explain it: the rung ran at the same 2 ranks, hierarchical n (2 1 1), as fine-uq and finer2.",
+    "finding": "The ladder does not diverge monotonically; it turns. The fourth increment is NEGATIVE and is the largest in magnitude of the four, at 113 times the rung's own window 2-sigma, so the turn is signal and not iterative noise. Mesh quality does not explain it: max non-orthogonality 64.641 against finer2's 64.647, max skewness 3.535 against 3.999. Decomposition does not explain it: the rung ran at the same 2 ranks, hierarchical n (2 1 1), as fine-uq and finer2. || WITHDRAWN 2026-08-10 (chief ruling 7abb0ba3, see campaign/B52_TURN_WITHDRAWAL_2026-08-10.md). The B-52 ladder's TURN is withdrawn as a claim: the published -4.055e-3 is max(rung 6) - min(rung 7) of eight same-recipe draws, and re-estimated from all of them the rung 6->7 increment is +8.2e-5 +/- 1.2e-3 (t = 0.071) -- 49x smaller, opposite in sign, and smaller than the resolution-mismatch bias. A selected extremum is not a measurement. Original text retained. SPLIT DISPOSITION: the clause 'the turn is signal' is withdrawn. The clause 'and not iterative noise' SURVIVES and is independently reconfirmed -- the rung-6 replicate pair D6 is 94.6x that rung's own iterative 2-sigma. What is withdrawn is the inference, not the measurement: iterative noise was ruled out against the wrong noise source, and the right one (mesh construction, sqrt(s6^2+s7^2) = 2.43e-3) is comparable to the increment.",
     "verdict_moved": true,
     "which_numbers_moved": {
       "observed_order": "2.253 -> None (no order fitted; the ladder is no longer monotone)",
@@ -246,8 +247,11 @@
         "band_abs": 0.0033775000000000038,
         "not_conclusive_guard": "monotone"
       },
-      "record": "demo-output/website/campaign/W3_MESH_NOISE_FLOOR_RESULTS.md"
-    }
+      "record": "demo-output/website/campaign/W3_MESH_NOISE_FLOOR_RESULTS.md",
+      "withdrawn_2026_08_10": "WITHDRAWN 2026-08-10 (chief ruling 7abb0ba3, see campaign/B52_TURN_WITHDRAWAL_2026-08-10.md). The B-52 ladder's TURN is withdrawn as a claim: the published -4.055e-3 is max(rung 6) - min(rung 7) of eight same-recipe draws, and re-estimated from all of them the rung 6->7 increment is +8.2e-5 +/- 1.2e-3 (t = 0.071) -- 49x smaller, opposite in sign, and smaller than the resolution-mismatch bias. A selected extremum is not a measurement. Original text retained. The +/-47% here was a band on a central value that is itself withdrawn, and a claim of the form 'X +/- Y' does not survive by widening Y. Replacement: the rung 6->7 increment is +8.2e-5 +/- 1.2e-3 from eight draws."
+    },
+    "finding_withdrawn_2026_08_10": "WITHDRAWN 2026-08-10 (chief ruling 7abb0ba3, see campaign/B52_TURN_WITHDRAWAL_2026-08-10.md). The B-52 ladder's TURN is withdrawn as a claim: the published -4.055e-3 is max(rung 6) - min(rung 7) of eight same-recipe draws, and re-estimated from all of them the rung 6->7 increment is +8.2e-5 +/- 1.2e-3 (t = 0.071) -- 49x smaller, opposite in sign, and smaller than the resolution-mismatch bias. A selected extremum is not a measurement. Original text retained. SPLIT DISPOSITION: the clause 'the turn is signal' is withdrawn. The clause 'and not iterative noise' SURVIVES and is independently reconfirmed -- the rung-6 replicate pair D6 is 94.6x that rung's own iterative 2-sigma. What is withdrawn is the inference, not the measurement: iterative noise was ruled out against the wrong noise source, and the right one (mesh construction, sqrt(s6^2+s7^2) = 2.43e-3) is comparable to the increment.",
+    "which_numbers_moved_caveat_2026_08_10": "AMENDED 2026-08-10 (see campaign/B52_TURN_WITHDRAWAL_2026-08-10.md). These flips are correct AS RECOMPUTATIONS -- the fit really does produce them on this input. What is not supported is that they were caused by a physical turn: the turn is withdrawn as a claim."
   },
   "eighth_rung": {
     "measured_utc": "2026-08-07T20:45:00Z",
@@ -308,7 +312,8 @@
     },
     "flattering_move_check": "band_abs falls 10x but uq.reportable_band refuses it both before and after, so no reportable number improved. The monotone flag flipping true on a triple whose increment is 15% of the mesh noise floor is noise falling in one direction, and the record says so rather than claiming asymptotic behaviour; conclusive stays false.",
     "record": "demo-output/website/campaign/B52_RUNG8_RESULTS.md",
-    "preregistration": "demo-output/website/campaign/B52_RUNG8_PREREGISTRATION.md"
+    "preregistration": "demo-output/website/campaign/B52_RUNG8_PREREGISTRATION.md",
+    "which_numbers_moved_caveat_2026_08_10": "AMENDED 2026-08-10 (see campaign/B52_TURN_WITHDRAWAL_2026-08-10.md). These flips are correct AS RECOMPUTATIONS -- the fit really does produce them on this input. What is not supported is that they were caused by a physical turn: the turn is withdrawn as a claim."
   },
   "mesh_draw_scatter": {
     "measured_utc": "2026-08-10T16:15:00Z",
@@ -344,22 +349,44 @@
         "cells": 333217,
         "cd": 0.048280832805,
         "tag": "6c"
+      },
+      {
+        "divisions": [
+          50,
+          45,
+          77
+        ],
+        "cells": 328453,
+        "cd": 0.050954268,
+        "tag": "6d, closure arm"
+      },
+      {
+        "divisions": [
+          53,
+          45,
+          73
+        ],
+        "cells": 327996,
+        "cd": 0.048661118,
+        "tag": "6e, closure arm"
       }
     ],
-    "pairwise_D6_rung6": 0.0013599435916666625,
-    "range_R6_rung6_n3": 0.0053545832033333254,
     "pairwise_rung7_the_published_floor": 0.0019146,
-    "sigma_bracket": [
+    "sigma_note": "Estimators converted to a common sigma: E|X1-X2| = 1.1284 sigma, E[range of n=3] = 1.6926 sigma. A range over 3 and a pairwise difference are DIFFERENT statistics and must not be compared directly (W3_MESH_NOISE_FLOOR_RESULTS.md section 3).",
+    "open": "Closed for the turn. The first three increments of the valid family remain UNMEASURED against draw scatter (n=1 each, all ~1x the measured 2.43e-3) -- unmeasured, not disproven.",
+    "superseded_note": "The n=3 figures this block first carried (2026-08-10 morning) are superseded by the closure arm the same day: campaign/B52_TURN_CLOSURE_RESULTS.md, prereg f4ccfe92, results c12c876b. The morning values are retained below under *_n3_superseded.",
+    "pairwise_D6_rung6_n3_superseded": 0.0013599435916666625,
+    "range_R6_rung6_n3_n3_superseded": 0.0053545832033333254,
+    "sigma_bracket_n3_superseded": [
       0.001205,
       0.003164
     ],
-    "sigma_note": "Estimators converted to a common sigma: E|X1-X2| = 1.1284 sigma, E[range of n=3] = 1.6926 sigma. A range over 3 and a pairwise difference are DIFFERENT statistics and must not be compared directly (W3_MESH_NOISE_FLOOR_RESULTS.md section 3).",
-    "increment_uncertainty": [
+    "increment_uncertainty_n3_superseded": [
       0.001704,
       0.004474
     ],
-    "increment_uncertainty_basis": "an increment differences two rungs each represented by ONE draw, so it carries sqrt(2)*sigma, not sigma",
-    "turn_rung6_to_rung7": {
+    "increment_uncertainty_basis_n3_superseded": "an increment differences two rungs each represented by ONE draw, so it carries sqrt(2)*sigma, not sigma",
+    "turn_rung6_to_rung7_n3_superseded": {
       "increment": -0.004055,
       "in_sigma_equivalents": [
         0.91,
@@ -367,7 +394,7 @@
       ],
       "reading": "NOT established as signal (needs >=3x) and NOT established as noise. Three draws cannot separate those two readings."
     },
-    "increment_rung7_to_rung8": {
+    "increment_rung7_to_rung8_n3_superseded": {
       "increment": -0.000278,
       "in_sigma_equivalents": [
         0.06,
@@ -375,11 +402,59 @@
       ],
       "reading": "unambiguously noise on every estimator; conclusions resting on it survive unchanged"
     },
-    "scatter_vs_stored_band": {
+    "scatter_vs_stored_band_n3_superseded": {
       "single_rung_scatter_rel": 0.11169,
       "stored_band_rel": 0.01029,
       "ratio": 10.85
     },
-    "open": "A closure arm (2 further draws at rung 6, 1 at rung 7; ~31 core-min) is chief-approved 2026-08-10 to separate signal from noise at n=5."
+    "draws_at_rung7": [
+      {
+        "divisions": [
+          55,
+          49,
+          82
+        ],
+        "cells": 441057,
+        "cd": 0.048220173,
+        "tag": "rung7"
+      },
+      {
+        "divisions": [
+          56,
+          48,
+          83
+        ],
+        "cells": 441079,
+        "cd": 0.050134753,
+        "tag": "rung7b"
+      },
+      {
+        "divisions": [
+          54,
+          49,
+          84
+        ],
+        "cells": 434641,
+        "cd": 0.0501473,
+        "tag": "7c, closure arm"
+      }
+    ],
+    "s6_n5": 0.0021579416340005244,
+    "s7_n3": 0.0011090227656353052,
+    "increment_uncertainty_sqrt_s6sq_plus_s7sq": 0.0024266,
+    "T_hat_on_published_turn": 1.6713099069035482,
+    "T_ci90": [
+      0.8463323539207587,
+      2.4448625191472435
+    ],
+    "T_verdict": "INDETERMINATE by the pre-registered CI rule, but T_hi = 2.445 < 3.0 EXCLUDES SIGNAL at 90% confidence.",
+    "increment_rung6_to_rung7_reestimated": {
+      "value": 8.2226e-05,
+      "se": 0.0011582,
+      "t": 0.071,
+      "n6": 5,
+      "n7": 3,
+      "reading": "The decisive fact, and it needs no statistics: the published -4.055e-3 turn is max(rung6) - min(rung7) of the eight draws. Re-estimated from all of them the increment is +8.2e-5 +/- 1.2e-3 -- 49x smaller, OPPOSITE IN SIGN, and smaller than the ~1.8e-4 bias from the two rungs' draws not matching resolution exactly. THE TURN IS WITHDRAWN AS A CLAIM (chief ruling 7abb0ba3)."
+    }
   }
 }

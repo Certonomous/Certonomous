@@ -219,6 +219,25 @@ percent of the working value, and `uq.reportable_band` still correctly returns
 `None`. `demo-output/website/campaign/NOT_PASSING_REGISTER.md` line 516,
 `models/curriculum/uq-studies/b52.json`.
 
+> **[AMENDED 2026-08-10 — chief ruling `7abb0ba3`. The B-52 ladder's "turn" is WITHDRAWN as a
+> claim; see `demo-output/website/campaign/B52_TURN_WITHDRAWAL_2026-08-10.md`.
+> **The teaching example STANDS and gets stronger, not weaker.** What changes is the REASON to
+> reject the ladder. It was *"its increments grow, so it is a divergence"*. It is now: **the
+> increments were never measured against the mesh-construction scatter of their own rungs, and
+> when they finally were, the largest of them turned out to be `max(rung 6) − min(rung 7)` of
+> eight same-recipe draws — a selected extremum, re-estimating to +8.2e-5 ± 1.2e-3, opposite in
+> sign.** That is a better lesson because it generalises to EVERY ladder rather than to diverging
+> ones: a credible-looking `p` can sit on top of differences nobody has bounded. The specific
+> phrases *"its increments grow at every step"* and *"it is a divergence"* are withdrawn as
+> statements about this ladder; `uq.reportable_band` returning `None` was correct then and is
+> correct now. Original text retained above.]**
+
+> **[CITATION HAZARD, flagged and fixed the same day: this paragraph cites
+> `NOT_PASSING_REGISTER.md` BY LINE NUMBER, and that register received a dated amendment on
+> 2026-08-10 which moves every line below the insertion point. A by-line-number citation across
+> files rots silently on any edit. Read the citation as pointing to the register's **§B-52
+> entry**, by heading, not by line.]**
+
 **The second way: an order fitted across a change of recipe.** The second NACA
 4412 ladder reported `p = 10.467` on rungs of 27,237 / 67,826 / 137,569 cells.
 Read from the dictionaries, coarse and medium are both `level (2 3)` and differ
@@ -280,6 +299,7 @@ does not get moved to restore the margin.** `EXTRAPOLATION_TOL_FRAC` was read
 off a "good case" that turned out to be the four-rung call. Re-read on
 three-rung fixtures, the flat plate's finest triple clears 0.15 by 1.30x rather
 than the 1.77x claimed, and the B-52 still fails it by a factor of 16. The
+> **[AMENDED 2026-08-10: the "factor of 16" is the gap between two `extrapolation_sanity` fixtures whose UPPER anchor is the B-52 — a Richardson extrapolate on a noise-dominated triple, which is not a stable quantity, so the margin is not a measurement. The tolerance 0.15 is deliberately UNCHANGED (chief ruling 6): recorded as a standing weakness, not patched. The recipe-audit-precedes-an-order precedent is unaffected.]**
 constant keeps its value and loses its stated justification, which is recorded
 rather than repaired: moving it to restore the old-looking margin would be
 tuning the gate to the answer, which section 8 forbids.
