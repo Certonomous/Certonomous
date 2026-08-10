@@ -1,0 +1,312 @@
+{
+  "algorithm": "SIMPLE",
+  "basis": "Stage A leg A3, identical mesh/iterations/sampling and same `consistent no`",
+  "basis_core_min": 2.11,
+  "cells": 9050,
+  "converged": false,
+  "core_min": 2.715,
+  "deviation_pct": -57.63078071191491,
+  "final_initial_residuals": {
+    "Ux": 0.0001146078717,
+    "Uy": 0.000275841321,
+    "k": 0.0001728974781,
+    "omega": 3.589691097e-07,
+    "p": 0.0005054560231
+  },
+  "final_iteration": 2000,
+  "first_cell": 0.0004,
+  "fvSolution_sha256": "02f62dd3d4b9c081295bb7640e678d1880be0d2bdc779d19833f9ad4ec79dc00",
+  "in_gate": false,
+  "inlet_bl_turbulence": false,
+  "iterations": 2000,
+  "leg": "A4",
+  "level": "coarse",
+  "levers_verified_active": {
+    "basis": "launcher echo, hash-bound to the dictionaries that ran (Verification Charter v1.5 section 9)",
+    "verified": [
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/U",
+        "file": "0/U",
+        "sha256": "c27a75a3c43631aa4f41c6a56a274a98dfbd711839acf8f025069f2d4f0af072"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/k",
+        "file": "0/k",
+        "sha256": "02eb6fce03bc54c71ffd44426b7f6f394351e9e3c415d4aea5cebcebc64e4712"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/nut",
+        "file": "0/nut",
+        "sha256": "caad83f5c67352ca290de7cdb93477eebf6f084cf1bb681d1feb0b4a8276afec"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/omega",
+        "file": "0/omega",
+        "sha256": "b0ee97e161331ab3e4add59709bd3676025dda92c432a0e78a9fe5916f7dd865"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file 0/p",
+        "file": "0/p",
+        "sha256": "8215840bd29f45a72e30809234fcab34af9ef011b8422bfa0e507a217410d58e"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file constant/transportProperties",
+        "file": "constant/transportProperties",
+        "sha256": "67e2ad9b8a94249fc1ee54da53019a3539f4a1437f1e75bbe7599ebfb5f84257"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file constant/turbulenceProperties",
+        "file": "constant/turbulenceProperties",
+        "sha256": "a6a7b81e40bb34d179018f7e932648cf89368786aefd76a5e7b4d4d3c043afc8"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSchemes",
+        "file": "system/fvSchemes",
+        "sha256": "20f95fbaf0aaddd6219c21b13aaf97977158e9860a27cff994e78ed3142bb230"
+      },
+      {
+        "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSolution",
+        "file": "system/fvSolution",
+        "sha256": "02f62dd3d4b9c081295bb7640e678d1880be0d2bdc779d19833f9ad4ec79dc00"
+      }
+    ]
+  },
+  "mesh_certificate": {
+    "cells": 9050,
+    "created_at": "2026-08-10T16:51:14+00:00",
+    "generator": "blockMesh, F5c backward-facing step, level coarse",
+    "hard_errors": [],
+    "max_aspect_ratio": 2424.26741,
+    "max_non_orthogonality": 0.0,
+    "max_skewness": 1.387778806e-13,
+    "points_sha256": "e6eb7f9bcd346d6159781570b34cb136d38e79f82939a0f7bb0272174ed632ee",
+    "verdict": "flagged"
+  },
+  "nearwall_check": {
+    "sample_height_over_h": 0.002,
+    "x_r": 2.66612080776614,
+    "x_r_over_h": 2.66612080776614
+  },
+  "nu": 2.777777777777778e-05,
+  "re_h": 36000.0,
+  "reattachment": {
+    "attached_to_outlet": true,
+    "bubble_length_over_h": 1.6785244064762894,
+    "bubble_start_over_h": 0.9737887209578369,
+    "corner_eddy_over_h": [
+      0.11234377296815362,
+      0.9737887209578369
+    ],
+    "sign_runs_over_h": [
+      {
+        "sign": "forward",
+        "x_end_over_h": 0.012958962489827898,
+        "x_start_over_h": 0.003999999927
+      },
+      {
+        "sign": "reversed",
+        "x_end_over_h": 0.11234377296815362,
+        "x_start_over_h": 0.012958962489827898
+      },
+      {
+        "sign": "forward",
+        "x_end_over_h": 0.9737887209578369,
+        "x_start_over_h": 0.11234377296815362
+      },
+      {
+        "sign": "reversed",
+        "x_end_over_h": 2.6523131274341263,
+        "x_start_over_h": 0.9737887209578369
+      },
+      {
+        "sign": "forward",
+        "x_end_over_h": 29.6,
+        "x_start_over_h": 2.6523131274341263
+      }
+    ],
+    "x_r": 2.6523131274341263,
+    "x_r_over_h": 2.6523131274341263
+  },
+  "reference_x_r_band": 0.1,
+  "reference_x_r_over_h": 6.26,
+  "relax_p": 0.3,
+  "relax_u": 0.6,
+  "residual_gate": {
+    "Ux": 1e-06,
+    "Uy": 1e-06,
+    "k": 1e-06,
+    "omega": 1e-06,
+    "p": 1e-05
+  },
+  "timings": {
+    "blockMesh": 0.4,
+    "checkMesh": 0.4,
+    "simpleFoam": 162.0
+  },
+  "wall_s": 162.9,
+  "wall_seconds": 162.8,
+  "x_r_over_h": 2.6523131274341263,
+  "x_r_over_h_history": [
+    [
+      50,
+      2.1509363554811065
+    ],
+    [
+      100,
+      2.6207830738908022
+    ],
+    [
+      150,
+      2.488055987977734
+    ],
+    [
+      200,
+      1.3998540534750366
+    ],
+    [
+      250,
+      1.7549095724557138
+    ],
+    [
+      300,
+      2.026648901648501
+    ],
+    [
+      350,
+      2.1084121899392736
+    ],
+    [
+      400,
+      2.157952053763769
+    ],
+    [
+      450,
+      2.22497609969413
+    ],
+    [
+      500,
+      2.2776470300707508
+    ],
+    [
+      550,
+      2.3118724266201696
+    ],
+    [
+      600,
+      2.3314692556257004
+    ],
+    [
+      650,
+      2.3413269880749836
+    ],
+    [
+      700,
+      2.349210597182634
+    ],
+    [
+      750,
+      2.360813355561109
+    ],
+    [
+      800,
+      2.3757702684149393
+    ],
+    [
+      850,
+      2.392864826254794
+    ],
+    [
+      900,
+      2.4195677423582493
+    ],
+    [
+      950,
+      2.44325223270934
+    ],
+    [
+      1000,
+      2.463738280297297
+    ],
+    [
+      1050,
+      2.4813261581045944
+    ],
+    [
+      1100,
+      2.4963711042009677
+    ],
+    [
+      1150,
+      2.509186451190059
+    ],
+    [
+      1200,
+      2.520356970447608
+    ],
+    [
+      1250,
+      2.530453235374386
+    ],
+    [
+      1300,
+      2.539986609897436
+    ],
+    [
+      1350,
+      2.549337007907607
+    ],
+    [
+      1400,
+      2.558550021237227
+    ],
+    [
+      1450,
+      2.567451983467834
+    ],
+    [
+      1500,
+      2.5759683587490874
+    ],
+    [
+      1550,
+      2.5840258754478054
+    ],
+    [
+      1600,
+      2.5916409275364094
+    ],
+    [
+      1650,
+      2.5987929518530164
+    ],
+    [
+      1700,
+      2.605568943083293
+    ],
+    [
+      1750,
+      2.61200460734655
+    ],
+    [
+      1800,
+      2.618237582767831
+    ],
+    [
+      1850,
+      2.6245599133691484
+    ],
+    [
+      1900,
+      2.6312670860694083
+    ],
+    [
+      1950,
+      2.638587928337248
+    ],
+    [
+      2000,
+      2.6523131274341263
+    ]
+  ],
+  "x_r_over_h_nearwall_U": 2.66612080776614
+}

@@ -220,6 +220,30 @@ here. A reader arriving from either direction should follow the cross-reference:
 | review entry 5 | this amendment, and `F5C_STAGE_A_RESULTS.md` |
 | `backstep_case.py::parse_wall_raw` | this amendment (the `x/H ~ 5.6` in that docstring is the withdrawn number) |
 
+#### Correction 4 (added same day) — the SIMPLEC attribution is MISATTRIBUTED, not merely unproven
+
+The diagnostic table's row 4 and the verdict text above say *"SIMPLEC moved the
+number substantially (confirms algorithm/relaxation matters)"*. The chief-approved
+isolating run (`F5C_LEVER_ISOLATION_RESULTS.md`, pre-registration `9eaefc7f`)
+completed the 2x2 factorial that claim is a bare diagonal of:
+
+| | relax p 0.15 / U 0.4 | relax p 0.3 / U 0.6 |
+| --- | --- | --- |
+| **SIMPLE** | A3: x_r/H = 6.876 | **A4: x_r/H = 2.652** |
+| **SIMPLEC** | *(not run)* | A1: x_r/H = 5.564 |
+
+**Relaxation alone moves x_r by 4.224 H and clears its bar; the algorithm alone
+moves it 2.911 H and does not.** The effect the record attributed to SIMPLEC was
+**relaxation**. The row's own label named both variables; the narrative that
+followed named only one.
+
+**And the deeper consequence, which needs no residual reading at all:**
+relaxation factors cannot move a *converged* SIMPLE fixed point — they change the
+path, not the destination. Two solves differing only in relaxation that disagree
+by a factor of 2.6 in the gate quantity are, by that fact alone, **both
+unconverged**. This is the check that is immune to the very error Correction 1
+describes, and it costs one run.
+
 #### What is NOT claimed by this amendment
 
 No wander verdict, in either direction — chief policy for this case is that none

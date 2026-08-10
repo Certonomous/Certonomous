@@ -1,0 +1,9 @@
+[2026-08-10T16:51:13+00:00] F5c A4 isolating leg starting (prereg 9eaefc7f)
+[2026-08-10T16:51:13+00:00] A4: coarse 9050 cells, SIMPLE relax p0.3/U0.6, 2000 it (basis 126.6s = 2.11 core-min)
+[2026-08-10T16:51:13+00:00] [bfs-coarse] blockMesh done in 0.4s (exit 0)
+[2026-08-10T16:51:14+00:00] [bfs-coarse] checkMesh done in 0.4s (exit 0)
+[2026-08-10T16:51:14+00:00] [bfs-coarse] birth certificate: flagged -> admitted=True (flagged)
+[2026-08-10T16:53:56+00:00] [bfs-coarse] x_r/H=2.652, nearwall-U check 2.666 (ref 6.26+/-0.1), cells=9050, converged=False, wall_s=162.8
+[2026-08-10T16:53:56+00:00] A4: x_r/H = 2.6523131274341263 (nearwall check 2.66612080776614), 2.71 core-min vs basis 2.11, fvSolution sha256 02f62dd3d4b9, cert flagged
+[2026-08-10T16:53:56+00:00] A4: archived to stage_a_A4
+[2026-08-10T16:53:56+00:00] M4 O-I2: x_r(A4)=2.6523 spread=0.1710 | alg d=2.9112 vs bar 6.5599 | rel d=4.2240 vs bar 2.5780
