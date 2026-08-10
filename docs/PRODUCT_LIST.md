@@ -1090,6 +1090,29 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   split dispositions double-counted). Both of this thread's arithmetic slips were found by RECOUNTING rather than
   re-reading, which is the practice worth generalising.
 
+### 2026-08-10 (closing 3) — the escape hatch opens, and L-40 turns up inside the upstream code
+
+- **THE PATCH WORKS AND IS REGRESSION-CONTROLLED** (5e720034, 21.5 core-min against ~15, overrun recorded not folded
+  in). **Gate A — the load-bearing one for upstream: PASS, BIT-IDENTICAL.** Rung 1 on the patched image reproduces
+  CD 368 / CL 383, reason 2 on both, cold signature to all 16 digits — iteration counts are the sharpest equality
+  test available and they did not move. **The override is NOT load-bearing**, so the defect report's recommended fix
+  stands and needs no re-grading: the maintainer's first objection is now answered by measurement rather than
+  assertion. **Gate B — restoration: PASS**; `-ksp_view` reports `fgmres` where the shipped build reports `gmres`.
+  Image tagged distinctly, both prior images untouched and reachable, every arm records its image tag.
+- **Gate B produced two upstream findings, and the second upgrades our own recommendation.** (1) Overriding the
+  solver type resets family settings applied to the previous object — the view shows PETSc's default restart rather
+  than the configured 200 — correct "user override wins" semantics, but it must be documented, and in the test that
+  small restart turned a 368-iteration convergence into a 1000-iteration failure. (2) **The build's own info echo
+  goes STALE under an override: with fgmres in force the log still prints `Solver Type: gmres`.** That is **L-40 in
+  its purest form, found inside the upstream code** — the switch you set is not the switch that ran, printed by the
+  program itself. Revised recommendation: the reordering fix PLUS an effective-value echo read back after the
+  options call. The first restores the user's control; the second restores their ability to verify it, which is the
+  whole point of a diagnosability fix.
+- Stage 2 is unblocked: the class the diagnosis named and the build forbade (`lgmres`/`dgmres`, `gamg`, `fieldsplit`,
+  complete-LU sub-blocks) is reachable at rung 3 for the first time — to be run as the first honest test of that
+  class, explicitly not as a rescue attempt, with each override carrying its own restart setting so Gate B's lesson
+  cannot be misread as the arm's result.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
