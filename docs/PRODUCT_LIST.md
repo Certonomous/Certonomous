@@ -1449,6 +1449,34 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   rather than assumed away** — which is why the bar is 0.7183 σ rather than the 0.6308 σ it would be with three
   draws everywhere.
 
+### 2026-08-10 (night, last) — the rank channel never fired, and 105 meshes called CERTIFIED had no certificate
+
+- **RETROSPECTIVE ON THE RANK CHANNEL: A MEASURED ZERO.** Of 146 completion records, 3 carry a rank declaration and
+  **all 3 agree** with the `mpirun -np` the execution itself recorded — so no core-minute figure in the registry is
+  mis-priced and nothing downstream of one is affected. Recovered by two independent routes (OpenFOAM's `nProcs`
+  header; driver logs echoing their own commands), because the first returned nothing and **a null from one instrument
+  is not an absence**; each route carries a planted positive control. The other 143 records carry no cost line at all.
+  My own reach check had to be corrected mid-sweep when an `or ""` made an ABSENT line read as a value — seventh time
+  this campaign the auditing instrument carried the defect it was auditing for.
+- **105 MESHES MARKED "CERTIFIED (pre-existing record)" CARRIED THE LOG AND NONE CARRIED THE CERTIFICATE.** The
+  standard requires the FILE, so `certificate_admits()` quarantined all 105 — which is what happened unprompted to two
+  M6 members and two retrofit ladders. **95 minted, 10 refused and reported, 0 minted-but-refused.** 0 core-min.
+- **THE REFUSALS ARE THE RESULT, exactly as ordered.** 7 rows are marked CERTIFIED while **the log each one cites
+  parses to hard errors under the audit's own verdict rule** — three with **negative-volume cells**, and
+  `tmr-bump-finer` at aspect ratio 2.23e6, above the pyHyp threshold. No certificate was written for them: minting a
+  `broken` one would quarantine another family's mesh on a parser's say-so, and an absent certificate already
+  quarantines it, so the ruling stays with the owner. 3 more meshes state no cell count of their own.
+- **THE CROSS-CHECK WAS THE LOAD-BEARING PART**: every mint had to show the log's cell count equals the mesh's own
+  `nCells`. Without it the pass would have re-created by hand the very drift the `points_sha256` binding exists to
+  prevent. Provenance is on each file's face (`retrospective-from-archived-log`, log path, both mtimes, cross-check),
+  and **6 of 95 rest on a log written before the points file** — disclosed, not relied on. The audit gets a dated
+  amendment, not a rewrite; no verdict revised, no mesh impugned.
+- **AND `launch_solve.sh` WAS NOT EXECUTABLE IN GIT.** The lab's only sanctioned launcher is tracked `100644`; it has
+  worked solely because every working tree happened to carry the bit locally, and a fresh clone could not run it.
+  Found because rewriting the file dropped the local bit and this family's own launcher tests went red. Fixed for the
+  three scripts this family owns; **29 tracked scripts carry a shebang and no exec bit** and are reported, not
+  mass-chmodded. Suite 1261/0.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

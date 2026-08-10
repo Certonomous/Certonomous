@@ -108,9 +108,23 @@ def points_sha256(polymesh_dir: Path) -> str | None:
     return None
 
 
+#: How a certificate came to exist. `at-creation` is the standard's own case:
+#: checkMesh ran and the certificate was written from it in the same act, so
+#: the log cannot describe a different mesh than the one beside it.
+#: `retrospective-from-archived-log` is weaker and must say so -- the log was
+#: found later, and only a cross-check binds it to the points file present
+#: now. A reader must be able to tell them apart, or the mesh standard's
+#: guarantee is quietly widened to cover something it never promised.
+PROVENANCE_AT_CREATION = "at-creation"
+PROVENANCE_RETROSPECTIVE = "retrospective-from-archived-log"
+
+
 def write_certificate(mesh_root: Path, *, check_log_text: str | None = None,
                       stats: dict[str, Any] | None = None,
-                      generator: str | None = None) -> dict[str, Any] | None:
+                      generator: str | None = None,
+                      provenance: str = PROVENANCE_AT_CREATION,
+                      evidence: dict[str, Any] | None = None,
+                      ) -> dict[str, Any] | None:
     """Write ``birth_certificate.json`` beside ``mesh_root``'s polyMesh.
 
     The payload comes from ``check_log_text`` (a checkMesh log, parsed with
@@ -147,7 +161,13 @@ def write_certificate(mesh_root: Path, *, check_log_text: str | None = None,
         "hard_errors": payload.get("hard_errors", []),
         "generator": generator,
         "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        # A certificate minted from an archived log is NOT the same fact as
+        # one minted at creation, and the file says which it is rather than
+        # leaving a later reader to infer it from a timestamp.
+        "provenance": provenance,
     }
+    if evidence:
+        certificate["evidence"] = evidence
     (mesh_root / CERTIFICATE_NAME).write_text(
         json.dumps(certificate, indent=1), encoding="utf-8")
     return certificate

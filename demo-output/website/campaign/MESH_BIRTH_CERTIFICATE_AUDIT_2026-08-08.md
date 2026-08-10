@@ -520,3 +520,78 @@ have changed since its log must be re-checked, not certified from stale evidence
 is filed at `:228`; the retrofit agent measured the gap and is reporting it, not unilaterally
 writing 105 files into other families' cases. Recommended owner: Infra, alongside the launcher
 resource-cap item already routed there.
+
+---
+
+## AMENDMENT, 2026-08-10 — "CERTIFIED (pre-existing record)" named an artifact that did not exist
+
+Added by the Infrastructure/Standards family at the chief's direction. **No
+verdict in this audit is revised and no mesh is impugned.** The BORN CLEAN
+findings stand. What is corrected is a word: 105 rows were marked `CERTIFIED
+(pre-existing record)` on the strength of a `log.checkMesh`, and a coverage
+check on 2026-08-10 found that **105 of 105 carried the log and 0 of 105
+carried a `birth_certificate.json`.** Only four certificates in the whole tree
+predated that day and none was among the 105.
+
+The consequence was not theoretical. `mesh_certificate.certificate_admits()`
+requires the FILE, a `points_sha256` matching the mesh actually present, and
+an accepted verdict — so every one of the 105 was quarantined from new work,
+which is what happened unprompted to two M6 members and two retrofit ladders
+that day. The evidence existed; the artifact did not; and downstream machinery
+believed the word. **The honest reading of the original row is CHECKED BUT
+UNCERTIFIED.**
+
+### What was done
+
+A scripted pass (`scripts/mint_retrospective_certificates.py`, 0 core-min)
+minted certificates from the checkMesh logs this audit had already located.
+Every mint had to pass two gates: the log must parse to a real checkMesh
+record, and **the log's cell count must equal the mesh's own `nCells`** read
+from the polyMesh `owner` header. The second gate is what stops a certificate
+drifting onto a different mesh — the failure the hash binding exists to
+prevent, which would otherwise reappear in the act of back-filling it.
+
+| outcome | rows |
+|---|---|
+| **MINTED** and now admitted by `certificate_admits()` | **95** |
+| DISCREPANCY: this audit's own cited log parses `broken` | 7 |
+| mesh states no `nCells` of its own, so the cross-check cannot run | 3 |
+
+Verified after the fact: 95 admitted, **0 minted-but-refused**, 10 still
+uncertified — the 7 + 3 above.
+
+### The 7 discrepancies, for this audit's owner to rule on
+
+These rows are marked `CERTIFIED (pre-existing record)` here, and the log each
+one cites parses to hard errors under **this audit's own verdict rule**
+(negative volumes, wrong-oriented face pyramids, non-orthogonality errors,
+skewness errors, or a flagged aspect ratio in the pyHyp range):
+
+- `rae2822-meshcheck/og-fine`, `og-medium`, `ogrid-coarse` — **negative-volume
+  cells**, plus wrong-oriented face pyramids, non-orthogonality and skewness
+  errors
+- `dpw5-committee-probe/case_hex` — wrong-oriented face pyramids, skewness
+  errors, flagged aspect ratio (max AR 1.44e4)
+- `hlpw6-memory-probe/case_HLPW6` — skewness errors, flagged AR (2.29e3)
+- `rae2822-meshcheck/og-coarse` — skewness errors, flagged AR (6.09e3)
+- `tmr-bump-finer` — flagged aspect ratio at **2.23e6**, above the 1e6
+  pyHyp-pathology threshold and far above the 6.6e4–7.4e4 NASA-grid signature
+  this audit documents as a flag rather than an error
+
+**No certificate was written for these.** Minting one would quarantine another
+family's mesh on the strength of a parser, and an absent certificate already
+quarantines it — so the conservative action and the honest one are the same
+action, and the decision stays with the owner.
+
+### Provenance: these are not birth certificates
+
+A certificate minted from an archived log is a weaker fact than one written at
+creation, and it says so. Each carries
+`"provenance": "retrospective-from-archived-log"`, the log path, both mtimes,
+and the cell-count cross-check result. **6 of the 95 rest on a log written
+BEFORE the points file** (`.mesh-cache/b52`, `.mesh-cache/motorBike`,
+`W4-defect-reach/a35_np1`, `W4-defect-robustness/a4conf_np4scotch` among
+them); the cell count agrees in every case, so the mesh size is unchanged, but
+mtime ordering is recorded rather than relied on. A reader can tell a birth
+certificate from a retrospective one, which is the point: the mesh standard's
+guarantee is not quietly widened to cover something it never promised.

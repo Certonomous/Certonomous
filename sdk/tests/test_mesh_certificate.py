@@ -295,5 +295,55 @@ class ModelFormEntryRefusalTests(unittest.TestCase):
             self.tmp / "absent", "H", "H_fixture", fallback=fallback)
 
 
+class ProvenanceTests(unittest.TestCase):
+    """A certificate minted from an ARCHIVED log is not the same fact as one
+    minted at creation, and the file has to say which it is.
+
+    WHY THIS EXISTS. The 2026-08-08 audit marked 105 meshes `CERTIFIED
+    (pre-existing record)`; a coverage check found 105 carried a checkMesh log
+    and ZERO carried a certificate. Back-filling them is correct, but a
+    back-filled certificate rests on a log found later, and only a cross-check
+    binds it to the points file on disk now. If that reads identically to a
+    born-at-creation certificate, the mesh standard's guarantee is quietly
+    widened to cover something it never promised.
+    """
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="cert-prov-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        (self.tmp / "polyMesh").mkdir()
+        (self.tmp / "polyMesh" / "points").write_text("(0 0 0)\n")
+
+    def test_a_certificate_is_born_at_creation_by_default(self):
+        cert = mc.write_certificate(self.tmp, check_log_text=CLEAN_LOG)
+        self.assertEqual(cert["provenance"], mc.PROVENANCE_AT_CREATION)
+
+    def test_a_retrospective_certificate_says_so_on_its_face(self):
+        cert = mc.write_certificate(
+            self.tmp, check_log_text=CLEAN_LOG,
+            provenance=mc.PROVENANCE_RETROSPECTIVE,
+            evidence={"check_log": "/somewhere/log.checkMesh"})
+        self.assertEqual(cert["provenance"], mc.PROVENANCE_RETROSPECTIVE)
+        self.assertIn("retrospective", cert["provenance"])
+        # And it survives the round trip, which is what a later reader sees.
+        back = mc.read_certificate(self.tmp)
+        self.assertEqual(back["provenance"], mc.PROVENANCE_RETROSPECTIVE)
+        self.assertEqual(back["evidence"]["check_log"],
+                         "/somewhere/log.checkMesh")
+
+    def test_provenance_does_not_change_what_admits(self):
+        """The weaker provenance is a disclosure, not a second gate: a
+        retrospective certificate still admits or refuses on the same
+        conditions, so nothing silently depends on how it was minted."""
+        mc.write_certificate(self.tmp, check_log_text=CLEAN_LOG,
+                             provenance=mc.PROVENANCE_RETROSPECTIVE)
+        admitted, _ = mc.certificate_admits(self.tmp)
+        self.assertTrue(admitted)
+        (self.tmp / "polyMesh" / "points").write_text("(9 9 9)\n")
+        admitted, why = mc.certificate_admits(self.tmp)
+        self.assertFalse(admitted)
+        self.assertIn("different mesh", why)
+
+
 if __name__ == "__main__":
     unittest.main()

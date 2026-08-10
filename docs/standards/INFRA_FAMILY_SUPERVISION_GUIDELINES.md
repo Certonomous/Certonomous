@@ -1,5 +1,12 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.12, dated 2026-08-10 (night). Adds section 11: 105 meshes the
+2026-08-08 audit called CERTIFIED carried the checkMesh log and none carried
+the certificate, so the word named an artifact nobody had written. 95 minted
+with a cell-count cross-check and a stated retrospective provenance; 10 refused
+and reported, 7 of them because the audit's own cited log contradicts its own
+verdict.
+
 Version 1.11, dated 2026-08-10 (night). Adds 10.6: the retrospective the
 declared-vs-observed rank fix earned. Has the channel ever fired? **No** --
 zero mismatches, established with two independent recovery routes and a
@@ -1147,6 +1154,59 @@ contract that moved is a rail-bypass. Escalated under 1.6.
 
 Also worth the owner's read: it fails standalone every time, which means the
 suite-green history implies its outcome depends on test ordering.
+
+## 11. Minting the certificates the standard already required (2026-08-10)
+
+`certificate_admits()` requires a FILE. The 2026-08-08 audit marked 105 meshes
+`CERTIFIED (pre-existing record)` on the strength of a `log.checkMesh`, and
+**105 of 105 carried the log while 0 carried a certificate** -- so the standard
+this family wrote quarantined every one of them, which is what happened
+unprompted to two M6 members and two retrofit ladders. The evidence existed,
+the artifact did not, and downstream machinery believed the word.
+`scripts/mint_retrospective_certificates.py`, 0 core-min.
+
+**Result: 95 minted, 10 refused and reported.** Verified after the fact: 95
+admitted, **0 minted-but-refused**.
+
+- **The cross-check is the load-bearing part.** A retrospective certificate
+  rests on a log found later, so nothing inherently binds it to the points
+  file present now. Every mint had to show **the log's cell count equals the
+  mesh's own `nCells`** from the polyMesh `owner` header. Without it, this
+  pass would have re-created by hand exactly the drift the `points_sha256`
+  binding exists to prevent -- L-46 again: the fix for a class is where that
+  class reappears.
+- **7 refusals are a discrepancy in the audit itself**, not in the meshes:
+  each row is marked CERTIFIED while the log it cites parses to hard errors
+  under the audit's OWN verdict rule -- three with **negative-volume cells**,
+  and `tmr-bump-finer` at aspect ratio 2.23e6, above the 1e6 pyHyp threshold
+  and far above the 6.6e4-7.4e4 NASA-grid signature the audit documents as a
+  flag. **No certificate was written for them.** Minting a `broken`
+  certificate would quarantine another family's mesh on a parser's say-so, and
+  an absent certificate already quarantines it, so the conservative action and
+  the honest one coincide and the ruling stays with the owner.
+- **3 refusals are meshes that state no cell count of their own**
+  (`w1-bump-nasa-grids` coarse/medium/fine), so the cross-check cannot run and
+  the mint is not attempted.
+- **Provenance is recorded, not assumed.** Every minted certificate carries
+  `provenance: retrospective-from-archived-log`, the log path, both mtimes and
+  the cross-check result. **6 of 95 rest on a log written BEFORE the points
+  file**; cell counts agree, so size is unchanged, and the ordering is
+  disclosed rather than relied on. A reader can tell a birth certificate from
+  a back-filled one, which keeps the mesh standard's guarantee at its actual
+  width.
+- **The audit takes a dated amendment, never a rewrite** (L-44). No verdict is
+  revised and no mesh is impugned; a word that named a missing artifact is
+  corrected to CHECKED BUT UNCERTIFIED.
+
+**Found while fixing it, and now fixed for the three scripts this family
+owns:** `scripts/launch_solve.sh` -- *"the ONLY sanctioned way to start a long
+solve"* -- was tracked in git as mode `100644`, **not executable**. It has
+worked only because every working tree happened to carry the bit locally; a
+fresh clone could not run it. **29 tracked scripts under `scripts/` carry a
+shebang and no exec bit**; the wider set is reported, not mass-chmodded,
+because most belong to other families. It surfaced because rewriting the file
+dropped the local bit and this family's own launcher tests went red -- the
+suite catching a defect that had been latent since the file was created.
 
 ## Related
 
