@@ -12,7 +12,8 @@ about its REACH first; a found-dead verdict is a claim about IMPLEMENTATION and
 implementation hides in `.H` includes), L-45 (a gate may fail open, never false),
 L-46 (a change that creates an artifact is audited from both ends), L-48 (record a
 gap as a gap, never as a constraint), L-49 and L-51 (a search has a method **and** a
-frame). `VERIFICATION_CHARTER.md` §9. Infra family supervision guidelines v1.13.
+frame). `VERIFICATION_CHARTER.md` §9. Infra family supervision guidelines v1.13 at dispatch; v1.14 by the time this
+file was committed (see the dated amendment in 1.4).
 
 **Compute: zero core-minutes.** No solve was run, priced, or requested.
 
@@ -209,6 +210,31 @@ rewritten here.**
 
 | rank | found-dead | reopens | why it ranks here |
 |---|---|---|---|
+> **DATED AMENDMENT, same night, before this file was finished.** While this pass was
+> running, a peer agent landed **`07472cf2`** — *"S6 and S8 cannot fire on any
+> production run… S9's `check_wall_time` has no caller but tests"* — correcting
+> `MONITOR_STANDARD.md` to **v1.5** and the Infra guidelines to **v1.14**, and
+> **`5ac38e6e`** adding that the S6 replay's 37 fires over 46 logs are one case family
+> judged against a `1e-15` sentinel no solve reaches.
+>
+> **D1, D2 and D3 below were therefore found independently, twice, on the same night,
+> and are already actioned.** Two consequences, both stated rather than smoothed:
+> **(a)** D1's line "unrecorded anywhere in the lab's own records" was true when found
+> and is **now false** — it is recorded at `07472cf2`. The row is left standing with
+> this correction attached rather than rewritten, because an audit that quietly
+> updates its own findings to match the world is not evidence. **(b)** The
+> independent-corroboration point cuts the other way for **D4, which `07472cf2` did
+> NOT touch**: the false universal still stands verbatim at `MONITOR_STANDARD.md:75-76`
+> in v1.5, and its cited evidence still describes the superseded mesh at
+> `NUMERICS_KNOWLEDGE.md:35,37`. **D4 is the live one.**
+>
+> `5ac38e6e` and section 2.5's **FP-1** are two independent routes to one conclusion —
+> that the S6 replay artifact does not discharge `MONITOR_STANDARD` §3.1. The peer
+> found the *fires* unrepresentative; this pass found the *corpus* was 449 files of
+> 1,618. Neither knew of the other. Per **L-50**, that is worth more than either alone,
+> because the two legs are different in kind: one reads the artifact's contents, the
+> other measures the population it was drawn from.
+
 | **1** | **D1 — monitor rules S6/S8 are unreachable in production.** The standard's per-rule Status lines are honest ("when constructed with `residual_target`"); **nobody ever checked whether anything constructs it that way.** **Re-verified firsthand by this supervisor:** `residual_target` is passed at exactly two kinds of site — `sdk/tests/test_head_engineer.py:109,131,178` (tests) and `sdk/scripts/replay_monitor_rules.py:134,231` (the replay harness). **Zero production paths.** `head_engineer.py:592` `if self.residual_target is None … return` is the gate that never opens | `MONITOR_STANDARD.md`'s S6/S8 status; **unrecorded anywhere in the lab's own records** | A rule that cannot fire is a rule the lab believes it has and does not. Highest impact and, uniquely on this list, **not previously written down anywhere** |
 | **2** | **D4 — `MONITOR_STANDARD.md:64-67`'s universal is false.** It states *"every OpenFOAM log prints a trapping banner (`trapFpe: …`)… Evidence: motorcycle benchmark logs, knowledge base fact 7."* **Re-verified firsthand:** `solve_registry/b3_diag_frozen{4,5}_*.log` carry **0** `trapFpe` hits while being unambiguously genuine solver logs (11,914 lines, **11,088 `Initial residual` lines**, `Selecting incompressible transport model Newtonian`), against a **positive control confirming the token is findable where it exists** (`F5c_runs/…/log.blockMesh`, 1 hit). Its cited evidence, `NUMERICS_KNOWLEDGE.md:34-41`, describes a **superseded motorBike mesh** (353,578 cells / skew 8.94, replaced by 353,688 / skew 3.99 per `MOTORBIKE.md:45`) | **two** conclusions: `NUMERICS_KNOWLEDGE.md:39-41` and `MONITOR_STANDARD.md:64-67` | **The rule itself survives and is still correct** — keying `sigFpe::sigHandler` is strictly safer than keying the banner either way. Only the *warrant* is defective, and it is defective twice over |
 | **3** | **D2 — `LogMonitor.check_wall_time` has no callers outside its own test.** | `MONITOR_STANDARD.md:342-356` and `VERIFICATION_CHARTER.md:816-827`, which both record a five-day defect in which *"every caller that took the monitor default was judging on a threshold nobody approved"* | The correction has landed (`head_engineer.py:641` now reads `flag_multiple: float = FLAG_MULTIPLE`). But **"every caller" was the test suite** — the recorded defect had empty production blast radius. Good news about the defect, bad news about the rule: it is the same fact that makes D1 true |
