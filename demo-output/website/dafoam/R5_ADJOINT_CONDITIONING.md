@@ -324,3 +324,66 @@ the flipped token converges (551a7ba5), two converged and FD-verified rungs
 and the lever triage above (3ac8257e). This is the **second** standing conclusion
 the dead lever corrupted — the first being the conditioning wall itself. Routed
 by the chief to the defect report's owner.
+
+### 2026-08-10, SAME DAY — CORRECTION TO THE RETRACTION ABOVE. I over-corrected; §3's phenomenon is REAL, and mesh-dependent.
+
+The retraction above was written at 15:41Z from three converged rung-1 arms. At
+15:44Z the rung-3 stage-0 transfer arm returned, and it falsifies part of what I
+had just written. Recording it with the same prominence as the claim, per this
+family's own rule, and before the retraction travels any further.
+
+**The measurement.** L3 Richardson (`globalPCIters=3, localPCIters=3`) at
+**42,120 cells with the transonic PC ACTIVE** (`transonicPCOption 1;` verified in
+the DAOption dump; cold signature `0.6833296303785072`; no sub-LU; the ONLY
+change from the arm that converged at CD 987 / CL 1171 is the Richardson lever):
+
+```
+**Completed**! Total iterations: 200. PetscConvergedReason: -5.  152.66 s   (CD)
+Main iteration 200 KSP Residual norm 9.490658670647e-154
+**Completed**! Total iterations: 200. PetscConvergedReason: -5.  228.32 s   (CL)
+Main iteration 200 KSP Residual norm 0.000000000000e+00
+```
+
+**Collapse to exactly 0.0 at iteration 200 — which is `gmresRestart`, the first
+restart boundary.** That is §3's signature reproduced verbatim ("collapsing to
+exactly `0.0` … at the restart recomputation itself"), on a live preconditioner.
+
+**What is therefore withdrawn from my own retraction:** the sentence "that
+statement is true of the runs that were made and FALSE as a property of this
+solver family", and the framing of §3's collapse as "configuration-induced". The
+collapse is **not** an artifact of the dead lever. It is real, and the dead lever
+was not its cause.
+
+**What survives, and what the pair of measurements actually establishes.** The
+two results are not in conflict once mesh size is admitted as the variable:
+
+| mesh | PC | fill1 | Richardson |
+| --- | --- | --- | --- |
+| 21,840 (rung 1) | ACTIVE | reason 2, 236/250 iters | reason 2, 209/211 iters |
+| 42,120 (rung 2) | ACTIVE | not tested | **`-5`, collapse at iteration 200** |
+| 21,840 (R5, as recorded) | DEAD | `-5`, collapse | `-5`, collapse |
+
+**Refined mechanism, offered as the hypothesis the data supports and not more.**
+Both rung-1 strengthened arms converged in 209–250 iterations — i.e. within
+roughly ONE restart cycle of the 200-iteration `gmresRestart`, meeting their
+first restart with an already-tiny residual. The rung-2 Richardson arm met its
+first restart with the residual still at ~1.4e−01 and collapsed there. So the
+candidate rule is: **a strengthened preconditioner destabilises the GMRES restart
+recomputation, and whether that bites depends on whether convergence completes
+before the restart matters — which is a function of mesh size.** On that reading
+R5 saw collapse at 21,840 cells because the dead PC left it far from convergence
+at its restart, while an active PC at the same size finishes first. This is a
+hypothesis with two supporting points and one prediction (fill1 should also
+collapse at 42,120 cells, untested); it is not established, and it is labelled so.
+
+**Net effect on §3.** Its *observation* stands, reproduced. Its *scope* was too
+broad: "every attempt to strengthen reintroduces collapse" is false at
+21,840 cells with the PC active, true at 42,120 cells with the PC active. Its
+"no mechanism" caveat (§§179, 197) stands as honestly as before — the restart
+hypothesis above is the first candidate mechanism this record has, and it is
+mine, unproven.
+
+**Consequence for the ladder, recorded here because it is where the reasoning
+lives:** the pre-registered plan to adopt Richardson for rung 3 is VOID. Rung 3
+runs the baseline configuration (`A3_RUNG3_N52_PREREGISTRATION.md` §3's own
+stage-0 failure branch), which is what was launched.
