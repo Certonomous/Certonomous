@@ -1223,6 +1223,29 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   per-iteration cost is unknown.** The agent stopped arm 2 at its graded solve rather than spending ~30 further
   core-min on this family's known false-success path.
 
+### 2026-08-10 (closing 7) — a refutation audited before it propagated, and the DAFoam family rests
+
+- **THE AGENT AUDITED ITS OWN REFUTATION BEFORE IT TRAVELLED** (7.0 core-min, self-executed under threshold; f61222ae).
+  Its FD-2 correction rested on a source read plus a config read — **the same evidence class as the wrong verdict it
+  corrects** — so it measured instead: one token flipped on a small case gives 435 iterations to tolerance with the
+  flag off, 490 with it on. **The flag is ACTIVE, proven by behaviour rather than by reading**, the refutation now
+  stands on three legs with the third of a different kind, and no correction is owed on the material already routed.
+  Recorded as **L-50**: a correction must not travel on the evidence class of the thing it corrects — two source
+  reads disagreeing is a disagreement about reading; a source read and a measurement agreeing is a finding.
+- Bonus of the same shape: the converged objectives agree to 7–8 significant figures, which is the expected
+  algorithm relationship (different path, same steady state). The retracted claim had been that the two algorithms
+  *land on numerically different steady states* — requiring genuine bistability AND different attractors, far
+  stronger than "the codes differed", never demonstrated, and moot because both runs used the same algorithm.
+  **A4's 22.05% gap remains genuinely unexplained**, as its record says.
+- Overrun disclosed at full occupancy: 7.0 core-min against ~2, entirely two setup misfires (assuming a rank count
+  instead of reading the decomposition dict, then re-running before clearing a stale one). Configuration mistakes
+  billed as compute, named as such.
+- **THE DAFOAM FAMILY RESTS.** The agent declined to manufacture work: A3 closed at twelve eliminations, the defect
+  candidate and branch-taping class are filing-ready and held by policy, two findings are routed to other families,
+  and the single defensible remaining item (~29 core-min) is a hypothesis tidy-up that **would not change any
+  verdict**. Chief ruling: **DECLINED** — the same standard applied all day, that compute which cannot move a
+  decision is not spent.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

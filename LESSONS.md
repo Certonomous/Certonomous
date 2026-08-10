@@ -2133,3 +2133,37 @@ it so. And when a check is run "by a second route", the route must differ in
 KIND: a second regex with more synonyms you thought of is the same measurement
 twice (L-48's recount/re-read distinction, applied to search rather than
 arithmetic).
+
+
+## L-50. A correction must not travel on the evidence class of the thing it corrects
+
+The dead-lever audit's FOUND-DEAD verdict on SIMPLEC was wrong because it
+rested on a source read with the wrong file list. The refutation that overturned
+it rested on **a source read plus a config read** — the same evidence class,
+better executed. The agent noticed this about its own work before the
+correction propagated upstream, and stopped: *a correction travelling on the
+evidence class it is correcting is the same defect wearing the opposite
+conclusion.*
+
+So it measured instead. One token flipped on a small case: 435 iterations to
+tolerance with the flag off, 490 with it on. **The flag is active**, proven by
+behaviour rather than by reading. The refutation now stands on three legs and
+the third is of a different kind, so no correction is owed on the material
+already routed.
+
+The rule: when overturning a claim, ask what KIND of evidence the original
+rested on, and get at least one leg of a different kind. Two source reads
+disagreeing is a disagreement about reading. A source read and a measurement
+agreeing is a finding. This applies with most force to the corrections that
+feel safest — the second look is done by someone who now knows the answer, and
+confidence is not a class of evidence.
+
+The same arm produced a bonus of the same shape: the converged objectives agreed
+to 7–8 significant figures, which is the expected SIMPLE/SIMPLEC relationship
+(different path, same steady state). The retracted claim had been that the two
+algorithms *land on numerically different steady states* — which would require
+the wake to be genuinely bistable AND the two paths to land in different
+attractors, a far stronger claim than "the codes used different algorithms",
+never demonstrated, and moot in any case because both runs used the same
+algorithm. The gap it purported to explain remains genuinely unexplained, which
+the record says.
