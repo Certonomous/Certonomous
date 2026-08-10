@@ -1688,6 +1688,38 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   stating no cell count of their own, which a fresh check then supplied.
 - **All three families now report AT REST, each having demonstrated it rather than asserted it.**
 
+### 2026-08-11 — the cold reviewer reproduces the score exactly, and finds the package would have been sent wrong
+
+- **A11 COLD REPRODUCTION: PASSED, bit-for-bit** (636c0b91), by an agent that read ONLY the submission package and what
+  the package points at — it did NOT open the status file, the rank-probability record, the campaign files, or any
+  Ladder V rung, and its frame is stated on its face. Overall re-scored on the benchmark's own unmodified scorer:
+  **0.056647191704213645, identical to the last bit**; 8/8 hashes match; all four published entrants re-score to their
+  leaderboard values; the RANS-identity floor reproduces; **three duct CSVs re-derived at exactly zero deviation** from
+  the frozen fields, two more at the CSVs' own write precision. Evaluation-point ordering — the silent-killer failure
+  mode — is clean at max|diff| = 0. The untrained claim verified in code, and test-blindness verified by the ABSENCE of
+  any truth file in the three test-duct run dirs though the benchmark ships one for each.
+- **AND THE PACKAGE WOULD HAVE BEEN SENT WRONG. Three BLOCKING defects:** the cover material is **two rounds stale** —
+  its email quotes 0.0654, names the round-3 directory and gives round-4 per-case values; **the description document
+  the package requires DOES NOT EXIST**, only a spec for it (the same defect class the package itself closed for the
+  CSVs, one level up, uncaught); and the package never says where the benchmark or scorer is or how to install it —
+  the cold agent found them by filesystem search. Every provenance pointer dangles on receipt and the reference URL is
+  still a placeholder. **This is precisely what a cold pass is for, and it is why the gate exists.**
+- **CHIEF RULING REVERSED — P(rank 1) is no longer internal-only.** I ruled that figure internal by its own gate. The
+  cold agent computed **0.674 from public data in about a minute**, independently of ours, and its judgement is
+  correct: *the withholding buys nothing and costs credibility.* A number an outsider can trivially reproduce is not
+  protected by being withheld; it only looks concealed. The figure travels with the entry, with its interval and its
+  not-decided pairs.
+- **The disclosure gap is the most serious of the three weakest points:** the round-5 route was chosen while the
+  per-case test scores were known, and the disclosure list discloses only the round-2 leakage. The lab's own rule
+  freeze concedes the point in its own words and then closes every remaining degree of freedom — but **that honest
+  sentence lives in a file that does not travel with the submission.** It must.
+- Also named: §4.7's asymmetry argument was never extended to the three QCR rows; and five of eight predictions are
+  not the lab's model, with the trained model on the hump measurably WORSE than doing nothing (+0.00014, refused for
+  the entry, correctly).
+- **Strongest verified asset, and it does not depend on our score at all:** on exactly the two cases the train-only
+  gate DECLINED, the supplied baseline beats all four published entries (0.046108 vs 0.0569; 0.071863 vs 0.0760).
+  That is a finding about the benchmark itself.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
