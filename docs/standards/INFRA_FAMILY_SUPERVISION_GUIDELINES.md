@@ -1,5 +1,11 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.7, dated 2026-08-10 (night). Records the chief's two rulings on
+P-4.2 in section 1.8 — evidence is judged by WHEN IT WAS CAPTURED, not when it
+was written, and a claimed limit is refused unless measured (L-48) — adds the
+third worked example to 5.1, which makes that a pattern of three rather than
+an anecdote, and closes the pass with the queue assessment in section 8.
+
 Version 1.6, dated 2026-08-10 (night). Adds section 7, two items routed in
 from the Cases family: the echo was recording SOLUTIONS as levers (24.6 MB of
 a 25.2 MB B-52 log, 97.8%), now 8.5 kB with every lever verbatim and the
@@ -224,6 +230,24 @@ this rule twice in three days, in both directions, so it is written down:
   echo format; it calls the canonical `sdk/chief_engineer/lever_echo.py`
   through `scripts/lever_echo_emit.py`. Two implementations of an evidence
   format are two things that can disagree about what was proved.
+- **The test is WHEN THE EVIDENCE WAS CAPTURED, not when it was written**
+  (added v1.7, chief's ruling on P-4.2). A launcher that captures the
+  dictionaries at t=0 and writes them into the log after the run finishes is
+  sound: the bytes are the bytes that ran. A launcher that READS the
+  dictionaries after the run and writes them then is not, because the run may
+  have changed them — that is the post-hoc assembly L-45 forbids. The two look
+  identical in the finished log, which is exactly why the rule has to be
+  stated at the capture site rather than inferred from the artifact. It is
+  what makes a `subprocess.run(..., stdout=PIPE)` path perfectly verifiable
+  despite writing its log last.
+- **Verify the premise that the offered options share** (L-48). A choice
+  arrives with authority, and the assumption inside it is the part nobody
+  re-derives. Picking well from a false menu is worse than rejecting the menu,
+  because a well-argued answer to the wrong question is harder to overturn
+  than no answer. And when the shared premise is a claimed LIMIT, refuse it
+  unless measured: **a gap invites a fix, a constraint forbids one.** A limit
+  written into a standard that measurement says is not there is inherited as
+  settled, and the cheap fix nobody attempts becomes invisible forever.
 
 ### 1.9. Evidence has to survive the next run, not just get written
 
@@ -632,6 +656,29 @@ The uncomfortable part is worth stating plainly: this was the fix for a class
 of defect nearly reintroducing that class, inside the pass that exists to
 close it. Familiarity with a failure mode is not immunity to it.
 
+**Third instance, and the one that makes this a pattern rather than an
+anecdote** (2026-08-10, chief's instruction to record it). The elision fix in
+section 7.1 shipped a first version that **failed its own test**: the marker
+written to account for each dropped payload embedded that payload's byte count
+and sha256, so two replicates differed *through the very marker added to
+describe the difference*, and the G4 equality it was meant to repair still
+failed. Nothing flagged it. It was caught by running the comparison against
+the two real replicate cases instead of reasoning about whether it would work.
+
+The three together — the vacuous launch check, the archive name caught by five
+globs, and a marker that defeated its own comparison — are one failure mode
+seen from three sides:
+
+> **A change is not finished when it does what you intended; it is finished
+> when you have run the check that would fail if it did not.** All three of
+> these looked right, read right, and passed every existing test. Two were
+> found by asking *what else reads this?* and one by refusing to reason about
+> a result that could be measured on real data in under a minute.
+
+The third is the only one where the author's own claim was the thing under
+test, which is why it is the least likely to be caught by anyone else and the
+most important to record.
+
 ## 6. L-42 enforced: the evidence now survives the next run (2026-08-10, night)
 
 Chosen under the standing directive as the highest-value item this document
@@ -763,6 +810,30 @@ false-negative paths on completed cases, so the migration buys nothing until
 one is run again. **The "permanently unverifiable" option is recommended
 against on principle**: a false constraint written into a standard is worse
 than an open gap, because a gap invites a fix and a constraint forbids one.
+
+## 8. Queue assessment, end of the enforcement arc (2026-08-10, night)
+
+The arc is complete: evidence **exists** (the echo), **survives a rerun**
+(L-42 archiving), **cannot be forged** (run-directory binding, L-45), **cannot
+be missed on the launch shapes that matter** (predicate consolidation), and is
+**small enough to read** (2896x elision). Recording what is left, because a
+supervisor's "nothing to do" is a claim that should be auditable rather than
+taken on trust.
+
+**Nothing in this family clears the ~10 core-min bar. The queue is genuinely
+empty.** What was considered and why each was not taken:
+
+| Candidate | Verdict |
+| --- | --- |
+| `lever_echo.SOLVERS` is a spelling-keyed allowlist: a solver not in it gets no echo, silently | **Latent, no live gap.** Measured: every solver with evidence of ever having run (7) is in the 11-entry list; `plot3dToFoam`, the only unlisted name with a log, is a mesh converter and correctly excluded. Per 3.3, the condition holding it latent, stated: adopting a new solver is a deliberate act during which this list is the obvious thing to touch. A cheap consistency fix is available — make the predicate's silent "no" visible the way the launcher's REFUSED fence is — and is filed for next touch, not a pass of its own. |
+| Superseded logs accumulate on disk (introduced by section 6) | **Not a risk, measured.** 363 GB free of 484 GB; archives are single-digit MB; and 7.1's elision cut the dominant 24 MB logs by ~97%, so the growth rate fell as this was introduced. |
+| K-2, the 45+30-minute silence window that powered the box off mid-campaign | **Not the family's to rule on.** A cost-control tradeoff with a measured downside is the owner's decision; on Katie's standing list and staying there. |
+| 2 orphaned claims, 2 done-without-outcome docket entries | Other families' records; escalated 2026-08-07 and still the chief's. |
+| Three campaign scripts (3.3) and P-4.2's five paths | Chief routing / ruled NEXT-TOUCH. Not work now, by decision. |
+| A-4, A-5, A-6 (section 2.2 notes) | Recorded with stated reasons not to act: a migration boundary that is not a security boundary; process-lifetime memory only; owner-entered fields deliberately exempt from the style rails. |
+
+The right next work for this family is whatever the next incident produces.
+This document is iterated on incident, and there is no incident.
 
 ## Related
 
