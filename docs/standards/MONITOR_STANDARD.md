@@ -1,5 +1,13 @@
 # Certonomous Monitor Standard
 
+Version 1.7, dated 2026-08-10. **S6 is wired and now fires on production
+runs**, armed at staging from the case's own `residualControl`, with the
+sentinel class excluded by construction (a target at or below its field's own
+linear-solver tolerance is unreachable in principle). Pre-registered before
+the code existed and every prediction met, including the family spread
+(92/48/20). S8 stays unwired. Section 3.1 gains the reach requirement a
+corpus owes.
+
 Version 1.6, dated 2026-08-10. **Corrects a warrant, a corpus, and a claim --
 no rule changes.** S1's warrant ("every OpenFOAM log prints a trapping
 banner") is false: 39 of 149 registry logs carry none, across eight family
@@ -996,7 +1004,7 @@ whether a rule is correct: every rule below is implemented and tested.
 | rule | HeadEngineer (geometry studies, Ahmed, hump, UQ) | mega-batch ledger | offline replay | tests |
 |---|---|---|---|---|
 | S1-S5, S7, S10-S12 (ungated) | fires | — | fires | fires |
-| **S6** residual stall | **UNREACHABLE** (needs `residual_target`) | — | fires | fires |
+| **S6** residual stall | **fires** (armed at staging from the case's own `residualControl`, 2026-08-10) | — | fires | fires |
 | **S8** Courant excursion | **UNREACHABLE** (needs `courant_limit`) | — | — | fires |
 | **S9** wall-time excursion | **UNREACHABLE** via `check_wall_time` | fires, via `wall_time_record_field` | — | fires |
 
@@ -1022,6 +1030,27 @@ that looks like it is an artifact:
   a run-to-the-cap sentinel from a single case family that no solve reaches.
   The 37 was not S6's fire rate; it was one family measured against an
   unreachable number.
+
+### Before adopting any rule: state your corpus's reach
+
+**Every input to a conclusion is an instrument** -- the search, the corpus,
+the frame, the file list, the launch environment -- and each needs its reach
+stated before anything is adopted against it. A replay is evidence about a
+CORPUS before it is evidence about a rule, and a corpus assembled by a
+filename convention is a filter nobody has audited.
+
+So a replay filed under section 3.1 states, beside its fire count:
+
+- **how the corpus was selected**, and whether that selection is a DERIVATION
+  (what the artefact is) or a LIST (what it happens to be called);
+- **what it could not see** -- compressed, untracked, differently-named,
+  timed-out -- with a positive control proving it can see a known-present
+  specimen;
+- **what fraction of the plausible universe it covers**, measured, not assumed.
+
+The cost of not doing this is on the record below: six rules adopted against
+28% of the evidence, and the number that looked like a fire rate was one case
+family measured against a target no solve can reach.
 
 ### The corpus behind six adopted rules was selected by a filename accident
 

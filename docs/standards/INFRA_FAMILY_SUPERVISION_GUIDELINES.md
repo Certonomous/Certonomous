@@ -1,5 +1,11 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.16, dated 2026-08-10 (night). S6 wired under the chief's ruling,
+pre-registered before the code and scored with the shipped helpers rather than
+the design script; every prediction met. Generalises 13.4's corollary: **every
+input to a conclusion is an instrument**, now placed at the adoption gate a
+rule-author meets rather than only where an auditor would.
+
 Version 1.15, dated 2026-08-10 (night). Adds 13.4: the evidence gating six
 adopted monitor rules was selected by a filename accident, and correcting it
 3x'd the corpus and reversed this family's own S6 refusal. Adds 13.5, the D4
@@ -1397,6 +1403,47 @@ logs and read the other 110 healthy runs as fatal.
 **Say which one moved.** The warrant moved; the rule did not. An amendment
 that blurred them would spend credibility for nothing, which is the same coin
 as an overstated blast radius.
+
+### 13.6. S6 wired, and the shape of the verification
+
+Wired under the chief's ruling on two conditions, both mechanisms rather than
+policies. **The target comes from the case's own `system/fvSolution`**, read
+at staging -- the one place every case passes through -- and NOT from a
+constructor argument, because a parameter the caller must remember is the
+defect being closed, one layer up: whoever forgets it gets silence. **The
+sentinel class is excluded by construction**: a `residualControl` target at or
+below that field's own linear-solver `tolerance` cannot be reached, since the
+outer residual cannot go below what the inner solve resolves. Both numbers
+come from the same file, so the exclusion is a relation the case states about
+itself -- no magic constant, and on the corpus it captured 135 of 135
+sentinels and nothing else.
+
+Two things about the verification are the transferable part:
+
+- **Pre-registered before the code existed**, committed separately so the
+  ordering is provable rather than asserted, with the FAMILY SPREAD scored
+  separately from the headline because a single global number hides it in both
+  directions.
+- **Scored with the SHIPPED helpers, not the script used to design them.** A
+  rule validated in one form and shipped in another is a failure this campaign
+  met repeatedly; running the design script again would have proved nothing
+  about what ships. Every prediction met exactly: 81 gated, 35 fires, 43%, 135
+  excluded, spread 92/48/20, and 6 fail-open cases counted rather than folded
+  into either class.
+
+### 13.7. The generalisation, placed where it will be met
+
+Nine instances put it past "instruments can be blind": **every input to a
+conclusion is an instrument** -- the search, the corpus, the frame, the file
+list, the launch environment -- and each needs its reach stated before
+anything is adopted against it. The rule now sits in `MONITOR_STANDARD.md`
+immediately before the adoption gate, so **a rule-author meets it, not only an
+auditor**: a replay states how its corpus was selected, whether that selection
+is a DERIVATION or a LIST, what it could not see, and what fraction of the
+plausible universe it covers.
+
+The cleanest demonstration this family has produced that a list is not a
+derivation: **`*.log` plus `log.*` still misses 96 real run logs.**
 
 ## Related
 

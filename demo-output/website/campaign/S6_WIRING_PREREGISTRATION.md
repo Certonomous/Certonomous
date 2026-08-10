@@ -81,3 +81,47 @@ retro-fitted with a reason. The bar is fixed here and now.
 
 Any of these means S6 comes back out, and the standard says so rather than the
 rate being renegotiated.
+
+---
+
+## RESULT, 2026-08-10 — every prediction met, verified with the shipped code
+
+S6 is wired. `HeadEngineer.arm_residual_gate()` reads the staged case's own
+`system/fvSolution` and is called from `stage_case` — **not from a constructor
+argument**, because a parameter the caller must remember to pass is the defect
+this wiring closes, one layer up: whoever forgets it gets silence.
+
+**Scored against section 3 by replaying the SHIPPED helpers** (not the script
+used to design them) over the corrected corpus. That distinction is the point
+of the check: it tests what ships, and a rule validated in one form and
+shipped in another is the failure this campaign has met repeatedly.
+
+| prediction | predicted | measured | |
+|---|---|---|---|
+| gated logs | 81 | **81** | met |
+| fires | 35 | **35** | met |
+| fire rate | 43% | **43%** | met |
+| sentinel-excluded, by construction | 135 | **135** | met |
+| campaign family | 48% | **48%** (16/33) | met |
+| dafoam family | 92% | **92%** (12/13) | met |
+| mega-batch family | 20% | **20%** (7/35) | met |
+| gated runs with an unreachable target | 0 | **0** | met |
+
+**Fail-open count, stated rather than folded in: 6** logs whose fields declare
+no linear-solver tolerance are not gated, because reachability cannot be
+established and so is not asserted.
+
+The family spread survives wiring intact — 92% / 48% / 20% — which is the
+finding the pre-registration insisted be scored separately. A uniform rate
+would have meant the recovery logic was not seeing what the replay saw; it is
+not uniform, and the spread is the same one measured before the code existed.
+
+**Refutation conditions: none triggered.** No gated run carries a target at or
+below its own solver tolerance; every target was recovered from the running
+case's own dictionary; the rate is inside the band.
+
+**S8 remains unwired**, as pre-registered. It still has no replay of its own.
+
+Suite 1294 passed, 0 failed on this family's work (one unrelated
+ordering-dependent aircraft-roster failure is escalated and tracked
+elsewhere). Zero core-minutes.

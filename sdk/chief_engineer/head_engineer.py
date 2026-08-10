@@ -814,6 +814,65 @@ class StepResult:
     log_path: str
 
 
+_RESIDUAL_CONTROL_BLOCK = re.compile(r"residualControl\s*\{([^{}]*)\}", re.S)
+_SOLVERS_BLOCK = re.compile(r"\bsolvers\s*\{", re.S)
+_ENTRY = re.compile(r'([A-Za-z_"()|.\w]+)\s+([0-9][0-9.eE+-]*)\s*;')
+
+
+def _strip_comments(text: str) -> str:
+    """OpenFOAM dictionaries carry `//` and `/* */`. The motivating sentinel is
+    literally `p 1e-15;//1e-4;` -- a real target commented out and replaced --
+    so a parser that ignored comments would read the DEAD value on some cases
+    and the live one on others."""
+    text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
+    return re.sub(r"//[^\n]*", "", text)
+
+
+def _residual_controls(fv_solution_text: str) -> dict[str, float]:
+    """`field -> declared SIMPLE-level residual target`, from the case's own
+    `residualControl` block."""
+    text = _strip_comments(fv_solution_text)
+    out: dict[str, float] = {}
+    for block in _RESIDUAL_CONTROL_BLOCK.finditer(text):
+        for name, value in _ENTRY.findall(block.group(1)):
+            try:
+                out[name.strip('"')] = float(value)
+            except ValueError:
+                continue
+    return out
+
+
+def _solver_tolerances(fv_solution_text: str) -> dict[str, float]:
+    """`field -> its LINEAR solver tolerance`, from the same file's `solvers`
+    block. The outer residual cannot be driven below this, which is what makes
+    the sentinel exclusion structural rather than a threshold."""
+    text = _strip_comments(fv_solution_text)
+    match = _SOLVERS_BLOCK.search(text)
+    if not match:
+        return {}
+    start = match.end() - 1
+    depth = 0
+    end = len(text)
+    for i in range(start, len(text)):
+        if text[i] == "{":
+            depth += 1
+        elif text[i] == "}":
+            depth -= 1
+            if depth == 0:
+                end = i
+                break
+    out: dict[str, float] = {}
+    for entry in re.finditer(r'([A-Za-z_"()|.\w]+)\s*\{([^{}]*)\}',
+                             text[start:end]):
+        hit = re.search(r"tolerance\s+([0-9][0-9.eE+-]*)", entry.group(2))
+        if hit:
+            try:
+                out[entry.group(1).strip('"')] = float(hit.group(1))
+            except ValueError:
+                continue
+    return out
+
+
 class HeadEngineer:
     """Run one geometry through clean → mesh → solve → report, monitored."""
 
@@ -919,6 +978,83 @@ class HeadEngineer:
             f"2>/dev/null | head -20")
         self.assert_case_code_vetted(template_wsl_path,
                                      found.stdout.split() if found.stdout else [])
+        # Arm S6 HERE, not from a constructor argument. Staging is the one
+        # place every case passes through and the first moment the case's own
+        # `fvSolution` exists; a parameter the caller must remember to pass is
+        # the defect this wiring exists to close, one layer up, because
+        # whoever forgets it gets silence rather than an error.
+        self.arm_residual_gate()
+
+    def arm_residual_gate(self) -> dict[str, Any]:
+        """Give S6 the residual target this case declares about ITSELF.
+
+        S6 (residual stall) returns early without a `residual_target`, and
+        until now nothing could supply one: `__init__` had no such parameter,
+        so the rule could not fire on any production run while
+        `MONITOR_STANDARD.md` said both approved proposals were "in force".
+        Wired 2026-08-10 under the chief's ruling, on the two conditions
+        pre-registered in `campaign/S6_WIRING_PREREGISTRATION.md`.
+
+        **Condition 1 -- the target comes from the case's OWN dictionaries.**
+        Read from `{self.remote_case}/system/fvSolution`, the file the solver
+        about to run will read, never from whichever dictionary sits nearest
+        on disk. That distinction is the whole finding behind the corrected
+        replay corpus.
+
+        **Condition 2 -- the sentinel class is excluded BY CONSTRUCTION.** A
+        `residualControl` target at or below that field's own linear-solver
+        `tolerance` cannot be reached: the outer residual cannot be driven
+        below what the inner solve resolves. Both numbers are declared by this
+        same file, so the exclusion is a relation the case states about
+        itself, with no magic constant. On the corrected corpus it captured
+        135 of 135 sentinels and nothing else. A gate armed from such a target
+        would measure the declaration, not the solve.
+
+        Fails OPEN and says so: an unreadable or absent `fvSolution`, or no
+        structurally reachable target, leaves S6 disarmed rather than guessing
+        one. Returns the arming record, which the caller may put on the run's
+        evidence.
+        """
+        record: dict[str, Any] = {"armed": False, "target": None,
+                                  "reason": None, "candidates": {},
+                                  "excluded_unreachable": {}}
+        got = self._wsl(f"cat {self.remote_case}/system/fvSolution 2>/dev/null")
+        text = got.stdout or ""
+        if not text.strip():
+            record["reason"] = ("no system/fvSolution in the staged case; S6 "
+                                "stays disarmed rather than guessing a target")
+            self._emit("monitor.s6", record)
+            return record
+        controls = _residual_controls(text)
+        tolerances = _solver_tolerances(text)
+        reachable: dict[str, float] = {}
+        for field, target in controls.items():
+            tol = tolerances.get(field)
+            if tol is not None and target <= tol:
+                record["excluded_unreachable"][field] = {
+                    "target": target, "solver_tolerance": tol}
+                continue
+            if tol is None:
+                # Reachability cannot be established, so it is not asserted.
+                continue
+            reachable[field] = target
+        record["candidates"] = reachable
+        if not reachable:
+            record["reason"] = (
+                "no structurally reachable residualControl target in this "
+                "case (every declared target sits at or below its own "
+                "linear-solver tolerance, or no tolerance is declared); S6 "
+                "stays disarmed")
+            self._emit("monitor.s6", record)
+            return record
+        # The LOOSEST reachable target: the most conservative gate, and the
+        # bracket the replay showed makes no difference on this archive.
+        target = max(reachable.values())
+        self.monitor.residual_target = target
+        record.update(armed=True, target=target,
+                      reason="armed from this case's own residualControl")
+        self._emit("monitor.s6", record)
+        return record
 
     def assert_case_code_vetted(self, template_path: str,
                                 carriers: Sequence[str]) -> None:

@@ -1,5 +1,6 @@
 import sys
 import unittest
+from types import SimpleNamespace
 from pathlib import Path
 
 SDK = Path(__file__).resolve().parents[1]
@@ -428,3 +429,96 @@ class SystemOperationsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+REACHABLE_FVSOLUTION = """solvers
+{
+    p { solver GAMG; tolerance 1e-08; }
+    U { solver PBiCG; tolerance 1e-09; }
+}
+SIMPLE
+{
+    residualControl { p 1e-4; U 1e-5; }
+}
+"""
+
+SENTINEL_FVSOLUTION = """solvers
+{
+    p { solver GAMG; tolerance 1e-12; }
+}
+SIMPLE
+{
+    residualControl { p 1e-15;//1e-4; }
+}
+"""
+
+
+class S6ArmingTests(unittest.TestCase):
+    """S6 is armed from the case's OWN residual controls, and the sentinel
+    class is excluded by construction.
+
+    WHY THIS EXISTS. S6 could not fire on any production run: it returns early
+    without a `residual_target` and `HeadEngineer.__init__` had no parameter
+    by which one could be supplied, while the standard said both approved
+    proposals were "in force". Pre-registered in
+    `campaign/S6_WIRING_PREREGISTRATION.md` before any of this code was
+    written.
+    """
+
+    def _engineer(self, fvsolution: str):
+        from chief_engineer.head_engineer import HeadEngineer
+        eng = HeadEngineer.__new__(HeadEngineer)
+        eng.remote_case = "/run/case"
+        eng.monitor = LogMonitor()
+        eng.on_event = None
+        eng._wsl = lambda cmd, timeout=600.0: SimpleNamespace(
+            stdout=fvsolution if "fvSolution" in cmd else "", stderr="")
+        return eng
+
+    def test_the_target_comes_from_the_cases_own_fvsolution(self):
+        eng = self._engineer(REACHABLE_FVSOLUTION)
+        rec = eng.arm_residual_gate()
+        self.assertTrue(rec["armed"])
+        # The LOOSEST reachable target: the most conservative gate.
+        self.assertEqual(rec["target"], 1e-4)
+        self.assertEqual(eng.monitor.residual_target, 1e-4)
+
+    def test_a_target_below_its_own_solver_tolerance_is_excluded(self):
+        """Condition 2, by construction: the outer residual cannot be driven
+        below what the inner solve resolves, so gating on such a target would
+        measure the declaration rather than the solve."""
+        eng = self._engineer(SENTINEL_FVSOLUTION)
+        rec = eng.arm_residual_gate()
+        self.assertFalse(rec["armed"])
+        self.assertIsNone(eng.monitor.residual_target)
+        self.assertIn("p", rec["excluded_unreachable"])
+        self.assertEqual(rec["excluded_unreachable"]["p"],
+                         {"target": 1e-15, "solver_tolerance": 1e-12})
+
+    def test_the_live_value_is_read_not_the_commented_out_one(self):
+        """The motivating case is literally `p 1e-15;//1e-4;` -- a real target
+        commented out and replaced. A parser ignoring comments would read the
+        DEAD value here and the live one elsewhere."""
+        from chief_engineer.head_engineer import _residual_controls
+        self.assertEqual(_residual_controls(SENTINEL_FVSOLUTION), {"p": 1e-15})
+
+    def test_a_missing_fvsolution_leaves_s6_disarmed_and_says_so(self):
+        eng = self._engineer("")
+        rec = eng.arm_residual_gate()
+        self.assertFalse(rec["armed"])
+        self.assertIsNone(eng.monitor.residual_target)
+        self.assertIn("disarmed", rec["reason"])
+
+    def test_a_field_with_no_declared_tolerance_is_not_gated_on(self):
+        """Reachability cannot be established, so it is not asserted."""
+        eng = self._engineer("SIMPLE { residualControl { p 1e-4; } }")
+        rec = eng.arm_residual_gate()
+        self.assertFalse(rec["armed"])
+
+    def test_arming_makes_s6_actually_able_to_fire(self):
+        """The point of the whole exercise: before this, the rule returned
+        early on every production run."""
+        eng = self._engineer(REACHABLE_FVSOLUTION)
+        self.assertIsNone(eng.monitor.residual_target)
+        eng.arm_residual_gate()
+        self.assertIsNotNone(eng.monitor.residual_target)
