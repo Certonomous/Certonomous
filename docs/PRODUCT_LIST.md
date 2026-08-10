@@ -734,8 +734,11 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 ### 2026-08-10 (evening) — the ladder finds its ceiling, and a found-dead verdict turns out wrong
 
 - **RUNG 3: DIVERGED BY STAGNATION — the reopened ladder has a CEILING, bracketed between 42,120 and 79,560 cells**
-  (111.0 of the approved 170-190 core-min). CD hit the 4,000 cap with the residual FLAT TO NINE SIGNIFICANT FIGURES
-  across 2,700 iterations (1.31x total reduction). The pre-registered budget-vs-wall distinction — written before
+  (111.0 of the approved 170-190 core-min). CD hit the 4,000 cap with the residual FLAT ACROSS 2,700 ITERATIONS —
+  1.31x total reduction, relative change 3.79e-07 from iteration 1300 to 4000. [Corrected 2026-08-10: this entry
+  first said "flat to nine significant figures", which overstates by three digits — the printed pair agrees to SIX
+  (1.615246604817e-02 -> 1.615245992220e-02). Caught by the report's author re-reading the raw log rather than the
+  record. The verdict is untouched; the false precision is not, because it would have been quoted onward.] The pre-registered budget-vs-wall distinction — written before
   either negative reason code was ever seen — does the work: rung 2's `-3` was 1,407x monotone descent and a raised
   cap fixed it; this one is flat and no cap fixes it. And it is NOT a memory death (11.65 of 22 GiB, host never below
   17 GB, no swap), which is exactly what makes a conditioning verdict SAYABLE here rather than NOT EVALUABLE. The
