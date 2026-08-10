@@ -224,3 +224,33 @@ anyone who needs it.
 means **a `log.checkMesh` exists, not that a certificate file was written.** A repo-wide find
 returns 28 `birth_certificate.json` files and **none is under a cube or sail path.** So the
 certification gate mints these from scratch, exactly as the chief's ruling anticipated.
+
+# §11. CROSS-FAMILY SCREENING SIGNAL — handed to Cases, not a verdict on their arms
+
+The mechanism that deleted cube's turn rung is **generic to the ladder runner**, not specific to
+my body: `sdk/scripts/run_uq_studies.py:80-85` keys the mesh cache by body label alone and clears
+it before each rung *by design*, so **only the finest rung's mesh survives** unless a ladder was
+run under a scheme that writes per-rung keys. Both schemes are present in the cache
+(`/home/ubuntu/certonomous-runs/.mesh-cache/`, 36 entries):
+
+| retrofit ladder | per-rung cache entries | implication for a draw at a NON-FINAL turn rung |
+|---|---|---|
+| `ahmed_35` | **`ahmed_35-rung-coarse-s23-b0.7`, `ahmed_35-rung-medium-s23`** | mesh survives — draws feasible |
+| `ahmed_25` | body-label entry only | **likely same problem as cube** |
+| `motorBike` | body-label entry only | **likely same problem as cube** |
+| `cube` (mine) | body-label entry only | **confirmed gone** — exhaustively searched, no case dir, no points file, no dicts |
+| `naca0015_sail` (mine) | body-label entry only | moot — out of scope (§8) |
+
+(Other bodies carrying per-rung entries: `airliner_wing_span52`, `naca0012_wing`, `naca4412_wing`.)
+
+**Stated as a screening signal and deliberately not as a finding about Cases' ladders.** A
+body-label-only cache entry does not *prove* a rung's mesh is gone — the cache is one location,
+and for cube the exhaustive search across run dirs, mission-output and the cache is what
+established it. **The split says I do not grade their arms, so I do not.** What I hand over is the
+cheap screen and the method: *check whether your turn rung's mesh exists before pricing its
+draws*, because for three of the five retrofit ladders the retrofit's premise — that two draws can
+be taken at the rung the feature turns on — may not hold.
+
+If it does not hold for `ahmed_25` or `motorBike`, the honest outcome there is the same one
+pre-registered here in §9.1: a reconstruction gate on exact cell count, and
+**unverifiable-at-source** if it misses.
