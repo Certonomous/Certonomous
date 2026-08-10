@@ -2234,3 +2234,42 @@ The general form, which is L-46's shape one level up: *the fix for a class is
 where that class reappears* — and a verification campaign is a fix for the
 class "unverified claims", so it is precisely where new unverified claims will
 be born.
+
+
+## L-54. A prediction about an artifact and a prediction about an agent are different classes — label them, or you will score a coordination failure as a modelling failure
+
+Ladder V's Pass 1 pre-registered five predictions about what a concurrent pass
+would leave behind, then scored them: **three wrong, two right.** Its own
+decomposition is the lesson:
+
+> My predictions about ARTIFACTS held. Every prediction about another agent's
+> future COMPLIANCE failed — and I did not mark which was which when I wrote
+> them.
+
+The two that held were properties of files: that frozen artifacts would remain
+frozen, and that certain records would still be uncited for structural reasons.
+The three that failed were all **one assumption counted three times** — that an
+assignment would be carried out. It was not: the receiving pass declined it, in
+writing, on the same defensible ground the first pass had.
+
+Two consequences.
+
+**Score them separately.** A pre-registration that mixes the classes cannot
+tell you whether your model of the WORLD was wrong or your model of the
+ORGANISATION was. Here the world-model was perfect and the org-model was zero
+for three, and only the labelling makes that visible. Mark each prediction
+`artifact` or `agent` when you write it.
+
+**A "roughly right" aggregate can be right for entirely wrong reasons.** The
+agent predicted a count would fall 28 → ~26 through closures. It stayed at 28 —
+zero closures plus six compliant additions, a shape its model had no term for.
+Had two unrelated gaps happened to close, it would have scored "roughly right"
+while being wrong about every mechanism. Predict the MECHANISM, not just the
+number, and score the mechanism first.
+
+The companion finding, which is why this matters beyond bookkeeping: three
+consecutive passes each made a defensible call and **the aggregate of three
+defensible declines was a defect that survived all three.** A task that every
+qualified party is right to refuse has no owner, and no amount of care inside
+the passes will produce one. That escalation cannot be resolved by another
+verifier — it needs someone whose job is deciding rather than checking.
