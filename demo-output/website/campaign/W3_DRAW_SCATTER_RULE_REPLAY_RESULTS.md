@@ -178,6 +178,92 @@ the proposal's figure understates the full retrofit.** Flagged rather than
 re-priced here: pricing them needs each body's own measured solve cost, which is
 a separate piece of work.
 
+## 4c. THE 17 RESTATEMENTS — APPLIED, and the priced shortlist that follows
+
+**Chief-approved and executed 2026-08-10.** All 17 records now carry a dated
+restatement; originals retained everywhere.
+
+### Frame, before the number
+
+**17 restatements applied, out of 32 records asserting a ladder feature, out of
+151 campaign and website records scanned.** Established: those 17 now state on
+their face that no replicate mesh has ever been drawn at the rung their feature
+turns on. **Not established:** anything about records outside the 151, or about
+the 8 with evidence, 5 withdrawn, or 2 already compliant.
+
+Each restatement names the ladder's **recipe class** from
+`LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md`, because the class changes what
+the gap means: on a **CONFOUNDED** ladder the feature is unsupported twice over
+(its increments were never discretization increments); on a **CLEAN** one the
+missing scatter is the only thing between the feature and a real measurement.
+
+| recipe class of the restated feature | count |
+| --- | --- |
+| CLEAN — the gap is exactly the missing scatter | 11 |
+| CONFOUNDED — unsupported twice over | 5 |
+| UNDETERMINABLE — rung cases gone | 1 |
+
+### F4 — handled as the sharpest case, because it is one
+
+`F4_hypersonic_blunt_body.md` states *"convergence with mesh refinement is
+explicitly NOT monotonic, **and scatter does not fully explain it**."* Its
+restatement says so without hedging: **the record asserts what scatter does not
+explain, and no mesh-draw scatter was ever measured.** A claim about scatter,
+made without measuring scatter — and on a ladder the sweep classifies **CLEAN**
+(one knob, `RES` = (nθ, nr) 50×20 / 100×40 / 200×80, `RADIAL_GRADING` held), so
+the confound cannot explain it away.
+
+## 4d. Priced shortlist — and a pricing error I caught before quoting it
+
+**First attempt, wrong, and recorded because the error is the point.** I priced
+all seven candidates from the two measured bases I had — Ahmed c3 (0.0153
+core-min per 1000 cells) and B-52 rung 6 (0.0260) — giving **F4 at 0.49–0.83
+core-min**.
+
+**Both bases are steady, incompressible `simpleFoam` on snappyHexMesh bodies.
+F4 runs transient, explicit `rhoCentralFoam` to `endTime 6.0`.** A per-cell rate
+does not cross that gap.
+
+**F4's own record carries the basis:** *"Total compute: 14.66 core-minutes across
+all 9 CFD runs (3 Mach × 3 resolutions)"*. At resolutions 1 000 / 4 000 / 16 000
+cells (1 : 4 : 16), that implies **3.72 core-min for a single fine-rung run**.
+
+> **F4, two further draws at the fine rung: ≈7.5 core-min — 8.9× what the
+> cross-solver rate said.** *The predictor is the basis, not a factor*, and a
+> per-cell rate borrowed across solver families is exactly a factor wearing a
+> basis's clothes.
+
+### The shortlist as it honestly stands
+
+| ladder | recipe | deciding rung | price | basis |
+| --- | --- | --- | --- | --- |
+| **F4 hypersonic blunt body** | CLEAN | fine, 16 000 cells | **≈7.5 core-min** | **its own measured 14.66 core-min over 9 runs** |
+| F6b periodic hill | CLEAN | rung 3, 31 280 cells | **not priced** | its record carries a core-min table — needs reading, not extrapolating |
+| F7 dam-break (isotropic) | CLEAN | a/32, 19 200 cells | **not priced** | `interFoam`, transient VOF — no basis in hand |
+| F3 wedge | CLEAN | fine, 28 800 cells | **not priced** | `rhoCentralFoam` — F4's basis may transfer, unverified |
+| TMR bump (ours) | CLEAN | medium, 14 080 cells | **not priced** | steady, but its own rungs are recorded unconverged |
+| W1 NASA bump grids | CLEAN | medium, 14 080 cells | **not priced** | steady `simpleFoam`; nearest to the held bases |
+| DPW8 Joukowski | CLEAN | L3 | **not priced** | only 2 usable rungs; cell count not to hand |
+| lid-driven cavity | CLEAN | n = 128, 16 384 | **not priced** | only 2 grid rungs — a 3-draw retrofit may not be meaningful |
+
+**Seven are deliberately left unpriced.** Each needs its own measured basis read
+from its own record, and inventing a cross-solver rate for them is the error I
+just caught on F4. Pricing them is perhaps an hour of zero-compute record
+reading; **it is offered, not assumed.**
+
+### Recommendation
+
+**Run F4 alone, ≈7.5 core-min.** It is the only candidate whose claim is *about*
+the missing measurement rather than merely lacking it, it is CLEAN so the answer
+cannot be confounded away, and it is the one case where the result changes what
+the record means either way: **scatter explains the non-monotonicity, and the
+record's own sentence is wrong; or it does not, and the sentence is vindicated by
+measurement for the first time.**
+
+**Not recommended tonight:** the other seven. Restating them has already
+satisfied the rule, and the marginal value of measuring a ladder whose feature
+nobody is leaning on is low against reading seven records to price them properly.
+
 ## 5. What this says about the rule
 
 **The rule fires on 16 of 151 records, would act on 10, and has 5 restatements

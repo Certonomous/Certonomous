@@ -290,6 +290,9 @@ and **both are met**:
 2. **The fit returns a finite observed order** — 3.200, where our blockMesh
    family had none at all.
 
+> **[RESTATED 2026-08-10 under `docs/charters/VERIFICATION_CHARTER.md` §17 — no draw-scatter evidence exists at the rung this feature turns on.]** The statement above is a claim about the SHAPE of a sequence of grid-refinement increments for **NASA's bump grids**. Under the adopted rule such a claim is published only with draw-scatter evidence at the deciding rung, or with the absence of that evidence stated on its face. **No replicate mesh has ever been drawn at this ladder's deciding rung.** Recipe class per `campaign/LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md`: **single-recipe (CLEAN)**, so its increments really are discretization increments and this gap is not confounded away. **This is not a withdrawal — the feature is unchecked, not shown false**; the remedy the rule specifies is exactly this sentence. Original text retained.
+
+
 The direction test is met too. Against CFL3D on the same grids our pressure
 component runs **−19.78%, −16.77%, −11.38%** — converging toward the reference
 monotonically under refinement rather than wandering. Cf(0.75) runs +3.70%,

@@ -861,6 +861,9 @@ term; something else is also unmodelled.
   defensible extrapolated value can be quoted. Stated as such rather than
   extrapolated anyway.
 
+> **[RESTATED 2026-08-10 under `docs/charters/VERIFICATION_CHARTER.md` §17 — no draw-scatter evidence exists at the rung this feature turns on.]** The statement above is a claim about the SHAPE of a sequence of grid-refinement increments for **the F7 dam-break**. Under the adopted rule such a claim is published only with draw-scatter evidence at the deciding rung, or with the absence of that evidence stated on its face. **No replicate mesh has ever been drawn at this ladder's deciding rung.** Recipe class per `campaign/LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md`: **single-recipe (CLEAN)**, so its increments really are discretization increments and this gap is not confounded away. **This is not a withdrawal — the feature is unchecked, not shown false**; the remedy the rule specifies is exactly this sentence. Original text retained.
+
+
 ### Step 7 — effect on the ladder
 
 Rungs (b) Wigley and (c) DTMB 5415/KCS **remain blocked** under the standing

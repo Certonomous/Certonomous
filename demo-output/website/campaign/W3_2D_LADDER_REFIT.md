@@ -94,6 +94,9 @@ returns p = 0.035, and the Richardson step multiplies the finest increment by
 **-13.73 degrees** — not merely outside the range the rungs measured, but
 physically impossible, since a shock angle cannot be negative.
 
+> **[RESTATED 2026-08-10 under `docs/charters/VERIFICATION_CHARTER.md` §17 — no draw-scatter evidence exists at the rung this feature turns on.]** The statement above is a claim about the SHAPE of a sequence of grid-refinement increments for **the F3 wedge**. Under the adopted rule such a claim is published only with draw-scatter evidence at the deciding rung, or with the absence of that evidence stated on its face. **No replicate mesh has ever been drawn at this ladder's deciding rung.** Recipe class per `campaign/LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md`: **single-recipe (CLEAN)**, so its increments really are discretization increments and this gap is not confounded away. **This is not a withdrawal — the feature is unchecked, not shown false**; the remedy the rule specifies is exactly this sentence. Original text retained.
+
+
 `uq.guards_holding` exists precisely to say "the verdict does not rest on the
 stated reason alone", and it returns two entries here. Nothing in the act
 surfaces it. Correcting the order alone would not have moved the wedge, and a

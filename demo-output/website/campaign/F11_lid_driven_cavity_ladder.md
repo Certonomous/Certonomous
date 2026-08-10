@@ -209,6 +209,9 @@ Both Reynolds numbers were run at two resolutions. The result is **small in
 absolute terms but not strictly monotonic**, and that is reported as
 measured rather than smoothed into "grid independent":
 
+> **[RESTATED 2026-08-10 under `docs/charters/VERIFICATION_CHARTER.md` §17 — no draw-scatter evidence exists at the rung this feature turns on.]** The statement above is a claim about the SHAPE of a sequence of grid-refinement increments for **the lid-driven cavity**. Under the adopted rule such a claim is published only with draw-scatter evidence at the deciding rung, or with the absence of that evidence stated on its face. **No replicate mesh has ever been drawn at this ladder's deciding rung.** Recipe class per `campaign/LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md`: **single-recipe (CLEAN)**, so its increments really are discretization increments and this gap is not confounded away. **This is not a withdrawal — the feature is unchecked, not shown false**; the remedy the rule specifies is exactly this sentence. Original text retained.
+
+
 | quantity | Re=100, n=64 -> n=128 | Re=1000, n=64 -> n=128 |
 | --- | --- | --- |
 | u max\|err\| | 0.00462 -> 0.00489 (+0.00027) | 0.00426 -> 0.00624 (+0.00198) |

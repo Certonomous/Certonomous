@@ -182,6 +182,9 @@ of which are about the denominator rather than the ranking:
   fails the same way. **Predicting a pass here would be ignoring our own
   strongest evidence.**
 
+> **[RESTATED 2026-08-10 under `docs/charters/VERIFICATION_CHARTER.md` §17 — no draw-scatter evidence exists at the rung this feature turns on.]** The statement above is a claim about the SHAPE of a sequence of grid-refinement increments for **Ahmed 25° / 35°**. Under the adopted rule such a claim is published only with draw-scatter evidence at the deciding rung, or with the absence of that evidence stated on its face. **No replicate mesh has ever been drawn at this ladder's deciding rung.** Recipe class per `campaign/LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md`: **CONFOUNDED** — more than one knob moves between its rungs, so its increments were never discretization increments in the first place. This feature is unsupported twice over. **This is not a withdrawal — the feature is unchecked, not shown false**; the remedy the rule specifies is exactly this sentence. Original text retained.
+
+
 ### 5. F6a hump at challenge conditions (60 core-min as filed, approved)
 
 - **Reference data:** shipped in the benchmark clone

@@ -109,6 +109,9 @@ carries part of the separation error the shipped-mesh record reported as model
 error. Nothing in the 2026-07-29 record could have seen this, because it had
 one mesh.
 
+> **[RESTATED 2026-08-10 under `docs/charters/VERIFICATION_CHARTER.md` §17 — no draw-scatter evidence exists at the rung this feature turns on.]** The statement above is a claim about the SHAPE of a sequence of grid-refinement increments for **the F6b periodic hill**. Under the adopted rule such a claim is published only with draw-scatter evidence at the deciding rung, or with the absence of that evidence stated on its face. **No replicate mesh has ever been drawn at this ladder's deciding rung.** Recipe class per `campaign/LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md`: **single-recipe (CLEAN)**, so its increments really are discretization increments and this gap is not confounded away. **This is not a withdrawal — the feature is unchecked, not shown false**; the remedy the rule specifies is exactly this sentence. Original text retained.
+
+
 **The fine rung did not reach `residualControl` 1e-6 and is labelled as such,
 per the pre-registration's own rule.** At the 6,000-iteration cap its initial
 residuals were Ux 4.47e-6 and p 1.67e-5, falling monotonically over four

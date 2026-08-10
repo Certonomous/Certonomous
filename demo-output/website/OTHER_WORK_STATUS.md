@@ -119,6 +119,9 @@ Single-instance lock (`acquire_runner_lock`, commit `f198cf4`): guards against d
 
 **Cl non-monotonicity survives:** Better coverage closes only ~26.5% of the Cl gap to fine rung; ladder remains non-asymptotic
 
+> **[RESTATED 2026-08-10 under `docs/charters/VERIFICATION_CHARTER.md` §17 — no draw-scatter evidence exists at the rung this feature turns on.]** The statement above is a claim about the SHAPE of a sequence of grid-refinement increments for **the NACA 4412 wing**. Under the adopted rule such a claim is published only with draw-scatter evidence at the deciding rung, or with the absence of that evidence stated on its face. **No replicate mesh has ever been drawn at this ladder's deciding rung.** Recipe class per `campaign/LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md`: **CONFOUNDED** — more than one knob moves between its rungs, so its increments were never discretization increments in the first place. This feature is unsupported twice over. **This is not a withdrawal — the feature is unchecked, not shown false**; the remedy the rule specifies is exactly this sentence. Original text retained.
+
+
 **Why the verdict is NOT VALIDATED:** The grading method anchors the reference on the solve's own Cl. That means:
 - Solve that over-predicts Cl (25.1% over on **finer_relayered**, the 4.36%-coverage rung: Cl 0.261922 vs fine's 0.209318)
 - Raises induced-drag term by 56.6%, since Cd_i goes as Cl²

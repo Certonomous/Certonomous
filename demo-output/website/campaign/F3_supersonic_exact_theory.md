@@ -59,6 +59,9 @@ The second pair (M=3.0, θc=12°) was run only at medium resolution — the fine
 - **Cost finding:** the cone solve is markedly more expensive per cell than the wedge at matched resolution (fine cone: 1,073 core-s for 28,800 cells vs fine wedge: 146–149 core-s for the same cell count, a ~7× ratio), from the extra rhoUz momentum equation plus a smaller Courant-limited Δt in the axisymmetric metric. This drove the decision to run the second cone pair at medium only.
 - **Core-minutes (cone, all 4 runs):** 22.09
 
+> **[RESTATED 2026-08-10 under `docs/charters/VERIFICATION_CHARTER.md` §17 — no draw-scatter evidence exists at the rung this feature turns on.]** The statement above is a claim about the SHAPE of a sequence of grid-refinement increments for **the F3 supersonic wedge**. Under the adopted rule such a claim is published only with draw-scatter evidence at the deciding rung, or with the absence of that evidence stated on its face. **No replicate mesh has ever been drawn at this ladder's deciding rung.** Recipe class per `campaign/LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md`: **single-recipe (CLEAN)**, so its increments really are discretization increments and this gap is not confounded away. **This is not a withdrawal — the feature is unchecked, not shown false**; the remedy the rule specifies is exactly this sentence. Original text retained.
+
+
 ---
 
 ## 3. Diamond airfoil (shock-expansion theory, wave drag)

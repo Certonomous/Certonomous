@@ -89,6 +89,9 @@ despite the finer mesh — non-monotonic. Both are so far below the force-noise 
 iterative-solver noise on an exactly-symmetric mesh, not a real asymmetry trend, but it is reported as
 found rather than smoothed over.
 
+> **[RESTATED 2026-08-10 under `docs/charters/VERIFICATION_CHARTER.md` §17 — no draw-scatter evidence exists at the rung this feature turns on.]** The statement above is a claim about the SHAPE of a sequence of grid-refinement increments for **DPW8 Joukowski**. Under the adopted rule such a claim is published only with draw-scatter evidence at the deciding rung, or with the absence of that evidence stated on its face. **No replicate mesh has ever been drawn at this ladder's deciding rung.** Recipe class per `campaign/LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md`: **single-recipe (CLEAN)**, so its increments really are discretization increments and this gap is not confounded away. **This is not a withdrawal — the feature is unchecked, not shown false**; the remedy the rule specifies is exactly this sentence. Original text retained.
+
+
 ### Surface Cp vs. exact inviscid theory
 
 Exact Cp is *not* expected to be reproduced exactly by a converged **viscous** RANS solve — boundary-

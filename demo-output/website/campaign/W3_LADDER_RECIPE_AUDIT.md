@@ -134,6 +134,9 @@ ladder built under R4 — fail on the *behaviour of their increments*: growing
 increments, non-monotone. The four two-knob ladders fail on the *order*:
 3.169, 3.173, 10.467, and 1.95 with an extrapolation outside its own data.
 
+> **[RESTATED 2026-08-10 under `docs/charters/VERIFICATION_CHARTER.md` §17 — no draw-scatter evidence exists at the rung this feature turns on.]** The statement above is a claim about the SHAPE of a sequence of grid-refinement increments for **the four geometry_study ladders**. Under the adopted rule such a claim is published only with draw-scatter evidence at the deciding rung, or with the absence of that evidence stated on its face. **No replicate mesh has ever been drawn at this ladder's deciding rung.** Recipe class per `campaign/LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md`: **CONFOUNDED** — more than one knob moves between its rungs, so its increments were never discretization increments in the first place. This feature is unsupported twice over. **This is not a withdrawal — the feature is unchecked, not shown false**; the remedy the rule specifies is exactly this sentence. Original text retained.
+
+
 > **CORRECTED 2026-08-02 06:00, by the experiment this section motivated.**
 > The sentence that stood here read *"One-knob ladders fail on physics;
 > two-knob ladders fail on arithmetic."* **That is wrong and the wing families

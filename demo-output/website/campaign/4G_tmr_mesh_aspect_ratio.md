@@ -648,6 +648,9 @@ pressure drag is not a nearly-converged quantity that a longer run would tidy up
 going the wrong way, and it is going there harder the longer the ladder runs. The viscous
 order is likewise stable at 1.03-1.07 matched against the 1.090 published.
 
+> **[RESTATED 2026-08-10 under `docs/charters/VERIFICATION_CHARTER.md` §17 — no draw-scatter evidence exists at the rung this feature turns on.]** The statement above is a claim about the SHAPE of a sequence of grid-refinement increments for **the TMR bump-in-channel**. Under the adopted rule such a claim is published only with draw-scatter evidence at the deciding rung, or with the absence of that evidence stated on its face. **No replicate mesh has ever been drawn at this ladder's deciding rung.** Recipe class per `campaign/LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md`: **single-recipe (CLEAN)**, so its increments really are discretization increments and this gap is not confounded away. **This is not a withdrawal — the feature is unchecked, not shown false**; the remedy the rule specifies is exactly this sentence. Original text retained.
+
+
 CFL3D's pressure drag on the coarse grid is **3.7x ours** (1.479e-03 against 3.969e-04)
 and falls cleanly at p = 2.91 to 4.32e-04. Ours starts at 3.97e-04 and stays there.
 We are not resolving the same quantity on the coarse grid; we are landing near the

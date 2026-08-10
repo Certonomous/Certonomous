@@ -88,6 +88,9 @@ prediction is quantitative.
 | 53 | `campaign/F8_MRF_HAND2001_GATE.md` | window mean within half-width of published torque | NOT EVALUABLE (named risk fired) | spread 19.2× cap |
 | 54 | same | window turbine-signed by t=2000 (flagged "weak") | scored FALSE | +138 N·m motoring |
 
+> **[RESTATED 2026-08-10 under `docs/charters/VERIFICATION_CHARTER.md` §17 — no draw-scatter evidence exists at the rung this feature turns on.]** The statement above is a claim about the SHAPE of a sequence of grid-refinement increments for **the Ahmed 25° R4 ladder**. Under the adopted rule such a claim is published only with draw-scatter evidence at the deciding rung, or with the absence of that evidence stated on its face. **No replicate mesh has ever been drawn at this ladder's deciding rung.** Recipe class per `campaign/LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md`: **single-recipe (CLEAN)**, so its increments really are discretization increments and this gap is not confounded away. **This is not a withdrawal — the feature is unchecked, not shown false**; the remedy the rule specifies is exactly this sentence. Original text retained.
+
+
 ### Committee grids (pre-registered and scored 2026-08-01, commits `6c896fe4`→`ab132a17`)
 
 `committee-grids/PREDICTIONS.md`, 14 predictions (P1–P14): **5 held**
