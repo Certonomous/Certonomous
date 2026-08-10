@@ -1236,6 +1236,84 @@ against a review artifact or it is a violation. That matching is a review
 discipline today, stated honestly; the artifact-per-instance convention
 exists so a checker can be written against it.
 
+## 17. A ladder increment is not published as a FEATURE without draw-scatter evidence
+
+**Adopted 2026-08-10** on the archive replay in
+`demo-output/website/campaign/W3_DRAW_SCATTER_RULE_REPLAY_RESULTS.md`
+(pre-registration `6f196082`, results `dd3cac8d`), proposal
+`w3-no-ladder-feature-without-draw-scatter`.
+
+> **A ladder increment may not be published as a FEATURE without draw-scatter
+> evidence at the rung it turns on — or with the absence of that evidence stated
+> on its face.**
+
+**A "feature" is a claim about the SHAPE of a sequence of grid-refinement
+increments**: a turn, an oscillation, a divergence, a trend in increment
+magnitudes, or monotonicity used as an argument. Reporting rung values, a band,
+an order, or a `conclusive: false` verdict is **not** a feature and this rule
+does not reach it. *"The fit returns p = 2.25 and we reject it"* does not fire;
+*"its increments grow with refinement"* does.
+
+**The remedy is RESTATEMENT, not withdrawal.** A feature whose scatter has never
+been measured is not thereby false — it is unchecked, and the rule is satisfied
+by saying so where the feature is stated. Withdrawal is only for features that
+have been measured against draw scatter and did not survive.
+
+**Why it was adopted — the evidence, not the argument.** Every replicate family
+this lab has ever measured has returned a material finding. **Four for four:**
+
+| family | what the replicates found |
+| --- | --- |
+| B-52 | the published turn was `max(rung 6) − min(rung 7)` of eight draws — **withdrawn** |
+| NACA 0012 | the published mesh is the family **maximum** at +1.35σ |
+| NACA 4412 | construction scatter 5.82 / 12.74 / 4.20% of the mean, worst at the graded rung |
+| Ahmed 25° | the increment **inverts or halves** depending on which draw is excluded — **withdrawn** |
+
+**The check has never once come back clean.** A check with that hit rate across
+four independent families is not a precaution; it is a measurement everyone had
+been skipping. `uq.eca_hoekstra_band` cannot infer draw scatter from a cell-count
+and value series, so a ladder can be fitted, banded and quoted without anyone
+ever asking whether its increments exceed the scatter of the meshes they are
+differences of.
+
+**The archive replay that carried it** (the entry condition: a rule firing on
+every record or on none is not adopted). Of **151** campaign and website records,
+**32** assert a ladder feature — neither all nor none:
+
+| disposition | count |
+| --- | --- |
+| withdrawn (both applied 2026-08-10, none new) | 5 |
+| already carry draw-scatter evidence at the deciding rung | 8 |
+| already state the absence themselves | 2 |
+| **RESTATE** | **17** |
+
+**77% of the records the rule acts on need restatement, not withdrawal** — the
+number that decided adoption. **The replay's first pass got this wrong** (16
+records, 5 restatements, 50%) because its search vocabulary came from the two
+families already under investigation; an independent second route of a different
+kind found nine further bodies. That correction is L-49 and §7a of the Cases
+family guidelines, and the counts above are the reconciled ones.
+
+**Scope of the priced retrofit, stated honestly.** The approved retrofit —
+**12.8–21.7 core-min** for two further draws at the turn rung of each unchecked
+ladder — covers **only the five ladders stored in
+`models/curriculum/uq-studies/`**: `ahmed_25`, `ahmed_35`, `motorBike`, `cube`,
+`naca0015_sail`. **It does not cover bodies whose ladders live only in campaign
+records** — F3 wedge, F4 hypersonic, F7 dam-break, F6b ERCOFTAC, TMR bump,
+lid-driven cavity, DPW8. Those need their own measured per-body solve costs and
+are **flagged, not guessed**. For scale: the whole curriculum retrofit costs less
+than checking the B-52 alone cost (40.9 core-min), and that one ended in a
+withdrawal.
+
+**Calibration convention, binding on every retrofit verdict.** The bar separating
+"the scatter is structured" from "the scatter is broad" is **calibrated by
+simulation against the null before the draws exist**, never chosen after — so
+every verdict arrives with its false-positive rate stated. The Ahmed 25° arm is
+the worked precedent (`R4_AHMED_C3_LEG2_PREREGISTRATION.md`): the bar was the
+10th percentile of the pure-scatter null, it was missed by 0.044, and the near
+miss was **reported rather than resolved**. A bar that moves after the number is
+not a bar.
+
 ## Related
 
 - `docs/charters/RESULT_PRIORITY_CHARTER.md`. Which quantity wins when two
