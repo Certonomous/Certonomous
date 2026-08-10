@@ -2332,9 +2332,19 @@ def check_bundle_drift() -> Result:
     """
     bundle = REPO / "dist" / "certonomous-demo"
     if not bundle.is_dir():
-        return Result("bundle drift vs tree", WARN,
-                      "no bundle at dist/certonomous-demo to compare",
-                      ["build it with scripts/build_laptop_bundle.py, or "
+        # FAIL, not WARN (2026-08-10). An absent bundle does not mean "nothing
+        # to report" -- it means THIS DETECTOR IS OFF, for the one artifact
+        # that leaves this box. The bundle shipped ten days stale while this
+        # check named the stale pages by name; the failure mode a missing
+        # bundle adds on top is silence read as success, which is the class
+        # closed everywhere else in this tree the same day (L-45).
+        return Result("bundle drift vs tree", FAIL,
+                      "NO BUNDLE at dist/certonomous-demo: the drift detector "
+                      "for the shipped artifact is OFF, not merely uninformative",
+                      ["nothing is being checked against the tree while this "
+                       "directory is absent -- a stale zip beside it would "
+                       "report clean",
+                       "build it with scripts/build_laptop_bundle.py --zip, or "
                        "record that the lab no longer ships one"])
     pairs = _bundle_pairs()
     if not pairs:
