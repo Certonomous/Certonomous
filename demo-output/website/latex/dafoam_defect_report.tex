@@ -146,6 +146,18 @@ including diagonal spread, by the decisive observation that 14.40 decades conver
 does not, and non-normality, by the stalling rung measuring \(1.62\times\) \emph{less}
 non-normal than the converging one --- and every remedy those eliminations point to next is one
 the channel discards.
+
+That last defect is no longer a proposal. The fix this report recommends has since been
+implemented on a locally patched image and regression-controlled: with the option channel
+honoured and no options set, the reference case returns the same 368 and 383 Krylov iterations,
+\texttt{reason 2} on both, and the same cold-start signature to sixteen digits --- so the
+override is measured \emph{not} load-bearing, which is the maintainer's first objection answered
+by measurement rather than by argument. Honouring the channel then made two of the discarded
+remedies runnable for the first time: \texttt{-ksp\_type lgmres} and \texttt{-pc\_type gamg}, both
+off-the-shelf at documented defaults, both reporting the control's own iteration-0 residual, and
+both failing --- the eleventh and twelfth eliminations. Nothing run on a patched image revises
+the shipped-toolchain ceiling, and nothing here claims more than that two off-the-shelf members
+of that class fail on this operator.
 \textbf{Nothing in this document has been filed upstream.}
 \end{abstract}
 
@@ -160,6 +172,9 @@ not replace them. Both remain \textbf{PREPARED}: complete, carrying the 2026-08-
 these sections summarise, and \emph{held}. A third prepared document has since joined them ---
 \artifact{demo-output/website/dafoam/DEFECT\_CANDIDATE\_ksp\_options\_override.md}, the
 option-channel defect of Section~\ref{sec:kspoverride}, \textbf{filing-ready and not filed}.
+That one now carries an implemented, regression-controlled patch of its own recommended fix
+(Section~\ref{sec:kspoverride}); the patched image is local, nothing is pushed anywhere, and the
+document's status is unchanged by it.
 The other two silent-configuration findings of Section~\ref{sec:deadlever} have no prepared
 report at all --- only the measured record cited there. Submissions are parked at the owner's discretion;
 whether any of this is sent upstream is the lab principal's call, not the authors'. Where
@@ -236,8 +251,8 @@ D5. A state rewrite with no log line
 \addlinespace
 D6. An option channel that answers and does not obey
 & DAFoam v5, \artifact{DALinearEqn.C:138} calls \texttt{KSPSetFromOptions}; twelve later call sites override it --- GMRES at 144, ASM at 212, ILU at 286, plus restart, PC side, tolerances, overlap and fill
-& \texttt{-ksp\_type lgmres}, \texttt{-pc\_type gamg}, \texttt{-pc\_type fieldsplit}, \texttt{-sub\_pc\_type lu} and the rest are accepted without error and have no effect; \texttt{-ksp\_view} prints the hardcoded stack. \textbf{Monitors and viewers are NOT overridden} --- \texttt{-ksp\_monitor\_true\_residual} and \texttt{-ksp\_view\_pmat} work perfectly --- so the diagnostic path demonstrates the channel is live while the remedy path discards the instruction. Measured instance: this lab diagnosed a preconditioned \(\kappa=9.57\times10^{10}\) through that channel and could reach none of the remedies it implies
-& Diagnosability defect; no wrong number produced. Twelve call sites tabulated, three graded fixes drafted, reproducer 5 minutes. \textbf{FILING-READY, not filed} \\
+& \texttt{-ksp\_type lgmres}, \texttt{-pc\_type gamg}, \texttt{-pc\_type fieldsplit}, \texttt{-sub\_pc\_type lu} and the rest are accepted without error and have no effect; \texttt{-ksp\_view} prints the hardcoded stack. \textbf{Monitors and viewers are NOT overridden} --- \texttt{-ksp\_monitor\_true\_residual} and \texttt{-ksp\_view\_pmat} work perfectly --- so the diagnostic path demonstrates the channel is live while the remedy path discards the instruction. Measured instance: this lab diagnosed a preconditioned \(\kappa=9.57\times10^{10}\) through that channel and could reach none of the remedies it implies. \textbf{The recommended reorder is now implemented and regression-controlled}: with it in force and no options set, the reference case reproduces 368/383 iterations and \texttt{reason 2} bit-identically, and \texttt{-ksp\_view} then reports \texttt{type: fgmres} where the shipped build reports \texttt{type: gmres}
+& Diagnosability defect; no wrong number produced. Twelve call sites tabulated, three graded fixes drafted, reproducer 5 minutes. Fix (a) implemented on a local image, measured behaviour-neutral by default and measured to restore the channel; recommendation revised to \textbf{(a) plus an effective-value echo}, because the build's own echo goes stale under an override. \textbf{FILING-READY, not filed} \\
 \end{longtable}
 }
 
@@ -263,7 +278,10 @@ degenerate case of the same problem: the instrument reports the dictionary, and 
 is not the run --- an option echoed back verbatim while no branch takes it, a start state
 replaced between runs with nothing printed, and a command line that is parsed, delivered, and
 overwritten before it reaches the solve. D6 is the sharpest of the three, because the same
-channel that drops the user's remedy hands back their diagnosis correctly. Each was found by measuring the thing the
+channel that drops the user's remedy hands back their diagnosis correctly --- and because, when
+the remedy is finally forced through on a build patched to obey, the solver's own setup echo
+still prints the switch that did \emph{not} run (Section~\ref{sec:kspoverride}). That is this
+document's own L-40 lesson occurring inside the code the document is about. Each was found by measuring the thing the
 instrument was not looking at.
 
 \paragraph{What D4 and D5 cost, and why they are here.} Neither is a wrong number. D4 produced
@@ -1757,7 +1775,9 @@ Two conclusions, one per column. \textbf{Reachability:} factor options do land, 
 exact, and it is narrower than this paragraph once implied --- factor options land because
 PETSc applies them after DAFoam's own overrides, while every option that selects the Krylov
 method or the preconditioner family is discarded at twelve call sites
-(Section~\ref{sec:kspoverride}). \textbf{Mechanism:} a \(10^{-8}\)
+(Section~\ref{sec:kspoverride}). That boundary is a property of the shipped build and is stated
+here as one: it has since been moved on a locally patched image, which changes nothing about
+what a user of the shipped build can reach. \textbf{Mechanism:} a \(10^{-8}\)
 zero-pivot threshold with \texttt{MAT\_SHIFT\_NONZERO} active still produces the NaN, so this
 is \emph{not} a small-pivot-below-threshold event the shift machinery could catch. The failure
 is factor growth --- enormous elements in \(L/U\) that overflow when applied --- which no
@@ -2427,10 +2447,11 @@ The conditional FD arm was correctly not launched --- stage 1 did not converge, 
 \(\sim\)60--70 core-min were not spent --- and the rung closed at 111.0 core-min against
 170--190 approved, under budget because a pre-registered gate did its job.
 
-\subsection{What the ceiling is not: ten eliminations and the number that survived}
+\subsection{What the ceiling is not: twelve eliminations and the number that survived}
 \label{sec:elimination}
 
-\emph{Added 2026-08-10.} Section~\ref{sec:ceiling} left the mechanism unidentified. A
+\emph{Added 2026-08-10; extended the same day with two entries the shipped build could not have
+produced (Section~\ref{sec:stage2}).} Section~\ref{sec:ceiling} left the mechanism unidentified. A
 pre-registered diagnosis campaign then went after it in the one way that produces a durable
 result when it fails --- by naming candidate causes in advance, deriving each one's implied
 remedy, and testing them --- and it failed. What it produced instead is an elimination table,
@@ -2484,11 +2505,17 @@ one-level Schwarz deficiency (overlap) & \(\kappa\) moved \(0.979\times\) and \(
 stronger preconditioner application (Richardson) & collapses at rung 2 (Section~\ref{sec:artifact}) \\
 ILU fill level & \texttt{pcFillLevel 1} at rung 3: \(1.859\times\) against the same \(10\times\) bar, flat after iteration 400 \\
 non-normality of the assembled operator & \(\nu_F\) 2.65e-3 at the stalling rung against 4.30e-3 at the converging one --- ratio 0.617 against a pre-registered bar of 3.0, confidence intervals non-overlapping. The stalling rung is \emph{less} non-normal \\
+\addlinespace
+\textbf{augmented-restart Krylov} (\texttt{-ksp\_type lgmres}) --- \emph{reachable only after the patch} & \(-3\) at 400 iterations, residual \(8.236875832365\)e-2: \(5.10\times\) \emph{worse} than the control and \(3.88\times\) above its own iteration-0 value, with restart carried explicitly at 200 so the comparison is with the control's window (Section~\ref{sec:stage2}) \\
+\textbf{algebraic multigrid} (\texttt{-pc\_type gamg -pc\_gamg\_sym\_graph true}) --- \emph{reachable only after the patch} & \(-5\) at 200 iterations, residual \(7.554080154832\)e+179 after barely moving through iteration 100; a 4-level multiplicative hierarchy confirmed in the readback, memory never a factor at 7.0~GiB. \textbf{Off-the-shelf AMG at documented defaults}, not the coarse-space class (Section~\ref{sec:stage2}) \\
 \bottomrule
 \end{tabular}
-\caption{Ten candidate causes, each refuted by a measurement rather than by an argument. What
-survives is a negative characterisation with a number attached: the rung-3 adjoint operator, as
-ASM+ILU(0) preconditioning sees it, carries \(\kappa\approx10^{11}\)
+\caption{Twelve candidate causes, each refuted by a measurement rather than by an argument. The
+last two were unreachable from the shipped build at all and were run only after the defect of
+Section~\ref{sec:kspoverride} was patched locally; both reported the control's own iteration-0
+residual, \(2.121343646203\times10^{-2}\), which is what makes them commensurable with the ten
+above them. What survives is a negative characterisation with a number attached: the rung-3
+adjoint operator, as ASM+ILU(0) preconditioning sees it, carries \(\kappa\approx10^{11}\)
 (\(s_{\max}/s_{\min}=9.57\times10^{10}\) at iteration 400), and that value is insensitive to
 every preconditioner parameter this build exposes.}
 \label{tab:elim}
@@ -2516,7 +2543,9 @@ coarse space, a different preconditioner family (\texttt{PCFIELDSPLIT}, \texttt{
 augmented-restart Krylov method (\texttt{lgmres}, \texttt{dgmres}). Every one of them is
 selected through the PETSc option channel, and every one of them is silently discarded by the
 solver --- which is Section~\ref{sec:kspoverride}, and is the reason that defect is in this
-report rather than in a usability note.
+report rather than in a usability note. Two of them have since been run, on a build patched to
+honour that channel, and both failed (Section~\ref{sec:stage2}); that they could be run at all
+is the defect's cost made concrete rather than a revision of anything measured here.
 
 \paragraph{The one number that cuts against all of this, printed rather than smoothed.}
 \texttt{pcFillLevel 1} at rung 3 was run as an engineering attempt with no diagnostic claim
@@ -2612,17 +2641,20 @@ operator DAFoam builds its preconditioner from does not distinguish the rung tha
 the rung that does not}, and therefore fails to explain the table. It does not prove the
 preconditioned operator is well behaved.
 
-\paragraph{Where that leaves the chapter.} Ten candidate causes have been tested and refuted by
+\paragraph{Where that leaves the chapter.} Twelve candidate causes have been tested and refuted by
 measurement: method breakdown, Krylov subspace size, field separation, geometric localisation,
 mesh volume scaling, diagonal-spread magnitude, one-level Schwarz overlap, stronger
-preconditioner application, ILU fill level, and non-normality. The surviving statement is
-unchanged and better defended than when it had nine: \textbf{the rung-3 wall is real, it is not
-memory, and nothing this build exposes --- nor anything measurable on the operator it assembles
---- distinguishes it from the rung that converges.} What remains unexplained is now precisely
+preconditioner application, ILU fill level, non-normality, and --- once the option channel was
+patched open --- augmented-restart Krylov and off-the-shelf algebraic multigrid. The surviving
+statement is unchanged and better defended than when it had nine: \textbf{the rung-3 wall is
+real, it is not memory, and nothing this build exposes --- nor anything measurable on the
+operator it assembles, nor either of the two forbidden remedies tried at their defaults ---
+distinguishes it from the rung that converges.} What remains unexplained is now precisely
 bounded rather than vaguely open, which is a different and more useful kind of ignorance. The
-remedy classes that would test the next hypothesis are the ones Section~\ref{sec:kspoverride}
-shows cannot be selected at all from this build; that boundary, and not a further knob, is the
-honest end of the investigation.
+boundary that used to close the investigation --- that the remedy classes the evidence names
+cannot be selected at all from this build --- has been crossed locally rather than argued away,
+and what lies beyond it is two more eliminations and one honestly untested remainder: a
+physics-appropriate coarse space, which is neither off the shelf nor cheap.
 
 \subsection{The second silent configuration: the time-0 rewrite}
 
@@ -2749,11 +2781,187 @@ stated limitation.
 objects never consume unprefixed user options and the boundary stops being invisible.
 \end{enumerate}
 
+\paragraph{Fix (a) is now implemented, and the maintainer's first objection is answered by
+measurement.} \emph{Added 2026-08-10, after the above was written.} The first fix was applied to a
+local image --- \artifact{dafoam-kspopts:v1}, built from the \artifact{dafoam-subpclu:v1} lineage
+the whole A3 chain ran on, with both prior images left untouched and reachable --- as \textbf{one
+call relocated, 28 diff lines}: \texttt{KSPSetFromOptions(ksp)} moved from the top of
+\artifact{createMLRKSP} to the end of it, so that \artifact{daOptions} act as defaults and runtime
+options as overrides. All three AD targets rebuilt in 29~s at \texttt{-j 8}. Two gates were
+pre-registered before the build, with the failure branch of the first written down as the more
+valuable outcome (\artifact{A3\_KSPOPTS\_PATCH\_PREREGISTRATION.md}, results \S6 at
+\commit{0fcc98a0}; patch archived at
+\artifact{kspopts\_patch/DALinearEqn\_kspopts.patch}, \commit{3f631c4d}).
+
+\begin{table}[htbp]
+\centering\footnotesize
+\begin{tabular}{@{}L{2.0cm}L{5.4cm}L{7.0cm}@{}}
+\toprule
+gate & question, fixed before the build & measured \\
+\midrule
+\textbf{A} --- regression & Does honouring the option channel change behaviour when no options are set? Pass is rung 1's exact counts & \textbf{CD 368, CL 383, \texttt{PetscConvergedReason: 2} on both}, cold-start signature \texttt{0.5969274433533561} to all 16 digits --- the exact counts measured on the unpatched lineage (\commit{11b90d25}) and reproduced twice since. 8.67 core-min \\
+\addlinespace
+\textbf{B} --- restoration & Does the reorder actually reopen the channel? Pass is \texttt{-ksp\_view} reporting the requested type & \texttt{PETSC\_OPTIONS="-ksp\_type fgmres -ksp\_view"} \(\rightarrow\) \textbf{\texttt{type: fgmres}}, where the shipped build reports \texttt{type: gmres}. 8.40 core-min \\
+\bottomrule
+\end{tabular}
+\caption{The two gates on fix (a). Gate A is the load-bearing one for a filing: \textbf{iteration
+counts are the sharpest available equality test}, and they did not move at all --- so
+\textbf{the override is not load-bearing}, and this document's own recommended fix survives a
+maintainer's first objection by measurement rather than by argument. The pre-registration stated
+the opposite outcome as the more valuable one: a moved count would have meant the ordering matters
+beyond configuration, that fix (a) is wrong as recommended, and that fix (c) replaces it.}
+\label{tab:kspgates}
+\end{table}
+
+\paragraph{Gate B upgraded the recommendation, and the reason belongs in this report's thesis.}
+With \texttt{-ksp\_type fgmres} genuinely in force, the build's own diagnostic echo still prints
+\texttt{Solver Type: gmres} and \texttt{GMRES Restart: 200} --- the \artifact{daOptions} values,
+not the effective ones. That is L-40 --- \emph{the switch you set is not the switch that ran} ---
+occurring inside the upstream code and printed by the program itself, in a report whose entire
+argument is that class of defect. Fix (a) restores the user's control; it does not restore their
+ability to verify it, and control without verifiability is half a fix. \textbf{The revised
+recommendation is therefore (a) plus an effective-value echo}: query \texttt{KSPGetType} and
+\texttt{PCGetType} after the options call and print what the solver will actually run, instead of
+what the dictionary asked for. That is a few lines, and it closes the ``which switch actually
+ran'' gap that motivated this report in the first place.
+
+\paragraph{A secondary finding from the same gate, which is not a bug and must still be
+documented.} Under \texttt{-ksp\_type fgmres} the readback reports \texttt{restart=30} --- PETSc's
+default --- rather than the \texttt{gmresRestart: 200} of \artifact{daOptions}, because
+\texttt{KSPSetType} rebuilds the object's internal state and DAFoam's
+\texttt{KSPGMRESSetRestart(200)} had been applied to the previous one. This is correct ``user
+override wins'' semantics. Its consequence is not benign: \textbf{a user overriding the Krylov
+type must also pass \texttt{-ksp\_gmres\_restart}}, and in this very test the inherited restart of
+30 turned rung 1's 368-iteration convergence into a 1000-iteration \(-3\). That failure is the
+small restart's doing and not the patch's --- and a user who did not know to look would have read
+it as the method's.
+
 Severity is \textbf{medium} and the class is what matters rather than the severity: no wrong
 number is produced, and everything DAFoam does configure works. It costs nothing until a user
 has a hard problem, and then it costs them the ability to act on their own correct analysis, in
 a way no log will show. A user of a discrete-adjoint code who reaches for \texttt{-pc\_type
 gamg} is, by construction, a user who has already done the hard part.
+
+\subsection{The class the build forbade, tested at last: the eleventh and twelfth eliminations}
+\label{sec:stage2}
+
+\emph{Added 2026-08-10.} With the channel open, the remedy class Section~\ref{sec:elimination}
+named and could not reach became runnable. Two members were run --- the two the evidence pointed
+at hardest --- under a pre-registration whose first binding was written before any number existed
+and is quoted here because it governs how the result is stated: \emph{a failure is the eleventh
+elimination; a success is one reachable remedy working, and not vindication of anything.} The
+shipped-toolchain ceiling verdict of Section~\ref{sec:ceiling} was measured against the shipped
+toolchain, and nothing run on a locally patched image revises it, in either direction
+(\artifact{A3\_STAGE2\_UNREACHABLE\_CLASS\_PREREGISTRATION.md}, \commit{a15b839d}, results
+\commit{e1755100}).
+
+Both arms ran the diagnostic control's own script --- 400 iterations,
+\texttt{transonicPCOption 1}, \texttt{pcFillLevel 0}, restart 200 --- so the only difference from
+the control is \texttt{PETSC\_OPTIONS}. \textbf{Both reported the control's exact iteration-0
+residual, \(2.121343646203\times10^{-2}\)}, which establishes commensurability with the ten
+eliminations before them by measurement rather than by assumption.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\begin{tabular}{@{}L{3.0cm}L{5.0cm}L{6.4cm}@{}}
+\toprule
+arm & readback, quoted before grading & result at the graded solve \\
+\midrule
+\texttt{-ksp\_type lgmres} (augmented restarting) & \texttt{type: lgmres}, \texttt{restart=200}, \texttt{aug.\ dimension=2}, right preconditioning, unpreconditioned norm --- the control's window and the control's norm & \(-3\) at 400 iterations, residual \(8.236875832365\times10^{-2}\): \(\mathbf{5.10\times}\) \textbf{worse than the control} and \(3.88\times\) above its own iteration-0 value. 19.4 core-min \\
+\addlinespace
+\texttt{-pc\_type gamg} \texttt{-pc\_gamg\_sym\_graph true} & \texttt{type: gamg}, \texttt{type is MULTIPLICATIVE, levels=4 cycles=v} & \(-5\) at 200 iterations, residual \(7.554080154832\times10^{+179}\): barely moved by iteration 100 (\(2.120914790716\times10^{-2}\)) and then 180 orders of divergence. \textbf{Memory never a factor}, peak 7.0~GiB. 105.0 core-min \\
+\bottomrule
+\end{tabular}
+\caption{The two previously-unreachable remedies, at documented defaults, against the standing
+control (residual \(1.615428631404\times10^{-2}\) at iteration 400). Restart 200 was carried
+\emph{explicitly} on arm 1 because Gate B had established that \texttt{-ksp\_type} resets the
+GMRES-family settings --- without it the arm would have inherited PETSc's restart of 30 and the
+restart's failure would have been read as the method's. Both graded STALL against a
+pre-registered \(10\times\) bar.}
+\label{tab:stage2}
+\end{table}
+
+\paragraph{The anomaly on arm 1, flagged rather than binned.} A residual ending \(3.88\times\)
+\emph{above} its own starting value is not what a GMRES-family method should produce. Two readings
+fit --- genuine divergence, or LGMRES's augmented recurrence reporting an intermediate norm
+differently in this PETSc build --- and \textbf{this arm cannot separate them}. It does not need
+to for its verdict: under either reading the method neither converged nor descended. The anomaly
+is printed here for the same reason the record printed it, and no mechanism is claimed from it.
+
+\paragraph{Bounded exactly as the pre-registration requires.} What was tested is \textbf{two
+off-the-shelf members of the class, at documented defaults}, on a convection-dominated
+nonsymmetric transonic adjoint. GAMG's defaults target elliptic/SPD-like operators even with
+\texttt{sym\_graph} set, and this operator is outside that envelope --- so the honest claim from
+arm 2 is that \textbf{off-the-shelf AMG fails here}, and explicitly \emph{not} that a coarse-space
+method cannot work on this problem. A physics-appropriate coarse space, or AMG with smoothers
+chosen for this operator, remains untested, and it is not cheap. Arm 1 is a stronger elimination
+in one respect and weaker in another: augmented restarting is the arm the campaign's own most
+reproduced observation pointed at --- progress dies at the restart boundary, three independent
+times --- and it is one member of that family at its defaults, not the family.
+
+\paragraph{What the arms proved beyond their own verdicts.} The readbacks are the measurement that
+makes Section~\ref{sec:kspoverride} concrete: a Krylov type \emph{and an entire preconditioner
+family} --- a four-level multiplicative V-cycle hierarchy, built and reported by the solver itself
+--- were selected at runtime on a build where both were previously unreachable and unreported. The
+defect costs a user exactly these two experiments, and they are the two a user in this position
+would try first. Two disclosures travel with the arms and are reproduced rather than dropped: arm
+2 was stopped after its graded \(C_D\) solve rather than continuing \(C_L\) down this family's
+known false-success path, and it billed 105.0 core-min against 25.9 estimated --- a \(4.1\times\)
+overrun whose cause is nameable, both arms having been priced off the ILU baseline's
+per-iteration cost when GAMG's hierarchy setup bears no relation to it. Separately, the shared
+launcher hardcodes a 16~GiB container cap where the pre-registration had stated 22~GiB; the cap
+was never approached (7.0 of 16), so it had no effect on the result, and the mismatch between
+what was registered and what ran is recorded rather than passed over.
+
+\subsection{A diagnostic that does not diagnose: three arms on the condition estimate}
+\label{sec:kappainstr}
+
+\emph{Added 2026-08-10.} Section~\ref{sec:elimination} printed one number that cut against the
+tidy story --- a seven-decade improvement in the preconditioned condition estimate buying
+\(1.9\times\) in residual. With stage 2 in hand, that is no longer one arm's oddity. It is a
+result in its own right, and it is the one finding of this chapter that generalises past this
+case.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\begin{tabular}{@{}L{4.4cm}L{3.4cm}L{6.4cm}@{}}
+\toprule
+arm & \(s_{\max}/s_{\min}\) & behaviour \\
+\midrule
+\texttt{lgmres}, iteration 400 & \(\mathbf{2.70\times10^{5}}\) & \(-3\), residual \(5.10\times\) worse than the control \\
+control (fill 0), iteration 400 & \(\mathbf{9.57\times10^{10}}\) & \(-3\), flat stall \\
+\texttt{gamg}, iteration 100 & \(\mathbf{7.71\times10^{17}}\) & \(-5\), divergence to \(10^{179}\) \\
+\addlinespace
+\texttt{pcFillLevel 1}, iteration 300 & \(1.66\times10^{3}\) against the control's \(4.69\times10^{10}\) at the same point of the same cycle & stalls at \(1.859\times\) (Table~\ref{tab:kappa}) \\
+\bottomrule
+\end{tabular}
+\caption{The standard diagnostic, read across four arms of one campaign. The first three span
+\textbf{five and a half orders below the control and seven above it} --- twelve and a half orders
+end to end --- across arms whose behaviour ranges only from \emph{stalling} to \emph{worse}. The
+fourth improves the estimate by seven decades and buys \(1.9\times\).}
+\label{tab:kappainstr}
+\end{table}
+
+The claim this licenses is narrow and worth stating anyway, because a practitioner meeting this
+operator class will reach for exactly this number: \textbf{the Krylov condition estimate is not
+the instrument for this question, and there are now three independent measurements saying so} ---
+the fill-level arm improving it seven orders for \(1.9\times\), and two stage-2 arms landing five
+and seven orders on either side of a control they both failed to beat. An analyst ranking the
+first three arms of Table~\ref{tab:kappainstr} by their condition estimates would put
+\texttt{lgmres} ahead of the control, which is the reverse of how their residuals came out.
+
+\textbf{The limitation, stated with the result rather than after it.} These are
+\texttt{KSPComputeExtremeSingularValues} readings --- the extremes of the current cycle's
+Hessenberg matrix, a \emph{lower bound} over the subspace actually visited, not the operator's
+spectrum. They are not all taken at the same point of the same cycle (the readings above are each
+arm's own graded iteration, and readings at exact restart boundaries degenerate to \(1/1\)), and
+arm 2's estimate is of a \emph{different} preconditioned operator entirely, since GAMG replaced
+the preconditioner the other three shared. So this is not a claim that these operators' spectra
+differ by twelve orders. It is the narrower and more useful claim: the number a user can actually
+obtain from a running solve, at the points a running solve offers it, does not order these
+configurations by how they behave. The estimator's own within-run variability was separately
+bounded at \(\le6.5\times\) (Section~\ref{sec:elimination}), which is what rules out reading the
+spread as sampling noise.
 
 \subsection{What is reportable here, and what is not}
 
@@ -2788,9 +2996,12 @@ is one line per object.
 None is filed. D4 and D5 have no prepared upstream report of the kind
 Sections~\ref{sec:decomp} and~\ref{sec:idwarp} carry --- what exists is the measured record
 cited throughout this section --- while D6 has one, complete and \textbf{filing-ready}
-(\artifact{DEFECT\_CANDIDATE\_ksp\_options\_override.md}, \commit{f29378d9}), held with
+(\artifact{DEFECT\_CANDIDATE\_ksp\_options\_override.md}, \commit{f29378d9}, extended with the
+implemented patch and its two gates at \commit{5e720034}), held with
 everything else. The shape a filing would take is small in all three cases --- a validation
-warning, a log line, and a reorder --- and that smallness is the argument for it.
+warning, a log line, and a reorder --- and that smallness is the argument for it. D6's is now
+smaller than the argument for it: the reorder exists, it is 28 diff lines, and it is measured
+behaviour-neutral by default on the sharpest equality test the case affords.
 
 \subsection{Scope, stated against ourselves}
 
@@ -2803,7 +3014,29 @@ explicitly not about the family. The ceiling is \emph{bracketed} between those t
 \textbf{not located}: no intermediate mesh has been run, 99{,}840 and the production-class
 meshes are untouched, and nothing here claims 79{,}560 cells is unreachable by other means.
 The iteration-scaling exponents (1.50 and 1.70) are withdrawn as a predictive law by their own
-test; they describe two points.
+test; they describe two points. \textbf{Twelve eliminations are not a proof of the thirteenth}:
+the mechanism is still unidentified, and the two newest entries were bought by patching the
+build rather than by understanding the operator.
+\item \textbf{The patched-image results stand beside the shipped-toolchain verdicts, never in
+place of them.} Everything in Sections~\ref{sec:stage2} and~\ref{sec:kappainstr} was measured on
+a local image carrying this document's own recommended fix. That image exists on one host, is
+pushed nowhere, and revises nothing: the ceiling verdict, the elimination table's first ten
+entries and every reason code in this section were measured against the shipped build and are
+untouched. What the patched arms establish is what the shipped build \emph{forbids} --- and, for
+the two members tested, that reaching it would not have helped.
+\item \textbf{``Off-the-shelf AMG fails here'' is the claim; ``the coarse-space class fails'' is
+not.} Arm 2 ran GAMG at documented defaults with \texttt{sym\_graph} set, on a
+convection-dominated nonsymmetric adjoint that is outside the envelope those defaults target. A
+physics-appropriate coarse space is untested, is not cheap, and is not indicted here. The same
+caution applies one notch weaker to arm 1: one member of the augmented-restart family at its
+defaults, not the family.
+\item \textbf{The regression evidence for fix (a) is one case, and it is stated as one case.}
+Gate A is rung 1's converged configuration on one host, cold-started: bit-identical iteration
+counts and cold signature, which is strong evidence \emph{on that configuration} that the
+override is not load-bearing, and not a proof that no DAFoam configuration anywhere depends on
+the ordering. An upstream reviewer would want the same check on an incompressible case and on a
+Richardson-wrapped one; neither has been run. The effective-value echo the revised recommendation
+adds is drafted and \emph{not} implemented, and fixes (b) and (c) remain untested.
 \item \textbf{The old measurements stand; one sentence built on them is withdrawn and one is
 rescoped.} The 14.17-decade diagonal spread, the \texttt{normalizeResiduals} signature change,
 the restart-boundary collapses and the colour counts are all still true as measured, on the
@@ -3053,6 +3286,18 @@ in advance as the outcome it should be most willing to report, pre-registered th
 and its \(3\times\) decision bar (\commit{7783f603}), and then measured the stalling rung as
 \emph{less} non-normal than the converging one --- killing its own hypothesis at zero solver
 cost and adding the tenth row to the table instead of the explanation it was hoping for.
+\item The two arcs added last (Sections~\ref{sec:kspoverride} and~\ref{sec:stage2}) both
+pre-registered the outcome that would have cost this document something. The patch's Gate A
+(\commit{0fcc98a0}) wrote down, before the build existed, that a \emph{moved} iteration count
+would mean the override is load-bearing and \textbf{this report's own recommended fix is wrong
+and must be re-graded before anyone upstream acts on it}, with fix (c) named as its replacement
+and stage 2 abandoned. Stage 2 (\commit{a15b839d}) then fixed its interpretation before any
+number existed --- \emph{a failure is the eleventh elimination; a success is one reachable remedy
+working and not vindication of anything} --- and, in the same filing, declined two arms with
+reasons on the record, one of them (\texttt{fieldsplit}) because the campaign's own diagnosis had
+already refuted its precondition. It also carried Gate B's lesson forward as a binding: every
+arm changing the Krylov type must restate the restart, or the restart's failure gets read as the
+method's.
 \item One prediction in this arc was made by an agent with no stake in it: an independent
 reader, before rung 2's attempt 2 returned, projected convergence near iteration 1{,}250 from
 the residual's decades-per-hundred slope. Measured 1{,}171 --- correct in direction, conservative
@@ -3094,9 +3339,11 @@ Serial-limiter supervisor sweep (offline: log mining, one-sided-slope reconstruc
 \quad Saad diagnosis campaign and its chosen arm (elimination table) & 61.6 & $\sim$35 \\
 \quad fill-1 engineering arm (\(1.859\times\), the \(\kappa\) surprise) & 33.9 & $\sim$15 \\
 \quad non-normality diagnostic (offline; both operators already on disk) & 0.00 & 25 \\
+\quad option-channel patch, stage 1: rebuild plus Gates A and B & 21.5 & $\sim$15 \\
+\quad stage 2, the previously-unreachable class: \texttt{lgmres} 19.4 + \texttt{gamg} 105.0 & 124.4 & $\sim$52 \\
 \bottomrule
 \end{tabular}
-\caption{Solver cost. Two overruns. The first --- 26\% on the discriminators --- is confined
+\caption{Solver cost, with every overrun named and its cause named beside it. The first --- 26\% on the discriminators --- is confined
 entirely
 to the coloring-off arm, and the record volunteers that the second forced attempt should not
 have been launched after the first showed unbounded memory growth rather than a slow finish.
@@ -3111,12 +3358,23 @@ budget for the only good reason --- a pre-registered gate refused to spend the c
 arm's 60--70 core-min on a stage that had not converged --- and its 15.9-core-min stage-0 test
 is the cheapest line in this table relative to what it prevented: a 95-core-min arm launched on
 a lever now known to collapse at that size.
+}
+\end{table}
+
 Every run is billed at full cap occupancy for its whole wall clock, including both kills and
 including the refined-mesh arm that returned a failure instead of a number. The two most
 recent sweeps cost \emph{nothing}: both re-derived their verdicts from artifacts already on
 disk, and the check that decided the serial finding (Table~\ref{tab:onesided}) came out of
-logs the record had already written and not read.}
-\end{table}
+logs the record had already written and not read.
+
+The table's last two lines are the newest and follow the same rule. Stage 1 ran \(1.4\times\) its
+estimate because Gate B was priced as a seconds-long one-iteration \texttt{-ksp\_view} check and
+run as a full solve instead --- which is where the \texttt{restart=30} finding and the stale-echo
+evidence came from, both of which go upstream, and it is still recorded as an overrun rather than
+folded into the estimate. Stage 2's \(2.4\times\) is arm 2 alone: both arms were priced off the
+ILU baseline's per-iteration cost, and GAMG's hierarchy setup bears no relation to it. The
+correction is written into the record for the next AMG arm --- price the setup phase separately,
+and cap on wall rather than on iterations when the per-iteration cost is unknown.
 
 \subsection{The lessons this arc produced}
 
@@ -3477,7 +3735,10 @@ artifact & what it holds \\
 \artifact{A3\_SUBLU\_PREREGISTRATION.md} (\commit{12d3a7a3}), \artifact{A3\_SUBLU\_SWEEP\_PREREGISTRATION.md} (\commit{054d10b2}), \artifact{A3\_TPC1\_ARM\_PREREGISTRATION.md} (\commit{13c244cd}), \artifact{A3\_TPC1\_CONTROL\_PREREGISTRATION.md} (\commit{31eede16}), \artifact{A3\_FD3\_PREREGISTRATION.md} (\commit{4aef4a2f}) & The five pre-registrations of Section~\ref{sec:deadlever}, each committed before the launch it governs. \S2 of the first is where \texttt{transonicPCOption: 2} was found dead \\
 \artifact{A3\_RUNG2\_N28\_RESULT.md} (\commit{4e982b4a}) & Rung 2: both solves converged, the three-component FD pass, the refused \(-3\) proven a budget knob to ten digits, the measured iteration-scaling exponents, and the independent agent's three items \\
 \artifact{A3\_TRIAGE\_LEVERS\_PREREGISTRATION.md} (\commit{cfd6b5ff}, results \S8 at \commit{3ac8257e}) & The three levers on the working configuration, and the overturning of R5's collapse-on-strengthening prior \\
-\artifact{DEFECT\_CANDIDATE\_ksp\_options\_override.md} (\commit{f29378d9}) & D6, filing-ready and unfiled: the twelve call sites, the commands a user would type with observed-vs-expected, the monitors-work trap, the five-minute reproducer, and the three graded fixes \\
+\artifact{DEFECT\_CANDIDATE\_ksp\_options\_override.md} (\commit{f29378d9}; \S8 added at \commit{5e720034}) & D6, filing-ready and unfiled: the twelve call sites, the commands a user would type with observed-vs-expected, the monitors-work trap, the five-minute reproducer, the three graded fixes, and --- since \S8 --- the implemented fix (a) with both gate results, the restart-reset finding, and the revised recommendation of (a) plus an effective-value echo \\
+\artifact{A3\_KSPOPTS\_PATCH\_PREREGISTRATION.md} (results \S6 at \commit{0fcc98a0}) & Stage 1: the patch stated exactly before it was written, the image discipline, and the two gates --- Gate A's failure branch pre-declaring that this document's own recommended fix would be wrong and must be re-graded, Gate B's pass restoring \texttt{type: fgmres}, and the stale-\texttt{printInfo} wart disclosed in \S1 before it was measured in \S6 \\
+\artifact{kspopts\_patch/DALinearEqn\_kspopts.patch} (\commit{3f631c4d}) & The one-call relocation, 28 diff lines, archived beside the sub-PC patch \\
+\artifact{A3\_STAGE2\_UNREACHABLE\_CLASS\_\allowbreak PREREGISTRATION.md} (\commit{a15b839d}, results \commit{e1755100}) & Stage 2: the three bindings written before any number --- failure is the eleventh elimination, the Gate B restart lesson carried per arm, grading against the standing control --- the two declined arms with their reasons, both readbacks quoted before grading, the rising-residual anomaly flagged rather than binned, and the verdict bounded to off-the-shelf members at documented defaults \\
 \artifact{A3\_SAAD\_DELIBERATE\_CONDITIONING\_\allowbreak PREREGISTRATION.md} (\commit{a9bb202d}, diagnosis \commit{dda82819}, outcome \commit{368996c3}) & The decision rule written before the diagnosis existed, the diagnosis that returned a signature the rule did not anticipate, the disclosed weakening of a post-diagnosis branch, the falsifier firing, and the elimination table \\
 \artifact{A3\_NONNORMALITY\_DIAGNOSTIC\_\allowbreak PREREGISTRATION.md} (\commit{7783f603}, results \commit{15b64e81}) & The tenth elimination: the scale-invariant measurable chosen and its bar fixed before the number, the converging rung run as the control, both readings refuted, and the preconditioner-not-preconditioned-operator limitation stated up front and repeated at the verdict \\
 \artifact{A3\_RUNG3\_RESTART\_CHALLENGE\_\allowbreak PREREGISTRATION.md}, \artifact{A3\_RUNG3\_FILL1\_ENGINEERING\_\allowbreak PREREGISTRATION.md} (\commit{48b34cbf}) & The two reachable engineering attempts on the ceiling, both graded against a \(10\times\) bar fixed before the numbers: \(1.647\times\) and \(1.859\times\). The second carries the seven-decade condition-estimate surprise and the hypothesis it is not allowed to claim \\
@@ -3501,6 +3762,8 @@ artifact & what it holds \\
 \artifact{A3-onera-m6-sweep-n15\_21840/} & The 21{,}840-cell M6 rung: the 2026-07-30 record (\artifact{run\_opt5\_onera\_n15\_21840.log}), the three sub-LU attempts, and the three arms of Section~\ref{sec:deadlever} --- \artifact{tpc1\_\allowbreak computetotals.log}, \artifact{ctrl\_\allowbreak computetotals.log}, \artifact{fd3\_run\{\_attempt1,\}.log} --- with their launchers, scripts and \artifact{.t0/.rc/.t1} ledgers \\
 \artifact{A3-onera-m6-adjoint-vcoarse/} & The born-broken rung: the mesh-gate abort, the standalone \texttt{checkMesh} reproduction, and the preserved pre-repair decomposition that carries the same 23 negative cells \\
 \artifact{A3-rung3-n52/}, \artifact{A3-stage0-n28-richardson/} & Rung 3's stagnation arm (\artifact{rung3\_stage1.log}, the flat 4{,}000-iteration residual, birth certificate and \artifact{log.checkMesh}) and the stage-0 transfer test whose \(-5\) at iteration 200 voided the adopted lever \\
+\artifact{A3-gateA-regression/}, \artifact{A3-gateB-restoration/} & The two gates on the option-channel patch: the bit-identical 368/383 regression log with its cold signature, and the \texttt{-ksp\_view} restoration log where \texttt{type: fgmres} sits eleven lines below the stale \texttt{Solver Type: gmres} echo. Each carries its own \artifact{lever\_echo.txt} recording the image tag and the exact \texttt{PETSC\_OPTIONS} string \\
+\artifact{A3-stage2-lgmres/}, \artifact{A3-stage2-gamg/} & The eleventh and twelfth eliminations: both arms' full logs with the readbacks, the shared iteration-0 residual, the \(-3\) at 400 and the \(-5\) at 200, and their \artifact{lever\_echo.txt} option strings \\
 \artifact{A3-rung2-n28-tpc1/} & Rung 2's staged copy (the archived member left pristine): both attempt logs, the FD log, the launchers and ledgers, \artifact{log.checkMesh} and the \artifact{constant/birth\_certificate.json} sidecar this rung was admitted on \\
 \bottomrule
 \end{longtable}
@@ -3552,6 +3815,13 @@ whether a different configuration reaches 79{,}560 --- the named and unrun candi
 restart lever (\texttt{gmresRestart} \(200\rightarrow1000\)), whose mechanism, retaining
 search directions instead of discarding them twenty times, matches the observed failure mode
 and whose memory cost that rung can afford.
+\item \textbf{D4, the coarse space that was not tested.} Stage 2 ran algebraic multigrid at its
+documented defaults and it failed (Section~\ref{sec:stage2}). What remains untested is the thing
+the elimination table actually points at: a coarse space appropriate to a convection-dominated
+nonsymmetric compressible adjoint, or AMG with smoothers chosen for that operator rather than for
+an elliptic one. It is not a knob, it is not cheap, and no arm here bears on it. The same is true
+one notch weaker of \texttt{dgmres}, declined in stage 2's filing on the ground that it shares
+arm 1's family and mechanism.
 \item \textbf{D4, the gradient's unverified components.} At rung 1 two probed components carry
 no verdict (\texttt{twist[1]}, \texttt{shape[5]}, both step-inconsistent at the tested steps);
 rung 2's three are all evaluable, which locates that failure in the small signals rather than
@@ -3572,18 +3842,27 @@ restart recomputation, and that whether this bites depends on whether convergenc
 inside the first restart cycle --- has two supporting points and is \textbf{unproven}. Its
 falsifiable prediction is that fill~1 also collapses at 42{,}120 cells. That arm is cheap and
 has not been run.
-\item \textbf{D4, the mechanism behind the ceiling, is unknown and stays unknown.} Ten
-candidate causes are eliminated by measurement (Section~\ref{sec:elimination}) and no
-eleventh is named. \textbf{Ten eliminations are not a proof of anything}; they bound the
+\item \textbf{D4, the mechanism behind the ceiling, is unknown and stays unknown.} Twelve
+candidate causes are eliminated by measurement (Section~\ref{sec:elimination}) --- the last two
+only because the option channel was patched open (Section~\ref{sec:stage2}) --- and no
+thirteenth is named. \textbf{Twelve eliminations are not a proof of the thirteenth}; they bound the
 ignorance rather than resolving it, and the surviving characterisation is negative:
 \(\kappa\approx10^{11}\) after preconditioning, insensitive to every parameter the build
 exposes. The non-normality measurement carries its own limit --- it is taken on the assembled
 \artifact{dRdWTPC}, not on the preconditioned operator whose normality governs GMRES, which this
 build never assembles --- so it refutes a discriminator without certifying the operator.
-\item \textbf{D6, unmeasured on the fixes.} The three graded fixes are drafted against the
-source and none has been implemented or tested; the claim that reordering
-\texttt{KSPSetFromOptions} is behaviour-preserving for existing cases is an argument, not a
-measurement.
+\item \textbf{D6, the fixes --- one item CLOSED and the rest still open.} This entry previously
+read that the three graded fixes were drafted and untested, and that ``reordering
+\texttt{KSPSetFromOptions} is behaviour-preserving'' was an argument rather than a measurement.
+\textbf{That clause is now closed by measurement and is struck rather than deleted}: fix (a) is
+implemented, and Gate A returns rung 1's exact 368/383 iteration counts, \texttt{reason 2} on
+both, cold signature identical to sixteen digits (Table~\ref{tab:kspgates}). What replaces it is
+narrower and still open --- the regression is one configuration on one host, so an upstream
+reviewer would want the same check on an incompressible case and a Richardson-wrapped one;
+the effective-value echo that the revised recommendation now leads with is drafted and
+\emph{unimplemented}, so the diagnosability gap is closed on paper and not in code; and fixes (b)
+and (c) remain untested. Nothing about any of it has been sent upstream, and the patched image is
+local to one host.
 \item \textbf{D4, the two negative signatures.} Whether the stagnation at rung 3 and the
 denormal breakdown at the archived rungs share a mechanism is not established; they are
 different signatures and no arm here identifies either.
@@ -3607,7 +3886,10 @@ or posted --- not the decomposition report, not its three addenda, not the comme
 on \artifact{mdolab/idwarp\#57}, not the sub-PC pull request, not the option-channel defect
 candidate that is complete and filing-ready, and not the other two silent-configuration
 findings of Section~\ref{sec:deadlever}, which have no prepared report at all. All of it is
-\textbf{PREPARED and HELD}. Submissions are parked at the owner's discretion, and whether any
+\textbf{PREPARED and HELD}. That the option-channel fix is now implemented, regression-controlled
+and archived as a 28-line diff changes what a filing would contain and not whether one has
+happened: the patched image is local to one measurement host, nothing has been pushed to any
+repository, and no maintainer has been contacted about it or anything else here. Submissions are parked at the owner's discretion, and whether any
 of it goes upstream is the lab principal's decision, not the authors'. This document is what
 the case file looks like while it waits.
 \end{minipage}}
