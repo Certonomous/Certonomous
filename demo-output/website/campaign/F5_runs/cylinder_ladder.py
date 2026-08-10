@@ -43,6 +43,7 @@ from workflows.cylinder_vortex_shedding import (   # noqa: E402
     DIAMETER, U_INF, SPAN, reynolds_to_nu, block_mesh_dict,
 )
 from chief_engineer.head_engineer import parse_coefficient_history  # noqa: E402
+from chief_engineer import lever_echo  # noqa: E402
 
 _RUN_ROOT = Path.home() / "certonomous-runs" / "f5a-cylinder-ladder"
 
@@ -471,6 +472,15 @@ def run_case(name: str, out_dir: Path, log: Callable[[str], None] = print, *,
         f"{params['cells']} cells, {ranks} rank(s)), end_time={params['end_time']:g}")
     log_path = remote_dir / "log.pimpleFoam"
     with log_path.open("w") as lf:
+        # The only launch in this module that does not already go through
+        # tmr_verification._foam. `remote_dir` is the same object passed to
+        # `cwd=` below, so the echoed directory and the executing directory
+        # cannot disagree (L-45); the shared predicate decides what counts as
+        # a solve, so `-postProcess` and utilities get nothing.
+        block = lever_echo.echo_if_solver(solve_args, remote_dir)
+        if block:
+            lf.write(block)
+            lf.flush()
         result = subprocess.run(solve_args, stdout=lf, stderr=subprocess.STDOUT,
                                 cwd=str(remote_dir), timeout=solver_timeout)
     timings["pimpleFoam"] = round(time.monotonic() - start, 1)

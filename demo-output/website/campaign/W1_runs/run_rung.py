@@ -11,6 +11,7 @@ import sys, json, subprocess, time, re
 from pathlib import Path
 sys.path.insert(0, '/home/ubuntu/Certonomous/sdk')
 import workflows.tmr_verification as t
+from chief_engineer import lever_echo
 from stitch import stitched
 def series_of(case):
     try: return stitched(case)[1]
@@ -36,10 +37,34 @@ if extend:
 else:
     log_name = 'log.simpleFoam'
 
+def _echo(fh, args):
+    """Write the LEVER-ECHO block, if this argument vector actually runs a
+    solver, for the directory the process will run in.
+
+    `case` is the same object passed to `cwd=` below, so the echoed directory
+    and the executing directory cannot disagree -- that is the whole of L-45,
+    and it is a property of the code rather than a promise. The shared
+    predicate (`lever_echo.echo_if_solver`) decides what counts as a solve, so
+    a utility launch and a `-postProcess` invocation correctly get nothing.
+    """
+    block = lever_echo.echo_if_solver(args, case)
+    if block:
+        fh.write(block)
+        fh.flush()
+
+
 def foam(args, log, timeout=36000):
     with open(case/log, 'w') as fh:
+        _echo(fh, args)
         return subprocess.run(['openfoam2606', *args], cwd=case, stdout=fh,
                               stderr=subprocess.STDOUT, timeout=timeout).returncode
+
+
+def _solver_stdout(args):
+    """The solver log, opened and echoed into before the child is spawned."""
+    fh = open(case/log_name, 'w')
+    _echo(fh, args)
+    return fh
 
 t0 = time.time()
 if ranks > 1:
@@ -48,12 +73,13 @@ if ranks > 1:
         f'numberOfSubdomains {ranks};\nmethod scotch;\n')
     rc = foam(['decomposePar', '-force'] + (['-latestTime'] if extend else []), 'log.decomposePar')
     assert rc == 0, 'decomposePar failed'
-    solver = subprocess.Popen(
-        ['openfoam2606', 'mpirun', '-np', str(ranks), 'simpleFoam', '-parallel'],
-        cwd=case, stdout=open(case/log_name, 'w'), stderr=subprocess.STDOUT)
+    solve_args = ['openfoam2606', 'mpirun', '-np', str(ranks), 'simpleFoam', '-parallel']
+    solver = subprocess.Popen(solve_args, cwd=case,
+        stdout=_solver_stdout(solve_args), stderr=subprocess.STDOUT)
 else:
-    solver = subprocess.Popen(['openfoam2606', 'simpleFoam'],
-        cwd=case, stdout=open(case/log_name, 'w'), stderr=subprocess.STDOUT)
+    solve_args = ['openfoam2606', 'simpleFoam']
+    solver = subprocess.Popen(solve_args, cwd=case,
+        stdout=_solver_stdout(solve_args), stderr=subprocess.STDOUT)
 
 verdict = None
 while solver.poll() is None:
