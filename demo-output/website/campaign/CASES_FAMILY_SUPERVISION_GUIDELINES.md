@@ -184,3 +184,37 @@ coordination with the Infra family (no schema fork here). This family's
 QCR activity check (`QCR_ACTIVITY_CHECK_2026-08-08.md`) is the positive
 template the lesson cites: selection line + coefficient banner + wired-in
 term at file:line + field-level activity, with numbers.
+
+## 7. Audit conventions — a recount is a measurement, a re-read is not
+
+**Added 2026-08-10 on the chief's instruction, from two of my own arithmetic
+slips found the same day.**
+
+Both slips were in summary counts I had written myself, and **neither was found
+by re-reading the document — both were found by recounting the rows.**
+
+| slip | what re-reading gave | what recounting gave |
+| --- | --- | --- |
+| the B-52 turn's standing | "the turn sits inside the scatter at 1.32×" — read back as correct every time | a range over 3 draws compared against a pairwise difference: **two different statistics**, and the like-for-like number is 2.98× |
+| the turn audit's summary table | "4 W, 22 A, 8 S" — read back as correct | **35 graded rows and 20 A**; the table had double-counted two split dispositions |
+
+**The rule.** *A recount is a fresh measurement; a re-read is the same
+measurement repeated.* Re-reading your own summary re-runs the reasoning that
+produced it, including the error, and it feels like verification because the
+text is familiar. Recounting from the underlying rows uses a different path to
+the same number and can therefore disagree with it.
+
+**Applies to:** any count, total, or summary statistic this family reports —
+disposition tables, row counts, core-min totals, draw counts, gate tallies,
+corpus sweeps.
+
+**In practice.** When a document states a count, derive it a second time by a
+different route before the document is committed — parse the rows
+programmatically, or count from the artifact rather than the prose. Three of
+this family's records now carry corrections found exactly this way, and each was
+cheaper to make than to leave.
+
+**Its sibling, already in the record:** `W3_MESH_NOISE_FLOOR_RESULTS.md` §3's
+correction — *a range over n and a single pairwise difference are different
+statistics and must not be compared*. That one is about which measurement you
+took; this one is about whether you took it twice or looked at it twice.
