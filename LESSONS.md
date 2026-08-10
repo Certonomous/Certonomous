@@ -2273,3 +2273,38 @@ defensible declines was a defect that survived all three.** A task that every
 qualified party is right to refuse has no owner, and no amount of care inside
 the passes will produce one. That escalation cannot be resolved by another
 verifier — it needs someone whose job is deciding rather than checking.
+
+
+## L-55. A summary that drops a conditional is a false claim assembled entirely from true parts
+
+The fleet-wide dead-lever audit found that two of the lab's monitor rules —
+residual stall and Courant excursion — **cannot fire on any production run.**
+The production class constructs its monitor passing only `novel` and an event
+callback, and **has no parameter by which either gate could be supplied**; both
+rules return early when their gate is unset. Verified personally by the chief:
+three construction sites repo-wide, one production and two offline/test.
+
+What makes this a lesson rather than a bug report is where it hid. The
+standard's per-rule Status lines are **scrupulously honest** — they say the rule
+fires *"when constructed with `residual_target`"*, *"with `courant_limit`"*.
+Every one of those sentences is true. Then the standard's summary says: *"S8 is
+now implemented too, so the whole of both approved monitor proposals is in
+force."* That sentence is false, and it is built from nothing but true ones.
+
+**The conditional is where the fact lives.** A summary drops conditionals
+because that is what summaries do, and nobody re-derives whether the condition
+is ever met — the honest clause upstream makes the summary feel audited. The
+same shape appeared twice more the same night: two records described a
+five-day threshold defect affecting *"every caller that took the monitor
+default"*, and **every caller was the test suite** — the recorded defect had
+empty production blast radius, and nobody had asked who the callers were.
+
+The rule: when a capability is claimed as *in force*, **find its production
+call site.** Not the definition, not the test, not the conditional prose — the
+line where real work invokes it with the gate supplied. If that line does not
+exist, the capability is unreachable however correct its implementation, and
+the claim is false regardless of how carefully each of its parts was written.
+
+Corollary for anyone writing a standard: **state the condition in the summary
+too, or do not summarise.** "In force" is a claim about wiring, and wiring is
+checkable in one grep.

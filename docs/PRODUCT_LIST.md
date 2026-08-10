@@ -1751,6 +1751,38 @@ clock-audit rule asks for.]*
 - Left for Katie and nothing invented: author names, the reference URL, and two outstanding items — all marked as
   hand-offs rather than filled in. **Nothing was sent. The scoring ledger is unchanged at 6.**
 
+### 2026-08-10 (night) — two monitor rules cannot fire on any production run, and the false sentence is built from true ones
+
+- **D1, CHIEF-VERIFIED PERSONALLY: S6 (residual stall) and S8 (Courant excursion) CANNOT FIRE ON ANY PRODUCTION RUN.**
+  The production class constructs its monitor passing only `novel` and an event callback, and **has no parameter by
+  which either gate could ever be supplied**; both rules return early when unset. Three construction sites exist
+  repo-wide — one production (ungated), one offline replay, one test file. I checked this myself rather than accept
+  it from the audit, and it holds. **`MONITOR_STANDARD.md`'s claim that "the whole of both approved monitor proposals
+  is in force" is FALSE for every production path** — the geometry studies, the Ahmed act, the NASA hump act, the UQ
+  studies.
+- **Where it hid is the lesson (L-55):** the standard's PER-RULE status lines are scrupulously honest — each says the
+  rule fires *"when constructed with residual_target"* / *"with courant_limit"*. Every one of those sentences is
+  true. The SUMMARY sentence is false and is built from nothing but true ones. **A summary drops conditionals because
+  that is what summaries do, and the honest clause upstream makes the summary feel audited.**
+- **D2, the same shape twice more:** S9's monitor entry point is called only by tests — it is live on a separate
+  ledger path and covers **no** production run. And two records describe a five-day threshold defect affecting
+  *"every caller that took the monitor default"* — **every caller was the test suite.** The recorded defect had empty
+  production blast radius and nobody had asked who the callers were.
+- **D3–D5, three more reopened**: the motorBike knowledge-base benchmark describes a mesh **the lab's own skewness
+  gate now rejects** (8.94 against a hard 4.0), reopening four conclusions across three documents; *"every OpenFOAM
+  log prints the FPE banner"* is false for the DAFoam family (5 of 149 logs lack it) and the rule's warrant is
+  additionally sourced to that retired mesh — though the rule itself is correct and unaffected, which is the honest
+  direction of the error; and one cited source location is literally `NotImplemented` dead code.
+- **The audit's own discipline is why I trust its nulls**: two positive controls FAILED and were disclosed (one
+  because `timeout` cannot invoke a shell builtin); a 66 GB unscoped sweep timed out and was **discarded as VOID
+  rather than reported as absence**; and a near-miss false FOUND-DEAD was caught because the live path used a
+  different symbol. Its counts are labelled a **LOWER BOUND** — 8 rows classified against ~200 triaged candidates,
+  chosen for reachability rather than sampled. Read as *"these five are dead"*, never *"only these five are dead."*
+- Two escalations named for a further pass, neither log-verified: **three standing verdicts resting on one untested
+  relaxation switch**, and an observability finding that may be the largest of all — a print-interval setting gates
+  whether clip events are recorded at all, with **689 clip events where the archive recorded 3**, which would make
+  every archived clip rate in the lab a floor.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
