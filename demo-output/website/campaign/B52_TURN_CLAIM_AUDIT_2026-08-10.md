@@ -142,6 +142,41 @@ number is right.
 | 6.9 | `NEXT_CASES_SLATE.md` L112-116 | seven-rung Cd list, *"band taken as largest spread × 1.25 = 0.00507"* | **A** | The band figure predates rung 8 and carries no scatter. |
 | 6.10 | Tier B of the inventory — display names, routing, filming, Cp/pressure-slice validation, mesh-quality audits, cost/contention precedents, geometry registry, certificates | ~150 sites | **N** | Verified as identity, a **different measurement** (the 193,880-cell Cp slice validation), or timing precedent. **No committed figure anywhere in the repo draws the B-52 ladder**, so there is no plot to correct. |
 
+## 6b. FROZEN ARTIFACTS — which of the four withdrawals may not be edited
+
+**Chief ruling 5, 2026-08-10:** a pre-registration edited after its outcome is
+known stops being evidence (L-44), and *"but the edit is true"* is not a defense.
+The withdrawal goes in a **dated superseding note on the live records that cite
+it**; the frozen artifact stays exactly as written, with a pointer.
+
+**Of the four W items, exactly ONE is frozen:**
+
+| # | site | frozen? | how the withdrawal is applied |
+| --- | --- | --- | --- |
+| **6.1** | `R4_PREREGISTRATION.md` §1 — *"253× above the floor"* | **YES — frozen** | **NOT edited.** Superseding note placed on `R4_ASYMPTOTIC_RESULTS.md` §5, the live record that carried the claim forward. Done 2026-08-10. |
+| 1.2 | `b52.json`; `NOT_PASSING_REGISTER.md` | no | live stored study + live register — dated amendment in place |
+| 1.3 | `B52_RUNG7_RESULTS.md` §2 | no | results record — amendable by dated amendment (the convention `F5bc_unsteady_statistics.md` already carries three of) |
+| 1.5 | `B52_RUNG7_RESULTS.md` §6 | no | same |
+
+**The rule applied beyond the four, for completeness.** No other pre-registration
+appears anywhere in this audit's W or A lists — the W3, B52 rung-7/rung-8 and
+rung-6-replicate pre-registrations are cited but nothing in them is withdrawn or
+amended. Docket proposals and their generator scripts (6.7) are **live**, not
+frozen: a proposal is a standing request, not a record of what was believed
+before an outcome.
+
+**One boundary case, disclosed.** `F5C_UNSTEADY_PROBE_PREREGISTRATION.md`
+received a correction at `d64565c1` — but **before** launch and before any
+outcome existed, which is the legitimate case L-44 does not reach. It is noted
+here so the exception is on the record rather than discovered as an
+inconsistency.
+
+**Secondary effect worth flagging:** `R4_ASYMPTOTIC_RESULTS.md` §5's *decision*
+(not re-running the B-52) **stands** — it rested on three legs and only the third
+is withdrawn. `W5_SPARTA_GATE_STATUS.md` L51 cites `R4_PREREGISTRATION.md` §1 for
+its *method* (read the record before spending), not for the 253×, and is
+unaffected.
+
 ## 7. What would actually settle it, priced
 
 The audit's own weakness is that σ is bracketed by a factor of 2.6 on n = 2, 2

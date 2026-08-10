@@ -147,6 +147,34 @@ r = 1.09 amplifies its finest increment 4.65× into the extrapolation against
 2σ, so there is real signal being amplified, not noise. **The premise was
 corrected rather than built on.**
 
+> ### SUPERSEDING NOTE, 2026-08-10 — the "253× the noise" leg of this paragraph is WITHDRAWN
+>
+> **Chief ruling 5 on the turn audit (`B52_TURN_CLAIM_AUDIT_2026-08-10.md` §6.1).**
+> The 253× is measured against the **iterative** floor (2σ = 1.07 × 10⁻⁵). That
+> was the only noise source anyone had measured at the time, and it was the wrong
+> one. The B-52's dominant noise source is **mesh construction**, measured
+> 2026-08-10 (`B52_RUNG6_REPLICATE_RESULTS.md`, `e40eceb3`): three same-recipe
+> draws at one rung span 5.35 × 10⁻³, and an increment carries
+> **√2 σ = 1.70 × 10⁻³ to 4.47 × 10⁻³**.
+>
+> **Against the right floor the B-52's finest increment (2.702 × 10⁻³) is
+> 0.60–1.59×, not 253×.** The sentence *"there is real signal being amplified,
+> not noise"* does not survive, and neither does the 253× as a statement about
+> signal.
+>
+> **The decision this section records — not re-running the B-52 — stands**, on
+> its other two legs, which are untouched: the fitted triple already carries a
+> constant ratio (a re-run is a no-op on that body), and the six-rung sequence is
+> two mesh families by `b52.json`'s own `recipe_audit`. Only the third leg is
+> withdrawn.
+>
+> **`R4_PREREGISTRATION.md` §1, where the 253× was first written, is NOT edited
+> and must not be.** It is a frozen artifact under L-44: a pre-registration
+> edited after its outcome is known stops being evidence, and *"but the edit is
+> true"* is not a defense. It stays exactly as written; this note is the
+> correction, and it lives here because this is the live record that carried the
+> claim forward.
+
 ## 6. Why the ladder cannot be pushed further: the steady solve stops being steady
 
 c5 was launched to separate "the ladder turned" from "the ladder oscillates". It
