@@ -1987,3 +1987,36 @@ the resolved binary, the working directory the process is in, the file the
 solver opened — never from a parameter the caller supplied describing what it
 intends. When a false-positive channel is discovered, it outranks every
 false-negative on the same fix queue, even a larger one.
+
+
+## L-46. A change that creates an artifact must be audited from both ends: what stops checking, and what starts reading
+
+The L-42 enforcement pass (archive a solver log before a rerun destroys it)
+nearly became a defect twice, in opposite directions, and the pair is the
+lesson:
+
+**At the guard.** The first design pre-seeded the log file from Python. Callers
+gate their launches on `if not log_path.exists(): raise` — so the fix would
+have made that check pass whether or not the shell ever ran. *A change that
+creates the artifact a check tests for disables the check*, silently, with
+every test still green.
+
+**At the consumers.** The obvious archive name `log.simpleFoam.superseded_<stamp>`
+would have been read as a run log by FIVE places that select a case's log by
+globbing `log.*`, `log.*Foam` or `log.simpleFoam*` — and one of them picks the
+LARGEST match, so an archive bigger than the live log would have been
+classified as the run itself. An evidence-preservation fix would have become an
+evidence-confusion bug. The stamp became a prefix instead, matching none of the
+four glob shapes, pinned by a test so a future tidy-up cannot move it back.
+
+The executing agent found the second only because it applied the first rule
+deliberately — *this change creates artifacts, so go find everything that reads
+them* — which is the argument for writing a rule down rather than trusting
+that you will remember it at the moment it applies.
+
+Standing form, for any change that adds, renames or duplicates a file the lab
+reads: enumerate (a) every check whose passing condition your new artifact
+could satisfy accidentally, and (b) every consumer that discovers files by
+pattern rather than by exact name, and state both lists in the change. A
+pattern-matching consumer is an undeclared interface; adding a file to a
+directory is editing that interface whether you meant to or not.

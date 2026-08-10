@@ -952,6 +952,33 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   a finding is graded latent, write down **what specifically is holding it latent**, because that condition is a
   dependency and the next change is as likely to remove it as to preserve it.
 
+### 2026-08-10 (late) — evidence now survives the next run, and the fix nearly became the bug twice
+
+- **L-42 ENFORCEMENT LANDED** (2423e42b, zero core-min as priced, suite 1239/0): every family launch path now
+  supersedes an existing log under a UTC-stamped archive before anything writes, so a rerun can no longer destroy the
+  prior run's hash-bound lever evidence. Naming follows `launch_solve.sh` — the lab's only L-42-surviving path, which
+  survived by accident of its registry design and is now the deliberate convention. The test that names the point: a
+  first run's echo SURVIVES a second run that changes the levers, archive parsing to the original hashes and the new
+  log to different ones. Empty logs are removed rather than archived; the archiver never raises (a lost archive costs
+  one run's evidence, a refused launch costs the run).
+- **THE FIX NEARLY BECAME THE BUG, TWICE, IN OPPOSITE DIRECTIONS — now L-46.** (a) Pre-seeding the log from Python
+  would have made every caller's `if not log_path.exists(): raise` launch check vacuous, invisibly, with all tests
+  green. (b) The readable archive name would have been picked up by FIVE glob-based log consumers, one of which
+  selects the LARGEST match — an archive bigger than the live log would have been classified AS the run, turning an
+  evidence-preservation fix into an evidence-confusion bug. The stamp became a prefix, pinned by a test. The second
+  was found only because the first rule was applied deliberately, which is the argument for writing rules down.
+- **The known L-42 casualty amended, not reconstructed**, and the facts came out sharper than first reported:
+  NOTHING was falsified and no number is withdrawn — the 30,000-iteration fields survive on disk and the run did
+  reach the count its record states. What is gone is that run's LOG, and gone UNRECONSTRUCTIBLY: the launcher echo
+  did not exist until nineteen hours after the run, so the record carries no `levers_verified_active` and now never
+  can. The amendment states the cell's standing is unchanged precisely so the two runs' agreement is never misread
+  as verification. Charter §9's distinction applied exactly: *unreconstructible* is a different word from
+  *unsupported*.
+- **Latent-finding rule added** (guidelines §3.3): the `-postProcess` over-fire went live in the very pass that
+  removed the condition holding it latent — so when grading a finding latent, WRITE DOWN what specifically holds it
+  latent, because that condition is a dependency and the next change is as likely to remove it as preserve it.
+  "Not exploitable yet" and "not a defect" are different verdicts.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
