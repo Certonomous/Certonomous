@@ -770,6 +770,27 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   the tier leads). Chief ruling: NO re-pointing of the weights on this cohort — fitting seven weights to 114
   outcomes graded by one agent is the in-sample move the lab refuses everywhere else.
 
+### 2026-08-10 (night) — the two-day-old lever gate had a hole on the launch shape that matters most, and no record fell through it
+
+- **THE L-40 GATE NEVER FIRED IN PARALLEL.** The lever echo adopted 2026-08-08 tested `args[0] in SOLVERS`, so an
+  `mpirun -np N <solver> -parallel` launch — how every long campaign solve launches — produced NO echo block,
+  silently, with no error. Found by a B-52 solver agent BEFORE use rather than after and fixed at `199e9d17`; the
+  2026-08-08 entry's "closed mechanically for solver launches" was true only of serial launches, and this entry is
+  the correction. Infra family guidelines v1.2 carry the gap, the fix and the rule a next adopter inherits.
+- **THE FIX'S OWN NO-OP CLAIM IS REFUTED, by the supervisor's hands.** `199e9d17` argued "no caller passes mpirun";
+  `sdk/workflows/rae2822_case9.py:946` does, through the same runner, whenever `ranks > 1`. Verdict: not a no-op —
+  but harmless and strictly improving, because every consumer of that log reads it from the tail while the echo is
+  fenced at the head. Method: an AST sweep over all 830 `.py` files for every literal placing a solver name past
+  index 0, carrying its own positive control. Regression test added and proven against the old predicate (2 tests +
+  3 subtests fail there, pass here); suite 1214/0, up from 1210/0.
+- **CLAIMS INTEGRITY: ZERO AFFECTED RECORDS, and the reason is structural, not lucky.** All 13 recorded
+  `levers_verified_active` claims re-verify exactly — file set and sha256 — against the echo block in the log of the
+  run they record; zero records carry the field empty. The defect made the gate fail OPEN, so it could only ever
+  suppress a verification, never manufacture one. **Five further echo bypasses ARE open and escalated**: four
+  `subprocess.Popen` solver paths inside `tmr_verification.py` itself, plus `launch_solve.sh` keying its echo on a
+  caller-supplied `--case` path that nothing binds to the directory the solve runs in — the one site in the sweep
+  that could produce a FALSE POSITIVE rather than a false negative. Not fixed under two live solver agents.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

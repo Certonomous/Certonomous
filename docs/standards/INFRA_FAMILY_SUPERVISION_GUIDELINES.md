@@ -1,5 +1,14 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.2, dated 2026-08-10. Amends section 1.7 and adds section 3, the
+second personal-check pass, on the lever-echo parallel-launch gap: the echo's
+launch test read `args[0]` only, so the block never fired on an
+`mpirun -np N <solver> -parallel` launch — the shape the campaign's long
+solves actually use. Found and fixed by a solver agent at `199e9d17`; this
+pass verifies the fix, refutes its no-op claim, adds the regression test, and
+records four further echo bypasses the same sweep turned up. Nothing in 1.1 or
+1.0 is weakened; 1.7's promise is narrowed to what the code actually delivers.
+
 Version 1.1, dated 2026-08-08. Adds section 1.7, the lever-echo convention,
 on the dead-lever audit's evidence (126 lever/conclusion pairs verified from
 runtime logs; all 16 unverifiable entries trace to four lever classes stock
@@ -116,7 +125,8 @@ Verification Charter v1.5 section 9's ``levers_verified_active`` is
 satisfiable at write time, never retroactively (adopted 2026-08-08):
 
 - **Launcher echo.** Solver launches through the sanctioned paths
-  (`scripts/launch_solve.sh`; the workflows' shared solver runner) write a
+  (`scripts/launch_solve.sh`; the workflows' shared solver runner
+  `tmr_verification._foam`) write a
   fenced LEVER-ECHO block at the head of the run log: fvSchemes,
   fvSolution, the constant/ lever dictionaries and the 0/ boundary files,
   each hash-bound by sha256 to the exact bytes that ran
@@ -130,6 +140,26 @@ satisfiable at write time, never retroactively (adopted 2026-08-08):
   from a log with no echo says plainly that its dictionary levers are
   unverifiable from it. A pre-registration whose plan leans on a lever
   from the four echo-less classes names how the echo will exist.
+- **The echo fires on the INVOCATION, never on the first token** (added
+  v1.2, 2026-08-10). The runner's launch test was `args[0] in SOLVERS` for
+  its first two days, which meant a parallel launch —
+  `mpirun -np N <solver> -parallel`, how every long campaign solve launches —
+  produced no echo at all, silently, with no error and no warning. Fixed at
+  `199e9d17`. **A new adopter inherits two rules from that gap.** First: an
+  enforcement predicate keys on the resolved invocation, not on a token
+  position, a command spelling, or a caller-supplied path string. Second:
+  the test that guards it asserts the block is PRESENT and its CONTENT is
+  right, on the launch shape the campaign actually uses — an assertion that
+  merely checks nothing raised passes against this defect, which is exactly
+  why it survived adoption (`sdk/tests/test_lever_echo.py`, the four
+  parallel-spelling tests).
+- **The echo does not reach every solver launch, and section 3.3 lists
+  which** (added v1.2). Four live paths launch solvers without it: the two
+  detached/watched `subprocess.Popen` paths inside `tmr_verification.py`
+  itself, `scripts/coefficient_uq_plate.py`'s private runner copy, and the
+  campaign scripts that build their own `solve_args`. A record from any of
+  those honestly reports `unverifiable`; nobody should read that word as
+  "the levers were checked and found wanting".
 
 ## 2. Findings record, first personal-check pass (2026-08-07)
 
@@ -239,6 +269,98 @@ found in the charters matches: `PROPOSALS_OPEN.md` cites MONITOR section
 3.1 (v1.3) and that section carries the S12 replay line;
 `log_signatures.py` carries the S7 withdrawal consistently (detector
 removed, withdrawal dated). No coherence defects found.
+
+## 3. Findings record, second personal-check pass (2026-08-10)
+
+The lever-echo parallel-launch gap. Recorded before any further fix was
+applied, per the record-before-fixing discipline. Suite: **1214 passed, 0
+failed, 149 subtests** (baseline 1210/146; the four new tests are 3.2).
+
+### 3.1. The fix at `199e9d17` is correct, and its no-op claim is FALSE
+
+The behaviour change is exactly right: `args[0] in lever_echo.SOLVERS`
+became `any(arg in lever_echo.SOLVERS for arg in args)`, which fires on
+strictly more launches and on no fewer. The predicate is monotone, so the
+fix can only add echo blocks, never remove one.
+
+Its commit message claims more than that: *"a provable no-op today since no
+caller passes mpirun"*. **That claim is refuted.**
+`sdk/workflows/rae2822_case9.py:946` passes
+`["mpirun", "-np", str(ranks), "rhoSimpleFoam", "-parallel"]` through the
+shared runner's own `step()` helper whenever `ranks > 1`. The fix therefore
+changes behaviour for a real, in-tree caller: RAE2822 case 9 parallel solves
+now get an echo block at the head of `log.rhoSimpleFoam` where they
+previously got none.
+
+The change is nonetheless SAFE for that caller, for a reason worth stating
+rather than assuming: the echo is fenced and written at the head, and every
+consumer of that log reads it from the tail
+(`splitlines()[-30:]`) or by substring (`solver_converged`,
+`parse_force_split`), none of which the dictionary text can satisfy. So the
+verdict is **not a no-op, but harmless and strictly improving** — which is a
+different animal from what the commit message asserts, and the difference is
+the whole point of checking. Method: an AST sweep of all 830 `.py` files for
+every string list literal placing a solver name at index >= 1 (a superset of
+every value that can reach `args`), carrying its own positive control.
+
+### 3.2. The regression test the gap earned
+
+`sdk/tests/test_lever_echo.py`, four new cases in `FoamRunnerEchoTests`.
+They assert the block's presence AND content on the parallel spelling, assert
+`levers_verified_active` comes back **mechanical** rather than
+`unverifiable`, cover the three solver spellings the repo launches in
+parallel, and pin the other direction — a parallel UTILITY launch still
+writes a pristine log. Verified against the pre-`199e9d17` predicate in a
+scratch copy: 2 tests + 3 subtests fail there and pass here. A test that only
+checked for the absence of an error would have passed against the defect.
+
+### 3.3. Sweep: where enforcement still keys on spelling, position or path
+
+| Site | Keys on | Verdict |
+| --- | --- | --- |
+| `tmr_verification.py:_foam` echo predicate | membership over all args | **FIXED** at `199e9d17` |
+| same, residual | an exact-string NAME set | **VULNERABLE (note).** A solver spelled as a path (`/…/bin/simpleFoam`) or behind a wrapper (`foamJob`, `foamExec`) is still invisible. No caller does this today. |
+| `tmr_verification.py:1253` `_run_settle_watched_solver` | builds `[*_run_prefix(), "simpleFoam"]` and `Popen`s it, bypassing `_foam` | **VULNERABLE.** No echo, ever. |
+| `tmr_verification.py:1311` `launch_level_solver` (detached) | same bypass | **VULNERABLE** |
+| `tmr_verification.py:1430` `launch_level_solver` parallel detached | same bypass, mpirun-spelled | **VULNERABLE** |
+| `tmr_verification.py:3186` NACA detached branch | same bypass | **VULNERABLE** |
+| `scripts/launch_solve.sh:177` | `[ -d "$CASE" ]` — a caller-supplied PATH STRING | **VULNERABLE, and the worst of the set.** Nothing binds `--case` to where the command runs: `setsid nohup "$@"` inherits the launcher's cwd. A mismatched `--case` mints an echo of dictionaries that did NOT run, at the head of a log of a solve that did — a false-positive channel, where the fixed defect only ever produced false negatives. |
+| `scripts/launch_solve.sh`, same block | writes the echo into the registry `$LOG` | **VULNERABLE (note).** A record built from the case's own `log.simpleFoam` sees no echo and honestly reports `unverifiable` even though an echo exists elsewhere. |
+| `scripts/coefficient_uq_plate.py:174` | a private `_foam` copy that launches `simpleFoam` | **VULNERABLE.** No echo at all; a second runner diverged from the sanctioned one. |
+| `sdk/scripts/naca4412_credential_repair.py:101` | private `foam()`, mpirun-spelled solves | **VULNERABLE.** No echo. |
+| `sdk/scripts/naca4412_credential_repair.py:157` | `simpleFoam -postProcess -func yPlus` — a UTILITY spelled with a solver name | **Latent over-fire.** Harmless today because that runner has no echo; it would pollute `log.yPlus` if routed through `_foam`. The pristine-utility guard in 3.2 pins the boundary. |
+| `mesh_certificate.certificate_admits` | re-hashes the points file actually present | **SAFE.** Hash-bound, not path-bound; a certificate cannot drift onto another mesh. |
+| `mesh_certificate` cache write/lookup | `points_sha256` binding | **SAFE** |
+| `certificate_admits` on a decomposed case | certifies `constant/polyMesh`, while an mpirun solve reads `processor*/constant/polyMesh` | **SAFE (note).** The processor meshes are derived from the certified one; recorded so the gap stays a known gap. |
+
+The four `tmr_verification.py` bypasses and `launch_solve.sh` are family code
+and are NOT fixed in this pass: two solver agents hold live uncommitted work
+in this tree, and a change to how a running solve's log is written is not a
+change to make underneath them. They are recorded here and escalated.
+
+### 3.4. Claims integrity: no affected record exists
+
+**Every already-recorded `levers_verified_active` is sound.** 13 claims in 12
+records carry a non-empty `verified` list; all 13 re-verify exactly against
+the LEVER-ECHO block in the log of the run they record, file set and sha256
+alike. Zero records carry the field with an empty list, so no record is
+implicitly claiming a check it did not get either.
+
+The structural reason, which matters more than the count: the gap could not
+produce a false claim in this direction. `levers_verified_active()` derives
+its entire `verified` list from `parse_echo(log_text)`, so a launch the echo
+could not see yields an EMPTY list and a basis string that says
+`unverifiable` in as many words. The args[0] defect made the gate silently
+fail OPEN on parallel launches — a missing verification, never a manufactured
+one. The two B-52 rung-6 replicate records, the only mpirun-spelled records
+in the corpus, were written after `199e9d17` and carry genuine echoes.
+
+Method, stated so its reach is inspectable (L-43): every `*.json` under
+`demo-output/` parsed, the field found at any depth, the solver log located
+beside the record or in the run root the record names (plain and `.gz`
+spellings both), the block re-parsed and compared to the claim. Positive
+control: a planted claim citing a sha256 the log does not carry is detected
+as a mismatch — the instrument is a detector, not a rubber stamp.
 
 ## Related
 
