@@ -1035,6 +1035,31 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   vaguely open, and the capability-boundary defect (f29378d9) names why the next class of remedy cannot be attempted
   here at all without a source change. From "blocked at every mesh size, cause unknown" to that, in one campaign.
 
+### 2026-08-10 (night, last) — the evidence machinery stops recording solutions, and a reported limit turns out not to exist
+
+- **THE LEVER ECHO WAS 97.8% SOLUTION DATA.** On B-52 rung 6 the echo block was 24.6 MB of a 25.2 MB solver log —
+  `0/U` 13.1 MB, `0/phi` 11.5 MB, exactly the two files `potentialFoam -writephi` writes. `0/` was echoed as "the
+  boundary conditions", but after initialization it holds the BC specification (a lever) AND computed field values
+  (not a lever, and `phi` is not a boundary condition at all). One rule fixes it — any `nonuniform List` payload over
+  4 kB is elided wherever it appears, leaving its element count, byte count and sha256 — and the result is **24.6 MB
+  to 8.5 kB, 2896x**, with every lever still verbatim. Suite 1247/0, 0 core-min.
+- **THE SAME FIX CLOSED THE B-52 G4 FAILURE**, which was the same defect wearing a second face: the replicate-equality
+  clause was comparing whole-file hashes of two SOLUTIONS on two different meshes, which can never be equal. Entries
+  now carry two hashes — `sha256` still binds to the exact bytes on disk (never weakened, and tested), `lever_sha256`
+  covers the lever content. On the two real replicates the file hashes still differ and **the lever hashes now match
+  exactly**, while changing `noSlip` to `slip` still breaks equality.
+- **THE FIRST VERSION OF THAT FIX FAILED ITS OWN G4 TEST** — the elision marker embedded the payload's byte count and
+  hash, so every replicate differed through the very marker added to describe the difference. Caught by running the
+  check against the two real cases instead of reasoning about it. Third time this campaign that a fix's own claim
+  needed testing rather than believing.
+- **A REPORTED LIMIT DOES NOT EXIST.** Five campaign paths were routed in as "solver launches via shell strings —
+  either give them a vector interface or mark them permanently unverifiable". **24 of 24 commands contain ZERO shell
+  metacharacters**: they are argument vectors spelled as strings, and the `bash -c` is there to source an environment
+  `_run_prefix()` already resolves. The routing agent's principle (splitting an arbitrary shell string to decide what
+  ran is spelling-keying, forbidden) is right and stays — it just does not bite once the call sites pass vectors.
+  Filed as **P-4.2** recommending NEXT-TOUCH, and recommending AGAINST the permanent marking: a false constraint in a
+  standard is worse than an open gap, because a gap invites a fix and a constraint forbids one.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

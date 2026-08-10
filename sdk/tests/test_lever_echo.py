@@ -293,6 +293,125 @@ class RunDirectoryBindingTests(unittest.TestCase):
         self.assertNotIn(lever_echo._FILE_MARK, out)
 
 
+def _field_file(root: Path, name: str, n_cells: int, bc_type: str) -> Path:
+    """A 0/ field file shaped like OpenFOAM writes one after an
+    initialization pass: a lever-bearing boundaryField wrapped around bulk
+    nonuniform data."""
+    body = "\n".join(f"({i} 0 0)" for i in range(n_cells))
+    faces = "\n".join(f"({i} 0 0)" for i in range(n_cells // 2))
+    path = root / "0" / name
+    path.write_text(
+        _foam_file("volVectorField", name)
+        + "dimensions      [0 1 -1 0 0 0 0];\n"
+        + f"internalField   nonuniform List<vector>\n{n_cells}\n({body})\n;\n"
+        + "boundaryField\n{\n    farfield\n    {\n"
+          "        type            freestreamVelocity;\n"
+          "        freestreamValue uniform (0 0 100);\n"
+        + f"        value           nonuniform List<vector>\n{n_cells // 2}\n"
+          f"({faces})\n;\n"
+        + "    }\n    body\n    {\n        type            noSlip;\n"
+          "    }\n}\n")
+    return path
+
+
+class EchoSizeAndLeverIdentityTests(unittest.TestCase):
+    """The echo must record levers, not solution fields.
+
+    WHY THIS TEST EXISTS. On B-52 rung 6 the echo block was 24.6 MB of a
+    25.2 MB solver log -- 97.8% -- because `0/` is treated as the BC
+    dictionaries while, after a `potentialFoam -writephi` pass, it holds
+    computed fields too: `0/U` contributed 13.1 MB and `0/phi` 11.5 MB. The
+    same root cause failed the B-52 arm's G4 replicate-equality clause on
+    exactly those two files, because solutions on two different meshes can
+    never be equal and comparing them was never comparing levers.
+    """
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="lever-size-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.case = _fixture_case(self.tmp)
+
+    def test_bulk_field_data_does_not_reach_the_log(self):
+        path = _field_file(self.case, "U", 40000, "freestreamVelocity")
+        self.assertGreater(path.stat().st_size, 400_000)
+        block = lever_echo.echo_block(self.case)
+        self.assertLess(len(block), 20_000,
+                        "the echo block is still carrying bulk field data")
+
+    def test_the_levers_themselves_survive_verbatim(self):
+        _field_file(self.case, "U", 40000, "freestreamVelocity")
+        block = lever_echo.echo_block(self.case)
+        for lever in ("type            freestreamVelocity;",
+                      "freestreamValue uniform (0 0 100);",
+                      "type            noSlip;",
+                      "dimensions      [0 1 -1 0 0 0 0];"):
+            with self.subTest(lever=lever):
+                self.assertIn(lever, block)
+
+    def test_every_elision_is_accounted_for_not_merely_absent(self):
+        _field_file(self.case, "U", 40000, "freestreamVelocity")
+        block = lever_echo.echo_block(self.case)
+        markers = [l for l in block.splitlines() if lever_echo._ELIDED in l]
+        self.assertEqual(len(markers), 2, "internalField and the per-face "
+                                          "boundary values should both go")
+        for line in markers:
+            self.assertRegex(line, r"\d+ entries")
+            self.assertRegex(line, r"\d+ bytes")
+            self.assertRegex(line, r"sha256 [0-9a-f]{64}")
+
+    def test_the_whole_file_binding_is_never_weakened_by_elision(self):
+        """`sha256` must still be the hash of the exact bytes on disk. That is
+        the charter's binding and elision must not touch it."""
+        path = _field_file(self.case, "U", 40000, "freestreamVelocity")
+        echoed = lever_echo.parse_echo(lever_echo.echo_block(self.case))
+        self.assertEqual(echoed["0/U"],
+                         hashlib.sha256(path.read_bytes()).hexdigest())
+
+    def test_two_meshes_one_recipe_agree_on_levers_and_differ_on_files(self):
+        """G4, the clause that failed. Same recipe, different mesh sizes: the
+        FILES differ by construction and always will; the LEVERS are what a
+        same-recipe claim is about, and they must compare equal."""
+        other = _fixture_case(self.tmp / "replicate")
+        _field_file(self.case, "U", 40000, "freestreamVelocity")
+        _field_file(other, "U", 41000, "freestreamVelocity")   # finer mesh
+        a, b = (lever_echo.echo_block(c) for c in (self.case, other))
+        self.assertNotEqual(lever_echo.parse_echo(a)["0/U"],
+                            lever_echo.parse_echo(b)["0/U"],
+                            "different field data must still hash differently")
+        self.assertEqual(lever_echo.parse_echo_levers(a)["0/U"],
+                         lever_echo.parse_echo_levers(b)["0/U"],
+                         "same recipe on two meshes must agree on LEVERS")
+
+    def test_a_changed_lever_still_breaks_lever_equality(self):
+        """The other direction, or the comparison would be worthless: elision
+        must not hide an actual lever difference."""
+        other = _fixture_case(self.tmp / "replicate")
+        _field_file(self.case, "U", 40000, "freestreamVelocity")
+        p = _field_file(other, "U", 41000, "freestreamVelocity")
+        p.write_text(p.read_text().replace("noSlip", "slip"))
+        self.assertNotEqual(
+            lever_echo.parse_echo_levers(lever_echo.echo_block(self.case))["0/U"],
+            lever_echo.parse_echo_levers(lever_echo.echo_block(other))["0/U"])
+
+    def test_small_uniform_entries_are_left_alone(self):
+        block = lever_echo.echo_block(self.case)
+        self.assertNotIn(lever_echo._ELIDED, block)
+        self.assertIn("freestreamVelocity", block)
+
+    def test_a_pre_split_log_still_parses_both_ways(self):
+        """Backward compatibility: logs written before the lever hash existed
+        carry one hash, and must keep parsing as they always did."""
+        old = (f"{lever_echo.BEGIN}\ncase /x\n"
+               f"{lever_echo._FILE_MARK} system/fvSchemes sha256 {'a'*64} ----\n"
+               f"divSchemes {{}}\n{lever_echo.END}\n")
+        self.assertEqual(lever_echo.parse_echo(old),
+                         {"system/fvSchemes": "a" * 64})
+        self.assertEqual(lever_echo.parse_echo_levers(old),
+                         {"system/fvSchemes": "a" * 64})
+        field = lever_echo.levers_verified_active(old)
+        self.assertEqual(field["verified"][0]["lever_sha256"], "a" * 64)
+
+
 class SolverInvocationTests(unittest.TestCase):
     """`launches_a_solver` is the one place the lab decides whether a launch
     is a solve. Six launchers used to answer it separately, or not at all."""

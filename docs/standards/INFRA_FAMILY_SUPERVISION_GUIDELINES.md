@@ -1,5 +1,12 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.6, dated 2026-08-10 (night). Adds section 7, two items routed in
+from the Cases family: the echo was recording SOLUTIONS as levers (24.6 MB of
+a 25.2 MB B-52 log, 97.8%), now 8.5 kB with every lever verbatim and the
+replicate-equality gate closed by the same fix; and the five "shell string"
+solver launches turn out not to be shell strings at all, so the permanent
+unverifiable marking they were offered is refused on measurement.
+
 Version 1.5, dated 2026-08-10 (night). Adds section 1.9 — evidence has to
 survive the next run — and section 6, the L-42 enforcement pass: every launch
 path in the shared runner now archives an existing log under a UTC-stamped
@@ -693,6 +700,69 @@ names the point of the whole pass — **a first run's hash-bound echo survives a
 second run that changes the levers**, with the archive parsing to the original
 hashes and the new log to different ones. Verified against the
 destroy-in-place behaviour: the two end-to-end cases fail there.
+
+## 7. The echo stops recording solutions (2026-08-10, night)
+
+Two items routed in from the Cases family's campaign-script pass. Suite
+**1247 passed, 0 failed, 171 subtests**. Zero core-minutes.
+
+### 7.1. The echo was 97.8% solution data, and one fix closed two defects
+
+**Measured before it was fixed.** On B-52 rung 6 the LEVER-ECHO block was
+**24.6 MB of a 25.2 MB solver log**, `0/U` contributing 13.1 MB and `0/phi`
+11.5 MB — exactly the two files `potentialFoam -writephi` writes. The same
+root cause failed the B-52 arm's G4 replicate-equality clause on exactly those
+two files.
+
+**The cause.** `0/` is echoed as "the boundary-condition dictionaries", but
+after an initialization pass it holds two different things: the BC
+SPECIFICATION, which is lever class 3 and the reason these files are echoed at
+all, and field VALUES, which are computed solution data and no kind of lever.
+`0/phi` is not a boundary condition in any sense — it is a flux field the
+solver wrote.
+
+**The fix is one rule, not a list of special cases:** any `nonuniform List`
+payload over 4 kB is elided wherever it appears, leaving a marker with its
+element count, byte count and its own sha256. Eliding only `internalField` was
+tried first and was not enough — it still left 640 kB of per-face data inside
+one `boundaryField`. Result on the real case: **24.6 MB → 8.5 kB, 2896x**,
+with `type freestreamVelocity;`, `freestreamValue uniform (0 0 100);`,
+`noSlip`, `consistent`, `divSchemes` and `simulationType` all still verbatim.
+
+**Two hashes now, because one cannot answer two questions.** `sha256` still
+binds to the exact bytes on disk — the charter's binding, never weakened, and
+a test asserts it survives elision. `lever_sha256` covers the lever content
+with bulk payloads and their element counts replaced by a constant token, and
+is what a same-recipe comparison uses. On the two real B-52 replicates:
+whole-file hashes still differ (correctly — different meshes), **lever hashes
+now match exactly**, so G4 can pass on what it meant to compare. A test pins
+the other direction too: change `noSlip` to `slip` and lever equality breaks.
+
+**The first version of this fix failed its own G4 test**, because the elision
+marker embedded the payload's byte count and hash — so every replicate
+differed through the very marker added to describe the difference. It was
+caught by running the check against the two real cases rather than reasoning
+about it. That is the third time in this campaign that a fix's own claim
+needed testing rather than believing.
+
+### 7.2. Five "shell string" launches are not shell strings
+
+Reported as needing either a vector interface or a permanent
+unverifiable marking. **Measurement refuses the second option: 24 of 24
+commands across the five files contain ZERO shell metacharacters.** They are
+argument vectors spelled as strings; the `bash -c` exists only to `source` the
+OpenFOAM bashrc, an environment concern `_run_prefix()` already resolves. The
+routing agent's PRINCIPLE — that splitting an arbitrary shell string to decide
+what ran is spelling-keying, and forbidden — is correct and stays; it simply
+does not bite here, because nothing needs splitting once the call sites pass
+vectors.
+
+Filed as **P-4.2** (`PROPOSALS_OPEN.md` v2.6), recommended NEXT-TOUCH rather
+than as a campaign: zero core-minutes, ~1 pass, but all five are
+false-negative paths on completed cases, so the migration buys nothing until
+one is run again. **The "permanently unverifiable" option is recommended
+against on principle**: a false constraint written into a standard is worse
+than an open gap, because a gap invites a fix and a constraint forbids one.
 
 ## Related
 

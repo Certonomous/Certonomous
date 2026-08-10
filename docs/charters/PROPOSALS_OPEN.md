@@ -1,8 +1,20 @@
 # Open proposals across the charters
 
-Version 2.5, dated 2026-08-10. Every point in the nine charters where the lab
+Version 2.6, dated 2026-08-10. Every point in the nine charters where the lab
 is **proposing** rather than **recording**, collected so the owner can react to
 the whole set without reading the whole set.
+
+**What changed in 2.6: a second charter-4 proposal, and its finding is that
+one of the two options the lab was offered should not be taken.** P-4.2 was
+routed in as "five paths launch solvers via shell strings; either give them a
+vector interface or mark them permanently unverifiable". Measurement says 24
+of 24 of those commands contain no shell metacharacters at all — they are
+argument vectors spelled as strings, and the `bash -c` is there to source an
+environment the lab already resolves another way. So the migration is cheap
+and the "permanently unverifiable" option would write a limit into a standard
+that does not exist. Recommended NEXT-TOUCH rather than as a campaign, because
+all five are false-negative paths on completed cases and nothing recorded from
+them is wrong.
 
 **What changed in 2.5: one new proposal, and it is the first this file has
 ever carried under charter 4.** P-4.1 asks whether the lab should consolidate
@@ -686,6 +698,60 @@ suite is the test. The cost is agent-passes and risk:
 
 **The lab's recommendation: C+D now, B not now, and B never as a background
 task.** A word suffices: C+D, B, or A.
+
+#### P-4.2. The five "shell string" solver launches are not shell strings, and the limit they imply does not exist
+
+**NEW in 2.6 (2026-08-10, night).** Routed to Infra by the Cases family's
+campaign-script pass, which correctly stopped at the boundary rather than
+approximating across it. The chief offered two outcomes — migrate to a vector
+interface, or mark these paths permanently unverifiable. **The finding is that
+the second option rests on a premise that is false, so it should not be taken.**
+
+**What was reported.** Five campaign paths (`F3` ×3, `F4`, `DPW8_V2`) launch
+`rhoCentralFoam`/`simpleFoam` through `subprocess.run(["bash", "-c", cmd])`.
+Deciding what ran would mean splitting a shell string — keying on a SPELLING,
+the exact defect that started this campaign — and their logs are written after
+exit, so an echo would have to be assembled post-hoc, which is L-45's
+forbidden "declared, not executed" shape.
+
+**The principle is right and does not apply here.** Splitting an arbitrary
+shell string to decide what ran IS spelling-keying and stays forbidden.
+Measured, though: **24 of 24 commands across the five files contain ZERO shell
+metacharacters** (`|&;<>()$\`*?[]{}~`). They are `"blockMesh"`,
+`"rhoCentralFoam"`, `"mpirun --oversubscribe -np N simpleFoam -parallel"` —
+argument vectors spelled as strings. The `bash -c` exists for one reason,
+visible in every file: `source /usr/lib/openfoam/openfoam2606/etc/bashrc`. That
+is an ENVIRONMENT concern, and the lab already solves it — `_run_prefix()`
+resolves to the `openfoam2606` launcher, which sets the same environment before
+the executable runs. (Positive control on the measurement: the same detector
+flags `cd X && solver > log`, `solver | tee log` and a `for` loop as genuine
+shell strings.)
+
+So nothing needs splitting. **The call sites pass vectors; the strings are a
+spelling accident, not a structure.** The post-hoc objection is likewise
+answerable without violating L-45: the echo is computed BEFORE
+`subprocess.run` — capturing the dictionaries at t=0 — and written to the log
+ahead of the captured stdout, bound to the same `cwd` variable the run uses.
+Reading dictionaries *after* the run would be forbidden; reading them before it
+and writing them later is not.
+
+**Cost.** Zero core-minutes. ~1 pass for all five: convert 24 call sites to
+vectors and replace the five near-identical private `sh()` bodies with a
+delegate to the shared runner, keeping each module's elapsed-time-and-raise
+contract (the `naca4412` pattern, already proven). Risk low.
+
+**Value, stated honestly against it.** All five are false-NEGATIVE paths:
+nothing recorded from them is wrong, and their records already report
+`unverifiable` mechanically. They are also completed campaign cases, so the
+migration buys nothing unless one is run again.
+
+**The lab's recommendation: MIGRATE, on next touch rather than as a campaign.**
+Whoever next runs or edits one of the five converts it; ~10 minutes inside work
+already happening. **And do not adopt "permanently unverifiable" for these
+paths** — it would write down a limit that measurement says is not there, and a
+false constraint in a standard is worse than an open gap, because the gap
+invites a fix and the constraint forbids one. A word suffices: NEXT-TOUCH,
+BATCH, or LEAVE.
 
 **Nothing else proposed under this charter, and version 1.3 added three
 sections without changing that.** Every clause traces to a lesson, an existing standard, a format already
