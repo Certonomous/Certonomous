@@ -70,6 +70,47 @@ from chief_engineer.log_signatures import normalise_log_key  # noqa: E402
 # ArchiveSweepTests), so the corpora of the two measurements are comparable.
 ARCHIVE_ROOT = REPO / "demo-output"
 
+#: An OpenFOAM APPLICATION RUN writes an `Exec   :` line in its startup
+#: banner. Dictionary and field files carry the same FoamFile banner but never
+#: that line, so this distinguishes a RUN LOG from the rest of a case.
+_EXEC_BANNER = b"Exec   :"
+
+
+def run_logs(root: Path) -> list[Path]:
+    """Every OpenFOAM run log under ``root``, DERIVED FROM CONTENT.
+
+    This used to be ``root.rglob("*.log")``. OpenFOAM writes ``log.<app>``,
+    so the corpus behind six adopted rules was selected by a filename
+    accident: 449 files at the last run, against 1,375 real run logs.
+    Section 3.1 makes a replay the gate on adoption, and that gate was
+    discharged against 28% of the evidence.
+
+    **The fix is not a wider glob.** A list of patterns is the same defect
+    with more entries (L-49): matching ``*.log`` AND ``log.*`` together still
+    misses 96 real run logs in this archive -- ``logMeshCheck.txt``,
+    ``A5_logMeshGeneration.txt``, ``A4_coarse_log.checkMesh``. So the corpus
+    is derived from what the solver actually WROTE, the same principle as
+    deriving a gate from the case's own dictionaries: a file is a run log
+    when it announces itself as one.
+
+    Binary files are skipped by a NUL test rather than by extension, so no
+    naming rule participates in the selection at any point.
+    """
+    found: list[Path] = []
+    for path in root.rglob("*"):
+        if not path.is_file():
+            continue
+        try:
+            head = path.open("rb").read(4096)
+        except OSError:
+            continue
+        if b"\x00" in head:
+            continue
+        if head.startswith(_EXEC_BANNER) or b"\n" + _EXEC_BANNER in head:
+            found.append(path)
+    return sorted(found)
+
+
 RESIDUAL_LINE = re.compile(r"Solving for \w+,.*Initial residual =")
 COURANT_LINE = re.compile(r"Courant Number mean:")
 
@@ -154,7 +195,7 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=0)
     args = parser.parse_args()
 
-    logs = sorted(ARCHIVE_ROOT.rglob("*.log"))
+    logs = run_logs(ARCHIVE_ROOT)
     if args.limit:
         logs = logs[:args.limit]
     started = time.time()

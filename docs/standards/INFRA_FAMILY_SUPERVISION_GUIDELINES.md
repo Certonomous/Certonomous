@@ -1,5 +1,10 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.15, dated 2026-08-10 (night). Adds 13.4: the evidence gating six
+adopted monitor rules was selected by a filename accident, and correcting it
+3x'd the corpus and reversed this family's own S6 refusal. Adds 13.5, the D4
+warrant correction.
+
 Version 1.14, dated 2026-08-10 (night). Adds section 13: a standard this
 family owns claimed coverage nothing supplied, and the claim was built
 entirely out of true sentences. Records the standards practice it earns.
@@ -1337,6 +1342,61 @@ row; run in memory the live detector would flag 30 historical rows. Wired,
 correct, and never once exercised -- which is a third state beside reachable
 and unreachable, and worth a column of its own the next time this table is
 drawn.
+
+### 13.4. The corpus behind six adopted rules was a filename accident
+
+`MONITOR_STANDARD.md` section 3.1 makes an archive replay the gate on
+adopting a detection rule. The replay tool globbed `*.log` **while OpenFOAM
+writes `log.<app>`**, so that gate was discharged for S1-S6 over **449 files**
+against **1,375 real run logs**. This outranked the wiring question and was
+taken first.
+
+**The fix is a derivation, not a wider glob** (L-49). Matching `*.log` AND
+`log.*` still misses **96** real run logs -- `logMeshCheck.txt`,
+`A5_logMeshGeneration.txt`, `A4_coarse_log.checkMesh`. A list of patterns is
+the same defect with more entries. The corpus is now derived from what a run
+WRITES: an OpenFOAM application prints an `Exec   :` banner that dictionary
+and field files never carry. Binaries are excluded by a NUL test rather than
+an extension, so **no naming rule participates at any point**. The sweep costs
+about a second; the replay 8 minutes; both zero compute.
+
+**It reversed this family's own conclusion from the previous pass.** The
+earlier refusal to wire S6 rested on its replay reporting 80% fires with every
+recovered target the same `1e-15` sentinel. On the corrected corpus the gated
+set goes 46 -> 222 across 3 families with 8 distinct targets, and separating
+the sentinel gives the number section 3.1 actually asks for:
+
+| target class | logs | fire | rate |
+|---|---|---|---|
+| sentinel `1e-15`, unreachable by construction | 135 | 134 | 99% |
+| **real declared targets** | 87 | 41 | **47%** |
+
+47% is well under the two-thirds that withdrew S7, and it is not uniform --
+dafoam 94%, campaign 51%, mega-batch 20% -- a spread a single global rate
+hides in both directions. **The refusal was right on the evidence then
+available and is no longer supported.** A published line in the standard is
+also refuted: 70 logs outside the one family carry real declared targets, and
+they sat in files the glob could not match.
+
+The lesson this family takes: **a corpus is evidence, and it needs its reach
+stated like any other instrument** (L-43). Six rules were adopted against a
+corpus nobody had asked "what does this select, and what does it silently
+drop".
+
+### 13.5. A warrant corrected without touching its rule
+
+S1's justification said *"every OpenFOAM log prints a trapping banner"*.
+Measured: **39 of 149 registry logs carry no `trapFpe` line**, across eight
+family prefixes -- the banner appears only when `FOAM_SIGFPE` is set, so it is
+a fact about how a run was launched, not about OpenFOAM. **The rule is
+untouched and still right**: S1 keys on the handler, i.e. the signal, which is
+strictly safer whether or not the banner is universal -- and the measurement
+flatters the design, since a banner-keyed detector would have been blind on 39
+logs and read the other 110 healthy runs as fatal.
+
+**Say which one moved.** The warrant moved; the rule did not. An amendment
+that blurred them would spend credibility for nothing, which is the same coin
+as an overstated blast radius.
 
 ## Related
 

@@ -1,5 +1,15 @@
 # Certonomous Monitor Standard
 
+Version 1.6, dated 2026-08-10. **Corrects a warrant, a corpus, and a claim --
+no rule changes.** S1's warrant ("every OpenFOAM log prints a trapping
+banner") is false: 39 of 149 registry logs carry none, across eight family
+prefixes. **And the corpus behind six adopted rules was selected by a filename
+accident** -- the replay globbed `*.log` while OpenFOAM writes `log.<app>`, so
+section 3.1's adoption gate was discharged over 449 files against 1,375 real
+run logs. Re-run on a content-derived corpus, S6's fire rate on REAL targets
+is 47%, and a published line about declared targets is refuted by 70 logs the
+glob could not see.
+
 Version 1.5, dated 2026-08-10. **Withdraws a claim rather than a rule.** The
 2026-07-30 adoption note said "the whole of both approved monitor proposals is
 in force"; it was false the day it was written. **S6 and S8 cannot fire on any
@@ -76,6 +86,31 @@ spotless and carry one, and both facts are reported.
   banner (`trapFpe: Floating point exception trapping enabled`), and matching
   it reads every healthy run as fatal. The monitor matches the handler, not
   the banner. Evidence: motorcycle benchmark logs, knowledge base fact 7.
+
+  > **WARRANT CORRECTED, 2026-08-10 — THE RULE IS UNCHANGED AND STILL RIGHT.**
+  > Only the sentence justifying it moved; S1's detection is untouched, and
+  > nothing about what it matches or when it fires is affected.
+  >
+  > *"Every OpenFOAM log prints a trapping banner"* is **false**. Measured
+  > over the solve registry: **39 of 149 logs carry no `trapFpe` line**, and
+  > they are not one family — the prefixes span `d*`, `f*`, `b*`, `r*`, `a*`,
+  > `w*`, `dpw*` and `adjwall*`. The banner appears only when `FOAM_SIGFPE` is
+  > set in the environment, so it is a fact about how a run was launched, not
+  > a property of OpenFOAM. The second half of the citation is stale at its
+  > own end: `knowledge base fact 7` describes a mesh **this lab's own
+  > skewness gate now rejects** (reported by the 2026-08-10 audit; the
+  > registry measurement above is this family's own).
+  >
+  > **Why the rule survives its warrant, and this is the point.** S1 keys on
+  > the SIGNAL — the handler line — not on the banner. That is strictly safer
+  > **whether or not the banner is universal**, and the measurement makes the
+  > design look better rather than worse: a banner-keyed detector would have
+  > been blind on those 39 logs *and* would have read the other 110 healthy
+  > runs as fatal. The original reasoning reached the right rule through a
+  > claim that was not true.
+  >
+  > A correction that blurred these two would spend credibility for nothing.
+  > **The warrant moved. The rule did not.**
 - Severity: FATAL. Action: stop and investigate; nothing downstream of an FPE
   is evidence.
 
@@ -979,15 +1014,72 @@ rule to be replayed against the archive before it binds, with its fire count
 stated. **That evidence does not exist for either rule**, and for S6 the thing
 that looks like it is an artifact:
 
-- **S6.** `demo-output/website/monitor/replay_s1_s6.json` (2026-08-01) reports
-  37 fires over 46 gated logs -- 80%, above the two-thirds rate that got S7
-  WITHDRAWN. Read one level down, **all 46 recovered targets are the same
-  value, `p: 1e-15`**, from a single case family whose `fvSolution` uses that
-  as a run-to-the-cap sentinel. No solve reaches 1e-15, so every one of those
-  logs was judged against an unreachable target. The 37 is not S6's fire rate;
-  it is one case family measured against a sentinel. **S6 has never been
-  replayed on a representative corpus**, and the artifact that appears to
-  discharge section 3.1 does not.
+- **S6.** *(Superseded the same day -- see the corrected replay below. The
+  original reasoning is retained because the corpus defect it uncovered is
+  the finding.)* `replay_s1_s6.json` (2026-08-01) reported 37 fires over 46
+  gated logs -- 80%, above the two-thirds that got S7 WITHDRAWN. Read one
+  level down, **all 46 recovered targets were the same value, `p: 1e-15`**,
+  a run-to-the-cap sentinel from a single case family that no solve reaches.
+  The 37 was not S6's fire rate; it was one family measured against an
+  unreachable number.
+
+### The corpus behind six adopted rules was selected by a filename accident
+
+**Corrected 2026-08-10, and this outranks the wiring question.** The replay
+tool globbed `*.log` while OpenFOAM writes `log.<app>`, so the evidence that
+discharges section 3.1 for S1-S6 was gathered over **449 files**. Deriving the
+corpus from what a run actually WRITES -- an OpenFOAM application prints an
+`Exec   :` banner line, which dictionary and field files never carry -- yields
+**1,375 real run logs, a 3.06x corpus.**
+
+**The fix is not a wider glob.** Matching `*.log` AND `log.*` together still
+misses **96** of them (`logMeshCheck.txt`, `A5_logMeshGeneration.txt`,
+`A4_coarse_log.checkMesh`): a list of patterns is the same defect with more
+entries (L-49). Selection is now by content, with binaries excluded by a NUL
+test rather than by extension, so **no naming rule participates at any point**.
+
+**Re-run over the derived corpus** (`replay_s1_s6.json` regenerated; the
+2026-08-01 artifact is retained as `superseded_<stamp>_replay_s1_s6.json`):
+
+| | old corpus | derived corpus |
+|---|---|---|
+| logs swept | 449 | **1,375** |
+| with residual series | 144 | 463 |
+| steady | 123 | 408 |
+| S6 gated logs (target recoverable) | 46 | **222** |
+| families represented in S6's gate | 1 | **3** |
+| distinct residual targets recovered | 1 | **8** |
+
+Per-rule on the corrected corpus: **S1 38, S2 0, S3 44, S4 187, S5 1249**
+logs fired.
+
+**A published line in this document is refuted by the recovered files.** It
+said no case outside one family reaches a declared target; **70 logs outside
+that family carry real declared targets** (35 campaign, 35 mega-batch). They
+were sitting in files the glob could not match.
+
+### S6 survives its own evidence, and the honest rate is 47%
+
+With the corpus corrected, S6 fires on 175 of 222 gated logs -- 79% -- but
+that number still carries the sentinel. Separated:
+
+| target class | logs | fire | rate |
+|---|---|---|---|
+| sentinel `1e-15` (unreachable by construction) | 135 | 134 | **99%** |
+| **real declared targets** | 87 | 41 | **47%** |
+
+**47% is the number section 3.1 asks for**, and it is well below the
+two-thirds that withdrew S7. And it is not uniform: **dafoam 16/17 (94%),
+campaign 18/35 (51%), mega-batch 7/35 (20%)** -- a spread that reads as a real
+family-dependent behaviour rather than noise, and that a single global rate
+would have hidden in either direction.
+
+So the earlier refusal to wire S6 was right on the evidence then available and
+is **no longer supported**: the replay section 3.1 requires now exists. What
+remains before wiring is the per-case target derivation itself -- the recovery
+must read each case's own `residualControl`, not whichever `fvSolution` sits
+nearest, and the sentinel class must be excluded or the gate will fire on 99%
+of that family. S8 is unchanged: still no replay, still needs one.
 - **S8.** No replay exists at all. The archive holds 21 transient logs with
   residual series, which is the corpus a Courant replay would run over.
 - **S9.** Live and correct on the ledger. `check_wall_time` is a SECOND entry
