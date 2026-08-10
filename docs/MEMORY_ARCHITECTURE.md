@@ -121,13 +121,25 @@ This is the single most likely thing a new agent needs and cannot find.
 
 | Family | Guidelines file | Version convention |
 |---|---|---|
-| DAFoam and adjoint | `demo-output/website/dafoam/FAMILY_SUPERVISION_GUIDELINES.md` | none |
-| Closure and UQ | `demo-output/website/CLOSURE_FAMILY_SUPERVISION_GUIDELINES.md` | none |
-| Cases and campaigns | `demo-output/website/campaign/CASES_FAMILY_SUPERVISION_GUIDELINES.md` | header says v1.0; **actually at v1.13** (D-2) |
-| Infrastructure and standards | `docs/standards/INFRA_FAMILY_SUPERVISION_GUIDELINES.md` | v2.6, 79 KB |
+| DAFoam and adjoint | `demo-output/website/dafoam/FAMILY_SUPERVISION_GUIDELINES.md` | **none** — "Issued 2026-08-07" |
+| Closure and UQ | `demo-output/website/CLOSURE_FAMILY_SUPERVISION_GUIDELINES.md` | **none** — "Issued 2026-08-07" |
+| Cases and campaigns | `demo-output/website/campaign/CASES_FAMILY_SUPERVISION_GUIDELINES.md` | header says **v1.0, 2026-08-07**; **six amending commits since, never bumped** (D-2) |
+| Infrastructure and standards | `docs/standards/INFRA_FAMILY_SUPERVISION_GUIDELINES.md` | **v1.14**, dated 2026-08-10 (night), 79 KB — the only working version convention in the lab, 14 bumps |
 
-Four families, four directories, three naming shapes, two version schemes and
-two files with no version at all. Nothing indexes them.
+*[CORRECTED 2026-08-10 21:22 — this table first said the Cases guidelines were
+"actually at v1.13" and the Infra guidelines were at "v2.6". **Both were wrong,
+and each by its own instrument defect.** All fourteen `guidelines v1.N` commits
+touch the **Infra** file; v1.13 was never the Cases file's version, and I
+inherited the number from a commit subject without checking which file it
+touched. The "v2.6" came from a regex over the Infra file that matched line 864,
+`` `PROPOSALS_OPEN.md` v2.6 `` — a **citation of another document's version**,
+which I read as the file's own. That is L-43 exactly: the audit instrument has
+its own blind spots, and a version regex cannot tell a self-description from a
+cross-reference. Original text retained here per §8.1.]*
+
+Four families, four directories, three naming shapes, **one working version
+convention and three files with no usable version at all.** Nothing indexes
+them.
 
 ---
 
@@ -171,6 +183,12 @@ is not hypothetical — it is roughly a twice-daily event.
 - **Detached solves survive.** `setsid` and docker solves outlive the agent that
   launched them and keep running unowned. Inventory `sudo docker ps` before
   resuming so an agent reattaches instead of relaunching.
+- **Compute artifacts survive, and some are outside the repo.** Run trees live
+  in *two* places: inside `demo-output/website/campaign/` (`DMR_runs/`,
+  `F6b_runs/`, and 27 more), and **outside git entirely** at
+  `/home/ubuntu/certonomous-runs/study-b52-*` (~448 entries). The B-52 ladder's
+  evidence is in the second location, so it is durable against session end but
+  **not against a fresh clone** — the same exposure as §3.1.
 - **Watchers do not survive.** They die with the agent that owned them, and a
   "waiting on my monitor" completion is the dead-agent tell.
 
@@ -303,7 +321,7 @@ D-1.
 `session-limit-kills-the-fleet.md` and `agent-watchers-die-with-the-agent.md`
 before you supervise anything.
 
-### 4.1 What this order deliberately omits
+### 4.1 What this order deliberately omits, and the two files that will mislead you
 
 `docs/charters/README.md` is **not** step 1, despite being the index, because
 its description of the lesson corpus is wrong by 25 entries (D-3) and a fresh
@@ -312,6 +330,29 @@ Read it at step 2 with that correction in hand.
 
 `docs/HANDOFF*.md` (ten files, all dated 2026-07-25/26) are not in the reading
 order at any tier. They are historical.
+
+**Two status files are frozen-headed, and both are traps.** Each is still being
+written to — recent mtime — while its header declares a scope weeks out of date.
+This is the most dangerous shape in the corpus, because a file that is *silent*
+about current work reads as a file that says there is none:
+
+- **`demo-output/website/campaign/CAMPAIGN_STATUS.md`** — header reads
+  `**Date:** 2026-07-28`, never bumped, mtime 2026-08-10 19:40. It is a correct
+  F1-F10 snapshot of July. Measured occurrence counts inside it: `B52` **0**,
+  `W1`/`W2`/`W3` **0**, `LADDER_V` **0**, `MODEL_FORM` **0**, `DMR` **0**,
+  `F5c` **0**, `certificate` **0**. **Every campaign from 2026-08-01 onward is
+  invisible to it.** Its only 2026-08-10 content is two boilerplate banners
+  injected by a corpus-wide sweep. It is the most inviting file in `campaign/`
+  and the worst entry point in the lab. **Do not start here.** Nothing in it is
+  contradicted by newer files — it is silent, which is harder to notice than
+  being wrong.
+- **`demo-output/website/OTHER_WORK_STATUS.md`** — titled *"Week of 2026-07-25
+  to 2026-07-28"*, mtime 2026-08-10 19:36. Same shape.
+
+The general rule this earns, and it belongs with §8: **a living document may not
+carry a fixed date in its header.** Either the header date is bumped on every
+write, or it is replaced by a scope statement that does not expire. A date that
+is written once and appended-to forever is a claim that silently becomes false.
 
 ---
 
@@ -450,7 +491,7 @@ proposes; adopting them is a separate decision.
 | # | Fact | Copies | Proposed single home | Drifted? |
 |---|---|---|---|---|
 | **D-1** | **Proposal status** | `docket.json` (264 records) vs `proposals/*.json` (109 files) | **Unresolved — needs a ruling.** Either files become pure intake, or the merge becomes two-way | **YES, 45%.** 34 of 75 shared ids disagree. 34 files never reached the docket; 189 docket records have no file. Cause: `refresh_docket()` at `agenda.py:1197` skips any id already on the docket, so a file is never re-read after first merge. Three records are *file-ahead* — the file says done, the docket does not: `s1-cbfs-objective-repair-and-reinversion`, `f6b-model-form-matrix-on-the-hills`, `kfamily-fpe-shared-diagnosis-bump-and-hills`. **Which is right: the file.** It carries `outcome` and `decided_at`; the docket carries a status nothing updated. |
-| **D-2** | **Cases family guidelines version** | Header says `v1.0`; body line 177 says `v1.5`; commit log has amended it to **v1.13** | The file header | **YES.** The header is 12 revisions stale. **Which is right: the file's content** (it carries the amendments); its *stated version* is wrong. |
+| **D-2** | **Cases family guidelines version** | Header says `v1.0, 2026-08-07`; the file has taken **six amending commits** since, adding §7a, §7b and §8, with **no version bump and no changelog** | The file header | **YES.** The header is six revisions stale and the git commit message is the file's only changelog. **Which is right: the file's content** — it carries the amendments; its *stated version* does not. *(The "v1.5" at body line 177 is not a version claim at all: it cites `Verification Charter v1.5`.)* |
 | **D-3** | **Size of the lesson corpus** | `README.md:93` says "L-1 through L-28"; `LESSONS.md` runs to L-53 | `LESSONS.md` itself, via a generated index | **YES,** by 25 entries. **Which is right: `LESSONS.md`.** Verified by counting headers. |
 | **D-4** | **Lesson namespaces** | `LESSONS.md` (`L-1`..`L-53`); `sdk/chief_engineer/lessons.py` (`L-001`, one entry, 16 citations across 11 files); the out-of-repo `memory/` store (17 topic files) | `LESSONS.md` for lab lessons; rename the SDK one | **YES, and worse:** the SDK namespace cites `sdk/introspection/recipe/memory/LESSONS.md`, **a path that does not exist** — asserted in `sdk/tests/test_orchestration_stack.py:415,425` and never checked against the filesystem. `L-001` and `L-1` are different facts with confusable names. |
 | **D-5** | **Fleet-death count** | `SUPERVISION_CHARTER.md:101` "three"; `ESCALATION_CHARTER.md:370` "Three … in about 46 hours" + a 3-row table; `PROPOSALS_OPEN.md:900` "three"; `CASES_..._GUIDELINES.md:18` "four"; `PRODUCT_LIST.md:665` "four"; `PRODUCT_LIST.md:670` "**EIGHTH**" | `PRODUCT_LIST.md`'s changelog, as the incrementing ledger; everything else cites it | **YES — five values for one running count.** **Which is right: `PRODUCT_LIST.md:670`, eight.** How I know: it is the only copy that is an incrementing ledger entry rather than a frozen prose summary, it is the newest, and the ordinals 3rd/4th/6th/7th all live in the same changelog. The three "three"s were true when written and were never revisited. |
@@ -460,6 +501,8 @@ proposes; adopting them is a separate decision.
 | **D-9** | **What CERTIFIED means / certificate coverage** | `PRODUCT_LIST.md:1353,1427,1647,1673`; `campaign/MESH_BIRTH_CERTIFICATE_AUDIT_2026-08-08.md:532`; `docs/standards/INFRA_FAMILY_SUPERVISION_GUIDELINES.md:1167,1244` | `docs/standards/MESH_STANDARD.md` | **Not currently** — copies agree at "105 of 105 hold a log, 0 of 105 hold a certificate". But **105 and 95 are different facts** (105 inherited the word; 95 were later minted, 10 refused) and are easy to conflate. Any future citation must say which. |
 | **D-10** | **`RESULT_PRIORITY_CHARTER` version** | Line 3 "Version 0.4"; line 9 "Version 0.2"; line 294 "version 0.1" | Line 3 | **YES, internally.** Lines 9 and 294 were carried unedited through two revisions. |
 | **D-11** | **Standing costs** (3600 s stall, 26.98 core-hr, 239.259 headline, 480 core-min hold, 221 grandfathered entries, FD grading bands) | 3-4 files each across `COMPUTE_BUDGET_CHARTER`, `REPORTING_CHARTER`, `PROPOSALS_OPEN`, `SUPERVISOR_RULINGS`, `VERIFICATION_CHARTER`, `PRODUCT_LIST` | The owning charter; others cite | **No — all agree today.** Listed because they are copies, so they are drift waiting to happen, and there are six of them. |
+| **D-12** | **The F7a dam-break R1 retraction** (+8.2% / +11.0%, was +13.6% / 21.3%) and its full narrative | **Six files, near-verbatim**: `campaign/CAMPAIGN_STATUS.md:287-325`, `campaign/NOT_PASSING_REGISTER.md:431-473`, `campaign/F7_marine_free_surface.md:137,321,348,776-828`, `campaign/CHALLENGE_SLATE_2026-08.md:58,198`, `campaign/RANS_MODEL_COMPARISON.md:11`, `LESSONS.md:296,1128-1142` | `campaign/F7_marine_free_surface.md` — the case's own record, per L-32 | **Not yet.** All six agree today. **This is the corpus's single largest duplication hotspot**: one retraction copied six times is six places to break the next time it is amended, and one of the six is `CAMPAIGN_STATUS.md`, which nobody maintains. |
+| **D-13** | **B-52 turn audit grade totals** | `campaign/B52_TURN_CLAIM_AUDIT_2026-08-10.md:199-206` §8 table says **"4 W, 22 A, 8 S"**; `campaign/B52_TURN_WITHDRAWAL_2026-08-10.md:76-81` says the recount gives **35 graded rows and 20 A**, the §8 table having double-counted two split dispositions; logged a third time at `CASES_..._GUIDELINES.md:199` | The withdrawal's recount | **YES, and it is a live §8 violation.** The correction is dated and cross-linked from the withdrawal — but **the audit's own §8 table still displays the retracted 22**. A reader who greps the audit alone gets the withdrawn number with nothing on its face to warn them. This is exactly L-32: the satellite was corrected and the record was not. **Which is right: 20.** |
 
 ### 7.3 The pattern behind D-5, D-6 and D-2
 
@@ -471,6 +514,32 @@ wrong now.
 The rule that follows: **a fact that can change gets a ledger, not a sentence.**
 If prose must state it, the prose cites the ledger rather than restating the
 number, so the copy cannot drift independently of the thing it copies.
+
+### 7.4 Near-collisions that are NOT defects — do not "fix" these
+
+A deduplication sweep run by grep will flag all of the following. Every one is
+correct as it stands, and unifying them would destroy real information. They are
+recorded here so the next sweep does not have to re-derive them.
+
+- **F6b reattachment 7.6439 vs 7.6472** — two different runs (the 2026-07-29
+  gate run and a separate 2026-08-05 ERCOFTAC build), each correctly sourced.
+- **F6a reattachment +13.95% vs +13.92% vs +13.9%** — three renderings of two
+  genuinely distinct runs, differing by 0.0003, inside the file's own ±0.005
+  tolerance.
+- **Ladder classification counts appear as three different triples** —
+  5/≥13/3/3 (full census), 11/5/1 (records restated), 4/2 (ladders with an
+  actual draw). Three populations, not three answers. Internally consistent and
+  contradictory-looking to a naive grep.
+- **"0 of 105" vs "95"** — temporal, not contradictory: zero certificates
+  existed *before* the retrospective mint; 95 were then minted and 10 refused.
+  See D-9.
+- **`docs/MESH_STANDARD.md` vs `docs/standards/MESH_STANDARD.md`** — a real name
+  collision, governing different questions, and already flagged in the text of
+  both. This is the model §7.1 points at, not a defect.
+
+The general form: **a repeated number is only a duplicate if both copies are
+claims about the same population at the same time.** A sweep that does not
+establish the population first will report drift where there is only scope.
 
 ---
 
@@ -594,6 +663,9 @@ it has no mandate to edit other agents' files.**
 | 9 | An SDK test asserts a lessons path that does not exist on disk | D-4 |
 | 10 | **Twelve tracked files carry the date 2026-08-11, which had not happened**; three campaign records carry it in the **filename** | below |
 | 11 | Two charters have grown binding clauses **below** `## Related`, where readers stop | §4 step 0, step 4 |
+| 12 | **Two status files are frozen-headed** — still written to, headers declaring July scope; every campaign since 2026-08-01 is invisible to `CAMPAIGN_STATUS.md` | §4.1 |
+| 13 | The B-52 turn audit's §8 table still displays a retracted total on its own face; only the satellite was corrected | D-13 |
+| 14 | Three of four family guideline files carry no usable version; only Infra bumps | §2.3 |
 
 **On defect 10, measured 2026-08-10 21:15 UTC.** `date -u` returns 2026-08-10.
 **Twelve tracked files carry the date 2026-08-11**, including
