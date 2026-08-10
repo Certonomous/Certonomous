@@ -1926,3 +1926,28 @@ derived class, or read the compiled behaviour, before writing "does nothing".
 And any verdict of the form "the code ignores X" is downgraded to
 "not found in the files searched, which were: …" unless the search space is
 stated. A negative claim without its search space is not a finding.
+
+## L-44. A pre-registration is frozen against improvement, not just against tampering — retroactive edits destroy the property that makes it evidence
+
+While propagating a newly-measured caveat across every surface asserting the
+lab's closure standing, the executing agent stopped at a class of files and
+refused: `R5_PREREGISTRATION.md`, `R5_RULE_FREEZE.md`, the R4 and SpaRTA
+pre-registrations, two dated morning reports, and the Ladder V rung records.
+Its reasoning: rung V2 passed precisely BECAUSE the acceptance criterion at
+`0bade54a` predates every solve it judged. Adding today's honest, correct,
+strictly-improving caveat to those files would have made them documents
+edited after their outcomes were known — which is the exact property V2
+certifies they do not have. The improvement would have destroyed the evidence.
+
+Generalise it: a frozen artifact's value is not its content but its TIMESTAMP
+RELATIVE TO WHAT IT JUDGES. Anything that makes it better after the fact makes
+it worthless as proof, and "but the edit was true" is not a defense — the
+whole point of pre-registration is that its contents were fixed before the
+truth was known. New knowledge attaches to a DATED ADDENDUM, a superseding
+record, or the live surfaces; never to the frozen document's body.
+
+Practical form: before editing any file, ask whether some other claim depends
+on when it was written. Pre-registrations, rule freezes, dated reports, gate
+records and audit reports all answer yes. They take addenda, never revisions.
+(The same instinct, applied to run trees, is L-42; applied to records that a
+later commit refutes, L-39's supersede-don't-delete.)
