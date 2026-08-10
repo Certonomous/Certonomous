@@ -467,3 +467,58 @@ never that it was dead. **Both FOUND-DEAD verdicts rest on in-container reads
 that no one can currently reproduce.** Nothing suggests they are wrong; they are
 simply not independently checkable from this machine, and a future container
 session should re-read both lines and stamp the result.
+
+### CAVEAT CLOSED 2026-08-10 — re-read in-container under the chief's provenance rider. **FD-1 CONFIRMED. FD-2 REFUTED.**
+
+Both source reads were performed inside a live container (`docker exec` into the
+running rung-3 solver, zero marginal cost) and, for FD-2, repeated in the stock
+image. Image tags stamped so the reads are reproducible.
+
+**FD-1 — CONFIRMED, exactly as recorded.** Image `dafoam-subpclu:v1`:
+
+```
+adjoint/DAResidual/DAResidualRhoSimpleCFoam.C:173
+    if (isPC && daOption_.getOption<label>("transonicPCOption") == 1)
+```
+— and it is the file's ONLY `transonicPCOption` occurrence (grep: 1 hit), so
+`== 2` is unreachable for `DARhoSimpleCFoam`. The `== 2` branch exists only at
+`adjoint/DAResidual/DAResidualTurboFoam.C:176` (a different solver), with a
+`== 1` branch at `DAResidualTurboFoam.C:161`. Repo-wide there are exactly three
+occurrences, matching the audit's account precisely. FD-1's deadness verdict now
+has a reproducible provenance line.
+
+**FD-2 — REFUTED. The FOUND-DEAD verdict is WRONG, and it had propagated into a
+physics conclusion.** `consistent yes;` (SIMPLEC) is NOT dead for
+`DASimpleFoam`: it is implemented in the primal AND the adjoint residual, in
+BOTH images (`dafoam-subpclu:v1` and stock `dafoam/opt-packages:latest`):
+
+```
+adjoint/DASolver/DASimpleFoam/pEqnSimple.H:27    if (simple.consistent())
+adjoint/DAResidual/DAResidualSimpleFoam.C:189    if (simple_.consistent())
+        rAtU = 1.0 / (1.0 / rAU - UEqn.H1());
+        phiHbyA += fvc::interpolate(rAtU() - rAU) * fvc::snGrad(p) * mesh.magSf();
+        HbyA -= (rAU - rAtU()) * fvc::grad(p);
+```
+
+That is the textbook SIMPLEC correction gated on exactly the flag the A4 baseline
+case sets.
+
+**Root cause of the wrong verdict, named so the class is closed:** the original
+search (quoted in `ladder-a/A4_ahmed_body.md`) grepped `DASimpleFoam.C` and
+`DASolver.C`. The SIMPLEC logic is in neither — it lives in the **included**
+`pEqnSimple.H` and in `DAResidualSimpleFoam.C`. `DASimpleFoam.C`'s only
+`consistent` hits are two comments about the *consistent fixed-point adjoint*
+(lines 187, 220) — precisely the "unrelated comment usages" the original text
+reports. **An include-blind grep over a C++ solver whose equations live in `.H`
+includes manufactured a FOUND-DEAD verdict.** The file list, not the search
+string, was the defect.
+
+**Blast radius, already actioned:** FD-2 was *integrated into* the A4 Ahmed
+conclusion as the mechanism for its 22.05% cross-code gap. That cause claim and
+the lesson built on it are RETRACTED on A4's face (7ca80f8d); the measured 22.05%
+stands, its stated cause does not, and the gap is now UNEXPLAINED pending a
+controlled `consistent` on/off arm under `DASimpleFoam` (filed, not run).
+
+**Instrument rule this yields:** a deadness claim must quote the line, the file,
+the image tag — and the file list it searched — so a later reader can reproduce
+the search that failed, not merely the search that succeeded.
