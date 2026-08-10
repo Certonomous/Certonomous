@@ -426,6 +426,37 @@ with the docstring telling callers to gate on that exit code;
 with nothing counting files (its sibling `audit_camera_discretion.sh:187` **does**
 print `$files camera surface(s) scanned`).
 
+**FP-2. The preflight itself passes an empty directory — and the launcher invokes it
+in the mode that hides why. Re-verified firsthand by this supervisor.**
+
+The gate fixed in section 3.1 now always *runs*. What it runs is still vacuous:
+
+```
+$ bash scripts/case_preflight.sh <empty dir>
+  model: <undetermined>
+  (model undetermined; skipping field check)
+  ok:   solver field headers parsed          <- over ZERO fields
+  (no polyMesh/boundary yet -- mesh not generated, skipping patch check)
+PREFLIGHT PASS -- clear to launch            exit=0
+
+$ bash scripts/case_preflight.sh <empty dir> --quiet
+                                             exit=0     (silent)
+```
+
+**`--quiet` is exactly how `launch_solve.sh` invokes it.** So the two skip notes that
+are the only evidence anything was skipped are suppressed at the one call site that
+matters, and the caller sees a bare exit 0. Three of five substantive checks skipped,
+verdict PASS.
+
+**Positive control, so this is a detector and not a rubber stamp:** given a `0/U` with
+no `class` entry it prints `FAIL: 0/U header has no class entry` and exits 1. The
+instrument works; it simply counts nothing.
+
+`F11_lid_driven_cavity_ladder.md:174` archives *"run clean on every case before
+launch"* on this basis. **Not changed here** — P6 in 2.6 names the 146-record `.done`
+corpus replay as the prerequisite, and C4 forbids touching the pattern before that
+replay is run.
+
 **Open but never fired, and measured rather than assumed:** `check_convergence.py`
 returns CONVERGED at lines 314 and 366 **before** `crash = _find_crash(text)` at line
 317 is consulted. Exposure measured at **zero** — all 11 archived CONVERGED records
