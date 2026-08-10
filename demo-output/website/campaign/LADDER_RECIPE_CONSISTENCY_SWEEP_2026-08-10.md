@@ -10,6 +10,90 @@ monotonically?** Three classes: **CLEAN**, **CONFOUNDED**, **UNDETERMINABLE**.
 
 ---
 
+## 0. CORRECTION — Route A landed and Route B (this document's primary) was WRONG on its headline
+
+**Everything below §1 is Route B's and is retained unedited. This section
+supersedes its headline and two of its conclusions.** The reconciliation the
+pre-registered method requires is here, not resolved silently.
+
+### What Route B got right
+
+The **structural fact**, verified from the generating dictionaries and unchanged:
+on both NACA wings, `coarse → medium` moves the background divisions only, and
+`medium → production` holds the divisions **exactly** at (33 60 20) while surface,
+region and feature levels all move. That is a real confound and Route B measured
+it from the artifacts rather than taking anyone's word.
+
+### What Route B got WRONG
+
+**1. "…and nobody had written it down." FALSE, and it is the headline.**
+`naca0012_wing.json` and `naca4412_wing.json` **both carry a `recipe_audit`
+saying exactly this**: *"The three stored rungs are TWO mesh recipes, and no knob
+moves twice."* It was written down, in the very files I was classifying.
+
+**Why I said it:** my pre-flight checked `recipe_audit` on the **five retrofit
+ladders only** — `ahmed_25`, `ahmed_35`, `motorBike`, `cube`, `naca0015_sail` —
+found it absent on three, and I generalised "absent" to bodies I had never
+queried. **The wings were never in that query.** A conclusion about what the lab
+had not recorded, drawn from a search that did not look.
+
+**2. "Exactly one ladder in this lab is known to be a ladder." BADLY WRONG.**
+Route B enumerated case directories by the glob `study-<body>*`. **The
+single-recipe replacement families live under other names**, so the glob could
+not see them. They exist for four bodies:
+
+| body | valid single-recipe family | knob |
+| --- | --- | --- |
+| B-52 | 5–6 rungs (135 779 … 441 057) | background divisions only |
+| Ahmed 25° | R4's 5 rungs (79 439 … 454 691) | background divisions only |
+| **NACA 0012** | **W3's 4 rungs (140 545 … 525 692)** | background divisions only |
+| **NACA 4412** | **W3's 4 rungs** | background divisions only |
+
+**And Route A found many more clean ladders Route B never reached**, because they
+are campaign ladders with no stored study: TMR flat plate and TMR bump (structured
+dimensions doubled, gradings fixed), W1's NASA bump grids (exact point-drop,
+r = 2), F3 wedge/cone/diamond, F4 hypersonic, F7 dam-break (two ladders, an
+explicit *"one knob per flag"* generator), F6b ERCOFTAC, DPW8, F11 cavity.
+
+**3. The direction of the error is the same one L-49 names, one level up.**
+Route B was *structural* and therefore different in kind from a text search — that
+part was right. But its **enumeration** was still a pattern I chose
+(`study-<body>*`), and it found the ladders that pattern could reach. **Being
+different in kind protects the reading; it does not protect the sampling frame.**
+
+### The corrected picture
+
+| class | count | which |
+| --- | --- | --- |
+| **CONFOUNDED** | **5** | the stored 3-rung ladders: `ahmed_25`, `ahmed_35`, `naca0012_wing`, `naca4412_wing`, plus the B-52's stored 8-rung set |
+| **CLEAN** | **≥13** | 4 purpose-built replacement families (B-52, Ahmed R4, both wings' W3 families) + TMR flat plate, TMR bump, NASA bump grids, F3, F4, F7 ×2, F6b, DPW8, F11 |
+| **UNDETERMINABLE** | **3** | `motorBike` (deciding rung's case gone), `cube`, `naca0015_sail` |
+| not a grid ladder | 3 | `aortic-valve` (quadrature), `airliner-wing` (geometry family), F5a (Reynolds + mesh both move) |
+
+### The finding that actually matters, and Route A alone could reach it
+
+**All five confounded ladders come from ONE code path:**
+`sdk/workflows/geometry_study.py::refinement_rungs()`. Its own docstring says
+what it does:
+
+> *"when the floor would make two rungs identical, the coarser one **also scales
+> the background-mesh divisions** so the cell budgets stay distinct; the runtime
+> cell-count guard still refuses to report a study if they do not."*
+
+**The guard checks DISTINCTNESS, not COMPARABILITY** — two rungs can differ in
+every cell and still not be two rungs of one ladder. **This is already an open
+docket item: #75, `w3-refinement-rungs-varies-two-knobs`.** So the confound is
+one generator defect with five downstream victims and a filed fix, not five
+independent failures — a materially different and more tractable finding than
+Route B's.
+
+### What is unchanged
+
+The wings' **draw-scatter measurements remain valid as measurements of scatter**;
+the confound is about treating their stored rungs' *differences* as
+discretization increments. And every claim listed in §4 below still inherits the
+confound — that list stands.
+
 ## 1. Two routes, and which is which (L-49)
 
 **L-49 says a search built from the vocabulary of what you just read returns what
