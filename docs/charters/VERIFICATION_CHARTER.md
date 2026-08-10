@@ -1380,6 +1380,32 @@ honest sentence. **Every restatement states the class**, sourced from a recipe
 audit (`campaign/LADDER_RECIPE_CONSISTENCY_SWEEP_2026-08-10.md` is the corpus-wide
 one).
 
+**THE CORPUS'S END STATE, 2026-08-10 — measured, not asserted.**
+
+After three sweeps that each corrected the one before, the standing answer for
+this lab is:
+
+> **There are currently ZERO ladders in this lab where a draw-scatter
+> measurement would be both possible and meaningful.**
+
+| | |
+| --- | --- |
+| ladders where a draw **exists** (snappyHexMesh generation) | **6** |
+| of those, **CONFOUNDED** — measuring them would be precise measurement of the wrong quantity | **4** |
+| of those, **UNDETERMINABLE** — the rung cases no longer exist | **2** |
+| ladders on **deterministic** generators, where the quantity is identically zero | **11** |
+
+**This is the honest end state, not a shrug.** It says the rule has no unspent
+work, and it says so because the work was looked for three times and the search
+corrected itself each time — a text sweep corrected by a structural one, the
+structural one corrected on its sampling frame, and the whole set corrected again
+when a pre-flight found the quantity undefined for most of them.
+
+**A reader arriving later should not re-derive this by spending.** If a new
+ladder is built, the rule applies to it from §17's scope test — *does a draw
+exist for this generator?* — and not from this table, which is a statement about
+the corpus as it stood, not a permanent property of it.
+
 **Calibration convention, binding on every retrofit verdict.** The bar separating
 "the scatter is structured" from "the scatter is broad" is **calibrated by
 simulation against the null before the draws exist**, never chosen after — so
