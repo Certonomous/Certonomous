@@ -267,3 +267,60 @@ the `normalizeResiduals` finding, and the fill/Richardson/budget arms stand as
 measured — measured, as now stated explicitly, with the transonic PC OFF.
 Whether an ACTIVE transonic PC moves the M6 wall is an open question; the
 PC-alone arm now running is the live test of exactly that.
+
+## 2026-08-10 RETRACTION — §3's central conclusion was produced by the dead lever (ordered by the chief; lever triage `A3_TRIAGE_LEVERS_PREREGISTRATION.md` §8, 3ac8257e)
+
+The 2026-08-08 annotation above established that the transonic preconditioner was
+INACTIVE in every run this record measures. It did not say **which of this
+record's conclusions that inactivity produced.** It is now measured, and the
+answer is §3's headline.
+
+**RETRACTED: "every attempt to strengthen the preconditioner reintroduces the
+exact catastrophic collapse" (§3; restated at §§179, 197–199, 217).** That
+statement is true of the runs that were made and FALSE as a property of this
+solver family. It is an artifact of the dead lever.
+
+**The measurement that retracts it.** On the same 21,840-cell reproducer this
+record uses, with one token changed (`transonicPCOption` 2 → 1, i.e. the PC
+actually ON) and nothing else, both strengthening levers this record indicts
+converge — and they are the two largest iteration cuts on the board:
+
+| lever (this record's own settings) | R5 result (PC dead) | 2026-08-10 result (PC active) |
+| --- | --- | --- |
+| `pcFillLevel: 1` | `-5`, collapse to 0.0 at the restart boundary | **reason 2**, CD 236 / CL 250 iterations (−35.9% / −34.7% vs the PC-active baseline 368/383), wall −4.5% |
+| `globalPCIters=3, localPCIters=3` (nested Richardson) | `-5`, identical collapse signature | **reason 2**, CD 209 / CL 211 iterations (−43.2% / −44.9%), wall +20.9% |
+
+Four solves that collapsed with the PC dead; four that converge with it active,
+each with `transonicPCOption 1;` and the lever's own echo verified in the log
+(`ILU PC Fill Level: 1`; `Global PC Iters: 3` / `Local PC Iters: 3`), cold-start
+signature `0.5969274433533561`, and no sub-LU (env unset).
+
+**Why the old result happened, stated as mechanism rather than apology.**
+`transonicPCOption 1` drops `fvm::div(phid, p)` from the PC-matrix pressure
+equation (`DAResidualRhoSimpleCFoam.C:172–176`) — the MDO-lab lineage's
+deliberate *weakening* of the transonic PC toward diagonal dominance. With that
+term wrongly retained, the PC matrix is a bad approximation to begin with, and
+strengthening its factorization (more fill, more Richardson sweeps) resolves the
+wrong operator harder — which is exactly how §3's collapse was manufactured.
+With the term correctly dropped, ordinary numerical-linear-algebra intuition
+returns: a stronger preconditioner takes fewer Krylov iterations. **This
+retraction therefore removes an anomaly from the record rather than adding one**
+— §3's §179/§197 "no mechanism for why strengthening reintroduces collapse" no
+longer requires a mechanism, because the phenomenon was configuration-induced.
+
+**What still stands, unchanged:** the `-5`/`-3` characterization of the runs as
+made; the `normalizeResiduals` finding; the matrix-scale and diagonal-spread
+measurements (order-of-magnitude readings, robust to the state drift the
+warm-start audit flagged, `WARMSTART_AUDIT.md` row 7); the L-14/L-15/L-16
+process findings; and this record's own disclosure that no FD verification was
+performed here. What is retracted is one causal conclusion — that preconditioner
+strengthening cannot work on this family — and the two headline claims that rest
+on it.
+
+**Superseding evidence:** the transonic-PC finding (`A3_SUBLU_PREREGISTRATION.md`
+§2, 12d3a7a3), the negative control reproducing the record `-5` bit-for-bit while
+the flipped token converges (551a7ba5), two converged and FD-verified rungs
+(11b90d25 at 21,840 cells; 4e982b4a at 42,120 cells, FD 0.0077%/0.2740%/0.0172%),
+and the lever triage above (3ac8257e). This is the **second** standing conclusion
+the dead lever corrupted — the first being the conditioning wall itself. Routed
+by the chief to the defect report's owner.
