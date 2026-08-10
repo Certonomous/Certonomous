@@ -10,9 +10,9 @@
  "expected_knowledge_gain": "Whether the window-only bar is passable when the loss support equals the metric support -- and the loss-support design datum the S1-with-priors phase needs either way",
  "source_kind": "measurement",
  "citations": [
-  "demo-output/website/dafoam/ladder-b/S1_CBFS_WEIGHTED_ARM_RESULT.md",
-  "demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md",
-  "docs/CAPABILITY_STRATEGY.md"
+  "The S1 CBFS weighted-arm result record, ladder B",
+  "The supervisor negative-verdict review, 2026-08-07",
+  "The capability strategy"
  ],
  "status": "proposed",
  "created_at": "2026-08-08T23:15:00Z",
