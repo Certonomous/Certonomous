@@ -2199,6 +2199,30 @@ Worth noting where it recurred: inside an audit whose own author had cited the
 reach lesson that same morning. Knowing a rule and applying it to the search you
 are currently running are different acts.
 
+**Third corollary — the CORPUS is an instrument too.** Six monitor rules were
+adopted against a replay corpus assembled by globbing `*.log`, while the
+convention it swept writes `log.<app>`. The corpus was **449 files against the
+1,375 that exist** — and nobody had ever asked it the question you ask an
+instrument: *what does this select, and what does it silently drop?* The
+omitted three-quarters refuted a published line in the standard those rules
+live in.
+
+Two things make this worth separating from the searches above. First, the fix
+is a **derivation, not a wider pattern**: the corrected corpus keys on what an
+application run actually prints, with binaries excluded by content rather than
+extension, so **no naming rule participates at any point** — and the proof that
+this mattered is that `*.log` plus `log.*` together *still* miss 96 real run
+logs. A list of two patterns is the same defect with more entries. Second, it
+**reversed a refusal made on the old corpus**: a rule whose 80% fire rate had
+looked like one unreachable sentinel turned out, on the real corpus, to fire at
+**47% on genuinely declared targets** — a number the adoption rule actually
+asks for, and one that varies 20%–94% by family, which a single global rate
+hides in both directions.
+
+So: before a rule is adopted against a corpus, state the corpus's reach as you
+would state a search's. An unexamined corpus is an unexamined instrument, and
+every conclusion drawn on it inherits its blind spot.
+
 
 ## L-53. Two verification passes running at once can invalidate each other, and neither can see it
 

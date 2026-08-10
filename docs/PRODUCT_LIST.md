@@ -1988,6 +1988,32 @@ clock-audit rule asks for.]*
   **gitignoring**, since the lab's grep wrapper honours ignore files. Regenerated in place; tree and shipped artifact
   now match byte-for-byte.
 
+### 2026-08-10 (night) — the corpus was an instrument nobody had examined, and correcting it reversed a refusal
+
+- **D4 CORRECTED, and the measurement is five times worse than the audit found**: **39 of 149 logs carry no trapping
+  banner**, not 5, and across every prefix rather than one family — because the banner only appears when an
+  environment variable is set, making it **a fact about how a run was LAUNCHED, not a property of OpenFOAM**
+  (07472cf2). The amendment says which of the two moved: **the warrant, not the rule**. And the measurement
+  *flatters* the rule's design — a banner-keyed detector would have been blind on those 39 logs **and** would have
+  read the other 110 healthy runs as fatal. The original reasoning reached the right rule through a claim that was
+  not true.
+- **THE REPLAY CORPUS: 449 → 1,375** (b69cd45e), derived rather than widened — it keys on what an application run
+  actually prints, with binaries excluded by content rather than extension, **so no naming rule participates at any
+  point.** The proof that this mattered: **`*.log` plus `log.*` together still miss 96 real run logs.** A list of two
+  patterns is the same defect with more entries.
+- **AND IT OVERTURNED THE SAME AGENT'S REFUSAL FROM THE PREVIOUS PASS.** On the corrected corpus the gated set goes
+  46 → **222**, one family → three, one target value → eight. Separating the unreachable sentinel gives the number
+  the adoption rule actually asks for: **41 fires over 87 logs with genuinely declared targets — 47%, well under the
+  two-thirds that withdrew a sibling rule** — and it is **not uniform** (94% / 51% / 20% by family), a spread a
+  single global rate hides in both directions. *"My refusal was right on the evidence then available and is no
+  longer supported."* What still blocks wiring is now narrow and stated: target recovery must read each case's OWN
+  residual controls, and the sentinel class must be excluded or the gate fires on 99% of that family.
+- A published line in the standard is refuted by the same correction: **70 logs outside the named family carry real
+  declared targets**, sitting in files the glob could not match.
+- **Recorded as L-43's third corollary — the CORPUS is an instrument too.** Six rules were adopted against a corpus
+  nobody had asked *what does this select, and what does it silently drop?* **Ninth instance this campaign of the
+  instrument, rather than the reasoning, being the defect.**
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
