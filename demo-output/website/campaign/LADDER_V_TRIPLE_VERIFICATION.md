@@ -85,13 +85,40 @@ supervisors' four personal checks apply per the supervision charter.
   outside reviewer would state them, each with the record's best answer beside it. This becomes
   Sanaa's briefing for any follow-up questions from the steward.
 
+## PASS 4 — STRUCTURAL (added 2026-08-10 by Katie; both rungs fix the LADDER, not the entry)
+
+These exist because the first full run of this ladder produced three findings that
+were **nobody's rung**: a tracked shipping archive carrying round-3 numbers with zero
+caveats, a live self-audit guard pinned to round 3, and a public page carrying a
+prior-art sentence struck five days earlier. Every one lived on a surface no
+hand-maintained list had ever included.
+
+- **V14 (A14). Mechanical surface discovery, not a maintained list.** The cross-surface
+  sweep is replaced by a **repo-wide search for every score literal** — 0.0741, 0.0676,
+  0.0654, 0.056647 and every case-level value — **plus every prior-art sentence
+  fragment**, across **tracked files, built artifacts, and shipping archives** including
+  `dist/`. The searcher must prove its own reach first (gzip, ignore-files, untracked
+  trees, archives that must be opened to be read) and state what its frame structurally
+  cannot contain. **A surface nobody listed is exactly where a stale claim survives**, so
+  the rung fails if its method is a list rather than a search. Owner: an agent that has
+  written to none of the surfaces.
+
+- **V15 (A15). Verification-created text re-enters the claims table.** Pass 1 established
+  that new disclosure prose is where unattributed claims are born, and the first run of
+  this ladder had a verification rung introduce a defect a sibling rung had just cleared
+  (L-53). Therefore: **any text written during the ladder — by any pass, including fix
+  passes — must pass V8's claims table before the ladder goes green.** Otherwise the fix
+  pass is the last unverified writer and the ladder certifies everything except its own
+  output. **Owner: NOT the pass that wrote the text.** No agent verifies its own prose,
+  and a fix pass is a writer like any other.
+
 ## CLOSE-OUT
 
 - **V13. Ladder report in negative-verdict-review format**: every rung PASS/FAIL with evidence
   links, the claims table, the skeptic's report, and a single consolidated list of anything that
   changed during verification. No rung self-graded; the three pass-owners sign their own sections.
 
-**The send gate, unchanged**: all 13 rungs green → Sanaa's personal checks (she re-runs V1 and V3
+**The send gate**: all 15 rungs green (13 original + V14/V15, added 2026-08-10) → Sanaa's personal checks (she re-runs V1 and V3
 with her own hands, reads V12) → Sanaa + Katie proofread the cover email → Katie sends. Nothing is
 automatic at any point.
 
