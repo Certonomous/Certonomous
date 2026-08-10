@@ -1396,6 +1396,31 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   discretization increments. The draw-scatter measurements on those bodies remain valid AS scatter; what does not
   survive is treating the stored rungs as a ladder.
 
+### 2026-08-10 (closing 12) — the same defect one level up, on the same arithmetic, in the launcher just fixed
+
+- **`launch_solve.sh --ranks` was the rank clamp with the clamp removed** (a39896cc): a number the CALLER declares,
+  which the collector multiplies by (`core-min = wall × ranks / 60`), and **which nothing ever checked against the
+  command that ran.** Demonstrated live: a run declaring 8 ranks while executing `-np 2` now records **0.5 core-min
+  where it used to bill 2.0 — four times the truth, silently, into the same calibration record the lab prices all
+  future work from.** The launcher now reads the rank count from the argument vector it is about to exec — the
+  invocation itself, never a string to be split — and agrees silently, disagrees LOUDLY with both values and the one
+  it priced on landing in the record, or reports `UNVERIFIABLE` with the fallback named when a nested shell hides
+  the vector. A number reported as checked when it was not is the whole defect, so the null says so rather than
+  guessing.
+- A second-pass correction worth the pattern: the not-comparable case first rendered as `UNCAPPED`, borrowing the
+  envelope's word for *no limit applied*. **Those are different facts**, and the envelope exists precisely so a
+  later reader never has to guess which — it now reads `NOT_COMPARABLE`.
+- **A suite failure triaged and ESCALATED rather than committed around**: an aircraft-optimization test fails on a
+  fleet-shape assertion, established as not the sweeping agent's by reproducing it with that pass's files stashed.
+  The diagnosis for its owner: the fleet changes size between two waves, so the observed shape **satisfies the
+  contract stated in the code's own comment while failing the encoded assertion** — whether the assertion is
+  stricter than the contract or the workflow drifted is the owner's call, and weakening a test without naming the
+  moved contract would be a rail-bypass. It also fails standalone every time, which means its suite-green history
+  implies an outcome that depends on test ordering.
+- **The self-audit pattern is now at six instances, and the agent named the tell:** *"I have just fixed this class,
+  so I am done with it."* The propagation sweep found the hole in its own L-42 fix; then the answer to "does the
+  envelope work have a tail" turned out to be the same defect in the launcher it had just finished fixing.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
