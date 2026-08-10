@@ -112,11 +112,41 @@ objective (CD) trajectory is the authoritative convergence signal here and it is
 | this rung's DAFoam primal (`DASimpleFoam`, SIMPLE) | 0.06998 | 45,760 |
 | **relative deviation** | **22.05%** | mesh count matches to within 0.02% |
 
-**Cause, verified, not guessed:** `grep`ing DAFoam v5.0.0's `DASimpleFoam.C` and `DASolver.C` source inside
-the container for `consistent` (the SIMPLEC pressure-velocity coupling flag) turns up **zero** real matches —
-only unrelated comment usages of the English word "consistent." The baseline case's `fvSolution` explicitly
-sets `SIMPLE { consistent yes; }` (SIMPLEC). `DASimpleFoam` silently ignores that flag and always runs plain
-SIMPLE. Both algorithms drive the *identical* discretized equations, on the *identical* mesh, with the
+**Cause — RETRACTED 2026-08-10, the grep was scope-limited and the conclusion it produced is wrong.**
+~~`grep`ing DAFoam v5.0.0's `DASimpleFoam.C` and `DASolver.C` source inside the container for `consistent`
+(the SIMPLEC pressure-velocity coupling flag) turns up **zero** real matches — only unrelated comment usages
+of the English word "consistent." The baseline case's `fvSolution` explicitly sets
+`SIMPLE { consistent yes; }` (SIMPLEC). `DASimpleFoam` silently ignores that flag and always runs plain
+SIMPLE.~~
+
+**What the source actually says** (re-read in-container 2026-08-10 under the chief's FD-1/FD-2 provenance
+rider, and confirmed in BOTH images — `dafoam-subpclu:v1` and stock `dafoam/opt-packages:latest`):
+**`DASimpleFoam` implements SIMPLEC, in the primal AND in the adjoint residual.**
+
+```
+adjoint/DASolver/DASimpleFoam/pEqnSimple.H:27   if (simple.consistent())
+adjoint/DAResidual/DAResidualSimpleFoam.C:189   if (simple_.consistent())
+        rAtU = 1.0 / (1.0 / rAU - UEqn.H1());
+        phiHbyA += fvc::interpolate(rAtU() - rAU) * fvc::snGrad(p) * mesh.magSf();
+        HbyA -= (rAU - rAtU()) * fvc::grad(p);
+```
+
+That is the textbook SIMPLEC correction, gated on exactly the `consistent yes;` flag this case sets.
+
+**Why the original grep found nothing, named so the error is not repeated:** it scanned `DASimpleFoam.C`
+and `DASolver.C`. The SIMPLEC logic is not in either — it lives in the **included** `pEqnSimple.H` and in
+`DAResidualSimpleFoam.C`. `DASimpleFoam.C`'s only `consistent` hits are two comments about the *consistent
+fixed-point adjoint* (lines 187, 220) — precisely the "unrelated comment usages" the retracted text reports.
+The file list, not the search string, produced the wrong verdict: an include-blind grep over a C++ solver
+whose equations live in `.H` includes. **The record now carries the reproducible provenance the verdict
+always lacked** (file, line, quoted code, image tag, both images).
+
+**Consequence for this record's cause claim: the SIMPLEC-vs-SIMPLE mechanism for the 22.05% gap is
+WITHDRAWN.** The measured 22.05% deviation stands as measured; its stated cause does not. The gap is
+currently UNEXPLAINED, with the bistability reading (below) surviving as a hypothesis that no longer has an
+algorithm-difference trigger attached to it. Re-opening this properly needs a controlled arm — the same case
+run with `consistent yes;` and with it removed, under `DASimpleFoam`, checking whether CD moves at all —
+which is filed, not run here. Both algorithms drive the *identical* discretized equations, on the *identical* mesh, with the
 *identical* BCs and turbulence model, to a flat, converged residual — but they land on numerically different
 steady states. This lines up exactly with the baseline case's own documented warning that the 25-degree
 Ahmed body wake is bistable under steady RANS. Neither branch is "wrong"; they are different attractors of a
@@ -262,10 +292,17 @@ whole time and did not need to be waited on.
 
 ## Lesson
 
-`DASimpleFoam` does not silently reproduce a plain-OpenFOAM `simpleFoam` baseline just because the mesh,
+**LESSON REWRITTEN 2026-08-10 — the original lesson was built on the retracted cause above.**
+~~`DASimpleFoam` does not silently reproduce a plain-OpenFOAM `simpleFoam` baseline just because the mesh,
 boundary conditions, and turbulence model are byte-identical: it drops SIMPLEC (`consistent yes;`) without
 any warning, and on a documented-bistable separated wake that is enough to swing CD by ~22% while both solves
-remain flat-converged by every residual metric. "Same mesh, same equations, same solver family" is not the
+remain flat-converged by every residual metric.~~ `DASimpleFoam` **does** honour `consistent yes;`
+(`pEqnSimple.H:27`, `DAResidualSimpleFoam.C:189`), so the drop never happened and the 22.05% gap has no
+established cause. **The surviving lesson is about the instrument, and it is sharper than the one it
+replaces:** a source grep that names its files can prove a symbol ABSENT only from those files, never from
+the program — C++ solvers keep their equations in `.H` includes, and an include-blind grep manufactured a
+FOUND-DEAD verdict that then propagated into a physics conclusion. A deadness claim must quote the line and
+the file it searched, so a later reader can reproduce the search that failed. "Same mesh, same equations, same solver family" is not the
 same claim as "same solver" — a credentials-wall comparison across two different OpenFOAM-family codes needs
 to check numerical-scheme parity (SIMPLE vs. SIMPLEC, in this case), not just physical-model parity (mesh,
 BCs, turbulence model), before treating a gap as a physics finding rather than an algorithm-choice artifact.
