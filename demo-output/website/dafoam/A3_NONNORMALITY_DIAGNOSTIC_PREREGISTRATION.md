@@ -101,3 +101,79 @@ Auxiliary numbers reported alongside for context but carrying **no verdict**: th
 `|| (P − P^T)/2 ||_F / || P ||_F` (asymmetry, which is not non-normality — a rotation is normal
 and maximally asymmetric) and each matrix's symmetry pattern. They are context, and the §4 bar
 is the only thing that decides.
+
+---
+
+# §5. RESULTS — **reading (i) refuted, then reading (ii) refuted. The mechanism remains unknown.**
+
+## Step 1 — reading (i) is insufficient (zero cost, from logs already on disk)
+
+Every non-degenerate `sMax/sMin` reading (restart-boundary `1./1.=1.` entries excluded as empty
+Hessenberg estimates):
+
+| run | readings | values | within-run spread |
+|---|---|---|---|
+| fill 0 control | 3 | 4.309e+10, 4.687e+10, 9.572e+10 | **2.22x** |
+| fill 1 arm | 5 | 1.845e+03, 1.660e+03, 1.860e+03, 1.760e+03, 1.080e+04 | **6.51x** |
+| overlap 2 arm | 3 | 4.389e+10, 4.589e+10, 1.017e+11 | **2.32x** |
+
+Subspace-to-subspace variability is at most **6.5x**; the fill0→fill1 jump is **~2.5e+07**.
+**The jump exceeds the artifact scale by six to seven orders of magnitude**, so reading (i) cannot
+account for it. Step 2 is motivated, exactly as pre-registered.
+
+*Bonus control, unplanned:* the fill-0 and overlap-2 runs — different arms, hours apart — return
+near-identical estimates at matched iterations (4.31e10 vs 4.39e10; 4.69e10 vs 4.59e10; 9.57e10 vs
+1.02e11). The estimate is reproducible, which both validates it as an instrument and independently
+re-confirms that doubling the ASM overlap did nothing.
+
+## Step 2 — the measurement, and it goes the OTHER way
+
+Hutchinson estimator, k = 200 Rademacher probes, four sparse mat-vecs per probe, seed fixed:
+
+| | rung 2 — **CONVERGES** (42,120 cells) | rung 3 — **STALLS** (79,560 cells) |
+|---|---|---|
+| unknowns / nonzeros | 384,518 / 42,988,956 | 724,609 / 81,718,327 |
+| ‖P‖_F | 4.261146e+12 | 7.587909e+12 |
+| **nu_F = ‖PᵀP − PPᵀ‖_F / ‖P‖_F²** | **4.298842e−03** [95% CI 4.2813e−03, 4.3163e−03] | **2.651122e−03** [95% CI 2.6377e−03, 2.6645e−03] |
+| skew fraction (context, no verdict) | 0.3502 | 0.3058 |
+
+**Ratio rung3/rung2 = 0.617, against a pre-registered bar of ≥ 3.0.**
+
+**Reading (ii) is REFUTED.** The stalling rung is not more non-normal than the converging one — it
+is measurably **less** so, by 1.62x, with non-overlapping confidence intervals, so the difference
+is real and precisely resolved rather than a null from noise. Both operators are only mildly
+non-normal in absolute terms (nu_F ~ 10⁻³ on a measure whose range runs to order 1).
+
+The pre-registered branch fires as written: *"non-normality does not discriminate the converging
+rung from the stalling one. The mechanism remains unknown, the elimination table stands exactly as
+published, and I say so plainly."* **The hypothesis my own fill-1 arm generated is refuted by my
+own follow-up.** That is the outcome I said I should be most willing to report, and it is the one
+that arrived.
+
+**Limitation, restated because it bounds the claim in both directions:** this measures DAFoam's
+assembled preconditioner matrix `dRdWTPC`, not the matrix-free transpose Jacobian nor the
+preconditioned operator `A M⁻¹` whose normality actually governs GMRES. A conclusive test would
+need the preconditioned operator, which this build never assembles. So the honest scope is: **the
+non-normality of the operator DAFoam builds its preconditioner from does not distinguish the rung
+that converges from the rung that does not**, and it therefore fails to explain the elimination
+table. It does not prove the preconditioned operator is well-behaved.
+
+## §5.1 Elimination table — tenth entry
+
+**Non-normality (of the assembled PC operator)** — nu_F 2.65e−03 at the stalling rung against
+4.30e−03 at the converging one, ratio 0.617 against a 3.0 bar. Refuted as a discriminator.
+
+Ten candidate causes have now been tested and refuted by measurement: method breakdown, Krylov
+subspace size, field separation, geometric localization, mesh volume scaling, diagonal-spread
+magnitude, one-level Schwarz overlap, stronger PC application, ILU fill level, and non-normality.
+**The surviving statement is unchanged and now better defended: the rung-3 wall is real, it is not
+memory, and nothing this build exposes — and nothing measurable on the operator it assembles —
+distinguishes it from the rung that converges.** What remains unexplained is now precisely bounded
+rather than vaguely open, and the capability-boundary defect (`f29378d9`) names why the next class
+of remedy cannot even be attempted here.
+
+## §5.2 Cost
+
+**0 of the 25 core-min cap** — no solver ran; both operators were already on disk, and the offline
+computation took 6 s + 48 s (rung 3) and 3 s + 24 s (rung 2). Peak memory ~1.6 GB against ~29 GB
+free, inside the pre-registered arithmetic for the fourth consecutive arm.
