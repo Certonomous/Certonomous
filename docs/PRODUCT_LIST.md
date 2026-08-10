@@ -51,6 +51,14 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       delta is the ducts (untrained QCR2000: AR_1 0.0811→0.0455, AR_3 0.0775→0.0400); AR_14's tie LOST (+0.0029) exactly
       as priced in writing, not reverted per the bundle's terms; our QCR ducts land within 0.0004 of Wu&Zhang's published
       ducts — same term, independent solve, same answer. Caveat everywhere: LOCAL scoring, not an official placement.
+      **AND from 2026-08-10 (b2aa6887) a second mandatory caveat beside the first: P(rank 1) = 68%** (400k case-level
+      bootstrap; rank distribution 67.6 / 18.6 / 12.8 / 0.9 / 0.2). The lead over Reissmann is NOT statistically
+      decided — paired per-case t = −0.495, dispersion 5× the margin, 4 of 8 cases won — and Wu&Zhang is not decided
+      either (t = −0.953). Only Liu (98.7%) and Montoya (99.8%) are beaten on method. Eight cases cannot resolve a
+      rank probability better than 2–100% at 95% (double bootstrap). The standing is TWO CASES WIDE: drop alpha_15
+      and we are rank 2 on the point score; drop the hump and P = 91%. AR_1/AR_3 margins (0.00003 / 0.00008) are ties
+      below published precision and must never be quoted as per-case wins. The number is INTERNAL and never appears
+      in an external claim — but no internal surface may print "rank 1" without it.
       → NEW ITEM (from this cross-off): **closure.html coherent rewrite** under Katie's GUI conventions — DONE
       (page is round-5 current; consistency re-verified by Ladder V rung V10, 49f71b8c).
 - [x] alpha=15,AR14 status (superseded by round 5, kept for history): AR_14 is now 3 of 5 and best-on-board is 4 of 8
