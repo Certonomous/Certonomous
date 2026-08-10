@@ -57,9 +57,39 @@ family's reason-code criteria; for scope C, iterations-to-reason-2 versus rung 1
 (CD 368 / CL 383), with a lever counted as material only if it moves iterations by >10% —
 pre-registered here so no lever gets credit for noise.
 
-## 5. Status
+## 5. Status — DECIDED 2026-08-10: scope B ADOPTED, scope C triage APPROVED
 
-**FILED, NOT LAUNCHED.** Awaiting the chief's scope pick. Rung 2 came in at 99.5 core-min
-against a ~47 estimate (cause diagnosed and corrected: pricing off cells when iterations scale
-superlinearly), so spending 80–150 more core-min without an explicit pick would be exactly the
-silent-overrun the standing rule forbids.
+Chief ruling of 2026-08-10: **scope B adopted (0 core-min)** — the 11 flagged variants are
+RETIRED AS SUPERSEDED, §6 below — and **scope C's 3-lever triage approved** (35–45 core-min),
+running BEFORE rung 3 because its output is instrumental to rung 3's price
+(`A3_TRIAGE_LEVERS_PREREGISTRATION.md`). Scope A is declined.
+
+## 6. RETIREMENT OF THE 11 FLAGGED VARIANTS (scope B, executed here)
+
+**The 11 D3 n15 variant-lever arms are retired as SUPERSEDED. They are not unverified findings
+awaiting a rerun; they are findings about a configuration that never ran the preconditioner.**
+
+The reasoning, stated in full so a future reader cannot mistake retirement for avoidance:
+
+1. Every one of the 11 arms (`mgso`, `mgso_restart1000`, `mgso_sparsify`, `noresnorm`,
+   `noresnorm_bigbudget`, `noresnorm_cl_only`, `noresnorm_fill1`, `noresnorm_mgso`,
+   `noresnorm_richardson`, `sparsify`, `sparsify_fill1`) carried `"transonicPCOption": 2`.
+2. `2` is dead code for `DARhoSimpleCFoam`: the only live branch is `== 1`
+   (`DAResidualRhoSimpleCFoam.C:173`); `== 2` exists solely in `DAResidualTurboFoam.C:176`, a
+   different solver. So the transonic preconditioner was **inactive in all 11 runs**.
+3. The `-5` those levers were being tested against is explained by that token alone — proven,
+   not argued, by the negative control (551a7ba5): the record configuration reruns on today's
+   host and reproduces the double `-5` **bit-for-bit**, while flipping the single token
+   converges (rung 1, 11b90d25) and converges again one mesh up (rung 2, 4e982b4a).
+4. Therefore each null means "this lever did not rescue a run whose preconditioner was off" —
+   a true statement about a baseline that no future run will use. Reproducing them cold would
+   convert INDETERMINATE rows into COLD-CLEAN rows **about a superseded baseline**: correct
+   bookkeeping, zero forward value, at the price of a full rung.
+5. The audit's requirement — *cold rerun before any future citation* — is **satisfied by never
+   citing them**. Retirement is the stricter option, not the lazier one: it forecloses the
+   citation the audit was protecting against, rather than licensing it with fresh logs.
+
+What is NOT retired: the levers themselves as questions. Whether any of them reduces iteration
+count **on the working (PC-active) configuration** is a live and separately valuable question —
+that is scope C, approved as a 3-lever triage, and its answer is about the ladder's cost, not
+about the dead baseline.
