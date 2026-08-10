@@ -1576,6 +1576,33 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   zero because the timestamps are nested one level below where it looked. Same class as the day's others — the
   method read its sample correctly and the sample was not the population.
 
+### 2026-08-10 (closing 17) — the rule reaches the corpus, and a cross-solver rate is caught being a factor in disguise
+
+- **THE 17 RESTATEMENTS ARE APPLIED** (a21d013f), so §17 has now touched the published record rather than remaining a
+  charter section with no effect on the corpus. **Frame first, as the standing form requires: 17 restatements out of
+  32 records asserting a ladder feature, out of 151 records scanned** — those 17 now state on their face that no
+  replicate mesh has ever been drawn at the rung their feature turns on, and **nothing follows about the other 119**,
+  the 8 with evidence, the 5 withdrawn or the 2 already compliant.
+- Each restatement names the ladder's **recipe class**, because the class changes what the gap MEANS: on a
+  **confounded** ladder the feature is unsupported twice over (its increments were never discretization increments at
+  all); on a **clean** one the missing scatter is the only thing between the feature and a real measurement.
+  **11 clean · 5 confounded · 1 undeterminable.**
+- **A PRICING ERROR CAUGHT BEFORE IT WAS QUOTED, and it is the calibration finding catching its own author.** The
+  first pass priced all seven remaining candidates from the two measured bases available — both **steady,
+  incompressible `simpleFoam` on snappyHexMesh bodies** — putting F4 at 0.49–0.83 core-min. **F4 runs transient,
+  explicit `rhoCentralFoam` to endTime 6.0.** A per-cell rate does not cross that gap. Priced instead from F4's own
+  record (14.66 core-min across 9 runs at 1:4:16 cells): **≈7.5 core-min, 8.9× what the cross-solver rate said.**
+  The agent's own words are the lesson: *the predictor is the basis, not a factor — and a per-cell rate borrowed
+  across solver families is a factor wearing a basis's clothes.*
+- **The other seven are DELIBERATELY LEFT UNPRICED.** Each needs its own basis read from its own record, and
+  inventing a cross-solver rate for them is the error just caught. ~1 hour of zero-compute reading, offered rather
+  than assumed.
+- **F4 is the sharpest test §17 will ever get**: its record asserts that *"convergence with mesh refinement is
+  explicitly NOT monotonic, and scatter does not fully explain it"* — **a claim ABOUT scatter, made without ever
+  measuring scatter** — on a ladder the sweep classifies CLEAN (one knob moving, radial grading held), so the answer
+  cannot be confounded away. Either outcome changes the record: scatter explains the non-monotonicity and that
+  sentence is wrong, or it does not and the sentence is vindicated by measurement for the first time.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
