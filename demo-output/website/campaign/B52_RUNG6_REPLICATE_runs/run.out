@@ -1,0 +1,27 @@
+[2026-08-10T15:56:28+00:00] B52 rung-6 replicate arm starting (prereg B52_RUNG6_REPLICATE_PREREGISTRATION.md, commit 5c6825c7)
+[2026-08-10T15:57:43+00:00] rung6b: meshed 335305 cells in 74.2s, certificate verdict=clean skew=3.9611881 nonOrtho=55.540592
+[2026-08-10T15:58:49+00:00] rung6c: meshed 352596 cells in 66.6s, certificate verdict=clean skew=3.9708162 nonOrtho=64.745949
+[2026-08-10T15:58:49+00:00] G1: {'gate': 'G1 cell-count admission', 'passed': False, 'reasons': ['rung6c: 352596 is +6.54% vs rung 6', 'replicates +5.16% apart from each other'], 'deviations': {'rung6b': 0.013159, 'rung6c': 0.065406}, 'pairwise_cell_deviation': 0.051568}
+[2026-08-10T15:58:49+00:00] G1 REFUSED -- no solve spent. See record.json.
+[2026-08-10T16:00:47+00:00] B52 rung-6 replicate arm starting (prereg B52_RUNG6_REPLICATE_PREREGISTRATION.md, commit 5c6825c7)
+[2026-08-10T16:00:47+00:00] rung6b: reusing certified mesh for (52, 44, 76), 335305 cells
+[2026-08-10T16:00:47+00:00] rung6b: attempt 1 (52, 44, 76) -> 335305 cells, +1.32% vs rung 6, ADMITTED
+[2026-08-10T16:00:47+00:00] rung6c: reusing certified mesh for (50, 46, 75), 352596 cells
+[2026-08-10T16:00:47+00:00] rung6c: attempt 1 (50, 46, 75) -> 352596 cells, +6.54% vs rung 6, RE-DRAW
+[2026-08-10T16:02:06+00:00] rung6c: meshed 333217 cells in 79.7s, certificate verdict=clean skew=3.9582628 nonOrtho=64.907914
+[2026-08-10T16:02:06+00:00] rung6c: attempt 2 (52, 45, 74) -> 333217 cells, +0.68% vs rung 6, ADMITTED
+[2026-08-10T16:02:06+00:00] G1: {'gate': 'G1 cell-count admission', 'passed': True, 'reasons': [], 'deviations': {'rung6b': 0.013159, 'rung6c': 0.00685}, 'pairwise_cell_deviation': 0.006266}
+[2026-08-10T16:02:06+00:00] rung6b: G2 certificate admission -> True (clean)
+[2026-08-10T16:06:11+00:00] rung6b: rows=300 window=60 Cd=0.046920889 2sigma=1.3102e-05 (0.0279% of |Cd|) G3=PASS
+[2026-08-10T16:06:11+00:00] rung6c: G2 certificate admission -> True (clean)
+[2026-08-10T16:09:27+00:00] rung6c: rows=300 window=60 Cd=0.048280833 2sigma=1.4377e-05 (0.0298% of |Cd|) G3=PASS
+[2026-08-10T16:09:27+00:00] finer2 (2026-08-01/02 draw, re-read): rows=300 window=60 Cd=0.052275472 2sigma=2.2441e-06 (0.0043% of |Cd|) G3=PASS
+[2026-08-10T16:09:27+00:00] G4: {'gate': 'G4 lever-echo equality between the two replicates', 'passed': False, 'files_echoed': 10, 'mismatched': ['0/U', '0/phi']}
+Traceback (most recent call last):
+  File "/home/ubuntu/Certonomous/demo-output/website/campaign/B52_RUNG6_REPLICATE_runs/run_rung6_replicates.py", line 403, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/ubuntu/Certonomous/demo-output/website/campaign/B52_RUNG6_REPLICATE_runs/run_rung6_replicates.py", line 388, in main
+    "mesh": round(sum(r["mesh_wall_s"] for r in results.values())
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unsupported operand type(s) for +: 'int' and 'NoneType'
