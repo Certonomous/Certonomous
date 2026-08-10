@@ -36,7 +36,16 @@ budget-limited, not as a wall"*):
 | residual change, iter 1300 → 4000 | n/a (converged at 1171) | **3.79e−07 relative over 2,700 iterations** |
 | resolved by raising the cap? | **yes** — converged at 1171, and the iteration-1000 residual reproduced to ten significant digits | **no** — extrapolating the observed rate, the 1e−4 relative target is unreachable |
 
-The residual is flat to nine significant figures across 2,700 iterations. That is stagnation.
+The residual agrees to **six significant figures** between iterations 1300 and 4000 —
+`1.615246604817e-02` vs `1.615245992220e-02`, differing first in the seventh digit, a relative
+change of 3.79e-07 across 2,700 iterations. That is stagnation.
+
+> *Correction, 2026-08-10 (same day):* this sentence originally read "flat to nine significant
+> figures". That was false precision — the printed pair agrees to six, not nine. Caught by the
+> report's author re-reading `rung3_stage1.log` rather than this record, which is the right way
+> to catch it. The 1.31x total reduction, the 3.79e-07 relative change, and the stagnation
+> verdict are computed from the same two numbers and are unaffected; only the digit count was
+> wrong, and it is exactly the kind of number that gets quoted onward.
 
 **It is not a memory death, and that matters for what may be claimed.** Peak container usage
 **11.65 GiB against the 22 GiB cap**, host MemAvailable never below 17 GB, no swap growth, no
