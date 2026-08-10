@@ -1295,6 +1295,33 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   item stays open and routed: **two launchers now disagree about what they enforce**, which is the
   two-implementations problem in its second instance.
 
+### 2026-08-10 (closing 9) — the retrofit's binding constraint is not compute: it is whether the ladder is a ladder
+
+- **THREE LADDERS RESOLVED AT ≈0.2 CORE-MIN against 4.8–8.2 approved** (79ab1765), and none of the budget was
+  quietly returned — each disposition carries its reason. **ahmed_25 and ahmed_35: RESTATE on RECIPE grounds** —
+  their own audit says *"TWO mesh recipes, and no knob moves twice."* A ladder that changes recipe between rungs is
+  not measuring discretization at all, so drawing replicates would have **precisely measured the wrong quantity**.
+  **motorBike: UNVERIFIABLE AT SOURCE** — the feature turns on the medium→production increment and the medium rung's
+  case, recipe and mesh no longer exist. That is the third-outcome ruling firing exactly as written; forcing it into
+  restate or withdraw would have manufactured a verdict.
+- **The certification gate paid on the one rung that still exists:** the surviving production mesh had **no
+  certificate and no checkMesh record until today**; minted now it reads clean at 353,688 cells with no hard errors.
+  The prediction that the curriculum ladders had never been through that gate is confirmed.
+- **Two pre-flight findings that changed the campaign before a single mesh was drawn.** (1) The scatter ratio has
+  **essentially no power at n = 3** — the bar calibrates to 0.0754, requiring the two surviving draws to be nearly
+  identical — so **the deciding statistic must be the increment-movement test**, which is what actually decided both
+  the B-52 and Ahmed; the ratio is reported, not graded. (2) **A recipe audit must precede the draws, and it is
+  free**: three of the five approved ladders have never had one and **the other two failed one**.
+- The convention was transmitted to the other half as a **shared module with a fixed seed** rather than a message —
+  so both halves derive the SAME bar rather than two that happen to agree, the same reasoning that put every lever
+  echo behind one predicate. It reproduces the Ahmed verdict exactly as a regression check, and the near-miss
+  precedent is written in as the standard: the bar did not move when the measured value landed at the 14.6th
+  percentile against a 10th-percentile bar.
+- **The rule is vindicated in the way that matters most:** it asked for evidence at the deciding rung and got back
+  *"that evidence cannot exist"* — which is exactly the sentence it exists to force onto a published feature's face.
+  The binding constraint on this retrofit turns out to be not compute but **whether the ladder is a ladder and
+  whether its meshes still exist.**
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
