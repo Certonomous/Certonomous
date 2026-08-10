@@ -1,5 +1,13 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.5, dated 2026-08-10 (night). Adds section 1.9 — evidence has to
+survive the next run — and section 6, the L-42 enforcement pass: every launch
+path in the shared runner now archives an existing log under a UTC-stamped
+superseded name instead of truncating or unlinking it. Adds the worked example
+in section 5.1 the chief ordered recorded: **a fix that creates the artifact a
+check tests for disables the check**, from a near-miss inside this family's own
+work. States the latent-finding rule in section 3.3.
+
 Version 1.4, dated 2026-08-10 (night). Records P-4.1 as approved — option C+D
 landed, option B (full consolidation) REFUSED and the refusal adopted as
 policy — in section 5, and closes the six false-negative launch paths section
@@ -210,6 +218,28 @@ this rule twice in three days, in both directions, so it is written down:
   through `scripts/lever_echo_emit.py`. Two implementations of an evidence
   format are two things that can disagree about what was proved.
 
+### 1.9. Evidence has to survive the next run, not just get written
+
+L-42, enforced 2026-08-10. Creating evidence and preserving it are two jobs,
+and this family spent three passes on the first before starting the second.
+
+- **A launcher archives before it overwrites.** Any run log a new run would
+  destroy is moved aside first, under a UTC-stamped superseded name — the
+  same supersede-don't-delete convention the records use (L-39), and the same
+  stamp format `scripts/launch_solve.sh` already uses. That launcher was the
+  only path in the lab that survived L-42, and it survived by accident of its
+  registry naming; the accident is now the deliberate convention.
+- **The archive is named, not numbered.** A timestamp collides only with
+  itself; a counter suffix handles the same-second case. An archive that can
+  be silently overwritten by the next archive is not an archive.
+- **Empty is not evidence.** A zero-byte log is removed rather than archived,
+  and the clearing of the live name is part of the contract — see 5.1 for why
+  that sentence is load-bearing rather than housekeeping.
+- **Unreconstructible is a different word from unsupported** (Verification
+  Charter §9). When a log is gone, the record says so on its face with a
+  dated amendment, and reconstructs nothing. A record that quietly agrees
+  with whichever log survived is worse than one that admits the gap.
+
 ## 2. Findings record, first personal-check pass (2026-08-07)
 
 Recorded here before any fix was applied, per the supervision charter's
@@ -387,7 +417,18 @@ and are NOT fixed in this pass: two solver agents hold live uncommitted work
 in this tree, and a change to how a running solve's log is written is not a
 change to make underneath them. They are recorded here and escalated.
 *(Superseded for `launch_solve.sh` by section 4, which landed the same night
-once both arms reported. The false-negative sites remain open.)*
+once both arms reported; the false-negative sites closed in section 5.)*
+
+**A "latent" finding is a finding with a date on it, not a finding you can
+defer** (added v1.5, chief's instruction). The `-postProcess` over-fire in the
+row above was filed as *latent — harmless today* because the script carrying it
+had no echo. It became live the same night, in the very pass that re-pointed
+that script at the shared runner: the thing that made it harmless was the
+thing the fix removed. The rule this family takes from it: when a finding is
+graded latent, write down **what specifically is holding it latent**, because
+that condition is a dependency, and the next change to the surrounding code is
+as likely to remove it as to preserve it. "Not exploitable yet" and "not a
+defect" are different verdicts.
 
 ### 3.4. Claims integrity: no affected record exists
 
@@ -543,6 +584,115 @@ That is L-45's asymmetry applied to a migration instead of to a gate. Suite
 **Reported as drift, not edited** (other families' campaign scripts, chief is
 routing them): `W1_runs/run_rung.py:39`, `W1_runs/build_case.py:29`,
 `F5_runs/cylinder_ladder.py:465`.
+
+### 5.1. Worked example: a fix that creates the artifact a check tests for disables the check
+
+Recorded by chief's order, because the near-miss is more instructive than the
+fix. **This is a general rule, not a story about logs.**
+
+While routing the detached solve paths through the canonical emitter, the
+first design pre-seeded the run log from Python — write the echo, then let the
+shell append the solver's output. It worked, the suite passed, and it was
+wrong. The callers decide whether a detached launch actually happened with:
+
+```python
+time.sleep(3)
+if not log_path.exists():
+    raise RuntimeError(f"{level.name}: detached solve failed to launch")
+```
+
+That check works because, before the fix, **only the launched shell could
+create that file**. Pre-seeding it from Python would have made `exists()` true
+whether or not the shell ever ran — so a solve that failed to launch at all
+would have been reported as launched, and the failure would surface hours
+later as a run that produced nothing. Nothing would have failed at the time.
+No test would have gone red. The check would simply have stopped meaning
+anything.
+
+The general form, worth applying anywhere:
+
+> **When a fix creates, touches, or guarantees an artifact, find every check
+> that tests for that artifact's existence — those checks just got weaker, and
+> the weakening is invisible because everything still passes.**
+
+The corrected design has the emitter create the log, so the check still tests
+what it always tested. The property is now pinned by a test
+(`test_the_log_is_created_by_the_shell_not_by_python`) and restated as a
+contract in `_supersede_log`'s docstring, because it is one edit away from
+being lost by someone who reasonably thinks it does not matter.
+
+The uncomfortable part is worth stating plainly: this was the fix for a class
+of defect nearly reintroducing that class, inside the pass that exists to
+close it. Familiarity with a failure mode is not immunity to it.
+
+## 6. L-42 enforced: the evidence now survives the next run (2026-08-10, night)
+
+Chosen under the standing directive as the highest-value item this document
+identified, approved by the chief, and priced at **zero core-minutes** — no
+solve; the suite is the test. Suite **1239 passed, 0 failed, 167 subtests**.
+
+**Why this and not something else.** Three passes made hash-bound lever
+evidence exist; none made it survive a rerun. Every launch path in family code
+destroyed the prior log — `_foam` opened it `"w"`, the three detached paths
+`unlink`ed it — so the record's mechanical `levers_verified_active` basis died
+with the log the moment anyone reran the case. The value of the L-40/L-45 work
+was therefore capped by a defect in the same machinery, and the fix costs no
+compute at all.
+
+**Exposure at the time of the fix, measured not assumed:** 90 committed solver
+logs sit in reusable case directories, **9 of them already carrying LEVER-ECHO
+blocks**; 111 `study-b52-*` case directories were reusable, with a closure arm
+live in that tree. `scripts/launch_solve.sh` was the sole surviving path, and
+only because its registry logs are UTC-stamped and never collide.
+
+**The fix.** `tmr_verification._supersede_log()`, called by the shared runner
+and by all three detached paths. It renames an existing non-empty log to
+`superseded_<UTC stamp>_log.<name>`, adds a counter on a same-second
+collision, removes a zero-byte log rather than archiving it, and never raises
+— a lost archive costs one run's evidence, a refused launch costs the run.
+**Its contract is that the live name is free on return**, for the reason in
+5.1. The live *name* is never renamed out from under a running solve: the
+archive happens at the start of a new run in that directory, before anything
+opens the log.
+
+**Why the stamp is a PREFIX, which is 5.1 applied in the other direction.**
+The readable name is `log.simpleFoam.superseded_<stamp>`, and it would have
+been a defect. This fix CREATES artifacts, so every check that READS those
+artifacts had to be re-examined: five places in the repo select a case's run
+log by globbing `log.*`, `log.*Foam` or `log.simpleFoam*`, and one of them
+(`sdk/scripts/replay_s12_unsettled_stop.py:114`) picks the **largest** match —
+so an archive larger than the live log would have been silently classified as
+the run, turning an evidence-preservation fix into an evidence-confusion bug.
+The prefix form matches none of the five patterns, and a test asserts that
+against all four glob shapes so a future tidy-up cannot move it back. Where
+5.1 says *a fix that creates an artifact weakens the checks that test for it*,
+this is the same rule reaching the consumers rather than the guard.
+
+**The known casualty, repaired as ordered and not reconstructed.**
+`MODEL_FORM_runs/H_re10595_realizableKE/record.json` gains a dated
+`evidence_amendment` and **no existing value is touched** (verified
+key-by-key: zero pre-existing keys changed, one added). It states the facts
+established from the artifacts: the governing record describes a
+30,000-iteration run written 2026-08-08T03:46:17Z; the surviving
+`log.simpleFoam.gz` ends at `Time = 12000` and was written
+2026-08-08T23:52:59Z, belonging to a later rerun whose own honest record is
+preserved beside it. Nothing was falsified and no number is withdrawn — the
+30,000-iteration fields survive under `30000/`. What is lost is the 03:46
+run's runtime log and every claim only a log can settle, and it is lost
+**unreconstructibly, not merely unsupported**: the launcher echo did not exist
+until 22:59 that night, nineteen hours after the run. The amendment says the
+cell's standing is unchanged (excluded, same two reasons) so that the two
+runs' agreement is never mistaken for verification.
+
+**Ten tests** (`SupersededLogTests`), content-first: the archived log's bytes
+are still readable; the stamp matches the launcher's convention; the live name
+is free afterwards for both non-empty and empty inputs; empty logs are not
+archived as evidence; three same-second reruns produce three distinct
+archives; the shared runner archives before overwriting; and — the one that
+names the point of the whole pass — **a first run's hash-bound echo survives a
+second run that changes the levers**, with the archive parsing to the original
+hashes and the new log to different ones. Verified against the
+destroy-in-place behaviour: the two end-to-end cases fail there.
 
 ## Related
 

@@ -51,6 +51,7 @@ import subprocess
 import textwrap
 import time
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
@@ -923,6 +924,9 @@ def _foam(args: list[str], cwd: Path, log_name: str,
     """
     command = [*_run_prefix(), *args]
     log_path = Path(cwd) / log_name
+    # L-42: a rerun into an existing case directory must not destroy the prior
+    # run's log. `open("w")` below truncates, so the archive happens first.
+    _supersede_log(log_path)
     with log_path.open("w") as log_file:
         # Lever echo at t=0 for SOLVER launches (Verification Charter v1.5
         # section 9, adopted 2026-08-08): the four lever classes stock
@@ -949,6 +953,67 @@ def _foam(args: list[str], cwd: Path, log_name: str,
         return subprocess.run(command, stdout=log_file,
                               stderr=subprocess.STDOUT, cwd=str(cwd),
                               timeout=timeout)
+
+
+def _supersede_log(log_path: Path) -> Path | None:
+    """Move an existing run log aside before a new run would destroy it.
+
+    L-42, enforced 2026-08-10. A rerun into an existing case directory used to
+    overwrite the prior run's log in place -- `_foam` opened it ``"w"`` and the
+    detached paths ``unlink``ed it -- so the earlier run's activity evidence
+    stopped existing anywhere. The measured casualty is
+    `MODEL_FORM_runs/H_re10595_realizableKE`, whose governing record states
+    30,000 iterations beside a log that ends at 12,000: the 03:46 run's fields
+    survive under `30000/`, its LOG was destroyed by a 23:52 rerun, and no
+    conclusion resting on it can ever be re-verified. Nothing was falsified;
+    both records were honest about their own run. The record survived only
+    because the two runs happened to agree, which L-42 calls a coin landing
+    the right way rather than a defense.
+
+    The naming follows `scripts/launch_solve.sh`, which is the only launch
+    path that already survives this -- its logs carry a UTC stamp and so never
+    collide. That was an accident of its registry design; here it is
+    deliberate, and it is the same supersede-don't-delete convention the
+    records themselves use (L-39).
+
+    **On return, ``log_path`` does not exist.** That is load-bearing: the
+    detached callers test ``if not log_path.exists(): raise`` to decide
+    whether the launch happened, so leaving an empty file behind would
+    silently disable their launch check -- the failure mode section 5 of the
+    family guidelines records as a worked example. An empty log carries no
+    evidence, so it is removed rather than archived.
+
+    Returns the archive path, or None when there was nothing worth keeping.
+    """
+    log_path = Path(log_path)
+    try:
+        if not log_path.is_file():
+            return None
+        if log_path.stat().st_size == 0:
+            log_path.unlink()
+            return None
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        # The stamp goes in FRONT of the name, not after it. `log.simpleFoam
+        # .superseded_<stamp>` would read better and would be a bug: five
+        # places in this repo select a case's run log by globbing `log.*`,
+        # `log.*Foam` or `log.simpleFoam*`, and one of them
+        # (`replay_s12_unsettled_stop.py`) picks the LARGEST match -- so an
+        # archive bigger than the live log would silently be classified as
+        # the run. This fix creates artifacts, so every check that reads
+        # those artifacts had to be re-examined; the prefix form matches none
+        # of the five patterns, and a test pins that.
+        dest = log_path.with_name(f"superseded_{stamp}_{log_path.name}")
+        n = 1
+        while dest.exists():          # two runs inside one second
+            dest = log_path.with_name(
+                f"superseded_{stamp}_{n}_{log_path.name}")
+            n += 1
+        log_path.rename(dest)
+        return dest
+    except OSError:
+        # Never block a launch on its own bookkeeping. A lost archive costs
+        # one run's evidence; a refused launch costs the run.
+        return None
 
 
 #: The canonical lever-echo emitter, the same one `scripts/launch_solve.sh`
@@ -1355,7 +1420,10 @@ def launch_level_solver(level: GridLevel, case_root: Path, out_dir: Path,
     exit_file = remote_dir / "solve.exit"
     exit_file.unlink(missing_ok=True)
     log_path = remote_dir / "log.simpleFoam"
-    log_path.unlink(missing_ok=True)
+    # L-42: preserve the prior run's log instead of deleting it. The
+    # path is clear on return, so the launch check below still tests
+    # whether the shell ran.
+    _supersede_log(log_path)
     # A new session so the solver outlives this call, and this process too if
     # the caller polls from a later invocation; the exit code is written to
     # solve.exit since nothing stays around to capture a return value.
@@ -1476,7 +1544,10 @@ def launch_level_solver_parallel(level: GridLevel, case_root: Path,
     exit_file = remote_dir / "solve.exit"
     exit_file.unlink(missing_ok=True)
     log_path = remote_dir / "log.simpleFoam"
-    log_path.unlink(missing_ok=True)
+    # L-42: preserve the prior run's log instead of deleting it. The
+    # path is clear on return, so the launch check below still tests
+    # whether the shell ran.
+    _supersede_log(log_path)
     command = [*_run_prefix(), "mpirun", "-np", str(ranks), "simpleFoam",
               "-parallel"]
     wrapper = _detached_solve_wrapper(command, "log.simpleFoam")
@@ -3231,7 +3302,10 @@ def run_naca_level(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
         exit_file = remote_dir / "solve.exit"
         exit_file.unlink(missing_ok=True)
         log_path = remote_dir / "log.simpleFoam"
-        log_path.unlink(missing_ok=True)
+        # L-42: preserve the prior run's log instead of deleting it.
+        # The path is clear on return, so the launch check below
+        # still tests whether the shell ran.
+        _supersede_log(log_path)
         command = [*_run_prefix(), "simpleFoam"]
         wrapper = _detached_solve_wrapper(command, "log.simpleFoam")
         subprocess.Popen(["bash", "-c", wrapper], cwd=str(remote_dir),

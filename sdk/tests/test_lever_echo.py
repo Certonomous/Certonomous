@@ -384,6 +384,126 @@ class DetachedSolveWrapperTests(unittest.TestCase):
                         f"the emitter is missing at {tv._LEVER_ECHO_EMIT}")
 
 
+class SupersededLogTests(unittest.TestCase):
+    """L-42: a rerun into an existing case directory must not destroy the
+    prior run's log.
+
+    WHY THIS TEST EXISTS. `MODEL_FORM_runs/H_re10595_realizableKE`'s governing
+    record states 30,000 iterations beside a log that ends at 12,000. Nothing
+    was falsified -- a later rerun overwrote the log in place and both records
+    were honest about their own run -- but the earlier run's activity evidence
+    stopped existing anywhere, so no conclusion resting on it can ever be
+    re-verified. It survived only because the two runs agreed, which is a coin
+    landing the right way rather than a defense. Every launch path in this
+    module truncated or unlinked, so the whole family had the defect.
+    """
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="lever-supersede-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.case = _fixture_case(self.tmp)
+        self.log = self.case / "log.simpleFoam"
+
+    def test_an_existing_log_is_preserved_with_its_content(self):
+        self.log.write_text("Time = 30000\nEnd\n")
+        archive = tv._supersede_log(self.log)
+        self.assertIsNotNone(archive, "the prior log was not archived")
+        # Content, not merely existence: the evidence must still be readable.
+        self.assertEqual(archive.read_text(), "Time = 30000\nEnd\n")
+        self.assertTrue(archive.name.startswith("superseded_"))
+        self.assertTrue(archive.name.endswith("log.simpleFoam"))
+
+    def test_the_archive_name_follows_the_launcher_utc_stamp_convention(self):
+        self.log.write_text("x\n")
+        archive = tv._supersede_log(self.log)
+        stamp = archive.name[len("superseded_"):-len("_log.simpleFoam")]
+        # Same shape launch_solve.sh stamps its registry logs with: the one
+        # launch path that already survived L-42, by accident.
+        self.assertRegex(stamp, r"^\d{8}T\d{6}Z(_\d+)?$")
+
+    def test_the_live_name_is_free_afterwards(self):
+        """THE property that keeps the callers' launch check meaningful: the
+        detached paths test `if not log_path.exists(): raise` to decide
+        whether the shell ran. If this left anything at the live name, that
+        check would pass whether or not the launch happened -- a fix that
+        creates the artifact a check tests for disables the check."""
+        for content in ("Time = 1\n", ""):
+            with self.subTest(content=repr(content)):
+                self.log.write_text(content)
+                tv._supersede_log(self.log)
+                self.assertFalse(self.log.exists())
+
+    def test_the_archive_is_invisible_to_every_log_glob_in_the_repo(self):
+        """This fix CREATES artifacts, so every check that reads those
+        artifacts got re-examined (guidelines 5.1, in the other direction).
+
+        Five places select a case's run log by glob. One of them,
+        `sdk/scripts/replay_s12_unsettled_stop.py`, takes the LARGEST match --
+        so an archive named `log.simpleFoam.superseded_<stamp>` that happened
+        to be bigger than the live log would have been classified AS the run.
+        The stamp therefore goes in front of the name, and this test is what
+        stops a future tidy-up from moving it back.
+        """
+        import fnmatch
+        self.log.write_text("Time = 1\n")
+        name = tv._supersede_log(self.log).name
+        for pattern in ("log.*", "log.*Foam", "log.simpleFoam*", "*.log"):
+            with self.subTest(pattern=pattern):
+                self.assertFalse(
+                    fnmatch.fnmatch(name, pattern),
+                    f"archive {name!r} is picked up by a consumer globbing "
+                    f"{pattern!r}, which selects run logs")
+
+    def test_an_empty_log_is_not_archived_as_evidence(self):
+        self.log.write_text("")
+        self.assertIsNone(tv._supersede_log(self.log))
+        self.assertEqual(list(self.case.glob("*superseded*")), [])
+
+    def test_a_missing_log_is_not_an_error(self):
+        self.assertIsNone(tv._supersede_log(self.log))
+
+    def test_two_reruns_in_one_second_do_not_collide(self):
+        first_names = set()
+        for i in range(3):
+            self.log.write_text(f"run {i}\n")
+            first_names.add(tv._supersede_log(self.log).name)
+        self.assertEqual(len(first_names), 3,
+                         "a same-second rerun overwrote an earlier archive")
+        self.assertEqual(len(list(self.case.glob("superseded_*"))), 3)
+
+    def test_the_shared_runner_archives_before_it_overwrites(self):
+        """End to end through `_foam`, which opens the log 'w'."""
+        self.log.write_text("Time = 30000\nthe prior run's evidence\n")
+        with mock.patch.object(tv, "_run_prefix", return_value=["echo"]):
+            tv._foam(["simpleFoam"], self.case, "log.simpleFoam")
+        archives = list(self.case.glob("superseded_*_log.simpleFoam"))
+        self.assertEqual(len(archives), 1)
+        self.assertIn("the prior run's evidence", archives[0].read_text())
+        # And the new run's log is a real new log, echo and all.
+        new_text = self.log.read_text()
+        self.assertIn("system/fvSchemes", lever_echo.parse_echo(new_text))
+        self.assertNotIn("the prior run's evidence", new_text)
+
+    def test_a_superseded_echo_survives_and_stays_parseable(self):
+        """The evidence this whole campaign exists to create is exactly what a
+        rerun used to destroy: a hash-bound echo block."""
+        with mock.patch.object(tv, "_run_prefix", return_value=["echo"]):
+            tv._foam(["simpleFoam"], self.case, "log.simpleFoam")
+            first = lever_echo.parse_echo(self.log.read_text())
+            (self.case / "system" / "fvSchemes").write_text(
+                "divSchemes { div(phi,U) Gauss upwind; }\n")
+            tv._foam(["simpleFoam"], self.case, "log.simpleFoam")
+        archives = list(self.case.glob("superseded_*_log.simpleFoam"))
+        self.assertEqual(len(archives), 1)
+        preserved = lever_echo.parse_echo(archives[0].read_text())
+        self.assertEqual(preserved, first,
+                         "the first run's hash-bound levers did not survive")
+        self.assertNotEqual(
+            lever_echo.parse_echo(self.log.read_text())["system/fvSchemes"],
+            first["system/fvSchemes"],
+            "the second run should record its own, different levers")
+
+
 class LaunchSolveEchoTests(unittest.TestCase):
     """The launcher end-to-end: `scripts/launch_solve.sh` must emit the block
     from the launched process's own working directory."""

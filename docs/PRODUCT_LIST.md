@@ -923,6 +923,35 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   diagnosis never indicted dropped fill, so a convergence there would be knob-luck, and the chief's ground rule
   forbids dressing that as the proof. Approved separately as engineering, kept out of the proof.
 
+### 2026-08-10 (night, latest) — three passes made the evidence exist; this one makes it survive the next run
+
+- **L-42 ENFORCED, 0 core-minutes.** Every launch path in the shared runner destroyed the prior run's log — `_foam`
+  opened it `"w"`, the three detached paths `unlink`ed it — so a rerun into an existing case took the record's
+  mechanical `levers_verified_active` basis with it. `_supersede_log()` now archives an existing non-empty log under a
+  UTC-stamped name before anything writes, following `launch_solve.sh`'s convention, which was the lab's only
+  L-42-surviving path and survived it by accident of its registry naming. Exposure measured, not assumed: **90
+  committed solver logs in reusable case dirs, 9 already carrying echo blocks, 111 reusable `study-b52-*` dirs with a
+  closure arm live in them.** Suite 1239/0.
+- **THE CASUALTY IS AMENDED, NOT RECONSTRUCTED.** `H_re10595_realizableKE/record.json` gains a dated
+  `evidence_amendment` with **zero pre-existing keys changed** (verified key-by-key). The facts, from the artifacts:
+  the record describes a 30,000-iteration run written 03:46:17Z; the surviving log ends at `Time = 12000` and was
+  written 23:52:59Z by a later rerun whose own honest record sits beside it. **Nothing was falsified and no number is
+  withdrawn** — the 30,000-iteration fields survive under `30000/`. What is gone is that run's log and everything only
+  a log can settle, and it is gone **unreconstructibly, not merely unsupported**: the launcher echo did not exist
+  until 22:59 that night, nineteen hours later. The amendment exists so the two runs' agreement is never mistaken for
+  verification.
+- **THE FIX NEARLY BECAME THE BUG, TWICE, IN OPPOSITE DIRECTIONS — both now written into the guidelines as rules.**
+  (1) The first design pre-seeded the log from Python, which would have made the callers' `if not log_path.exists():
+  raise` launch check pass whether or not the shell ever ran: **a fix that creates the artifact a check tests for
+  disables the check, invisibly, with everything still green.** (2) The readable archive name
+  `log.simpleFoam.superseded_<stamp>` would have been caught by five log globs in the repo, one of which picks the
+  LARGEST match — an archive bigger than the live log would have been classified as the run. The stamp is a prefix,
+  and a test pins it against all four glob shapes. Same rule, once at the guard and once at the consumers.
+- **A "LATENT" FINDING IS A FINDING WITH A DATE ON IT.** Recorded in the guidelines at the chief's instruction, on the
+  `-postProcess` over-fire that went live the same night in the very pass that re-pointed the script carrying it: when
+  a finding is graded latent, write down **what specifically is holding it latent**, because that condition is a
+  dependency and the next change is as likely to remove it as to preserve it.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

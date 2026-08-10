@@ -4,6 +4,16 @@
   "converged": false,
   "core_min": 29.177,
   "crossings_x_over_h": [],
+  "evidence_amendment": {
+    "date": "2026-08-10",
+    "finding": "The primary log this record rested on NO LONGER EXISTS. This record describes a 30,000-iteration run written at 2026-08-08T03:46:17Z. The log.simpleFoam.gz sitting beside it ends at Time = 12000 and was written at 2026-08-08T23:52:59Z: it belongs to a later FPE-rescue rerun that executed in the SAME case directory and overwrote the earlier log in place. That rerun's own record is preserved here as record_out_of_scope_20260808T235259Z.json and is honest about its own 12,000 iterations.",
+    "lesson": "LESSONS.md L-42",
+    "recurrence_closed": "sdk/workflows/tmr_verification.py:_supersede_log, 2026-08-10 -- every launch path in the shared runner now archives an existing log under a UTC-stamped superseded name before a new run writes, so this class of loss cannot recur through that machinery.",
+    "standing_of_this_cell": "Unchanged: excluded, for the two reasons already listed in excluded_reasons. This amendment adds no reconstruction and revises no value; it states what can no longer be checked.",
+    "what_IS_lost": "The 03:46 run's RUNTIME LOG, and with it every claim about that run that only a log can settle: solver banners, residual history, the reason it stopped, and any L-40 lever-activity evidence. This record carries no levers_verified_active and now never can: the launcher echo did not exist until 2026-08-08T22:59Z, nineteen hours after this run, and the log that would have carried the other evidence is gone. THIS IS UNRECONSTRUCTIBLE, NOT MERELY UNSUPPORTED.",
+    "what_is_NOT_in_question": "Nothing here was falsified and no number in this record is withdrawn. Both runs were honest about themselves. The 30,000-iteration fields survive on disk under 30000/, so the run reached the iteration count this record states.",
+    "why_it_was_not_caught": "The record survived only because both runs excluded this cell for the same two reasons, so the membership verdict is unchanged. L-42 calls that a coin landing the right way rather than a defense, and this amendment exists so the agreement is not mistaken for verification."
+  },
   "excluded_reasons": [
     "residualControl not met (stopped on the backstop)",
     "no steady bubble: 0 skin-friction sign changes (a steady separation bubble has exactly 2, separation first)"
