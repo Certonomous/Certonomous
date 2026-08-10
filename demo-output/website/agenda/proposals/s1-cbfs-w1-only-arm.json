@@ -14,6 +14,8 @@
   "The supervisor negative-verdict review, 2026-08-07",
   "The capability strategy"
  ],
+ "hard_criterion": "existing-family",
+ "hard_criterion_note": "hard_criterion supplied by chief ruling 2026-08-10, reasoning in body: this arm extends the S1 CBFS family whose parent item (s1-cbfs-objective-repair-and-reinversion) carries existing-family on the docket today. The hardness question for a continuation of an already-admitted family is answered by the family's own admission. Supplied by the chief, not defaulted by the reader: the filer left the field empty and the intake rail is correct that a filer's silence must not be auto-answered.",
  "status": "proposed",
  "created_at": "2026-08-08T23:15:00Z",
  "decision_note": "NO-GO FOR NOW by chief ruling at entry-12 close (commit 7b758783): approved in principle with a NAMED TRIGGER -- the S1-with-priors design phase (CAPABILITY_STRATEGY section 3), which must decide loss support anyway and consumes this arm's sharpened question (loss-support vs metric-support accounting, quantified at 42.7/37.0) as a design input. Do not claim, price, or launch before that phase opens; the regularization-provenance table in S1_CBFS_WEIGHTED_ARM_RESULT.md is the bridge document."

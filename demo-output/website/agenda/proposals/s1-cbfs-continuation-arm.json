@@ -14,6 +14,8 @@
   "The S1 CBFS weighted-loss variant record, ladder B",
   "The S1 CBFS reinversion result record, ladder B"
  ],
+ "hard_criterion": "existing-family",
+ "hard_criterion_note": "hard_criterion supplied by chief ruling 2026-08-10, reasoning in body: this arm extends the S1 CBFS family whose parent item (s1-cbfs-objective-repair-and-reinversion) carries existing-family on the docket today. The hardness question for a continuation of an already-admitted family is answered by the family's own admission. Supplied by the chief, not defaulted by the reader: the filer left the field empty and the intake rail is correct that a filer's silence must not be auto-answered.",
  "status": "proposed",
  "created_at": "2026-08-08T03:00:00Z",
  "decision_note": "PERMANENTLY DEPRIORITIZED below s1-cbfs-weighted-reinversion-arm by chief ruling d1b2c117 (entry-12 outcome, ruling 4): capturability answered the question this arm was priced to answer. Filed for the record, not for execution."

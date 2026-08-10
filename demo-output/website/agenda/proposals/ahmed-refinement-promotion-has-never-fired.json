@@ -1,0 +1,21 @@
+{
+ "id": "ahmed-refinement-promotion-has-never-fired",
+ "objective": "Fire the Ahmed refinement promotion once above its Reynolds threshold and measure the y+ it produces, so the mega-batch mesh lever that no archived run has ever exercised stops resting on its own documentation",
+ "rationale": "The batch dead-lever sweep of 2026-08-10 found the promotion lever wired and correct in source (the refinement selector is called on every ahmed viscous run and its result is passed straight to the case builder), yet exercised by zero archived runs. The fix landed at 18:25 on 2026-07-29; the last of the 52 archived ahmed viscous ledger rows is 11:16 the same day, seven hours earlier. All 52 rows carry the unpromoted refinement cell count, including the 28 whose Reynolds sits above the 2.8e6 promotion threshold, which is correct pre-fix behaviour and proves only that the promotion was not yet in force. The per-row refinement stamp that the y+ fix record promises for auditability appears on none of the 52 rows, because no post-fix ahmed row exists anywhere in the archive. The four verification points the fix record reports (indices 1715, 419, 3215 and 239) left no surviving case directory and no ledger row, so its load-bearing measurement, a y+ average of 463.89 at the promoted refinement, cannot be checked against any archived log. This is the set-but-never-ran class one step short of dead: nothing shows the lever broken, and nothing shows it firing. One run above the threshold settles it.",
+ "gate": "Pre-registered before the first run, scored on three readings taken from the run's own artifacts: (1) the row's refinement stamp reads the promoted value rather than absent or unpromoted; (2) the mesh cell count rises above the unpromoted count by roughly the expected factor; (3) the y+ average lands inside the 30 to 500 band. All three agreeing reproduces the fix record's high point and closes the lever. Any one disagreeing reopens the y+ fix conclusion and is reported loudly rather than retried. A matched below-threshold control runs in the same session and must stay unpromoted, which is the positive control that proves the reading instrument can tell the two states apart.",
+ "est_core_min": 4.0,
+ "cost_basis": "measured: the 52 archived ahmed viscous batch rows ran a median 34.6 seconds of wall each at the unpromoted refinement, of which 27.2 seconds was the solver and 5.9 the mesher; the promoted refinement raises the cell count by a factor of about 1.74, so two promoted runs plus two unpromoted controls price at roughly 3.2 minutes of wall, rounded up to 4 core minutes",
+ "expected_knowledge_gain": "Either the refinement promotion is proven to fire with its own runtime artifacts, and the y+ fix conclusion gains the log evidence its record has never had, or the promotion does not fire and a conclusion standing since 2026-07-29 is wrong in a way no archived run could have revealed. Either way the mega-batch family gains its first post-fix ahmed row and the auditability stamp stops being a promise",
+ "source_kind": "gate",
+ "hard_criterion": "instrument-check",
+ "citations": [
+  "The batch family dead-lever audit of 2026-08-10, finding U-3",
+  "The mega-batch y+ fix record, its before-and-after verification table and its per-row auditability claim",
+  "The mega-batch fleet ledger, the 52 archived ahmed viscous rows and their timestamps",
+  "The lesson that an audit's null is a claim about its reach before it is a claim about the world"
+ ],
+ "launch_prompt": "Ahmed refinement promotion check. Read finding U-3 of the batch dead-lever audit and the gate of this proposal first. Pre-registration before the first run. Run the ahmed viscous batch at one index whose Reynolds sits above the 2.8e6 threshold and one below it, on the current code. Score the three pre-registered readings from the run's own artifacts plus the below-threshold control, and report the verdict without retrying a disagreement. Zero conclusions are rewritten by this run; a disagreement goes to the chief.",
+ "status": "proposed",
+ "created_at": "2026-08-10T00:00:00Z",
+ "decision_note": "Filed by chief ruling 4 of 2026-08-10, on the batch dead-lever sweep's finding U-3: file, do not fix. Priced from the nearest measured ahmed basis rather than estimated."
+}
