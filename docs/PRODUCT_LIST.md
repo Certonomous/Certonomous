@@ -2066,6 +2066,34 @@ clock-audit rule asks for.]*
   owner.** My reversal changed what is true and I did not sweep the statements describing the old rule; that is the
   same fix-the-copy-not-the-class defect I committed with the dates, twice in one night.
 
+### 2026-08-10 (night) — S6 fires on production for the first time, and every prediction hit exactly
+
+- **WIRED AND FIRING** (pre-reg `ab0c8d76`, wiring `1471b8f3`, suite 1294, 0 core-min). Both conditions were
+  implemented as **mechanisms rather than policies**, which is why they hold.
+- **Condition 1:** the gate reads the staged case's OWN `fvSolution`, from the single place every case passes
+  through — **not a constructor argument**, because *"a parameter the caller must remember is the exact defect being
+  closed, one layer up: whoever forgets it gets silence rather than an error."*
+- **Condition 2 is the elegant one — a STRUCTURAL discriminator, not a threshold.** A residual target at or below
+  that field's own linear-solver tolerance **cannot be reached**, since the outer residual cannot go below what the
+  inner solve resolves. Both numbers come from the same file, so **the exclusion is a relation the case states about
+  itself and no magic constant appears anywhere.** It separates the corpus exactly: **135 of 135 sentinels captured,
+  zero false in either direction.** The motivating case says it in its own text — a real target commented out and
+  replaced with an unreachable one to force a run to its cap — which also forced a comment-stripping parser, since a
+  naive one would have read the DEAD value.
+- **Condition 3: pre-registered SEPARATELY, before any wiring code existed**, so the ordering is provable rather than
+  asserted — then **scored by replaying the SHIPPED helpers**, not the script they were designed with. *"A rule
+  validated in one form and shipped in another is the failure this campaign kept meeting."*
+- **Every prediction hit exactly:** 81 gated logs predicted, 81 measured; 35 fires at 43% predicted, 35 at 43%
+  measured; 135 sentinels excluded, 135; the family spread 48% / 92% / 20% predicted and measured. **The spread
+  surviving wiring intact is the real check** — a uniform rate would have meant the recovery logic was not seeing
+  what the replay saw. Fail-open count stated rather than folded in: 6 logs declaring no tolerance are not gated,
+  because reachability cannot be established and so is not asserted.
+- **The generalisation is now placed where a rule-AUTHOR meets it, not only an auditor** — immediately before the
+  adoption gate: a replay must state how its corpus was selected, **whether that selection is a derivation or a
+  list**, what it could not see, and what fraction of the plausible universe it covers. With the cost recorded
+  beneath it: six rules adopted against 28% of the evidence, and the number that looked like a fire rate was one
+  family measured against a target no solve can reach.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
