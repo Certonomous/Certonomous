@@ -1485,7 +1485,15 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   independent routes** reading what the execution itself wrote; **route (a) returned nothing on all three**, and a
   null from one instrument is not an absence, so route (b) carried it — with a planted mismatch caught by both.
   Reach stated: the other 143 records carry no cost fields at all, so no mis-priced figure can exist from them.
-- **CORRECTION TO THIS MORNING'S HEADLINE — "exactly ONE born-broken mesh" is SUPERSEDED.** The minting pass refused
+- **[PRECISION CORRECTED, same night, by the executing agent: the claim below is stated at its ACTUAL strength.
+  What is established is that SEVEN CITED LOGS CONTRADICT THEIR ROWS — not that seven meshes are born broken.**
+  `checkMesh` was never re-run on those meshes; the rows were refused at the verdict gate before the cell-count
+  cross-check could run. If a cited log is stale or describes a superseded state of its mesh, the row could still be
+  right and the log wrong — a different finding, and still one its owner needs. The audit's `BORN BROKEN: 1` was a
+  statement about the set it re-parsed itself, sitting beside 105 pre-existing records it took on trust; what moves
+  is the coverage that headline implied, not a verified count of broken meshes. The chief propagated the stronger
+  version verbally and it is corrected here.]**
+- **CORRECTION TO THIS MORNING'S HEADLINE — the coverage behind "exactly ONE born-broken mesh" is SUPERSEDED.** The minting pass refused
   10 of 105 rows, and **7 of those are a discrepancy in the audit itself**: each is marked CERTIFIED while **the log
   it cites parses to HARD ERRORS under the audit's own verdict rule** — three `rae2822-meshcheck` meshes with
   NEGATIVE-VOLUME CELLS, and `tmr-bump-finer` at aspect ratio **2.23e6**, above the pyHyp threshold and far above the
@@ -1509,6 +1517,10 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   that family owns; **29 tracked scripts carry a shebang and no exec bit**, reported rather than mass-changed.
 - Seventh self-audit instance: the agent's own reach check had a fallback that made an ABSENT line read as a value,
   inflating its first count — caught by refusing to accept a surprising number.
+- Closing figures corrected by the agent against the chief's summary: **eleven commits, not six**, and its family
+  guidelines ran **v1.0 → v1.12, not v1.1 → v1.9**. Suite 1210 → 1261 / 0 failed stands. The self-audit count is
+  **seven instances**, and the agent's closing note is the one to keep: *not one was found by suspecting myself in
+  the abstract — every one came from running the check that would fail if the work were wrong.*
 
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
