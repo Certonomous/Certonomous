@@ -1905,6 +1905,30 @@ clock-audit rule asks for.]*
   then specified those names. The files are not renamed (five committed reports reference them); **the correction is
   recorded here and on the ladder's face: everything named `2026-08-11` was created on 2026-08-10.**
 
+### 2026-08-10 (night) — V14 finds the shipping archive carries the struck sentence, and the surface our own grep cannot see
+
+- **THE RUNG JUSTIFIED ITSELF ON ITS FIRST RUN** (d358fd96). Mechanical discovery over 48,654 files / 15 GB, six
+  frames each with its own positive control, reduced from **227 claim-carrying lines to 11 stale surfaces**.
+- **Rank 1: the TRACKED, SHIPPING archive** carries a round-4 score as "entry of record" in its hero, a round-3 KPI,
+  a stale scoring-call count — **and lines 254–256 carry the struck prior-art sentence VERBATIM**, crediting two
+  groups with a mechanism they never reported, to a readership including two of the benchmark's own authors.
+- **Rank 2 is the finding no list could ever have produced:** an untracked, **gitignored** `dist/` directory with
+  identical defects — *"the surface this lab's grep wrapper structurally cannot see."* A hand-maintained sweep cannot
+  contain what the tooling is configured to hide.
+- **Rank 3 is KATIE'S OWN SCRIPT.** `LAPTOP_SHOOT.md`'s spoken 60-second track says the round-4 number **"is our
+  entry of record"** and carries the withdrawn best-on-board phrasing. Public-facing by design. **Hers to correct;
+  surfaced, not edited.**
+- **The structural insight that makes the fix cheap:** ranks 1, 2 and 5 are **built artifacts whose sources are
+  already correct** — the bundle script copies pages that are all current, so **a plain rebuild fixes them with no
+  hand-editing.** Same failure mode as the self-audit guard pinned to round 3: **a derived surface outliving its
+  source.** That guard is re-confirmed fixed.
+- **The STALE/HISTORICAL judgement held**, which is the rung's real difficulty: the frozen pre-registrations, the
+  round-2/3/4 artifacts, and five status sections are **HISTORICAL and must not be touched**, and one apparent hit
+  is a different physical quantity entirely.
+- **The largest hole, named by the rung itself: a stale claim carrying NO NUMBER at all** — *"we lead the board"* —
+  catchable only where it happened to sit beside a literal. A number-search cannot find a claim without a number,
+  and that is the natural brief for a follow-on rung.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
