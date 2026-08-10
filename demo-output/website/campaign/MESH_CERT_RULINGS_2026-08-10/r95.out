@@ -1,0 +1,12 @@
+retrospective certificates: 95
+  10/95  9s
+  20/95  47s
+  30/95  81s
+  40/95  97s
+  50/95  112s
+  60/95  122s
+  70/95  130s
+  80/95  156s
+  90/95  200s
+
+AGREE 95 | DRIFT 0 | checkMesh-did-not-run 0 | hash-mismatch 0 | 3.49 core-min

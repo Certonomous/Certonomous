@@ -125,3 +125,75 @@ per mesh on this evidence, ≈7 core-min for all 95. **Flagged, not proposed.**
 
 All seven fresh `checkMesh` logs are archived under `recheck_logs/`, and the
 three minted certificates beside them. No mesh, case, or audit row was modified.
+
+---
+
+# ADDENDUM, 2026-08-10 — the 95 fresh re-checks (chief-approved, ~7 core-min)
+
+## Frame, first
+
+**Every retrospectively-minted certificate on this box — all 95 — re-checked by
+re-running `checkMesh` on its mesh and comparing the fresh parse against the
+certificate.** Not the meshes without certificates; not the ~73 audit rows
+outside the 105; not any mesh off this box.
+
+## Result
+
+> **AGREE 95 · DRIFT 0 · checkMesh-did-not-run 0 · points-hash mismatch 0.**
+> **3.49 core-min against ~7 approved.**
+
+**The six carrying the log-older-than-points ordering flag were run FIRST**, as
+ordered, because they were the subset where staleness could hide:
+
+| mesh | certificate | fresh | |
+| --- | --- | --- | --- |
+| `.mesh-cache/b52` | clean, 193 880, AR 6.5204 | clean, 193 880, AR 6.5204 | no drift |
+| `.mesh-cache/motorBike` | clean, 353 688, AR 41.0967 | clean, 353 688, AR 41.0967 | no drift |
+| `W4-defect-reach/a35_np1` | clean, 2 777 | clean, 2 777 | no drift |
+| `W4-defect-robustness/a4conf_np4scotch` | clean, 2 336 | clean, 2 336 | no drift |
+| `W5-regrade/a4_stock` | clean, 2 777 | clean, 2 777 | no drift |
+| `r2-plate-uq/_probe` | flagged, 13 056, AR 66 642.5 | flagged, 13 056, AR 66 642.5 | no drift |
+
+They were clean, so the remaining 89 were finished. **The corpus of retrospective
+certificates now stands on fresh measurement rather than inherited paper**, and
+every points hash still matches the mesh beside it.
+
+## Two defects found in the running, both mine, both reported
+
+**1. `parse_check_log` returns `verdict: "clean"` on a checkMesh FATAL ERROR.**
+Found when my first harness for the two bare `.mesh-cache` entries omitted
+`system/fvSchemes`; checkMesh fatal-errored, produced no cell count, and the
+parser reported `clean` — because it looks for error *patterns* and a log with no
+patterns has none. **The only thing standing between that and a false clean
+certificate is `write_certificate`'s refusal when `cells` is `None`.** That guard
+is load-bearing and was doing invisible work. The re-check harness therefore
+treats *"did checkMesh actually run"* as a separate condition from *"do the
+verdicts agree"*, and reports `checkMesh_did_not_run` as its own column — it came
+back 0, but it could not have been read off the verdict. **`sdk/chief_engineer/mesh_certificate.py`
+is the Infra family's file; this is reported, not patched.**
+
+**2. My own three exonerated certificates carried a FALSE provenance.**
+`write_certificate` defaults to `provenance: "at-creation"`, and I did not
+override it — so the three `w1-bump-nasa-grids` certificates (and the
+`study-motorBike-f8b4a2` one minted earlier today) claimed to have been written
+when the mesh was made. **They were not: the verdict comes from a re-run on
+2026-08-10.** Corrected to `fresh-recheck-of-existing-mesh`, with the reason on
+each certificate's face.
+
+Neither existing constant is honest for this case — `at-creation` is false, and
+`retrospective-from-archived-log` is false too because the verdict came from a
+fresh run rather than a stored log. **A third constant belongs in the module, and
+that is Infra's file to change**; the string is accurate in the meantime and
+nothing in the codebase branches on the value.
+
+## What is established, and what is not
+
+**Established:** of 95 retrospective certificates, **95 agree with a fresh
+`checkMesh` and all 95 points hashes match.** Of the 7 refused rows routed here,
+**4 are wrong and 3 are right and now certified.**
+
+**Not established:** anything about the ~73 audit rows outside the 105, the three
+refusals belonging to another family, or any mesh not on this box. **No corpus
+`BORN BROKEN: N` is restated here** — the frame is 95 certificates plus 7 rows,
+and a corpus figure from that frame would be the error this family has now
+corrected in its own work twice today.

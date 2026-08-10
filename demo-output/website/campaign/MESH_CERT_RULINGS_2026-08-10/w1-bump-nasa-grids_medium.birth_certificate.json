@@ -8,5 +8,6 @@
  "hard_errors": [],
  "generator": "NASA TMR bump grid (plot3dToFoam), certified 2026-08-10 from a FRESH checkMesh re-run. The 2026-08-08 audit row was refused by the minting pass because the mesh states no nCells in its polyMesh/owner header, so the log-vs-mesh cross-check could not run; re-running checkMesh performs that cross-check a different way, by counting the mesh directly.",
  "created_at": "2026-08-10T19:20:35+00:00",
- "provenance": "at-creation"
+ "provenance": "fresh-recheck-of-existing-mesh",
+ "provenance_note": "Neither 'at-creation' (this mesh predates the certificate) nor 'retrospective-from-archived-log' (the verdict comes from a checkMesh RE-RUN on 2026-08-10, not from a stored log). The module offers only those two constants; a third belongs there and that is the Infra family's file to change. Corrected from 'at-creation', which was the module default and was false for this certificate."
 }

@@ -7,5 +7,7 @@
  "max_skewness": 3.99457,
  "hard_errors": [],
  "generator": "motorBike production rung, certified 2026-08-10 at the retrofit gate",
- "created_at": "2026-08-10T18:38:00+00:00"
+ "created_at": "2026-08-10T18:38:00+00:00",
+ "provenance": "fresh-recheck-of-existing-mesh",
+ "provenance_note": "Neither 'at-creation' (this mesh predates the certificate) nor 'retrospective-from-archived-log' (the verdict comes from a checkMesh RE-RUN on 2026-08-10, not from a stored log). The module offers only those two constants; a third belongs there and that is the Infra family's file to change. Corrected from 'None', which was the module default and was false for this certificate."
 }
