@@ -241,6 +241,19 @@ def main() -> int:
     A("| raw-RANS floor (our measurement, zero ML) | 0.1036 | "
       + " | ".join(f"{floor[c]:.4f}" for c in CASE_ORDER) + " |")
     A("")
+    A("**Supersession note (added 2026-08-10) — the `ours` row is round 4, "
+      "and round 4 is no longer the entry of record.** Round 4 held that status until "
+      "2026-08-07, when round 5 (untrained QCR2000 duct forward solve, the "
+      "sixth pre-registered scoring call) superseded it at **0.056647** "
+      "overall, the three ducts moving to 0.0455 / 0.0400 / 0.0353 and the "
+      "other five cases scoring identically. The round-4 row stays because "
+      "blocks B and C below are measurements *of the round-4 fields* and a "
+      "round-5 number in this table would not describe them — it is history, "
+      "correctly labelled, and it is not this lab's current standing. "
+      "Current standing: `demo-output/website/closure_challenge_round5_qcr.json`, "
+      "and `CLOSURE_CHALLENGE_STATUS.md` §0f for the caveats any rank claim "
+      "carries.")
+    A("")
     A("Leaderboard caveat, recorded because it matters for any rank claim: "
       "the challenge preprint (arXiv:2603.28884) Table 1 lists **three** "
       f"entrants; this README lists **{['zero','one','two','three','four','five'][len(board)]}**"
@@ -327,7 +340,7 @@ def main() -> int:
       "precision (its fully-developed unidirectional solution is exactly "
       "solenoidal cell-wise) and the corrected field is not, at 2.3–3.4%. "
       "**The scoring metric never sees any of this**, and nothing here "
-      "changes the recorded 0.0654.")
+      "changes the recorded round-4 0.0654.")
     A("")
     A("**The two declined cases are the only submissions that are both "
       "competitive and clean.** They ship the organisers' own solve, so they "
@@ -352,7 +365,14 @@ def main() -> int:
         "leaderboard_row_count_readme": len(board),
         "leaderboard_row_count_preprint_table1": 3,
         "our_round4": {"overall": res["round4_overall"], "per_case": per_case,
-                       "submitted_to_organisers": False},
+                       "submitted_to_organisers": False,
+                       "superseded_as_entry_of_record": (
+                           "Round 4 was the entry of record until 2026-08-07, when "
+                           "round 5 (untrained QCR2000 duct forward solve, the sixth "
+                           "pre-registered scoring call) superseded it at 0.056647 "
+                           "overall. This block stays round-4 because blocks B and C "
+                           "measure the round-4 fields. Current standing: "
+                           "demo-output/website/closure_challenge_round5_qcr.json.")},
         "rans_floor_per_case": floor,
         "metric_vs_physics_rows": map_rows,
         "ph_battery": ph["per_case"],

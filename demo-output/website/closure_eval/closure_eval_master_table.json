@@ -80,7 +80,8 @@
       "AR_14_Ret_180": 0.0325,
       "NASA_2DWMH": 0.0632
     },
-    "submitted_to_organisers": false
+    "submitted_to_organisers": false,
+    "superseded_as_entry_of_record": "Round 4 was the entry of record until 2026-08-07, when round 5 (untrained QCR2000 duct forward solve, the sixth pre-registered scoring call) superseded it at 0.056647 overall. This block stays round-4 because blocks B and C measure the round-4 fields. Current standing: demo-output/website/closure_challenge_round5_qcr.json."
   },
   "rans_floor_per_case": {
     "alpha_15_13929_4048": 0.132,

@@ -17,6 +17,8 @@ Transcribed by machine from `~/closure-challenge-benchmark/README.md` (the bench
 | **ours, round 4 (recorded, not submitted)** | **0.0654** | **0.0501** | **0.1011** | **0.0461** | **0.0719** | **0.0811** | **0.0775** | **0.0325** | **0.0632** |
 | raw-RANS floor (our measurement, zero ML) | 0.1036 | 0.1320 | 0.2049 | 0.0461 | 0.0719 | 0.1288 | 0.1243 | 0.0590 | 0.0621 |
 
+**Supersession note (added 2026-08-10) — the `ours` row is round 4, and round 4 is no longer the entry of record.** Round 4 held that status until 2026-08-07, when round 5 (untrained QCR2000 duct forward solve, the sixth pre-registered scoring call) superseded it at **0.056647** overall, the three ducts moving to 0.0455 / 0.0400 / 0.0353 and the other five cases scoring identically. The round-4 row stays because blocks B and C below are measurements *of the round-4 fields* and a round-5 number in this table would not describe them — it is history, correctly labelled, and it is not this lab's current standing. Current standing: `demo-output/website/closure_challenge_round5_qcr.json`, and `CLOSURE_CHALLENGE_STATUS.md` §0f for the caveats any rank claim carries.
+
 Leaderboard caveat, recorded because it matters for any rank claim: the challenge preprint (arXiv:2603.28884) Table 1 lists **three** entrants; this README lists **four** (it adds Liu, Wang, Zhao & Xiao). The README is the later and self-declared authoritative source, and is what is transcribed above.
 
 ---
@@ -66,7 +68,7 @@ Figure: `closure_eval/metric_vs_physics.png`. Continuity numbers are quoted from
 | `AR_14_Ret_180` | duct-corrected | 0.0590 → **0.0325** | 0.00% → **3.41%** | 7e+14× (÷ machine zero) |
 | `NASA_2DWMH` | PH-corrected | 0.0621 → **0.0632** | 0.43% → **0.66%** | 1.5× |
 
-**What the table says, stated with the sign against us.** On the two hills the correction is applied to, the score improves by 0.082 and 0.104 while the field's continuity error goes from 0.18% and 0.08% of its own velocity-gradient scale to 10.5% and 9.7% — a factor 58 and 124. On the three ducts the RANS field is divergence-free to machine precision (its fully-developed unidirectional solution is exactly solenoidal cell-wise) and the corrected field is not, at 2.3–3.4%. **The scoring metric never sees any of this**, and nothing here changes the recorded 0.0654.
+**What the table says, stated with the sign against us.** On the two hills the correction is applied to, the score improves by 0.082 and 0.104 while the field's continuity error goes from 0.18% and 0.08% of its own velocity-gradient scale to 10.5% and 9.7% — a factor 58 and 124. On the three ducts the RANS field is divergence-free to machine precision (its fully-developed unidirectional solution is exactly solenoidal cell-wise) and the corrected field is not, at 2.3–3.4%. **The scoring metric never sees any of this**, and nothing here changes the recorded round-4 0.0654.
 
 **The two declined cases are the only submissions that are both competitive and clean.** They ship the organisers' own solve, so they inherit its physicality untouched (ratio 1.000 by construction) — and on both, the raw RANS floor already beats every published entrant for that case (0.0461 vs best-published 0.0569; 0.0719 vs 0.0760). The part of the entry that does nothing is the part that survives a physics check.
 
