@@ -755,6 +755,15 @@ a family boundary.**
 | `cb686975` | the preflight gate stops reading a missing exec bit as a pass; adds the `PREFLIGHT NOT RUN` third verdict |
 | `0462b45b` | the exec bit for `case_preflight.sh`, which `core.filemode=false` dropped from the commit that described it |
 | `73bb3836` | `exec_bits.py` + `test_exec_bits.py` — the fresh-clone check, its ratchet, and the 234-path owner-routed register |
+| `fd389fff` | this report |
+| `adfbd178` | FP-2 re-verified firsthand: the hardened gate always runs, and what it runs still passes an empty directory under the `--quiet` the launcher uses |
+| `6150a0fc` | FP-9 measured and **escalated** under guidelines §1.6: the auto-stop concludes IDLE from an absence over a work list missing 298 archived logs' worth of utilities |
+| `c0a56b41` | the dated amendment — D1/D2 found independently by a peer the same night and already fixed; D4 is the live one |
+
+**Code changed: two files** (`launch_solve.sh`'s gate, `case_preflight.sh`'s mode) plus
+one new module and its test. **No detector or pattern was widened**, because C4's
+whole-corpus recalibration had not been run for any of them — the proposals in 2.6
+carry those plans and their costs instead.
 
 All single-step pathspec commits. **No bare `git commit` was issued**: three Ladder V
 agents held live work in this tree throughout, and their commits (`92562841`,
