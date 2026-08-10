@@ -72,6 +72,32 @@ the scatter of the rung it starts from.**
 with three draws, the correct statement is **± 132%**. The turn is not a signal
 with a large error bar; it is inside the error bar.
 
+> **AMENDMENT 2026-08-10, same day, by the author — the paragraph above compares
+> two different statistics and overstates its case. Original text retained per
+> the supersede-don't-delete convention; see
+> `B52_TURN_CLAIM_AUDIT_2026-08-10.md` §0 for the full working.**
+>
+> `R6` is a **range over three draws**; the turn is a **single pairwise
+> difference**. Comparing them is the exact error `W3_MESH_NOISE_FLOOR_RESULTS.md`
+> §3 corrected itself on, and I repeated it. Like-for-like, the turn is **2.98×**
+> the rung-6 pairwise `D6` and **2.12×** the rung-7 pairwise floor — not 0.76× a
+> range.
+>
+> Converting every estimator to a common σ (`E|X₁−X₂| = 1.128 σ`,
+> `E[range of 3] = 1.693 σ`) brackets σ at **1.21–3.16 × 10⁻³**, and an increment
+> differences two singly-drawn rungs so it carries **√2 σ = 1.70–4.47 × 10⁻³**.
+> **The turn is therefore 0.91–2.38× its own mesh-construction uncertainty:
+> not established as signal (which needs ≥3×), and not established as pure noise
+> either. Three draws cannot separate those two readings.**
+>
+> What is unaffected: the arm's own verdict (§1), which is a pairwise-vs-pairwise
+> comparison by construction and needs none of this; and the rung 7→8 increment,
+> at **0.06–0.16×**, which is unambiguously noise on every estimator.
+>
+> The chief's entry-4 outcome block (`1a0e9a37`) quotes the 1.32× framing. That
+> record is the chief's and has not been touched; the correction is filed for his
+> ruling.
+
 **Mesh quality is not available as an explanation.** All three draws certify
 `clean` with max skewness 3.958–3.971 and max non-orthogonality 55.5–64.9,
 against finer2's own family range — no cliff, no outlier, and the largest-Cd draw
