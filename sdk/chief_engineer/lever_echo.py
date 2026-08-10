@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -278,6 +279,114 @@ def echo_block_for_run_dir(run_dir: Path,
             "nothing to hash, so nothing is claimed",
             run_directory=run)
     return echo_block(run)
+
+
+def supersede_log(log_path: Path) -> Path | None:
+    """Move an existing run log aside before a new run would destroy it.
+
+    L-42, enforced 2026-08-10. A rerun into an existing case directory used to
+    overwrite the prior run's log in place -- `_foam` opened it ``"w"`` and the
+    detached paths ``unlink``ed it -- so the earlier run's activity evidence
+    stopped existing anywhere. The measured casualty is
+    `MODEL_FORM_runs/H_re10595_realizableKE`, whose governing record states
+    30,000 iterations beside a log that ends at 12,000: the 03:46 run's fields
+    survive under `30000/`, its LOG was destroyed by a 23:52 rerun, and no
+    conclusion resting on it can ever be re-verified. Nothing was falsified;
+    both records were honest about their own run. The record survived only
+    because the two runs happened to agree, which L-42 calls a coin landing
+    the right way rather than a defense.
+
+    The naming follows `scripts/launch_solve.sh`, which is the only launch
+    path that already survives this -- its logs carry a UTC stamp and so never
+    collide. That was an accident of its registry design; here it is
+    deliberate, and it is the same supersede-don't-delete convention the
+    records themselves use (L-39).
+
+    **On return, ``log_path`` does not exist.** That is load-bearing: the
+    detached callers test ``if not log_path.exists(): raise`` to decide
+    whether the launch happened, so leaving an empty file behind would
+    silently disable their launch check -- the failure mode section 5 of the
+    family guidelines records as a worked example. An empty log carries no
+    evidence, so it is removed rather than archived.
+
+    Returns the archive path, or None when there was nothing worth keeping.
+    """
+    log_path = Path(log_path)
+    try:
+        if not log_path.is_file():
+            return None
+        if log_path.stat().st_size == 0:
+            log_path.unlink()
+            return None
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        # The stamp goes in FRONT of the name, not after it. `log.simpleFoam
+        # .superseded_<stamp>` would read better and would be a bug: five
+        # places in this repo select a case's run log by globbing `log.*`,
+        # `log.*Foam` or `log.simpleFoam*`, and one of them
+        # (`replay_s12_unsettled_stop.py`) picks the LARGEST match -- so an
+        # archive bigger than the live log would silently be classified as
+        # the run. This fix creates artifacts, so every check that reads
+        # those artifacts had to be re-examined; the prefix form matches none
+        # of the five patterns, and a test pins that.
+        dest = log_path.with_name(f"superseded_{stamp}_{log_path.name}")
+        n = 1
+        while dest.exists():          # two runs inside one second
+            dest = log_path.with_name(
+                f"superseded_{stamp}_{n}_{log_path.name}")
+            n += 1
+        log_path.rename(dest)
+        return dest
+    except OSError:
+        # Never block a launch on its own bookkeeping. A lost archive costs
+        # one run's evidence; a refused launch costs the run.
+        return None
+
+
+ENVELOPE_BEGIN = "==== RUNTIME-ENVELOPE BEGIN ===="
+ENVELOPE_END = "==== RUNTIME-ENVELOPE END ===="
+
+
+def runtime_envelope_block(**limits: Any) -> str:
+    """The EFFECTIVE execution envelope, written into the run log at launch.
+
+    L-40 in the memory dimension (2026-08-10). A pre-registration declared a
+    22 GiB container cap; the runner that executed applied its own, and
+    nothing in between raised its hand. It had no effect that time -- peak was
+    7.0 GiB -- and it was found only because one agent stated a number and
+    another compared. That is the same shape as an echo certifying
+    dictionaries the solve did not use: **the record said one thing, the
+    execution did another, and the gap was silent.**
+
+    A resource cap is a lever, so charter section 9 governs it: verified from
+    the EXECUTION, never from the declaration. This block records what
+    actually bound -- not what was asked for -- so an arm is self-documenting
+    on this axis and a later reader never has to trust a prose number.
+
+    Pass every limit that shaped the run, including the ones that are NOT
+    set: ``cpus=None`` records "uncapped" as a fact, which is the difference
+    between a limit that was chosen and a limit nobody applied. An absent line
+    and an unrecorded value are indistinguishable to whoever reads this later.
+    """
+    lines = [ENVELOPE_BEGIN]
+    for key in sorted(limits):
+        value = limits[key]
+        lines.append(f"{key} {'UNCAPPED' if value is None else value}")
+    lines.append(ENVELOPE_END)
+    return "\n".join(lines) + "\n"
+
+
+def parse_runtime_envelope(log_text: str) -> dict[str, str]:
+    """``{limit: effective value}`` from a log's RUNTIME-ENVELOPE block;
+    empty when the log carries none."""
+    if ENVELOPE_BEGIN not in log_text:
+        return {}
+    block = log_text.split(ENVELOPE_BEGIN, 1)[1].split(ENVELOPE_END, 1)[0]
+    out: dict[str, str] = {}
+    for line in block.splitlines():
+        parts = line.split(None, 1)
+        if len(parts) == 2:
+            out[parts[0]] = parts[1].strip()
+    return out
 
 
 def parse_echo(log_text: str) -> dict[str, str]:

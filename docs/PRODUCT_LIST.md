@@ -1246,6 +1246,27 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   verdict**. Chief ruling: **DECLINED** — the same standard applied all day, that compute which cannot move a
   decision is not spent.
 
+### 2026-08-10 (night, closing) — a runner that overrides a declared limit without saying so is L-40 in the resource dimension
+
+- **THE DEFECT IS THE SILENCE, NOT THE NUMBER.** A DAFoam arm pre-registered a 22 GiB cap; the runner applied 16 GiB.
+  Peak was 7.0 GiB so nothing was affected, and it surfaced only because one agent stated a number and another
+  compared. Same shape as an echo certifying dictionaries the solve did not use: the record said one thing, the
+  execution did another, and nothing in between raised its hand.
+- **THE REPORTED INSTANCE IS NOT IN CODE THE INFRA FAMILY OWNS**, and looking for it found something worth more:
+  `DEFAULT_MEM_GB` is 12 and no `--memory=16g` literal exists in `sdk/` or `scripts/`. The cap lives in **four
+  UNTRACKED shell scripts in the run tree** (`img_run.sh`, `triage_run.sh`, `run_arm_a.sh`, `run_arm_b.sh`), each
+  hardcoding `--cpus=4 --memory=16g`. **Those launchers' resource policy is not in version control at all** — no
+  review, no diff, no history covers the numbers that bind every A3 arm. Routed to DAFoam.
+- **TWO WORSE INSTANCES FOUND IN THE RUNNER INFRA DOES OWN, both fixed.** `docker_dafoam` carried
+  `ranks = min(DEFAULT_RANKS, max(1, ranks))` — ask for more ranks, get fewer, silently, while the pre-registration
+  AND the core-minute arithmetic (wall × ranks / 60) both go on citing the number asked for. That is worse than the
+  reported case: a default versus an active clamp. Now a stated refusal. And `--cpus` was **never set at all** while
+  DAFoam pre-registrations have declared `--cpus=3/4` for weeks — every one unenforced, nothing said.
+- **THE INSTRUMENT: a RUNTIME-ENVELOPE block** at the head of each container step log carrying the EFFECTIVE memory,
+  cpus, ranks, timeout and image. A limit nobody applied records as `UNCAPPED` rather than being omitted, because an
+  absent line and an unrecorded value are indistinguishable to a later reader. A resource cap is a lever, and charter
+  §9 says a lever is verified from the execution, never the declaration. Suite 1258/0, 0 core-min. Guidelines v1.9 §10.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

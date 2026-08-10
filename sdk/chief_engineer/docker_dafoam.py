@@ -28,7 +28,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
-from . import mesh_certificate
+from . import lever_echo, mesh_certificate
 
 DOCKER_IMAGE = "dafoam/opt-packages:latest"
 RUN_ROOT = Path.home() / "certonomous-runs"
@@ -95,6 +95,7 @@ class DockerDAFoamEngineer:
     def __init__(self, case_name: str, out_root: str | os.PathLike[str],
                 tutorial_source: str | os.PathLike[str], *,
                 mem_gb: int = DEFAULT_MEM_GB, ranks: int = DEFAULT_RANKS,
+                cpus: float | None = None,
                 on_event: Callable[[str, dict], None] | None = None):
         self.case_name = case_name
         self.tutorial_source = Path(tutorial_source)
@@ -102,7 +103,23 @@ class DockerDAFoamEngineer:
         self.out_root = Path(out_root) / case_name
         self.out_root.mkdir(parents=True, exist_ok=True)
         self.mem_gb = mem_gb
-        self.ranks = min(DEFAULT_RANKS, max(1, ranks))
+        # A DOWNGRADE IS REFUSED, NOT APPLIED SILENTLY (2026-08-10, L-40 in
+        # the resource dimension). This was `min(DEFAULT_RANKS, max(1, ranks))`
+        # -- a caller asking for more ranks than the default got fewer, with
+        # nothing said, while its pre-registration and its core-minute
+        # arithmetic (COMPUTE_BUDGET section 2: wall x ranks / 60) both went on
+        # citing the number it asked for. A silently clamped rank count is a
+        # record that describes a run that did not happen. Asking for fewer is
+        # always honoured; asking for more is a stated refusal.
+        if ranks > DEFAULT_RANKS:
+            raise ValueError(
+                f"{case_name}: {ranks} ranks requested but this runner caps at "
+                f"{DEFAULT_RANKS}. Raise DEFAULT_RANKS deliberately or ask for "
+                f"{DEFAULT_RANKS} or fewer -- a silent downgrade would leave "
+                f"your pre-registration and your core-minute figure describing "
+                f"a run that did not happen (Verification Charter section 9).")
+        self.ranks = max(1, ranks)
+        self.cpus = cpus
         self.on_event = on_event
         self.steps: list[DockerStepResult] = []
         self._cached_cell_count: str | None = None
@@ -170,7 +187,8 @@ class DockerDAFoamEngineer:
             "the reason.")
 
     def run(self, command: str, *, name: str, timeout: float = 3600.0,
-           mem_gb: int | None = None) -> DockerStepResult:
+           mem_gb: int | None = None,
+           cpus: float | None = None) -> DockerStepResult:
         """Run one command inside the container, case dir bind-mounted, the
         OpenFOAM/DAFoam/pyHyp/cgns_utils environment sourced first."""
         mem_gb = mem_gb or self.mem_gb
@@ -181,19 +199,36 @@ class DockerDAFoamEngineer:
         # this exact case family was run before (matches the ownership left
         # on disk by the prior validated runs). loadDAFoam.sh is sourced
         # explicitly by path rather than relied on from a login shell.
+        cpus = self.cpus if cpus is None else cpus
         docker_cmd = [
             "sudo", "docker", "run", "--rm", "--network=host",
             f"--memory={mem_gb}g",
+        ]
+        # --cpus was never set by this runner, while DAFoam pre-registrations
+        # have been declaring `--cpus=3` / `--cpus=4` for weeks. Every one of
+        # those declarations was unenforced, and nothing said so. It is
+        # honoured when given and recorded as UNCAPPED when not.
+        if cpus is not None:
+            docker_cmd.append(f"--cpus={cpus}")
+        docker_cmd += [
             "-v", f"{self.remote_case}:{MOUNT_POINT}",
             "-w", MOUNT_POINT, DOCKER_IMAGE,
             "bash", "-c", f"{LOAD_ENV} && {command}",
         ]
+        # The EFFECTIVE envelope, at the head of the log, before the run: what
+        # actually bound rather than what a document asked for (L-40).
+        envelope = lever_echo.runtime_envelope_block(
+            memory_gb=mem_gb, cpus=cpus, ranks=self.ranks,
+            timeout_s=timeout, image=DOCKER_IMAGE)
         self._emit("step.started", {"step": name})
         start = time.monotonic()
         result = subprocess.run(docker_cmd, capture_output=True, text=True,
                                 errors="replace", timeout=timeout)
         seconds = round(time.monotonic() - start, 1)
-        log_path.write_text((result.stdout or "") + (result.stderr or ""),
+        # L-42: a rerun of this step must not destroy the prior run's log.
+        lever_echo.supersede_log(log_path)
+        log_path.write_text(envelope
+                            + (result.stdout or "") + (result.stderr or ""),
                             errors="replace")
         step = DockerStepResult(name, result.returncode, seconds, str(log_path))
         self.steps.append(step)

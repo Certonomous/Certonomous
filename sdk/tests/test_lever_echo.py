@@ -412,6 +412,112 @@ class EchoSizeAndLeverIdentityTests(unittest.TestCase):
         self.assertEqual(field["verified"][0]["lever_sha256"], "a" * 64)
 
 
+class RuntimeEnvelopeTests(unittest.TestCase):
+    """L-40 in the resource dimension.
+
+    WHY THIS TEST EXISTS. A DAFoam arm pre-registered a 22 GiB container cap;
+    the runner that executed applied its own, and nothing in between raised
+    its hand. Peak was 7.0 GiB so it changed no result, and it surfaced only
+    because one agent stated a number and another compared. A resource cap is
+    a lever: charter section 9 says it is verified from the EXECUTION, never
+    from the declaration.
+    """
+
+    def test_the_envelope_records_what_actually_bound(self):
+        block = lever_echo.runtime_envelope_block(
+            memory_gb=12, cpus=4, ranks=4, timeout_s=3600.0, image="img:v1")
+        got = lever_echo.parse_runtime_envelope(block)
+        self.assertEqual(got["memory_gb"], "12")
+        self.assertEqual(got["cpus"], "4")
+        self.assertEqual(got["ranks"], "4")
+        self.assertEqual(got["image"], "img:v1")
+
+    def test_an_unset_limit_is_recorded_as_uncapped_not_omitted(self):
+        """An absent line and an unrecorded value are indistinguishable to
+        whoever reads the log later, so 'nobody capped this' is written down
+        as a fact rather than left as a silence."""
+        got = lever_echo.parse_runtime_envelope(
+            lever_echo.runtime_envelope_block(cpus=None, memory_gb=12))
+        self.assertEqual(got["cpus"], "UNCAPPED")
+
+    def test_a_log_without_an_envelope_parses_empty(self):
+        self.assertEqual(lever_echo.parse_runtime_envelope("Time = 1\n"), {})
+
+    def test_the_envelope_cannot_be_confused_with_a_lever_echo(self):
+        block = lever_echo.runtime_envelope_block(memory_gb=12)
+        self.assertNotIn(lever_echo.BEGIN, block)
+        self.assertEqual(lever_echo.parse_echo(block), {})
+
+
+class ContainerResourceDeclarationTests(unittest.TestCase):
+    """The container runner must not silently override a declared limit."""
+
+    def setUp(self):
+        from chief_engineer import docker_dafoam
+        self.dd = docker_dafoam
+        self.tmp = Path(tempfile.mkdtemp(prefix="lever-docker-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+
+    def _engineer(self, **kw):
+        return self.dd.DockerDAFoamEngineer("t", self.tmp, self.tmp, **kw)
+
+    def test_asking_for_more_ranks_is_refused_not_clamped(self):
+        """It was `min(DEFAULT_RANKS, max(1, ranks))`: ask for more, get
+        fewer, silently, while the pre-registration and the core-minute
+        arithmetic both go on citing the number that was asked for."""
+        with self.assertRaises(ValueError) as caught:
+            self._engineer(ranks=self.dd.DEFAULT_RANKS + 4)
+        self.assertIn("silent downgrade", str(caught.exception))
+
+    def test_asking_for_fewer_ranks_is_honoured(self):
+        self.assertEqual(self._engineer(ranks=2).ranks, 2)
+
+    def test_a_declared_cpu_cap_reaches_the_container(self):
+        """`--cpus` was never set by this runner while DAFoam
+        pre-registrations had been declaring `--cpus=3`/`--cpus=4` for weeks;
+        every one of those declarations was unenforced and nothing said so."""
+        eng = self._engineer(ranks=2, cpus=3)
+        captured = {}
+
+        class _R:
+            returncode = 0
+            stdout = "ok"
+            stderr = ""
+
+        def fake_run(cmd, **kw):
+            captured.setdefault("cmd", cmd)
+            return _R()
+
+        with mock.patch.object(self.dd.subprocess, "run", fake_run):
+            eng.run("true", name="probe")
+        self.assertIn("--cpus=3", captured["cmd"])
+        log = (eng.out_root / "log.probe").read_text()
+        env = lever_echo.parse_runtime_envelope(log)
+        self.assertEqual(env["cpus"], "3")
+        self.assertEqual(env["ranks"], "2")
+        self.assertTrue(log.startswith(lever_echo.ENVELOPE_BEGIN))
+
+    def test_an_uncapped_cpu_run_says_so_in_its_own_log(self):
+        eng = self._engineer(ranks=1)
+        captured = {}
+
+        class _R:
+            returncode = 0
+            stdout = "ok"
+            stderr = ""
+
+        def fake_run(cmd, **kw):
+            captured.setdefault("cmd", cmd)
+            return _R()
+
+        with mock.patch.object(self.dd.subprocess, "run", fake_run):
+            eng.run("true", name="probe")
+        self.assertFalse([a for a in captured["cmd"] if str(a).startswith("--cpus")])
+        env = lever_echo.parse_runtime_envelope(
+            (eng.out_root / "log.probe").read_text())
+        self.assertEqual(env["cpus"], "UNCAPPED")
+
+
 class SolverInvocationTests(unittest.TestCase):
     """`launches_a_solver` is the one place the lab decides whether a launch
     is a solve. Six launchers used to answer it separately, or not at all."""

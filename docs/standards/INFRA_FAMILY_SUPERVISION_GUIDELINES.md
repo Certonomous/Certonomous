@@ -1,5 +1,11 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.9, dated 2026-08-10 (night). Adds section 10: a runner that
+silently overrides a caller's declared resource limit is L-40 in the resource
+dimension, and the container runner this family owns had two worse instances
+than the one reported. Adds the runtime envelope, so a run records the limits
+that actually BOUND it rather than the ones a document asked for.
+
 Version 1.8, dated 2026-08-10 (night). Adds section 9, the cross-family
 lesson-propagation sweep for L-41 to L-48 that strategy section 1 requires and
 that eight lessons in two days had gone without. It found instances in every
@@ -982,6 +988,65 @@ BATCH archive-side log overwrite and the `fallback=` mesh-gate channel; the
 CASES and MARINE rerun-in-place sites; CLOSURE's missing positive controls;
 the L-47 adoption targets, F6b first; the F5bc "or possible" wording; and the
 two chief-owned procedure surfaces carrying the L-41 ordering.
+
+## 10. Declared limits and effective limits (2026-08-10)
+
+Routed in: a DAFoam arm pre-registered a 22 GiB container cap and the runner
+applied 16 GiB. Peak was 7.0 GiB so nothing was affected, and it surfaced only
+because one agent stated a number and another compared. **The defect is not
+the number, it is the silence** -- the record said one thing, the execution
+did another, and nothing in between raised its hand. That is the same shape as
+an echo certifying dictionaries the solve did not use, so it takes the same
+answer.
+
+### 10.1. Where the reported instance actually lives
+
+Not in code this family owns. `DEFAULT_MEM_GB` here is 12, and no
+`--memory=16g` literal exists anywhere in `sdk/` or `scripts/`. The cap is in
+four **untracked shell scripts in the run tree** --
+`certonomous-runs/img_run.sh:7`, `triage_run.sh:14`,
+`A3-rung2-n28-tpc1/run_arm_a.sh:18` and `run_arm_b.sh:18` -- each hardcoding
+`--cpus=4 --memory=16g`. Routed to the DAFoam family, with a note worth more
+than the instance: **those launchers' resource policy is not in version
+control at all**, so no review, diff or history covers the numbers that bind
+every A3 arm. (Reach: the first sweep of the 65 GB run tree hit its timeout;
+per L-43's corollary a timeout null is not an absence, so it was re-run scoped
+and the specimens were found.)
+
+### 10.2. Two worse instances in the runner this family DOES own
+
+Found while checking the routed one, and both fixed:
+
+- **A silent rank downgrade.** `docker_dafoam` had
+  `self.ranks = min(DEFAULT_RANKS, max(1, ranks))` -- ask for more ranks than
+  the default and you got fewer, with nothing said, while your
+  pre-registration and your core-minute figure (COMPUTE_BUDGET section 2:
+  wall x ranks / 60) both went on citing the number you asked for. Worse than
+  the reported case, because that one was a default and this one is an active
+  clamp. Now a **stated refusal**; asking for fewer is still honoured.
+- **`--cpus` was never set at all**, while DAFoam pre-registrations have
+  declared `--cpus=3` / `--cpus=4` for weeks. Every one of those declarations
+  was unenforced and nothing said so. Now honoured when given.
+
+### 10.3. The rule, and the instrument
+
+**A runner may not quietly substitute its own value for a declared one. It
+honours it, or it refuses out loud -- and either way the log records what
+actually bound.** `lever_echo.runtime_envelope_block()` writes a fenced
+`RUNTIME-ENVELOPE` block at the head of each container step log carrying the
+EFFECTIVE memory, cpus, ranks, timeout and image. A limit nobody applied is
+recorded as `UNCAPPED` rather than omitted, because an absent line and an
+unrecorded value are indistinguishable to whoever reads the log later -- the
+same reason `launch_solve.sh` prints a field even when it is empty.
+
+Every future arm is therefore self-documenting on this axis, which is the
+point: a resource cap is a lever, and charter section 9 says a lever is
+verified from the execution, never from the declaration.
+
+**Still open, routed:** the four run-tree scripts above; and the fact that two
+launchers in this lab now disagree about what they enforce (`docker_dafoam`
+sets no CPU cap by default, the arm scripts set `--cpus=4`) -- a second
+instance of the two-implementations problem section 1.8 names.
 
 ## Related
 
