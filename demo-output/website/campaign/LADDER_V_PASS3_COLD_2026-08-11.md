@@ -221,7 +221,11 @@ one line and strictly better.
   rms |gradU|` is **5.3e-4 to 8.5e-4**. The disclosure now overstates a defect that has
   largely gone away — the rare case of a stale disclosure being unfair to the entrant.
   Its replacement should not overcorrect: the forward script's docstring says the QCR
-  fields "satisfy continuity by construction," and 5.8e-4 is not machine zero. (The SST
+  fields "satisfy continuity by construction," and 8.5e-4 / 5.3e-4 / 5.4e-4 are not
+  machine zero. *[Corrected 2026-08-10 by the V15 corrections pass, finding F1: this
+  sentence originally cited 5.8e-4, which is `/arms/AR_7_Ret_180_qcr` — the validation
+  duct, not a submitted case. The three submitted ducts are AR_1_Ret_360, AR_3_Ret_360,
+  AR_14_Ret_180.]* (The SST
   arm's 7e-17 is not the counter-example it looks like: that solve is exactly
   unidirectional, so its divergence is zero for a reason unrelated to convergence
   quality.) State the measured number, not "by construction."

@@ -185,8 +185,10 @@ the governing equations gets `∇·U ≈ 0` by construction. Measured, per famil
 | the 2 declined cases | the baseline's own, untouched |
 
 The ducts improved by 27–63× against the fields they replace, because they are
-now converged SIMPLE solves. **We state the measured number rather than "satisfies
-continuity by construction": 5.8×10⁻⁴ is not machine zero.**
+now converged SIMPLE solves. **We state the measured numbers rather than "satisfies
+continuity by construction": the three submitted ducts measure 8.5×10⁻⁴
+(`AR_1_Ret_360`), 5.3×10⁻⁴ (`AR_3_Ret_360`) and 5.4×10⁻⁴ (`AR_14_Ret_180`), and
+none of those is machine zero.**
 
 ### 8. One-seed training uncertainty, and it is comparable to the whole margin
 
