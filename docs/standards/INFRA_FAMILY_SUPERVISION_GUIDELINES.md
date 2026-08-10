@@ -1,5 +1,13 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.8, dated 2026-08-10 (night). Adds section 9, the cross-family
+lesson-propagation sweep for L-41 to L-48 that strategy section 1 requires and
+that eight lessons in two days had gone without. It found instances in every
+family, including three in this family's own procedure documents and two in
+the L-42 fix itself. Section 1.5 is corrected: it carried the resume ordering
+L-41 names as WRONG for two days after the lesson landed, and the sweep found
+it rather than its author.
+
 Version 1.7, dated 2026-08-10 (night). Records the chief's two rulings on
 P-4.2 in section 1.8 — evidence is judged by WHEN IT WAS CAPTURED, not when it
 was written, and a claimed limit is refused unless measured (L-48) — adds the
@@ -128,12 +136,29 @@ disables the auto-stop, which is the owner's cost control and stays.
 
 ### 1.5. The double-resume check
 
-Before resuming any agent (charter 9 OPS rule 4): run
-`pgrep -af 'claude --resume'`, look for fresh writes in the agent's own
-files, and inventory containers. Resuming a live agent spawns a second
-incarnation in the same tree. One resume per solve, and the resume message
-carries the outcome the watcher already collected. A completion notice with
-no result is the dead-agent tell, and the answer is reattach, not restart.
+**Corrected v1.8 (2026-08-10) — the previous ordering was the one L-41
+names as wrong, and this document carried it for two days after the lesson
+landed.** Fleet agents execute inside the SDK server process, so a busy peer
+is INVISIBLE to `pgrep`, `ps` and `docker ps`. A process sweep answers "is a
+SOLVER running", never "is an AGENT working", and the two questions are not
+the same one.
+
+Before resuming any agent (charter 9 OPS rule 4), in this order:
+
+1. **`git log --since=<minutes>`** — a working agent commits; a
+   pre-registration appearing after your dispatch is proof of a live peer.
+2. **File mtimes** in the agent's own files and run dirs
+   (`find <runs> -mmin -10`) — a live solve writes constantly even when no
+   process name matches your grep.
+3. **The docket/inbox claim state** — a claimed item with a recent timestamp.
+4. **Only then** process sweeps and `sudo docker ps`, which bound the SOLVER
+   and container question and settle nothing about an agent.
+
+Resuming a live agent spawns a second incarnation in the same tree. One
+resume per solve, and the resume message carries the outcome the watcher
+already collected. A completion notice with no result is the dead-agent tell,
+and the answer is reattach, not restart — but it is a tell, not a proof, and
+steps 1–3 are what turn it into one.
 
 ### 1.6. What escalates to the chief supervisor
 
@@ -834,6 +859,129 @@ empty.** What was considered and why each was not taken:
 
 The right next work for this family is whatever the next incident produces.
 This document is iterated on incident, and there is no incident.
+
+## 9. Cross-family lesson propagation sweep, L-41 → L-48 (2026-08-10)
+
+Strategy §1: *"a lesson learned in DAFoam must be checked against closure,
+batch, marine within a week — one agent owns the sweep."* Eight lessons landed
+in two days with no propagation pass, which is exactly the debt the item
+exists to prevent. Zero core-minutes. The question asked of every cell was not
+"is the lesson relevant" but **"does a specific instance exist there right
+now, and can I find it or rule it out by measurement."**
+
+**Verdict key:** ● instance found · ○ ruled out by measurement · — not
+applicable · ✓ already compliant (exemplar).
+
+| | CLOSURE | BATCH / model-form | CAMPAIGN / cases | MARINE | INFRA (mine) |
+|---|---|---|---|---|---|
+| **L-41** agent liveness | ○ | ○ | ○ | ○ | ● 3 sites |
+| **L-42** rerun destroys evidence | ● 2 | ● 3 | ● 9+ | ● 2 | ● 2 (fixed) |
+| **L-43** null needs a positive control | ● 1+2 | ✓ exemplar | ○ | ○ | ✓ |
+| **L-44** frozen artifacts | ○ 0/50 | ○ | ○ | — | ○ |
+| **L-45** evidence from what executed | ○ | ● 1 | ● (shared) | — | ✓ fixed |
+| **L-46** artifact-creation audit | ○ | ○ | ● standing | ○ | ● 4th instance |
+| **L-47** relaxation invariance | ● 2 | ● 36 records | ● 6 + ✓ origin | — | — |
+| **L-48** premise / gap-not-constraint | ✓ exemplar | ○ | ● 1 | ○ | ✓ |
+
+### 9.1. What each row rests on
+
+- **L-41 — ○ everywhere but here.** Every `pgrep`/`ps`/`docker ps` use in the
+  other families is correctly scoped to SOLVERS or containers. The three
+  incorrect ones are all INFRA procedure docs: `ESCALATION_CHARTER.md:416`
+  (OPS rule 4), **this document's own §1.5**, and
+  `PROPOSALS_OPEN.md:905`. §1.5 is fixed in v1.8 above — it had carried the
+  wrong ordering for two days after the lesson landed, and it was found by the
+  sweep rather than by me. The charter and proposals surfaces are the chief's
+  and are routed, not edited. Best existing practice, worth copying:
+  `B52_RUNG6_REPLICATE_PREREGISTRATION.md:274`.
+- **L-42 — the largest debt by far, in every family.** BATCH:
+  `model_form_batch.py:856,1242,1183` copy logs into the committed `out_dir`
+  with an unconditional `shutil.copy2` (and `gzip -f`), while `record.json`
+  beside them IS superseded at line 1706 — a 460-line-apart asymmetry that is
+  the exact mechanism of the H_re10595_realizableKE casualty. CASES: 9+ sites
+  including `GEN_ALT`, `FPE_DIAG`, `B52`, the `R4_runs/*.sh` `rm -rf log.*`
+  drivers, `head_engineer.py:877` and `openfoam.py:481,514`. MARINE:
+  `F7_runs/make_dambreak.py:270` rmtree and `run_dambreak.sh` clobbering every
+  log. CLOSURE: its analysis scripts launch nothing, but its R4 solve drivers
+  are shell scripts under `campaign/` and are counted there.
+  **Exemplar to copy: `R4_runs/run_c3_replicates.py:117` cites L-42 by name
+  and skips re-staging a completed solve.**
+- **L-43 — CLOSURE carries the open ones.**
+  `LIAISON_NOVELTY_SWEEP_decomposition_defect.md` claims zero occurrences
+  across 63 searches with an excellent reach log and **no labelled positive
+  control**; `MESH_BIRTH_CERTIFICATE_AUDIT_2026-08-08.md` and
+  `CLOSURE_METHOD_PRIORITY_REVIEW.md` have implicit controls only. The BATCH
+  dead-lever audit is the exemplar (explicit reach section, demonstrated
+  recovery of a known-present specimen).
+- **L-44 — clean, and measured rather than assumed.** All 50 tracked
+  pre-registrations and rule freezes examined by commit history: **26
+  post-freeze edits add only** (compliant addenda) and **3 modify existing
+  lines**, all three of which survive inspection — two are corrections made
+  before any outcome existed (one of which corrects the document *against its
+  own interest*, `R7_STROUHAL`, restating "written before launch" as "after
+  it, not before"), and one updates a `## Status` field. Positive control: the
+  detector returned a non-empty set of line-modifying edits, so it can see
+  removals. Process note, not a violation: replacing a Status line loses the
+  prior state to git alone.
+- **L-45 — one fail-FALSE channel, in BATCH, and a second instrument missed
+  it.** `model_form_batch.assert_mesh_certified_at_entry(..., fallback=)`
+  satisfies the mesh gate from a **caller-supplied second directory** when the
+  running case has no `log.checkMesh` of its own, with **no hash binding** —
+  the file references `mesh_certificate` zero times, bypassing the hash-bound
+  `certificate_admits()` that exists precisely so "a certificate cannot drift
+  onto a different mesh". Today it is correct by construction (the H family
+  copies mesh and log from one source), so the channel is real and
+  unexercised — the same status the `launch_solve.sh` channel had. It is used
+  cross-family: `GEN_ALT_runs` and `FPE_DIAG_runs` import it too.
+  **The delegated sweep classified this gate SAFE**; it had not traced the
+  `fallback` parameter. Its null was a claim about its reach, which is L-43
+  demonstrating itself inside the sweep that was checking for L-43.
+- **L-46 — a standing exposure, not a list of bugs.** Every family discovers
+  results by pattern (`coefficient*.dat`, `*.raw`, `postProcessing/*`), so any
+  change adding a file to a case directory edits an undeclared interface. The
+  lab already has a precedent: `coefficient.dat` renamed on a restart
+  collision blinds settle watchers. INFRA's fourth instance is 9.2 below.
+- **L-47 — the cheapest unclaimed instrument in the lab.** MARINE is
+  genuinely — (interFoam/PIMPLE, transient). Everywhere else it is available
+  and unused, and one target stands out: **`F6b_ERCOFTAC_RESULTS.md:171`
+  names the gap itself** — *"the relaxation factors… a 62,400-cell mesh may
+  simply need tighter under-relaxation. This is cheaper still to test and
+  should be tested first"* — while its reattachment claim sits **+63% to +66%
+  against reference**. CLOSURE's R4 Ahmed ladder (all rungs at identical
+  `U 0.9`) rests a non-monotone Cd verdict on differences comparable to
+  settle noise. BATCH holds relaxation fixed **by design**
+  (`MODEL_FORM_BATCH_DESIGN.md:339`), which is correct for comparing models
+  and means all 36 records share one untested relaxation setting.
+- **L-48 — one soft instance.** `F5bc_unsteady_statistics.md:129` says the
+  SIMPLE-vs-SIMPLEC attribution "cannot be verified from any runtime log,
+  **existing or possible**". The reason given — that OpenFOAM never echoes
+  `consistent` — was true when written and was falsified twelve hours later by
+  the lever echo; `F5C_STAGE_A_RESULTS.md:88` now says that gap "is closed
+  permanently". The record carries a later amendment, so a careful reader gets
+  there, but the words "or possible" are a constraint where a gap was meant.
+  Exemplars in the other direction: `NOT_PASSING_REGISTER.md:732` ("cannot be
+  verified from anything in the repository, which is a different, weaker
+  status than checked and true") and `S1_FIML_FIELD_INVERSION.md:535`, which
+  states the limit **with its measurement** (2N = 103,252 primal solves) and
+  names the affordable substitute.
+
+### 9.2. What this pass fixed, and what it routed
+
+**Fixed (INFRA, mine):** `tmr_verification._run_simplefoam_to_settle` — the
+settle-watched launch got the lever echo added and `_supersede_log` forgotten,
+so it was the one launch in the module still destroying a prior log. And
+`_copy_best_effort`, the shared archiver for the F5 ladders and four
+workflows, now supersedes an existing `log.*` destination, which is L-42's
+archive side. **Both were found by the propagation sweep, not by the pass that
+wrote the fix** — the fourth instance of L-46's shared form in one campaign,
+and the second where the author's own claim was the thing under test. §1.5
+corrected for L-41.
+
+**Routed, not fixed** (other families', per the chief's instruction): the
+BATCH archive-side log overwrite and the `fallback=` mesh-gate channel; the
+CASES and MARINE rerun-in-place sites; CLOSURE's missing positive controls;
+the L-47 adoption targets, F6b first; the F5bc "or possible" wording; and the
+two chief-owned procedure surfaces carrying the L-41 ordering.
 
 ## Related
 

@@ -1113,6 +1113,36 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   class, explicitly not as a rescue attempt, with each override carrying its own restart setting so Gate B's lesson
   cannot be misread as the arm's result.
 
+### 2026-08-10 (night, final) — the propagation sweep: eight lessons, four families, and instances in every one
+
+- **THE DEBT WAS REAL.** Strategy §1 requires a lesson learned in one line to be checked against the others within a
+  week; eight lessons (L-41→L-48) landed in two days with no propagation pass. The sweep found instances in **every
+  family**, at 0 core-min. Full matrix with evidence per cell: Infra guidelines v1.8 §9.
+- **L-42 IS THE LARGEST DEBT, EVERYWHERE.** BATCH: `model_form_batch.py:856,1242` copy solver logs into the committed
+  `out_dir` with an unconditional `copy2` (plus `gzip -f`) while `record.json` beside them IS superseded 460 lines
+  away — the exact mechanism of the H_re10595 casualty. CASES: 9+ sites. MARINE: `make_dambreak.py:270` +
+  `run_dambreak.sh` clobbering every log. Exemplar to copy: `R4_runs/run_c3_replicates.py:117` cites L-42 by name and
+  refuses to re-stage a completed solve.
+- **THE SWEEP FOUND TWO HOLES IN THE L-42 FIX ITSELF**, both mine, both now closed with tests: the settle-watched
+  launch path got the lever echo added and the archive call forgotten, and `_copy_best_effort` — the shared archiver
+  for the F5 ladders and four workflows — overwrote the committed copy. Fourth instance of L-46's shared form in one
+  campaign, second where the author's own claim was the thing under test. Suite 1250/0.
+- **AND ONE IN THIS FAMILY'S OWN PROCEDURE.** Infra guidelines §1.5 carried the resume ordering L-41 names as WRONG
+  for two days after the lesson landed — pgrep first, git log nowhere — and it was edited to v1.7 without anyone
+  noticing. Corrected. The same wrong ordering sits in `ESCALATION_CHARTER.md:416` and `PROPOSALS_OPEN.md:905`, both
+  chief-owned and routed rather than edited.
+- **ONE FAIL-FALSE CHANNEL FOUND (BATCH), AND A DELEGATED SWEEP HAD CALLED IT SAFE.**
+  `model_form_batch.assert_mesh_certified_at_entry(..., fallback=)` satisfies the mesh gate from a caller-supplied
+  SECOND directory with no hash binding, bypassing the hash-bound `certificate_admits()` that exists so "a certificate
+  cannot drift onto a different mesh". Real, unexercised, used cross-family by GEN_ALT and FPE_DIAG. The delegated
+  agent's null was a claim about its reach — L-43 demonstrating itself inside the sweep checking for L-43.
+- **L-47 IS THE CHEAPEST UNCLAIMED INSTRUMENT IN THE LAB**, available in three families and used in one. The standout:
+  `F6b_ERCOFTAC_RESULTS.md:171` NAMES THE GAP ITSELF — "may simply need tighter under-relaxation… should be tested
+  first" — while its reattachment claim stands at **+63% to +66% against reference**.
+- **L-44 IS CLEAN, AND MEASURED**: all 50 tracked pre-registrations and rule freezes checked by commit history — 26
+  post-freeze edits add only, 3 touch existing lines and all 3 survive inspection, one of them correcting a document
+  *against its own interest* ("written before launch" → "after it, not before").
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

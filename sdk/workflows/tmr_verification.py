@@ -1058,11 +1058,25 @@ def _detached_solve_wrapper(command: list[str], log_name: str,
 def _copy_best_effort(src: Path, dst: Path) -> None:
     """Copy an artifact (file or directory) out of the run root; a missing
     or unreadable source is not fatal here, only the caller's own checks on
-    the extracted record are."""
+    the extracted record are.
+
+    L-42, the ARCHIVE side. `_supersede_log` protects the run tree; this
+    protects the copy that ends up committed, which is the one every record
+    cites and the one the H_re10595_realizableKE casualty actually lost. This
+    helper is the shared archiver for the F5 ladders, transonic, cylinder,
+    pitching and backstep workflows, so one guard here covers all of them.
+
+    Narrow by design: only an existing `log.*` FILE is superseded. Directories
+    (`postProcessing`) keep `dirs_exist_ok` merge semantics, and no other
+    artifact's behaviour changes -- a wider guard would have been a second,
+    unreviewed change riding along with this one.
+    """
     try:
         if src.is_dir():
             shutil.copytree(src, dst, dirs_exist_ok=True)
         elif src.exists():
+            if dst.is_file() and dst.name.startswith("log."):
+                _supersede_log(dst)
             shutil.copy2(src, dst)
     except OSError:
         pass
@@ -1359,6 +1373,12 @@ def _run_simplefoam_to_settle(level: GridLevel, remote: str,
     remote_dir = Path(remote)
     command = [*_run_prefix(), "simpleFoam"]
     log_path = remote_dir / "log.simpleFoam"
+    # L-42. Found by the cross-family propagation sweep, NOT by the pass that
+    # wrote _supersede_log: this settle-watched path got the lever echo added
+    # to it and the archive call forgotten, so it was the one launch in this
+    # module that still destroyed a prior run's log. A change is not finished
+    # when it does what you intended (L-46).
+    _supersede_log(log_path)
     with log_path.open("w") as log_file:
         # Lever echo (L-40 / charter section 9). There is no shell here to
         # emit it from, so it is written from the SAME `remote_dir`

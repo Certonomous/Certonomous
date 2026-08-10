@@ -590,6 +590,43 @@ class SupersededLogTests(unittest.TestCase):
                          "a same-second rerun overwrote an earlier archive")
         self.assertEqual(len(list(self.case.glob("superseded_*"))), 3)
 
+    def test_the_settle_watched_path_archives_too(self):
+        """Found by the cross-family propagation sweep, not by the pass that
+        wrote _supersede_log: this launch path had the lever echo added and
+        the archive call forgotten, so it was the one launch in the module
+        that still destroyed a prior run's log."""
+        import inspect
+        src = inspect.getsource(tv._run_simplefoam_to_settle)
+        self.assertIn("_supersede_log(log_path)", src)
+        self.assertLess(src.index("_supersede_log(log_path)"),
+                        src.index('log_path.open("w")'),
+                        "the archive must happen BEFORE the truncating open")
+
+    def test_the_shared_archiver_supersedes_a_committed_log(self):
+        """L-42's archive side. `_copy_best_effort` is the shared archiver for
+        the F5 ladders and several workflows; the committed copy is the one
+        every record cites and the one the H_re10595 casualty actually lost."""
+        out = self.tmp / "committed"
+        out.mkdir()
+        (out / "log.simpleFoam").write_text("the prior run's archived evidence\n")
+        (self.tmp / "fresh.log").write_text("the new run\n")
+        tv._copy_best_effort(self.tmp / "fresh.log", out / "log.simpleFoam")
+        archives = list(out.glob("superseded_*_log.simpleFoam"))
+        self.assertEqual(len(archives), 1)
+        self.assertIn("prior run's archived evidence", archives[0].read_text())
+        self.assertEqual((out / "log.simpleFoam").read_text(), "the new run\n")
+
+    def test_the_shared_archiver_leaves_non_logs_alone(self):
+        """Narrow by design: widening this guard would be a second,
+        unreviewed change riding along with the first."""
+        out = self.tmp / "committed2"
+        out.mkdir()
+        (out / "record.json").write_text("{}\n")
+        (self.tmp / "new.json").write_text('{"a":1}\n')
+        tv._copy_best_effort(self.tmp / "new.json", out / "record.json")
+        self.assertEqual(list(out.glob("superseded_*")), [])
+        self.assertEqual((out / "record.json").read_text(), '{"a":1}\n')
+
     def test_the_shared_runner_archives_before_it_overwrites(self):
         """End to end through `_foam`, which opens the log 'w'."""
         self.log.write_text("Time = 30000\nthe prior run's evidence\n")
