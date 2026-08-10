@@ -541,8 +541,8 @@ standing is two cases wide** — delete `alpha_15_13929_2024` and the point rank
 falls to rank 2 (P(rank 1) 38%); delete `NASA_2DWMH` and P(rank 1) rises to 91%.
 **`AR_1_Ret_360` and `AR_3_Ret_360` are ties below published precision** (0.00003
 and 0.00008) and are not per-case wins or losses. Source:
-`campaign/PROBABILITY_OF_RANK_2026-08-10.md` — INTERNAL ONLY; the 68% figure
-never appears in an external claim.
+`campaign/PROBABILITY_OF_RANK_2026-08-10.md` — SUPERSEDED 2026-08-10 — the internal-only restriction was WITHDRAWN by chief ruling; the 68% figure
+now TRAVELS with the entry, and may never appear without its interval (2-100% at 95%) and the not-decided pairs.
 
 **Seed qualifier on that margin (added 2026-08-07, family supervision
 review F1 — the §0e qualifier, carried forward because the three

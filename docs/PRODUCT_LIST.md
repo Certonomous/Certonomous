@@ -2039,6 +2039,33 @@ clock-audit rule asks for.]*
 - **The agent's timing judgement, requested and given:** ship it. *"The risk of leaving it is a silent detector
   through a shoot; the risk of taking it is a FAIL that correctly tells you to run one command."*
 
+### 2026-08-10 (night) — both blocking items closed, and the corrections found more than the audit that ordered them
+
+- **F1 CLOSED and the figure was in THREE ladder documents, not the two V15 found** (7de8733c). All four duct values
+  re-derived from the JSON, and **the submission side proved two independent ways** — the manifest's own changed-list
+  and the absence of a validation-duct CSV in the shipped directory — rather than taken from the brief. The
+  replacement names its cases instead of giving a bare range: *"the three submitted ducts measure 8.5, 5.3 and
+  5.4 ×10⁻⁴"*, **so the number can never again be read as belonging to a case the reader will not receive.**
+- **F2 CLOSED, and the date list was longer than every prior count** (9477a2ed): **19 tracked files**, against a
+  peer's twelve and V15's seventeen — two landed after both measurements. Of 74 occurrences, **29 were assertions and
+  all are corrected** (including both outward files the peer's list omitted); **45 were references and were correctly
+  left alone**, and **zero** were genuine future dates. No filename renamed; the three carrying the wrong date in
+  their name got in-file notes. The one pass that recorded the discrepancy against the clock rather than inheriting
+  it already had its note.
+- F3–F7 closed: a chronology corrected from "three days" to **1 d 22 h 37 m** at four sites; the seed sensitivity now
+  travels as a fourth row of the outward interval table, per the reversal's own logic; two citations verified at the
+  frozen benchmark commit and cited inline; and the single bare 68% fixed — **the agent's own sweep found it was the
+  only one**, five sibling surfaces already compliant.
+- **Two items it STOPPED on rather than fixed, and the stop rule was right both times.** (1) **A third value of the
+  competitor's score** — one document's stated figure, the margin it derives, and its own table imply three different
+  numbers; reconciling needs the scorer re-run, which is a computation rather than a text fix. (2) The statement
+  *"INTERNAL ONLY; the 68% figure never appears in an external claim"* **is now false on four surfaces because of my
+  own reversal** — and rewriting a rule statement is a decision, not an accuracy fix.
+- **I have corrected the three records I own** — they now read that the restriction was withdrawn by chief ruling and
+  that the figure travels, never without its interval and the not-decided pairs. **The report's copy is routed to its
+  owner.** My reversal changed what is true and I did not sweep the statements describing the old rule; that is the
+  same fix-the-copy-not-the-class defect I committed with the dates, twice in one night.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
