@@ -103,11 +103,21 @@ but never writes a mesh birth certificate. Every mesh this arm generates gets
 `birth_certificate.json` written **at creation** from its own `log.checkMesh`
 via `sdk/chief_engineer/mesh_certificate.py`, and
 `mesh_certificate.certificate_admits()` must pass before `simpleFoam` launches —
-MESH_STANDARD v1.1 / charter §9, born clean or it does not enter. The F5c blocks
-are axis-aligned with exactly zero non-orthogonality and zero skewness, and their
-only checkMesh finding is the expected near-wall high aspect ratio, which under
-`parse_check_log` yields verdict `flagged` — an accepted verdict, and one that
-belongs on the record rather than in a habit.
+MESH_STANDARD v1.1 / charter §9, born clean or it does not enter.
+
+**Correction, made the same day this document was filed and before any launch.**
+This paragraph first asserted that F5c's meshes would certify as `flagged` (the
+axis-aligned blocks give exactly zero non-orthogonality and zero skewness; the
+only checkMesh finding on the record is the expected near-wall high aspect
+ratio). **That assertion could not be checked, because no F5c `checkMesh` log
+survives anywhere in the archive** — `F5c_runs/sign_convention_control/` holds
+`log.blockMesh` and a gzipped `log.simpleFoam` but no `log.checkMesh`, even
+though `collect.py` names one in its own docstring. So the expected verdict is
+`flagged` (accepted at entry; aspect ratio is never a lone rejection under Mesh
+Standard 3.3) **and it is a prediction, recorded as one, to be scored against the
+first certificate this arm writes.** The gap itself is the point: the mesh-quality
+record for the case whose headline number is being regenerated does not exist
+either, which is the same disease as the missing solver logs and the same cure.
 
 ## 3. The detector, and what each mesh level can and cannot adjudicate
 
