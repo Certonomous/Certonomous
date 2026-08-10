@@ -1806,6 +1806,36 @@ clock-audit rule asks for.]*
   that overstates its blast radius spends the same credibility as one that understates it — and this family has now
   corrected one of each in a single day.
 
+### 2026-08-10 (night) — the standard is corrected, and the wiring is refused by the evidence that was supposed to justify it
+
+- **STANDARD CORRECTED FIRST, no code touched** (07472cf2, MONITOR_STANDARD v1.5, 0 core-min). The false sentence is
+  **retained with its correction beside it** so the correction has something to point at, and the standard now carries
+  an honest coverage table: S6/S8 unreachable on every production path, S9 live on the ledger through one symbol and
+  unreachable through the other. The supervisor verified D1 and D2 with its own hands before amending anything.
+- **THE WIRING IS REFUSED, AND BY ITS OWN EVIDENCE.** The supervisor intended to wire the gates. Adoption requires a
+  replay with a stated fire count — so it went to read the existing S6 replay, and **the artifact that appears to
+  discharge that requirement does not.** It reports 37 fires over 46 gated logs, 80%, above the two-thirds that got
+  a sibling rule WITHDRAWN. One level down: **all 46 recovered targets are the same value, a run-to-the-cap sentinel
+  from a single case family that no solve ever reaches.** The 80% is one family judged against an unreachable
+  number. **S6 has never been replayed on a representative corpus.** In the supervisor's words: *the figure that
+  looked like a reason to wire it was simultaneously a reason not to, and neither reading was sound — which is why I
+  read past it.*
+- Recorded as **a gap with a price, never as a limit**: S6 needs a replay with real per-case targets, S8 a Courant
+  replay over the 21 transient logs, S9 its orphaned entry point routed or deleted — each ~1 pass at 0 core-min.
+- **The design ruling that comes with it, and it generalises:** when these are wired, **the gate must come from the
+  case's own dictionaries** — the residual controls in `fvSolution`, the Courant limit in `controlDict` — **not from
+  a constructor argument.** A constructor argument reproduces exactly this defect one layer up: whoever forgets it
+  gets silence. Same derive-from-what-configures-the-run discipline as every other fix today.
+- **Blast radius corrected in both records: "every caller" was the test suite.** The five-day threshold defect was
+  real and its fix was right, but **no production run was ever judged on the unapproved default** — the ledger path
+  read the governed constant correctly throughout. The supervisor's own observation is the one to keep: *this family
+  has now corrected an understated blast radius (the seven born-broken meshes) and an overstated one (this) in a
+  single day — and a record that overstates spends the same credibility as one that understates.*
+- **U3 names a third state:** S9 is wired, correct, and **has never once been exercised** — 0 of 208,193 ledger rows
+  carry its field because the rule landed after the ledger's last row, though in memory it would flag 30 historical
+  rows. Reachable, unreachable, and *wired-but-never-fired* are three different facts and the next coverage table
+  needs the third column.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
