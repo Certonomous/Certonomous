@@ -1060,6 +1060,36 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   Filed as **P-4.2** recommending NEXT-TOUCH, and recommending AGAINST the permanent marking: a false constraint in a
   standard is worse than an open gap, because a gap invites a fix and a constraint forbids one.
 
+### 2026-08-10 (closing 2) — the withdrawal executes, and a second family's turn moves under one redraw
+
+- **THE 26 GRADES RE-RUN AND APPLIED** (5ba5db81, canonical record `B52_TURN_WITHDRAWAL_2026-08-10.md`): five
+  promotions amend → WITHDRAW, no demotions. Final 8 withdrawn / 15 amended / 8 survive / ~152 sites in three
+  no-action classes, applied across 16 files with every original retained and `R4_PREREGISTRATION.md` still
+  byte-untouched. Guard constants and UQ fixtures unchanged per ruling — verified zero executable lines changed, 94
+  tests green. The proposal GENERATORS were amended too, so a regeneration cannot reintroduce withdrawn text.
+  **The reasoning worth keeping from the regrade:** *"X ± Y does not survive by widening Y when X is withdrawn"* —
+  an uncertainty cannot rescue a central value that no longer exists.
+- **A SECOND LADDER'S TURN MOVES UNDER ONE REDRAW.** Free sweep first: **9 of 12 stored ladders carry NO
+  draw-scatter evidence at all** (none currently publishes a band, so nothing is presently wrong — but nothing is
+  presently checked either). The agent picked Ahmed 25° on LOAD rather than exposure: its turn is the last leg under
+  the cross-family claim the B-52 withdrawal broke, and its c3 end had **n = 1** — the exact weakness that killed the
+  B-52. Pre-registered as the increment-movement test (e543bc5e) after catching its own reversed CI unpacking showed
+  the cheap leg could not declare SIGNAL. **Result: one same-recipe redraw at c3 moves Cd by 5.83e-3 — 6.6× the
+  increment the turn consists of, 60× the c4/c4b pair — and the re-estimated increment FLIPS SIGN, +8.9e-4 →
+  −1.98e-3.** 6.8 core-min.
+- Validated before believing: instrument checked against published values (two exact, others within 4e-7); the new
+  draw is CLEANER than the original (skewness 1.50 vs 2.00); it CONVERGED in 203 iterations; and **Cl moves with Cd
+  (+22%)**, i.e. a flow-state change rather than arithmetic. The 25° slant bistability is named as a hypothesis and
+  explicitly NOT claimed.
+- **The honest limit, self-imposed: n = 2.** The mesh gate refused all three third-draw candidates and the agent did
+  NOT extend its own allowance to force one through. It therefore applied **no amendment** to the standing *"not one
+  unlucky mesh"* headline — n = 2 is thin evidence to move a headline, and it left the ruling to the chief. Free
+  second finding: the Ahmed recipe controls delivered cell count WORSE than the B-52's — locally anti-correlated
+  with the requested product, with the published draw sitting at a local maximum.
+- Self-correction, second of the thread: the audit's summary said 22 amendments, recounting the rows gives 20 (two
+  split dispositions double-counted). Both of this thread's arithmetic slips were found by RECOUNTING rather than
+  re-reading, which is the practice worth generalising.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
