@@ -1322,6 +1322,38 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   The binding constraint on this retrofit turns out to be not compute but **whether the ladder is a ladder and
   whether its meshes still exist.**
 
+### 2026-08-10 (closing 10) — a spurious turn appears 29% of the time under the null, and a deciding rung is deleted by design
+
+- **THE CALIBRATION PRODUCED THE RULE'S BEST ARGUMENT.** Bar fixed at T* = 0.7183 σ̂ for a 10% false-positive rate,
+  from 4M simulated trials with the n=3-vs-n=1 asymmetry modelled — and the same simulation says that **under the
+  null, a spurious turn appears 29.0% of the time.** Roughly three ladders in ten will show a turn that is not
+  there. That single number argues for §17 better than any argument the lab has made for it.
+- **`naca0015_sail`: OUT OF SCOPE, verdict complete, 4.8–8.1 core-min NOT spent.** Every published record reports
+  rung values, an observed order, a band and `conclusive: false` — no turn, no oscillation, no non-monotonicity
+  asserted anywhere. The judgement call was stated so it could be disagreed with rather than discovered: the study
+  json carries passing guard fields, and the agent reads those as internal verdict machinery rather than a published
+  shape claim, **with the cost of disagreeing priced at 4.8–8.1 core-min**. It would survive scrutiny anyway on
+  evidence already banked — n = 2 at production, scatter 138.8× its own iterative 2σ and 7.4% of the envelope it
+  publishes, i.e. **an envelope measured conservative against its own mesh scatter**, the strongest draw record of
+  the five.
+- **`cube`: in scope decisively — and the rung its feature turns on NO LONGER EXISTS.** The feature is live on five
+  surfaces, but the turn sits at the medium rung and that rung has no case, no points file and no dictionaries,
+  because the study runner **clears the body-keyed mesh cache before each rung by design** so only the finest
+  survives. The existing replicate pair is at the wrong rung and failed by its own account. Rather than draw against
+  an unverifiable rung or declare defeat without trying, the agent pre-registered a **reconstruction gate**
+  (02ee4a4d): regenerate through the archived code path, with the exact cell count 103,934 as the fingerprint
+  standing in for the checksum the deleted dictionaries make impossible. Match → verified-by-fingerprint and draws
+  proceed; miss or failure → unverifiable at source, both counts published. Its prediction: the turn does not
+  survive — clearing the bar would require scatter below 0.639% of Cd, 5.7× tighter than the B-52's.
+- **A generic mechanism, screened for the other half without grading their arms:** the same cache deletion means the
+  retrofit's premise may fail on possibly three of five ladders. Evidence handed over as a screen, not a verdict —
+  *"the split says I don't grade their arms"* — with the method attached so Cases can check its own cases.
+- **Two record corrections flagged, not fixed:** two live records state a study directory was DELETED and **it
+  exists**, with mesh and logs, so any conclusion resting on its absence needs re-checking. And the 2026-08-08 mesh
+  audit's *"CERTIFIED (pre-existing record)"* means a checkMesh LOG exists — **not** that a certificate was written:
+  zero `birth_certificate.json` files exist under any cube or sail path. The audit's certified count meant something
+  weaker than it read.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
