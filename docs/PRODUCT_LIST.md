@@ -1603,6 +1603,35 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   cannot be confounded away. Either outcome changes the record: scatter explains the non-monotonicity and that
   sentence is wrong, or it does not and the sentence is vindicated by measurement for the first time.
 
+### 2026-08-10 (closing 18) — the pre-flight kills the approved run, and the rule's scope was wrong as adopted
+
+- **F4's APPROVED 7.5 CORE-MIN: DECLINED, NOTHING SPENT** (d8a81e55). Checking before spending found the restatement
+  wrong twice. **(1) F4's "scatter" is TEMPORAL scatter and it WAS measured** — reported per rung (3.5% coarse, 2.3%
+  medium, 0.4–0.8% fine) as an explicit snapshot band from three late-time writes, with every deviation set against
+  its own band. *"Scatter does not fully explain it"* means the resolution-to-resolution swings EXCEED those measured
+  bands: a careful claim about a measured quantity, not the gap it was annotated as. **(2) Mesh-draw scatter cannot
+  exist for that ladder** — its generator builds a deterministic structured polar O-grid, so the same parameters give
+  a byte-identical mesh every time. **(3) The record had already named the true cause** (a resolution-dependent bias
+  in the peak-gradient detector itself — the same class as the F5c reattachment-detector defect), diagnosed rather
+  than left open.
+- **AND THE WHOLE "CLEAN" SET COLLAPSES WITH IT.** All 11 campaign ladders restated as *clean, no scatter measured*
+  use **deterministic structured generators**, verified generator by generator — so **the quantity the rule asks for
+  is identically ZERO for every one of them.** All 11 restatements corrected, originals retained. Only the
+  snappyHexMesh bodies have a draw distribution at all; those six restatements stand as written. **The priced
+  shortlist collapses entirely** — the seven candidates deliberately left unpriced were all deterministic too, so
+  the hour of record-reading I did not order would have priced measurements that cannot be taken.
+- **§17 GAINS TWO SCOPE REQUIREMENTS, one of them because the rule was wrong as adopted:** a restatement names the
+  **recipe class** (clean means one measurement away from real; confounded means unsupported twice over;
+  undeterminable means neither can now be established) — and **the rule applies ONLY WHERE A DRAW EXISTS.** On a
+  deterministic generator it is satisfied by STATING that, not by measuring; demanding a number that cannot exist
+  would be the rule failing in a new direction. A related trap is recorded with it: **check WHICH scatter a record
+  means before annotating it for lacking one.**
+- **THE CASES QUEUE IS GENUINELY EMPTY, and the reason is a fact worth having:** of the six ladders where draw
+  scatter exists and is unmeasured, four are confounded (measuring them would be precise measurement of the wrong
+  quantity) and two are undeterminable (the rung cases are gone). **There are currently ZERO ladders in this lab
+  where a draw-scatter measurement would be both possible and meaningful.** Second time today this agent declined
+  approved compute; F5c remains honestly unpriceable and no number was manufactured for it.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
