@@ -55,7 +55,7 @@
 a branch recorded on a differentiated path\\
 \large the slope limiter in parallel, the slope limiter in serial,\\
 the IDWarp rotation guard, the ILU conditioning wall ---\\
-and two configurations the solver accepted and did not run}
+and three configurations the solver accepted and did not run}
 \author{Certonomous CFD Lab}
 \date{2026-08-10}
 
@@ -135,7 +135,18 @@ between 42{,}120 and 79{,}560 cells and breaks the two-rung iteration-scaling la
 rather than by degree. The wall was real; at the rungs below that ceiling its cause was
 misattributed. A second silent configuration is reported alongside: the
 wrapper writes the primal end state back into time~0, so the cold start you assumed is not the
-start that ran. \textbf{Nothing in this document has been filed upstream.}
+start that ran. And a third, with the widest audience of the three: the adjoint solver calls
+\texttt{KSPSetFromOptions} and then overrides it at twelve later call sites, so
+\texttt{-ksp\_type}, \texttt{-pc\_type} and \texttt{-sub\_pc\_type} are accepted without
+error and discarded --- while \texttt{-ksp\_monitor\_true\_residual} and
+\texttt{-ksp\_view\_pmat} work perfectly. The same channel that hands a user a correct
+diagnosis silently drops the remedy it implies, which this lab established from both ends:
+ten candidate causes of the ceiling are eliminated by measurement through that channel ---
+including diagonal spread, by the decisive observation that 14.40 decades converges and 14.47
+does not, and non-normality, by the stalling rung measuring \(1.62\times\) \emph{less}
+non-normal than the converging one --- and every remedy those eliminations point to next is one
+the channel discards.
+\textbf{Nothing in this document has been filed upstream.}
 \end{abstract}
 
 \vspace{-0.5em}
@@ -146,9 +157,11 @@ This document is the extended, citable companion to two prepared-but-unfiled rep
 \artifact{demo-output/website/dafoam/UPSTREAM\_BUG\_REPORT\_decomposition\_adjoint.md}
 and \artifact{demo-output/website/dafoam/UPSTREAM\_BUG\_REPORT\_mesh\_warpDeriv.md}. It does
 not replace them. Both remain \textbf{PREPARED}: complete, carrying the 2026-08-07 addenda
-these sections summarise, and \emph{held}. The two silent-configuration findings of
-Section~\ref{sec:deadlever} have no prepared report at all --- only the measured record cited
-there. Submissions are parked at the owner's discretion;
+these sections summarise, and \emph{held}. A third prepared document has since joined them ---
+\artifact{demo-output/website/dafoam/DEFECT\_CANDIDATE\_ksp\_options\_override.md}, the
+option-channel defect of Section~\ref{sec:kspoverride}, \textbf{filing-ready and not filed}.
+The other two silent-configuration findings of Section~\ref{sec:deadlever} have no prepared
+report at all --- only the measured record cited there. Submissions are parked at the owner's discretion;
 whether any of this is sent upstream is the lab principal's call, not the authors'. Where
 our own record was found defective by our own verification, the defect is printed here
 rather than repaired silently --- including, in Section~\ref{sec:deadlever}, a causal claim of
@@ -162,13 +175,14 @@ ours that this lab's own arms overturned.
 \section{Summary of findings}
 %======================================================================
 
-Six findings, from four weeks of forensic work on the MACH-Aero/DAFoam toolchain. Three
+Seven findings, from four weeks of forensic work on the MACH-Aero/DAFoam toolchain. Three
 of them are one defect class --- a \emph{branch} recorded on a differentiated path, whose
 selection the reverse sweep gets wrong --- in two repositories, in parallel and in serial.
-The fourth is a wall in a shipped default with a remedy that is one option away. The last two
+The fourth is a wall in a shipped default with a remedy that is one option away. The last three
 share a shape with each other and not with the first four: configuration the tool accepts and
-does not run --- an option that is dead code for the solver that read it, and a state rewrite
-that no log line announces.
+does not run --- an option that is dead code for the solver that read it, a state rewrite that
+no log line announces, and an entire PETSc option channel that answers diagnostics faithfully
+and discards the remedies typed into it.
 
 {\footnotesize
 \begin{longtable}{@{}L{2.4cm}L{3.1cm}L{5.9cm}L{3.2cm}@{}}
@@ -181,8 +195,8 @@ that no log line announces.
 \midrule
 \endhead
 \bottomrule
-\caption{The six findings. Sources: Sections~\ref{sec:decomp}, \ref{sec:serial},
-\ref{sec:idwarp}, \ref{sec:pc}, and \ref{sec:deadlever} for the last two.}\\
+\caption{The seven findings. Sources: Sections~\ref{sec:decomp}, \ref{sec:serial},
+\ref{sec:idwarp}, \ref{sec:pc}, and \ref{sec:deadlever} for the last three.}\\
 \endlastfoot
 \multicolumn{4}{@{}L{15.2cm}@{}}{\emph{The class: a branch recorded on a differentiated path.}}\\
 \addlinespace
@@ -219,6 +233,11 @@ D5. A state rewrite with no log line
 & DAFoam v5 \artifact{pyDAFoam}: the primal end state is written back into the time-0 directory (\artifact{0/U} bit-identical to \artifact{1000/U}); \artifact{pyDAFoam.py:1543} then hard-raises on the leftover time directory it created
 & Every rerun of a case directory silently warm-starts. Discriminator: first \texttt{Time step continuity errors}, cold-from-uniform 0.597 vs warm 0.0107 (\(55\times\)), bit-reproducible across six cold starts. Audited backwards over nine conclusion-bearing records at zero solver cost: seven cold-clean (staged per-arm copies, bit-identical start states), two flagged, none load-bearing
 & Instrument hazard, measured and audited. \textbf{Not filed} \\
+\addlinespace
+D6. An option channel that answers and does not obey
+& DAFoam v5, \artifact{DALinearEqn.C:138} calls \texttt{KSPSetFromOptions}; twelve later call sites override it --- GMRES at 144, ASM at 212, ILU at 286, plus restart, PC side, tolerances, overlap and fill
+& \texttt{-ksp\_type lgmres}, \texttt{-pc\_type gamg}, \texttt{-pc\_type fieldsplit}, \texttt{-sub\_pc\_type lu} and the rest are accepted without error and have no effect; \texttt{-ksp\_view} prints the hardcoded stack. \textbf{Monitors and viewers are NOT overridden} --- \texttt{-ksp\_monitor\_true\_residual} and \texttt{-ksp\_view\_pmat} work perfectly --- so the diagnostic path demonstrates the channel is live while the remedy path discards the instruction. Measured instance: this lab diagnosed a preconditioned \(\kappa=9.57\times10^{10}\) through that channel and could reach none of the remedies it implies
+& Diagnosability defect; no wrong number produced. Twelve call sites tabulated, three graded fixes drafted, reproducer 5 minutes. \textbf{FILING-READY, not filed} \\
 \end{longtable}
 }
 
@@ -233,16 +252,18 @@ class is cheap to hunt once it is named: every member here is removable by a one
 dictionary edit or a four-line derivative, which makes it the cheapest discriminator
 available, and it was one such edit that closed D1's mechanism hunt.
 
-\paragraph{What links all six.} They are invisible to the checks that ship with the tools.
+\paragraph{What links all seven.} They are invisible to the checks that ship with the tools.
 D2's discarded term sums to \emph{exactly} zero over the surface, and the sum is the only
 quantity upstream's test asserts on. D1 produces a gradient that is self-consistent under the
 decomposition it was measured on, and no published verification varies the decomposition.
 D1s is self-consistent across decompositions too --- it passes the invariance gate this lab
 adopted after D1, to \(3.9\times10^{-4}\), while being 92.8\% wrong. D3 announces itself
-loudly, but the documented remedy ladder does not contain the remedy. D4 and D5 are the
+loudly, but the documented remedy ladder does not contain the remedy. D4, D5 and D6 are the
 degenerate case of the same problem: the instrument reports the dictionary, and the dictionary
-is not the run --- an option echoed back verbatim while no branch takes it, and a start state
-replaced between runs with nothing printed. Each was found by measuring the thing the
+is not the run --- an option echoed back verbatim while no branch takes it, a start state
+replaced between runs with nothing printed, and a command line that is parsed, delivered, and
+overwritten before it reaches the solve. D6 is the sharpest of the three, because the same
+channel that drops the user's remedy hands back their diagnosis correctly. Each was found by measuring the thing the
 instrument was not looking at.
 
 \paragraph{What D4 and D5 cost, and why they are here.} Neither is a wrong number. D4 produced
@@ -1732,7 +1753,11 @@ control (parity with DAFoam) & zeropivot 2.22e-14, rcm, shift NONZERO & \textbf{
 \end{table}
 
 Two conclusions, one per column. \textbf{Reachability:} factor options do land, so
-``compiled-in, nothing reachable'' was too strong. \textbf{Mechanism:} a \(10^{-8}\)
+``compiled-in, nothing reachable'' was too strong. \emph{Added 2026-08-10:} the boundary is now
+exact, and it is narrower than this paragraph once implied --- factor options land because
+PETSc applies them after DAFoam's own overrides, while every option that selects the Krylov
+method or the preconditioner family is discarded at twelve call sites
+(Section~\ref{sec:kspoverride}). \textbf{Mechanism:} a \(10^{-8}\)
 zero-pivot threshold with \texttt{MAT\_SHIFT\_NONZERO} active still produces the NaN, so this
 is \emph{not} a small-pivot-below-threshold event the shift machinery could catch. The failure
 is factor growth --- enormous elements in \(L/U\) that overflow when applied --- which no
@@ -2402,6 +2427,203 @@ The conditional FD arm was correctly not launched --- stage 1 did not converge, 
 \(\sim\)60--70 core-min were not spent --- and the rung closed at 111.0 core-min against
 170--190 approved, under budget because a pre-registered gate did its job.
 
+\subsection{What the ceiling is not: ten eliminations and the number that survived}
+\label{sec:elimination}
+
+\emph{Added 2026-08-10.} Section~\ref{sec:ceiling} left the mechanism unidentified. A
+pre-registered diagnosis campaign then went after it in the one way that produces a durable
+result when it fails --- by naming candidate causes in advance, deriving each one's implied
+remedy, and testing them --- and it failed. What it produced instead is an elimination table,
+which is worth printing because the eliminations are measurements rather than arguments.
+
+\paragraph{The hypothesis the campaign most expected to confirm, killed by its own decisive
+test.} The obvious reading of a stalling adjoint on a badly-scaled operator is that the
+assembled preconditioner matrix's diagonal spread has grown past what ILU can carry. It has
+not:
+
+\begin{table}[htbp]
+\centering\footnotesize
+\begin{tabular}{@{}lrr@{}}
+\toprule
+ & rung 2 (42{,}120 cells) & rung 3 (79{,}560 cells) \\
+\midrule
+unknowns & 384{,}518 & 724{,}609 \\
+nonzeros per row & 111.8 & 112.8 \\
+\textbf{diagonal magnitude spread} & \textbf{14.40 decades} & \textbf{14.47 decades} \\
+adjoint outcome & \textbf{converges}, \(C_D\) 987 iterations & \textbf{stagnates} \\
+\bottomrule
+\end{tabular}
+\caption{Two rungs, 0.07 decades apart, and only one of them converges. \textbf{Diagonal
+spread does not discriminate between the rung that works and the rung that walls.} A
+14.4-decade spread is survivable at 42{,}120 cells and fatal at 79{,}560, so whatever changed
+is not the operator's diagonal scaling --- which also retires the 14.17-decade figure of
+Section~\ref{sec:deadlever} as an \emph{explanation}, while leaving it true as a measurement.
+\artifact{A3\_SAAD\_DELIBERATE\_CONDITIONING\_PREREGISTRATION.md} \S A5, \commit{dda82819}.}
+\label{tab:spread}
+\end{table}
+
+The campaign records that this was the hypothesis it most expected to confirm, and the one a
+motivated reading would have confirmed. It is also the route this lab's own capability strategy
+named --- \emph{diagonal-spread diagnosis \(\rightarrow\) chosen preconditioner \(\rightarrow\)
+converged} --- so the finding is that the strategy's own stated route is a measured dead end on
+this case.
+
+\begin{table}[htbp]
+\centering\scriptsize
+\begin{tabular}{@{}L{5.0cm}L{9.4cm}@{}}
+\toprule
+candidate cause & how it was refuted, by measurement \\
+\midrule
+Krylov method breakdown (orthogonality loss) & recursive and true residuals track to 7--12 digits through the stall (iteration 212: \(1.618871461180\)e-2 both, twelve digits). The arithmetic is faithful; the operator is offering no progress \\
+Krylov subspace too small & a \(5\times\) window (restart \(200\rightarrow1000\)) bought \(1.647\times\) against a pre-registered \(10\times\) bar \\
+field-block separation (\(\rightarrow\) field-split) & the 2{,}000 largest diagonals are flat across all six state slots (301/357/331/324/351/336); every slot individually spans 13.1--14.5 decades; per-slot medians within \(1.7\times\). There is no field to split off \\
+geometric localisation (the tip-TE pathology) & the 500 largest diagonals have spatial standard deviation \((1.32,1.77,0.60)\) against the whole mesh's \((1.62,1.59,1.19)\), and are \emph{less} near-wing than average (21.8\% vs 46.6\% at \(\lvert y\rvert<0.05\)). The extremes are diffuse \\
+mesh volume spread imprinted on the diagonal & \(r=-0.135\), fitted slope \(-0.100\) (\(-1.0\) would mean \(\mathrm{diag}\propto 1/V\)) across ten decades of cell volume \\
+\textbf{diagonal spread magnitude} & \textbf{Table~\ref{tab:spread}: 14.40 decades converges, 14.47 does not} \\
+one-level Schwarz deficiency (overlap) & \(\kappa\) moved \(0.979\times\) and \(1.062\times\) at doubled \texttt{asmOverlap}, and the residual came back 3\% \emph{worse} \\
+stronger preconditioner application (Richardson) & collapses at rung 2 (Section~\ref{sec:artifact}) \\
+ILU fill level & \texttt{pcFillLevel 1} at rung 3: \(1.859\times\) against the same \(10\times\) bar, flat after iteration 400 \\
+non-normality of the assembled operator & \(\nu_F\) 2.65e-3 at the stalling rung against 4.30e-3 at the converging one --- ratio 0.617 against a pre-registered bar of 3.0, confidence intervals non-overlapping. The stalling rung is \emph{less} non-normal \\
+\bottomrule
+\end{tabular}
+\caption{Ten candidate causes, each refuted by a measurement rather than by an argument. What
+survives is a negative characterisation with a number attached: the rung-3 adjoint operator, as
+ASM+ILU(0) preconditioning sees it, carries \(\kappa\approx10^{11}\)
+(\(s_{\max}/s_{\min}=9.57\times10^{10}\) at iteration 400), and that value is insensitive to
+every preconditioner parameter this build exposes.}
+\label{tab:elim}
+\end{table}
+
+\paragraph{The falsifier fired, and it was pre-stated.} The campaign's chosen arm was
+\texttt{asmOverlap} \(1\rightarrow2\) --- the one parameter of the hardcoded \texttt{PCASM} that
+classical theory says controls \(\kappa\) --- with the prediction written down before launch:
+\(s_{\max}/s_{\min}\) must fall materially below \(9.57\times10^{10}\) \emph{and} the residual
+must descend further than the overlap-1 control. Neither happened (\(0.979\times\) and
+\(1.062\times\) on \(\kappa\); residual \(1.031\times\) worse), so the arm's own stated
+alternative fires verbatim: the ill-conditioning is not Schwarz-mediated. The record reports the
+proof clause as NOT MET in the same words a success would have used.
+
+Two disclosures travel with that arm and are reproduced here rather than dropped. The choice of
+lever was made \emph{after} the diagnosis was in hand, which the record labels one notch weaker
+than its pre-registered ideal --- ``diagnosis-derived and outcome-pre-registered, not
+rule-pre-registered end to end'' --- and the cost ran to 61.6 core-min against \(\sim\)35
+approved, flagged at 45 before the diagnosis and 58 before the arm rather than discovered
+afterwards.
+
+\paragraph{And the remedies the evidence does name are the ones the toolchain blocks.} The
+elimination table points where a numerical analyst would expect: a two-level method with a
+coarse space, a different preconditioner family (\texttt{PCFIELDSPLIT}, \texttt{PCGAMG}), or an
+augmented-restart Krylov method (\texttt{lgmres}, \texttt{dgmres}). Every one of them is
+selected through the PETSc option channel, and every one of them is silently discarded by the
+solver --- which is Section~\ref{sec:kspoverride}, and is the reason that defect is in this
+report rather than in a usability note.
+
+\paragraph{The one number that cuts against all of this, printed rather than smoothed.}
+\texttt{pcFillLevel 1} at rung 3 was run as an engineering attempt with no diagnostic claim
+attached. It stalled, at \(1.859\times\). But the condition estimate underneath it did not:
+
+\begin{table}[htbp]
+\centering\footnotesize
+\begin{tabular}{@{}lrr@{}}
+\toprule
+mid-cycle, iteration 300 & control, fill 0 & fill 1 \\
+\midrule
+\(s_{\max}\) / \(s_{\min}\) & \(1.379\)e10 / \(0.294228\) & \(254.03\) / \(0.153029\) \\
+\(s_{\max}/s_{\min}\) & \(\mathbf{4.69\times10^{10}}\) & \(\mathbf{1.66\times10^{3}}\) \\
+residual at iteration 400 & \(1.615428631404\)e-2 & \(8.687780770929\)e-3 (\(1.859\times\)) \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Seven orders of magnitude off the preconditioned condition estimate, and the
+solve still stalls at 1.9\(\times\).} Measured 100 iterations into cycle two, at the identical
+point of the identical cycle;
+readings at exact restart boundaries print \(1/1\) because the Hessenberg estimate is empty
+there, so only mid-cycle values are comparable (fill 1 reads \(1.76\times10^{3}\) at iteration
+700 and \(1.08\times10^{4}\) at 800). \artifact{A3\_RUNG3\_FILL1\_\allowbreak ENGINEERING\_PREREGISTRATION.md} \S5.1,
+\commit{48b34cbf}.}
+\label{tab:kappa}
+\end{table}
+
+Stated plainly because it cuts against the tidy story: \textbf{the condition number estimated
+from the Krylov cycle is not predicting convergence here.} Two readings fit, and the arm that
+produced the number could not separate them.
+
+\begin{enumerate}
+\item \textbf{The estimator is measuring the cycle, not the operator.}
+\texttt{KSPComputeExtremeSingularValues} reports the extremes of the \emph{current cycle's}
+Hessenberg matrix --- a lower bound over the subspace actually visited, not the operator's
+spectrum. On this reading the control's \(4.69\times10^{10}\) says how badly that cycle is
+spanning the space, and says less about conditioning than its magnitude suggests.
+\item \textbf{The obstruction is not spectral at all.} If the operator is markedly non-normal,
+eigenvalue or singular-value clustering does not govern GMRES convergence --- Saad's own caution
+--- and a seven-decade improvement in a spectral proxy buying \(1.9\times\) is exactly what that
+looks like. This reading would explain the \emph{entire} elimination table at once, because
+non-normality is invisible to every scale-, structure- and decomposition-based remedy in it.
+\end{enumerate}
+
+\paragraph{Both readings were then tested, and both are refuted.} The arm that raised the
+hypothesis named it as the outcome it should be most willing to report, pre-registered the
+measurement and its decision bar (\commit{7783f603}), and refuted itself (\commit{15b64e81}).
+
+\emph{Reading (1), at zero cost, from logs already on disk.} The estimator's own
+subspace-to-subspace variability is bounded by its non-degenerate readings within each run:
+\(2.22\times\) on the fill-0 control, \(6.51\times\) on fill 1, \(2.32\times\) on the overlap-2
+arm --- at most \(6.5\times\). The fill-0-to-fill-1 jump is \(\sim2.5\times10^{7}\).
+\textbf{The jump exceeds the artifact scale by six to seven orders of magnitude}, so estimator
+noise cannot account for it. An unplanned control fell out of the same arithmetic: the fill-0
+and overlap-2 runs, launched hours apart, return near-identical estimates at matched iterations
+(\(4.31\)e10 vs \(4.39\)e10; \(4.69\)e10 vs \(4.59\)e10; \(9.57\)e10 vs \(1.02\)e11), which
+validates the instrument's reproducibility and independently re-confirms that doubling the
+Schwarz overlap did nothing.
+
+\emph{Reading (2), by measurement, and it goes the other way.} Departure from normality was
+measured as the normalised Frobenius commutator
+\(\nu_F = \lVert P^{\mathsf T}P - PP^{\mathsf T}\rVert_F / \lVert P\rVert_F^2\), by a Hutchinson
+estimator with \(k=200\) Rademacher probes at a fixed seed --- scale-invariant by construction,
+which is the diagonal-spread lesson applied --- against rung 2 as the \emph{converging} control,
+because the number means nothing without one.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\begin{tabular}{@{}lrr@{}}
+\toprule
+ & rung 2 --- \textbf{converges} & rung 3 --- \textbf{stalls} \\
+\midrule
+unknowns / nonzeros & 384{,}518 / 42{,}988{,}956 & 724{,}609 / 81{,}718{,}327 \\
+\(\lVert P\rVert_F\) & \(4.261146\)e12 & \(7.587909\)e12 \\
+\(\boldsymbol{\nu_F}\) & \(\mathbf{4.298842}\)\textbf{e-3} & \(\mathbf{2.651122}\)\textbf{e-3} \\
+95\% confidence interval & [4.2813e-3, 4.3163e-3] & [2.6377e-3, 2.6645e-3] \\
+\bottomrule
+\end{tabular}
+\caption{Ratio \(0.617\) against a bar of \(3.0\) fixed before the numbers existed.
+\textbf{The stalling rung is measurably \emph{less} non-normal than the converging one, by
+\(1.62\times\), with non-overlapping confidence intervals} --- a resolved difference, not a null
+from noise. Both operators are only mildly non-normal in absolute terms
+(\(\nu_F\sim10^{-3}\) on a measure running to order 1). 0 of a 25 core-min cap: both operators
+were already on disk. \artifact{A3\_NONNORMALITY\_DIAGNOSTIC\_\allowbreak PREREGISTRATION.md} \S5,
+\commit{15b64e81}.}
+\label{tab:nonnormal}
+\end{table}
+
+\textbf{The limitation bounds the claim in both directions and is not dropped here.} What was
+measured is DAFoam's assembled \artifact{dRdWTPC} --- not the matrix-free transpose Jacobian, and
+not the preconditioned operator \(AM^{-1}\) whose normality actually governs GMRES convergence,
+which this build never assembles. So the honest statement is that \emph{the non-normality of the
+operator DAFoam builds its preconditioner from does not distinguish the rung that converges from
+the rung that does not}, and therefore fails to explain the table. It does not prove the
+preconditioned operator is well behaved.
+
+\paragraph{Where that leaves the chapter.} Ten candidate causes have been tested and refuted by
+measurement: method breakdown, Krylov subspace size, field separation, geometric localisation,
+mesh volume scaling, diagonal-spread magnitude, one-level Schwarz overlap, stronger
+preconditioner application, ILU fill level, and non-normality. The surviving statement is
+unchanged and better defended than when it had nine: \textbf{the rung-3 wall is real, it is not
+memory, and nothing this build exposes --- nor anything measurable on the operator it assembles
+--- distinguishes it from the rung that converges.} What remains unexplained is now precisely
+bounded rather than vaguely open, which is a different and more useful kind of ignorance. The
+remedy classes that would test the next hypothesis are the ones Section~\ref{sec:kspoverride}
+shows cannot be selected at all from this build; that boundary, and not a further knob, is the
+honest end of the investigation.
+
 \subsection{The second silent configuration: the time-0 rewrite}
 
 The same arc surfaced a second way for a configuration to be silently not what it says. At the
@@ -2440,10 +2662,103 @@ and the R5 matrix dumps quoted at the head of this section, which were assembled
 audit rewrote none of them; the flags are printed here for the same reason they were printed
 there.
 
+\subsection{The third silent configuration: an option channel that answers and does not obey}
+\label{sec:kspoverride}
+
+\emph{Added 2026-08-10. Prepared as a filing-ready defect candidate
+(\artifact{DEFECT\_CANDIDATE\_ksp\_options\_override.md}, \commit{f29378d9}) and, like
+everything else here, \textbf{not filed}.}
+
+\artifact{DALinearEqn::createMLRKSP} calls \texttt{KSPSetFromOptions(ksp)} --- the function
+whose entire purpose is to let a PETSc user reconfigure a solver from the command line --- and
+then overrides almost everything that call could have configured. Twelve call sites, all
+executing after it, so under PETSc's last-setter-wins ordering the user's options lose:
+
+\begin{table}[htbp]
+\centering\scriptsize
+\begin{tabular}{@{}rL{5.9cm}L{6.1cm}@{}}
+\toprule
+line & call & what it overrides \\
+\midrule
+\textbf{138} & \texttt{KSPSetFromOptions(ksp)} & \emph{the point at which every \texttt{-ksp\_*} / \texttt{-pc\_*} option is applied} \\
+\textbf{144} & \texttt{KSPSetType(ksp, KSPGMRES)} & \textbf{\texttt{-ksp\_type}} --- hardcoded to GMRES \\
+158 & \texttt{KSPGMRESSetRestart} & \texttt{-ksp\_gmres\_restart} \\
+170 & \texttt{KSPSetPCSide(ksp, PC\_RIGHT)} & \texttt{-ksp\_pc\_side} \\
+185 & \texttt{PCSetType(MLRMasterPC, PCKSP)} & \texttt{-pc\_type} (outer) \\
+192 & \texttt{KSPSetType(MLRMasterPCKSP, KSPRICHARDSON)} & inner KSP type \\
+\textbf{212} & \texttt{PCSetType(MLRGlobalPC, PCASM)} & \textbf{\texttt{-pc\_type}} --- hardcoded to additive Schwarz \\
+216 & \texttt{PCASMSetOverlap} & \texttt{-pc\_asm\_overlap} \\
+249 / 259 & \texttt{KSPSetType(MLRsubksp[i], \ldots)} & \texttt{-sub\_ksp\_type} \\
+\textbf{286} & \texttt{PCSetType(MLRsubpc, localPCType)} & \textbf{\texttt{-sub\_pc\_type}} --- hardcoded to ILU \\
+328 & \texttt{PCFactorSetLevels} & \texttt{-sub\_pc\_factor\_levels} \\
+343 & \texttt{KSPSetTolerances} & \texttt{-ksp\_rtol}, \texttt{-ksp\_atol}, \texttt{-ksp\_max\_it} \\
+\bottomrule
+\end{tabular}
+\caption{\artifact{src/adjoint/DALinearEqn/DALinearEqn.C}, read in both images. The comment at
+line 137 --- \texttt{// First, KSPSetFromOptions MUST be called} --- shows the ordering is
+deliberate, which is what makes the \emph{silence} the defect rather than the ordering.}
+\label{tab:kspsites}
+\end{table}
+
+So these are all accepted without error and all have no effect:
+\texttt{-ksp\_type lgmres} (augmented restarting), \texttt{-ksp\_type dgmres} (deflated),
+\texttt{-ksp\_type fgmres}, \texttt{-pc\_type gamg}, \texttt{-pc\_type fieldsplit},
+\texttt{-sub\_pc\_type lu}, \texttt{-ksp\_gmres\_restart 1000}. The run proceeds with
+GMRES + ASM + sub-ILU regardless, and \texttt{-ksp\_view} prints the hardcoded stack --- so even
+the user's verification step agrees with the code rather than with the user.
+
+\paragraph{The detail that makes this a defect and not a documentation gap: the monitors work.}
+Viewers and monitors are \emph{not} overridden. \texttt{-ksp\_monitor\_true\_residual},
+\texttt{-ksp\_view\_pmat binary:} and \texttt{-ksp\_view\_rhs binary:} all behave exactly as
+PETSc documents. A user therefore receives \textbf{correct diagnostics and silently discarded
+remedies through the same channel} --- which is the worst available combination, because the
+diagnostic path constitutes a working demonstration that the option channel is live. Every
+signal available to that user says their command line was received. It was.
+
+This lab is the worked example, twice over, and both halves were measured before the source was
+read. The whole diagnosis of Section~\ref{sec:elimination} --- the dumped preconditioner
+matrices, the true-residual tracking, the preconditioned \(\kappa=9.57\times10^{10}\) from
+\texttt{KSPComputeExtremeSingularValues} --- was obtained \emph{through this option channel},
+and every remedy that diagnosis points to is selected through the same channel and discarded by
+it. A user who does the hard part correctly is left holding a diagnosis they cannot act on
+without recompiling \artifact{libDASolver.so}.
+
+It also sharpens, rather than contradicts, the measurement in
+Section~\ref{sec:pc}: factor options such as \texttt{-sub\_pc\_factor\_zeropivot} \emph{do} land
+and were proven to land by \texttt{PCView}, because PETSc applies them inside
+\texttt{PCSetUp\_ASM} --- after DAFoam's overrides. The boundary is now exact. Options consumed
+after line 138 by objects DAFoam does not touch again take effect; options that select the
+Krylov method or the preconditioner family do not. ``Compiled-in, nothing reachable'' was too
+strong, and ``the option channel works'' is too strong in the other direction; what is true is
+that the channel carries diagnostics and drops strategy.
+
+\paragraph{Three graded fixes, cheapest last.}
+\begin{enumerate}
+\item \textbf{Respect the channel: move \texttt{KSPSetFromOptions} last.} Set the
+\artifact{daOptions} values first and call \texttt{KSPSetFromOptions} (plus
+\texttt{PCSetFromOptions}) as the final step, which is the ordering PETSc's own examples use.
+Then \artifact{daOptions} act as defaults and runtime options as overrides --- what both APIs
+promise. Cost: a reorder, plus explicitly re-applying any setting that genuinely must not be
+user-overridable, with a comment saying why.
+\item \textbf{If the override is intentional, say so, in two places.} One \texttt{Info} line at
+setup naming the fixed stack and the ignored options, and the same sentence in the
+\artifact{adjEqnOption} reference. This costs nothing and converts a silent failure into a
+stated limitation.
+\item \textbf{Cheapest partial: namespace the objects.}
+\texttt{KSPSetOptionsPrefix(ksp, "dafoam\_")} and the same on the sub-KSPs and PCs, so the
+objects never consume unprefixed user options and the boundary stops being invisible.
+\end{enumerate}
+
+Severity is \textbf{medium} and the class is what matters rather than the severity: no wrong
+number is produced, and everything DAFoam does configure works. It costs nothing until a user
+has a hard problem, and then it costs them the ability to act on their own correct analysis, in
+a way no log will show. A user of a discrete-adjoint code who reaches for \texttt{-pc\_type
+gamg} is, by construction, a user who has already done the hard part.
+
 \subsection{What is reportable here, and what is not}
 
-Two behaviours in this section are properties of the shipped tools rather than of this lab's
-cases, and they are the reason it sits in a defect report at all:
+Three behaviours in this section are properties of the shipped tools rather than of this
+lab's cases, and they are the reason it sits in a defect report at all:
 
 \begin{enumerate}
 \item \textbf{A configuration option that parses cleanly and does nothing for the solver
@@ -2461,12 +2776,21 @@ restart convenience and indefensible as a silent one, particularly in a wrapper 
 rename step then fails on the artifact it just produced. Anyone A/B-testing an archived DAFoam
 case is exposed, and the exposure is invisible in the log unless you know to read the first
 continuity error.
+\item \textbf{An option channel that carries diagnostics and drops strategy}
+(Section~\ref{sec:kspoverride}). Of the three this is the one with the largest audience,
+because it costs nothing until a user has a hard problem and then costs them exactly the move
+their analysis earned. It is also the only one of the three whose evidence is entirely in
+upstream's own source rather than in this lab's cases: twelve call sites, a five-minute
+reproducer on any \artifact{compute\_totals} case, and three graded fixes of which the cheapest
+is one line per object.
 \end{enumerate}
 
-Neither is filed. Neither has a prepared upstream report of the kind Sections~\ref{sec:decomp}
-and~\ref{sec:idwarp} carry; what exists is the measured record cited throughout this section.
-The shape a filing would take is small in both cases --- a validation warning, and a log line
---- and that smallness is the argument for it.
+None is filed. D4 and D5 have no prepared upstream report of the kind
+Sections~\ref{sec:decomp} and~\ref{sec:idwarp} carry --- what exists is the measured record
+cited throughout this section --- while D6 has one, complete and \textbf{filing-ready}
+(\artifact{DEFECT\_CANDIDATE\_ksp\_options\_override.md}, \commit{f29378d9}), held with
+everything else. The shape a filing would take is small in all three cases --- a validation
+warning, a log line, and a reorder --- and that smallness is the argument for it.
 
 \subsection{Scope, stated against ourselves}
 
@@ -2511,7 +2835,7 @@ option is evidence only when a runtime log proves it ran.
 
 Every headline claim in this document has survived an independent adversarial sweep. That
 phrase is used precisely, and this section says what it buys, because a reader assessing
-six unfiled defect claims is entitled to know what standard they were held to.
+seven unfiled defect claims is entitled to know what standard they were held to.
 
 \subsection{What a supervisor sweep is}
 
@@ -2711,6 +3035,24 @@ collapse-on-strengthening --- in the filing, as the thing the arm was really tes
 pre-declared the outcome that would have \emph{confirmed} it (any collapse under a strengthened
 PC) as a reportable finding rather than a failure. The prior lost. Registering the outcome that
 would have vindicated the record is the only reason its loss counts for anything.
+\item The diagnosis campaign of Section~\ref{sec:elimination} wrote its decision rule ---
+five candidate diagnoses, each mapped to the preconditioner it would imply --- \emph{before the
+diagnosis existed} (\commit{a9bb202d}), and then reported that the rule was incomplete: the
+measurement returned a sixth signature it had not anticipated. The lever finally chosen was
+therefore selected after the diagnosis was in hand, and the record labels that branch one notch
+weaker than its pre-registered ideal in so many words rather than presenting it as
+pre-committed. Its falsifier then fired.
+\item The fill-1 arm (\commit{d4c706e8}) pre-registered the clause that mattered most for an
+attempt with no theory behind it: that a convergence there would be a knob nobody could explain
+and \emph{must not} be allowed to retro-justify the diagnosis. It stalled, so the clause was
+never tested --- and it is recorded as having been in place beforehand regardless, which is the
+only time such a clause can be worth anything.
+\item The sharpest instance in this arc is an agent refuting itself. The fill-level arm
+generated the non-normality hypothesis as a side effect of a result it did not expect, named it
+in advance as the outcome it should be most willing to report, pre-registered the measurement
+and its \(3\times\) decision bar (\commit{7783f603}), and then measured the stalling rung as
+\emph{less} non-normal than the converging one --- killing its own hypothesis at zero solver
+cost and adding the tenth row to the table instead of the explanation it was hoping for.
 \item One prediction in this arc was made by an agent with no stake in it: an independent
 reader, before rung 2's attempt 2 returned, projected convergence near iteration 1{,}250 from
 the residual's decades-per-hundred slope. Measured 1{,}171 --- correct in direction, conservative
@@ -2748,6 +3090,10 @@ Serial-limiter supervisor sweep (offline: log mining, one-sided-slope reconstruc
 \quad rung 2 (42{,}120 cells): two convergence attempts and the FD arm & 99.5 & $\sim$47 \\
 \quad lever triage, three staged arms on the working configuration & 22.7 & 35--45 \\
 \quad rung 3 (79{,}560 cells): stage-0 transfer test 15.9 + stagnation arm 95.1 & 111.0 & 170--190 \\
+\quad restart challenge at rung 3 (\(5\times\) window, \(1.647\times\)) & 47.7 & 66--82 \\
+\quad Saad diagnosis campaign and its chosen arm (elimination table) & 61.6 & $\sim$35 \\
+\quad fill-1 engineering arm (\(1.859\times\), the \(\kappa\) surprise) & 33.9 & $\sim$15 \\
+\quad non-normality diagnostic (offline; both operators already on disk) & 0.00 & 25 \\
 \bottomrule
 \end{tabular}
 \caption{Solver cost. Two overruns. The first --- 26\% on the discriminators --- is confined
@@ -3131,6 +3477,10 @@ artifact & what it holds \\
 \artifact{A3\_SUBLU\_PREREGISTRATION.md} (\commit{12d3a7a3}), \artifact{A3\_SUBLU\_SWEEP\_PREREGISTRATION.md} (\commit{054d10b2}), \artifact{A3\_TPC1\_ARM\_PREREGISTRATION.md} (\commit{13c244cd}), \artifact{A3\_TPC1\_CONTROL\_PREREGISTRATION.md} (\commit{31eede16}), \artifact{A3\_FD3\_PREREGISTRATION.md} (\commit{4aef4a2f}) & The five pre-registrations of Section~\ref{sec:deadlever}, each committed before the launch it governs. \S2 of the first is where \texttt{transonicPCOption: 2} was found dead \\
 \artifact{A3\_RUNG2\_N28\_RESULT.md} (\commit{4e982b4a}) & Rung 2: both solves converged, the three-component FD pass, the refused \(-3\) proven a budget knob to ten digits, the measured iteration-scaling exponents, and the independent agent's three items \\
 \artifact{A3\_TRIAGE\_LEVERS\_PREREGISTRATION.md} (\commit{cfd6b5ff}, results \S8 at \commit{3ac8257e}) & The three levers on the working configuration, and the overturning of R5's collapse-on-strengthening prior \\
+\artifact{DEFECT\_CANDIDATE\_ksp\_options\_override.md} (\commit{f29378d9}) & D6, filing-ready and unfiled: the twelve call sites, the commands a user would type with observed-vs-expected, the monitors-work trap, the five-minute reproducer, and the three graded fixes \\
+\artifact{A3\_SAAD\_DELIBERATE\_CONDITIONING\_\allowbreak PREREGISTRATION.md} (\commit{a9bb202d}, diagnosis \commit{dda82819}, outcome \commit{368996c3}) & The decision rule written before the diagnosis existed, the diagnosis that returned a signature the rule did not anticipate, the disclosed weakening of a post-diagnosis branch, the falsifier firing, and the elimination table \\
+\artifact{A3\_NONNORMALITY\_DIAGNOSTIC\_\allowbreak PREREGISTRATION.md} (\commit{7783f603}, results \commit{15b64e81}) & The tenth elimination: the scale-invariant measurable chosen and its bar fixed before the number, the converging rung run as the control, both readings refuted, and the preconditioner-not-preconditioned-operator limitation stated up front and repeated at the verdict \\
+\artifact{A3\_RUNG3\_RESTART\_CHALLENGE\_\allowbreak PREREGISTRATION.md}, \artifact{A3\_RUNG3\_FILL1\_ENGINEERING\_\allowbreak PREREGISTRATION.md} (\commit{48b34cbf}) & The two reachable engineering attempts on the ceiling, both graded against a \(10\times\) bar fixed before the numbers: \(1.647\times\) and \(1.859\times\). The second carries the seven-decade condition-estimate surprise and the hypothesis it is not allowed to claim \\
 \artifact{A3\_RUNG3\_N52\_PREREGISTRATION.md} (\commit{3e585b07}), \artifact{A3\_RUNG3\_N52\_RESULT.md} & Rung 3 as filed --- the certified member, the adopted lever with its mandatory transfer arm, the exponent's falsifiable prediction, the price up front --- and as measured: the transfer test's collapse, the stagnation, the memory evidence that makes the verdict sayable, and the ceiling stated as a bracket \\
 \artifact{R5\_ADJOINT\_CONDITIONING.md}, \artifact{ADJOINT\_MEMORY\_ENVELOPE.md}, \artifact{PROOF.md} \S25.2 & The M6 conditioning record as measured --- each now carrying its dated dead-lever annotation (\commit{e9a651e9}) \\
 \artifact{D3\_VARIANT\_COLD\_RERUN\_PREREGISTRATION.md} \S6 (\commit{8c9b06c7}) & The 11 warm-flagged variant nulls, retired as superseded rather than rerun, with the reasoning stated at both sites \\
@@ -3222,6 +3572,18 @@ restart recomputation, and that whether this bites depends on whether convergenc
 inside the first restart cycle --- has two supporting points and is \textbf{unproven}. Its
 falsifiable prediction is that fill~1 also collapses at 42{,}120 cells. That arm is cheap and
 has not been run.
+\item \textbf{D4, the mechanism behind the ceiling, is unknown and stays unknown.} Ten
+candidate causes are eliminated by measurement (Section~\ref{sec:elimination}) and no
+eleventh is named. \textbf{Ten eliminations are not a proof of anything}; they bound the
+ignorance rather than resolving it, and the surviving characterisation is negative:
+\(\kappa\approx10^{11}\) after preconditioning, insensitive to every parameter the build
+exposes. The non-normality measurement carries its own limit --- it is taken on the assembled
+\artifact{dRdWTPC}, not on the preconditioned operator whose normality governs GMRES, which this
+build never assembles --- so it refutes a discriminator without certifying the operator.
+\item \textbf{D6, unmeasured on the fixes.} The three graded fixes are drafted against the
+source and none has been implemented or tested; the claim that reordering
+\texttt{KSPSetFromOptions} is behaviour-preserving for existing cases is an argument, not a
+measurement.
 \item \textbf{D4, the two negative signatures.} Whether the stagnation at rung 3 and the
 denormal breakdown at the archived rungs share a mechanism is not established; they are
 different signatures and no arm here identifies either.
@@ -3242,9 +3604,9 @@ about its silence, not its existence.
 \fbox{\begin{minipage}{0.94\textwidth}
 \small\textbf{Filing status, restated plainly.} Nothing in this document has been filed, sent,
 or posted --- not the decomposition report, not its three addenda, not the comment
-on \artifact{mdolab/idwarp\#57}, not the sub-PC pull request, and not the two
-silent-configuration findings of Section~\ref{sec:deadlever}, which have no prepared report
-at all. All of it is
+on \artifact{mdolab/idwarp\#57}, not the sub-PC pull request, not the option-channel defect
+candidate that is complete and filing-ready, and not the other two silent-configuration
+findings of Section~\ref{sec:deadlever}, which have no prepared report at all. All of it is
 \textbf{PREPARED and HELD}. Submissions are parked at the owner's discretion, and whether any
 of it goes upstream is the lab principal's decision, not the authors'. This document is what
 the case file looks like while it waits.
