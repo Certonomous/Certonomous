@@ -385,3 +385,85 @@ family's rails) except `CLOSURE_CHALLENGE_STATUS.md` §0f, which was verified
 (section 6). The F-family section was verified by a batch agent that died
 mid-report; its findings were recovered from its transcript and five quoted
 evidence lines re-confirmed inline before inclusion.
+
+---
+
+# Addendum, 2026-08-10 — L-43 re-check of this audit's 20 at-risk rows
+
+Ordered by the chief after the batch dead-lever sweep (`DEAD_LEVER_AUDIT_BATCH_2026-08-10.md`)
+withdrew its own first-pass headline, and the near-miss became `LESSONS.md` L-43:
+**an audit's null result is a claim about the audit's REACH before it is a claim
+about the world.** That sweep's instrument had been blind to gzipped logs and to
+gitignored trees. This audit was executed with the same shell, so its
+**16 UNVERIFIABLE-FROM-LOGS rows and 4 FOUND-DEAD rows** — the rows that rest on
+*absence* of evidence — were re-tested with a reach-proven instrument. The 126
+VERIFIED rows are not re-tested: they quote lines, so the instrument saw them.
+
+## The positive-control line this audit lacked
+
+This audit stated a negative control (`W4-adjoint-pc-unblock/cbfs_regress_computetotals.log`,
+no banner, reason -9) but never a positive one — it never showed that its search
+*could* see evidence where evidence was known to exist. Supplied now, three ways:
+
+| control | test | result |
+| --- | --- | --- |
+| **PC-1 run corpus** | `grep -rn "adjUseColoring" /home/ubuntu/certonomous-runs/W4-a4-discriminators/` | **PASS** — `d_np4scotch_nocolor.log:483: adjUseColoring 0;`, the exact line this audit cites at register item 7 |
+| **PC-2 gzip** | `zgrep -c "Selecting RAS turbulence model"` on an archived `log.simpleFoam.gz` | **PASS** — banner read inside gz |
+| **PC-3 gitignored tree** | `command grep -rl` for the same banner under `mega-batch/work/` (gitignored) | **PASS** — 17 files found |
+
+A fourth, incidental: the first attempt at PC-1 returned nothing because a
+79 GB unscoped sweep was killed at timeout before reaching the directory. The
+null was a timeout, not an absence — L-43 arriving a second time, in the
+instrument built to test L-43.
+
+## Result: 0 of 20 rows change classification
+
+**No FOUND-DEAD row turned out verifiable-and-alive. No conclusion was reopened
+wrongly.** The 16 unverifiable rows remain unverifiable and the 4 found-dead
+rows remain dead. Re-test evidence by reason class:
+
+| reason class | rows | re-test | outcome |
+| --- | --- | --- | --- |
+| Structural (no possible echo) | 2, 3, 4, 14, 15, half of 1 | unfalsifiable by search; confirmed against the stated mechanism | **stands** |
+| File destroyed (scratchpad/session loss) | 7, 8, 13, half of 1 | `F5c_runs/` re-listed: holds only `sign_convention_control` as stated; no `f5b` artifact in `solve_registry/` | **stands** |
+| In-container source, not locally readable | 5, 6 | `find / -name DALinearEqn.C -o -name DAResidualRhoSimpleCFoam.C` → **no hits anywhere on this host** | **stands** — the "in-container only" claim is true, not an excuse |
+| Claimed absence of an archived log | 11, 12 | full-name search: `warmup20_bounded` appears in three records and **zero logs**; S1-fiml swept for a plain-`kOmega` banner | **stands** |
+| Claimed absence of a line in an existing log | 9, 10 | stamp grep on the named run dirs | **stands** (refined, below) |
+| Already closed by this audit | 16 | — | **stands** |
+
+## Two refinements — better evidence, same classification
+
+**Register item 9 (W4-a4-stepsweep patched-IDWarp provenance).** This audit says
+"no `IDWARP_IMPORTED_FROM` stamp in those logs". Precisely true of the arms:
+`a4_h1e-3_patched.log`, `a4_h1e-4_patched.log` and `a4_h1e-3_stock.log` carry
+zero stamps. But **the same directory holds a stamped log this audit did not
+cite** — `W4-a4-stepsweep/a4_dcddxv.log:3` reads
+`IDWARP_IMPORTED_FROM: /patch/idwarp/idwarp/__init__.py`, written 34 minutes
+after `a4_h1e-3_patched.log` in the same session. It does not make the
+individual step-sweep arms self-proving, so the row stays UNVERIFIABLE, but it
+is a third independent corroboration alongside the two already named.
+
+**Register item 11 (S1_FIML E1 kOmega leg).** This audit says "only
+`s1_e1_kw.json` survives, no selection banner anywhere". The case directory
+survives too: `S1-fiml/ramp_kw/c2/constant/turbulenceProperties` reads
+`RASModel kOmega;` (and `tf_training/` likewise), against `c1/`'s `kOmegaSST`.
+So configuration survives; activity does not, which is exactly what L-40 says is
+worth nothing on its own. Local positive control for this row: the S1-fiml
+corpus contains **108** `Selecting RAS turbulence model` banners and **every one
+reads `kOmegaSST`** — the instrument would have seen a plain-`kOmega` banner had
+one ever been written. Row stays UNVERIFIABLE, now with a sharper reason: the
+kOmega leg was configured and its log was never archived.
+
+## Standing caveat this re-check surfaces
+
+**FD-1 and FD-2's deadness cannot be re-verified on this host.** FD-1's proof is
+a source read (`DAResidualRhoSimpleCFoam.C:173`, only `== 1` exists) performed
+in-container at `12d3a7a3`; FD-2 cites no independent evidence in this audit at
+all, inheriting from prior records. Neither source file exists on this host. The
+log side of FD-1 re-confirms cleanly — `W4-m6-reordering/m6_natural.log:489`
+reads `transonicPCOption 2;`, and `W4-adjoint-pc-unblock/cbfs_beta_computetotals.log:474`
+reads `transonicPCOption -1;` — but a log echo proves the value was *configured*,
+never that it was dead. **Both FOUND-DEAD verdicts rest on in-container reads
+that no one can currently reproduce.** Nothing suggests they are wrong; they are
+simply not independently checkable from this machine, and a future container
+session should re-read both lines and stamp the result.
