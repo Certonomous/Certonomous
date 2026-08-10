@@ -257,3 +257,42 @@ member of the class I have never seen?* If the method's vocabulary came from the
 examples you already had, the answer is no, and the count is a lower bound rather
 than a count. **Report it as a lower bound until a second route of a different
 kind agrees.**
+
+## 8. Ladder features need draw-scatter evidence (Verification Charter §17, adopted 2026-08-10)
+
+**Binding on every ladder this family publishes.**
+
+> **A ladder increment is not published as a FEATURE without draw-scatter
+> evidence at the rung it turns on — or with the absence stated on its face.**
+
+**Feature** = a claim about the SHAPE of a sequence of grid-refinement
+increments (a turn, an oscillation, a divergence, a trend in increments,
+monotonicity used as an argument). Rung values, bands, orders and
+`conclusive: false` verdicts are not features.
+
+**Remedy is RESTATEMENT.** An unchecked feature is unchecked, not false. Say so
+where the feature is stated. Withdraw only what has been measured and did not
+survive.
+
+**In practice, for this family:**
+
+1. **Before writing a shape claim, ask what the scatter is at the rung it turns
+   on.** If nobody has measured it, the claim ships with that sentence attached.
+2. **Two draws is the minimum that yields a number, and it is a weak one** — a
+   single pairwise difference is a one-sample estimator of a scale, and this
+   family has measured it disagreeing with an n = 5 sample by a factor of 2.6.
+   Prefer n ≥ 3 at the deciding rung.
+3. **Compare like with like.** A range over n draws and a single pairwise
+   difference are different statistics (`W3_MESH_NOISE_FLOOR_RESULTS.md` §3), and
+   both this family and its chief have published that comparison wrongly.
+4. **An increment differences two singly-drawn rungs, so it carries √2σ, not σ** —
+   or √(s₁² + s₂²) when the rungs' scatters are measured separately, which they
+   should be.
+5. **Calibrate the deciding bar by simulation against the null before the draws
+   exist.** Never choose it after. State the false-positive rate on the face of
+   the verdict, and **report a near miss as a near miss** — the Ahmed 25° arm
+   missed its bar by 0.044 and said so. A bar that moves after the number is not
+   a bar.
+6. **The published draw can be an extremum and you will not know.** The B-52's
+   turn was `max(rung 6) − min(rung 7)` of eight draws; nobody chose it that way.
+   Check where the published draw sits in its own distribution.
