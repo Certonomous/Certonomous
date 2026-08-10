@@ -2021,6 +2021,20 @@ pattern rather than by exact name, and state both lists in the change. A
 pattern-matching consumer is an undeclared interface; adding a file to a
 directory is editing that interface whether you meant to or not.
 
+**The shared form, after a third instance** (the log-elision fix whose marker
+embedded the payload's own byte count and hash, so every replicate differed
+through the very marker added to describe the difference — caught by running
+the comparison against two real cases rather than reasoning about it):
+
+> A change is not finished when it does what you intended; it is finished when
+> you have run the check that would fail if it did not.
+
+All three instances looked right, read right, and passed every existing test.
+Two were found by asking *what else reads this?*; the third by refusing to
+reason about a result that was measurable on real data in under a minute. The
+third is the one least likely to be caught by anyone else, because it is the
+only one where the author's own claim was the thing under test.
+
 
 ## L-47. Two solves differing only in relaxation must agree — disagreement proves non-convergence without reading a single residual
 
