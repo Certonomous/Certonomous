@@ -296,3 +296,46 @@ survive.
 6. **The published draw can be an extremum and you will not know.** The B-52's
    turn was `max(rung 6) − min(rung 7)` of eight draws; nobody chose it that way.
    Check where the published draw sits in its own distribution.
+
+### 7b. Different in kind protects the READING. It does not protect the SAMPLING FRAME.
+
+**Added 2026-08-10, from the recipe sweep, which is §7a's own first application
+failing in a new place.**
+
+§7a said a second route must differ **in kind**. The recipe sweep did exactly
+that: Route A read what the records *said* about each ladder's recipe; Route B
+read what the generating dictionaries *showed had moved*. Structural against
+textual — genuinely different in kind, and Route B's readings were correct.
+
+**Route B was still wrong on its headline**, twice, and both times because of
+something §7a does not cover:
+
+| the error | the cause |
+| --- | --- |
+| *"nobody had written it down"* | the pre-flight queried `recipe_audit` on five ladders and never asked the two it then made claims about |
+| *"exactly one ladder is known to be a ladder"* | the enumeration glob was `study-<body>*`; every purpose-built replacement family lives under another name |
+
+**Neither is a reading error. Both are frame errors** — the method read its
+sample correctly and the sample was not the population.
+
+> **A route is defined by two things: how it reads, and what it reads.
+> "Different in kind" governs the first. Nothing governs the second unless you
+> make it.**
+
+**The practical guards:**
+
+1. **State the frame explicitly** — *"every directory matching `study-<body>*`"* —
+   rather than implying *"every ladder."* A stated frame is falsifiable; an
+   implied one is not.
+2. **Ask what the frame structurally cannot contain.** A glob cannot contain
+   things named otherwise. A query over five records cannot support a claim about
+   a sixth.
+3. **Never conclude ABSENCE from a search that did not look there.** *"No record
+   says X"* requires having asked the records that would say it. This is L-42's
+   sibling — an audit that cannot see the corpus reports absence rather than
+   innocence — and it recurred here inside an audit written by someone who had
+   cited L-42 that same day.
+4. **The two routes should differ in frame as well as in kind.** Route A's frame
+   was "all records mentioning a ladder"; Route B's was "case directories matching
+   a glob." That they disagreed by a factor of three on the population is the
+   signal, and it is only visible because the frames differed.
