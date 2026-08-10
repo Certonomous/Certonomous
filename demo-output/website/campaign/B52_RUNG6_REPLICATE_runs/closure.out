@@ -1,0 +1,19 @@
+[2026-08-10T17:01:07+00:00] B52 turn closure arm starting (prereg f4ccfe92)
+[2026-08-10T17:01:07+00:00] finer2 (existing): rows=300 window=60 Cd=0.052275472 2sigma=2.2441e-06 (0.0043% of |Cd|) G3=PASS
+[2026-08-10T17:01:07+00:00] rung6b (existing): rows=300 window=60 Cd=0.046920889 2sigma=1.3102e-05 (0.0279% of |Cd|) G3=PASS
+[2026-08-10T17:01:07+00:00] rung6c (existing): rows=300 window=60 Cd=0.048280833 2sigma=1.4377e-05 (0.0298% of |Cd|) G3=PASS
+[2026-08-10T17:02:11+00:00] rung6d: meshed 328453 cells in 63.9s, certificate verdict=clean skew=3.8613868 nonOrtho=64.951065
+[2026-08-10T17:02:11+00:00] rung6d: attempt 1 (50, 45, 77) -> 328453 cells, -0.75% vs 330950, ADMITTED
+[2026-08-10T17:02:11+00:00] rung6d: G2 certificate admission -> True (clean)
+[2026-08-10T17:05:09+00:00] rung6d: rows=300 window=60 Cd=0.050954268 2sigma=1.8437e-05 (0.0362% of |Cd|) G3=PASS
+[2026-08-10T17:06:15+00:00] rung6e: meshed 327996 cells in 65.8s, certificate verdict=clean skew=3.9947165 nonOrtho=64.926826
+[2026-08-10T17:06:15+00:00] rung6e: attempt 1 (53, 45, 73) -> 327996 cells, -0.89% vs 330950, ADMITTED
+[2026-08-10T17:06:15+00:00] rung6e: G2 certificate admission -> True (clean)
+[2026-08-10T17:09:17+00:00] rung6e: rows=300 window=60 Cd=0.048661118 2sigma=1.1241e-05 (0.0231% of |Cd|) G3=PASS
+[2026-08-10T17:09:17+00:00] rung7 (existing): rows=300 window=60 Cd=0.048220173 2sigma=3.6143e-05 (0.0750% of |Cd|) G3=PASS
+[2026-08-10T17:09:17+00:00] rung7b (existing): rows=300 window=60 Cd=0.050134753 2sigma=1.2377e-05 (0.0247% of |Cd|) G3=PASS
+[2026-08-10T17:10:39+00:00] rung7c: meshed 434641 cells in 81.4s, certificate verdict=clean skew=3.9819186 nonOrtho=64.790352
+[2026-08-10T17:10:39+00:00] rung7c: attempt 1 (54, 49, 84) -> 434641 cells, -1.45% vs 441057, ADMITTED
+[2026-08-10T17:10:39+00:00] rung7c: G2 certificate admission -> True (clean)
+[2026-08-10T17:14:55+00:00] rung7c: rows=300 window=60 Cd=0.050147300 2sigma=1.0331e-05 (0.0206% of |Cd|) G3=PASS
+[2026-08-10T17:14:55+00:00] s6=2.1579e-03 (n=5)  s7=1.1090e-03 (n=3)  T=1.671  nu=5.61  CI90=[0.846, 2.445]  -> INDETERMINATE

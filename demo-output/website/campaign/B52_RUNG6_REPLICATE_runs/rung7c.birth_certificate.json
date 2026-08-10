@@ -1,0 +1,11 @@
+{
+ "points_sha256": "3d1ef83fd39be173a423b46a13cdeffd4483a3e3e8e1698e5fd17de6aff0b273",
+ "verdict": "clean",
+ "cells": 434641,
+ "max_aspect_ratio": 7.4639355,
+ "max_non_orthogonality": 64.790352,
+ "max_skewness": 3.9819186,
+ "hard_errors": [],
+ "generator": "snappyHexMesh, B52 rung-6 replicate rung7c, B52_RUNG6_REPLICATE_PREREGISTRATION.md",
+ "created_at": "2026-08-10T17:10:39+00:00"
+}

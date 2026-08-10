@@ -1,0 +1,340 @@
+{
+  "P2_s6_in_bracket": true,
+  "P3_sigmas_differ_by_more_than_2x": false,
+  "T_ci90": [
+    0.8463323539207587,
+    2.4448625191472435
+  ],
+  "T_hat": 1.6713099069035482,
+  "branch": "INDETERMINATE",
+  "cd_by_rung": {
+    "rung6": {
+      "finer2": 0.05227547241666666,
+      "rung6b": 0.04692088921333334,
+      "rung6c": 0.048280832805,
+      "rung6d": 0.050954267856666666,
+      "rung6e": 0.0486611178
+    },
+    "rung7": {
+      "rung7": 0.048220173421666665,
+      "rung7b": 0.050134753404999996,
+      "rung7c": 0.05014729953333333
+    }
+  },
+  "n6": 5,
+  "n7": 3,
+  "new_draws": {
+    "rung6d": {
+      "case": "/home/ubuntu/certonomous-runs/study-b52-rung6d-uq",
+      "certificate": {
+        "cells": 328453,
+        "created_at": "2026-08-10T17:02:11+00:00",
+        "generator": "snappyHexMesh, B52 rung-6 replicate rung6d, B52_RUNG6_REPLICATE_PREREGISTRATION.md",
+        "hard_errors": [],
+        "max_aspect_ratio": 9.7447464,
+        "max_non_orthogonality": 64.951065,
+        "max_skewness": 3.8613868,
+        "points_sha256": "dcfeb6f6271010e7fdc183a0463b8338222656a11d62789518657670a4bba8e9",
+        "verdict": "clean"
+      },
+      "clock_time_s": 171.0,
+      "core_min_clock": 5.7,
+      "core_min_exec": 5.687,
+      "draw_attempts": [
+        {
+          "admitted": true,
+          "cells": 328453,
+          "certificate_verdict": "clean",
+          "deviation": -0.007544946366520622,
+          "divisions": [
+            50,
+            45,
+            77
+          ],
+          "max_skewness": 3.8613868
+        }
+      ],
+      "execution_time_s": 170.62,
+      "levers_verified_active": {
+        "basis": "launcher echo, hash-bound to the dictionaries that ran (Verification Charter v1.5 section 9)",
+        "verified": [
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/U",
+            "file": "0/U",
+            "sha256": "e062a7b66135713ac92388cb6d4a0acd0001cd0278dade264580e623f2a565dc"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/k",
+            "file": "0/k",
+            "sha256": "39a1a592f8face91c4c6fb5a75f7c9257c0fedae84a31c734ebaf0997a875e9f"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/nut",
+            "file": "0/nut",
+            "sha256": "8952e3ccb663ae63bf452b67c045ee2714248f5e87b37258d6b210b0150b3148"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/omega",
+            "file": "0/omega",
+            "sha256": "995d7893f3713efa2ee67a0b870b55031329f5faa7bf02e85d0809c405cc88c2"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/p",
+            "file": "0/p",
+            "sha256": "d2870e9dd329f45c84c989dba9513484a2ff68e14b06b277bba77aedd991f4ec"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/phi",
+            "file": "0/phi",
+            "sha256": "369c9c95de072b1b0fee7cf7e5ec1935240c8c84d1a399c3ece05ea3e553cae7"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file constant/transportProperties",
+            "file": "constant/transportProperties",
+            "sha256": "331dac70b3fd2c7f3db5399f9435649668b9f8d3d3c4ec5923251752ecad2011"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file constant/turbulenceProperties",
+            "file": "constant/turbulenceProperties",
+            "sha256": "0a88bdc8a190de533d62c723198e3ec8791162ffd858fa31866be174ac0aa33d"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSchemes",
+            "file": "system/fvSchemes",
+            "sha256": "ed3623b69345eea886e38f1e675ac8832eb7f3ac0d944b61b85f67b25c079147"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSolution",
+            "file": "system/fvSolution",
+            "sha256": "2b9f70f38d0606eeaee50a8ccff51a0e99a5f6bb3673d46a752d4b18f6ee7141"
+          }
+        ]
+      },
+      "mesh_wall_s": 63.9,
+      "returncode": 0,
+      "settle": {
+        "cd": 0.050954267856666666,
+        "g3_settled": true,
+        "halves_drift": -1.440518666666335e-05,
+        "rows": 300,
+        "two_sigma": 1.843661495653166e-05,
+        "two_sigma_frac_of_cd": 0.00036182670720328057,
+        "window_max": 0.0509756604,
+        "window_min": 0.0509422418,
+        "window_rows": 60
+      },
+      "solve_wall_s": 178.2
+    },
+    "rung6e": {
+      "case": "/home/ubuntu/certonomous-runs/study-b52-rung6e-uq",
+      "certificate": {
+        "cells": 327996,
+        "created_at": "2026-08-10T17:06:15+00:00",
+        "generator": "snappyHexMesh, B52 rung-6 replicate rung6e, B52_RUNG6_REPLICATE_PREREGISTRATION.md",
+        "hard_errors": [],
+        "max_aspect_ratio": 7.7091102,
+        "max_non_orthogonality": 64.926826,
+        "max_skewness": 3.9947165,
+        "points_sha256": "f7131bd302763c62dd050b02b1cbe091eb2719a41b084fb7cd15d5f72f579c23",
+        "verdict": "clean"
+      },
+      "clock_time_s": 175.0,
+      "core_min_clock": 5.833,
+      "core_min_exec": 5.815,
+      "draw_attempts": [
+        {
+          "admitted": true,
+          "cells": 327996,
+          "certificate_verdict": "clean",
+          "deviation": -0.008925819610213024,
+          "divisions": [
+            53,
+            45,
+            73
+          ],
+          "max_skewness": 3.9947165
+        }
+      ],
+      "execution_time_s": 174.46,
+      "levers_verified_active": {
+        "basis": "launcher echo, hash-bound to the dictionaries that ran (Verification Charter v1.5 section 9)",
+        "verified": [
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/U",
+            "file": "0/U",
+            "sha256": "2377f690202f31ccbc3167005202aff64ae1d779b30c1fbe808a56a920b366b8"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/k",
+            "file": "0/k",
+            "sha256": "39a1a592f8face91c4c6fb5a75f7c9257c0fedae84a31c734ebaf0997a875e9f"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/nut",
+            "file": "0/nut",
+            "sha256": "8952e3ccb663ae63bf452b67c045ee2714248f5e87b37258d6b210b0150b3148"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/omega",
+            "file": "0/omega",
+            "sha256": "995d7893f3713efa2ee67a0b870b55031329f5faa7bf02e85d0809c405cc88c2"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/p",
+            "file": "0/p",
+            "sha256": "d2870e9dd329f45c84c989dba9513484a2ff68e14b06b277bba77aedd991f4ec"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/phi",
+            "file": "0/phi",
+            "sha256": "7f7232793943e0fa5401a58732d582cf3480583626158759444e10e3ac00e8e3"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file constant/transportProperties",
+            "file": "constant/transportProperties",
+            "sha256": "331dac70b3fd2c7f3db5399f9435649668b9f8d3d3c4ec5923251752ecad2011"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file constant/turbulenceProperties",
+            "file": "constant/turbulenceProperties",
+            "sha256": "0a88bdc8a190de533d62c723198e3ec8791162ffd858fa31866be174ac0aa33d"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSchemes",
+            "file": "system/fvSchemes",
+            "sha256": "ed3623b69345eea886e38f1e675ac8832eb7f3ac0d944b61b85f67b25c079147"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSolution",
+            "file": "system/fvSolution",
+            "sha256": "2b9f70f38d0606eeaee50a8ccff51a0e99a5f6bb3673d46a752d4b18f6ee7141"
+          }
+        ]
+      },
+      "mesh_wall_s": 65.8,
+      "returncode": 0,
+      "settle": {
+        "cd": 0.0486611178,
+        "g3_settled": true,
+        "halves_drift": -4.3057733333379256e-06,
+        "rows": 300,
+        "two_sigma": 1.1240949947191614e-05,
+        "two_sigma_frac_of_cd": 0.00023100476222910797,
+        "window_max": 0.0486732538,
+        "window_min": 0.0486522693,
+        "window_rows": 60
+      },
+      "solve_wall_s": 182.0
+    },
+    "rung7c": {
+      "case": "/home/ubuntu/certonomous-runs/study-b52-rung7c-uq",
+      "certificate": {
+        "cells": 434641,
+        "created_at": "2026-08-10T17:10:39+00:00",
+        "generator": "snappyHexMesh, B52 rung-6 replicate rung7c, B52_RUNG6_REPLICATE_PREREGISTRATION.md",
+        "hard_errors": [],
+        "max_aspect_ratio": 7.4639355,
+        "max_non_orthogonality": 64.790352,
+        "max_skewness": 3.9819186,
+        "points_sha256": "3d1ef83fd39be173a423b46a13cdeffd4483a3e3e8e1698e5fd17de6aff0b273",
+        "verdict": "clean"
+      },
+      "clock_time_s": 245.0,
+      "core_min_clock": 8.167,
+      "core_min_exec": 8.139,
+      "draw_attempts": [
+        {
+          "admitted": true,
+          "cells": 434641,
+          "certificate_verdict": "clean",
+          "deviation": -0.014546872626440574,
+          "divisions": [
+            54,
+            49,
+            84
+          ],
+          "max_skewness": 3.9819186
+        }
+      ],
+      "execution_time_s": 244.16,
+      "levers_verified_active": {
+        "basis": "launcher echo, hash-bound to the dictionaries that ran (Verification Charter v1.5 section 9)",
+        "verified": [
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/U",
+            "file": "0/U",
+            "sha256": "84ebea958a9681e19a9068a813d39bd64deb0f024ac8b75c0f3a574dc97b9e79"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/k",
+            "file": "0/k",
+            "sha256": "39a1a592f8face91c4c6fb5a75f7c9257c0fedae84a31c734ebaf0997a875e9f"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/nut",
+            "file": "0/nut",
+            "sha256": "8952e3ccb663ae63bf452b67c045ee2714248f5e87b37258d6b210b0150b3148"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/omega",
+            "file": "0/omega",
+            "sha256": "995d7893f3713efa2ee67a0b870b55031329f5faa7bf02e85d0809c405cc88c2"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/p",
+            "file": "0/p",
+            "sha256": "d2870e9dd329f45c84c989dba9513484a2ff68e14b06b277bba77aedd991f4ec"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/phi",
+            "file": "0/phi",
+            "sha256": "638904c59499949b858fc99dc8d6ea82ed0b954bc5edd6e3edefc78c1bed3906"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file constant/transportProperties",
+            "file": "constant/transportProperties",
+            "sha256": "331dac70b3fd2c7f3db5399f9435649668b9f8d3d3c4ec5923251752ecad2011"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file constant/turbulenceProperties",
+            "file": "constant/turbulenceProperties",
+            "sha256": "0a88bdc8a190de533d62c723198e3ec8791162ffd858fa31866be174ac0aa33d"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSchemes",
+            "file": "system/fvSchemes",
+            "sha256": "ed3623b69345eea886e38f1e675ac8832eb7f3ac0d944b61b85f67b25c079147"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSolution",
+            "file": "system/fvSolution",
+            "sha256": "2b9f70f38d0606eeaee50a8ccff51a0e99a5f6bb3673d46a752d4b18f6ee7141"
+          }
+        ]
+      },
+      "mesh_wall_s": 81.4,
+      "returncode": 0,
+      "settle": {
+        "cd": 0.05014729953333333,
+        "g3_settled": true,
+        "halves_drift": -2.3194199999937437e-06,
+        "rows": 300,
+        "two_sigma": 1.0331437366103293e-05,
+        "two_sigma_frac_of_cd": 0.00020602180899563497,
+        "window_max": 0.0501568136,
+        "window_min": 0.050135204,
+        "window_rows": 60
+      },
+      "solve_wall_s": 256.2
+    }
+  },
+  "prereg": "campaign/B52_TURN_CLOSURE_PREREGISTRATION.md",
+  "prereg_commit": "f4ccfe92",
+  "reading": "precision failure, not a physical finding: the 90% CI straddles a threshold. No branch is claimed. This was pre-registered (P1) as the expected outcome",
+  "s6": 0.0021579416340005244,
+  "s7": 0.0011090227656353052,
+  "s7_over_s6": 0.5139262101261427,
+  "timestamp": "2026-08-10T17:14:55+00:00",
+  "turn": -0.004055,
+  "welch_nu": 5.6093839000555645
+}
