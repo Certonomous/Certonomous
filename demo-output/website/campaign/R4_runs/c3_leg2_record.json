@@ -1,0 +1,232 @@
+{
+  "NOT_A_SIGNAL_VERDICT": "T is not computed: the c4 CI leg was deliberately not taken (prereg section 6).",
+  "R": 0.32400870498671747,
+  "R_bar": 0.28,
+  "branch": "B3",
+  "c3_mean": 0.07582138005634921,
+  "c4_mean": 0.074930654,
+  "draws": {
+    "c3_original": 0.073992743,
+    "c3b": 0.079827008,
+    "c3s3": 0.07552179122777777,
+    "c3s4": 0.07394397799761905
+  },
+  "extreme_draw": "c3b",
+  "fault": "BOTH: no single draw at this rung is trustworthy and the increment cannot be read from single draws at all",
+  "increment_movement_branch": "DISSOLVES",
+  "meshed_candidates": [
+    {
+      "admitted": true,
+      "case": "/home/ubuntu/certonomous-runs/r4-ahmed-c3s0",
+      "cells": 253174,
+      "deviation": -0.006814142975391411,
+      "divisions": [
+        99,
+        21,
+        59
+      ],
+      "name": "c3s0"
+    },
+    {
+      "admitted": true,
+      "case": "/home/ubuntu/certonomous-runs/r4-ahmed-c3s1",
+      "cells": 253231,
+      "deviation": -0.006590535520240397,
+      "divisions": [
+        98,
+        21,
+        60
+      ],
+      "name": "c3s1"
+    },
+    {
+      "admitted": true,
+      "case": "/home/ubuntu/certonomous-runs/r4-ahmed-c3s2",
+      "cells": 251280,
+      "deviation": -0.014244187186900526,
+      "divisions": [
+        97,
+        21,
+        59
+      ],
+      "name": "c3s2"
+    },
+    {
+      "admitted": true,
+      "case": "/home/ubuntu/certonomous-runs/r4-ahmed-c3s3",
+      "cd": 0.07552179122777777,
+      "cells": 255991,
+      "clock_s": 46.0,
+      "core_min": 3.067,
+      "deviation": 0.004236772834440255,
+      "divisions": [
+        99,
+        21,
+        60
+      ],
+      "iterations": 181,
+      "levers_verified_active": {
+        "basis": "launcher echo, hash-bound to the dictionaries that ran (Verification Charter v1.5 section 9)",
+        "verified": [
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/U",
+            "file": "0/U",
+            "lever_sha256": "7e360cfa10d0155019681867f06988b11155d8dba413636d6a72958abb9185a1",
+            "sha256": "2b14678788764c77d8bd112e6d50c6cc66c0ebc4f306bade202fd474ed5090b9"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/k",
+            "file": "0/k",
+            "lever_sha256": "ad17042a5b3e54fb28b033f427c93257968354e5553d3b092b0e8793123b314f",
+            "sha256": "e9257346350dac2e3a6af8035fe18e4382cefc550281a04926e28d8b841adcd1"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/nut",
+            "file": "0/nut",
+            "lever_sha256": "52c3963c9e83907d1b90d0eee53dd78d99c9717b363baf47f0b64780baa05dac",
+            "sha256": "8952e3ccb663ae63bf452b67c045ee2714248f5e87b37258d6b210b0150b3148"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/omega",
+            "file": "0/omega",
+            "lever_sha256": "6348c242dd285cb90612f786845977590d13f97eaf0f68e9c5eb1606b99d4194",
+            "sha256": "acb333490dbb25bfe0e435cd509c0319cf420badfd6ea1a5a8e87d9c75098378"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/p",
+            "file": "0/p",
+            "lever_sha256": "bd6726719835420b54db55074602c8ae08f44dedbb05be358ac01db7e6c7bab4",
+            "sha256": "d2870e9dd329f45c84c989dba9513484a2ff68e14b06b277bba77aedd991f4ec"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/phi",
+            "file": "0/phi",
+            "lever_sha256": "5520d0125390ac5b6fe85583e70a18504e5ceb7479ca560bc3b97cec2c90e371",
+            "sha256": "68818e73984f76f124666dac25d287f32d5f38ab729b45a735e5848194a69dd4"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file constant/transportProperties",
+            "file": "constant/transportProperties",
+            "lever_sha256": "e5450e27f363b9293adc81c8207a2342fe2e022bf8357940755de08c7673418d",
+            "sha256": "6428653bfc2bd6a19877eb0b6c94f8bd1a32acf9ab7fa0f7e5a8f2ce66a9e437"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file constant/turbulenceProperties",
+            "file": "constant/turbulenceProperties",
+            "lever_sha256": "39573b9d8d6b678a69c2489f11a72147b574f23514898a7c49f8fa2dd22ecd65",
+            "sha256": "bcf133961d7dd990a67e2a4341e5818e292e7a61d0639e755b8ad538b6646b9a"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSchemes",
+            "file": "system/fvSchemes",
+            "lever_sha256": "c4a5affb7d49a712e540786aaae990802960554993db146ad86405d886cd964c",
+            "sha256": "b277ad5c6338764cd1b950302bae8b7f6957a142f15f366ebc6b8c57cacd2bea"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSolution",
+            "file": "system/fvSolution",
+            "lever_sha256": "4708a54bf73504f7645150eb6ea8ef8fadcfeb01ec35337a8a453cbe01bb627b",
+            "sha256": "d543ddd67e065d5ae404542faf56f817b929e1e2daa5148f151c08595bc99ab3"
+          }
+        ]
+      },
+      "name": "c3s3",
+      "residual_control_met": true,
+      "rows": 181,
+      "wall_s": 54.1
+    },
+    {
+      "admitted": true,
+      "case": "/home/ubuntu/certonomous-runs/r4-ahmed-c3s4",
+      "cd": 0.07394397799761905,
+      "cells": 254211,
+      "clock_s": 55.0,
+      "core_min": 3.667,
+      "deviation": -0.0027460564667668324,
+      "divisions": [
+        100,
+        21,
+        59
+      ],
+      "iterations": 210,
+      "levers_verified_active": {
+        "basis": "launcher echo, hash-bound to the dictionaries that ran (Verification Charter v1.5 section 9)",
+        "verified": [
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/U",
+            "file": "0/U",
+            "lever_sha256": "7e360cfa10d0155019681867f06988b11155d8dba413636d6a72958abb9185a1",
+            "sha256": "3de4a7c4f96a145abf2a80cc29ca5f87dde43338abe247a0579719d6b991b37d"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/k",
+            "file": "0/k",
+            "lever_sha256": "ad17042a5b3e54fb28b033f427c93257968354e5553d3b092b0e8793123b314f",
+            "sha256": "e9257346350dac2e3a6af8035fe18e4382cefc550281a04926e28d8b841adcd1"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/nut",
+            "file": "0/nut",
+            "lever_sha256": "52c3963c9e83907d1b90d0eee53dd78d99c9717b363baf47f0b64780baa05dac",
+            "sha256": "8952e3ccb663ae63bf452b67c045ee2714248f5e87b37258d6b210b0150b3148"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/omega",
+            "file": "0/omega",
+            "lever_sha256": "6348c242dd285cb90612f786845977590d13f97eaf0f68e9c5eb1606b99d4194",
+            "sha256": "acb333490dbb25bfe0e435cd509c0319cf420badfd6ea1a5a8e87d9c75098378"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/p",
+            "file": "0/p",
+            "lever_sha256": "bd6726719835420b54db55074602c8ae08f44dedbb05be358ac01db7e6c7bab4",
+            "sha256": "d2870e9dd329f45c84c989dba9513484a2ff68e14b06b277bba77aedd991f4ec"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file 0/phi",
+            "file": "0/phi",
+            "lever_sha256": "5520d0125390ac5b6fe85583e70a18504e5ceb7479ca560bc3b97cec2c90e371",
+            "sha256": "2482bdaca8779f7da3897b39937737961239326833d003549071ed94a9507adc"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file constant/transportProperties",
+            "file": "constant/transportProperties",
+            "lever_sha256": "e5450e27f363b9293adc81c8207a2342fe2e022bf8357940755de08c7673418d",
+            "sha256": "6428653bfc2bd6a19877eb0b6c94f8bd1a32acf9ab7fa0f7e5a8f2ce66a9e437"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file constant/turbulenceProperties",
+            "file": "constant/turbulenceProperties",
+            "lever_sha256": "39573b9d8d6b678a69c2489f11a72147b574f23514898a7c49f8fa2dd22ecd65",
+            "sha256": "bcf133961d7dd990a67e2a4341e5818e292e7a61d0639e755b8ad538b6646b9a"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSchemes",
+            "file": "system/fvSchemes",
+            "lever_sha256": "c4a5affb7d49a712e540786aaae990802960554993db146ad86405d886cd964c",
+            "sha256": "b277ad5c6338764cd1b950302bae8b7f6957a142f15f366ebc6b8c57cacd2bea"
+          },
+          {
+            "evidence": "LEVER-ECHO block at head of the solver log, file system/fvSolution",
+            "file": "system/fvSolution",
+            "lever_sha256": "4708a54bf73504f7645150eb6ea8ef8fadcfeb01ec35337a8a453cbe01bb627b",
+            "sha256": "d543ddd67e065d5ae404542faf56f817b929e1e2daa5148f151c08595bc99ab3"
+          }
+        ]
+      },
+      "name": "c3s4",
+      "residual_control_met": true,
+      "rows": 210,
+      "wall_s": 62.8
+    }
+  ],
+  "n_c3": 4,
+  "prereg": "campaign/R4_AHMED_C3_LEG2_PREREGISTRATION.md",
+  "prereg_commit": "f4dec659",
+  "published_increment": 0.0008894849999999954,
+  "ratio_to_published": -1.001395252701525,
+  "reestimated_increment": -0.0008907260563492114,
+  "s_c3_all": 0.002769076901733298,
+  "s_c3_without_extreme": 0.0008972050209392377,
+  "timestamp": "2026-08-10T17:57:04+00:00"
+}
