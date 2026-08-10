@@ -666,6 +666,7 @@ it has no mandate to edit other agents' files.**
 | 12 | **Two status files are frozen-headed** — still written to, headers declaring July scope; every campaign since 2026-08-01 is invisible to `CAMPAIGN_STATUS.md` | §4.1 |
 | 13 | The B-52 turn audit's §8 table still displays a retracted total on its own face; only the satellite was corrected | D-13 |
 | 14 | Three of four family guideline files carry no usable version; only Infra bumps | §2.3 |
+| 15 | One pre-registration's **self-certifying timestamp sentence does not reproduce**; the science is unaffected | below |
 
 **On defect 10, measured 2026-08-10 21:15 UTC.** `date -u` returns 2026-08-10.
 **Twelve tracked files carry the date 2026-08-11**, including
@@ -688,6 +689,41 @@ It is also the sharpest available argument for §6's cold-start test. The lab
 found this class, wrote it down, fixed the instance in front of it, and left
 twelve others standing — and nothing would have reported them, because nothing
 in the lab reads a date and compares it to the clock.
+
+**On defect 15, and it is stated carefully because the overstated version of it
+would be an accusation.** `campaign/B52_RUNG7_PREREGISTRATION.md` certifies
+itself in its own opening: *"Written 2026-08-02 05:23 UTC, after meshing
+(checkMesh 05:21:15 UTC) and before the solver was launched (05:23:19 UTC) …
+no drag coefficient has been computed on it."* Measured against filesystem
+birth times in `/home/ubuntu/certonomous-runs/study-b52-rung7-uq/`:
+
+| Event | UTC |
+|---|---|
+| `log.simpleFoam` born — the actual solver launch | 05:23:25.19 |
+| `coefficient.dat` born — first Cd row | 05:23:28.19 |
+| the pre-registration **file** born | 05:23:29.73 |
+| the pre-registration **committed** (`d92a87f0`) | 05:23:39 |
+| `coefficient.dat` final write — **the gated quantity** | 05:27:47.14 |
+
+Both clauses are wrong as written. `05:23:19` is `decomposePar`, not the solver;
+simpleFoam started 05:23:25. And a drag coefficient *had* been computed — two
+iterations of it — 1.5 s before the file existed.
+
+**The science is untouched, and that is the finding, not a mitigation.** Cd at
+iteration 1 was 4.20e-4 and at iteration 2 was 7.87e-4; the converged value at
+iteration 300 was **4.82e-2**, two orders of magnitude away and four minutes in
+the future. Nothing about the gated quantity was knowable when the
+pre-registration was committed, so the property that makes a pre-registration
+evidence — that the gate cannot be tuned to the answer — holds completely.
+
+This is a **paperwork defect in a self-certifying sentence**, and it is in this
+document because a record that certifies itself with a checkable claim invites
+the check, and the check fails. Two other pairs were spot-checked and are clean
+by minutes: DMR (13.8 min before any compute) and B52 rung 8 (4.9 min before the
+solve). The correct disposition is a dated amendment to the pre-registration's
+opening sentence by its owning family — **not** an edit by this document, and
+**not** a withdrawal, since nothing it protects was compromised. Flagged to the
+Cases family rather than repaired here.
 
 ---
 
