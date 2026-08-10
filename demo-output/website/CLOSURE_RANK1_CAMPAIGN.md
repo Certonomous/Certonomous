@@ -1,5 +1,38 @@
 # The rank-1 campaign — costed, ranked, and pre-registerable
 
+> **SUPERSESSION NOTE, added 2026-08-10 (Ladder V rung V14, stale-surface item 4).
+> This plan's starting position is round 4 and round 4 is no longer the entry of
+> record.** Round 4 held that status until **2026-08-07**, when round 5 (untrained
+> QCR2000 duct forward solve, the sixth pre-registered scoring call) superseded it at
+> **0.056647** overall. Every present-tense *"our entry of record is round 4,
+> 0.065438"* below — §1's opening sentence, its per-case table, and the *"today
+> (round 4)"* row of §1's *what fixing the ducts is worth* scenario table — is
+> **the position as it stood on 2026-08-05**, not the lab's current standing. Current
+> standing: `closure_challenge_round5_qcr.json`; caveats: `CLOSURE_CHALLENGE_STATUS.md` §0f.
+>
+> **The plan's own arithmetic is deliberately left as written.** The −0.005913 deficit,
+> the per-case gaps and the route pricing are the reasoning that produced the round-5
+> decision; re-basing them onto round 5 would rewrite a plan into a report of its own
+> outcome and destroy the record of what was decided on what evidence.
+>
+> **On the figure 0.065438.** It is the mean of the eight *rounded* per-case values
+> (0.0654375), not the full-precision round-4 overall, which is 0.06543140783850523
+> (`closure_challenge_trained_entry_round4_duct.json`). §1 states that construction
+> itself — *"Both reproduce from their per-case columns exactly"* — and the comparison
+> it is used for, against Reissmann's 0.059525, is like-for-like on the same
+> construction. So it is left exactly as written: changing it would break the
+> like-for-like comparison the whole section rests on. Recorded here because the same
+> mean-of-rounded construction is a Pass-2 finding (claim C8) against the word
+> *"published"* on 0.059525.
+>
+> **The premise has since been met, and a rank claim carries its companion.** Round 5
+> stands at **rank 1 of 5 scored locally** at benchmark commit `deb91557` — a local
+> scoring, not an official placement; nothing has been submitted. **P(rank 1) = 68%**,
+> and an eight-case sample cannot pin it tighter than **2–100% at 95%**. The leads over
+> Reissmann and Wu & Zhang are **not statistically decided** (t = −0.50 and −0.95); the
+> leads over Liu and Montoya are (98.7%, 99.8%). Source:
+> `campaign/PROBABILITY_OF_RANK_2026-08-10.md`.
+
 Drafted 2026-08-05. Katie's directive: *the closure challenge continues until
 we are #1.* This document is the plan that follows from it, built only from
 numbers the lab has measured or read, with every route's expected gain bounded
