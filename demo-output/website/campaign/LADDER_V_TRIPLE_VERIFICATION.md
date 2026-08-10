@@ -129,6 +129,14 @@ live send and harden the record whether or not the entry ever goes out. They may
 docket items. V1/V3/V4/V5 may also be run early as record-hardening. V6/V8/V9/V11/V12 bind to a
 concrete submission package and wait for unpark.
 
+
+> **Filename date note (chief, 2026-08-10).** The Pass 1/2/3 reports and several sibling
+> records are named `…_2026-08-11…`. They were created on **2026-08-10**: I took the date
+> from a dispatch header rather than from the clock and then specified those filenames.
+> The files are not renamed, because five committed reports already reference them and a
+> rename would break the citations that make them checkable — but a date in a filename is
+> a sort key, so the discrepancy is recorded here rather than left to be discovered.
+
 ## Status ledger (chief-maintained)
 
 | Rung | Verdict | Evidence | Date |

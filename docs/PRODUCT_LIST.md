@@ -1872,6 +1872,39 @@ clock-audit rule asks for.]*
 - **Priced and not spent, routed to the chief:** the relaxation-invariance check costs one extra solve per arm, and
   **three standing verdicts rest on that one untested switch.**
 
+### 2026-08-10 (night) — the memory architecture lands, and it corrects the brief that commissioned it
+
+- **TWO FALSE PREMISES IN THE CHIEF'S OWN DISPATCH, found and reported rather than written around** (56a6a828).
+  (1) I quoted *"chat is not the record"* as an agent's words; **that string appears in zero files** — I invented a
+  quotation and attributed it. (2) I wrote that *"two transcripts became unreachable"*; the agent checked and reports
+  transcripts survive. **The precise version, which is mine to state:** I observed a resume FAILURE — an agent could
+  not be resumed and reported no transcript found — and I generalised that to the file being lost, which is a
+  different claim I never checked. The real loss it identified is a dead scratchpad taking two arms' logs
+  unreconstructibly. (3) "Nine days" is **7 d 15 h**, and is wrong in four files including my own.
+- **A living document may not carry a fixed header date.** Two status files are marked do-not-start-here:
+  `CAMPAIGN_STATUS.md` is a frozen 2026-07-28 snapshot **still being written to**, in which `B52`, `W1`–`W3`,
+  `LADDER_V`, `MODEL_FORM`, `DMR`, `F5c` and `certificate` all occur **zero times** — every campaign since 08-01 is
+  invisible in the most inviting file in the directory.
+- **The cold-start reading order is ordered by COST OF NOT KNOWING**, which is why a commit procedure precedes the
+  science: the escalation charter's §3 still prescribes the practice §9.6a measured as insufficient after four
+  collisions, and **no version was bumped, so nothing signals it.**
+- **13 duplicates found, 7 already drifted, none edited.** The fleet-death count appears in six places with **five
+  different values** (the right answer is eight). The nine-day figure is wrong in all four copies. The B-52 audit's
+  own table still displays a retracted count against its recount — the satellite was corrected and the record was
+  not. A section was added listing five near-collisions that are **NOT** defects, so the next sweep does not unify
+  two populations into one wrong number.
+- **The staleness detector's finding is the sharpest part: convention is already at 97% compliance — the gap is
+  DETECTION, not convention.** And the obvious two-timestamp detector **fails against the actual incident**, because
+  the record was **born stale, not aged into it** — the refuting commit predates the review it contradicts. The
+  proposal therefore ships two instruments and makes re-finding that one known instance its first pass-or-fail gate.
+- The agent **made the error it was documenting, twice**, and corrected both in place: a version number read from a
+  regex that matched another document's citation of a version. Its own words — *that is L-43 with my own instrument
+  as the specimen.*
+- **My date error propagated into filenames.** Twelve tracked files carry `2026-08-11`, three of them in the
+  **filename**, where a date is a sort key — because I took the date from a dispatch header rather than the clock and
+  then specified those names. The files are not renamed (five committed reports reference them); **the correction is
+  recorded here and on the ladder's face: everything named `2026-08-11` was created on 2026-08-10.**
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
