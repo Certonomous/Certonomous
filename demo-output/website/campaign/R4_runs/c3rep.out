@@ -1,0 +1,37 @@
+[2026-08-10T17:37:25+00:00] Ahmed c3 draw-scatter leg 1 starting (prereg e543bc5e)
+[2026-08-10T17:38:04+00:00] c3b: meshed 251113 cells in 38.8s, clean
+[2026-08-10T17:38:04+00:00] c3b: attempt 1 (99, 21, 58) -> 251113 (-1.49%) ADMITTED
+[2026-08-10T17:38:04+00:00] c3b: G2 -> True (clean)
+Traceback (most recent call last):
+  File "/home/ubuntu/Certonomous/demo-output/website/campaign/R4_runs/run_c3_replicates.py", line 146, in <module>
+    if __name__=="__main__": raise SystemExit(main())
+                                              ^^^^^^
+  File "/home/ubuntu/Certonomous/demo-output/website/campaign/R4_runs/run_c3_replicates.py", line 113, in main
+    s=solve(r,name); cd,n=cd_of(r)
+      ^^^^^^^^^^^^^
+  File "/home/ubuntu/Certonomous/demo-output/website/campaign/R4_runs/run_c3_replicates.py", line 64, in solve
+    shutil.rmtree(r/"0", ignore_errors=True); shutil.copytree(r/"0.orig", r/"0")
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/shutil.py", line 598, in copytree
+    with os.scandir(src) as itr:
+         ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/ubuntu/certonomous-runs/r4-ahmed-c3b/0.orig'
+[2026-08-10T17:38:36+00:00] Ahmed c3 draw-scatter leg 1 starting (prereg e543bc5e)
+[2026-08-10T17:39:15+00:00] c3b: meshed 251113 cells in 39.0s, clean
+[2026-08-10T17:39:15+00:00] c3b: attempt 1 (99, 21, 58) -> 251113 (-1.49%) ADMITTED
+[2026-08-10T17:39:15+00:00] c3b: G2 -> True (clean)
+[2026-08-10T17:40:12+00:00] c3b: 203 iters, residualControl=MET, ClockTime 47.0s = 3.13 core-min
+[2026-08-10T17:40:12+00:00] c3b: Cd = 0.079827008
+[2026-08-10T17:40:55+00:00] c3c: meshed 248599 cells in 42.9s, clean
+[2026-08-10T17:40:55+00:00] c3c: attempt 1 (97, 21, 60) -> 248599 (-2.48%) RE-DRAW
+[2026-08-10T17:41:46+00:00] c3c: meshed 244315 cells in 50.5s, clean
+[2026-08-10T17:41:46+00:00] c3c: attempt 2 (96, 21, 61) -> 244315 (-4.16%) RE-DRAW
+[2026-08-10T17:42:46+00:00] c3c: meshed 242597 cells in 60.1s, clean
+[2026-08-10T17:42:46+00:00] c3c: attempt 3 (100, 21, 57) -> 242597 (-4.83%) RE-DRAW
+Traceback (most recent call last):
+  File "/home/ubuntu/Certonomous/demo-output/website/campaign/R4_runs/run_c3_replicates.py", line 167, in <module>
+    if __name__=="__main__": raise SystemExit(main())
+                                              ^^^^^^
+  File "/home/ubuntu/Certonomous/demo-output/website/campaign/R4_runs/run_c3_replicates.py", line 139, in main
+    raise RuntimeError(f"{name}: re-draw allowance exhausted")
+RuntimeError: c3c: re-draw allowance exhausted

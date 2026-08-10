@@ -1,0 +1,11 @@
+{
+ "points_sha256": "cba03808c636748ff6cc7f4609afc8ba29e4a26201742ca3d6c545dfd97abfd2",
+ "verdict": "clean",
+ "cells": 251113,
+ "max_aspect_ratio": 3.6680364,
+ "max_non_orthogonality": 49.606803,
+ "max_skewness": 1.4996097,
+ "hard_errors": [],
+ "generator": "snappyHexMesh, Ahmed 25 c3 replicate c3b",
+ "created_at": "2026-08-10T17:39:15+00:00"
+}

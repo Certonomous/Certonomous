@@ -33,9 +33,20 @@ def log(m):
 def stage(name, div):
     r = RUNS/f"r4-ahmed-{name}"
     shutil.rmtree(r, ignore_errors=True)
-    shutil.copytree(TEMPLATE, r, ignore=shutil.ignore_patterns(
-        "processor*","postProcessing","log.*","0","[0-9]*","polyMesh",
-        "extendedFeatureEdgeMesh"))
+
+    def _ignore(_dir, names):
+        # Time directories are PURELY numeric ("0", "220"); `0.orig` is not, and
+        # must survive -- an earlier `[0-9]*` glob here matched it and deleted
+        # the pristine fields. Named rather than globbed for that reason.
+        out = set()
+        for n in names:
+            if n.isdigit() or n.startswith("processor") or n.startswith("log.") \
+               or n in ("postProcessing", "polyMesh", "extendedFeatureEdgeMesh"):
+                out.add(n)
+        return out
+
+    shutil.copytree(TEMPLATE, r, ignore=_ignore)
+    assert (r/"0.orig").is_dir(), f"{name}: 0.orig did not survive staging"
     b = r/"system"/"blockMeshDict"; t = b.read_text()
     import re
     t2,n = re.subn(r"\(\d+ \d+ \d+\) simpleGrading", f"({div[0]} {div[1]} {div[2]}) simpleGrading", t, 1)
@@ -102,6 +113,16 @@ def main():
     for name,cands in DRAWS.items():
         att=[]
         for div in cands[:3]:
+            done = RUNS/f"r4-ahmed-{name}"
+            if (done/"log.simpleFoam").exists() and \
+               (done/"postProcessing"/"forceCoeffs1").exists():
+                # L-42: a rerun in place destroys the evidence its record needs.
+                log(f"{name}: completed solve already on disk; not re-staging")
+                c = mesh_certificate.read_certificate(done/"constant")
+                cd,n = cd_of(done)
+                res[name]={"draw_attempts":att,"certificate":c,"cd":cd,"rows":n,
+                           "case":str(done),"reused":True,"core_min":0.0}
+                log(f"{name}: Cd = {cd:.9f} (reused)"); break
             r=stage(name,div); c=mesh(r,name); cells=c["cells"]
             ok=abs((cells-C3_CELLS)/C3_CELLS)<=TOL
             att.append({"divisions":list(div),"cells":cells,
