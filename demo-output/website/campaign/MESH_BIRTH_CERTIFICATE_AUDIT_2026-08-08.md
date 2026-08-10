@@ -583,6 +583,62 @@ family's mesh on the strength of a parser, and an absent certificate already
 quarantines it — so the conservative action and the honest one are the same
 action, and the decision stays with the owner.
 
+### RULED, 2026-08-10 — four of those rows are WRONG, confirmed by fresh measurement
+
+**Chief-routed to this audit's owner and ruled (`MESH_CERT_RULINGS_2026-08-10/RULINGS.md`,
+`8845be5f`). The discriminator was re-running `checkMesh`, which nobody had done:
+the rows were refused at the verdict gate before any cross-check.** All seven
+fresh parses agree with their cited log **exactly** — verdict, cell count,
+aspect ratio and the full hard-error list — so **the stale-log hypothesis is
+eliminated and the ROWS are what is wrong, not the logs.**
+
+**Frame, stated first:** this covers **exactly the seven rows routed to this
+family**, judged against **the meshes as they exist on disk at 2026-08-10
+19:19 UTC**. It says nothing about the other three refusals, the 95 minted rows,
+or the ~73 rows outside the 105.
+
+**The four wrong rows are wrong in TWO DIFFERENT WAYS, and the difference is part
+of the finding:**
+
+**(a) Three meshes carry genuine GEOMETRIC errors** — `rae2822-meshcheck/og-fine`
+(327 680 cells), `og-medium` (81 920), `ogrid-coarse` (20 480). Fresh `checkMesh`
+reproduces on all three: **negative-volume cells**, **wrong-oriented face
+pyramids**, non-orthogonality errors and skewness errors. These are broken meshes
+that this audit marked `CERTIFIED`.
+
+**(b) One mesh fails a THRESHOLD, with no geometric error at all** —
+`tmr-bump-finer` (225 280 cells), max aspect ratio **2 230 928.97**, above the
+1e6 pyHyp-pathology threshold and far above the 6.6e4–7.4e4 NASA-grid signature
+**this audit itself documents as a flag rather than an error**. It has **no
+negative volumes and no wrong-oriented pyramids.** The standard's own
+aspect-ratio rule is doing the work here, not a geometric defect.
+
+**These two are deliberately not merged into one sentence.** (b) is a weaker
+failure than (a), and the weaker failure being weaker is part of what was found.
+A reader who takes "four rows are wrong" as "four meshes have negative volumes"
+would be wrong about three quarters of it.
+
+**Why no `broken` certificate was written for any of the four.** The next reader
+will ask, so: **an absent certificate already quarantines the mesh.** Writing a
+`broken` one buys no additional protection and would assert a verdict the
+standard does not require. The conservative action and the honest action
+coincide, which is why the minting pass left the ruling to this audit's owner
+rather than imposing one. **The four meshes remain uncertified and therefore
+remain quarantined.**
+
+**The remaining three refusals were EXONERATED and are now certified.**
+`w1-bump-nasa-grids` coarse / medium / fine were refused because the mesh states
+no `nCells` in its `polyMesh/owner` header — verified, and expected, since these
+are `plot3dToFoam` conversions of NASA's grids rather than OpenFOAM-generated
+meshes. **Re-running `checkMesh` performed that cross-check by a different
+route — counting the mesh directly instead of reading a note about it** — and
+returned 3 520 / 14 080 / 56 320, matching the cited logs exactly. Verdict
+`flagged` (AR 4.8e3–5.3e3), an accepted verdict under Mesh Standard 3.3.
+Certificates minted **from the fresh run**, not from the archived log.
+
+**No verdict elsewhere in this audit is revised by this amendment, and the
+original row text above is retained unedited.**
+
 ### Provenance: these are not birth certificates
 
 A certificate minted from an archived log is a weaker fact than one written at
