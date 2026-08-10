@@ -592,18 +592,30 @@ it has no mandate to edit other agents' files.**
 | 7 | `ESCALATION_CHARTER` §3 contradicts its own §9.6a; neither bumped the version | D-8 |
 | 8 | `docket.json:generated_at` lies by two days; hand edits bypass `save_docket()` | D-1 |
 | 9 | An SDK test asserts a lessons path that does not exist on disk | D-4 |
-| 10 | `VERIFICATION_CHARTER.md` and `COMPUTE_BUDGET_CHARTER.md` are dated **2026-08-11**, tomorrow | below |
+| 10 | **Twelve tracked files carry the date 2026-08-11, which had not happened**; three campaign records carry it in the **filename** | below |
 | 11 | Two charters have grown binding clauses **below** `## Related`, where readers stop | §4 step 0, step 4 |
 
-**On defect 10.** `VERIFICATION_CHARTER.md:3` reads *"Version 1.6, dated
-2026-08-11"* and `COMPUTE_BUDGET_CHARTER.md:377` reads *"Added 2026-08-11 (D5)"*,
-while `date -u` at the time of writing returns 2026-08-10 21:07 UTC and both
-files' mtimes are 2026-08-10. This is the same defect `LESSONS.md` commit
-`e59ae644` caught and fixed in itself hours earlier — *"my own entries took
-their date from the dispatch header instead of the clock."* The lesson was
-learned in one file and the two charters carrying the same error were not swept.
-That is a cross-file propagation gap, not a typo, and it is the third instance
-this document found of a fix that did not travel.
+**On defect 10, measured 2026-08-10 21:15 UTC.** `date -u` returns 2026-08-10.
+**Twelve tracked files carry the date 2026-08-11**, including
+`VERIFICATION_CHARTER.md:3` (*"Version 1.6, dated 2026-08-11"*),
+`COMPUTE_BUDGET_CHARTER.md:377` (*"Added 2026-08-11 (D5)"*), `docs/PRODUCT_LIST.md`,
+the round-5 submission package, and **three campaign records that carry it in the
+filename** — `LADDER_V_PASS1_2026-08-11.md`, `LADDER_V_PASS2_2026-08-11.md`,
+`LADDER_V_PASS3_COLD_2026-08-11.md`. A fourth, `INSTRUMENT_INTEGRITY_2026-08-11.md`,
+was created by another agent at 21:14 UTC, while this section was being written.
+
+This is the same defect `LESSONS.md` commit `e59ae644` caught and fixed **in
+itself** hours earlier — *"my own entries took their date from the dispatch
+header instead of the clock."* The lesson was learned in one file; the twelve
+files carrying the identical error were never swept. It is a cross-file
+propagation gap rather than a typo, and it is not benign: a filename date is a
+sort key, so three of the lab's current verification-campaign records sort ahead
+of every genuine record in the campaign directory, and will keep doing so.
+
+It is also the sharpest available argument for §6's cold-start test. The lab
+found this class, wrote it down, fixed the instance in front of it, and left
+twelve others standing — and nothing would have reported them, because nothing
+in the lab reads a date and compares it to the clock.
 
 ---
 
