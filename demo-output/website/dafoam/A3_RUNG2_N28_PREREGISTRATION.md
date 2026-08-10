@@ -155,6 +155,42 @@ construction, as at rung 1.)
   this estimate. Rung 1's own numbers are the anchor; both figures are estimates and the
   overrun rule applies (report, do not silently exceed).
 
+## 7a. Addendum, 2026-08-10T15:07Z — Arm A attempt 1 lands OFF the mapping's axis; the honest reading, and attempt 2 pre-registered
+
+Attempt 1 (t0 1786373687 = 14:54:47Z, rc=0, wall 606 s = **40.4 core-min against the ~15
+estimate — a 2.7x overrun, reported not buried**) produced both activity proofs
+(`transonicPCOption 1;` in the DAOption dump, no sub-LU banner) and this rung's exact cold
+signature `0.6833296303785072`, and then returned:
+
+| solve | iterations | reason | residual path |
+|---|---|---|---|
+| CD | **987** | **2 (CONVERGED)** | 2.121211553380e−02 → below the 1e−4 relative target, 231.24 s |
+| CL | 1000 (the cap) | **−3 (DIVERGED_ITS)** | 1.839192419993e−01 → 1.307615741156e−04, **monotone, a 1407x reduction**, 386.22 s |
+
+**Neither pre-registered branch of §6 fires, and saying so is the point.** §5's letter maps any
+negative reason to DIVERGED and §6 maps DIVERGED to "the wall is real above this rung" — but
+applying that letter here would state something false, in exactly the way the memory-death
+refusal would have. `-3` is DIVERGED_ITS: the solve ran out of its **iteration budget**
+(`gmresMaxIters`, default 1000) while descending monotonically. It is not `-5`
+DIVERGED_BREAKDOWN, and the record's signature at this rung was a FLAT stall (2.1212e−02 →
+2.1042e−02 over 200 iterations, then a denormal) on BOTH solves. Here one solve converges
+outright and the other falls three decades without a stall anywhere. **The conditioning wall
+is broken at this rung too; what remains is a budget knob, not a wall.**
+
+Attempt 2, pre-registered before it runs: the identical arm with **one declared change,
+`gmresMaxIters` 1000 → 2000** (an iteration budget, not a preconditioner or physics lever;
+the record config left it at its default). Prediction, stated so it can be wrong: the CL
+solve's observed rate near the cap is ~3x per 100 iterations, so reaching the 1.84e−05
+relative target needs roughly 200–400 further iterations — CL should converge near **1,200–1,400
+iterations**, comfortably inside 2000; predicted wall ~450 s (~30 core-min). If CL instead
+stalls or breaks down under the raised cap, THAT fires §6's second branch honestly, and the
+budget explanation is falsified. §5's converged-adjoint criterion (positive reason on BOTH
+solves) is unchanged and still governs.
+
+Cumulative arm-A spend after attempt 2 will be reported against the ~15 estimate without
+softening; the FD arm (B) remains pre-registered as filed and is re-priced from attempt 2's
+measured wall before it launches.
+
 ## 8. Item 2 of the dispatch, sequenced as instructed
 
 The D3 n15 variant-lever cold reruns (the warm-start audit's flagged rows) exceed the ~25
