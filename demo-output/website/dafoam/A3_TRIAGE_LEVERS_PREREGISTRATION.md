@@ -160,3 +160,40 @@ does not prove transfer to 79,560. Rung 3's pre-registration therefore carries a
 confirmation arm as stage 0** (L3 at 42,120 cells, graded against rung 2's measured CD 987 / CL
 1171); rung 3 adopts the lever only if the confirmation reproduces a material cut, and reverts
 to the filed baseline basis if it does not.
+
+## 10. STAGE-0 TRANSFER TEST: **FAILED — the recommendation of §9 is VOID**
+
+Run as rung 3's mandatory stage 0 (`A3_RUNG3_N52_PREREGISTRATION.md` §3), 15.9
+core-min, ledger rc=0, all proofs in-log (`transonicPCOption 1;`,
+`Global PC Iters: 3`, `Local PC Iters: 3`, cold signature
+`0.6833296303785072`, no sub-LU banner). L3 Richardson at **rung 2 (42,120
+cells)**, against that rung's measured baseline CD 987 / CL 1171 (reason 2):
+
+| | CD | CL |
+| --- | --- | --- |
+| rung 2 baseline | 987, reason **2** | 1171, reason **2** |
+| rung 2 + L3 Richardson | 200, reason **−5** | 200, reason **−5** |
+
+Both solves collapse to exactly 0.0 at iteration 200 — `gmresRestart`, the first
+restart boundary. **The third branch of the pre-registered mapping fires: not
+"benefit fails to transfer" but the stronger and worse "the lever collapses at
+the next rung."**
+
+**§9's recommendation to adopt L3 for rung 3 is withdrawn.** Rung 3 runs the
+baseline configuration at the filed basis (`gmresMaxIters` 4000, CD ≈ 2,570 /
+CL ≈ 3,456 predicted) — which is what was launched.
+
+**What this does to §8's finding.** §8 claimed the R5 strengthening prior was
+overturned as a dead-lever artifact. That claim was too strong and is corrected
+on R5's own face (5aa3a142): strengthening's collapse is REAL with the PC active
+— it just does not appear at 21,840 cells, where both strengthened arms finish
+inside roughly one restart cycle. §8's measurements stand exactly as recorded;
+§8's interpretation does not. The honest one-line version: **strengthening the
+preconditioner helps at the smallest rung and collapses at the next one, and the
+restart boundary is where it happens.**
+
+**Value delivered, stated plainly:** stage 0 cost 15.9 core-min and stopped rung
+3 from launching on a lever that would have collapsed it — and it converted an
+over-broad retraction into a mesh-dependence finding this family did not have.
+It is the cheapest arm of the campaign and, by consequence, among the most
+useful.
