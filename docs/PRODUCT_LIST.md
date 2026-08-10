@@ -1929,6 +1929,38 @@ clock-audit rule asks for.]*
   catchable only where it happened to sit beside a literal. A number-search cannot find a claim without a number,
   and that is the natural brief for a follow-on rung.
 
+### 2026-08-10 (night) — V15 FAILS: the claims-table pass produced text that fails the claims table
+
+- **THE LADDER CANNOT GO GREEN** (6afe15e3). Katie's A15 was right and its first run proved it: **the pass that
+  audits claims wrote 442 lines of outward text, and that text does not pass the audit.** L-53 one level up.
+- **BLOCKING F1 — the outward disclosure quotes a case that is not in the submission.** The description document
+  offers **5.8×10⁻⁴** in bold as "the measured number" for the submitted duct fields. That value belongs to the
+  **VALIDATION** duct; the three submitted ducts are 8.5 / 5.3 / 5.4 ×10⁻⁴. **It understates the worst submitted case
+  by 32%, in the direction that flatters, four lines below the table that gives the correct range** — and the
+  adversarial pass carried the same number into its own claims table.
+- **BLOCKING F2 — and it is MY defect, not the ladder's.** Both new package files are dated a day into the future.
+  I caught that class at `e59ae644`, corrected `PRODUCT_LIST` **alone**, and the package shipped with it: nine
+  closure surfaces assert tomorrow's date, **including the two files that actually travel**. A peer independently
+  scoped the class and its twelve files do not include the outward two. **The fix for a class is where that class
+  reappears — I fixed my own copy and not the class.**
+- Four more, each in the flattering direction: a proof-by-chronology says "three days before" where the measured gap
+  is **1 d 22 h** (55% overstated); the rank probability and the margin are computed from **two different values of
+  the competitor's score** without saying so; the seed sensitivity that moves P(rank 1) from 52% to 81% **does not
+  travel**, though the reversal's own logic says it must; and one section's **only uncited sentence is its defence**.
+- **The ladder graded surfaces against a rule it withdrew two rows later** — 16 surfaces marked PASS immediately
+  before the rule they were graded against was superseded — and **two sweep claims are false where a positive control
+  would have shown it**, including a **bare 68% with no interval** sitting live in a campaign file: the exact
+  prohibition the ladder adopted, violated while the sweep reported the invariant holding.
+- **My commit set was short by five**, most importantly **the Pass-4 dispatch itself** — *"the rung that says 'any
+  text written during the ladder' omitted the commit that created the rung."* Nothing I named was misattributed.
+- **My citation fix was verified against the code rather than accepted**, as instructed: the anchors are correct and
+  the rung did re-verify twice. **But the date in my note was wrong** — the shift was 2026-07-31, not 07-30. A wrong
+  date inside a note about stale references. Corrected at `a454c6bb`.
+- **The disclosure PASSES on the hard criterion**, and this matters: it admits before it mitigates, quotes the frozen
+  rule freeze verified with `git show` rather than the working copy, and states in terms that no mitigation cancels
+  the concession. Two reservations recorded — the last word goes to a rules argument, and it is ranked below the
+  best-on-board count, *"which is not the judgement its own prose makes."*
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
