@@ -21,6 +21,21 @@ was lost as pre-accepted in writing (+0.0029) against −0.0731 on the two
 Ret_360 ducts; the 6th cumulative scoring call. The round-4 paragraph below
 is superseded and the new paragraph in Ladder C carries the numbers.
 
+Update 2026-08-10 UTC: **Rank-1 companion (MANDATORY, chief ruling).** Any
+statement of rank 1 or of the 0.056647 headline, on any surface, carries these
+four clauses. **P(rank 1) = 68%** — a case-level bootstrap over the eight scored
+cases puts the probability that this ordering survives a comparable set of cases
+at 68%, and an eight-case sample cannot pin it tighter than 2–100% at 95%. **The
+leads over Reissmann and Wu & Zhang are not statistically decided** (paired
+per-case differences t = −0.50 and t = −0.95, against a per-case dispersion five
+times the 0.002878 margin); the leads over Liu and Montoya are (98.7%, 99.8%).
+**The standing is two cases wide** — delete `alpha_15_13929_2024` and the point
+ranking falls to rank 2 (P(rank 1) 38%); delete `NASA_2DWMH` and P(rank 1) rises
+to 91%. **`AR_1_Ret_360` and `AR_3_Ret_360` are ties below published precision**
+(0.00003 and 0.00008) and are not per-case wins or losses. Source:
+`campaign/PROBABILITY_OF_RANK_2026-08-10.md` — INTERNAL ONLY; the 68% figure
+never appears in an external claim.
+
 Update 2026-07-30 UTC: Ladder C — closure challenge submission policy
 established, eligibility verdict recorded, compliance audit run; **both blocking
 defects since cleared — the eight submission CSVs now exist and the false

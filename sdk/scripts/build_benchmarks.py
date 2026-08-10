@@ -107,7 +107,15 @@ _CLOSURE = {
                  "on the ducts). Rank 1 of 5 scored locally at benchmark commit deb91557 - a "
                  "local scoring, not an official placement. Best result on the public board "
                  "on four of the eight test cases. Not yet submitted to the benchmark's "
-                 "steward.",
+                 "steward. The lead is not statistically decided: the 0.002878 margin over "
+                 "Reissmann sits against a per-case spread five times larger, so on a "
+                 "different set of eight cases the ordering could reverse, and the same is "
+                 "true of the margin over Wu and Zhang; the margins over Liu and Montoya do "
+                 "survive that test. The standing is two cases wide - on the eight-case "
+                 "mean, alpha_15_13929_2024 alone supplies more than the whole margin and "
+                 "NASA_2DWMH alone costs more than it. AR_1_Ret_360 and AR_3_Ret_360 are "
+                 "ties below the precision the board publishes to, and are not per-case "
+                 "wins.",
     "rans_identity_floor_overall": 0.1036,   # zero-training reference floor; see comment above
     "rans_identity_floor_per_case": [0.132, 0.2049, 0.0461, 0.0719, 0.1288, 0.1243, 0.059, 0.0621],
     "our_score": 0.0566,   # round-5 entry of record (0.056647 full precision, scored locally)

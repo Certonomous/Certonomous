@@ -47,6 +47,15 @@ supervisors' four personal checks apply per the supervision charter.
   organizer-baseline rows (§4.7), no "official rank" language anywhere (local scoring stated
   plainly), soft-adaptive-leakage disclosure present in the lab's own words (§4.3). A claims
   table: sentence → artifact → verdict.
+  **V8 strengthening, 2026-08-10 (chief ruling, protocol edit — not a rung execution):** any rank
+  claim, internal or external, must carry **P(rank 1) and the not-decided pairs**. A rank claim
+  that states a placement without stating the probability that the placement survives case
+  resampling, and without naming which pairwise comparisons are undecided (currently Reissmann and
+  Wu & Zhang; Liu and Montoya are decided), fails this rung. Internal surfaces carry the figure
+  itself (P(rank 1) = 68%); external surfaces carry the qualitative clause only — the figure is
+  internal by the item's own gate and may not be published. Both wordings contain the literal
+  string `not statistically decided`, which is the token V10's cross-surface sweep greps for.
+  Source: `campaign/PROBABILITY_OF_RANK_2026-08-10.md`.
 - **V9. Prior-art completeness**: the §7.4 split carried verbatim into the description (identify
   vs control papers correctly separated); the Buchanan-coefficients firewall stated as a
   compliance fact; a final check that nothing in the entry's history warm-started from, calibrated
@@ -95,6 +104,7 @@ concrete submission package and wait for unpark.
 | V6 | waits for unpark | binds to a concrete submission package | — |
 | V7 | **PASS** | docstring fix verified at call sites + three further stale count claims fixed (incl. build_benchmarks.py page-regression fossil); round-5 artifact format-verified vs accepted submissions | 2026-08-08 |
 | V8, V9 | wait for unpark | bind to cover email / description document | — |
+| V8 *(protocol strengthened, not executed)* | **criterion added** | any rank claim must carry P(rank 1) and the not-decided pairs; sweep token `not statistically decided`; five surfaces already compliant (CLOSURE_CHALLENGE_STATUS §0f, ACTIVE_RESEARCH, closure.html, benchmarks.html, benchmarks.json→wall.json) — `campaign/PROBABILITY_OF_RANK_2026-08-10.md` | 2026-08-10 |
 | V10 | **PASS** | all surfaces round-5 consistent after two drift fixes (benchmarks.html fossil; ACTIVE_RESEARCH tense) | 2026-08-08 |
 | V11, V12, V13 | wait for unpark | cold reproduction + skeptic's report + close-out bind to the send | — |
 
