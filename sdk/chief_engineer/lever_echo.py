@@ -76,6 +76,66 @@ def echo_block(case_dir: Path) -> str:
     return "\n".join(lines) + "\n"
 
 
+#: Fence for the block written when an echo is REFUSED. Deliberately does not
+#: contain ``BEGIN``, so :func:`parse_echo` reads it as no echo at all and
+#: ``levers_verified_active`` reports ``unverifiable`` -- the gate fails OPEN.
+REFUSED = "==== LEVER-ECHO REFUSED ===="
+REFUSED_END = "==== LEVER-ECHO REFUSED END ===="
+
+
+def refusal_block(reason: str, **facts: Any) -> str:
+    """A stated refusal to mint an echo, in place of one.
+
+    A filter nobody can see is a filter nobody can question (the family's
+    schema-rails principle), so a refused echo says so in the run log with
+    the facts that refused it, rather than leaving a silent absence that
+    reads exactly like a pre-adoption log.
+    """
+    lines = [REFUSED, f"reason {reason}"]
+    lines += [f"{k} {v}" for k, v in facts.items()]
+    lines.append(REFUSED_END)
+    return "\n".join(lines) + "\n"
+
+
+def echo_block_for_run_dir(run_dir: Path,
+                           declared_case: Path | str | None = None) -> str:
+    """The echo for the directory a process is ACTUALLY RUNNING IN.
+
+    L-45, 2026-08-10. ``scripts/launch_solve.sh`` used to mint its echo from
+    the caller-supplied ``--case`` path while the command itself ran under
+    ``setsid nohup "$@"`` in the launcher's inherited working directory, with
+    nothing binding the two. A mismatched ``--case`` would therefore have
+    written an echo of dictionaries that DID NOT RUN at the head of the log of
+    a solve that did -- a manufactured verification, indistinguishable
+    downstream from a real one. (It never fired: every registry log predates
+    the echo's adoption by twenty hours. The channel was open, not used.)
+
+    So the evidence is derived from the thing that executed. ``run_dir`` is
+    the process's own working directory, read inside the launched process
+    rather than passed in by whoever described the launch. ``declared_case``,
+    when given, is the caller's CLAIM about that directory: it is used only to
+    DISAGREE with. Agreement echoes ``run_dir``; disagreement refuses, because
+    the two paths differing means nobody can say which directory the solver
+    will open its dictionaries from, and an unverified record is cheap while a
+    falsely-verified one costs the whole corpus the gate ever touched.
+    """
+    run = Path(run_dir).resolve()
+    if declared_case is not None:
+        declared = Path(declared_case).resolve()
+        if declared != run:
+            return refusal_block(
+                "the declared --case is not the directory this process runs "
+                "in; refusing to certify dictionaries that may not be the "
+                "ones the solver opens (LESSONS.md L-45)",
+                declared_case=declared, run_directory=run)
+    if not _echo_targets(run):
+        return refusal_block(
+            "no lever dictionaries under the directory this process runs in; "
+            "nothing to hash, so nothing is claimed",
+            run_directory=run)
+    return echo_block(run)
+
+
 def parse_echo(log_text: str) -> dict[str, str]:
     """``{case-relative file name: sha256}`` from a log's LEVER-ECHO block;
     empty when the log carries none (every log written before adoption)."""

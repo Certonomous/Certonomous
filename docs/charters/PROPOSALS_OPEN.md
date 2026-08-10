@@ -1,8 +1,18 @@
 # Open proposals across the charters
 
-Version 2.4, dated 2026-08-07. Every point in the nine charters where the lab
+Version 2.5, dated 2026-08-10. Every point in the nine charters where the lab
 is **proposing** rather than **recording**, collected so the owner can react to
 the whole set without reading the whole set.
+
+**What changed in 2.5: one new proposal, and it is the first this file has
+ever carried under charter 4.** P-4.1 asks whether the lab should consolidate
+the eight different ways it launches a solver, six of which do not emit the
+lever echo the verification charter's §9 depends on. It is filed with its
+migration cost priced and with the lab recommending the cheap half and
+explicitly recommending AGAINST the expensive half for now — the expensive
+half touches the detached-solve protocol that L-5, L-6 and D12 exist to
+protect. No record is wrong today: all six gaps lose verifications rather
+than forging them.
 
 Everything listed here needs her decision. Everything not listed here traces to
 a recorded instruction, an existing standards document, or a lesson. That
@@ -615,8 +625,60 @@ and get written approval, which is the point.
 
 ### Charter 4, verification
 
-**Nothing proposed, and version 1.3 added three sections without changing
-that.** Every clause traces to a lesson, an existing standard, a format already
+#### P-4.1. The lab launches solvers eight different ways, and two of them enforce the lever gate
+
+**NEW in 2.5 (2026-08-10, night), from the Infra family's L-45 pass.** Filed
+rather than enacted, because the cheap half is a family fix and the expensive
+half touches the detached-solve protocol that three lessons (L-5, L-6, D12)
+exist to protect.
+
+**The finding.** Charter §9's `levers_verified_active` is only as good as the
+launch paths that emit the echo. A sweep of every solver launch in the repo
+found **eight distinct mechanisms**, of which **two** emit it:
+
+| # | Mechanism | Echo? |
+| --- | --- | --- |
+| 1 | `workflows.tmr_verification._foam` — the shared runner, 60 call sites in 17 files | **yes** |
+| 2 | `scripts/launch_solve.sh` — the sanctioned long-solve launcher | **yes** (since the L-45 fix) |
+| 3 | `tmr_verification` — 4 `subprocess.Popen` solver paths (watched + detached, serial + parallel) inside the very module that owns the runner | no |
+| 4 | `scripts/coefficient_uq_plate.py:174` — a private `_foam` copy | no |
+| 5 | `sdk/scripts/naca4412_credential_repair.py:101` — a private `foam()` | no |
+| 6 | `demo-output/…/W1_runs/run_rung.py:39` + its own `Popen` | no |
+| 7 | `demo-output/…/W1_runs/build_case.py:29` — another private `foam()` | no |
+| 8 | `demo-output/…/F5_runs/cylinder_ladder.py:465` — builds `solve_args`, calls `subprocess.run` | no |
+
+All six gaps are false-NEGATIVE: they lose a verification, they cannot forge
+one, so no record is wrong today. The argument for acting anyway is that an
+enforcement surface with eight entrances is one nobody can reason about, and
+patching six is how it becomes nine — the count grew from six to eight during
+the sweep that was counting it.
+
+**Cost, priced.** Compute: **zero core-minutes** — no solve is needed; the
+suite is the test. The cost is agent-passes and risk:
+
+- **Options C+D (recommended), ~1 pass, low risk.** The four `tmr_verification`
+  detached paths already build a `bash -c` wrapper string; they gain the same
+  `scripts/lever_echo_emit.py` call the launcher now uses — one line each, no
+  API change, no change to the exit-file protocol. The two family-owned
+  private copies (#4, #5) are deleted and re-pointed at the shared runner.
+  Closes 6 of 6 for family code. #6–#8 are other families' campaign scripts and
+  are reported as drift, not edited.
+- **Option B (full consolidation), 2–3 passes, HIGH risk, not recommended
+  now.** One runner owning foreground, watched and detached launches. The
+  detached path is what every long solve uses, and its exit-file/PID protocol
+  is precisely the L-5/L-6/D12 failure family; a defect there orphans solves
+  rather than losing an echo. Worth doing only with no live solves, a
+  rehearsal, and the detached protocol tested end-to-end first.
+- **Option A, status quo, zero cost.** Honest only if the six gaps are stated
+  wherever an `unverifiable` record could be mistaken for a lever that failed
+  rather than a launcher that was silent. Infra guidelines v1.2 §1.7 already
+  states them; this option is "leave it stated".
+
+**The lab's recommendation: C+D now, B not now, and B never as a background
+task.** A word suffices: C+D, B, or A.
+
+**Nothing else proposed under this charter, and version 1.3 added three
+sections without changing that.** Every clause traces to a lesson, an existing standard, a format already
 in use, or a defect whose fix is already in the code. That includes all of
 section 6, the display layer: the certificate's interval guard,
 `reportable_band`, and the monitor reading its governed constant are landed

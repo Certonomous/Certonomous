@@ -1,5 +1,15 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.3, dated 2026-08-10 (night). Closes the one false-POSITIVE channel
+v1.2's sweep found: `launch_solve.sh` minted its lever echo from a
+caller-supplied `--case` while the command ran under `setsid nohup "$@"` in
+the launcher's inherited cwd, with nothing binding the two. The echo is now
+emitted by the launched process from its own working directory, and a
+`--case` that disagrees with that directory REFUSES rather than certifies
+(L-45). Adds section 1.8 and section 4. Exposure was zero — every log in the
+registry predates the echo's adoption by twenty hours — so this closed the
+channel before it was ever exercised, and no corpus cleanup was owed.
+
 Version 1.2, dated 2026-08-10. Amends section 1.7 and adds section 3, the
 second personal-check pass, on the lever-echo parallel-launch gap: the echo's
 launch test read `args[0]` only, so the block never fired on an
@@ -160,6 +170,37 @@ satisfiable at write time, never retroactively (adopted 2026-08-08):
   campaign scripts that build their own `solve_args`. A record from any of
   those honestly reports `unverifiable`; nobody should read that word as
   "the levers were checked and found wanting".
+
+### 1.8. Evidence is derived from what executed, never from what was declared
+
+L-45, adopted 2026-08-10 (night). The family's own enforcement code broke
+this rule twice in three days, in both directions, so it is written down:
+
+- **Derive from the artifact of execution.** The resolved binary, the
+  working directory the process is actually in, the file the solver opened,
+  the bytes on disk at launch. A parameter a caller supplied describing what
+  it INTENDED is a claim to be checked, never a source of evidence.
+- **Where a caller's declaration is available, use it only to disagree
+  with.** `launch_solve.sh` still takes `--case`; it now uses it solely to
+  refuse when it does not resolve to the directory the launched process runs
+  in. Agreement is not required for the echo to be right — it is right
+  because it is read from the run directory — so disagreement means only
+  that nobody can say which directory the solver will read, and that is
+  enough to refuse.
+- **A refused gate is stated, and it is stated in a way nothing downstream
+  can mistake for a pass.** `lever_echo.refusal_block` writes a fence that
+  deliberately does not contain the BEGIN marker, so `parse_echo` reads it as
+  no echo and the record says `unverifiable`. Silence would have read
+  identically to a pre-adoption log; a stated refusal names both paths.
+- **Fix false-positive channels before false-negative ones, even smaller
+  ones.** A gate that fails open costs evidence you can still go and
+  collect. A gate that fails false costs the ability to tell verified from
+  unverified anywhere it may have fired, and the cleanup is the whole corpus
+  the gate ever touched rather than one record.
+- **One implementation.** The launcher no longer carries a shell copy of the
+  echo format; it calls the canonical `sdk/chief_engineer/lever_echo.py`
+  through `scripts/lever_echo_emit.py`. Two implementations of an evidence
+  format are two things that can disagree about what was proved.
 
 ## 2. Findings record, first personal-check pass (2026-08-07)
 
@@ -324,8 +365,8 @@ checked for the absence of an error would have passed against the defect.
 | `tmr_verification.py:1311` `launch_level_solver` (detached) | same bypass | **VULNERABLE** |
 | `tmr_verification.py:1430` `launch_level_solver` parallel detached | same bypass, mpirun-spelled | **VULNERABLE** |
 | `tmr_verification.py:3186` NACA detached branch | same bypass | **VULNERABLE** |
-| `scripts/launch_solve.sh:177` | `[ -d "$CASE" ]` — a caller-supplied PATH STRING | **VULNERABLE, and the worst of the set.** Nothing binds `--case` to where the command runs: `setsid nohup "$@"` inherits the launcher's cwd. A mismatched `--case` mints an echo of dictionaries that did NOT run, at the head of a log of a solve that did — a false-positive channel, where the fixed defect only ever produced false negatives. |
-| `scripts/launch_solve.sh`, same block | writes the echo into the registry `$LOG` | **VULNERABLE (note).** A record built from the case's own `log.simpleFoam` sees no echo and honestly reports `unverifiable` even though an echo exists elsewhere. |
+| `scripts/launch_solve.sh:177` | `[ -d "$CASE" ]` — a caller-supplied PATH STRING | **FIXED** 2026-08-10 night (section 4). Was the worst of the set: nothing bound `--case` to where the command runs, so a mismatch minted an echo of dictionaries that did NOT run at the head of a log of a solve that did — the set's only false-POSITIVE channel. |
+| `scripts/launch_solve.sh`, same block | echo written into the registry `$LOG` | **SAFE (corrected).** v1.2 filed this as a false negative; that was wrong. The launcher redirects the launched command's own stdout/stderr into `$LOG`, so for a `launch_solve.sh` run the registry log IS the run log and the echo heads it. The note stands only for a caller who additionally redirects inside its own command. |
 | `scripts/coefficient_uq_plate.py:174` | a private `_foam` copy that launches `simpleFoam` | **VULNERABLE.** No echo at all; a second runner diverged from the sanctioned one. |
 | `sdk/scripts/naca4412_credential_repair.py:101` | private `foam()`, mpirun-spelled solves | **VULNERABLE.** No echo. |
 | `sdk/scripts/naca4412_credential_repair.py:157` | `simpleFoam -postProcess -func yPlus` — a UTILITY spelled with a solver name | **Latent over-fire.** Harmless today because that runner has no echo; it would pollute `log.yPlus` if routed through `_foam`. The pristine-utility guard in 3.2 pins the boundary. |
@@ -337,6 +378,8 @@ The four `tmr_verification.py` bypasses and `launch_solve.sh` are family code
 and are NOT fixed in this pass: two solver agents hold live uncommitted work
 in this tree, and a change to how a running solve's log is written is not a
 change to make underneath them. They are recorded here and escalated.
+*(Superseded for `launch_solve.sh` by section 4, which landed the same night
+once both arms reported. The false-negative sites remain open.)*
 
 ### 3.4. Claims integrity: no affected record exists
 
@@ -361,6 +404,86 @@ beside the record or in the run root the record names (plain and `.gz`
 spellings both), the block re-parsed and compared to the claim. Positive
 control: a planted claim citing a sha256 the log does not carry is detected
 as a mismatch — the instrument is a detector, not a rubber stamp.
+
+## 4. The false-positive channel, closed (2026-08-10, night)
+
+Chief's ruling on L-45: the false-positive channel outranks every
+false-negative on the fix queue, prepared immediately and landed on quiet.
+Suite **1222 passed, 0 failed, 152 subtests** (from 1214/149).
+
+### 4.1. Exposure: zero, and it was checked rather than assumed
+
+All 149 logs in `demo-output/website/solve_registry/` carry **zero**
+LEVER-ECHO blocks, and the newest registry artifact of any kind stamps
+`20260808T020454Z` — twenty hours BEFORE the echo landed in the launcher at
+`ea0f7d9d` (2026-08-08 22:59:34 +0000). No launch has gone through that path
+since the echo existed, so the channel was open and never exercised, and no
+record anywhere is owed a re-check. Positive control on the search (L-43): the
+same grep finds 11 LEVER-ECHO lines in a known-present specimen,
+`FPE_DIAG_runs/BL1/log.simpleFoam`.
+
+### 4.2. What the defect actually did, demonstrated rather than argued
+
+The pre-fix launcher was run against two cases differing in one lever, from
+the run directory of one while declaring the other:
+
+```
+=== which scheme did the ECHO certify?   div(phi,U) bounded Gauss upwind;
+=== which scheme actually RAN?           div(phi,U) bounded Gauss linearUpwind grad(U);
+```
+
+Five files, hash-bound, `parse_echo`-passing, `levers_verified_active`
+reporting them as mechanical launcher-echo verification — of a case that did
+not run. That is the manufactured verification L-45 names, produced on
+demand, and it is why this outranked four larger false-negative sites.
+
+### 4.3. The fix
+
+- `lever_echo.echo_block_for_run_dir(run_dir, declared_case=None)` — the
+  canonical function. Echoes `run_dir`; refuses when `declared_case` resolves
+  elsewhere; refuses when the directory holds no lever dictionaries at all
+  (an empty block would otherwise parse as a verification of zero files).
+- `lever_echo.refusal_block()` + `REFUSED` fence — carries no BEGIN marker,
+  so a refusal is `unverifiable` downstream and can never read as a pass.
+- `scripts/lever_echo_emit.py` — reads the working directory it is in, takes
+  the declaration from the environment (not argv: it is invoked from inside a
+  single-quoted `bash -c` string where every added quote is a way to be
+  wrong), and always exits 0. A launcher must never be stopped from launching
+  by its own bookkeeping: a missing block costs a verification, a failed
+  launch costs the run.
+- `scripts/launch_solve.sh` — the shell copy of the echo format is DELETED;
+  the block is emitted by the launched process itself, in the same shell that
+  then `exec`s the command. **The `exec` is load-bearing**: it replaces the
+  wrapper so `$!` is still the solver's real pid, which is L-6, the exact
+  trap this launcher exists to close. A test pins it.
+
+### 4.4. The tests
+
+Eight new cases across `RunDirectoryBindingTests` and
+`LaunchSolveEchoTests` (`sdk/tests/test_lever_echo.py`), presence-and-content
+throughout: the echo hashes the run directory and demonstrably *not* the
+declared one; a mismatched `--case` yields `parse_echo == {}`, an empty
+`verified`, an `unverifiable` basis, a visible refusal naming BOTH paths, and
+neither case's hash smuggled in; a lever-less directory refuses rather than
+certifying nothing; the refusal fence cannot be mistaken for an echo; the
+launcher end-to-end both ways; and the pid guard for the `exec`.
+
+Verified against the pre-fix launcher: the mismatch test fails there with the
+five wrong hashes in its diff, and passes here. The fixture is a
+preflight-clean laminar case, and the harness asserts the launcher did not
+refuse at preflight — otherwise a preflight failure would look exactly like
+an echo failure and the test would measure nothing.
+
+### 4.5. Still open, and the question underneath them
+
+The six false-negative sites from 3.3 (four `tmr_verification.py` `Popen`
+bypasses; the private `_foam` copies in `scripts/coefficient_uq_plate.py` and
+`sdk/scripts/naca4412_credential_repair.py`). They lose evidence; they cannot
+fake it. Filed as a proposal rather than patched piecemeal, because a family
+running solves through six launchers has an enforcement surface it cannot
+reason about, and patching six is how it becomes seven —
+`docs/charters/PROPOSALS_OPEN.md`, one-launcher consolidation, migration cost
+priced.
 
 ## Related
 

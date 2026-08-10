@@ -822,6 +822,30 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   **L-45** (105c0a41): a gate that fails open costs evidence you can still collect; a gate that fails false costs the
   ability to trust the corpus. Fix prepared now, landing on quiet so it does not race two live arms.
 
+### 2026-08-10 (night, late) — the gate that could have failed FALSE is closed, and it never fired
+
+- **L-45 CLOSED, and the exposure was checked rather than assumed: ZERO.** All 149 logs in the solve registry carry
+  no echo block at all, and the newest registry artifact of any kind stamps `20260808T020454Z` — twenty hours BEFORE
+  the echo landed in `launch_solve.sh` at `ea0f7d9d`. The false-positive channel was open and never exercised, so no
+  corpus cleanup was owed. Positive control on the search: the same grep finds 11 echo lines in a known-present
+  specimen. A null with a positive control is a finding; without one it is a hope.
+- **WHAT IT WOULD HAVE DONE, DEMONSTRATED RATHER THAN ARGUED.** The pre-fix launcher, run from one case while
+  declaring another, certified `div(phi,U) bounded Gauss upwind` — hash-bound, `parse_echo`-passing, reported as
+  mechanical launcher-echo verification — for a run that actually used `linearUpwind grad(U)`. Five files, all wrong,
+  all provable-looking. That is the manufactured verification L-45 names, produced on demand.
+- **THE FIX: the echo is now emitted BY the launched process, FROM its own working directory**, in the same shell
+  that then `exec`s the command (the `exec` is load-bearing — it keeps `$!` on the solver's real pid, which is L-6).
+  `--case` survives only so the emitter can DISAGREE with it and refuse, and a refusal writes a fence carrying no
+  BEGIN marker, so it reads downstream as `unverifiable` and can never be mistaken for a pass. The launcher's shell
+  copy of the echo format is deleted: one implementation, the canonical Python one every record is built with.
+  Eight new tests; the mismatch test fails against the pre-fix launcher with the five wrong hashes in its diff.
+  Suite 1222/0 (from 1214/0). Infra guidelines v1.3, new §1.8 (derive evidence from what executed) and §4.
+- **THE COUNT GREW WHILE WE COUNTED IT: eight solver-launch mechanisms, not six**, of which two emit the echo. All
+  six gaps are false-negatives — they lose verifications, they cannot forge them — so nothing recorded is wrong.
+  Filed as **P-4.1** (`PROPOSALS_OPEN.md` v2.5, the first proposal that file has ever carried under charter 4) with
+  the migration priced: zero core-minutes, ~1 pass for the recommended half, and an explicit recommendation AGAINST
+  the full consolidation for now because it touches the detached-solve protocol L-5/L-6/D12 exist to protect.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

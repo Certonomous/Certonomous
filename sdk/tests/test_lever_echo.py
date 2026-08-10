@@ -5,14 +5,59 @@ write time. The dead-lever audit's 16 unverifiable-from-logs conclusions are
 the measured cost of not having this."""
 
 import hashlib
+import os
 import shutil
+import subprocess
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
 
 from chief_engineer import lever_echo
 from workflows import tmr_verification as tv
+
+
+def _foam_file(kind: str, obj: str) -> str:
+    return (f"FoamFile\n{{\n    version 2.0;\n    format ascii;\n"
+            f"    class {kind};\n    object {obj};\n}}\n")
+
+
+def _preflight_clean_case(root: Path, scheme: str) -> Path:
+    """A case minimal enough to read at a glance and complete enough to pass
+    `scripts/case_preflight.sh`, which `launch_solve.sh` gates on before it
+    will launch anything. Laminar, so no turbulence fields are required.
+
+    `scheme` is what distinguishes two of these from each other, and it is the
+    thing the echo must be caught certifying: if a test ever sees one case's
+    scheme in the other's log, the run-directory binding has broken.
+    """
+    (root / "system").mkdir(parents=True)
+    (root / "constant").mkdir()
+    (root / "0").mkdir()
+    (root / "system" / "fvSchemes").write_text(
+        _foam_file("dictionary", "fvSchemes")
+        + f"divSchemes {{ div(phi,U) {scheme}; }}\n")
+    (root / "system" / "fvSolution").write_text(
+        _foam_file("dictionary", "fvSolution")
+        + "solvers { p { solver PCG; } U { solver PBiCGStab; } }\n"
+          "SIMPLE { consistent yes; }\n")
+    (root / "system" / "controlDict").write_text(
+        _foam_file("dictionary", "controlDict")
+        + "application simpleFoam;\nstartTime 0;\nendTime 10;\ndeltaT 1;\n"
+          "writeControl timeStep;\nwriteInterval 5;\n")
+    (root / "constant" / "turbulenceProperties").write_text(
+        _foam_file("dictionary", "turbulenceProperties")
+        + "simulationType laminar;\n")
+    (root / "0" / "U").write_text(
+        _foam_file("volVectorField", "U")
+        + "dimensions [0 1 -1 0 0 0 0];\ninternalField uniform (1 0 0);\n"
+          "boundaryField { inlet { type freestreamVelocity; } }\n")
+    (root / "0" / "p").write_text(
+        _foam_file("volScalarField", "p")
+        + "dimensions [0 2 -2 0 0 0 0];\ninternalField uniform 0;\n"
+          "boundaryField { inlet { type zeroGradient; } }\n")
+    return root
 
 
 def _fixture_case(root: Path) -> Path:
@@ -158,6 +203,177 @@ class FoamRunnerEchoTests(unittest.TestCase):
                  self.case, "log.redistributePar")
         text = (self.case / "log.redistributePar").read_text()
         self.assertNotIn(lever_echo.BEGIN, text)
+
+
+class RunDirectoryBindingTests(unittest.TestCase):
+    """L-45: the echo is derived from the directory the process RUNS IN,
+    never from a path a caller supplied describing what it intended.
+
+    WHY THIS TEST EXISTS. `scripts/launch_solve.sh` built its echo from the
+    caller-supplied `--case` while the command ran under `setsid nohup "$@"`
+    in the launcher's inherited working directory, with nothing binding the
+    two. A mismatched `--case` would have certified dictionaries that did not
+    run, at the head of the log of a solve that did. That is a FALSE
+    verification, not a missing one, and it is the failure direction that
+    costs the whole corpus rather than one record.
+    """
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="lever-rundir-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        # Two cases with DELIBERATELY different levers, so "which directory
+        # did this hash come from" has an observable answer.
+        self.ran = _fixture_case(self.tmp / "actually-ran")
+        self.claimed = _fixture_case(self.tmp / "merely-claimed")
+        (self.claimed / "system" / "fvSchemes").write_text(
+            "divSchemes { div(phi,U) Gauss upwind; }\n")
+
+    def _sha(self, case: Path, rel: str) -> str:
+        return hashlib.sha256((case / rel).read_bytes()).hexdigest()
+
+    def test_the_echo_hashes_the_directory_that_runs_not_the_one_declared(self):
+        block = lever_echo.echo_block_for_run_dir(self.ran)
+        echoed = lever_echo.parse_echo(block)
+        self.assertEqual(echoed["system/fvSchemes"],
+                         self._sha(self.ran, "system/fvSchemes"))
+        # The content assertion that pins the bug: the OTHER case's scheme
+        # must appear nowhere, by hash or by text.
+        self.assertNotEqual(echoed["system/fvSchemes"],
+                            self._sha(self.claimed, "system/fvSchemes"))
+        self.assertIn("linearUpwind", block)
+        self.assertNotIn("Gauss upwind", block)
+
+    def test_a_mismatched_declared_case_produces_no_passing_echo(self):
+        """THE case that would have caught it. A caller describing one
+        directory while the process runs in another must not get a
+        verification out of it."""
+        out = lever_echo.echo_block_for_run_dir(
+            self.ran, declared_case=self.claimed)
+        # 1. Nothing downstream may read this as a verification.
+        self.assertEqual(lever_echo.parse_echo(out), {})
+        field = lever_echo.levers_verified_active(out)
+        self.assertEqual(field["verified"], [])
+        self.assertIn("unverifiable", field["basis"])
+        # 2. And the refusal is VISIBLE, with both paths named -- a filter
+        #    nobody can see is a filter nobody can question.
+        self.assertIn(lever_echo.REFUSED, out)
+        self.assertIn("L-45", out)
+        self.assertIn(str(self.ran.resolve()), out)
+        self.assertIn(str(self.claimed.resolve()), out)
+        # 3. It must not smuggle either case's dictionaries in.
+        self.assertNotIn(self._sha(self.claimed, "system/fvSchemes"), out)
+        self.assertNotIn(self._sha(self.ran, "system/fvSchemes"), out)
+
+    def test_a_matching_declared_case_echoes_normally(self):
+        for declared in (self.ran, str(self.ran) + "/.",
+                         self.ran.parent / self.ran.name):
+            with self.subTest(declared=str(declared)):
+                out = lever_echo.echo_block_for_run_dir(
+                    self.ran, declared_case=declared)
+                echoed = lever_echo.parse_echo(out)
+                self.assertEqual(echoed["system/fvSchemes"],
+                                 self._sha(self.ran, "system/fvSchemes"))
+
+    def test_a_directory_with_no_levers_refuses_rather_than_claiming_nothing(self):
+        """Launched from somewhere that is not a case at all -- the repo root,
+        say. An empty echo block would parse as a verification of zero files;
+        a refusal says why."""
+        empty = self.tmp / "not-a-case"
+        empty.mkdir()
+        out = lever_echo.echo_block_for_run_dir(empty)
+        self.assertIn(lever_echo.REFUSED, out)
+        self.assertIn("nothing to hash", out)
+        self.assertEqual(lever_echo.levers_verified_active(out)["verified"], [])
+
+    def test_the_refusal_fence_cannot_be_mistaken_for_an_echo(self):
+        """The refusal must not contain the BEGIN marker, or every downstream
+        parser would read a refusal as an empty verification."""
+        out = lever_echo.refusal_block("any reason at all", a=1)
+        self.assertNotIn(lever_echo.BEGIN, out)
+        self.assertNotIn(lever_echo._FILE_MARK, out)
+
+
+class LaunchSolveEchoTests(unittest.TestCase):
+    """The launcher end-to-end: `scripts/launch_solve.sh` must emit the block
+    from the launched process's own working directory."""
+
+    LAUNCHER = Path("/home/ubuntu/Certonomous/scripts/launch_solve.sh")
+
+    def setUp(self):
+        if not self.LAUNCHER.exists():
+            self.skipTest("launch_solve.sh not present")
+        self.tmp = Path(tempfile.mkdtemp(prefix="lever-launch-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.registry = self.tmp / "registry"
+        self.registry.mkdir()
+        # The two cases differ in exactly one observable: their div scheme.
+        self.ran = _preflight_clean_case(self.tmp / "actually-ran",
+                                         "bounded Gauss linearUpwind grad(U)")
+        self.claimed = _preflight_clean_case(self.tmp / "merely-claimed",
+                                             "bounded Gauss upwind")
+
+    def _launch(self, cwd: Path, case_arg: str | None) -> str:
+        """Run the launcher and return the run log it wrote."""
+        cmd = [str(self.LAUNCHER), "--name", "levertest"]
+        if case_arg is not None:
+            cmd += ["--case", case_arg]
+        cmd += ["--", "/bin/echo", "solver-would-run-here"]
+        env = dict(os.environ, SOLVE_REGISTRY=str(self.registry))
+        done = subprocess.run(cmd, cwd=str(cwd), env=env, capture_output=True,
+                              text=True, timeout=120)
+        logs = sorted(self.registry.glob("levertest_*.log"))
+        # A preflight refusal writes no log and would otherwise look exactly
+        # like an echo failure; say which it was.
+        self.assertNotIn("REFUSING TO LAUNCH", done.stdout,
+                         "the launcher refused this fixture at preflight, so "
+                         "this test measured nothing about the lever echo")
+        self.assertTrue(logs, "the launcher wrote no run log")
+        for _ in range(50):          # the block is written by the child
+            text = logs[-1].read_text(errors="replace")
+            if "solver-would-run-here" in text:
+                return text
+            time.sleep(0.1)
+        return logs[-1].read_text(errors="replace")
+
+    def test_the_launcher_echoes_the_directory_the_solver_runs_in(self):
+        text = self._launch(cwd=self.ran, case_arg=str(self.ran))
+        self.assertIn(lever_echo.BEGIN, text)
+        echoed = lever_echo.parse_echo(text)
+        self.assertEqual(
+            echoed["system/fvSchemes"],
+            hashlib.sha256(
+                (self.ran / "system" / "fvSchemes").read_bytes()).hexdigest())
+        # The command still ran, after the block: the echo is a prefix, not a
+        # replacement.
+        self.assertIn("solver-would-run-here", text)
+        self.assertLess(text.index(lever_echo.BEGIN),
+                        text.index("solver-would-run-here"))
+
+    def test_a_launcher_case_that_is_not_the_run_directory_is_refused(self):
+        """The regression proper: describe one case, run in another, and the
+        log must carry a stated refusal rather than a passing echo."""
+        text = self._launch(cwd=self.ran, case_arg=str(self.claimed))
+        self.assertEqual(lever_echo.parse_echo(text), {})
+        self.assertIn(lever_echo.REFUSED, text)
+        self.assertIn(str(self.claimed.resolve()), text)
+        self.assertEqual(
+            lever_echo.levers_verified_active(text)["verified"], [])
+        self.assertIn("solver-would-run-here", text)
+
+    def test_the_launcher_records_the_solvers_own_pid_not_a_wrappers(self):
+        """The echo moved inside a `bash -c` wrapper; the `exec` that keeps
+        $! pointing at the real process is L-6 and must not regress."""
+        self._launch(cwd=self.ran, case_arg=str(self.ran))
+        jobs = sorted(self.registry.glob("levertest_*.job"))
+        self.assertTrue(jobs, "the launcher registered no job")
+        body = jobs[-1].read_text()
+        self.assertIn("JOB_PID=", body)
+        pid = int(body.split("JOB_PID=")[1].split("\n")[0])
+        self.assertGreater(pid, 0)
+        # No surviving `bash -c` wrapper holding that pid: exec replaced it.
+        ps = subprocess.run(["ps", "-o", "args=", "-p", str(pid)],
+                            capture_output=True, text=True)
+        self.assertNotIn("lever_echo_emit", ps.stdout)
 
 
 if __name__ == "__main__":

@@ -175,32 +175,34 @@ REC="$REG/${NAME}_${STAMP}.done"
 # run log at t=0, each file hash-bound by sha256, so levers_verified_active
 # is satisfiable at write time instead of failing retroactively. The block
 # is fenced; nothing that parses solver output needs to change.
-if [ -n "${CASE:-}" ] && [ -d "$CASE" ]; then
-    {
-        echo "==== LEVER-ECHO BEGIN ===="
-        echo "case $CASE"
-        for rel in system/fvSchemes system/fvSolution \
-                   constant/turbulenceProperties constant/transportProperties \
-                   constant/thermophysicalProperties constant/MRFProperties; do
-            f="$CASE/$rel"
-            [ -f "$f" ] || continue
-            echo "---- LEVER-ECHO file $rel sha256 $(sha256sum "$f" | cut -d' ' -f1) ----"
-            cat "$f"
-        done
-        if [ -d "$CASE/0" ]; then
-            for f in "$CASE"/0/*; do
-                [ -f "$f" ] || continue
-                rel="0/$(basename "$f")"
-                echo "---- LEVER-ECHO file $rel sha256 $(sha256sum "$f" | cut -d' ' -f1) ----"
-                cat "$f"
-            done
-        fi
-        echo "==== LEVER-ECHO END ===="
-    } > "$LOG" 2>/dev/null || true
-fi
+#
+# WHERE IT IS EMITTED FROM, AND WHY THAT MOVED (L-45, 2026-08-10). This block
+# used to be built HERE, in the launcher, out of the caller-supplied `--case`
+# path -- while the command itself ran under `setsid nohup "$@"` in the
+# launcher's inherited working directory, with nothing binding the two. A
+# mismatched `--case` would have written an echo of dictionaries that DID NOT
+# RUN at the head of the log of a solve that did: a manufactured verification,
+# indistinguishable downstream from a real one. That is the failure direction
+# a verification instrument may never have. It never fired -- every log in
+# this registry predates the echo's adoption by twenty hours -- so the channel
+# was open and unused, and this closes it before it was ever exercised.
+#
+# It is now emitted BY THE LAUNCHED PROCESS ITSELF, from that process's own
+# working directory, in the same shell that then `exec`s the command. The
+# directory is read, never passed; `--case` travels along only so the emitter
+# can DISAGREE with it and refuse. One implementation, the canonical one in
+# `sdk/chief_engineer/lever_echo.py`, so the shell copy cannot drift from the
+# Python one that every record is built with.
+#
+# THE `exec` IS LOAD-BEARING, not tidiness: it replaces the wrapper shell with
+# the solver, so $! below is the solver's REAL pid and not a wrapper's. That
+# is L-6, the exact trap this launcher exists to close; `--check`, the
+# collector and every kill in this file key on that pid.
 
 # ---- 2. launch detached, capture the REAL pid -----------------------------
-setsid nohup "$@" >> "$LOG" 2>&1 < /dev/null &
+setsid nohup env LEVER_ECHO_DECLARED_CASE="${CASE:-}" \
+    bash -c 'python3 /home/ubuntu/Certonomous/scripts/lever_echo_emit.py 2>/dev/null || true
+exec "$@"' bash "$@" >> "$LOG" 2>&1 < /dev/null &
 PID=$!
 cat > "$JOB" <<EOF
 JOB_NAME="$NAME"
