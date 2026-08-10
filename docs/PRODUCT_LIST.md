@@ -699,6 +699,15 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   ordinary numerical intuition returns. So the dead lever produced not only a false causal sentence about the WALL but
   a false ANOMALY about REMEDIES, which the remedy ladder was then shaped around for weeks. A standing anomaly
   RETIRED rather than a new one added. Routed to the defect report's owner and to R5's face as a dated retraction.
+  - **[CORRECTED SAME DAY, 5aa3a142 — this entry's scope was too broad and the chief's wording above is superseded.]**
+    The rung-3 stage-0 transfer test reproduced R5's exact restart-boundary collapse signature **with the PC ACTIVE**,
+    at rung 2, from the lever that had just won at rung 1. So R5's OBSERVATION stands and is now reproduced; only its
+    SCOPE was too broad. Corrected statement: **the strengthening collapse is real and MESH-DEPENDENT** — Richardson
+    helps at 21,840 cells (both arms finish inside ~one restart cycle) and collapses at 42,120. The dead lever still
+    cost the causal sentence about the wall; it did NOT invent the collapse. The agent falsified its own retraction
+    three minutes after committing it and corrected it as loudly as it made it, which is the discipline working at
+    its best. A labelled-unproven restart-destabilisation hypothesis is on record with a falsifiable prediction
+    (fill-1 should also collapse at rung 2).
 - D3's 11 flagged variants RETIRED as superseded (8c9b06c7, 0 core-min): each null says only "this lever did not
   rescue a run whose preconditioner was off" — true about a baseline no future run will use. The audit's
   cold-rerun-before-citation rule is satisfied by never citing them; the reasoning is written at both sites so
@@ -721,6 +730,42 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   scorecard's own confidence-line proposal. Three files whose hardness floor nobody had answered got it by CHIEF
   RULING (existing-family, reasoning recorded) rather than by default; the agent was right to refuse to answer on a
   filer's behalf. Batch-family dead-lever sweep: 133 VERIFIED / 67 unverifiable / **0 found-dead** (0dd9e4f2).
+
+### 2026-08-10 (evening) — the ladder finds its ceiling, and a found-dead verdict turns out wrong
+
+- **RUNG 3: DIVERGED BY STAGNATION — the reopened ladder has a CEILING, bracketed between 42,120 and 79,560 cells**
+  (111.0 of the approved 170-190 core-min). CD hit the 4,000 cap with the residual FLAT TO NINE SIGNIFICANT FIGURES
+  across 2,700 iterations (1.31x total reduction). The pre-registered budget-vs-wall distinction — written before
+  either negative reason code was ever seen — does the work: rung 2's `-3` was 1,407x monotone descent and a raised
+  cap fixed it; this one is flat and no cap fixes it. And it is NOT a memory death (11.65 of 22 GiB, host never below
+  17 GB, no swap), which is exactly what makes a conditioning verdict SAYABLE here rather than NOT EVALUABLE. The
+  ceiling is bracketed, explicitly NOT located.
+- **THE EXPONENT BREAKS, by kind rather than degree.** Predicted CD ~2,570 iterations; actual is no convergence at
+  all. A two-point slope in this family is a description of two points, not a cost law — extrapolation toward the
+  399,360-cell class is now foreclosed BY MEASUREMENT rather than by caution. That is the ladder-level question
+  answered, and answered against the optimistic reading.
+- **STAGE 0 EARNED THE CAMPAIGN**: the transfer test failed in its worst pre-registered branch — Richardson, the
+  rung-1 winner, COLLAPSES at rung 2 (both solves `-5`, exactly 0.0 at the first restart boundary) — stopping rung 3
+  from launching on a lever that would have killed it, for 15.9 core-min. Stage 2 (FD) correctly not launched,
+  conditional on stage 1 converging: ~60-70 core-min saved by a pre-registered dependency.
+- **FD-2 IS REFUTED — a found-dead verdict was WRONG, and it propagated** (rider run at zero marginal cost inside the
+  rung-3 container; reported ahead of the stages as ordered). SIMPLEC IS implemented for DASimpleFoam (primal
+  `pEqnSimple.H:27`, adjoint `DAResidualSimpleFoam.C:189`, textbook `rAtU` form, confirmed in BOTH images). Root
+  cause: an INCLUDE-BLIND grep — the original search scanned `DASimpleFoam.C` and `DASolver.C`, while the logic lives
+  in the `.H` include and the `DAResidual` file. The file list, not the search string, was the defect. Blast radius
+  actioned: A4's stated cause for its 22.05% cross-code gap is RETRACTED on its face (7ca80f8d) — the measured 22.05%
+  stands, its cause is now UNEXPLAINED, and a controlled `consistent` on/off arm is filed not run. FD-1 confirmed
+  with the provenance it lacked. This is the answer to the chief's own order that a wrongly-reopened conclusion be
+  reported loudly: one was, and it is.
+- CLOSURE CLAIM PROPAGATION COMPLETE (18120bf8): six surfaces carry the rank caveat with a common sweep token
+  (`not statistically decided`); the executing agent split internal surfaces (which carry P(rank 1) = 68%) from
+  PUBLIC ones in `dist/` (qualitative clause only) rather than publish an internal-by-its-own-gate figure while
+  obeying a propagation order — judgment CONFIRMED by the chief. Ladder V's V8 gains the rank-claim criterion.
+  Three intake proposals filed (mechanical EIG numerator, refuse zero estimates without a basis, duplicate check at
+  intake); 20 further surfaces + the .tex's ten rank assertions are routed.
+- GAIN-TABLE INVERSION: the note ARGUES AGAINST ITS OWN HEADLINE (n=4, two of them duplicate filings; drop those and
+  the tier leads). Chief ruling: NO re-pointing of the weights on this cohort — fitting seven weights to 114
+  outcomes graded by one agent is the in-sample move the lab refuses everywhere else.
 
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)

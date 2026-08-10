@@ -1899,3 +1899,30 @@ rows changed classification, and the first audit turned out never to have been
 gz-blind at all — it quotes decompressed line numbers in eight rows. The
 suspicion was correct to raise and wrong in fact, which is the ordinary and
 healthy outcome of assuming yourself wrong until defended.
+
+
+## L-43, second corollary. A found-dead verdict is a claim about IMPLEMENTATION, and implementation hides in include files
+
+Same day as the lesson, the opposite failure direction. The first dead-lever
+audit recorded FD-2: that `DASimpleFoam` silently drops `consistent yes`, i.e.
+SIMPLEC is not implemented. A container-side re-read refuted it — SIMPLEC *is*
+implemented, in the primal at `pEqnSimple.H:27` and the adjoint at
+`DAResidualSimpleFoam.C:189`, both carrying the textbook
+`rAtU = 1/(1/rAU - UEqn.H1())`, in both images. The original search scanned
+`DASimpleFoam.C` and `DASolver.C` and found only two unrelated comments. **The
+file list, not the search string, was the defect.**
+
+Where L-43 warns that an audit's null may be a claim about its reach, this is
+the same root failing in the direction that does more damage: a false
+FOUND-DEAD is not a missing finding, it is a manufactured one, and it
+propagates. This one had already been adopted as the stated cause of A4's
+22.05% cross-code gap; that cause is now retracted and the gap is unexplained
+again, which is worse than never having explained it — the lab spent weeks not
+looking for the real cause.
+
+The rule: a deadness claim about C++ requires the BUILD's view, not a file's —
+grep the whole source tree including `.H` includes and every `DAResidual*`/
+derived class, or read the compiled behaviour, before writing "does nothing".
+And any verdict of the form "the code ignores X" is downgraded to
+"not found in the files searched, which were: …" unless the search space is
+stated. A negative claim without its search space is not a finding.
