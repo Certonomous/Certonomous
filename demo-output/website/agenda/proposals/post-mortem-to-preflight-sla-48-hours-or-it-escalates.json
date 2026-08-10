@@ -1,0 +1,23 @@
+{
+ "id": "post-mortem-to-preflight-sla-48-hours-or-it-escalates",
+ "objective": "Put the post-mortem to preflight pipeline on a 48 hour service level by first building the thing it needs: an incident record set whose rows carry a root-caused stamp and a check-landed stamp, so the interval is computed rather than asserted and a breach escalates",
+ "rationale": "The service level cannot be measured today and the reason is structural rather than disciplinary. No incident or post-mortem record set exists anywhere in the estate; the nine-row table in the first improvement dashboard is the incident record set, and it was assembled retroactively out of the lessons file plus commit archaeology. Its rows carry a discovery time and a root-cause time, which is what made a median time-to-root-cause of 58.0 hours computable across a range from 0.09 hours to 214.2 hours, with three further incidents named as untimeable because no dated artifact exists for them. What the rows do not carry is the moment an executable check landed, so the second leg of the pipeline, the leg this service level bounds, has never been measured once. The demand side is already quantified: of 40 lessons, 10 have become executable checks in full and 10 partially, leaving 20 as prose, and the repeat-incident rate of 2 in 40 is the visible cost of the gap, with the dashboard naming the one repeated and still-unenforced lesson as next month's priority. The achievability is quantified too, since the dead lever arc went from order to adopted machinery inside one day and the mesh certificate rule did the same. The escalation half is not decoration: without a named consequence a service level is a preference, and the escalation charter is where the consequence belongs, alongside the free-spend thresholds it already admits are unset. Mechanics: an incident record gains root_caused_at, check_landed_at and the identifier of the check; the first pass backfills the nine timed rows and admits the three untimeable ones as untimeable rather than dropping them; the monthly dashboard reports the distribution and the breach count. Axis A: report-kind at zero solver cost. Axis B: 0. Axis C: 0.",
+ "citations": [
+  "The lab capability strategy, Katie's directive of 2026-08-08",
+  "The first improvement metrics dashboard, the 2026-08 cut",
+  "The lessons record, its 40 numbered lessons and the L-40 entry",
+  "The escalation charter, version 1.3, section 10",
+  "The case preflight script and its six numbered gates",
+  "The dead lever audit of 2026-08-08",
+  "The supervisor-maintained product list and its changelog"
+ ],
+ "est_core_min": 0,
+ "cost_basis": "measured; the lessons file, the dashboard's incident table and the commit trail that dates every landed check are already on disk, so the first pass is a backfill sweep and the ongoing cost is two stamps per incident, with no solver time and no case opened",
+ "expected_knowledge_gain": "The second leg of the pipeline gets a distribution instead of an anecdote, and three outcomes separate. One: the backfill shows the lab already converts inside 48 hours on most incidents, so the service level is a ratchet on an achieved rate and the escalation path stays cold. Two: the backfill misses badly, which puts dates on the conversion gap the dashboard currently states only as 20 of 40 lessons unconverted. Three: some incidents cannot be converted at all because no executable check could express them, and enumerating those is the honest boundary of what preflight can buy and belongs in a charter rather than sitting as a permanently missed target. The backfill also fixes the deeper defect on its own, since after it the lab has an incident record set rather than a table reconstructed from archaeology.",
+ "source_kind": "report",
+ "hard_criterion": "instrument-check",
+ "sequencing": "Dispatchable now. Strategy rule 3 slow-burn, zero solver cost.",
+ "gate": "STRATEGY PROOF CLAUSE, verbatim: 'Post-mortem-to-preflight pipeline SLA: root-caused incident -> executable check within 48h, else it escalates.' Operationalised: an incident record set is created as a first-class artifact; every row carries root_caused_at, and once converted check_landed_at plus the identifier of the check; the interval is computed from the two stamps and never asserted; any incident past 48 hours with no landed check files an escalation entry naming the incident and the check it owes; the monthly dashboard reports the full distribution and the breach count. The first pass backfills the nine timed incidents, records the three untimeable ones as untimeable with the reason, and states the resulting baseline before the bound starts binding.",
+ "status": "proposed",
+ "created_at": "2026-08-10T15:10:00Z"
+}
