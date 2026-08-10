@@ -33,6 +33,7 @@ what the top of the slate should be:**
    does hit the memory wall and genuinely does produce NaN gradients. A
    20,000-iteration control run held RSS flat at ~79 MB on a 30 GB box. **So
    there is no F5c OOM to diagnose.** F5c's real, documented failure is
+   [AMENDED 2026-08-10: it does NOT converge numerically — `F5C_STAGE_A_RESULTS.md` §6.]
    different and is still open: a steady RANS solve that converges numerically
    at every rung and lands on a reattachment length 4 to 12 times wrong, and
    wanders non-monotonically with iteration count and algorithm. The slate

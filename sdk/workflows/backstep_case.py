@@ -647,7 +647,14 @@ def parse_wall_raw(text: str) -> list[tuple[float, float]]:
     crossing as reattachment, which is exactly backwards: it located a
     SEPARATION, and specifically the downstream edge of the secondary corner
     eddy at x/H ~ 1.5, while calling the real reattachment at x/H ~ 5.6 an
-    "unexplained second separation." ``tmr_verification.parse_wall_shear_raw``
+    "unexplained second separation."
+    **AMENDED 2026-08-10: the SIGN FIX above stands and is proven by the
+    archived sign_convention_control run. The ``x/H ~ 5.6`` in the sentence
+    above is WITHDRAWN to *unmeasured* -- it did not regenerate (Stage A,
+    campaign/F5C_STAGE_A_RESULTS.md: the same configuration at 8,000
+    iterations returns 6.996, and the 2,000-iteration leg that does return
+    5.56 has a 6.56 H swing in its own x_r history). It was a stopping point,
+    not a measurement, and no F5c run has ever converged.** ``tmr_verification.parse_wall_shear_raw``
     (the F6a NASA-hump case in this same repo) already had the negation and
     documented the convention; this function was written separately and lost
     it. Cf is normalised by 0.5*Uref^2 to match that sibling.

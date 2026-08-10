@@ -1753,7 +1753,11 @@ proposed diagnostics for it — while commit fe121af2, nine days older, had
 already PROVEN the 4–12× reading was the OpenFOAM wallShearStress sign
 convention (lower-wall tau_x is negative under attached flow; the archived
 sign_convention_control run is the proof), with the honest miss being
-−10.5%. The review's own zero-compute inlet audit is what surfaced the
+−10.5%. **[AMENDED 2026-08-10: the −10.5% has itself since been WITHDRAWN to
+*unmeasured* — it did not regenerate from the configuration it was attributed
+to, and no F5c run has ever converged. See `campaign/F5C_STAGE_A_RESULTS.md`.
+The lesson is untouched and is if anything sharper: the stale premise was
+replaced by a second premise that was also never measured.]** The review's own zero-compute inlet audit is what surfaced the
 stale premise: the audit's first act was to read the case's full commit
 history, and the "mystery" dissolved before any new measurement was taken.
 

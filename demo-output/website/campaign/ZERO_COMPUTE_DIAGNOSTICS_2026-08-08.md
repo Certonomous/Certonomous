@@ -81,6 +81,9 @@ the pre-fix levels could not have adjudicated the ±0.10 band anyway (the
 
 ### Verdict — Task 1
 
+**[AMENDED 2026-08-10 — see `campaign/F5bc_unsteady_statistics.md` §2026-08-10 AMENDMENT and `campaign/F5C_STAGE_A_RESULTS.md` (`27a94361`): the −10.5%/x_r≈5.6 headline is WITHDRAWN to *unmeasured*, and NO F5c run has ever converged — 8,000 iterations sits 66× off its p gate and 847× off Uy, and the "residuals 1e-5 to 1e-9" readings below are the LINEAR solver's final residuals, not SIMPLE's initial ones. Original text retained.]**
+
+
 **Inlet is clean at the experiment's own reference station (δ/h +0.3%, Re_θ +5%,
 inside the declared ±10% tolerance); mildly under-developed at the step (−9 to
 −12% in δ/h, owned by the uniform-k inlet, repair already built and unrun).** The

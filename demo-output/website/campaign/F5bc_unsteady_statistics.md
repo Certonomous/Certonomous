@@ -139,6 +139,95 @@ the retargeted unsteady-probe arm (`f5c-unsteady-probe-run`): its rewritten pre-
 retained, and the algorithm choice made log-provable (cat `fvSolution` into the run log at
 launch, per the instrumentation proposal filed with the audit).
 
+### 2026-08-10 AMENDMENT — the −10.5% is WITHDRAWN to *unmeasured*, and no F5c run has ever converged
+
+**Ordered by the chief supervisor on the Stage A result
+(`F5C_STAGE_A_RESULTS.md`, commit `27a94361`; pre-registration `3734270d` +
+`d64565c1`; entry 4/5 rulings at `581bb9d8`). Three corrections, each a dated
+amendment and never a revision — every word above is retained.**
+
+#### Correction 1 — "deep numerical convergence" was never earned
+
+The Feasibility section above states *"Solver runs to deep numerical convergence
+(p, U, k, omega residuals 10⁻⁵–10⁻⁹) at every configuration tested"*, and the
+2026-07-30 addendum repeats it as *"converges numerically (residuals reach 1e-5
+to 1e-9 every rung)"*. **Both read the LINEAR solver's FINAL residuals. The
+quantity that decides whether a SIMPLE solve has converged is the INITIAL
+residual of each outer iteration, and it was never reported.** (This module's own
+`control_dict` docstring names the trap: *"F5c's first pass reported 'converged'
+off the linear solver's final residuals while the SIMPLE initial residuals were
+still at 1e-3."*)
+
+Measured for the first time, 2026-08-10, at the `residualControl` gate the case
+sets for itself:
+
+| run | iterations | p (gate 1e-5) | Uy (gate 1e-6) | Ux (gate 1e-6) | k (gate 1e-6) |
+| --- | --- | --- | --- | --- | --- |
+| A1 SIMPLEC | 2 000 | 2.48e-3 — **248×** off | 2.35e-3 — **2 352×** off | 1.08e-4 | 5.44e-4 |
+| A2 SIMPLEC | 8 000 | 6.63e-4 — **66×** off | 8.47e-4 — **847×** off | 2.75e-5 | 1.12e-4 |
+| A3 SIMPLE | 2 000 | 7.72e-3 — **772×** off | 1.75e-3 — **1 752×** off | 2.40e-4 | 4.06e-4 |
+
+Quadrupling the iterations cut the residuals ~4× and left them two orders of
+magnitude short. The archived 20 000-iteration run
+(`solve_registry/f5c_extended_simplec20k`) never printed `SIMPLE solution
+converged` either.
+
+> **NO F5c RUN HAS EVER CONVERGED, at any iteration count up to 20 000.**
+
+Every statement in this record built on the word *converged* — including *"a
+converged answer that is wrong"* and *"this is not a numerical-convergence
+failure"* — is superseded. It may be a numerical-convergence failure; nobody had
+measured it.
+
+#### Correction 2 — the −10.5% headline is WITHDRAWN to *unmeasured*
+
+The 2026-08-08 amendment above states the corrected reading as **x_r/H ≈ 5.6,
+−10.5% vs Driver–Seegmiller**. Stage A ran the configuration that number is
+attributed to, with archived cases, retained logs and hash-bound levers, and
+**M1 scores NOT REGENERATED**: the same SIMPLEC coarse case at 8 000 iterations
+returns **x_r/H = 6.996**, which is **1.396 H** from 5.6 against a pre-registered
+bar of 0.81 H, and **+11.7%** against the reference — an *over*-prediction, where
+this closure is documented to *under*-predict.
+
+**The 2 000-iteration leg does land at 5.564, and it does not rescue the number.**
+That leg's own x_r history swings **6.56 H** across the second half of its run
+(3.530 → 10.089). The 5.6 was one sample of a moving quantity at the iteration the
+solver happened to stop, not a measurement of this case. Rescoring M1 onto the
+agreeing leg after the fact is forbidden by L-44 and would be wrong on the data
+anyway.
+
+> **F5c has NO headline reattachment number.** The `x_r/H ≈ 5.6` and every
+> `−10.5%` in this record and in `ZERO_COMPUTE_DIAGNOSTICS_2026-08-08.md` §Task 1
+> are withdrawn to *unmeasured*.
+
+What **survives** from the 2026-08-08 amendment, unaffected: the sign-convention
+defect was real and is fixed; the archived `sign_convention_control` run still
+proves the convention; and Stage A's two independent detectors (wall-Cf crossing
+and the convention-free near-wall U_x sample) agree everywhere to within 0.04 H,
+so nothing here is a detector artifact. **What died is the number, not the fix.**
+
+#### Correction 3 — the review's framing, and where to read it
+
+Review entry 5 of `SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md` has been
+amended by the chief himself at `581bb9d8`. Its framing — *"converged solves
+4–12× wrong on reattachment, wandering"* — has now lost **both** of its load
+bearing words: *4–12×* died at `fe121af2` (sign convention), and *converged* dies
+here. A reader arriving from either direction should follow the cross-reference:
+
+| arriving at | go to |
+| --- | --- |
+| this record | review entry 5's outcome block (`581bb9d8`) |
+| review entry 5 | this amendment, and `F5C_STAGE_A_RESULTS.md` |
+| `backstep_case.py::parse_wall_raw` | this amendment (the `x/H ~ 5.6` in that docstring is the withdrawn number) |
+
+#### What is NOT claimed by this amendment
+
+No wander verdict, in either direction — chief policy for this case is that none
+may be claimed from a `coarse` detector, and Stage A used only `coarse`. No claim
+that the flow is or is not unsteady. The 6.26 ± 0.10 reference is untouched. The
+docket item is **re-posed, not retired**: *you cannot ask whether a flow is
+unsteady until the steady solve is shown able to converge.*
+
 ---
 
 ## F5b — Pitching NACA 0012 Dynamic Stall
