@@ -218,3 +218,42 @@ cheaper to make than to leave.
 correction — *a range over n and a single pairwise difference are different
 statistics and must not be compared*. That one is about which measurement you
 took; this one is about whether you took it twice or looked at it twice.
+
+### 7a. "A different route" must mean different IN KIND — and a search written from what you just read returns what you just read
+
+**Added 2026-08-10, hours after §7, from the failure of §7's own first
+application.** The draw-scatter rule's archive replay
+(`W3_DRAW_SCATTER_RULE_REPLAY_RESULTS.md` §4b) derived its count twice as §7
+requires. The two routes disagreed by **2×** on records and **3.4×** on the
+number needing restatement, and **the programmatic route was the wrong one.**
+
+**Failure 1 — a pattern that keys on one spelling cannot see the concept.**
+Route A's regex spelled it `non-?monoton` and `increments grow|shrink`. Tested
+against nine genuine ladder-shape assertions, **it caught one.** It could not see
+`NOT monotonic` (space, not hyphen), `monotonically`, bare `monotone` used as an
+argument, or `increment smaller`. This is the same defect the lab closed twice
+that same day — `args[0]` instead of *does this launch a solver*, and splitting a
+shell string to decide what ran. **It was written into the audit that was
+checking for the first two.**
+
+**Failure 2, and the one worth institutionalising — the miss was BIASED, not
+noisy.** Route A's vocabulary was drawn from the records its author had spent the
+day inside. It therefore found every ladder already under investigation and
+missed nine bodies that were not. **A search built from what you have been
+reading returns what you have been reading**, and it will feel exhaustive while
+doing it, because everything you can think of to check is in it.
+
+**The rule.** When §7 says derive the count by a different route, *different*
+means **different in kind**, not the same method run twice:
+
+| weak second route | strong second route |
+| --- | --- |
+| the same regex, re-read | a semantic sweep that does not share the first route's vocabulary |
+| the same person recounting | an independent agent given the definition but not the patterns |
+| grep with more synonyms *you* thought of | a route that can surface terms you did not think of |
+
+**Practical test before trusting a count:** *could this method have found a
+member of the class I have never seen?* If the method's vocabulary came from the
+examples you already had, the answer is no, and the count is a lower bound rather
+than a count. **Report it as a lower bound until a second route of a different
+kind agrees.**
