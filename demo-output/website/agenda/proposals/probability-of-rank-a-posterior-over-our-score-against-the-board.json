@@ -18,6 +18,8 @@
  "in_sample_verdict": "Not applicable and it cannot become applicable. Nothing is fitted, inverted or calibrated; no test data is read beyond scores already computed and recorded; no model is trained and no scored column moves. The item produces a probability about a table of numbers that already exists.",
  "sequencing": "Dispatchable now, zero solver cost. INTERNAL ONLY: submissions are parked by standing instruction, this item is not a submission action, it does not prepare one, and its output is not to be attached to any external package or treated as evidence that a send is pending.",
  "gate": "STRATEGY PROOF CLAUSE, verbatim: 'Probability of rank: before any future leaderboard submission, a posterior over our score vs the board (bootstrap over cases) -- \"P(rank 1) = x%\" -- internal only, but it is the house asking the right question.' Operationalised: a case-level bootstrap over the eight scored cases using the recorded per-case scores for all five entrants at the pinned benchmark commit, reporting the probability of each rank for the lab's entry with the resampling unit stated, plus a leave-one-case-out sensitivity naming which cases the posterior depends on. The output carries three caveats on its face: the scoring is local and nothing has been submitted; the cases are not exchangeable and the bootstrap assumes they are; the other entrants' scores are fixed published values, so case selection is what is resampled. The number is internal and marked so; publishing it externally, or citing it in any submission-facing document, is outside this item.",
- "status": "proposed",
- "created_at": "2026-08-10T15:10:00Z"
+ "status": "approved",
+ "created_at": "2026-08-10T15:10:00Z",
+ "decided_at": "2026-08-10T00:00:00Z",
+ "decision_note": "chief approval 2026-08-10"
 }
