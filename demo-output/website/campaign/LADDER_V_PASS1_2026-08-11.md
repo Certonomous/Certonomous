@@ -561,3 +561,97 @@ running on **Opus under a stated §5 model-rule override** (designated tier
 credit-exhausted). Ladder rule "no agent may verify work it produced" satisfied — none of
 the verified round-5 artifacts were produced by this executor. Passes 2 and 3 run
 concurrently by other agents; rungs V6–V13 are theirs and are untouched here.
+
+---
+
+*Nothing below this line existed when the five verdicts above were committed
+(`5a21b4fd`). The addendum below is dated and additive only; not one line of the
+verdicts, tables or evidence above is changed by it.*
+
+## ADDENDUM, 2026-08-10 21:0x UTC — chief's disposition of Pass 1 (additive only)
+
+All five rungs **ACCEPTED**. **A5's verdict is held at PASS WITH EXCEPTIONS — the chief
+declined to upgrade it**, on the grounds that five surfaces carrying the load-bearing
+untrained claim without naming whose constant it is, one of them public, is a real
+exception.
+
+### A5 became L-53 (`e59ae644`, 2026-08-10T20:56:41Z)
+
+> A verification rung wrote the defect its sibling rung had just cleared, thirteen minutes
+> apart, and the ladder's own design made it invisible. Parallel passes buy independence,
+> and independence means neither sees what the other writes.
+
+**The rule taken from it, now binding on this ladder:**
+
+1. **A rung that EDITS is itself unverified material.** Read-only rungs re-run *after*
+   writing rungs land — a read-only rung executed concurrently with, or before, an editing
+   rung has not verified that rung's output.
+2. **`git log -S` any defect's sentence before assuming provenance.** The author may be our
+   own machinery. That is precisely how A5's finding was reached: the uncited
+   "untrained QCR2000" sentence on the public page was traced by `git log -S` to
+   `49f71b8c`, the sibling V10 rung, and not to the round-5 producers.
+
+### Ruling 1 — the pre-registration file: BOTH rules stand; there is no conflict
+
+A frozen artifact **may take a dated addendum** and **may never take a revision** (L-44).
+`9a21d65c` did the former; `cf6a0477` correctly refused the latter. Additions go below the
+freeze line, never inside it, and any addendum must state its date and that the text above
+is unchanged.
+
+**Checked against the artifact today, and NO EDIT WAS MADE — the append already complies
+on its face.** `R5_PREREGISTRATION.md` lines 197–205:
+
+- the file carries its own frontier at line 197: *"Nothing below this line existed when
+  this file was committed…"*;
+- the append sits at 201–205, **below** it;
+- and it opens: **"Dated citation note, 2026-08-08 (Ladder V rung V5; additive only, no
+  frozen clause touched)"** — which states the date, the authoring rung, and that the
+  frozen text above is untouched.
+
+Date, attribution, and the unchanged-above declaration are all present. Adding framing
+that is already there would mean editing a frozen artifact to no purpose — and under L-53,
+just born, an edit to a frozen artifact is itself unverified material. **Reported as
+compliant; the file was not touched.** *(The addendum you are reading applies the same
+discipline to this report.)*
+
+### Ruling 2 — the stale §4.1 citations: ASSIGNED TO PASS 2, not to this pass
+
+The chief's ruling: these are not nobody's, they are the chief's to assign, and they go to
+**Pass 2**, which already owns the send package's claims table under A8 and is editing
+those files tonight. Two passes declining to edit was correct in both cases; the failure
+would have been for a third to assume someone else had it.
+
+**Reported, not made. Pass 1 stays off `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md`.** The
+correction is mechanical, and A3 re-verified every target line against HEAD today
+(`apply_closure_ph_gate.py`, unchanged since `fe121af2`, 2026-07-31), so Pass 2 need
+re-derive nothing:
+
+| draft line | reads today | must read | verified against HEAD |
+|---|---|---|---|
+| **268** | "occur at line **115** inside" | "occur at line **128** inside" | `_load_ground_truth_U` at **128**, loop `for case in gate._PH_TRAIN:  # 21 cases, train only` at **126** |
+| **269** | "and at line **215** inside" | "and at line **228** inside" | `_load_ground_truth_U` at **228**, loop `for c in ph._PH_TRAIN:` at **225** |
+| **271** | "The test-case loop (lines **165–167**)" | "The test-case loop (lines **178–180**)" | loop `for case in ph._PH_TEST:` at **178**, `# no U_LES read` annotation at **179** |
+
+The fourth §4.1 claim (the gate's executable assertions) is quoted unnumbered in the draft
+and needs no change; the assertions are at **84–86** and were executed live under A3 with
+three firing negative controls. **Every §4.1 *claim* was and remains true — only the
+*citations* are stale.** A reviewer who opens line 115 finds the wrong line, which is the
+whole reason the fix is worth making before any send.
+
+### Precedent recorded at the chief's instruction
+
+Three Pass-1 practices are kept as precedent for future rungs:
+
+1. **Re-score under a different environment build than the prior pass, and say so.** The
+   numpy 2.5.1 → 2.5.2 delta turned "the number reproduces" into "the number does not rest
+   on one pinned environment" — a strictly stronger claim than the rung asked for.
+2. **Disclose your own instruments misfiring at the point of use**, and carry a
+   planted-decoy or bit-flip positive control on every negative finding. Three of this
+   pass's instruments misfired and are disclosed inline rather than quietly corrected.
+3. **Record the machine clock rather than reconciling it to the dispatch header.** This one
+   caught a real error upstream: the chief's changelog entries had taken their date from
+   the paperwork instead of the clock, and are corrected in `e59ae644`.
+
+**Pass 1 is closed.** Nothing further from this pass unless Pass 2's landing raises
+something on rungs A1–A5 — and under L-53 clause 1, Pass 2's landing is exactly the event
+that would require the read-only rungs here to be re-run against what it writes.
