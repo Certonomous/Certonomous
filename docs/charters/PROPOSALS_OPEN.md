@@ -902,9 +902,11 @@ hours, from three unrelated causes**: the account session limit at 18:53Z on
 2026-08-04, the process exiting at 15:08Z on 2026-08-05, and the weekly limit
 at about 17:20Z the same afternoon. The rules are: pre-register before
 compute, run solvers detached and self-ledgering, hold the box with both
-keepalives during a campaign, check `pgrep` and the container list before
-resuming an agent that may not be dead, and keep the watchers with the
-supervisor rather than the agent. **Scientific loss across all three was
+keepalives during a campaign, check whether an agent is live BEFORE resuming
+it — by `git log` and run-directory mtimes, NOT by `pgrep`, which cannot see a
+fleet agent at all (L-41, corrected 2026-08-10; the container list remains
+valid for the separate question of whether a SOLVE is running) — and keep the
+watchers with the supervisor rather than the agent. **Scientific loss across all three was
 zero**, and the reason every time was rule 1: the pre-registrations were
 committed before the compute launched. One survival is an anecdote, three
 from unrelated causes is a measurement of the discipline. The only thing

@@ -416,8 +416,20 @@ artifacts).
    exactly the case where the session is gone and the compute is not. Arm the
    session hold as the first command of every working day. Neither script
    disables the auto-stop, which is the owner's cost control and stays.
-4. **Check before you resume.** A completion notice with no result does not
-   prove an agent is dead. Run `pgrep -af 'claude --resume'` and look for
+4. **Check before you resume — and NOT with `pgrep` first (L-41, corrected
+   2026-08-10).** A completion notice with no result does not prove an agent
+   is dead, and a process sweep cannot prove it either: fleet agents execute
+   inside the SDK server, so a busy peer is INVISIBLE to `pgrep`/`ps | grep
+   claude`. That mistake collided two agents on one rung. Ask in this order:
+   (a) `git log --since=<minutes>` — a working agent commits, and a
+   pre-registration appearing after your dispatch is proof of a live peer;
+   (b) run-directory and case-directory mtimes (`find <runs> -mmin -10`) — a
+   live solve writes constantly under no matching process name; (c) the
+   docket/inbox claim state. Only then process sweeps, which answer "is a
+   SOLVER running", never "is an AGENT working". Prefer resuming the
+   incumbent over spawning a rival: two agents on one item produce two records
+   for one run. The original text follows, superseded:
+   ~~Run `pgrep -af 'claude --resume'` and look for
    fresh writes in the agent's own files first: resuming a live agent spawns a
    second incarnation working the same task in the same tree, which is section
    3's shared-tree problem arriving from a direction nobody guards. And
