@@ -1143,6 +1143,33 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   post-freeze edits add only, 3 touch existing lines and all 3 survive inspection, one of them correcting a document
   *against its own interest* ("written before launch" → "after it, not before").
 
+### 2026-08-10 (closing 4) — the Ahmed turn goes too, and the replicate check is four for four
+
+- **CHIEF RULING: the Ahmed 25° ladder's turn is WITHDRAWN as a feature**, on the same standard applied to the B-52.
+  At n = 4 (pre-reg f4dec659, results 573e5793, 11.4 core-min) the DISSOLVES branch is confirmed — the increment
+  inverts, sign flipped, −8.907e-4 — and the sensitivity analysis makes the withdrawal robust to which draw is
+  excluded: **the published increment does not survive either way, it inverts or halves.** The fact needing no
+  branch at all: with the suspected outlier REMOVED, the c3 scatter is 1.01× the entire c3→c4 increment. **The turn
+  is unreadable from single draws in either direction.**
+- The *"not one unlucky mesh"* sentence keeps its wording — it is literally true and now argues the OPPOSITE of what
+  it was written to argue: the scatter is broad (branch B3, R = 0.324 against a bar calibrated by simulation as the
+  10th percentile of the pure-scatter null), so the defence fails not because one mesh was unlucky but because no
+  single draw carries the increment. The dated caveat a reader meets BEFORE the claim is landed (4f73e0af).
+- **The near miss was reported as a near miss and the bar did not move:** R = 0.324 sits at the 14.6th percentile,
+  and a bar at the 15th would have read B2 instead of B3. The bar was fixed before the draws existed and stays
+  fixed; the ambiguity is stated rather than resolved by hindsight. The extreme draw was a REDRAW, which points at
+  the recipe without reaching the bar.
+- **THE FILED RULE'S ARGUMENT IS THE STRONGEST FACT OF THE DAY: every replicate family this lab has ever measured
+  returned a material finding. FOUR FOR FOUR — the check has never once come back clean.** B-52 (turn withdrawn),
+  NACA 0012 (the published mesh was the family maximum at +1.35σ), NACA 4412 (scatter 5.8–12.7% of the mean), Ahmed
+  (increment inverts). Filed as `w3-no-ladder-feature-without-draw-scatter` (8801bf61) with its archive replay as
+  its own entry condition. **Retrofit priced from measured bases at 12.8–21.7 core-min for the whole remaining
+  scope — less than checking the B-52 alone cost (40.9, which ended in a withdrawal).**
+- Scope self-corrected again: the "9 of 12 unchecked ladders" figure was wrong — 4 of the 12 stored studies carry no
+  ladder at all, so it is 8 real ladders, 3 already checked, **real retrofit scope 5**. Found by RECOUNTING, which
+  is now §7 of the Cases guidelines: *a recount is a fresh measurement, a re-read is the same measurement repeated.*
+  The rule caught a third error within the hour of being written.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
