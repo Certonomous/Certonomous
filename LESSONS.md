@@ -1836,3 +1836,49 @@ Before dispatching a NEW agent onto work an existing agent might hold, check
 1–3, and prefer resuming the incumbent over spawning a rival: two agents on one
 item produce two records for one run, and the collision is discovered late
 because the evidence that would reveal it is the evidence nobody checks.
+
+## L-42. A rerun into an existing case directory destroys the prior run's evidence, even when its own bookkeeping is honest
+
+Found by the batch dead-lever sweep, 2026-08-10: `H_re10595_realizableKE`'s
+live record states 30,000 iterations while the `log.simpleFoam` sitting beside
+it ends at 12,000. Nothing was falsified — a leaked FPE-rescue rerun executed
+in the same case directory and overwrote the log in place, and both records
+were individually honest about their own run. The casualty is the L-40
+evidence: the earlier run's activity proof no longer exists anywhere, so a
+conclusion resting on it can never be re-verified from artifacts.
+
+The record survived here only by luck of agreement (both runs excluded the cell
+for the same two reasons, so the membership verdict is unchanged). That is not
+a defense; it is a coin landing the right way.
+
+The rule: a rerun of an already-recorded cell runs in a FRESH directory, or the
+prior run's log and record are preserved under a superseded name BEFORE the
+rerun starts — the same supersede-not-delete convention the records use, applied
+to the run tree. The batch runner already supersedes `record.json`; it does not
+supersede the log, which is where the lever evidence lives. Where a workflow
+cannot be changed cheaply, the launcher archives `log.*` on entry.
+
+## L-43. The audit instrument has its own blind spots — a search that cannot see the evidence reports absence, not innocence
+
+The batch sweep's first inventory pass named the family's headline conclusion
+(the N_a10 band) as its top DEAD LEVER. It was wrong, and the cause was not
+reasoning but tooling: the solver logs are gzipped, and the shell's `grep`
+honours `.gitignore`, so a naive repository sweep saw neither the 36
+`Selecting RAS turbulence model` banners nor the mega-batch work tree at all.
+The corrected sweep found 133 verified and zero dead. The withdrawal is on the
+report's face with the evidence quoted, which is the only reason the near-miss
+is now an asset instead of a retraction.
+
+Generalise past this instance: an audit's null result is a claim about the
+audit's REACH before it is a claim about the world. Before reporting
+"unverifiable" or "absent", prove the instrument can see a KNOWN-PRESENT
+specimen — grep for something you are certain exists in the corpus you are
+sweeping, and if it does not come back, fix the instrument, not the conclusion.
+Compression, ignore-files, symlinked or untracked trees, per-processor
+directories and rotated logs each hide evidence from a different tool.
+
+Standing consequence: every archive-wide audit states its reach (what it could
+and could not see) beside its counts, and any audit whose headline is a
+NEGATIVE finding — nothing found, nothing dead, nothing missing — carries a
+positive-control line proving the search would have found the thing had it been
+there.
