@@ -112,6 +112,29 @@ hand-maintained list had ever included.
   output. **Owner: NOT the pass that wrote the text.** No agent verifies its own prose,
   and a fix pass is a writer like any other.
 
+## WHEN THE LADDER IS GREEN — the termination rule (chief, 2026-08-10)
+
+V15 creates a loop: every fix pass writes text, and ladder-written text must re-enter
+the claims table. Without a stated terminating condition that recurses forever, and a
+ladder that cannot finish is a ladder that never gates anything.
+
+**The ladder is GREEN at a FIXED POINT, not at a clean sweep.** Specifically:
+
+1. Every rung V1–V15 carries a PASS.
+2. A full re-run of V8, V10, V14 and V15 **over the text written by the previous fix
+   round** introduces **no new failures** — not "few", not "only cosmetic ones". Zero.
+3. That zero is itself measured by an agent **that wrote none of the text in that
+   round**, and it states the frame it examined.
+
+**Round N+1 exists only if round N produced failures.** If a fix round is clean on its
+own output, the loop has converged and the ladder is green. If each round keeps
+producing new failures, the ladder is telling you something true about the package and
+the answer is not to stop auditing — it is that the package is not ready.
+
+**What does NOT reopen the ladder:** corrections to the ladder's own REPORTS (they do
+not travel), changelog entries, and this document. What DOES: any edit to the submission
+package, to a claim-bearing surface, or to a rule this ladder enforces.
+
 ## CLOSE-OUT
 
 - **V13. Ladder report in negative-verdict-review format**: every rung PASS/FAIL with evidence
