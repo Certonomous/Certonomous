@@ -1804,3 +1804,35 @@ an archive, pre-registration, or ladder rung carries its checkMesh birth
 certificate — born clean or it doesn't enter (the A3 vcoarse mesh sat in the
 archive born-broken: 23 negative cells, aspect ratio 2.08e95, pyHyp tip
 collapse — the same generator pathology as TMR NACA 0012, now cross-geometry).
+
+## L-41. `pgrep`/`ps | grep claude` is not a fleet-liveness check — agents live inside the SDK server, and the tells are file mtimes and git log
+
+On 2026-08-10 the chief dispatched a fresh solver agent onto A3 rung 2 while a
+resumed peer agent was alive and working on it. Both had done the right
+pre-launch checks: `sudo docker ps` empty, `pgrep` showing no solver, `ps` showing
+exactly one `claude` process. All of that was true and all of it was
+irrelevant — fleet agents execute inside the SDK server process
+(`python3 -m chief_engineer.server`, pid 1452), not as separate `claude`
+binaries, so a busy peer is invisible to a process sweep. The incoming agent
+concluded twice that the peer was dead, and was twice wrong; only its own
+staged-but-unlaunched discipline and a final host re-check prevented two
+records for one run.
+
+The chief's own resume drill inherits the same blind spot: "zero containers,
+zero solvers, therefore nothing of yours ran" is sound for SOLVES but says
+nothing about whether an AGENT is alive and mid-task. The two questions are
+different and only one of them is answerable by `pgrep`.
+
+The reliable liveness tells, in order of cost:
+1. `git log --since=<minutes>` — a working agent commits; a pre-registration
+   appearing after your dispatch is proof of a live peer.
+2. Case-directory and run-dir file mtimes (`find <runs> -mmin -10`) — a live
+   solve writes constantly even when no process name matches your grep.
+3. The docket/inbox claim state — a claimed item with a recent timestamp.
+4. Only then process sweeps, which answer "is a SOLVER running", not "is an
+   AGENT working".
+
+Before dispatching a NEW agent onto work an existing agent might hold, check
+1–3, and prefer resuming the incumbent over spawning a rival: two agents on one
+item produce two records for one run, and the collision is discovered late
+because the evidence that would reveal it is the evidence nobody checks.
