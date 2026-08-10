@@ -1836,6 +1836,42 @@ clock-audit rule asks for.]*
   rows. Reachable, unreachable, and *wired-but-never-fired* are three different facts and the next coverage table
   needs the third column.
 
+### 2026-08-10 (night) — section C: a fresh clone skips the safety gate, and six adopted rules rest on 28% of the corpus
+
+- **THE HEADLINE: C5 AND C2 WERE THE SAME DEFECT.** `launch_solve.sh` gates its preflight on `[ -x "$PF" ]` while
+  `case_preflight.sh` was tracked non-executable. **On a fresh clone the test is false, the gate is SKIPPED, and the
+  launcher launches anyway** — with no line saying the case was never checked. Our own doctrine promises this is one
+  of four things "the caller cannot forget"; on a clone the harness forgot too. **Demonstrated, not argued**, with an
+  always-failing preflight: at 755 it REFUSES, at 664 — what a clean checkout writes — it LAUNCHES. This box masked
+  it entirely, because only the commit travels. Fixed.
+- **THE HUMP IS CLEAN — the target Katie named explicitly.** 13 lever/conclusion pairs, 9 verified, **zero
+  found-dead**, over a frame defined by what a DAFoam adjoint always prints (651 logs) rather than by what an auditor
+  thought to spell. The transonic option IS echoed in all seven hump logs, at a value meaning *off* on a solver where
+  it does nothing — **latent, not dead**, no conclusion leans on it, and **the deadness claim is DECLINED** because
+  the source is not on this host. Recorded as *"not found in the files searched, which were…"*. One hump-adjoint
+  attempt was also found outside every prior audit's frame.
+- **The six dead levers are in the MONITORING STANDARDS, not the physics** — and the live one is **D4**: *"every
+  OpenFOAM log prints a trapping banner"* is false (5 of 149 lack it), and it **still stands verbatim** in the
+  standard's newest version, because tonight's correction touched the other two findings and not this one.
+- **C2: 100 instruments audited; 67 never ask "did it run?"** Nine have a third state; **20 are false-positive
+  channels and 12 of those have a named archived conclusion running through them.** The worst is not a parser: the
+  monitor-replay tool globs `*.log` while OpenFOAM's convention is `log.<app>`, so **the corpus behind SIX ADOPTED
+  RULES is 449 files against the 1,618 that exist.** And the omitted quarter **refutes a published line** — the
+  standard says no case outside one family reaches a declared target; **53 cases across 10 families** were sitting in
+  files the glob could not match. This compounds tonight's other replay finding: the corpus was not merely
+  unrepresentative, it was 28% of itself.
+- **ROOT CAUSE FOUND for the auto-stop that has powered the box off mid-campaign (Katie's complaint, three times):**
+  `is_idle.sh` **concludes IDLE from an absence** — its work list omits `checkMesh` (182 logs), `potentialFoam` (49),
+  `setFields` and `sample`. A busy box running any of those reads as idle. **And the fix is NOT a longer list** — a
+  list is the same defect with more entries (L-49). Escalated to the chief and now to Katie, since powering the box
+  off is her cost control.
+- C5's real number: the dispatch's "29" was a subtree count. **Repo-wide there are 238 shebang-bearing tracked files
+  and 3 with an exec bit.** Routed by owner, not mass-changed. The check itself nearly shipped the defect it hunts —
+  its first draft read the INDEX and went green on a mode that was staged and never committed; that near-miss is now
+  its own regression test. Suite 1,284 passed / 0 failed.
+- **Priced and not spent, routed to the chief:** the relaxation-invariance check costs one extra solve per arm, and
+  **three standing verdicts rest on that one untested switch.**
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
