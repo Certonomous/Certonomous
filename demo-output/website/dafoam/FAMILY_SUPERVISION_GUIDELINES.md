@@ -232,3 +232,38 @@ addendum f77b2607; audit WARMSTART_AUDIT.md). Standing rule, per the approved
    per arm, the W4 reordering/unblock layout) — structurally immune, and it
    leaves the bit-identical first-continuity-error line as the state-control
    proof.
+
+## 9. Family state, 2026-08-10: AT REST — available by decision, not idle by default
+
+The DAFoam/adjoint family's queue is empty and the family rests. Recorded here so a later reader
+finds a decision rather than an absence.
+
+**What closed it.** The A3 line went from *blocked at every mesh size, cause unknown* to: one
+token was the wall (negative control reproducing the archived failure bit-for-bit); two rungs
+converged and FD-verified; a ceiling bracketed and defended against the one challenge whose
+mechanism matched it; **twelve candidate causes eliminated by measurement**; a capability-boundary
+defect written up filing-ready with its fix implemented and regression-controlled; and an
+unexplained residue that is *precisely bounded* rather than vaguely open.
+
+**What was declined, and why that is the point.** The one remaining item — testing whether
+`pcFillLevel 1` also collapses at rung 2, the restart-destabilisation prediction left labelled
+unproven in `R5_ADJOINT_CONDITIONING.md` — was priced at ~29 core-min and **declined by the chief
+on the agent's own reasoning: it would tidy a hypothesis, not move a verdict.** The standard
+applied all day is that **compute which cannot change a decision is not spent.** An empty queue
+reported honestly beats manufactured work, and the same call was made twice in one day across two
+families.
+
+**Held elsewhere, not lost:** the KSP-options defect candidate and the branch-taping class are
+filing-ready and parked by policy; the condition-estimate methodological finding (three arms
+saying the standard diagnostic does not predict convergence on this operator class) and the
+launcher memory-cap L-40 are routed to their owners.
+
+**Standing lessons this family contributed today:** L-40 (the switch you set is not the switch
+that ran), L-44, L-49 (a search built from what you have been reading returns what you have been
+reading), and **L-50 — a correction must not travel on the evidence class of the thing it
+corrects**, which is why the FD-2 refutation was held until a 435-vs-490 iteration measurement
+joined its source read and its config read.
+
+**Restart condition:** this family reopens on a new case, a toolchain bump (run the R-1/R-2/R-3/
+R-5-off/R-6 regression set of §1 first), or a decision that actually turns on one of the parked
+items — not on the availability of an agent.
