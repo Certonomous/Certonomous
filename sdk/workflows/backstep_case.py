@@ -52,6 +52,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
+from chief_engineer import lever_echo, mesh_certificate
 from workflows.tmr_verification import (
     _foam, _foam_header, _copy_best_effort, _field,
     fv_schemes, ratio_for_first_cell,
@@ -841,6 +842,24 @@ def run_case(level: StepGridLevel, out_dir: Path, *, iterations: int | None = No
             raise RuntimeError(f"bfs-{level.name}: blockMesh failed:\n"
                                + "\n".join(tail.splitlines()[-25:]))
 
+    # Mesh birth certificate, written AT CREATION from this mesh's own
+    # checkMesh log and checked before the solver launches (MESH_STANDARD
+    # v1.1 / Verification Charter v1.5 section 9; F5c pre-registration
+    # F5C_UNSTEADY_PROBE_PREREGISTRATION.md section 2). This module ran
+    # checkMesh but never certified, so no F5c mesh-quality record survived
+    # anywhere in the archive -- the same disease as its missing solver logs.
+    certificate = mesh_certificate.write_certificate(
+        case / "constant",
+        check_log_text=(case / "log.checkMesh").read_text(errors="replace"),
+        generator=f"blockMesh, F5c backward-facing step, level {level.name}")
+    admitted, cert_reason = mesh_certificate.certificate_admits(case / "constant")
+    log(f"[bfs-{level.name}] birth certificate: "
+        f"{(certificate or {}).get('verdict')} -> admitted={admitted} ({cert_reason})")
+    if not admitted:
+        raise RuntimeError(
+            f"bfs-{level.name}: mesh refused at entry, before any solver wall "
+            f"time is spent: {cert_reason}")
+
     start = time.monotonic()
     result = _foam(["simpleFoam"], case, "log.simpleFoam", timeout=timeout)
     timings["simpleFoam"] = round(time.monotonic() - start, 1)
@@ -905,6 +924,11 @@ def run_case(level: StepGridLevel, out_dir: Path, *, iterations: int | None = No
         "re_h": RE_H, "nu": NU, "first_cell": FIRST_CELL,
         "inlet_bl_turbulence": inlet_bl_turbulence,
         "algorithm": ("SIMPLEC" if consistent else "SIMPLE"),
+        # Charter v1.5 section 9: built mechanically from the solver log's
+        # own LEVER-ECHO block, so the `consistent` flag OpenFOAM never
+        # echoes is nonetheless bound by sha256 to the bytes that ran.
+        "levers_verified_active": lever_echo.levers_verified_active(log_text),
+        "mesh_certificate": certificate,
         "relax_p": relax_p, "relax_u": relax_u,
         "x_r_over_h": reattach["x_r_over_h"] if reattach else None,
         "reattachment": reattach,
