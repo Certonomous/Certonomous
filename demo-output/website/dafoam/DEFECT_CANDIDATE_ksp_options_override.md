@@ -169,3 +169,24 @@ closes the "which switch actually ran" gap that motivated this report.
 **Status unchanged: FILING-READY, NOT FILED.** Submissions stay parked. The patched image is
 local-only, nothing pushed, and the shipped-toolchain verdicts in this record stand unchanged
 beside it per R11.
+
+---
+
+## 9. Provenance note for the FD-2 material routed with this report (2026-08-10)
+
+The companion refutation this report was prepared alongside — that `consistent yes` (SIMPLEC) is
+**not** dead for `DASimpleFoam` — now rests on **three independent legs**, the third measured
+rather than inferred:
+
+1. **Source honours it**: `pEqnSimple.H:27` and `DAResidualSimpleFoam.C:189`, both images.
+2. **The case sets it**: A4's own DAFoam cases (`A4-ahmed-body/{fine,coarse}`) read `consistent yes;`.
+3. **Flipping it changes what the solver does** (`A4_SIMPLEC_ACTIVITY_PROOF_PREREGISTRATION.md`
+   §5): on A1 NACA0012, 4,032 cells, shipped-behaviour image, the primal converges in **435
+   iterations at `consistent false` and 490 at `consistent true`** — with the converged objectives
+   agreeing to 7–8 significant figures, which is exactly the expected SIMPLE/SIMPLEC relationship
+   (different path, same steady state).
+
+Leg 3 was added deliberately: legs 1 and 2 are a source read plus a config read, **the same
+evidence class as the original wrong FOUND-DEAD verdict this report corrects**. A correction
+carried upstream on the evidence class it is correcting would have been the same defect wearing
+the opposite conclusion.
