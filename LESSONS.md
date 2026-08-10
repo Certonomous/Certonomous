@@ -2097,3 +2097,39 @@ leaving the gap open. False constraints are self-perpetuating: the next reader
 inherits them as settled, and the cheap fix nobody attempts is invisible
 forever. Record what is missing; never record what is impossible unless you
 have measured the impossibility.
+
+
+## L-49. A search whose vocabulary came from your examples returns your examples — and it feels exhaustive while doing it
+
+The ladder-feature audit was run twice by design. Route A, a pattern search,
+found 16 live records asserting a ladder shape. Route B, a different method,
+found **32** — and the reconciliation overturned the audit's own headline:
+the RESTATE share went from 50% to **77%**, which meant the agent's
+pre-registered prediction had been RIGHT and its measurement WRONG.
+
+Route A failed for a reason worth generalising. Its pattern spelled the concept
+the way the records the author had spent the day inside spell it —
+`non-?monoton`, `increments grow|shrink`. Tested afterwards against nine
+genuine assertions Route B found, **it caught one**: it could not see `NOT
+monotonic` (space, not hyphen), `monotonically`, bare `monotone` used as an
+argument, or `increment smaller`. Nine whole bodies were invisible.
+
+**The failure was biased, not noisy, which is worse.** A noisy search misses at
+random and its count is roughly right. A search whose vocabulary was drawn from
+the subset you already know finds everything in that subset — so it returns a
+clean, confident, complete-looking answer that is systematically blind to
+exactly the members you have never seen. It confirms the shape of your existing
+sample and calls it a census.
+
+This was the day's own defect class, written by the author into the audit that
+was checking for two earlier instances of it (`args[0]` instead of *does this
+launch a solver*; splitting a shell string to decide what ran). Three instances
+in one campaign, the third inside the instrument built to catch the first two.
+
+The practical test, before trusting any count: **could this method have found a
+member of the class I have never seen?** If its vocabulary came from your
+examples, the answer is no and the number is a LOWER BOUND, not a count — label
+it so. And when a check is run "by a second route", the route must differ in
+KIND: a second regex with more synonyms you thought of is the same measurement
+twice (L-48's recount/re-read distinction, applied to search rather than
+arithmetic).

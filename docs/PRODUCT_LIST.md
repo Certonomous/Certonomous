@@ -1170,6 +1170,27 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   is now §7 of the Cases guidelines: *a recount is a fresh measurement, a re-read is the same measurement repeated.*
   The rule caught a third error within the hour of being written.
 
+### 2026-08-10 (closing 5) — the audit's own count was wrong, and the reason is the day's own defect class
+
+- **THE LADDER-FEATURE REPLAY OVERTURNED ITS OWN NUMBERS** (dd3cac8d), reported rather than resolved. Live records
+  asserting a ladder feature: 16 → **32**. Evidence at the deciding rung: 4 → 8. Would be RESTATED: 5 → **17**, a
+  RESTATE share of 50% → **77%**. Withdrawals: **still 5, none new** — so the rule remains cheap discipline, now on
+  a correct denominator. The agent's pre-registered prediction P2 scored FALSE on its undercount and TRUE on the
+  reconciliation: **the prediction was right and the measurement was wrong.**
+- **Why the first route failed, and it is L-49:** its pattern spelled the concept the way the records it had spent
+  the day inside spell it, so tested against nine genuine assertions the second route found, **it caught one**. Nine
+  whole bodies were invisible (Ahmed 35°, motorBike, cube, TMR bump/flat-plate, lid-driven cavity, F7 dam-break, F4
+  hypersonic, F3 wedge, F6b ERCOFTAC). **The failure was biased, not noisy — a search built from what you have been
+  reading returns what you have been reading, and it feels exhaustive while doing it.** This is the day's own defect
+  class (spelling-keyed detection) in a THIRD instance, written by the author into the audit that was checking for
+  the first two. New guideline §7a: "a different route" must differ in KIND, and the test before trusting a count is
+  *could this method have found a member of the class I have never seen?*
+- **Consequence flagged, not silently absorbed: the filed rule's retrofit price UNDERSTATES.** The 12.8–21.7 core-min
+  figure covers only the five unchecked ladders in the curriculum studies; the reconciliation surfaced ladder
+  features for bodies whose ladders live only in campaign records (F3, F4, F7, F6b, TMR bump, the cavity, DPW8),
+  outside the priced scope. Each needs its own measured solve cost — flagged for separate pricing rather than
+  guessed at.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
