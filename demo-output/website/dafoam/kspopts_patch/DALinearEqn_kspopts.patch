@@ -1,0 +1,28 @@
+--- /tmp/DALinearEqn.C.orig	2026-08-10 17:34:13.523281124 +0000
++++ /home/dafoamuser/dafoam/repos/dafoam/src/adjoint/DALinearEqn/DALinearEqn.C	2026-08-10 17:34:24.326089678 +0000
+@@ -134,8 +134,9 @@
+     // Note that if globalPreConIts=1 then maser_PC_KSP is NOT created and master_PC=globalPC
+     // and if localPreConIts=1 then subKSP is set to preOnly.
+ 
+-    // First, KSPSetFromOptions MUST be called
+-    KSPSetFromOptions(ksp);
++    // PATCHED 2026-08-10 (Certonomous): KSPSetFromOptions relocated to the END of
++    // this function -- see the insertion below. Called here (first), every explicit
++    // setter that follows silently overrode it.
+ 
+     // Set GMRES
+     // Set the type of solver to GMRES
+@@ -342,6 +343,13 @@
+     assignValueCheckAD(atol, gmresAbsTol);
+     KSPSetTolerances(ksp, rtol, atol, PETSC_DEFAULT, maxIts);
+ 
++    // PATCHED 2026-08-10 (Certonomous): KSPSetFromOptions moved from the TOP of this
++    // function to HERE. Called first, every explicit setter above silently overrode it,
++    // so -ksp_type / -pc_type / -sub_pc_type were accepted and discarded. Called last,
++    // daOptions act as DEFAULTS and PETSc runtime options act as OVERRIDES, which is
++    // what both APIs promise. With no options set the behaviour is unchanged.
++    KSPSetFromOptions(ksp);
++
+     if (printInfo)
+     {
+         Info << "Solver Type: " << kspObjectType << endl;
