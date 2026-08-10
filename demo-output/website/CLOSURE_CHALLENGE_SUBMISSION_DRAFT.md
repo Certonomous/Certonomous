@@ -264,7 +264,10 @@ violation; both must be fixed before anything is sent.**
 > **Citation currency note, 2026-08-10 (chief, personally).** The three line numbers in
 > this subsection were corrected from 115 / 215 / 165–167 to **128 / 228 / 178–180**. The
 > CLAIMS were and remain true — only the citations had gone stale, shifted by a docstring
-> fix on 2026-07-30 that moved the code without moving the reference to it. Ladder V rung
+> fix at `fe121af2` on **2026-07-31** that moved the code without moving the reference to
+> it. [Date corrected 2026-08-10: this note first said 2026-07-30 — a wrong date inside a
+> note about stale references, found by Ladder V rung V15, which verified the anchors
+> against the code rather than accepting my claim that they had been re-verified.] Ladder V rung
 > A3 re-verified every anchor against HEAD twice (`_load_ground_truth_U` at 128 and 228,
 > the test loop at 178 with its `# no U_LES read` annotation at 179), and the executable
 > assertions cited below are at 84–86 and were run live with three firing negative
