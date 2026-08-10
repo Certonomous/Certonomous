@@ -247,6 +247,19 @@ reproduces their published overall exactly (Reissmann 0.059525, Wu & Zhang
 0.062412, Liu 0.073687, Montoya 0.077863), so the 4-decimal columns are the real
 published values and not a rounding of something else.
 
+> **Two values of Reissmann's overall are in circulation and this document uses
+> the other one (noted 2026-08-10 by the V15 corrections pass, finding F4).**
+> Every probability in this document — the 67.6%/68%, the rank distribution and
+> all four pairwise P(we lead) — was computed with Reissmann at the transcribed
+> **0.059525**, the mean of eight rounded per-case values. Pass 3's like-for-like
+> full-precision re-score of the accepted CSVs on the same harness gives
+> **0.0595338**, and that is what the outward description document's margin
+> (0.0028863) uses. **The bootstrap has NOT been re-run on the re-scored basis**,
+> so nothing here may be quoted as resting on it. The two inputs differ by
+> 9×10⁻⁶ — about 0.3% of the margin — which is why the difference was not noticed;
+> it is recorded rather than smoothed because a reader who checks both finds two
+> numbers for one quantity.
+
 **Three caveats, as the item's gate requires them, on the face of the document:**
 
 1. **The scoring is local and nothing has been submitted.** Stated at the top.

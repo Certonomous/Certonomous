@@ -300,7 +300,7 @@ be argued with:
 |---|---|
 | the shipped `NASA_2DWMH` prediction is byte-identical across rounds 3, 4 and 5 | `filecmp` against round 4: identical; §0f records Δ = 0 |
 | it was written **before** the paper was mentioned in this repository at all | CSV last moved at `fe121af2` (2026-07-31T06:53Z); first commit anywhere containing `2504.06758` is `92840d8c` (2026-07-31T23:13Z) — **16 h later**, and abstract-only |
-| it was written **three days before** the paper was read in full | full text read at `15530f97` (2026-08-02T05:30Z), whose subject line records the outcome: *"reading it closes a route rather than opening one"* |
+| it was written **1 day 22 h 37 m before** the paper was read in full | full text read at `15530f97` (2026-08-02T05:30Z), whose subject line records the outcome: *"reading it closes a route rather than opening one"* |
 | no Appendix-D coefficient or artifact exists in any executable file | `grep -rniE "buchanan\|RITA\|2504\.06758\|lacatus"` returns **zero hits in executable files**; the three apparent code hits are substring matches inside *autho**rita**tive* |
 | the round-5 duct change carries nothing from it | the only new coefficient is `Ccr1 = 0.3`, Spalart's published constant (Pass 1, V5, `303247bb`) |
 

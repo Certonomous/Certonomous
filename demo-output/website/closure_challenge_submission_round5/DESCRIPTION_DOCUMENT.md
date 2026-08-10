@@ -145,9 +145,14 @@ What was then closed, in writing, before any solve:
 
 The rule as written prohibits training or validating on test-case *data*. That
 did not happen. It does not prohibit reading your own preview scores — the
-benchmark ships the test ground truth and instructs submitters to preview. **We
-think the freeze is a good answer. We do not think it is a complete one, and we
-would rather you weighed it than found it.**
+benchmark ships the test ground truth and instructs submitters to preview
+(benchmark `README.md` at commit `deb91557`, §Submission instructions, line 98:
+*"You can preview what your score will be using the benchmark dataset's python
+package"*; and §Motivation, line 21: *"All other decisions are left to the
+submitter"*).
+
+**We think the freeze is a good answer. We do not think it is a complete one, and
+we would rather you weighed it than found it.**
 
 ### 4. The `AR_14_Ret_180` regression was not reverted
 
@@ -247,7 +252,7 @@ calibrating against them would make our entry *indirectly* trained on a test cas
 **We did not use them, and the proof is chronological rather than an assurance:**
 our `NASA_2DWMH` prediction is byte-identical across rounds 3, 4 and 5 and was
 written on 2026-07-31, **16 hours before** that paper is first mentioned anywhere
-in our repository and **three days before** it was read in full. No coefficient or
+in our repository and **1 day 22 hours before** it was read in full. No coefficient or
 artifact of that model exists in any executable file we hold.
 
 **And the duct term carries the same honesty:** Spalart published QCR2000 in 2000,
@@ -276,6 +281,14 @@ margin above uses. Earlier drafts of ours quoted a "published 0.059525", which i
 the mean of eight rounded per-case values and is not a number you publish — the
 error was small and ran against us, but the word was wrong.)*
 
+**Two values of that score are in play in this section, and we would rather say
+so than have you find it.** The margin above uses the re-scored **0.0595338**.
+The 68% below, and every pairwise probability in the table with it, come from a
+bootstrap whose Reissmann input is the transcribed **0.059525**; that bootstrap
+has not been re-run on the re-scored basis, so we do not assert those figures are
+unchanged — we state which input each rests on. The two inputs differ by
+9×10⁻⁶, about 0.3% of the margin.
+
 **P(rank 1) = 68%** — 67.6% over 400,000 case-level bootstrap resamples of the
 eight test cases. **And the interval that matters is not the Monte Carlo one:**
 
@@ -284,6 +297,15 @@ eight test cases. **And the interval that matters is not the Monte Carlo one:**
 | Monte Carlo (B = 400,000) | 67.5–67.8% | only that the resampling ran long enough |
 | leave-one-case-out (8 refits) | 38–91% | how much of the 68% one case is carrying |
 | double bootstrap, 95% | **2–100%** | what an eight-case sample can actually pin down |
+| one-seed sensitivity | **52–81%** | what the seed we did not control is worth |
+
+**On that last row, because it is the sharpest number we hold and withholding a
+computable figure only looks concealed:** the truth-free seed bound of §8
+(0.002419), loaded adversely onto the three seed-dependent cases and the
+bootstrap re-run, gives P(rank 1) = **52.0%**; loaded favourably, **80.5%**;
+as scored, 67.6%. **A seed draw we did not control moves the figure by nearly
+thirty points.** It is derived from the same public inputs by the same route as
+the 68%, so it travels with it.
 
 **The honest reading: the point estimate is 68%, and eight cases cannot resolve it
 better than "somewhere between a coin flip and near-certain".** We state the
