@@ -791,6 +791,37 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   caller-supplied `--case` path that nothing binds to the directory the solve runs in — the one site in the sweep
   that could produce a FALSE POSITIVE rather than a false negative. Not fixed under two live solver agents.
 
+### 2026-08-10 (night) — the ceiling survives its sharpest challenge, and the restart boundary keeps appearing
+
+- **THE CONDITIONING CEILING HARDENS — branch B, against a bar set before the number existed** (pre-reg 85a56e40,
+  result 0dc6a050, 47.7 core-min inside a 66-82 estimate). The chief ordered the one untried lever whose MECHANISM
+  matched the failure — GMRES restart 200 -> 1000, everything else identical, so the first 1,000 iterations are a
+  single uninterrupted Krylov cycle and the cap set at 1,200 so it could not repeat the 4,000-iteration burn. Result:
+  **1.647x improvement at the graded checkpoint against a pre-registered 10x bar** — below even the 2-5x "nudge" the
+  pre-registration had already classified as branch B in advance. A 5x window buying 1.6x, with ~20,000+ further
+  iterations needed at the observed rate, is a ceiling and not a budget. The 42,120-79,560 bracket is unchanged and
+  the claim is now STRONGER than when filed, having survived the challenge whose mechanism matched its failure mode.
+- **Disclosed against the lab's own claim, because it is real:** the wider window DID buy something — descent
+  persisted through the whole uninterrupted cycle where the 200-window was flat by ~500 — and then flattened at
+  EXACTLY iteration 1000, the restart boundary. That is the **third independent time this campaign that progress
+  dies at a restart boundary** (stage 0's Richardson collapse, stage 1's stall, this flattening). Recorded as a live
+  pattern with its named test: a restart-FREE method, or restart >= 2000 (~11.4 GB of Krylov vectors), which needs a
+  bigger box than this one. The standing uncertainty is stated honestly — this excludes a restart-budget artifact at
+  an AFFORDABLE window; it does not exclude that a restart-free method would eventually converge.
+- Calibration for the scorecard: predicted peak memory 16.3 GiB, measured **15.76 GiB — 3.3% error**, a hit; and the
+  "flat to nine significant figures" phrasing was corrected to six at both source sites (0a9a850e) after the report's
+  author re-read the raw log rather than the record. The author's own note is the right lesson: that is the only way
+  this class of error gets caught.
+- LEVER-ECHO ENFORCEMENT AUDITED BY ITS OWN FAMILY (d7780f6a, suite 1214/0): the fix's "provable no-op" claim was
+  REFUTED (rae2822_case9.py:946 passes exactly the mpirun spelling it said no caller passes) — behaviour-bearing but
+  strictly improving. **Claims integrity: NO affected record exists** — all 13 mechanical-verification claims across
+  12 records re-verify by file set and sha256, with a planted-mismatch positive control proving the checker detects
+  rather than rubber-stamps, and the reason is structural: the gate FAILS OPEN. But the sweep found a path that does
+  not: `launch_solve.sh` mints its echo from a caller-supplied `--case` while the solve runs in the launcher's
+  inherited cwd, so a mismatch would write an echo of dictionaries that never ran at the head of a real solve's log.
+  **L-45** (105c0a41): a gate that fails open costs evidence you can still collect; a gate that fails false costs the
+  ability to trust the corpus. Fix prepared now, landing on quiet so it does not race two live arms.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
