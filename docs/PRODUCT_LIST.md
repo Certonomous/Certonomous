@@ -1547,6 +1547,35 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - Honest next question flagged rather than proposed: whether the 95 rows minted from archived logs deserve the same
   fresh-`checkMesh` treatment. Priced at ~0.07 core-min each, **≈7 core-min for all 95.**
 
+### 2026-08-10 (closing 16) — 95 of 95 agree, and the parser says "clean" when checkMesh crashes
+
+- **THE RETROSPECTIVE CERTIFICATES NOW REST ON FRESH MEASUREMENT** (d606ce6b): staged as ordered with the six
+  ordering-flagged rows first, all six clean, then the remaining 89. **AGREE 95 · DRIFT 0 · did-not-run 0 ·
+  hash-mismatch 0, at 3.49 core-min against ~7 approved.** The corpus stands on measurement rather than inherited
+  paper.
+- **A FAIL-FALSE CHANNEL FOUND IN THE CERTIFICATE MACHINERY, and it was found only because the agent tracked the
+  right thing separately.** `parse_check_log` returns `verdict: "clean"` on a checkMesh **FATAL ERROR** — it matches
+  error PATTERNS, and a log where the tool died contains none. **The only thing standing between that and a false
+  clean certificate is `write_certificate`'s refusal when the cell count is `None`** — a guard that turns out to
+  have been doing invisible load-bearing work. The agent caught it because its harness tracked *"did checkMesh
+  actually run"* as a **separate column** from *"do the verdicts agree"*; the count came back zero, but it could not
+  have been read off the verdict. This is L-45's category — a gate that can manufacture a pass rather than merely
+  miss one — inside the machinery that now gates every mesh in the lab. **Routed to Infra; reported, not patched,
+  because it is another family's file.**
+- **Provenance defect self-reported and corrected:** the three exonerated certificates defaulted to `at-creation`
+  and therefore claimed to have been written when the mesh was made. They were not. Corrected to
+  `fresh-recheck-of-existing-mesh` with the reason on each certificate's face, and the same fix applied to one
+  minted earlier in the day. **Neither existing provenance constant is honest for this case**, so a third belongs in
+  the module — Infra's call, and nothing branches on the value meanwhile.
+- **The four wrong rows corrected on the audit's face** (d4832a20), dated amendment with the original retained, and
+  **the two failure modes deliberately kept apart**: three meshes with genuine geometric errors (negative volumes AND
+  wrong-oriented pyramids, reproduced fresh) versus one threshold failure with **no geometric error at all**. Written
+  so that a reader taking "four rows are wrong" to mean "four meshes have negative volumes" would be wrong about
+  three quarters of it.
+- The frame-first discipline caught its author again mid-task: a first scan for the six flagged certificates returned
+  zero because the timestamps are nested one level below where it looked. Same class as the day's others — the
+  method read its sample correctly and the sample was not the population.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
