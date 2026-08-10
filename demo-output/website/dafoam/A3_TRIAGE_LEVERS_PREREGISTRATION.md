@@ -107,3 +107,56 @@ graded metric is iteration count, but the memory guard is what forces the orderi
 inline, explicit handoff if the turn ends mid-run. Price: 3 arms x ~12 core-min ≈ **36
 core-min**, inside the approved 35–45; measured spend reported per arm. Results appended to
 this file's §8 and carried into rung 3's pre-registration.
+
+## 8. RESULTS, 2026-08-10 — all three levers cut iterations materially; **the R5 strengthening prior is overturned with the PC active**
+
+Three staged arms, run sequentially, each with all four required proofs in-log
+(`transonicPCOption 1;`, no sub-LU banner, cold signature `0.5969274433533561`, and the
+lever's own echo). Baseline: rung 1's converged working config, CD 368 / CL 383, 110 s.
+
+| arm | lever echo in-log | CD iters | CL iters | wall | core-min | verdict per §5 |
+|---|---|---|---|---|---|---|
+| baseline (11b90d25) | `ILU PC Fill Level: 0`, `GMRES Restart: 200` | 368 | 383 | 110 s | 7.33 | — |
+| **L1 fill1** | `ILU PC Fill Level: 1` | **236 (−35.9%)** | **250 (−34.7%)** | 105 s (**−4.5%**) | 7.00 | **MATERIAL WINNER** (iterations cut, wall not increased) |
+| **L2 restart1000** | `GMRES Restart: 1000` | 311 (−15.5%) | 306 (−20.1%) | 103 s (−6.4%) | 6.87 | **MATERIAL WINNER** |
+| **L3 richardson** | `Global PC Iters: 3`, `Local PC Iters: 3` | **209 (−43.2%)** | **211 (−44.9%)** | 133 s (+20.9%) | 8.87 | **MIXED** (largest iteration cut; wall +21%) |
+
+Triage spend **22.7 core-min against the approved 35–45** — inside budget, reported as
+measured. All three arms returned `PetscConvergedReason: 2` on both solves; none collapsed.
+
+**The finding that outranks the ranking.** R5 recorded that *strengthening* the preconditioner
+(fill 1, Richardson) REINTRODUCED collapse on this family. With the transonic PC active, both
+strengthening levers not only fail to collapse — they are the two largest iteration cuts on the
+board (−36% and −44%). **The R5 collapse-on-strengthening was itself an artifact of the
+inactive transonic PC**: strengthening a preconditioner assembled around a term that should
+have been dropped made a bad approximation worse, and with the term correctly dropped
+(`transonicPCOption 1`) the ordinary numerical-linear-algebra intuition holds again. That
+retroactively explains a standing anomaly rather than adding one.
+
+## 9. Implication for rung 3 (per §6's pre-stated mapping)
+
+§6's material-winner branch fires — for all three. Rung 3 estimates, scaled from the corrected
+basis (CD ≈ 2,570 / CL ≈ 3,456 iterations at 79,560 cells under the baseline config):
+
+| lever adopted | rung 3 CD | rung 3 CL | cap requirement |
+|---|---|---|---|
+| none (baseline) | ~2,570 | ~3,456 | ≥ 4000 |
+| L1 fill1 | ~1,648 | ~2,256 | ≥ 3000 |
+| L2 restart1000 | ~2,172 | ~2,761 | ≥ 3500 |
+| **L3 richardson** | **~1,460** | **~1,904** | **≥ 2500** |
+
+**Recommendation for rung 3: adopt L3 (Richardson), not the wall-cheapest L1.** The reasoning
+is which constraint binds at 79,560 cells. Rung 3's known second wall is MEMORY — the D3
+envelope measured 17,603.8 MiB there at `pcFillLevel 0`, against a 30 GB box with a 6 GB host
+floor (~24 GB usable). L1 adds ILU fill-in to a 6-field Jacobian (at 99,840 cells the archived
+fill1 variant went from 18,422 MiB to ≥20,480 MiB, censored at its cap), and L2 stores 1000
+Krylov vectors instead of 200 (~+3.8 GB at this size). **L3 is the only one of the three that
+buys its iteration cut with no memory at all** — it applies the existing preconditioner more
+times — and it buys the largest cut, halving the cap requirement. Its +21% wall is the right
+currency to spend when memory and cap are what bind.
+
+**Prerequisite, per §2's own scope limit, not waived:** the triage measured at 21,840 cells and
+does not prove transfer to 79,560. Rung 3's pre-registration therefore carries a **rung-2
+confirmation arm as stage 0** (L3 at 42,120 cells, graded against rung 2's measured CD 987 / CL
+1171); rung 3 adopts the lever only if the confirmation reproduces a material cut, and reverts
+to the filed baseline basis if it does not.
