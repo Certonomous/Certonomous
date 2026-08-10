@@ -820,7 +820,13 @@ landed on the shared constant. `LogMonitor.check_wall_time` kept its own
 literal 20.0 as a default argument, so for five days every caller taking the
 monitor default judged runs against a threshold nobody had approved, while the
 governed constant read correctly and anyone who checked the governed file would
-have been satisfied. **A restated constant is a defect at review whether or not
+have been satisfied. **[BLAST RADIUS CORRECTED, 2026-08-10: "every caller"
+was the TEST SUITE. `LogMonitor.check_wall_time` is called by nothing else --
+not by `HeadEngineer`, not by the ledger path, which reaches S9 through
+`wall_time_record_field`. No production run was ever judged on the unapproved
+default. The restated-constant lesson below is untouched and still right; only
+the exposure was overstated, and a record that overstates its blast radius
+spends the same credibility as one that understates it.]** **A restated constant is a defect at review whether or not
 it currently agrees with its source**, because on the day it stops agreeing
 nothing announces it. Read the constant, and pin the two together with a test
 that fails when they diverge. This is the same clause as the paragraph above,

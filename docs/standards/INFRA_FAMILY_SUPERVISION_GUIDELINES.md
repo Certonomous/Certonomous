@@ -1,5 +1,9 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.14, dated 2026-08-10 (night). Adds section 13: a standard this
+family owns claimed coverage nothing supplied, and the claim was built
+entirely out of true sentences. Records the standards practice it earns.
+
 Version 1.13, dated 2026-08-10 (night). Adds section 12: a FAIL-FALSE channel
 inside the mesh gate itself -- `parse_check_log` called a crashed checkMesh
 `clean` -- found by the Cases family and worse than reported. Adds the third
@@ -1268,6 +1272,71 @@ the same three this family refused for stating no cell count of their own --
 are already conformant and need no migration. Nothing branches on the value
 today, which is why it was second; a provenance field that cannot express what
 happened gets filled in with something false by whoever next needs it.
+
+## 13. A standard claimed coverage nothing supplied (2026-08-10)
+
+`MONITOR_STANDARD.md` said *"the whole of both approved monitor proposals is
+in force."* **S6 (residual stall) and S8 (Courant excursion) cannot fire on
+any production run**, and could not on the day that was written: both return
+early without a gate, and `HeadEngineer.__init__` takes
+`case_name, out_root, *, novel, on_event` -- **no parameter exists by which
+either gate could be supplied.** Three `LogMonitor` construction sites exist
+repo-wide: production (passes neither), the offline replay (passes
+`residual_target`), and the tests. `LogMonitor.check_wall_time`, S9's entry
+point, has no caller but tests.
+
+### 13.1. The practice this earns
+
+**When a capability is claimed IN FORCE, find its production CALL SITE** --
+not its definition, not its test, not the prose. And the reason it hid is the
+transferable half: **every per-rule Status line in that standard is honest.**
+They say a rule fires *"when constructed with `residual_target`"*, and each is
+true. The summary sentence is false and is assembled from nothing but true
+ones -- a summary drops the conditionals, because that is what summaries do,
+and the honest clause upstream makes the summary feel audited. A summary is
+therefore the least trustworthy sentence in a document, not the most, and it
+is the one a reader quotes.
+
+Practical form for this family's own documents: **a coverage claim carries the
+call site, or it is downgraded to a claim about the implementation.**
+
+### 13.2. The wiring decision, and why the evidence refused it
+
+Not wired, and recorded as a **gap with a price, never as a limit** (L-48).
+The rules were approved and never delivered to production, so "leave it" would
+enact a refusal the owner never made -- but wiring them is an ADOPTION, and
+`MONITOR_STANDARD.md` section 3.1 requires a replay with a stated fire count
+first. That evidence does not exist, and for S6 **the artifact that appears to
+be it is not**: the 2026-08-01 replay reports 37 fires over 46 gated logs, and
+**all 46 recovered targets are the same value, `p: 1e-15`**, a run-to-the-cap
+sentinel from one case family that no solve reaches. The 80% is one family
+judged against an unreachable number, not a fire rate -- and 80% would have
+been above the two-thirds that got S7 withdrawn, so the figure that looked
+like a reason to wire it was also a reason not to, and neither reading was
+sound. Priced at ~1 pass each, 0 core-min, in the standard's own table.
+
+Both derivations point the same way, which is the day's standing discipline:
+**the gate comes from the case's own dictionaries** (`residualControl` in
+`fvSolution`, `maxCo` in `controlDict`) -- what configures the run -- **not
+from a constructor argument**, which would reproduce this very defect one
+layer up, because whoever forgets it gets silence.
+
+### 13.3. Blast radius corrected in two records
+
+The five-day threshold defect (`MONITOR_STANDARD.md`,
+`VERIFICATION_CHARTER.md`) recorded that *"every caller that took the monitor
+default"* judged on an unapproved threshold. **Every caller was the test
+suite.** The code defect was real and the fix was right; the exposure was not.
+Both records now say so. **A record that overstates its blast radius spends
+the same credibility as one that understates it**, and this family has now
+corrected one of each in a day.
+
+**U3, noted not fixed:** S9 is wired at `mega_batch.py:810` and **0 of 208,193
+ledger rows carry the field**, because the rule landed after the ledger's last
+row; run in memory the live detector would flag 30 historical rows. Wired,
+correct, and never once exercised -- which is a third state beside reachable
+and unreachable, and worth a column of its own the next time this table is
+drawn.
 
 ## Related
 

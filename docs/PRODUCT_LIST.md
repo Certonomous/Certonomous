@@ -1783,6 +1783,29 @@ clock-audit rule asks for.]*
   whether clip events are recorded at all, with **689 clip events where the archive recorded 3**, which would make
   every archived clip rate in the lab a floor.
 
+### 2026-08-10 (night, reopened again) — a standard claimed coverage nothing supplied, out of nothing but true sentences
+
+- **S6 AND S8 CANNOT FIRE ON ANY PRODUCTION RUN**, and could not on the day `MONITOR_STANDARD.md` said "the whole of
+  both approved monitor proposals is in force". Both need a gate; `HeadEngineer.__init__` takes
+  `case_name, out_root, *, novel, on_event` — **no parameter exists by which either could be supplied**. Unreachable on
+  the geometry studies, the Ahmed act, the NASA hump act and the UQ studies. S9's `check_wall_time` has no caller but
+  tests. Standard corrected FIRST, before any code: false sentence retained with its correction beside it, honest
+  coverage table added. MONITOR_STANDARD v1.5.
+- **WHERE IT HID IS THE TRANSFERABLE PART.** Every per-rule Status line in that standard is scrupulously honest — they
+  say a rule fires *"when constructed with residual_target"*. **The summary sentence is false and is built from nothing
+  but true ones**, because a summary drops the conditionals and the honest clause upstream makes it feel audited. The
+  practice: when a capability is claimed in force, find its production CALL SITE — not the definition, not the test.
+- **THE WIRING IS REFUSED BY ITS OWN EVIDENCE, and the evidence had to be read one level down.** Section 3.1 requires a
+  replay before adoption. The S6 replay reports 37 fires over 46 logs — 80%, above the two-thirds that got S7 withdrawn
+  — but **all 46 recovered targets are the same value, `p: 1e-15`**, a run-to-the-cap sentinel from one case family
+  that no solve reaches. The 80% is one family judged against an unreachable number, not a fire rate. **S6 has never
+  been replayed on a representative corpus**, and the artifact that appears to discharge the requirement does not.
+  Recorded as a gap with a price (~1 pass each, 0 core-min), never as a limit.
+- **BLAST RADIUS CORRECTED IN TWO RECORDS**: the five-day threshold defect said "every caller that took the monitor
+  default" was exposed. **Every caller was the test suite.** The code defect was real; the exposure was not. A record
+  that overstates its blast radius spends the same credibility as one that understates it — and this family has now
+  corrected one of each in a single day.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

@@ -1,5 +1,15 @@
 # Certonomous Monitor Standard
 
+Version 1.5, dated 2026-08-10. **Withdraws a claim rather than a rule.** The
+2026-07-30 adoption note said "the whole of both approved monitor proposals is
+in force"; it was false the day it was written. **S6 and S8 cannot fire on any
+production run** -- `HeadEngineer` has no parameter by which their gates could
+be supplied -- and S9's `check_wall_time` entry point has no caller outside
+the tests. The false sentence is retained with its correction beside it, the
+five-day-threshold defect's blast radius is corrected ("every caller" was the
+test suite), and the honest coverage table plus the wiring decision are at the
+end of this document. Nothing about any rule's correctness changes.
+
 Version 1.4, dated 2026-08-08. **Adds exactly one rule, S10d magnitude
 explosion, as a fourth branch of S10, and widens the archive-replay rail's
 corpus to forces-object histories. Withdraws nothing.** The amendment exists
@@ -154,7 +164,39 @@ because an adoption note is a record of what was decided on a date and editing
 it would erase the fact that the rule was once in force.
 
 Adoption note, 2026-07-30: S8 is now implemented too, so the whole of both
-approved monitor proposals is in force. Three things changed with it, each on
+approved monitor proposals is in force.
+
+> **CORRECTION, 2026-08-10 -- THE SENTENCE ABOVE IS FALSE, and it is retained
+> so the correction has something to point at.** "In force" was read off the
+> implementations. **S6 (residual stall) and S8 (Courant excursion) cannot
+> fire on any production run**, and could not on the day it was written. Both
+> return early unless `LogMonitor` was constructed with `residual_target` /
+> `courant_limit` respectively -- and `HeadEngineer.__init__` takes
+> `case_name, out_root, *, novel, on_event`, so **no parameter exists by which
+> either gate could be supplied.** It builds
+> `LogMonitor(novel=novel, on_anomaly=...)` at `head_engineer.py:830`. Three
+> construction sites exist repo-wide: that one, the offline replay at
+> `sdk/scripts/replay_monitor_rules.py:134` (which does pass
+> `residual_target`), and the test suite.
+>
+> **Unreachable on: every HeadEngineer path** -- the geometry studies, the
+> Ahmed act, the NASA hump act, the UQ studies. **Reachable on: offline replay
+> and the tests, only.**
+>
+> **S9 (wall-time excursion) is live, but through a different door.** Its rule
+> runs on the mega-batch ledger via `wall_time_record_field`
+> (`mega_batch.py:810`) and is correct there. The `LogMonitor.check_wall_time`
+> entry point is called by nothing but tests, so S9 too covers no HeadEngineer
+> run.
+>
+> **Where this hid, and it is the transferable part.** Every per-rule Status
+> line in this document is scrupulously honest -- they say a rule fires *"when
+> constructed with residual_target"*, and each is true. The summary sentence
+> is false and is built from nothing but true ones: a summary drops the
+> conditionals, because that is what summaries do, and the honest clause
+> upstream makes the summary feel audited. **When a capability is claimed IN
+> FORCE, find its production CALL SITE** -- not its definition, not its test,
+> not the conditional prose that is true about the definition. Three things changed with it, each on
 measured evidence and each recorded in the relevant section below: S8 carries a
 tolerance because a strict comparison would have called every healthy transient
 run in the lab an excursion; S6 and S7 are scoped to steady solves because they
@@ -351,7 +393,16 @@ it and refers to it:
   constant but not on `LogMonitor.check_wall_time`, which kept its own literal
   default of 20.0. For five days every caller that took the monitor default
   judged on a threshold nobody approved, and the gap between the two rows the
-  ledger holds in that band was invisible to it. The entry point now takes its
+  ledger holds in that band was invisible to it.
+  BLAST RADIUS CORRECTED, 2026-08-10: **"every caller" was the test
+  suite.** `LogMonitor.check_wall_time` is called by nothing else --
+  not by `HeadEngineer`, not by the ledger path, which reaches S9
+  through `wall_time_record_field` and read the governed constant
+  correctly throughout. No production run was ever judged on the
+  unapproved 20x default. The defect in the code was real and the fix
+  was right; the exposure stated above was not. A record that
+  overstates its blast radius spends the same credibility as one that
+  understates it. The entry point now takes its
   default from the constant, and a test pins the two together so they cannot
   drift apart again.
 - **The named field.** `run_task` in `sdk/workflows/mega_batch.py` stamps
@@ -897,3 +948,70 @@ was audited, not waved away, and the objectives are bit-identical.
   `sdk/tests/test_log_signatures.py` (including an integration test against
   a fixture slice of real ledger rows,
   `sdk/tests/fixtures/ledger_slice.jsonl`).
+
+---
+
+## Coverage in fact, and the wiring decision (2026-08-10)
+
+Added by the Infrastructure/Standards family after the audit found the
+adoption note above claiming coverage nothing supplies. **This table is the
+honest statement of what fires where.** It is about REACHABILITY, not about
+whether a rule is correct: every rule below is implemented and tested.
+
+| rule | HeadEngineer (geometry studies, Ahmed, hump, UQ) | mega-batch ledger | offline replay | tests |
+|---|---|---|---|---|
+| S1-S5, S7, S10-S12 (ungated) | fires | — | fires | fires |
+| **S6** residual stall | **UNREACHABLE** (needs `residual_target`) | — | fires | fires |
+| **S8** Courant excursion | **UNREACHABLE** (needs `courant_limit`) | — | — | fires |
+| **S9** wall-time excursion | **UNREACHABLE** via `check_wall_time` | fires, via `wall_time_record_field` | — | fires |
+
+`HeadEngineer.__init__` accepts `case_name, out_root, *, novel, on_event` and
+builds `LogMonitor(novel=novel, on_anomaly=...)`: there is no parameter by
+which S6's or S8's gate could be supplied. `LogMonitor.check_wall_time` has no
+caller outside the tests.
+
+### The decision: NOT wired, and this is a gap with a stated price -- not a limit
+
+The lab approved these rules and never received them on its production paths,
+so "leave it" would be enacting a refusal the owner never made. But wiring
+them now would be an ADOPTION, and section 3.1 of this document requires a
+rule to be replayed against the archive before it binds, with its fire count
+stated. **That evidence does not exist for either rule**, and for S6 the thing
+that looks like it is an artifact:
+
+- **S6.** `demo-output/website/monitor/replay_s1_s6.json` (2026-08-01) reports
+  37 fires over 46 gated logs -- 80%, above the two-thirds rate that got S7
+  WITHDRAWN. Read one level down, **all 46 recovered targets are the same
+  value, `p: 1e-15`**, from a single case family whose `fvSolution` uses that
+  as a run-to-the-cap sentinel. No solve reaches 1e-15, so every one of those
+  logs was judged against an unreachable target. The 37 is not S6's fire rate;
+  it is one case family measured against a sentinel. **S6 has never been
+  replayed on a representative corpus**, and the artifact that appears to
+  discharge section 3.1 does not.
+- **S8.** No replay exists at all. The archive holds 21 transient logs with
+  residual series, which is the corpus a Courant replay would run over.
+- **S9.** Live and correct on the ledger. `check_wall_time` is a SECOND entry
+  point to the same rule with no production caller -- a one-implementation
+  defect to resolve when someone wires it, not a coverage gap.
+
+**Recorded as a gap, never as a constraint** (L-48): nothing here says these
+rules cannot cover production. It says what each one needs first.
+
+| to wire | needs | price |
+|---|---|---|
+| S6 | a replay over a representative corpus with REAL per-case targets, recovering `residualControl` per case rather than from whichever `fvSolution` sits nearest; then a per-case default on `HeadEngineer` | ~1 pass, 0 core-min |
+| S8 | a Courant replay over the 21 transient logs; then `maxCo` from each case's `controlDict` as the per-case default | ~1 pass, 0 core-min |
+| S9 | route `check_wall_time` to the governed path or delete it | folded into either of the above |
+
+Both derivations point the same way and it is the day's standing discipline:
+**the gate comes from the case's own dictionaries -- what configures the run
+-- not from a caller who remembers to pass it.** A constructor argument would
+reproduce the defect this correction is about, one layer up, because whoever
+forgets it gets silence.
+
+**Reach of this assessment** (L-43): the reachability claims are from reading
+the three `LogMonitor` construction sites and every `check_wall_time` caller
+in the repository. The S6 numbers are READ from the existing replay artifact;
+this pass did not re-run the replay, and re-running it is part of the price
+quoted above.
+
