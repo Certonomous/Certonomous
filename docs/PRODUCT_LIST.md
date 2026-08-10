@@ -1724,6 +1724,33 @@ clock-audit rule asks for.]*
   gate DECLINED, the supplied baseline beats all four published entries (0.046108 vs 0.0569; 0.071863 vs 0.0760).
   That is a finding about the benchmark itself.
 
+### 2026-08-10 (night) — Pass 2: the entry's substance survived every attack, its paperwork did not
+
+- **LADDER V IS NOT GREEN, AND THE GATE HOLDS.** Pass 2 (92562841): V7 PASS (three defects, not the two we knew),
+  V6 **PASS on the rule / FAIL on currency**, V8 **FAIL — 8 failing claims**, V9 FAIL then fixed, V10 FAIL then
+  **PARTIALLY** fixed. No rule violation was found anywhere, and the QCR path is the cleanest thing in the entry —
+  **no truth file exists in any of the three test-duct run directories while both validation arms have them**, an
+  asymmetry that is the positive control proving the finding is a measurement rather than a blind spot.
+- **The worst claim failure would have been fatal to send:** the cover email announces **0.0654** over an attachment
+  scoring **0.056647**. A prior section had instructed the update; nobody executed it. The most serious was the
+  disclosure gap — the round-5 route was chosen while per-case test scores were known, our own rule freeze concedes
+  it in our own words, and that sentence lived in a file that does not travel. **Now written into the description at
+  full strength, mitigations placed AFTER the admission rather than doing its work.**
+- **Four external surfaces, including a hero KPI tile, claimed best-on-board 4 of 8 without mentioning that two of
+  the four are the organisers' own baseline file** — our own audit's "highest-priority disclosure", absent from every
+  one of them. Fixed, generator re-verified key by key.
+- **Three findings that were nobody's rung and would not have surfaced without an adversarial pass:** a tracked,
+  SHIPPING `dist/` archive carrying round-3/4 numbers with **zero caveats**, which no cross-surface list has ever
+  included; a live self-audit guard **pinned to round 3 and therefore failing the wall for being correct**; and
+  `closure.html` still shipping a prior-art sentence struck on 2026-08-05 that credited two papers with a mechanism
+  they never reported — **to a readership including two of the benchmark's own authors**. The report had it right;
+  the public page did not.
+- The sweep-count check is **retired**: it read 16 at the start of the sweep and 17 before it finished, because a
+  sibling pass filed its report mid-sweep. Replaced by three invariants — a count that changes while you count it is
+  not an invariant, which is L-53's concurrency problem in a different costume.
+- Left for Katie and nothing invented: author names, the reference URL, and two outstanding items — all marked as
+  hand-offs rather than filled in. **Nothing was sent. The scoring ledger is unchanged at 6.**
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
