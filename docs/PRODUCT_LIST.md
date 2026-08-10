@@ -683,6 +683,37 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   (431f0071), including the finding that the BATCH family was never swept by the dead-lever precedent (sweep
   ordered). Nine pre-existing inbox files found silently refused at intake — repair ordered.
 
+### 2026-08-10 (afternoon) — the dead lever claims a second victim, and this one was a remedy
+- **R5's "STRENGTHENING REINTRODUCES COLLAPSE" IS OVERTURNED** (triage pre-reg cfd6b5ff, results 3ac8257e, 22.7 of
+  35–45 approved core-min). With the transonic PC ACTIVE, ILU fill-1 (−35.9% / −34.7% iterations) and Richardson
+  smoothing (−43.2% / −44.9%) are the two largest cuts on the board and NEITHER collapses. Mechanism: strengthening a
+  preconditioner built around a term that should have been dropped made a bad approximation worse; drop the term and
+  ordinary numerical intuition returns. So the dead lever produced not only a false causal sentence about the WALL but
+  a false ANOMALY about REMEDIES, which the remedy ladder was then shaped around for weeks. A standing anomaly
+  RETIRED rather than a new one added. Routed to the defect report's owner and to R5's face as a dated retraction.
+- D3's 11 flagged variants RETIRED as superseded (8c9b06c7, 0 core-min): each null says only "this lever did not
+  rescue a run whose preconditioner was off" — true about a baseline no future run will use. The audit's
+  cold-rerun-before-citation rule is satisfied by never citing them; the reasoning is written at both sites so
+  retirement cannot read as avoidance.
+- RUNG 3 PRE-REGISTERED AND APPROVED (3e585b07, ~170–190 core-min staged): the 79,560-cell member was quarantined for
+  lacking a certificate — as predicted — then certified clean (family signature identical across all three rungs, so
+  rung 3 differs in SIZE alone). Lever choice L3/Richardson endorsed over the wall-cheapest L1 on the right grounds:
+  at this rung MEMORY binds, and L3 is the only winner that buys its cut with none, while halving the cap
+  requirement (4000 → 2500). Stage 0 (transfer test at rung 2) is mandatory and its failure branch — "lever benefit
+  is mesh-dependent" — is pre-declared a real finding, not a fallback. The ladder-level question is pre-stated: two
+  points define the exponent and cannot test it; rung 3 is the first chance to see whether cells^1.50 / cells^1.70
+  holds or breaks, which is what any extrapolation toward production meshes rests on.
+- AUDIT INSTRUMENTS AUDITED (L-42, L-43, d021ffb9): a rerun into an existing case dir destroys the prior run's lever
+  evidence (record/log mismatch found, verdict survived by luck of agreement); and the batch sweep's first pass named
+  the family's headline conclusion as its top dead lever purely because gzipped logs and gitignore hid the corpus —
+  withdrawn with evidence, corrected to 133 verified / 0 dead. Standing consequence: every archive-wide audit states
+  its reach, and any negative headline carries a positive control. The FIRST dead-lever audit's 16 unverifiable + 4
+  found-dead rows are being re-tested with a reach-proven instrument on exactly that rule.
+- NINE SILENTLY-REFUSED INBOX FILES REPAIRED (6daecbe3, intake 93 → 99 accepted) — including the calibration
+  scorecard's own confidence-line proposal. Three files whose hardness floor nobody had answered got it by CHIEF
+  RULING (existing-family, reasoning recorded) rather than by default; the agent was right to refuse to answer on a
+  filer's behalf. Batch-family dead-lever sweep: 133 VERIFIED / 67 unverifiable / **0 found-dead** (0dd9e4f2).
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
