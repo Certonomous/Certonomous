@@ -655,3 +655,72 @@ Three Pass-1 practices are kept as precedent for future rungs:
 **Pass 1 is closed.** Nothing further from this pass unless Pass 2's landing raises
 something on rungs A1–A5 — and under L-53 clause 1, Pass 2's landing is exactly the event
 that would require the read-only rungs here to be re-run against what it writes.
+
+---
+
+## PRE-REGISTERED RE-RUN — L-53 clause 1, first operational application
+
+*Written 2026-08-10 while Pass 2 is still open and its diff does not yet exist, so the
+scope of the re-run cannot be tuned to what Pass 2 turns out to have written. Additive
+only; nothing above this line is changed. Recorded on the artifact rather than left in
+messages so the loop survives a fleet termination.*
+
+**Status: ACCEPTED by the chief; ARMED, NOT RUN. Trigger = the chief's signal that Pass 2
+has committed.** Pass 1 is otherwise idle and takes no other work.
+
+### Scope, fixed in advance
+
+**RE-RUN — exactly two legs:**
+
+| leg | what it re-checks |
+|---|---|
+| **A3 leg (c)** | §4.1's line citations in `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` against `apply_closure_ph_gate.py` at the then-current HEAD |
+| **A5 leg 3** | the Spalart-citation sweep across `demo-output/website/` |
+
+**DO NOT RE-RUN — A1, A2, A4.** They rest on artifacts Pass 2 cannot touch without
+breaking the chain A2 itself proves: the 8 submission CSVs (byte-frozen since `e865076b`),
+`R5_RULE_FREEZE.md` (single-commit), the two pinned external checkouts, the run tree, and
+the QCR source and its `.so`. The point of L-53 clause 1 is to close the window a writing
+rung opens, **not** to repeat work that nothing touched. If Pass 2's commit is found to
+have touched any of those paths, that is a separate and much larger finding, and the full
+pass re-runs.
+
+### Method, fixed in advance so it cannot be tuned
+
+1. `git diff --stat <pass-2-commit>^ <pass-2-commit>` first — enumerate exactly what moved
+   before looking at any of it.
+2. **A3:** re-locate §4.1 by heading (not by line number), re-derive the anchors in
+   `apply_closure_ph_gate.py` at HEAD by pattern (`_load_ground_truth_U`, `for case in
+   gate._PH_TRAIN`, `for case in ph._PH_TEST`, `# no U_LES read`, `for c in
+   ph._PH_TRAIN`), and check the three citations against what the code actually says. Also
+   re-check the two gate scripts' commit hashes for movement (`5719374e` / `fe121af2` as of
+   this pass).
+3. **A5 leg 3:** re-run the identical sweep — same file set (`.md`/`.html`/`.json`/`.tex`
+   under `demo-output/website/`), same patterns (`\bQCR\b|kOmegaSSTQCR|QCR2000|SA-QCR`
+   against `Spalart`) — and report the same three counts, so the numbers are comparable
+   rather than merely recomputed.
+4. **L-53 clause 2 applied throughout:** `git log -S` every sentence found changed or
+   newly uncited, to attribute provenance before assuming it. The author may again be our
+   own machinery.
+5. Every negative finding carries a positive control, as in this pass.
+
+### Baseline to compare against (this pass's measured numbers)
+
+920 files swept · **55** name QCR · **27** also cite Spalart · **28** do not · **5** of
+those 28 carry the load-bearing untrained claim.
+
+### Pre-registered prediction, so the re-run can be scored rather than narrated
+
+I expect the three §4.1 citations corrected to **128 / 228 / 178–180**, and the
+`benchmarks.html` and `CLOSURE_CHALLENGE_STATUS.md` citation gaps closed. I expect the
+other three gaps **NOT** closed, for reasons that are correct rather than negligent:
+`MANIFEST.json` and `closure_challenge_round5_qcr_forward.json` are frozen artifacts that
+A2's chain rests on, and `QCR_ACTIVITY_CHECK_2026-08-08.md` is another agent's signed
+report. **So I predict the 28 falls to roughly 26, not to 0 — and a drop to 0 would itself
+be a finding**, because it would mean a frozen artifact was revised rather than
+addended.
+
+**Failure conditions, stated before the evidence exists:** any §4.1 citation still stale,
+or corrected to a wrong line; any *new* uncited load-bearing claim introduced by Pass 2's
+own edits (the exact L-53 failure mode, and the reason this re-run exists); or any change
+to the A1/A2/A4 artifact set.
