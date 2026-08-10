@@ -57,7 +57,9 @@ created and the benchmark steward has not been contacted. The entry described he
 (overall \textbf{0.056647}, round 5) is an internally measured position against the public
 leaderboard, \textbf{scored locally} through the benchmark's own unmodified scorer at
 benchmark commit \code{deb91557}; it is not an official ranking, and where this document
-says \emph{rank 1} it means rank 1 on that local scoring. The submission package exists,
+says \emph{rank 1} it means rank 1 on that local scoring --- a point estimate whose
+probability is \textbf{P(rank 1) = 68\%}, with the lead over the rank-2 entry
+\textbf{not statistically decided} (Table~\ref{tab:prank}). The submission package exists,
 is audited, and is one email away. It is \textbf{held at the owner's discretion} --- not
 withdrawn, not abandoned, not sent; the decision rests with Katie Kim.
 \end{minipage}}
@@ -72,7 +74,11 @@ scorer, which is the best overall number on the board as published at benchmark 
 \code{deb91557} --- \textbf{rank 1 of 5, scored locally}, 0.002878 below Reissmann, Fang \&
 Sandberg's published 0.059525, and 45.3\% below the 0.1036 scored by submitting the
 supplied RANS fields unchanged. That rank is our own local scoring of an unsubmitted entry
-and is stated with that caveat everywhere it appears in this report. The entry is now
+and is stated with that caveat everywhere it appears in this report, and now with its
+posterior beside it: \textbf{P(rank 1) = 68\%} over a 400{,}000-draw case-level bootstrap, the
+lead over the rank-2 entry \textbf{not statistically decided} (paired \(t=-0.495\), \(n=8\))
+and the lead over rank 3 likewise (\(t=-0.953\)); the two remaining comparisons are decided on
+method (Table~\ref{tab:prank}). The entry is now
 \emph{two} method classes rather than one, and round 5 is the reason: five of the eight
 predictions remain post-hoc velocity-field corrections, two of them withheld by a
 train-only \emph{decline gate} that submits the untouched baseline where it predicts
@@ -193,7 +199,9 @@ correctly (\artifact{CLOSURE\_CHALLENGE\_SUBMISSION\_DRAFT.md} \S7.5).
 \small
 \caption{The public leaderboard, with our entry of record at its internally measured
 position. We are unsubmitted; this is a local scoring, not an official ranking. Published
-ranks are the board's own; ours is where our number falls in it.}
+ranks are the board's own; ours is where our number falls in it. The position is worth
+\textbf{P(rank 1) = 68\%}, and the two rows immediately below ours are
+\textbf{not statistically decided} against it (Table~\ref{tab:prank}).}
 \label{tab:board}
 \begin{tabular}{clc}
 \toprule
@@ -222,6 +230,50 @@ from ours, the steward's number is the number. Every appearance of ``rank 1'' be
 carries this sentence by reference (\artifact{CLOSURE\_CHALLENGE\_STATUS.md} \S0f;
 \artifact{closure\_challenge\_round5\_qcr.json}).
 
+\paragraph{And a probability, because a rank is a point estimate.} \emph{Added 2026-08-10,
+under ladder~V's V8 clause: no rank claim ships without its probability and its
+not-decided pairs.} Resampling the eight cases --- 400{,}000 case-level bootstrap draws over
+the per-case scores already on disk, no new scoring call --- puts
+\textbf{P(rank 1) = 68\%} (67.6\%). The rest of the distribution is not a rounding error:
+rank~2 at 18.6\% and rank~3 at 12.8\%.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{The rank claim with its posterior attached (\artifact{campaign/PROBABILITY\_OF\_RANK\_2026-08-10.md},
+400{,}000 case-level bootstrap resamples; \textbf{internal figure} --- see the caution below).
+\(t\) is the paired per-case difference statistic, \(n=8\).}
+\label{tab:prank}
+\begin{tabular}{@{}lccl@{}}
+\toprule
+comparison & P(we lead) & paired \(t\) & status \\
+\midrule
+Reissmann, Fang \& Sandberg (margin 0.002878) & 69.4\% & \(-0.495\) & \textbf{not statistically decided} \\
+Wu \& Zhang (margin 0.005765) & 84.7\% & \(-0.953\) & \textbf{not statistically decided} \\
+Liu, Wang, Zhao \& Xiao (margin 0.017040) & 98.7\% & --- & decided on method \\
+Montoya, Oulghelou \& Cinnella (margin 0.021216) & 99.8\% & --- & decided on method \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Read in the order of increasing honesty. The Monte Carlo interval (67.5--67.8\%) measures only
+that the resampling ran long enough. Leave-one-case-out across eight refits gives 38--91\%, and
+a double bootstrap gives 26--94\% at the 68\% level and 2--100\% at 95\%. \textbf{Eight cases
+cannot resolve a probability of rank better than ``somewhere between a coin flip and near
+certain'',} and that sentence is the most useful line in the underlying analysis rather than a
+defect of it. A second source of doubt sits outside the method entirely: the seed-spread bound
+on the three seed-dependent cases is 0.0024 against a rank-1 margin of 0.002878, and loading it
+adversely moves P(rank 1) from 68\% to \textbf{52\%} (favourably, to 80.5\%). The internal
+sentence this supports is: \emph{we are probably ahead, we cannot show that we are, and the two
+largest sources of doubt --- which eight cases, which seed --- are both outside our method.}
+
+Against Reissmann specifically: we win four of the eight cases and lose four, and the
+per-case dispersion is five times the margin. A 69.4\% probability of leading is what ``we
+might well be ahead'' looks like written down, and it is \textbf{not} a claim that our method
+is better than theirs. Two per-case comparisons must never be quoted as wins or losses at all:
+\code{AR\_1\_Ret\_360} (ours 0.045470 against a published 0.0455 --- a gap of 0.00003, below
+the precision the board publishes to) and \code{AR\_3\_Ret\_360} (0.039982 against 0.0399).
+Both are ties at the board's own precision.
+
 Two further cautions attach to that table and are repeated wherever it appears.
 
 \begin{itemize}
@@ -231,6 +283,12 @@ Two further cautions attach to that table and are repeated wherever it appears.
   RANS-identity baseline anywhere. It reproduces exactly and is honestly derived, but any
   wording implying the floor is the benchmark's own published figure is false
   (\artifact{CLOSURE\_CHALLENGE\_SUBMISSION\_DRAFT.md} \S7.2).
+\item \textbf{The rank is a point estimate, and the probability travels with it.}
+\textbf{P(rank 1) = 68\%}; the leads over Reissmann and over Wu \& Zhang are
+\textbf{not statistically decided} (Table~\ref{tab:prank}). \emph{That figure is an
+internal one} --- it exists for this laboratory to reason with, is not to be quoted outside it,
+attached to any package, or cited in any submission-facing document, and it does not travel to
+any public surface derived from this report.
 \item \textbf{Position claims go stale.} The challenge is ongoing with no deadline; the
   board has been unchanged since 2026-05-04 but can change without notice. Every position
   claim in this document is dated 7 August 2026. A rank-1 claim goes stale faster than a
@@ -586,7 +644,9 @@ predictions are produced by a term with no fitted parameter anywhere in it.
   same five non-duct predictions carried through byte-identical for a second round. The
   delta is again wholly the duct family, and it is the round in which the laboratory
   stopped trying to predict a flow structure and started solving for it
-  (\S\ref{sec:round5}).
+  (\S\ref{sec:round5}). It is also the round that put the entry at the top of the local
+  board --- at 68\% probability, with the lead over the rank-2 entry
+  \textbf{not statistically decided} (Table~\ref{tab:prank}).
 \end{description}
 
 Round 4's diagnosis was pre-registered and its sign pattern was predicted before it was
@@ -635,6 +695,9 @@ Case & Round 4 & \textbf{Round 5} & $\Delta$ \\
 
 The five unchanged cases scored identically to round 4, as their byte-identity requires ---
 which is also the cheapest available check that the harness was driven the same way twice.
+That 0.056647 is the number every rank claim in this report rests on, and its posterior is
+Table~\ref{tab:prank}: \textbf{P(rank 1) = 68\%}, with the two nearest comparisons
+\textbf{not statistically decided}.
 
 Three things about that table are worth stating in the order the record forces them.
 
@@ -650,7 +713,9 @@ Three things about that table are worth stating in the order the record forces t
   is the one that gave ground.
 \item \textbf{The pre-stated expectation band was wrong in our favour, and that is recorded
   rather than enjoyed.} The pre-registration's band was 0.059--0.0666 --- rank 1 at its
-  best end, a regression at its worst. The result landed at 0.056647, \emph{below the good
+  best end, a regression at its worst; scored after the fact, the rank the good end promised
+  is worth 68\% and its margin is \textbf{not statistically decided}
+  (Table~\ref{tab:prank}). The result landed at 0.056647, \emph{below the good
   end of our own band}. What was nearly exact was the campaign's plain arithmetic: matching
   the rank-2 entry's published duct scores was computed in advance to give $\approx$
   0.056288, against a measured 0.056647. The band was mis-centred pessimistic; the
@@ -699,7 +764,10 @@ point of writing it down first.}
 \footnotesize
 \caption{Per-case scaled MAE across rounds, against the RANS-identity floor, the published
 rank-1 entry, and the best published score on each case. Lower is better. Round-5 values
-are the entry of record; round 2 is omitted for width and appears in \S3.1.}
+are the entry of record; round 2 is omitted for width and appears in \S3.1. The overall
+row's rank carries \textbf{P(rank 1) = 68\%} and a lead over the published rank-1 entry that
+is \textbf{not statistically decided} (Table~\ref{tab:prank}); the two \code{Ret\_360} rows
+are ties at the board's published precision and are not wins.}
 \label{tab:percase}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lccccccl}
@@ -715,7 +783,7 @@ Case & Floor & R3 & R4 & \textbf{R5} & Reissmann & Best pub. & Attribution \\
 \code{AR\_14\_Ret\_180}      & 0.0590 & 0.0303 & 0.0325 & \textbf{0.0353} & 0.0325 & 0.0325 & 3rd of 5; the 0.00003 lead was priced and lost \\
 \code{NASA\_2DWMH}           & 0.0621 & 0.0632 & 0.0632 & \textbf{0.0632} & 0.0412 & 0.0364 & behind, last on board \\
 \midrule
-\textbf{Overall} & \textbf{0.1036} & \textbf{0.0676} & \textbf{0.0654} & \textbf{0.056647} & \textbf{0.0595} & --- & rank 1 of 5, scored locally \\
+\textbf{Overall} & \textbf{0.1036} & \textbf{0.0676} & \textbf{0.0654} & \textbf{0.056647} & \textbf{0.0595} & --- & rank 1 of 5, scored locally; P 68\% \\
 \bottomrule
 \end{tabular}}
 \end{table}
