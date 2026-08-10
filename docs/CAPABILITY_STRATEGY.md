@@ -119,3 +119,31 @@ Proven-by list — each expertise counts only when it closes a live problem:
 - Every §2/§3 "PROOF:" clause is docket-shaped: filed through the normal proposal machinery with
   its proxy as the hard criterion. §1 dashboard + calibration scorecard start as slow-burn per
   rule 3.
+
+### Filing complete (2026-08-10, commit 0d070079) — 19 proposals, all `status: proposed`
+
+All 15 §2/§3 proven-by items plus the 4 remaining §1 machinery items are filed and validated end
+to end. Mechanical note: `hard_criterion` is a CLOSED set at intake, so each PROOF clause is
+carried verbatim in the proposal's `gate` field (operationalised into a gradeable pass/fail) while
+`hard_criterion` carries the hardness answer. That is the right workaround and needs no schema
+change; opening the closed list would be Katie's call, and nothing depends on it.
+
+### Three dated corrections to this document, found while filing it
+
+The strategy was written from the record as it stood on 2026-08-08 morning; three of its premises
+moved that same day, and the corrections belong beside them rather than in a quiet edit:
+
+1. **§2's numerics-clinic agenda item "F5c 4-12x reattachment" is RETRACTED by our own record**
+   (2026-08-08, commits fe121af2 / 6d806733 / a10ebc31): the 4–12× reading was a wall-shear
+   sign-convention defect in the detector; the honest miss is −10.5% with wander. The clinic's
+   first real case is re-pointed accordingly (the filed proposal names the A6 temperature-residual
+   trace instead).
+2. **§2's "NACA0012 aspect ratio" open anomaly CLOSED the night the strategy was adopted**
+   (41f0e1df): generator-owned, proven by exact cell-count twins (pyHyp ×1.71 worse under
+   refinement vs the C-grid's ×0.945 better). What remains of that item is the MESH_STANDARD
+   generator-selection RULE, which is what its proposal now asks for.
+3. **§1's cross-family propagation names four families (DAFoam / closure / batch / marine) that
+   disagree with the supervision charter's four** (DAFoam-adjoint / Closure+UQ / Cases-campaigns /
+   Infrastructure). Ruling: the charter's list governs supervision; the strategy's list names
+   WORK AREAS to sweep, which is a superset — and the finding that matters is that **the batch
+   family was never swept by the dead-lever precedent**. That sweep is ordered (2026-08-10).
