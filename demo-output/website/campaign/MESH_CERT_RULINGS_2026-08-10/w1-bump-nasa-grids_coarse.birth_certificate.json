@@ -1,0 +1,12 @@
+{
+ "points_sha256": "049e17c29155a8ee14855cd275e0296f145b493d93f11ee454b284b79e7bc1f1",
+ "verdict": "flagged",
+ "cells": 3520,
+ "max_aspect_ratio": 4844.490207,
+ "max_non_orthogonality": 63.95852861,
+ "max_skewness": 0.1750789295,
+ "hard_errors": [],
+ "generator": "NASA TMR bump grid (plot3dToFoam), certified 2026-08-10 from a FRESH checkMesh re-run. The 2026-08-08 audit row was refused by the minting pass because the mesh states no nCells in its polyMesh/owner header, so the log-vs-mesh cross-check could not run; re-running checkMesh performs that cross-check a different way, by counting the mesh directly.",
+ "created_at": "2026-08-10T19:20:35+00:00",
+ "provenance": "at-creation"
+}
