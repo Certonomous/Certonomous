@@ -1,8 +1,17 @@
 # Certonomous Verification Charter
 
-Version 1.5, dated 2026-08-08. Defines what counts as done. It binds every
+Version 1.6, dated 2026-08-11. Defines what counts as done. It binds every
 solve, every gradient check, every ladder rung and every number that reaches a
 record, a certificate or a camera surface.
+
+Version 1.6 adds two clauses on Katie's dispatch of 2026-08-11, both earned the
+night before: **absence of error evidence is not evidence of a clean result**
+(section 9), after a parser returned `clean` on a log where the tool had
+fatally errored; and **a rule can over-reach as easily as under-reach**
+(section 17a), after this charter's own newest rule demanded, for eleven
+ladders, a quantity that cannot exist for them. Sections 17's recipe-class and
+deterministic-generator clauses landed the same night and are unchanged here.
+Nothing in 1.5 was weakened.
 
 Version 1.5 adds the lever-activity clause to section 9 (L-40, Katie's order of
 2026-08-08): a load-bearing solver option must be proven ACTIVE in the runtime
@@ -846,6 +855,19 @@ reads them as being in tension has read the demo charter's scope clause wrong.
   REVIEW; if the archived log cannot prove activity either way, the lever is
   reported **unverifiable-from-logs** and the conclusion carries that caveat on
   its face.
+- **`ran_before_found` (v1.6, D2): absence of error evidence is not evidence of
+  a clean result.** Every parser and gate answers **did the check run** before
+  **what did it find**, and carries a THIRD verdict for *unknown* that is not
+  collapsed into the bad one. Checked-and-found-bad and we-do-not-know are
+  different facts: conflating them impugns work whose only fault is a missing
+  log, which is the opposite error and just as wrong. The rule exists because a
+  mesh-quality parser returned `clean` on a log where the tool had fatally
+  errored — it matched error PATTERNS, and a crashed log contains none — and
+  the guard believed to be covering that case did not, because the tool prints
+  its cell count BEFORE the checks it dies in. A gate that reads silence as
+  success can manufacture a pass, which outranks every gate that merely misses
+  one (L-45).
+
 - **Mesh birth certificate (v1.5): every mesh entering an archive, a
   pre-registration or a ladder rung carries its checkMesh record at creation.**
   Born clean or it does not enter; a mesh whose birth certificate is missing is
@@ -1235,6 +1257,33 @@ FAILs, NO-GOs and refuted predictions is enumerable, and each is matched
 against a review artifact or it is a violation. That matching is a review
 discipline today, stated honestly; the artifact-per-instance convention
 exists so a checker can be written against it.
+
+## 17a. A rule can over-reach as easily as under-reach
+
+**And only over-reach looks like rigour while it is happening.** A rule that
+demands evidence which cannot exist does not make the record stronger; it makes
+it wrong in a new direction, while wearing the costume of care. Section 17 was
+adopted on a Monday evening and by that night its own first application had
+found that **eleven of the ladders it annotated use deterministic generators,
+where the quantity it demands is identically zero** — so the annotation was
+false on every one of them.
+
+Therefore, before any rule in this charter is applied to a record:
+
+1. **Ask whether the demanded quantity can exist for that case at all.** If it
+   cannot, the rule is satisfied by SAYING so, and demanding a number is the
+   failure.
+2. **Ask which quantity the record actually means.** The same word names
+   different measurables — the case that triggered this had measured its
+   *temporal* scatter carefully, per rung, and was annotated for lacking a
+   *mesh-draw* scatter it could never have had.
+3. **State the scope of the rule's applicability in the rule itself**, so the
+   next reader does not have to re-derive it by spending.
+
+Under-reach leaves a gap, which invites a fix. Over-reach writes a false
+constraint, which forbids one (L-48) — and a rule applied where it cannot hold
+manufactures verdicts, which is the failure mode every other section here
+exists to prevent.
 
 ## 17. A ladder increment is not published as a FEATURE without draw-scatter evidence
 

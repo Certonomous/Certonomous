@@ -371,3 +371,25 @@ three are review disciplines.
 - `docs/charters/ESCALATION_CHARTER.md`. How much may be spent without asking.
 - `docs/charters/REPORTING_CHARTER.md`. The spend header.
 - `LESSONS.md` L-2, L-6, L-15, L-19, D12.
+
+## A per-cell rate borrowed across solver families is a factor wearing a basis's clothes
+
+**Added 2026-08-11 (D5), from a repricing caught before it was quoted.** The
+standing finding of this lab's calibration work is that *the predictor is the
+basis, not a factor*: estimates priced from a prior measurement of the same
+body have never over-run by more than 1.84x, while forecast-based estimates
+have reached 13.55x. This clause closes the loophole in that rule.
+
+A measured basis is only a basis **within its own solver family and regime**.
+Two ladders were priced from the nearest measured bases available — both
+steady, incompressible `simpleFoam` on snappyHexMesh bodies — and applied to a
+case running **transient, explicit `rhoCentralFoam` to a fixed end time**. The
+per-cell rate does not cross that gap: the honest price, read from that case's
+own record, was **8.9x** the borrowed one.
+
+The rule: **a repricing crosses solver families only from that case's own
+record.** Where no such record exists, the item is reported UNPRICED rather
+than given a number — an unpriced item invites the measurement that would price
+it, and a wrong price is spent before anyone checks it. Naming several
+candidates unpriced, rather than extending one rate across all of them, is the
+correct and expected outcome.
