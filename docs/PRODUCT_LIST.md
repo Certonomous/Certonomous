@@ -658,6 +658,31 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   both wrong predictions graded with measured reasons; W1-only filed with its priors-design trigger; Stage 2's hold
   carries a named unblock.
 
+### 2026-08-10 — the A3 ladder has two verified rungs, and the eighth kill changed nothing
+- EIGHTH FLEET KILL (credit exhaustion, 2026-08-08 late → 2026-08-10 14:48). Zero loss again; keepalive re-armed.
+- **A3 RUNG 2 (42,120 cells): CONVERGED + FD PASS** (4e982b4a / a4c448db). CD 987 iterations reason 2, CL 1171
+  reason 2; FD stronger than rung 1 — all THREE components evaluable and step-consistent (0.0077% / 0.2740% /
+  0.0172% against an 8.09e-07 noise floor), with the runtime picking the max-gradient component itself so rung 1's
+  mis-parse hazard is closed mechanically. The archived mesh carried NO birth certificate and was QUARANTINED by
+  MESH_STANDARD v1.1 until certified — the first `birth_certificate.json` sidecar minted in the lab, reproducing the
+  08-08 sweep's row exactly. Attempt 1's `-3` (KSP_DIVERGED_ITS at exactly the default cap) was REFUSED as a wall
+  claim and then proven a budget knob: attempt 2 reproduces attempt 1's iteration-1000 residual to TEN significant
+  digits and then converges.
+- COLLISION AND ITS LESSON (L-41, 6d852180): the chief dispatched a second agent onto rung 2 believing the incumbent
+  dead — fleet agents are invisible to `pgrep` because they run inside the SDK server. Zero duplicate compute (the
+  newcomer stood down pre-launch), and the collision produced free adversarial verification: an independent
+  digit-for-digit checkMesh replication, an outside reading of the L-40/cold-start proofs, and a pre-answer
+  prediction of CL convergence near ~1250 iterations — GRADED A HIT (actual 1171, conservative by 6.7%), now in the
+  calibration cohort.
+- PRICING BASIS CORRECTED WITH ITS OWN OVERRUN REPORTED UNSOFTENED: rung 2 cost 99.5 core-min against ~47 estimated
+  (2.1× over) because iterations scale SUPERLINEARLY in cells (exponents 1.50 CD / 1.70 CL; per-iteration cost
+  ~linear). Rung 3 (79,560 cells) is therefore priced at ~113 core-min and REQUIRES `gmresMaxIters` ≥ 4000 or it
+  dies on the cap — the calibration finding ("the predictor is the basis, not a factor") applied to itself.
+- STRATEGY FILED AS DOCKET WORK (0d070079): 19 proposals — all 15 §2/§3 proven-by items with their PROOF clauses as
+  gradeable gates, plus the 4 remaining §1 machinery items; three stale premises in the strategy corrected in place
+  (431f0071), including the finding that the BATCH family was never swept by the dead-lever precedent (sweep
+  ordered). Nine pre-existing inbox files found silently refused at intake — repair ordered.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
