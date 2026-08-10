@@ -197,3 +197,45 @@ refusals belonging to another family, or any mesh not on this box. **No corpus
 `BORN BROKEN: N` is restated here** — the frame is 95 certificates plus 7 rows,
 and a corpus figure from that frame would be the error this family has now
 corrected in its own work twice today.
+
+---
+
+# FOLLOW-UP, 2026-08-10 — does anything depend on the four broken meshes? (0 core-min)
+
+The natural consequence of ruling 3a/3b: four meshes are now proven to fail the
+standard, and they were marked `CERTIFIED` for two days. **What rests on them?**
+
+**Frame:** a repository-wide reference search for `og-fine`, `og-medium`,
+`ogrid-coarse`, `tmr-bump-finer` across `.md`, `.py`, `.json`, `.sh`, excluding
+the records created by this ruling itself.
+
+**Answer: no scientific conclusion rests on any of the four.** Two references
+exist and both survive, for reasons stated rather than assumed:
+
+1. **`tmr-bump-finer`** is one of **36** force histories in the **S12 monitor
+   replay** (`monitor/replay_s12.json`), rule *"unsettled stop"*, where it is a
+   flagged row (`rel_drift −0.118`, `ran-to-end`). **The replay tests whether a
+   MONITOR RULE fires correctly on force histories; mesh quality is not what it
+   measures.** A history from a poor mesh is still a valid test of a drift
+   detector. Unaffected — and worth noting the failure here is the aspect-ratio
+   threshold, not a geometric error, so the solve itself was not running on
+   negative volumes.
+
+2. **`rae2822-meshcheck/og-*`** appear once, in
+   `W3_NACA4412_LAYERED_REPLICATES.md:163`, as a **control**: *"externally
+   supplied grids, no `log.snappyHexMesh`, so no dictionary applies, which is the
+   control that confirms the reading."* The control's logic is about the
+   **absence of a generating dictionary**, which the negative-volume defect does
+   not touch.
+
+> **One flag, raised not resolved:** that record calls these meshes *"the control
+> that confirms the reading"* without noting that three of them carry
+> negative-volume cells and wrong-oriented face pyramids. The control is not
+> invalidated — but a control built on broken meshes is a weaker control than it
+> reads as, and the sentence gives no reader a way to know. **Flagged for that
+> record's owner; not amended here.**
+
+**What this closes:** the four quarantined meshes can stay quarantined with no
+downstream correction required. **What it does not establish:** anything about
+meshes outside these four, or about references in artifacts not matched by the
+search above.
