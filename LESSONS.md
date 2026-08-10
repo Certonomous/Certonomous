@@ -1951,3 +1951,35 @@ on when it was written. Pre-registrations, rule freezes, dated reports, gate
 records and audit reports all answer yes. They take addenda, never revisions.
 (The same instinct, applied to run trees, is L-42; applied to records that a
 later commit refutes, L-39's supersede-don't-delete.)
+
+## L-45. A verification instrument may fail open; it may never fail false — the two failure directions are not comparable
+
+The lever-echo gap (L-40's enforcement machinery) turned out to be survivable
+for a structural reason, not a lucky one: `levers_verified_active()` builds its
+entire list from what it can parse out of the log, so a launch the echo could
+not see yields an EMPTY list and a basis string that says `unverifiable` in as
+many words. The defect suppressed verifications; it could not invent one. All
+13 standing claims across 12 records re-verified exactly, file set and sha256,
+against the runs they describe — with a planted-mismatch positive control
+proving the checker is a detector rather than a rubber stamp.
+
+The same sweep then found a path where that is NOT true. `launch_solve.sh`
+mints its echo block from a caller-supplied `--case` path, while the command
+itself runs under `setsid nohup "$@"` in the launcher's inherited working
+directory. Nothing binds the two. A mismatched `--case` therefore writes an
+echo of dictionaries that DID NOT RUN at the head of the log of a solve that
+did — a manufactured verification, indistinguishable downstream from a real
+one.
+
+The asymmetry is the lesson. A gate that fails open costs you evidence you
+could still go and collect; the record says "unverified" and everyone knows
+where they stand. A gate that fails false costs you the ability to tell
+verified from unverified anywhere it may have fired — and the cleanup is not
+one record but the whole corpus the gate ever touched, exactly the position the
+manufactured FOUND-DEAD verdict put us in (L-43's second corollary).
+
+Design rule: derive the evidence from the thing that actually executed —
+the resolved binary, the working directory the process is in, the file the
+solver opened — never from a parameter the caller supplied describing what it
+intends. When a false-positive channel is discovered, it outranks every
+false-negative on the same fix queue, even a larger one.
