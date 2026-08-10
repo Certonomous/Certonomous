@@ -1,0 +1,98 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      blockMeshDict;
+}
+
+
+
+scale   1;
+
+vertices
+(
+    (-4 1 0)   // 0
+    (-4 9 0)   // 1
+    (0 0 0)   // 2
+    (0 0.5 0)   // 3
+    (0 1 0)   // 4
+    (0 9 0)   // 5
+    (10 0 0)   // 6
+    (10 0.5 0)   // 7
+    (10 1 0)   // 8
+    (10 9 0)   // 9
+    (30 0 0)   // 10
+    (30 0.5 0)   // 11
+    (30 1 0)   // 12
+    (30 9 0)   // 13
+    (-4 1 1)   // 14
+    (-4 9 1)   // 15
+    (0 0 1)   // 16
+    (0 0.5 1)   // 17
+    (0 1 1)   // 18
+    (0 9 1)   // 19
+    (10 0 1)   // 20
+    (10 0.5 1)   // 21
+    (10 1 1)   // 22
+    (10 9 1)   // 23
+    (30 0 1)   // 24
+    (30 0.5 1)   // 25
+    (30 1 1)   // 26
+    (30 9 1)   // 27
+);
+
+blocks
+(
+    hex (0 4 5 1 14 18 19 15) (16 50 1) simpleGrading (0.01649983 3017.7895 1)  // A upstream
+    hex (2 6 7 3 16 20 21 17) (50 30 1) simpleGrading (116.59444 211.57823 1)  // B1lo near, y in [0,H/2], fine at wall
+    hex (3 7 8 4 17 21 22 18) (50 30 1) simpleGrading (116.59444 0.0047263842 1)  // B1hi near, y in [H/2,H], fine at shear layer
+    hex (4 8 9 5 18 22 23 19) (50 50 1) simpleGrading (116.59444 3017.7895 1)  // B2 near, y in [H,9H]
+    hex (6 10 11 7 20 24 25 21) (25 30 1) simpleGrading (1 211.57823 1)  // C1lo far, y in [0,H/2]
+    hex (7 11 12 8 21 25 26 22) (25 30 1) simpleGrading (1 0.0047263842 1)  // C1hi far, y in [H/2,H]
+    hex (8 12 13 9 22 26 27 23) (25 50 1) simpleGrading (1 3017.7895 1)  // C2 far, y in [H,9H]
+);
+
+boundary
+(
+
+    inlet
+    { type patch; faces ((0 1 15 14)); }
+    outlet
+    { type patch; faces ((10 11 25 24) (11 12 26 25) (12 13 27 26)); }
+    topWall
+    { type wall; faces ((1 5 19 15) (5 9 23 19) (9 13 27 23)); }
+    bottomWallUpstream
+    { type wall; faces ((0 4 18 14)); }
+    stepFace
+    { type wall; faces ((2 3 17 16) (3 4 18 17)); }
+    bottomWallDownstream
+    { type wall; faces ((2 6 20 16) (6 10 24 20)); }
+    frontAndBack
+    {
+        type empty;
+        faces
+        (
+            (0 4 5 1)
+            (2 6 7 3)
+            (3 7 8 4)
+            (4 8 9 5)
+            (6 10 11 7)
+            (7 11 12 8)
+            (8 12 13 9)
+            (14 18 19 15)
+            (16 20 21 17)
+            (17 21 22 18)
+            (18 22 23 19)
+            (20 24 25 21)
+            (21 25 26 22)
+            (22 26 27 23)
+        );
+    }
+
+);
+
+mergePatchPairs
+(
+);

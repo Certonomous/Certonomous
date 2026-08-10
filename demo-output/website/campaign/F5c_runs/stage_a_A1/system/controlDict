@@ -1,0 +1,83 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+
+
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         2000;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   2000;
+purgeWrite      1;
+writeFormat     ascii;
+writePrecision  10;
+timeFormat      general;
+timePrecision   6;
+
+functions
+{
+    wallShearStress1
+    {
+        type            wallShearStress;
+        libs            (fieldFunctionObjects);
+        patches         (bottomWallDownstream);
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    none;
+    }
+    wallSample
+    {
+        type            surfaces;
+        libs            (sampling);
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+        surfaceFormat   raw;
+        fields          (wallShearStress p);
+        interpolate     false;
+        surfaces
+        (
+            bottomWallDownstream
+            { type patch; patches (bottomWallDownstream); }
+        );
+    }
+    nearWallLine
+    {
+        type            sets;
+        libs            (sampling);
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+        setFormat       raw;
+        interpolationScheme cellPoint;
+        fields          (U);
+        sets
+        (
+            nearWall
+            {
+                type    uniform;
+                axis    x;
+                start   (0.002 0.002 0.5);
+                end     (29.998 0.002 0.5);
+                nPoints 1500;
+            }
+        );
+    }
+    yPlus1
+    {
+        type            yPlus;
+        libs            (fieldFunctionObjects);
+        executeControl  onEnd;
+        writeControl    onEnd;
+    }
+}

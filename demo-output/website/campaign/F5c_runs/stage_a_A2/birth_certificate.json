@@ -1,0 +1,11 @@
+{
+ "points_sha256": "e6eb7f9bcd346d6159781570b34cb136d38e79f82939a0f7bb0272174ed632ee",
+ "verdict": "flagged",
+ "cells": 9050,
+ "max_aspect_ratio": 2424.26741,
+ "max_non_orthogonality": 0.0,
+ "max_skewness": 1.387778806e-13,
+ "hard_errors": [],
+ "generator": "blockMesh, F5c backward-facing step, level coarse",
+ "created_at": "2026-08-10T16:26:38+00:00"
+}
