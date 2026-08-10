@@ -1073,6 +1073,24 @@ Reissmann's published 0.059525). Local scoring, not an official placement;
 if the steward's own scoring differs from ours, the steward's number is the
 number (§5's rule, unchanged).
 
+**And the lead is not statistically decided.** Our 0.002878 margin over
+Reissmann sits against a per-case spread five times larger, so on a different set
+of eight cases the ordering could reverse; the same is true of the margin over Wu
+and Zhang. The margins over Liu and Montoya do survive that test. The standing is
+two cases wide — on the eight-case mean, `alpha_15_13929_2024` alone supplies more
+than the whole margin, and `NASA_2DWMH` alone costs more than it. `AR_1_Ret_360`
+and `AR_3_Ret_360` are ties below the precision the board publishes to, and are
+not per-case wins.
+
+> **Wording note, deliberate (chief ruling 2026-08-10).** This paragraph is the
+> EXTERNAL wording and carries no probability figure, even though this document
+> lives internally. It is a draft of an outward artifact, and the quantified
+> posterior behind these sentences is internal by its own gate — so the number is
+> kept out of the draft *now*, rather than left for someone to remember to strip
+> on the day it is sent. The quantified version lives in
+> `campaign/PROBABILITY_OF_RANK_2026-08-10.md` and does not travel with this
+> package.
+
 What changed in the package's payload:
 
 - **The 8 CSVs to send are now

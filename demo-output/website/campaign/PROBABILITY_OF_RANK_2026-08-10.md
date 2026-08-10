@@ -15,6 +15,33 @@
 >    scoring-call ledger stands at **6** and is unchanged. Every number below is
 >    arithmetic over per-case scores that were already on disk.
 
+### The propagation rule — STANDING, confirmed by the chief 2026-08-10
+
+Inherit this rather than re-deciding it. When a ruling orders this figure
+propagated to surfaces, some of which are public:
+
+- **Internal surfaces carry the figure** — `P(rank 1) = 68%`, the 2–100% band,
+  the leave-one-out numbers.
+- **Public surfaces — anything shipping in `dist/` — carry the qualitative
+  clause only**, never the figure: the margin sits against a per-case spread five
+  times larger, the standing is two cases wide, `AR_1` and `AR_3` are ties below
+  published precision.
+- **Both wordings contain the literal string `not statistically decided`**, which
+  is the sweep token V10 greps for, so the mechanical sweep is unaffected by the
+  split.
+- **The principle, stated generally because it will recur:** *an order to
+  propagate is never an order to violate the thing being propagated.* This
+  document is internal by its own gate; publishing its figure in the act of
+  obeying a propagation order would break that gate. Where the two conflict,
+  carry the qualitative half and raise the conflict — do not execute blind and do
+  not silently drop the surface.
+- **A rank claim that omits P(rank 1) and the not-decided pairs fails Ladder V
+  rung V8** (protocol strengthened 2026-08-10).
+- **Do not add the sweep token to a surface where "rank 1" means Reissmann, a
+  docket rank, or a cited paper's table.** Fourteen such false positives exist in
+  the tree; tokening them would corrupt the very sweep the token exists to serve.
+  §7 carries the audited surface list.
+
 Item: `agenda/proposals/probability-of-rank-a-posterior-over-our-score-against-the-board.json`
 (status `approved`, decision note "chief approval 2026-08-10"). Strategy §3, last
 bullet. Zero solver core-min, zero scoring calls.
@@ -221,6 +248,79 @@ probability about a leaderboard.
 evidence that a send is pending and is not to be cited in anything submission-facing.
 
 ---
+
+## 7. The audited surface list — what V10 checks against
+
+Propagation completed 2026-08-10 under chief rulings 1, 3 and 4. **Fifteen files
+carry the sweep token**, and a single grep for `not statistically decided` across
+the repository returns exactly these fifteen and nothing else. Thirteen are
+propagation targets; the remaining two are `docs/PRODUCT_LIST.md` (chief-owned,
+done at `a57d8d3b`) and this document itself.
+
+**The token is lower-case `not statistically decided` in every file.** One surface
+initially carried "are NOT statistically decided" and was silently invisible to the
+sweep until normalised — worth knowing, because a case variant is exactly how this
+check would quietly under-report.
+
+| # | surface | wording | why |
+|---|---|---|---|
+| 1 | `CLOSURE_CHALLENGE_STATUS.md` §0f | internal | the standings record |
+| 2 | `ACTIVE_RESEARCH.md` | internal | the research board |
+| 3 | `closure.html` (banner + §5) | **external** | ships in `dist/` |
+| 4 | `benchmarks.html` | **external** | ships in `dist/` |
+| 5 | `benchmarks.json` | **external** | ships in `dist/` |
+| 6 | `wall/wall.json` | **external** | ships in `dist/` |
+| 7 | `sdk/scripts/build_benchmarks.py` | **external** | generator of 5 and 6; edited in the same commit per its own comment |
+| 8 | `campaign/LADDER_V_TRIPLE_VERIFICATION.md` | internal | the V8 criterion itself |
+| 9 | `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §10 | **external** | a draft of an outward artifact — no figure, so nobody must remember to strip one on the day it is sent |
+| 10 | `agenda/CHALLENGE_LANDSCAPE.md` | internal | asserts the entry of record |
+| 11 | `campaign/CHALLENGE_SLATE_2026-08.md` | internal | asserts round-5 rank 1 |
+| 12 | `CLOSURE_FAMILY_SUPERVISION_GUIDELINES.md` §4 | internal | **the rule document** — the companion is written in as clause (c) |
+| 13 | `closure_challenge_round5_qcr.json` | internal | the machine record; appended as a sibling key, the dated block and all CSV hashes untouched |
+| 14 | `docs/PRODUCT_LIST.md` | internal | **chief-owned**, done at `a57d8d3b`; not edited here |
+| 15 | `campaign/PROBABILITY_OF_RANK_2026-08-10.md` | internal | this document — the source of the figure |
+
+**Grep count V10 checks against: 15.**
+
+### Deliberately NOT tokened — 14 false positives
+
+A naive grep for "rank 1" returns 14 further files where the phrase does **not**
+mean our standing. Tokening them would corrupt the sweep V10 depends on:
+
+- **"rank 1" means Reissmann:** `CLOSURE_EVALUATION_PROTOCOL.md` (their cited
+  papers), `CLOSURE_METHODS_COMPARISON.md`, `CLOSURE_RANK1_CAMPAIGN.md` (a
+  round-4-era plan in which *we were behind*), `campaign/W3_QCR_DUCT_FALSIFIER.md`
+  ("our deficit to rank 1"), `dafoam/ladder-b/B1_reproduction_plans.md`,
+  `campaign/R5_PREREGISTRATION.md`, `campaign/R5_RULE_FREEZE.md`.
+- **"rank 1" means a docket or slate rank:** `agenda/BLOCKERS.md`,
+  `campaign/R4_PREREGISTRATION.md`, `campaign/reports/MORNING_REPORT_2026-08-04.md`,
+  `campaign/reports/MORNING_REPORT_2026-08-07.md`,
+  `campaign/F8_MRF_HAND2001_GATE.md`,
+  `agenda/proposals/f8-mrf-forces-against-hand-2001.json`.
+- **"rank 1" means a cited paper's table or a gradient rank:**
+  `campaign/W2_SPARTA_REGRESSION.md` (Table 2),
+  `campaign/W2_SPARTA_REGRESSION_PREREGISTRATION.md` (M(3) on CBFS),
+  `dafoam/VERIFICATION_cbfs_unblock_supervisor_sweep.md` (rank 10 of |g|).
+
+### Deliberately NOT edited — frozen and self-referential records
+
+- **Frozen, anti-hindsight:** `campaign/R5_PREREGISTRATION.md` and
+  `campaign/R5_RULE_FREEZE.md` are the artifacts Ladder V rung V2 **passed** on —
+  the criterion at `0bade54a` predating every solve is the whole proof. Editing
+  either after the fact would falsify the chain that makes the entry defensible.
+  Same for `campaign/R4_PREREGISTRATION.md` and
+  `campaign/W2_SPARTA_REGRESSION_PREREGISTRATION.md`.
+- **Dated snapshots that record what a surface said on their date:** the two
+  morning reports, `campaign/LADDER_V_RUNGS_V2_V7_V10_2026-08-08.md` (a rung's own
+  evidence of the surfaces as they stood), and
+  `CLOSURE_FAMILY_SUPERVISION_REVIEW_2026-08-07.md`.
+- **Self-referential:** `agenda/docket.json` and
+  `agenda/proposals/w3-qcr-forward-on-the-ducts-is-the-rank-1-route.json` record
+  historically what the round-5 call produced; and
+  `agenda/proposals/probability-of-rank-a-posterior-over-our-score-against-the-board.json`
+  is the item that produced this document.
+- **Routed elsewhere:** `latex/closure_challenge_report.tex` asserts rank 1 at ten
+  sites and belongs to its Opus owner; the chief has routed it.
 
 ## 6. Provenance
 

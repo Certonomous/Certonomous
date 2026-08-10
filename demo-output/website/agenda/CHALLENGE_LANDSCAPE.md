@@ -105,6 +105,19 @@ eight** cases. **Both are superseded and neither may be used.**
 > The §1 row's "scores 0.0654" and the bullets below stand as this sweep's
 > dated 2026-08-02 record; per this section's own rule, the superseded
 > numbers may not be used.
+>
+> **Rank-1 companion (MANDATORY, 2026-08-10 — chief ruling).** **P(rank 1) =
+> 68%**, and an eight-case sample cannot pin it tighter than 2–100% at 95%.
+> **The leads over Reissmann and Wu & Zhang are not statistically decided**
+> (paired per-case differences t = −0.50 and t = −0.95, against a per-case
+> dispersion five times the 0.002878 margin); the leads over Liu and Montoya
+> are (98.7%, 99.8%). **The standing is two cases wide** — delete
+> `alpha_15_13929_2024` and the point ranking falls to rank 2 (P(rank 1) 38%);
+> delete `NASA_2DWMH` and P(rank 1) rises to 91%. **`AR_1_Ret_360` and
+> `AR_3_Ret_360` are ties below published precision** (0.00003 and 0.00008) and
+> are not per-case wins or losses. Source:
+> `campaign/PROBABILITY_OF_RANK_2026-08-10.md` — INTERNAL ONLY; the 68% figure
+> never appears in an external claim.
 
 * The entry of record is **0.0654**, not 0.0676, since round 4's duct change
   (`closure_challenge_trained_entry_round4_duct.json`). 0.0676 is the round-3

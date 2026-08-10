@@ -96,7 +96,19 @@ Katie's GUI conventions, applied family-wide:
   truth-free bound (0.0024 overall-equivalent) is comparable to the 0.0029
   rank-1 margin, and the rank-1 reading carries that uncertainty.
   `closure.html`'s stability note is the reference wording; review F1 is
-  what omission looks like.
+  what omission looks like. **(c) Added 2026-08-10, chief ruling — MANDATORY:
+  P(rank 1) and the not-decided pairs.** **P(rank 1) = 68%**; an eight-case
+  sample cannot pin it tighter than 2–100% at 95%; **the leads over Reissmann
+  and Wu & Zhang are not statistically decided** (paired per-case differences
+  t = −0.50 and t = −0.95, against a per-case dispersion five times the
+  0.002878 margin), while the leads over Liu and Montoya are (98.7%, 99.8%);
+  **the standing is two cases wide** — delete `alpha_15_13929_2024` and the
+  point ranking falls to rank 2; **`AR_1_Ret_360` and `AR_3_Ret_360` are ties
+  below published precision** (0.00003 and 0.00008) and are not per-case wins.
+  A rank claim omitting this fails Ladder V rung V8. **The figure is INTERNAL:
+  internal surfaces carry it, public surfaces in `dist/` carry the qualitative
+  clause only, and both carry the sweep token `not statistically decided`.**
+  Source: `campaign/PROBABILITY_OF_RANK_2026-08-10.md`.
 - The AR_14 loss, the 4-of-8 best-on-board count, and the "two of four
   best rows are the organisers' baseline" attribution travel together —
   none is quoted without the others where standing is summarized.
