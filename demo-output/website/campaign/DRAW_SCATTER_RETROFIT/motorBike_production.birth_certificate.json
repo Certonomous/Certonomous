@@ -1,0 +1,11 @@
+{
+ "points_sha256": "d42f155e4024c907750034f27238973af2283ec5567c9e61595906fd6cfad3b8",
+ "verdict": "clean",
+ "cells": 353688,
+ "max_aspect_ratio": 41.0967,
+ "max_non_orthogonality": 64.9814,
+ "max_skewness": 3.99457,
+ "hard_errors": [],
+ "generator": "motorBike production rung, certified 2026-08-10 at the retrofit gate",
+ "created_at": "2026-08-10T18:38:00+00:00"
+}
