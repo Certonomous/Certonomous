@@ -1191,6 +1191,38 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   outside the priced scope. Each needs its own measured solve cost — flagged for separate pricing rather than
   guessed at.
 
+### 2026-08-10 (closing 6) — the unreachable class is tested at last, and fails: twelve eliminations
+
+- **STAGE 2: BOTH ARMS FAIL — the eleventh and twelfth eliminations** (0fcc98a0 / e1755100). Run on the patched image
+  with the control's own script so `PETSC_OPTIONS` was the only difference, and **both reported the control's exact
+  iteration-0 residual**, establishing commensurability by measurement rather than assumption. `lgmres`: `-3` at 400,
+  residual 5.10× worse than control and 3.88× above its own start (the anomaly of a RISING residual flagged rather
+  than binned — the arm cannot separate genuine divergence from an augmented-recurrence reporting artifact, and does
+  not need to, since under either reading it neither converged nor descended). `gamg`: `-5` at 200, exploding 180
+  orders after barely moving; memory never a factor at 7.0 GiB.
+- **Bounded exactly as ordered — this is not vindication and the scope is narrower than "the class fails."** Two
+  off-the-shelf members at documented defaults on a convection-dominated nonsymmetric adjoint; AMG's defaults target
+  elliptic/SPD-like operators, so arm 2 says *off-the-shelf AMG fails here*, not that a coarse space cannot work. A
+  physics-appropriate coarse space remains untested and is not cheap. The shipped-toolchain ceiling stood on its own
+  and nothing on a patched image revises it.
+- **What the arms proved beyond their verdicts: the escape hatch works on BOTH axes** — the readback showed
+  `type: lgmres` with the explicit restart holding, and `type: gamg` with `levels=4` multiplicative V-cycles, i.e.
+  the patch unlocks an entire PRECONDITIONER FAMILY and not merely the Krylov type. **That is the defect report's
+  cost made concrete: a user reaching for either gets silence on the shipped build, and these two arms are what they
+  would have been unable to try.**
+- **Third independent instance of a methodological caveat:** the condition estimate read 2.70e+05, 9.57e+10 and
+  7.71e+17 across arms whose behaviour ranged only from *stalling* to *worse* — six orders of spread over no
+  behavioural difference, on top of fill-1's 10⁷ improvement buying 1.9×. **Three arms now say the same thing: this
+  estimate is not the instrument for this question.**
+- Two disclosures the agent volunteered rather than passed over: the shared runner hardcodes a 16 GiB container cap
+  while the pre-registration stated 22 GiB — never approached (7.0 GiB peak) so it had no effect, but **running
+  something other than what was pre-registered is recorded**, and it is L-40 in the memory dimension (routed to
+  Infra). And stage 2 came in at 124.4 core-min against ~52 (2.4×), arm 2 alone 4.1× over, with a nameable cause —
+  both arms priced off an ILU per-iteration basis when AMG's hierarchy setup bears no relation to it — and a
+  correction for any future AMG arm: **price the setup phase separately and cap on wall, not iterations, when
+  per-iteration cost is unknown.** The agent stopped arm 2 at its graded solve rather than spending ~30 further
+  core-min on this family's known false-success path.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
