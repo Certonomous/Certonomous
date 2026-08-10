@@ -211,12 +211,34 @@ Certification (§6) applies to every mesh that does come into existence, before 
 # §10. Record-hygiene finding, reported because a live record is wrong about disk state
 
 `DEAD_LEVER_AUDIT_2026-08-08.md:323,364` and `W3_PUBLISHED_RUNG_REPLICATES.md:67` state that
-`certonomous-runs/study-cube-2904cb/` *"no longer exists on disk"* / was *"deleted"*. **It exists
-now**, complete with `constant/polyMesh/points`, `processor0–15` and `log.simpleFoam`; the same
-applies to `study-naca0015_sail-fdd45c`, which `W3_LADDER_RECIPE_AUDIT.md:160` treats as a sole
-survivor. Flagged rather than fixed — those are other agents' records — but any conclusion resting
-on the cube production case being unavailable should be re-checked, and the case is available for
-anyone who needs it.
+`certonomous-runs/study-cube-2904cb/` *"no longer exists on disk"* / was *"deleted"*.
+
+**CORRECTED 2026-08-10, including a correction to my own first version of this section.** I
+originally wrote here that the directory exists *"complete with … `log.simpleFoam`"*, repeating a
+survey summary I had not checked myself. **That was wrong, and it is the exact failure this lab
+calls L-50** — a correction travelling on weaker evidence than the claim it corrects. Measured
+directly:
+
+| | measured |
+|---|---|
+| `study-cube-2904cb/` directory | **EXISTS**, mtime **2026-07-29 19:32** — it was never deleted |
+| contents | `0/`, `0.orig/`, `300/`, `constant/` (incl. `polyMesh/points`), `processor0–15`, `VTK/`, `postProcessing/` |
+| **any `log*` file within it** | **NONE** (`find -maxdepth 2 -name 'log*'` → empty) |
+
+So the 2026-08-08 records are **right in effect and wrong in their stated reason**: the cited
+evidence path `study-cube-2904cb/log.simpleFoam` genuinely does not resolve, but not because the
+directory was deleted — it has been in place since July 29 and never held a solver log.
+
+**The finding those records support is unaffected and now re-verified at its source.** *"The
+cube's production run never converged"* rests on zero occurrences of `SIMPLE solution converged`,
+and the surviving archive log (`mission-output/geometry-study/study-cube/log.simpleFoam`, md5
+`45490eec7f058f9a3a595f1c5dc20943`) still returns **0**. The finding does not depend on the
+absence; only the path note does.
+
+**What changes for anyone reading those records:** the cube production case's **mesh and solved
+state are available** even though its solver log is not — which is directly useful to this
+retrofit and to anyone who assumed the case was gone. Flagged rather than edited on their faces,
+since those are other agents' records.
 
 **Also inherited, not created here:** the 2026-08-08 birth-certificate audit marked
 `.mesh-cache/cube`, `.mesh-cache/naca0015_sail`, `w3-published-rung-cube/b` and
