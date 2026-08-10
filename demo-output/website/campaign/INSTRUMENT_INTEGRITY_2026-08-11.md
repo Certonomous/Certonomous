@@ -457,6 +457,41 @@ launch"* on this basis. **Not changed here** — P6 in 2.6 names the 146-record 
 corpus replay as the prerequisite, and C4 forbids touching the pattern before that
 replay is run.
 
+**FP-9. The auto-stop declares the box IDLE from an absence, and its list of what
+counts as work is measurably incomplete. Re-verified firsthand — ESCALATED, NOT
+FIXED.**
+
+`sdk/scripts/is_idle.sh:70-73` is `if [ ${#found[@]} -eq 0 ]; then echo "IDLE"; exit 0`.
+`found` is built only from `pgrep -x` hits over a **hand-written** executable list,
+and **`pgrep`'s exit status is never read**. Nothing asks whether the check ran; an
+empty result is a decision to power the machine off.
+
+Measured against what this lab demonstrably runs (frame: `log.<exe>` files under
+`demo-output/`):
+
+| utility | archived logs | in `is_idle.sh`'s list |
+|---|---|---|
+| `checkMesh` | **182** | **no** |
+| `potentialFoam` | **49** | **no** |
+| `surfaceFeatureExtract` | **24** | **no** |
+| `setFields` | **21** | **no** |
+| `sample` | **20** | **no** |
+| `topoSet` | **2** | **no** |
+| `simpleFoam` *(positive control)* | 237 | **yes** |
+
+A box meshing a 182-log-class case, or running the `potentialFoam` initialization that
+several campaign recipes require, **reads as idle.** This is not hypothetical: the
+2026-07-30 10:40 mid-campaign power-off is the realized cost, already on the record.
+
+**Escalated, deliberately not fixed.** Infra family supervision guidelines §1.6 lists
+*"the auto-stop pattern found not matching a running work class, or any change to
+auto-stop/keepalive semantics"* as escalate-to-the-chief, **never settled inside the
+family**. The correct fix is also not "add six more names" — that is the same
+hand-written list one entry longer, and L-49 says a list drawn from the examples you
+have seen is blind to the members you have not. It needs a positive liveness signal
+(the job registry `launch_solve.sh` already maintains, or `pgrep`'s exit status read
+and a refusal to conclude IDLE when the probe itself failed).
+
 **Open but never fired, and measured rather than assumed:** `check_convergence.py`
 returns CONVERGED at lines 314 and 366 **before** `crash = _find_crash(text)` at line
 317 is consulted. Exposure measured at **zero** — all 11 archived CONVERGED records
@@ -642,6 +677,7 @@ a family boundary.**
 | 1 | **FP-1** — `replay_monitor_rules.py`'s corpus glob. Amend `replay_s1_s6.json` **in place with a dated note**, re-run over 1,618 logs, and **withdraw or amend `MONITOR_STANDARD.md:785`** | Infra (this family) — **but the standard's conclusions are the chief's to withdraw** | It is a measurement instrument under six adopted rules; L-45 puts it above every other item |
 | 2 | **D1** — monitor rules **S6/S8 unreachable in production**, unrecorded anywhere | Infra + chief | A rule that cannot fire is a rule the lab believes it has and does not |
 | 3 | **D4** — `MONITOR_STANDARD.md:64-67`'s false universal, sourced to a superseded mesh | Infra + chief | Two conclusions. **The rule survives; only its warrant is defective** — the fix is a citation, not a retraction |
+| 3b | **FP-9** — the **auto-stop** concludes IDLE from an absence, with `pgrep`'s exit never read and a hand-written work list missing `checkMesh` (182 logs), `potentialFoam` (49), `surfaceFeatureExtract` (24), `setFields` (21), `sample` (20) | **chief — §1.6 forbids settling this in the family** | It powers the machine off. The 2026-07-30 10:40 mid-campaign power-off is the realized cost. **The fix is not a longer list** (L-49); it needs a positive liveness signal |
 | 4 | **P5** — the arbitrary-code-execution scan opens when it fails | Infra (this family) | Highest consequence-per-line; one test |
 | 5 | **FP-4/5** — the CRM-wingbody `VALIDATED` tier is minted from a last-`Time` line, an unconditional "none seen" string, and a **warm replay** | DAFoam / Cases — **routed, not touched** | A published tier with no measurement behind it |
 | 6 | **L-47 relaxation** — three standing verdicts on one untested switch (F6b hills, R4 Ahmed ladder, 36 model-form records) | Cases + chief | **Costs one extra solve per arm. Priced, not spent — asking rather than spending** |
