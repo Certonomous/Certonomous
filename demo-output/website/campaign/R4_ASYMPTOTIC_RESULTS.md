@@ -94,6 +94,8 @@ Then the fourth rung **turns around.** Handed (c2, c3, c4), or all four,
 `not_conclusive_reason`: *"the three rungs do not move one way under
 refinement."*
 
+**[WITHDRAWN 2026-08-10 — chief ruling `8f5bf878`. The Ahmed 25° ladder's TURN is withdrawn as a FEATURE: four same-recipe draws at c3 give s = 2.77e-3, and **even with the most extreme draw removed s = 8.97e-4 — 1.01× the entire c3→c4 increment**, so the turn is unreadable from single draws in either direction. The published increment inverts (−8.91e-4) or halves (+4.44e-4) depending on which draw is excluded, so the withdrawal is robust to that choice. See `campaign/R4_AHMED_TURN_WITHDRAWAL_2026-08-10.md`. Original text retained.]**
+
 **That answers the item.** The proposal offered two explanations for the Ahmed
 body's non-asymptotic verdict: an insufficient refinement ratio, or genuinely
 non-monotone grid convergence. With the ratio made constant to 0.90%, the
@@ -138,6 +140,22 @@ two rungs came from a different mesh family.
 > large scatter from one anomalous draw**, which is exactly what the further draws
 > are for. The chief's ruling: n = 2 moves a caveat, not a headline. This is the
 > caveat.
+
+> #### 2026-08-10, chief ruling `8f5bf878` — THIS SENTENCE KEEPS ITS WORDING, AND NOW ARGUES THE OPPOSITE
+>
+> *"Not one unlucky mesh"* is **literally true and its defence has inverted.** It was
+> written to say: the turn is not the fault of a single unlucky mesh, therefore the
+> turn is real. Four draws at c3 (the turn's other end, untested when this was
+> written) say the premise holds and the conclusion does not.
+>
+> **The defence fails not because one mesh was unlucky, but because NO SINGLE DRAW
+> CARRIES THE INCREMENT.** The scatter at c3 is broad — `s = 2.77e-3` over four
+> draws, and **`s = 8.97e-4` even with the most extreme removed, which is 1.01× the
+> whole c3→c4 increment.** Showing that c4 and c4b agree does not establish a turn
+> when the rung the turn is measured *from* moves by more than the turn itself.
+>
+> A reader who meets the sentence must meet this: **it is right about unluckiness
+> and wrong about what follows from it.**
 
 * **Not one unlucky mesh.** This one was not pre-registered — it was run because
   the turn-up is the whole finding and a single mesh should not carry it. **c4b**

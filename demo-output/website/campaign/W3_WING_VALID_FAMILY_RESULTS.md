@@ -176,6 +176,9 @@ None of them shows the shrinking increments an asymptotic ladder requires:
 | --- | --- | --- |
 | B-52 (5 rungs, tonight) | −1.857e-3, +2.377e-3, +2.702e-3, −4.055e-3 | turns twice |
 | Ahmed 25° (4 rungs, R4) | −5.442e-3, −5.367e-3, +8.895e-4 | turns |
+
+**[AMENDED 2026-08-10 — chief ruling `8f5bf878`: the Ahmed row's "turns" is WITHDRAWN. Four same-recipe draws at c3 give s = 8.97e-4 even with the most extreme removed — 1.01× the +8.895e-4 increment in this row. With the B-52 row already withdrawn (`7abb0ba3`), **BOTH bodies this table called "turns" are now withdrawn.** See `campaign/R4_AHMED_TURN_WITHDRAWAL_2026-08-10.md`.]**
+
 | NACA 4412 (4 rungs, tonight) | −1.173e-3, −1.532e-3, +2.973e-3 | turns, **inside the mesh scatter** |
 | NACA 0012 (4 rungs, tonight) | −1.646e-3, −1.927e-3, −4.412e-5 | flattens, **inside the mesh scatter** |
 
@@ -192,6 +195,8 @@ resolution starts to disagree by more than the refinement step.
 441 057 cells and the Ahmed 25°'s at 454 691 sit in the same band, and neither
 has had a replicate-mesh control at its turning rung. R4 ran one at c4b and
 measured 9.7 × 10⁻⁵ against an 8.895 × 10⁻⁴ increment — 11%, which cleared the
+**[SCORED 2026-08-10: this paragraph's recommendation was taken. The B-52's replicate WAS run, and so was the Ahmed's missing end. Both turns are now withdrawn. The prediction was right and the record acted on it nine days later.]**
+
 Ahmed. The B-52's has never been run. **It should be, before the B-52's
 oscillation is treated as physics**, and it is the single cheapest experiment
 on this board: one mesh and one solve at 2 ranks, about 12 core-minutes on

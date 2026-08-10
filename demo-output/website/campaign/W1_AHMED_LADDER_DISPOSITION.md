@@ -40,6 +40,7 @@ Three findings, all measured:
   uniform refinement are the signature of `p ≈ 0`; the fit on (c1, c2, c3)
   returns **p = 0.175**, outside the credible window [0.5, 2.5], and its
   Richardson extrapolation is **−0.0845 — a negative drag coefficient**.
+- **[WITHDRAWN 2026-08-10 — chief ruling `8f5bf878`. The Ahmed 25° ladder's TURN is withdrawn as a FEATURE: four same-recipe draws at c3 give s = 2.77e-3, and **even with the most extreme draw removed s = 8.97e-4 — 1.01× the entire c3→c4 increment**, so the turn is unreadable from single draws in either direction. The published increment inverts (−8.91e-4) or halves (+4.44e-4) depending on which draw is excluded, so the withdrawal is robust to that choice. See `campaign/R4_AHMED_TURN_WITHDRAWAL_2026-08-10.md`. Original text retained.]**
 - **The fourth rung turns around.** On (c2, c3, c4), or on all four,
   `uq.eca_hoekstra_band` returns `monotone: False` and refuses an order at all,
   with `not_conclusive_reason` *"the three rungs do not move one way under
