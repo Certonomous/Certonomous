@@ -1421,6 +1421,34 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   so I am done with it."* The propagation sweep found the hole in its own L-42 fix; then the answer to "does the
   envelope work have a tail" turned out to be the same defect in the launcher it had just finished fixing.
 
+### 2026-08-10 (closing 13) — the mesh-certificate coverage the lab believes it has is ZERO
+
+- **ALL 105 ROWS MARKED "CERTIFIED (pre-existing record)" CARRY NO CERTIFICATE** (63533ee1). Every path resolves on
+  disk; **105 of 105 hold a `log.checkMesh` and 0 of 105 hold a `birth_certificate.json`.** Corroborated from the
+  other side: 33 certificate files exist anywhere in the tree, 29 written today, so only 4 predate today **and none
+  is among the 105**. The operational consequence is the point: `certificate_admits()` requires the FILE, a
+  `points_sha256` matching the mesh actually present, and an accepted verdict — a log satisfies none of them, so
+  **the standard's own checker quarantines all 105**, which is exactly what happened unprompted to both M6 members
+  and both retrofit ladders today. Honest restatement of the audit's headline: its 105 are **CHECKED BUT
+  UNCERTIFIED** — the evidence exists, the artifact does not, and downstream machinery believes the word.
+- **The meshes are not impugned and the audit's verdicts stand** — the defect is that "CERTIFIED" names an artifact
+  that was never written. The fix is mechanical and needs no solver: `write_certificate` already accepts a checkMesh
+  log and hash-binds the result, so a scripted pass can mint all 105 from logs the audit already located, with
+  per-mesh failures (unparseable log, points changed since, hash mismatch) reported rather than papered over. Priced
+  and offered rather than executed, since these are other families' cases; the audit's own proposal for it has been
+  sitting unexecuted. **Routed to Infra.**
+- **L-50 caught its own author within hours of being written.** Re-checking the "the evidence is gone" claim, the
+  agent found its OWN correction had travelled on weaker evidence than the claim it corrected — it had written that a
+  directory exists "complete with its solver log", repeating a survey summary it had not checked. Measured directly:
+  the directory exists and was never deleted, and it contains **no log file at all**. So the original records are
+  right in effect and wrong in their stated reason; the finding they support never rested on the absence and is now
+  re-verified at source. What changes for readers is useful: **that case's mesh and solved state are available even
+  though its log is not.**
+- The 29% null-rate figure is ready for the charter with everything needed to quote it: 4,000,000 trials, a stated
+  seed, the statistic written out, and the n=3-at-the-turn-rung versus n=1-at-the-neighbours asymmetry **modelled
+  rather than assumed away** — which is why the bar is 0.7183 σ rather than the 0.6308 σ it would be with three
+  draws everywhere.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
