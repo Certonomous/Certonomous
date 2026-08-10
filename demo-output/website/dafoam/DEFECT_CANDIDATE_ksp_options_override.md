@@ -122,3 +122,50 @@ Source read in-container, both images, quoted verbatim in
 prevented acting on is that document's §B/§D: κ ≈ 10^11 after preconditioning, insensitive to
 every parameter DAFoam does expose (fill level, ASM overlap, restart, Richardson iterations,
 reordering, sub-block LU), with the reachable-lever elimination table published alongside.
+
+---
+
+## 8. FIX (a) IMPLEMENTED AND REGRESSION-CONTROLLED, 2026-08-10 — this report now ships evidence, not a suggestion
+
+Fix (a) was applied to a local patched image (`dafoam-kspopts:v1`, built from
+`dafoam-subpclu:v1`; both prior images left intact and reachable) and both of its open questions
+were answered by measurement. Patch: `kspopts_patch/DALinearEqn_kspopts.patch` — **one call
+relocated, 28 diff lines**, `KSPSetFromOptions(ksp)` moved from the top of `createMLRKSP` to the
+end of it. Rebuild of all three AD targets: **29 s at `-j 8`**. Full record:
+`A3_KSPOPTS_PATCH_PREREGISTRATION.md` §6.
+
+**The maintainer's first question — "does honouring the option channel change behaviour by
+default?" — is answered NO, by measurement.** A converged reference case (ONERA M6, 21,840 cells,
+transonic adjoint) run on the patched image with no `PETSC_OPTIONS` set returns
+**CD 368 iterations / CL 383 iterations, `PetscConvergedReason: 2`** — bit-identical to the same
+case on the unpatched image, with the cold-start signature matching to all 16 digits. Iteration
+counts are the sharpest available equality test; they did not move at all. **The override is not
+load-bearing.**
+
+**And the channel is restored:** the same case with `PETSC_OPTIONS="-ksp_type fgmres -ksp_view"`
+reports `type: fgmres`, where the unpatched build reports `type: gmres`.
+
+### Two things the maintainer should know, both found in that test
+
+1. **Overriding `-ksp_type` resets GMRES-family settings DAFoam applied to the previous object.**
+   With fgmres selected, `-ksp_view` reports `restart=30` (PETSc's default) rather than the
+   `gmresRestart: 200` from `daOptions`, because `KSPSetType` rebuilds internal state after
+   `KSPGMRESSetRestart` ran. This is correct "user override wins" semantics, not a bug — but it
+   should be documented: **a user overriding the Krylov type must also pass
+   `-ksp_gmres_restart`** (in the test, restart 30 turned a 368-iteration convergence into a
+   1000-iteration `-3`, which is the small restart's doing and not the patch's).
+2. **The `printInfo` echo goes stale under an override, which keeps the diagnosability defect
+   half-open.** With `-ksp_type fgmres` in force the log still prints `Solver Type: gmres` and
+   `GMRES Restart: 200` from `daOptions` — the log naming a switch that did not run. **The
+   recommendation is therefore fix (a) PLUS an effective-value echo** (`KSPGetType` / `PCGetType`
+   queried after the options call, printed instead of the requested values). Fix (a) alone
+   restores the user's control; fix (a) plus the echo restores their ability to verify it, which
+   is the whole point of a diagnosability fix.
+
+**Revised recommendation:** ship **(a) + effective-value echo**. (a) is a one-call move, measured
+behaviour-neutral by default and measured to restore the channel; the echo is a few lines and
+closes the "which switch actually ran" gap that motivated this report.
+
+**Status unchanged: FILING-READY, NOT FILED.** Submissions stay parked. The patched image is
+local-only, nothing pushed, and the shipped-toolchain verdicts in this record stand unchanged
+beside it per R11.
