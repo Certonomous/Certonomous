@@ -70,6 +70,8 @@ Compute and report it; do not grade on it.
 > n = 3 an extremum has prior probability 2/3 under no selection at all, so it is
 > reported, never graded.
 
+**This finding is now written into Verification Charter §17 itself** (correction of 2026-08-10), so it binds whoever runs the next retrofit rather than living only in one arm's report.
+
 ## 3. PRE-FLIGHT FINDING B — a RECIPE AUDIT must precede the draws, and it is free
 
 **A ladder whose rungs use different mesh recipes is not measuring discretization

@@ -1305,6 +1305,37 @@ are **flagged, not guessed**. For scale: the whole curriculum retrofit costs les
 than checking the B-52 alone cost (40.9 core-min), and that one ended in a
 withdrawal.
 
+
+**CORRECTION, 2026-08-10, same day as adoption — the statistic named above cannot
+decide at the sample size this rule affords, and the correction belongs here
+rather than in a report.**
+
+The retrofit buys **n = 3** at the deciding rung (one published draw plus two
+new). Calibrated against the pure-scatter null by `scatter_bar.calibrate`:
+
+| n | bar (10th percentile) | null median |
+| --- | --- | --- |
+| **3** | **0.0754** | 0.365 |
+| 4 | 0.2722 | 0.594 |
+| 5 | 0.4142 | 0.686 |
+
+**At n = 3 the ratio `R = s(without the most extreme)/s(all)` has essentially no
+power** — declaring "outlier-dominated" would require the two surviving draws to
+be nearly identical. **A rule that specifies a statistic which cannot decide at
+the sample size it affords is a trap for whoever runs it next.**
+
+> **The deciding statistic is the INCREMENT-MOVEMENT test**, which is what
+> actually decided both the B-52 and the Ahmed 25°: replace the rung's single
+> published draw with the mean of its draws, recompute the increment, and grade
+> **SURVIVES** (within 25% and same sign) / **DISSOLVES** (below 50%, or the sign
+> flips) / **PARTIAL**. `R` is computed and reported; **at n = 3 it is not
+> graded on**, and the bar's calibrated value is reported so a reader can see
+> why.
+
+Where the published draw sits in its own distribution is reported and **never
+graded**: at n = 3 a draw is an extremum with prior probability 2/3 under no
+selection at all.
+
 **Calibration convention, binding on every retrofit verdict.** The bar separating
 "the scatter is structured" from "the scatter is broad" is **calibrated by
 simulation against the null before the draws exist**, never chosen after — so
