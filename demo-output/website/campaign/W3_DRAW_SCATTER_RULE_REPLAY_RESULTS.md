@@ -106,6 +106,78 @@ excluded as not-a-ladder-feature, so the count is dominated by that filter.
 The definition was fixed in the pre-registration before any counting, which is
 the only reason the number means anything.
 
+## 4b. RECONCILIATION — Route B landed, and Route A was WRONG
+
+**Route B disagrees with Route A materially, and the disagreement is Route A
+undercounting. The Route A counts in §1–§3 are SUPERSEDED by this section;
+they are retained above unedited because the pre-registration binds me to
+report disagreements rather than resolve them silently.**
+
+| | Route A | **reconciled** |
+| --- | --- | --- |
+| live records asserting a ladder feature | 16 | **32** |
+| withdrawn (today, none new) | 5 | **5** |
+| has evidence at the deciding rung | 4 | **8** |
+| already compliant | 1 | **2** |
+| **RESTATE** | **5** | **17** |
+| rule would act on | 10 | **22** |
+| **RESTATE share** | 50% | **77%** |
+
+**Nine bodies Route A missed entirely:** Ahmed 35°, motorBike, cube, TMR
+bump/flat-plate, lid-driven cavity, F7 dam-break, F4 hypersonic, F3 wedge,
+F6b ERCOFTAC. (Route B missed one Route A found: DPW8 Joukowski. Both routes
+were needed.)
+
+### Why Route A failed, and it is the day's own defect class
+
+Route A's pattern spells the concept as `non-?monoton` and
+`increments grow|shrink`. **Tested against nine genuine ladder-shape assertions
+that Route B found, it caught one.** It cannot see:
+
+| missed spelling | example |
+| --- | --- |
+| `NOT monotonic` (space, not hyphen) | *"Convergence with mesh refinement is explicitly NOT monotonic"* (F4) |
+| `monotonically` | *"Surface pressure converges cleanly and monotonically"* (F3) |
+| bare `monotone` as an argument | *"Cd 0.1061 → 0.0876 → 0.0815, **monotone**"* (Ahmed 35°) |
+| `increment smaller` | *"a finer rung makes the finest increment smaller"* (motorBike) |
+
+> **A pattern that keys on one spelling of a concept cannot see the concept.**
+> That is precisely the defect this lab closed twice today — `args[0]` instead of
+> "does this launch a solver", and splitting a shell string to decide what ran.
+> **I wrote a third instance of it into the audit that was checking for the
+> first two.**
+
+**And the failure was biased, which is worse than being noisy.** Route A's
+vocabulary came from the records I had spent the day inside — B-52 and Ahmed,
+where the phrasing is *"increments grow"* and *"non-monotone"*. It therefore
+found the ladders I already knew about and missed the ones I did not.
+**A search written from what you have been reading returns what you have been
+reading.** The recount rule in the family guidelines says a count must be
+derived by a *different route*; this is the sharpest demonstration yet of why
+"different" has to mean different in kind, not just run twice.
+
+### The predictions, re-scored on the reconciled counts
+
+- **P1 — a minority fire. STILL TRUE**, 32 of 151, ≈21%.
+- **P2 — ≥70% RESTATE. NOW TRUE at 77%** (17 restate, 5 withdraw). It scored
+  FALSE at 50% on Route A's undercount. **The prediction was right and my
+  measurement was wrong** — and the bias explains the direction exactly: Route A
+  missed unmeasured ladders (RESTATE) far more than it missed the two families
+  I had already withdrawn.
+- **P3 — no more than two further withdrawal candidates. STILL TRUE, at zero.**
+  None of the nine newly-found bodies is a withdrawal candidate; every one is a
+  restatement, because none has had its draw scatter measured either way.
+
+### A pricing consequence the proposal must carry
+
+**The retrofit price of 12.8–21.7 core-min covers only the five unchecked
+ladders in `models/curriculum/uq-studies/`.** Route B surfaced ladder features
+for bodies whose ladders live **only in campaign records** — F3, F4, F7, F6b,
+TMR bump, lid-driven cavity, DPW8. **Those are not in the stored-study price and
+the proposal's figure understates the full retrofit.** Flagged rather than
+re-priced here: pricing them needs each body's own measured solve cost, which is
+a separate piece of work.
+
 ## 5. What this says about the rule
 
 **The rule fires on 16 of 151 records, would act on 10, and has 5 restatements
