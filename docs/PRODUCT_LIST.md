@@ -846,6 +846,32 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   the migration priced: zero core-minutes, ~1 pass for the recommended half, and an explicit recommendation AGAINST
   the full consolidation for now because it touches the detached-solve protocol L-5/L-6/D12 exist to protect.
 
+### 2026-08-10 (late night) — the channel that could forge a verification is closed, and it was never exercised
+
+- **THE FALSE-POSITIVE CHANNEL IS CLOSED** (ad7f9eb1, suite 1222/0). The Infra family did not argue the risk, it
+  DEMONSTRATED it: running the pre-fix launcher from one case while declaring another produced five hash-bound,
+  parse-passing files certifying `div(phi,U) bounded Gauss upwind` while the solve that actually ran used
+  `linearUpwind grad(U)` — a manufactured verification, on demand. **Exposure checked rather than assumed: ZERO.**
+  All 149 registry logs carry no echo block at all and the newest registry artifact predates the echo's arrival in
+  the launcher by twenty hours; positive control confirmed the same grep finds 11 echo lines in a known-present
+  specimen. The channel was open and never once exercised.
+- **The fix is L-45 built into the design:** the echo is now emitted BY the launched process FROM its own working
+  directory, in the same shell that then `exec`s the command; `--case` survives only so the emitter can DISAGREE
+  with it and refuse. A refusal writes a fence with no BEGIN marker, so it reads downstream as `unverifiable` and can
+  never be mistaken for a pass — the gate fails open by construction. The launcher's shell copy of the echo format
+  was DELETED in favour of the canonical Python one, on the principle that two implementations of an evidence format
+  are two things that can disagree about what was proved. The `exec` is load-bearing (it keeps `$!` on the solver's
+  real pid — L-6, the trap this launcher exists to close) and a test pins it. Eight new tests, content-first, each
+  verified to FAIL against the pre-fix launcher.
+- The supervisor also **corrected its own v1.2 sweep** (one entry filed as a false negative was actually SAFE — the
+  launcher redirects the command's stdout into the registry log, so for those runs the registry log IS the run log),
+  and the launcher count grew from six to eight while being counted. All six remaining gaps are false-NEGATIVES —
+  they lose verifications, they cannot forge them — so nothing recorded is wrong. Filed as P-4.1 (PROPOSALS_OPEN
+  v2.5, the first proposal that file has carried under charter 4), zero core-min, recommending the targeted half and
+  explicitly AGAINST full consolidation: the detached path is what every long solve uses and its PID/exit-file
+  protocol is the L-5/L-6/D12 failure family, where a defect orphans solves rather than losing an echo.
+- Infra guidelines v1.3, new §1.8: **evidence is derived from what executed, never from what was declared.**
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
