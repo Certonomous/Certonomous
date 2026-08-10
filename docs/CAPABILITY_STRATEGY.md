@@ -128,6 +128,40 @@ carried verbatim in the proposal's `gate` field (operationalised into a gradeabl
 `hard_criterion` carries the hardness answer. That is the right workaround and needs no schema
 change; opening the closed list would be Katie's call, and nothing depends on it.
 
+### Fourth dated correction (2026-08-10 night) — §2's first PROOF clause is refuted BY EXECUTION
+
+§2's linear-solvers item reads: *"A3's transonic adjoint conditioned deliberately (diagonal-spread
+diagnosis → chosen preconditioner → converged), not by knob-luck."* The arm ran (pre-reg a9bb202d,
+choice dda82819, outcome 368996c3) and **the diagnosis route the clause names is a measured dead
+end for this case**: rung 2 spreads **14.40 decades and CONVERGES**; rung 3 spreads **14.47 and
+cannot**. Seven hundredths of a decade separate a working rung from a walled one, so diagonal
+spread does not discriminate here and no preconditioner choice can be derived from it. The 6.2
+core-min rung-2 comparison dump that killed the hypothesis was the agent's own idea, aimed at the
+hypothesis it most expected to confirm.
+
+What the arm bought instead is an **elimination table**, every entry measured rather than argued:
+method breakdown (true residual tracks the recursive one to 7–12 digits through the stall — the
+arithmetic is faithful, the operator genuinely offers no progress), subspace size, field separation
+(none — extremes flat across all six slots), geometric localisation (none — extremes diffuse, and
+LESS near-wing than average, so the tip-TE pathology is not the driver), volume scaling (r = −0.135
+across ten decades), spread magnitude, Schwarz overlap (the chosen lever, which failed its own
+pre-stated falsifier: κ ratio 0.979/1.062, residual 3% WORSE), and stronger PC application. The
+survivor is a negative characterisation carrying a number: **κ ≈ 10¹¹, insensitive to every
+preconditioner parameter this build exposes.**
+
+**The finding that outranks the failed clause:** the remedies the evidence now points to — a
+two-level coarse space, `PCFIELDSPLIT`/`PCGAMG`, `lgmres`/`dgmres` — are **unreachable in this
+build**, because DAFoam's `KSPSetType`/`PCSetType` calls override `KSPSetFromOptions`. The
+diagnosis therefore terminates not in a wrong answer but in a **capability boundary**, and that
+boundary is itself a reportable upstream defect of the same diagnosability family the defect report
+already documents.
+
+**Chief re-phrasing of the clause, replacing the original:** *conditioning diagnosed to a stated
+mechanism and the chosen remedy either applied or shown unreachable, with the elimination table
+published either way.* The proof is not "we made it converge"; it is "we know what it is and what
+it would take", which this arm has half-delivered and which the upstream-reachability question
+completes. The original clause is retained above, unedited, per L-44.
+
 ### Three dated corrections to this document, found while filing it
 
 The strategy was written from the record as it stood on 2026-08-08 morning; three of its premises

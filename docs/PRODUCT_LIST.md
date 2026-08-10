@@ -897,6 +897,32 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   and keying on the solver NAME alone cannot see that — the same class of mistake as keying on `args[0]`, found by the
   consolidation that was fixing the first one.
 
+### 2026-08-10 (night) — the Saad proof fails honestly, and the failure names a capability boundary
+
+- **STRATEGY §2's FIRST PROOF CLAUSE: NOT MET, refuted by execution** (a9bb202d → dda82819 → 368996c3, 61.6 core-min
+  against ~35 approved, flagged progressively at 45 and 58 rather than at the end). Diagonal spread does not
+  discriminate on this case: **rung 2 spreads 14.40 decades and converges, rung 3 spreads 14.47 and cannot.** The
+  agent killed the hypothesis it most expected to confirm, with a 6.2 core-min comparison dump of its own devising.
+  Its chosen lever (Schwarz overlap 1→2) then failed the falsifier it had stated in advance — κ ratio 0.979/1.062,
+  residual 3% WORSE — and it disclosed that this branch was written AFTER seeing the diagnosis and is therefore one
+  notch weaker than the pre-registered ideal, rather than presenting it as pre-committed.
+- **What the arm bought: an elimination table.** Method breakdown (true residual tracks recursive to 7–12 digits
+  through the stall — faithful arithmetic, an operator that genuinely offers no progress), subspace size, field
+  separation, geometric localisation (extremes LESS near-wing than average — the tip-TE pathology is not the driver),
+  volume scaling, spread magnitude, Schwarz overlap, stronger PC application — every structural cause this build can
+  reach, refuted by measurement rather than argument. Survivor: **κ ≈ 10¹¹, insensitive to every preconditioner
+  parameter the build exposes.**
+- **THE FINDING THAT OUTRANKS THE FAILED CLAUSE — a capability boundary, and a reportable one:** the remedies the
+  evidence points to (two-level coarse space, `PCFIELDSPLIT`/`PCGAMG`, `lgmres`/`dgmres`) are UNREACHABLE because
+  DAFoam's `KSPSetType`/`PCSetType` override `KSPSetFromOptions`. The standard PETSc escape hatch does not work, so a
+  user who diagnoses their own conditioning correctly still cannot act on it. Routed to the defect report as a third
+  diagnosability-class defect. Strategy §2's clause re-phrased by chief note (original retained unedited per L-44):
+  *conditioning diagnosed to a stated mechanism and the chosen remedy either applied or shown unreachable, with the
+  elimination table published either way.*
+- The one reachable knob left unrun — `pcFillLevel: 1`, a −36% winner at rung 1 — was DELIBERATELY not run: the
+  diagnosis never indicted dropped fill, so a convergence there would be knob-luck, and the chief's ground rule
+  forbids dressing that as the proof. Approved separately as engineering, kept out of the proof.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
