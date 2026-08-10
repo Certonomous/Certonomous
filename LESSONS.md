@@ -2198,3 +2198,39 @@ instrument.
 Worth noting where it recurred: inside an audit whose own author had cited the
 reach lesson that same morning. Knowing a rule and applying it to the search you
 are currently running are different acts.
+
+
+## L-53. Two verification passes running at once can invalidate each other, and neither can see it
+
+Ladder V's Pass 1 re-ran five rungs that had passed two days earlier. Four
+re-verified. The fifth found this: **a load-bearing claim appears on five
+surfaces without the attribution that makes it defensible, and one of those
+surfaces was written by the sibling verification rung — thirteen minutes before
+the rung that would have caught it committed its own sweep.**
+
+`git log -S` puts it beyond doubt: the cross-surface rung (V10) wrote the
+sentence at 02:08:13; the provenance rung (V5) committed its sweep at 02:21.
+V5 swept a corpus that did not yet contain V10's sentence. V10 wrote a sentence
+it had no brief to check. **A verification pass introduced the defect a
+concurrent verification pass had just cleared, and the design of the ladder —
+three passes, three minds, running in parallel — is exactly what made it
+invisible.**
+
+The failure is structural, not careless. Parallel verification buys
+independence, which is its whole point; independence means neither pass sees
+what the other is writing. So:
+
+1. **A verification pass that EDITS is also a pass that must be verified.** A
+   rung which only reads can run concurrently with anything. A rung which
+   writes to shared surfaces creates new unverified material by definition.
+2. **Re-run the read-only rungs after the writing rungs land**, or sequence
+   writers before readers. Cheap, and it is the only thing that closes the
+   window.
+3. **When a defect is found on a surface, `git log -S` the sentence before
+   assuming provenance.** The author may be your own machinery, and the record
+   will not volunteer that.
+
+The general form, which is L-46's shape one level up: *the fix for a class is
+where that class reappears* — and a verification campaign is a fix for the
+class "unverified claims", so it is precisely where new unverified claims will
+be born.

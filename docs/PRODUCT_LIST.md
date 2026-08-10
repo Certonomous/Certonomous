@@ -1688,7 +1688,11 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   stating no cell count of their own, which a fresh check then supplied.
 - **All three families now report AT REST, each having demonstrated it rather than asserted it.**
 
-### 2026-08-11 — the cold reviewer reproduces the score exactly, and finds the package would have been sent wrong
+### 2026-08-10 (night) — the cold reviewer reproduces the score exactly, and finds the package would have been sent wrong
+*[Date corrected: this entry and the charter amendments it accompanied were first dated 2026-08-11, taken from the
+dispatch's own header rather than from the clock. `date -u` reads 2026-08-10. Caught by the Pass-1 agent, which
+recorded the machine clock rather than silently reconciling it to the paperwork — the same discipline the lab's own
+clock-audit rule asks for.]*
 
 - **A11 COLD REPRODUCTION: PASSED, bit-for-bit** (636c0b91), by an agent that read ONLY the submission package and what
   the package points at — it did NOT open the status file, the rank-probability record, the campaign files, or any
