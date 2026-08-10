@@ -724,3 +724,149 @@ addended.
 or corrected to a wrong line; any *new* uncited load-bearing claim introduced by Pass 2's
 own edits (the exact L-53 failure mode, and the reason this re-run exists); or any change
 to the A1/A2/A4 artifact set.
+
+---
+
+## RE-RUN EXECUTED — 2026-08-10 21:03 UTC, against Pass 2 at `92562841`
+
+*Additive only; nothing above this line is changed, including the pre-registration, which
+is left exactly as written so the prediction can be scored against it.*
+
+**Escalation guard, checked first (method step 1).** `git diff --stat 92562841^ 92562841`
+enumerated 14 files / 1117 insertions **before** any of it was read. Pass 2 touched **none**
+of the A1/A2/A4 artifact set: the 8 CSVs, `R5_RULE_FREEZE.md`, `R5_PREREGISTRATION.md`,
+`closure_challenge_round5_qcr.json` and `sdk/openfoam/qcr/` are all untouched, and the 8
+CSVs remain byte-frozen since `e865076b`. **A1, A2 and A4 correctly do not re-run.** *(Pass
+2 did touch `closure_round5_qcr_forward.py` — docstring only, scoping a stale "ledger stays
+at 5" sentence to its own run date. No code changed; not in the artifact set.)*
+
+### A3 leg (c) re-run: **FAIL** — pre-registered failure condition 1 is met
+
+**§4.1 still cites 115 / 215 / 165–167. The correct numbers appear nowhere in it.**
+Verified three independent ways, §4.1 located by heading (line 262) and never by the line
+number under test:
+
+1. Pass 2's diff to `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` contains **exactly one hunk**,
+   `@@ -484,6 +484,38 @@` — a blocking banner on §5. **Nothing at 262–288.**
+2. Direct read of §4.1 at HEAD: `line 115`, `line 215`, `lines 165–167` all still present;
+   grep for `128` / `228` / `178–180` in the section returns **0**.
+3. **L-53 clause 2 applied:** `git log -S "occur at line 115 inside"` returns **one commit
+   in the file's entire history** — `87084eec`, 2026-07-30, the original author. Nothing
+   has touched that sentence since it was written.
+
+Anchors re-derived by pattern at HEAD, unchanged from Pass 1 (both gate scripts still at
+`5719374e` / `fe121af2`): `_load_ground_truth_U` at **128** and **228**; loops at **126**
+and **225**; `for case in ph._PH_TEST` at **178** with `# no U_LES read` at **179**. Every
+§4.1 **claim** remains true. Only the **citations** are wrong, still by +13.
+
+**Why it did not happen, stated fairly.** Pass 2 did not overlook this — it **decided** it.
+Its own report (`LADDER_V_PASS2_2026-08-11.md`, line 68) records: *"**STALE — reported, not
+edited.** … Pass 1 re-anchored them in its own report and declined to edit Katie's package;
+**I make the same call** and record it twice so it is not lost a third time."* Pass 2 had
+the handoff table and used the correct numbers (128 / 228 / 178–180) in its own line 67. It
+reasoned exactly as Pass 1 did, and reached the same conclusion.
+
+**So the assignment did not take, and this is the finding.** The chief's ruling 2 assigned
+the fix to Pass 2 precisely so that a third party would not assume someone else had it —
+and a third party has now declined it, on the same correct-sounding grounds, in writing.
+**Three consecutive passes have each individually made a defensible decision, and the
+aggregate is a defect that has survived all three.**
+
+One observation offered neutrally, because it is the sharpest available evidence about the
+grounds: **Pass 2 added 32 lines to that same file in that same commit.** A blocking banner
+was judged permissible; a three-number citation correction in the same document was not.
+Both calls are arguable — a banner is additive and framed, while editing §4.1's body is a
+revision of Katie's prose. But the distinction was not stated, and the net effect is that
+the file was open and the defect was left. **Escalated to the chief: this now needs an
+owner who is not a verification pass, because verification passes have declined it three
+times for a reason that will recur a fourth.**
+
+### A5 leg 3 re-run: **PASS** — the live failure condition did NOT fire
+
+Identical sweep: same file set (`.md`/`.html`/`.json`/`.tex` under `demo-output/website/`),
+same patterns (`\bQCR\b|kOmegaSSTQCR|QCR2000|SA-QCR` vs `Spalart`).
+
+| measure | Pass 1 baseline (pre-Pass-2) | re-run (post-`92562841`) |
+|---|---|---|
+| files swept | 920 | **925** |
+| name QCR | 55 | **61** |
+| also cite Spalart | 27 | **33** |
+| **do NOT cite** | **28** | **28** |
+
+**Zero closed, zero new — the 28 is the identical set, file for file.** Six new files name
+QCR and **all six cite Spalart**.
+
+**The failure condition this re-run existed for did not fire.** The chief flagged Pass 2's
+new prose as where an unattributed claim would be born. It was not born:
+
+| new/edited outward surface | QCR | Spalart | the load-bearing claim as written |
+|---|---|---|---|
+| `closure_challenge_submission_round5/DESCRIPTION_DOCUMENT.md` (**349 new lines — the document that actually travels**) | 7 | **3** | *"`kOmegaSSTQCR` with `Ccr1 = 0.3` — **Spalart (2000)'s published constant**, nothing fitted to anything"*; *"`Ccr1 = 0.3` frozen before any solve, Spalart's published constant"*; *"Spalart published QCR2000 in 2000"* |
+| `closure_challenge_submission_round5/README.md` (93 new) | 2 | 1 | cites |
+| `CLOSURE_CHALLENGE_PRIOR_ART.md` (+25) | 1 | 1 | cites |
+| `closure.html` | 10 | 3 | cites |
+| `LADDER_V_PASS2_2026-08-11.md`, `LADDER_V_TRIPLE_VERIFICATION.md` | 8 / 5 | 2 / 2 | cite |
+
+**Every one of Pass 2's new outward-facing claims about the untrained term names whose
+constant it is.** This is the first time in this ladder that a writing rung has landed
+without opening a citation gap, and it is the direct result of L-53 existing when Pass 2
+wrote.
+
+**Touched-and-left, reported not fixed.** Pass 2 edited `benchmarks.html` — the public
+surface A5 flagged — adding a 3-line best-on-board caveat, and **left the uncited
+"untrained QCR2000 … nothing fitted to anything" sentence in place**. Not a new claim; a
+known gap that was open in the editor and stayed. `git log -S` re-confirms provenance
+unchanged: **`49f71b8c`, the sibling V10 rung**. Same for `benchmarks.json`, `wall.json`
+and `PROBABILITY_OF_RANK_2026-08-10.md` — single passing mentions, edited, gap unchanged.
+
+**Positive control on the sweep's null.** The sweep is not blind to movement: it detected
+**6** newly-citing files and independently classified **4** Pass-2-touched files as still
+uncited. It sees change in both directions, so "28 → 28" is a measurement, not a
+non-observation.
+
+### PREDICTION SCORED — 3 of 5 wrong, and the misses share one cause
+
+| # | pre-registered at `97eb51d2` | outcome | score |
+|---|---|---|---|
+| 1 | three §4.1 citations corrected to 128 / 228 / 178–180 | not fixed; Pass 2 declined in writing | **WRONG** |
+| 2 | `benchmarks.html` and `CLOSURE_CHALLENGE_STATUS.md` gaps closed | neither closed; `benchmarks.html` edited and left | **WRONG** |
+| 3 | the other three **not** closed (`MANIFEST.json`, forward JSON, `QCR_ACTIVITY_CHECK`) — frozen artifacts and another agent's report | all three still uncited, for exactly those reasons | **RIGHT** |
+| 4 | 28 falls to **roughly 26** | 28 → **28** | **WRONG on the number** |
+| 5 | a fall to **0** would itself be a finding (a frozen artifact revised rather than appended) | branch not taken — no frozen artifact was revised | **RIGHT; branch correctly not taken** |
+
+**Diagnosis of the miss, since a prediction that survives by being vague is worth less than
+one that misses cleanly.** Predictions 1, 2 and 4 all rest on **one** unstated assumption:
+that the chief's assignment to Pass 2 would take. They are not three independent errors;
+they are one error counted three times. Predictions 3 and 5 were about **artifact
+properties** — frozen files do not get revised — and both held exactly.
+
+**The rule I would take from my own miss: predictions about artifact properties held; every
+prediction about another agent's future compliance failed.** I had direct evidence for the
+first class and none whatever for the second, and I did not mark the difference when I
+wrote them down. A pre-registration should label which of its predictions are measurements
+and which are forecasts of behaviour.
+
+**What my prediction did NOT cover, stated plainly.** Pass 2 changed 14 files and 1117
+lines. My prediction covered the §4.1 citations and the five named citation gaps — nothing
+else. It had no term for: the description document existing at all (349 lines of new
+outward prose, the single largest new-claim surface and the very thing the chief flagged),
+the submission README, the prior-art additions, the §5 blocking banner, `self_audit.py`,
+the withdrawal of the internal-only gate on P(rank 1), or the retirement of the sweep-count
+check. Most importantly, **the count staying at 28 is a movement my model had no shape
+for**: I modelled the total as decreasing through closures, and what actually occurred was
+zero closures plus six fully compliant additions. The number I predicted moving for one
+reason stayed still for two reasons that cancel — and my prediction would have been
+"roughly right" at 26 for entirely wrong reasons had two gaps happened to close.
+
+### Re-run verdicts
+
+- **A3 leg (c): FAIL.** §4.1's citations are unchanged and still stale by +13. Every claim
+  holds; every citation is wrong. Failure condition 1 met. **Needs a non-verification
+  owner.**
+- **A5 leg 3: PASS.** The 28 is unchanged as a set, six new QCR-naming files all cite
+  Spalart, and **no new uncited load-bearing claim was introduced by Pass 2's writing** —
+  the L-53 failure mode did not recur. One touched-and-left gap on `benchmarks.html`,
+  reported not fixed.
+- **A1 / A2 / A4: not re-run, per the pre-registration**, escalation guard clear.
+
+**Ledger stands at 6.** No scoring call. Pass 1 wrote only this file.
