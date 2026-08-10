@@ -1,5 +1,10 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.11, dated 2026-08-10 (night). Adds 10.6: the retrospective the
+declared-vs-observed rank fix earned. Has the channel ever fired? **No** --
+zero mismatches, established with two independent recovery routes and a
+planted positive control on each.
+
 Version 1.10, dated 2026-08-10 (night). Adds 10.4, the declared-vs-observed
 rank count in `launch_solve.sh` -- the tail of the section 10 work, and the
 same defect on the same cost arithmetic -- and 10.5, a suite failure triaged
@@ -1080,6 +1085,44 @@ exec (`-np N`), which is the invocation itself and not a string to be split:
 
 Demonstrated: a run declaring 8 ranks while executing `-np 2` now records
 `core_min: 0.5`. Before, it billed 2.0 -- **four times the truth, silently.**
+
+### 10.6. Has it ever happened? A measured zero
+
+10.4 showed the channel; this asks whether any historical run went through
+it. It is the same question as the `levers_verified_active` sweep: **do
+records exist that claim something the machinery could not have delivered?**
+
+**Result: zero mismatches.** Of 146 completion records in the solve registry,
+**3 carry a rank declaration and all 3 AGREE** -- declared 4, executed
+`mpirun -np 4` -- so no core-minute figure in the registry is mis-priced, and
+no cost grading, factor-3 verdict or calibration-scorecard input derived from
+one is affected.
+
+**How the executed count was recovered**, since the `.job` record never stored
+the command: two independent routes, each reading what the execution itself
+wrote. (a) OpenFOAM prints `nProcs : N` in every application header. (b) A
+driver log echoes the commands it ran, including
+`openfoam2606 mpirun -np 4 simpleFoam -parallel`. The three declared records
+resolved by route (b); route (a) was the one that first returned nothing, and
+**a null from one instrument is not an absence** (L-43) -- route (b) recovered
+all three.
+
+**Positive controls, one per route.** A planted `declared 8 / executed 2` pair
+is detected as a mismatch by both. Neither route was trusted on a null.
+
+**Reach.** The other 143 records carry no `ranks:` line **and no `core_min:`
+line at all** -- they predate the cost fields, so no mis-priced figure can
+exist from them. That number was wrong the first time I computed it: a
+`cmin(...) or ""` in my own reach check made an ABSENT line read as a value,
+reporting 143 priced records where there are none. Caught by refusing to
+accept a surprising count. **The audit instrument having the defect it is
+auditing for is now the seventh instance in this campaign.**
+
+**One refinement, not a mismatch.** Each of the 3 agreeing launches ran serial
+meshing AND several `-np 4` solves under one declared scalar rank, so its
+`core_min` prices the serial phase at 4 ranks. That is a real over-count and a
+different defect -- one number for a launch that ran at several rank counts --
+recorded here, not fixed, and not affecting the declared-vs-executed verdict.
 
 ### 10.5. A suite failure triaged, not committed around
 
