@@ -24,6 +24,11 @@ REPO = Path(__file__).resolve().parents[2]
 AUDIT_LOGS = (REPO / "demo-output" / "website" / "campaign"
               / "MESH_AUDIT_runs" / "2026-08-08")
 
+# NOTE (2026-08-10): these fixtures gained their terminating `End`. Real
+# checkMesh output always carries one -- 105 of 105 logs in the lab's archive
+# -- and `parse_check_log` now requires it as positive evidence that the check
+# RAN, so a synthetic log without it was standing in for output the world does
+# not produce. The fixtures were unfaithful; the parser found it.
 CLEAN_LOG = """Mesh stats
     cells:            99840
 Checking geometry...
@@ -31,6 +36,8 @@ Checking geometry...
     Mesh non-orthogonality Max: 61.4938 average: 13.697
     Max skewness = 2.30655 OK.
 Mesh OK.
+
+End
 """
 
 BROKEN_LOG = """Mesh stats
@@ -43,6 +50,8 @@ Checking geometry...
  ***Error in face pyramids: 144 faces are incorrectly oriented.
  ***Max skewness = 55.378, 3 highly skew faces detected which may impair the quality of the results
 Failed 5 mesh checks.
+
+End
 """
 
 FLAGGED_LOG = """Mesh stats
@@ -52,6 +61,8 @@ Checking geometry...
     Mesh non-orthogonality Max: 0.0 average: 0.0
     Max skewness = 1.2e-13 OK.
 Failed 1 mesh checks.
+
+End
 """
 
 
@@ -295,6 +306,95 @@ class ModelFormEntryRefusalTests(unittest.TestCase):
             self.tmp / "absent", "H", "H_fixture", fallback=fallback)
 
 
+FATAL_LOG = """Build  : v2606
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+Create time
+
+--> FOAM FATAL ERROR:
+cannot find file "constant/polyMesh/faces"
+FOAM exiting
+"""
+
+FATAL_AFTER_STATS_LOG = """Build  : v2606
+Mesh stats
+    points:           12000
+    cells:            11000
+Checking geometry...
+--> FOAM FATAL ERROR:
+cannot read "constant/polyMesh/boundary"
+FOAM exiting
+"""
+
+TRUNCATED_LOG = """Build  : v2606
+Mesh stats
+    cells:            11000
+Checking geometry...
+"""
+
+
+class CheckDidNotRunTests(unittest.TestCase):
+    """A log where checkMesh DIED must never read as a clean mesh.
+
+    WHY THIS TEST EXISTS. `parse_check_log` matched error PATTERNS, and a log
+    where the tool crashed contains none of them -- so it returned
+    `verdict: "clean"`. The cell-count refusal in `write_certificate` was
+    described as the only thing standing between that and a false clean
+    certificate, and it was not even sufficient: **checkMesh prints its mesh
+    stats EARLY**, so a run that dies during the geometry checks carries a
+    cell count and sailed straight through both. This is a fail-FALSE channel
+    inside the machinery that gates every mesh in the lab, which is the one
+    category that outranks everything else on a fix queue (L-45).
+    """
+
+    def test_a_crashed_check_is_not_clean(self):
+        self.assertEqual(mc.parse_check_log(FATAL_LOG)["verdict"],
+                         mc.VERDICT_UNVERIFIED)
+
+    def test_a_crash_after_the_cell_count_is_not_clean_either(self):
+        """The shape the cell-count guard cannot see."""
+        parsed = mc.parse_check_log(FATAL_AFTER_STATS_LOG)
+        self.assertEqual(parsed["cells"], 11000)
+        self.assertEqual(parsed["verdict"], mc.VERDICT_UNVERIFIED)
+
+    def test_a_truncated_log_is_not_clean(self):
+        self.assertEqual(mc.parse_check_log(TRUNCATED_LOG)["verdict"],
+                         mc.VERDICT_UNVERIFIED)
+
+    def test_unverified_is_not_broken(self):
+        """`broken` means checked and found bad; `unverified` means we do not
+        know. Collapsing them would impugn a mesh whose only fault is a
+        missing log -- the opposite error, and just as wrong."""
+        parsed = mc.parse_check_log(FATAL_LOG)
+        self.assertNotEqual(parsed["verdict"], "broken")
+        self.assertEqual(parsed["hard_errors"], [])
+        self.assertIn("crash", parsed["unverified_reason"])
+
+    def test_no_certificate_is_minted_from_a_crashed_check(self):
+        tmp = Path(tempfile.mkdtemp(prefix="cert-fatal-"))
+        self.addCleanup(shutil.rmtree, tmp, True)
+        (tmp / "polyMesh").mkdir()
+        (tmp / "polyMesh" / "points").write_text("(0 0 0)\n")
+        self.assertIsNone(
+            mc.write_certificate(tmp, check_log_text=FATAL_AFTER_STATS_LOG))
+        self.assertIsNone(mc.read_certificate(tmp))
+
+    def test_the_fpe_banner_is_not_a_crash(self):
+        """A healthy checkMesh log says `Enabling floating point exception
+        trapping` in its banner. A draft of the fatal pattern matched that
+        phrase and called all 105 real logs crashes -- the term was added
+        after the pattern was calibrated and before it was re-validated."""
+        parsed = mc.parse_check_log(CLEAN_LOG.replace(
+            "Build", "sigFpe : Enabling floating point exception trapping\n"
+                     "Build", 1))
+        self.assertEqual(parsed["verdict"], "clean")
+
+    def test_a_real_complete_log_is_unaffected(self):
+        for log, expected in ((CLEAN_LOG, "clean"), (BROKEN_LOG, "broken"),
+                              (FLAGGED_LOG, "flagged")):
+            with self.subTest(expected=expected):
+                self.assertEqual(mc.parse_check_log(log)["verdict"], expected)
+
+
 class ProvenanceTests(unittest.TestCase):
     """A certificate minted from an ARCHIVED log is not the same fact as one
     minted at creation, and the file has to say which it is.
@@ -330,6 +430,26 @@ class ProvenanceTests(unittest.TestCase):
         self.assertEqual(back["provenance"], mc.PROVENANCE_RETROSPECTIVE)
         self.assertEqual(back["evidence"]["check_log"],
                          "/somewhere/log.checkMesh")
+
+    def test_a_fresh_recheck_has_a_constant_of_its_own(self):
+        """A re-check of an EXISTING mesh is neither `at-creation` (the mesh
+        predates the check) nor `retrospective-from-archived-log` (the log is
+        fresh). A re-check pass found neither honest and hand-wrote a third
+        string; the constant matches it exactly, so those files are already
+        conformant. A provenance field that cannot express what happened gets
+        filled in with something false by whoever next needs it."""
+        self.assertEqual(mc.PROVENANCE_FRESH_RECHECK,
+                         "fresh-recheck-of-existing-mesh")
+        self.assertEqual(len({mc.PROVENANCE_AT_CREATION,
+                              mc.PROVENANCE_RETROSPECTIVE,
+                              mc.PROVENANCE_FRESH_RECHECK}), 3)
+        cert = mc.write_certificate(
+            self.tmp, check_log_text=CLEAN_LOG,
+            provenance=mc.PROVENANCE_FRESH_RECHECK)
+        self.assertEqual(mc.read_certificate(self.tmp)["provenance"],
+                         mc.PROVENANCE_FRESH_RECHECK)
+        admitted, _ = mc.certificate_admits(self.tmp)
+        self.assertTrue(admitted)
 
     def test_provenance_does_not_change_what_admits(self):
         """The weaker provenance is a disclosure, not a second gate: a

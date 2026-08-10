@@ -1,5 +1,10 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.13, dated 2026-08-10 (night). Adds section 12: a FAIL-FALSE channel
+inside the mesh gate itself -- `parse_check_log` called a crashed checkMesh
+`clean` -- found by the Cases family and worse than reported. Adds the third
+provenance constant.
+
 Version 1.12, dated 2026-08-10 (night). Adds section 11: 105 meshes the
 2026-08-08 audit called CERTIFIED carried the checkMesh log and none carried
 the certificate, so the word named an artifact nobody had written. 95 minted
@@ -1207,6 +1212,62 @@ shebang and no exec bit**; the wider set is reported, not mass-chmodded,
 because most belong to other families. It surfaced because rewriting the file
 dropped the local bit and this family's own launcher tests went red -- the
 suite catching a defect that had been latent since the file was created.
+
+## 12. The mesh gate could mint a clean certificate from a crash (2026-08-10)
+
+Reported by the Cases family while re-checking all 95 retrospective
+certificates (95 agree, zero drift). **`parse_check_log` matched error
+PATTERNS, and a log where checkMesh DIED contains none of them, so it returned
+`verdict: "clean"`.** L-45's category, in the one place where a manufactured
+pass admits a mesh nobody checked -- and it was in this family's own module,
+gating every mesh in the lab.
+
+**It was worse than reported, established by reproducing it.** The report said
+the cell-count refusal in `write_certificate` was the only thing standing
+between that and a false clean certificate. It is not even sufficient:
+**checkMesh prints its mesh stats EARLY**, so a run that dies during the
+geometry checks carries a cell count and passed both the parser and the guard.
+That shape mints a `clean` certificate outright, with nothing in its way.
+
+**The fix, and the design brief it came with: absence of error evidence is not
+evidence of a clean mesh.** The parser now asks *did the check run* before
+*what did it find*, and returns a third verdict, `unverified`, when a fatal
+marker is present, when the log does not reach checkMesh's own terminating
+`End`, or when no cell count appears. `unverified` is deliberately NOT
+`broken`: broken means checked and found bad, unverified means we do not know,
+and collapsing them would impugn a mesh whose only fault is a missing log --
+the opposite error and just as wrong. `write_certificate` refuses to mint from
+it, the cell-count guard is KEPT as a second line rather than the only one,
+and `head_engineer`'s hand-rolled certificate path -- which does not inherit
+those refusals -- states its own.
+
+**The completion marker is calibrated, not guessed:** 105 of 105 real
+checkMesh logs in the archive end with `End`, and 0 of 105 carry a fatal
+marker, so requiring one and rejecting the other misclassifies none of the
+corpus. Re-run over all 105 after the fix: 90 clean, 8 flagged, 7 broken, 0
+newly unverified -- the corpus split is unchanged.
+
+**Exposure: zero.** All 95 minted certificates re-checked under the fixed
+parser; none rested on a log the fix reclassifies. No revocation was owed.
+
+**And the fix broke on its own corpus first.** A draft `_FATAL` pattern
+included `Floating point exception`, which appears in the STARTUP BANNER of a
+healthy checkMesh log (`sigFpe : Enabling floating point exception
+trapping`) -- it misread all 105 real logs as crashes. The term was added
+AFTER the pattern was calibrated and before it was re-validated. Caught by
+re-running the calibration rather than the one sample. That is the eighth
+instance in this campaign, and the rule it earns is the one already standing:
+**a change is not finished when it does what you intended.**
+
+**Second item: the third provenance constant.** `PROVENANCE_FRESH_RECHECK =
+"fresh-recheck-of-existing-mesh"` -- neither `at-creation` (the mesh predates
+the check) nor `retrospective-from-archived-log` (the log is fresh) is honest
+for a re-check of an existing mesh. The string matches the one the Cases
+family hand-wrote exactly, so their three `w1-bump-nasa-grids` certificates --
+the same three this family refused for stating no cell count of their own --
+are already conformant and need no migration. Nothing branches on the value
+today, which is why it was second; a provenance field that cannot express what
+happened gets filled in with something false by whoever next needs it.
 
 ## Related
 

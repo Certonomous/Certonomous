@@ -56,6 +56,28 @@ _HARD_ERRORS: tuple[tuple[str, re.Pattern], ...] = (
 )
 _FLAGGED_ASPECT = re.compile(r"\*\*\*High aspect ratio cells found")
 
+#: The verdict for a log that does not establish a check RAN TO COMPLETION.
+#: Distinct from ``broken`` on purpose: broken means checked and found bad,
+#: unverified means we do not know. Collapsing them would impugn meshes whose
+#: only fault is a missing log, which is the opposite error and just as wrong.
+VERDICT_UNVERIFIED = "unverified"
+
+#: checkMesh died rather than finished. Only OpenFOAM's own fatal markers:
+#: `Floating point exception` and `Segmentation fault` were in a draft of this
+#: pattern and are NOT here, because a healthy checkMesh log contains the
+#: former in its startup banner (`sigFpe : Enabling floating point exception
+#: trapping`) and every one of the 105 real logs was misread as a crash. They
+#: were added AFTER the pattern was calibrated and before it was re-validated
+#: -- the same "changed it, did not re-run the check" this module's own
+#: lesson is about. A crash that leaves no marker is caught by `_COMPLETED`.
+_FATAL = re.compile(r"-->\s*FOAM FATAL(?:\s+IO)?\s+ERROR|FOAM exiting")
+
+#: checkMesh reached its own end. Calibrated, not guessed: **105 of 105** real
+#: checkMesh logs in this lab's archive end with a line beginning ``End``, and
+#: **0 of 105** carry a fatal marker -- so requiring this marker misclassifies
+#: none of the corpus and rejecting a fatal one costs nothing.
+_COMPLETED = re.compile(r"^End\b", re.M)
+
 
 def parse_check_log(text: str) -> dict[str, Any]:
     """The certificate payload read out of a checkMesh log's text.
@@ -76,6 +98,32 @@ def parse_check_log(text: str) -> dict[str, Any]:
         if hit:
             value = float(hit.group(1))
             stats[key] = int(value) if key == "cells" else value
+    # DID THE CHECK RUN? Asked before "what did it find", because the error
+    # scan below matches PATTERNS, and a log where checkMesh died contains
+    # none of them -- so a crashed run used to read `clean`. The cell-count
+    # refusal in write_certificate was the only thing standing between that
+    # and a false clean certificate, and it does not even cover the live case:
+    # checkMesh prints its mesh stats EARLY, so a run that dies during the
+    # geometry checks has a cell count and sailed straight through.
+    #
+    # ABSENCE OF ERROR EVIDENCE IS NOT EVIDENCE OF A CLEAN MESH (L-45: an
+    # instrument may fail open, never false).
+    unverified = None
+    if _FATAL.search(text):
+        unverified = ("checkMesh terminated abnormally; this log records a "
+                      "crash, not a clean mesh")
+    elif not _COMPLETED.search(text):
+        unverified = ("checkMesh did not run to completion (no terminating "
+                      "`End`); nothing here establishes the mesh was checked")
+    elif stats.get("cells") in (None, 0):
+        unverified = ("no cell count in this log, so no checkMesh record "
+                      "completed on this mesh")
+    if unverified is not None:
+        stats["verdict"] = VERDICT_UNVERIFIED
+        stats["hard_errors"] = []
+        stats["unverified_reason"] = unverified
+        return stats
+
     errors = [name for name, pattern in _HARD_ERRORS if pattern.search(text)]
     flagged = bool(_FLAGGED_ASPECT.search(text))
     if errors or (flagged and stats.get("max_aspect_ratio", 0) > 1e6):
@@ -117,6 +165,14 @@ def points_sha256(polymesh_dir: Path) -> str | None:
 #: guarantee is quietly widened to cover something it never promised.
 PROVENANCE_AT_CREATION = "at-creation"
 PROVENANCE_RETROSPECTIVE = "retrospective-from-archived-log"
+#: checkMesh was re-run NOW against a mesh that already existed. Not
+#: `at-creation` (the mesh predates the check) and not
+#: `retrospective-from-archived-log` (the log is fresh, not archived).
+#: Added 2026-08-10 because a re-check pass found neither existing
+#: constant honest for what it had done and hand-wrote a third: a
+#: provenance field that cannot express what happened gets filled in
+#: with something false by whoever next needs it.
+PROVENANCE_FRESH_RECHECK = "fresh-recheck-of-existing-mesh"
 
 
 def write_certificate(mesh_root: Path, *, check_log_text: str | None = None,
@@ -149,7 +205,15 @@ def write_certificate(mesh_root: Path, *, check_log_text: str | None = None,
     if payload.get("cells") in (None, 0):
         # Every real checkMesh log states its cell count. A payload without
         # one is a failed or absent check, and a failed check must never
-        # mint a clean certificate.
+        # mint a clean certificate. KEPT as a second line of defence: the
+        # parser now refuses a crashed log outright, and this guard was for
+        # two days the only thing standing between one and a false clean
+        # certificate -- load-bearing work nobody knew it was doing.
+        return None
+    if payload.get("verdict") == VERDICT_UNVERIFIED:
+        # A certificate is a record of a check that RAN. Where none did there
+        # is nothing to certify, and inventing a verdict here is the one
+        # failure this module exists to prevent.
         return None
     certificate = {
         "points_sha256": digest,
@@ -203,7 +267,8 @@ def certificate_admits(mesh_root: Path) -> tuple[bool, str]:
                        "the certificate belongs to a different mesh")
     verdict = str(certificate.get("verdict") or "")
     if verdict not in ACCEPTED_VERDICTS:
-        errors = ", ".join(certificate.get("hard_errors") or []) or "unstated"
+        errors = (", ".join(certificate.get("hard_errors") or [])
+                  or certificate.get("unverified_reason") or "unstated")
         return False, (f"born {verdict or 'unverified'}: {errors}; the mesh "
                        f"does not enter (charter section 9)")
     return True, verdict

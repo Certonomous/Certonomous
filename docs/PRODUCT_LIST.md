@@ -1632,6 +1632,31 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   where a draw-scatter measurement would be both possible and meaningful.** Second time today this agent declined
   approved compute; F5c remains honestly unpriceable and no number was manufactured for it.
 
+### 2026-08-10 (night, reopened) — the mesh gate could mint a clean certificate from a crash
+
+- **A FAIL-FALSE CHANNEL INSIDE THE MACHINERY THAT GATES EVERY MESH IN THE LAB**, found by the Cases family while
+  re-checking all 95 retrospective certificates (95 agree, zero drift, half the approved cost). `parse_check_log`
+  matched error PATTERNS, and a log where checkMesh DIED contains none — so it returned `verdict: "clean"`.
+- **WORSE THAN REPORTED, established by reproducing it.** The cell-count refusal was described as the only thing
+  standing between that and a false clean certificate; it is not even sufficient. **checkMesh prints its mesh stats
+  EARLY**, so a run that dies during the geometry checks carries a cell count and passed both parser and guard — that
+  shape mints a `clean` certificate outright with nothing in its way.
+- **THE FIX: the parser asks "did the check run" before "what did it find"**, and returns a third verdict,
+  `unverified`, on a fatal marker, a missing terminating `End`, or no cell count. Deliberately not `broken` — broken
+  means checked and found bad, unverified means we do not know, and collapsing them would impugn a mesh whose only
+  fault is a missing log. The completion marker is **calibrated, not guessed: 105 of 105 real logs end with `End`, 0
+  of 105 carry a fatal marker**, and re-running all 105 after the fix leaves the split unchanged (90 clean / 8 flagged
+  / 7 broken / 0 newly unverified). **Exposure zero**: none of the 95 minted certificates is affected, no revocation
+  owed. Suite 1268 passed.
+- **THE FIX BROKE ON ITS OWN CORPUS FIRST, and the check caught it.** A draft fatal pattern included `Floating point
+  exception` — which appears in the STARTUP BANNER of a healthy checkMesh log — and misread all 105 real logs as
+  crashes. The term was added AFTER the pattern was calibrated and before it was re-validated. Eighth instance this
+  campaign of the same shape, and the standing rule earned it again.
+- **THIRD PROVENANCE CONSTANT ADDED**: `fresh-recheck-of-existing-mesh`, matching the string the Cases family
+  hand-wrote exactly, so its three certificates are already conformant. Neither existing constant was honest for a
+  re-check of an existing mesh, and a provenance field that cannot express what happened gets filled in with something
+  false by whoever next needs it.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

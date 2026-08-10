@@ -1075,6 +1075,13 @@ class HeadEngineer:
             log_path.read_text(errors="replace"))
         if payload.get("cells") in (None, 0):
             return
+        # This path builds the certificate dict by hand rather than calling
+        # write_certificate, so it does NOT inherit that function's refusals
+        # and has to state its own. A crashed checkMesh now parses
+        # `unverified`, and a mesh whose check did not run must not be
+        # certified from here either (L-45: fail open, never false).
+        if payload.get("verdict") not in mesh_certificate.ACCEPTED_VERDICTS:
+            return
         _, digest = self._cache_certificate_state(cache)
         if not digest:
             return
