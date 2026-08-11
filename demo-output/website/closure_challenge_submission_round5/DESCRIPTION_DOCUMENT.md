@@ -276,13 +276,13 @@ submitted, and if your scoring differs from ours, your number is the number.**
 On the published board at `deb91557` our 0.056647 is the best overall number, by
 **0.0028863** over Reissmann, Fang & Sandberg. *(A note on that figure: the README
 publishes 0.0595 to four decimals. A like-for-like full-precision re-score of the
-accepted submissions on the same harness gives 0.0595338, which is what the
+accepted submissions on the same harness gives 0.0595335, which is what the
 margin above uses. Earlier drafts of ours quoted a "published 0.059525", which is
 the mean of eight rounded per-case values and is not a number you publish — the
 error was small and ran against us, but the word was wrong.)*
 
 **Two values of that score are in play in this section, and we would rather say
-so than have you find it.** The margin above uses the re-scored **0.0595338**.
+so than have you find it.** The margin above uses the re-scored **0.0595335**.
 The 68% below, and every pairwise probability in the table with it, come from a
 bootstrap whose Reissmann input is the transcribed **0.059525**; that bootstrap
 has not been re-run on the re-scored basis, so we do not assert those figures are
