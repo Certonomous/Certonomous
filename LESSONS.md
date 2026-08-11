@@ -2686,3 +2686,60 @@ important finding in the experiment and is untouched by the gate. Comparative
 claims across members die with the void and must be re-earned. Drawing that line
 explicitly is what stops a void from either destroying good evidence or becoming
 a laundry for bad evidence.
+
+### L-63 — CORRECTION, 2026-08-11, from the independent held-out re-score
+
+L-63 stands as the general lesson and **fails on two specifics**, both found by
+the re-score it commissioned. Left in place above rather than rewritten, because
+re-basing a lesson onto its own follow-up destroys the record of what was
+concluded on what evidence.
+
+**Wrong specimen.** L-63 reads the docstring's sentinel as the copy in
+`W2_sparta_runs/cbfs_prop`. The git record points instead at
+`dafoam/ladder-b/B3_work` — recoverable only because a **superseded** replay
+artifact was retained, which shows the 46 logs then in view came from exactly
+four case directories, all four carrying the byte sequence. The sequence appears
+in **18 files**, so "the docstring cites this case" was never enough to identify
+which. The re-score partitioned both ways rather than choosing.
+
+**The headline survives — scope corrected, not withdrawn.** In-sample 33/33
+captured, **held-out 102/102**, zero false captures either side, and the
+pre-registered 92/48/20 fire spread turns out to sit **entirely** in the held-out
+partition. L-63 was right that the number needed splitting and **wrong that the
+split would weaken it**.
+
+**And the real limit is one L-63 did not see, which is worse and more useful.**
+An archive-wide sweep finds **every unreachable target in the entire archive is
+the same value**: `(1e-15, 1e-12)` ×132 and `(1e-15, 1e-14)` ×4. So the
+constant-free relation and the bare constant `target == 1e-15` are
+**extensionally the same predicate on this archive** — they agree on all 239
+files, in both directions. The 102 held-out captures are copies of the in-sample
+specimen propagated by template reuse: **held-out in provenance, in-sample in
+content.** The tightest gated ratio is 50×, the median 1000×, the excluded class
+0.001× — a **~4.7-decade gap in which the boundary has never been probed.**
+
+So the correct restatement is not about sample partitions at all. Drop *"evidence
+the rule generalises"* and say **"evidence the rule tracks the sentinel wherever
+the template was copied."** A held-out partition is only held out **with respect
+to something**; L-63 checked provenance and never asked whether the held-out
+cases were *variants* or *duplicates*. **Copies inflate a denominator without
+adding evidence**, and a corpus of clones will hand any rule a perfect held-out
+score. The general form deserves its own name:
+
+## L-66. A held-out score over near-duplicate cases measures template reuse, not generalisation — ask how many *distinct* things the corpus contains before quoting an N
+
+Splitting a corpus by provenance is not enough. A rule scored on 102 held-out
+cases that are copies of one another has been tested **once**, with the result
+reported 102 times. Before quoting a capture rate, count the corpus's
+**distinct** configurations — here, 239 files collapse to two `(target,
+tolerance)` pairs, and 21 cases collapse to two files by checksum.
+
+The practical test is the one the re-score used and it is cheap: **construct the
+crudest possible rival rule** — here, the bare literal `target == 1e-15` — and
+check whether it disagrees with your principled rule anywhere in the corpus. If
+it never does, your corpus cannot tell the two apart, and every argument for the
+principled rule's superiority is currently **theoretical**. That is not a reason
+to abandon it; the constant-free relation is still the right rule, because it is
+the one that survives contact with a case the archive does not yet contain. It is
+a reason to stop citing this corpus as the evidence for it, and to go find or
+construct the discriminating case.

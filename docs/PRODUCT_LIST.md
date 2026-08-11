@@ -2762,6 +2762,71 @@ fired VOID on its own experiment, it worked out that its own gate was mis-specif
   launcher's guard (launch only if no log exists) failed because **output appears after the race is already lost.**
   Damage was bounded by measurement, not argument, and the agent named itself as cause in its own commit.
 
+### 2026-08-11 — the S6 headline survives on a corrected scope, and my own lesson about it was wrong twice
+
+**Commissioned to check whether our "135 of 135" was really held-out. It is — and the re-score corrected L-63, the
+lesson that commissioned it, on two specifics.**
+
+- **Every shipped figure reproduces exactly** before anything else is claimed: 135 excluded / 81 gated / 6 fail-open,
+  35 fires, 48/92/20, zero "nothing else" violations — all produced by **importing the shipped helpers**, with no
+  reimplementation, because a second implementation agreeing with itself proves nothing about the first.
+- **THE HEADLINE SURVIVES, SCOPE CORRECTED, NOT WITHDRAWN.** In-sample **33/33**, held-out **102/102**, zero false
+  captures either side — and the pre-registered 92/48/20 spread sits **entirely in the held-out partition.** I was
+  right that the number needed splitting and **wrong that splitting would weaken it.**
+- **L-63 named the wrong specimen.** It read the sentinel as `W2_sparta_runs/cbfs_prop`; the git record points at
+  `dafoam/ladder-b/B3_work`. The byte sequence appears in **18 files**, so "the docstring cites this case" never
+  identified which. The re-score **partitioned both ways rather than choosing** — the right move.
+- **And the real limit is one I did not see, which is sharper.** Archive-wide, **every unreachable target is the same
+  value** — `(1e-15, 1e-12)` ×132, `(1e-15, 1e-14)` ×4. So our constant-free relation and the **bare literal
+  `target == 1e-15`** are **extensionally the same predicate on this archive**, agreeing on all 239 files in both
+  directions. The 102 held-out captures are copies of the specimen propagated by template reuse: **held-out in
+  provenance, in-sample in content.** Tightest ratio 50×, median 1000×, excluded class 0.001× — a **~4.7-decade gap
+  the boundary has never been probed in.**
+- **Operative correction to our wording:** drop *"evidence the rule generalises"*, say **"evidence the rule tracks the
+  sentinel wherever the template was copied."** Recorded as **L-66**: a held-out score over near-duplicates measures
+  template reuse, and the cheap test is to **build the crudest rival rule and see if the corpus can tell them apart.**
+  Ours cannot — which is a reason to stop citing this corpus, not to abandon the rule.
+- **The negative side was re-derived** (it had never been checked): of 1,240 not-flagged logs, the gated classes are
+  **disjoint per field**, the fail-opens are clean on hand-reading, and **zero cases anywhere declare a 1e-15 target
+  and escape.** Also: 21 defect-carrying cases have **no run log** and were never counted by the 135 — unknowable
+  rather than missed, and the distinction is stated.
+- **NEW CODE DEFECT, needs a rung:** `_solver_tolerances` **cannot resolve OpenFOAM regex-group field keys** — a
+  `residualControl { "(U|p)" }` never meets `solvers { "(U|k)" }` because matching is string equality. **All 6
+  "fail-open" logs are this**, so a parser artefact has been reported as a property of the archive; and one case is
+  **armed on a third of what it declares.** Fails safe, but it silently disarms the gate.
+- **AND THE FINDING I MOST NEEDED TO HEAR: our pre-registration's own sentinel row is retrospective wearing a
+  prediction's clothes.** Its 135/81/6 table was **computed in the same commit that states it**, yet sits in the
+  RESULT table beside genuinely forward predictions marked "met". **That is L-63's failure mode reproduced inside the
+  document L-63 is about.**
+- Worth keeping: **retaining the superseded artifact is the only reason provenance was answerable at all.** Without
+  the superseded replay JSON the answer would have been "not establishable."
+
+### 2026-08-11 — the two provenance defects were 3× larger than reported, and the fixer's own first pass reproduced the false negative
+
+- **Defect 1 verified against the artifact**, not argued: the log holds **four** restart segments, and the fourth has
+  **no `End`** — it stops mid-Time 15,519 with only Ux/Uy solved. `grep -c "^End"` returns 3.
+- **No number moves, and it is settled by evidence rather than asserted**: the next write was due at 20,000, so the
+  kill was 4,481 iterations short of touching anything; checkpoint files timestamp **before** the log's final write;
+  and the 519 stray iterations were **already priced** in the cost basis. The true half of the original claim was
+  kept — the protocol really was satisfied at 15,000, far below the cap.
+- **Defect 2 was 3× bigger than the audit found. 6 mismatch, 12 match, 3 have no declared limit** — the brief arrived
+  with 2 and **4 more `cbfs_m*pub` files were found by checking all 21.** *A defect found in two files and never
+  searched for in the other nineteen is a sample, not a finding* — and this time the sample was wrong by a factor of
+  three. Cause differs by direction: the understating files record **the last manual segment launched**, not the cap;
+  the one overstating file is a deliberate beyond-cap confirmation segment **already labelled as such at the time.**
+- **Not one case artifact was touched.** The correction went into prose plus a new archive-side note, per the rule
+  that editing the dictionaries would make the archive stop matching the solves it documents.
+- **The searcher's own first pass reproduced tonight's signature false negative.** Its pattern `not\s+by\s+a\s+cap`
+  missed a second surface reading "stopped by protocol, **not cap**"; the looser second pass caught it. Denominator
+  stated: **3,935 files scanned twice, whitespace collapsed before matching so wrapping cannot hide a phrase.** The
+  claim exists on **exactly one** surface.
+- **What it declined to touch is again the tell:** two JSON mirrors that never carried the claim (*"adding a stop-
+  condition field they never had would be inventing a surface, not correcting one"*), and two dated pre-registrations
+  whose cost line is **evidence the fourth segment ran, not a defect.**
+- Found while not looking: the frozen solves **arithmetically confirm the pre-registered "+20% verification" rule**
+  (settled 295 → wrote 354; settled 1,243 → wrote 1,492), independently validating the protocol those controlDicts
+  encode.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
