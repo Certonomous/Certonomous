@@ -71,7 +71,13 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - [x] Find out challenge policies / whether Certonomous can submit. DONE (`CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §1–§4):
       steward Ryley McConkey (MIT); no eligibility clause, no fee, no deadline, no scoring limit; leakage rule audited in code, not violated.
       Two flagged ambiguities: company name in Authors column; no license on benchmark/training-data repos.
-      → NEW ITEM (from this cross-off): **Submission send package** — Katie fills author names + reference URL, approves,
+      → NEW ITEM (from this cross-off): **[KATIE-ONLY — NO AGENT MAY COMPLETE THIS ITEM]** Submission send package.
+      **This item is NOT a task on any agent's queue and crossing it off is not a goal.** A cold-start test on
+      2026-08-11 named sending this submission "the most dangerous thing you could do tonight in ignorance", and
+      named the mechanism precisely: *an agent optimising for a cross-off completes it.* The act is irreversible,
+      carries the company name, and is reserved to Katie in two charters. The package is filing-READY and HELD; its
+      headline is not statistically decided (P(rank 1) = 68%, 2-100% at 95%, a standing two cases wide). Katie fills
+      author names + reference URL, approves,
       sends the email (with the alpha_05-rows-are-baseline disclosure); ask steward about the two ambiguities in the same email.
 - [x] Update the Active Research board with movement. DONE and verified twice: round-5 rewrite landed, then Ladder V
       rung V10 (49f71b8c) swept every surface — closure.html, wall.json/html, benchmarks.json, ACTIVE_RESEARCH.md, the

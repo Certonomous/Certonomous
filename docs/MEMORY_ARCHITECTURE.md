@@ -224,6 +224,18 @@ it is about to do.
 
 ### Step 0 — before you touch git. Two minutes. Skipping this destroys other agents' work.
 
+> **AMENDED 2026-08-11 (chief), and this step is the one the document calls load-bearing.**
+> L-57 landed the night this test first ran: **a pathspec commit isolates by FILE, not by
+> AUTHOR.** The chief committed a shared changelog by pathspec and swallowed 59 lines of a
+> concurrent agent's uncommitted work in that same file, under a message describing something
+> else. So the rule as step 0 must now read: **`git add <paths>` then `git commit -m "..." --
+> <paths>` is the SCOPE; reading `git diff <path>` with your own eyes before committing is the
+> CHECK.** On a tree with several agents live, the files a supervisor writes most often — this
+> checklist, the changelog — are exactly the files everyone else writes to, so this is where the
+> rule has least protection and most opportunity to fire. The cold-start test found this step
+> still carrying the superseded version, which is D-8's shape one level up: a reading order that
+> teaches a rule its own lesson book has already corrected.
+
 Read `docs/charters/ESCALATION_CHARTER.md` §9.6 and §9.6a. **They are below the
 `## Related` block**, at roughly lines 475-500, which is why people miss them.
 
