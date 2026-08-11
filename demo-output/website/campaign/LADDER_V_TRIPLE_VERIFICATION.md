@@ -126,16 +126,27 @@ hand-maintained list had ever included.
   no pattern for. Therefore: **every ordinal this lab pins on an entrant is checked
   against the published board, which is parsed from the benchmark's own README table
   rather than transcribed**, and the check runs over **whole text with whitespace
-  collapsed**, because the parent instance reads `the rank-3 entry (Wu &` with the name
-  on the next line — Wu & Zhang, **rank 2** — and a line-bounded reader is defeated by a
-  reflow, the fourth time that failure has been recorded on this ladder. Guard:
+  collapsed**. *(**Corrected 2026-08-11 after the independent grade.** This clause used
+  to justify whole-text matching by saying the parent instance on the lab record is
+  defeated by its own reflow. **It is not**: that sentence breaks after
+  `the rank-3 entry (Wu &`, which is inside the entrant's name and after the
+  first-author surname the guard keys on — Wu & Zhang, **rank 2** — so a line-bounded
+  reader catches it too. I found that against my own claim and it stood here uncorrected
+  until the grade named it. The real instance is in
+  `latex/closure_challenge_report.tex`, which reads "The published entry ranked" and then
+  breaks before "second before round 5 — Wu & Zhang's SST-QCRC": there the break falls
+  **between the ordinal and its rank word**, whole-text sees one placement and a
+  line-bounded reader sees none.)* Guard:
   `scripts/self_audit.py::check_board_placement_words`; tests:
   `sdk/tests/test_rank_claim_surfaces.py`, whose test set **is** the three defects: the
   guard fires on all three as they were and on none as they now are. **Precision is a
   requirement of this rung, not a nicety** — a guard that cries wolf gets switched off,
   and then it guards nothing — so the rung fails if the check does not state its
   false-positive rate against a measured corpus and name the senses of the word it
-  excludes.
+  excludes. **And its stated REACH is a requirement too, added 2026-08-11 by the first
+  grade of this rung**: the check must declare what its patterns cannot phrase, measured
+  on held-out sentences rather than asserted, because a replacement whose stated reach is
+  less honest than its predecessor's is the failure V16 exists to fix.
 
 ## WHEN THE LADDER IS GREEN — the termination rule (chief, 2026-08-10)
 
@@ -244,28 +255,77 @@ rung instead. Recorded as **L-61**: a guard anchored to the spelling of the exam
 is a regression test wearing a detector's clothes, and its green reads as coverage.
 
 **And then the chief assigned the rung back to its finder** (ruling `8bdda313`, 2026-08-11) and it
-was built the same night: `scripts/self_audit.py::check_board_placement_words`, with 21 tests in
-`sdk/tests/test_rank_claim_surfaces.py`, at `862d2cff`. What it does: parses the leaderboard from
+was built the same night: `scripts/self_audit.py::check_board_placement_words`, with **22** tests in
+`sdk/tests/test_rank_claim_surfaces.py`, at `862d2cff`, of which **21** fail against unmodified HEAD.
+*(This sentence said 21 and 20 until the grade re-counted it;
+`TheWordFormGuardIsRegisteredTests` carried five tests and I had counted four. The claim's
+structure — all but one fail, and the exception is deliberate — survives; the arithmetic did
+not, and a rung whose whole subject is a wrong number about someone else does not get to carry
+a wrong number about itself.)* What it does: parses the leaderboard from
 the benchmark's **own README table** rather than transcribing it, so a permuted table flips the same
 sentence from clean to faulted; matches over **whole text with whitespace collapsed**, proven by a
 control pair differing only in a line break that returns 1 fault against 0; and takes the three
 defects as its **test set** — firing on all three as they were and none as they now are. Measured
-before shipping rather than asserted after, on the 111-file corpus the sweep derived: **421
-placement expressions, 63 of them bound to an entrant, zero false positives**, against a first crude
-instrument that flagged 18 of 107 with 17 artifacts. *(The repo-wide count is printed in the check's
-own frame line and rises as the lab writes; it is deliberately not copied here, because a number
-transcribed into a sibling document is the failure this round spent the night correcting.)* Its
-second rule was cut down to almost nothing on the same evidence — the broad form
-returned 11 hits of which 11 were the idiom *"in the first place"* — because **a guard that cries
-wolf gets switched off, and then it guards nothing**.
+before shipping rather than asserted after: **zero false positives**, against a first crude
+instrument that flagged 18 of 107 with 17 artifacts. Its second rule was cut down to almost nothing
+on the same evidence — the broad form returned 11 hits of which 11 were the idiom
+*"in the first place"* — because **a guard that cries wolf gets switched off, and then it guards
+nothing**. *(The counts behind that rate were originally quoted here as "421 expressions, 63 bound,
+on a 111-file corpus". The grade could not reproduce the 111 from any recorded selection rule and
+was right not to: **the number had no method written down anywhere**. The rate stood — the grader
+re-derived it over a wider frame and found zero outside the declared class — but a figure without a
+method is a citation to nothing. The check now prints its own denominator **and its selection rule**
+in the verdict: placements counted in the surfaces that name a board entrant, with both counts
+shown, so the figure reproduces from the frame line instead of from a sweep nobody recorded.)*
 
-**Two things it cannot do, recorded here and not only in the code.** Relational comparatives —
+### 2026-08-11, later — V16 graded PASS WITH EXCEPTIONS, and the exceptions closed
+
+`campaign/V16_GRADE.md`, by an agent that wrote none of it. The instrument was found sound and
+its **label found to overstate it** — four of the six exceptions were the rung's own stated numbers
+and stated reach failing to keep up with what its author already knew. Closed in order:
+
+1. **The declared blind-spot list omitted the guard's dominant blind spot.** The verdict named
+   relational comparatives and archive members and said nothing about *any placement phrased
+   outside its patterns* — an admission **the digit-anchored guard it supersedes makes about
+   itself**. Measured on held-out sentences pinning a wrong placement on a named entrant: the grade
+   missed **40 of 45 (89%)**, and my own independent set of 46 put it at **37 (80%)**. The verdict
+   now leads with it and ends with *GREEN HERE IS NOT COVERAGE*.
+2. **Nine more families taken** — `ranked Nth`, the verbal placements, `Nth overall`, `the Nth
+   entry`, `position N`, `top the board` — each measured for false positives before it was kept,
+   and one (`No. N`) measured, found firing on a journal issue number in a bibliography, and
+   **taken back out**. Miss rate **80% → 30%**; precision still zero.
+3. **The parse can no longer crash, mis-parse silently, or fault correct prose.** A surname with a
+   regex metacharacter used to raise out of this check and take *every other check in the file*
+   down with it; a second numbered table anywhere in the README silently moved an entrant's rank;
+   two entrants sharing a first-author surname silently dropped one and then faulted correct prose
+   about the survivor. Each is now OFF **with its reason in the verdict**.
+4. **A literal survived inside the thing built to remove literals**: the ordinal vocabulary was a
+   hard-coded 1–5, so on a longer board every placement past fifth was unmatched. It is derived
+   from the parsed board now, with a margin, so an ordinal naming a position the board does not
+   have is itself a fault.
+5. **The retracted whole-text justification** was corrected in the shipped comment and in the rung
+   text above, and **the real instance found**: see below.
+6. **The counts** — 22 tests and 21 failures, not 21 and 20 — and the 111-file corpus, which had no
+   recorded selection rule and is replaced by one the verdict states.
+
+**The finding the grade was not looking for, and the honest measure of this rung's reach.** A live,
+committed placement pinned on a named entrant, **wrapped across a line break**, in the same sentence
+family as the defect that opened V16, on the **LaTeX source of a shipping report** — and
+**correct by luck**, not by any instrument. I verified it against the parsed board myself rather
+than taking it from the grade: Wu & Zhang are rank 2, "ranked second before round 5" is true, and
+**the text is left exactly as it is**. What changed is that the guard reaches it now — and that
+sentence turns out to be the real justification for whole-text matching, because its break falls
+between the ordinal and its rank word.
+
+**Two things it still cannot do, recorded here and not only in the code.** Relational comparatives —
 *ahead of*, *behind*, *trails*, *leads*, *next-best* — need both operands resolved and cannot be
-checked against a single board rank, so the largest remaining slice of placement language is still
-unguarded. And the second rule **cannot tell use from mention**: a record that quotes one of these
-defects in order to name it is flagged by it, which is why that rule is a WARN on a lab record and a
-FAIL only where a surface travels. **The rung is BUILT, not PASSED** — its builder is the agent who
-found the defects, and under A15's own rule no agent grades its own work.
+checked against a single board rank. And the second rule **cannot tell use from mention**: a record
+that quotes one of these defects in order to name it is flagged by it, which is why that rule is a
+WARN on a lab record and a FAIL only where a surface travels — and which caught **my own test
+fixtures** the minute the patterns widened, in the very file that documents why one must not write
+them out. **The rung is BUILT and GRADED PASS WITH EXCEPTIONS, and the exceptions are closed by the
+same agent that built it** — so the re-grade is owed to someone else. Under A15 no agent grades its
+own work, and that applies to a fix round exactly as it applies to a build.
 
 **The round is not scored PASS.** It fixed what it was sent to fix and it opened a new-shaped
 finding, which under the termination rule is exactly what a **non**-fixed-point round looks like.
