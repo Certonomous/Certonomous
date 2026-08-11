@@ -552,7 +552,21 @@ co-author.
 
 # 6. Filed to the docket
 
-Three findings, appended as **D29–D31** (IDs append-only per W-4; highest was D28).
+Three findings, appended as **D29–D31** at commit `281a6dc9` (IDs append-only per W-4;
+D28 was highest).
+
+- **D29** — a quantile-based spatial gate inverts when the deviating support is smaller
+  than the quantile. The general form, beyond G2. Owner: fleet.
+- **D30** — the scoring-call budget is lab discipline, not benchmark compliance, and
+  should be recited as a choice. Owner: fleet.
+- **D31** — the five submission rules that do not exist in any open source. **Owner:
+  Katie**, because settling them means contacting the steward, which is hers.
+
+Not filed to the docket, because they belong to their own documents' owners and are
+recorded here instead: the C2 gross-vs-net share labelling (§3.1), the 15-vs-16
+evaluation-count disagreement and the loose use of "bulk" for a face-value mean (§2.2),
+the stale 229.07 header in the weighted-arm record (§2.2), and the uncaptured
+`audit_final.py` stdout (§1.1).
 
 ---
 
