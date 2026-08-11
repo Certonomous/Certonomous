@@ -49,8 +49,9 @@ A lesson without a check is a lesson that will recur. Owner: fleet.
 
 | # | Item | Owner |
 |---|------|-------|
-| C1 | **Cold-start test, monthly.** A fresh agent with no context reaches correct current state from the durable files alone. Everything it gets wrong is a memory defect fixed **in the files**, never by explaining. First run due this week. | fleet |
-| C2 | **`docs/MEMORY_ARCHITECTURE.md`** — what persists, who writes it, what dies at session end, and the cold-start reading order. | chief |
+| C1 | **Cold-start test, monthly.** A fresh agent with no context reaches correct current state from the durable files alone. Everything it gets wrong is a memory defect fixed **in the files**, never by explaining. **First run IN FLIGHT 2026-08-11** — dispatched with exactly the one instruction §6.3 specifies. | fleet |
+| C2 | ~~`docs/MEMORY_ARCHITECTURE.md`~~ — **ALREADY EXISTS**, v1.0 dated 2026-08-10, and it carries all four required parts plus the test spec in its §6. *I filed this as open without opening the docs directory; the check took one `ls`. Left visible rather than deleted, because a docket whose first entry was a thing already done is exactly the defect the docket exists to catch.* | — |
+| C2a | **The §6.4 answer key is itself a set of quoted generated numbers** (B4's defect class): it fixes the lesson corpus at L-53 when `LESSONS.md` now runs to L-79, and the fleet-death count at eight. Scoring a fresh agent against a stale key marks correct answers wrong. The key needs regeneration-at-read-time or a stamp on every row. | chief |
 | C3 | **One home per fact.** Cross-reference; never copy. Copies drift (L-79). Supersession in place, dated — never a silent edit. | standing |
 
 ## D. Rung residuals
