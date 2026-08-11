@@ -556,9 +556,14 @@ dated wherever it appears.
 > *§5.1, §5.2, §5.3 and §5.4 were rewritten on 2026-08-11 against the round-5
 > payload, every number re-verified against a primary artifact rather than against
 > a sibling document — which is how the round-4 text went stale in the first place.
-> The banner below is kept **verbatim as the record of what was found**; it is no
-> longer a description of the text underneath it. Row-by-row closure follows the
-> table.*
+> The banner below is kept **as the record of what was found**, and the word
+> *verbatim* is retired here because it was one line too strong. **Its thirty body
+> lines are byte-identical** — every row of the ten-row defect table, including the
+> round-4 numbers it indicts — but **its heading was replaced and demoted `##` →
+> `###`**, that heading being the one line which described the text underneath it,
+> and that text is no longer what it described; the blank line that closed the
+> blockquote became `>` so the closure table joins it. Row-by-row closure follows
+> the table.*
 >
 > **What has NOT changed: nothing is sent.** §5.6 items 6 and 7 are Katie's and
 > remain OUTSTANDING, and they are the send block. This rewrite makes the package
@@ -568,14 +573,16 @@ dated wherever it appears.
 > row of the table below states the like-for-like re-score of Reissmann as
 > `0.0595338` and the margin as `0.0028863`. **Those two do not subtract** against
 > our 0.056647191704213645 — they disagree by 3×10⁻⁷. Re-running the benchmark's
-> own scorer over Reissmann's four published CSV directories at eval package commit
+> own scorer over Reissmann's eight published CSV directories at eval package commit
 > `1c4e22c8` (a competitor's public files; **not** a scoring call on our
 > predictions, so the ledger stands at 6) gives **0.05953352830400628**, i.e.
 > **0.0595335**, and a margin of **0.00288634**. **The margin `0.0028863` is
 > correct; the transcribed `0.0595338` is the misrounded one.** The same misrounded
-> `0.0595338` is printed in `closure_challenge_submission_round5/DESCRIPTION_DOCUMENT.md`
-> §5 and owes a one-digit correction there; that file is not this commit's to edit
-> and the discrepancy is flagged rather than left silent.
+> `0.0595338` was printed in `closure_challenge_submission_round5/DESCRIPTION_DOCUMENT.md`
+> §5. **That correction has landed: `fdb1ec5c`, 2026-08-11 01:41:00Z, four minutes
+> after this paragraph was written.** The travelling document now reads `0.0595335`
+> at both sites and contains no occurrence of `0.0595338` — checked on the file
+> itself, 2026-08-11, not on a sibling's report of it.
 >
 > ---
 >
@@ -666,19 +673,21 @@ itself — and none of it was copied from a sibling document.*
 | What is actually ours | **3 of the 8 predictions.** 2 are the supplied baseline unchanged; 3 are an untrained QCR2000 forward solve | §10; `DESCRIPTION_DOCUMENT.md` §2 |
 | Best on published board | **4 of 8 — and two of those four are the organisers' own baseline file**, so **2 of 8** belong to our model | §0f of `CLOSURE_CHALLENGE_STATUS.md`; re-verified 2026-08-11 case by case against the four published submissions |
 | Standing | 0.056647 is the lowest overall on the published board at `deb91557`, **scored locally by us — not an official placement.** P(rank 1) = **68%**, interval **2–100% at 95%**; the leads over Reissmann and over Wu & Zhang are **not statistically decided**, the leads over Liu (98.7%) and Montoya (99.8%) are | `campaign/PROBABILITY_OF_RANK_2026-08-10.md` |
-| Margin over the runner-up | **0.0028863** over Reissmann, Fang & Sandberg — see the note below | re-scored 2026-08-11 |
+| Margin over the published rank-1 entry | **0.0028863** over Reissmann, Fang & Sandberg — see the note below | re-scored 2026-08-11 |
 | Scored with | benchmark's own unmodified scorer, eval package commit `1c4e22c8`, benchmark commit `deb91557` | `harness_check`; both commits confirmed in the local checkouts |
 
 **The margin pair, resolved rather than inherited.** The README publishes **0.0595**
 to four decimals; `0.059525`, which earlier drafts of ours called "published", is the
 mean of eight *rounded* per-case values and is not a number anyone published. A
-like-for-like full-precision re-score of Reissmann's own submitted CSVs on the same
-harness gives **0.05953352830400628**. Against our 0.056647191704213645 that is a
-margin of **0.00288634 → 0.0028863**. The value `0.0595338` quoted in
-`DESCRIPTION_DOCUMENT.md` §5 and in the §5 banner above is a transcription slip in the
-seventh decimal — **it does not subtract to the margin printed beside it**, and the
-correct pair is **0.0595335 / 0.0028863**. The 0.002419 seed bound covers 84% of that
-margin either way (0.8380). *This re-score touched a competitor's public files only;
+like-for-like full-precision re-score of Reissmann's own eight submitted CSVs on the
+same harness gives **0.05953352830400628**. Against our 0.056647191704213645 that is a
+margin of **0.00288634 → 0.0028863**. The value `0.0595338` quoted in the §5 banner
+above — and, until `fdb1ec5c` (2026-08-11 01:41:00Z), in `DESCRIPTION_DOCUMENT.md` §5 —
+is a transcription slip in the seventh decimal: **it does not subtract to the margin
+printed beside it**, and the correct pair is **0.0595335 / 0.0028863**. **The
+travelling document was corrected at `fdb1ec5c` and now reads `0.0595335` at both of
+its sites**, checked on that file rather than on a report of it. The 0.002419 seed
+bound covers 84% of that margin either way (0.8380). *This re-score touched a competitor's public files only;
 the lab's scoring-call ledger stands at 6, unchanged.*
 
 **A second pair that must not be smoothed together.** The 0.0028863 margin rests on
@@ -842,9 +851,10 @@ steward's own scoring differs from ours, the steward's number is the number.
    overall-equivalent spread is ~0.0003; a truth-free bound at the test points cannot
    exclude **0.002419**. **Round-5 correction, 2026-08-11:** this item used to anchor
    that bound to "the 0.0030 gap to rank 2", which no longer exists. The operative
-   comparison is the **0.0028863 margin over the runner-up**, of which the seed bound
-   covers **84%** (0.002419 / 0.0028863 = 0.838 — the 84% figure is correct only with
-   the *unrounded* bound, so both are stated unrounded). The three duct predictions
+   comparison is the **0.0028863 margin over Reissmann, Fang & Sandberg**, of which
+   the seed bound covers **84%** (0.002419 / 0.0028863 = 0.838 — the 84% figure is
+   correct only with the *unrounded* bound, so both are stated unrounded). The
+   three duct predictions
    carry zero seed variance, since nothing in them was trained. **No document in this
    package may quote the margin without this qualifier**
    (`closure_challenge_seed_sensitivity.json`).
