@@ -263,6 +263,31 @@ All three logs that carry both requested `natural` — which is **also PETSc's
 own default ILU ordering**, so even those three do not discriminate between "the
 lever took" and "the lever did nothing and the default matched it".
 
+> **[CHIEF, 2026-08-11 — independently re-derived, and it sharpens U-1 rather than
+> weakening it.]** I re-ran this measurement from scratch on my own frame
+> (`find` over both roots, `/usr/bin/grep -lIF`, not this shell's `grep`) and
+> reproduced **all four numbers exactly**: 1,635 logs, 386 printing a requested
+> ordering, 257 requesting `rcm`, 8 carrying a readback, **intersection 0**.
+>
+> Then I read what the eight readbacks actually *say*, which the table above
+> counts but does not quote — and **five of them are `matrix ordering: rcm`**
+> (`W4-adjoint-pc-unblock/{control,diagfill,nzdiag,sublu,zeropivot}_rcm.log`).
+> None of those five prints a requested-ordering line at all: they are runs where
+> `rcm` was set by another route and `-ksp_view` confirmed it took.
+>
+> **So the honest claim is narrower and more useful than "no activity proof
+> anywhere".** `rcm` as a PETSc ordering is **proven to work in this environment**,
+> five times over. What has never been proven is the link from **DAFoam's
+> `jacMatReOrdering rcm` key** to that ordering. 257 runs set the key; not one
+> shows the ordering it asked for. That is L-40's sentence with the subject named
+> precisely — the switch you set is not the switch that ran — and it is a smaller,
+> sharper, more falsifiable claim than the archive-wide absence.
+>
+> **It also de-risks M-A.** The proposed 8 core-min purchase is two arms with
+> `-ksp_view` on, and the readback mechanism is now known to work here rather than
+> assumed — those five logs are the working example. The measurement will produce
+> a discriminating answer or a diagnosable failure, not silence.
+
 **Consequence for the hump.** The hump adjoint logs contain the printInfo block
 (`hump_adjoint_run1.log:2268-2277`) and **no** `-ksp_view` block at all. So
 `rcm` on the hump baseline and `natural` on rung 4 are both proven only at the
