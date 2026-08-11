@@ -2535,3 +2535,51 @@ same claim can take — words for digits, comparatives for ordinals, a line brea
 mid-phrase — and produce a positive control in each form. A guard that fires
 only on the instance that inspired it is a regression test wearing a detector's
 clothes, and it is worse than no guard, because its green is read as coverage.
+
+## L-62. A test whose verdict is a function of the machine's spare cores is a load sensor wearing a test's clothes — ours was red for ten days and flipped colour in six minutes
+
+A suite test had been red since 2026-08-01. Three agents looked at it and **saw
+three different things**, and the natural reading — that some of them were
+careless — was wrong. The test asserted that the worker roster takes exactly
+three steps. The roster's *shape* turns out to be **a function of the box's
+available cores**, not of the code: at capacity ≤ 9 the sweep level and the
+solve level coincide and the shape has three steps; at ≥ 10 they separate and it
+has four. Forced probes on **identical committed source** produced `[0, 6, 0]`,
+`[0, 9, 0]`, `[0, 10, 9, 0]`, `[0, 14, 9, 0]`.
+
+So the red was real, reproducible, and **reporting the wrong variable.** It
+flipped inside a single session: capacity 14 and **red at 02:41**, capacity 5 and
+**green at 02:47**, after eight other agents' solver jobs landed on the shared
+box. For ten days the suite had been telling us how busy the machine was.
+
+Three things make this worth numbering:
+
+**The comment and the assertion had disagreed since birth.** Both landed in the
+same commit, 13 seconds after the fix they were written to pin. That fix's own
+message records the defect as a **bounce** — a return to zero mid-run — and the
+comment forbids exactly that. But the assertion forbids *any change of size*,
+which is a **strictly stronger claim** than the workflow, the control room, or
+any standing ruling makes. Nobody wrote a wrong test; someone wrote a test that
+over-reached its comment by one quantifier, and the machine hid the gap until a
+quiet box exposed it.
+
+**The fix had to avoid becoming a loosening.** Deleting an assertion that fails
+is not a repair. What makes the replacement stronger rather than weaker is a new
+rule: **each level must equal the fan-out actually running** — the slots the
+sweep dispatched to, and the slots carrying a live solve. The number is now
+pinned **to the run** instead of to a constant, which is the same principle that
+made a convergence detector trustworthy elsewhere: gate on a relation the system
+states about itself, never on a literal.
+
+**It was verified in both directions, which is what closed it.** In isolated
+trees: the old assertion **fails** against HEAD's workflow at forced 24 cores and
+**passes** at 8 — identical source, which is the defect demonstrated rather than
+argued; and the new test **fails at both capacities** when the original bounce is
+restored. A test that only passes has not been shown to test anything.
+
+Practical form: when a test disagrees between runs or between people, **suspect
+the environment before the observers**, and force the environment variable both
+ways rather than sampling whatever the box happens to offer. On a shared box
+where agents run concurrently, any test that reads a resource-derived quantity
+must pin that resource explicitly — otherwise its colour is a measurement of the
+neighbours.

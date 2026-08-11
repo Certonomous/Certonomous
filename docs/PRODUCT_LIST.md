@@ -2641,6 +2641,35 @@ clock-audit rule asks for.]*
   actually about** — with the cover email's parallel phrasing named as the candidate fix precisely because it
   carries no placement word at all.
 
+### 2026-08-11 — the ten-day-red fleet test is green, and for ten days it was reporting how busy the box was
+
+- **CLOSED: the suite's one red, open since 2026-08-01.** Verified green on my own independent run
+  (`1 passed, 4 subtests passed`), not on the agent's word.
+- **Three agents saw three different things, and none of them was careless.** The test asserted the worker
+  roster takes exactly three steps; the roster's **shape is a function of the box's free cores**, not of the
+  code. On **identical committed source**, forced probes gave `[0, 6, 0]` · `[0, 9, 0]` · `[0, 10, 9, 0]` ·
+  `[0, 14, 9, 0]`. It flipped colour **inside one session** — red at 02:41 at capacity 14, green at 02:47 at
+  capacity 5, after eight other agents' jobs landed on the shared box.
+- **The comment and the assertion had disagreed since birth** — both committed 13 seconds after the fix they
+  were written to pin. The fix's own message records the defect as a **bounce**; the comment forbids a bounce;
+  **the assertion forbids any change of size at all**, a strictly stronger claim than the workflow, the control
+  room, or any standing ruling makes. The test over-reached its own comment by one quantifier and the busy
+  machine hid it.
+- **The repair is not a loosening, and that was the hard part.** Deleting a failing assertion is not a fix. The
+  new rule is that **each level must equal the fan-out actually running** — the slots the sweep dispatched to,
+  the slots carrying a live solve. **The number is pinned to the run rather than to a constant**, the same
+  principle that made the convergence detector trustworthy: gate on a relation the system states about itself.
+- **Verified in both directions in isolated trees**, which is what closes it: the old assertion **fails** against
+  HEAD at forced 24 cores and **passes** at 8 on identical source — the defect demonstrated rather than argued —
+  and the new test **fails at both capacities** when the original bounce is restored.
+- **Bonus finding, and it clears a shoot worry:** the two recordings were pulled apart by their roster traces.
+  The wrong one that was shipping shows `granted = 13`, which **proves it was a recording of the standing prompt,
+  not the typed shoot-day directive** — one mistake produced both symptoms, the wrong span ladder *and* the only
+  run with the step-down on screen. The rebuild already fixed both; on the shoot-day prompt this box would need
+  ≥ 20 cores to show a step. **No camera risk, nothing to change for the shoot.**
+- Recorded as **L-62**: a test whose verdict depends on spare cores is a load sensor wearing a test's clothes;
+  when a test disagrees between people, suspect the environment before the observers.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
