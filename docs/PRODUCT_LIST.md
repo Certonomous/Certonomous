@@ -3034,6 +3034,41 @@ check was commissioned, and it is the best argument tonight for never letting an
 - Verification: guard tests **35 passed**, full suite **1328 passed**. One failure — `test_exec_bits` — is on another
   agent's newly added queue script and **reproduces without any of this agent's changes**; routed to its owner.
 
+### 2026-08-11 — the preflight gate checked a directory that was not the case that ran, and 7 launches would have been blocked
+
+**The exposure question had a real answer, and it was not zero.**
+
+- **7 of 136 evaluable records would have been blocked by the new check** — 4 declared the **repo root** as the case,
+  and 3 declared a **wrapper directory** while meshing actually ran in its subdirectories. **The gate checked a
+  directory that was not the case that ran, found nothing to object to, and passed green and silent.** That is
+  precisely the failure the gate exists to prevent, and it is why the answer is not zero.
+- **The frame is stated and the number is honest about itself**: 7 is a **lower bound over 136 evaluable records, not
+  over 146** — 6 case directories are gone and 4 records have no case line, so they cannot be evaluated at all. A
+  further 20 fail only a pre-existing check against **post-run** state the runs themselves created — **a measurement
+  artifact, not a launch-time defect, and deliberately not folded in.**
+- **TWO OF THE THREE DEFECTS I PUBLISHED DID NOT REPRODUCE, and a third was overstated.** The executable bit was
+  already fixed on 2026-08-10 and confirmed by a **real fresh clone**; the launcher's `[ -x ]` skip is gone, replaced
+  by a `bash` fallback that gives "did not run" its own third verdict. And *"entirely silent under `--quiet`"* is too
+  strong — **failures were audible.** The true defect is **narrower and worse: PASS was routed through the quiet
+  channel, so success emitted nothing and an empty directory was a success. Silent-green, not silent-red.**
+- **THAT IS THE SECOND LEDGER HEADLINE TO FAIL VERIFICATION TONIGHT**, after the filming gate. The independent
+  headline audit already running is now the more important job, and it has a second data point.
+- **The fix addressed the class.** Every existing check was *"look for a known defect and complain"* — a shape with
+  one blind spot: **an empty directory presents no defect to any of them, so all pass and their silence composes into
+  a green.** A new precondition stage enumerates what a case must **contain** and requires each positively. **The
+  required list was chosen empirically, not by taste** — checked against all 78 surviving corpus cases; 76 carry
+  every element and the 2 that don't were never cases.
+- **Two more greens-from-nothing closed in the same sweep**: a header check that fired identically whether it parsed
+  40 files or 0, and a patch check reporting *"checked against mesh (0 patches)"* having read no patch names. **No
+  existing check was relaxed.**
+- **The decisive control is a discriminating pair**, not a refusal: the wrapper directory goes red while **its real
+  subcase goes green at 18 checks** — proving the gate discriminates rather than blanket-refuses. Across 78 corpus
+  directories the verdict changed on exactly **2**, both genuine non-cases.
+- **End-to-end verified through the launcher**: refusals launch nothing and write **0** registry files, with the
+  registry redirected to scratch and **all 146 records intact and unmodified.**
+- **Found while not looking: 4 zero-byte completion records** whose logs hold 3.6–6.5 MB of real solver output — the
+  collector wrote **nothing**. Same *"absence reads as nothing happened"* family. Queued as its own rung.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
