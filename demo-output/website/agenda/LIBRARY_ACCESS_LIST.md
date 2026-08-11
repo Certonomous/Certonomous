@@ -246,7 +246,12 @@ correction to the preprint:**
 3. **§2.3 states the metric's interpretation in the authors' words** — *"a score
    of 0.05 indicates that predictions are off by approximately 5% of the mean
    velocity magnitude on average"* — which is now citable wherever the lab
-   explains what 0.0654 means.
+   explains what its overall score means. *(Score updated 2026-08-11, Ladder V
+   rung V14 item 11: this read `0.0654`, the entry of record when this list was
+   worked down on 2026-08-02. It is **0.056647** since round 5 superseded round
+   4 on 2026-08-07 — `closure_challenge_round5_qcr.json`. The claim is about
+   the quotation's citability, not about any round, so it is now written
+   round-free; the illustration the quote supports is unchanged either way.)*
 
 Full audit: `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §9. See also
 `closure_challenge_C6_hump_decision.md` section 6.

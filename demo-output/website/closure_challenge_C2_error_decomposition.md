@@ -133,11 +133,25 @@ do better, not what the answers are.
 | 1 | Reissmann, Fang, and Sandberg | 0.0595 |
 | 2 | Wu and Zhang | 0.0624 |
 | 3 | Liu, Wang, Zhao, and Xiao | 0.0737 |
-| — | **ours (unsubmitted)** | **0.0741** |
+| — | **ours, round 2 (unsubmitted)** | **0.0741** |
 | 4 | Montoya, Oulghelou, and Cinnella | 0.0779 |
 
 We sit **between rank 3 and rank 4**, 0.0004 off rank 3 — far closer than
 "beats the rank-4 target" conveyed.
+
+> **Supersession note, added 2026-08-11 (Ladder V rung V14, stale-surface item
+> 10).** The `ours` row was written without a round label, so a reader met an
+> unlabelled 0.0741 in a table headed *where we actually stand*. It is **round
+> 2**, this document's own subject (§1: all figures from
+> `closure_challenge_trained_entry_round2.json`), and the label is the only
+> edit made to it. Three rounds have landed since: round 3 **0.0676**, round 4
+> **0.0654**, and the entry of record, round 5, **0.056647** on 2026-08-07
+> (`closure_challenge_round5_qcr.json`). The *"between rank 3 and rank 4"*
+> reading is round 2's and is left exactly as written — it is the finding this
+> document exists to record, and re-basing it would delete the deficit the
+> decomposition was built to explain. Where the lab stands now:
+> `CLOSURE_CHALLENGE_STATUS.md` §0f, which carries the caveats any rank claim
+> must travel with.
 
 ## Per-case against rank 2, and against the best score anywhere on the board
 
