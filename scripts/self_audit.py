@@ -951,36 +951,99 @@ _PLACE_LINALG_L = re.compile(                         # ...is rank three out of 
 # trades a latent false positive for a live false NEGATIVE is the worse trade:
 # the false positive is loud and the false negative is silent.
 #
-# So the rule is NEAREST WINS, and only to the LEFT -- whichever of {a
-# linear-algebra noun, an entrant's surname} sits closer to the ordinal is what
-# the sentence is about. Right-hand context keeps its own narrower test
-# (`_PLACE_LINALG_R`, head nouns directly after the ordinal); a turbulence noun
-# merely trailing the clause no longer votes at all.
+# SO THE RULE IS THE HEAD OF THE GRAMMATICAL SUBJECT, and getting here took
+# three wrong proxies for it. Each was a different way of asking the text
+# "which of these two words is more important", when the question the sense
+# turns on is "which of them is the sentence ABOUT":
+#
+#   1. NUMERAL FORM -- right restriction, false reason (above).
+#   2. A WINDOW ON BOTH SIDES -- muted real placements whenever a turbulence
+#      noun trailed the clause. Five sentences, now fixtures.
+#   3. NEAREST WINS, LEFT ONLY -- token distance. It inverts on the ordinary
+#      English postmodifier: put an entrant's genitive, agent phrase or
+#      relative clause BETWEEN the linear-algebra noun and the ordinal and the
+#      surname is nearer, so the guard read a sentence whose subject was a
+#      tensor as a claim about a person. Grade round 5 executed six of these:
+#      four faulted a correct sentence, two muted a wrong placement.
+#
+# Distance was never the thing. In `<SUBJECT> ... is rank N` the sense is fixed
+# by the HEAD of the subject noun phrase, and English puts postmodifiers AFTER
+# that head: everything from the first preposition or relativizer onward
+# modifies the subject, it is not the subject. So cut there and read the head
+# off what remains. The four false positives of round 5 all have a
+# linear-algebra head with the entrant inside a postmodifier; the two false
+# negatives all have an entrant head with the linear-algebra noun inside one.
+#
+# WHAT THIS COSTS, stated rather than discovered later. It is a heuristic for a
+# parse and it has three known blind spots, none of which is a false FAULT:
+# a subject whose head noun is neither an entrant nor in `_PLACE_LINALG_NEAR`
+# falls through to the whole clause; a fronted modifier is skipped only because
+# nothing stands in front of it; and coordination (`the tensor and Wu are ...`)
+# resolves to whichever sits later. Right-hand context keeps its own narrower
+# test (`_PLACE_LINALG_R`, head nouns directly after the ordinal).
 _PLACE_LINALG_NEAR = re.compile(
     r"tensor|basis|matri(x|ces)|stress|gradient|invariant|operator|eigen"
     r"|representation|jacobian|hessian|subspace|singular value|pointwise"
     r"|deficient|full[- ]rank", re.I)
-_PLACE_LINALG_WINDOW = 80
+_PLACE_LINALG_WINDOW = 120
+# What introduces a postmodifier: a preposition or a relativizer. Everything
+# from here rightward describes the head; it is not the head.
+_PLACE_POSTMOD = re.compile(
+    r"\b(that|which|who|whose|whom|where|when|in|on|at|of|from|with|by|for"
+    r"|to|into|across|within|under|over|between|among|through|via|against"
+    r"|about|around|per|versus|than)\b", re.I)
+# A clause the copula cannot reach back across. Deliberately NOT the comma:
+# the comma is what delimits the appositive in the false-negative shapes, and
+# cutting there would throw away the very subject that must be found.
+_PLACE_CLAUSE = re.compile(r"[.!?;:]")
 _PLACE_SENTENCE = re.compile(r"[.!?][)\"'*`\s]*\s[A-Z(\"'*`]")
+# Stands for "a new token starts here" in the boundary probe below. It is a
+# constant on purpose: the real first character of that token carries no
+# information about the sentence, only about how the source was capitalised,
+# and reading it was the whole of the round-5 boundary defect.
+_PLACE_TOKEN_START = "A"
+# A copula, for the subject-NP bind below. Narrower than `_PLACE_LINALG_L` on
+# purpose: that pattern also admits `of`, `a`, `an`, which introduce a
+# measurement rather than predicate one of a subject.
+_PLACE_COPULA = re.compile(r"\b(is|are|was|were|remains?|stays?)\s+$", re.I)
 _PLACE_BIND = 40
 _PLACE_ADJUDICATED = 400
+
+
+def _place_subject_np(left: str, names: re.Pattern) -> str:
+    """The subject noun phrase of the clause the ordinal sits in.
+
+    The clause containing the copula, cut at the FIRST postmodifier that has a
+    candidate noun standing in front of it. The "in front of it" qualifier is
+    what lets a fronted modifier be skipped: a sentence-initial prepositional
+    phrase has nothing before it, so it cannot be the cut.
+    """
+    window = left[-_PLACE_LINALG_WINDOW:]
+    start = max((m.end() for m in _PLACE_CLAUSE.finditer(window)), default=0)
+    clause = window[start:]
+    for mark in _PLACE_POSTMOD.finditer(clause):
+        head = clause[:mark.start()]
+        if _PLACE_LINALG_NEAR.search(head) or names.search(head):
+            return head
+    return clause
 
 
 def _place_linalg_subject(left: str, names: re.Pattern) -> bool:
     """Is the thing said to be rank N a linear-algebra object, not an entrant?
 
-    NEAREST WINS. Both a turbulence noun and an entrant's surname sit in the
-    same sentence constantly here, so presence decides nothing and proximity
-    decides everything. Covered by `LinearAlgebraRankIsNotAPlacementTests`,
-    which carries the five adversarial sentences the presence-only version
-    went silent on and the four digit-form corpus shapes it must still mute.
+    Decided on the SUBJECT NOUN PHRASE, not on token distance -- an entrant
+    named inside a postmodifier is not what the sentence says is rank N. Within
+    that phrase the later noun is the head, which is where English puts it.
+    Covered by `LinearAlgebraRankIsNotAPlacementTests`: the five adversarial
+    sentences the presence-only version went silent on, the four digit-form
+    corpus shapes it must still mute, and the six round-5 postmodifier shapes.
     """
-    window = left[-_PLACE_LINALG_WINDOW:]
-    obj = max((m.end() for m in _PLACE_LINALG_NEAR.finditer(window)),
+    head = _place_subject_np(left, names)
+    obj = max((m.end() for m in _PLACE_LINALG_NEAR.finditer(head)),
               default=None)
     if obj is None:
         return False
-    who = max((m.end() for m in names.finditer(window)), default=None)
+    who = max((m.end() for m in names.finditer(head)), default=None)
     return who is None or obj > who
 
 
@@ -1331,15 +1394,59 @@ def _placements(text: str, names: re.Pattern, board: dict[str, int]):
             # own first letter, so "Wu and Zhang did the duct case. Rank 4 is
             # Montoya's." bound across the stop for the identical reason --
             # executed against the patched-right/unpatched-left build, that
-            # sentence and two more returned one rule-A fault each. Both sides
-            # now carry the next character; the positive controls that the
-            # guard has not simply stopped binding after every full stop are in
+            # sentence and two more returned one rule-A fault each.
+            #
+            # AND SYMMETRY WAS NOT THE INVARIANT EITHER. Appending the REAL
+            # next character made both sides carry one -- true, and it left the
+            # defect standing, because `_PLACE_SENTENCE` closes a boundary only
+            # on an UPPERCASE character and neither appended character reliably
+            # is one. On the left it is the ordinal token's first character: a
+            # DIGIT in every `Nth place` form, lowercase for a sentence-initial
+            # rank token or a lowercased word-form ordinal. On the right it is
+            # the matched surname's first character, and surnames match
+            # case-insensitively, so a lowercase citation form defeated it.
+            # Grade round 5 executed six shapes that bound across a full stop.
+            #
+            # The character's identity was never doing any work. Both `token`
+            # and `hit.group(0)` are matches of word-boundaried patterns, so
+            # what the appended character MEANS is "a new token starts here" --
+            # and whether the source happened to capitalise that token is an
+            # accident of formatting, not evidence about the sentence. So
+            # append a character that stands for the token start, and the test
+            # stops depending on a case it cannot control. The positive
+            # controls that the guard has not simply stopped binding after
+            # every full stop are in
             # `test_a_boundary_binds_nothing_even_when_the_name_starts_the_sentence`.
-            probe = between + (token[:1] if side == "L" else hit.group(0)[:1])
+            probe = between + _PLACE_TOKEN_START
             if names.search(between) or _PLACE_SENTENCE.search(probe):
                 continue
             who, rank = hit.group(0), board[hit.group(0).lower()]
             break
+        # THE SAME PROXY FAILURE, ONE LEVEL UP -- and the round-5 grade did not
+        # see it. `_PLACE_BIND` is a distance standing in for "this ordinal is
+        # predicated of that entrant", so a postmodifier between the subject and
+        # the copula pushes the subject out of reach: in the two shapes that
+        # grade filed as E2 false negatives the entrant sits 69 and 73
+        # characters from the ordinal, and BOTH stay silent with the
+        # linear-algebra discriminator answering correctly. Distance was not
+        # what muted them.
+        #
+        # So when nothing bound and the ordinal is predicated by a copula, ask
+        # the subject noun phrase who the subject is -- the same question E2
+        # answers, and `_place_subject_np` already computes it. This cannot
+        # reach across a sentence: the phrase is cut at `_PLACE_CLAUSE` first,
+        # which is what keeps the boundary controls above passing. The entrant
+        # must be the HEAD of that phrase -- last, with no linear-algebra noun
+        # after it -- or the sentence is about the object, not the person.
+        if who is None and _PLACE_COPULA.search(left):
+            phrase = _place_subject_np(left, names)
+            subject = None
+            for candidate in names.finditer(phrase):
+                subject = candidate
+            if subject is not None and not _PLACE_LINALG_NEAR.search(
+                    phrase[subject.end():]):
+                who = subject.group(0)
+                rank = board[who.lower()]
         found.append((n, who, rank, m.start(), token, flat))
     return found
 
