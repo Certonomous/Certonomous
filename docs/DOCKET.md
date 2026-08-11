@@ -67,3 +67,64 @@ it means they are not what that rung declared it would settle.
 |---|------|
 | E1 | Print the 30 unprinted self-audit blind spots. |
 | E2 | Fix the completion-record collector writing zero-byte `.done` files. |
+
+## F. Repo professionalization — Katie's §7, 2026-08-11. **BLOCKED BY DESIGN.**
+
+**The block is Katie's own sequencing and it is not a delay to be worked around:** *"after
+Ladder V converges — not during"*, because path moves under active worktrees create merge
+chaos and moves during an open verification poison the ladder's paths. It sits here, in the
+queue, rather than in flight.
+
+**Release conditions, all four:**
+
+1. Ladder V converged (the fixed point, not a clean sweep — see the ladder's termination rule).
+2. Every family drained or checkpointed. No agent holding open work in the tree.
+3. One dedicated agent, one branch `chore/repo-structure`, one quiet window.
+4. A written `MOVE_MAP` (old → new, **every** file) committed **first**, before any move.
+
+**Mechanics that bind that agent:** `git mv` only, history preserved; imports, launchers,
+cron and systemd paths updated **in the same commits** as the moves; full test suite green
+after **every batch**; the sanctioned `sweep()` helper re-pointed (it is B1's deliverable, so
+B1 lands first); no history rewrite; nothing load-bearing deleted without a docket entry.
+
+**Target shape** (proposed, then executed): product source under `certonomous/` or a retained
+`sdk/`, with `workflows/`, `agents/`, `kernel/` beneath it; `ops/` for launchers, auto-stop and
+preflight; `docs/` as the **only** documentation home, with `charters/`, `standards/`,
+`research/`, `architecture/`; `cases/` for configs and birth certificates, **never results**;
+`evidence/` gitignored with a README explaining what lives there and why it is untracked;
+`web/` for site-bound artifacts. Root reduced to README, the LICENSE decision, top-level
+configs, and directories. **Nothing loose at root.**
+
+**READMEs:** root README = what Certonomous is in three sentences, a 30-second architecture
+sketch, how to run one mission, a repo map at one line per directory, and a pointer to
+`docs/`. Every top-level directory gets its own short README naming purpose and entry points.
+The qg-closure Q2 standard applies — goals and structure, professional register, no stale
+claims — and **every number quoted obeys L-79: regenerate it, or carry its provenance.**
+
+**Acceptance is a test, not an opinion — the cold-visitor test.** An agent with no context
+clones the branch and must answer, within one screen per level: what is this, how do I run a
+mission, where are the charters, where is the evidence for claim X. **Every question it has to
+dig for is a defect.** Then Sanaa walks the tree herself before merge. That second gate is a
+**taste gate and taste is hers** — it is not delegable to a checklist.
+
+**One finding already, made while filing this and worth landing before the move window opens:**
+G5 asks that tracked generated artifacts move to a gitignored `evidence/` or leave tracking.
+They exist in quantity **today** — `demo-output/website/campaign/F7_runs/F7a_R1/` alone tracks
+OpenFOAM time directories (`0.025/U`, `alpha.water`, `phi`, `uniform/functionObjects/…`) as
+version-controlled files. That is solver output in git. **Scoping it is zero-compute and can
+be done now**; the moves themselves wait for the window with everything else.
+
+## G. Naval campaign — Katie's §8, 2026-08-11. Executing the zero-compute half now.
+
+| # | Item | Compute? | State |
+|---|------|----------|-------|
+| G1 | **H1 F7a re-gate.** Pin the measurement definition **contractually** in the gate spec — probe row, front criterion, time origin: the exact ambiguity that produced the false FAIL. Then re-run and take the verdict either way. | Spec: **no**. Re-run: **yes** | Spec **IN FLIGHT**; the re-run is a request to Katie |
+| G2 | **H2 Wigley hull.** Wave-making resistance vs published data at 2–3 Froude numbers; free-surface mesh discipline written into a new marine section of `MESH_STANDARD`; birth certificates as everywhere. | Yes | Mesh section and pre-registration can precede it |
+| G3 | **H3 DTMB 5415.** Resistance vs open workshop data — the credibility case naval people recognise on sight. Staged per doctrine: feasibility → physics (wave pattern qualitatively right) → gate rung. | Yes, staged | Staging plan is zero-compute |
+| G4 | **H4 extensions, filed as COSTED PROPOSALS and not auto-run:** KCS container ship; propeller open-water curve vs workshop data (reuses F8's MRF machinery — the naval turbine); seakeeping / added resistance, which needs wave BCs we may not have, so **the deliverable is the capability-gap map, honest about what is missing.** | Filing: **no** | Filing now |
+| G5 | **H5** Every naval gate lands on the credentials wall with regime metadata like everything else, and **Naval becomes a wall category.** Katie's GTM list already touches marine engineers, so these wall entries are sales artifacts the day they exist. | No | Follows each gate |
+
+**The honest note about H4's third item:** "needs wave BCs we may not have" is a claim about
+our capability, and the deliverable Katie asked for is the **gap map**, not a workaround. An
+agent that discovers we lack the boundary conditions and quietly substitutes something else
+has destroyed the deliverable. The map is the product.
