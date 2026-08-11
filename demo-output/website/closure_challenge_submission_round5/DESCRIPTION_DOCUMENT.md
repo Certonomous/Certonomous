@@ -51,7 +51,7 @@ point.
 **The duct part.** `kOmegaSSTQCR` with `Ccr1 = 0.3` — Spalart (2000)'s published
 constant, **nothing fitted to anything** — solved forward to convergence on
 `residualControl`. It has no training range, which is exactly why it was chosen
-(see disclosure 3b). The rank-3 entry, Wu & Zhang's SST-QCRC, carries the same
+(see disclosure 3b). The rank-2 entry, Wu & Zhang's SST-QCRC, carries the same
 term; our three duct scores land within 0.0004 of theirs on all three ducts,
 from independent solves. **The duct signal is the QCR term, not us.**
 
