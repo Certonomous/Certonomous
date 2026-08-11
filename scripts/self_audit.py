@@ -79,6 +79,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import functools
 import json
 import math
 import os
@@ -683,12 +684,27 @@ def check_rank_claim_surfaces() -> Result:
 # that travels -- on a travelling surface there is no reason to quote a defect,
 # and on a lab record there is every reason.
 #
-# WHOLE TEXT, NOT LINES. The parent instance reads "the rank-3 entry (Wu &"
-# with the rest of the name on the next line -- Wu & Zhang being rank 2. A
-# line-bounded reader can be defeated by a reflow, which is the failure this
-# ladder has now recorded four times. Whitespace is collapsed before matching
-# and the positive control in `sdk/tests/test_rank_claim_surfaces.py` proves
-# the two modes disagree on a text where only the wrap differs.
+# WHOLE TEXT, NOT LINES -- and the first justification for this was WRONG.
+#
+# It used to say the parent instance on the lab record is defeated by its own
+# reflow. It is not. That sentence breaks after "the rank-3 entry (Wu &", which
+# is INSIDE the entrant's name and AFTER the first-author surname this check
+# keys on -- Wu & Zhang being rank 2 -- so a line-bounded reader catches it too.
+# I found that against my own claim and it is retracted here rather than left
+# standing in the code a rule-author reads.
+#
+# The real justification is a live sentence in
+# `latex/closure_challenge_report.tex`, which reads "The published entry
+# ranked" and then breaks, with "second before round 5 --- Wu & Zhang's
+# SST-QCRC" on the next line. There the break falls BETWEEN the ordinal and its
+# rank word. Whole-text sees one placement there; line-bounded sees none. That
+# sentence is correct, by luck rather than by any instrument, and it was
+# invisible to this check until the `ranked <ordinal>` family was added on
+# 2026-08-11.
+#
+# Whitespace is collapsed before matching, and the positive control in
+# `sdk/tests/test_rank_claim_surfaces.py` proves the two modes disagree on a
+# text where only the wrap differs.
 _BOARD_DIR_ENV = "CLOSURE_BENCHMARK_DIR"
 _BOARD_PIN = REPO / ("demo-output/website/closure_challenge_submission_round5"
                      "/README.md")
@@ -716,6 +732,7 @@ _PLACE_ORDINAL = ("first second third fourth fifth sixth seventh eighth ninth "
                   "twentieth").split()
 
 
+@functools.lru_cache(maxsize=8)
 def _place_tokens(upto: int) -> dict[str, int]:
     """{token: position} for 1..upto, in every form this corpus writes.
 
@@ -734,19 +751,54 @@ def _place_tokens(upto: int) -> dict[str, int]:
     return tokens
 
 
-def _place_pattern(tokens: dict[str, int]) -> re.Pattern:
-    """The placement forms this corpus actually writes, over a derived range.
+# The families this pattern reaches, and why these and not the rest.
+#
+# The first two alternatives are what the corpus already writes -- `rank two
+# entry` and `2nd of 5` are in the docket and the report. The rest were added
+# 2026-08-11 after an independent grade measured the reach of those two alone
+# at 11% on held-out sentences, and after my own held-out set of 46 put it at
+# 20%. Each addition was measured for false positives on the whole repository
+# before it was kept; each is a family this lab actually writes.
+#
+# `ranked <ordinal>` is first among them because a LIVE instance of it sits in
+# `latex/closure_challenge_report.tex`, wrapped across a line break, in the
+# same sentence family as the defect that opened this rung. It is correct, by
+# luck. It was invisible.
+#
+# NOT ADDED, and named so the omission is a decision rather than an oversight:
+# medals and podiums, roman numerals, non-English ordinals -- registers this
+# lab does not write; markdown or CSV rows, because a numbered table row is not
+# distinguishable from any numbered list, and the board's own README is one;
+# and `No. N`, which WAS added, measured, and REMOVED -- it fired on a journal
+# issue number in a third-party bibliography sitting near a `Wu` citation, and
+# an unbounded false-positive source is not worth the one held-out sentence it
+# bought. Cheap and safe has to mean safe.
+_PLACE_VERB = r"placed|finished|came|came\s+in|took|sits?\s+at|stands?\s+at"
 
-    `rank two entry` and `2nd of 5` are in the docket and the report; they are
-    not anyone's guess at what to look for.
+
+@functools.lru_cache(maxsize=8)
+def _place_pattern(upto: int) -> re.Pattern:
+    """The placement forms this corpus writes, over a board-derived range.
+
+    Cached: this compiles a large alternation and `_placements` is called once
+    per tracked surface, so rebuilding it per file made the check minutes
+    slower than it needed to be.
     """
     alts = "|".join(re.escape(t) for t in
-                    sorted(tokens, key=len, reverse=True))
+                    sorted(_place_tokens(upto), key=len, reverse=True))
     return re.compile(
-        rf"rank[ \-](?P<r>{alts})\b"
-        rf"|(?P<o>{alts})[ \-]place\b"
+        rf"rank(?:ed|s|ing)?[ \-](?P<r>{alts})\b"
+        rf"|(?P<o>{alts})[ \-](?:place|ranked)\b"
+        rf"|(?:{_PLACE_VERB})\s+(?P<v>{alts})\b"
+        rf"|(?P<b>{alts})[ \-](?:overall|best)\b"
+        rf"|\bthe\s+(?P<e>{alts})\s+(?:entry|submission|entrant)\b"
+        rf"|(?P<s>{alts})[ \-]slot\b"
+        rf"|\bposition\s+(?P<p>{alts})\b"
         r"|(?P<u>runner[ \-]?up)"
-        r"|(?P<f>front[ \-]?runner)", re.I)
+        r"|(?P<f>front[ \-]?runner)"
+        r"|(?P<t>tops?|topping)\s+the\s+(?:published\s+)?(?:board|leaderboard)"
+        r"|(?P<T>top)\s+of\s+the\s+(?:published\s+)?(?:board|leaderboard)",
+        re.I)
 # Homonyms of the WORD. This is an exclusion list and is named as one: it
 # excludes SENSES of `rank`, never surfaces. Each was met in this corpus.
 _PLACE_PROB = re.compile(r"P\(\s*$", re.I)            # P(rank 1): a probability
@@ -767,10 +819,11 @@ _PLACE_BIND = 40
 _PLACE_ADJUDICATED = 400
 
 
-def _place_unnamed(tokens: dict[str, int]) -> re.Pattern:
+@functools.lru_cache(maxsize=8)
+def _place_unnamed(upto: int) -> re.Pattern:
     """RULE B: our comparison, someone else's position, nobody's name."""
     alts = "|".join(re.escape(t) for t in
-                    sorted(tokens, key=len, reverse=True))
+                    sorted(_place_tokens(upto), key=len, reverse=True))
     return re.compile(
         r"\b(?:our|the)\s+(?:margin|lead|gap|advantage)\b[^.]{0,25}?"
         r"\b(?:over|against)\s+the\s+"
@@ -900,10 +953,17 @@ def _placements(text: str, names: re.Pattern, board: dict[str, int]):
     Whole text with whitespace collapsed: a placement that a reflow split
     across two lines is the same placement.
     """
-    tokens = _place_tokens(len(board) + _PLACE_OVER)
+    upto = len(board) + _PLACE_OVER
+    tokens = _place_tokens(upto)
     flat = re.sub(r"\s+", " ", text)
     found = []
-    for m in _place_pattern(tokens).finditer(flat):
+    # Rule A can only fire where an entrant is named, and the placement scan is
+    # the expensive part, so a surface that names nobody is skipped rather than
+    # swept. The frame line reports this as the denominator it is: placements
+    # counted IN SURFACES THAT NAME AN ENTRANT, which is a reproducible rule.
+    if not names.search(flat):
+        return found
+    for m in _place_pattern(upto).finditer(flat):
         token = m.group(0)
         left = flat[max(0, m.start() - 130):m.start()]
         right = flat[m.end():m.end() + 130]
@@ -911,10 +971,12 @@ def _placements(text: str, names: re.Pattern, board: dict[str, int]):
             continue
         if m.group("u"):
             n = 2
-        elif m.group("f"):
+        elif m.group("f") or m.group("t") or m.group("T"):
             n = 1
         else:
-            n = tokens[(m.group("r") or m.group("o")).lower()]
+            value = next(g for g in ("r", "o", "v", "b", "e", "s", "p")
+                         if m.group(g))
+            n = tokens[m.group(value).lower()]
         if m.group("r"):
             if _PLACE_PROB.search(left) or _PLACE_OFN.match(right):
                 continue
@@ -961,8 +1023,7 @@ def board_placement_faults(text: str, board: dict[str, int]
                         f"board puts at rank {rank}{beyond}: "
                         f"...{flat[max(0, at - 60):at + 60].strip()}...")
     flat = re.sub(r"\s+", " ", text)
-    for m in _place_unnamed(_place_tokens(len(board) + _PLACE_OVER)
-                            ).finditer(flat):
+    for m in _place_unnamed(len(board) + _PLACE_OVER).finditer(flat):
         unnamed.append(f"{m.group(0)!r} compares us to a board position "
                        f"without naming who holds it")
     return disagree, unnamed
@@ -978,17 +1039,23 @@ def check_board_placement_words() -> Result:
     arrives carrying none of the three.
 
     WHAT IT CANNOT SEE, stated rather than discovered later, LARGEST FIRST:
-    ANY placement phrased outside the two patterns below. An independent grade
-    on 2026-08-11 put 45 held-out sentences through it, each pinning a WRONG
-    placement on a NAMED entrant, and it missed 40 of them -- 89%. Whole
-    families are unreachable: `placed`/`finished`/`came`/`took` an ordinal,
-    `ranked` an ordinal, `Nth overall`, `No. N`, `#N`, markdown and CSV rows,
-    `top the board`, an ordinal used as a bare noun. One correct instance of
-    such a family is committed in `latex/closure_challenge_report.tex` today,
-    wrapped across a line break, in the same sentence family as the defect that
-    opened this rung -- and this check does not see it. GREEN HERE IS NOT
-    COVERAGE. It means no placement matching these two patterns disagrees with
-    the board, which is a narrower statement than it looks.
+    ANY placement phrased outside the patterns below. Measured twice, on
+    held-out sentences that each pin a WRONG placement on a NAMED entrant: an
+    independent grade of 2026-08-11 put 45 through the two-pattern version and
+    it missed 40 (89%); my own set of 46 put that version at 37 missed (80%)
+    and this eleven-alternative version at 14 (30%). What is still unreachable:
+    an ordinal used as a bare noun ("the board's fourth"), "are in fourth",
+    "#N", a bare parenthetical ordinal, medals and podiums, roman numerals,
+    non-English ordinals, and markdown or CSV rows -- the last omitted on
+    purpose, because a numbered table row is not distinguishable from any
+    numbered list and the benchmark's own board is one.
+
+    GREEN HERE IS NOT COVERAGE. It means no placement matching these patterns
+    disagrees with the board, which is a narrower statement than it looks: the
+    `ranked <ordinal>` family was added on 2026-08-11 only because a live and
+    correct instance of it had been sitting in
+    `latex/closure_challenge_report.tex`, wrapped across a line break, in the
+    same sentence family as the defect that opened this rung, invisible.
 
     Then: word forms of positions past the number-word tables, and any
     position past the board's own length plus `_PLACE_OVER`; RELATIONAL
@@ -1021,7 +1088,7 @@ def check_board_placement_words() -> Result:
 
     travelling = _travelling_names()
     names = _board_names(board)
-    surveyed = opened = unreadable = 0
+    surveyed = opened = naming = unreadable = 0
     shipped, internal = [], []
     for path in tracked:
         try:
@@ -1030,13 +1097,16 @@ def check_board_placement_words() -> Result:
             raw = path.read_bytes()
         except OSError:
             continue
-        if b"rank" not in raw.lower() and b"runner" not in raw.lower():
+        if not any(w in raw.lower() for w in (b"rank", b"runner", b"place",
+                                              b"top ")):
             continue
         try:
             text = raw.decode("utf-8")
         except UnicodeDecodeError:
             continue
         opened += 1
+        if names.search(text):
+            naming += 1
         # One surface must never be able to end the audit. A check that raises
         # takes every OTHER check in this file down with it, which is a guard
         # doing more damage than the defect it exists to find.
@@ -1060,22 +1130,33 @@ def check_board_placement_words() -> Result:
                 f"claims are dated to")
     frame = (f"frame: board read from the benchmark's own README table at "
              f"{head[:8]} ({pin_note}) -- {order}; {opened} tracked UTF-8 "
-             f"surface(s) containing 'rank' or 'runner' opened; {surveyed} "
-             f"placement expression(s) surveyed, whole-text with whitespace "
+             f"surface(s) carrying rank/runner/place/top opened, of which "
+             f"{naming} name a board entrant and were swept for placements "
+             f"(rule A cannot fire where nobody is named; rule B's narrower "
+             f"pattern runs on all {opened}); {surveyed} placement "
+             f"expression(s) found in those {naming} -- that pair is the "
+             f"denominator and its selection rule, stated so it reproduces. "
+             f"Whole-text with whitespace "
              f"collapsed so a reflowed one still binds; ordinals derived from "
              f"the board's own length, 1..{len(board) + _PLACE_OVER} here, in "
              f"digit and word form (word forms exist to "
              f"{len(_PLACE_CARDINAL)}); {unreadable} surface(s) skipped after "
              f"raising. "
              f"BLIND TO, LARGEST FIRST: (1) ANY placement phrased outside this "
-             f"check's patterns -- an independent grade of 2026-08-11 missed "
-             f"40 of 45 held-out sentences (89%), each pinning a WRONG "
-             f"placement on a NAMED entrant, with whole families unreachable "
-             f"(placed/finished/came/took Nth, ranked Nth, Nth overall, No. N "
-             f"and #N, table and CSV rows, top the board, ordinal-as-noun); a "
-             f"live correct instance of one of those families is in "
-             f"latex/closure_challenge_report.tex today and this check does "
-             f"not see it. (2) word forms of positions past "
+             f"check's patterns. Measured on held-out sentences that each pin "
+             f"a WRONG placement on a NAMED entrant: an independent grade of "
+             f"2026-08-11 missed 40 of 45 (89%) with the two patterns this "
+             f"check shipped with; my own 46 put those two at 37 missed (80%) "
+             f"and these eleven at 14 (30%). STILL UNREACHABLE: an ordinal as "
+             f"a bare noun (the board's fourth), 'are in fourth', #N, a bare "
+             f"parenthetical ordinal, medals and podiums, roman numerals, "
+             f"non-English ordinals, and markdown or CSV rows -- the last "
+             f"omitted deliberately, a numbered table row being "
+             f"indistinguishable from any numbered list and the benchmark's "
+             f"own board being one. The 'ranked Nth' family was added only "
+             f"because a live correct instance of it had been sitting unseen "
+             f"in latex/closure_challenge_report.tex. (2) word forms of "
+             f"positions past "
              f"{len(_PLACE_CARDINAL)}, and any position past "
              f"{len(board) + _PLACE_OVER} in any form -- the vocabulary is "
              f"derived from this board's length plus a margin, not fixed at "
@@ -1094,7 +1175,7 @@ def check_board_placement_words() -> Result:
              f"untracked files and archive members, none of which it opens. "
              f"(8) whether a placement is dated history rather than a live "
              f"claim. GREEN HERE IS NOT COVERAGE: it means no placement in the "
-             f"two patterns disagrees with the board")
+             f"patterns disagrees with the board")
     if shipped:
         return Result(title, FAIL,
                       f"{len(shipped)} placement(s) on surfaces that TRAVEL "
@@ -3316,13 +3397,15 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "of a name (\"our margin over the <position>\"). Matched over whole "
         "text with whitespace collapsed, so a placement a reflow split across "
         "two lines still binds",
-        "MOST OF ALL, any placement phrased outside this check's two patterns "
-        "-- an independent grade of 2026-08-11 missed 40 of 45 held-out "
-        "sentences, 89%, each pinning a wrong placement on a named entrant, "
-        "with whole families unreachable (placed/finished/came/took Nth, "
-        "ranked Nth, Nth overall, No. N and #N, table and CSV rows, top the "
-        "board, ordinal-as-noun), and one correct live instance of such a "
-        "family sits in latex/closure_challenge_report.tex unseen. This is the "
+        "MOST OF ALL, any placement phrased outside this check's eleven "
+        "patterns -- measured on held-out sentences each pinning a wrong "
+        "placement on a named entrant: an independent grade of 2026-08-11 "
+        "missed 40 of 45 (89%) against the two patterns this check shipped "
+        "with, and my own 46 put those two at 37 missed (80%) and the current "
+        "eleven at 14 (30%). Still unreachable: an ordinal as a bare noun, "
+        "'are in fourth', #N, a bare parenthetical ordinal, medals, roman "
+        "numerals, non-English ordinals, and markdown or CSV rows -- the last "
+        "omitted deliberately. This is the "
         "same admission the digit-anchored sibling guard makes about itself "
         "and it belongs here too: a wider anchor is still an anchor. Also: "
         "word forms of board positions past the number-word tables, and any "

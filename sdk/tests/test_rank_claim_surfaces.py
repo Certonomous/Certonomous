@@ -324,6 +324,128 @@ class WholeTextNotLinesTests(unittest.TestCase):
         """So the guard is not merely reacting to the newline."""
         self.assertEqual(1, len(_faults(self.CLEAN)[0]))
 
+    # The REAL sentence that justifies whole-text matching, reproduced from
+    # `latex/closure_challenge_report.tex` with its break where it falls: after
+    # the participle and before the ordinal. The first justification offered
+    # for whole-text -- the parent instance on the lab record -- was WRONG and
+    # is retracted; that one breaks inside the entrant's name, after the
+    # surname this check keys on, so a line reader catches it too. This one a
+    # line reader cannot see. The sentence is correct, which is luck.
+    REAL_WRAP = ("The published entry ranked\nsecond before round 5 --- Wu "
+                 "and Zhang's SST-QCRC --- carries the same untrained "
+                 "QCR2000 term.")
+
+    def test_the_real_wrap_in_the_report_source_needs_whole_text(self):
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        names = sa._board_names(board)
+        whole = sa._placements(self.REAL_WRAP, names, board)
+        line_bounded = [p for line in self.REAL_WRAP.splitlines()
+                        for p in sa._placements(line, names, board)]
+        self.assertEqual(1, len(whole), "whole-text missed the report's wrap")
+        self.assertEqual(0, len(line_bounded),
+                         "the control is void: a line reader sees this one too")
+        self.assertEqual(([], []), sa.board_placement_faults(
+            self.REAL_WRAP, board), "the report's sentence is correct")
+
+    def test_the_retracted_justification_is_retracted_in_the_code(self):
+        """The parent instance is NOT defeated by its own reflow. The comment
+        that said it was is the copy a rule-author reads."""
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        names = sa._board_names(board)
+        parent = ("A measured consistency check, not designed for: the "
+                  f"{_WRONG} entry (Wu &\nZhang) runs SST-QCRC.")
+        line_bounded = [p for line in parent.splitlines()
+                        for p in sa._placements(line, names, board)]
+        self.assertEqual(1, len(line_bounded),
+                         "if this is 0 the old justification was right after "
+                         "all and the retraction should itself be retracted")
+        source = (REPO / "scripts" / "self_audit.py").read_text(
+            encoding="utf-8")
+        self.assertIn("first justification for this was WRONG", source)
+
+
+# Assembled, like every other fixture here, for the reason this file already
+# gives: it is a tracked surface and the live guard sweeps it. Writing these
+# sentences out in full made this file carry twelve real faults, which the
+# widened guard reported within a minute of being widened -- the use/mention
+# limit biting its own test file, and the remedy is the one the guard
+# recommends: a placement word cannot state a wrong placement if it is not
+# there.
+_ORD = "four" + "th"        # Wu & Zhang are rank 2; every fixture below says 4
+_NUM = "4"
+_TOP = "to" + "p"
+
+
+class TheWidenedFamiliesTests(unittest.TestCase):
+    """Each family added 2026-08-11 after the first grade measured the reach of
+    the original two at 11%. Every sentence here pins a WRONG placement on a
+    NAMED entrant, so every one must be caught. Each family was measured for
+    false positives across the whole repository before it was kept."""
+
+    def _one_fault(self, sentence):
+        rule_a, _ = _faults(sentence)
+        self.assertEqual(1, len(rule_a), f"{sentence!r} -> {rule_a}")
+
+    def test_participle_and_verb_forms_of_rank(self):
+        for sentence in (
+                f"The published entry ranked {_ORD} is Wu and Zhang.",
+                f"Wu and Zhang, ranked {_ORD} before round 5, run the term.",
+                f"Wu and Zhang ranks {_ORD} on the published board.",
+                f"The {_ORD}-ranked entry, Wu and Zhang, runs SST-QCRC."):
+            self._one_fault(sentence)
+
+    def test_verbal_placements(self):
+        for verb in ("placed", "finished", "came", "took", "sits at",
+                     "stands at"):
+            self._one_fault(f"Wu and Zhang {verb} {_ORD} on the board.")
+
+    def test_bare_predicates(self):
+        for sentence in (f"Wu and Zhang are {_ORD} overall on the board.",
+                         f"Wu and Zhang are the {_ORD}-best published entry."):
+            self._one_fault(sentence)
+
+    def test_designators(self):
+        for sentence in (
+                f"The {_ORD} entry, Wu and Zhang, runs SST-QCRC.",
+                f"The {_ORD} submission, Wu and Zhang, carries QCR2000.",
+                f"The board's {_ORD} slot belongs to Wu and Zhang.",
+                f"Wu and Zhang hold position {_NUM} on the published board."):
+            self._one_fault(sentence)
+
+    def test_the_family_that_was_measured_and_then_removed(self):
+        """`No. N` was added, measured across the repository, and taken back
+        out: it fired on a journal issue number in a third-party bibliography
+        next to a `Wu` citation. One held-out sentence is not worth an
+        unbounded false-positive source, and a guard that cries wolf gets
+        switched off. Recorded as a test so the removal is a decision with a
+        reason rather than a gap someone re-fills."""
+        self.assertEqual(([], []), _faults(
+            f"No. {_NUM} on the published board is Wu and Zhang."))
+        self.assertEqual(([], []), _faults(
+            "J. Fluid Mech., Vol. 812, No. 4, Wu and co-workers, 2017."))
+
+    def test_topping_the_board(self):
+        """The phrasing the digit-anchored sibling names as its own blind
+        spot, in the form where it is bound to an entrant and checkable."""
+        for sentence in (f"Wu and Zhang {_TOP} the published board.",
+                         f"Wu and Zhang sit at the {_TOP} of the board."):
+            self._one_fault(sentence)
+
+    def test_the_families_deliberately_left_out_stay_out(self):
+        """Not an oversight. A numbered table row is not distinguishable from
+        any numbered list, and the benchmark's own board is one; medals, roman
+        numerals and German are registers this lab does not write."""
+        for sentence in (f"| {_NUM} | Wu and Zhang | 0.0624 |",
+                         f"{_NUM},Wu and Zhang,0.0624",
+                         "Wu and Zhang take silver on the published board.",
+                         "Rank IV on the published board is Wu and Zhang.",
+                         "Wu and Zhang liegen auf Platz vier der Tabelle."):
+            self.assertEqual(([], []), _faults(sentence), sentence)
+
 
 class HomonymsOfTheWordTests(unittest.TestCase):
     """Senses of `rank` that are not placements. Each was met in this corpus,
@@ -581,7 +703,7 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         basis, _, blind, _ = sa.BASIS["check_board_placement_words"]
         self.assertEqual(sa.EVIDENCE, basis)
         for owed in ("ahead of", "co-author", "QUOTING", "untracked",
-                     "outside this check's two patterns",
+                     "outside this check's eleven patterns",
                      "derived from the parsed board", "4 MB"):
             self.assertIn(owed, blind)
 
@@ -591,8 +713,9 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
 
         The verdict line listed relational comparatives and archive members and
         said nothing about the largest gap of all -- every placement phrased
-        outside two regexes, which an independent grade measured at 89% of
-        held-out sentences. The digit-anchored guard this one supersedes makes
+        outside its regexes, which an independent grade measured at 89% of
+        held-out sentences and my own set at 80%, widened since to 30% but
+        never to nothing. The digit-anchored guard this one supersedes makes
         that admission about itself; dropping it while inheriting the same
         limitation is how a narrow guard comes to read as coverage. So the
         frame line must carry it, and must say that green is not coverage.
@@ -601,7 +724,9 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         frame = [d for d in result.detail if d.startswith("frame:")]
         self.assertEqual(1, len(frame), result.detail)
         self.assertIn("BLIND TO", frame[0])
-        self.assertIn("placement expression(s) surveyed", frame[0])
+        self.assertIn("placement expression(s) found in those", frame[0])
+        self.assertIn("that pair is the denominator and its selection rule",
+                      frame[0])
         for owed in ("outside this check's patterns",
                      "derived from this board's length",
                      "GREEN HERE IS NOT COVERAGE", "4 MB", "QUOTING"):
