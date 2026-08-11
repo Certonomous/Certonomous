@@ -435,6 +435,16 @@ class StaleBytecodeTests(unittest.TestCase):
         mod = root / "victim.py"
         mod.write_text('VALUE = "AAA"\n', encoding="utf-8")
 
+        # The control needs a .pyc to exist, so force writing on for the
+        # duration regardless of how the suite was invoked. Running the suite
+        # under PYTHONDONTWRITEBYTECODE=1 sets sys.dont_write_bytecode, which
+        # suppresses the cache and would leave this control unable to run --
+        # it fails loudly on the assert below rather than passing vacuously,
+        # and this restores the condition instead of tolerating it.
+        was = sys.dont_write_bytecode
+        sys.dont_write_bytecode = False
+        self.addCleanup(setattr, sys, "dont_write_bytecode", was)
+
         # Import once through the house idiom, which writes __pycache__.
         spec = importlib.util.spec_from_file_location("victim_first", mod)
         first = importlib.util.module_from_spec(spec)
