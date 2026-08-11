@@ -176,6 +176,54 @@ iterations at δ = 0.2, 269 s at δ = 0.6, 135 s for `null`, serial, 1 core).
 
 ---
 
+## 6.1 Deviation record — a two-runner collision on a control, 2026-08-11
+
+**Recorded here rather than in a report, because a deviation belongs with the
+pre-registration it deviates from. The cause was mine.**
+
+**What happened.** The solver agent launched 8 of the 16 cases and queued the
+other 8, then its turn ended — its queue died with it while the solves, launched
+under `setsid`, survived. I started an independent `run_option_a_queue.sh` to
+launch the remaining 8. My runner guards against collisions (it skips any case
+that already has a `log.simpleFoam`); **the agent's pool did not**, and my
+instruction to it not to launch those cases arrived after its pool had already
+fired. For roughly 25 seconds, two `simpleFoam` processes shared
+`f6d_option_a/d0.2_s000` — **one of the three controls.** The agent killed the
+newer duplicate and its own driver. **I created the race by starting a second
+launcher over cases another agent had already claimed; the correct order was to
+stop its queue first and confirm, then launch.**
+
+**Damage, measured independently rather than accepted on report:**
+
+| check | result |
+| --- | --- |
+| live duplicate processes now | **none** — mapped every `simpleFoam` by `/proc/<pid>/cwd`; all 16 cases have exactly one solver |
+| write ladder on `d0.2_s000` | **clean and monotonic** — 4500, 5000, … at a steady 35–40 s cadence, no out-of-order write, no rewrite. The duplicate died at Time ≈ 4265, *before* the first write at 4500 |
+| field data | **intact**, single-writer throughout |
+| log | **damaged** — a `>` redirect truncated it while the surviving process kept writing at its old offset, leaving ~1.9 MB of NULs. Iterations **4000–7000 are unrecoverable as text** |
+
+**Effect on the pre-registered metrics: none that changes a verdict.** All three
+metrics read the **end** of the run — reattachment from field snapshots (intact),
+the primary value from the final 2,000 iterations (intact), settledness from the
+final 500 (intact). The only exposure is that settledness normalises by the
+median |pg| over the *second half*, whose window shifts when the first 3,001
+iterations are missing. **Bounded by direct measurement:** recomputing every
+intact log with its first 3,001 iterations deliberately discarded moves
+settledness by **at most 13.7 %**, and by **0.1 %** for this case.
+
+**Disposition: the control is RETAINED, with this disclosure.** It is not void —
+no metric it contributes to is computed from the lost window. **A clean rerun of
+`d0.2_s000` from its intact `4000/` fields costs ≈ 10 core-min** and is available
+if its owners want the log whole; it was not taken here because it would discard
+a nearly complete run to repair text that no pre-registered metric reads.
+
+**Standing rule this earns, and it is the second time the same root cause has
+bitten this experiment:** *agent watchers die, so a launcher must be durable —
+but two durable launchers over one case set are worse than none.* Any
+replacement launcher must (a) guard every launch on the absence of a log, which
+mine did, **and** (b) be started only after the previous launcher is confirmed
+dead, which I did not do.
+
 ## 7. Standing constraints
 
 Read-only with respect to everything outside `f6d_option_a/` and this campaign
