@@ -1,0 +1,70 @@
+=== ARM B launched 2026-08-11T01:18:59Z cpu=8 pid=37979
+    case      /home/ubuntu/Certonomous/demo-output/website/campaign/F6b_runs/medium_relax_B
+    relax     relaxationFactors{p0.3;U0.7;k0.7;omega0.7;}
+    endTime   endTime         20000;
+    command   taskset -c 8 openfoam2606 -c 'cd /home/ubuntu/Certonomous/demo-output/website/campaign/F6b_runs/medium_relax_B && simpleFoam'
+=== ARM C launched 2026-08-11T01:19:01Z cpu=9 pid=38248
+    case      /home/ubuntu/Certonomous/demo-output/website/campaign/F6b_runs/medium_relax_C
+    relax     relaxationFactors{p0.3;U0.3;k0.5;omega0.5;}
+    endTime   endTime         20000;
+    command   taskset -c 9 openfoam2606 -c 'cd /home/ubuntu/Certonomous/demo-output/website/campaign/F6b_runs/medium_relax_C && simpleFoam'
+=== ARM B finished 2026-08-11T01:23:13Z rc=0 wall=254s
+    convergence sentences: 1
+    SIMPLE solution converged in 3936 iterations
+    ExecutionTime = 253.01 s  ClockTime = 253 s
+    last written time dirs: 0 3936 
+    -- initial residuals every 500 iterations (Time, Ux, p) --
+         500  0.00321689839238  0.0727666290336
+        1000  0.00113757964541  0.011845912977
+        1500  5.37557951653e-05  0.000949007095112
+        2000  7.16424862755e-06  6.10101827748e-05
+        2500  3.43123891395e-06  2.13514562007e-05
+        3000  1.0330386298e-06  6.22105346921e-06
+        3500  2.07577468881e-07  1.1615659834e-06
+
+=== POSITIVE CONTROL launched 2026-08-11T01:25:50Z cpu=10
+    case      medium_relax_PC (incumbent relaxation 0.5/0.5/0.7/0.7, stopped early)
+    endTime   2000, writeInterval 500 -> samples at 500/1000/1500/2000
+    purpose   known-present specimen of an UNCONVERGED field; the instrument must
+              fail to certify at one or more samples, or arms B and C carry no evidence
+    prereg    Addendum 1, commit 110da419
+=== POSITIVE CONTROL finished (see log.relax_PC)
+    ExecutionTime = 117.08 s  -> 1.95 core-min (predicted 2.27)
+    sample   n_crossings   reattachment x/h   rel vs arm A 7.6472   certifies?
+      500        8         none defined              -                NO
+     1000        4         none defined              -                NO
+     1500        2            7.9018              3.329%              NO (GREY)
+     2000        2            7.7284              1.061%              NO (GREY)
+    RESULT: the instrument fails to certify every unconverged field on this exact
+    case, including two that have a WELL-FORMED two-crossing bubble. The 0.5% bar
+    is therefore a real discriminator and agreement between arms is informative.
+=== ARM C finished 2026-08-11T01:31:25Z rc=0 wall=744s
+    convergence sentences: 1
+    SIMPLE solution converged in 11700 iterations
+    ExecutionTime = 726.63 s  ClockTime = 738 s
+    last written time dirs: 0 11700 
+    -- initial residuals every 500 iterations (Time, Ux, p) --
+         500  0.00154950226745  0.0264540588305
+        1000  0.000740625298799  0.00868282101747
+        1500  0.000350796737415  0.00669538970619
+        2000  0.000219193431689  0.00175804970982
+        2500  0.000157113498442  0.00209101903571
+        3000  0.000115808088972  0.00166961460386
+        3500  8.9407709255e-05  0.00122931236492
+        4000  6.15819188073e-05  0.000747576158532
+        4500  4.11193255478e-05  0.00038797648037
+        5000  2.75030459648e-05  0.000223912042799
+        5500  1.80883798054e-05  0.000120782877846
+        6000  1.26842883573e-05  7.33519506809e-05
+        6500  9.27592850543e-06  5.15836108507e-05
+        7000  6.49187432291e-06  3.74026232837e-05
+        7500  4.5393658848e-06  2.15060440222e-05
+        8000  3.23570631304e-06  1.18854533153e-05
+        8500  2.34987407102e-06  7.58906674656e-06
+        9000  1.71653387839e-06  5.73364516478e-06
+        9500  1.24501597086e-06  4.08894577999e-06
+       10000  8.95927474478e-07  2.7749801825e-06
+       10500  6.40638801876e-07  1.81864703814e-06
+       11000  4.55225283335e-07  1.19820641377e-06
+       11500  3.2269904062e-07  8.08593204152e-07
+
