@@ -58,7 +58,8 @@ created and the benchmark steward has not been contacted. The entry described he
 leaderboard, \textbf{scored locally} through the benchmark's own unmodified scorer at
 benchmark commit \code{deb91557}; it is not an official ranking, and where this document
 says \emph{rank 1} it means rank 1 on that local scoring --- a point estimate whose
-probability is \textbf{P(rank 1) = 68\%}, with the lead over the rank-2 entry
+probability is \textbf{P(rank 1) = 68\%, and eight cases cannot pin that tighter than
+2--100\% at 95\%}, with the lead over the rank-2 entry
 \textbf{not statistically decided} (Table~\ref{tab:prank}). The submission package exists,
 is audited, and is one email away. It is \textbf{held at the owner's discretion} --- not
 withdrawn, not abandoned, not sent; the decision rests with Katie Kim.
@@ -75,7 +76,8 @@ scorer, which is the best overall number on the board as published at benchmark 
 Sandberg's published 0.059525, and 45.3\% below the 0.1036 scored by submitting the
 supplied RANS fields unchanged. That rank is our own local scoring of an unsubmitted entry
 and is stated with that caveat everywhere it appears in this report, and now with its
-posterior beside it: \textbf{P(rank 1) = 68\%} over a 400{,}000-draw case-level bootstrap, the
+posterior beside it: \textbf{P(rank 1) = 68\%} over a 400{,}000-draw case-level bootstrap
+(an eight-case sample cannot pin that tighter than \textbf{2--100\% at 95\%}), the
 lead over the rank-2 entry \textbf{not statistically decided} (paired \(t=-0.495\), \(n=8\))
 and the lead over rank 3 likewise (\(t=-0.953\)); the two remaining comparisons are decided on
 method (Table~\ref{tab:prank}). The entry is now
@@ -200,8 +202,9 @@ correctly (\artifact{CLOSURE\_CHALLENGE\_SUBMISSION\_DRAFT.md} \S7.5).
 \caption{The public leaderboard, with our entry of record at its internally measured
 position. We are unsubmitted; this is a local scoring, not an official ranking. Published
 ranks are the board's own; ours is where our number falls in it. The position is worth
-\textbf{P(rank 1) = 68\%}, and the two rows immediately below ours are
-\textbf{not statistically decided} against it (Table~\ref{tab:prank}).}
+\textbf{P(rank 1) = 68\%} --- 2--100\% at 95\%, the width eight cases support --- and the two
+rows immediately below ours are \textbf{not statistically decided} against it
+(Table~\ref{tab:prank}).}
 \label{tab:board}
 \begin{tabular}{clc}
 \toprule
@@ -234,13 +237,17 @@ carries this sentence by reference (\artifact{CLOSURE\_CHALLENGE\_STATUS.md} \S0
 under ladder~V's V8 clause: no rank claim ships without its probability and its
 not-decided pairs.} Resampling the eight cases --- 400{,}000 case-level bootstrap draws over
 the per-case scores already on disk, no new scoring call --- puts
-\textbf{P(rank 1) = 68\%} (67.6\%). The rest of the distribution is not a rounding error:
+\textbf{P(rank 1) = 68\%} (67.6\%), which eight cases cannot pin tighter than
+\textbf{2--100\% at 95\%} --- the full ladder of intervals is unpacked immediately after
+Table~\ref{tab:prank}, and the figure does not travel anywhere without one of them.
+The rest of the distribution is not a rounding error:
 rank~2 at 18.6\% and rank~3 at 12.8\%.
 
 \begin{table}[htbp]
 \centering\footnotesize
 \caption{The rank claim with its posterior attached (\artifact{campaign/PROBABILITY\_OF\_RANK\_2026-08-10.md},
-400{,}000 case-level bootstrap resamples; \textbf{internal figure} --- see the caution below).
+400{,}000 case-level bootstrap resamples; the figure is publishable and \textbf{may not be
+stated without its interval} --- see the caution below).
 \(t\) is the paired per-case difference statistic, \(n=8\).}
 \label{tab:prank}
 \begin{tabular}{@{}lccl@{}}
@@ -283,12 +290,27 @@ Two further cautions attach to that table and are repeated wherever it appears.
   RANS-identity baseline anywhere. It reproduces exactly and is honestly derived, but any
   wording implying the floor is the benchmark's own published figure is false
   (\artifact{CLOSURE\_CHALLENGE\_SUBMISSION\_DRAFT.md} \S7.2).
-\item \textbf{The rank is a point estimate, and the probability travels with it.}
-\textbf{P(rank 1) = 68\%}; the leads over Reissmann and over Wu \& Zhang are
-\textbf{not statistically decided} (Table~\ref{tab:prank}). \emph{That figure is an
-internal one} --- it exists for this laboratory to reason with, is not to be quoted outside it,
-attached to any package, or cited in any submission-facing document, and it does not travel to
-any public surface derived from this report.
+\item \textbf{The rank is a point estimate, and the probability travels with it ---
+never without its interval.} \textbf{P(rank 1) = 68\%}, which eight cases cannot pin
+tighter than \textbf{2--100\% at 95\%}; the leads over Reissmann and over Wu \& Zhang are
+\textbf{not statistically decided} (Table~\ref{tab:prank}). \emph{Until 2026-08-10 this item
+read differently: it marked that figure internal to this laboratory --- not to be quoted
+outside it, attached to any package, or cited in any submission-facing document. That
+restriction was withdrawn, and the reasoning is recorded here rather than deleted, because a
+reader who met the old rule is owed the reason it went.} The cold-reproduction pass
+recomputed the figure as \textbf{0.674} from public data alone --- the benchmark's own
+published board and our eight per-case scores --- in about a minute, with no access to the
+internal document. A number an outsider reproduces that easily is not protected by being
+withheld; it only looks concealed, and it looks that way to exactly the reader the
+disclosure is meant to convince. Publishing ``rank 1'' while withholding how little that
+rank survives resampling also inverts this laboratory's own standard. So the figure now
+travels with the entry, and a single prohibition replaces the old internal/external split:
+\textbf{no surface may state it without the interval} --- a bare 68\% sounds settled, and
+eight cases do not support settled
+(\artifact{campaign/PROBABILITY\_OF\_RANK\_2026-08-10.md} head banner, commit
+\code{b032bbae}; \artifact{campaign/LADDER\_V\_PASS3\_COLD\_2026-08-11.md} \S3 (W2), commit
+\code{9477a2ed}; \artifact{campaign/LADDER\_V\_TRIPLE\_VERIFICATION.md} V8 amendment,
+commit \code{5bffb476}).
 \item \textbf{Position claims go stale.} The challenge is ongoing with no deadline; the
   board has been unchanged since 2026-05-04 but can change without notice. Every position
   claim in this document is dated 7 August 2026. A rank-1 claim goes stale faster than a
@@ -645,8 +667,8 @@ predictions are produced by a term with no fitted parameter anywhere in it.
   delta is again wholly the duct family, and it is the round in which the laboratory
   stopped trying to predict a flow structure and started solving for it
   (\S\ref{sec:round5}). It is also the round that put the entry at the top of the local
-  board --- at 68\% probability, with the lead over the rank-2 entry
-  \textbf{not statistically decided} (Table~\ref{tab:prank}).
+  board --- at 68\% probability, an eight-case figure no tighter than 2--100\% at 95\%, with
+  the lead over the rank-2 entry \textbf{not statistically decided} (Table~\ref{tab:prank}).
 \end{description}
 
 Round 4's diagnosis was pre-registered and its sign pattern was predicted before it was
@@ -696,7 +718,8 @@ Case & Round 4 & \textbf{Round 5} & $\Delta$ \\
 The five unchanged cases scored identically to round 4, as their byte-identity requires ---
 which is also the cheapest available check that the harness was driven the same way twice.
 That 0.056647 is the number every rank claim in this report rests on, and its posterior is
-Table~\ref{tab:prank}: \textbf{P(rank 1) = 68\%}, with the two nearest comparisons
+Table~\ref{tab:prank}: \textbf{P(rank 1) = 68\%}, an estimate eight cases pin no tighter than
+\textbf{2--100\% at 95\%}, with the two nearest comparisons
 \textbf{not statistically decided}.
 
 Three things about that table are worth stating in the order the record forces them.
@@ -714,8 +737,8 @@ Three things about that table are worth stating in the order the record forces t
 \item \textbf{The pre-stated expectation band was wrong in our favour, and that is recorded
   rather than enjoyed.} The pre-registration's band was 0.059--0.0666 --- rank 1 at its
   best end, a regression at its worst; scored after the fact, the rank the good end promised
-  is worth 68\% and its margin is \textbf{not statistically decided}
-  (Table~\ref{tab:prank}). The result landed at 0.056647, \emph{below the good
+  is worth 68\% --- 2--100\% at 95\% on eight cases --- and its margin is
+  \textbf{not statistically decided} (Table~\ref{tab:prank}). The result landed at 0.056647, \emph{below the good
   end of our own band}. What was nearly exact was the campaign's plain arithmetic: matching
   the rank-2 entry's published duct scores was computed in advance to give $\approx$
   0.056288, against a measured 0.056647. The band was mis-centred pessimistic; the
@@ -765,8 +788,9 @@ point of writing it down first.}
 \caption{Per-case scaled MAE across rounds, against the RANS-identity floor, the published
 rank-1 entry, and the best published score on each case. Lower is better. Round-5 values
 are the entry of record; round 2 is omitted for width and appears in \S3.1. The overall
-row's rank carries \textbf{P(rank 1) = 68\%} and a lead over the published rank-1 entry that
-is \textbf{not statistically decided} (Table~\ref{tab:prank}); the two \code{Ret\_360} rows
+row's rank carries \textbf{P(rank 1) = 68\%} (2--100\% at 95\%) and a lead over the published
+rank-1 entry that is \textbf{not statistically decided} (Table~\ref{tab:prank}); the two
+\code{Ret\_360} rows
 are ties at the board's published precision and are not wins.}
 \label{tab:percase}
 \resizebox{\textwidth}{!}{%
@@ -783,7 +807,7 @@ Case & Floor & R3 & R4 & \textbf{R5} & Reissmann & Best pub. & Attribution \\
 \code{AR\_14\_Ret\_180}      & 0.0590 & 0.0303 & 0.0325 & \textbf{0.0353} & 0.0325 & 0.0325 & 3rd of 5; the 0.00003 lead was priced and lost \\
 \code{NASA\_2DWMH}           & 0.0621 & 0.0632 & 0.0632 & \textbf{0.0632} & 0.0412 & 0.0364 & behind, last on board \\
 \midrule
-\textbf{Overall} & \textbf{0.1036} & \textbf{0.0676} & \textbf{0.0654} & \textbf{0.056647} & \textbf{0.0595} & --- & rank 1 of 5, scored locally; P 68\% \\
+\textbf{Overall} & \textbf{0.1036} & \textbf{0.0676} & \textbf{0.0654} & \textbf{0.056647} & \textbf{0.0595} & --- & rank 1 of 5, scored locally; P 68\% (2--100\% at 95\%) \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -2241,6 +2265,16 @@ Both gates failed; the inlet-corruption diagnosis; the primal-restart defect \\
 gate numbers fixed before launch \\
 \artifact{campaign/W2\_WU\_ZHANG\_DESTRUCTION\_FIML\_READING.md} &
 \code{393ad74f} & Both Wu artifacts read in full; the patch specification \\
+\artifact{campaign/PROBABILITY\_OF\_RANK\_2026-08-10.md} & \code{b032bbae} &
+Table~\ref{tab:prank}: the 400{,}000-draw case-level bootstrap, the four intervals in order of
+increasing honesty (Monte Carlo, leave-one-out, double bootstrap at 68\% and at 95\%), and the
+head banner withdrawing the internal-only gate \\
+\artifact{campaign/LADDER\_V\_PASS3\_COLD\_2026-08-11.md} & \code{9477a2ed} &
+The cold reproduction: \S3 (W2) is the independent P(rank 1) = 0.674 from public data, the
+finding that withdrew the gate \\
+\artifact{campaign/LADDER\_V\_TRIPLE\_VERIFICATION.md} & \code{5bffb476} &
+Ladder~V; V8 and its 2026-08-10 amendment --- every rank claim carries the probability, its
+interval and the not-decided pairs \\
 \bottomrule
 \end{longtable}
 
