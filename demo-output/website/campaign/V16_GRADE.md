@@ -1,6 +1,10 @@
 # V16 — independent grade of the placement guard
 
-**Grade: PASS WITH EXCEPTIONS.**
+**First grade (03:45): PASS WITH EXCEPTIONS, six exceptions.
+Re-grade after the fix round (05:30): PASS WITH EXCEPTIONS, two exceptions.**
+The re-grade is [§8 onward](#8-re-grade-2026-08-11-after-the-fix-round); the
+first grade is left exactly as it was written, because a grade rewritten onto its
+own outcome destroys the record of what was found before the fix.
 
 Rung: **V16 (A16)**, `demo-output/website/campaign/LADDER_V_TRIPLE_VERIFICATION.md`.
 Subject: `scripts/self_audit.py::check_board_placement_words`, tests
@@ -533,3 +537,318 @@ permutation test. It is the only evidence there is, and it is sufficient.
 
 *Graded independently. No agent verifies work it produced; this grader produced
 none of V16, and produced no fix for anything named above.*
+
+---
+
+# 8. RE-GRADE, 2026-08-11, after the fix round
+
+**Grade: PASS WITH EXCEPTIONS — two, both narrower than any of the first six.**
+
+The author closed all six exceptions across `20044415` `15b5dc88` `bebda8d9`
+`00c6c815` `253947d0` `1f33497f` and declined to re-grade itself — *"A15 applies
+to a fix round exactly as it applies to a build"* — which is the correct call and
+is why this section exists. Same grader, same rule: I wrote none of the guard,
+none of the tests, and none of the fixes, and I have fixed nothing here either.
+
+Suite at re-grade: **57 passed** (`sdk/tests/test_rank_claim_surfaces.py`), up
+from 35. Live check: **WARN**, two lab-record faults, both the declared
+use/mention class in `docs/INSTRUMENT_INTEGRITY_LEDGER.md` — unchanged, and
+correct.
+
+## 8.1 Exception-by-exception
+
+### E1 — the blind-spot statement. **CLOSED.**
+
+The frame line now leads with *"BLIND TO, LARGEST FIRST: (1) ANY placement
+phrased outside this check's patterns"*, carries all three measured miss rates
+with their provenance, and ends *"GREEN HERE IS NOT COVERAGE"*. BASIS leads with
+*"MOST OF ALL, any placement phrased outside this check's eleven patterns"* and
+now also declares the four things the first grade found undeclared: the 4 MB cap,
+the 400-character adjudication window, use-vs-mention, and the basename severity
+match. Everything I named in §5 of the first grade is in both places.
+
+**Does the structural test bind?** I mutated `BASIS` in memory rather than reading
+the test:
+
+| mutation of the new guard's admission | `test_the_sibling_guards_admission_is_not_dropped_by_its_successor` |
+|---|---|
+| admission deleted / gutted (`"occasionally imprecise"`) | **reddens** — the literal is gone |
+| admission kept verbatim, force reversed (`"ANY"` → `"a rare"`) | **still passes** |
+
+So it binds against **deletion**, which is the failure it was written for, and not
+against **dilution**. It is a literal-substring coupling between two BASIS
+entries, not a derivation of one from the other — the test asserts `"phrased
+outside"` appears in both rather than asserting that whatever the sibling admits
+this one admits. That is weaker than the docstring claims, and I record it as a
+limit of the test rather than as an open exception, because the failure it
+actually guards against — someone dropping the admission while widening the
+patterns — is exactly what happened once and would now redden.
+
+**One literal did survive the round that was about removing literals.** The count
+`eleven` is typed into three places (docstring, frame line, BASIS) alongside the
+figures `40 of 45`, `37`, `14`, `30%`. I counted the named alternatives in
+`_place_pattern` — there are exactly 11 today, so the number is right. Nothing
+derives it. Add a twelfth family and the verdict, BASIS and docstring all state a
+wrong count and **no test reddens**, because every test asserts the string
+`"eleven patterns"` is present, not that it is true. That is the F2 staleness
+class one level up from the ordinal vocabulary the same commit fixed.
+
+### E2 — the parser. **THREE CLOSED, ONE CLOSED, THE CLASS STILL OPEN.**
+
+The contract changed as described: `(board, head)` or `(None, reason)`, and the
+reason reaches the verdict. I re-attacked with fifteen inputs of my own, only two
+of which either of us has used before:
+
+| my input | result |
+|---|---|
+| the real README, unmodified | correct board — control |
+| rows in **descending** rank order | correct board |
+| author cells with **no markdown link at all** | correct board (a genuine improvement: this used to be OFF) |
+| rank column with leading zeros `01`, `02` | correct board |
+| a `rank 0` row (an organiser-baseline row) | **OFF**, reason states the rank column is not 1..N |
+| a one-letter first-author surname | **OFF**, reason names the row and the cell |
+| a duplicate surname differing **only in case** | **OFF**, reason names both rows |
+| a non-numbered legend table between heading and board | **OFF**, reason states the heading is not followed by a table |
+| apostrophe / hyphen surname (`O'Brien-Smith`) | correct board, no raise |
+| a **backslash** in a surname | correct board, no raise |
+| heading written as `# **Leaderboard**` | correct board |
+| **a NUMBERED legend table between the heading and the board** | **`{'case': 1}` — silently wrong board** |
+| **an earlier heading that also contains the word "leaderboard"** (`## Archived leaderboard (2024)`) | **`{'ghost': 1}` — silently wrong board** |
+| **a blank line inside the board table** | **`{'reissmann': 1}` — Wu silently dropped** |
+| a generational suffix on the first author (`Reissmann Jr., Fang`) | **`{'jr': 1}`** — the last-token heuristic again |
+
+The four instances the first grade found are genuinely fixed, and the metacharacter
+crash, the shared surname, the trailing decoy table and the particle surname are
+each now a test. **But the class is not closed, and the record claims it is.**
+`LADDER_V_TRIPLE_VERIFICATION.md` states *"The parse can no longer crash,
+mis-parse silently, or fault correct prose"*; the function's own docstring states
+*"it either returns a board it has checked, or it returns the reason it has none.
+It does not return a board it is unsure of."* Three of my inputs return a board it
+has not checked, with no warning.
+
+The mechanism is the same in all three: the repair anchored to **a** heading
+containing the word *leaderboard* and then took **the first table after it**,
+stopping at the first blank line. It never asks whether what it read looks like a
+leaderboard. The rank-column `1..N` assertion is the only sanity check, and a
+one-row decoy satisfies it trivially.
+
+**Severity, stated honestly.** All three produce silent *blindness* (an entrant
+disappears from the board and stops being checked), not silent *false positives*
+on correct prose — which is the less damaging half of the pair the author
+correctly identified as worst. None is live: today's README has none of these
+shapes. And all three are edits to the **benchmark's** README, outside this lab's
+control, which is the argument for defending against them rather than against it.
+
+### E3 — the ordinal vocabulary. **CLOSED**, verified by shortening as well as lengthening.
+
+| synthetic board | derived range | `rank-2` | `rank-6` | `rank-9` | `rank-13` | `rank-17` |
+|---|---|---|---|---|---|---|
+| 2 rows | 1..7 | HIT | HIT | miss | miss | miss |
+| 4 rows (today) | 1..9 | HIT | HIT | HIT | miss | miss |
+| 7 rows | 1..12 | HIT | HIT | HIT | miss | miss |
+| 12 rows | 1..17 | HIT | HIT | HIT | HIT | HIT |
+
+The range tracks the board in both directions, word and digit forms both, and an
+ordinal naming a position the board lacks reports itself as such. `_PLACE_OVER =
+5` is a stated margin, and the frame line prints the resulting range. The literal
+is gone.
+
+### E4 — recall. **THE WIDENING IS REAL AND FREE. THE PUBLISHED FIGURE IS SAMPLE-SPECIFIC.**
+
+**Precision, re-derived rather than read.** Nine families added, and across 978
+tracked UTF-8 surfaces the placement count rose from **503 to 573** with the fault
+count **unchanged at exactly two**, both the declared ledger mentions. Nine
+families for zero false positives is the strongest single result in this fix
+round, and it reproduces.
+
+**Recall, measured three ways.** The coordinator asked for a third set from the
+grader. I produced two numbers instead of one, because they answer different
+questions and only one of them is comparable to the author's:
+
+| set | who invented it | invented **before** seeing the eleven patterns? | missed |
+|---|---|---|---|
+| the author's 46 | the author | yes | **30%** |
+| **my first 45, re-run** | the grader | **yes** — invented against the two-pattern version | **53%** (50% excluding declared-blind) |
+| **my third 45, new** | the grader | **no** — invented against the eleven | **96%** |
+
+Disjointness verified mechanically: my third set shares **0** sentences with the
+author's 46; three deliberate positive controls in it are caught 3/3, so the set
+is not rigged to miss.
+
+**The 96% is not a refutation and I will not present it as one.** A set built with
+the pattern list in front of me measures how much placement language lies outside
+eleven regexes, which is unbounded by construction. It is reported because it is
+the honest answer to *how far does an adversary have to walk*, and the answer is:
+one sentence.
+
+**The 53% is the comparable number and it is the finding.** Same protocol as the
+author's, same guard, invented blind by a different agent, and it says the reach
+is roughly half, not seven-tenths. Both measurements are honest; they differ
+because held-out sets are samples, and 45–46 sentences is a small one. What
+follows is not that anyone was wrong — it is that **the figure printed in the
+verdict a reader meets is one sample's**, and the frame currently quotes the
+*outside* measurement for the superseded version (89%) beside the *inside*
+measurement for the shipped version (30%). Read straight, that is an improvement
+from 11% reach to 70%. Measured on one fixed set held constant across the change,
+it is 11% → 47%. The improvement is large and real either way; the printed
+endpoint is the optimistic one, and nothing on the surface says the endpoint and
+the starting point come from different samples.
+
+Still missed on my blind set, after the widening: bare parenthetical ordinals,
+`#N`, `No. N` (withdrawn on purpose), *are in third*, *occupy the third
+position*, *the board's third*, *3 of 4*, *the top entry*, table and CSV rows,
+medals, podiums, roman numerals, non-English ordinals — and **four of my five
+rule-B shapes**, which is worth its own line: rule B was not widened at all, and
+*beat the runner-up by*, *clear of the second-place submission*, *the gap between
+us and the front-runner* and *margin over the leader* all pass clean.
+
+### E5 — the withdrawn `No. N` family. **CLOSED, and the test genuinely holds it.**
+
+I restored the family in memory — pattern branch and the group wiring in
+`_placements` — and re-ran the two sentences the withdrawal test asserts clean:
+
+| sentence | with `No. N` restored |
+|---|---|
+| `No. 4 on the published board is Wu and Zhang.` | **faults** |
+| `J. Fluid Mech., Vol. 812, No. 4, Wu and co-workers, 2017.` | **faults** |
+
+Both assertions of `test_the_family_that_was_measured_and_then_removed` would
+fail, including the bibliography false positive that motivated the withdrawal. A
+removal recorded as a test with the reason attached, and the test binds. This is
+the shape I would want copied.
+
+*(Found in passing: adding a named group to `_place_pattern` without adding it to
+the tuple in `_placements` raises a bare `StopIteration`, which the check's own
+`except Exception` swallows into the `unreadable` counter. The counter is printed,
+so it is visible — but a wiring mistake in this file degrades to a silent skip
+rather than an error.)*
+
+### E6 — the `.tex` sentence. **CLOSED, both halves verified independently.**
+
+- **Is it true?** The parsed board puts `wu` at 2; the sentence says *ranked
+  second*. True, against the board as parsed today.
+- **Does the guard see it?** Reading the real file: **32 placement expressions
+  found, one of them `'ranked second'`, bound to `Wu`, board rank 2, no fault.**
+- The text was left alone, which is right — it is correct prose, and editing
+  correct prose to please an instrument is the wrong direction.
+- Its wrap falls **between the participle and the ordinal**, so a line-bounded
+  reader misses it where a whole-text reader catches it. That makes this sentence
+  the first *real* justification whole-text matching has ever had in this repo,
+  replacing the retracted one — and the author says exactly that rather than
+  quietly reusing the old claim. `test_the_real_wrap_in_the_report_source_needs_whole_text`
+  pins it, and `test_the_retracted_justification_is_retracted_in_the_code` pins the
+  retraction to the source text so it cannot silently return.
+
+## 8.2 The two things I was told to be skeptical about
+
+**Did runtime fixture assembly weaken what the fixtures assert?** **No.** I diffed
+every assertion in the test file between `862d2cff` and HEAD. There is not one
+deleted or loosened assertion in the diff; the frame-line assertions were
+*strengthened* (three new required substrings), and `test_the_three_surfaces_fixed_on_2026_08_11_stay_fixed`
+now asserts `path.exists()` — which closes, unasked, the soft spot I had filed
+under "found while not looking for it" in §7. The new fixtures are assembled the
+same way the old ones were, for the reason the file already gave, and the reason
+got better evidence: the widened guard flagged twelve real faults in its own test
+file within a minute of widening.
+
+**Does the replacement for the struck corpus print both its denominator and its
+selection rule?** **Yes, and it reproduces.** The frame line reads: *"1375 tracked
+UTF-8 surface(s) carrying rank/runner/place/top opened, of which 126 name a board
+entrant and were swept for placements … 577 placement expression(s) found in those
+126 — that pair is the denominator and its selection rule, stated so it
+reproduces."* Both counts, the filter that produced each, and the fact that rule A
+cannot fire where nobody is named. `docs/PRODUCT_LIST.md` strikes the 111/421/63
+line **in place with the reason** rather than deleting it, and states that the rate
+survived independent re-derivation while the corpus did not. That is the correct
+treatment of a struck figure: the number goes, the record of having claimed it
+stays. A test asserts the selection-rule sentence is present.
+
+## 8.3 L-75 applied to my own first grade
+
+`grep` here is a shell function running `ugrep --ignore-files`, so `grep -r`
+skips gitignored paths. **One** count in my first grade came from `grep -r`: the
+completeness sweep behind the claim-7 verdict on the 15→16 amendment. I re-ran it
+three ways — `grep -r`, `find` + `/usr/bin/grep` over `*.md`, and `find` +
+`/usr/bin/grep` over every file under 4 MB — and all three return the **identical**
+four files. The finding is unaffected and the verdict stands, now with its frame
+stated. Every other number in the first grade came from `git ls-files` through
+Python, which L-75 names as sound.
+
+**The guard does not inherit the blindness, and by more than declaration.** Its
+sweep is `git ls-files`, and this repository tracks **6,938 files that are also
+gitignored** — every one of them reachable by the guard and invisible to `grep
+-r`. Its 1,375 opened surfaces are therefore a strictly wider frame than any
+grep-derived sweep in this lab, and its remaining gap, *untracked files*, is
+declared in the verdict line.
+
+## 8.4 Verdict
+
+**PASS WITH EXCEPTIONS.** Five of six exceptions are closed cleanly, several with
+tests I verified bind by breaking them rather than by reading them. On the rung's
+own stated failure criterion — *"the rung fails if the check does not state its
+false-positive rate against a measured corpus and name the senses of the word it
+excludes"* — it now passes emphatically: the rate is re-derived at zero over a
+wider frame than claimed, the corpus has a printed selection rule, and the sense
+exclusions were already the best part of it.
+
+Two exceptions remain, and both are the same shape as the first six — **the
+instrument is sound and a claim about it overstates it** — at a much smaller
+scale.
+
+1. **The parse can still mis-parse silently, and the record says it cannot.**
+   Three inputs of mine return a board the function has not checked, with no
+   warning: a numbered table between the leaderboard heading and the board, an
+   earlier heading that also contains the word *leaderboard*, and a blank line
+   inside the board table. The rung text's *"can no longer … mis-parse silently"*
+   and the docstring's *"does not return a board it is unsure of"* are both false
+   as written. Not live, not a regression, and the failure mode is silent
+   blindness rather than manufactured false positives — but it is a stated
+   contract that does not hold, in the one function the whole rung's evidence
+   claim rests on. §8.1/E2.
+2. **The reach figure printed in the verdict is one sample's.** An independent
+   blind set built on the same protocol puts the widened guard at **53% missed**,
+   not 30%, and the frame line pairs an outside measurement of the old version
+   with an inside measurement of the new one without saying they are different
+   samples. The widening is large and real — 89% → 53% on a single fixed set — and
+   the honest published pair is that one, not 89% → 30%. §8.1/E4.
+
+Neither blocks anything V16 gates. Both are one sentence of prose and one guard
+clause from closed. I would not withhold a PASS for either alone; together they
+are the same finding the first grade made — *the verdict line is read as
+coverage* — surviving at one-tenth its former size, and that is worth saying out
+loud rather than rounding away.
+
+**What I would have this rung keep, more than anything it fixed:** the `No. N`
+family, added, measured, found firing on a bibliography, removed, and the removal
+frozen as a test with its reason attached. That is a lab learning to record a
+decision instead of a gap.
+
+## 8.5 Found while not looking, second pass
+
+- **Another agent overwrote my session scratchpad.** My first held-out set lived at
+  `…/scratchpad/heldout.py`; at 04:11 that path was replaced by the author's own
+  46-sentence set, under a docstring reading *"My own held-out set"*. The
+  scratchpad is documented as session-specific and isolated. No harm here — my 45
+  are recorded verbatim in §4 of this document and I reconstructed them from it to
+  produce the 53% — but a grader's evidence file being silently replaced by the
+  author's is a hazard worth one line in a lab whose whole method is independent
+  verification. It also means I read the author's held-out set before building my
+  third, which is why disjointness is asserted mechanically above rather than
+  claimed.
+- **`_first_author_surname` takes the last token**, which fixed the particle case
+  and creates the mirror one: `Reissmann Jr., Fang` keys the board on `jr`. Same
+  heuristic, opposite end of the name.
+- **The three miss-rate figures and the count `eleven` are hardcoded in three
+  places each** with no test that they still describe the pattern they annotate.
+  The ordinal vocabulary was freed from exactly this in the same commit.
+- **Rule B was not widened.** All nine new families serve rule A. Four of my five
+  fresh rule-B shapes pass clean, and the rung's third original defect was a
+  rule-B defect. The asymmetry is defensible — rule B has no adjudication clause
+  and every widening of it costs precision directly — but it is not stated
+  anywhere, and *"miss rate 80% → 30%"* reads as a statement about the check
+  rather than about one of its two rules.
+
+---
+
+*Re-graded independently by the same agent that produced the first grade and none
+of the work under it. Nothing was fixed in this pass.*
