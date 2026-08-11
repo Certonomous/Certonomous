@@ -251,10 +251,19 @@ published values and not a rounding of something else.
 > the other one (noted 2026-08-10 by the V15 corrections pass, finding F4).**
 > Every probability in this document — the 67.6%/68%, the rank distribution and
 > all four pairwise P(we lead) — was computed with Reissmann at the transcribed
-> **0.059525**, the mean of eight rounded per-case values. Pass 3's like-for-like
-> full-precision re-score of the accepted CSVs on the same harness gives
-> **0.0595338**, and that is what the outward description document's margin
-> (0.0028863) uses. **The bootstrap has NOT been re-run on the re-scored basis**,
+> **0.059525**, the mean of eight rounded per-case values. A like-for-like
+> full-precision re-score of **Reissmann, Fang & Sandberg's own eight submitted
+> CSVs** on the same harness gives **0.05953352830400628 → 0.0595335**, and that is
+> what the outward description document's margin (0.0028863) uses.
+> *(Amended 2026-08-11 by the V8 fix round, on two counts this block got wrong:
+> it printed the re-score as `0.0595338`, which is the misrounded transcription the
+> re-score itself replaced — 0.0595335 is the value, and it is the one that
+> subtracts to 0.0028863 against our 0.056647191704213645 — and it attributed that
+> value to "the accepted CSVs" as a set when it belongs to one entrant; the other
+> three re-score to 0.062423, 0.073708 and 0.077868. Both re-derived here on the
+> benchmark's own unmodified scorer at eval package `1c4e22c8`, dataset
+> `deb91557`.)*
+> **The bootstrap has NOT been re-run on the re-scored basis**,
 > so nothing here may be quoted as resting on it. The two inputs differ by
 > 9×10⁻⁶ — about 0.3% of the margin — which is why the difference was not noticed;
 > it is recorded rather than smoothed because a reader who checks both finds two
