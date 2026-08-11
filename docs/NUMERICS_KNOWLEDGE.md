@@ -557,7 +557,23 @@ it, matching this file's existing convention.
   cross-validation family (periodic hills, converging-diverging channel,
   curved backward-facing step) overlaps our PH test family; the gate is
   whether the public `general_earsm` code, retrained or reused, beats our
-  current 0.0741 on the PH-only sub-score without touching duct/hump.
+  round-2 0.0741 on the PH-only sub-score without touching duct/hump.
+  **Two corrections to that gate, 2026-08-11 (Ladder V rung V14, item 9).**
+  (a) It read *"our **current** 0.0741"*. That is round 2, which was the entry
+  of record when this reading round was logged on 2026-07-28; the entry of
+  record is now **round 5, 0.056647** (`closure_challenge_round5_qcr.json`).
+  (b) **The bar as written does not measure what it names, and it is left
+  standing for its author rather than silently re-pointed.** `0.0741` is round
+  2's **overall** across all eight cases; round 2's **PH-only** sub-score is
+  **0.080225** — the mean of `alpha_15_13929_4048` 0.0501,
+  `alpha_15_13929_2024` 0.1011, `alpha_05_4071_4048` 0.0723 and
+  `alpha_05_4071_2024` 0.0974, from
+  `closure_challenge_trained_entry_round2.json`. Substituting either number
+  would change **which experiment this gate is**, so neither is substituted:
+  whoever runs it must first decide whether the comparison is PH-only (bar
+  0.080225 at round 2; 0.0673 on the current entry, where two of the four rows
+  are the supplied baseline the decline gate passed through untouched) or
+  overall.
 - **SGS/LES neural closures predict subgrid flux from resolved features,
   with translation equivariance as a structural byproduct of local
   convolution but no Galilean/rotational guarantee; one representative's
