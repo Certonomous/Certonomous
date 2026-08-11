@@ -1,6 +1,6 @@
 # Certonomous Verification Charter
 
-Version 1.7, dated 2026-08-11. Defines what counts as done. It binds every
+Version 1.8, dated 2026-08-11. Defines what counts as done. It binds every
 solve, every gradient check, every ladder rung and every number that reaches a
 record, a certificate or a camera surface.
 
@@ -100,6 +100,75 @@ experimental comparison, RESEARCH MODEL for an honestly labelled reduced-order
 screen, UNCONVERGED when the solve did not settle and the number is not
 evidence yet. Honesty is carried by the value, its interval, the chip and the
 uncertainty channels, never by hedging prose.
+
+## 2a. The identity test — a gate declares its own failure mode at creation (Katie, 2026-08-11)
+
+> **Every gate answers two questions before it is a gate:**
+> **(1) What result would make this gate FAIL?**
+> **(2) Could a wrong treatment still PASS it?**
+>
+> **A gate whose quantity is derivable by construction from its own inputs is an
+> IDENTITY, not a control. It may be reported. It may never be gated on.**
+
+**The distinction is not subtle once stated, and it is nearly invisible in practice.** A
+control tests a claim about the world, so a wrong treatment fails it. An identity tests
+arithmetic, so a wrong treatment reproduces it exactly — and reports a clean PASS while
+being wrong about everything the gate existed to check.
+
+**The instance that earned the rule, on 2026-08-11.** Gate G-P4 asked that a posterior
+treatment reproduce the plateau balance of a prior run. It was re-based, in good faith and
+inside a correction, onto `|g_penalty| = 2·λ_L2·‖β−1‖₂` — a quantity **any** treatment that
+knows λ_L2 and β computes exactly, including one whose posterior is wrong. The re-basing
+replaced a control that could fail with one that could not, and the informative leg it
+discarded — the **cosine**, which carries whether the prior pull actually opposed the
+likelihood gradient — was the only part testing the balance at all.
+
+The tell was available at creation and nobody asked for it: *could a wrong treatment still
+pass this?* For the analytic quantity the answer is yes, trivially, by algebra.
+
+**Sibling failures this same test catches**, all found in one day:
+
+- An acceptance band calibrated from a defective run, then used to grade its successor.
+- A random-seed test whose two arms could not differ.
+- A cross-check whose divisor had been **fitted to the printed value** in a sibling
+  document — a check solved for by requiring it to pass.
+
+**What to write down.** The two answers go in the gate's own text, beside the threshold,
+in the pre-registration where the gate is fixed. *"This gate fails if X"* and *"a wrong
+treatment could still pass it by Y, which is why Z is also gated"* — or the honest
+alternative, *"we know of no way a wrong treatment passes this"*, which is a claim a grader
+can attack.
+
+**Reporting an identity is encouraged.** `|g_penalty|` computed exactly from a file on disk
+is a useful cross-check on arithmetic and provenance, and it belongs in the record. It is
+the *gating* that is forbidden: a threshold on a quantity that cannot miss is a green light
+wired to nothing.
+
+## 2b. Pre-registration amendment — legal only while there is no answer to tune to (Katie, 2026-08-11)
+
+A pre-registration is frozen against improvement (L-44), and the freeze is not ceremony:
+**it is the entire evidentiary content of the document.** A pre-registration proves one
+thing — that the gate could not have been chosen to fit the answer — and an amendment made
+after the answer exists destroys exactly that.
+
+**So the rule follows the property rather than the calendar:**
+
+1. **Before first compute, amendments are legal.** There is no answer to tune to, so the
+   protected property is intact. The amendment must **state that condition and how it was
+   checked** — name the run directory that does not exist, or the empty registry query.
+   Asserting it is not enough; the check is the point.
+2. **After first compute, gates are closed.** Changes land only as **dated addenda that
+   cannot alter a gate, a threshold, a cap or a label.** An addendum may record, correct a
+   citation, or note that a gate was later found defective — the last of those is a
+   *finding*, and it belongs in the docket and the results record, never as a quiet edit to
+   the bar.
+3. **Originals are always retained and struck, never rewritten**, under either condition.
+
+**Worked example, same day.** `S1_PRIORS_PREREGISTRATION.md` had its §8 withdrawn and its
+gate G-P4 restored. Legal, because no `S1-priors` run directory existed — checked, not
+assumed — and the amendment says so on its face. Had one solve run, the correct action
+would have been an addendum recording that G-P4 as written was an identity, and a **failed
+gate shipped as a documented failure** under §8 of this charter rather than a repaired one.
 
 ## 3. The three-rung climb, and the hard ladder rule
 
