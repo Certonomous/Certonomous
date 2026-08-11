@@ -122,8 +122,45 @@ Logs: `cbfs_e2_plus/`, `cbfs_e2_signR/`, `cbfs_e2_signB/`.
 
 Identical to ten significant figures from the first checkpoint on: the corrected solution
 was fully steady before 5,000 iterations. Settle rule (< 0.5% movement) fired at 10,000,
-confirmed at 15,000; the run was **stopped at 15,000 by the pre-registered protocol, not
-by a cap** (momentum initial residuals ~1e-7 at stop). Graded value: checkpoint 15,000.
+confirmed at 15,000; **the pre-registered protocol was satisfied at 15,000, far below the
+30,000 cap** (momentum initial residuals ~1e-7 there). Graded value: checkpoint 15,000.
+
+> **Correction, 2026-08-11 — stop condition. No reported number moves; see the paragraph
+> after next for why.** This paragraph previously read: *"the run was **stopped at 15,000
+> by the pre-registered protocol, not by a cap** (momentum initial residuals ~1e-7 at
+> stop)."* The first half is true and stands — the settle-and-confirm sequence completed
+> at 15,000 and that checkpoint is what is graded. The second half implied that nothing
+> ran after 15,000, and `cbfs_prop/log.run` says otherwise: it holds **four** restart
+> segments, not three. Three end cleanly (`End` at lines 56342 / 112673 / 169004, after
+> Time 5,000 / 10,000 / 15,000). A fourth was launched from the 15,000 checkpoint
+> (`Create mesh for time = 15000`, line 169038; `Time = 15001`, line 169085) under this
+> case's `endTime 20000`, and the file then stops **mid-timestep inside Time 15,519** —
+> no `End`, no closing `ExecutionTime`, the pressure and omega/k solves for that iteration
+> simply absent. That is the signature of a killed process, not of a solver reaching a
+> stopping condition. **The run was killed at ~15,519; the protocol's stop, and the grade,
+> were at 15,000.**
+>
+> **Why no number moves, stated explicitly rather than left for the reader to worry
+> about.** The graded artifact is the `15000/` field directory, and the fourth segment
+> *read* it but could never *write* it: `writeInterval` is 5,000, so the segment's next
+> write would have been at 20,000 and it died 4,481 iterations short of that. The evidence
+> is on disk and in the clock. Every field in `cbfs_prop/15000/` is timestamped
+> 00:40:52 UTC and `score_15000.json` 00:40:53 UTC, both *before* `log.run`'s final write
+> at 00:41:25 UTC — the graded 0.3975259863 was computed from a checkpoint the killed
+> segment had not yet had the chance to touch, and by construction never would have. The
+> 519 stray iterations were also already priced honestly: section 8 below bills
+> "15,000 it + 519 before stop", and `W2_SPARTA_REGRESSION_PREREGISTRATION.md` took its
+> cost basis from "1,007 s per 15,500 iterations". Nothing in the RESULT table, the grades,
+> the cost total, or the JSON mirror changes. What changes is one clause of prose that
+> described a clean stop where the artifact records a kill.
+>
+> Related, and found in the same audit: this case's archived `system/controlDict` says
+> `endTime 20000`, which is neither the pre-registered 30,000 cap nor the 15,000 grade
+> point — it is the mid-campaign state left by manual 5,000-iteration segmenting. The
+> archived dictionaries have been left exactly as the solves read them; the discrepancy is
+> documented instead in
+> [`W2_sparta_runs/ARCHIVE_NOTE_controlDicts_2026-08-11.md`](W2_sparta_runs/ARCHIVE_NOTE_controlDicts_2026-08-11.md),
+> which tables all 21 cases.
 
 **PH** (`ph_prop/log.run`, checkpoints every 2,500, cap 10,000):
 
@@ -138,7 +175,11 @@ by a cap** (momentum initial residuals ~1e-7 at stop). Graded value: checkpoint 
 Settle fired between 7,500 and 10,000 (0.03% movement), but the confirming checkpoint
 would have fallen beyond the cap — so one extra 2,500-iteration segment was run *past*
 the cap purely as confirmation and is labelled as such: the value did not move at the
-sixth decimal. Graded value: checkpoint 10,000 (the in-cap settled value).
+sixth decimal. Graded value: checkpoint 10,000 (the in-cap settled value). *(Note added
+2026-08-11: this is why `ph_prop/system/controlDict` on disk says `endTime 12500` — it is
+the confirmation segment's dictionary, and it **overstates** the pre-registered 10,000
+cap. The file has been left as the solve read it; see
+[`W2_sparta_runs/ARCHIVE_NOTE_controlDicts_2026-08-11.md`](W2_sparta_runs/ARCHIVE_NOTE_controlDicts_2026-08-11.md).)*
 
 ## 6. Grade against the pre-registered bands, and the tau-convention finding
 

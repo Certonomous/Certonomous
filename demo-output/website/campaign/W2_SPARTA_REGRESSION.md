@@ -146,6 +146,19 @@ logged 39 bounding events (CBFS m2: 1,745). Consistent with the paper's own stat
 that b_Delta corrections "can do harm to the convergence properties"; reported, not
 graded, per the pre-registered exclusion rule.
 
+*Note added 2026-08-11, no number affected.* "Stopped by protocol, not cap" above is
+correct for the four CBFS model runs — each ran a single clean segment to `End` at 15,000
+with no continuation, and the 30,000 cap was never approached. But the mechanism was an
+`endTime 15000` in each case's `controlDict`, set to the protocol's confirmation point
+once `cbfs_prop` had established that settle fires at 10,000 and confirms at 15,000. So
+`cbfs_m1pub/m2pub/m3pub/mdisc/system/controlDict` all read `endTime 15000`, not the
+declared 30,000 cap, and a reader reconstructing the caps from the archived dictionaries
+would get them wrong. The dictionaries have been left exactly as the solves read them;
+the discrepancy is tabled for all 21 cases in
+[`W2_sparta_runs/ARCHIVE_NOTE_controlDicts_2026-08-11.md`](W2_sparta_runs/ARCHIVE_NOTE_controlDicts_2026-08-11.md).
+`ph_m2pub`'s cap-stop is unaffected: its `endTime 10000` *is* the declared PH cap, so it
+genuinely cap-stopped unsettled as reported.
+
 ## 7. Velocity-only validation against Table 2 (graded rows in RESULT above)
 
 | Run | Model | Case | ours eps(U)/eps(U0) | published | delta |
