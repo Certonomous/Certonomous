@@ -108,10 +108,45 @@ AUTHOR = [(fam, _s(t)) for fam, t in _RAW]
 assert len(AUTHOR) == 46, len(AUTHOR)
 
 
+# --------------------------------------------------------------------------
+# RULE B's five shapes, invented BLIND by the independent grader and
+# transcribed here because they were the one published figure with no
+# committed inputs.
+#
+# `_PLACE_REACH_B` carried "5 of 5 shapes caught" beside three rows that
+# recompute from their sentences, interpolated into the same paragraph, with
+# nothing distinguishing it -- under a comment reading "It cannot happen
+# again, because the sentences are now IN THE REPOSITORY". That was true of
+# three of the four published figures and false of the fourth, and the fourth
+# is the exact figure whose contradiction made the previous table stale. So
+# these live here now and the row recomputes like every other.
+#
+# Rule B has no adjudication clause -- there is no correct form of a position
+# word to sit beside a wrong one -- so these are assembled like everything
+# else in this file.
+_RULE_B_RAW = [
+    ("margin over a position word", "Our margin over the {R} is 0.0028863."),
+    ("beat a position word", "We beat the {R} by 0.0029 on the overall."),
+    ("clear of a position word",
+     "We finished clear of the {O2}-place submission."),
+    ("gap between us and a position word",
+     "The gap between us and the {F} is 0.0029."),
+    ("margin over the leader", "Our margin over the {L} is 0.0029."),
+]
+
+#: (family, sentence) -- five RULE-B shapes; five sentences is a smoke test,
+#: not a reach measurement, and the guard's verdict line says so.
+RULE_B = [(fam, _s(t)) for fam, t in _RULE_B_RAW]
+
+assert len(RULE_B) == 5, len(RULE_B)
+
+
 def measure(board, faults):
     """(missed, n) against a board and a fault function."""
     missed = sum(1 for _fam, s in AUTHOR if not any(faults(s, board)))
-    return {"AUTHOR": (missed, len(AUTHOR))}
+    caught_b = sum(1 for _fam, s in RULE_B if faults(s, board)[1])
+    return {"AUTHOR": (missed, len(AUTHOR)),
+            "RULE_B_CAUGHT": (caught_b, len(RULE_B))}
 
 
 if __name__ == "__main__":                                     # pragma: no cover
@@ -125,5 +160,6 @@ if __name__ == "__main__":                                     # pragma: no cove
     board, why = sa._published_board()
     if board is None:
         raise SystemExit(f"detector OFF: {why}")
-    for name, (missed, n) in measure(board, sa.board_placement_faults).items():
-        print(f"{name}: missed {missed} of {n} ({round(100 * missed / n)}%)")
+    for name, (count, n) in measure(board, sa.board_placement_faults).items():
+        verb = "caught" if name.endswith("_CAUGHT") else "missed"
+        print(f"{name}: {verb} {count} of {n} ({round(100 * count / n)}%)")

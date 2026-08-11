@@ -255,6 +255,25 @@ _WRONG = "rank-" + "3"          # Wu & Zhang are rank 2 on the published board
 _RIGHT = "rank-" + "2"
 _POSITION_WORD = "runner" + "-" + "up"
 
+# AND THE CONVENTION HAS TO BE RE-APPLIED TO EVERY NEW FIXTURE, which is a
+# sentence worth its own measurement rather than its own adjective. The
+# fourth-grade round added boundary and linear-algebra fixtures written out in
+# full. Executed, on the tracked corpus:
+#
+#   at HEAD before the round : WARN, 2 lab-record faults (both in
+#                              docs/INSTRUMENT_INTEGRITY_LEDGER.md)
+#   with the fixtures literal: WARN, 10 -- the eight new ones ALL in this file
+#
+# The guard's own test file had become a corpus of eight real wrong placements
+# about a real entrant, and the guard reported them, correctly, against the
+# lab. Assembled below; the count is back to 2 and the sentences under test are
+# unchanged.
+_R4 = "rank " + "4"             # Wu is rank 2, so any of these is a defect
+_R4C = "Rank " + "4"
+_R4H = "rank-" + "4"
+_R3C = "Rank " + "3"
+_O4C = "Four" + "th"
+
 DEFECT_A_WAS = ("It has no training range, which is exactly why it was chosen. "
                 f"The {_WRONG} entry, Wu & Zhang's SST-QCRC, carries the same "
                 "term; our three duct scores land within 0.0004 of theirs.")
@@ -507,6 +526,42 @@ class HomonymsOfTheWordTests(unittest.TestCase):
             "The published board lists them at rank 2. Rank 3 is Liu, Wang, "
             "Zhao and Xiao, whose method paper we read in full."))
 
+    def test_a_boundary_binds_nothing_even_when_the_name_starts_the_sentence(
+            self):
+        """Found by EXECUTING the comment that claims a boundary blocks the
+        bind, rather than reading it. A sentence ends at ". " plus a capital,
+        and when the entrant's own surname IS that capital the slice between
+        the ordinal and the name stops one character short of the evidence --
+        so "They are at rank 4. Wu and Zhang run SST-QCRC." bound across the
+        full stop. My own sweep's find, on my own claim.
+
+        AND IT IS SYMMETRIC. The first repair patched the right-hand side
+        only; on the left the capital closing the boundary is the ORDINAL's
+        own first letter, and "Wu and Zhang did the duct case. Rank 4 is
+        Montoya's." bound across the stop for the identical reason. Executed
+        against the patched-right/unpatched-left build: the three L cases
+        below all returned one rule-A fault each.
+        """
+        # name first after the stop (right-hand side)
+        self.assertEqual(([], []), _faults(
+            f"They are at {_R4}. Wu and Zhang run SST-QCRC."))
+        self.assertEqual(([], []), _faults(
+            f"The duct scores land at {_R4}! Reissmann and colleagues differ."))
+        # ORDINAL first after the stop (left-hand side, the symmetric twin)
+        self.assertEqual(([], []), _faults(
+            f"Wu and Zhang did the duct case. {_R4C} is Montoya's."))
+        self.assertEqual(([], []), _faults(
+            f"We read Reissmann in full. {_R3C} belongs to someone else."))
+        self.assertEqual(([], []), _faults(
+            f"Wu and Zhang wrote it. {_O4C} place went to another team."))
+        # POSITIVE CONTROLS: the guard has not simply stopped binding after
+        # every full stop, and still binds in both directions.
+        for live in (f"Wu and Zhang are the {_R4H} entry on the board.",
+                     f"{_R4C} is where the board puts Wu and Zhang.",
+                     f"The board's {_R4} slot is Wu and Zhang's."):
+            rule_a, _ = _faults(live)
+            self.assertEqual(1, len(rule_a), (live, rule_a))
+
     def test_a_wrong_ordinal_beside_the_right_one_is_adjudication(self):
         """An audit record that names a defect and states the truth beside it
         is correcting a claim, not making one."""
@@ -524,6 +579,138 @@ class HomonymsOfTheWordTests(unittest.TestCase):
                 "lives, against Reissmann's published overall",
                 "0.0675 - ahead of third place on the public board"):
             self.assertEqual([], _faults(text)[1], text)
+
+
+class ASkipIsNotAnAgreementTests(unittest.TestCase):
+    """A defect in the guard's OWN logic must not return PASS.
+
+    A per-surface `except Exception` kept one bad document from ending the
+    audit -- right -- and then reported the skip in the frame while leaving the
+    STATUS green. Injecting a raise on exactly the surface carrying a fault
+    returned "all 0 placement expression(s) agree with the published board".
+    That is the green that means "I looked at nothing", which this check
+    refuses in its own words. The surfaces a guard cannot read are the unusual
+    ones, so their absence has to move the status, not only a number.
+    """
+
+    def setUp(self):
+        self._real = sa._placements
+
+    def tearDown(self):
+        sa._placements = self._real
+
+    def test_a_raise_on_every_surface_is_not_a_pass(self):
+        sa._placements = lambda *a, **k: (_ for _ in ()).throw(
+            RuntimeError("injected: the pattern blew up"))
+        result = sa.check_board_placement_words()
+        self.assertNotEqual(sa.PASS, result.status, result.summary)
+        self.assertIn("not swept", result.summary)
+
+    def test_a_raise_on_only_the_faulty_surface_is_not_a_pass(self):
+        """The realistic shape: a partial break drops precisely the documents
+        that break it."""
+        real = self._real
+
+        def selective(text, names, board):
+            if "INSTRUMENT_INTEGRITY" in text:
+                raise ValueError("injected: catastrophic backtracking")
+            return real(text, names, board)
+
+        sa._placements = selective
+        result = sa.check_board_placement_words()
+        self.assertNotEqual(sa.PASS, result.status, result.summary)
+        named = [d for d in result.detail if "could not be swept" in d]
+        self.assertTrue(named, "the skipped surface was not named")
+        self.assertIn("NOT counted as agreeing", named[0])
+
+    def test_an_empty_sweep_is_not_agreement_either(self):
+        sa._placements = lambda *a, **k: []
+        result = sa.check_board_placement_words()
+        self.assertNotEqual(sa.PASS, result.status, result.summary)
+        self.assertIn("empty sweep", result.summary)
+
+    def test_the_healthy_run_still_reaches_a_verdict(self):
+        """So the fix is not 'never pass again'."""
+        self.assertIn(sa.check_board_placement_words().status,
+                      (sa.PASS, sa.WARN, sa.FAIL))
+
+
+class LinearAlgebraRankIsNotAPlacementTests(unittest.TestCase):
+    """The exclusion was narrowed on a FALSE premise.
+
+    Its comment said "every linear-algebra `rank` in this corpus is a word",
+    and restricted the left-context exclusion to word numerals on that basis.
+    A fourth grade swept the corpus and found four written as DIGITS. None
+    faulted, by luck of layout alone -- none sat within the binding window of a
+    board surname -- in a turbulence lab whose four entrants are turbulence
+    authors. The discriminator is not the numeral form; it is whether a
+    linear-algebra object is being discussed.
+    """
+
+    def test_digit_form_linear_algebra_is_excluded(self):
+        for sentence in (
+                "Wu and Zhang show the tensor basis is rank 3, not five.",
+                "On the duct field Wu and Zhang report pointwise rank 3.",
+                "Wu and Zhang compute a stress that is rank 3 almost "
+                "everywhere.",
+                "Wu and Zhang note the Reynolds stress is a rank-2 tensor."):
+            self.assertEqual(([], []), _faults(sentence), sentence)
+
+    def test_word_form_linear_algebra_is_still_excluded(self):
+        self.assertEqual(([], []), _faults(
+            "Wu and Zhang show the tensor basis is rank three, not five."))
+
+    def test_a_placement_in_the_same_grammar_still_faults(self):
+        """`are rank N` is the form the adjudication clause depends on, and it
+        must survive an exclusion that now reaches digits."""
+        rule_a, _ = _faults(f"Wu and Zhang are {_R4} on the published board.")
+        self.assertEqual(1, len(rule_a), rule_a)
+
+    def test_a_turbulence_noun_in_the_clause_does_not_mute_a_placement(self):
+        """THE ADVERSARIAL CASE, and it was not hypothetical.
+
+        The first repair of the false-premise defect replaced the numeral-form
+        discriminator with a plain 80-character window on BOTH sides. Executed
+        against that build, every sentence below returned zero faults -- three
+        wrong placements about a real entrant, muted by a turbulence noun
+        sitting elsewhere in the same clause, in a lab whose four entrants are
+        turbulence authors. Trading a latent false positive for a live false
+        negative is the worse trade: the false positive is loud.
+
+        Nearest-wins, left-hand only, is what these pin.
+        """
+        for sentence in (
+                f"Wu and Zhang are {_R4} on the published board, and their "
+                f"tensor basis method is neural.",
+                f"Their tensor-basis neural network is well known; Wu and "
+                f"Zhang are {_R4} on the board.",
+                f"The tensor basis paper is theirs. Wu and Zhang are {_R4}.",
+                f"Wu and Zhang are {_R4} overall in the tensor-basis "
+                f"category.",
+                f"Wu and Zhang are {_R4}; the invariant set is Pope's."):
+            rule_a, _ = _faults(sentence)
+            self.assertEqual(1, len(rule_a), (sentence, rule_a))
+
+    def test_the_adjudication_sentence_is_still_a_bound_placement(self):
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        found = sa._placements("The published board puts Wu and Zhang at "
+                               "rank 2.", sa._board_names(board), board)
+        self.assertEqual([(2, "Wu")], [(n, who) for n, who, *_ in found])
+
+    def test_the_real_corpus_instances_stay_clean(self):
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        for rel in ("demo-output/website/campaign/"
+                    "W2_POPE_1975_INTEGRITY_BASIS.md",
+                    "sdk/scripts/pope_1975_basis_check.py"):
+            path = REPO / rel
+            if not path.exists():
+                continue
+            self.assertEqual(([], []), sa.board_placement_faults(
+                path.read_text(encoding="utf-8", errors="replace"), board), rel)
 
 
 class TheBoardIsParsedTests(unittest.TestCase):
@@ -994,6 +1181,14 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
                 f"_PLACE_REACH says {published[table_key]} for "
                 f"{table_key!r}; the committed sentences measure "
                 f"{measured[key]}. The published figure is stale.")
+        # RULE B'S ROW TOO. It was the one published figure with no committed
+        # sentences and no recompute, sitting in the same generated paragraph
+        # as the three above under a comment saying it could not happen again.
+        caught, n = measured["RULE_B_CAUGHT"]
+        self.assertEqual(
+            (caught, n), tuple(sa._PLACE_REACH_B[:2]),
+            f"_PLACE_REACH_B says {sa._PLACE_REACH_B[:2]}; the committed "
+            f"rule-B sentences measure {(caught, n)}. Stale.")
 
     def test_the_adversarial_controls_are_still_caught(self):
         """So the adversarial set cannot be rigged to miss: it carries three

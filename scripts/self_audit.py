@@ -803,12 +803,21 @@ _PLACE_VERB = r"placed|finished|came|came\s+in|took|sits?\s+at|stands?\s+at"
 # those same five sentences. Generation stopped one level short of the
 # measurement.
 #
-# It cannot happen again, because the sentences are now IN THE REPOSITORY --
+# Every published figure's sentences are now IN THE REPOSITORY --
 # `campaign/V16_GRADE_HELDOUT_SETS.py` and `campaign/V16_AUTHOR_HELDOUT_SET.py`,
 # each assembled at import so neither is a corpus of faults -- and
 # `sdk/tests/test_rank_claim_surfaces.py` recomputes every `now` figure below
-# from them and reddens on any disagreement. Storing a measurement whose inputs
-# are not in the repository is what made all three of these stale.
+# AND `_PLACE_REACH_B` from them, reddening on any disagreement. Storing a
+# measurement whose inputs are not in the repository is what made all three of
+# these stale.
+#
+# An earlier version of this comment said "It cannot happen again", which was
+# true of three of the four published figures and false of the fourth: rule B's
+# `5 of 5` had no committed sentences and no recompute, sitting in the same
+# generated paragraph as three rows that had both, with nothing distinguishing
+# it -- and it was the very figure whose contradiction made the previous table
+# stale. A fourth grade found it. The sentences are committed now; the sentence
+# claiming they all were is not repeated.
 #
 # The `was` column is a measurement against a version of the patterns that no
 # longer exists, so it CANNOT be recomputed and is not: it is history, marked
@@ -896,15 +905,83 @@ _PLACE_LINALG_R = re.compile(                         # rank-one pure-shear tens
     r"^\s*(pure|tensor|shear|out of|approximation|deficient)", re.I)
 _PLACE_LINALG_L = re.compile(                         # ...is rank three out of five
     r"(is|are|has|have|of|a|an|exactly|pointwise)\s+$", re.I)
-# ...but ONLY for a word numeral. "Wu & Zhang ARE RANK 2" is a placement and a
-# correct one, and an earlier draft of this guard swallowed it, which cost the
-# adjudication clause its evidence. Every linear-algebra `rank` in this corpus
-# is a word -- `rank-one pure-shear tensor`, `rank three out of five` -- and
-# every board placement that reads `are rank N` is a digit.
-_PLACE_WORD_NUM = re.compile("|".join(f"^{w}$" for w in _PLACE_CARDINAL), re.I)
+# WHAT DISCRIMINATES THE TWO SENSES, and the first answer here was a false
+# statement about the corpus.
+#
+# It said: "every linear-algebra `rank` in this corpus is a word", and on that
+# basis the left-context exclusion was restricted to word numerals -- so that
+# "Wu & Zhang ARE RANK 2", a correct placement the adjudication clause depends
+# on, would not be swallowed. The restriction was right; the reason was false.
+# Linear-algebra rank IS written as a digit here. Swept over `git ls-files`
+# piped to /usr/bin/grep -- NOT the `grep` on this shell's PATH, which is a
+# function running `ugrep --ignore-files` and would have answered the question
+# about a smaller corpus than the one asked about (L-75). Live instances, by
+# path rather than by a count that can drift:
+# `sdk/scripts/pope_1975_basis_check.py` ("tensor basis has pointwise rank 3"),
+# `demo-output/website/dafoam/f6d_random_matrix_uq/rmt_sampler.py` ("Reynolds
+# stress is a rank-2 tensor in 3 dimensions"),
+# `demo-output/website/campaign/W2_POPE_1975_INTEGRITY_BASIS.md` ("rank 3 out
+# of 5 at every cell") and `demo-output/website/agenda/docket.json` ("pointwise
+# rank 3 on a unidirectional baseline"). The grade that found this said "four
+# times"; that count is not repeated here, because it was not derived and the
+# same sweep run mechanically returns a different number depending on whether
+# the guard's own source and tests are in the filter.
+#
+# The real discriminator is not the NUMERAL FORM, it is WHAT IS BEING SAID TO
+# BE RANK N. A board placement says an ENTRANT is rank N; a linear-algebra
+# sentence says a TENSOR, a basis, a stress is.
+#
+# AND NEIGHBOURHOOD ALONE IS NOT ENOUGH -- the first repair of this defect used
+# a plain 80-character window on BOTH sides, and that window swallowed real
+# board placements: an entrant correctly named, given a WRONG ordinal, and
+# muted because a turbulence noun sat elsewhere in the same clause. FIVE such
+# sentences were executed against that build and all five returned zero faults.
+#
+# They are NOT written out here. An earlier draft of this comment did write
+# three of them out, and they passed the guard only because a correct placement
+# happened to sit 276 characters away, inside the _PLACE_ADJUDICATED window of
+# 400 -- a margin of 124 characters, which is to say one reflow of this comment.
+# Relying on that is the same bet the convention in
+# sdk/tests/test_rank_claim_surfaces.py exists to stop the lab making. The five
+# live there instead, assembled at run time, as the fixtures of
+# `test_a_turbulence_noun_in_the_clause_does_not_mute_a_placement`.
+#
+# This lab's four entrants are turbulence authors, so a turbulence noun beside
+# an entrant's name is the ordinary case here, not the exotic one. A fix that
+# trades a latent false positive for a live false NEGATIVE is the worse trade:
+# the false positive is loud and the false negative is silent.
+#
+# So the rule is NEAREST WINS, and only to the LEFT -- whichever of {a
+# linear-algebra noun, an entrant's surname} sits closer to the ordinal is what
+# the sentence is about. Right-hand context keeps its own narrower test
+# (`_PLACE_LINALG_R`, head nouns directly after the ordinal); a turbulence noun
+# merely trailing the clause no longer votes at all.
+_PLACE_LINALG_NEAR = re.compile(
+    r"tensor|basis|matri(x|ces)|stress|gradient|invariant|operator|eigen"
+    r"|representation|jacobian|hessian|subspace|singular value|pointwise"
+    r"|deficient|full[- ]rank", re.I)
+_PLACE_LINALG_WINDOW = 80
 _PLACE_SENTENCE = re.compile(r"[.!?][)\"'*`\s]*\s[A-Z(\"'*`]")
 _PLACE_BIND = 40
 _PLACE_ADJUDICATED = 400
+
+
+def _place_linalg_subject(left: str, names: re.Pattern) -> bool:
+    """Is the thing said to be rank N a linear-algebra object, not an entrant?
+
+    NEAREST WINS. Both a turbulence noun and an entrant's surname sit in the
+    same sentence constantly here, so presence decides nothing and proximity
+    decides everything. Covered by `LinearAlgebraRankIsNotAPlacementTests`,
+    which carries the five adversarial sentences the presence-only version
+    went silent on and the four digit-form corpus shapes it must still mute.
+    """
+    window = left[-_PLACE_LINALG_WINDOW:]
+    obj = max((m.end() for m in _PLACE_LINALG_NEAR.finditer(window)),
+              default=None)
+    if obj is None:
+        return False
+    who = max((m.end() for m in names.finditer(window)), default=None)
+    return who is None or obj > who
 
 
 def _place_family_count() -> int:
@@ -1230,8 +1307,8 @@ def _placements(text: str, names: re.Pattern, board: dict[str, int]):
                 continue
             if _PLACE_LINALG_R.match(right):
                 continue
-            if (_PLACE_WORD_NUM.match(m.group("r"))
-                    and _PLACE_LINALG_L.search(left)):
+            if (_PLACE_LINALG_L.search(left)
+                    and _place_linalg_subject(left, names)):
                 continue
         who = rank = None
         for seg, side in ((left[-_PLACE_BIND:], "L"), (right[:_PLACE_BIND], "R")):
@@ -1241,7 +1318,25 @@ def _placements(text: str, names: re.Pattern, board: dict[str, int]):
             if hit is None:
                 continue
             between = seg[hit.end():] if side == "L" else seg[:hit.start()]
-            if names.search(between) or _PLACE_SENTENCE.search(between):
+            # The boundary test needs ONE character of what follows: a
+            # sentence ends at ". " + a capital, and the slice between the
+            # ordinal and the name stops just short of that capital. Found by
+            # executing the comment that claims a sentence boundary blocks the
+            # bind -- "They are at rank 4. Wu and Zhang run SST-QCRC." bound
+            # across the full stop, because `between` was ". " and the W lived
+            # outside it.
+            #
+            # IT IS SYMMETRIC, and the first repair patched one side only. On
+            # the LEFT the capital that closes the boundary is the ORDINAL's
+            # own first letter, so "Wu and Zhang did the duct case. Rank 4 is
+            # Montoya's." bound across the stop for the identical reason --
+            # executed against the patched-right/unpatched-left build, that
+            # sentence and two more returned one rule-A fault each. Both sides
+            # now carry the next character; the positive controls that the
+            # guard has not simply stopped binding after every full stop are in
+            # `test_a_boundary_binds_nothing_even_when_the_name_starts_the_sentence`.
+            probe = between + (token[:1] if side == "L" else hit.group(0)[:1])
+            if names.search(between) or _PLACE_SENTENCE.search(probe):
                 continue
             who, rank = hit.group(0), board[hit.group(0).lower()]
             break
@@ -1345,8 +1440,8 @@ def check_board_placement_words() -> Result:
 
     travelling = _travelling_names()
     names = _board_names(board)
-    surveyed = opened = naming = unreadable = 0
-    shipped, internal = [], []
+    surveyed = opened = naming = 0
+    shipped, internal, skipped = [], [], []
     for path in tracked:
         try:
             if not path.is_file() or path.stat().st_size > _RANK_MAX_BYTES:
@@ -1364,14 +1459,22 @@ def check_board_placement_words() -> Result:
         opened += 1
         if names.search(text):
             naming += 1
-        # One surface must never be able to end the audit. A check that raises
-        # takes every OTHER check in this file down with it, which is a guard
-        # doing more damage than the defect it exists to find.
+        # One surface must never be able to end the audit -- a check that raises
+        # takes every OTHER check in this file down with it. But A SURFACE THAT
+        # COULD NOT BE READ IS NOT A SURFACE THAT AGREES, and for one round
+        # this catch reported the skip in the frame while leaving the STATUS
+        # green: inject a defect that raises on exactly the document carrying a
+        # fault and the verdict read "all 0 placement expression(s) agree with
+        # the published board". That is the green that means "I looked at
+        # nothing", which this check refuses in its own words two paragraphs
+        # up. The skip is counted, NAMED, and it reaches the verdict below.
         try:
             surveyed += len(_placements(text, names, board))
             disagree, unnamed = board_placement_faults(text, board)
-        except Exception:                          # noqa: BLE001 -- see above
-            unreadable += 1
+        except Exception as exc:                   # noqa: BLE001 -- see above
+            skipped.append(f"{path.relative_to(REPO)}: could not be swept "
+                           f"({type(exc).__name__}: {exc}) -- NOT counted as "
+                           f"agreeing with the board")
             continue
         if not disagree and not unnamed:
             continue
@@ -1403,8 +1506,9 @@ def check_board_placement_words() -> Result:
              f"collapsed so a reflowed one still binds; ordinals derived from "
              f"the board's own length, 1..{len(board) + _PLACE_OVER} here, in "
              f"digit and word form (word forms exist to "
-             f"{len(_PLACE_CARDINAL)}); {unreadable} surface(s) skipped after "
-             f"raising. "
+             f"{len(_PLACE_CARDINAL)}); {len(skipped)} surface(s) skipped after "
+             f"raising -- a skip is NOT an agreement and is carried into the "
+             f"verdict, not only into this line. "
              f"BLIND TO, LARGEST FIRST: (1) ANY placement phrased outside this "
              f"check's {_place_family_count()} RULE-A patterns. The three "
              f"held-out sets below are RULE-A sentences, each pinning a WRONG "
@@ -1445,17 +1549,53 @@ def check_board_placement_words() -> Result:
              f"(9) whether a placement is dated history rather than a live "
              f"claim. GREEN HERE IS NOT COVERAGE: it means no placement in the "
              f"patterns disagrees with the board")
+    # A SKIP IS NOT AN AGREEMENT, and an empty sweep is not a clean one. Both
+    # of these used to be capable of returning PASS: a defect that raised on
+    # every surface produced "all 0 placement expression(s) agree with the
+    # published board", and one that raised on exactly the document carrying a
+    # fault produced the same green with the count buried in the frame. The
+    # surfaces a guard cannot read are the unusual ones, which is to say the
+    # interesting ones, so their absence has to move the status and not only a
+    # number a reader may not reach.
+    #
+    # AND THE NOTES ARE APPENDED TO EVERY BRANCH, not only to the branch that
+    # runs when nothing else was found -- which was itself a defect of exactly
+    # this class, caught by executing it. The first repair gave "empty sweep"
+    # its own terminal branch, and a single unrelated rule-B WARN elsewhere in
+    # the corpus reached its branch first: a totally blind rule-A sweep was
+    # reported as "every travelling surface agrees with the board". A condition
+    # that only speaks when nothing else does is a condition that does not
+    # speak. Pinned by `test_an_empty_sweep_is_not_agreement_either`, which
+    # runs against the real corpus and so has a live rule-B WARN in it.
+    notes = []
+    if skipped:
+        notes.append(f"{len(skipped)} surface(s) RAISED and were not swept -- "
+                     f"a surface this check could not read is not a surface "
+                     f"that agrees")
+    if not surveyed:
+        notes.append(f"and NO rule-A placement expression was found at all "
+                     f"across {naming} surface(s) naming an entrant: an empty "
+                     f"sweep is not agreement")
+    tail = "".join(f"; {n}" for n in notes)
+    extra = skipped + ([f"empty sweep: 0 rule-A placement expressions across "
+                        f"{naming} surface(s) naming an entrant -- NOT counted "
+                        f"as agreement"] if not surveyed else [])
     if shipped:
         return Result(title, FAIL,
                       f"{len(shipped)} placement(s) on surfaces that TRAVEL "
                       f"disagree with the published board or name no one "
-                      f"({len(internal)} more on lab records)",
-                      shipped + internal + [frame])
+                      f"({len(internal)} more on lab records){tail}",
+                      shipped + internal + extra + [frame])
     if internal:
         return Result(title, WARN,
                       f"every travelling surface agrees with the board; "
-                      f"{len(internal)} lab record placement(s) do not",
-                      internal + [frame])
+                      f"{len(internal)} lab record placement(s) do not{tail}",
+                      internal + extra + [frame])
+    if notes:
+        return Result(title, WARN,
+                      f"no placement in the patterns disagrees with the board, "
+                      f"but this is NOT a PASS{tail}",
+                      extra + [frame])
     return Result(title, PASS,
                   f"all {surveyed} placement expression(s) agree with the "
                   f"published board, and no comparison takes a placement word "
