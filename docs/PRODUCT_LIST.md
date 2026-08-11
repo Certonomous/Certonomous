@@ -2343,6 +2343,36 @@ clock-audit rule asks for.]*
   self-contradicting draft note was corrected by **naming which of its two passages was right and why**, rather than
   quietly aligning them.
 
+### 2026-08-11 — round 4: NO fixed point, and the failures have migrated entirely into the changelog
+
+- **Trend: 10 → 6 → 7. The count stopped falling — and two things fell monotonically anyway: BLOCKING failures
+  2 → 0 → 0, and OUTWARD-PACKAGE accuracy defects 3 → 1 → 0.** Round 3 is **the first round to put nothing wrong
+  where an outsider would meet it**, to write no bare rank claim, and to build the wrap-proof absence instrument —
+  which round 4 then adopted for its own sweeps and used to independently confirm a zero.
+- **The class has moved, and the diagnosis is the finding: *every one of the seven is a description of a correction
+  that is less exact than the correction.* Three sit in text written for the sole purpose of recording a defect
+  accurately** — which is the worst possible place for them. The package is clean where a reader would look; our
+  records ABOUT cleaning it are not.
+- **MY OWN LESSON CONTAINED A WRONG NUMBER.** L-57 and its provenance commit both said a chief commit swept **59
+  lines** of another agent's work. Hunk-by-hunk it is **34** — 59 is the commit's total insertion count, and the
+  other 25 were its own on-message section. **Two commits whose sole purpose was to state an unrewritable incident
+  correctly overstated it by 74%, one of them a numbered lesson future passes will cite.** Corrected in place; the
+  correction is the lesson's own point applied to itself — read the diff, not the summary of it.
+- **My commit list was wrong in a NEW direction, and this one ran the flattering way:** six commits I named were
+  already audited in round 2, and auditing them again would have **inflated this round's pass count by six commits'
+  worth.** Every previous dispatch error made a round look worse; this is the first that would have made one look
+  cleaner. Two genuine misses as well, both my own changelog entries — **the third consecutive round I omit that
+  exact class**, and the lesson I wrote about self-omission names the rule-creating class and not this one.
+- **A derivation this lab has been citing does not reproduce.** Round 3's "14 surfaces, 6 still asserting" comes back
+  as 20 at its own stated window and 25 at a wider one — and **at its stated window it misses the surface it ranks
+  first.** Its "six still assert" was falsified **2 m 57 s later by my own next commit**, which closed two of them,
+  one in the same file as the list. And its claim that five of six were invisible because they avoided the
+  documents' words is **false for three** — half that miss was frame narrowness, not spelling, **and the note I
+  wrote into the strategy teaches the wrong half.**
+- The auditor's frame **moved mid-audit** and it caught this only because a re-read disagreed with a measurement
+  taken four minutes earlier; it then re-took every affected measurement against the pinned revision rather than
+  patching the difference.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

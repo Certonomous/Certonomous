@@ -2371,7 +2371,15 @@ all campaign — against sweeping up *other files*.
 
 It gives no protection when two agents are editing **the same file**. The chief
 committed `docs/PRODUCT_LIST.md` with a message about one finding; the diff
-contained 59 lines of a concurrent agent's uncommitted work in that same file.
+contained a concurrent agent's uncommitted work in that same file — **34 lines of
+it**, alongside 25 lines the commit's own message did describe.
+
+*[Number corrected 2026-08-11 by Ladder V round 4, which counted the hunks
+rather than the diffstat. This lesson first said "59 lines", which is the
+commit's TOTAL insertion count, not the swept portion — so a lesson written to
+state an unrewritable incident accurately overstated it by 74%, and did so in a
+numbered entry future passes would cite. The correction is the lesson's own
+point applied to itself: read the diff, not the summary of it.]*
 The text was correct and landed byte-unchanged, so nothing was damaged — but
 **the commit's message does not describe its own diff**, and history cannot be
 rewritten. The agent recorded the provenance in a follow-up commit, which is the
