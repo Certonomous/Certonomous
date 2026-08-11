@@ -59,7 +59,12 @@ A lesson without a check is a lesson that will recur. Owner: fleet.
 Filled as rungs close under R-VALUE. A rung closing here does not mean these are small;
 it means they are not what that rung declared it would settle.
 
-*(none yet — V16's closure will be the first entry)*
+| # | Item | Where found | What settles it | Owner |
+|---|------|-------------|-----------------|-------|
+| D1 | **A mutation test can report the exact opposite of the truth, via stale bytecode.** Verifying V16's E3 recompute, an equal-length source mutation (`(5, 5,` → `(4, 5,`) plus a restore left a stale `scripts/__pycache__/self_audit.cpython-312.pyc`: Python's source-based invalidation compares `(mtime, size)`, and `cp` back gave the same size. For three consecutive runs `sa._PLACE_REACH_B` was `(4, 5)` at run time while the file on disk read `(5, 5)`. The clean control **failed** and the mutated case **passed** — a perfectly inverted mutation matrix, which a less suspicious reading would have written up as "the recompute is dead". Re-run with the cache cleared before every step, the matrix is correct in all four cells. | V16 grade-four close-out, 2026-08-11 | A mutation-test harness that sets `PYTHONDONTWRITEBYTECODE=1` (or clears `__pycache__`) **between every cell**, and that asserts the clean control and the mutated case in the *same* run so an inversion cannot look like a pass. Until it exists, every mutation result in this lab is only as good as whether its author happened to clear the cache. | fleet |
+| D2 | **Two published surfaces carry an underived count: "four" digit-form linear-algebra ranks.** `campaign/V16_GRADE.md` says *"swept over every tracked UTF-8 surface … four genuine linear-algebra ranks written as digits"*; `docs/PRODUCT_LIST.md:3765` repeats *"It is not — four are digits"*. Re-run mechanically (`git ls-files` piped to `/usr/bin/grep`, **not** this shell's `grep`, which is `ugrep --ignore-files`) the number is not four — it moves with whether the guard's own source, its tests, and the audit records that quote them are inside the filter. Neither surface states a filter or a commit, so neither can be reproduced. The count is not load-bearing — the exclusion was rewritten on the *shape* of the two senses, not on how many instances exist — which is why V16 dropped the figure from `self_audit.py` rather than restating it. The two published copies still carry it. | V16 grade-four close-out, 2026-08-11 | Either re-derive both figures with frame + filter + commit (B5/L-75/L-72), or replace them with the named paths, which do not drift. | fleet |
+| D3 | **`docs/INSTRUMENT_INTEGRITY_LEDGER.md` holds the guard's two standing faults, and one of them is structurally unclearable.** Every run of `check_board_placement_words` reports WARN with exactly these two: a rule-A `rank-3` bound to Wu (a *quotation* of defect A, which the adjudication clause does not clear because the correcting sentence is too far away) and a rule-B `"Our margin over the runner-up"` (a quotation of defect C — and **rule B has no adjudication clause and cannot be given one**, since there is no correct form of a position word to sit beside a wrong one). This is the check's permanent non-green floor: no future round can reach PASS while these stand, so a reader cannot tell this WARN from a new one. | V16 rounds 1–4; measured again at close-out, 2026-08-11 | Assemble the ledger's two quotations from split tokens the way `sdk/tests/test_rank_claim_surfaces.py` and `V16_AUTHOR_HELDOUT_SET.py` already assemble theirs — the convention exists and this surface predates it — **or** record an explicit dated accepted-exception so the WARN is legible as "the two known quotations, nothing new". | fleet |
+| D4 | **The fixture-assembly convention is enforced by review alone, and review failed twice in one night.** `test_rank_claim_surfaces.py` states in its own header that a tracked file must not spell a wrong placement in full. The killed agent's inherited diff broke it, and so did my first draft of the repair: between us we put **eight** new real rule-A faults about a live entrant into the guard's own test file (measured: WARN 2 → WARN 10, all eight new ones in that one file). The live guard *did* catch it — but only because I ran the audit by hand mid-round. | V16 grade-four close-out, 2026-08-11 | `check_board_placement_words` (or a thin wrapper) run as part of `sdk/tests/`, so adding a literal fault to a tracked file reddens the suite rather than waiting for someone to run the audit. **[R-DEPTH — borderline: this is the guard checking the guard's own test file. Filed, not executed.]** | fleet |
 
 ## E. Standing task-list items not yet executed
 
@@ -86,6 +91,19 @@ queue, rather than in flight.
 cron and systemd paths updated **in the same commits** as the moves; full test suite green
 after **every batch**; the sanctioned `sweep()` helper re-pointed (it is B1's deliverable, so
 B1 lands first); no history rewrite; nothing load-bearing deleted without a docket entry.
+
+**Pointers that will dangle when `scripts/` moves under `ops/`** — a running list, because
+each is a live cross-file dependency and G3 requires them updated *in the same commit as the
+move*, not afterwards. Add to it as they are created; this is cheaper to maintain now than to
+discover during the window:
+
+- `scripts/corpus_figures.py` — `docs/MEMORY_ARCHITECTURE.md` §5 points at it by path, having
+  replaced its hardcoded corpus counts with a call to it. If it moves and the pointer does
+  not, the map's central section instructs the reader to run a command that does not exist.
+  *(Raised by peer session `certonomous-3b`, whose agent holds the other half of that repair.)*
+- `scripts/sweep.py` — B1's sanctioned helper, named by G3 explicitly.
+- `scripts/self_audit.py` — invoked by name from the test suite and from several campaign
+  records.
 
 **Target shape** (proposed, then executed): product source under `certonomous/` or a retained
 `sdk/`, with `workflows/`, `agents/`, `kernel/` beneath it; `ops/` for launchers, auto-stop and
