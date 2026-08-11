@@ -2991,3 +2991,41 @@ you already completed; do not redo it"* rather than sending a fresh brief — a
 restart brief handed to a finished agent invites it to repeat expensive work. This
 one declined and did only what was genuinely new, but that was its judgement
 rather than my instruction, and the next one may not.
+
+## L-73. An instrument that is least sensitive exactly where the damage is worst — and a signature that two opposite events share
+
+A double-writer detector built tonight keys on a real filesystem fact: **a
+directory whose mtime is older than every file inside it has had its contents
+replaced**, because rewriting a file in place updates the file but creates no new
+directory entry. It works, it found a known contamination and six undisclosed
+rewrites, and it needs no log, no PID and no cooperation from the writer.
+
+It also carries two limitations that generalise well past this instrument.
+
+**The signature is shared by an innocent event.** **Appending** to a file leaves
+exactly the same trace — an append creates no directory entry either. Specified
+without accounting for that, the detector returned **213 hits, mostly innocent
+probe directories.** What separates the two is a **peer control**: comparing the
+suspect directory against its siblings written by the same process in the same
+run. Nothing about the suspect *alone* can distinguish rewrite from append. When
+a detector keys on a signature, the first question is not "does the defect
+produce this?" but **"what else produces this?"** — and the answer is almost never
+"nothing."
+
+**The instrument is least sensitive exactly where the damage is worst.** The peer
+control needs uncontaminated peers. Two cases had **16 of 17 directories
+rewritten** — so widespread contamination **destroys its own control**, and 96
+real rewrites were reported as *unresolved* rather than confirmed. This is a
+property, not a bug, and it inverts the usual reading of a clean result: **a case
+that is thoroughly corrupted looks quieter than a case corrupted once.** Any
+instrument that establishes an anomaly by contrast with a baseline drawn from the
+same subject inherits this, and the failure is silent unless the verdict says so.
+
+The three limits the detector's author stated unprompted are the model for how to
+ship such a thing: mtimes prove two writes but **cannot prove intent**; **any
+later touch, copy or checkout erases the signature permanently** and git records
+no mtimes at all, so the denominator bounds *what is still visible, not what
+happened*; and **a clean sweep is not proof of no duplicate**, because a duplicate
+that never reached a write leaves no artifact anywhere. A detector whose verdict
+carries all three can be trusted with a negative result. One that carries none
+cannot, however good its positives.
