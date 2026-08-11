@@ -328,6 +328,36 @@ honest instrument is a time-averaged unsteady statistic, not a steady solve.
 Option A also distinguishes this case, and it should be priced before C is
 funded.
 
+> ### OUTCOME, 2026-08-11 — Option A ran; see `F6D_OPTION_A_RESULT.md`
+>
+> All 16 cases completed to 16,000 iterations. **The experiment is VOID** — a
+> pre-registered control moved beyond its threshold, and the chief ruled the
+> literal reading, because a gate that can be dissolved by post-hoc argument is
+> not a gate. The gate was not wrong to fire; only its stated inference was
+> named badly.
+>
+> **What survives the VOID** (within-case and univariate claims, which never
+> needed a control): **not one of the 13 members settled after 16,000
+> iterations — four times the published budget** — and several got worse. A
+> case chosen as a control *because it was among the best-settled of all 84*
+> destabilised into an excursion beyond 1.3 x/h. And the headline: **the only
+> settled member of the ensemble is the only unperturbed one** (`null`, 0.031,
+> the sole case of 16 below threshold). The perturbation, not the numerics, is
+> what prevents settling.
+>
+> **What does not survive:** the comparative — how many members moved and which
+> way — which is exactly what the control existed to license. It is not carried
+> forward and must be re-registered to be used.
+>
+> **Consequence for this table: nothing moves.** The nine claims graded INVALID
+> stay INVALID, and **recoverability stays open**, because the experiment that
+> would have closed it is void. What changed is the price: the cheap route is
+> spent, and the surviving evidence says a longer steady run is not the
+> instrument. **Option C is NOT funded** by the rule fixed before the numbers
+> were read. If the band is to be recovered at all, the next pre-registration
+> should price a **time-averaged unsteady statistic**, not another steady
+> ensemble.
+
 ---
 
 ## 6. Propagation — how far the same defect reaches
