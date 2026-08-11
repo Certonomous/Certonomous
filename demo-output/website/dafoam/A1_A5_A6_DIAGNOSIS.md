@@ -611,7 +611,12 @@ discriminator for each, and should not be described as root-caused.
   entered. A6's own record measures the opposite for the primal (`MemAvailable` >29 GB
   throughout). The classification is inherited from A3 at a different mesh size. This is a
   records finding: **there is no A6 adjoint log to read, and the product list states the
-  conclusion of one.**
+  conclusion of one.** Executed: across `A6-crm-wing/` and all 37 `act9-crm_wingbody-*`
+  directories there are **4 `*.log` files in total** (all four in `A6-crm-wing/`), and
+  `/usr/bin/grep -l "Solving the adjoint\|adjoint equation\|dRdWTPsi\|Main iteration.*KSP
+  Residual"` matches **0** of them. **Positive control:** the same pattern returns 2 hits in
+  `a5_dobjdxv_np1_run1.log`, a log that does contain an adjoint solve — the search finds an
+  adjoint when one is there.
 * **37 `act9-crm_wingbody-*` directories hold final-state fields at t=1000 and no log of any
   kind.** Byte-identical `runScript.py` to A6's. Nothing about them is checkable. → **D39**.
 * **`ROOTCAUSE` §4.7's P6 (reordering) is confounded** by the dead `jacMatReOrdering rcm`
