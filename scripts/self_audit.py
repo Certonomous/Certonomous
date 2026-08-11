@@ -83,7 +83,9 @@ import json
 import math
 import os
 import re
+import subprocess
 import sys
+import zipfile
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
@@ -360,6 +362,274 @@ def check_closure_entry_of_record() -> Result:
                       problems)
     return Result("closure entry of record", PASS,
                   "the wall quotes the current entry of record")
+
+
+# --------------------------------------------------------------------------
+# Rank claims, on every surface that makes one
+# --------------------------------------------------------------------------
+#
+# THE DEFECT THIS EXISTS FOR. The rank-claim guard immediately above reads ONE
+# string: `our_entry` on the credentials wall. The rule it enforces (Ladder V
+# rung V8 as amended 2026-08-10) binds EVERY surface, internal or external.
+# Four external surfaces were brought into compliance and were guarded by that
+# one string; `closure.html` -- the most prominent page in the shipping bundle
+# -- went on making three rank claims with no probability and no interval,
+# because it was not on anybody's list.
+#
+# THE LIST WAS THE DEFECT. So the surface set below is not written down. It is
+# SEARCHED FOR, over every tracked file and every member of every shipping
+# archive, and whatever the search finds is the set. A surface added tomorrow
+# is covered the day it makes a claim, and nobody has to remember to add it.
+#
+# Three patterns decide what a rank claim is, and they are stated here rather
+# than tuned quietly:
+#
+#   _RANK_CLAIM     the assertive FORM of a placement -- "rank 1 of 5", "is
+#                   rank 1", "P(rank 1)", "best overall number on the board".
+#                   A bare mention of the string "rank 1" is not a claim: the
+#                   deficit-to-rank-1 language in the proposals, and the
+#                   priority-ordering rank 1 in RESULT_PRIORITY_CHARTER, are
+#                   about a rank without asserting we hold one.
+#   _RANK_BOARD     the claim must sit within _RANK_WINDOW characters of the
+#                   closure benchmark. Without this, "rank 1" in a scheduler
+#                   or a chart is a claim.
+#   _RANK_HOMONYM   MPI rank 1, process rank 1, and the `w3-qcr-rank1` run
+#                   directory. This one is an exclusion list and is named as
+#                   such: it excludes HOMONYMS OF THE WORD, not surfaces. The
+#                   run logs say "MPI_ABORT was invoked on rank 1"; that is a
+#                   different sense of the same five characters.
+#
+# The companion test is deliberately per-file rather than per-claim, and the
+# BASIS entry says so: one compliant paragraph clears every claim in its file.
+# Judging distance from a claim to its companion needs a notion of "passage"
+# that a regex does not have, and a wrong one would fail compliant surfaces,
+# which is the fastest way to get a guard switched off.
+_RANK_CLAIM = re.compile(
+    r"P\(rank\s*1\)"
+    r"|\brank[ \-]1 of \w+"
+    r"|\brank[ \-]1\b(?=[^.\n]{0,80}?"
+    r"(?:scored locally|on the board|on the published board|on the leaderboard))"
+    r"|\b(?:is|are|was|were|be|sits at|stands at|holds|puts us at|leaves us "
+    r"at|ranks)\s+(?:still\s+|now\s+|only\s+)?(?:at\s+)?rank[ \-]1\b"
+    r"|(?:best|lowest) overall (?:number|score)?[^.\n]{0,40}?(?:board|leaderboard)",
+    re.I)
+_RANK_BOARD = re.compile(
+    r"board|leaderboard|benchmark|closure challenge|entry of record|"
+    r"scored locally|reissmann|deb9155|0\.0566|overall score", re.I)
+_RANK_HOMONYM = re.compile(
+    r"MPI|process(?:or)?\s+rank|\bPID\b|node ip-|[/\w]rank1|rank-1-", re.I)
+_RANK_WINDOW = 300
+_RANK_HOMONYM_WINDOW = 120
+# Companions, per the V8 amendment: the figure, its interval, and the pairs.
+_RANK_INTERVAL = re.compile("2\\s*[-\u2010-\u2015]\\s*100\\s*%")
+_RANK_TOKEN = "not statistically decided"
+_RANK_FIGURE = "P(rank 1)"
+# Anything larger is a data file, not a surface that makes a claim in prose.
+_RANK_MAX_BYTES = 4_000_000
+
+
+def _rank_claim_lines(text: str) -> list[int]:
+    """Line numbers of every passage that ASSERTS a rank-1 placement."""
+    lines = []
+    for match in _RANK_CLAIM.finditer(text):
+        near = text[max(0, match.start() - _RANK_HOMONYM_WINDOW):
+                    match.end() + _RANK_HOMONYM_WINDOW]
+        if _RANK_HOMONYM.search(near):
+            continue
+        window = text[max(0, match.start() - _RANK_WINDOW):
+                      match.end() + _RANK_WINDOW]
+        if not _RANK_BOARD.search(window):
+            continue
+        lines.append(text.count("\n", 0, match.start()) + 1)
+    return lines
+
+
+def _rank_companions_missing(text: str) -> list[str]:
+    """What the V8 amendment requires and this text does not carry.
+
+    The token test is the one with history. `not statistically decided` is the
+    literal string the cross-surface sweep greps for, and it has been broken
+    across a line by reflowing prose three times in this ladder -- present to a
+    reader, invisible to a line-bounded grep. So it is tested for on ONE LINE,
+    and a token that is present in the text but split across a newline is
+    reported as its own fault rather than as a plain absence: those two call
+    for different edits.
+    """
+    missing = []
+    if _RANK_FIGURE not in text:
+        missing.append("P(rank 1)")
+    if not _RANK_INTERVAL.search(text):
+        missing.append("its 2-100% at 95% interval")
+    lines = text.splitlines()
+    on_a_line = any(_RANK_TOKEN in line for line in lines)
+    if not on_a_line:
+        if _RANK_TOKEN.replace(" ", "") in re.sub(r"\s+", "", text):
+            missing.append(
+                f"the sweep token {_RANK_TOKEN!r} UNBROKEN on one line (it is "
+                f"present but wrapped across a line break, which is invisible "
+                f"to the sweep that greps for it)")
+        else:
+            missing.append(f"the sweep token {_RANK_TOKEN!r}")
+    return missing
+
+
+def _tracked_files() -> list[Path] | None:
+    """Every path git tracks, or None if git cannot be asked."""
+    try:
+        out = subprocess.run(
+            ["git", "ls-files", "-z"], cwd=REPO, capture_output=True,
+            text=True, timeout=120, check=True).stdout
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return [REPO / rel for rel in out.split("\0") if rel]
+
+
+def _shipping_archives() -> list[Path]:
+    """The archives that leave this box, found by extension, not by name."""
+    return sorted(p for p in (REPO / "dist").glob("*.zip") if p.is_file())
+
+
+def _travelling_names() -> set[str]:
+    """File names that TRAVEL, derived from what is actually packed.
+
+    Two derivations, no list: the member names of every shipping archive, and
+    everything inside a submission package directory. A surface that travels
+    is read by somebody outside this lab, so a bad claim on one is a FAIL; the
+    same claim on a lab record is a WARN. Both are reported.
+    """
+    names: set[str] = set()
+    for archive in _shipping_archives():
+        try:
+            with zipfile.ZipFile(archive) as zf:
+                names.update(Path(n).name for n in zf.namelist())
+        except (OSError, zipfile.BadZipFile):
+            continue
+    for package in sorted(WEB.glob("closure_challenge_submission*")):
+        if package.is_dir():
+            names.update(p.name for p in package.rglob("*") if p.is_file())
+    return names
+
+
+def _surface_text(raw: bytes) -> str | None:
+    if b"rank" not in raw.lower() and b"overall" not in raw.lower():
+        return None
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return None
+
+
+def check_rank_claim_surfaces() -> Result:
+    """Every surface that claims rank 1 carries the figure, the interval and
+    the pairs -- and the surface set is searched for, never listed.
+
+    THE RULE. Ladder V rung V8, as amended 2026-08-10: any rank claim,
+    internal or external, must carry P(rank 1), its interval (an eight-case
+    sample cannot pin it tighter than 2-100% at 95%) and the comparisons that
+    are not statistically decided. No surface may state the figure without the
+    interval -- a bare 68% is a worse claim than none, because 68% sounds
+    settled and eight cases do not support settled.
+
+    THE DEFECT. The guard for that rule read `our_entry` on the wall and
+    nothing else. `closure.html` made three rank claims with no probability
+    and no interval and was not caught, because it was not on the list. This
+    check has no list. It searches every tracked file and every member of
+    every archive under dist/, and reports what it finds.
+
+    WHAT IT CANNOT SEE, stated rather than discovered later: a rank claim
+    phrased in words it has no pattern for ("we top the board"); anything that
+    does not decode as UTF-8, which includes every compiled PDF in the tree,
+    so a claim that exists only in a built PDF is invisible here while its
+    .tex source is not; untracked files; files over 4 MB; text a generator or
+    a browser produces at render time; and WHERE a companion sits -- the
+    companion test is per file, so one compliant paragraph clears every claim
+    in that file.
+    """
+    tracked = _tracked_files()
+    if tracked is None:
+        return Result("rank claims carry their probability", WARN,
+                      "could not enumerate tracked files (git unavailable): "
+                      "this detector is OFF, not reporting nothing to find")
+
+    travelling = _travelling_names()
+    surfaces: list[tuple[str, str, bool]] = []   # (label, text, travels)
+    opened = skipped = 0
+    for path in tracked:
+        try:
+            if not path.is_file():
+                skipped += 1
+                continue
+            if path.stat().st_size > _RANK_MAX_BYTES:
+                skipped += 1
+                continue
+            raw = path.read_bytes()
+        except OSError:
+            skipped += 1
+            continue
+        opened += 1
+        text = _surface_text(raw)
+        if text is None:
+            continue
+        surfaces.append((str(path.relative_to(REPO)), text,
+                         path.name in travelling))
+    for archive in _shipping_archives():
+        try:
+            with zipfile.ZipFile(archive) as zf:
+                for info in zf.infolist():
+                    if info.is_dir():
+                        skipped += 1
+                        continue
+                    if info.file_size > _RANK_MAX_BYTES:
+                        skipped += 1
+                        continue
+                    opened += 1
+                    text = _surface_text(zf.read(info))
+                    if text is None:
+                        continue
+                    surfaces.append(
+                        (f"{archive.relative_to(REPO)}!{info.filename}",
+                         text, True))
+        except (OSError, zipfile.BadZipFile) as exc:
+            surfaces.append((f"{archive.relative_to(REPO)} (unreadable: "
+                             f"{exc})", "", False))
+
+    claiming, shipped_faults, internal_faults = 0, [], []
+    for label, text, travels in surfaces:
+        lines = _rank_claim_lines(text)
+        if not lines:
+            continue
+        claiming += 1
+        missing = _rank_companions_missing(text)
+        if not missing:
+            continue
+        where = ", ".join(f"L{n}" for n in lines[:6])
+        fault = (f"{label}: {len(lines)} rank claim(s) ({where}) without "
+                 f"{'; '.join(missing)}")
+        (shipped_faults if travels else internal_faults).append(fault)
+
+    frame = (f"frame: {len(tracked)} tracked path(s) plus the members of "
+             f"{len(_shipping_archives())} shipping archive(s); {opened} "
+             f"opened, {skipped} skipped as absent, a directory, or over "
+             f"{_RANK_MAX_BYTES // 1_000_000} MB; {len(surfaces)} decoded as "
+             f"UTF-8 AND contain 'rank' or 'overall'; {claiming} of those "
+             f"assert a rank-1 placement. Blind to: anything that is not "
+             f"UTF-8 text (every compiled PDF here), untracked files, "
+             f"render-time text, phrasing outside _RANK_CLAIM, and the "
+             f"distance from a claim to its companion (judged per file)")
+    if shipped_faults:
+        return Result("rank claims carry their probability", FAIL,
+                      f"{len(shipped_faults)} surface(s) that TRAVEL claim "
+                      f"rank 1 without what V8 requires "
+                      f"({len(internal_faults)} more on lab records)",
+                      shipped_faults + internal_faults + [frame])
+    if internal_faults:
+        return Result("rank claims carry their probability", WARN,
+                      f"every travelling surface complies; "
+                      f"{len(internal_faults)} lab record(s) claim rank 1 "
+                      f"without what V8 requires", internal_faults + [frame])
+    return Result("rank claims carry their probability", PASS,
+                  f"all {claiming} surface(s) that claim rank 1 carry the "
+                  f"figure, its interval and the not-decided pairs", [frame])
 
 
 def check_memory_scaling_law() -> Result:
@@ -2543,6 +2813,20 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "this check opens and searches itself",
         "whether the file it opens is the entry of record; that name is "
         "hard-coded here", None),
+    "check_rank_claim_surfaces": (
+        PROPERTY,
+        "a surface that asserts a rank-1 placement for this lab's entry "
+        "without P(rank 1), without its 2-100% at 95% interval, or without "
+        "the literal 'not statistically decided' UNBROKEN on one line -- "
+        "across every tracked file and every member of every archive under "
+        "dist/, found by search, so a surface nobody listed is still covered",
+        "a rank claim phrased outside its patterns (\"we top the board\"); "
+        "anything that does not decode as UTF-8, which is every compiled PDF "
+        "in the tree, so a claim living only in a built PDF is invisible "
+        "here while its .tex source is not; untracked files; files over 4 MB; "
+        "text produced at render time by a generator or a browser; and WHERE "
+        "the companion sits -- the companion test is per file, so one "
+        "compliant paragraph clears every claim in that file", None),
     "check_memory_scaling_law": (
         EVIDENCE,
         "a published power law that does not refit from its own tabulated "
@@ -2870,6 +3154,12 @@ REMEDIES: dict[str, tuple[str, bool, str]] = {
     "check_closure_entry_of_record": (
         "repoint the wall at the entry file of record",
         False, "both numbers are on disk"),
+    "check_rank_claim_surfaces": (
+        "add P(rank 1), its 2-100% at 95% interval and the not-decided pairs "
+        "to each named surface, keeping the literal 'not statistically "
+        "decided' unbroken on one line; a fault on an archive member clears "
+        "by rebuilding the bundle after the tree copy is fixed",
+        False, "text on surfaces already on disk"),
     "check_memory_scaling_law": (
         "refit the law from its own stored measurements",
         False, "three measurements, already recorded"),
@@ -3032,6 +3322,7 @@ CHECKS = (
     check_wall_counters_vs_ledger,
     check_ledger_stalls,
     check_closure_entry_of_record,
+    check_rank_claim_surfaces,
     check_memory_scaling_law,
     check_withdrawn_numbers,
     check_evidence_paths_exist,
