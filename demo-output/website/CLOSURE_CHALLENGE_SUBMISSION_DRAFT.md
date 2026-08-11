@@ -255,6 +255,57 @@ contacted. Katie's call.**
 
 ## 4. Adversarial compliance audit of the entry of record
 
+> ## 📌 CURRENCY BLOCK — §4 WAS WRITTEN AGAINST ROUND 3 AND THE ENTRY OF RECORD IS ROUND 5
+>
+> *Added 2026-08-11 by the Ladder V rung V6 currency pass. **Nothing in §4.1–§4.9 below is
+> rewritten or deleted** — every finding was true of the entry it audited, and a finding
+> that has since been resolved or superseded is worth more with its resolution beside it
+> than edited away. Each of the nine gets an explicit round-5 verdict here, and the
+> untrained duct path gets the compliance line it never had. V6's earlier verdict was
+> **PASS ON THE RULE, FAIL ON CURRENCY** (`campaign/LADDER_V_PASS2_2026-08-11.md` §2); this
+> block is what the currency half was failing for.*
+>
+> **The entry of record is round 5**, scored 2026-08-07 at commit `07a7fe9e`:
+> **0.056647191704213645** overall (`closure_challenge_round5_qcr.json`,
+> `official_test_harness_result`). §4 audits round 3 (0.0676). Round 5 differs from round
+> 4 in the **three duct rows only** — verified here with `filecmp` over the two submission
+> directories: `NASA_2DWMH` and all four `alpha_*` CSVs are byte-identical to round 4,
+> `AR_1_Ret_360`, `AR_3_Ret_360` and `AR_14_Ret_180` are not.
+>
+> ### Every §4 finding, with its round-5 verdict
+>
+> | § | the finding as written | ROUND-5 VERDICT | verified how, at HEAD |
+> |---|---|---|---|
+> | **4.1** | the one strict rule: not violated | **HOLDS, over less ground.** Round 5's three duct rows are converged forward solves with **no fit at all**, so the fitted machinery now reaches 5 of 8 rows: two corrected hills, `NASA_2DWMH`, and two rows the gate declined | Read at HEAD, not inherited: ground-truth reads at `apply_closure_ph_gate.py:128` (inside `for case in gate._PH_TRAIN:  # 21 cases, train only`, line 126) and `:228` (inside `for c in ph._PH_TRAIN:`, line 225); the test loop at `:178` calls `_load_rans_fields` at `:179` annotated `# no U_LES read`; the three executable assertions at `closure_baseline_error_gate.py:84–86` |
+> | **4.1** *(citations)* | *the line numbers* | **RESOLVED, and the fix is on this page.** 115 / 215 / 165–167 → 128 / 228 / 178–180 | The currency note directly below; all three re-read at HEAD above |
+> | **4.2** | the refused 0.0675 shortcut | **HOLDS, untouched.** Round 5 changed no PH row, so the refusal it describes is still the operative decision | The four `alpha_*` CSVs are byte-identical between the round-4 and round-5 packages (`filecmp`), and `round5_per_case` equals `round4_per_case` on all four |
+> | **4.3** | residual soft adaptive leakage (round 2) | **HOLDS AND IS INCOMPLETE, which is worse than stale.** Round 5 introduced a **second, larger** instance that §4.3 cannot mention because it postdates it: the round-5 route was chosen while the per-case round-4 duct scores were known | `campaign/R5_RULE_FREEZE.md` at the frozen commit `0bade54a`, line 11: *"we already know the round-4 test-duct scores (0.0811 / 0.0775 / 0.0325)"* — read with `git show` at the commit, not from the mutable file. **Closed outward** as disclosure 3b of `closure_challenge_submission_round5/DESCRIPTION_DOCUMENT.md` |
+> | **4.4** | DEFECT 1, the false docstring | **RESOLVED AND STILL TRUE — the row below is MOOT and stays for the record.** §4.9 still lists it as *"DEFECT — false as written. Fix before sending"*; it was fixed on 2026-07-30 and the fix holds at HEAD | Docstring lines 37–53 state one *new* prediction set, the unit being counted, and **four** invocations; the call sites are exactly four, at `:218–219` (floor) and `:301–302` (entry). Two prediction sets, one new |
+> | **4.5** | DEFECT 2, no submittable artifact | **RESOLVED FOR ROUND 5 — the §4.9 row is MOOT and stays for the record.** §4.5's own resolution block describes the **round-3** CSVs; the round-5 package is a different set of files and is verified separately | All eight `closure_challenge_submission_round5/test/*.csv` re-read here: **1000 rows × 3 columns, comma-delimited, no header** (no alphabetic character outside the `e` of scientific notation). `AR_1_Ret_360.csv` hashes to `bb8d61fb…`, the value Pass 1 traced end-to-end in V4 |
+> | **4.6** | version label understates the metric revision | **HOLDS, and is now DISCHARGED where it travels.** The recommendation was to cite the commit hash rather than the version string; the round-5 package does both, and states it as an install hazard rather than a footnote | `closure_challenge_submission_round5/MANIFEST.json:37` `eval_package_version_string_note`; `README.md:52–54` |
+> | **4.7** | two of five best-on-board rows are the organisers' baseline | **HOLDS; the COUNT is stale and the DISCLOSURE is now discharged.** The heading says *"two of five"*; round 5 records **four of eight**, two of which are the declined baseline rows. The substance — that the exposure is asymmetric and belongs in the outward material — is unchanged and is now met | The four external surfaces (`benchmarks.html`, `benchmarks.json`, `wall/wall.json`, `build_benchmarks.py`) carry the organiser-baseline qualification in the same sentence as the count; `scripts/self_audit.py` fails the wall if the count appears without it |
+> | **4.7** *(asymmetry)* | *the argument itself* | **EXTENDED to the three QCR rows, which §4.7 could not have reasoned about.** The same asymmetry applies to a published 25-year-old term any entrant may run, and which the entry above ours already runs | `DESCRIPTION_DOCUMENT.md` §2 table and §6 |
+> | **4.8** | leaderboard position is current | **HOLDS ON ITS OWN TERMS, AND "CURRENT" IS NOT CERTIFIED HERE.** The board is read from a clone frozen at `deb91557` (2026-05-04). §4.8's own mitigation is to date the claim wherever it appears, and every position claim in the corpus is dated to that commit — so the claim is honest, and re-verifying it needs a network read this pass did not perform. The `0.0676` in its worked example is round 3 and is the number §4.8 was written about | The pin is stated on every surface carrying the rank claim; no network read was made |
+> | **4.9** | the summary table | **SUPERSEDED, and kept.** Its two DEFECT rows are both discharged (§4.4, §4.5) and it predates round 5 entirely, so it summarises an audit of an entry that is no longer the entry. It is left standing because it is the summary *of that audit*; **this block is the summary of where those findings now stand** | Row-by-row against §4.4 and §4.5's own resolution blocks and the round-5 package files listed above |
+>
+> ### The untrained duct path — its own compliance line, every question answered
+>
+> *V6 poses three (used at solve time only? touched no test data? stated in the
+> description?); the fourth is the one that makes "untrained" mean anything, so it is
+> asked here too.*
+>
+> | question | verdict | how this pass knows, rather than who told it |
+> |---|---|---|
+> | **Used at solve time only?** | **YES.** `kOmegaSSTQCR` is an **in-PDE constitutive term**: `tau_ij,QCR = tau_ij − Ccr1 [O_ik tau_jk + O_jk tau_ik]`, applied inside a converged SIMPLE solve. There is no post-hoc step to audit, because there is no post-hoc step | `sdk/openfoam/qcr/kOmegaSSTQCR/kOmegaSSTQCR.C:60` and `.H:14`; `closure_round5_qcr_forward.py` asserts `SIMPLE solution converged in {t} iterations` in each arm's log and then writes the duct CSVs **from the converged fields**, interpolated to the benchmark's own evaluation points |
+> | **Touched any test data?** | **NO GROUND TRUTH, and the absence is a measurement rather than a blind spot.** Counted directly in the run tree: `AR_1_Ret_360_qcr`, `AR_3_Ret_360_qcr` and `AR_14_Ret_180_qcr` hold **0** `*_LES*` files each; `AR_7_Ret_180_qcr` and `AR_7_Ret_180_sst` hold **3 each**. `AR_7_Ret_180` is the benchmark's suggested DUCT **validation** case, and its two arms are the **positive control** — they prove the finder works, so the zeros are real | `find /home/ubuntu/certonomous-runs/w3-qcr-rank1/*/ -name "*_LES*"`, run by this pass |
+> | **Zero fitted parameters?** | **YES.** The only coefficient is `Ccr1 = 0.3`, Spalart (2000)'s published constant, compiled in as the default and **overridden nowhere** | `kOmegaSSTQCR.C:91–99` — `getOrAddToDict("Ccr1", coeffDict_, 0.3)`; a grep for `Ccr1` across every `constant/` dictionary in the round-5 run tree returns **nothing**, so no case raises it |
+> | **Stated in the description?** | **WAS NOT — there was no description document. Now YES**, and it is stated as a *concession*: the term is published, it is not ours, and the entry above ours already runs one | `DESCRIPTION_DOCUMENT.md` §2 (row: *"a converged forward solve of the **untrained** QCR2000 constitutive term — it is a 25-year-old published model, not ours"*), §3 (`Ccr1 = 0.3` frozen before any solve), §6 |
+>
+> **Nothing in this block changes a §4 verdict on the rule.** The audit's central finding —
+> that the one strict rule is not violated — survives round 5 and covers a **smaller**
+> fitted surface than it did, because three of the eight rows are now produced by a
+> published term with nothing in it to fit.
+
 The brief was to be adversarial and to prefer finding a problem now over a withdrawal
 later. Findings are ordered worst-first. **Two defects were found. Neither is a rule
 violation; both must be fixed before anything is sent.**
