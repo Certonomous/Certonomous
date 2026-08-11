@@ -5,6 +5,8 @@ as `31b0be16` **before the first iteration ran**. Every gate, tolerance,
 reference band and prediction quoted below is read from that file, not
 composed here. Machine-readable companion: `F6b_runs/gate_result.json`.
 
+> **[RELAXATION-INVARIANCE CHECK PASSED, 2026-08-11 — the medium rung's fixed point is confirmed and every verdict below stands.]** The relaxation setting these results were produced at (`0.5/0.5/0.7/0.7`, the shipped case's, inherited unchanged) had never been varied, so nothing here had convergence evidence that did not go through a residual. It does now. Two further solves of the medium rung differing **only** in relaxation — `0.3/0.7/0.7/0.7` and `0.3/0.3/0.5/0.5` — converge in 3,936 and 11,700 iterations against this record's 5,997, and reattach at **7.6480** and **7.6458** against **7.6472**: agreement to **0.0105%** and **0.0183%** against a pre-registered 0.5% bar. Per `LESSONS.md` L-47, relaxation is a path parameter and cannot move a converged fixed point, so this is convergence evidence **that never consults a residual**. **The +63% to +66% Gate P miss is the model's, not an artefact of an untested switch.** Separation, bubble topology and the nine-station profile MAE all agree inside their own bars. See `campaign/F6b_RELAXATION_INVARIANCE_RESULTS.md` (pre-registered at `ce0b14be`, before any iteration ran). **This does NOT close §4** — see the note there.
+
 ## Headline
 
 **Gate V (verification of our own pipeline): PASS, and by two orders of
@@ -178,6 +180,7 @@ known:
   and a 62,400-cell mesh may simply need tighter under-relaxation. This is
   cheaper still to test and should be tested first. **Until it is, the unsteady
   explanation is a hypothesis, not a finding, and it is written here as one.**
+  > **[STILL OPEN as of 2026-08-11, and this note exists to stop a nearby result being read as closing it.]** The relaxation-invariance check of that date (`campaign/F6b_RELAXATION_INVARIANCE_RESULTS.md`) tested the **medium** rung, because that is the rung Gate P, Gate V and Gate Q are decided on. **It did not test this one.** The veryfine rung has still never been run at tighter relaxation, so the two competing readings above are both exactly as live as when this section was written, and the bullet's own words remain the accurate statement of the gap. The check does supply one piece of indirect evidence and it is worth no more than it is worth: at 15,600 cells the shipped relaxation reaches a fixed point that two materially different settings agree with to 0.02%, so whatever happens at 62,400 cells is not a defect of that setting *in general*. Priced at **≈85 core-min** on this rung's own measured 0.2557 s/iteration, and deliberately not spent, because it decides this section and decides nothing about any gate.
 - **What it does not do:** it does not disturb Gate V or Gate P. Both are
   decided on the medium rung, whose answer is corroborated by the coarse rung
   below it, by the fine rung above it, and by an independently meshed
