@@ -301,9 +301,10 @@ eight test cases. **And the interval that matters is not the Monte Carlo one:**
 
 **On that last row, because it is the sharpest number we hold and withholding a
 computable figure only looks concealed:** the truth-free seed bound of §8
-(0.002419), loaded adversely onto the three seed-dependent cases and the
-bootstrap re-run, gives P(rank 1) = **52.0%**; loaded favourably, **80.5%**;
-as scored, 67.6%. **A seed draw we did not control moves the figure by nearly
+(0.002419, loaded at **0.0024** — that rounded value is what the bootstrap was
+actually run with, and the overalls it produces are 0.056647 ± 0.0024 exactly),
+loaded adversely onto the three seed-dependent cases and the bootstrap re-run,
+gives P(rank 1) = **52.0%**; loaded favourably, **80.5%**; as scored, 67.6%. **A seed draw we did not control moves the figure by nearly
 thirty points.** It is derived from the same public inputs by the same route as
 the 68%, so it travels with it.
 
