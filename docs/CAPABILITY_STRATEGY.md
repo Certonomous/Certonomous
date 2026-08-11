@@ -81,6 +81,16 @@ Proven-by list — each expertise counts only when it closes a live problem:
 - [ ] Probability of rank: before any future leaderboard submission, a posterior
       over our score vs the board (bootstrap over cases) — "P(rank 1) = x%" —
       internal only, but it is the house asking the right question.
+      > **Chief note, 2026-08-10 — "internal only" in this clause is SUPERSEDED, and this
+      > clause is its ORIGIN.** The item was executed; the figure is P(rank 1) = 68% with an
+      > interval of 2-100% at 95%. The internal-only gate was then WITHDRAWN by chief ruling
+      > after a cold reviewer recomputed 0.674 from public data in about a minute: a figure an
+      > outsider reproduces trivially is not protected by being withheld, it only looks
+      > concealed. The figure now travels with the entry, never without its interval and the
+      > not-decided pairs. Katie's text is left exactly as written — but a rung's derivation
+      > found six surfaces still asserting the old rule and traced them here: **a rule withdrawn
+      > at its statements was never swept at its origin**, which is why every copy read that
+      > way. Recorded at the origin so the next copy is not made from it.
 
 ## 4. PERFORMANCE (throughput, cost, scale)
 

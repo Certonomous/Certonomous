@@ -2361,3 +2361,30 @@ K"*, ask whether the dispatch itself is of kind K before writing the list —
 and if it is, put it in the list and mark it self-excluded WITH the reason,
 rather than leaving it out and hoping the auditor agrees. The auditor deriving
 your omission is a worse outcome than you declaring your exemption.
+
+
+## L-57. A pathspec commit isolates by FILE, not by AUTHOR — two agents in one file have no protection at all
+
+The lab's commit rule, written after four collisions, is: never `git add` then
+bare-commit; always `git commit -m "..." -- <paths>`. It works, and it has held
+all campaign — against sweeping up *other files*.
+
+It gives no protection when two agents are editing **the same file**. The chief
+committed `docs/PRODUCT_LIST.md` with a message about one finding; the diff
+contained 59 lines of a concurrent agent's uncommitted work in that same file.
+The text was correct and landed byte-unchanged, so nothing was damaged — but
+**the commit's message does not describe its own diff**, and history cannot be
+rewritten. The agent recorded the provenance in a follow-up commit, which is the
+only remedy available after the fact.
+
+The rule as it must now read: a pathspec commit answers *"which files am I
+committing?"* and says nothing about *"who else wrote in them."* Before
+committing a shared, high-traffic file — a changelog, a status record, an index
+— run `git diff <path>` and read it. If it contains work you did not write,
+either commit it with attribution in the message, or wait. **Reading your own
+diff before committing is the check; the pathspec is only the scope.**
+
+Corollary for supervisors, since this one was mine: the files a chief writes to
+most often — the checklist, the changelog — are exactly the files every agent
+also writes to. The highest-traffic file in a repo is the one where this rule
+has the least protection and the most opportunity to fire.

@@ -57,8 +57,11 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       either (t = −0.953). Only Liu (98.7%) and Montoya (99.8%) are beaten on method. Eight cases cannot resolve a
       rank probability better than 2–100% at 95% (double bootstrap). The standing is TWO CASES WIDE: drop alpha_15
       and we are rank 2 on the point score; drop the hump and P = 91%. AR_1/AR_3 margins (0.00003 / 0.00008) are ties
-      below published precision and must never be quoted as per-case wins. The number is INTERNAL and never appears
-      in an external claim — but no internal surface may print "rank 1" without it.
+      below published precision and must never be quoted as per-case wins. ~~The number is INTERNAL and never appears
+      in an external claim~~ **[SUPERSEDED 2026-08-10: the internal-only restriction was WITHDRAWN by chief ruling —
+      an outsider recomputed the figure from public data in about a minute, so withholding it bought nothing and
+      only looked concealed. The figure TRAVELS with the entry, and may never appear without its interval (2-100%
+      at 95%) and the not-decided pairs.]** — and no surface, internal or outward, may print "rank 1" without it.
       → NEW ITEM (from this cross-off): **closure.html coherent rewrite** under Katie's GUI conventions — DONE
       (page is round-5 current; consistency re-verified by Ladder V rung V10, 49f71b8c).
 - [x] alpha=15,AR14 status (superseded by round 5, kept for history): AR_14 is now 3 of 5 and best-on-board is 4 of 8
