@@ -112,6 +112,31 @@ hand-maintained list had ever included.
   output. **Owner: NOT the pass that wrote the text.** No agent verifies its own prose,
   and a fix pass is a writer like any other.
 
+- **V16 (A16). The placement a guard cannot see because it is not a digit.**
+  *(Chief ruling `8bdda313`, 2026-08-11, on the V8 fix round's own finding.)* V8's guard
+  is **digit-anchored** — `rank 1 of 5`, `P(rank 1)`, `best overall number on the board`,
+  all of them claims about *us*, all of them carrying a digit. The three defects the V8
+  fix round closed on 2026-08-11 are none of those: *"The rank-3 entry, Wu & Zhang's
+  SST-QCRC"* — Wu & Zhang being **rank 2** on the published board — twice, in the
+  travelling document and on the lab record that seeded it, and a comparison that took a
+  **position word** where the entrant's name belonged. Each states someone **else's**
+  placement, and each is wrong in the direction that flatters
+  us, because a wrong ordinal about a competitor is a rank claim about ourselves wearing
+  a competitor's name — carrying none of the three things V8 requires, in a form V8 has
+  no pattern for. Therefore: **every ordinal this lab pins on an entrant is checked
+  against the published board, which is parsed from the benchmark's own README table
+  rather than transcribed**, and the check runs over **whole text with whitespace
+  collapsed**, because the parent instance reads `the rank-3 entry (Wu &` with the name
+  on the next line — Wu & Zhang, **rank 2** — and a line-bounded reader is defeated by a
+  reflow, the fourth time that failure has been recorded on this ladder. Guard:
+  `scripts/self_audit.py::check_board_placement_words`; tests:
+  `sdk/tests/test_rank_claim_surfaces.py`, whose test set **is** the three defects: the
+  guard fires on all three as they were and on none as they now are. **Precision is a
+  requirement of this rung, not a nicety** — a guard that cries wolf gets switched off,
+  and then it guards nothing — so the rung fails if the check does not state its
+  false-positive rate against a measured corpus and name the senses of the word it
+  excludes.
+
 ## WHEN THE LADDER IS GREEN — the termination rule (chief, 2026-08-10)
 
 V15 creates a loop: every fix pass writes text, and ladder-written text must re-enter
@@ -120,7 +145,9 @@ ladder that cannot finish is a ladder that never gates anything.
 
 **The ladder is GREEN at a FIXED POINT, not at a clean sweep.** Specifically:
 
-1. Every rung V1–V15 carries a PASS.
+1. Every rung V1–**V16** carries a PASS. *(V16 added 2026-08-11; this line said
+   V1–V15 until then, and is amended with the rung rather than left to go stale —
+   which is the F2 defect the same round was closing an hour earlier.)*
 2. A full re-run of V8, V10, V14 and V15 **over the text written by the previous fix
    round** introduces **no new failures** — not "few", not "only cosmetic ones". Zero.
 3. That zero is itself measured by an agent **that wrote none of the text in that
@@ -141,7 +168,7 @@ package, to a claim-bearing surface, or to a rule this ladder enforces.
   links, the claims table, the skeptic's report, and a single consolidated list of anything that
   changed during verification. No rung self-graded; the three pass-owners sign their own sections.
 
-**The send gate**: all 15 rungs green (13 original + V14/V15, added 2026-08-10) → Sanaa's personal checks (she re-runs V1 and V3
+**The send gate**: all 16 rungs green (13 original + V14/V15, added 2026-08-10; + V16, added 2026-08-11) → Sanaa's personal checks (she re-runs V1 and V3
 with her own hands, reads V12) → Sanaa + Katie proofread the cover email → Katie sends. Nothing is
 automatic at any point.
 
@@ -185,7 +212,7 @@ which is which instead of showing an undifferentiated column of PASS.*
 | V13 close-out | **DELIVERED** | N/A — stated rather than hidden |
 | V14 mechanical surface discovery | **PASS as executed** | YES — one classification changed by a later pass |
 | V15 ladder-written text | **FAIL → FAIL → round 3 fixed → round 4 fixed → round 5 PENDING** | YES by construction (never its own author) |
-| V16 rank-claim guard reach | **OPEN — opened 2026-08-11 by the fix round that found the guard blind** | pending |
+| V16 rank-claim guard reach | opened 2026-08-11 by the fix round that found the guard blind → **BUILT the same night** (`862d2cff`), chief ruling `8bdda313` assigning it back to the finder | **NO — SELF-GRADED by construction; the builder is the finder and may not sign it off** |
 
 **Consolidated change list: 64** — 11 to text that travels with the entry, 13 to public or shipping
 surfaces, 9 to live code or generators, the remainder to the lab's own records. *That distribution
@@ -197,8 +224,9 @@ count and the failure class migrated inward, away from the reader — but **ever
 produced at least one NEW-SHAPED finding, so a falling count is not the classes being exhausted.**
 
 **GREEN REQUIRES**, per the termination rule: V8's re-verification, V10's independent confirmation,
-V5's two open gaps, the six corrections that have not travelled, **V16's guard-reach rung**, and a
-round of V15 returning no new failures. **The gate holds until every one of those closes.**
+V5's two open gaps, the six corrections that have not travelled, **V16's guard-reach rung — now
+built, and owing the independent check its own builder cannot supply** — and a round of V15
+returning no new failures. **The gate holds until every one of those closes.**
 
 ### 2026-08-11 — V8's fix round closed five, and opened a rung by finding the guard blind
 
@@ -214,6 +242,30 @@ word at all, three sections from the passage that states the claim correctly.
 correctly, since new guard patterns are unverified code entering the ladder — and raised it as a
 rung instead. Recorded as **L-61**: a guard anchored to the spelling of the example that prompted it
 is a regression test wearing a detector's clothes, and its green reads as coverage.
+
+**And then the chief assigned the rung back to its finder** (ruling `8bdda313`, 2026-08-11) and it
+was built the same night: `scripts/self_audit.py::check_board_placement_words`, with 21 tests in
+`sdk/tests/test_rank_claim_surfaces.py`, at `862d2cff`. What it does: parses the leaderboard from
+the benchmark's **own README table** rather than transcribing it, so a permuted table flips the same
+sentence from clean to faulted; matches over **whole text with whitespace collapsed**, proven by a
+control pair differing only in a line break that returns 1 fault against 0; and takes the three
+defects as its **test set** — firing on all three as they were and none as they now are. Measured
+before shipping rather than asserted after, on the 111-file corpus the sweep derived: **421
+placement expressions, 63 of them bound to an entrant, zero false positives**, against a first crude
+instrument that flagged 18 of 107 with 17 artifacts. *(The repo-wide count is printed in the check's
+own frame line and rises as the lab writes; it is deliberately not copied here, because a number
+transcribed into a sibling document is the failure this round spent the night correcting.)* Its
+second rule was cut down to almost nothing on the same evidence — the broad form
+returned 11 hits of which 11 were the idiom *"in the first place"* — because **a guard that cries
+wolf gets switched off, and then it guards nothing**.
+
+**Two things it cannot do, recorded here and not only in the code.** Relational comparatives —
+*ahead of*, *behind*, *trails*, *leads*, *next-best* — need both operands resolved and cannot be
+checked against a single board rank, so the largest remaining slice of placement language is still
+unguarded. And the second rule **cannot tell use from mention**: a record that quotes one of these
+defects in order to name it is flagged by it, which is why that rule is a WARN on a lab record and a
+FAIL only where a surface travels. **The rung is BUILT, not PASSED** — its builder is the agent who
+found the defects, and under A15's own rule no agent grades its own work.
 
 **The round is not scored PASS.** It fixed what it was sent to fix and it opened a new-shaped
 finding, which under the termination rule is exactly what a **non**-fixed-point round looks like.
