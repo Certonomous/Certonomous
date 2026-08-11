@@ -2047,9 +2047,12 @@ clock-audit rule asks for.]*
   replacement names its cases instead of giving a bare range: *"the three submitted ducts measure 8.5, 5.3 and
   5.4 ×10⁻⁴"*, **so the number can never again be read as belonging to a case the reader will not receive.**
 - **F2 CLOSED, and the date list was longer than every prior count** (9477a2ed): **19 tracked files**, against a
-  peer's twelve and V15's seventeen — two landed after both measurements. Of 74 occurrences, **29 were assertions and
-  all are corrected** (including both outward files the peer's list omitted); **45 were references and were correctly
-  left alone**, and **zero** were genuine future dates. No filename renamed; the three carrying the wrong date in
+  peer's twelve and V15's seventeen — two landed after both measurements. Of 73 occurrences, **29 were assertions and
+  all are corrected** (including both outward files the peer's list omitted); **44 were references and were correctly
+  left alone**, and **zero** were genuine future dates. *(Counts corrected 2026-08-11 per V15 round 2 finding N3: this
+  entry and `9477a2ed`'s body both said 74 and 45. Re-measured over `git ls-files` at the fix's own parent `8cc6bf70`,
+  `git grep -oI "2026-08-11"` returns **73 in 19 files**; 73 − 29 = 44. The commit body cannot be edited, so the
+  correction lives here. The 29, the 19 and the corrective work itself are exact and unchanged.)* No filename renamed; the three carrying the wrong date in
   their name got in-file notes. The one pass that recorded the discrepancy against the clock rather than inheriting
   it already had its note.
 - F3–F7 closed: a chronology corrected from "three days" to **1 d 22 h 37 m** at four sites; the seed sensitivity now
