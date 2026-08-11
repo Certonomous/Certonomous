@@ -113,7 +113,9 @@ def main() -> None:
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "measured_date": str(date.today()),
         "purpose": ("The eight submittable prediction CSVs for the Closure Challenge, "
-                    "round 4 (the entry of record, overall 0.0654), hashed and verified "
+                    "round 4 (overall 0.0654 -- the entry of record until 2026-08-07, "
+                    "when round 5 superseded it at 0.056647191704213645; see "
+                    "closure_challenge_round5_qcr.json), hashed and verified "
                     "without making a scoring call. Closes audit finding G4 "
                     "(CLOSURE_METHODS_COMPARISON.md ac2f37ee): the three new duct CSVs "
                     "now carry recorded SHA-256 hashes, matching the manifest discipline "

@@ -3,8 +3,14 @@ making a scoring call.
 
 WHY THIS SCRIPT EXISTS
 ----------------------
-The lab's round-3 entry of record (overall 0.0676, per-case recorded in
-demo-output/website/closure_challenge_trained_entry_round3_gated.json) has
+The lab's round-3 entry (overall 0.0676, per-case recorded in
+demo-output/website/closure_challenge_trained_entry_round3_gated.json) was the
+ENTRY OF RECORD WHEN THIS SCRIPT WAS WRITTEN, on 2026-07-30. It is not the
+entry of record now: round 4 superseded it (0.0654, recorded 2026-07-31) and
+round 5 superseded round 4 on 2026-08-07 (0.056647191704213645,
+demo-output/website/closure_challenge_round5_qcr.json). This script stays
+round-3 scoped on purpose -- reproducing that round's prediction set is the
+whole of its job -- and the round-3 entry it reproduces had
 only ever existed as an in-memory ``predictions`` dict and a JSON of scores.
 apply_closure_ph_gate.py contains no CSV-writing code, so there has never
 been a submittable artifact. This script reproduces that exact prediction
@@ -410,8 +416,11 @@ def main() -> None:
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "measured_date": str(date.today()),
         "purpose": "The eight submittable prediction CSVs for the Closure Challenge, "
-                   "reproducing the round-3 gated entry of record without making a "
-                   "scoring call.",
+                   "reproducing the round-3 gated entry without making a "
+                   "scoring call. Round 3 was the entry of record when this script "
+                   "was written (2026-07-30); it is not now -- round 5 "
+                   "(0.056647191704213645, scored 2026-08-07, "
+                   "closure_challenge_round5_qcr.json) is.",
         "produced_by": "sdk/scripts/export_closure_submission_csvs.py",
         "reproduces": "demo-output/website/closure_challenge_trained_entry_round3_gated.json",
         "scoring_calls_made_by_this_run": 0,
