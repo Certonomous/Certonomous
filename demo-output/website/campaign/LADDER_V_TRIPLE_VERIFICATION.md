@@ -202,6 +202,39 @@ These rules can end a rung. They cannot end it quietly: a rung closed under R-VA
 names its residuals, and a finding filed under R-CONVERGE names the rung it was found in.
 Nothing is dropped — the difference is only which queue it lives in.
 
+## STRUCTURAL INDEPENDENCE — R-ISOLATE (Katie, 2026-08-11)
+
+*"No agent verifies work it produced"* has been this ladder's rule since it was written,
+and it has been enforced by **everyone being careful**. That is not enforcement. L-77 is
+the proof: agents share one scratchpad, an author overwrote the grader's held-out evidence,
+and no rule was broken by anyone — the paths simply collided. Independence that depends on
+care fails the first time two agents pick the same filename.
+
+**R-ISOLATE, four parts, all mechanical:**
+
+1. **Every verification agent runs in its own worktree**, exclusive by construction. Not a
+   convention about paths — a separate checkout, so a collision is impossible rather than
+   discouraged. *Operationally: dispatch graders with worktree isolation, and never point
+   two agents at one scratch directory.*
+2. **Held-out sets are committed with positive controls BEFORE use**, and the **disjointness
+   of author and grader samples is asserted by a test**, never trusted. A grader's sample
+   that quietly overlaps the author's measures template reuse, which is L-66.
+3. **A grader never reads the author's summary of a claim; it executes the claim.** Where a
+   claim cannot be executed, the grade says **UNEXECUTABLE** — it does not pass on the prose.
+   V16's fourth round is the argument: executing four inherited repairs found **two of them
+   WRONG rather than unverified**, and both had summaries that read as sound.
+4. **The chief's own record is never the presumed-correct side of a conflict.** When a grader
+   and the chief disagree, the grader's execution wins until the chief executes something
+   better. Tonight the chief was wrong four times in one reconciliation; that is data about
+   which side to presume, not an apology.
+
+**Why part 3 is the load-bearing one.** A summary is written by the person who believes the
+work is done. Reading it transfers their belief, not their evidence. The two V16 repairs that
+failed had comments explaining exactly why they were correct — one of them replaced a latent
+false positive with a live false NEGATIVE, muting three true faults about a real entrant, and
+its comment described the trade as a strict improvement. Nothing short of running it would
+have found that.
+
 ## CLOSE-OUT
 
 - **V13. Ladder report in negative-verdict-review format**: every rung PASS/FAIL with evidence
