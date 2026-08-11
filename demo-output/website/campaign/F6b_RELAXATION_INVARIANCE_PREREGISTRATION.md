@@ -210,3 +210,54 @@ check.
 - `F6b_runs/medium_relax_B/` and `F6b_runs/medium_relax_C/` — cases, dictionaries, written fields
 - `F6b_runs/relax_invariance.json` — machine-readable result, produced by the same `gate.py` crossing logic
 - `F6b_runs/relax_invariance_ledger.txt` — self-ledger: launch time, command, per-arm iteration/residual samples, exit state
+
+---
+
+## ADDENDUM 1 — a positive control for the instrument (2026-08-11, appended before it ran)
+
+**Nothing above is edited.** No bar, no prediction, no arm and no cost figure in
+§1–§8 is changed by this addendum; it adds a control that §1–§8 lacked. Arm B had
+converged when this was written and arm C had not, and **neither arm's comparison
+is altered by anything here.**
+
+**Why it is needed.** The claim this check will most likely end up making is
+*"the arms do not disagree"* — an **absence claim**. An absence claim needs an
+instrument that cannot produce a false absence, plus a positive control showing
+the instrument firing on a known-present specimen. §1–§8 supply neither. If this
+case's reattachment number happened to be insensitive to *everything* — if the
+crossing detector returned ≈7.65 off any field this mesh can hold — then arms B
+and C agreeing with A would be worth nothing, and the whole check would be a
+tautology dressed as evidence. That failure mode is not hypothetical: it is
+exactly the "a gate that cannot fail is not a gate" shape the lab has met before.
+
+**The control.** `F6b_runs/medium_relax_PC` — a byte-identical copy of the
+incumbent `medium` case, **relaxation left at the incumbent 0.5/0.5/0.7/0.7**,
+differing from arm A in one respect only: it is stopped early, at `endTime 2000`
+with `writeInterval 500`, giving written fields at 500, 1000, 1500 and 2000
+iterations. Each is a **deliberately unconverged** field on the same mesh, read by
+the same crossing code, from the same starting condition. It is a known-present
+specimen of the thing the check exists to detect: a field that is not at the fixed
+point.
+
+**Pre-registered control outcome, before it ran.** At one or more of those four
+sample points the instrument must **fail to certify agreement** — either by
+returning a reattachment differing from 7.6472 by more than the **5%
+DISAGREEMENT** threshold, or by returning a crossing count other than 2 so that no
+reattachment is defined at all. Both are the instrument working. **If instead all
+four unconverged fields agreed with 7.6472 to inside 0.5%, the instrument would be
+shown incapable of distinguishing a converged from an unconverged field on this
+case, and arms B and C would have to be reported as carrying no evidence.** That
+is a real possible outcome of this control and it is registered as one.
+
+| # | class | prediction | confidence |
+| --- | --- | --- | --- |
+| 9 | artifact | The 500-iteration field fails to certify (>5% or n_crossings ≠ 2) | 0.90 |
+| 10 | artifact | At least one of the four control points fails to certify | 0.95 |
+| 11 | artifact | The failure-to-certify is monotone in iteration count — later samples closer to 7.6472 | 0.80 |
+
+**Cost, on the same measured basis as §4** (0.06797 s/iteration, this case's own):
+2,000 iterations = 136 s = **2.27 core-min**, inside the 50 core-min declared
+budget and not drawn from any other family's rate.
+
+Evidence: `F6b_runs/medium_relax_PC/`, `F6b_runs/log.relax_PC`, and the
+`positive_control` block of `F6b_runs/relax_invariance.json`.
