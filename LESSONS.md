@@ -2458,3 +2458,31 @@ fix one file.
 
 This is the same family as L-46 and L-55: an artifact whose appearance and whose
 content disagree, where every instrument in the loop reports the appearance.
+
+
+## L-60. An excuse can be inherited without the evidence that earned it
+
+A case family shipped an unreachable residual target and **closed the resulting
+false negative by argument**: it showed a monotone four-decade residual history,
+which genuinely established that the missing convergence sentence meant nothing
+in that case. Correct, and well earned.
+
+An 84-member ensemble then **inherited the dictionary and the excuse — but not
+the evidence that made the excuse valid.** Its members do not have a monotone
+residual history; 76 of 84 have residuals *rising* over the run's second half.
+The sentence "the missing convergence line is a known false negative here" was
+true where it was written and false everywhere it travelled, and nothing about
+the copied dictionary carried the distinction.
+
+The general shape: **a waiver is evidence-bearing, and the evidence does not
+copy with the configuration.** A dictionary, a settings block, a documented
+exception, a "known and explained" note — each is a claim about the case that
+produced it. Reuse the settings freely; **re-earn the excuse every time**, or
+carry the measurement that justifies it into the new case and check that it
+still holds.
+
+Practical form: when a case inherits a configuration that comes with a
+documented exception, the inheriting case must reproduce the exception's own
+evidence before relying on it — and a record citing an exception must cite the
+measurement, not the earlier case. *"As established for X"* is a pointer, not a
+proof, and it stops being either the moment the new case behaves differently.

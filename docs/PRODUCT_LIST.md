@@ -2571,6 +2571,44 @@ clock-audit rule asks for.]*
   six hard checks all passed, including the sweep token unbroken at all seven occurrences — measured with a detector
   whose positive control proves it can tell wrapped from unwrapped.
 
+### 2026-08-11 — the ensemble's agreement with reference data is produced by its LEAST-converged members
+
+- **ALL THREE NUMBERS CONFIRMED, none overstated** (`735517cd`), each negative carrying a control — including a
+  **spliced control**: the same count over the 84 logs *plus one converging log* returns 1, proving the instrument
+  can see the sentence it reports missing. One honest refinement: the missing sentence is a **false** negative for
+  exactly one member (the control, which genuinely converged) and a **true** negative for the other 83.
+- **MECHANISM: capped, and nowhere near converged.** 82 of 84 stopped at the iteration cap; two have truncated logs
+  and **were admitted through the residual gate on stale residuals.** Only one snapshot exists per member, so the
+  quantity of interest cannot be trended — and the one per-iteration output that can be **is not settled**: median
+  swing **86% of its own level** over the final 500 iterations, **23 of 84 reverse its sign**, and only **2 of 84**
+  settle below 5%. The control settles to 0.08%, which is the positive control proving the instrument sees settling.
+- **THE FINDING THAT DECIDES EVERYTHING, and it was never measured before: reattachment is a MONOTONE FUNCTION OF
+  SETTLEDNESS.** Most-settled quartile mean 7.21 against a baseline of 7.64; least-settled **5.25**, against
+  reference values of 4.6–4.7. **The members that carry the ensemble's agreement with reference data are the
+  least-settled ones.** Restricting to the settled half drops profile coverage from **1.000 to 0.752** and halves the
+  envelope width. Stated honestly as correlational — a competing physics reading cannot be excluded on existing data.
+- **23 claims graded: 8 SURVIVE, 5 QUALIFIED, 9 INVALID.** Everything solver-independent survives — the sampler's
+  checks, two genuine bug finds, a paper inconsistency, a sign error, the cost record. **What fails is precisely the
+  quantitative reach toward the reference data.**
+- **AN INVERSION, and it has already reached binding governance.** The family's most-propagated conclusion —
+  *"report the ungated ensemble"* — is what this audit most directly contradicts, and it now sits in a **binding
+  pre-registration, a live program rule, and a pre-registered proposal gate.** Independent corroboration already in
+  the repo: **98 of 175 archive-wide residual-stall firings are this ensemble's members — 56% of all firings from 6%
+  of the corpus.**
+- **PROPAGATION: 120 of 365 configuration files carry an unreachable target**, derived from the self-relation rather
+  than listed. 84 are this ensemble; **21 in an unexamined family recommended as the next audit**; 5 are inherited
+  from the benchmark's own authors and **deliberately preserved with cause**, which the derivation correctly
+  distinguishes.
+- **Why it travelled is now L-60:** the parent case closed this exact false negative **by argument**, earning it with
+  a monotone four-decade residual history. The ensemble **inherited the dictionary and the excuse — but not the
+  evidence that made the excuse valid.** A waiver is evidence-bearing, and the evidence does not copy with the
+  configuration.
+- **Not recoverable from existing data** — no intermediate snapshots exist. Priced, not proposed: caveats plus
+  escalation at 0 core-min; **152 core-min to continue the 13 coverage-carrying members**, the only step that
+  discriminates artifact from physics; full re-runs at 15–26 core-hours. With a caution that matters: since the
+  control settles and the members do not, **the perturbed cases may have no steady solution at all** — in which case
+  no target and no cap would ever produce one.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
