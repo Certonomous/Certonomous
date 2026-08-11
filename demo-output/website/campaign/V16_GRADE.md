@@ -1,10 +1,12 @@
 # V16 — independent grade of the placement guard
 
-**First grade (03:45): PASS WITH EXCEPTIONS, six exceptions.
-Re-grade after the fix round (05:30): PASS WITH EXCEPTIONS, two exceptions.**
-The re-grade is [§8 onward](#8-re-grade-2026-08-11-after-the-fix-round); the
-first grade is left exactly as it was written, because a grade rewritten onto its
-own outcome destroys the record of what was found before the fix.
+**First grade: PASS WITH EXCEPTIONS, six exceptions (§1–§7).
+Second: PASS WITH EXCEPTIONS, two (§8).
+Third and final: PASS WITH EXCEPTIONS, two — neither of them the two it was sent
+to check (§9).**
+Each grade is left exactly as it was written, because a grade rewritten onto its
+own outcome destroys the record of what was found before the fix. The one
+exception is noted in §9.4.
 
 Rung: **V16 (A16)**, `demo-output/website/campaign/LADDER_V_TRIPLE_VERIFICATION.md`.
 Subject: `scripts/self_audit.py::check_board_placement_words`, tests
@@ -376,7 +378,7 @@ document does not itself become a defect.
 | plural / list form | *"ranks two and three are X and Z"* | 0 / 1 |
 | roman numeral | *"Rank III on the published board is…"* | 0 / 1 |
 | non-English ordinal | a German placement sentence | 0 / 1 |
-| rule B, other fresh phrasings | *beat the runner-up by…*, *clear of the second-place submission*, *the gap between us and the front-runner*, *over the leader* | **1 / 5** |
+| rule B, other fresh phrasings | four more shapes, held in `V16_GRADE_HELDOUT_SETS.py` rather than written out here | **1 / 5** |
 | *(declared blind)* relational comparatives | *ahead of*, *trails*, *next-best* | 0 / 3 |
 | *(declared blind)* co-author naming | the second author's surname in place of the first | 0 / 2 |
 
@@ -699,8 +701,8 @@ Still missed on my blind set, after the widening: bare parenthetical ordinals,
 position*, *the board's third*, *3 of 4*, *the top entry*, table and CSV rows,
 medals, podiums, roman numerals, non-English ordinals — and **four of my five
 rule-B shapes**, which is worth its own line: rule B was not widened at all, and
-*beat the runner-up by*, *clear of the second-place submission*, *the gap between
-us and the front-runner* and *margin over the leader* all pass clean.
+four fresh comparison shapes — held in `V16_GRADE_HELDOUT_SETS.py` rather than
+quoted here — all pass clean.
 
 ### E5 — the withdrawn `No. N` family. **CLOSED, and the test genuinely holds it.**
 
@@ -852,3 +854,256 @@ decision instead of a gap.
 
 *Re-graded independently by the same agent that produced the first grade and none
 of the work under it. Nothing was fixed in this pass.*
+
+---
+
+# 9. THIRD AND FINAL GRADE, 2026-08-11 — after the closure of the last two exceptions
+
+**Grade: PASS WITH EXCEPTIONS — two, both found in this pass, neither of them
+the two I was sent to check.**
+
+**The two commissioned exceptions are closed, and I verified both by breaking
+what holds them.** Suite: **70 passed**. Live check: **WARN**, the declared
+use/mention class only.
+
+## 9.1 Exception 1 — the parser. **CLOSED.**
+
+The heading now plays no part. Every contiguous block of table rows is a
+candidate; a candidate qualifies only on structure; exactly one must qualify.
+
+**My three inputs, re-run:**
+
+| input | before | now |
+|---|---|---|
+| numbered legend table between heading and board | `{'case': 1}`, silent | **correct board** |
+| an earlier `## Archived leaderboard (2024)` | `{'ghost': 1}`, silent | **correct board** |
+| a blank line inside the board table | Wu silently dropped | **OFF**, reason states one half has one numbered row |
+| two fully valid boards | *(new)* | **OFF**, "will not choose between them" |
+| the real README, untouched | correct | correct |
+
+**Is the concession honest?** I built four decoys that satisfy every stated
+property. It is honest, and it is exactly as wide as it says:
+
+| decoy | alone | beside the real board |
+|---|---|---|
+| a case table headed `Rank \| Name` | **accepted as the board** | OFF, two qualify |
+| a fenced *example* of the submission format | **accepted as the board** | OFF, two qualify |
+| a baselines table headed `Position \| Submitter` | **accepted as the board** | OFF, two qualify |
+| a reviewer table headed `Place \| Team` | OFF — duplicate surname `Group` | OFF, two qualify |
+
+So the docstring's *"a decoy table that satisfies all of the above IS a
+leaderboard as far as this function can tell"* is true, demonstrated, and not a
+narrower version of the absolute I struck twice. It is the first sentence in this
+rung's history that describes a limit instead of denying one.
+
+Two things the concession covers logically but the itemised list underneath does
+not read as covering, and I record them as precision rather than as an exception:
+
+- **The compound case produces a silently wrong board.** A qualifying decoy plus
+  a real board invalidated by something innocuous — a blank line — gives the
+  decoy, silently, in three of my four cases. The general concession covers it
+  (exactly one table qualified, and it was the decoy). But the failure-mode list
+  says *"a blank line inside the board table"* is an OFF with a stated reason,
+  and that is true only when nothing else qualifies. The list reads
+  unconditionally and is conditional.
+- **`_BOARD_WHO_COL` matches unanchored**, so `Filename`, `Hostname` and
+  `Casename` all satisfy "a column naming who the entrants are". `| Rank |
+  Filename |` over two rows parses as a board of `a.csv` and `b.csv`. Again
+  inside the concession, and it makes qualifying cheaper than the prose suggests.
+
+**Margin.** The real README today has **2** contiguous table blocks; exactly one
+qualifies, and the other is rejected because its first column is headed
+`**Flow**`. One more `Rank`-headed two-row table anywhere in that file — a
+historical board, a worked example — and the detector goes **OFF** and the guard
+stops guarding. That is the right direction for the failure to run and it is
+declared, but the guard now sits one benchmark-README edit from disabled where it
+used to sit one edit from wrong.
+
+## 9.2 Exception 2 — the reach figure. **MECHANISM CLOSED. THE TABLE IS STALE.**
+
+**Generated, not typed — verified by mutation.** I changed `_PLACE_REACH`'s
+headline row from 24 to 99 in memory: the frame line printed `99 of 45` and the
+stale `24 of 45` vanished from it. `BASIS` interpolates the same generator at
+import (`_place_reach_sentence()` appears verbatim inside it). The pattern count
+is `len(groupindex)` = **11**, matching the compiled pattern's named groups, and
+BASIS carries the counted value.
+
+**The no-typed-figure test binds.** I typed figures back:
+
+| typed into the docstring | test |
+|---|---|
+| *"It misses 30% of held-out sentences."* | **RED** |
+| *"The eleven families below."* | **RED** |
+| nothing (baseline) | PASS |
+
+**Rule B's scoping is where a reader meets the number.** `RULE B separately`,
+`not a reach measurement`, `smoke test` and `rule-A sentences` all appear in the
+**frame line** and in **BASIS**, not only in a comment. The five-sentence sample
+is named as a smoke test at the point of use. That closes the incidental exactly
+as asked.
+
+**And now the finding.** I am the only one who can check whether my 45 are the
+ones measured, so I checked. They are the right sentences — but **the numbers are
+stale**:
+
+| row | table says | re-measured today |
+|---|---|---|
+| the grader's first set, current patterns | 24 of 45 | **20 of 45** |
+| the grader's adversarial set | 43 of 45 | **42 of 45** |
+
+The cause is exact and it is internal to one commit. `c663c774` widened **rule
+B** and installed the reach table in the same commit. My first set contains five
+rule-B sentences; before that widening one was caught, after it **all five** are.
+So the table's rule-A rows were measured against the guard as it stood *before*
+the rule-B change that shipped beside them.
+
+The table even contradicts itself about the same five sentences:
+`_PLACE_REACH_B` records **5 of 5 shapes caught** — those five — while
+`_PLACE_REACH[0]` still counts four of them as missed.
+
+**The direction matters and it is not the usual one.** For the first time in this
+rung the published figure is **pessimistic**: the guard misses 20 of my 45, and
+its own verdict says 24. The headline pair is *40 of 45 → 24 of 45*; measured, it
+is *40 of 45 → 20 of 45*. Nobody is flattered by this, which is why I record it as
+a defect of derivation rather than of honesty: **the figures cannot drift between
+surfaces, and nothing recomputes them from the sentences.** The generation stops
+one level short of the measurement. Until this pass the sentences were not in the
+repository at all, so nothing *could* recompute them — which is the argument for
+the file §9.5 commits.
+
+## 9.3 L-76 applied: every absolute read as an unverified claim
+
+I enumerated the absolutes in `check_board_placement_words`, `_published_board`,
+`_place_pattern`, `_place_unnamed`, `_first_author_surname`, `_table_blocks`, the
+frame line and BASIS, and tried to falsify each. Most hold:
+
+| absolute | verdict |
+|---|---|
+| "the ordinal vocabulary is derived from the parsed board" | holds — 2/4/7/12-row boards give 1..7, 1..9, 1..12, 1..17 |
+| "`van Dijk, Smith` gives Dijk and `Reissmann Jr., Fang` gives Reissmann" | holds — both, and `O Brien Sr., A` gives Brien |
+| "the count is counted from the compiled pattern's own named groups" | holds — 11 = 11, and typing it back reddens |
+| "generated … so it cannot drift" | holds **between surfaces**; the table itself is stale (§9.2) |
+| "exactly one must qualify or it goes OFF" | holds on every input I built |
+| "a decoy satisfying every property IS a leaderboard as far as this function can tell" | holds — honest, demonstrated |
+| "that pair is the denominator and its selection rule, stated so it reproduces" | holds — I re-derived **1375 opened / 126 naming / 591 surveyed** from the stated rule alone |
+| **"NEVER raises"** (`_published_board`) | **FALSE** |
+
+**The one that fails, and it is the third occurrence of the shape.**
+`_published_board` reads the benchmark README with
+`read_text(encoding="utf-8")` inside `try: … except OSError`. `read_text` also
+raises `UnicodeDecodeError`, which is a `ValueError` and is not caught. A
+benchmark README containing one non-UTF-8 byte therefore raises **straight out of
+`_published_board`, out of `check_board_placement_words`, and out of the entire
+`self_audit` run** — verified:
+
+```
+non-UTF-8 README            -> *** RAISES UnicodeDecodeError
+check_board_placement_words -> *** RAISES UnicodeDecodeError -- the whole audit dies
+```
+
+Three things make this worth the exception rather than a footnote:
+
+1. It is **the same defect that was already fixed once in this rung** — the
+   `re.error` metacharacter crash — recurring through a different exception type
+   on the very next line of the same function.
+2. The consequence is the one the docstring itself names: *"an exception here
+   would take down every OTHER check in this file, which is a guard doing more
+   harm than the defect it looks for."* Every sibling check in `self_audit.py`
+   goes with it.
+3. It is **reachable from a third-party file this lab does not control**, and the
+   file in question is a leaderboard of international author names — the single
+   most likely place for a stray non-UTF-8 byte to arrive.
+
+The guard declares itself blind to non-UTF-8 *surfaces*; it never considered
+non-UTF-8 in its *source of truth*. And the crash sits inside the function whose
+docstring is the rung's own showpiece for having stopped over-claiming.
+
+## 9.4 The recurrence, fourth occurrence — and it reached the grader
+
+Rule B's widening at `c663c774` faulted **six new places on lab records**, all of
+them mentions:
+
+| surface | new rule-B faults |
+|---|---|
+| `demo-output/website/campaign/V16_GRADE.md` (this document) | **6** |
+| `docs/INSTRUMENT_INTEGRITY_LEDGER.md` | 1 (pre-existing) |
+| anything that travels | **0** |
+
+`0d516924` records the guard flagging the *test file* "for the third time within a
+minute of rule B widening". It did not notice that the same widening had turned
+**the grader's own report red** — a report committed twenty-one minutes earlier
+and present in the tree at the time. So `_place_unnamed`'s *"each measured across
+the repository before keeping"* does not hold for the frame the repository
+actually had.
+
+None of the six is a false positive under the guard's declared use/mention limit,
+and none is on a travelling surface, so the severity scoping did its job exactly.
+But the widening has a real, measurable precision cost on lab records — six
+WARNs — and nothing states it. I have templated those quotations out of §4 of
+this document under the same convention the test file uses, and I record having
+done so rather than leaving a quiet edit: **that is the fifth time in one night
+that this convention has had to be applied after the fact, by three different
+agents, in three different files.** A convention this often forgotten is one the
+guard is right to enforce and the lab is wrong to keep re-learning by hand.
+
+## 9.5 Committed with this pass
+
+`demo-output/website/campaign/V16_GRADE_HELDOUT_SETS.py` — both grader sets, 45
+and 45, with their three positive controls, every ordinal and position word
+assembled at import so the file carries no fault of its own (verified: 0 rule A,
+0 rule B). Running it prints the miss counts against the live guard. This is what
+L-77 asks for: the evidence a verdict depends on is in the repository, not in a
+shared scratchpad where another agent can replace it — and it is now possible for
+a test to recompute `_PLACE_REACH` instead of trusting it.
+
+## 9.6 Verdict
+
+**PASS WITH EXCEPTIONS.**
+
+Both commissioned exceptions are closed, and closed well: the parser stopped
+trusting a heading and started asking a structural question, and the reach figure
+became a like-for-like pair with a provenance table, a generated paragraph, a
+counted pattern total and a test that reddens when anyone types a figure back. I
+tried to break each and could not.
+
+Two exceptions remain, and both are new:
+
+1. **`_published_board` says "NEVER raises" and raises.** A non-UTF-8 benchmark
+   README takes down the whole `self_audit` run through an uncaught
+   `UnicodeDecodeError` — the same crash class already fixed once here, arriving
+   through a different exception type, in the same function, with the blast
+   radius its own docstring describes. This is the first of the three grades where
+   the absolute is backed by a real code defect rather than by prose alone.
+2. **The reach table is stale by one commit.** 24 of 45 and 43 of 45 are recorded;
+   20 of 45 and 42 of 45 are measured, because rule B was widened in the same
+   commit that installed the table and the rule-A rows were not re-measured. The
+   table contradicts its own rule-B row about the same five sentences. The error
+   is **pessimistic**, which is why it is a derivation defect and not a candour
+   one: the figures are generated so they cannot drift between surfaces, and
+   nothing recomputes them from the sentences.
+
+**The pattern the coordinator asked me to watch for held a third time, and I want
+it recorded plainly**: across three grades, the instrument has been sound at every
+step and a sentence about it has been wrong at every step — *"can no longer
+mis-parse silently"*, *"does not return a board it is unsure of"*, and now
+*"NEVER raises"*. Three absolutes, three grades, one function. The difference this
+time is that the third one is not only a label: the code really does raise, and it
+takes twenty-odd sibling checks with it.
+
+Neither exception is large. Exception 2 is arithmetic in a table and its
+correction makes the guard look *better*. Exception 1 is one `except` clause. But
+I was asked to say before the rung goes green rather than after, and the honest
+answer is that **it is not green yet, and it is two lines from being green.**
+
+*(For the record, and against my own interest: this grade would have been a clean
+PASS if I had read the docstrings instead of executing them. The `NEVER raises`
+line is three words in a comment block that has been rewritten twice to be more
+careful, and it survived both rewrites.)*
+
+---
+
+*Third grade, same independent grader, who produced none of the guard, none of
+the tests and none of the fixes. Nothing was fixed in this pass. The only edits
+to the subject's own files were none; the only edits to this document were to
+template out four quotations that rule B's widening turned into faults, recorded
+in §9.4.*
