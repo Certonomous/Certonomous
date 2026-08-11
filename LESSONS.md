@@ -3294,3 +3294,59 @@ commit.** The same counting rule returned 503, 573 and 591 within four hours as
 the tree grew. L-75 taught us to declare the filter; L-72 taught us to declare
 the moment; **we applied the first everywhere and the second almost nowhere.** A
 frame is both, and a number carrying one of the two still cannot be reproduced.
+
+## L-80. A mutation test can report the exact opposite of the truth, and the reason is a cache nobody names in a method
+
+Rung V16's exception 3 was that a published figure — rule B's `5 of 5` — had no
+committed sentences and no recompute. The repair committed the sentences and
+added a recompute. The obligation that comes with a recompute is not to read it
+but to **move its inputs and watch it redden**, so the round ran a four-cell
+matrix: clean, mutate the published figure, mutate a committed sentence, restore.
+
+Three of the four cells were **wrong**, and wrong in the direction that flatters
+nobody: the **clean control failed** and the **mutated case passed**.
+
+The mutation was `_PLACE_REACH_B = (5, 5,` → `(4, 5,`. Same length. The restore
+was `cp` from a backup. Same length again. Python's source-based bytecode
+invalidation compares **`(mtime, size)`**, and on this box the restored file's
+metadata did not force a recompile — so `scripts/__pycache__/self_audit.cpython-312.pyc`
+kept serving `(4, 5)` while `/usr/bin/grep` on the source printed `(5, 5)`. For
+three consecutive runs the file on disk and the module in memory **disagreed**,
+and every one of those runs printed a confident pass or fail.
+
+**What makes this a lesson and not a footnote** is what the inverted matrix
+looks like from the inside. A clean control that fails and a mutation that
+passes is exactly the signature of *"the recompute is dead — it does not move
+when I move its input"*, which is a real defect this lab hunts and would have
+been a satisfying find. It was ready to be written up. The only thing that
+stopped it was refusing to believe a result whose two controls disagreed with
+each other, and going to look at what the interpreter had actually loaded rather
+than what the editor had actually written.
+
+**The general shape.** Every other staleness lesson here is about a *number*
+going stale against its source (L-78, L-79). This is the same failure one level
+down: **the artifact under test went stale against the file the author was
+editing.** `git diff` was right, `grep` was right, the test was honest, and the
+answer was still backwards, because none of those three reads the thing the
+test actually executed.
+
+**Practical form.**
+
+- A mutation test clears `__pycache__` — or sets `PYTHONDONTWRITEBYTECODE=1` —
+  **between every cell**, not once at the start.
+- **Never mutate at equal length** when you can avoid it. `(5, 5,` → `(4, 5,`
+  is the worst possible mutation on a mtime+size invalidator. Change the length.
+- **Assert the clean control in the same run as the mutation.** A matrix run as
+  four separate invocations can invert without any single invocation looking odd;
+  run together, "clean fails" is loud immediately.
+- When two controls disagree with each other, **stop and ask what was loaded**,
+  not what was written. `python3 -c "import m; print(m.THING)"` beside
+  `grep THING file` is a two-second check and it is the one that settled this.
+
+**Companion.** The same round hit ordinary read-after-write staleness on this
+box independently: a `sed` and a `grep` issued seconds after an edit returned
+the *pre-edit* content, which briefly looked like another agent had reverted the
+work. It had not. Reads on this filesystem are not reliably coherent with writes
+that just landed, and any method here that reads back what it just wrote needs a
+`sync` and a re-check before it draws a conclusion — especially before it
+concludes that someone else broke something.
