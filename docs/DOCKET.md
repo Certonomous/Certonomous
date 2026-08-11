@@ -92,10 +92,41 @@ to redden on mutation may have been reading stale mutated bytecode throughout, a
 recompute it certified as live may not be. That is a **false pass in a published claim**, not
 merely an unverified one.
 
-**What settles it:** re-run those two with `PYTHONDONTWRITEBYTECODE=1` (or `__pycache__`
-cleared between every cell), asserting all four cells **in the same run** so an inversion
-cannot present as a pass. Routed to the V16 agent with an explicit instruction not to re-open
-the rung for it.
+**What settles it:** re-run those two with `__pycache__` **cleared between every cell**
+(NOT `PYTHONDONTWRITEBYTECODE=1` — see D1a; the flag does not stop a stale pyc being read),
+asserting all cells **in the same run** so an inversion cannot present as a pass. Routed to
+the V16 agent with an explicit instruction not to re-open the rung for it.
+
+**SETTLED 2026-08-11, V16 close-out — both hold, neither was a false pass.** Re-run in a
+detached worktree at each claim's own commit, with `__pycache__` deleted before every cell,
+each cell a fresh subprocess, and every cell reporting the value seen AT RUNTIME beside the
+value ON DISK so an inversion would be visible rather than inferred. Both mutations were kept
+**equal-length**, so both sat squarely in the vulnerable class rather than dodging it.
+
+`717d7e7a`, `_PLACE_REACH` 24 → 99 (equal length), harness at `scripts/self_audit.py`:
+
+| cell | expect | runtime | disk | verdict |
+|---|---|---|---|---|
+| A clean | 24 | 24 | 24 | OK |
+| B mutated 24→99 | 99 | 99 | 99 | OK |
+| C restored byte-for-byte | 24 | 24 | 24 | OK |
+
+The generated verdict line carried `24 of 45` in A and C and `99 of 45` in B. Claim holds.
+
+`6b37866a`, one sentence in `V16_AUTHOR_HELDOUT_SET.py` mutated `Wu and Zhang` →
+`Xu and Zhung` (equal length, one occurrence), test
+`test_every_published_reach_figure_recomputes_from_its_sentences`:
+
+| cell | expect | got | runtime has mutant | disk has mutant | verdict |
+|---|---|---|---|---|---|
+| A clean control | GREEN | GREEN | False | False | OK |
+| B one sentence mutated | RED | RED | True | True | OK |
+| C restored byte-for-byte | GREEN | GREEN | False | False | OK |
+
+Byte-for-byte restore verified by SHA-256. Runtime matched disk in every cell of both
+matrices — no inversion. **D1 says the instrument can lie; these two say it did not lie
+here.** D1 itself stays open: the finding is real and the harness it asks for is still not
+part of `sdk/tests/`.
 
 **The cheap answer that would settle it for free:** if either mutation was reverted with
 `git checkout` rather than a copy, the mtime changes and the stale cache is defeated. One line

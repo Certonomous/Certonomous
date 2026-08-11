@@ -3332,8 +3332,16 @@ test actually executed.
 
 **Practical form.**
 
-- A mutation test clears `__pycache__` — or sets `PYTHONDONTWRITEBYTECODE=1` —
-  **between every cell**, not once at the start.
+- A mutation test **clears `__pycache__` between every cell**, not once at the
+  start. **Not `PYTHONDONTWRITEBYTECODE=1`** — an earlier draft of this lesson
+  offered the flag as an equivalent and it is not one. The flag stops Python
+  *writing* a `.pyc`; it does nothing about *reading* a stale one, and in this
+  scenario a stale one always already exists, because the module was imported
+  before the mutation. Executed: with a stale pyc present and an equal-length
+  mutation, the mutated cell returns the **clean** value while the file on disk
+  holds the mutation — the inversion reproduces with the flag set. A wrong fix
+  is worse than no fix: it turns an unverified result into a falsely verified
+  one. `PYTHONPYCACHEPREFIX` to a fresh directory per cell also works.
 - **Never mutate at equal length** when you can avoid it. `(5, 5,` → `(4, 5,`
   is the worst possible mutation on a mtime+size invalidator. Change the length.
 - **Assert the clean control in the same run as the mutation.** A matrix run as
