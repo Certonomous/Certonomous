@@ -2063,8 +2063,19 @@ clock-audit rule asks for.]*
   it already had its note.
 - F3–F7 closed: a chronology corrected from "three days" to **1 d 22 h 37 m** at four sites; the seed sensitivity now
   travels as a fourth row of the outward interval table, per the reversal's own logic; two citations verified at the
-  frozen benchmark commit and cited inline; and the single bare 68% fixed — **the agent's own sweep found it was the
-  only one**, five sibling surfaces already compliant.
+  frozen benchmark commit and cited inline; and the single bare 68% fixed — **the only one in that sweep's actual
+  frame**, five sibling surfaces already compliant. *(Exhaustiveness claim corrected 2026-08-11 per V15 round 2
+  finding N6. The sweep was announced as covering tracked `.md`/`.html`/`.tex`/`.py`, and its result did not: its true
+  frame is **per-SURFACE, over tracked `.md`/`.html`/`.py`**. `latex/closure_challenge_report.tex` — row 16 of the
+  16 claim-bearing surfaces, and NOT this lab's file to edit — carries the figure at **12 sites** and an interval at
+  exactly one (lines 259–260), so it passes per-surface and fails per-claim, and **per-claim is the reading this
+  ladder recorded** at `LADDER_V_PASS2_2026-08-11.md:338` (*"its owner should confirm every one of the twelve now
+  carries the interval, which is the new requirement"*). Nine `.tex` sites carry the figure with no interval in
+  local context — lines **61, 78, 203, 237, 287, 699, 717, 768, 786** — and two more state the WITHDRAWN
+  internal-only rule (**243**, **287**). Re-swept independently over all tracked files at 2026-08-11: outside ladder
+  reports quoting the rule and dated changelog entries, the `.tex` is the only surface with bare figure sites, and
+  the outward `DESCRIPTION_DOCUMENT.md` is compliant at all six of its sites. **Routed to the `.tex`'s owner; not
+  edited here.**)*
 - **Two items it STOPPED on rather than fixed, and the stop rule was right both times.** (1) **A third value of the
   competitor's score** — one document's stated figure, the margin it derives, and its own table imply three different
   numbers; reconciling needs the scorer re-run, which is a computation rather than a text fix. (2) The statement
