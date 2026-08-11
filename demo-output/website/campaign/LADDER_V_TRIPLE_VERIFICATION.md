@@ -257,6 +257,31 @@ care fails the first time two agents pick the same filename.
    > The general form, which is this lab's oldest lesson wearing new clothes: **an isolated
    > environment must prove it contains the thing it was isolated to examine.** Isolation
    > removes contamination and removes evidence by the same act, and it reports neither.
+   >
+   > **[AMENDED AGAIN the same day, on the assertion's FIRST use, and it caught the rule
+   > rather than the tree.]** The next agent ran the ancestry assertion and it **failed** —
+   > correctly, by its own terms, and **wrongly about the thing it stands for.** The subject
+   > commit sat on the grader's unmerged worktree branch, so it was not an ancestor of `main`;
+   > but the files under repair were **byte-identical** between `main` and that commit
+   > (verified by blob hash, then behaviourally — the committed probes ran against `main`'s
+   > guard at 12 disagreeing / 8 controls, zero drift). `main` reproduced the graded subject
+   > exactly. What was missing was the *specification* of the work, not the *subject* of it.
+   >
+   > **Ancestry is a proxy for "this environment contains the subject", and the proxy fails
+   > in both directions** — a branch cut from the subject's own base carries it and fails the
+   > test; a merged-then-reverted path passes the test and lacks it. That is the same defect
+   > as V16's own E2, where token distance proxies for the grammatical subject. **So pair the
+   > ancestry check with a content check**: blob identity of the files under repair, or
+   > execution of the committed probes with a drift check. The content check is what actually
+   > established the position here.
+   >
+   > **And the gap this exposed is larger than the assertion.** R-ISOLATE gave the grader its
+   > own worktree and then said **nothing about getting its output back.** The grade and its
+   > twenty probes were committed to a branch nobody merged, so the author dispatched to
+   > consume them could not see them, and the round stopped. **The fail-open shape is on both
+   > ends of the handoff.** A grader's isolation is not complete until its findings are on
+   > `main`; **merging the output branch is the dispatcher's obligation**, not an optional
+   > tidy-up, and it belongs in the same breath as creating the worktree.
 2. **Held-out sets are committed with positive controls BEFORE use**, and the **disjointness
    of author and grader samples is asserted by a test**, never trusted. A grader's sample
    that quietly overlaps the author's measures template reuse, which is L-66.
