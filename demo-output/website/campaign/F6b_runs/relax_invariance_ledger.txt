@@ -68,3 +68,42 @@
        11000  4.55225283335e-07  1.19820641377e-06
        11500  3.2269904062e-07  8.08593204152e-07
 
+
+=== ARM-EQUIVALENCE VERIFICATION (re-run 2026-08-11T01:36:05Z, post-hoc)
+    The results record cites this; it belongs in the committed evidence, not only
+    in a terminal. Re-run AFTER the solves, so it also proves the solves did not
+    mutate the inputs. 0/ holds the initial fields; constant/ holds the mesh.
+    medium/0  vs  medium_relax_B/0   IDENTICAL
+    medium/constant  vs  medium_relax_B/constant   IDENTICAL
+    medium/0  vs  medium_relax_C/0   IDENTICAL
+    medium/constant  vs  medium_relax_C/constant   IDENTICAL
+    medium/0  vs  medium_relax_PC/0   IDENTICAL
+    medium/constant  vs  medium_relax_PC/constant   IDENTICAL
+    system/ differs by design; the exact per-arm difference:
+      arm B:
+        < endTime         6000;
+        > endTime         20000;
+        < writeInterval   6000;
+        > writeInterval   20000;
+        <     p       0.5;
+        <     U       0.5;
+        >     p       0.3;
+        >     U       0.7;
+      arm C:
+        < endTime         6000;
+        > endTime         20000;
+        < writeInterval   6000;
+        > writeInterval   20000;
+        <     p       0.5;
+        <     U       0.5;
+        <     k       0.7;
+        <     omega   0.7;
+        >     p       0.3;
+        >     U       0.3;
+        >     k       0.5;
+        >     omega   0.5;
+      arm PC:
+        < endTime         6000;
+        > endTime         2000;
+        < writeInterval   6000;
+        > writeInterval   500;
