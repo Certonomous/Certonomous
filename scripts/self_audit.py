@@ -632,6 +632,310 @@ def check_rank_claim_surfaces() -> Result:
                   f"figure, its interval and the not-decided pairs", [frame])
 
 
+# ---------------------------------------------------------------------------
+# THE WORD-FORM PLACEMENT GUARD (Ladder V, V8 fix round, 2026-08-11)
+#
+# WHY THIS EXISTS AND WHY IT IS NOT check_rank_claim_surfaces. That guard is
+# DIGIT-ANCHORED: `rank 1 of 5`, `P(rank 1)`, `best overall number on the
+# board`. On 2026-08-11 three defects were found and fixed that it could never
+# have fired on, because none of them is a digit claim about US:
+#
+#   * `DESCRIPTION_DOCUMENT.md:54`  "The rank-3 entry, Wu & Zhang's SST-QCRC"
+#   * `CLOSURE_CHALLENGE_STATUS.md:559`  the same sentence, its parent
+#   * `DESCRIPTION_DOCUMENT.md:202`  "our margin over the <position>", where the
+#     position word stood in for the entrant's name
+#
+# All three are about Wu & Zhang, whom the board puts at rank 2, except the
+# third, which is about Reissmann, whom the board puts at rank 1.
+#
+# Each states someone ELSE's placement, and each is wrong in the direction that
+# flatters us: "rank 3" for a rank-2 entrant, and "runner-up" for the rank-1
+# entrant, are true only in a five-way list with our unsubmitted entry on top.
+# A wrong ordinal about a competitor is a rank claim about ourselves, made
+# without the figure, the interval or the undecided pairs -- which is exactly
+# what V8 forbids, arriving in a form V8's guard has no pattern for.
+#
+# WHAT MAKES THIS CHECKABLE. The published board is a primary artifact on this
+# box. Parse its own README table and you have {first author -> rank}; any
+# ordinal bound to an entrant either agrees with it or does not. That is
+# arithmetic against a source, not a property of our prose, so this is EVIDENCE
+# and not PROPERTY.
+#
+# TWO RULES, and the second is deliberately narrow:
+#
+#   RULE A  an ordinal BOUND to an entrant must equal that entrant's board
+#           rank. Binding is proximity with nothing between: <= 40 characters,
+#           no second entrant, no sentence boundary.
+#   RULE B  our own comparison whose object is a PLACEMENT WORD instead of a
+#           name. This one is narrow on purpose. The broad version ("any
+#           absolute designator naming nobody") was measured against this
+#           corpus and returned 11 hits of which 11 were noise: the idiom "in
+#           the first place", a study that "wrote to a third place", "the gap
+#           to first place". A guard that cries wolf gets switched off, and
+#           then it guards nothing.
+#
+# USE AND MENTION, the limit that is not engineered away. Rule A clears a wrong
+# ordinal that a correct one within 400 characters adjudicates, so an audit
+# record that names a defect and states the truth beside it passes. Rule B has
+# no such clause and cannot get one: there is no correct form of "the position
+# word" to sit next to. So a record that QUOTES a rule-B defect is flagged by
+# it. That is why rule B is a WARN on a lab record and a FAIL only on a surface
+# that travels -- on a travelling surface there is no reason to quote a defect,
+# and on a lab record there is every reason.
+#
+# WHOLE TEXT, NOT LINES. The parent instance reads "the rank-3 entry (Wu &"
+# with the rest of the name on the next line -- Wu & Zhang being rank 2. A
+# line-bounded reader can be defeated by a reflow, which is the failure this
+# ladder has now recorded four times. Whitespace is collapsed before matching
+# and the positive control in `sdk/tests/test_rank_claim_surfaces.py` proves
+# the two modes disagree on a text where only the wrap differs.
+_BOARD_DIR_ENV = "CLOSURE_BENCHMARK_DIR"
+_BOARD_PIN = REPO / ("demo-output/website/closure_challenge_submission_round5"
+                     "/README.md")
+_BOARD_ROW = re.compile(r"^\|\s*(\d+)\s*\|\s*\[([^\],]+)", re.M)
+
+_PLACE_WORD = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+               "first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5,
+               "1st": 1, "2nd": 2, "3rd": 3, "4th": 4, "5th": 5,
+               "1": 1, "2": 2, "3": 3, "4": 4, "5": 5}
+# Derived from how placements are actually written in this corpus -- the word
+# forms `rank two entry` and `2nd of 5` are in the docket and the report, not
+# in anyone's guess at what to look for.
+_PLACE = re.compile(
+    r"rank[ \-](?P<r>1|2|3|4|5|one|two|three|four|five)\b"
+    r"|(?P<o>1st|2nd|3rd|4th|5th|first|second|third|fourth|fifth)[ \-]place\b"
+    r"|(?P<u>runner[ \-]?up)"
+    r"|(?P<f>front[ \-]?runner)", re.I)
+# Homonyms of the WORD. This is an exclusion list and is named as one: it
+# excludes SENSES of `rank`, never surfaces. Each was met in this corpus.
+_PLACE_PROB = re.compile(r"P\(\s*$", re.I)            # P(rank 1): a probability
+_PLACE_OFN = re.compile(r"^\s*of\s+\d", re.I)         # rank 1 of 5: OUR claim,
+                                                      # owned by the sibling guard
+_PLACE_LINALG_R = re.compile(                         # rank-one pure-shear tensor;
+    r"^\s*(pure|tensor|shear|out of|approximation|deficient)", re.I)
+_PLACE_LINALG_L = re.compile(                         # ...is rank three out of five
+    r"(is|are|has|have|of|a|an|exactly|pointwise)\s+$", re.I)
+# ...but ONLY for a word numeral. "Wu & Zhang ARE RANK 2" is a placement and a
+# correct one, and an earlier draft of this guard swallowed it, which cost the
+# adjudication clause its evidence. Every linear-algebra `rank` in this corpus
+# is a word -- `rank-one pure-shear tensor`, `rank three out of five` -- and
+# every board placement that reads `are rank N` is a digit.
+_PLACE_WORD_NUM = re.compile(r"^(one|two|three|four|five)$", re.I)
+_PLACE_SENTENCE = re.compile(r"[.!?][)\"'*`\s]*\s[A-Z(\"'*`]")
+_PLACE_BIND = 40
+_PLACE_ADJUDICATED = 400
+# RULE B: our comparison, someone else's position, nobody's name.
+_PLACE_UNNAMED = re.compile(
+    r"\b(?:our|the)\s+(?:margin|lead|gap|advantage)\b[^.]{0,25}?"
+    r"\b(?:over|against)\s+the\s+"
+    r"(runner[ \-]?up|front[ \-]?runner"
+    r"|(?:1st|2nd|3rd|4th|5th|first|second|third|fourth|fifth)[ \-]place)",
+    re.I)
+
+
+def _published_board() -> tuple[dict[str, int], str] | None:
+    """{first-author surname: rank} read off the benchmark's OWN README table.
+
+    Returns None when the clone is not on this box, so the caller can report a
+    detector that is OFF rather than a corpus with nothing to find.
+    """
+    root = Path(os.environ.get(_BOARD_DIR_ENV,
+                               Path.home() / "closure-challenge-benchmark"))
+    try:
+        text = (root / "README.md").read_text(encoding="utf-8")
+    except OSError:
+        return None
+    board = {who.strip().split()[0].lower(): int(n)
+             for n, who in _BOARD_ROW.findall(text)}
+    if not board:
+        return None
+    try:
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root,
+                              capture_output=True, text=True, timeout=30,
+                              check=True).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        head = "unknown"
+    return board, head
+
+
+def _pinned_board_commit() -> str:
+    """The board commit this lab's own claims are dated to, read off the
+    travelling package rather than typed in here."""
+    try:
+        text = _BOARD_PIN.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+    found = re.search(r"closure-challenge-benchmark checkout ([0-9a-f]{40})",
+                      text)
+    return found.group(1) if found else ""
+
+
+def _placements(text: str, names: re.Pattern, board: dict[str, int]):
+    """(ordinal, entrant or None, that entrant's board rank, offset, token).
+
+    Whole text with whitespace collapsed: a placement that a reflow split
+    across two lines is the same placement.
+    """
+    flat = re.sub(r"\s+", " ", text)
+    found = []
+    for m in _PLACE.finditer(flat):
+        token = m.group(0)
+        left = flat[max(0, m.start() - 130):m.start()]
+        right = flat[m.end():m.end() + 130]
+        if _RANK_HOMONYM.search(left[-60:] + token + right[:60]):
+            continue
+        if m.group("u"):
+            n = 2
+        elif m.group("f"):
+            n = 1
+        else:
+            n = _PLACE_WORD[(m.group("r") or m.group("o")).lower()]
+        if m.group("r"):
+            if _PLACE_PROB.search(left) or _PLACE_OFN.match(right):
+                continue
+            if _PLACE_LINALG_R.match(right):
+                continue
+            if (_PLACE_WORD_NUM.match(m.group("r"))
+                    and _PLACE_LINALG_L.search(left)):
+                continue
+        who = rank = None
+        for seg, side in ((left[-_PLACE_BIND:], "L"), (right[:_PLACE_BIND], "R")):
+            hit = None
+            for candidate in names.finditer(seg):
+                hit = candidate if side == "L" else (hit or candidate)
+            if hit is None:
+                continue
+            between = seg[hit.end():] if side == "L" else seg[:hit.start()]
+            if names.search(between) or _PLACE_SENTENCE.search(between):
+                continue
+            who, rank = hit.group(0), board[hit.group(0).lower()]
+            break
+        found.append((n, who, rank, m.start(), token, flat))
+    return found
+
+
+def board_placement_faults(text: str, board: dict[str, int]
+                           ) -> tuple[list[str], list[str]]:
+    """(rule A faults, rule B faults) for one surface."""
+    names = re.compile(r"\b(" + "|".join(sorted(board)) + r")\b", re.I)
+    found = _placements(text, names, board)
+    disagree, unnamed = [], []
+    for n, who, rank, at, token, flat in found:
+        if who is None or n == rank:
+            continue
+        # A passage that ALSO states the entrant's real rank is adjudicating a
+        # wrong ordinal, not asserting one -- which is what the audit records
+        # that found these defects do, and they must not be faulted for it.
+        if any(other == rank and named and named.lower() == who.lower()
+               and abs(where - at) <= _PLACE_ADJUDICATED
+               for other, named, _, where, _, _ in found):
+            continue
+        disagree.append(f"{token!r} is bound to {who}, whom the published "
+                        f"board puts at rank {rank}: "
+                        f"...{flat[max(0, at - 60):at + 60].strip()}...")
+    flat = re.sub(r"\s+", " ", text)
+    for m in _PLACE_UNNAMED.finditer(flat):
+        unnamed.append(f"{m.group(0)!r} compares us to a board position "
+                       f"without naming who holds it")
+    return disagree, unnamed
+
+
+def check_board_placement_words() -> Result:
+    """Every ordinal this lab pins on an entrant agrees with the published
+    board, and no comparison of ours takes a placement word for an opponent.
+
+    THE RULE it serves is V8's, amended 2026-08-10: a rank claim carries
+    P(rank 1), its interval and the undecided pairs. A wrong ordinal about a
+    competitor is a rank claim about US wearing someone else's name, and it
+    arrives carrying none of the three.
+
+    WHAT IT CANNOT SEE, stated rather than discovered later: RELATIONAL
+    comparatives -- "ahead of", "behind", "trails", "leads", "next-best" --
+    which need both operands resolved and cannot be checked against a single
+    board rank; any entrant referred to by a co-author rather than the first
+    author on their board row; a wrong ordinal that a nearby correct one
+    adjudicates away, since adjudication is judged by proximity and not by
+    grammar; the difference between USING a rule-B phrase and QUOTING one,
+    which is why rule B is a WARN on a lab record and a FAIL only where the
+    surface travels; non-UTF-8 surfaces, untracked files and archive members,
+    none of which it opens; and whether a placement is DATED -- a round-3
+    section saying "we lead on 5 of 8" is a historical record and this check
+    would call it a claim if the pattern reached it, which is the other reason
+    RULE B is narrow.
+    """
+    title = "placement words agree with the published board"
+    published = _published_board()
+    if published is None:
+        return Result(title, WARN,
+                      "the benchmark clone is not on this box "
+                      f"(${_BOARD_DIR_ENV} or ~/closure-challenge-benchmark): "
+                      "this detector is OFF, not reporting nothing to find")
+    board, head = published
+    pinned = _pinned_board_commit()
+    tracked = _tracked_files()
+    if tracked is None:
+        return Result(title, WARN,
+                      "could not enumerate tracked files (git unavailable): "
+                      "this detector is OFF, not reporting nothing to find")
+
+    travelling = _travelling_names()
+    surveyed = opened = 0
+    shipped, internal = [], []
+    for path in tracked:
+        try:
+            if not path.is_file() or path.stat().st_size > _RANK_MAX_BYTES:
+                continue
+            raw = path.read_bytes()
+        except OSError:
+            continue
+        if b"rank" not in raw.lower() and b"runner" not in raw.lower():
+            continue
+        try:
+            text = raw.decode("utf-8")
+        except UnicodeDecodeError:
+            continue
+        opened += 1
+        names = re.compile(r"\b(" + "|".join(sorted(board)) + r")\b", re.I)
+        surveyed += len(_placements(text, names, board))
+        disagree, unnamed = board_placement_faults(text, board)
+        if not disagree and not unnamed:
+            continue
+        label = str(path.relative_to(REPO))
+        bucket = shipped if path.name in travelling else internal
+        bucket.extend(f"{label}: {fault}" for fault in disagree + unnamed)
+
+    order = ", ".join(f"{who} {rank}" for who, rank
+                      in sorted(board.items(), key=lambda kv: kv[1]))
+    pin_note = ("at the commit this lab's claims are dated to"
+                if head == pinned else
+                f"WHICH IS NOT the pinned {pinned[:8] or 'unknown'} this lab's "
+                f"claims are dated to")
+    frame = (f"frame: board read from the benchmark's own README table at "
+             f"{head[:8]} ({pin_note}) -- {order}; {opened} tracked UTF-8 "
+             f"surface(s) containing 'rank' or 'runner' opened; {surveyed} "
+             f"placement expression(s) surveyed, whole-text with whitespace "
+             f"collapsed so a reflowed one still binds. Blind to: relational "
+             f"comparatives (ahead of, behind, trails, leads, next-best), "
+             f"entrants named by a co-author rather than the first author, "
+             f"non-UTF-8 surfaces, untracked files, archive members, and "
+             f"whether a placement is dated history rather than a live claim")
+    if shipped:
+        return Result(title, FAIL,
+                      f"{len(shipped)} placement(s) on surfaces that TRAVEL "
+                      f"disagree with the published board or name no one "
+                      f"({len(internal)} more on lab records)",
+                      shipped + internal + [frame])
+    if internal:
+        return Result(title, WARN,
+                      f"every travelling surface agrees with the board; "
+                      f"{len(internal)} lab record placement(s) do not",
+                      internal + [frame])
+    return Result(title, PASS,
+                  f"all {surveyed} placement expression(s) agree with the "
+                  f"published board, and no comparison takes a placement word "
+                  f"for an opponent", [frame])
+
+
 def check_memory_scaling_law() -> Result:
     """Refit the published adjoint memory law from its own three measurements."""
     doc = WEB / "dafoam" / "ADJOINT_MEMORY_ENVELOPE.md"
@@ -2827,6 +3131,26 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "text produced at render time by a generator or a browser; and WHERE "
         "the companion sits -- the companion test is per file, so one "
         "compliant paragraph clears every claim in that file", None),
+    "check_board_placement_words": (
+        EVIDENCE,
+        "an ordinal this lab pins on a leaderboard entrant that disagrees with "
+        "the entrant's rank on the published board, the board being parsed "
+        "from the benchmark's own README table rather than transcribed here; "
+        "and a comparison of ours whose opponent is a placement word instead "
+        "of a name (\"our margin over the <position>\"). Matched over whole "
+        "text with whitespace collapsed, so a placement a reflow split across "
+        "two lines still binds",
+        "RELATIONAL comparatives -- ahead of, behind, trails, leads, "
+        "next-best -- which need both operands resolved and cannot be checked "
+        "against one board rank; an entrant referred to by a co-author rather "
+        "than the first author on their board row; a wrong ordinal that a "
+        "correct one within 400 characters adjudicates away, judged by "
+        "proximity and not by grammar; the difference between USING a rule-B "
+        "phrase and QUOTING one, which rule B cannot make and which is why it "
+        "is a WARN on a lab record and a FAIL only where a surface travels; "
+        "non-UTF-8 surfaces, untracked files and archive members; and whether "
+        "a placement is dated history rather than a live claim, which is the "
+        "other reason rule B is narrow", None),
     "check_memory_scaling_law": (
         EVIDENCE,
         "a published power law that does not refit from its own tabulated "
@@ -3160,6 +3484,11 @@ REMEDIES: dict[str, tuple[str, bool, str]] = {
         "decided' unbroken on one line; a fault on an archive member clears "
         "by rebuilding the bundle after the tree copy is fixed",
         False, "text on surfaces already on disk"),
+    "check_board_placement_words": (
+        "correct the ordinal to the entrant's rank on the published board, or "
+        "name the entrant instead of designating them by a position; a "
+        "placement word cannot state a wrong placement if it is not there",
+        False, "the board is on disk and the edit is to prose"),
     "check_memory_scaling_law": (
         "refit the law from its own stored measurements",
         False, "three measurements, already recorded"),
@@ -3323,6 +3652,7 @@ CHECKS = (
     check_ledger_stalls,
     check_closure_entry_of_record,
     check_rank_claim_surfaces,
+    check_board_placement_words,
     check_memory_scaling_law,
     check_withdrawn_numbers,
     check_evidence_paths_exist,
