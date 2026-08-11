@@ -1387,9 +1387,12 @@ Everything above describes the round-3/round-4 entries. On 2026-08-07 the
 pre-registered round-5 scoring call (the lab's 6th cumulative) was made and
 **accepted: the entry of record is now round 5, overall 0.0566** —
 **rank 1 of 5 scored locally at benchmark commit `deb91557`** (0.056647 vs
-Reissmann's published 0.059525). Local scoring, not an official placement;
-if the steward's own scoring differs from ours, the steward's number is the
-number (§5's rule, unchanged).
+Reissmann's **transcribed** 0.059525 — the board publishes 0.0595 to four
+decimals and a like-for-like full-precision re-score gives 0.0595335; see §5.2).
+Local scoring, not an official placement; if the steward's own scoring differs
+from ours, the steward's number is the number (§5's rule, unchanged).
+**P(rank 1) = 68%**, and eight cases cannot pin that tighter than
+**2–100% at 95%** (`campaign/PROBABILITY_OF_RANK_2026-08-10.md`).
 
 **And the lead is not statistically decided.** Our 0.002878 margin over
 Reissmann sits against a per-case spread five times larger, so on a different set
@@ -1437,12 +1440,16 @@ not per-case wins.
 > state the figure without its interval** — a bare 68% is a worse claim than no
 > figure at all, because 68% sounds settled and eight cases do not support settled.
 >
-> **What this correction did NOT do, and whose call that is.** The §10 paragraph
-> immediately above still carries the qualitative clause only, with no figure.
-> Rewriting the package's outward prose is the package owner's decision, not this
-> correction's — the defect being closed is the stale *rule statement*, and the
-> paragraph is flagged here as owing the figure rather than quietly left looking
-> compliant. Sources: `campaign/PROBABILITY_OF_RANK_2026-08-10.md` (head banner);
+> **What this correction did NOT do, and whose call that was.** As written on
+> 2026-08-10 this block left the §10 paragraph above carrying the qualitative
+> clause only, with no figure: rewriting the package's outward prose was judged the
+> package owner's decision, not the correction's, and the paragraph was flagged as
+> owing the figure rather than quietly left looking compliant.
+> **Closed 2026-08-11 by the V8 fix round**, which added **P(rank 1) = 68%** and the
+> **2–100% at 95%** interval to that paragraph. The deferral is kept above rather
+> than deleted, so the record still shows who declined the edit and who made it;
+> what is *not* kept is a live sentence saying the paragraph still owes a figure it
+> now carries. Sources: `campaign/PROBABILITY_OF_RANK_2026-08-10.md` (head banner);
 > `campaign/LADDER_V_TRIPLE_VERIFICATION.md` (V8 amendment, 2026-08-10).
 
 What changed in the package's payload:
