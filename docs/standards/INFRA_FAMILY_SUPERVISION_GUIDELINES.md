@@ -1436,6 +1436,29 @@ Two things about the verification are the transferable part:
   excluded, spread 92/48/20, and 6 fail-open cases counted rather than folded
   into either class.
 
+  > **CORRECTION, 2026-08-11 — this bullet is the transferable part and it is
+  > also where the rung fails.** Two things are wrong with the sentence above,
+  > and both are the kind a family that writes bullets like this is supposed to
+  > catch. (1) **Three of those numbers were not predictions.** 81, 35 and 135
+  > appear only in the pre-registration's own *validation* table, measured
+  > before adoption and restated in the RESULT table with "met" beside them; a
+  > number computed in the commit that states it can be restated, not met. Only
+  > 43%, the spread and the zero-unreachable row were nominated as bars, and
+  > the *primary* prediction -- the post-wiring fire rate on `HeadEngineer`
+  > runs -- was never scored at all, because the run cost zero core-minutes.
+  > (2) **The `6 fail-open` was a parser defect reported as a property of the
+  > archive.** The arming helper could not read OpenFOAM regex-group field
+  > keys; all six cases declare the tolerance the rule needs. Repaired and
+  > re-scored: 135 excluded (unchanged), **87 gated at 47%**, **0 fail-open**,
+  > spread **94/51/20**. See `campaign/S6_WIRING_PREREGISTRATION.md`
+  > (labelled in place, not re-based) and `MONITOR_STANDARD.md` v1.8. The
+  > lesson survives its own example: scoring with the shipped helpers is
+  > right, and it is not sufficient -- it caught nothing here. What it checks
+  > is that two implementations agree, and a defect both share is invisible to
+  > it. `sdk/scripts/replay_monitor_rules.py`, which built the corpus
+  > artifact, drops quoted keys too (`CONTROL_ENTRY` requires a leading
+  > letter), so on these cases the two agreed by both being blind.
+
 ### 13.7. The generalisation, placed where it will be met
 
 Nine instances put it past "instruments can be blind": **every input to a

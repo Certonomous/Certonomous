@@ -307,6 +307,7 @@ WAIVED_NO_EXEC_BIT = (
     "sdk/scripts/model_form_batch.py",
     "sdk/scripts/replay_monitor_rules.py",
     "sdk/scripts/replay_s12_unsettled_stop.py",
+    "sdk/scripts/score_s6_partition.py",
     "sdk/scripts/sparta_frozen_score.py",
     "sdk/scripts/sparta_regression.py",
 )

@@ -1,5 +1,25 @@
 # Certonomous Monitor Standard
 
+Version 1.8, dated 2026-08-11. **S6's arming parser could not read OpenFOAM
+regex-group field keys, and the six "tolerance unreadable" cases were that
+parser, not those cases.** A `residualControl` target and its field's
+linear-solver `tolerance` may each be declared under a quoted regex key
+covering several fields; the helper compared the declared KEYS to each other
+by string equality, so the pair never met and the gate fell through to
+fail-open on cases that state both numbers plainly. Repaired to resolve both
+**per field** using OpenFOAM's own lookup order (literal keys before pattern
+keys; among patterns the last-declared match wins). Re-scored on the same 222
+gated logs: **135 excluded (unchanged, still 135 of 135 sentinels and nothing
+else), 87 gated at 47%, 0 fail-open**, family spread **94 / 51 / 20**. No case
+moves between sentinel and non-sentinel and no refutation condition fires. The
+relation now reproduces the bare-`1e-15` partition of v1.6 exactly. **And v1.7
+above overstates its own verification**: three of its eight "met" rows are
+measurements restated from the pre-registration's own validation table rather
+than predictions, and its primary prediction -- the post-wiring fire rate on
+`HeadEngineer` runs -- was never scored, because that run cost zero
+core-minutes. Both are labelled in place in
+`campaign/S6_WIRING_PREREGISTRATION.md`, which is otherwise unaltered.
+
 Version 1.7, dated 2026-08-10. **S6 is wired and now fires on production
 runs**, armed at staging from the case's own `residualControl`, with the
 sentinel class excluded by construction (a target at or below its field's own

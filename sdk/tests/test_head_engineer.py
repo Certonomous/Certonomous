@@ -524,6 +524,136 @@ class S6ArmingTests(unittest.TestCase):
         self.assertIsNotNone(eng.monitor.residual_target)
 
 
+class S6RegexKeyResolutionTests(unittest.TestCase):
+    """OpenFOAM dictionary keys may be QUOTED REGULAR EXPRESSIONS, and the
+    gate has to resolve them the way OpenFOAM does or it silently disarms.
+
+    WHY THIS EXISTS. The shipped `_solver_tolerances` matched keys by string
+    equality, so a case declaring `residualControl { "(U|p)" 5e-7; }` against
+    `solvers { "(U|k)" { tolerance 1e-8; } }` never found a tolerance for any
+    field and fell through to fail-open -- while every number the rule needs
+    was stated by the case, in the same file, exactly as the rule's own
+    premise requires. Found 2026-08-11 by the independent held-out re-score
+    (`campaign/S6_HELD_OUT_RESCORE.md` section 7). All six logs the
+    pre-registration reported as "tolerance unreadable" were this parser gap,
+    not cases that declare no tolerance, and `D5_rsm_runs/EBRSM` was armed
+    from one of the four controls it declares.
+
+    The resolution rule is OpenFOAM's own, read out of
+    `src/OpenFOAM/db/dictionary/dictionarySearch.C::csearch`: the literal
+    (hashed) keys are searched first, and only on a miss are the pattern keys
+    tried; patterns are `push_front`ed as the dictionary is read and searched
+    from the head, so the LAST-DECLARED matching pattern wins. A pattern must
+    match the WHOLE field name (`regExp::match` is `std::regex_match`).
+    """
+
+    def _reach(self, text: str) -> dict:
+        from chief_engineer.head_engineer import _field_reachability
+        return _field_reachability(text)
+
+    def test_an_exact_key_still_resolves(self):
+        """The behaviour that already worked, pinned before it is rebuilt."""
+        got = self._reach(REACHABLE_FVSOLUTION)
+        self.assertEqual(got["reachable"], {"p": 1e-4, "U": 1e-5})
+        self.assertEqual(got["excluded"], {})
+        self.assertEqual(got["unresolved"], {})
+
+    def test_a_single_regex_solver_key_resolves_a_literal_control(self):
+        """`dafoam/rans_model_comparison/LienCubicKE`, reduced: both controls
+        are plain words and the tolerance they need is behind one regex key.
+        At HEAD this case is reported as `tolerance unreadable, fail open`."""
+        got = self._reach('solvers { p { tolerance 1e-8; }\n'
+                          '  "(U|k|epsilon)" { tolerance 1e-8; } }\n'
+                          'SIMPLE { residualControl { k 5e-6; epsilon 5e-6; } }')
+        self.assertEqual(got["reachable"], {"k": 5e-6, "epsilon": 5e-6})
+        self.assertEqual(got["unresolved"], {})
+
+    def test_a_regex_control_key_names_each_field_it_covers(self):
+        """`D5_rsm_runs/LRR`, reduced. The control key is the regex here and
+        the two fields it names take their tolerances from two DIFFERENT
+        solver entries -- which is why the pair cannot be resolved by matching
+        one key against the other, only per field."""
+        got = self._reach('solvers { p { tolerance 1e-8; }\n'
+                          '  "(U|k)" { tolerance 1e-9; } }\n'
+                          'SIMPLE { residualControl { "(U|p)" 5e-7; } }')
+        self.assertEqual(got["reachable"], {"U": 5e-7, "p": 5e-7})
+
+    def test_the_last_declared_matching_pattern_wins(self):
+        """OpenFOAM's rule, not ours: `dictionary::csearch` walks `patterns_`
+        from the head and entries are `push_front`ed as they are read, so of
+        two patterns that both match, the one declared LAST is found first.
+        Here `U` matches both; the second entry's 1e-4 is the tolerance, which
+        makes the 1e-5 target UNREACHABLE. Taking the first (1e-9) instead
+        would arm the gate on a target the solve cannot reach."""
+        got = self._reach('solvers { "(U|k)" { tolerance 1e-9; }\n'
+                          '  "(U|p)" { tolerance 1e-4; } }\n'
+                          'SIMPLE { residualControl { U 1e-5; } }')
+        self.assertEqual(got["reachable"], {})
+        self.assertEqual(got["excluded"],
+                         {"U": {"target": 1e-5, "solver_tolerance": 1e-4}})
+
+    def test_a_literal_key_beats_a_regex_that_also_matches(self):
+        """`hashedEntries_` is searched before `patterns_`, whatever the
+        declaration order. The regex is declared LAST here, so a rule that
+        only knew "last wins" would take 1e-4 and wrongly exclude the field."""
+        got = self._reach('solvers { U { tolerance 1e-9; }\n'
+                          '  "(U|p)" { tolerance 1e-4; } }\n'
+                          'SIMPLE { residualControl { U 1e-5; } }')
+        self.assertEqual(got["reachable"], {"U": 1e-5})
+        self.assertEqual(got["excluded"], {})
+
+    def test_a_regex_key_that_matches_nothing_stays_unresolved(self):
+        """Fail-open is CORRECT here and must survive the repair. `Rxx` is a
+        real declared control in the RSM cases and `"(R|epsilon)"` does not
+        match it -- OpenFOAM patterns match the whole word. Reachability is
+        not established, so it is not asserted."""
+        got = self._reach('solvers { "(R|epsilon)" { tolerance 1e-8; } }\n'
+                          'SIMPLE { residualControl { "(Rxx|Ryy)" 5e-7; } }')
+        self.assertEqual(got["reachable"], {})
+        self.assertEqual(got["excluded"], {})
+        self.assertEqual(got["unresolved"], {"Rxx": 5e-7, "Ryy": 5e-7})
+
+    def test_a_partly_resolvable_case_reports_the_fields_it_could_not_read(self):
+        """`D5_rsm_runs/EBRSM` is the specimen: at HEAD it is armed from `f`
+        alone while its other three declared controls go unresolved, so the
+        arming target is chosen from a third of what the case declares. The
+        repair must resolve them AND keep saying which ones it could not."""
+        got = self._reach(
+            'solvers { p { tolerance 1e-8; } f { tolerance 1e-8; }\n'
+            '  "(R|epsilon)" { tolerance 1e-8; } "(U|k)" { tolerance 1e-8; } }\n'
+            'SIMPLE { residualControl { "(U|p)" 5e-7; epsilon 5e-7; f 5e-7;\n'
+            '  "(Rxx|Rxy)" 5e-7; } }')
+        self.assertEqual(got["reachable"],
+                         {"U": 5e-7, "p": 5e-7, "epsilon": 5e-7, "f": 5e-7})
+        self.assertEqual(got["unresolved"], {"Rxx": 5e-7, "Rxy": 5e-7})
+
+    def test_a_regex_key_resolves_through_the_gate_itself(self):
+        """Not just the helper: the record the gate emits has to change too,
+        or the fix is unwired the way S6 itself was."""
+        from chief_engineer.head_engineer import HeadEngineer
+        eng = HeadEngineer.__new__(HeadEngineer)
+        eng.remote_case = "/run/case"
+        eng.monitor = LogMonitor()
+        eng.on_event = None
+        eng._wsl = lambda cmd, timeout=600.0: SimpleNamespace(
+            stdout=('solvers { p { tolerance 1e-8; }\n'
+                    '  "(U|k|epsilon)" { tolerance 1e-8; } }\n'
+                    'SIMPLE { residualControl { k 5e-6; epsilon 5e-6; } }')
+            if "fvSolution" in cmd else "", stderr="")
+        rec = eng.arm_residual_gate()
+        self.assertTrue(rec["armed"], rec["reason"])
+        self.assertEqual(rec["target"], 5e-6)
+        self.assertEqual(rec["candidates"], {"k": 5e-6, "epsilon": 5e-6})
+
+    def test_an_uncompilable_pattern_is_not_guessed_at(self):
+        """A key we cannot interpret leaves the field unresolved rather than
+        being treated as a match or a non-match by accident."""
+        got = self._reach('solvers { "(U|" { tolerance 1e-9; } }\n'
+                          'SIMPLE { residualControl { U 1e-5; } }')
+        self.assertEqual(got["reachable"], {})
+        self.assertEqual(got["unresolved"], {"U": 1e-5})
+
+
 class S6ArmedThroughStagingTests(unittest.TestCase):
     """The gate must get ARMED, not merely work when armed.
 

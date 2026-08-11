@@ -34,6 +34,7 @@ import threading
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from functools import lru_cache
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, Callable, Sequence
@@ -816,7 +817,18 @@ class StepResult:
 
 _RESIDUAL_CONTROL_BLOCK = re.compile(r"residualControl\s*\{([^{}]*)\}", re.S)
 _SOLVERS_BLOCK = re.compile(r"\bsolvers\s*\{", re.S)
-_ENTRY = re.compile(r'([A-Za-z_"()|.\w]+)\s+([0-9][0-9.eE+-]*)\s*;')
+# An OpenFOAM dictionary keyword is either a bare word (a LITERAL key) or a
+# quoted string (a PATTERN -- a regular expression). Which of the two it is is
+# decided by the quoting, not by the contents, so the two alternatives are
+# captured separately and the distinction is carried through the parse.
+_KEY = r'(?:"([^"\n]*)"|([A-Za-z_][A-Za-z0-9_.:]*))'
+_ENTRY = re.compile(_KEY + r'\s+([0-9][0-9.eE+-]*)\s*;')
+_SUBDICT = re.compile(_KEY + r'\s*\{([^{}]*)\}')
+_TOLERANCE = re.compile(r"tolerance\s+([0-9][0-9.eE+-]*)")
+# A pattern names concrete fields only when it is a plain alternation of words,
+# optionally bracketed -- `"(U|k|epsilon)"`, `"(R|epsilon)"`, `"p"`. Anything
+# richer still MATCHES, it just contributes no names of its own.
+_ALTERNATION = re.compile(r"\(?([A-Za-z_][\w.]*(?:\|[A-Za-z_][\w.]*)*)\)?")
 
 
 def _strip_comments(text: str) -> str:
@@ -828,28 +840,26 @@ def _strip_comments(text: str) -> str:
     return re.sub(r"//[^\n]*", "", text)
 
 
-def _residual_controls(fv_solution_text: str) -> dict[str, float]:
-    """`field -> declared SIMPLE-level residual target`, from the case's own
-    `residualControl` block."""
-    text = _strip_comments(fv_solution_text)
-    out: dict[str, float] = {}
-    for block in _RESIDUAL_CONTROL_BLOCK.finditer(text):
-        for name, value in _ENTRY.findall(block.group(1)):
-            try:
-                out[name.strip('"')] = float(value)
-            except ValueError:
-                continue
-    return out
+def _entries(fv_solution_text: str, block: str) -> list[tuple[str, bool, float]]:
+    """`[(key, key_is_a_pattern, value)]` for one block, IN DECLARATION ORDER.
 
-
-def _solver_tolerances(fv_solution_text: str) -> dict[str, float]:
-    """`field -> its LINEAR solver tolerance`, from the same file's `solvers`
-    block. The outer residual cannot be driven below this, which is what makes
-    the sentinel exclusion structural rather than a threshold."""
+    Order is not cosmetic: OpenFOAM resolves a name against the last-declared
+    matching pattern (see `_dict_lookup`), so a parse that returned a plain
+    dict would have thrown away the tie-break before anyone could apply it.
+    """
     text = _strip_comments(fv_solution_text)
+    out: list[tuple[str, bool, float]] = []
+    if block == "residualControl":
+        for found in _RESIDUAL_CONTROL_BLOCK.finditer(text):
+            for quoted, bare, value in _ENTRY.findall(found.group(1)):
+                try:
+                    out.append((quoted or bare, bool(quoted), float(value)))
+                except ValueError:
+                    continue
+        return out
     match = _SOLVERS_BLOCK.search(text)
     if not match:
-        return {}
+        return out
     start = match.end() - 1
     depth = 0
     end = len(text)
@@ -861,16 +871,147 @@ def _solver_tolerances(fv_solution_text: str) -> dict[str, float]:
             if depth == 0:
                 end = i
                 break
-    out: dict[str, float] = {}
-    for entry in re.finditer(r'([A-Za-z_"()|.\w]+)\s*\{([^{}]*)\}',
-                             text[start:end]):
-        hit = re.search(r"tolerance\s+([0-9][0-9.eE+-]*)", entry.group(2))
-        if hit:
-            try:
-                out[entry.group(1).strip('"')] = float(hit.group(1))
-            except ValueError:
-                continue
+    for entry in _SUBDICT.finditer(text[start:end]):
+        quoted, bare, body = entry.group(1), entry.group(2), entry.group(3)
+        hit = _TOLERANCE.search(body)
+        if not hit:
+            continue
+        try:
+            out.append((quoted or bare, bool(quoted), float(hit.group(1))))
+        except ValueError:
+            continue
     return out
+
+
+def _residual_controls(fv_solution_text: str) -> dict[str, float]:
+    """`declared key -> declared SIMPLE-level residual target`, from the case's
+    own `residualControl` block. The key is as written; it may be a regex."""
+    return {key: value
+            for key, _pattern, value in _entries(fv_solution_text,
+                                                 "residualControl")}
+
+
+def _solver_tolerances(fv_solution_text: str) -> dict[str, float]:
+    """`declared key -> its LINEAR solver tolerance`, from the same file's
+    `solvers` block. The outer residual cannot be driven below this, which is
+    what makes the sentinel exclusion structural rather than a threshold.
+
+    As with `_residual_controls` the key is as written and may be a regex, so
+    this is NOT a field -> tolerance map and must not be indexed by field name.
+    That confusion is exactly what disarmed the gate: see `_field_reachability`.
+    """
+    return {key: value
+            for key, _pattern, value in _entries(fv_solution_text, "solvers")}
+
+
+@lru_cache(maxsize=512)
+def _pattern(key: str) -> re.Pattern | None:
+    """A dictionary pattern key compiled, or None if we cannot interpret it.
+
+    None is not "matches nothing" used as a convenience -- it propagates to an
+    UNRESOLVED field and so to fail-open, because a key we cannot read is a key
+    whose coverage we have not established.
+    """
+    if key.startswith("!"):
+        # OpenFOAM's `regExp` reads a leading `!` as negated matching. Rare
+        # enough that nothing in this archive uses it, and getting it silently
+        # backwards would invert a gate, so it is declined rather than guessed.
+        return None
+    try:
+        return re.compile(key)
+    except re.error:
+        return None
+
+
+def _dict_lookup(entries: Sequence[tuple[str, bool, float]],
+                 name: str) -> float | None:
+    """Resolve one field name against a parsed block, as OpenFOAM resolves it.
+
+    `dictionary::csearch` (OpenFOAM `src/OpenFOAM/db/dictionary/
+    dictionarySearch.C`) looks the keyword up in `hashedEntries_` -- the
+    LITERAL keys -- and only on a miss walks `patterns_`. Pattern entries are
+    `push_front`ed as the dictionary is read and the walk starts at the head,
+    so of several matching patterns the LAST-DECLARED one is found first. A
+    pattern must match the whole name: `regExp::match` is `std::regex_match`.
+
+    So: literal beats pattern regardless of order; among patterns, last wins.
+    Both halves are OpenFOAM's, not this lab's -- a gate that resolved keys
+    differently from the solver would be reading a different case than the one
+    that runs.
+    """
+    for key, is_pattern, value in entries:
+        if not is_pattern and key == name:
+            return value
+    for key, is_pattern, value in reversed(entries):
+        if not is_pattern:
+            continue
+        compiled = _pattern(key)
+        if compiled is not None and compiled.fullmatch(name):
+            return value
+    return None
+
+
+def _named_fields(key: str, is_pattern: bool) -> list[str]:
+    """The concrete field names a declared key names, if it names any."""
+    if not is_pattern:
+        return [key]
+    match = _ALTERNATION.fullmatch(key)
+    return match.group(1).split("|") if match else []
+
+
+def _field_reachability(fv_solution_text: str) -> dict[str, dict]:
+    """Per FIELD: is its declared residual target structurally reachable?
+
+    WHY PER FIELD. The rule S6 is armed by is a relation between two numbers
+    the case declares about itself -- a `residualControl` target and that
+    field's own linear-solver `tolerance`. Both are looked up BY FIELD NAME
+    when the case runs, and either may be declared under a regex key that
+    covers several fields at once. Matching one declared key against the other
+    therefore answers the wrong question: `residualControl { "(U|p)" 5e-7; }`
+    against `solvers { p {...} "(U|k)" {...} }` is a case where the two fields
+    the one control names take their tolerances from two DIFFERENT solver
+    entries. The keys never meet; the fields do.
+
+    Until 2026-08-11 the gate compared keys by string equality. Every field
+    behind a regex key on either side went unresolved, so six logs were
+    reported as declaring no tolerance when they declare one, and
+    `D5_rsm_runs/EBRSM` was armed from one of the four controls it states.
+    Found by the held-out re-score, `campaign/S6_HELD_OUT_RESCORE.md` s7.
+
+    The candidate field names are the ones the case's own dictionaries name --
+    every literal key, plus the members of any key that is a plain alternation.
+    A field named by neither block cannot be reasoned about from this file and
+    is not invented.
+
+    Returns `{"reachable": {field: target}, "excluded": {field: {target,
+    solver_tolerance}}, "unresolved": {field: target}}`. `unresolved` is the
+    honest indeterminate: a target is declared and no tolerance can be
+    resolved for it, so reachability is not established and not asserted.
+    """
+    controls = _entries(fv_solution_text, "residualControl")
+    solvers = _entries(fv_solution_text, "solvers")
+    names: list[str] = []
+    for key, is_pattern, _value in controls + solvers:
+        for name in _named_fields(key, is_pattern):
+            if name not in names:
+                names.append(name)
+    reachable: dict[str, float] = {}
+    excluded: dict[str, dict[str, float]] = {}
+    unresolved: dict[str, float] = {}
+    for name in names:
+        target = _dict_lookup(controls, name)
+        if target is None:
+            continue
+        tolerance = _dict_lookup(solvers, name)
+        if tolerance is None:
+            unresolved[name] = target
+        elif target <= tolerance:
+            excluded[name] = {"target": target,
+                              "solver_tolerance": tolerance}
+        else:
+            reachable[name] = target
+    return {"reachable": reachable, "excluded": excluded,
+            "unresolved": unresolved}
 
 
 class HeadEngineer:
@@ -1010,14 +1151,22 @@ class HeadEngineer:
         135 of 135 sentinels and nothing else. A gate armed from such a target
         would measure the declaration, not the solve.
 
+        Both numbers are resolved BY FIELD, through `_field_reachability`,
+        because OpenFOAM permits either of them to be declared under a quoted
+        regex key covering several fields. Comparing the declared keys to each
+        other instead -- which this method did until 2026-08-11 -- silently
+        disarmed the gate on every case that uses one.
+
         Fails OPEN and says so: an unreadable or absent `fvSolution`, or no
         structurally reachable target, leaves S6 disarmed rather than guessing
-        one. Returns the arming record, which the caller may put on the run's
-        evidence.
+        one. Fields whose tolerance cannot be resolved are reported on the
+        record as `unresolved` rather than dropped, so a case armed from part
+        of what it declares says so. Returns the arming record, which the
+        caller may put on the run's evidence.
         """
         record: dict[str, Any] = {"armed": False, "target": None,
                                   "reason": None, "candidates": {},
-                                  "excluded_unreachable": {}}
+                                  "excluded_unreachable": {}, "unresolved": {}}
         got = self._wsl(f"cat {self.remote_case}/system/fvSolution 2>/dev/null")
         text = got.stdout or ""
         if not text.strip():
@@ -1025,19 +1174,10 @@ class HeadEngineer:
                                 "stays disarmed rather than guessing a target")
             self._emit("monitor.s6", record)
             return record
-        controls = _residual_controls(text)
-        tolerances = _solver_tolerances(text)
-        reachable: dict[str, float] = {}
-        for field, target in controls.items():
-            tol = tolerances.get(field)
-            if tol is not None and target <= tol:
-                record["excluded_unreachable"][field] = {
-                    "target": target, "solver_tolerance": tol}
-                continue
-            if tol is None:
-                # Reachability cannot be established, so it is not asserted.
-                continue
-            reachable[field] = target
+        resolved = _field_reachability(text)
+        reachable = resolved["reachable"]
+        record["excluded_unreachable"] = resolved["excluded"]
+        record["unresolved"] = resolved["unresolved"]
         record["candidates"] = reachable
         if not reachable:
             record["reason"] = (
