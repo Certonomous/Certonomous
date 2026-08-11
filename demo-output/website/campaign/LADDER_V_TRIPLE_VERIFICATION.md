@@ -216,6 +216,21 @@ care fails the first time two agents pick the same filename.
    convention about paths — a separate checkout, so a collision is impossible rather than
    discouraged. *Operationally: dispatch graders with worktree isolation, and never point
    two agents at one scratch directory.*
+
+   > **THE CAVEAT, and it is not small: a fresh worktree does not carry gitignored files.**
+   > This lab gitignores its large run archives and several evidence trees. An agent isolated
+   > into a worktree to audit *text or code* is correctly isolated. An agent isolated into a
+   > worktree to audit **evidence** is looking at a checkout where that evidence **does not
+   > exist**, and it will report an honest, confident, empty result — the fail-open shape,
+   > produced by the very mechanism adopted to make verification trustworthy. Combine that
+   > with `grep` here being `ugrep --ignore-files` (L-75) and you have two independent ways
+   > to get a silent zero over the same archives.
+   >
+   > **The rule:** worktree-isolate agents whose subject is tracked content. Agents whose
+   > subject is run output, solver logs or any gitignored tree work in the main checkout,
+   > with exclusive scratch paths assigned by the dispatcher instead. If you are unsure which
+   > kind an agent is, have it print the count of evidence files it can see **before** it
+   > reports what it found in them.
 2. **Held-out sets are committed with positive controls BEFORE use**, and the **disjointness
    of author and grader samples is asserted by a test**, never trusted. A grader's sample
    that quietly overlaps the author's measures template reuse, which is L-66.
