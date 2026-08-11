@@ -2128,9 +2128,42 @@ clock-audit rule asks for.]*
 - **N1 (MAJOR): a FIFTH surface still asserts the withdrawn internal-only rule** — and it is **the JSON the outward
   document cites as its source.** It survived every sweep because the documents write *"the 68% figure"* while the
   JSON writes *"the figure"*: **a grep missing by three characters.** My own record said four surfaces; it was five.
+  **CLOSED 2026-08-11 at `d9552d73`**, to the wording already committed at `1db6fc3c`, in this file's ASCII house
+  style; `INTERNAL ONLY` now occurs zero times in it and `self_audit.check_closure_entry_of_record` still returns
+  PASS. **And it was not five.** Round 3 was told not to fix a phrase-miss by grepping the same phrase again, so the
+  surface set was re-derived structurally — *(restriction predicate)* within 400 characters of *(a referent for the
+  figure)*, no spelling of the sentence used anywhere in the search, over every tracked text file plus every member
+  of `dist/certonomous-demo.zip` opened rather than inferred. **Fourteen surfaces carry a statement of the rule.
+  Eight are correctly superseded, struck or quoted** (the chief's three, `PROBABILITY_OF_RANK`, `CHALLENGE_SLATE:37`,
+  `LADDER_V_TRIPLE_VERIFICATION:54–56`, the routed report copy, and the JSON now). **Six still assert it in the
+  present tense**, all outside this pass's ownership and therefore reported, not rewritten — the same call the chief
+  made in this entry, that rewriting a rule statement is a decision:
+  **(1)** `CLOSURE_FAMILY_SUPERVISION_GUIDELINES.md:108–110`, **the family's rule document** (row 12 of the 16),
+  still instructing supervisors that *"the figure is INTERNAL: internal surfaces carry it, public surfaces in
+  `dist/` carry the qualitative clause only"*;
+  **(2)** `docs/PRODUCT_LIST.md:60–61` — **this file** — *"The number is INTERNAL and never appears in an external
+  claim"*, in the live round-5 standing item, twelve hundred lines above the entry that reverses it;
+  **(3)** `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md:1184–1191`, a *"Wording note, deliberate (chief ruling 2026-08-10)"*
+  keeping the figure out of the outward draft **because it is internal by its own gate** — while line 575 of the same
+  file states the withdrawal correctly, so the draft contradicts itself;
+  **(4)** `latex/closure_challenge_report.tex:243` and **:287** (see N6; not this lab's file to edit);
+  **(5)** `docs/CAPABILITY_STRATEGY.md:83`, the STRATEGY PROOF CLAUSE itself — *"internal only, but it is the house
+  asking the right question"* — **the origin of the gate**, which is why every copy of it reads that way;
+  **(6)** `agenda/proposals/probability-of-rank-a-posterior-over-our-score-against-the-board.json`, four fields
+  (`objective`, `rationale`, `sequencing`, `gate`) — an **approved, dated** proposal, where a rewrite under an
+  unchanged `decided_at` would forge the record, so it needs a supersession note rather than an edit.
+  **The finding under the finding:** the count was never going to come out right, because a rule withdrawn at its
+  statement was never swept at its *origin*. Five of the six were found by a search that did not know how the
+  sentence is spelled.
 - **N2 (MAJOR):** round 1's finding about four non-compliant external surfaces was **renumbered during the fix round
   and reported closed while still open** at HEAD. (Being closed now by the concurrent pass; the auditor reported the
-  committed state and said so.)
+  committed state and said so.) **CLOSED and verified 2026-08-11 by round 3 at `656c09c9`** (committed 00:11:36 UTC,
+  four minutes after round 2 froze its frame at `249b611c`). Re-read from `git show HEAD:<path>`, not the working
+  tree: `benchmarks.html` (4 figure sites, 2 interval sites, both blocks pair them), `benchmarks.json`,
+  `wall/wall.json` and `build_benchmarks.py` each now carry **P(rank 1) = 68%** *and* **2–100% at 95%**, the
+  not-decided pairs were already present, and **the figure appears without its interval on none of the four.**
+  Round 2's zeros were correct at the revision it pinned; the renumbering that hid the finding is the part worth
+  keeping — **a finding renumbered is a finding lost.**
 - N3–N6: two counts measure one lower than reported (73/44, not 74/45); a citation to *"the manifest's own
   changed-list"* — **the manifest has no such list**; the new outward seed paragraph credits a bound of 0.002419 when
   the bootstrap loaded **0.0024**, which is the same precision defect it disclosed one paragraph earlier; and the
@@ -2168,6 +2201,31 @@ clock-audit rule asks for.]*
   declaring victory and leaving it for the next audit. Round 3's scope now includes it, plus three commits nobody but
   their author has read.
 - A concurrent audit rung graded this pass's first six commits while it worked: **every row passed.**
+
+### 2026-08-11 — the three prior zeros were UNSOUND, and the sentence is genuinely absent anyway
+
+- **THE POSITIVE CONTROL IS THE FINDING** (`f2e16a47`, `7cd558b1`). The struck prior-art sentence was planted into a
+  scratch copy of the shipped page, wrapped across five lines and split by markup — then both instruments were run
+  against a file that **demonstrably contains it**: the **line-bounded grep used in all three prior passes returned
+  ZERO**; the normalised search (whitespace collapsed, tags stripped, dashes and accents folded) **found all seven
+  fragments.** So the three prior zeros were **unsound, not merely unconfirmed** — a false absence is what that tool
+  produces on wrapped text, and absence was the entire claim.
+- **The sentence is genuinely absent**, now on evidence that cannot fake a zero: verified three ways — the extracted
+  committed archive, the current source, and **the bytes served over HTTP** — all agreeing, across 78 text files,
+  with the sweep's own control passing on the planted copy. **V10 stands closed on sound evidence.**
+- **And the correction turns out to be better than "removed".** Four author-name fragments ARE present and should be:
+  the 2026-08-05 fix was **a two-part split, not a deletion**. As shipped, classifiers that *identify* where a
+  baseline is unreliable are credited to the two groups that reported that — with the text saying explicitly that one
+  of them **"controls nothing"** — while *using such a classifier to control where a correction applies* is credited
+  **separately, and only to the two groups that actually reported it.** The struck version had credited all four with
+  the control mechanism "repeatedly." **That is the defect fixed, not merely erased.**
+- **A flaw in the checking method, found and recorded by its own author:** four of the seven fragments were author
+  names the CORRECTED text legitimately contains, so they read PRESENT and meant nothing. **"A fragment shared by the
+  defect and its fix is evidence of neither."** Only the mechanism clause and one phrase discriminate — and those are
+  the two that came back absent. Now family practice §9, with the campaign's lineage attached: a launcher keying on a
+  command's first token, a parser reporting clean on a crash, a regex spelling one hyphenation, a glob spelling one
+  directory prefix — **each read its input correctly and could not see what it was asked about, and this one was
+  hiding inside the procedure we had just promoted to the standard.**
 
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
