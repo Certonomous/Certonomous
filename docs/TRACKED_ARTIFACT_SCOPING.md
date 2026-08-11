@@ -116,15 +116,16 @@ F7_runs/old_spec_readings.py         F8_runs/s10_replay/s10d_corpus_replay.py
 
 Every one is a **script, a reference note, a plot, a JSON summary, or a case dictionary** —
 source and summary artifacts. The extractor demonstrably resolves exact file citations when
-they exist. It finds thirteen, and finds zero field files and zero logs among them.
+they exist. It finds thirteen, and finds zero field files among them. *(It also found zero logs — see the
+correction above: that was the harvester's `*_runs/` frame, not the corpus. One log is cited.)*
 
 That is the shape G5 predicts, now measured instead of assumed: **records cite the code that
 produced a result and the summary of it, never the raw field data.**
 
 ## 4. What this does and does not license
 
-**It supports:** moving solver output and solver logs out of tracking without breaking a single
-path citation in the committed record.
+**It supports:** moving solver output out of tracking without breaking a single path citation,
+and moving solver logs with **one** known citation to preserve or update (see §3's correction).
 
 **It does NOT support** — and these are the ways this measurement could still be wrong, stated
 because a scoping document that lists only its strengths is not a scoping document:
