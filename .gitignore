@@ -80,6 +80,9 @@ demo-output/website/dafoam/f6d_random_matrix_uq/ens/
 demo-output/website/dafoam/f6d_random_matrix_uq/signdemo/
 demo-output/website/dafoam/f6d_random_matrix_uq/signcheck/
 demo-output/website/dafoam/f6d_random_matrix_uq/f6a_recheck/
+# Same rule for the Option A continuation tree (2026-08-11): ~0.5 GB of restarted
+# cases, on-disk primary evidence, rebuilt by analyse_option_a.py which IS tracked.
+demo-output/website/dafoam/f6d_random_matrix_uq/f6d_option_a/
 
 # LaTeX build artifacts
 demo-output/website/latex/*.aux
