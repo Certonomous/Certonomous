@@ -1637,5 +1637,95 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         self.assertEqual(3, checked)
 
 
+class TheGraderPrecisionSetIsIndependentTests(unittest.TestCase):
+    """Grade round 7, R-ISOLATE part 2: the precision denominator is checked by
+    a set the author did not build.
+
+    The rung's author named its own weakest point -- "the precision denominator
+    is mine, built with the pattern list in hand, and a set built by someone
+    else will give a different number." That is L-74: a check built with the
+    same knowledge as the thing it checks measures transcription fidelity, not
+    the world. `campaign/V16_GRADE_ROUND7_PRECISION_SET.py` is the external
+    referent, written before its author's set or the `_place*` patterns were
+    read.
+
+    These tests do NOT pin the grader's figure. Pinning it would redden the
+    suite when the guard IMPROVES, which is backwards. They pin the two
+    properties that make the figure worth comparing at all: that the two
+    samples are genuinely different sentences, and that the grader's set can be
+    neither padded nor satisfied by a switched-off detector.
+    """
+
+    def _held_out(self, name):
+        path = (REPO / "demo-output" / "website" / "campaign" / name)
+        self.assertTrue(path.exists(),
+                        f"{name} is the evidence behind a published figure; "
+                        f"without it this test asserts nothing")
+        spec = importlib.util.spec_from_file_location(name[:-3], path)
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = mod
+        spec.loader.exec_module(mod)
+        return mod
+
+    @staticmethod
+    def _norm(text):
+        return re.sub(r"\s+", " ",
+                      re.sub(r"[^a-z0-9 ]", "", text.lower())).strip()
+
+    def test_the_author_and_grader_samples_are_disjoint(self):
+        """R-ISOLATE part 2: ASSERTED disjoint, never trusted.
+
+        Two figures computed over overlapping sentences are one figure counted
+        twice, and an overlap is the signature of template reuse (L-66).
+        """
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        grader = self._held_out("V16_GRADE_ROUND7_PRECISION_SET.py")
+        author = self._held_out("V16_PRECISION_SET.py")
+        mine = {self._norm(s) for _lab, _cls, s in grader.sentences(board)}
+        theirs = {self._norm(item[-1]) for item in author.NON_PLACEMENTS}
+        self.assertEqual(set(), mine & theirs,
+                         "the grader's precision set reuses author sentences; "
+                         "the two figures are not independent")
+        self.assertGreaterEqual(len(mine), 40)
+        self.assertGreaterEqual(len(theirs), 40)
+
+    def test_the_grader_set_cannot_be_padded_or_wedged(self):
+        """The same two ways to fake a precision figure the author's set closes,
+        closed here on the grader's set -- and one more.
+
+        Padding: a sentence the guard never examines cannot falsify anything,
+        so sentences with no rank-like expression are EXCLUDED from the
+        denominator rather than counted as clean. The exclusion is measured,
+        not assumed, and the admitted count is what the round-7 figure is over.
+
+        Wedged shut: positive controls -- plain wrong placements -- must fault.
+        Wedged OPEN: correct placements must stay SILENT. A guard that faults
+        everything scores perfect recall and zero precision, and positive
+        controls alone cannot tell it from a working one.
+        """
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        grader = self._held_out("V16_GRADE_ROUND7_PRECISION_SET.py")
+        seen = grader.admission(board, sa._placements, sa._board_names)
+        admitted = [lab for lab, n in seen.items() if n]
+        self.assertGreaterEqual(
+            len(admitted), 20,
+            "too few of the grader's sentences carry a rank-like expression "
+            "for the figure over them to mean anything")
+        measured = grader.measure(board, sa.board_placement_faults)
+        self.assertEqual([], measured["CONTROLS_MISSED"],
+                         "a wrong placement stopped faulting: the precision "
+                         "figure could now be improved by switching the "
+                         "detector off")
+        self.assertEqual([], measured["SILENT_CONTROLS_FAULTED"],
+                         "a CORRECT placement now faults: the guard is wedged "
+                         "open, which positive controls alone cannot see")
+        # Every false FAULT must be one the guard actually looked at.
+        self.assertTrue(set(measured["FALSE_FAULT_LABELS"]) <= set(admitted))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -3443,3 +3443,71 @@ correct majority of the output vouches for the incorrect remainder. Anchor the
 capture, or count in Python where the regex is visible and testable. Related:
 L-72 (a count is true of a commit, not a moment), L-75 (state the frame),
 L-80 (the artifact under test can disagree with the file you are reading).
+
+## L-82. A held-out set built by the party being measured understates the cost — and the size of the understatement is itself measurable, by building a second one
+
+**What happened.** Ladder V rung V16 chose to close *by measurement rather than by
+correctness*: the placement guard would stop claiming it was right and start
+publishing what it costs. It did that, and the centre of the round was a held-out
+non-placement set — sentences containing a rank-like expression that are not board
+placements — against which the guard **falsely faults 20 of 41 (49%)**. The number
+was recomputed from committed sentences rather than transcribed, controlled against
+a switched-off detector, and its per-class breakdown was bound to the published
+blind-spot list by a test asserting equality in both directions. As a piece of
+measurement engineering it was sound.
+
+The author then named its own weakest point, unprompted: *"the precision denominator
+is mine, built with the pattern list in hand, and a set built by someone else will
+give a different number."*
+
+It does. As of `64281b6b`, a disjoint 43-sentence set built blind — the author's set
+and the pattern definitions both unread until after the sentences existed — measured
+**19 of 25 (76%)** under the author's own admission rule, unchanged. Fisher exact
+two-sided **p = 0.040**; Wilson 95% intervals 57–89% against 34–64%, so the
+independent *lower* bound sits above the author's point estimate.
+
+**The number that says why.** Splitting the independent set by where its classes came
+from:
+
+| classes | admitted | falsely faulted |
+|---|---|---|
+| the four the ruling itself names | 15 | 9 (60%) |
+| the seven the grader invented | 10 | **10 (100%)** |
+
+On shapes the author had *no hint of*, the guard falsely faulted **everything it
+looked at**. The author's 49% is not a property of the guard. It is a property of the
+guard **and** of how much its measurer already knew about it.
+
+**Why this is not L-74 restated.** L-74 says a check built with the same knowledge as
+the thing it checks measures transcription fidelity, not the world — it tells you to
+distrust the number. L-82 says the distrust is **quantifiable for the price of one
+more sample**, and that the gap has a predictable sign: the insider's number is the
+optimistic one, because the shapes an insider reaches for are the shapes already
+fixed. The remedy is not "be more careful building the set." No amount of care makes
+an author blind to their own patterns. The remedy is a **second set with a different
+author**, reported as its own row.
+
+**The lab already knew this and had already solved it — one screen higher in the same
+file.** `_PLACE_REACH` publishes **three** recall rows, each naming who built it and
+whether they were blind, under a note reading *"forty-odd sentences is a small one and
+two honest sets disagree by twenty points."* `_PLACE_PRECISION` publishes **one** row,
+from the least independent possible source, and calls it *"a WORST CASE on hard
+sentences."* The same document contains both the disease and the cure, and the cure
+was written first. **A practice adopted for one figure does not propagate to the next
+figure by itself** — nobody re-derives a convention when they are busy being right
+about something else.
+
+**And the failure it produced is L-76's, again.** "Worst case" is an absolute. Execution
+falsified it. That is the fourth absolute this one rung has had to withdraw, and the
+first three were withdrawn by the author's own sweep of its own added lines — which
+found two more. A sweep for absolutes finds absolutes; it does not find an absolute
+whose falsification requires *building a second instrument*.
+
+**The rule.** Any figure a lab publishes about **its own cost** carries the provenance
+of the sample it was measured on — who built it, and whether they could see the thing
+being measured. One row is an anecdote with a percentage sign. Where the figure is
+load-bearing, commission the second row before publishing the first, and if the two
+disagree, publish both and let the disagreement be the finding. Related: L-74 (the
+check that shares the knowledge), L-66 (overlap measures template reuse — assert
+disjointness, never trust it), L-75 (state the frame), L-76 (a bounded claim is not a
+false one), L-79 (recompute, never transcribe).
