@@ -3043,10 +3043,17 @@ check was commissioned, and it is the best argument tonight for never letting an
 - **The guard caught its author's own over-broad exclusion**: one rule ate *"Wu & Zhang **are** rank 2"* — the exact
   sentence the adjudication clause needed — because "are" looked like a word numeral. Restricted, with the reason in
   the code.
-- **False-positive rate: 0.** On the 111-file board corpus: **421 placement expressions, 63 bound to an entrant, 0
-  faults of either rule.** The first crude instrument had flagged 18 of 107 with 17 artifacts; a broad rule measured
+- **False-positive rate: 0.** The first crude instrument had flagged 18 of 107 with 17 artifacts; a broad rule measured
   at **11 hits, 11 of them noise** (the idiom *"in the first place"*, a study that *"wrote to a third place"*) was cut
-  down, and **all 11 became tests.**
+  down, and **all 11 became tests.** ***Corrected 2026-08-11 by the independent grade:*** *this line originally read
+  "on the 111-file board corpus: 421 placement expressions, 63 bound to an entrant". **The rate survived independent
+  re-derivation over a wider frame — zero outside the declared use/mention class — but the corpus did not: no record
+  anywhere states how 111 files were selected, because I never wrote the rule down.** A figure without a method is a
+  citation to nothing, and this rung's own text requires the rate be stated against a* **measured** *corpus. The check
+  now prints its denominator* **and its selection rule** *in its verdict — placements counted in the surfaces that name
+  a board entrant, both counts shown — so the number reproduces from the frame line instead of from an unrecorded
+  sweep. The lesson generalises past this rung: a denominator I can reproduce today and cannot describe is one nobody
+  else can ever reproduce.*
 - **Blind spots stated in the verdict line, not only in a comment**: **relational comparatives — *ahead of, behind,
   trails, leads, next-best* — need both operands and cannot be checked against one board rank.** That is *the largest
   remaining slice of placement language and it is unguarded.* Also entrants named by co-author, non-UTF-8, untracked
