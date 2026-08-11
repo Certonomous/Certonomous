@@ -348,6 +348,24 @@ An audit that reports only failures is not an audit.
 
 ---
 
+## 4a. Containment: none of the four wrong figures reached a travelling surface
+
+Checked explicitly, because a wrong number on an external surface is FAIL severity and a
+wrong number in a lab record is not. Searched `closure.html`, `benchmarks.html`, both
+`.tex` report sources, `wall/wall.json`,
+`closure_challenge_submission_round5/DESCRIPTION_DOCUMENT.md` and
+`CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` for `31 of 34`, `thirty-one`, `88k`, `160k`,
+`no path citations` and `8,582`: **zero hits on all six.**
+
+`dist/certonomous-demo.zip` was last rebuilt at `b9233e51`, **02:08 UTC** — before any of
+the four wrong claims was written (16:31–21:05). The tracked shipping archive does not
+carry them.
+
+**All four failures are contained to lab records.** That is the good news in this report,
+and it is the reason F1–F4 are corrections rather than withdrawals.
+
+---
+
 ## 5. The verdict
 
 **The termination rule wants zero new failures. It is not zero.**
