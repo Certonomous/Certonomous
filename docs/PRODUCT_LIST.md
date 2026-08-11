@@ -2547,6 +2547,30 @@ clock-audit rule asks for.]*
 - The sentence the sweeping agent asked to keep, and its reason for keeping it: *"the falsifying fact was already
   written down… What the machinery buys is not discovery — it is that someone looks in the right place."*
 
+### 2026-08-11 — V8 still FAILS, and the blocking claim is one no digit-level check could see
+
+- **The cover email is FIXED and verified fixed** — all six defects **closed, not edited**, each traced to a primary
+  artifact, with the scorer re-run at the frozen commits for a **third independent 20-digit reproduction** of the
+  resolved margin pair. Best-on-board verified at full precision on exactly the four named cases. 8/8 hashes match;
+  the frozen quotation is verbatim; the pre-registration-to-scoring gap is 12 m 59 s exactly as claimed.
+- **F1, BLOCKING, in the document that travels — and it is a rank claim in disguise.** The description document calls
+  the runner-up **"the rank-3 entry."** The published board puts them at **rank 2**, and the lab's own source record
+  for that very sentence says rank 2. **"Rank 3" is only true in a five-way list that inserts our own unsubmitted
+  entry at the top** — so the phrase is **a rank claim for ourselves, carrying no probability, no interval and no
+  undecided pairs**, three sections before the ones that do.
+- **Why every prior pass missed it, in the auditor's own words: *"because it is not a digit."*** The claims table's
+  frame is quantitative sentences; this claim is encoded in an **ordinal word**. Thirty-of-thirty-one passed it, and
+  so did 63 digit-level checks in this very audit. **A claims table that verifies numbers cannot see a claim carried
+  by a word** — which is the frame lesson again, on the instrument the ladder trusts most.
+- Three further failures are **text this fix round wrote**: two passages still assert that the travelling document
+  "owes a one-digit correction" which had already landed four minutes earlier, and one says the competitor's
+  published directories number four when there are eight — **in the very sentence reporting a re-score that
+  necessarily read all eight.** Plus two minor: a "kept verbatim" that is true of a defect table and false of its
+  rewritten headline, and one number attributed to a group when it belongs to one entrant.
+- **Ladder consequence, stated by the rung:** the round is **not clean on its own output**, so round N+1 exists. The
+  six hard checks all passed, including the sweep token unbroken at all seven occurrences — measured with a detector
+  whose positive control proves it can tell wrapped from unwrapped.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
