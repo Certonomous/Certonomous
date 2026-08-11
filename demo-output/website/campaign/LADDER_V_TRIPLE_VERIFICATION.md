@@ -160,21 +160,42 @@ concrete submission package and wait for unpark.
 > rename would break the citations that make them checkable — but a date in a filename is
 > a sort key, so the discrepancy is recorded here rather than left to be discovered.
 
-## Status ledger (chief-maintained)
+## Status ledger (chief-maintained) — rewritten 2026-08-11 from the close-out
 
-| Rung | Verdict | Evidence | Date |
-|------|---------|----------|------|
-| V1 | **PASS** | 0.056647191704213645 reproduced to the last digit in a fresh venv (pkg 0.3.1 @ 1c4e22c8, benchmark fresh-cloned @ deb91557); duct CSVs regenerated from raw fields byte-identical — `LADDER_V_RUNGS_V1_V3_V4_V5_2026-08-08.md`, 9a21d65c | 2026-08-08 |
-| V2 | **PASS** | criterion 0bade54a predates every solve it judged; 6th call matches its pre-registration clause by clause — `LADDER_V_RUNGS_V2_V7_V10_2026-08-08.md`, 49f71b8c | 2026-08-08 |
-| V3 | **PASS** | assertion block executed live with a negative control; §4.1 citations re-anchored (+13 line shift), all claims hold; four gate decisions reproduced train-only | 2026-08-08 |
-| V4 | **PASS** | AR_1_Ret_360 traced unbroken config→mesh→395-iter log→field→interpolation→CSV (sha256 bb8d61fb…)→0.04547044480564218 | 2026-08-08 |
-| V5 | **PASS** | in-house authorship @ 303247bb, .so hash matches record; untrained proven structurally (only new coefficient is Spalart's published 0.3); five campaign records got dated additive citation notes | 2026-08-08 |
-| V6 | waits for unpark | binds to a concrete submission package | — |
-| V7 | **PASS** | docstring fix verified at call sites + three further stale count claims fixed (incl. build_benchmarks.py page-regression fossil); round-5 artifact format-verified vs accepted submissions | 2026-08-08 |
-| V8, V9 | wait for unpark | bind to cover email / description document | — |
-| V8 *(protocol strengthened, not executed)* | **criterion added** | any rank claim must carry P(rank 1) and the not-decided pairs; sweep token `not statistically decided`; five surfaces already compliant (CLOSURE_CHALLENGE_STATUS §0f, ACTIVE_RESEARCH, closure.html, benchmarks.html, benchmarks.json→wall.json) — `campaign/PROBABILITY_OF_RANK_2026-08-10.md` | 2026-08-10 |
-| V10 | **PASS** | all surfaces round-5 consistent after two drift fixes (benchmarks.html fossil; ACTIVE_RESEARCH tense) | 2026-08-08 |
-| V11, V12, V13 | wait for unpark | cold reproduction + skeptic's report + close-out bind to the send | — |
+*Rewritten because rung V13 found this table stale: it still described six rungs as "waits for
+unpark" after they had executed, and carried no rows for V14/V15 at all. Verdicts below are read
+from each rung's OWN record, and the confirmation column is the one that matters — a rung graded
+by its own executor is weaker than one an independent pass reproduced, and this table now says
+which is which instead of showing an undifferentiated column of PASS.*
 
-Every rung that can run before a send exists has run, and passed. What remains is exactly the set
-that needs a real submission package — the record is as hard as it can get while parked.
+| Rung | Verdict | Independently confirmed? |
+|------|---------|--------------------------|
+| V1 clean-environment re-score | **PASS** (twice) | YES — reproduced cold, same 20 digits, on a *different* numpy build |
+| V2 pre-registration chain | **PASS** | YES — re-derived and strengthened by a second pass |
+| V3 leakage assertions | **PASS** (one leg failed on re-run; fixed) | YES, twice |
+| V4 duct traced end to end | **PASS** | YES — re-derived at 0.000e+00 deviation |
+| V5 QCR provenance | **PASS WITH EXCEPTIONS** | YES — its own re-run overturned an earlier PASS; **2 gaps still open** |
+| V6 compliance audit vs round 5 | **PASS** (was FAIL on currency) | **PARTIAL — one commit unread by anyone but its author** |
+| V7 known defects killed | **PASS** — three, not the two we knew | YES — two more stale generator strings found later |
+| V8 claims table | **FAIL — 8 claims** (corrections landed; re-verification in flight) | YES — a later rung reversed one evidence line and re-graded another |
+| V9 prior-art completeness | **FAIL → FIXED** | YES — the struck sentence was then found still in the shipping archive |
+| V10 cross-surface / mechanical sweep | PASS → FAIL → FAIL → **closed** | **NO — SELF-GRADED at the last step; independent check ordered** |
+| V11 cold reproduction | **PASS** | YES — bit-for-bit, from the package alone |
+| V12 skeptic's report | **DELIVERED** | PARTIAL — two circulating figures flagged |
+| V13 close-out | **DELIVERED** | N/A — stated rather than hidden |
+| V14 mechanical surface discovery | **PASS as executed** | YES — one classification changed by a later pass |
+| V15 ladder-written text | **FAIL → FAIL → round 3 fixed → round 4 IN FLIGHT** | YES by construction (never its own author) |
+
+**Consolidated change list: 64** — 11 to text that travels with the entry, 13 to public or shipping
+surfaces, 9 to live code or generators, the remainder to the lab's own records. *That distribution
+is itself the finding.*
+
+**Round trend: 10 → 6 → unmeasured → unmeasured.** The close-out **refused to draw a four-point
+line through two measured points**, and its reading is the honest one: severity fell faster than
+count and the failure class migrated inward, away from the reader — but **every round so far has
+produced at least one NEW-SHAPED finding, so a falling count is not the classes being exhausted.**
+
+**GREEN REQUIRES**, per the termination rule: V8's re-verification, V10's independent confirmation,
+V5's two open gaps, the six corrections that have not travelled, and a round-4 verdict of no new
+failures. **The gate holds until every one of those closes.**
+
