@@ -1395,26 +1395,64 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         for lab in must_fault:
             self.assertEqual("FAULT", measured[lab][1], lab)
 
-    def test_the_published_precision_figure_recomputes_from_its_sentences(self):
+    def _outside_precision(self, board):
+        """The grader's set, reduced to what the round-7 figure is over.
+
+        Only ADMITTED sentences -- ones in which a rule-A pattern actually
+        matches -- are scored, which is the author's own admission rule applied
+        unchanged. Returns (labels admitted, labels falsely faulted).
+        """
+        grader = self._held_out("V16_GRADE_ROUND7_PRECISION_SET.py")
+        seen = grader.admission(board, sa._placements, sa._board_names)
+        admitted = {lab for lab, n in seen.items() if n}
+        measured = grader.measure(board, sa.board_placement_faults)
+        bad = set(measured["FALSE_FAULT_LABELS"])
+        self.assertTrue(bad <= admitted,
+                        "a false FAULT on a sentence the guard was measured "
+                        "not to look at; the admission rule is not being "
+                        "applied consistently")
+        return admitted, bad
+
+    def test_both_published_precision_figures_recompute_from_their_sentences(
+            self):
         """THE ROUND'S CENTRE, and the closing condition the ruling set.
 
         Four published figures, all of them recall. Nothing measured how often
         the guard faults a sentence that is not a placement at all, and that
         asymmetry is why six rounds of false FAULTs arrived as surprises: the
         instrument could not report its own worst failure mode. This recomputes
-        the figure from committed sentences, exactly like the reach rows, so it
-        cannot go stale the way they did (L-79).
+        the figures from committed sentences, exactly like the reach rows, so
+        they cannot go stale the way those did (L-79).
+
+        TWO ROWS, NOT ONE. The first was measured by the party being measured
+        and is the optimistic one by 27 points; the second was built blind by
+        an independent grader. Both recompute here, so neither can be quietly
+        dropped or edited into agreement with the other.
         """
         board, reason = sa._published_board()
         if board is None:
             self.skipTest(f"detector OFF, not a silent pass: {reason}")
-        precision = self._held_out("V16_PRECISION_SET.py")
-        measured = precision.measure(board, sa.board_placement_faults)
-        _name, _who, _blind, n, bad = sa._PLACE_PRECISION
+        rows = {name: (bad, n) for name, _w, _b, n, bad in sa._PLACE_PRECISION}
         self.assertEqual(
-            (bad, n), measured["PRECISION"],
-            f"_PLACE_PRECISION says {(bad, n)}; the committed sentences "
-            f"measure {measured['PRECISION']}. The published figure is stale.")
+            2, len(sa._PLACE_PRECISION),
+            "a precision row was added or removed; a single row is a "
+            "self-report, and this test is the reason there are two")
+
+        author = self._held_out("V16_PRECISION_SET.py")
+        measured = author.measure(board, sa.board_placement_faults)["PRECISION"]
+        published = rows["the author's non-placement set"]
+        self.assertEqual(
+            published, measured,
+            f"_PLACE_PRECISION says {published} for the author's set; the "
+            f"committed sentences measure {measured}. The figure is stale.")
+
+        admitted, bad = self._outside_precision(board)
+        published = rows["the grader's non-placement set"]
+        self.assertEqual(
+            published, (len(bad), len(admitted)),
+            f"_PLACE_PRECISION says {published} for the grader's set; the "
+            f"committed sentences measure {(len(bad), len(admitted))}. The "
+            f"figure is stale.")
 
     def test_the_precision_set_cannot_be_padded_or_wedged(self):
         """Two ways to fake a precision figure, both closed.
@@ -1439,38 +1477,116 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         """The ruling permits a shape to be KNOWINGLY ACCEPTED rather than
         fixed, PROVIDED it is counted in the precision figure and named in the
         blind-spot list. This is that proviso, executed: the enumeration and
-        the measurement are the same numbers or the suite reddens."""
+        the measurement are the same numbers or the suite reddens.
+
+        AND IT BINDS AGAINST A SET THIS SUITE'S AUTHOR DID NOT BUILD, which is
+        the whole difference between this version and the one grade round 7
+        filed as D28. That version was tight -- dict equality both ways plus a
+        sum -- and computed BOTH sides over the author's own set, so a test
+        named "every false-FAULT class is counted and named" could only ever
+        see classes the author had already thought of. The L-74 circularity was
+        not fixed by measuring the figure; it moved up one level, onto the test
+        guarding the figure. A proviso that can only confirm what its author
+        already listed is not a proviso.
+
+        The second source is the grader's blind set. Every false FAULT it
+        produces must be assigned to an enumerated class, and the per-class
+        totals must equal what the guard publishes. A sentence built outside
+        this lab, faulting in a shape nobody here enumerated, reddens this --
+        which is exactly how `other-named-board` and `negated-or-questioned`
+        came to be in the table.
+        """
         board, reason = sa._published_board()
         if board is None:
             self.skipTest(f"detector OFF, not a silent pass: {reason}")
-        precision = self._held_out("V16_PRECISION_SET.py")
-        by_class = precision.measure(
-            board, sa.board_placement_faults)["BY_CLASS"]
-        declared = {cls: count for cls, _what, count in sa._PLACE_FALSE_FAULT}
-        self.assertEqual(by_class, declared,
-                         "a false-FAULT shape is counted in the figure and "
-                         "missing from the enumeration, or the reverse")
-        _n, _w, _b, _total, bad = sa._PLACE_PRECISION
-        self.assertEqual(bad, sum(declared.values()))
+        for cls, _what, a, g in sa._PLACE_FALSE_FAULT:
+            self.assertTrue(a or g, f"{cls} is enumerated but counted in no "
+                                    f"sample; an unmeasured class in this "
+                                    f"table is a description, not a cost")
+        named = {cls for cls, _what, _a, _g in sa._PLACE_FALSE_FAULT}
+        declared_author = {cls: a for cls, _w, a, _g in sa._PLACE_FALSE_FAULT
+                           if a}
+        declared_outside = {cls: g for cls, _w, _a, g in sa._PLACE_FALSE_FAULT
+                            if g}
+
+        author = self._held_out("V16_PRECISION_SET.py")
+        by_class = author.measure(board, sa.board_placement_faults)["BY_CLASS"]
+        self.assertEqual(by_class, declared_author,
+                         "a false-FAULT shape is counted in the author's "
+                         "figure and missing from the enumeration, or the "
+                         "reverse")
+
+        admitted, bad = self._outside_precision(board)
+        unnamed = sorted(lab for lab in bad
+                         if lab not in sa._PLACE_FF_OUTSIDE)
+        self.assertEqual(
+            [], unnamed,
+            f"the grader's set falsely faults on {unnamed}, which "
+            f"`_PLACE_FF_OUTSIDE` assigns to no enumerated class. A shape "
+            f"found by someone who could not see these patterns is counted in "
+            f"no figure and named in no list -- which is the one thing the "
+            f"KNOWINGLY ACCEPTED ruling does not permit.")
+        gone = sorted(lab for lab in sa._PLACE_FF_OUTSIDE if lab not in bad)
+        self.assertEqual(
+            [], gone,
+            f"`_PLACE_FF_OUTSIDE` classifies {gone}, which the grader's set no "
+            f"longer falsely faults. The enumeration is carrying a cost the "
+            f"guard has stopped paying -- correct the counts rather than the "
+            f"record of what was once wrong.")
+        measured_outside = {}
+        for lab in bad:
+            cls = sa._PLACE_FF_OUTSIDE[lab]
+            self.assertIn(cls, named, f"{lab} is assigned to {cls!r}, which "
+                                      f"is not a class in the enumeration")
+            measured_outside[cls] = measured_outside.get(cls, 0) + 1
+        self.assertEqual(measured_outside, declared_outside,
+                         "a false-FAULT shape is counted in the grader's "
+                         "figure and missing from the enumeration, or the "
+                         "reverse")
+
+        rows = {name: (bad_, n) for name, _w, _b, n, bad_ in sa._PLACE_PRECISION}
+        self.assertEqual(sum(declared_author.values()),
+                         rows["the author's non-placement set"][0])
+        self.assertEqual(sum(declared_outside.values()),
+                         rows["the grader's non-placement set"][0])
+        self.assertEqual(len(bad), len(sa._PLACE_FF_OUTSIDE))
 
     def test_the_verdict_publishes_precision_beside_the_recall_figures(self):
         """A guard whose precision is unmeasured reads as more trustworthy than
-        it is. The figure has to reach the reader, not only the constant."""
+        it is. The figures have to reach the reader, not only the constants.
+
+        BOTH ROWS, EACH WITH ITS PROVENANCE. One row published alone is the
+        measured party's self-report, and the reader has no way to see that the
+        number depends on who built the sample. So every row's builder and
+        blindness must appear, exactly as `_PLACE_REACH`'s rows do, and the
+        reader must be told the rows disagree.
+        """
         _, _, blind, _ = sa.BASIS["check_board_placement_words"]
         frame = [d for d in sa.check_board_placement_words().detail
                  if d.startswith("frame:")][0]
-        _name, _who, _b, n, bad = sa._PLACE_PRECISION
         for surface in (blind, frame):
-            self.assertIn(f"falsely faults {bad} of {n}", surface)
+            for name, who, was_blind, n, bad in sa._PLACE_PRECISION:
+                self.assertIn(f"falsely faults {bad} of {n}", surface)
+                self.assertIn(name, surface)
+                self.assertIn(who, surface)
+                self.assertIn("built BLIND" if was_blind
+                              else "built WITH the pattern list", surface)
+            self.assertIn("THEY DISAGREE BY", surface)
+            self.assertIn("NEITHER IS A BOUND", surface)
             self.assertIn("ADVERSARIAL AND NOT REPRESENTATIVE", surface)
             self.assertIn("KNOWINGLY ACCEPTED", surface)
-            for cls, _what, _count in sa._PLACE_FALSE_FAULT:
+            for cls, _what, _a, _g in sa._PLACE_FALSE_FAULT:
                 self.assertIn(cls, surface)
 
-    #: The three absolutes the previous round added and execution falsified.
+    #: The four absolutes this rung added and execution falsified. The fourth
+    #: is the precision hedge: it was written to stop a reader overstating the
+    #: number and it understated it instead, by 27 points, and no sweep of the
+    #: author's own added lines could have found it -- falsifying it took
+    #: building a second instrument.
     _FALSIFIED = ("none of which is a false FAULT",
                   "cannot reach across a sentence",
-                  "identity was never doing any work")
+                  "identity was never doing any work",
+                  "a WORST CASE on hard sentences")
 
     def test_the_falsified_absolutes_survive_only_as_quoted_history(self):
         """L-76 in the guard's own text, and the FIRST version of this test was

@@ -855,53 +855,129 @@ _PLACE_REACH_B = (5, 5, "an independent grader, invented blind")
 # falsely faults K of L, in these enumerated shapes" is less impressive and more
 # useful, and a reader can act on it.
 #
+# ONE ROW FROM THE AUTHOR IS NOT A COST, IT IS A SELF-REPORT. This was a single
+# row -- the author's own set, built with the pattern list in hand -- until
+# grade round 7 built a second one blind and got a figure 27 points worse. The
+# lab had already solved this for the recall half one screen up, where
+# `_PLACE_REACH` publishes three rows each naming its builder and whether they
+# were blind, under a note that two honest sets disagree by twenty points; the
+# convention did not propagate down here by itself (L-82). It has now.
+#
+# THE ABSOLUTE THIS ROUND WITHDREW, KEPT AS HISTORY AND NOT AS A CLAIM (L-76,
+# and it is the fourth absolute this one rung has produced). The generated
+# paragraph below once read, of the author's 20 of 41: "THE SET IS ADVERSARIAL
+# AND NOT REPRESENTATIVE -- it is weighted toward the shapes that have already
+# broken, so 20 of 41 is a WORST CASE on hard sentences and not a corpus rate."
+# The hedge was written to stop a reader overstating the number in the
+# PESSIMISTIC direction, and it was falsified in the OPTIMISTIC one: the
+# independent set applies this set's own admission rule, unchanged, and lands
+# at 19 of 25. "Worst case" was never a property of the guard. It was a
+# property of how much the sample's builder already knew about the guard. The
+# sentence that stood here is quoted above, not repeated: nothing below asserts
+# it, and no row here claims to bound the next sample.
+#
 # (sample, who built it, blind to the current patterns?, n, falsely faulted)
-_PLACE_PRECISION = ("the author's non-placement set", "this check's author",
-                    False, 41, 20)
+# Both `n` columns are ADMITTED sentences -- ones in which a rule-A pattern
+# actually matches an expression -- under the same admission rule, so the two
+# are comparable. Both `falsely faulted` columns are recomputed from committed
+# sentences by `sdk/tests/test_rank_claim_surfaces.py` (L-79).
+_PLACE_PRECISION = (
+    ("the author's non-placement set", "this check's author", False, 41, 20),
+    ("the grader's non-placement set", "an independent grader", True, 25, 19),
+)
 # THE SHAPES, because a rate without them is not actionable, and because the
 # ruling that permits a shape to be KNOWINGLY ACCEPTED rather than fixed
 # requires it to be counted in the figure AND named here. The counts are
-# recomputed from the same committed sentences as the figure by
+# recomputed from the same committed sentences as the figures by
 # `test_every_false_fault_class_is_counted_and_named`, which asserts this table
-# equals the measured per-class breakdown -- so a shape in one and missing from
-# the other reddens the suite. It does NOT check that the descriptions are
-# right, only that the classes and counts are.
-# (class, what it is, how many of the n above)
+# equals the measured per-class breakdown for BOTH samples -- so a shape in one
+# and missing from the other reddens the suite. It does NOT check that the
+# descriptions are right, only that the classes and counts are.
+#
+# AND IT IS CHECKED AGAINST A SET THIS FILE'S AUTHOR DID NOT BUILD, which is
+# the whole point and was the defect grade round 7 filed as D28. When the only
+# input was the author's own set, a test named "every false-FAULT class is
+# counted and named" could only ever see classes the author had already thought
+# of -- L-74's circularity, moved off the figure and onto the test guarding the
+# figure. The last two classes below exist because an outsider's sentences
+# faulted in shapes nobody here had enumerated; the `grader` column is what
+# makes that possible to notice again.
+# (class, what it is, how many in the author's set, how many in the grader's)
 _PLACE_FALSE_FAULT = (
     ("reduced-relative",
      "an object relative clause with the relativizer deleted, which English "
      "does freely -- with no marker in the clause no cut is made and the "
-     "later-noun tie-break resolves to the entrant, who follows the head", 4),
+     "later-noun tie-break resolves to the entrant, who follows the head", 4,
+     4),
     ("linalg-head-unlisted",
      "a linear-algebra subject whose head noun is not in `_PLACE_LINALG_NEAR` "
      "-- a kernel, a Gramian, a Laplacian, an array. The clause cuts "
      "correctly and then finds no object, so the discriminator declines to "
-     "mute. The list is a word list and no word list is closed", 4),
+     "mute. The list is a word list and no word list is closed", 4, 2),
     ("quotation",
      "a wrong placement QUOTED in order to name or correct it. Rule A has an "
-     "adjudication clause and rule B has none, and neither reads intent", 3),
+     "adjudication clause and rule B has none, and neither reads intent", 3,
+     3),
     ("dated-history",
      "a placement explicitly dated to an earlier board -- `in round 3 ...`, "
      "`... before round 5`. Declared blind spot 9 in the verdict line, and "
-     "this is the measurement of it", 3),
+     "this is the measurement of it", 3, 4),
     ("abbreviation",
      "a period that ends an abbreviation AND a sentence, now that "
      "`_place_sentence_break` stops treating the first as the second; and an "
-     "ordinal sitting inside a citation", 2),
+     "ordinal sitting inside a citation", 2, 2),
     ("coordination",
      "a coordinated subject whose second conjunct carries the entrant as a "
-     "genitive determiner -- it resolves to whichever sits later", 1),
+     "genitive determiner -- it resolves to whichever sits later", 1, 0),
     ("cross-sentence",
      "a semicolon, which `_place_subject_np` treats as a boundary and the "
      "ordinary `_PLACE_BIND` does not, because `_PLACE_SENTENCE` reads only "
-     "`[.!?]`", 1),
+     "`[.!?]`", 1, 0),
     ("idiom",
      "`in the first place`, with an entrant inside the 40-character bind. The "
      "broad form of rule B was cut to almost nothing over this idiom; rule A "
-     "still meets it", 1),
+     "still meets it", 1, 0),
     ("bibliography",
-     "`the Nth entry` of a journal issue rather than of the board", 1),
+     "`the Nth entry` of a journal issue rather than of the board", 1, 0),
+    # THE TWO THE AUTHOR'S SET HAD NO INSTANCE OF, found by the outside set and
+    # named here rather than left to be discovered a seventh time.
+    ("other-named-board",
+     "a real placement on a DIFFERENT and explicitly named ranking -- another "
+     "benchmark, a citation ranking, an internal timing table. This check "
+     "reads WHETHER an ordinal is claimed, never WHICH board it is claimed "
+     "on, and naming the other ranking in the same sentence does not clear "
+     "it. A submission document is a likely place to meet one", 0, 2),
+    ("negated-or-questioned",
+     "a placement that is DENIED, QUESTIONED or supposed rather than "
+     "asserted. Rule A tests neither polarity nor mood, so a sentence saying "
+     "the opposite of a placement reads as the placement", 0, 2),
 )
+# WHICH OF THE OUTSIDE SET'S FALSE FAULTS BELONGS TO WHICH CLASS ABOVE, by that
+# set's own sentence labels (`campaign/V16_GRADE_ROUND7_PRECISION_SET.py`). The
+# grader's taxonomy and this enumeration are different cuts of the same
+# sentences -- the grader classes by what the sentence IS, this table by what
+# the guard DOES with it -- so the correspondence is stated per sentence rather
+# than per class, and is not a claim that the two vocabularies match. Two of the
+# grader's `LINALG` sentences fault, and they fault for different reasons: one
+# has its relativizer deleted (restoring the word silences it), the other has a
+# head noun off `_PLACE_LINALG_NEAR` (it faults either way). Both were checked
+# by execution, not read off the label.
+#
+# `test_every_false_fault_class_is_counted_and_named` requires this map to
+# cover EVERY false fault that set produces. A sentence built by someone else,
+# faulting in a shape not enumerated above, is exactly what it must redden on.
+_PLACE_FF_OUTSIDE = {
+    "NP-01": "reduced-relative",       "NP-04": "linalg-head-unlisted",
+    "NP-06": "reduced-relative",       "NP-07": "reduced-relative",
+    "NP-08": "linalg-head-unlisted",   "NP-09": "reduced-relative",
+    "NP-10": "dated-history",          "NP-11": "dated-history",
+    "NP-12": "dated-history",          "NP-13": "dated-history",
+    "NP-14": "quotation",              "NP-15": "quotation",
+    "NP-16": "quotation",
+    "NP-33": "abbreviation",           "NP-34": "abbreviation",
+    "NP-37": "other-named-board",      "NP-38": "other-named-board",
+    "NP-40": "negated-or-questioned",  "NP-41": "negated-or-questioned",
+}
 
 
 def _place_reach_sentence() -> str:
@@ -942,32 +1018,64 @@ def _place_reach_sentence() -> str:
 
 def _place_precision_sentence() -> str:
     """The precision paragraph, generated from `_PLACE_PRECISION` and
-    `_PLACE_FALSE_FAULT` so neither can drift from the other or from the
-    sentences both are measured on."""
-    name, who, blind, n, bad = _PLACE_PRECISION
-    seen = ("invented BLIND, before these patterns existed" if blind
-            else "built WITH the pattern list and six rounds of grade "
-                 "findings in hand, adversarially")
-    shapes = "; ".join(f"{count} {cls} ({what})"
-                       for cls, what, count in _PLACE_FALSE_FAULT)
+    `_PLACE_FALSE_FAULT` so no row can drift from another or from the sentences
+    all of them are measured on.
+
+    EVERY COMPARISON HERE IS COMPUTED, not written down. The spread between the
+    rows, and which row is the higher one, are derived from the table: a claim
+    about the samples that a future measurement could falsify is the one thing
+    this paragraph is not allowed to contain (L-76).
+    """
+    def pct(bad, n):
+        return round(100 * bad / n)
+
+    def row(name, who, blind, n, bad):
+        seen = ("built BLIND -- neither these patterns nor the other sample "
+                "was read until after its sentences existed" if blind else
+                "built WITH the pattern list and six rounds of grade findings "
+                "in hand, adversarially")
+        return (f"{name} ({who}, {seen}): falsely faults {bad} of {n} "
+                f"({pct(bad, n)}%)")
+    rows = "; ".join(row(*r) for r in _PLACE_PRECISION)
+    rates = [pct(bad, n) for *_h, n, bad in _PLACE_PRECISION]
+    high = max(_PLACE_PRECISION, key=lambda r: r[4] / r[3])
+    shapes = "; ".join(
+        f"{cls} ({a} author / {g} grader -- {what})"
+        for cls, what, a, g in _PLACE_FALSE_FAULT)
+    outside = [r for r in _PLACE_PRECISION if r[2]]
     return (f"PRECISION, WHICH IS THE HALF THAT WENT UNMEASURED FOR SIX GRADE "
             f"ROUNDS and is the reason there were six: every figure above "
             f"counts a MISS. This one counts a FALSE FAULT, which is the "
-            f"expensive direction. On {name} ({who}, {seen}) -- {n} sentences "
-            f"in which the rule-A pattern DOES match an expression but NO "
-            f"live placement is pinned on a named entrant, each one asserted "
-            f"at import to match a pattern so the set cannot be padded with "
-            f"sentences the guard never looks at -- this check falsely faults "
-            f"{bad} of {n} ({round(100 * bad / n)}%). Recomputed from "
-            f"campaign/V16_PRECISION_SET.py by "
-            f"sdk/tests/test_rank_claim_surfaces.py, which also asserts five "
-            f"positive controls still fault, so the figure cannot be improved "
-            f"by switching the detector off. IN THESE SHAPES, every one of "
-            f"which is KNOWINGLY ACCEPTED rather than fixed: {shapes}. THE SET "
-            f"IS ADVERSARIAL AND NOT REPRESENTATIVE -- it is weighted toward "
-            f"the shapes that have already broken, so {bad} of {n} is a WORST "
-            f"CASE on hard sentences and not a corpus rate; the corpus rate is "
-            f"the live sweep this same verdict reports")
+            f"expensive direction, a rule-A fault on a travelling surface "
+            f"being FAIL severity. {len(_PLACE_PRECISION)} SAMPLES, EACH "
+            f"NAMING ITS BUILDER AND WHETHER THEY WERE BLIND, for the same "
+            f"reason the reach rows do: {rows}. THEY DISAGREE BY "
+            f"{max(rates) - min(rates)} POINTS, and the higher figure is "
+            f"{high[0]} ({high[1]}). NEITHER IS A BOUND ON THE NEXT SAMPLE -- "
+            f"a set's builder is a variable in the result, the two here differ "
+            f"in that variable and in nothing else, and a third builder would "
+            f"give a third number. Every sentence in both is one in which the "
+            f"rule-A pattern DOES match an expression and NO live placement is "
+            f"pinned on a named entrant; the same admission rule applies to "
+            f"both, so neither denominator can be padded with sentences the "
+            f"guard never looks at -- the author's set asserts the match at "
+            f"import for every sentence it holds, and the grader's is scored "
+            f"over the {outside[0][3] if outside else 0} of its sentences the "
+            f"guard actually looks at, the rest excluded rather than counted "
+            f"clean. Recomputed from campaign/V16_PRECISION_SET.py and "
+            f"campaign/V16_GRADE_ROUND7_PRECISION_SET.py by "
+            f"sdk/tests/test_rank_claim_surfaces.py, which also asserts that "
+            f"wrong placements still FAULT and that CORRECT ones stay SILENT, "
+            f"so no figure here can be improved by switching the detector off "
+            f"or by wedging it open. IN THESE SHAPES, every one of which is "
+            f"KNOWINGLY ACCEPTED rather than fixed, with the count each sample "
+            f"contributes: {shapes}. The enumeration is checked against BOTH "
+            f"samples, so a shape only an outsider thought of cannot go "
+            f"missing from it -- the last two classes are there because one "
+            f"did. BOTH SETS ARE ADVERSARIAL AND NOT REPRESENTATIVE, each "
+            f"weighted toward shapes that have already broken this guard, so "
+            f"neither is a corpus rate; the corpus rate is the live sweep this "
+            f"same verdict reports")
 
 
 @functools.lru_cache(maxsize=8)
@@ -1078,10 +1186,10 @@ _PLACE_LINALG_L = re.compile(                         # ...is rank three out of 
 # claim existed to reassure about, which is the worst way for a stated cost to
 # be wrong, and it survived because nothing measured the false-FAULT direction.
 # Now something does: `_PLACE_PRECISION` and `_PLACE_FALSE_FAULT` above carry
-# the rate and the shapes, both recomputed from
-# `campaign/V16_PRECISION_SET.py`, and the verdict line publishes them beside
-# the four recall figures. The corrected enumeration, executed rather than
-# reasoned:
+# the rates and the shapes, recomputed from `campaign/V16_PRECISION_SET.py` and
+# from `campaign/V16_GRADE_ROUND7_PRECISION_SET.py`, which this file's author
+# did not build; the verdict line publishes both rows beside the four recall
+# figures. The corrected enumeration, executed rather than reasoned:
 #
 #   1. A subject whose head noun is NOT in `_PLACE_LINALG_NEAR` -- a kernel, a
 #      Gramian, a Laplacian -- falls through with no object found, so the
@@ -1106,7 +1214,7 @@ _PLACE_LINALG_L = re.compile(                         # ...is rank three out of 
 # with ONE WORD DELETED. Four for four is the record; that a word list standing
 # in for a parse must ALWAYS have a fifth sentence is a belief about English
 # and is not claimed here. The shapes above are therefore
-# KNOWINGLY ACCEPTED: counted in the published precision figure, named in the
+# KNOWINGLY ACCEPTED: counted in BOTH published precision figures, named in the
 # blind-spot enumeration, and pinned by the probes of
 # `campaign/V16_GRADE_ROUND6_PROBES.py`, which this suite runs. What closes
 # them is a real parse, not a longer list.
@@ -1823,9 +1931,14 @@ def check_board_placement_words() -> Result:
     AND WHAT IT INVENTS, which for six grade rounds nothing measured. Every
     figure named above counts a MISS. `_PLACE_PRECISION` and
     `_PLACE_FALSE_FAULT` count the other direction -- how often this check
-    faults a sentence that pins no placement on anybody -- on a held-out set of
-    non-placements committed at `campaign/V16_PRECISION_SET.py` and recomputed
-    by the suite, with the shapes enumerated rather than summarised. That
+    faults a sentence that pins no placement on anybody -- on TWO held-out sets
+    of non-placements, one built by this check's author and one built blind by
+    an independent grader, committed at `campaign/V16_PRECISION_SET.py` and
+    `campaign/V16_GRADE_ROUND7_PRECISION_SET.py` and both recomputed by the
+    suite, with the shapes enumerated rather than summarised and each shape
+    carrying the count from each sample. The two rows disagree, which is the
+    point of having two: a cost measured only by the party being measured is a
+    self-report, and the independent row is the higher one (L-82). That
     asymmetry, not any one regex, is why this rung took six rounds: the
     instrument could only report the half that was easier to report. The rate
     and the shapes are generated into the verdict and into BASIS beside the
@@ -1987,8 +2100,19 @@ def check_board_placement_words() -> Result:
              f"{_RANK_MAX_BYTES // 1_000_000} MB, non-UTF-8 surfaces, "
              f"untracked files and archive members, none of which it opens. "
              f"(9) whether a placement is dated history rather than a live "
-             f"claim. GREEN HERE IS NOT COVERAGE: it means no placement in the "
-             f"patterns disagrees with the board")
+             f"claim. (10) WHICH BOARD a placement is about: an ordinal on a "
+             f"different and explicitly named ranking -- another benchmark, a "
+             f"citation ranking, an internal timing table -- reads exactly "
+             f"like an ordinal on this one, and naming the other ranking in "
+             f"the same sentence does not clear it. Counted above as "
+             f"`other-named-board`. (11) POLARITY AND MOOD: a placement that "
+             f"is denied, questioned or supposed reads as one asserted, "
+             f"because rule A tests neither. Counted above as "
+             f"`negated-or-questioned`. Items 10 and 11 are here because a "
+             f"held-out set built OUTSIDE this check faulted on them and the "
+             f"nine above did not describe either -- which is what an outside "
+             f"sample is for. GREEN HERE IS NOT COVERAGE: it means no "
+             f"placement in the patterns disagrees with the board")
     # A SKIP IS NOT AN AGREEMENT, and an empty sweep is not a clean one. Both
     # of these used to be capable of returning PASS: a defect that raised on
     # every surface produced "all 0 placement expression(s) agree with the

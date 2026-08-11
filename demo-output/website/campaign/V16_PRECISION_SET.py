@@ -28,12 +28,28 @@ WHAT THE FIGURE IS, stated so it is not read as more than it is.
   THE SET IS ADVERSARIAL, NOT REPRESENTATIVE. It was built by the guard's own
   author WITH the pattern list in hand and with six rounds of grade findings in
   hand, and it is deliberately weighted toward the shapes that have already
-  broken. So the figure is a WORST CASE on hard sentences, not a rate over the
-  corpus -- the corpus rate is reported separately in the verdict line as the
-  live sweep, and is much better. Reading this number as "the guard is wrong
-  this often in practice" would overstate it in the pessimistic direction,
-  which is the direction this lab has not previously erred in and should not
-  start.
+  broken. It is therefore not a rate over the corpus -- the corpus rate is
+  reported separately in the verdict line as the live sweep, and is much
+  better. Reading this number as "the guard is wrong this often in practice"
+  would overstate it in the pessimistic direction.
+
+  AND IT IS NOT A CEILING EITHER, WHICH IS WHAT THIS PARAGRAPH USED TO SAY.
+  The sentence that stood here read: "So the figure is a WORST CASE on hard
+  sentences, not a rate over the corpus." That was a bound, and grade round 7
+  falsified it -- a disjoint set built blind by an independent grader, under
+  this file's own admission rule unchanged, measures 19 of 25 against this
+  set's 20 of 41. The hedge was written to stop a reader overstating the number
+  in the pessimistic direction and it understated it in the optimistic one,
+  which is the direction this rung exists to stop being wrong in. It is quoted
+  here rather than deleted, because a repair that erases the mistake it
+  repaired destroys the record (L-76); it is not asserted anywhere.
+
+  ONE ROW IS A SELF-REPORT. The guard therefore publishes this set's figure
+  BESIDE the grader's, each naming who built it and whether they were blind,
+  exactly as `_PLACE_REACH` has always done for the recall half. The two
+  disagree, and the disagreement is the finding (L-82). The other set is
+  `campaign/V16_GRADE_ROUND7_PRECISION_SET.py`; the two are asserted disjoint
+  by the suite rather than assumed to be (L-66).
 
   IT IS RECOMPUTED, NOT RECORDED. `_PLACE_PRECISION` in the guard carries the
   figure and `sdk/tests/test_rank_claim_surfaces.py` recomputes it from the
