@@ -1181,14 +1181,50 @@ than the whole margin, and `NASA_2DWMH` alone costs more than it. `AR_1_Ret_360`
 and `AR_3_Ret_360` are ties below the precision the board publishes to, and are
 not per-case wins.
 
-> **Wording note, deliberate (chief ruling 2026-08-10).** This paragraph is the
+> **Wording note — CORRECTED 2026-08-11. What stood here was stale, and this
+> document contradicted itself about the same figure in two places.**
+>
+> ~~**Wording note, deliberate (chief ruling 2026-08-10).** This paragraph is the
 > EXTERNAL wording and carries no probability figure, even though this document
 > lives internally. It is a draft of an outward artifact, and the quantified
 > posterior behind these sentences is internal by its own gate — so the number is
 > kept out of the draft *now*, rather than left for someone to remember to strip
 > on the day it is sent. The quantified version lives in
 > `campaign/PROBABILITY_OF_RANK_2026-08-10.md` and does not travel with this
-> package.
+> package.~~
+>
+> **The two passages that disagreed, and which one was right.** The struck note
+> above said the figure is internal by its own gate and does not travel with this
+> package. The Ladder V banner in §5 of this same document — the §5.4/§5.2 row of
+> its table — says the opposite: that a round-5 rank claim "**must now carry
+> P(rank 1) = 68% with its 2–100% interval**", because the chief withdrew the
+> internal-only gate. **The §5 row is the one that is right.** Both were written
+> on 2026-08-10; the withdrawal came later that same day, after Ladder V's
+> cold-reproduction pass recomputed the figure as **0.674 from public data — the
+> published board plus our own eight CSVs — in about a minute**, with no access to
+> the internal document. A figure an outsider reproduces trivially is not
+> protected by being withheld; withholding it buys nothing and only looks
+> concealed, to precisely the reader this package's disclosure strategy exists to
+> convince. The struck note was never re-read against the ruling that overtook it.
+>
+> **The rule that now governs every rank claim in this package.** The figure
+> **TRAVELS with the entry**. Any rank claim here — internal or outward, including
+> the paragraph above — carries **P(rank 1) = 68%** (67.6% over 400,000 case-level
+> bootstrap resamples) **together with its interval**: **2–100% at 95%** by double
+> bootstrap, because eight cases cannot pin it tighter. It also carries the
+> not-decided pairs: the leads over **Reissmann and Wu & Zhang are not
+> statistically decided**, while the leads over Liu and Montoya are (98.7% and
+> 99.8%). The one prohibition that replaced the withdrawn split: **no surface may
+> state the figure without its interval** — a bare 68% is a worse claim than no
+> figure at all, because 68% sounds settled and eight cases do not support settled.
+>
+> **What this correction did NOT do, and whose call that is.** The §10 paragraph
+> immediately above still carries the qualitative clause only, with no figure.
+> Rewriting the package's outward prose is the package owner's decision, not this
+> correction's — the defect being closed is the stale *rule statement*, and the
+> paragraph is flagged here as owing the figure rather than quietly left looking
+> compliant. Sources: `campaign/PROBABILITY_OF_RANK_2026-08-10.md` (head banner);
+> `campaign/LADDER_V_TRIPLE_VERIFICATION.md` (V8 amendment, 2026-08-10).
 
 What changed in the package's payload:
 
