@@ -158,7 +158,46 @@ cited by exact path under the broad vocabulary too, and `scripts/corpus_figures.
 reproduces **8,582 exactly** at `2266c4e3`. The document's largest number is sound; its
 zero is not.
 
-### F3 — Docket E1's headline correction is the error (docket D34)
+### F3 — ~~Docket E1's headline correction is the error~~ **WITHDRAWN — E1 was right, and the defect was in my frame** (docket D34, withdrawn)
+
+**This finding is withdrawn by its own author.** The chief could not reproduce it, asked for
+my frame rather than overruling me, and the frame is where the error was.
+
+Both frames run over the **identical population** — 34 checks,
+`set(check_* attrs) − set(CHECKS)` empty — and the replay at `e551f68f` agrees with HEAD, so
+**the moving-tree hypothesis is refuted**. The entire difference is one check:
+
+| frame | keyword | result at `e551f68f` | at `0be3f1d0` |
+|---|---|---|---|
+| chief's | `blind` | **3 state one, 31 silent** | 3 / 31 |
+| mine | `blind` + 6 paraphrases | 4 state one, 30 silent | 4 / 30 |
+| **difference** | | `check_record_writers_name_their_drops` | same |
+
+And my extra hit is a **false positive**. That check's `cannot see` is the check *reporting a
+defect it found*:
+
+> *"`mesh_validity()` builds a record from `wall` with 4 hand-typed keys, and `wall` is a
+> PARAMETER, so **this function** cannot see what its caller put in it."*
+
+The subject is the **audited function**, not the instrument. E1 asks what the checks say
+*they* cannot see. So the answer is **3 of 34, 31 silent — exactly as E1 published.**
+
+The claimed contradiction with the ledger was also mine. `INSTRUMENT_INTEGRITY_LEDGER.md:219`
+counts checks whose `BLIND TO:` line the *terminal printer* emits at `self_audit.py:3713`,
+gated on `GENERATOR`/`TRANSCRIBED`/shared-symbol — a different quantity from what a `Result`
+object says. Measured: **0 of 34 checks reprint their own declared BASIS blind-spot text.**
+3 and 4 were never the same number.
+
+**The lesson, and it is D20's own defect committed by the agent auditing D20.** I widened a
+keyword list to buy recall and ran **no precision control over the widening**. Every control
+in §0 tested whether my methods could *fire*; none tested whether a widened matcher fires on
+sentences it should not. That is precisely the asymmetry D20 records — four recall figures
+and no precision figure — and B3b already says it about keyword-family checkers. A paraphrase
+list needs a must-not-match set, measured, before its figure is published.
+
+Surviving from the original entry, and it is minor: **E1 carries no commit anchor (W-5).**
+
+### F3b — the original claim, retained for the record
 
 > E1: *"MEASURED 2026-08-11: it is **31 of 34**, not 30 … Three state one; thirty-one
 > state none."*
@@ -224,6 +263,20 @@ walk goes straight in. The docstring's numbers are anchored and so merely dated 
 `everything` or `worktree` sweep run today double-counts silently. **This is L-75
 reintroduced by R-ISOLATE, the rule written the same evening, into `scripts/sweep.py`, the
 instrument written the same evening to prevent the class.**
+
+**F5 verified fixed, by the auditor rather than the fixer.** The chief removed the worktree
+and asked for confirmation, on the grounds that this is a claim about the fix and not about
+the corpus. Re-measured at `e16d7329`:
+
+| frame | with the worktree (`64281b6b`) | after removal (`e16d7329`) | docstring baseline (`83ed6dab`) |
+|---|---:|---:|---:|
+| `everything` | 80,493 | **60,237** | 59,560 |
+| `worktree` | 78,414 | **57,990** | 58,083 |
+
+`git worktree list` shows one entry. The doubling is gone: `R-ISOLATE` over `*.md` now
+returns **6 under `worktree` and 6 under `tracked`**, against 8 vs 4 before. **Fixed.** The
+underlying frame is still definitionally vulnerable — nothing prunes a *future* nested
+worktree — so D36's remedy (a named prune plus a test that plants one) stands.
 
 ### F6 — The four standing rules conflict with the charters in six places, and no code enforces any of them (docket D38)
 
@@ -394,7 +447,7 @@ corrected to 17 / 4 / 10 / 3 at `106e9de8`, **24 seconds before** the docket row
 
 ---
 
-## 4a. Containment: none of the four wrong figures reached a travelling surface
+## 4a. Containment: none of the wrong figures reached a travelling surface
 
 Checked explicitly, because a wrong number on an external surface is FAIL severity and a
 wrong number in a lab record is not. Searched `closure.html`, `benchmarks.html`, both
@@ -404,11 +457,12 @@ wrong number in a lab record is not. Searched `closure.html`, `benchmarks.html`,
 `no path citations` and `8,582`: **zero hits on all six.**
 
 `dist/certonomous-demo.zip` was last rebuilt at `b9233e51`, **02:08 UTC** — before any of
-the four wrong claims was written (16:31–21:05). The tracked shipping archive does not
-carry them.
+the wrong claims was written (16:31–21:05). The tracked shipping archive does not carry them.
 
-**All four failures are contained to lab records.** That is the good news in this report,
-and it is the reason F1–F4 are corrections rather than withdrawals.
+**All the failures are contained to lab records.** That is the good news in this report, and
+it is the reason F1, F2 and F4 are corrections rather than withdrawals. (`31 of 34` was
+searched for on the same surfaces and also returns zero — which is now moot, since that
+figure was correct and F3 is withdrawn.)
 
 ---
 
@@ -418,22 +472,33 @@ and it is the reason F1–F4 are corrections rather than withdrawals.
 
 | class | new failures introduced by round-6 text |
 |---|---:|
-| Claims about execution that re-execution **refutes** | **4** (F1 citation set, F2, F3, F4) |
+| Claims about execution that re-execution **refutes** | **3** (F1 citation set, F2, F4) — ~~4~~, F3 withdrawn |
 | Instrument defects introduced this round | **3** (F1 verdict ordering, F1 `CITES_MISSING_CHECK` precision, F5) |
 | Cross-document contradictions among the four new standing rules | **6** (F6) |
 | Charter-version register rot | **1** (F7) |
 | Claims that **rotted** between being written and now (§3.3) | **7** (R1–R7) |
-| **Discrete, individually actionable failures** | **21** |
+| **Discrete, individually actionable failures** | **20** (~~21~~ — F3 withdrawn) |
 | L-76 unbacked absolutes on added lines (raw / FP-corrected) | 1,380 / ≈340 |
 | W-5 unanchored present-tense state paragraphs in new documents | 263 |
 
-**Twenty-one discrete failures, eleven of them filed as docket D32–D38 and D41–D44.** Four
-are claims that were **wrong when written**, not merely unverified — F1's thirteen
-citations, F2's zero, F3's 31-of-34, F4's split point. All four are the chief's. Seven more
-were right when written and are false now, one of them within 41 minutes and one on a live
-dispatch surface.
+**Twenty discrete failures, ten of them filed as docket D32–D33, D35–D38 and D41–D44.**
+**Three** are claims that were **wrong when written**, not merely unverified — F1's thirteen
+citations, F2's zero, F4's split point. All three are the chief's. Seven more were right
+when written and are false now, one of them within 41 minutes and one on a live dispatch
+surface.
 
-**One failure in this list is mine, and it is disclosed rather than absorbed.** Committing
+**Two failures in this list are mine, and both are disclosed rather than absorbed.**
+
+**Mine, first: a finding I withdrew.** F3 / docket D34 claimed E1's 31-of-34 was wrong. It
+was not. My blind-spot matcher was widened by six paraphrases with no precision control over
+the widening, and one of them matched a sentence whose subject was the audited function
+rather than the instrument. The chief could not reproduce it, **asked for my frame instead
+of overruling me**, and the frame is where the error was. The full withdrawal is at §F3.
+**Ratio for this round: 4 claims of "wrong rather than unverified" made, 3 defended under
+challenge, 1 withdrawn.** An audit that never withdraws anything has not been challenged
+hard enough.
+
+**Mine, second.** Committing
 `docs/DOCKET.md` at `a8d6a33a`, I read `git diff --stat` and a `+`-line count instead of
 reading `git diff` itself, and swept another agent's uncommitted **D39 and D40** into a
 commit whose message claims only D32–D38. Nothing was lost, nothing was renumbered, every
