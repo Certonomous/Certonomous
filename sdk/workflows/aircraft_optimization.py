@@ -28,7 +28,8 @@ import shutil
 import time
 from pathlib import Path
 
-from . import OUT_ROOT, announce_geometry, announce_plot, make_transcript
+from . import (OUT_ROOT, announce_geometry, announce_plot, make_transcript,
+               withdraw_certificate)
 from chief_engineer import vspaero
 from chief_engineer.compute_audit import audit
 from chief_engineer.display_names import display_name
@@ -1930,14 +1931,14 @@ def main(request: str | None = None, params: dict | None = None,
                                     "value": "none", "envelope": "n/a", **verdict})
         # No certificate exists for a run with no feasible design; the
         # previous run's page is withdrawn so nothing out of date is served.
-        try:
-            (out / "certificate.pdf").unlink()
-        except OSError:
-            pass
+        # DOCKET B2: this path has NO later build to overwrite a page the
+        # unlink could not remove, so it is the one place in this package
+        # where a swallowed withdrawal failure is the whole story. The act
+        # publishes which of the three outcomes it got.
+        _withdrawn, _withdrawal = withdraw_certificate(out / "certificate.pdf")
         script.engineer(
             "• No certificate is issued when nothing closes. "
-            "• The previous run's certificate is withdrawn, so nothing out of "
-            "date is served.")
+            f"• {_withdrawal}")
         script.save(out / "transcript.txt")
         roster.all_idle()
         return 0
@@ -2671,12 +2672,10 @@ def main(request: str | None = None, params: dict | None = None,
     # served after this one completes; if generation fails the act says so
     # on the record instead of leaving an out-of-date page linked.
     cert_path = out / "certificate.pdf"
-    try:
-        cert_path.unlink()
-    except FileNotFoundError:
-        pass
-    except OSError:
-        pass
+    # DOCKET B2. Withdrawal has THREE outcomes, not two, and the act publishes
+    # the one that happened: a page that could not be removed is not a page
+    # that was withdrawn.
+    _withdrawn, _withdrawal = withdraw_certificate(cert_path)
     try:
         from chief_engineer.certificate import build_certificate_v2
 
@@ -2744,8 +2743,7 @@ def main(request: str | None = None, params: dict | None = None,
     except Exception:  # a certificate must never take down a good mission
         script.engineer(
             "• No certificate could be issued for this run. "
-            "• The previous run's certificate is withdrawn, so nothing out of "
-            "date is served. "
+            f"• {_withdrawal} "
             "• The result above stands on the transcript and the report.")
 
     script.save(out / "transcript.txt")

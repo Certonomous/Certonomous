@@ -31,7 +31,8 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from . import OUT_ROOT, announce_geometry, emit_table, make_transcript
+from . import (OUT_ROOT, announce_geometry, emit_table, make_transcript,
+               withdraw_certificate)
 from chief_engineer import uq, vspaero
 from chief_engineer.compute_audit import audit
 from chief_engineer.display_names import display_name
@@ -903,10 +904,10 @@ def main(request: str | None = None, params: dict | None = None,
     # FIRST and the new page lands atomically; a failure is said on the
     # record. No mesh block: this act solves no mesh.
     cert_path = out / "certificate.pdf"
-    try:
-        cert_path.unlink()
-    except OSError:
-        pass
+    # DOCKET B2. Withdrawal has THREE outcomes, not two, and the act publishes
+    # the one that happened: a page that could not be removed is not a page
+    # that was withdrawn.
+    _withdrawn, _withdrawal = withdraw_certificate(cert_path)
     try:
         from chief_engineer.certificate import build_certificate_v2
 
@@ -971,8 +972,7 @@ def main(request: str | None = None, params: dict | None = None,
     except Exception:  # a certificate must never take down a good mission
         script.engineer(
             "• No certificate could be issued for this run. "
-            "• The previous run's certificate is withdrawn, so nothing out of "
-            "date is served. "
+            f"• {_withdrawal} "
             "• The result above stands on the transcript and the report.")
 
     # The act's own record on disk. Every other act saves one; the race did

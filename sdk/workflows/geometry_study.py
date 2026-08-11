@@ -23,7 +23,7 @@ import time
 from pathlib import Path
 
 from . import (OUT_ROOT, RUN_PREFIX, announce_field, announce_geometry,
-               announce_plot, make_transcript)
+               announce_plot, make_transcript, withdraw_certificate)
 from chief_engineer.compute_audit import audit
 from chief_engineer.external_aero import analyse_surface, build_case
 from chief_engineer.head_engineer import (FOAM_TUTORIALS, HeadEngineer,
@@ -2914,10 +2914,10 @@ def main(request: str | None = None, params: dict | None = None,
     # so a page from an earlier mission can never be served after this one
     # completes; if generation fails the act says so on the record.
     cert_path = out / "certificate.pdf"
-    try:
-        cert_path.unlink()
-    except OSError:
-        pass
+    # DOCKET B2. Withdrawal has THREE outcomes, not two, and the act publishes
+    # the one that happened: a page that could not be removed is not a page
+    # that was withdrawn.
+    _withdrawn, _withdrawal = withdraw_certificate(cert_path)
     try:
         # The redesigned certificate is the default as of Sanaa's sign-off
         # (2026-07-23, old-vs-new B-52 comparison approved).
@@ -2959,8 +2959,7 @@ def main(request: str | None = None, params: dict | None = None,
     except Exception:  # a certificate must never take down a good solve
         script.engineer(
             "• No certificate could be issued for this run. "
-            "• The previous run's certificate is withdrawn, so nothing out of "
-            "date is served. "
+            f"• {_withdrawal} "
             "• The result above stands on the transcript and the report.")
     engineer.report_markdown()
     script.save(out / "transcript.txt")

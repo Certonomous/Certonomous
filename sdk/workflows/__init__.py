@@ -197,3 +197,70 @@ def announce_field(emit, beat: str, path, label: str) -> None:
     except (OSError, ValueError):
         pass
     emit("field.ready", payload)
+
+
+# The published sentence every act used to state unconditionally. It is kept
+# here, once, so the claim and the action that earns it cannot drift apart.
+WITHDRAWN_SENTENCE = ("The previous run's certificate is withdrawn, so "
+                      "nothing out of date is served.")
+
+
+def withdraw_certificate(path) -> tuple[bool, str]:
+    """Withdraw a previous run's certificate page and say WHICH of three
+    things happened -- never only two.
+
+    DOCKET B2, and the defect is ours. Every act in this package opened with
+
+        try:
+            cert_path.unlink()
+        except OSError:
+            pass
+
+    and then published, unconditionally, "The previous run's certificate is
+    withdrawn, so nothing out of date is served." Injecting a PermissionError
+    on that unlink while the new certificate also failed to build left an
+    EARLIER MISSION's certificate on disk, byte for byte, under a transcript
+    line saying it had been withdrawn. A withdrawal that could not happen is
+    not a withdrawal, exactly as a surface that could not be read is not a
+    surface that agrees.
+
+    The three outcomes, and the middle one is why the two-valued form looked
+    right for so long:
+
+      * the page was there and is gone            -> withdrawn
+      * there was no page to withdraw             -> withdrawn (nothing stale
+        is served either way, which is the claim the sentence actually makes)
+      * the page is there and could NOT be removed -> NOT withdrawn, and the
+        caller must publish that instead of the clean sentence
+
+    Returns ``(withdrawn, sentence)``. The sentence is the one the act should
+    put on the record, so a caller cannot accidentally keep the clean claim.
+
+    It does not raise: a certificate must never take down a good mission, and
+    the reason that rule exists is the reason the failure has to be SAID
+    rather than swallowed.
+    """
+    from pathlib import Path as _Path
+
+    path = _Path(path)
+    try:
+        path.unlink()
+    except FileNotFoundError:
+        return True, WITHDRAWN_SENTENCE
+    except OSError as exc:
+        if not path.exists():
+            return True, WITHDRAWN_SENTENCE
+        return False, (
+            f"The previous run's certificate COULD NOT be withdrawn "
+            f"({type(exc).__name__}: {exc.strerror or exc}), so an "
+            f"out-of-date page may still be served. Treat any certificate at "
+            f"that address as belonging to an earlier run until it is "
+            f"removed by hand.")
+    except Exception as exc:                       # noqa: BLE001
+        # Anything the filesystem layer can raise that is not an OSError
+        # still may not become a silent success.
+        return False, (
+            f"The previous run's certificate COULD NOT be withdrawn "
+            f"({type(exc).__name__}: {exc}), so an out-of-date page may still "
+            f"be served.")
+    return True, WITHDRAWN_SENTENCE
