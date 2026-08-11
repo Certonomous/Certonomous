@@ -43,6 +43,7 @@ import datetime as dt
 import json
 import re
 import statistics
+import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -151,17 +152,40 @@ def analyse(window: tuple[dt.datetime, dt.datetime] | None = None) -> dict:
     }
 
 
+def red_empty(window: tuple | None) -> None:
+    """Printed instead of a report when the scan matched nothing.
+
+    The old empty branch printed one lowercase line and returned, and `main`
+    then computed its exit code as `1 if state.get("below_usable_ratio")`. On
+    an empty scan that key is absent, `.get` yields None, and the audit exited
+    0 -- so `--window 2030-01-01 2030-01-02` cleared every wall clock in the
+    lab as quotable without reading a single log. The warning was on stdout and
+    the exit code said the opposite; a caller gating on the exit code, which is
+    what this script's own comment invites, saw a pass.
+    """
+    print("  RED: this audit read no logs.", file=sys.stderr)
+    print("       No log under the scanned roots carries an "
+          "ExecutionTime/ClockTime pair"
+          + (" inside that window." if window else "."), file=sys.stderr)
+    for root in ROOTS:
+        state = "exists" if Path(root).is_dir() else "DOES NOT EXIST"
+        print(f"         {root} -- {state}", file=sys.stderr)
+    if window:
+        print(f"         window {window[0].isoformat()} .. "
+              f"{window[1].isoformat()}", file=sys.stderr)
+    print("  No verdict. 0 logs read, so no wall clock is cleared as quotable "
+          "and none is condemned.", file=sys.stderr)
+
+
 def report(state: dict, window: tuple | None) -> None:
     print("Contention audit: how much measured wall time was not work")
     print("=" * 78)
-    if not state["logs"]:
-        print("no log in the scanned roots carries an "
-              "ExecutionTime/ClockTime pair"
-              + (" inside that window" if window else ""))
-        return
     if window:
         print(f"window         {window[0].isoformat()} .. "
               f"{window[1].isoformat()}")
+    # The reach travels with the verdict: which roots were read, and how many
+    # logs in them actually carried the pair this audit is computed from.
+    print(f"roots          {', '.join(str(r) for r in ROOTS)}")
     print(f"logs           {state['logs']} carry both clocks")
     print(f"totals         {state['cpu_hours']} CPU-hours inside "
           f"{state['wall_hours']} wall-hours")
@@ -206,13 +230,24 @@ def main() -> int:
     window = (_parse(args.window[0]), _parse(args.window[1])) \
         if args.window else None
     state = analyse(window)
+
+    # --- fail closed --------------------------------------------------------
+    # Counted before it is judged, and before --json serializes {"logs": 0}
+    # into something a reader would take for a clean window. Nothing goes to
+    # stdout: an instrument that read nothing has no verdict, in either format.
+    if not state["logs"]:
+        red_empty(window)
+        return 2
+
     if args.json:
         state.pop("rows", None)
         print(json.dumps(state, indent=1))
     else:
         report(state, window)
     # 1 when some run in scope is not quotable as a cost, so a caller can gate.
-    return 1 if state.get("below_usable_ratio") else 0
+    # Reached only when at least one log was actually read, so a 0 here now
+    # means "read them and they were fine" rather than "read none of them".
+    return 1 if state["below_usable_ratio"] else 0
 
 
 if __name__ == "__main__":

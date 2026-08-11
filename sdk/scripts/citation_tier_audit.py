@@ -77,6 +77,19 @@ are WARN by the charter's own recommendation: exit status stays 0 unless
     python3 sdk/scripts/citation_tier_audit.py            # human-readable
     python3 sdk/scripts/citation_tier_audit.py --json     # machine-readable
     python3 sdk/scripts/citation_tier_audit.py --strict   # exit 1 on findings
+
+THIS AUDIT FAILS CLOSED. It printed its own reach -- "(0 records, 0 finding(s))"
+-- and exited 0 anyway, even under --strict, because an empty corpus has no
+findings by definition. A misspelt path therefore cleared every charter and
+standard in the lab while saying on screen that it had read none of them.
+0 records now prints RED and exits 2 with no verdict, in --json too, and that
+is independent of --strict: --strict is a policy choice about FINDINGS and the
+charter's WARN default is deliberate, but whether the audit ran at all is not
+a matter of policy.
+
+Exit codes:  0 = read >=1 record; findings reported, WARN by charter default
+             1 = findings, under --strict
+             2 = no records read                 (RED -- verdict withheld)
 """
 
 from __future__ import annotations
@@ -406,13 +419,40 @@ def main() -> int:
     args = parser.parse_args()
 
     roots = [Path(p) for p in args.paths] if args.paths else DEFAULT_ROOTS
+
+    # --- fail closed --------------------------------------------------------
+    # Counted before anything is judged. This audit already PRINTED its reach
+    # -- "(0 records, 0 finding(s))" -- and then exited 0 anyway, even under
+    # --strict, whose own help text promises "exit 1 when anything is found".
+    # Nothing is found in an empty corpus by definition, so a misspelt path
+    # cleared every charter and standard in the lab while stating on screen
+    # that it had read none of them. Printing the number and acting on it are
+    # different properties; this had the first.
+    #
+    # RED here is independent of --strict. --strict is a policy choice about
+    # FINDINGS, and the charter's WARN default is a deliberate one; whether
+    # the audit ran at all is not a matter of policy.
+    scanned = _iter_files(roots)
+    if not scanned:
+        print("  RED: this audit read no records.", file=sys.stderr)
+        print("       Looked for *.md and *.json under:", file=sys.stderr)
+        for root in roots:
+            path = root if root.is_absolute() else REPO / root
+            state = ("file" if path.is_file() else
+                     "directory" if path.is_dir() else "DOES NOT EXIST")
+            print(f"         {path} -- {state}", file=sys.stderr)
+        print("  No verdict. 0 records scanned, so no citation tier is "
+              "cleared and none is challenged.", file=sys.stderr)
+        return 2
+
     findings = audit(roots, untiered=args.untiered)
 
     if args.json:
         print(json.dumps([asdict(f) for f in findings], indent=1))
     else:
-        scanned = len(_iter_files(roots))
-        print(f"Citation tier audit  ({scanned} records, "
+        rules = 3 if args.untiered else 2
+        print(f"Citation tier audit  ({len(scanned)} records, "
+              f"{rules} rules, "
               f"{len(findings)} finding(s), severity {SEVERITY})")
         print("=" * 78)
         by_rule: dict[str, list[Finding]] = {}
@@ -425,7 +465,10 @@ def main() -> int:
                 print(f"         {row.excerpt}")
                 print(f"         why: {row.why}")
         if not findings:
-            print("\nnothing found")
+            # The reach rides with the verdict. "nothing found" alone reads
+            # identically over 1 record and over 800.
+            print(f"\nnothing found -- {len(scanned)} record(s) read, "
+                  f"{rules} rule(s) applied")
         print("\n" + "=" * 78)
         print("This audit reports and never repairs. Whether a record is "
               "corrected, or the charter gains the tier, is the owner's call.")
