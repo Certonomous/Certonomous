@@ -849,11 +849,25 @@ def check_board_placement_words() -> Result:
     competitor is a rank claim about US wearing someone else's name, and it
     arrives carrying none of the three.
 
-    WHAT IT CANNOT SEE, stated rather than discovered later: RELATIONAL
-    comparatives -- "ahead of", "behind", "trails", "leads", "next-best" --
-    which need both operands resolved and cannot be checked against a single
-    board rank; any entrant referred to by a co-author rather than the first
-    author on their board row; a wrong ordinal that a nearby correct one
+    WHAT IT CANNOT SEE, stated rather than discovered later, LARGEST FIRST:
+    ANY placement phrased outside the two patterns below. An independent grade
+    on 2026-08-11 put 45 held-out sentences through it, each pinning a WRONG
+    placement on a NAMED entrant, and it missed 40 of them -- 89%. Whole
+    families are unreachable: `placed`/`finished`/`came`/`took` an ordinal,
+    `ranked` an ordinal, `Nth overall`, `No. N`, `#N`, markdown and CSV rows,
+    `top the board`, an ordinal used as a bare noun. One correct instance of
+    such a family is committed in `latex/closure_challenge_report.tex` today,
+    wrapped across a line break, in the same sentence family as the defect that
+    opened this rung -- and this check does not see it. GREEN HERE IS NOT
+    COVERAGE. It means no placement matching these two patterns disagrees with
+    the board, which is a narrower statement than it looks.
+
+    Then: any board position past fifth, which the ordinal vocabulary does not
+    contain; RELATIONAL comparatives -- "ahead of", "behind", "trails",
+    "leads", "next-best" -- which need both operands resolved and cannot be
+    checked against a single board rank; any entrant referred to by a co-author
+    rather than the first author on their board row; a wrong ordinal that a
+    nearby correct one
     adjudicates away, since adjudication is judged by proximity and not by
     grammar; the difference between USING a rule-B phrase and QUOTING one,
     which is why rule B is a WARN on a lab record and a FAIL only where the
@@ -914,11 +928,28 @@ def check_board_placement_words() -> Result:
              f"{head[:8]} ({pin_note}) -- {order}; {opened} tracked UTF-8 "
              f"surface(s) containing 'rank' or 'runner' opened; {surveyed} "
              f"placement expression(s) surveyed, whole-text with whitespace "
-             f"collapsed so a reflowed one still binds. Blind to: relational "
-             f"comparatives (ahead of, behind, trails, leads, next-best), "
-             f"entrants named by a co-author rather than the first author, "
-             f"non-UTF-8 surfaces, untracked files, archive members, and "
-             f"whether a placement is dated history rather than a live claim")
+             f"collapsed so a reflowed one still binds. "
+             f"BLIND TO, LARGEST FIRST: (1) ANY placement phrased outside this "
+             f"check's patterns -- an independent grade of 2026-08-11 missed "
+             f"40 of 45 held-out sentences (89%), each pinning a WRONG "
+             f"placement on a NAMED entrant, with whole families unreachable "
+             f"(placed/finished/came/took Nth, ranked Nth, Nth overall, No. N "
+             f"and #N, table and CSV rows, top the board, ordinal-as-noun); a "
+             f"live correct instance of one of those families is in "
+             f"latex/closure_challenge_report.tex today and this check does "
+             f"not see it. (2) board positions past fifth, which the ordinal "
+             f"vocabulary does not contain. (3) relational comparatives -- "
+             f"ahead of, behind, trails, leads, next-best -- which need both "
+             f"operands and cannot be checked against one board rank. (4) an "
+             f"entrant named by a co-author rather than the first author. "
+             f"(5) rule B cannot tell USING a phrase from QUOTING one. "
+             f"(6) adjudication is 400-character proximity and not grammar, so "
+             f"a correct rank near a wrong one clears it. (7) files over "
+             f"{_RANK_MAX_BYTES // 1_000_000} MB, non-UTF-8 surfaces, "
+             f"untracked files and archive members, none of which it opens. "
+             f"(8) whether a placement is dated history rather than a live "
+             f"claim. GREEN HERE IS NOT COVERAGE: it means no placement in the "
+             f"two patterns disagrees with the board")
     if shipped:
         return Result(title, FAIL,
                       f"{len(shipped)} placement(s) on surfaces that TRAVEL "
@@ -3140,7 +3171,17 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "of a name (\"our margin over the <position>\"). Matched over whole "
         "text with whitespace collapsed, so a placement a reflow split across "
         "two lines still binds",
-        "RELATIONAL comparatives -- ahead of, behind, trails, leads, "
+        "MOST OF ALL, any placement phrased outside this check's two patterns "
+        "-- an independent grade of 2026-08-11 missed 40 of 45 held-out "
+        "sentences, 89%, each pinning a wrong placement on a named entrant, "
+        "with whole families unreachable (placed/finished/came/took Nth, "
+        "ranked Nth, Nth overall, No. N and #N, table and CSV rows, top the "
+        "board, ordinal-as-noun), and one correct live instance of such a "
+        "family sits in latex/closure_challenge_report.tex unseen. This is the "
+        "same admission the digit-anchored sibling guard makes about itself "
+        "and it belongs here too: a wider anchor is still an anchor. Also: any "
+        "board position past fifth, which the ordinal vocabulary does not "
+        "contain; RELATIONAL comparatives -- ahead of, behind, trails, leads, "
         "next-best -- which need both operands resolved and cannot be checked "
         "against one board rank; an entrant referred to by a co-author rather "
         "than the first author on their board row; a wrong ordinal that a "
@@ -3148,9 +3189,9 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "proximity and not by grammar; the difference between USING a rule-B "
         "phrase and QUOTING one, which rule B cannot make and which is why it "
         "is a WARN on a lab record and a FAIL only where a surface travels; "
-        "non-UTF-8 surfaces, untracked files and archive members; and whether "
-        "a placement is dated history rather than a live claim, which is the "
-        "other reason rule B is narrow", None),
+        "files over 4 MB, non-UTF-8 surfaces, untracked files and archive "
+        "members; and whether a placement is dated history rather than a live "
+        "claim, which is the other reason rule B is narrow", None),
     "check_memory_scaling_law": (
         EVIDENCE,
         "a published power law that does not refit from its own tabulated "

@@ -440,15 +440,39 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
     def test_it_is_evidence_and_says_what_it_cannot_see(self):
         basis, _, blind, _ = sa.BASIS["check_board_placement_words"]
         self.assertEqual(sa.EVIDENCE, basis)
-        for owed in ("ahead of", "co-author", "QUOTING", "untracked"):
+        for owed in ("ahead of", "co-author", "QUOTING", "untracked",
+                     "outside this check's two patterns", "past fifth",
+                     "4 MB"):
             self.assertIn(owed, blind)
 
-    def test_the_verdict_states_its_frame_and_its_blind_spots(self):
+    def test_the_verdict_names_its_DOMINANT_blind_spot_not_only_the_tidy_ones(
+            self):
+        """The exception that cost V16 a clean pass on its first grade.
+
+        The verdict line listed relational comparatives and archive members and
+        said nothing about the largest gap of all -- every placement phrased
+        outside two regexes, which an independent grade measured at 89% of
+        held-out sentences. The digit-anchored guard this one supersedes makes
+        that admission about itself; dropping it while inheriting the same
+        limitation is how a narrow guard comes to read as coverage. So the
+        frame line must carry it, and must say that green is not coverage.
+        """
         result = sa.check_board_placement_words()
         frame = [d for d in result.detail if d.startswith("frame:")]
         self.assertEqual(1, len(frame), result.detail)
-        self.assertIn("Blind to", frame[0])
+        self.assertIn("BLIND TO", frame[0])
         self.assertIn("placement expression(s) surveyed", frame[0])
+        for owed in ("outside this check's patterns", "past fifth",
+                     "GREEN HERE IS NOT COVERAGE", "4 MB", "QUOTING"):
+            self.assertIn(owed, frame[0], "the verdict understates its reach")
+
+    def test_the_sibling_guards_admission_is_not_dropped_by_its_successor(self):
+        """Whatever the older guard admits about pattern reach, this one must
+        admit too -- it has the same limitation at a measured 89%."""
+        _, _, sibling_blind, _ = sa.BASIS["check_rank_claim_surfaces"]
+        _, _, mine, _ = sa.BASIS["check_board_placement_words"]
+        self.assertIn("phrased outside", sibling_blind)
+        self.assertIn("phrased outside", mine)
 
     def test_no_travelling_surface_disagrees_with_the_board(self):
         """The regression that matters, and it is deliberately NOT `the whole
