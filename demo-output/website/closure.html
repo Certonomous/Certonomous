@@ -98,6 +98,10 @@
   a <b>local scoring, not an official placement</b>: nothing has been sent to the benchmark steward, we are
   not on the leaderboard and hold no rank, and if the steward's own scoring differs from ours, the
   steward's number is the number.</div>
+  <div><b>P(rank 1) = 68%</b> — the probability that this placement survives a comparable set of
+  eight cases, from a case-level bootstrap. Eight cases cannot pin it tighter than
+  <b>2–100% at 95%</b>, and the figure is never quoted here without that bound: 68% on its own
+  sounds settled, and eight cases do not support settled.</div>
   <div><b>And the lead is not statistically decided.</b> Our 0.002878 margin over Reissmann sits
   against a per-case spread five times larger, so on a different set of eight cases the ordering
   could reverse; the same is true of the margin over Wu and Zhang. The margins over Liu and Montoya
@@ -115,7 +119,9 @@
     on the benchmark's scorer — the benchmark publishes no baseline figure of its own</div></div>
   <div class="kpi hero"><div class="n g">0.0566</div><div class="l">our entry of record</div>
     <div class="f">45.3% closer to reality than the standard solve — rank 1 of 5 scored locally,
-    not an official placement; was 0.0654 until round 5, §4</div></div>
+    not an official placement; was 0.0654 until round 5, §4. P(rank 1) = 68%, interval
+    2–100% at 95% on eight cases; the leads over Reissmann and over Wu and Zhang are
+    not statistically decided, §5</div></div>
   <div class="kpi"><div class="n sm">0.0029</div><div class="l">below the published leader</div>
     <div class="f">Reissmann's 0.0595, quoted at benchmark commit <code>deb91557</code>. Read it with
     the seed-uncertainty bound of up to 0.0024 attached, §5 — the margin and the bound are comparable</div></div>
@@ -340,7 +346,11 @@ the benchmark's own unmodified scorer, 0.0566 is the best overall number on the 
 the published leader. It is unsubmitted, so officially it sits nowhere at all, and the margin carries a
 seed-uncertainty bound of comparable size, below.</p>
 
-<p><b>The lead is not statistically decided.</b> Our 0.002878 margin over Reissmann sits against a
+<p><b>P(rank 1) = 68%</b> — 67.6% over a case-level bootstrap of the eight scored cases. The
+interval that matters is not the Monte Carlo one: a double bootstrap puts it at <b>2–100% at 95%</b>,
+which is what an eight-case sample can actually pin down, so the figure travels with that bound and
+never without it.
+<b>The lead is not statistically decided.</b> Our 0.002878 margin over Reissmann sits against a
 per-case spread five times larger, so on a different set of eight cases the ordering could reverse;
 the same is true of the margin over Wu and Zhang. The margins over Liu and Montoya do survive that
 test. The standing is two cases wide — on the eight-case mean, <code>alpha_15_13929_2024</code> alone
@@ -351,7 +361,7 @@ publishes to, and are not per-case wins.</p>
 <div class="scroll"><table>
 <thead><tr><th>Public leaderboard (benchmark commit <code>deb91557</code>)</th><th class="n">Overall</th><th></th></tr></thead>
 <tbody>
-<tr class="us"><td>— · Certonomous, round 5</td><td class="n">0.0566</td><td><span class="tag t-gold">UNSUBMITTED · RANK 1 OF 5 SCORED LOCALLY · NO OFFICIAL RANK</span></td></tr>
+<tr class="us"><td>— · Certonomous, round 5</td><td class="n">0.0566</td><td><span class="tag t-gold">UNSUBMITTED · RANK 1 OF 5 SCORED LOCALLY · NO OFFICIAL RANK · P(rank 1) = 68%, 2–100% AT 95%</span></td></tr>
 <tr><td>1 · Reissmann, Fang, and Sandberg</td><td class="n">0.0595</td><td></td></tr>
 <tr><td>2 · Wu and Zhang</td><td class="n">0.0624</td><td></td></tr>
 <tr><td>3 · Liu, Wang, Zhao, and Xiao</td><td class="n">0.0737</td><td></td></tr>
