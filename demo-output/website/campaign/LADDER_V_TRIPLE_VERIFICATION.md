@@ -361,8 +361,28 @@ still fault and do, so the figure cannot be improved by switching the detector o
 recomputed from the committed sentences by the suite, like the recall rows, so it cannot go
 stale the way they did (L-79), and it is interpolated into the verdict line and into BASIS
 beside the four recall figures. **The set is adversarial and not representative** — it is
-weighted toward the shapes that have already broken — so 20 of 41 is a worst case on hard
-sentences, not a corpus rate; the corpus rate is the live sweep in the same verdict.
+weighted toward the shapes that have already broken — ~~so 20 of 41 is a worst case on hard
+sentences, not a corpus rate~~; the corpus rate is the live sweep in the same verdict.
+
+> **[CHIEF RULING, 2026-08-11, commit `02e941c4` — the struck clause above is FALSIFIED, and
+> it is struck rather than deleted.]** Round 8's author flagged that this sentence still read
+> as a live claim and could not touch it, because I had told it not to edit this document.
+> The ruling it asked for: **a falsified claim inside a dated round record is history only if
+> a reader can see that it is.** This one could not — it sat in running prose with nothing on
+> its face marking it, so a reader scanning the ladder would take it as current. That is the
+> W-5 shape and the fact that it lives in a dated section does not cure it.
+>
+> **What falsified it:** an independent blind sample measured **19 of 25 (76%)** against this
+> 49% — Fisher exact p = 0.040, with the grader's *lower* 95% bound above this point
+> estimate. A "worst case" is a bound, and another honest adversarial set is 27 points worse,
+> so the hedge written to prevent overstatement **overstated, in the optimistic direction.**
+> It is the fourth absolute this rung produced.
+>
+> **Why struck and not deleted** — L-76's own discipline: keep the falsified claim, stop
+> asserting it. Deleting it destroys the record of what was believed and when, which is the
+> thing that makes a fix-round auditable. `_FALSIFIED` in `scripts/self_audit.py` now carries
+> this sentence as its fourth entry, with a test that reddens **both** if someone reinstates
+> it as a claim and if someone erases it.
 
 **2. The falsified blind-spot claim is gone.** *"Three known blind spots, none of which is a
 false FAULT"* is replaced by the four measured classes, two of them the ones that claim
