@@ -70,6 +70,7 @@ it means they are not what that rung declared it would settle.
 | D6 | **Five acts take the OPPOSITE failure on the same line, and it contradicts a rule those same files state.** `cylinder_vortex_shedding.py`, `diamond_airfoil.py`, `hypersonic_cylinder.py`, `supersonic_cone.py` and `supersonic_wedge.py` withdraw the previous certificate with a bare `if cert_path.exists(): cert_path.unlink()` **outside** the try that wraps certificate building. A `PermissionError` there raises straight out of `main()` — taking down a mission whose result was already computed, in files that state "a certificate must never take down a good mission". Not fail-open, so not B2's defect class; it is the same line failing the other way. These five also still carry the unconditional withdrawal sentence, and they are **the same five** — the set that takes the bare `unlink` is exactly the set that still states the claim. (Frame: `git ls-files 'sdk/workflows/*.py'`, matched on the two source substrings, at `36c533f3`.) | B2 fail-open sweep, 2026-08-11 | Route them through `workflows.withdraw_certificate` too — it returns rather than raising and states which of three outcomes happened, which fixes both directions at once. Then assert in `sdk/tests/` that no act in the package calls `unlink` on a certificate outside that helper. | fleet |
 | D7 | **An absolute with no executed test beside it, and this rung produced the counterexample.** **Two** acts — `sdk/workflows/aircraft_optimization.py:2671` and `sdk/workflows/geometry_study.py:2914` — carry the comment *"the previous run's page is withdrawn FIRST and the new page lands by atomic replacement, so a page from an earlier mission **can never** be served after this one completes"*. (Frame: `git ls-files '*.py'` piped to `/usr/bin/grep -ln "from an earlier mission"`, at `36c533f3`, excluding this rung's own test file which quotes the phrase to describe it. My first draft of this entry said **six**, from reading rather than counting, and the count was wrong — recorded here because an underived number in a docket entry about underived numbers is worth leaving visible.) B2's injection exhibits exactly that: refuse the unlink, fail the build, and the earlier mission's page is still there. The code is now fixed to *say so*, but the comment still states the absolute. This is B3's class (no absolute ships without an executed test named beside it), found in B2. | B2 fail-open sweep, 2026-08-11 | Reword to what the code can support — the page is withdrawn *unless the withdrawal is reported as failed* — or name `sdk/tests/test_certificate_withdrawal.py::TheActPublishesWhatHappenedTests` beside it, which is the executed test that bounds the claim. Mechanical sweep, not an enumerated list: B3 owns the derivation. | fleet |
 | D8 | **B2's seven CANDIDATES — flagged, plausible, and NOT made to fire.** Each is a swallowing `except` inside a function that publishes something, where the swallow cannot move the status; none was shown to produce a wrong published verdict, so none is a defect and none was fixed. (1) `chief_engineer/head_engineer.py:1084`, an all-failing `line_hook` empties a published live chart with no marker — the step verdict comes from the process exit status, which is why it is only a candidate. (2) `workflows/aircraft_optimization.py:2034`, a malformed finalist result silently leaves a published table with no expected-count beside it. (3–5) `workflows/ahmed_body.py:697`, `geometry_study.py:2262`, `nasa_hump.py:833` — the painted-field copy is swallowed and `announce_field` then publishes `/api/field/<act>/<name>` while the file stayed in the case directory, a URL the acts' own comments say cannot resolve. (6) `workflows/backstep_case.py:925`, an all-unparsed pressure profile publishes as `[]`, indistinguishable from a file of comments; weak, a `len(parts) < 4` guard absorbs realistic truncation. (7) `workflows/tmr_verification.py:438`, `parse_yplus_dat` keeps the last **parseable** row — reproduced: a garbled final row returns the 200-iteration row, published downstream as `max y+`, "the converged state" per its own docstring, with nothing saying a row was dropped. | B2 fail-open sweep, 2026-08-11 | 1–5 need a live solve or a live hook to inject into, which B2 may not launch; 7 needs an owner's ruling on whether the last *complete* row is the right answer, which is a semantics call and not a bug an agent may assert. Full reasoning and injections in `docs/FAIL_OPEN_GATE_AUDIT.md` section 4. | fleet |
+| D8 | **A published plateau-balance triple does not reconcile with the field it describes, by 1.684x.** `dafoam/ladder-b/S1_CBFS_INVERSION_RESULT.md` §4(2) reports the corrupted run's stationary point as `\|g_penalty\|/\|g_QoI\| = 0.998` with `cos(g_QoI, −g_penalty) = 0.9995`, and its own trajectory table gives `‖g‖₂ = 9.011e-06` at eval 16 — which the driver writes as `np.linalg.norm(g)` of the **total** gradient (`S1-cbfs-inversion/invert_lbfgsb.py:117`, read). Those three over-determine `\|g_penalty\|` and imply **2.841e-04**. Computed exactly from the archived field, `\|g_penalty\| = 2·λ_L2·‖β−1‖₂ = 2·1e-4·2.392652 =` **4.785304e-04**. Solving back, `‖g‖₂ = 9.011e-06` at ratio 0.998 needs `cos = 0.999826`, which does not round to 0.9995. **The finding is unaffected** — the plateau *is* a penalty/likelihood cancellation, confirmed independently by the 53x cancellation itself and by rms\|β−1\| = 0.016511 reproducing the published 0.0165 exactly. What is in doubt is the published cosine, and it matters because `s1-regularization-chosen-by-prior-theory-with-a-posterior-on-beta` named that balance as the control a posterior must reproduce. (Frame: `S1-cbfs-inversion/fields_beta.npy`, 21,000 cells, λ_L2 = 1e-4 read from that run's own driver line 25; host-side arithmetic, zero solver compute; repo commit `7d9e4c51`.) | S1-with-priors pre-registration, 2026-08-11 | Either re-derive the cosine and the ratio with their frame stated, or replace both with the exact analytic `\|g_penalty\|`, which is reproducible from a file on disk. The dependent gate has **already been re-based** onto the analytic quantity (`S1_PRIORS_PREREGISTRATION.md` §4 G-P4, §8), so nothing is blocked on this — it is the published sentence that still carries the unreconciled pair. Belongs to that document's owner, per C3. | fleet |
 
 ### D-follow-on — the two published results D1 puts in doubt
 
@@ -226,6 +227,37 @@ be done now**; the moves themselves wait for the window with everything else.
 our capability, and the deliverable Katie asked for is the **gap map**, not a workaround. An
 agent that discovers we lack the boundary conditions and quietly substitutes something else
 has destroyed the deliverable. The map is the product.
+
+> **[AMENDED 2026-08-11 — G4's propeller premise did not survive checking. Original text
+> retained above rather than edited, per the supersession rule; the claim is Katie's and she
+> is entitled to see it challenged rather than quietly reinterpreted.]**
+>
+> G4 describes the propeller open-water case as *"reuses F8's MRF machinery — the naval
+> turbine"*. That phrasing is Katie's, from §8 H4, and I transcribed it here. **An evidence
+> audit of the F8 case files contradicts it on four points**, and pricing the proposal on the
+> reuse premise would understate it badly:
+>
+> - **F8 is a WIND turbine in AIR** — `simpleFoam`, steady, incompressible (`nu 1.4805e-05`,
+>   kinematic `p`, no thermophysical model), single-phase, Spalart-Allmaras.
+> - Its MRF **is genuine** (a real `constant/MRFProperties`, `omega 7.5398`, zone actually
+>   built by `topoSetDict` — not SRF, not AMI, not `rotatingWallVelocity`) — **but the rotating
+>   zone is the entire domain**, which is the one thing a propeller case must not copy.
+> - **F8's steady-MRF branch is closed on evidence three ways, with ZERO gated CFD numbers.**
+>   Reuse would inherit a branch that never produced a gated result.
+> - The geometry is a fixed 68 MB / 330,950-triangle STL with **no generator anywhere in the
+>   repo**, so a propeller blade is **100% new work**, not a parameter change. And **the sign
+>   convention is inverted** — F8 extracts power, a propeller absorbs torque — which is
+>   precisely the error class that cost F8 three riders.
+>
+> **Status: routed to the naval agent to confirm or contradict against the case files
+> itself**, because the audit reached me second-hand and this lab's rule is that a grader
+> executes rather than relays. Not treated as settled here.
+>
+> **Calibration datum from the same audit, and it is load-bearing for every H4 price:** F8's
+> own proposal carried `est_core_min: 6` against **47.7 core-min actual — an 8× overrun**,
+> at a measured 0.54–0.60 core-s/iteration for 230k cells. That is the house's demonstrated
+> optimism factor on a rotating case. *(A "0.145 core-s/iteration" figure in F8 §5 contradicts
+> every other number in its own record and is not to be used.)*
 
 > **[AMENDED 2026-08-11 — the F8 reuse premise in G4 does not survive checking, and the
 > premise was mine to check.]** Katie's §8 describes the propeller item as reusing F8's MRF
