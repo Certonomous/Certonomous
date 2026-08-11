@@ -373,10 +373,39 @@ sentences, not a corpus rate~~; the corpus rate is the live sweep in the same ve
 > W-5 shape and the fact that it lives in a dated section does not cure it.
 >
 > **What falsified it:** an independent blind sample measured **19 of 25 (76%)** against this
-> 49% — Fisher exact p = 0.040, with the grader's *lower* 95% bound above this point
-> estimate. A "worst case" is a bound, and another honest adversarial set is 27 points worse,
-> so the hedge written to prevent overstatement **overstated, in the optimistic direction.**
-> It is the fourth absolute this rung produced.
+> 49%. A "worst case" is a bound, and another honest adversarial set is worse, so the hedge
+> written to prevent overstatement **overstated, in the optimistic direction.** It is the
+> fourth absolute this rung produced.
+>
+> > **[AMENDED 2026-08-11 by grade round 9, commit `067caac0`. The RULING STANDS; the
+> > statistic I cited for it does not, and it was mine to check.]** This paragraph originally
+> > read *"27 points worse — Fisher exact p = 0.040, with the grader's lower 95% bound above
+> > this point estimate."* **That comparison pairs two different admission predicates.** The
+> > author's set admits a sentence on a raw pattern match; the grader's admits on
+> > `len(_placements(...)) > 0`, which applies the homonym list and the subject-head
+> > discriminator *after* the match and is strictly narrower. Scored under a **common** rule:
+> >
+> > | scored under | author | grader | spread | Fisher 2-sided |
+> > |---|---|---|---|---|
+> > | as published (loose / strict) | 20/41 = 49% | 19/25 = 76% | 27 pts | p = 0.040 |
+> > | raw match on both | 20/41 = 49% | 19/26 = 73% | 24 pts | p = 0.075 |
+> > | `_placements` on both | 20/**28** = 71% | 19/25 = 76% | **5 pts** | p = 0.763 |
+> >
+> > **The published pairing is the only one of the four combinations that is not internally
+> > consistent, is the one that maximises the gap, and is the one that produced the p = 0.040
+> > this ruling quoted.** The author's 41 lose 13 sentences under the grader's predicate — all
+> > true negatives, so the numerator stays 20 and the *rate* moves from 49% to 71%.
+> >
+> > **Why the strike survives anyway, and this is the whole reason the ruling is not
+> > withdrawn: 76% exceeds the author's rate under EVERY common rule.** "Worst case" is a
+> > claim that no honest sample exceeds 49%, and one does, on any consistent scoring. What is
+> > falsified is the **comparison narrative** — that the only variable was who built the set —
+> > and the significance claim resting on it. The conclusion never needed the p-value.
+> >
+> > I quoted a statistic without checking that its two arms were scored the same way, in a
+> > ruling whose subject was a claim that failed for want of checking. That is this rung's
+> > **fifth** L-76 absolute and the first to sit in the reader-facing verdict rather than in a
+> > comment.
 >
 > **Why struck and not deleted** — L-76's own discipline: keep the falsified claim, stop
 > asserting it. Deleting it destroys the record of what was believed and when, which is the
