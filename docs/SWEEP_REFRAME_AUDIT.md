@@ -24,9 +24,12 @@ with my own planted control before building on it: one token written to
 returned only `visible.txt`; `find . -exec /usr/bin/grep -l` returned both. A
 second plant, a file both tracked and gitignored, is skipped too.
 
-**Population.** 16 published sweeps whose count or null was offered as evidence,
+**Population.** 17 published sweeps whose count or null was offered as evidence,
 found by reading every tracked `.md` that names a `grep`/`zgrep` invocation
-(`tracked` frame, 357 files, complete — 0 skipped). **4 moved. 9 held. 3 UNFRAMED.**
+(`tracked` frame, 357 files, complete — 0 skipped). **4 moved (§1). 10 held (§2).
+3 UNFRAMED (§3).** The three add to seventeen; an earlier revision of this line read
+16 / 4 / 9 / 3 and did not, which is the arithmetic this document exists to catch and
+is corrected in place rather than quietly.
 
 Two of the four movers are frame defects. Two are staleness — the sweep was right
 when it ran and the tree moved under it (L-79). Both kinds are reported, because a
@@ -52,7 +55,10 @@ evidence at `demo-output/website/campaign/AHMED_BODY_RECONCILIATION.md:105`.
 `mission-output/` has been in `.gitignore` since the repository's **first commit**,
 `5336dd57` (2026-07-21T21:10:16-04:00) — a week before A4's own date of 2026-07-28
 — and `git ls-files mission-output/` returns **0 files**. The wrapper `grep` cannot
-see one byte under that directory.
+see one byte under that directory. **10 of the 36 matching files are inside
+`study-ahmed_25/` itself**, including the `ahmed_25_field.json` whose numbers A4
+quotes: the evidence is not merely present, it is abundant, and the recorded command
+returns none of it.
 
 **The finding is sound and the provenance is not.** The case is real, on disk, and
 exactly where A4 says. But the search that found it was not the search A4 records:
