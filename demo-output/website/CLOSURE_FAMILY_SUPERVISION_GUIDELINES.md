@@ -105,10 +105,32 @@ Katie's GUI conventions, applied family-wide:
   **the standing is two cases wide** — delete `alpha_15_13929_2024` and the
   point ranking falls to rank 2; **`AR_1_Ret_360` and `AR_3_Ret_360` are ties
   below published precision** (0.00003 and 0.00008) and are not per-case wins.
-  A rank claim omitting this fails Ladder V rung V8. **The figure is INTERNAL:
+  A rank claim omitting this fails Ladder V rung V8. ~~**The figure is INTERNAL:
   internal surfaces carry it, public surfaces in `dist/` carry the qualitative
-  clause only, and both carry the sweep token `not statistically decided`.**
+  clause only, and both carry the sweep token `not statistically decided`.**~~
   Source: `campaign/PROBABILITY_OF_RANK_2026-08-10.md`.
+  - **(d) SUPERSEDED 2026-08-10, later the same day — the internal/external
+    split struck through above was WITHDRAWN by chief ruling. Recorded here
+    2026-08-11; the original wording is kept struck rather than deleted, per this
+    section's own "dated superseded notes, never rewrites" rule.** Ladder V's
+    cold-reproduction pass recomputed the figure as **0.674 from public data —
+    the published board plus our own eight CSVs — in about a minute**, with no
+    access to the internal document. A figure an outsider reproduces trivially is
+    not protected by being withheld; it only reads as concealed, and it reads
+    that way to exactly the reader the disclosure strategy exists to convince.
+    **The figure now TRAVELS with the entry.** Every surface, internal or public
+    — including anything shipping in `dist/` and the entry's own cover material —
+    carries **P(rank 1) = 68%** *with its interval* (**2–100% at 95%**, double
+    bootstrap; an eight-case sample cannot pin it tighter) *and* the not-decided
+    pairs (Reissmann, Wu & Zhang; Liu and Montoya **are** decided). **One
+    prohibition replaces the split: no surface may state the figure without its
+    interval** — a bare 68% is a worse claim than no figure at all, because 68%
+    sounds settled and eight cases do not support settled. The qualitative clause
+    is still required everywhere and still carries the sweep token `not
+    statistically decided`, so the mechanical sweep is unaffected. Sources:
+    `campaign/PROBABILITY_OF_RANK_2026-08-10.md` (head banner and §"the
+    propagation rule"); `campaign/LADDER_V_TRIPLE_VERIFICATION.md` (V8 amendment,
+    2026-08-10).
 - The AR_14 loss, the 4-of-8 best-on-board count, and the "two of four
   best rows are the organisers' baseline" attribution travel together —
   none is quoted without the others where standing is summarized.
