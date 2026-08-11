@@ -301,6 +301,50 @@ false positive with a live false NEGATIVE, muting three true faults about a real
 its comment described the trade as a strict improvement. Nothing short of running it would
 have found that.
 
+## RULING — V16's E2 closes by measurement, not by a fifth discriminator (chief, 2026-08-11)
+
+**Six grade rounds. Four discriminators for one problem. Each broke on a sentence nobody
+had tried, and round 6's breaking sentence was round 5's own probe *minus one word*** —
+delete the object relative `that` from *"the anisotropy tensor that Liu fits is rank 2"*
+and the guard faults it again.
+
+The grader's verdict on the pattern, which I am adopting: **a word list standing in for a
+parse will keep producing a fifth sentence.** Building discriminator five is not a plan;
+it is the previous four rounds with the numbers changed. R-CONVERGE exists to stop exactly
+this, and it does not stop it by lowering the bar — it stops it by **changing the shape of
+the claim**.
+
+**The ruling.** E2 closes when the guard **states what it costs**, not when it stops
+costing anything:
+
+1. **Measure precision and publish it beside the four recall figures.** The guard has
+   `_PLACE_REACH` (three rows) and `_PLACE_REACH_B`, all measuring *misses*. Nothing
+   measures how often it binds an ordinal to an entrant in a sentence that is not a
+   placement at all. That asymmetry is why six rounds of false FAULTs kept arriving as
+   surprises: **the instrument had no way to report its own worst failure mode.** This is
+   docket D20, and it is now E2's closing condition.
+2. **Enumerate the false-FAULT classes honestly in the blind-spot list**, replacing the
+   claim executed and falsified in round 6 — *"three known blind spots, none of which is a
+   false FAULT"* — with the measured truth. Two of the three listed blind spots **do**
+   produce false FAULTs, and there is a fourth that was not listed.
+3. **A held-out set of non-placements** — linear-algebra ranks, dated history, quotations,
+   cross-sentence adjacencies — committed with its inputs and recomputed like the recall
+   sets, so the precision figure cannot go stale the way the reach figures did (L-79).
+
+**What this ruling does NOT do.** It does not forgive the two regressions round 6 found,
+which this rung introduced and must remove: the subject-NP fallback binding across
+markdown structure (headings, list items and table cells end without punctuation, and
+`_PLACE_CLAUSE` only cuts on `[.!?;:]`), and the boundary constant being unconditionally
+uppercase, which turns every abbreviation-final period into a sentence boundary. Nor does
+it forgive **L-76 re-opening**: the round added three absolutes and execution falsified all
+three. A ruling that a claim may be *bounded* is not a ruling that a claim may be *false*.
+
+**Why this is a closure and not a surrender.** A guard whose precision is unmeasured and
+whose blind-spot list is wrong reads as more trustworthy than it is. A guard that publishes
+`caught N of M, and falsely faults K of L, in these enumerated shapes` is **less impressive
+and more useful**, and a reader can act on it. The four recall figures were always the
+easier half to report; reporting only the easier half is what made six rounds necessary.
+
 ## CLOSE-OUT
 
 - **V13. Ladder report in negative-verdict-review format**: every rung PASS/FAIL with evidence
