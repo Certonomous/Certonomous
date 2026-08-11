@@ -20,9 +20,11 @@ things, in order of how much they should change anyone's behaviour:
    The lab's charter separates gates from references, and its most visible gate
    table already implements the "declares it has none" clause (§6).
 2. **The real defect class is not self-referential checking — it is
-   transmission loss.** In five of the six live findings, a correct referent
-   declaration exists somewhere in the repo and **does not travel with the
-   number** to where a reader meets it (§10). Two of those reach the camera.
+   transmission loss.** Of the **seven** live findings, **four** have a correct
+   referent declaration somewhere in the repo that **does not travel with the
+   number** to where a reader meets it, and a fifth arguably does (§10). Two of
+   the seven reach the camera. Only two — §4.1 and §4.2 — are genuine gaps
+   where no correct declaration exists anywhere.
 3. **My own instrument was wrong in the direction that flatters the finding.**
    A lexical screen reported 62.3% UNDECLARED; adjudication showed most of that
    bucket is either not a verification or a declaration the screen could not
@@ -796,13 +798,24 @@ What remains is **not** self-referential checking. It is **transmission loss**:
 | §4.4 F6b Gate V | a third-party RANS baseline | "reproduces the known answer" |
 | §4.5 Ahmed band | the lab's own `tolerance: 0.15` | "SAE 840300, Cd 0.285 ± 15%" |
 | §5.2 FD gates | an FD sharing the adjoint's primal | "the true derivative" |
+| §4.2 Ahmed 0.285 | SAE 840300, extraction route unrecorded | a citation that reads as fully sourced |
 
-**In five of these six, a correct declaration exists somewhere in the repo and
-does not travel with the number.** That is a different problem from L-74 and it
-has a different fix: L-74 asks an author to *know* their referent, and this
-corpus does. What it lacks is a rule that the referent travels **with** the
-figure — which the lab has already built once, for the rank-1 companion clauses,
-and has not generalised.
+**In four of these seven a correct declaration exists elsewhere in the repo and
+does not travel with the number; §4.5 arguably makes five, since the band is
+recorded as `tolerance: 0.15` in the yaml but nowhere in prose. The remaining
+two — §4.1 and §4.2 — are not transmission losses: no correct declaration
+exists anywhere, which makes them the harder pair.**
+
+Transmission loss is a different problem from L-74 and it has a different fix.
+L-74 asks an author to *know* their referent, and on this evidence this corpus
+does. What it lacks is a rule that the referent travels **with** the figure —
+which the lab has already built once, for the rank-1 companion clauses, and has
+not generalised. That rule would close four of the seven, and possibly five.
+
+**§4.1 and §4.2 are the pair that rule would not touch**, because there is
+nothing correct to propagate: a gate constant with no cited source, and a
+citation with no recorded extraction. They are the two that need a document
+fetched, not a sentence copied.
 
 **Two of these reach the camera** (§4.1 act 1, §5.1 act 9). That is where the
 value of this audit is, and it is a far smaller, far more actionable finding
