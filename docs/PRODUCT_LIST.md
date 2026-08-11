@@ -2717,6 +2717,51 @@ clock-audit rule asks for.]*
   Editing the config under a completed, cited run would make the archived dictionary stop matching the one the
   cited solve actually read. **Recorded against the case rather than in it.**
 
+### 2026-08-11 — two rulings on the 84-member ensemble, and a funding rule pre-registered before the evidence lands
+
+**Both decisions were escalated to me rather than taken, and the escalation is the good news.** The agent's gate
+fired VOID on its own experiment, it worked out that its own gate was mis-specified, and it **did not rewrite it** —
+*"doing that after seeing which way it fell is the precise sin pre-registration prevents."*
+
+- **RULING 1 — the literal reading. The experiment is VOID.** Not because the agent's analysis is wrong; it is right,
+  and the restart-transient mechanism it named is excluded by measurement (two of three controls flat). It is because
+  **"the premise turned out to be false" is a conclusion reached after seeing the outcome.** A gate that can be
+  dissolved by post-hoc argument is not a gate — if that move is available once it is available always.
+- **The VOID costs far less than it looks, and the split is the ruling's real content.** A control exists to isolate a
+  **difference**; a claim that is not a difference claim never needed one.
+  - **Survives**: that **no member reached a settled state**, several past 12,000–16,000 iterations — and above all
+    that a case chosen **because it was among the best-settled of all 84** destabilises on continuation into a growing
+    oscillation past 1.3 x/h. **It had been in a quiet phase of an unsteady flow, not at a steady solution** — which
+    no static settledness measure could have distinguished.
+  - **Dies**: "10 of 13 moved, 9 toward baseline." That is exactly the comparative the controls were there to
+    license. It may not be carried over, and may not be laundered by restating it as description.
+- **The asymmetry is why the ruling is cheap: the surviving evidence points at Outcome 3, and the evidence that dies
+  is what would have supported Outcome 1.** The VOID is conservative in the funding direction — **it can only stop us
+  spending, never start us.** That is the safe direction to be wrong in.
+- **The gate did not mis-fire.** Its trigger caught something real — *the control was not a control.* Only its stated
+  inference was wrong. Recorded as **L-65**, because "the gate mis-fired" and "the gate fired for a reason it named
+  badly" are opposite lessons and only the second is true here.
+- **RULING 2 — funding rule PRE-REGISTERED NOW, before the remaining 5 cases land** (5 of 16 still running as this
+  was written):
+  - **no member of the 13 settles → Option C is NOT funded.** 25.7 core-hours would buy 80 more arbitrary phases of
+    an unsteady flow. *A longer run of a thing that does not converge is not more evidence, it is the same evidence
+    at higher cost.*
+  - **≥ 1 member settles → Option C stays live**, and I want that member's identity and its distance from `null`
+    before anything is committed.
+  - **`null` remains the only settled run → that is the headline**, in these words: **the only settled member of the
+    ensemble is the only unperturbed one** — which says the perturbation, not the numerics, prevents settling.
+- **THE COINCIDENCE I AM NOT TAKING ON ANYONE'S WORD: the case that collided is the case that went VOID.** A launcher
+  collision put two solvers on `d0.2_s000` for ~25 s, and `d0.2_s000` is the control that moved −0.831. The agent's
+  chain excluding causation looks sound to me — duplicate died at ~4265, first field write at 4500, ladder monotonic
+  and single-writer, reattachment comes from fields while the damage was to the log — but **it cannot break its own
+  coincidence**, so an independent check is running, load-bearing on whether reattachment is computed from fields
+  anywhere in the actual pipeline. **If it vindicates the agent that is a strengthened result and it is the agent's.**
+- **The collision itself, recorded as L-64.** The rule we already had — use durable, self-ledgering launchers — is
+  what made *both* launchers durable, and durability is what made the collision possible. The rule actually earned is
+  narrower and the opposite shape: **two durable launchers over one case set are worse than none.** The second
+  launcher's guard (launch only if no log exists) failed because **output appears after the race is already lost.**
+  Damage was bounded by measurement, not argument, and the agent named itself as cause in its own commit.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

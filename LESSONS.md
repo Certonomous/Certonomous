@@ -2620,3 +2620,69 @@ provenance too** — state which cases motivated the rule and exclude them from 
 scored set, or report two numbers (in-sample and held-out) and let the gap speak.
 A score quoted without saying whether the defining example was inside it is an
 unlabelled mixture of the two things a reader most needs to tell apart.
+
+## L-64. Two durable launchers over one case set are worse than none — and the narrower rule is the one that was earned
+
+A queue died with its agent's turn. A second agent, seeing the work stalled,
+started a replacement launcher **without first confirming the first was dead**.
+Two solvers ran on the same case for ~25 seconds. The lab already had a rule
+about using durable, self-ledgering launchers so work survives an agent's death;
+that rule is what made *both* launchers durable, and durability is exactly what
+made the collision possible — neither would yield.
+
+The tempting lesson is "use a durable launcher." That is the rule we already had
+and it is what caused this. **The rule actually earned is narrower and it is the
+opposite shape: two durable launchers over one case set are worse than none**,
+because a fragile duplicate dies on its own and a durable one competes. Before
+starting a replacement, **confirming the predecessor is dead is the whole job** —
+the guard the second launcher did carry (launch only if no log exists) failed
+because the first launcher's pool had already created the log without holding it.
+
+The disclosure is the part worth copying. The responsible agent reported the
+collision itself, before completion, **named itself as cause in the commit**, and
+then **bounded the damage by measurement rather than by argument**: it mapped
+every solver process by `/proc/<pid>/cwd` to prove single-writer, checked the
+write ladder for rewrites, established that the duplicate died before the first
+field write, and put a number on the one real exposure. Retaining an affected
+control *with disclosure and a measured bound* is a defensible call; retaining it
+because it probably didn't matter is not, and the difference is entirely in
+whether a number was produced.
+
+Practical form: durability is a property that must be **unique per work unit**,
+not merely present. Any launcher for a case set needs an exclusive claim on it —
+and "no output exists yet" is not a claim, because output appears after the race
+has already been lost.
+
+## L-65. A gate that fires on a real anomaly while naming the wrong cause has not mis-fired, and treating those as the same thing loses the finding
+
+A pre-registered validity gate voided an experiment when a control moved far past
+its threshold. The gate's stated inference was that **the continuation had
+introduced a restart transient** — a common-mode cause, which would have moved
+every control. It didn't: two of the three controls were flat, so the named
+mechanism was **excluded by measurement**.
+
+The gate was therefore mis-specified: it inferred a common-mode cause from a
+single-control observation. But it was **not wrong to fire.** What it caught was
+real and was worse than what it was looking for — *the control was not a
+control.* The case had been chosen precisely because it was among the
+best-settled of the whole ensemble, and on continuation it destabilised into a
+growing oscillation. It had been in **a quiet phase of an unsteady flow, not at a
+steady solution**, and no static settledness measure could have told the
+difference.
+
+Two rulings follow, and they generalise past this experiment:
+
+**Do not re-specify a gate after seeing which way it fell.** Even when the
+gate's premise is demonstrably false — as it was here — dissolving a gate by
+post-hoc argument makes every future gate dissolvable, since the argument is
+always available once the outcome is known. The gate stands, the experiment is
+void, and the correction goes into the *next* pre-registration.
+
+**Separate what needs the void from what does not.** A control exists to isolate
+a *difference*; an observation that is not a difference claim never needed one.
+Within-case and univariate results survive a void intact — here, that a case
+selected for being well-settled destabilises on continuation, which was the most
+important finding in the experiment and is untouched by the gate. Comparative
+claims across members die with the void and must be re-earned. Drawing that line
+explicitly is what stops a void from either destroying good evidence or becoming
+a laundry for bad evidence.
