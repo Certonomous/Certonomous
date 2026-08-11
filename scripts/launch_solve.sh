@@ -424,7 +424,38 @@ except Exception:
         fi
         echo "--- last 25 log lines ---"
         tail -25 "'"$LOG"'" 2>/dev/null
-    } > "'"$REC"'"
+    } > "'"$REC"'.partial"
+    # ATOMIC PUBLISH, and the redirection above is why it is needed.
+    #
+    # { ... } > $REC creates and TRUNCATES $REC at redirection time -- before a
+    # single line of the block has run. This collector is a disowned background
+    # subshell, so anything that kills it early (the 30-minute auto-stop, a
+    # session kill, a reboot) leaves a ZERO-BYTE $REC behind. And a zero-byte
+    # .done is indistinguishable from a finished one to every consumer that
+    # tests existence rather than content.
+    #
+    # It has already happened: f6b2_{coarse,medium,fine,veryfine}_20260805T171046Z
+    # are four empty records sharing one timestamp -- one event, four collectors,
+    # four solves that look completed and recorded nothing. 146 .done records are
+    # load-bearing evidence elsewhere in this repo, and proposal P6 names a
+    # 146-record corpus replay as a prerequisite; four of the records that replay
+    # would read are empty.
+    #
+    # Writing to .partial and renaming makes the file atomic: a rename within one
+    # directory either happens or does not, so $REC exists only when it is
+    # complete. Every existence test in the corpus becomes correct again without
+    # any consumer changing. An interrupted collector now leaves a visibly named
+    # .partial instead of a convincing empty record.
+    #
+    # This makes structural the rule campaign/DPW8_V2_joukowski.md already
+    # states -- check the .done body, not merely its existence. The advisory
+    # form was written down and did not stop the next four.
+    #
+    # NOTE TO ANYONE EDITING THIS BLOCK: it lives inside a single-quoted
+    # bash -c string. An apostrophe in a comment here CLOSES that string and
+    # breaks the script. This comment was written with one and bash -n caught
+    # it; run bash -n scripts/launch_solve.sh after any edit.
+    mv -f "'"$REC"'.partial" "'"$REC"'"
     rm -f "'"$JOB"'"
 ' >/dev/null 2>&1 </dev/null &
 disown 2>/dev/null || true
