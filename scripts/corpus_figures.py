@@ -83,14 +83,19 @@ def lesson_figures() -> dict:
     different facts and neither is the other's check.
     """
     text = _read("LESSONS.md")
-    heads = re.findall(r"^#+\s*\**\s*L-(\d+)", text, re.M)
-    nums = sorted({int(n) for n in heads})
+    heads = [int(n) for n in re.findall(r"^#+\s*\**\s*L-(\d+)", text, re.M)]
+    nums = sorted(set(heads))
+    # Found by a SEPARATE pass over the same headings, so that `blocks -
+    # distinct` and this dict are two routes to one quantity and can disagree.
+    # That disagreement is the whole value: see the check line in _emit.
+    duplicated = {n: heads.count(n) for n in nums if heads.count(n) > 1}
     return {
         "population": "LESSONS.md, headings matching '# L-<n>'",
         "lines": text.count("\n") + (1 if text and not text.endswith("\n") else 0),
         "bytes": len(text.encode("utf-8")),
         "blocks": len(heads),
         "distinct_numbers": len(nums),
+        "duplicated": duplicated,
         "highest": nums[-1] if nums else None,
         "missing_below_highest": [
             n for n in range(1, (nums[-1] if nums else 0)) if n not in nums],
@@ -228,6 +233,21 @@ def _emit(data: dict) -> None:
     print(f"LESSONS.md  {les['lines']} lines, {les['bytes'] // 1024} KB, "
           f"{les['blocks']} blocks, {les['distinct_numbers']} distinct numbers, "
           f"highest L-{les['highest']}{gap_note}")
+    # THE CONSTRAINT, PRINTED RATHER THAN LEFT TO BE NOTICED. A single number
+    # has nothing to be wrong against and is believed exactly as far as it is
+    # plausible; a number with a second quantity that constrains it, derived by
+    # a different route, can be caught. Here: blocks minus distinct IS the count
+    # of duplicate occurrences, and the duplicate list is found by a separate
+    # pass. A shell pipeline reported three duplicated lesson numbers on this
+    # file when there are two -- and the wrong answer survived because the
+    # corpus really does carry duplicates, so it sat inside what a reader
+    # already believed. This line is the check that reader would have needed.
+    dup = les["duplicated"]
+    excess = les["blocks"] - les["distinct_numbers"]
+    agrees = "agrees" if excess == sum(n - 1 for n in dup.values()) else "DISAGREES"
+    print(f"            check: {les['blocks']} - {les['distinct_numbers']} = "
+          f"{excess} duplicate occurrence(s); the duplicate pass names "
+          f"{sorted(dup)} -- {agrees}")
 
     pl = data["product_list"]
     by = pl["by_status"]
