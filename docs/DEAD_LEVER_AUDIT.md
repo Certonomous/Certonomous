@@ -178,7 +178,7 @@ carries **no** `PetscConvergedReason`, i.e. it never reached the adjoint solve).
 | 12 | the F6a substitution (custom `AugmentedkOmegaSST` unavailable → stock SST) is what ran | `libs` / `RASModel` | **ACTIVE-PROVEN** | `W1_hump_runs/sst/controlDict:24` has the library line **commented out** (`// libs ( "libfrozenIncompressibleTurbulenceModels.so" );`) and the log selects `kOmegaSST` at `:71`. Disclosed deviation, log-consistent |
 | 13 | 2 further hump adjoint stagings | — | **NO LOG PRESERVED** | ledgered at ~40 s in `W4_ADJOINT_PC_UNBLOCK.md:300`. **No conclusion rests on them.** Records defect, not a physics question. Agrees with C1-A |
 
-**Count: 14 lever/conclusion pairs — 9 ACTIVE-PROVEN, 2 ACTIVE-UNPROVEN (no log
+**Count: 14 hump-adjoint lever/conclusion pairs — 9 ACTIVE-PROVEN, 2 ACTIVE-UNPROVEN (no log
 evidence), 1 NO LOG PRESERVED, 1 LATENT INACTIVE, 1 already-withdrawn.**
 **Zero found-dead on the hump.** That reproduces C1-A's verdict by a different
 route, which is worth more than either alone.
@@ -361,12 +361,20 @@ against the audit-instrument class, not against any record.
 
 ## 5. ACTIVE-PROVEN — the count
 
-**24 lever/conclusion pairs proven active from a runtime log by this pass**, all
-line-quoted above: 14 hump-adjoint (§3.1), 10 hump-primal (the QCR pair with its
-`Ccr1` discriminator, the five a1 points, `limitVelocity` active-and-inert in
-all four W1 legs, `printCoeffs`, and the disclosed `AugmentedkOmegaSST`
-substitution). The single most load-bearing chain in the hump corpus — the
-five-point a1 ladder — is proven at every point.
+**17 lever/conclusion pairs proven active from a runtime log by this pass**, each
+line-quoted above and counted rather than estimated:
+
+| where | pairs | which |
+|---|---|---|
+| §3.1, hump adjoint | **9** | rows 1, 2, 3, 4, 5, 7, 8, 11, 12 |
+| §2.1, hump primal | **2** | QCR on-leg (`kOmegaSSTQCR` + `Ccr1 0.3`); QCR off-leg (`kOmegaSST`, no `Ccr1`) — the off-leg is a pair in its own right, since the challenge conclusion is a difference and needs both halves |
+| §2.2, hump primal | **5** | a1 at 0.25, 0.28, 0.31, 0.34, 0.40 |
+| §2.1, hump primal | **1** | `limitVelocity` `State: active … selected 51626 cell(s)` in all four W1 legs |
+
+The single most load-bearing chain in the hump corpus — the five-point a1 ladder
+that carries the lab's only measured closure-sensitivity slope — is proven at
+every point. (`printCoeffs on` is not counted separately: it is the *reason* the
+a1 rows exist, not an independent conclusion.)
 
 ---
 
