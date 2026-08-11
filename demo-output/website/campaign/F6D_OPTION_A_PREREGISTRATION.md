@@ -282,6 +282,75 @@ that is genuinely settled (0.053).
 Provisional and not a verdict: 6 cases are still running, and **no member of the
 13 has settled**, several having now passed 12,000–16,000 iterations.
 
+## 6.3 VOID accepted, and the funding rule pre-registered before the last 5 land
+
+**Chief's ruling, 2026-08-11. Written and committed BEFORE looking at the
+remaining 5 cases.**
+
+### The gate: ruling A, the literal reading. **The experiment is VOID.**
+
+Not because the §6.2 analysis is wrong — the restart-transient mechanism *is*
+excluded by measurement — but because **"the premise turned out to be false" is
+a conclusion reached after seeing the outcome, and a gate that can be dissolved
+by post-hoc argument is not a gate.** If reading B is available here it is
+available every time, and pre-registration stops meaning anything. The VOID is
+taken.
+
+**Correction to how §6.2 framed it, and the two framings are opposite lessons.**
+§6.2 called the gate *mis-specified*. That is not the right record. **The gate
+was not wrong to fire — its trigger caught something real: the control was not a
+control.** Only its *stated inference* ("a restart transient") was named badly.
+"The gate mis-fired" and "the gate fired for a reason it named badly" point in
+opposite directions, and **the second is the true one.** The fix belongs in the
+**next** pre-registration and never in this one.
+
+### What survives the VOID, and what does not
+
+The line is **difference claims versus within-case claims**. A control exists to
+isolate a *difference*; a claim that is not a difference claim never needed one.
+
+**SURVIVES — univariate / within-case, no control required:**
+
+- **No member of the 13 reached a settled state**, several past 12,000–16,000
+  iterations. An observation about each case across its own iterations.
+- **`d0.2_s000` itself** — selected *because it was among the best-settled of
+  all 84* (published swing 0.038, second only to `null`) — destabilises on
+  continuation into a growing oscillation exceeding **1.3 x/h**, settledness
+  0.401. One case, across iterations, against its own earlier state.
+- **`null`, the only unperturbed run, is settled** (0.053) while nothing else is.
+
+**DOES NOT SURVIVE — the comparative the controls were there to license:**
+
+- **"10 of 13 moved, 9 of them toward baseline."** This is exactly the
+  difference claim the validity gate was protecting. It is **not** carried
+  forward as a verdict, and it is **not** laundered by restating it as a
+  description. To be used it must be re-registered and re-earned.
+
+**The asymmetry that makes this ruling cheap:** the evidence that survives
+points at **Outcome 3**; the evidence that dies is what would have supported
+**Outcome 1**. The VOID is conservative in the funding direction — it can only
+stop spending, never start it. That is the safe direction to be wrong in.
+
+### Funding rule for Option C — fixed now, before the remaining 5 are read
+
+| at completion | ruling |
+| --- | --- |
+| **No member of the 13 has settled** | **Option C is NOT funded.** 25.7 core-hours buys 80 more arbitrary phases of an unsteady flow. A longer run of a thing that does not converge is not more evidence; it is the same evidence at higher cost. |
+| **≥ 1 member settles** | **Option C stays live**, and the settled member's identity and its distance from `null` are reported before anything is committed. |
+| **`null` remains the only settled run** | **That is the headline, in these words: _the only settled member of the ensemble is the only unperturbed one._** It says the **perturbation, not the numerics**, is what prevents settling. |
+
+### Independent verification, commissioned — and deliberately not mine
+
+**The case that collided is the same case that went VOID.** That coincidence
+must be broken by evidence, not by argument, and **I cannot be the one to break
+it**, because it is my collision and my gate. An independent check of exactly
+this chain has been commissioned by the chief: that the duplicate died at
+Time ≈ 4265 *before* the first write at 4500; that the write ladder is monotonic
+and single-writer; and that reattachment is read from **fields** (intact) while
+the damage was to the **log**. If it confirms §6.1, the result is strengthened.
+If it does not, that needed to be known. **Nothing in §6.1 should be relied on
+until that check reports.**
+
 ## 7. Standing constraints
 
 Read-only with respect to everything outside `f6d_option_a/` and this campaign
