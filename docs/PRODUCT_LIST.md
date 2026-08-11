@@ -2094,6 +2094,35 @@ clock-audit rule asks for.]*
   beneath it: six rules adopted against 28% of the evidence, and the number that looked like a fire rate was one
   family measured against a target no solve can reach.
 
+### 2026-08-11 — V15 round 2: NOT at the fixed point, and the trend is right
+
+- **VERDICT: NO. There will be a round 3** (`c1ebfb4f`). Round 1 found ten failures, **round 2 finds six, none
+  blocking, and only one touches the outward package.** The fix round's corrective WORK is exact almost everywhere —
+  *"it is the arithmetic REPORTING the work that keeps failing."* Three commits correctly stopped rather than fixed;
+  two put the fix in the generator rather than the output.
+- **My commit list was short by SIX** (round 1 it was short by five), and **the omission includes the termination
+  rule's own commit** — I dispatched a rung about "all text written during the ladder" and left out the commit that
+  created the rule defining when that auditing stops. **Round 1 caught the identical omission one rung earlier.**
+  Recorded as **L-56**: when you write a rule about a class, the act of writing it joins that class. Both instances
+  were self-excluding in effect and did no damage; **the recurrence is the finding.**
+- **N1 (MAJOR): a FIFTH surface still asserts the withdrawn internal-only rule** — and it is **the JSON the outward
+  document cites as its source.** It survived every sweep because the documents write *"the 68% figure"* while the
+  JSON writes *"the figure"*: **a grep missing by three characters.** My own record said four surfaces; it was five.
+- **N2 (MAJOR):** round 1's finding about four non-compliant external surfaces was **renumbered during the fix round
+  and reported closed while still open** at HEAD. (Being closed now by the concurrent pass; the auditor reported the
+  committed state and said so.)
+- N3–N6: two counts measure one lower than reported (73/44, not 74/45); a citation to *"the manifest's own
+  changed-list"* — **the manifest has no such list**; the new outward seed paragraph credits a bound of 0.002419 when
+  the bootstrap loaded **0.0024**, which is the same precision defect it disclosed one paragraph earlier; and the
+  bare-figure sweep **calls itself exhaustive while omitting the report**, where the figure appears seven times with
+  its interval once.
+- **All four of my specific checks came back clean or better:** the three duct values exact and the excluded case
+  proved absent two ways; 29 date corrections with **no meaning changed anywhere**; the chronology re-derived
+  independently to the minute (1 d 22:37:22, a 54.4% overstatement); and my three rule-statement corrections
+  accurate, byte-identical to each other, and adding **new text but not a new claim.**
+- The auditor's frame **moved four times while it derived it** and it pinned HEAD with three timestamps in the
+  document — the termination rule behaving as designed rather than failing.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

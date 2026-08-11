@@ -2332,3 +2332,32 @@ the claim is false regardless of how carefully each of its parts was written.
 Corollary for anyone writing a standard: **state the condition in the summary
 too, or do not summarise.** "In force" is a claim about wiring, and wiring is
 checkable in one grep.
+
+
+## L-56. When you write a rule about a class, the act of writing it joins that class — and you will forget
+
+Ladder V's V15 audits "any text written during the ladder". Twice now the chief
+dispatched that rung with a commit list that **omitted the commit which created
+the rung being dispatched**:
+
+- Round 1: the dispatch that added V14/V15 was itself ladder-written text on a
+  claim-bearing surface, and was not in the list. The rung found it.
+- Round 2: the dispatch that added the **termination rule** — the rule defining
+  when this auditing stops — was itself ladder-written text, and was not in the
+  list. The rung found it again. Same shape, same author, one rung later.
+
+The blind spot is structural, not careless. Writing a rule feels like standing
+outside the thing you are ruling on, and the sentence *"audit all text written
+during X"* reads as though it refers to other people's text. It does not: the
+rule's own commit is text written during X, on a surface the rule governs.
+
+Both instances were self-excluding in effect — a protocol edit does not travel
+with the entry — so neither did damage. **The recurrence is the finding.** A
+supervisor who omits himself once has slipped; twice, in the same structural
+position, is a pattern, and patterns are what get written down.
+
+Practical form: when you dispatch an audit whose scope is *"everything of kind
+K"*, ask whether the dispatch itself is of kind K before writing the list —
+and if it is, put it in the list and mark it self-excluded WITH the reason,
+rather than leaving it out and hoping the auditor agrees. The auditor deriving
+your omission is a worse outcome than you declaring your exemption.
