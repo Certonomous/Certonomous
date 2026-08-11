@@ -26,12 +26,6 @@ section 9 needs a ruling: these are descriptions of what already worked, and
 the one thing they ask for that is not yet habit, arming both keepalive holds,
 costs one command.
 
-Version 1.5 adds §9.6c, the same day as 1.4 and against it: the considerate
-response to 9.6b -- leaving a shared file uncommitted rather than sweeping a
-peer's rows into your own commit -- hands your attribution to whoever commits
-next, which on this tree is a matter of seconds. It happened within the hour.
-9.6c carries the split-patch procedure instead of a warning.
-
 Version 1.4 adds §9.6b — a pathspec commit isolates by FILE, not by AUTHOR, so
 reading `git diff <path>` before committing a shared file is a separate and
 mandatory check — and amends §3 item 2 in place to stop it handing readers the
@@ -39,6 +33,12 @@ superseded 2026-08-05 rule. Both were filed by the cold-start memory test on
 2026-08-11, twice, by two agents who did not know of each other. Neither 9.6 nor
 9.6a bumped this header when they landed; that omission is the other half of the
 defect, and 1.4 exists partly to end it.
+
+Version 1.5 adds §9.6c, the same day as 1.4 and against it: the considerate
+response to 9.6b -- leaving a shared file uncommitted rather than sweeping a
+peer's rows into your own commit -- hands your attribution to whoever commits
+next, which on this tree is a matter of seconds. It happened within the hour.
+9.6c carries the split-patch procedure instead of a warning.
 
 ## 1. The line
 
