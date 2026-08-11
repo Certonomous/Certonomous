@@ -2886,3 +2886,39 @@ count dropped, then launched. **A case that acquires a log during the wait is
 launched anyway.** L-64's "confirm the predecessor is dead" is necessary and not
 sufficient: the check must be *adjacent to* the action, or the window between
 them is the whole defect.
+
+## L-70. A test that any writer can redden by documenting a defect correctly teaches the lab to stop documenting defects
+
+A new guard shipped with a regression test asserting **the whole repository
+passes**. It went red **within the hour** — not because anyone reintroduced the
+defect, but because another agent, writing an audit, **quoted the defect in order
+to name it.** The guard was right to flag the quotation: one of its two rules
+cannot distinguish *use* from *mention*, because unlike its sibling it has no
+correct form that can sit beside the wrong one to disambiguate.
+
+The naive fix is to whitelist the file. The real fix is to notice what the test
+was teaching. **A suite that goes red when someone documents a defect accurately
+puts every future writer under quiet pressure not to quote defects** — and this
+lab's entire method is quoting defects accurately. The test would have degraded
+the thing it was protecting.
+
+Two rules follow:
+
+**Scope a guard's severity to what the surface does, not to what the text says.**
+The replacement is WARN on a lab record and FAIL only where a surface **travels**
+to a reader outside the lab. A record that quotes a bad sentence is doing its job;
+a shipping document that contains one is a defect. Same string, opposite meaning,
+and only the destination tells them apart.
+
+**Never assert "the whole repository passes" as a regression test.** It couples
+every future writer to a guard's precision, and the coupling is invisible until
+someone innocent trips it. Assert the narrow things you actually mean: that
+nothing which travels disagrees with the source of truth, and that the specific
+files you fixed stay fixed.
+
+There is a corollary about controls. The same guard's whole-text control asserts
+that a line-bounded reader finds **zero** faults on a fixture where a whole-text
+reader finds one — and the assertion carries the message *"the control is void, so
+it proves nothing."* **A control that silently becomes vacuous is worse than no
+control**, because it keeps reporting success; wiring the vacuity check into the
+test itself is how you stop a positive control from quietly retiring.

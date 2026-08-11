@@ -2995,6 +2995,45 @@ check was commissioned, and it is the best argument tonight for never letting an
   an unsettled driver is a third behaviour the settled/moved framing does not name.* And Δ at completion is −0.4906,
   recovered from −0.8313 — **still a breach, so the VOID is unaffected.**
 
+### 2026-08-11 — V16 is BUILT, not passed, and the guard is evidence rather than a constant
+
+- **The board is PARSED FROM THE BENCHMARK'S OWN README TABLE, not transcribed** — so the guard is **evidence**, and
+  a test proves it: **feed a permuted table and the same sentence flips clean→faulted**, which a typed-in constant
+  can never do. That is the convergence-detector principle carried into text: **gate on a relation the source states
+  about itself, never on a literal.**
+- **Whole-text matching with a control that can tell the two modes apart**: two fixtures differing *only* in a line
+  break give 1 fault whole-text and 0 line-bounded — and the test **asserts the 0 with the message "the control is
+  void… so it proves nothing"**, so a future change that makes the control vacuous **fails rather than passes.**
+- **It corrected its own earlier report against its own interest.** The real parent instance wraps the *name*, not
+  the binding, and this guard keys on the first-author surname — so it survives that wrap either way. **It was its
+  own sweep's regex, requiring the second author, that missed it.** The synthetic control is what proves whole-text
+  matters. A tidier story was available and it declined to tell it.
+- **The guard caught its author's own over-broad exclusion**: one rule ate *"Wu & Zhang **are** rank 2"* — the exact
+  sentence the adjudication clause needed — because "are" looked like a word numeral. Restricted, with the reason in
+  the code.
+- **False-positive rate: 0.** On the 111-file board corpus: **421 placement expressions, 63 bound to an entrant, 0
+  faults of either rule.** The first crude instrument had flagged 18 of 107 with 17 artifacts; a broad rule measured
+  at **11 hits, 11 of them noise** (the idiom *"in the first place"*, a study that *"wrote to a third place"*) was cut
+  down, and **all 11 became tests.**
+- **Blind spots stated in the verdict line, not only in a comment**: **relational comparatives — *ahead of, behind,
+  trails, leads, next-best* — need both operands and cannot be checked against one board rank.** That is *the largest
+  remaining slice of placement language and it is unguarded.* Also entrants named by co-author, non-UTF-8, untracked
+  files, archive members.
+- **It could not engineer away use-vs-mention and said so instead.** One rule has no correct form to sit beside, so a
+  record that *quotes* a defect is flagged — hence **WARN on a lab record, FAIL only where a surface travels.**
+- **It bit within the hour, correctly.** On its first live run the guard flagged **another agent's ledger**, committed
+  after the sweep, which quotes the three defects in order to name them. Right behaviour at the right severity, **on
+  a surface no hand-maintained list would have contained.** Not edited — another agent's live file, and a mention.
+- **THE DESIGN CHANGE I MOST WANT KEPT:** its first regression test asserted *the whole repository passes*, and went
+  red within the hour on that very file. **A test any writer can redden by documenting a defect correctly teaches the
+  lab to stop documenting defects.** Replaced with two narrower assertions. Recorded as **L-70**.
+- It also amended the termination rule and send gate from 15 rungs to 16 in the same commit — *"a range that silently
+  grows is how a gate stops gating."*
+- **THE RUNG IS BUILT, NOT PASSED.** It found the defects and built the guard, so **under A15 it may not grade it**,
+  and the V16 independence column now says so. An independent grader is commissioned.
+- Verification: guard tests **35 passed**, full suite **1328 passed**. One failure — `test_exec_bits` — is on another
+  agent's newly added queue script and **reproduces without any of this agent's changes**; routed to its owner.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
