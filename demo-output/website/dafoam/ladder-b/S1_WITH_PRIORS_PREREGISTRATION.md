@@ -471,8 +471,67 @@ files written 2026-08-05 to 2026-08-08 and are labelled as measurements througho
 solve of this item launches before this file is committed, before the post-send month is
 declared open, and before Katie authorizes the compute.*
 
+---
+
+## Addendum — dated 2026-08-11, after commit: a parallel pre-registration exists, and one disagreement is settled by execution
+
+While this file was being written, a peer session independently pre-registered the same
+item as `S1_PRIORS_PREREGISTRATION.md` (commit `ecbdc288`, landing after this file's
+`47bd94a4`). **Two frozen pre-registrations for one item is the duplication this work was
+briefed to avoid**, and which of the two is canonical is the chief's call, not mine. This
+addendum records what agrees, what differs, and the one point that is not a matter of
+judgement.
+
+**What agrees — and it is worth stating, because the agreement is independent.** Two
+agents, working separately from the same files, both re-verified the inlet premise and got
+identical numbers: 150 faces, Ux 0.72 uniform pre-repair, the benchmark's
+0.202035889 → 1.00537467 profile at bulk 0.9149216132, Uz max abs difference exactly 0
+against Ux 0.517964. Both concluded the four commissioned deliverables were already
+executed, both identified S1-with-priors as the open frontier, both re-priced the filed
+150 core-min as inadequate, both derived a log-normal prior, and both named an
+identifiability falsifier. That is a genuine independent replication of the premise, and
+it strengthens it.
+
+**What differs, legitimately.** (i) *Loss support:* that file rules equal-weight all-cells
+and releases the W1-only arm back to the chief; §5 here rules for a heteroscedastic `σ(x)`
+estimated from the free-channel residual and recommends the arm be closed as absorbed. Both
+are arguable and the chief should pick one. (ii) *Price:* 260 there against 560 here — the
+gap is rank, 6 Hessian-vector products against 24, and that file discloses its rank 6 as
+thin in advance. (iii) That file makes a point this one missed and which is worth carrying
+into whichever survives: **the penalty value and gradient are composed host-side**
+(`invert_lbfgsb.py:111–114`), so changing the prior's *form* needs no DAFoam change and no
+new FD gate. That materially lowers the cost of the prior change itself, and it is correct.
+
+**What is settled by execution, not judgement — the plateau-balance control.** That file's
+§8, and its `docs/DOCKET.md` D8 row, report the published triple
+(`|g_pen|/|g_QoI| = 0.998`, `cos = 0.9995`) as failing to reconcile with the archived field
+**by a factor 1.684**, and re-base its gate G-P4 onto `|g_penalty|` alone in consequence.
+**The published triple reconciles.** §3 of this document measured all three from disk —
+0.998441, 0.999542, rms 0.016502 — from the *matched* pair `beta_eval010.npy` /
+`grad_eval010.npy`, both DV order, written by the same `run_eval` call, at a state evals
+11–17 agree with in J to seven digits. The internal identity
+`‖g_total‖ = |g_QoI|·√(1 + r² − 2rc)` closes to **six digits** (1.450369e-05 both directly
+and via the identity).
+
+The 1.684 arises from combining the plateau-state ratio and cosine with `‖g‖₂ = 9.011e-06`,
+which the trajectory table reports at **eval 16** — a different state. The quantities
+are not interchangeable across evaluations here because the cancellation is extreme:
+`‖g_total‖` moves 1.45e-05 → 9.01e-06 between eval 10 and eval 16 while `r` and `c` move
+only in the fourth decimal, so a 1.6x change in the small residual difference is compatible
+with a nearly unchanged ratio and cosine. The inference was sound arithmetic on inputs
+drawn from two states; no gradient needed re-deriving, because one was on disk.
+
+**Why this matters beyond bookkeeping.** `|g_penalty| = 2·λ_L2·‖β−1‖` is an *identity* —
+any treatment that knows λ_L2 and β reproduces it exactly, including a treatment whose
+posterior is wrong. Re-basing the control onto it therefore removes the only part that
+tests the *balance*: the cosine is what carries the information that the prior pull actually
+opposed the likelihood gradient. **Gate (c) of §7 stands as written**, on the ratio and the
+cosine, with the 2% bars against 0.998441 and 0.016502. Filed as `docs/DOCKET.md` D9 rather
+than corrected in place, because the D8 row and that §8 belong to their author (C3).
+
 ## Related
 
+- `S1_PRIORS_PREREGISTRATION.md` (the parallel pre-registration; see the addendum above)
 - `S1_CBFS_INVERSION_RESULT.md` / `S1_CBFS_INVERSION_PREREGISTRATION.md` (the corrupted run)
 - `S1_CBFS_REINVERSION_RESULT.md` / `S1_CBFS_REINVERSION_PREREGISTRATION.md` (the repair)
 - `S1_CBFS_WEIGHTED_ARM_RESULT.md` (the regularization provenance table this section 3 converts)
