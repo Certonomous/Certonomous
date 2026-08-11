@@ -44,10 +44,44 @@
 # baseline and the next act reports DIFFERS on a prompt it never sent. Seen
 # repeatedly. Run this with the box to yourself, and re-run any act that
 # differs only in its SYSTEM line before believing it.
+#
+# THIS GATE FAILS CLOSED. Given an act name it did not recognise it printed
+# `no prompt registered, skipped`, counted nothing, and finished with
+#
+#     identical: 0    clocks-only: 0    differing or failed: 0
+#
+# and exit 0. Three zeros are not a pass. They are the shape of an instrument
+# that was handed nothing and said so quietly enough to be read as agreement --
+# a typo in an act name on filming morning cleared the reproducibility gate
+# without replaying a single act. So every requested act is now RESOLVED
+# BEFORE ANY OF THEM IS RUN, the summary carries `N of M act(s) resolved` so
+# the denominator is on the same line as the zeros, an act that cannot be
+# resolved is named with the reason and makes the exit code non-zero, and a
+# run in which NOTHING resolved prints RED and exits 2 with no summary line at
+# all -- a replay that never happened has no verdict to offer.
+#
+# Exit codes:  0 = every requested act resolved and replayed clean
+#              1 = something to look at: a DIFFERS, a NO-RESULT, or an act
+#                  that could not be resolved
+#              2 = nothing resolved                    (RED -- verdict withheld)
+#
+# CONTROL HARNESS. The three settings below are overridable by environment so
+# this gate can be pointed at a scratch corpus and a stub control room and
+# shown to fire, the way `audit_transcripts.sh` takes a corpus argument. The
+# names are long and script-specific on purpose: a gate a stray exported
+# `HOST` could silently repoint would be a fresh instance of what it polices.
+#
+#   WARM_REPLAY_OUTDIR=/scratch/copy   -- where prior transcripts are read
+#   WARM_REPLAY_HOST=http://127.0.0.1:PORT
+#   WARM_REPLAY_RESOLVE_ONLY=1         -- resolve and stop. Runs no act, so it
+#                                         touches no transcript, and it prints
+#                                         NO reproducibility verdict: it is not
+#                                         a cheap way to pass this gate.
 set -u
 
-HOST=http://127.0.0.1:8765
-OUTDIR=/home/ubuntu/Certonomous/mission-output
+HOST=${WARM_REPLAY_HOST:-http://127.0.0.1:8765}
+OUTDIR=${WARM_REPLAY_OUTDIR:-/home/ubuntu/Certonomous/mission-output}
+RESOLVE_ONLY=${WARM_REPLAY_RESOLVE_ONLY:-0}
 REPEATS=${REPEATS:-1}
 
 declare -A PROMPT=(
@@ -94,6 +128,65 @@ ACTS=("$@")
                                ahmed-body nasa-hump crm-wingbody
                                adjoint-optimization aircraft-optimization
                                valve-study geometry-study race-study)
+
+# ---------------------------------------------------------------------------
+# Resolve every requested act BEFORE running any of them. Both resolution tests
+# are answerable without touching the control room, so a typo costs nothing and
+# is reported first rather than after twelve acts have already replayed.
+#
+#   registered  -- the name appears in PROMPT above. A misspelling does not.
+#   baselined   -- the act has a prior transcript to diff against.
+#
+# The requested count is kept because it is the denominator: `0 of 1 resolved`
+# is a typo, `13 of 13 resolved` is a sweep, and both used to print as silence.
+# ---------------------------------------------------------------------------
+REQUESTED=${#ACTS[@]}
+RESOLVED=(); UNRESOLVED=(); WHY=()
+
+for act in "${ACTS[@]}"; do
+    if [ -z "${PROMPT[$act]:-}" ]; then
+        UNRESOLVED+=("$act"); WHY+=("$act: no prompt registered -- check the spelling against the PROMPT table")
+        continue
+    fi
+    if [ -z "$(ls "$OUTDIR/$act"/transcript.* 2>/dev/null | head -1)" ]; then
+        UNRESOLVED+=("$act"); WHY+=("$act: no prior transcript in $OUTDIR/$act -- run the act once before verifying")
+        continue
+    fi
+    RESOLVED+=("$act")
+done
+
+# --- fail closed -----------------------------------------------------------
+# No summary line is printed on either arm. The old script's three zeros were
+# a summary of nothing, and a summary of nothing is what got read as a pass.
+if [ ! -d "$OUTDIR" ]; then
+    echo "  RED: transcript directory does not exist -- $OUTDIR"
+    echo "       Every baseline this gate diffs against lives under it."
+    echo "  No verdict. 0 of $REQUESTED act(s) resolved; nothing was replayed."
+    exit 2
+fi
+if [ "${#RESOLVED[@]}" -eq 0 ]; then
+    echo "  RED: no requested act could be resolved."
+    for w in "${WHY[@]}"; do echo "       $w"; done
+    echo "  No verdict. 0 of $REQUESTED act(s) resolved; nothing was replayed,"
+    echo "  so this gate has said nothing about whether anything reproduces."
+    exit 2
+fi
+
+# Named up front, next to the count, so the reach is known before the first
+# replay rather than inferred from a short list of results at the end.
+echo "  resolved ${#RESOLVED[@]} of $REQUESTED act(s)"
+for w in "${WHY[@]}"; do echo "  UNRESOLVED  $w"; done
+[ "${#WHY[@]}" -gt 0 ] && echo
+
+if [ "$RESOLVE_ONLY" != 0 ]; then
+    echo "  WARM_REPLAY_RESOLVE_ONLY is set: no act was run, no transcript was"
+    echo "  touched, and NOTHING is claimed about reproducibility. This is the"
+    echo "  control harness, not a pass."
+    [ "${#UNRESOLVED[@]}" -eq 0 ] || exit 1
+    exit 0
+fi
+
+ACTS=("${RESOLVED[@]}")
 
 # Lines carrying live host state rather than measurement. "granted slots" is
 # the same class as the compute audit's free-core count: how many slots the
@@ -145,8 +238,15 @@ pass=0; soft=0; fail=0
 declare -A TIMES
 
 for act in "${ACTS[@]}"; do
+    # Both conditions were settled in the resolution pass above, so neither
+    # can be true here. They stay as a guard, and they now count as failures
+    # rather than `continue`-ing past: a `skipped` that leaves every counter
+    # untouched is exactly how the all-zeros pass was manufactured.
     p=${PROMPT[$act]:-}
-    if [ -z "$p" ]; then echo "  $act: no prompt registered, skipped"; continue; fi
+    if [ -z "$p" ]; then
+        echo "  $act: no prompt registered, NOT VERIFIED"
+        fail=$((fail+1)); continue
+    fi
     surf=${SURFACE[$act]:-}
 
     before=$(ls "$OUTDIR/$act"/transcript.* 2>/dev/null | head -1)
@@ -236,5 +336,16 @@ for act in "${ACTS[@]}"; do
     [ -n "${TIMES[$act]:-}" ] && printf '    %-26s%s\n' "$act" "${TIMES[$act]}"
 done
 echo
-echo "  identical: $pass    clocks-only: $soft    differing or failed: $fail"
-[ "$fail" -eq 0 ]
+# The denominator rides on the same line as the counts. Read alone, three zeros
+# describe a clean sweep and an empty one identically; `0 of 1 resolved` cannot
+# be mistaken for either, and `13 of 13` says how much the zeros are worth.
+echo "  identical: $pass    clocks-only: $soft    differing or failed: $fail" \
+     "   --  ${#RESOLVED[@]} of $REQUESTED act(s) resolved," \
+     "$((pass + soft + fail)) replayed"
+if [ "${#UNRESOLVED[@]}" -gt 0 ]; then
+    echo "  not verified at all: ${UNRESOLVED[*]}"
+fi
+
+# An act this gate could not resolve is an act it did not verify, and a gate
+# that did less than it was asked to do does not get to exit 0.
+[ "$fail" -eq 0 ] && [ "${#UNRESOLVED[@]}" -eq 0 ]

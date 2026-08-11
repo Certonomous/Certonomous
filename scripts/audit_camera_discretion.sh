@@ -23,10 +23,41 @@
 #
 #   scripts/audit_camera_discretion.sh              # every camera surface
 #   scripts/audit_camera_discretion.sh nasa-hump    # one act
+#
+# THIS GATE FAILS CLOSED. It already stated its reach -- `0 camera surface(s)
+# scanned` -- and then exited 0 anyway, so `audit_camera_discretion.sh
+# nasa-humpp` audited nothing and passed. Stating your reach and failing closed
+# are different properties and this script had only the first: the number was
+# on screen, and nothing downstream, including the exit code, was allowed to
+# act on it. So the corpus is now resolved and counted BEFORE it is judged, an
+# unusable corpus prints RED and exits 2 with no verdict line at all -- an
+# instrument that read nothing has no opinion to offer -- and the reach that
+# was already printed now carries its per-source breakdown, so a reader sees
+# which of the three camera surfaces contributed zero instead of only the total.
+#
+# Exit codes:  0 = scanned >=1 surface per requested source        (green)
+#              2 = corpus missing, empty, or an act that resolved
+#                  no surface at all                              (RED, no verdict)
+#
+# Hits do NOT change the exit code, and that is deliberate rather than an
+# oversight of the same class. Its companion audit_transcripts.sh exits 1 on a
+# hit because its rules are hard bans on vocabulary. These rules are not: the
+# header above promises false positives, the real corpus flags 16 surface/rule
+# combinations today, and every one is a human judgement. An exit code that is
+# permanently non-zero is an exit code nobody reads, which is how the reach line
+# came to be printed and ignored in the first place. Read the hits.
+#
+# CONTROL HARNESS. The two paths below are overridable by environment so this
+# gate can be pointed at a scratch corpus and shown to fire. Deliberately long,
+# script-specific names: a gate that a stray exported `OUT` could silently
+# repoint would be a fresh instance of the defect this comment describes.
+#
+#   CAMERA_AUDIT_ROOT=/scratch/copy bash scripts/audit_camera_discretion.sh
+#   CAMERA_AUDIT_OUT=/scratch/empty bash scripts/audit_camera_discretion.sh act
 set -u
 
-ROOT=/home/ubuntu/Certonomous
-OUT="$ROOT/mission-output"
+ROOT=${CAMERA_AUDIT_ROOT:-/home/ubuntu/Certonomous}
+OUT=${CAMERA_AUDIT_OUT:-$ROOT/mission-output}
 
 # ---------------------------------------------------------------------------
 # The rules. Each is a pattern plus the reason it exists, printed with the hit.
@@ -105,23 +136,63 @@ PY
 
 reports > /dev/null
 
-surfaces() {
-    if [ "$#" -gt 0 ]; then
-        for a in "$@"; do
-            for f in "$OUT/$a"/transcript.*; do [ -f "$f" ] && echo "$f"; done
-            f="$WORK/$(echo "$a" | tr '-' '_').report"
-            [ -f "$f" ] && echo "$f"
+# The three static pages are a fixed, known list rather than a glob, so an
+# absent one is an absence this script can name. It used to skip them silently.
+PAGES=("$ROOT/demo-output/website/closure.html"
+       "$ROOT/demo-output/website/benchmarks.html"
+       "$ROOT/sdk/chief_engineer/control_room.html")
+
+# ---------------------------------------------------------------------------
+# Resolve the corpus BEFORE judging it, split by source. The total on its own
+# is not enough: 36 surfaces with the closing reports missing and 36 with them
+# present print the same number, and the closing report is the surface this
+# file's own comment calls the easiest one to forget.
+# ---------------------------------------------------------------------------
+S_TRANS=(); S_REPORT=(); S_PAGE=()
+UNRESOLVED=(); ABSENT_PAGE=(); SILENT_ACT=()
+MODE=full
+
+shopt -s nullglob
+if [ "$#" -gt 0 ]; then
+    MODE=acts
+    for a in "$@"; do
+        n=0
+        for f in "$OUT/$a"/transcript.*; do
+            [ -f "$f" ] || continue
+            S_TRANS+=("$f"); n=$((n + 1))
         done
-        return
-    fi
-    for f in "$OUT"/*/transcript.*; do [ -f "$f" ] && echo "$f"; done
-    for f in "$WORK"/*.report; do [ -f "$f" ] && echo "$f"; done
-    for f in "$ROOT"/demo-output/website/closure.html \
-             "$ROOT"/demo-output/website/benchmarks.html \
-             "$ROOT"/sdk/chief_engineer/control_room.html; do
-        [ -f "$f" ] && echo "$f"
+        f="$WORK/$(echo "$a" | tr '-' '_').report"
+        if [ -f "$f" ]; then S_REPORT+=("$f"); n=$((n + 1)); fi
+        [ "$n" -eq 0 ] && UNRESOLVED+=("$a")
     done
-}
+else
+    for f in "$OUT"/*/transcript.*; do [ -f "$f" ] && S_TRANS+=("$f"); done
+    for f in "$WORK"/*.report;      do [ -f "$f" ] && S_REPORT+=("$f"); done
+    for f in "${PAGES[@]}"; do
+        if [ -f "$f" ]; then S_PAGE+=("$f"); else ABSENT_PAGE+=("$f"); fi
+    done
+    for d in "$OUT"/*/; do
+        t=("$d"transcript.*)
+        [ "${#t[@]}" -eq 0 ] && SILENT_ACT+=("$(basename "$d")")
+    done
+fi
+ACTDIRS=("$OUT"/*/)
+WORKFLOWS=("$ROOT"/sdk/workflows/*.py)
+shopt -u nullglob
+
+ACTNAMES=()
+for d in "${ACTDIRS[@]}"; do ACTNAMES+=("$(basename "$d")"); done
+
+SURF=("${S_TRANS[@]}" "${S_REPORT[@]}" "${S_PAGE[@]}")
+
+# How much vocabulary the verdict is entitled to claim it knows. Same method as
+# audit_transcripts.sh: alternations plus one, per rule.
+terms=0
+for rule in "${RULES[@]}"; do
+    pat="R_$rule"
+    n=$(printf '%s' "${!pat}" | tr -cd '|' | wc -c)
+    terms=$((terms + n + 1))
+done
 
 label() {
     case "$1" in
@@ -162,9 +233,56 @@ echo "Camera-discretion audit -- docs/DEMO_DISCRETION_CHARTER.md"
 echo "Review aid. Every line below needs a human judgement; false positives are expected."
 echo
 
+# --- fail closed -----------------------------------------------------------
+# Every arm below prints RED and exits 2 without a verdict. The old script
+# printed `0 camera surface(s) scanned, 0 surface/rule combinations flagged`
+# and exited 0 for all of them, which reads as a pass to anything that is not
+# a human paying attention -- and, on a filming morning, to most humans too.
+red() {
+    echo "  RED: $1"
+    shift
+    for l in "$@"; do echo "       $l"; done
+    echo
+    echo "  No verdict. This gate did not read what it claims to cover and"
+    echo "  therefore cannot clear filming."
+    exit 2
+}
+
+if [ ! -d "$OUT" ]; then
+    red "mission-output root does not exist -- $OUT" \
+        "Every transcript surface lives under it. Nothing was scanned."
+fi
+if [ "${#UNRESOLVED[@]}" -gt 0 ]; then
+    red "act name(s) resolved no camera surface: ${UNRESOLVED[*]}" \
+        "Looked for $OUT/<act>/transcript.* and a closing report from" \
+        "sdk/workflows/<act>.py. A misspelt act name lands here." \
+        "Act directories that do exist: ${ACTNAMES[*]:-(none)}"
+fi
+if [ "$MODE" = full ]; then
+    # In a full sweep all three sources are claimed as covered, so all three
+    # must actually have delivered something. A source that contributed zero
+    # is a class of camera surface that went unread under a green verdict.
+    [ "${#S_TRANS[@]}" -eq 0 ] && red \
+        "no act transcripts under $OUT" \
+        "Looked for $OUT/*/transcript.*  (${#ACTDIRS[@]} act director(y/ies) present)"
+    [ "${#S_REPORT[@]}" -eq 0 ] && red \
+        "no closing lab reports could be extracted" \
+        "Looked for lab_report() calls in $ROOT/sdk/workflows/*.py" \
+        "(${#WORKFLOWS[@]} workflow file(s) present)." \
+        "This is the surface most easily forgotten and it was not read."
+    [ "${#ABSENT_PAGE[@]}" -gt 0 ] && red \
+        "static camera page(s) absent: ${ABSENT_PAGE[*]}" \
+        "These are a fixed list, not a glob. An absent one used to be skipped" \
+        "in silence, leaving a page nobody audited under a green verdict."
+fi
+# Belt and braces: any path that leaves the corpus empty ends here rather than
+# in a verdict, including one added later that forgets to check itself.
+[ "${#SURF[@]}" -eq 0 ] && red "0 camera surfaces resolved" \
+    "ROOT=$ROOT  OUT=$OUT"
+
 hits=0
 files=0
-while IFS= read -r f; do
+for f in "${SURF[@]}"; do
     [ -n "$f" ] || continue
     files=$((files + 1))
     name=$(label "$f")
@@ -181,12 +299,24 @@ while IFS= read -r f; do
         hits=$((hits + 1))
     done
     [ "$printed" -eq 1 ] && echo
-done < <(surfaces "$@")
+done
 
 echo "-----------------------------------------------------------------------"
+# The reach travels with the verdict, broken down by source. A bare total reads
+# the same whether a whole class of camera surface was covered or missed.
 echo "  $files camera surface(s) scanned, $hits surface/rule combinations flagged."
+echo "  Reach: ${#S_TRANS[@]} transcript(s) + ${#S_REPORT[@]} closing report(s) + ${#S_PAGE[@]} static page(s)," \
+     "x ${#RULES[@]} rules (${terms} terms)."
+if [ "${#SILENT_ACT[@]}" -gt 0 ]; then
+    echo "  Unread: ${#ACTDIRS[@]} act director(y/ies) present, ${#SILENT_ACT[@]} with no transcript.* --"
+    echo "          ${SILENT_ACT[*]}"
+fi
 echo
 echo "  What this audit does NOT check, and must never be used to change:"
 echo "    the measured value, its uncertainty band, the fidelity tier chip,"
 echo "    what it was compared against and that reference's identity, and"
 echo "    whether a gate passed. Those are the claim. They stay."
+
+# Reached only after at least one surface was actually read. See the exit-code
+# note in the header for why hits do not change this.
+exit 0
