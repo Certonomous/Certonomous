@@ -58,7 +58,7 @@ A lesson without a check is a lesson that will recur. Owner: fleet.
 | B4 | **Quoted generated numbers.** A generated figure quoted into prose carries its commit and the moment it was taken, or it is regenerated at read time. Prefer regeneration; forbid bare copies. | L-79 | Open |
 | B5 | **Frames.** Every count carries frame + filter + commit. A number whose frame nobody can state is worse than no number. | L-75 | Open |
 | B6 | **Shipped-helper blindness.** A check written with the same helpers as the thing it checks proves only transcription fidelity. Any load-bearing verification names its EXTERNAL referent, or declares it has none. | L-74 | Open |
-| B7 | **Lever activity.** Configured is not active. Log-verified or it is not evidence. | L-40 class | Open |
+| B7 | **Lever activity.** Configured is not active. Log-verified or it is not evidence. | L-40 class | **CLAIMED 2026-08-11 by session `64b13819`** (Katie's §4 item 4, the C1 dead-lever audit incl. every hump-adjoint conclusion). L-40 is the lab's most-cited lesson — **104 citations** across the corpus, measured, well clear of the next at 58 — so this is the discipline the most conclusions lean on and the least mechanised. The naval line already produced one instance at capability scale: **zero tracked files reference any wave machinery**, against 1,825 mentioning `alpha.water` by the identical pipeline. Configured, shipped, linked into three solvers — and never once run. |
 
 ## C. Memory as an audited system
 
