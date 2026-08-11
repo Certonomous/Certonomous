@@ -273,6 +273,42 @@ Each row records how it was checked. Anything not checked is labelled so.
 | **Propeller KP505** | — | Geometry available | **No open tabulated open-water data found** | Searched, not found |
 | **Wageningen B-series** | Oosterveld & van Oossanen 1975 | **Not openly obtainable** | — | Searched, not found |
 
+### 6.2a The Wigley comparison, stated concretely — Katie's §8 H2 second half
+
+H2 asked which published Wigley data we would compare against, cited, at 2–3
+Froude numbers. The answer, from the verified sources above:
+
+**Recommended stations: Fr = 0.250, 0.289, 0.316.**
+
+| Fr | Available from | Quantity | Entry path |
+|---|---|---|---|
+| **0.250** | Kajitani 1983 (wave profile, Cp) **and** *Fluids* 9(11) 266 (CT = 0.003340) | both | table + scan-OCR |
+| **0.289** | Kajitani 1983 only | wave profile, Cp | scan-OCR |
+| **0.316** | Kajitani 1983 **and** *Fluids* 9(11) 266 (CT = 0.003620) | both | table + scan-OCR |
+
+Why these three: 0.250 and 0.316 are the two Froude numbers carrying **both** a
+tabulated CT *and* Kajitani wave-profile data, so each is checkable by two
+independent quantities; 0.289 sits between them and is present in Kajitani's
+experimental set (0.250, 0.267, 0.289, 0.316), giving a three-point spread
+without leaving the range where all facilities measured.
+
+**Fr = 0.408 is available (CT = 0.004090) but is NOT recommended** as a gate
+station: it appears at U. Tokyo only in Kajitani's set, so it has the thinnest
+cross-facility support of the tabulated points.
+
+**Two disclosures that must ride with any Wigley gate spec:**
+
+1. **Cw / CT versus Fn in Kajitani is FIGURE-ONLY** and must be digitised. The
+   tabulated CT values above come from the *Fluids* paper citing Bai &
+   McCarthy 1979 — **a different route to the same physical quantity**, and the
+   gate spec must say which route each number came in by.
+2. **Do not pool the YNU 2.0 m geosim.** It is **L/B = 8, B/D = 2.0** — *not*
+   the standard Wigley hull (L/B = 10, B/T = 1.6). Pooling it silently mixes
+   two hull forms. This is the Wigley equivalent of the SVA four-table problem
+   in §6.3.
+
+**Geometry is not a risk here:** `wigley.stl.gz` ships with OpenFOAM (§6.1).
+
 ### 6.3 Three data hazards that decide gate verdicts, recorded before any gate is written
 
 These are the same defect class `F7a_REGATE_SPEC.md` was written to retire —
