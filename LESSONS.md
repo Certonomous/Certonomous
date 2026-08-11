@@ -2486,3 +2486,46 @@ documented exception, the inheriting case must reproduce the exception's own
 evidence before relying on it — and a record citing an exception must cite the
 measurement, not the earlier case. *"As established for X"* is a pointer, not a
 proof, and it stops being either the moment the new case behaves differently.
+
+## L-61. A guard can be anchored to an encoding of the defect instead of to the defect — ours was anchored to digits, and the defect is about ordinality
+
+Tonight's rank-claim guard was built, tested, and shipped in response to a wrong
+ordinal on a travelling document. It found 35 claim-bearing surfaces out of
+20,641 paths by derivation rather than by list, its tests pass 13/13, and it
+reports *"every travelling surface complies."* Hours later a mechanical sweep
+found **three more instances of exactly the defect the guard exists to catch** —
+including the **parent sentence that seeded the one the guard was built for** —
+and the guard **would not have fired on any of them.**
+
+The reason is the lesson. The guard's pattern is **digit-anchored**: it matches
+`rank 1 of N`, `P(rank 1)`, `best/lowest overall`. But a placement claim is not
+a claim about digits — digits are one *encoding* of ordinality among several.
+The three misses were carried by **a written ordinal**, by the same ordinal
+wrapped across a line break, and by **a bare comparative — "the runner-up" —
+which names a placement without containing a rank word at all.** The guard was
+fitted to the surface form of the single example that motivated it, and it
+generalised to nothing.
+
+Two aggravating features make this worth a numbered lesson rather than a bug
+report:
+
+**The blindness was already documented and still shipped green.** The file's own
+comment admits it cannot see *"a rank claim phrased in words it has no pattern
+for."* A known gap, written down by the author, next to a verdict line that says
+compliance without qualification. **A caveat in a comment does not reach the
+person reading the verdict** — the verdict must carry its own reach, or the
+caveat is decoration.
+
+**The instrument built to check the guard failed the same way first.** The sweep's
+own line-bounded pass scored 63 of 64 and missed the parent instance, because
+that line ends mid-phrase with the entrant's name on the next line — the *third*
+time tonight a line-bounded reader has returned a false negative on wrapped
+text. The auditor and the audited share a defect because they share an
+assumption, and neither one auditing the other will surface it.
+
+Practical form: **a guard must be anchored to the claim, not to the spelling of
+the example that prompted it.** Before shipping one, ask what other forms the
+same claim can take — words for digits, comparatives for ordinals, a line break
+mid-phrase — and produce a positive control in each form. A guard that fires
+only on the instance that inspired it is a regression test wearing a detector's
+clothes, and it is worse than no guard, because its green is read as coverage.
