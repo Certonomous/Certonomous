@@ -3204,3 +3204,50 @@ rather than left in scratch. A held-out set that lives only in a shared temp pat
 is not held out from anything — it is one careless open() away from being the
 author's set. Same reasoning as never letting an agent verify its own work: the
 independence has to be structural, not a matter of everyone being careful.
+
+## L-78. Storing a measurement whose inputs are not in the repository is what makes it stale — and catching one exception type is what invites the next
+
+Two structural fixes from the end of one rung, both of which end a defect class
+rather than an instance.
+
+**The measurement.** A guard published reach figures — how many held-out
+sentences it misses. Those figures went stale **three times**: typed into three
+surfaces by hand; then made *generated* so they could not disagree with each
+other, and still stale, because **generation stopped one level short of the
+measurement**; then stale again by the very commit that installed the table,
+because that commit also widened a rule. Each fix was correct and each left the
+class open.
+
+What finally closed it: **the held-out sentences themselves were committed to the
+repository**, and every published figure now recomputes from them at test time.
+The author's own statement is the rule — **"storing a measurement whose inputs
+are not in the repository is what made all three of these stale."** A number
+derived from data nobody can re-run is a number that can only be maintained by
+remembering to. Commit the inputs, derive the number, and staleness stops being
+possible rather than becoming less likely.
+
+(Detail worth keeping: it took three passes to get the committed evidence file to
+carry zero faults *of its own*, and the last two offending literals were **in the
+family labels** — the names of the categories, not the examples. A corpus of
+defect examples is itself a surface the guard must survive.)
+
+**The exception.** The same function crashed the whole audit twice in one night,
+through two different exception types. The first fix caught the specific error
+that occurred. **That is what invited the second**: a fix scoped to one exception
+type leaves every other type unhandled, and the next one arrives through the gap.
+The second fix was **a boundary, not an `except` clause** — the risky read and
+parse moved behind a wrapper nothing can escape.
+
+And the scope of that boundary was chosen deliberately, which is the part to
+copy: **only the third-party file we do not control is wrapped**, because a check
+that catches everything everywhere **hides its own defects** — the failure one
+layer above the one being fixed. A blanket try/except is not a stronger version
+of a targeted one; it is a different, worse bug.
+
+**Corollary on honest trade-offs.** Making that parser refuse to guess made it
+**more fragile in exchange for being safe**: one more `Rank`-headed table in a
+third-party file now disables it. The author put that in the verdict line — *"the
+guard sits one third-party edit from DISABLED where it used to sit one edit from
+WRONG."* That is the right trade and the right way to report it. **A safety
+property bought with a fragility cost should name the cost where the reader
+meets the verdict**, not in a commit message.

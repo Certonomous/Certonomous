@@ -3701,6 +3701,42 @@ Written by the agent that built the guard and closed the exceptions; **the re-gr
   every step** — and the third time the sentence was backed by a real crash with a twenty-check blast radius.
   **An absolute in this lab is an unverified claim until someone executes it.**
 
+### 2026-08-11 — V16's last two closed structurally, and the L-76 sweep was executed rather than read
+
+- **THE CRASH FIX IS A BOUNDARY, NOT AN `except` CLAUSE — and the reasoning is the finding.** This was the *second*
+  time this crash class hit this one function. The first fix caught the specific error that occurred, **"which is
+  precisely what invited a second through a different type."** Catching the new one would have invited a third. So
+  the read and parse now sit behind a wrapper **nothing can escape.**
+- **And the boundary's scope was chosen deliberately and stated**: only the third-party file we do not control is
+  wrapped, **"because a check that catches everything everywhere hides its own defects — the failure one layer above
+  this one."** A blanket try/except is not a stronger targeted one; it is a different, worse bug.
+- **The deliverable is the test, not the clause**: a planted non-UTF-8 byte, plus UTF-16, raw bytes, a lone surrogate,
+  a truncated multibyte, and a directory where the file should be — each asserting **the audit survives**. Whole run
+  against a poisoned README: **exit 0.**
+- **IT CLOSED THE MEASUREMENT CLASS, NOT THE INSTANCE — and named why all three staleness bugs happened**: *"storing
+  a measurement whose inputs are not in the repository is what made all three of these stale."* The figures had
+  already been made *generated* so they could not disagree between surfaces — **and generation stopped one level short
+  of the measurement.** Now the held-out sentences are **committed**, every published figure **recomputes from them
+  at test time**, and tests redden on disagreement, on a lost positive control, and on either evidence file becoming
+  a corpus of faults. The historical `before` column **cannot be recomputed and is marked so rather than checked.**
+- Detail worth keeping: it took **three passes** to get its own evidence file to zero self-faults, and **the last two
+  offending literals were in the family labels** — the category names, not the examples.
+- **THE MARGIN IS NOW IN THE VERDICT, and it is an honest trade**: *"the guard sits one third-party edit from DISABLED
+  where it used to sit one edit from WRONG."* Refusing to guess bought safety at the cost of fragility, and **the
+  cost is stated where the reader meets the verdict** rather than in a commit message.
+- **Both precision notes folded in**: the itemised failure list **read unconditionally where it is conditional**, now
+  corrected where a reader reaches it; and the unanchored column matcher — which had counted `Filename`, `Hostname`
+  and `Casename` as naming the entrants — is anchored, with tests both ways.
+- **THE L-76 SWEEP WAS EXECUTED, AND ENUMERATED BY REGEX RATHER THAN BY EYE**: **36 absolute-shaped words across 17
+  surfaces**, each falsified by construction. **All hold. No fourth absolute.** The single apparent failure was its
+  own probe using one-letter surnames, which the parser rejects by design with a stated reason.
+- **The pattern, recorded plainly in the rung and here:** three grades, three absolutes, one function — and **the
+  instrument was sound at every step while a sentence about it was wrong at every step**, the third time backed by a
+  real crash with a twenty-check blast radius. **An absolute in this lab is an unverified claim until someone
+  executes it.** Recorded as **L-78** with the boundary and measurement lessons.
+- **State: 1384 passed**, 79 in the guard file. Every travelling surface agrees with the board; the 2 remaining WARNs
+  are pre-existing declared mentions in another agent's file. **It did not re-grade itself, for the third time.**
+
 ### Decision requests for Katie (standing)
 
 **COMPUTE AUTHORISATION REQUESTED — 40 core-min to convert an assumed boundary into a measured one.**
