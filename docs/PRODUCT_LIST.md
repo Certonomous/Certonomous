@@ -2400,6 +2400,33 @@ clock-audit rule asks for.]*
 - Consequence flagged rather than left: the page fix puts the tracked bundle **one file behind**, and the drift gate
   now correctly reports it. The rebuild belongs to the bundle's owner.
 
+### 2026-08-11 — the cover email is round-5, and the margin discrepancy was resolved rather than flagged
+
+- **ALL SIX DEFECTS CLOSED** (`e87650db`). The subject line and body now carry **0.056647** against the 0.1036 floor,
+  read from the round-5 record rather than from a sibling document; the directory, the eight CSVs re-counted on disk,
+  the entire per-case table rebuilt, the prediction-set count corrected from four to **six**, and the stale duct
+  figure replaced with the measured values — **flagged in the text as a disclosure that had overstated our own
+  defect, and corrected for that reason rather than because correcting it flattered us.**
+- **THE MARGIN DISCREPANCY IS RESOLVED, NOT FLAGGED.** Rather than propagate either number, the writer **re-scored
+  the competitor's four published CSV directories through the benchmark's own unmodified scorer** at the frozen
+  commits: 0.05953352830400628, giving a margin of **0.00288634**. So **0.0028863 was right and the transcribed
+  0.0595338 was the misrounded one.** A competitor's public files only — no scoring call on our predictions, ledger
+  stands at 6.
+- **And it recorded the SECOND pair that must not be smoothed:** the 68% probability rests on the *transcribed*
+  value, and that bootstrap **has not been re-run on the re-scored basis.** Naming a discrepancy you cannot close,
+  beside one you just did, is the harder half.
+- The best-on-board count is executed in both places **and in neither is it stateable alone** — every instance reads
+  "4 of 8, and two of those four are the organisers' own baseline file, so 2 of 8 belongs to our model", with the
+  four verified case-by-case against all four published submissions rather than inherited.
+- **The leakage disclosure LEADS the email**, in the lab's frozen pre-registered words, admits, and only then
+  mitigates: *"Nothing we did afterwards cancels it and we do not offer anything as cancelling it."* No official-rank
+  language — *"if your scoring differs from ours, your number is the number."* The sweep token sits **unbroken on
+  one line** in both places, after three ladder-recorded failures of exactly that kind.
+- The blocking banner became a **dated discharge**: the original banner and its defect table are kept **verbatim as
+  the record**, with a row-by-row closure table appended rather than the evidence deleted.
+- One item flagged and correctly not taken under the single-file rule: the travelling description document still
+  prints the misrounded digit and owes a one-character correction.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
