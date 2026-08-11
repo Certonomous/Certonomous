@@ -231,6 +231,32 @@ care fails the first time two agents pick the same filename.
    > with exclusive scratch paths assigned by the dispatcher instead. If you are unsure which
    > kind an agent is, have it print the count of evidence files it can see **before** it
    > reports what it found in them.
+   >
+   > **[AMENDED 2026-08-11, and the amendment was earned the first time this rule was used.]**
+   > **The caveat above is not the only way an isolated grader ends up looking at the wrong
+   > tree, and I wrote it as though it were.** The first agent dispatched under R-ISOLATE —
+   > to grade V16 — found its worktree **18 commits behind the subject**: HEAD at `2c2c6a9a`,
+   > with the **entire author round it had been sent to grade absent from the checkout.**
+   > V16's subject being tracked content did not protect it, because the failure is not about
+   > *what kind* of file is missing. **A worktree is a snapshot**, and a snapshot taken from a
+   > stale base, or taken before the work landed, contains no signal that it is stale. Every
+   > file the grader expected was present; they were simply the previous versions.
+   >
+   > It was caught only because `git log --oneline` disagreed with commit SHAs the dispatch
+   > brief happened to quote. **Had the brief not quoted them, the grade would have been a
+   > clean, confident, fully-evidenced assessment of the wrong code** — the fail-open shape
+   > reaching the mechanism adopted to make verification trustworthy, for the second time in
+   > one rule.
+   >
+   > **So R-ISOLATE part 1 now has two obligations, and the second is the dispatcher's:**
+   >
+   > - **The dispatch names the subject SHA.** Not "grade the current state" — the commit.
+   > - **The agent asserts `git merge-base --is-ancestor <subject> HEAD` before executing
+   >   anything**, and stops if it fails. One command, before the first finding.
+   >
+   > The general form, which is this lab's oldest lesson wearing new clothes: **an isolated
+   > environment must prove it contains the thing it was isolated to examine.** Isolation
+   > removes contamination and removes evidence by the same act, and it reports neither.
 2. **Held-out sets are committed with positive controls BEFORE use**, and the **disjointness
    of author and grader samples is asserted by a test**, never trusted. A grader's sample
    that quietly overlaps the author's measures template reuse, which is L-66.
