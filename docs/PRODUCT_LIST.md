@@ -2315,6 +2315,34 @@ clock-audit rule asks for.]*
   blocked**; and it has **no step telling a fresh agent who else is live** on a tree with six concurrent writers.
   Also: no single file lists the standing prohibitions — they are scattered across five.
 
+### 2026-08-11 — V8 FAILS on the cover email, which has not been touched since 2026-08-01
+
+- **THE DESCRIPTION DOCUMENT PASSES 30 OF 31 QUANTITATIVE SENTENCES**, each traced to a **primary artifact rather
+  than to a sibling surface** — the overall and all eight per-case values, the floor recomputed from its own row, the
+  best-on-board count against the per-case rank fields, the duct agreement, the continuity figures, the seed bound,
+  every bootstrap interval, the frozen rule-freeze quote verbatim, the chronology, and the scoring-call count. Banned
+  list clear throughout; all ten figure sites carry an interval.
+- **BUT V8 FAILS, and the failing artifact is the one that actually gets sent.** The cover email is **round-4 and
+  untouched since 2026-08-01**: its subject line and body announce **0.0654** for a payload scoring **0.056647**.
+  Five of the original eight failures are open verbatim — the score, the wrong directory, an entire claims table of
+  round-4 per-case values, a prediction-set count of four against a ledger of six, and a duct figure that is stale
+  **against our own interest**. Three of the eight are genuinely closed.
+- **A NEW failure inside the travelling document, and it propagates.** The margin (0.0028863) and the competitor's
+  re-scored value (0.0595338) are stated in adjacent sentences **and do not subtract** — one is misrounded by
+  3×10⁻⁷. Checked both ways. Nothing downstream moves, but it is the same class as the previous round's finding and
+  it **originates in one report and propagates into three others.** Reported, not fixed.
+- **The auditing agent's own corrections failed the rung, and it caught them itself.** Running the cross-surface
+  instrument against text it had just written showed the sweep token **fell across a line break** in both markdown
+  fixes — *"invisible to the grep it exists to serve, the exact failure mode this ladder has now recorded three
+  times."* Rewrapped, and the fix now states WHY the token must sit unbroken.
+- **Fixed-point consequence, stated by the rung itself:** a re-run over previous-round text produced a new failure,
+  so **the ladder has not converged and round N+1 exists.**
+- Two closures worth noting for their care: the approved proposal took a **new supersession field** only after the
+  agent proved no validator would reject it and that the convention already existed in the corpus — with the four
+  decided fields asserted **byte-equal before and after, programmatically rather than by eye**. And the
+  self-contradicting draft note was corrected by **naming which of its two passages was right and why**, rather than
+  quietly aligning them.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
