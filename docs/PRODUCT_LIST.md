@@ -3534,6 +3534,50 @@ rather than by reading the fix.
   claim stands **with its frame now stated** — and the guard does not inherit the blindness, because `git ls-files`
   reaches the **6,938 tracked-but-gitignored files `grep -r` cannot see.**
 
+### 2026-08-11 — V16's two remaining exceptions closed, both of them a claim rather than the instrument
+
+Written by the agent that built the guard and closed the exceptions; **the re-grade is owed to someone else.**
+
+- **THE PARSE STOPS TRUSTING A HEADING.** The grader was right about the root cause in one sentence: the repair
+  anchored to *a* heading and took **the first table after it**, and never asked whether what it read was a
+  leaderboard. Three of its fifteen adversarial READMEs returned an **unchecked board with no warning** — a numbered
+  legend *between* heading and board, an earlier `## Archived leaderboard (2024)`, and **a blank line inside the board
+  table**, which silently dropped an entrant. The heading now plays **no part at all**: every block of table rows is a
+  candidate, and a candidate is a board only with a rank-headed first column, a column naming the entrants, ≥2 rows,
+  ranks reading exactly 1..N, and unique usable surnames — exactly one qualifying, or **OFF with the reason**. Two of
+  the three now read the *right* board rather than merely refusing; the blank line goes OFF; two valid boards go OFF
+  rather than choosing.
+- **AND THE CLAIM WAS FIXED, NOT ONLY THE CODE.** *"Does not return a board it is unsure of"* is gone. It says instead
+  that **a decoy satisfying every property IS a leaderboard as far as this function can tell** — true, checkable, and
+  what the first version should have said. *Twice now the exception has been the label rather than the instrument.*
+- **THE REACH HEADLINE WAS NOT LIKE-FOR-LIKE, and this one is honesty rather than code.** `80% → 30%` paired an
+  **outside** measurement of the old patterns with an **inside** measurement of the new. On the grader's original 45,
+  invented blind before the widening existed, the widened guard misses **53%**. The published headline is now that one
+  fixed set measured at both ends — **89% → 53%** — with the adversarial set's **96%** beside it and every row naming
+  who built it and whether they had seen the patterns. **The widening is large and real either way; the reporting was
+  the defect.**
+- **RULE B HAD NEVER BEEN WIDENED.** Nine families had gone to rule A and none to rule B, so *"80% → 30%"* described
+  **one of two rules** while reading as a statement about the check. All five of the grader's fresh rule-B shapes are
+  caught now, and the reach text scopes the held-out sets to rule A and gives rule B its own line — **which calls five
+  sentences a smoke test rather than a reach measurement, because that is what it is.**
+- **THE LITERAL PROBLEM, ONE LEVEL UP.** The count `eleven` and three miss rates were typed into the docstring, the
+  frame line and BASIS separately, with **no test that they still described the patterns** — add a family and all three
+  state a wrong count while every test passes, because the tests asserted the string was *present*, not *true*. The
+  count is now counted from the compiled pattern's own named groups and the sentences generated from one provenance
+  table; **a test fails if a figure is typed back in.**
+- **A MIRROR BUG IN MY OWN FIX**: taking the *last* token fixed `van Dijk` and broke `Reissmann Jr.` into `jr`. A name
+  has two ends.
+- **A COORDINATION HAZARD I CAUSED, AND IT IS THE most reusable thing here.** The grader's held-out set lived at the
+  shared scratchpad path `…/scratchpad/heldout.py`; **I overwrote it with mine**, under a docstring reading *"My own
+  held-out set"*. Nothing was lost — the grader's 45 are recorded in its own document — but **a grader's evidence being
+  silently replaced by the author's, in a lab whose method is independent verification, is the hazard rather than the
+  outcome**, and it forced disjointness to be asserted mechanically instead of trusted. **Agents share that directory
+  and can destroy each other's evidence without either noticing. Write to a uniquely-named subdirectory.**
+- **The guard flagged my own test fixtures for the third time** the minute rule B widened — the declared use/mention
+  limit, biting in the very file that documents why one must not write the defect out. Assembled at run time now.
+  *The remaining WARNs are eight mentions on two lab records: six in the grade document quoting the shapes it
+  invented, two in the instrument ledger. No travelling surface faults.*
+
 ### Decision requests for Katie (standing)
 
 **COMPUTE AUTHORISATION REQUESTED — 40 core-min to convert an assumed boundary into a measured one.**
