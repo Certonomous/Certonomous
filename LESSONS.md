@@ -2782,3 +2782,44 @@ tracked record should fail loudly when its anchor is absent (`assert old in s`),
 and any commit claiming a correction should be checked against the diff rather
 than against the script's exit code. A commit message is a claim, and it needs
 the same evidence as any other.
+
+## L-68. A control's configuration read as production configuration — and a caveat that stayed in the body while the title travelled
+
+An instrument audit reported that the lab's pre-filming discretion gate
+*"reports clean over a corpus root that does not exist"*, counting none of 17
+transcripts. I republished it as an urgent finding. **It was false.** The
+configured root exists, it is the exact path the transcripts live at, the glob
+matches precisely those 17, and the shipped gate had **never once printed
+`clean`** — run as-is it printed five findings.
+
+The false claim was manufactured by a specific, repeatable mistake. To test the
+gate's behaviour on an empty corpus, the auditor had made **byte-identical copies
+of the script with `OUT=` repointed** at empty and nonexistent directories — the
+correct way to run that control. The defect is that **the control's
+configuration was then read back as the production configuration.** A control
+is a deliberately broken copy of the system; the moment it is filed beside the
+real one, its settings are indistinguishable from findings about the real one.
+
+Two rules follow, and the second is the one that cost most:
+
+**Controls must be self-labelling and disposable.** A scratch copy that differs
+from production only in one line will be mistaken for production. Better still,
+make the parameter overridable at the call site so no edited copy needs to exist
+at all — which is what the fix did.
+
+**A caveat that stays in the body while the title travels reaches nobody.** The
+ledger's §4.2 **body was honest** — it showed the overridden `OUT=` right there on
+the command line. Its **title** was not. And the title is what propagated: into
+the product list, into a second report, and into what I told the director. This
+is **L-61 recurring one document level up.** I read a ranked list of titles and
+republished them without opening the bodies, which is exactly the reading a
+ranked list invites. **If a finding's headline is not true standing alone, the
+headline is the defect**, no matter how careful the body is.
+
+The dispatch was still right, and that is the third lesson: the *class* was real
+even though the instance was false. The gate genuinely could not distinguish
+*"scanned everything and found nothing"* from *"scanned nothing"*, and fixing it
+surfaced **8 genuine hits**, an exit code that read green while holding five
+findings, and a silent `head -4` truncation that under-reported precisely when a
+file had most to say. **Acting on a wrong headline for the right reason is
+recoverable; the recovery is to verify before publishing, not to stop acting.**

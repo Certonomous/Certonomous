@@ -2872,10 +2872,11 @@ lesson that commissioned it, on two specifics.**
 - **RANKED BY COST — and #2 is urgent because it guards the shoot:**
   1. `case_preflight.sh` — **PASS on an empty directory**, and *silent* under `--quiet`, which is **the only mode the
      launcher uses.** Reproduced firsthand. **146 `.done` records rest on it.**
-  2. `audit_transcripts.sh` — reports *"clean: no banned vocabulary in any act transcript"* **over a corpus root that
-     does not exist.** Real corpus is **17 transcripts; the verdict counts none.** This is the **pre-filming
-     discretion gate.** Dispatched immediately, with instruction to fail RED on an empty corpus and to **report any
-     real hits rather than edit them** — that call is Katie's.
+  2. ~~`audit_transcripts.sh` — reports *"clean"* **over a corpus root that does not exist**; the verdict counts
+     none of the 17 transcripts.~~ **FALSIFIED 2026-08-11 — see the correction entry of that date. The configured
+     root exists, is the exact path the 17 transcripts live at, and the gate has been reading all 17 all along.
+     I published this and it was wrong.** The *class* is confirmed — it could not distinguish "scanned everything,
+     found nothing" from "scanned nothing" — and the fix found **8 real hits**, now a decision item for Katie.
   3. **30 of 34 self-audit blind spots are computed, attached to the row, written to `--json`, and never printed.**
      This is tonight's L-61 in a worse form: **the caveat's presence in the data structure lets the check pass its own
      meta-audit while the reader never sees it.**
@@ -2896,6 +2897,50 @@ lesson that commissioned it, on two specifics.**
 - The ledger **corrected its own sub-agent** on a signature, and states its own limits: it could not establish whether
   the 16 never-fired checks would fire without planting a defect it was not authorised to write, and **its denominator
   is a lower bound, not a census** — attempts that left no log are invisible to every instrument it used.
+
+### 2026-08-11 — I published a falsified claim about the filming gate, and the 8 real hits it found are Katie's call
+
+**MY ERROR, corrected in place above.** I reported — here and to Katie directly — that the pre-filming discretion
+gate *"reports clean over a corpus root that does not exist."* **It does not.** The configured root exists, it is
+**the exact path the 17 transcripts live at**, the glob matches **precisely those 17**, and the shipped gate has
+**never once printed `clean`** — run as-is it printed 5 findings. It has been reading everything all along.
+
+**How the false claim was manufactured, and it is the most instructive thing in the report.** The audit's two
+"controls" were injected copies sitting in a scratchpad, byte-identical to the real script except with `OUT=`
+repointed at an empty and a nonexistent directory. **Someone read the control's configuration as production
+configuration.** The ledger's own §4.2 **body is honest about this** — it shows the overridden `OUT=` on the command
+line. **Its title is not, and the title is what travelled**: into this document and one other. *That is L-61 recurring
+one level up — a caveat that does not travel with its headline reaches nobody* — and **I was the propagation vector**,
+because I read the ledger's ranked list and republished the titles without opening the bodies.
+
+- **The class is CONFIRMED and was worth the dispatch**: the gate could not distinguish *"scanned everything and
+  found nothing"* from *"scanned nothing"*. Now it counts the corpus **before** judging it, prints **RED and exits 2
+  with no verdict at all** on a missing/empty/transcript-less root, and its verdict states its reach —
+  `17 transcript(s) x 3 rules (34 terms) scanned`. Five controls, both directions, all pass.
+- **Three further defects found in the fixing**, each of which had been silently shrinking what the gate reported:
+  it **exited 0 even with 5 hits**, so anything gating on exit code read green regardless of findings (semantic
+  change flagged; no programmatic consumer exists); `head -4` **silently truncated each combination**, under-reporting
+  exactly when a file had most to say; and **8 of 25 act directories have no transcript and had never been read by
+  anyone** — invisible before, now named in the verdict count.
+- **SIBLING GATES, reported not fixed** — and one is the other half of the pre-filming pair:
+  `audit_camera_discretion.sh` **does** state its reach (`0 camera surface(s) scanned`) but **still exits 0**, so a
+  typo'd act name silently audits nothing and passes; `verify_warm_replay.sh` returns all-zeros and exit 0 on a
+  nonexistent act; and `case_preflight.sh` is confirmed worst — `PREFLIGHT PASS -- clear to launch` on an empty
+  directory. Dispatched separately.
+- **One concrete miss found**: a commit that changed the acts to say *"selected solver"* rather than the solver
+  binary **missed one act**, which still names it.
+
+### Decision request — 8 transcript lines, pre-filming, NOT edited by any agent
+
+**Genuine hits. Nothing was changed; this is the director's call and an agent must not make it.** Three acts narrate
+the cache in the words the rules header calls *"the single most important rule"*:
+
+- `ahmed-body/transcript.txt:42`, `crm-wingbody/transcript.txt:17`, `nasa-hump/transcript.txt:28` — each reads
+  **"replayed from the run that solved it"**.
+- `ahmed-body/transcript.txt:37` — **names the solver binary** ("Solver of choice: OpenFOAM, steady RANS with
+  k-omega SST"). The other two acts were changed to say *"selected solver"*; **this one was missed by that commit.**
+- `unseen-geometry/transcript.txt:4–7` — all four lines end with an **internal documentation path** that would be on
+  camera; line 7 also names the meshing tool.
 
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
