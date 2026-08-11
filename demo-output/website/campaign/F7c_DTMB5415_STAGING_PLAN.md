@@ -37,6 +37,62 @@ exists partly to recalibrate them.
 
 ---
 
+## Stage 0 — GEOMETRY ACQUISITION: **added 2026-08-11 after a literature pass found this stage was missing, and it is a hard blocker**
+
+**Question.** Can we obtain the DTMB 5415 hull geometry at all?
+
+**Why this is a stage and not a footnote.** The plan below originally treated
+geometry as a given and recorded the access difficulty only in passing under
+Stage 3's reference data. That was wrong, and the correction is the most
+important edit this file has taken. A dedicated literature pass checked every
+route this session and **every one failed**:
+
+| route | outcome |
+|---|---|
+| The ITTC-cited navy host | **DNS-dead** |
+| `simman2014` | **registration-walled** |
+| `simman2008` | **TLS certificate mismatch** |
+
+**There is no verified open route to the DTMB 5415 hull geometry.**
+
+Note the asymmetry that makes this easy to miss: **the reference *data* is
+fine.** The ITTC 27th Resistance Committee report is open and tabulates C_T,
+sinkage and trim at Fr 0.1 / 0.28 / 0.41 across **eleven** towing tanks — an
+unusually strong comparison basis. It is the *hull* we cannot get. A case with
+excellent data and no geometry looks fundable right up until someone tries to
+mesh it.
+
+**Acceptance criterion.** A geometry file (IGES or STL) obtained by a route
+that is **recorded, repeatable and does not require a registration this lab has
+not made**, with its provenance and a hash written down before any mesh is
+built. Registration is not forbidden — but it is Katie's decision, not the
+fleet's, and it is an external interaction, which is PARKED and reserved to
+her.
+
+**Checked against:** the file exists locally, its hash is recorded, and its
+principal dimensions match the ITTC-published Lpp, beam and draft for the
+model-scale hull the comparison data was taken at. A geometry that does not
+match the tabulated dimensions is the wrong hull, and that check costs nothing.
+
+**Failure action.** **STOP. Do not proceed to Stage 1.** Report BLOCKED at
+0 core-min and file the acquisition question to Katie. **A credibility case
+whose hull we cannot obtain is not stageable**, and no amount of staging
+discipline downstream repairs a missing geometry.
+
+**Consequence for the ordering of the whole naval line.** This inverts the
+sequencing docket §8 implies. DTMB 5415 was to be the recognisable credibility
+case; it is in fact **the most blocked of the four naval candidates**, blocked
+twice over — by the F7a ladder rule *and* by geometry. Meanwhile **KCS** has
+open tabulated data at six Froude numbers and a verified geometry download, and
+the **Wigley** hull geometry ships inside OpenFOAM itself at
+`tutorials/resources/geometry/wigley.stl.gz`. Both are strictly less blocked
+than 5415. See `NAVAL_CAPABILITY_GAP_MAP.md` §6 and the recommendation in this
+plan's closing section.
+
+**Cost: 0 core-min.** This stage is a download and a dimension check.
+
+---
+
 ## Stage 1 — FEASIBILITY: does it run at all
 
 **Question.** Can this lab build a 3D hull mesh with a free surface, run
@@ -143,10 +199,22 @@ F7a and it is not optional here. The spec must pin, before any run:
 from the workshop's own comparison volumes, not to a house number. Setting it
 before that evidence is in hand would be inventing a threshold.
 
-**Checked against:** towing-tank C_T at model scale. The specific dataset,
-its access route, and whether the numbers are tabulated or must be digitised is
-recorded in `NAVAL_CAPABILITY_GAP_MAP.md` — including, honestly, where the data
-is behind a workshop registration wall rather than openly fetchable.
+**Checked against:** towing-tank C_T at model scale. **Verified this session
+and unusually strong:** the **ITTC 27th Resistance Committee report** is openly
+accessible and **tabulates C_T, sinkage and trim at Fr 0.1 / 0.28 / 0.41 across
+eleven towing tanks**. Tabulated, so no digitisation and no OCR path — neither
+of the two wrong-number entry routes that afflict the Wigley data
+(`NAVAL_CAPABILITY_GAP_MAP.md` §6.3).
+
+**Eleven facilities is itself the tolerance anchor this stage needs.** The
+inter-facility scatter in that table is what a real towing tank achieves
+against another real towing tank on this hull, and anchoring the gate to it —
+rather than to a house number — is exactly the discipline `F7a_REGATE_SPEC.md`
+§2.4 used when it anchored 5% to the comparator's demonstrated −4.3% to +1.8%.
+**Compute the scatter first, declare the tolerance from it, then run.**
+
+**But see Stage 0:** the data is open and the *geometry* is not. This stage's
+reference basis is the healthiest part of the case and it does not rescue it.
 
 **Failure action.** Report the FAIL with the same discipline F7a's re-gate
 applies: the verdict, the metric's own uncertainty, and the mechanism if one is
@@ -183,3 +251,28 @@ isolated. A documented failure ships; a quietly re-tuned tolerance does not.
   estimate from a recipe rather than from a measurement.
 - **A tolerance.** See Stage 3.
 - **Any claim that the case is unblocked.** It is not.
+
+---
+
+## Recommendation, added with Stage 0
+
+**Do not buy DTMB 5415 next.** It is blocked twice — by the F7a ladder rule and
+by a geometry acquisition route that has no verified path. Its reference data
+is the best of the four candidates and that is precisely what makes the trap
+worth naming: **the data being excellent is not the same as the case being
+runnable.**
+
+The defensible order on the naval line, by *blockedness* rather than by
+recognisability:
+
+1. **Propeller open-water (PPTC VP1304)** — 900 core-min, single-phase,
+   submerged, **not blocked by the F7a ladder at all**, reference tables free.
+2. **Wave-generation capability step** — 135 core-min, geometry-free, and it
+   converts the whole capability inventory from a filesystem claim into a lab
+   claim.
+3. **KCS** — 3,000 core-min, data open and tabulated at six Froude numbers,
+   geometry download verified. Blocked only by the ladder rule.
+4. **DTMB 5415** — blocked by the ladder rule **and** by Stage 0.
+
+Katie's §8 sequencing was written before this evidence existed. This is the
+reason to revisit it, offered as a recommendation and not acted on.
