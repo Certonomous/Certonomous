@@ -1459,8 +1459,18 @@ def check_board_placement_words() -> Result:
         opened += 1
         if names.search(text):
             naming += 1
-        # One surface must never be able to end the audit -- a check that raises
-        # takes every OTHER check in this file down with it. But A SURFACE THAT
+        # WHAT THIS CATCH ACTUALLY GUARANTEES, stated at the width it has
+        # rather than as an absolute (L-76): any `Exception` raised while
+        # sweeping ONE surface is confined to that surface, so a single bad
+        # document cannot take every OTHER check in this file down with it.
+        # It does NOT cover a `BaseException` -- KeyboardInterrupt and
+        # SystemExit still propagate, deliberately -- and it does not cover
+        # anything raised BEFORE this loop (`_published_board`,
+        # `_tracked_files`, `_board_names`), which are guarded separately
+        # above. Executed by `ASkipIsNotAnAgreementTests
+        # ::test_a_raise_on_only_the_faulty_surface_is_not_a_pass`, which
+        # injects a raise on one document and shows the other surfaces still
+        # reach a verdict. But A SURFACE THAT
         # COULD NOT BE READ IS NOT A SURFACE THAT AGREES, and for one round
         # this catch reported the skip in the frame while leaving the STATUS
         # green: inject a defect that raises on exactly the document carrying a
