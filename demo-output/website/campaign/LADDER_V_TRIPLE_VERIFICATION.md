@@ -184,7 +184,8 @@ which is which instead of showing an undifferentiated column of PASS.*
 | V12 skeptic's report | **DELIVERED** | PARTIAL — two circulating figures flagged |
 | V13 close-out | **DELIVERED** | N/A — stated rather than hidden |
 | V14 mechanical surface discovery | **PASS as executed** | YES — one classification changed by a later pass |
-| V15 ladder-written text | **FAIL → FAIL → round 3 fixed → round 4 IN FLIGHT** | YES by construction (never its own author) |
+| V15 ladder-written text | **FAIL → FAIL → round 3 fixed → round 4 fixed → round 5 PENDING** | YES by construction (never its own author) |
+| V16 rank-claim guard reach | **OPEN — opened 2026-08-11 by the fix round that found the guard blind** | pending |
 
 **Consolidated change list: 64** — 11 to text that travels with the entry, 13 to public or shipping
 surfaces, 9 to live code or generators, the remainder to the lab's own records. *That distribution
@@ -196,6 +197,27 @@ count and the failure class migrated inward, away from the reader — but **ever
 produced at least one NEW-SHAPED finding, so a falling count is not the classes being exhausted.**
 
 **GREEN REQUIRES**, per the termination rule: V8's re-verification, V10's independent confirmation,
-V5's two open gaps, the six corrections that have not travelled, and a round-4 verdict of no new
-failures. **The gate holds until every one of those closes.**
+V5's two open gaps, the six corrections that have not travelled, **V16's guard-reach rung**, and a
+round of V15 returning no new failures. **The gate holds until every one of those closes.**
+
+### 2026-08-11 — V8's fix round closed five, and opened a rung by finding the guard blind
+
+V8's five corrections landed with the leaderboard verified at the frozen commit **and re-derived by
+re-running the benchmark's own scorer**, rather than transcribed from any report. The ordinal sweep
+that A15 demanded then found the wrong ordinal was **not a single stale sentence but a family**: the
+travelling instance, **its parent in the sentence family that seeded it**, and a third of the same
+shape carried by a **comparative rather than an ordinal** — a placement claim containing no rank
+word at all, three sections from the passage that states the claim correctly.
+
+**This is why V16 exists.** The rank-claim guard shipped earlier tonight is **digit-anchored**, and
+**would not have fired on any of the three.** The fix round declined to widen it in the same pass —
+correctly, since new guard patterns are unverified code entering the ladder — and raised it as a
+rung instead. Recorded as **L-61**: a guard anchored to the spelling of the example that prompted it
+is a regression test wearing a detector's clothes, and its green reads as coverage.
+
+**The round is not scored PASS.** It fixed what it was sent to fix and it opened a new-shaped
+finding, which under the termination rule is exactly what a **non**-fixed-point round looks like.
+Four rounds running have now produced at least one new shape. The V15 round that audits *this*
+round's output has not yet run, so the count for round 5 stands at **unmeasured**, not zero — and
+the distinction is the whole content of the termination rule.
 
