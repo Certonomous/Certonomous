@@ -365,6 +365,53 @@ are unexamined and are the recommended next audit; 5 are documented and
 intentional; 1 is the parent case whose convergence is independently
 established.**
 
+### 6.1 The 21 unexamined cases, audited — and they are NOT a second F6d
+
+Done under the chief's ruling 3, same method, same discipline. **Frame:** the 21
+directories under `campaign/W2_sparta_runs/` holding a `system/fvSolution`.
+
+**They all carry the identical defect shape** — 21 of 21 with `p 1e-15` against
+their own `1e-12`, and **0 of 21 printed a convergence sentence.** On the two
+headline numbers this looks exactly like F6d. It is not, and the difference is
+the whole point of grading by evidence rather than by pattern.
+
+| | W2 SpaRTA | F6d |
+| --- | --- | --- |
+| dirs carrying the unreachable target | 21 / 21 | 84 / 84 |
+| convergence sentences | 0 | 0 |
+| of those, dirs that actually iterate | **16** (5 are frozen / IC / post-only, where the target is inert) | 84 |
+| solves converged on residual evidence (final Ux < 1e-6) | **10 of 16**, several at 1e-9 – 1e-10 | **0 of 84**, median 1.29e-3 |
+| momentum residual rising | 1 of 16 | **76 of 84** |
+| intermediate snapshots exist (`writeInterval` < `endTime`) | **13 of 21** | **0 of 84** |
+
+**Verdict: the missing convergence sentence in W2 SpaRTA is a genuine false
+negative, the same way F6b's was and unlike F6d's.** Every publication-bearing
+run — `m1pub`, `m2pub`, `m3pub`, `mdisc`, `prop`, on both CBFS and PH — ends
+between **1.2e-7 and 1.4e-10**, falling. `W2_SPARTA_FROZEN_CBFS.md` §5 also
+carries checkpoint evidence of its own (identical to ten significant figures
+from the first 5,000-iteration checkpoint on), which is exactly the
+substantiation F6d never had.
+
+**The six that do not converge, and why they are fine anyway.** Five are
+deliberate **500-iteration probes** (`cbfs_e2_plus/signR/signB`,
+`cbfs_e3_plus/minus`) where `endTime == writeInterval == 500`. Their purpose is
+a **sign verification** — a relative A/B in which the correct-sign arm scores
+0.448 against 16.6 for the flipped arm — and both arms are identically affected
+by the cap. That is the "equally affected relative comparison" class, and it
+**survives**. The sixth, `ph_m2pub` at 1.01e-4, is the one worth a second look
+by its owners; it is an order of magnitude above its siblings and is
+publication-bearing.
+
+**So the propagation count must be read with its grades, not as a headline of
+120.** Of the 120 files carrying the pattern: **84 are a live defect** (F6d),
+**5 are a documented, deliberate inheritance** (ladder-b CBFS, preserved with
+cause), **21 carry the pattern but not the failure** (W2 SpaRTA, substantiated
+by residual and checkpoint evidence, one member worth re-checking), **1** is the
+F6b parent whose convergence is independently established, and **9** are F6d
+siblings. **A sweep that reported "120 defects" would be wrong, and would
+deserve to be switched off.** The discriminating test finds the *pattern*; only
+the residual evidence decides whether the pattern is a defect.
+
 **Why closing it once did not stop it.** The F6b family diagnosed this exact
 defect and closed it *for itself* — `F6b_periodic_hills.md` §"Convergence — and
 a gate-checker false negative, diagnosed rather than overridden" names the
