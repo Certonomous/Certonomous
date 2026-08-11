@@ -171,6 +171,21 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       idx8 flip+collapse reproduced with an independent driver, upstream anchor traced
       (`VERIFICATION_rotation_patch_supervisor_sweep.md`, commit 6782d33a). Upstream filing prepared, unfiled — **Katie's call**,
       now with a defended basis.
+      **[AMENDED 2026-08-11, commit `9cb2a20a`. "Fully root-caused" names ONE mechanism and the archive holds TWO.**
+      A zero-compute diagnosis (`dafoam/A1_A5_A6_DIAGNOSIS.md`) found a second, independent mechanism producing a
+      flip at the same idx6: the limiter tape (M2), alongside the IDWarp rotation guard (M1) named above. The decisive
+      artifact is M2's own provenance line, `IDWARP_IMPORTED_FROM: /patch/idwarp/…` — **M1 was already patched when
+      M2's flip was measured**, so M2 is not a restatement of M1 and the patch above does not account for it.
+      Two further corrections from the same diagnosis, both against text on this line's evidence trail:
+      (a) `ladder-a/A1_naca0012_incompressible.md:166-169` still names `forceMeshWaveFrozen` as the candidate
+      mechanism — **refuted**: it is active (`forceMeshWaveFrozen 1;`) on *both* sides of the change that removes
+      the flip, with the primal bit-identical at `CD: 0.02090808860837286` to seventeen digits, and a mechanism
+      identically active on both sides cannot explain a difference between them.
+      (b) M1 and M2 are **not a matched pair**: M1's repair was primal-bit-identical, while M2's one-word cure
+      **moves the converged CD by 2.7%**, so its residual 0.121% is measured on a different flow.
+      The FAIL verdict and the upstream anchor are unaffected — this narrows what may be claimed about *completeness*
+      of the root cause, not about the defect. **The upstream filing remains unfiled and Katie's**, and it should not
+      go out describing one mechanism as the whole story. Original wording retained above rather than rewritten.]
 - [x] A2 3D wing tutorial optimization vs documented result. HUGE; demo anchor. Re-verified 18/18 `check_totals` rows
       from a pristine clone; B-7 reproducibility blocker closed (wrong-script error, 2026-08-02).
 - [-] A3 ONERA M6: primal DONE and validated (CD=0.02299556, Cp vs AGARD AR-138). Adjoint hard-blocked:
