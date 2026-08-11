@@ -348,6 +348,52 @@ An audit that reports only failures is not an audit.
 
 ---
 
+## 3.3 Rot — claims that were right when written and are false now (docket D41–D44)
+
+The W-5 shape. Positive control first: the known instance from today is
+`S1_WITH_PRIORS_PREREGISTRATION.md:547`, whose `D8` pointer was corrected to `D8b` at
+`ad02a331`. The method — resolve every docket-ID citation in the corpus against the ID map
+at `DOCKET.md:42-47`, then check each citing file's log against the renumber commits
+`df53488e`/`ad02a331` — **reproduces that known catch and finds three more the fix commit
+missed.** Seven rotted claims, all verified live at `cb7122ba`:
+
+| # | claim | rotted by | gap |
+|---|---|---|---|
+| R1 | a live proposal's gate still requires a withdrawn re-basing | `57fd0d83` 20:30 | 3h22m |
+| R2 | D17 asks Katie to rule on what §6a already rules (×4 surfaces) | `2d0e5260` 18:58 | **41 min** |
+| R3 | round-5's `D5`/`D6` pointers resolve to unrelated live defects | `df53488e` 18:20 | same commit |
+| R4 | D20 open in the queue; it is E2's closing condition and was met | `64281b6b` 21:05 | 2h45m |
+| R5 | D8b/D9 demand a withdrawal that has happened | `57fd0d83` 20:30 | 2h10m |
+| R6 | the ladder record's *"20 of 41 is a worst case"* bound | `db18553b` 21:37 | 32 min |
+| R7 | C2a's *"`LESSONS.md` now runs to L-79"* — it runs to **L-82** | three commits | — |
+
+**R1 is the worst and is the only one on a surface an agent acts *from*.**
+`agenda/proposals/s1-regularization-…json:21` still defines G-P4 as requiring the plateau
+balance *"re-based onto the exact analytic |g_penalty| = 4.785304e-04"*. That re-basing was
+withdrawn at `57fd0d83`, whose title is *"…the control it replaced **could not fail**."* An
+agent picking up this proposal gates on a control that cannot fail — the precise defect the
+withdrawal exists to remove. Verified: the string is still in the file; the proposal was
+last touched at 17:08; `S1_PRIORS_PREREGISTRATION.md:379` now reads *"G-P4 is restored to
+the ratio-and-cosine form in §4."*
+
+**R3 is the most instructive.** The pointers do not dangle — they *resolve*, to real,
+still-unfixed certificate-`unlink` defects. `DOCKET.md:32` names the hazard exactly (*"An ID
+is a reference target; moving it breaks every citation you cannot see"*), and `df53488e`
+renumbered the rows and landed the citing file **in the same commit**. This is the
+strongest available argument for W-4.
+
+**R2 is the one that would have reached Katie.** D17 is owner "Katie / chief", settled by
+*"a ruling, not a run"*, with five further items parked behind it — and the ruling was made
+41 minutes after D17 was written.
+
+Two further items are **born stale rather than rotted**, and are reported as the weaker
+class they are: the wave-machinery census publishes **0** tracked files on three surfaces
+where the true figure was already **1** at the moment of writing (the gap map falsifies its
+own zero by existing); and `DOCKET.md:78`'s *"16 / 4 / 9 / 3"* sweep population was
+corrected to 17 / 4 / 10 / 3 at `106e9de8`, **24 seconds before** the docket row was written.
+
+---
+
 ## 4a. Containment: none of the four wrong figures reached a travelling surface
 
 Checked explicitly, because a wrong number on an external surface is FAIL severity and a
@@ -376,13 +422,24 @@ and it is the reason F1–F4 are corrections rather than withdrawals.
 | Instrument defects introduced this round | **3** (F1 verdict ordering, F1 `CITES_MISSING_CHECK` precision, F5) |
 | Cross-document contradictions among the four new standing rules | **6** (F6) |
 | Charter-version register rot | **1** (F7) |
-| **Discrete, individually actionable failures** | **14** |
+| Claims that **rotted** between being written and now (§3.3) | **7** (R1–R7) |
+| **Discrete, individually actionable failures** | **21** |
 | L-76 unbacked absolutes on added lines (raw / FP-corrected) | 1,380 / ≈340 |
 | W-5 unanchored present-tense state paragraphs in new documents | 263 |
 
-**Fourteen discrete failures, seven of them filed as docket D32–D38.** Four are claims that
-were **wrong when written**, not merely unverified — F1's thirteen citations, F2's zero,
-F3's 31-of-34, F4's split point. All four are the chief's.
+**Twenty-one discrete failures, eleven of them filed as docket D32–D38 and D41–D44.** Four
+are claims that were **wrong when written**, not merely unverified — F1's thirteen
+citations, F2's zero, F3's 31-of-34, F4's split point. All four are the chief's. Seven more
+were right when written and are false now, one of them within 41 minutes and one on a live
+dispatch surface.
+
+**One failure in this list is mine, and it is disclosed rather than absorbed.** Committing
+`docs/DOCKET.md` at `a8d6a33a`, I read `git diff --stat` and a `+`-line count instead of
+reading `git diff` itself, and swept another agent's uncommitted **D39 and D40** into a
+commit whose message claims only D32–D38. Nothing was lost, nothing was renumbered, every
+ID is still unique — the damage is attribution only. But the brief said *read the diff
+first*, a pathspec isolates by file and not by author, and I did the thing the rule names.
+An auditor that commits the class it audits should say so in the same document.
 
 **The ladder is not green, and the concentration is the story.** Four standing rules and
 roughly fifteen documents written by one agent in one evening produced: a rule set that
