@@ -1922,9 +1922,27 @@ The run was stopped deliberately at roughly iteration 900 when host available me
 30.5~GB to a low-water \textbf{1.62~GB} under about 19~GB of LU factors plus a still-filling
 2000-vector restart space, on a shared box.
 
-Stated for whoever picks this up: \textbf{the hump blocker is no longer the singular
+\emph{Corrected 2026-08-11 (hump-adjoint attempt audit).} This passage previously ended:
+``Stated for whoever picks this up: \textbf{the hump blocker is no longer the singular
 factorization --- it is Krylov convergence rate against a memory envelope}, which is a
-different and honestly-named problem.
+different and honestly-named problem.'' That sentence is withdrawn. It is a causal claim,
+and the run it rests on \textbf{never produced a \texttt{KSPConvergedReason}} --- it was
+ended by a \texttt{docker stop} this laboratory issued on a shared box, not by an allocation
+failure and not by the solver. Two consequences. The convergence \emph{rate} was never
+measured to completion, so ``blocked on rate'' is not established; and the memory envelope
+was never shown to be \emph{binding}, so 1.62~GB records where we chose to stop, not where
+the case fails. Nor does the sub-LU repair license ``not singularity'': what it repaired is a
+singular ASM \emph{sub-block incomplete} factorization, and GMRES here applies the
+matrix-free \(\partial R/\partial W^{T}\) product, not the assembled matrix the LU inverts.
+The converse is equally unevidenced --- no rank or conditioning measurement exists on this
+operator. \textbf{Stated for whoever picks this up: the hump adjoint boundary is
+uncharacterised.} What is measured is that the \texttt{-9} is gone and that no convergence
+was observed within the 900 iterations run. Six measurements would characterise it, priced at
+365 core-min with the two cheapest and most decisive at 40 (an offline dump-and-factor
+diagnostic, and the environment-off negative control that exists on CBFS and has never been
+run on the hump); a further 120 core-min, conditional on the first solve converging, would
+produce a hump gradient, which does not currently exist. Enumerated in
+\texttt{W4\_ADJOINT\_PC\_UNBLOCK.md} \S5b.1.
 
 \emph{Added 2026-08-08.} The same envelope bounds where this remedy can be carried at all.
 Taken to a compressible transonic case --- ONERA M6, 21{,}840 cells, np=4, six transported
@@ -3804,9 +3822,15 @@ by the shipped patch by design. The reparameterisation that subsumes both regime
 and numerically validated but not implemented, and cannot be primal-bit-identical.
 \item \textbf{D2, the workaround's price.} The mesh-quality cost of \texttt{useRotations:
 False} under large deformation has not been measured.
-\item \textbf{D3, the hump.} Krylov convergence rate against a memory envelope. A prepared
-configuration wrapping the exact sub-solve in Richardson with a capped restart is staged but
-unrun.
+\item \textbf{D3, the hump --- the boundary is uncharacterised, not measured} (corrected
+2026-08-11; this line previously read ``Krylov convergence rate against a memory envelope'').
+The single attempt that cleared the \texttt{-9} was killed at iteration 900 and produced no
+\texttt{KSPConvergedReason}, so neither the rate nor the memory envelope was measured, and
+nothing bears on whether the operator is singular. Eleven hump adjoint attempts are on
+record and \emph{none} was ever deliberately reproduced; the only environment-off negative
+control in the programme is on CBFS. A prepared configuration wrapping the exact sub-solve in
+Richardson with a capped restart is staged but unrun, and is one of six measurements priced
+at 365 core-min in \texttt{W4\_ADJOINT\_PC\_UNBLOCK.md} \S5b.1.
 \item \textbf{D4, the ceiling is bracketed and not located.} Two rungs are verified
 (21{,}840 and 42{,}120 cells); 79{,}560 stagnates on ample memory. No mesh between those two
 sizes has been run, and one arm at an intermediate size would halve the bracket for an

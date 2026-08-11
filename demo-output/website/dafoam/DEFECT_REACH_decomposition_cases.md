@@ -560,9 +560,40 @@ invariant (record); A2 — invariant (record); A4 — NOT, reported, it IS the f
 sail coarse — **invariant, measured this session (N8)**
 — the last unchecked graded gradient, now checked; naca4412 and sail_medium/sail_full — **no
 graded gradient exists to check** (adjoints blocked/incomplete per
-`DAFOAM_CASE_STATUS.md`), so there is nothing this gate applies to. One boundary
-case noted honestly: the NASA-hump beta-field gradient from the pc-unblock session
-(FD-verified at 3 cells under its single decomposition) has not been re-run under a
-second decomposition; its mesh is conformal and CBFS — same DV type, same solver
-path — is now measured invariant, but that is an expectation, not a measurement,
-and it is recorded here as the one unchecked entry.
+`DAFOAM_CASE_STATUS.md`), so there is nothing this gate applies to. **The NASA hump
+belongs in that same "nothing to check" class: no hump beta gradient has ever been
+produced, so the gate has no object on this case** (corrected 2026-08-11 — see below).
+
+> **Correction, dated 2026-08-11 (hump-adjoint attempt audit). The sentence this
+> replaces was wrong when written, not overtaken by later evidence, so it is corrected
+> rather than superseded — and quoted here in full so the record of what was claimed
+> survives.** It read:
+>
+> > "One boundary case noted honestly: the NASA-hump beta-field gradient from the
+> > pc-unblock session (FD-verified at 3 cells under its single decomposition) has not
+> > been re-run under a second decomposition; its mesh is conformal and CBFS — same DV
+> > type, same solver path — is now measured invariant, but that is an expectation, not
+> > a measurement, and it is recorded here as the one unchecked entry."
+>
+> **What is true.** The pc-unblock session's FD-verified 3-cell gradient is **CBFS**, not
+> the hump: `W4_ADJOINT_PC_UNBLOCK.md` §5c–5d, 21,000 `betaFIOmega` components on the
+> CBFS case, `PetscConvergedReason: 2` at 667 iterations, cells 5491/6740/12486 at
+> 0.085% / 0.059% / 0.199%, FD points on disk under
+> `certonomous-runs/W4-adjoint-pc-unblock/cbfs_beta/fdlogs/`. It is already counted
+> above as "CBFS beta — invariant (this session)", so the hump line was a **second
+> count of the CBFS gradient under the wrong case name**.
+>
+> **The hump has 51,626 beta DVs and no gradient at all.** Its only sub-LU attempt
+> (`hump_sublu_computetotals.log`, 2026-08-04) was killed by `docker stop` at iteration
+> 900 having never produced a `KSPConvergedReason` — verified 2026-08-11: the log
+> contains no `GRAD` line and no reason code. The hump FD harness (`run_hump_fd.sh`)
+> was written and never executed; no hump FD logs exist anywhere on this host.
+>
+> **What the hump actually owes.** Not a second-decomposition re-run — a **first
+> converged adjoint solve**, then a gradient, then FD verification, and only then the
+> re-run. A claim of the form "X has not yet been re-verified" silently asserts that X
+> exists; that is the defect being corrected here. The work is named and priced at
+> `W4_ADJOINT_PC_UNBLOCK.md` §5b.1 (M4 → M7 → M8, 100 + 20 + 100 core-min, all
+> conditional on M4 returning a reason code). Until then the hump is an **empty entry**
+> for this gate, exactly like naca4412 and sail_medium/sail_full, and it is **not** an
+> "unchecked entry" awaiting a cheap re-run.

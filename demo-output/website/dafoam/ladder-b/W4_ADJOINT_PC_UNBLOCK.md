@@ -29,6 +29,27 @@ and is answered point by point in section 6.
    mechanism is cured in-solver; what remains on the hump is slow Krylov
    convergence against a memory envelope, which is a different, honestly-named
    problem (section 5b).
+
+   > **Correction, dated 2026-08-11 (hump-adjoint attempt audit).** The last sentence of
+   > headline 3 overstates what this session measured, and the standing programme account
+   > it seeded — *"the hump is blocked on convergence rate, not singularity"* — is
+   > withdrawn as a causal claim. The measurements stand exactly as written: the `-9` is
+   > gone, the residual descends 1.094138002900e+00 → 9.544468674795e-01 over 900
+   > iterations, the run was killed by `docker stop` at MemAvailable 1.62 GB. What does
+   > not follow is *what remains*. **No `KSPConvergedReason` was ever produced** (verified
+   > 2026-08-11: `hump_sublu_computetotals.log`, 2,279 lines, contains the string
+   > `ConvergedReason` zero times and ends at the iteration-900 residual line), so the
+   > convergence rate was never measured to completion; and the run was stopped by an
+   > operator on a shared box rather than by an allocation failure, so the memory envelope
+   > was never shown to be *binding*. "We observed no convergence in the 900 iterations we
+   > ran" is true. "The blocker is convergence rate rather than singularity" is a causal
+   > claim requiring evidence that does not exist. The opposite is not asserted either —
+   > nothing here shows the operator *is* singular or near-singular; curing a singular ASM
+   > *sub-block* factorization says nothing about the matrix-free global operator GMRES is
+   > actually applying (the operator/PC mismatch this same document names in §5a). **The
+   > hump adjoint boundary is uncharacterised.** The specific missing measurements are
+   > named and priced in §5b.1.
+
 4. **The runtime-options escape hatch exists but is empty.** Contrary to the standing
    belief (R5, PROOF §25.3, and the liaison memo's Lead 1.3) that no PETSc runtime option
    reaches the sub-PC, `sub_`-prefixed *factor* options ARE consumed — measured, not
@@ -180,6 +201,76 @@ factorization — it is Krylov convergence rate against a memory envelope.** The
 prepared next config (`runScript_hump_rich.py`, staged but not run, budget) wraps
 the exact sub-solve in Richardson (`globalPCIters: 3`) and caps `gmresRestart` at
 500 so the basis stops growing; whether that converges is an open measurement.
+
+> **Correction, dated 2026-08-11 (hump-adjoint attempt audit).** The "stated for whoever
+> picks this up" sentence immediately above is withdrawn as written, and with it the
+> programme account it seeded. Everything else in §5b is measurement and stands; this
+> paragraph alone was inference presented in the voice of a result.
+>
+> What the log supports, re-verified against `hump_sublu_computetotals.log` on 2026-08-11:
+> the `-9` does not appear, the residual descends monotonically to 9.544468674795e-01 at
+> iteration 900, and the log ends there. It contains the string `ConvergedReason` **zero
+> times** in 2,279 lines. Therefore:
+>
+> - **The convergence rate was never measured to completion.** 12.8% in 900 iterations
+>   against a 1e-6 relative target is a rate *over the interval we ran*; extrapolating it
+>   to "the blocker" requires a solve that terminated on its own criterion, and none did.
+> - **The memory envelope was never shown to be binding.** The run ended in a `docker stop`
+>   issued by this session because a shared box was down to 1.62 GB — that is where we
+>   chose to stop, not where the case fails. No allocation failure, no OOM kill, no
+>   PETSc memory error is on the record for this run.
+> - **"Not singularity" does not follow from the sub-LU repair.** What sub-LU repaired is a
+>   singular *ASM sub-block incomplete* factorization. GMRES here applies the matrix-free
+>   `dRdWTMF`, not the assembled `dRdWTPC` the LU inverts — the operator/PC mismatch §5a
+>   makes visible on CBFS. A well-behaved preconditioner says nothing about the rank or
+>   conditioning of the operator being preconditioned.
+> - **The opposite claim is equally unsupported.** No rank, condition-number, or
+>   singular-value measurement exists on the hump operator. Nothing here shows it *is*
+>   singular. The unexplained flat-to-13-digits stagnations of the `normalizeResiduals`
+>   and `natural`-ordering arms (2026-07-31, `hump_nrn_run1.log` at 2000 iterations and
+>   `hump_nat_run1.log` at 1000) were superseded by this run and never explained, and they
+>   are the one piece of evidence that bears on the question in either direction.
+>
+> **The honest position: the NASA-hump adjoint boundary is uncharacterised.** It is not a
+> measured capability boundary, and it should not be cited as one. §5b.1 names the
+> measurements that would make it one and prices them.
+
+### 5b.1 What would convert the assumed boundary into a measured one (work item, added 2026-08-11)
+
+Nothing below has been run. This section authorises no compute; the director does. Every
+price is anchored on this run's own measured numbers: 819 s wall at np=4 = 54.60 core-min
+total; iteration 0 printed at 174.97 s and iteration 900 at 728.48 s, i.e. **0.615 s per
+iteration wall = 0.041 core-min per iteration at np=4**; primal 10.583 s; the pre-solve
+segment (stage, primal, coloring, factorization, to the iteration-0 print) ≈ 175 s wall
+≈ 11.7 core-min.
+
+| # | measurement | what it converts | price (core-min) | basis |
+|---|---|---|---|---|
+| **M1** | Dump the hump's `dRdWTPC` and RHS and run the **existing** offline `pc_ladder.py` harness on them (exact LU solve of the assembled system, pivot and condition statistics), exactly as PROOF §25.3 did for CBFS | Decides **singular vs ill-conditioned vs merely slow** offline, without a single long solve. This is the measurement whose absence makes the boundary an assumption | **25** (one assembly-to-dump run ≈ the pre-solve segment plus write-out); each offline variant thereafter ~10 s at np=4, **<1 each** | §1 built and validated this harness on CBFS at ~10 s per experiment |
+| **M2** | **The negative control that has never been run on this case**: A6's exact configuration with `DAFOAM_SUBPC_TYPE` unset, same image, cold case dir | Makes the `-9` → sub-LU attribution reproducible **on the hump** instead of inherited from CBFS. The programme has an env-off control on CBFS and **none** on the hump | **15** (returns at iteration 0) | pre-solve segment 11.7 + teardown |
+| **M3** | Deliberate reproduction of A6 itself, switch on, to iteration 900 | The **first deliberate reproduction of any hump adjoint attempt** in the programme (11 attempts, 0 reproduced). Gate: residual reproduces to 13 digits at iterations 0/300/600/900 | **55** | A6's own measured spend, 54.60 |
+| **M4** | Run to a reason code: same configuration, `gmresMaxIters` 2000 as already set, on a host that can hold ~19 GB of LU factors **plus** a fully-grown 2000-vector restart basis | Converts "no convergence observed in 900 iterations" into a **measured rate with a terminating `KSPConvergedReason`** (2, or -3 at the cap). Without this the rate claim cannot be made at all | **100** (54.60 + 1,100 further iterations × 0.041) | measured per-iteration cost |
+| | *host caveat, itself a finding* | On the 30.5 GB box this run used, M4 stops for the same non-reason again. **M4 needs ≥64 GB**, or it does not produce the measurement it is bought for | — | MemAvailable 30.5 → 1.62 GB by iteration 900 with the basis still filling |
+| **M5** | Memory-binding test: A10's staged-and-never-run `runScript_hump_rich.py` (Richardson `globalPCIters: 3`, `gmresRestart` capped at 500), with the 5 s `MemAvailable` watcher | Decides whether **memory is binding at all**. A capped basis either reaches a reason inside the envelope or dies on an allocation — and *either* outcome is a measurement, where the present record has neither | **150**, flagged: this is the one line carrying an **unmeasured multiplier** (up to 3 global PC iterations per Krylov step); 150 is the 1× figure and could be up to ~3× | 2,000 × 0.041 = 82 at 1× plus wrapper overhead |
+| **M6** | Explain the A4/A5 stagnation: write `psi` at a checkpoint from M3 or M4 and apply the A4 cross-residual instrument (`DISCRIMINATORS_A4_decomposition_mechanism.md`, M1 discriminator) | The flat-to-13-digits arms are the **only** existing evidence bearing on singular-vs-slow, and they were superseded, never explained. This is the instrument that already exists for exactly this question | **20** on top of M3/M4 | the A4 discriminator's own deciding arms cost ~12.80 |
+
+**Sequencing.** M1 + M2 first: **40 core-min buys the singular-or-not answer offline plus
+the negative control the programme never ran** — and if M1 returns a singular or
+catastrophically ill-conditioned assembled operator, M4 and M5 should not be bought at all.
+M3 next at 55. M4/M5/M6 only after M1 has said which of them is worth its price.
+
+**Total M1–M6: 365 core-min**, of which 40 are decisive-cheapest.
+
+**Conditional continuation — the hump gradient that does not exist** (see the correction in
+`DEFECT_REACH_decomposition_cases.md`, 2026-08-11). Only reachable if M4 returns reason 2:
+
+| # | measurement | price (core-min) | basis |
+|---|---|---|---|
+| **M7** | Produce a hump beta gradient **at all**, and FD-verify it at 3 cells with A11's written-and-never-run `run_hump_fd.sh` | **20** (gradient free with the converged solve; 9 hump primals at 10.583 s each plus decompose/reconstruct) | §5d's CBFS protocol, 9 primals, scaled to the hump primal |
+| **M8** | *Then* the second-decomposition re-run the reach document says is owed | **100** (a second converged solve) | = M4 |
+
+**Total M7–M8: 120 core-min, conditional on M4.** Until M4 returns, the hump owes a
+gradient, not a re-run.
 
 ### 5c. The gate case: CBFS field-inversion (beta) gradient, converged and FD-verified
 

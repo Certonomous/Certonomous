@@ -512,6 +512,15 @@ components. On the hump the same switch replaces the `-9` NaN with a completing
 factorization and a monotonically descending (but slow) residual, stopped at the
 memory envelope — details and the remaining hump question in that document.
 
+> **Correction, dated 2026-08-11 (hump-adjoint attempt audit).** "Stopped at the memory
+> envelope" reads as though memory bound the run. It did not, as far as anything measured
+> shows: the hump arm was killed by a `docker stop` this session issued because a shared
+> box was low on RAM, at iteration 900, and it **never produced a `KSPConvergedReason`**.
+> So the hump gets no rate measurement and no memory-envelope measurement out of that run
+> — only "no convergence observed in the 900 iterations run". The CBFS sentences above are
+> unaffected. The hump adjoint boundary is uncharacterised; the missing measurements are
+> priced in `W4_ADJOINT_PC_UNBLOCK.md` §5b.1.
+
 ## 5. Cost scoping, measured rather than estimated
 
 | quantity | tutorial case (works) | NASA hump (blocked) |

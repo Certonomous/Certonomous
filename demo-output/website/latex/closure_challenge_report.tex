@@ -1365,9 +1365,22 @@ Results:
   the factorisation completes and the residual descends monotonically
   (1.094 $\rightarrow$ 0.954 over 900 iterations, accelerating) but does not converge, and
   the run was stopped deliberately when host \code{MemAvailable} fell to 1.62\,GB on a
-  shared box. \textbf{The hump blocker is no longer a singular factorisation --- it is
-  Krylov convergence rate against a memory envelope}, which is a different, honestly named
-  problem.
+  shared box. \textbf{The run never produced a \code{KSPConvergedReason}}: it was killed by
+  a \code{docker stop} this laboratory issued, not by an allocation failure or a solver
+  verdict. So what is established on the hump is that the \code{-9} is gone and that
+  \emph{no convergence was observed within the 900 iterations run} --- the convergence rate
+  was never measured to completion and the memory envelope was never shown to be binding.
+  \textbf{The hump adjoint boundary is uncharacterised}, and it is not claimed as a measured
+  capability boundary in either direction: nothing here shows the operator is singular
+  either.\footnote{Corrected 2026-08-11 (hump-adjoint attempt audit). Earlier drafts of this
+  report stated that ``the hump blocker is no longer a singular factorisation --- it is
+  Krylov convergence rate against a memory envelope''. That is a causal claim resting on a
+  single run killed at iteration 900 with no reason code, and it is withdrawn. Curing a
+  singular ASM \emph{sub-block} factorisation constrains the preconditioner, not the
+  matrix-free operator GMRES applies. The measurements that would settle it are named and
+  priced at \texttt{W4\_ADJOINT\_PC\_UNBLOCK.md} \S5b.1 (365 core-min, of which the first
+  40 are decisive), and they include an environment-off negative control that exists on
+  CBFS and has never been run on the hump.}
 \end{itemize}
 
 Finite-difference verification of the CBFS gradient met its pre-declared gate at 13--45
@@ -2115,9 +2128,14 @@ design that does not lean on a single in-regime validation case.
   and the re-inversion is in flight against a 450 core-min cap
   (\S\ref{sec:reinversion}). \textbf{What it can establish is unchanged and still modest};
   what it has already established is that this laboratory's gates catch its own defects.
-\item[The hump remains open, honestly named.] Its adjoint blocker is Krylov convergence
-  rate against a memory envelope rather than a singular factorisation; a Richardson-wrapped
-  configuration capping the restart basis is staged and unrun. Its \emph{entry} blocker is
+\item[The hump remains open, and its adjoint blocker is uncharacterised.] The one attempt
+  that got past the \code{-9} was killed at iteration 900 with no \code{KSPConvergedReason},
+  so we can say no convergence was observed in the iterations run, and we cannot say whether
+  the limit is convergence rate, memory, or the conditioning of the operator itself ---
+  corrected 2026-08-11, having previously been stated as ``Krylov convergence rate against a
+  memory envelope rather than a singular factorisation''. A Richardson-wrapped configuration
+  capping the restart basis is staged and unrun, and is one of six measurements priced at 365
+  core-min that would convert the assumption into a measurement. Its \emph{entry} blocker is
   different and unmoved: no legal held-out flow sits at the hump's Reynolds number, the
   nearest donor extrapolates on 7 of 7 features, and we already know the case's score --- so
   any model choice made today is made by somebody who has seen it. One untried probe would

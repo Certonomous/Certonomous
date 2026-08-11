@@ -34,6 +34,18 @@ produces INDETERMINATE, never a silent pass.
 | 8 | **CBFS dump matrices** (`cbfs_dump`, `cbfs_force_dump` — the 8.67-decade / exact-zero-pivot spilu offline mechanism) | logs 08-02 05:35 / 06:37 | own staged case copies, same bit-identical start state as every 2x2 arm, renames succeeded | **COLD-CLEAN** (same-state as the arms whose behavior they explain — which is exactly what the offline mechanism claim needs) |
 | 9 | **This campaign's entry-8 chain** (record `-5` anchor, TPC1 convergence, negative control, FD PASS) | all logs preserved in `A3-onera-m6-sweep-n15_21840/` | every decisive run carries the in-log cold proof `0.5969274433533561` after an explicit `decomposePar -fields` restoration; the one warm run (sub-LU attempt 1) was caught, disclosed, and discarded in-session | **COLD-CLEAN by construction** |
 
+> **Note on row 4's label, dated 2026-08-11 (hump-adjoint attempt audit; the audit's own
+> COLD-CLEAN verdict is untouched).** Row 4 describes the hump sub-LU arm as "removes `-9`,
+> leaves slow Krylov vs memory envelope". That label was inherited from the record being
+> audited, and that record's causal half has since been withdrawn: the arm never produced a
+> `KSPConvergedReason` (killed by `docker stop` at iteration 900), so neither "slow Krylov"
+> nor "memory envelope" was measured — only "no convergence observed in the 900 iterations
+> run". Read row 4 as **"removes `-9`; no reason code reached"**. The warm-start verdict is
+> unaffected and stands. What this audit *did* establish about that arm is now load-bearing
+> in the other direction: **"single run; no rerun existed to contaminate"** is the same fact
+> as **"never reproduced"** — the hump has 11 recorded adjoint attempts and zero deliberate
+> reproductions. See `ladder-b/W4_ADJOINT_PC_UNBLOCK.md` §5b.1, items M2 and M3.
+
 ## Summary
 
 - **No standing record-grade conclusion is overturned.** The two WARM flags land on (6) lever
