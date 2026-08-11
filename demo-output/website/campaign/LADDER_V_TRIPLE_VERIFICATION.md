@@ -367,9 +367,64 @@ meant disjointness of the third set had to be asserted mechanically instead of t
 files now live in a uniquely-named subdirectory; **agents share that directory and can destroy each
 other's evidence without either noticing.**
 
-**The rung is BUILT and GRADED TWICE, and both rounds of exceptions are closed by the same agent
-that built it** — so the re-grade is owed to someone else. Under A15 no agent grades its own work,
-and that applies to a fix round exactly as it applies to a build.
+### 2026-08-11, fourth pass — graded a third time; both commissioned exceptions close, two new ones found
+
+`campaign/V16_GRADE.md` §9. Both were closed and **verified by breaking them**, including four
+purpose-built decoys against the parser's own concession — which held and was called *"exactly as
+wide as it says… the first sentence in this rung's history that describes a limit instead of denying
+one."* The two new exceptions were **neither of the things the grader was sent to check**:
+
+1. **`_published_board` said "NEVER raises", and raised.** `read_text(encoding="utf-8")` sat inside
+   `except OSError`, and **`UnicodeDecodeError` is a `ValueError`.** One non-UTF-8 byte in the
+   benchmark README took down *the entire `self_audit` run* — every sibling check with it. **It is
+   the second time the same crash class has been fixed in this one function**, the first being a
+   regex metacharacter fixed by escaping: *a fix for one exception type, which is what invited a
+   second through a different type.* So the fix is a **boundary, not another `except` clause** — the
+   read and parse moved into `_parse_published_board`, free to raise, behind a wrapper nothing can
+   escape. Its scope is deliberate: only the third-party file we do not control is wrapped, because
+   a check that catches everything everywhere hides its own defects. Verified by planting a byte and
+   running the whole audit: **PASS 13 / WARN 9 / FAIL 9, exit 0.**
+2. **The reach table was stale by the commit that installed it.** Rule B was widened and the table
+   shipped in the same commit, so four rule-B sentences moved from missed to caught and nothing
+   re-measured — and the table then **contradicted its own rule-B row** about those same five
+   sentences. Recorded 24/45 and 43/45; measured **20/45 and 42/45**. The error was **pessimistic**,
+   which is why it is a defect of derivation and not of candour. *The figures had been made generated
+   so they could not drift between surfaces — and generation stopped one level short of the
+   measurement.*
+
+**And the class is now closed rather than the instance.** The grader committed both its held-out
+sets as a runnable file carrying no faults of its own; I committed my 46 beside it the same way.
+**Every published figure now recomputes from sentences that live in the repository**, with a test
+that reddens on any disagreement, a test that the adversarial set's three positive controls are
+still caught, and a test that neither evidence file is itself a corpus of faults. The `before`
+column is history against patterns that no longer exist, cannot be recomputed, and is marked so.
+**Storing a measurement whose inputs are not in the repository is what made all three of these
+stale.**
+
+Folded in with them: the itemised failure list **read unconditionally where it is conditional** (a
+qualifying decoy beside an invalidated real board yields the decoy, silently); `_BOARD_WHO_COL`
+matched **unanchored**, so `Filename` and `Hostname` counted as naming the entrants; and the live
+**operating margin is now printed in the verdict** — the real README has 2 table blocks and 1
+qualifies, so **the guard sits one third-party edit from DISABLED where it used to sit one edit from
+WRONG.** Stated rather than fixed: rule B's widening faulted **six new places on lab records,
+including the grade document that commissioned it**, so *"each measured across the repository before
+keeping"* did not hold for the frame the repository had. From here a measurement in that file names
+the moment it was taken.
+
+**L-76, applied as ordered and executed rather than read**: 36 absolute-shaped words across 17
+surfaces — docstrings, BASIS, REMEDIES, verdict line — enumerated by regex rather than by eye and
+each falsified by construction. **All hold.** The one apparent failure was my own probe using
+one-letter surnames, which the parse rejects by design.
+
+**THE L-76 PATTERN, THREE GRADES RUNNING, ONE FUNCTION.** *"Can no longer mis-parse silently"*;
+*"does not return a board it is unsure of"*; *"NEVER raises"*. **The instrument was sound at every
+step and a sentence about it was wrong at every step** — and the third time, the sentence was
+backed by a real crash with a twenty-check blast radius. An absolute in this lab is an unverified
+claim until someone executes it.
+
+**The rung is BUILT and GRADED THREE TIMES, and every round of exceptions is closed by the same
+agent that built it** — so the re-grade is owed to someone else. Under A15 no agent grades its own
+work, and that applies to a fix round exactly as it applies to a build.
 
 **The round is not scored PASS.** It fixed what it was sent to fix and it opened a new-shaped
 finding, which under the termination rule is exactly what a **non**-fixed-point round looks like.
