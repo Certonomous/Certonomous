@@ -3820,6 +3820,44 @@ named.
   included it**; and a JSON and an HTML file **carry placement language on machine-read surfaces the blind-spot list
   does not distinguish from prose.**
 
+### 2026-08-11 — Katie's directives land: the ladder gets a floor, and the findings a closing rung must not swallow get a queue
+
+**The problem the directives name, in one sentence: V16 took four grade rounds, each found something real, so none was
+waste — and a rung that can always find one more thing has no stopping condition.** The termination rule said when the
+LADDER is green. Nothing said what stops a single RUNG.
+
+- **Three rules adopted into `LADDER_V_TRIPLE_VERIFICATION.md` (`a2ae6dd5`).** **R-CONVERGE**: a rung declares CLOSED —
+  artifacts, claims, pass criterion — before its first grade, and a new exception outside that scope is **filed, not
+  appended**. **R-DEPTH**: an instrument checking an instrument checking a claim is depth 2, and that is the cap;
+  depth-3 work is filed unless a depth-2 finding falsified something published. **R-VALUE**: two consecutive rounds
+  returning only findings that would not move an external reader's belief closes the rung **PASS WITH RESIDUALS**.
+  None of the three can end a rung quietly — a closure names its residuals, a filing names the rung it came from.
+- **`docs/DOCKET.md` is the third option** between absorbing every finding (the rung never closes) and dropping them
+  (worse). Seeded with Katie's four open decisions, seven machinery items, the memory items, and the standing tasks.
+- **The docket's own first entry was a thing already done** (`b3de90c5`). I filed `docs/MEMORY_ARCHITECTURE.md` as
+  needed; it has existed since 2026-08-10 and carries all four required parts. One `ls` would have caught it. **Left
+  struck through rather than deleted** — a docket whose first defect is a claim its author never checked is the most
+  useful entry it could have. In its place: **the cold-start answer key in that document's §6.4 is itself stale**, fixing
+  the lesson corpus at L-53 when it runs to L-79, so a fresh agent answering correctly today is scored **wrong** by the
+  key. That is the quoted-generated-number class the docket lists as B4, inside the instrument built to detect it.
+- **The fail-open population is written down BEFORE its sweep** (`aeafa3db`, `docs/FAIL_OPEN_GATE_POPULATION.md`), so the
+  sweep cannot pick its own denominator: **419 `except` sites over 42 verdict-bearing tracked `.py` files**, frame
+  **tracked-only** and saying so. It is explicitly **a population, not a defect list** — most of those sites are correct,
+  and calling 419 fail-open gates would be L-67's inflation again. The sweep owes a positive control and has a free one:
+  the V16 defect is a known-positive instance of the exact shape.
+
+**Four agents dispatched against it, each with a declared scope and a named owner per file, because two agents in one
+file is how this tree loses work:** the sanctioned `sweep()` helper plus a re-derivation of every published `grep`-based
+count (**B1, the highest-priority item — `grep` here execs `ugrep --ignore-files`, so every repo-wide sweep ever run
+silently excluded the case archives**); the V16 fix round on its four declared exceptions; the **monthly cold-start
+test**, dispatched with exactly the one instruction its own spec requires; and the fail-open sweep over the population
+above, excluding `self_audit.py` while V16 holds it.
+
+*Also recorded, in the durable memory rather than here because it is an environment trap and not a lab lesson:*
+`pkill -f <pattern>` **kills the shell running it**, because the pattern sits in that shell's own command line. It ate a
+chained `git commit` tonight and reported only a bare exit code — the intended kill succeeded, so the visible state
+looked right and only the un-run tail was missing.
+
 ### Decision requests for Katie (standing)
 
 **COMPUTE AUTHORISATION REQUESTED — 40 core-min to convert an assumed boundary into a measured one.**
