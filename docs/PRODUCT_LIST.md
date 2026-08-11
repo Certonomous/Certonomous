@@ -2609,6 +2609,38 @@ clock-audit rule asks for.]*
   control settles and the members do not, **the perturbed cases may have no steady solution at all** — in which case
   no target and no cap would ever produce one.
 
+### 2026-08-11 — the ordinal sweep finds the defect's source, and the guard we built tonight cannot see this class
+
+- **F1 fixed with the board verified at the frozen commit AND re-derived arithmetically** — the benchmark's own
+  scorer re-run over every entrant's eight CSVs, giving the same ordering the README states. Not taken from a report.
+- **THE SWEEP FOUND THE SOURCE, not just the symptom.** Frame: 20,542 tracked files → 111 referencing the
+  leaderboard → **107 entrant-adjacent rank statements, 18 flagged, 17 proximity artifacts checked by hand, 2 real.**
+  The second is **the same wrong ordinal in the sentence family that SEEDED the travelling copy** — the defect had a
+  parent, and fixing only the child would have left it to be re-copied.
+- **The agent's own instrument failed first, exactly as the auditor's had.** Its line-bounded pass scored 63 of 64
+  and missed the second instance, because that line ends mid-phrase with the entrant's name on the next line. Its
+  conclusion generalises the night's most-repeated defect: **a line-bounded reader missing a wrapped claim is not
+  specific to one token.**
+- **A THIRD instance of the same shape, carried by a comparative rather than an ordinal**: *"the runner-up"* used for
+  the entrant who is **rank 1** on the published board. True only in a five-way list with our own unsubmitted entry
+  on top — **the identical silent rank-1 assertion**, in the travelling document, three sections before the passage
+  that states the claim properly. Three sites fixed.
+- **What it deliberately did NOT touch is as good as what it fixed:** all eight per-case ordinals re-derived
+  independently and found correct; and statements under dated round-3 headings left alone because **re-basing them
+  onto round 5 would destroy the record.** One "verbatim" claim was **measured** — 30 body lines byte-identical, the
+  heading replaced and demoted, a blank line changed — and all three stated, because *"only the heading changed"
+  would have been the same overreach one line smaller.*
+- One correction was **worse than stale**: a record printed the misrounded value **inside the very sentence
+  introducing the re-score as its corrective.** Amended, with everything the block protects left standing.
+- **ESCALATED AND NOT TAKEN — the guard we built tonight cannot see this defect class.** Its rank-claim pattern is
+  **digit-anchored**, so neither the wrong ordinal, nor its parent, nor any "runner-up" site would ever have fired —
+  and **the file's own comment already admits it** cannot see a rank claim phrased in words. The agent refused to
+  extend it on the ground that **new guard patterns are unverified code entering the ladder**, and recommended a
+  rung instead. Correct, and it is now the ladder's next structural gap.
+- Also escalated rather than resolved: one sentence that is **false on overall standing and true on the ducts it is
+  actually about** — with the cover email's parallel phrasing named as the candidate fix precisely because it
+  carries no placement word at all.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
