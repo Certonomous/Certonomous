@@ -1523,20 +1523,89 @@ class ShootRoundTests(unittest.TestCase):
                     self.assertFalse(roles[i] == roles[i + 1] == roles[i + 2],
                                      f"{roles[i]} three times at entry {i}")
 
+    # THE CONTRACT THE FLEET NUMERAL KEEPS, stated here in full because the
+    # assertion below is the only place it is written down:
+    #
+    #   1. it starts at zero and ends at zero;
+    #   2. it comes up EXACTLY ONCE — once up it never returns to zero until
+    #      there is no more work, so there is no bounce between the screening
+    #      sweep and the finalist wave;
+    #   3. while it is up it only ever FALLS, never climbs a second time; and
+    #   4. every level it holds equals the fan-out ACTUALLY RUNNING at that
+    #      moment — the slots the screening sweep dispatched to, and the slots
+    #      that carry a VSPAERO solve in the finalist wave.
+    #
+    # WHAT THE CONTRACT DOES NOT SAY IS THAT THE FLEET HOLDS ONE NUMBER FOR
+    # THE WHOLE RUN, and the assertion here used to say exactly that:
+    # `assertEqual(len(shape), 3)` admitted no change of size at all. That is
+    # stricter than the sentence above it has ever been — the sentence forbids
+    # a bounce back to zero, which is a different thing — and stricter than
+    # the workflow, which gives min(granted, 112) slots to the screened grid
+    # and min(granted, 9) to the finalists. Those two differ on any box with
+    # more than nine slots to grant, so the old assertion's verdict was a
+    # function of how busy the machine was rather than of the code: on
+    # identical source it passed at capacity 9 and below (where the two levels
+    # coincide) and failed at 10 and above. It flipped mid-session on this box
+    # — capacity 14 and red at 02:41, capacity 5 and green at 02:47, with
+    # eight other solver jobs in between. The comment and the assertion have
+    # disagreed since both landed (6a927922), and the test passed at first
+    # only because the box was loaded when it was written.
+    #
+    # A step DOWN as the work shrinks is the numeral tracking the fleet, which
+    # is what the control room asks of it ("rise when workers go on the mesh,
+    # hold while they solve, fall when they are released") and what rulings R2
+    # and R10 require: a worker count is a claim about the run, so 14 slots
+    # may not stay on the KPI while nine threads solve nine wings. A step BACK
+    # UP is the defect this test exists for — the 0, 7, 0, 7, 0 that d806b8d6
+    # removed — and rules 1 to 3 still fail on it, at both capacities. That
+    # was checked by restoring the bounce against this file.
+    #
+    # The capacities are FORCED so both shapes are exercised on every box: one
+    # too small to grant more than the finalist count holds a single level,
+    # a larger one steps down to the finalist wave. A fleet test whose path
+    # depends on the free-core count is how this one stayed red for ten days
+    # while the workflow was correct.
     def test_the_fleet_comes_up_once_and_goes_down_once(self):
-        # 0, then the fleet as sizing starts, then 0 at completion. No bounce
-        # back to zero between the screening sweep and the finalist wave.
+        from chief_engineer import compute_audit
+
+        def _box(cores):
+            return lambda: {"cores": cores, "memory_total_mb": 64 * 1024,
+                            "memory_available_mb": 32 * 1024, "load": 0.0,
+                            "solver_jobs": 0, "scripted_load_jobs": 0}
+
         for api in (None, _SolvedApi):
-            with self.subTest(api=api):
-                events = self._run(api=api)
-                counts = [p["workers"] for e, p in events
-                          if e == "roster.update"]
-                shape = [n for i, n in enumerate(counts)
-                         if i == 0 or n != counts[i - 1]]
-                self.assertEqual(len(shape), 3, shape)
-                self.assertEqual(shape[0], 0)
-                self.assertGreater(shape[1], 0)
-                self.assertEqual(shape[2], 0)
+            for cores in (8, 24):     # grants 6 and 22; 9 finalists either way
+                with self.subTest(api=api, cores=cores):
+                    with mock.patch.object(compute_audit, "_probe",
+                                           _box(cores)):
+                        events = self._run(api=api)
+                    counts = [p["workers"] for e, p in events
+                              if e == "roster.update"]
+                    shape = [n for i, n in enumerate(counts)
+                             if i == 0 or n != counts[i - 1]]
+                    # 1. zero at each end, and it did come up.
+                    self.assertGreaterEqual(len(shape), 3, shape)
+                    self.assertEqual(shape[0], 0, shape)
+                    self.assertEqual(shape[-1], 0, shape)
+                    levels = shape[1:-1]
+                    self.assertNotIn(0, levels, shape)
+                    # 2 and 3. one rise, at the start, and nothing but falls
+                    # after it. A bounce needs a second rise to recover from.
+                    rises = [i for i in range(1, len(shape))
+                             if shape[i] > shape[i - 1]]
+                    self.assertEqual(rises, [1], shape)
+                    # 4. each level is the fan-out that was really running.
+                    sizing = {p["slot"] for e, p in events
+                              if e == "dispatch.update"
+                              and p.get("detail") == "research sizing"}
+                    self.assertEqual(levels[0], len(sizing),
+                                     (shape, sorted(sizing)))
+                    if api is not None:
+                        solving = {p["slot"] for e, p in events
+                                   if e == "dispatch.update"
+                                   and p.get("detail") == "VSPAERO solve"}
+                        self.assertEqual(levels[-1], len(solving),
+                                         (shape, sorted(solving)))
 
     def test_the_plan_is_the_researchers(self):
         events = self._run()
