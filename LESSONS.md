@@ -2955,3 +2955,39 @@ plainly *"NOT EVALUABLE ON THIS HOST — no reason code was obtainable"* — and
 written four days after the run it was needed for, and never applied to it.
 **Having the right instrument and not pointing it at the right case is
 indistinguishable, in the record, from not having it.**
+
+## L-72. A suite count is true of a commit, not of a moment — and a failed notification is not evidence that nothing was done
+
+Two measurement errors from the same night, both about **what a number is
+attached to**.
+
+**The count.** A commit message in this repo records *"Suite 1309 passed."* A
+later sweep, run against a named commit and verified file-by-file, found that
+commit defines **1300** test functions. The nine extra were **uncommitted tests
+in the working tree** at the moment the total was taken. The number was real when
+observed and is **unreproducible by anyone, ever**, including its author — there
+is no tree to check it against.
+
+This is not pedantry on a shared box. During that same sweep **HEAD moved eight
+commits** and 31 new test functions appeared. The sweeper's own conclusion is the
+rule: *"the suite has one resource-dependent test" is true of a commit, not of a
+moment*, and it stated which commit. **Any total taken from a working tree that
+other agents are committing to must carry the commit it was taken at, or it is a
+reading nobody can repeat.** The same applies to defect counts, file counts and
+corpus denominators — all of which moved by double digits tonight.
+
+**The notification.** A background agent's completion arrived with status
+`failed` and a result field containing one opening sentence — *"I'll start by
+reading the specification…"*. I read that as death at the first tool call and
+sent a full restart brief. **The agent had already finished the entire sweep**:
+231 tool calls, nine full-suite runs. The notification carried the **first** line
+of its response, not the last, so completed work was indistinguishable from work
+that never started.
+
+Practical form: **before restarting a failed agent, look for its artifacts, not
+its status.** A finished agent has committed files, written reports, left a git
+trail. And when resuming one whose state you cannot determine, say *"report what
+you already completed; do not redo it"* rather than sending a fresh brief — a
+restart brief handed to a finished agent invites it to repeat expensive work. This
+one declined and did only what was genuinely new, but that was its judgement
+rather than my instruction, and the next one may not.
