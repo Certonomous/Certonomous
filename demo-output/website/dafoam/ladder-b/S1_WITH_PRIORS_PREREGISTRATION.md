@@ -525,8 +525,26 @@ into whichever survives: **the penalty value and gradient are composed host-side
 (`invert_lbfgsb.py:111–114`), so changing the prior's *form* needs no DAFoam change and no
 new FD gate. That materially lowers the cost of the prior change itself, and it is correct.
 
-**What is settled by execution, not judgement — the plateau-balance control.** That file's
-§8, and its `docs/DOCKET.md` D8 row, report the published triple
+**What is settled by execution, not judgement — the plateau-balance control.**
+
+> **[UPDATED 2026-08-11 by the chief supervisor, after acting on this section.** Two pointer
+> corrections, both of the kind that rot quietly. **(1)** The docket row named below as `D8`
+> was renumbered **`D8b`** when it was landed — it had been filed as a second `D8` by a
+> concurrent session while another row already held that number, the third such collision in
+> that file the same day. **(2)** The sentences below are written in the present tense about
+> a state that has since changed: `S1_PRIORS_PREREGISTRATION.md` **§8 is now WITHDRAWN** and
+> its **gate G-P4 restored to the ratio-and-cosine form** (commit `57fd0d83`), on the
+> strength of exactly the measurement recorded here. The refutation below stands unedited
+> because it is the evidence; only its object has moved.
+>
+> **The reason the restoration mattered more than the arithmetic**, and it is worth stating
+> where the refutation lives rather than only where the withdrawal does:
+> `|g_penalty| = 2·λ_L2·‖β−1‖₂` is an **identity**. Any treatment knowing λ_L2 and β
+> reproduces it exactly, **including one whose posterior is wrong** — so the re-basing had
+> replaced a control that can fail with one that cannot. The **cosine** is the leg carrying
+> whether the prior pull actually opposed the likelihood gradient.**]**
+
+That file's §8, and its `docs/DOCKET.md` D8b row, report the published triple
 (`|g_pen|/|g_QoI| = 0.998`, `cos = 0.9995`) as failing to reconcile with the archived field
 **by a factor 1.684**, and re-base its gate G-P4 onto `|g_penalty|` alone in consequence.
 **The published triple reconciles.** §3 of this document measured all three from disk —
