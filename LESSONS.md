@@ -2459,6 +2459,41 @@ fix one file.
 This is the same family as L-46 and L-55: an artifact whose appearance and whose
 content disagree, where every instrument in the loop reports the appearance.
 
+**[2026-08-11 — it fired twice more the same day, in a repo that already carried
+this entry, and the second time it caught the chief.]** A ratchet test
+(`test_exec_bits.py`) flagged four files committed between 16:52 and 17:00; two
+different workers went to fix their own and both hit this, independently, hours
+after L-59 was written down. Neither had read it. **A documented trap is not a
+prevented trap** — the lesson lives in a 3,400-line file nobody reads cold, and
+the only thing that actually stopped it was a test that fails loudly at the
+moment of the mistake. **That is the argument for spending effort on ratchets
+rather than on prose**, and it is an argument against this file's own growth as
+a mitigation strategy.
+
+Two details worth adding, because the first occurrence's write-up did not have
+them and both cost time on the repeat:
+
+- **The index lies more convincingly than expected.** After
+  `git update-index --chmod=+x`, `git ls-files -s` prints **`100755`** — the fix
+  looks landed. `git status` then reports **"no changes added to commit"**,
+  because with `core.filemode=false` it declines to see the mode difference at
+  all. So one instrument says fixed, the next says nothing to do, and the commit
+  does nothing. Only `git ls-tree HEAD` disagrees, which is what the rule above
+  already says and what neither worker did first.
+- **The pathspec commit is the mechanism, not the chmod.** `git commit -- <path>`
+  **re-derives that path from the working tree**, discarding the staged mode.
+  So the failure is not "the chmod did not reach the index" — it did — it is that
+  the commit form this lab mandates for shared trees throws it away again. Both
+  workers converged on the same fix: `git -c core.fileMode=true commit -- <path>`,
+  keeping the pathspec and the scoped override together.
+
+**The uncomfortable part: our own commit discipline is what makes this fire.**
+A bare `git commit` would have landed the staged mode bit correctly. The pathspec
+rule exists for a good reason (§9.6b: a pathspec isolates by file, not by author)
+and it interacts badly with `core.filemode=false`. Two rules, each right, whose
+intersection silently drops a change — worth remembering when the next standing
+rule is written.
+
 
 ## L-60. An excuse can be inherited without the evidence that earned it
 
