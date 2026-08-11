@@ -1,6 +1,6 @@
 # Certonomous Verification Charter
 
-Version 1.6, dated 2026-08-10. Defines what counts as done. It binds every
+Version 1.7, dated 2026-08-11. Defines what counts as done. It binds every
 solve, every gradient check, every ladder rung and every number that reaches a
 record, a certificate or a camera surface.
 
@@ -699,6 +699,67 @@ method rather than the result: **anything a surface states about how a number
 was produced is subject to the evidence record.** Ranks, wall time, cell count,
 solver name, iteration count. If the run did not do it, the surface does not
 say it.
+
+## 6a. The referent travels with the verdict (added 2026-08-11)
+
+> **A verdict label — VALIDATED, PASS, verified, confirmed, reproduces — carries
+> the thing it was checked against, on every surface it appears on. Where there is
+> no external referent, the label says so.**
+
+**This is section 6's rule applied to the one field it kept leaving out.** Section 6
+already binds what a surface may say about *how* a number was produced. A verdict
+also states *what it was checked against*, and that field has been travelling
+optional.
+
+**Why it is a separate clause rather than an obvious consequence.** The B6 audit of
+2026-08-11 classified 1,549 verification sections across 297 tracked documents and
+found the corpus in better shape than expected: the lab has repeatedly caught and
+retracted verifications that could not fail, and one credentials-wall row already
+implements the "declares it has none" clause. **The live defect is not blindness —
+it is transmission loss.** The referent is stated correctly in the canonical record
+and does not survive the trip to the surface people read. Four of that audit's seven
+findings are this and nothing else.
+
+Two of them are on **camera surfaces**, which is why this clause is in the charter
+rather than in a report:
+
+- A gate names two published authors over a correlation whose constants the repo
+  attributes to its own task prompt. The number passes at 0.75% against the form
+  actually used and **misses at 5.54% against the form named on screen.**
+- A `VALIDATED` chip earned **code-to-code against another solver's tutorial
+  documentation** — stated plainly in the case record, which refuses the workshop
+  band by name — loses the qualifier on the filmed table, where it then reads as
+  the best *experimental* agreement beside two rows that genuinely are.
+
+Neither is a wrong number. Both are a correct number whose meaning did not travel.
+
+**The precedent, and the reason this is a generalisation rather than an invention.**
+The lab already built this mechanism once: the rank-1 score carries a *mandatory*
+caveat wherever rank is claimed, and nine files move in lockstep on it. That rule
+was written for one number. **This is the same rule, unpinned from that number.**
+
+**What satisfies the clause:**
+
+- **EXTERNAL** — a published value, an exact analytic result, a benchmark
+  distribution, an independent implementation. Name it specifically. "Validated
+  against the literature" names nothing.
+- **SELF-REFERENTIAL** — checked with the same code, helpers or conventions as the
+  thing checked. **This is not a defect and must not be hidden.** Transcription
+  fidelity is worth having; it is worth having *labelled*, because it is routinely
+  read as external.
+- **NONE** — say so. `F9 is verified in part and validated against nothing` is a
+  model sentence. It costs nothing and it is impossible to misread.
+
+**The failure this forbids** is L-74's: a check written with the same helpers as the
+thing it checks proves only that a number was transcribed faithfully, while the
+question everyone believes it answers is whether the number is right. The sharpest
+instance found on 2026-08-11 was a cross-check whose divisor had been **fitted to the
+printed value in a sibling document** — a check that could not fail, reported as
+confirmation.
+
+**Scope.** Load-bearing verdicts: anything a published conclusion rests on, and
+anything that reaches a camera surface, a credentials-wall entry or a certificate.
+Not working notes.
 
 ## 7. FD tables are required for every adjoint
 
