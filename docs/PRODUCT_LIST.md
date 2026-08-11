@@ -19,8 +19,13 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       (21,000 DVs, KSP reason 2) with FD 0.059–0.199% vs the 2.67% bar, zero sign flips — first converged, FD-verified
       field-inversion gradient on a closure-relevant case. Regression control reproduces -9 with the switch off.
       fixedPoint route refuted at zero compute (SA-only); "unreachable at runtime" belief corrected (L-34). 185.0/240
-      core-min. Hump now blocked on convergence RATE vs memory envelope, not singularity — Richardson-wrapped attempt
-      staged for a fresh budget.
+      core-min. ~~Hump now blocked on convergence RATE vs memory envelope, not singularity~~ — **CORRECTED
+      2026-08-11: the hump's adjoint boundary is UNCHARACTERISED, not diagnosed.** The account rested on one attempt
+      killed at iteration 900 whose log contains `ConvergedReason` **zero times**; no allocation failure, no OOM, no
+      PETSc memory error — the non-zero exit was the container stop, not a KSP verdict. So the rate was never measured
+      to completion and the memory envelope was never shown to be binding. **We equally have no evidence the operator
+      IS singular**; the honest statement is that no convergence was observed within the iterations we ran.
+      Richardson-wrapped attempt staged; its "fresh budget" was never actually requested.
       Note: DAFoam's native beta hook is on omega *production*; destruction-term hook needs a model patch
       (`w3-beta-on-omega-destruction-model-patch`).
       FIRST INVERSION RUN 2026-08-04→07 (`S1_CBFS_INVERSION_RESULT.md`, 335.98/600 core-min, pre-registered e6321e95):
@@ -3069,7 +3074,59 @@ check was commissioned, and it is the best argument tonight for never letting an
 - **Found while not looking: 4 zero-byte completion records** whose logs hold 3.6–6.5 MB of real solver output — the
   collector wrote **nothing**. Same *"absence reads as nothing happened"* family. Queued as its own rung.
 
+### 2026-08-11 — the hump's adjoint boundary is uncharacterised, not diagnosed, and 8 claim sites are corrected
+
+**Both findings confirmed against the artifacts before a word was changed.**
+
+- **A6's log contains `ConvergedReason` ZERO times.** 2,279 lines ending mid-run at iteration 900. `rc=1` with **no
+  allocation failure, no OOM kill, no PETSc memory error anywhere** — **the non-zero exit was the container stop, not
+  a KSP verdict.** Memory available at the end: 1.6 GB. So neither half of *"rate, not singularity"* was measured.
+- **The claimed hump gradient really never existed.** The FD-verified 3-cell gradient belongs to CBFS — the cells sit
+  under a heading that says so. The hump has 51,626 DVs, **no gradient line in its log at all**, and its FD harness
+  **exists but has never been executed.** The reach document's hump line was **a second count of the CBFS gradient
+  under the wrong case name** — and CBFS is already listed two clauses earlier in the same sentence.
+- **It added an argument the audit did not make**, and it is the strongest one: **the sub-LU repair cannot license
+  "not singularity" at all**, because what it repaired is a singular ASM sub-block *incomplete* factorisation while
+  GMRES applies the matrix-free operator — the operator/PC mismatch our own record documents on the other case.
+- **8 claim sites corrected across 6 files, plus 2 outward-facing PDFs rebuilt**, with `pdftotext` confirming the only
+  surviving instances of the phrase are inside explicit withdrawal quotes. Dated records got corrections **beside**
+  them; the one claim that was **wrong when written rather than overtaken** was corrected in the body **with the
+  original sentence quoted in full**, so the record of the claim survives.
+- **My own file was the outstanding one.** `docs/PRODUCT_LIST.md:22` stated the withdrawn claim as **present-tense
+  fact** while a later entry in the same file carried the correction — **the file contradicted itself.** Fixed above.
+- **Search denominator, stated properly: 4,940 candidates enumerated, 4,938 scanned, 2 skipped**, across the repo and
+  the 66 GB run archive, **with whitespace collapsed before matching.** That is what caught the two report sites,
+  which phrase it as "Krylov convergence rate against a memory envelope" **without the word the natural line-grep
+  would have used.** Plus a proximity sweep (38 files, all read), a wrap-proof token pass over 1,087 files, and every
+  PDF in the tree checked via `pdftotext`.
+- **FOUND WHILE NOT LOOKING, and one is an inversion worth keeping:** the warm-start audit **already contained the
+  reproduction finding without naming it** — its rationale *"single-run record; no rerun existed to contaminate"* is
+  the same fact as **"never reproduced," read as a virtue.** Recorded as **L-71**.
+- Also: **`A6` names two different objects in this archive** — the hump sub-LU run in one table, a CRM wingbody case
+  in another. Same token, same subsystem, different things; a live collision hazard for exactly this kind of audit,
+  and not renamed because citations across many documents would break.
+- And **a cost basis stale by ~7×**: a proposal prices one hump gradient attempt at "about 8 core minutes"; A6
+  measured **54.60**. Correctly left alone — re-basing a dated pre-registration destroys what was budgeted on what
+  evidence.
+- **The instrument for stating an uncharacterised boundary already existed in this lab four days after the hump run**
+  — another record says plainly *"NOT EVALUABLE ON THIS HOST — no KSP reason code was obtainable"* — **and was never
+  applied to the hump.**
+
 ### Decision requests for Katie (standing)
+
+**COMPUTE AUTHORISATION REQUESTED — 40 core-min to convert an assumed boundary into a measured one.**
+The hump work is priced at **365 core-min total (M1–M6)**, but it should **not** be bought as a block. My
+recommendation is to buy **M1 + M2 only, at 40 core-min**, because they are the two that can make the rest
+unnecessary:
+- **M1 (25 core-min, OFFLINE)** — dump the hump preconditioner and RHS and run the **existing** offline harness for
+  exact LU and conditioning statistics. **This decides singular vs ill-conditioned vs merely slow without a long
+  solve at all**, using a tool already written and already applied to the other case.
+- **M2 (15 core-min)** — **the negative control that has never been run on this case in eleven attempts.** Returns at
+  iteration 0.
+**If M1 returns a singular or catastrophically ill-conditioned operator, the two expensive items (M4 at 100 and M5 at
+150) should not be bought at all** — and M5 is flagged as carrying an *unmeasured multiplier*, so 150 is its 1×
+figure. Nothing has been run; the list is priced and parked.
+
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
 3. Result-priority decision sheet D0–D7; escalation free-spend threshold (P-7.1); AWS read-only role for P-6.1.

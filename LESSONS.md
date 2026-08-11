@@ -2922,3 +2922,36 @@ reader finds one — and the assertion carries the message *"the control is void
 it proves nothing."* **A control that silently becomes vacuous is worse than no
 control**, because it keeps reporting success; wiring the vacuity check into the
 test itself is how you stop a positive control from quietly retiring.
+
+## L-71. "No rerun existed to contaminate it" and "it was never reproduced" are the same fact, and an audit read it as a virtue
+
+A warm-start audit graded one attempt **COLD-CLEAN** — the strongest cleanliness
+verdict it had — with the rationale that it was a *"single-run record; no rerun
+existed to contaminate"*. That is literally true and it is the same fact as
+**"this result has never been reproduced."** The audit was checking for
+contamination and found none, correctly. But the property that guaranteed no
+contamination was **the absence of any repetition**, and absence of repetition is
+the more important finding by a wide margin — it was invisible because the
+instrument was pointed at the other question.
+
+The general shape: **a property that makes one audit's answer clean can be the
+very defect a different audit exists to find.** A single-run record cannot be
+contaminated by its rerun, cannot disagree with its rerun, and cannot be
+falsified by its rerun. Cleanliness here is not evidence of quality; it is the
+signature of a measurement that was made once and never questioned. In the same
+programme, **eleven attempts on one case had zero deliberate reproductions**, and
+the sole clean verdict was resting on that.
+
+Practical form: **when an audit reports a clean result, ask what made it clean.**
+If the answer is "there was nothing to compare against," record that as a
+finding in its own right and route it to whoever owns reproducibility — do not
+let it be consumed as a pass. And when writing a verdict, state the *mechanism*
+of the clean result, not just its grade: *"COLD-CLEAN, because no rerun exists"*
+carries the warning that *"COLD-CLEAN"* alone destroys.
+
+The same programme supplies the companion lesson. **The instrument for stating an
+uncharacterised boundary honestly already existed** — a sibling record says
+plainly *"NOT EVALUABLE ON THIS HOST — no reason code was obtainable"* — and was
+written four days after the run it was needed for, and never applied to it.
+**Having the right instrument and not pointing it at the right case is
+indistinguishable, in the record, from not having it.**
