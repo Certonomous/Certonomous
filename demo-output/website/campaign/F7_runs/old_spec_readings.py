@@ -49,6 +49,20 @@ Time-origin readings:
                   transient
 
 Usage:  old_spec_readings.py <case_dir> [out.json]
+
+PATH DEPENDENCY -- READ BEFORE MOVING THIS FILE.
+    <case_dir> is resolved RELATIVE to the caller's working directory, and every
+    documented invocation is run from
+        demo-output/website/campaign/F7_runs/
+    with case arguments like `F7a_R1/res16_base` and
+    `damBreak_MM_a2p25in_medium_closedbox`.  The numbers this script produced for
+    `campaign/F7a_REGATE_SPEC.md` sections 1.3-1.5 were taken that way.
+    Docket item F (Katie's section 7 repo reorganisation) moves case data and
+    campaign artifacts.  When that window opens, this script and the invocations
+    recorded in the spec must be re-pointed IN THE SAME COMMIT as the move, or
+    the spec's exhibit becomes unreproducible.  There is no path autodiscovery
+    here and none should be added silently -- the spec's frame clause names the
+    paths on purpose.
 """
 import bisect
 import gzip
