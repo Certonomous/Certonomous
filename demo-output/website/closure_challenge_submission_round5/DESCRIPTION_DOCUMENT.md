@@ -257,7 +257,7 @@ in our repository and **1 day 22 hours before** it was read in full. No coeffici
 artifact of that model exists in any executable file we hold.
 
 **And the duct term carries the same honesty:** Spalart published QCR2000 in 2000,
-and a leaderboard entry above us already runs it.
+and an entry already on your board runs the same term.
 
 ## 5. The score, and what it is worth
 
