@@ -156,6 +156,38 @@ containment that the ungated ensemble had**
 4. A member that fails to produce any Cd (crash, no time directory) is reported
    as such with its failure mode.
 
+> **Premise correction, 2026-08-11 — the four rules stand and the gates above
+> them are exemplary; only the cited rationale is withdrawn.**
+> `campaign/F6D_ENSEMBLE_CONVERGENCE_AUDIT.md` re-measured the F6d ensemble and
+> found that **no member of it ever settled**: all 84 ran to a fixed cap under
+> an unreachable `residualControl` target, and the one integrated output the
+> tree retains still swings by 86% of its own level over the final 500
+> iterations at the median. Reattachment there tracks settledness monotonically
+> (most-settled quartile 7.21, least-settled 5.25), and the 12 members that
+> fail F6d's residual gate are 83% unsettled against 14% for the 28 that pass.
+> **So F6d's gate was largely separating converged from unconverged members,
+> not calm samples from hard ones, and the sentence "gating biases the band away
+> from the truth" asserts a reading whose confound was never excluded.** The
+> audit states this as correlational and names the competing physics reading it
+> cannot rule out on existing data; the 152 core-min continuation
+> pre-registered in `campaign/F6D_OPTION_A_PREREGISTRATION.md` discriminates
+> them.
+>
+> **Why this pre-registration is nonetheless in good shape, and is the model
+> the audit recommends elsewhere.** Gate (a) requires the solver's own
+> `SIMPLE solution converged` statement — which would have excluded the entire
+> F6d ensemble — and gate (d) is a *settledness gate on the reported quantity
+> itself* (Cd flat to 0.5% over the final 50 iterations). That is precisely the
+> discipline the audit concludes F6d lacked. Rule 2 already makes the **gated**
+> band primary, which is the correct ordering and the opposite of the inverted
+> rule the audit flags in `W2_DOW_STRUCTURAL_UQ_PROGRAM.md` §4.3.
+>
+> **The only operative change:** rule 3 should read *if gating changes the
+> containment verdict, that fact is the headline **and the first question asked
+> of it is whether the discarded members had converged*** — because on F6d's own
+> data that difference was the answer. Rules 1, 2 and 4 are unaffected. **No
+> gate has been moved**; this note adds a question, not a threshold.
+
 ---
 
 ## 5. Predictions, recorded before any of these numbers exist

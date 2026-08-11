@@ -22,6 +22,20 @@ MUTED = "#7a8b99"
 ACCENT = {"d0.2": "#2f6f9f", "d0.6": "#b8562f"}
 LES_C = "#1d7a52"
 
+# 2026-08-11. This band is drawn from members that never settled, and the
+# figure is the most exposed surface, so the caveat travels ON it.
+CAVEAT = (
+    "CONVERGENCE CAVEAT (2026-08-11): no member of this ensemble reached a steady state. "
+    "All ran to a fixed 4,000-iteration cap under an\n"
+    "unreachable residualControl target (p 1e-15 against its own 1e-12 solver tolerance), so none "
+    "printed a convergence statement.\n"
+    "Reattachment tracks how unsettled a member is -- most-settled quartile 7.21, least-settled 5.25 "
+    "-- and the members that carry\n"
+    "the agreement with LES are the least settled of all. The band's reach toward the green range may "
+    "therefore be an artifact of\n"
+    "incomplete convergence rather than a model-form result. See campaign/F6D_ENSEMBLE_CONVERGENCE_AUDIT.md."
+)
+
 res = json.loads((HERE / "aggregate_result.json").read_text())
 
 
@@ -130,6 +144,12 @@ def main():
         "F6d - random-matrix model-form UQ (Xiao, Wang & Ghanem 2016) on periodic hills, "
         "$Re_H$ = 10595",
         fontsize=12.5, color=INK, x=0.02, ha="left", y=0.985)
+    # 2026-08-11 -- the figure must carry the caveat, not only the prose that
+    # accompanies it. campaign/F6D_ENSEMBLE_CONVERGENCE_AUDIT.md.
+    fig.text(0.02, -0.035, CAVEAT, fontsize=9, color="#8c2f2f", va="top",
+             ha="left", linespacing=1.45,
+             bbox=dict(boxstyle="round,pad=0.6", facecolor="#fdf3f3",
+                       edgecolor="#c98b8b", linewidth=1.0))
     out = HERE / "F6d_band.png"
     fig.savefig(out, dpi=150, bbox_inches="tight", facecolor="white")
     print(f"wrote {out}")

@@ -257,6 +257,19 @@ the phase-aligned waveform, the peak and the band, not just the mean, because
 between two cycles of one run the mean moved 2.1 percent while the peak moved
 by a factor of 18.5.
 
+> **Citation caveat, 2026-08-11 — the clause stands, its F6d citation does
+> not.** `campaign/F6D_ENSEMBLE_CONVERGENCE_AUDIT.md` finds that no member of
+> the F6d ensemble reached a steady state, and that its *coverage* of the LES
+> reference is carried by its least-settled members — so both halves of the
+> cited example, the containment and the 4.041 width, are the parts the audit
+> grades unsound. The number is also stale (4.041 was superseded by 3.979).
+> **The ranking order is a methodological principle and does not depend on that
+> ensemble**; it should be read as grounded in the principle, not in the
+> measurement, until the continuation pre-registered in
+> `campaign/F6D_OPTION_A_PREREGISTRATION.md` reports. Arithmetic left untouched
+> on purpose: re-basing a charter onto a later audit destroys the record of
+> what was decided on what evidence.
+
 **Violated when** a framework is preferred for a narrower band with no coverage
 statement, or when a non-conclusive band is compared on width at all.
 
@@ -568,7 +581,12 @@ frameworks containing the reference and then compared widths of 4.041 against
 this question. *Violated when* a framework is preferred for a narrower band
 with no coverage statement, or a non-conclusive band is compared on width at
 all. *Lab recommends accept*, and flags that rank 0 is the only clause in the
-six that refuses to rank something rather than ordering it.
+six that refuses to rank something rather than ordering it. **Provenance
+caveat, 2026-08-11:** the F6d citation is withdrawn as evidence while the
+clause itself stands — see the note at section 4.5 and
+`campaign/F6D_ENSEMBLE_CONVERGENCE_AUDIT.md`. The audit finds F6d's ensemble
+never settled and its LES containment carried by its least-settled members, so
+this clause is now grounded in the principle rather than in that example.
 
 **D13. Unsteady statistics** (section 4.6). Drafted.
 

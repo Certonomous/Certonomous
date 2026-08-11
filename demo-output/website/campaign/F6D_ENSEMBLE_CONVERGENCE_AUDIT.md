@@ -236,8 +236,8 @@ converged?**
 | 16 | **Profile envelope beats the corner union: 100 % vs 71.6 % coverage** (`F6d_random_matrix_uq.json` `/profile_coverage`, `/live_corner_union_profile_coverage`) | **INVALID at δ = 0.2** | Same as claim 11, and worse-placed: this is the **only metric on which the random-matrix band beats the corner union**, it exists **only in JSON with no prose statement, no gated counterpart, and no residual caveat**, and its δ = 0.2 margin is manufactured by transient scatter (coverage 1.000 → 0.752, width 0.542 → 0.245 over the settled half). |
 | 17 | **`RESULT_PRIORITY_CHARTER.md` §254, §565 — "4.041 against 0.797"**, cited twice as the *provenance for ranking rule D12* (coverage → width → central value) | **QUALIFIED — rule survives, citation does not** | The charter rule (prefer coverage, then width) is a methodological principle that does not depend on this ensemble being converged. But the number it cites is ungated, carries no convergence qualifier, and is additionally **stale** (4.041 was superseded by 3.979). A governance rule should not rest on a width this audit grades unsound; it should cite the *principle*, not the measurement. |
 | 18 | **`GOALS_AND_PROPOSALS_CHARTER.md` §148 — "5.1 times wider … a finding the field does not have"**, justifying why a zero-scoring project was worth funding | **QUALIFIED** | The funding judgement survives on claim 10's surviving direction (the band *is* much wider). The stated multiple is ungated, unqualified, and stale (5.1 vs 5.0). Same disposition as 17: the argument holds, the number should not be quoted bare. |
-| 19 | **`W3_AHMED_PREREGISTRATION.md` §143-155 — the binding "Gating-disclosure policy"**, four mandatory rules derived from F6d, including *"If gating changes the containment verdict, that fact is the headline"* | **INVALID in its premise, and this is the most consequential item in the table** | The policy is *founded* on claims 12 and 13 — that gating biases a band away from truth. This audit finds that at δ = 0.2 the gate was largely separating converged from unconverged members, not calm from hard ones. **A binding rule that says "report the ungated ensemble" institutionalises the contaminated set as primary.** Rules 1 and 4 (report every member; state the discarded count) are good practice and survive on their own merit; the *rationale* and the ungated-primary ordering do not. |
-| 20 | **`W2_DOW_STRUCTURAL_UQ_PROGRAM.md` §4.3 — "Any propagation this program runs reports the ungated ensemble"**, adopting F6d's rule verbatim for a live program | **INVALID as a rule** | Same defect as 19, now load-bearing on future work rather than past work. This is the item with the largest forward cost and the cheapest fix (it is a sentence, not a solve). |
+| 19 | **`W3_AHMED_PREREGISTRATION.md` §143-157 — the binding "Gating-disclosure policy"**, four mandatory rules whose stated premise is F6d | **QUALIFIED — narrowly, and this row is a correction of an earlier draft of this audit** | The *rationale* is claim 12 and is withdrawn. But this pre-registration is in **good** shape and an earlier draft of this table graded it too harshly: its gate **(a)** requires the solver's own `SIMPLE solution converged` statement — which would have excluded the entire F6d ensemble — and its gate **(d)** is a *settledness gate on the reported quantity itself* (Cd flat to 0.5 % over the final 50 iterations). That is exactly the discipline this audit concludes F6d lacked. Rule 2 already makes the **gated** band primary, the correct ordering. Only rule 3's framing needs the added question: when gating changes the verdict, ask first whether the discarded members had converged. |
+| 20 | **`W2_DOW_STRUCTURAL_UQ_PROGRAM.md` §4.3 — "Any propagation this program runs reports the ungated ensemble, and reports the gated one beside it if it reports it at all"**, adopting F6d's rule verbatim for a live program | **INVALID as a rule — the true inversion, and the most consequential row in the table** | Unlike 19 this one makes the **ungated** set primary, which institutionalises the contaminated set. It is load-bearing on work not yet run, has no compensating settledness gate of its own, and describes itself as "F6d's rule … adopted unchanged" while F6d's rule is under continuation. Largest forward cost, cheapest fix — it is a sentence, not a solve. |
 | 21 | **`w2-band-validation-on-a-held-out-case.json` gate G3 (pre-registered)** — *"the ensemble is reported ungated; a gated subset may appear beside it and never instead of it"* | **INVALID as premised** | A *pre-registered* gate inheriting the same rationale. Pre-registration is what makes it worth flagging now rather than after the run: it is currently cheap to amend and will not be later. |
 | 22 | **`W2_DOW_STRUCTURAL_UQ_PROGRAM.md` cost transfer** — 135.47 / 170.35 core-min per 40 members, median member 3.23 / 4.48 core-min, 500 samples ≈ 1,615 core-min | **QUALIFIED** | The as-run timings are sound (claim 14). But they price **4,000 iterations per member**, which this audit shows is not enough to converge this case under perturbation. Any budget built on them **under-prices a converged ensemble by roughly 3–5×**. The number is right; what it is being used to buy is not. |
 | 23 | **`sdk/scripts/run_mfmc_error_budget.py` — "MISSING-MEMBER (gating) bias" term**, explicitly named after "the F6d question" | **QUALIFIED** | A methodological transfer of the *question* to a different gate on different data, not a reuse of F6d's numbers. The question remains legitimate; the F6d answer cited as its motivation is claim 12. |
@@ -250,12 +250,26 @@ that is precisely the quantity the transients move.
 
 **And one inversion worth stating on its own.** F6d's most-propagated conclusion
 — *report the ungated ensemble* — is the one this audit most directly
-contradicts. It has already reached a binding pre-registration (19), a live
-program rule (20), and a pre-registered proposal gate (21). The correct reading
-is neither "gate" nor "don't gate": the 1e-3 Ux gate was a **weak proxy for
-convergence** that happened to work in the right direction, and the defensible
-fix is to gate on *settledness of the quantity being reported*, measured, rather
-than to report the ungated set because the gate looked biased.
+contradicts. It has reached a live program rule (20) and a pre-registered
+proposal gate (21), both of which make the ungated set primary; the binding
+pre-registration (19) states the same rationale but, to its credit, already
+orders its bands the other way and gates on settledness. The correct reading is
+neither "gate" nor "don't gate": F6d's 1e-3 Ux gate was a **weak proxy for
+convergence** that happened to point the right way, and the defensible fix is to
+gate on *measured settledness of the quantity being reported* — precisely what
+W3's gates (a) and (d) do — rather than to report the ungated set because the
+gate looked biased.
+
+**Status of the caveats, 2026-08-11.** Attached this session under the chief's
+Option 0 ruling, by putting each note **in the generator and re-deriving the
+output** rather than hand-patching it: `plot_band.py` → `F6d_band.png` (claim
+15) and `make_campaign_json.py` → `F6d_random_matrix_uq.json` (claims 16, 22,
+and the contradicted `note`). The re-derivation was verified to change **no
+pre-existing value** — only the added keys. Dated notes were placed at the two
+charter citations (17, 18) and at all three governance surfaces (19, 20, 21),
+with every original number and threshold **left exactly as written**: re-basing
+a record onto a later audit destroys the evidence it was decided on. No gate was
+moved.
 
 ### 4.1 Independent corroboration, from an instrument that never knew about this
 

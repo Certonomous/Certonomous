@@ -255,6 +255,44 @@ propagation this program runs reports the ungated ensemble, and reports the
 gated one beside it if it reports it at all.** That is not a new rule; it is
 F6d's rule, and this program adopts it unchanged.
 
+> **CONTRADICTED, 2026-08-11 — do not run a propagation under the bolded rule
+> above until this is resolved.** The contradiction is measured, not a doubt.
+> `campaign/F6D_ENSEMBLE_CONVERGENCE_AUDIT.md` re-measured the ensemble this
+> section inherits from and found that **not one of its 84 members ever reached
+> a steady state.** All ran to a fixed 4,000-iteration cap under a
+> `residualControl` target of `p 1e-15` set against its own `1e-12` solver
+> tolerance — unreachable by construction — so none printed a convergence
+> statement, 76 of 84 had a *rising* momentum residual, and the only integrated
+> output the run tree retains still swings by 86% of its own level over the
+> final 500 iterations at the median, reversing sign in 23 of 84.
+>
+> **Why that overturns this section rather than merely qualifying it.**
+> Reattachment across the ensemble tracks settledness monotonically — 7.21 in
+> the most-settled quartile against 5.25 in the least, on a baseline of 7.64 and
+> a truth of 4.6–4.7 — and the members carrying the agreement with the truth are
+> the least settled in the ensemble. The twelve gate-failing members cited above
+> are **83% unsettled**; the twenty-eight that pass are **14%**. The gate was
+> therefore not discarding "the members nearest the truth"; it was largely
+> discarding **the members that had not converged**, which happened to sit
+> nearer the truth because being unconverged moves them there. The two readings
+> predict the same table, and this section asserts the first without excluding
+> the second.
+>
+> **Operative consequence.** *"Report the ungated ensemble"* makes the
+> contaminated set primary, which is the opposite of what F6d's own data
+> supports. Until the 152 core-min continuation pre-registered in
+> `campaign/F6D_OPTION_A_PREREGISTRATION.md` reports, **neither "report ungated"
+> nor "report gated" is established by F6d**, and the defensible rule — the one
+> `W3_AHMED_PREREGISTRATION.md` §4 already implements in its gates (a) and (d) —
+> is to **gate on measured settledness of the quantity actually being reported,
+> and to report both bands with the settledness of each member beside it.**
+> This program should adopt that instead, and should not describe the result as
+> "F6d's rule" while F6d's rule is under continuation.
+>
+> The arithmetic above is deliberately left as written: it was the record of
+> what was decided on the evidence then available, and re-basing it onto a later
+> audit would destroy that record.
+
 ---
 
 ## 5. What is proposed, and what is deliberately not

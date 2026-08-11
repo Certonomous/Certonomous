@@ -150,6 +150,15 @@ measured that a probabilistic band is 5.1 times wider than the corner union it
 was meant to improve on, and that is a finding the field does not have. This
 axis measures one thing and it is not importance.
 
+> **Citation caveat, 2026-08-11.** The judgement survives; the number should
+> not be quoted bare. `campaign/F6D_ENSEMBLE_CONVERGENCE_AUDIT.md` finds no
+> member of that ensemble settled, so while the *direction* holds — the band
+> really is much wider — the multiple is inflated by transient scatter, is
+> ungated, and is stale (5.1 against a recomputed 5.0). The point this passage
+> makes, that a 0-scoring project can be worth funding, is unaffected and is
+> arguably strengthened: the audit that found this is itself a 0-scoring
+> instrument check.
+
 **A credential the wall would refuse to display scores 0, not 3.** A proposal
 that will produce a 40 percent deviation against experiment is honest, is
 publishable in the record, belongs in `NOT_PASSING_REGISTER.md`, and buys no
