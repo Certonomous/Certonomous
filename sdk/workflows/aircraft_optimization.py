@@ -1806,11 +1806,22 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(EVIDENCE)
     roster.set(CHIEF_ENGINEER, "sizing the design space", "working")
     n_slots = min(granted, len(grid))
-    # THE FLEET COMES UP ONCE AND GOES DOWN ONCE. Zero until sizing starts,
-    # the granted count for the whole of the work, zero at completion. It used
-    # to drop back to zero between the screening sweep and the finalist wave
-    # and climb again, which reads on camera as the box losing its workers and
-    # being handed them back for no stated reason.
+    # THE FLEET COMES UP ONCE AND GOES DOWN ONCE. Zero until sizing starts, up
+    # for the whole of the work, zero at completion. It used to drop back to
+    # zero between the screening sweep and the finalist wave and climb again,
+    # which reads on camera as the box losing its workers and being handed
+    # them back for no stated reason.
+    #
+    # UP IS NOT ONE NUMBER, and this comment used to say it was: "the granted
+    # count for the whole of the work", which holds only when `granted` is at
+    # or below the finalist count. The screened grid takes min(granted, 112)
+    # slots and the finalist wave takes min(granted, 9), so on a box with more
+    # than nine slots to grant the count STEPS DOWN as the work shrinks — and
+    # it must, because a worker count is a claim about the run (rulings R2 and
+    # R10) and nine wings do not occupy fourteen slots. What the contract
+    # forbids is a second RISE, not a fall. The rule is stated in full, and
+    # forced at both capacities so no box can hide either shape, at
+    # ShootRoundTests.test_the_fleet_comes_up_once_and_goes_down_once.
     roster.set_workers(n_slots, "sizing wings")
     results = []
     screen_started = time.time()
