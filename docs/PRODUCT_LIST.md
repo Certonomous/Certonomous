@@ -2761,11 +2761,11 @@ fired VOID on its own experiment, it worked out that its own gate was mis-specif
   - **`null` remains the only settled run → that is the headline**, in these words: **the only settled member of the
     ensemble is the only unperturbed one** — which says the perturbation, not the numerics, prevents settling.
 - **THE COINCIDENCE I AM NOT TAKING ON ANYONE'S WORD: the case that collided is the case that went VOID.** A launcher
-  collision put two solvers on `d0.2_s000` for ~25 s, and `d0.2_s000` is the control that moved −0.831. The agent's
-  chain excluding causation looks sound to me — duplicate died at ~4265, first field write at 4500, ladder monotonic
-  and single-writer, reattachment comes from fields while the damage was to the log — but **it cannot break its own
-  coincidence**, so an independent check is running, load-bearing on whether reattachment is computed from fields
-  anywhere in the actual pipeline. **If it vindicates the agent that is a strengthened result and it is the agent's.**
+  collision put two solvers on `d0.2_s000`, and `d0.2_s000` is the control that moved −0.831. ~~The chain excluding
+  causation looks sound to me — duplicate died at ~4265, first field write at 4500, ladder monotonic and
+  single-writer, reattachment comes from fields while the damage was to the log.~~ **THREE OF THOSE FIVE LINKS ARE
+  NOW FALSIFIED — see the correction entry of 2026-08-11. I published that chain as sound. The conclusion stands;
+  the reasoning does not.**
 - **The collision itself, recorded as L-64.** The rule we already had — use durable, self-ledgering launchers — is
   what made *both* launchers durable, and durability is what made the collision possible. The rule actually earned is
   narrower and the opposite shape: **two durable launchers over one case set are worse than none.** The second
@@ -2941,6 +2941,59 @@ the cache in the words the rules header calls *"the single most important rule"*
   k-omega SST"). The other two acts were changed to say *"selected solver"*; **this one was missed by that commit.**
 - `unseen-geometry/transcript.txt:4–7` — all four lines end with an **internal documentation path** that would be on
   camera; line 7 also names the meshing tool.
+
+### 2026-08-11 — the collision is excluded, and three of the five links I published as sound are falsified
+
+**The disposition survives. The reasoning does not — and I had published the reasoning.** This is exactly why the
+check was commissioned, and it is the best argument tonight for never letting an agent break its own coincidence.
+
+- **(i) FAILS.** The duplicate did not restart at 4000. `controlDict` has **`startFrom latestTime`**, and the survivor
+  had already written `7000/`, so the duplicate's own log header reads `Create mesh for time = 7000`. It ran
+  7001→7859 over **≈60 s of overlap, not 25 — and it crossed a write time.** *"Time ≈ 4265" is what you get from 25 s
+  at this case's rate if you assume a start at 4000* — one wrong premise, and it was the premise the whole
+  conclusion rested on.
+- **(ii) FAILS on "no rewrites".** `7500/` was **written twice**. The directory carries mtime 02:55:05 while every
+  file inside carries 02:55:27 — **a directory older than its own contents is the signature of a complete
+  overwrite.** And the tell was already sitting in the original report's own cadence numbers: 34–40 s throughout
+  except 7000→7500 = 61.9 s and 7500→8000 = 17.3 s, **summing to a normal 79 s.**
+- **(iii) PARTLY FAILS.** Fields intact — 2,896 files, no NULs, all footers, `4000/` md5-identical to published.
+  But **single-writer fails at exactly one snapshot**, and *"only the log was damaged" is false*: a field snapshot
+  and nine profile files were replaced. Log loss is 4000–**7329**, not 4000–7000.
+- **(iv) HOLDS, traced in code** rather than accepted: the analysis opens only `wallShearStress` and the mesh, and the
+  only log reader feeds settledness alone. **No path from log text to reattachment exists.**
+- **(v) HOLDS.** The gate number was **independently reproduced at −0.8313**, and the collided snapshot lies outside
+  every window. Settledness recomputed on the survivor's log segment alone differs by **0.27%**.
+- **WHAT ACTUALLY CARRIES THE EXCLUSION is not the chain but per-snapshot writer identification.** Two independent
+  records name the writer of all 24 snapshots — a stored gradient **matched at 15 digits** against each process's own
+  log, and a `.dat` the duplicate never touched. **23 of 24 are the survivor's**, and the duplicate's own
+  function-object directory **records exactly one write event, at 7500 — it counts its own writes for us.**
+- **THE OTHER SIDE IS DECISIVE: the destabilisation's onset PREDATES the duplicate by 105 seconds.** Separation jumps
+  0.257 → 2.789 x/h at Time 6000 while reattachment was still flat, and the swing keeps growing for **8,500
+  iterations after the duplicate is dead.**
+- **The strongest physics evidence is an accident.** The duplicate restarted from the survivor's own 7000 fields and,
+  500 iterations later, **differed by 9.8% in driving pressure gradient.** Two solvers from the same state at
+  restart-write precision. *A case at a steady solution does not do that* — **an unfunded twin experiment landing on
+  Outcome 3.**
+- **It refused to paper over the weak part.** No clean uncollided twin was found: *"best-settled case destabilises"*
+  is **n=1**, and the sample splits 1–2. Analogues reproduce the mechanism but not the duration. And because my brief
+  defined COLLISION EXCLUDED as *chain holds at every link* **and** *independent explanation*, and neither is fully
+  met, **it recorded the departure from my own rule explicitly** rather than claiming the verdict — the same
+  discipline I demanded over the VOID gate, applied back to me.
+- **NEW DEFECT, and it generalises L-64:** `run_option_a_queue.sh` **checks its collision guard before an unbounded
+  wait** — tests `[ -f log.simpleFoam ]`, then sleeps until the job count drops, then launches. **A case that
+  acquires a log during the wait is launched anyway.** L-64's "confirm the predecessor dead" is necessary and **not
+  sufficient**; this guard is stale-prone whenever the queue saturates.
+- **The general form of the hazard, worth more than the incident:** **`startFrom latestTime` makes a duplicate a
+  FORK, not a repeat.** It branches from wherever the survivor reached and writes to the same snapshot names — which
+  is why a 60-second duplicate hit a write time at all.
+- **A free instrument fell out of it: a rewrite leaves a directory older than the files inside it.** That is a
+  double-writer detector needing no log, no PID and no cooperation from the writer.
+- **CONTAMINATION THAT SURVIVES INTO A PRODUCT:** the 7500 point enters no pre-registered metric, **but
+  `option_a_result.json`'s trajectory and the `singleGraph_x*/7500/` profiles ARE the duplicate's** — so any future
+  product consuming those inherits it. Needs marking at source.
+- Also found: **`d0.2_s027` is not settled either** (0.253) while its reattachment is flat to 0.076 — *a flat QoI with
+  an unsettled driver is a third behaviour the settled/moved framing does not name.* And Δ at completion is −0.4906,
+  recovered from −0.8313 — **still a breach, so the VOID is unaffected.**
 
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
