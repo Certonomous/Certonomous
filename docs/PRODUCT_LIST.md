@@ -3006,7 +3006,10 @@ check was commissioned, and it is the best argument tonight for never letting an
 - **NEW DEFECT, and it generalises L-64:** `run_option_a_queue.sh` **checks its collision guard before an unbounded
   wait** — tests `[ -f log.simpleFoam ]`, then sleeps until the job count drops, then launches. **A case that
   acquires a log during the wait is launched anyway.** L-64's "confirm the predecessor dead" is necessary and **not
-  sufficient**; this guard is stale-prone whenever the queue saturates.
+  sufficient**; this guard is stale-prone whenever the queue saturates. **FIXED 2026-08-11 — the race was reproduced
+  and measured at a 20.04-second window, then closed with an atomic `mkdir` claim** (a file test is test-then-act and
+  can be narrowed but never closed), with the file test retained as a second guard because the pool that caused the
+  incident took no claim. Demonstrated with real races: 8-way concurrency → 7 refusals, 1 winner.
 - **The general form of the hazard, worth more than the incident:** **`startFrom latestTime` makes a duplicate a
   FORK, not a repeat.** It branches from wherever the survivor reached and writes to the same snapshot names — which
   is why a 60-second duplicate hit a write time at all.
@@ -3293,6 +3296,42 @@ they counted.
   quotation correctly left alone.
 
 **LADDER STATUS: NOT GREEN.** V16 is open with exceptions; V15 round 5 has not run and cannot until V16 closes.
+
+### 2026-08-11 — the overwrite detector works, my specification of it was wrong, and it found six undisclosed rewrites
+
+**MY ERROR FIRST: the detector as I briefed it does not work, and the agent had to correct me.** I passed on the
+formulation *"a rewrite leaves a directory older than the files inside it"* without testing it. **An APPENDED file
+leaves an identical signature** — appending creates no directory entry either. Implemented as I specified, it
+produced **213 hits repo-wide**, mostly innocent probe directories. **Only a peer control separates a rewrite from an
+append**, and that is now the tool's central mechanism, with my failed reasoning recorded inside it.
+
+- **Attribution verified independently before anything was marked.** The contaminated directory is **the only one of
+  26 in the case** where the directory is older than its contents; the duplicate's own function-object record shows
+  **exactly one write event**; the stored gradient at that time is the duplicate's value, not the survivor's; and the
+  survivor's untouched data file disagrees with the field **at that time and nowhere else.** Four independent lines.
+- **Marked in the GENERATOR, not hand-patched into the output** — the result JSON was **re-derived with every
+  pre-existing key bit-identical**, the only change an added contamination block. It now prints provenance at run
+  time and carries a **register-drift guard, tested both directions**, so a stale note cannot emit silently.
+- **Two placement decisions worth keeping**: it wrote **nothing inside the contaminated directory**, because doing so
+  would update the mtime and **destroy the evidence**; and the marker travels with the archive rather than the repo,
+  since the archive is gitignored.
+- **SWEEP: 82 confirmed rewrites across 50,817 directories.** Filtered to solver output at t>0, the confirmed set is
+  **8 directories**: the one we knew about, **six in an F7 case — undisclosed**, and one in a W4 case.
+- **THE UNDISCLOSED ONE IS A DATA-INTEGRITY FINDING:** an F7 case **holds two runs' fields interleaved under one time
+  ladder** — a serial run, then a decompose/parallel/reconstruct sequence six minutes later that overwrote the five
+  coinciding times and added new ones. Sequential rather than a collision, so nothing raced — but **anyone reading
+  that series reads a mixture**, and it is documented nowhere.
+- **THE LIMITATION IT FOUND IN ITSELF IS THE BEST PART: the peer control fails when contamination is widespread.**
+  Two cases have **16 of 17 time directories rewritten**, which destroys their own control, so **96 real rewrites
+  drop to "unresolved."** *The instrument is least sensitive exactly where the damage is worst.* Stated in its
+  verdict line, and it **softened an over-claiming message** of its own accord.
+- **Three limits stated without prompting**: mtimes prove two writes but **cannot prove intent**; **any later touch,
+  copy or checkout erases the signature permanently** and git records no mtimes at all, so the 50,817 denominator
+  bounds *what is still visible, not what happened*; and **a clean sweep is not proof of no duplicate**, because a
+  duplicate that never reached a write leaves no artifact anywhere.
+- **`test_exec_bits` is green (15 passed) and it was exactly the L-59 shape** — the local file carried 755 while HEAD
+  carried 644. Fixed with a one-invocation override and **verified as `100755` in the tree at HEAD, not the index.**
+  The test itself was not touched.
 
 ### Decision requests for Katie (standing)
 
