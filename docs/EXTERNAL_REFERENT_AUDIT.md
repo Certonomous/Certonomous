@@ -11,12 +11,24 @@ Docket **B6**, opened and executed 2026-08-11 by session `64b13819`. The rule is
 This document classifies. It does not repair. Nothing below was fixed as it was
 found, because a sweep that repairs as it goes destroys its own baseline.
 
-**The headline, stated before the method so it cannot hide behind it:** the
-corpus is in **substantially better shape than L-74 implies**, and the largest
-single result of this audit is a *negative* one — the lexical instrument I built
-to find undeclared verifications was **wrong in the direction that flatters the
-finding**, and I measured that rather than shipping it. The real defects are
-few, specific, and named in §4 and §5. Two of them reach the camera.
+**The headline, stated before the method so it cannot hide behind it.** Three
+things, in order of how much they should change anyone's behaviour:
+
+1. **The corpus is in substantially better shape than L-74 implies.** Every
+   clean instance of L-74's failure mode I found in the gradient work had
+   **already been found and retracted by this lab** before B6 was opened (§5.3).
+   The lab's charter separates gates from references, and its most visible gate
+   table already implements the "declares it has none" clause (§6).
+2. **The real defect class is not self-referential checking — it is
+   transmission loss.** In five of the six live findings, a correct referent
+   declaration exists somewhere in the repo and **does not travel with the
+   number** to where a reader meets it (§10). Two of those reach the camera.
+3. **My own instrument was wrong in the direction that flatters the finding.**
+   A lexical screen reported 62.3% UNDECLARED; adjudication showed most of that
+   bucket is either not a verification or a declaration the screen could not
+   see (§3). **That number is reported as an artifact and not promoted**, and
+   the screen was frozen rather than tuned further — tuning a classifier against
+   its own calibration cases is L-74 wearing the auditor's badge.
 
 ---
 
@@ -64,10 +76,12 @@ The divisor `3N` is not an independent fact brought to the comparison — it was
 
 The convention was **inferred from** the printed number; the later cross-check
 then re-applies that convention and recovers the printed number. **A check whose
-parameter was solved for by requiring the check to pass cannot fail.** It is a
-transcription-fidelity check, and a worthwhile one — it proves the parse is
-reading the field the objective read. It is not evidence that the convention is
-the right loss.
+parameter was solved for by requiring the check to pass cannot fail** — and the
+fitting step is quoted above from the sibling document, not inferred by me.
+
+It is a transcription-fidelity check, and a worthwhile one: it proves the parse
+is reading the field the objective read. It is not evidence that the convention
+is the right loss.
 
 The record is honest about the shared implementation in its own words
 (same line's sentence): *"Audit arithmetic identical to the failed run's
@@ -246,6 +260,77 @@ resolvable; the *number's* route from paper to file is not recorded. Note the
 lab's own downstream record already treats the yaml as the origin —
 `W3_AHMED_PREREGISTRATION.md:32-40` calls it the *"single source of truth"*.
 
+**The lab has already caught one of these, in the same file family.**
+`demo-output/website/campaign/NOT_PASSING_REGISTER.md`, Group 4, on the
+NACA0012 wing:
+
+> **The reference is also unbuilt.** `cd: 0.009` in
+> `models/curriculum/naca0012_wing/reference.yaml` was hand-set in the initial
+> commit and has never been touched; `tolerance: 0.30` is hand-picked prose
+> ("band is generous"); `confidence: medium`.
+
+Three files in `models/curriculum/*/reference.yaml` from commit `5336dd57`;
+**two are now known to carry hand-set numbers.** `ahmed_25` is the third, and carries no provenance note either way
+(executed: `git log --follow` returns the single import commit `5336dd57`;
+`/usr/bin/grep -iE "table|figure|page|extracted|digitis|hand-set"` over that
+file returns no provenance line). That is why this is ranked rather than waved
+through — not because the citation is suspect, but because the population it
+came from has a measured base rate.
+
+### 4.4 RANK 4 — F6b Gate V: "reproduces the known answer" loses its distributor in transit
+
+**Travel: 12+ tracked documents.**
+
+`demo-output/website/campaign/F6b_ERCOFTAC_RESULTS.md:12-18` grades
+*"Gate V (verification of our own pipeline): PASS"* at **0.043%** against
+*"the benchmark's shipped-mesh value of **7.6439**"*.
+
+Two things are true and neither is stated in the file that carries the verdict:
+
+1. **The referent is the benchmark's own RANS baseline field**, not the
+   ERCOFTAC/Breuer LES and not the Rapp & Manhart experiment — those supply
+   Gate **P**, which FAILs. Gate V compares the lab's k-ω SST against a
+   third-party k-ω SST.
+2. **The distributor is not named in that file** (executed:
+   `/usr/bin/grep -cE "McConkey|rmcconke|closure-challenge-benchmark"` over
+   `F6b_ERCOFTAC_RESULTS.md` returns **0**). The
+   provenance lives one document back, in
+   `demo-output/website/dafoam/f6b_periodic_hills/F6b_periodic_hills.md:33-34`.
+
+The restatements then compress it further:
+
+- `CHALLENGE_SLATE_2026-08.md:29` — *"verification PASS (0.043% vs shipped grid)"*
+- `CASES_FAMILY_SUPERVISION_GUIDELINES.md:24` — *"(our pipeline reproduces the
+  known answer on our own mesh: PASS at 0.043%)"*
+- `SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md:10` — *"Verified on our own
+  mesh (0.043% agreement with the shipped grid), so the failure is the model's,
+  not ours."*
+
+**"The known answer" is another RANS code's answer.** The gate is a legitimate
+and well-chosen pipeline verification — and the header
+*"Gate V (verification of our own pipeline)"* says so. **Classification:
+EXTERNAL-BENCHMARK-DISTRIBUTION at the source, UNDECLARED as to distributor,
+and the travelling phrasing invites a stronger reading than the gate supports.**
+
+### 4.5 RANK 5 — the Ahmed ±15% band reads as the reference's own scatter
+
+`demo-output/website/mega-batch/F10_3D_VISCOUS_FAMILY.md` grades the 25° row
+*"inside band — VALIDATED"* against *"the citable reference — Ahmed, Ramm &
+Faltin 1984, SAE 840300, Cd 0.285 ± 15%"*.
+
+**The ±15% is the lab's own `tolerance: 0.15` from
+`models/curriculum/ahmed_25/reference.yaml`, not scatter reported by the 1984
+paper.** The same yaml separately carries `cd_range: [0.27, 0.30]`, and the
+graded value **0.32284 is inside the lab's ±15% and outside the reference
+file's own `cd_range`.**
+
+Written as *"the citable reference … Cd 0.285 ± 15%"*, the band reads as though
+it arrived with the citation. **Classification: UNDECLARED** — the value is
+external, the band is a lab gate, and the sentence does not separate them. (The
+same document declares its *other* gates' provenance carefully, including
+`"reused rather than invented"` and `"not a separately invented number"` — so
+this is an isolated slip, not a pattern.)
+
 ### 4.3 RANK 3 — the closure-score cluster: undeclared in the satellites, declared in the canon
 
 **Travel: 29 documents — the widest-travelling number in the corpus.**
@@ -349,11 +434,88 @@ still a strong check — it discriminates against adjoint-assembly and
 linearisation errors, which is what it is used for — but it is **not**
 independent of the primal.
 
-The records label the FD arm honestly as `(own run)`. **What is not stated
-anywhere I found is the shared-primal limitation itself.**
+The records label the FD arm honestly as `(own run)`. The shared-primal
+limitation is **named in four places and absent in the original gates**:
 
-**Classification: SELF-REFERENTIAL, partially declared** (the arm is named as
-the lab's own; the shared dependency is not characterised).
+- `PROOF.md:917-940` names it decisively, and it is the move that refutes a
+  hypothesis: *"FD and the adjoint are, provably, differentiating the **exact
+  same** frozen-`yWall` discrete function throughout this entire
+  investigation"*, so the omitted term *"cannot be 'the right size and sign to
+  close the gaps,' **because the two quantities being compared (Jan and Jfd)
+  already, identically, both exclude it.**"*
+- `W5_GRADIENT_REGRADE.md:622-624` names it as the reason a control was invalid
+  (§5.3 below).
+- `VERIFICATION_A4_mechanism_supervisor_sweep.md:121-126` turns it into a
+  *positive* argument: *"the FD column is computed per run inside each arm's own
+  `check_totals` … An adjoint that were the exact adjoint of an equivalent
+  parallel discretization would match its own FD. It does not."*
+- **Not named** in the original A1 gate (`PROOF.md` §8/§8.2), the original A5
+  gate, the A2 rows, the sail rows, or in `DAFOAM_CASE_STATUS.md`'s per-case
+  summaries — where the FD is treated as "the true derivative".
+
+**Classification: SELF-REFERENTIAL, declared late rather than at the gate.** The
+understanding exists in this lab and is sharp; it reached the diagnostic
+documents and not the verdict lines.
+
+### 5.3 The lab has already found L-74's exact failure mode in its own gradient work — and it is the best evidence in this audit
+
+This is not a defect I found. **It is a defect the lab found, wrote up, and
+propagated a retraction for**, and it is L-74's shape so precisely that it
+deserves to be read beside the lesson.
+
+**The circular acceptance band.** Ladder A2's gradients were graded against a
+1–12% band. That band came from the lab's own A1 measurement.
+`W5_GRADIENT_REGRADE.md:195-196` and `:478-480`:
+
+> **A1's 1.67% is the calibration A2 was graded against, and it has now been
+> measured to be almost entirely the defect.**
+
+> the "1–12% normal band for this problem class" that `A2_mach_tutorial_wing.md:44`
+> was graded against **was not a property of the problem class at all.** It was
+> one upstream bug, measured four times.
+
+**A tolerance calibrated from the lab's own runs, applied to grade the lab's own
+runs, encoded an upstream defect as the definition of "normal" — and every
+subsequent gate that passed inside it agreed with the bug.** That is L-74's
+"two implementations that share a defect agree perfectly", with a *band* in the
+role of the second implementation.
+
+**The invalid invariance control.** `W5_GRADIENT_REGRADE.md:622-631` retracts a
+control on the same grounds:
+
+> **SUPERSEDED 2026-08-02 — it *is* the FD, and "unchanged between the runs" was
+> the wrong test.** The FD cannot change between the runs: the primal never sees
+> a `warpDeriv` patch. What was never done was re-measuring it.
+
+A control that **could not have failed** was read as evidence that the FD was
+sound. The record keeps the wrong text in place — *"The paragraphs above … are
+kept as written and are wrong"* — and leaves the residual discrepancy open.
+
+**The random-seed clearance.** `A5_ubend_internal.md:978-990` overturns two
+earlier clearances of `warpDeriv` because *"every `mesh.warpDeriv` test ever run
+on A5 … seeded the dot-product identity with an ARBITRARY RANDOM vector"*, and
+`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md:323-329` generalises it:
+
+> **a random-seed dot-product test of `warpDeriv` does not clear it.** It
+> measures whether the error is large in a generic direction. What determines
+> whether the error reaches a real gradient is whether the error's location
+> overlaps the objective's own `dF/dXv` sensitivity field.
+
+The repair was to capture *"the literal vector the framework passes"* — i.e. to
+replace a referent the lab chose with one the system supplies. And
+`ROOTCAUSE_getRotationMatrix3d.md:207-209` notes the same trap **in upstream's
+own verification tool**: `verifyWarpDeriv(..., randomSeed=314)`.
+
+**The claimed referent that does not contain the numbers.**
+`VERIFICATION_A4_mechanism_supervisor_sweep.md:22-27` — *"the record cites
+`d_crossres.log` for numbers that log visibly contradicts"*, the tabulated
+values being offline sign-corrected recomputations. And `:73-79`, a use of an
+instrument the lab had already discredited: *"**That is the discredited
+instrument, used without saying so.** … The confound stays closed; **the record
+should have flagged the instrument.**"*
+
+**Classification: four SELF-REFERENTIAL-READ-AS-EXTERNAL instances, all four
+already found and retracted by the lab, before this audit existed.**
 
 ---
 
@@ -392,6 +554,66 @@ submissions re-scored on the lab's harness reproduce their **published**
 four-decimal values, 4/4. That is a positive control against numbers the lab did
 not produce.
 
+**`ROOTCAUSE_getRotationMatrix3d.md` / `UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` —
+the L-74 gold standard, met and exceeded.** L-74's own repair example was a rule
+*"read out of OpenFOAM's own source and cited to file and line."* This pair does
+exactly that, at length, for IDWarp: the guard at `src/utils/vectorUtils.f90:44`
+and `:58` quoted verbatim **including upstream's own explanatory comment**, the
+Tapenade reverse at `src/adjoint/outputReverse/vectorUtils_b.f90:123-128` quoted
+as generated Fortran, plus `kd_tree.F90`, `getElementProps_b.f90`,
+`tests/test_USMesh.py:86`, `UnstructuredMesh.py:460` and the Tapenade makefile.
+Three further properties put it above the bar:
+
+- **The source is version-pinned by hash** — *"md5-identical to the `v2.6.2`
+  tag … tag commit `647fd8fc2c06fc61b31cc07a7b63ffd4fbaf65ce`"*, with the
+  container digest recorded.
+- **The re-verification deliberately used none of the lab's tooling** —
+  *"no Fortran driver, no IDWarp build, no DAFoam. Every source citation was
+  read back out of the `v2.6.2` tag; the corrected derivative was re-derived and
+  tested in an independent transcription."*
+- **The referent is a five-year-old open upstream bug report** —
+  `github.com/mdolab/idwarp/issues/57`, reproduced end-to-end on *"IDWarp's own
+  test mesh, IDWarp's own options, IDWarp's own displacement, checked by
+  IDWarp's own `verifyWarpDeriv`"*, with the residual 216%→210% discrepancy
+  against the issue's pasted output stated rather than smoothed.
+
+And `ROOTCAUSE_getRotationMatrix3d.md:636-643` states the claim **against
+itself**: at the exact evaluation point the AD is the correct derivative of the
+code as written, and an FD taken inside the ~1.5e-08 rad flat spot agrees with
+it to every digit — so the whole finding depends on the FD step lying outside
+that ball, and *"any filing should pre-empt the response"*.
+
+**`F9_pulsatile_valve.md` §9.7 — the best "declares it has none" sentence in the
+corpus:**
+
+> So: **F9 is verified in part and validated against nothing.** Every gate in §3
+> to §6b is verification or internal consistency. That is a respectable position
+> for a screening replacement and it is not the same sentence as "a real, gated
+> family", and the record should not let a reader slide between them.
+
+§9.7 also tabulates three candidate external references and why each is
+unusable, and marks the two textbook referents used without citation as
+*"not as validation references"*.
+
+**`F11_lid_driven_cavity_ladder.md:306-321` — the referent typed correctly
+against the lab's own interest.** Ghia, Ghia & Shin (1982) is cited to DOI and
+table, its open-access status checked *"before choosing this case (not after)"*
+(`is_oa: false`), the values taken from **two independently hosted secondary
+transcriptions cross-checked against each other** rather than the primary PDF —
+and then, in a section headed *"this is VERIFICATION, not VALIDATION"*:
+
+> Ghia, Ghia & Shin (1982) is **itself a numerical solution** … **This gate is
+> therefore a code-to-code VERIFICATION** … and not a physical VALIDATION.
+
+That is exactly the declaration §5.1's CRM row is missing.
+
+**`B2_duct_baseline.md:38-47`** — reproduction against *"the paper authors' own
+case files"*, run on a **different OpenFOAM lineage** (ESI v2606 vs the
+authors' OpenFOAM-7): *"we are not inferring a baseline setup from a paper's
+text, we are re-running the authors' own case files on our own solver."* The
+scorer self-check beside it is declared as a self-check, and the absence of a
+paper-side figure is declared: *"stated plainly rather than invented."*
+
 ### The `ONERA M6` row — a verification that correctly declares it has none
 
 `NINE_ACT_GATE_TABLE.md:10` grades M6 as `UNCONVERGED`, reference *"Primal
@@ -423,12 +645,31 @@ rate is reported (§3) from an adjudicated sample rather than assumed. It is
 **SELF-REFERENTIAL with a measured error rate**, and I have not claimed
 otherwise: that is why §3 refuses to promote 62.3% to a headline.
 
-**For the classifications in §4 and §5, my referent is my reading of the
+**For the classifications in §4, §5 and §6, my referent is my reading of the
 record**, supported where possible by executed checks — the Strouhal arithmetic
 in §4.1 was run, the closure repos' cleanliness in §4.3 was run, the CRM
 tutorial's absence of `0.02090` was searched for and not found. **Where I only
 read and judged, that is SELF-REFERENTIAL and I am declaring it here rather than
 dressing it as an instrument.**
+
+**Disclosure on how the evidence was gathered.** Four subagents collected quoted
+evidence in parallel — the nine acts, the closure challenge, the DAFoam ladder,
+the campaign F-series — each instructed to quote verbatim with file and line and
+**not to classify**. Every classification in this document is mine. The quotes
+were spot-checked, not re-derived wholesale: I independently re-executed the
+Strouhal arithmetic, the two closure repos' provenance, and the benchmark `0/U`
+recomputation, and I read the nine-act table, the charter, `PASS3_COLD` §1.3-1.4
+and both S1 control sections directly. **The remaining quotations are relayed,
+and a relayed quotation is a weaker referent than one I read.** Anything in §4
+or §5 that would drive a repair should be re-read at source first.
+
+**One structural limit of a four-agent fan-out, named because it is this
+audit's own version of the defect it hunts:** four readers each looking at their
+own slice will not see a referent named in *another* slice's document unless
+their territories happen to overlap.
+§4.4 is exactly that shape — the F6b distributor is named one document away from
+the verdict — and I caught it only because two agents' territories overlapped
+there. **A cross-document referent-resolution pass was not run.** See §8.
 
 **R-DEPTH.** This document is an instrument checking instruments checking
 claims — depth 2, the cap. **I have not audited my own auditor**, and the
@@ -458,6 +699,24 @@ reached:
    in a worktree on those. Untouched by instruction.
 5. **Whether `0.198(1−19.7/Re)` or `0.212(1−21.2/Re)` is the correct Roshko form
    at Re = 100.** Settling it needs NACA Report 1191 itself. Filed, not ruled.
+6. **A cross-document referent-resolution pass.** My screen is section-local and
+   my agents were slice-local. Neither can tell "no referent named" from
+   "referent named in the document next door" — which is precisely the §4.3 and
+   §4.4 pattern. **This is the single highest-value follow-on**, and it is
+   cheap: resolve each verification's numbers to every document carrying them,
+   and ask whether *any* of them names the referent. Zero compute.
+7. **The F7 dam-break digitisation.** `F7_marine_free_surface.md` grades against
+   Martin & Moyce (1952) *"digitised twice independently from Fig. 7 of
+   arXiv:2108.08769"* — the primary is not open-access, so the referent is a
+   lab pixel-reading of a third party's figure, cross-checked **only against the
+   lab's own second digitisation**. The record declares the route and its
+   uncertainty. Whether a self-cross-checked digitisation counts as external is
+   a real question I did not settle.
+8. **`sdk/tests/` — 1,000+ assertions.** A test asserting the behaviour of lab
+   code is self-referential by construction and legitimately so. I did not
+   classify them and do not think a bare count would mean anything; the
+   interesting subset is tests that assert a *physical* or *published* value,
+   and that subset was not extracted.
 
 ---
 
@@ -482,7 +741,22 @@ reached:
   does not travel with the number to restatement sites, though the chief has
   already made the *rank-1* companion clauses mandatory on every surface. A
   parallel travelling rule for the referent does not exist.
-- **D-B6-5.** The lab's provenance-declaration idiom is rich and non-formulaic,
+- **D-B6-5.** `models/curriculum/*/reference.yaml`: of three reference files
+  from commit `5336dd57`, **two are now known to carry hand-set numbers**
+  (`naca4412_wing`, recorded in the file itself; `naca0012_wing`, recorded in
+  `NOT_PASSING_REGISTER.md` Group 4). `ahmed_25`'s `cd: 0.285` carries no
+  provenance note either way (`git log --follow` → one import commit), and it is the reference behind a filmed act.
+- **D-B6-6.** `F10_3D_VISCOUS_FAMILY.md` writes the Ahmed gate as *"the citable
+  reference — Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.285 ± 15%"*. The
+  ±15% is the lab's own `tolerance: 0.15`, not the paper's scatter, and the
+  graded 0.32284 sits outside the same yaml's own `cd_range: [0.27, 0.30]`.
+- **D-B6-7.** The FD-vs-adjoint shared-primal limitation is stated sharply in
+  four DAFoam diagnostic documents (`PROOF.md` §12,
+  `W5_GRADIENT_REGRADE.md:622`, `VERIFICATION_A4:121`) and **absent from the
+  gate lines themselves** (`PROOF.md` §8/§8.2, the A5 FD-verification section,
+  `DAFOAM_CASE_STATUS.md`'s per-case summaries), where the FD is called "the
+  true derivative".
+- **D-B6-8.** The lab's provenance-declaration idiom is rich and non-formulaic,
   which is why no keyword screen classifies this corpus reliably (§3). If
   referent declaration is ever to be machine-checkable, it needs a *field*, not
   prose — e.g. the Verification Charter §2 gate table's `reference` column made
@@ -494,18 +768,43 @@ reached:
 ## 10. The verdict, plainly
 
 **L-74 describes a real failure mode and this corpus mostly does not exhibit
-it.** The lab separates gates from references in its charter, implements the
-"declares it has none" clause in its most visible table, cites URLs with fetch
-dates, pins external scorers to commit hashes, refuses mismatched comparisons by
-name, and has at least one verification that caught an erratum *in its own
-external reference*.
+it.** The lab separates gates from references in its own charter, implements the
+"declares it has none" clause in its most visible table (§6, ONERA M6) and in
+its plainest sentence (*"F9 is verified in part and validated against
+nothing"*), cites URLs with fetch dates and open-access status checked *before*
+case selection, pins external scorers and upstream source to commit hashes,
+re-verifies an upstream bug using none of its own tooling, refuses mismatched
+comparisons by name, distinguishes code-to-code verification from physical
+validation in so many words, and has a verification that **caught an erratum in
+its own external reference** using an independent physical invariant.
 
-The defects that remain are **not** a culture of self-referential checking. They
-are **transmission losses**: a correctly-declared referent in a ladder record
-that is dropped when the number is restated on a filming list (§5.1), a
-correctly-declared local scoring that travels without its clause (§4.3), and one
-gate whose external name outran its attributed constants (§4.1).
+**The strongest evidence is §5.3, and it is not mine.** Every clean instance of
+L-74's failure mode I found in the gradient work — a tolerance band calibrated
+from the lab's own defective run and then used to grade against it, a control
+that could not have failed, a random-seed test that could not discriminate, a
+cited log that does not contain the numbers — **had already been found,
+retracted and propagated by this lab before B6 was opened.** A corpus that
+detects this class unaided does not have a culture problem with it.
 
-**Two of these reach the camera.** That is where the value of this audit is, and
-it is a much smaller and more actionable finding than the 62.3% my own
-instrument first offered me.
+What remains is **not** self-referential checking. It is **transmission loss**:
+
+| where | the referent is | what the reader meets |
+| --- | --- | --- |
+| §4.1 cylinder St | an unattributed constant | "Roshko-Williamson correlation" |
+| §5.1 CRM `VALIDATED` | another solver's tutorial docs | a bare `Cd 0.020901 vs 0.02090` beside two experimental rows |
+| §4.3 closure score | the organisers' unmodified scorer, declared in the canon | the number, without its clause |
+| §4.4 F6b Gate V | a third-party RANS baseline | "reproduces the known answer" |
+| §4.5 Ahmed band | the lab's own `tolerance: 0.15` | "SAE 840300, Cd 0.285 ± 15%" |
+| §5.2 FD gates | an FD sharing the adjoint's primal | "the true derivative" |
+
+**In five of these six, a correct declaration exists somewhere in the repo and
+does not travel with the number.** That is a different problem from L-74 and it
+has a different fix: L-74 asks an author to *know* their referent, and this
+corpus does. What it lacks is a rule that the referent travels **with** the
+figure — which the lab has already built once, for the rank-1 companion clauses,
+and has not generalised.
+
+**Two of these reach the camera** (§4.1 act 1, §5.1 act 9). That is where the
+value of this audit is, and it is a far smaller, far more actionable finding
+than the 62.3% my own instrument first offered me — which is the result I would
+have shipped had I not been required to control it in both directions.
