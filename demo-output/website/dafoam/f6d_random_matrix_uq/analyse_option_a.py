@@ -31,6 +31,93 @@ MEMBERS = ['d0.2_s015', 'd0.2_s019', 'd0.2_s020', 'd0.2_s022', 'd0.2_s023',
 CONTROLS = ['null', 'd0.2_s000', 'd0.2_s027']
 RE_PG = re.compile(r'pressure gradient = ([0-9.eE+-]+)')
 
+#: Snapshots whose field data on disk was written by a process OTHER than the
+#: run that owns the case, established per-snapshot in
+#: campaign/F6D_COLLISION_INDEPENDENCE_CHECK.md §2.
+#:
+#: THE NOTE LIVES IN THE GENERATOR, NOT IN THE JSON. Hand-patching a derived
+#: output leaves the generator free to erase the patch on its next run, which is
+#: the failure mode this lab has already paid for once. Everything the JSON says
+#: about contamination is emitted from here.
+#:
+#: THE POINT IS LABELLED, NOT DROPPED. It is real data with a known writer. A
+#: labelled point can be used, excluded, or argued with; a missing one is a hole
+#: no downstream reader can interpret, and deleting it would destroy the record
+#: of what happened. Consumers that require single-writer provenance should
+#: filter on this key -- they cannot do that against a silent deletion.
+CONTAMINATED_SNAPSHOTS = {
+    ('d0.2_s000', 7500): {
+        'writer': 'duplicate solver (PID 204435), not this run',
+        'mechanism':
+            "a second simpleFoam was launched on this case at 02:54:51 while the "
+            "run's own solver was mid-flight. `startFrom latestTime` made the "
+            "duplicate restart from the survivor's own 7000/ snapshot, so it was "
+            "a FORK, not a repeat: it competed for the same snapshot filenames. "
+            "It reached Time 7500 and completely overwrote the 7500/ directory "
+            "the survivor had written 22 s earlier.",
+        'evidence':
+            "(a) stored gradient in 7500/uniform/momentumSourceProperties is "
+            "0.00759741462064012, the duplicate's logged value, not the "
+            "survivor's 0.0084247934089418; (b) 7500/ directory mtime 02:55:05.02 "
+            "is OLDER than every file inside it (02:55:27.88) -- the signature of "
+            "a complete in-place overwrite, and the only time directory in this "
+            "case where that holds; (c) the duplicate's own function-object "
+            "directory postProcessing/wallShearStress/7000/ records exactly one "
+            "write event, at Time 7500; (d) the survivor's own wallShearStress.dat "
+            "disagrees with the field on disk at 7500 and at no other time.",
+        'survivor_value_recoverable': False,
+        'survivor_value_note':
+            "The survivor's own reattachment at 7500 is GONE, not merely "
+            "unlabelled: its fields were overwritten in place and no copy exists "
+            "anywhere in the archive. It cannot be reconstructed. It is only "
+            "bounded by its neighbours (6.358 at 7000, 5.940 at 8000) and by the "
+            "survivor's own recorded wall-shear extrema at 7500, which lie on a "
+            "smooth trend.",
+        'also_contaminated':
+            "postProcessing/singleGraph_x0..x8/7500/ -- all nine profile files "
+            "carry the same overwrite signature (dirs 02:55:05, files 02:55:27). "
+            "Any profile comparison at t=7500 is against the duplicate's flow.",
+        'affects_pre_registered_metrics': False,
+        'what_does_not_move':
+            "NOTHING REPORTED MOVES, and this is measured rather than asserted. "
+            "t=7500 lies outside every pre-registered metric window: the primary "
+            "value at the 13500 cut reads 12000-13500, the primary value at "
+            "completion reads 14500-16000, delta is primary minus the published "
+            "4000 baseline (md5-identical to the untouched ens/ tree), and "
+            "settledness reads the last 500 iterations. The gate number "
+            "reproduces exactly at -0.8313 at the 13500 cut, delta at completion "
+            "is -0.4906, and both breach the 0.25 threshold -- so THE VOID IS "
+            "UNAFFECTED and the completion value stands. Recomputing settledness "
+            "from the survivor's log segment alone gives 0.3392 against the "
+            "shipped 0.3401, a 0.27 % change. This snapshot enters exactly one "
+            "pre-registered thing: metric 1 is 'reattachment at EACH written "
+            "snapshot', so the published trajectory below is not purely "
+            "single-writer at this one point.",
+    },
+}
+
+
+def contamination_for(case, traj):
+    """The contamination block emitted onto *case*'s row, or None.
+
+    Emitted per row so it travels with the data a consumer actually reads --
+    a caveat in a separate document reaches nobody.
+    """
+    hits = {t: v for (c, t), v in CONTAMINATED_SNAPSHOTS.items() if c == case}
+    if not hits:
+        return None
+    return {
+        'contaminated_times': sorted(hits),
+        'contaminated_points': [[t, r] for (t, r) in traj if t in hits],
+        'traj_is_single_writer': False,
+        'guidance':
+            "Points listed in contaminated_times were written by another "
+            "process. Do not consume this trajectory as single-writer output "
+            "without filtering them; do not silently drop them either -- say "
+            "which points were removed.",
+        'detail': {str(t): hits[t] for t in sorted(hits)},
+    }
+
 published = {}
 _ag = json.load(open(os.path.join(F6D, 'aggregate_result.json')))
 for k in ('d0.2', 'd0.6'):
@@ -82,10 +169,15 @@ def main():
         primary = statistics.mean(window) if window else None
         pub = published.get(case)
         delta = (primary - pub) if (primary is not None and pub is not None) else None
-        rows.append(dict(case=case, kind='control' if case in CONTROLS else 'member',
-                         n_snapshots=len(traj), last_time=tmax, settledness=s,
-                         published_4000=pub, primary=primary, delta=delta,
-                         traj=[(t, r) for (t, r, _) in traj]))
+        pairs = [(t, r) for (t, r, _) in traj]
+        row = dict(case=case, kind='control' if case in CONTROLS else 'member',
+                   n_snapshots=len(traj), last_time=tmax, settledness=s,
+                   published_4000=pub, primary=primary, delta=delta,
+                   traj=pairs)
+        contam = contamination_for(case, pairs)
+        if contam is not None:
+            row['contamination'] = contam
+        rows.append(row)
     json.dump(rows, open(os.path.join(F6D, 'option_a_result.json'), 'w'), indent=1)
 
     print(f"{'case':12s} {'kind':8s} {'snaps':>5s} {'lastT':>6s} {'settled':>8s} "
@@ -100,6 +192,33 @@ def main():
     # published value against itself. Reporting that as "holds" would be a pass
     # from an instrument that cannot see, which is the exact failure mode this
     # whole audit is about. A control counts only once it has run past 4000.
+    # The contamination has to be visible to whoever RUNS this, not only to
+    # whoever reads the JSON, because the person re-deriving the product is the
+    # one most likely to consume the trajectory next.
+    print("\n--- SNAPSHOT PROVENANCE (not all of this trajectory is this run's) ---")
+    flagged = [r for r in rows if 'contamination' in r]
+    if not flagged:
+        print("  every snapshot in every trajectory was written by its own run")
+    for r in flagged:
+        c = r['contamination']
+        seen = {t for (t, _) in r['traj']}
+        missing = [t for t in c['contaminated_times'] if t not in seen]
+        for t, val in c['contaminated_points']:
+            print(f"  {r['case']:12s} t={t:<6d} reattachment={val:.6f}  "
+                  f"WRITTEN BY {c['detail'][str(t)]['writer']}")
+        print(f"  {'':12s} -> enters no pre-registered metric window; the "
+              f"reported primary, delta and settledness are unaffected, and the "
+              f"VOID stands.")
+        print(f"  {'':12s} -> the survivor's own value at these times is "
+              f"OVERWRITTEN AND UNRECOVERABLE, not merely unlabelled.")
+        if missing:
+            # The register names a time this trajectory does not contain: the
+            # register has drifted from the data, and a stale provenance note is
+            # worse than none. Say so loudly rather than emitting it silently.
+            print(f"  {'':12s} !! REGISTER DRIFT: contaminated time(s) {missing} "
+                  f"are not in this trajectory -- re-check "
+                  f"CONTAMINATED_SNAPSHOTS against the archive.")
+
     print("\n--- VALIDITY GATE (pre-registered: any control moving > 0.25 x/h => VOID) ---")
     ran, notrun = [], []
     for r in rows:

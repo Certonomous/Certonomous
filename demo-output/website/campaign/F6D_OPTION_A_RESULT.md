@@ -97,6 +97,14 @@ description. The raw per-member deltas remain in
 `f6d_random_matrix_uq/option_a_result.json` for whoever re-registers the
 question; they must not be cited from there as a finding.
 
+**And one point in that file is not this experiment's output.** `d0.2_s000`'s
+trajectory contains `[7500, 5.834774]`, written by the duplicate solver of the
+launcher collision, not by the run — established per-snapshot in
+`F6D_COLLISION_INDEPENDENCE_CHECK.md` §2 and carried in the JSON itself under
+that row's `contamination` key. It is **labelled, not removed**: filter it if
+you need single-writer provenance, and say that you filtered it. Nothing
+reported in this document depends on it — see §5's addendum for the arithmetic.
+
 To be used, it must be **re-registered and re-earned** — with a gate whose
 trigger and whose stated inference agree, e.g. voiding on the *unperturbed*
 control moving, or on all controls moving together.
@@ -138,3 +146,45 @@ reads from **fields** (intact) while the damage was to the **log**.
 with it, §2.2 above, which rests on `d0.2_s000`. §2.1 and §2.3, the headline,
 do not depend on that case at all: dropping `d0.2_s000` entirely leaves 12 of 12
 members unsettled and `null` still the only settled run.
+
+### ADDENDUM, 2026-08-11 — the independent check has reported
+
+`F6D_COLLISION_INDEPENDENCE_CHECK.md`. The section above is left as written,
+because re-basing a commissioning note onto its own outcome destroys the record
+of what was asked on what evidence. What it asked for, and what came back:
+
+**Verdict: COLLISION EXCLUDED** for the −0.831 x/h — but **not by the chain
+§6.1 offered.** Three of that chain's five links are false. The duplicate did
+*not* die at Time ≈ 4265 and it did *not* fail to write a field: `startFrom
+latestTime` made it restart from the survivor's **7000/**, so it was a **fork,
+not a repeat**, and it competed for the same snapshot filenames. It ran to Time
+7859 and **completely overwrote the `7500/` directory**, plus the nine
+`singleGraph_x*/7500/` profiles. "Only the log was damaged" is false, and so is
+"no rewrites".
+
+**What carries the verdict instead is per-snapshot writer identification**, not
+a chain: the stored pressure gradient and the survivor's own untouched
+`wallShearStress.dat` independently name the writer of all 24 continuation
+snapshots. **Exactly one — 7500 — is the duplicate's; 23 are the run's own.**
+
+**Nothing in §1–§4 moves, and this is measured.** t=7500 lies outside every
+pre-registered metric window. The gate number reproduces exactly at **−0.8313**
+at the 13500 cut from fields alone, on a 4000 baseline md5-identical to the
+published `ens/` tree; **Δ at completion is −0.4906**; both breach 0.25, so the
+**VOID stands** and the **completion value stands**. Settledness recomputed from
+the survivor's log segment alone is 0.3392 against the shipped 0.3401 — 0.27 %.
+The destabilisation's topological onset precedes the duplicate by 105 s, and the
+oscillation grows for 8,500 iterations after it is dead.
+
+**§2.2 is therefore released** — it rests on `d0.2_s000` and `d0.2_s000`'s
+numbers survive.
+
+**The one thing that does not survive is the survivor's own 7500 snapshot.** It
+was overwritten in place, no copy exists, and it **cannot be reconstructed** —
+only bounded by its neighbours (6.358 at 7000, 5.940 at 8000). The published
+trajectory keeps the duplicate's point, labelled, per §3.
+
+**And a marker was cheap.** The check produced a free double-writer detector out
+of this incident: *a rewrite leaves a directory older than the files inside it* —
+no log, no PID, no cooperation from the writer, and it works retrospectively on
+any archive. Shipped as `scripts/detect_overwrite_signature.py`.

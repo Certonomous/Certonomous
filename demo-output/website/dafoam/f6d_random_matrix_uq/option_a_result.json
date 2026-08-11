@@ -1677,7 +1677,32 @@
     16000,
     5.857082260273973
    ]
-  ]
+  ],
+  "contamination": {
+   "contaminated_times": [
+    7500
+   ],
+   "contaminated_points": [
+    [
+     7500,
+     5.834773671624684
+    ]
+   ],
+   "traj_is_single_writer": false,
+   "guidance": "Points listed in contaminated_times were written by another process. Do not consume this trajectory as single-writer output without filtering them; do not silently drop them either -- say which points were removed.",
+   "detail": {
+    "7500": {
+     "writer": "duplicate solver (PID 204435), not this run",
+     "mechanism": "a second simpleFoam was launched on this case at 02:54:51 while the run's own solver was mid-flight. `startFrom latestTime` made the duplicate restart from the survivor's own 7000/ snapshot, so it was a FORK, not a repeat: it competed for the same snapshot filenames. It reached Time 7500 and completely overwrote the 7500/ directory the survivor had written 22 s earlier.",
+     "evidence": "(a) stored gradient in 7500/uniform/momentumSourceProperties is 0.00759741462064012, the duplicate's logged value, not the survivor's 0.0084247934089418; (b) 7500/ directory mtime 02:55:05.02 is OLDER than every file inside it (02:55:27.88) -- the signature of a complete in-place overwrite, and the only time directory in this case where that holds; (c) the duplicate's own function-object directory postProcessing/wallShearStress/7000/ records exactly one write event, at Time 7500; (d) the survivor's own wallShearStress.dat disagrees with the field on disk at 7500 and at no other time.",
+     "survivor_value_recoverable": false,
+     "survivor_value_note": "The survivor's own reattachment at 7500 is GONE, not merely unlabelled: its fields were overwritten in place and no copy exists anywhere in the archive. It cannot be reconstructed. It is only bounded by its neighbours (6.358 at 7000, 5.940 at 8000) and by the survivor's own recorded wall-shear extrema at 7500, which lie on a smooth trend.",
+     "also_contaminated": "postProcessing/singleGraph_x0..x8/7500/ -- all nine profile files carry the same overwrite signature (dirs 02:55:05, files 02:55:27). Any profile comparison at t=7500 is against the duplicate's flow.",
+     "affects_pre_registered_metrics": false,
+     "what_does_not_move": "NOTHING REPORTED MOVES, and this is measured rather than asserted. t=7500 lies outside every pre-registered metric window: the primary value at the 13500 cut reads 12000-13500, the primary value at completion reads 14500-16000, delta is primary minus the published 4000 baseline (md5-identical to the untouched ens/ tree), and settledness reads the last 500 iterations. The gate number reproduces exactly at -0.8313 at the 13500 cut, delta at completion is -0.4906, and both breach the 0.25 threshold -- so THE VOID IS UNAFFECTED and the completion value stands. Recomputing settledness from the survivor's log segment alone gives 0.3392 against the shipped 0.3401, a 0.27 % change. This snapshot enters exactly one pre-registered thing: metric 1 is 'reattachment at EACH written snapshot', so the published trajectory below is not purely single-writer at this one point."
+    }
+   }
+  }
  },
  {
   "case": "d0.2_s027",
