@@ -1,0 +1,61 @@
+/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/r1_confounds.py:111: RuntimeWarning: divide by zero encountered in power
+  w = np.where(g > 0, g ** (2 * expo), 0.0)
+====================================================================================================
+[F] CONFOUND: is |g| just a cell-size (mesh) map?  Cell-wise adjoint gradients
+    commonly scale with cell volume, which would make the geography a mesh artefact.
+====================================================================================================
+  z coordinate: 1 unique values, range [-9.619e-15, 1.123e-14]  -> mesh is one cell thick in z
+  local spacing proxy h: min 2.1675e-02 max 1.8022e-01 (ratio 8.3)
+  Spearman(|g|, V_proxy)        = -0.8372
+  Spearman(|beta-1|, V_proxy)   = -0.8655
+  volume-normalised sensitivity |g|/V:
+    region                     top10|g| top10|g|/V top10|b-1|
+    in-window                     35.4%      33.0%      26.9%
+    upstream x<0                  45.8%      45.4%      39.6%
+    above shear layer y>2          9.8%      19.6%      31.5%
+    downstream x>6 & y<=2         12.5%       7.1%      14.6%
+    'G2' on |g|   = 35.38% ; 'G2' on |g|/V = 33.00% ; 'G2' on |beta-1| = 26.86%
+  Spearman(|beta-1|, |g|/V) = +0.9792  (vs +0.9742 against raw |g|)
+
+====================================================================================================
+[G] IS THE CORRELATION DRIVEN BY THE UNTOUCHED FAR FIELD?
+====================================================================================================
+  (median |beta-1| is 1.1e-4: most cells barely moved, and both fields decay together)
+    cells with |beta-1| above its q=0.00 quantile: n= 21000  Spearman +0.9742  Pearson +0.4899
+    cells with |beta-1| above its q=0.50 quantile: n= 10500  Spearman +0.8798  Pearson +0.4812
+    cells with |beta-1| above its q=0.90 quantile: n=  2100  Spearman +0.4774  Pearson +0.4395
+    cells with |beta-1| above its q=0.99 quantile: n=   234  Spearman +0.0672  Pearson +0.5347
+    cells with |g| above its q=0.50 quantile:       n= 10500  Spearman +0.8775
+    cells with |g| above its q=0.90 quantile:       n=  2100  Spearman +0.6239
+
+====================================================================================================
+[H] R1's PRE-REGISTERED DECISION THRESHOLDS, scored
+====================================================================================================
+  measured: Spearman rho = +0.9742 ; top-decile overlap = 71.90% (chance 10%)
+  SENSITIVITY-DRIVEN if rho >= 0.6 AND overlap >= 40%  -> MET
+  PHYSICAL if rho <= 0.3 AND overlap <= 15%             -> not met
+  ABORT (TOO CLOSE TO FIRST STEP) if |beta-1| agrees with the fitted first step
+  beyond rho = 0.9 -> measured agreement rho = +0.9742 -> ABORT FIRES
+
+  The abort and the verdict fire together. Per R1's own text the abort dominates:
+  'reported as undecided and not forced' / 'inconclusive, not a verdict'.
+
+====================================================================================================
+[I] WHAT R5 WOULD DO, PREDICTED FROM THE MEASURED SENSITIVITY MAP
+====================================================================================================
+  R5's premise (its own words): 'whitening by the sensitivity mechanically pushes
+  correction away from high-sensitivity cells; if those cells happen to sit OUTSIDE
+  the window, G2 rises'.  Measured enrichment of high-|g| cells, by region:
+    in-window                base  8.44%  top-decile-|g|  35.4%  enrichment x4.19
+    upstream x<0             base 32.14%  top-decile-|g|  45.8%  enrichment x1.42
+    above shear layer y>2    base 69.60%  top-decile-|g|   9.8%  enrichment x0.14
+    downstream x>6 & y<=2    base 13.60%  top-decile-|g|  12.5%  enrichment x0.92
+  The high-sensitivity cells are enriched INSIDE the window by 4.19x -- the largest
+  enrichment of any region. R5's 'if' is measured FALSE.
+    first-order predicted G2 under sigma_i ~ 1/|g_i|   (full whitening)   =  0.00%
+    first-order predicted G2 under sigma_i ~ 1/sqrt|g_i| (half whitening) =  0.00%
+    first-order predicted G2 under unweighted (current)                   = 35.38%
+  (first-order, single-step prediction only -- it does not price the converged arm,
+   but all three whitening exponents move G2 the wrong way or leave it far below 50%.)
+
+DONE.

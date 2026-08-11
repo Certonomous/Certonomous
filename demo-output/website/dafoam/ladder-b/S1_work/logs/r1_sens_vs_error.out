@@ -1,0 +1,113 @@
+====================================================================================================
+R1: sensitivity vs error.  Executed 2026-08-11T22:03:40Z
+====================================================================================================
+
+[1] ARRAYS LOADED (provenance)
+  --- run: S1-cbfs-reinversion (the 'after objective repair' arm, G1=0.25847, G2=26.9%) ---
+  dv_to_serial_perm            /home/ubuntu/certonomous-runs/S1-cbfs-reinversion/cbfs_inv/dv_to_serial_perm.npy         shape=(21000,) dtype=int64 sha256/16=d98afc7518048bca
+  beta_final [eval 16]         /home/ubuntu/certonomous-runs/S1-cbfs-reinversion/cbfs_inv/beta_final.npy                shape=(21000,) dtype=float64 sha256/16=df10892867734a8c
+  beta_accept_iter001          /home/ubuntu/certonomous-runs/S1-cbfs-reinversion/cbfs_inv/beta_accept_iter001.npy       shape=(21000,) dtype=float64 sha256/16=d1f7bec896047720
+  grad_eval001 [eval 1]        /home/ubuntu/certonomous-runs/S1-cbfs-reinversion/cbfs_inv/grad_eval001.npy              shape=(21000,) dtype=float64 sha256/16=460c5fd9fe414641
+  grad_eval010 [eval 10]       /home/ubuntu/certonomous-runs/S1-cbfs-reinversion/cbfs_inv/grad_eval010.npy              shape=(21000,) dtype=float64 sha256/16=8e252a6b228f5c20
+  grad_anchor8 [control]       /home/ubuntu/certonomous-runs/S1-cbfs-reinversion/cbfs_inv/grad_anchor8.npy              shape=(21000,) dtype=float64 sha256/16=460c5fd9fe414641
+
+[2] EVALUATION IDENTITY -- is eval 1 the unperturbed state?
+  J_history row for eval 1: neval=1  varU=6.1509017109920479e-04  penalty=0.0000000000000000e+00  beta_min=1.000000  beta_max=1.000000
+  -> penalty = LL2*sum((beta-1)^2) = 0.0000000000000000e+00 ; beta_min = beta_max = 1.000000 => beta == 1 exactly.
+  driver.out CONTROL line: grad_maxabsdiff(eval1, anchor8) = 0.000e+00 (recomputed here)
+  |g_eval001 - g_eval010|max = 4.211417e-05  (distinct evaluations, not the same array)
+  |beta_final - 1|max = 3.000000 ; |beta_accept_iter001 - 1|max = 0.066290
+
+[3] PERMUTATION CONTROL (the kill switch: a correlation between differently
+    ordered arrays is a number with no meaning)
+  perm is a bijection on [0,21000): True
+  invert-assert  perm[inv] == arange : True ; inv[perm] == arange : True
+  |beta_serial[perm] - beta_dv|max = 5.1070e-15   <-- permuted   (record's control: 5.1e-15)
+  |beta_serial       - beta_dv|max = 3.0000e+00   <-- unpermuted (shows the orders really differ)
+  PERMUTATION CONTROL PASSES. serial[perm[i]] = dv[i]; cell centres for DV index i are C_serial[perm[i]].
+
+[4] PROVENANCE CHECK -- reproduce the published G2 from these same arrays
+  G2 (top decile of |beta-1| inside window 0<=x<=6, 0<=y<=2) = 26.8571%  (published: 26.8571%)
+  window base rate = 8.4429% of cells
+  top decile split: upstream x<0 39.6% ; above shear layer y>2 31.5% ; window 26.9% ; other 14.6%
+  pinned at bounds: n(beta<=0.2+1e-9)=223  n(beta>=4-1e-9)=1  (ties in |beta-1|)
+
+====================================================================================================
+[5] THE NULL MODEL -- what the correlation would be if beta were exactly
+    one projected gradient step from 1.  (Charter 2a: a quantity derivable
+    by construction from its own inputs is an identity, not a control.)
+====================================================================================================
+  g_total(beta=1) = LQOI*g_varU + 2*LL2*(beta-1); second term identically 0 at beta=1.
+  ||g_total(beta=1)|| = 1.9864e-01  (driver.out eval-1 line: 1.986e-01)
+  fitted step length: unprojected least squares alpha = 2.164416e+01 ; projected best-fit alpha = 3.732502e+02
+    NULL (least-squares alpha = 2.1644e+01): Spearman +1.0000  Pearson +0.9827  top-decile overlap 100.0%  n_pinned=7
+    NULL (projected best-fit alpha = 3.7325e+02): Spearman +1.0000  Pearson +0.5639  top-decile overlap 100.0%  n_pinned=256
+
+  The actual first accepted L-BFGS-B iterate (beta_accept_iter001, reinversion)
+  is a MEASURED first step, not a fitted one -- the same null with nothing fitted:
+    beta_accept_iter001 vs |g(beta=1)| : Spearman +1.0000  Pearson +1.0000  top-decile overlap 100.0%
+    implied step length alpha = 1.000000e+00 ; |beta_it1 - (1 - alpha*g)|max = 1.110e-16 (is it a pure -g step?)
+
+[6] IS THE MEASURED FIELD TOO CLOSE TO ITS OWN FIRST STEP?
+    (R1's stated abort: agreement beyond rho = 0.9 => TOO CLOSE, inconclusive)
+    beta_final vs fitted first step (fields)   : Spearman +0.6949  Pearson +0.6935
+    |beta_final-1| vs |fitted first step -1|   : Spearman +0.9742  Pearson +0.7676
+    beta_final vs actual first iterate (fields): Spearman +0.6949  Pearson +0.1957
+    displacement ratio ||beta_final-1|| / ||beta_it1-1|| = 101.86
+    ||g(eval1)|| = 1.9864e-01 -> ||g(eval10)|| = 1.5959e-02   (gradient norm change over the run)
+
+====================================================================================================
+[7] THE MEASUREMENT -- |beta_final - 1| (eval 16) vs |g(beta=1)| (eval 1)
+====================================================================================================
+    WHOLE DOMAIN                       n= 21000   Spearman +0.9742   Pearson +0.4899
+    top-decile overlap 71.90% (k=2100, chance 10%, hypergeom P(>=obs)=0)
+    NULL for comparison: Spearman +1.0000  Pearson +0.5639  overlap 100.0%
+    auxiliary: Pearson on log10 of both quantities = +0.2946
+
+[8] BY REGION (regions in DV order via the verified permutation)
+    region coverage: cells in exactly one region = 16005 ; in none = 0 ; in >1 = 4995
+    region                          ncells    Spearman     Pearson |    NULL Sp    NULL Pe
+    in-window 0<=x<=6, 0<=y<=2        1773     +0.9400     +0.5436 |    +0.9994    +0.5325
+    upstream x<0                      6750     +0.9737     +0.3688 |    +1.0000    +0.7237
+    above shear layer y>2            14616     +0.9674     +0.8343 |    +1.0000    +1.0000
+    downstream x>6 & y<=2             2856     +0.9737     +0.9693 |    +1.0000    +1.0000
+
+[9] CONTROLS
+    positive control 1 (the null model itself, a field known to be a pure
+      gradient step):                     Spearman +1.0000
+    positive control 2 (the run's own measured first iterate):  Spearman +1.0000
+    negative control (|beta-1| shuffled, 200 draws): Spearman mean -0.00027  sd 0.00708  |max| 0.0201
+    => the instrument returns ~1 where a relation exists and ~0 where none does.
+    (rank correlation p-values are not quoted: both fields are spatially
+     autocorrelated, so the 21000 cells are not 21000 independent samples.)
+
+====================================================================================================
+[10] SECOND ARM -- S1-cbfs-inversion (pre-repair, G2 = 29.0476%)
+====================================================================================================
+  beta_final [inv]             /home/ubuntu/certonomous-runs/S1-cbfs-inversion/cbfs_inv/beta_final.npy                  shape=(21000,) dtype=float64 sha256/16=4ebd5375129f9b8a
+  grad_eval001 [inv, eval 1]   /home/ubuntu/certonomous-runs/S1-cbfs-inversion/cbfs_inv/grad_eval001.npy                shape=(21000,) dtype=float64 sha256/16=e2a8f786c6bf770c
+  fields_beta [inv, serial]    /home/ubuntu/certonomous-runs/S1-cbfs-inversion/fields_beta.npy                          shape=(21000,) dtype=float64 sha256/16=b9fd26bce02ec9c0
+  fields_C [inv, serial]       /home/ubuntu/certonomous-runs/S1-cbfs-inversion/fields_C.npy                             shape=(21000, 3) dtype=float64 sha256/16=7663c88abbed9e02
+  mask_win [inv, serial]       /home/ubuntu/certonomous-runs/S1-cbfs-inversion/mask_win.npy                             shape=(21000,) dtype=bool sha256/16=30cfbfd204c5929d
+  permute-invert-assert on THIS run with the reinversion's perm:
+    |fields_beta[perm] - beta_final_dv|max = 5.1070e-15 (same mesh+decomposition => same perm)
+  G2 reproduced for this arm = 29.0476% (published: 29.0476%)
+    WHOLE DOMAIN [inv]                 n= 21000   Spearman +0.9976   Pearson +0.8459
+    top-decile overlap 96.57%
+    NULL [inv]: Spearman +1.0000  Pearson +1.0000 (alpha=1.3273e+05)
+    beta_final[inv] vs its fitted first step: Spearman +0.9616
+      in-window                    n=  1773  Spearman +0.9823  Pearson +0.8592
+      upstream x<0                 n=  6750  Spearman +0.9985  Pearson +0.8644
+      above shear layer y>2        n= 14616  Spearman +0.9963  Pearson +0.9867
+      downstream x>6 & y<=2        n=  2856  Spearman +0.9989  Pearson +0.9951
+
+[11] AUXILIARY -- the eval-10 gradient (a DIFFERENT evaluation; reported separately
+     so no mismatched-evaluation pairing can hide inside a single number)
+    |beta_final-1| vs |g(eval10)|      n= 21000   Spearman +0.9925   Pearson +0.8653
+    |g(eval1)| vs |g(eval10)| : Spearman +0.9741  Pearson +0.6449  (how much the sensitivity map moved)
+
+[12] MAGNITUDE DISTRIBUTIONS (why Spearman is the trusted leg)
+    |beta_final-1|   median 1.1193e-04  p90 1.2162e-01  p99 8.0000e-01  max 3.0000e+00  (max/p50 = 2.68e+04)
+    |g(beta=1)|      median 3.2356e-08  p90 1.9583e-04  p99 2.6363e-03  max 6.6290e-02  (max/p50 = 2.05e+06)
+
+DONE.

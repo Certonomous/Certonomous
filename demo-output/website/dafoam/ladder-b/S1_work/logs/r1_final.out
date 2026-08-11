@@ -1,0 +1,55 @@
+====================================================================================================
+[J] RESTRICTED RANGE -- measured vs NULL under the SAME restriction
+    (range restriction attenuates any correlation; the null is subjected to it too,
+     so the comparison stays fair. The null stays near 1.0 because it is an identity.)
+====================================================================================================
+  subset                                         MEASURED rho     NULL rho
+  all 21000 cells                                    +0.9742     +1.0000  (n=21000)
+  top decile of |beta-1| (the 2100 G2 scores)        +0.4774     +0.9991  (n=2100)
+  top decile of |g|                                  +0.6239     +0.9991  (n=2100)
+  union of the two top deciles                       +0.3814     +0.9996  (n=2690)
+  intersection of the two top deciles                +0.5539     +0.9976  (n=1510)
+  top decile of |null-1| (null's own restriction)           -     +0.9991  (n=2100)
+
+[K] REGION-LEVEL geography: measured vs null vs loss, top-decile shares
+  region                      base%   |beta-1|       NULL        |g|
+  in-window                   8.44%      26.9%      35.4%      35.4%
+  upstream x<0               32.14%      39.6%      45.8%      45.8%
+  above shear layer y>2      69.60%      31.5%       9.8%       9.8%
+  downstream x>6 & y<=2      13.60%      14.6%      12.5%      12.5%
+  G2:                                        26.86%     35.38%     35.38%
+  -> the null (a pure gradient step) scores G2 = 35.38%, which is ALSO a FAIL,
+     and it contains no inversion result at all.
+
+====================================================================================================
+[L] R5 PREDICTION, made robust to the singular low-|g| tail
+====================================================================================================
+  Where whitening SENDS correction: the low-|g| cells. Their geography:
+    in-window                base  8.44%  bottom-decile-|g|   1.8%  enrichment x0.21
+    upstream x<0             base 32.14%  bottom-decile-|g|  33.6%  enrichment x1.04
+    above shear layer y>2    base 69.60%  bottom-decile-|g|  90.0%  enrichment x1.29
+    downstream x>6 & y<=2    base 13.60%  bottom-decile-|g|   6.0%  enrichment x0.44
+  NOTE: a |g|^p ranking is DEGENERATE as a prediction -- for p>0 the top decile is
+  invariant under any monotone map of |g| (so p=1 and p=0.5 give the same G2), and
+  for p<=0 it is decided by the near-zero tail of |g|. The robust statement is the
+  one above: whitening sends correction toward the LOW-|g| cells, which are 90.0%
+  above the shear layer and 1.8%% in-window, so G2 falls. The two supporting
+  measurements that do not rely on any first-order argument:
+    G2(|beta_final-1|) = 26.86% < G2(|g|) = 35.38% -- the converged inversion is
+  ALREADY less window-concentrated than its own sensitivity map; and the in-window
+  per-cell gain |beta-1|/|g| is 0.582x the global median against 1.322x downstream.
+  The 26.86%% actually achieved already sits
+  BELOW the p=1 prediction of 35.38%, i.e. the converged inversion is already less
+  window-concentrated than its own sensitivity map.
+
+[M] AND THE CEILING R5 WOULD HAVE TO BEAT
+  window carries 41.2%% of the loss on 8.44%% of the cells; the >50%% bar asks the
+  optimiser to concentrate more sharply than the objective it minimises does.
+  Fraction of the top decile of the per-cell BASELINE LOSS that lies in the window:
+    32.71%  -- even a correction placed exactly on the loss would score this.
+      in-window                 32.7% of the top loss decile
+      upstream x<0               8.0% of the top loss decile
+      above shear layer y>2     22.0% of the top loss decile
+      downstream x>6 & y<=2     44.7% of the top loss decile
+
+DONE.

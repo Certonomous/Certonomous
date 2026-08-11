@@ -1,0 +1,79 @@
+====================================================================================================
+[A] IS 0/U THE CONVERGED beta=1 SOLUTION?  (provenance for the loss geography)
+====================================================================================================
+  varianceU from 0/U      = 6.1510110844197822e-04
+  eval-1 varianceU (driver, beta=1) = 6.1509017109920479e-04
+  ratio = 1.000018  -> 0/U IS the beta=1 baseline (residual = the stored start field vs the same solve reconverged at primalTol 1e-8)
+  varianceU from 2500/U   = 1.5897973285391019e-04  (at beta_final; audit_final.py's figure)
+
+  BASELINE LOSS GEOGRAPHY (where the model is wrong), from 0/U vs 0/UData:
+    in-window 0<=x<=6,0<=y<=2     8.44% of cells  carries  41.2% of the loss  (loss/cell x4.88)
+    upstream x<0                 32.14% of cells  carries   8.4% of the loss  (loss/cell x0.26)
+    above shear layer y>2        69.60% of cells  carries  25.6% of the loss  (loss/cell x0.37)
+    downstream x>6 & y<=2        13.60% of cells  carries  32.2% of the loss  (loss/cell x2.37)
+    record (prereg amendment D, stage-A loss audit): window = 41.2%% of loss on 8.4%% of cells
+
+====================================================================================================
+[B] THE SENSITIVITY GEOGRAPHY -- |g(beta=1)| ALONE, no reference to beta
+====================================================================================================
+  'G2 applied to the gradient': where does the top decile of |g(beta=1)| live?
+    region                          base%  top10|g|% top10|b-1|%      loss%
+    in-window 0<=x<=6,0<=y<=2       8.44%      35.4%       26.9%      41.2%
+    upstream x<0                   32.14%      45.8%       39.6%       8.4%
+    above shear layer y>2          69.60%       9.8%       31.5%      25.6%
+    downstream x>6 & y<=2          13.60%      12.5%       14.6%      32.2%
+
+  'G2' scored on the sensitivity field itself: 35.3810% (bar >50%) -- the SAME gate,
+  applied to a field that contains no inversion result whatsoever.
+  overlap of top-decile(|g|) with top-decile(|beta-1|) = 71.90% (chance 10%)
+
+  Loss-vs-sensitivity: are they the same geography?
+    Spearman(|g(beta=1)|, per-cell baseline loss) = +0.4121
+    Spearman(|beta_final-1|, per-cell baseline loss) = +0.3788
+    top-decile(loss) n overlap with top-decile(|g|)   = 33.4%
+    top-decile(loss) n overlap with top-decile(|b-1|) = 39.9%
+
+====================================================================================================
+[C] THE PART THE NULL CANNOT EXPLAIN -- per-cell gain r = |beta-1| / |g|
+====================================================================================================
+  Under the null (one step) r is a CONSTANT. Any geography in r is a departure
+  from the null and is therefore not derivable by construction.
+  cells with g == 0 exactly: 280
+  whole-domain median gain r = 5.9189e+02
+    region                              n     median r   r / global  IQR ratio
+    in-window 0<=x<=6,0<=y<=2        1773   3.4419e+02        0.582       4.29
+    upstream x<0                     6750   4.5866e+02        0.775       8.15
+    above shear layer y>2           14616   6.3437e+02        1.072      16.58
+    downstream x>6 & y<=2            2856   7.8271e+02        1.322       2.47
+  spread of the gain within the whole domain: p10/p50/p90 = 6.594e+01 / 5.919e+02 / 4.863e+03 (p90/p10 = 73.7)
+
+  Rank residual: rank(|beta-1|) - rank(|g|), by region
+    in-window 0<=x<=6,0<=y<=2    mean rank shift   -1029.2  (-4.90% of N)
+    upstream x<0                 mean rank shift    +214.2  (1.02% of N)
+    above shear layer y>2        mean rank shift    +247.4  (1.18% of N)
+    downstream x>6 & y<=2        mean rank shift    -161.2  (-0.77% of N)
+
+====================================================================================================
+[D] DIRECTION, NOT JUST MAGNITUDE -- is beta_final still ON the -g direction?
+====================================================================================================
+  cosine( beta_final - 1 , -g(beta=1) ) = +0.2125
+  cosine( beta_it1  - 1 , -g(beta=1) ) = +1.0000  (the first step, for scale)
+  sign(beta_final-1) == sign(-g(beta=1)) in 71.84% of cells (chance 50%)
+    in-window 0<=x<=6,0<=y<=2    sign agreement 91.99% ; cosine +0.1979
+    upstream x<0                 sign agreement 61.45% ; cosine +0.3430
+    above shear layer y>2        sign agreement 66.45% ; cosine +0.8276
+    downstream x>6 & y<=2        sign agreement 80.15% ; cosine +0.9740
+  among the top decile of |beta-1|: sign agreement 95.95%
+
+====================================================================================================
+[E] SENSITIVITY GEOGRAPHY, SECOND ARM (S1-cbfs-inversion eval-1 gradient)
+====================================================================================================
+  'G2' on the pre-repair eval-1 gradient = 31.1905%
+    in-window 0<=x<=6,0<=y<=2    top10|g_inv|% =  31.2%
+    upstream x<0                 top10|g_inv|% =  26.0%
+    above shear layer y>2        top10|g_inv|% =  33.7%
+    downstream x>6 & y<=2        top10|g_inv|% =  21.5%
+  Spearman(|g_inv(beta=1)|, |g_reinv(beta=1)|) = +0.9450  (two independent baselines,
+   different objective normalisation and different L2 weight)
+
+DONE.
