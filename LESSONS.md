@@ -2388,3 +2388,36 @@ Corollary for supervisors, since this one was mine: the files a chief writes to
 most often — the checklist, the changelog — are exactly the files every agent
 also writes to. The highest-traffic file in a repo is the one where this rule
 has the least protection and the most opportunity to fire.
+
+
+## L-58. A defect whose only detector expires must be fixed inside its detection window, or logged as permanent
+
+The cold-start test found a class of defect the lab had no name for. Twelve
+files had been dated **2026-08-11** while it was still 2026-08-10 — an error
+detectable by one cheap check: does any file claim a date in the future? Some
+were corrected. Three were not, because their wrong date is in the FILENAME,
+and renaming would have broken five committed citations.
+
+Then midnight passed. **The detector expired.** Those filenames are no longer
+detectable by any means, because the date they assert has arrived and is now
+merely wrong-by-provenance rather than impossible. Nothing distinguishes a file
+named for the day it was written from one named for the day after, once that day
+comes.
+
+Two rules follow.
+
+**A time-bounded detector defines a deadline, not a convenience.** When the only
+thing that can find a defect is a condition that will lapse — a future date, a
+process still running, a log not yet rotated, a temporary file, a version still
+installed — fixing it is urgent in a way its severity does not convey. A trivial
+defect with an expiring detector outranks a serious one you can find any time.
+
+**If it cannot be fixed inside the window, log it as PERMANENT before the window
+closes**, with the evidence that identifies it, because afterwards the record is
+the only detector left. The three filenames are recorded in exactly this way,
+and a note now travels inside each file — the label being wrong is harmless, the
+label being *undetectably* wrong is not.
+
+Related in shape, opposite in remedy, to L-42: there the evidence was destroyed
+by an action, and the fix was to preserve it; here the evidence decays on its
+own, and the fix is to spend the window.

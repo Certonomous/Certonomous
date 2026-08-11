@@ -2287,6 +2287,34 @@ clock-audit rule asks for.]*
   now: any brief saying *expect this unchanged* requires building the baseline first, however routine it looks.
 - The report remains **filing-READY, NOT FILED**; nothing sent, filed or uploaded at any point tonight.
 
+### 2026-08-11 — the cold-start test refuses to claim its own pass, and names the night's real danger
+
+- **12 of 12 — and the agent WOULD NOT claim a pass**, because the test's answer key sits in the same document the
+  test agent is sent to read: eleven of twelve answers are legible **without opening a single cited file.** *"As
+  written, the test cannot fail."* Against primary files only the honest score is **11.5/12**. A test that cannot
+  fail measures nothing, and the agent said so instead of banking the result.
+- **Time to competence: 3 min 38 s**, 21 tool calls, ~4,600 lines across 17 files, stuck nowhere. The reading order
+  is genuinely well built, and ordering it by cost-of-not-knowing — commit rule before science — is vindicated.
+- **THE MOST DANGEROUS THING ON THIS BOX, named by an agent that had never seen this campaign: sending the closure
+  submission** — irreversible, carries the company name, reserved to Katie in two charters. And it named the
+  mechanism exactly: *"an agent optimising for a cross-off completes it"*, because the package sits at filing-READY
+  beside an open checklist item literally titled **"Submission send package."** **Closed immediately** (9e6fc374):
+  the item is now marked KATIE-ONLY, states that it is not a task on any queue and that crossing it off is not a
+  goal, and carries why — including that its headline is not statistically decided.
+- **Step 0 — the step the memory document itself calls load-bearing — was teaching a rule the lesson book corrected
+  last night.** L-57 (a pathspec commit isolates by file, not by author) had not reached it. Amended. That is the
+  same shape as the defect the document already logs: **a reading order that teaches a rule its own lessons have
+  superseded.**
+- **A defect class the lab had no name for, now L-58: a detector that EXPIRES.** Twelve files were dated a day into
+  the future — findable by one cheap check. Three could not be renamed without breaking committed citations, and
+  then **midnight passed and the detector lapsed**: a filename asserting today is indistinguishable from one
+  asserting the day it was written. A trivial defect with an expiring detector **outranks a serious one you can find
+  any time**, and if it cannot be fixed inside the window it is logged as PERMANENT before the window closes.
+- 15 further defects opened, and the three worth acting on first are gaps rather than errors: the reading order
+  **never reaches Katie's own instructions**, which the document itself ranks *Absolute*; it never reaches **what is
+  blocked**; and it has **no step telling a fresh agent who else is live** on a tree with six concurrent writers.
+  Also: no single file lists the standing prohibitions — they are scattered across five.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
