@@ -3350,3 +3350,53 @@ work. It had not. Reads on this filesystem are not reliably coherent with writes
 that just landed, and any method here that reads back what it just wrote needs a
 `sync` and a re-check before it draws a conclusion — especially before it
 concludes that someone else broke something.
+
+## L-81. The wrong count was plausible, self-consistent, and about to be believed — an identity the count implied was the only thing that caught it
+
+**What happened.** Counting the lesson corpus in this very file, a shell pipeline
+reported **three** duplicated lesson numbers: L-43, L-63 and **L-15**. There are
+**two**. The pipeline was
+
+```
+grep -nE "^#+[[:space:]]*\**[[:space:]]*L-[0-9]+" LESSONS.md \
+  | sed -E 's/^([0-9]+):.*(L-[0-9]+).*/\2 line \1/'
+```
+
+and the defect is the greedy `.*` before the capture: it takes the **last**
+`L-<n>` on the line, so a heading that names two lessons is filed under the wrong
+one. L-15 was never duplicated; a heading mentioning it in passing was counted as
+its second occurrence.
+
+**Why it is a lesson and not a typo.** Nothing about the answer looked wrong.
+This corpus is *known* to carry duplicates — L-43 and L-63 really are doubled —
+so "three duplicates" sat comfortably inside what a reader already believed.
+A wrong count that contradicts your priors gets checked. **A wrong count that
+confirms them does not.** The plausibility was supplied by the true part of the
+answer, which is what made the false part invisible.
+
+**What caught it** was not review and not a second pair of eyes. It was an
+**arithmetic identity the count itself implies**: an anchored Python count gives
+**81 heading blocks and 79 distinct numbers**, and 81 − 79 = **2**. Blocks minus
+distinct IS the number of duplicate occurrences. The shell version's own output
+failed its own identity, and nobody would have run that check unless they went
+looking for one.
+
+*Independently re-derived by a second session before this entry was written —
+same 81 / 79 / max 80, same duplicate set {43, 63}, same single gap at 52 — which
+is why this is filed as measured rather than reported.*
+
+**The rule.** **Every count you publish should carry a second quantity that
+constrains it,** and the two should be derived by different routes. Blocks and
+distinct numbers constrain each other. Files-considered and files-searched
+constrain each other (that is why `scripts/sweep.py` prints both). Sum-of-parts
+constrains a total. A single number has nothing to be wrong *against*, and is
+believed exactly as far as it is plausible.
+
+**And the narrower rule, because this one keeps costing us:** a `sed`/`grep`
+pipeline with a greedy `.*` before a capture group is not a measurement
+instrument. When the line may contain the pattern twice, greedy takes the wrong
+one **silently and only sometimes** — which is worse than failing, because the
+correct majority of the output vouches for the incorrect remainder. Anchor the
+capture, or count in Python where the regex is visible and testable. Related:
+L-72 (a count is true of a commit, not a moment), L-75 (state the frame),
+L-80 (the artifact under test can disagree with the file you are reading).
