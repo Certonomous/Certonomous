@@ -2,8 +2,10 @@
 
 **First grade: PASS WITH EXCEPTIONS, six exceptions (§1–§7).
 Second: PASS WITH EXCEPTIONS, two (§8).
-Third and final: PASS WITH EXCEPTIONS, two — neither of them the two it was sent
-to check (§9).**
+Third: PASS WITH EXCEPTIONS, two — neither of them the two it was sent to
+check (§9).
+Fourth: PASS WITH EXCEPTIONS, three, the smallest set yet (§10), with V15 round
+5's scope in §11.**
 Each grade is left exactly as it was written, because a grade rewritten onto its
 own outcome destroys the record of what was found before the fix. The one
 exception is noted in §9.4.
@@ -1107,3 +1109,257 @@ the tests and none of the fixes. Nothing was fixed in this pass. The only edits
 to the subject's own files were none; the only edits to this document were to
 template out four quotations that rule B's widening turned into faults, recorded
 in §9.4.*
+
+---
+
+# 10. FOURTH GRADE, 2026-08-11 — the two new exceptions close; the L-76 pattern holds a fourth time
+
+**Grade: PASS WITH EXCEPTIONS — three, the smallest set yet, none of them a
+regression from `ddc4dc35` `97e8a9af` `49544415`.**
+
+Suite at this read: **79 passed** (up from 70). Live check: **WARN**, the two
+declared use/mention mentions only, unchanged across all four grades.
+
+All three commissioned items pass, and two of them pass better than any claim in
+this rung's history. What follows is not a hedge: the rung is closer to green than
+it has ever been, and it is not green.
+
+## 10.1 The crash boundary. **CLOSED — and the absolute survives execution.**
+
+I threw seventeen exception types at the wrapped region, none of them used by
+either of us before:
+
+| thrown at `_parse_published_board` | `_published_board` |
+|---|---|
+| `MemoryError`, `RecursionError`, `KeyError`, `ZeroDivisionError`, `AttributeError`, `TypeError`, `OverflowError`, `BufferError`, `SystemError`, `StopIteration`, `re.error`, `ArithmeticError`, `LookupError`, `NotImplementedError`, `UnicodeEncodeError`, a custom subclass | **16 / 16 → OFF, each naming the exception type** |
+| `KeyboardInterrupt`, `SystemExit` | **propagate — exactly as the docstring says they must** |
+| `GeneratorExit` | propagates — it is a `BaseException`, and the claim is scoped to `Exception` |
+
+**This is the first absolute in this rung that survives being executed**, and the
+reason is that it was written narrowly enough to be true: *"THIS FUNCTION CANNOT
+RAISE AN `Exception`"*, not "never raises". The one construction that defeats it —
+an exception whose own `__str__` raises, so the `f`-string in the `except` block
+raises a fresh `RuntimeError` — I had to author myself, and it cannot arise from
+the wrapped code, whose exception types are all standard. I record it and decline
+to count it: naming that a fourth absolute would be manufacturing residue.
+
+**Is the boundary narrow? Yes — and a second, older catch is not.** The new
+boundary wraps only the third-party read and parse, exactly as claimed. But
+`check_board_placement_words` still carries a per-surface `except Exception` from
+an earlier round, and **that one converts a defect in the guard's own logic into a
+green PASS**:
+
+| injected defect | result |
+|---|---|
+| `_placements` raises on **every** surface | **PASS** — *"all 0 placement expression(s) agree with the published board"* |
+| `_placements` raises on **exactly the one surface carrying a defect** | **PASS** — frame says *"1 surface(s) skipped after raising"*, status green |
+
+The second row is the realistic one. A partial break — catastrophic backtracking,
+an encoding edge, a pattern that blows up on one document — silently removes
+**precisely the surfaces the guard cannot read**, which are the surfaces most
+likely to be unusual, and returns PASS. The count is printed in the frame; the
+*status*, which is what a reader and any automation act on, is not affected by it
+at all.
+
+This is the failure the coordinator named — *"a wrapper that quietly eats real
+bugs would be a worse outcome than the crash it replaced"* — and the answer is
+that the **new** wrapper does not, and an **older** one does. It is also the shape
+this rung has already refused once, in its own words: *"a green that means 'I
+looked at nothing'."* Not introduced by these commits; live today.
+
+## 10.2 The recompute. **CLOSED — verified by mutating my own sentences.**
+
+This is the check only I could do cleanly, so I did it the destructive way. I
+changed **one** sentence in `V16_GRADE_HELDOUT_SETS.py` — the roman-numeral line,
+which the guard misses, into a plain rank token, which it catches — and ran the
+suite:
+
+```
+_PLACE_REACH says (20, 45) for "the grader's first set";
+the committed sentences measure (19, 45). The published figure is stale.
+```
+
+The figure moves, the test reddens, and the message names both numbers and the
+sample. I restored the file (`git diff` clean). Unmutated, the recompute agrees
+exactly: **20 of 45**, **42 of 45**, **0 of 3 controls missed** — measured live
+from the committed files, matching `_PLACE_REACH` in every row. The class is
+closed: a figure whose inputs live in the repository cannot go stale unnoticed.
+
+**With one gap, and it is the figure with history.** `_PLACE_REACH_B` — rule B's
+*"5 of 5 shapes caught"* — has **no committed sentences and no recompute**. It is
+interpolated into the same paragraph as the three recomputed rows, with nothing
+distinguishing it. It is also the exact figure that produced the contradiction
+that made the last table stale. So the comment's
+
+> *"It cannot happen again, because the sentences are now IN THE REPOSITORY"*
+
+is true of three of the four published figures and false of the fourth.
+
+## 10.3 The absolute sweep. **MY ENUMERATION FOUND TWO THE AUTHOR'S DID NOT.**
+
+The author's sweep covered **36 absolute-shaped words across 17 surfaces —
+docstrings, BASIS, REMEDIES, verdict line**. I ran a different regex over a
+different surface class: **module-level comments in the guard's region**, which
+that list does not name. 166 comment lines, **22 carrying an absolute**. Most
+hold. Two do not, and one has teeth.
+
+**(a) "It cannot happen again…"** — §10.2 above.
+
+**(b) The linear-algebra homonym claim is false, and it is load-bearing.** The
+comment above `_PLACE_WORD_NUM` reads:
+
+> *"Every linear-algebra `rank` in this corpus is a word — `rank-one pure-shear
+> tensor`, `rank three out of five` — and every board placement that reads `are
+> rank N` is a digit."*
+
+That sentence is the **stated reason** `_PLACE_LINALG_L` was narrowed to word
+numerals only. Swept over every tracked UTF-8 surface, the corpus contains
+**four genuine linear-algebra ranks written as digits**, among them:
+
+- `demo-output/website/dafoam/f6d_random_matrix_uq/rmt_sampler.py` — *"Reynolds
+  stress is a rank-2 tensor in 3 dimensions"*
+- `sdk/scripts/pope_1975_basis_check.py` — *"tensor basis has pointwise rank 3"*
+
+*(The sweep also finds the mirror case the same sentence asserts away — a
+third-party paper in `docs/papers/` using the **word** form for linear algebra,
+`"which are rank two tensors"`. That one the exclusion handles correctly, which
+is the point: the word form is covered and the digit form is not.)*
+
+None of the four faults today, and the reason is luck of layout: none sits within
+the 40-character binding window of a board surname. Move one there and the exclusion
+is not there to catch it, because the exclusion only covers the word form.
+The five probes are given with the entrant and the digit held out, because
+writing them in full makes this document carry the very faults it is reporting —
+rule A's adjudication clause cannot clear them, since a demonstration of a false
+positive has no correct placement to sit beside it:
+
+| sentence | verdict |
+|---|---|
+| *&lt;entrant&gt; shows the tensor basis is rank &lt;N&gt;, not five, on the duct field.* | **FALSE POSITIVE** |
+| *On the duct field &lt;entrant&gt; reports pointwise rank &lt;N&gt; rather than five.* | **FALSE POSITIVE** |
+| *&lt;entrant&gt; computes a stress that is rank &lt;N&gt; almost everywhere.* | **FALSE POSITIVE** |
+| the same sentence with the **word** form, *rank three* | clean — the word form is excluded |
+| an entrant beside *a rank-&lt;N&gt; tensor* | clean — caught by the right-side rule |
+
+This is a turbulence lab whose four board entrants are turbulence authors. `Liu`,
+`Wu`, `Reissmann` and `Montoya` appear beside tensor-rank discussion constantly;
+today the digit form and the surname simply have not landed within forty
+characters of each other. **The measured false-positive rate is still zero and I
+re-derived it; the class is latent, not live** — but a latent false-positive
+generator resting on a false statement about the corpus is the precise thing the
+rung's own text says it fails on: *a guard that cries wolf gets switched off, and
+then it guards nothing.*
+
+**The enumeration lesson stands as the coordinator framed it.** The sweep was
+honest about what it swept and complete within it. It enumerated docstrings,
+BASIS, REMEDIES and the verdict line — and the guard's most load-bearing
+justifications live in **module comments**, which are none of those. An
+enumeration that names its surface list and misses a surface class is the same
+defect one level up, and it is why this pass exists.
+
+## 10.4 The two things to weigh
+
+**"One third-party edit from DISABLED where it used to sit one edit from WRONG."
+I agree, without qualification.** A guard that goes OFF loudly with a stated
+reason is strictly better than a guard that grades against the wrong table
+silently, because the first is a fact about the instrument and the second is a
+false fact about the world. The margin is now **printed in the verdict** — 2 table
+blocks, 1 qualifies — which turns a hidden operating property into a monitorable
+one. My only note is operational rather than critical: the trip condition lives in
+a repository this lab does not control, so nobody here will see it coming; a
+weekly read of that margin would cost nothing and would turn a surprise into a
+notice.
+
+**The `before` column's marking is honest, and nothing depends on it silently.**
+It is history against patterns that no longer exist, it cannot be recomputed, and
+the test correctly does not check it. The headline pair *does* consume it —
+*"40 of 45 missed became 20 of 45"* — and that dependency is disclosed **in the
+same generated sentence**, which also names which figures are recomputed and from
+which files. Disclosed at the point of use is the standard, and it is met.
+
+## 10.5 Verdict
+
+**PASS WITH EXCEPTIONS.** All three commissioned items close. The crash boundary
+survives every reachable exception type and is correctly scoped. The measurement
+genuinely recomputes — I broke it to prove it. The sweep was real, and my
+independent one found what it did not reach.
+
+1. **A defect in the guard's own logic returns PASS.** The pre-existing
+   per-surface `except Exception` skips the surfaces it cannot read and leaves the
+   status green; a partial break drops exactly the documents that break it and
+   reports *"all 0 placement expression(s) agree with the published board."* The
+   count reaches the frame; nothing reaches the verdict. §10.1.
+2. **A false statement about the corpus is holding a homonym exclusion open.**
+   Linear-algebra `rank` **is** written as a digit here — twice, verified — and
+   the digit form is excluded only by a right-side rule that ordinary phrasings
+   walk around. Three sentences of plausible lab prose produce false positives.
+   Zero live today, measured. §10.3(b).
+3. **One published figure still has no committed inputs.** Rule B's *5 of 5* is
+   not recomputed and its sentences are not in the repository, beside three rows
+   that are — under a comment saying it cannot happen again. §10.2.
+
+**The L-76 pattern held a fourth time**, and I want it recorded exactly: *can no
+longer mis-parse silently* · *does not return a board it is unsure of* · *NEVER
+raises* · *every linear-algebra rank in this corpus is a word*. Four grades, four
+absolutes. What changed this round is real and worth saying: **the absolute that
+was rewritten deliberately survived execution**, because it was scoped to
+`Exception` instead of to everything. The one that failed was in a comment nobody
+had ever swept.
+
+Exception 3 is one tuple and a test. Exception 2 is one alternation. Exception 1
+is a status line. **I would not call this rung green today, and I would expect to
+call it green on the next read.**
+
+---
+
+# 11. WHAT V15 ROUND 5 MUST COVER
+
+V15 audits text written *during* the ladder, and this rung generated a great deal
+of it. Every item below is claim-bearing prose that entered the tree between
+`862d2cff` and now. **Owner rule: not the writer.**
+
+## 11.1 Written by the guard's author — route to a non-author
+
+| surface | what V15 must check |
+|---|---|
+| `campaign/LADDER_V_TRIPLE_VERIFICATION.md` | the V16 rung definition; the status-ledger row; the **termination rule and send gate amended 15 → 16**; four dated pass-records (`147a68c6` `253947d0` `97e8a9af`). Every quantitative sentence against V8's claims table |
+| `docs/PRODUCT_LIST.md` | the V16 entries (`ba5a8cbc` `1f33497f` `49544415`). Confirm the **struck 111/421/63 corpus has not been reintroduced anywhere**, and that the strike still carries its reason |
+| `LESSONS.md` | **L-70, L-76, L-77** — each states a general rule from a specific incident; check the incident is described as it happened |
+| `scripts/self_audit.py` | docstrings, module comments, `BASIS`, `REMEDIES` and the **generated verdict line**. This is claim-bearing prose that ships inside code and no claims table has ever covered it — §10.3 is the argument for including it |
+| `sdk/tests/test_rank_claim_surfaces.py` | module and class docstrings carrying quantitative claims |
+| `campaign/V16_AUTHOR_HELDOUT_SET.py` | the author's 46 and its docstring |
+
+## 11.2 Written by me — route to someone who is neither of us
+
+| surface | note |
+|---|---|
+| `campaign/V16_GRADE.md` §1–§11 | four grades, all mine, none independently checked |
+| `campaign/V16_GRADE_HELDOUT_SETS.py` | my two sets and its docstring, **including figures I corrected in §9 after finding them stale** |
+| commit messages `584f372d` `20aabc31` `717d7e7a` and this pass's | they carry numbers that appear nowhere else |
+
+## 11.3 Text this rung changed elsewhere
+
+- **The three corrected surfaces** — `…round5/DESCRIPTION_DOCUMENT.md`,
+  `CLOSURE_CHALLENGE_STATUS.md`, `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md`. The
+  corrections are themselves ladder-written text.
+- **`demo-output/website/latex/closure_challenge_report.tex`** — the *ranked
+  second* sentence: correct, deliberately left alone, now guarded. V15 should
+  confirm it still agrees with the board **and that the compiled PDF matches the
+  `.tex`**, since the PDF is non-UTF-8 and outside every guard here.
+- **`docs/INSTRUMENT_INTEGRITY_LEDGER.md`** — carries the two live WARN mentions.
+  Another agent's file; confirm they are still mentions and still WARN-scoped.
+
+## 11.4 Specific numbers to reconcile across surfaces
+
+`89` · `80` · `53` · `96` · `30` · `40 of 45` · `20 of 45` · `42 of 45` ·
+`37 of 46` · `14 of 46` · `5 of 5` · `1375 / 126 / 591` · `36 absolutes across 17
+surfaces` · `70 passed` → `79 passed` · `PASS 13 / WARN 9 / FAIL 9` · `22 tests, 21 failures`.
+**No surface may still read `89% → 30%`** — that pair is withdrawn. And any rank
+claim introduced by this text carries P(rank 1), its interval and the not-decided
+pairs, per V8 as amended.
+
+---
+
+*Fourth grade, same independent grader, who produced none of the guard, none of
+the tests and none of the fixes. Nothing was fixed in this pass; the one file I
+mutated to test the recompute was my own and was restored byte-for-byte.*
