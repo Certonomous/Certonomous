@@ -2427,6 +2427,38 @@ clock-audit rule asks for.]*
 - One item flagged and correctly not taken under the single-file rule: the travelling description document still
   prints the misrounded digit and owes a one-character correction.
 
+### 2026-08-11 — the relaxation check CONFIRMS the hills verdict, and the sweep finds S6 armed nowhere it was claimed
+
+- **THE +63–66% MISS IS THE MODEL'S. THE VERDICT STANDS** (pre-reg `ce0b14be` before compute; results `ef3e4872`
+  onward; 18.28 core-min against a declared 50, priced throughout from this case's own measured per-iteration cost).
+  Three arms spanning a **third-to-triple range in path length** agree to **0.0105% and 0.0183%** — 48× and 27×
+  inside the 0.5% bar — with separation, bubble topology and a nine-station profile all passing their own bars.
+  **Seventeen other surfaces carrying that number do not have to move.**
+- **The frame was moved BEFORE any number was taken, and that is the finding under the finding.** The record does
+  name its own relaxation gap — but that sentence is about a rung **carrying no verdict**, while all three graded
+  claims are read off a different rung. Testing the named rung and reporting it as the verdict's check would have
+  been *exactly* the L-55 shape: a true sentence about the wrong thing. The graded rung was tested instead, and the
+  other rung's gap is now fenced as still open.
+- **The instrument was made to FAIL before it was allowed to pass.** A registered control — same case, same
+  relaxation, stopped early — was refused certification at all four sample points, and the two that matter have a
+  *well-formed two-crossing bubble* and still read 3.3% and 1.06%. An unconverged field reads 1.06%; a genuinely
+  different relaxation reads 0.0105%. **That hundredfold gap is what licenses the headline**, and without the control
+  the agreement would have meant nothing.
+- A falsified prediction that failed **on its mechanism**: the pre-registration assumed the alternatives would be
+  slower, and one converges in **66% of the incumbent's iterations** — so the shipped relaxation is not merely
+  untested here, it is **a third slower than the solver's own default.**
+- **THE PROPAGATION PREMISE WAS OFF BY FOUR LESSONS**: L-49 through L-52 had never been swept either, so the debt was
+  nine, not five. **16 of 20 cells carry a live instance**, and L-55 hits all four families.
+- **The serious one, and it lands on a rule we wired tonight:** the monitor standard says the residual-stall rule
+  **fires on production and names a specific family** — but the gate has exactly one non-test call site, and that
+  family's runner never reaches it. **Every test bypasses the constructor to call the gate directly, so the tests
+  prove it works WHEN ARMED and nothing proves it GETS armed.** Routed to Infra: the wiring is real, the coverage
+  claim is not.
+- **The transferable result of the whole sweep**, in the agent's words: in all four families **the falsifying fact
+  was already written down** — eight lines above, thirty-seven lines later under another item, in a sibling document
+  with the correct scope. **Nothing was hidden.** Twenty-three items routed, none fixed across a family boundary,
+  every instance re-measured by the sweeper because *a delegated null is a claim about the delegate's reach.*
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
