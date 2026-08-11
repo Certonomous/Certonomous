@@ -83,12 +83,14 @@ rather than take them:
    control reads the working-tree file as text. No bytecode is involved at any
    point in the control, which is the part a stale cache would most quietly
    corrupt.
-2. **No site in this sweep was cleared BY injection.** The 13 out-of-scope
-   sites were cleared by tracing whether a published verdict exists and whether
-   the handler's writes can reach its status — a static argument, stated
-   per site in §5 so it can be disagreed with. The 7 candidates are recorded as
-   *not shown to fire*, which is the opposite of a clean bill. Injection was
-   used only in the positive direction, to **confirm** the two defects.
+2. **No site in this sweep was cleared BY an injection that came back
+   negative.** Injection was used only in the positive direction, to
+   **confirm** the two defects and candidate C7. Of the 13 out-of-scope sites,
+   **3 were afterwards fired at on a cold cache and stayed clean** and **10 are
+   cleared by static argument and were never fired at** — split out in §5,
+   because "could not make it fire" and "never fired at it" look identical in
+   the output. The 7 candidates are recorded as *not shown to fire*, which is
+   the opposite of a clean bill.
 3. **Both injections are patch-based, not source-mutating, and each asserts
    that it bit.** They use `unittest.mock.patch` against live module objects,
    so no `.pyc` can serve an un-injected version. Defect 1's run reports
@@ -312,6 +314,39 @@ garbled -> {'min': 0.11, 'max': 0.95, 'average': 0.55}   <- the 200-iteration ro
 ## 5. Out of scope — the exception path cannot reach a published verdict
 
 **13 flagged sites**, each with its reason. Saying so is a result.
+
+### How each of these was cleared, in three groups and not two
+
+*"I could not make it fire"* and *"I never fired it"* are identical in the
+output, and only the harness tells them apart. Folding the second into the
+first is how a clearance becomes a claim, so the 13 are split by **method of
+clearance**, not by confidence:
+
+- **Group 1 — the injection visibly moved the verdict.** Nothing here. No site
+  in this section was *demonstrated* safe by an injection that fired and showed
+  no movement; injection was used only in the positive direction, on the two
+  defects and on candidate C7. A stale `.pyc` cannot manufacture a change that
+  did not happen, so the two defects and C7 are immune by construction.
+- **Group 2 — fired at, with every `__pycache__` in the tree deleted and
+  `PYTHONPYCACHEPREFIX` pointed at a fresh directory, and still clean.**
+  **3 sites.** Executed, cold cache:
+
+  | Site | Injection | Result |
+  |---|---|---|
+  | `replay_console.py:141` | a real listener bound on the probe's first port; then all five ports in the range held | returned the **next** free port, not the occupied one; exhaustion raised `SystemExit("No free port between 26000 and 26005.")` — **fails closed** |
+  | `docker_dafoam.py:323` | `write_certificate` called with no checkMesh log, and with a log carrying no cell count — the two states the swallowed `checkMesh` leaves behind | returned `None` and wrote **no** `birth_certificate.json` in both cases — quarantined, exactly as its comment claims |
+  | `probeWallBranch.py:185` | every string form the guarding regex admits, including 400- and 4000-digit runs | **0** strings matching `^[0-9]+(\.[0-9]+)?$` that `float()` rejects — the handler is unreachable for anything the regex lets through |
+
+- **Group 3 — cleared by ARGUMENT, never fired at.** **10 sites** — the
+  remaining rows of the table below. Each is cleared by tracing whether a
+  published verdict exists and whether the handler's writes can reach its
+  status. That is a static argument, stated per site so it can be disagreed
+  with, and it is **weaker evidence than an executed injection**. Firing at
+  them needs a live solve, a live WSL/OpenFOAM step, or a live VSPAERO run,
+  which this rung may not launch. **None of them should be read as
+  experimentally cleared.**
+
+**No site moved from cleared to fail-open** under the cold-cache re-check.
 
 | Site | Reason it cannot publish a false verdict |
 |---|---|
