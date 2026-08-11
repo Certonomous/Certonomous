@@ -2155,6 +2155,12 @@ clock-audit rule asks for.]*
   **The finding under the finding:** the count was never going to come out right, because a rule withdrawn at its
   statement was never swept at its *origin*. Five of the six were found by a search that did not know how the
   sentence is spelled.
+  *(Provenance, because a claims table run over commits would otherwise mis-attribute this: the N1-derivation and
+  N2-verification paragraphs in this entry were written by the round-3 correction pass and were swept into
+  `afe1af99` — a concurrent pass's `git commit -a` about an unrelated absence check — before round 3 could commit
+  them with a pathspec. The text is byte-unchanged and is round 3's; **`afe1af99`'s body does not describe its own
+  diff.** Round 3's own commits are `d9552d73` (N1), `07af6f02` (N3), `8ce7cedd` (N4), `35c59035` (N5),
+  `4e719a6b` (N6).)*
 - **N2 (MAJOR):** round 1's finding about four non-compliant external surfaces was **renumbered during the fix round
   and reported closed while still open** at HEAD. (Being closed now by the concurrent pass; the auditor reported the
   committed state and said so.) **CLOSED and verified 2026-08-11 by round 3 at `656c09c9`** (committed 00:11:36 UTC,
