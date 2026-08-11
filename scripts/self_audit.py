@@ -333,6 +333,27 @@ def check_closure_entry_of_record() -> Result:
             "our_entry states best-on-board 4 of 8 without the disclosure that "
             "two of those four rows are the organisers' own unmodified RANS "
             "field (SUBMISSION_DRAFT sec 4.7, the highest-priority disclosure)")
+    # A rank claim on the wall must carry its companion: the probability that
+    # the placement survives case resampling, AND the interval, AND the pairs
+    # that are not decided. Ladder V rung V8 as amended 2026-08-10 -- "a bare
+    # 68% is a worse claim than none, because 68% sounds settled and eight
+    # cases do not support settled". This guard exists because rung V15 found
+    # the four external surfaces (this text among them) edited by the very
+    # commit that adopted the rule and left non-compliant with it: a rule that
+    # binds surfaces needs a check that reads a surface.
+    if re.search(r"\brank 1\b", published_text, re.I):
+        missing = []
+        if "P(rank 1)" not in published_text:
+            missing.append("P(rank 1)")
+        if not re.search(r"2\s*[-–]\s*100\s*%", published_text):
+            missing.append("its 2-100% at 95% interval")
+        if "not statistically decided" not in published_text:
+            missing.append("the sweep token 'not statistically decided'")
+        if missing:
+            problems.append(
+                "our_entry makes a rank claim without " + ", ".join(missing)
+                + " (Ladder V rung V8 as amended 2026-08-10; source "
+                "campaign/PROBABILITY_OF_RANK_2026-08-10.md)")
     if problems:
         return Result("closure entry of record", FAIL,
                       f"{len(problems)} stale claim(s) on the credentials wall",
