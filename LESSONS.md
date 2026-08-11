@@ -2523,6 +2523,12 @@ time tonight a line-bounded reader has returned a false negative on wrapped
 text. The auditor and the audited share a defect because they share an
 assumption, and neither one auditing the other will surface it.
 
+*(That "third" was counted, not remembered: the record carries a line-bounded
+grep returning **zero** against a file demonstrably containing the string —
+which had made three prior verifications unsound — a sweep token falling across
+a line break in **both** markdown files, and tonight's. Three encodings of one
+assumption, found three times before anyone thought to look for it deliberately.)*
+
 Practical form: **a guard must be anchored to the claim, not to the spelling of
 the example that prompted it.** Before shipping one, ask what other forms the
 same claim can take — words for digits, comparatives for ordinals, a line break
