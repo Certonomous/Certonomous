@@ -1,5 +1,12 @@
 # Certonomous Mesh Standard
 
+Version 1.2, dated 2026-08-11. **Adds section 7, marine / free-surface meshes,
+and changes no existing gate value.** Section 7 is house practice with its
+evidence attached, at the maturity of section 3.4's proposed gate: nothing in it
+is written to `docs/physics_rules.yaml` and no code enforces it yet (section
+7.6 says so explicitly). Its numbers come from one case family, the F7a dam
+break, and section 7.6 records that limitation rather than generalising past it.
+
 Version 1.1, dated 2026-08-08. **Adds exactly one mechanism, the mesh birth
 certificate, and changes no gate value.** The Verification Charter's v1.5
 section 9 clause -- born clean or it does not enter; a mesh whose birth
@@ -194,8 +201,172 @@ until checkMesh is run and attached.
   that ran: a save whose checkMesh record is absent or unparseable writes
   nothing, and the entry stays quarantined at lookup.
 
+## 7. Marine / free-surface meshes (v1.2, 2026-08-11)
+
+### 7.0 Why this section is in *this* file and not the other MESH_STANDARD
+
+`docs/MESH_STANDARD.md` and this file share a name and govern different
+questions; both flag the collision on their own face. The split is: that file
+governs how a grid **family** is sized and how family scatter is reported; this
+file governs whether **one** mesh is admissible, and owns the birth certificate.
+
+Katie's marine brief asks for four things — free-surface mesh discipline,
+refinement at the interface, Courant / interface-Courant limits, and what a
+birth certificate must record for a free-surface case. Three of the four are
+single-mesh admissibility and certificate matters, and the fourth (the
+certificate) is defined only here. **So the marine section lands here.** The one
+genuinely family-shaped part — that a free-surface refinement ladder must be
+anisotropic and must declare its direction — is stated in §7.3 and
+cross-referenced from `docs/MESH_STANDARD.md` rather than copied into it
+(one home per fact).
+
+Everything below is derived from the F7a dam-break campaign's own measurements.
+Where a number is quoted, the case it came from is named. **No value in §7 is
+yet enforced in code**; §7.6 says what would have to happen.
+
+### 7.1 The marine-specific claim: cell shape is not sufficient
+
+Every mesh in the F7a ladder passed §3 cleanly — `log.checkMesh` reports
+orthogonal cells, skewness ~1e-13, aspect ratio 1 on the isotropic rungs — and
+the gate still failed by 11%. What governed the answer was **vertical spacing
+measured against a physical film thickness**, a quantity §3 does not look at.
+
+**Therefore: a free-surface mesh is admissible against a physical length scale,
+not only against cell-shape metrics.** A checkMesh-clean free-surface mesh with
+no recorded layer resolution is not a gate-grade mesh.
+
+### 7.2 The controlling length scale — resolve the thin layer, not the domain
+
+Measured on F7a (`F7_runs/F7a_R1/`, R1 audit, from `0.65/U` read directly):
+
+| dy | film thickness | cells across film | wall velocity gradient | τ_w |
+|---|---|---|---|---|
+| a/32 = 1.79 mm | ≈ 2.9 mm | ≈ 2 | 999 s⁻¹ (under-predicted ~40%) | 1.0 Pa |
+| a/128 = 0.446 mm | ≈ 2.9 mm | ≈ 6–7 | 1607 s⁻¹ | 1.61 Pa |
+
+The six-station mean deviation tracks this directly: +11.6% at dy = a/32,
++9.8% at a/64, **+8.2% at a/128**. The single-variable proof that the resolved
+quantity really is bed shear: at the identical a/32 × a/128 mesh, switching the
+floor from `noSlip` to `slip` moves the front from +8.2% back to +13.7% — it
+undoes the entire gain.
+
+**Rules.**
+1. A free-surface case **declares, before meshing, the thinnest physically
+   meaningful layer it must resolve**, and the certificate records it.
+2. **≥ 6 cells across that layer for a gate verdict.** 2 cells is a diagnostic,
+   never a verdict. Basis: the table above — at 2 cells the wall gradient is
+   wrong by ~40%, at 6–7 it is resolved, and the deviation stops improving.
+3. A case that cannot state its controlling layer thickness is not thereby
+   exempt; it is **diagnostic-only** until it can.
+
+### 7.3 Refinement at the interface is anisotropic — and the ladder must say so
+
+Measured on the same ladder, six-station mean deviation:
+
+- **Isotropic refinement** a/8 → a/64 (1,200 → 76,800 cells, 64×):
+  +11.8% → +11.1%. **0.7 points.**
+- **dy alone** at fixed dx = a/32, a/32 → a/128 (19,200 → 76,800 cells, 4×):
+  +11.6% → +8.2%. **3.4 points.**
+
+An isotropic ladder on a stratified problem spends its cells in the direction
+that does not matter.
+
+**Rules.**
+1. A free-surface refinement ladder **declares its refinement direction and the
+   justification, before the ladder is built.**
+2. **Anisotropy has its own limit and the ladder must bracket it.** Pushing dy
+   alone to a/256 (cell aspect dx/dy = 16) produced an early-time outlier at
+   T = 3.90 (+18.1%, inflating that rung's mean to +10.8%) which R1 attributed
+   to cell aspect ratio and **reported rather than smoothed away**. So the
+   ladder must include **at least one rung that varies dx at the finest dy**, to
+   separate genuine dy convergence from an aspect-ratio artifact. F7a's
+   `res64y128_base` is that rung and it is why the a/256 outlier is
+   attributable at all.
+3. **§3.3's aspect-ratio advisory does not protect against this.** The advisory
+   sits at 1000; the value that bit here was **16**. The protection is the
+   declared ladder and the certificate field in §7.5, not a threshold.
+4. Family growth-rate practice remains `docs/MESH_STANDARD.md`'s; this rule adds
+   the direction requirement, it does not restate the sizing formula.
+
+### 7.4 Courant and interface-Courant limits
+
+`interFoam` carries two independent limits: `maxCo` on the velocity field and
+`maxAlphaCo` on the interface. F7a ran `maxCo 0.5`, `maxAlphaCo 0.5`,
+`nAlphaSubCycles 1`, `nAlphaCorr 2`.
+
+**The reporting defect this rule exists to prevent, measured.** The original F7a
+report recorded *"Max Courant ≈ 0.52 (capped target 0.5)"*. That is **the last
+timestep's value**. The maximum over the run, from `log.interFoam`, is
+**0.7416**, with interface Courant **0.6401**. An `adjustTimeStep` run overshoots
+its own cap between adjustments, and the final line of the log is not the
+maximum.
+
+**Rules.**
+1. The recorded Courant number is the **maximum over the run**, taken from the
+   solver log, **for both `Co` and `alphaCo`**, never the final line.
+2. **`maxAlphaCo` ≤ `maxCo`.** The interface carries the sharpest gradients.
+3. A case run with `adjustTimeStep` records **whether its cap was exceeded and
+   by how much**. Exceedance is normal; an unrecorded exceedance is not.
+4. **Do not spend a ladder on the Courant knobs.** Measured, at a/16 against a
+   +13.5% baseline: tightening `maxCo` 0.5→0.2, `maxAlphaCo` 0.5→0.1 and
+   `nAlphaSubCycles` 1→3 gave **+15.1% — worse**; and separately, a 2.4× larger
+   fixed timestep at fixed mesh moved the answer by **< 1 point**. On this case
+   these are stability and admissibility controls, **not accuracy knobs**.
+   Recorded here so the experiment is not repeated by the next agent.
+
+### 7.5 What a birth certificate must record for a free-surface case
+
+In addition to every §6 field, `birth_certificate.json` for a free-surface mesh
+records:
+
+| field | why, and what it prevents |
+|---|---|
+| `free_surface: true` | selects this section's rules; absent ⇒ §7 not applied |
+| `dy_at_interface_m`, and the same as a fraction of the case's characteristic length | §7.2's controlling spacing. Whole-mesh `dy_min` is not a substitute — it can be set somewhere the interface never goes |
+| `resolved_layer_thickness_m` | the layer §7.2 requires the case to declare |
+| `cells_across_layer` | the §7.2 count. **Absent or < 6 ⇒ diagnostic-only, never a gate mesh** |
+| `cell_aspect_ratio_at_interface` (dx/dy there) | §7.3's measured hazard at a value (16) three orders below §3.3's advisory. Distinct from checkMesh's whole-mesh maximum |
+| `interface_normal_direction` | the direction `cells_across_layer` is counted in; without it the count is unverifiable |
+| `max_Co_over_run`, `max_alphaCo_over_run`, each with the log line quoted | §7.4's defect, closed by construction |
+| `setfields_sha256` | a free-surface result is a function of its initial interface placement as much as of its mesh. F7a's config hashes already include `setFieldsDict` for this reason |
+| `alpha_min_over_run`, `alpha_max_over_run` | boundedness. F7a's gate case measured `Min(alpha.water) = -2.7e-06`, within MULES tolerance |
+
+**Proposed gate, not yet adopted** (following §3.4's convention for a proposed
+value): flag any solve whose α leaves **[−1e-4, 1+1e-4]**. Basis is calibration
+only — F7a's clean runs measured −2.7e-6, and its feasibility pass accepted
+≈ −1e-6 — so the value is a calibrated proposal, **not** a threshold read from
+source. It needs a citation or a wider calibration set before it is enforced.
+
+### 7.6 Where these values live, and what is not done
+
+Per §5, no gate value is enforced until it is written to
+`docs/physics_rules.yaml` with its citation and mirrored by a proposal in the
+agenda inbox.
+
+**None of §7 is in `physics_rules.yaml` today, and no enforcement code reads
+it.** §7 is house practice with its evidence attached, at the same maturity as
+§3.4's proposed volume-ratio gate. Making it enforceable requires: a
+`mesh_quality.free_surface` block in the yaml; extension of
+`sdk/chief_engineer/mesh_certificate.py` to write the §7.5 fields; and a
+proposal so the owner sees it. That work is **not** done here and should not be
+described as done.
+
+**Calibration honesty.** Every number in §7 comes from **one case family** — the
+F7a dam break, a 2D laminar VOF collapse on a dry bed. The 6-cell rule, the
+anisotropy result and the Courant non-effect are measured **there**. A hull
+wave-resistance case has a different controlling scale (wave height and
+wavelength, not a bed film) and §7.2's rule will need its own calibration when
+F7 rung (b) is run. Applying the *form* of these rules to a hull case is
+intended; transplanting the *numbers* is not.
+
 ## Sources
 
+- F7a dam-break campaign, R1 audit: `demo-output/website/campaign/F7_marine_free_surface.md`
+  §§R1.2–R1.6, and the tracked cases under
+  `demo-output/website/campaign/F7_runs/F7a_R1/` with their `CASE_PROVENANCE.txt`,
+  `log.checkMesh` and `log.interFoam`. Every §7 number is traceable to one of these.
+- `demo-output/website/campaign/F7a_REGATE_SPEC.md` — the measurement definition
+  §7.2's deviations are quoted under, and the resolution floor §7.2 restates.
 - OpenFOAM v2606 source, primitiveMeshCheck.C, checkMesh thresholds.
 - OpenFOAM v2606 source, caseDicts meshQualityDict, snappyHexMesh generation
   defaults.

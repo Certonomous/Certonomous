@@ -234,5 +234,27 @@ estimate defended by whichever rung happens to pass.
   `demo-output/website/ACTIVE_RESEARCH.md` — non-asymptotic verdict and self-referential-band finding.
 - `demo-output/website/tmr/flatplate_sst.json`, field `convergence_extended` — TMR ladder's own
   observed-order-movement verdict.
-- `docs/standards/MESH_STANDARD.md` (v1.0, 2026-07-25) — companion document, single-mesh quality
+- `docs/standards/MESH_STANDARD.md` (v1.2, 2026-08-11) — companion document, single-mesh quality
   gates (distinct scope, cross-referenced above).
+
+---
+
+## Free-surface families: the refinement direction must be declared
+
+**This document's growth and scatter practice applies unchanged to marine
+free-surface ladders, with one addition, which lives in the companion document
+so it has one home:** `docs/standards/MESH_STANDARD.md` §7.3.
+
+The short form of why, measured on the F7a dam break: refining dx and dy
+together over a 64× cell-count range moved the graded deviation by **0.7
+points**, while refining **dy alone** at fixed dx over a 4× range moved it by
+**3.4 points**. On a stratified free-surface problem an isotropic family spends
+its cells in the direction that does not matter, and a family built by this
+document's growth formula alone would have concluded the case was converged when
+it was not.
+
+§7.3 therefore requires a free-surface ladder to declare its refinement
+direction before it is built, and to include at least one rung that varies the
+*other* direction at the finest spacing — because pushing one direction alone
+introduces a cell-aspect-ratio artifact that is otherwise indistinguishable from
+genuine convergence. See that section for the numbers and the case names.
