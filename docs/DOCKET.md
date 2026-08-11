@@ -104,6 +104,14 @@ discover during the window:
 - `scripts/sweep.py` — B1's sanctioned helper, named by G3 explicitly.
 - `scripts/self_audit.py` — invoked by name from the test suite and from several campaign
   records.
+- `scripts/fail_open_scan.py` and `sdk/tests/test_fail_open_scan.py` — the scanner hardcodes a
+  path to `scripts/self_audit.py` **and pins a historical commit for its positive control**. So
+  a move breaks **the control rather than the scan**, which is the quieter and worse failure: a
+  positive control that silently stops working is how a scan starts reporting confident
+  negatives. *(Raised by the peer session; reasoning kept as they put it, because the reason is
+  sharper than the fact.)*
+- `demo-output/website/campaign/F7_runs/old_spec_readings.py` — reads tracked field files by
+  relative path.
 
 **Target shape** (proposed, then executed): product source under `certonomous/` or a retained
 `sdk/`, with `workflows/`, `agents/`, `kernel/` beneath it; `ops/` for launchers, auto-stop and
