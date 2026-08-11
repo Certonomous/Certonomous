@@ -3413,6 +3413,31 @@ The primary prediction is still open.**
   name still fails to resolve and still takes the run RED. *"It replaces a shrug with a reason. Registering a prompt
   would have been inventing a verification claim."*
 
+### 2026-08-11 — our `grep -r` has been silently skipping ignored files, and I confirmed it with a planted control
+
+**This qualifies sweep denominators across tonight and earlier, including several I published.**
+
+- **`grep` in this environment is a shell function**, not `/usr/bin/grep` — it execs `ugrep … --ignore-files …`, and
+  **`--ignore-files` honours `.gitignore`.** I verified it myself: one token written to a visible file and an ignored
+  one, **`grep -rl` returned only the visible one; `find` + real grep returned both.**
+- **This lab gitignores its large case archives**, so a repo-wide `grep -r` **cannot see the run outputs at all** —
+  including the archive carrying tonight's contaminated snapshot. Every *"swept N files, found nothing"* built on
+  `grep -r` is a statement about **ignore-permitted files**, and no document said so.
+- **The recursion is the finding**, in the auditor's words: *"this is the ledger's own central finding — a verdict
+  that does not state what it swept — recurring in the tool the auditors used to check the instruments."*
+- **What is NOT affected**: every count ruled on from `git ls-files` (same reach by construction) or `find` (no
+  filter) — which is exactly why one discrepancy was decidable and another was not. **The audit's verdicts stand.**
+- **It killed its own running sweep rather than let a fourth incommensurable number land** and tempt it into
+  converting the number into a verdict. That is the right instinct: *a number whose frame you cannot state is worse
+  than no number.* Recorded as **L-75**, and written to memory so it does not have to be rediscovered.
+- **The headline audit closes at 24 SOUND · 9 OVERSTATES · 9 FALSIFIED of 42.** The ninth: *"two 906 MB tarballs left
+  unopened"* — there are two, of **544 MB and 362 MB**, and **906 MB is their sum written as though it were each
+  one's size.** So the unexamined residual is **906 MB total, not 1.8 GB** — the substance moves, not just the
+  wording. **That is the fourth instance tonight of the same wrong-frame defect** in that one document.
+- **It also caught itself**: an interim count was **a partial read of a file still being written**, its wait
+  condition firing on first bytes rather than completion. It noticed only because the number collided with an
+  unrelated one, and it never reached the record. **The same defect the document it was auditing has.**
+
 ### Decision requests for Katie (standing)
 
 **COMPUTE AUTHORISATION REQUESTED — 40 core-min to convert an assumed boundary into a measured one.**

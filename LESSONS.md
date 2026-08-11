@@ -3070,3 +3070,50 @@ sophisticated rule was doing something the dumb rule could not was, in its
 entirety, a defect. See **L-66** — and note that L-66's test (build the crudest
 rival and see whether the corpus can tell them apart) would have surfaced this
 months of arguing could not.
+
+## L-75. Our own `grep -r` skips ignored files — every sweep denominator in this lab is over what ignore rules permit, and no document said so
+
+An auditor checking a residual discrepancy read the process list and found that
+**`grep` in this environment is a shell function**, not `/usr/bin/grep`. It execs
+`ugrep -G --ignore-files --hidden -I --exclude-dir=.git …`, and **`--ignore-files`
+honours `.gitignore`.**
+
+Confirmed here with a planted control: one token written to `visible.txt` and to
+`ignored/f.txt` with `ignored/` in `.gitignore`. **`grep -rl` returned only
+`visible.txt`. `find . -exec /usr/bin/grep -l` returned both.** A silent,
+confident, clean zero over files that plainly contain the string.
+
+**Why this is worse here than in most repos:** this lab **gitignores its large
+case archives.** A repo-wide `grep -r` therefore cannot see the run outputs at
+all — including, tonight, the very case archive carrying a contaminated snapshot.
+Every "I swept N files and found nothing" produced with `grep -r` is a statement
+about **ignore-permitted files**, and none of the documents that quote such
+numbers says so.
+
+The recursion is the point, and the auditor named it: **this is the ledger's own
+central finding — a verdict that does not state what it swept — recurring in the
+tool the auditors used to check the instruments.** Three documents inherited
+grep-derived counts without the filter being mentioned once; a fourth could have
+inherited them without ever learning it exists.
+
+**The rules that follow:**
+- `git ls-files` denominators are sound — same reach by construction, and honest
+  about being tracked-only. `find` denominators are sound — no filter.
+  **`grep -r` denominators must state that they exclude ignored paths**, or use
+  `command grep`, `/usr/bin/grep`, `find -exec`, or `--no-ignore-files`.
+- **Counts from `grep -r` and from `find` are not the same measurement.** Do not
+  compare or reconcile them. Tonight an irreconcilable gap between two such
+  numbers was **this**, not a real discrepancy — and the auditor **killed its own
+  running sweep rather than let a fourth incommensurable number land and tempt it
+  into a verdict.** That restraint is the correct move: a number you cannot say
+  the frame of is worse than no number.
+
+The same audit supplies two companion errors of the same family. A headline
+reported *"two 906 MB tarballs left unopened"*; there are two tarballs, of 544 MB
+and 362 MB, and **906 MB is their sum written as though it were each one's
+size** — so the unexamined residual is 906 MB total, not 1.8 GB. And the auditor
+caught itself taking a count from **a file still being written** — its wait
+condition fired on first bytes rather than completion — noticing only because the
+figure collided with an unrelated one. **A number is defined by its frame, its
+filter, and the moment it was taken**, and dropping any of the three produces a
+figure that is precise, confident and unusable.
