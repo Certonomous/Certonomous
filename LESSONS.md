@@ -2429,3 +2429,32 @@ label being *undetectably* wrong is not.
 Related in shape, opposite in remedy, to L-42: there the evidence was destroyed
 by an action, and the fix was to preserve it; here the evidence decays on its
 own, and the fix is to spend the window.
+
+
+## L-59. `core.filemode=false` silently discards a mode fix — the index says one thing, the tree says another, and the checker reads green
+
+Fixing a tracked script's missing executable bit, an agent found the fix does
+not land here. **This repo has `core.filemode` false**, so
+`git update-index --chmod=+x` followed by a pathspec commit is **silently
+dropped**: the index records 100755, the newly written tree records 100644, and
+the guard that checks the tree reads GREEN off a tree that never changed.
+
+The failure mode is the dangerous one: not an error, not a refusal — **a fix
+that appears to succeed.** The agent avoided it only because the module's own
+docstring warned of it, and it verified against HEAD afterwards, which is the
+authority. It used a **one-invocation `-c core.filemode=true`** rather than
+changing repo config, because flipping that config would have perturbed the
+diffs of five agents working concurrently — the right instinct on a shared tree.
+
+Two rules.
+
+**Verify a mode change against the committed tree, never the index.**
+`git ls-tree HEAD -- <path>` is the only statement that matters; `git status`,
+`stat`, and the index will all agree with you while the commit disagrees.
+
+**Prefer a scoped `-c` override to a config change on a shared tree.** A repo
+config edit is a global side effect on everyone else's working state, made to
+fix one file.
+
+This is the same family as L-46 and L-55: an artifact whose appearance and whose
+content disagree, where every instrument in the loop reports the appearance.

@@ -2521,6 +2521,32 @@ clock-audit rule asks for.]*
 - **New standing debt made visible for the first time:** 9 lab records still claim rank 1 with no companion. All
   non-travelling, all pre-existing, none previously findable.
 
+### 2026-08-11 — an 84-member UQ ensemble with no convergence evidence of any kind
+
+- **THE FINDING THAT OUTRANKS THE TASK THAT FOUND IT.** Pricing a proposal surfaced it: **84 of 84 members** of a
+  random-matrix UQ ensemble carry the **unreachable residual target** — the exact defect one case family diagnosed
+  and closed *for itself* on 2026-08-05 and **never propagated**. So **0 of 84 print a convergence sentence, and
+  that zero is a FALSE NEGATIVE rather than a convergence fact.** Separately, **76 of 84 have a momentum residual
+  RISING over the run's second half** — the worst by 9.94×. **An 84-member ensemble feeding a UQ result has no
+  convergence evidence of any kind.** Stated as measurement, routed to its owning family.
+- **A census turned a single-case finding into a reach measurement**: of 317 configuration files carrying a
+  relaxation block, **122 (38.5%) sit at the inherited setting** now measured a third slower than the solver's
+  default — and only 5 at the default, **three of which were created tonight.** The proposal is priced per case from
+  each case's own log, with **one arm recorded as a cost GAP requiring a feasibility probe rather than estimated**,
+  and the four published rungs excluded in writing because re-running them would re-base a result onto a number
+  produced after it.
+- **L-59 — a fix that appears to succeed.** This repo has `core.filemode` false, so an exec-bit fix followed by a
+  pathspec commit is **silently discarded**: the index says 100755, the written tree says 100644, and the guard
+  reads GREEN off a tree that never changed. Avoided only because the module's own docstring warned of it, then
+  **verified against HEAD, which is the authority**. Fixed with a **one-invocation config override rather than a repo
+  config change**, which would have perturbed five concurrent agents' diffs.
+- **A test has been red for TEN DAYS and it is a real defect, not flake.** Established rather than asserted: it
+  reproduces in isolation, fails against a **clean archive checkout of HEAD** (so it is committed state, not local
+  dirt), and bisects to its introduction. The observed roster shows the fleet bouncing between two waves — **exactly
+  what the test's own comment says must not happen** — and only the solved-API subtest fails. Routed to its owner.
+- The sentence the sweeping agent asked to keep, and its reason for keeping it: *"the falsifying fact was already
+  written down… What the machinery buys is not discovery — it is that someone looks in the right place."*
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
