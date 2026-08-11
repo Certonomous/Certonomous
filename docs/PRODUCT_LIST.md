@@ -2459,6 +2459,34 @@ clock-audit rule asks for.]*
   with the correct scope. **Nothing was hidden.** Twenty-three items routed, none fixed across a family boundary,
   every instance re-measured by the sweeper because *a delegated null is a claim about the delegate's reach.*
 
+### 2026-08-11 — the coverage sentence is corrected by call site, and the failing shape appeared exactly once
+
+- **THE FINDING HOLDS AND ITS AUTHOR OWNED IT PLAINLY** (`675442fd`): *"the act my own coverage sentence named was
+  never armed."* The runner constructs the engine and calls **thirteen** of its methods — the one that arms the gate
+  is not among them, because it stages its case another way. The wiring and its measured fire rates are untouched;
+  they were always claims about behaviour **when armed**.
+- **Corrected by CALL SITE, not by family.** The standard now enumerates the six paths that actually reach the
+  arming point, names the runner that does not, and covers any future runner that stages a case another way. The
+  agent explicitly refused to substitute a different family name — *"naming a family is what went wrong, and a
+  correction that named another would repeat it."*
+- **Two tests, both through the real constructor**: one asserts the gate comes out armed **without the caller asking
+  for it**, and one **pins the arming-site count at exactly one**, so a second site makes the standard's enumeration
+  go stale *loudly* rather than silently. Verified by removing the arming line in a scratch copy — both fail, and
+  they are the only tests of that rule that do.
+- **The reusable half is a rule about tests, not about monitors:** every existing test of this rule reached **past**
+  the constructor to call the gate directly. *"A test that reaches past the constructor cannot see a constructor
+  that never calls the thing."* They proved the mechanism and were silent on reach, which is exactly the blind spot
+  that let the false sentence stand. Written down as: **a coverage claim is tested through the same door production
+  uses.**
+- **The derivation, which is the part that closes the question rather than the instance:** 14 per-rule coverage
+  claims, 13 of which name only prose. Classified — corpus fire-counts are *measurements* with replay artifacts, not
+  reach claims; scope claims are either **enforced in code** or **self-enforcing by construction** (a steady log
+  contains no Courant line at all, which is stronger than a guard); and **production-reach claims number exactly one
+  — the false one.** So the failing shape appeared once, established by a repeatable check rather than a reading.
+- Suite 1295 passed, 1 failed — **and the failure is the exec-bit guard firing on a live agent's just-committed
+  script**, a guard that exists because of this same family's earlier finding. The system working as designed, on
+  work in flight. Routed, not touched, because that agent is mid-arm.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
