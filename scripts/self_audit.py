@@ -794,13 +794,34 @@ _PLACE_VERB = r"placed|finished|came|came\s+in|took|sits?\s+at|stands?\s+at"
 # measured before and after -- and every row names who built it and whether
 # they had seen the patterns.
 #
+# A THIRD failure of reporting, found by a third grade and worth its own note,
+# because the fix for the first two did not reach it. The figures were made
+# GENERATED so they could not drift between surfaces -- and then went stale
+# anyway, in the commit that installed them: rule B was widened in the same
+# commit, four of the grader's rule-B sentences moved from missed to caught,
+# and nothing re-measured. The table even contradicted its own rule-B row about
+# those same five sentences. Generation stopped one level short of the
+# measurement.
+#
+# It cannot happen again, because the sentences are now IN THE REPOSITORY --
+# `campaign/V16_GRADE_HELDOUT_SETS.py` and `campaign/V16_AUTHOR_HELDOUT_SET.py`,
+# each assembled at import so neither is a corpus of faults -- and
+# `sdk/tests/test_rank_claim_surfaces.py` recomputes every `now` figure below
+# from them and reddens on any disagreement. Storing a measurement whose inputs
+# are not in the repository is what made all three of these stale.
+#
+# The `was` column is a measurement against a version of the patterns that no
+# longer exists, so it CANNOT be recomputed and is not: it is history, marked
+# as such, and the test does not check it.
+#
 # (sample, who built it, blind to the current patterns?, n, missed by the two
-#  original patterns, missed by the current set)
+#  ORIGINAL patterns [history, not recomputable], missed by the CURRENT set
+#  [recomputed by test])
 _PLACE_REACH = (
-    ("the grader's first set", "an independent grader", True, 45, 40, 24),
+    ("the grader's first set", "an independent grader", True, 45, 40, 20),
     ("the author's set", "this check's author", True, 46, 37, 14),
     ("the grader's adversarial set", "an independent grader", False, 45,
-     None, 43),
+     None, 42),
 )
 # Rule B's own reach, kept separate because it is a different rule and because
 # the sample is five sentences. (caught, n, who invented them)
@@ -820,7 +841,13 @@ def _place_reach_sentence() -> str:
         parts.append(f"{name} ({who}, {seen}): {before}{pct(now, n)} against "
                      f"the current set")
     fixed = _PLACE_REACH[0]
-    return (f"HEADLINE, on ONE FIXED SET measured before and after so the two "
+    return (f"Every `now` figure is RECOMPUTED FROM COMMITTED SENTENCES by "
+            f"sdk/tests/test_rank_claim_surfaces.py "
+            f"(campaign/V16_GRADE_HELDOUT_SETS.py, "
+            f"campaign/V16_AUTHOR_HELDOUT_SET.py); the `before` figures are "
+            f"history, measured against patterns that no longer exist, and "
+            f"cannot be. "
+            f"HEADLINE, on ONE FIXED SET measured before and after so the two "
             f"ends are comparable -- {fixed[0]}, built by {fixed[1]} before "
             f"these patterns existed: {pct(fixed[4], fixed[3])} missed became "
             f"{pct(fixed[5], fixed[3])}. Every sample, because forty-odd "
@@ -902,7 +929,18 @@ def _place_unnamed(upto: int) -> re.Pattern:
     ("any absolute designator naming nobody") was measured at 11 hits, 11 of
     them the idiom "in the first place". What is added here is bounded on both
     sides: a comparison OF OURS, whose object is a position, in a small set of
-    verbs and designators, each measured across the repository before keeping.
+    verbs and designators.
+
+    ITS PRICE, WHICH WENT UNSTATED AND SHOULD NOT HAVE. "Each measured across
+    the repository before keeping" was written of these, and it does not hold
+    for the frame the repository actually had: the widening faulted SIX new
+    places on lab records -- including the grade document that had commissioned
+    it, committed twenty-one minutes earlier and present in the tree at the
+    time. Every one is a mention under the declared use/mention limit, none is
+    on a travelling surface, and the severity scoping did exactly its job. But
+    a precision cost of six WARNs is a cost, and a measurement that names no
+    moment is a measurement of a repository that no longer exists. After this,
+    a measurement here states when it was taken.
     """
     alts = "|".join(re.escape(t) for t in
                     sorted(_place_tokens(upto), key=len, reverse=True))
@@ -941,8 +979,15 @@ def _first_author_surname(cell: str) -> str:
     return parts[-1].strip(".,") if parts else ""
 
 
-_BOARD_RANK_COL = re.compile(r"rank|position|place", re.I)
-_BOARD_WHO_COL = re.compile(r"author|team|entrant|submitter|name|group", re.I)
+_BOARD_RANK_COL = re.compile(r"\b(rank|position|place)\b", re.I)
+# ANCHORED, after the third grade found this matching unanchored: `Filename`,
+# `Hostname` and `Casename` all satisfied "a column naming who the entrants
+# are", so `| Rank | Filename |` over two rows parsed as a board of two CSVs.
+# Inside the stated concession, but it made qualifying cheaper than the prose
+# suggested, and a cheaper decoy is a likelier one.
+_BOARD_WHO_COL = re.compile(
+    r"\b(authors?|teams?|entrants?|submitters?|groups?|"
+    r"(?<![a-z])names?)\b", re.I)
 _BOARD_RULE = re.compile(r"^:?-{2,}:?$")
 _BOARD_MIN_ROWS = 2
 
@@ -995,32 +1040,51 @@ def _read_board_table(block: list[str]) -> tuple[list[tuple[int, str]], str]:
 
 
 def _published_board() -> tuple[dict[str, int] | None, str]:
-    """(ranks, head) on success; (None, reason) on any failure. NEVER raises.
+    """(ranks, head) on success; (None, reason) on ANY failure.
 
-    THE CONTRACT, and it is stated more carefully than it was. This function
-    returns a board only when EXACTLY ONE table in the file satisfies every
-    property a leaderboard must have -- a rank-headed first column, a column
-    naming who the entrants are, at least `_BOARD_MIN_ROWS` numbered rows,
-    ranks reading exactly 1..N once each, and first-author surnames that are
-    unique and usable. Otherwise it returns why. It never raises: an exception
-    here would take down every OTHER check in this file, which is a guard doing
-    more harm than the defect it looks for.
+    THIS FUNCTION CANNOT RAISE AN `Exception`, AND IT IS STRUCTURAL RATHER THAN
+    A PROMISE. Every line that reads or parses the third-party file lives in
+    `_parse_published_board`, which is free to raise whatever it likes; this
+    wrapper turns anything it raises into an OFF that names the exception. A
+    `KeyboardInterrupt` or a `SystemExit` still propagates, as it must.
+    Nothing narrower is honest, and nothing narrower is safe:
 
-    IT CAN STILL BE FOOLED, and the earlier version of this docstring claiming
-    otherwise was the exception a second grade held it to. A decoy table that
-    satisfies all of the above IS a leaderboard as far as this function can
-    tell, and two tables that both satisfy them make it go OFF rather than
-    choose. What it no longer does is trust a HEADING: the first repair anchored
-    to any heading containing the word `leaderboard` and took the first table
-    after it, which a numbered legend between heading and board, an earlier
-    `## Archived leaderboard (2024)`, and a blank line inside the board each
-    defeated SILENTLY. It never asked whether what it read was a leaderboard.
-    Now that is the only question it asks, and the heading plays no part.
+    An earlier version said "NEVER raises" and did, twice. First a surname
+    carrying a regex metacharacter raised `re.error`; that was fixed by
+    escaping, which is a fix for ONE exception type. Then a single non-UTF-8
+    byte in the benchmark README raised `UnicodeDecodeError` -- a `ValueError`,
+    so `except OSError` did not see it -- out of this function, out of
+    `check_board_placement_words`, and out of the whole `self_audit` run,
+    taking every sibling check with it. The same crash class, twice, in the
+    same function, through different exception types. Catching the second type
+    would have invited a third. The blast radius is the one this docstring has
+    always described, and the README it reads is a third-party file listing
+    international author names -- the likeliest place in this corpus for a
+    stray byte to arrive.
 
-    Failure modes measured on synthetic READMEs before this was written, each
-    an OFF with a stated reason, each a test:
-      * more than one numbered table, anywhere, in any order;
-      * a blank line inside the board table;
+    THE SCOPE IS DELIBERATE. Only the read-and-parse of the file we do not
+    control is wrapped. The rest of `check_board_placement_words` operates on
+    this lab's own data, and a bug there should be LOUD, not swallowed into an
+    OFF -- a check that catches everything everywhere hides its own defects,
+    which is the failure one layer up from the one being fixed here.
+
+    WHAT IT RETURNS, and what it can still be fooled by. A board only when
+    EXACTLY ONE table in the file satisfies every property a leaderboard must
+    have -- a rank-headed first column, a column naming who the entrants are,
+    at least `_BOARD_MIN_ROWS` numbered rows, ranks reading exactly 1..N once
+    each, and first-author surnames that are unique and usable. A decoy table
+    that satisfies all of those IS a leaderboard as far as this function can
+    tell; four such decoys were built by an independent grader and all four were
+    accepted when they stood alone. What it no longer does is trust a HEADING:
+    the first repair anchored to any heading containing the word `leaderboard`
+    and took the first table after it, and never asked whether what it read was
+    a leaderboard. That is now the only question it asks.
+
+    Failure modes measured on synthetic READMEs, each an OFF with a stated
+    reason, each a test -- and each CONDITIONAL on no other table qualifying,
+    which the list used to read as though it were not:
+      * more than one qualifying table, anywhere, in any order;
+      * a blank line inside the board table (both halves then fail);
       * a heading elsewhere that also says `leaderboard`;
       * ranks that are not exactly 1..N once each;
       * two entrants sharing a first-author surname, which used to collapse
@@ -1028,7 +1092,22 @@ def _published_board() -> tuple[dict[str, int] | None, str]:
         about the survivor -- a false positive manufactured by a parse failure,
         the worst kind, because it discredits the instrument;
       * a surname carrying a regex metacharacter, which used to raise.
+    **When something else DOES qualify, the failure above is not an OFF: the
+    other table becomes the board, silently.** That is the concession above
+    doing exactly what it says, and it is written here too because the itemised
+    list is what a reader reaches for.
     """
+    try:
+        return _parse_published_board()
+    except Exception as exc:                                   # noqa: BLE001
+        return None, (f"reading the published board raised "
+                      f"{type(exc).__name__}: {exc} -- this detector is OFF "
+                      f"rather than reporting nothing to find, and rather "
+                      f"than ending the audit")
+
+
+def _parse_published_board() -> tuple[dict[str, int] | None, str]:
+    """The read and the parse. MAY RAISE; `_published_board` is the boundary."""
     root = Path(os.environ.get(_BOARD_DIR_ENV,
                                Path.home() / "closure-challenge-benchmark"))
     try:
@@ -1074,6 +1153,27 @@ def _published_board() -> tuple[dict[str, int] | None, str]:
     except (OSError, subprocess.SubprocessError):
         head = "unknown"
     return board, head
+
+
+def _board_margin() -> tuple[int, int]:
+    """(table blocks in the README, blocks that qualify as a leaderboard).
+
+    A live operating margin, printed in the verdict because a third grade
+    measured it and it is one edit wide: the real README has two table blocks
+    and one qualifies. ONE more rank-headed two-row table anywhere in that
+    file -- a historical board, a worked example -- and this detector goes OFF.
+    That is the right direction for the failure to run, and it means the guard
+    now sits one benchmark-README edit from DISABLED where it used to sit one
+    edit from WRONG. Both are worth knowing; only one of them was ever stated.
+    """
+    root = Path(os.environ.get(_BOARD_DIR_ENV,
+                               Path.home() / "closure-challenge-benchmark"))
+    try:
+        blocks = _table_blocks(
+            (root / "README.md").read_text(encoding="utf-8").splitlines())
+    except Exception:                                          # noqa: BLE001
+        return 0, 0
+    return len(blocks), sum(1 for b in blocks if _read_board_table(b)[0])
 
 
 def _board_names(board: dict[str, int]) -> re.Pattern:
@@ -1285,8 +1385,14 @@ def check_board_placement_words() -> Result:
                 if head == pinned else
                 f"WHICH IS NOT the pinned {pinned[:8] or 'unknown'} this lab's "
                 f"claims are dated to")
+    blocks, qualifying = _board_margin()
     frame = (f"frame: board read from the benchmark's own README table at "
-             f"{head[:8]} ({pin_note}) -- {order}; {opened} tracked UTF-8 "
+             f"{head[:8]} ({pin_note}) -- {order}. MARGIN: that README has "
+             f"{blocks} table block(s) and {qualifying} qualif"
+             f"{'ies' if qualifying == 1 else 'y'}; one more rank-headed "
+             f"two-row table in it and this detector goes OFF, so the guard "
+             f"sits one third-party edit from DISABLED where it used to sit "
+             f"one edit from WRONG. {opened} tracked UTF-8 "
              f"surface(s) carrying rank/runner/place/top opened, of which "
              f"{naming} name a board entrant and were swept for placements "
              f"(rule A cannot fire where nobody is named; rule B's narrower "

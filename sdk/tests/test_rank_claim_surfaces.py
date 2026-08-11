@@ -712,6 +712,46 @@ class TheParseFailsSafeTests(unittest.TestCase):
         self.assertIsNone(board)
         self.assertIn("not a rank", reason)
 
+    def test_a_who_column_matcher_that_is_not_anchored_makes_decoys_cheap(self):
+        """`Filename`, `Hostname` and `Casename` all satisfied "a column
+        naming who the entrants are", so `| Rank | Filename |` over two rows
+        parsed as a board of two CSVs. Inside the stated concession, but a
+        cheaper decoy is a likelier one."""
+        for column in ("Filename", "Hostname", "Casename", "Codename"):
+            board, reason = self._write(
+                f"| Rank | {column} |\n|---|---|\n"
+                "|      1 | alpha.csv |\n|      2 | beta.csv |\n")
+            self.assertIsNone(board, f"{column} qualified as an author column")
+            self.assertIn("names who the entrants are", reason)
+
+    def test_a_real_who_column_still_qualifies(self):
+        """So the anchoring is not just 'reject everything'."""
+        for column in ("Authors", "Author", "Team", "Submitter", "Name",
+                       "Entrants"):
+            board, reason = self._write(
+                f"| Rank | {column} | Overall |\n|---|---|---|\n"
+                + self._rows("Reissmann, Fang", "Wu and Zhang"))
+            self.assertEqual({"reissmann": 1, "wu": 2}, board, f"{column}: {reason}")
+
+    def test_the_operating_margin_is_reported_and_is_one_edit_wide(self):
+        """A live property a third grade measured: the real README has two
+        table blocks and one qualifies. One more rank-headed two-row table in
+        that third-party file and this detector goes OFF."""
+        if self._env is None:
+            sa.os.environ.pop(sa._BOARD_DIR_ENV, None)
+        else:
+            sa.os.environ[sa._BOARD_DIR_ENV] = self._env
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        blocks, qualifying = sa._board_margin()
+        self.assertGreaterEqual(blocks, qualifying)
+        self.assertEqual(1, qualifying)
+        frame = [d for d in sa.check_board_placement_words().detail
+                 if d.startswith("frame:")][0]
+        self.assertIn(f"{blocks} table block(s) and {qualifying} qualif", frame)
+        self.assertIn("one edit from WRONG", frame)
+
     def test_a_generational_suffix_keys_on_the_name_not_the_suffix(self):
         """The mirror of the particle bug: the last-token rule that fixed
         `van Dijk` broke `Reissmann Jr.` into its suffix. Both ends now."""
@@ -725,6 +765,59 @@ class TheParseFailsSafeTests(unittest.TestCase):
                                ("[de la Cruz III, Ono](u)", "Cruz"),
                                ("[Wu and Zhang](u)", "Wu")):
             self.assertEqual(expected, sa._first_author_surname(cell), cell)
+
+    # --- the third grade's exception: `NEVER raises`, and it raised.
+    # --- `read_text(encoding="utf-8")` sat inside `except OSError`, and
+    # --- UnicodeDecodeError is a ValueError. One stray byte in a third-party
+    # --- file of INTERNATIONAL AUTHOR NAMES took down the whole audit. It is
+    # --- the same crash class already fixed once here through re.error, in the
+    # --- same function, arriving by a different exception type -- so the fix
+    # --- is a boundary, not another `except` clause.
+
+    def test_a_non_utf8_byte_in_the_board_does_not_end_the_audit(self):
+        good = (self.HEADER
+                + self._rows("Reissmann, Fang", "Wu and Zhang")).encode()
+        (Path(self._dir.name) / "README.md").write_bytes(
+            good.replace(b"Fang", b"F\xe4ng"))
+        board, reason = sa._published_board()
+        self.assertIsNone(board)
+        self.assertIn("UnicodeDecodeError", reason)
+        result = sa.check_board_placement_words()          # must not raise
+        self.assertEqual(sa.WARN, result.status)
+        self.assertIn("OFF", result.summary)
+
+    def test_nothing_the_third_party_file_can_contain_escapes(self):
+        """A boundary, not a list of exception types. The first repair here
+        escaped one metacharacter; the second would have caught one decode
+        error; either invites a third. Anything the read or the parse raises
+        becomes an OFF that names it."""
+        for label, payload in (
+                ("utf-16", "# x\n| Rank | Authors |\n".encode("utf-16")),
+                ("random bytes", bytes(range(256)) * 4),
+                ("lone surrogate", b"\xed\xa0\x80"),
+                ("truncated multibyte", "Reißmann".encode()[:-1])):
+            (Path(self._dir.name) / "README.md").write_bytes(payload)
+            board, reason = sa._published_board()
+            self.assertIsNone(board, label)
+            self.assertTrue(reason, label)
+            self.assertNotEqual(sa.FAIL,
+                                sa.check_board_placement_words().status, label)
+
+    def test_the_boundary_is_a_wrapper_and_not_a_wider_except(self):
+        """The scope is deliberate and the docstring says so: only the
+        read-and-parse of the file we do not control is wrapped. A check that
+        caught everything everywhere would hide its own defects, which is the
+        failure one layer up from the one being fixed."""
+        self.assertTrue(hasattr(sa, "_parse_published_board"))
+        doc = sa._published_board.__doc__
+        self.assertIn("CANNOT RAISE", doc)
+        self.assertIn("KeyboardInterrupt", doc)
+        # "NEVER raises" may appear ONLY as the retracted claim, never as the
+        # standing one -- the same treatment a struck figure gets: the number
+        # goes, the record of having claimed it stays.
+        for occurrence in re.finditer("NEVER raises", doc):
+            context = doc[max(0, occurrence.start() - 40):occurrence.end() + 20]
+            self.assertIn("An earlier version said", context)
 
     def test_the_off_reason_reaches_the_verdict(self):
         """A detector that is off must say WHY, not merely that it is."""
@@ -856,6 +949,76 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         self.assertEqual(len(alternatives), counted)
         _, _, blind, _ = sa.BASIS["check_board_placement_words"]
         self.assertIn(f"{counted} RULE-A patterns", blind)
+
+    def _held_out(self, name):
+        path = (REPO / "demo-output" / "website" / "campaign" / name)
+        self.assertTrue(path.exists(),
+                        f"{name} is the evidence behind a published figure; "
+                        f"without it this test asserts nothing")
+        spec = importlib.util.spec_from_file_location(name[:-3], path)
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = mod
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_every_published_reach_figure_recomputes_from_its_sentences(self):
+        """The third grade's exception 2, and the end of the class.
+
+        The figures were made GENERATED so they could not drift between
+        surfaces, and then went stale in the commit that installed them: rule B
+        was widened in the same commit, four of the grader's rule-B sentences
+        moved from missed to caught, and nothing re-measured. The table
+        contradicted its own rule-B row about those same five sentences.
+        Generation stopped one level short of the measurement.
+
+        So the measurement is recomputed here from sentences that live in the
+        repository. A number recorded without its inputs can always go stale;
+        one recomputed from them cannot.
+        """
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        grader = self._held_out("V16_GRADE_HELDOUT_SETS.py")
+        author = self._held_out("V16_AUTHOR_HELDOUT_SET.py")
+        measured = {}
+        measured.update(grader.measure(board, sa.board_placement_faults))
+        measured.update(author.measure(board, sa.board_placement_faults))
+        published = {name: (now, n)
+                     for name, _who, _blind, n, _was, now in sa._PLACE_REACH}
+        for key, table_key in (("FIRST", "the grader's first set"),
+                               ("AUTHOR", "the author's set"),
+                               ("ADVERSARIAL",
+                                "the grader's adversarial set")):
+            self.assertEqual(
+                measured[key], published[table_key],
+                f"_PLACE_REACH says {published[table_key]} for "
+                f"{table_key!r}; the committed sentences measure "
+                f"{measured[key]}. The published figure is stale.")
+
+    def test_the_adversarial_controls_are_still_caught(self):
+        """So the adversarial set cannot be rigged to miss: it carries three
+        positive controls that a working guard must catch."""
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        grader = self._held_out("V16_GRADE_HELDOUT_SETS.py")
+        missed, n = grader.measure(
+            board, sa.board_placement_faults)["ADVERSARIAL_CONTROLS"]
+        self.assertEqual(0, missed, f"{missed} of {n} controls missed")
+
+    def test_the_evidence_files_are_not_themselves_corpora_of_faults(self):
+        """They are tracked surfaces the live guard sweeps. Written out in
+        full they would be exactly the defects they describe -- which is the
+        convention this lab has now had to re-apply five times in one night."""
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        for name in ("V16_GRADE_HELDOUT_SETS.py", "V16_AUTHOR_HELDOUT_SET.py"):
+            path = REPO / "demo-output" / "website" / "campaign" / name
+            self.assertEqual(
+                ([], []),
+                sa.board_placement_faults(path.read_text(encoding="utf-8"),
+                                          board), name)
 
     def test_the_headline_pair_is_one_fixed_sample_measured_twice(self):
         """The second grade's exception 2. The first published pair was an
