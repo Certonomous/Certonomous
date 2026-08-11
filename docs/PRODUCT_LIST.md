@@ -2236,6 +2236,32 @@ clock-audit rule asks for.]*
   directory prefix — **each read its input correctly and could not see what it was asked about, and this one was
   hiding inside the procedure we had just promoted to the standard.**
 
+### 2026-08-11 — the report carries the interval at every site, and the build proved a judgement rather than arguing it
+
+- **ALL TEN SITES CARRY THE INTERVAL** (`5fa933ee`, 40 pages, 0 errors, zero overfull boxes before and after, the two
+  underfull boxes byte-identical in badness). **No site had to drop it** — even the table cell took the full form,
+  because the column's widest entry was already wider and abbreviating bought nothing.
+- **The judgement call was settled by the build, not by argument.** The disputed site's interval lived a few lines
+  below, after a floating table — and **that table moved from page 5 to page 6 between the two builds.** Source
+  adjacency is not page adjacency, and a float that migrates once will migrate again on the next edit, so leaving
+  the site bare would have made the no-bare-figure rule *contingent on a page-breaking accident*. It got its own.
+- **The withdrawn caution was replaced, not deleted.** It now states the figure and its interval, then in italic:
+  *"Until 2026-08-10 this item read differently… That restriction was withdrawn, and the reasoning is recorded here
+  rather than deleted, because a reader who met the old rule is owed the reason it went."* Then the reason — an
+  outsider recomputed 0.674 from the published board and our own per-case scores in about a minute — and the
+  replacement rule. **Publishing "rank 1" while withholding how little it survives resampling inverts the lab's own
+  standard**, and the document now says so.
+- Three artifacts gained provenance rows, one of which closes a **pre-existing** gap: the rank-probability record had
+  been cited in a table caption and **never indexed**.
+- **AND IT CAUGHT AN ERROR I PROPAGATED INTO ITS OWN BRIEF.** I told it to expect an unchanged float warning at
+  37.81813pt. **That warning is not in this document at all** — it belongs to the other report's log. Both the
+  baseline and new builds contain zero occurrences. I carried an expectation across two documents without checking
+  it, and had the agent trusted me it could have read a genuine absence as a discrepancy, or worse **used
+  "unchanged" as a green light for a warning that was never there.** Fourth time tonight I have passed forward
+  something I had not verified.
+- Two `h` float-placement notices appeared and were **verified rather than assumed**: every table lands adjacent to
+  its own prose, none orphaned. Silencing them would have been a larger change than the ruling warranted.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
