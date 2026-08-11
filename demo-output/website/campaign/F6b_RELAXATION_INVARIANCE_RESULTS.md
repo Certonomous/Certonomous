@@ -249,5 +249,5 @@ Wall-clock for the whole check was **12 minutes 26 seconds**.
 - `F6b_runs/relax_invariance_ledger.txt` — self-ledger: launch times, exact commands, per-arm residual histories every 500 iterations, exit states
 - `F6b_runs/run_relax_arm.sh` — the launcher, one arm per invocation
 - Cases and written fields: `F6b_runs/medium_relax_{B,C,PC}/`
-- Solver logs `F6b_runs/log.relax_{B,C,PC}` — **not committed**; the committed extract of what they are cited for is the ledger, following this case's existing convention for `solve_registry`
+- Solver logs `solve_registry/f6b3_relax{B,C,PC}_20260811T011859Z.log` — **not committed**; the committed extract of what they are cited for is the ledger. They were written to `F6b_runs/log.relax_{B,C,PC}` during the run and **moved to `solve_registry/` afterwards**, which is where this case's own 2026-08-05 logs live and which `.gitignore:38` covers — so 19 MB of solver output cannot be swept into someone else's pathspec commit out of a tracked directory. The ledger records the move.
 - Instrument: `LESSONS.md` L-47

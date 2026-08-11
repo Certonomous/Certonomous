@@ -107,3 +107,18 @@
         > endTime         2000;
         < writeInterval   6000;
         > writeInterval   500;
+
+=== LOG RELOCATION (post-run housekeeping, 2026-08-11)
+    The three solver logs were written to F6b_runs/log.relax_{B,C,PC} by
+    run_relax_arm.sh and have been MOVED to the gitignored solve_registry/,
+    which is where this case's 2026-08-05 logs already live:
+      log.relax_B   -> solve_registry/f6b3_relaxB_20260811T011859Z.log   (4.2 MB)
+      log.relax_C   -> solve_registry/f6b3_relaxC_20260811T011859Z.log  (12.6 MB)
+      log.relax_PC  -> solve_registry/f6b3_relaxPC_20260811T011859Z.log  (2.2 MB)
+    Reason: 19 MB of untracked solver output sitting inside a TRACKED directory
+    is one careless `git add` away from another agent's commit. .gitignore:38
+    covers solve_registry/, so it cannot happen there. The launcher still writes
+    to F6b_runs; a future run repeats this move, or the launcher should be
+    pointed at solve_registry directly - recorded as a gap, not fixed here,
+    because changing the launcher would invalidate the command string this
+    ledger records for the runs it already describes.
