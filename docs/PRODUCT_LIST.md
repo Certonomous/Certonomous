@@ -2373,6 +2373,33 @@ clock-audit rule asks for.]*
   taken four minutes earlier; it then re-took every affected measurement against the pinned revision rather than
   patching the difference.
 
+### 2026-08-11 — V10 independently confirmed, and the independent check found what the self-graded one missed
+
+- **THE ABSENCE CLAIM IS NOW PROVEN, not asserted.** The checker reconstructed the struck sentence **from the commit
+  before its removal** rather than from anyone's report, then split its needles into three classes — 5 discriminators
+  unique to the struck text, 3 shared with the corrected text (used only as reach controls), and 4 unique to the fix
+  — because **a fragment shared by defect and fix is evidence of neither.** Calibrated both ways on known-good and
+  known-defective files. **Positive control: the sentence was planted in its most evasive available form** — wrapped
+  over ten lines, split mid-word by markup, em-dash and accented names entity-escaped. The new instrument found all
+  five discriminators; a plain fixed-string search returned **zero files**. The unsound-zero failure mode was
+  reproduced deliberately and the method shown immune to it.
+- Result: all five discriminators **zero**, all seven shared and fix-only needles **hit in the same file** — proving
+  reach into the exact page. Drift derived independently from the build script before seeing the other agent's
+  number: **56/56 byte-identical, plus 24/24 and 8/8 against their real source roots, 90 members fully accounted.**
+- **AND THE NEW FINDING, which the self-graded closure could not have caught:** `closure.html` makes **three rank-1
+  claims** and carries the not-decided pairs but **never states the probability or its interval.** The cause is
+  scope, not a rebuild defect: the fix closed "the four external surfaces", and the guard it added **reads only the
+  wall's string** — so the most prominent page in the shipping bundle is **unguarded.** By V10's own wording that is
+  a live inconsistency, so **V10 does not close yet.** This is precisely what independent verification is for: the
+  original check verified what it had been asked about, and the second asked whether the question was complete.
+- **V5's two gaps closed, and the generator warning earned its place**: the checker verified that the page is NOT
+  generated (its sibling *is*, at a named line — untouched) before hand-editing, so no fix was applied to an output a
+  generator would overwrite. Citations written in **each file's own existing style** rather than an imported one, and
+  "overridden nowhere" **verified in the source and across every dictionary in the round-5 run tree** rather than
+  inherited from the brief.
+- Consequence flagged rather than left: the page fix puts the tracked bundle **one file behind**, and the drift gate
+  now correctly reports it. The rebuild belongs to the bundle's owner.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
