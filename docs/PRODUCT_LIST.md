@@ -3445,6 +3445,48 @@ The primary prediction is still open.**
   condition firing on first bytes rather than completion. It noticed only because the number collided with an
   unrelated one, and it never reached the record. **The same defect the document it was auditing has.**
 
+### 2026-08-11 — V16's six exceptions are closed, recall measured twice independently, and one family was taken back out
+
+- **The blind-spot statement was fixed FIRST, as ordered, and structurally.** It now **leads with the largest blind
+  spot** — *any placement phrased outside the patterns* — adds the adjudication window, use/mention, the size cap and
+  positions past the board, and ends **"GREEN HERE IS NOT COVERAGE."** Two tests hold it, and the second is the one
+  that matters: **whatever the digit-anchored sibling admits about pattern reach, this guard must admit too.** The
+  guard can no longer regress to being less honest than the thing it replaced.
+- **RECALL WAS MEASURED TWICE, INDEPENDENTLY.** It built **its own 46 held-out sentences without seeing the grader's**
+  and got **80% missed** — *corroboration of the grader's 89%, not a repetition of it.* Then nine families were added:
+  **80% → 30% missed, with precision still exactly zero.**
+- **AND ONE FAMILY WAS ADDED, MEASURED, AND TAKEN BACK OUT.** `No. N` fired on a **journal issue number in a
+  bibliography beside a matching citation**. *Its removal is now a test.* Medals, roman numerals, other languages and
+  table rows are deliberately excluded — **also as tests**, so the exclusions are decisions rather than gaps.
+- **The three parser failures were taken before any new patterns**, each reproduced on a synthetic fixture first. The
+  contract changed from *board or None* to **(board, head) or (None, reason)**, so **the reason reaches the verdict**:
+  a metacharacter surname no longer raises and one bad surface can no longer end the audit; a second numbered table
+  now forces **OFF with what it read**; a shared surname forces **OFF with both rows named** instead of dropping an
+  entrant and faulting correct prose. **A fourth was found in passing** — a particle surname parsed to its particle.
+- **The literal inside the thing built to remove literals is gone**: the ordinal vocabulary derives from the parsed
+  board's length **plus a margin — and the margin is the point. An ordinal naming a position the board does not have
+  is now its own fault, and says so.**
+- **The retraction's replacement is real, not a patch.** The shipping `.tex` sentence **breaks between the ordinal and
+  its rank word** — whole-text sees one placement, a line reader sees none. **That is the justification the retracted
+  one wasn't**, and it is under test.
+- **THE SENTENCE I ASKED TO BE HANDLED, handled exactly right:** verified **against the parsed board rather than
+  against the grade** — the entrant really is rank 2, so **the text was left untouched.** But it is no longer unseen:
+  the family that reads it **exists because of it.** *"It was correct by luck; it is now correct and checked."*
+- **Two things it did to itself and reported, which are the useful part.** The widened guard **caught its own new test
+  fixtures within a minute** — twelve faults, because it had written the defective sentences out in full **in the very
+  file documenting why one must not**; they are assembled at runtime now. And an over-broad exclusion had eaten *the
+  exact sentence the adjudication clause needed.*
+- **It struck the 111/421/63 corpus from the ladder and from this file**: the *rate* survived the grader's wider
+  re-derivation, but **the corpus had no selection method written down anywhere.** The check now prints its
+  denominator **and its selection rule** in the verdict — L-75's lesson applied without being told.
+- Counts corrected in the ladder from its own isolated worktree: **22 test methods added, 21 failing at HEAD.**
+  Severity scoping now **declares itself a basename match, not a provenance check.** Scan time **3m04s → 1m10s**.
+- **State: guard tests 57 passed, suite 1362 passed** — including the two failures that were live earlier tonight,
+  both another agent's and both fixed by them. Every travelling surface agrees with the board; the only two faults
+  are the **declared use/mention quotations** in another agent's file, correctly untouched.
+- **IT DID NOT RE-GRADE ITSELF.** *"A15 applies to a fix round exactly as it applies to a build."* The re-grade is
+  owed to the original grader and is dispatched.
+
 ### Decision requests for Katie (standing)
 
 **COMPUTE AUTHORISATION REQUESTED — 40 core-min to convert an assumed boundary into a measured one.**
