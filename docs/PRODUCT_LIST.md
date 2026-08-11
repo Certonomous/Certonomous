@@ -3112,6 +3112,40 @@ check was commissioned, and it is the best argument tonight for never letting an
   — another record says plainly *"NOT EVALUABLE ON THIS HOST — no KSP reason code was obtainable"* — **and was never
   applied to the hump.**
 
+### 2026-08-11 — both sibling gates closed, three more found, and one gate fails slow on exactly the wrong morning
+
+- **Both defects reproduced exactly** before either was touched — a typo'd act name printed its reach and exited 0 on
+  one; the other printed three zeros and exited 0. **Neither was a false alarm**, which after tonight is worth saying.
+- **Both now fail closed**: RED, exit 2, **no verdict line at all** on an unresolved name, an absent root, or a source
+  that delivered nothing. Reach statements now carry per-source denominators, the **8 of 25 act directories with no
+  transcript are named as unread**, and the replay verifier resolves **every** act *before any act runs*, so a typo
+  costs nothing instead of landing after twelve replays. **Production output is byte-identical** on the counts that
+  mattered — 36 surfaces, 16 flagged.
+- **A DELIBERATE DIVERGENCE, flagged for ruling rather than hidden — and I upheld it.** On the discretion gate, hits
+  do **not** change the exit code. The rules **promise** false positives, production legitimately flags 16, and
+  **a permanently non-zero exit is one nobody reads** — which is how a printed reach came to be ignored in the first
+  place. Same shape as **L-70**. *Failing closed on "I could not scan" and staying quiet on "I scanned and found
+  things a human must judge" are different axes*, and separating them is correct.
+- **THE ITEM THAT MATTERS FOR THE SHOOT: the replay verifier fails SLOW when the control room is down** — 240 × 2 s
+  per act, up to 8 minutes each and **~1.7 hours for the default sweep** before anyone learns the box is not
+  answering. **A filming morning is exactly when that sweep gets run and exactly when 1.7 hours of silence is
+  unaffordable.** Judged out of class and left; I have ordered the reachability preflight, fail-fast with the reason.
+- **THREE MORE SIBLINGS, verified by reading the code rather than relayed** — and the first is load-bearing:
+  `check_convergence_sweep.py` **gates a closure claim and has no non-zero return anywhere in the file**, so a sweep
+  full of non-converged results exits 0 exactly like a clean one. **The findings never reach the exit code at all.**
+  Then a missing key yielding `None` → exit 0, hiding a printed warning from any caller that gates on status; and an
+  empty corpus exiting 0 **even under `--strict`.** Dispatched.
+- **Exit-code consumers checked before changing exit semantics: 15 files mention either script across a 20,552-file
+  denominator, and none consumes an exit code** — no CI, no hooks, no Makefile, no generic runner. **Nothing starts
+  failing.** That check is what made the change safe, and it was done first.
+- **Ten controls, five per gate, both directions**, including planted real defects that fired. The two that could not
+  be run against production were run against a stub, **because driving the real control room rewrites the act's
+  transcript** — a constraint respected rather than worked around.
+- **FOUND WHILE NOT LOOKING, and it is tonight's theme in one line:** an act **cleared this gate with three zeros**
+  while the docket **already recorded it as unverifiable**. *The docket knew; the instrument said otherwise.* Also:
+  the default sweep's own reach was never stated — it runs 13 of 14 registered acts, with one deliberately excluded,
+  and never said so.
+
 ### Decision requests for Katie (standing)
 
 **COMPUTE AUTHORISATION REQUESTED — 40 core-min to convert an assumed boundary into a measured one.**
