@@ -339,3 +339,49 @@ sample correctly and the sample was not the population.
    was "all records mentioning a ladder"; Route B's was "case directories matching
    a glob." That they disagreed by a factor of three on the population is the
    signal, and it is only visible because the frames differed.
+
+## 9. An absence claim needs an instrument that cannot produce a false absence — and a positive control proving it
+
+**Added 2026-08-11 on the chief's ruling, after the standard bundle-verification
+procedure was found to contain this defect in its most load-bearing check.**
+
+Three passes verified that a struck prior-art sentence was gone from the shipped
+bundle. All three used a **line-bounded `grep`**. The sentence, had it been
+present and wrapped across lines — or split by an HTML tag — would have returned
+**exactly the same zero**.
+
+> **A zero from an instrument that cannot see wrapped text is indistinguishable
+> from success.** And for that particular sentence — crediting two groups with a
+> mechanism they never reported, in an archive read by two of the benchmark's
+> own authors — **absence was the entire claim.**
+
+### The rule
+
+1. **Normalise before searching.** Collapse newlines, runs of whitespace and
+   tabs to single spaces, strip HTML tags, and fold accents and typographic
+   dashes/quotes. Search the normalised text. A phrase split by `<b>…</b>` is as
+   invisible to `grep` as one split by a newline.
+2. **Search distinctive fragments individually**, not just the full sentence — a
+   rewrite may have kept a clause.
+3. **Carry a positive control, always.** Plant the target into a scratch copy and
+   prove (a) the new instrument finds it and (b) the old one does not. Without
+   (b) you have a suspicion; with it you have a demonstration that the previous
+   zeros were unsound.
+4. **Design the fragments so they distinguish.** Ours initially included author
+   names that the CORRECTED text legitimately also contains, so four fragments
+   read PRESENT and meant nothing. **A fragment that both the defect and its fix
+   contain is not evidence of either.**
+
+### The measured demonstration
+
+| | old line-bounded `grep` | normalised search |
+| --- | --- | --- |
+| planted file (sentence present, wrapped over 5 lines, split by `<b>`) | **0 hits** | **all 7 fragments found** |
+| real shipped artifact | 0 hits | **core defect absent; 4 non-distinctive fragments present and correct** |
+
+**This is the campaign's own disease in a new costume.** A lever gate keyed on
+`args[0]`; a parser that reported `clean` on a crash; a regex spelling
+`non-monoton`; a glob spelling `study-<body>*`. Each read its input correctly and
+could not see what it was asked about. **A line-bounded search of wrapped text is
+the same defect, and it was hiding inside the procedure this family had just
+promoted to the standard.**
