@@ -1,6 +1,6 @@
 # Certonomous Supervision Charter
 
-Version 1.0, dated 2026-08-07. Governs who supervises what, which checks a
+Version 1.1, dated 2026-08-11. Governs who supervises what, which checks a
 supervisor performs with their own eyes, and which model each kind of agent
 runs on. It binds the fleet's org chart the way the case-selection charter
 binds the queue: the structure holds when nobody is watching, and a check that
@@ -102,6 +102,40 @@ what was opened. The four checks below are that standard made a duty.
    reason scientific loss was zero every time was that the pre-registrations
    were committed before the compute was. The family supervisor checks the
    commit exists, not that somebody meant to write one.
+
+## 3a. Withdrawal duty attaches to the ROLE, not to the session that wrote it (Katie, 2026-08-11)
+
+> **A superseded entry whose author is gone is withdrawn by the current family
+> supervisor, within the cycle. A weekly sweep asserts zero unowned supersessions.**
+
+**The standing rule was that a superseded entry is withdrawn by its author** — right in
+spirit, because the author knows what they meant, and **structurally broken**, because
+authors here are sessions and sessions end. When the author is gone the rule names nobody,
+and a rule that names nobody is not enforcement; it is a refuted claim staying published
+with a note explaining that someone ought to remove it.
+
+**The instance, 2026-08-11.** A peer session published a correction, a second session
+refuted it by execution, and the correction's dependent gate had already been re-based on
+the strength of it. The peer session then ended. Under the author rule the withdrawal had
+no owner at all, so a claim known to be false and a gate known to be uninformative both sat
+live in the record — not through disagreement or backlog, but because the rule pointed at
+a ghost.
+
+**Why the role and not "whoever finds it".** Discovery is not duty. Anyone may notice; if
+noticing were the assignment, the item would be everybody's and therefore nobody's, which
+is the failure this rule exists to close. The **family supervisor for the record's family**
+owns the withdrawal, and the chief owns it where no family does.
+
+**What "within the cycle" means.** Before the family's next reporting cycle closes. Not
+"soon" — a superseded claim's cost is exactly the time it spends readable, and a reader
+cannot tell a claim awaiting withdrawal from a claim in force.
+
+**The sweep is the enforcement, and it is the part that must not be skipped.** Weekly,
+assert **zero unowned supersessions**: every withdrawn, retracted or superseded entry has a
+named current owner, and every refutation filed against a live claim has a withdrawal
+either done or assigned. A rule without a sweep is a preference. Anything the sweep finds
+unowned is assigned by the chief on the spot — the assignment is the deliverable, not a
+plan to assign.
 
 ## 4. What the chief supervisor retains
 
