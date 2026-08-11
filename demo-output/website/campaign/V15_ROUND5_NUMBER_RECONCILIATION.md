@@ -17,7 +17,7 @@ below is a report with an owner, not a fix.
 | | |
 |---|---|
 | **Commit** | `038b36da` (2026-08-11T07:15:10Z). Working tree was clean but for `sdk/.filming-keepalive` when the sweep was taken |
-| **Outside the frame** | by the time this was written the author had modified `scripts/self_audit.py`, `sdk/tests/test_rank_claim_surfaces.py` and `campaign/V16_AUTHOR_HELDOUT_SET.py` in the working tree. **Those edits are not in this reconciliation** — stated because a frame that goes stale inside its own pass is the failure this document is about, and I would rather say it than have it found** |
+| **Outside the frame** | by the time this was written the author had modified `scripts/self_audit.py`, `sdk/tests/test_rank_claim_surfaces.py` and `campaign/V16_AUTHOR_HELDOUT_SET.py` in the working tree. **Those edits are not in this reconciliation** — stated because a frame that goes stale inside its own pass is the failure this document is about, and I would rather say it than have it found. |
 | **Benchmark board** | `deb91557`, parsed live: reissmann 1, wu 2, liu 3, montoya 4 |
 | **Denominator** | **20,559** paths from `git ls-files`; **18,833** read as UTF-8 under 4 MB |
 | **Excluded, counted** | 276 over 4 MB · 1,450 non-UTF-8 |
