@@ -3578,6 +3578,47 @@ Written by the agent that built the guard and closed the exceptions; **the re-gr
   *The remaining WARNs are eight mentions on two lab records: six in the grade document quoting the shapes it
   invented, two in the instrument ledger. No travelling surface faults.*
 
+### 2026-08-11 — V16's last two exceptions closed, and the author names the pattern in its own failures
+
+- **THE PARSER NO LONGER USES THE HEADING AT ALL.** The grader's root-cause sentence was the whole bug — *it anchored
+  to a heading and took the first table after it, never asking whether what it read was a leaderboard.* Now **every
+  contiguous block of table rows is a candidate**, and a candidate qualifies only on **properties the real thing must
+  have** — rank-headed first column, an entrant column, ranks reading exactly 1..N once each, unique usable names —
+  with **exactly one required to qualify, or it goes OFF with the reason.** *Gate on the properties the object must
+  have, never on the label someone attached to it.*
+- All three adversarial inputs now resolve correctly or refuse: the decoy legend and the ghost heading **find the
+  right board**; the blank-line table goes **OFF — "not distinguishable from a decoy"**; two plausible boards go
+  **OFF — "will not choose."** All twelve previously-verified inputs still hold.
+- **AND IT FIXED THE CLAIM, NOT ONLY THE CODE — with the best self-diagnosis of the night:** *"Twice in two grades
+  the exception has been the label, and an absolute was the shape both took."* The absolute is gone; the docstring
+  now says a decoy satisfying every property **is** a leaderboard as far as the function can tell — **true, testable,
+  and it tells the reader what to worry about.** Recorded as **L-76**.
+- **The headline is now like-for-like: 89% → 53%**, measured at both ends on the grader's original 45 — invented
+  blind, before the widening existed — with **every row naming who built the sample and whether they had seen the
+  patterns**, and the adversarial **96%** stated beside it. **All of it generated from one provenance table, so it
+  cannot drift.**
+- **Rule B is widened and the claim is scoped.** All five of the grader's fresh shapes are caught, and rule B now
+  carries its own line calling five sentences **"a smoke test, not a reach measurement."** It stays narrower **on
+  purpose and for a structural reason** — it has no adjudication clause, so every widening costs precision with no
+  way to clear a quotation.
+- **The literal one level up is gone**: the pattern count is **counted from the compiled pattern's own named groups**,
+  the sentences generated, **and a test now fails if a figure is typed back into the docstring, the frame line or
+  BASIS.**
+- **The mirror bug is fixed both ends** — a name has two ends, and both are tested.
+- **L-75 confirmed rather than inherited**: `git ls-files` reaches the **6,938 tracked-but-gitignored files** `grep -r`
+  cannot see, and nothing in the guard or its sweep path uses bare `grep -r`.
+- **IT OWNED THE SCRATCHPAD OVERWRITE, and framed it correctly:** it had overwritten the grader's held-out set at a
+  shared path under a docstring reading *"My own held-out set."* Nothing was lost — **but "a grader's evidence being
+  silently replaced by the author's, in a lab whose whole method is independent verification, is the hazard rather
+  than the outcome,"** and it forced disjointness to be asserted mechanically instead of trusted. Recorded as
+  **L-77**, as a lab-wide rule rather than a V16 footnote.
+- **The guard caught its own test fixtures for the third time**, the minute rule B widened — the declared use/mention
+  limit biting **in the very file documenting why one must not write the defect out in full.** *"A convention its own
+  author walked past twice in one night is one the guard has to enforce, and it does."*
+- **State: 1375 passed**, 70 in the guard file. Every travelling surface agrees with the board; the 8 remaining WARNs
+  are all **declared mentions on two lab records**, both other agents' files, untouched.
+- **It did not re-grade itself, for the second time.** Final read dispatched to the grader.
+
 ### Decision requests for Katie (standing)
 
 **COMPUTE AUTHORISATION REQUESTED — 40 core-min to convert an assumed boundary into a measured one.**

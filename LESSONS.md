@@ -3117,3 +3117,66 @@ condition fired on first bytes rather than completion — noticing only because 
 figure collided with an unrelated one. **A number is defined by its frame, its
 filter, and the moment it was taken**, and dropping any of the three produces a
 figure that is precise, confident and unusable.
+
+## L-76. Twice in two grades the exception was the label, not the code — and an absolute was the shape both took
+
+A guard was graded twice by an independent agent. Six exceptions the first time,
+two the second. **In both rounds the finding that mattered most was not a broken
+check — it was a claim the check could not support**, and both times the claim
+had the same grammatical shape: **an absolute.**
+
+Round one: the verdict said *"every travelling surface complies"* while omitting
+the largest blind spot from its own reach statement. Round two: the code said
+*"does not return a board it is unsure of"* and *"can no longer mis-parse
+silently"* — while three of fifteen adversarial inputs returned an unchecked
+result with no warning. The code in both rounds was better than the sentence
+describing it, and the sentence is what a reader acts on.
+
+The author's own diagnosis is the lesson and it is worth quoting: **"twice in two
+grades the exception has been the label, and an absolute was the shape both
+took."** *Never*, *always*, *cannot*, *every*, *no longer* — each one converts a
+tested behaviour into an untested universal, and the gap is invisible until
+someone attacks the boundary. The replacement is not weaker, it is *checkable*:
+the fixed claim now says a decoy satisfying every property **is** a leaderboard as
+far as the function can tell, which is true, testable, and tells the reader
+exactly what to worry about.
+
+**Practical form: when a verdict or docstring contains an absolute, treat it as an
+unverified claim until someone has tried to falsify it.** Prefer a statement of
+what was checked over a statement of what cannot happen. And when a fix lands,
+**fix the sentence in the same commit** — a repair that leaves an overreaching
+label behind has moved the defect from the code to the record, where it is harder
+to find and lives longer.
+
+There is a structural fix worth copying from the same round. The parser had been
+anchoring to a **heading named "leaderboard"** and taking the first table after
+it — a name-based hook that a decoy heading or an intervening table defeats
+silently. The repair **removed the heading from the logic entirely**: every block
+of table rows is a candidate, and a candidate qualifies only by properties the
+real thing must have — a rank-headed column, ranks reading exactly 1..N once
+each, unique usable names — with **exactly one candidate required to qualify, or
+the detector goes OFF and says why.** Gate on the properties the object must
+have, never on the label someone attached to it.
+
+## L-77. Agents share a scratchpad, and an author silently overwrote a grader's held-out evidence
+
+While verifying a guard, the independent grader built 45 held-out test sentences
+and stored them in the session scratchpad. The **author of the guard** later
+wrote its own held-out set to **the same path**, under a docstring reading *"My
+own held-out set."* The grader discovered this only because it re-read the file
+and found someone else's content.
+
+Nothing was ultimately lost — the grader had its sentences in its own committed
+document — but the outcome is not the point. **In a lab whose entire method is
+independent verification, a grader's evidence being silently replaced by the
+author's is the hazard**, regardless of whether that instance was recoverable. It
+forced the disjointness of a third sample to be **asserted mechanically instead of
+trusted**, which is exactly the cost: the verification became more expensive to
+believe.
+
+Practical form: **agents write to uniquely-named subdirectories, never to a
+shared scratchpad root**, and evidence that a verdict depends on gets committed
+rather than left in scratch. A held-out set that lives only in a shared temp path
+is not held out from anything — it is one careless open() away from being the
+author's set. Same reasoning as never letting an agent verify its own work: the
+independence has to be structural, not a matter of everyone being careful.
