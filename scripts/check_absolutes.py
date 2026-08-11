@@ -29,7 +29,7 @@ WHAT "NAMED BESIDE IT" MEANS, in one sentence, and it is a design decision
 rather than a discovery: a check is named beside a claim when the ENCLOSING
 PROSE UNIT -- one docstring, one contiguous comment block, or one paragraph --
 contains a test name that EXISTS in the tracked test corpus, a
-`path.py:function` reference whose path is tracked, or a runnable command.
+`<path>.py:<function>` reference whose path is tracked, or a runnable command.
 Three consequences, each of them executed rather than promised:
 
   * the unit is the window. A test named two paragraphs away does not back a
@@ -37,8 +37,16 @@ Three consequences, each of them executed rather than promised:
     Evidence: `test_a_check_named_in_another_paragraph_does_not_back_the_claim`.
   * the name must resolve. A cited test that does not exist is reported as its
     own class, `CITES_MISSING_CHECK`, and is counted as unbacked -- a name that
-    resolves to nothing is a worse claim than none.
-    Evidence: `test_a_cited_test_that_does_not_exist_is_not_backing`.
+    resolves to nothing is a worse claim than none. A MIXED unit, citing one
+    name that resolves and one that does not, is `CITES_MISSING_CHECK` too:
+    the reader who spot-checks one citation and finds it good stops checking.
+    That rule is the more severe of the two available and the reason string
+    says when it fired on a mixed unit, so the call stays reviewable.
+    Evidence: `test_a_cited_test_that_does_not_exist_is_not_backing`,
+    `test_a_dangling_name_beside_a_runnable_command_still_fires`,
+    `test_a_dangling_name_beside_a_resolving_test_still_fires`, and the
+    must-not-match control
+    `test_a_unit_whose_every_citation_resolves_is_not_flagged`.
   * backing is unit-level, not sentence-level. One named test backs every
     absolute in its paragraph. That is coarse in the lab's favour and it is a
     stated source of false negatives, measured in the sample below rather than
@@ -69,8 +77,18 @@ each record carrying the prose unit, the suffix, a label and a reason. The
 rate is recomputed from that file by `measure_against_sample()`; nothing is
 typed into this docstring, because a typed figure goes stale the day a family
 is added and every test still passes.
-Evidence: `test_the_sample_measurement_is_recomputed_not_typed`, and
-`test_the_published_rate_in_the_audit_matches_the_recomputed_one`.
+Evidence: `test_the_sample_measurement_is_recomputed_not_typed`.
+
+A second citation stood here until 2026-08-11 and was STRUCK rather than
+written -- a name promising that the published rate in the audit matched the
+recomputed one. It is not repeated here even as a corpse, because this
+module's own rule is that a name resolving to nothing reads as backing. It was
+aspirational, and it was aspirational about a comparison that does not hold.
+The rate published in docket B3a was measured on
+`absolute_claims_labelled_second_instance.json`, a 75-record sample by a
+different labeller; `SAMPLE_PATH` above is the 100-record sample, and replaying
+that one here yields a different rate. Two samples, two rates, one docket row
+-- filed as D50, not papered over with a test name.
 
 VERDICTS, AND THE ORDER OF THE TWO QUESTIONS. "Did the check run?" is answered
 before "what did it find?", and there are three answers, not two:
@@ -627,13 +645,40 @@ def classify_unit(unit_text: str, suffix: str = ".md",
                 verdict, reason = gate
             elif any(a <= m.start() < b for a, b in quotes):
                 verdict, reason = QUOTED, "keyword inside a quotation span"
-            elif resolved:
-                verdict = BACKED
-                reason = "named beside it: " + ", ".join(resolved[:4])
+            # DANGLING IS ASKED BEFORE RESOLVED, AND A MIXED UNIT IS
+            # `CITES_MISSING_CHECK`. Until 2026-08-11 these two branches were
+            # the other way round, and the consequence was not a rounding
+            # error: run on itself the module reported BACKED 15 and
+            # CITES_MISSING_CHECK 0 while citing thirteen tests that existed
+            # nowhere in the repo or its history, because ONE runnable command
+            # in the same docstring laundered every one of them. The choice
+            # being made here is that ANY dangling name condemns the unit even
+            # when a sibling citation resolves, and the argument is about the
+            # reader rather than about the arithmetic: a reader who checks one
+            # of five citations and finds it good does not check the other
+            # four, so a unit with four fictional names and one real one
+            # misleads him MORE than a unit with no citation at all. The
+            # alternative rule -- "one resolving name is enough, report the
+            # dangling ones as a note" -- was rejected because a note is not a
+            # verdict and nothing downstream counts it. The cost is stated
+            # rather than hidden: this is strictly the more severe rule, so a
+            # unit that cites a real test beside a typo is a defect here, and
+            # the reason string names both sides so that call is reviewable.
+            # Evidence: `test_a_dangling_name_beside_a_runnable_command_still_fires`,
+            # `test_a_dangling_name_beside_a_resolving_test_still_fires`,
+            # and the must-not-match control
+            # `test_a_unit_whose_every_citation_resolves_is_not_flagged`.
             elif dangling:
                 verdict = CITES_MISSING_CHECK
                 reason = ("names a check that does not resolve: "
                           + ", ".join(dangling[:4]))
+                if resolved:
+                    reason += (f" (mixed unit: {len(resolved)} other citation"
+                               f"(s) here do resolve, and that does not "
+                               f"rescue it)")
+            elif resolved:
+                verdict = BACKED
+                reason = "named beside it: " + ", ".join(resolved[:4])
             elif any(mk in window for mk in HEDGE_MARKERS):
                 verdict, reason = HEDGED, "retraction/attribution marker nearby"
             elif (RULE_OPENERS.match(sentence)
@@ -928,7 +973,23 @@ def measure_against_sample(sample_path: Path | None = None,
     The sample is drawn from the corpus sweep itself, which is why the rate it
     yields is a rate over the checker's own output rather than over prose in
     general -- stated here because that distinction is the whole meaning of the
-    number. Evidence: `test_the_sample_is_drawn_from_the_checker_own_output`.
+    number.
+
+    That last sentence carried a citation -- a name promising a test that the
+    sample was drawn from this checker's own output -- and on 2026-08-11 it was
+    STRUCK rather than written. The name is not repeated here even as a corpse,
+    because by this module's own rule a name resolving to nothing reads as
+    backing to every human who sees it. What that name promised would have had
+    to re-perform a past act: the draw happened at commit `8ebe2b8e`, and
+    repeating it needs the corpus sweep that is out of this rung's scope. The
+    fixture's `drawn_at_commit`, `frame` and per-record `stratum` fields are
+    the sample's own testimony about its provenance, and a test asserting those
+    fields are present checks that the testimony exists, not that it is true.
+    Such a test is written, in this module's suite under `sdk/tests/`, and it
+    is deliberately NOT named here: this module backs claims at unit level, so
+    a name anywhere in this docstring would read as backing for the sentence
+    above, which it does not back. That is the citation shape this module was
+    built to catch, so it is not left standing over its own measurement.
     """
     path = Path(sample_path or SAMPLE_PATH)
     data = json.loads(path.read_text(encoding="utf-8"))
