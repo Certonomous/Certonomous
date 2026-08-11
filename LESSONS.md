@@ -2823,3 +2823,66 @@ surfaced **8 genuine hits**, an exit code that read green while holding five
 findings, and a silent `head -4` truncation that under-reported precisely when a
 file had most to say. **Acting on a wrong headline for the right reason is
 recoverable; the recovery is to verify before publishing, not to stop acting.**
+
+## L-69. A right conclusion reached through three broken links — and the tell was already sitting in the report's own numbers
+
+An agent disclosed its own launcher collision and argued the collision could not
+have caused the anomaly that voided its experiment. It offered a five-link chain.
+An independent check confirmed the **conclusion** and falsified **three of the
+five links**.
+
+What broke, and why it matters more than the incident:
+
+**A premise assumed, then used to compute the evidence for itself.** The chain
+said the duplicate died at Time ≈ 4265, before the first field write. But
+`controlDict` carries `startFrom latestTime`, so the duplicate restarted from
+wherever the survivor had reached — **7000**, not 4000. "≈4265" is exactly what
+you get from the observed wall-clock overlap *if you assume a start at 4000*. The
+number looked like a measurement and was a restatement of the assumption. Real
+overlap was ~60 s, not 25, and **it crossed a write time.**
+
+**"No rewrites" was checked in the way that could not see one.** A snapshot
+directory had been written twice; its mtime was *older than every file inside
+it*, which is what a complete overwrite looks like. And the tell was **already in
+the original report's own cadence figures** — writes at a steady 34–40 s
+throughout, except one gap of 61.9 s followed by one of 17.3 s, summing to a
+normal 79 s. The author had printed the evidence against its own claim and read
+past it, because the anomaly appears only as a *pair*, and each half alone looks
+ordinary.
+
+**The general lesson is about the shape of the argument, not the arithmetic.**
+Three links failed and the verdict held, because what actually carried the
+exclusion was something the chain never mentioned: **per-snapshot writer
+identification** from two independent records — a stored gradient matched at 15
+digits, and a file the duplicate never touched — plus the fact that **the
+anomaly's onset predates the duplicate by 105 seconds.** A chain of plausible
+links is the weakest form of this argument available; **a direct attribution of
+each artifact to its writer is the strongest, and it needed no chain at all.**
+When you find yourself defending a conclusion link by link, ask what single
+measurement would settle it outright.
+
+**Corollary, and it is the durable one: a correct conclusion is not evidence
+that the reasoning for it is correct.** Had the check merely confirmed the
+verdict and stopped, three false beliefs would have entered the record wearing a
+confirmed result's authority — including the belief that the collision touched
+only the log, when in fact a field snapshot and nine profile files were replaced,
+and that snapshot **still sits inside a published trajectory**.
+
+### Three things that fell out of it
+
+**`startFrom latestTime` makes a duplicate a fork, not a repeat.** It branches
+from wherever the survivor reached and writes to the *same snapshot names*. This
+is the general form of the collision hazard: a duplicate does not redo old work
+harmlessly, it competes for the next filename. It is why a 60-second duplicate
+managed to hit a write at all.
+
+**A rewrite leaves a directory older than the files inside it.** A free
+double-writer detector — no log, no PID, no cooperation from the writer, and it
+works retrospectively on any archive.
+
+**A guard checked before an unbounded wait is not a guard (TOCTOU).** The queue
+tested "does this case already have a log?", then slept until the running-job
+count dropped, then launched. **A case that acquires a log during the wait is
+launched anyway.** L-64's "confirm the predecessor is dead" is necessary and not
+sufficient: the check must be *adjacent to* the action, or the window between
+them is the whole defect.
