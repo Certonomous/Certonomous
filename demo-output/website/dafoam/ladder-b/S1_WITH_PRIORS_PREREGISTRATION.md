@@ -1,5 +1,28 @@
 # S1-with-priors — pre-registration: the regularization derived from prior theory, and a posterior on beta instead of a point field
 
+> **NOT THE CANONICAL PRE-REGISTRATION. Superseded 2026-08-11 by chief ruling.**
+> Two chief sessions dispatched the S1 spine off the same directive block and neither
+> claimed it first, so this item was pre-registered twice in parallel. **S1 consolidates on
+> the owning session, whose artifact is `S1_PRIORS_PREREGISTRATION.md` (commit `ecbdc288`);
+> that file governs, and its `est_core_min` of 260 is the item's price.** This document is
+> retained, not deleted, for two things that are not duplicated there and that survive the
+> ruling:
+>
+> 1. **§1 — the independent re-verification of the inlet premise**, measured from the four
+>    `0/U` files directly. Both sessions verified it separately and got identical digits;
+>    that replication is the reason the premise under *both* specs is sound, and it is the
+>    thing the chief asked for above everything else.
+> 2. **The addendum at the end — the plateau-balance reconciliation**, which refutes
+>    `S1_PRIORS_PREREGISTRATION.md` §8 and docket D8 by executed check, and which matters
+>    because that document re-based a control gate on the disputed number. Filed as docket
+>    D9 and as an advisory field on the proposal; not corrected in place, per C3.
+>
+> Everything else here — the caps, the 560 core-min, the gates, the loss-support ruling of
+> §5 — is **withdrawn as a competing plan** and should be read as a second opinion, not as a
+> pre-registration binding anything. Where the two differ on design, the owning session's
+> ordering is the better-founded one: a Laplace posterior belongs at the MAP of the
+> posterior being claimed, not at the existing `beta_final`, and §6 here has that wrong.
+
 **Item:** `s1-regularization-chosen-by-prior-theory-with-a-posterior-on-beta`
 (CAPABILITY_STRATEGY §3 Bayesian inverse problems; §5 sequencing item 2, one of the
 three things that make Stage 2 *publishable, not just runnable*).
