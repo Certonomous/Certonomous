@@ -59,15 +59,38 @@ import re
 import subprocess
 import sys
 import tempfile
+import types
 import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-_SPEC = importlib.util.spec_from_file_location(
-    "certonomous_sweep", REPO / "scripts" / "sweep.py")
-sw = importlib.util.module_from_spec(_SPEC)
-sys.modules[_SPEC.name] = sw
-_SPEC.loader.exec_module(sw)
+SWEEP_PY = REPO / "scripts" / "sweep.py"
+
+
+def load_from_source(path: Path, name: str) -> types.ModuleType:
+    """Build a module from the file's CURRENT TEXT, bypassing `__pycache__`.
+
+    NOT `importlib.util.spec_from_file_location` + `exec_module`, which is the
+    house idiom elsewhere and which reads a stale `.pyc` when one exists.
+    Python's timestamp invalidation compares `int(st_mtime)` -- whole seconds
+    -- and size, so an edit that preserves length and lands inside the same
+    second as the last import is invisible to it: the module keeps running the
+    old code while the file on disk holds the new. Setting
+    `PYTHONDONTWRITEBYTECODE=1` does NOT fix this; it stops Python writing a
+    `.pyc`, not reading one that already exists.
+
+    Reproduced against this exact loader pair, both directions, by
+    `test_positive_control_a_stale_pyc_really_does_win`.
+    """
+    src = path.read_text(encoding="utf-8")
+    mod = types.ModuleType(name)
+    mod.__file__ = str(path)
+    sys.modules[name] = mod
+    exec(compile(src, str(path), "exec"), mod.__dict__)
+    return mod
+
+
+sw = load_from_source(SWEEP_PY, "certonomous_sweep")
 
 TOKEN = "ZQ7_PLANTED_SWEEP_TOKEN_9F4"
 
@@ -388,6 +411,71 @@ class AbsoluteClaimTests(unittest.TestCase):
         missing = sorted(named - defined)
         self.assertEqual([], missing,
                          f"sweep.py cites tests that do not exist: {missing}")
+
+
+class StaleBytecodeTests(unittest.TestCase):
+    """The module under test is the file on disk, not a cached compile of it.
+
+    A peer session lost a whole mutation matrix to this: the clean control
+    failed and the mutated case passed, perfectly inverted, because each cell
+    re-imported a module whose `.pyc` was stale. A test suite that reads stale
+    bytecode does not report a weaker result -- it reports the opposite one,
+    and every cell looks individually reasonable.
+    """
+
+    def test_positive_control_a_stale_pyc_really_does_win(self):
+        """The hazard is real HERE, on this interpreter, not in principle.
+
+        Without this control, `test_loaded_module_matches_the_file_on_disk`
+        below proves nothing: it would pass on any machine where the stale
+        read cannot happen, and pass just as happily on one where it can.
+        """
+        root = Path(tempfile.mkdtemp(prefix="sweep_frames_pyc_"))
+        self.addCleanup(subprocess.run, ["rm", "-rf", str(root)])
+        mod = root / "victim.py"
+        mod.write_text('VALUE = "AAA"\n', encoding="utf-8")
+
+        # Import once through the house idiom, which writes __pycache__.
+        spec = importlib.util.spec_from_file_location("victim_first", mod)
+        first = importlib.util.module_from_spec(spec)
+        sys.modules["victim_first"] = first
+        spec.loader.exec_module(first)
+        self.assertEqual("AAA", first.VALUE)
+        self.assertTrue((root / "__pycache__").is_dir(),
+                        "no bytecode was written, so this control cannot run")
+
+        # Length-preserving edit, mtime restored to the same whole second:
+        # both halves of Python's invalidation key are unchanged.
+        st = mod.stat()
+        mod.write_text('VALUE = "BBB"\n', encoding="utf-8")
+        os.utime(mod, (st.st_atime, st.st_mtime))
+        self.assertEqual('VALUE = "BBB"\n', mod.read_text(encoding="utf-8"))
+
+        spec2 = importlib.util.spec_from_file_location("victim_second", mod)
+        second = importlib.util.module_from_spec(spec2)
+        sys.modules["victim_second"] = second
+        spec2.loader.exec_module(second)
+        self.assertEqual(
+            "AAA", second.VALUE,
+            "the stale-bytecode hazard did not reproduce on this interpreter; "
+            "the loader hardening below is now guarding nothing and this "
+            "file's reasoning needs re-reading rather than trusting")
+
+        # Our loader, same file, same instant.
+        fresh = load_from_source(mod, "victim_third")
+        self.assertEqual("BBB", fresh.VALUE,
+                         "load_from_source read stale bytecode too")
+
+    def test_loaded_module_matches_the_file_on_disk(self):
+        """End-to-end: what these tests exercised is what sweep.py now says."""
+        src = SWEEP_PY.read_text(encoding="utf-8")
+        cap = re.search(r"^DEFAULT_SIZE_CAP = (.+)$", src, re.MULTILINE)
+        self.assertIsNotNone(cap, "DEFAULT_SIZE_CAP moved; this check is blind")
+        self.assertEqual(eval(cap.group(1)), sw.DEFAULT_SIZE_CAP)  # noqa: S307
+        named = set(re.findall(r'^\s*name="([a-z-]+)",$', src, re.MULTILINE))
+        self.assertEqual(named, set(sw.FRAMES),
+                         "the frame names in the source and in the loaded "
+                         "module disagree, which is the stale-import signature")
 
 
 class CommandLineTests(unittest.TestCase):

@@ -24,9 +24,9 @@ with my own planted control before building on it: one token written to
 returned only `visible.txt`; `find . -exec /usr/bin/grep -l` returned both. A
 second plant, a file both tracked and gitignored, is skipped too.
 
-**Population.** 14 published sweeps whose count or null was offered as evidence,
+**Population.** 16 published sweeps whose count or null was offered as evidence,
 found by reading every tracked `.md` that names a `grep`/`zgrep` invocation
-(`tracked` frame, 357 files, complete — 0 skipped). **4 moved. 7 held. 3 UNFRAMED.**
+(`tracked` frame, 357 files, complete — 0 skipped). **4 moved. 9 held. 3 UNFRAMED.**
 
 Two of the four movers are frame defects. Two are staleness — the sweep was right
 when it ran and the tree moved under it (L-79). Both kinds are reported, because a
@@ -238,12 +238,52 @@ this audit should have been.**
 `all 15`, which alone matches 15 unrelated lines about features, faces and steps;
 the rung-count subset is what the verdict rests on.)*
 
+A re-run after this document was first committed returns **five**, the fifth being
+`docs/SWEEP_REFRAME_AUDIT.md` — this file, quoting the pattern in order to check it.
+The count is a property of the corpus at a moment, and an audit is part of the
+corpus it audits. Stated rather than filtered out, because filtering it out is how a
+census quietly stops counting itself (`IMPROVEMENT_DASHBOARD`'s orphan list, §2.10,
+is the same shape caught the other way).
+
 ### 2.8 The 6,938 figure — HOLDS
 
 `LADDER_V_TRIPLE_VERIFICATION.md:387`, `V16_GRADE.md` §8.3 and `docs/PRODUCT_LIST.md`
 ×2 all state **6,938 tracked-but-gitignored files**. Independently re-derived here
 via `git ls-files` + `git check-ignore --no-index`: **6,938**. This is the one number
 in the corpus that was already about the filter, and it is correct.
+
+### 2.9 The `comfortab` census — conclusion HOLDS, figures have drifted
+
+`campaign/LADDER_V_V6_V10_V14_CLOSURE.md:268`, echoed at `LADDER_V_PASS2:245` and
+`LADDER_V_V15_ROUND2:279`: *"`/bin/grep -rniI "comfortab" --exclude-dir=.git .`:
+**76 hit lines tree-wide, 59 under `demo-output/website/`, 15 in the closure line**."*
+
+| measurement | published | re-derived (`worktree`) |
+|---|---|---|
+| hit lines tree-wide | 76 | **97** (65 files, verdict UNKNOWN — 16 files vanished mid-walk) |
+| under `demo-output/website/` | 59 | **79** (48 files) |
+| in "the closure line" | 15 | **not re-derivable** — the closure-line file set is not enumerated anywhere I could find |
+
+The conclusion those figures support — *no surface describes the AR_14 lead, or any
+lead, as a comfortable win* — is unaffected. The drift is the tree growing: the
+published sweep explicitly excluded "this ladder's own reports", and more reports
+have been written since. **The ignore filter contributes almost none of it**: the
+honest frame returns 97 lines against the ignore-honouring frame's 94. This sweep
+used `/bin/grep` and was right to.
+
+### 2.10 "Sole namer, 9 of 9" — HOLDS exactly
+
+`campaign/LESSON_PROPAGATION_L53_L57_2026-08-11.md:184`: *"`/bin/grep -rl -F <name>
+demo-output docs` returns **exactly one file for each orphan, and in every case it
+is this dashboard**."* Re-derived for all nine orphan directory names
+(`W4-a4-localize`, `W4-repro-fromscratch`, `cache-bypass-check2-4fe617`,
+`cache-bypass-check-docker2-2a0877`, `study-airliner_wing_span52-2cdf8e`,
+`study-airliner_wing_span52-medium-e565e1`, `vspaero-proof`,
+`yplus-check-production`, `modelform-cases`): **each name appears in exactly one
+file, and in all nine cases that file is
+`campaign/IMPROVEMENT_DASHBOARD_2026-08.md`.** Identical under `worktree` (46,820
+files considered) and `ignore-honouring` (12,947); `docs/` returns ZERO over 122
+files under both. 9 of 9, exact.
 
 ---
 
