@@ -44,6 +44,21 @@ that returns "few or no fail-open gates" is not believable unless it was shown
 capable of finding one, so this exits non-zero if the positive is missed OR if
 the repair is not cleared.
 
+A DEPENDENCY THAT A REPO MOVE BREAKS QUIETLY, AND IT IS THE CONTROL, NOT THE
+SCAN. `--control` hardcodes `scripts/self_audit.py` AND pins the historical
+commit `038b36da`. Move or rename that file under Katie's section 7 reorg, or
+rewrite that history, and the SCAN keeps running and keeps reporting negatives
+while the thing that proved it can find a positive is gone -- which is how a
+sweep starts producing confident zeroes, and is this rung's own defect class
+turned on the instrument. So: `--control` fails loudly rather than skipping,
+`CONTROL_PATH`/`CONTROL_COMMIT`/`CONTROL_FUNC` are named constants at the top
+of this file so a mover can grep them, and `sdk/tests/test_fail_open_scan.py`
+runs `--control` on every suite run. **If this file's control ever cannot find
+its subject, do not repoint it at whatever is nearest -- re-derive a
+known-positive instance and say in the commit which one, because a control
+whose provenance nobody can state is worth what an unframed number is worth.**
+Filed in `docs/DOCKET.md` by a peer session as a move-window item.
+
 FRAME. Tracked files only (`git ls-files '*.py'`), which is honest about being
 tracked-only. `grep -r` in this environment execs `ugrep --ignore-files` and
 would have silently excluded gitignored paths (L-75), so no count here comes
