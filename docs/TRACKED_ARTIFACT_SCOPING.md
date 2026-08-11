@@ -67,10 +67,37 @@ an exact tracked file**.
 | Population | Cited by **exact path** | Under a cited **directory** |
 |---|---:|---:|
 | Solver output (8,582 files) | **0** | 2,928 |
-| Solver logs (778 files) | **0** | 131 |
+| Solver logs (778 files) | ~~0~~ → **1** | 131 |
 
-**Not one solver-output field file, and not one log file, is cited by path anywhere in the
-committed markdown corpus.**
+~~**Not one solver-output field file, and not one log file, is cited by path anywhere in the
+committed markdown corpus.**~~
+
+> **[CORRECTED 2026-08-11 by V15 round 6, at commit `0b0e002a`. The log row was a FALSE ZERO
+> and it was mine.]** `demo-output/website/tmr/runs/naca-a10-medium/log.checkMesh` **is** cited
+> by exact path, at `campaign/C4_naca0012_closure.md`. My harvester matched only
+> `*_runs/`-shaped tokens, and that directory is `tmr/runs/` — a slash where the pattern
+> wanted an underscore. **The filter, not the corpus, produced the zero.**
+>
+> Re-derived with a harvester keyed on the `log.*` component instead of the parent directory:
+> **204 distinct log-shaped tokens in tracked markdown, of which exactly 1 resolves to a
+> tracked log file.** Frame: `git ls-files`, markdown only, exact-path resolution.
+>
+> **The solver-output row survives** — re-checked under the broader vocabulary and still 0 of
+> 8,582.
+>
+> **What it changes.** Numerically almost nothing: 777 of 778 logs carry no path citation. But
+> §5 below recommended moving **logs first** *because* the row was zero, and a zero is
+> precisely the shape this lab has learned not to trust. The recommendation stands with one
+> condition attached — **that file's citation must be preserved or updated in the same commit
+> as the move** — and the honest framing is "one known citation, verify before moving," not
+> "none."
+>
+> **The lesson is the one this document already argues.** §3 says a zero is only as good as
+> the method that found it, and I gave that method a positive control which passed — it found
+> 13 real citations. **A positive control proves an instrument can fire; it does not prove the
+> instrument's *reach*.** Mine could not see outside `*_runs/`, and no number of true positives
+> inside that frame would ever have revealed it. The control needed was a planted citation in
+> a directory shaped differently from the pattern.
 
 ### The positive control, because a zero is only as good as the method that found it
 
@@ -118,7 +145,10 @@ because a scoping document that lists only its strengths is not a scoping docume
 ## 5. Recommended order when the window opens
 
 1. Sweep the non-markdown consumers (§4.2). Zero-compute, and it closes the last gap.
-2. Move solver **logs** first — 778 files, no path citations, and the most obviously regenerable.
+2. Move solver **logs** first — 778 files, of which **777 carry no path citation and one
+   does** (`tmr/runs/naca-a10-medium/log.checkMesh`, cited from `C4_naca0012_closure.md`).
+   Preserve or update that citation in the same commit as the move. They remain the most
+   obviously regenerable of the populations here.
 3. Then solver **output** — 8,582 files. This is where the size is.
 4. Leave `0/`, `constant/`, `system/` and every `.py`/`.json`/`.png`/`.md` under `*_runs/`
    tracked. They are source and summary, and the thirteen real citations all land there.
