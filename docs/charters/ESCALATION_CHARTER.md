@@ -1,6 +1,6 @@
 # Certonomous Escalation Charter
 
-Version 1.4, dated 2026-08-11. Governs what the lab decides alone and what goes
+Version 1.5, dated 2026-08-11. Governs what the lab decides alone and what goes
 to the owner. It binds unattended work, which is where the question actually
 arises.
 
@@ -555,6 +555,45 @@ lesson was itself corrected on 2026-08-11** — first written as 59 lines, which
 was the commit's total insertion count, then recounted by hunk as 34 — so cite
 L-57 for the rule rather than restating its figure here. That correction is the
 rule applied to itself: read the diff, not the summary of it.
+
+##### 9.6c. Do not "leave it uncommitted to be polite" — that fails in the other direction
+
+**Added 2026-08-11, same day, after the considerate response to 9.6b turned out to
+be the wrong one.** An agent found another agent's rows in `docs/DOCKET.md`,
+correctly declined to sweep them under its own message, and **deliberately left
+the file uncommitted**. The other agent then committed the file — and swept *its*
+two rows in, under a message about something else entirely. Nothing was lost; the
+attribution was.
+
+**Leaving a shared file dirty does not protect your work. It hands the decision to
+whoever commits next**, and on a tree with several agents that is a matter of
+seconds. The polite move and the safe move point in opposite directions, and the
+polite one loses.
+
+**The procedure, which is short and has been executed:**
+
+```
+git diff <path> > /tmp/full.patch          # everything currently uncommitted
+# keep only the hunks you wrote — split the patch, do not eyeball it
+git apply --cached /tmp/mine.patch         # stage YOUR hunks only
+git diff --cached --stat                   # confirm what is staged
+git diff --cached | grep -c '<their marker>'   # confirm theirs is NOT
+git commit -m "..."                        # the index holds only your hunks
+```
+
+Two notes that make this safe rather than clever:
+
+- **Verify the index is empty before you start** (`git diff --cached --name-only`).
+  The final `git commit` has no pathspec, which is normally forbidden — it is safe
+  *only* because the index was empty and you put exactly your own hunks in it.
+  Check that, do not assume it.
+- **Say in the commit message that you did this and why.** A commit that touches
+  part of a file leaves a reader wondering what happened to the rest; one sentence
+  removes the puzzle and records that a peer's work was deliberately left in place.
+
+**The general form:** on a shared tree, *inaction is not neutral*. Declining to
+commit is itself a choice about who gets to attribute your work, and the default
+answer is "whoever runs `git add` next."
 
 *Added 2026-08-11 by the cold-start memory repair, on the finding that
 `docs/MEMORY_ARCHITECTURE.md` §4 step 0 sent readers to this charter for a rule
