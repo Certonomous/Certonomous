@@ -224,6 +224,64 @@ replacement launcher must (a) guard every launch on the absence of a log, which
 mine did, **and** (b) be started only after the previous launcher is confirmed
 dead, which I did not do.
 
+## 6.2 The validity gate fired, and my gate was mis-specified — escalated, NOT amended
+
+**Interim, 2026-08-11, with 10 of 16 finished. Recorded now because it must not
+look like it was written after the verdict.**
+
+The pre-registered gate has **fired VOID**: control `d0.2_s000` moved
+**−0.831 x/h**, far beyond the 0.25 threshold. Reported plainly because it is
+inconvenient.
+
+**But the gate's stated inference is falsified by its own siblings.** The gate
+says a control moving > 0.25 means *"the continuation has introduced a restart
+transient of its own."* A restart transient is **common-mode** — it would move
+every control. Measured:
+
+| control | max excursion over the continuation | reading |
+| --- | --- | --- |
+| `null` (unperturbed) | **+0.049** | flat |
+| `d0.2_s027` | **±0.064** | flat |
+| `d0.2_s000` | **−1.337 and oscillating** (6.337 → 5.84, 5.34, 5.85, 5.00) | diverging |
+
+**Two of three controls are rock-solid, so the restart is clean and the
+mechanism the gate exists to detect is excluded by measurement.**
+`d0.2_s000`'s movement is a real physical drift, not an experimental artifact —
+and it cannot be the collision either, because the collision damaged only that
+case's *log*, while reattachment is read from *fields*, which were verified
+intact and single-writer in §6.1.
+
+**So my gate was mis-specified, and I am saying so rather than quietly fixing
+it.** It inferred a common-mode cause from a single-control observation. A
+correctly specified gate would have voided on the *unperturbed* control moving,
+or on all three moving together. Rewriting it now, after seeing which way it
+fell, is exactly the sin a pre-registration exists to prevent, so **the gate
+stands as written and the decision is escalated** to the chief and the F6d
+owners:
+
+- **Reading A — the gate as written.** The experiment is VOID. No verdict on
+  the 13. Cost of redoing it with a corrected gate: the runs already exist, so
+  this is a re-reading, not a re-run.
+- **Reading B — the gate's stated purpose.** Its premise is measurably false;
+  `null` and `d0.2_s027` establish a clean restart; the experiment is valid and
+  `d0.2_s000` is reclassified from control to **finding**.
+
+**I am not choosing between them.** What I will report either way is the
+measurement, because it is the same under both.
+
+**And the measurement is the point.** `d0.2_s000` was chosen as a control
+*because it was among the best-settled members of all 84* (published swing
+0.038, second only to `null`). Continued, it destabilises: settledness 0.401 and
+a reattachment wandering by more than 1.3 x/h. **A member that looked settled at
+4,000 iterations was passing through a quiet phase of an unsteady flow, not
+sitting at a steady solution.** That is direct evidence for the pre-registered
+**Outcome 3**, and it is stronger for having come from a case picked to be
+well-behaved. Meanwhile `null` — the only *unperturbed* run — is the sole case
+that is genuinely settled (0.053).
+
+Provisional and not a verdict: 6 cases are still running, and **no member of the
+13 has settled**, several having now passed 12,000–16,000 iterations.
+
 ## 7. Standing constraints
 
 Read-only with respect to everything outside `f6d_option_a/` and this campaign
