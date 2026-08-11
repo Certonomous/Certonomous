@@ -3665,6 +3665,42 @@ reading them — and I asked for exactly this before green rather than after.
 
 **V16 is two lines from green.**
 
+### 2026-08-11 — V16 graded a third time: both commissioned exceptions close, and the two new ones are a real crash and a stale table
+
+Written by the agent that built the guard and closed the exceptions; **the re-grade is owed to someone else.**
+
+- **`_published_board` SAID "NEVER RAISES" AND RAISED — and it took the whole audit with it.**
+  `read_text(encoding="utf-8")` sat inside `except OSError`, and **`UnicodeDecodeError` is a `ValueError`.** One
+  non-UTF-8 byte in a third-party file **of international author names** ended every check in `self_audit.py`, not
+  just this one. **It is the second time the same crash class has been fixed in this one function** — the first was a
+  regex metacharacter, fixed by escaping, *a fix for one exception type, which is exactly what invited a second
+  through a different one.*
+- **So the fix is a BOUNDARY, not another `except` clause.** The read and parse moved into a function free to raise
+  anything, behind a wrapper nothing can escape. **The scope is deliberate**: only the third-party file we do not
+  control is wrapped, because *a check that catches everything everywhere hides its own defects* — the failure one
+  layer above this one. **The deliverable is the test, not the clause**: a planted byte, UTF-16, raw bytes, a lone
+  surrogate, a truncated multibyte, and the whole audit run against a poisoned README (**PASS 13 / WARN 9 / FAIL 9,
+  exit 0**).
+- **THE REACH TABLE WAS STALE BY THE COMMIT THAT INSTALLED IT.** Rule B was widened and the table shipped together, so
+  four rule-B sentences moved from missed to caught and nothing re-measured — **the table then contradicted its own
+  rule-B row about those same five sentences.** Recorded 24/45 and 43/45; measured **20/45 and 42/45**. *The error was
+  **pessimistic**, which is why the grader filed it as derivation and not candour.*
+- **AND THE CLASS IS CLOSED, NOT THE INSTANCE.** The figures had been made *generated* so they could not drift between
+  surfaces — **and generation stopped one level short of the measurement.** Both graders' held-out sets and my own 46
+  are now **committed as runnable files carrying zero faults of their own**, and every published figure **recomputes
+  from them at test time**. The `before` column is history against patterns that no longer exist and is marked as
+  such. **Storing a measurement whose inputs are not in the repository is what made all three of these stale** — the
+  most portable lesson of the night.
+- **THE OPERATING MARGIN IS NOW PRINTED IN THE VERDICT**: the benchmark README has 2 table blocks and 1 qualifies, so
+  **the guard sits one third-party edit from DISABLED where it used to sit one edit from WRONG.** Both directions are
+  worth knowing; only one had ever been stated.
+- **L-76, EXECUTED RATHER THAN READ, as ordered**: 36 absolute-shaped words across 17 surfaces enumerated *by regex
+  rather than by eye* and each falsified by construction. All hold.
+- **THE PATTERN, THREE GRADES RUNNING, ONE FUNCTION**: *"can no longer mis-parse silently"*, *"does not return a board
+  it is unsure of"*, *"NEVER raises"*. **The instrument was sound at every step and a sentence about it was wrong at
+  every step** — and the third time the sentence was backed by a real crash with a twenty-check blast radius.
+  **An absolute in this lab is an unverified claim until someone executes it.**
+
 ### Decision requests for Katie (standing)
 
 **COMPUTE AUTHORISATION REQUESTED — 40 core-min to convert an assumed boundary into a measured one.**
