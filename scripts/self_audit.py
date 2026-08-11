@@ -775,6 +775,67 @@ def _place_tokens(upto: int) -> dict[str, int]:
 # bought. Cheap and safe has to mean safe.
 _PLACE_VERB = r"placed|finished|came|came\s+in|took|sits?\s+at|stands?\s+at"
 
+# THE REACH MEASUREMENTS, IN ONE PLACE, WITH THEIR PROVENANCE.
+#
+# Two failures of reporting are being prevented here at once.
+#
+# The first: these figures were typed into the docstring, the frame line and
+# BASIS separately, alongside a hardcoded count of the patterns -- which is the
+# literal problem one level above the ordinal vocabulary the same commit
+# removed. Add a family and three surfaces state a wrong count with no test
+# reddening. Everything below is now derived: the count from the compiled
+# pattern's own named groups, the sentences from this table.
+#
+# The second, and it is the one a reader is misled by: the first published pair
+# was "89% -> 30%", which is an OUTSIDE measurement of the old patterns beside
+# an INSIDE measurement of the new ones. Different samples. Held-out sets of
+# forty-odd sentences are small, and two honest ones disagree by twenty points
+# on the same guard. So the headline is the fixed-set pair -- one sample,
+# measured before and after -- and every row names who built it and whether
+# they had seen the patterns.
+#
+# (sample, who built it, blind to the current patterns?, n, missed by the two
+#  original patterns, missed by the current set)
+_PLACE_REACH = (
+    ("the grader's first set", "an independent grader", True, 45, 40, 24),
+    ("the author's set", "this check's author", True, 46, 37, 14),
+    ("the grader's adversarial set", "an independent grader", False, 45,
+     None, 43),
+)
+# Rule B's own reach, kept separate because it is a different rule and because
+# the sample is five sentences. (caught, n, who invented them)
+_PLACE_REACH_B = (5, 5, "an independent grader, invented blind")
+
+
+def _place_reach_sentence() -> str:
+    """The reach paragraph, generated from `_PLACE_REACH` so it cannot drift."""
+    def pct(missed, n):
+        return f"{missed} of {n} ({round(100 * missed / n)}%)"
+    parts = []
+    for name, who, blind, n, was, now in _PLACE_REACH:
+        seen = ("invented BLIND, before these patterns existed" if blind
+                else "invented WITH the pattern list in hand, adversarially")
+        before = f"{pct(was, n)} against the two original patterns, " if was \
+            else ""
+        parts.append(f"{name} ({who}, {seen}): {before}{pct(now, n)} against "
+                     f"the current set")
+    fixed = _PLACE_REACH[0]
+    return (f"HEADLINE, on ONE FIXED SET measured before and after so the two "
+            f"ends are comparable -- {fixed[0]}, built by {fixed[1]} before "
+            f"these patterns existed: {pct(fixed[4], fixed[3])} missed became "
+            f"{pct(fixed[5], fixed[3])}. Every sample, because forty-odd "
+            f"sentences is a small one and two honest sets disagree by twenty "
+            f"points: " + "; ".join(parts) + ". A set built against the "
+            f"pattern list measures how much placement language lies outside "
+            f"any finite set of regexes, which is unbounded by construction; "
+            f"it is reported because it answers how far an adversary must "
+            f"walk, and the answer is one sentence. RULE B separately, because "
+            f"it is a different rule and the three sets above are rule-A "
+            f"sentences: {_PLACE_REACH_B[0]} of {_PLACE_REACH_B[1]} shapes "
+            f"caught ({_PLACE_REACH_B[2]}) -- and five sentences is not a "
+            f"reach measurement, it is a smoke test, which is the honest name "
+            f"for it")
+
 
 @functools.lru_cache(maxsize=8)
 def _place_pattern(upto: int) -> re.Pattern:
@@ -819,56 +880,154 @@ _PLACE_BIND = 40
 _PLACE_ADJUDICATED = 400
 
 
+def _place_family_count() -> int:
+    """How many alternatives the rule-A pattern actually has, counted from the
+    compiled pattern rather than typed into three docstrings."""
+    return len(_place_pattern(_PLACE_OVER + 1).groupindex)
+
+
 @functools.lru_cache(maxsize=8)
 def _place_unnamed(upto: int) -> re.Pattern:
-    """RULE B: our comparison, someone else's position, nobody's name."""
+    """RULE B: our comparison, someone else's position, nobody's name.
+
+    Widened 2026-08-11, second grade: nine families had been added to rule A
+    and NONE to rule B, so "the miss rate fell" was a statement about one of
+    two rules presented as a statement about the check. Four of five fresh
+    rule-B shapes passed clean.
+
+    It stays narrower than rule A on purpose and the reason is structural, not
+    laziness: rule B has no adjudication clause -- there is no correct form of
+    a position word to sit beside a wrong one -- so every widening of it costs
+    precision directly, with no way to clear a quotation. The broad version
+    ("any absolute designator naming nobody") was measured at 11 hits, 11 of
+    them the idiom "in the first place". What is added here is bounded on both
+    sides: a comparison OF OURS, whose object is a position, in a small set of
+    verbs and designators, each measured across the repository before keeping.
+    """
     alts = "|".join(re.escape(t) for t in
                     sorted(_place_tokens(upto), key=len, reverse=True))
+    who = (rf"runner[ \-]?up|front[ \-]?runner|(?:{alts})[ \-]place"
+           rf"|(?:{alts})[ \-]place\s+(?:entry|submission|entrant)"
+           rf"|(?:board\s+)?leader\b|top\s+entry\b")
     return re.compile(
-        r"\b(?:our|the)\s+(?:margin|lead|gap|advantage)\b[^.]{0,25}?"
-        r"\b(?:over|against)\s+the\s+"
-        rf"(runner[ \-]?up|front[ \-]?runner|(?:{alts})[ \-]place)", re.I)
+        rf"\b(?:our|the)\s+(?:margin|lead|gap|advantage|edge)\b[^.]{{0,25}}?"
+        rf"\b(?:over|against|between\s+us\s+and)\s+the\s+({who})"
+        rf"|\b(?:beat|beats|beating|clear\s+of|ahead\s+of)\s+the\s+({who})",
+        re.I)
+
+
+# A name has two ends and the heuristic can fall off either. Taking the LAST
+# token fixed `van Dijk` (which used to key the board on `van` and bind to every
+# occurrence of that word in prose) and created the mirror bug the re-grade
+# found: `Reissmann Jr., Fang` keyed on `jr`. Both ends are handled now, and
+# both are tests.
+_NAME_SUFFIX = re.compile(r"^(jr|sr|ii|iii|iv|phd|md|esq)\.?$", re.I)
 
 
 def _first_author_surname(cell: str) -> str:
     """The surname this check keys an entrant on, from a board author cell.
 
     `[Reissmann, Fang, and Sandberg](url)` -> Reissmann. The first author ends
-    at the first comma or ` and `, and the surname is that segment's LAST
-    token, so a particle name (`van Dijk, Smith`) keys on Dijk rather than on
-    `van` -- which the first grade showed binding to every occurrence of that
-    word in prose.
+    at the first comma or ` and `; generational and honorific suffixes are
+    dropped from the end of that segment; the surname is what is then last, so
+    `van Dijk, Smith` gives Dijk and `Reissmann Jr., Fang` gives Reissmann.
     """
     inner = re.match(r"\s*\[([^\]]*)\]", cell)
     who = (inner.group(1) if inner else cell).strip()
     first = re.split(r",| and ", who, maxsplit=1)[0].strip()
     parts = [p for p in re.split(r"\s+", first.strip(" .*_`")) if p]
-    return parts[-1] if parts else ""
+    while len(parts) > 1 and _NAME_SUFFIX.match(parts[-1].strip(".,")):
+        parts.pop()
+    return parts[-1].strip(".,") if parts else ""
+
+
+_BOARD_RANK_COL = re.compile(r"rank|position|place", re.I)
+_BOARD_WHO_COL = re.compile(r"author|team|entrant|submitter|name|group", re.I)
+_BOARD_RULE = re.compile(r"^:?-{2,}:?$")
+_BOARD_MIN_ROWS = 2
+
+
+def _table_blocks(lines: list[str]) -> list[list[str]]:
+    """Every CONTIGUOUS run of table rows in the file.
+
+    Contiguous matters: a blank line inside a table splits it into two blocks,
+    and the re-grade found that a blank line dropped an entrant SILENTLY under
+    the old parse. Split here, each half is validated, each half fails, and the
+    detector goes OFF instead of grading against three quarters of a board.
+    """
+    blocks, block = [], []
+    for line in [*lines, ""]:
+        if line.strip().startswith("|"):
+            block.append(line)
+            continue
+        if block:
+            blocks.append(block)
+        block = []
+    return blocks
+
+
+def _read_board_table(block: list[str]) -> tuple[list[tuple[int, str]], str]:
+    """(rows, "") if this block IS a leaderboard, else ([], why it is not)."""
+    rows, header = [], None
+    for line in block:
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) < 2:
+            continue
+        if all(_BOARD_RULE.match(c) for c in cells if c):
+            continue                                   # the |---|---| rule
+        if cells[0].isdigit():
+            rows.append((int(cells[0]), cells[1]))
+        elif header is None:
+            header = cells
+    if header is None:
+        return [], "no header row"
+    if not _BOARD_RANK_COL.search(header[0]):
+        return [], f"its first column is headed {header[0]!r}, not a rank"
+    if not any(_BOARD_WHO_COL.search(c) for c in header):
+        return [], f"no column names who the entrants are (header {header})"
+    if len(rows) < _BOARD_MIN_ROWS:
+        return [], (f"it has {len(rows)} numbered row(s); fewer than "
+                    f"{_BOARD_MIN_ROWS} is not distinguishable from a decoy")
+    ranks = [n for n, _ in rows]
+    if sorted(ranks) != list(range(1, len(ranks) + 1)):
+        return [], f"its rank column is not 1..N once each (read {ranks})"
+    return rows, ""
 
 
 def _published_board() -> tuple[dict[str, int] | None, str]:
     """(ranks, head) on success; (None, reason) on any failure. NEVER raises.
 
-    THE CONTRACT, after the first independent grade found four ways to break
-    it: this function either returns a board it has checked, or it returns the
-    reason it has none. It does not return a board it is unsure of, and it does
-    not raise -- an exception here would take down every OTHER check in this
-    file, which is a guard doing more harm than the defect it looks for.
+    THE CONTRACT, and it is stated more carefully than it was. This function
+    returns a board only when EXACTLY ONE table in the file satisfies every
+    property a leaderboard must have -- a rank-headed first column, a column
+    naming who the entrants are, at least `_BOARD_MIN_ROWS` numbered rows,
+    ranks reading exactly 1..N once each, and first-author surnames that are
+    unique and usable. Otherwise it returns why. It never raises: an exception
+    here would take down every OTHER check in this file, which is a guard doing
+    more harm than the defect it looks for.
 
-    Four failure modes, each measured on a synthetic README before this was
-    written, each now an OFF with a stated reason:
-      * a second numbered-and-linked table anywhere in the file used to be read
-        as more leaderboard rows, last one wins, moving an entrant's rank with
-        no warning. The table is now anchored to the leaderboard HEADING and
-        stops at the first blank or non-table line.
-      * ranks that are not exactly 1..N, once each, mean this is not a
-        leaderboard or is not one this check understands.
-      * two entrants sharing a first-author surname used to collapse into one
-        dict key, dropping an entrant and then FAULTING CORRECT PROSE about the
-        survivor -- a false positive manufactured by a parse failure, which is
-        the worst kind because it discredits the instrument.
-      * a surname carrying a regex metacharacter used to raise `re.error`.
-        Surnames are escaped at every use now, and this is belt and braces.
+    IT CAN STILL BE FOOLED, and the earlier version of this docstring claiming
+    otherwise was the exception a second grade held it to. A decoy table that
+    satisfies all of the above IS a leaderboard as far as this function can
+    tell, and two tables that both satisfy them make it go OFF rather than
+    choose. What it no longer does is trust a HEADING: the first repair anchored
+    to any heading containing the word `leaderboard` and took the first table
+    after it, which a numbered legend between heading and board, an earlier
+    `## Archived leaderboard (2024)`, and a blank line inside the board each
+    defeated SILENTLY. It never asked whether what it read was a leaderboard.
+    Now that is the only question it asks, and the heading plays no part.
+
+    Failure modes measured on synthetic READMEs before this was written, each
+    an OFF with a stated reason, each a test:
+      * more than one numbered table, anywhere, in any order;
+      * a blank line inside the board table;
+      * a heading elsewhere that also says `leaderboard`;
+      * ranks that are not exactly 1..N once each;
+      * two entrants sharing a first-author surname, which used to collapse
+        into one dict key, dropping an entrant and then FAULTING CORRECT PROSE
+        about the survivor -- a false positive manufactured by a parse failure,
+        the worst kind, because it discredits the instrument;
+      * a surname carrying a regex metacharacter, which used to raise.
     """
     root = Path(os.environ.get(_BOARD_DIR_ENV,
                                Path.home() / "closure-challenge-benchmark"))
@@ -877,30 +1036,19 @@ def _published_board() -> tuple[dict[str, int] | None, str]:
     except OSError:
         return None, (f"the benchmark clone is not readable at {root} "
                       f"(${_BOARD_DIR_ENV} or ~/closure-challenge-benchmark)")
-    lines = text.splitlines()
-    start = next((i for i, line in enumerate(lines)
-                  if re.match(r"\s*#+\s.*leaderboard", line, re.I)), None)
-    if start is None:
-        return None, "no leaderboard heading in the benchmark README"
-    rows: list[tuple[int, str]] = []
-    seen_table = False
-    for line in lines[start + 1:]:
-        if not line.strip().startswith("|"):
-            if seen_table:
-                break                      # the table ended; anything after it
-            continue                       # is a different table, not the board
-        seen_table = True
-        cells = [c for c in line.strip().strip("|").split("|")]
-        if len(cells) < 2 or not cells[0].strip().isdigit():
-            continue                       # header, separator, or a stray row
-        rows.append((int(cells[0].strip()), cells[1]))
-    if not rows:
-        return None, "the leaderboard heading is not followed by a table"
-    ranks = [n for n, _ in rows]
-    if sorted(ranks) != list(range(1, len(ranks) + 1)):
-        return None, (f"the leaderboard's rank column is not 1..N once each "
-                      f"(read {ranks}); this check will not grade against a "
-                      f"table it cannot account for")
+    valid, rejected = [], []
+    for block in _table_blocks(text.splitlines()):
+        rows, why = _read_board_table(block)
+        (valid if rows else rejected).append(rows or why)
+    if len(valid) > 1:
+        return None, (f"{len(valid)} tables in the benchmark README each "
+                      f"satisfy every property of a leaderboard; this check "
+                      f"will not choose between them")
+    if not valid:
+        near = "; ".join(rejected[:3]) or "no table rows at all"
+        return None, (f"no table in the benchmark README is a leaderboard "
+                      f"this check can read -- nearest candidates: {near}")
+    rows = valid[0]
     board: dict[str, int] = {}
     for n, cell in rows:
         surname = _first_author_surname(cell)
@@ -1039,11 +1187,20 @@ def check_board_placement_words() -> Result:
     arrives carrying none of the three.
 
     WHAT IT CANNOT SEE, stated rather than discovered later, LARGEST FIRST:
-    ANY placement phrased outside the patterns below. Measured twice, on
-    held-out sentences that each pin a WRONG placement on a NAMED entrant: an
-    independent grade of 2026-08-11 put 45 through the two-pattern version and
-    it missed 40 (89%); my own set of 46 put that version at 37 missed (80%)
-    and this eleven-alternative version at 14 (30%). What is still unreachable:
+    ANY placement phrased outside the rule-A patterns below. The three
+    held-out sets are RULE-A sentences; rule B is a different rule with its own
+    much smaller measurement, and until 2026-08-11 it had not been widened at
+    all while nine families were added to rule A -- so "the miss rate fell" was
+    a statement about one of two rules worn as a statement about the check.
+    The figures themselves are NOT written here: they live in
+    `_PLACE_REACH` with their provenance and are generated into the verdict and
+    into BASIS by `_place_reach_sentence`, and the pattern count is counted from
+    the compiled pattern by `_place_family_count`. A second grade found the
+    count and three miss rates typed into three surfaces each with no test that
+    they still described the patterns -- the literal problem one level above
+    the ordinal vocabulary this same function had just been freed from.
+
+    What is still unreachable:
     an ordinal used as a bare noun ("the board's fourth"), "are in fourth",
     "#N", a bare parenthetical ordinal, medals and podiums, roman numerals,
     non-English ordinals, and markdown or CSV rows -- the last omitted on
@@ -1143,11 +1300,11 @@ def check_board_placement_words() -> Result:
              f"{len(_PLACE_CARDINAL)}); {unreadable} surface(s) skipped after "
              f"raising. "
              f"BLIND TO, LARGEST FIRST: (1) ANY placement phrased outside this "
-             f"check's patterns. Measured on held-out sentences that each pin "
-             f"a WRONG placement on a NAMED entrant: an independent grade of "
-             f"2026-08-11 missed 40 of 45 (89%) with the two patterns this "
-             f"check shipped with; my own 46 put those two at 37 missed (80%) "
-             f"and these eleven at 14 (30%). STILL UNREACHABLE: an ordinal as "
+             f"check's {_place_family_count()} RULE-A patterns. The three "
+             f"held-out sets below are RULE-A sentences, each pinning a WRONG "
+             f"placement on a NAMED entrant; rule B is measured separately and "
+             f"on a far smaller sample. {_place_reach_sentence()}. "
+             f"STILL UNREACHABLE: an ordinal as "
              f"a bare noun (the board's fourth), 'are in fourth', #N, a bare "
              f"parenthetical ordinal, medals and podiums, roman numerals, "
              f"non-English ordinals, and markdown or CSV rows -- the last "
@@ -3403,12 +3560,12 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "of a name (\"our margin over the <position>\"). Matched over whole "
         "text with whitespace collapsed, so a placement a reflow split across "
         "two lines still binds",
-        "MOST OF ALL, any placement phrased outside this check's eleven "
-        "patterns -- measured on held-out sentences each pinning a wrong "
-        "placement on a named entrant: an independent grade of 2026-08-11 "
-        "missed 40 of 45 (89%) against the two patterns this check shipped "
-        "with, and my own 46 put those two at 37 missed (80%) and the current "
-        "eleven at 14 (30%). Still unreachable: an ordinal as a bare noun, "
+        f"MOST OF ALL, any placement phrased outside this check's "
+        f"{_place_family_count()} RULE-A patterns. The three held-out sets "
+        f"below are RULE-A sentences, each pinning a wrong placement on a "
+        f"named entrant; rule B is measured separately and on a far smaller "
+        f"sample. {_place_reach_sentence()}. "
+        "Still unreachable: an ordinal as a bare noun, "
         "'are in fourth', #N, a bare parenthetical ordinal, medals, roman "
         "numerals, non-English ordinals, and markdown or CSV rows -- the last "
         "omitted deliberately. This is the "

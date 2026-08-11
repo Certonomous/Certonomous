@@ -435,6 +435,28 @@ class TheWidenedFamiliesTests(unittest.TestCase):
                          f"Wu and Zhang sit at the {_TOP} of the board."):
             self._one_fault(sentence)
 
+    def test_rule_b_was_widened_too(self):
+        """Nine families had gone to rule A and NONE to rule B, so "the miss
+        rate fell" described one of two rules while reading as a statement
+        about the check. Four of these five passed clean before 2026-08-11."""
+        for sentence in (
+                f"Our margin over the {_POSITION_WORD} is 0.0028863.",
+                f"We beat the {_POSITION_WORD} by 0.0029 on the overall.",
+                "We finished clear of the second-place submission.",
+                "The gap between us and the front-runner is 0.0029.",
+                "Our margin over the leader is 0.0029."):
+            _, rule_b = _faults(sentence)
+            self.assertEqual(1, len(rule_b), f"{sentence!r} -> {rule_b}")
+
+    def test_rule_b_stays_narrower_than_rule_a_on_purpose(self):
+        """It has no adjudication clause, so every widening costs precision
+        with no way to clear a quotation. The idiom stays out."""
+        for sentence in (
+                "which is how the round-4 text went stale in the first place",
+                "the study wrote to a third place, so the accounting missed it",
+                "the gap to first place lives in the ducts"):
+            self.assertEqual([], _faults(sentence)[1], sentence)
+
     def test_the_families_deliberately_left_out_stay_out(self):
         """Not an oversight. A numbered table row is not distinguishable from
         any numbered list, and the benchmark's own board is one; medals, roman
@@ -612,10 +634,10 @@ class TheParseFailsSafeTests(unittest.TestCase):
         self.assertIsNone(board)
         self.assertIn("not 1..N", reason)
 
-    def test_no_leaderboard_heading_is_OFF(self):
+    def test_a_readme_with_no_table_at_all_is_OFF(self):
         board, reason = self._write("# Something else\nprose only\n")
         self.assertIsNone(board)
-        self.assertIn("no leaderboard heading", reason)
+        self.assertIn("no table rows at all", reason)
 
     def test_a_metacharacter_in_a_surname_does_not_raise(self):
         """`Fox[a` used to raise re.error out of this check and end the run."""
@@ -633,6 +655,73 @@ class TheParseFailsSafeTests(unittest.TestCase):
         board, _ = self._write(
             self.HEADER + self._rows("van Dijk, Smith", "Wu and Zhang"))
         self.assertEqual({"dijk": 1, "wu": 2}, board)
+
+    # --- the second grade's three, all of which returned an UNCHECKED board
+    # --- with no warning. The root cause was one sentence: the first repair
+    # --- anchored to A heading and took the first table after it, and never
+    # --- asked whether what it read was a leaderboard. It asks now, and the
+    # --- heading plays no part at all.
+
+    def test_a_numbered_legend_between_heading_and_board_is_not_the_board(self):
+        board, _ = self._write(
+            self.HEADER.split("|")[0]          # just the heading line
+            + "\n| N | Case |\n|---|---|\n|      1 | [case](http://x) |\n\n"
+            + self.HEADER + self._rows("Reissmann, Fang", "Wu and Zhang"))
+        self.assertEqual({"reissmann": 1, "wu": 2}, board)
+
+    def test_an_earlier_heading_that_also_says_leaderboard_is_not_the_board(self):
+        board, _ = self._write(
+            "## Archived leaderboard (2024)\n| N | Who |\n|---|---|\n"
+            "|      1 | [ghost](http://g) |\n\n"
+            + self.HEADER + self._rows("Reissmann, Fang", "Wu and Zhang"))
+        self.assertEqual({"reissmann": 1, "wu": 2}, board)
+
+    def test_a_blank_line_inside_the_board_is_OFF_not_a_dropped_entrant(self):
+        """It used to return the rows above the blank line and say nothing.
+        Silent blindness: an entrant disappears and stops being checked."""
+        board, reason = self._write(
+            self.HEADER + "|      1 | [Reissmann, Fang](http://a) | 0.05 |\n\n"
+                          "|      2 | [Wu and Zhang](http://b) | 0.06 |\n")
+        self.assertIsNone(board)
+        self.assertIn("not distinguishable from a decoy", reason)
+
+    def test_two_tables_that_both_look_like_boards_is_OFF_not_a_choice(self):
+        rows = self._rows("Reissmann, Fang", "Wu and Zhang")
+        board, reason = self._write(
+            self.HEADER + rows + "\n# Another\n" + self.HEADER + rows)
+        self.assertIsNone(board)
+        self.assertIn("will not choose", reason)
+
+    def test_the_heading_plays_no_part(self):
+        """The parse used to depend on finding the word `leaderboard`. It does
+        not any more, which is why two of the three above now read the RIGHT
+        board rather than merely refusing."""
+        no_heading = self.HEADER.split("\n", 1)[1]        # the table rows only
+        board, reason = self._write(
+            no_heading + self._rows("Reissmann, Fang", "Wu and Zhang"))
+        self.assertEqual({"reissmann": 1, "wu": 2}, board, reason)
+
+    def test_a_table_that_is_not_a_leaderboard_is_rejected_by_its_header(self):
+        board, reason = self._write(
+            "# Cases\n| N | Case | Notes |\n|---|---|---|\n"
+            "|      1 | [alpha](http://x) | a |\n"
+            "|      2 | [beta](http://y) | b |\n")
+        self.assertIsNone(board)
+        self.assertIn("not a rank", reason)
+
+    def test_a_generational_suffix_keys_on_the_name_not_the_suffix(self):
+        """The mirror of the particle bug: the last-token rule that fixed
+        `van Dijk` broke `Reissmann Jr.` into its suffix. Both ends now."""
+        board, _ = self._write(
+            self.HEADER + self._rows("Reissmann Jr., Fang", "Wu and Zhang"))
+        self.assertEqual({"reissmann": 1, "wu": 2}, board)
+
+    def test_both_ends_of_the_name_stay_handled_together(self):
+        for cell, expected in (("[van Dijk, Smith](u)", "Dijk"),
+                               ("[Reissmann Jr., Fang](u)", "Reissmann"),
+                               ("[de la Cruz III, Ono](u)", "Cruz"),
+                               ("[Wu and Zhang](u)", "Wu")):
+            self.assertEqual(expected, sa._first_author_surname(cell), cell)
 
     def test_the_off_reason_reaches_the_verdict(self):
         """A detector that is off must say WHY, not merely that it is."""
@@ -703,7 +792,8 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         basis, _, blind, _ = sa.BASIS["check_board_placement_words"]
         self.assertEqual(sa.EVIDENCE, basis)
         for owed in ("ahead of", "co-author", "QUOTING", "untracked",
-                     "outside this check's eleven patterns",
+                     "any placement phrased outside this check's",
+                     "RULE-A patterns",
                      "derived from the parsed board", "4 MB"):
             self.assertIn(owed, blind)
 
@@ -727,10 +817,59 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         self.assertIn("placement expression(s) found in those", frame[0])
         self.assertIn("that pair is the denominator and its selection rule",
                       frame[0])
-        for owed in ("outside this check's patterns",
+        for owed in ("ANY placement phrased outside this check's",
+                     "RULE-A patterns",
                      "derived from this board's length",
                      "GREEN HERE IS NOT COVERAGE", "4 MB", "QUOTING"):
             self.assertIn(owed, frame[0], "the verdict understates its reach")
+
+    def test_no_reach_figure_or_pattern_count_is_typed_into_a_surface(self):
+        """The literal problem one level above the ordinal vocabulary.
+
+        The count `eleven` and three miss rates were typed into the docstring,
+        the frame line and BASIS separately. Add a family and all three state a
+        wrong count while every test still passes, because the tests asserted
+        the STRING was present, not that it was true. Everything is derived
+        now: the count from the compiled pattern's own named groups, the
+        sentences from `_PLACE_REACH`. This test fails if anyone types one back.
+        """
+        doc = sa.check_board_placement_words.__doc__
+        _, _, blind, _ = sa.BASIS["check_board_placement_words"]
+        frame = [d for d in sa.check_board_placement_words().detail
+                 if d.startswith("frame:")][0]
+        self.assertNotRegex(doc, r"\b(eleven|twelve|thirteen)\b")
+        self.assertNotRegex(doc, r"\d+%")
+        for name, _who, _blind, n, was, now in sa._PLACE_REACH:
+            for surface in (blind, frame):
+                self.assertIn(name, surface)
+                self.assertIn(f"{now} of {n}", surface)
+                if was is not None:
+                    self.assertIn(f"{was} of {n}", surface)
+
+    def test_the_pattern_count_is_counted_not_claimed(self):
+        """Add a twelfth family and the number moves by itself."""
+        counted = sa._place_family_count()
+        alternatives = sa._place_pattern(sa._PLACE_OVER + 1).groupindex
+        self.assertEqual(len(alternatives), counted)
+        _, _, blind, _ = sa.BASIS["check_board_placement_words"]
+        self.assertIn(f"{counted} RULE-A patterns", blind)
+
+    def test_the_headline_pair_is_one_fixed_sample_measured_twice(self):
+        """The second grade's exception 2. The first published pair was an
+        OUTSIDE measurement of the old patterns beside an INSIDE measurement of
+        the new -- different samples, and nothing said so. The headline must be
+        a single set measured at both ends, and every row must name who built
+        it and whether they had seen the patterns."""
+        sentence = sa._place_reach_sentence()
+        self.assertIn("ONE FIXED SET measured before and after", sentence)
+        head = sa._PLACE_REACH[0]
+        self.assertIn(f"{head[4]} of {head[3]}", sentence)
+        self.assertIn(f"{head[5]} of {head[3]}", sentence)
+        for _n, who, blind, *_ in sa._PLACE_REACH:
+            self.assertIn(who, sentence)
+            self.assertIn("BLIND" if blind else "WITH the pattern list",
+                          sentence)
+        self.assertIn("RULE B separately", sentence)
 
     def test_the_sibling_guards_admission_is_not_dropped_by_its_successor(self):
         """Whatever the older guard admits about pattern reach, this one must
