@@ -199,7 +199,8 @@ none of those is machine zero.**
 
 The trained model behind `alpha_15_13929_4048`, `alpha_15_13929_2024` and
 `NASA_2DWMH` was fitted at a single seed. The truth-free bound on the overall is
-**0.002419**. Our margin over the runner-up is **0.0028863**. **The seed bound
+**0.002419**. Our margin over Reissmann, Fang & Sandberg — rank 1 on the
+published board — is **0.0028863**. **The seed bound
 covers 84% of the margin.** The three duct predictions carry zero seed variance,
 since nothing in them was trained.
 
@@ -275,11 +276,13 @@ submitted, and if your scoring differs from ours, your number is the number.**
 
 On the published board at `deb91557` our 0.056647 is the best overall number, by
 **0.0028863** over Reissmann, Fang & Sandberg. *(A note on that figure: the README
-publishes 0.0595 to four decimals. A like-for-like full-precision re-score of the
-accepted submissions on the same harness gives 0.0595335, which is what the
-margin above uses. Earlier drafts of ours quoted a "published 0.059525", which is
-the mean of eight rounded per-case values and is not a number you publish — the
-error was small and ran against us, but the word was wrong.)*
+publishes 0.0595 to four decimals. A like-for-like full-precision re-score of
+Reissmann, Fang & Sandberg's own eight submitted CSVs on the same harness gives
+0.0595335 — that entrant's value alone, not a figure for the accepted
+submissions as a set — and it is what the margin above uses. Earlier drafts of
+ours quoted a "published 0.059525", which is the mean of eight rounded per-case
+values and is not a number you publish — the error was small and ran against us,
+but the word was wrong.)*
 
 **Two values of that score are in play in this section, and we would rather say
 so than have you find it.** The margin above uses the re-scored **0.0595335**.
