@@ -3250,6 +3250,50 @@ they counted.
   test-count column **9 of 9 exact.** All 13 known-answer convergence cases re-pass. The four enumeration axes are
   **internally exact** — their union is *precisely* the reported 296.
 
+### 2026-08-11 — V16 graded PASS WITH EXCEPTIONS by an independent grader, and the exceptions are load-bearing
+
+**The grade is honest and the guard is real. It is also narrower than its own verdict line admits.**
+
+- **Claim 1 (board is parsed, not transcribed) — VERIFIED, by a harder test than the author's**: the grader rewrote
+  **only the two rank digits in the real benchmark README** and the same probe sentence went 0 faults → 1. No board
+  literal exists in the code.
+- **BUT L-66's test says the corpus contains ZERO evidence for it.** The same machinery with a **hand-typed board
+  disagrees on 0 of 974 files.** The permutation test is the *only* evidence that parsing matters — which is exactly
+  what L-66 predicted and exactly why the permutation test had to exist. **The corpus evidences precision, never
+  recall.**
+- **THE NUMBER THAT MATTERS: 89% miss rate on invented phrasings** (40 of 45; 88% excluding declared blind spots).
+  The five it caught all happen to contain its own patterns. **Entire families missed**: *placed / finished / came /
+  took third*, *ranked third*, *third overall*, *No. 3*, table and CSV rows, *top the board* — **the last of which
+  the older digit-anchored guard explicitly admits to missing.**
+- **AND THE BLIND-SPOT LIST IS INCOMPLETE IN THE DIRECTION THAT MATTERS.** Its reach line omits the adjudication
+  window, use/mention, a size cap, board positions past fifth, and — most seriously — *"placements phrased outside
+  the two patterns"*, **an admission the guard it supersedes still makes.** The replacement's stated reach is **less
+  honest than its predecessor's**, which is the precise failure L-61 exists to prevent.
+- **A LIVE INSTANCE IT CANNOT SEE, on a shipping report's source**: a placement pinned on a named entrant, **wrapped
+  across a line break**, in the same sentence family as the defect that opened the rung. **It is correct — by luck.**
+  The guard would not have caught it had it been wrong.
+- **Three failure modes worse than a miss**, all found by attacking the parser: an unbalanced regex metacharacter in a
+  surname **raises an exception and crashes the entire audit** instead of reporting OFF; **a second numbered table
+  anywhere in the README silently corrupts the ranks**; and **a shared first-author surname silently drops an entrant
+  and then faults correct prose.** Also, the ordinal vocabulary is a **hard-coded 1–5 constant not derived from the
+  parsed board**, so a longer board is unmatched past fifth — a literal surviving inside the thing built to remove
+  literals.
+- **The false-positive result is BETTER than claimed and its denominator is not justified**: re-derived over 974
+  files, **503 placement expressions, exactly 2 faults**, both a record quoting the defects at correct severity. But
+  **no record states how the original 111-file corpus was selected**, and nearby reasonable filters give different
+  numbers.
+- **Counts corrected**: the diff adds **22** tests, not 21; **21** fail against HEAD, not 20.
+- **Claim 2's justification retracted**: on the *real* pre-fix instance, whole-text and line-bounded both return 1.
+  The author found this and published it against its own interest — **but left the superseded claim standing in the
+  shipped code comment and in the rung definition.**
+- **Also found: a test that silently skips a missing file and can report a pass having asserted nothing.**
+- **VERIFIED SOUND**: fires on all three original defects **on real git bytes rather than fixtures**, plus a fourth
+  instance the claim never enumerated; the severity scoping errs conservative; and the 15→16 rung amendment is
+  **accurate and complete** — exactly three live statements changed, with the one residual being a historical
+  quotation correctly left alone.
+
+**LADDER STATUS: NOT GREEN.** V16 is open with exceptions; V15 round 5 has not run and cannot until V16 closes.
+
 ### Decision requests for Katie (standing)
 
 **COMPUTE AUTHORISATION REQUESTED — 40 core-min to convert an assumed boundary into a measured one.**
