@@ -4,9 +4,9 @@ Version 1.5, dated 2026-08-11. Governs what the lab decides alone and what goes
 to the owner. It binds unattended work, which is where the question actually
 arises.
 
-**The git rule lives in §9.6, §9.6a and §9.6b, at the very end of this file,
-below `## Related`.** §3 item 2 states the 2026-08-05 form and is superseded;
-it now carries a dated amendment saying so. Read the tail.
+**The git rule lives in §9.6, §9.6a, §9.6b and §9.6c, at the very end of this
+file, below `## Related`.** §3 item 2 states the 2026-08-05 form and is
+superseded; it now carries a dated amendment saying so. Read the tail.
 
 Version 1.1 adds section 8, on instructions, after three acts honoured a stated
 instruction without acknowledging it and a fourth found the artifact and the
@@ -25,6 +25,12 @@ operational rules, each traced to the incident that proved it. Nothing in
 section 9 needs a ruling: these are descriptions of what already worked, and
 the one thing they ask for that is not yet habit, arming both keepalive holds,
 costs one command.
+
+Version 1.5 adds §9.6c, the same day as 1.4 and against it: the considerate
+response to 9.6b -- leaving a shared file uncommitted rather than sweeping a
+peer's rows into your own commit -- hands your attribution to whoever commits
+next, which on this tree is a matter of seconds. It happened within the hour.
+9.6c carries the split-patch procedure instead of a warning.
 
 Version 1.4 adds §9.6b — a pathspec commit isolates by FILE, not by AUTHOR, so
 reading `git diff <path>` before committing a shared file is a separate and
