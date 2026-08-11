@@ -551,7 +551,35 @@ dated wherever it appears.
 
 ## 5. Draft submission package — FOR PROOFREADING, NOT FOR SENDING
 
-> ## ⛔ BLOCKING BANNER — §5 IS ROUND-4 TEXT AND MUST NOT BE SENT AS IT STANDS
+> ## ✅ DISCHARGED 2026-08-11 — §5.1–§5.4 REWRITTEN AGAINST ROUND 5. STILL NOT SENT.
+>
+> *§5.1, §5.2, §5.3 and §5.4 were rewritten on 2026-08-11 against the round-5
+> payload, every number re-verified against a primary artifact rather than against
+> a sibling document — which is how the round-4 text went stale in the first place.
+> The banner below is kept **verbatim as the record of what was found**; it is no
+> longer a description of the text underneath it. Row-by-row closure follows the
+> table.*
+>
+> **What has NOT changed: nothing is sent.** §5.6 items 6 and 7 are Katie's and
+> remain OUTSTANDING, and they are the send block. This rewrite makes the package
+> honest; it does not make it dispatched, and dispatch is reserved to Katie.
+>
+> **One correction carried into §5.2 rather than propagated silently.** The last
+> row of the table below states the like-for-like re-score of Reissmann as
+> `0.0595338` and the margin as `0.0028863`. **Those two do not subtract** against
+> our 0.056647191704213645 — they disagree by 3×10⁻⁷. Re-running the benchmark's
+> own scorer over Reissmann's four published CSV directories at eval package commit
+> `1c4e22c8` (a competitor's public files; **not** a scoring call on our
+> predictions, so the ledger stands at 6) gives **0.05953352830400628**, i.e.
+> **0.0595335**, and a margin of **0.00288634**. **The margin `0.0028863` is
+> correct; the transcribed `0.0595338` is the misrounded one.** The same misrounded
+> `0.0595338` is printed in `closure_challenge_submission_round5/DESCRIPTION_DOCUMENT.md`
+> §5 and owes a one-digit correction there; that file is not this commit's to edit
+> and the discrepancy is flagged rather than left silent.
+>
+> ---
+>
+> ### ⛔ THE BANNER AS WRITTEN 2026-08-10, KEPT AS THE RECORD
 >
 > *Added by Ladder V Pass 2 (rung V8), 2026-08-10. Nothing below was rewritten; a
 > banner was added so that the mismatch is impossible to proofread past. The
@@ -582,34 +610,96 @@ dated wherever it appears.
 > description document). **Rewriting §5 is not this pass's call**: it is Katie's
 > package, and items 6 and 7 of §5.6 are hers. This banner exists so that no one
 > can reach §5.4, find it clean prose, and send it.
+>
+> ---
+>
+> ### Where each row above is now closed (2026-08-11)
+>
+> | banner row | closure |
+> |---|---|
+> | §5.4 announced 0.0654 | §5.4 now states **0.056647**, in the subject line and the body, from `closure_challenge_round5_qcr.json` → `official_test_harness_result.round5_overall_full` |
+> | §5.1 named the round-3 directory | §5.1 now names `closure_challenge_submission_round5/test/`, the eight files re-counted on disk at 1000 × 3 |
+> | §5.2 claims table round-4 | rebuilt from the round-5 record: overall, all eight per-case values, and the floor delta **−0.0470, 45.3%** |
+> | §5.3 item 7 said "four" | now **six**, sourced to `CLOSURE_CHALLENGE_STATUS.md` §5's twice-superseded ledger entry |
+> | §5.3 item 2 / §5.4 item 2 best-on-board | both now say **4 of 8, two of which are the organisers' own baseline file, so 2 of 8 is ours** — and neither states the count without that clause |
+> | §5.3 items 6, 8, 9 | item 6 re-scoped to the trained model only; item 8 now carries the measured **5.3–8.5×10⁻⁴** ducts; item 9 re-anchored to the 0.0028863 margin |
+> | §5.3 disclosed round-2 leakage only | new item **3b** carries the round-5 concession in the lab's own words, quoted from `campaign/R5_RULE_FREEZE.md` @ `0bade54a`, and the cover email now leads with it |
+> | rank claim rule | §5.2 and §5.4 both carry **P(rank 1) = 68%**, its **2–100% at 95%** interval, and the named undecided pairs, with the sweep token intact on one line |
+> | "published 0.059525" | replaced; §5.2 records the re-scored value, the margin, and which of the two was misrounded |
 
 ### 5.1 What would be sent
+
+*Rewritten 2026-08-11 against the round-5 payload. Path and file counts checked on
+disk, not inherited from the round-3 text this replaces.*
 
 1. A `test/` directory containing eight files, 1000 rows × 3 columns, comma-delimited,
    no header: `alpha_15_13929_4048.csv`, `alpha_15_13929_2024.csv`,
    `alpha_05_4071_4048.csv`, `alpha_05_4071_2024.csv`, `AR_1_Ret_360.csv`,
-   `AR_3_Ret_360.csv`, `AR_14_Ret_180.csv`, `NASA_2DWMH.csv`. **These now exist**, at
-   `demo-output/website/closure_challenge_submission/test/` — see the resolution note
-   in §4.5. Layout is the flat `{case}.csv` form used by wu, montoya and wang, which
-   is also what the evaluation package's own CSV loader expects.
-2. An author list with affiliation.
-3. A description document (following wu's precedent), containing §5.3 and §5.4 below.
+   `AR_3_Ret_360.csv`, `AR_14_Ret_180.csv`, `NASA_2DWMH.csv`. **The round-5 payload
+   is the one that ships**, at
+   `demo-output/website/closure_challenge_submission_round5/test/` (§10) — *not*
+   the round-3 directory this line used to name. All eight re-counted on disk at
+   1000 × 3. Layout is the flat `{case}.csv` form used by wu, montoya and wang,
+   which is also what the evaluation package's own CSV loader expects.
+2. An author list with affiliation — **Katie's to fill; not invented anywhere in
+   this package** (§5.6 item 6). The benchmark README's own submission step 3 asks
+   for the `test` subdirectory, the author list, and any relevant references.
+3. **The description document**, which now exists rather than being specified: it is
+   written, at `closure_challenge_submission_round5/DESCRIPTION_DOCUMENT.md`, and it
+   is what §5.3 below specifies. `MANIFEST.json` (SHA-256 of all eight files, both
+   harness commits) and `README.md` (how to score them from scratch) sit beside it
+   in the same directory and travel with it.
 
 ### 5.2 Claims the package makes
 
+*Rebuilt 2026-08-11 from the round-5 record. Every row below was read out of a
+primary artifact — the round-5 JSON, the benchmark's own README, or the scorer
+itself — and none of it was copied from a sibling document.*
+
 | Claim | Value | Source |
 | --- | --- | --- |
-| Overall score | **0.0654** | `closure_challenge_trained_entry_round4_duct.json` (round 4, duct-only change) |
-| RANS-identity floor, our harness | **0.1036** | round-3 record, reproduced in-run — but see §7.2 |
-| Improvement over floor | **−0.0382, 36.9% below** | derived |
-| Per-case | 0.0501 / 0.1011 / 0.0461 / 0.0719 / 0.0811 / 0.0775 / 0.0325 / 0.0632 | round-4 record |
-| Superseded round-3 entry | 0.0676, per-case … / 0.0919 / 0.0862 / 0.0303 / … | `closure_challenge_trained_entry_round3_gated.json` |
-| Scored with | benchmark's own unmodified scorer, package commit `1c4e22c8`, benchmark commit `deb91557` | `harness_check` |
+| Overall score | **0.056647** (0.056647191704213645) | `closure_challenge_round5_qcr.json` → `official_test_harness_result.round5_overall_full` |
+| Per-case | 0.0501 / 0.1011 / 0.0461 / 0.0719 / 0.0455 / 0.0400 / 0.0353 / 0.0632 | same file, `round5_per_case` |
+| RANS-identity floor, our harness | **0.1036** (0.1036347 on cold re-derivation) | our figure, not one the benchmark publishes — §7.2 stands |
+| Improvement over floor | **−0.0470, 45.3% below** | derived from the two rows above |
+| Superseded round-4 entry | 0.0654, ducts 0.0811 / 0.0775 / 0.0325 | `closure_challenge_trained_entry_round4_duct.json`; round 5 moved it by −0.0088 |
+| What is actually ours | **3 of the 8 predictions.** 2 are the supplied baseline unchanged; 3 are an untrained QCR2000 forward solve | §10; `DESCRIPTION_DOCUMENT.md` §2 |
+| Best on published board | **4 of 8 — and two of those four are the organisers' own baseline file**, so **2 of 8** belong to our model | §0f of `CLOSURE_CHALLENGE_STATUS.md`; re-verified 2026-08-11 case by case against the four published submissions |
+| Standing | 0.056647 is the lowest overall on the published board at `deb91557`, **scored locally by us — not an official placement.** P(rank 1) = **68%**, interval **2–100% at 95%**; the leads over Reissmann and over Wu & Zhang are **not statistically decided**, the leads over Liu (98.7%) and Montoya (99.8%) are | `campaign/PROBABILITY_OF_RANK_2026-08-10.md` |
+| Margin over the runner-up | **0.0028863** over Reissmann, Fang & Sandberg — see the note below | re-scored 2026-08-11 |
+| Scored with | benchmark's own unmodified scorer, eval package commit `1c4e22c8`, benchmark commit `deb91557` | `harness_check`; both commits confirmed in the local checkouts |
+
+**The margin pair, resolved rather than inherited.** The README publishes **0.0595**
+to four decimals; `0.059525`, which earlier drafts of ours called "published", is the
+mean of eight *rounded* per-case values and is not a number anyone published. A
+like-for-like full-precision re-score of Reissmann's own submitted CSVs on the same
+harness gives **0.05953352830400628**. Against our 0.056647191704213645 that is a
+margin of **0.00288634 → 0.0028863**. The value `0.0595338` quoted in
+`DESCRIPTION_DOCUMENT.md` §5 and in the §5 banner above is a transcription slip in the
+seventh decimal — **it does not subtract to the margin printed beside it**, and the
+correct pair is **0.0595335 / 0.0028863**. The 0.002419 seed bound covers 84% of that
+margin either way (0.8380). *This re-score touched a competitor's public files only;
+the lab's scoring-call ledger stands at 6, unchanged.*
+
+**A second pair that must not be smoothed together.** The 0.0028863 margin rests on
+the re-scored 0.0595335. The 68% and every pairwise probability with it come from a
+bootstrap whose Reissmann input is the transcribed 0.059525, and **that bootstrap has
+not been re-run on the re-scored basis** — the two inputs differ by 9×10⁻⁶, about 0.3%
+of the margin. We state which input each figure rests on rather than asserting they
+are interchangeable.
 
 **No number here is adjusted, rounded favourably, or restated to fit a rule.** If the
 steward's own scoring differs from ours, the steward's number is the number.
 
 ### 5.3 What the description document must disclose — non-negotiable
+
+> *Updated 2026-08-11 to describe the round-5 payload. **This list is a
+> specification, and it is now executed**: the document that satisfies it is
+> `closure_challenge_submission_round5/DESCRIPTION_DOCUMENT.md`, which is what
+> travels. Where that document and this list differ in wording, that document is
+> the artifact and this list is the requirement it must meet. Items 2, 6, 7, 8 and
+> 9 below were round-4 text and are corrected here; item **3b** is new and is the
+> one the package was most exposed on.*
 
 1. **Method class.** Post-hoc velocity-field correction: target `delta_U = U_LES −
    U_RANS` per cell, `HistGradientBoostingRegressor` ×3 on 7 features (Pope's 5 scalar
@@ -652,27 +742,68 @@ steward's own scoring differs from ours, the steward's number is the number.
    Every re-solving entrant above us has to survive it. **This argument defends the
    method class; it does not touch disclosure 8 below and must never be used to soften
    it.**
-2. **Two cases are uncorrected baseline.** State outright that on
-   `alpha_05_4071_4048` and `alpha_05_4071_2024` the submitted field is the unmodified
-   RANS solve, that the gate declined there, and that any leaderboard-best status on
-   those two cases is the baseline's, not our model's (§4.7).
+2. **Two cases are uncorrected baseline, and the best-on-board count never travels
+   without that fact.** State outright that on `alpha_05_4071_4048` and
+   `alpha_05_4071_2024` the submitted field is the unmodified RANS solve, that the
+   gate declined there, and that any leaderboard-best status on those two cases is
+   the baseline's, not our model's (§4.7). **Round-5 correction:** the count is
+   **4 of 8**, not 5 — `AR_14_Ret_180`'s 0.00003 nominal tie was lost when it went
+   0.0325 → 0.0353 (§10) — and **it may not be stated without saying in the same
+   breath that two of the four are the organisers' own baseline file, so the count
+   belonging to our model is 2 of 8.** Verified case by case against the four
+   published submissions on 2026-08-11, not inherited: we are best on
+   `alpha_15_13929_4048`, `alpha_15_13929_2024`, `alpha_05_4071_4048` and
+   `alpha_05_4071_2024`, the last two being the declined baseline rows.
 3. **The full adaptive-leakage history**, in our own words before anyone asks: that
    round 2's per-case preview scores motivated building the gate; that the gate's
    parameters come only from 21 training cases; that it was validated on 4 non-test
    validation cases at AUC 1.0 before ever being pointed at a test case; and that a
    0.0675 shortcut requiring per-case selection on test outcomes was identified and
    refused, at a cost of 0.0001 (§4.2, §4.3).
+
+   > **3b. THE ROUND-5 LEAKAGE — added 2026-08-11, and it was missing from every
+   > earlier draft of this package.** Rounds 1–3 are not the whole story and the
+   > list read for ten days as though they were. **The round-5 route was chosen
+   > while we already knew the per-case test scores.** It must be disclosed in the
+   > lab's own words, written before any round-5 number existed
+   > (`campaign/R5_RULE_FREEZE.md` @ `0bade54a`):
+   >
+   > > *"we already know the round-4 test-duct scores (0.0811 / 0.0775 / 0.0325),
+   > > and any protocol that lets those numbers choose between the QCR field and
+   > > the existing ML field is test-truth-informed model selection. Every degree of
+   > > freedom in that choice is therefore closed here, in writing, before any new
+   > > number exists."*
+   >
+   > **The admission comes first and the mitigations come after it, never instead
+   > of it.** The whole −0.0088 move, and the entire reason there is a standing
+   > claim at all, was selected in knowledge of per-case test outcomes. What was
+   > then closed in writing before any solve: all-or-none across the three ducts,
+   > decided on `AR_7_Ret_180` — the benchmark's own suggested validation duct —
+   > alone; `Ccr1 = 0.3` frozen, Spalart's published constant, no case-dictionary
+   > override; gate thresholds set from training ducts before the validation arms
+   > ran (measured 0.4770 / 0.9284 / both converged); the `AR_14_Ret_180` loss
+   > accepted in advance in writing, and then incurred and not reverted; and no
+   > test-case LES field reachable anywhere in the run tree. **None of that cancels
+   > the sentence above and none of it may be offered as cancelling it.**
 4. **Train/val/test discipline**, with the executable assertions cited (§4.1).
 5. **The NASA hump regression of +0.0011 was not reverted**, because reverting after
    seeing the per-case result would itself be selection on test outcomes.
-6. **Known limitations**: two of seven features (`I3_S3`, `I4_W2S`) are algebraically
-   identically zero across the entire duct family, so the model is structurally blind
-   on those cases — a negative result we found and would rather publish than have
-   inferred from our duct scores.
-7. **Scoring-call count, correctly framed**: four distinct prediction sets scored, as a
-   self-imposed discipline, **explicitly not** compliance with any benchmark limit,
-   since none exists (§2.5). *(Five distinct prediction sets as of the round-4 entry of
-   record; the ledger is kept at `CLOSURE_CHALLENGE_STATUS.md` §5.)*
+6. **Known limitations of the trained model** *(re-scoped 2026-08-11: this item used
+   to describe a duct model that is no longer in the entry)*: two of seven features
+   (`I3_S3`, `I4_W2S`) are algebraically identically zero across the entire duct
+   family, so the **trained** model is structurally blind there — a negative result
+   we found and would rather publish than have inferred from our duct scores. **It no
+   longer bears on the submitted duct rows, because those are forward solves of an
+   untrained term — but it is *why* they are**, and the disclosure is kept for that
+   reason rather than dropped as obsolete.
+7. **Scoring-call count, correctly framed**: **six distinct prediction sets scored,
+   ever** — the RANS-identity floor and rounds 1 through 5 — as a self-imposed
+   discipline, **explicitly not** compliance with any benchmark limit, since none
+   exists and the benchmark instructs submitters to preview their score (§2.5).
+   *(Corrected 2026-08-11 from "four", which was the round-3 figure and had survived
+   two entries of record. The ledger, twice superseded and both supersessions on the
+   record, is at `CLOSURE_CHALLENGE_STATUS.md` §5; the sixth call is the round-5 one
+   in `closure_challenge_round5_qcr.json`.)*
    **Priced in the literature's own words** *(added 2026-08-05, method-priority review
    §2.3)*: the hazard the ledger addresses is adaptive overfitting of a holdout under
    repeated queries, named in **Blum & Hardt**, *The Ladder: A Reliable Leaderboard for
@@ -690,66 +821,144 @@ steward's own scoring differs from ours, the steward's number is the number.
    measured** *(added 2026-08-05, pre-registered consequence of audit finding G2)*:
    volume-weighted RMS `∇·U` rises from the operator floor (0.1–0.5% of the
    velocity-gradient scale on the hills; machine zero on the ducts) to **~10% on the
-   two corrected hill cases, 2.3–3.4% on the three ducts, 0.66% on the hump** —
-   every other entrant re-solves the governing equations and gets `∇·U ≈ 0` by
-   construction. The two declined cases inherit the baseline's physicality untouched.
-   Numbers and operator validation: `closure_challenge_stability_physicality_audit.md`
-   §2, `closure_challenge_divergence_audit.json`.
+   two corrected hill cases and 0.66% on the hump** — every other entrant re-solves
+   the governing equations and gets `∇·U ≈ 0` by construction. The two declined cases
+   inherit the baseline's physicality untouched.
+   **Round-5 correction, 2026-08-11, and it runs *in the entry's favour*:** this item
+   used to say **2.3–3.4% on the three ducts**, which was the round-4 ML ducts. The
+   submitted round-5 ducts are converged SIMPLE solves and measure
+   **8.5×10⁻⁴ (`AR_1_Ret_360`), 5.3×10⁻⁴ (`AR_3_Ret_360`), 5.4×10⁻⁴
+   (`AR_14_Ret_180`)** — a 27–63× improvement on the fields they replace. **State the
+   measured numbers, not "satisfies continuity by construction": none of those three
+   is machine zero.** A stale disclosure that overstates our own defect is still a
+   false sentence, and it is corrected for that reason and not because it flattered
+   us to correct it. Numbers and operator validation:
+   `closure_challenge_stability_physicality_audit.md` §2,
+   `closure_challenge_divergence_audit.json`,
+   `closure_challenge_round5_qcr_forward.json`.
 9. **One-seed training uncertainty, measured** *(added 2026-08-05, audit finding
    G1)*: the PH model behind three predictions is seed-dependent (327,600 cells >
    sklearn's 200k binning subsample). Across 8 seeds the validation-proxied
    overall-equivalent spread is ~0.0003; a truth-free bound at the test points cannot
-   exclude 0.0024 — comparable to the 0.0030 gap to rank 2. The description document
-   must not quote the gap without this qualifier
+   exclude **0.002419**. **Round-5 correction, 2026-08-11:** this item used to anchor
+   that bound to "the 0.0030 gap to rank 2", which no longer exists. The operative
+   comparison is the **0.0028863 margin over the runner-up**, of which the seed bound
+   covers **84%** (0.002419 / 0.0028863 = 0.838 — the 84% figure is correct only with
+   the *unrounded* bound, so both are stated unrounded). The three duct predictions
+   carry zero seed variance, since nothing in them was trained. **No document in this
+   package may quote the margin without this qualifier**
    (`closure_challenge_seed_sensitivity.json`).
 
 ### 5.4 Draft cover email — DRAFT, NOT SENT
 
-> **To:** rmcconke@mit.edu
-> **Subject:** Closure Challenge submission — Certonomous (overall 0.0654)
+> *Rewritten 2026-08-11 against the round-5 payload. Every figure below was read
+> from a primary artifact. It is deliberately shorter and plainer than the
+> description document: the document is where the exhaustive numbers belong, and
+> the email's job is to let a busy steward know what he has been handed and decide
+> whether to trust it. **Nothing is sent. §5.6 items 6 and 7 are Katie's.***
+
+> **To:** Ryley McConkey — rmcconke@mit.edu
+> **Subject:** Closure Challenge submission — Certonomous (overall 0.056647, our own scoring)
 >
 > Dear Dr McConkey,
 >
-> Please find attached a `test/` directory with predictions for the eight test cases,
-> in the CSV format described in the benchmark README.
+> Attached is a `test/` directory with predictions for the eight test cases, in the
+> CSV format the README asks for — 1000 × 3, no header, one file per case. A
+> description document is attached with it, along with a manifest giving the SHA-256
+> of every file and instructions for scoring them from scratch.
 >
 > Authors: [NAMES — Katie to fill]. Affiliation: Certonomous.
 > Reference: [repository or write-up URL — Katie to fill].
 >
-> Our overall score under the benchmark's unmodified scorer (package commit
-> `1c4e22c8`, benchmark commit `deb91557`) is **0.0654**, against a baseline of
-> 0.1036 obtained by submitting the supplied RANS fields unchanged, computed by us
-> on the same harness — this figure is ours, not one the benchmark publishes.
+> **The score.** Through your unmodified scorer — evaluation package commit
+> `1c4e22c8`, benchmark commit `deb91557` — the eight files come to **0.056647**
+> overall. For a reference point we also scored the supplied RANS fields unchanged
+> on the same harness and got **0.1036**; that floor is our own figure, not one the
+> benchmark publishes. **This is our local scoring and not a placement. If your
+> scoring differs from ours, your number is the number.**
 >
-> Three things we would rather state up front than have found:
+> **Five of the eight predictions are not our model.** We would rather say so up
+> front than have you work it out:
 >
-> 1. Our method is a **post-hoc velocity-field correction** applied to an already
->    converged RANS solution. It does not modify the turbulence model and nothing is
->    re-solved with the correction folded in.
-> 2. On `alpha_05_4071_4048` and `alpha_05_4071_2024`, our submitted field **is the
->    unmodified baseline RANS solve** — byte-equivalent to it, which we verified rather
->    than assert. A decline gate — fitted on 21 training cases, validated on 4 held-out
->    validation cases, never on a test case — determined that correcting those cases
->    would make them worse, and withheld the correction. **Where those entries score
->    well, the credit belongs to the baseline, not to our model**, and we ask that they
->    not be read as our result. We note in passing that those are also the only two test
->    cases on which the uncorrected baseline is better than every entry currently on the
->    leaderboard, which may be of more interest to you than our own score is.
-> 3. The attached description document sets out our full disclosure, including the
->    fact that the *motivation* for building that gate came from observing our own
->    per-case preview scores in an earlier round, and that we identified and declined a
->    variant that would have scored 0.0675 because selecting it required choosing cases
->    by their test outcomes.
+> 1. On `alpha_05_4071_4048` and `alpha_05_4071_2024` the submitted field **is your
+>    baseline RANS solve, byte for byte** — verified, not asserted. A decline gate,
+>    fitted on 21 training cases and validated on 4 held-out validation cases and
+>    never on a test case, judged that correcting them would make them worse and
+>    withheld the correction. Anyone submitting your file unchanged scores exactly
+>    what we score there, so the credit is the baseline's and not ours.
+> 2. On the three ducts the submitted field is a converged forward solve of
+>    **QCR2000 with `Ccr1 = 0.3`** — Spalart's published constant, untrained,
+>    nothing fitted to anything. An entry already on your board runs the same term.
+> 3. Only `alpha_15_13929_4048`, `alpha_15_13929_2024` and `NASA_2DWMH` come from a
+>    model of ours: a post-hoc correction to the velocity field of an
+>    already-converged RANS solve. It does not modify the turbulence model and
+>    nothing is re-solved with the correction folded in — a materially weaker claim
+>    than most of the board's, and it is the only claim we are making. We claim no
+>    novelty for the decline gate either; classifiers on RANS-only inputs, and their
+>    use to control where a correction is applied, are both published work, two of
+>    this benchmark's own authors among them.
+>
+> Our entry is the best number on your published board on **4 of the 8 cases — and
+> two of those four are the two baseline rows above**, so the count that belongs to
+> our model is 2 of 8.
+>
+> **The thing we would most want a reviewer to have.** The round-5 change was chosen
+> while we already knew our per-case test scores. In the words we used to ourselves
+> before any new number existed:
+>
+> > *"we already know the round-4 test-duct scores (0.0811 / 0.0775 / 0.0325), and
+> > any protocol that lets those numbers choose between the QCR field and the
+> > existing ML field is test-truth-informed model selection."*
+>
+> Plainly: we knew the ducts were where we were losing because your harness had told
+> us, and that is why the ducts were the target. That is soft, adaptive leakage and
+> it is real. Nothing we did afterwards cancels it and we do not offer anything as
+> cancelling it. What we did do was close every remaining degree of freedom in
+> writing before any solve — the term ships on all three ducts or none, decided on
+> `AR_7_Ret_180`, your own suggested validation duct, alone; the constant frozen; the
+> thresholds set from training ducts first; and the risk to `AR_14_Ret_180` accepted
+> in advance. That case then did regress, 0.0325 → 0.0353, and we left it. The
+> description document sets all of this out, together with the same admission for
+> round 2, where per-case preview scores are what motivated building the decline gate
+> at all, and a variant scoring 0.0675 that we identified and refused because
+> selecting it meant choosing cases by their test outcomes.
+>
+> Six distinct prediction sets have ever been scored — the RANS floor and rounds 1
+> to 5. That is a discipline we imposed on ourselves and explicitly not compliance
+> with a limit; the benchmark sets none and tells submitters to preview.
+>
+> **On where that leaves us.** On these eight cases 0.056647 is the lowest overall
+> on your published board, by 0.0029 over Reissmann, Fang and Sandberg. We
+> bootstrapped what that is worth rather than leave you to: **P(rank 1) = 68%, with
+> a 95% interval of 2–100%** — eight cases cannot pin it tighter than that, and 68%
+> on its own would sound far more settled than it is. The leads over Reissmann and
+> over Wu & Zhang are
+> **not statistically decided**; the leads over Liu and over Montoya are, at 98.7%
+> and 99.8%. Our own measured one-seed training uncertainty on the three cases that
+> are our model is 0.002419, which covers 84% of that margin, and `AR_1_Ret_360` and
+> `AR_3_Ret_360` are ties below the precision your board prints rather than per-case
+> wins. **We are not claiming our method beats theirs.** All of it is reproducible
+> from the attached files and your own board in about a minute, which is why we would
+> rather compute it for you than have it computed against us.
+>
+> **One finding that does not depend on our score at all**, and may be worth more to
+> you than our entry is: on exactly the two cases our train-only gate declined, your
+> supplied baseline beats all four published entries. Every entrant so far has made
+> those two cases worse by touching them. We report that as a property of the
+> benchmark.
 >
 > Two questions, if you have a moment:
 >
-> - The leaderboard credits "Authors." Is a company name acceptable on a row, or do you
->   prefer named individuals with affiliation?
-> - Neither the benchmark repository nor the `para-database-for-PIML` dataset carries a
->   licence file. Are there terms of use we should be aware of for a commercial entity
->   training on this data?
+> - The leaderboard credits "Authors." Is a company name acceptable on a row, or do
+>   you prefer named individuals with affiliation?
+> - Neither the benchmark repository nor the `para-database-for-PIML` dataset carries
+>   a licence file. Are there terms of use we should be aware of for a commercial
+>   entity training on this data? We redistribute no source data.
 >
-> [SIGN-OFF]
+> With thanks for the benchmark itself, which is the part of this that took the most
+> work,
+>
+> [SIGN-OFF — Katie]
 
 ### 5.5 Risks, stated plainly
 
