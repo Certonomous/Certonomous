@@ -3737,6 +3737,47 @@ Written by the agent that built the guard and closed the exceptions; **the re-gr
 - **State: 1384 passed**, 79 in the guard file. Every travelling surface agrees with the board; the 2 remaining WARNs
   are pre-existing declared mentions in another agent's file. **It did not re-grade itself, for the third time.**
 
+### 2026-08-11 — V16 grade four: three exceptions, the smallest set, and the first absolute to survive execution
+
+- **THE CRASH BOUNDARY IS THE FIRST ABSOLUTE IN THIS RUNG TO SURVIVE EXECUTION.** 17 exception types nobody had used
+  were thrown at the wrapped region: **16 of 16 `Exception`s → OFF naming the type**, and the three `BaseException`s
+  propagate **exactly as documented.** *"The reason is that it was scoped to `Exception` rather than to everything."*
+  The only defeat the grader could construct requires an exception whose own `__str__` raises — unreachable from the
+  wrapped code — **and it declined to count that as a fourth absolute.** Restraint in the right direction.
+- **The recompute was verified by mutation**: one sentence changed in the grader's own committed set moved the figure
+  **20 → 19** and **reddened the test with a message naming both numbers and the sample**; restored byte-for-byte.
+  Unmutated it agrees exactly.
+
+**THE THREE OPEN, and the first is this whole night's defect class inside the guard built to fix it:**
+
+1. **A DEFECT IN THE GUARD'S OWN LOGIC RETURNS PASS.** The new boundary is narrow, correctly. But an **older
+   per-surface `except Exception`** is not: make the placement scan raise on **exactly the one surface carrying a
+   defect**, and the check returns **PASS — "all 0 placement expression(s) agree with the published board"** — with
+   the skip counted in the frame and **invisible to the verdict.** In the grader's words: *"that is the green that
+   means 'I looked at nothing,' which this rung has already refused once in its own words."* Pre-existing and **live**.
+2. **A FALSE STATEMENT ABOUT THE CORPUS IS HOLDING A HOMONYM EXCLUSION OPEN.** The comment justifying one narrowing
+   says *"every linear-algebra `rank` in this corpus is a word."* **It is not — four are digits**, including a
+   *"rank-2 tensor"* and a *"pointwise rank 3"*. None faults today **only because none sits within 40 characters of a
+   board surname** — and three sentences of plausible turbulence prose about entrants **who are themselves turbulence
+   authors** would produce false positives. Measured rate still zero; **the class is latent.**
+3. **Rule B's "5 of 5" has no committed sentences and no recompute** — sitting beside three rows that have both,
+   **under a comment saying "It cannot happen again."**
+
+- **THE L-76 PATTERN HELD A FOURTH TIME — and the fourth absolute was in the surface class the author's own sweep does
+  not name.** That sweep covered 36 absolute-shaped words across 17 surfaces and was **honest about what it swept**;
+  what it omitted is **module comments — where this guard's most load-bearing justifications live.** 166 swept, 22
+  carry an absolute, **two fail.** *An enumeration that misses a surface class is the same defect one level up.*
+- **Weighed as asked, and agreed without qualification:** one edit from DISABLED beats one edit from WRONG, because
+  **"a loud OFF is a fact about the instrument; a silent wrong board is a false fact about the world."** One
+  operational note added: **the trip condition lives in a repository this lab does not control**, so a periodic read
+  of that margin turns a surprise into a notice.
+- **"Not green today; I would expect to call it green on the next read."** The three are one tuple plus a test, one
+  alternation, and one status line.
+- **V15 round 5 is scoped and split by writer**, with the grader **routing its own four grade sections, its evidence
+  file and four commit messages to a third party.** It flags that **`scripts/self_audit.py`'s docstrings, comments,
+  BASIS and generated verdict line are claim-bearing prose that ships inside code and that no claims table has ever
+  covered** — and that **no surface may still read the retired "89% → 30%" pairing.**
+
 ### Decision requests for Katie (standing)
 
 **COMPUTE AUTHORISATION REQUESTED — 40 core-min to convert an assumed boundary into a measured one.**
