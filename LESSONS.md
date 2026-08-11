@@ -3511,3 +3511,52 @@ disagree, publish both and let the disagreement be the finding. Related: L-74 (t
 check that shares the knowledge), L-66 (overlap measures template reuse — assert
 disjointness, never trust it), L-75 (state the frame), L-76 (a bounded claim is not a
 false one), L-79 (recompute, never transcribe).
+
+## L-83. Fixing a circular measurement moves the circle up one level, onto the test that guards it — and the move is silent, because the test still looks tight
+
+**Where:** Ladder V rung V16, grade round 7 (`db18553b`) and round 8 (`5e4a0cc5`).
+`scripts/self_audit.py`, `sdk/tests/test_rank_claim_surfaces.py`.
+
+**The setup.** V16's closing condition was that the guard **state what it costs**: publish
+a precision figure and enumerate the false-FAULT classes, with a ruling that a shape may
+stand unfixed *provided it is counted in the figure and named in the list*. The proviso got
+a test, `test_every_false_fault_class_is_counted_and_named`, and by every ordinary standard
+it was a good one — dict equality in **both** directions plus a sum, so a shape could not be
+counted in the figure and quietly dropped from the list, or the reverse. It was read by a
+grader, verified against the numbers, and reported as binding.
+
+**It computed both sides over the author's own set.** So a test whose entire subject is
+*"every false-FAULT class is counted and named"* could only ever see classes the author had
+already thought of. The measured half was fixed — L-74 was applied to the **figure**, and a
+second, blind set was commissioned exactly as L-74 and L-82 say to. Nobody applied it to the
+**test guarding the figure**, which sat one level up and inherited the defect intact.
+
+**What it cost:** two false-FAULT shapes — a placement on a different explicitly named
+ranking, and a negated or interrogative ordinal — faulting at 2 of 2 apiece, counted in no
+figure and named in no list, on a guard whose rule-A fault on a travelling surface is FAIL
+severity. Neither was exotic. A citation ranking and a denial are things a submission
+document contains.
+
+**Why it survived a careful reading.** The test *was* tight. Every property it asserted, it
+asserted in both directions. What it could not do was widen its own denominator, and nothing
+in the test's text says what its denominator is — the set arrives as `self._held_out(...)`
+and reads like an input rather than like the boundary of the claim. **A test's binding
+strength and its coverage are different quantities, and reviewing the first tells you
+nothing about the second.**
+
+**The rule.** When you fix a circular measurement by commissioning an external referent, ask
+immediately: *what else in this repair is scored by the party being measured?* The figure was
+the obvious answer and it was not the only one. Walk one level up — to the test, to the test's
+fixture, to whoever writes the mapping between the outsider's vocabulary and yours — and stop
+only when the last author-written step is **named in the record** rather than eliminated,
+because it usually cannot be eliminated. Round 8's fix leaves exactly one such step (which of
+the outsider's sentences belongs to which named class is still the author's judgment) and
+that step is filed as docket D47 rather than reported as fully external.
+
+**The general form, which is the part worth keeping.** Every self-measurement bottoms out in
+a step its own author writes. Each repair moves that step further from the number and makes
+it harder to see. **The honest end state is not "no circularity" — it is "the circularity is
+one step wide, and here is which step."** Related: L-74 (a check sharing the knowledge of the
+thing it checks measures transcription fidelity), L-82 (the insider's number is the optimistic
+one, and the gap is measurable for the price of one more sample), L-76 (execution falsifies
+absolutes; keep the falsified claim, stop asserting it), L-79 (recompute, never transcribe).
