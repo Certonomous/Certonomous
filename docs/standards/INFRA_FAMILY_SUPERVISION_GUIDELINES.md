@@ -1,5 +1,10 @@
 # Infrastructure and Standards Family Supervision Guidelines
 
+Version 1.17, dated 2026-08-11. S6's COVERAGE sentence was false within
+hours of S6's wiring being true: the gate has one arming site and the Ahmed
+act never reaches it. Corrected by enumerating call sites, with the test that
+can see it, and the other coverage claims derived and checked.
+
 Version 1.16, dated 2026-08-10 (night). S6 wired under the chief's ruling,
 pre-registered before the code and scored with the shipped helpers rather than
 the design script; every prediction met. Generalises 13.4's corollary: **every
@@ -1444,6 +1449,54 @@ plausible universe it covers.
 
 The cleanest demonstration this family has produced that a list is not a
 derivation: **`*.log` plus `log.*` still misses 96 real run logs.**
+
+### 13.8. The wiring was true; the coverage sentence was false six hours later
+
+L-55 again, on the rule whose L-55 defect this family corrected the same day.
+S6's gate works and its measured rates stand. **Where it runs did not match
+what the standard said.** `arm_residual_gate` has exactly ONE non-test call
+site, inside `stage_case`; `ahmed_body.py` builds a `HeadEngineer`, calls
+thirteen of its methods, and **`stage_case` is not among them**. The coverage
+column named *"HeadEngineer (geometry studies, Ahmed, hump, UQ)"* and S6 was
+marked as firing for all of it.
+
+**Corrected by enumerating the six call sites** that reach `stage_case`, and
+naming `ahmed_body.py` as not armed -- because **naming a family is what went
+wrong**, and a correction that named a different family would repeat it.
+
+**Why the tests could not catch it, which is the reusable part.** Every S6
+test built its engineer with `HeadEngineer.__new__` and called
+`arm_residual_gate` directly. Those prove the gate works WHEN ARMED and can
+say nothing about whether it GETS armed: **a test that reaches past the
+constructor cannot see a constructor that never calls the thing.** The added
+test goes through the real staging path and asserts the arming happened
+without the caller asking; a second test pins the arming-site count at one, so
+a new site makes the standard's enumeration stale loudly instead of quietly.
+
+**Rule: a coverage claim is tested through the same door production uses.** A
+unit test of the mechanism is not evidence about reach, and this family has
+now written that sentence twice in one day about two different mechanisms.
+
+### 13.9. The other coverage claims, derived and checked
+
+Not listed -- derived. Claim shape: a rule identifier, a coverage verb, and an
+entity; checkable only if the entity resolves to code. **14 per-rule coverage
+claims** in the monitor standard; 13 name only prose. Classified by reading
+each:
+
+- **corpus fire-counts** (S2 on 449 logs, S7 on 68 of 106, S12 on 760
+  histories, and the rest) -- measurements, not production-reach claims, and
+  each carries a replay artifact. Their reach is now governed by the
+  corpus-derivation rule added at the adoption gate.
+- **scope claims** -- "S6 and S7 are scoped to steady solves". **Enforced in
+  code**: `_check_series` opens with `if self._transient: return`. S8's
+  transient scope is self-enforcing rather than guarded, since a steady log
+  contains no Courant line at all -- scope by construction, which is stronger
+  than a guard.
+- **production-reach claims** -- exactly one, S6's, and it was the false one.
+
+So the derived answer is that the failing shape appeared once and is fixed,
+and the check that establishes it is repeatable rather than a one-off reading.
 
 ## Related
 

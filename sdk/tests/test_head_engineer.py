@@ -522,3 +522,62 @@ class S6ArmingTests(unittest.TestCase):
         self.assertIsNone(eng.monitor.residual_target)
         eng.arm_residual_gate()
         self.assertIsNotNone(eng.monitor.residual_target)
+
+
+class S6ArmedThroughStagingTests(unittest.TestCase):
+    """The gate must get ARMED, not merely work when armed.
+
+    WHY THIS EXISTS. Every other S6 test builds its engineer with
+    `HeadEngineer.__new__` and calls `arm_residual_gate` directly. Those prove
+    the gate works when armed and can say NOTHING about whether it gets armed
+    on any real path -- a test that reaches past the constructor cannot see a
+    constructor that never calls the thing. That blind spot let a false
+    coverage sentence stand in `MONITOR_STANDARD.md` for six hours: it claimed
+    S6 fired on the Ahmed act, whose runner never calls `stage_case` and so
+    never arms the gate. This test goes through the real staging path.
+    """
+
+    FVSOLUTION = ("solvers { p { solver GAMG; tolerance 1e-08; } }\n"
+                  "SIMPLE { residualControl { p 1e-4; } }\n")
+
+    def _engineer(self, tmp):
+        from chief_engineer.head_engineer import HeadEngineer
+        eng = HeadEngineer("s6-staging", tmp)
+        calls = []
+
+        def fake_wsl(command, timeout=600.0):
+            calls.append(command)
+            if "fvSolution" in command:
+                return SimpleNamespace(stdout=self.FVSOLUTION, stderr="")
+            if "echo STAGED" in command:
+                return SimpleNamespace(stdout="STAGED\n", stderr="")
+            return SimpleNamespace(stdout="", stderr="")
+
+        eng._wsl = fake_wsl
+        return eng, calls
+
+    def test_staging_a_case_arms_s6_without_the_caller_asking(self):
+        import tempfile, shutil
+        tmp = Path(tempfile.mkdtemp(prefix="s6-stage-"))
+        self.addCleanup(shutil.rmtree, tmp, True)
+        eng, _ = self._engineer(tmp)
+        self.assertIsNone(eng.monitor.residual_target,
+                          "a fresh engineer must start with S6 disarmed")
+        eng.stage_case("/tutorials/incompressible/simpleFoam/motorBike")
+        self.assertEqual(eng.monitor.residual_target, 1e-4,
+                         "stage_case did not arm S6 -- the gate is reachable "
+                         "only through this path, so a runner that stages a "
+                         "case another way gets no S6 at all")
+
+    def test_the_gate_is_reachable_from_exactly_one_production_path(self):
+        """Pins the fact the corrected coverage sentence rests on. If a second
+        arming site appears, the enumeration in MONITOR_STANDARD.md is stale
+        and this fails until it is updated."""
+        import inspect
+        from chief_engineer import head_engineer as he
+        src = inspect.getsource(he)
+        sites = [ln.strip() for ln in src.splitlines()
+                 if "arm_residual_gate()" in ln and "def " not in ln]
+        self.assertEqual(len(sites), 1, f"expected one arming site, got {sites}")
+        self.assertIn("arm_residual_gate()",
+                      inspect.getsource(he.HeadEngineer.stage_case))

@@ -1004,7 +1004,7 @@ whether a rule is correct: every rule below is implemented and tested.
 | rule | HeadEngineer (geometry studies, Ahmed, hump, UQ) | mega-batch ledger | offline replay | tests |
 |---|---|---|---|---|
 | S1-S5, S7, S10-S12 (ungated) | fires | — | fires | fires |
-| **S6** residual stall | **fires** (armed at staging from the case's own `residualControl`, 2026-08-10) | — | fires | fires |
+| **S6** residual stall | **fires on the six paths that call `stage_case`** — see the correction below; NOT on paths that stage a case another way | — | fires | fires |
 | **S8** Courant excursion | **UNREACHABLE** (needs `courant_limit`) | — | — | fires |
 | **S9** wall-time excursion | **UNREACHABLE** via `check_wall_time` | fires, via `wall_time_record_field` | — | fires |
 
@@ -1030,6 +1030,43 @@ that looks like it is an artifact:
   a run-to-the-cap sentinel from a single case family that no solve reaches.
   The 37 was not S6's fire rate; it was one family measured against an
   unreachable number.
+
+> **COVERAGE CORRECTED, 2026-08-10 (same day as the wiring). The gate works;
+> the sentence about where it runs did not.** The v1.7 note said S6 "fires on
+> production runs" against a column headed *"HeadEngineer (geometry studies,
+> Ahmed, hump, UQ)"*. **The Ahmed act never arms it.**
+>
+> `arm_residual_gate` has exactly ONE non-test call site: inside `stage_case`
+> (`head_engineer.py:986`). `ahmed_body.py` constructs a `HeadEngineer` and
+> calls thirteen of its methods — `_run_step`, `collect_mesh_stats`,
+> `restore_cached_mesh`, `decompose_for_parallel`, `postprocess` and more —
+> **and `stage_case` is not among them.** It stages its case another way, so
+> the gate is never armed and S6 cannot fire there.
+>
+> **Armed on exactly these call sites**, enumerated rather than named by
+> family, because naming a family is precisely what went wrong:
+>
+> | path | line |
+> |---|---|
+> | `sdk/workflows/geometry_study.py` | 1819 |
+> | `sdk/workflows/nasa_hump.py` | 575 |
+> | `sdk/workflows/onera_m6.py` | 425 |
+> | `sdk/workflows/crm_wingbody.py` | 187 |
+> | `sdk/scripts/run_uq_studies.py` | 192 |
+> | `sdk/chief_engineer/head_engineer.py` (own `__main__`) | 1652 |
+>
+> **NOT armed:** `sdk/workflows/ahmed_body.py`, and any future runner that
+> stages a case without going through `stage_case`.
+>
+> **Why the tests could not catch this.** Every S6 test built its engineer
+> with `HeadEngineer.__new__` and called `arm_residual_gate` directly. They
+> prove the gate works WHEN ARMED and can say nothing about whether it GETS
+> armed — a test that reaches past the constructor cannot see a constructor
+> that never calls the thing. A test going through the real staging path is
+> added with this correction.
+>
+> Nothing in the S6 pre-registration or its measured rates is affected: those
+> are claims about the gate's behaviour when armed, and they stand.
 
 ### Before adopting any rule: state your corpus's reach
 
