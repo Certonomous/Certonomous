@@ -446,7 +446,8 @@ entry `demo-output/website/ACTIVE_RESEARCH.md`, Ladder C (commit
 
 **One sentence**: replacing the round-4 ML duct correction with a converged
 forward solve of the untrained QCR2000 constitutive term (`kOmegaSSTQCR`,
-`Ccr1 = 0.3`, nothing fitted to anything) on the three test ducts — all
+`Ccr1 = 0.3` — **Spalart (2000)**'s published constant, not ours; nothing
+fitted to anything) on the three test ducts — all
 other five CSVs byte-identical to round 4 — moved the overall **0.0654 →
 0.0566** (−0.0088), which is **below Reissmann's published 0.059525**:
 **rank 1 of 5, scored locally at benchmark commit `deb91557`**, dated
@@ -973,7 +974,8 @@ Part 1 column (b) and finding G3. Companion stability/physicality evidence:
 ## The closure metric moved: 0.0741 → 0.0676 → 0.0654 → 0.0566
 
 **Round 5 (§0f, the entry of record) took the ducts again, this time with
-physics instead of a fit**: the untrained QCR2000 constitutive term, forward
+physics instead of a fit**: the untrained QCR2000 constitutive term of
+**Spalart (2000)**, run at his published `Ccr1 = 0.3`, forward
 solved to convergence on the three test ducts under a rule frozen before any
 solve, moved the metric **−0.0088, from 0.0654 to 0.0566** — below
 Reissmann's published 0.059525, **rank 1 of 5 scored locally at benchmark
