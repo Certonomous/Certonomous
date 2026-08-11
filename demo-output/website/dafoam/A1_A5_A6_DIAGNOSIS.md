@@ -498,17 +498,27 @@ like a defect. The framework's own full-chain analytic for the same component is
 
 **Four instruments at idx8, and three of them agree:**
 
-| instrument | idx8 value | routes through `warpDeriv`? |
-|---|---|---|
-| framework FD (`check_totals`) | **+0.78390** | no (it perturbs the shape and re-solves) |
-| direct-`Xv` FD, warp bypassed | **+0.79408** | no |
-| direct-`Xv` analytic, warp bypassed | **+0.78709** | no |
-| **framework analytic (`check_totals`)** | **−0.84455** | **yes** |
+| instrument | idx8 value | source | routes through `warpDeriv`? |
+|---|---|---|---|
+| framework FD (`check_totals`) | **+0.78391094** | `a5pl_stock_checktotals.log:13570` | no — it perturbs the shape and re-solves |
+| direct-`Xv` FD, warp bypassed | **+0.79408384** | `a5_noisefloor_np1_run1.log:2512` | no |
+| direct-`Xv` analytic, warp bypassed | **+0.78709124** | `a5_noisefloor_np1_run1.log:2512` | no |
+| **framework analytic (`check_totals`)** | **−0.84337258** | `a5pl_stock_checktotals.log:13562` | **yes** |
 
 The outlier is the one path that crosses the warp. This is a bisection, not an analogy, and it
 kills for A5 — by direct measurement rather than by transfer from A1 — the adjoint boundary
 condition, the residual/transpose convention, and the objective's patch handling: all of those
 live in the link that reads 0.17%.
+
+**Stated against the bisection: it is clean at idx8 and it is not clean everywhere.** The same
+probe at the other two components it covers (`a5_dobjdxv_np1_run1.log:2156, 2551, 2946, 3341`)
+reads idx17 at 0.67% for h=1e-4 but **56.7%** at h=5e-5, and idx2 at 390% then 268% with the
+sign flipping between the two steps. The probe perturbs the volume mesh directly, and
+`||delta_Xv||` is 2.6–3.1 — a large perturbation whose direct-`Xv` finite difference is plainly
+leaving its linear regime at those components. **So the bisection is decisive at idx8 and
+inconclusive at idx2 and idx17**, and I am not extending it beyond the component where its own
+step-refinement behaves. idx8 is the flagship flip and it is enough to carry the localisation;
+it is not enough to characterise the whole vector, which is what P-4 in §5 would buy.
 
 **The FD instrument itself is exonerated by an executed noise-floor control**
 (`a5_noisefloor_np1_run1.log:2116-2117`):
