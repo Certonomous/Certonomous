@@ -2670,6 +2670,53 @@ clock-audit rule asks for.]*
 - Recorded as **L-62**: a test whose verdict depends on spare cores is a load sensor wearing a test's clothes;
   when a test disagrees between people, suspect the environment before the observers.
 
+### 2026-08-11 — the convergence-target audit exonerates the runs, corrects our own count, and finds the detector's headline is not held-out
+
+**The audit was sent to look for false convergence claims and found none — that is the result, and it is a good one.**
+
+- **Frame first, and it corrected my brief twice.** The corpus is **21 of 21** of the eligible population, not a
+  sample — `residualControl` lives only in `fvSolution` and there are exactly 21. The auditor named the trap
+  himself: **"21 flagged" carries no selectivity information**, because the flag could not have returned any other
+  non-zero number. Second correction: my brief called these "never examined"; that was **stale by three days**, so
+  the numbers were **re-derived independently** rather than the earlier narrative repeated.
+- **The 21 collapse to 2 distinct files by md5** (8 `ph_*` share one, 13 `cbfs_*` another; residual content
+  byte-identical). Twenty-one cases, two derivations, fully auditable.
+- **(a) Unreachable AND claimed converged — ZERO of 21.** Every convergence statement about these runs rests on a
+  criterion **pre-registered before the runs**, never on the dead lever; and the one run that failed it is reported
+  as cap-stopped unsettled and **excluded from grading under the paper's own exclusion rule**. Nothing to escalate.
+- **(b) Wasted compute — 16 of 21**, priced from the logs: **≈45 core-minutes of provably unnecessary iteration**,
+  a lower bound, with per-case stop points measured. **A finding inside the finding:** for the CBFS family the
+  obvious remedy would not work — pressure plateaus around 1.5e-6–6.7e-6 while momentum falls to 1e-9, so a
+  "reachable-looking" 1e-6 target **still would not fire.** *A reachable-looking target that never fires is the same
+  defect wearing better clothes.*
+- **(c) Flagged in error — 0, but our headline over-reaches on 5.** Five cases never execute a pressure loop at all
+  (two `-postProcess`, one `endTime 0`, two solve only k/ω). **Counting them is counting a dead switch in an
+  unwired room.** Honest split: **16 live-but-harmless + 5 inert.**
+- **Controls in both directions, including one the earlier ladder lacked.** Seven synthetic cases with ground truth
+  declared before running, plus real positive and negative files. **Control G is the one that matters**: a config
+  whose *dead* commented value is `1e-15` and whose live value is reachable — it stays silent, proving the
+  instrument is **not string-matching `1e-15`.**
+- **One disagreement with the earlier audit, and it strengthens that audit:** 2 of 16 momentum residuals rise, not
+  1. Both risers are the **deliberately sign-flipped falsifier arms** whose degradation is the reported finding.
+  None of the 10 publication-bearing runs rises.
+- **OUR OWN COUNT HAS DRIFTED AND NOBODY RE-RAN IT.** "120 of 365" is now **136 of 381** by the same method and the
+  same shipped helpers — understated by 16, all in one ensemble's subdirectories. Corrected below.
+- **THE ESCALATION — the S6 headline is not the held-out number it reads as.** The detector's docstring names its
+  motivating sentinel as literally `p 1e-15;//1e-4;`, which is the **exact byte sequence** in one of these cases,
+  and 18 of these 21 logs are **inside the corpus the 135-of-135 was scored against.** In the auditor's words:
+  *the detector and this corpus are not independent evidence of each other.* The rule is not thereby wrong — it is
+  still constant-free and still correct on every case examined — but **the evidential weight the score carries is
+  not what we have been quoting.** Recorded as **L-63**; a held-out re-score is now owed.
+- **Two provenance defects found while not looking:** a run whose prose says it "stopped by the pre-registered
+  protocol, not by a cap" while **its own log records a fourth segment launched and killed 519 iterations later**
+  (no graded number moves — the checkpoint is intact — but the prose describes a clean stop where the artifact
+  records a kill); and **archived `controlDict`s that cannot reproduce the pre-registered campaign** — declared
+  caps 30,000/10,000 against 20,000/12,500 on disk, wrong in *both* directions.
+- **Remediation priced and declined: 152 core-min to re-run, buying zero correction** — the graded quantities are
+  checkpoint field norms already written to disk, and a target that never fired never altered the trajectory.
+  Editing the config under a completed, cited run would make the archived dictionary stop matching the one the
+  cited solve actually read. **Recorded against the case rather than in it.**
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).

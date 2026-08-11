@@ -2583,3 +2583,40 @@ ways rather than sampling whatever the box happens to offer. On a shared box
 where agents run concurrently, any test that reads a resource-derived quantity
 must pin that resource explicitly — otherwise its colour is a measurement of the
 neighbours.
+
+## L-63. A detector scored on a corpus containing the specimen its rule was named from is reporting training accuracy in the voice of test accuracy
+
+The S6 convergence-target detector was pre-registered and then scored, and its
+headline is that it **captured 135 of 135 sentinels and nothing else** — a
+number this lab has quoted as evidence the rule generalises. An audit of a
+21-case corpus, sent to look for something else entirely, found the number is
+**not the held-out result it reads as**.
+
+The detector's own docstring names its motivating sentinel as literally
+`p 1e-15;//1e-4;`. That is the **exact byte sequence** in one of the audited
+cases' `fvSolution`. And 18 of those 21 logs sit inside the replay corpus the
+135-of-135 was scored against. So **the corpus is not independent evidence for a
+rule that was plausibly derived from a specimen inside it.** The auditor's
+phrasing is the one to keep: *the detector and this corpus are not independent
+evidence of each other.*
+
+Nothing about the rule is thereby wrong. The relation it gates on — a target at
+or below its own field's linear-solver tolerance — is still a relation the case
+states about itself, still constant-free, and still correct on every case
+examined. What is wrong is the **evidential weight** the 135-of-135 has been
+carrying. A perfect score on a corpus that contains the defining example is
+consistent with a rule that generalises and equally consistent with one that
+does not, which is precisely the distinction the number was quoted to settle.
+
+The general failure is not specific to detectors. It appears wherever a rule is
+**abstracted from cases and then validated on a set that still contains them**:
+a regex derived from a stale sentence and then run over the file it came from; a
+threshold tuned on the runs it is later used to grade; a heuristic learned from
+the failures it then "predicts". In every instance the score is real, the
+arithmetic is right, and the inference is unsupported.
+
+Practical form: **when you pre-register a detector, pre-register its corpus's
+provenance too** — state which cases motivated the rule and exclude them from the
+scored set, or report two numbers (in-sample and held-out) and let the gap speak.
+A score quoted without saying whether the defining example was inside it is an
+unlabelled mixture of the two things a reader most needs to tell apart.
