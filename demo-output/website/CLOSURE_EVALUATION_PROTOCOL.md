@@ -377,7 +377,29 @@ solution is exactly solenoidal cell-wise) and the corrected field is not, at
 **2.3–3.4%**. Every other entrant on the board re-solves the governing
 equations and gets `∇·U ≈ 0` by construction; our submitted corrected fields
 do not, and **the scoring metric never sees any of it** — nothing here
-changes the recorded 0.0654.
+changes the recorded round-4 0.0654.
+
+> **Round-5 note, added 2026-08-11 (Ladder V rung V14, stale-surface item 8).**
+> This section reports the battery's measurements of the **round-4** submission,
+> which was the entry of record when it was written. Two things about it are now
+> out of date and neither is edited above, because both are correct measurements
+> of the fields they were taken on:
+> - **`0.0654` is round 4.** Round 5 superseded it at **0.056647** on 2026-08-07
+>   (`closure_challenge_round5_qcr.json`). The definite article is the only thing
+>   corrected in the sentence above.
+> - **The `2.3–3.4%` duct figure no longer describes the submitted duct fields.**
+>   Round 5 replaced all three with an untrained QCR2000 forward solve, whose
+>   measured `rms div U / rms grad U` is **8.5×10⁻⁴ (`AR_1_Ret_360`), 5.3×10⁻⁴
+>   (`AR_3_Ret_360`) and 5.4×10⁻⁴ (`AR_14_Ret_180`)** — two orders of magnitude
+>   better, because a forward solve satisfies continuity where an additive
+>   correction does not. Source: `closure_challenge_round5_qcr_forward.json`,
+>   `/arms/{case}_qcr/div_over_grad`. **`AR_7_Ret_180` (5.8×10⁻⁴) is the
+>   validation duct and is NOT in the submission** — quoting its value as the
+>   submission's is the error V15 recorded as finding F1, so the three submitted
+>   cases are named individually here.
+> - **The two hills and `NASA_2DWMH` are unchanged by round 5** — those
+>   predictions ship byte-identical to round 4, so `10.5%`, `9.7%` and the
+>   declined-case rows above still describe the entry of record exactly.
 
 **The two declined cases are the only submissions that are both competitive
 and clean.** The gate's "off" state ships the organisers' own solve, so it
