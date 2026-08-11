@@ -1881,8 +1881,11 @@ clock-audit rule asks for.]*
   verified line by line by an independent pass.** The power-offs are independently attested — Katie saw them three
   times. **What is missing is the link between the two:** an audit looking for it found **no wiring from this script
   to anything that halts the machine**, and the record cited for the cost states only the script's purpose and
-  status. **A real defect and a real symptom do not make a cause** — establishing this one needs the wiring exhibited,
-  which nobody has done. **And the fix is still NOT a longer list** — a list is the same defect with more entries
+  status. **The resolution: the power-off is `/usr/local/bin/auto-stop.sh`, a root cron job outside the repo**
+  (`logger "auto-stop: idle ${idle}min, shutting down"; sudo shutdown -h now`), while `sdk/scripts/is_idle.sh` is a
+  **diagnostic that prints BUSY or IDLE and halts nothing.** The audit found no wiring **because it was looking at
+  the wrong script.** Both carry the same defect class — idle concluded from a `pgrep` absence — and they are
+  different objects. **And the fix is still NOT a longer list** — a list is the same defect with more entries
   (L-49). Escalated to the chief and now to Katie, since powering the box off is her cost control.
 - C5's real number: the dispatch's "29" was a subtree count. **Repo-wide there are 238 shebang-bearing tracked files
   and 3 with an exec bit.** Routed by owner, not mass-changed. The check itself nearly shipped the defect it hunts —
@@ -2895,11 +2898,14 @@ lesson that commissioned it, on two specifics.**
      meta-audit while the reader never sees it.**
   4. The rank guard — digit-anchored, three known misses, verdict says *every travelling surface complies*.
   5. `is_idle.sh` — concludes idle from an absence; **6 work classes missing, verified line by line, and the code
-     defect is real and current.** ~~Cost already realised 2026-07-30.~~ **CITATION WITHDRAWN 2026-08-11: the source
-     cited for that cost records only the script's purpose and status — no power-off, no date — and no wiring was
-     found from this script to anything that halts the machine.** A power-off at that time is independently
-     remembered, but **attributing it to this script is currently unevidenced**, which is L-60 exactly: an excuse
-     inherited without the evidence that earned it. The defect stands; the cost claim does not.
+     defect is real and current.** ~~Cost already realised 2026-07-30.~~ **RESOLVED 2026-08-11 — the cost is real
+     and it belongs to a DIFFERENT SCRIPT.** The power-off is `/usr/local/bin/auto-stop.sh`, a **root cron job
+     outside the repo** whose line 11 is literally `logger "auto-stop: idle ${idle}min, shutting down"; sudo
+     shutdown -h now`. `sdk/scripts/is_idle.sh` is a **repo diagnostic that prints BUSY or IDLE and halts nothing.**
+     The auditor was right that no wiring exists — **because it was the wrong script.** The two share a defect
+     *class* (both conclude idle from a `pgrep` absence) and are different objects, which is exactly the
+     same-token-different-object hazard found tonight in the adjoint attempt tables. **Both defects stand; the cost
+     attaches to the cron job, not to the diagnostic.**
 - **HUMP-ADJOINT — 11 distinct attempts + 3 staging faults, and ZERO were ever deliberately reproduced as a negative
   control.** 4 abandoned with no root cause, 2 built and never executed; two signatures verified against the logs
   directly, both **superseded, never explained**.
