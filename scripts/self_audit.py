@@ -836,6 +836,73 @@ _PLACE_REACH = (
 # the sample is five sentences. (caught, n, who invented them)
 _PLACE_REACH_B = (5, 5, "an independent grader, invented blind")
 
+# THE OTHER HALF, AND THE REASON SIX GRADE ROUNDS WERE NEEDED.
+#
+# Everything above measures a MISS. `_PLACE_REACH` has three rows and
+# `_PLACE_REACH_B` has one, and all four answer "how much does this guard fail
+# to catch". NOTHING measured how often it binds an ordinal to an entrant in a
+# sentence that pins no placement on anybody -- which is the FALSE FAULT, the
+# direction this check's own comments call the expensive one, since a rule-A
+# fault on a travelling surface is FAIL severity.
+#
+# That asymmetry is not a gap in the paperwork. It is the mechanism. Six rounds
+# of false FAULTs arrived as SURPRISES, each on a sentence nobody had tried,
+# because the instrument had no way to report its own worst failure mode: the
+# only thing that could report it was a grader, one sentence at a time, and a
+# grader who finds one sentence produces one repair, which is how this rung came
+# to spend four discriminators on one homonym. Reporting only the easier half is
+# what made six rounds necessary. A guard that publishes "caught N of M, and
+# falsely faults K of L, in these enumerated shapes" is less impressive and more
+# useful, and a reader can act on it.
+#
+# (sample, who built it, blind to the current patterns?, n, falsely faulted)
+_PLACE_PRECISION = ("the author's non-placement set", "this check's author",
+                    False, 41, 20)
+# THE SHAPES, because a rate without them is not actionable, and because the
+# ruling that permits a shape to be KNOWINGLY ACCEPTED rather than fixed
+# requires it to be counted in the figure AND named here. The counts are
+# recomputed from the same committed sentences as the figure by
+# `test_every_false_fault_class_is_counted_and_named`, which asserts this table
+# equals the measured per-class breakdown -- so a shape in one and missing from
+# the other reddens the suite. It does NOT check that the descriptions are
+# right, only that the classes and counts are.
+# (class, what it is, how many of the n above)
+_PLACE_FALSE_FAULT = (
+    ("reduced-relative",
+     "an object relative clause with the relativizer deleted, which English "
+     "does freely -- with no marker in the clause no cut is made and the "
+     "later-noun tie-break resolves to the entrant, who follows the head", 4),
+    ("linalg-head-unlisted",
+     "a linear-algebra subject whose head noun is not in `_PLACE_LINALG_NEAR` "
+     "-- a kernel, a Gramian, a Laplacian, an array. The clause cuts "
+     "correctly and then finds no object, so the discriminator declines to "
+     "mute. The list is a word list and no word list is closed", 4),
+    ("quotation",
+     "a wrong placement QUOTED in order to name or correct it. Rule A has an "
+     "adjudication clause and rule B has none, and neither reads intent", 3),
+    ("dated-history",
+     "a placement explicitly dated to an earlier board -- `in round 3 ...`, "
+     "`... before round 5`. Declared blind spot 9 in the verdict line, and "
+     "this is the measurement of it", 3),
+    ("abbreviation",
+     "a period that ends an abbreviation AND a sentence, now that "
+     "`_place_sentence_break` stops treating the first as the second; and an "
+     "ordinal sitting inside a citation", 2),
+    ("coordination",
+     "a coordinated subject whose second conjunct carries the entrant as a "
+     "genitive determiner -- it resolves to whichever sits later", 1),
+    ("cross-sentence",
+     "a semicolon, which `_place_subject_np` treats as a boundary and the "
+     "ordinary `_PLACE_BIND` does not, because `_PLACE_SENTENCE` reads only "
+     "`[.!?]`", 1),
+    ("idiom",
+     "`in the first place`, with an entrant inside the 40-character bind. The "
+     "broad form of rule B was cut to almost nothing over this idiom; rule A "
+     "still meets it", 1),
+    ("bibliography",
+     "`the Nth entry` of a journal issue rather than of the board", 1),
+)
+
 
 def _place_reach_sentence() -> str:
     """The reach paragraph, generated from `_PLACE_REACH` so it cannot drift."""
@@ -871,6 +938,36 @@ def _place_reach_sentence() -> str:
             f"caught ({_PLACE_REACH_B[2]}) -- and five sentences is not a "
             f"reach measurement, it is a smoke test, which is the honest name "
             f"for it")
+
+
+def _place_precision_sentence() -> str:
+    """The precision paragraph, generated from `_PLACE_PRECISION` and
+    `_PLACE_FALSE_FAULT` so neither can drift from the other or from the
+    sentences both are measured on."""
+    name, who, blind, n, bad = _PLACE_PRECISION
+    seen = ("invented BLIND, before these patterns existed" if blind
+            else "built WITH the pattern list and six rounds of grade "
+                 "findings in hand, adversarially")
+    shapes = "; ".join(f"{count} {cls} ({what})"
+                       for cls, what, count in _PLACE_FALSE_FAULT)
+    return (f"PRECISION, WHICH IS THE HALF THAT WENT UNMEASURED FOR SIX GRADE "
+            f"ROUNDS and is the reason there were six: every figure above "
+            f"counts a MISS. This one counts a FALSE FAULT, which is the "
+            f"expensive direction. On {name} ({who}, {seen}) -- {n} sentences "
+            f"in which the rule-A pattern DOES match an expression but NO "
+            f"live placement is pinned on a named entrant, each one asserted "
+            f"at import to match a pattern so the set cannot be padded with "
+            f"sentences the guard never looks at -- this check falsely faults "
+            f"{bad} of {n} ({round(100 * bad / n)}%). Recomputed from "
+            f"campaign/V16_PRECISION_SET.py by "
+            f"sdk/tests/test_rank_claim_surfaces.py, which also asserts five "
+            f"positive controls still fault, so the figure cannot be improved "
+            f"by switching the detector off. IN THESE SHAPES, every one of "
+            f"which is KNOWINGLY ACCEPTED rather than fixed: {shapes}. THE SET "
+            f"IS ADVERSARIAL AND NOT REPRESENTATIVE -- it is weighted toward "
+            f"the shapes that have already broken, so {bad} of {n} is a WORST "
+            f"CASE on hard sentences and not a corpus rate; the corpus rate is "
+            f"the live sweep this same verdict reports")
 
 
 @functools.lru_cache(maxsize=8)
@@ -974,13 +1071,48 @@ _PLACE_LINALG_L = re.compile(                         # ...is rank three out of 
 # linear-algebra head with the entrant inside a postmodifier; the two false
 # negatives all have an entrant head with the linear-algebra noun inside one.
 #
-# WHAT THIS COSTS, stated rather than discovered later. It is a heuristic for a
-# parse and it has three known blind spots, none of which is a false FAULT:
-# a subject whose head noun is neither an entrant nor in `_PLACE_LINALG_NEAR`
-# falls through to the whole clause; a fronted modifier is skipped only because
-# nothing stands in front of it; and coordination (`the tensor and Wu are ...`)
-# resolves to whichever sits later. Right-hand context keeps its own narrower
-# test (`_PLACE_LINALG_R`, head nouns directly after the ordinal).
+# WHAT THIS COSTS, MEASURED. The sentence that stood here said the heuristic
+# "has three known blind spots, none of which is a false FAULT", and grade
+# round 6 executed it: TWO OF THE THREE ARE FALSE FAULTS, and there was a
+# FOURTH not on the list at all. The claim was wrong in the one direction the
+# claim existed to reassure about, which is the worst way for a stated cost to
+# be wrong, and it survived because nothing measured the false-FAULT direction.
+# Now something does: `_PLACE_PRECISION` and `_PLACE_FALSE_FAULT` above carry
+# the rate and the shapes, both recomputed from
+# `campaign/V16_PRECISION_SET.py`, and the verdict line publishes them beside
+# the four recall figures. The corrected enumeration, executed rather than
+# reasoned:
+#
+#   1. A subject whose head noun is NOT in `_PLACE_LINALG_NEAR` -- a kernel, a
+#      Gramian, a Laplacian -- falls through with no object found, so the
+#      discriminator declines to mute and the entrant in the postmodifier
+#      binds. THIS IS A FALSE FAULT. It was declared as not one.
+#   2. A fronted modifier is skipped only because nothing stands in front of
+#      it. This one behaves as declared: not a false FAULT.
+#   3. Coordination (`the tensor and Wu's closure are ...`) resolves to
+#      whichever sits later. THIS IS A FALSE FAULT. It was declared as not one.
+#   4. THE REDUCED RELATIVE, which was not on the list at all: English drops
+#      the relativizer in an object relative, and round 6's breaking sentence
+#      was round 5's own probe MINUS ONE WORD. With no marker in the clause no
+#      cut is made and the later-noun tie-break picks the entrant. A FALSE
+#      FAULT.
+#
+# THE FIFTH DISCRIMINATOR IS NOT BEING BUILT, and that is a ruling and not
+# fatigue (`campaign/LADDER_V_TRIPLE_VERIFICATION.md`, "V16's E2 closes by
+# measurement"). MEASURED, not asserted: four discriminators were built over
+# six grade rounds -- numeral form, a both-sides window, token distance, and
+# this subject-head rule -- and a later round broke each of the four on a
+# sentence its author had not tried, the fourth on its own predecessor's probe
+# with ONE WORD DELETED. Four for four is the record; that a word list standing
+# in for a parse must ALWAYS have a fifth sentence is a belief about English
+# and is not claimed here. The shapes above are therefore
+# KNOWINGLY ACCEPTED: counted in the published precision figure, named in the
+# blind-spot enumeration, and pinned by the probes of
+# `campaign/V16_GRADE_ROUND6_PROBES.py`, which this suite runs. What closes
+# them is a real parse, not a longer list.
+#
+# Right-hand context keeps its own narrower test (`_PLACE_LINALG_R`, head nouns
+# directly after the ordinal).
 _PLACE_LINALG_NEAR = re.compile(
     r"tensor|basis|matri(x|ces)|stress|gradient|invariant|operator|eigen"
     r"|representation|jacobian|hessian|subspace|singular value|pointwise"
@@ -995,19 +1127,131 @@ _PLACE_POSTMOD = re.compile(
 # A clause the copula cannot reach back across. Deliberately NOT the comma:
 # the comma is what delimits the appositive in the false-negative shapes, and
 # cutting there would throw away the very subject that must be found.
-_PLACE_CLAUSE = re.compile(r"[.!?;:]")
+#
+# IT CARRIES THE MARKDOWN STRUCTURAL BOUNDARY TOO, and until grade round 6 it
+# did not. This constant was `[.!?;:]` and the fallback below carried a comment
+# saying it therefore "cannot reach across a sentence". That was an inference
+# from punctuation to structure, and in a markdown corpus the inference is
+# false: a heading, a list item and a table row all END WITHOUT PUNCTUATION.
+# Round 6 executed three shapes that bound an ordinal to an entrant named in
+# the PREVIOUS structural unit, at gaps of 65, 69 and 54 characters against a
+# `_PLACE_BIND` of 40 -- so the ordinary bind was not what reached across, the
+# fallback was. `|` is here because a table cell boundary survives the
+# whitespace collapse as itself; `\n` is here because `_place_flatten` now
+# PRESERVES the boundaries that do not, as exactly one newline. Executed by
+# `TheStructuralBoundaryIsNotAPunctuationMarkTests`.
+_PLACE_CLAUSE = re.compile(r"[.!?;:|\n]")
+# What ENDS a markdown structural unit on the line before a break, and what
+# BEGINS one on the line after it. Anything else -- an ordinary line wrapped
+# mid-paragraph -- is a reflow, and joining reflows is the property
+# `WholeTextNotLinesTests` pins and this must not cost.
+_PLACE_UNIT_END = re.compile(r"^\s{0,3}#{1,6}\s|\|\s*$")
+_PLACE_UNIT_START = re.compile(r"\s{0,3}(?:#{1,6}\s|[-*+]\s|\d+[.)]\s|\||>|```)")
 _PLACE_SENTENCE = re.compile(r"[.!?][)\"'*`\s]*\s[A-Z(\"'*`]")
 # Stands for "a new token starts here" in the boundary probe below. It is a
-# constant on purpose: the real first character of that token carries no
-# information about the sentence, only about how the source was capitalised,
-# and reading it was the whole of the round-5 boundary defect.
+# constant on purpose: the CASE of the real first character says how the source
+# was capitalised and not what the sentence is doing, and reading it was the
+# whole of the round-5 boundary defect. It was carrying ONE other signal by
+# accident, which making it constant destroyed -- see the next block, which is
+# where that signal is now read on purpose.
 _PLACE_TOKEN_START = "A"
+# THE ONE THING THE REAL CHARACTER *WAS* DOING, which the comment introducing
+# the constant above denied in an absolute ("the character's identity was never
+# doing any work") that round 6 executed and falsified. A period that ends an
+# abbreviation is not a sentence boundary, and making the probe's next
+# character unconditionally uppercase turned every one of them into one: two
+# real wrong placements sitting directly after `et al.` faulted before this
+# rung and went silent after it. So the boundary test asks whether the period
+# it found ends an abbreviation before believing it.
+#
+# WHAT THIS LIST DOES NOT CONTAIN, so the omission is a decision: a single
+# capital initial (`Wu, J. rank 2 ...`). Adding `\b[A-Z]\.` would catch the
+# citation form, and would also read a genuine sentence end after any
+# one-letter word as an abbreviation -- a FALSE FAULT, which is the expensive
+# direction, to buy a missed fault, which is the cheap one. It is left out and
+# counted: an abbreviation ending in a bare initial is still read as a sentence
+# boundary and the placement after it is still missed. Pinned by
+# `test_a_bare_initial_is_still_read_as_a_sentence_end`.
+#
+# AND THE MATCH IS CASE-INSENSITIVE, WHICH HAS ITS OWN PRICE, in the same cheap
+# direction: a sentence genuinely ending in one of these words lowercased --
+# `... the answer is no.` -- stops being a boundary, so a wrong placement
+# opening the next sentence is missed. Case-sensitive matching would cost the
+# lowercased citation forms this corpus does write (`liu et al.` is a live
+# round-5 probe), and a missed fault is the direction to err in.
+_PLACE_ABBREV = re.compile(
+    r"\b(?:et\s+al|e\.\s?g|i\.\s?e|cf|vs|viz|ibid|Fig|Figs|Eq|Eqs|Sec|Secs"
+    r"|Ref|Refs|No|Nos|pp|ch|Dr|Mr|Mrs|Ms|Prof|St|Jr|Sr|Inc|Ltd|approx"
+    r"|resp|etc)\.$", re.I)
 # A copula, for the subject-NP bind below. Narrower than `_PLACE_LINALG_L` on
 # purpose: that pattern also admits `of`, `a`, `an`, which introduce a
 # measurement rather than predicate one of a subject.
 _PLACE_COPULA = re.compile(r"\b(is|are|was|were|remains?|stays?)\s+$", re.I)
 _PLACE_BIND = 40
 _PLACE_ADJUDICATED = 400
+
+
+def _place_flatten(text: str) -> str:
+    """Whitespace collapsed to one space -- except a markdown structural
+    boundary, which collapses to one NEWLINE instead.
+
+    WHY NOT JUST COLLAPSE. Collapsing everything to a space is what makes a
+    placement split by a reflow still one placement, and that property is
+    load-bearing (a live correct instance in `latex/closure_challenge_report.tex`
+    is only visible because of it). But it also erases every boundary this
+    corpus writes without punctuation, and this corpus is markdown. Round 6
+    bound an ordinal to an entrant across a heading, a list item and a table
+    row on exactly that erasure.
+
+    EXACTLY ONE CHARACTER EITHER WAY, so every offset in the result is the
+    offset the plain collapse gave: the adjudication window, the 130-character
+    context slices and the excerpt in the fault message are all unmoved. The
+    only consumer that can tell the difference is `_PLACE_CLAUSE`, which is
+    where the difference is wanted.
+
+    A run is structural if it spans a blank line, or if the line it leaves ends
+    a unit (`_PLACE_UNIT_END`), or the line it enters begins one
+    (`_PLACE_UNIT_START`). Anything else is a reflow and still collapses to a
+    space.
+    """
+    # THE SLICES ARE BOUNDED, and the first draft's were not. Writing `before`
+    # as `text[:run.start()].rsplit("\n", 1)[-1]` copies the entire prefix once
+    # per whitespace run, which is O(n^2) in the size of the surface -- and
+    # this runs over every tracked file in the repository on every audit. It
+    # was measured, not reasoned about: the corpus sweep went from minutes to
+    # tens of minutes. `rfind`/`find` scan to the nearest newline and stop.
+    def one(run: re.Match) -> str:
+        span = run.group(0)
+        if "\n" not in span:
+            return " "
+        if span.count("\n") > 1:
+            return "\n"
+        line = text.rfind("\n", 0, run.start()) + 1
+        stop = text.find("\n", run.end())
+        after = text[run.end():stop if stop != -1 else len(text)]
+        if (_PLACE_UNIT_END.search(text[line:run.start()])
+                or _PLACE_UNIT_START.match(after)):
+            return "\n"
+        return " "
+    return re.sub(r"\s+", one, text)
+
+
+def _place_sentence_break(probe: str) -> bool:
+    """Is there a sentence boundary in `probe` that a bind must not cross?
+
+    `_PLACE_SENTENCE` alone answers "is there a `.` followed by a token start",
+    and with `_PLACE_TOKEN_START` supplying that token start unconditionally
+    the answer became yes for every abbreviation-final period as well. This
+    asks the second question the round-5 repair dropped: does the period it
+    found END AN ABBREVIATION? Executed by
+    `TheAbbreviationPeriodIsNotASentenceEndTests`, which carries the two real
+    wrong placements that went silent, and the round-5 boundary shapes as
+    controls that this has not simply reopened them.
+    """
+    for found in _PLACE_SENTENCE.finditer(probe):
+        if not _PLACE_ABBREV.search(probe[:found.start() + 1]):
+            return True
+    return False
 
 
 def _place_subject_np(left: str, names: re.Pattern) -> str:
@@ -1339,18 +1583,29 @@ def _placements(text: str, names: re.Pattern, board: dict[str, int]):
     """(ordinal, entrant or None, that entrant's board rank, offset, token).
 
     Whole text with whitespace collapsed: a placement that a reflow split
-    across two lines is the same placement.
+    across two lines is the same placement. A markdown STRUCTURAL boundary is
+    the one thing the collapse keeps -- see `_place_flatten`.
     """
     upto = len(board) + _PLACE_OVER
     tokens = _place_tokens(upto)
-    flat = re.sub(r"\s+", " ", text)
     found = []
     # Rule A can only fire where an entrant is named, and the placement scan is
     # the expensive part, so a surface that names nobody is skipped rather than
     # swept. The frame line reports this as the denominator it is: placements
     # counted IN SURFACES THAT NAME AN ENTRANT, which is a reproducible rule.
-    if not names.search(flat):
+    #
+    # THE TEST IS MADE ON THE RAW TEXT, BEFORE FLATTENING, and that is a
+    # correctness claim and not only a speed one. `_board_names` compiles
+    # `\b(<surname>|...)\b` and every key is a SINGLE TOKEN by construction --
+    # `_first_author_surname` returns `parts[-1]`. Collapsing whitespace can
+    # neither create nor destroy a match of a single word-boundaried token, so
+    # the two tests agree. It is done here because `_place_flatten` runs a
+    # Python callback per whitespace run and the first version of this rung
+    # paid that on every tracked file in the repository, naming an entrant or
+    # not: measured at 2.5x the old sweep before this line moved.
+    if not names.search(text):
         return found
+    flat = _place_flatten(text)
     for m in _place_pattern(upto).finditer(flat):
         token = m.group(0)
         left = flat[max(0, m.start() - 130):m.start()]
@@ -1407,18 +1662,30 @@ def _placements(text: str, names: re.Pattern, board: dict[str, int]):
             # case-insensitively, so a lowercase citation form defeated it.
             # Grade round 5 executed six shapes that bound across a full stop.
             #
-            # The character's identity was never doing any work. Both `token`
-            # and `hit.group(0)` are matches of word-boundaried patterns, so
-            # what the appended character MEANS is "a new token starts here" --
-            # and whether the source happened to capitalise that token is an
-            # accident of formatting, not evidence about the sentence. So
-            # append a character that stands for the token start, and the test
-            # stops depending on a case it cannot control. The positive
-            # controls that the guard has not simply stopped binding after
-            # every full stop are in
+            # The character's CASE carries no information about the sentence.
+            # Both `token` and `hit.group(0)` are matches of word-boundaried
+            # patterns, so what the appended character MEANS is "a new token
+            # starts here" -- and whether the source happened to capitalise
+            # that token is an accident of formatting. So append a character
+            # that stands for the token start, and the test stops depending on
+            # a case it cannot control. The positive controls that the guard
+            # has not simply stopped binding after every full stop are in
             # `test_a_boundary_binds_nothing_even_when_the_name_starts_the_sentence`.
+            #
+            # THE SENTENCE ABOVE ONCE READ "the character's identity was never
+            # doing any work", AND ROUND 6 EXECUTED IT. It was doing exactly
+            # one job: an abbreviation supplies a lowercase next character and
+            # a sentence supplies an uppercase one, so reading the real
+            # character told abbreviation-final periods from sentence-final
+            # ones by accident. Replacing it with a constant `A` made every
+            # `et al. ` a sentence boundary and two real wrong placements went
+            # silent. The bounded claim, which is what should have been written
+            # the first time: the character's CASE is not evidence, and the
+            # QUESTION its case happened to answer is now asked directly by
+            # `_place_sentence_break`. Executed both ways by
+            # `TheAbbreviationPeriodIsNotASentenceEndTests`.
             probe = between + _PLACE_TOKEN_START
-            if names.search(between) or _PLACE_SENTENCE.search(probe):
+            if names.search(between) or _place_sentence_break(probe):
                 continue
             who, rank = hit.group(0), board[hit.group(0).lower()]
             break
@@ -1433,11 +1700,37 @@ def _placements(text: str, names: re.Pattern, board: dict[str, int]):
         #
         # So when nothing bound and the ordinal is predicated by a copula, ask
         # the subject noun phrase who the subject is -- the same question E2
-        # answers, and `_place_subject_np` already computes it. This cannot
-        # reach across a sentence: the phrase is cut at `_PLACE_CLAUSE` first,
-        # which is what keeps the boundary controls above passing. The entrant
-        # must be the HEAD of that phrase -- last, with no linear-algebra noun
-        # after it -- or the sentence is about the object, not the person.
+        # answers, and `_place_subject_np` already computes it.
+        #
+        # HOW FAR IT CAN REACH, at the width it has rather than the width first
+        # claimed for it. This comment read "This cannot reach across a
+        # sentence: the phrase is cut at `_PLACE_CLAUSE` first", and round 6
+        # executed it: `_PLACE_CLAUSE` was `[.!?;:]`, so what it could not cross
+        # was a PUNCTUATION MARK, and a markdown heading, list item and table
+        # row end without one. Three shapes crossed a structural boundary at
+        # gaps of 65, 69 and 54. The true statement now, at the width it has
+        # and no wider: the phrase is cut at `_PLACE_CLAUSE`, which is
+        # `[.!?;:|\n]`, and `_place_flatten` writes exactly these as that
+        # newline -- a blank line, the end of an ATX heading or a table row,
+        # and the start of a heading, list item, ordered-list item, table row,
+        # block quote or fence. THAT LIST IS WHAT IT CANNOT CROSS. What it CAN
+        # still cross, named so the omissions are decisions: a comma,
+        # deliberately, because the comma is what delimits the appositive the
+        # fallback exists for; a line wrapped mid-paragraph, deliberately,
+        # because joining reflows is the property that makes the live instance
+        # in `latex/closure_challenge_report.tex` visible at all; a setext
+        # heading and its underline, which join; and a list item lazily
+        # continued onto an unindented next line with no blank line between,
+        # which markdown itself treats as one item. Executed both ways by
+        # `TheStructuralBoundaryIsNotAPunctuationMarkTests`: three shapes that
+        # must now be silent, four controls -- the punctuated twins, and the
+        # two round-5 false negatives this fallback exists for, which must
+        # still fault -- and two more asserting the reflow still joins and no
+        # offset moved.
+        #
+        # The entrant must be the HEAD of that phrase -- last, with no
+        # linear-algebra noun after it -- or the sentence is about the object,
+        # not the person.
         if who is None and _PLACE_COPULA.search(left):
             phrase = _place_subject_np(left, names)
             subject = None
@@ -1469,9 +1762,27 @@ def board_placement_faults(text: str, board: dict[str, int]
             continue
         beyond = ("" if n <= len(board) else
                   f" -- and rank {n} is a position this board does not have")
+        # THE STRUCTURAL MARKER DOES NOT REACH THE READER. `flat` now carries
+        # a newline where a markdown structural boundary was, and this excerpt
+        # is sliced straight out of it -- so without this the one live fault in
+        # the corpus grew a line break in the middle of a one-line message.
+        # Caught by the old-vs-new sweep, which reported one surface changed
+        # and it was this, cosmetic: same binding, same count, different text.
+        # Rendering the marker back to the space it stands for makes every
+        # fault message BYTE-IDENTICAL to the build before this rung, which is
+        # a stronger claim than "no verdict moved" and is the one that should
+        # be made about a change to a shared representation.
+        excerpt = flat[max(0, at - 60):at + 60].replace("\n", " ").strip()
         disagree.append(f"{token!r} is bound to {who}, whom the published "
                         f"board puts at rank {rank}{beyond}: "
-                        f"...{flat[max(0, at - 60):at + 60].strip()}...")
+                        f"...{excerpt}...")
+    # RULE B GETS THE PLAIN COLLAPSE, deliberately. It has no clause rule, no
+    # boundary rule and no bind -- it is a single pattern match over the flat
+    # text -- so the structural newline `_place_flatten` preserves buys it
+    # nothing, and giving it one could only take something away, by breaking a
+    # `\s+` inside its own alternation across a heading. Rule B's behaviour is
+    # therefore byte-identical to the build before this rung, which is what the
+    # old-vs-new corpus sweep shows.
     flat = re.sub(r"\s+", " ", text)
     for m in _place_unnamed(len(board) + _PLACE_OVER).finditer(flat):
         unnamed.append(f"{m.group(0)!r} compares us to a board position "
@@ -1508,6 +1819,17 @@ def check_board_placement_words() -> Result:
     non-English ordinals, and markdown or CSV rows -- the last omitted on
     purpose, because a numbered table row is not distinguishable from any
     numbered list and the benchmark's own board is one.
+
+    AND WHAT IT INVENTS, which for six grade rounds nothing measured. Every
+    figure named above counts a MISS. `_PLACE_PRECISION` and
+    `_PLACE_FALSE_FAULT` count the other direction -- how often this check
+    faults a sentence that pins no placement on anybody -- on a held-out set of
+    non-placements committed at `campaign/V16_PRECISION_SET.py` and recomputed
+    by the suite, with the shapes enumerated rather than summarised. That
+    asymmetry, not any one regex, is why this rung took six rounds: the
+    instrument could only report the half that was easier to report. The rate
+    and the shapes are generated into the verdict and into BASIS beside the
+    recall figures.
 
     GREEN HERE IS NOT COVERAGE. It means no placement matching these patterns
     disagrees with the board, which is a narrower statement than it looks: the
@@ -1631,6 +1953,7 @@ def check_board_placement_words() -> Result:
              f"held-out sets below are RULE-A sentences, each pinning a WRONG "
              f"placement on a NAMED entrant; rule B is measured separately and "
              f"on a far smaller sample. {_place_reach_sentence()}. "
+             f"{_place_precision_sentence()}. "
              f"STILL UNREACHABLE: an ordinal as "
              f"a bare noun (the board's fourth), 'are in fourth', #N, a bare "
              f"parenthetical ordinal, medals and podiums, roman numerals, "
@@ -3928,6 +4251,7 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         f"below are RULE-A sentences, each pinning a wrong placement on a "
         f"named entrant; rule B is measured separately and on a far smaller "
         f"sample. {_place_reach_sentence()}. "
+        f"{_place_precision_sentence()}. "
         "Still unreachable: an ordinal as a bare noun, "
         "'are in fourth', #N, a bare parenthetical ordinal, medals, roman "
         "numerals, non-English ordinals, and markdown or CSV rows -- the last "

@@ -345,6 +345,58 @@ whose blind-spot list is wrong reads as more trustworthy than it is. A guard tha
 and more useful**, and a reader can act on it. The four recall figures were always the
 easier half to report; reporting only the easier half is what made six rounds necessary.
 
+### 2026-08-11, later still — the closing round, by V16's author. NOT SELF-GRADED.
+
+Executed against subject `5ef1fd1a` (ancestry OK; the two-path content diff against `HEAD`
+`c12c7254` **empty**, so the subject is present unmodified). The rung is not signed off here
+— its author may not — but the four deliverables are executed and the numbers are below so a
+grader re-derives rather than re-reads.
+
+**1. The precision figure exists, and it is the round's centre.**
+`campaign/V16_PRECISION_SET.py`: **41 held-out non-placements**, every one a sentence in
+which a rule-A pattern *does* match an expression — asserted at import, so the set cannot be
+padded with sentences the guard never looks at — and in which no live placement is pinned on
+a named entrant. **The guard falsely faults 20 of them (49%).** Five positive controls must
+still fault and do, so the figure cannot be improved by switching the detector off. It is
+recomputed from the committed sentences by the suite, like the recall rows, so it cannot go
+stale the way they did (L-79), and it is interpolated into the verdict line and into BASIS
+beside the four recall figures. **The set is adversarial and not representative** — it is
+weighted toward the shapes that have already broken — so 20 of 41 is a worst case on hard
+sentences, not a corpus rate; the corpus rate is the live sweep in the same verdict.
+
+**2. The falsified blind-spot claim is gone.** *"Three known blind spots, none of which is a
+false FAULT"* is replaced by the four measured classes, two of them the ones that claim
+denied and one of them the reduced relative that was not on the list at all — and by the nine
+classes of the precision enumeration, each generated into the verdict with its count. A test
+asserts the string cannot come back.
+
+**3. Both regressions are gone, by execution, with their controls.** The subject-NP fallback
+no longer binds across a heading, a list item or a table cell: `_place_flatten` preserves a
+markdown structural boundary as one newline where the plain collapse wrote a space, and
+`_PLACE_CLAUSE` cuts on it. Same length either way, so no offset moves. The punctuated twins
+stay silent and **both round-5 false negatives still fault**, so this is not a deletion of the
+fallback. The boundary constant no longer makes every abbreviation-final period a sentence
+end: `_place_sentence_break` asks whether the period ends an abbreviation, the two real wrong
+placements after `et al.` fault again, and the six round-5 boundary shapes stay silent.
+Measured cost, stated: the exception adds exactly **one** false FAULT to the precision set
+and buys back **one** missed real placement — 23 of 41 falsely faulted before, 20 after, with
+controls going from 1 missed to 0.
+
+**4. L-76 closes again.** All three absolutes the previous round added are gone as absolutes
+and present as bounded claims with their executing tests named. Sweeping my *own* added lines
+found two more of the same kind and both were bounded before commit.
+
+**Probe counts.** Round 6: **12 of 24 disagreeing → 7**, all twelve controls still passing;
+the seven are the E2 shapes the ruling permits to stand **knowingly accepted**, and they are
+counted in the precision figure and named in the blind-spot list, which is the proviso.
+Round 5: **0 of 20**, unchanged. All four recall figures unchanged. The live verdict is
+unchanged — WARN on the same two known quotations of docket D3.
+
+**What a grader should attack first**, since a rung's author naming its weakest point is
+cheaper than a grader finding it: the precision denominator is *mine*, built with the pattern
+list in hand, and a set built by someone else will give a different number — which is the
+same criticism the reach rows already carry and the reason they name who built each one.
+
 ## CLOSE-OUT
 
 - **V13. Ladder report in negative-verdict-review format**: every rung PASS/FAIL with evidence

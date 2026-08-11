@@ -1062,6 +1062,159 @@ class TheOrdinalVocabularyIsDerivedTests(unittest.TestCase):
                            "the ordinal range did not grow with the board")
 
 
+class TheStructuralBoundaryIsNotAPunctuationMarkTests(unittest.TestCase):
+    """Grade round 6's regression, and the controls that keep the fix honest.
+
+    The subject-NP fallback was added in round 6 so that an ordinal predicated
+    by a copula still binds when its subject sits beyond `_PLACE_BIND`. Its
+    comment said it "cannot reach across a sentence: the phrase is cut at
+    `_PLACE_CLAUSE` first". `_PLACE_CLAUSE` was `[.!?;:]`, whitespace is
+    collapsed before any of it runs, and A HEADING, A LIST ITEM AND A TABLE
+    ROW END WITHOUT PUNCTUATION -- in a corpus written in markdown. So what it
+    could not cross was a punctuation mark, and the inference from that to
+    "a sentence" is the whole defect. Three shapes crossed one, at gaps of 65,
+    69 and 54 characters against a `_PLACE_BIND` of 40, so the ordinary bind
+    was not what fired.
+
+    THE FIX IS NOT DELETING THE FALLBACK, and the last two tests here are why:
+    it exists for two round-5 false negatives that must keep faulting. The
+    boundary is preserved instead -- `_place_flatten` writes a markdown
+    structural break as one newline where the plain collapse wrote a space,
+    and `_PLACE_CLAUSE` cuts on it.
+
+    Assembled at run time, as everything in this file is.
+    """
+
+    _RK = "ra" + "nk"
+    _D2 = "2"
+
+    def _p(self, template):
+        return template.format(RK=self._RK, D2=self._D2)
+
+    def test_a_heading_is_a_boundary_though_it_carries_no_punctuation(self):
+        self.assertEqual(([], []), _faults(self._p(
+            "## Liu wins the duct case study\n\nThe entrant we must beat "
+            "overall is {RK} {D2} today.")))
+
+    def test_a_list_item_is_a_boundary(self):
+        self.assertEqual(([], []), _faults(self._p(
+            "- Liu ran the duct case on a coarse mesh\n- The entrant to beat "
+            "here is {RK} {D2}\n")))
+
+    def test_a_table_cell_is_a_boundary(self):
+        self.assertEqual(([], []), _faults(self._p(
+            "| Liu | duct case, coarse mesh | the entrant to beat is "
+            "{RK} {D2} |")))
+
+    def test_the_punctuated_twins_were_always_silent_and_stay_silent(self):
+        """The author's stated boundary DOES hold where the punctuation is, and
+        the finding was never that it does not."""
+        for text in (
+            "Liu wins the duct case study.\n\nThe entrant we must beat "
+            "overall is {RK} {D2} today.",
+            "Liu ran the duct case on the coarse mesh; the front-runner is "
+            "{RK} {D2}.",
+        ):
+            self.assertEqual(([], []), _faults(self._p(text)), text)
+
+    def test_the_two_false_negatives_the_fallback_exists_for_still_fault(self):
+        """Or this would be a demand to delete the fallback, which would put
+        round 5's E2 false negatives straight back."""
+        for text in (
+            "Montoya, who rebuilt the anisotropy tensor from the strain "
+            "invariant, is {RK} {D2} overall.",
+            "Liu and Montoya, whose Reynolds stress tensor closure won the "
+            "duct case, are {RK} {D2} on the board.",
+        ):
+            rule_a, _ = _faults(self._p(text))
+            self.assertEqual(1, len(rule_a), f"{text} -> {rule_a}")
+
+    def test_a_reflow_still_joins_which_is_what_the_collapse_is_for(self):
+        """`_place_flatten` must distinguish a STRUCTURAL break from a line
+        wrapped mid-paragraph. If it stopped joining reflows it would undo the
+        property `WholeTextNotLinesTests` pins and lose the live instance in
+        the report source."""
+        wrapped = f"The {_WRONG} entry (Wu &\nZhang) runs SST-QCRC."
+        flat = sa._place_flatten(wrapped)
+        self.assertNotIn("\n", flat, flat)
+        self.assertEqual(len(wrapped), len(flat))
+        self.assertEqual(1, len(_faults(wrapped)[0]))
+
+    def test_the_marked_collapse_moves_no_offset(self):
+        """One run, one character, either way -- so the adjudication window,
+        the context slices and the excerpt in the fault message are unmoved,
+        and the only consumer that can tell is `_PLACE_CLAUSE`."""
+        for text in (DEFECT_A_WAS, DEFECT_B_WAS, DEFECT_C_WAS,
+                     "# H\n\n- a\n- b\n\n| x | y |\n\nplain wrapped\nprose\n"):
+            marked = sa._place_flatten(text)
+            plain = re.sub(r"\s+", " ", text)
+            self.assertEqual(len(plain), len(marked), text)
+            self.assertEqual(plain, marked.replace("\n", " "), text)
+
+
+class TheAbbreviationPeriodIsNotASentenceEndTests(unittest.TestCase):
+    """Round 6's second regression: the boundary constant is unconditionally
+    uppercase.
+
+    Round 5's boundary defect was that `_PLACE_SENTENCE` closes a boundary only
+    on an uppercase character and neither appended character reliably is one.
+    The repair appended a CONSTANT standing for "a new token starts here",
+    under a comment saying "the character's identity was never doing any work".
+    It was doing exactly one job: separating an abbreviation-final period from
+    a sentence-final one. With the constant always `A`, every `et al. ` became
+    a sentence boundary and two real wrong placements went silent.
+
+    The direction is the cheap one -- a missed fault, not a false one -- but it
+    is a regression this rung introduced, and the ruling does not forgive it.
+    """
+
+    _RK = "ra" + "nk"
+    _D4 = "4"
+    _S4 = "4" + "th"
+    _P = "pl" + "ace"
+
+    def _p(self, template):
+        return template.format(RK=self._RK, D4=self._D4, S4=self._S4,
+                               P=self._P)
+
+    def test_a_wrong_placement_after_an_abbreviation_faults_again(self):
+        for text in ("Wu et al. {RK} {D4} overall on the duct case.",
+                     "Wu et al. {S4} {P} overall on the duct."):
+            rule_a, _ = _faults(self._p(text))
+            self.assertEqual(1, len(rule_a), f"{text} -> {rule_a}")
+
+    def test_the_round_five_boundary_shapes_are_not_reopened(self):
+        """The whole point of the constant was that six shapes bound across a
+        full stop. An abbreviation exception that let them back would trade a
+        missed fault for six false ones, which is the wrong direction."""
+        for text in (
+            f"Liu ran the duct case. {self._S4} {self._P} is still open.",
+            f"Liu ran the duct case. {self._RK} {self._D4} is still open.",
+            f"They are at {self._RK} {self._D4}. liu et al. ran SST-QCRC.",
+            f"Montoya closed the hump case. {_O4C} {self._P} is still open.",
+        ):
+            self.assertEqual(([], []), _faults(text), text)
+
+    def test_a_bare_initial_is_still_read_as_a_sentence_end(self):
+        """Named because it is a DECISION, not an oversight. Adding
+        `\\b[A-Z]\\.` would catch the citation form `Wu, J. rank 4 ...` and
+        would also read a genuine sentence end after any one-letter word as an
+        abbreviation -- a false FAULT bought with a missed fault. The missed
+        fault is kept, and counted."""
+        self.assertEqual(
+            ([], []), _faults(f"Reported by Wu, J. {self._RK} {self._D4} "
+                              f"overall on the duct case."))
+        self.assertIsNone(sa._PLACE_ABBREV.search("Wu, J."))
+
+    def test_the_predicate_is_asked_directly_not_read_off_a_character(self):
+        """`_place_sentence_break` must answer on the abbreviation, not on the
+        case of the next character -- or the round-5 defect returns by the
+        other door."""
+        self.assertTrue(sa._place_sentence_break(" did the duct case. A"))
+        self.assertFalse(sa._place_sentence_break(" et al. A"))
+        self.assertFalse(sa._place_sentence_break(" et al. a"))
+
+
 class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
     """A check that is not in CHECKS, BASIS and REMEDIES does not run."""
 
@@ -1242,20 +1395,176 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         for lab in must_fault:
             self.assertEqual("FAULT", measured[lab][1], lab)
 
-    def test_the_evidence_files_are_not_themselves_corpora_of_faults(self):
-        """They are tracked surfaces the live guard sweeps. Written out in
-        full they would be exactly the defects they describe -- which is the
-        convention this lab has now had to re-apply five times in one night."""
+    def test_the_published_precision_figure_recomputes_from_its_sentences(self):
+        """THE ROUND'S CENTRE, and the closing condition the ruling set.
+
+        Four published figures, all of them recall. Nothing measured how often
+        the guard faults a sentence that is not a placement at all, and that
+        asymmetry is why six rounds of false FAULTs arrived as surprises: the
+        instrument could not report its own worst failure mode. This recomputes
+        the figure from committed sentences, exactly like the reach rows, so it
+        cannot go stale the way they did (L-79).
+        """
         board, reason = sa._published_board()
         if board is None:
             self.skipTest(f"detector OFF, not a silent pass: {reason}")
-        for name in ("V16_GRADE_HELDOUT_SETS.py", "V16_AUTHOR_HELDOUT_SET.py",
-                     "V16_GRADE_ROUND5_PROBES.py"):
-            path = REPO / "demo-output" / "website" / "campaign" / name
+        precision = self._held_out("V16_PRECISION_SET.py")
+        measured = precision.measure(board, sa.board_placement_faults)
+        _name, _who, _blind, n, bad = sa._PLACE_PRECISION
+        self.assertEqual(
+            (bad, n), measured["PRECISION"],
+            f"_PLACE_PRECISION says {(bad, n)}; the committed sentences "
+            f"measure {measured['PRECISION']}. The published figure is stale.")
+
+    def test_the_precision_set_cannot_be_padded_or_wedged(self):
+        """Two ways to fake a precision figure, both closed.
+
+        A set of sentences that must all be SILENT is satisfied perfectly by a
+        guard that has been switched off, and a set can be made to look clean
+        by filling it with sentences no pattern matches. So every sentence must
+        match a rule-A pattern, and five positive controls must all fault.
+        """
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        precision = self._held_out("V16_PRECISION_SET.py")
+        self.assertEqual([], precision.matches_a_pattern(sa),
+                         "a precision set may not contain sentences the guard "
+                         "never examines")
+        missed, total = precision.measure(
+            board, sa.board_placement_faults)["CONTROLS_MISSED"]
+        self.assertEqual(0, missed, f"{missed} of {total} controls missed")
+
+    def test_every_false_fault_class_is_counted_and_named(self):
+        """The ruling permits a shape to be KNOWINGLY ACCEPTED rather than
+        fixed, PROVIDED it is counted in the precision figure and named in the
+        blind-spot list. This is that proviso, executed: the enumeration and
+        the measurement are the same numbers or the suite reddens."""
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        precision = self._held_out("V16_PRECISION_SET.py")
+        by_class = precision.measure(
+            board, sa.board_placement_faults)["BY_CLASS"]
+        declared = {cls: count for cls, _what, count in sa._PLACE_FALSE_FAULT}
+        self.assertEqual(by_class, declared,
+                         "a false-FAULT shape is counted in the figure and "
+                         "missing from the enumeration, or the reverse")
+        _n, _w, _b, _total, bad = sa._PLACE_PRECISION
+        self.assertEqual(bad, sum(declared.values()))
+
+    def test_the_verdict_publishes_precision_beside_the_recall_figures(self):
+        """A guard whose precision is unmeasured reads as more trustworthy than
+        it is. The figure has to reach the reader, not only the constant."""
+        _, _, blind, _ = sa.BASIS["check_board_placement_words"]
+        frame = [d for d in sa.check_board_placement_words().detail
+                 if d.startswith("frame:")][0]
+        _name, _who, _b, n, bad = sa._PLACE_PRECISION
+        for surface in (blind, frame):
+            self.assertIn(f"falsely faults {bad} of {n}", surface)
+            self.assertIn("ADVERSARIAL AND NOT REPRESENTATIVE", surface)
+            self.assertIn("KNOWINGLY ACCEPTED", surface)
+            for cls, _what, _count in sa._PLACE_FALSE_FAULT:
+                self.assertIn(cls, surface)
+
+    #: The three absolutes the previous round added and execution falsified.
+    _FALSIFIED = ("none of which is a false FAULT",
+                  "cannot reach across a sentence",
+                  "identity was never doing any work")
+
+    def test_the_falsified_absolutes_survive_only_as_quoted_history(self):
+        """L-76 in the guard's own text, and the FIRST version of this test was
+        itself wrong in an instructive way.
+
+        It asserted the three strings were absent. But L-76 does not want a
+        falsified claim DELETED -- deleting it loses the record of what was
+        believed and why it was wrong, which is the whole value. It wants the
+        claim to stop being ASSERTED. So the property is: each string may
+        appear, and every appearance must sit beside its own falsification.
+        A future editor who reinstates one as a claim, with no marker near it,
+        turns this red; one who quotes it as history does not.
+
+        The test also fails if a string VANISHES, because a repair that erases
+        the mistake it repaired is the failure mode this whole rung documents.
+        """
+        source = (REPO / "scripts" / "self_audit.py").read_text(
+            encoding="utf-8")
+        flat = re.sub(r"\s+", " ", re.sub(r"(?m)^\s*#", "", source))
+        markers = ("falsified", "round 6 executed", "ONCE READ",
+                   "denied in an absolute", "The sentence that stood here",
+                   "This comment read", "was an inference")
+        for claim in self._FALSIFIED:
+            at = [m.start() for m in re.finditer(re.escape(claim), flat)]
+            self.assertTrue(at, f"{claim!r} was deleted rather than corrected; "
+                                f"L-76 wants the falsified claim RECORDED")
+            for start in at:
+                window = flat[max(0, start - 340):start + 340]
+                self.assertTrue(
+                    any(k in window for k in markers),
+                    f"{claim!r} appears with no falsification beside it -- it "
+                    f"is being asserted again, not quoted:\n...{window}...")
+
+    def test_the_round_six_probes_agree_or_are_declared_and_counted(self):
+        """Round 6's twenty-four, wired in like round 5's twenty.
+
+        Seventeen must agree outright: the twelve controls, the three
+        structural-boundary shapes and the two abbreviation shapes, which were
+        the round's two regressions. The remaining seven are the E2 shapes the
+        ruling permits to stand KNOWINGLY ACCEPTED -- and they are pinned to
+        that exact list, so a NEW E2 disagreement reddens this test just as
+        loudly as a regression would.
+        """
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        probes = self._held_out("V16_GRADE_ROUND6_PROBES.py")
+        measured = probes.measure(board, sa.board_placement_faults)
+        disagree = {lab for lab, (want, got) in measured.items() if want != got}
+        accepted = {
+            "E2 reduced relative, relativizer dropped",
+            "E2 reduced relative, past participle",
+            "E2 reduced relative, present tense",
+            "E2 head noun off the word list (kernel)",
+            "E2 head noun off the word list (Gramian)",
+            "E2 head noun off the word list (Laplacian)",
+            "E2 coordinated subject, both conjuncts objects",
+        }
+        self.assertEqual(accepted, disagree,
+                         "the knowingly-accepted set has changed: either a "
+                         "regression, or a shape fixed without updating the "
+                         "precision figure and the blind-spot enumeration")
+        must_fault = sorted(lab for lab, (want, _) in measured.items()
+                            if want == "FAULT")
+        self.assertEqual(7, len(must_fault), must_fault)
+        for lab in must_fault:
+            self.assertEqual("FAULT", measured[lab][1], lab)
+
+    def test_the_evidence_files_are_not_themselves_corpora_of_faults(self):
+        """They are tracked surfaces the live guard sweeps. Written out in
+        full they would be exactly the defects they describe -- which is the
+        convention this lab has now had to re-apply six times in one night, the
+        sixth being `V16_PRECISION_SET.py` itself, whose `front-runner` was
+        unsplit until the live guard was run over it before commit.
+
+        THE SET IS DERIVED, NOT LISTED, which is this file's founding
+        principle applied to itself: it enumerated five names by hand, so the
+        NEXT evidence file added would have been unguarded until someone
+        remembered to edit this tuple. That is the same shape as the defect in
+        the docstring at the top -- the list was the defect.
+        """
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        campaign = REPO / "demo-output" / "website" / "campaign"
+        evidence = sorted(campaign.glob("V16_*.py"))
+        self.assertGreaterEqual(len(evidence), 5, "the evidence files behind "
+                                "the published figures are gone; this test "
+                                "asserts nothing without them")
+        for path in evidence:
             self.assertEqual(
                 ([], []),
                 sa.board_placement_faults(path.read_text(encoding="utf-8"),
-                                          board), name)
+                                          board), path.name)
 
     def test_the_headline_pair_is_one_fixed_sample_measured_twice(self):
         """The second grade's exception 2. The first published pair was an
