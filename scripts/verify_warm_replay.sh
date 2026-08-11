@@ -63,7 +63,8 @@
 # Exit codes:  0 = every requested act resolved and replayed clean
 #              1 = something to look at: a DIFFERS, a NO-RESULT, or an act
 #                  that could not be resolved
-#              2 = nothing resolved                    (RED -- verdict withheld)
+#              2 = nothing resolved, or the control room was not answering
+#                  when we started              (RED -- verdict withheld)
 #
 # CONTROL HARNESS. The three settings below are overridable by environment so
 # this gate can be pointed at a scratch corpus and a stub control room and
@@ -114,6 +115,25 @@ declare -A PROMPT=(
   [sobol-sensitivity]="Apportion the output variance across the input spreads with a Sobol pick-and-freeze design and say which spread is worth buying down first."
 )
 
+# Acts this gate is KNOWN not to cover, recorded here rather than only in the
+# docket. onera-m6 has no prompt above, so asking for it used to print
+# `no prompt registered, skipped` and three zeros and exit 0 -- while the
+# agenda already carried a proposed item whose gate reads "The act is driven end
+# to end by the verification script and reproduces, or the reason it cannot is
+# recorded". The docket knew the act was unverifiable and the instrument said
+# otherwise, which is the whole defect in one line. The status now lives AT THE
+# INSTRUMENT, where someone who runs it meets it, not only in an agenda nobody
+# reads mid-sweep.
+#
+# This register does NOT make an act verifiable. It is a reason attached to a
+# refusal: an act named here still fails to resolve and still takes the run RED.
+# Registering a prompt here instead would be inventing a verification claim.
+declare -A UNVERIFIABLE=(
+  [onera-m6]="registered in no PROMPT above. The agenda carries a proposed item to
+              drive this act end to end through this script; until that lands there
+              is no prompt to replay and this gate has never covered it."
+)
+
 # Acts filmed with a surface uploaded from the laptop. The prompt still names
 # nothing: the surface is threaded in exactly as /api/geometry/upload threads
 # it, so this verifies the upload path the camera will use, not a shortcut.
@@ -145,7 +165,12 @@ RESOLVED=(); UNRESOLVED=(); WHY=()
 
 for act in "${ACTS[@]}"; do
     if [ -z "${PROMPT[$act]:-}" ]; then
-        UNRESOLVED+=("$act"); WHY+=("$act: no prompt registered -- check the spelling against the PROMPT table")
+        UNRESOLVED+=("$act")
+        if [ -n "${UNVERIFIABLE[$act]:-}" ]; then
+            WHY+=("$act: KNOWN NOT COVERED -- $(echo "${UNVERIFIABLE[$act]}" | tr -s ' \n' ' ')")
+        else
+            WHY+=("$act: no prompt registered -- check the spelling against the PROMPT table")
+        fi
         continue
     fi
     if [ -z "$(ls "$OUTDIR/$act"/transcript.* 2>/dev/null | head -1)" ]; then
@@ -185,6 +210,34 @@ if [ "$RESOLVE_ONLY" != 0 ]; then
     [ "${#UNRESOLVED[@]}" -eq 0 ] || exit 1
     exit 0
 fi
+
+# --- fail FAST as well as closed ------------------------------------------
+# The per-act poll below is 240 attempts two seconds apart, so a control room
+# that is not answering costs 8.4 minutes per act -- measured, not estimated --
+# and 1.8 hours across the default sweep of 13 before this script prints its
+# first word. It does eventually fail, so this was never the fail-open class;
+# it is worse-timed. The morning of a shoot is precisely when someone runs the
+# sweep and precisely when 1.8 hours of silence is unaffordable, and the answer
+# is one request: ask the control room whether it is there before betting an
+# hour and three quarters on the assumption.
+#
+# The per-act poll STAYS. This probe only rules out a room that was already
+# down when we started; a room that dies in the middle of act 7 is still the
+# poll loop's job to notice.
+probe=$(curl -s -m 8 -o /dev/null -w '%{http_code}' "$HOST/api/missions" 2>/dev/null || true)
+case "$probe" in
+    2??) ;;
+    *)
+        echo "  RED: the control room at $HOST is not answering (HTTP '${probe:-no response}')."
+        echo "       Probed /api/missions once, 8s timeout, before starting the sweep."
+        echo "       Start the control room, then re-run. Nothing was replayed."
+        echo "  No verdict. ${#RESOLVED[@]} of $REQUESTED act(s) resolved, 0 replayed --"
+        echo "  resolving an act says its baseline exists, not that anything reproduced."
+        exit 2
+        ;;
+esac
+echo "  control room at $HOST answered"
+echo
 
 ACTS=("${RESOLVED[@]}")
 
@@ -341,7 +394,7 @@ echo
 # be mistaken for either, and `13 of 13` says how much the zeros are worth.
 echo "  identical: $pass    clocks-only: $soft    differing or failed: $fail" \
      "   --  ${#RESOLVED[@]} of $REQUESTED act(s) resolved," \
-     "$((pass + soft + fail)) replayed"
+     "$((pass + soft + fail)) replayed against $HOST"
 if [ "${#UNRESOLVED[@]}" -gt 0 ]; then
     echo "  not verified at all: ${UNRESOLVED[*]}"
 fi
