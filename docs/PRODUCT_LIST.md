@@ -3619,6 +3619,52 @@ Written by the agent that built the guard and closed the exceptions; **the re-gr
   are all **declared mentions on two lab records**, both other agents' files, untouched.
 - **It did not re-grade itself, for the second time.** Final read dispatched to the grader.
 
+### 2026-08-11 — V16 grade three: both commissioned exceptions close, two new ones open, and the L-76 pattern holds a third time
+
+**"Two, neither of them the two I was sent to check."** That is the value of a grader who executes claims instead of
+reading them — and I asked for exactly this before green rather than after.
+
+- **Parser closed, and the concession verified as HONEST AND EXACTLY AS WIDE AS IT SAYS.** The grader built **four
+  decoys satisfying every stated property** — a case table, a *fenced example of the submission format*, a baselines
+  table, a team table — and confirmed three are accepted alone while **all four force OFF beside the real board.**
+  Two precision notes inside the concession: a compound decoy-plus-real-board split by a blank line gives a
+  **silently wrong board in 3 of 4**, so the itemised failure list *"reads unconditionally where it is
+  conditional"*; and one column matcher is unanchored, so `| Rank | Filename |` qualifies. **Margin stated: the real
+  README has 2 table blocks and 1 qualifying — one more `Rank`-headed table and the guard goes OFF.**
+- **Reach figure closed — generated, not typed, and proven by mutation.** Changing the constant moves the frame line
+  and drops the stale value; typing a figure back **reddens the test** (verified twice). Rule B's five-sentence
+  sample is scoped as *"a smoke test, not a reach measurement"* **in the frame line and BASIS, where a reader meets
+  it**, not in a comment. Denominator re-derived from its own stated rule: **1375 opened / 126 naming / 591 surveyed.**
+
+**THE TWO NEW ONES, and the first is the sharpest finding of the three grades:**
+
+1. **`_published_board` says "NEVER raises" — and raises.** Its file read is guarded by `except OSError`, but a
+   **`UnicodeDecodeError` is a `ValueError`.** One non-UTF-8 byte in the benchmark README raises out of the function,
+   out of the check, and **out of the entire `self_audit` run.** Verified by execution. **It is the same crash class
+   already fixed once in this rung**, through a different exception type, **in the same function**, with **exactly the
+   blast radius its own docstring describes** — and reachable from a third-party file that is **a list of
+   international author names**, the likeliest place in the corpus for a non-ASCII byte. **First of the three
+   absolutes backed by a real code defect rather than prose.**
+2. **The reach table is stale by one commit** — it records 24/45 and 43/45; measured today it is **20/45 and 42/45**,
+   because rule B was widened **and the table installed in the same commit.** It **contradicts its own rule-B row**
+   about the same five sentences. **The error is pessimistic**, so this is a derivation defect rather than a candour
+   one: the figures cannot drift between surfaces, but **nothing recomputes them from the sentences.**
+
+- **THE L-76 PATTERN HELD A THIRD TIME — three grades, three absolutes, one function**: *can no longer mis-parse
+  silently* · *does not return a board it is unsure of* · *NEVER raises*. **An absolute in a docstring marks the place
+  the author stopped testing**, and the grader's method — **execute every absolute rather than read it** — is how a
+  claim of "never" dies in one call. L-76 updated.
+- **Rule B's widening faulted six new places on lab records — including the grader's own document**, committed 21
+  minutes earlier and in the tree at the time. So *"each measured across the repository before keeping"* **does not
+  hold for the frame the repository had.** None travels, none is a false positive under the declared limit, **but the
+  cost is real and was unstated.** It templated the offending quotations out and recorded doing so.
+- **AND IT ACTED ON L-77 THE SAME HOUR:** both grader held-out sets (45 + 45) with their three positive controls are
+  now **committed as a runnable file**, with every ordinal assembled at import so it **carries zero faults of its
+  own.** That hands the author the tool that ends this defect class: **a test can now recompute the reach figures from
+  the sentences instead of trusting a typed table.**
+
+**V16 is two lines from green.**
+
 ### Decision requests for Katie (standing)
 
 **COMPUTE AUTHORISATION REQUESTED — 40 core-min to convert an assumed boundary into a measured one.**

@@ -3148,6 +3148,30 @@ what was checked over a statement of what cannot happen. And when a fix lands,
 label behind has moved the defect from the code to the record, where it is harder
 to find and lives longer.
 
+**CONFIRMED A THIRD TIME, 2026-08-11, and the third is worse than the first two.**
+Grade three of the same guard found two new exceptions, **neither of them the two
+it was sent to check**, and one is again an absolute in the **same function**:
+the docstring says the parser **"NEVER raises"**, and it raises. Its
+`read_text(encoding="utf-8")` is guarded by `except OSError`, but a
+`UnicodeDecodeError` is a `ValueError` — so **one non-UTF-8 byte in a third-party
+file raises out of the function, out of the check, and out of the entire audit
+run.** Verified by execution.
+
+Three details make this the strongest instance. It is **the same crash class
+already fixed once in this rung** (a regex compile error), through a different
+exception type, in the **same function**, with **exactly the blast radius its own
+docstring describes**. It is reachable from a file that is *a list of
+international author names* — the single most likely place in the corpus for a
+non-ASCII byte. And it is **the first of the three absolutes backed by a real code
+defect rather than prose**: rounds one and two were labels overreaching sound
+code; round three is a label that is false because the code is wrong, in the
+direction the label denies.
+
+So the escalation is the lesson: **an absolute in a docstring is not merely a
+documentation smell — it marks the place the author stopped testing.** The
+grader's method is the one to copy: it **executed every absolute** rather than
+reading it, which is how a claim of "never" is falsified in one call.
+
 There is a structural fix worth copying from the same round. The parser had been
 anchoring to a **heading named "leaderboard"** and taking the first table after
 it — a name-based hook that a decoy heading or an intervening table defeats
