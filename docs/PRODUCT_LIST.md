@@ -3338,6 +3338,81 @@ append**, and that is now the tool's central mechanism, with my failed reasoning
   carried 644. Fixed with a one-invocation override and **verified as `100755` in the tree at HEAD, not the index.**
   The test itself was not touched.
 
+### 2026-08-11 — the S6 parser gap was 38%, not 6 cases, and the primary prediction was never scored
+
+**THE FINDING THAT MATTERS MOST, and it corrects a headline I wrote: the primary prediction was never scored, and no
+document said so.** The pre-registration's *primary* was a post-wiring fire rate on `HeadEngineer` runs. **That run
+cost zero core-minutes — the document says so itself — so no post-wiring production run existed.** The campaign
+family, offered in the same section as an **analogue**, was scored in its place. Two records then hardened the
+analogue into *"S6 fires on production for the first time"* and *"135/135 on production."* **Both corrected above.
+The primary prediction is still open.**
+
+- **THE PARSER GAP WAS 38%, NOT 6.** **85 of 222 gated logs** had at least one control the parser could not resolve;
+  the six were only the ones where *nothing* resolved. **The other 79 stayed classed as gated on a partial reading**,
+  so the defect was invisible in the class counts. After repair: **3**.
+- **And it ran in both directions** — regex control keys *and* regex solver keys. Every one of the six had **both
+  numbers present in its own file**; none was a genuine no-declaration case.
+- **The resolution rule was READ FROM OPENFOAM'S SOURCE, not chosen**: literal keys beat regex regardless of
+  declaration order; among several matching patterns the **last-declared wins**; matching is a **full** match, so an
+  alternation does not match a component name. Cited to file and line. *"It is OpenFOAM's rule, not a choice of
+  mine."*
+- **The structural change was forced by the data**: reachability is now decided **per field**, not by comparing
+  declared keys — because one case's single control names two fields whose tolerances come from two *different*
+  solver entries. **The keys can never meet; the fields do.** Candidate names come only from what the case's own
+  dictionaries name; nothing is invented.
+- **RE-SCORED: fail-open 6 → 0. Gated 81 → 87 (41 fires, 47%). Families 51% / 94% / 20%.** No case crosses the
+  sentinel boundary; **135 of 135 holds**; 13 logs get a different arming target, 11 needed their fire label
+  recomputed and **none changed**. Campaign 51% sits inside the pre-registered 48% ±15pp — **no refutation condition
+  fires.**
+- **AND THE REPAIRED RELATION NOW REPRODUCES THE BARE-`1e-15` PARTITION EXACTLY** — the very figures a standard had
+  already published. **Before the repair the two differed by precisely the six fail-opens.** That is L-63/L-66's
+  point demonstrated rather than argued: on this archive the principled relation and the literal are **the same
+  predicate**, and the only reason they had ever differed was our own parser bug.
+- **"SCORED WITH THE SHIPPED HELPERS" CAUGHT NOTHING HERE AND COULD NOT HAVE** — it checks that two implementations
+  agree, and **a defect both share is invisible to it.** The replay script that built the corpus **drops quoted keys
+  the same way**, so on exactly these cases the two agreed *by both being blind*. Recorded as **L-74**. That script
+  is **still unrepaired**; fixing it means regenerating a published artifact (~6 min replay).
+- **The retrospective row was three rows, not one** — every row was checked and the finding **generalises beyond what
+  the re-score named.** Labelled in place; the table and its "met"s untouched; **zero deletions** in all three edits.
+- **Sweep denominator: 20,552 tracked → 19,091 readable → 9,574 containing the literal → 366 topical → 19 hand-
+  screened**, matched with the whole file as one record so wrapping cannot hide a phrase, **and independently re-run
+  in Python over normalised text — the two methods agreed on 17 and 18 files, union 19.** Two methods, both stated.
+- **Found while not looking, and it is a case defect not a tool defect:** those cases **declare a `residualControl`
+  entry OpenFOAM cannot apply** — the key names tensor components while the solver dictionary is keyed by the tensor,
+  so **the SIMPLE convergence check silently never tests the Reynolds stresses in those runs.**
+- **Also: two logs were scored against a dictionary written AFTER them.** The archived log predates its own case
+  dictionary, so the replay armed from targets that run never used. **The production gate is protected because it
+  reads the case it is about to stage; the replay is not.**
+- Limits stated: the multiple-pattern rule is **exercised only by unit test, not by data**; whether the original
+  scoring script shared the defect **cannot be established** because it was never committed; and transient-style
+  nested `residualControl` blocks are **still not parsed at all**, so S6 cannot arm on a transient case even in
+  principle.
+
+### 2026-08-11 — the three remaining fail-open gates are closed, and the slow failure is 1.81 hours → 0.01 seconds
+
+- **The slow failure was measured, not estimated**: the pre-fix sweep pointed at a closed port was **still polling act
+  1 of 13 when a 120-second bound cut it off, having printed nothing** — timed at 2.091 s per poll, **8.4 minutes per
+  act and 1.81 hours across the sweep before the first word.** After: a single 8-second probe, **RED and exit 2 in
+  0.01 s.** The per-act poll stays, because a room that dies during act 7 is still its job.
+- **All three siblings reproduced and fixed.** The worst printed **152 logs, 73 NOT_CONVERGED, 56 CANNOT_TELL — and
+  exited 0**, with no non-zero return anywhere in the file.
+- **THE JUDGEMENT CALL IS THE GOOD PART, and it applied my own ruling back to itself.** A bare failure exit would have
+  made that gate **permanently non-zero at 129 of 152** — L-70 exactly. So it lifted the register pattern from an
+  existing tool *along with its reasoning*: 129 dated basenames, **blessing nothing**, making the gap countable and
+  stopping it growing. **A new unconverged log fails; so does a registered log that gets worse.** Healed and vanished
+  logs are reported as drift and never reddened, **so the register cannot rot into an amnesty.**
+- **It keyed the register on basenames rather than parsing a prose document** — *"no gate should depend on parsing
+  English."*
+- **Consumers re-searched per script rather than carried over** — 7 / 7 / 13 files. **The only executable consumer
+  anywhere is one test module, 14 tests green before and after.** Production exits unchanged.
+- **It introduced a defect and caught it in its own control**: the drift report dumped all 129 names on a partial
+  sweep, **burying the finding**. Fixed before commit — and it noted that this is **the same drowning-in-its-own-
+  output failure another script's comment already warns about**, which *"reappeared the moment I wrote new reporting
+  code."*
+- **`onera-m6` is now recorded at the instrument**, with the reason. It does **not** make the act verifiable — the
+  name still fails to resolve and still takes the run RED. *"It replaces a shrug with a reason. Registering a prompt
+  would have been inventing a verification claim."*
+
 ### Decision requests for Katie (standing)
 
 **COMPUTE AUTHORISATION REQUESTED — 40 core-min to convert an assumed boundary into a measured one.**

@@ -3029,3 +3029,44 @@ happened*; and **a clean sweep is not proof of no duplicate**, because a duplica
 that never reached a write leaves no artifact anywhere. A detector whose verdict
 carries all three can be trusted with a negative result. One that carries none
 cannot, however good its positives.
+
+## L-74. "Scored with the shipped helpers" is not independent verification — two implementations that share a defect agree perfectly
+
+This lab adopted a good rule: when scoring a detector, use the **shipped**
+helpers rather than a fresh reimplementation, because a second implementation
+agreeing with itself proves nothing about the first. That rule is right and it
+has caught real problems. Tonight it also failed, in a way worth naming, because
+its failure mode is invisible from inside it.
+
+A convergence-target detector was scored against a replay corpus. Both the
+detector and the script that **built the corpus** parse OpenFOAM dictionaries,
+and **both drop quoted regex keys the same way.** So on exactly the cases where
+the parser was blind, the two agreed — *by both being blind.* The scoring
+protocol confirmed a defect instead of catching it, and could not have done
+otherwise. The gap was not six cases as first reported but **85 of 222 gated
+logs**; the other 79 were silently classed on a **partial** reading of their own
+dictionaries, which is why the class counts looked healthy.
+
+The rule needs a companion, not a replacement:
+
+**Sharing an implementation makes agreement meaningless in exactly the region
+where the implementation is wrong.** Using the shipped helpers protects against
+*transcription* error — a fresh reimplementation drifting from the thing that
+ships. It gives **zero** protection against a defect the shipped code already
+has. These are different threats and only one of them is addressed.
+
+**The check that does work is to compare against the system's own authority.**
+The repair here was not written from taste: the resolution rule — literal keys
+beat regex, last-declared pattern wins, matching is a full match — was **read out
+of OpenFOAM's own source and cited to file and line.** *"It is OpenFOAM's rule,
+not a choice of mine."* When two of your components agree, the tiebreaker cannot
+be a third component you also wrote; it has to be the external thing they are
+both modelling.
+
+Corollary worth keeping: after the repair, the principled constant-free relation
+reproduced the crude literal's partition **exactly**, and the only reason the two
+had ever differed was **our own parser bug**. The apparent evidence that the
+sophisticated rule was doing something the dumb rule could not was, in its
+entirety, a defect. See **L-66** — and note that L-66's test (build the crudest
+rival and see whether the corpus can tell them apart) would have surfaced this
+months of arguing could not.
