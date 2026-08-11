@@ -3487,6 +3487,53 @@ The primary prediction is still open.**
 - **IT DID NOT RE-GRADE ITSELF.** *"A15 applies to a fix round exactly as it applies to a build."* The re-grade is
   owed to the original grader and is dispatched.
 
+### 2026-08-11 — V16 re-graded PASS WITH EXCEPTIONS, two instead of six, each closure verified by breaking it
+
+**The method is the model: every closed exception was verified by breaking the thing that holds it**, in memory,
+rather than by reading the fix.
+
+- **E1 closed — with an honest limit.** Deleting or gutting the blind-spot admission **reddens** the sibling test.
+  But **keeping the words while reversing their force ("ANY" → "a rare") still passes.** *It binds against deletion —
+  the failure that actually occurred — not against dilution*, and it says so rather than claiming more.
+- **E5 closed by restoring the withdrawn family in memory**: both assertions of the withdrawal test fail, bibliography
+  false positive included. **E3 closed** by lengthening and shortening synthetic boards — 2/4/7/12 rows give ranges
+  tracking in both directions. **E6 closed**: the shipping sentence is true against the parsed board, the guard reads
+  it and binds it correctly, and the text was rightly left alone.
+- **E4 precision independently re-derived: 978 surfaces, placements 503 → 573, faults UNCHANGED at exactly two.**
+  **Nine new pattern families bought zero false positives.**
+- **Both of my skeptical items check out**: runtime fixtures weakened no assertion (three were *added*, and a soft
+  spot from the first grade was closed unasked), and the replacement verdict prints **both denominator and selection
+  rule**, with the struck corpus figure struck **in place with its reason.**
+
+**THE TWO THAT REMAIN OPEN, and the second is the sharper:**
+
+1. **The parse can still mis-parse silently — and the record says it cannot.** Three of fifteen adversarial inputs
+   return an **unchecked board with no warning**: a numbered table *between* the heading and the board, an earlier
+   heading also containing the word "leaderboard", and **a blank line inside the board table, which silently drops an
+   entrant.** The repair anchors to *a* heading and takes the first table after it — **it never asks whether what it
+   read is a leaderboard.** So *"can no longer mis-parse silently"* is **false as written**, in the one function the
+   whole evidence claim rests on. Not live, and silent blindness rather than manufactured false positives.
+2. **THE PUBLISHED REACH FIGURE IS ONE SAMPLE'S, AND THE COMPARISON IS NOT LIKE-FOR-LIKE.** The grader's original 45
+   sentences — invented blind, *before the widening existed* — put the widened guard at **53% missed**, against the
+   author's **30%** on its own set. A third set built **adversarially against the eleven patterns, zero sentences
+   shared**, gives **96%**. **The widening is large and real — 89% → 53% on one fixed set — but the headline pairs an
+   OUTSIDE measurement of the old version with an INSIDE measurement of the new, and nothing says they are different
+   samples.** Reported as a scope statement, not a refutation.
+
+**FOUND WHILE NOT LOOKING, and one is a coordination hazard:**
+- **Another agent overwrote this agent's session scratchpad** at 04:11 with its own held-out set — so **disjointness
+  had to be asserted mechanically rather than claimed.** Agents share a scratchpad directory and can silently destroy
+  each other's evidence.
+- **The particle-surname fix created its own mirror bug**: the last-token rule that fixed `van Dijk` breaks a suffixed
+  name into the suffix.
+- **The count "eleven" and the three miss rates are hardcoded in three places each, with no test that they still
+  describe the patterns** — *the literal problem one level above the one this round removed.*
+- **Rule B was not widened at all.** Four of five fresh rule-B shapes pass clean, so **"80% → 30%" reads as a
+  statement about the check when it is a statement about one of its two rules.**
+- **L-75 applied to its own first grade**: the single `grep -r` count in it returns identically under `find`, so that
+  claim stands **with its frame now stated** — and the guard does not inherit the blindness, because `git ls-files`
+  reaches the **6,938 tracked-but-gitignored files `grep -r` cannot see.**
+
 ### Decision requests for Katie (standing)
 
 **COMPUTE AUTHORISATION REQUESTED — 40 core-min to convert an assumed boundary into a measured one.**
