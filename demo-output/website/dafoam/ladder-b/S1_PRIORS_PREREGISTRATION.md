@@ -237,12 +237,35 @@ Operationalised in four gates, all required.
   intervals were built from. A point field with error bars asserted rather than computed
   fails.
 - **G-P4 — the posterior reproduces the plateau balance it claims.** The corrupted run's
-  stationary point is where the prior pull cancels the likelihood gradient. **The control
-  target is re-based here** (see §8): `|g_penalty| = 2·λ_L2·‖β−1‖₂ = 4.785304e-04`,
-  computed exactly and analytically from `fields_beta.npy` on disk (‖β−1‖₂ = 2.392652,
-  rms 0.016511 against the published 0.0165), **not** from the published
+  stationary point is where the prior pull cancels the likelihood gradient.
+
+  > **[RESTORED 2026-08-11 by the chief supervisor. §8's correction is WITHDRAWN — the
+  > triple reconciles — so the re-basing it justified is reversed. The superseded wording
+  > is retained immediately below, struck, per the supersession rule.]**
+  >
+  > **The gate is the ratio AND the cosine**, against the plateau state (**eval 10**, the
+  > matched `beta_eval010.npy` / `grad_eval010.npy` pair, evals 11–17 agreeing in J to seven
+  > digits): **ratio 0.998441, cos 0.999542**, with rms‖β−1‖ **0.016502** as the third leg.
+  > A posterior treatment that cannot recover **all three** to 1% fails its own control.
+  >
+  > **Why not the analytic quantity alone**, which is the tempting simplification and was the
+  > mistake: `|g_penalty| = 2·λ_L2·‖β−1‖₂` is an **identity**. Any treatment that knows λ_L2
+  > and β reproduces it exactly — **including one whose posterior is wrong.** It cannot
+  > fail, so it cannot be a control. The **cosine** is the informative leg: it is the only
+  > number here that carries whether the prior pull actually *opposed* the likelihood
+  > gradient, which is the claim the gate exists to test.
+  >
+  > **State the frame with the number when this is graded.** The whole 1.684 confusion came
+  > from pairing a plateau-state ratio and cosine with a gradient norm reported at eval 16.
+  > `‖g_total‖` moves by a factor 1.6 between those evaluations while the ratio and cosine
+  > move in the fourth decimal, so a mismatched state is invisible in two of the three
+  > numbers and dominant in the third.
+
+  ~~**The control target is re-based here** (see §8): `|g_penalty| = 2·λ_L2·‖β−1‖₂ =
+  4.785304e-04`, computed exactly and analytically from `fields_beta.npy` on disk
+  (‖β−1‖₂ = 2.392652, rms 0.016511 against the published 0.0165), **not** from the published
   ratio/cosine pair, which §8 shows is not self-consistent. A posterior treatment that
-  cannot recover this number to 1% is reported as failing its own control.
+  cannot recover this number to 1% is reported as failing its own control.~~
 
 ## 5. Caps, cost basis, stopping rule
 
@@ -325,7 +348,48 @@ as in every S1 file); anything about the destruction term itself
 (`w3-beta-on-omega-destruction-model-patch`); and — at rank 6 — any claim that the
 posterior is *tight*, only claims about the directions actually computed.
 
-## 8. Correction: the published plateau-balance triple is not self-consistent
+## 8. ~~Correction: the published plateau-balance triple is not self-consistent~~ — **WITHDRAWN 2026-08-11**
+
+> **[WITHDRAWN 2026-08-11 by the chief supervisor. The section below is retained in full,
+> unedited, per the supersession rule — it is wrong, and deleting it would remove the
+> evidence of how.]**
+>
+> **The triple reconciles.** An independent agent recomputed it from the run's own archived
+> matched pair — `beta_eval010.npy` with `grad_eval010.npy`, both in DV order, written by the
+> same `run_eval` call — and got **ratio 0.998441, cos 0.999542, rms‖β−1‖ 0.016502** against
+> the published **0.998 / 0.9995 / 0.0165**. Three for three. The governing identity
+> `‖g_total‖ = |g_QoI|·√(1+r²−2rc)` closes to **six digits**, so the triple is internally
+> self-consistent.
+>
+> **Where the 1.684 came from.** The section below combines the plateau-state ratio and
+> cosine with `‖g‖₂ = 9.011e-06`, which the trajectory table reports at **eval 16 — a
+> different state.** Near-cancellation is what makes the mix bite: `‖g_total‖` moves
+> 1.45e-05 → 9.01e-06 (a factor 1.6) between eval 10 and eval 16, while the ratio and cosine
+> move only in the fourth decimal. Evals 11–17 agree in J to seven digits, so **eval 10 is
+> the plateau** and a matched gradient was on disk the whole time. Nothing needed
+> re-deriving.
+>
+> **Why the withdrawal matters more than the arithmetic.** §4's gate G-P4 was re-based, on
+> the strength of this section, onto `|g_penalty|` **alone** — and
+> `|g_penalty| = 2·λ_L2·‖β−1‖₂` is an **identity**. Any treatment that knows λ_L2 and β
+> reproduces it exactly, **including one whose posterior is wrong.** The re-basing therefore
+> removed the only half of the control that tests the *balance*: the **cosine** is the part
+> carrying whether the prior pull actually opposed the likelihood gradient. A control that
+> cannot fail is the defect this lab spent 2026-08-11 cataloguing, and here it was
+> introduced *by* a correction. **G-P4 is restored to the ratio-and-cosine form in §4.**
+>
+> **On who is amending this.** The section's author was a peer Claude session that has since
+> ended, so the rule that a superseded entry is withdrawn by its author names nobody, and an
+> unowned withdrawal is how a refuted claim stays published. Recorded as docket **D9**
+> against **D8b**.
+>
+> **On amending a pre-registration at all.** L-44 freezes these against improvement, and the
+> freeze is what makes them evidence: it proves a gate could not be tuned to an answer.
+> **No compute has run against this document** — there is no `S1-priors` run directory — so
+> there is no answer to tune to, and the property the freeze protects is intact. The original
+> text is retained below rather than rewritten, and this amendment is dated.
+
+**The withdrawn text follows, unedited:**
 
 `S1_CBFS_INVERSION_RESULT.md` §4(2) reports, at the corrupted run's plateau,
 `|g_penalty|/|g_QoI| = 0.998`, `cos(g_QoI, −g_penalty) = 0.9995`, and the trajectory
