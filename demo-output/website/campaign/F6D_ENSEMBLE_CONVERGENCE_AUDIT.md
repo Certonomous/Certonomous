@@ -395,6 +395,18 @@ are unexamined and are the recommended next audit; 5 are documented and
 intentional; 1 is the parent case whose convergence is independently
 established.**
 
+> **Frame warning, 2026-08-11 — if you re-run this sweep now you will get
+> 136 of 381, and the extra 16 are mine.** The Option A continuation (§5)
+> copies 16 cases into `f6d_option_a/`, and the pre-registration **deliberately
+> leaves `residualControl { p 1e-15; }` unchanged** in every one of them,
+> because altering it would have made the continuation a different case from
+> the one being diagnosed. So `365 → 381` and `120 → 136` is **this audit's own
+> diagnostic tree being counted, not the defect spreading.** A parallel sweep
+> has already reported the 136/381 figure as a correction to the 120/365 below;
+> both counts are right for their own moment, and **neither should be published
+> as a worsening.** The count of *published, claim-bearing* cases carrying the
+> pattern is unchanged at **120**.
+
 ### 6.1 The 21 unexamined cases, audited — and they are NOT a second F6d
 
 Done under the chief's ruling 3, same method, same discipline. **Frame:** the 21
