@@ -66,6 +66,42 @@ it means they are not what that rung declared it would settle.
 | D3 | **`docs/INSTRUMENT_INTEGRITY_LEDGER.md` holds the guard's two standing faults, and one of them is structurally unclearable.** Every run of `check_board_placement_words` reports WARN with exactly these two: a rule-A `rank-3` bound to Wu (a *quotation* of defect A, which the adjudication clause does not clear because the correcting sentence is too far away) and a rule-B `"Our margin over the runner-up"` (a quotation of defect C — and **rule B has no adjudication clause and cannot be given one**, since there is no correct form of a position word to sit beside a wrong one). This is the check's permanent non-green floor: no future round can reach PASS while these stand, so a reader cannot tell this WARN from a new one. | V16 rounds 1–4; measured again at close-out, 2026-08-11 | Assemble the ledger's two quotations from split tokens the way `sdk/tests/test_rank_claim_surfaces.py` and `V16_AUTHOR_HELDOUT_SET.py` already assemble theirs — the convention exists and this surface predates it — **or** record an explicit dated accepted-exception so the WARN is legible as "the two known quotations, nothing new". | fleet |
 | D4 | **The fixture-assembly convention is enforced by review alone, and review failed twice in one night.** `test_rank_claim_surfaces.py` states in its own header that a tracked file must not spell a wrong placement in full. The killed agent's inherited diff broke it, and so did my first draft of the repair: between us we put **eight** new real rule-A faults about a live entrant into the guard's own test file (measured: WARN 2 → WARN 10, all eight new ones in that one file). The live guard *did* catch it — but only because I ran the audit by hand mid-round. | V16 grade-four close-out, 2026-08-11 | `check_board_placement_words` (or a thin wrapper) run as part of `sdk/tests/`, so adding a literal fault to a tracked file reddens the suite rather than waiting for someone to run the audit. **[R-DEPTH — borderline: this is the guard checking the guard's own test file. Filed, not executed.]** | fleet |
 
+### D-follow-on — the two published results D1 puts in doubt
+
+Filed by the chief, 2026-08-11, on the back of D1. **D1 says the instrument can lie. This
+entry asks whether it already did, in something we published.**
+
+A sweep of every commit in this tree since 00:00 today for mutation-proved claims returns
+three hits, one spurious:
+
+| Commit | Time | Claim | Why it carries D1's signature |
+|---|---|---|---|
+| `717d7e7a` | 06:19 | *"mutating `_PLACE_REACH` from 24 to 99 moves…"* | `24` → `99` is an **equal-length** edit — the size half of `(mtime, size)` is preserved by construction. |
+| `6b37866a` | 07:14 | *"the recompute moves when I mutate my own sentences"* (V16 fourth grade) | Its own body states the file was **"restored byte-for-byte"**, which reproduces both halves of the invalidation key. |
+| `d4509368` | 01:36 | *"the solves did not mutate their own inputs"* | **Not a mutation test** — a different sense of the word. Discarded, and recorded so the next sweep does not re-flag it. |
+
+**Both live ones are POSITIVE results, and that is the dangerous polarity.** Each concluded
+that a recompute is alive. Under the inversion D1 demonstrated, the module can hold the
+mutated value at run time while the file on disk reads the original — so a test that appeared
+to redden on mutation may have been reading stale mutated bytecode throughout, and the
+recompute it certified as live may not be. That is a **false pass in a published claim**, not
+merely an unverified one.
+
+**What settles it:** re-run those two with `PYTHONDONTWRITEBYTECODE=1` (or `__pycache__`
+cleared between every cell), asserting all four cells **in the same run** so an inversion
+cannot present as a pass. Routed to the V16 agent with an explicit instruction not to re-open
+the rung for it.
+
+**The cheap answer that would settle it for free:** if either mutation was reverted with
+`git checkout` rather than a copy, the mtime changes and the stale cache is defeated. One line
+of evidence closes it.
+
+**The general form, worth more than the two instances:** every mutation-proved result this lab
+has produced is only as good as whether its author happened to clear the cache — and mutation
+testing is the main way both live sessions have been proving that recomputes are live. Until
+the harness in D1 exists, treat any mutation result produced without the guard as **unproven
+rather than merely unverified.**
+
 ## E. Standing task-list items not yet executed
 
 | # | Item |
