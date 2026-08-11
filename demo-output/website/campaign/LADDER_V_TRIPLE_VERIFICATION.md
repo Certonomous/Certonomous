@@ -298,7 +298,7 @@ and stated reach failing to keep up with what its author already knew. Closed in
    *measurement of the old patterns with an* **inside** *measurement of the new ones — different
    samples, unstated. On the grader's original 45, invented blind before the widening existed, the
    widened guard misses* **53%**, *not 30%. The honest headline is that one fixed set measured at
-   both ends:* **89% → 53%.** *A third set built adversarially with the pattern list in hand gives
+   both ends:* **89% → 53%** *(**STALE 2026-08-11: recomputes today to 89% → 44% and 91% → 93%. These were correct when written at `9f6d8a41` and the CODE MOVED UNDER THEM at `db096bb7`, when rule B widened. Not unrecomputable history — the shipped verdict generates the current figures.**)***.** *A third set built adversarially with the pattern list in hand gives
    96%. The check now generates all three, with provenance, from one table rather than carrying
    them as prose.)*
 3. **The parse can no longer crash, and three more ways to mis-parse it silently are closed.**

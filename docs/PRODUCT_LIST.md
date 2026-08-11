@@ -3454,7 +3454,9 @@ The primary prediction is still open.**
   guard can no longer regress to being less honest than the thing it replaced.
 - **RECALL WAS MEASURED TWICE, INDEPENDENTLY.** It built **its own 46 held-out sentences without seeing the grader's**
   and got **80% missed** — *corroboration of the grader's 89%, not a repetition of it.* Then nine families were added:
-  **80% → 30% missed, with precision still exactly zero.**
+  ~~**80% → 30% missed, with precision still exactly zero.**~~ **RETIRED — this pairing was withdrawn by the second
+  grade as not like-for-like (an outside measurement of the old guard against an inside one of the new). Left struck
+  in place with its reason rather than deleted.**
 - **AND ONE FAMILY WAS ADDED, MEASURED, AND TAKEN BACK OUT.** `No. N` fired on a **journal issue number in a
   bibliography beside a matching citation**. *Its removal is now a test.* Medals, roman numerals, other languages and
   table rows are deliberately excluded — **also as tests**, so the exclusions are decisions rather than gaps.
@@ -3593,7 +3595,7 @@ Written by the agent that built the guard and closed the exceptions; **the re-gr
   the exception has been the label, and an absolute was the shape both took."* The absolute is gone; the docstring
   now says a decoy satisfying every property **is** a leaderboard as far as the function can tell — **true, testable,
   and it tells the reader what to worry about.** Recorded as **L-76**.
-- **The headline is now like-for-like: 89% → 53%**, measured at both ends on the grader's original 45 — invented
+- **The headline is now like-for-like: 89% → 53%** *(**STALE 2026-08-11: recomputes today to 89% → 44% and 91% → 93%. These were correct when written at `9f6d8a41` and the CODE MOVED UNDER THEM at `db096bb7`, when rule B widened. Not unrecomputable history — the shipped verdict generates the current figures.**)*, measured at both ends on the grader's original 45 — invented
   blind, before the widening existed — with **every row naming who built the sample and whether they had seen the
   patterns**, and the adversarial **96%** stated beside it. **All of it generated from one provenance table, so it
   cannot drift.**
@@ -3728,20 +3730,24 @@ Written by the agent that built the guard and closed the exceptions; **the re-gr
   corrected where a reader reaches it; and the unanchored column matcher — which had counted `Filename`, `Hostname`
   and `Casename` as naming the entrants — is anchored, with tests both ways.
 - **THE L-76 SWEEP WAS EXECUTED, AND ENUMERATED BY REGEX RATHER THAN BY EYE**: **36 absolute-shaped words across 17
-  surfaces**, each falsified by construction. **All hold. No fourth absolute.** The single apparent failure was its
+  surfaces**, each falsified by construction. ~~**All hold. No fourth absolute.**~~ **OVERTURNED the same day — grade
+  four found a fourth, in the surface class this sweep does not name (module comments). Marked here at the point of
+  claim, not only in the entry below.** The single apparent failure was its
   own probe using one-letter surnames, which the parser rejects by design with a stated reason.
 - **The pattern, recorded plainly in the rung and here:** three grades, three absolutes, one function — and **the
   instrument was sound at every step while a sentence about it was wrong at every step**, the third time backed by a
   real crash with a twenty-check blast radius. **An absolute in this lab is an unverified claim until someone
   executes it.** Recorded as **L-78** with the boundary and measurement lessons.
-- **State: 1384 passed**, 79 in the guard file. Every travelling surface agrees with the board; the 2 remaining WARNs
+- **State: 1384 passed** *(reported by the author; I did not verify the full-suite figure — an independent run
+  confirmed only the guard file at 79. Recorded as unchecked, not disputed.)*, 79 in the guard file. Every travelling surface agrees with the board; the 2 remaining WARNs
   are pre-existing declared mentions in another agent's file. **It did not re-grade itself, for the third time.**
 
 ### 2026-08-11 — V16 grade four: three exceptions, the smallest set, and the first absolute to survive execution
 
 - **THE CRASH BOUNDARY IS THE FIRST ABSOLUTE IN THIS RUNG TO SURVIVE EXECUTION.** 17 exception types nobody had used
   were thrown at the wrapped region: **16 of 16 `Exception`s → OFF naming the type**, and the three `BaseException`s
-  propagate **exactly as documented.** *"The reason is that it was scoped to `Exception` rather than to everything."*
+  propagate as expected — **though "exactly as documented" overstates by one: the docstring names two, and the third
+  is consistent with the scoping but undocumented.** *"The reason is that it was scoped to `Exception` rather than to everything."*
   The only defeat the grader could construct requires an exception whose own `__str__` raises — unreachable from the
   wrapped code — **and it declined to count that as a fourth absolute.** Restraint in the right direction.
 - **The recompute was verified by mutation**: one sentence changed in the grader's own committed set moved the figure
@@ -3777,6 +3783,42 @@ Written by the agent that built the guard and closed the exceptions; **the re-gr
   file and four commit messages to a third party.** It flags that **`scripts/self_audit.py`'s docstrings, comments,
   BASIS and generated verdict line are claim-bearing prose that ships inside code and that no claims table has ever
   covered** — and that **no surface may still read the retired "89% → 30%" pairing.**
+
+### 2026-08-11 — the reconciliation finds the correction propagated BACKWARDS, and four disagreements with my own record
+
+**A new failure shape, and it is not carelessness.** The rung's reach figures were **correct when written** (`9f6d8a41`,
+06:04) and **the code moved under them** (`db096bb7`, 06:56) when rule B widened. The shipped verdict line now
+generates **44% and 93%**; six prose copies still publish **89% → 53%** and **96%** as current — **one of them inside
+the sentence "generated from one provenance table, so it cannot drift."** In the auditor's words: *"not a copy-paste
+failure — copies with no way to learn."* **Deriving a number at its source does not protect the sentences that quoted
+it before the source moved.** All six corrected in place above, marked stale rather than deleted, with the mechanism
+named.
+
+- **Frame stated properly, as this rung demands**: commit `038b36da`, **20,559 paths from `git ls-files`, 18,833 read
+  as UTF-8 under 4 MB** (276 over-size, 1,450 non-UTF-8), whole-file matching, **never `grep -r`**. And it noted that
+  the author was editing three files in the working tree **outside that frame** while it worked.
+- **FOUR DISAGREEMENTS WITH MY RECORD, all four upheld and all four now fixed:**
+  1. The stale **53% / 96%** across four of my lines and two of the rung page's — corrected above.
+  2. My *"All hold. No fourth absolute."* is **overturned by the entry immediately following it**, and I had left **no
+     marker at the point of claim.** A reader stopping at the sentence would carry the wrong belief. Marked in place.
+  3. My *"the three `BaseException`s propagate exactly as documented"* **overstates by one** — the docstring names
+     two; the third is consistent with the scoping but undocumented. Corrected.
+  4. My **"1384 passed"** is recorded as **unchecked, not disputed** — an independent run confirmed only the guard
+     file at 79. Now labelled as reported-by-the-author.
+- **AND THE FINDING IT TURNED ON ITSELF: every corpus figure states its FILTER and none states its COMMIT.** The same
+  rule returned **503 at 03:47, 573 at 05:25, 591 at 07:15.** *"That is a finding against me as much as anyone."*
+  L-72 half-applied across the whole night — we learned to declare the filter and not the moment.
+- **The retired pairing survives on four surfaces, three as retraction records and ONE as a live restatement** —
+  mine. Struck in place with its reason, using the remedy already present in the same file.
+- **It routed two of the nine items away from itself**, being its own text, including a docstring of its own that
+  describes a table which no longer says what it says.
+- **THE `.tex` AND ITS PDF ARE CLEAN — BOTH HALVES.** Source true against the parsed board, guard binds it at zero
+  faults, and **`.tex` and PDF identical to HEAD from the same commit**; `pdftotext` over 136,603 characters finds the
+  correct phrasings present and both wrong ones **absent.** *The one corrected-source-and-artifact match of the
+  night.*
+- **Found while not looking**: `docs/LEDGER_HEADLINE_AUDIT.md` is in the V16 surface set and **no list has ever
+  included it**; and a JSON and an HTML file **carry placement language on machine-read surfaces the blind-spot list
+  does not distinguish from prose.**
 
 ### Decision requests for Katie (standing)
 

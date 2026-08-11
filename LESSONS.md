@@ -3251,3 +3251,46 @@ guard sits one third-party edit from DISABLED where it used to sit one edit from
 WRONG."* That is the right trade and the right way to report it. **A safety
 property bought with a fragility cost should name the cost where the reader
 meets the verdict**, not in a commit message.
+
+## L-79. A correction can propagate backwards — the prose was right when written and the code moved under it
+
+Tonight's rung fixed a stale published figure by making it **generated**: the
+guard computes its own reach numbers from committed sentences, so they cannot
+drift between surfaces. That fix was correct and it worked. Two hours later, six
+prose copies of those numbers were stale again — **including one inside the
+sentence "generated from one provenance table, so it cannot drift."**
+
+Nobody copy-pasted a wrong number. The sequence was:
+
+1. `9f6d8a41` (06:04) — the prose is written, quoting the figures **correctly**.
+2. `db096bb7` (06:56) — one of the guard's rules is widened. The generated
+   figures move. **The prose does not, and cannot.**
+
+The auditor's phrasing is the lesson: **"not a copy-paste failure — copies with
+no way to learn."** Deriving a number at its source protects the source. It gives
+**no protection at all** to the sentences that quoted the source before it moved,
+and those sentences are what a human reads.
+
+This inverts the usual staleness intuition. We are trained to look for a
+correction that landed in one place and missed its copies — a **forward**
+propagation failure, where the copies were wrong from birth. This is the mirror:
+**every copy was right when written, and the source changed underneath them.**
+No review of the copies at the moment they were written would have caught it, and
+the author of the widening had no reason to think about prose in three other
+documents.
+
+**Practical form.** A generated number is only safe inside the thing that
+generates it. The moment it is quoted into prose it becomes a snapshot, and a
+snapshot needs a timestamp: **quote the figure with the commit it was taken at**,
+so a reader can tell "this was true at `9f6d8a41`" from "this is true now." Where
+that is impractical, prefer pointing at the generator instead of restating its
+output. And when you widen, tighten or rescore anything whose numbers are
+published, **the sweep for quoted copies is part of the change**, not a follow-up
+— it is the only moment anyone knows the source moved.
+
+Companion finding from the same pass, and it is a half-learned lesson caught in
+the act: **every corpus figure in this rung states its filter and none states its
+commit.** The same counting rule returned 503, 573 and 591 within four hours as
+the tree grew. L-75 taught us to declare the filter; L-72 taught us to declare
+the moment; **we applied the first everywhere and the second almost nowhere.** A
+frame is both, and a number carrying one of the two still cannot be reproduced.
