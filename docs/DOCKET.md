@@ -19,6 +19,32 @@ Rules that govern entries here:
   RESIDUALS. They are marked with the rung.
 - No item here is a claim about the world. Where an item asserts something, it carries
   its evidence or it says it has none yet.
+- **IDs ARE APPEND-ONLY AND STABLE. NOTHING IS EVER RENUMBERED.** (Katie, W-4,
+  2026-08-11.) A new entry takes a **fresh** ID — check the highest in use first. If two
+  writers collide on a number, **both keep their text and the later one takes the next free
+  ID**; the earlier one is not moved.
+
+  **Renumbering is the defect, not the fix, and I learned that by doing it twice.** Three
+  collisions happened in this file on 2026-08-11 — all from concurrent sessions that could
+  not see each other — and I resolved two of them by renumbering: a second `D8` became
+  `D8b`, and a grader's `D5`/`D6` became `D19`/`D20`. **Every reference written before that
+  moment then pointed at the wrong row.** One was found the same day, in a document that had
+  correctly refuted a claim and then rotted while sitting there being right. **An ID is a
+  reference target; moving it breaks every citation you cannot see.** The collision costs one
+  duplicate number. The renumbering costs every pointer in the corpus.
+
+  **Superseded IDs are struck in place and kept, never reused** — a retired number stays
+  retired so an old citation resolves to a withdrawal rather than to somebody else's finding.
+
+  **ID map for the two renumberings already committed**, so references written before
+  2026-08-11 resolve rather than rot. This map is permanent; it is not a cleanup step.
+
+  | as originally cited | now | what it is |
+  |---|---|---|
+  | `D8` (the plateau-balance correction) | **`D8b`** | WITHDRAWN — refuted by D9 |
+  | `D8` (B2's seven candidates) | `D8` — unmoved | the original holder of the number |
+  | `D5` (worktree staleness, from grade round 5) | **`D19`** | filed by the V16 grader |
+  | `D6` (no precision figure, from grade round 5) | **`D20`** | filed by the V16 grader |
 
 ---
 
