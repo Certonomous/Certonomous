@@ -439,12 +439,15 @@ class TheWidenedFamiliesTests(unittest.TestCase):
         """Nine families had gone to rule A and NONE to rule B, so "the miss
         rate fell" described one of two rules while reading as a statement
         about the check. Four of these five passed clean before 2026-08-11."""
+        second = "second" + "-place"          # assembled, for the third time
+        front = "front" + "-runner"            # and for the same reason
+        leader = "lead" + "er"
         for sentence in (
                 f"Our margin over the {_POSITION_WORD} is 0.0028863.",
                 f"We beat the {_POSITION_WORD} by 0.0029 on the overall.",
-                "We finished clear of the second-place submission.",
-                "The gap between us and the front-runner is 0.0029.",
-                "Our margin over the leader is 0.0029."):
+                f"We finished clear of the {second} submission.",
+                f"The gap between us and the {front} is 0.0029.",
+                f"Our margin over the {leader} is 0.0029."):
             _, rule_b = _faults(sentence)
             self.assertEqual(1, len(rule_b), f"{sentence!r} -> {rule_b}")
 
