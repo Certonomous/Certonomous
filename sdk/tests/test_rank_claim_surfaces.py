@@ -428,6 +428,146 @@ class TheBoardIsParsedTests(unittest.TestCase):
         self.assertRegex(pinned, r"^[0-9a-f]{40}$")
 
 
+class TheParseFailsSafeTests(unittest.TestCase):
+    """Four ways the board parse broke, found by the first independent grade.
+
+    THE STANDARD, and it is not "these do not happen today": a parse either
+    returns a board it has checked or returns the reason it has none. It never
+    returns a board it is unsure of, and it never raises -- an exception in one
+    check takes every OTHER check in `self_audit` down with it, which is a
+    guard doing more damage than the defect it exists to find.
+
+    Three of the four used to be SILENT, and a silent mis-parse is worse than a
+    miss: two of them manufacture false positives on correct prose, which
+    discredits the instrument rather than merely failing to help it.
+    """
+
+    HEADER = ("# Current leaderboard\n"
+              "|   Rank | Authors | Overall |\n"
+              "|---|---|---|\n")
+
+    def setUp(self):
+        self._dir = tempfile.TemporaryDirectory()
+        self._env = sa.os.environ.get(sa._BOARD_DIR_ENV)
+        sa.os.environ[sa._BOARD_DIR_ENV] = self._dir.name
+
+    def tearDown(self):
+        if self._env is None:
+            sa.os.environ.pop(sa._BOARD_DIR_ENV, None)
+        else:
+            sa.os.environ[sa._BOARD_DIR_ENV] = self._env
+        self._dir.cleanup()
+
+    def _write(self, body):
+        (Path(self._dir.name) / "README.md").write_text(body, encoding="utf-8")
+        return sa._published_board()
+
+    def _rows(self, *authors):
+        return "".join(f"|      {i} | [{a}](http://x{i}) | 0.0{i} |\n"
+                       for i, a in enumerate(authors, 1))
+
+    def test_a_second_numbered_table_no_longer_moves_a_rank(self):
+        """Any `| N | [text` line anywhere used to be read as a board row, last
+        one wins. A decoy table moved an entrant a whole rank, silently."""
+        board, _ = self._write(
+            self.HEADER + self._rows("Reissmann, Fang", "Wu and Zhang")
+            + "\n# Cases\n| N | Case |\n|---|---|\n"
+              "|      3 | [Wu and Zhang](http://z) |\n")
+        self.assertEqual({"reissmann": 1, "wu": 2}, board)
+
+    def test_a_shared_first_author_surname_is_OFF_not_a_dropped_entrant(self):
+        """The dict used to collapse two entrants into one key and then fault
+        CORRECT prose about the survivor."""
+        board, reason = self._write(
+            self.HEADER + self._rows("Zhang, Li", "Zhang, Chen"))
+        self.assertIsNone(board)
+        self.assertIn("share the first-author surname", reason)
+
+    def test_ranks_that_are_not_one_through_n_are_OFF(self):
+        board, reason = self._write(
+            self.HEADER + "|      2 | [A, B](http://x) | 0.05 |\n"
+                          "|      4 | [Wu and Zhang](http://y) | 0.06 |\n")
+        self.assertIsNone(board)
+        self.assertIn("not 1..N", reason)
+
+    def test_no_leaderboard_heading_is_OFF(self):
+        board, reason = self._write("# Something else\nprose only\n")
+        self.assertIsNone(board)
+        self.assertIn("no leaderboard heading", reason)
+
+    def test_a_metacharacter_in_a_surname_does_not_raise(self):
+        """`Fox[a` used to raise re.error out of this check and end the run."""
+        for bad in ("Fox[a, Smith", "Fox(, Smith", "Fox+?, Smith"):
+            board, _ = self._write(
+                self.HEADER + self._rows(bad, "Wu and Zhang"))
+            self.assertIsNotNone(board)
+            faults = sa.board_placement_faults(
+                "The rank-2 entry, Wu and Zhang, runs it.", board)
+            self.assertEqual(([], []), faults, bad)
+
+    def test_a_particle_surname_keys_on_the_name_not_the_particle(self):
+        """`van Dijk` used to key the board on `van`, which then bound to every
+        occurrence of that word in prose -- a false-positive generator."""
+        board, _ = self._write(
+            self.HEADER + self._rows("van Dijk, Smith", "Wu and Zhang"))
+        self.assertEqual({"dijk": 1, "wu": 2}, board)
+
+    def test_the_off_reason_reaches_the_verdict(self):
+        """A detector that is off must say WHY, not merely that it is."""
+        self._write(self.HEADER + self._rows("Zhang, Li", "Zhang, Chen"))
+        result = sa.check_board_placement_words()
+        self.assertEqual(sa.WARN, result.status)
+        self.assertIn("OFF", result.summary)
+        self.assertIn("share the first-author surname", result.summary)
+
+
+class TheOrdinalVocabularyIsDerivedTests(unittest.TestCase):
+    """A literal survived inside the thing built to remove literals.
+
+    `_PLACE` covered 1-5 because today's board has four rows, so every
+    placement past fifth was unmatched on a longer board -- silently. The board
+    grew from three rows to four during this campaign.
+    """
+
+    SEVEN = {f"name{i}": i for i in range(1, 8)}
+
+    def test_word_and_digit_forms_exist_past_fifth_on_a_longer_board(self):
+        tokens = sa._place_tokens(len(self.SEVEN) + sa._PLACE_OVER)
+        for token, position in (("6", 6), ("sixth", 6), ("6th", 6),
+                                ("seven", 7), ("seventh", 7), ("11", 11)):
+            self.assertEqual(position, tokens[token], token)
+
+    def test_a_correct_placement_past_fifth_is_matched_and_cleared(self):
+        self.assertEqual(
+            ([], []),
+            sa.board_placement_faults(
+                "The rank-6 entry, Name6, runs the same term.", self.SEVEN))
+        self.assertEqual(
+            ([], []),
+            sa.board_placement_faults(
+                "The sixth-place entry, Name6, runs it.", self.SEVEN))
+
+    def test_a_wrong_placement_past_fifth_is_caught(self):
+        rule_a, _ = sa.board_placement_faults(
+            "The rank-2 entry, Name6, runs it.", self.SEVEN)
+        self.assertEqual(1, len(rule_a), rule_a)
+        self.assertIn("rank 6", rule_a[0])
+
+    def test_an_ordinal_naming_a_position_the_board_lacks_says_so(self):
+        """The margin past the board's length is the point: `the rank-9 entry`
+        on a seven-row board is a fault of its own kind."""
+        rule_a, _ = sa.board_placement_faults(
+            "The rank-9 entry, Name6, runs it.", self.SEVEN)
+        self.assertEqual(1, len(rule_a), rule_a)
+        self.assertIn("position this board does not have", rule_a[0])
+
+    def test_the_vocabulary_tracks_the_board_rather_than_a_constant(self):
+        small = len(sa._place_tokens(len(BOARD) + sa._PLACE_OVER))
+        large = len(sa._place_tokens(len(self.SEVEN) + sa._PLACE_OVER))
+        self.assertGreater(large, small,
+                           "the ordinal range did not grow with the board")
+
+
 class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
     """A check that is not in CHECKS, BASIS and REMEDIES does not run."""
 
@@ -441,8 +581,8 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         basis, _, blind, _ = sa.BASIS["check_board_placement_words"]
         self.assertEqual(sa.EVIDENCE, basis)
         for owed in ("ahead of", "co-author", "QUOTING", "untracked",
-                     "outside this check's two patterns", "past fifth",
-                     "4 MB"):
+                     "outside this check's two patterns",
+                     "derived from the parsed board", "4 MB"):
             self.assertIn(owed, blind)
 
     def test_the_verdict_names_its_DOMINANT_blind_spot_not_only_the_tidy_ones(
@@ -462,7 +602,8 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         self.assertEqual(1, len(frame), result.detail)
         self.assertIn("BLIND TO", frame[0])
         self.assertIn("placement expression(s) surveyed", frame[0])
-        for owed in ("outside this check's patterns", "past fifth",
+        for owed in ("outside this check's patterns",
+                     "derived from this board's length",
                      "GREEN HERE IS NOT COVERAGE", "4 MB", "QUOTING"):
             self.assertIn(owed, frame[0], "the verdict understates its reach")
 
@@ -491,20 +632,33 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         self.assertNotEqual(sa.FAIL, result.status, result.detail)
 
     def test_the_three_surfaces_fixed_on_2026_08_11_stay_fixed(self):
-        """The precise regression: the files themselves, read off the tree."""
+        """The precise regression: the files themselves, read off the tree.
+
+        ABSENCE FAILS. An earlier version `continue`d past a missing file, so
+        on a checkout without the website tree this test reported a pass having
+        asserted nothing about any of the three -- a green that means "I looked
+        at nothing", which is the shape of finding this whole rung exists to
+        refuse. A missing regression surface is a broken test, not a skipped
+        one. (A missing benchmark clone is different in kind: the detector is
+        genuinely OFF and says so, so that one skips and names itself.)
+        """
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        checked = 0
         for rel in ("demo-output/website/closure_challenge_submission_round5"
                     "/DESCRIPTION_DOCUMENT.md",
                     "demo-output/website/CLOSURE_CHALLENGE_STATUS.md",
                     "demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md"):
             path = REPO / rel
-            if not path.exists():          # a checkout without the website tree
-                continue
-            board = sa._published_board()
-            if board is None:              # no benchmark clone on this box
-                self.skipTest("benchmark clone absent; detector is OFF")
+            self.assertTrue(path.exists(),
+                            f"the regression surface {rel} is gone; this test "
+                            f"asserts nothing without it")
             rule_a, rule_b = sa.board_placement_faults(
-                path.read_text(encoding="utf-8"), board[0])
+                path.read_text(encoding="utf-8"), board)
             self.assertEqual(([], []), (rule_a, rule_b), rel)
+            checked += 1
+        self.assertEqual(3, checked)
 
 
 if __name__ == "__main__":

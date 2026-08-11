@@ -694,18 +694,59 @@ _BOARD_PIN = REPO / ("demo-output/website/closure_challenge_submission_round5"
                      "/README.md")
 _BOARD_ROW = re.compile(r"^\|\s*(\d+)\s*\|\s*\[([^\],]+)", re.M)
 
-_PLACE_WORD = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
-               "first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5,
-               "1st": 1, "2nd": 2, "3rd": 3, "4th": 4, "5th": 5,
-               "1": 1, "2": 2, "3": 3, "4": 4, "5": 5}
-# Derived from how placements are actually written in this corpus -- the word
-# forms `rank two entry` and `2nd of 5` are in the docket and the report, not
-# in anyone's guess at what to look for.
-_PLACE = re.compile(
-    r"rank[ \-](?P<r>1|2|3|4|5|one|two|three|four|five)\b"
-    r"|(?P<o>1st|2nd|3rd|4th|5th|first|second|third|fourth|fifth)[ \-]place\b"
-    r"|(?P<u>runner[ \-]?up)"
-    r"|(?P<f>front[ \-]?runner)", re.I)
+# THE ORDINAL VOCABULARY IS DERIVED FROM THE BOARD, not typed in.
+#
+# The first grade caught a literal surviving inside the thing built to remove
+# literals: `_PLACE` covered 1-5 because today's board has four rows, so on a
+# longer board every placement past fifth went unmatched -- silently, which is
+# the failure mode this whole check exists to refuse. The board grew from three
+# rows to four during this campaign; a fifth entrant is not hypothetical.
+#
+# The vocabulary now spans 1 .. len(board) + _PLACE_OVER, and the margin is the
+# point: an ordinal NAMING A POSITION THE BOARD DOES NOT HAVE is itself a fault
+# worth catching ("the rank-9 entry" on a four-row board), so the range has to
+# reach past the board rather than stop at it.
+_PLACE_OVER = 5
+_PLACE_CARDINAL = ("one two three four five six seven eight nine ten eleven "
+                   "twelve thirteen fourteen fifteen sixteen seventeen "
+                   "eighteen nineteen twenty").split()
+_PLACE_ORDINAL = ("first second third fourth fifth sixth seventh eighth ninth "
+                  "tenth eleventh twelfth thirteenth fourteenth fifteenth "
+                  "sixteenth seventeenth eighteenth nineteenth "
+                  "twentieth").split()
+
+
+def _place_tokens(upto: int) -> dict[str, int]:
+    """{token: position} for 1..upto, in every form this corpus writes.
+
+    Digits reach any position; the word forms reach as far as the tables above,
+    and the frame line says so rather than leaving a reader to find out.
+    """
+    tokens: dict[str, int] = {}
+    for n in range(1, max(1, upto) + 1):
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(
+            n if n % 100 not in (11, 12, 13) else 0, "th")
+        tokens[str(n)] = n
+        tokens[f"{n}{suffix}"] = n
+        if n <= len(_PLACE_CARDINAL):
+            tokens[_PLACE_CARDINAL[n - 1]] = n
+            tokens[_PLACE_ORDINAL[n - 1]] = n
+    return tokens
+
+
+def _place_pattern(tokens: dict[str, int]) -> re.Pattern:
+    """The placement forms this corpus actually writes, over a derived range.
+
+    `rank two entry` and `2nd of 5` are in the docket and the report; they are
+    not anyone's guess at what to look for.
+    """
+    alts = "|".join(re.escape(t) for t in
+                    sorted(tokens, key=len, reverse=True))
+    return re.compile(
+        rf"rank[ \-](?P<r>{alts})\b"
+        rf"|(?P<o>{alts})[ \-]place\b"
+        r"|(?P<u>runner[ \-]?up)"
+        r"|(?P<f>front[ \-]?runner)", re.I)
 # Homonyms of the WORD. This is an exclusion list and is named as one: it
 # excludes SENSES of `rank`, never surfaces. Each was met in this corpus.
 _PLACE_PROB = re.compile(r"P\(\s*$", re.I)            # P(rank 1): a probability
@@ -720,35 +761,111 @@ _PLACE_LINALG_L = re.compile(                         # ...is rank three out of 
 # adjudication clause its evidence. Every linear-algebra `rank` in this corpus
 # is a word -- `rank-one pure-shear tensor`, `rank three out of five` -- and
 # every board placement that reads `are rank N` is a digit.
-_PLACE_WORD_NUM = re.compile(r"^(one|two|three|four|five)$", re.I)
+_PLACE_WORD_NUM = re.compile("|".join(f"^{w}$" for w in _PLACE_CARDINAL), re.I)
 _PLACE_SENTENCE = re.compile(r"[.!?][)\"'*`\s]*\s[A-Z(\"'*`]")
 _PLACE_BIND = 40
 _PLACE_ADJUDICATED = 400
-# RULE B: our comparison, someone else's position, nobody's name.
-_PLACE_UNNAMED = re.compile(
-    r"\b(?:our|the)\s+(?:margin|lead|gap|advantage)\b[^.]{0,25}?"
-    r"\b(?:over|against)\s+the\s+"
-    r"(runner[ \-]?up|front[ \-]?runner"
-    r"|(?:1st|2nd|3rd|4th|5th|first|second|third|fourth|fifth)[ \-]place)",
-    re.I)
 
 
-def _published_board() -> tuple[dict[str, int], str] | None:
-    """{first-author surname: rank} read off the benchmark's OWN README table.
+def _place_unnamed(tokens: dict[str, int]) -> re.Pattern:
+    """RULE B: our comparison, someone else's position, nobody's name."""
+    alts = "|".join(re.escape(t) for t in
+                    sorted(tokens, key=len, reverse=True))
+    return re.compile(
+        r"\b(?:our|the)\s+(?:margin|lead|gap|advantage)\b[^.]{0,25}?"
+        r"\b(?:over|against)\s+the\s+"
+        rf"(runner[ \-]?up|front[ \-]?runner|(?:{alts})[ \-]place)", re.I)
 
-    Returns None when the clone is not on this box, so the caller can report a
-    detector that is OFF rather than a corpus with nothing to find.
+
+def _first_author_surname(cell: str) -> str:
+    """The surname this check keys an entrant on, from a board author cell.
+
+    `[Reissmann, Fang, and Sandberg](url)` -> Reissmann. The first author ends
+    at the first comma or ` and `, and the surname is that segment's LAST
+    token, so a particle name (`van Dijk, Smith`) keys on Dijk rather than on
+    `van` -- which the first grade showed binding to every occurrence of that
+    word in prose.
+    """
+    inner = re.match(r"\s*\[([^\]]*)\]", cell)
+    who = (inner.group(1) if inner else cell).strip()
+    first = re.split(r",| and ", who, maxsplit=1)[0].strip()
+    parts = [p for p in re.split(r"\s+", first.strip(" .*_`")) if p]
+    return parts[-1] if parts else ""
+
+
+def _published_board() -> tuple[dict[str, int] | None, str]:
+    """(ranks, head) on success; (None, reason) on any failure. NEVER raises.
+
+    THE CONTRACT, after the first independent grade found four ways to break
+    it: this function either returns a board it has checked, or it returns the
+    reason it has none. It does not return a board it is unsure of, and it does
+    not raise -- an exception here would take down every OTHER check in this
+    file, which is a guard doing more harm than the defect it looks for.
+
+    Four failure modes, each measured on a synthetic README before this was
+    written, each now an OFF with a stated reason:
+      * a second numbered-and-linked table anywhere in the file used to be read
+        as more leaderboard rows, last one wins, moving an entrant's rank with
+        no warning. The table is now anchored to the leaderboard HEADING and
+        stops at the first blank or non-table line.
+      * ranks that are not exactly 1..N, once each, mean this is not a
+        leaderboard or is not one this check understands.
+      * two entrants sharing a first-author surname used to collapse into one
+        dict key, dropping an entrant and then FAULTING CORRECT PROSE about the
+        survivor -- a false positive manufactured by a parse failure, which is
+        the worst kind because it discredits the instrument.
+      * a surname carrying a regex metacharacter used to raise `re.error`.
+        Surnames are escaped at every use now, and this is belt and braces.
     """
     root = Path(os.environ.get(_BOARD_DIR_ENV,
                                Path.home() / "closure-challenge-benchmark"))
     try:
         text = (root / "README.md").read_text(encoding="utf-8")
     except OSError:
-        return None
-    board = {who.strip().split()[0].lower(): int(n)
-             for n, who in _BOARD_ROW.findall(text)}
-    if not board:
-        return None
+        return None, (f"the benchmark clone is not readable at {root} "
+                      f"(${_BOARD_DIR_ENV} or ~/closure-challenge-benchmark)")
+    lines = text.splitlines()
+    start = next((i for i, line in enumerate(lines)
+                  if re.match(r"\s*#+\s.*leaderboard", line, re.I)), None)
+    if start is None:
+        return None, "no leaderboard heading in the benchmark README"
+    rows: list[tuple[int, str]] = []
+    seen_table = False
+    for line in lines[start + 1:]:
+        if not line.strip().startswith("|"):
+            if seen_table:
+                break                      # the table ended; anything after it
+            continue                       # is a different table, not the board
+        seen_table = True
+        cells = [c for c in line.strip().strip("|").split("|")]
+        if len(cells) < 2 or not cells[0].strip().isdigit():
+            continue                       # header, separator, or a stray row
+        rows.append((int(cells[0].strip()), cells[1]))
+    if not rows:
+        return None, "the leaderboard heading is not followed by a table"
+    ranks = [n for n, _ in rows]
+    if sorted(ranks) != list(range(1, len(ranks) + 1)):
+        return None, (f"the leaderboard's rank column is not 1..N once each "
+                      f"(read {ranks}); this check will not grade against a "
+                      f"table it cannot account for")
+    board: dict[str, int] = {}
+    for n, cell in rows:
+        surname = _first_author_surname(cell)
+        if len(surname) < 2:
+            return None, (f"row {n}'s author cell yields no usable first-author "
+                          f"surname ({cell.strip()!r})")
+        key = surname.lower()
+        if key in board:
+            return None, (f"two entrants share the first-author surname "
+                          f"{surname!r} (rows {board[key]} and {n}); this "
+                          f"check keys on that surname and cannot tell them "
+                          f"apart, so it grades nothing rather than grade one "
+                          f"of them wrongly")
+        board[key] = n
+    try:
+        re.compile("|".join(re.escape(k) for k in board))
+    except re.error as exc:                                # belt and braces
+        return None, f"a board surname will not compile as a pattern: {exc}"
     try:
         head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root,
                               capture_output=True, text=True, timeout=30,
@@ -756,6 +873,13 @@ def _published_board() -> tuple[dict[str, int], str] | None:
     except (OSError, subprocess.SubprocessError):
         head = "unknown"
     return board, head
+
+
+def _board_names(board: dict[str, int]) -> re.Pattern:
+    """Surnames as a pattern, ESCAPED. `Fox[a` used to raise re.error here and
+    take the whole audit down with it."""
+    return re.compile(r"\b(" + "|".join(re.escape(k) for k in sorted(board))
+                      + r")\b", re.I)
 
 
 def _pinned_board_commit() -> str:
@@ -776,9 +900,10 @@ def _placements(text: str, names: re.Pattern, board: dict[str, int]):
     Whole text with whitespace collapsed: a placement that a reflow split
     across two lines is the same placement.
     """
+    tokens = _place_tokens(len(board) + _PLACE_OVER)
     flat = re.sub(r"\s+", " ", text)
     found = []
-    for m in _PLACE.finditer(flat):
+    for m in _place_pattern(tokens).finditer(flat):
         token = m.group(0)
         left = flat[max(0, m.start() - 130):m.start()]
         right = flat[m.end():m.end() + 130]
@@ -789,7 +914,7 @@ def _placements(text: str, names: re.Pattern, board: dict[str, int]):
         elif m.group("f"):
             n = 1
         else:
-            n = _PLACE_WORD[(m.group("r") or m.group("o")).lower()]
+            n = tokens[(m.group("r") or m.group("o")).lower()]
         if m.group("r"):
             if _PLACE_PROB.search(left) or _PLACE_OFN.match(right):
                 continue
@@ -817,7 +942,7 @@ def _placements(text: str, names: re.Pattern, board: dict[str, int]):
 def board_placement_faults(text: str, board: dict[str, int]
                            ) -> tuple[list[str], list[str]]:
     """(rule A faults, rule B faults) for one surface."""
-    names = re.compile(r"\b(" + "|".join(sorted(board)) + r")\b", re.I)
+    names = _board_names(board)
     found = _placements(text, names, board)
     disagree, unnamed = [], []
     for n, who, rank, at, token, flat in found:
@@ -830,11 +955,14 @@ def board_placement_faults(text: str, board: dict[str, int]
                and abs(where - at) <= _PLACE_ADJUDICATED
                for other, named, _, where, _, _ in found):
             continue
+        beyond = ("" if n <= len(board) else
+                  f" -- and rank {n} is a position this board does not have")
         disagree.append(f"{token!r} is bound to {who}, whom the published "
-                        f"board puts at rank {rank}: "
+                        f"board puts at rank {rank}{beyond}: "
                         f"...{flat[max(0, at - 60):at + 60].strip()}...")
     flat = re.sub(r"\s+", " ", text)
-    for m in _PLACE_UNNAMED.finditer(flat):
+    for m in _place_unnamed(_place_tokens(len(board) + _PLACE_OVER)
+                            ).finditer(flat):
         unnamed.append(f"{m.group(0)!r} compares us to a board position "
                        f"without naming who holds it")
     return disagree, unnamed
@@ -862,8 +990,9 @@ def check_board_placement_words() -> Result:
     COVERAGE. It means no placement matching these two patterns disagrees with
     the board, which is a narrower statement than it looks.
 
-    Then: any board position past fifth, which the ordinal vocabulary does not
-    contain; RELATIONAL comparatives -- "ahead of", "behind", "trails",
+    Then: word forms of positions past the number-word tables, and any
+    position past the board's own length plus `_PLACE_OVER`; RELATIONAL
+    comparatives -- "ahead of", "behind", "trails",
     "leads", "next-best" -- which need both operands resolved and cannot be
     checked against a single board rank; any entrant referred to by a co-author
     rather than the first author on their board row; a wrong ordinal that a
@@ -878,13 +1007,11 @@ def check_board_placement_words() -> Result:
     RULE B is narrow.
     """
     title = "placement words agree with the published board"
-    published = _published_board()
-    if published is None:
+    board, head = _published_board()
+    if board is None:
         return Result(title, WARN,
-                      "the benchmark clone is not on this box "
-                      f"(${_BOARD_DIR_ENV} or ~/closure-challenge-benchmark): "
-                      "this detector is OFF, not reporting nothing to find")
-    board, head = published
+                      f"this detector is OFF, not reporting nothing to find: "
+                      f"{head}")
     pinned = _pinned_board_commit()
     tracked = _tracked_files()
     if tracked is None:
@@ -893,7 +1020,8 @@ def check_board_placement_words() -> Result:
                       "this detector is OFF, not reporting nothing to find")
 
     travelling = _travelling_names()
-    surveyed = opened = 0
+    names = _board_names(board)
+    surveyed = opened = unreadable = 0
     shipped, internal = [], []
     for path in tracked:
         try:
@@ -909,9 +1037,15 @@ def check_board_placement_words() -> Result:
         except UnicodeDecodeError:
             continue
         opened += 1
-        names = re.compile(r"\b(" + "|".join(sorted(board)) + r")\b", re.I)
-        surveyed += len(_placements(text, names, board))
-        disagree, unnamed = board_placement_faults(text, board)
+        # One surface must never be able to end the audit. A check that raises
+        # takes every OTHER check in this file down with it, which is a guard
+        # doing more damage than the defect it exists to find.
+        try:
+            surveyed += len(_placements(text, names, board))
+            disagree, unnamed = board_placement_faults(text, board)
+        except Exception:                          # noqa: BLE001 -- see above
+            unreadable += 1
+            continue
         if not disagree and not unnamed:
             continue
         label = str(path.relative_to(REPO))
@@ -928,7 +1062,11 @@ def check_board_placement_words() -> Result:
              f"{head[:8]} ({pin_note}) -- {order}; {opened} tracked UTF-8 "
              f"surface(s) containing 'rank' or 'runner' opened; {surveyed} "
              f"placement expression(s) surveyed, whole-text with whitespace "
-             f"collapsed so a reflowed one still binds. "
+             f"collapsed so a reflowed one still binds; ordinals derived from "
+             f"the board's own length, 1..{len(board) + _PLACE_OVER} here, in "
+             f"digit and word form (word forms exist to "
+             f"{len(_PLACE_CARDINAL)}); {unreadable} surface(s) skipped after "
+             f"raising. "
              f"BLIND TO, LARGEST FIRST: (1) ANY placement phrased outside this "
              f"check's patterns -- an independent grade of 2026-08-11 missed "
              f"40 of 45 held-out sentences (89%), each pinning a WRONG "
@@ -937,14 +1075,21 @@ def check_board_placement_words() -> Result:
              f"and #N, table and CSV rows, top the board, ordinal-as-noun); a "
              f"live correct instance of one of those families is in "
              f"latex/closure_challenge_report.tex today and this check does "
-             f"not see it. (2) board positions past fifth, which the ordinal "
-             f"vocabulary does not contain. (3) relational comparatives -- "
+             f"not see it. (2) word forms of positions past "
+             f"{len(_PLACE_CARDINAL)}, and any position past "
+             f"{len(board) + _PLACE_OVER} in any form -- the vocabulary is "
+             f"derived from this board's length plus a margin, not fixed at "
+             f"five as it was until 2026-08-11. (3) relational comparatives -- "
              f"ahead of, behind, trails, leads, next-best -- which need both "
              f"operands and cannot be checked against one board rank. (4) an "
              f"entrant named by a co-author rather than the first author. "
              f"(5) rule B cannot tell USING a phrase from QUOTING one. "
              f"(6) adjudication is 400-character proximity and not grammar, so "
-             f"a correct rank near a wrong one clears it. (7) files over "
+             f"a correct rank near a wrong one clears it; and a board surname "
+             f"that is also an ordinary English word would over-bind, since "
+             f"surnames match case-insensitively -- making them case-sensitive "
+             f"was measured to cost one real binding in this corpus and was "
+             f"not taken. (7) files over "
              f"{_RANK_MAX_BYTES // 1_000_000} MB, non-UTF-8 surfaces, "
              f"untracked files and archive members, none of which it opens. "
              f"(8) whether a placement is dated history rather than a live "
@@ -3179,14 +3324,20 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "board, ordinal-as-noun), and one correct live instance of such a "
         "family sits in latex/closure_challenge_report.tex unseen. This is the "
         "same admission the digit-anchored sibling guard makes about itself "
-        "and it belongs here too: a wider anchor is still an anchor. Also: any "
-        "board position past fifth, which the ordinal vocabulary does not "
-        "contain; RELATIONAL comparatives -- ahead of, behind, trails, leads, "
+        "and it belongs here too: a wider anchor is still an anchor. Also: "
+        "word forms of board positions past the number-word tables, and any "
+        "position past the board's own length plus its margin -- the ordinal "
+        "vocabulary is derived from the parsed board rather than fixed at "
+        "five, which it was until the first grade caught the literal; "
+        "RELATIONAL comparatives -- ahead of, behind, trails, leads, "
         "next-best -- which need both operands resolved and cannot be checked "
         "against one board rank; an entrant referred to by a co-author rather "
         "than the first author on their board row; a wrong ordinal that a "
         "correct one within 400 characters adjudicates away, judged by "
-        "proximity and not by grammar; the difference between USING a rule-B "
+        "proximity and not by grammar; a board surname that is also an "
+        "ordinary English word, since surnames match case-insensitively -- "
+        "case-sensitive matching was measured to cost one real binding here "
+        "and was not taken; the difference between USING a rule-B "
         "phrase and QUOTING one, which rule B cannot make and which is why it "
         "is a WARN on a lab record and a FAIL only where a surface travels; "
         "files over 4 MB, non-UTF-8 surfaces, untracked files and archive "
