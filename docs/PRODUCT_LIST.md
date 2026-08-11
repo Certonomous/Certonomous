@@ -2837,6 +2837,66 @@ lesson that commissioned it, on two specifics.**
   (settled 295 → wrote 354; settled 1,243 → wrote 1,492), independently validating the protocol those controlDicts
   encode.
 
+### 2026-08-11 — the ensemble result lands under the pre-registered rule: Option C is NOT funded
+
+- **The rule was committed BEFORE the last cases were read** (`ce6a66b4`), which is the only reason the verdict means
+  anything. All 16 finished; zero solvers and zero queue runners remain; the published tree is pristine.
+- **VOID taken literally.** The contested control finished at **−0.491 x/h** against a 0.25 threshold. The agent also
+  **corrected its own earlier framing** at my ruling — it had called its gate *mis-specified*; the record now says the
+  gate **was not wrong to fire**, its trigger caught something real, only its stated inference was named badly.
+- **THE HEADLINE, and it survives the VOID because it needs no control: the only settled member of the ensemble is
+  the only unperturbed one.** `null` at **0.031** is the sole case of 16 below threshold. Solver, mesh, restart path
+  and budget are **identical across all 16** — the perturbation is the only difference, present in every unsettled
+  case and absent from the settled one. **The perturbation, not the numerics, prevents settling.**
+- **Zero of 13 members settled after 16,000 iterations — four times the published budget.** Several ended *worse*.
+  The case chosen as a control **because it was among the best-settled of all 84** wandered 6.34 → 5.84 → 5.34 → 5.85
+  → 5.00 and ended unsettled.
+- **The headline does not rest on the contested case: drop it entirely and it is 12 of 12 unsettled, with `null`
+  still the only settled run.** That is the right way to report a result with a disputed member.
+- **The comparative did not survive and was not laundered.** Raw deltas left in the JSON for whoever re-registers it.
+- **OPTION C IS NOT FUNDED**, by the rule fixed before the numbers were read. The nine INVALID claims stay INVALID and
+  **recoverability stays open**, because the experiment that would have closed it is void. What changed is the price:
+  **the cheap route is spent, and the surviving evidence says a longer steady run is not the instrument.** If the band
+  is recoverable at all, the next pre-registration should price a **time-averaged unsteady statistic** instead.
+
+### 2026-08-11 — the instrument integrity ledger: one verdict in three has never been shown to fire
+
+- **Four independent enumeration axes, and the method's headline is that they disagree.** Verdict-word emission (89),
+  filename self-declaration (137), non-zero exit (165), alternate lexicon (24) over a 534-file base → union 296, 142
+  production, **66 verdicts profiled in full**. **Axis A missed 12 of axis D's 24 — half of one class** — and A and D
+  together missed 13 instruments only their *names* revealed. **A single-lexicon sweep would have reproduced the
+  `*.log` vs `log.<app>` glob error one level up.**
+- **CLASSIFICATION: reach demonstrated 30 · reach assumed 25 · known-blind-and-shipping 11 (17%).** More than one
+  verdict in three **has never been shown to fire.** And **32 of 34 self-audit checks have no test at all**; 16 of
+  those currently pass, so **nothing distinguishes "found no defect" from "cannot find a defect."**
+- **RANKED BY COST — and #2 is urgent because it guards the shoot:**
+  1. `case_preflight.sh` — **PASS on an empty directory**, and *silent* under `--quiet`, which is **the only mode the
+     launcher uses.** Reproduced firsthand. **146 `.done` records rest on it.**
+  2. `audit_transcripts.sh` — reports *"clean: no banned vocabulary in any act transcript"* **over a corpus root that
+     does not exist.** Real corpus is **17 transcripts; the verdict counts none.** This is the **pre-filming
+     discretion gate.** Dispatched immediately, with instruction to fail RED on an empty corpus and to **report any
+     real hits rather than edit them** — that call is Katie's.
+  3. **30 of 34 self-audit blind spots are computed, attached to the row, written to `--json`, and never printed.**
+     This is tonight's L-61 in a worse form: **the caveat's presence in the data structure lets the check pass its own
+     meta-audit while the reader never sees it.**
+  4. The rank guard — digit-anchored, three known misses, verdict says *every travelling surface complies*.
+  5. `is_idle.sh` — powers the box off from an absence; 6 work classes missing; **cost already realised 2026-07-30.**
+- **HUMP-ADJOINT — 11 distinct attempts + 3 staging faults, and ZERO were ever deliberately reproduced as a negative
+  control.** 4 abandoned with no root cause, 2 built and never executed; two signatures verified against the logs
+  directly, both **superseded, never explained**.
+- **THE CONSEQUENCE, and it corrects a standing account of ours:** the position that the hump is *"blocked on
+  convergence rate, not singularity"* rests on one attempt **killed at iteration 900 that never produced a
+  `KSPConvergedReason`.** The rate was **never measured to completion** and the memory envelope was **never shown to
+  be binding**. That is a capability boundary **assumed, not measured** — and we had it written up as filing-ready.
+  Dispatched for correction, with the instruction not to overcorrect: we equally have no evidence the operator *is*
+  singular, and the honest position is that the boundary is uncharacterised.
+- **A hump gradient is claimed that never existed.** A document says the hump beta gradient *"has not been re-run
+  under a second decomposition"* — but the FD-verified 3-cell gradient is **CBFS**. *A claim that X has not yet been
+  re-verified silently asserts that X exists.*
+- The ledger **corrected its own sub-agent** on a signature, and states its own limits: it could not establish whether
+  the 16 never-fired checks would fire without planting a defect it was not authorised to write, and **its denominator
+  is a lower bound, not a census** — attempts that left no log are invisible to every instrument it used.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
