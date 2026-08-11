@@ -2123,6 +2123,32 @@ clock-audit rule asks for.]*
 - The auditor's frame **moved four times while it derived it** and it pinned HEAD with three timestamps in the
   document — the termination rule behaving as designed rather than failing.
 
+### 2026-08-11 — V6 and V14 PASS, V10 fails on one surface, and the pass reported its own new failure first
+
+- **V6 PASS**: all nine compliance findings verdicted against round 5 **inside the audit itself** rather than in a
+  satellite, moot findings kept with their reasons, and the untrained-path compliance line added **with a positive
+  control** — zero truth files in all three test ducts against three in each validation arm, and the coefficient's
+  compiled default overridden nowhere.
+- **V14 PASS as a rung**, stale list dispositioned in full. The eight judgements turned on stale-versus-historical
+  every time and two produced more than a label: rank 5's number was **hard-coded in a generator**, so the note went
+  into the generator and **both outputs were re-derived**, verified by running it into a scratch directory
+  before/after/again; and rank 6 turned up **a manifest string the script WRITES at line 412 that the discovery rung
+  had not listed** — a generator emitting a stale number into an output it produces.
+- **Two stops rather than fixes, both correct.** A gate at `NUMERICS_KNOWLEDGE.md:560` names a PH-only comparison
+  while stating an overall bar; both candidate numbers were computed and **neither substituted, because that would
+  change which experiment the gate is.** And the round-5 continuity figure was corrected while **explicitly avoiding
+  the trap V15 caught in the outward document** — naming the validation duct as validation rather than letting its
+  number stand for the submission.
+- **V10 FAIL — one surface, and it is the shipped bundle.** The tree is consistent and both closure checks pass, but
+  `dist/certonomous-demo.zip` is **two files behind**: one from this pass's own compliance fix, one from a monitor
+  commit that landed ten minutes after the last rebuild. The agent **did not rebuild it**, honouring the ring-fence I
+  set, and named the remedy and its owner instead.
+- **"My round is not a fixed point — it introduced one new failure, stated first not last."** That is the
+  termination rule working as intended: a fix round that reports the failure it created, at the top, rather than
+  declaring victory and leaving it for the next audit. Round 3's scope now includes it, plus three commits nobody but
+  their author has read.
+- A concurrent audit rung graded this pass's first six commits while it worked: **every row passed.**
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
