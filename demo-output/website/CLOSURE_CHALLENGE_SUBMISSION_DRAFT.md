@@ -1212,9 +1212,9 @@ not per-case wins.
 > the paragraph above — carries **P(rank 1) = 68%** (67.6% over 400,000 case-level
 > bootstrap resamples) **together with its interval**: **2–100% at 95%** by double
 > bootstrap, because eight cases cannot pin it tighter. It also carries the
-> not-decided pairs: the leads over **Reissmann and Wu & Zhang are not
-> statistically decided**, while the leads over Liu and Montoya are (98.7% and
-> 99.8%). The one prohibition that replaced the withdrawn split: **no surface may
+> not-decided pairs: the leads over Reissmann and Wu & Zhang are
+> **not statistically decided**, while the leads over Liu and Montoya are (98.7%
+> and 99.8%). The one prohibition that replaced the withdrawn split: **no surface may
 > state the figure without its interval** — a bare 68% is a worse claim than no
 > figure at all, because 68% sounds settled and eight cases do not support settled.
 >

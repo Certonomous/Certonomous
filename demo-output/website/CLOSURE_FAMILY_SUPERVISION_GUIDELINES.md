@@ -126,8 +126,10 @@ Katie's GUI conventions, applied family-wide:
     prohibition replaces the split: no surface may state the figure without its
     interval** — a bare 68% is a worse claim than no figure at all, because 68%
     sounds settled and eight cases do not support settled. The qualitative clause
-    is still required everywhere and still carries the sweep token `not
-    statistically decided`, so the mechanical sweep is unaffected. Sources:
+    is still required everywhere and still carries the sweep token
+    `not statistically decided` — **which must sit unbroken on one line**, since
+    V10 greps for it literally and a line-wrapped token is invisible to that
+    sweep. Sources:
     `campaign/PROBABILITY_OF_RANK_2026-08-10.md` (head banner and §"the
     propagation rule"); `campaign/LADDER_V_TRIPLE_VERIFICATION.md` (V8 amendment,
     2026-08-10).
