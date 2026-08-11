@@ -1201,6 +1201,47 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
             board, sa.board_placement_faults)["ADVERSARIAL_CONTROLS"]
         self.assertEqual(0, missed, f"{missed} of {n} controls missed")
 
+    def test_the_round_five_probes_all_agree_with_the_live_guard(self):
+        """E2 and E4 of grade round 5, wired in so they cannot regress quietly.
+
+        The probes were committed executable and then run only by hand. That
+        makes them a record of a past state rather than a guard on the current
+        one -- their own module docstring says `main` recomputes them against
+        the live guard, and until this test existed nothing did. Twelve of the
+        twenty disagreed with the guard when they were filed: six shapes that
+        bound an ordinal across a full stop, four sentences whose subject is a
+        tensor and were faulted anyway, and two wrong placements that were
+        muted. All twenty agree now.
+        """
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        probes = self._held_out("V16_GRADE_ROUND5_PROBES.py")
+        measured = probes.measure(board, sa.board_placement_faults)
+        wrong = {lab: f"want {want}, got {got}"
+                 for lab, (want, got) in measured.items() if want != got}
+        self.assertEqual({}, wrong,
+                         f"{len(wrong)} of {len(measured)} round-5 probes "
+                         f"disagree with what the guard ought to do")
+
+    def test_the_round_five_probes_carry_their_own_positive_controls(self):
+        """Or the test above would also pass against a guard wedged shut.
+
+        Most of the twenty assert SILENCE, and a guard that never fires is
+        silent on everything. These five assert the opposite direction, so the
+        set cannot be satisfied by switching the detector off.
+        """
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        probes = self._held_out("V16_GRADE_ROUND5_PROBES.py")
+        measured = probes.measure(board, sa.board_placement_faults)
+        must_fault = sorted(lab for lab, (want, _) in measured.items()
+                            if want == "FAULT")
+        self.assertEqual(5, len(must_fault), must_fault)
+        for lab in must_fault:
+            self.assertEqual("FAULT", measured[lab][1], lab)
+
     def test_the_evidence_files_are_not_themselves_corpora_of_faults(self):
         """They are tracked surfaces the live guard sweeps. Written out in
         full they would be exactly the defects they describe -- which is the
@@ -1208,7 +1249,8 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         board, reason = sa._published_board()
         if board is None:
             self.skipTest(f"detector OFF, not a silent pass: {reason}")
-        for name in ("V16_GRADE_HELDOUT_SETS.py", "V16_AUTHOR_HELDOUT_SET.py"):
+        for name in ("V16_GRADE_HELDOUT_SETS.py", "V16_AUTHOR_HELDOUT_SET.py",
+                     "V16_GRADE_ROUND5_PROBES.py"):
             path = REPO / "demo-output" / "website" / "campaign" / name
             self.assertEqual(
                 ([], []),
