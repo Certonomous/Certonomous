@@ -170,7 +170,7 @@ remaining nine are the *reach assumed* group named after the table.
 | instrument | class | basis for the class |
 |---|---|---|
 | `scripts/check_convergence.py` | **demonstrated** | `check_convergence_validate.py` — 13 known-answer cases incl. `NOT_CONVERGED` and `CANNOT_TELL`; **re-run in this pass, all 13 pass** |
-| `sdk/chief_engineer/log_signatures.py` (S6,S8–S12,S10d) | **demonstrated** | 72 tests, 20 fire-named, plus archive sweeps (`test_archive_sweep_names_the_known_fires_and_no_others`); S6 captured 135/135 pre-registered sentinels on production |
+| `sdk/chief_engineer/log_signatures.py` (S6,S8–S12,S10d) | **demonstrated** | 72 tests, 20 fire-named, plus archive sweeps (`test_archive_sweep_names_the_known_fires_and_no_others`); S6 captured 135/135 pre-registered sentinels **(2026-08-11: NOT "on production" — the primary post-wiring production prediction was never scored, because no post-wiring production run existed; an analogue family was scored in its place)** |
 | `sdk/chief_engineer/exec_bits.py` | **demonstrated** | 15 tests, 5 fire-named; fired in production on `case_preflight.sh`'s missing bit |
 | `sdk/chief_engineer/mesh_certificate.py` `parse_check_log` | **demonstrated** | 33 tests, 6 fire-named; `VERDICT_UNVERIFIED` + `_FATAL` added after a real false-clean; used as the positive-control template by the prior pass |
 | `sdk/chief_engineer/lever_echo.py` | **demonstrated** | 54 tests, 8 fire-named |

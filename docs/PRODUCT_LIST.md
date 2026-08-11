@@ -2108,7 +2108,11 @@ clock-audit rule asks for.]*
   owner.** My reversal changed what is true and I did not sweep the statements describing the old rule; that is the
   same fix-the-copy-not-the-class defect I committed with the dates, twice in one night.
 
-### 2026-08-10 (night) — S6 fires on production for the first time, and every prediction hit exactly
+### 2026-08-10 (night) — S6 fires for the first time ~~on production~~, and ~~every prediction hit exactly~~
+*(**CORRECTED 2026-08-11 — see that date's entry. The PRIMARY prediction was never scored and no document said so.**
+It was a post-wiring fire rate on `HeadEngineer` runs; that run cost **zero core-minutes**, so no such run existed.
+An **analogue family** was scored in its place, and this heading then hardened the analogue into "production".
+The primary prediction is **still open**.)*
 
 - **WIRED AND FIRING** (pre-reg `ab0c8d76`, wiring `1471b8f3`, suite 1294, 0 core-min). Both conditions were
   implemented as **mechanisms rather than policies**, which is why they hold.
@@ -2125,7 +2129,8 @@ clock-audit rule asks for.]*
 - **Condition 3: pre-registered SEPARATELY, before any wiring code existed**, so the ordering is provable rather than
   asserted — then **scored by replaying the SHIPPED helpers**, not the script they were designed with. *"A rule
   validated in one form and shipped in another is the failure this campaign kept meeting."*
-- **Every prediction hit exactly:** 81 gated logs predicted, 81 measured; 35 fires at 43% predicted, 35 at 43%
+- ~~**Every prediction hit exactly:**~~ **THE SECONDARY predictions hit exactly** (the primary was never scored —
+  see above). 81 gated logs predicted, 81 measured; 35 fires at 43% predicted, 35 at 43%
   measured; 135 sentinels excluded, 135; the family spread 48% / 92% / 20% predicted and measured. **The spread
   surviving wiring intact is the real check** — a uniform rate would have meant the recovery logic was not seeing
   what the replay saw. Fail-open count stated rather than folded in: 6 logs declaring no tolerance are not gated,
