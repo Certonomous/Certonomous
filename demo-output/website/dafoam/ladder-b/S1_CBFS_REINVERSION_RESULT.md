@@ -113,11 +113,47 @@ The failed run's G2 fail was an artifact of a defective loss. This one is a find
 - The inversion **did** fix the window: 94.9% of the separated-region error and 95.9%
   of the near-wall error are gone. beta-on-production works there, in the
   nu_t-raising direction the physics expects.
-- The top-decile |beta−1| cells scatter (39.6% upstream, 31.5% upper channel) because
+- ~~The top-decile |beta−1| cells scatter (39.6% upstream, 31.5% upper channel) because
   the optimizer, having largely exhausted the window signal, spends its late
   iterations chasing the **77.6% of residual loss that now sits at y>2** — error at
   the reference-interpolation level that an interior omega-production beta moves only
-  weakly (−21.6% there, at the cost of large upstream deviations).
+  weakly (−21.6% there, at the cost of large upstream deviations).~~
+
+  > **[AMENDED 2026-08-11, commit `a8401614`. The scatter is real; the mechanism above is
+  > refuted by execution, and the original is retained struck rather than rewritten.]**
+  >
+  > **The geography is a property of the baseline adjoint, present before any optimisation.**
+  > Scoring the published G2 definition on `grad_eval001.npy` **alone** — an evaluation-1
+  > array confirmed unperturbed (penalty exactly 0.0, beta_min = beta_max = 1.000000) and
+  > containing **no inversion result at all** — returns **35.38%**, with **45.8% of its top
+  > decile upstream**. The baseline *loss* does not have that shape: **8.0% upstream**,
+  > against 41.2% of the loss in-window on 8.44% of cells. Confirmed on a second independent
+  > baseline gradient (31.19%, rho = +0.945 between the two maps) and under cell-size
+  > normalisation.
+  >
+  > **The "late iterations" the mechanism above rests on did not happen.** The accepted
+  > iterate satisfies `beta = 1 - 1.0 * g(beta=1)` to a max residual of **1.110e-16**, with
+  > the step length measured — not fitted — at exactly 1. The field is one gradient step from
+  > the baseline, so there is no late-iteration search to attribute the scatter to.
+  >
+  > **What may be said instead:** the correction's geography carries no information that is
+  > not already in the baseline sensitivity map, so **G2 is scoring the adjoint rather than
+  > the closure**, and the upstream deposition **may not be cited as a physics result about
+  > where model-form error lives.**
+  >
+  > **What is NOT established, stated because the tempting conclusion overreaches.** This does
+  > not refute the physical reading. The adjoint is loud upstream *because* upstream beta
+  > propagates into the downstream loss — which is the very mechanism a physical reading
+  > posits, so the two are not cleanly separable by this measurement and cannot be. What is
+  > established is narrower and firmer than either story.
+  >
+  > **A fourth, independent reason the >50% bar was unreachable:** the top decile of the
+  > per-cell **baseline loss** is only **32.71%** in-window. No loss-following correction can
+  > clear 50%. The achieved 26.86% is **82% of the achievable ceiling**, and the operative
+  > ceiling is 32.71% — not the window's 41.2% loss share.
+  >
+  > Evidence and reproduction scripts: `S1_SENSITIVITY_VS_ERROR.md`, commit `7224e89a`.
+  > Zero solver compute; every array named with the evaluation it came from.
 - The SST shear-stress limiter overlap **grew** with the correction: the limiter now
   binds on 24.8% of all cells (7.7% at beta=1 in the corrupted state) and on **51.6%
   of the top-decile cells** — lowering omega production raises k/omega, which is
