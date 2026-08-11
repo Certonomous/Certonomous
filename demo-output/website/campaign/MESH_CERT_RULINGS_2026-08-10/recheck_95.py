@@ -39,13 +39,35 @@ def case_for(cert_path: Path, i: int):
     return tmp, tmp
 
 def main():
-    certs=[]
+    # DOCKET B2, 2026-08-11. This loop used to `continue` past a certificate it
+    # could not read, and the record below then published an agreement rate
+    # over a population one smaller than the one on disk, with nothing anywhere
+    # saying so. Injected: two certificates, one truncated mid-JSON -> the
+    # record read total 1, agree 1, and named the skipped file nowhere. A
+    # CERTIFICATE THAT COULD NOT BE READ IS NOT A CERTIFICATE THAT AGREES; it
+    # is the same third verdict the checkMesh_did_not_run bucket below already
+    # gives the inner loop, which is why the fix is that bucket's twin rather
+    # than a new idea. The committed recheck_95_record.json PREDATES this fix
+    # and states no unreadable count: the population was re-counted by hand on
+    # 2026-08-11 at 127 birth certificates, 0 unparseable, 95 retrospective, so
+    # the blind spot did not bite that run -- but the run could not have said
+    # so itself, which is the whole finding.
+    certs=[]; unreadable=[]; found=0
     for p in RUNS.rglob('birth_certificate.json'):
+        found+=1
         try: d=json.loads(p.read_text())
-        except Exception: continue
+        except Exception as e:
+            unreadable.append({'path':str(p),'error':f'{type(e).__name__}: {e}',
+                               'note':'NOT counted as agreeing, and not in the '
+                                      'denominator of any figure below'})
+            continue
         if d.get('provenance')=='retrospective-from-archived-log': certs.append((p,d))
     certs.sort(key=lambda x: str(x[0]))
-    print(f"retrospective certificates: {len(certs)}", flush=True)
+    unreadable.sort(key=lambda r: r['path'])
+    print(f"birth certificates found: {found} | unreadable: {len(unreadable)} | "
+          f"retrospective: {len(certs)}", flush=True)
+    for row in unreadable:
+        print(f"  UNREADABLE {row['path']}: {row['error']}", flush=True)
     rows=[]; t0=time.monotonic()
     for i,(p,cert) in enumerate(certs):
         case,tmp=case_for(p,i)
@@ -76,10 +98,25 @@ def main():
     summary={'total':len(rows),'agree':len(ok),'drift':len(dr),'checkMesh_did_not_run':len(nr),
              'points_hash_mismatch':len(bad),'wall_s':round(time.monotonic()-t0,1),
              'core_min':round((time.monotonic()-t0)/60,2),
+             # The denominator, stated. `total` is what was CHECKED; it is not
+             # what was found, and the difference has a name and a list.
+             'certificates_found':found,
+             'certificates_unreadable':len(unreadable),
+             'unreadable_rows':unreadable,
+             'frame':(f"{found} birth_certificate.json under {RUNS} by rglob; "
+                      f"{len(unreadable)} could not be parsed and are excluded "
+                      f"from every figure here; {len(certs)} of the remainder "
+                      f"carry provenance retrospective-from-archived-log and "
+                      f"are the denominator of agree/drift/hash-mismatch. "
+                      f"AN UNREADABLE CERTIFICATE IS NOT AN AGREEING ONE."),
              'drift_rows':dr,'did_not_run_rows':nr,'hash_mismatch_rows':bad,'rows':rows}
     (OUT/'recheck_95_record.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+"\n")
     print(f"\nAGREE {len(ok)} | DRIFT {len(dr)} | checkMesh-did-not-run {len(nr)} | "
-          f"hash-mismatch {len(bad)} | {summary['core_min']} core-min", flush=True)
-    return 0
+          f"hash-mismatch {len(bad)} | UNREADABLE {len(unreadable)} | "
+          f"{summary['core_min']} core-min", flush=True)
+    # A run that could not read a certificate has not verified 100% of
+    # anything, and says so in its own exit status rather than only in a field
+    # a reader has to go looking for.
+    return 0 if not unreadable else 2
 
 if __name__=='__main__': raise SystemExit(main())
