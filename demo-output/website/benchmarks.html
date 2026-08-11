@@ -109,7 +109,8 @@ per the pre-registered risk statement.)</p>
 
 <p class="lede" style="margin-top:26px">Improvement over the uncorrected reference on those cases and
 the square ducts (round 5: the three duct predictions come from a converged forward solve of the
-untrained QCR2000 physics term — nothing fitted to anything).</p>
+untrained QCR2000 physics term — its one coefficient <code>Ccr1 = 0.3</code> is Spalart (2000)'s
+published constant, nothing fitted to anything).</p>
 <div class="scroll"><table>
 <thead><tr><th>Test case</th><th class="n">Uncorrected</th><th class="n">Certonomous</th><th class="n">Improvement</th></tr></thead>
 <tbody>
@@ -128,7 +129,8 @@ only, agreeing to r = 0.9997–1.0000. On two cases the trained correction was f
 the result worse than the uncorrected physics solve; rather than quietly discard that finding, a small
 decline-gate was trained and checked on non-test cases only, then applied once — it correctly withholds
 the correction on exactly those two cases. In round 5 the trained duct correction was replaced outright
-by the untrained QCR2000 constitutive term under a rule frozen before any solve. Two caveats travel with
+by the untrained QCR2000 constitutive term — Spalart (2000), run at its published <code>Ccr1 = 0.3</code>
+and overridden nowhere — under a rule frozen before any solve. Two caveats travel with
 the rank: the 0.0029 margin over the published leader carries a truth-free seed-uncertainty bound of
 comparable size (0.0024) on the three trained predictions, and the rank is local — the steward's own
 scoring, if the entry is ever submitted, is the number that counts.</div>
@@ -236,7 +238,8 @@ the two we found by checking claims we liked.</div>
   Sources: closure-challenge harness, six pre-registered scoring calls across five rounds ·
   discrete adjoint with finite-difference verification ·
   AGARD AR-138 · NASA Turbulence Modeling Resource · Ahmed, Ramm &amp; Faltin (1984) ·
-  Roshko–Williamson correlation · Billig (1967) · benchmark DNS reference fields.
+  Roshko–Williamson correlation · Billig (1967) · Spalart (2000), the QCR2000 constitutive
+  relation and its published <code>Ccr1 = 0.3</code> · benchmark DNS reference fields.
   Records and raw logs held complete in the lab's permanent record.
 </footer>
 
