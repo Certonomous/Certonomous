@@ -3036,7 +3036,10 @@ check was commissioned, and it is the best argument tonight for never letting an
   grows is how a gate stops gating."*
 - **THE RUNG IS BUILT, NOT PASSED.** It found the defects and built the guard, so **under A15 it may not grade it**,
   and the V16 independence column now says so. An independent grader is commissioned.
-- Verification: guard tests **35 passed**, full suite **1328 passed**. One failure — `test_exec_bits` — is on another
+- Verification: guard tests **35 passed**, full suite **1328 passed** *(2026-08-11: suite totals recorded tonight were
+  taken from a tree eight agents were committing to, and at least one — 1309 — counted uncommitted tests. **A suite
+  count is true of a commit, not of a moment**; treat any of tonight's totals as a reading, not a constant.)* One
+  failure — `test_exec_bits` — is on another
   agent's newly added queue script and **reproduces without any of this agent's changes**; routed to its owner.
 
 ### 2026-08-11 — the preflight gate checked a directory that was not the case that ran, and 7 launches would have been blocked
@@ -3145,6 +3148,45 @@ check was commissioned, and it is the best argument tonight for never letting an
   while the docket **already recorded it as unverifiable**. *The docket knew; the instrument said otherwise.* Also:
   the default sweep's own reach was never stated — it runs 13 of 14 registered acts, with one deliberately excluded,
   and never said so.
+
+### 2026-08-11 — exactly one resource-dependent test in 1300, demonstrated over 11,700 scored outcomes
+
+**And it opens by correcting me: the sweep never died.** I reported it "died on a connection error at its first tool
+call" and resumed it. **It had already finished** — the failure notice carried the *first* line of its response
+rather than its last, so completed work looked like work that never started. **A failed-status notification is not
+evidence that nothing was done**, and I restarted on that assumption. It declined to redo the work and addressed only
+the one genuinely new instruction, which is the right call.
+
+- **Enumeration transitive BY CONSTRUCTION, not lexical** — wrappers count resource calls **per test function at any
+  depth**. That matters because the one real finding is **four hops from its assertion and names neither disk nor
+  memory.** A lexical sweep would have missed it, exactly as the confirmed defect was missed.
+- **Frame: 1300 test functions defined, 1300 executed and scored — no gap.** And it **corrected its own earlier
+  number** (1309 defined / 9 unscored) on discovering that figure compared a working-tree grep against an
+  archive-tree run.
+- **CLASSIFICATION: verdict-changing 1 · resource-reading-but-pinned 20 · reads-but-insensitive 74.** The one is a
+  batch-ledger test whose flip point brackets to **0.1 GB on each axis independently** — green at 20.1 GB disk, red at
+  19.9; green at 2.1 GB memory, red at 1.9 — and **both thresholds are the workflow's own latching guard floors**,
+  with the livelock incident that guard exists for recorded in the same file.
+- **DEMONSTRATED, NOT REASONED: nine full-suite runs, 11,700 scored outcomes, exactly one difference** — and capacity
+  was moved **94×**. **The positive control was run first**: the pre-fix assertion is GREEN at forced 3 cores and RED
+  at 96 against the same source, **so the zero-difference result means something.** Two tests no in-process wrapper
+  can see were forced with a shim on `PATH`, crossing a boundary patching cannot.
+- **It conceded my criticism and the fix was load-bearing.** Its first four runs carried endpoint load only; re-run
+  under a 20-second sampler, load ranged **10.25 → 1.42 → 13.13**, including a **3× swing inside a single unforced
+  run** whose capacity therefore moved mid-execution — **and it still agreed test-for-test** with runs pinned to 1
+  slot and to 94.
+- **REPRODUCIBILITY ANSWER: YES — measured, not argued.** The suite's colour does not depend on concurrent load.
+- **It ran the repair rather than proposing it**, and the repair **adds** an assertion instead of weakening one:
+  assert a value the function already returns and the test already discards.
+- **N-7, and it lands on our own record: a suite total was entered permanently from an unreproducible tree.** A
+  commit records "Suite 1309 passed"; the swept commit defines **1300**, and the nine were **uncommitted** tests.
+  Annotated above. **A suite count is true of a commit, not of a moment.**
+- **N-1, subtle and worth keeping: a test with an invariant verdict but branch coverage chosen by the neighbours** —
+  only one narration arm ever executes on a given box. Always green, never fully exercised.
+- **Limits stated without prompting**: 31 test functions now exist that were never swept because they postdate the
+  swept commit, and **HEAD moved eight commits during the sweep.** *"That is the standing cost of measuring a
+  repository eight agents are committing to."* Memory pressure was forced by substitution, not exhaustion — starving
+  this box would have taken down the neighbours.
 
 ### Decision requests for Katie (standing)
 
