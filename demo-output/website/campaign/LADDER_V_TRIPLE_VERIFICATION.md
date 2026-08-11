@@ -293,12 +293,29 @@ and stated reach failing to keep up with what its author already knew. Closed in
 2. **Nine more families taken** — `ranked Nth`, the verbal placements, `Nth overall`, `the Nth
    entry`, `position N`, `top the board` — each measured for false positives before it was kept,
    and one (`No. N`) measured, found firing on a journal issue number in a bibliography, and
-   **taken back out**. Miss rate **80% → 30%**; precision still zero.
-3. **The parse can no longer crash, mis-parse silently, or fault correct prose.** A surname with a
-   regex metacharacter used to raise out of this check and take *every other check in the file*
-   down with it; a second numbered table anywhere in the README silently moved an entrant's rank;
-   two entrants sharing a first-author surname silently dropped one and then faulted correct prose
-   about the survivor. Each is now OFF **with its reason in the verdict**.
+   **taken back out**. Precision still zero. *(**The miss rate originally published here as
+   "80% → 30%" is withdrawn as a headline.** The second grade showed it pairs an* **outside**
+   *measurement of the old patterns with an* **inside** *measurement of the new ones — different
+   samples, unstated. On the grader's original 45, invented blind before the widening existed, the
+   widened guard misses* **53%**, *not 30%. The honest headline is that one fixed set measured at
+   both ends:* **89% → 53%.** *A third set built adversarially with the pattern list in hand gives
+   96%. The check now generates all three, with provenance, from one table rather than carrying
+   them as prose.)*
+3. **The parse can no longer crash, and three more ways to mis-parse it silently are closed.**
+   *(This item read "can no longer crash, mis-parse silently, or fault correct prose" and* **that
+   was false when written** — *the second grade found three of fifteen adversarial READMEs still
+   returning an unchecked board with no warning. The root cause was one sentence: the repair
+   anchored to* a *heading and took the first table after it, and never asked whether what it read
+   was a leaderboard.)* A surname with a regex metacharacter used to raise out of this check and
+   take *every other check in the file* down with it; a numbered table anywhere in the README moved
+   an entrant's rank; two entrants sharing a first-author surname dropped one and then faulted
+   correct prose about the survivor; a numbered legend *between* the heading and the board, an
+   earlier heading also saying *leaderboard*, and **a blank line inside the board table** each
+   silently changed the board. **The heading now plays no part**: every block of table rows is a
+   candidate, and a candidate is a leaderboard only if it has a rank-headed first column, a column
+   naming the entrants, at least two rows, ranks reading exactly 1..N, and unique usable surnames —
+   with exactly one qualifying, or the detector goes OFF and says why. **It can still be fooled by
+   a decoy that satisfies all of that, and now says so** rather than claiming it cannot.
 4. **A literal survived inside the thing built to remove literals**: the ordinal vocabulary was a
    hard-coded 1–5, so on a longer board every placement past fifth was unmatched. It is derived
    from the parsed board now, with a margin, so an ordinal naming a position the board does not
@@ -323,9 +340,36 @@ checked against a single board rank. And the second rule **cannot tell use from 
 that quotes one of these defects in order to name it is flagged by it, which is why that rule is a
 WARN on a lab record and a FAIL only where a surface travels — and which caught **my own test
 fixtures** the minute the patterns widened, in the very file that documents why one must not write
-them out. **The rung is BUILT and GRADED PASS WITH EXCEPTIONS, and the exceptions are closed by the
-same agent that built it** — so the re-grade is owed to someone else. Under A15 no agent grades its
-own work, and that applies to a fix round exactly as it applies to a build.
+them out.
+
+### 2026-08-11, third pass — re-graded PASS WITH EXCEPTIONS (two, down from six), both now closed
+
+`campaign/V16_GRADE.md` §8, by the same independent grader, **verifying each closure by breaking the
+thing that holds it** rather than by reading its description. Five of six closed cleanly; the two
+that remained had the same shape as the first six — *the instrument is sound and a claim about it
+overstates it* — and both are closed above: the parse's three surviving silent mis-parses (§8.1/E2)
+and the reach headline that paired two different samples (§8.1/E4). With them, four incidentals:
+the mirror of my own particle fix (`Reissmann Jr.` keyed on `jr`); **rule B, which had not been
+widened at all** while nine families went to rule A, so *"80% → 30%"* described one of two rules
+and was worn as a statement about the check; the count and the miss rates **hardcoded in three
+surfaces each with no test that they were still true** — the literal problem one level above the
+one the previous pass had just removed, now derived from the compiled pattern and one provenance
+table; and **L-75**, confirmed not to touch this guard, whose `git ls-files` frame reaches the
+**6,938 tracked-but-gitignored files** a `grep -r` here cannot see (verified in this pass, not
+inherited).
+
+**A coordination hazard I caused, recorded because it is mine.** The grader's held-out set lived at
+the shared scratchpad path `…/scratchpad/heldout.py`; **I overwrote it with my own set at 04:11**,
+under a docstring reading *"My own held-out set"*. No evidence was lost — the grader's 45 are
+recorded in §4 of the grade — but a grader's file being silently replaced by the author's, in a lab
+whose whole method is independent verification, is the hazard rather than the outcome. It also
+meant disjointness of the third set had to be asserted mechanically instead of trusted. My working
+files now live in a uniquely-named subdirectory; **agents share that directory and can destroy each
+other's evidence without either noticing.**
+
+**The rung is BUILT and GRADED TWICE, and both rounds of exceptions are closed by the same agent
+that built it** — so the re-grade is owed to someone else. Under A15 no agent grades its own work,
+and that applies to a fix round exactly as it applies to a build.
 
 **The round is not scored PASS.** It fixed what it was sent to fix and it opened a new-shaped
 finding, which under the termination rule is exactly what a **non**-fixed-point round looks like.
