@@ -701,6 +701,42 @@ The second half is L-39's own corollary. It is the whole rule: the nine-day
 incident was not a delay in *finding* the proof, it was that the proof and the
 record it refuted were never connected.
 
+### 8.1a The present tense is banned from durable records (Katie, 2026-08-11)
+
+> **A state claim carries its commit anchor.** *"As of `08a87cc7`, X holds"* — never
+> a bare *"X holds"*.
+
+**A document written in the present tense rots into wrongness without being touched.** It
+was true when written, the world moved, and now it is false — with nothing on its face
+saying so and no edit anyone could have caught in review. §8.1 above governs claims someone
+*noticed* were superseded; this clause governs the far larger set nobody has noticed yet.
+
+**With a commit anchor a record cannot rot; it can only become visibly dated.** That is a
+different and much cheaper failure. A reader who sees *"as of `08a87cc7`"* knows exactly
+what to check and how far back; a reader who sees *"the gate is re-based onto the analytic
+quantity"* has no way to know that sentence stopped being true four hours later.
+
+**Both halves of the shape appeared on 2026-08-11, in one file.** A section correctly
+refuted a claim, and then rotted twice while sitting there being right: its docket pointer
+named an ID that had since been renumbered, and its present-tense description of another
+document's gate had been overtaken by a commit acting on that very refutation. **The
+analysis was never wrong. Only the tense was.**
+
+**Practical form:**
+
+- **State claims** — what the code does, what a gate requires, what a document says — carry
+  a commit anchor.
+- **Findings and measurements** carry frame + filter + commit already (L-75, L-72). This
+  extends the same discipline to the sentences *around* the numbers, which is where it was
+  missing.
+- **Prefer regeneration where the claim is countable** (L-79, `scripts/corpus_figures.py`).
+  An anchor is for claims that cannot be regenerated at read time.
+- **Rules and definitions are exempt** — *"a pathspec isolates by file, not by author"* is
+  not a state claim, and anchoring it would be noise.
+
+The test is one question: **could the world change without this sentence changing?** If
+yes, it needs an anchor.
+
 ### 8.2 The rule is already the practice — that is not the problem
 
 Measured across tracked markdown, 2026-08-10: **36 supersession markers
