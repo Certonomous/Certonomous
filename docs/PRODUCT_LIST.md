@@ -2595,7 +2595,9 @@ clock-audit rule asks for.]*
   pre-registration, a live program rule, and a pre-registered proposal gate.** Independent corroboration already in
   the repo: **98 of 175 archive-wide residual-stall firings are this ensemble's members — 56% of all firings from 6%
   of the corpus.**
-- **PROPAGATION: 120 of 365 configuration files carry an unreachable target**, derived from the self-relation rather
+- **PROPAGATION: 120 of 365 configuration files carry an unreachable target** *(confirmed 2026-08-11 as the
+  claim-bearing figure; a sweep's 136 of 381 was withdrawn — its 16 extra files are an auditor's own continuation
+  copies)*, derived from the self-relation rather
   than listed. 84 are this ensemble; **21 in an unexamined family recommended as the next audit**; 5 are inherited
   from the benchmark's own authors and **deliberately preserved with cause**, which the derivation correctly
   distinguishes.
@@ -2699,8 +2701,16 @@ clock-audit rule asks for.]*
 - **One disagreement with the earlier audit, and it strengthens that audit:** 2 of 16 momentum residuals rise, not
   1. Both risers are the **deliberately sign-flipped falsifier arms** whose degradation is the reported finding.
   None of the 10 publication-bearing runs rises.
-- **OUR OWN COUNT HAS DRIFTED AND NOBODY RE-RAN IT.** "120 of 365" is now **136 of 381** by the same method and the
-  same shipped helpers — understated by 16, all in one ensemble's subdirectories. Corrected below.
+- ~~**OUR OWN COUNT HAS DRIFTED AND NOBODY RE-RAN IT.** "120 of 365" is now **136 of 381**.~~
+  **WITHDRAWN BY ME, 2026-08-11 — and the withdrawal is the more useful finding.** The arithmetic resolves exactly:
+  381 − 365 = 16, 136 − 120 = 16, and there are **precisely 16 `fvSolution` files under `f6d_option_a`** — an
+  auditor's **own continuation copies**, whose targets its own pre-registration deliberately leaves unchanged. Both
+  counts are right for their moment and **neither is a worsening.** The claim-bearing figure is still **120 of 365**.
+  I published the 136 without asking where the growth came from. *A defect count that grows because an auditor made
+  copies to audit with is exactly the number that gets quoted once and corrected never* — and I nearly made it one.
+  **Second defect in the same action:** my in-line correction to the propagation figure **silently matched nothing**
+  and never landed, while the commit message announced it as done. A `str.replace` that finds no match is a **no-op
+  that reports success**. Only luck made the un-landed edit the correct outcome. Recorded as **L-67**.
 - **THE ESCALATION — the S6 headline is not the held-out number it reads as.** The detector's docstring names its
   motivating sentinel as literally `p 1e-15;//1e-4;`, which is the **exact byte sequence** in one of these cases,
   and 18 of these 21 logs are **inside the corpus the 135-of-135 was scored against.** In the auditor's words:

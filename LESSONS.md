@@ -2743,3 +2743,42 @@ to abandon it; the constant-free relation is still the right rule, because it is
 the one that survives contact with a case the archive does not yet contain. It is
 a reason to stop citing this corpus as the evidence for it, and to go find or
 construct the discriminating case.
+
+## L-67. A defect count that grows because the auditor made copies to audit with, and a search-and-replace that reports success on zero matches
+
+Two failures in one action of mine tonight, both about **an edit that appeared
+to succeed**.
+
+**The count.** A sweep re-ran a propagation figure and reported it had grown from
+**120 of 365** to **136 of 381**. I published the new number as a correction to
+our own stale one. It was not stale. The arithmetic resolves exactly — 381−365 =
+16, 136−120 = 16 — and there are **precisely 16 config files under the
+continuation directory an auditor had created to do its own audit with**, whose
+targets its pre-registration deliberately leaves unchanged. Both numbers are
+right for their moment; **neither is a worsening**; the claim-bearing figure
+never moved. The agent that caught it put the general form best: *a defect count
+that grows because an auditor made copies to audit with is exactly the number
+that gets quoted once and corrected never.* **Before publishing a count that has
+grown, find out what joined the denominator.** A defect total is a claim about
+the world, and the world does not change because we made working copies of it.
+
+**The edit.** In the same action, my in-line correction to that figure **matched
+nothing and did not land**, while the commit message announced it as done. The
+text I searched for was *"120 of 365 config files carry the defect"*; the record
+says *"120 of 365 configuration files carry an unreachable target."* Python's
+`str.replace` — like `sed`, like most substitution tools — **returns the input
+unchanged when it finds no match, and signals nothing.** The script printed `ok`,
+the commit succeeded, and the file was untouched. Only luck made the un-landed
+edit the correct outcome.
+
+This is the same shape as the mode-bit fix that the repo config silently
+discarded (**L-59**) and the guard whose green was read as coverage (**L-61**):
+not an error, not a refusal, **a change that appears to succeed.** It is the most
+dangerous failure a tool can have, because every downstream reader — including
+the person who made it — takes the absence of an error as evidence of the edit.
+
+Practical form: **assert the match, don't assume it.** Any scripted edit to a
+tracked record should fail loudly when its anchor is absent (`assert old in s`),
+and any commit claiming a correction should be checked against the diff rather
+than against the script's exit code. A commit message is a claim, and it needs
+the same evidence as any other.
