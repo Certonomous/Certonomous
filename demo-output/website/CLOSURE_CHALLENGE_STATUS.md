@@ -556,7 +556,7 @@ without a scoring call — `closure_challenge_stability_physicality_audit.md`
 reading carries that uncertainty**; the three duct predictions contribute
 zero seed variance (nothing in them was trained at all).
 
-**A measured consistency check, not designed for**: the rank-3 entry (Wu &
+**A measured consistency check, not designed for**: the rank-2 entry (Wu &
 Zhang) runs SST-QCRC, which carries the same untrained QCR2000 term. Our
 three QCR duct scores land within 0.0004 of theirs on all three ducts
 (0.0455/0.0455, 0.0400/0.0399, 0.0353/0.0350) — independent solves, same
