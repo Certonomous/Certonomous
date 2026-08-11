@@ -3560,3 +3560,60 @@ one step wide, and here is which step."** Related: L-74 (a check sharing the kno
 thing it checks measures transcription fidelity), L-82 (the insider's number is the optimistic
 one, and the gap is measurable for the price of one more sample), L-76 (execution falsifies
 absolutes; keep the falsified claim, stop asserting it), L-79 (recompute, never transcribe).
+
+## L-84. A positive control proves an instrument can fire. It does not prove its reach, and it does not prove it fires only where it should — two failures the same night, opposite halves of one missing control
+
+**2026-08-11.** Two independent method failures, by two different agents, hours apart, on
+unrelated subjects. Both authors had run a positive control. Both controls passed. Both
+numbers were wrong, and **in opposite directions** — which is what makes the pair worth one
+entry rather than two.
+
+**Failure one: the frame had an edge the control could not reach.** A sweep asked how many
+tracked solver logs are cited by exact path in committed markdown and answered **zero**. Its
+positive control passed convincingly — the harvester found **13** real file citations, so it
+demonstrably fired. But the harvester matched only `*_runs/`-shaped path tokens, and the one
+real log citation lives under `tmr/runs/` — **a slash where the pattern wanted an
+underscore**. The filter produced the zero, not the corpus. **No number of true positives
+inside the frame could ever have revealed that the frame had an edge**, because every one of
+them was inside it.
+
+**Failure two: the widening bought recall and nobody measured what it cost.** An audit
+searched for checks that declare their own blind spots, and widened the search from the word
+`blind` to a seven-pattern regex with six paraphrases — a reasonable move, made to avoid
+missing checks that phrase it differently. It reported **4 of 30** against a published **3 of
+34**. The extra hit was a **false positive**: the matched phrase *"this function cannot see
+what its caller put in it"* is the check **reporting a defect it found in the audited code**,
+not declaring its own reach. The widening had no must-not-match set, so nothing measured its
+precision. **The audit committed, while auditing it, the exact defect it was auditing** — four
+recall figures and no precision figure.
+
+**The rule, both halves, and neither is sufficient alone:**
+
+> **A control that only shows an instrument firing is half a control.**
+> **The other half is a set it must NOT fire on** — planted outside the frame to test reach,
+> and planted just inside the boundary to test precision.
+
+For a **sweep**: plant a target in a location shaped differently from the pattern, not just a
+target the pattern already matches. The control for a `*_runs/` harvester is a citation in a
+`runs/` directory.
+
+For a **matcher you widen**: every paraphrase added to buy recall needs a near-miss it must
+reject, measured, before the figure ships. Widening without a precision set is not a
+refinement; it is an unmeasured trade.
+
+**How both were caught, which is the operational point.** Failure one was caught by an
+independent auditor with a different harvester. Failure two was caught **by asking the
+auditor for its frame instead of overruling it** — two agents each holding a number, and the
+disagreement resolved into a withdrawal *and* a lesson only because the question asked was
+"what did you measure?" rather than "you are wrong." Neither was caught by its author, and
+neither could have been: an instrument's blind spot is not visible from inside it.
+
+**The uncomfortable corollary.** Every clean zero in this corpus produced by a pattern-based
+sweep is owed the reach half of this control, and most of them do not have it. A zero is the
+cheapest thing to publish and the most expensive thing to have wrong, because nothing about
+it looks like a failure.
+
+Related: L-74 (a check sharing the knowledge of the thing it checks measures transcription
+fidelity), L-75 (the frame is part of the number), L-82 (the insider's set understates, and
+the gap is measurable by building a second one), L-83 (fixing a circular measurement moves
+the circle up one level).
