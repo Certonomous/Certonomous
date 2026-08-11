@@ -2262,6 +2262,25 @@ clock-audit rule asks for.]*
 - Two `h` float-placement notices appeared and were **verified rather than assumed**: every table lands adjacent to
   its own prose, none orphaned. Silencing them would have been a larger change than the ruling warranted.
 
+### 2026-08-11 — the report is complete, and a one-word edit was checked against the document's own voice
+
+- **Line 272 taken as approved** (`45b3be0f`): *"The **internal** sentence this supports is"* → *"The **honest**
+  sentence this supports is"*. The word was not invented — the writer checked first and found **"The honest ___" is
+  already this document's own idiom** (three prior uses in its own sections), so a one-word edit in someone else's
+  register lands in a voice the report already speaks.
+- **A residue sweep of the whole file followed**, on the principle that *fixing one instance without checking for
+  siblings is how the next one survives.* Six occurrences of "internal" remain and **all six are correct**: two mean
+  *scored in-house* and are unrelated to the withdrawn gate, one is unrelated in subject, and three sit inside the
+  corrected caution's past-tense recital and provenance — **where the word RECORDS the withdrawal rather than
+  asserting it.** That distinction is the whole difference between a residue and a history.
+- Compile clean at 40 pages, zero errors, the same two underfull boxes at unchanged badness, no new warnings.
+- **The sharper half of my brief error, in the writer's own diagnosis:** *"'unchanged' is the one word in a warning
+  expectation that cannot be checked against the new build alone, because it makes a claim about a baseline I had
+  not built yet."* Which is why it **built the previous version side by side before touching a character** — and
+  that is what turned my green light into a locatable discrepancy in a different document's log. Standing practice
+  now: any brief saying *expect this unchanged* requires building the baseline first, however routine it looks.
+- The report remains **filing-READY, NOT FILED**; nothing sent, filed or uploaded at any point tonight.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
