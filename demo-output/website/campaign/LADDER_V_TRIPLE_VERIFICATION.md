@@ -173,6 +173,35 @@ the answer is not to stop auditing — it is that the package is not ready.
 not travel), changelog entries, and this document. What DOES: any edit to the submission
 package, to a claim-bearing surface, or to a rule this ladder enforces.
 
+## THE CONVERGENCE RULE — R-CONVERGE, R-DEPTH, R-VALUE (Katie, 2026-08-11)
+
+The termination rule above says the ladder is green at a fixed point. It does not say
+what stops a SINGLE RUNG. V16 is the proof that it needed to: the rung took **four grade
+rounds**, each of which found something real, so none was waste — but a rung that can
+always find one more thing has no stopping condition, and a gate that never closes is
+not a gate. These three rules are the floor. They bind every rung from here, and they are
+applied to V16 retroactively in its own record.
+
+**R-CONVERGE.** Every rung declares, BEFORE its first grade, what CLOSED looks like: the
+specific artifacts, the specific claims, the pass criterion. A grade may close exceptions
+or open new ones — but a new exception **outside the declared scope** is filed as a
+separate docket item, not appended to the live rung. Rungs close; the corpus of findings
+grows elsewhere. The docket is `docs/DOCKET.md`.
+
+**R-DEPTH.** Meta-depth cap. An instrument that checks an instrument that checks a claim
+is depth 2, and that is the limit. Depth-3 work — auditing the auditor of the auditor —
+is **filed, not executed**, unless a depth-2 finding falsified something published.
+
+**R-VALUE.** Each grade round records what it found and what it cost. When **two
+consecutive rounds return only findings that would not change an external reader's
+belief**, the rung closes as **PASS WITH RESIDUALS**, and the residuals become docket
+items. PASS WITH RESIDUALS is a real pass for the send gate; the residuals are real work
+that is not this rung's.
+
+These rules can end a rung. They cannot end it quietly: a rung closed under R-VALUE
+names its residuals, and a finding filed under R-CONVERGE names the rung it was found in.
+Nothing is dropped — the difference is only which queue it lives in.
+
 ## CLOSE-OUT
 
 - **V13. Ladder report in negative-verdict-review format**: every rung PASS/FAIL with evidence
