@@ -2487,6 +2487,40 @@ clock-audit rule asks for.]*
   script**, a guard that exists because of this same family's earlier finding. The system working as designed, on
   work in flight. Routed, not touched, because that agent is mid-arm.
 
+### 2026-08-11 — V10's surface closes clean, and the guard that would have caught it is derived rather than listed
+
+- **The digit was fixed by MEASUREMENT** (`fdb1ec5c`): the checker re-ran the benchmark's own scorer over the
+  competitor's published directories at the frozen commits and **independently reproduced the resolution to all 20
+  digits** rather than trusting the record that resolved it. The second discrepancy — that the probability rests on
+  the transcribed value and its bootstrap has not been re-run — was **left standing and its arithmetic confirmed**,
+  not smoothed.
+- **Three rank claims on the bundle's most prominent page now carry the figure and its bound** (`87f84b44`), after
+  verifying the page is **not** generated (its sibling is, at a named line) so the fix could not be overwritten. The
+  interval used is the **double**-bootstrap band, not the Monte Carlo one — which measures only how long the
+  resampling ran.
+- **THE GUARD IS DERIVED, NOT LISTED** (`1611011b`): every tracked path plus every member of every shipped archive,
+  matched on the *assertive form* of a placement near the closure board — **35 claim-bearing surfaces out of 20,641
+  paths, a set no maintained list had ever matched.** Severity is derived too: travelling surfaces FAIL, lab records
+  WARN. **The one list it does contain — homonym exclusions — is named as a list in the code**, and excludes senses
+  of the phrase rather than surfaces, because without it the guard fires on solver logs and gets switched off.
+- **It states what it cannot see**, in the verdict line, not a footnote: non-UTF-8 (so a claim living only in a
+  compiled PDF is invisible while its source is not), untracked files, oversized files, render-time text, and — the
+  subtle one — **the distance from a claim to its companion, since compliance is per file, so one compliant
+  paragraph clears every claim in that file.** 13 tests, all failing against the prior code, with the anti-list
+  property pinned by **a surface invented inside the test that no list has ever contained.**
+- **Two of the checker's own absence claims came back FAIL — and the artifact was right, the claims were wrong.**
+  Two old scores DO appear in the bundle, as correctly attributed round history. It **replaced the blunt absence
+  claim with the true one** (never unattributed to its round; 5 and 4 occurrences, all attributed) and added a
+  positive assertion instead — rather than deleting the test that failed.
+- **Rebuild: drift gate PASS, zero items**, verified on the extracted committed archive and then **over HTTP**, with
+  a positive control that planted the four literals and reflowed the token — proving the instrument finds what is
+  there and that the wrapped-token failure mode is detectable. Served bytes equal extracted bytes.
+- **One member changed that nobody asked for, and it is named in the commit**: a certificate PDF, 74 bytes, new
+  serial over identical evidence, traced to the suite re-running that act mid-round. Shipped as built rather than
+  hand-restored — the honest choice, and stated.
+- **New standing debt made visible for the first time:** 9 lab records still claim rank 1 with no companion. All
+  non-travelling, all pre-existing, none previously findable.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
