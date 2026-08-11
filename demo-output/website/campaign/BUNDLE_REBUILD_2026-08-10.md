@@ -136,3 +136,71 @@ by the chief. **Read only**, to establish whether the recording swap desynced it
 (§2a); it did not, and the swap moves the bundle *toward* what the script
 describes. Ranks 4 and 6–11 of the discovery rung's stale list are records work
 and are untouched here.
+
+---
+
+# ADDENDUM, 2026-08-11 — the absence verification was re-done with a wrap-proof instrument
+
+**Chief-ordered, after §5's own finding (a line-bounded grep can report a false
+absence) was pointed at the check where it mattered most.** The struck prior-art
+sentence had been verified gone by `grep` three times. **`grep` is line-bounded.**
+
+## The positive control — this is what makes the result knowledge rather than hope
+
+The struck sentence was planted into a scratch copy of the shipped
+`closure.html`, **wrapped across five lines and split by `<b>` tags**, exactly as
+a real one could be:
+
+| instrument | on the planted file (sentence demonstrably PRESENT) |
+| --- | --- |
+| **line-bounded `grep`** — the method used in all three prior passes | **0 hits** |
+| **normalised search** (whitespace collapsed, tags stripped, accents/dashes folded) | **all 7 fragments found** |
+
+> **The old instrument returns zero on a file that contains the sentence.**
+> The three prior zeros were therefore **unsound**, not merely unconfirmed.
+
+## The result on the real artifact — the defect is genuinely absent
+
+Run against the extracted committed zip, the current source, **and the bytes
+served over HTTP**, all agreeing:
+
+| fragment | verdict |
+| --- | --- |
+| `controls where a data-driven correction is allowed to act` + `has been published repeatedly` (the struck sentence's core) | **ABSENT** |
+| `Steiner, Dwight and Viré in 2022` | present — **and correct** |
+| `Buchanan, Lăcătuş, West and Dwight in 2025` | present — **and correct** |
+| `Wu, Wang, Xiao and Ling in 2017` | present — **and correct** |
+| `Two of those authors wrote the benchmark we are entering` | present — **and correct** |
+
+**Bundle-wide sweep: 78 text files, 23 binary skipped, core-defect hits 0** — with
+the sweep's own positive control passing 2 of 2 on the planted file, so the zero
+is an absence and not a broken pipe.
+
+**Why four fragments are present and it is right that they are.** The correction
+of 2026-08-05 was a **two-part split, not a deletion**. As shipped, the paragraph
+now reads:
+
+- *"Classifiers that read only the uncorrected solve and **identify where the
+  baseline is unreliable** are established: Ling and Templeton in 2015, **who
+  classify RANS results point by point … and control nothing**, and Wu, Wang,
+  Xiao and Ling in 2017…"*
+- *"**Using such a classifier to control** where a data-driven correction is
+  fitted and applied is established **separately**: Steiner, Dwight and Viré in
+  2022, and Buchanan, Lăcătuş, West and Dwight in 2025."*
+
+**The struck version credited all four groups with the control mechanism
+"repeatedly". The shipped version credits the control mechanism only to the two
+groups that reported it, and says explicitly that Ling and Templeton control
+nothing.** That is the defect fixed, not merely removed.
+
+**A flaw in my own fragment design, recorded:** four of the seven fragments were
+author names that the *corrected* text legitimately contains, so they read
+PRESENT and meant nothing. **A fragment shared by the defect and its fix is
+evidence of neither.** Only the mechanism clause and `published repeatedly`
+distinguish the two, and those are the ones that came back absent.
+
+## Standing
+
+**V10 closes on sound evidence.** The general form is now §9 of this family's
+guidelines: *an absence claim requires an instrument that cannot produce a false
+absence, and a positive control proving it.*
