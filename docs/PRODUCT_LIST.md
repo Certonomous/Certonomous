@@ -2042,8 +2042,14 @@ clock-audit rule asks for.]*
 ### 2026-08-10 (night) — both blocking items closed, and the corrections found more than the audit that ordered them
 
 - **F1 CLOSED and the figure was in THREE ladder documents, not the two V15 found** (7de8733c). All four duct values
-  re-derived from the JSON, and **the submission side proved two independent ways** — the manifest's own changed-list
-  and the absence of a validation-duct CSV in the shipped directory — rather than taken from the brief. The
+  re-derived from the JSON, and **the submission side proved two independent ways** — the forward record's own
+  changed-list (`closure_challenge_round5_qcr_forward.json` `/what_ships`, where `AR_7_Ret_180` appears in neither
+  `changed` nor `unchanged`) and the absence of a validation-duct CSV in the shipped directory — rather than taken
+  from the brief. *(Citation corrected 2026-08-11 per V15 round 2 finding N4: this read "the manifest's own
+  changed-list". `closure_challenge_submission_round5/MANIFEST.json` has no changed-list — its `files` key names all
+  eight cases undifferentiated and the string `AR_7` does not occur in it at all. **The claim is true and both proofs
+  stand**; only the artifact named for the first one was wrong, in a sentence whose whole point was that it was
+  verified against the primary artifact rather than taken from the brief.)* The
   replacement names its cases instead of giving a bare range: *"the three submitted ducts measure 8.5, 5.3 and
   5.4 ×10⁻⁴"*, **so the number can never again be read as belonging to a case the reader will not receive.**
 - **F2 CLOSED, and the date list was longer than every prior count** (9477a2ed): **19 tracked files**, against a
