@@ -10,8 +10,8 @@ separated from its body?*
 
 **Result in one line: the ledger's method is sound and most of its evidence survives
 verbatim re-derivation, but its titles and its round numbers do not hold as well as its
-bodies do.** Of 41 headline-grade claims tested: **24 SOUND**, **9 TRUE-BUT-HEADLINE-
-OVERSTATES**, **8 FALSIFIED** (one of them already withdrawn). Every falsification but two
+bodies do.** Of 42 headline-grade claims tested: **24 SOUND**, **9 TRUE-BUT-HEADLINE-
+OVERSTATES**, **9 FALSIFIED** (one of them already withdrawn). Every falsification but two
 is a *count* or a *frame*, not a fabricated defect — and two of the corrections move the
 ledger's central finding in the direction that makes it **stronger**, not weaker.
 
@@ -150,7 +150,24 @@ sweep arm."**
 `channel3_eigenvalue_perturbation/`, 15 under `r4_band_tightening_hump/`, 1 under
 `f6a_nasa_hump/case/`. Off by three on a one-command check.
 
-**F8 — §1.3: "The remainder are one-shot campaign-local gates under
+**F8 — §5.4: "two 906 MB tarballs left unopened."**
+There are exactly two unopened tarballs at `/home/ubuntu`, and **neither is 906 MB**:
+
+```
+544,309,252 B = 544.3 MB   certonomous-git-backup-20260730T033814Z.tar.gz
+362,066,284 B = 362.1 MB   certonomous-cache.tar.gz
+                 906.4 MB   ← the SUM
+```
+
+`find /home/ubuntu -name "*.tar*" -size +500M` returns **one** file across the whole
+filesystem, so no 906 MB tarball exists anywhere, let alone two. **906 MB is the pair's
+total, written as though it were each one's size** — a `du`-style aggregate reported over
+the wrong frame, which is the single most repeated defect in this ledger (see O2, O3, F9).
+The substance moves with it: the unexamined residual is **906 MB in total, not 1.8 GB**.
+*This is the one §5.4 figure that turned out to be decidable, and it decided against the
+ledger.*
+
+**F9 — §1.3: "The remainder are one-shot campaign-local gates under
 `demo-output/website/campaign/**` and `demo-output/website/dafoam/**` (24 candidates)."**
 Internally impossible. The **142** are defined by the ledger itself as *"production
 (non-test, non-`demo-output`)"* — their remainder cannot live under `demo-output`. The
@@ -452,6 +469,17 @@ under either reading; the two readings disagree about which rows are which.
 5. **The `hump_gate_analysis.py` family is a 23-way duplicate of one gate.** The ledger
    notes it as a counting curiosity; it is also 23 independent copies of one instrument
    that can drift apart, and nothing in the estate checks them against each other.
+6. **This audit's own instrument has an undeclared reach, and I only found it by reading a
+   process list.** `grep` in this environment resolves to
+   `ugrep -G --ignore-files --hidden -I --exclude-dir=.git …`. **`--ignore-files` honours
+   ignore files**, so every `grep -r` count in this document — and every `grep -r` count in
+   the ledger, and in the prior pass — is over *the files ignore rules permit*, not over
+   the filesystem. None of the three documents says so. It changes no verdict here, because
+   every count I ruled on was taken over `git ls-files` (which has the same reach by
+   construction) or over `find` (which has none); but it is exactly the ledger's own
+   finding — **a verdict that does not state what it swept** — recurring in the tool the
+   auditors used to check the instruments. *A fourth document could inherit these numbers
+   without ever learning the filter exists.*
 
 ## 5. Things I could not establish
 
@@ -460,17 +488,18 @@ under either reading; the two readings disagree about which rows are which.
   literal string appears nowhere in the tree. The claim is inherited from the prior pass
   and `head_engineer.py` was being edited by another agent throughout. **Unverified,
   neither confirmed nor refuted.**
-- **§5.4's frame numbers — partially checked, and the two halves disagree.** `du -sh`
-  gives **66 GB** for `certonomous-runs` (matches) and **19 GB** for `Certonomous` against
-  the stated 17 GB — plausibly an hour's growth, not a defect. But `grep -rl
-  transonicPCOption` across both trees returns **810 files**, against the ledger's *"total
-  population of DAFoam adjoint logs at 651"*. **These are not the same measurement** — mine
-  counts every file carrying the marker, the ledger's counts logs — and the narrowing sweep
-  did not finish inside this pass. **I can neither confirm 651 nor call it wrong**, only
-  report that the marker is more widespread than the log population and that the ledger
-  does not state which restriction produced 651. I also found only **one** tarball over
-  100 MB at depth ≤ 3 against the stated *"two 906 MB tarballs"*; the deeper sweep is
-  incomplete.
+- **§5.4's `transonicPCOption` population of 651.** `du -sh` gives **66 GB** for
+  `certonomous-runs` (matches) and **19 GB** for `Certonomous` against the stated 17 GB —
+  plausibly an hour's growth, not a defect. But no restriction I tried reproduces 651:
+  **810** files carry the marker across both trees, **507** under `certonomous-runs`, and
+  **387** of those are log-named. 651 sits between two of my numbers and equals none of
+  them, and the ledger does not state which restriction produced it. **And my own
+  instrument has an unstated reach here** (see §4.6): `grep` in this environment is
+  `ugrep --ignore-files`, which honours ignore files, so my counts are not a raw
+  filesystem census and are **not the same measurement** the ledger made. **I can neither
+  confirm 651 nor call it wrong**, and I am not going to convert an incommensurable
+  number into a verdict. *(F8 was carved out of this bullet once it became decidable on
+  `find`, which carries no such filter.)*
 - **Whether the ledger's `PASS 15 / WARN 8 / FAIL 8 / INFO 3` was correct.** The tree it was
   taken over was never committed and no longer exists. This is unfalsifiable by
   construction, which is itself the finding — and it is why F5 and F6 could only be caught
@@ -491,7 +520,7 @@ load-bearing, and has already produced a fix that refuses 7 of 136 evaluable lau
 exact on 9 of 9 rows.
 
 **The defect is not in what this ledger found. It is that its titles and its round numbers
-were not held to the standard its bodies were.** Eight falsifications, and seven of them are
+were not held to the standard its bodies were.** Nine falsifications, and eight of them are
 a count or a frame that a single command would have settled — over a document whose own
 subject is instruments that report clean without stating what they counted.
 
