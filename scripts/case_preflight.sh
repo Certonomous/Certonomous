@@ -16,6 +16,7 @@
 set -u
 
 CASE="${1:-.}"
+NARGS=$#
 MODEL=""
 QUIET=0
 shift || true
@@ -27,14 +28,147 @@ while [ $# -gt 0 ]; do
     esac
 done
 
+# ---------------------------------------------------------------------------
+# VERDICT PLUMBING, AND WHY IT IS NOT JUST `echo` (D11 rank 1, 2026-08-11).
+#
+# `--quiet` is not one mode among several -- it is the ONLY mode production
+# ever uses. `launch_solve.sh` invokes this script exactly one way,
+# `"$PF" "$CASE" --quiet`, so anything routed through `note()` is, in
+# production, routed to nowhere. The old PASS line was a `note`. The result:
+# on every clean launch this gate emitted zero bytes, and zero bytes is also
+# what a gate that never ran emits. Those two must never look alike.
+#
+# So there are now three channels, not two:
+#   note()    detail, verbose only          -- may be silent
+#   ok()      a check that RAN and passed   -- counted always, printed verbose
+#   bad()     a check that RAN and failed   -- counted always, printed ALWAYS
+#   say()     the verdict                   -- printed ALWAYS, both modes
+# and `fail` became a COUNT rather than a flag so the verdict can state how
+# many of the checks that ran came back red.
+#
+# THE DISTINCTION THIS FILE EXISTS TO DRAW. "I looked and found no problems"
+# and "I had nothing to look at" are different facts and now have different
+# exit codes. Section 0 below is what makes the second one reachable: before
+# this, an empty directory ran every check, matched nothing, tripped nothing,
+# and printed `PREFLIGHT PASS`. Reproduced firsthand on 2026-08-11: exit 0,
+# zero bytes of output, on a directory containing nothing at all.
 fail=0
+checks=0
+groups=""
 note() { [ "$QUIET" = "1" ] || echo "$@"; }
-bad()  { echo "  FAIL: $*"; fail=1; }
-ok()   { note "  ok:   $*"; }
+say()  { echo "$@"; }
+bad()  { checks=$((checks+1)); fail=$((fail+1)); echo "  FAIL: $*"; }
+ok()   { checks=$((checks+1)); note "  ok:   $*"; }
+grp()  { groups="${groups:+$groups,}$1"; }
 
-[ -d "$CASE" ] || { echo "FAIL: case dir not found: $CASE"; exit 1; }
-cd "$CASE" || exit 1
-note "preflight: $(pwd)"
+# A refusal that happens BEFORE we have a case to stand in. These cannot use
+# the normal verdict tail because there is nothing to report a reach over --
+# so each states, in its own words, that nothing was inspected.
+nothing_to_inspect() {
+    echo "  FAIL: $1"
+    say "PREFLIGHT FAIL -- 1 check ran, 1 failed [structure] -- case: ${CASE}"
+    say "  NOTHING WAS INSPECTED. This is a refusal, not a clean bill of health:"
+    say "  a preflight that cannot find its input has not checked anything."
+    exit 1
+}
+
+# ---------------------------------------------------------------------------
+# 0. STRUCTURE -- does this directory contain a case at all?
+#
+# Every check from section 1 down is written as "look for a known defect and
+# complain if you find it". That shape has exactly one blind spot, and it is
+# the expensive one: a directory with nothing in it presents no defect to any
+# of them, so all of them pass, and their silence composes into a green. The
+# fix is not another defect check. It is to enumerate what a valid case MUST
+# CONTAIN and require each element positively -- the one question whose
+# answer cannot be faked by absence.
+#
+# WHAT IS REQUIRED AND HOW THE LIST WAS CHOSEN. Not from taste: the list was
+# checked against every case directory named by the 146 completion records in
+# demo-output/website/solve_registry. Of the 78 that still exist, 76 carry
+# every element below, and the two that do not are the two that were never
+# cases (see the exposure note in the commit). A requirement that fires on a
+# case this machine has demonstrably run would be a false refusal, and this
+# file already learned at line ~120 what those cost.
+#
+#   constant/, system/          every OpenFOAM application reads both
+#   system/controlDict          nothing whatsoever runs without it
+#   system/fvSchemes            required to discretise
+#   system/fvSolution           required to solve (and section 2b reads it)
+#   a field source              0/, 0.orig/, a numeric time dir (a restart --
+#                               three F9 cases legitimately have no 0/), or
+#                               processor*/ (already decomposed)
+# ---------------------------------------------------------------------------
+[ "$NARGS" -gt 0 ] || nothing_to_inspect \
+    "no case directory given -- refusing to guess at the working directory. Pass the case explicitly."
+case "$CASE" in --*) nothing_to_inspect \
+    "first argument is the option '$CASE', not a case directory -- refusing to guess at the working directory. Usage: case_preflight.sh <case_dir> [--model M] [--quiet]" ;; esac
+[ -e "$CASE" ] || nothing_to_inspect "case path does not exist: $CASE"
+[ -d "$CASE" ] || nothing_to_inspect "case path is not a directory: $CASE"
+{ [ -r "$CASE" ] && [ -x "$CASE" ]; } || nothing_to_inspect \
+    "case dir is not readable/traversable: $CASE"
+cd "$CASE" || nothing_to_inspect "cannot enter case dir: $CASE"
+CASE_ABS=$(pwd)
+note "preflight: $CASE_ABS"
+grp structure
+
+if [ -z "$(ls -A 2>/dev/null)" ]; then
+    bad "case directory is EMPTY -- there is nothing here to launch. An empty
+        directory used to pass this gate silently; it is now a refusal."
+else
+    ok "case directory is non-empty"
+fi
+
+for d in constant system; do
+    if [ -d "$d" ]; then ok "required directory $d/ present"
+    else bad "required directory $d/ is MISSING -- this is not an OpenFOAM case directory"; fi
+done
+for f in system/controlDict system/fvSchemes system/fvSolution; do
+    if [ -s "$f" ]; then ok "required dictionary $f present and non-empty"
+    elif [ -f "$f" ]; then bad "required dictionary $f is EMPTY"
+    else bad "required dictionary $f is MISSING"; fi
+done
+
+# Field source. Accepts four shapes so a legitimate restart or an already
+# decomposed case is not refused; requires that at least one of them exists,
+# so a case with no field data anywhere is not.
+n0=0
+for d in 0 0.orig; do
+    [ -d "$d" ] || continue
+    for f in "$d"/*; do [ -f "$f" ] && n0=$((n0+1)); done
+done
+ntime=0
+for d in */; do
+    b=${d%/}
+    case "$b" in ''|*[!0-9.]*) continue ;; esac
+    [ -d "$b" ] && ntime=$((ntime+1))
+done
+nproc0=0
+for d in processor*/; do [ -d "$d" ] && nproc0=$((nproc0+1)); done
+if [ "$n0" -gt 0 ]; then
+    ok "field source: $n0 file(s) in 0/ and/or 0.orig/"
+elif { [ -d 0 ] || [ -d 0.orig ]; } && [ "$ntime" -le 1 ] && [ "$nproc0" = "0" ]; then
+    bad "0/ and/or 0.orig/ exist but contain NO field files, and there is no
+        other time directory or processor* to read fields from"
+elif [ "$ntime" -gt 0 ]; then
+    ok "field source: $ntime numeric time director(ies) (restart -- no 0/ needed)"
+elif [ "$nproc0" -gt 0 ]; then
+    ok "field source: $nproc0 processor* director(ies) (already decomposed)"
+else
+    bad "NO field data of any kind -- no 0/, no 0.orig/, no numeric time
+        directory, no processor*. There is nothing here for a solver to read."
+fi
+
+# Structure is a precondition, not a peer. If it failed, every check below
+# would be reading a directory that is not a case, and their answers would be
+# noise dressed as evidence -- so stop here and say which stage stopped.
+if [ "$fail" != "0" ]; then
+    say "PREFLIGHT FAIL -- $checks checks ran, $fail failed [$groups] -- case: $CASE_ABS"
+    say "  STOPPED AT STRUCTURE: this directory is missing elements every case must"
+    say "  have, so the model, field, header, patch and resource checks were NOT run."
+    say "  Do not launch. A green from the remaining checks would have meant nothing."
+    exit 1
+fi
 
 # ---------------------------------------------------------------------------
 # 1. Stale decomposition. THE trap: processor* dirs copied along with a case
@@ -42,6 +176,7 @@ note "preflight: $(pwd)"
 #    "cannot open file / unexpected class name" that points nowhere useful,
 #    or the solver silently reads the wrong state.
 # ---------------------------------------------------------------------------
+grp decomposition
 if ls -d processor* >/dev/null 2>&1; then
     nproc_dirs=$(ls -d processor* 2>/dev/null | wc -l)
     # Any field in 0/ that is missing from processor0/0/ means stale decomposition.
@@ -75,6 +210,7 @@ if [ -z "$MODEL" ] && [ -f "$TP" ]; then
         MODEL=$(grep -aE "RASModel|LESModel" "$TP" | head -1 | awk '{print $2}' | tr -d ';')
     fi
 fi
+grp model/fields
 note "  model: ${MODEL:-<undetermined>}"
 
 need_fields() {
@@ -103,6 +239,7 @@ esac
 # ---------------------------------------------------------------------------
 FVS=system/fvSolution
 if [ -f "$FVS" ] && [ -n "$MODEL" ]; then
+    grp fvSolution
     case "$MODEL" in
         SpalartAllmaras|SA)                transported="nuTilda" ;;
         kOmegaSST|kOmega|SST|kOmegaSSTLM)  transported="k omega" ;;
@@ -197,10 +334,15 @@ is_solver_field() {
         *) return 1 ;;
     esac
 }
+grp headers
+n_hdr=0        # files actually opened and parsed
+n_solver=0     # of those, how many are solver fields (the ones that matter)
 for f in 0/*; do
     [ -f "$f" ] || continue
     b=$(basename "$f")
     case "$b" in uniform) continue ;; esac
+    n_hdr=$((n_hdr+1))
+    is_solver_field "$b" && n_solver=$((n_solver+1))
     problem=""
     grep -qa "FoamFile" "$f"          || problem="no FoamFile header"
     [ -z "$problem" ] && { grep -qa "class[[:space:]]"  "$f" || problem="header has no class entry"; }
@@ -214,7 +356,19 @@ for f in 0/*; do
         else note "  warn: $f $problem (not a solver field -- reference data, ignored)"; fi
     fi
 done
-ok "solver field headers parsed"
+# The count is the point. "headers parsed" with no number attached reads
+# identically whether it parsed forty files or zero, and zero is exactly the
+# state this gate was blind to.
+if [ "$n_hdr" -gt 0 ]; then
+    ok "solver field headers parsed ($n_hdr file(s) examined in 0/, $n_solver of them solver fields)"
+    [ "$n_solver" -gt 0 ] || bad "0/ holds $n_hdr file(s) but NOT ONE is a recognised solver
+        field (U, p, T, k, omega, epsilon, nut, nuTilda, R, alpha*, phi, he, rho)
+        -- nothing here is a field a solver would read"
+elif [ "$ntime" -gt 0 ] || [ "$nproc0" -gt 0 ]; then
+    ok "no 0/ to parse; fields come from a time directory or processor* (checked at section 0)"
+else
+    bad "no field files were examined at all -- there is no 0/ to parse"
+fi
 
 # ---------------------------------------------------------------------------
 # 4. Boundary patches in 0/ match the mesh. A renamed or missing patch is a
@@ -224,6 +378,18 @@ B=constant/polyMesh/boundary
 if [ -f "$B" ]; then
     mesh_patches=$(awk '/^\(/{f=1;next} /^\)/{f=0} f && /^[[:space:]]+[A-Za-z_][A-Za-z0-9_]*$/{gsub(/[[:space:]]/,"");print}' "$B" | sort -u)
     npatch=$(echo "$mesh_patches" | grep -c . || true)
+    grp patches
+    # Same class as the empty case, one level down: if the parse yields zero
+    # patch names, the loop below iterates over nothing, complains about
+    # nothing, and the old `ok` line reported "checked against mesh (0
+    # patches)" -- a green produced by having read nothing. Either the mesh
+    # really has no patches (not a runnable mesh) or the parse failed against
+    # this file's layout (the check did not run). Both are red.
+    if [ "${npatch:-0}" -lt 1 ]; then
+        bad "$B exists but NO patch names could be read from it -- either the mesh
+        has no boundary patches or this check could not parse the file. Either
+        way the patch check did not actually run; it is not a pass."
+    fi
     for f in 0/*; do
         [ -f "$f" ] || continue
         grep -qa "boundaryField" "$f" || continue
@@ -240,14 +406,30 @@ fi
 # 5. Disk and memory headroom. This box has been taken down twice by memory
 #    exhaustion; a case that cannot possibly fit should not start.
 # ---------------------------------------------------------------------------
+grp resources
 avail_gb=$(awk '/MemAvailable/ {printf "%.1f", $2/1048576}' /proc/meminfo)
 disk_gb=$(df -BG --output=avail . | tail -1 | tr -dc '0-9')
 awk -v m="$avail_gb" 'BEGIN{exit !(m+0 < 6)}' && bad "MemAvailable ${avail_gb} GB is under the 6 GB floor -- wait, do not launch" || ok "MemAvailable ${avail_gb} GB"
 [ "${disk_gb:-0}" -lt 20 ] && bad "free disk ${disk_gb} GB under the 20 GB floor" || ok "free disk ${disk_gb} GB"
 
+# ---------------------------------------------------------------------------
+# THE VERDICT, WHICH STATES ITS OWN REACH.
+#
+# Both outcomes print in both modes -- `--quiet` makes this terse, never
+# absent. A gate whose only failure mode is invisible in the one mode
+# production uses is not a gate, and this one was: `launch_solve.sh` calls it
+# exactly one way, with --quiet, and the PASS line used to be routed through
+# `note()` and therefore suppressed. 146 completion records were taken with
+# this gate emitting nothing on success.
+#
+# The counts are the reach. "PASS" alone cannot be told apart from a pass over
+# an empty directory; "PASS -- 17 checks ran" can. If that number is small,
+# the case gave the gate little to check, and the reader can see that from the
+# verdict alone instead of having to re-derive it.
 if [ "$fail" = "0" ]; then
-    note "PREFLIGHT PASS -- clear to launch"
+    say "PREFLIGHT PASS -- $checks checks ran, 0 failed [$groups] -- case: $CASE_ABS"
     exit 0
 fi
-echo "PREFLIGHT FAIL -- do not launch until the above are fixed"
+say "PREFLIGHT FAIL -- $checks checks ran, $fail failed [$groups] -- case: $CASE_ABS"
+say "  Do not launch until the above are fixed."
 exit 1
