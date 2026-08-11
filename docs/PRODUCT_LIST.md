@@ -1874,11 +1874,16 @@ clock-audit rule asks for.]*
   standard says no case outside one family reaches a declared target; **53 cases across 10 families** were sitting in
   files the glob could not match. This compounds tonight's other replay finding: the corpus was not merely
   unrepresentative, it was 28% of itself.
-- **ROOT CAUSE FOUND for the auto-stop that has powered the box off mid-campaign (Katie's complaint, three times):**
+- ~~**ROOT CAUSE FOUND** for the auto-stop that has powered the box off mid-campaign (Katie's complaint, three
+  times):~~ **DOWNGRADED 2026-08-11 from "root cause" to "candidate mechanism, causal link unevidenced."**
   `is_idle.sh` **concludes IDLE from an absence** — its work list omits `checkMesh` (182 logs), `potentialFoam` (49),
-  `setFields` and `sample`. A busy box running any of those reads as idle. **And the fix is NOT a longer list** — a
-  list is the same defect with more entries (L-49). Escalated to the chief and now to Katie, since powering the box
-  off is her cost control.
+  `setFields` and `sample`. A busy box running any of those reads as idle. **That code defect is real and current,
+  verified line by line by an independent pass.** The power-offs are independently attested — Katie saw them three
+  times. **What is missing is the link between the two:** an audit looking for it found **no wiring from this script
+  to anything that halts the machine**, and the record cited for the cost states only the script's purpose and
+  status. **A real defect and a real symptom do not make a cause** — establishing this one needs the wiring exhibited,
+  which nobody has done. **And the fix is still NOT a longer list** — a list is the same defect with more entries
+  (L-49). Escalated to the chief and now to Katie, since powering the box off is her cost control.
 - C5's real number: the dispatch's "29" was a subtree count. **Repo-wide there are 238 shebang-bearing tracked files
   and 3 with an exec bit.** Routed by owner, not mass-changed. The check itself nearly shipped the defect it hunts —
   its first draft read the INDEX and went green on a mode that was staged and never committed; that near-miss is now
@@ -2871,8 +2876,11 @@ lesson that commissioned it, on two specifics.**
   production, **66 verdicts profiled in full**. **Axis A missed 12 of axis D's 24 — half of one class** — and A and D
   together missed 13 instruments only their *names* revealed. **A single-lexicon sweep would have reproduced the
   `*.log` vs `log.<app>` glob error one level up.**
-- **CLASSIFICATION: reach demonstrated 30 · reach assumed 25 · known-blind-and-shipping 11 (17%).** More than one
-  verdict in three **has never been shown to fire.** And **32 of 34 self-audit checks have no test at all**; 16 of
+- **CLASSIFICATION: ~~reach demonstrated 30 · reach assumed 25~~ → CORRECTED 2026-08-11 to 28 · 27 · 11.** An
+  independent headline audit found two instruments classed *demonstrated* on bases that are **reach statements, not
+  firings** — so **"never been shown to fire" rises from 38% to 41%**, and the correction makes the ledger's central
+  finding **stronger, not weaker.** And ~~32~~ **31** of 34 self-audit checks have no test — three have one, **and
+  the ledger names the third itself.** 16 of
   those currently pass, so **nothing distinguishes "found no defect" from "cannot find a defect."**
 - **RANKED BY COST — and #2 is urgent because it guards the shoot:**
   1. `case_preflight.sh` — **PASS on an empty directory**, and *silent* under `--quiet`, which is **the only mode the
@@ -2886,7 +2894,12 @@ lesson that commissioned it, on two specifics.**
      This is tonight's L-61 in a worse form: **the caveat's presence in the data structure lets the check pass its own
      meta-audit while the reader never sees it.**
   4. The rank guard — digit-anchored, three known misses, verdict says *every travelling surface complies*.
-  5. `is_idle.sh` — powers the box off from an absence; 6 work classes missing; **cost already realised 2026-07-30.**
+  5. `is_idle.sh` — concludes idle from an absence; **6 work classes missing, verified line by line, and the code
+     defect is real and current.** ~~Cost already realised 2026-07-30.~~ **CITATION WITHDRAWN 2026-08-11: the source
+     cited for that cost records only the script's purpose and status — no power-off, no date — and no wiring was
+     found from this script to anything that halts the machine.** A power-off at that time is independently
+     remembered, but **attributing it to this script is currently unevidenced**, which is L-60 exactly: an excuse
+     inherited without the evidence that earned it. The defect stands; the cost claim does not.
 - **HUMP-ADJOINT — 11 distinct attempts + 3 staging faults, and ZERO were ever deliberately reproduced as a negative
   control.** 4 abandoned with no root cause, 2 built and never executed; two signatures verified against the logs
   directly, both **superseded, never explained**.
@@ -3187,6 +3200,49 @@ the one genuinely new instruction, which is the right call.
   swept commit, and **HEAD moved eight commits during the sweep.** *"That is the standing cost of measuring a
   repository eight agents are committing to."* Memory pressure was forced by substitution, not exhaustion — starving
   this box would have taken down the neighbours.
+
+### 2026-08-11 — the ledger headline audit: 24 sound, 9 overstated, 8 falsified, and its method survives
+
+**The verdict I asked for and got: accurate, not low.** Of 41 headline-grade claims, **24 SOUND · 9
+TRUE-BUT-HEADLINE-OVERSTATES · 8 FALSIFIED.** The ledger's *method* survives; **its titles and round numbers do not
+hold as well as its bodies** — and **seven of the eight falsifications are a count or an unstated frame that one
+command would have settled**, in a document whose own subject is instruments that report clean without saying what
+they counted.
+
+- **THE FRAME IS THE MODEL FOR HOW TO MEASURE A MOVING REPO:** the tree moved **five times during a 20-minute audit**,
+  and one of the audited scripts **acquired a 190-line fix mid-verification.** Every behavioural claim was therefore
+  reproduced **from pinned source** (`git show <sha>:<path>`), never the worktree. That is the discipline L-72 asks
+  for, applied without being told.
+- **The control-contamination hunt came back NEGATIVE, and it looked hard.** Four repointed copies are still on disk;
+  **all four belong to the single already-withdrawn finding.** No other claim traces to an edited copy. And it found
+  the counter-example that shows the fix: a scratch copy that is **byte-identical to production and whose *filename*
+  says what it is** — self-labelling controls, exactly L-68's remedy.
+- **But a SECOND mechanism is confirmed**, as I suspected: **stale claims never re-checked before being ranked**, plus
+  one claim **inherited from an earlier pass whose cited source does not record what it is cited for.** That is L-60
+  reproduced inside a document written to catch such things.
+- **CORRECTIONS TO MY OWN PUBLISHED FIGURES, made above.** Two instruments were classed *demonstrated* on bases that
+  are **reach statements, not firings** — so the classification becomes **28 · 27 · 11**, and *"never been shown to
+  fire" rises from 38% to 41%.* **The correction makes the ledger's central finding stronger, not weaker.** Also
+  ~~32~~ **31** of 34 checks lack a test — **the ledger names the third itself.**
+- **AND ONE LANDS ON A CLAIM I HAVE CARRIED FOR TWO WEEKS.** We recorded `is_idle.sh` as the **root cause** of the box
+  powering off mid-campaign. The code defect is real and current — six work classes missing, verified line by line.
+  The power-offs are real — Katie saw them three times. **But no wiring was found from that script to anything that
+  halts the machine, and the record cited for the cost states only the script's purpose and status: no power-off, no
+  date.** **A real defect and a real symptom do not make a cause.** Downgraded to *candidate mechanism*.
+- **The audit found the same claim propagating one document further along** — into this file in compressed form,
+  which is L-68's path exactly, and it caught it while looking at something else.
+- **The ledger's own PASS/WARN/FAIL tally is unfalsifiable by construction**, having been taken over a tree never
+  committed — which is why two of its arithmetic errors were catchable *only* by internal consistency.
+- **The closest thing to a second headline/body split**, and it is instructive: a claim that an instrument *"is not
+  found by any verdict-word search of its source"* — a plain grep returns **7 lines**. What actually misses it is
+  **one specific axis**, and the headline generalised from that axis to all searches.
+- **Two frames in adjacent columns of one table, neither declared** — a unique-file column counted over 142 files
+  beside a hits column counted over 534.
+- **SOUND and worth naming**, because a good verdict is only as useful as its confirmations: the empty-directory
+  finding **reproduced exactly from pinned source**, and its adverb was *precise* — failures really are audible; only
+  the PASS was silent. **34 blind-spot entries, all carrying a caveat, exactly 4 printed** — exact to the digit. The
+  test-count column **9 of 9 exact.** All 13 known-answer convergence cases re-pass. The four enumeration axes are
+  **internally exact** — their union is *precisely* the reported 296.
 
 ### Decision requests for Katie (standing)
 
