@@ -266,6 +266,23 @@ family's record.
 | 21 | L-57 | 1,575-file sweep with a 2-line message; `SHARED_TREE_COMMIT_HAZARD.md` 9 days stale | **Cases** | Add both as instances to the hazard register, and add the same-file edge citing L-57. **Highest-value item on that row — the register exists and is simply behind.** |
 | 22 | L-57 | `DAFOAM_CASE_STATUS.md` swept text with no covering provenance note | **DAFoam** | One dated in-file provenance parenthetical naming the commit. **Do not rewrite history.** |
 
+**Item 23, added after the table was numbered — and appended rather than
+renumbered, deliberately.** The commit that filed this record says "22 items", and
+silently renumbering to 23 would leave the record disagreeing with its own history
+for no gain. **Owner: Infrastructure.** `docs/standards/INFRA_FAMILY_SUPERVISION_GUIDELINES.md`
+§9 is the home of this series (L-41 → L-48) and has no forward pointer to this
+file; one line there would make the series findable. **Deliberately not done by
+this sweep**: it is another family's standard, it is the highest-traffic document
+in the estate at sixteen versions in a day, and L-57's whole point is that a
+pathspec gives no protection in a file someone else is also typing in. A
+one-line pointer is not worth taking that risk on another family's behalf, so it
+is routed like everything else.
+
+**Two further open items this sweep did not create and does not own:** L-49
+through L-52 remain unswept (§0), and the four ○/✓ cells are nulls with stated
+reach, not proofs of absence — re-running them with a different instrument is
+cheap and the L-53 row's own detector history is the argument for doing it.
+
 ## 4. Self-application (L-56), declared rather than left to be derived
 
 This sweep declares a universal scope — *"every instance of these five lessons in
