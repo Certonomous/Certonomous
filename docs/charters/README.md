@@ -90,7 +90,22 @@ They are iterated like code, on the owner's instruction.
 - `docs/standards/INNOVATION_STANDARD.md`. How a new method enters the lab.
 - `docs/standards/MESH_STANDARD.md`, `docs/standards/MONITOR_STANDARD.md`.
 - `docs/UNCERTAINTY-DOCTRINE.md`. The three channels and their recipes.
-- `LESSONS.md`. L-1 through L-28 plus the process doctrine P1 through P5.
+- `LESSONS.md`. The numbered lessons plus the process doctrine P1 through P5.
+  It is large and grows daily; do not read it cold. For its current extent run
+  `grep -c '^## L-' LESSONS.md` for the block count and
+  `grep -o '^## L-[0-9]*' LESSONS.md | tail -1` for the highest number, and see
+  `docs/MEMORY_ARCHITECTURE.md` §5 for how to read it.
+  *[AMENDED 2026-08-11 (cold-start repair). This line read "L-1 through L-28"
+  from some point before 2026-08-04 until today. Original wording retained here
+  per `docs/MEMORY_ARCHITECTURE.md` §8.1. It was wrong by 25 entries when the
+  2026-08-10 memory survey caught it (logged as D-3), by 29 when the first
+  cold-start run re-measured it at 01:19 UTC today, and by 51 when the second
+  run re-measured it this evening — the same literal going stale three times in
+  36 hours. **It is replaced by the commands above rather than by a fresh
+  number, deliberately**: a count of a file that grows several times a day
+  cannot be maintained by hand in an index nobody revisits, and re-copying
+  today's figure would only schedule the fourth report. This entry is the index
+  of the corpus; it was never the census of it.]*
 - `demo-output/website/campaign/NOT_PASSING_REGISTER.md`. Where failures live.
 - `scripts/self_audit.py`. The weekly re-verification of published claims
   against the artifacts they cite. It is where several of these clauses stop

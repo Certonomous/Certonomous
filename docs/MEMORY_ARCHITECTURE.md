@@ -30,8 +30,8 @@ than the originals, so they are recorded here rather than quietly dropped.
 |---|---|---|
 | A finding proven at `fe121af2` sat unreconciled for **NINE DAYS** | **Overstated** | 7 d 15 h by the tightest anchor (`fe121af2` 2026-07-31 06:53Z to review `9d72e197` 2026-08-07 22:03Z); 7 d 19 h to the correction. Never nine. |
 | An agent noted **"chat is not the record"** (`a5a28a40`) | **Not in the repo** | The phrase appears in zero files and zero commit messages. The commit's own words are *"goes into the record rather than staying in a message"*. The lab's real idiom is L-32's *"satellites are not the record"*. |
-| **Eight fleet deaths** in a week, recovery worked **only because** pre-registrations preceded compute | **Count right, cause incomplete** | Eight is correct and the window is ~4 d 5 h, tighter than "a week". But recovery rested on three things, not one: pre-registration-first, out-of-process execution, and per-eval checkpoints (`demo-output/website/dafoam/ladder-b/S1_CBFS_INVERSION_RESULT.md:186`), plus transcript resume. Pre-registration is what made scientific *loss* zero; it is not what made *recovery* work. |
-| **Two agents' transcripts became unreachable**, taking their working context | **False as stated** | No transcript has ever become unreachable; every fleet-kill record says agents resumed *from* transcript. The real loss is different and worse for this document's purposes: **one session scratchpad died and took two option arms' solver logs with it, unreconstructibly** (`demo-output/website/dafoam/ADJOINT_MEMORY_ENVELOPE.md:622`). Separately, two agents lost *watchers* with explicitly zero work lost (`docs/PRODUCT_LIST.md:559`). |
+| **Eight fleet deaths** in a week, recovery worked **only because** pre-registrations preceded compute | **Count right, cause incomplete** | Eight is correct and the window is ~4 d 5 h, tighter than "a week". But recovery rested on three things, not one: pre-registration-first, out-of-process execution, and per-eval checkpoints (`demo-output/website/dafoam/ladder-b/S1_CBFS_INVERSION_RESULT.md`, the paragraph beginning *"Pre-registration-first plus out-of-process execution"* — at `:190` on 2026-08-11, cited as `:186` when this row was written on 2026-08-10; **cite the sentence, the line number moves**), plus transcript resume. Pre-registration is what made scientific *loss* zero; it is not what made *recovery* work. |
+| **Two agents' transcripts became unreachable**, taking their working context | **False as stated** | No transcript has ever become unreachable; every fleet-kill record says agents resumed *from* transcript. The real loss is different and worse for this document's purposes: **one session scratchpad died and took two option arms' solver logs with it, unreconstructibly** (`demo-output/website/dafoam/ADJOINT_MEMORY_ENVELOPE.md`, the sentence *"died with it — they are unreconstructible"* — at `:625-626` on 2026-08-11, cited as `:622` when this row was written). Separately, two agents lost *watchers* with explicitly zero work lost (`docs/PRODUCT_LIST.md:559`). |
 | A "certified" count meant something weaker than it read, and **105** records inherited the word | **True** | Exactly right. See §7, duplicate D-9. |
 
 The nine-day number is worth one more sentence, because it is this document's
@@ -158,7 +158,7 @@ is not hypothetical — it is roughly a twice-daily event.
    `a5a28a40` exists, moving a closing fact into `VERIFICATION_CHARTER.md` so
    §17's scope test would carry it.
 3. **The session scratchpad, and anything in it.** This has already cost real
-   evidence. `demo-output/website/dafoam/ADJOINT_MEMORY_ENVELOPE.md:622` records
+   evidence. `demo-output/website/dafoam/ADJOINT_MEMORY_ENVELOPE.md` records
    two option arms' solver logs that lived in
    `982d6244.../scratchpad/logs/` and *"died with it — they are
    unreconstructible."* Those claims now ship as unverifiable-from-logs.
@@ -194,9 +194,20 @@ is not hypothetical — it is roughly a twice-daily event.
 
 ### 3.1 The store that is durable but outside version control
 
-`/home/ubuntu/.claude/projects/-home-ubuntu-Certonomous/memory/` holds 17 files,
-744 lines, and is **not a git repository and not tracked by this one**. It
-survives session end. It does **not** survive a fresh clone, a new box, or
+`/home/ubuntu/.claude/projects/-home-ubuntu-Certonomous/memory/` holds a small
+set of topic files indexed by `MEMORY.md`, and is **not a git repository and not
+tracked by this one**. It survives session end.
+
+```
+ls -1 /home/ubuntu/.claude/projects/-home-ubuntu-Certonomous/memory/ | wc -l   # file count, incl. MEMORY.md
+```
+
+*[AMENDED 2026-08-11 (cold-start repair). This paragraph said "17 files, 744
+lines", measured 2026-08-10 21:00 UTC. It was 19 files by the second cold-start
+run on 2026-08-11. Original figure retained here per §8.1; **it is replaced by
+the command rather than by 19**, because the number does no work in this
+paragraph — nothing a reader decides turns on whether the store holds 17 or 19
+files, and the sentence that matters is the next one.]* It does **not** survive a fresh clone, a new box, or
 anyone who is not this user on this machine.
 
 It is load-bearing. `ESCALATION_CHARTER.md:392` outsources part of the
@@ -226,9 +237,9 @@ it is about to do.
 
 > **AMENDED 2026-08-11 (chief), and this step is the one the document calls load-bearing.**
 > L-57 landed the night this test first ran: **a pathspec commit isolates by FILE, not by
-> AUTHOR.** The chief committed a shared changelog by pathspec and swallowed 59 lines of a
-> concurrent agent's uncommitted work in that same file, under a message describing something
-> else. So the rule as step 0 must now read: **`git add <paths>` then `git commit -m "..." --
+> AUTHOR.** The chief committed a shared changelog by pathspec and swallowed a concurrent
+> agent's uncommitted work in that same file, under a message describing something else.
+> So the rule as step 0 must now read: **`git add <paths>` then `git commit -m "..." --
 > <paths>` is the SCOPE; reading `git diff <path>` with your own eyes before committing is the
 > CHECK.** On a tree with several agents live, the files a supervisor writes most often — this
 > checklist, the changelog — are exactly the files everyone else writes to, so this is where the
@@ -236,46 +247,79 @@ it is about to do.
 > still carrying the superseded version, which is D-8's shape one level up: a reading order that
 > teaches a rule its own lesson book has already corrected.
 
-Read `docs/charters/ESCALATION_CHARTER.md` §9.6 and §9.6a. **They are below the
-`## Related` block**, at roughly lines 475-500, which is why people miss them.
+Read `docs/charters/ESCALATION_CHARTER.md` §9.6, §9.6a **and §9.6b**. **They are
+below the `## Related` block**, at the very end of the file, which is why people
+miss them. Find them without a line number:
 
-The rule, in its current form:
+```
+grep -n '^#### 9.6\|^### 9.6' docs/charters/ESCALATION_CHARTER.md
+```
+
+The rule, in its current form — scope and check are two separate obligations:
 
 ```
 git add <paths>
-git commit -m "..." -- <paths>
+git commit -m "..." -- <paths>      # the SCOPE: which files
+git diff <path>                     # the CHECK: whose work is in them — read it FIRST
 ```
 
-Never a bare `git commit` after staging. Six agents commonly share this tree; a
-bare commit takes the entire shared index including their unfinished work.
+Never a bare `git commit` after staging. Several agents share this tree; a bare
+commit takes the entire shared index including their unfinished work. And the
+pathspec form is not enough on its own: it isolates by FILE, not by AUTHOR, so
+on a shared high-traffic file — a changelog, a checklist, a status record — read
+`git diff <path>` before you commit and stage only your own hunks if it contains
+someone else's. That is §9.6b, and `LESSONS.md` L-57 is its narrative.
 
-**§3 of the same charter (line ~129) is stale and will mislead you.** It says
-"Stage explicit file paths", which §9.6a measured as insufficient after four
-collisions in one day. The version header was never bumped for either
-amendment, so nothing signals that §3 is superseded. Read the tail, not §3.
+**§3 item 2 of the same charter says "Stage explicit file paths", which is the
+2026-08-05 form and is superseded.** As of charter v1.4 (2026-08-11) it carries
+a dated amendment on its own face saying so, and the header points at the tail.
+Before that it did not, and D-8 is that gap. Read the tail, not §3.
 
 ### Step 1 — what the lab is doing, and in what order. Five minutes.
 
 `docs/PRODUCT_LIST.md`:
 
-- **Lines 1-8.** The item protocol and the priority order. `[x]` = fully done
-  with evidence linked; `[-]` = attempted, blocked or failed with diagnosis;
-  `[~]` = done in substance, pending adversarial verification (assume wrong
-  until defended). Every cross-off adds a new item.
-- **Lines 11-261.** Sections 4A-4I, the actual checklist. **60 items measured at
-  2026-08-10 21:16 UTC: 33 `[x]`, 14 `[ ]`, 12 `[-]`, 1 `[~]`.**
-  *[CORRECTED 2026-08-10 21:16 — this line first read "57 items: 32 done, 14
-  open, 11 blocked", a count inherited from a survey taken twenty minutes
-  earlier and not re-measured before writing. It was wrong in three of four
-  figures by the time it was committed, because the product list is written
-  continuously and grew by 27 lines during the survey itself. The original is
-  retained here rather than overwritten, per §8.1, and it is left in place
-  deliberately: it is this document's own first instance of the defect it
-  documents, and a count copied without a stamp is exactly D-5's mechanism.]*
-- **The last three `###` changelog entries only.** Not the whole changelog: it
-  holds 53 entries of which 44 are dated 2026-08-10, disambiguated by
-  parentheticals like "(closing 19)" and "(night, last)" that are not unique
-  keys.
+**Do not cite this file by line number and do not trust a line number you find
+cited into it.** It is appended to several times a day; every anchor below is a
+command, not a number, for that reason. Get the three landmarks like this:
+
+```
+sed -n '1,10p' docs/PRODUCT_LIST.md                 # the protocol and the priority order
+grep -n '^## 4[A-Z]\.\|^## Changelog' docs/PRODUCT_LIST.md   # the checklist's extent
+grep -n '^### ' docs/PRODUCT_LIST.md | tail -5      # the newest changelog entries
+```
+
+- **The head of the file.** The item protocol, then the priority order
+  immediately below it. `[x]` = fully done with evidence linked; `[-]` =
+  attempted, blocked or failed with diagnosis; `[~]` = done in substance,
+  pending adversarial verification (assume wrong until defended). Every
+  cross-off adds a new item.
+- **Sections 4A-4I, the actual checklist** — from the first `## 4A.` heading to
+  the line before `## Changelog`. Count what is in it if you need the tally
+  rather than reading a figure out of this document:
+
+  ```
+  awk '/^## 4A\./,/^## Changelog/' docs/PRODUCT_LIST.md | grep -c '^ *- \[x\]'   # and [ ], [-], [~]
+  ```
+
+  *[AMENDED 2026-08-11 (cold-start repair). This bullet previously read "Lines
+  11-261 … 60 items measured at 2026-08-10 21:16 UTC: 33 `[x]`, 14 `[ ]`, 12
+  `[-]`, 1 `[~]`", which itself carried a `[CORRECTED 2026-08-10 21:16]` note
+  replacing an earlier "57 items: 32 done, 14 open, 11 blocked". Both original
+  wordings are retained in this note per §8.1. **Both are now wrong, and the
+  older one is closer**: the same awk-and-grep frame above returns 57 / 32 / 14 /
+  11 / 0 on 2026-08-11, and the sections run to line 275, not 261. That is the
+  point of the amendment. A literal that has been corrected once and gone stale
+  twice is not a figure that wants a third correction — it wants replacing with
+  the command that produced it, which is L-79 and docket B4. Nothing a reader of
+  step 1 decides depends on the tally; it decides on the items.]*
+- **The last few `###` changelog entries only.** Not the whole changelog — it
+  runs to well over a hundred entries, most of them added in the last two days,
+  disambiguated by parentheticals like "(closing 19)" and "(night, last)" that
+  are **not unique keys**. Take the tail with the `grep | tail` above, and note
+  that the file's last `###` heading is *"Decision requests for Katie
+  (standing)"*, which is not a changelog entry at all — it is the standing
+  blocker list, and it is worth reading in its own right.
 
 ### Step 2 — who decides what. Ten minutes.
 
@@ -307,12 +351,39 @@ ready to work; ask.
 
 ### Step 5 — before you write a conclusion.
 
-`LESSONS.md` is 2236 lines. **Do not read it cold** — see §5 for why. Read, in
-this order:
+`LESSONS.md` is very large and grows by several lessons on a busy day. **Do not
+read it cold** — see §5 for why. Read, in this order:
 
-- **The eight most-cited**, which is a measured ranking, not a taste:
-  L-40 (93 citations outside the file), L-42 (51), L-45 (42), L-26 (35),
-  L-22 (29), L-1 (26), L-24 (24), L-6 (22).
+- **The most-cited lessons**, which is a measured ranking, not a taste. The
+  ranking moves as the corpus grows, so **measure it, do not read a list out of
+  this document**:
+
+  ```
+  for n in $(grep -o '^## L-[0-9]*' LESSONS.md | sed 's/## L-//' | sort -un); do
+    printf '%s L-%s\n' \
+      "$(git ls-files -z | grep -zv '^LESSONS.md$' | xargs -0 grep -oh "L-$n\b" | wc -l)" "$n"
+  done | sort -rn | head -8
+  ```
+
+  Frame: occurrences of `L-<n>` in **tracked** files, excluding `LESSONS.md`
+  itself. `grep` here is `ugrep --ignore-files`, so `git ls-files` is what makes
+  the denominator honest — a bare `grep -r` silently skips gitignored archives.
+
+  **The headline has survived every re-measurement so far and is worth stating
+  flat: L-40 is #1 by a wide margin.** It was 93 on 2026-08-10 and 101 on
+  2026-08-11, with the runner-up at roughly half. That is the part you can rely
+  on without running anything.
+
+  *[AMENDED 2026-08-11 (cold-start repair). This bullet listed "the eight
+  most-cited" as L-40 (93), L-42 (51), L-45 (42), L-26 (35), L-22 (29), L-1 (26),
+  L-24 (24), L-6 (22), measured 2026-08-10 21:00 UTC and undated on its face.
+  Original list retained here per §8.1. **Every one of the eight counts was low
+  by 2026-08-11 and the membership had changed**: re-measured with the command
+  above it reads L-40 (101), L-42 (54), L-45 (52), L-53 (45), L-26 (41), L-1
+  (38), L-22 (31), L-32 (30) — L-53 and L-32 in, L-24 (26) and L-6 (24) out. A
+  list that calls itself "a measured ranking, not a taste" and is not re-measured
+  stops being either. Replaced with the measurement rather than with today's
+  eight, because today's eight would be a different eight next week.]*
 - **The record-hygiene trio**, which is what this document exists to enforce:
   L-32 (a verdict moves in the case's own file first), L-39 (verdicts age
   silently), L-46 (a change that creates an artifact must be audited from both
@@ -320,12 +391,29 @@ this order:
 
 ### Step 6 — the current queue.
 
-`demo-output/website/agenda/proposals/*.json` — 109 files, the inbox.
+`demo-output/website/agenda/proposals/*.json` — the inbox. It grows; count it
+rather than reading a number here:
 
-**Do not use `docket.json` to learn what is open.** Its `generated_at` reads
-2026-08-08T22:59:53Z while its mtime is 2026-08-10 18:22 and it contains a
-record created 2026-08-10T17:55Z. 34 proposal files have never reached it. See
-D-1.
+```
+ls -1 demo-output/website/agenda/proposals/*.json | wc -l
+```
+
+*(109 on 2026-08-10 21:00 UTC, 110 at 01:19 on 2026-08-11, 111 that evening —
+three values in 24 hours, which is why this is a command now.)*
+
+**Do not use `docket.json` to learn what is open.** Check the trap yourself, in
+one line, rather than trusting the 2026-08-10 measurement of it:
+
+```
+python3 -c "import json;print(json.load(open('demo-output/website/agenda/docket.json'))['generated_at'])"
+stat -c '%y' demo-output/website/agenda/docket.json
+```
+
+On 2026-08-10 those read 2026-08-08T22:59:53Z against an mtime of 2026-08-10
+18:22 — a two-day lie — with 34 proposal files that had never reached the
+docket. Both cold-start runs on 2026-08-11 re-measured it and found it unchanged.
+If `generated_at` is older than the mtime, the file was hand-edited around
+`save_docket()` and it is not a queue. See D-1.
 
 ### Step 7 — what is not in the repo at all.
 
@@ -335,10 +423,14 @@ before you supervise anything.
 
 ### 4.1 What this order deliberately omits, and the two files that will mislead you
 
-`docs/charters/README.md` is **not** step 1, despite being the index, because
-its description of the lesson corpus is wrong by 25 entries (D-3) and a fresh
-agent who trusts it will under-read the most-cited record in the lab by half.
-Read it at step 2 with that correction in hand.
+`docs/charters/README.md` is **not** step 1, despite being the index. Until
+2026-08-11 its description of the lesson corpus read "L-1 through L-28" — wrong
+by 25 entries when D-3 opened on 2026-08-10, by 51 by the evening of 2026-08-11,
+and a fresh agent who trusted it would under-read the most-cited record in the
+lab by more than half. **That line was repaired on 2026-08-11 and now carries a
+command instead of a number**, so the specific trap is closed; read it at step 2
+anyway, because its "Related standing documents" list still omits the two record
+classes in §1.1.
 
 `docs/HANDOFF*.md` (ten files, all dated 2026-07-25/26) are not in the reading
 order at any tier. They are historical.
@@ -370,20 +462,47 @@ is written once and appended-to forever is a claim that silently becomes false.
 
 ## 5. Is `LESSONS.md` usable at its current size?
 
-Measured, 2026-08-10 21:00 UTC: **2236 lines, 135 KB, 53 lesson blocks.**
+> **[AMENDED 2026-08-11 — and the amendment is the point, not the numbers.]**
+> **Every count in this section went stale in under 24 hours.** It read *"2236
+> lines, 135 KB, 53 lesson blocks"*, measured 2026-08-10 21:00 UTC. Cold-start
+> run 2, the next afternoon, found the file at **3296 lines, 196 KB, 80 blocks,
+> running to L-79**. Run 1 that same morning had it at 2390 lines and 57 blocks.
+> Three measurements, three answers, one day.
+>
+> None of them was careless; the corpus simply moves at that rate, and **a
+> figure written by hand into prose goes stale at the rate of the thing it
+> describes.** That is L-79 exactly — where prose correct at 06:04 was falsified
+> by a code change at 06:56, including one copy inside a sentence asserting that
+> it could not drift. This section was that sentence's twin: a document about
+> records going stale, going stale.
+>
+> **So the numbers are not updated here. They are removed and replaced by their
+> generator.** Run:
+>
+> ```
+> python3 scripts/corpus_figures.py          # human-readable, stamped with the commit
+> python3 scripts/corpus_figures.py --json   # for a doc build or a test
+> ```
+>
+> It reports lines, blocks, distinct numbers, gaps, the citation ranking, the
+> tracked-tree shape and the memory store — every figure this document used to
+> quote — measured at the commit you run it on, over a frame it states in its own
+> output. **Do not copy its output back into this file.** The whole repair is
+> that there is one place to look and it is never the prose.
 
-Growth, by the size of the file at each day's last commit:
+**The one thing that is stable enough to state in words:** the corpus is
+**gapped, non-monotonic, and carries duplicate numbers**, so its block count and
+its distinct-number count are two different facts and neither checks the other.
+There is no L-52. L-4 sits after L-7. **L-43 and L-63 each appear twice** — one
+of them titled "second corollary", which no numeric cross-reference can address.
+The generator reports blocks and distinct numbers separately for this reason.
 
-| Date | Lines |
-|---|---|
-| 2026-07-28 | 221 |
-| 2026-07-30 | 1356 |
-| 2026-08-04 | 1653 |
-| 2026-08-08 | 1806 |
-| 2026-08-10 | **2236** |
-
-430 lines — 24 percent — were added on 2026-08-10 alone (L-42 through L-53,
-twelve lessons in one day). The file is 10x its size of thirteen days ago.
+*(A worked example of why hand-counting this file is unreliable, kept because it
+cost time twice: a shell pipeline that extracted the lesson number with `sed`
+from each heading reported L-15 as duplicated. It is not. The heading it tripped
+on names two lessons, and the regex took the wrong one. The generator counts in
+Python against an anchored pattern and agrees with a hand check on L-43 and L-63
+only.)*
 
 **Verdict: usable as a citation target, not usable as a cold read, and it has
 no working index.** Four specific defects:
@@ -391,12 +510,24 @@ no working index.** Four specific defects:
 1. **No table of contents.** The file opens at line 1 and the first lesson is at
    line 9. There is no way to find a lesson without grepping.
 2. **The numbering is gapped and non-monotonic.** There is **no L-52** anywhere
-   in the repo — 52 distinct numbers (L-1..L-51, L-53) across 53 blocks. L-4
-   appears after L-7. `L-43` has two blocks, the second titled "L-43, second
-   corollary", which no numeric cross-reference can address.
-3. **The only external index of it is wrong.** `docs/charters/README.md:93` says
-   *"L-1 through L-28"*. It has said that through 25 further lessons, including
-   L-40, L-41, L-44, L-45 and L-48 — every one of which a charter actively cites.
+   in the repo, so the block count and the distinct-number count are two
+   different facts. L-4 appears after L-7. Some numbers have two blocks — one
+   titled "second corollary" — which no numeric cross-reference can address.
+   Run the generator above for the current blocks / distinct / gaps triple.
+   *[AMENDED 2026-08-11 (cold-start repair). This item read "52 distinct numbers
+   (L-1..L-51, L-53) across 53 blocks" and named `L-43` as the only duplicate.
+   Original retained per §8.1. Both figures moved with the corpus and a second
+   duplicate has since appeared; the shape — gapped, non-monotonic, duplicated —
+   is what is stable, so the shape is stated and the counts are delegated.]*
+3. **The only external index of it was wrong, and is now repaired.**
+   `docs/charters/README.md`'s `LESSONS.md` line read *"L-1 through L-28"* from
+   before 2026-08-04 until 2026-08-11 — through more than fifty further lessons,
+   including L-40, L-41, L-44, L-45 and L-48, every one of which a charter
+   actively cites. **Repaired 2026-08-11 by the cold-start memory repair**: that
+   line now carries the two commands that measure the corpus instead of a
+   literal, with the original wording retained beside them. The general defect it
+   is an instance of — an index maintaining a census by hand — is what the
+   generator exists to end. D-3 and §9 defect 3 are updated to match.
 4. **There are two other lesson namespaces**, neither reconciled with it (D-4).
 
 It is nonetheless the lab's most load-bearing artifact: lesson numbers are cited

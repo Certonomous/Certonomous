@@ -1,8 +1,12 @@
 # Certonomous Escalation Charter
 
-Version 1.3, dated 2026-08-05. Governs what the lab decides alone and what goes
+Version 1.4, dated 2026-08-11. Governs what the lab decides alone and what goes
 to the owner. It binds unattended work, which is where the question actually
 arises.
+
+**The git rule lives in §9.6, §9.6a and §9.6b, at the very end of this file,
+below `## Related`.** §3 item 2 states the 2026-08-05 form and is superseded;
+it now carries a dated amendment saying so. Read the tail.
 
 Version 1.1 adds section 8, on instructions, after three acts honoured a stated
 instruction without acknowledging it and a fourth found the artifact and the
@@ -21,6 +25,14 @@ operational rules, each traced to the incident that proved it. Nothing in
 section 9 needs a ruling: these are descriptions of what already worked, and
 the one thing they ask for that is not yet habit, arming both keepalive holds,
 costs one command.
+
+Version 1.4 adds §9.6b — a pathspec commit isolates by FILE, not by AUTHOR, so
+reading `git diff <path>` before committing a shared file is a separate and
+mandatory check — and amends §3 item 2 in place to stop it handing readers the
+superseded 2026-08-05 rule. Both were filed by the cold-start memory test on
+2026-08-11, twice, by two agents who did not know of each other. Neither 9.6 nor
+9.6a bumped this header when they landed; that omission is the other half of the
+defect, and 1.4 exists partly to end it.
 
 ## 1. The line
 
@@ -132,6 +144,19 @@ rather than discarded. Four consequences, and they are the standing rules:
    repository that gets pushed. It happened twice, and two agents independently
    misfiled it as a shared index race, which it was not. Stage explicit file
    paths.
+
+   *[AMENDED 2026-08-11 (cold-start repair). The original text of this item is
+   retained above, unedited, per §8.1 of `docs/MEMORY_ARCHITECTURE.md`. Its
+   closing sentence — "Stage explicit file paths" — is **superseded and, on its
+   own, insufficient**, and it has been so since 2026-08-07. §9.6a measured that
+   `git add <paths>` followed by a bare `git commit` still commits the entire
+   shared index; §9.6b (added today) measures that even `git commit -- <paths>`
+   isolates by FILE and not by AUTHOR. **Read §9.6, §9.6a and §9.6b, which are
+   below the `## Related` block, before you act on this item.** This amendment
+   exists because a reader who stops at the numbered sections gets the 2026-08-05
+   rule and no signal that two later measurements moved it — logged as D-8 in
+   `docs/MEMORY_ARCHITECTURE.md` §7.2, opened by the 2026-08-10 memory survey and
+   re-filed by both cold-start runs of 2026-08-11 as still fully open.]*
 3. **Commit per item.** A small commit that lands is worth more than a large one
    that is still uncommitted when the next agent touches the file. Commit-per-item
    is what survives a shared tree, and it is why every charter revision in this
@@ -499,3 +524,40 @@ commit contains exactly the named paths regardless of what else sits staged.
 `git add` remains fine; the bare `git commit` after it is what the rule now
 forbids. Every provenance-repair commit today followed the ecb5bdbe pattern;
 with this amendment they should stop being needed.
+
+#### 9.6b. Amendment, 2026-08-11: a pathspec isolates by FILE, not by AUTHOR
+
+9.6a made the commit contain exactly the named paths. It does not make the named
+paths contain exactly your own work. On 2026-08-11 the chief committed
+`docs/PRODUCT_LIST.md` by pathspec, under a message describing one finding, and
+the diff also carried a concurrent agent's uncommitted work **in that same
+file**. Nothing in 9.6 or 9.6a could have prevented it: both rules answer *"which
+files am I committing?"* and neither answers *"who else wrote in them?"*
+
+The rule as it must now read, in two parts:
+
+```
+git add <paths>
+git commit -m "..." -- <paths>      # the SCOPE
+git diff <path>                     # the CHECK — read it before you commit
+```
+
+**The check is not optional on a shared, high-traffic file** — a changelog, a
+status record, a checklist, an index. Those are exactly the files a supervisor
+writes most often and exactly the files everyone else is writing to at the same
+time, so this is where the scope rule has least protection and most opportunity
+to fire. If the diff contains hunks you did not write, stage your own hunks only
+(the split-patch precedent in 9.6) rather than committing them under your
+message.
+
+The narrative and the incident are `LESSONS.md` L-57. **The line count in that
+lesson was itself corrected on 2026-08-11** — first written as 59 lines, which
+was the commit's total insertion count, then recounted by hunk as 34 — so cite
+L-57 for the rule rather than restating its figure here. That correction is the
+rule applied to itself: read the diff, not the summary of it.
+
+*Added 2026-08-11 by the cold-start memory repair, on the finding that
+`docs/MEMORY_ARCHITECTURE.md` §4 step 0 sent readers to this charter for a rule
+the charter did not yet carry. Two independent cold-start runs on 2026-08-11
+filed it. Version header bumped to 1.4 in the same commit — not bumping it for
+9.6 and 9.6a is half of why D-8 exists.*
