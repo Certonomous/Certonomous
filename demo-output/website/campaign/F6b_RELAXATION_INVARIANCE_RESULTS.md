@@ -193,9 +193,20 @@ a change of *path* — and **that mechanism is the one that held.**
 
 ## 7. Reach — what this confirmation covers
 
-`7.6472` and the +63% figure appear on **12 surfaces besides the F6b record and
-this one**, found by a wrap-safe whitespace-normalised search rather than a
-line-bounded grep: `docs/PRODUCT_LIST.md`, `docs/MEMORY_ARCHITECTURE.md`,
+> **[COUNT CORRECTED 2026-08-11, minutes after first commit, by the author.]** This
+> section first said **12** surfaces and closed by saying **sixteen** — two
+> different numbers in one section, and **its own list underneath had 17 entries.**
+> The measured figure is **17**. The prose was written from an impression of a
+> search result while the list was pasted from the search itself, which is how a
+> record ends up disagreeing with its own evidence three paragraphs apart. It is
+> corrected here rather than quietly repaired: **the wrong number also went into
+> commit `ef3e4872`'s message, where it cannot be edited**, so a reader arriving
+> from the log needs this line. The verdict is unaffected — the reach is larger
+> than claimed, not smaller.
+
+`7.6472` and the +63% figure appear on **17 surfaces besides the F6b record and
+this check's own two files**, found by a wrap-safe whitespace-normalised search
+rather than a line-bounded grep: `docs/PRODUCT_LIST.md`, `docs/MEMORY_ARCHITECTURE.md`,
 `CLOSURE_CHALLENGE_STATUS.md`, `SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md`,
 `campaign/CALIBRATION_SCORECARD_2026-08.md`, `campaign/CAMPAIGN_STATUS.md`,
 `campaign/F12_PREREGISTRATION.md`, `campaign/F6_closure_aligned_flows.md`,
@@ -210,7 +221,7 @@ line-bounded grep: `docs/PRODUCT_LIST.md`, `docs/MEMORY_ARCHITECTURE.md`,
 Had this check disagreed, every one of those surfaces would have been in
 question. It did not, so none of them needs an edit — **which is the useful thing
 to say about a confirmation: it is worth recording precisely because it tells
-sixteen surfaces they do not have to move.**
+seventeen surfaces they do not have to move.**
 
 ## 8. Cost, against the declared budget
 
