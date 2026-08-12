@@ -64,6 +64,7 @@ errors on `check_board_placement_words`, which did not exist.
 """
 from __future__ import annotations
 
+import ast
 import importlib.util
 import re
 import sys
@@ -1962,6 +1963,60 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
             self.assertEqual(([], []), (rule_a, rule_b), rel)
             checked += 1
         self.assertEqual(3, checked)
+
+    def test_the_benchmarks_generator_cannot_regenerate_an_unnamed_placement(self):
+        """The half of this defect class that no published surface shows.
+
+        `benchmarks.json` and `wall/wall.json` are WRITTEN by
+        `sdk/scripts/build_benchmarks.py` out of a module-level `_CLOSURE`
+        dict, so a placement corrected in the JSON survives exactly until the
+        next regeneration. That is not a hypothetical: the generator's own
+        comment records the round-5 session hand-updating both JSON files and
+        leaving the literal at round 3, caught by rung V7 on 2026-08-08.
+
+        NEITHER EXISTING ASSERTION REACHES IT. The generator does not travel,
+        so its own fault is a WARN that nothing asserts on; and the three
+        surfaces pinned by the test above do not include it. So this suite
+        could stand green over a literal that re-publishes an anonymous
+        comparison onto two travelling pages the next time anyone runs the
+        build -- which is the shape of green that means "I looked at the copy
+        and not at the thing that writes the copy".
+
+        Asserted on the SHIPPED STRINGS ONLY, `_CLOSURE` read out of the
+        generator's AST, so the surrounding comments -- which legitimately
+        quote a defect in order to name it -- cannot redden it.
+        """
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        gen = REPO / "sdk" / "scripts" / "build_benchmarks.py"
+        self.assertTrue(gen.exists(),
+                        "the benchmarks generator is gone; this test asserts "
+                        "nothing about anything without it")
+        closure = None
+        for node in ast.parse(gen.read_text(encoding="utf-8")).body:
+            if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                    and getattr(node.targets[0], "id", None) == "_CLOSURE"):
+                closure = ast.literal_eval(node.value)
+        self.assertIsNotNone(closure,
+                             "_CLOSURE is not in the generator: this test's "
+                             "subject has moved and it is asserting nothing")
+
+        def strings(value):
+            if isinstance(value, str):
+                return [value]
+            if isinstance(value, dict):
+                return [s for v in value.values() for s in strings(v)]
+            if isinstance(value, (list, tuple)):
+                return [s for v in value for s in strings(v)]
+            return []
+
+        shipped = "\n".join(strings(closure))
+        self.assertTrue(shipped.strip(),
+                        "_CLOSURE carries no text; nothing was examined")
+        self.assertEqual(([], []), sa.board_placement_faults(shipped, board),
+                         "the generator would write this onto benchmarks.json "
+                         "and wall/wall.json on its next run")
 
 
 class TheGraderPrecisionSetIsIndependentTests(unittest.TestCase):

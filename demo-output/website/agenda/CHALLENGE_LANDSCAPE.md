@@ -114,7 +114,7 @@ eight** cases. **Both are superseded and neither may be used.**
 > `closure_challenge_round5_qcr.json` at commit `07a7fe9e`.
 > ~~**P(rank 1) = 68%**, 2–100% at 95%~~ — **STRUCK 2026-08-11: computed
 > 2026-08-10 against a FOUR-entry board that no longer exists.** The board now has
-> six entries and a new leader, Yang at 0.0580; our margin over the leader is
+> six entries and a new leader, Yang at 0.0580; our margin over Yang is
 > **0.001365**, not 0.002878 (`campaign/BOARD_MOVED_2026-08-11.md`).
 > **Four leads are now not statistically decided** — Yang (t = −0.19), Reissmann
 > (t = −0.50), Wu & Zhang (t = −0.95) and Tian, Buchanan, Hickel & Dwight

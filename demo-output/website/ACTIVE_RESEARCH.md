@@ -33,7 +33,7 @@ independent routes; eight cases; our 0.056647191704213645 read from
 ~~**P(rank 1) = 68%**, 2–100% at 95%~~ — **STRUCK 2026-08-11: the previous figure
 was computed 2026-08-10 against a FOUR-entry board that no longer exists.** Two
 entrants have since appeared, one of them the new leader (Yang, 0.0580), and our
-margin over the leader more than halved, 0.002878 → 0.001365.
+margin over Yang more than halved, 0.002878 → 0.001365.
 
 **Four leads are now not statistically decided** — Yang (t = −0.19), Reissmann
 (t = −0.50), Wu & Zhang (t = −0.95) and Tian, Buchanan, Hickel & Dwight

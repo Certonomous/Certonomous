@@ -114,7 +114,7 @@ _CLOSURE = {
                  "sample cannot pin that tighter than 0-97% at 95%. The previous figure - "
                  "P(rank 1) = 68%, 2-100% at 95% - is STRUCK as of 2026-08-11: it was "
                  "computed against a FOUR-entry board that no longer exists, and our margin "
-                 "over the leader more than halved with the change, 0.002878 to 0.001365. "
+                 "over Yang more than halved with the change, 0.002878 to 0.001365. "
                  "Best result on the public board "
                  "on four of the eight test cases - but two of those four "
                  "(alpha_05_4071_4048, alpha_05_4071_2024) are the organisers' own "

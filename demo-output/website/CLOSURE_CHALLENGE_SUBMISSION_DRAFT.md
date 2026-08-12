@@ -30,7 +30,7 @@ information**."*
 > leaderboard carries **six** entries, not four, and a **new leader: Yang, 0.0580**
 > (`campaign/BOARD_MOVED_2026-08-11.md`). Three things below are now false as
 > written, and are struck in place rather than smoothed:
-> **(1)** the board is six-deep and our margin over the leader is **0.001365**, not
+> **(1)** the board is six-deep and our margin over Yang is **0.001365**, not
 > 0.002878 over Reissmann; **(2)** P(rank 1) is **50%** with a 95% interval of
 > **0–97%**, and **four** comparisons are not statistically decided — Yang
 > (t = −0.19), Reissmann (−0.50), Wu & Zhang (−0.95) and Tian, Buchanan, Hickel &
@@ -696,7 +696,7 @@ itself — and none of it was copied from a sibling document.*
 | What is actually ours | **3 of the 8 predictions.** 2 are the supplied baseline unchanged; 3 are an untrained QCR2000 forward solve | §10; `DESCRIPTION_DOCUMENT.md` §2 |
 | Best on published board | ~~4 of 8, two of them baseline, so 2 of 8 ours~~ **2 of 8 against the live six-entry board — and BOTH are the organisers' own baseline file, so ZERO of 8 belong to our model.** Both `alpha_15` hills lost to Tian, Buchanan, Hickel & Dwight | `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md` §3a; re-derived case by case against the six published entries |
 | Standing | 0.056647 is the lowest overall on the **live six-entry** board fetched 2026-08-11 (our own scoring is at `deb91557`, which scores but does not rank), **scored locally by us — not an official placement.** P(rank 1) = **50%**, interval **0–97% at 95%**; the leads over **Yang, Reissmann, Wu & Zhang, and Tian/Buchanan/Hickel/Dwight** are **not statistically decided**, the leads over Liu (98.7%) and Montoya (99.8%) are. ~~P(rank 1) = 68%, 2–100%, two undecided pairs~~ — struck, four-entry board | `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md` |
-| Margin over the published rank-1 entry | **0.001365** over **Yang** (0.058013), the leader on the live board. ~~0.0028863 over Reissmann, Fang & Sandberg~~ — Reissmann is now rank 2 | live board fetched 2026-08-11T23:33Z |
+| Margin over the published rank-1 entry | **0.001365** over **Yang** (0.058013), the leader on the live board. ~~0.0028863 over Reissmann, Fang & Sandberg~~ — Reissmann is now rank 2 on the live board, while on the frozen scoring pin `deb91557` Reissmann is rank 1 of four | live board fetched 2026-08-11T23:33Z |
 | Scored with | benchmark's own unmodified scorer, eval package commit `1c4e22c8`, benchmark commit `deb91557` | `harness_check`; both commits confirmed in the local checkouts |
 
 **The margin pair, resolved rather than inherited.** The README publishes **0.0595**

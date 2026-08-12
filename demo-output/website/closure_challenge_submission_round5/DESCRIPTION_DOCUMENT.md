@@ -306,7 +306,7 @@ unchanged — we state which input each rests on. The two inputs differ by
 > **RECOMPUTED 2026-08-11 AGAINST A SIX-ENTRY BOARD. Every figure in the rest of
 > this section is struck and kept.** The figures below were computed against the
 > **four**-entry board; fetched live on 2026-08-11 the board carries **six**
-> entries and a new leader, **Yang at 0.0580**, and our margin over the leader is
+> entries and a new leader, **Yang at 0.0580**, and our margin over Yang is
 > **0.001365**, not 0.002878. Recomputed by the same method (the script reproduces
 > the four-entry figures exactly when the two new rows are removed):
 > **P(rank 1) = 50%** — 50.2% over 400,000 resamples — which eight cases pin no

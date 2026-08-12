@@ -60,7 +60,7 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       case-level bootstrap; rank distribution 50.2 / 19.0 / 14.7 / 10.6 / 4.7 / 0.8 / 0.2). ~~P(rank 1) = 68%,
       distribution 67.6 / 18.6 / 12.8 / 0.9 / 0.2~~ — **STRUCK 2026-08-11: computed against a FOUR-entry board that
       no longer exists.** The live board, fetched 2026-08-11T23:33Z by two routes, has six entries and a new leader
-      (Yang, 0.0580); our margin over the leader more than halved, 0.002878 → 0.001365. **Four leads are now NOT
+      (Yang, 0.0580); our margin over Yang more than halved, 0.002878 → 0.001365. **Four leads are now NOT
       statistically decided, not two, and one of them is the leader:** Yang (t = −0.189, dispersion 15× the margin,
       4 of 8 cases won), Reissmann (t = −0.495, dispersion 5× the margin, 4 of 8 won), Wu&Zhang (t = −0.953) and
       Tian/Buchanan/Hickel/Dwight (t = −1.033). Only Liu (98.7%) and Montoya (99.8%) are beaten on method.
