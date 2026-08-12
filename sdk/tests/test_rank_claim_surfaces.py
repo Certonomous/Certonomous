@@ -2406,5 +2406,284 @@ class TheGraderPrecisionSetIsIndependentTests(unittest.TestCase):
         self.assertTrue(set(measured["FALSE_FAULT_LABELS"]) <= set(admitted))
 
 
+class TheIntervalIsReadInEveryMarkupDialectTests(unittest.TestCase):
+    """The rung of 2026-08-12: a FALSE FAULT, caused by the instrument.
+
+    `closure_challenge_report.tex` carries the current interval nine times and
+    the guard reported it MISSING -- not wrong, missing. LaTeX spells an
+    en-dash `--` and must escape the percent sign, so the file says `0--97\\%`,
+    and the reader wanted one hyphen and a bare `%`. It found no interval pair
+    anywhere in that file. `closure_challenge_round5_qcr.json` was failed the
+    same way for writing `0-97 percent at 95 percent`.
+
+    That is the failure mode the guard's own comments call the worst one: it
+    failed two surfaces for being CORRECT, and the cheapest way to make it
+    green is to edit the surface that was right.
+
+    THE FIX MUST NOT BE "ACCEPT MORE". A reader that accepts anything with two
+    numbers near a percent sign passes every surface in the tree and measures
+    nothing, which is strictly worse than the bug -- the bug at least still
+    faulted the surfaces that were genuinely silent. So the dialects are
+    enumerated in `_INTERVAL_DIALECTS`, and this class drives BOTH directions
+    separately: every dialect in the table is accepted, and a text with no
+    interval, a neighbouring interval, or the superseded interval still faults
+    in every one of those same dialects.
+    """
+
+    # Written against `_LO`/`_HI`, which come from the committed record, so
+    # these move with the board instead of pinning today's digits.
+    def _dialects(self):
+        return {
+            "plain hyphen, bare percent":      f"{_LO}-{_HI}% at 95%",
+            "plain hyphen, spaced":            f"{_LO} - {_HI} %",
+            "LaTeX `--` and escaped percent":  rf"\textbf{{{_LO}--{_HI}\% at 95\%}}",
+            "LaTeX `---` em-dash":             rf"{_LO}---{_HI}\%",
+            "unicode en-dash":                 f"{_LO}\u2013{_HI}% at 95%",
+            "unicode em-dash":                 f"{_LO}\u2014{_HI}%",
+            "unicode minus sign":              f"{_LO}\u2212{_HI}%",
+            "the unit spelled as a word":      f"{_LO}-{_HI} percent at 95 percent",
+            "word unit and unicode en-dash":   f"{_LO}\u2013{_HI} per cent",
+            "HTML entity &ndash;":             f"{_LO}&ndash;{_HI}%",
+            "HTML numeric entity &#8211;":     f"{_LO}&#8211;{_HI}%",
+            "HTML percent entity &#37;":       f"{_LO}-{_HI}&#37;",
+            "a percent sign on BOTH ends":     f"{_LO}%-{_HI}% at 95%",
+            "both ends, unicode en-dash":      f"{_LO}%\u2013{_HI}%",
+        }
+
+    def test_every_enumerated_dialect_is_read(self):
+        """Direction 1. Subtests, so one broken dialect names itself rather
+        than hiding behind whichever the loop reached first."""
+        for name, text in self._dialects().items():
+            with self.subTest(dialect=name):
+                self.assertTrue(sa._states_the_interval(text), text)
+
+    def test_a_surface_with_no_interval_still_faults(self):
+        """Direction 2, and the one that matters. A fix that makes everything
+        pass is worse than the bug it replaces."""
+        for name, text in (
+                ("no interval at all",
+                 "P(rank 1) = 50%, rank 1 of 7 scored locally at deb91557."),
+                ("empty", ""),
+                ("the figure with no band", "P(rank 1) = 50%"),
+                ("two numbers, no separator", f"{_LO} {_HI}%"),
+                ("two numbers, no unit", f"{_LO}--{_HI} at 95")):
+            with self.subTest(case=name):
+                self.assertFalse(sa._states_the_interval(text), text)
+
+    def test_a_wrong_interval_faults_in_every_dialect_too(self):
+        """The widening cannot be a back door: reading LaTeX must not mean
+        reading the SUPERSEDED figure as if it were the current one."""
+        for name, text in (
+                ("superseded, plain", "no tighter than 2-100% at 95%"),
+                ("superseded, LaTeX", r"no tighter than 2--100\% at 95\%"),
+                ("superseded, word unit", "no tighter than 2-100 percent"),
+                ("superseded, en-dash", "no tighter than 2\u2013100% at 95%"),
+                ("neighbouring high", f"{_LO}--{_HI + 3}\\%"),
+                ("neighbouring low", f"{_LO + 2}\u2013{_HI}%"),
+                ("both ends off by one", f"{_LO + 1}-{_HI + 1} percent")):
+            with self.subTest(case=name):
+                self.assertFalse(sa._states_the_interval(text), text)
+
+    def test_the_word_to_is_deliberately_not_a_dialect(self):
+        """`docket.json` contains "830,000 to 970,000 cells", whose digits read
+        as `0 to 97`. No surface here spells a range with "to", so accepting it
+        would buy nothing and put a coincidence one unit-word away from
+        certifying a surface that states no interval at all."""
+        self.assertFalse(sa._states_the_interval(f"{_LO} to {_HI}%"))
+
+    def test_the_dialect_table_marks_what_the_corpus_does_not_exercise(self):
+        """The HTML entity rows are handled and are NOT used anywhere in this
+        tree. That is recorded in the table rather than implied, so nobody
+        later reads their presence as evidence a surface relies on them."""
+        unexercised = [name for name, _p, _c, seen in sa._INTERVAL_DIALECTS
+                       if not seen]
+        self.assertTrue(unexercised, "every dialect claims to be in use; if "
+                                     "that became true the claim needs "
+                                     "re-measuring, not deleting")
+        for name in unexercised:
+            self.assertIn("HTML", name)
+
+    def test_the_latex_report_states_the_interval_on_its_live_text(self):
+        """The regression, read off the tree.
+
+        AND NOT ON A TOMBSTONE. The report strikes the superseded figure with
+        `\\sout{2--100\\%}` and keeps it under L-76. `closure.html` was once
+        certified by exactly such a tombstone, so the assertion here is made
+        twice: on the file, and on the file with every `\\sout{...}` removed.
+        The second is the one with teeth.
+        """
+        tex = (REPO / "demo-output" / "website" / "latex"
+               / "closure_challenge_report.tex").read_text(encoding="utf-8")
+        sout = re.compile(r"\\sout\{[^{}]*\}")
+        self.assertTrue(sout.search(tex), "the report carries no struck text; "
+                                          "this control exercises nothing")
+        self.assertTrue(sa._states_the_interval(tex))
+        self.assertTrue(sa._states_the_interval(sout.sub("", tex)),
+                        "the report states the interval only inside \\sout")
+        self.assertFalse(
+            sa._states_the_interval(" ".join(sout.findall(tex))),
+            "the struck text alone satisfies the rule, which is the "
+            "closure.html tombstone defect in a second file")
+
+    def test_the_entry_of_record_states_the_interval_on_its_live_block(self):
+        """`closure_challenge_round5_qcr.json` spells the unit as a word. Its
+        superseded four-entry companion is KEPT as a sibling key, so the live
+        block is the one that must carry the figure."""
+        path = (REPO / "demo-output" / "website"
+                / "closure_challenge_round5_qcr.json")
+        record = json.loads(path.read_text(encoding="utf-8"))
+
+        def holder(node):
+            if isinstance(node, dict):
+                if "rank_companion_2026_08_10" in node:
+                    return node
+                for value in node.values():
+                    found = holder(value)
+                    if found is not None:
+                        return found
+            return None
+
+        parent = holder(record)
+        self.assertIsNotNone(parent, "the superseded companion is gone; this "
+                                     "test's control has been deleted")
+        superseded = parent.pop("rank_companion_2026_08_10")
+        self.assertFalse(sa._states_the_interval(superseded),
+                         "the SUPERSEDED companion states the CURRENT "
+                         "interval, so it is not what it says it is")
+        self.assertTrue(sa._states_the_interval(json.dumps(record)),
+                        "the entry of record states the current interval only "
+                        "in the block it has superseded")
+
+
+class TheBestOnBoardCountIsFixedAtItsGeneratorTests(unittest.TestCase):
+    """Repairing the JSON buys exactly one build cycle.
+
+    `benchmarks.json` and `wall/wall.json` do not hold `our_entry`; they are
+    handed it. `build_benchmarks.py`'s module-level `_CLOSURE` is written into
+    `benchmarks.json`, `lab_stats.research_programs()` reads it back out of
+    that file, and `build_wall.py` writes it onto `wall/wall.json`. A count
+    corrected in the two JSON files and not in the literal survives until the
+    next `python sdk/scripts/build_benchmarks.py`, and this lab has already
+    made that exact mistake once -- the generator's own comment records the
+    round-5 session hand-updating both JSON files and leaving the literal at
+    round 3, caught a day later by rung V7.
+
+    So the assertion is not "the JSON is right". It is "the three copies are
+    the same string", which is the only form of it a regeneration cannot
+    quietly undo.
+    """
+
+    def _generator_entry(self) -> str:
+        gen = REPO / "sdk" / "scripts" / "build_benchmarks.py"
+        self.assertTrue(gen.exists(), "the generator is gone; this test "
+                                      "asserts nothing without it")
+        for node in ast.parse(gen.read_text(encoding="utf-8")).body:
+            if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                    and getattr(node.targets[0], "id", None) == "_CLOSURE"):
+                return ast.literal_eval(node.value)["our_entry"]
+        self.fail("_CLOSURE is not a module-level literal in the generator: "
+                  "this test's subject has moved and it is asserting nothing")
+
+    @staticmethod
+    def _entry_in(payload):
+        if isinstance(payload, dict):
+            if "our_entry" in payload:
+                return payload["our_entry"]
+            for value in payload.values():
+                found = TheBestOnBoardCountIsFixedAtItsGeneratorTests \
+                    ._entry_in(value)
+                if found is not None:
+                    return found
+        return None
+
+    def test_the_generator_and_both_files_it_feeds_carry_one_string(self):
+        source = self._generator_entry()
+        for rel in ("demo-output/website/benchmarks.json",
+                    "demo-output/website/wall/wall.json"):
+            path = REPO / rel
+            self.assertTrue(path.exists(), f"{rel} is gone")
+            written = self._entry_in(json.loads(path.read_text("utf-8")))
+            self.assertEqual(source, written,
+                             f"{rel} has drifted from the literal that writes "
+                             f"it; the next build would revert it")
+
+    def test_the_generator_would_not_write_a_stale_count(self):
+        """Read through the SAME derivation the guard uses, so the count is
+        never compared against a number typed into this test."""
+        self.assertEqual([], sa._best_on_board_faults(self._generator_entry()))
+
+    def test_the_live_wall_passes(self):
+        result = sa.check_closure_entry_of_record()
+        self.assertEqual(sa.PASS, result.status, result.detail)
+
+    def test_the_wall_passes_without_its_struck_text(self):
+        """The tombstone control, applied to the count this time.
+
+        The superseded `four of the eight` is KEPT on the wall under L-76 and
+        must be: the correction is the finding. But the wall must satisfy the
+        rule on what it still ASSERTS, so both dated strikes are cut out and
+        the verdict re-taken on what is left.
+        """
+        entry = self._generator_entry()
+        live = re.sub(r"STRUCK 2026-08-11,.*?standings now\. ", "", entry,
+                      flags=re.S)
+        self.assertNotEqual(entry, live, "the strike this control cuts is not "
+                                         "there; it is exercising nothing")
+        self.assertNotIn("four of the eight", live,
+                         "the superseded count survives outside the strike")
+        self.assertEqual([], sa._best_on_board_faults(live))
+        self.assertEqual([], sa._rank_companions_missing(live))
+
+    def test_the_superseded_count_is_kept_and_not_deleted(self):
+        """L-76 in the other direction: a falsified claim is STRUCK AND KEPT.
+        Silently deleting it would also make the guard green, and that is the
+        wrong green."""
+        entry = self._generator_entry()
+        self.assertIn("four of the eight test cases", entry)
+        self.assertIn("STRUCK 2026-08-11", entry)
+
+
+class TheSubmissionDraftHeadingCarriesTheCountTests(unittest.TestCase):
+    """§4.7 is the document's own highest-priority disclosure, and its HEADING
+    stated a count from the five-entry board of 2026-05-04.
+
+    The correct figures existed -- in a banner 180 lines further down. A
+    heading is the part of a section a reader takes away, so a live figure
+    parked in a banner and a dead one in the heading is the disclosure failing
+    in the one place it is most read. Both superseded counts ("two of five",
+    then "four of eight") are kept struck under L-76; what this pins is that
+    the heading now leads with the count the board actually supports, and that
+    the number is the DERIVED one rather than a digit typed into this test.
+    """
+
+    def _heading(self) -> str:
+        path = (REPO / "demo-output" / "website"
+                / "CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md")
+        self.assertTrue(path.exists(), "the draft is gone; this test asserts "
+                                       "nothing without it")
+        heads = [line for line in path.read_text(encoding="utf-8").splitlines()
+                 if line.startswith("### 4.7 ")]
+        self.assertEqual(1, len(heads), heads)
+        return heads[0]
+
+    def test_the_heading_states_the_derived_count(self):
+        facts = sa._closure_facts()
+        self.assertEqual([], facts["stale"], facts["stale"])
+        words = {2: "two", 3: "three", 4: "four", 5: "five", 0: "zero"}
+        best = words.get(len(facts["best"]), str(len(facts["best"])))
+        self.assertIn(f"{best} of eight", self._heading().lower(),
+                      "the heading does not state the count the board "
+                      "supports")
+
+    def test_the_superseded_headline_count_is_struck_not_deleted(self):
+        self.assertIn("~~two of five~~", self._heading())
+
+    def test_the_disclosure_is_not_only_in_a_banner(self):
+        """The count in the heading must travel with the reason it matters --
+        that every row it counts is the organisers' baseline. Otherwise the
+        repair is a number swap and the section still under-discloses."""
+        self.assertRegex(self._heading().lower(), r"baseline")
+
+
 if __name__ == "__main__":
     unittest.main()

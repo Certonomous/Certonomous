@@ -251,9 +251,28 @@ class LabStatsTests(unittest.TestCase):
         self.assertEqual(closure["floor_overall"], 0.1036)
         self.assertFalse(closure["submitted"])
         self.assertEqual(len(closure["our_per_case"]), 8)
+        # "four of the eight test cases" is pinned as a TOMBSTONE, not as the
+        # count. It was the live figure until the board went from four entries
+        # to six on 2026-08-11; it is kept on the wall under L-76 because the
+        # correction is itself the finding, and it is kept in this list so a
+        # later edit cannot quietly delete the struck text. On its own that
+        # made this assertion the wrong shape -- it would have stayed green on
+        # a card that had LOST the live count and kept only the dead one,
+        # which is the tombstone-certification defect the rank guard was
+        # repaired for on 2026-08-12. So the live figures are pinned beside it.
         for stated in ("0.0566 overall", "four of the eight test cases",
+                       "STRUCK 2026-08-11",
+                       "Best result on the public board on TWO of the eight",
+                       "the count belonging to our own model is ZERO of eight",
                        "Not yet submitted to the benchmark's steward."):
             self.assertIn(stated, closure["our_entry"])
+        # And the strike must sit BEFORE the dead count and AFTER the live one,
+        # so the dead figure cannot drift back out of its tombstone.
+        entry = closure["our_entry"]
+        self.assertLess(entry.index("TWO of the eight"),
+                        entry.index("STRUCK 2026-08-11"))
+        self.assertLess(entry.index("STRUCK 2026-08-11"),
+                        entry.index("four of the eight test cases"))
         for forbidden in ("trend", "indicative", "real solve"):
             self.assertNotIn(forbidden, closure["our_entry"].lower())
         self.assertNotIn("—", closure["our_entry"])  # no em dashes

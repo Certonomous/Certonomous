@@ -302,7 +302,7 @@ contacted. Katie's call.**
 > | **4.4** | DEFECT 1, the false docstring | **RESOLVED AND STILL TRUE — the row below is MOOT and stays for the record.** §4.9 still lists it as *"DEFECT — false as written. Fix before sending"*; it was fixed on 2026-07-30 and the fix holds at HEAD | Docstring lines 37–53 state one *new* prediction set, the unit being counted, and **four** invocations; the call sites are exactly four, at `:218–219` (floor) and `:301–302` (entry). Two prediction sets, one new |
 > | **4.5** | DEFECT 2, no submittable artifact | **RESOLVED FOR ROUND 5 — the §4.9 row is MOOT and stays for the record.** §4.5's own resolution block describes the **round-3** CSVs; the round-5 package is a different set of files and is verified separately | All eight `closure_challenge_submission_round5/test/*.csv` re-read here: **1000 rows × 3 columns, comma-delimited, no header** (no alphabetic character outside the `e` of scientific notation). `AR_1_Ret_360.csv` hashes to `bb8d61fb…`, the value Pass 1 traced end-to-end in V4 |
 > | **4.6** | version label understates the metric revision | **HOLDS, and is now DISCHARGED where it travels.** The recommendation was to cite the commit hash rather than the version string; the round-5 package does both, and states it as an install hazard rather than a footnote | `closure_challenge_submission_round5/MANIFEST.json:37` `eval_package_version_string_note`; `README.md:52–54` |
-> | **4.7** | two of five best-on-board rows are the organisers' baseline | **HOLDS; the COUNT is stale and the DISCLOSURE is now discharged.** The heading says *"two of five"*; round 5 records **four of eight**, two of which are the declined baseline rows. The substance — that the exposure is asymmetric and belongs in the outward material — is unchanged and is now met | The four external surfaces (`benchmarks.html`, `benchmarks.json`, `wall/wall.json`, `build_benchmarks.py`) carry the organiser-baseline qualification in the same sentence as the count; `scripts/self_audit.py` fails the wall if the count appears without it |
+> | **4.7** | two of five best-on-board rows are the organisers' baseline | **HOLDS; the COUNT WAS STALE TWICE and the DISCLOSURE is now discharged.** The heading said *"two of five"*; ~~round 5 records **four of eight**, two of which are the declined baseline rows~~ *(struck 2026-08-12: that correction was itself measured against the four-entry board and was falsified within the day)*. Against the live six-entry board the count is **2 of 8, both of them the declined baseline rows, so the count belonging to our own model is ZERO of 8**. The substance — that the exposure is asymmetric and belongs in the outward material — is unchanged and is now met | The four external surfaces (`benchmarks.html`, `benchmarks.json`, `wall/wall.json`, `build_benchmarks.py`) carry the organiser-baseline qualification in the same sentence as the count; `scripts/self_audit.py` no longer holds a copy of the count — it re-derives it from the board in `sdk/scripts/probability_of_rank.py` and fails the wall if the stated count disagrees or travels without the baseline disclosure |
 > | **4.7** *(asymmetry)* | *the argument itself* | **EXTENDED to the three QCR rows, which §4.7 could not have reasoned about.** The same asymmetry applies to a published 25-year-old term any entrant may run, and which the entry above ours already runs | `DESCRIPTION_DOCUMENT.md` §2 table and §6 |
 > | **4.8** | leaderboard position is current | **HOLDS ON ITS OWN TERMS, AND "CURRENT" IS NOT CERTIFIED HERE.** The board is read from a clone frozen at `deb91557` (2026-05-04). §4.8's own mitigation is to date the claim wherever it appears, and every position claim in the corpus is dated to that commit — so the claim is honest, and re-verifying it needs a network read this pass did not perform. The `0.0676` in its worked example is round 3 and is the number §4.8 was written about | The pin is stated on every surface carrying the rank claim; no network read was made |
 > | **4.9** | the summary table | **SUPERSEDED, and kept.** Its two DEFECT rows are both discharged (§4.4, §4.5) and it predates round 5 entirely, so it summarises an audit of an entry that is no longer the entry. It is left standing because it is the summary *of that audit*; **this block is the summary of where those findings now stand** | Row-by-row against §4.4 and §4.5's own resolution blocks and the round-5 package files listed above |
@@ -516,7 +516,23 @@ the package reports itself as. **Nothing is wrong with the score** — but "v0.2
 names an older metric revision than the code actually used. **Cite the commit hash
 `1c4e22c8`, which is unambiguous, and drop or footnote the version string.**
 
-### 4.7 The reputational exposure: two of five "best on board" rows are the organisers' own baseline
+### 4.7 The reputational exposure: ~~two of five~~ **two of eight, and both of them,** "best on board" rows are the organisers' own baseline
+
+> **COUNT CORRECTED 2026-08-12; the superseded figures are struck above and in the
+> index row, not deleted.** The heading was written against the five-entry board of
+> 2026-05-04 and read *"two of five"*; the round-5 correction that replaced it read
+> *"four of eight"*. Both are now false. Against the **live six-entry board** fetched
+> 2026-08-11T23:33Z we are best on **2 of the 8** cases — `alpha_05_4071_4048` and
+> `alpha_05_4071_2024`, the two the section is about — because both `alpha_15` hills
+> went to Tian, Buchanan, Hickel & Dwight. **Both of the two survivors are the
+> declined baseline rows, so the count belonging to our own model is ZERO of 8, and
+> the exposure this section describes is no longer a fraction of our wins but all of
+> them.** Derived, not typed: `sdk/scripts/probability_of_rank.py` holds the board and
+> `scripts/self_audit.py` re-derives the count from it case by case, so this paragraph
+> goes red rather than stale the next time the board moves. The standing figures that
+> travel with it are P(rank 1) = **50%**, interval **0–97% at 95%**, six-entry board;
+> the leads over Yang, Reissmann, Wu & Zhang and Tian/Buchanan/Hickel/Dwight are **not
+> statistically decided**.
 
 On `alpha_05_4071_4048` (0.0461) and `alpha_05_4071_2024` (0.0719) our submitted
 prediction *is the unmodified RANS solve* — the gate declined, correctly, and we report

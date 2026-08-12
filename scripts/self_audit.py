@@ -451,12 +451,67 @@ def _rank_interval_phrase() -> str:
     return f"{band[0]}-{band[1]}% at 95%"
 
 
-# A pair of percentages joined by any dash. Parsed rather than matched against
-# one spelling, so a surface writing `0.2-96.9%` and a surface writing `0-97%`
-# are both read as the same interval, and neither has to guess how this file
-# rounds.
+# THE MARKUP DIALECTS AN INTERVAL IS WRITTEN IN HERE, and why there is a table.
+#
+# THE DEFECT (2026-08-12). `closure_challenge_report.tex` carries the current
+# interval nine times, spelled the only way LaTeX spells it -- `0--97\%`, an
+# en-dash written as two hyphens and a percent sign that must be escaped or it
+# starts a comment. The pattern below read a SINGLE dash followed by a BARE
+# `%`, so it found no interval at all in that file -- not the wrong one, none --
+# and the guard failed the report for being CORRECT. `closure_challenge_round5_
+# qcr.json` was failed the same way for writing `0-97 percent at 95 percent`,
+# because JSON prose here spells the unit as a word.
+#
+# A FALSE FAULT IS WORSE THAN A MISS, which is why this is a table and not a
+# widened pattern. A guard that fails compliant surfaces teaches its readers
+# that red means nothing, and the cheapest way to silence it is to "fix" the
+# surface that was right. But broadening until the red file goes green is the
+# same mistake pointed the other way, so the dialects are ENUMERATED, each
+# named, each separately exercised by the suite.
+#
+# The list is not invented. It is a census of every tracked surface and every
+# archive member: the separators actually used to join the two ends of a range
+# are the ASCII hyphen, the LaTeX `--`, and the Unicode dashes; the units
+# actually used are `%`, LaTeX `\%`, and the word "percent"; and some surfaces
+# put a percent sign on BOTH ends (`20%-94%`). The HTML entity spellings occur
+# nowhere in this corpus today -- `&ndash;`, `&#8211;`, `&#37;` return zero hits
+# -- and are handled anyway because the pages that would use them are generated,
+# so the day one appears is not a day anybody edits this file. They are marked
+# as unexercised-by-the-corpus so that is on the record rather than implied.
+#
+# DELIBERATELY NOT A DIALECT: the word "to". `0 to 97%` is a plausible way to
+# write a range and this corpus never uses it, while `docket.json` does contain
+# "830,000 to 970,000 cells" -- a string whose digits read as `0 to 97`.
+# Accepting "to" would buy nothing and would put a coincidence one unit-word
+# away from certifying a surface that states no interval at all.
+_INTERVAL_DIALECTS = (
+    # (name, pattern, canonical form, present in this corpus today)
+    ("LaTeX escaped percent `\\%`",   r"\\%",                       "%", True),
+    ("HTML percent entity",           r"&(?:#0*37|percnt);",        "%", False),
+    ("the unit spelled as a word",    r"\s*\bper\s?cent(?:age)?\b", "%", True),
+    ("HTML dash entity",              r"&(?:ndash|mdash|#0*8211|#0*8212|#0*45);",
+                                                                    "-", False),
+    ("LaTeX `--` en-dash / `---` em-dash", r"-{2,3}",               "-", True),
+    ("Unicode dash or minus sign",    r"[‐-―−]",     "-", True),
+)
+_INTERVAL_NORMALISERS = tuple(
+    (re.compile(pattern, re.I), canonical)
+    for _name, pattern, canonical, _seen in _INTERVAL_DIALECTS)
+
+# A pair of percentages joined by a dash, read AFTER the dialects above have
+# been folded to one spelling. Parsed rather than matched against a literal, so
+# a surface writing `0.2-96.9%` and a surface writing `0-97%` are read as the
+# same interval and neither has to guess how this file rounds. The first
+# percent sign is optional because `20%-94%` is a spelling this corpus uses.
 _INTERVAL_PAIR = re.compile(
-    r"(\d+(?:\.\d+)?)\s*[-‐-―]\s*(\d+(?:\.\d+)?)\s*%")
+    r"(\d+(?:\.\d+)?)\s*%?\s*-\s*(\d+(?:\.\d+)?)\s*%")
+
+
+def _canonical_interval_markup(text: str) -> str:
+    """Fold the enumerated markup dialects onto one spelling of a range."""
+    for pattern, canonical in _INTERVAL_NORMALISERS:
+        text = pattern.sub(canonical, text)
+    return text
 
 
 def _states_the_interval(text: str) -> bool:
@@ -469,13 +524,21 @@ def _states_the_interval(text: str) -> bool:
     swallowed -- `check_rank_claim_surfaces` reports it loudly in its own
     verdict, where it is a statement about the instrument and not about the
     surfaces.
+
+    What it still cannot do, stated rather than discovered later: it reads the
+    WHOLE text, so an interval inside a strikethrough counts. That is the
+    tombstone hole this ladder found on `closure.html`, and it is closed at the
+    surface -- by the pages carrying the live figure -- not here, because the
+    strike markup differs per format and a wrong stripper would fail compliant
+    files. The suite pins each repaired surface with its struck text removed.
     """
     band = _closure_facts()["interval"]
     if band is None:
         return True
     low, high = band
     return any(round(float(a)) == low and round(float(b)) == high
-               for a, b in _INTERVAL_PAIR.findall(text))
+               for a, b in _INTERVAL_PAIR.findall(
+                   _canonical_interval_markup(text)))
 
 
 _COUNT_WORDS = {"zero": 0, "no": 0, "one": 1, "two": 2, "three": 3, "four": 4,
