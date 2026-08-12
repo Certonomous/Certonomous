@@ -1,0 +1,141 @@
+{
+ "frame": {
+  "fetched": "2026-08-11T23:33Z",
+  "source": "raw.githubusercontent.com/rmcconke/closure-challenge-benchmark/main/README.md",
+  "entries": 6,
+  "cases": 8,
+  "B": 400000,
+  "seed": 20260810,
+  "our_overall": 0.056647191704213645
+ },
+ "point_rank": 1,
+ "leader": "Yang",
+ "p_rank1": 0.5015225,
+ "mc_wilson95": [
+  0.49997301242113207,
+  0.5030719583360436
+ ],
+ "pairwise": {
+  "Yang": {
+   "overall": 0.0580125,
+   "margin": -0.0013653082957863563,
+   "p_we_lead": 0.577625,
+   "t": -0.18892260361243213,
+   "sd": 0.020440513435677616,
+   "cases_won": 4,
+   "decided": false
+  },
+  "Reissmann, Fang & Sandberg": {
+   "overall": 0.059525,
+   "margin": -0.0028778082957863563,
+   "p_we_lead": 0.693795,
+   "t": -0.4952266336157346,
+   "sd": 0.016436254617795066,
+   "cases_won": 4,
+   "decided": false
+  },
+  "Wu & Zhang": {
+   "overall": 0.062412499999999996,
+   "margin": -0.0057653082957863505,
+   "p_we_lead": 0.847245,
+   "t": -0.9534851734229575,
+   "sd": 0.017102263171839396,
+   "cases_won": 5,
+   "decided": false
+  },
+  "Tian, Buchanan, Hickel & Dwight": {
+   "overall": 0.0641375,
+   "margin": -0.007490308295786355,
+   "p_we_lead": 0.8600175,
+   "t": -1.0328452159293569,
+   "sd": 0.02051206785854209,
+   "cases_won": 5,
+   "decided": false
+  },
+  "Liu, Wang, Zhao & Xiao": {
+   "overall": 0.07368749999999999,
+   "margin": -0.017040308295786344,
+   "p_we_lead": 0.986575,
+   "t": -2.203323841141243,
+   "sd": 0.021874800834032267,
+   "cases_won": 7,
+   "decided": true
+  },
+  "Montoya, Oulghelou & Cinnella": {
+   "overall": 0.0778625,
+   "margin": -0.021215308295786356,
+   "p_we_lead": 0.998135,
+   "t": -2.911714002141096,
+   "sd": 0.02060846408662742,
+   "cases_won": 7,
+   "decided": true
+  }
+ },
+ "loo": {
+  "alpha_15_13929_4048": {
+   "point_rank": 2,
+   "p_rank1": 0.3169925,
+   "margin_vs_leader": 0.0027960340909846323
+  },
+  "alpha_15_13929_2024": {
+   "point_rank": 3,
+   "p_rank1": 0.321655,
+   "margin_vs_leader": 0.0015521930898546657
+  },
+  "alpha_05_4071_4048": {
+   "point_rank": 2,
+   "p_rank1": 0.3261275,
+   "margin_vs_leader": 0.0010671060268847773
+  },
+  "alpha_05_4071_2024": {
+   "point_rank": 1,
+   "p_rank1": 0.441505,
+   "margin_vs_leader": -0.0011407712590233987
+  },
+  "AR_1_Ret_360": {
+   "point_rank": 1,
+   "p_rank1": 0.5758475,
+   "margin_vs_leader": -0.0038989873102761446
+  },
+  "AR_3_Ret_360": {
+   "point_rank": 1,
+   "p_rank1": 0.53689,
+   "margin_vs_leader": -0.0028292318128703003
+  },
+  "AR_14_Ret_180": {
+   "point_rank": 1,
+   "p_rank1": 0.5348825,
+   "margin_vs_leader": -0.0030372979136254336
+  },
+  "NASA_2DWMH": {
+   "point_rank": 1,
+   "p_rank1": 0.78511,
+   "margin_vs_leader": -0.0054315112782196626
+  }
+ },
+ "double68": [
+  0.11988000000000001,
+  0.80633
+ ],
+ "double95": [
+  0.0025,
+  0.9690374999999998
+ ],
+ "seed": {
+  "adverse": {
+   "overall": 0.05904719170421365,
+   "p_rank1": 0.342295,
+   "point_rank": 2
+  },
+  "as scored": {
+   "overall": 0.056647191704213645,
+   "p_rank1": 0.5015225,
+   "point_rank": 1
+  },
+  "favourable": {
+   "overall": 0.054247191704213646,
+   "p_rank1": 0.65401,
+   "point_rank": 1
+  }
+ }
+}

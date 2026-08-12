@@ -1,9 +1,20 @@
 """The rank-claim guard must cover every surface that makes a rank claim.
 
 WHY. Ladder V rung V8, as amended 2026-08-10, binds EVERY surface: any rank
-claim, internal or external, carries P(rank 1), its 2-100% at 95% interval and
-the pairs that are `not statistically decided`. A bare 68% is a worse claim
-than none, because 68% sounds settled and eight cases do not support settled.
+claim, internal or external, carries P(rank 1), the current 95% interval on it,
+and the pairs that are `not statistically decided`. A bare probability is a
+worse claim than none, because a bare probability sounds settled and eight
+cases do not support settled.
+
+NO FIGURE IS TYPED INTO THIS FILE ANY MORE, and that is the point of the
+2026-08-12 rung below. The fixtures used to read `P(rank 1) = 68%` and
+`2-100% at 95%`, which were the figures against a FOUR-entry board. The board
+went to six entries on 2026-08-11, the figures became 50% and 0-97%, and this
+suite stayed green through the change -- a compliant fixture that carries dead
+numbers proves only that the guard agrees with the fixture. The fixtures are
+built from `sdk/scripts/probability_of_rank_record.json` now, so they move when
+the board moves, and the assertions that decide anything are the NEGATIVE ones:
+the superseded interval must now be REJECTED.
 
 THE DEFECT THESE TESTS PIN. The guard for that rule read ONE string --
 `our_entry` on the credentials wall. Four external surfaces were brought into
@@ -66,6 +77,7 @@ from __future__ import annotations
 
 import ast
 import importlib.util
+import json
 import re
 import sys
 import tempfile
@@ -95,10 +107,35 @@ not an official placement</div>
  · RANK 1 OF 5 SCORED LOCALLY · NO OFFICIAL RANK</span></td></tr>
 """
 
-COMPLIANT = """On the published board our 0.0566 is rank 1 of 5, scored locally at deb91557.
+# The figures the fixtures below must carry, read from the SAME committed
+# record the guard reads -- not typed here, and not asked of the guard. If the
+# board moves and the record is regenerated, these move with it; if the record
+# is regenerated and the guard does not follow, the tests below go red, which
+# is the direction that matters.
+_RECORD = json.loads(
+    (REPO / "sdk" / "scripts" / "probability_of_rank_record.json"
+     ).read_text(encoding="utf-8"))
+_P1 = round(100 * _RECORD["p_rank1"])
+_LO = round(100 * _RECORD["double95"][0])
+_HI = round(100 * _RECORD["double95"][1])
+
+COMPLIANT = f"""On the published board our 0.0566 is rank 1 of 7, scored locally at deb91557.
+P(rank 1) = {_P1}%, and eight cases cannot pin that tighter than {_LO}-{_HI}% at 95%.
+The leads over Yang and over Reissmann are not statistically decided.
+"""
+
+# The SAME sentence with the figures of the superseded four-entry board. This
+# is the fixture that used to be called COMPLIANT, kept verbatim: until
+# 2026-08-12 the suite asserted that this text was clean, which is how a guard
+# demanding a dead interval stayed green through a board move.
+SUPERSEDED = """On the published board our 0.0566 is rank 1 of 5, scored locally at deb91557.
 P(rank 1) = 68%, and eight cases cannot pin that tighter than 2-100% at 95%.
 The leads over Reissmann and over Wu and Zhang are not statistically decided.
 """
+
+# Everything inside <s>...</s> on a published page: text STRUCK and KEPT under
+# L-76. A guard may never be satisfied by a tombstone.
+_STRUCK = re.compile(r"<s>.*?</s>", re.S)
 
 # The same compliant text with ONE difference: the token reflowed across a line
 # break. A reader sees no change. A line-bounded sweep sees the token vanish.
@@ -119,8 +156,8 @@ class RankClaimDetectionTests(unittest.TestCase):
         self.assertTrue(lines, "the page's rank claims were not detected")
         missing = sa._rank_companions_missing(CLOSURE_HTML_BEFORE)
         self.assertIn("P(rank 1)", missing)
-        self.assertTrue(any("2-100%" in m for m in missing),
-                        f"the interval was not required: {missing}")
+        self.assertTrue(any(f"{_LO}-{_HI}% at 95%" in m for m in missing),
+                        f"the CURRENT interval was not required: {missing}")
 
     def test_compliant_surface_is_clean(self):
         self.assertTrue(sa._rank_claim_lines(COMPLIANT))
@@ -153,12 +190,272 @@ class RankClaimDetectionTests(unittest.TestCase):
                 "closure challenge benchmark board"):
             self.assertEqual([], sa._rank_claim_lines(text), text)
 
+    def test_the_superseded_figures_are_no_longer_compliant(self):
+        """The fixture this suite used to call COMPLIANT must now fault.
+
+        `SUPERSEDED` is the four-entry board's sentence, unchanged. It carries
+        P(rank 1) and the not-decided token, so the ONLY thing that can fault
+        it is the interval -- and until 2026-08-12 nothing did, because the
+        guard was still asking for exactly the interval this text carries.
+        """
+        self.assertTrue(sa._rank_claim_lines(SUPERSEDED))
+        missing = sa._rank_companions_missing(SUPERSEDED)
+        self.assertEqual(1, len(missing), missing)
+        self.assertIn("95%", missing[0])
+        self.assertNotIn("2-100%", missing[0])
+
     def test_the_live_page_carries_what_the_rule_requires(self):
         """closure.html in the tree, not a fixture. This is the regression."""
         page = (REPO / "demo-output" / "website" / "closure.html"
                 ).read_text(encoding="utf-8")
         self.assertTrue(sa._rank_claim_lines(page))
         self.assertEqual([], sa._rank_companions_missing(page))
+
+    def test_the_live_page_complies_without_its_struck_text(self):
+        """The live sentence must be the thing that satisfies the rule.
+
+        THE DEFECT THIS PINS, and it is the reason this rung exists. Until
+        2026-08-12 the test above passed for an accidental reason.
+        At 41e813df `closure.html` stated its interval as `0-97% at 95%`,
+        which the guard could not recognise at all -- the guard wanted
+        `2-100%`. What satisfied it was two lines of text the page had already
+        STRUCK and kept under L-76:
+
+            <s>P(rank 1) = 68%, 2-100% at 95%</s> - struck 2026-08-11 ...
+
+        The tombstone of the superseded figure was the only thing on the page
+        matching the guard, so the page was certified compliant on the strength
+        of a claim it had publicly withdrawn. Delete every <s>...</s> and the
+        page must STILL carry what the rule asks; if it does not, the guard is
+        reading the dead text again.
+        """
+        page = (REPO / "demo-output" / "website" / "closure.html"
+                ).read_text(encoding="utf-8")
+        live = _STRUCK.sub("", page)
+        self.assertNotEqual(page, live, "the page carries no struck text at "
+                                        "all; this control is not exercising "
+                                        "anything")
+        self.assertTrue(sa._rank_claim_lines(live))
+        self.assertEqual([], sa._rank_companions_missing(live),
+                         "the page satisfies V8 only through struck text")
+
+
+class TheClosureFiguresAreDerivedNotTypedTests(unittest.TestCase):
+    """The rung of 2026-08-12.
+
+    Two facts used to be literals inside `scripts/self_audit.py`: the
+    best-on-board count ("round 5 records four of eight") and the interval on
+    P(rank 1) ("2-100% at 95%"). On 2026-08-11 the public board went from four
+    entries to six. The count became 2 of 8, the interval became 0-97%, and the
+    guard reported nothing -- it cannot, because a guard holding a copy of the
+    fact it guards has no way to learn the fact moved. Worse than silent: the
+    guard went on FAILING surfaces that did not say "four of eight" and
+    CERTIFYING a credentials wall that did.
+
+    So the tests here are not "does the guard know the number". They are "does
+    the number follow its source". The derivation is driven with synthetic
+    boards, because a derivation that can only ever run against the one true
+    board on disk is indistinguishable from a constant.
+    """
+
+    CASES = ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8"]
+
+    def _entry(self, ours, floor=None):
+        per = {c: v for c, v in zip(self.CASES, ours)}
+        return {"official_test_harness_result": {
+            "round5_per_case_full": per,
+            "round5_per_case": {c: round(v, 4) for c, v in per.items()},
+            "rans_identity_floor_per_case": floor or {}}}
+
+    def _board(self, rows):
+        return {"fetched": "T", "entrants": rows}
+
+    def _record(self, entries, overall):
+        return {"frame": {"entries": entries, "fetched": "T",
+                          "our_overall": overall},
+                "p_rank1": 0.5, "double95": [0.0025, 0.969]}
+
+    def test_the_count_follows_the_board_and_is_not_a_constant(self):
+        """The same entry against two boards must give two counts."""
+        ours = [0.05] * 8
+        entry = self._entry(ours)
+        beaten = self._board({"rival": [0.09] * 8})
+        winning = self._board({"rival": [0.01] * 8})
+        low = sa._derive_closure_facts(
+            beaten, self.CASES, entry, self._record(1, 0.05))
+        high = sa._derive_closure_facts(
+            winning, self.CASES, entry, self._record(1, 0.05))
+        self.assertEqual(8, len(low["best"]), low)
+        self.assertEqual(0, len(high["best"]), high)
+
+    def test_one_added_entrant_moves_the_count(self):
+        """The 2026-08-11 event in miniature: the board gains a leader and the
+        count falls without our own numbers changing by a digit."""
+        ours = [0.05] * 8
+        entry = self._entry(ours)
+        four = self._board({"rival": [0.09] * 8})
+        six = self._board({"rival": [0.09] * 8,
+                           "newcomer": [0.01, 0.01, 0.09, 0.09,
+                                        0.01, 0.01, 0.01, 0.01]})
+        before = sa._derive_closure_facts(
+            four, self.CASES, entry, self._record(1, 0.05))
+        after = sa._derive_closure_facts(
+            six, self.CASES, entry, self._record(2, 0.05))
+        self.assertEqual(8, len(before["best"]))
+        self.assertEqual(2, len(after["best"]), after["best"])
+
+    def test_a_declined_row_is_not_credited_to_our_model(self):
+        """A case whose score EQUALS its RANS-identity floor is the organisers'
+        own field passed through by the gate. It counts as best-on-board and it
+        does not count as ours, and `earned` is the difference."""
+        ours = [0.05] * 8
+        floor = {c: round(0.05, 4) for c in self.CASES[:2]}
+        facts = sa._derive_closure_facts(
+            self._board({"rival": [0.09] * 8}), self.CASES,
+            self._entry(ours, floor), self._record(1, 0.05))
+        self.assertEqual(8, len(facts["best"]))
+        self.assertEqual(2, len(facts["declined"]))
+        self.assertEqual(6, len(facts["earned"]))
+
+    def test_when_every_best_row_was_declined_our_model_earns_none(self):
+        """Which is the lab's actual position on the six-entry board."""
+        ours = [0.01, 0.01] + [0.09] * 6
+        floor = {c: round(0.01, 4) for c in self.CASES[:2]}
+        facts = sa._derive_closure_facts(
+            self._board({"rival": [0.05] * 8}), self.CASES,
+            self._entry(ours, floor), self._record(1, sum(ours) / 8))
+        self.assertEqual(2, len(facts["best"]))
+        self.assertEqual([], facts["earned"], facts)
+
+    def test_the_live_derivation_reproduces_the_board_on_disk(self):
+        """Not an identity: the expected values come from the benchmark's live
+        board and our scoring record, and the assertion is that our model's own
+        best-on-board count is ZERO -- the disclosure the whole rule is for."""
+        facts = sa._closure_facts()
+        self.assertEqual([], facts["stale"], facts["stale"])
+        self.assertEqual(6, facts["entries"])
+        self.assertEqual("Yang", facts["leader"])
+        self.assertEqual(["alpha_05_4071_4048", "alpha_05_4071_2024"],
+                         facts["best"])
+        self.assertEqual(facts["best"], facts["declined"],
+                         "both best-on-board rows are the organisers' own "
+                         "unmodified RANS field")
+        self.assertEqual([], facts["earned"])
+
+    # -- the provenance check on the one number that cannot be recomputed ----
+
+    def test_a_record_from_a_different_board_is_reported_stale(self):
+        facts = sa._derive_closure_facts(
+            self._board({"a": [0.09] * 8, "b": [0.09] * 8}), self.CASES,
+            self._entry([0.05] * 8), self._record(4, 0.05))
+        self.assertTrue(facts["stale"], facts)
+        self.assertTrue(any("4-entry board" in s for s in facts["stale"]),
+                        facts["stale"])
+        self.assertIsNone(facts["interval"],
+                          "a stale record must not hand out an interval")
+
+    def test_a_record_from_a_different_entry_is_reported_stale(self):
+        facts = sa._derive_closure_facts(
+            self._board({"a": [0.09] * 8}), self.CASES,
+            self._entry([0.05] * 8), self._record(1, 0.061))
+        self.assertTrue(any("now scores" in s for s in facts["stale"]),
+                        facts["stale"])
+
+    def test_a_missing_record_is_reported_not_swallowed(self):
+        facts = sa._derive_closure_facts(
+            self._board({"a": [0.09] * 8}), self.CASES,
+            self._entry([0.05] * 8), None)
+        self.assertTrue(facts["stale"], facts)
+        self.assertIsNone(facts["interval"])
+
+    def test_the_committed_record_matches_the_board_on_disk(self):
+        """The control that will redden the DAY the board moves again -- which
+        is the job the hard-coded interval could not do."""
+        self.assertEqual([], sa._closure_facts()["stale"])
+
+    # -- the interval the guard demands --------------------------------------
+
+    def test_the_superseded_interval_is_rejected(self):
+        self.assertFalse(sa._states_the_interval("pinned no tighter than "
+                                                 "2-100% at 95%"))
+
+    def test_the_current_interval_is_accepted_however_it_is_spelled(self):
+        for text in (f"{_LO}-{_HI}% at 95%", f"{_LO}–{_HI}% at 95%",
+                     f"{_LO} - {_HI} %"):
+            self.assertTrue(sa._states_the_interval(text), text)
+
+    def test_a_neighbouring_interval_is_rejected(self):
+        """So "accepts anything with a dash and a percent" cannot pass."""
+        self.assertFalse(sa._states_the_interval(f"{_LO}-{_HI + 3}% at 95%"))
+
+    def test_the_guard_names_the_current_interval_when_it_faults(self):
+        self.assertEqual(f"{_LO}-{_HI}% at 95%", sa._rank_interval_phrase())
+
+
+class TheBestOnBoardDisclosureTests(unittest.TestCase):
+    """`check_closure_entry_of_record` had NO test of any kind before
+    2026-08-12, which is how it came to assert a superseded count as ground
+    truth and hold it for a day after the board moved."""
+
+    FACTS = {"stale": [], "entries": 6, "cases": ["c%d" % i for i in range(8)],
+             "best": ["a", "b"], "declined": ["a", "b"], "earned": [],
+             "interval": (0, 97), "p_rank1": 50, "our_overall": 0.0566,
+             "leader": "Yang"}
+
+    def setUp(self):
+        self._real = sa._closure_facts
+        sa._closure_facts = lambda: self.FACTS
+        self.addCleanup(lambda: setattr(sa, "_closure_facts", self._real))
+
+    def test_the_derived_count_with_both_disclosures_is_clean(self):
+        text = ("Best result on the public board on two of the eight test "
+                "cases - but both are the organisers' own unmodified RANS "
+                "field, so the count belonging to our own model is zero of "
+                "eight.")
+        self.assertEqual([], sa._best_on_board_faults(text))
+
+    def test_a_stale_count_is_faulted_and_the_new_one_is_named(self):
+        """The live credentials wall's actual defect on 2026-08-12."""
+        text = ("Best result on the public board on four of the eight test "
+                "cases - but two of those four are the organisers' own "
+                "unmodified RANS field, so the count belonging to our own "
+                "model is zero of eight.")
+        faults = sa._best_on_board_faults(text)
+        self.assertEqual(1, len(faults), faults)
+        self.assertIn("is 2 of eight", faults[0])
+
+    def test_the_count_may_not_travel_without_the_baseline_disclosure(self):
+        """Asserted on THIS fault, not on any fault mentioning the gate.
+
+        As first written this test looked for `decline gate` anywhere in the
+        fault list, and a mutation that deleted the baseline-disclosure rule
+        outright left it green -- the zero-earned fault names the gate too, so
+        the test was reading its neighbour's output and calling it a pass.
+        That is the same species of accident as the struck-text pass above,
+        found the same way, and it is what mutation-proving is for.
+        """
+        text = "Best result on the public board on two of the eight cases."
+        faults = sa._best_on_board_faults(text)
+        self.assertTrue(
+            any(f.startswith("our_entry states a best-on-board count without "
+                             "the disclosure") for f in faults), faults)
+
+    def test_a_zero_earned_count_must_say_zero(self):
+        text = ("Best result on the public board on two of the eight cases, "
+                "and the credit there belongs to the baseline.")
+        faults = sa._best_on_board_faults(text)
+        self.assertTrue(any("zero of eight" in f for f in faults), faults)
+
+    def test_a_text_making_no_best_on_board_claim_is_not_faulted(self):
+        """So the fix cannot be 'fault everything'."""
+        self.assertEqual([], sa._best_on_board_faults(
+            "Our entry scores 0.0566 overall and won four of eight cases "
+            "against Yang."))
+
+    def test_nothing_is_judged_while_the_instrument_is_stale(self):
+        sa._closure_facts = lambda: dict(self.FACTS, stale=["board moved"])
+        self.assertEqual([], sa._best_on_board_faults(
+            "Best on the board on four of the eight cases."))
 
 
 class TheSurfaceSetIsDerivedNotListedTests(unittest.TestCase):

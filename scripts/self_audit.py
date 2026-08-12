@@ -267,6 +267,268 @@ def check_ledger_stalls() -> Result:
                   f"({share:.1f}% of published core-hours)", detail)
 
 
+# --------------------------------------------------------------------------
+# The closure figures, DERIVED rather than typed
+# --------------------------------------------------------------------------
+#
+# WHAT WENT WRONG, AND WHY IT WENT WRONG SILENTLY. Two facts about the closure
+# entry used to sit in this file as literals: the best-on-board count ("four of
+# eight") and the interval on P(rank 1) ("2-100% at 95%"). Both were true when
+# they were typed. Both were false by 2026-08-11, when the public board went
+# from four entries to six, and NEITHER went red -- because a guard that holds
+# a copy of the fact it guards cannot report that the fact moved. It can only
+# report that a SURFACE moved away from its copy, which is the same sentence
+# with the blame reversed. So on 2026-08-11 this file was simultaneously
+# demanding that surfaces say "four of eight" and certifying a credentials wall
+# that said it, when the count against the live board was two -- and the
+# rank-claim guard was insisting on an interval that no current surface states.
+#
+# L-79: a hard-coded fact inside an instrument goes stale silently; a fact
+# recomputed from a committed source cannot. So neither number is typed here
+# any more. Every closure quantity this file needs is computed on each run out
+# of files that are committed and are somebody else's output:
+#
+#   the live board   `sdk/scripts/probability_of_rank.py` LIVE_BOARD, read by
+#                    AST literal rather than by import. An instrument should
+#                    not need numpy installed to run, and should not execute
+#                    the file it is auditing.
+#   our per-case     `closure_challenge_round5_qcr.json`, the scoring call's
+#                    own machine record.
+#   which cases the  the same record, structurally: a declined case is one
+#   gate declined    whose round-5 score EQUALS its RANS-identity floor,
+#                    because the gate passed the organisers' own unmodified
+#                    field through untouched. No prose is consulted for it.
+#   the interval     `probability_of_rank_record.json`, the `--json` output of
+#                    that same script.
+#
+# The interval is the one number that cannot be recomputed here: a 2,000 x
+# 4,000 double bootstrap is minutes, and this file is meant to be cheap enough
+# to run weekly from cron. So it is READ from a stored result -- and because a
+# stored result is exactly the failure mode described above, it is read with a
+# PROVENANCE CHECK. The board and the entry that record was computed against
+# are compared against the board and the entry on disk now, and a mismatch is
+# reported LOUDLY, as an instrument that has gone stale, instead of being
+# enforced quietly. That is the difference between this arrangement and the
+# literal it replaces: the literal could not know it was old.
+_HERE = Path(__file__).resolve().parents[1]
+_PROB_SCRIPT = _HERE / "sdk" / "scripts" / "probability_of_rank.py"
+_PROB_RECORD = _HERE / "sdk" / "scripts" / "probability_of_rank_record.json"
+_ENTRY_OF_RECORD = (_HERE / "demo-output" / "website"
+                    / "closure_challenge_round5_qcr.json")
+
+
+def _module_literal(path: Path, name: str):
+    """The value of a module-level literal assignment, without importing.
+
+    `ast.literal_eval` and not `exec`: reading a number out of a script is not
+    a reason to run the script, and this keeps the audit independent of
+    whatever the audited file imports.
+    """
+    for node in ast.parse(path.read_text(encoding="utf-8")).body:
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id == name:
+                    return ast.literal_eval(node.value)
+    raise KeyError(f"{name} is not a module-level literal in {path.name}")
+
+
+def _derive_closure_facts(board: dict, cases: list[str], entry: dict,
+                          record: dict | None) -> dict:
+    """The closure facts implied by these inputs. Pure, so it can be driven.
+
+    Kept free of file access on purpose. The count this returns is the thing
+    that used to be a literal, and a derivation that can only ever be run
+    against the one true board on disk is not testable against anything: the
+    suite drives this with synthetic boards to show the count follows the
+    board and is not a constant wearing a function's clothes.
+
+    `best`      cases where our number beats every entrant on the board.
+    `declined`  cases the decline gate passed through as the organisers' own
+                unmodified RANS field, identified by our round-5 score being
+                equal to the RANS-identity floor for that case.
+    `earned`    `best` minus `declined` -- the count belonging to our MODEL,
+                which is the number the disclosure rule is actually about.
+    """
+    facts: dict = {"stale": [], "entries": len(board.get("entrants") or {}),
+                   "cases": list(cases), "best": [], "declined": [],
+                   "earned": [], "interval": None, "p_rank1": None,
+                   "our_overall": None, "leader": None}
+    result = entry.get("official_test_harness_result") or {}
+    full = result.get("round5_per_case_full") or {}
+    rounded = result.get("round5_per_case") or {}
+    floor = result.get("rans_identity_floor_per_case") or {}
+    entrants = board.get("entrants") or {}
+    if not full or not entrants:
+        facts["stale"].append(
+            "the entry of record carries no round-5 per-case block, or the "
+            "board carries no entrants; no closure fact could be derived")
+        return facts
+
+    missing = [c for c in cases if c not in full]
+    if missing:
+        facts["stale"].append(
+            f"the entry of record is missing {len(missing)} of the "
+            f"{len(cases)} scored cases: {', '.join(missing)}")
+        return facts
+
+    facts["our_overall"] = sum(full[c] for c in cases) / len(cases)
+    facts["leader"] = min(
+        entrants, key=lambda n: sum(entrants[n]) / len(entrants[n]))
+    for index, case in enumerate(cases):
+        ours = full[case]
+        rivals = [values[index] for values in entrants.values()]
+        if rivals and ours < min(rivals):
+            facts["best"].append(case)
+        # The floor is recorded to four places, so the identity is judged
+        # there. MARGIN, stated rather than discovered later: two genuinely
+        # different fields that agree to 1e-4 would read here as a decline.
+        if case in floor and case in rounded and floor[case] == rounded[case]:
+            facts["declined"].append(case)
+    facts["earned"] = [c for c in facts["best"] if c not in facts["declined"]]
+
+    if record is None or "__error__" in record:
+        facts["stale"].append(
+            f"{_PROB_RECORD.name} is missing or unreadable, so the interval on "
+            f"P(rank 1) cannot be stated; regenerate it with "
+            f"`python3 sdk/scripts/probability_of_rank.py --json {_PROB_RECORD}`")
+        return facts
+
+    frame = record.get("frame") or {}
+    if frame.get("entries") != facts["entries"]:
+        facts["stale"].append(
+            f"{_PROB_RECORD.name} was computed against a "
+            f"{frame.get('entries')}-entry board; the board in "
+            f"{_PROB_SCRIPT.name} now carries {facts['entries']} entries")
+    if frame.get("fetched") != board.get("fetched"):
+        facts["stale"].append(
+            f"{_PROB_RECORD.name} was computed against the board fetched "
+            f"{frame.get('fetched')}; {_PROB_SCRIPT.name} now carries the "
+            f"board fetched {board.get('fetched')}")
+    if not isinstance(frame.get("our_overall"), (int, float)) \
+            or abs(frame["our_overall"] - facts["our_overall"]) > 1e-12:
+        facts["stale"].append(
+            f"{_PROB_RECORD.name} was computed against an entry scoring "
+            f"{frame.get('our_overall')}; the entry of record now scores "
+            f"{facts['our_overall']}")
+    if facts["stale"]:
+        facts["stale"].append(
+            "the interval below is therefore NOT current and no surface "
+            "should be judged against it until the record is regenerated")
+        return facts
+
+    band = record.get("double95")
+    if isinstance(band, list) and len(band) == 2:
+        facts["interval"] = (round(100 * band[0]), round(100 * band[1]))
+    if isinstance(record.get("p_rank1"), (int, float)):
+        facts["p_rank1"] = round(100 * record["p_rank1"])
+    return facts
+
+
+@functools.lru_cache(maxsize=1)
+def _closure_facts() -> dict:
+    """`_derive_closure_facts` against the committed files. Never raises."""
+    try:
+        board = _module_literal(_PROB_SCRIPT, "LIVE_BOARD")
+        cases = _module_literal(_PROB_SCRIPT, "CASES")
+    except (OSError, SyntaxError, ValueError, KeyError) as exc:
+        return {"stale": [f"the live board could not be read from "
+                          f"{_PROB_SCRIPT.name}: {exc}"],
+                "best": [], "declined": [], "earned": [], "cases": [],
+                "entries": 0, "interval": None, "p_rank1": None,
+                "our_overall": None, "leader": None}
+    entry = _load_json(_ENTRY_OF_RECORD)
+    if "__error__" in entry:
+        entry = {}
+    return _derive_closure_facts(board, cases, entry,
+                                 _load_json(_PROB_RECORD))
+
+
+def _rank_interval_phrase() -> str:
+    """`0-97% at 95%`, or a phrase that says the instrument cannot say."""
+    band = _closure_facts()["interval"]
+    if band is None:
+        return "its 95% interval (UNAVAILABLE: see the stale-record warning)"
+    return f"{band[0]}-{band[1]}% at 95%"
+
+
+# A pair of percentages joined by any dash. Parsed rather than matched against
+# one spelling, so a surface writing `0.2-96.9%` and a surface writing `0-97%`
+# are both read as the same interval, and neither has to guess how this file
+# rounds.
+_INTERVAL_PAIR = re.compile(
+    r"(\d+(?:\.\d+)?)\s*[-‐-―]\s*(\d+(?:\.\d+)?)\s*%")
+
+
+def _states_the_interval(text: str) -> bool:
+    """Does this text carry the CURRENT interval on P(rank 1)?
+
+    Returns True when the instrument cannot say what the current interval is.
+    That is deliberate and it is the safe direction: the alternative is to
+    fault every compliant surface in the tree because a record went stale,
+    which is the fastest way to get a guard switched off. The staleness is not
+    swallowed -- `check_rank_claim_surfaces` reports it loudly in its own
+    verdict, where it is a statement about the instrument and not about the
+    surfaces.
+    """
+    band = _closure_facts()["interval"]
+    if band is None:
+        return True
+    low, high = band
+    return any(round(float(a)) == low and round(float(b)) == high
+               for a, b in _INTERVAL_PAIR.findall(text))
+
+
+_COUNT_WORDS = {"zero": 0, "no": 0, "one": 1, "two": 2, "three": 3, "four": 4,
+                "five": 5, "six": 6, "seven": 7, "eight": 8}
+_BEST_COUNT = re.compile(
+    r"\bbest\b[^.\n]{0,80}?\b(zero|no|one|two|three|four|five|six|seven|eight|\d+)"
+    r"\s+of\s+(?:the\s+)?(?:eight|8)\b", re.I)
+# The disclosure the count may not travel without, in any of the spellings the
+# lab's own records use for it.
+_BASELINE_CREDIT = re.compile(
+    r"belongs to the baseline|belonging to our own model|"
+    r"organisers'? own unmodified RANS|the credit there belongs", re.I)
+
+
+def _best_on_board_faults(text: str) -> list[str]:
+    """Where this text's best-on-board claim disagrees with the board.
+
+    The count is not held here. It is derived, so this returns nothing at all
+    on the day the board moves and the surfaces move with it, and returns the
+    NEW number in its complaint on the day only the board moves.
+    """
+    facts = _closure_facts()
+    if facts["stale"] or not facts["cases"]:
+        return []
+    best, earned = len(facts["best"]), len(facts["earned"])
+    faults = []
+    stated = [m for m in _BEST_COUNT.finditer(text)]
+    for match in stated:
+        raw = match.group(1).lower()
+        value = _COUNT_WORDS.get(raw, int(raw) if raw.isdigit() else None)
+        if value is not None and value != best:
+            faults.append(
+                f"our_entry states best-on-board {raw} of eight; against the "
+                f"{facts['entries']}-entry board in {_PROB_SCRIPT.name} the "
+                f"count is {best} of eight ({', '.join(facts['best']) or 'none'})")
+    if stated and not _BASELINE_CREDIT.search(text):
+        faults.append(
+            f"our_entry states a best-on-board count without the disclosure "
+            f"that {len(facts['declined'])} of those rows are the organisers' "
+            f"own unmodified RANS field passed through by the decline gate "
+            f"(SUBMISSION_DRAFT sec 4.7, the highest-priority disclosure)")
+    if stated and earned == 0 and not re.search(
+            r"\b(zero|none|no)\b[^.\n]{0,60}\bof\s+(?:the\s+)?(?:eight|8)\b",
+            text, re.I):
+        faults.append(
+            f"our_entry states a best-on-board count of {best} without saying "
+            f"that the count belonging to OUR MODEL is zero of eight: every "
+            f"one of the {best} row(s) we lead on "
+            f"({', '.join(facts['best'])}) is a row the decline gate passed "
+            f"through as the organisers' own field")
+    return faults
+
+
 def check_closure_entry_of_record() -> Result:
     """The credentials wall must quote the closure entry of record, not a
     superseded round."""
@@ -276,9 +538,15 @@ def check_closure_entry_of_record() -> Result:
     # check was pinned to the round-3 file and so failed the wall for being
     # CORRECT: it reported "wall says 0.0566, the entry of record scores 0.0676".
     # Re-pinned by Ladder V Pass 2 (V6/V10, 2026-08-10). When a later round
-    # lands, repoint this file and the counts below in the same commit --
-    # a guard that cries wolf is worse than no guard, because the cheapest way
-    # to silence it is to "fix" the surface that was right.
+    # lands, repoint this file -- a guard that cries wolf is worse than no
+    # guard, because the cheapest way to silence it is to "fix" the surface
+    # that was right.
+    #
+    # "and the counts below in the same commit" used to stand here, and that
+    # instruction was the defect. The counts are DERIVED now (2026-08-12);
+    # nothing below has to be remembered when the board moves, because nothing
+    # below is written down. The one thing still hard-coded is the NAME of the
+    # file opened on the next line, and BASIS says so.
     entry = _load_json(WEB / "closure_challenge_round5_qcr.json")
     if "__error__" in entry:
         return Result("closure entry of record", WARN,
@@ -326,16 +594,11 @@ def check_closure_entry_of_record() -> Result:
             "official calls (floor, rounds 1-5) -- the unit being counted is "
             "DISTINCT PREDICTION SETS SCORED, and the benchmark imposes no "
             "scoring-call limit of any kind")
-    if re.search(r"\b(three|five) of the eight\b", published_text, re.I):
-        problems.append(
-            "our_entry quotes a stale best-on-board count; round 5 records "
-            "four of eight (the AR_14 tie was lost, priced in writing)")
-    if re.search(r"best.{0,60}\bfour of the eight\b", published_text, re.I) \
-            and "belongs to the baseline" not in published_text:
-        problems.append(
-            "our_entry states best-on-board 4 of 8 without the disclosure that "
-            "two of those four rows are the organisers' own unmodified RANS "
-            "field (SUBMISSION_DRAFT sec 4.7, the highest-priority disclosure)")
+    # The best-on-board count used to be asserted here as a literal -- "round 5
+    # records four of eight" -- which made this guard the thing that had to be
+    # remembered when the board moved, and it was not. It is derived now; see
+    # `_best_on_board_faults` and the block above it.
+    problems.extend(_best_on_board_faults(published_text))
     # A rank claim on the wall must carry its companion: the probability that
     # the placement survives case resampling, AND the interval, AND the pairs
     # that are not decided. Ladder V rung V8 as amended 2026-08-10 -- "a bare
@@ -348,15 +611,16 @@ def check_closure_entry_of_record() -> Result:
         missing = []
         if "P(rank 1)" not in published_text:
             missing.append("P(rank 1)")
-        if not re.search(r"2\s*[-–]\s*100\s*%", published_text):
-            missing.append("its 2-100% at 95% interval")
+        if not _states_the_interval(published_text):
+            missing.append(f"its {_rank_interval_phrase()} interval")
         if "not statistically decided" not in published_text:
             missing.append("the sweep token 'not statistically decided'")
         if missing:
             problems.append(
                 "our_entry makes a rank claim without " + ", ".join(missing)
-                + " (Ladder V rung V8 as amended 2026-08-10; source "
-                "campaign/PROBABILITY_OF_RANK_2026-08-10.md)")
+                + " (Ladder V rung V8 as amended 2026-08-10; the figure and "
+                "its interval come from sdk/scripts/probability_of_rank.py, "
+                "not from this file)")
     if problems:
         return Result("closure entry of record", FAIL,
                       f"{len(problems)} stale claim(s) on the credentials wall",
@@ -422,7 +686,10 @@ _RANK_HOMONYM = re.compile(
 _RANK_WINDOW = 300
 _RANK_HOMONYM_WINDOW = 120
 # Companions, per the V8 amendment: the figure, its interval, and the pairs.
-_RANK_INTERVAL = re.compile("2\\s*[-\u2010-\u2015]\\s*100\\s*%")
+# The interval is NOT a constant here. It was one -- `2-100%` -- and it went
+# stale on 2026-08-11 without going red, which is the whole finding; it is now
+# derived by `_states_the_interval` from the committed probability record. See
+# the block above `check_closure_entry_of_record` for why.
 _RANK_TOKEN = "not statistically decided"
 _RANK_FIGURE = "P(rank 1)"
 # Anything larger is a data file, not a surface that makes a claim in prose.
@@ -459,8 +726,8 @@ def _rank_companions_missing(text: str) -> list[str]:
     missing = []
     if _RANK_FIGURE not in text:
         missing.append("P(rank 1)")
-    if not _RANK_INTERVAL.search(text):
-        missing.append("its 2-100% at 95% interval")
+    if not _states_the_interval(text):
+        missing.append(f"its {_rank_interval_phrase()} interval")
     lines = text.splitlines()
     on_a_line = any(_RANK_TOKEN in line for line in lines)
     if not on_a_line:
@@ -525,11 +792,21 @@ def check_rank_claim_surfaces() -> Result:
     the pairs -- and the surface set is searched for, never listed.
 
     THE RULE. Ladder V rung V8, as amended 2026-08-10: any rank claim,
-    internal or external, must carry P(rank 1), its interval (an eight-case
-    sample cannot pin it tighter than 2-100% at 95%) and the comparisons that
-    are not statistically decided. No surface may state the figure without the
-    interval -- a bare 68% is a worse claim than none, because 68% sounds
-    settled and eight cases do not support settled.
+    internal or external, must carry P(rank 1), its interval on the eight
+    scored cases, and the comparisons that are not statistically decided. No
+    surface may state the figure without the interval -- a bare probability is
+    a worse claim than none, because a bare probability sounds settled and
+    eight cases do not support settled.
+
+    THE INTERVAL IS NOT WRITTEN HERE. It was, and on 2026-08-11 the board went
+    from four entries to six, the interval moved, and this guard went on
+    demanding the old one without going red -- while `closure.html` satisfied
+    it only through the STRUCK text of the superseded figure, kept on the page
+    under L-76, which still contained the literal the guard wanted. A guard
+    that a tombstone can satisfy is not measuring the live claim. The interval
+    is derived now, and if the record it comes from no longer matches the board
+    on disk this check says so in its own verdict instead of judging surfaces
+    against a number it cannot vouch for.
 
     THE DEFECT. The guard for that rule read `our_entry` on the wall and
     nothing else. `closure.html` made three rank claims with no probability
@@ -617,6 +894,24 @@ def check_rank_claim_surfaces() -> Result:
              f"UTF-8 text (every compiled PDF here), untracked files, "
              f"render-time text, phrasing outside _RANK_CLAIM, and the "
              f"distance from a claim to its companion (judged per file)")
+
+    # The instrument's own staleness, reported before any verdict about a
+    # surface. This is the line that the literal it replaces could never have
+    # printed: a hard-coded interval cannot notice that the board moved under
+    # it, and the only symptom is surfaces being failed for being right.
+    stale = _closure_facts()["stale"]
+    if stale:
+        return Result(
+            "rank claims carry their probability", WARN,
+            f"THIS DETECTOR IS PARTLY OFF: the interval on P(rank 1) could not "
+            f"be confirmed current, so {claiming} rank-claiming surface(s) were "
+            f"NOT judged against it",
+            [f"STALE INSTRUMENT: {s}" for s in stale]
+            + shipped_faults + internal_faults + [frame])
+    interval = _rank_interval_phrase()
+    frame += (f". The interval required is {interval}, derived from "
+              f"{_PROB_RECORD.name} and checked against the board in "
+              f"{_PROB_SCRIPT.name}; it is not written in this file")
     if shipped_faults:
         return Result("rank claims carry their probability", FAIL,
                       f"{len(shipped_faults)} surface(s) that TRAVEL claim "
@@ -4490,8 +4785,11 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
     "check_rank_claim_surfaces": (
         PROPERTY,
         "a surface that asserts a rank-1 placement for this lab's entry "
-        "without P(rank 1), without its 2-100% at 95% interval, or without "
-        "the literal 'not statistically decided' UNBROKEN on one line -- "
+        "without P(rank 1), without the CURRENT 95% interval on it -- derived "
+        "from sdk/scripts/probability_of_rank_record.json and checked against "
+        "the board that record was computed from, never written here -- or "
+        "without the literal 'not statistically decided' UNBROKEN on one line "
+        "-- "
         "across every tracked file and every member of every archive under "
         "dist/, found by search, so a surface nobody listed is still covered",
         "a rank claim phrased outside its patterns (\"we top the board\"); "
@@ -4881,8 +5179,9 @@ REMEDIES: dict[str, tuple[str, bool, str]] = {
         "repoint the wall at the entry file of record",
         False, "both numbers are on disk"),
     "check_rank_claim_surfaces": (
-        "add P(rank 1), its 2-100% at 95% interval and the not-decided pairs "
-        "to each named surface, keeping the literal 'not statistically "
+        "add P(rank 1), the current 95% interval on it as reported by "
+        "`python3 sdk/scripts/probability_of_rank.py`, and the not-decided "
+        "pairs to each named surface, keeping the literal 'not statistically "
         "decided' unbroken on one line; a fault on an archive member clears "
         "by rebuilding the bundle after the tree copy is fixed",
         False, "text on surfaces already on disk"),
