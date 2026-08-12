@@ -104,7 +104,62 @@ the problem H2 was opened to solve, without the history surgery.
 - c. Root README current, three sentences, no stale numbers (L-79) — pending
 - **Verdict:** RED (not started).
 
-## H4 — AGENT ALLOCATION RESPECTED — **NOT STARTED**
+## H4 — AGENT ALLOCATION RESPECTED — **AUDITED, `10cf7f21` — FAIL on H4a, with rulings**
+
+[SONNET] audited by listing and execution, not memory. Full commands, outputs and
+positive controls in `docs/H4_ALLOCATION_AUDIT.md`.
+
+**H4a — FAIL, and the condition is live.** One `git worktree list` entry; multiple
+agents working in it concurrently. The 2026-08-11/08-12 collision was independently
+reconfirmed from `git log`/`reflog` rather than taken from this file's account.
+
+> **[ORCH] RULING on the severity, because two readings of the same fact differ
+> materially.** The grader observed two live `claude --resume` processes in the
+> main worktree and called it a shared-worktree violation. Adjudicated at
+> `5d3df8c6`: PIDs 1630 and 1834 are **siblings** (both PPID 1584, started 30 s
+> apart), not a session and its child, and **only one transcript is being
+> written** — `64b13819...jsonl` at 16:33, every other session file stale since
+> 15:22. So the violation is REAL in the form that matters (agents do share one
+> worktree, which is what the order forbids) but the alarming reading is NOT
+> supported: **no second chief session is dispatching in parallel.** That
+> distinction is worth stating because this lab has previously had two chief
+> sessions issue duplicate briefs, and the remedy for that is nothing like the
+> remedy for this. The actual cause here is structural — subagents inherit the
+> parent's working directory — so the fix is worktree isolation at dispatch, not
+> session hygiene.
+
+**H4b — PASS on documents, UNKNOWN on rosters.** All four family guideline
+documents exist. Whether every live agent has a family owner is UNKNOWN: no roster
+file exists and OS processes carry no family attribute. Reported UNKNOWN rather
+than converted into a PASS.
+
+**H4c — PASS, with a live discrepancy confirmed.** 142 `.done`, 0 zero-byte, 4
+`.done.INTERRUPTED`, 0 `.partial`, 0 orphan solvers — each zero backed by a stated
+positive control. **D52 independently reconfirmed by two methods** (`find` and
+`glob.glob`, run separately): the 146-vs-142 mismatch is live, not historical.
+
+**H4d — tmux down as expected; meter UNKNOWN.** The weekly-limit termination has
+**no corroborating on-disk artifact** beyond this file's own prose, and the grader
+correctly refused to certify it. That is the right verdict: [ORCH] asserted it
+from session memory, and session memory is not evidence.
+
+**H4e — MIXED, and it caught a real contradiction before it executed.**
+- The `Co-Authored-By: Claude Opus 5` trailer is **fixed harness boilerplate, not
+  a per-commit model record** — so model attribution is NOT verifiable from git,
+  and any future check that tries to read it would be an identity, not a control.
+  This retires the method, not just the instance.
+- **`SUPERVISION_CHARTER.md` §5 requires long-form technical writing to go to
+  Opus. The order assigns charter/LESSONS drafting (H6) to [FABLE].** These
+  cannot both be honoured.
+
+> **[ORCH] RULING on the charter conflict.** Katie is the principal and her order
+> of 2026-08-12 governs the execution of this order; [FABLE] keeps the scientific
+> writing. But a standing charter is not silently overridden — it is superseded in
+> place, dated, with the original struck and kept, which is this lab's own rule for
+> every other falsified claim. **The amendment resolving the conflict will be
+> drafted by [OPUS], per the charter's existing §5**, so that the disputed rule is
+> not used to settle the dispute about itself. Katie rules on the standing version.
+> H6 does not execute until that amendment lands.
 
 - **Executor:** [SONNET], by listing rather than memory.
 - e. Model-to-task conformance against the table above.
