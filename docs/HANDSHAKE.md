@@ -226,7 +226,52 @@ from session memory, and session memory is not evidence.
 
 ## Gate status: **NOT SIGNED**
 
-Green: H1, H5. Red: H2, H3, H4, H6.
+Green: H1, H5. Amber: H3 (a/c done, b deferred by design), H4 (audited; H4a FAIL
+recorded with rulings). Red: H6. H2 is **blocked on a Katie decision, not on work** —
+its target is unreachable and the alternative is already built.
+
+### Phase 1 — Ladder V: **GREEN at `1b982ae1`**, recorded here because the gate's
+### own premise was that P1.2 could not be skipped.
+
+Full suite **115 passed in 612.93s**, from 2 failed / 112 passed. Closed **without
+moving the frozen pin and without altering the guard by one character.**
+
+**Three claims in the chief's brief did not survive execution, and the agent
+overrode all three** — which is §2's *"the chief's own record is never the presumed
+-correct side of a conflict"* working as designed, not a mishap:
+1. **Rule B has no proximity window at all.** The chief's "9 within ±300 characters
+   vs 3 outside" implied near-misses and possible guard false-faults. `_place_unnamed`
+   is a bare regex with **no adjudication clause at any distance** — a probe with the
+   entrant's name one character away still faults. The ±300 split described the
+   corpus, not the guard, and there was no adjudication to make. Filed as **D54**:
+   the fault message claims more than the rule tests. Filed, not retuned — retuning a
+   detector so the author's own prose passes is how a guard gets tuned to a number.
+2. **The anonymous set was 4, not 3, and the missed one was the generator.**
+   `sdk/scripts/build_benchmarks.py` WRITES `benchmarks.json` and `wall/wall.json`.
+   Repairing those two copies without it buys exactly one build cycle — and the
+   generator's own comment records that same trade being made at round 5 and caught
+   by V7 on 2026-08-08. **The chief's measurement counted outputs and missed the
+   thing that regenerates them.**
+3. **Cause (b) never drove the FAIL.** The submission draft is WARN-severity and not
+   travelling; the failure was three travelling rule-B faults.
+
+**D48 was repaired in prose, through the guard's OWN adjudication clause** (naming
+Reissmann's placement on both the live board and the pin), and the addendum states
+outright that this **restores D48's latency rather than ending it** — the next
+live-board placement faults identically. That treadmill is recorded so it is not
+rediscovered. The structural fix is **filed as D55**, four options costed, behind a
+gate: it must not be built until a held-out set of *live-board* sentences exists,
+because every current set is defined against the very function the change would
+replace (L-74).
+
+**Mutation proof, done the hard way:** reverting only the generator literal reddened
+the new test while both neighbouring assertions stayed green — proving neither
+existing test could see the generator, which is precisely the gap it closes.
+
+**Flagged, pre-existing, NOT from today's work:** `dist/certonomous-demo/site/*.html`
+are stale from well before today and still read `RANK 1 OF 5` and `P(rank 1) = 68%`.
+`dist/certonomous-demo.zip` is a **tracked shipping artifact**, so this is a
+distributable surface carrying two figures now known false.
 
 **Phases 1–4 do not start on this signature.** One deliberate exception is
 already running and is recorded rather than hidden: Katie designated the closure
