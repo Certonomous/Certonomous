@@ -630,7 +630,7 @@ a warning without an owner and a period is a comment, not a control.**
 > | §5.3 item 7 | *"four distinct prediction sets scored"* | **six** (floor, rounds 1–5) | **FAIL — a scoring-call count claim, the exact defect class §4.4 exists for** |
 > | §5.3 item 2 + §5.4 item 2 | the two baseline rows, correct | still correct, but §10 requires the best-on-board count stated as **4 of 8**, not 5 | **INCOMPLETE — §10's instruction is unexecuted** |
 > | §5.1 item 3 | *"a description document … containing §5.3 and §5.4"* | **no such document exists anywhere in the repository** | **FAIL — §5.3 is a specification of what a description document must disclose; it is not one.** Searched the tree: the only description document present is `docs/papers/wu_zhang_sst_qcrc_challenge_description.pdf`, a *competitor's*, held as the format precedent |
-> | §5.4, §5.2 | no rank claim of any kind | round 5 is rank 1 scored locally | **the V8 rank-claim rule is therefore not yet engaged here** — but the moment a round-5 number is written into either, the rank claim arrives with it and must carry the qualitative clause containing the literal string `not statistically decided`, **and must now carry P(rank 1) = 68% with its 2–100% interval** (chief ruling 2026-08-10 withdrew the internal-only gate on that figure: Pass 3 recomputed it from public data in a minute, so withholding it buys nothing and only looks concealed) |
+> | §5.4, §5.2 | no rank claim of any kind | round 5 is rank 1 scored locally | **the V8 rank-claim rule is therefore not yet engaged here** — but the moment a round-5 number is written into either, the rank claim arrives with it and must carry the qualitative clause containing the literal string `not statistically decided`, **and must now carry P(rank 1) = 68% with its 2–100% interval** *(figures as recorded at this banner's date against the four-entry board; the rule's live figures are 50% and 0–97% on the six-entry board — see §10's re-correction of 2026-08-12)* (chief ruling 2026-08-10 withdrew the internal-only gate on that figure: Pass 3 recomputed it from public data in a minute, so withholding it buys nothing and only looks concealed) |
 > | §5.3 | discloses the round-2 leakage only | the **round-5** route was chosen while the per-case test scores were known | **FAIL, and this is the worst finding in the package.** `campaign/R5_RULE_FREEZE.md` concedes it in the lab's own words and then closes every remaining degree of freedom — that sentence is the entry's best asset and it lives in a file that does not travel. Discharged by the description document written at `closure_challenge_submission_round5/DESCRIPTION_DOCUMENT.md`, disclosure 3b |
 > | §5.3 items 6, 8, 9 | round-4 disclosures | item 6 describes an ML duct model no longer in the entry; item 8 overstates the continuity defect (round-5 ducts measure 5.3e-4–8.5e-4, not 2.3–3.4%); item 9 anchors the seed bound to the wrong comparison | **FAIL — 3 of 9 disclosures no longer describe the attached files** (Pass 3, D5). Item 8 is the rare stale disclosure that is *unfair to the entrant* |
 > | §5.2 | *"Reissmann's published 0.059525"* | the README publishes **0.0595**; 0.059525 is the mean of eight *rounded* per-case values; a like-for-like re-score gives **0.0595338** | **FAIL on the word "published"** — the figure is not reproducible from the source it names. Like-for-like margin **0.0028863**, against which the 0.002419 seed bound covers **84%** (Pass 3, D6) |
@@ -651,10 +651,10 @@ a warning without an owner and a period is a comment, not a control.**
 > | §5.1 named the round-3 directory | §5.1 now names `closure_challenge_submission_round5/test/`, the eight files re-counted on disk at 1000 × 3 |
 > | §5.2 claims table round-4 | rebuilt from the round-5 record: overall, all eight per-case values, and the floor delta **−0.0470, 45.3%** |
 > | §5.3 item 7 said "four" | now **six**, sourced to `CLOSURE_CHALLENGE_STATUS.md` §5's twice-superseded ledger entry |
-> | §5.3 item 2 / §5.4 item 2 best-on-board | both now say **4 of 8, two of which are the organisers' own baseline file, so 2 of 8 is ours** — and neither states the count without that clause |
+> | §5.3 item 2 / §5.4 item 2 best-on-board | ~~both now say **4 of 8, two of which are the organisers' own baseline file, so 2 of 8 is ours** — and neither states the count without that clause~~ *(true when this closure was recorded on 2026-08-11, falsified by the six-entry board fetched later the same day; struck 2026-08-12 — §5.3 item 2 now carries the six-entry correction: **2 of 8, both baseline, model's own ZERO of 8**)* |
 > | §5.3 items 6, 8, 9 | item 6 re-scoped to the trained model only; item 8 now carries the measured **5.3–8.5×10⁻⁴** ducts; item 9 re-anchored to the 0.0028863 margin |
 > | §5.3 disclosed round-2 leakage only | new item **3b** carries the round-5 concession in the lab's own words, quoted from `campaign/R5_RULE_FREEZE.md` @ `0bade54a`, and the cover email now leads with it |
-> | rank claim rule | §5.2 and §5.4 both carry **P(rank 1) = 68%**, its **2–100% at 95%** interval, and the named undecided pairs, with the sweep token intact on one line |
+> | rank claim rule | ~~§5.2 and §5.4 both carry **P(rank 1) = 68%**, its **2–100% at 95%** interval, and the named undecided pairs, with the sweep token intact on one line~~ *(true when recorded 2026-08-11, falsified by the six-entry recomputation later that day; struck 2026-08-12 — §5.2 now carries **P(rank 1) = 50%, 0–97% at 95%**, the six-entry board, and the FOUR undecided pairs, with the 68%/2–100% figures struck where they stood)* |
 > | "published 0.059525" | replaced; §5.2 records the re-scored value, the margin, and which of the two was misrounded |
 
 ### 5.1 What would be sent
@@ -714,7 +714,8 @@ bound covers 84% of that margin either way (0.8380). *This re-score touched a co
 the lab's scoring-call ledger stands at 6, unchanged.*
 
 **A second pair that must not be smoothed together.** The 0.0028863 margin rests on
-the re-scored 0.0595335. The 68% and every pairwise probability with it come from a
+the re-scored 0.0595335. The P(rank 1) — struck 68% and live 50% alike — and every
+pairwise probability with it come from a
 bootstrap whose Reissmann input is the transcribed 0.059525, and **that bootstrap has
 not been re-run on the re-scored basis** — the two inputs differ by 9×10⁻⁶, about 0.3%
 of the margin. We state which input each figure rests on rather than asserting they
@@ -778,14 +779,25 @@ steward's own scoring differs from ours, the steward's number is the number.
    without that fact.** State outright that on `alpha_05_4071_4048` and
    `alpha_05_4071_2024` the submitted field is the unmodified RANS solve, that the
    gate declined there, and that any leaderboard-best status on those two cases is
-   the baseline's, not our model's (§4.7). **Round-5 correction:** the count is
+   the baseline's, not our model's (§4.7). ~~**Round-5 correction:** the count is
    **4 of 8**, not 5 — `AR_14_Ret_180`'s 0.00003 nominal tie was lost when it went
    0.0325 → 0.0353 (§10) — and **it may not be stated without saying in the same
    breath that two of the four are the organisers' own baseline file, so the count
    belonging to our model is 2 of 8.** Verified case by case against the four
    published submissions on 2026-08-11, not inherited: we are best on
    `alpha_15_13929_4048`, `alpha_15_13929_2024`, `alpha_05_4071_4048` and
-   `alpha_05_4071_2024`, the last two being the declined baseline rows.
+   `alpha_05_4071_2024`, the last two being the declined baseline rows.~~
+   *(Struck 2026-08-12: that correction was verified against the FOUR published
+   submissions and the board moved hours later the same day.)* **Six-entry
+   correction (board fetched 2026-08-11T23:33Z):** the count is **2 of 8** —
+   both `alpha_15` hills lost to Tian, Buchanan, Hickel & Dwight — and both
+   survivors are the organisers' own unmodified RANS baseline through the
+   decline gate, so **the count belonging to our model is ZERO of 8, and the
+   2-of-8 figure may not be stated without that zero-of-8 disclosure in the
+   same breath.** Verified case by case against the six published submissions
+   (`campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md` §3a): we are best
+   only on `alpha_05_4071_4048` and `alpha_05_4071_2024`, both declined
+   baseline rows.
 3. **The full adaptive-leakage history**, in our own words before anyone asks: that
    round 2's per-case preview scores motivated building the gate; that the gate's
    parameters come only from 21 training cases; that it was validated on 4 non-test
@@ -1417,7 +1429,11 @@ approves, not before — the value of the check is in being the last thing done.
 Everything above describes the round-3/round-4 entries. On 2026-08-07 the
 pre-registered round-5 scoring call (the lab's 6th cumulative) was made and
 **accepted: the entry of record is now round 5, overall 0.0566** —
-**rank 1 of 5 scored locally at benchmark commit `deb91557`** (0.056647 vs
+~~**rank 1 of 5 scored locally at benchmark commit `deb91557`**~~ *(struck
+2026-08-12: "of 5" was the four-entry board plus us. Fetched 2026-08-11T23:33Z
+the live board carries **six** entries — point **rank 1 of 7 entrants counting
+us**, and the margin is 0.001365 over the new leader **Yang**, not 0.002878 over
+Reissmann; the `deb91557` pin scores, it does not rank)* (0.056647 vs
 Reissmann's **transcribed** 0.059525 — the board publishes 0.0595 to four
 decimals and a like-for-like full-precision re-score gives 0.0595335; see §5.2).
 Local scoring, not an official placement; if the steward's own scoring differs
@@ -1432,14 +1448,31 @@ Our **0.001365** margin over **Yang** sits against a per-case spread **fifteen**
 larger; our 0.002878 over
 Reissmann sits against a per-case spread five times larger, so on a different set
 of eight cases the ordering could reverse; the same is true of Wu
-and Zhang and of Tian, Buchanan, Hickel & Dwight. The margins over Liu and Montoya do survive that test. The standing is
-two cases wide — on the eight-case mean, `alpha_15_13929_2024` alone supplies more
+and Zhang and of Tian, Buchanan, Hickel & Dwight. The margins over Liu and Montoya do survive that test. ~~The standing is
+two cases wide~~ **The standing is three deletions wide** *(struck 2026-08-12:
+"two cases wide" was the four-entry board; on the six-entry board deleting any
+one of `alpha_15_13929_4048`, `alpha_15_13929_2024` or `alpha_05_4071_4048`
+costs the point rank — to 2, 3 and 2 respectively)* — on the eight-case mean, `alpha_15_13929_2024` alone supplies more
 than the whole margin, and `NASA_2DWMH` alone costs more than it. `AR_1_Ret_360`
 and `AR_3_Ret_360` are ties below the precision the board publishes to, and are
 not per-case wins.
 
-> **Wording note — CORRECTED 2026-08-11. What stood here was stale, and this
-> document contradicted itself about the same figure in two places.**
+> **Wording note — CORRECTED 2026-08-11, RE-CORRECTED 2026-08-12. What stood
+> here was stale, and this document contradicted itself about the same figure in
+> two places — and then the correction itself went stale the same day it was
+> written.**
+>
+> *(Re-correction note, 2026-08-12. This block was written on 2026-08-11 before
+> the six-entry board fetch at 23:33Z that same day
+> (`campaign/BOARD_MOVED_2026-08-11.md`). Until 2026-08-12 its closing "rule that
+> now governs" paragraph stated the four-entry figures — 68%, 67.6%, 2–100%, a
+> two-pair not-decided list — as current, twenty lines below this same section's
+> live 50% / 0–97% figures. A block titled CORRECTED carrying superseded values
+> is worse than an uncorrected one, because its title invites trust. Per L-76 the
+> stale figures are struck below where they stand, each with its six-entry value
+> beside it; verified by re-running `sdk/scripts/probability_of_rank.py` on
+> 2026-08-12, which matches `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`
+> to the digit.)*
 >
 > ~~**Wording note, deliberate (chief ruling 2026-08-10).** This paragraph is the
 > EXTERNAL wording and carries no probability figure, even though this document
@@ -1455,7 +1488,10 @@ not per-case wins.
 > package. The Ladder V banner in §5 of this same document — the §5.4/§5.2 row of
 > its table — says the opposite: that a round-5 rank claim "**must now carry
 > P(rank 1) = 68% with its 2–100% interval**", because the chief withdrew the
-> internal-only gate. **The §5 row is the one that is right.** Both were written
+> internal-only gate. **The §5 row is the one that is right** — right on the
+> RULE, that the figure travels with the entry; the figures inside that quoted
+> sentence are the four-entry board's, struck and recomputed in the rule
+> paragraph below *(note added 2026-08-12)*. Both were written
 > on 2026-08-10; the withdrawal came later that same day, after Ladder V's
 > cold-reproduction pass recomputed the figure as **0.674 from public data — the
 > published board plus our own eight CSVs — in about a minute**, with no access to
@@ -1466,14 +1502,23 @@ not per-case wins.
 >
 > **The rule that now governs every rank claim in this package.** The figure
 > **TRAVELS with the entry**. Any rank claim here — internal or outward, including
-> the paragraph above — carries **P(rank 1) = 68%** (67.6% over 400,000 case-level
-> bootstrap resamples) **together with its interval**: **2–100% at 95%** by double
-> bootstrap, because eight cases cannot pin it tighter. It also carries the
-> not-decided pairs: the leads over Reissmann and Wu & Zhang are
-> **not statistically decided**, while the leads over Liu and Montoya are (98.7%
+> the paragraph above — carries **P(rank 1) = ~~68%~~ 50%** (~~67.6%~~ **50.2%**
+> over 400,000 case-level bootstrap resamples; struck 2026-08-12, the struck
+> values were the four-entry board's) **together with its interval**:
+> ~~**2–100% at 95%**~~ **0–97% at 95%** by double bootstrap, because eight cases
+> cannot pin it tighter. It also carries the
+> not-decided pairs: ~~the leads over Reissmann and Wu & Zhang~~ **four leads —
+> over Yang (the leader, t = −0.19), Reissmann, Wu & Zhang, and Tian, Buchanan,
+> Hickel & Dwight —** are
+> **not statistically decided** *(struck 2026-08-12: the two-pair list was the
+> four-entry board's)*, while the leads over Liu and Montoya are decided (98.7%
 > and 99.8%). The one prohibition that replaced the withdrawn split: **no surface may
-> state the figure without its interval** — a bare 68% is a worse claim than no
-> figure at all, because 68% sounds settled and eight cases do not support settled.
+> state the figure without its interval** — and, since the board moved on
+> 2026-08-11, **without its board**: a probability quoted against a board that no
+> longer exists is exactly what this block carried for a day — a bare ~~68%~~ 50%
+> is a worse claim than no
+> figure at all, because a bare probability sounds settled and eight cases do not
+> support settled.
 >
 > **What this correction did NOT do, and whose call that was.** As written on
 > 2026-08-10 this block left the §10 paragraph above carrying the qualitative
@@ -1481,11 +1526,17 @@ not per-case wins.
 > package owner's decision, not the correction's, and the paragraph was flagged as
 > owing the figure rather than quietly left looking compliant.
 > **Closed 2026-08-11 by the V8 fix round**, which added **P(rank 1) = 68%** and the
-> **2–100% at 95%** interval to that paragraph. The deferral is kept above rather
+> **2–100% at 95%** interval to that paragraph *(historical: those were the
+> figures the fix round added; hours later the same day the six-entry fetch
+> superseded them both, and the paragraph above now carries 50% / 0–97% with the
+> 68% struck where it stood — note added 2026-08-12)*. The deferral is kept above rather
 > than deleted, so the record still shows who declined the edit and who made it;
 > what is *not* kept is a live sentence saying the paragraph still owes a figure it
-> now carries. Sources: `campaign/PROBABILITY_OF_RANK_2026-08-10.md` (head banner);
-> `campaign/LADDER_V_TRIPLE_VERIFICATION.md` (V8 amendment, 2026-08-10).
+> now carries. Sources: `campaign/PROBABILITY_OF_RANK_2026-08-10.md` (head banner;
+> superseded four-entry computation, kept); `campaign/LADDER_V_TRIPLE_VERIFICATION.md`
+> (V8 amendment, 2026-08-10; its figures repaired to the six-entry board
+> 2026-08-12); live derivation `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`,
+> reproduced by `sdk/scripts/probability_of_rank.py` re-run 2026-08-12.
 
 What changed in the package's payload:
 
@@ -1504,9 +1555,17 @@ What changed in the package's payload:
 - **One disclosure must be updated, not softened**: `AR_14_Ret_180`
   regressed 0.0325 → 0.0353 and its 0.00003 nominal best-on-board tie is
   lost — the pre-registration accepted that risk in writing before the
-  score existed, and the regression is reported, not reverted. Best-on-board
+  score existed, and the regression is reported, not reverted. ~~Best-on-board
   is now **4 of 8**, not 5 of 8; §5.3 and the cover email's item 2 must say
-  4 and cite §0f of `CLOSURE_CHALLENGE_STATUS.md`.
+  4 and cite §0f of `CLOSURE_CHALLENGE_STATUS.md`.~~ *(Struck 2026-08-12:
+  4 of 8 was the four-entry board. Against the six-entry board fetched
+  2026-08-11T23:33Z, best-on-board is **2 of 8** — both `alpha_15` hills lost
+  to Tian, Buchanan, Hickel & Dwight — and both survivors are the organisers'
+  own unmodified RANS baseline passed through the decline gate, so **the
+  model's own count is ZERO of 8**. §5.3 and the cover email's item 2 must
+  state the 2-of-8 count only WITH that zero-of-8 disclosure — a bare 2-of-8
+  is itself a defect — matching this document's own §5.2 table, and cite
+  `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md` §3a.)*
 - Full round-5 record: `closure_challenge_round5_qcr.json`;
   pre-registration `campaign/R5_PREREGISTRATION.md` (@ `e865076b`).
 

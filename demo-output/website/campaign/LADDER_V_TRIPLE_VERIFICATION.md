@@ -50,8 +50,11 @@ supervisors' four personal checks apply per the supervision charter.
   **V8 strengthening, 2026-08-10 (chief ruling, protocol edit — not a rung execution):** any rank
   claim, internal or external, must carry **P(rank 1) and the not-decided pairs**. A rank claim
   that states a placement without stating the probability that the placement survives case
-  resampling, and without naming which pairwise comparisons are undecided (currently Reissmann and
-  Wu & Zhang; Liu and Montoya are decided), fails this rung. ~~Internal surfaces carry the figure
+  resampling, and without naming which pairwise comparisons are undecided (~~currently Reissmann and
+  Wu & Zhang; Liu and Montoya are decided~~ *struck 2026-08-12: that two-pair list was the
+  four-entry board's — on the six-entry board fetched 2026-08-11T23:33Z, FOUR are undecided:
+  **Yang (the leader), Reissmann, Wu & Zhang, and Tian, Buchanan, Hickel & Dwight**; Liu and
+  Montoya remain decided*), fails this rung. ~~Internal surfaces carry the figure
   itself (P(rank 1) = 68%); external surfaces carry the qualitative clause only — the figure is
   internal by the item's own gate and may not be published.~~ Both wordings contain the literal
   string `not statistically decided`, which is the token V10's cross-surface sweep greps for.
@@ -62,10 +65,25 @@ supervisors' four personal checks apply per the supervision charter.
   being withheld; it only looks concealed, and it looks that way to the exact reader the disclosure
   strategy exists to convince. **The figure now travels with the entry.** Every rank claim,
   internal or external, carries P(rank 1) **and its interval** (an eight-case sample cannot pin it
-  tighter than 2–100% at 95%) **and** the not-decided pairs. One new prohibition replaces the old
-  split: **no surface may state the figure without the interval** — a bare 68% is a worse claim
-  than none, because 68% sounds settled and eight cases do not support settled. Every other
+  tighter than ~~2–100% at 95%~~ **0–97% at 95%** *— struck 2026-08-12; 2–100% was the four-entry
+  board's interval*) **and** the not-decided pairs. One new prohibition replaces the old
+  split: **no surface may state the figure without the interval** — a bare ~~68%~~ **50%** is a worse claim
+  than none, because a bare probability sounds settled and eight cases do not support settled
+  *(figure struck and replaced 2026-08-12: 68% was the four-entry board's value)*. Every other
   banned-claims rule stands unchanged.
+  **V8 recomputation note, 2026-08-12 (repairing the rule's own source file — this document —
+  which the six-entry recomputation of 2026-08-11 never touched, even as repaired surfaces
+  across the repo cited it as the V8 authority).** The board moved: fetched 2026-08-11T23:33Z it
+  carries **six** entries and a new leader, **Yang at 0.0580**
+  (`campaign/BOARD_MOVED_2026-08-11.md`). The figures the rule travels with are now
+  **P(rank 1) = 50%** (50.2% over a 400,000-draw case-level bootstrap), interval **0–97% at
+  95%** (double bootstrap), the **six-entry board** named alongside, and the **four**
+  not-decided pairs listed above. And the prohibition gains the clause the board move proved
+  necessary: the figure may never appear without its interval **and its board** — a probability
+  quoted against a board that no longer exists reads as current and is not. Derivation:
+  `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`, reproduced to the digit by
+  `sdk/scripts/probability_of_rank.py` re-run 2026-08-12 (pure arithmetic over committed
+  scores; no scoring call, ledger unchanged at 6).
 - **V9. Prior-art completeness**: the §7.4 split carried verbatim into the description (identify
   vs control papers correctly separated); the Buchanan-coefficients firewall stated as a
   compliance fact; a final check that nothing in the entry's history warm-started from, calibrated

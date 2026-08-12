@@ -80,14 +80,21 @@ This report records what the Certonomous CFD laboratory has done in the Closure 
 a public benchmark for machine learning in turbulence modelling stewarded by Ryley McConkey
 (MIT). Our entry of record scores \textbf{0.056647} on the benchmark's own unmodified
 scorer, which is the best overall number on the board as published at benchmark commit
-\code{deb91557} --- \textbf{rank 1 of 5, scored locally}, 0.002878 below Reissmann, Fang \&
-Sandberg's published 0.059525, and 45.3\% below the 0.1036 scored by submitting the
+\code{deb91557} --- \sout{\textbf{rank 1 of 5, scored locally}, 0.002878 below Reissmann,
+Fang \& Sandberg's published 0.059525} \textbf{rank 1 of 7 entrants counting us, scored
+locally, 0.001365 below Yang} on the six-entry board fetched 2026-08-11 \emph{(struck
+2026-08-12: the struck field and margin were the four-entry board's,
+\S\ref{sec:boardmoved})}, and 45.3\% below the 0.1036 scored by submitting the
 supplied RANS fields unchanged. That rank is our own local scoring of an unsubmitted entry
 and is stated with that caveat everywhere it appears in this report, and now with its
-posterior beside it: \textbf{P(rank 1) = 68\%} over a 400{,}000-draw case-level bootstrap
-(an eight-case sample cannot pin that tighter than \textbf{2--100\% at 95\%}), the
-lead over the rank-2 entry \textbf{not statistically decided} (paired \(t=-0.495\), \(n=8\))
-and the lead over rank 3 likewise (\(t=-0.953\)); the two remaining comparisons are decided on
+posterior beside it: \textbf{P(rank 1) = \sout{68\%} 50\%} over a 400{,}000-draw case-level bootstrap
+(an eight-case sample cannot pin that tighter than \textbf{\sout{2--100\%} 0--97\% at
+95\%}; struck values 2026-08-12, four-entry board), with
+\sout{the lead over the rank-2 entry not statistically decided (paired t = --0.495, n = 8)
+and the lead over rank 3 likewise (t = --0.953); the two remaining comparisons decided on
+method} \textbf{four leads not statistically decided} --- Yang, the leader
+(\(t=-0.189\)), Reissmann (\(-0.495\)), Wu \& Zhang (\(-0.953\)) and Tian, Buchanan,
+Hickel \& Dwight (\(-1.033\)) --- while the leads over Liu and Montoya are decided on
 method (Table~\ref{tab:prank}). The entry is now
 \emph{two} method classes rather than one, and round 5 is the reason: five of the eight
 predictions remain post-hoc velocity-field corrections, two of them withheld by a
@@ -198,8 +205,19 @@ metric is never reimplemented for scoring purposes.
 
 \subsection{The public leaderboard, and where we stand}
 
-\subsubsection*{The board moved on 2026-08-11, and every probability in this document is struck}
+\subsubsection*{The board moved on 2026-08-11: the six-entry recomputation, and how superseded figures are marked}
 \label{sec:boardmoved}
+
+\emph{(Header note, 2026-08-12.)} This header formerly read \sout{``The board moved on
+2026-08-11, and every probability in this document is struck''} --- struck 2026-08-12
+because the blanket claim was false in its own scope: the round-5 history item of the
+round ledger, the expectation-band paragraph of \S\ref{sec:round5}, the per-case ledger's
+caption and overall row (Table~\ref{tab:percase}), Table~\ref{tab:prank}'s row set, and
+the whole of \S\ref{sec:bestonboard} still stated four-entry probabilities and counts
+live and unstruck below it. The rule that replaces the blanket claim: \textbf{every
+superseded figure is struck (\sout{like this}) where it stands, dated, with its six-entry
+value beside it; anything not struck is live against the six-entry board.} A notice
+carries the rule; the strikes carry the dates.
 
 \textbf{This document was written against a four-entry leaderboard.} Fetched live on
 2026-08-11 at 23:33\,UTC by two independent routes --- \code{raw.githubusercontent.com}
@@ -303,17 +321,26 @@ rank~2 at 19.0\%, rank~3 at 14.7\% and rank~4 at 10.6\%.
 
 \begin{table}[htbp]
 \centering\footnotesize
-\caption{The rank claim with its posterior attached (\artifact{campaign/PROBABILITY\_OF\_RANK\_2026-08-10.md},
-400{,}000 case-level bootstrap resamples; the figure is publishable and \textbf{may not be
-stated without its interval} --- see the caution below).
-\(t\) is the paired per-case difference statistic, \(n=8\).}
+\caption{The rank claim with its posterior attached (\artifact{campaign/PROBABILITY\_OF\_RANK\_SIX\_ENTRY\_2026-08-11.md},
+400{,}000 case-level bootstrap resamples against the six-entry board fetched
+2026-08-11T23:33Z; the figure is publishable and \textbf{may not be
+stated without its interval and its board} --- see the caution below).
+\(t\) is the paired per-case difference statistic, \(n=8\). \emph{Rows for Yang and for
+Tian, Buchanan, Hickel \& Dwight added 2026-08-12: until then this table held only the
+four-entry board's comparisons (source then
+\artifact{campaign/PROBABILITY\_OF\_RANK\_2026-08-10.md}, kept as the superseded record)
+while correct prose cited it for four not-decided leads. The four original rows are
+unchanged because each pairwise probability depends only on our per-case scores against
+that entrant's.}}
 \label{tab:prank}
 \begin{tabular}{@{}lccl@{}}
 \toprule
 comparison & P(we lead) & paired \(t\) & status \\
 \midrule
+Yang (margin 0.001365) & 57.8\% & \(-0.189\) & \textbf{not statistically decided} --- and it is the leader \\
 Reissmann, Fang \& Sandberg (margin 0.002878) & 69.4\% & \(-0.495\) & \textbf{not statistically decided} \\
 Wu \& Zhang (margin 0.005765) & 84.7\% & \(-0.953\) & \textbf{not statistically decided} \\
+Tian, Buchanan, Hickel \& Dwight (margin 0.007490) & 86.0\% & \(-1.033\) & \textbf{not statistically decided} \\
 Liu, Wang, Zhao \& Xiao (margin 0.017040) & 98.7\% & --- & decided on method \\
 Montoya, Oulghelou \& Cinnella (margin 0.021216) & 99.8\% & --- & decided on method \\
 \bottomrule
@@ -372,7 +399,10 @@ withheld; it only looks concealed, and it looks that way to exactly the reader t
 disclosure is meant to convince. Publishing ``rank 1'' while withholding how little that
 rank survives resampling also inverts this laboratory's own standard. So the figure now
 travels with the entry, and a single prohibition replaces the old internal/external split:
-\textbf{no surface may state it without the interval} --- a bare 68\% sounds settled, and
+\textbf{no surface may state it without the interval, and --- since the board moved on
+2026-08-11 --- without its board} --- a bare \sout{68\%} \textbf{50\%} sounds settled
+\emph{(figure struck and replaced 2026-08-12; 68\% was the four-entry board's value,
+\S\ref{sec:boardmoved})}, and
 eight cases do not support settled
 (\artifact{campaign/PROBABILITY\_OF\_RANK\_2026-08-10.md} head banner, commit
 \code{b032bbae}; \artifact{campaign/LADDER\_V\_PASS3\_COLD\_2026-08-11.md} \S3 (W2), commit
@@ -734,8 +764,12 @@ predictions are produced by a term with no fitted parameter anywhere in it.
   delta is again wholly the duct family, and it is the round in which the laboratory
   stopped trying to predict a flow structure and started solving for it
   (\S\ref{sec:round5}). It is also the round that put the entry at the top of the local
-  board --- at 68\% probability, an eight-case figure no tighter than 2--100\% at 95\%, with
-  the lead over the rank-2 entry \textbf{not statistically decided} (Table~\ref{tab:prank}).
+  board --- at \sout{68\%} \textbf{50\%} probability, an eight-case figure no tighter than
+  \sout{2--100\%} \textbf{0--97\%} at 95\% \emph{(struck 2026-08-12: the struck values were
+  the four-entry board's, \S\ref{sec:boardmoved})}, with
+  the leads over \sout{the rank-2 entry} \textbf{Yang --- the six-entry board's leader ---
+  Reissmann, Wu \& Zhang, and Tian, Buchanan, Hickel \& Dwight all}
+  \textbf{not statistically decided} (Table~\ref{tab:prank}).
 \end{description}
 
 Round 4's diagnosis was pre-registered and its sign pattern was predicted before it was
@@ -785,9 +819,10 @@ Case & Round 4 & \textbf{Round 5} & $\Delta$ \\
 The five unchanged cases scored identically to round 4, as their byte-identity requires ---
 which is also the cheapest available check that the harness was driven the same way twice.
 That 0.056647 is the number every rank claim in this report rests on, and its posterior is
-Table~\ref{tab:prank}: \textbf{P(rank 1) = 68\%}, an estimate eight cases pin no tighter than
-\textbf{2--100\% at 95\%}, with the two nearest comparisons
-\textbf{not statistically decided}.
+Table~\ref{tab:prank}: \textbf{P(rank 1) = \sout{68\%} 50\%}, an estimate eight cases pin no tighter than
+\textbf{\sout{2--100\%} 0--97\% at 95\%}, with the \sout{two} \textbf{four} nearest comparisons
+\textbf{not statistically decided} \emph{(struck values 2026-08-12: they were the four-entry
+board's; six-entry board fetched 2026-08-11, \S\ref{sec:boardmoved})}.
 
 Three things about that table are worth stating in the order the record forces them.
 
@@ -804,7 +839,8 @@ Three things about that table are worth stating in the order the record forces t
 \item \textbf{The pre-stated expectation band was wrong in our favour, and that is recorded
   rather than enjoyed.} The pre-registration's band was 0.059--0.0666 --- rank 1 at its
   best end, a regression at its worst; scored after the fact, the rank the good end promised
-  is worth 68\% --- 2--100\% at 95\% on eight cases --- and its margin is
+  is worth \sout{68\%} \textbf{50\%} --- \sout{2--100\%} \textbf{0--97\%} at 95\% on eight
+  cases \emph{(struck values 2026-08-12: four-entry board, \S\ref{sec:boardmoved})} --- and its margin is
   \textbf{not statistically decided} (Table~\ref{tab:prank}). The result landed at 0.056647, \emph{below the good
   end of our own band}. What was nearly exact was the campaign's plain arithmetic: matching
   the rank-2 entry's published duct scores was computed in advance to give $\approx$
@@ -829,8 +865,15 @@ training duct, had QCR's weakest ratio at 0.664 and weakest correlation at 0.877
 \code{AR\_14} extends that trend axis), and \textbf{accepted the possible loss in writing}.
 \textbf{The risk materialised.} \code{AR\_14\_Ret\_180} went 0.0324698 $\rightarrow$
 0.0353386, $+$0.0029; the nominal tie with Reissmann's published 0.0325 is \textbf{lost};
-the case falls to 3 of 5, behind Reissmann and behind Wu \& Zhang's 0.0350; and our
-best-on-board count drops from 5 of 8 to \textbf{4 of 8}. The risk-side signal was right
+the case falls to 3 of 5, behind Reissmann and behind Wu \& Zhang's 0.0350 \emph{(4th of 7
+on the six-entry board fetched 2026-08-11, behind Yang's 0.0250 as well --- note added
+2026-08-12)}; and our
+best-on-board count drops from 5 of 8 to \sout{\textbf{4 of 8}} \textbf{4 of 8 on that
+day's four-entry board} \emph{(struck 2026-08-12: on the six-entry board the count is
+\textbf{2 of 8} --- both \code{alpha\_15} hills lost to Tian, Buchanan, Hickel \& Dwight ---
+and both survivors are the organisers' unmodified baseline through the decline gate, so the
+model's own count is \textbf{zero of 8}; \S\ref{sec:boardmoved},
+\S\ref{sec:bestonboard})}. The risk-side signal was right
 about which duct, and the comfort-side signal (\code{AR\_7\_Ret\_180} at 0.477 and 0.928,
 far inside the bars) was right about the family.
 \end{minipage}}
@@ -854,9 +897,14 @@ point of writing it down first.}
 \footnotesize
 \caption{Per-case scaled MAE across rounds, against the RANS-identity floor, the published
 rank-1 entry, and the best published score on each case. Lower is better. Round-5 values
-are the entry of record; round 2 is omitted for width and appears in \S3.1. The overall
-row's rank carries \textbf{P(rank 1) = 68\%} (2--100\% at 95\%) and a lead over the published
-rank-1 entry that is \textbf{not statistically decided} (Table~\ref{tab:prank}); the two
+are the entry of record; round 2 is omitted for width and appears in \S3.1. \emph{The
+``Reissmann'' and ``Best pub.''\ columns are the four-entry board's, kept as the
+scoring-day record; the six-entry per-case standings (board fetched 2026-08-11) are in
+the Attribution column, updated 2026-08-12.} The overall
+row's rank carries \textbf{P(rank 1) = \sout{68\%} 50\%} (\sout{2--100\%} \textbf{0--97\%}
+at 95\%; struck values 2026-08-12, four-entry board) and leads over the six-entry board's
+leader Yang and three others that are \textbf{not statistically decided}
+(Table~\ref{tab:prank}, \S\ref{sec:boardmoved}); the two
 \code{Ret\_360} rows
 are ties at the board's published precision and are not wins.}
 \label{tab:percase}
@@ -865,16 +913,16 @@ are ties at the board's published precision and are not wins.}
 \toprule
 Case & Floor & R3 & R4 & \textbf{R5} & Reissmann & Best pub. & Attribution \\
 \midrule
-\code{alpha\_15\_13929\_4048} & 0.1320 & 0.0501 & 0.0501 & \textbf{0.0501} & 0.0592 & 0.0592 & \textbf{our model leads} \\
-\code{alpha\_15\_13929\_2024} & 0.2049 & 0.1011 & 0.1011 & \textbf{0.1011} & 0.1339 & 0.1195 & \textbf{our model leads} \\
-\code{alpha\_05\_4071\_4048} & 0.0461 & 0.0461 & 0.0461 & \textbf{0.0461} & 0.0606 & 0.0569 & \emph{baseline, declined} \\
-\code{alpha\_05\_4071\_2024} & 0.0719 & 0.0719 & 0.0719 & \textbf{0.0719} & 0.0760 & 0.0760 & \emph{baseline, declined} \\
-\code{AR\_1\_Ret\_360}       & 0.1288 & 0.0919 & 0.0811 & \textbf{0.0455} & 0.0387 & 0.0387 & 2nd of 5; ties rank 2 at published precision \\
-\code{AR\_3\_Ret\_360}       & 0.1243 & 0.0862 & 0.0775 & \textbf{0.0400} & 0.0341 & 0.0341 & 3rd of 5, within published-precision noise of rank 2 \\
-\code{AR\_14\_Ret\_180}      & 0.0590 & 0.0303 & 0.0325 & \textbf{0.0353} & 0.0325 & 0.0325 & 3rd of 5; the 0.00003 lead was priced and lost \\
-\code{NASA\_2DWMH}           & 0.0621 & 0.0632 & 0.0632 & \textbf{0.0632} & 0.0412 & 0.0364 & behind, last on board \\
+\code{alpha\_15\_13929\_4048} & 0.1320 & 0.0501 & 0.0501 & \textbf{0.0501} & 0.0592 & 0.0592 & \sout{our model leads} 2nd of 7: lost to Tian's 0.0432 \\
+\code{alpha\_15\_13929\_2024} & 0.2049 & 0.1011 & 0.1011 & \textbf{0.1011} & 0.1339 & 0.1195 & \sout{our model leads} 2nd of 7: lost to Tian's 0.0998 \\
+\code{alpha\_05\_4071\_4048} & 0.0461 & 0.0461 & 0.0461 & \textbf{0.0461} & 0.0606 & 0.0569 & \emph{baseline, declined} --- best of 7 \\
+\code{alpha\_05\_4071\_2024} & 0.0719 & 0.0719 & 0.0719 & \textbf{0.0719} & 0.0760 & 0.0760 & \emph{baseline, declined} --- best of 7 \\
+\code{AR\_1\_Ret\_360}       & 0.1288 & 0.0919 & 0.0811 & \textbf{0.0455} & 0.0387 & 0.0387 & \sout{2nd of 5; ties rank 2 at published precision} 3rd of 7: behind Yang, Reissmann; ties Wu \& Zhang at published precision \\
+\code{AR\_3\_Ret\_360}       & 0.1243 & 0.0862 & 0.0775 & \textbf{0.0400} & 0.0341 & 0.0341 & \sout{3rd of 5, within published-precision noise of rank 2} 4th of 7, within published-precision noise of Wu \& Zhang \\
+\code{AR\_14\_Ret\_180}      & 0.0590 & 0.0303 & 0.0325 & \textbf{0.0353} & 0.0325 & 0.0325 & \sout{3rd of 5} 4th of 7; the 0.00003 lead was priced and lost \\
+\code{NASA\_2DWMH}           & 0.0621 & 0.0632 & 0.0632 & \textbf{0.0632} & 0.0412 & 0.0364 & behind, last on board (7th of 7 either board) \\
 \midrule
-\textbf{Overall} & \textbf{0.1036} & \textbf{0.0676} & \textbf{0.0654} & \textbf{0.056647} & \textbf{0.0595} & --- & rank 1 of 5, scored locally; P 68\% (2--100\% at 95\%) \\
+\textbf{Overall} & \textbf{0.1036} & \textbf{0.0676} & \textbf{0.0654} & \textbf{0.056647} & \textbf{0.0595} & --- & \sout{rank 1 of 5; P 68\% (2--100\% at 95\%)} rank 1 of 7, scored locally, six-entry board; P 50\% (0--97\% at 95\%) \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -883,8 +931,12 @@ Case & Floor & R3 & R4 & \textbf{R5} & Reissmann & Best pub. & Attribution \\
 \label{sec:bestonboard}
 \label{sec:attribution}
 
-Arithmetically we hold the best score on the public board on four of eight cases --- five
-until round 5 spent one of them (\S\ref{sec:ar14}). That count was on our public page as a
+Arithmetically we hold the best score on the public board on \sout{four of eight cases ---
+five until round 5 spent one of them (\S\ref{sec:ar14})} \textbf{two of eight cases}
+\emph{(struck 2026-08-12: four of eight was the four-entry board --- five until round 5
+spent one (\S\ref{sec:ar14}), then the six-entry board fetched 2026-08-11 took both
+\code{alpha\_15} hills to Tian, Buchanan, Hickel \& Dwight, \S\ref{sec:boardmoved})}.
+That count was on our public page as a
 headline and \textbf{we took it down ourselves}, because
 it is true arithmetic and misleading attribution
 (\artifact{CLOSURE\_CHALLENGE\_SUBMISSION\_DRAFT.md} \S8.2). On
@@ -898,26 +950,30 @@ scores exactly the same. The honest attribution is Table~\ref{tab:attribution}.
 \begin{table}[h]
 \centering
 \small
-\caption{Attribution of the eight test cases at round 5, replacing the retired ``5 of 8''
+\caption{Attribution of the eight test cases, replacing the retired ``5 of 8''
 headline. The ``nominal lead only'' row is empty because round 5 spent the case that
-occupied it.}
+occupied it. \emph{Recomputed 2026-08-12 against the six-entry board fetched 2026-08-11
+(\S\ref{sec:boardmoved}); the round-5/four-entry values are struck in place.}}
 \label{tab:attribution}
 \begin{tabular}{L{5.0cm}cL{7.2cm}}
 \toprule
 Attribution & Count & Cases \\
 \midrule
-Our model, clear lead & \textbf{2} & \code{alpha\_15\_13929\_4048}, \code{alpha\_15\_13929\_2024} \\
+Our model, clear lead & \sout{\textbf{2}} \textbf{0} & \sout{\code{alpha\_15\_13929\_4048}, \code{alpha\_15\_13929\_2024}} --- both lost to Tian, Buchanan, Hickel \& Dwight on the six-entry board \\
 Our model, nominal lead only & 0 & --- (was \code{AR\_14\_Ret\_180}; lost in round 5) \\
-The baseline led; the gate withheld our model & \textbf{2} & \code{alpha\_05\_4071\_4048}, \code{alpha\_05\_4071\_2024} \\
-Behind & 4 & \code{AR\_1\_Ret\_360}, \code{AR\_3\_Ret\_360}, \code{AR\_14\_Ret\_180}, \code{NASA\_2DWMH} \\
+The baseline led; the gate withheld our model & \textbf{2} & \code{alpha\_05\_4071\_4048}, \code{alpha\_05\_4071\_2024} (still best of 7 on the six-entry board) \\
+Behind & \sout{4} \textbf{6} & \code{AR\_1\_Ret\_360}, \code{AR\_3\_Ret\_360}, \code{AR\_14\_Ret\_180}, \code{NASA\_2DWMH}, and since 2026-08-11 \code{alpha\_15\_13929\_4048}, \code{alpha\_15\_13929\_2024} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \noindent The uncomfortable reading of that table is the one to state: \textbf{our overall
-number is now first on the board while our own model holds a clear lead on two cases out of
-eight.} The rank comes from having no bad case rather than from having many best ones ---
-two declined baselines that beat every published entry, two ducts brought to the level of
+number is now first on the board while our own model holds a clear lead on \sout{two}
+ZERO cases out of
+eight} \emph{(struck 2026-08-12: two was the four-entry count; \S\ref{sec:boardmoved})}.
+The rank comes from having no bad case rather than from having many best ones ---
+two declined baselines that beat every published entry, two hills where Tian now leads us,
+two ducts brought to the level of
 the entry whose constitutive term we adopted, and one case (\code{NASA\_2DWMH}) where we
 are last and know it. An unweighted mean over eight cases rewards exactly that shape, and
 a reader is entitled to know the shape and not only the mean.
@@ -925,8 +981,9 @@ a reader is entitled to know the shape and not only the mean.
 What \emph{is} defensible is a better finding than the one it replaces, and it is about the
 selection rather than the score: crossing the recorded per-case floor against the published
 per-case leaderboard shows that \textbf{on exactly two of the eight test cases the
-uncorrected baseline beats all four published entries --- and they are exactly the two
-cases the gate declined.} A rule fitted on 21 training cases and validated on 4 non-test
+uncorrected baseline beats all \sout{four} six published entries --- and they are exactly the two
+cases the gate declined} \emph{(re-checked 2026-08-12 against the six-entry board: the
+finding survives, and strengthens --- the baseline rows beat Yang and Tian too)}. A rule fitted on 21 training cases and validated on 4 non-test
 cases, having never seen a test case, identified blind the two flows on which every
 published method in this field damages the answer. That is a finding about the benchmark
 which the steward may value more than our own number, and the draft cover email says so.
@@ -2155,7 +2212,10 @@ design that does not lean on a single in-regime validation case.
   with that rather than qualifying it in a footnote.
 \item \textbf{``4 of 8'' replaced ``5 of 8''} on the best-on-board count, by losing a row
   we had already told our readers not to count as a win (\S\ref{sec:ar14}). The retired
-  margin warning is left in place rather than deleted.
+  margin warning is left in place rather than deleted. \emph{(That replacement was itself
+  superseded 2026-08-11 by the six-entry board: the count is now \textbf{2 of 8}, the
+  model's own count \textbf{zero of 8} --- \S\ref{sec:boardmoved},
+  \S\ref{sec:bestonboard}; note added 2026-08-12.)}
 \item \textbf{One sentence of the W4 unblock record was found false by our own follow-up
   audit and corrected in place}: the field-inversion case's inlet had been overwritten by
   an earlier pilot, so the claim that its ``real nonuniform inlet is thereby restored''
@@ -2352,12 +2412,15 @@ gate numbers fixed before launch \\
 \artifact{campaign/W2\_WU\_ZHANG\_DESTRUCTION\_FIML\_READING.md} &
 \code{393ad74f} & Both Wu artifacts read in full; the patch specification \\
 \artifact{campaign/PROBABILITY\_OF\_RANK\_2026-08-10.md} & \code{b032bbae} &
-Table~\ref{tab:prank}: the 400{,}000-draw case-level bootstrap, the four intervals in order of
+The four-entry-board bootstrap: the 400{,}000-draw case-level method, the four intervals in order of
 increasing honesty (Monte Carlo, leave-one-out, double bootstrap at 68\% and at 95\%), and the
-head banner withdrawing the internal-only gate \\
+head banner withdrawing the internal-only gate. \emph{Superseded 2026-08-11 and kept;
+Table~\ref{tab:prank} now derives from
+\artifact{campaign/PROBABILITY\_OF\_RANK\_SIX\_ENTRY\_2026-08-11.md} (row note, 2026-08-12)} \\
 \artifact{campaign/LADDER\_V\_PASS3\_COLD\_2026-08-11.md} & \code{9477a2ed} &
 The cold reproduction: \S3 (W2) is the independent P(rank 1) = 0.674 from public data, the
-finding that withdrew the gate \\
+finding that withdrew the gate \emph{(a four-entry-board figure, historical to that pass;
+the live figure is 50\%, \S\ref{sec:boardmoved})} \\
 \artifact{campaign/LADDER\_V\_TRIPLE\_VERIFICATION.md} & \code{5bffb476} &
 Ladder~V; V8 and its 2026-08-10 amendment --- every rank claim carries the probability, its
 interval and the not-decided pairs \\

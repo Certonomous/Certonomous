@@ -580,7 +580,14 @@ AR_3_Ret_360 0.0775 → **0.0400** (−0.0375), AR_14_Ret_180 0.0325 →
 tie with Reissmann is LOST**, exactly the risk the pre-registration put in
 writing, not reverted (reverting one duct after seeing its score is
 per-case selection on test outcomes; the bundle was judged as a bundle and
-won 12× over). Best-on-board now 4 of 8 (both alpha_15, both alpha_05).
+won 12× over). ~~Best-on-board now 4 of 8 (both alpha_15, both alpha_05).~~
+*(Struck 2026-08-12: 4 of 8 was the four-entry board of the 2026-08-07
+scoring day. Against the six-entry board fetched 2026-08-11T23:33Z it is
+**2 of 8** — both `alpha_15` hills lost to Tian, Buchanan, Hickel & Dwight —
+and both survivors are the organisers' own unmodified RANS baseline passed
+through the decline gate, so **the model's own count is ZERO of 8**; the
+count may not be stated without that disclosure.
+`campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md` §3a.)*
 Overall 0.056647 vs Reissmann's published 0.059525 — margin 0.002878,
 **which carries the G1 seed qualifier: the truth-free seed-spread bound on
 the three unchanged PH-model predictions is 0.0024 overall-equivalent,

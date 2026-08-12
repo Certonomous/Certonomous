@@ -500,8 +500,17 @@ pre-registration said, before the call, that round 4's 0.00003-level
 best-on-board tie on `AR_14_Ret_180` was put at risk and the possible loss
 accepted in writing. **The risk materialised**: AR_14 regressed 0.0324698 →
 0.0353386 (+0.0029), the tie with Reissmann (published 0.0325) is lost, and
-the case falls to 3 of 5 (behind Reissmann and Wu & Zhang's 0.0350).
-Best-on-board count drops **5 of 8 → 4 of 8**. Per the pre-registration's
+the case falls to 3 of 5 (behind Reissmann and Wu & Zhang's 0.0350; on the
+six-entry board fetched 2026-08-11 the case sits 4th of 7 entrants, behind
+Yang's 0.0250 as well — note added 2026-08-12).
+~~Best-on-board count drops **5 of 8 → 4 of 8**.~~ *(Struck 2026-08-12: both
+counts were the four-entry board's. Against the six-entry board fetched
+2026-08-11T23:33Z the count is **2 of 8** — both `alpha_15` hills lost to
+Tian, Buchanan, Hickel & Dwight — and both survivors are the organisers' own
+unmodified RANS baseline passed through the decline gate, so **the model's
+own count is ZERO of 8**; the count may not be stated without that
+disclosure. `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md` §3a.)*
+Per the pre-registration's
 own terms the regression is reported exactly as the round-2 NASA regression
 was — **not reverted**: a post-hoc revert of any single duct after seeing
 its score would be per-case selection on test outcomes. The bundle was
@@ -634,7 +643,9 @@ manifest `demo-output/website/closure_challenge_submission_round5/`
 > overall 0.0566**, and the three duct rows and both "lead the board"
 > columns below have moved (AR_1 0.0811 → 0.0455, AR_3 0.0775 → 0.0400,
 > AR_14 0.0325 → 0.0353 with its nominal best-on-board tie lost;
-> best-on-board 5 of 8 → 4 of 8). §0f carries the full per-case and
+> best-on-board 5 of 8 → 4 of 8, itself superseded 2026-08-11 by the
+> six-entry board: **2 of 8**, the model's own count **ZERO of 8** — see
+> §0f's struck note of 2026-08-12). §0f carries the full per-case and
 > standings tables at benchmark commit `deb91557`. The table below stands
 > unchanged as the round-3/round-4 record.
 

@@ -97,11 +97,21 @@ exactly why it is worth knowing now rather than in January.
 The sweep reported the closure entry as **0.0676** and as leading **five of
 eight** cases. **Both are superseded and neither may be used.**
 
-> **Superseded 2026-08-07 (family supervision review F3).** The entry of
-> record is now **round 5: overall 0.0566, rank 1 of 5 scored locally at
-> benchmark commit `deb91557`** — a local scoring, not an official
+> **Superseded 2026-08-07 (family supervision review F3) — and this note was
+> itself superseded by the 2026-08-11 board move; its own stale figures are
+> struck in place below (2026-08-12).** The entry of
+> record is now **round 5: overall 0.0566, ~~rank 1 of 5~~ scored locally at
+> benchmark commit `deb91557`** *(struck 2026-08-12: "of 5" was the four-entry
+> board plus us; fetched 2026-08-11T23:33Z the board carries six entries and a
+> new leader, Yang at 0.0580 — point rank 1 of 7 entrants counting us, margin
+> 0.001365 over Yang)* — a local scoring, not an official
 > placement, carrying the seed qualifier of
-> `CLOSURE_CHALLENGE_STATUS.md` §0f — and best-on-board is **4 of 8**.
+> `CLOSURE_CHALLENGE_STATUS.md` §0f — and best-on-board is ~~**4 of 8**~~
+> **2 of 8** *(struck 2026-08-12: 4 of 8 was the four-entry board — both
+> `alpha_15` hills are lost to Tian, Buchanan, Hickel & Dwight on the six-entry
+> board, and both survivors are the organisers' own unmodified RANS baseline
+> passed through the decline gate, so **the model's own count is ZERO of 8**;
+> the count may not be stated without that disclosure)*.
 > The §1 row's "scores 0.0654" and the bullets below stand as this sweep's
 > dated 2026-08-02 record; per this section's own rule, the superseded
 > numbers may not be used.
@@ -134,8 +144,17 @@ eight** cases. **Both are superseded and neither may be used.**
 * **"Best on five of eight" was withdrawn by this lab on 2026-08-01** and must
   not come back. Two of those five were the organisers' own unmodified baseline
   field, which the decline gate correctly withheld our model from; they rank the
-  baseline, not us. The honest count is two clear leads, one nominal lead of
-  0.00003, two rows that are the baseline, and three behind. See
+  baseline, not us. ~~The honest count is two clear leads, one nominal lead of
+  0.00003, two rows that are the baseline, and three behind.~~ *(Struck
+  2026-08-12 — that attribution was the four-entry board's, and it went stale
+  twice: round 5 spent the 0.00003 nominal lead (AR_14, priced in writing), and
+  the six-entry board fetched 2026-08-11T23:33Z took both `alpha_15` clear leads
+  to Tian, Buchanan, Hickel & Dwight. The honest count now: **zero clear leads
+  for our own model, two rows that are the organisers' unmodified RANS baseline
+  through the decline gate — best-on-board 2 of 8, model's own 0 of 8 —** two
+  duct rows tied with Wu & Zhang below published precision yet behind Yang and
+  Reissmann regardless (`AR_1`, `AR_3` — not wins), and the rest behind.
+  `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md` §3a.)* See
   `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §8.2.
 
 **A superseded number does not stop being wrong because an outside search
