@@ -297,14 +297,22 @@ but the word was wrong.)*
 
 **Two values of that score are in play in this section, and we would rather say
 so than have you find it.** The margin above uses the re-scored **0.0595335**.
-The 68% below, and every pairwise probability in the table with it, come from a
-bootstrap whose Reissmann input is the transcribed **0.059525**; that bootstrap
+The P(rank 1) below — struck 68% and live 50% alike — and every pairwise
+probability in the table with it, come from a bootstrap whose Reissmann input is
+the transcribed **0.059525**; that bootstrap
 has not been re-run on the re-scored basis, so we do not assert those figures are
 unchanged — we state which input each rests on. The two inputs differ by
 9×10⁻⁶, about 0.3% of the margin.
 
-> **RECOMPUTED 2026-08-11 AGAINST A SIX-ENTRY BOARD. Every figure in the rest of
-> this section is struck and kept.** The figures below were computed against the
+> **RECOMPUTED 2026-08-11 AGAINST A SIX-ENTRY BOARD.** ~~Every figure in the rest
+> of this section is struck and kept.~~ *(That sentence was false in both
+> directions and is struck 2026-08-12: some of what follows had already been
+> rewritten in place to live six-entry values — the pairwise table and the two
+> dispersion paragraphs after it — and some four-entry figures below it stood
+> unstruck and read as live. The rule actually applied now: **every superseded
+> four-entry figure is struck where it stands, dated, with its six-entry value
+> beside it; anything below not struck is live against the six-entry board.**)*
+> The recomputation itself: the earlier figures were computed against the
 > **four**-entry board; fetched live on 2026-08-11 the board carries **six**
 > entries and a new leader, **Yang at 0.0580**, and our margin over Yang is
 > **0.001365**, not 0.002878. Recomputed by the same method (the script reproduces
@@ -315,11 +323,14 @@ unchanged — we state which input each rests on. The two inputs differ by
 > before)*. **Four comparisons are now not statistically decided, not two**, and
 > one of them is the leader: Yang (t = −0.19), Reissmann (t = −0.50), Wu & Zhang
 > (t = −0.95), Tian/Buchanan/Hickel/Dwight (t = −1.03). Liu and Montoya remain
-> decided. Full derivation: `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`.
+> decided. Full derivation: `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`;
+> script `sdk/scripts/probability_of_rank.py`, re-run 2026-08-12 and matching that
+> record to the digit.
 
-~~**P(rank 1) = 68%**~~ — 67.6% over 400,000 case-level bootstrap resamples of the
-eight test cases, **against the four-entry board — see the box above**. **And the
-interval that matters is not the Monte Carlo one:**
+~~**P(rank 1) = 68%**~~ — ~~67.6%~~ over 400,000 case-level bootstrap resamples of
+the eight test cases, **against the four-entry board — struck 2026-08-12; the
+six-entry value is 50.2%, see the box above**. **And the interval that matters is
+not the Monte Carlo one:**
 
 | interval | value *(four-entry board — superseded)* | what it measures |
 |---|---|---|
@@ -328,19 +339,32 @@ interval that matters is not the Monte Carlo one:**
 | double bootstrap, 95% | ~~**2–100%**~~ | what an eight-case sample can actually pin down |
 | one-seed sensitivity | ~~**52–81%**~~ | what the seed we did not control is worth |
 
+*(Struck values are the four-entry board's. The six-entry values for the same
+four rows, from the 2026-08-11 recomputation: 50.0–50.3%, 31.7–78.5%, **0–97%**,
+and **34–65%** — the 95% band is now wider at both ends that matter.)*
+
 **On that last row, because it is the sharpest number we hold and withholding a
 computable figure only looks concealed:** the truth-free seed bound of §8
 (0.002419, loaded at **0.0024** — that rounded value is what the bootstrap was
 actually run with, and the overalls it produces are 0.056647 ± 0.0024 exactly),
 loaded adversely onto the three seed-dependent cases and the bootstrap re-run,
-gives P(rank 1) = **52.0%**; loaded favourably, **80.5%**; as scored, 67.6%. **A seed draw we did not control moves the figure by nearly
-thirty points.** It is derived from the same public inputs by the same route as
-the 68%, so it travels with it.
+gives P(rank 1) = ~~**52.0%**~~ **34.2%**; loaded favourably, ~~**80.5%**~~
+**65.4%**; as scored, ~~67.6%~~ 50.2% *(four-entry values struck 2026-08-12,
+six-entry values from the 2026-08-11 recomputation — and the adverse leg now
+puts us second on the point score, 0.059047 against Yang's 0.058013, which the
+four-entry adverse leg did not)*. **A seed draw we did not control moves the
+figure by ~~nearly thirty~~ thirty-one points.** It is derived from the same
+public inputs by the same route as the headline P(rank 1), so it travels with it.
 
-**The honest reading: the point estimate is 68%, and eight cases cannot resolve it
-better than "somewhere between a coin flip and near-certain".** We state the
-figure with that interval attached, always, because 68% on its own sounds settled
-and eight cases do not support settled.
+~~**The honest reading: the point estimate is 68%, and eight cases cannot resolve
+it better than "somewhere between a coin flip and near-certain".**~~ *(Struck
+2026-08-12 — four-entry.)* **The honest reading against the six-entry board: the
+point estimate is 50% — itself the coin flip — and eight cases cannot resolve it
+better than "anywhere from impossible to almost certain" (0–97% at 95%).** We
+state the figure with that interval attached, always, because a bare probability
+on its own sounds settled and eight cases do not support settled — and a bare 50%
+is the worse offender, because it invites "even odds, we might win" when what
+eight cases support is "we cannot tell".
 
 **Which comparisons are decided, by name:**
 
@@ -361,10 +385,17 @@ Against Reissmann the per-case dispersion is **five times the margin**; we beat
 them on four cases and lose on four. Against Liu and Montoya we win 7 of 8, and
 those two comparisons survive resampling and are worth believing.
 
-**The standing is two cases wide.** `alpha_15_13929_2024` alone supplies more than
-the entire margin; delete it and we are rank 2 on the point score. `NASA_2DWMH` —
-our only last-place case — alone costs more than the margin; delete it and P(rank
-1) is 91%. **`AR_1_Ret_360` and `AR_3_Ret_360` are ties below the precision the
+~~**The standing is two cases wide.**~~ *(Struck 2026-08-12 — four-entry. On the
+six-entry board it is **three deletions wide**, and the three are all the
+periodic hills we beat Yang on: `alpha_15_13929_4048`, `alpha_15_13929_2024` and
+`alpha_05_4071_4048` each cost the point rank if deleted.)*
+`alpha_15_13929_2024` alone supplies more than the entire margin; delete it and
+we are ~~rank 2~~ **rank 3** on the point score *(struck 2026-08-12: rank 2 was
+the four-entry board; on the six-entry board that deletion costs two places, not
+one)*. `NASA_2DWMH` — our only last-place case — alone costs more than the
+margin; delete it and P(rank 1) is ~~91%~~ **78.5%** *(struck 2026-08-12:
+four-entry 91%; unchanged in direction, smaller in size, because Yang also beats
+us there)*. **`AR_1_Ret_360` and `AR_3_Ret_360` are ties below the precision the
 board publishes to** (0.00003 and 0.00008) and must not be read as per-case wins
 or losses either way.
 
