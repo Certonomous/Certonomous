@@ -857,11 +857,26 @@ _PLACE_REACH_B = (5, 5, "an independent grader, invented blind")
 #
 # ONE ROW FROM THE AUTHOR IS NOT A COST, IT IS A SELF-REPORT. This was a single
 # row -- the author's own set, built with the pattern list in hand -- until
-# grade round 7 built a second one blind and got a figure 27 points worse. The
+# grade round 7 built a second one blind and got a worse figure. The
 # lab had already solved this for the recall half one screen up, where
 # `_PLACE_REACH` publishes three rows each naming its builder and whether they
 # were blind, under a note that two honest sets disagree by twenty points; the
 # convention did not propagate down here by itself (L-82). It has now.
+#
+# AND THE SIZE OF THAT DISAGREEMENT WAS AN ARTEFACT OF HOW THE TWO ROWS WERE
+# ADMITTED, which is the fifth absolute this rung produced and is filed as D49.
+# This comment read, until 2026-08-11: "grade round 7 built a second one blind
+# and got a figure 27 POINTS WORSE." That 27 points was measured with a LOOSE
+# admission rule on the author's row and a STRICT one on the grader's. The
+# author's row admitted a sentence on a raw rule-A pattern match; the grader's
+# admitted it on `len(_placements(...)) > 0`, which applies the homonym list,
+# the probability form, the of-N form and the linear-algebra subject-head
+# discriminator AFTER the match, and is strictly narrower. Of the four
+# combinations of {loose, strict} x {author, grader}, the published pairing was
+# the only one that was not internally consistent, was the one that maximised
+# the gap, and was the one whose Fisher p a chief ruling quoted. Both rows now
+# use `_placements`; see `_PLACE_ADMISSION` below for why, and for the range
+# the choice moves the spread across.
 #
 # THE ABSOLUTE THIS ROUND WITHDREW, KEPT AS HISTORY AND NOT AS A CLAIM (L-76,
 # and it is the fourth absolute this one rung has produced). The generated
@@ -869,21 +884,73 @@ _PLACE_REACH_B = (5, 5, "an independent grader, invented blind")
 # AND NOT REPRESENTATIVE -- it is weighted toward the shapes that have already
 # broken, so 20 of 41 is a WORST CASE on hard sentences and not a corpus rate."
 # The hedge was written to stop a reader overstating the number in the
-# PESSIMISTIC direction, and it was falsified in the OPTIMISTIC one: the
-# independent set applies this set's own admission rule, unchanged, and lands
-# at 19 of 25. "Worst case" was never a property of the guard. It was a
+# PESSIMISTIC direction, and it was falsified in the OPTIMISTIC one: an
+# independently built set lands at 19 of 25. "Worst case" was never a property
+# of the guard. It was a
 # property of how much the sample's builder already knew about the guard. The
 # sentence that stood here is quoted above, not repeated: nothing below asserts
 # it, and no row here claims to bound the next sample.
 #
-# (sample, who built it, blind to the current patterns?, n, falsely faulted)
-# Both `n` columns are ADMITTED sentences -- ones in which a rule-A pattern
-# actually matches an expression -- under the same admission rule, so the two
-# are comparable. Both `falsely faulted` columns are recomputed from committed
-# sentences by `sdk/tests/test_rank_claim_surfaces.py` (L-79).
+# THE STRIKE ABOVE SURVIVED D49 AND ITS REASON NARROWED. The clause "the
+# independent set APPLIES THIS SET'S OWN ADMISSION RULE, UNCHANGED, and lands
+# at 19 of 25" stood in this comment until 2026-08-11 and was false: the two
+# sets were admitted by two different predicates. It is quoted here rather than
+# deleted, and it is not asserted anywhere. The strike itself does not depend on
+# it -- 76% exceeds the author's rate under EVERY common admission rule, which
+# is a claim `test_the_precision_spread_is_measured_under_both_rules` executes
+# rather than a claim this comment makes.
+#
+# (sample, who built it, blind to the current patterns?, sentences the set
+#  holds, n admitted, falsely faulted)
+# The `n admitted` columns are the sentences the guard ACTUALLY EXAMINES --
+# `len(_placements(...)) > 0` -- and BOTH rows use that one predicate; see
+# `_PLACE_ADMISSION`. The `sentences the set holds` column is published beside
+# it because the two are different numbers and a reader is entitled to see how
+# many sentences each sample contains as well as how many were scored: the
+# grader's 43 were reported for three rounds only as a 25. Both `falsely
+# faulted` columns are recomputed from committed sentences by
+# `sdk/tests/test_rank_claim_surfaces.py` (L-79), and so are both `n admitted`.
 _PLACE_PRECISION = (
-    ("the author's non-placement set", "this check's author", False, 41, 20),
-    ("the grader's non-placement set", "an independent grader", True, 25, 19),
+    ("the author's non-placement set", "this check's author", False, 41, 28,
+     20),
+    ("the grader's non-placement set", "an independent grader", True, 43, 25,
+     19),
+)
+# THE ADMISSION RULE IS A CHOICE, IT MOVES THE HEADLINE, AND IT IS STATED
+# RATHER THAN INHERITED (D49). A precision denominator has to say which
+# sentences counted, and there are two defensible answers:
+#
+#   * `_placements` -- the sentences in which the guard actually FINDS a
+#     placement expression, which is what it then runs its bind loop over.
+#   * a raw rule-A pattern match -- every sentence in which the pattern fires
+#     at all, before the homonym list, the probability form, the of-N form and
+#     the linear-algebra subject-head discriminator get to mute it.
+#
+# `_placements` IS THE ONE TAKEN, FOR A REASON THAT IS NOT A PREFERENCE:
+# `board_placement_faults` -- the function whose output IS the numerator -- is
+# itself built on `_placements` and can only fault a sentence that survives it.
+# Under the raw rule the numerator and the denominator are computed by two
+# different functions, so a sentence the discriminator correctly clears sits in
+# the denominator while being structurally incapable of entering the numerator.
+# That is not a hard case the guard passed; it is a case the guard was never
+# offered, and counting it as a success is counting the discriminator's correct
+# silences twice.
+#
+# THIS IS THE LESS FLATTERING CHOICE AND THAT IS SAID OUT LOUD. It removes 13
+# sentences from the author's own denominator -- 8 `linalg-head-listed`, 1
+# `coordination`, 4 `homonym`, ALL of them true negatives, so the numerator
+# stays 20 -- and the author's published rate therefore moves from 49% to 71%.
+# The row that gets worse is this check's author's own.
+#
+# (rule, author admitted, author falsely faulted, grader admitted, grader
+#  falsely faulted) -- recomputed from the same committed sentences as the
+# table above, so the sensitivity in the generated paragraph cannot go stale
+# the way the reach figures once did.
+_PLACE_ADMISSION = (
+    ("`_placements`, the sentences this guard actually examines -- IN USE "
+     "above for both rows", 28, 20, 25, 19),
+    ("a raw rule-A pattern match, looser, and what the author's row alone used "
+     "until 2026-08-11", 41, 20, 26, 19),
 )
 # THE SHAPES, because a rate without them is not actionable, and because the
 # ruling that permits a shape to be KNOWINGLY ACCEPTED rather than fixed
@@ -1022,27 +1089,46 @@ def _place_precision_sentence() -> str:
     all of them are measured on.
 
     EVERY COMPARISON HERE IS COMPUTED, not written down. The spread between the
-    rows, and which row is the higher one, are derived from the table: a claim
-    about the samples that a future measurement could falsify is the one thing
-    this paragraph is not allowed to contain (L-76).
+    rows, which row is the higher one, AND HOW MUCH THE ADMISSION RULE MOVES
+    THAT SPREAD are derived from the tables: a claim about the samples that a
+    future measurement could falsify is the one thing this paragraph is not
+    allowed to contain (L-76).
+
+    THE SENSITIVITY SENTENCE EXISTS BECAUSE THIS PARAGRAPH ONCE CONTAINED SUCH
+    A CLAIM AND EXECUTION FALSIFIED IT (D49, the fifth L-76 absolute on this
+    rung and the first to sit in the reader-facing verdict rather than in a
+    comment). The falsified text read: the two samples "differ in that variable
+    and in nothing else", and "the same admission rule applies to both". They
+    did not; two different predicates implemented that one rule, and the
+    difference was worth up to 22 points on the author's own row. Both clauses
+    are quoted here rather than deleted and neither is asserted anywhere. The
+    replacement does not claim the builder is the only variable -- it REPORTS
+    the range the other variable is worth, recomputed from `_PLACE_ADMISSION`
+    rather than typed.
     """
     def pct(bad, n):
         return round(100 * bad / n)
 
-    def row(name, who, blind, n, bad):
+    def row(name, who, blind, total, n, bad):
         seen = ("built BLIND -- neither these patterns nor the other sample "
                 "was read until after its sentences existed" if blind else
                 "built WITH the pattern list and six rounds of grade findings "
                 "in hand, adversarially")
         return (f"{name} ({who}, {seen}): falsely faults {bad} of {n} "
-                f"({pct(bad, n)}%)")
+                f"({pct(bad, n)}%), those {n} being the sentences the guard "
+                f"examines out of the {total} the set holds")
     rows = "; ".join(row(*r) for r in _PLACE_PRECISION)
     rates = [pct(bad, n) for *_h, n, bad in _PLACE_PRECISION]
-    high = max(_PLACE_PRECISION, key=lambda r: r[4] / r[3])
+    high = max(_PLACE_PRECISION, key=lambda r: r[5] / r[4])
     shapes = "; ".join(
         f"{cls} ({a} author / {g} grader -- {what})"
         for cls, what, a, g in _PLACE_FALSE_FAULT)
-    outside = [r for r in _PLACE_PRECISION if r[2]]
+    spreads = sorted(abs(pct(gb, gn) - pct(ab, an))
+                     for _rule, an, ab, gn, gb in _PLACE_ADMISSION)
+    alt = "; ".join(
+        f"under {rule}: {pct(ab, an)}% ({ab} of {an}) against {pct(gb, gn)}% "
+        f"({gb} of {gn}), a {abs(pct(gb, gn) - pct(ab, an))}-point spread"
+        for rule, an, ab, gn, gb in _PLACE_ADMISSION)
     return (f"PRECISION, WHICH IS THE HALF THAT WENT UNMEASURED FOR SIX GRADE "
             f"ROUNDS and is the reason there were six: every figure above "
             f"counts a MISS. This one counts a FALSE FAULT, which is the "
@@ -1052,17 +1138,28 @@ def _place_precision_sentence() -> str:
             f"reason the reach rows do: {rows}. THEY DISAGREE BY "
             f"{max(rates) - min(rates)} POINTS, and the higher figure is "
             f"{high[0]} ({high[1]}). NEITHER IS A BOUND ON THE NEXT SAMPLE -- "
-            f"a set's builder is a variable in the result, the two here differ "
-            f"in that variable and in nothing else, and a third builder would "
-            f"give a third number. Every sentence in both is one in which the "
-            f"rule-A pattern DOES match an expression and NO live placement is "
-            f"pinned on a named entrant; the same admission rule applies to "
-            f"both, so neither denominator can be padded with sentences the "
-            f"guard never looks at -- the author's set asserts the match at "
-            f"import for every sentence it holds, and the grader's is scored "
-            f"over the {outside[0][3] if outside else 0} of its sentences the "
-            f"guard actually looks at, the rest excluded rather than counted "
-            f"clean. Recomputed from campaign/V16_PRECISION_SET.py and "
+            f"a set's builder is a variable in the result and a third builder "
+            f"would give a third number. THE BUILDER IS NOT THE ONLY VARIABLE, "
+            f"AND THIS PARAGRAPH USED TO SAY IT WAS: the ADMISSION RULE -- "
+            f"which sentences count toward a denominator at all -- moves the "
+            f"spread between these two rows across a {spreads[0]}-to-"
+            f"{spreads[-1]} point range, so the builder effect reported above "
+            f"is CONFOUNDED with it and no part of the gap can be attributed "
+            f"to provenance alone. Measured, on the same committed sentences: "
+            f"{alt}. Every sentence scored in either row is one in which this "
+            f"guard actually FINDS a placement expression -- "
+            f"`len(_placements(...)) > 0`, the same predicate "
+            f"`board_placement_faults` is built on, so a row's numerator and "
+            f"its denominator come from one function and not two -- and in "
+            f"which NO live placement is pinned on a named entrant. ONE RULE, "
+            f"BOTH SAMPLES, AND IT IS THE LESS FLATTERING ONE HERE: it drops "
+            f"13 sentences the discriminator correctly clears out of the "
+            f"author's own denominator, all of them true negatives, moving "
+            f"this check's author's row from 49% to 71% while leaving its "
+            f"numerator at 20. Neither denominator can be padded with "
+            f"sentences the guard never looks at, because those are excluded "
+            f"rather than counted clean. Recomputed from "
+            f"campaign/V16_PRECISION_SET.py and "
             f"campaign/V16_GRADE_ROUND7_PRECISION_SET.py by "
             f"sdk/tests/test_rank_claim_surfaces.py, which also asserts that "
             f"wrong placements still FAULT and that CORRECT ones stay SILENT, "
@@ -1647,6 +1744,29 @@ def _parse_published_board() -> tuple[dict[str, int] | None, str]:
     return board, head
 
 
+def _board_pin_date() -> str:
+    """The commit date of the frozen benchmark clone, or "" if unavailable.
+
+    READ FROM THE CLONE, NEVER TYPED. BLIND TO item 12 names how old this
+    check's board is, and a typed date is exactly the kind of figure L-79
+    watched go stale in this same file. The one thing item 12 must never do is
+    misreport the age of the thing it exists to disclose, so an unreadable
+    clone yields "" and the item says the age is unknown rather than guessing.
+
+    Not folded into `_parse_published_board`: that function's return contract
+    is asserted by a dozen tests, and widening it to carry a cosmetic date
+    would be a change to the detector in order to improve a comment.
+    """
+    root = Path(os.environ.get(_BOARD_DIR_ENV,
+                               Path.home() / "closure-challenge-benchmark"))
+    try:
+        return subprocess.run(["git", "show", "-s", "--format=%cs", "HEAD"],
+                              cwd=root, capture_output=True, text=True,
+                              timeout=30, check=True).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
 def _board_margin() -> tuple[int, int]:
     """(table blocks in the README, blocks that qualify as a leaderboard).
 
@@ -2040,6 +2160,8 @@ def check_board_placement_words() -> Result:
                 if head == pinned else
                 f"WHICH IS NOT the pinned {pinned[:8] or 'unknown'} this lab's "
                 f"claims are dated to")
+    pinned_on = _board_pin_date()
+    pin_age = f", dated {pinned_on}" if pinned_on else " (date unreadable)"
     blocks, qualifying = _board_margin()
     frame = (f"frame: board read from the benchmark's own README table at "
              f"{head[:8]} ({pin_note}) -- {order}. MARGIN: that README has "
@@ -2111,7 +2233,25 @@ def check_board_placement_words() -> Result:
              f"`negated-or-questioned`. Items 10 and 11 are here because a "
              f"held-out set built OUTSIDE this check faulted on them and the "
              f"nine above did not describe either -- which is what an outside "
-             f"sample is for. GREEN HERE IS NOT COVERAGE: it means no "
+             f"sample is for. (12) WHETHER ITS OWN BOARD IS STILL CURRENT. "
+             f"Item 9 is this hazard one level down, for the SENTENCE -- "
+             f"whether a placement is dated history; this is the same hazard "
+             f"for the REFERENT. The {len(board)} entrants above were read "
+             f"from a clone frozen at {head[:8]}{pin_age}, and nothing in this "
+             f"check can tell whether that board has moved since: it compares "
+             f"sentences to the pin and never asks the pin's age. If the board "
+             f"HAS moved the error runs BOTH ways -- a sentence true of the "
+             f"live board FAULTS at the severity of the surface carrying it, "
+             f"and a sentence true only of the pin stays SILENT. The pin is "
+             f"deliberate and is NOT a defect to repair here: rung V1 needs a "
+             f"frozen scoring reference so the case scores recompute "
+             f"identically, and a clone that SCORES is not a clone that RANKS "
+             f"-- the same file was serving both purposes and only one of them "
+             f"wants a freeze. This item is the disclosure; the repair, if a "
+             f"rank claim ever needs the live board, is to fetch the live "
+             f"board and say so. Every part of it is generated from the pin "
+             f"rather than typed, so it cannot outlive the pin it describes. "
+             f"GREEN HERE IS NOT COVERAGE: it means no "
              f"placement in the patterns disagrees with the board")
     # A SKIP IS NOT AN AGREEMENT, and an empty sweep is not a clean one. Both
     # of these used to be capable of returning PASS: a defect that raised on
@@ -4403,8 +4543,16 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "severity -- conservative in direction, still a name collision doing "
         "a provenance check's job; "
         "files over 4 MB, non-UTF-8 surfaces, untracked files and archive "
-        "members; and whether a placement is dated history rather than a live "
-        "claim, which is the other reason rule B is narrow", None),
+        "members; whether a placement is dated history rather than a live "
+        "claim, which is the other reason rule B is narrow; and -- the same "
+        "hazard one level up, for the REFERENT rather than the sentence -- "
+        "whether the board it compares against is still the live one. It "
+        "reads a deliberately frozen scoring clone and never asks that clone's "
+        "age, so if the board has moved it will FAULT a sentence true of the "
+        "live board and stay SILENT on one true only of the pin. The frame "
+        "line states which commit and which date, generated from the pin "
+        "rather than typed here, because a typed pin in a disclosure about "
+        "staleness is the defect performing itself", None),
     "check_memory_scaling_law": (
         EVIDENCE,
         "a published power law that does not refit from its own tabulated "

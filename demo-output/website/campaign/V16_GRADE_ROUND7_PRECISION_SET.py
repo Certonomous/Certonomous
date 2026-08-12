@@ -218,8 +218,16 @@ def measure(board, faults):
     """The precision figure, recomputed from the committed sentences.
 
     Keys are stable so the suite can assert on them without transcribing a
-    number: FALSE_FAULTS / DENOMINATOR / BY_CLASS / CONTROLS_MISSED /
+    number: FALSE_FAULTS / TOTAL / BY_CLASS / CONTROLS_MISSED /
     SILENT_CONTROLS_FAULTED.
+
+    `TOTAL` WAS CALLED `DENOMINATOR` AND WAS NOT ONE.  It is the number of
+    sentences this set HOLDS (43); the published figure's denominator is the
+    subset the guard examines (25), computed by `admission` above.  Nothing
+    read the key, so the two never contradicted each other in a test -- they
+    contradicted each other in a reader's head, and grade round 9 noted that
+    the 43 appeared nowhere beside the 25.  Both now reach the verdict, in
+    `_PLACE_PRECISION`'s own columns.
     """
     result = {"BY_CLASS": {}, "FALSE_FAULT_LABELS": []}
     false_faults = 0
@@ -231,7 +239,7 @@ def measure(board, faults):
             false_faults += 1
             result["FALSE_FAULT_LABELS"].append(lab)
     result["FALSE_FAULTS"] = false_faults
-    result["DENOMINATOR"] = len(NON_PLACEMENTS)
+    result["TOTAL"] = len(NON_PLACEMENTS)
 
     result["CONTROLS_MISSED"] = [
         lab for lab, tmpl in MUST_FAULT
@@ -245,11 +253,26 @@ def measure(board, faults):
 def admission(board, placements, names):
     """{label: n} -- how many rank-like expressions the guard actually FINDS.
 
-    The author's set asserts at import that a rule-A pattern matches every
-    sentence, so the denominator cannot be padded with sentences the guard
-    never looks at.  This set applies the SAME admission rule rather than a
-    friendlier one, because a precision figure flattered by unexamined
-    sentences would not be comparable to 20 of 41.
+    THIS DOCSTRING CARRIED THE DEFECT DOCKET D49 NAMES, AND IT IS QUOTED HERE
+    RATHER THAN DELETED (L-76).  It read: "The author's set asserts at import
+    that a rule-A pattern matches every sentence, so the denominator cannot be
+    padded with sentences the guard never looks at.  THIS SET APPLIES THE SAME
+    ADMISSION RULE rather than a friendlier one, because a precision figure
+    flattered by unexamined sentences would not be comparable to 20 of 41."
+
+    It was not the same rule.  `len(placements(...)) > 0` applies the homonym
+    list, the probability form, the of-N form and the linear-algebra
+    subject-head discriminator AFTER the pattern match; the author's raw match
+    applies none of them and is strictly looser.  This set was the STRICTER of
+    the two and its row was the WORSE-LOOKING one, so the error did not run in
+    this grader's favour -- which is exactly why nobody checked it for three
+    rounds.  Round 10 moved the author's set onto this predicate rather than
+    moving this one onto the author's; the reasoning is in `_PLACE_ADMISSION`
+    in `scripts/self_audit.py`, and the figure it made worse is the author's.
+
+    The claim now made is the narrow true one: this returns how many placement
+    expressions the guard FINDS in each sentence, and the round-7 figure is
+    scored over the sentences where that count is non-zero.
     """
     pat = names(board)
     return {lab: len(placements(text, pat, board))

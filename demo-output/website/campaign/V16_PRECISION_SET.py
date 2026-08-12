@@ -21,6 +21,22 @@ WHAT THE FIGURE IS, stated so it is not read as more than it is.
   LIVE BOARD PLACEMENT IS PINNED ON A NAMED ENTRANT. A guard that is right
   about all of them is silent on all of them.
 
+  AND THE FIGURE IS SCORED OVER FEWER THAN ALL OF THEM, WHICH IS NEW IN ROUND
+  10 AND IS THE LESS FLATTERING CHOICE (docket D49). A rule-A pattern matching
+  is not the same event as the guard FINDING a placement: `_placements` applies
+  the homonym list, the probability form, the of-N form and the linear-algebra
+  subject-head discriminator after the match, and `board_placement_faults` --
+  whose output is this figure's NUMERATOR -- can only fault a sentence that
+  survives all of it. Scoring the numerator with one predicate and the
+  denominator with another is what this file did for three rounds, and it put
+  13 sentences in the denominator that were structurally incapable of entering
+  the numerator. The denominator is now `admitted_labels` below, the same
+  predicate the numerator uses. All 41 sentences stay in the file, all 41 still
+  assert a rule-A match at import, and 28 of them are scored. The cost of the
+  correction falls on this file's own headline: 20 of 41 (49%) becomes 20 of 28
+  (71%), the numerator unmoved because all 13 dropped sentences were true
+  negatives.
+
   FILTER. Board read from the benchmark README pin: Reissmann 1, Wu 2, Liu 3,
   Montoya 4. A sentence "faults" if `board_placement_faults` returns a rule-A
   or a rule-B fault for it.
@@ -36,13 +52,23 @@ WHAT THE FIGURE IS, stated so it is not read as more than it is.
   AND IT IS NOT A CEILING EITHER, WHICH IS WHAT THIS PARAGRAPH USED TO SAY.
   The sentence that stood here read: "So the figure is a WORST CASE on hard
   sentences, not a rate over the corpus." That was a bound, and grade round 7
-  falsified it -- a disjoint set built blind by an independent grader, under
-  this file's own admission rule unchanged, measures 19 of 25 against this
-  set's 20 of 41. The hedge was written to stop a reader overstating the number
-  in the pessimistic direction and it understated it in the optimistic one,
-  which is the direction this rung exists to stop being wrong in. It is quoted
-  here rather than deleted, because a repair that erases the mistake it
-  repaired destroys the record (L-76); it is not asserted anywhere.
+  falsified it -- a disjoint set built blind by an independent grader measures
+  19 of 25 against this set's 20 of 28. The hedge was written to stop a reader
+  overstating the number in the pessimistic direction and it understated it in
+  the optimistic one, which is the direction this rung exists to stop being
+  wrong in. It is quoted here rather than deleted, because a repair that erases
+  the mistake it repaired destroys the record (L-76); it is not asserted
+  anywhere.
+
+  THE CLAUSE THAT WAS DELETED FROM THAT PARAGRAPH, AND WHY THE STRIKE SURVIVED
+  IT ANYWAY. The sentence above read, until 2026-08-11, that the grader's set
+  measured its 19 of 25 "UNDER THIS FILE'S OWN ADMISSION RULE UNCHANGED". That
+  was false -- the grader's set admitted on `_placements` and this one admitted
+  on a raw match -- and it is quoted here rather than deleted, for the same
+  reason as the sentence it modified. It is not asserted anywhere. The strike
+  above does NOT rest on it: 19 of 25 exceeds this set's rate under every
+  common admission rule, including the one now in use, so "worst case" is
+  falsified without reference to how either denominator was drawn.
 
   ONE ROW IS A SELF-REPORT. The guard therefore publishes this set's figure
   BESIDE the grader's, each naming who built it and whether they were blind,
@@ -266,14 +292,45 @@ def matches_a_pattern(sa) -> list[str]:
             if not sa._place_pattern(upto).search(sa._place_flatten(sentence))]
 
 
-def measure(board, faults):
-    """Falsely faulted counts, headline and per class."""
-    bad = [(cls, lab) for cls, lab, s in NON_PLACEMENTS if any(faults(s, board))]
+def admitted_labels(board, placements, names):
+    """Labels of the sentences the guard ACTUALLY EXAMINES.
+
+    `len(placements(...)) > 0` -- the same predicate `board_placement_faults`
+    is built on, so this figure's denominator and its numerator come from one
+    function rather than two. See the FRAME note above and docket D49: for
+    three rounds this set was scored over every sentence a rule-A pattern
+    merely matched, which is a strictly looser event, while the grader's set
+    was scored over this one. The comparison between the two rows was therefore
+    partly an artefact of the pairing.
+
+    Callables are injected rather than imported so this file stays importable
+    without the guard, exactly as `matches_a_pattern` does.
+    """
+    pat = names(board)
+    return {lab for _cls, lab, sentence in NON_PLACEMENTS
+            if placements(sentence, pat, board)}
+
+
+def measure(board, faults, admitted=None):
+    """Falsely faulted counts, headline and per class.
+
+    `admitted` -- the labels to score, normally `admitted_labels(...)`. Passing
+    None scores all 41, which is the RAW-MATCH rule this file used until round
+    10; it is kept reachable so the sensitivity published in the verdict can be
+    recomputed rather than typed, and it is NOT what the published figure is
+    over. `TOTAL` is always the full size of the set, because a reader is
+    entitled to see how many sentences it holds as well as how many were
+    scored.
+    """
+    rows = [(cls, lab, s) for cls, lab, s in NON_PLACEMENTS
+            if admitted is None or lab in admitted]
+    bad = [(cls, lab) for cls, lab, s in rows if any(faults(s, board))]
     by_class: dict[str, int] = {}
     for cls, _lab in bad:
         by_class[cls] = by_class.get(cls, 0) + 1
     missed_controls = sum(1 for _lab, s in CONTROLS if not any(faults(s, board)))
-    return {"PRECISION": (len(bad), len(NON_PLACEMENTS)),
+    return {"PRECISION": (len(bad), len(rows)),
+            "TOTAL": len(NON_PLACEMENTS),
             "BY_CLASS": by_class,
             "FALSE_FAULT_LABELS": sorted(f"{c}: {l}" for c, l in bad),
             "CONTROLS_MISSED": (missed_controls, len(CONTROLS))}
@@ -296,10 +353,12 @@ if __name__ == "__main__":                                     # pragma: no cove
     if unmatched:
         print(f"NOT MATCHED BY ANY RULE-A PATTERN ({len(unmatched)}): "
               f"{unmatched}")
-    got = measure(board, sa.board_placement_faults)
+    admitted = admitted_labels(board, sa._placements, sa._board_names)
+    got = measure(board, sa.board_placement_faults, admitted)
     k, n = got["PRECISION"]
     print(f"falsely faulted {k} of {n} held-out non-placements "
-          f"({round(100 * k / n)}%)")
+          f"({round(100 * k / n)}%), those {n} being the sentences the guard "
+          f"examines out of the {got['TOTAL']} this set holds")
     for cls, count in sorted(got["BY_CLASS"].items()):
         print(f"  {cls}: {count}")
     for lab in got["FALSE_FAULT_LABELS"]:

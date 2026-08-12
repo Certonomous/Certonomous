@@ -1259,6 +1259,47 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
                      "GREEN HERE IS NOT COVERAGE", "4 MB", "QUOTING"):
             self.assertIn(owed, frame[0], "the verdict understates its reach")
 
+    def test_the_verdict_admits_it_cannot_tell_its_board_is_stale(self):
+        """D48's settlement, and the reason it is GENERATED and not typed.
+
+        Eleven blind-spot items described how this guard reads a SENTENCE.
+        None described its REFERENT. Item 9 names the symmetric hazard one
+        level down -- whether a placement is dated history -- so the shape of
+        the omission was already in the list: the guard could say "this
+        sentence may be about an old board" and could not say "my own board
+        may be an old board". The clone is pinned at a commit from months back
+        and the live board has since grown by two entrants and changed leader
+        (`campaign/BOARD_MOVED_2026-08-11.md`), so the disclosure is not
+        hypothetical.
+
+        THE PIN VALUES MUST COME FROM THE PIN. A typed commit or a typed date
+        in an item whose entire subject is staleness would be the defect
+        performing itself, so this asserts the item carries what
+        `_published_board` and `_board_pin_date` actually return -- change the
+        clone and the item follows it or this reddens.
+        """
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        _b, head = sa._published_board()
+        frame = [d for d in sa.check_board_placement_words().detail
+                 if d.startswith("frame:")][0]
+        self.assertIn("(12) WHETHER ITS OWN BOARD IS STILL CURRENT", frame)
+        self.assertIn(f"The {len(board)} entrants above were read from a clone "
+                      f"frozen at {head[:8]}", frame,
+                      "item 12's pin is not the pin the check actually used")
+        pinned_on = sa._board_pin_date()
+        if pinned_on:
+            self.assertIn(f"dated {pinned_on}", frame,
+                          "item 12 states a date the clone does not have")
+        # Both directions of the error, which is the whole content of the
+        # disclosure: naming only the false FAULT would understate it.
+        self.assertIn("the error runs BOTH ways", frame)
+        self.assertIn("stays SILENT", frame)
+        # And it must not read as an instruction to move the pin, which is the
+        # one response `BOARD_MOVED` §4 rules out.
+        self.assertIn("NOT a defect to repair here", frame)
+
     def test_no_reach_figure_or_pattern_count_is_typed_into_a_surface(self):
         """The literal problem one level above the ordinal vocabulary.
 
@@ -1398,9 +1439,17 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
     def _outside_precision(self, board):
         """The grader's set, reduced to what the round-7 figure is over.
 
-        Only ADMITTED sentences -- ones in which a rule-A pattern actually
-        matches -- are scored, which is the author's own admission rule applied
-        unchanged. Returns (labels admitted, labels falsely faulted).
+        Only ADMITTED sentences -- ones in which the guard actually FINDS a
+        placement expression, `len(_placements(...)) > 0` -- are scored.
+        Returns (labels admitted, labels falsely faulted).
+
+        THIS DOCSTRING SAID "which is the author's own admission rule applied
+        unchanged" AND THAT WAS THE DEFECT (D49). The author's set was scored
+        over every sentence a rule-A pattern merely MATCHED, which is strictly
+        looser: it skips the homonym list, the probability form, the of-N form
+        and the linear-algebra subject-head discriminator. Both sets now use
+        the predicate named above, and `_author_precision` below is this method
+        made symmetric so the pairing cannot silently come apart again.
         """
         grader = self._held_out("V16_GRADE_ROUND7_PRECISION_SET.py")
         seen = grader.admission(board, sa._placements, sa._board_names)
@@ -1412,6 +1461,137 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
                         "not to look at; the admission rule is not being "
                         "applied consistently")
         return admitted, bad
+
+    def _author_precision(self, board):
+        """The author's set under THE SAME predicate as `_outside_precision`.
+
+        The whole of D49 is that this method did not exist: the author's row
+        was scored by `measure` over all 41 sentences while the grader's was
+        scored over the 25 the guard examines, and the 27-point spread the
+        verdict published was mostly that difference. Returns
+        (labels admitted, dict of measured results over the admitted subset).
+
+        The `bad <= admitted` assertion is the one that would have caught it,
+        and it is made on BOTH sides now rather than only on the outside one.
+        """
+        author = self._held_out("V16_PRECISION_SET.py")
+        admitted = author.admitted_labels(board, sa._placements,
+                                          sa._board_names)
+        got = author.measure(board, sa.board_placement_faults, admitted)
+        bad = {lab.split(": ", 1)[1] for lab in got["FALSE_FAULT_LABELS"]}
+        self.assertTrue(bad <= admitted,
+                        "a false FAULT on a sentence the guard was measured "
+                        "not to look at; the admission rule is not being "
+                        "applied consistently")
+        return admitted, got
+
+    def test_both_precision_rows_are_admitted_by_one_predicate(self):
+        """D49, executed: the defect was a PAIRING, so this is its test.
+
+        Each row recomputing correctly from its own sentences -- which both
+        always did -- cannot see this. Two rows can each be internally right
+        and still be incomparable, and the verdict compares them. So the
+        property under test is not "each row is correct" but "both rows were
+        admitted by the same rule", and the rule is named here rather than
+        inherited from whichever module was read first.
+
+        A future editor who scores either row over its full set, or over a raw
+        pattern match, reddens this.
+        """
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        rows = {name: (total, n) for name, _w, _b, total, n, _bad
+                in sa._PLACE_PRECISION}
+
+        a_admitted, a_got = self._author_precision(board)
+        self.assertEqual(
+            rows["the author's non-placement set"], (a_got["TOTAL"],
+                                                     len(a_admitted)),
+            "the author's row's denominators disagree with its sentences")
+
+        g_admitted, _bad = self._outside_precision(board)
+        grader = self._held_out("V16_GRADE_ROUND7_PRECISION_SET.py")
+        g_total = grader.measure(board, sa.board_placement_faults)["TOTAL"]
+        self.assertEqual(
+            rows["the grader's non-placement set"], (g_total, len(g_admitted)),
+            "the grader's row's denominators disagree with its sentences")
+
+        # The predicate itself, asserted rather than assumed: every admitted
+        # label on both sides is one the guard finds a placement in, and no
+        # unadmitted label is. Without this the two sets could agree on a
+        # count while disagreeing on which sentences produced it.
+        pat = sa._board_names(board)
+        author = self._held_out("V16_PRECISION_SET.py")
+        for cls, lab, sentence in author.NON_PLACEMENTS:
+            found = bool(sa._placements(sentence, pat, board))
+            self.assertEqual(found, lab in a_admitted, f"{cls}: {lab}")
+        for lab, _cls, text in grader.sentences(board):
+            found = bool(sa._placements(text, pat, board))
+            self.assertEqual(found, lab in g_admitted, lab)
+
+    def test_the_precision_spread_is_measured_under_both_rules(self):
+        """`_PLACE_ADMISSION` recomputes, so the sensitivity cannot go stale.
+
+        The verdict no longer claims the two samples differ in their builder
+        and in nothing else. It reports the range the ADMISSION RULE is worth,
+        and a range that is written down rather than measured is the same L-79
+        hazard that put stale reach figures in this file. So both rules are
+        executed here against the committed sentences.
+
+        IT ALSO EXECUTES THE CLAIM THE STRIKE RESTS ON. "Worst case on hard
+        sentences" stays struck because the grader's rate exceeds the author's
+        under EVERY rule, not because of any one p-value -- so that is asserted
+        for every row of `_PLACE_ADMISSION` rather than argued in a comment.
+        """
+        board, reason = sa._published_board()
+        if board is None:
+            self.skipTest(f"detector OFF, not a silent pass: {reason}")
+        author = self._held_out("V16_PRECISION_SET.py")
+        grader = self._held_out("V16_GRADE_ROUND7_PRECISION_SET.py")
+        pat = sa._board_names(board)
+
+        strict = author.admitted_labels(board, sa._placements, sa._board_names)
+        upto = 4 + sa._PLACE_OVER
+        loose = {lab for _cls, lab, s in author.NON_PLACEMENTS
+                 if sa._place_pattern(upto).search(sa._place_flatten(s))}
+        self.assertTrue(strict < loose,
+                        "`_placements` is meant to be STRICTLY narrower than a "
+                        "raw match; if it is not, the two rules are the same "
+                        "rule and this table is describing a difference that "
+                        "does not exist")
+
+        g_bad = set(grader.measure(
+            board, sa.board_placement_faults)["FALSE_FAULT_LABELS"])
+        g_strict = {lab for lab, _c, t in grader.sentences(board)
+                    if sa._placements(t, pat, board)}
+        g_loose = {lab for lab, _c, t in grader.sentences(board)
+                   if sa._place_pattern(upto).search(sa._place_flatten(t))}
+
+        measured = []
+        for admitted, g_admitted in ((strict, g_strict), (loose, g_loose)):
+            a = author.measure(board, sa.board_placement_faults, admitted)
+            ak, an = a["PRECISION"]
+            gk, gn = len(g_bad & g_admitted), len(g_admitted)
+            measured.append((an, ak, gn, gk))
+            self.assertGreater(
+                round(100 * gk / gn), round(100 * ak / an),
+                "the grader's rate does not exceed the author's under this "
+                "admission rule -- the struck 'worst case' hedge rests on it "
+                "doing so under EVERY rule, and that is now false")
+        self.assertEqual(
+            measured, [tuple(r[1:]) for r in sa._PLACE_ADMISSION],
+            "`_PLACE_ADMISSION` disagrees with the committed sentences; the "
+            "sensitivity published in the verdict is stale")
+
+        # The numerator must NOT move with the rule. If it did, the 13
+        # sentences the strict rule drops would not all be true negatives and
+        # the choice of predicate would be a choice about the FIGURE rather
+        # than about the denominator.
+        self.assertEqual(measured[0][1], measured[1][1],
+                         "the false-FAULT count moved with the admission "
+                         "rule; the dropped sentences are not all true "
+                         "negatives")
 
     def test_both_published_precision_figures_recompute_from_their_sentences(
             self):
@@ -1432,14 +1612,15 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         board, reason = sa._published_board()
         if board is None:
             self.skipTest(f"detector OFF, not a silent pass: {reason}")
-        rows = {name: (bad, n) for name, _w, _b, n, bad in sa._PLACE_PRECISION}
+        rows = {name: (bad, n) for name, _w, _b, _t, n, bad
+                in sa._PLACE_PRECISION}
         self.assertEqual(
             2, len(sa._PLACE_PRECISION),
             "a precision row was added or removed; a single row is a "
             "self-report, and this test is the reason there are two")
 
-        author = self._held_out("V16_PRECISION_SET.py")
-        measured = author.measure(board, sa.board_placement_faults)["PRECISION"]
+        _admitted, got = self._author_precision(board)
+        measured = got["PRECISION"]
         published = rows["the author's non-placement set"]
         self.assertEqual(
             published, measured,
@@ -1509,8 +1690,8 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         declared_outside = {cls: g for cls, _w, _a, g in sa._PLACE_FALSE_FAULT
                             if g}
 
-        author = self._held_out("V16_PRECISION_SET.py")
-        by_class = author.measure(board, sa.board_placement_faults)["BY_CLASS"]
+        _admitted, got = self._author_precision(board)
+        by_class = got["BY_CLASS"]
         self.assertEqual(by_class, declared_author,
                          "a false-FAULT shape is counted in the author's "
                          "figure and missing from the enumeration, or the "
@@ -1544,7 +1725,8 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
                          "figure and missing from the enumeration, or the "
                          "reverse")
 
-        rows = {name: (bad_, n) for name, _w, _b, n, bad_ in sa._PLACE_PRECISION}
+        rows = {name: (bad_, n) for name, _w, _b, _t, n, bad_
+                in sa._PLACE_PRECISION}
         self.assertEqual(sum(declared_author.values()),
                          rows["the author's non-placement set"][0])
         self.assertEqual(sum(declared_outside.values()),
@@ -1560,33 +1742,62 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         number depends on who built the sample. So every row's builder and
         blindness must appear, exactly as `_PLACE_REACH`'s rows do, and the
         reader must be told the rows disagree.
+
+        AND BOTH DENOMINATORS, WHICH IS ROUND 10's ADDITION. A row saying
+        "19 of 25" over a set of 43 sentences tells a reader the rate and hides
+        the selection; the set's size and its admitted count are different
+        numbers and both are published now. The sensitivity of the spread to
+        that selection is asserted here too, because it is the replacement for
+        an absolute this paragraph used to assert (D49).
         """
         _, _, blind, _ = sa.BASIS["check_board_placement_words"]
         frame = [d for d in sa.check_board_placement_words().detail
                  if d.startswith("frame:")][0]
         for surface in (blind, frame):
-            for name, who, was_blind, n, bad in sa._PLACE_PRECISION:
+            for name, who, was_blind, total, n, bad in sa._PLACE_PRECISION:
                 self.assertIn(f"falsely faults {bad} of {n}", surface)
+                self.assertIn(f"out of the {total} the set holds", surface)
                 self.assertIn(name, surface)
                 self.assertIn(who, surface)
                 self.assertIn("built BLIND" if was_blind
                               else "built WITH the pattern list", surface)
             self.assertIn("THEY DISAGREE BY", surface)
             self.assertIn("NEITHER IS A BOUND", surface)
+            self.assertIn("THE BUILDER IS NOT THE ONLY VARIABLE", surface)
+            self.assertIn("CONFOUNDED", surface)
+            self.assertIn("ONE RULE, BOTH SAMPLES", surface)
+            spreads = sorted(
+                abs(round(100 * gb / gn) - round(100 * ab / an))
+                for _r, an, ab, gn, gb in sa._PLACE_ADMISSION)
+            self.assertIn(f"{spreads[0]}-to-{spreads[-1]} point range", surface)
             self.assertIn("ADVERSARIAL AND NOT REPRESENTATIVE", surface)
             self.assertIn("KNOWINGLY ACCEPTED", surface)
             for cls, _what, _a, _g in sa._PLACE_FALSE_FAULT:
                 self.assertIn(cls, surface)
 
-    #: The four absolutes this rung added and execution falsified. The fourth
+    #: The five absolutes this rung added and execution falsified. The fourth
     #: is the precision hedge: it was written to stop a reader overstating the
-    #: number and it understated it instead, by 27 points, and no sweep of the
+    #: number and it understated it instead, and no sweep of the
     #: author's own added lines could have found it -- falsifying it took
     #: building a second instrument.
+    #:
+    #: THE FIFTH IS THE FIRST ONE THAT SAT IN THE READER-FACING VERDICT rather
+    #: than in a comment (D49). The generated precision paragraph asserted that
+    #: its two samples "differ in that variable and in nothing else" and that
+    #: "the same admission rule applies to both". Two different predicates
+    #: implemented that one rule, and the pairing published was the only one of
+    #: four that was not internally consistent, the one that maximised the gap,
+    #: and the one whose Fisher p a chief ruling quoted. It took no new
+    #: instrument to falsify -- only running the two admission rules against
+    #: each other's sets, which nothing had done in three rounds because each
+    #: row recomputed correctly from its own sentences and a per-row check
+    #: cannot see a defect that lives in a PAIRING.
     _FALSIFIED = ("none of which is a false FAULT",
                   "cannot reach across a sentence",
                   "identity was never doing any work",
-                  "a WORST CASE on hard sentences")
+                  "a WORST CASE on hard sentences",
+                  "in that variable and in nothing else",
+                  "the same admission rule applies to")
 
     def test_the_falsified_absolutes_survive_only_as_quoted_history(self):
         """L-76 in the guard's own text, and the FIRST version of this test was

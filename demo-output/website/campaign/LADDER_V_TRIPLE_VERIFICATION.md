@@ -356,7 +356,11 @@ grader re-derives rather than re-reads.
 `campaign/V16_PRECISION_SET.py`: **41 held-out non-placements**, every one a sentence in
 which a rule-A pattern *does* match an expression — asserted at import, so the set cannot be
 padded with sentences the guard never looks at — and in which no live placement is pinned on
-a named entrant. **The guard falsely faults 20 of them (49%).** Five positive controls must
+a named entrant. ~~**The guard falsely faults 20 of them (49%).**~~ **Superseded by round 10,
+commit `067caac0` → settlement below: the figure is now `20 of 28` (71%),** the 28 being the
+sentences the guard actually examines. The set still holds 41 and still asserts a rule-A
+match for every one of them; what changed is that the denominator is now the same predicate
+as the numerator. Five positive controls must
 still fault and do, so the figure cannot be improved by switching the detector off. It is
 recomputed from the committed sentences by the suite, like the recall rows, so it cannot go
 stale the way they did (L-79), and it is interpolated into the verdict line and into BASIS
@@ -406,6 +410,42 @@ sentences, not a corpus rate~~; the corpus rate is the live sweep in the same ve
 > > ruling whose subject was a claim that failed for want of checking. That is this rung's
 > > **fifth** L-76 absolute and the first to sit in the reader-facing verdict rather than in a
 > > comment.
+>
+> > **[SETTLED 2026-08-11 by V16 round 10, subject `067caac0`. D49 closed; the code now does
+> > what this amendment said it should.]** One predicate was chosen and applied to both
+> > samples: **`_placements`** — the sentences the guard actually examines. The reason is not
+> > a preference. `board_placement_faults`, whose output **is** the numerator, is itself built
+> > on `_placements` and can only fault a sentence that survives it; under the raw-match rule
+> > the numerator and the denominator were computed by two different functions, so a sentence
+> > the discriminator correctly cleared sat in the denominator while being structurally
+> > incapable of entering the numerator. **This is the less flattering choice and it is the
+> > author's own row that gets worse:** 49% → **71%**, numerator unmoved at 20.
+> >
+> > **Published now:** author **20 of 28 (71%)**, of 41 sentences held; grader **19 of 25
+> > (76%)**, of 43 held. **Spread 5 points.** Both denominators *and* both set sizes reach the
+> > reader — the grader's 43 had appeared beside its 25 nowhere for three rounds.
+> >
+> > **The "differ in nothing else" absolute is struck and kept, exactly as "worst case" was.**
+> > The verdict paragraph no longer claims the builder is the only variable. It states that
+> > the admission rule moves the spread across a **5-to-24 point range**, that the builder
+> > effect is therefore **confounded** with it, and it prints both rules' figures — all of it
+> > **recomputed from `_PLACE_ADMISSION`**, so the sensitivity cannot go stale the way the
+> > reach rows once did (L-79). Both falsified clauses are in `_FALSIFIED`, which reddens if
+> > either is reinstated as a claim *or* erased.
+> >
+> > **What did not change, and was checked rather than assumed:** the strike above stays
+> > struck — `test_the_precision_spread_is_measured_under_both_rules` now *executes* the claim
+> > it rests on, asserting the grader's rate exceeds the author's under **every** rule in the
+> > table, so the strike never depends on a p-value. All four recall figures, the class
+> > enumeration and every per-class count are untouched; all 13 dropped sentences are true
+> > negatives, which the same test pins by asserting the numerator does not move with the
+> > rule. **No fifth discriminator was added, and no parsing was touched.**
+> >
+> > **The defect's shape, which is the transferable part:** each row recomputed correctly from
+> > its own sentences, every round, and that is exactly why three rounds missed this. **A
+> > per-row check cannot see a defect that lives in a pairing.** The new test asserts the
+> > property that was missing — *both rows were admitted by the same rule* — rather than the
+> > property each row already had.
 >
 > **Why struck and not deleted** — L-76's own discipline: keep the falsified claim, stop
 > asserting it. Deleting it destroys the record of what was believed and when, which is the
