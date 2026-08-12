@@ -93,16 +93,40 @@ the problem H2 was opened to solve, without the history surgery.
 - f. Daily-push rule takes effect only after (e) clears.
 - **Verdict:** RED (not started; gated).
 
-## H3 — REPO SURFACE HYGIENE — **NOT STARTED**
+## H3 — REPO SURFACE HYGIENE — **AMBER: a and c done, b deferred by design (`06a9a710`)**
 
-- a. Nothing generated loose at root — pending [HAIKU]
-- b. `.gitignore` rebuilt; **planted-file test** proving the sanctioned sweep
-  helper still sees ignored paths — pending [SONNET], grader independence
-  preserved even here. This matters more than it looks: `grep` in this lab is
-  `ugrep --ignore-files` and honours `.gitignore`, so a `.gitignore` change can
-  silently blind every sweep in the repo.
-- c. Root README current, three sentences, no stale numbers (L-79) — pending
-- **Verdict:** RED (not started).
+- **a. Root inventory — DONE, moves deliberately deferred.** 13 directories and 19
+  root files classified. Ten `mbc_retry*.err/.log` (2.2 KB total) are tracked and
+  **unreferenced** — the only true strays. `badFaces` (7 bytes) is already
+  untracked and ignored. Everything else at root is either source or is **cited in
+  a durable record**: `uq_batch.log`/`.err` are referenced by `docs/HANDOFF-UQ.md`
+  and are therefore evidence, explicitly marked DO NOT SWEEP so a later agent
+  cannot undo the finding.
+- **b. `.gitignore` NOT rebuilt — deferred deliberately, drafted instead** to
+  `docs/GITIGNORE_PROPOSAL.md`. `grep` in this lab is `ugrep --ignore-files` and
+  honours `.gitignore`, so editing it while agents sweep changes what each of them
+  can see **with no error raised anywhere**. The planted-file test by [SONNET]
+  runs against the proposal in the quiet window.
+- **c. Root README — VERIFIED CLEAN.** Swept for stale quantitative claims against
+  L-79 and specifically against yesterday's movements (P(rank 1) now 50%, board now
+  six entries, entry NOT submitted). The README asserts none of them; its only
+  numbers are a standards reference, a hash algorithm, a solver version and a port.
+  Positive control stated: `grep -r "mbc_retry"` reaches tracked content and
+  returns only the `.gitignore` line.
+
+> **Trap recorded for whoever executes H2, found by cross-reading two independent
+> reports.** `numpy-*.whl` (15.9 MB) and `h5py-*.whl` (5.2 MB) are the history
+> purge's single largest safe reclaim AND are **tracked at HEAD**, not merely
+> historical. Purging them from history without untracking them at HEAD
+> reintroduces them on the next commit — a rewrite that appears to succeed, then
+> silently undoes itself. Neither report could see this alone; it is only visible
+> where the root inventory and the MOVE_MAP overlap.
+
+> **[ORCH] error, recorded rather than quietly fixed.** H3's brief instructed moves
+> into a gitignored `evidence/` while forbidding `.gitignore` edits — two
+> instructions that cannot both be satisfied. The agent stopped and asked instead
+> of improvising, which is the correct behaviour and the reason the contradiction
+> surfaced as a question rather than as a bad commit.
 
 ## H4 — AGENT ALLOCATION RESPECTED — **AUDITED, `10cf7f21` — FAIL on H4a, with rulings**
 
