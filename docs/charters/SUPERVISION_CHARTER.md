@@ -1,6 +1,6 @@
 # Certonomous Supervision Charter
 
-Version 1.1, dated 2026-08-11. Governs who supervises what, which checks a
+Version 1.2, dated 2026-08-12. Governs who supervises what, which checks a
 supervisor performs with their own eyes, and which model each kind of agent
 runs on. It binds the fleet's org chart the way the case-selection charter
 binds the queue: the structure holds when nobody is watching, and a check that
@@ -166,8 +166,14 @@ supervisor:
 The rule is one sentence and it is the owner's:
 
 > **Family supervisors and adversarial verifiers run on Fable. Solver,
-> bookkeeping and liaison agents inherit the session default. Long-form
-> technical writing goes to Opus.**
+> bookkeeping and liaison agents inherit the session default.**
+> ~~**Long-form technical writing goes to Opus.**~~
+>
+> **[THIRD SENTENCE STRUCK 2026-08-12, in place and kept, per
+> `docs/MEMORY_ARCHITECTURE.md` §8.1. It is superseded for the execution of
+> Katie's order of 2026-08-12 only. The standing rule is undecided and hers to
+> set: see §5a, which states the two options and does not choose between them.
+> The first two sentences are NOT struck and remain in force.]**
 
 The Opus clause has a precedent rather than a theory: the two LaTeX reports
 she asked for on 2026-08-05, the closure-challenge campaign and the DAFoam
@@ -178,10 +184,119 @@ them on the strongest available model is the same decision as putting the
 chief there. The inherit clause exists so the designation rule costs nothing
 on the work that does not need it.
 
+*[This paragraph is retained unstruck although the clause it explains is
+struck. It is the recorded reason the Opus clause existed, and that reason is
+a direct input to the ruling §5a leaves open; deleting it would remove the
+evidence on one side of a decision that has not been made yet.]*
+
 A dispatch that overrides this rule says so in the brief and says why. A
 silent override is a violation, in either direction: an adversarial verifier
 quietly downgraded is the obvious failure, and a solver agent quietly
 upgraded is a spend nobody approved.
+
+## 5a. The Opus clause is struck for one order; the standing rule is Katie's (amendment 2026-08-12)
+
+> **Katie's order of 2026-08-12 assigns the drafting of standing records to
+> [FABLE]. That order governs the execution of that order. It does not settle
+> what §5 requires from tomorrow, and neither does this amendment.**
+
+**(a) What the struck clause required.** *"Long-form technical writing goes to
+Opus."* On its face that covers charter, conventions and LESSONS drafting,
+which is long-form and technical. It is not a preference in this charter; §5
+states the whole designation rule is the owner's.
+
+**(b) What the 2026-08-12 order assigns.** The order's role class for [FABLE]
+is recorded as *"research / scientific writing"*, and its item H6 reads
+*"[FABLE] drafts / [HAIKU] files: LESSONS, conventions, charters"*
+(`docs/HANDSHAKE.md` at `33f36365`). Both cannot be honoured at once, which is
+the contradiction a grader raised at `10cf7f21` and the H4 allocation audit
+recorded as item 4 before any of it executed — flagged before dispatch, not
+after, which is why nothing has to be undone.
+
+**(c) Which one governs today.** The order does. Katie is the principal; §5's
+rule is hers, and a later instruction of hers outranks this charter's rendering
+of an earlier one. The dates are worth stating exactly, since they are the
+whole basis of that sentence. The designation rule is hers and dated
+**2026-08-07** (`docs/charters/PROPOSALS_OPEN.md:1105`: *"the model
+designation rule. Hers, 2026-08-07"*). The 2026-08-05 LaTeX reports are the
+precedent the Opus clause cites, not its authority. 2026-08-11 is only the
+date of the v1.1 bump that carried the rule forward. The order is dated
+**2026-08-12** and is the latest of them. Chief ruling at
+`33f36365`. Note that §5's last
+paragraph is unstruck and live: *"A dispatch that overrides this rule says so
+in the brief and says why."* On that reading the order is not a violation of
+§5 at all but a declared override of the kind §5 already provides for. **What
+§5 has no mechanism for is making a declared override standing** — that is the
+actual gap, and it is the thing the options below are about.
+
+**(d) The standing rule is Katie's to set, and it is still open.** The two
+options, with the honest consideration on each side and no recommendation:
+
+**Option A — keep the clause, treat the order as a dated override.** §5's third
+sentence is restored; Katie's order of 2026-08-12 stands as a declared,
+order-scoped override under §5's existing override paragraph, on the record
+with its date and reason.
+- *For:* the designation rule keeps one testable line, and it survives changes
+  in which model is strongest or available — it names the task class, not the
+  fleet roster. The recorded reason for the clause is a decision Katie made on
+  evidence: the two LaTeX reports of 2026-08-05 (`docs/PRODUCT_LIST.md`,
+  2026-08-05 changelog). Overrides stay individually visible and auditable.
+- *Against:* if writing-goes-to-Fable is the intended norm, every future day's
+  order must re-declare the override, and a rule overridden by default is
+  scenery — which is exactly what `docs/charters/README.md` says disqualifies a
+  clause from this directory. §7 already admits nothing mechanical checks model
+  designation, so "declared in the brief" is worth only what the brief is worth.
+
+**Option B — re-designate: long-form technical writing goes to Fable.** §5's
+third sentence is replaced rather than restored; Opus keeps engineering,
+execution and launches.
+- *For:* it matches the fleet's role classes as the 2026-08-12 order states
+  them, and it settles the conflict once instead of re-litigating it every day.
+  It also makes §5 internally coherent: the Fable clause already exists because
+  the §3 checks are judgment work, and composing a charter or a lesson is the
+  same judgment work rather than a different kind of task.
+- *Against:* it discards the evidence the Opus clause was built on without
+  replacing it with evidence of the same kind. The 2026-08-05 precedent is
+  about 24- and 27-page submission-grade LaTeX reports; the 2026-08-12 order is
+  about standing-records drafting. Generalising the second over the first
+  decides something the order did not visibly consider.
+
+**The rider, which attaches either way.** "Long-form technical writing" is one
+phrase covering two jobs that this conflict has now shown apart: submission-grade
+reports for outside readers, and the lab's own standing records. Katie may rule
+them together or split them, and a split is a coherent third shape of either
+option rather than an argument against it.
+
+**(e) Why an Opus agent drafted this, and why that is not incidental.** This
+amendment was written under §5 as it stood *before* the strike, by an [OPUS]
+agent dispatched for that reason (`33f36365`). Had the disputed clause been
+suspended first and the amendment drafted under the new assignment, the clause
+would have been used to adjudicate the dispute about itself, and the resulting
+document would be evidence of nothing. The ordering is the load-bearing part
+of this record: the pre-amendment rule was obeyed exactly up to the moment it
+was amended.
+
+**What is not on the record, stated rather than papered over.** The 2026-08-12
+order exists in this repo, as of `41e813df`, only as `docs/HANDSHAKE.md`'s
+rendering of it (`33f36365`) and the copy of that rendering in
+`docs/H4_ALLOCATION_AUDIT.md`. A tracked-file search at that commit for the
+order's own wording returned nothing: there is no verbatim artifact of the
+order itself. Every quotation of it above
+is from the rendering, and the rendering is the lab's own words for what she
+said. If the rendering is wrong about the role classes, this amendment inherits
+that error, and Katie's ruling on (d) supersedes it either way.
+
+**Downstream, not fixed here.** As of `41e813df`, four surfaces quote §5 or its
+version literal and read stale against this amendment:
+`docs/charters/PROPOSALS_OPEN.md:37`,
+`docs/standards/INFRA_FAMILY_SUPERVISION_GUIDELINES.md:113`,
+`docs/PRODUCT_LIST.md:512` (all three already docketed as D37, which caught
+them still citing v1.0 after the v1.1 bump) and
+`demo-output/website/AGENT_MODEL_DISTRIBUTION.md:7`, which quotes the struck
+sentence in full as a live standing rule and is *not* in D37's list. They are
+left untouched deliberately: this amendment's scope is §5, and a drafting agent
+propagating a rule that is still open would be spreading a decision Katie has
+not made. They are named here so the gap is a known gap.
 
 ## 6. Worked examples
 
