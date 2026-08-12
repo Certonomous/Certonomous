@@ -50,9 +50,39 @@ main worktree** — the ESCALATION_CHARTER §9.6c hazard, live.
   misattributed — but the collision was real, and it is why every commit in this
   order is single-step pathspec.
 
-## H2 — HISTORY CLEANED FOR FIRST PUSH — **NOT STARTED**
+## H2 — HISTORY CLEANED FOR FIRST PUSH — **BLOCKED ON A DECISION, NOT ON WORK**
 
-- a. [HAIKU] MOVE_MAP of blobs to purge — **pending**
+**The order's ~150 MB target is not reachable.** Measured 2026-08-12 at
+`dd623e33`, and the headline re-verified independently by [ORCH] after an
+internal inconsistency was found in the drafting agent's arithmetic:
+`du -sh .git` = **2.0 GB**, `size-pack` = **1.82 GiB**, worktree = 17 GB.
+
+The reclaimable material is small and the rest is evidence: numpy/h5py **wheels
+(21.1 MB)** and **superseded PDF drafts (~14 MB)** are safe to purge — not
+evidence, redownloadable or superseded. Everything else large is cited:
+**meshes 361.7 MB** (computational inputs), **solver logs 33.6 MB** (convergence
+proof), **reference papers 152.4 MB** (prior-art base). A safe purge frees
+**~35 MB**, landing at ~1.96 GB.
+
+*(The draft's "removing mesh/logs/papers saves only ~395 MB" against a 547.7 MB
+blob subtotal is uncompressed-blob vs packed-size accounting, not an error in the
+conclusion — checked before this row was written.)*
+
+**Secrets sweep: CLEAN, and its positive control was stated** — no `.env`,
+`.pem`, `.key`, no hardcoded tokens; the one external address, `rmcconke@mit.edu`,
+is the challenge steward's published contact. Absolute internal paths in docs
+remain to be generalized before any push (hygiene, not security).
+
+**The decision for Katie, and it is a real fork:** purging to the stated target
+would mean deleting the reproducibility audit trail — the logs that prove
+convergence and the meshes that let a result be recomputed. The three honest
+options are (i) accept ~1.96 GB as the cost of a repo that carries its own
+evidence, (ii) move meshes and logs to Git LFS, or (iii) **do not push this repo
+at all and share curated artifacts instead** — which is what
+`Certonomous_closure_challenge` already is, at **504 KB**. Option (iii) solves
+the problem H2 was opened to solve, without the history surgery.
+
+- a. [HAIKU] MOVE_MAP of blobs to purge — **DONE**, `docs/MOVE_MAP_HISTORY_PURGE.md`
 - b. [OPUS] `git filter-repo` on a **fresh mirror, never the live tree** — pending
 - c. [OPUS] fresh-clone verification, `.git` < ~150 MB, full suite green — pending
 - d. [HAIKU] before/after sizes + clone result to docket — pending
