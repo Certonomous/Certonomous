@@ -530,20 +530,40 @@ This is a **local scoring, not an official leaderboard placement** — nothing
 has been submitted, and if the steward's own scoring differs from ours, the
 steward's number is the number.
 
-**Rank-1 companion (MANDATORY, 2026-08-10 — chief ruling).** Any statement of
-rank 1 or of the 0.056647 headline, on any surface, carries these four clauses.
-**P(rank 1) = 68%** — a case-level bootstrap over the eight scored cases puts the
-probability that this ordering survives a comparable set of cases at 68%, and an
-eight-case sample cannot pin it tighter than 2–100% at 95%. **The leads over
-Reissmann and Wu & Zhang are not statistically decided** (paired per-case
-differences t = −0.50 and t = −0.95, against a per-case dispersion five times the
-0.002878 margin); the leads over Liu and Montoya are (98.7%, 99.8%). **The
-standing is two cases wide** — delete `alpha_15_13929_2024` and the point ranking
-falls to rank 2 (P(rank 1) 38%); delete `NASA_2DWMH` and P(rank 1) rises to 91%.
-**`AR_1_Ret_360` and `AR_3_Ret_360` are ties below published precision** (0.00003
-and 0.00008) and are not per-case wins or losses. Source:
-`campaign/PROBABILITY_OF_RANK_2026-08-10.md` — SUPERSEDED 2026-08-10 — the internal-only restriction was WITHDRAWN by chief ruling; the 68% figure
-now TRAVELS with the entry, and may never appear without its interval (2-100% at 95%) and the not-decided pairs.
+> **THE BOARD MOVED UNDER THIS SECTION — read this before the paragraph above.**
+> The "RANK 1" statement above is dated to benchmark commit `deb91557` and to a
+> **four**-entry board. Fetched live 2026-08-11T23:33Z the board carries **six**
+> entries and a **new leader, Yang at 0.0580** (`campaign/BOARD_MOVED_2026-08-11.md`).
+> **The rank-1 claim survives on the number** — 0.056647 is still the lowest
+> overall — but the margin is over Yang and is **0.001365**, not the 0.002878 over
+> Reissmann quoted above, i.e. **less than half**. The frozen pin is deliberate
+> and is not moved: it scores, it does not rank.
+
+**Rank-1 companion (MANDATORY, ~~2026-08-10~~ — RECOMPUTED 2026-08-11 against the
+six-entry board).** Any statement of rank 1 or of the 0.056647 headline, on any
+surface, carries these four clauses.
+
+**P(rank 1) = 50%** — 50.2% over a 400,000-draw case-level bootstrap, and an
+eight-case sample cannot pin it tighter than **0–97% at 95%** (double bootstrap).
+**Frame:** the **six**-entry LIVE board fetched 2026-08-11T23:33Z by two
+independent routes; eight cases (their columns unchanged, so scores stay
+like-for-like); our 0.056647191704213645 read from
+`closure_challenge_round5_qcr.json` at commit `07a7fe9e`.
+~~**P(rank 1) = 68%**, 2–100% at 95%~~ — **STRUCK 2026-08-11: that figure was
+computed 2026-08-10 against a FOUR-entry board that no longer exists.**
+
+**Four leads are now not statistically decided** — Yang (t = −0.19, margin
+0.001365 against a per-case dispersion **fifteen times** larger, 4 of 8 cases
+won), Reissmann (t = −0.50), Wu & Zhang (t = −0.95) and Tian, Buchanan, Hickel &
+Dwight (t = −1.03); the leads over Liu and Montoya are decided (98.7%, 99.8%).
+**The standing is three deletions wide** (~~two cases wide~~) — deleting any one
+of `alpha_15_13929_4048`, `alpha_15_13929_2024` or `alpha_05_4071_4048` drops the
+point rank to 2, 3 and 2 respectively; delete `NASA_2DWMH` and P(rank 1) rises to
+78.5%. **`AR_1_Ret_360` and `AR_3_Ret_360` are ties below published precision**
+(0.00003 and 0.00008) and are not per-case wins or losses. Source:
+`campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`; the superseded four-entry
+computation is kept, not deleted, at `campaign/PROBABILITY_OF_RANK_2026-08-10.md`.
+The figure may never appear without its interval **and its board**.
 
 **Seed qualifier on that margin (added 2026-08-07, family supervision
 review F1 — the §0e qualifier, carried forward because the three

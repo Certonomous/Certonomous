@@ -92,24 +92,42 @@
 
 <div class="banner">
   <span class="tag t-gold">UNSUBMITTED</span>
-  <span class="tag t-good">RANK 1 OF 5 — SCORED LOCALLY</span>
+  <span class="tag t-good">RANK 1 OF 7 — SCORED LOCALLY, LIVE BOARD 2026-08-11</span>
   <div>Our entry of record scores <b>0.0566 — the best overall number on the board</b> as of benchmark
   commit <code>deb91557</code>, scored on our own hardware by the benchmark's own unmodified code. That is
   a <b>local scoring, not an official placement</b>: nothing has been sent to the benchmark steward, we are
   not on the leaderboard and hold no rank, and if the steward's own scoring differs from ours, the
   steward's number is the number.</div>
-  <div><b>P(rank 1) = 68%</b> — the probability that this placement survives a comparable set of
-  eight cases, from a case-level bootstrap. Eight cases cannot pin it tighter than
-  <b>2–100% at 95%</b>, and the figure is never quoted here without that bound: 68% on its own
-  sounds settled, and eight cases do not support settled.</div>
-  <div><b>And the lead is not statistically decided.</b> Our 0.002878 margin over Reissmann sits
-  against a per-case spread five times larger, so on a different set of eight cases the ordering
-  could reverse; the same is true of the margin over Wu and Zhang. The margins over Liu and Montoya
-  do survive that test. The standing is two cases wide — on the eight-case mean,
-  <code>alpha_15_13929_2024</code> alone supplies more than the whole margin, and
-  <code>NASA_2DWMH</code> alone costs more than it. <code>AR_1_Ret_360</code> and
-  <code>AR_3_Ret_360</code> are ties below the precision the board publishes to, and are not
-  per-case wins.</div>
+  <div><b>THE BOARD MOVED ON 2026-08-11 AND THIS SECTION IS CORRECTED, NOT REWRITTEN.</b> Fetched
+  live that day by two independent routes, the public leaderboard carries <b>six</b> entries and a
+  <b>new leader, Yang at 0.0580</b>. The eight case columns are unchanged, so the scores stay
+  like-for-like. Our 0.0566 is still the lowest overall on it; our margin over the leader is
+  <b>0.001365</b>, not the 0.002878 over Reissmann quoted below — <b>less than half</b>. The
+  benchmark commit <code>deb91557</code> named above is the frozen commit we <i>score</i> at, and it
+  is deliberately not moved: it scores, it does not rank.</div>
+  <div><b>P(rank 1) = 50%</b> — the probability that this placement survives a comparable set of
+  eight cases, from a 400,000-draw case-level bootstrap over the six-entry board. Eight cases cannot
+  pin it tighter than <b>0–97% at 95%</b>, and the figure is never quoted here without that bound,
+  nor without the board it was computed against.
+  <s>P(rank 1) = 68%, 2–100% at 95%</s> — <b>struck 2026-08-11: computed against a four-entry board
+  that no longer exists.</b></div>
+  <div><b>And the lead is not statistically decided</b> against any of the four entries nearest us.
+  Our 0.001365 margin over Yang sits against a per-case spread <b>fifteen</b> times larger, we win
+  four of the eight cases against Yang and lose four, so on a different set of eight cases the
+  ordering could reverse; the same is true of Reissmann (0.002878, spread five times larger), of Wu
+  and Zhang, and of Tian, Buchanan, Hickel and Dwight. The margins over Liu and Montoya
+  do survive that test. The standing is three deletions wide — drop any one of
+  <code>alpha_15_13929_4048</code>, <code>alpha_15_13929_2024</code> or
+  <code>alpha_05_4071_4048</code> and the point rank falls to 2nd, 3rd and 2nd.
+  <code>AR_1_Ret_360</code> and <code>AR_3_Ret_360</code> are ties below the precision the board
+  publishes to, and are not per-case wins.</div>
+  <div><b>The best-on-board count fell with the board, and it fell further than the probability.</b>
+  <s>The board-best number sits in our column on 4 of 8 cases</s> — against the six-entry board it is
+  <b>2 of 8</b>, both <code>alpha_15</code> hills lost to Tian, Buchanan, Hickel and Dwight. The two
+  that survive are exactly the two rows that are the organisers' own unmodified RANS field, which our
+  gate declined to touch — so <b>the count belonging to our own model is zero of eight.</b> Our model
+  is now best on no single case. The overall is a mean and not a count of wins, so 0.0566 remains the
+  lowest number on the board: <b>this entry wins on consistency, not on peaks.</b></div>
 </div>
 
 <!-- ===================== THE MAIN POINT ===================== -->
@@ -118,13 +136,16 @@
     <div class="f">the industry-standard turbulence model, uncorrected. Our own measurement of it,
     on the benchmark's scorer — the benchmark publishes no baseline figure of its own</div></div>
   <div class="kpi hero"><div class="n g">0.0566</div><div class="l">our entry of record</div>
-    <div class="f">45.3% closer to reality than the standard solve — rank 1 of 5 scored locally,
-    not an official placement; was 0.0654 until round 5, §4. P(rank 1) = 68%, interval
-    2–100% at 95% on eight cases; the leads over Reissmann and over Wu and Zhang are
+    <div class="f">45.3% closer to reality than the standard solve — rank 1 of 7 on the live
+    six-entry board fetched 2026-08-11, scored locally, not an official placement; was 0.0654 until
+    round 5, §4. P(rank 1) = 50%, interval 0–97% at 95% on eight cases; the leads over Yang,
+    Reissmann, Wu and Zhang, and Tian, Buchanan, Hickel and Dwight are
     not statistically decided, §5</div></div>
-  <div class="kpi"><div class="n sm">0.0029</div><div class="l">below the published leader</div>
-    <div class="f">Reissmann's 0.0595, quoted at benchmark commit <code>deb91557</code>. Read it with
-    the seed-uncertainty bound of up to 0.0024 attached, §5 — the margin and the bound are comparable</div></div>
+  <div class="kpi"><div class="n sm">0.0014</div><div class="l">below the published leader</div>
+    <div class="f">Yang's 0.0580 on the live board fetched 2026-08-11. <s>0.0029 below Reissmann's
+    0.0595</s> — struck the same day: the board gained two entries and a new leader. Read it with
+    the seed-uncertainty bound of up to 0.0024 attached, §5 — <b>the bound is now 1.8× the margin</b>,
+    and loading it adversely puts us second</div></div>
   <div class="kpi"><div class="n">6</div><div class="l">scoring calls, ever</div>
     <div class="f">a discipline we set ourselves, not a benchmark limit — the benchmark has none and
     tells entrants to preview their scores. Round 5's one call was accepted mechanically against a
@@ -346,28 +367,40 @@ the benchmark's own unmodified scorer, 0.0566 is the best overall number on the 
 the published leader. It is unsubmitted, so officially it sits nowhere at all, and the margin carries a
 seed-uncertainty bound of comparable size, below.</p>
 
-<p><b>P(rank 1) = 68%</b> — 67.6% over a case-level bootstrap of the eight scored cases. The
-interval that matters is not the Monte Carlo one: a double bootstrap puts it at <b>2–100% at 95%</b>,
+<p><b>P(rank 1) = 50%</b> — 50.2% over a 400,000-draw case-level bootstrap of the eight scored
+cases against the <b>six-entry board fetched live on 2026-08-11</b>. The
+interval that matters is not the Monte Carlo one: a double bootstrap puts it at <b>0–97% at 95%</b>,
 which is what an eight-case sample can actually pin down, so the figure travels with that bound and
-never without it.
-<b>The lead is not statistically decided.</b> Our 0.002878 margin over Reissmann sits against a
-per-case spread five times larger, so on a different set of eight cases the ordering could reverse;
-the same is true of the margin over Wu and Zhang. The margins over Liu and Montoya do survive that
-test. The standing is two cases wide — on the eight-case mean, <code>alpha_15_13929_2024</code> alone
-supplies more than the whole margin, and <code>NASA_2DWMH</code> alone costs more than it.
+never without it — and never without the board it was computed against.
+<s>P(rank 1) = 68%, 2–100% at 95%</s> — <b>struck 2026-08-11: computed against a four-entry board
+that no longer exists.</b>
+<b>The lead is not statistically decided</b> against any of the four entries nearest us. Our 0.001365
+margin over Yang sits against a per-case spread <b>fifteen</b> times larger (t = −0.19; we win four
+of the eight cases and lose four), so on a different set of eight cases the ordering could reverse;
+the same is true of Reissmann (0.002878, spread five times larger, t = −0.50), of Wu and Zhang
+(t = −0.95), and of Tian, Buchanan, Hickel and Dwight (t = −1.03). The margins over Liu and Montoya
+do survive that test. The standing is three deletions wide — drop any one of
+<code>alpha_15_13929_4048</code>, <code>alpha_15_13929_2024</code> or <code>alpha_05_4071_4048</code>
+and the point rank falls to 2nd, 3rd and 2nd.
 <code>AR_1_Ret_360</code> and <code>AR_3_Ret_360</code> are ties below the precision the board
 publishes to, and are not per-case wins.</p>
 
 <div class="scroll"><table>
-<thead><tr><th>Public leaderboard (benchmark commit <code>deb91557</code>)</th><th class="n">Overall</th><th></th></tr></thead>
+<thead><tr><th>Public leaderboard — <b>live, fetched 2026-08-11</b> (our own scoring is done at frozen benchmark commit <code>deb91557</code>, which scores but does not rank)</th><th class="n">Overall</th><th></th></tr></thead>
 <tbody>
-<tr class="us"><td>— · Certonomous, round 5</td><td class="n">0.0566</td><td><span class="tag t-gold">UNSUBMITTED · RANK 1 OF 5 SCORED LOCALLY · NO OFFICIAL RANK · P(rank 1) = 68%, 2–100% AT 95%</span></td></tr>
-<tr><td>1 · Reissmann, Fang, and Sandberg</td><td class="n">0.0595</td><td></td></tr>
-<tr><td>2 · Wu and Zhang</td><td class="n">0.0624</td><td></td></tr>
-<tr><td>3 · Liu, Wang, Zhao, and Xiao</td><td class="n">0.0737</td><td></td></tr>
-<tr><td>4 · Montoya, Oulghelou, and Cinnella</td><td class="n">0.0779</td><td></td></tr>
-<tr><td>Standard uncorrected simulation</td><td class="n">0.1036</td><td><span class="tag t-flat">beaten overall by all five — but not on every case</span></td></tr>
+<tr class="us"><td>— · Certonomous, round 5</td><td class="n">0.0566</td><td><span class="tag t-gold">UNSUBMITTED · RANK 1 OF 7 SCORED LOCALLY · NO OFFICIAL RANK · P(rank 1) = 50%, 0–97% AT 95%</span></td></tr>
+<tr><td>1 · Yang</td><td class="n">0.0580</td><td><span class="tag t-flat">new since 2026-08-10 — the new leader; our margin over it is 0.0014, and the lead is not statistically decided</span></td></tr>
+<tr><td>2 · Reissmann, Fang, and Sandberg</td><td class="n">0.0595</td><td></td></tr>
+<tr><td>3 · Wu and Zhang</td><td class="n">0.0624</td><td></td></tr>
+<tr><td>4 · Tian, Buchanan, Hickel, Dwight</td><td class="n">0.0641</td><td><span class="tag t-flat">new since 2026-08-10 — best on the board on three cases, two of them taken from us</span></td></tr>
+<tr><td>5 · Liu, Wang, Zhao, and Xiao</td><td class="n">0.0737</td><td></td></tr>
+<tr><td>6 · Montoya, Oulghelou, and Cinnella</td><td class="n">0.0779</td><td></td></tr>
+<tr><td>Standard uncorrected simulation</td><td class="n">0.1036</td><td><span class="tag t-flat">beaten overall by all seven — but not on every case</span></td></tr>
 </tbody></table></div>
+<p class="note"><b>This table was four entries deep until 2026-08-11 and nobody noticed it move.</b>
+The eight case columns are unchanged, so every score above is like-for-like. The
+frozen commit is deliberately not moved: a pin that is right for reproducing a score is
+wrong for reading a standing.</p>
 
 <p class="lede"><b>Stability note (audited 2026-08-05, re-scoped for round 5):</b> three of the eight
 predictions — both steep-hill cases and the NASA hump, byte-identical since round 3 — come from a model
@@ -381,10 +414,16 @@ trained at all. Evidence: <code>closure_challenge_stability_physicality_audit.md
 
 <p class="lede" style="margin-top:34px">Case by case, against the best score any published entry has
 achieved on that case — and, in the fourth column, against the untouched standard simulation the
-organisers hand to every entrant. <b>The board-best number sits in our column on 4 of 8 cases — two
-genuinely ours, two the organisers' own baseline. On the other four we are behind: two ducts within
-published precision of Wu &amp; Zhang, one duct where we lost our former tie on purpose, and the hump
-where we are last.</b></p>
+organisers hand to every entrant. <b><s>The board-best number sits in our column on 4 of 8 cases — two
+genuinely ours, two the organisers' own baseline.</s> Struck 2026-08-11: that count was measured
+against the four-entry board. Against the live six-entry board it is <b>2 of 8</b> — both
+<code>alpha_15</code> hills lost to Tian, Buchanan, Hickel and Dwight — and the two that survive are
+exactly the two organisers'-baseline rows, so <b>the count belonging to our own model is zero of
+eight.</b> On the other six we are behind. The overall is a mean, not a count of wins, so 0.0566 is
+still the lowest number on the board: this entry wins on consistency, not on peaks.</b></p>
+<p class="note">The fourth column below compares against the best of the <i>four</i>-entry board and
+has not been re-derived against the six; against the six, the "best published" column would be lower
+on six of the eight rows.</p>
 <div class="scroll"><table>
 <thead><tr><th>Test flow</th><th class="n">Best published</th><th class="n">Certonomous</th><th class="n">Uncorrected</th><th></th></tr></thead>
 <tbody>

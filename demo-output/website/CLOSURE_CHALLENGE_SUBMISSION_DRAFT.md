@@ -25,10 +25,29 @@ The README states it, not the paper, is authoritative: *"We now have an arXiv
 preprint for the challenge. However, **this page is the main source of up-to-date
 information**."*
 
-**Freshness check.** The GitHub API reports `pushed_at: 2026-05-04T18:33:35Z` and the
+> **STOP — SUPERSEDED 2026-08-11. THE BOARD MOVED AND THIS PACKAGE HAS NOT BEEN
+> REWRITTEN FOR IT.** Fetched live 2026-08-11T23:33Z by two independent routes, the
+> leaderboard carries **six** entries, not four, and a **new leader: Yang, 0.0580**
+> (`campaign/BOARD_MOVED_2026-08-11.md`). Three things below are now false as
+> written, and are struck in place rather than smoothed:
+> **(1)** the board is six-deep and our margin over the leader is **0.001365**, not
+> 0.002878 over Reissmann; **(2)** P(rank 1) is **50%** with a 95% interval of
+> **0–97%**, and **four** comparisons are not statistically decided — Yang
+> (t = −0.19), Reissmann (−0.50), Wu & Zhang (−0.95) and Tian, Buchanan, Hickel &
+> Dwight (−1.03) — where two were before; **(3)** best-on-board is **2 of 8** and
+> **both survivors are the organisers' own baseline rows, so the count belonging to
+> our model is ZERO of 8.** Sources:
+> `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`. **Submissions remain
+> PARKED and reserved to Katie; nothing here has been sent.**
+
+~~**Freshness check.** The GitHub API reports `pushed_at: 2026-05-04T18:33:35Z` and the
 current HEAD is `deb9155 add wang submission` (2026-05-04) — the same commit our local
 clone sits on. The rules quoted below and the four-entry leaderboard are current as of
-today. The evaluation repo's last push was `2026-03-26`.
+today.~~ **Struck 2026-08-11: `git ls-remote origin HEAD` now returns `d572d40c`, not
+`deb91557`. The upstream HEAD moved and the board moved with it.** The freshness check
+above was sound on its own date; what it lacked was an expiry, and re-running it costs
+one `git ls-remote` — which reads the remote without moving the clone or the frozen pin.
+The evaluation repo's last push was `2026-03-26`.
 
 ---
 
@@ -525,12 +544,16 @@ organisers' own baseline fields, the discovery is far more damaging than the
 disclosure. **This belongs in the submission email itself, not only on our website.**
 Highest-priority disclosure item.
 
-### 4.8 Leaderboard position is current
+### 4.8 Leaderboard position is current — ~~VERIFIED~~ **FALSIFIED 2026-08-11**
 
-Verified today against the live README: the four-entry board is unchanged since
-2026-05-04. 0.0676 would sit between rank 2 (0.0624) and rank 3 (0.0737). The challenge
+~~Verified today against the live README: the four-entry board is unchanged since
+2026-05-04.~~ **Struck 2026-08-11: the board is now SIX entries deep with a new leader
+(Yang, 0.0580), verified by two independent live fetches.** 0.0676 would sit between
+rank 3 (0.0624) and rank 4 (0.0641). The challenge
 is ongoing with no deadline, so this can change without notice — the claim should be
-dated wherever it appears.
+dated wherever it appears. **It said so, and it was right, and no check was scheduled
+to act on it. The section that predicted this failure is the section that suffered it:
+a warning without an owner and a period is a comment, not a control.**
 
 ### 4.9 Summary
 
@@ -671,9 +694,9 @@ itself — and none of it was copied from a sibling document.*
 | Improvement over floor | **−0.0470, 45.3% below** | derived from the two rows above |
 | Superseded round-4 entry | 0.0654, ducts 0.0811 / 0.0775 / 0.0325 | `closure_challenge_trained_entry_round4_duct.json`; round 5 moved it by −0.0088 |
 | What is actually ours | **3 of the 8 predictions.** 2 are the supplied baseline unchanged; 3 are an untrained QCR2000 forward solve | §10; `DESCRIPTION_DOCUMENT.md` §2 |
-| Best on published board | **4 of 8 — and two of those four are the organisers' own baseline file**, so **2 of 8** belong to our model | §0f of `CLOSURE_CHALLENGE_STATUS.md`; re-verified 2026-08-11 case by case against the four published submissions |
-| Standing | 0.056647 is the lowest overall on the published board at `deb91557`, **scored locally by us — not an official placement.** P(rank 1) = **68%**, interval **2–100% at 95%**; the leads over Reissmann and over Wu & Zhang are **not statistically decided**, the leads over Liu (98.7%) and Montoya (99.8%) are | `campaign/PROBABILITY_OF_RANK_2026-08-10.md` |
-| Margin over the published rank-1 entry | **0.0028863** over Reissmann, Fang & Sandberg — see the note below | re-scored 2026-08-11 |
+| Best on published board | ~~4 of 8, two of them baseline, so 2 of 8 ours~~ **2 of 8 against the live six-entry board — and BOTH are the organisers' own baseline file, so ZERO of 8 belong to our model.** Both `alpha_15` hills lost to Tian, Buchanan, Hickel & Dwight | `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md` §3a; re-derived case by case against the six published entries |
+| Standing | 0.056647 is the lowest overall on the **live six-entry** board fetched 2026-08-11 (our own scoring is at `deb91557`, which scores but does not rank), **scored locally by us — not an official placement.** P(rank 1) = **50%**, interval **0–97% at 95%**; the leads over **Yang, Reissmann, Wu & Zhang, and Tian/Buchanan/Hickel/Dwight** are **not statistically decided**, the leads over Liu (98.7%) and Montoya (99.8%) are. ~~P(rank 1) = 68%, 2–100%, two undecided pairs~~ — struck, four-entry board | `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md` |
+| Margin over the published rank-1 entry | **0.001365** over **Yang** (0.058013), the leader on the live board. ~~0.0028863 over Reissmann, Fang & Sandberg~~ — Reissmann is now rank 2 | live board fetched 2026-08-11T23:33Z |
 | Scored with | benchmark's own unmodified scorer, eval package commit `1c4e22c8`, benchmark commit `deb91557` | `harness_check`; both commits confirmed in the local checkouts |
 
 **The margin pair, resolved rather than inherited.** The README publishes **0.0595**
@@ -908,9 +931,16 @@ steward's own scoring differs from ours, the steward's number is the number.
 >    use to control where a correction is applied, are both published work, two of
 >    this benchmark's own authors among them.
 >
-> Our entry is the best number on your published board on **4 of the 8 cases — and
-> two of those four are the two baseline rows above**, so the count that belongs to
-> our model is 2 of 8.
+>
+> **[REDRAFT REQUIRED BEFORE SENDING — 2026-08-11.]** ~~Our entry is the best number
+> on your published board on **4 of the 8 cases — and two of those four are the two
+> baseline rows above**, so the count that belongs to our model is 2 of 8.~~ On the
+> board as it stands on 2026-08-11 this reads: *our entry is the best number on your
+> published board on **2 of the 8 cases**, and **both of those two are the baseline
+> rows above** — so **no case on your board is led by our model.** Our overall is
+> still the lowest on the board, which is to say this entry wins on consistency
+> rather than on any peak, and we would rather say that than let the count imply
+> otherwise.*
 >
 > **The thing we would most want a reviewer to have.** The round-5 change was chosen
 > while we already knew our per-case test scores. In the words we used to ourselves
@@ -939,12 +969,13 @@ steward's own scoring differs from ours, the steward's number is the number.
 >
 > **On where that leaves us.** On these eight cases 0.056647 is the lowest overall
 > on your published board, by 0.0029 over Reissmann, Fang and Sandberg. We
-> bootstrapped what that is worth rather than leave you to: **P(rank 1) = 68%, with
-> a 95% interval of 2–100%** — eight cases cannot pin it tighter than that, and 68%
-> on its own would sound far more settled than it is. The leads over Reissmann and
-> over Wu & Zhang are
+> bootstrapped what that is worth rather than leave you to: **P(rank 1) = 50%, with
+> a 95% interval of 0–97%** — eight cases cannot pin it tighter than that, and 50%
+> on its own would sound far more settled than it is. The leads over Yang, Reissmann,
+> Wu & Zhang, and Tian, Buchanan, Hickel & Dwight are
 > **not statistically decided**; the leads over Liu and over Montoya are, at 98.7%
-> and 99.8%. Our own measured one-seed training uncertainty on the three cases that
+> and 99.8%. *(~~68%, 2–100%, by 0.0029 over Reissmann~~ — struck 2026-08-11: that
+> was the four-entry board. The margin above is **0.0014 over Yang**.)* Our own measured one-seed training uncertainty on the three cases that
 > are our model is 0.002419, which covers 84% of that margin, and `AR_1_Ret_360` and
 > `AR_3_Ret_360` are ties below the precision your board prints rather than per-case
 > wins. **We are not claiming our method beats theirs.** All of it is reproducible
@@ -1391,13 +1422,17 @@ Reissmann's **transcribed** 0.059525 — the board publishes 0.0595 to four
 decimals and a like-for-like full-precision re-score gives 0.0595335; see §5.2).
 Local scoring, not an official placement; if the steward's own scoring differs
 from ours, the steward's number is the number (§5's rule, unchanged).
-**P(rank 1) = 68%**, and eight cases cannot pin that tighter than
-**2–100% at 95%** (`campaign/PROBABILITY_OF_RANK_2026-08-10.md`).
+**P(rank 1) = 50%**, and eight cases cannot pin that tighter than
+**0–97% at 95%** (`campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`, six-entry
+board fetched live 2026-08-11). ~~P(rank 1) = 68%, 2–100% at 95%~~ — struck the same
+day: four-entry board, no longer exists.
 
-**And the lead is not statistically decided.** Our 0.002878 margin over
+**And the lead is not statistically decided** against any of the four nearest entries.
+Our **0.001365** margin over **Yang** sits against a per-case spread **fifteen** times
+larger; our 0.002878 over
 Reissmann sits against a per-case spread five times larger, so on a different set
-of eight cases the ordering could reverse; the same is true of the margin over Wu
-and Zhang. The margins over Liu and Montoya do survive that test. The standing is
+of eight cases the ordering could reverse; the same is true of Wu
+and Zhang and of Tian, Buchanan, Hickel & Dwight. The margins over Liu and Montoya do survive that test. The standing is
 two cases wide — on the eight-case mean, `alpha_15_13929_2024` alone supplies more
 than the whole margin, and `NASA_2DWMH` alone costs more than it. `AR_1_Ret_360`
 and `AR_3_Ret_360` are ties below the precision the board publishes to, and are

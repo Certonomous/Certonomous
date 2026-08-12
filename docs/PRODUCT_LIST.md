@@ -56,10 +56,17 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       delta is the ducts (untrained QCR2000: AR_1 0.0811→0.0455, AR_3 0.0775→0.0400); AR_14's tie LOST (+0.0029) exactly
       as priced in writing, not reverted per the bundle's terms; our QCR ducts land within 0.0004 of Wu&Zhang's published
       ducts — same term, independent solve, same answer. Caveat everywhere: LOCAL scoring, not an official placement.
-      **AND from 2026-08-10 (b2aa6887) a second mandatory caveat beside the first: P(rank 1) = 68%** (400k case-level
-      bootstrap; rank distribution 67.6 / 18.6 / 12.8 / 0.9 / 0.2). The lead over Reissmann is NOT statistically
-      decided — paired per-case t = −0.495, dispersion 5× the margin, 4 of 8 cases won — and Wu&Zhang is not decided
-      either (t = −0.953). Only Liu (98.7%) and Montoya (99.8%) are beaten on method. Eight cases cannot resolve a
+      **AND from 2026-08-10 (b2aa6887), RECOMPUTED 2026-08-11 against a SIX-entry board: P(rank 1) = 50%** (400k
+      case-level bootstrap; rank distribution 50.2 / 19.0 / 14.7 / 10.6 / 4.7 / 0.8 / 0.2). ~~P(rank 1) = 68%,
+      distribution 67.6 / 18.6 / 12.8 / 0.9 / 0.2~~ — **STRUCK 2026-08-11: computed against a FOUR-entry board that
+      no longer exists.** The live board, fetched 2026-08-11T23:33Z by two routes, has six entries and a new leader
+      (Yang, 0.0580); our margin over the leader more than halved, 0.002878 → 0.001365. **Four leads are now NOT
+      statistically decided, not two, and one of them is the leader:** Yang (t = −0.189, dispersion 15× the margin,
+      4 of 8 cases won), Reissmann (t = −0.495, dispersion 5× the margin, 4 of 8 won), Wu&Zhang (t = −0.953) and
+      Tian/Buchanan/Hickel/Dwight (t = −1.033). Only Liu (98.7%) and Montoya (99.8%) are beaten on method.
+      **And best-on-board fell 4 of 8 → 2 of 8, both survivors being the organisers' own baseline rows, so the count
+      belonging to our model is ZERO of 8** — see `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md` §3a.
+      Eight cases cannot resolve a
       rank probability better than 2–100% at 95% (double bootstrap). The standing is TWO CASES WIDE: drop alpha_15
       and we are rank 2 on the point score; drop the hump and P = 91%. AR_1/AR_3 margins (0.00003 / 0.00008) are ties
       below published precision and must never be quoted as per-case wins. ~~The number is INTERNAL and never appears
@@ -81,7 +88,10 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       2026-08-11 named sending this submission "the most dangerous thing you could do tonight in ignorance", and
       named the mechanism precisely: *an agent optimising for a cross-off completes it.* The act is irreversible,
       carries the company name, and is reserved to Katie in two charters. The package is filing-READY and HELD; its
-      headline is not statistically decided (P(rank 1) = 68%, 2-100% at 95%, a standing two cases wide). Katie fills
+      headline is not statistically decided (P(rank 1) = 50%, 0-97% at 95%, a standing three deletions wide, against
+      the six-entry board fetched live 2026-08-11; ~~68%, 2-100%, two cases wide~~ struck — four-entry board). **The
+      package now needs a redraft before any send: its cover email states a best-on-board count of 4 of 8 that is
+      2 of 8 on the live board, and zero of 8 for our own model.** Katie fills
       author names + reference URL, approves,
       sends the email (with the alpha_05-rows-are-baseline disclosure); ask steward about the two ambiguities in the same email.
 - [x] Update the Active Research board with movement. DONE and verified twice: round-5 rewrite landed, then Ladder V

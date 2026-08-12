@@ -25,13 +25,27 @@
 > mean-of-rounded construction is a Pass-2 finding (claim C8) against the word
 > *"published"* on 0.059525.
 >
-> **The premise has since been met, and a rank claim carries its companion.** Round 5
-> stands at **rank 1 of 5 scored locally** at benchmark commit `deb91557` — a local
-> scoring, not an official placement; nothing has been submitted. **P(rank 1) = 68%**,
-> and an eight-case sample cannot pin it tighter than **2–100% at 95%**. The leads over
-> Reissmann and Wu & Zhang are **not statistically decided** (t = −0.50 and −0.95); the
-> leads over Liu and Montoya are (98.7%, 99.8%). Source:
-> `campaign/PROBABILITY_OF_RANK_2026-08-10.md`.
+> **The premise has since been met, and a rank claim carries its companion —
+> RECOMPUTED 2026-08-11 against a SIX-entry board.** Round 5 stands at **rank 1 of
+> 7 on the live board**, scored locally at benchmark commit `deb91557` against a
+> board fetched live 2026-08-11T23:33Z — a local scoring, not an official
+> placement; nothing has been submitted. **P(rank 1) = 50%** (50.2%, 400,000-draw
+> case-level bootstrap), and an eight-case sample cannot pin it tighter than
+> **0–97% at 95%**. The leads over Yang, Reissmann, Wu & Zhang, and Tian, Buchanan,
+> Hickel & Dwight are **not statistically decided** (t = −0.19, −0.50, −0.95,
+> −1.03); the leads over Liu and Montoya are (98.7%, 99.8%).
+> ~~rank 1 of 5; P(rank 1) = 68%; 2–100% at 95%; two undecided pairs~~ —
+> **STRUCK 2026-08-11: computed 2026-08-10 against a FOUR-entry board that no
+> longer exists** (`campaign/BOARD_MOVED_2026-08-11.md`). Source:
+> `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`; the superseded four-entry
+> computation is kept at `campaign/PROBABILITY_OF_RANK_2026-08-10.md`.
+>
+> **And the directive at the head of this document is not yet satisfied.** Katie's
+> *"until we are #1"* is about the **published** board. We are unsubmitted, and on
+> the live six-entry board the entry that would sit first does so by 0.001365 with
+> P(rank 1) = 50%. The plan below was written against a board with four entries and
+> a 0.002878 target; its cost/gain arithmetic is frame-specific to that and has not
+> been re-derived here.
 
 Drafted 2026-08-05. Katie's directive: *the closure challenge continues until
 we are #1.* This document is the plan that follows from it, built only from

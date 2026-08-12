@@ -21,20 +21,31 @@ was lost as pre-accepted in writing (+0.0029) against −0.0731 on the two
 Ret_360 ducts; the 6th cumulative scoring call. The round-4 paragraph below
 is superseded and the new paragraph in Ladder C carries the numbers.
 
-Update 2026-08-10 UTC: **Rank-1 companion (MANDATORY, chief ruling).** Any
-statement of rank 1 or of the 0.056647 headline, on any surface, carries these
-four clauses. **P(rank 1) = 68%** — a case-level bootstrap over the eight scored
-cases puts the probability that this ordering survives a comparable set of cases
-at 68%, and an eight-case sample cannot pin it tighter than 2–100% at 95%. **The
-leads over Reissmann and Wu & Zhang are not statistically decided** (paired
-per-case differences t = −0.50 and t = −0.95, against a per-case dispersion five
-times the 0.002878 margin); the leads over Liu and Montoya are (98.7%, 99.8%).
-**The standing is two cases wide** — delete `alpha_15_13929_2024` and the point
-ranking falls to rank 2 (P(rank 1) 38%); delete `NASA_2DWMH` and P(rank 1) rises
-to 91%. **`AR_1_Ret_360` and `AR_3_Ret_360` are ties below published precision**
+Update 2026-08-11 UTC: **Rank-1 companion (MANDATORY, chief ruling) —
+RECOMPUTED AGAINST A SIX-ENTRY BOARD.** Any statement of rank 1 or of the
+0.056647 headline, on any surface, carries these four clauses.
+
+**P(rank 1) = 50%** — 50.2% over a 400,000-draw case-level bootstrap, and an
+eight-case sample cannot pin it tighter than **0–97% at 95%** (double bootstrap).
+**Frame:** the **six**-entry LIVE board fetched 2026-08-11T23:33Z by two
+independent routes; eight cases; our 0.056647191704213645 read from
+`closure_challenge_round5_qcr.json` at commit `07a7fe9e`.
+~~**P(rank 1) = 68%**, 2–100% at 95%~~ — **STRUCK 2026-08-11: the previous figure
+was computed 2026-08-10 against a FOUR-entry board that no longer exists.** Two
+entrants have since appeared, one of them the new leader (Yang, 0.0580), and our
+margin over the leader more than halved, 0.002878 → 0.001365.
+
+**Four leads are now not statistically decided** — Yang (t = −0.19), Reissmann
+(t = −0.50), Wu & Zhang (t = −0.95) and Tian, Buchanan, Hickel & Dwight
+(t = −1.03); the leads over Liu and Montoya are decided (98.7%, 99.8%).
+**The standing is three deletions wide** (~~two cases wide~~) — deleting any one
+of `alpha_15_13929_4048`, `alpha_15_13929_2024` or `alpha_05_4071_4048` drops the
+point rank to 2, 3 and 2 respectively; delete `NASA_2DWMH` and P(rank 1) rises to
+78.5%. **`AR_1_Ret_360` and `AR_3_Ret_360` are ties below published precision**
 (0.00003 and 0.00008) and are not per-case wins or losses. Source:
-`campaign/PROBABILITY_OF_RANK_2026-08-10.md` — SUPERSEDED 2026-08-10 — the internal-only restriction was WITHDRAWN by chief ruling; the 68% figure
-now TRAVELS with the entry, and may never appear without its interval (2-100% at 95%) and the not-decided pairs.
+`campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`; the superseded four-entry
+computation is kept, not deleted, at `campaign/PROBABILITY_OF_RANK_2026-08-10.md`.
+The figure may never appear without its interval **and its board**.
 
 Update 2026-07-30 UTC: Ladder C — closure challenge submission policy
 established, eligibility verdict recorded, compliance audit run; **both blocking
@@ -739,7 +750,18 @@ Roadmap 4B ("find out the challenge's policies and determine whether Certonomous
 can submit") has been open and repeatedly flagged. Rules established from the live
 sources, not from our local clone alone: the GitHub API confirms the benchmark repo
 HEAD is still `deb9155` (pushed 2026-05-04), identical to our clone, so the rules
-and the four-entry leaderboard quoted in our records are current as of today.
+~~and the four-entry leaderboard~~ quoted in our records are current as of today.
+
+> **The struck half expired, and the date is the whole of the reason (marked
+> 2026-08-11).** The *rules* half stands. The *leaderboard* half does not.
+> **Executed 2026-08-11: `git ls-remote origin HEAD` in the clone returns
+> `d572d40c`, not the pinned `deb91557`.** The upstream repo HEAD has moved since
+> this paragraph was written, and with it the README's leaderboard: fetched live
+> the same day, the board carries **six** entries and a new leader
+> (`campaign/BOARD_MOVED_2026-08-11.md`). The evidence quoted above was sound on
+> its own date; what it was not is *durable*, and nothing here said it had an
+> expiry. **The pin scores; it does not rank** — and the freshness alarm costs one
+> `git ls-remote`, which reads the remote without moving the clone or the pin.
 
 | Question | Answer | Source |
 | --- | --- | --- |
@@ -792,7 +814,7 @@ submission. BOTH ARE NOW CLEARED (2026-07-30, later the same day):**
    | Is `evaluation_points()` a scoring call? | **No.** It returns `_ground_truth()[case]['coords']` only, never `['U']`. Interpolating to those points is what the task requires |
    | Reproduces the entry of record | **8 of 8 checks pass** — both harness commits, refit alpha 0.7499, threshold 0.1263, the top-3 feature names, all four gate decisions and predicted errors, and the per-case prediction source |
    | Format | 1000 rows x 3 cols, comma-delimited, no header, no alphabetic character except the `e` of scientific notation, trailing newline — matching accepted submissions wu, montoya and wang |
-   | Independent sanity check | Mean velocity magnitude per case sits inside the band spanned by all four accepted submissions on all eight cases, which would catch a point-ordering, column-ordering or units error **without any scoring call** |
+   | Independent sanity check | Mean velocity magnitude per case sits inside the band spanned by the accepted submissions on all eight cases, which would catch a point-ordering, column-ordering or units error **without any scoring call**. **The band was measured over FOUR submissions** — those in the frozen clone at `deb9155`. **There are now six** (`campaign/BOARD_MOVED_2026-08-11.md`), and the two new ones' prediction files are not in the frozen clone, so the band has not been re-measured over them. **The verdict is unaffected, by monotonicity rather than by re-running:** adding a submission to a band can only move the min down or leave it and the max up or leave it, so a value inside the four-submission band is inside the six-submission band *a fortiori*. **What monotonicity does not cover, stated because it is a real weakening:** if either new submission is pathological — far outside the old band on some case — the band widens enough that passing it stops discriminating. The check would still pass and would *mean less*. So the verdict stands and the instrument's power is now unmeasured, which is not the same thing as intact. |
 
    The recorded 0.0676 was **not** recomputed and is carried across from the round-3
    record unchanged.

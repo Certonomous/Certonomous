@@ -1,5 +1,49 @@
 # Probability of rank — a posterior over our score against the board
 
+> # ⛔ EVERY PROBABILITY IN THIS DOCUMENT IS SUPERSEDED — the board it was computed against no longer exists (2026-08-11)
+>
+> **Recomputed at `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`. Read
+> that for any current claim. This document is kept, unrewritten, because the
+> change in the world is itself the finding and a reader must be able to see it.**
+>
+> **What changed.** Everything below was computed against the **four**-entry
+> leaderboard. Fetched live on **2026-08-11 at 23:33 UTC** by two independent
+> routes, the board carries **six** entries and a **new leader — Yang, 0.0580**
+> (`campaign/BOARD_MOVED_2026-08-11.md`, `9cb2a20a`). The eight case columns are
+> unchanged, so the scores stay like-for-like; what changed is who is on the board
+> and how close the nearest one is.
+>
+> | | this document (four entries) | recomputed (six entries) |
+> |---|---|---|
+> | P(rank 1) | ~~**68%**~~ (67.6%) | **50%** (50.2%) |
+> | 95% interval (double bootstrap) | ~~2 – 100%~~ | **0 – 97%** |
+> | 68% interval | ~~26 – 94%~~ | **12 – 81%** |
+> | leader, and our margin | ~~Reissmann, 0.002878~~ | **Yang, 0.001365** |
+> | not statistically decided | ~~Reissmann; Wu & Zhang~~ | **Yang; Reissmann; Wu & Zhang; Tian, Buchanan, Hickel & Dwight** |
+> | decided | Liu; Montoya | Liu; Montoya *(unchanged)* |
+> | how wide the standing is | ~~two cases~~ | **three deletions** |
+> | seed bound, adverse leg | ~~52% and still rank 1~~ | **34% and rank 2** |
+>
+> **The rank-1 claim itself survives**: 0.056647 is still the lowest overall on
+> the board. What does not survive is the margin (more than halved) and the
+> probability (down 17.4 points).
+>
+> **The arithmetic below is not withdrawn and is not wrong.** It is correct
+> against the board it names, and the six-entry recomputation reproduces it to the
+> digit when the two new rows are removed — that positive control is what makes
+> the two figures comparable. **What expired is its frame, and it expired
+> silently**, because nothing in this document or in the nine surfaces carrying
+> its figure stated the board's snapshot beside the number. That is the defect,
+> and the rule that follows it is recorded in
+> `CLOSURE_FAMILY_SUPERVISION_GUIDELINES.md` §4 clause (e): **no surface states
+> the figure without its board.**
+>
+> **The propagation rule below still governs, with its figures replaced.** An
+> order to propagate is still never an order to violate the thing propagated; the
+> figure still may never be stated without its interval; the sweep token is still
+> the literal `not statistically decided` on one unbroken line — and there are now
+> **four** not-decided pairs, one of them the leader.
+
 > # ⚠ THE INTERNAL-ONLY GATE ON THIS FIGURE IS WITHDRAWN — chief ruling, 2026-08-10
 >
 > *Recorded by Ladder V Pass 2 at the chief's direction. The header below, the

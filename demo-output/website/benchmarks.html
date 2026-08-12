@@ -62,30 +62,44 @@
 <p class="lede">A public, ongoing research benchmark with a strict rule: training or validating on any
 test case withdraws the submission. Each version scored once, in a single pre-registered call — six
 calls total across five rounds of refinement. As of round 5 (2026-08-07) the entry of record scores
-<b>0.0566 — rank 1 of 5, scored locally</b> at benchmark commit <code>deb91557</code>: a local
-scoring, not an official leaderboard placement; nothing has been submitted.</p>
+<b>0.0566 — rank 1 of 7, scored locally</b> against the <b>live six-entry leaderboard fetched
+2026-08-11</b>; our own scoring is done at frozen benchmark commit <code>deb91557</code>, which
+scores but does not rank. A local scoring, not an official leaderboard placement; nothing has been
+submitted. <s>rank 1 of 5</s> — struck 2026-08-11: the board gained two entries and a new leader
+(Yang, 0.0580), and our margin over the leader more than halved, 0.0029 → 0.0014.</p>
 
-<p><b>P(rank 1) = 68%.</b> A case-level bootstrap over the eight scored cases puts the probability
-that this ordering survives a comparable set of cases at 68% — and an eight-case sample cannot pin
-that tighter than <b>2–100% at 95%</b>. The point estimate is 68%; what eight cases actually support
-is &ldquo;somewhere between a coin flip and near-certain&rdquo;.</p>
+<p><b>P(rank 1) = 50%.</b> A 400,000-draw case-level bootstrap over the eight scored cases, against
+the six-entry board fetched live on 2026-08-11, puts the probability
+that this ordering survives a comparable set of cases at 50% — and an eight-case sample cannot pin
+that tighter than <b>0–97% at 95%</b>. The point estimate is 50%; what eight cases actually support
+is &ldquo;anywhere from impossible to almost certain&rdquo;.
+<s>P(rank 1) = 68%, 2–100% at 95%</s> — <b>struck 2026-08-11: computed against a four-entry board
+that no longer exists.</b> The figure is never stated without its interval, and now never without
+its board either.</p>
 
-<p><b>The lead is not statistically decided.</b> Our 0.002878 margin over Reissmann sits against a
-per-case spread five times larger, so on a different set of eight cases the ordering could reverse;
-the same is true of the margin over Wu and Zhang. The margins over Liu and Montoya do survive that
-test. The standing is two cases wide — on the eight-case mean, <code>alpha_15_13929_2024</code> alone
-supplies more than the whole margin, and <code>NASA_2DWMH</code> alone costs more than it.
+<p><b>The lead is not statistically decided</b> against any of the four entries nearest us. Our
+0.001365 margin over Yang sits against a per-case spread <b>fifteen</b> times larger (t = −0.19;
+four of eight cases won), so on a different set of eight cases the ordering could reverse;
+the same is true of Reissmann (t = −0.50), Wu and Zhang (t = −0.95) and Tian, Buchanan, Hickel and
+Dwight (t = −1.03). The margins over Liu and Montoya do survive that
+test. The standing is three deletions wide — drop any one of <code>alpha_15_13929_4048</code>,
+<code>alpha_15_13929_2024</code> or <code>alpha_05_4071_4048</code> and the point rank falls to 2nd,
+3rd and 2nd.
 <code>AR_1_Ret_360</code> and <code>AR_3_Ret_360</code> are ties below the precision the board
 publishes to, and are not per-case wins.</p>
 
 <div class="grid">
-  <div class="kpi hero"><div class="n g">4 of 8</div><div class="l">cases best on the board</div>
-    <div class="f">better than every published entry — but <b>two of the four are the organisers' own
-    unmodified RANS field</b>, which our gate declined to touch: that credit is the baseline's, not
-    our model's</div></div>
+  <div class="kpi hero"><div class="n g">0 of 8</div><div class="l">cases our model is best on</div>
+    <div class="f"><s>4 of 8 cases best on the board</s> — struck 2026-08-11. Against the live
+    six-entry board the count is <b>2 of 8</b>, both <code>alpha_15</code> hills lost to Tian,
+    Buchanan, Hickel and Dwight — and the two that survive are exactly the <b>two organisers' own
+    unmodified RANS rows</b> our gate declined to touch, whose credit is the baseline's. So the count
+    belonging to our model is <b>zero</b>. The overall is a mean, not a count of wins: 0.0566 is
+    still the lowest number on the board, and this entry wins on consistency, not on peaks</div></div>
   <div class="kpi"><div class="n">0.0566</div><div class="l">overall score</div>
-    <div class="f">45.3% below the uncorrected baseline — rank 1 of 5 scored locally, not an
-    official placement; P(rank 1) = 68%, which eight cases pin no tighter than 2–100% at 95%</div></div>
+    <div class="f">45.3% below the uncorrected baseline — rank 1 of 7 on the live six-entry board
+    fetched 2026-08-11, scored locally, not an
+    official placement; P(rank 1) = 50%, which eight cases pin no tighter than 0–97% at 95%</div></div>
   <div class="kpi"><div class="n">6</div><div class="l">scoring calls, total</div>
     <div class="f">one per model version, each pre-registered</div></div>
   <div class="kpi"><div class="n">7 days</div><div class="l">from first line of code</div>

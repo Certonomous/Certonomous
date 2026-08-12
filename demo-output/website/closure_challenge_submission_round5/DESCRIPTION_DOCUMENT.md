@@ -82,9 +82,20 @@ ours.
 
 ### 2. Best-on-board count, stated with its own qualification
 
-Our round-5 entry is the best number on the published board on **4 of the 8**
+> **SUPERSEDED 2026-08-11 — the board gained two entries and this count fell with
+> it.** Against the **six**-entry board fetched live 2026-08-11 the count is
+> **2 of the 8**, not 4: both `alpha_15` hills were lost to Tian, Buchanan, Hickel
+> & Dwight (0.0432 and 0.0998 against our 0.0501 and 0.1011). **And the two that
+> survive are exactly the two baseline rows**, so **the count that belongs to our
+> model is now ZERO of 8** — our model is best on no single case. The overall is a
+> mean and not a count of wins, so 0.056647 is still the lowest number on the
+> board; this entry wins on consistency, not on peaks, and that is how it should be
+> described. The original text is kept below, struck, because the change in the
+> board is itself disclosable.
+
+~~Our round-5 entry is the best number on the published board on **4 of the 8**
 cases — and **two of those four are the baseline rows above**. The count that
-belongs to our model is therefore **2 of 8**, not 4. `AR_14_Ret_180` was best on
+belongs to our model is therefore **2 of 8**, not 4.~~ `AR_14_Ret_180` was best on
 board in round 4 by 0.00003 and **is not any more** (see disclosure 4).
 
 ### 3a. Adaptive leakage across rounds 1–3, in full
@@ -292,15 +303,30 @@ has not been re-run on the re-scored basis, so we do not assert those figures ar
 unchanged — we state which input each rests on. The two inputs differ by
 9×10⁻⁶, about 0.3% of the margin.
 
-**P(rank 1) = 68%** — 67.6% over 400,000 case-level bootstrap resamples of the
-eight test cases. **And the interval that matters is not the Monte Carlo one:**
+> **RECOMPUTED 2026-08-11 AGAINST A SIX-ENTRY BOARD. Every figure in the rest of
+> this section is struck and kept.** The figures below were computed against the
+> **four**-entry board; fetched live on 2026-08-11 the board carries **six**
+> entries and a new leader, **Yang at 0.0580**, and our margin over the leader is
+> **0.001365**, not 0.002878. Recomputed by the same method (the script reproduces
+> the four-entry figures exactly when the two new rows are removed):
+> **P(rank 1) = 50%** — 50.2% over 400,000 resamples — which eight cases pin no
+> tighter than **0–97% at 95%**, leave-one-case-out **31.7–78.5%**, one-seed
+> sensitivity **34–65%** *(and its adverse leg puts us second, which it did not
+> before)*. **Four comparisons are now not statistically decided, not two**, and
+> one of them is the leader: Yang (t = −0.19), Reissmann (t = −0.50), Wu & Zhang
+> (t = −0.95), Tian/Buchanan/Hickel/Dwight (t = −1.03). Liu and Montoya remain
+> decided. Full derivation: `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`.
 
-| interval | value | what it measures |
+~~**P(rank 1) = 68%**~~ — 67.6% over 400,000 case-level bootstrap resamples of the
+eight test cases, **against the four-entry board — see the box above**. **And the
+interval that matters is not the Monte Carlo one:**
+
+| interval | value *(four-entry board — superseded)* | what it measures |
 |---|---|---|
-| Monte Carlo (B = 400,000) | 67.5–67.8% | only that the resampling ran long enough |
-| leave-one-case-out (8 refits) | 38–91% | how much of the 68% one case is carrying |
-| double bootstrap, 95% | **2–100%** | what an eight-case sample can actually pin down |
-| one-seed sensitivity | **52–81%** | what the seed we did not control is worth |
+| Monte Carlo (B = 400,000) | ~~67.5–67.8%~~ | only that the resampling ran long enough |
+| leave-one-case-out (8 refits) | ~~38–91%~~ | how much of the 68% one case is carrying |
+| double bootstrap, 95% | ~~**2–100%**~~ | what an eight-case sample can actually pin down |
+| one-seed sensitivity | ~~**52–81%**~~ | what the seed we did not control is worth |
 
 **On that last row, because it is the sharpest number we hold and withholding a
 computable figure only looks concealed:** the truth-free seed bound of §8
@@ -320,10 +346,16 @@ and eight cases do not support settled.
 
 | opponent | our margin | P(we lead) | paired *t* (n = 8) | verdict |
 |---|---|---|---|---|
+| **Yang** *(added 2026-08-11 — the new leader)* | **0.0014** | **57.8%** | **−0.189** | **not statistically decided** |
 | Reissmann, Fang & Sandberg | 0.0029 | 69.4% | −0.495 | **not statistically decided** |
 | Wu & Zhang | 0.0058 | 84.7% | −0.953 | **not statistically decided** |
-| Liu, Wang, Zhao & Xiao | 0.0170 | 98.7% | — | decided on method |
-| Montoya, Oulghelou & Cinnella | 0.0212 | 99.8% | — | decided on method |
+| **Tian, Buchanan, Hickel & Dwight** *(added 2026-08-11)* | **0.0075** | **86.0%** | **−1.033** | **not statistically decided** |
+| Liu, Wang, Zhao & Xiao | 0.0170 | 98.7% | −2.203 | decided on method |
+| Montoya, Oulghelou & Cinnella | 0.0212 | 99.8% | −2.912 | decided on method |
+
+**Against Yang the per-case dispersion is fifteen times the margin** and we beat
+them on four cases and lose four — the least decided comparison in the table, and
+it is the one that sits between us and first place.
 
 Against Reissmann the per-case dispersion is **five times the margin**; we beat
 them on four cases and lose on four. Against Liu and Montoya we win 7 of 8, and

@@ -106,18 +106,27 @@ eight** cases. **Both are superseded and neither may be used.**
 > dated 2026-08-02 record; per this section's own rule, the superseded
 > numbers may not be used.
 >
-> **Rank-1 companion (MANDATORY, 2026-08-10 — chief ruling).** **P(rank 1) =
-> 68%**, and an eight-case sample cannot pin it tighter than 2–100% at 95%.
-> **The leads over Reissmann and Wu & Zhang are not statistically decided**
-> (paired per-case differences t = −0.50 and t = −0.95, against a per-case
-> dispersion five times the 0.002878 margin); the leads over Liu and Montoya
-> are (98.7%, 99.8%). **The standing is two cases wide** — delete
-> `alpha_15_13929_2024` and the point ranking falls to rank 2 (P(rank 1) 38%);
-> delete `NASA_2DWMH` and P(rank 1) rises to 91%. **`AR_1_Ret_360` and
-> `AR_3_Ret_360` are ties below published precision** (0.00003 and 0.00008) and
-> are not per-case wins or losses. Source:
-> `campaign/PROBABILITY_OF_RANK_2026-08-10.md` — SUPERSEDED 2026-08-10 — the internal-only restriction was WITHDRAWN by chief ruling; the 68% figure
-> now TRAVELS with the entry, and may never appear without its interval (2-100% at 95%) and the not-decided pairs.
+> **Rank-1 companion (MANDATORY, ~~2026-08-10~~ — RECOMPUTED 2026-08-11 against a
+> SIX-entry board).** **P(rank 1) = 50%** — 50.2% over a 400,000-draw case-level
+> bootstrap — and an eight-case sample cannot pin it tighter than **0–97% at 95%**
+> (double bootstrap). **Frame:** the **six**-entry LIVE board fetched
+> 2026-08-11T23:33Z by two routes; eight cases; our 0.056647191704213645 from
+> `closure_challenge_round5_qcr.json` at commit `07a7fe9e`.
+> ~~**P(rank 1) = 68%**, 2–100% at 95%~~ — **STRUCK 2026-08-11: computed
+> 2026-08-10 against a FOUR-entry board that no longer exists.** The board now has
+> six entries and a new leader, Yang at 0.0580; our margin over the leader is
+> **0.001365**, not 0.002878 (`campaign/BOARD_MOVED_2026-08-11.md`).
+> **Four leads are now not statistically decided** — Yang (t = −0.19), Reissmann
+> (t = −0.50), Wu & Zhang (t = −0.95) and Tian, Buchanan, Hickel & Dwight
+> (t = −1.03); the leads over Liu and Montoya are decided (98.7%, 99.8%).
+> **The standing is three deletions wide** (~~two cases wide~~) — deleting any of
+> `alpha_15_13929_4048`, `alpha_15_13929_2024` or `alpha_05_4071_4048` drops the
+> point rank to 2, 3 and 2; delete `NASA_2DWMH` and P(rank 1) rises to 78.5%.
+> **`AR_1_Ret_360` and `AR_3_Ret_360` are ties below published precision** (0.00003
+> and 0.00008) and are not per-case wins or losses. Source:
+> `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`; the superseded four-entry
+> computation is kept, not deleted, at `campaign/PROBABILITY_OF_RANK_2026-08-10.md`.
+> The figure may never appear without its interval **and its board**.
 
 * The entry of record is **0.0654**, not 0.0676, since round 4's duct change
   (`closure_challenge_trained_entry_round4_duct.json`). 0.0676 is the round-3

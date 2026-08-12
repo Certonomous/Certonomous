@@ -16,6 +16,8 @@
 \usepackage[protrusion=true,expansion=false]{microtype}
 \usepackage{fancyhdr}
 \usepackage{xcolor}
+\usepackage[normalem]{ulem}  % \sout: struck-and-kept figures, per the house rule that
+                                % a superseded number is struck and left visible, never deleted
 \usepackage[hidelinks]{hyperref}
 
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
@@ -58,9 +60,15 @@ created and the benchmark steward has not been contacted. The entry described he
 leaderboard, \textbf{scored locally} through the benchmark's own unmodified scorer at
 benchmark commit \code{deb91557}; it is not an official ranking, and where this document
 says \emph{rank 1} it means rank 1 on that local scoring --- a point estimate whose
-probability is \textbf{P(rank 1) = 68\%, and eight cases cannot pin that tighter than
-2--100\% at 95\%}, with the lead over the rank-2 entry
-\textbf{not statistically decided} (Table~\ref{tab:prank}). The submission package exists,
+probability is \textbf{P(rank 1) = 50\%, and eight cases cannot pin that tighter than
+0--97\% at 95\%} against the \textbf{six}-entry board fetched live 2026-08-11, with the leads
+over all four entries nearest us
+\textbf{not statistically decided} (Table~\ref{tab:prank}).
+\textbf{Superseded 2026-08-11 and struck rather than smoothed:} this document was written when
+the board had \emph{four} entries and said \sout{P(rank 1) = 68\%, 2--100\% at 95\%, the lead
+over the rank-2 entry not decided}. The board now has six entries and a new leader (Yang, 0.0580);
+our margin over the leader is 0.001365, not 0.002878. Every probability below carries the same
+strike --- see \S\ref{sec:boardmoved}. The submission package exists,
 is audited, and is one email away. It is \textbf{held at the owner's discretion} --- not
 withdrawn, not abandoned, not sent; the decision rests with Katie Kim.
 \end{minipage}}
@@ -190,6 +198,51 @@ metric is never reimplemented for scoring purposes.
 
 \subsection{The public leaderboard, and where we stand}
 
+\subsubsection*{The board moved on 2026-08-11, and every probability in this document is struck}
+\label{sec:boardmoved}
+
+\textbf{This document was written against a four-entry leaderboard.} Fetched live on
+2026-08-11 at 23:33\,UTC by two independent routes --- \code{raw.githubusercontent.com}
+and the rendered project page, agreeing --- the board carries \textbf{six} entries and a
+\textbf{new leader: Yang, 0.0580}. The eight case columns are unchanged, so every score
+here remains like-for-like; what changed is who is on the board.
+
+\textbf{What survives.} Our 0.056647 is still the lowest overall number on it, so
+\emph{rank 1 on a local scoring} is still the correct description.
+
+\textbf{What does not.} The margin over the leader is \textbf{0.001365}, not the 0.002878
+over Reissmann quoted throughout --- less than half. Recomputed by the same method against
+the six-entry board (\artifact{campaign/PROBABILITY\_OF\_RANK\_SIX\_ENTRY\_2026-08-11.md};
+script \artifact{sdk/scripts/probability\_of\_rank.py}, which reproduces every four-entry
+figure to the digit when the two new rows are removed):
+
+\begin{itemize}\itemsep2pt
+\item \textbf{P(rank 1) = 50\%} (50.2\%), which eight cases pin no tighter than
+  \textbf{0--97\% at 95\%} --- \emph{wider} than the struck 2--100\%, and 1.55\% of outer
+  resamples give exactly zero.
+\item \textbf{Four leads are not statistically decided, not two, and one of them is the
+  leader}: Yang ($t=-0.19$, per-case dispersion fifteen times the margin, four of eight
+  cases won), Reissmann ($-0.50$), Wu \& Zhang ($-0.95$), Tian, Buchanan, Hickel \& Dwight
+  ($-1.03$). Liu (98.7\%) and Montoya (99.8\%) remain decided.
+\item \textbf{The standing is three deletions wide}, not two cases wide, and the
+  load-bearing case has changed identity: deleting \code{alpha\_15\_13929\_4048},
+  \code{alpha\_15\_13929\_2024} or \code{alpha\_05\_4071\_4048} drops the point rank to
+  2nd, 3rd and 2nd.
+\item \textbf{The best-on-board count falls from 4 of 8 to 2 of 8}, both \code{alpha\_15}
+  hills lost to Tian, Buchanan, Hickel \& Dwight --- and the two that survive are exactly
+  the two organisers'-baseline rows, so \textbf{the count belonging to our own model is
+  zero of eight}. \S\ref{sec:bestonboard} is superseded accordingly. The overall is a mean
+  and not a count of wins, so this entry wins on consistency rather than on peaks, and that
+  is how it should be described.
+\end{itemize}
+
+\textbf{The frozen benchmark pin \code{deb91557} was not moved and must not be}: a frozen
+scoring reference is what makes every score here reproducible. \emph{It scores; it does not
+rank.} The defect this section records is that one artifact served both purposes and no
+sentence said which --- and that a figure whose referent can move was propagated to nine
+surfaces without its referent's snapshot beside it. The freshness check costs one
+\code{git ls-remote}.
+
 Table~\ref{tab:board} gives the public board as published at benchmark commit
 \code{deb91557}, with our unsubmitted entry inserted at its measured position. All four
 published entrants re-score to their published values exactly on our harness, per-case and
@@ -202,9 +255,11 @@ correctly (\artifact{CLOSURE\_CHALLENGE\_SUBMISSION\_DRAFT.md} \S7.5).
 \caption{The public leaderboard, with our entry of record at its internally measured
 position. We are unsubmitted; this is a local scoring, not an official ranking. Published
 ranks are the board's own; ours is where our number falls in it. The position is worth
-\textbf{P(rank 1) = 68\%} --- 2--100\% at 95\%, the width eight cases support --- and the two
+\textbf{P(rank 1) = 50\%} --- 0--97\% at 95\%, the width eight cases support --- and the four
 rows immediately below ours are \textbf{not statistically decided} against it
-(Table~\ref{tab:prank}).}
+(Table~\ref{tab:prank}). \textbf{This table is the FOUR-entry board and is superseded:} the live
+board of 2026-08-11 has six entries and a new leader above every row shown here except ours
+(\S\ref{sec:boardmoved}).}
 \label{tab:board}
 \begin{tabular}{clc}
 \toprule
@@ -237,11 +292,14 @@ carries this sentence by reference (\artifact{CLOSURE\_CHALLENGE\_STATUS.md} \S0
 under ladder~V's V8 clause: no rank claim ships without its probability and its
 not-decided pairs.} Resampling the eight cases --- 400{,}000 case-level bootstrap draws over
 the per-case scores already on disk, no new scoring call --- puts
-\textbf{P(rank 1) = 68\%} (67.6\%), which eight cases cannot pin tighter than
-\textbf{2--100\% at 95\%} --- the full ladder of intervals is unpacked immediately after
-Table~\ref{tab:prank}, and the figure does not travel anywhere without one of them.
-The rest of the distribution is not a rounding error:
-rank~2 at 18.6\% and rank~3 at 12.8\%.
+\textbf{P(rank 1) = 50\%} (50.2\%), which eight cases cannot pin tighter than
+\textbf{0--97\% at 95\%} --- the full ladder of intervals is unpacked immediately after
+Table~\ref{tab:prank}, and the figure does not travel anywhere without one of them, nor without
+the board it was computed against. The rest of the distribution is not a rounding error:
+rank~2 at 19.0\%, rank~3 at 14.7\% and rank~4 at 10.6\%.
+\sout{P(rank 1) = 68\% (67.6\%), 2--100\% at 95\%, rank 2 at 18.6\% and rank 3 at 12.8\%}
+--- \textbf{struck 2026-08-11: computed against a four-entry board that no longer exists}
+(\S\ref{sec:boardmoved}).
 
 \begin{table}[htbp]
 \centering\footnotesize
@@ -262,14 +320,19 @@ Montoya, Oulghelou \& Cinnella (margin 0.021216) & 99.8\% & --- & decided on met
 \end{tabular}
 \end{table}
 
-Read in the order of increasing honesty. The Monte Carlo interval (67.5--67.8\%) measures only
-that the resampling ran long enough. Leave-one-case-out across eight refits gives 38--91\%, and
-a double bootstrap gives 26--94\% at the 68\% level and 2--100\% at 95\%. \textbf{Eight cases
-cannot resolve a probability of rank better than ``somewhere between a coin flip and near
+Read in the order of increasing honesty. The Monte Carlo interval (50.0--50.3\%) measures only
+that the resampling ran long enough. Leave-one-case-out across eight refits gives 31.7--78.5\%, and
+a double bootstrap gives 12--81\% at the 68\% level and \textbf{0--97\% at 95\%}. \textbf{Eight cases
+cannot resolve a probability of rank better than ``anywhere from impossible to almost
 certain'',} and that sentence is the most useful line in the underlying analysis rather than a
 defect of it. A second source of doubt sits outside the method entirely: the seed-spread bound
-on the three seed-dependent cases is 0.0024 against a rank-1 margin of 0.002878, and loading it
-adversely moves P(rank 1) from 68\% to \textbf{52\%} (favourably, to 80.5\%). The honest
+on the three seed-dependent cases is 0.0024 against a rank-1 margin of \emph{0.001365} --- the
+bound is now \textbf{1.8 times the margin} --- and loading it
+adversely moves P(rank 1) from 50\% to \textbf{34\%} and, unlike on the four-entry board,
+\textbf{puts us at rank 2 on the point score} (favourably, to 65\%).
+\sout{Monte Carlo 67.5--67.8\%; leave-one-out 38--91\%; double bootstrap 26--94\% and
+2--100\%; seed bound 0.0024 against 0.002878, moving 68\% to 52\% or 80.5\%} ---
+\textbf{struck 2026-08-11, four-entry board} (\S\ref{sec:boardmoved}). The honest
 sentence this supports is: \emph{we are probably ahead, we cannot show that we are, and the two
 largest sources of doubt --- which eight cases, which seed --- are both outside our method.}
 
@@ -291,9 +354,13 @@ Two further cautions attach to that table and are repeated wherever it appears.
   wording implying the floor is the benchmark's own published figure is false
   (\artifact{CLOSURE\_CHALLENGE\_SUBMISSION\_DRAFT.md} \S7.2).
 \item \textbf{The rank is a point estimate, and the probability travels with it ---
-never without its interval.} \textbf{P(rank 1) = 68\%}, which eight cases cannot pin
-tighter than \textbf{2--100\% at 95\%}; the leads over Reissmann and over Wu \& Zhang are
-\textbf{not statistically decided} (Table~\ref{tab:prank}). \emph{Until 2026-08-10 this item
+never without its interval, and from 2026-08-11 never without its board.}
+\textbf{P(rank 1) = 50\%}, which eight cases cannot pin
+tighter than \textbf{0--97\% at 95\%}; the leads over Yang, Reissmann, Wu \& Zhang and
+Tian, Buchanan, Hickel \& Dwight are
+\textbf{not statistically decided} (Table~\ref{tab:prank}).
+\sout{P(rank 1) = 68\%, 2--100\% at 95\%, two undecided pairs} --- struck 2026-08-11,
+four-entry board (\S\ref{sec:boardmoved}). \emph{Until 2026-08-10 this item
 read differently: it marked that figure internal to this laboratory --- not to be quoted
 outside it, attached to any package, or cited in any submission-facing document. That
 restriction was withdrawn, and the reasoning is recorded here rather than deleted, because a
@@ -813,6 +880,7 @@ Case & Floor & R3 & R4 & \textbf{R5} & Reissmann & Best pub. & Attribution \\
 \end{table}
 
 \subsection{How the ``best on board'' count must be reported}
+\label{sec:bestonboard}
 \label{sec:attribution}
 
 Arithmetically we hold the best score on the public board on four of eight cases --- five

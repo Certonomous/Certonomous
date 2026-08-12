@@ -97,7 +97,11 @@ Katie's GUI conventions, applied family-wide:
   rank-1 margin, and the rank-1 reading carries that uncertainty.
   `closure.html`'s stability note is the reference wording; review F1 is
   what omission looks like. **(c) Added 2026-08-10, chief ruling — MANDATORY:
-  P(rank 1) and the not-decided pairs.** **P(rank 1) = 68%**; an eight-case
+  P(rank 1) and the not-decided pairs.** **EVERY FIGURE IN (c) AND (d) IS
+  SUPERSEDED 2026-08-11 — SEE (e). All of them were computed against a FOUR-entry
+  board that no longer exists.** They are kept unrewritten, per this section's own
+  "dated superseded notes, never rewrites" rule.
+  **P(rank 1) = 68%**; an eight-case
   sample cannot pin it tighter than 2–100% at 95%; **the leads over Reissmann
   and Wu & Zhang are not statistically decided** (paired per-case differences
   t = −0.50 and t = −0.95, against a per-case dispersion five times the
@@ -133,6 +137,37 @@ Katie's GUI conventions, applied family-wide:
     `campaign/PROBABILITY_OF_RANK_2026-08-10.md` (head banner and §"the
     propagation rule"); `campaign/LADDER_V_TRIPLE_VERIFICATION.md` (V8 amendment,
     2026-08-10).
+  - **(e) RECOMPUTED 2026-08-11 — the board moved, and every figure in (c) and (d)
+    is struck and kept.** The live leaderboard, fetched 2026-08-11T23:33Z by two
+    independent routes, carries **six** entries and a **new leader, Yang at
+    0.0580** (`campaign/BOARD_MOVED_2026-08-11.md`). The eight case columns are
+    unchanged, so scores stay like-for-like. Recomputed by the same method against
+    the six-entry board (`campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`,
+    script `sdk/scripts/probability_of_rank.py`, which reproduces the four-entry
+    figure exactly when the two new rows are removed):
+    - **P(rank 1) = 50%** (50.2%, B = 400,000), which eight cases pin no tighter
+      than **0–97% at 95%** — *wider* than the struck 2–100%, at the end that
+      matters, and 1.55% of outer resamples give exactly zero.
+    - **Four leads are not statistically decided**, not two: Yang (t = −0.19),
+      Reissmann (t = −0.50), Wu & Zhang (t = −0.95), Tian/Buchanan/Hickel/Dwight
+      (t = −1.03). Liu and Montoya remain decided (98.7%, 99.8%). **The new
+      leader is on the undecided list**, which is the clause a rank claim most
+      needs and the struck version could not contain.
+    - **The standing is three deletions wide**, not two cases wide, and the
+      load-bearing case has changed identity: deleting `alpha_15_13929_4048`,
+      `alpha_15_13929_2024` or `alpha_05_4071_4048` drops the point rank to 2, 3
+      and 2. Any sentence naming `alpha_15_13929_2024` as *the* case the standing
+      rests on is frame-specific to the four-entry board.
+    - **The seed bound now crosses the rank boundary.** Loaded adversely the
+      overall is 0.059047 against Yang's 0.058013 — **rank 2, not rank 1.** Clause
+      (b)'s "comparable to the margin" is now an understatement: the bound is
+      **1.8×** the 0.001365 margin, where it was 0.83× the 0.0029 one.
+    - **A THIRD prohibition joins the two above, and it is the one this incident
+      bought: no surface may state the figure without its BOARD** — how many
+      entries, fetched when. An interval without a board is what expired here,
+      silently, across nine surfaces at once, and no check in the corpus was
+      looking. Sources: `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md`;
+      `campaign/BOARD_MOVED_2026-08-11.md`; docket D50.
 - The AR_14 loss, the 4-of-8 best-on-board count, and the "two of four
   best rows are the organisers' baseline" attribution travel together —
   none is quoted without the others where standing is summarized.
