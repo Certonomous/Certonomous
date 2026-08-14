@@ -546,7 +546,7 @@ which is which instead of showing an undifferentiated column of PASS.*
 | V5 QCR provenance | **PASS WITH EXCEPTIONS** | YES — its own re-run overturned an earlier PASS; **2 gaps still open** |
 | V6 compliance audit vs round 5 | **PASS** (was FAIL on currency) | **PARTIAL — one commit unread by anyone but its author** |
 | V7 known defects killed | **PASS** — three, not the two we knew | YES — two more stale generator strings found later |
-| V8 claims table | **FAIL — 8 claims** (corrections landed; re-verification in flight) | YES — a later rung reversed one evidence line and re-graded another |
+| V8 claims table | ~~**FAIL — 8 claims** (corrections landed; re-verification in flight)~~ *(that row described the state of 2026-08-10; the re-verification it says is in flight landed 2026-08-11 at FAIL on 5 findings)* → re-verified again **2026-08-14 at `f8c889cc`: still FAIL**, on one blocking finding and one changed-shape finding, with four of the five 2026-08-11 findings cleared on executed evidence. Round document: `campaign/LADDER_V_V8_REVERIFICATION_2026-08-14.md` | YES, three times, each by an agent that wrote none of the graded text — and the 2026-08-14 round graded the ordinal repair for **durability** by mutation, returning PASS WITH A NAMED RESIDUAL (D85) |
 | V9 prior-art completeness | **FAIL → FIXED** | YES — the struck sentence was then found still in the shipping archive |
 | V10 cross-surface / mechanical sweep | PASS → FAIL → FAIL → **closed** | **NO — SELF-GRADED at the last step; independent check ordered** |
 | V11 cold reproduction | **PASS** | YES — bit-for-bit, from the package alone |
