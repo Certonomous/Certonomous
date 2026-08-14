@@ -1495,6 +1495,14 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   mis-priced and nothing downstream of one is affected. Recovered by two independent routes (OpenFOAM's `nProcs`
   header; driver logs echoing their own commands), because the first returned nothing and **a null from one instrument
   is not an absence**; each route carries a planted positive control. The other 143 records carry no cost line at all.
+  **[DENOMINATOR SUPERSEDED 2026-08-14, `8d977d23` — D52. The 146 and the 143 were CORRECT WHEN WRITTEN and are kept
+  under L-76 rather than overwritten: at 2026-08-10 the registry held 146 `*.done`. E2's repair renamed four zero-byte
+  records to `*.done.INTERRUPTED` at 2026-08-11 17:31:31 (ctime, read off the files), and `*.done` does not match them,
+  so the same glob now returns 142. Re-derived at `8d977d23`, not transcribed: the NUMERATOR is unchanged — **3 carry a
+  rank declaration**, and it is 3 over the 142 usable records AND 3 over all 147, so this entry's finding of a measured
+  zero stands on either denominator. The 143 becomes 139 usable / 144 of all records. Note 147, not 146: a fifth record,
+  `f5a_re2000_...done.FAILED_ATTEMPT_cwd_bug`, was renamed out of the glob on 2026-07-29, before this entry was written,
+  so 146 already omitted a failed run.]**
   My own reach check had to be corrected mid-sweep when an `or ""` made an ABSENT line read as a value — seventh time
   this campaign the auditing instrument carried the defect it was auditing for.
 - **105 MESHES MARKED "CERTIFIED (pre-existing record)" CARRIED THE LOG AND NONE CARRIED THE CERTIFICATE.** The
@@ -1524,6 +1532,10 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   independent routes** reading what the execution itself wrote; **route (a) returned nothing on all three**, and a
   null from one instrument is not an absence, so route (b) carried it — with a planted mismatch caught by both.
   Reach stated: the other 143 records carry no cost fields at all, so no mis-priced figure can exist from them.
+  **[DENOMINATOR SUPERSEDED 2026-08-14, `8d977d23` — D52, same correction as the 2026-08-10 (night) entry above. 146
+  was the true `*.done` count on the date written; the four `*.done.INTERRUPTED` renames of 2026-08-11 17:31:31 moved
+  the glob to 142, and 147 records exist in all. Re-derived at `8d977d23`: **3 rank declarations** on every denominator,
+  so the measured zero is unaffected; the 143 becomes 139 usable / 144 of all.]**
 - **[PRECISION CORRECTED, same night, by the executing agent: the claim below is stated at its ACTUAL strength.
   What is established is that SEVEN CITED LOGS CONTRADICT THEIR ROWS — not that seven meshes are born broken.**
   `checkMesh` was never re-run on those meshes; the rows were refused at the verdict gate before the cell-count
@@ -2918,6 +2930,10 @@ lesson that commissioned it, on two specifics.**
 - **RANKED BY COST — and #2 is urgent because it guards the shoot:**
   1. `case_preflight.sh` — **PASS on an empty directory**, and *silent* under `--quiet`, which is **the only mode the
      launcher uses.** Reproduced firsthand. **146 `.done` records rest on it.**
+     **[DENOMINATOR SUPERSEDED 2026-08-14, `8d977d23` — D52. True when written; the count reachable by that glob is
+     **142** since the four `*.done.INTERRUPTED` renames of 2026-08-11 17:31:31, and **147** records exist in all.
+     The severity of this item is if anything understated by the correction: 147 records rest on that gate, and the
+     five renamed out of the glob are precisely the runs where collection FAILED, which is what a preflight guards.]**
   2. ~~`audit_transcripts.sh` — reports *"clean"* **over a corpus root that does not exist**; the verdict counts
      none of the 17 transcripts.~~ **FALSIFIED 2026-08-11 — see the correction entry of that date. The configured
      root exists, is the exact path the 17 transcripts live at, and the gate has been reading all 17 all along.
@@ -3113,6 +3129,11 @@ check was commissioned, and it is the best argument tonight for never letting an
   over 146** — 6 case directories are gone and 4 records have no case line, so they cannot be evaluated at all. A
   further 20 fail only a pre-existing check against **post-run** state the runs themselves created — **a measurement
   artifact, not a launch-time defect, and deliberately not folded in.**
+  **[DENOMINATOR SUPERSEDED 2026-08-14, `8d977d23` — D52. The 146 was the true `*.done` count when written. Since the
+  renames of 2026-08-11 17:31:31 the glob returns 142 and 147 records exist in all. This entry is the one whose
+  ARGUMENT is least disturbed and most confirmed: it already refused to divide by the corpus, stating 7 as a lower
+  bound over **136 evaluable** records and naming the 10 it could not evaluate. A figure that carries its own
+  evaluable frame survives a denominator move; the four beside it that divided by 146 did not.]**
 - **TWO OF THE THREE DEFECTS I PUBLISHED DID NOT REPRODUCE, and a third was overstated.** The executable bit was
   already fixed on 2026-08-10 and confirmed by a **real fresh clone**; the launcher's `[ -x ]` skip is gone, replaced
   by a `bash` fallback that gives "did not run" its own third verdict. And *"entirely silent under `--quiet`"* is too
@@ -3135,6 +3156,13 @@ check was commissioned, and it is the best argument tonight for never letting an
   registry redirected to scratch and **all 146 records intact and unmodified.**
 - **Found while not looking: 4 zero-byte completion records** whose logs hold 3.6–6.5 MB of real solver output — the
   collector wrote **nothing**. Same *"absence reads as nothing happened"* family. Queued as its own rung.
+  **[DENOMINATOR SUPERSEDED 2026-08-14, `8d977d23` — D52, and the two bullets above are the whole mechanism sitting
+  one line apart. "All 146 records intact and unmodified" was TRUE when written: it is a statement about a launcher
+  test run against a scratch registry, and it did not touch the real one. What renamed four of those 146 was the
+  repair for the zero-byte records reported in the very next bullet — executed 2026-08-11 17:31:31, marking them
+  `*.done.INTERRUPTED` as instructed, "marked, not deleted". So the sentence is no longer true IN THE LETTER, and it
+  was the fix that made it untrue, not any drift. `*.done` now returns **142**; **147** records exist in all. The
+  transferable form: a rename re-scopes every glob that counted the thing, and the globs are the half nobody re-runs.]**
 
 ### 2026-08-11 — the hump's adjoint boundary is uncharacterised, not diagnosed, and 8 claim sites are corrected
 
