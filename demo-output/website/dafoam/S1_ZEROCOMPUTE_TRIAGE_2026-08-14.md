@@ -80,14 +80,14 @@ Frame for this inventory: `demo-output/website/CLOSURE_CHALLENGE_STATUS.md`,
 | item | why |
 |---|---|
 | **G2** | now **six** independent ways: bar 50% above the loss's own 32.71% top-decile ceiling; it scores the adjoint not the closure; noise passes at 60.8% while a strict amputation with worse physics passes at 53.7%; non-monotone under `np.quantile` when the deviating set is smaller than the quantile (D29); and — added here — it is **objective-invariant** (§2.1), so it cannot discriminate between objectives either, and it is **numerically exact** (§2.4), so none of the spread between published G2 values is noise |
-| **G-P4** | **NEW (§2.2).** All three legs derivable from (β, g_QoI, λ_L2); a wrong posterior passes at 0.0e+00. Filed **D66**. Gates a 260 core-min item |
-| **G-P2** | **NEW (§2.5).** Its stated mechanism — an 8.2× stronger prior pull unpins cells — is measured not to hold at the only archived state where it can be checked. Filed **D68** |
+| **G-P4** | **NEW (§2.2).** All three legs derivable from (β, g_QoI, λ_L2); a wrong posterior passes at 0.0e+00. Filed **D67**. Gates a 260 core-min item |
+| **G-P2** | **NEW (§2.5).** Its stated mechanism — an 8.2× stronger prior pull unpins cells — is measured not to hold at the only archived state where it can be checked. Filed **D69** |
 | **C2 sanity check** | already declared an identity by the lab ("reportable, never gateable") |
 | **R5 / G-W2** | enabling premise measured false (D45); bar above ceiling; §2.1 removes the last route by which the premise could have been rescued |
 | **R8 condition (a)** | measured absent (D45); §2.1 makes it worse — the geography survives a 7× change in the objective's support, so there is even less physical structure to key a transferable prior to |
-| **PR-1 as specified** | **NEW (§2.1).** The support-change version is answered from disk. Filed **D67** |
+| **PR-1 as specified** | **NEW (§2.1).** The support-change version is answered from disk. Filed **D68** |
 | **W1-only arm** (~150 core-min) | "would score 8.4% and FAIL by construction" (S1C2 §5 #2) — arithmetic, not judgement |
-| **R1's "nine gradient arrays"** premise | frame-scoped; 14 exist and two secant pairs are reconstructible. Filed **D69** |
+| **R1's "nine gradient arrays"** premise | frame-scoped; 14 exist and two secant pairs are reconstructible. Filed **D70** |
 
 **The brief asked specifically whether any other open question is gated on a measurement broken the
 way G2 is. It is G-P4, and it gates the most expensive unrun item on the S1 board.**
@@ -227,7 +227,7 @@ c = 0.999542138. The published 0.9995 is *"the run converged"*, restated as an a
 **What G-P4 does test, stated so a replacement can keep it.** Exactly two scalars: `‖g_QoI‖` at the
 plateau state, and the angle between `g_QoI` and `(β−1)`. That is a sound **reproduction control on
 the gradient**, and it would have caught the mismatched-evaluation error that produced the 1.684×
-confusion. It is not, and cannot be, a control on a posterior. Filed **D66**. **S1-priors should not
+confusion. It is not, and cannot be, a control on a posterior. Filed **D67**. **S1-priors should not
 buy 260 core-min against it.**
 
 ### 2.3 The secant curvature pair — R1's pricing premise, and what the archive actually holds
@@ -306,7 +306,7 @@ products and notes only that the first two will be checked for symmetry — a se
 There is now a **correctness** check available at zero compute: an Hv along `s` must reproduce
 `sᵀy_QoI` to the accuracy of the FD step. That converts the first Hv from a purchase into a
 validated instrument before the remaining five are bought, against a measured external value rather
-than against itself. Filed **D69**.
+than against itself. Filed **D70**.
 
 **Heavy-tail discipline.** Spearman carries every claim in this document. `|g(eval1)|` has
 max/median **2.05e+06** (reinversion) and **1.14e+07** (inversion); a Pearson coefficient over that
@@ -382,7 +382,7 @@ force. The median likelihood pull is **5.3×** the lognormal prior's restoring p
 prior's restoring pull by a factor of several, so the 8.2× prior ratio does not by itself imply
 unpinning — the comparison G-P2 makes is between two priors, and the quantity that decides the
 outcome is a third. n = 5 and the state is not the one G-P2 grades: **this is a caution on the
-mechanism, not a measurement of the gate**, and it is filed as such (**D68**). It is enough to say
+mechanism, not a measurement of the gate**, and it is filed as such (**D69**). It is enough to say
 that G-P2's "<60" is not supported by the argument given for it, and that a gate whose stated
 mechanism is the wrong comparison should be re-derived before 260 core-min is spent partly to test
 it.
@@ -450,7 +450,7 @@ Buying 760–1,520 core-min of mesh before a zero-cost check on whether the benc
 single-sourced is the ordering the calibration scorecard's 0-of-3 record exists to discourage.
 
 ### Held rather than ranked — **S1-priors, 260 core-min.**
-Not a "no". **Hold until G-P4 is replaced** (§2.2, D66) and G-P2 re-derived (§2.5, D68). Two of its
+Not a "no". **Hold until G-P4 is replaced** (§2.2, D67) and G-P2 re-derived (§2.5, D69). Two of its
 four gates cannot presently fail or rest on the wrong comparison, and the proposal JSON that an
 agent would dispatch from still carries the **withdrawn** G-P4 (D41). Spending 260 core-min against
 gates in that condition is the defect this lab spent 2026-08-11 cataloguing.
@@ -517,11 +517,15 @@ control (R1's 31.19%) caught it. The control is in the script for that reason.*
 
 ## 6. Docket rows filed
 
-**D66** (G-P4 cannot fail), **D67** (PR-1's deliverable was already on disk), **D68** (G-P2's stated
-mechanism is the wrong comparison), **D69** (the archive holds 14 gradient arrays and two secant
+**D67** (G-P4 cannot fail), **D68** (PR-1's deliverable was already on disk), **D69** (G-P2's stated
+mechanism is the wrong comparison), **D70** (the archive holds 14 gradient arrays and two secant
 pairs; R1's pricing premise is frame-scoped). IDs checked against `docs/DOCKET.md` immediately before
-filing — D63/D64/D65 were taken by a concurrent session during this work, and these took the next
-free numbers rather than colliding.
+filing, per W-4. **D63–D66 were all taken by concurrent sessions while this work was running** — the
+highest free ID moved twice between opening the docket and writing to it — so these took the next
+free numbers rather than colliding, and nothing was renumbered. **D66 is the sibling of §2.2**: a
+separate W-2 sweep landed the same defect class (a gate whose answer is derivable from its own
+inputs) on four other pre-registrations the same evening. G-P4 is a fifth instance and is filed as
+its own row rather than merged into theirs, because its item is unrun and therefore repriceable.
 
 ## Related
 
