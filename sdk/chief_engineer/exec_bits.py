@@ -51,7 +51,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 #: Adoption date of the waiver register below.
-WAIVER_REGISTER_DATED = "2026-08-10"
+WAIVER_REGISTER_DATED = "2026-08-14"
 
 #: Tracked scripts a fresh clone MUST be able to execute, with the reason.
 REQUIRED_EXECUTABLE = {
@@ -112,6 +112,7 @@ WAIVED_NO_EXEC_BIT = (
     "demo-output/website/campaign/F7_runs/grade_f7a.py",
     "demo-output/website/campaign/F7_runs/integrated_front.py",
     "demo-output/website/campaign/F7_runs/make_dambreak.py",
+    "demo-output/website/campaign/F7_runs/old_spec_readings.py",
     "demo-output/website/campaign/F7_runs/plot_f7a_R1.py",
     "demo-output/website/campaign/F7_runs/run_dambreak.sh",
     "demo-output/website/campaign/F8_runs/bem_analysis/bem_sequence_s.py",
@@ -198,6 +199,10 @@ WAIVED_NO_EXEC_BIT = (
     "demo-output/website/dafoam/ladder-b/B3_work/fixC_empty/runScript.py",
     "demo-output/website/dafoam/ladder-b/B3_work/fixC_empty/runScript_diag_force.py",
     "demo-output/website/dafoam/ladder-b/B3_work/fixC_empty/runScript_stage2.py",
+    "demo-output/website/dafoam/ladder-b/S1_work/scripts/r1_confounds.py",
+    "demo-output/website/dafoam/ladder-b/S1_work/scripts/r1_final.py",
+    "demo-output/website/dafoam/ladder-b/S1_work/scripts/r1_geography.py",
+    "demo-output/website/dafoam/ladder-b/S1_work/scripts/r1_sens_vs_error.py",
     "demo-output/website/dafoam/ladder-b/S1_work/scripts/runScript_S1.py",
     "demo-output/website/dafoam/ladder-b/S1_work/scripts/runScript_hump.py",
     "demo-output/website/dafoam/ladder-b/S1_work/scripts/runScript_hump_nat.py",
@@ -271,8 +276,10 @@ WAIVED_NO_EXEC_BIT = (
     "scripts/add_proposals_r5.py",
     "scripts/audit_camera_discretion.sh",
     "scripts/audit_transcripts.sh",
+    "scripts/auto-stop.sh",
     "scripts/auto-stop.sh.proposed",
     "scripts/build_laptop_bundle.py",
+    "scripts/check_absolutes.py",
     "scripts/check_convergence.py",
     "scripts/check_convergence_sweep.py",
     "scripts/check_convergence_validate.py",
@@ -305,6 +312,7 @@ WAIVED_NO_EXEC_BIT = (
     "sdk/scripts/is_idle.sh",
     "sdk/scripts/mega_batch_keeper.sh",
     "sdk/scripts/model_form_batch.py",
+    "sdk/scripts/probability_of_rank.py",
     "sdk/scripts/replay_monitor_rules.py",
     "sdk/scripts/replay_s12_unsettled_stop.py",
     "sdk/scripts/score_s6_partition.py",
