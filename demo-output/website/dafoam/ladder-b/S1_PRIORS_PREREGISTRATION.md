@@ -217,7 +217,9 @@ the chief as a separate go/no-go, with this item's reason recorded.
 
 The strategy PROOF clause is *"S1's regularization chosen by theory (prior
 interpretation), posterior uncertainty on beta reported, not just a point field."*
-Operationalised in four gates, all required.
+Operationalised in ~~four~~ **five** gates, all required. *(Count amended 2026-08-14: G-P4 is
+withdrawn and replaced by G-P4a and G-P4b — see §4a for the W-3 legality check that permits the
+amendment, and for the one sibling that is reported rather than changed.)*
 
 - **G-P1 — the λ is derived, not matched.** The derivation of §3a–§3d is executed at the
   measured σ_d and its band, and the resulting λ_LN is reported against the three values
@@ -226,6 +228,13 @@ Operationalised in four gates, all required.
   near convention — that is a real result and is pre-declared here so it cannot be
   presented later as a derivation triumph. **The experiment is the prior's FORM, not its
   magnitude.**
+  - **[Identity flag, 2026-08-14, docket D76 — reported, and this gate is NOT changed.]**
+    λ_LN is a closed form in four numbers this document supplies itself, and §3d already
+    prints its value, so under W-2 this gate's quantity is an identity and its stated failure
+    mode cannot occur. Executed: **8.133557e-06** against §3d's 8.1335e-06, band floor
+    **2.033389e-06** against 2.0334e-06. The same shape is self-declared in
+    `S1_WITH_PRIORS_PREREGISTRATION.md` §7(a) (*"Bar met in advance by construction"*).
+    **The ruling is the owner's**, as it is for D66; see §4a.
 - **G-P2 — the pinning prediction, stated before the run.** Under the lognormal prior the
   restoring pull at β = 0.2 is `2λ_LN·log(0.2)/0.2` = 1.309e-4 against the Gaussian's
   `2λ_L2·(0.2−1)` = 1.600e-5 — **8.2× stronger**. **Prediction: the count of cells at the
