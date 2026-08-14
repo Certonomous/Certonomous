@@ -73,6 +73,24 @@ A lesson without a check is a lesson that will recur. Owner: fleet.
 > not the agent's.** This file is the one surface both sessions already read. One edit before
 > dispatch makes the collision visible while it is still cheap — the agents do not exist yet.
 
+**LIVE DISPATCH CLAIM — chief session `64b13819`, 2026-08-14T21:55Z, at repo `0330d78c`.**
+Claimed before the agents were launched, per the rule above. A second chief session reading
+this should take something else.
+
+| Claim | Paths it owns | Brief |
+|---|---|---|
+| **Orphan recovery, D54 + D55** | `scripts/self_audit.py`, `sdk/tests/test_two_board_referents.py`, `sdk/tests/test_fault_message_matches_rule.py` | The 2026-08-14 fleet death left ~200 uncommitted lines and two untracked test files in the worktree. Verify by execution and mutation before committing, or report what does not survive. |
+| **Ladder V convergence audit** | read-only; writes nothing | Which rung is live, the R-VALUE consecutive-belief-neutral count, per-rung blockers, and the open-row split into *blocking* vs *legitimate PASS-WITH-RESIDUALS residual*. |
+| **W-1 weekly supersession sweep** | `docs/charters/`, the sweep script it creates | Audit which of W-1..W-5 have executable enforcement rather than prose, then build the sweep W-1 names. Three-valued, frame-printing, positive **and** must-not-match controls. |
+| **Closure line, zero compute** | new dated file under `demo-output/website/dafoam/` | Which open closure questions are settleable from data already on disk, which are gated on a measurement as broken as G2, and whether the chief's compute ranking survives the data. |
+| **Research refill** | `demo-output/website/agenda/` and its `proposals/` inbox | Six to ten proposals across the eight wells, each carrying its discriminating outcome, its null, the W-2 identity test, and a cost in a form that can actually be scored later. |
+
+**Why the recovery brief came first.** Committed work survived the kill intact — every one of
+the three agents believed to have died mid-task had in fact landed its commit (`89c2a467`,
+`067caac0`, and the six-entry rank recomputation). The only work at risk was the tail that
+was never committed, and an uncommitted worktree is the one thing a second session's agent
+can silently clobber.
+
 | # | Item | Lesson | Status / owning session |
 |---|------|--------|--------|
 | B1 | **Sanctioned `sweep()` helper** — names its frame, filter and commit in its own output; cannot silently exclude; test asserts it sees a planted file inside an ignored path. Plus: re-run every standing sweep whose conclusion mattered; mark any that cannot be re-derived as **UNFRAMED**. | L-75 | **LANDED** — `85cc1078` + `fc8e1812` (helper, 4 named frames, 3 verdicts, `FrameMismatch` on cross-frame comparison; 24 tests). Part (c) at `8ebe2b8e`/`8623b8ca`: **16 published sweeps re-run, 4 moved, 3 UNFRAMED.** *Ran twice — see the claim rule above.* |
