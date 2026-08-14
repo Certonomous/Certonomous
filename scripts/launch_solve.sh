@@ -441,6 +441,22 @@ except Exception:
     # 146-record corpus replay as a prerequisite; four of the records that replay
     # would read are empty.
     #
+    # SUPERSEDED 2026-08-14 (D52, pinned at scripts/dispatch_queue.py). The
+    # above was true when written and is kept. What changed: those four empty
+    # records were marked `*.done.INTERRUPTED` at 2026-08-11 17:31:31, and
+    # `*.done` does not match that suffix. The corpus reachable by the glob is
+    # now 142; 147 completion records exist in all, the extra one being
+    # f5a_re2000_...done.FAILED_ATTEMPT_cwd_bug, renamed 2026-07-29.
+    #
+    # THE CONSEQUENCE FOR P6, which is the reason this note is here and not
+    # only in the docs. The P6 prerequisite replay was specified over a
+    # "146-record corpus" whose point was that FOUR OF THE RECORDS IT WOULD
+    # READ ARE EMPTY -- the empties were the thing worth replaying. A replay
+    # written today against `*.done` reads 142, silently skips all four, and
+    # comes back clean having never touched the evidence it was commissioned
+    # to examine. Any replay must glob `*.done*` and report the classes
+    # separately, as registry_attribution() now does.
+    #
     # Writing to .partial and renaming makes the file atomic: a rename within one
     # directory either happens or does not, so $REC exists only when it is
     # complete. Every existence test in the corpus becomes correct again without

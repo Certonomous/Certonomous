@@ -87,7 +87,14 @@ nothing_to_inspect() {
 # checked against every case directory named by the 146 completion records in
 # demo-output/website/solve_registry. Of the 78 that still exist, 76 carry
 # every element below, and the two that do not are the two that were never
-# cases (see the exposure note in the commit). A requirement that fires on a
+# cases (see the exposure note in the commit).
+# [SUPERSEDED 2026-08-14, D52: the corpus this list was chosen against was 146
+# records at the time of choosing. It is 142 by the same glob today and 147 in
+# all -- five were RENAMED out of `*.done`, none were deleted, so every case
+# directory that informed the list is still named by a record on disk and the
+# list itself is unaffected. Recorded because the number is cited, not because
+# the choice needs revisiting.]
+# A requirement that fires on a
 # case this machine has demonstrably run would be a false refusal, and this
 # file already learned at line ~120 what those cost.
 #
@@ -421,6 +428,10 @@ awk -v m="$avail_gb" 'BEGIN{exit !(m+0 < 6)}' && bad "MemAvailable ${avail_gb} G
 # exactly one way, with --quiet, and the PASS line used to be routed through
 # `note()` and therefore suppressed. 146 completion records were taken with
 # this gate emitting nothing on success.
+# [SUPERSEDED 2026-08-14, D52: true when written; 147 completion records exist
+# in all, of which 142 are still reachable by a `*.done` glob. The figure moved
+# because a repair renamed five records out of that glob, not because any run
+# was added or lost. Counted at scripts/dispatch_queue.py::registry_attribution.]
 #
 # The counts are the reach. "PASS" alone cannot be told apart from a pass over
 # an empty directory; "PASS -- 17 checks ran" can. If that number is small,
