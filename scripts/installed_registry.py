@@ -58,6 +58,27 @@ than fixed quietly:
   the same files, so it was NOT added unilaterally; whether this registry
   should own mode is filed as a docket row rather than decided in this file.
 
+DECLARED DIVERGENCE, FOR ARTIFACTS THIS LAB MAY NOT INSTALL (D65, 2026-08-14)
+-----------------------------------------------------------------------------
+`/usr/local/bin/auto-stop.sh` is the box's power control, and docket row A4 puts
+that with Katie and Sanaa rather than the fleet. So a reviewed repair to it
+lands in the tree and then WAITS -- and between the commit and the install,
+tracked and installed differ legitimately and this registry is right to see it.
+
+Two wrong answers were available. Deleting the entry, or exempting the pair,
+switches off the one check built out of 2026-07-30. Committing nothing leaves
+the repair unwritten. The third is `PendingInstall`: the divergence is DECLARED,
+with a reason, an owner, an expiry date, and the sha256 of what the installed
+copy is expected to still be. Inside that window the pair reads `PENDING` and
+does not fail. Outside it -- expired, or an installed copy that is not the
+pinned one -- it FAILS, with the waiver named in the message. A waiver left
+behind after the fix is installed is reported by `stale_waivers()`.
+
+The hazard being accepted, stated plainly: while a waiver is live, this machine
+is knowingly running an older copy than the tree's reviewed one, which is the
+2026-07-30 situation with a note attached. The note is the whole difference, so
+it is printed on every run and it lapses by itself.
+
 ENUMERATED BY EXECUTION ON 2026-08-14, AND DELIBERATELY NOT REGISTERED
 ----------------------------------------------------------------------
 The enumeration was run rather than guessed (`sudo crontab -l`, `crontab -l`,
@@ -115,6 +136,8 @@ now, because nobody has.
 from __future__ import annotations
 
 import dataclasses
+import datetime
+import hashlib
 import os
 import re
 import subprocess
@@ -123,8 +146,50 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 
 #: States a pair can be in. `DRIFT` and `DANGLING` are failures; `ABSENT` is a
-#: skip that must carry a reason; `MATCH` is the only pass.
-MATCH, DRIFT, ABSENT, DANGLING = "match", "drift", "absent", "dangling"
+#: skip that must carry a reason; `PENDING` is drift that a waiver explains and
+#: that expires; `MATCH` is the only pass.
+MATCH, DRIFT, ABSENT, DANGLING, PENDING = (
+    "match", "drift", "absent", "dangling", "pending")
+
+
+@dataclasses.dataclass(frozen=True)
+class PendingInstall:
+    """A reviewed fix committed to the tree that this lab MAY NOT install.
+
+    Some installed artifacts are not the fleet's to write. `/usr/local/bin/
+    auto-stop.sh` is the box's power control and belongs to Katie and Sanaa
+    (docket row A4), so a repair to it lands in the tree and then WAITS. Between
+    the commit and the install, tracked and installed differ on purpose, and the
+    drift check is right to notice.
+
+    The wrong answer is to silence it, because the check being silenced is the
+    one built out of 2026-07-30, when a repaired gate sat in the tree uninstalled
+    for thirteen days and nothing said so. This is the other answer: the
+    divergence is DECLARED, and the declaration is deliberately fragile.
+
+    * `installed_sha256` pins WHAT the installed copy is expected to still be --
+      the normalised text of the version this waiver was written against. The
+      waiver excuses exactly one known difference. If the installed copy becomes
+      anything else, that is unreviewed drift and it FAILS, waiver or no waiver.
+    * `expires` is a date, not a mood. Past it the pair fails with the waiver
+      named, so a fix nobody installed cannot go quiet by ageing -- which is the
+      thirteen-day failure itself.
+    * `owner` and `reason` are there because a red check nobody can act on is a
+      fault message, not a fix.
+
+    Removing the waiver when the fix is installed is not optional housekeeping:
+    `stale_waivers()` reports a waiver whose difference no longer exists, so a
+    stale one is visible rather than sitting there excusing nothing.
+    """
+
+    reason: str
+    owner: str
+    expires: str  # YYYY-MM-DD
+    installed_sha256: str
+
+    def expired_on(self, today: datetime.date | None = None) -> bool:
+        return (today or datetime.date.today()) > datetime.date.fromisoformat(
+            self.expires)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -149,6 +214,7 @@ class Deployment:
     why: str
     reinstall: str
     normalize: str = "text"
+    pending: PendingInstall | None = None
 
     @property
     def slug(self) -> str:
@@ -180,6 +246,25 @@ DEPLOYMENTS: tuple[Deployment, ...] = (
             "the tracked copy is the only reviewed one",
         reinstall="sudo install -m 755 scripts/auto-stop.sh "
                   "/usr/local/bin/auto-stop.sh",
+        pending=PendingInstall(
+            reason="D65: clause (3), the control-room test, named ONE session "
+                   "config directory and the config directory was migrated out "
+                   "from under it. Measured 2026-08-14 22:04Z, the clause was "
+                   "firing off a transcript last written 21:46:43Z while the "
+                   "live one advanced every few seconds, and would have gone "
+                   "silent at 22:16:43Z with five agents at work. The tracked "
+                   "copy now scans a glob of every config directory. It is NOT "
+                   "installed because /usr/local/bin/auto-stop.sh is the box's "
+                   "power control and docket row A4 puts that with Katie and "
+                   "Sanaa, not the fleet. Until it is installed, the ONLY "
+                   "thing holding this box is .autostop-hold, which lapses "
+                   "after 24 hours.",
+            owner="Katie / Sanaa (docket A4)",
+            expires="2026-08-21",
+            # The 2026-08-12 rewrite, which is what /usr/local/bin still runs.
+            installed_sha256="1e666fac419298f3a6d269cf12c447489409b3e41a8449"
+                             "c8f3f7fcf12abfbf9d",
+        ),
     ),
     Deployment(
         name="root crontab",
@@ -279,7 +364,12 @@ class Finding:
         return self.state in (DRIFT, DANGLING)
 
 
-def compare(dep: Deployment, repo: Path | None = None) -> Finding:
+def _sha(text: str) -> str:
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def compare(dep: Deployment, repo: Path | None = None,
+            today: datetime.date | None = None) -> Finding:
     """One pair, one verdict."""
     root = Path(repo) if repo else REPO
     tracked = root / dep.tracked
@@ -293,14 +383,41 @@ def compare(dep: Deployment, repo: Path | None = None) -> Finding:
     got, why = installed_text(dep)
     if got is None:
         return Finding(dep, ABSENT, why)
-    if _normalize(dep.normalize, want) == _normalize(dep.normalize, got):
+    want_n, got_n = _normalize(dep.normalize, want), _normalize(dep.normalize, got)
+    if want_n == got_n:
         return Finding(dep, MATCH, "")
     import difflib
     diff = "\n".join(difflib.unified_diff(
-        _normalize(dep.normalize, want).splitlines(),
-        _normalize(dep.normalize, got).splitlines(),
+        want_n.splitlines(), got_n.splitlines(),
         fromfile=f"tracked {dep.tracked}",
         tofile=f"installed {dep.installed_where}", lineterm="", n=1))
+    if dep.pending is not None:
+        # A declared, dated, content-pinned divergence. Every one of the three
+        # ways out of it below is a FAILURE -- the waiver buys a window, not an
+        # exemption.
+        p = dep.pending
+        if p.expired_on(today):
+            return Finding(dep, DRIFT,
+                           f"PENDING-INSTALL WAIVER EXPIRED on {p.expires}. "
+                           f"{p.reason}\nOwner: {p.owner}\n"
+                           f"Either it was installed and nobody said so, or it "
+                           f"has waited longer than the waiver claimed it "
+                           f"would. This is the 2026-07-30 shape -- a repaired "
+                           f"file sitting in the tree while the machine runs "
+                           f"the old one -- and the waiver's whole job is to "
+                           f"stop being quiet about it.\n" + diff[:2000])
+        if _sha(got_n) != p.installed_sha256:
+            return Finding(dep, DRIFT,
+                           f"the installed copy is NOT the version this "
+                           f"pending-install waiver was written against "
+                           f"(expected sha256 {p.installed_sha256[:16]}..., "
+                           f"found {_sha(got_n)[:16]}...). The waiver excuses "
+                           f"one known difference; this is a different one, so "
+                           f"something unreviewed is running.\n" + diff[:2000])
+        return Finding(dep, PENDING,
+                       f"declared divergence, waiver expires {p.expires}. "
+                       f"{p.reason}\nOwner: {p.owner}\n"
+                       f"install with: {dep.reinstall}\n" + diff[:2000])
     return Finding(dep, DRIFT, diff[:4000])
 
 
@@ -314,8 +431,27 @@ def reached(findings: list[Finding]) -> list[str]:
 
     A suite where every entry skipped is green and blind, which is the shape
     L-84 warns about; a caller that wants to know its reach asks for it.
+    `PENDING` counts: the pair WAS read and compared, and the difference is
+    known down to its hash. What it is not is unnoticed.
     """
-    return [f.dep.name for f in findings if f.state in (MATCH, DRIFT)]
+    return [f.dep.name for f in findings if f.state in (MATCH, DRIFT, PENDING)]
+
+
+def stale_waivers(findings: list[Finding]) -> list[tuple[str, str]]:
+    """(name, why) for waivers that no longer excuse anything.
+
+    A pending-install waiver on a pair that now MATCHES means the fix was
+    installed and the declaration was left behind. Harmless today and dangerous
+    later: the next real divergence of that pair would be met by a waiver
+    already sitting there. Reported so it is pruned, on the exec_bits precedent
+    of refusing a waiver register that has stopped describing the world.
+    """
+    return [(f.dep.name,
+             f"the fix was installed (tracked and installed now match), so the "
+             f"pending-install waiver expiring {f.dep.pending.expires} excuses "
+             f"nothing -- remove `pending=` from its registry entry")
+            for f in findings
+            if f.state == MATCH and f.dep.pending is not None]
 
 
 def staging_ghosts(repo: Path | None = None,
@@ -352,10 +488,12 @@ def main() -> int:
         print(line + f"{f.dep.installed_where})")
         if f.detail:
             print("         " + f.detail.replace("\n", "\n         "))
-        if f.state == DRIFT:
+        if f.state in (DRIFT, PENDING):
             print(f"         reinstall: {f.dep.reinstall}")
     for ghost, artifact in staging_ghosts():
         print(f"GHOST    {ghost} is a tracked staging copy of {artifact}")
+    for name, why in stale_waivers(findings):
+        print(f"STALE    waiver on {name}: {why}")
     print(f"\nreached on this host: {', '.join(reached(findings)) or 'nothing'}")
     return 1 if any(f.is_failure for f in findings) else 0
 

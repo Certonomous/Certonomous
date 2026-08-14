@@ -115,6 +115,22 @@ class AutoStopGateTests(unittest.TestCase):
             self.skipTest(
                 f"no readable {INSTALLED} on this host -- nothing is powering "
                 f"this box off, so there is nothing to drift ({finding.detail})")
+        if finding.state == reg.PENDING:
+            # D65, 2026-08-14. A repair to this gate is not the fleet's to
+            # install -- docket A4 puts the box's power control with Katie and
+            # Sanaa -- so the registry carries a DECLARED divergence with an
+            # owner, an expiry and the sha256 of what is expected to still be
+            # running. This is not a pass and it is not silence: it prints, and
+            # the registry fails the moment the waiver expires or the installed
+            # copy becomes anything other than the pinned one. Those
+            # fragilities are planted and shown to fire in
+            # `test_installed_matches_tracked.py`; duplicating a second waiver
+            # register here is exactly the divergence this method was rewritten
+            # to stop.
+            print(f"\n[auto-stop gate] PENDING INSTALL -- {INSTALLED} is NOT "
+                  f"the reviewed copy in the tree, by declaration:\n"
+                  f"{finding.detail.strip()}")
+            return
         self.assertEqual(
             reg.MATCH, finding.state,
             f"{INSTALLED} differs from {TRACKED}.\n"

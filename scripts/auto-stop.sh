@@ -27,6 +27,12 @@
 #   3. a Claude session transcript written recently -- the control room
 # Anything genuinely idle for IDLE_MINUTES still stops. Cost discipline is
 # unchanged; only the definition of "idle" is repaired.
+#
+# AMENDED 2026-08-14 (D65): clause 3 named ONE session directory and the config
+# directory was migrated out from under it, so the control-room test went back
+# to reading an occupied room as an empty one -- not because the test was
+# wrong, but because its REFERENT moved. It scans a glob now. Fact 3 is the one
+# whose subject can migrate, and that is why it is the one that broke twice.
 
 # Overridable so the negative path -- "genuinely idle, so stop" -- can be tested
 # without waiting for a genuinely idle box. A gate nobody can test both ways is
@@ -34,7 +40,11 @@
 IDLE_MINUTES=${IDLE_MINUTES:-30}
 MARKER=${MARKER:-/tmp/last_job_activity}
 REPO=${REPO:-/home/ubuntu/Certonomous}
-SESSIONS=${SESSIONS:-/home/ubuntu/.claude-sanaa/projects/-home-ubuntu-Certonomous}
+# SESSIONS is a GLOB PATTERN, not a path, and that is deliberate -- see the
+# note on clause (3) below. Space-separated patterns are allowed, so a test can
+# point this at two scratch directories at once. Assignment context does not
+# glob in bash, so the pattern survives to clause (3) unexpanded.
+SESSIONS=${SESSIONS:-/home/ubuntu/.claude*/projects/-home-ubuntu-Certonomous}
 HOLD="$REPO/.autostop-hold"
 HOLD_MAX_HOURS=24
 
@@ -119,8 +129,59 @@ fi
 #     the room emptied. This is what makes the box safe to leave running AND
 #     safe to leave alone: it needs no cooperation from the session, and it
 #     lapses by itself.
-if find "$SESSIONS" -maxdepth 1 -name '*.jsonl' -newermt "-${IDLE_MINUTES} min" -print -quit 2>/dev/null | grep -q .; then
-    keep "Claude session transcript written within ${IDLE_MINUTES}min"
+#
+#     WHY THIS CLAUSE SCANS A GLOB AND NOT A PATH (D65, 2026-08-14)
+#     -------------------------------------------------------------
+#     It shipped on 2026-08-12 naming ONE directory,
+#     `/home/ubuntu/.claude-sanaa/projects/-home-ubuntu-Certonomous`. The
+#     session config directory was migrated afterwards and the live control
+#     room moved to `/home/ubuntu/.claude/projects/...`, leaving the named
+#     directory holding a copy nobody appends to any more. Measured at 22:00Z
+#     on 2026-08-14: the live transcript was advancing every few seconds
+#     (22,849,320 bytes at 21:59:54Z) while the named one had not moved since
+#     21:46:43Z. The clause was still firing -- off the quiescent copy, purely
+#     because it happened to be under 30 minutes old -- and would have gone
+#     silent at 22:16:43Z with the control room fully occupied. That is the
+#     2026-08-12 defect back again.
+#
+#     The test was never wrong. Its SUBJECT moved. A check that names its
+#     subject by a path inherits every migration of that path, and it fails
+#     SILENTLY because a directory that no longer receives writes looks exactly
+#     like a directory nobody is working in. So the clause no longer names a
+#     directory: it scans every config dir that exists, and if that set is
+#     EMPTY it says so loudly rather than evaluating to false. A control-room
+#     check that finds no control room to check must not report an empty room.
+session_dirs=()
+for d in $SESSIONS; do
+    [ -d "$d" ] && session_dirs+=("$d")
+done
+
+if [ ${#session_dirs[@]} -eq 0 ]; then
+    # A no-match is not "nobody is working". It is "this clause cannot see",
+    # and the difference is the whole point: the first reads as idleness and
+    # powers the box off. It is not a `keep` either -- a gate that pins the box
+    # whenever it is misconfigured is a bill (see the hold-file note above).
+    # It is a loud line in the journal, where the next person reading
+    # `journalctl -t auto-stop` after an unexplained shutdown will find it.
+    say "WARNING: no session transcript directory matches SESSIONS='$SESSIONS' -- clause (3) is BLIND, an occupied control room will not hold this box"
+else
+    # Errors are surfaced, not swallowed. The previous `2>/dev/null` would have
+    # turned any find that could not run into a clean false: `bfs`, which this
+    # lab's interactive shells alias `find` to, REJECTS `-newermt "-30 min"` as
+    # an invalid timestamp, and under the old redirect that rejection read as
+    # "no fresh transcript" and powered the box off.
+    scan_err=$(mktemp)
+    fresh=$(find "${session_dirs[@]}" -maxdepth 1 -name '*.jsonl' -newermt "-${IDLE_MINUTES} min" -print -quit 2>"$scan_err")
+    if [ -s "$scan_err" ]; then
+        say "WARNING: transcript scan errored, clause (3) may be BLIND: $(head -1 "$scan_err")"
+    fi
+    rm -f "$scan_err"
+    # The matched file is NAMED in the journal on purpose: had the 2026-08-12
+    # version done this, the line would have read `.claude-sanaa/...` every
+    # five minutes and the stale referent would have been visible for free.
+    if [ -n "$fresh" ]; then
+        keep "Claude session transcript written within ${IDLE_MINUTES}min ($fresh)"
+    fi
 fi
 
 if [ "$idle" -ge "$IDLE_MINUTES" ]; then

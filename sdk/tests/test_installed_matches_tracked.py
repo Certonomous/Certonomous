@@ -28,6 +28,14 @@ WHAT IS ASSERTED, AND WHY EACH ASSERTION IS HERE
   before it is trusted. `test_planted_drift_is_refused` and its siblings are
   the positive controls; without them this file is an assertion that the world
   is fine, made by an instrument nobody has seen work.
+* A DIVERGENCE THIS LAB MAY NOT REPAIR ITSELF is DECLARED, never silenced
+  (D65, 2026-08-14). `/usr/local/bin/auto-stop.sh` is the box's power control
+  and docket A4 puts it with Katie and Sanaa, so a reviewed fix to it waits in
+  the tree. `PendingInstall` carries the reason, the owner, an expiry, and the
+  sha256 of what is expected to still be installed; the pair reads PENDING
+  inside that window and FAILS outside it. Every one of those fragilities is
+  planted and shown to fire in `ThePendingWaiverIsShownToBeFragileTests`,
+  because a waiver never seen to fail is a mute button with paperwork.
 * NO TRACKED STAGING GHOST may sit beside a registered artifact. This is the
   rule that `scripts/auto-stop.sh.proposed` earned: a committed `.proposed`
   copy makes the tree LOOK repaired and points every reader at the wrong pair.
@@ -60,7 +68,9 @@ _SPEC.loader.exec_module(reg)
 
 
 def _scratch_pair(tmp: Path, tracked_text: str, installed_text: str | None,
-                  normalize: str = "text") -> tuple[reg.Deployment, Path]:
+                  normalize: str = "text",
+                  pending: "reg.PendingInstall | None" = None
+                  ) -> tuple[reg.Deployment, Path]:
     """A registry entry pointing entirely at a scratch tree.
 
     The installed side is redirected through the entry's own env override --
@@ -77,6 +87,7 @@ def _scratch_pair(tmp: Path, tracked_text: str, installed_text: str | None,
         why="a control",
         reinstall="cp scripts/thing.sh /nowhere",
         normalize=normalize,
+        pending=pending,
     )
     if installed_text is not None:
         (tmp / "installed.sh").write_text(installed_text)
@@ -274,6 +285,150 @@ class TheCheckIsShownToFireTests(unittest.TestCase):
                 os.environ.pop(dep.env_override, None)
         self.assertEqual("echo planted\n", text,
                          f"{dep.env_override} did not redirect the read")
+
+
+class PendingInstallWaiversTests(unittest.TestCase):
+    """The declared-divergence door, live and planted (D65, 2026-08-14).
+
+    Some installed artifacts are not the fleet's to write --
+    `/usr/local/bin/auto-stop.sh` is the box's power control and docket row A4
+    puts it with Katie and Sanaa. So a reviewed repair can sit in the tree,
+    legitimately uninstalled, and the drift check is RIGHT to see a difference.
+    The waiver is how that is declared without silencing the check that exists
+    because a repaired gate once sat uninstalled for thirteen days.
+
+    It has to be fragile in three specific ways or it is just a mute button,
+    and all three are planted below: it expires, it pins the hash of what the
+    installed copy is expected to still be, and it is reported once it has
+    stopped excusing anything.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.findings = reg.report()
+
+    def test_every_pending_install_waiver_is_visible_in_the_run(self):
+        """A green suite must not hide that the box runs an older reviewed copy.
+
+        This is the whole hazard of allowing the waiver at all: the machine is
+        knowingly running something the tree has already superseded, and the
+        only defence against that becoming normal is that it is stated on every
+        run and that it expires.
+        """
+        for f in self.findings:
+            if f.state == reg.PENDING:
+                print(f"\n[installed-vs-tracked] PENDING INSTALL "
+                      f"{f.dep.name}: {f.dep.tracked} -> "
+                      f"{f.dep.installed_where}\n         {f.detail.strip()}")
+        for dep in reg.DEPLOYMENTS:
+            if dep.pending is None:
+                continue
+            with self.subTest(dep.name):
+                self.assertTrue(dep.pending.reason.strip(),
+                                "a waiver with no reason is a mute button")
+                self.assertTrue(dep.pending.owner.strip(),
+                                "a waiver must name who can lift it")
+                self.assertRegex(dep.pending.expires, r"^\d{4}-\d{2}-\d{2}$",
+                                 "a waiver must expire on a date")
+                self.assertRegex(dep.pending.installed_sha256, r"^[0-9a-f]{64}$",
+                                 "a waiver must pin what is actually running")
+
+    def test_no_pending_install_waiver_has_quietly_stopped_excusing_anything(self):
+        stale = reg.stale_waivers(self.findings)
+        self.assertEqual(
+            [], stale,
+            "pending-install waiver(s) left behind after the fix was "
+            "installed. A waiver sitting on a pair that now matches would "
+            "meet the NEXT real divergence already switched off:\n"
+            + "\n".join(f"{n}: {w}" for n, w in stale))
+
+
+class ThePendingWaiverIsShownToBeFragileTests(unittest.TestCase):
+    """Planted. A waiver never seen to fail is indistinguishable from a skip."""
+
+    _SHA = "9f" * 32
+
+    def _waiver(self, expires: str, sha: str) -> reg.PendingInstall:
+        return reg.PendingInstall(reason="a control", owner="nobody",
+                                  expires=expires, installed_sha256=sha)
+
+    def test_a_live_waiver_over_the_exact_pinned_content_reads_as_pending(self):
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            installed = "echo OLD\n"
+            sha = reg._sha(reg._normalize("text", installed))
+            dep, repo = _scratch_pair(
+                tmp, "echo NEW\n", installed,
+                pending=self._waiver("2099-01-01", sha))
+            finding = reg.compare(dep, repo)
+        self.assertEqual(reg.PENDING, finding.state, finding.detail)
+        self.assertFalse(finding.is_failure,
+                         "a declared, dated, hash-pinned divergence inside its "
+                         "window must not fail the suite")
+        self.assertIn("2099-01-01", finding.detail,
+                      "the pending report must say when the waiver lapses")
+
+    def test_an_expired_waiver_fails_and_names_itself(self):
+        """Ageing must not be a way to go quiet -- that IS the 2026-07-30 bug."""
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            installed = "echo OLD\n"
+            sha = reg._sha(reg._normalize("text", installed))
+            dep, repo = _scratch_pair(
+                tmp, "echo NEW\n", installed,
+                pending=self._waiver("2000-01-01", sha))
+            finding = reg.compare(dep, repo)
+        self.assertEqual(reg.DRIFT, finding.state)
+        self.assertTrue(finding.is_failure)
+        self.assertIn("EXPIRED", finding.detail)
+
+    def test_a_waiver_does_not_cover_an_installed_copy_it_was_not_written_for(self):
+        """The narrowness that separates a waiver from an exemption.
+
+        If someone edits the installed copy by hand, the waiver must not carry
+        that too -- otherwise declaring one divergence licenses every later one
+        on the same pair, which is a hole in the exact check D53 built.
+        """
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            dep, repo = _scratch_pair(
+                tmp, "echo NEW\n", "echo SOMETHING ELSE ENTIRELY\n",
+                pending=self._waiver("2099-01-01", self._SHA))
+            finding = reg.compare(dep, repo)
+        self.assertEqual(reg.DRIFT, finding.state,
+                         "a waiver excused an installed copy it never pinned")
+        self.assertTrue(finding.is_failure)
+        self.assertIn("NOT the version this pending-install waiver",
+                      finding.detail)
+
+    def test_a_waiver_on_a_pair_that_now_matches_is_reported_stale(self):
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            dep, repo = _scratch_pair(
+                tmp, "echo same\n", "echo same\n",
+                pending=self._waiver("2099-01-01", self._SHA))
+            findings = [reg.compare(dep, repo)]
+        self.assertEqual(reg.MATCH, findings[0].state)
+        self.assertEqual(1, len(reg.stale_waivers(findings)),
+                         "an installed fix left its waiver behind unreported")
+
+    def test_a_pending_pair_still_counts_as_compared(self):
+        """Reach must not shrink because a difference was declared.
+
+        A PENDING pair was read, diffed and hashed. If it dropped out of
+        `reached()`, the box that runs the gate could skip its own gate and
+        `test_the_box_that_runs_the_gate_must_compare_it` would go green on a
+        machine nobody had checked.
+        """
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            installed = "echo OLD\n"
+            sha = reg._sha(reg._normalize("text", installed))
+            dep, repo = _scratch_pair(
+                tmp, "echo NEW\n", installed,
+                pending=self._waiver("2099-01-01", sha))
+            findings = [reg.compare(dep, repo)]
+        self.assertEqual(["scratch pair"], reg.reached(findings))
 
 
 class NoTrackedGhostBesideARegisteredArtifactTests(unittest.TestCase):
