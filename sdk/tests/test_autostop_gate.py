@@ -30,12 +30,10 @@ TRACKED = REPO / "scripts" / "auto-stop.sh"
 INSTALLED = Path("/usr/local/bin/auto-stop.sh")
 
 
-def _read_installed() -> str | None:
-    """Return the installed gate's text, or None if it is not present/readable."""
-    try:
-        return INSTALLED.read_text()
-    except (FileNotFoundError, PermissionError):
-        return None
+# `_read_installed` lived here until 2026-08-14 and was deleted with the
+# hand-typed drift comparison it served: reading the installed side is now
+# `installed_registry.installed_text`, which also handles the sources a file
+# read cannot express (a crontab has no file a normal user can read).
 
 
 class AutoStopGateTests(unittest.TestCase):
@@ -75,19 +73,54 @@ class AutoStopGateTests(unittest.TestCase):
         )
 
     def test_installed_gate_has_not_drifted_from_the_tracked_one(self):
-        installed = _read_installed()
-        if installed is None:
+        """Delegated to the registry as of 2026-08-14 (D53), on purpose.
+
+        This assertion used to type the two paths in here. That closed the
+        incident and not the class: every OTHER artifact with a copy outside
+        the tree had the same unguarded gap, and each would have needed its own
+        copy of this file. The pairs are now data in
+        `scripts/installed_registry.py` and the comparison is one mechanism in
+        `sdk/tests/test_installed_matches_tracked.py`.
+
+        What is kept here is the CONNECTION: this gate must still be a
+        registered pair. A second comparator typed out beside the first is how
+        two checks drift apart and one of them becomes the one nobody reads.
+        """
+        import importlib.util
+        import sys
+
+        spec = importlib.util.spec_from_file_location(
+            "installed_registry_from_autostop_gate",
+            REPO / "scripts" / "installed_registry.py")
+        reg = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = reg
+        spec.loader.exec_module(reg)
+
+        entry = next((d for d in reg.DEPLOYMENTS
+                      if d.source == str(INSTALLED)), None)
+        self.assertIsNotNone(
+            entry,
+            f"{INSTALLED} is no longer a registered installed/tracked pair. "
+            "The gate that powers this box off must be in "
+            "`installed_registry.DEPLOYMENTS`, or nothing is comparing what "
+            "runs against what was reviewed -- which is the 2026-07-30 "
+            "failure with the tooling removed rather than the file.")
+        self.assertEqual(
+            str(TRACKED.relative_to(REPO)), entry.tracked,
+            "the registered pair for the auto-stop gate does not name the "
+            "tracked file this test reviews")
+
+        finding = reg.compare(entry)
+        if finding.state == reg.ABSENT:
             self.skipTest(
                 f"no readable {INSTALLED} on this host -- nothing is powering "
-                "this box off, so there is nothing to drift"
-            )
+                f"this box off, so there is nothing to drift ({finding.detail})")
         self.assertEqual(
-            TRACKED.read_text(),
-            installed,
+            reg.MATCH, finding.state,
             f"{INSTALLED} differs from {TRACKED}.\n"
             "This is the exact 2026-07-30 failure: a reviewed fix in the tree "
-            "while the machine runs something else. Reinstall with:\n"
-            f"  sudo install -m 755 {TRACKED} {INSTALLED}",
+            f"while the machine runs something else.\n{finding.detail}\n"
+            f"Reinstall with:\n  {entry.reinstall}",
         )
 
     def test_the_gate_still_shuts_down_when_genuinely_idle(self):

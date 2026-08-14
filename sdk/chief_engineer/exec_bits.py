@@ -277,7 +277,10 @@ WAIVED_NO_EXEC_BIT = (
     "scripts/audit_camera_discretion.sh",
     "scripts/audit_transcripts.sh",
     "scripts/auto-stop.sh",
-    "scripts/auto-stop.sh.proposed",
+    # `scripts/auto-stop.sh.proposed` was waived here until 2026-08-14 and was
+    # deleted with the file (D53): a tracked staging copy of an installed
+    # artifact is now refused by
+    # `sdk/tests/test_installed_matches_tracked.py`.
     "scripts/build_laptop_bundle.py",
     "scripts/check_absolutes.py",
     "scripts/check_convergence.py",
