@@ -691,15 +691,21 @@ def run_script(root: Path, cand: Candidate, timeout: int, *,
     # argparse writes `usage: ...` and exits 2 when the invocation is wrong.
     # That is a statement about how THIS RUNNER called the check -- it passes no
     # arguments -- and reading it as a finding would manufacture red exactly as
-    # readily as a swallowed error manufactures green. `sweep.py` (which
-    # deliberately has no default frame) and `detect_overwrite_signature.py`
-    # (which wants a directory or --self-test) both land here, and both were
-    # read as FAIL by the first cut of this runner.
-    usage_error = code == 2 and re.match(r"\s*usage:", err)
+    # readily as a swallowed error manufactures green.
+    # `detect_overwrite_signature.py` (which wants a directory or --self-test)
+    # prints argparse's own `usage:`; `sweep.py`, which deliberately has no
+    # default frame, prints its own sentence instead and was read as FAIL by the
+    # first two cuts of this runner. The general form catches both without
+    # matching either by name: A CHECK THAT PRINTED NOTHING ON STDOUT NEVER GOT
+    # AS FAR AS REPORTING. Every check in this repository prints its frame or
+    # its verdict before it decides anything, so silence on stdout with a
+    # complaint on stderr is a failure to start, not a finding.
+    usage_error = code == 2 and (re.match(r"\s*usage:", err)
+                                 or (not out.strip() and err.strip()))
     if usage_error:
-        v, why = UNKNOWN, ("invoked with no arguments and it requires some "
-                           "(argparse usage error). The runner passes no "
-                           "arguments by design; this is a statement about the "
+        v, why = UNKNOWN, ("exited 2 on invocation, before reporting anything "
+                           "on stdout: it requires arguments and this runner "
+                           "passes none by design. A statement about the "
                            "runner, not about the lab")
     elif crashed and code != 0:
         v, why = UNKNOWN, ("the check crashed; a traceback is a statement about "

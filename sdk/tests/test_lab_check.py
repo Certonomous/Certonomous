@@ -172,9 +172,9 @@ class ASuiteThatCoveredLessThanItClaimed(unittest.TestCase):
 
     This is the runner's answer: the suite is run over the DIRECTORY, the test
     files are enumerated INDEPENDENTLY from git and the disk, and the two are
-    diffed. A file that was enumerated and produced no collected test is named
-    and turns the run UNKNOWN. A green whose frame does not cover its
-    enumeration is not a green.
+    diffed. A file that was enumerated and produced no collected test is named:
+    FAIL if it declares tests and contributed none, UNKNOWN if it declares none.
+    A green whose frame does not cover its enumeration is not a green.
     """
 
     COLLECTS_NOTHING = '''\
@@ -352,7 +352,24 @@ class ExitCodeReading(unittest.TestCase):
             'p.add_argument("pattern")\n'
             'p.parse_args()\n')
         self.assertEqual(out.verdict, lc.UNKNOWN, out.reason)
-        self.assertIn("usage error", out.reason)
+        self.assertIn("exited 2 on invocation", out.reason)
+
+    def test_a_check_that_printed_nothing_and_exited_2_is_UNKNOWN(self):
+        """`sweep.py`'s shape: its own sentence, not argparse's `usage:`."""
+        out = self._run_one(
+            'import sys\n'
+            'print("sweep: both a pattern and --frame are required",\n'
+            '      file=sys.stderr)\n'
+            'sys.exit(2)\n')
+        self.assertEqual(out.verdict, lc.UNKNOWN, out.reason)
+
+    def test_exit_2_WITH_a_report_on_stdout_is_still_a_FAIL(self):
+        """The must-not-match half: a check that reported and then failed."""
+        out = self._run_one(
+            'import sys\n'
+            'print("VERDICT: FAIL -- 3 rows do not re-derive")\n'
+            'sys.exit(2)\n')
+        self.assertEqual(out.verdict, lc.FAIL, out.reason)
 
     def test_a_traceback_is_UNKNOWN_not_FAIL(self):
         out = self._run_one('raise RuntimeError("the check itself is broken")\n')
