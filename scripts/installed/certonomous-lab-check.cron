@@ -1,0 +1,93 @@
+# Certonomous -- the scheduled lab check. Docket D64.
+#
+# NOT INSTALLED. This file is tracked and inert. It becomes a schedule only
+# when someone with root runs, from the repository root:
+#
+#     sudo install -m 644 -o root -g root \
+#          scripts/installed/certonomous-lab-check.cron \
+#          /etc/cron.d/certonomous-lab-check
+#
+# That is Katie's or Sanaa's command, not the fleet's: the box's power and cron
+# control belong to them (docket row A4), and the auto-stop repair of the same
+# day respected the same line. UNTIL IT IS INSTALLED, NOTHING HAS CHANGED --
+# every check in this lab still reddens only when a human types its name, which
+# is the whole of D64. `scripts/installed_registry.py` registers this pair, so
+# it reads ABSENT with a reason on every registry run rather than being
+# forgotten; the day it is installed, the drift check already covers it.
+#
+# WHY /etc/cron.d AND NOT A crontab EDIT. `scripts/installed/crontab.root` and
+# `crontab.ubuntu` are tracked copies of whole crontabs, compared byte-for-byte
+# against the live ones by the registry. Adding a line to either would put
+# tracked and installed into drift the moment it was committed, and would need
+# a PendingInstall waiver to excuse a divergence that exists only because of
+# how the artifact was delivered. A drop-in file has one owner and one purpose.
+#
+# WHAT IT COSTS, measured on this box on 2026-08-14 rather than estimated, on a
+# box carrying other agents' work at the time:
+#
+#   full run, live tree      ~18 min wall, ~19 min CPU
+#     of which the suite      14m37s wall, 983 s CPU, 1,609 tests in 69 files
+#     of which the gates      ~3 min wall, 176 s CPU (self_audit.py is 102 s
+#                             of it, check_convergence_sweep.py 56 s)
+#   --no-tests (fast tier)   ~3 min wall, 176 s CPU -- what the pre-push hook runs
+#   the weekly §3a sweep      ~3 s
+#
+# Nightly is what those numbers support. Hourly would spend ~7 CPU-hours a day
+# re-running a 15-minute suite whose inputs change a few times an hour at most,
+# on a box where cores are the scarce resource and solver work is queued behind
+# them. Per-push is the pre-push hook, and it runs the fast tier for exactly
+# this reason.
+#
+# WHY THE LIVE TREE AND NOT A SNAPSHOT OF HEAD -- a finding, not a preference.
+# The runner can grade a `git worktree` of HEAD (`--tree snapshot`), which is
+# the tidier thing to schedule. It was measured, and it is WRONG here: most of
+# what these checks examine is gitignored, so a HEAD worktree is missing it.
+# In snapshot mode on 2026-08-14, self_audit.py reported `ledger integrity:
+# ledger not found or empty` and 67 unresolved citations against 6 in the live
+# tree, and check_convergence_sweep.py went red with `solve_registry DOES NOT
+# EXIST`. Those are artifacts of the frame, not findings about the lab. A
+# scheduled run in snapshot mode would cry wolf nightly and be switched off
+# inside a week.
+#
+# WHAT THE NIGHTLY LINE DOES NOT COVER, stated here because the runner prints
+# it every night and nobody should have to rediscover it: write-capable checks
+# are not admitted against the live tree (ten agents write in it), so
+# withdrawal_sweep.py, phase2_move_map.py, morning_report.py, ledger_backup.py
+# and build_laptop_bundle.py are skipped with that reason. The second line
+# below covers the one of them that SUPERVISION_CHARTER §3a requires weekly,
+# and it names that check explicitly because its writes are its own controls,
+# planted and removed in a finally block, rather than a side effect.
+#
+# WHY NOT root. The command runs as `ubuntu`. A root-run checker leaves
+# root-owned files in a tree the fleet has to write to, and this check needs no
+# privilege at all.
+#
+# STDERR IS NOT DISCARDED. `2>&1` into the log, never `2>/dev/null`. On
+# 2026-08-14 a `2>/dev/null` on a `find` call nearly turned a tool-not-found
+# error into a clean "nobody is working", with the box due to power off under
+# five working agents (D65). A silent stderr is a claim.
+#
+# CRON'S ENVIRONMENT IS THE HONEST ONE, and that is worth knowing here: the
+# interactive shell on this box aliases `grep` to `ugrep --ignore-files` (which
+# honours .gitignore and sees about 23% of this tree) and `find` to `bfs`
+# (which rejects GNU expressions). Cron gets the real GNU tools. The runner
+# shells out to neither -- it enumerates with `git ls-files` and `os.walk` --
+# so the two environments agree, and that was checked rather than assumed.
+#
+# THE LOG IS THE POINT. A checker whose output nobody reads is the 2026-08-10
+# bundle failure again: the check ran, named the defect by name, and its output
+# was not consumed. Whoever installs this should decide in the same breath who
+# reads /home/ubuntu/lab-check.log -- the honest answer is probably a line in
+# the morning report rather than a file on disk.
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+MAILTO=""
+
+# m  h dom mon dow user     command
+# Nightly: everything that is safe to run against the live tree.
+ 17  3  *   *   *  ubuntu   /usr/bin/flock -n /tmp/certonomous-lab-check.lock /usr/bin/python3 /home/ubuntu/Certonomous/scripts/lab_check.py --root /home/ubuntu/Certonomous >> /home/ubuntu/lab-check.log 2>&1
+# Weekly: SUPERVISION_CHARTER §3a's sweep -- "a rule without a sweep is a
+# preference". It plants and removes its own controls, so it is admitted with
+# --admit-writers and named explicitly rather than admitted wholesale.
+ 47  4  *   *   0  ubuntu   /usr/bin/flock -n /tmp/certonomous-lab-check.lock /usr/bin/python3 /home/ubuntu/Certonomous/scripts/lab_check.py --root /home/ubuntu/Certonomous --admit-writers --only withdrawal_sweep --no-tests >> /home/ubuntu/lab-check.log 2>&1

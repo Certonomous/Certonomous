@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Certonomous pre-push gate -- docket D64.
+#
+# NOT INSTALLED. This file is tracked; it is not a hook until someone runs:
+#
+#     install -m 755 scripts/installed/pre-push .git/hooks/pre-push
+#
+# That command needs no root, which is why this file exists at all. The cron
+# side of D64 needs `sudo` and therefore needs Katie or Sanaa (docket row A4);
+# a hook the owner can adopt alone is worth more than a schedule they have to
+# be asked for. Until one of them is installed, nothing about this lab has
+# changed: every check still reddens only when a human types its name.
+#
+# WHAT IT RUNS
+#   scripts/lab_check.py --no-tests  -- the fast tier: the script gates only,
+#   no pytest suite. The suite takes tens of minutes on this box under load and
+#   a pre-push hook that costs that much gets uninstalled within a day. The
+#   nightly cron (scripts/installed/certonomous-lab-check.cron) is where the
+#   suite runs.
+#
+# WHAT BLOCKS A PUSH, AND WHAT DELIBERATELY DOES NOT
+#   FAIL     blocks. A check that ran and found something is a finding.
+#   UNKNOWN  warns loudly and does NOT block. This is a considered choice, not
+#            laziness: the runner is permanently UNKNOWN on this tree because
+#            some checks are skipped for reasons that could hide a verdict
+#            (needs-compute, writes-to-tree). A hook that blocks on the
+#            permanent state of the repository is a hook that gets deleted, and
+#            a deleted hook checks nothing. The warning is printed on every
+#            push so the state stays visible instead of going quiet.
+#
+# ESCAPE HATCH, stated rather than hidden: LAB_CHECK_SKIP=1 git push. An owner
+# must be able to push a fix for the runner itself when the runner is broken.
+# Every use of it prints a line saying so.
+
+set -uo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+runner="$repo_root/scripts/lab_check.py"
+
+if [ "${LAB_CHECK_SKIP:-0}" = "1" ]; then
+    echo "pre-push: SKIPPED by LAB_CHECK_SKIP=1 -- nothing was checked." >&2
+    exit 0
+fi
+
+if [ ! -f "$runner" ]; then
+    echo "pre-push: $runner is missing. Not blocking, because a missing runner" >&2
+    echo "          is a statement about the hook, not about the push --" >&2
+    echo "          but nothing was checked." >&2
+    exit 0
+fi
+
+echo "pre-push: lab_check --no-tests (the fast tier; the suite runs nightly)" >&2
+python3 "$runner" --no-tests --root "$repo_root"
+rc=$?
+
+case "$rc" in
+    0) echo "pre-push: PASS" >&2 ;;
+    1) echo "pre-push: FAIL -- push blocked. Read the frame above: it names" >&2
+       echo "          which check failed and what it examined." >&2
+       echo "          To push anyway: LAB_CHECK_SKIP=1 git push" >&2 ;;
+    3) echo "pre-push: UNKNOWN -- NOT blocking, and that is on purpose (see the" >&2
+       echo "          header of scripts/installed/pre-push). Some check could" >&2
+       echo "          not be run; the reasons are printed above." >&2
+       rc=0 ;;
+    *) echo "pre-push: the runner exited $rc, outside its own contract." >&2
+       echo "          Not blocking; nothing was checked." >&2
+       rc=0 ;;
+esac
+
+exit "$rc"

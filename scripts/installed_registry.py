@@ -303,6 +303,32 @@ DEPLOYMENTS: tuple[Deployment, ...] = (
             "all until 2026-08-14 -- unreviewable machinery rather than drift",
         reinstall="cp scripts/installed/lab.sh /home/ubuntu/lab.sh",
     ),
+    Deployment(
+        name="nightly lab check cron",
+        tracked="scripts/installed/certonomous-lab-check.cron",
+        source="/etc/cron.d/certonomous-lab-check",
+        why="docket D64: nothing in this lab is scheduled to run any check at "
+            "all, so every check reddens only when a human types its name. "
+            "This is the schedule that would change that. It is registered "
+            "here BEFORE it is installed, on purpose: the pair reads ABSENT "
+            "with a reason, and the day somebody installs it the drift check "
+            "already covers it -- rather than being added to this registry "
+            "some later day by somebody who remembers",
+        reinstall="sudo install -m 644 -o root -g root "
+                  "scripts/installed/certonomous-lab-check.cron "
+                  "/etc/cron.d/certonomous-lab-check",
+    ),
+    Deployment(
+        name="pre-push hook",
+        tracked="scripts/installed/pre-push",
+        source=str(REPO / ".git" / "hooks" / "pre-push"),
+        why="the half of D64 that needs no root. A hook the owner can adopt "
+            "alone is worth more than a cron they have to be asked for. Note "
+            "that `.git/hooks/` is NOT tracked by git and never travels with a "
+            "clone, so this pair is also the only thing that can tell a reader "
+            "whether the hook on THIS box is the reviewed one",
+        reinstall="install -m 755 scripts/installed/pre-push .git/hooks/pre-push",
+    ),
 )
 
 #: A staging copy of a registered artifact, tracked and never installed, is the
