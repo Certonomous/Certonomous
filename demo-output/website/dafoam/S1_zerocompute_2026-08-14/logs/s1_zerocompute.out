@@ -1,0 +1,290 @@
+
+================================================================================================
+S0. PROVENANCE -- every gradient array in the archive, and what it contains
+================================================================================================
+  FRAME: `find /home/ubuntu/certonomous-runs -name '*grad*.npy'`, executed by this script.
+  These files are OUTSIDE the repo and invisible to any repo-scoped grep.
+    S1-cbfs-inversion/cbfs_inv/grad_eval001.npy                            n=21000  md5=06fe8c50
+    S1-cbfs-inversion/cbfs_inv/grad_eval010.npy                            n=21000  md5=9cef2857
+    S1-cbfs-reinversion/cbfs_inv/grad_anchor.npy                           n=21000  md5=6816444b
+    S1-cbfs-reinversion/cbfs_inv/grad_anchor8.npy                          n=21000  md5=3b154880
+    S1-cbfs-reinversion/cbfs_inv/grad_eval001.npy                          n=21000  md5=3b154880
+    S1-cbfs-reinversion/cbfs_inv/grad_eval010.npy                          n=21000  md5=7c6c7c4b
+    S1-cbfs-weighted-arm/cbfs_inv/grad_anchorw.npy                         n=21000  md5=8ef3f436
+    S1-cbfs-weighted-arm/cbfs_inv/grad_eval001.npy                         n=21000  md5=cbc42bae
+    S1-cbfs-weighted-arm/cbfs_inv/grad_ext001.npy                          n=21000  md5=28e4106e
+    S1-fiml/ramp_kw/s1_e1_kw_grad.npy                                      n=5000   md5=155dd100
+    S1-fiml/ramp_kw/s1_e2_sst_grad.npy                                     n=5000   md5=b5c277bb
+    S1-fiml/ramp_kw/s1_e2_tight_grad.npy                                   n=5000   md5=693e2121
+    W4-adjoint-pc-unblock/cbfs_beta/cbfs_beta_grad.npy                     n=21000  md5=06fe8c50
+    W4-defect-reach/cbfs_simple411/cbfs_beta_grad.npy                      n=21000  md5=8697c78c
+  COUNT = 14.
+  S1_SENSITIVITY_VS_ERROR.md S1 states 'Nine gradient arrays survive in the whole
+  archive ... nine, confirmed.' That is exact for the frame it enumerated
+  (S1-cbfs-{inversion,reinversion,weighted-arm}/cbfs_inv/) and understates the archive.
+
+  BITWISE-IDENTICAL (md5 06fe8c50):
+      S1-cbfs-inversion/cbfs_inv/grad_eval001.npy
+      W4-adjoint-pc-unblock/cbfs_beta/cbfs_beta_grad.npy
+
+  BITWISE-IDENTICAL (md5 3b154880):
+      S1-cbfs-reinversion/cbfs_inv/grad_anchor8.npy
+      S1-cbfs-reinversion/cbfs_inv/grad_eval001.npy
+
+  WHAT grad_eval*.npy CONTAINS: the RAW dJ_varU/dbeta, not the total gradient.
+  invert_lbfgsb.py:95 saves `gv` from runScript's -gradout; :114 composes
+  g_total = LQOI*gv + 2*LL2*(beta-1) host-side and never writes it.
+    ||gv1|| (reinversion, raw)   = 1.221837e-04
+    LQOI * ||gv1||               = 1.986435e-01   <- J_history row 1 prints 1.986e-01
+
+  CONTROL C1 -- evaluation 1 is the unperturbed state.
+    J_history row 1: penalty = 0.0e+00 and beta_min = beta_max = 1.000000.
+    grad_eval001 vs the separately measured grad_anchor8: max abs diff = 0.000e+00
+
+  CONTROL C2 -- permute-invert-assert (R1's declared kill switch).
+    bijection on [0,21000): True ; perm[inv] and inv[perm] are the identity: True True
+    |fields_beta[perm] - beta_final_dv(inversion)|max = 5.107e-15  (record control 5.1e-15)
+
+  CONTROL C3 -- both published G2 values reproduce (R5's G-W1 leg, discharged).
+    reinversion |beta_final-1| : 26.8571%  (published 26.8571%)
+    inversion   |beta_final-1| : 29.0476%  (published 29.0476%)
+    window base rate           : 8.4429% (1773 of 21000 cells)
+    W2 support (two boxes)     : 2970 cells = 14.14% (prereg says 2,970)
+
+================================================================================================
+S1. THE SECANT CURVATURE PAIR
+================================================================================================
+  R1 states: 'No L-BFGS curvature pair (y_k = g_{k+1} - g_k) is reconstructible from any
+  completed run ... Buying curvature as fresh gradients is FORCED, not chosen, which is what
+  prices the whole Bayesian line.'  True of CONSECUTIVE-ITERATE pairs. Not true of SECANT
+  pairs: the driver keeps eval 1 and every 10th evaluation (invert_lbfgsb.py:96-97,120-121),
+  so a run that reached evaluation 10 archived a matched (beta, grad) pair at TWO states.
+
+  Availability audit:
+    S1-cbfs-inversion      ['beta_eval010.npy', 'grad_eval001.npy', 'grad_eval010.npy'] -> SECANT PAIR
+    S1-cbfs-reinversion    ['beta_eval010.npy', 'grad_eval001.npy', 'grad_eval010.npy'] -> SECANT PAIR
+    S1-cbfs-weighted-arm   ['grad_eval001.npy']                                       -> no pair
+
+  Frame: state A = evaluation 1 (beta == 1 exactly, C1 above); state B = evaluation 10
+  (beta_eval010 / grad_eval010, the matched pair D9 established). s = beta_10 - 1.
+
+  --- S1-cbfs-reinversion (repaired)  (n=21000)
+      ||s||                                    = 4.312344e+00
+      s^T y_penalty  (IDENTITY 2*lambda_L2*||s||^2) = +3.719261e-04  (0.05% of s^T y_total)
+      s^T y_QoI      (the MEASUREMENT)         = +7.313133e-01  (99.95% of s^T y_total)
+      R_qoi   = s^T y_QoI / ||s||^2            = +3.932573e-02
+      R_prior = 2*lambda_L2 (every direction)  = +2.000000e-05
+      PRIOR-PRECONDITIONED RAYLEIGH QUOTIENT   = +1.966287e+03
+
+  --- S1-cbfs-inversion (corrupted)  (n=21000)
+      ||s||                                    = 2.391395e+00
+      s^T y_penalty  (IDENTITY 2*lambda_L2*||s||^2) = +1.143754e-03  (62.17% of s^T y_total)
+      s^T y_QoI      (the MEASUREMENT)         = +6.960815e-04  (37.83% of s^T y_total)
+      R_qoi   = s^T y_QoI / ||s||^2            = +1.217187e-04
+      R_prior = 2*lambda_L2 (every direction)  = +2.000000e-04
+      PRIOR-PRECONDITIONED RAYLEIGH QUOTIENT   = +6.085935e-01
+
+  --- S1-cbfs-reinversion (repaired)  [FREE CELLS]  (n=20995)
+      ||s||                                    = 3.923813e+00
+      s^T y_penalty  (IDENTITY 2*lambda_L2*||s||^2) = +3.079261e-04  (0.05% of s^T y_total)
+      s^T y_QoI      (the MEASUREMENT)         = +6.010683e-01  (99.95% of s^T y_total)
+      R_qoi   = s^T y_QoI / ||s||^2            = +3.903977e-02
+      R_prior = 2*lambda_L2 (every direction)  = +2.000000e-05
+      PRIOR-PRECONDITIONED RAYLEIGH QUOTIENT   = +1.951989e+03
+
+  IDENTITY vs MEASUREMENT. s^T y_penalty = 2*lambda_L2*||s||^2 is derivable by construction
+  from (beta, lambda_L2): any treatment knowing those reproduces it exactly, including one
+  whose curvature is wrong. Reported, never gated on. s^T y_QoI needs grad_eval010.npy --
+  an adjoint solve no closed form supplies -- and is a measurement.
+
+  NULLS, stated before the numbers:
+    N1 flat objective (H_qoi = 0)                  -> s^T y_QoI = 0, rho = 0
+    N2 the two gradients are the same array        -> identical to N1
+    N3 sign-randomised y_QoI, 200 draws            -> E[s^T y_QoI] = 0 (chance level)
+    reinversion  N3 null: mean -7.489e-03 sd 1.120e-01 | MEASURED +7.313e-01  (6.6 sd from null)
+    inversion    N3 null: mean +1.084e-06 sd 6.958e-05 | MEASURED +6.961e-04  (10.0 sd from null)
+
+  NEGATIVE CONTROL -- cross-pairing s from one run with y from the other:
+    s(reinv)^T y(inv)/||s||^2  = +1.288737e-04   vs matched reinversion R_qoi = +3.932573e-02
+    s(inv)^T y(reinv)/||s||^2  = +1.764017e-02   vs matched inversion   R_qoi = +1.217187e-04
+
+================================================================================================
+S1b. OUT-OF-SAMPLE CONTROL -- does the secant curvature predict the OBJECTIVE HISTORY?
+================================================================================================
+  J_history_main.csv is written from solver stdout and shares no array with
+  grad_eval*.npy. A quadratic model built from (g1, s, y) is scored against it.
+
+  S1-cbfs-reinversion
+    actual J(eval10)-J(eval1)          = -0.562398
+    linear only  g^T s                 = -0.758439   (34.86% error)
+    linear + 0.5 s^T y (SECANT)        = -0.392597   (30.19% error)
+  S1-cbfs-inversion
+    actual J(eval10)-J(eval1)          = -0.000921
+    linear only  g^T s                 = -0.001841   (99.98% error)
+    linear + 0.5 s^T y (SECANT)        = -0.000921   (0.06% error)
+
+  A quadratic is exact only if J is quadratic; the residual is the cubic-and-higher
+  remainder over the step actually taken. What the check establishes is that s^T y carries
+  the sign and the magnitude needed to close the gap the linear term leaves -- which a
+  mismatched or spurious y could not do.
+
+================================================================================================
+S1c. HEAVY-TAIL DISCIPLINE
+================================================================================================
+    reinversion  |g(eval1)| vs |g(eval10)|: Spearman +0.9741  Pearson +0.6449  (max/median 2.05e+06)
+    inversion    |g(eval1)| vs |g(eval10)|: Spearman +0.9976  Pearson +0.8421  (max/median 1.14e+07)
+    SPEARMAN carries every claim in this document. Both gradient fields have
+    max/median above 1e6; a Pearson coefficient over that dynamic range is a statement
+    about a few hundred extreme cells and moves with tail shape. Pearson is reported
+    because the lab asks for both, and is not relied on.
+
+================================================================================================
+S2. G-P4 IS DEGENERATE -- all three legs are functions of (beta, g_QoI, lambda_L2)
+================================================================================================
+  Recomputed from beta_eval010.npy + grad_eval010.npy (S1-cbfs-inversion):
+    ratio r = |g_pen|/|g_QoI| = 0.998441   (gate target 0.998441)
+    cos(g_QoI, -g_pen)        = 0.999542   (gate target 0.999542)
+    rms|beta-1|               = 0.016502   (gate target 0.016502)
+    ||g_total||               = 1.450369e-05 (J_history row 10 prints 1.450e-05)
+    eps = ||g_total||/|g_QoI| = 3.027748e-02
+
+  LEG BY LEG -- what does a treatment need in order to reproduce each number?
+    rms|beta-1| : a function of BETA ALONE, and beta is an INPUT to the gate.
+    ratio r     : 2*lambda_L2*||beta-1|| / ||g_QoI||. Numerator is the identity the
+                  withdrawal removed; the only new content is the scalar ||g_QoI||.
+    cosine c    : fixed by the other two through eps^2 = 1 + r^2 - 2*r*c. Solving:
+                    c from (r, eps) = 0.999542138470174
+                    c measured      = 0.999542138470174   (relative agreement 2.2e-16)
+
+  THE FAILURE MODE, EXHIBITED. Treatment W reports the PRIOR as the posterior: covariance
+  = prior covariance, credible intervals straddling beta = 1 in 100% of cells, rank 0. It is
+  the exact shape falsifier F1 exists to catch. Handed the archived beta and re-evaluating
+  the same g_QoI, its G-P4 is:
+    ratio 0.998441  cos 0.999542  rms 0.016502  -> agreement with the targets 0.0e+00. G-P4: PASS.
+    None of the three legs is a function of any covariance, any credible interval or
+    any Hessian, so G-P4 cannot see the defect. It grades the GRADIENT, not the posterior --
+    structurally the same finding as 'G2 scores the adjoint, not the closure'.
+
+  AND THE COSINE IS NEAR 1 FOR A REASON UNRELATED TO THE PRIOR BEING RIGHT. At any interior
+  stationary point g_QoI + g_pen = 0, hence r = c = 1 exactly. The plateau is stationary to
+  within eps, so
+    c >= 1 - eps^2/(2r) = 0.999540922 is forced by convergence alone; measured c = 0.999542138.
+    The published 0.9995 is 'the run converged', restated as an angle.
+
+  WHAT G-P4 DOES TEST, so a replacement can keep it: exactly two scalars -- ||g_QoI|| at the
+  plateau state and the angle between g_QoI and (beta-1). That is a sound REPRODUCTION
+  control on the gradient and would catch the mismatched-evaluation error that produced the
+  1.684x confusion. It is not, and cannot be, a control on a posterior.
+
+================================================================================================
+S3. PR-1 SETTLED FROM DISK -- the second-QoI sensitivity map already exists
+================================================================================================
+  PR-1 (S1_SENSITIVITY_VS_ERROR.md S7) asks for 25 core-min to buy 'a second-QoI
+  sensitivity map on CBFS at beta = 1', and pre-registers the decision rule:
+  'If the second map's geography matches the first, reading 2 is confirmed outright and
+   R5/R8 are closed.'
+
+  The map is already on disk. S1-cbfs-weighted-arm/cbfs_inv/grad_anchorw.npy is
+  dJw/dbeta at beta = 1, where Jw = 5319*varUwin + 3591*varUrec -- two disjoint boxToCell
+  variances over 2,970 cells (runScript_w.py:79-105), a DIFFERENT functional from the
+  all-cells varianceU. It cost 16.83 core-min and was billed on 2026-08-08.
+
+  PROVENANCE of grad_anchorw, three ways:
+    (a) runScript_w.py:144 sets b0 = np.ones(NCELLS) unless -betafile is given;
+        log.anchorw carries no -betafile.
+    (b) driver_w.py:24 comments LQOI = 1/27.465931825190644 = '1 / Jw_raw(beta=1),
+        anchorw', and log.anchorw:18720 prints OBJ Jw: 2.7465931825190644e+01.
+    (c) log.anchorw:18721 prints GRAD norm 7.3228773523e+00; measured here 7.3228773523e+00
+    ledger.csv: anchorw rc=0 wall=505 core_min=16.83
+    DV order control: weighted-arm dv_to_serial_perm == reinversion's: True
+
+  OBJECTIVE 1: varianceU over ALL 21,000 cells (grad_eval001, reinversion)
+    G2 on this map (bar >50%): 35.3810%
+      in-window 0<=x<=6,0<=y<=2     35.38%  (base  8.44%, enrichment x4.19)
+      upstream x<0                  45.76%  (base 32.14%, enrichment x1.42)
+      above shear layer y>2          9.76%  (base 69.60%, enrichment x0.14)
+      downstream x>6 & y<=2         12.52%  (base 13.60%, enrichment x0.92)
+      ON the W2 support             42.33%  (base 14.14%, enrichment x2.99)
+
+  OBJECTIVE 2: Jw over 2,970 cells in two boxes (grad_anchorw, weighted arm)
+    G2 on this map (bar >50%): 36.5238%
+      in-window 0<=x<=6,0<=y<=2     36.52%  (base  8.44%, enrichment x4.33)
+      upstream x<0                  45.57%  (base 32.14%, enrichment x1.42)
+      above shear layer y>2          4.48%  (base 69.60%, enrichment x0.06)
+      downstream x>6 & y<=2         15.29%  (base 13.60%, enrichment x1.12)
+      ON the W2 support             45.33%  (base 14.14%, enrichment x3.21)
+
+  DO THE TWO MAPS AGREE?
+    Spearman(|g_varU|, |g_Jw|) = +0.9894   [carries the claim]
+    Pearson (|g_varU|, |g_Jw|) = +0.9992   [tail-dominated, reported not relied on]
+    top-decile set overlap = 1975 of 2100 = 94.05%   (chance 10%)
+
+    For scale, R1's OWN 'second independent baseline gradient' (same objective,
+    different inlet): Spearman +0.9450 (R1 published +0.9450), top-decile overlap 61.14%
+    Changing the objective's support by 7x moves the geography LESS than repairing
+    the inlet did.
+
+  THE IDENTITY HAZARD, STATED. Jw is supported on the two boxes, so a high IN-WINDOW share
+  of its top decile is partly derivable by construction from the mask and is not gated on.
+  The leg that is NOT derivable is the share OFF the support, reachable only by adjoint
+  propagation, and the upstream x<0 share in particular -- no box touches x<0.
+    varianceU (obj 1)    top decile OFF the W2 support  57.67% | upstream x<0  45.76%
+    Jw        (obj 2)    top decile OFF the W2 support  54.67% | upstream x<0  45.57%
+    The two upstream shares agree to 0.19 percentage points.
+
+================================================================================================
+S4. G2's NUMERICAL REPRODUCIBILITY under a domain-decomposition change
+================================================================================================
+  W4-defect-reach/run_cbfs_arm.sh copies 0/, constant/, system/ and runScript.py from
+  W4-adjoint-pc-unblock/cbfs_beta and changes ONE thing: decomposeParDict to simple [4,1,1].
+  Same image, same DAFOAM_SUBPC_TYPE=lu, np=4, beta == 1, same objective. Pure numerics.
+
+  THE ORDERING TRAP, EXHIBITED FIRST. DV order follows the decomposition, so the two
+  arrays are in DIFFERENT DV orders and are a permutation of one another:
+    max |sorted(|A|) - sorted(|B|)|  = 7.269e-10   (they hold the same values)
+    UNPERMUTED Spearman(|A|,|B|)     = +0.0901  and G2 would read 31.1905% vs 14.0952%
+    A 17-point 'finding' is available to anyone who skips the permutation.
+
+  POSITIVE CONTROL on the addressing parser: the map built here for arm A is
+    identical to the archived dv_to_serial_perm.npy, entry for entry: True
+    per-rank cell counts  A [5254, 5204, 5262, 5280]   B [5250, 5250, 5250, 5250]
+
+  PERMUTED, in serial cell order:
+    ||A-B|| / ||A||                 = 1.132e-04  (record publishes 1.13e-04)
+    top-20 |g| cells: max rel 1.582e-04, median rel 3.955e-05  (record publishes 1.58e-04, 4.0e-05)
+    Spearman(|A|,|B|) = +0.99999988
+
+    G2  arm A (scotch)        = 31.1905%   (R1 publishes 31.19% for this array)
+    G2  arm B (simple 4x1x1)  = 31.1905%
+    DELTA under a lever with no physics in it = +0.0000 percentage points
+    top-decile set agreement = 2100 of 2100 cells = 100.00%
+
+================================================================================================
+S5. G-P2's STATED MECHANISM, at the one state where it can be checked
+================================================================================================
+  G-P2 (S1_PRIORS_PREREGISTRATION.md S4) predicts before any compute:
+    'the restoring pull at beta = 0.2 is 2*lambda_LN*log(0.2)/0.2 = 1.309e-4 against the
+     Gaussian's 2*lambda_L2*(0.2-1) = 1.600e-5 -- 8.2x stronger. Prediction: the count of
+     cells at the lower bound falls from 223 to fewer than 60.'
+  Whether a cell unpins is not decided by prior-vs-prior. It is decided by prior pull versus
+  LIKELIHOOD pull at that cell, and the likelihood pull is on disk at evaluation 10.
+
+    lognormal pull at beta=0.2 (lambda_LN 8.1335e-06) = 1.3090e-04
+    Gaussian  pull at beta=0.2 (lambda_L2 1e-5)        = 1.6000e-05   ratio 8.18x (prereg 8.2x)
+
+    Cells at the lower bound at evaluation 10: 5 of 21000.
+    FRAME, stated not glossed: the FINAL state has 223 low + 1 high, but its gradient
+    is deleted by invert_lbfgsb.py:96-97. Evaluation 10 is the only archived state
+    where beta and its gradient can both be read, and it is early in the trajectory.
+
+    |g_QoI| at those cells: min 4.6498e-04  p50 6.8796e-04  max 1.8206e-03
+    exceeding the lognormal pull 1.3090e-04 : 100.00% (5 of 5)
+    exceeding the Gaussian  pull 1.6000e-05 : 100.00% (5 of 5)
+    median |g_QoI| at the bound is 5.3x the lognormal restoring pull.
+
+    Reading, bounded by the frame: at every archived pinned cell the likelihood pull already
+    exceeds the stronger prior's restoring pull by a factor of several, so the 8.2x prior
+    ratio does not by itself imply unpinning. n = 5 is small and the state is not the one
+    G-P2 grades; this is a caution on the mechanism, not a measurement of the gate.
+
+DONE.
