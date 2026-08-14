@@ -158,7 +158,12 @@ Checked directly, not read off prose:
   `evaluate_from_csv_by_case`, `evaluate_individual_case`, `_velocity_field`,
   `_ground_truth`, `_load_csv_predictions` and `evaluation_points`, and proves the guard
   armed by catching its own refusal before continuing.
-- The one untracked file in the benchmark clone is `scripts/rans_identity_baseline.py`,
+- The one untracked file in the benchmark clone is
+  `/home/ubuntu/closure-challenge-benchmark/scripts/rans_identity_baseline.py`
+  (path corrected 2026-08-14 at `13b965dd` from ~~`scripts/rans_identity_baseline.py`~~,
+  which is repo-rooted in shape and names a file in the clone, not in this repository;
+  the phrase 'path corrected' is kept unbroken on one line because the sweep that reads
+  it greps for it),
   lab-authored — which the description document discloses at §7.2. Nothing else in either
   third-party clone is modified.
 

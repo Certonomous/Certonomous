@@ -21,7 +21,7 @@ that must not fire, then run through the resolver:
 
 | plant | class | caught? |
 |---|---|---|
-| `scripts/check_converge_rule.py` — file does not exist | path | **yes** |
+| `scripts/check_converge_rule.py` — a planted path that **did not exist** at the tree tested, and still did not at `13b965dd` where this was re-verified on 2026-08-14. It is quoted here to prove the resolver catches an unresolvable path, and must stay unresolvable; do not cite it as evidence and do not create it | path | **yes** |
 | `test_r_isolate_worktree_is_pruned_from_every_frame` — no such def | test | **yes** |
 | `deadbee1`, `c0ffee99` — do not resolve | commit | **yes (both)** |
 | `scripts/sweep.py` | real path | correctly silent |

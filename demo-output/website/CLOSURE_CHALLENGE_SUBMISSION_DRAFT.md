@@ -1108,8 +1108,13 @@ test of Reynolds transfer at a doubled velocity scale exists in this benchmark.
 
 ### 7.2 The 0.1036 floor is our own number, with no external corroboration
 
-`scripts/rans_identity_baseline.py` in the benchmark clone is **untracked** — it was
-authored by this lab, not shipped by the benchmark. The benchmark README quotes no
+`/home/ubuntu/closure-challenge-benchmark/scripts/rans_identity_baseline.py` in the
+benchmark clone is **untracked** — it was authored by this lab, not shipped by the
+benchmark. (Path corrected 2026-08-14 at `13b965dd`: this read
+~~`scripts/rans_identity_baseline.py`~~, which is repo-rooted in shape and resolves in
+neither root of this repository — it names a file in the third-party clone, and is now
+written with the root it lives in. The file, and this paragraph's claim about it, did not
+move.) The benchmark README quotes no
 RANS-identity baseline anywhere. 0.1036 reproduces exactly and is honestly derived, but
 **any wording implying the floor is the benchmark's own published figure is false and
 must be corrected before sending.**

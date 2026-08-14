@@ -484,9 +484,13 @@ $ python3 -c "import chief_engineer.compiler"
 ModuleNotFoundError: No module named 'chief_engineer.compiler'
 ```
 
-`sdk/chief_engineer/compiler.py` is absent from disk **and** returns **0** from
-`git ls-files`; `def load_physics_rules` is defined **nowhere** in the
-repository. So lines 254–275 have never executed, and the bare `except`
+`sdk/chief_engineer/compiler.py` **did not exist** — absent from disk **and**
+returning **0** from `git ls-files` — and `def load_physics_rules` was defined
+**nowhere** in the repository. (Tense corrected 2026-08-14 at `13b965dd`, where the
+finding was re-verified unchanged: the path still does not resolve, and `git log --all`
+records no commit that ever carried it. The path is quoted here to report its absence,
+not cited as evidence; a durable record states what held at a named commit rather than
+what is.) So lines 254–275 have never executed, and the bare `except`
 swallows it silently on every call.
 
 **It is dead twice over.** Even had the module existed, `:256` reads
