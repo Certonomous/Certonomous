@@ -119,7 +119,14 @@ EXIT = {PASS: 0, FAIL: 1, UNKNOWN: 3}
 #: A docket row. One markdown line, `| D<n> | ...`. `D8b` exists because a
 #: collision was resolved by suffixing rather than renumbering, so the trailing
 #: letter is part of the ID and not noise.
-ROW = re.compile(r"^\|\s*(D\d+[a-z]?)\s*\|", re.M)
+#:
+#: The emphasis markers are load-bearing, not tidiness. `D1a`'s row is written
+#: `| **D1a** |`, and an earlier cut of this pattern -- which required a bare
+#: `| D1a |` -- did not see it. That is a FALSE-FAIL generator in the one
+#: direction that matters: a row someone allocates in bold reads as unallocated,
+#: so the guard would redden a citation to a row that exists. Control NEG4 pins
+#: it. Found by an independent sweep of this corpus, not by me.
+ROW = re.compile(r"^\|\s*[*_`]{0,3}\s*(D\d+[a-z]?)\s*[*_`]{0,3}\s*\|", re.M)
 
 #: A candidate citation. Deliberately loose; the cue below does the deciding.
 CITE = re.compile(r"\bD(\d+)\b")
@@ -176,7 +183,7 @@ def unresolved(cites: list[tuple[int, str, str]], allocated: set[str]) -> list:
 # Controls. In-memory, every invocation. A failure here is UNKNOWN.
 # ---------------------------------------------------------------------------
 
-_COMMITTED = "| D1 | a row |\n| D43 | another row |\n"
+_COMMITTED = "| D1 | a row |\n| D43 | another row |\n| **D44** | a row whose ID is bold |\n"
 _WORKTREE = _COMMITTED + "| D80 | a row this agent just wrote, not yet committed |\n"
 
 
@@ -194,7 +201,16 @@ def run_controls() -> tuple[bool, list[str]]:
     alloc_w = allocated_ids(_WORKTREE)
 
     # POSITIVE CONTROL -- the defect this guard exists for, planted.
-    pos = "see docket D999 for the finding this work will file"
+    #
+    # ASSEMBLED FROM SPLIT TOKENS, and that is not decoration. This file is
+    # tracked, so the live sweep reads it too: written as one literal, the
+    # control string IS an unresolved citation in the tree, and the guard
+    # flagged itself and returned FAIL on its first run after the row-parser
+    # fix. That is D3's shape exactly -- a record becoming an instance of the
+    # thing it describes -- and D3's own remedy is the one used here, the same
+    # convention `sdk/tests/test_rank_claim_surfaces.py` already uses: state the
+    # shape, do not reproduce the string.
+    pos = "see docket D" + "999" + " for the finding this work will file"
     cell("POS", bool(unresolved(citations_in(pos), alloc_w)), True,
          "citation to an ID no row exists for -> must flag")
 
@@ -218,6 +234,13 @@ def run_controls() -> tuple[bool, list[str]]:
     neg3 = "return t.format(RK=_RK, D1=_D[1], D2=_D[2]) # The rank-{D3} token"
     cell("NEG3", bool(citations_in(neg3)), False,
          "fixture placeholders with no cue -> must not even be seen")
+
+    # MUST-NOT-MATCH 4 -- a row whose ID is written in bold, as D1a's is.
+    # This is the false-FAIL direction: miss the row and the guard reddens a
+    # citation to something that exists.
+    neg4 = "this is the class docket D44 already records"
+    cell("NEG4", bool(unresolved(citations_in(neg4), alloc_w)), False,
+         "citation to a bold-written row (| **D44** |) -> must not flag")
 
     return ok, lines
 
