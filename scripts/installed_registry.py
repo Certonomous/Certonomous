@@ -36,6 +36,28 @@ WHAT THE MECHANISM PROMISES, AND WHAT IT DOES NOT
   `reached()` is what a caller uses to find out which entries were actually
   compared on this host instead of trusting a green suite.
 
+IT COMPARES CONTENT, NOT MODE -- AND MODE BIT THIS FILE WITHIN THE HOUR
+------------------------------------------------------------------------
+`scripts/installed/lab.sh` was added here on 2026-08-14 with a shebang and a
+755 filesystem bit, and landed in the index as 100644: this repository sets
+`core.fileMode=false`, so a `chmod` never reaches the tree that travels. The
+suite that catches exactly that (`sdk/tests/test_exec_bits.py`) went red at the
+commit, and it went red AFTER the check had been run green, because the file
+was still untracked when it was run. Two things follow, both stated here rather
+than fixed quietly:
+
+* A CONTENT comparison passes on a pair whose reinstall would produce a
+  non-executable copy. `reinstall` commands here are of two kinds -- `install
+  -m 755`, which sets the mode explicitly and does not care what the tree
+  carries, and a bare `cp`, which propagates whatever mode the tracked file
+  has. The `cp` entries are the exposed ones.
+* Mode is presently governed by a DIFFERENT mechanism, `exec_bits`, with its
+  own hand-maintained waiver register -- and `scripts/auto-stop.sh` and
+  `docs/aws/provision.sh` are both waived there while their installed copies
+  are 755. Adding a mode rule here would put two checks in disagreement over
+  the same files, so it was NOT added unilaterally; whether this registry
+  should own mode is filed as a docket row rather than decided in this file.
+
 ENUMERATED BY EXECUTION ON 2026-08-14, AND DELIBERATELY NOT REGISTERED
 ----------------------------------------------------------------------
 The enumeration was run rather than guessed (`sudo crontab -l`, `crontab -l`,
