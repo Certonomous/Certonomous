@@ -1862,7 +1862,13 @@ def _place_family_count() -> int:
 
 @functools.lru_cache(maxsize=8)
 def _place_unnamed(upto: int) -> re.Pattern:
-    """RULE B: our comparison, someone else's position, nobody's name.
+    """RULE B: our comparison, someone else's position, no name INSIDE THE
+    PHRASE -- and the phrase is the whole of what it looks at.
+
+    That first line said "nobody's name" until 2026-08-14, and the fault
+    message said "without naming who holds it". Both claimed the surroundings,
+    and this rule has none: no proximity window, no adjudication clause,
+    nothing outside `m.group(0)`. D54.
 
     Widened 2026-08-11, second grade: nine families had been added to rule A
     and NONE to rule B, so "the miss rate fell" was a statement about one of
@@ -2125,6 +2131,108 @@ def _board_pin_date() -> str:
         return ""
 
 
+#: The RANKING referent. A committed, dated record of the live board, read for
+#: the questions that are about STANDING; the frozen clone above stays the
+#: SCORING referent and is read for the questions that are about SCORE.
+_RANKING_RECORD = "demo-output/website/campaign/BOARD_MOVED_2026-08-11.md"
+_RANKING_RECORD_ENV = "CERTONOMOUS_RANKING_RECORD"
+
+
+def _ranking_board() -> tuple[dict[str, int] | None, str]:
+    """(ranks, provenance) on success; (None, reason) on ANY failure. D55.
+
+    WHY A SECOND REFERENT AND NOT A MOVED PIN. The frozen clone at
+    `_BOARD_DIR_ENV` is pinned at `deb9155` because rung V1 needs the eight
+    case scores to recompute identically; `BOARD_MOVED_2026-08-11.md` section 4
+    says in as many words that the pin must not be moved. But the same file was
+    also answering a different question -- how many entrants are there, and who
+    stands where TODAY -- and for that question a frozen answer is simply
+    wrong. One artifact was serving two purposes and only one of them wanted a
+    frozen answer. This function is the other purpose, given its own object.
+
+    WHY NOT FETCH THE LIVE BOARD. A self-audit that needs the network is OFF
+    whenever the network is, and its verdict stops being reproducible from the
+    tree. The referent is therefore a COMMITTED record, parsed by exactly the
+    machinery that parses the pin -- `_table_blocks`, `_read_board_table`,
+    `_first_author_surname` -- so a decoy table, a duplicate qualifying table
+    or a shared first-author surname fails here the same way it fails there,
+    and no second parser can drift from the first.
+
+    THE STALENESS PROBLEM MOVES UP ONE LEVEL RATHER THAN AWAY, and that is not
+    a defect hidden in this docstring: this record is dated 2026-08-11 and the
+    live board will move again. `_ranking_board_date` reads its date from git
+    rather than from a typed string, and the verdict prints it, so the referent
+    can be seen to be old instead of quietly believed.
+
+    THE FALLBACK IS NOT SILENT. On failure the caller keeps using the scoring
+    pin for everything and the verdict says which referent answered -- a check
+    that reads a different board without saying so is the defect this row was
+    filed against, and it would be no better for being the new board.
+    """
+    try:
+        return _parse_ranking_board()
+    except Exception as exc:                                   # noqa: BLE001
+        return None, (f"reading the ranking record raised "
+                      f"{type(exc).__name__}: {exc} -- the ranking referent is "
+                      f"OFF and the scoring pin is answering for it")
+
+
+def _parse_ranking_board() -> tuple[dict[str, int] | None, str]:
+    """The read and the parse. MAY RAISE; `_ranking_board` is the boundary.
+
+    Deliberately the same shape as `_parse_published_board`, including the
+    refusal to choose between two qualifying tables. A ranking referent that
+    guesses is worse than one that is OFF, because the whole point of it is to
+    be the object someone can check.
+    """
+    override = os.environ.get(_RANKING_RECORD_ENV)
+    path = Path(override) if override else REPO / _RANKING_RECORD
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return None, (f"the ranking record is not readable at {path} "
+                      f"(${_RANKING_RECORD_ENV} or {_RANKING_RECORD})")
+    valid = []
+    for block in _table_blocks(text.splitlines()):
+        rows, _ = _read_board_table(block)
+        if rows:
+            valid.append(rows)
+    if len(valid) != 1:
+        return None, (f"{len(valid)} table(s) in the ranking record satisfy "
+                      f"every property of a leaderboard; this referent will "
+                      f"not choose between them")
+    board: dict[str, int] = {}
+    for n, cell in valid[0]:
+        surname = _first_author_surname(cell)
+        if len(surname) < 2:
+            return None, (f"row {n}'s author cell yields no usable first-author "
+                          f"surname ({cell.strip()!r})")
+        key = surname.lower()
+        if key in board:
+            return None, (f"two entrants share the first-author surname "
+                          f"{surname!r} in the ranking record")
+        board[key] = n
+    dated = _ranking_board_date()
+    return board, (f"{_RANKING_RECORD}"
+                   f"{f', dated {dated}' if dated else ' (date unreadable)'}")
+
+
+def _ranking_board_date() -> str:
+    """The commit date of the ranking record, or "" if unavailable.
+
+    READ FROM GIT, NEVER TYPED -- the same discipline `_board_pin_date` follows
+    for the pin, and for the same reason: the one thing a referent that exists
+    to be current must not do is misreport its own age.
+    """
+    try:
+        return subprocess.run(
+            ["git", "log", "-1", "--format=%cs", "--", _RANKING_RECORD],
+            cwd=REPO, capture_output=True, text=True, timeout=30,
+            check=True).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
 def _board_margin() -> tuple[int, int]:
     """(table blocks in the README, blocks that qualify as a leaderboard).
 
@@ -2330,9 +2438,53 @@ def _placements(text: str, names: re.Pattern, board: dict[str, int]):
     return found
 
 
-def board_placement_faults(text: str, board: dict[str, int]
+def board_placement_faults(text: str, board: dict[str, int],
+                           ranking: dict[str, int] | None = None
                            ) -> tuple[list[str], list[str]]:
-    """(rule A faults, rule B faults) for one surface."""
+    """(rule A faults, rule B faults) for one surface.
+
+    TWO REFERENTS, AND THE SPLIT IS DELIBERATE (D55, 2026-08-14). `board` is
+    the SCORING referent -- the frozen benchmark clone -- and it keeps every
+    question about WHO IS WHO: which surnames are entrants, and what rank the
+    scored board binds each of them to. `ranking`, when supplied, is the
+    RANKING referent (`_ranking_board`), and it answers the one question in
+    here that is about STANDING rather than score: HOW MANY POSITIONS EXIST.
+
+    That question was being answered by the scoring pin, which is D55's
+    sentence exactly -- a check that RANKS reading a referent that SCORES. The
+    pin lists four entrants; the live board has six. So a sentence placing an
+    entrant at rank 5 was told, by this function, that rank 5 "is a position
+    this board does not have", which is false of the world and was produced
+    purely by asking a frozen scoring artifact a live standing question.
+
+    WHAT WAS DELIBERATELY *NOT* RE-POINTED, and the measurement that decided
+    it. Swapping the whole `board` argument to the live six-entry record was
+    executed across the tracked corpus on 2026-08-14 and RE-EXECUTED at
+    `48d3f05a` over the same 1455 opened surfaces: rule-A faults go from
+    **2 to 68**. THE TWO SETS ARE DISJOINT, and the first writing of this
+    docstring got that wrong by calling the difference "the 66 additions". It
+    is not 66 additions: the move CLEARS both existing faults -- they sit in
+    `docs/DOCKET.md` and `docs/INSTRUMENT_INTEGRITY_LEDGER.md` and are faults
+    only because those sentences are correct of the LIVE board -- and raises
+    **68 wholly new ones**, neither original file among them. Nor are the 68
+    all one kind, and "overwhelmingly dated history" is not supported at that
+    width either. Counted: **50 are dated records** -- evaluation protocols, methods comparisons and campaign
+    write-ups describing the board as it stood when they were written, which
+    this check has no discriminator for (its own BLIND TO item 9 says so) --
+    and **18 are this check's OWN measuring apparatus**, 14 in
+    `sdk/tests/test_rank_claim_surfaces.py`, 3 here in `self_audit.py`, and 1
+    in `campaign/V16_AUTHOR_HELDOUT_SET.py`. That second group is not a
+    footnote: it is D55's stated reason for the gate, executed. The held-out
+    sets are written against whatever `_published_board` returns, so moving the
+    binding moves the ruler and the sample together, and the resulting figure
+    would be transcription fidelity worn as reach (L-74). Re-pointing the
+    binding wholesale would therefore fault 50 correct dated records AND
+    regrade the instrument against itself, at a price of clearing two live
+    faults -- which is not a repair. D55's gate forbids it
+    until a rule-A held-out set of LIVE-BOARD sentences exists. None does. So
+    the identity binding stays on the pin, the existence question moves, and
+    the fault message names which referent answered.
+    """
     names = _board_names(board)
     found = _placements(text, names, board)
     disagree, unnamed = [], []
@@ -2346,8 +2498,18 @@ def board_placement_faults(text: str, board: dict[str, int]
                and abs(where - at) <= _PLACE_ADJUDICATED
                for other, named, _, where, _, _ in found):
             continue
-        beyond = ("" if n <= len(board) else
-                  f" -- and rank {n} is a position this board does not have")
+        # THE EXISTENCE QUESTION IS THE RANKING REFERENT'S, NOT THE PIN'S.
+        # `positions` falls back to the pin when no ranking referent could be
+        # read, and the message says which one answered either way -- a fault
+        # that does not name the board it was measured against is the thing
+        # D55 was filed about, and it would be no better for naming the new
+        # board silently than it was for naming the old one silently.
+        positions = len(ranking) if ranking else len(board)
+        which = ("the live-board record" if ranking
+                 else "the frozen scoring pin")
+        beyond = ("" if n <= positions else
+                  f" -- and rank {n} is a position this board does not have "
+                  f"({which}, {positions} entrants)")
         # THE STRUCTURAL MARKER DOES NOT REACH THE READER. `flat` now carries
         # a newline where a markdown structural boundary was, and this excerpt
         # is sliced straight out of it -- so without this the one live fault in
@@ -2371,8 +2533,29 @@ def board_placement_faults(text: str, board: dict[str, int]
     # old-vs-new corpus sweep shows.
     flat = re.sub(r"\s+", " ", text)
     for m in _place_unnamed(len(board) + _PLACE_OVER).finditer(flat):
-        unnamed.append(f"{m.group(0)!r} compares us to a board position "
-                       f"without naming who holds it")
+        # THE MESSAGE SAYS WHAT THE RULE TESTED, AND NOTHING MORE (D54,
+        # 2026-08-14). It used to end "without naming who holds it", which is
+        # a claim about the SURROUNDINGS -- and rule B has no surroundings: no
+        # proximity window, no adjudication clause, nothing outside
+        # `m.group(0)`. Executed at `5c9c63fb`: `"Yang: our margin over the
+        # leader is 0.0027."` faults with the holder's name one character
+        # away, identically to a surface that names nobody anywhere. The rule
+        # was NOT widened to earn the old sentence -- retuning a detector so
+        # the author's own prose passes is how a guard gets tuned to a number,
+        # and rule B has no sample in this lab against which a widening could
+        # be shown not to lose the anonymous cases it exists to catch. Whether
+        # it SHOULD gain a proximity clause is its own row (D77), not a change
+        # smuggled into a message. THAT NUMBER IS NOT THE ONE THIS COMMENT WAS
+        # WRITTEN WITH: it said D63, an ID this work RESERVED BY CITATION while
+        # it sat uncommitted, and which the fleet allocated to an unrelated
+        # auto-stop defect before the work was ever recovered. A pointer into
+        # an append-only register is only sound once the row exists.
+        unnamed.append(f"{m.group(0)!r} makes a comparison of ours against a "
+                       f"board POSITION where the phrase itself could name the "
+                       f"entrant. Rule B tested this phrase and nothing else: "
+                       f"it has no proximity window, so whether the holder is "
+                       f"named in the next word or nowhere in the corpus is "
+                       f"not what faulted here")
     return disagree, unnamed
 
 
@@ -2451,6 +2634,12 @@ def check_board_placement_words() -> Result:
         return Result(title, WARN,
                       f"this detector is OFF, not reporting nothing to find: "
                       f"{head}")
+    # THE SECOND REFERENT (D55). Read here rather than inside the loop so the
+    # verdict can name it once, and so a record that cannot be read degrades to
+    # "the pin answered the standing question too, and here is why" instead of
+    # taking the whole check OFF -- an unreadable ranking record is a worse
+    # verdict, not no verdict.
+    ranking, ranking_note = _ranking_board()
     pinned = _pinned_board_commit()
     tracked = _tracked_files()
     if tracked is None:
@@ -2500,7 +2689,7 @@ def check_board_placement_words() -> Result:
         # up. The skip is counted, NAMED, and it reaches the verdict below.
         try:
             surveyed += len(_placements(text, names, board))
-            disagree, unnamed = board_placement_faults(text, board)
+            disagree, unnamed = board_placement_faults(text, board, ranking)
         except Exception as exc:                   # noqa: BLE001 -- see above
             skipped.append(f"{path.relative_to(REPO)}: could not be swept "
                            f"({type(exc).__name__}: {exc}) -- NOT counted as "
@@ -2521,7 +2710,28 @@ def check_board_placement_words() -> Result:
     pinned_on = _board_pin_date()
     pin_age = f", dated {pinned_on}" if pinned_on else " (date unreadable)"
     blocks, qualifying = _board_margin()
-    frame = (f"frame: board read from the benchmark's own README table at "
+    # TWO REFERENTS, NAMED (D55). The verdict says which board answered which
+    # question, because until 2026-08-14 one artifact answered both and nothing
+    # said so.
+    # The line must still BEGIN with `frame:` -- six tests select it out of the
+    # detail list with `startswith("frame:")`, and prepending to it turned the
+    # verdict's frame into a line nothing could find.
+    two_referents = (
+        f"TWO REFERENTS: the SCORING pin binds names to ranks; the "
+        f"RANKING referent answers how many positions exist, and is "
+        + (f"{ranking_note}, reading {len(ranking)} entrants"
+           if ranking else f"OFF -- {ranking_note}") + ". "
+        f"The pin is NOT stale and must not be moved (rung V1 needs the case "
+        f"scores to recompute identically); it is simply not a rank oracle. "
+        f"NOT re-pointed: the name-to-rank binding, deliberately -- swapping "
+        f"it to the live board was measured across this corpus on 2026-08-14 "
+        f"and re-measured at 48d3f05a, and takes rule-A faults from 2 to 68 "
+        f"over DISJOINT sets: both current faults clear and 68 new ones "
+        f"appear, 50 of them dated records this check cannot tell from a live "
+        f"claim (item 9) and 18 of them inside its own held-out sets and "
+        f"source, where moving the binding moves the ruler with the sample. ")
+    frame = (f"frame: " + two_referents
+             + f"board read from the benchmark's own README table at "
              f"{head[:8]} ({pin_note}) -- {order}. MARGIN: that README has "
              f"{blocks} table block(s) and {qualifying} qualif"
              f"{'ies' if qualifying == 1 else 'y'}; one more rank-headed "
@@ -2566,7 +2776,10 @@ def check_board_placement_words() -> Result:
              f"entrant named by a co-author rather than the first author. "
              f"(5) rule B cannot tell USING a phrase from QUOTING one. "
              f"(6) adjudication is 400-character proximity and not grammar, so "
-             f"a correct rank near a wrong one clears it; and a board surname "
+             f"a correct rank near a wrong one clears it -- RULE A ONLY: rule "
+             f"B has no window at any distance, and faults a phrase whose "
+             f"holder is named one character away exactly as it faults one "
+             f"naming nobody anywhere; and a board surname "
              f"that is also an ordinary English word would over-bind, since "
              f"surnames match case-insensitively -- making them case-sensitive "
              f"was measured to cost one real binding in this corpus and was "
@@ -4870,7 +5083,14 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "and a comparison of ours whose opponent is a placement word instead "
         "of a name (\"our margin over the <position>\"). Matched over whole "
         "text with whitespace collapsed, so a placement a reflow split across "
-        "two lines still binds",
+        "two lines still binds. TWO REFERENTS, and which one answers depends "
+        "on the question (D55): the frozen scoring pin binds names to ranks, "
+        "and a separate committed, dated record of the live board answers only "
+        "HOW MANY POSITIONS EXIST -- a pin that is right for reproducibility "
+        "is wrong for standing. The ranking referent is three-valued: if it "
+        "cannot be read, the pin answers the standing question too and the "
+        "verdict says so, rather than an empty board passing every check "
+        "vacuously",
         f"MOST OF ALL, any placement phrased outside this check's "
         f"{_place_family_count()} RULE-A patterns. The three held-out sets "
         f"below are RULE-A sentences, each pinning a wrong placement on a "
