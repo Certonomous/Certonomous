@@ -2,12 +2,26 @@
 
 **Reporting period:** 2026-08-07 to 2026-08-14 (7 calendar days)
 
-**Power outage:** Reported period 2026-08-12 evening (UTC) to 2026-08-14 20:22 UTC.
-Approximately 2 days of the 7-day week were idle.
+**Idle days in the period:** 08-09 (full), 08-13 (full), 08-12 and 08-14 (partial, reported power-off window 08-12 evening through 08-14 20:22 UTC).
 
-**Convention for rates:** All metrics computed over the full calendar week including the idle period.
-This means any per-day average includes the power-off days as zero-activity days. Where a per-day
-rate is given, it reflects the ratio of activity to calendar days, not to active days.
+**Actual commit distribution by day:**
+```
+git log --since='2026-08-07' --until='2026-08-15' --pretty=format:'%cd' --date=format:'%m-%d' | sort | uniq -c
+    34 08-07
+   105 08-08
+     0 08-09
+   231 08-10
+   275 08-11
+    24 08-12
+     0 08-13
+     4 08-14
+```
+
+**Calculation conventions:** 
+- **Per calendar day** (7 days): 672 / 7 = ~~96 commits/day~~ [2026-08-14: THIS FIGURE DIVIDES BY CALENDAR DAYS, NOT ACTIVE DAYS; SEE NEXT LINE]
+- **Per active day** (5 days of measurable work: 08-07, 08-08, 08-10, 08-11, 08-14): 672 / 5 ≈ 134 commits/day
+
+**Note on 08-12 collapse:** Commit count dropped from 275 on 08-11 to 24 on 08-12, an order-of-magnitude collapse on the day of the lab's largest autonomous fleet. The cause is undetermined. To settle it would require: (1) session transcripts under `/home/ubuntu/.claude-sanaa/sessions/` for 08-12, and (2) whether the auto-stop gate fired that day. This observation is factual; no cause is asserted here.
 
 ---
 
@@ -19,9 +33,7 @@ rate is given, it reflects the ratio of activity to calendar days, not to active
 git log --since='2026-08-07' --until='2026-08-15' --oneline | wc -l
 ```
 
-**Result:** 672 commits
-
-**Per-day average:** 672 / 7 = 96 commits/day (includes idle days)
+**Result:** 672 commits (see Calculation conventions section above for per-day breakdown)
 
 ---
 
@@ -80,9 +92,9 @@ python3 scripts/calibration_scorecard.py
 
 ## Summary
 
-**Commits:** 672 over 7 days (includes 2-day outage period)
-**Files touched:** 5,678 unique
-**Test files added:** 12
-**Docket changes:** 43 commits to docket during week
-**Calibration pairs:** 11 total, 3 passing (27%), 8 undeterminable
+**Activity metrics** (volume, not quality): Commits: 672 over 7 calendar days (134/day on active days). Files touched: 5,678 unique. Docket changes: 43 commits.
+
+**Improvement-relevant metrics** (quality or capability advancement): Test files added: 12. Calibration scorecard pairs: 11 total, 3 passing (27%), 8 undeterminable.
+
+**Note:** Commits and unique files touched measure activity volume. A 7-day period with 5,678 files touched is not obviously good or bad without context on change size and purpose. These metrics track that work happened, not that it improved the lab's capability. Test addition and calibration pair progress are improvement metrics — they track capability increase or system maturity.
 
