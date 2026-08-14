@@ -129,7 +129,16 @@ EXIT = {PASS: 0, FAIL: 1, UNKNOWN: 3}
 ROW = re.compile(r"^\|\s*[*_`]{0,3}\s*(D\d+[a-z]?)\s*[*_`]{0,3}\s*\|", re.M)
 
 #: A candidate citation. Deliberately loose; the cue below does the deciding.
-CITE = re.compile(r"\bD(\d+)\b")
+#:
+#: The lookahead excludes a FILENAME. `docs/docket/D0083.md` is a path, not a
+#: citation of D83, and it sits three words from the token "docket" so the cue
+#: cannot tell them apart. This is not hypothetical: the sharding proposal
+#: written in this same round uses exactly that form for its example shards, and
+#: this guard returned FAIL on three of them the moment that document landed --
+#: correct by its own letter, wrong about what a citation is. Control NEG5 pins
+#: it, and the fix matters beyond the one document: if the shard migration ever
+#: happens, every row becomes such a filename.
+CITE = re.compile(r"\bD(\d+)\b(?!\.[A-Za-z]{1,4}\b)")
 
 #: The cue that makes a candidate a docket citation. Also matches the path
 #: `docs/DOCKET.md`, which is how several citations name their target.
@@ -241,6 +250,11 @@ def run_controls() -> tuple[bool, list[str]]:
     neg4 = "this is the class docket D44 already records"
     cell("NEG4", bool(unresolved(citations_in(neg4), alloc_w)), False,
          "citation to a bold-written row (| **D44** |) -> must not flag")
+
+    # MUST-NOT-MATCH 5 -- a shard FILENAME is a path, not a citation.
+    neg5 = "the docket shard `docs/docket/D0083.md` holds that row"
+    cell("NEG5", bool(citations_in(neg5)), False,
+         "a D<n>.md filename near the cue -> must not be read as a citation")
 
     return ok, lines
 
