@@ -110,8 +110,38 @@ def registry_attribution() -> dict:
     A ceiling that binds at launch has to answer two questions about the run
     being launched: which approved item is it, and how many core-minutes will
     it cost. Neither is in the record today, and this counts by how much.
+
+    WHY THIS COUNTS THREE CLASSES AND NOT ONE (D52, 2026-08-14). This function
+    globbed `*.done` and returned that length as `records`, and every published
+    denominator in the repo was a transcription of it. On 2026-08-11 17:31:31
+    E2's repair renamed four zero-byte records to `*.done.INTERRUPTED` --
+    correctly, and on instruction that they be "marked, not deleted". `*.done`
+    does not match `*.done.INTERRUPTED`, so the number this function returns
+    fell from 146 to 142 with no edit to this file, no error, and no consumer
+    re-run. That is the whole defect: a rename re-scopes every glob that
+    counted the thing, and the globs are the half nobody re-runs.
+
+    A fifth record, `f5a_re2000_...done.FAILED_ATTEMPT_cwd_bug`, was renamed
+    the same way on 2026-07-29 and has been invisible to this count since
+    before any of the published figures were written -- so the historical 146
+    was never the count of completion records either. It was 142 usable plus
+    four not-yet-renamed empties, and 147 records have existed all along.
+
+    The counts are therefore reported SEPARATELY rather than summed. Which
+    denominator a caller wants is a question about that caller -- a spend
+    audit wants the usable 142, and a "how often does collection fail?"
+    question is answered ONLY by the five that are excluded. A single number
+    cannot answer both, and the one this returned silently answered the first
+    while being cited as if it answered neither.
     """
-    records = sorted(REGISTRY.glob("*.done")) if REGISTRY.is_dir() else []
+    if REGISTRY.is_dir():
+        records = sorted(REGISTRY.glob("*.done"))
+        # Every sibling class, enumerated positively. A class that appears
+        # here for the first time gets counted rather than dropped, which is
+        # the property `*.done` did not have.
+        excluded = sorted(p for p in REGISTRY.glob("*.done.*") if p.is_file())
+    else:
+        records, excluded = [], []
     # A field printed as UNATTRIBUTED or UNSTATED is a recorded absence, which
     # is better than a silent one and is still not an attribution. Both are
     # counted, separately, because the two say different things: how many runs
@@ -130,8 +160,16 @@ def registry_attribution() -> dict:
                 answered[key] += 1
         if "started:" in head and "finished:" in head:
             timed += 1
+    by_class: dict[str, int] = {}
+    for path in excluded:
+        # "f6b2_coarse_...done.INTERRUPTED" -> "INTERRUPTED"
+        by_class[path.name.split(".done.", 1)[1]] = \
+            by_class.get(path.name.split(".done.", 1)[1], 0) + 1
     return {
         "records": len(records),
+        "excluded_from_records": len(excluded),
+        "excluded_by_class": by_class,
+        "all_completion_records": len(records) + len(excluded),
         "naming_a_docket_item": answered["item"],
         "asked_for_an_item": asked["item"],
         "stating_a_rank_count": answered["ranks"],
@@ -406,8 +444,19 @@ def report(state: dict, quiet: bool = False) -> None:
     print("WHY THE CEILING CANNOT BIND AT LAUNCH YET")
     print("-" * 78)
     attribution = state["attribution"]
-    print(f"  {attribution['records']} completion record(s) in "
+    print(f"  {attribution['records']} usable *.done record(s) in "
           f"demo-output/website/solve_registry")
+    if attribution["excluded_from_records"]:
+        # Printed on its own line and never folded into the number above.
+        # A denominator transcribed off this output is the reason D52 exists;
+        # the excluded classes travel WITH it so a reader cannot copy the
+        # first number without seeing what it leaves out.
+        classes = ", ".join(f"{n} {name}" for name, n
+                            in sorted(attribution["excluded_by_class"].items()))
+        print(f"  + {attribution['excluded_from_records']} record(s) renamed "
+              f"out of that glob ({classes}); "
+              f"{attribution['all_completion_records']} completion records "
+              f"exist in total. Cite which of the two you mean")
     print(f"  {attribution['naming_a_docket_item']} name a docket item "
           f"({attribution['asked_for_an_item']} were even asked), so spend "
           f"cannot be attributed to the thing that was approved")
