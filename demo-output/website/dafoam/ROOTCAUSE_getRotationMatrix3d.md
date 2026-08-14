@@ -467,6 +467,40 @@ Differences ~1e-4 relative — the adjoint linear solve's own tolerance, enterin
 captured seed. **Reordering is not a factor**, exactly as a purely geometric defect requires. And
 `rcm` with rotations off is 0.0000 on all 27 components, so the collapse is not reordering-specific.
 
+> **[RE-TESTED AND UPHELD 2026-08-14 — dead-lever audit Round 5,
+> `campaign/DEAD_LEVER_AUDIT_ROUND5_2026-08-14.md`, repo `94307129`. No strike; this verdict got
+> STRONGER. Recorded here because a docket row instructed the opposite.]**
+>
+> Docket **D40** (2026-08-11) charged that this section reports a passed check a *dead* lever
+> would answer the same way — the only activity evidence being `Mat ReOrdering: rcm`, which
+> `docs/DEAD_LEVER_AUDIT.md` §4 U-1 identifies as a **requested**-value print, with **0**
+> `-ksp_view` readbacks in these logs. D40 prescribed: *"strike P6's verdict in place … and do
+> not carry it into any upstream draft."*
+>
+> **That remedy was not applied, and it must not be.** D40's evidence re-verifies exactly (0
+> readbacks in `D5a`/`D5b`/`D1a`, 1 in the `control_rcm.log` positive control), but its
+> conclusion is falsified by the iteration counts in these same four logs:
+>
+> | ordering | iteration-0 KSP residual | converged in | final residual |
+> |---|---|---|---|
+> | `natural` (`D1a`, `D1b`) | `1.243721539281e+01` | **86** | `1.084852511275e-04` |
+> | `rcm` (`D5a`, `D5b`) | `1.243721539281e+01` | **79** | `1.242231735482e-04` |
+>
+> An inert lever cannot move the adjoint GMRES by 8.1% of its iteration count. The bit-identical
+> iteration-0 residual proves a shared primal state and RHS; a full pre-solve diff of `D1a`
+> against `D5a` isolates the ordering token at line 417 as the **only** substantive difference,
+> so this is a genuine single-change arm; and the two runs sharing each ordering agree to all 13
+> digits, which excludes run-to-run nondeterminism.
+>
+> **So P6's null is discriminating rather than vacuous: the lever was live, it moved the linear
+> solve, and the geometric error did not follow it.** That is a stronger result than the one
+> originally claimed here, and it may be carried upstream.
+>
+> One narrowing, stated so it is not over-read: this proves the key reaches and changes the
+> preconditioner, **not** that the permutation produced is specifically reverse-Cuthill-McKee.
+> That distinction still awaits an `-ksp_view` readback and is absent from all 257 archived
+> `rcm` runs.
+
 ### 4.8 The predicted-clean control (P7), and an honest partial result
 
 A rigid translation of the design surface rotates no normal, so `warpDeriv`'s zeroed rotation

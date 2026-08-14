@@ -88,6 +88,36 @@ space's `[1.5e6, 4.0e6]` range — its post-fix pass (463.89, inside the
 band with margin) is the load-bearing measurement: it is the hardest point
 in the space to satisfy, and it passes.
 
+> **[CAVEAT ADDED 2026-08-14 — dead-lever audit Round 5,
+> `campaign/DEAD_LEVER_AUDIT_ROUND5_2026-08-14.md`, repo `94307129`. The AFTER table's two
+> promoted rows are UNVERIFIABLE FROM THE ARCHIVE, and the promotion lever they demonstrate has
+> never fired in any archived run. Kept, not deleted, per L-76.]**
+>
+> `AHMED_REFINEMENT_HIGH_RE = 3` (`sdk/workflows/mega_batch.py:123`) is live wired code —
+> `_ahmed_refinement_for_reynolds` at `:544`, called at `:594`, consumed at `:601-602` — and its
+> condition `reynolds >= 2.8e6` is reachable inside the declared design space. **It is not a dead
+> lever.** But re-measured against `demo-output/website/mega-batch/ledger.jsonl` (208,194 rows) on
+> 2026-08-14, unchanged from the 2026-08-10 batch audit:
+>
+> | measurement | value |
+> |---|---|
+> | `simplefoam-ahmed-3d-viscous` ledger rows | **52** |
+> | distinct `cells` on those rows | **{45760, 45813}** — i.e. refinement 2 throughout |
+> | rows carrying `metrics.mesh_refinement` | **0 of 52**, though `:236` and `:712` write it |
+> | rows with 79,439 cells | **0** |
+> | last ahmed row timestamp | **2026-07-29T11:16:13Z**, seven hours BEFORE the fix landed (`a75e1fa1`, 2026-07-29T18:25:47Z) |
+>
+> **Positive control for those zeros (L-84):** `mesh_refinement` is not a token the reader cannot
+> see — it occurs **69,288** times in the same ledger, e.g. index 3, `"solver":
+> "openfoam-cylinder"`, `"design": {… "mesh_refinement": 1.511 …}`. The absence on all 52 ahmed
+> rows is a fact about those rows, not about the search.
+>
+> Neither promoted index — 3215 or 239 — has a surviving ledger row, case directory or log. So
+> the four AFTER measurements, including the one this document names load-bearing, **cannot be
+> checked against anything the archive still holds**, and no archived run has ever exercised the
+> promotion they were produced to validate. The fix's *reasoning* is untouched by this; its
+> *evidence* is a claim about runs that left nothing behind.
+
 Note on index 3215's first attempt: the very first run of that index
 (refinement=3) returned `simpleFoam failed` with an incomplete log (cut off
 mid-iteration, no fatal-error trace, no OOM/kill in `dmesg`/`journalctl`, no

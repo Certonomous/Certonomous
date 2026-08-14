@@ -193,12 +193,52 @@ neither D5 log contains a `KSP Object` block at all.
 `12:    matrix ordering: rcm`. The method finds the readback when it is present; its absence
 in D5a/D5b is a fact about those logs, not about the search.
 
-So **P6's null result is exactly what an inert `rcm` lever would produce**, and the check as
-written does not discriminate. This does **not** threaten M1: M1 is established upstream of
+~~So **P6's null result is exactly what an inert `rcm` lever would produce**, and the check as
+written does not discriminate.~~ This does **not** threaten M1: M1 is established upstream of
 any linear solver by the `||dXs||` fingerprint (§1.3 item 1), by the rotations-off collapse to
-0.0000 on all 27 components, and by the CFD-free reproduction of upstream issue #57. The
+0.0000 on all 27 components, and by the CFD-free reproduction of upstream issue #57. ~~The
 finding survives; the *stated* elimination of reordering does not, and it should be relabelled
-rather than relied on. Filed as **D40**.
+rather than relied on.~~ Filed as **D40**.
+
+> **[STRUCK 2026-08-14 — dead-lever audit Round 5, `campaign/DEAD_LEVER_AUDIT_ROUND5_2026-08-14.md`,
+> repo `94307129`. The struck sentences are FALSIFIED by the same four logs this section read.
+> Struck and kept per L-76, not deleted.]**
+>
+> The absence of the `-ksp_view` readback is real and is re-verified above — every number in
+> this section reproduces exactly. But the readback is not the only evidence of activity in
+> those files, and the other kind is six lines below the line this section quoted:
+>
+> | arm | line 417 echo | iteration-0 KSP residual | converged in | final residual |
+> |---|---|---|---|---|
+> | `D1a_pl_real_rot_ON.log` | `jacMatReOrdering natural;` | `1.243721539281e+01` | **86** | `1.084852511275e-04` |
+> | `D1b_pl_real_rot_OFF.log` | `jacMatReOrdering natural;` | `1.243721539281e+01` | **86** | `1.084852511275e-04` |
+> | `D5a_pl_real_rotON_RCM.log` | `jacMatReOrdering rcm;` | `1.243721539281e+01` | **79** | `1.242231735482e-04` |
+> | `D5b_pl_real_rotOFF_RCM.log` | `jacMatReOrdering rcm;` | `1.243721539281e+01` | **79** | `1.242231735482e-04` |
+>
+> **An inert lever cannot move the adjoint GMRES from 86 iterations to 79.** The iteration-0
+> residual is bit-identical to 13 significant figures across all four, so the runs share a
+> primal state and an RHS; the only remaining cause of a different iteration count is the
+> preconditioner, and a full diff of `D1a` against `D5a` over lines 1–830 returns **86 differing
+> lines of which exactly one is substantive** — line 417, the ordering token. Everything else is
+> the container hostname, the wall clock and MPI buffer-attach message ordering. Nondeterminism
+> is excluded by the set's own design: the two `natural` runs agree to all 13 digits, the two
+> `rcm` runs agree to all 13 digits, and the two groups differ.
+>
+> **`jacMatReOrdering` is therefore ACTIVE, proven by behaviour in a matched single-change pair**
+> — L-50's standard, a measurement rather than a second source read. P6's null is
+> **discriminating, not vacuous**: the lever was live, it demonstrably moved the linear solve,
+> and the `warpDeriv` error did not follow it. **P6 HELD, for a better reason than it was
+> originally given, and D40's prescribed strike must NOT be applied to
+> `ROOTCAUSE_getRotationMatrix3d.md` §4.7.**
+>
+> What survives, narrowed: the behavioural proof shows the key reaches the preconditioner and
+> changes it. It does **not** prove the permutation produced is specifically reverse-Cuthill-McKee.
+> Only the `-ksp_view` `matrix ordering:` readback settles that, and it is still absent from all
+> 257 archived `rcm` runs.
+>
+> **Why this section's instrument missed it (L-84).** Its positive control passed and proved the
+> grep *can* fire. It did not prove that what the grep looked for was the only evidence available.
+> The readback was absent; the effect was present, printed and archived, in the same files.
 
 ## 1.5 Verdict on A1
 
