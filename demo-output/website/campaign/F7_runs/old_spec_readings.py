@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 """F7a: what does the OLD front-position definition actually evaluate to?
 
+NOT-NORMATIVE, by construction and on purpose.  This module implements seven
+readings of the SUPERSEDED front definition in order to measure how far apart
+they are; it is an exhibit, not an instrument.  The normative home of the F7a
+measurement definition is `f7a_contract.py` (`F7a_REGATE_SPEC.md` §2), which
+implements none of these readings -- §2.1 prohibits a row-based probe outright.
+No verdict may be taken from any number this script prints.
+
+
 This script exists to answer one question with data instead of assertion:
 
     The 2026-07-28 gate spec defined the surge front as

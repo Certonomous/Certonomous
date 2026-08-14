@@ -1,6 +1,27 @@
 #!/usr/bin/env python3
 """F7a surge-front extraction, mesh-independent form.
 
+NOT-NORMATIVE.  The normative home of the F7a measurement definition is
+`f7a_contract.py`, which executes `F7a_REGATE_SPEC.md` §2 clause by clause.
+This module predates that spec (it landed at `4aad8298`, the spec at
+`1393b8b4`) and is kept because it is the instrument the 2026-07-30 R1 audit
+actually executed; L-76 keeps executed instruments rather than deleting them.
+Do not take a gate verdict from it.  Measured divergences from §2, recorded
+2026-08-14 and each covered by a test in `sdk/tests/test_f7a_contract.py`:
+
+  * it groups columns and rows at 9 decimal places where §2.1 pins 8.  On the
+    a/16 family this does not close -- 37 apparent rows x 263 apparent columns
+    against 4,800 real cells -- so `dy` and the column partition are both taken
+    off a mis-shaped grid.  The a/32 and finer cases, including the §3 verdict
+    case `res32y128_base`, are unaffected: they close identically at 8 and 9.
+  * it takes the length scale `a` from argv, so two invocations can disagree
+    about it; §2.1 pins a = 0.05715 m exactly.
+  * it implements none of §2's FAIL LOUD structural assertions, the §2.2
+    monotonicity guard, the threshold-spread UNGRADEABLE trigger, the Z >= 14.5
+    wall clause, the §2.3 restart/cadence checks, the §2.4 six-station set and
+    5% tolerance, or the three-valued verdict.  It returns numbers where the
+    contract would refuse.
+
 Reads reconstructed interFoam time directories (structured 2D blockMesh) and
 returns, for each written time, the surge-front position Z = x_front/a using a
 depth-integrated water height

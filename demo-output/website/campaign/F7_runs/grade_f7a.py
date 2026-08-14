@@ -1,6 +1,18 @@
 #!/usr/bin/env python3
 """F7a grading: interFoam dam break vs Martin & Moyce (1952).
 
+NOT-NORMATIVE.  The normative home of the F7a gate is `f7a_contract.py`
+(`F7a_REGATE_SPEC.md` §2).  This module is kept as the R1 audit's executed
+grader, per L-76, but it must not be used to take a verdict, for a reason the
+spec states at §2.2 and docket G4a records: **it has no monotonicity guard and
+averages spurious post-wall crossings into its reported mean.**  Once the surge
+reaches the far wall, h(x) no longer crosses h* downward at the toe and the
+furthest-crossing search silently returns a crossing back in the collapsing
+column at Z ~ 1.59; this module's mean line then averages those in.  It also
+grades all eight stations where §2.4 freezes six, applies no tolerance, and
+prints no PASS/FAIL/UNGRADEABLE.  Any number previously read off its
+unrestricted mean line is unframed until re-derived under the contract.
+
 Two references, both traceable:
 
   MM_FRONT / MM_HEIGHT
