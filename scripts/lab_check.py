@@ -147,6 +147,33 @@ under five working agents. D65's repair surfaced that stderr for exactly this
 reason, and this runner inherits the rule: a silent stderr is a claim, and the
 claim is "there was nothing on stderr".
 
+WHAT A GREEN RUN DOES NOT MEAN (the half worth reading)
+=======================================================
+Measured against real defects from 2026-08-14, this runner catches: a shipped
+bundle that drifted from the tree, an installed artifact that drifted from its
+tracked copy, an unowned supersession, a tracked shebang script committed
+without its exec bit, and a test file that declares tests and contributes none.
+Each was demonstrated in both directions -- planted and unplanted -- in
+`sdk/tests/test_lab_check.py` and in the reconstruction log on docket D64.
+
+It does NOT catch, and a green run says nothing about:
+
+  * A CHECK WHOSE REFERENT WENT STALE. This is the 2026-08-14 rank-guard defect
+    and D65's auto-stop clause: the check was correct, the thing it named moved.
+    A runner runs checks. Running a check whose referent is stale more often
+    produces a stale answer more often, and that is all.
+  * A DETECTOR THAT TURNED ITSELF OFF. `self_audit.py`'s two board-referent
+    guards return WARN when their referent cannot be read, and `self_audit`
+    exits non-zero only on FAIL -- so an OFF detector reddens nothing here
+    either. Filed as docket D78; not repaired in this module, because the
+    repair belongs in the check.
+  * ANYTHING IN THE 15 SHELL FILES, six write-capable checks (in live mode), or
+    any check that needs compute. All three are printed, every run, with the
+    reason.
+  * A FALSE CLAIM IN PROSE. `check_absolutes.py` is the instrument for that
+    class and this lab measured its false-positive rate at 74%, which is why it
+    is a reported FAIL here rather than something anybody can act on directly.
+
 A HEAD WORKTREE IS NOT A GRADEABLE TREE HERE, and that is a finding
 ====================================================================
 `--tree snapshot` grades a `git worktree` of HEAD. It is the tidier thing to
