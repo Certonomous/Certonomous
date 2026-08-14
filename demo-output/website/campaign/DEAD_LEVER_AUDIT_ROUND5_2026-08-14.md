@@ -407,6 +407,11 @@ Ranked by what a reader would most want covered next.
    had not returned when this record was committed. §5's S8 result came from a
    targeted reopen, not from that census. **The census is the largest unswept
    surface this round leaves.**
+   → **SUPERSEDED by §10, added 2026-08-14 after the first commit (`f5f7126e`).**
+   The census returned, all five categories completed, and its four
+   load-bearing findings were re-verified firsthand and filed as **D61**. This
+   item is kept rather than rewritten so the record shows what was open at the
+   moment the round first shipped.
 5. **Frame L's edges**, inherited from R4: gzipped logs, `log.run`-named logs,
    and logs not matching `*.log` sit outside the 1,635. §3's finding is
    unaffected — it rests on four named files read directly, not on a population
@@ -444,3 +449,176 @@ filing the sweep of what leaned on it.* Four instances in one round — D40's
 remedy unexecuted for three days and pointing the wrong way, S8 left behind
 when its twin was repaired, N-1's downstream table unannotated, and two
 found-dead levers whose names were never published at all.
+
+---
+
+## 10. ADDENDUM — the SDK-wide mechanical census, returned and independently verified
+
+§7 item 4 declared this the largest unswept surface this round left. It
+returned after the round's first commit (`f5f7126e`) and is folded in here
+rather than left dangling. **Every finding below was re-verified firsthand
+before being written down** — the supervisor rule is that a delegated result is
+assumed wrong until defended.
+
+**Frame.** An AST census over **253 Python files, 4,034 functions** under
+`sdk/` and `scripts/`. All 253 are `git ls-files`-tracked, so the ugrep
+`.gitignore` trap does not bite the Python census. Five categories were
+completed: unconsumed parameters, config keys with no reader, environment
+variables, CLI flags, and always-true/false gates.
+
+**Two categories came back CLEAN, and that is a result.** Of **182**
+`add_argument` calls, **zero** have a dest never referenced after parsing. Of
+the module-level literal-constant gate sweep, **zero** instances. Stated so
+these are recorded absences rather than unswept surfaces.
+
+### 10.1 CONFIRMED DEAD — a block that never executes, and the gate that lived inside it
+
+`sdk/chief_engineer/ask_the_lab.py:252-277` is wrapped in `try:` … `except
+Exception: pass`. Its first statement is `from .compiler import
+load_physics_rules` at `:253`.
+
+**Runtime-proven, not read:**
+
+```
+$ python3 -c "import chief_engineer.compiler"
+ModuleNotFoundError: No module named 'chief_engineer.compiler'
+```
+
+`sdk/chief_engineer/compiler.py` is absent from disk **and** returns **0** from
+`git ls-files`; `def load_physics_rules` is defined **nowhere** in the
+repository. So lines 254–275 have never executed, and the bare `except`
+swallows it silently on every call.
+
+**It is dead twice over.** Even had the module existed, `:256` reads
+`rules.get("regime", {})` — and `regime` is not a key in
+`docs/physics_rules.yaml`. That file's top-level keys are exactly `womersley:`
+(`:7`), `mesh_quality:` (`:31`) and `sobol:` (`:58`), and the token `regime`
+occurs **0** times in it. The block was written against a schema that is not
+there.
+
+**Consequence:** two `Source` entries never enter the "ask the lab" retrieval
+corpus — the vortex-shedding-onset-by-geometry source and the mesh-quality
+acceptance-gate source. A regime or mesh-gate question is answered without
+them, and nothing says so.
+
+**The downstream lever.** `docs/physics_rules.yaml:50` reads:
+
+```yaml
+  max_non_orthogonality_deg: 70.0     # hard gate; checkMesh acceptance threshold
+```
+
+Its **only** reader in any `.py` file, in both frames, is
+`ask_the_lab.py:273` — inside the dead block. **Zero live readers.**
+
+**Stated at its real strength, because the tempting overstatement is wrong.**
+The mesh gate is *not* unenforced. It is enforced from a hardcoded constant:
+`sdk/scripts/model_form_batch.py:88` `MAX_NON_ORTHO = 70.0`, applied at `:636`
+and `:664` (*"70 deg hard gate"*), and `MAX_NON_ORTHOGONALITY` in
+`geometry_study`. **The YAML value and the code constant agree at 70.0 today,
+so nothing is currently mis-gated.** The defect is that a key labelled *"hard
+gate"* in a governed rules file is a knob wired to nothing: edit it to 60 and
+no gate moves, and the two can diverge silently forever. Four further
+`mesh_quality` keys (`:51`, `:53`, `:54`, `:55`, `:56`) have zero readers of
+any kind — partly self-declared by the file's own comment at `:48-49` that they
+*"await enforcement wiring"*.
+
+Note the file itself is live and governed — `credibility.py:317`,
+`sobol_sensitivity.py:73` and `valve_study.py:42` all load it. It is this
+section of it that nothing reaches.
+
+### 10.2 CONFIRMED DEAD — the confidence level that changes the numbers and cannot be read back
+
+The same shape, on published numbers.
+
+`docs/physics_rules.yaml:99` `confidence_level: 0.95` is operator-settable and
+**live**: `sobol_sensitivity.py:87` reads it, `:285` passes it as `ci_level`,
+and `sensitivity.py:231` computes `tail = (1.0 - ci_level) / 2.0`. It really
+does move the percentile bootstrap interval.
+
+`SobolIndices.ci_level` (`sensitivity.py:87`, set at `:247`) is the only
+artifact that records which level ran — and it has **zero readers**. Every
+published label is hardcoded:
+
+| surface | text |
+|---|---|
+| `sobol_sensitivity.py:95-96` | `_INDEX_HEADERS = (… "Interval (95%)", … "Interval (95%)")` |
+| `:203` | `"Gaussian, the convention this act's 95% interval quotes"` |
+| `:625` | `"confidence": "95%"` |
+| `:661` | `f"… (95%), base …"` |
+| `:695` | `"Each index carries a 95% percentile bootstrap interval…"` |
+
+**Set `confidence_level: 0.90` and every Sobol interval narrows while every
+surface still reads 95%, and the one field that could catch it is never read.**
+The config is 0.95 today, so no published number is currently mislabelled —
+which is exactly the same latent shape as §10.1: the knob is wired to nothing
+and its value happens to agree.
+
+### 10.3 CONFIRMED DEAD — five verification acts encode a judgement into a parameter that cannot act
+
+`lab.trust(…, tight_threshold: float = 0.02, …)` at
+`sdk/chief_engineer/lab.py:205`. Read in full: the body branches only on
+`converged`, `solver_backed`, `in_validated_regime`, `calibrated` and
+`relative_error`. **`tight_threshold` is never referenced.**
+
+Five workflows pass distinct, physically-chosen values:
+
+| call site | value |
+|---|---|
+| `cylinder_vortex_shedding.py:688` | 0.007 |
+| `hypersonic_cylinder.py:354` | 0.007 |
+| `diamond_airfoil.py:283` | 0.02 |
+| `supersonic_wedge.py:348` | 0.02 |
+| `supersonic_cone.py:315` | 0.03 |
+
+**No chip is wrong.** The comment at `:224-225` explains why the parameter went
+inert — *"VALIDATED is earned only against a published experiment — that path
+is `validate_against_reference()`"* — and every branch returns
+`SOLVER_BACKED` regardless. So no verdict changes. What is defective is that a
+tightness criterion was left accepting per-case physical judgements it cannot
+act on, in five acts that emit a verdict chip and a deviation table. A reader of
+`cylinder_vortex_shedding.py:688` reasonably believes 0.007 does something.
+
+### 10.4 Ruled out — recorded because a false-positive list is worth as much as a dead list
+
+- **`CERTONOMOUS_REFINEMENT`** flagged set-never-read. **Wrong**: read via
+  constant indirection at `geometry_study.py:1236`, `os.environ.get(
+  REFINEMENT_ENV, "1")`. Any env census keyed on quoted literals misses this
+  whole class.
+- **`CERTONOMOUS_OUTPUT`** flagged set-never-read; read at `server.py:43`
+  through a line-wrapped `os.environ.get(` whose name sits on the next line.
+- **`ComputeAudit.cores_reserved`** and three siblings flagged zero-read;
+  `as_dict()` at `:62-63` iterates `self.__dataclass_fields__`, so they reach
+  the serialised record. Dynamic schema iteration.
+- **`evaluate(…, analyses)`** on the leaf adapters — interface conformance, not
+  dead: `adapters.py:148-164` routes by requested analyses.
+- **`CLOSURE_METHODS` and friends** flagged as documented-but-unreadable env
+  vars — they are **markdown filenames in capitals**. Discarded.
+- **~33 env vars read-but-never-set-in-repo** — operator escape hatches with
+  defaults, not dead levers.
+
+### 10.5 A reach finding the census produced by accident
+
+`dist/certonomous-demo/sdk/` is a **vendored duplicate** of `sdk/` carrying the
+same dead `from .compiler import load_physics_rules` at its own `:253`. It is
+invisible to `git grep -- sdk` and to any sweep scoped to `sdk/`. §10.1's
+findings therefore exist in **two** places, not one — and this is the same
+travelling-bundle surface D56 is about, reached from the opposite direction.
+
+### 10.6 What the census did not settle
+
+The **SUSPECTED** list was returned and is **not** promoted to a finding here,
+because Round 5 verified only the four above firsthand and the L-43 corollary
+says a found-dead verdict is a claim about implementation. It is carried into
+D61 as work, not as a result: `certificate.py:876` `_infer_fidelity(compute)`,
+`exec_bits.py:416` `waived_by_owner(root)`, `external_aero.py:358`
+`_fields(viscosity)`, `closure_generalization_criterion.py:258`
+`training_case_level_features(is_duct)`, `mega_batch.py:402,742`,
+`tmr_verification.py:2588`, `transonic_airfoil.py:457`, `models.py:66,68`, and
+`tmr_verification.py` `init_potential` (declared `False` at three sites, no
+call site anywhere passes `True`, so `_run_potential_init` at `:1351` is
+unreached).
+
+`morning_report.py --date` is also carried rather than filed: `:821` defines
+it, `:837` resolves it, `:744-748` passes it to six builders, and only
+`_build_spend` consumes it (`:375-378`) — a **partial**-effect flag rather than
+a dead one, which is a different class and deserves its own measurement.
