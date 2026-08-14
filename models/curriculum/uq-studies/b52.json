@@ -80,6 +80,8 @@
     "monotone": true,
     "conclusive": false,
     "method": "3-mesh study (r = 1.24), observed order p = 28.67; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
+    "asymptotic": true,
+    "richardson_extrapolated": 0.0479418271477908,
     "guards": {
       "distinct_rungs": true,
       "monotone": true,
@@ -91,7 +93,10 @@
       "order_window"
     ],
     "not_conclusive_guard": "order_window",
-    "richardson_extrapolated": 0.0479418271477908,
+    "dropped_from_fit": [
+      "cells",
+      "values"
+    ],
     "band_rel": 0.01029,
     "value_working": 0.047942443,
     "note": "fit takes the finest three (330950/441057/836136). The p=28.7 is the signature of a noise-dominated increment ratio: e21=-2.78e-4 is 15% of the measured mesh-construction noise floor (1.91e-3). conclusive false, reportable_band None. || AMENDED 2026-08-10 (chief ruling 4 on the turn audit, campaign/B52_TURN_CLAIM_AUDIT_2026-08-10.md; measurement campaign/B52_RUNG6_REPLICATE_RESULTS.md, e40eceb3). band_abs and band_rel ARE NOT AN UNCERTAINTY FOR THIS BODY AND MUST NOT BE QUOTED AS ONE. band_rel 0.01029 (+/-1.03%) is 10.85x SMALLER than the measured mesh-construction scatter of a SINGLE rung of this recipe (11.17% of value_working). reportable_band is already None and conclusive already false, which is what protects consumers; these two fields survive only as the fit's internal fallback arithmetic. A stored uncertainty an order of magnitude too small is worse than none, because everything downstream inherits false confidence. See mesh_draw_scatter.",
@@ -456,5 +461,17 @@
       "n7": 3,
       "reading": "The decisive fact, and it needs no statistics: the published -4.055e-3 turn is max(rung6) - min(rung7) of the eight draws. Re-estimated from all of them the increment is +8.2e-5 +/- 1.2e-3 -- 49x smaller, OPPOSITE IN SIGN, and smaller than the ~1.8e-4 bias from the two rungs' draws not matching resolution exactly. THE TURN IS WITHDRAWN AS A CLAIM (chief ruling 7abb0ba3)."
     }
+  },
+  "refit_in_place_2026_08_14": {
+    "compute_spent": "none",
+    "fields_added": [
+      "asymptotic",
+      "dropped_from_fit"
+    ],
+    "fields_added_note": "asymptotic: True -- the field was ABSENT, not false. eca_hoekstra_band records asymptotic as bool(shrinking and extrapolation_ok), i.e. what the two asymptotic guards said, and this ladder passes both (extrapolation_sanity True, increment_trend True) while failing order_window, which is why conclusive stays False and the band stays the clamped one. dropped_from_fit: written by uq.study_numerical and carried by the six studies written through it; this block predates that writer. The absence was the hand-typed-key defect self_audit's `studies carry what the fit records` names: the writer's key list did not learn the field when the fit did.",
+    "method": "recomputed in place on 2026-08-14, tree at ccedccdd, from this study's own levels[] (8 rungs) through the current fit chief_engineer.uq.eca_hoekstra_band at dim 3, then rebuilt through uq.study_numerical with the runner-chosen keys carried over unchanged (band_caveat, band_rel, note, value_working). Method string re-derived and asserted equal to the stored one before anything was written. No solve was run and no measured number changed.",
+    "reproduced_exactly": "every field the stored block already carried, bit for bit: observed_order 28.675, order_used 2.5, band_abs 0.000493085737441357, clamped True, conclusive False, monotone True, richardson_extrapolated 0.0479418271477908, order_window, the guard map and the method string. The two fields above are the only delta.",
+    "verdict_moved": false,
+    "supersedes_note": "the 2026-08-01 refit_in_place block on this record is left exactly as written; it is history and is not restated or amended here."
   }
 }

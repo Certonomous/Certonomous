@@ -641,6 +641,18 @@ def b52_fourth_rung() -> None:
                                 [lv["cd"] for lv in levels], dim=3)
     production = next(lv for lv in levels if lv.get("tag") == "production")
     working = production.get("cd")
+    # `band_abs` comes back whether or not the ladder earned the right to
+    # state it: on a declined ladder it is a deliberately conservative
+    # fallback and not a measured uncertainty. That is a fact about the
+    # return shape -- five acts read the number, trusted it and printed it
+    # under a "95% confidence interval" caption -- so the safe read has its
+    # own name, `uq.reportable_band`, and a caller that wants the fallback
+    # has to reach past it and say so. This call site read `band_abs` and
+    # never read the flag until 2026-08-14 (tree at ccedccdd); it now reads
+    # both and the log below says which of the two it is printing.
+    # self_audit check: `non-conclusive band readers`.
+    conclusive = bool(band.get("conclusive"))
+    reportable = uq.reportable_band(band)
     numerical = uq.study_numerical(
         band,
         band_rel=(None if not working
@@ -650,7 +662,13 @@ def b52_fourth_rung() -> None:
                 provenance=[lv.get("mission", f"{body}-{lv['tag']}")
                             for lv in levels])
     _log(f"b52 fourth rung DONE: monotone={band.get('monotone')}, "
-         f"{band['method']}, band {band['band_abs']:.4g}")
+         f"{band['method']}, band {band['band_abs']:.4g}"
+         + (f" (conclusive; reportable band {reportable:.4g})" if conclusive
+            else (f" -- NOT conclusive, failing "
+                  f"{', '.join(band.get('guards_failed') or ['(unnamed)'])}: "
+                  f"that band is the conservative fallback, not a measured "
+                  f"uncertainty, and uq.reportable_band returns "
+                  f"{reportable!r} for this ladder")))
 
 
 # --------------------------------------------------------------------------
