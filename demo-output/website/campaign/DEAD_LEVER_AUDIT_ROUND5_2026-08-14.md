@@ -346,7 +346,7 @@ docstring, `:2`; the rule map at `:123-128`), which is consistent with `:1169`
 and not with `:694`.
 
 **Not repaired here, and deliberately.** `docs/standards/MONITOR_STANDARD.md`
-is a standing record and outside this round's write scope (H6). Filed as D57.
+is a standing record and outside this round's write scope (H6). Filed as D60.
 
 ---
 
@@ -370,7 +370,23 @@ checked, because there is nothing to check *against*. The headline number
 **6** has been quoted since 2026-08-11 and one third of it is unfalsifiable.
 
 Round 5 cannot re-verify what was never written down, and says so rather than
-quietly reporting 4. Filed as part of D57.
+quietly reporting 4. Filed as part of D60.
+
+**Sharpened 2026-08-14, same round, before the finding shipped.** A closer read
+distinguishes the two, and the distinction makes this worse rather than better.
+`D3` is referenced once more, at `:226`, inside the dated amendment: *"**D1, D2
+and D3** below were therefore found independently, twice, on the same night, and
+are already actioned."* So **D3 was known, actioned, and its identity still
+never written down** — the information existed and was lost, rather than never
+having been determined. `D5` carries no such reference and is undescribed
+anywhere.
+
+**Positive control for both absences (L-84).** In the same file and by the same
+reader, `D1` occurs **7** times and `D4` **6**, each fully described, quoted and
+evidenced. The reader finds a described found-dead when one is present. The
+only other occurrences of the tokens `D3` and `D5` in that file are at `:142`,
+where they name `rotation_branch` diagnostic runs — a different numbering
+entirely, and not to be confused with them.
 
 ---
 
@@ -415,14 +431,14 @@ Applied on the record's own face, quoting rather than deleting:
    fired in any archived run and that neither index survives in the ledger.
 
 `docs/DOCKET.md` **D40** is falsified by §3 and is **not edited here** — the
-docket rule is that an agent edits only its own row. D57 carries the
+docket rule is that an agent edits only its own row. D60 carries the
 correction and names D40 explicitly, in the same shape D56 used.
 
 ---
 
 ## 9. Docket filing
 
-One row at the next free id, **D57**, covering the class: *a lever found dead
+One row at the next free id, **D60**, covering the class (D57–D59 were taken by concurrent agents while this round was being written; the row was renumbered rather than renumbering theirs — W-4, renumbering IS the defect): *a lever found dead
 is a finding with a half-life, and this lab has been filing the finding without
 filing the sweep of what leaned on it.* Four instances in one round — D40's
 remedy unexecuted for three days and pointing the wrong way, S8 left behind
