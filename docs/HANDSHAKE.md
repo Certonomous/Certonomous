@@ -108,8 +108,13 @@ the problem H2 was opened to solve, without the history surgery.
   can see **with no error raised anywhere**. The planted-file test by [SONNET]
   runs against the proposal in the quiet window.
 - **c. Root README — VERIFIED CLEAN.** Swept for stale quantitative claims against
-  L-79 and specifically against yesterday's movements (P(rank 1) now 50%, board now
-  six entries, entry NOT submitted). The README asserts none of them; its only
+  L-79 and specifically against the movements of 2026-08-11 (~~P(rank 1) now 50%~~
+  *— struck 2026-08-14 under D59: a bare figure, and in the present tense. Measured
+  at 50.2% on 2026-08-12 over a 400,000-draw case-level bootstrap, interval 0–97%
+  at 95% by double bootstrap, four of six pairwise comparisons **not statistically
+  decided**; re-verified unchanged against the live board at 2026-08-14T21:01Z,
+  `94307129`* — board carrying six entries as of the 2026-08-11T23:33Z retrieval,
+  entry NOT submitted). The README asserts none of them; its only
   numbers are a standards reference, a hash algorithm, a solver version and a port.
   Positive control stated: `grep -r "mbc_retry"` reaches tracked content and
   returns only the `.gitignore` line.
