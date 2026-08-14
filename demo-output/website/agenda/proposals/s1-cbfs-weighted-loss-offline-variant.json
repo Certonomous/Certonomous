@@ -25,5 +25,6 @@
   "claimed_at": "2026-08-08T02:30:00Z",
   "note": "Dispatched directly by the supervisor's entry-12 ruling as the follow-on to s1-cbfs-objective-repair-and-reinversion. Offline only; the continuation arm and the TV follow-up wait behind this verdict. Do not start this item elsewhere.",
   "released_at": "2026-08-08T02:55:00Z"
- }
+ },
+ "measured_core_min": 0
 }

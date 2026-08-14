@@ -25,5 +25,6 @@
   "note": "Claimed under Katie's blanket approval 2026-08-07. Order of work: restore the benchmark's CBFS inlet into the case 0/U with the diff documented; commit the re-baseline prediction BEFORE any solve; re-baseline; FD re-verification on 3 components at the repaired state; set G1/G2 fresh from the repaired baseline by dated amendment; re-run the surviving out-of-process driver at --cpus=2. Do not start this item elsewhere.",
   "released_at": "2026-08-08T02:10:00Z"
  },
- "hard_criterion": "existing-family"
+ "hard_criterion": "existing-family",
+ "measured_core_min": 424.8
 }

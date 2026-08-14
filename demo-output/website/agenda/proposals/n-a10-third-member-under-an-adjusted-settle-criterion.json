@@ -21,5 +21,6 @@
  "status": "done",
  "decision_note": "Approved under the chief's standing green light relayed 2026-08-08 with the review's wording binding; pre-registration committed before the solve per the fleet's standing rule.",
  "outcome": "Executed 2026-08-08 at 1.07 of 10 core-min, pre-registration committed ten seconds before launch (9374f807). SA reproduced the archived run to every printed digit (Cl 1.0290489902, Cd 0.016192147753) and met every clause of the adjusted criterion with 28x and 54x margins on the decision-scaled caps; all three predictions HELD. At n=3 the Cl band [1.0290490, 1.1164337] CONTAINS CFL3D's 1.0778081 -- the 0.22 percent n=2 miss was under-membership exactly as entry 11 read it, the third member entering 0.051 below the old floor. Declared branch fired: rule proposal no-containment-verdict-below-n3 filed. One wrapper defect found and fixed in the act: the runner's workflow-error conservatism briefly outranked the registered criterion; the record was corrected to the pre-registered wording with the superseded record retained, all documented in the pre-registration's outcome section.",
- "created_at": "2026-08-08T02:05:00Z"
+ "created_at": "2026-08-08T02:05:00Z",
+ "measured_core_min": 1.07
 }

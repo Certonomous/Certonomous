@@ -26,5 +26,6 @@
   "claimed_at": "2026-08-08T03:00:00Z",
   "note": "Claimed on the chief's d1b2c117 approval. Pre-registration commits before each gated step; control verdict reported before proceeding. Do not start this item elsewhere.",
   "released_at": "2026-08-08T22:40:00Z"
- }
+ },
+ "measured_core_min": 267.07
 }
