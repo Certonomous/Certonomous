@@ -149,5 +149,23 @@
       "method": "3-mesh study (r = 1.75), observed order p = 7.30; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)"
     },
     "verdict_moved": false
+  },
+  "recipe_audit": {
+    "audited_utc": "2026-08-14T23:00:00Z",
+    "basis": "audited 2026-08-14, tree at b14356b0, at NO COMPUTE: nothing was meshed, solved or refitted; every reading below comes off an archived log or dictionary. Basis: PRIMARY -- each rung's own archived log.snappyHexMesh.",
+    "cause": "sdk/workflows/geometry_study.py, refinement_rungs(), familiar=True branch, which the motorBike tutorial case takes. That branch returns coarse at feature 4 / surface (3 4) / region 2 and medium at feature 5 / surface (4 5) / region 3, against a production mesh at feature 6 / surface (5 6) / region 4. Every rung is a different near-body recipe by construction and the background blockMesh never moves, so unlike the generated bodies this ladder does not even contain a two-rung same-recipe pair. The runtime guard checks the cell budgets are DISTINCT, which they are; distinctness is not comparability.",
+    "knob_moved": "one knob, moved at every step -- the near-body refinement level family",
+    "finding": "The three stored rungs are THREE mesh recipes and NO TWO SHARE ONE. The refinementBox shell level reads 2, 3 and 4 for coarse, medium and production, from each rung's own log.snappyHexMesh line 'Refinement level N for all cells inside refinementBox' (mission-output/geometry-study/study-motorBike-coarse, -medium, and study-motorBike). The background blockMesh is IDENTICAL across all three: the level-0 entry of each log's 'Cells per refinement level' histogram reads 1280 in every one, matching the production system/blockMeshDict's hex (20 8 8) = 1280 archived at /home/ubuntu/certonomous-runs/study-motorBike-f8b4a2. So the stored observed_order of 7.298 is fitted across two changes of experiment, not one, and there is no valid extrapolation family on this record at all -- valid_family_cells below carries the single production rung because that is the only rung whose full mesh dictionary is archived, not because it is a family.",
+    "step_evidence": {
+      "coarse": "refinementBox shell level 2; background 1280",
+      "medium": "refinementBox shell level 3; background 1280",
+      "production": "refinementBox shell level 4; background 1280 (system/blockMeshDict 20 8 8, system/snappyHexMeshDict feature level 6, body level (5 6), region levels ((1E15 4)), archived at /home/ubuntu/certonomous-runs/study-motorBike-f8b4a2)"
+    },
+    "valid_family_cells": [
+      353688
+    ],
+    "valid_family_note": "ONE rung, which is not a family. No two of this body's three rungs share a refinement recipe, so unlike the generated bodies there is not even a valid PAIR here to fit on.",
+    "numerical_block_untouched": "The numerical block in this record is NOT refitted by this audit. Refitting would mean fitting on a valid family of two rungs, which is no fit at all; what a record should say when a body has no usable ladder is a decision that belongs with the open ruling w3-a-declined-ladder-still-publishes-an-envelope, not with this audit. This block records which rungs are comparable, exactly as b52.json and four sibling studies already do, and moves nothing else. No stored value changed and no verdict moved.",
+    "what_this_body_needs": "A ladder built at ONE near-body recipe, varying only the background blockMesh divisions at a constant ratio, three rungs minimum. Every rung this record holds would have to be re-run: unlike the generated bodies, none of the three can be kept as the base of a single-knob family, because no two of them share a recipe. That is a compute item and is not covered by w3-valid-family-for-ahmed-35-cube-and-sail, which names the cube and the sail and not this body."
   }
 }
