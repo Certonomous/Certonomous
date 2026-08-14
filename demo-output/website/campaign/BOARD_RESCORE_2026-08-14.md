@@ -44,8 +44,28 @@ forty-eight per-case values across the same eight case columns. The board of rec
 therefore **current as of 2026-08-14T21:01Z**, and the eight case columns remain unchanged, so
 the scores are still like-for-like against ours.
 
-No retrieval newer than 2026-08-11 existed in the tree before this one. This document is now
-the newest retrieval the lab holds.
+No retrieval newer than 2026-08-11 existed in the tree before this one. A sweep of the tree at
+`45922a65` — tracked files and gitignored ones alike, the latter with GNU `grep` at
+`/usr/bin/grep` because the `grep` on PATH is ugrep and honours `.gitignore` (L-75) — found
+**exactly two board-fetch timestamps in existence anywhere**: `2026-08-11T23:33Z` and this
+document's `2026-08-14T21:01Z`. This document is now the newest retrieval the lab holds.
+
+### 1.3 A third, independent corroboration was already in the tree and had not been connected
+
+`demo-output/website/CLOSURE_SUBMISSION_REQUIREMENTS.md` §1 records that **Katie pasted the
+challenge's live GitHub README on 2026-08-12**, by hand — *"The fleet did not fetch it; no
+network read of the upstream repo was made for this document."* That document's purpose was
+the submission procedure, but it states in passing that the page Katie pasted carried **Yang
+at 0.0580 at rank 1** on a six-row leaderboard, and it names the **upstream HEAD as
+`d572d40c`**.
+
+**The board therefore has three independent confirmations at three dates by three routes:**
+the fleet's two-route fetch of 2026-08-11T23:33Z, Katie's human paste of 2026-08-12, and the
+read-only fetch of 2026-08-14T21:01Z recorded here. They agree. The 08-12 corroboration was
+sitting in a document about submission procedure and had not been read as board evidence by
+anything that reasons about the board — which is worth noting in its own right, since it is
+the same shape as the finding `BOARD_MOVED_2026-08-11.md` §5 generalises: an artifact holding
+a fact for one purpose, unread by the purpose that needed it.
 
 ## 2. What was run, and on what
 
@@ -186,7 +206,29 @@ The machine record holds 0.056647191704213645. **0.056647** (6 dp) and **0.0566*
 board's own precision) are both faithful roundings of it and neither is wrong. What would be
 wrong is a surface that states one while a neighbouring surface states the other for the same
 quantity without saying they are the same number — the reader cannot tell a rounding from a
-correction. §7 records what the sweep found.
+correction.
+
+**Measured at `45922a65`, and the answer is that there is no convention.** Across tracked
+`.md`, `.html`, `.tex` and `.json` surfaces, excluding solver run directories and logs:
+**seventeen files carry both forms**, among them `closure.html` (0.056647 ×2, 0.0566 ×11),
+`CLOSURE_CHALLENGE_STATUS.md` (×7 / ×10), `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` (×13 / ×2),
+`ACTIVE_RESEARCH.md` (×3 / ×5), `docs/PRODUCT_LIST.md` (×5 / ×5) and this document.
+Several surfaces carry only the 4 dp form — including three that travel or are generated:
+`benchmarks.html`, `benchmarks.json` and `wall/wall.json`.
+
+**So the two roundings are not used consistently, and no surface anywhere states that they are
+the same number.** This is recorded as a finding, not repaired: both forms are faithful, no
+figure is wrong, and rewriting hundreds of instances across live surfaces during an open
+verification is precisely the kind of sweep that introduces the error it means to prevent.
+What is cheap and would settle it is one sentence, once, wherever the entry score is first
+defined, saying that 0.0566 is 0.056647191704213645 to the board's own precision.
+
+*Caveat on the measurement, so it is not over-read.* The `0.0566`-only list also contains
+files where the string is a numeric coincidence in field data rather than our entry score —
+`demo-output/plots/pressure_slices/validation/regenerated/b52_field.json`,
+`naca4412_wing_field.json` and `demo-output/website/dafoam/ladder-a/A2_shape_frames.json`.
+Those are not rank surfaces and were not counted as such. The seventeen both-forms files were
+each confirmed to be discussing the closure entry.
 
 ## 7. Reproduction and drift
 
@@ -232,6 +274,35 @@ Two things are recorded rather than fixed:
    agent on one day, not a check, and it must not be mistaken for one. **Filed as docket D57**;
    it is not fixed here because building a network-dependent check has the costs D55 already
    priced, and choosing between them is not this task's to make.
+
+### 7.2 Two further findings from the sweep, both filed rather than fixed
+
+**D58 — a board date with no retrieval behind it.**
+`demo-output/website/campaign/CLOSURE_STAGE1_AND_C2_STATUS.md:443` reads *"the live
+leaderboard **at 2026-08-05** has six rows, not four, with a new rank 1 (Yang, 0.0580) and a
+new rank 4 (Tian, Buchanan, Hickel, Dwight, 0.0641)."* **No 2026-08-05 retrieval exists
+anywhere in the tree** — §1.2's sweep found only the 08-11 and 08-14 timestamps, and the
+earliest evidence for the six-row board is the 08-11T23:33Z fetch. **The sentence is not
+falsified and is therefore NOT struck under L-76:** the board may well have had six rows on
+2026-08-05, and striking a claim that has merely lost its source would misrepresent what is
+known. What is wrong with it is its date and its tense, and the irony is exact — the paragraph
+it sits in exists to complain that C2's *"leaderboard rows are undated in the table itself"*.
+Filed as D58.
+
+**D59 — three `docs/` surfaces the cross-surface sweep never classified.**
+`docs/P33_CROSS_SURFACE_SWEEP.md` ruled `docs/PRODUCT_LIST.md` and `docs/DOCKET.md` out of
+scope **by name**, as append-only chronological logs whose historical figures are quotations
+rather than claims — a principled and defensible exclusion. `docs/HANDSHAKE.md`,
+`docs/H4_ALLOCATION_AUDIT.md` and `docs/CAPABILITY_STRATEGY.md` are named **neither as swept
+nor as excluded**, and each states the figure with no interval and no `not statistically
+decided` on the same line (measured at `45922a65`: HANDSHAKE.md L39, L42, L111, L272;
+H4_ALLOCATION_AUDIT.md L75, L349; CAPABILITY_STRATEGY.md L82, L85). **Most of those instances
+read as the same chronological-log class already excluded** — commit-subject recaps and
+descriptions of other surfaces' staleness. `docs/HANDSHAKE.md:111` is the one that does not:
+*"(P(rank 1) now 50%, board now …"* states the figure as current. **The finding filed is the
+classification gap, not a count of violations** — asserting nine breaches here would be
+claiming more than was measured, and re-drawing the line between a claim and a quotation to
+make a number come out is the failure D54 already names. Filed as D59.
 
 The V16 board-pin staleness (the guard and `sdk/tests/test_rank_claim_surfaces.py` still
 pinning the superseded four-entry `reissmann 1, wu 2, liu 3, montoya 4`) was observed again
