@@ -186,18 +186,36 @@ class NotPickedUpByPytest(unittest.TestCase):     # class name does not match
         self.assertEqual(1, 1)
 '''
 
-    def test_a_file_that_collects_nothing_is_named_and_the_run_is_UNKNOWN(self):
+    HELPER_WITH_NO_TESTS = '''\
+"""A helper that happens to be named test_something.py. It declares no test."""
+
+CONSTANT = 3
+'''
+
+    def test_a_file_that_declares_tests_and_contributes_none_is_FAIL(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = _repo(Path(tmp), tests="1")
             (root / "sdk" / "tests" / "test_silent.py").write_text(
                 self.COLLECTS_NOTHING)
             subprocess.run(["git", "add", "-A"], cwd=root, check=True)
             rc, out = _run(root)
-        self.assertEqual(rc, lc.EXIT[lc.UNKNOWN], out)
+        self.assertEqual(rc, lc.EXIT[lc.FAIL], out)
         self.assertIn("enumerated but not collected: sdk/tests/test_silent.py",
                       out)
         self.assertIn("test files enumerated 2", out)
         self.assertIn("test files collected  1", out)
+
+    def test_a_helper_that_declares_no_test_is_only_UNKNOWN(self):
+        """The must-not-match half: this is not a defect, and calling it one is
+        how a runner earns a permanent false alarm and gets switched off."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _repo(Path(tmp), tests="1")
+            (root / "sdk" / "tests" / "test_helpers_only.py").write_text(
+                self.HELPER_WITH_NO_TESTS)
+            subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+            rc, out = _run(root)
+        self.assertEqual(rc, lc.EXIT[lc.UNKNOWN], out)
+        self.assertIn("none of them declares a test", out)
 
     def test_without_the_plant_the_same_tree_is_PASS(self):
         with tempfile.TemporaryDirectory() as tmp:

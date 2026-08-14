@@ -700,14 +700,24 @@ def run_script(root: Path, cand: Candidate, timeout: int, *,
 _VERDICT_LINE = re.compile(
     r"^\s*(?:\[(PASS|FAIL|WARN|INFO|UNKNOWN)\]|VERDICT:\s*(\S+))\s*(.*)$")
 
+#: A bare status word at the start of a line, which is the third shape a check
+#: in this repository reports in. It matters more than it looks: the auto-stop
+#: repair of D65 sits in the registry as `PENDING`, the registry exits 0 on a
+#: declared PENDING, and a runner that printed only the exit code would show
+#: `[PASS] installed_registry.py` and hide the fact that the box is running an
+#: uninstalled power gate. A declared divergence must stay loud.
+_STATUS_WORD = re.compile(
+    r"^(PENDING|DRIFT|DANGLING|STALE|GHOST|ABSENT|RED|BLIND|WARNING)\s+\S")
+
 
 def _scrape_verdicts(out: str) -> list[str]:
     """Generic sub-verdict scrape. No per-check adapter lives in this module.
 
     `self_audit.py` prints `[FAIL] name  summary`; `withdrawal_sweep.py` and
-    `check_absolutes.py` print `VERDICT: X`. Both shapes are read the same way,
-    so a new check that prints either gets its sub-results reported for free and
-    one that prints neither loses nothing but detail.
+    `check_absolutes.py` print `VERDICT: X`; `installed_registry.py` prints
+    `PENDING  auto-stop gate ...`. All three shapes are read the same way, so a
+    new check that prints any of them gets its sub-results reported for free and
+    one that prints none loses nothing but detail.
     """
     hits: list[str] = []
     for line in out.splitlines():
@@ -715,6 +725,8 @@ def _scrape_verdicts(out: str) -> list[str]:
         if m and (m.group(1) in ("FAIL", "WARN", "UNKNOWN")
                   or (m.group(2) and m.group(2) not in ("PASS", "CLEAN",
                                                         "MATCHES"))):
+            hits.append(line.strip()[:160])
+        elif _STATUS_WORD.match(line):
             hits.append(line.strip()[:160])
     return hits[:40]
 
@@ -815,8 +827,22 @@ def run_pytest(root: Path, files: Sequence[str], timeout: int) -> tuple[Outcome,
         v = FAIL if fails else UNKNOWN
         why = f"{fails} failed, {errors} errored, out of {total}"
     elif missing:
-        v, why = UNKNOWN, (f"{len(missing)} enumerated test file(s) produced no "
-                           f"collected test")
+        # A file that DECLARES tests and contributed none is a defect in the
+        # check corpus, not an uncertainty about it -- `7bf55c90`'s shape, and
+        # D62's class. A file that declares none (a helper that happens to be
+        # named test_*) is only an uncertainty, and reading the two the same way
+        # is how a runner earns a permanent false alarm and gets switched off.
+        declaring = [f for f in missing
+                     if re.search(r"def test_|TestCase|@pytest",
+                                  (root / f).read_text(errors="replace"))]
+        if declaring:
+            v = FAIL
+            why = (f"{len(declaring)} test file(s) declare tests and "
+                   f"contributed none to this run")
+        else:
+            v = UNKNOWN
+            why = (f"{len(missing)} enumerated test file(s) produced no "
+                   f"collected test (none of them declares a test)")
     else:
         v, why = EXIT_CONTRACT.get(code, UNKNOWN), f"{total} tests, exit {code}"
         if v is PASS and code != 0:
