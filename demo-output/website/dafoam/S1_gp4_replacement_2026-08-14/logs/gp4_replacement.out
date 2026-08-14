@@ -1,0 +1,150 @@
+
+==============================================================================
+C0  POSITIVE CONTROL ON THE READER -- reproduce archived log lines entry for entry
+==============================================================================
+  reinversion eval 1    |g_total| computed 1.986435e-01  archived 1.986e-01  agree to printed precision: True
+  reinversion eval 10   |g_total| computed 1.592554e-02  archived 1.593e-02  agree to printed precision: True
+  reinversion eval 1 archived beta bmin=bmax=1.000000 in the log; penalty term at beta=1 is exactly 0.0e+00
+
+==============================================================================
+R1  REPRODUCE G-P4's THREE LEGS AND THE COSINE IDENTITY (docket D67, 2.2e-16)
+==============================================================================
+  ratio r      = 0.998441     published 0.998441
+  cosine c     = 0.999542138  published 0.999542
+  rms|beta-1|  = 0.016502     published 0.016502
+  |g_total|    = 1.450369e-05   published 1.450369e-05
+
+  IDENTITY  eps^2 = 1 + r^2 - 2*r*c, solved for c:
+    c from (r, eps) = 0.999542138470174
+    c measured      = 0.999542138470174
+    absolute agreement = 2.220e-16   (D67 reports 2.2e-16)
+
+  FORCED-BY-CONVERGENCE BOUND  c >= 1 - eps^2/(2r) with eps = 3.027748e-02
+    bound  = 0.999540922   published 0.999540922
+    actual = 0.999542138
+
+==============================================================================
+R2  THE HEADLINE -- treatment W reports the PRIOR as the posterior
+==============================================================================
+
+  W  prior reported as posterior
+    legs      ratio 0.998441  cos 0.999542  rms 0.016502
+    rel error 2.0e-07      1.4e-07     1.2e-05
+    G-P4 (restored, ratio-and-cosine, 1%): PASS
+
+  M  plateau beta paired with the eval-1 gradient
+    legs      ratio 0.501974  cos 0.808025  rms 0.016502
+    rel error 5.0e-01      1.9e-01     1.2e-05
+    G-P4 (restored, ratio-and-cosine, 1%): FAIL
+
+==============================================================================
+R3  THE SECANT CURVATURE THAT SUPPLIES THE REPLACEMENT BAR (docket D70)
+==============================================================================
+  ||s||           = 4.312344e+00    D70 4.312344e+00
+  s'y_QoI         = +7.313133e-01   D70 +7.313133e-01   <- MEASUREMENT
+  s'y_penalty     = +3.719261e-04   D70 +3.719261e-04   <- IDENTITY 2*lam*||s||^2, never gated on
+  R_qoi = s'y/||s||^2 = +3.932573e-02   D70 +3.932573e-02
+  rho (Gaussian prior metric, 2*lam_L2) = 1.9663e+03   D70 1.966e+03
+  lognormal prior metric at beta == 1 (prior mode)         : s'H_prior s = +3.025061e-04   rho_LN = +2.4175e+03
+  lognormal prior metric at the reinversion eval-10 field  : s'H_prior s = +5.370458e-03   rho_LN = +1.3617e+02
+  lognormal prior metric at the reinversion final field    : s'H_prior s = +1.186466e-02   rho_LN = +6.1638e+01
+
+  A Rayleigh quotient LOWER-BOUNDS the top generalised eigenvalue, so a correct
+  rank-6 posterior on this problem returns lambda_1 at or above the numbers
+  above. They span 6.2e+01 to 2.4e+03 -- a 40x spread, driven entirely by the
+  223 cells pinned at beta = 0.2, where the lognormal prior curvature
+  2*lam*(1-log b)/b^2 is 65x its value at b = 1. THAT SPREAD IS WHY THE
+  REPLACEMENT DOES NOT BAR ON THIS NUMBER DIRECTLY: a bar at 2.4e+03 would be
+  a bar on which state the MAP lands in. It is used as the independent
+  EXPECTATION behind a bar of 10, declared in R4.
+
+  NEGATIVE CONTROL (mismatched pair, no shared state):
+    s(reinv)'y(inv)/||s_reinv||^2 = +1.2887e-04  against the matched +3.9326e-02
+    s(inv)'y(reinv)/||s_inv||^2   = +1.7640e-02  against the matched +1.2172e-04
+
+  NULL N3 sign-randomised y_QoI, 200 draws: mean -7.4891e-03 sd 1.1226e-01  ->  measured is 6.6 sd from the null
+
+==============================================================================
+R4  THE REPLACEMENT GATE, EVALUATED -- and the negative controls firing
+==============================================================================
+  stand-in rank-6 posterior: total prior variance 11812.5, variance removed 3.2757 = 0.0277% of it; largest per-cell sd reduction 0.0143%
+  THAT is what rank 6 in 21,000 dimensions looks like, and section 5 says so.
+
+  BAR_A lambda_1 >= 10
+  BAR_B  s'Hs in [2.4377e-01, 2.1939e+00]  around the archived 7.313133e-01
+  BAR_C  0 < total variance removed <= s^2 * sum_i lam_i/(1+lam_i), the rank bound
+
+  treatment                                                  OLD   NEW A/B/C   lambda_1     s'Hs        var removed/entitled
+  W  prior reported as posterior                            PASS  FAIL  F/F/F   0.000e+00  +3.719e-04  0 / 0
+  M  plateau beta paired with the eval-1 gradient           FAIL  FAIL  F/F/F   0.000e+00  +3.719e-04  0 / 0
+  Z  spectrum taken from the prior alone (eigenvalues == 1)  PASS  FAIL  F/F/F   1.000e+00  +3.719e-04  5906 / 1.688
+  H  correct spectrum, Hessian-vector product in the wrong frame  PASS  FAIL  P/F/P   2.418e+03  +2.397e-03  3.276 / 3.276
+  Q  real spectrum, credible intervals asserted not derived  PASS  FAIL  P/P/F   2.418e+03  +7.313e-01  1.181e+04 / 3.276
+  R  a genuine rank-6 low-rank Laplace posterior (stand-in)  PASS  PASS  P/P/P   2.418e+03  +1.024e+00  3.276 / 3.276
+
+  READ THIS AS THE 2x2 IT IS. The OLD gate cannot tell W, Z, Q or R apart:
+  it returns PASS for all four, because none of its three legs is a function
+  of any covariance, credible interval or Hessian. The NEW gate returns PASS
+  for R alone. W fails all three: no curvature computed, so leg A gets 0, leg B
+  gets the prior identity 2*lam*||s||^2 back, and leg C sees no interval move.
+  Z fails all three too, and differently: it read its spectrum off the prior,
+  so lambda_1 is identically 1 and its intervals remove 5,906 units of variance
+  against an entitlement of 1.69. H fails leg B alone, which is the point of B --
+  the science is right and the instrument is in the wrong frame; Q fails leg C
+  alone: it removes 11,808 units of variance where a rank-6 posterior with its
+  own reported spectrum is entitled to remove 3.37, a factor of 3,500.
+
+  M is the mismatched-evaluation error that produced the 1.684 confusion. It
+  is the one treatment the OLD legs DO catch, which is why they are retained
+  under their own name as G-P4a, the gradient reproduction control, rather
+  than deleted. G-P4a FAILS M at ratio 0.501974 against 0.998441.
+
+==============================================================================
+R5  IDENTITY TEST APPLIED TO THE REPLACEMENT ITSELF (the two W-2 questions)
+==============================================================================
+  Q1  WHAT RESULT WOULD MAKE THIS GATE FAIL?
+      Leg A: lambda_1 < 10 at the lognormal MAP, i.e. the data does not beat
+        the prior by 10x in even its single best direction. Reachable: it is
+        the neighbourhood of falsifier F2, and it is what an ill-posed inverse
+        problem with a 21,000-dimensional parameter and 6 informed directions
+        may genuinely look like once the prior is widened from sigma 0.043.
+      Leg B: the first Hessian-vector product returning s'Hs outside
+        [2.438e-01, 2.194e+00]. Reachable: the finite-difference
+        step, the sign convention, and the design-variable ordering are each
+        capable of moving it, and R3's cross-pair control moves it by two
+        orders of magnitude, far outside the band.
+      Leg C: intervals that do not move, or that remove more variance in
+        total than the reported rank and spectrum entitle them to. Both
+        exhibited above, by W and Z on the lower side and by Q on the upper.
+
+  Q2  COULD A WRONG TREATMENT STILL PASS?
+      YES, and the holes are named rather than papered over.
+      (i) A treatment whose lambda_1 is right and whose EIGENVECTORS are
+          wrong passes all three legs. Leg C bounds the magnitude of the
+          interval tightening, not its location. Closing that needs a second
+          external referent on a direction, which this stage does not have.
+      (ii) A treatment that reports the archived secant value back instead of
+          computing an Hv passes leg B. Mitigation, pre-registered: the run
+          must ALSO report the raw Hv vector, its norm, the finite-difference
+          step used, and the symmetry check v1'Hv2 against v2'Hv1 that section
+          5 already requires, with v2 drawn from numpy default_rng(20260814),
+          a direction whose curvature is on no disk in this lab.
+      (iii) The MAP arm itself is not graded by this gate at all. G-P1, G-P2
+          and F3 grade it. This gate grades the posterior only, which is what
+          the strategy PROOF clause asks for and what G-P4 never did.
+
+  Q3  IS ANY LEG DERIVABLE BY CONSTRUCTION FROM ITS OWN INPUTS?  (rule W-2)
+      Leg A: no. lambda_1 needs Hessian-vector products, which need adjoint
+        solves. No closed form in (beta, lambda) supplies one.
+      Leg B: no, in BOTH directions. The reference value s'y_QoI needs
+        grad_eval010 from a run this item does not perform; the reported
+        value needs an adjoint solve this item does perform. Two independent
+        computations of the same scalar.
+      Leg C: PARTIALLY, and it is scored accordingly. The entitlement ceiling
+        s^2*sum_i lam_i/(1+lam_i) IS derivable from the spectrum, so the UPPER side of
+        leg C is a consistency check on the treatment's own arithmetic and
+        adds no information about nature. The LOWER side is not derivable and
+        is what fails W. Stated here so nobody later reads leg C as evidence.
+      The quantity in this whole analysis that IS a pure identity --
+        s'y_penalty = 2*lam_L2*||s||^2, printed in R3 -- is reported and is
+        gated on nowhere, which is what rule W-2 prescribes.
