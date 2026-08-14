@@ -145,9 +145,22 @@ decline-gate was trained and checked on non-test cases only, then applied once �
 the correction on exactly those two cases. In round 5 the trained duct correction was replaced outright
 by the untrained QCR2000 constitutive term — Spalart (2000), run at its published <code>Ccr1 = 0.3</code>
 and overridden nowhere — under a rule frozen before any solve. Two caveats travel with
-the rank: the 0.0029 margin over the published leader carries a truth-free seed-uncertainty bound of
-comparable size (0.0024) on the three trained predictions, and the rank is local — the steward's own
-scoring, if the entry is ever submitted, is the number that counts.</div>
+the rank. <b>First, the seed uncertainty is larger than the margin, not comparable to it.</b> Against Yang,
+who leads the six-entry board retrieved 2026-08-11T23:33Z and re-verified unchanged by read-only fetch
+2026-08-14T21:01Z, the margin is <b>0.0014</b> while the truth-free seed-uncertainty bound on the three
+trained predictions is <b>0.0024</b> — <b>1.8&times; the margin</b>. Loaded adversely that bound puts our
+overall at 0.059047 against Yang's 0.058013, so <b>its adverse end loses the point lead outright</b>: the
+lead ahead of Yang is not distinguishable from single-seed noise. Second, the rank is local — the steward's
+own scoring, if the entry is ever submitted, is the number that counts.
+<br><br><s>the 0.0029 margin over the published leader carries a truth-free seed-uncertainty bound of
+comparable size (0.0024)</s> — <b>struck 2026-08-14.</b> 0.0029 was the margin over Reissmann on the
+<b>four</b>-entry board frozen at benchmark commit <code>deb91557</code> (2026-05-04), where 0.0024 is
+0.83&times; it and &ldquo;comparable&rdquo; was fair. Against the leader of the live six-entry board the
+same bound is 1.8&times; the margin. <b>This page was giving two answers at once</b> — §1 above already
+said &ldquo;our margin over Yang more than halved, 0.0029 &rarr; 0.0014&rdquo;, while this sentence still
+called 0.0024 comparable to a margin it no longer is comparable to. Both halves now name their board and
+the date it was retrieved; the figures are regenerated from
+<code>campaign/BOARD_RESCORE_2026-08-14.md</code> §3 rather than retyped.</div>
 
 <!-- ===================== 2 ===================== -->
 <h2>2 · Gradient verification — discrete adjoint against finite difference</h2>

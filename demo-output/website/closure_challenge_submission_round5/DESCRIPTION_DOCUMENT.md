@@ -51,9 +51,23 @@ point.
 **The duct part.** `kOmegaSSTQCR` with `Ccr1 = 0.3` — Spalart (2000)'s published
 constant, **nothing fitted to anything** — solved forward to convergence on
 `residualControl`. It has no training range, which is exactly why it was chosen
-(see disclosure 3b). The rank-2 entry, Wu & Zhang's SST-QCRC, carries the same
-term; our three duct scores land within 0.0004 of theirs on all three ducts,
-from independent solves. **The duct signal is the QCR term, not us.**
+(see disclosure 3b). Wu & Zhang's SST-QCRC is **rank 3** on the six-entry board
+retrieved 2026-08-11T23:33Z and re-verified unchanged by read-only fetch at
+2026-08-14T21:01Z (~~Wu & Zhang, the **rank-2** entry~~ — struck 2026-08-14, see
+the note below). It carries the same term; our three duct scores land within
+0.0004 of theirs on all three ducts, from independent solves. **The duct signal
+is the QCR term, not us.**
+
+> **Struck 2026-08-14 — and this is the SECOND repair of this one sentence,
+> which is the finding worth more than the fix.** "rank-2" was true of the
+> **four**-entry board frozen at benchmark commit `deb91557` (2026-05-04), and
+> this sentence was repaired to that board on 2026-08-11. The live board gained
+> two entrants at **2026-08-11T23:33Z that same night**, Wu & Zhang moved from 2
+> to 3, and the repaired sentence was false again within hours of its repair.
+> **An ordinal is only ever true of a named board at a named date**, so both now
+> sit on the sentence's face. Wu & Zhang's placement is **regenerable and should
+> not be retyped**: it is parsed from `campaign/BOARD_MOVED_2026-08-11.md` and
+> re-verified by read-only fetch in `campaign/BOARD_RESCORE_2026-08-14.md` §1.2.
 
 ## 3. Disclosures
 
@@ -206,14 +220,86 @@ continuity by construction": the three submitted ducts measure 8.5×10⁻⁴
 (`AR_1_Ret_360`), 5.3×10⁻⁴ (`AR_3_Ret_360`) and 5.4×10⁻⁴ (`AR_14_Ret_180`), and
 none of those is machine zero.**
 
-### 8. One-seed training uncertainty, and it is comparable to the whole margin
+### 8. One-seed training uncertainty — ~~and it is comparable to the whole margin~~ **and against the current leader it EXCEEDS the whole margin, which reverses what this section concluded**
+
+*(Section rewritten 2026-08-14, heading included. The superseded text is struck
+and kept in the box at the end. It is kept because the numbers are not the only
+thing that changed: **the conclusion changed direction**, and a reader is
+entitled to see that this lab published the other one first.)*
 
 The trained model behind `alpha_15_13929_4048`, `alpha_15_13929_2024` and
 `NASA_2DWMH` was fitted at a single seed. The truth-free bound on the overall is
-**0.002419**. Our margin over Reissmann, Fang & Sandberg — rank 1 on the
-published board — is **0.0028863**. **The seed bound
-covers 84% of the margin.** The three duct predictions carry zero seed variance,
-since nothing in them was trained.
+**0.002419** — `closure_challenge_seed_sensitivity.json` →
+`overall_equivalent_S_bound`, which the bootstrap loads at the rounded
+**0.0024**. **The three duct predictions carry zero seed variance,** since
+nothing in them was trained, so everything below is confined to those three
+trained cases.
+
+**Against the entry that actually holds first place, the bound is larger than
+the margin it would have to fit inside.** On the **six-entry** Closure Challenge
+leaderboard **retrieved 2026-08-11T23:33Z and re-verified unchanged by read-only
+fetch at 2026-08-14T21:01Z**, first place is held by **Yang, at 0.058013**. Our
+locally scored 0.056647 sits **0.001365** below that. The seed bound is
+therefore **177% of the margin** (0.002419 / 0.001365 = 1.77; at the rounded
+0.0024 the bootstrap actually loads, 1.76). It does not cover 84% of the margin.
+**It is nearly twice the margin.**
+
+**What that costs, stated as the rank claim it is rather than as a caveat.**
+Loaded adversely onto the three seed-dependent cases, our overall becomes
+**0.059047** — *above* Yang's 0.058013. **The adverse end of a seed draw we did
+not control loses the point lead outright.** The seed uncertainty does not sit
+inside the margin; it **spans the boundary between the top two positions on the
+board**. On this evidence **the lead ahead of Yang is not distinguishable from
+the noise of the single seed**, and the old conclusion — a bound covering most of a margin,
+i.e. a qualification on a standing that survives it — **does not survive. It is
+not restated here in weaker words, because there is no weaker form of it that
+the evidence supports.**
+
+**Nothing above is reconciled after the fact; every other measure the lab holds
+already said this.** P(rank 1) = **50.2%**, which eight cases pin no tighter than
+**0–97% at 95%** (double bootstrap, 2,000 × 4,000). Against Yang the paired
+*t* = **−0.189**, the per-case dispersion is **fifteen times** the margin, and
+four of the eight cases go to Yang. The lead is **not statistically decided**
+against Yang, Reissmann/Fang & Sandberg, Wu & Zhang, or
+Tian/Buchanan/Hickel/Dwight; it **is** decided against Liu/Wang/Zhao/Xiao
+(P(we lead) 98.7%) and Montoya/Oulghelou/Cinnella (99.8%). Loading this same
+seed bound favourably instead gives P(rank 1) **65.4%** and adversely **34.2%**
+— **a seed we did not control moves the headline figure by thirty-one points.**
+
+**The frame, on the face of the claim, because a figure without it is what broke
+this section.** 0.056647 is a **local** scoring computed at the **frozen**
+benchmark commit `deb91557` (2026-05-04), which **scores but does not rank**. It
+is the lowest overall figure on the six-entry board named above, and it is
+**not an official placement**; nothing has been submitted. The board figures and
+every margin against them are **regenerable rather than typed** — recomputed by
+`sdk/scripts/probability_of_rank.py` from the recorded board and from
+`closure_challenge_round5_qcr.json`, and reported in
+`campaign/BOARD_RESCORE_2026-08-14.md` §3. Read them from there rather than
+quoting these digits onward; a hardcoded ordinal is precisely what falsified the
+sentence below.
+
+> **SUPERSEDED — struck 2026-08-14. The board moved at 2026-08-11T23:33Z and
+> this correction, which the lab made the same night, never travelled here.**
+>
+> ~~Our margin over Reissmann, Fang & Sandberg — rank 1 on the published board —
+> is **0.0028863**. **The seed bound covers 84% of the margin.**~~
+>
+> **Two things were wrong with it, and the second is the serious one.**
+> **(1)** **Reissmann, Fang & Sandberg are rank 2**, not rank 1. They were rank 1
+> of the four-entry board frozen at `deb91557` (2026-05-04); Yang entered above
+> them on 2026-08-11.
+> **(2)** **The arithmetic that survived the name change inverts the argument.**
+> 0.002419 / 0.0028863 = 0.838 was arithmetically correct against Reissmann and
+> is not in dispute as arithmetic. Against Yang the same bound gives
+> 0.002419 / 0.001365 = **1.77**. A bound covering 84% of a margin *qualifies* a
+> lead; **a bound at 177% of a margin means there is no lead left to qualify.**
+> Swapping the name and the number alone would have carried the old conclusion
+> across a reversal in its own direction.
+>
+> The lab had already established the reversal elsewhere and it simply did not
+> reach this document: `campaign/BOARD_MOVED_2026-08-11.md` §3, and
+> `CLOSURE_FAMILY_SUPERVISION_GUIDELINES.md` — *"the bound is **1.8×** the
+> 0.001365 margin, where it was 0.83× the 0.0029 one."*
 
 ### 9. Scoring-call ledger, correctly framed
 
