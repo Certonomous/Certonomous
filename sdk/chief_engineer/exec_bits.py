@@ -107,6 +107,9 @@ WAIVED_NO_EXEC_BIT = (
     "demo-output/website/campaign/F5c_runs/run_step.py",
     "demo-output/website/campaign/F5c_runs/summarise.py",
     "demo-output/website/campaign/F7_runs/extract_front.py",
+    # imported as a module by sdk/tests/test_f7a_contract.py (`import
+    # f7a_contract`), never invoked by bare path -- waiver, not a bit.
+    "demo-output/website/campaign/F7_runs/f7a_contract.py",
     "demo-output/website/campaign/F7_runs/front_metrics.py",
     "demo-output/website/campaign/F7_runs/gate_compare.py",
     "demo-output/website/campaign/F7_runs/grade_f7a.py",
@@ -302,6 +305,9 @@ WAIVED_NO_EXEC_BIT = (
     "scripts/memwatch.py",
     "scripts/morning_report.py",
     "scripts/package_caches.sh",
+    # run as `python3 scripts/phase2_move_map.py` -- its own proposal document
+    # and the map header name it that way, and no bare-path call site exists.
+    "scripts/phase2_move_map.py",
     "scripts/self_audit.py",
     "scripts/session_keepalive.sh",
     "scripts/ugrid_to_foam.py",
