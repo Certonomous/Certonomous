@@ -750,7 +750,8 @@ def purge_pycache(root: Path) -> int:
     return n
 
 
-def run_pytest(root: Path, files: Sequence[str], timeout: int) -> tuple[Outcome, dict]:
+def run_pytest(root: Path, files: Sequence[str], timeout: int,
+               target: Sequence[str] | None = None) -> tuple[Outcome, dict]:
     """One invocation over the whole directory; per-file verdicts from junit XML.
 
     The suite is run over the DIRECTORY, not over the enumerated file list, and
@@ -760,7 +761,7 @@ def run_pytest(root: Path, files: Sequence[str], timeout: int) -> tuple[Outcome,
     """
     purged = purge_pycache(root)
     xml = Path(tempfile.mkstemp(prefix="lab_check_junit_", suffix=".xml")[1])
-    argv = [sys.executable, "-m", "pytest", "sdk/tests", "-q",
+    argv = [sys.executable, "-m", "pytest", *(target or ["sdk/tests"]), "-q",
             "-p", "no:cacheprovider", f"--junitxml={xml}"]
     t0, c0 = time.monotonic(), _cpu_children()
     try:
@@ -1044,8 +1045,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             outcomes.append(run_script(run_root, c, args.timeout,
                                        exclusive=(args.tree == "snapshot")))
         if tests and not args.no_tests:
+            # Without a filter the suite is run over the DIRECTORY and then
+            # diffed against the enumeration -- that diff is the point. With a
+            # filter it is run over the named files, because running the whole
+            # directory under a filter would report a coverage the caller did
+            # not ask for and did not get.
             o, suite_frame = run_pytest(
-                run_root, [c.path for c in tests], args.suite_timeout)
+                run_root, [c.path for c in tests], args.suite_timeout,
+                target=[c.path for c in tests] if args.only else None)
             outcomes.append(o)
         elif tests and args.no_tests:
             lines.append(f"NOTE: --no-tests, so {len(tests)} test file(s) were "

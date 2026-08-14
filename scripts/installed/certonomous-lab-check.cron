@@ -72,7 +72,11 @@
 # honours .gitignore and sees about 23% of this tree) and `find` to `bfs`
 # (which rejects GNU expressions). Cron gets the real GNU tools. The runner
 # shells out to neither -- it enumerates with `git ls-files` and `os.walk` --
-# so the two environments agree, and that was checked rather than assumed.
+# so the two environments agree, and that was checked rather than assumed:
+# `env -i HOME=/home/ubuntu PATH=<the PATH above> /usr/bin/python3
+# scripts/lab_check.py ...` was run on 2026-08-14 and produced the same verdict
+# as the interactive shell, with `pytest 9.1.1` importable under that
+# interpreter. HOME matters and cron sets it: pytest lives in ~/.local here.
 #
 # THE LOG IS THE POINT. A checker whose output nobody reads is the 2026-08-10
 # bundle failure again: the check ran, named the defect by name, and its output
