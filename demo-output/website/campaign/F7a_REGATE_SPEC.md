@@ -528,3 +528,116 @@ against the entire R1 campaign's 387.4.
   audit's verbatim re-reading, not from recall.
 - Martin & Moyce (1952). **Not open access; never read by this lab.** Present in
   this spec only through the digitisation above.
+
+---
+
+## 6. Amendment, 2026-08-14 — the contract was executed, and what that struck
+
+**Landed at `86704ddf`.** §2 was not changed: its constants were transcribed
+into `F7_runs/f7a_contract.py` verbatim, and `sdk/tests/test_f7a_contract.py`
+re-parses them out of §2's own prose on every run, so the two cannot diverge
+without a test failing. 42 tests; against the tree before that commit, 0
+passed. §2.6 was not invoked and no threshold, station set, axis or mesh was
+changed.
+
+The reason for the amendment was that §2 had described itself as normative
+while living only in prose. `front_metrics.py`, which §3 named as its
+extractor, landed at `4aad8298`, twelve days before the spec at `1393b8b4`,
+and implemented none of §2's assertions, guards, station set, tolerance or
+verdict. Executing the prose found five divergences and one defect in §2
+itself. The commit message at `86704ddf` records them; the two that move
+recorded conclusions are struck below.
+
+### 6.1 STRUCK, 2026-08-14 — "the deviation was roughly halved, +13.6% → +8.2%"
+
+Carried by six surfaces (`docs/MEMORY_ARCHITECTURE.md` D-12 lists them). The
+sentence is **struck as a comparison, and kept as two separate readings**,
+per L-76.
+
+It compared readings taken under **two different measurement definitions** and
+on **two different meshes**, and attributed the movement to neither. The
++13.6% / 21.3% was measured by an α = 0.5 line probe on one cell row
+(`gate_compare.py` via `extract_front.py`); §2 grades a depth integral over
+the whole column. Holding the case fixed and changing only the definition was
+measured at `86704ddf` and moves the six-station mean by **+12.7% → +13.1%**,
+under half a point. The move to +8.25% was therefore **attributable to
+refinement, not to the change of metric** — which is the direction that
+matters, since a metric change that flattered the result would be the one
+repair §5's sources say this lab must never make.
+
+Stronger, and the reason this is a strike rather than a footnote: the case the
++13.6% / 21.3% was measured on — `damBreak_MM_a2p25in_medium_closedbox` —
+**cannot carry a verdict under §2 at all.** Its write cadence was ΔT = 0.655
+against §2.3.4's cap of 0.35, so its graded stations were never bracketed the
+way §2.4 requires, and its mesh was a/20 against §2.5's a/128 verdict floor.
+The published figure was not a stricter or looser reading of the current gate;
+it was a reading of a case the current gate does not admit. **Prior gate
+verdicts are not comparable to §3's, and no surface should present them as a
+trend.**
+
+### 6.2 STRUCK, 2026-08-14 — `res32y256_base` at "+10.8% mean, with an unexplained early-time outlier of +18.1%"
+
+Recorded by R1 §6 and carried into §1.4 of this spec and
+`F7_marine_free_surface.md`. **Struck and kept.** Under §2.2's mandatory
+threshold sweep the T = 3.90 station is not an outlier awaiting a physical
+explanation: the metric's own spread there was measured at **14.97% of Z**,
+fifteen times the 1.0% UNGRADEABLE trigger, because at h\* = 0.04a the
+crossing landed on a different feature (Z = 6.04 against Z = 7.07 at the other
+three thresholds). The T = 4.49 station exceeded the trigger too, at 4.08%.
+**The finest tracked mesh yields no verdict**, and its +10.8% mean was unframed.
+
+### 6.3 Struck, minor — §3's own table at T = 9.53
+
+§3 reported that station at +12.20%, labelled *reported, not graded*. §2.2's
+wall clause disqualifies it outright: the front sat at Z = 14.59, past the
+Z ≥ 14.5 trigger. No verdict depended on it and none moves. Corrected in the
+contract's output rather than in §3's table, which records what was published.
+
+### 6.4 A defect in §2.1, recorded and not repaired here
+
+§2.1 pinned the column rounding at **8 decimal places** "rather than left to
+the implementer". Executed, 8 dp does not close two tracked cases: `res8_base`
+(211 apparent columns against 120 physical) and
+`damBreak_MM_a2p25in_medium_closedbox` (329 × 72 against 300 × 40, its `C`
+field having been written at 6 significant figures rather than the R1 ladder's
+8). On those the contract raised rather than integrating over columns that do
+not exist, which is the correct behaviour of a fail-loud instrument and is how
+the defect was found.
+
+**6 dp closed every tracked case.** Re-grading the whole ladder at 6 dp against
+8 dp moved **no verdict and no number** — it only made `res8_base` and the
+original gate case readable. Re-pinning is therefore a **v1.1 under §2.6**,
+recorded here with its reason and its full re-grade, and **not taken by this
+amendment**: the spec's owner is the spec, and a re-pin that changes nothing
+is not urgent enough to justify an unauthorised edit to a frozen normative
+clause. Docket **G1c** carries it.
+
+### 6.5 The re-gate, taken under the executable contract
+
+Every tracked case, zero compute, tracked fields only, at `86704ddf`:
+
+| case | dx | dy | 6-station mean | 6-station max\|d\| | verdict |
+|---|---|---|---|---|---|
+| `res32y128_base` | a/32 | a/128 | +8.25% | **11.03%** | **FAIL** |
+| `res64y128_base` | a/64 | a/128 | +9.26% | **12.23%** | **FAIL** |
+| `res32y128_slip` | a/32 | a/128 | +13.65% | **19.12%** | **FAIL** |
+| `res32y256_base` | a/32 | a/256 | +10.78% | 18.08% | UNGRADEABLE (§2.2 spread 14.97% of Z at T = 3.90) |
+| `res64_base` | a/64 | a/64 | +11.09% | 14.92% | UNGRADEABLE (§2.5 floor) |
+| `res32y64_base` | a/32 | a/64 | +9.75% | 13.11% | UNGRADEABLE (§2.5 floor) |
+| `res32_base` | a/32 | a/32 | +11.60% | 16.54% | UNGRADEABLE (§2.5 floor) |
+| `res20_base` | a/20 | a/20 | +12.96% | 19.56% | UNGRADEABLE (§2.5 floor) |
+| `res16_base` | a/16 | a/16 | +13.46% | 20.62% | UNGRADEABLE (§2.5 floor) |
+| `res16_papermodel` | a/16 | a/16 | +20.17% | 29.41% | UNGRADEABLE (§2.5 floor) |
+| `res16_slip` / `_sigma0` / `_calpha0` / `_alphaco` | a/16 | a/16 | +15.56 / +16.57 / +16.79 / +15.06% | 23.03 / 25.36 / 21.91 / 22.62% | UNGRADEABLE (§2.5 floor) |
+| `res8_base` | a/8 | a/8 | — | — | §2.1 FAIL LOUD at 8 dp; +12.42% / 18.69% at 6 dp, UNGRADEABLE (§2.5 floor) |
+| `damBreak_..._medium_closedbox` | a/20 | a/20 | +13.12% | 19.81% | §2.1 FAIL LOUD at 8 dp; UNGRADEABLE at 6 dp (§2.3.4 ΔT = 0.655, §2.5 floor) |
+
+**Three cases satisfied §2.5's verdict floor. All three FAILED**, at 11.03%,
+12.23% and 19.12% against the declared 5%. §3's verdict was re-derived
+independently and reproduced to 0.01 percentage points at every graded station.
+
+### **GATE (a): FAIL — unchanged, and now executable rather than asserted.**
+
+The §3 numbers stood. What changed was that the definition behind them stopped
+being prose that the code could quietly disagree with, and that the readings
+prior to §3 were struck as non-comparable rather than carried as a trend.
