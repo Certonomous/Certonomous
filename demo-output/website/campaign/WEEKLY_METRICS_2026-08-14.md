@@ -2,7 +2,8 @@
 
 **Reporting period:** 2026-08-07 to 2026-08-14 (7 calendar days)
 
-**Idle days in the period:** 08-09 (full), 08-13 (full), 08-12 and 08-14 (partial, reported power-off window 08-12 evening through 08-14 20:22 UTC).
+**Observed commit counts by day:** See distribution below. Days with zero commits: 08-09, 08-13. 
+**Reported power-off window:** 08-12 evening through 08-14 20:22 UTC.
 
 **Actual commit distribution by day:**
 ```
@@ -19,7 +20,7 @@ git log --since='2026-08-07' --until='2026-08-15' --pretty=format:'%cd' --date=f
 
 **Calculation conventions:** 
 - **Per calendar day** (7 days): 672 / 7 = ~~96 commits/day~~ [2026-08-14: THIS FIGURE DIVIDES BY CALENDAR DAYS, NOT ACTIVE DAYS; SEE NEXT LINE]
-- **Per active day** (5 days of measurable work: 08-07, 08-08, 08-10, 08-11, 08-14): 672 / 5 ≈ 134 commits/day
+- **Per active day** (6 days with any commits: 08-07, 08-08, 08-10, 08-11, 08-12, 08-14): 672 / 6 = ~~≈ 134 commits/day~~ [2026-08-14: MISMATCH FIXED — PREVIOUS CALCULATION INCLUDED 08-12's 24 COMMITS IN NUMERATOR BUT EXCLUDED THE DAY FROM DENOMINATOR] = **112 commits/day**
 
 **Note on 08-12 collapse:** Commit count dropped from 275 on 08-11 to 24 on 08-12, an order-of-magnitude collapse on the day of the lab's largest autonomous fleet. The cause is undetermined. To settle it would require: (1) session transcripts under `/home/ubuntu/.claude-sanaa/sessions/` for 08-12, and (2) whether the auto-stop gate fired that day. This observation is factual; no cause is asserted here.
 
@@ -92,7 +93,7 @@ python3 scripts/calibration_scorecard.py
 
 ## Summary
 
-**Activity metrics** (volume, not quality): Commits: 672 over 7 calendar days (134/day on active days). Files touched: 5,678 unique. Docket changes: 43 commits.
+**Activity metrics** (volume, not quality): Commits: 672 over 7 calendar days (112/day on days with any work: 08-07, 08-08, 08-10, 08-11, 08-12, 08-14). Files touched: 5,678 unique. Docket changes: 43 commits.
 
 **Improvement-relevant metrics** (quality or capability advancement): Test files added: 12. Calibration scorecard pairs: 11 total, 3 passing (27%), 8 undeterminable.
 
