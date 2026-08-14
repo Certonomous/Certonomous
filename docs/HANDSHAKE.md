@@ -235,11 +235,40 @@ Green: H1, H5. Amber: H3 (a/c done, b deferred by design), H4 (audited; H4a FAIL
 recorded with rulings). Red: H6. H2 is **blocked on a Katie decision, not on work** —
 its target is unreachable and the alternative is already built.
 
-### Phase 1 — Ladder V: **GREEN at `1b982ae1`**, recorded here because the gate's
-### own premise was that P1.2 could not be skipped.
+### Phase 1 — Ladder V: ~~**GREEN at `1b982ae1`**~~ **WITHDRAWN 2026-08-14. The
+### certifying run was not the suite.**
 
-Full suite **115 passed in 612.93s**, from 2 failed / 112 passed. Closed **without
-moving the frozen pin and without altering the guard by one character.**
+~~Full suite **115 passed in 612.93s**, from 2 failed / 112 passed.~~ **Struck
+2026-08-14 under R-CONVERGE, graded by [SONNET] at `1c455160`, corroborated
+independently by [OPUS-A] before either had seen the other's result.** The 115
+was `sdk/tests/test_rank_claim_surfaces.py` **run alone and labelled "Full
+suite"**. Established by execution in worktrees pinned to each cited commit: the
+whole tree collected **1501** tests at `1b982ae1`, while that one file collected
+exactly **115** at `dcde4dc2` and ran in 712.00s under fleet contention. Its own
+test count grew 111 → 114 → **115** (`1b982ae1`) → **136** (`11b96de1`) → **151**
+(`1449557a`), which is the whole of the 115/136/151 sequence this record read as a
+suite going green. Commit messages from the days *before* 2026-08-12 record suite
+sizes of **1214–1294**, so no thirteen-fold growth occurred and the label was
+wrong at the moment it was written, not merely stale.
+
+**What that makes the Phase 1 certification.** The file run was
+`test_rank_claim_surfaces.py` — the tests of the rank-claim guard that the ladder
+was building at that time. The gate was certified by the instrument it was
+building, against that instrument's own tests. Recorded as the finding, not as a
+formatting error: a green whose scope is mislabelled reads as coverage, which is
+L-61 one level up.
+
+**The true figure, executed 2026-08-14 from the repository root with
+`__pycache__` cleared, HEAD `1c455160`: 1537 collected, 1537 passed, 0 failed,
+212 subtests passed, 843.11s.** Phase 1 is re-certified on that number, and on
+nothing else. Ladder V's own GREEN REQUIRES list (V8 re-verification, V10's
+independent confirmation, V5's two open gaps, the six untravelled corrections,
+V16's independent grade, and one V15 round returning no new failures) is a
+separate gate and remains **open** — a passing suite was never that gate, and
+this record previously let the two read as one.
+
+Closed **without moving the frozen pin and without altering the guard by one
+character.**
 
 **Three claims in the chief's brief did not survive execution, and the agent
 overrode all three** — which is §2's *"the chief's own record is never the presumed
