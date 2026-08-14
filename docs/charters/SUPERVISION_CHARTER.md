@@ -137,6 +137,20 @@ either done or assigned. A rule without a sweep is a preference. Anything the sw
 unowned is assigned by the chief on the spot — the assignment is the deliverable, not a
 plan to assign.
 
+**The sweep, as of `94d6510b`, is `scripts/withdrawal_sweep.py`** — run it weekly with no
+arguments. Between this clause landing (2026-08-11) and that commit (2026-08-14) the rule
+had no executable form, which is the state this clause's own last paragraph describes. The
+script states its definitions, its frame and its reach in its own output, returns
+PASS / FAIL / **UNKNOWN** (an empty candidate set is UNKNOWN, never PASS), and plants both
+halves of L-84's control on every run. Its first executed result, at `94d6510b`, was
+**FAIL on one** — `campaign/F5bc_unsteady_statistics.md:48`, filed as docket **C4**.
+
+Two things the sweep does not do, so nobody reads a PASS as more than it is. It gates on
+this clause's own three words — *withdrawn, retracted, superseded* — and reports
+`[AMENDED` / `[CORRECTED` separately; and it can only see supersessions that carry a
+marker, so a silent edit or a deletion is invisible to it. The script's `REACH` block
+enumerates six such classes.
+
 ## 4. What the chief supervisor retains
 
 The chief supervises the supervisors. Retained, and not delegable to a family
