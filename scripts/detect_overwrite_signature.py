@@ -424,9 +424,9 @@ def main(argv=None):
     # by reading this call out of the AST, and a positional carrying
     # `nargs='*'` reads to that predicate as a script that runs with no
     # arguments. So the runner admitted this file, launched it with an empty
-    # command line, and got exit 2 with argparse's `usage:` on stderr and
-    # nothing on stdout -- which under the runner's repaired exit contract is a
-    # BLOCKING UNKNOWN, since every byte of that diagnosis is written by the
+    # command line, and got exit 2 with argparse's `usage:` on stderr and an
+    # empty stdout -- which under the runner's repaired exit contract is a
+    # BLOCKING UNKNOWN, since the whole of that diagnosis is written by the
     # graded check itself. Two such checks were enough that the runner could
     # return no non-blocking verdict on the tree whatever else passed. With
     # `nargs='+'` the runner skips this file as `requires-arguments` before
