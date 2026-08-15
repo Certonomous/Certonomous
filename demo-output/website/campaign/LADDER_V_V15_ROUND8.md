@@ -468,7 +468,13 @@ the only suite result I claim.
 
 ## 9. The count, the verdict, and the falsifier
 
-### New material findings in the declared scope: **eight**
+### New material findings in the declared scope: **fifteen**
+
+Eight from the text-and-instrument pass (§2–§6), seven from the mutation cell
+(§11). The mutation cell ran after §9 was first drafted, and this section was
+revised upward rather than left at the number that was convenient — **§11's M1
+also corrects §2 of this document**, which is recorded there rather than
+silently amended.
 
 | # | finding | new shape? |
 |---|---|---|
@@ -480,6 +486,13 @@ the only suite result I claim.
 | F6 | `REPORTING_CHARTER`'s interval-beside-the-figure rule, adopted 19:10Z, violated by the next durable write at 19:53Z; the rule ships with no instrument | **candidate** |
 | F7 | `exec_bits.py:300–301`'s *"the only repair a protocol-conforming agent can perform"* is false; disproved by my execution, by D147, and by `7370b3d3` acting against it; uncorrected at HEAD | no |
 | F8 | `test_exec_bits.py` is RED at HEAD; the now-known repair was applied to the correcting agent's own file and not to the one the test names | no (D145's shape) |
+| M1 | `check_derived_figures.main()` has **no test at all**; all three of its UNKNOWN guards survive deletion with the suite green, under a test class named `ItCannotPassFromAnEmptySet` | no — but with F1 it yields a **new claim**: no instrument here has empty-set behaviour that is both correct and verified |
+| M2 | `check_rung_attribution.integrity()` — the mode `lab_check` schedules — returns **PASS over zero identities examined** when its guard is deleted; untested | no (B1) |
+| M3 | `test_UNKNOWN_exits_non_zero…`'s entire body is three tautologies about string constants; `main()` is never called. A sibling labelled **"MUTATION PROOF"** likewise asserts only over literals defined inside itself | **yes** — a test that cannot fail for any reason connected to the module it names |
+| M4 | `check_bundle_drift` prints *"all **0** file(s) … match the shipped zip byte for byte"* as a PASS when its empty-pair guard is removed; the arm is named in its own docstring and untested | no (B1) |
+| M5 | `test_a_root_that_does_not_exist_empties_the_ledger` never checks the ledger was emptied; the assertion is satisfied by an unrelated root filter | no (the `test_an_empty_directory_is_UNKNOWN` shape, new family) |
+| M6 | The D137 banned-language guard covers `build_certificate_v2` and not `build_certificate` v1; the withdrawn footer can be reinstated there with 62 tests green | no |
+| M7 | The QCR attribution control guards the generator and not the two shipped JSON surfaces; two of five mutations survive | no |
 
 ### **VERDICT: this round is NOT belief-neutral.**
 
@@ -487,13 +500,26 @@ the only suite result I claim.
 belief-neutral rounds, and the count stands at zero. A round is neutral if it
 only executes or closes findings already believed. This one does not:
 
-- **F1 and F3 are new shapes**, and both are of the kind that make other rounds'
-  greens unreliable rather than merely adding a defect. F1 says a purpose-built
-  B1 guard can be satisfied by a population that is not the population under
-  judgement — every check in this lab that prints a frame count and a verdict is
-  now a candidate. F3 says the lab's own correction convention has an
-  *anti-disclosure* mode: strike the true half and the corpus keeps a record no
-  instrument will ever grade again.
+- **F1, F3 and M3 are new shapes**, and all three are of the kind that make other
+  rounds' greens unreliable rather than merely adding a defect. F1 says a
+  purpose-built B1 guard can be satisfied by a population that is not the
+  population under judgement — every check in this lab that prints a frame count
+  and a verdict is now a candidate. F3 says the lab's own correction convention
+  has an *anti-disclosure* mode: strike the true half and the corpus keeps a
+  record no instrument will ever grade again. M3 says a test can be **incapable
+  of failing for any reason connected to the module it names** while carrying
+  that module's name and, in one case, the words "MUTATION PROOF" — which is the
+  `test_an_empty_directory_is_UNKNOWN` finding taken one step further: not an arm
+  left unasserted, but an assertion aimed at nothing.
+- **F1 and M1 together are stronger than either.** `check_normative_clauses`
+  factored its verdict out expressly so a test could drive the empty-set arm; the
+  test exists, and the guard it drives is wrong. `check_derived_figures` has the
+  right guard and no test that ever calls the function containing it. **This lab
+  does not currently have an instrument whose empty-set behaviour is both correct
+  and verified**, and it acquired both halves of that in the graded range.
+- **Four of the fifteen are empty-set agreement (F1, M1, M2, M4)** in four
+  different modules, three weeks after the class was named and one day after 21
+  of 34 `self_audit` checks were repaired for it. The class is not closing.
 - **F2, F4, F5, F6 are all defects written on 2026-08-15 by the repairs
   themselves**, three of them in the single most recent commit in scope, at zero
   and forty-three minutes' remove. A round that finds four fresh defects in the
@@ -504,7 +530,12 @@ only executes or closes findings already believed. This one does not:
   *classes*; but the specific claim in F7 is a live absolute in shipped code
   that the lab disproved twice and never corrected, and F8 is a red test at HEAD.
 
-**The count would still be non-zero at three.** F1, F3 and F2 alone carry it.
+**The count would still be non-zero at three.** F1, F3 and M3 alone carry it —
+three new shapes, none previously recorded.
+
+**And it was scored too low once already, in this document.** §9 was first
+drafted at eight, before the mutation cell reported. Seven more landed, one of
+them correcting §2. That is the concrete form of the warning below.
 
 ### What would falsify this verdict
 
@@ -539,7 +570,15 @@ Stated plainly, and each of these is cheap:
    override non-conforming, the comment's absolute becomes defensible and F7
    downgrades to a wording defect; `7370b3d3` then becomes a protocol violation
    instead, and something is still wrong.
-8. **The whole round falsified as non-neutral** if F1, F2, F3, F5 and F6 are all
+8. **M1–M7 falsified** by re-running any of the named mutations with
+   `__pycache__` present. *(That is not a falsification, it is the inverted
+   result this lab has already recorded twice — every cell above purged bytecode
+   immediately before every `pytest` invocation, and the baseline and final
+   full-suite runs are byte-identical at 346 passed / 51 subtests. The genuine
+   falsifier is a test file, anywhere in the repo, that calls
+   `check_derived_figures.main()` or drives `integrity()`'s zero-identity arm; I
+   grepped and found none, and that grep is the claim to attack.)*
+9. **The whole round falsified as non-neutral** if F1, F2, F3, F5 and F6 are all
    already recorded somewhere in `docs/DOCKET.md` or a prior round document
    before `cca64eaf`. I checked each against the docket by ID and by phrase;
    D133 records F2's *premise* and explicitly declines to draw F2's conclusion,
@@ -567,6 +606,9 @@ worse.
 | **D160** | F5 — "every second-column cell" is seven of eight |
 | **D161** | F6 — the charter clause with no instrument, violated by the next write |
 | **D162** | F7 + F8 — the register's false absolute and the red test whose repair went elsewhere |
+| **D164** | M1 + M2 + M4 — four empty-set-agreement instances in four modules, and the claim that no instrument here is both correct and verified on that arm |
+| **D165** | M3 + M5 + M6 — assertions aimed at nothing, including one labelled "MUTATION PROOF" |
+| **D166** | M7 — a control on the generator and none on the artifact that travels |
 
 **These are not the IDs this round first reserved, and the reason is worth the
 line.** At 20:0xZ `D152`–`D156` were asserted free and were free. By the time the
@@ -579,7 +621,184 @@ is not enough on its own; the assertion has to be inside the write.** Nothing
 here was derived by `sort -u`, which is lexical and returns `D99` when the
 highest is `D151`.
 
+**And the commit that filed them carried two rows that are not this grader's.**
+`bfe9b812` was diffed against `git show HEAD:docs/DOCKET.md` immediately before
+staging and read as five added lines. It landed as **seven insertions and one
+deletion**: another agent wrote to `docs/DOCKET.md` in the seconds between the
+check and the `git add`, and a pathspec isolates by file, not by author
+(`ESCALATION_CHARTER` §9.6b). **Not mine, and named rather than reverted:** the
+new row **D163** (the summary-consistency check's 2-of-94 coverage measurement,
+taken at `840c0c27`, which this round's range excludes by name), and a
+**modification to D141** that grew it from 2,276 to 4,977 characters, closing it
+on that same instrument. **Mine in that commit, and only these:** D158–D162 and
+this section's own correction.
+
+That is the same shape as F1, one level up: a check that was true when it ran and
+false when it was relied on. **`D119a` already owns it** — *"the pre-flight check
+that cleared it was already expired when it ran"*, filed at 02:23Z the same day.
+Two agents have now hit it on this one file in one day.
+
 **Nothing in this round was repaired.** `demo-output/website/closure.html`,
 `scripts/self_audit.py` and `docs/USING_THIS_LAB.md` are on this grader's
 do-not-touch list; they were read and never written. A grader that repairs its
 own findings cannot then grade them.
+
+---
+
+## 11. The mutation cell — seven more, and one of them corrects §2
+
+Run as a second, separate execution pass over the **fifteen test files added or
+modified in the declared range**. Every mutation went through a harness that
+asserts the mutation site occurs exactly once, **purges `__pycache__` with
+`/usr/bin/find … -prune -exec rm -rf {} +` immediately before every `pytest`
+invocation**, and hash-checks and restores the file byte-for-byte afterwards.
+Baseline and final state identical: **346 passed, 51 subtests**, both ends. About
+45 mutations across 12 production files.
+
+### M1 — `check_derived_figures.main()` has no test at all, including the arm its test class is named for
+
+**This corrects §2 of this document.** In F1 I wrote that the correct
+empty-set pattern "already exists 200 lines away" in `check_derived_figures.py`.
+The pattern is correct. **It is also entirely unguarded.** Three separate
+mutations of its verdict block, each run against
+`test_derived_figure_check.py` **and** `test_normative_clause_check.py` together:
+
+| mutation in `scripts/check_derived_figures.py` `main()` | result |
+|---|---|
+| `elif not matches and not checked: verdict = UNKNOWN` → `elif False:` | **survived, exit 0** |
+| `if problems: verdict = UNKNOWN` → `if False:` | **survived, exit 0** |
+| `elif bad_controls: verdict = UNKNOWN` → `elif False:` | **survived, exit 0** |
+
+`cdf.main` is never called from either test file, or from anywhere else in the
+repo. The test class is literally named **`ItCannotPassFromAnEmptySet`**, with
+the docstring *"Defect class B1, the silent-zero sweep (D62)"*, and its four
+tests exercise `_scan`, `read_sources`, `build_registry` and `dig` — never the
+function that produces a verdict. `TheExitContract` pins the `EXIT` dict and
+nothing that reaches it.
+
+**So the two instruments split the failure between them:** `check_normative_clauses`
+factored `decide()` out *"so a test can drive it to that state without a corpus"*
+and both its equivalent guards were **killed** — its guard is tested and wrong
+(F1). `check_derived_figures` has the right guard and no test of it (M1).
+**Between them, this lab has no instrument whose empty-set behaviour is both
+correct and verified**, which is a stronger statement than either finding alone
+and is the reason they are reported together.
+
+### M2 — `check_rung_attribution.integrity()` can return PASS over zero identities
+
+`scripts/check_rung_attribution.py:439`. Mutating `if counts[OK] == 0:` →
+`if False:` leaves **all of `test_rung_attribution.py` green, exit 0**. Direct
+probe on a throwaway repo (anchor plus two commits, no trailers anywhere):
+
+```
+CLEAN   exit 3   VERDICT: UNKNOWN   ADOPTION: 0 of 3 commits carry an identity
+MUTANT  exit 0   VERDICT: PASS      ADOPTION: 0 of 3 commits carry an identity
+```
+
+The file's own header lists *"AN EMPTY GRADED SET is UNKNOWN … naming defect
+class B1"* and the sibling arm in `attribution()` **is** covered (that mutant was
+killed). The uncovered one is `integrity()` — **the mode `lab_check.py` actually
+schedules.**
+
+### M3 — a test named for an exit contract whose body is three tautologies
+
+`sdk/tests/test_bundle_drift_gate.py:230`,
+`test_UNKNOWN_exits_non_zero_so_an_off_detector_reddens_the_runner`. Its entire
+body asserts `sa.UNKNOWN == "UNKNOWN"`, that `off.status` is in `(sa.UNKNOWN,)`,
+and that `sa.UNKNOWN` is not in `(sa.PASS, sa.WARN, sa.INFO)` — three statements
+about string constants defined in the module under test. **`main()` is never
+called.** Mutating `self_audit.py`'s `return 3 if any(r.status == UNKNOWN …)` →
+`return 0` leaves `test_bundle_drift_gate.py` at **10 passed, exit 0**. The
+property *is* guarded — by `test_empty_set_is_not_agreement.py`, a different
+file — so the named test is dead weight rather than a hole. A sibling at
+`test_certificate.py:279` is labelled **"MUTATION PROOF"** and likewise asserts
+only `in`/`not in` over two string literals defined inside the test; it cannot
+fail for any reason connected to `certificate.py`.
+
+### M4 — literal empty-set agreement: *"all 0 file(s) … match"*
+
+`self_audit.check_bundle_drift`. Mutating `if not pairs:` → `if False:` leaves
+**10 passed, exit 0**. Direct probe with an archive that has members but no
+tracked sources:
+
+```
+CLEAN   UNKNOWN  found no files the builder copies verbatim out of tracked sources
+MUTANT  PASS     all 0 file(s) the builder copies verbatim out of tracked sources
+                 match the shipped zip byte for byte (2 of 2 shipped members ungraded)
+```
+
+The function's docstring names this arm explicitly (*"an empty copy list"*).
+`AnAbsentOrUnreadableArchiveIsUNKNOWN` covers the empty-**member** case and not
+the empty-**pair** case. All sibling guards were killed.
+
+### M5 — a test named for emptying a ledger that never checks the ledger was emptied
+
+`sdk/tests/test_refused_inbox_lifecycle.py:146`,
+`test_a_root_that_does_not_exist_empties_the_ledger`. Deleting
+`_publish_refused_inbox(root, refused)` from the absent-root early return at
+`sdk/chief_engineer/agenda.py:1126` leaves **11 passed, exit 0**. The body
+asserts only `refused_inbox() == set()`, which the *root filter* at
+`agenda.py:1110` already satisfies. Probe, clean vs mutant:
+
+```
+CLEAN   _REFUSED_INBOX = []                  root = <new dir>/proposals
+MUTANT  _REFUSED_INBOX = ['present.json']    root = <OLD dir>/proposals
+```
+
+Under the mutant the ledger still names a file from a directory the read never
+opened. **This is the `test_an_empty_directory_is_UNKNOWN` shape again**, from a
+different family, four days after it was first named.
+
+### M6 — the D137 banned-language guard does not cover the v1 renderer
+
+`sdk/chief_engineer/certificate.py:815`. Reinstating a `Reproducible from…`
+footer in `build_certificate` (v1) leaves **62 passed, exit 0**.
+`test_banned_language_never_renders`'s widened `assertNotIn("reproduc", …)` runs
+only through `build_certificate_v2`; planting the same sentence in v2 **is**
+caught, so the guard bites — it just never reaches v1, which `PdfTests` and
+`RedesignV2Tests` render with no language assertion. **Severity, stated:** v1 is
+called only by `sdk/scripts/build_certificate_compare.py`; every shipping
+workflow uses v2.
+
+### M7 — a live-control on the generator, none on the shipped JSON
+
+`sdk/tests/test_untrained_qcr_attribution.py`. The subject-deletion control
+covers `_closure_literal()`; the shipped-surface test has no equivalent.
+
+| mutation | result |
+|---|---|
+| `"untrained QCR2000 forward solve"` → `"untrained closure forward solve"` in `sdk/scripts/build_benchmarks.py` | killed |
+| the same, in `demo-output/website/benchmarks.json` | **survived** |
+| the same, in `demo-output/website/wall/wall.json` | **survived** |
+| `"is Spalart (2000)'s "` → `"is the "` in the generator | killed |
+| the same, in `benchmarks.json` | killed |
+
+Not vacuous today — each JSON carries exactly one QCR string — but the file's own
+stated failure mode (*"a rule survives the deletion of its subject and goes on
+reporting clean"*) is guarded on one arm only.
+
+### What held up
+
+Reported because a mutation cell that lists only survivors cannot be audited.
+**Every** guard deletion was killed in `test_empty_set_is_not_agreement.py` (5/5,
+including the six-check `_stored_studies` guard → 6 subtests failed),
+`test_blind_spots_are_printed.py` (3/3), `test_bundle_certificate_pairing.py`
+(5/5), `test_normative_clause_check.py` (2/2), `test_lab_check.py` (6/6,
+including the `EXIT_CONTRACT` retyping and the `blocking = v == UNKNOWN` lock),
+`test_installed_matches_tracked.py` (6/6), `test_calibration_scorecard.py` (3/3),
+`test_autostop_gate.py` (3/3) and `test_f7a_contract.py` (3/3, including both
+"always 0" and "always 1"). Four further survivors were examined and **rejected
+as non-defects** (unreachable defensive code in `_since_anchor` and `integrity`,
+a redundant `zip_path.is_file()` whose sibling `except OSError` returns the same
+UNKNOWN, and a self-documenting no-assertion arm in
+`test_installed_matches_tracked.py` whose own docstring says so).
+
+### The risk this cell carries
+
+`scripts/self_audit.py` was already dirty (`M`, ~900 uncommitted lines from
+another agent) when the cell began, and another session was committing into this
+tree throughout. The mutation harness restored by hash and the final 346-test run
+is green, but **if another agent wrote to that file inside one of the ~5–20 s
+mutate-run-restore windows, that write was overwritten.** Stated rather than
+discovered later. Nothing else was touched: `git diff` on every mutated file is
+empty.
