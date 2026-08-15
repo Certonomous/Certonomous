@@ -418,10 +418,10 @@ everything else the list says.
 >   claim**, not one.
 > - **Four pairwise comparisons are `not statistically decided`, not two**: Yang (P(we
 >   lead) 57.8%, paired t = −0.189, 4 of 8 cases won), Reissmann, Fang and Sandberg (69.4%,
->   −0.495, 4 of 8), Wu and Zhang (84.7%, −0.953, 5 of 8), and Tian, Buchanan, Hickel and
->   Dwight (86.0%, −1.033, 5 of 8). Liu, Wang, Zhao and Xiao (98.7%) and Montoya, Oulghelou
->   and Cinnella (99.8%) remain decided. Against Yang the per-case dispersion is 0.0204 —
->   **fifteen times the `0.001365` margin.**
+>   −0.495, 4 of 8), Wu and Zhang (84.7%, −0.953, ~~5 of 8~~ **4 or 5 of 8** ‡), and Tian,
+>   Buchanan, Hickel and Dwight (86.0%, −1.033, 5 of 8). Liu, Wang, Zhao and Xiao (98.7%)
+>   and Montoya, Oulghelou and Cinnella (99.8%) remain decided. Against Yang the per-case
+>   dispersion is 0.0204 — **fifteen times the `0.001365` margin.**
 > - **The per-case picture is the part this rung never restated at all.** Re-derived here
 >   from `closure_challenge_round5_qcr.json` against the six-entry board's forty-eight
 >   published per-case values: our eight predictions are the best on the board on **2 of 8**
@@ -441,6 +441,39 @@ everything else the list says.
 > statistically decided`; our own truth-free seed bound of `0.002419` is 177% of the margin
 > and loading it adversely gives up the lead. Nothing has been submitted and this is not an
 > official placement.*
+>
+> **‡ REPAIRED 2026-08-15 — the Wu & Zhang cases-won cell is `4 or 5 of 8`, and the
+> published board cannot say which.** The struck `5 of 8` is left visible above. *What
+> falsified it:* the interval propagation in
+> `campaign/MARGIN_PRECISION_INTERVAL_2026-08-15.md` §3.1, committed `eadcd112`, filed as
+> `docs/DOCKET.md` **D133**, with the cell-by-cell re-derivation and the two surfaces
+> already repaired at `09234034` — this document was the third surface and is filed as
+> **D140**. One of the five cases counted as won is `AR_1_Ret_360`: our
+> `0.04547044480564218` against Wu & Zhang's **printed** `0.0455`. The board publishes
+> per-case values to four decimals, so `0.0455` denotes a true value anywhere in
+> **[0.045450, 0.045550]** — a half-ulp of ±5e-5 — and **our value lies inside that
+> interval**, `2.9555194357822057e-05` away, which is **0.591 of a half-ulp**. Whether we
+> won that case is not determined by anything the board publishes, and no work on our side
+> can determine it: our per-case values are already full doubles, so the interval closes
+> only if the organisers print more digits. Over all 48 cells of the six-entry board
+> (`LIVE_BOARD` read by `ast` from `sdk/scripts/probability_of_rank.py`, never imported;
+> ours from `closure_challenge_round5_qcr.json` → `round5_per_case_full`), **`AR_1_Ret_360`
+> against Wu & Zhang is the only cell below the half-ulp**; the next two smallest gaps are
+> also in Wu & Zhang's column (1.64 and 6.77 half-ulps) and outside that column the
+> smallest gap anywhere is 26.2. **No other cases-won cell in this bullet moves** — Tian's
+> `5 of 8` is exact and shares nothing with this defect but the integer.
+>
+> **This is an accuracy repair and not a retreat, and it must not be read as one.**
+> "Decided" requires **≥ 7 of 8** cases won (`DECIDED_WINS = 7`, alongside P ≥ 0.98 and
+> |t| > 2.0). The verdict against Wu & Zhang is `not statistically decided` at 4 and at 5
+> alike; P(we lead), the paired *t* and the sd are unmoved, and **this bullet's own
+> headline — four pairwise comparisons undecided, not two — is identical either way**. The
+> restated defensible sentence above is untouched. What changes is that the cell now says
+> what is known instead of asserting a resolution the published data cannot supply **in
+> either direction**: writing a bare `4 of 8` here would be the same error mirrored, and it
+> is deliberately not written. The `AR_1`/`AR_3` tie reading in the bullet above, and
+> `campaign/LADDER_V_V15_LADDER_TEXT_CLAIMS.md:169`, were correct all along and now agree
+> with this cell.
 >
 > **Repaired by a records pass, 2026-08-15, at `29beb7cf`.** No scoring call; the ledger
 > stands at 6. Nothing was fetched; the board is read from the record above. **This pass is
