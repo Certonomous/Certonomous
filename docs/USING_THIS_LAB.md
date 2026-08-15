@@ -858,7 +858,8 @@ and §6 explains why that is the correct output.
 
 ## 13. What this document could not verify
 
-Stated rather than omitted, per §8.5.
+Stated rather than omitted, per §8.2: a thing not checked is UNKNOWN, and UNKNOWN
+does not get filed beside the passes.
 
 - **Nothing about `lab_check.py` is second-hand** — both tiers were run here
   (188 s and 1,221 s, both exit 1). But note that the full run happened on a box
