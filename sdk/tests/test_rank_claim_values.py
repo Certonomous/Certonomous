@@ -419,5 +419,347 @@ class TheDeferralHasAReceivingEndTests(unittest.TestCase):
                       "a deferral must name a receiver that does the thing")
 
 
+class TheBareOrdinalIsInsideTheRegexNowTests(unittest.TestCase):
+    """Chief ruling `9b9951a1` on V14's denominator gap, measured at `86dd1866`.
+
+    `_VALUE_BOARD_SIZE` required the literal token `rank`, so `2nd of 5` fell
+    outside its REGEX and not outside its arithmetic. Four of the five
+    four-entry claims a repo-wide denominator measurement found in the shipping
+    archive carry no `rank` token. The ruling: widen this one pattern; a second
+    instrument would duplicate a working arithmetic core to reach a string form.
+
+    THE MUST-NOT-MATCH HALF IS THE HARDER ONE (L-84), and for this widening it
+    is harder still, because the numerator of a bare ordinal is UNDECIDABLE:
+    `4th of 7` is the correct live per-case ordinal for one duct and the wrong
+    overall one. A widening that graded it against the overall sort would fault
+    a CORRECT travelling claim, which is the outcome the ruling itself names as
+    reversing it. So the denominator is graded and the numerator is not, and
+    both halves are asserted here.
+    """
+
+    ARCHIVE_MEMBER = "certonomous-demo/site/closure.html"
+
+    def _member(self):
+        archives = sa._shipping_archives()
+        self.assertTrue(archives, "there is no shipping archive to control on")
+        with zipfile.ZipFile(archives[0]) as zf:
+            return zf.read(self.ARCHIVE_MEMBER).decode("utf-8")
+
+    # ---- the aimed test: the widening's own positive control ----------------
+
+    def test_the_shipped_bare_ordinal_now_faults(self):
+        # `dist/certonomous-demo.zip!certonomous-demo/site/closure.html:341`
+        # reads "the case falls to 3rd of 5". Against the live six-entry board
+        # there is no placement out of five. This is the line the widening
+        # exists for, and it is the real shipped member, not a fixture.
+        faults, _ = grade(self._member())
+        hit = [(line, rule) for line, rule, _ in faults if line == 341]
+        self.assertEqual(hit, [(341, "board size")],
+                         f"the shipped `3rd of 5` must fault, and as a "
+                         f"DENOMINATOR fault; got {sorted(faults)}")
+
+    def test_a_bare_ordinal_with_a_wrong_denominator_faults(self):
+        facts = facts_now()
+        # No pin token in this sentence: `deb91557` would make it a claim
+        # about the FOUR-entry board and the check would decline it, which the
+        # frozen-pin control below asserts separately.
+        text = (f"On the closure challenge leaderboard the case falls to 3rd "
+                f"of {facts['entries'] - 1}.\n")
+        self.assertIn("board size", rules(grade(text, facts)[0]))
+
+    def test_the_denominator_follows_the_board_for_bare_ordinals_too(self):
+        # A guard that satisfies the control by holding `7` fails here.
+        for entries in (3, 4, 6, 9):
+            with self.subTest(entries=entries):
+                facts = facts_now()
+                facts["entries"] = entries
+                right = (f"On the closure challenge board the duct sits 2nd "
+                         f"of {entries + 1}.\n")
+                wrong = (f"On the closure challenge board the duct sits 2nd "
+                         f"of {entries + 2}.\n")
+                self.assertEqual(grade(right, facts)[0], [],
+                                 "an admissible denominator must not fault")
+                self.assertIn("board size", rules(grade(wrong, facts)[0]))
+
+    def test_the_rank_branch_is_unchanged_by_the_widening(self):
+        # The widening inserted an alternative; it must not have moved the
+        # branch that was already working.
+        text = ("Our entry is rank 1 of 5 on the published board at "
+                "deb91557.\n")
+        self.assertIn("our placement", rules(grade(text)[0]))
+
+    # ---- the must-not-match half (L-84) ------------------------------------
+
+    def test_a_correct_current_bare_ordinal_does_not_fault(self):
+        # THE REVERSAL CONDITION the ruling names, as an executable statement:
+        # a travelling surface whose CORRECT claim this predicate faults. The
+        # live per-case ordinals are 2, 2, 1, 1, 3, 4, 4 and 7 of seven, so
+        # every one of these is right and none may fault.
+        facts = facts_now()
+        for n in (1, 2, 3, 4, 7):
+            with self.subTest(n=n):
+                text = (f"On the closure challenge leaderboard this case is "
+                        f"{n}{'st' if n == 1 else 'nd' if n == 2 else 'rd' if n == 3 else 'th'} "
+                        f"of {facts['entries'] + 1}.\n")
+                faults, ungraded = grade(text, facts)
+                self.assertEqual(faults, [],
+                                 f"a correct live ordinal faulted: {faults}")
+                self.assertTrue(
+                    any("NUMERATOR is not graded" in u for u in ungraded),
+                    "and the check must SAY which half it declined to grade, "
+                    "not go quiet about it")
+
+    def test_a_correctly_dated_historical_bare_ordinal_does_not_fault(self):
+        dated = (
+            "## 4. Per-case standings\n"
+            "\n"
+            "> **Superseded 2026-08-11, see the six-entry board.** The record "
+            "below stands unchanged as the four-entry record.\n"
+            "\n"
+            "On the published board the aspect-ratio-1 duct was 2nd of 5 and "
+            "the aspect-ratio-3 duct 3rd of 5, scored locally.\n")
+        faults, ungraded = grade(dated)
+        self.assertEqual(faults, [],
+                         f"a dated historical section must not fault: {faults}")
+        self.assertTrue(any("dated historical section" in u for u in ungraded))
+
+    def test_a_bare_ordinal_bound_to_the_frozen_pin_is_declined(self):
+        text = ("On the frozen scoring pin `deb91557` the aspect-ratio-1 duct "
+                "is 2nd of 4 on the published board.\n")
+        faults, ungraded = grade(text)
+        self.assertEqual(faults, [])
+        self.assertTrue(any("FROZEN SCORING PIN" in u for u in ungraded))
+
+    def test_the_adjoint_iteration_counter_does_not_match_at_all(self):
+        # The measurement behind the ruling found a single adjoint progress
+        # counter contributing 7,671 of 7,685 gitignored faults. It carries no
+        # ordinal suffix, so the widened pattern cannot see it -- and neither
+        # can the cheap trigger, which is asserted separately because a rule
+        # that never runs is not the same as a rule that declines.
+        for counter in ("Major iteration 31 of 47, C_d 0.021 on the board",
+                        "Major iteration 5 of 47 on the leaderboard",
+                        "FD3 select shape: argmax|g| index 115 of 120"):
+            with self.subTest(counter=counter):
+                self.assertIsNone(sa._VALUE_BOARD_SIZE.search(counter))
+                faults, _ = grade(counter + "\n")
+                self.assertEqual(faults, [], f"{counter}: {faults}")
+
+    # ---- word boundaries, proved rather than read (the `duct`/`product`
+    #      substring class the measurement found inside its own instrument) ---
+
+    def test_the_ordinal_is_taken_whole_and_never_as_a_substring(self):
+        m = sa._VALUE_BOARD_SIZE.search("the 21st of 50 samples")
+        self.assertIsNotNone(m)
+        self.assertEqual(m.group("o"), "21",
+                         "a leading `\\b` must take `21st` whole; taking `1st` "
+                         "out of `21st` is the `68%`-inside-`1.68%` defect")
+        self.assertEqual(m.group(0), "21st of 50")
+
+    def test_an_ordinal_glued_into_a_longer_token_does_not_match(self):
+        for glued in ("v3rd of 5", "x21st of 50", "3rdx of 5", "1sts of 5",
+                      "rev2nd of 5"):
+            with self.subTest(glued=glued):
+                self.assertIsNone(sa._VALUE_BOARD_SIZE.search(glued),
+                                  f"{glued} matched; the boundaries are wrong")
+
+    #: The exact sentence, byte for byte, from
+    #: `demo-output/website/latex/closure_challenge_report.tex:1890`. It is a
+    #: claim about a MARGIN and about nothing else.
+    TEX_1890 = "  seed, against a gap to rank 2 of 0.0030."
+
+    def test_a_margin_is_not_a_denominator(self):
+        """V16 round 11 (`94419cc8`, D189-D194).
+
+        `\\b` after `\\d{1,3}` falls between the `0` and the decimal point, so
+        this pattern used to read `rank 2 of 0` out of a sentence about a gap
+        and grade `0` as the size of the board. On the real file it was held
+        back by ONE gate -- `_in_board_context` -- and not by the strike masker,
+        which leaves that passage byte-identical. The bare-ordinal branch this
+        suite exists for makes that surface bigger, so the two are controlled
+        together.
+        """
+        self.assertIsNone(sa._VALUE_BOARD_SIZE.search(self.TEX_1890),
+                          "a margin was read as a board size")
+
+    def test_a_margin_is_not_a_denominator_even_beside_the_word_board(self):
+        # The gate that held it is one word away from opening. This must hold
+        # when it does, because the .tex IS a document about a leaderboard.
+        for sentence in (
+                self.TEX_1890.rstrip(".") + " on the published board.",
+                "the duct closes a gap to 2nd of 0.0030 on the board",
+                "the case sits 3rd of 0.0592 behind the board leader",
+                "a lead of rank 2 of 100.5 on the leaderboard"):
+            with self.subTest(sentence=sentence[:40]):
+                self.assertIsNone(sa._VALUE_BOARD_SIZE.search(sentence),
+                                  "a decimal was read as a denominator")
+                self.assertEqual(grade(sentence + "\n")[0], [],
+                                 "and it must not reach a verdict either")
+
+    def test_an_integer_denominator_ending_a_clause_still_matches(self):
+        # The lookahead must exclude decimals and NOTHING else: a denominator
+        # is allowed to end a sentence or a clause.
+        for sentence in ("Our entry is rank 1 of 5.",
+                         "Our entry is rank 1 of 5, on the published board.",
+                         "the duct sits 3rd of 5."):
+            with self.subTest(sentence=sentence):
+                self.assertIsNotNone(sa._VALUE_BOARD_SIZE.search(sentence))
+
+    def test_the_bare_branch_cannot_swallow_rule_v2s_spans(self):
+        # The measurement found its own ordinal family eating its count family,
+        # so the CORRECT `2 of 8` best-on-board count was reported as a wrong
+        # denominator. The ordinal suffix is what keeps them disjoint.
+        for count in ("4 of 8", "2 of 8", "5 of 8", "6 of the eight rows"):
+            with self.subTest(count=count):
+                self.assertIsNone(
+                    sa._VALUE_BOARD_SIZE.search(f"best on the board on {count}"),
+                    f"the ordinal rule matched `{count}`, which belongs to the "
+                    f"best-on-board rule")
+        self.assertIsNotNone(
+            sa._BEST_COUNT.search("we are best on the board on 4 of 8 cases"),
+            "and the count rule must still hold its own family")
+
+    def test_the_correction_arrow_still_retires_its_left_operand(self):
+        text = ("On the six-entry board the duct falls from 2nd of 5 to 3rd "
+                "of 7 on the leaderboard.\n")
+        faults, _ = grade(text)
+        self.assertEqual(faults, [],
+                         f"the announcement of a correction faulted: {faults}")
+
+    # ---- the blindfold: take the evidence away and the verdict must move ----
+
+    def test_blindfolding_the_board_removes_the_new_fault(self):
+        """`fb30e00f`'s rule, applied to this widening.
+
+        An identical verdict with the named source record removed means the
+        check was not using it. For a pattern widening that is the whole risk:
+        a rule that fires on the STRING `3rd of 5` rather than on arithmetic
+        over the board would survive the blindfold, and that is the
+        form-over-value defect this entire line of work exists to remove.
+
+        `_PROB_SCRIPT` is repointed at a path that does not exist, which is how
+        the record actually becomes unreadable -- `_module_literal` reads it
+        with `Path.read_text`, so nothing here depends on import machinery.
+        Every `lru_cache` in the chain is cleared on the way in AND on the way
+        out; a cache left warm would hand the blinded run the sighted answer
+        and the test would pass for the wrong reason.
+        """
+        member = self._member()
+        sighted = [(l, r) for l, r, _ in grade(member)[0] if r == "board size"]
+        self.assertIn((341, "board size"), sighted,
+                      "the sighted run must produce the fault being tested")
+
+        original = sa._PROB_SCRIPT
+        caches = (sa._closure_facts, sa._live_ranks)
+        try:
+            sa._PROB_SCRIPT = original.with_name("no-such-board-record.py")
+            for cache in caches:
+                cache.cache_clear()
+            blind = sa._closure_facts()
+            self.assertTrue(blind["stale"],
+                            "the blindfold did not actually blind anything")
+            blind_faults, _ = sa._rank_value_faults(
+                member, CDF, blind, 177.12, 178.82)
+            self.assertEqual(
+                [(l, r) for l, r, _ in blind_faults if r == "board size"], [],
+                "the denominator fault SURVIVED the board being removed, so "
+                "it is matching text and not grading arithmetic")
+            result = sa.check_rank_claim_values()
+            self.assertEqual(result.status, sa.UNKNOWN,
+                             "and the whole check must say it graded nothing, "
+                             "not report a clean corpus")
+        finally:
+            sa._PROB_SCRIPT = original
+            for cache in caches:
+                cache.cache_clear()
+        self.assertFalse(sa._closure_facts()["stale"],
+                         "the board must be readable again after the test")
+
+    # ---- the cheap prefilter must stay a superset of the rule ---------------
+
+    def test_the_trigger_admits_what_the_rule_now_grades(self):
+        # `_VALUE_TRIGGER` runs FIRST and a surface it skips is never masked
+        # and never graded. A widened rule behind an un-widened trigger is
+        # inert on exactly the files it was widened for.
+        bare_only = ("On the closure challenge leaderboard the duct sits 3rd "
+                     "of 5.\n")
+        self.assertIsNotNone(sa._VALUE_BOARD_SIZE.search(bare_only),
+                             "the rule must reach this sentence")
+        self.assertIsNotNone(sa._VALUE_TRIGGER.search(bare_only),
+                             "and so must the gate in front of it")
+        self.assertIsNone(sa._VALUE_TRIGGER.search(
+            "Major iteration 31 of 47 on the board\n"),
+            "and the gate must not have been widened past the rule")
+
+
+class TheAuditMustNotSHIPAMutantTests(unittest.TestCase):
+    """Both mutants that were live in HEAD for 65 minutes on 2026-08-15.
+
+    `fb30e00f` captured `scripts/self_audit.py` mid-mutation from a concurrent
+    census that writes the real file in place and restores its snapshot in a
+    `finally`. Two mutants rode into the commit: `if not lines:` became
+    `if False:` in `check_rank_claim_surfaces`, disabling the skip guard so
+    every decoded surface counted as claiming; and the fall-through `UNKNOWN`
+    became `PASS`, which is defect class B1 -- the empty set reported as
+    agreement -- re-introduced into the shipped audit. Restored at `0a3e82d7`.
+
+    **NOTHING CAUGHT EITHER ONE, and the reason is the whole point.** No test
+    failed, because no test ran against the committed text: the census restored
+    the working tree in its `finally`, so `git status` read CLEAN while `HEAD`
+    was wrong, and every subsequent agent diffed against a working tree that
+    already agreed with them. The only witness is the committed source itself.
+
+    Two assertions over that source, and they are deliberately not clever. A
+    property test would be better and would not have existed today.
+    """
+
+    SOURCE = (REPO / "scripts" / "self_audit.py").read_text(encoding="utf-8")
+
+    def test_no_branch_in_the_shipped_audit_is_disabled(self):
+        # A permanently-false branch in an audit is either dead code or a
+        # captured mutant. Neither belongs in the file, and telling them apart
+        # after the fact costs more than forbidding both.
+        for disabled in ("if False:", "if 0:", "if None:"):
+            with self.subTest(disabled=disabled):
+                self.assertNotIn(
+                    disabled, self.SOURCE,
+                    f"{disabled} is in the shipped audit: either dead code or "
+                    f"a mutation captured by a commit, as happened at "
+                    f"fb30e00f and was restored at 0a3e82d7")
+
+    def test_the_form_guard_has_no_PASS_path_at_all(self):
+        # By design: this check grades FORM, and a form verdict is not a
+        # statement that a page is right -- which is the sentence that got
+        # quoted as reassurance and started this whole line of work. Every one
+        # of its returns is WARN, FAIL or UNKNOWN, including the branch where
+        # every surface complies. A `PASS` appearing anywhere in its body is
+        # either that design being abandoned or the exact mutant that shipped.
+        start = self.SOURCE.index("def check_rank_claim_surfaces(")
+        end = self.SOURCE.index("\ndef ", start + 1)
+        body = self.SOURCE[start:end]
+        self.assertNotIn("PASS", body,
+                         "check_rank_claim_surfaces returns PASS somewhere; "
+                         "its compliant path is UNKNOWN on purpose, and "
+                         "UNKNOWN -> PASS is the second mutant that was live "
+                         "in HEAD at fb30e00f")
+        # The control: the assertion above must be capable of failing, so the
+        # token has to be findable in the module it is scoped out of.
+        self.assertIn("PASS", self.SOURCE,
+                      "if the audit contains no PASS at all, the test above "
+                      "passes for the wrong reason")
+
+    def test_the_empty_set_is_still_UNKNOWN_in_both_rank_checks(self):
+        # The executable half of the same pair. Kept beside the source
+        # assertions because a source check alone would pass on a rewrite that
+        # spells the defect differently.
+        for check in (sa.check_rank_claim_surfaces, sa.check_rank_claim_values):
+            with self.subTest(check=check.__name__):
+                tracked, archives = sa._tracked_files, sa._shipping_archives
+                sa._tracked_files, sa._shipping_archives = (lambda: []), (lambda: [])
+                try:
+                    self.assertEqual(check().status, sa.UNKNOWN)
+                finally:
+                    sa._tracked_files, sa._shipping_archives = tracked, archives
+
+
 if __name__ == "__main__":
     unittest.main()

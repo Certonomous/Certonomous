@@ -1590,10 +1590,68 @@ def _live_claim_text(text: str, cdf) -> tuple[str, list[str]]:
 # leaderboard). Both are true statements about different sets, so both pass
 # and the message names both. What is not admissible is `5` against a board of
 # six.
+#
+# THE BARE ORDINAL (chief ruling `9b9951a1` on V14's denominator gap,
+# 2026-08-15, measured at `86dd1866`). This pattern used to require the literal
+# token `rank`, so `2nd of 5` and `3rd of 5` fell outside its REGEX and not
+# outside its arithmetic -- which grades them correctly. Four of the five
+# four-entry claims a repo-wide denominator measurement found in the shipping
+# archive carry no `rank` token, and the ruling is that the fix is this one
+# pattern and NOT a second checker: a second instrument would duplicate a
+# working arithmetic core to reach a string form. The `rank` branch below is
+# character-for-character what it was; the `(?P<o>...)` branch is the whole
+# widening.
+#
+# ONLY THE DENOMINATOR IS GRADED ON THE BARE BRANCH, and this is the part that
+# keeps the widening from reversing the ruling on its own terms. `rank N of M`
+# names the quantity: it is an OVERALL placement, so both digits are graded
+# against the overall sort. A bare `<n>th of <m>` does not say WHICH placement
+# it is -- `4th of 7` is the correct live per-case ordinal for `AR_3_Ret_360`
+# and the wrong overall one -- so grading its numerator against our overall
+# rank would FAULT A CORRECT TRAVELLING CLAIM, which is the one outcome the
+# ruling names as reversing it. The denominator is the same question either
+# way: how many positions the board has. So M is graded, N is returned
+# ungraded with its reason, and the check says which of the two it decided.
+#
+# WORD BOUNDARIES ON BOTH ENDS OF THE ORDINAL, and they are not decoration.
+# The measurement that produced this widening found `duct` matching inside
+# `product` in its own instrument -- the same substring class as a prior
+# sweep's `68%` matching inside `1.68%`. `\b(?P<o>\d{1,3})(?:st|nd|rd|th)\b`
+# takes `21st` whole out of `21st of 50` and cannot take `1st` out of it, and
+# cannot fire inside `v3rd` or `3rdx`. `sdk/tests/test_rank_claim_values.py`
+# asserts both directions rather than trusting the reading.
+#
+# AND IT CANNOT SWALLOW RULE V2's SPANS. The same measurement found its own
+# ordinal family eating its count family, so that the CORRECT `2 of 8`
+# best-on-board count was reported as a wrong denominator. The ordinal suffix
+# is what makes the two disjoint here: `4 of 8` carries none, so V1 cannot
+# match it and V2 keeps it. Asserted in the suite, not argued.
+#
+# A DENOMINATOR IS AN INTEGER, and `\b` DOES NOT SAY SO. V16 round 11
+# (`94419cc8`, D189-D194) found this pattern matching `rank 2 of 0` out of
+# `latex/closure_challenge_report.tex:1890` -- *"a gap to rank 2 of 0.0030"* --
+# because the word boundary after `\d{1,3}` falls BETWEEN the `0` and the
+# decimal point. The pattern read a MARGIN as a BOARD SIZE: a sentence about a
+# gap parsed as a claim about how many entrants exist. Reproduced here before
+# fixing, on the real file: it matched, and the only thing holding it was
+# `_in_board_context` returning False -- ONE GATE DEEP, and not the strike
+# masker, which leaves that passage byte-identical. Put the word "board"
+# anywhere in that window, which is entirely natural in a document about a
+# leaderboard, and a correct sentence faults on a TRAVELLING surface.
+#
+# THE BARE-ORDINAL BRANCH ABOVE MAKES THAT SURFACE BIGGER, which is why the two
+# changes ship together rather than in sequence: `2nd of 0.0030` and `3rd of
+# 0.0592` were both matched by the widened pattern before this lookahead, and
+# bare ordinals are commoner than `rank N of M` in exactly the prose where
+# margins are discussed. `(?![.,]\d)` is the whole fix -- a denominator may end
+# a sentence (`of 7.`) or a clause (`of 7,`), but it may not be the integer part
+# of a decimal. Controlled on that exact `.tex` sentence, in both branches.
 _VALUE_BOARD_SIZE = re.compile(
-    r"\brank[ \-]?(?P<n>\d{1,3}|one|two|three|four|five|six|seven|eight|nine|"
-    r"ten)\s+of\s+\*{0,2}(?P<v>\d{1,3}|zero|one|two|three|four|five|"
-    r"six|seven|eight|nine|ten)\b", re.I)
+    r"(?:\brank[ \-]?(?P<n>\d{1,3}|one|two|three|four|five|six|seven|eight|"
+    r"nine|ten)"
+    r"|\b(?P<o>\d{1,3})(?:st|nd|rd|th)\b\*{0,2})"
+    r"\s+of\s+\*{0,2}(?P<v>\d{1,3}|zero|one|two|three|four|five|"
+    r"six|seven|eight|nine|ten)\b(?![.,]\d)", re.I)
 
 #: A third-party placement on the FROZEN SCORING PIN is a claim about a
 #: different board -- `deb91557` carries four entrants and Reissmann leads it,
@@ -1642,9 +1700,19 @@ _VALUE_NOT_A_SURFACE = ("sdk/tests/",)
 #: a trigger present after masking was present before it, so a surface this
 #: skips could not have produced a fault. The count of what it skipped is
 #: printed in the frame rather than being silent.
+#: THE TRIGGER MUST STAY A SUPERSET OF EVERY RULE PATTERN, or the widening
+#: above is inert on exactly the surfaces it was widened for. This gate runs
+#: FIRST and a surface it skips is never masked and never graded, so admitting
+#: `2nd of 5` to `_VALUE_BOARD_SIZE` without admitting it here would leave any
+#: file whose only claim is a bare ordinal -- no `rank ... of`, no
+#: `of eight`, no `comparable` -- silently ungraded. Measured rather than
+#: assumed: the widened rule fires on `dist/certonomous-demo.zip!.../
+#: closure.html`, which reaches this gate on its `rank 1 of 5` at line 502
+#: anyway, so the archive would not have shown the omission.
 _VALUE_TRIGGER = re.compile(
     r"rank[ \-]?(?:\d{1,3}|one|two|three|four|five|six|seven|eight|nine|ten)"
     r"\s+of\s"
+    r"|\b\d{1,3}(?:st|nd|rd|th)\b\*{0,2}\s+of\s"
     r"|\bof\s+(?:the\s+)?(?:8|eight)\b"
     r"|comparable|the same size as|no larger than|roughly the same size", re.I)
 
@@ -1676,9 +1744,19 @@ _VALUE_OTHERS_SUBJECT = re.compile(
 #: ANNOUNCED the correction is faulted for announcing it.
 _VALUE_FROM_TO = re.compile(
     r"\bfrom\s+\**\s*$")
+#: THE RIGHT OPERAND MAY BE AN ORDINAL, and it had to be admitted the day the
+#: rule above learned to read bare ordinals. Without the optional suffix,
+#: `\d{1,3}\b` cannot end inside `3rd`, so "the duct falls from 2nd of 5 to
+#: 3rd of 7" was not recognised as a correction at all and the RETIRED value
+#: was faulted -- i.e. the sentence announcing a repair got faulted for
+#: announcing it, which is the exact defect this constant exists to prevent
+#: and which this corpus's own repair notes are written in ("was 3rd",
+#: "3rd of 5 -> 4th of 7"). Found by the widening's own control run, not by
+#: review.
 _VALUE_TO_NEW = re.compile(
     r"^[^.;\n]{0,30}?\bto\s+\**\s*"
-    r"(?:\d{1,3}|zero|one|two|three|four|five|six|seven|eight|nine|ten)\b")
+    r"(?:\d{1,3}(?:st|nd|rd|th)?|zero|one|two|three|four|five|six|seven|"
+    r"eight|nine|ten)\b")
 
 
 @functools.lru_cache(maxsize=1)
@@ -1767,12 +1845,65 @@ def _rank_value_faults(text: str, cdf, facts: dict, ratio_lo, ratio_hi):
                             f"operand of a `from ... to ...` correction, so it "
                             f"is the value being retired; not graded")
             continue
-        raw_n, raw_m = m.group("n").lower(), m.group("v").lower()
+        bare = m.group("n") is None
+        raw_n = (m.group("o") if bare else m.group("n")).lower()
+        raw_m = m.group("v").lower()
         got_n = _COUNT_WORDS.get(raw_n, int(raw_n) if raw_n.isdigit() else None)
         got_m = _COUNT_WORDS.get(raw_m, int(raw_m) if raw_m.isdigit() else None)
         if got_n is None or got_m is None:
             ungraded.append(f"L{line_of(m.start())}: `{quoted}` -- one of the "
                             f"two digits is not a number this check reads")
+            continue
+        if bare:
+            # A BARE ORDINAL NAMES A POSITION WITHOUT NAMING THE QUANTITY. See
+            # the block above `_VALUE_BOARD_SIZE`: M is the board's length and
+            # is decidable; N may be an overall placement or a per-case one and
+            # this check cannot tell which, so it is returned ungraded instead
+            # of being graded against the overall sort. A frozen-pin sentence
+            # is a claim about the four-entry board and is declined by name,
+            # exactly as the third-party arm below declines it.
+            if not facts["entries"]:
+                # THE BLINDFOLD DECLINE, and it was put here by a blindfold
+                # rather than by review. With the board unreadable
+                # `facts["entries"]` is 0, `admissible_m` is {0, 1}, and every
+                # denominator in the corpus is "wrong" against a board of no
+                # entrants -- so this arm manufactured faults out of the
+                # ABSENCE of the evidence it claims to grade against. The
+                # `rank` arm never had the hole because it grades its numerator
+                # through `_live_ranks()`, which returns {} and declines; this
+                # arm reads only the board's length and needed its own. The
+                # caller already refuses to run at all on a stale board, so
+                # this is the rule being honest when driven directly, which is
+                # how every test in the suite drives it.
+                ungraded.append(
+                    f"L{line_of(m.start())}: `{quoted}` -- the live board "
+                    f"could not be read, so the number of positions it has is "
+                    f"unknown and no denominator was graded")
+                continue
+            window = live[max(0, m.start() - _VALUE_WINDOW):
+                          m.end() + _VALUE_WINDOW]
+            if _VALUE_FROZEN_PIN.search(window):
+                ungraded.append(
+                    f"L{line_of(m.start())}: `{quoted}` is a bare ordinal "
+                    f"bound to the FROZEN SCORING PIN, a different board from "
+                    f"the live one this check reads; declined rather than "
+                    f"faulted")
+                continue
+            if got_m in admissible_m:
+                ungraded.append(
+                    f"L{line_of(m.start())}: `{quoted}` states an admissible "
+                    f"denominator; its NUMERATOR is not graded, because a bare "
+                    f"ordinal does not say whether it places us overall or on "
+                    f"one case and this check cannot decide which")
+                continue
+            faults.append((
+                line_of(m.start()), "board size",
+                f"claims `{quoted}`; the live board in {_PROB_SCRIPT.name} "
+                f"carries {facts['entries']} entrants, so there are "
+                f"{board_n} positions counting us (or {facts['entries']} on "
+                f"the published board without us) and no placement on it can "
+                f"be out of {got_m}. Only the DENOMINATOR is graded here: a "
+                f"bare ordinal does not say which placement it means"))
             continue
         subject = _VALUE_OTHERS_SUBJECT.search(
             live[max(0, m.start() - 60):m.start()])
