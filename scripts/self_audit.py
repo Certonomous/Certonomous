@@ -13,8 +13,13 @@ Run weekly:
     python3 scripts/self_audit.py --json     # machine-readable, for a hook
     python3 scripts/self_audit.py --quiet    # only FAIL and WARN lines
 
-Exit status is 0 when every check passes, 1 when any check FAILs, so a cron
-entry or a CI step can gate on it. The weekly schedule is one line and it is
+Exit status is three-valued (2026-08-15, D118): 0 when every check that ran
+passed, 1 when any check FAILs, and 3 when no check FAILs but at least one
+returned UNKNOWN -- a check that could not run against its evidence. UNKNOWN is
+not a softer FAIL and it is not a pass: it is a statement about the instrument
+rather than about the lab, and it must not exit 0 beside the passes. A cron
+entry or a CI step can gate on any of the three. The weekly schedule is one
+line and it is
 not installed by this file, because installing a timer is a change to the box
 and belongs to whoever owns the box:
 
@@ -54,7 +59,10 @@ so rather than pretending otherwise: `check_bundle_drift` compares the shipped
 laptop bundle to the tree it was built from. It is a consistency check between
 two copies of the same code, in the sense the paragraph above defines, and it
 earns its place because the bundle is the only copy of this code that leaves
-the box and it went 32 commits behind with nothing noticing.
+the box and it went 32 commits behind with nothing noticing. Since 2026-08-15
+it reads `dist/certonomous-demo.zip`, which is TRACKED, and not the gitignored
+directory beside it: a verification whose reference is gitignored expires the
+moment it is made, because nobody can ever re-derive what it saw (D118).
 
 WHAT EACH CHECK IS ACTUALLY TESTING, and why the distinction is not pedantry.
 `check_wall_credentials_vs_results` re-derives every credential through
@@ -102,7 +110,13 @@ WALL = WEB / "wall" / "wall.json"
 # check_ledger_stalls.
 STALL_SECONDS = 3600.0
 
-PASS, WARN, FAIL, INFO = "PASS", "WARN", "FAIL", "INFO"
+#: UNKNOWN added 2026-08-15 (D118). A check that could not run is not a check
+#: that passed, and WARN was the wrong home for it: `scripts/lab_check.py`
+#: records at its own line 229 that self_audit "exits non-zero only on FAIL --
+#: so an OFF detector reddens nothing here" (docket D78). UNKNOWN exits 3,
+#: which lab_check's EXIT_CONTRACT already maps to UNKNOWN, and it is tallied
+#: beside the others so a run cannot lose it silently.
+PASS, WARN, FAIL, INFO, UNKNOWN = "PASS", "WARN", "FAIL", "INFO", "UNKNOWN"
 
 
 @dataclass
@@ -4796,21 +4810,56 @@ def check_campaign_json_citations() -> Result:
                   f"all {total} machine-readable campaign citations resolve")
 
 
-# The three sets of files the laptop bundle copies VERBATIM out of this tree,
-# each as (label, source directory, bundle directory, glob). Everything else in
-# the bundle is derived at build time -- the recorded missions, the artifacts
-# those recordings point at, and the credentials and lab-stats snapshot, which
-# are deliberately computed with the whole repo present because copying their
-# small inputs gets them wrong in the direction that CLAIMS MORE. Comparing a
-# derived file against the tree would report drift on every build, so this
-# check compares only what is supposed to be a copy.
+# ---------------------------------------------------------------------------
+# The shipped laptop bundle.
+#
+# THE ARTIFACT IS THE ZIP, AND THE REFERENCE MUST BE REPRODUCIBLE.
+# `dist/certonomous-demo.zip` is TRACKED, so any clone at any commit can
+# extract the exact bytes that left this box. `dist/certonomous-demo/` is
+# GITIGNORED -- `.gitignore:72`, in its own words "the .zip is committed; the
+# extracted tree is not".
+#
+# Until 2026-08-15 this check compared the tree against THE DIRECTORY. Three
+# consequences, all measured (docket D118):
+#
+#   1. The only file that ships is the one nothing read. The directory and the
+#      zip agreed only because one build wrote both; nothing enforced it.
+#      Regenerate the directory without rebuilding the zip and the check went
+#      green over a stale shipped artifact -- the silent-zero shape (class B1)
+#      in the one place it costs most.
+#   2. Every verdict it ever recorded is unfalsifiable. Because the reference
+#      was untracked, no later agent can reconstruct what the check saw on
+#      2026-08-11, so the `56/56` recorded that day was a CLAIM, not a
+#      measurement, until it was re-derived against the tracked zip.
+#      A VERIFICATION WHOSE REFERENCE IS GITIGNORED EXPIRES THE MOMENT IT IS
+#      MADE.
+#   3. The zip holds 90 members and the check graded 56. The 34 ungraded
+#      members -- including `snapshot/lab_stats.json`, which carried defect 4
+#      of the 2026-08-10 rebuild -- could not appear in any numerator it
+#      printed, and nothing said so.
+#
+# The repair reads members from the zip, and states the whole 90 every run:
+# what it compared, what it declined to compare and why, and what it could not
+# classify at all.
+_BUNDLE_ZIP = Path("dist") / "certonomous-demo.zip"
+# The unpacked build directory. Kept, per BUNDLE_REBUILD_2026-08-10 section 4,
+# because it is what a human opens -- but it is a CONVENIENCE COPY and this
+# check never grades against it. Its agreement with the zip is reported as an
+# observation, because a disagreement means somebody rebuilt one and not the
+# other, which is precisely the failure mode above.
+_BUNDLE_DIR = Path("dist") / "certonomous-demo"
+
+# The two sets of files the laptop bundle copies VERBATIM out of TRACKED
+# sources, each as (label, source directory, member directory, glob). These are
+# the only members whose reference is reproducible from a clone, so they are
+# the only members that carry the verdict.
 _BUNDLE_VERBATIM = (
     ("control room", Path("sdk/chief_engineer"), Path("sdk/chief_engineer"),
      "**/*"),
     ("launcher", Path("scripts/laptop_bundle"), Path("."), "*"),
 )
 # The static pages, which move from demo-output/website into site/ and are the
-# one set whose bundle path is not its repo path.
+# one set whose member path is not its repo path.
 _BUNDLE_PAGES = (
     ("closure.html", Path("demo-output/website/closure.html"),
      Path("site/closure.html")),
@@ -4821,10 +4870,51 @@ _BUNDLE_PAGES = (
 )
 _BUNDLE_SKIP = ("__pycache__", ".pyc")
 
+# Classes a shipped member can fall into. The classification is applied to the
+# ZIP'S OWN MEMBER LIST -- it is never read off a list maintained here. D112's
+# transferable shape is that A CLEARANCE VERIFIED AGAINST AN ENUMERATION CANNOT
+# SEE THE ITEM BESIDE THE ONES IT LISTS, and that is exactly what produced the
+# fourth stale claim in a bundle rebuilt to clear the third. So a member that
+# matches no rule below is UNCLASSIFIED: it is named in the report and it turns
+# this check UNKNOWN. It is never dropped, because dropping is how the 56
+# became invisible as a subset of 90 in the first place.
+_GRADED = "graded"
+_DERIVED = "derived-at-build"
+_UNTRACKED_SRC = "untracked-source"
+_UNCLASSIFIED = "unclassified"
 
-def _bundle_pairs() -> list[tuple[str, Path, Path]]:
-    """(label, source, bundle) for every file the builder copies verbatim."""
-    pairs: list[tuple[str, Path, Path]] = []
+#: (member prefix, class, source root or None, why). Prefix rules, not member
+#: names: a new file under a known prefix classifies itself, and a new prefix
+#: does not.
+_BUNDLE_MEMBER_RULES = (
+    ("snapshot/", _DERIVED, None,
+     "computed at build time by build_laptop_bundle._capture_panels() with the "
+     "whole repo present (builder step 4). NO SOURCE FILE EXISTS to compare "
+     "against: the credentials wall re-grades each body against the refinement "
+     "ladders on disk and lab-stats counts 208k ledger rows, and copying the "
+     "small inputs gets both wrong in the direction that CLAIMS MORE"),
+    ("mission-state/", _UNTRACKED_SRC,
+     Path("sdk") / "chief-engineer-runs" / "mission-state",
+     "copied verbatim (builder step 2) from sdk/chief-engineer-runs/, which is "
+     "GITIGNORED at .gitignore:15. Grading it would put this check's verdict "
+     "back onto a reference no clone can reproduce, which is the D118 defect "
+     "itself one level down; the divergence below is an observation, not a "
+     "verdict, and it expires"),
+    ("mission-output/", _UNTRACKED_SRC, Path("mission-output"),
+     "copied verbatim (builder step 3) from mission-output/, which is "
+     "GITIGNORED at .gitignore:13. Same reason: reported, observed, not graded"),
+)
+
+
+def _bundle_pairs() -> list[tuple[str, Path, str]]:
+    """(label, tracked source, ZIP MEMBER NAME) for the copied-verbatim set.
+
+    The third element changed on 2026-08-15 (D118) from a path inside the
+    gitignored build directory to the member name inside the tracked shipped
+    archive. Anything reading this function for a filesystem path is reading a
+    reference that no longer exists.
+    """
+    pairs: list[tuple[str, Path, str]] = []
     for label, src_dir, dst_dir, pattern in _BUNDLE_VERBATIM:
         root = REPO / src_dir
         if not root.is_dir():
@@ -4835,13 +4925,54 @@ def _bundle_pairs() -> list[tuple[str, Path, Path]]:
             rel = src.relative_to(root)
             if any(part in str(rel) for part in _BUNDLE_SKIP):
                 continue
-            pairs.append((label, src, REPO / "dist" / "certonomous-demo"
-                          / dst_dir / rel))
+            pairs.append((label, src, (dst_dir / rel).as_posix()))
     for label, src, dst in _BUNDLE_PAGES:
         if (REPO / src).is_file():
-            pairs.append((f"page {label}", REPO / src,
-                          REPO / "dist" / "certonomous-demo" / dst))
+            pairs.append((f"page {label}", REPO / src, dst.as_posix()))
     return pairs
+
+
+def _bundle_members(archive: zipfile.ZipFile) -> tuple[dict[str, bytes], str]:
+    """Every file member of the shipped archive, keyed by bundle-relative name.
+
+    The archive root is DERIVED from the members rather than assumed, because
+    `build_laptop_bundle.py --out` can name it anything; the derived root is
+    printed in the frame so a reader can see which prefix was stripped.
+    """
+    names = [i.filename for i in archive.infolist() if not i.is_dir()]
+    tops = {n.split("/", 1)[0] for n in names if "/" in n}
+    root = f"{tops.pop()}/" if len(tops) == 1 and all(
+        "/" in n for n in names) else ""
+    members: dict[str, bytes] = {}
+    for name in names:
+        rel = name[len(root):] if root and name.startswith(root) else name
+        if any(part in rel for part in _BUNDLE_SKIP):
+            continue
+        members[rel] = archive.read(name)
+    return members, root
+
+
+def _classify_bundle_member(rel: str, graded: set[str]
+                            ) -> tuple[str, str, Path | None, str]:
+    """(class, rule key, source path or None, reason) for one shipped member.
+
+    The rule key is reported separately from the class on purpose. Two rules
+    share the `untracked-source` class for two different gitignore lines, and
+    a frame that printed one reason per CLASS would print one of them and drop
+    the other -- which is the omission this whole check exists to stop doing.
+    """
+    if rel in graded:
+        return (_GRADED, "tracked copy list", None,
+                "copied verbatim from a tracked source")
+    for prefix, cls, source_root, why in _BUNDLE_MEMBER_RULES:
+        if rel.startswith(prefix):
+            source = (REPO / source_root / rel[len(prefix):]
+                      if source_root is not None else None)
+            return cls, prefix, source, why
+    return (_UNCLASSIFIED, "(no rule)", None,
+            "matches no rule in _BUNDLE_MEMBER_RULES and no tracked source in "
+            "_bundle_pairs(): this check cannot say whether it is correct, "
+            "stale, or shipped by mistake")
 
 
 def check_bundle_drift() -> Result:
@@ -4858,66 +4989,165 @@ def check_bundle_drift() -> Result:
 
     This compares bytes, not dates. A module whose mtime moved but whose
     content did not is not drift, and a module edited in place on the same
-    second is. Only the files the builder copies VERBATIM are compared; the
-    recorded missions and the credentials snapshot are derived at build time
-    and would report drift on every build if they were included.
+    second is.
 
-    A file missing from the bundle FAILs on its own, per this check's gate: an
-    absent module is worse than a stale one, because a stale module still
-    answers and an absent one takes a page down with an import error.
+    IT READS THE ZIP, NOT THE DIRECTORY BESIDE IT (2026-08-15, D118).
+    `dist/certonomous-demo.zip` is tracked and `dist/certonomous-demo/` is
+    gitignored, so only the zip gives a verdict a later agent can re-derive.
+    See the comment block above `_BUNDLE_ZIP` for what the old reference cost.
+
+    IT STATES ITS WHOLE FRAME, EVERY RUN. The archive holds more members than
+    this check can grade. Each ungraded member is named with its class and the
+    reason it is not graded, so the denominator says what it declines to grade
+    instead of silently omitting it. Three classes decline for three different
+    reasons and they must not be confused: `derived-at-build` has no source
+    file at all, `untracked-source` has one that no clone can reproduce, and
+    `unclassified` is this check admitting it does not know.
+
+    THREE-VALUED, AND IT CANNOT PASS FROM AN EMPTY SET (class B1). A missing or
+    unreadable archive is UNKNOWN with the reason, never PASS and never a
+    quiet WARN: an absent artifact does not mean "nothing to report", it means
+    THIS DETECTOR IS OFF for the one artifact that leaves this box. So is an
+    archive with no members, an empty copy list, or any member this check
+    cannot classify.
+
+    A file missing from the archive FAILs on its own: an absent module is
+    worse than a stale one, because a stale module still answers and an absent
+    one takes a page down with an import error.
     """
-    bundle = REPO / "dist" / "certonomous-demo"
-    if not bundle.is_dir():
-        # FAIL, not WARN (2026-08-10). An absent bundle does not mean "nothing
-        # to report" -- it means THIS DETECTOR IS OFF, for the one artifact
-        # that leaves this box. The bundle shipped ten days stale while this
-        # check named the stale pages by name; the failure mode a missing
-        # bundle adds on top is silence read as success, which is the class
-        # closed everywhere else in this tree the same day (L-45).
-        return Result("bundle drift vs tree", FAIL,
-                      "NO BUNDLE at dist/certonomous-demo: the drift detector "
-                      "for the shipped artifact is OFF, not merely uninformative",
-                      ["nothing is being checked against the tree while this "
-                       "directory is absent -- a stale zip beside it would "
-                       "report clean",
+    name = "bundle drift vs shipped zip"
+    zip_path = REPO / _BUNDLE_ZIP
+    if not zip_path.is_file():
+        return Result(name, UNKNOWN,
+                      f"NO SHIPPED ARCHIVE at {_BUNDLE_ZIP.as_posix()}: the "
+                      f"drift detector for the artifact that leaves this box "
+                      f"is OFF, not merely uninformative",
+                      ["UNKNOWN, not PASS and not WARN: nothing is being "
+                       "compared, and a silence here reads as success exactly "
+                       "where it costs most (defect class B1, L-45)",
                        "build it with scripts/build_laptop_bundle.py --zip, or "
                        "record that the lab no longer ships one"])
+    try:
+        with zipfile.ZipFile(zip_path) as archive:
+            members, root = _bundle_members(archive)
+    except (OSError, zipfile.BadZipFile, RuntimeError) as exc:
+        # Named, not swallowed. An unreadable archive is the detector being
+        # off, and the exception text is the only evidence of why.
+        return Result(name, UNKNOWN,
+                      f"{_BUNDLE_ZIP.as_posix()} is UNREADABLE "
+                      f"({type(exc).__name__}: {exc}): the drift detector is "
+                      f"OFF",
+                      ["UNKNOWN, not PASS: an archive that will not open has "
+                       "not been checked and must not be reported as clean"])
     pairs = _bundle_pairs()
+    frame = [f"FRAME: {len(members)} member(s) in "
+             f"{_BUNDLE_ZIP.as_posix()} (root {root or '(none)'!r}), "
+             f"{len(pairs)} tracked source(s) in the copy list",
+             f"reference: {_BUNDLE_ZIP.as_posix()} is TRACKED, so this verdict "
+             f"re-derives from any clone at this commit -- unlike "
+             f"{_BUNDLE_DIR.as_posix()}, gitignored at .gitignore:72, which "
+             f"this check no longer grades against (D118)"]
+    if not members:
+        return Result(name, UNKNOWN,
+                      f"{_BUNDLE_ZIP.as_posix()} opened but holds NO file "
+                      f"members: nothing was compared", frame + [
+                          "UNKNOWN, not PASS: a check must not pass from an "
+                          "empty set"])
     if not pairs:
-        return Result("bundle drift vs tree", WARN,
-                      "found no files the builder copies verbatim; the "
-                      "builder's copy list and this check have diverged")
+        return Result(name, UNKNOWN,
+                      "found no files the builder copies verbatim out of "
+                      "tracked sources; the builder's copy list and this "
+                      "check have diverged", frame + [
+                          "UNKNOWN, not PASS: with an empty copy list every "
+                          "shipped member is ungraded"])
+
+    graded_names = {member for _, _, member in pairs}
     missing, differs = [], []
-    for label, src, dst in pairs:
+    for label, src, member in pairs:
         rel = src.relative_to(REPO)
-        if not dst.is_file():
-            missing.append(f"{label}: {rel} is ABSENT from the bundle")
+        if member not in members:
+            missing.append(f"{label}: {rel} is ABSENT from the shipped zip "
+                           f"(expected member {member})")
             continue
-        if src.read_bytes() != dst.read_bytes():
-            differs.append(f"{label}: {rel} differs from the shipped copy")
-    stale = [p for _, _, p in pairs]
-    extra = []
-    for shipped in sorted((bundle / "sdk" / "chief_engineer").rglob("*")):
-        if not shipped.is_file() or any(
-                part in str(shipped) for part in _BUNDLE_SKIP):
-            continue
-        if shipped not in stale:
-            extra.append(f"control room: {shipped.relative_to(bundle)} is "
-                         f"shipped and is not in the tree")
-    detail = missing + differs + extra
+        if src.read_bytes() != members[member]:
+            differs.append(f"{label}: {rel} differs from the shipped "
+                           f"{member}")
+
+    counts: dict[tuple[str, str], int] = {}
+    reasons: dict[tuple[str, str], str] = {}
+    unclassified, observations = [], []
+    for rel in sorted(members):
+        cls, rule, source, why = _classify_bundle_member(rel, graded_names)
+        counts[(cls, rule)] = counts.get((cls, rule), 0) + 1
+        reasons.setdefault((cls, rule), why)
+        if cls == _UNCLASSIFIED:
+            unclassified.append(f"UNCLASSIFIED shipped member {rel}: {why}")
+        elif cls == _UNTRACKED_SRC and source is not None:
+            # An observation, deliberately not a verdict. Its reference is
+            # gitignored, so a green from it would expire on sight -- which is
+            # the whole finding. It is reported because a member that has
+            # moved is worth seeing even when it cannot be graded.
+            if not source.is_file():
+                observations.append(
+                    f"OBSERVATION (not graded): {rel} has no source at "
+                    f"{source.relative_to(REPO)} today")
+            elif source.read_bytes() != members[rel]:
+                observations.append(
+                    f"OBSERVATION (not graded): {rel} differs from the "
+                    f"untracked {source.relative_to(REPO)}")
+
+    frame.append(f"compared: {len(pairs)} member(s) against tracked sources")
+    # One line per RULE, in rule order, so every rule that fired states its own
+    # reason and no rule's reason can be shadowed by another in its class.
+    for cls in (_DERIVED, _UNTRACKED_SRC, _UNCLASSIFIED):
+        for (member_cls, rule), count in counts.items():
+            if member_cls == cls:
+                frame.append(f"NOT compared: {count} member(s) under "
+                             f"{rule!r}, class {cls} -- "
+                             f"{reasons[(member_cls, rule)]}")
+    graded_count = sum(n for (cls, _), n in counts.items() if cls == _GRADED)
+    ungraded = len(members) - graded_count
+    frame.append(f"so the denominator is {graded_count} of "
+                 f"{len(members)} shipped member(s); the other {ungraded} are "
+                 f"named above by class and are NOT in any numerator here")
+    # The convenience copy, reported and never graded. A disagreement means
+    # one of the two was rebuilt without the other, which is the exact route
+    # by which this check used to go green over a stale shipped artifact.
+    bundle_dir = REPO / _BUNDLE_DIR
+    if not bundle_dir.is_dir():
+        frame.append(f"OBSERVATION: {_BUNDLE_DIR.as_posix()} (the gitignored "
+                     f"convenience copy) is absent; this does not affect the "
+                     f"verdict, which is taken from the zip")
+    else:
+        drifted = sum(1 for rel, blob in members.items()
+                      if not (bundle_dir / rel).is_file()
+                      or (bundle_dir / rel).read_bytes() != blob)
+        frame.append(f"OBSERVATION: {_BUNDLE_DIR.as_posix()} (gitignored "
+                     f"convenience copy) differs from the zip in {drifted} of "
+                     f"{len(members)} member(s)"
+                     + ("" if drifted else " -- one build wrote both"))
+    observations = observations[:10]
+
     if missing or differs:
-        return Result("bundle drift vs tree", FAIL,
-                      f"{len(missing)} file(s) missing from the bundle and "
-                      f"{len(differs)} behind the tree, of {len(pairs)} "
-                      f"copied verbatim", detail[:30])
-    if extra:
-        return Result("bundle drift vs tree", WARN,
+        return Result(name, FAIL,
+                      f"{len(missing)} file(s) missing from the shipped zip "
+                      f"and {len(differs)} behind the tree, of {len(pairs)} "
+                      f"copied verbatim from tracked sources "
+                      f"({len(members) - ungraded - len(missing) - len(differs)}"
+                      f" of {len(members)} shipped members verified)",
+                      missing + differs + unclassified + observations + frame)
+    if unclassified:
+        return Result(name, UNKNOWN,
                       f"all {len(pairs)} copied file(s) match, and "
-                      f"{len(extra)} shipped file(s) no longer exist in the "
-                      f"tree", extra[:15])
-    return Result("bundle drift vs tree", PASS,
-                  f"all {len(pairs)} file(s) the builder copies verbatim "
-                  f"match the tree byte for byte")
+                      f"{len(unclassified)} shipped member(s) CANNOT BE "
+                      f"CLASSIFIED: this check cannot say the artifact is "
+                      f"clean", unclassified + observations + frame)
+    return Result(name, PASS,
+                  f"all {len(pairs)} file(s) the builder copies verbatim out "
+                  f"of tracked sources match the shipped zip byte for byte "
+                  f"({ungraded} of {len(members)} shipped members are ungraded "
+                  f"by declared class, not by omission)",
+                  observations + frame)
 
 
 _RUNG_SHAPED = re.compile(
@@ -5321,10 +5551,17 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         ("eca_hoekstra_band", "sdk/chief_engineer/uq.py")),
     "check_bundle_drift": (
         SURFACE,
-        "a shipped file that is absent from the bundle or behind the tree, by "
-        "byte comparison",
+        "a shipped file that is absent from dist/certonomous-demo.zip or "
+        "behind the tree, by byte comparison against the TRACKED archive; and "
+        "a shipped member it cannot classify, which it reports as UNKNOWN "
+        "rather than dropping",
         "whether the tree is right; a defect copied faithfully into the "
-        "bundle is a match. Already self-declared in the module docstring",
+        "bundle is a match. Already self-declared in the module docstring. "
+        "And 34 of the 90 shipped members, which it names every run rather "
+        "than omitting: 2 are derived at build time with no source to compare, "
+        "and 32 are copied from gitignored sources, so their comparison would "
+        "rest on a reference no clone can reproduce -- it observes those and "
+        "does not grade them (D118)",
         None),
     "check_rung_estimates_state_their_iterations": (
         PROPERTY,
@@ -5561,8 +5798,10 @@ REMEDIES: dict[str, tuple[str, bool, str]] = {
         False, "the settling curves are in the logs those rungs already "
                "wrote; reading them is not a solve"),
     "check_bundle_drift": (
-        "rebuild the bundle from the tree and verify by rendering from inside "
-        "it rather than by diffing",
+        "rebuild the bundle from the tree WITH --zip so the tracked archive "
+        "moves too, then verify by rendering from inside it rather than by "
+        "diffing. Rebuilding only dist/certonomous-demo/ leaves the shipped "
+        "zip stale and this check will say so",
         False, "a copy, and a render"),
     "check_record_writers_name_their_drops": (
         "at each site, either copy the source's .items() minus a named drop "
@@ -5737,7 +5976,13 @@ def main() -> int:
                 print(f"         remedy basis: {basis}")
         print("=" * (width + 60))
         tally = {s: sum(1 for r in results if r.status == s)
-                 for s in (PASS, WARN, FAIL, INFO)}
+                 for s in (PASS, WARN, FAIL, INFO, UNKNOWN)}
+        unaccounted = sorted({r.status for r in results} - set(tally))
+        if unaccounted:
+            # A status the tally does not name would vanish from the summary
+            # line, which is a silent zero in the reporter itself.
+            print("  ".join(f"{s}: {sum(1 for r in results if r.status == s)}"
+                            f" (UNTALLIED STATUS)" for s in unaccounted))
         print("  ".join(f"{k}: {v}" for k, v in tally.items() if v))
         kinds: dict[str, int] = {}
         for check in CHECKS:
@@ -5747,7 +5992,14 @@ def main() -> int:
         print("what these checks test:  "
               + "  ".join(f"{k}: {v}" for k, v in sorted(kinds.items())))
 
-    return 1 if any(r.status == FAIL for r in results) else 0
+    # Three-valued exit, 2026-08-15 (D118). 1 on FAIL, 3 on UNKNOWN with no
+    # FAIL, 0 otherwise. FAIL outranks UNKNOWN because a definite finding
+    # outranks an indefinite one, and 3 is the code `scripts/lab_check.py`'s
+    # EXIT_CONTRACT already reads as UNKNOWN, so a detector that turned itself
+    # off now reddens the runner instead of exiting 0 beside the passes.
+    if any(r.status == FAIL for r in results):
+        return 1
+    return 3 if any(r.status == UNKNOWN for r in results) else 0
 
 
 if __name__ == "__main__":
