@@ -1,6 +1,6 @@
 # Ladder V — independent closure grade of rungs V6 and V10
 
-**Graded 2026-08-15, 02:37–03:05 UTC, against `99c66254` (`main`).** Clock audited with
+**Graded 2026-08-15, dispatched 02:36:58Z and closed 02:57Z, against `99c66254` (`main`).** Clock audited with
 `date -u` before any date below was written. Verdicts: **V6 FAIL** on one named blocker,
 **V10 FAIL** on three of its five named surfaces. Neither rung is marked green by this
 pass, and the reasons are stated so they can be attacked rather than accepted.
