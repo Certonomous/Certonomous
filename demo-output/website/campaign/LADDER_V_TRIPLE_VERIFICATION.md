@@ -880,10 +880,20 @@ before any date was written.
   `sdk/scripts/probability_of_rank.py`: six entrants × eight published per-case values plus six
   published overalls. Yields **54 distinct values**. **This family did not exist on 2026-08-10**,
   because the board had four rows then — which is the whole reason a re-run was owed.
-- **Rule R (derived arithmetically from S and B).** The margin over the leader,
-  `0.00136530…` → **`0.001365`**, and over the four-entry board's leader, `0.0028778…`; plus the
+- **Rule R (derived arithmetically from S and B).** Our margin over Yang, `0.00136530…` →
+  **`0.001365`**, and our margin over Reissmann, Fang and Sandberg, `0.0028778…`; plus the
   rank-companion literals the V8 recomputation note binds — `P(rank 1)`, its interval, and the
-  entrant count.
+  entrant count. *(Both are written against the named entrant rather than against a board
+  position. The first draft of this bullet wrote our margin against **a position word instead of
+  a name** — the top-of-board one — and **the placement guard's rule B faulted it**: a false
+  FAULT of the D54 class, since rule B has no proximity window and the entrant was named in the
+  very next clause. Repaired rather than argued with; naming the entrant is better prose anyway,
+  and V16's own criterion is that a guard which cries wolf gets switched off. **And the first
+  repair still faulted, because it quoted the offending phrase in order to describe it** — rule
+  B cannot tell use from mention, which this document says of it three sections above and which
+  docket **D4** records catching five agents in five files. So the phrase is described here and
+  not written. **Recorded because this pass predicted its own prose would create a fault, then
+  did it, and then did it again inside the sentence admitting the first one.**)*
 - **Rule P (prior art).** The struck sentence's fragments, recovered from `git show 92562841` as
   the 08-10 run did.
 
