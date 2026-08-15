@@ -600,6 +600,21 @@ Also forbidden on a shared tree (`ESCALATION_CHARTER.md` §3): `git reset --hard
 `git stash`, `git checkout -- <path>`, `git clean`. *"An unexpected uncommitted
 change is inspected, never reverted."*
 
+One more reason the single-step form is the right one here, observed while
+committing this document:
+
+    $ git add docs/USING_THIS_LAB.md
+    fatal: Unable to create '.git/index.lock': File exists.
+    $ git commit -F <msgfile> -- docs/USING_THIS_LAB.md
+    [main 5e8a4e1d] ...  1 file changed, 2 insertions(+), 1 deletion(-)
+
+The `git add` lost a race for the index lock against another session. The
+pathspec commit succeeded anyway, because `git commit -- <paths>` takes those
+paths from the **worktree** and does not need them staged first. So `git add` is
+a convenience here, not a prerequisite — but check the commit's file count and
+diffstat, because a form that works without staging also works when you did not
+mean it to.
+
 ### 9.4 `pgrep` and `pkill` match their own invoking shell
 
     $ bash -c 'pgrep -f "zzz_unique_marker_pattern"; echo exit=$?'
