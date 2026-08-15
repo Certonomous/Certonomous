@@ -9,6 +9,27 @@ why §0 exists.
 Read it once, top to bottom. Sections 2–4 are the ones that will cost you a day
 if you skip them, so they come before the orientation and not after it.
 
+> **SECOND PASS, 2026-08-15 19:21Z–19:50Z.** HEAD moved under it the whole time —
+> `a0f89c4b` at 19:23Z, `08889ffc` at 19:24Z, `9af7e2d3` at 19:32Z, `f732ebaf` at
+> 19:44Z — which is the conditions this document describes, not an excuse. A different
+> agent — dispatched as *"cold-read acceptance test of the handbook"*, no part of
+> writing it — followed this document from the top, ran every executable step, and
+> repaired what did not hold. Its edits are marked in place: measured figures now
+> carry a re-measurement, wrong claims are struck rather than deleted, and two new
+> sections (**§11a**, **§11b**) cover ground the original brief did not reach.
+>
+> **Its verdict on the document: the demonstrations reproduce; some of the
+> remedies did not.** See the addition at §13.
+>
+> *On independence: it cannot be shown from `git log` — every commit here carries
+> one shared `Ubuntu` identity (§11a). It rests on the dispatch record: two
+> distinct `agent-<id>` transcripts under the same chief session — the author's
+> (`ad939a0a9…`, 18:52:28Z–19:21:04Z) carrying 1 `Write` and 13 `Edit`s to this
+> file, the reader's (`aab6c8073…`) opening at 19:21:58Z with none. That is 54 s
+> after the author's last recorded action and 87 s after its final commit
+> `428bf008`. Note the limit honestly: the `Lab-Agent:` trailer would have read
+> identically for both, because they are siblings of one session (§11a).*
+
 ---
 
 ## 0. Frame for everything in this document
@@ -97,6 +118,25 @@ honoured:
     Aug 15 18:45:01 ... auto-stop[838608]: ALIVE: hold file set 20h ago
     Aug 15 18:50:01 ... auto-stop[838948]: ALIVE: hold file set 20h ago
 
+> **Filter `DRY_RUN` out of that, or you will read a test fixture as your box.**
+> Re-measured 19:32Z by the cold-read pass: of the last 200 `auto-stop` journal
+> lines, **56 were `[DRY_RUN]`** — another agent's test harness exercising
+> `auto-stop.sh` against temporary directories, interleaved with the real
+> five-minute cron ticks. Among them, in the same minute:
+>
+>     [DRY_RUN] ALIVE: solver or mesher running
+>     [DRY_RUN] idle 90min, shutting down
+>     [DRY_RUN] WARNING: no session transcript directory matches
+>               SESSIONS='/tmp/tmpg84032_8/.claude*/…' -- clause (3) is BLIND
+>
+> None of those is about this machine. A `[DRY_RUN] ALIVE` will reassure you that
+> your hold works when it says nothing of the kind, and a `[DRY_RUN] idle 90min,
+> shutting down` will alarm you for nothing. **The real lines carry no tag:**
+>
+>     $ journalctl -t auto-stop --no-pager -n 200 | command grep -v DRY_RUN | tail -2
+>     Aug 15 19:25:01 ... auto-stop[939496]: ALIVE: hold file set 0h ago
+>     Aug 15 19:30:01 ... auto-stop[946758]: ALIVE: hold file set 0h ago
+
 ### The live gap you must know about
 
 The tracked `scripts/auto-stop.sh` and the installed `/usr/local/bin/auto-stop.sh`
@@ -116,7 +156,28 @@ exist on this box and both hold transcripts:
     9
 
 So a session running under `~/.claude` is invisible to the installed gate: an
-occupied control room reads as an empty one. The repair is committed and
+occupied control room reads as an empty one.
+
+> **Verified directly by the cold-read pass, rather than inferred from the
+> registry.** `/usr/local/bin/auto-stop.sh` is `-rwxr-xr-x root root` — **it is
+> world-readable, no `sudo` needed**, so you can read the file that actually runs
+> instead of trusting a summary of it (`VERIFICATION_CHARTER.md` §14: *"name the
+> file, and open it before the finding leaves the room"*). `diff` against the
+> tracked copy:
+>
+>     installed:  SESSIONS=${SESSIONS:-/home/ubuntu/.claude-sanaa/projects/-home-ubuntu-Certonomous}
+>     tracked:    SESSIONS=${SESSIONS:-/home/ubuntu/.claude*/projects/-home-ubuntu-Certonomous}
+>
+> and the installed clause is `find "$SESSIONS" … -newermt … | grep -q .`, which
+> can only ever see the one literal directory. Confirmed, not deduced.
+>
+> **The two constants quoted in this section are the same in both copies** —
+> `IDLE_MINUTES=${IDLE_MINUTES:-30}` and `HOLD_MAX_HOURS=24` — which is worth
+> stating explicitly, because a section that tells you the two files differ and
+> then quotes numbers without saying which file they came from has invited you to
+> guess. They came from both.
+
+The repair is committed and
 deliberately **not installed**, because `/usr/local/bin/` is the box's power
 control and that belongs to the owner (docket row A4). The registry's own words:
 *"Until it is installed, the ONLY thing holding this box is `.autostop-hold`,
@@ -147,8 +208,18 @@ the interactive `grep` sees a minority of the tree. Measured:
     $ command find . -path ./.git -prune -o -type f -print | wc -l
     57448
 
-**12,619 of 57,448 = 22.0%.** A `grep -r` that returns nothing here is a confident,
-clean zero over roughly a fifth of the corpus. It is not a negative result.
+**12,619 of 57,448 = 22.0%** at `44ac957a`, 18:52Z. A second agent re-measured at
+`08889ffc`, 19:24Z and got **12,623 of 57,451**; four minutes later, **12,624 of
+57,439**. The file counts move every few minutes under ten concurrent agents. The
+**ratio does not** — it is 22.0% in all three. So do not quote a pair from this
+page; compute the ratio:
+
+    $ echo "$(grep -rl '' . | wc -l) $(command find . -path ./.git -prune -o -type f -print | wc -l)" \
+        | awk '{printf "%d of %d = %.1f%%\n", $1, $2, 100*$1/$2}'
+    12624 of 57439 = 22.0%
+
+A `grep -r` that returns nothing here is a confident, clean zero over roughly a
+fifth of the corpus. It is not a negative result.
 
 `find` is `bfs`, which rejects GNU expressions:
 
@@ -162,7 +233,14 @@ clean zero over roughly a fifth of the corpus. It is not a negative result.
 
 Root's cron gets the real GNU tools, which is why `auto-stop.sh`'s own
 `find ... -newermt "-30 min"` works in production and would fail if you pasted it
-into your shell.
+into your shell. *(Inference, not measurement — root's cron was not run to check
+it. The support is that `journalctl -t auto-stop` carries `ALIVE: Claude session
+transcript written within 30min (<path>)`, which is that clause returning a hit,
+and cron does not source the profile where `find` is redefined. Listed in §13.)*
+
+Both `bfs` and `ugrep` are re-verified at 19:23Z: `find` is still a shell function
+resolving to `bfs`, `/usr/bin/find` is still GNU findutils 4.9.0, `grep` is still
+a function running ugrep 7.5.0.
 
 **The fix, every time: `command grep` and `command find`.** `command` bypasses the
 shell function and gives you `/usr/bin/grep` and `/usr/bin/find`. Every
@@ -177,12 +255,24 @@ way. Better still, do not shell out at all: `scripts/lab_check.py` enumerates wi
 A sweep that reads one arm and reports a count has stated a number about its own
 tooling, not about the lab. Measured at `44ac957a`, 18:52Z:
 
-| Arm | Command | Files |
-| --- | --- | --- |
-| 1. Tracked | `git ls-files` | 20,688 |
-| 2. Untracked, not ignored | `git ls-files --others --exclude-standard` | 2 |
-| 3. **Gitignored** | `git ls-files --others --ignored --exclude-standard` | 37,256 |
-| 4. **Outside the repo** | `command find /home/ubuntu/certonomous-runs -type f` | 132,049 |
+| Arm | Command | Files @ `44ac957a` 18:52Z | Re-measured @ `08889ffc` 19:24Z |
+| --- | --- | --- | --- |
+| 1. Tracked | `git ls-files` | 20,688 | 20,690 |
+| 2. Untracked, not ignored | `git ls-files --others --exclude-standard` | 2 | 4 |
+| 3. **Gitignored** | `git ls-files --others --ignored --exclude-standard` | 37,256 | 37,246 |
+| 4. **Outside the repo** | `command find /home/ubuntu/certonomous-runs -type f` | 132,049 | 132,049 |
+
+Two columns, because one column would have taught you to quote it. Arm 2 doubled
+and arm 3 lost ten files in thirty-two minutes without anyone doing anything
+unusual. **Take your own reading — it is four lines:**
+
+```bash
+printf '%-28s %s\n' \
+  "1 tracked"    "$(git ls-files | wc -l)" \
+  "2 untracked"  "$(git ls-files --others --exclude-standard | wc -l)" \
+  "3 gitignored" "$(git ls-files --others --ignored --exclude-standard | wc -l)" \
+  "4 run tree"   "$(command find /home/ubuntu/certonomous-runs -type f | wc -l)"
+```
 
 Arm 3 is bigger than arm 1 and is invisible to the shell's `grep`. Arm 4 is bigger
 than the whole repository and is invisible to every git command.
@@ -206,10 +296,23 @@ git ls-files --others --ignored --exclude-standard -z | xargs -0 -r command grep
 command grep -rlI "$PAT" /home/ubuntu/certonomous-runs/
 ```
 
+**Budget for arm 4.** It is 132,049 files outside the repo and it is not a quick
+command: run as written by the cold-read pass, arms 1–3 returned in seconds
+(234 / 0 / 0 for that literal at 19:47Z) and **arm 4 had not finished at two
+minutes** and was killed. If you are on a timeout, start arm 4 first or run it in
+the background — and if you *skip* it, say in your record that you swept three
+arms and not four. A sweep that quietly drops the largest arm is the shape §4
+exists to prevent.
+
 For that literal, arm 1 returned 231 files and the shell's `grep -rlI` returned
 207 — and the 24-file difference is **not** the gitignored arm. It is 27 *tracked*
 files that `.gitignore` patterns also match, minus 3 that git skips for a
 different reason (next paragraph). The shell's grep misses tracked files too.
+
+Re-measured at `08889ffc`, 19:25Z: 232 and 208, **difference still 24**, and
+`git grep -lI --text` returns 235 — the same 3 files the `-I` arm drops for the
+reason in the next section. Both absolute counts moved by one overnight-hour of
+lab traffic; the two structural gaps, 24 and 3, did not.
 
 ### The fifth blind spot: `.gitattributes`
 
@@ -228,6 +331,9 @@ byte at all** — they are plain text that every sweep in this lab silently skip
 Five are sealed product certificates. See §10, where this is worked end to end.
 
 **When a sweep must be complete, add `--text`:** `git grep -lI --text "$PAT"`.
+`git grep -la` is the same thing in short form — verified identical, 237 files
+each at 19:49Z — and `-a` is what most dispatch briefs in this lab write, so
+recognise both.
 
 ---
 
@@ -247,15 +353,21 @@ Five are sealed product certificates. See §10, where this is worked end to end.
 | `mission-output/`, `demo-output/` | Mission artefacts and the published surface. |
 | `/home/ubuntu/certonomous-runs/` | The solve case trees. Outside the repo, gitignored by being elsewhere. |
 
-Sizes, so you know what you are walking into (measured 2026-08-15):
+Sizes, so you know what you are walking into. **Run these; do not read the
+numbers below as current** — `docs/DOCKET.md` was 499 lines at `44ac957a` (18:52Z)
+and 507 at `08889ffc` (19:26Z), which is the whole point of §0:
 
     $ command grep -c '^## L-' LESSONS.md            # numbered lessons
-    84
+    84                                               # 84 again at 19:26Z
     $ command grep -oE '^## L-[0-9]+' LESSONS.md | tail -1
     ## L-84
     $ wc -l docs/charters/VERIFICATION_CHARTER.md docs/DOCKET.md
-     1616 docs/charters/VERIFICATION_CHARTER.md
-      499 docs/DOCKET.md
+     1616 docs/charters/VERIFICATION_CHARTER.md      # 1616 again at 19:26Z
+      499 docs/DOCKET.md                             #  507 at 19:26Z
+
+`docs/charters/` holds **nine** `*_CHARTER.md` files plus `README.md`,
+`SUPERVISOR_RULINGS.md` and two proposals — `ls docs/charters/*_CHARTER.md | wc -l`
+is the count, and the rulings file is not a charter but binds like one.
 
 ---
 
@@ -268,6 +380,9 @@ Sizes, so you know what you are walking into (measured 2026-08-15):
 I ran both. The fast tier took 188 s of measured wall time across 13 gates. The
 full run took **1,221 s wall (20.4 min), 1,302 s user + 51 s system CPU**, adding
 the suite: **1,830 tests in 75 files, 1 failed**. Both returned **FAIL, exit 1**.
+Re-run three hours later on a busier box: **199 s** and **1,421 s (23.7 min)**,
+**1,852 tests in 77 files**, both still **FAIL, exit 1** — details below. Treat
+"~3 min / ~20 min" as a floor, not an estimate.
 
 The fast tier's frame block:
 
@@ -280,6 +395,21 @@ The fast tier's frame block:
       candidates         150  (tracked 149, on disk 150)
       admitted           88  (13 script gate(s), 75 test file(s))
       skipped            62  (6 of them could be hiding a verdict)
+
+**Re-run by a second agent at `08889ffc`, 19:24Z — 3:19 wall, 182 s user + 9 s
+system, exit 1.** Its frame block read `candidates 153 (tracked 150, on disk 153)`,
+`admitted 91 (14 script gate(s), 77 test file(s))`, `skipped 62`, and carried a
+line the earlier run did not print at all:
+
+    untracked only     3 -- present here, will not travel:
+                       scripts/check_summary_consistency.py,
+                       sdk/tests/test_blind_spots_are_printed.py,
+                       sdk/tests/test_empty_set_is_not_agreement.py
+
+**Read that line before you trust a green.** Three of the gates that ran exist
+only in this working tree. They are somebody's uncommitted work in flight, they
+will not survive a clone, and a verdict that depends on them is a verdict about
+this box. The four FAILs below were the same four in both runs.
 
 and its verdict:
 
@@ -316,11 +446,109 @@ once by reporting a single file's 115 passes as a full suite:
       __pycache__ purged    3 directories, before the run
                             (stale bytecode has inverted results here)
 
-The one failure is `sdk/tests/test_exec_bits.py`, for the reason in §9.2. Note
-also that the tracked cron file records this suite as **1,609 tests** measured on
-2026-08-14; it collected **1,830** on 2026-08-15. Neither number is wrong. That is
-what a count without a frame does, and it is why every count in this document
-carries the moment it was taken.
+**Re-run by the cold-read pass, 19:27:22Z–19:51:03Z, exit 1**, and every number in
+that block moved inside three hours:
+
+    test files enumerated 77        (was 75)
+    test files collected  77        (was 75)
+    tests collected       1852      (was 1830; failed 1, errored 0, skipped 0)
+    __pycache__ purged    2 directories   (was 3)
+
+    VERDICT: FAIL -- 15 check(s) ran, 62 not admitted, 6 unrun check(s) whose
+                     skip reason could be hiding a verdict
+    FAIL scripts/calibration_scorecard.py, check_absolutes.py,
+         contention_audit.py, self_audit.py
+    FAIL sdk/tests (pytest): 1 failed, 0 errored, out of 1852
+
+Wall **23:40.76** against the 20.4 min above, on **1,312 s user + 57 s system** —
+the run was slower while its own CPU time went *up*, because six other agents were
+working the box. **The wall figure is not a property of `lab_check.py`.** If you
+quote a runtime here, quote the load with it, per §7's *"a figure carries its
+basis"*.
+
+The one failure is `sdk/tests/test_exec_bits.py`, for the reason in §9.2
+(re-run standalone by the cold-read pass: `1 failed, 14 passed in 1.61s`, the
+failing case being `test_no_shebang_script_is_both_unexecutable_and_unregistered`).
+Note also that the tracked cron file records this suite as **1,609 tests** measured
+on 2026-08-14 — `scripts/installed/certonomous-lab-check.cron:29`, verified, and it
+also says **69 files**; it collected **1,830** in **75 files** on 2026-08-15.
+Neither number is wrong. That is what a count without a frame does, and it is why
+every count in this document carries the moment it was taken.
+
+### `__pycache__` purged 3 directories — that line is a gate, not housekeeping
+
+The frame block above says *"stale bytecode has inverted results here"* in
+parentheses. It is the most under-stated line in this document — it is
+**`docs/DOCKET.md` D1**, the very first row of the rung-residual table, and the
+real instance is worse than the phrase suggests: verifying V16's E3 recompute, an
+equal-length source mutation plus a restore left a stale `.pyc`, and for three
+consecutive runs *"the clean control **failed** and the mutated case **passed** — a
+perfectly inverted mutation matrix, which a less suspicious reading would have
+written up as 'the recompute is dead'."* D1's closing sentence is the one to
+carry: *"until [a purging harness] exists, every mutation result in this lab is
+only as good as whether its author happened to clear the cache."*
+
+Reproduced from scratch by the cold-read pass, so you can see the shape without
+reading the case:
+
+    # pkg/rule.py, 56 bytes, correct:  return "PASS" if x > 10 else "FAIL"
+    # test asserts verdict(5) == "FAIL"
+    $ python3 -m pytest -q test_rule.py
+    1 passed                                     # honest pass
+
+    # now MUTATE it to a same-length source that must FAIL, and restore the mtime
+    # pkg/rule.py, 56 bytes, broken:   return "PASS" if x > -1 else "FAIL"
+    $ python3 -m pytest -q test_rule.py
+    1 passed                                     # <-- THE MUTATION IS INVISIBLE
+
+    $ python3 -c 'from pkg.rule import verdict; print(verdict(5))'
+    FAIL                                         # the source says PASS. this is the .pyc.
+
+    $ /usr/bin/find . -name __pycache__ -type d -exec rm -rf {} +
+    $ python3 -m pytest -q test_rule.py
+    1 failed                                     # the true verdict
+
+**Read what that means before you read anything else on this page.** A test that
+*passes* was the failure. The suite reported green over a source file it never
+compiled. Every mutation test, every "I broke it and the gate caught it" control,
+every negative control the verification charter §2a demands — all of them are
+answered by the cache instead of by your change, and the answer is always "the
+old behaviour", which is usually the passing one.
+
+Two conditions have to line up, and both are ordinary here:
+
+- **Same file size.** CPython validates a `.pyc` on the `(mtime, size)` pair, not
+  a hash. A one-character edit that preserves length passes validation.
+- **Unchanged mtime.** `git checkout`, `git stash pop`, a worktree materialising a
+  file, or two writes inside one filesystem timestamp all produce this.
+
+And the remedy people reach for **does not work**:
+
+    $ PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q test_rule.py
+    1 passed                                     # still inverted
+
+`PYTHONDONTWRITEBYTECODE` stops Python *writing* bytecode. It has never stopped it
+**reading** bytecode that is already on disk. Measured, in the same scratch
+package, immediately after the inverted run.
+
+**The rule: purge, then measure. Every time, and in this order.**
+
+    /usr/bin/find . -name __pycache__ -type d -exec rm -rf {} + 2>/dev/null
+
+`lab_check.py` does this for you and prints the count, which is why that line is
+in the frame block. If you run `pytest` by hand — and §9.2's standalone re-run
+above is exactly that case — **you are the one purging it.**
+
+If you are mutating a source file to prove a gate can fail, purging between
+*every cell* is not optional, and note that the damage takes two different shapes
+depending on which state the cache is holding: the demonstration above gives you
+**both cells the same verdict** (the mutation is simply invisible), while D1's
+real instance gave a **fully inverted matrix** — clean control FAILED, mutated
+case PASSED. The second is more dangerous because it looks like a result. D1's
+requirement is therefore stronger than "purge first": a harness that *"clears
+`__pycache__` between every cell and asserts the clean control and the mutated
+case in the **same** run, so an inversion cannot look like a pass."* That harness
+does not exist yet — D1 is open — so on any mutation work you are the harness.
 
 Two more things a newcomer must read correctly:
 
@@ -343,9 +571,30 @@ its name.
              -> /etc/cron.d/certonomous-lab-check)
     ABSENT   pre-push hook  ...
 
-One operational note: `lab_check.py` buffers stdout when redirected. My first run
-wrote a zero-byte file for three minutes and then everything at once. Use
-`python3 -u` if you are watching a file.
+One operational note: `lab_check.py` writes a zero-byte file for the whole run
+and then everything at once.
+
+> ~~`lab_check.py` buffers stdout when redirected. My first run wrote a zero-byte
+> file for three minutes and then everything at once. Use `python3 -u` if you are
+> watching a file.~~
+>
+> **[STRUCK 2026-08-15 by the cold-read pass — the remedy does not work, and the
+> diagnosis was wrong. Original retained above per §7.]**
+> This is not stdout buffering. `lab_check.py` accumulates its entire report into
+> a list and emits it in a **single terminal `print("\n".join(lines))`**
+> (`scripts/lab_check.py:1261` for `--list`, `:1357` for a real run). Measured:
+> `python3 -u scripts/lab_check.py > full.out` left `full.out` at **0 bytes 2 min
+> 12 s into a 20-minute run**. `-u` unbuffers the stream; it cannot make a program
+> print something it has not printed yet. **There is no way to watch this run
+> progress.** Budget the wall time, check `$?` at the end, and if you need
+> progress, watch the pytest side-channel (`--junitxml`) instead of stdout.
+>
+> This matters beyond convenience, and is filed as docket **D148**: the box powers
+> itself off on an idle timer (§2) and a usage limit can terminate every agent at
+> once. An interruption at minute 19 of a 20-minute run yields **nothing at all** —
+> not a partial report — and a zero-byte output file is indistinguishable from a
+> run that never started, one that died, and one that is nineteen minutes healthy.
+> **Hold the box before you start the full tier.**
 
 ---
 
@@ -513,6 +762,22 @@ The message anchors at `fbaf9b8`, the **parent**. The substitution ran before th
 commit existed. A commit-anchored record that anchors at the wrong commit is
 exactly the failure the anchor rule exists to prevent.
 
+> **Independently reproduced 2026-08-15 by the cold-read pass**, in a fresh
+> scratch repository, both variants. Unbalanced: HEAD stayed at the baseline
+> commit, `git status --short` still showed `M  a.txt` staged, nothing committed.
+> Balanced: parent was `8cc8581`, the commit landed as `3a138fe`, and
+> `git log -1 --format=%s` returned **`anchored at 8cc8581`** — the message names
+> a commit that is not the commit it is on. `-F` with the same backticks recorded
+> them literally.
+>
+> **And the unbalanced case is worse than "anything after it in the same
+> invocation".** Run inside a script, bash fails at **parse** time on reaching
+> EOF, so it aborts the **entire remaining file** — not just the rest of that
+> command. Measured: a five-step script printed its first step, hit the
+> unbalanced backtick, and never executed steps two through five. If you have a
+> commit-then-verify script, the unbalanced backtick eats the verification too,
+> which is precisely the check that would have told you.
+
 **The working form:**
 
     printf 'use `git ls-tree HEAD` to verify\n' > /tmp/msg.txt
@@ -556,6 +821,57 @@ help:
 clone materialises; `ls-files -s` is what your index believes. `sdk/tests/test_exec_bits.py`
 reads `ls-tree` on purpose — its own first draft read `ls-files -s` and passed on
 a mode that was staged and never committed.
+
+#### What is actually happening, and the repair has a trap of its own
+
+The cold-read pass reproduced the whole sequence above in a scratch repo and got
+the **same four blob SHAs** (`4163036e`, `854c7ea1`, `ddd98c15`, `e197101e`), then
+ran four controlled cases to find the mechanism. "Re-derives the mode from the
+worktree" is nearly right, but the observable rule is sharper and more useful:
+
+> **With `core.filemode=false`, a pathspec commit takes the mode from `HEAD`.**
+> Not from the index, not from the worktree.
+
+Measured, both directions:
+
+| `HEAD` mode | index says (via `update-index`) | after `git commit -- run.sh` |
+| --- | --- | --- |
+| 100644 | 100755 | **100644** — the `+x` was discarded |
+| 100755 | 100644 | **100755** — the `-x` was discarded |
+
+So `git update-index --chmod` is **completely inert** under this lab's mandated
+commit form, in both directions. That is the whole of D134: under a pathspec
+commit the mode cannot be set *or cleared*, so the waiver register can only grow.
+
+**The trap inside the repair.** The recipe above passes `-c core.fileMode=true` to
+both `add` and `commit`. Only one of those is load-bearing, and it is not the
+obvious one:
+
+| where `-c core.fileMode=true` was passed | index after add | `ls-tree HEAD` |
+| --- | --- | --- |
+| on the **commit** only | 100644 | **100755** ✅ |
+| on the **add** only | 100755 | **100644** ❌ |
+
+Putting it on the `add` alone is the natural economy — you can *see* the index go
+to 100755 — and it silently produces 100644 in the tree. **The `-c` belongs on the
+commit, and the worktree file must carry the bit.** The working form:
+
+    chmod +x <file>
+    git -c core.fileMode=true commit -F <msgfile> -- <file>
+    git ls-tree HEAD <file>          # <-- the verification. 100755 or you failed.
+
+One more measurement, recorded because it is uncomfortable rather than because it
+is useful: a **bare** `git commit` with 100755 in the index *does* preserve the
+bit. The form that works is the form the charter forbids (`ESCALATION_CHARTER.md`
+§9.6). Do not take that as a licence — take it as the reason this trap exists here
+and not in most repositories.
+
+*Both tables above are filed as docket **D147**, because D134 offered the chief
+three repairs and the per-invocation `-c` is a fourth one it did not consider —
+it needs neither a protocol amendment nor a repo-wide config flip. Whether that
+form is protocol-conforming is the chief's call, not this document's; until it is
+ruled on, treat §9.2's working form as **what git does**, not as what you are
+permitted to do.*
 
 This interacts badly with the pathspec rule, and the interaction is already filed
 as docket **D134** by another session: under a partial commit the mode cannot be
@@ -627,6 +943,30 @@ command. A `pkill -f <pattern>` kills its own shell, and the chained command aft
 it silently never runs. This is not hypothetical — it happened while writing this
 document: `pgrep -af 'lab_check'` returned the PID of the `bash -c` running the
 `pgrep`. Match on process name with `pgrep -x`, or filter your own PID out.
+
+> **The `pgrep -x` half of that advice has a limit the cold-read pass hit on the
+> first try.** `-x` matches the kernel's `comm`, which is capped at 15 characters:
+>
+>     $ pgrep -x "zzz_unique_marker_pattern" ; echo exit=$?
+>     pgrep: pattern that searches for process name longer than 15 characters
+>     will result in zero matches
+>     exit=1
+>
+> It warns here, which is lucky — but it *returns 1*, and a script reading only
+> the exit status sees "no such process" and carries on. For anything longer than
+> 15 characters, `-x` is not available.
+>
+> **Subtracting `$$` is not enough either.** Measured — two PIDs match, and only
+> one of them is `$$`:
+>
+>     $ bash -c 'PAT=zzz_unique_marker_pattern
+>                pgrep -f "$PAT"                          # 961617  961637
+>                pgrep -f "$PAT" | command grep -vx "$$"' # 961617  <-- still there
+>
+> The survivor is the **parent** shell, which also carries the pattern on its
+> command line. So: `pgrep -f "$PAT" | command grep -vxe "$$" -e "$PPID"`, and for
+> the killing case never `pkill -f` at all — resolve to a PID list, drop your own
+> and your parent's, print what remains, and only then kill it.
 
 ---
 
@@ -794,13 +1134,47 @@ executed or by Katie ruling it out — never by ageing."**
   `B3a`, `G1c`.
 
 Measured at 18:58Z on 2026-08-15: 170 rows in the working tree, 169 in HEAD,
-highest `D134` (working tree only). By 19:05Z the highest was `D138`. Re-measure
-immediately before you allocate, and **guard the write**:
+highest `D134` (working tree only). By 19:05Z the highest was `D138`. By 19:26Z,
+a second agent measured **179 rows in both frames, highest `D142`** — nine rows
+and eight IDs in twenty-eight minutes. **Nothing on this page is a usable ID.**
+Re-measure immediately before you allocate, and **guard the write**:
+
+> ### ⚠ The recipe that was printed here returned the wrong answer. Struck.
+>
+> The original text, retained per §7's strike-and-keep rule and **not to be run**:
+>
+>     git show HEAD:docs/DOCKET.md | command grep -oE '^\| \*{0,2}[A-G][0-9]+' | sort -u
+>     command grep -oE '^\| \*{0,2}[A-G][0-9]+' docs/DOCKET.md | sort -u
+>
+> **[STRUCK 2026-08-15 by the cold-read acceptance pass, measured, not reasoned.]**
+> `sort -u` on `| D<n>` sorts **lexically**, so `D99` sorts after `D146`. Run as
+> written at 19:41Z, when the true highest was **`D146`**, the last `D` line it
+> printed was:
+>
+>     $ command grep -oE '^\| \*{0,2}[A-G][0-9]+' docs/DOCKET.md | sort -u | command grep '| D' | tail -1
+>     | D99
+>
+> — and the very last line of the whole output is `| G5`, which is not a `D` at
+> all. **A newcomer following this section literally allocates `D100`**, an ID
+> taken weeks ago, and collides silently with an existing row instead of the
+> concurrent writer the section is warning them about. This is the document's own
+> signature defect class committed inside the section written to prevent it, and
+> it is why §8's rule is *"a check written with the same helpers as the thing it
+> checks proves only that a number was transcribed faithfully."* §10 step 6 shows
+> the author's real command elided as `| ...`; the elision is where the working
+> part went.
+
+**The recipe that works — the sort must be numeric, on the number alone:**
 
 ```bash
-git show HEAD:docs/DOCKET.md | command grep -oE '^\| \*{0,2}[A-G][0-9]+' | sort -u
-command grep -oE '^\| \*{0,2}[A-G][0-9]+' docs/DOCKET.md | sort -u
+# highest D in HEAD, and in the working tree; they can differ
+git show HEAD:docs/DOCKET.md \
+  | command grep -oE '^\| \*{0,2}D[0-9]+' | command grep -oE '[0-9]+' | sort -n | tail -1
+command grep -oE '^\| \*{0,2}D[0-9]+' docs/DOCKET.md \
+  | command grep -oE '[0-9]+' | sort -n | tail -1
 ```
+
+Measured 19:41Z: `146` in both frames. Twenty minutes earlier it was `142`.
 
 Do not hand-type the append. Write it with something that asserts the ID is free
 at the moment of writing — checking and writing are two moments, and four IDs
@@ -828,6 +1202,216 @@ A citation guard runs over this:
 It exists because the dangerous defect is not a dangling citation — it is a
 citation to an ID you have not filed yet, which silently comes **true** when
 another session allocates that number for something else.
+
+---
+
+## 11a. How work actually gets dispatched here
+
+*[Added 2026-08-15 by the cold-read acceptance pass. The original draft was
+written against a brief that did not cover this, and a newcomer could follow the
+whole of §§0–14 without ever learning that they are not supposed to do the work
+themselves. Numbered `11a` rather than renumbered in, because this document is
+cited by section number and §7's own rule about reference targets applies to it.]*
+
+**First establish which of you you are.** This lab has two shapes of agent and
+they have opposite duties, so a newcomer who guesses wrong will either do work
+that was not theirs to do or supervise work nobody did:
+
+- **A working agent** executes one brief, in its own lane, and reports. It does
+  not dispatch, does not grade its own output, and does not settle questions on
+  the chief's retained list — it escalates them.
+- **A supervisor** (family or chief) **does not run the family's solves, write its
+  GUI, or fetch its papers.** It issues guidelines, performs four checks
+  personally, and dispatches. If you find yourself doing the work you dispatched,
+  you have collapsed the two roles and the independence rules below no longer
+  hold.
+
+Your dispatch brief tells you which you are. If it does not, that is a defect in
+the brief and worth saying so before you start.
+
+`SUPERVISION_CHARTER.md` §1, the line the whole model hangs on:
+
+> **Every big task family has a standing supervisor, and four kinds of check are
+> done by a supervisor personally or they have not been done.**
+
+And the test it gives, which is worth reading twice because it is aimed at the
+most natural thing an agent does: *"for any measurement-script change, crash, big
+claim or compute launch in the last week, name the supervisor who checked it and
+the record of the check. **'An agent reported it clean' is not an answer to that
+question. It is the thing the question exists to catch.**"*
+
+**The four families** (§2), each with a standing supervisor agent; the list is the
+owner's:
+
+| family | scope |
+| --- | --- |
+| DAFoam and adjoint | gradient ladders, FD verification, defect arcs, mesh warping — anything whose product is a derivative |
+| Closure and UQ | the closure challenge, field inversion, model-form studies, the three uncertainty channels |
+| Cases and campaigns | case families, refinement ladders, campaign records, the gate table |
+| Infrastructure and standards | the harness, monitors, audits, standards documents, the fleet's own operations |
+
+A family supervisor **issues guidelines, personally performs the four checks, and
+reports to the chief** — in that priority order. It *"does not run the family's
+solves, write its GUI, or fetch its papers; those go to the family's working
+agents."* The four personal checks (§3), which may **not** be delegated downward:
+
+1. **Code diffs on measurement scripts.** *"An instrument change without a
+   supervisor's read is an uncalibrated instrument."*
+2. **Crash triage — a crash is guilty until shown to be a mere bug.** *"A crash
+   written off without triage is a discarded measurement."*
+3. **Big-claim verification before belief** — a code sweep *and* an independent
+   diagnostic; *"the claim is assumed wrong until it has been defended against its
+   own evidence."*
+4. **Pre-registration presence before compute.** The supervisor checks *"the
+   commit exists, not that somebody meant to write one."*
+
+**Retained by the chief and not delegable** (§4): scoring-call authorization,
+cross-family arbitration, negative-verdict reviews on every FAIL / NO-GO / refuted
+prediction, custody of the daily list and research board, and everything the
+2026-07-26 delegation doctrine already assigns — research direction, trust
+verifications, new models, dispatch, synthesis.
+
+### Independence is a dispatch property, and it is not free
+
+Ladder V's **R-ISOLATE** (Katie, 2026-08-11, in
+`demo-output/website/campaign/LADDER_V_TRIPLE_VERIFICATION.md:265`) turns on a
+**non-author** measuring a rung. Its opening sentence is the lesson: the rule had
+been enforced by *"everyone being careful"*, and *"that is not enforcement …
+independence that depends on care fails the first time two agents pick the same
+filename"* (L-77, `LESSONS.md:3220` — an author overwrote a grader's held-out
+evidence and nobody broke a rule).
+
+R-ISOLATE has **four parts, all mechanical**. Only part 1 is summarised here,
+because it is the one that fails silently and the one a dispatcher gets wrong
+first; **go and read the other three at the line cited above before you dispatch a
+grader.**
+
+**Part 1 is worktree isolation, and it has a caveat that is bigger than the rule:**
+
+> **A fresh worktree does not carry gitignored files.** An agent isolated into a
+> worktree to audit *text or code* is correctly isolated. An agent isolated into a
+> worktree to audit **evidence** is looking at a checkout where that evidence does
+> not exist, and *"it will report an honest, confident, empty result — the
+> fail-open shape, produced by the very mechanism adopted to make verification
+> trustworthy."*
+
+That is §4 arm 3 and §3's `ugrep` problem arriving by a third route. The rule:
+
+- Subject is **tracked content** → worktree-isolate.
+- Subject is **run output, solver logs, or any gitignored tree** (§4 arms 3 and 4)
+  → work in the **main checkout**, with exclusive scratch paths assigned by the
+  dispatcher.
+- Unsure → *"have it print the count of evidence files it can see **before** it
+  reports what it found in them."*
+
+**And a worktree can be cut behind its own subject.** Docket **D19**: the first
+agent ever dispatched under R-ISOLATE got a worktree **18 commits behind**, with
+the entire author round it was sent to grade absent from the checkout. Same
+fail-open shape. The repair, and it is two lines in a brief:
+
+    # dispatcher: state the subject SHA in the brief
+    # agent, before executing anything:
+    git merge-base --is-ancestor <subject-sha> HEAD || echo "WRONG TREE — STOP"
+
+### What git can and cannot tell you about who did what
+
+Do not try to establish independence from `git log`. **Every commit on this box
+carries one identity** — `Ubuntu <ubuntu@ip-172-31-43-247…>` — because there is no
+`user.name`/`user.email` anywhere and git synthesises it from the unix user and
+hostname (`docs/AGENT_ATTRIBUTION.md`, measured: 1,217 commits since 2026-08-01,
+**one** author identity). The author field cannot discriminate between two agents.
+
+There is a mechanism, and its adoption cost is one line appended before committing:
+
+    $ python3 scripts/check_rung_attribution.py --emit-trailer >> <msgfile>
+    Lab-Agent: ip-172-31-43-247/64b13819-ff95-4d4d-a50f-3720bab19084/-
+
+**Know its limit before you rely on it.** The identity is `<host>/<session-uuid>`,
+and that UUID names a Claude Code *session*, not an agent. The script says so
+itself, in capitals, at `scripts/check_rung_attribution.py:92`:
+
+    TWO AGENTS DISPATCHED BY THE SAME CHIEF SESSION READ AS THE SAME AGENT.
+
+So the trailer separates chief sessions, not siblings. For sibling agents — which
+is what a chief's author and its grader usually are — independence still rests on
+the **dispatch record** (the per-agent transcripts and their meta records under
+`~/.claude/projects/<project>/<session>/subagents/`, which carry a distinct
+`agent-<id>` and its dispatching brief), and **not** on anything in the
+repository. Nothing before the anchor `e933e31b` is attributable and *"backfill is
+impossible"*; the `--tag` slug is recorded, printed, and **never decides a
+verdict**.
+
+---
+
+## 11b. When agents collide — which is constantly
+
+Ten agents write this tree. Collisions are the normal case, not the incident, and
+every mechanism below exists because one already happened.
+
+**1. Claim the item before you dispatch it.** `docs/DOCKET.md` §B carries a live
+dispatch-claim block, and the instruction is in the file's own words: *"CLAIM AN
+ITEM BEFORE YOU DISPATCH IT — write your session into the Status column first."*
+Added 2026-08-11 after two chief sessions independently dispatched *the same four
+briefs* off the same directive. The B1 collision is the proof: two agents ran the
+identical sweep brief and one's `Write` landed on the other's already-committed
+`docs/SWEEP_REFRAME_AUDIT.md`, **replacing a 335-line document with a 281-line one
+and dropping two sections**. It survived only because that agent went looking.
+*"The failure is the dispatcher's, not the agent's … one edit before dispatch
+makes the collision visible while it is still cheap — the agents do not exist
+yet."*
+
+**2. Do not leave a shared file dirty "to be polite".** §9.3 tells you a pathspec
+commit sweeps in whatever anyone else left uncommitted in that file. The
+considerate response — leave it for them — was tried, and it failed in the other
+direction: `ESCALATION_CHARTER.md` §9.6c, *"leaving a shared file dirty does not
+protect your work. It hands the decision to whoever commits next"*, which on this
+tree is a matter of seconds. **On a shared tree, inaction is not neutral.**
+
+**3. The procedure §9.3 does not give you.** §9.6c carries one, and it is short:
+
+```bash
+git diff --cached --name-only        # MUST be empty before you start. Check it.
+git diff <path> > /tmp/full.patch    # everything currently uncommitted
+# split the patch and keep only the hunks you wrote — do not eyeball it
+git apply --cached /tmp/mine.patch   # stage YOUR hunks only
+git diff --cached --stat             # confirm what is staged
+git diff --cached | command grep -c '<their marker>'   # confirm theirs is NOT
+git commit -F <msgfile>              # the index holds only your hunks
+```
+
+Two notes that make this safe rather than clever, both from the charter: that
+final `git commit` has **no pathspec**, normally forbidden — *"it is safe only
+because the index was empty and you put exactly your own hunks in it. Check that,
+do not assume it."* And **say in the commit message that you did this and why**.
+
+**4. Never revert what you did not change.** `ESCALATION_CHARTER.md` §3 forbids
+`git reset --hard`, `git stash`, `git checkout -- <path>` and `git clean` on this
+tree: *"An unexpected uncommitted change is inspected, never reverted."*
+
+> **The two sources disagree here, and a newcomer should see the disagreement
+> rather than a smoothed version of it.** The docket's own account of the B1
+> collision says the surviving agent *"restored it with `git checkout --`"* — the
+> exact command §3 forbids. Both readings are defensible: §3 protects a *live*
+> uncommitted change from being destroyed, whereas B1 was a restore *to* a
+> committed state after a `Write` had already destroyed one. My reading is that §3
+> governs and the B1 restore was an exception justified after the fact by having
+> compared both versions first, which is the part that actually made it safe.
+> **I am not the one who gets to settle that.** If you are about to run
+> `git checkout --` on this tree, treat it as escalation-worthy and say in your
+> record what you compared before you ran it.
+
+**5. Assume your reads are stale.** `git status` has been observed reporting a
+dirty file as clean while other sessions committed (§9.3). Diff against content —
+`git show HEAD:<path> | diff - <path>` — not against a summary. Re-read the
+highest docket ID *immediately* before you write, not when you started thinking
+about it: §10 step 6 lost that race by ninety seconds, and §11's own figures moved
+by eight IDs in twenty-eight minutes.
+
+**6. Expect to lose the index lock, and know that it does not stop you.** §9.3
+records `git add` failing with `Unable to create '.git/index.lock'` while the
+following pathspec commit succeeded anyway. Retry the `add`, or skip it — but read
+the diffstat, because a form that commits without staging also commits when you did
+not mean it to.
 
 ---
 
@@ -879,7 +1463,11 @@ does not get filed beside the passes.
 - **Nothing about `lab_check.py` is second-hand** — both tiers were run here
   (188 s and 1,221 s, both exit 1). But note that the full run happened on a box
   that had other agents' work on it at the same time, so the CPU figure is a
-  measurement of this box under load, not a clean benchmark.
+  measurement of this box under load, not a clean benchmark. *[Confirmed twice
+  over by the cold-read pass: an independent pair of runs three hours later gave
+  199 s and 1,421 s, both exit 1, with **more** CPU (1,312 s user vs 1,302 s) in
+  **more** wall time. Neither pass has a clean-box number and neither can get one
+  while the fleet is working.]*
 - **Solver and scoring behaviour.** No solve was run and no scoring call was made,
   under §7. Everything about OpenFOAM/DAFoam execution here is read from records.
 - **Whether the 12 blind-spot files ever hid a live claim.** §10 measures the
@@ -898,6 +1486,58 @@ does not get filed beside the passes.
   paraphrased into place. If you find a quote here you cannot locate, treat it the
   same way and say so.
 
+### Added 2026-08-15 by the cold-read acceptance pass
+
+The list above is honest about what it did not *measure*. It has a blind spot of
+its own, and it is a single shape:
+
+> **This document executed its demonstrations. It did not always execute its
+> remedies.** Every trap in §9 was reproduced. Several of the fixes offered
+> alongside them were not run before they were printed — in a document whose
+> subject is failures that look like successes.
+
+Four instances, all found by running them. **The first is the serious one:**
+
+- **§11's ID-collision recipe returned `D99` when the highest was `D146`.**
+  `sort -u` is lexical. Following §11 literally, a newcomer allocates `D100` — an
+  ID taken weeks ago — and collides *silently*, with an existing row rather than
+  with the concurrent writer the section is about. The section written to prevent
+  ID collisions was the one that caused them. Struck in place at §11 with a
+  numeric-sort replacement, measured in both frames.
+- **§6's `python3 -u`** — printed as the remedy for a zero-byte output file. It
+  cannot work: `lab_check.py` emits its whole report in one terminal `print`.
+  Struck in place at §6 with the source line cited.
+- **§9.4's `pgrep -x`** — printed as the remedy for the self-match. It refuses any
+  pattern over 15 characters and **returns exit 1**, which reads as "no such
+  process". Caveat and a working form added at §9.4.
+- **§9.2's `-c core.fileMode=true`** — the demonstration is correct and reproduces
+  to the blob SHA, but it was only ever run with the flag on *both* `add` and
+  `commit`. Passing it to the `add` alone — the natural economy — silently yields
+  100644. Measured and added at §9.2.
+
+Still unverified after this pass, and now marked rather than implied:
+
+- **That the installed gate's blindness has ever actually let the box power off
+  mid-session.** §2's mechanism is now verified by reading
+  `/usr/local/bin/auto-stop.sh` directly. Whether it has fired is a history
+  question and this is not the instrument for it.
+- **§3's "root's cron gets the real GNU tools."** Not tested by running root's
+  cron. The supporting evidence is indirect but real: `journalctl -t auto-stop`
+  carries `ALIVE: Claude session transcript written within 30min (<path>)`, which
+  is the `-newermt` clause returning a hit, and cron does not source the
+  interactive profile where `find` is redefined. Treat as strongly supported
+  inference, not measurement.
+- **Everything in §1's headline paragraph.** The score, the interval, the board
+  and the not-decided pairs are transcribed from `docs/PRODUCT_LIST.md`, whose
+  live line reads `RANK 1 OF 7` (six entrants plus us) — checked to line 53 and
+  its `[BOARD CORRECTED 2026-08-15]` block by this pass, and consistent. But
+  transcription is all it is. No scoring call was made by either pass.
+- **Whether §11a and §11b are complete.** They were written from
+  `SUPERVISION_CHARTER.md`, `ESCALATION_CHARTER.md` §9.6c, R-ISOLATE and D19 in
+  one pass. The delegation doctrine of 2026-07-26 is cited by the supervision
+  charter but was **not opened** — anything it assigns beyond the five nouns
+  §4 lists is not represented here.
+
 ---
 
 ## 14. Your first hour, as a checklist
@@ -911,4 +1551,9 @@ does not get filed beside the passes.
 6. Read the docket header rules, then skim the last ten `D` rows for house style.
 7. Sweep all four arms before you claim any count — §4.
 8. When you commit: `git add <paths>` → `git commit -F <msgfile> -- <same paths>`
-   → `git log --oneline -1` — §9.
+   → `git log --oneline -1` — §9. **Read the SHA it prints**, and if your message
+   claims an anchor, check that the anchor is that SHA and not its parent — §9.1.
+9. Before you dispatch anything: read §11a, and **claim the item in
+   `docs/DOCKET.md` §B before the agents exist** — §11b.
+10. Before you run `pytest` by hand, purge `__pycache__` — §6. A green suite over
+    stale bytecode is the cheapest wrong answer in this repository.
