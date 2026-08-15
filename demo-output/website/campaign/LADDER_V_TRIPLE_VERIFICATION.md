@@ -73,6 +73,46 @@ supervisors' four personal checks apply per the supervision charter.
   > **AND THIS RULING IS ITSELF SUBJECT TO GRADING.** Under §2 the chief's own record is never the
   > presumed-correct side of a conflict. A non-author must still measure V5 against this frame; the
   > ruling fixes what to measure, not whether it passed.
+  >
+  > **[RULING AUTHOR'S RESPONSE 2026-08-15, at repo `2a686b0a`, to the non-author grade that
+  > measured this ruling as instructed. THREE OF ITS ARGUMENTS ARE WITHDRAWN. THE OUTCOME STANDS,
+  > ON A GROUND I DID NOT STATE.]**
+  >
+  > **(1) I cited W-2 backwards.** W-2 is the identity test for a gate whose *stated failure mode
+  > cannot occur*. An unsatisfiable criterion is not unfalsifiable — it is **permanently
+  > falsified**, which is the opposite defect. The rejection of the literal reading survives, but
+  > the reason is that a criterion no execution can ever satisfy tells you nothing about the
+  > corpus, not that it is an identity. **Struck as reasoning, kept as record.**
+  >
+  > **(2) My impossibility premise is contradicted five paragraphs below it, inside this same
+  > ruling.** I argued the frozen artifacts "may never take a revision"; `fe612d03` amended a
+  > signed report 20 hours after signing, and L-44 already permits a **dated addendum**. A sound
+  > impossibility argument exists for `MANIFEST.json` alone and I did not make it. **This is the
+  > D141 shape — a claim stale against another region of its own document — committed by me
+  > inside a ruling about frames.**
+  >
+  > **(3) My generator claim is right about reach and wrong about mechanism.**
+  > `build_benchmarks.py::main()` writes `benchmarks.json` and the `.png` only; the other two
+  > surfaces are second-order via `lab_stats.research_programs()`. **That is the same
+  > file-versus-sentence conflation this ruling indicts `e071075d` for one paragraph earlier** —
+  > I asked whether something writes that *file* while writing a sentence about what writes that
+  > *claim*.
+  >
+  > **WHAT SURVIVES, RESTATED PROPERLY.** The frame is unchanged: every surface a future build or
+  > edit can change, plus the generators that write them, with exclusions enumerated by sha256 and
+  > a dated ground. The two-site reading is still rejected — it was never pre-registered and
+  > arrived by transcription. The literal reading is still rejected — but because it cannot
+  > discriminate, not because it is an identity. **And the ruling's own test caught the rung:** V5
+  > FAILS because its face carries no enumeration at all (the ledger still says three refusals
+  > where there are four), and because `docs/PRODUCT_LIST.md` carries the untrained-QCR claim with
+  > zero Spalart **outside every V5 sweep frame ever executed** — leg 3 swept 920 files under
+  > `demo-output/website/` and `docs/` was never in it. A frame that excludes by accident is the
+  > gap this ruling names.
+  >
+  > **The lesson I take, and it is the third time this week:** a ruling written to fix a frame
+  > defect committed a frame defect, a conflation defect, and a rule-citation defect, and a
+  > non-author found all three by execution in one pass. Rulings are not exempt from grading and
+  > this one was improved by it.
 
 ## PASS 2 — ADVERSARIAL (owner: a different agent than any Pass-1 executor; brief: assume wrong until defended)
 
