@@ -86,8 +86,19 @@ sign-off.
 - Result block: value ± 95% CI with a **fidelity chip** (SOLVER-BACKED /
   RESEARCH MODEL / VALIDATED).
 - Complete **three-channel** V&V-20 uncertainty table.
-- Provenance footer: SHA-256 seal (truncated + full), mission id small,
-  "Reproducible from the sealed evidence bundle".
+- Provenance footer: issuance timestamp, SHA-256 seal (truncated + full), and
+  mission id + certificate number, small.
+
+NOTE, 2026-08-15 (docket D137): this list previously said the footer reads
+"Reproducible from the sealed evidence bundle". The generator no longer emits
+that sentence, and the claim was false in the reading a credential-holder
+takes -- the evidence bundle does not determine the seal, because `issued_utc`
+is the wall clock rather than a fact of the run, so re-issuing the same result
+reproduces neither the seal nor the number. Re-running this script therefore
+produces a redesign PDF WITHOUT that sentence and with a different certificate
+number and seal from the tracked `b52-certificate-redesign.pdf`, which is a
+second identity for one result rather than a correction of the first -- do not
+re-run it to "fix" the published page. See D135.
 
 ## Substitution note
 Requested mission **M-C13431539C15** is not in this repo's records, and no B-52

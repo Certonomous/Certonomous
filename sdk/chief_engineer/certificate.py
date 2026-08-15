@@ -864,7 +864,25 @@ def _human_number(mission_id: str, issued_utc: str, seal: str) -> str:
     """A human certificate number C-YYYY-NNNN, deterministic from the seal.
 
     Never the mission slug — the slug is metadata, this is the certificate's
-    own registered identity.
+    own printed identity.
+
+    NOT a registered identity, and the word is avoided deliberately (D138):
+    there is no register. Nothing in this repository maps a number back to a
+    mission, a seal or a file, so a number printed here can be READ but never
+    LOOKED UP, and a citation of one resolves only for as long as the page
+    that carries it survives.
+
+    Read what this number does and does not identify before citing it:
+
+    * It identifies an ISSUANCE, not a result. It is deterministic from the
+      seal, and the seal covers ``issued_utc`` (see ``_seal_payload``), which
+      every caller supplies from the wall clock. Re-issuing the SAME result
+      one second later therefore prints a different number.
+    * The namespace is 10,000 wide and the draw is effectively random, so it
+      collides: a number is not unique across missions.
+
+    Whether that is the right design is D135's question and its owner's to
+    settle; this docstring only stops the code from claiming otherwise.
     """
     year = (issued_utc or "2026")[:4]
     if not (len(year) == 4 and year.isdigit()):

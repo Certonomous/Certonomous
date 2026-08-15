@@ -258,9 +258,45 @@ class GeometryStudyCertificateTests(unittest.TestCase):
         self.assertTrue(text.startswith("%PDF"))
         for banned in ("\x97",           # em dash in WinAnsi
                        "cached", "stored", "saved", "recorded",
-                       "pre-computed", "real solve", "TREND",
-                       "reproducible evidence"):
+                       "pre-computed", "real solve", "TREND"):
             self.assertNotIn(banned, text)
+        # The reproducibility claim, banned as an IDEA rather than as a phrase.
+        #
+        # This guard used to read "reproducible evidence" and nothing else, and
+        # the footer that shipped on four published certificates read
+        # "Reproducible from the sealed evidence bundle" -- the banned idea got
+        # through on three words of separation and a capital letter (D137).
+        #
+        # The claim is false in the reading a credential-holder takes: the
+        # evidence bundle does not determine the seal, because `issued_utc` is
+        # the wall clock and not a fact of the run, so re-issuing the same
+        # result reproduces neither the seal nor the number. A sealed page may
+        # say it is VERIFIABLE. It may not say it is reproducible.
+        self.assertNotIn("reproduc", text.lower(),
+                         "a sealed page may claim verifiability, never "
+                         "reproducibility -- see D137")
+
+    def test_the_reproducibility_guard_catches_the_footer_that_defeated_it(self):
+        """MUTATION PROOF for the widened guard above.
+
+        The old guard banned the exact string "reproducible evidence". This
+        replays the sentence that actually shipped and asserts the widened
+        form catches it while the old form does not -- so the widening is
+        demonstrated to bite, not merely asserted to be wider.
+        """
+        shipped = ("Reproducible from the sealed evidence bundle; any change "
+                   "to the recorded run invalidates the seal.")
+        self.assertNotIn("reproducible evidence", shipped,
+                         "the old guard's needle is genuinely absent -- this "
+                         "is why it passed")
+        self.assertIn("reproduc", shipped.lower(),
+                      "the widened guard's needle is present")
+        # Must-not-match control: the wording that is honest under every
+        # option in D135 has to survive the widened guard, or the guard is a
+        # ban on the topic rather than on the claim.
+        honest = ("Verifiable from the sealed evidence bundle; any change to "
+                  "the recorded run invalidates the seal.")
+        self.assertNotIn("reproduc", honest.lower())
 
 
 class RenderRailTests(unittest.TestCase):
