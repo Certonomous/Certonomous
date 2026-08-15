@@ -12,7 +12,7 @@ artifacts; nothing is synthesized.
 | reduced-order solver runs | 5 | mission-output/race-study/work/rom (4 anchors + 1 confirmation, result.json each) |
 | peak L/D, ensemble mean | 18.21 | mean of the 8 per-sample peaks below |
 | peak L/D, reduced-order confirmed | 18.14 at alpha 0 | work/rom/rom-confirm/result.json |
-| ensemble 95% band at 88 runs | +-0.065 (published +-0.06) | 2 x stdev / sqrt(8) over the per-sample peaks; certificate C-2026-9704 |
+| ensemble 95% band at 88 runs | +-0.065 (published +-0.06) | 2 x stdev / sqrt(8) over the per-sample peaks; the act's certificate, mission-output/race-study/certificate.pdf |
 | reduced-order envelope | +-0.084 | recorded confirmation 18.1407 vs surface prediction 18.2247 from the 4 recorded anchors; certificate says residual 0.084 |
 | measured speedup, solver time | 16.6x | 374.1 s over 88 runs vs 22.5 s over 5 runs (elapsed_s in every result.json); certificate says 16.7x core-minutes |
 | measured cost per run | 4.25 s | mean elapsed_s over the 88 ensemble records |
@@ -62,7 +62,7 @@ curve starts at 3 runs. Every value is a recorded solver result.
 ## Check verdicts
 
 - PASS: convergence slope matches the 1 over sqrt N guarantee. fitted slope -0.5010 on the root mean square curve over N = 22..88, guarantee -0.5, tolerance 0.05
-- PASS: N = 88 half-width reproduces the act's published band. recomputed +-0.0649; certificate C-2026-9704 publishes +-0.06 (95 percent) with input channel 0.065. The +-0.07 band belongs to the earlier race-benchmark passes (demo-output/website/race/benchmarks.md), not this act.
+- PASS: N = 88 half-width reproduces the act's published band. recomputed +-0.0649; the act's certificate (mission-output/race-study/certificate.pdf) publishes +-0.06 (95 percent) with input channel 0.065. The +-0.07 band belongs to the earlier race-benchmark passes (demo-output/website/race/benchmarks.md), not this act.
 - PASS: reduced-order envelope comes from its recorded runs. quadratic through the 4 recorded anchors peaks at alpha 0, predicts 18.2247, recorded confirmation 18.1407, residual 0.0840; certificate says 0.084
 - PASS: measured speedup reproduces the act's 16.7x. recorded solver time 374.1 s over 88 runs vs 22.5 s over 5 runs = 16.61x; certificate says 16.7x core-minutes
 - PASS: per-run wall cost matches the stated 4.25 s. mean recorded elapsed over the 88 ensemble runs 4.251 s per solver run
@@ -70,10 +70,18 @@ curve starts at 3 runs. Every value is a recorded solver result.
 
 ## Provenance note on the published band
 
-The race act's own certificate (mission-output/race-study/certificate.pdf,
-C-2026-9704, issued 2026-07-26T02:16:51Z) publishes peak L/D 18.14 +- 0.06
-at 95 percent with input channel 0.065, speedup 16.7x core-minutes, 88 + 5
-solver runs. The +-0.07 band circulating with the value 18.14 belongs to
-the earlier race-benchmark passes (demo-output/website/race/benchmarks.md:
-pass1 18.10 +- 0.07, pass2 18.20 +- 0.07); this panel reproduces the race
-act's records exactly, so it carries +-0.06.
+The race act's own certificate (mission-output/race-study/certificate.pdf) publishes peak L/D
+18.14 +- 0.06 at 95 percent with input channel 0.065, speedup 16.7x
+core-minutes, 88 + 5 solver runs. The +-0.07 band circulating with the
+value 18.14 belongs to the earlier race-benchmark passes
+(demo-output/website/race/benchmarks.md: pass1 18.10 +- 0.07, pass2 18.20
++- 0.07); this panel reproduces the race act's records exactly, so it
+carries +-0.06.
+
+That certificate is cited by its path and by the numbers it prints, and
+deliberately not by its certificate number or its seal. Both of those are
+functions of the issuance clock rather than of the result -- the seal covers
+`issued_utc` and the number is a four-digit projection of the seal -- so a
+serial quoted here would name nothing after the act's next re-render. This
+note previously cited C-2026-9704, and that page now prints a different
+number for the same result. When this panel was rendered that page carried C-2026-7228, seal 6dd22c25dbfb5a11.... That is an observation of one issuance, not a name: the act's next re-render will print a different one for the same result, which is why nothing above cites it.

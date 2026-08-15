@@ -16,7 +16,10 @@ Every number is read from the recorded artifacts, nothing is invented:
 * mission-output/race-study/work/mc/mc-s{S}a{A}/result.json  (88 files)
 * mission-output/race-study/work/rom/rom-*/result.json       (5 files)
 * the act's published numbers live in
-  mission-output/race-study/certificate.pdf (C-2026-9704).
+  mission-output/race-study/certificate.pdf -- cited by that path and by the
+  numbers it prints, never by its certificate number or its seal, both of
+  which are functions of the issuance clock rather than of the result
+  (see the citation note under OUT_DIR).
 
 The estimator study: the act's Monte-Carlo band is 2 * stdev / sqrt(m) over
 the m per-sample peaks, and one ensemble member costs 11 solver runs (a full
@@ -45,6 +48,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import statistics
 from pathlib import Path
 
@@ -53,6 +57,39 @@ import numpy as np
 REPO = Path(__file__).resolve().parents[2]
 WORK = REPO / "mission-output" / "race-study" / "work"
 OUT_DIR = REPO / "demo-output" / "plots" / "monte_carlo"
+
+# --- how this file cites the act's certificate, and why -------------------
+# By PATH and by the NUMBERS on the page. Never by its certificate number and
+# never by its seal.
+#
+# Both of those are functions of the wall clock rather than of the result: the
+# seal covers `issued_utc` (`certificate.py` `_seal_payload`) and the serial is
+# a four-digit projection of the seal (`_human_number`), so re-issuing the SAME
+# result reproduces neither. This file used to hardcode `C-2026-9704` in five
+# places. The file it names still exists and now prints C-2026-7228, so the
+# citation was not merely dead -- it was contradicted by the very artifact it
+# pointed at, which is the worst shape a citation can take.
+#
+# Rejected, and why:
+#   * Re-point the literal at C-2026-7228. That is a reset, not a repair: it
+#     dies on the race act's next re-render exactly as 9704 did.
+#   * Cite the SEAL instead (D137's own recommendation). It does not survive
+#     the mechanism -- the seal moves for the same reason the serial moves, so
+#     this buys a 64-hex-digit dangling citation in place of a 4-digit one.
+#     The seal is collision-free; it is not stable.
+#   * Drop the citation and restate the claim alone. Rejected because
+#     `run_checks` really does compare recomputed numbers against the act's
+#     published band, so the provenance of that band has to stay nameable.
+#
+# What survives re-issuance is the mission, the artifact path, and the numbers
+# printed on the page. Those are the citation. `observed_certificate_identity`
+# additionally reports the identity the page carried AT RENDER TIME, labelled
+# as an observation and not as a name, so the panel dates itself instead of
+# asserting a permanence the generator cannot deliver.
+CERTIFICATE_PATH = "mission-output/race-study/certificate.pdf"
+CERTIFICATE_PUBLISHES = (
+    "peak L/D 18.14 +- 0.06 at 95 percent, input channel 0.065, "
+    "speedup 16.7x core-minutes, 88 + 5 solver runs, residual 0.084")
 
 N_SAMPLES = 8
 ALPHAS = [float(a) for a in range(11)]        # the act's 1-degree grid
@@ -313,8 +350,12 @@ def build_story(work: Path = WORK, *, orderings: int = ORDERINGS,
 def run_checks(story: dict, *, slope_tol: float = 0.05) -> list[dict]:
     """Every checkable claim in the deliverable, checked against the records
     and the act's certificate (mission-output/race-study/certificate.pdf,
-    C-2026-9704: peak L/D 18.14 +- 0.06 at 95 percent, input channel 0.065,
-    speedup 16.7x core-minutes, 88 + 5 solver runs, residual 0.084)."""
+    which publishes peak L/D 18.14 +- 0.06 at 95 percent, input channel
+    0.065, speedup 16.7x core-minutes, 88 + 5 solver runs, residual 0.084).
+
+    The certificate is named by path and by those numbers; its serial and its
+    seal are deliberately not quoted here, because both move with the
+    issuance clock rather than with the result."""
     checks = []
 
     slope = story["slope_rms"]
@@ -328,7 +369,8 @@ def run_checks(story: dict, *, slope_tol: float = 0.05) -> list[dict]:
     checks.append({
         "name": "N = 88 half-width reproduces the act's published band",
         "pass": round(hw, 2) == 0.06 and round(hw, 3) == 0.065,
-        "detail": f"recomputed +-{hw:.4f}; certificate C-2026-9704 publishes "
+        "detail": f"recomputed +-{hw:.4f}; the act's certificate "
+                  f"({CERTIFICATE_PATH}) publishes "
                   f"+-0.06 (95 percent) with input channel 0.065. The +-0.07 "
                   f"band belongs to the earlier race-benchmark passes "
                   f"(demo-output/website/race/benchmarks.md), not this act."})
@@ -560,6 +602,34 @@ def render_frames(story: dict, out_dir: Path) -> list[Path]:
 # Stats note
 # ---------------------------------------------------------------------------
 
+def observed_certificate_identity(repo: Path = REPO) -> str:
+    """The identity the act's certificate carries RIGHT NOW, as an observation.
+
+    This is never a citation key -- see the citation note under OUT_DIR. It is
+    a dated reading of a page that is allowed to change, phrased so a reader
+    cannot mistake it for a durable name. It never invents a serial, and an
+    absent or unreadable page yields a plain statement of absence rather than
+    an exception: a missing certificate must not fail a panel render.
+    """
+    pdf = repo / CERTIFICATE_PATH
+    try:
+        raw = pdf.read_bytes()
+    except OSError:
+        return (f"{CERTIFICATE_PATH} was not readable when this panel was "
+                f"rendered, so no issued identity is reported here.")
+    text = raw.decode("latin-1")
+    serials = re.findall(r"C-\d{4}-\d{4}", text)
+    seals = re.findall(r"\(([0-9a-f]{32})\) Tj", text)
+    if not serials:
+        return (f"{CERTIFICATE_PATH} was present when this panel was rendered "
+                f"but printed no certificate number.")
+    seal_bit = f", seal {seals[0][:16]}..." if seals else ""
+    return (f"When this panel was rendered that page carried {serials[0]}"
+            f"{seal_bit}. That is an observation of one issuance, not a name: "
+            f"the act's next re-render will print a different one for the same "
+            f"result, which is why nothing above cites it.")
+
+
 def write_stats_note(story: dict, checks: list[dict], out_md: Path) -> Path:
     per = story["per_member"]
     rows = "\n".join(
@@ -571,6 +641,7 @@ def write_stats_note(story: dict, checks: list[dict], out_md: Path) -> Path:
         f"- {'PASS' if c['pass'] else 'FAIL'}: {c['name']}. {c['detail']}"
         for c in checks)
     peaks = ", ".join(f"{p:.4f}" for p in story["peaks"])
+    identity = observed_certificate_identity()
     rom_rows = "\n".join(
         f"| {p['n_runs']} | {p['error']:.4f} | {p['tested']} "
         f"(alpha {p['tested_at']:g}) |"
@@ -589,7 +660,7 @@ artifacts; nothing is synthesized.
 | reduced-order solver runs | {story['n_rom_runs']} | mission-output/race-study/work/rom (4 anchors + 1 confirmation, result.json each) |
 | peak L/D, ensemble mean | {story['peak_mean']:.2f} | mean of the 8 per-sample peaks below |
 | peak L/D, reduced-order confirmed | {story['rom']['confirm']['l_d']:.2f} at alpha {story['rom']['confirm']['alpha']:g} | work/rom/rom-confirm/result.json |
-| ensemble 95% band at 88 runs | +-{story['hw_final']:.3f} (published +-0.06) | 2 x stdev / sqrt(8) over the per-sample peaks; certificate C-2026-9704 |
+| ensemble 95% band at 88 runs | +-{story['hw_final']:.3f} (published +-0.06) | 2 x stdev / sqrt(8) over the per-sample peaks; the act's certificate, {CERTIFICATE_PATH} |
 | reduced-order envelope | +-{story['surrogate']['residual']:.3f} | recorded confirmation {story['rom']['confirm']['l_d']:.4f} vs surface prediction {story['surrogate']['predicted']:.4f} from the 4 recorded anchors; certificate says residual 0.084 |
 | measured speedup, solver time | {story['speedup_solver_time']:.1f}x | {story['mc_seconds']:.1f} s over 88 runs vs {story['rom_seconds']:.1f} s over 5 runs (elapsed_s in every result.json); certificate says 16.7x core-minutes |
 | measured cost per run | {story['seconds_per_run']:.2f} s | mean elapsed_s over the 88 ensemble records |
@@ -634,13 +705,21 @@ curve starts at 3 runs. Every value is a recorded solver result.
 
 ## Provenance note on the published band
 
-The race act's own certificate (mission-output/race-study/certificate.pdf,
-C-2026-9704, issued 2026-07-26T02:16:51Z) publishes peak L/D 18.14 +- 0.06
-at 95 percent with input channel 0.065, speedup 16.7x core-minutes, 88 + 5
-solver runs. The +-0.07 band circulating with the value 18.14 belongs to
-the earlier race-benchmark passes (demo-output/website/race/benchmarks.md:
-pass1 18.10 +- 0.07, pass2 18.20 +- 0.07); this panel reproduces the race
-act's records exactly, so it carries +-0.06.
+The race act's own certificate ({CERTIFICATE_PATH}) publishes peak L/D
+18.14 +- 0.06 at 95 percent with input channel 0.065, speedup 16.7x
+core-minutes, 88 + 5 solver runs. The +-0.07 band circulating with the
+value 18.14 belongs to the earlier race-benchmark passes
+(demo-output/website/race/benchmarks.md: pass1 18.10 +- 0.07, pass2 18.20
++- 0.07); this panel reproduces the race act's records exactly, so it
+carries +-0.06.
+
+That certificate is cited by its path and by the numbers it prints, and
+deliberately not by its certificate number or its seal. Both of those are
+functions of the issuance clock rather than of the result -- the seal covers
+`issued_utc` and the number is a four-digit projection of the seal -- so a
+serial quoted here would name nothing after the act's next re-render. This
+note previously cited C-2026-9704, and that page now prints a different
+number for the same result. {identity}
 """
     out_md.write_text(md, encoding="utf-8")
     return out_md
