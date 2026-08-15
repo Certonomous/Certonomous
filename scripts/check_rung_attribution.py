@@ -211,7 +211,7 @@ EXIT_UNKNOWN = 3
 #: THE COMMIT THIS MECHANISM STARTS FROM. `None` until the introducing commit
 #: exists and its sha is known -- the first commit cannot name itself. Commits
 #: before this one carry no identity and cannot be given one; see the docstring.
-ANCHOR: str | None = None
+ANCHOR: str | None = "e933e31b62b056e65bb99572adc91c0914e6b83f"
 
 #: The grammar, deliberately strict. Anything that starts `Lab-Agent:` and does
 #: not match this is MALFORMED -- a broken emitter -- and is never silently

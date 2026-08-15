@@ -1,7 +1,9 @@
 # Agent attribution — making rung independence verifiable from the repository
 
-**Status: mechanism landed, adoption voluntary. Anchor commit named in
-`scripts/check_rung_attribution.py::ANCHOR`.**
+**Status: mechanism landed, adoption voluntary.
+Anchor commit `e933e31b62b056e65bb99572adc91c0914e6b83f` (2026-08-15T03:02Z),
+pinned as `scripts/check_rung_attribution.py::ANCHOR`. Nothing before it is
+attributable and nothing ever will be — see *backfill is impossible*.**
 
 Ladder V's **R-ISOLATE** turns on a non-author measuring a rung. Until now that
 could not be checked from this repository at all, and every claim of the form
@@ -161,7 +163,9 @@ claim; resolving it the other way could.
 ## BACKFILL IS IMPOSSIBLE
 
 `ANCHOR` in `scripts/check_rung_attribution.py` is the commit that introduces
-this mechanism. **Commits before it carry no identity and never will.** The
+this mechanism: **`e933e31b`, 2026-08-15T03:02Z**, the first commit in this
+repository's history to carry a `Lab-Agent` trailer.
+**Commits before it carry no identity and never will.** The
 information — which session made them — was never recorded anywhere that
 travels; reconstructing it would mean rewriting 1,849 commits, which is
 forbidden here and would be a fabrication anyway.
