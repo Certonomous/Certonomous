@@ -345,7 +345,13 @@ repair correctly declined to do and correctly handed to a non-author instead.
   append. Renumbered rather than renamed theirs; theirs are untouched and named in this
   grade's commit message. Recorded because "re-check the highest ID immediately before
   writing" is not sufficient under four concurrent agents — the collision window is the
-  write itself.)*
+  write itself. And the collision ran both ways: `769a83f0`, that agent's own pathspec
+  commit filing its D119/D120, landed after my rows were already in the worktree and
+  **carried D121 and D122 into history under its message**, so this grade's docket rows
+  are anchored at another agent's commit rather than at `7ea96c0f`. Nothing was lost and
+  nothing was overwritten; both of us named what we did not write. A pathspec commit takes
+  the whole worktree state of a shared file, and under concurrency that means the commit
+  that anchors a row is not reliably the commit whose message describes it.)*
 
 **What would falsify this verdict — stated so it can be overturned rather than argued
 with:**
