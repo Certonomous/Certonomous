@@ -399,9 +399,42 @@ def _selftest(verbose=True):
     return ok
 
 
+def _self_test_requested(argv):
+    """Is this the controls-only invocation, which sweeps no directory?
+
+    Read before the parser runs, because the parser requires a root -- see the
+    note in main(). Option reading stops at `--`, where argparse stops reading
+    options too, and prefix matches are honoured because argparse honours them.
+    """
+    args = list(sys.argv[1:] if argv is None else argv)
+    head = args[:args.index('--')] if '--' in args else args
+    return any(len(a) > 2 and '--self-test'.startswith(a) for a in head)
+
+
 def main(argv=None):
+    # The controls-only mode, answered ahead of the parser so the parser can
+    # require a root. See the `roots` note below.
+    if _self_test_requested(argv):
+        return 0 if _selftest() else 1
+
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
-    ap.add_argument('roots', nargs='*', help='directories to sweep')
+    # AT LEAST ONE ROOT IS REQUIRED IN ARGPARSE'S OWN TERMS, rather than
+    # accepted as an empty list and rejected afterwards, and the reason is
+    # docket D108. `scripts/lab_check.py` decides whether it can invoke a check
+    # by reading this call out of the AST, and a positional carrying
+    # `nargs='*'` reads to that predicate as a script that runs with no
+    # arguments. So the runner admitted this file, launched it with an empty
+    # command line, and got exit 2 with argparse's `usage:` on stderr and
+    # nothing on stdout -- which under the runner's repaired exit contract is a
+    # BLOCKING UNKNOWN, since every byte of that diagnosis is written by the
+    # graded check itself. Two such checks were enough that the runner could
+    # return no non-blocking verdict on the tree whatever else passed. With
+    # `nargs='+'` the runner skips this file as `requires-arguments` before
+    # launch and it lands in the coverage statement, where a detector that
+    # sweeps a named archive belongs.
+    ap.add_argument('roots', nargs='+',
+                    help='directories to sweep (at least one; use --self-test '
+                         'to run the controls instead)')
     ap.add_argument('--tolerance', type=float, default=DEFAULT_TOLERANCE)
     ap.add_argument('--burst-ratio', type=float, default=DEFAULT_BURST_RATIO)
     ap.add_argument('--min-peers', type=int, default=DEFAULT_MIN_PEERS)
@@ -410,14 +443,11 @@ def main(argv=None):
                          'it, too long for an overlap (default 3600s)')
     ap.add_argument('--limit', type=int, default=60,
                     help='max rows to print per non-collision section')
+    # Declared so `-h` keeps listing it; the invocation itself is answered by
+    # _self_test_requested() above, before this parser is built.
     ap.add_argument('--self-test', action='store_true',
                     help='run the positive and negative controls and exit')
     a = ap.parse_args(argv)
-
-    if a.self_test:
-        return 0 if _selftest() else 1
-    if not a.roots:
-        ap.error('give at least one directory to sweep, or --self-test')
 
     res = scan(a.roots, a.tolerance, a.burst_ratio, a.min_peers)
     return 2 if report(res, a.tolerance, a.concurrency_window, a.limit) else 0

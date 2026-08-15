@@ -564,11 +564,43 @@ def sweep(pattern: str,
 # CLI
 # --------------------------------------------------------------------------
 
+def _list_frames_requested(argv: Sequence[str] | None) -> bool:
+    """Is this the frame-listing invocation, which takes no pattern?
+
+    Read before the parser runs, because the parser requires the pattern -- see
+    the note in `_build_parser`. Option reading stops at `--`, where argparse
+    stops reading options too, so `sweep.py -F -- --list-frames` searches for
+    that literal string instead of listing frames. Prefix matches are honoured
+    (`--list`, `--li`) because argparse honours them and this reads the same
+    command line argparse would.
+    """
+    args = list(sys.argv[1:] if argv is None else argv)
+    head = args[:args.index("--")] if "--" in args else args
+    return any(len(a) > 2 and "--list-frames".startswith(a) for a in head)
+
+
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="sweep",
         description="Sweep a tree and print the frame the count was taken in.")
-    p.add_argument("pattern", nargs="?", help="regex, or fixed string with -F")
+    # THE PATTERN IS REQUIRED IN ARGPARSE'S OWN TERMS, not checked after
+    # parsing, and the reason is docket D108 rather than taste. `lab_check.py`
+    # decides whether it can invoke a check by reading this call out of the
+    # AST: a positional carrying `nargs="?"` reads to that predicate as a
+    # script that runs with no arguments at all. So the runner admitted this
+    # file, launched it with an empty command line, got the refusal below --
+    # exit 2, silence on stdout, one sentence on stderr -- and under the
+    # runner's repaired exit contract had to record a BLOCKING UNKNOWN about a
+    # check it was unable to run. Two such checks were enough that the runner
+    # could return no non-blocking verdict on this tree whatever else passed.
+    # With the positional genuinely required the runner skips this file as
+    # `requires-arguments` before launch, which puts it in the coverage
+    # statement, where a check that wants a frame named belongs.
+    #
+    # `--list-frames` is still a legitimate pattern-free invocation. It is
+    # answered in main() ahead of the parser, by `_list_frames_requested`, and
+    # it stays declared here so `-h` keeps listing it.
+    p.add_argument("pattern", help="regex, or fixed string with -F")
     p.add_argument("--frame", choices=sorted(FRAMES),
                    help="required: which files to sweep")
     p.add_argument("--root", default=".")
@@ -589,11 +621,14 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = _build_parser().parse_args(argv)
-    if args.list_frames:
+    if _list_frames_requested(argv):
         for name, f in sorted(FRAMES.items()):
             print(f"{name}\n  selects: {f.rule_words}\n  filter : {f.filter_words}\n")
         return 0
+    args = _build_parser().parse_args(argv)
+    # `--frame` stays a runtime check rather than `required=True`, because the
+    # sentence it prints is the finding: L-75 is why there is no default frame,
+    # and argparse's own wording would drop that.
     if not args.pattern or not args.frame:
         print("sweep: both a pattern and --frame are required "
               f"(frames: {', '.join(sorted(FRAMES))}). "
