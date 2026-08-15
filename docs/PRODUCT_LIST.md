@@ -60,7 +60,8 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       point standing is 1 of 7. The two names the old list omitted are Yang, whom we lead by **0.001365 on that
       same six-entry board retrieved 2026-08-11T23:33Z and re-verified 2026-08-14T21:01Z**, and
       Tian/Buchanan/Hickel/Dwight.]** The whole
-      delta is the ducts (untrained QCR2000: AR_1 0.0811→0.0455, AR_3 0.0775→0.0400); AR_14's tie LOST (+0.0029) exactly
+      delta is the ducts (untrained QCR2000, whose one coefficient Ccr1 = 0.3 is Spalart (2000)'s published constant,
+      adopted untrained and overridden nowhere: AR_1 0.0811→0.0455, AR_3 0.0775→0.0400); AR_14's tie LOST (+0.0029) exactly
       as priced in writing, not reverted per the bundle's terms; our QCR ducts land within 0.0004 of Wu&Zhang's published
       ducts — same term, independent solve, same answer. Caveat everywhere: LOCAL scoring, not an official placement.
       **AND from 2026-08-10 (b2aa6887), RECOMPUTED 2026-08-11 against a SIX-entry board: P(rank 1) = 50%** (400k
@@ -133,7 +134,8 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       and would have silently regressed the public page on its next run.
       → NEW ITEM (from this cross-off): ~~**Ladder V early rungs V1/V3/V4/V5 as record-hardening**~~ DONE same day
       (9a21d65c): all four PASS — score reproduced to the last digit in a fresh venv, leakage asserts executed live
-      with a negative control, AR_1 traced unbroken end-to-end, untrained-QCR proven structurally. Ladder V now stands
+      with a negative control, AR_1 traced unbroken end-to-end, untrained-QCR proven structurally (the QCR2000 term's
+      one coefficient Ccr1 = 0.3 is Spalart (2000)'s published constant, nothing fitted to anything). Ladder V now stands
       V1–V5/V7/V10 all PASS (status ledger in LADDER_V_TRIPLE_VERIFICATION.md); the remaining rungs are exactly the
       set that needs a real submission package.
       → NEW ITEM (from that cross-off): **Model-form matrix on the periodic hills** (review entry 1's remaining
@@ -605,7 +607,8 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   verified F6a answer; Gate P reattachment FAIL at +13.92% — INSIDE the pre-registered +12–16% prediction window, so
   the two-leg SST bubble bias is confirmed at challenge conditions. The QCR arm returned a null (+0.0022 x/c away from
   experiment, bar 0.010): constitutive/anisotropy ruled out on the hump leg, omega budget implicated — a clean
-  separation from the ducts, where the same untrained QCR was decisive. Review entry 2 outcome + a new a1-limiter
+  separation from the ducts, where the same untrained QCR — QCR2000, Ccr1 = 0.3, Spalart (2000)'s published constant
+  adopted untrained — was decisive. Review entry 2 outcome + a new a1-limiter
   diagnostic recorded (0a764729); the a1 arms (0.28/0.34) and QCR-on-hills are running now under a chief-owned watcher.
 - DOUBLE MACH REFLECTION first result (84933043): Gate V passed both rungs (shock-position error 0.15%/0.17% of
   travel), rung-to-rung self-similarity passed (free slope within 0.05° across 2× refinement); two gate clauses failed
@@ -653,7 +656,8 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   no G2-bar revision (the bar caught a real property of the loss).
 - LADDER V PASS 1 COMPLETE (9a21d65c): V1–V5/V7/V10 all PASS — the score reproduced to the last digit in a fresh venv,
   leakage asserts run live with a negative control, one duct traced unbroken end-to-end, untrained-QCR proven
-  structurally. Every rung runnable before a send exists has run; status ledger in the protocol doc (223c3b84).
+  structurally (the QCR2000 term's one coefficient Ccr1 = 0.3 is Spalart (2000)'s published constant, nothing fitted).
+  Every rung runnable before a send exists has run; status ledger in the protocol doc (223c3b84).
 - IN FLIGHT at changelog time: hills model-form matrix (family H, pre-reg 28e14422), A3 sub-LU adjoint arm, S1
   nonlocality control → FD gate → weighted arm.
 

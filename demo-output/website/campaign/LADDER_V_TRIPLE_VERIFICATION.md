@@ -114,6 +114,116 @@ supervisors' four personal checks apply per the supervision charter.
   > non-author found all three by execution in one pass. Rulings are not exempt from grading and
   > this one was improved by it.
 
+  ### V5 FRAME ENUMERATION — the four refusals, on the rung's face, 2026-08-15
+
+  **Written by the repair pass at repo `1a847fa8`, in answer to the ruling's own requirement that
+  "frozen artifacts and third-party signed reports are OUT OF FRAME — but only when enumerated on
+  this rung's face, each with its sha256 and a dated refusal ground."** Until this block existed the
+  rung had, in the ruling's words, four gaps and not four exclusions. **This pass is an author of
+  the enumeration and of the leg-3 repairs recorded below it, and therefore may not grade either;
+  V5 is left OPEN for a non-author.**
+
+  Every hash below was computed by execution at 2026-08-15 (`sha256sum` on the worktree) and
+  confirmed byte-identical to `git show HEAD:<path> | sha256sum`. Commit histories were read with
+  `git log --format=%H %cI` per path, not from any prior record.
+
+  | # | refused surface | sha256 (worktree ≡ HEAD) | refusal, and its date | stated ground | ground re-executed |
+  |---|---|---|---|---|---|
+  | **1** | `demo-output/website/closure_challenge_submission_round5/MANIFEST.json` | `58f4f5a5437e4e7b149e1ba6c79369799faa476886866087981c3d89c6ce7092` | **2026-08-11**, `LADDER_V_PASS1_2026-08-11.md:466-467` | *"frozen scoring/pre-registration artifact (A2 rests on their immutability)"* | **HOLDS**, on a ground stated properly here for the first time — see (a) |
+  | **2** | `demo-output/website/closure_challenge_round5_qcr_forward.json` | `7e6c0d855d0063e1541e69831d66db10901cef73006e4a6b186689abc7a45d1a` | **2026-08-11**, `LADDER_V_PASS1_2026-08-11.md:466-467` | *"frozen scoring/pre-registration artifact"* | **HOLDS**, same ground — see (a) |
+  | **3** | `demo-output/website/campaign/QCR_ACTIVITY_CHECK_2026-08-08.md` | `1f6b36cc39c66efd3ad694df9bca94a8c5447023c16f91f5472acd12a1299429` | **2026-08-11**, `LADDER_V_PASS1_2026-08-11.md:467-469` | *"another verification agent's signed report, left to its owner"* | **FALLS** — see (b). Exclusion **WITHDRAWN** |
+  | **4** | `demo-output/website/campaign/LADDER_V_RUNGS_V2_V7_V10_2026-08-08.md` | `2d270213c07f030b337eac2dc84e7c012ecb00beafad5555443e7ef78dd7a0a8` | **2026-08-08**, `LADDER_V_RUNGS_V1_V3_V4_V5_2026-08-08.md:258-260` | *"the signed report of another verification agent, left to its owner"* | **FALLS on the same reasoning** — see (c). Exclusion **WITHDRAWN** |
+
+  Commit histories, measured: **1** — `07a7fe9e` @ 2026-08-07T20:51:51Z, one commit, never amended.
+  **2** — `e865076b` @ 2026-08-07T20:38:52Z, one commit, never amended. **3** — `1a14e90b` @
+  2026-08-08T02:18:29Z **and `fe612d03` @ 2026-08-08T22:25:35Z**. **4** — `49f71b8c` @
+  2026-08-08T02:08:13Z, one commit, never amended. All four carry **zero** occurrences of "Spalart".
+
+  **(a) Why the two JSON refusals hold, and why the ruling's own version of this argument was too
+  broad.** The ruling author has already withdrawn *"frozen artifacts may never take a revision"* as
+  a general premise, and was right to: L-44 permits a **dated addendum**, and `fe612d03` is a worked
+  example. The ground that survives is narrower and is a property of the **container**, not of
+  freezing: **L-44's addendum goes below a freeze line, and a JSON object has no below.** Any
+  citation added to `MANIFEST.json` or to the forward record is a byte inserted *inside* the frozen
+  structure — a revision, which L-44 forbids — and there is no region of either file where an
+  additive note could sit without being inside it. For `MANIFEST.json` there is a second,
+  independent ground: A2's tamper chain is asserted on its single-commit, never-amended history, and
+  an addendum would end that property at a cost a citation does not repay. *Measured, so the refusal
+  is not costless:* the citation the round-5 package needs is not missing from the package — its
+  sibling `closure_challenge_round5_qcr.json` carries the full journal reference in
+  `model.provenance`. **These two exclusions are permanent, and they are the reason V5 cannot reach
+  a plain PASS under the literal reading — which is the correct form of the argument the ruling
+  made badly.**
+
+  **(b) The stale ground, stated, challenged, and decided against itself.** Refusal 3's ground was
+  that the file is a signed report *"left to its owner"* and so may not be touched. **That is false
+  of this file, by its own history.** `fe612d03` — committed 2026-08-08T22:25:35Z, **20 h 07 m after
+  `1a14e90b` signed it and three days before the refusal was written** — appended a section headed
+  *"## 2026-08-08 addendum — the hills SST control leg's citation gets its log line"*, wholly below
+  the signed text, closing with *"nothing else in this record changes."* Read at the diff, that is
+  **exactly** the dated additive note L-44 permits and exactly the shape a Spalart attribution would
+  take. A file that has already accepted such a note from a later pass is not closed to others.
+  **The refusal's ground does not survive, so the exclusion is withdrawn.** Ownership survives as a
+  *routing* rule — this pass does not edit another agent's report — but routing is not a frame
+  exclusion, and the ruling's whole point is that the two must not be confused. The surface returns
+  to frame as an **open unmet site whose repair is an L-44 dated addendum by its owner**.
+  *Recorded with it, because it changes what the site is worth:* the file contains **23** mentions
+  of QCR and **zero** occurrences of "untrained". Under the criterion as written — *"Spalart (2000)
+  cited wherever QCR is named"* — it is a site. Under the narrower claim predicate (the untrained
+  claim about **our** model) it is not a site at all. **Which predicate governs has never been
+  ruled**, only which surfaces do; that gap is real and is named here rather than resolved by a pass
+  that is not entitled to rule.
+
+  **(c) Refusal 4 falls with refusal 3, and consistency requires saying so.** Its ground is the same
+  sentence — another agent's signed report, left to its owner. `LADDER_V_RUNGS_V2_V7_V10_2026-08-08.md`
+  has never in fact been amended, so it has no `fe612d03` of its own; but L-44's permission is
+  general, and the ruling author's withdrawal concedes that a sound impossibility argument exists
+  for `MANIFEST.json` **alone**. A ground that fails for refusal 3 cannot be kept for refusal 4
+  because no one has happened to exercise it yet. **Withdrawn, and it is the more consequential of
+  the two:** line 121 reads *"duct gains from the **untrained** QCR2000 term (nothing fitted)"* —
+  the load-bearing claim about **our** model, a site under both predicates, with zero Spalart in the
+  file. Repair available: a dated addendum below the report's signed text, by its owner.
+
+  **So the enumeration does not tidy the rung, it costs it two exclusions.** Refused count **four**;
+  exclusions that survive their own grounds **two**; open unmet in-frame sites created by this
+  enumeration **two** (`QCR_ACTIVITY_CHECK_2026-08-08.md`, `LADDER_V_RUNGS_V2_V7_V10_2026-08-08.md`).
+  Removing a refusal that cannot defend its ground is the same repair as recording one that can.
+
+  **Two more exclusions were never enumerated anywhere, and are named now so they stop being gaps.**
+  The 08-08 pass closed with *"The `.tex` and `PRODUCT_LIST` were not touched per the rung's scope"*
+  (`LADDER_V_RUNGS_V1_V3_V4_V5_2026-08-08.md:263-264`) — a scope exclusion with no ground and no
+  hash, and the exact shape the ruling calls a gap. `docs/PRODUCT_LIST.md` was **not** outside every
+  frame by oversight alone; it was excluded once, in writing, without argument, and then never
+  re-entered. It is repaired at its four claim sites below. `latex/closure_challenge_report.tex`
+  carries four Spalart mentions and is a designated writer's file; it is in frame and currently
+  meets the criterion.
+
+  ### V5 LEG 3 — repairs made by this pass, 2026-08-15
+
+  Both files were edited in the worktree, `git status`-checked first, and committed by explicit
+  pathspec. **No solver run, no scoring call — the ledger stands at 6 — and `deb91557` was not moved.**
+
+  | surface | sites | wording added |
+  |---|---|---|
+  | `docs/PRODUCT_LIST.md` | `:63` | *"untrained QCR2000, whose one coefficient Ccr1 = 0.3 is Spalart (2000)'s published constant, adopted untrained and overridden nowhere"* |
+  | `docs/PRODUCT_LIST.md` | `:136`, `:655` | *"untrained-QCR proven structurally (the QCR2000 term's one coefficient Ccr1 = 0.3 is Spalart (2000)'s published constant, nothing fitted…)"* |
+  | `docs/PRODUCT_LIST.md` | `:608` | *"the same untrained QCR — QCR2000, Ccr1 = 0.3, Spalart (2000)'s published constant adopted untrained — was decisive"* |
+  | `demo-output/website/CLOSURE_EVALUATION_PROTOCOL.md` | `:391` | *"an untrained QCR2000 forward solve — whose one coefficient `Ccr1 = 0.3` is Spalart (2000)'s published constant, adopted untrained and overridden nowhere (attribution added 2026-08-15, Ladder V rung V5 leg 3; no measurement in this block is changed)"* |
+
+  Measured with the guard's **own** predicate (`sdk/tests/test_untrained_qcr_attribution.py`'s
+  `_QCR` and `_CITED` regexes and its sentence splitter, applied file-wide): `PRODUCT_LIST.md`
+  **17 → 13** unattributed QCR sentences, `CLOSURE_EVALUATION_PROTOCOL.md` **1 → 0**. The 13 that
+  remain in `PRODUCT_LIST.md` are QCR mentions that carry no untrained claim about our model — build
+  records, capability items, review lines, and Wu & Zhang's SST-QCRC at `:351` — and are reported,
+  not repaired, because the predicate question in (b) is unruled. The guard itself is **4 passed**,
+  `__pycache__` purged first, before and after.
+
+  **Still in frame, carrying the claim, and NOT repaired by this pass** — the third generator and
+  its two tracked outputs, which need the eval battery re-run and are D128's, not this pass's:
+  `sdk/scripts/closure_eval_battery/build_master_table.py:246,:371`,
+  `demo-output/website/closure_eval/closure_eval_master_table.md:20`, and
+  `demo-output/website/closure_eval/closure_eval_master_table.json:84`.
+
 ## PASS 2 — ADVERSARIAL (owner: a different agent than any Pass-1 executor; brief: assume wrong until defended)
 
 - **V6.** Re-run the §4 adversarial audit against the ROUND-5 entry specifically — the existing
@@ -625,7 +735,7 @@ which is which instead of showing an undifferentiated column of PASS.*
 | V2 pre-registration chain | **PASS** | YES — re-derived and strengthened by a second pass |
 | V3 leakage assertions | **PASS** (one leg failed on re-run; fixed) | YES, twice |
 | V4 duct traced end to end | **PASS** | YES — re-derived at 0.000e+00 deviation |
-| V5 QCR provenance | **PASS WITH EXCEPTIONS** | YES — its own re-run overturned an earlier PASS; ~~**2 gaps still open**~~ *(struck 2026-08-15: **both closed on 2026-08-11**, eleven minutes after this table was written — `benchmarks.html` at `e071075d`, 01:36:17Z, and `CLOSURE_CHALLENGE_STATUS.md` at `514876b0`, 01:36:30Z, against this table's own `d06edc62` at 01:25:33Z. Re-verified by execution rather than by reading those commit messages: `benchmarks.html:126` and `:146` both name Spalart (2000) beside `Ccr1 = 0.3` at the two sites that make the untrained claim, and `CLOSURE_CHALLENGE_STATUS.md:449` and `:1009` do the same, `:449` carrying "nothing fitted to anything" in the same sentence. Both commits are ancestors of HEAD. The three surfaces V5 **correctly refused** — two frozen artifacts and another agent's signed report — were never gaps and remain refused.)* |
+| V5 QCR provenance | **PASS WITH EXCEPTIONS** | YES — its own re-run overturned an earlier PASS; ~~**2 gaps still open**~~ *(struck 2026-08-15: **both closed on 2026-08-11**, eleven minutes after this table was written — `benchmarks.html` at `e071075d`, 01:36:17Z, and `CLOSURE_CHALLENGE_STATUS.md` at `514876b0`, 01:36:30Z, against this table's own `d06edc62` at 01:25:33Z. Re-verified by execution rather than by reading those commit messages: `benchmarks.html:126` and `:146` both name Spalart (2000) beside `Ccr1 = 0.3` at the two sites that make the untrained claim, and `CLOSURE_CHALLENGE_STATUS.md:449` and `:1009` do the same, `:449` carrying "nothing fitted to anything" in the same sentence. Both commits are ancestors of HEAD. ~~The three surfaces V5 **correctly refused** — two frozen artifacts and another agent's signed report — were never gaps and remain refused.~~ **CORRECTED 2026-08-15 — the count was wrong and the word "refused" was doing two jobs.** There are **FOUR** refusals, not three: the 08-08 pass refused `campaign/LADDER_V_RUNGS_V2_V7_V10_2026-08-08.md` as another agent's signed report and the 08-11 re-run's table never carried it forward, so it was dropped by omission rather than by argument. All four are now enumerated on this rung's face with sha256 and a dated ground (see "V5 FRAME ENUMERATION" under V5 above). And "remain refused" no longer holds for all four: **two exclusions survive their grounds** (`closure_challenge_submission_round5/MANIFEST.json`, `closure_challenge_round5_qcr_forward.json` — JSON containers with no below-the-freeze-line region for L-44's dated addendum), and **two are withdrawn** because their stated ground — *"left to its owner"*, i.e. may not be touched — is falsified by `fe612d03`, which amended one of them 20 hours after signing and three days before the refusal was written. Those two are now **open unmet in-frame sites**, not exclusions.)* |
 | V6 compliance audit vs round 5 | **PASS** (was FAIL on currency) | ~~**PARTIAL — one commit unread by anyone but its author**~~ *(struck 2026-08-15: **`472f9f92` was read by a non-author six minutes after this table was written.** `LADDER_V_V15_ROUND4.md` (`65e79de4`, 2026-08-11 01:30:23Z, against this table's `d06edc62` at 01:25:33Z), by an agent that states it wrote none of the audited text and had never written to the closure line, re-derived V6's anchors at `472f9f92` in its §2j — Q62–Q70, **eight PASS, exact, at line-anchor precision**, plus **one row honestly marked inherited** (Q69, the run-tree `*_LES*` positive control, because the run tree is outside the repository). What is still owed is that one inherited row, not the commit. See the 2026-08-15 note below the ledger.)* **→ GRADED AGAIN 2026-08-15 at `377d6afb` by a non-author (independence established from the dispatch record, not from git — see the ruling below): `FAIL`.** Q69, the inherited row, is now **re-derived rather than inherited** — evidence count printed before the verdict, 276 files, 0 `*_LES*` in each test duct against 3 in each AR_7 arm — and eleven of twelve verdict rows plus all four QCR compliance answers are MEASURED-PASS by execution. **The rung fails on something else entirely, and its recorded blocker was never its blocker.** `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md:307` still states that §4.8 HOLDS and that re-verifying it *"needs a network read this pass did not perform"* — that read was performed on 2026-08-11 and **falsified** the section, which is headed `FALSIFIED` 212 lines below in the same document. `git diff 472f9f92 HEAD` shows the §4.7 row corrected on 08-12 and this row byte-identical to what `472f9f92` wrote. **V6's original defect with the roles exchanged.** Grade: `campaign/LADDER_V_V6_V10_GRADE_2026-08-15.md`. |
 | V7 known defects killed | **PASS** — three, not the two we knew | YES — two more stale generator strings found later |
 | V8 claims table | ~~**FAIL — 8 claims** (corrections landed; re-verification in flight)~~ *(that row described the state of 2026-08-10; the re-verification it says is in flight landed 2026-08-11 at FAIL on 5 findings)* → re-verified again **2026-08-14 at `f8c889cc`: still FAIL**, on one blocking finding and one changed-shape finding, with four of the five 2026-08-11 findings cleared on executed evidence. Round document: `campaign/LADDER_V_V8_REVERIFICATION_2026-08-14.md` | YES, three times, each by an agent that wrote none of the graded text — and the 2026-08-14 round graded the ordinal repair for **durability** by mutation, returning PASS WITH A NAMED RESIDUAL (D85) |

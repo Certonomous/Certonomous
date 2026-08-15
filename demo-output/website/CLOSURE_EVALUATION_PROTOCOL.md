@@ -388,7 +388,10 @@ changes the recorded round-4 0.0654.
 >   (`closure_challenge_round5_qcr.json`). The definite article is the only thing
 >   corrected in the sentence above.
 > - **The `2.3–3.4%` duct figure no longer describes the submitted duct fields.**
->   Round 5 replaced all three with an untrained QCR2000 forward solve, whose
+>   Round 5 replaced all three with an untrained QCR2000 forward solve — whose one
+>   coefficient `Ccr1 = 0.3` is Spalart (2000)'s published constant, adopted
+>   untrained and overridden nowhere *(attribution added 2026-08-15, Ladder V rung
+>   V5 leg 3; no measurement in this block is changed)* — and whose
 >   measured `rms div U / rms grad U` is **8.5×10⁻⁴ (`AR_1_Ret_360`), 5.3×10⁻⁴
 >   (`AR_3_Ret_360`) and 5.4×10⁻⁴ (`AR_14_Ret_180`)** — two orders of magnitude
 >   better, because a forward solve satisfies continuity where an additive
