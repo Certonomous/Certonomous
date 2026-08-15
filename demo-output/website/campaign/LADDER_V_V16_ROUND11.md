@@ -90,11 +90,17 @@ assertion is the reason it produced an abort rather than a collision.
   20,701 paths from `_tracked_files()`, of which **18,974 were opened and decoded** and
   1,727 skipped as absent, a directory, or over the 4 MB cap. Enumeration used `git grep -a`
   where a text sweep was needed — plain `-I` skips 981 binary-marked files, 12 of which
-  hold no NUL byte, and the shell's `grep` passes `-I` too. **The untracked, gitignored and
-  run-tree arms were NOT measured by this round, and no number is quoted for them.** The
+  hold no NUL byte, and the shell's `grep` passes `-I` too. ~~**The untracked, gitignored
+  and run-tree arms were NOT measured by this round, and no number is quoted for them.** The
   brief supplied ~1 / ~37,243 / a >2 MB run-tree set of 6,108-against-a-prior-10,526; none
   of those is inherited here, because every finding below is a property of the guard rather
-  than of the corpus and none needs them. Saying "not measured" is the point of the rule.
+  than of the corpus and none needs them. Saying "not measured" is the point of the rule.~~
+  **Struck 2026-08-15 by this round's own author — see §9.** The sentence was true when
+  written and false 66 minutes later: a four-arm census this round had itself dispatched
+  returned after the round was committed, and **all four arms are measured**. The clause
+  that survives is the second half: no finding below depends on any arm count, because every
+  one is a property of the guard rather than of the corpus. §9 carries the numbers, what
+  they corroborate, and the one new lead they produced.
 - **`__pycache__` purged before every cell.** `PYTHONDONTWRITEBYTECODE=1` does not fix stale
   bytecode here; the directories are removed.
 - **`/usr/bin/find`**, because `find` on this box is `bfs`.
@@ -757,3 +763,118 @@ that is a markdown table has a mechanical well-formedness property and nothing c
 - **Note on the do-not-touch list**: it names `latex/*`, and per D181 no such path exists — the
   real prefix is `demo-output/website/latex/`. This round treated the intent as binding on the
   real path.
+
+---
+
+## 9. ADDENDUM 2026-08-15, by this round's own author — THE FOUR ARMS, MEASURED AFTER THE ROUND CLOSED
+
+**Why this section exists, and it is the round's own defect first.** §0.4 said the
+untracked, gitignored and run-tree arms *"were NOT measured by this round."* That was true
+when written and **false 66 minutes later**. This round had itself dispatched a four-arm
+census; it ran for 5,815 seconds and returned **after the round was committed at
+`94419cc8`**. Writing a negative about my own coverage while work I had commissioned was
+still in flight is the **D141 shape — a claim stale against another region of its own
+document** — committed inside a round that files D193 against a borrowed date. It is struck
+in §0.4 rather than rewritten, and the numbers are here.
+
+**The verdict does not move. No finding F1–F8 depends on an arm count**; all eight are
+properties of the guard, established by driving it directly. What follows is corroboration,
+one correction to the record, and one new lead.
+
+### 9.1 The board, corroborated by a route this round did not use
+
+§2 read the boards out of `_published_board()` and `_ranking_board()`. The census went the
+other way — to the file on disk — and agrees:
+
+- The parser at `scripts/self_audit.py:3188` reads `$CLOSURE_BENCHMARK_DIR/README.md`;
+  **`CLOSURE_BENCHMARK_DIR` is unset**, so it resolves to
+  `/home/ubuntu/closure-challenge-benchmark/README.md`. Verified here directly:
+  `git -C /home/ubuntu/closure-challenge-benchmark rev-parse HEAD` →
+  **`deb91557184af3cb95f5190494ec52d8f2c6a0d1`**.
+- That README states **four** entrants — Reissmann 0.0595, Wu 0.0624, Liu 0.0737,
+  Montoya 0.0779 — yielding exactly the keys §2 read out of the parser.
+- The six-entry live board (Yang 0.0580 … Tian 0.0641 …) lives in
+  `sdk/scripts/probability_of_rank.py::LIVE_BOARD` and `BOARD_MOVED_2026-08-11.md`.
+
+**So F1's premise is now established from both ends**: the four-name recogniser comes from a
+file on disk pinned at `deb91557`, and Yang and Tian are absent from that file — not merely
+absent from a dict this round happened to print.
+
+### 9.2 The arm counts
+
+| arm | frame | size | `rank N of M` | `rank-N entry` | board surnames |
+|---|---|---|---|---|---|
+| tracked | `e98e40fe` | 20,702 files | 53 f / 209 l | 35 f / 79 l | 213 f / 1,672 l (`-I`, all 12 surnames) |
+| untracked | **volatile** | 1 → 4 → 1 | see §9.4 | | |
+| gitignored | 22:33Z | 37,245 files / 37.9 MB | 92 f / 97 l | 2 f / 3 l | 11 f / 86 l (`-I`) |
+| run tree | 21:08Z | 132,049 files / 75.8 GB | **0** | 1 f / 1 l | — |
+
+**The run-tree >2 MB set is 6,108, confirmed by independent re-count** (60.67 GB; 125,941
+files ≤2 MiB holding 15.12 GB). The brief's 10,526 is stale and the 6,108 it offered is
+**measured rather than inherited**, which is what the rule asks. The unit matters: >2,000,000
+decimal bytes gives 6,280.
+
+**The run tree carries no rank claim at all.** Every `rank N` hit in 75.8 GB is an **MPI
+rank** in a `checkTotals` log. The single genuine ordinal-on-entrant phrase in the whole
+tree is `w3-qcr-duct/PREDICTION.md:16` — *"from Spalart 2000 as the rank-2 entry adopts
+it"*. A 13-minute and an 18-minute prefilter pass to establish a near-empty set is the
+honest cost of not inheriting a number.
+
+### 9.3 The one new lead — and it sharpens F2 rather than adding to the count
+
+The census flagged **`rank 2 of 0` ×2** as a possible defect. Run down here by execution:
+
+```
+_VALUE_BOARD_SIZE.search("seed, against a gap to rank 2 of 0.0030.")
+  -> matches 'rank 2 of 0'   n='2'  v='0'
+```
+
+The real text at `demo-output/website/latex/closure_challenge_report.tex:1890` is *"against a
+gap to **rank 2 of 0.0030**"* — where `of 0.0030` is a **margin**, not a denominator. The
+`\b` after `\d{1,3}` falls between `0` and `.`, so the pattern reads the first digit of a
+decimal as a board size.
+
+**Live or latent? Latent, and exactly one gate deep.** Executed on the real file,
+`check_rank_claim_values` returns one fault and it is a genuine best-on-board fault at
+`:871`; the `rank 2 of 0` match produces nothing. The reason is **not** the strike masker —
+`_live_claim_text` leaves the passage byte-identical — it is `_in_board_context` returning
+`False`, a proximity window over board vocabulary. **Add the word "board" or "leaderboard"
+within that window — entirely natural in a document about the leaderboard — and the check
+faults a margin as a denominator on a shipped surface.**
+
+**This does not become F9.** It is one instance of a class, it is latent, and the count
+stays at **8**. What it does is give **F2** a demonstrated example rather than an argument:
+the check that publishes **no false-positive rate** has a false-positive class reachable by
+adding one common word. And independently, `RULE_O_DENOMINATOR_MEASUREMENT_2026-08-15.md:308`
+— another agent's document, written concurrently — already names this same string as a parse
+error and reports a **58.3% FP rate** for denominator matching. **That is F2's remedy
+arriving from somewhere else while V16's own face still does not require it**, which is the
+argument for attaching the requirement to the function rather than to a check's name.
+
+### 9.4 The untracked arm contained this round's own draft — a methodological note
+
+The census measured Arm 2 three times and got three answers: **1 file** at 20:58Z, **4** at
+21:12Z, **1** at 22:33Z. The 21:12Z set included
+`demo-output/website/campaign/LADDER_V_V16_ROUND11.md` — **this document, at 723 lines,
+before it was committed** — alongside two other agents' uncommitted work.
+
+Two things follow, and the second is the durable one:
+
+1. **Arm 2 cannot be quoted without a timestamp.** A count of "~1 untracked file" is not a
+   property of the repository; it is a property of the minute.
+2. **The auditor's own draft was inside the corpus under audit.** For 34 minutes, a sweep of
+   the untracked arm for rank claims would have returned this round's findings as corpus
+   hits — including every probe sentence in §3.2 and §4.1, which are deliberately false
+   statements about entrants written down to be faulted. That is F5's shape (*an instrument
+   measuring its own paperwork*) reaching one level further out: **not the guard measuring
+   its own test fixtures, but the audit measuring its own unfinished report.** The census
+   noticed it; nothing mechanical would have.
+
+### 9.5 What this addendum does and does not change
+
+- **§0.4 is struck and corrected.** The round's coverage claim was wrong about itself.
+- **§2, §4.1 corroborated** from the file on disk rather than the parser's return value.
+- **The brief's run-tree figure is now measured**, twice, and 6,108 stands against 10,526.
+- **F2 gains a demonstrated false positive**; the new-material count stays at **8** and the
+  belief-neutral verdict stands at **NOT NEUTRAL**.
+- **No falsifier in §7.2 is affected**; every one remains executable as written.
