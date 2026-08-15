@@ -386,9 +386,24 @@ solver-consistency small, not model-structure large. The audit finding is closed
 <!-- ===================== 5 ===================== -->
 <h2>5 · Where the score actually stands</h2>
 <p class="lede">Stated plainly: <b>as of benchmark commit <code>deb91557</code>, scored locally through
-the benchmark's own unmodified scorer, 0.0566 is the best overall number on the board</b> — 0.0029 below
-the published leader. It is unsubmitted, so officially it sits nowhere at all, and the margin carries a
-seed-uncertainty bound of comparable size, below.</p>
+the benchmark's own unmodified scorer, 0.0566 is the best overall number on the board</b> — <b>0.0014
+below the published leader, Yang</b>, on the <b>six-entry</b> board retrieved 2026-08-11T23:33Z and
+re-verified unchanged by read-only fetch 2026-08-14T21:01Z. It is unsubmitted, so officially it sits
+nowhere at all, and <b>the seed-uncertainty bound is larger than that margin, not comparable to it</b>
+— 0.0024 against 0.0014 is <b>1.8&times; the margin</b>, and its adverse end loses the point lead
+outright, below.
+<br><br><s>0.0029 below the published leader &hellip; the margin carries a seed-uncertainty bound of
+comparable size</s> — <b>struck 2026-08-15.</b> 0.0029 was the margin over <b>Reissmann, Fang &amp;
+Sandberg</b> on the <b>four</b>-entry board, where the 0.0024 bound is 0.83&times; it and
+&ldquo;comparable&rdquo; was fair. Reissmann is no longer the entry ahead of us. Against Yang the
+margin is <b>0.001365</b> and the same bound is <b>177%</b> of it — it does not cover part of the
+margin, it <b>exceeds</b> it — so loaded adversely our overall is <b>0.059047</b> against Yang's
+<b>0.058013</b> and <b>the lead is lost, not merely qualified</b>. <b>This page was giving two answers
+at once</b>: §0 above already said &ldquo;our margin over Yang is 0.001365, not the 0.002878 over
+Reissmann quoted below&rdquo;, and this was the sentence it meant. The sibling page
+<code>benchmarks.html</code> had the identical sentence repaired at commit <code>cc906ec9</code> on
+2026-08-14; that repair did not reach this one. Figures regenerated from
+<code>campaign/BOARD_RESCORE_2026-08-14.md</code> §3 rather than retyped; docket <b>D112</b>.</p>
 
 <p><b>P(rank 1) = 50%</b> — 50.2% over a 400,000-draw case-level bootstrap of the eight scored
 cases against the <b>six-entry board fetched live on 2026-08-11</b>. The
@@ -431,9 +446,19 @@ whose 327,600 training cells exceed the fitting library's binning subsample, mak
 genuinely seed-dependent. Retrained at eight seeds without touching test truth: the estimated seed
 uncertainty on the overall is about <span class="num" style="font-family:var(--mono)">0.0003</span>, but a
 truth-free bound cannot rule out movement up to <span class="num" style="font-family:var(--mono)">0.0024</span>
-— <b>comparable to the 0.0029 margin over the published leader</b>. The rank-1 reading above must carry
-that uncertainty. The three duct predictions now contribute zero seed variance: nothing in them was
-trained at all. Evidence: <code>closure_challenge_stability_physicality_audit.md</code>.</p>
+— <b>1.8&times; the 0.001365 margin over the published leader, Yang</b>, on the six-entry board retrieved
+2026-08-11T23:33Z. <b>The rank-1 reading above does not merely carry that uncertainty; it does not
+survive it</b> — loaded adversely onto those three cases our overall is <b>0.059047</b> against Yang's
+<b>0.058013</b>, which is <b>rank 2 on the point score</b>. The three duct predictions now contribute
+zero seed variance: nothing in them was trained at all. Evidence:
+<code>closure_challenge_stability_physicality_audit.md</code>;
+<code>campaign/BOARD_RESCORE_2026-08-14.md</code> §3.
+<br><br><s>comparable to the 0.0029 margin over the published leader &mdash; the rank-1 reading above
+must carry that uncertainty</s> — <b>struck 2026-08-15.</b> 0.0029 was the margin over <b>Reissmann,
+Fang &amp; Sandberg</b> on the four-entry board, where 0.0024 is 0.83&times; it. Reissmann is no longer
+the published leader, and against Yang the same bound is <b>177%</b> of the margin, so
+&ldquo;comparable&rdquo; understates it and &ldquo;carries that uncertainty&rdquo; understates the
+consequence. Docket <b>D112</b>.</p>
 
 <p class="lede" style="margin-top:34px">Case by case, against the best score any published entry has
 achieved on that case — and, in the fourth column, against the untouched standard simulation the

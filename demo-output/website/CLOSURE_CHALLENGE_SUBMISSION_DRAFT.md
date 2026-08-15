@@ -735,12 +735,34 @@ the lab's scoring-call ledger stands at 6, unchanged.*
 > **2026-08-11T23:33Z**; on the **six-entry** board retrieved at that timestamp and
 > re-verified unchanged by read-only fetch at **2026-08-14T21:01Z**, the entry
 > immediately ahead of ours is **Yang, at 0.058013**, and our locally scored
-> 0.056647191704213645 sits **0.0013658082957863568** below it. Re-derived at full
-> precision from the lab's own committed sources —
+> 0.056647191704213645 sits **0.001365** below it. ~~sits **0.0013658082957863568**
+> below it. Re-derived at full precision from the lab's own committed sources~~ —
+> **CORRECTED 2026-08-15 (docket D104): the seventeen digits were spurious and the
+> phrase that vouched for them was the worse defect.** `0.0013658082957863568` is
+> exactly `0.058013 − 0.056647191704213645` in IEEE double, but **0.058013 is the
+> six-decimal PRINTING** of Yang's overall in `campaign/BOARD_RESCORE_2026-08-14.md`
+> §3.1, not a measurement to seventeen places — so every digit after the sixth is an
+> artifact of the subtraction, not evidence. The lab's own record holds
+> `probability_of_rank_record.json` → `pairwise.Yang.margin =
+> −0.0013653082957863563`, from the full eight-case mean 0.0580125; the two differ in
+> the seventh significant figure, which is precisely the range the spurious digits
+> pretended to resolve. **"Re-derived at full precision" was false as written**: the
+> subtraction was carried out at full precision, the *input* was not, and that phrase
+> is what made the digits credible. **This document indicts this exact class 120 lines
+> above** — §"The margin `0.0028863` is correct; the transcribed `0.0595338` is the
+> misrounded one" at `:618` — and then committed it. The margin supported by the
+> stated basis is **0.001365** (four significant figures), and the conclusion is
+> untouched: 0.002419121853891026 over the full-mean margin is **177.2%**, over the
+> six-decimal margin **177.1%**, over the rounded 0.001365 **177.2%** — **all three
+> bases give 177%**. Derived from —
 > `closure_challenge_seed_sensitivity.json` → `overall_equivalent_S_bound` =
 > **0.002419121853891026**, and the scores in
 > `campaign/BOARD_RESCORE_2026-08-14.md` §3.1 — the ratio is
-> **0.002419121853891026 / 0.0013658082957863568 = 1.7712**, i.e. **177%**, not 84%.
+> **0.002419121853891026 / 0.001365 = 1.772**, i.e. **177%**, not 84% *(D104,
+> 2026-08-15: the denominator was written as `0.0013658082957863568`; against the
+> record's `pairwise.Yang.margin` 0.0013653082957863563 the ratio is 1.7719 and
+> against the six-decimal basis 1.7712 — **177% on every basis**, so the correction
+> is to the digits and not to the conclusion)*.
 > **The bound does not cover part of the margin. It exceeds the margin by 77%.**
 > Loaded adversely onto the three seed-dependent cases our overall becomes
 > **0.059047**, *above* 0.058013, and the point lead is lost outright
@@ -948,8 +970,15 @@ steward's own scoring differs from ours, the steward's number is the number.
    > ahead of us. On the **six-entry** board retrieved **2026-08-11T23:33Z** and
    > re-verified unchanged by read-only fetch at **2026-08-14T21:01Z**, the entry
    > immediately ahead is **Yang, at 0.058013**, and our margin is
-   > **0.0013658082957863568**. The seed bound of **0.002419121853891026** is
-   > therefore **1.7712 × that margin — 177%, not 84%.** It does not cover part of
+   > **0.001365**. ~~our margin is **0.0013658082957863568**~~ — **CORRECTED
+   > 2026-08-15 (docket D104): 0.058013 is the six-decimal PRINTING of Yang's
+   > overall, so the digits past the sixth were an artifact of the subtraction and
+   > not a measurement; the record holds `pairwise.Yang.margin =
+   > −0.0013653082957863563` and the stated basis supports four significant
+   > figures.** The seed bound of **0.002419121853891026** is
+   > therefore **1.77 × that margin — 177%, not 84%** *(177.2% on the full-mean
+   > margin, 177.1% on the six-decimal one — the conclusion does not depend on which)*.
+   > It does not cover part of
    > the margin; **it exceeds it.** Loaded adversely on the three seed-dependent
    > cases our overall becomes **0.059047**, above 0.058013, and the point lead is
    > lost. The old conclusion — a seed bound sitting inside a margin that survives it

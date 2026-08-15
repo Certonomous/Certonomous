@@ -213,8 +213,28 @@ section's only uncited sentence now carries its citation (benchmark README §Sub
   (98.7%) and Montoya (99.8%) are.
 - `AR_1` and `AR_3` margins (0.00003, 0.00008) are **ties below published precision** and
   must never be quoted as per-case wins.
-- The seed bound covers **84%** of the margin, and a seed draw the lab did not control moves
-  P(rank 1) from **52% to 81%**.
+- ~~The seed bound covers **84%** of the margin, and a seed draw the lab did not control moves
+  P(rank 1) from **52% to 81%**.~~ **STRUCK 2026-08-15 — AND THE INSTRUCTION REVERSES WITH THE
+  FIGURE.** Both halves were computed against the **four-entry** board, where the entry ahead of
+  ours was Reissmann, Fang & Sandberg and the margin was 0.0028863; `0.002419121853891026 /
+  0.0028863365997926355 = 0.8381` is why it read 84%. The board gained two entrants at
+  **2026-08-11T23:33Z** (six entries, re-verified unchanged by read-only fetch at
+  **2026-08-14T21:01Z**), and the entry immediately ahead of ours is now **Yang at 0.058013**
+  with a margin of **0.001365**. Re-derived from the committed records —
+  `closure_challenge_seed_sensitivity.json` → `overall_equivalent_S_bound` =
+  **0.002419121853891026**, `probability_of_rank.py` → `LIVE_BOARD`, and
+  `probability_of_rank_record.json` — the ratio is **177%**: **the bound does not cover part of
+  the margin, it exceeds it by 77%.** The seed draw moves P(rank 1) from **34% to 65%** about an
+  as-scored **50%**, not 52% to 81%, and loaded adversely our overall is **0.059047** against
+  Yang's **0.058013**, so the adverse end **loses the point lead outright**.
+  **This bullet is an INSTRUCTION, not a report** — it sits under §W2's *"hand over the number
+  that proves you already knew"* — so correcting the figure alone would leave it armed. **The
+  number to hand over is 177% and the loss of the lead.** Handing over 84% concedes a
+  qualification on a standing that survives it; this standing does not survive it, and a reviewer
+  handed 84% would be given the weaker of two true-sounding claims where the evidence supports
+  only the stronger. Falsified by the board move of 2026-08-11T23:33Z; withdrawn in the
+  travelling document at commit `cc906ec9`, in the cover email at commit `d80649f9`, and reaching
+  this closeout only now — the fifth surface, docket **D105**.
 
 **What changed since:** Pass 3's sharpest observation was that the lab had computed this
 number and ruled it internal-only while the outward artifact kept asserting "rank 1" — *"I

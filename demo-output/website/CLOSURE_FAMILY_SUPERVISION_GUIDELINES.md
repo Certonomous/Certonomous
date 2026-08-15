@@ -92,11 +92,32 @@ Katie's GUI conventions, applied family-wide:
 - **Rank 1 is never stated without, in the same breath**: (a) *scored
   locally at the pinned benchmark commit, unsubmitted, not an official
   placement — the steward's number is the number*; and (b) **while the
-  single-seed PH model ships**, the seed bound beside the margin: the
-  truth-free bound (0.0024 overall-equivalent) is comparable to the 0.0029
+  single-seed PH model ships**, the seed bound beside the margin.
+  ~~The truth-free bound (0.0024 overall-equivalent) is comparable to the 0.0029
   rank-1 margin, and the rank-1 reading carries that uncertainty.
   `closure.html`'s stability note is the reference wording; review F1 is
-  what omission looks like. **(c) Added 2026-08-10, chief ruling — MANDATORY:
+  what omission looks like.~~ **STRUCK 2026-08-15 — AND THIS CLAUSE IS WHY THE
+  FIGURE KEPT TRAVELLING.** (b) is an **instruction**: it told every claim-bearing
+  surface to state the bound as *comparable to* the margin, and it named a
+  specific sentence as the wording to copy. Both were computed against the
+  **four-entry** board, where the rank-1 margin was 0.0029 over Reissmann, Fang &
+  Sandberg and 0.0024 is 0.83× it. On the **six-entry** board retrieved
+  2026-08-11T23:33Z (re-verified unchanged 2026-08-14T21:01Z) the entry ahead of
+  ours is **Yang at 0.058013** and the margin is **0.001365**, so the bound
+  **0.002419121853891026** is **177%** of it. **The correct instruction is the
+  opposite of the struck one**: the bound is **larger than the margin**, and the
+  rank-1 reading does not *carry* that uncertainty — **it does not survive it**
+  (loaded adversely our overall is **0.059047** against Yang's **0.058013**, i.e.
+  rank 2 on the point score). §6 below already said this — *"clause (b)'s
+  'comparable to the margin' is now an understatement: the bound is 1.8× the
+  0.001365 margin, where it was 0.83× the 0.0029 one"* — but the clause it
+  corrects was left standing and binding, so surfaces kept being told to copy the
+  false form. **The reference wording is no longer `closure.html`'s stability note
+  as it stood**: that sentence was itself one of the copies and was repaired in the
+  same pass as this clause. Falsified by the board move of 2026-08-11T23:33Z;
+  withdrawn in the travelling document at `cc906ec9` and in the cover email at
+  `d80649f9`, neither of which reached this clause. Docket **D112**.
+  **(c) Added 2026-08-10, chief ruling — MANDATORY:
   P(rank 1) and the not-decided pairs.** **EVERY FIGURE IN (c) AND (d) IS
   SUPERSEDED 2026-08-11 — SEE (e). All of them were computed against a FOUR-entry
   board that no longer exists.** They are kept unrewritten, per this section's own
