@@ -65,9 +65,9 @@ def mission_intent(events_path: Path) -> str | None:
     return None
 
 
-def pick_missions(state_dir: Path) -> dict[str, tuple[str, Path, Path]]:
-    """The most recently finished COMPLETE mission for each filmed intent."""
-    best: dict[str, tuple[float, str, Path, Path]] = {}
+def mission_candidates(state_dir: Path) -> dict[str, list[tuple[str, Path, Path]]]:
+    """Every COMPLETE recording per filmed intent, most recently finished first."""
+    found: dict[str, list[tuple[float, str, Path, Path]]] = {}
     for meta_path in state_dir.glob("m-*.json"):
         try:
             meta = json.loads(meta_path.read_text(encoding="utf-8"))
@@ -82,9 +82,194 @@ def pick_missions(state_dir: Path) -> dict[str, tuple[str, Path, Path]]:
         if intent not in WANTED_INTENTS:
             continue
         stamp = float(meta.get("finished_at") or 0)
-        if intent not in best or stamp > best[intent][0]:
-            best[intent] = (stamp, str(meta["mission_id"]), meta_path, events_path)
-    return {k: (v[1], v[2], v[3]) for k, v in best.items()}
+        found.setdefault(intent, []).append(
+            (stamp, str(meta["mission_id"]), meta_path, events_path))
+    return {intent: [(m, meta, ev) for _, m, meta, ev
+                     in sorted(rows, key=lambda r: r[0], reverse=True)]
+            for intent, rows in found.items()}
+
+
+# --------------------------------------------------------------------------
+# Certificate pairing
+# --------------------------------------------------------------------------
+#
+# THE BUG THIS EXISTS TO MAKE IMPOSSIBLE (docket D136).
+#
+# A recording is FROZEN: `<mission>.events.jsonl` states, in its
+# `certificate.ready` event, the exact seal and certificate number the page
+# carried when that mission ran. The artifact path is MUTABLE: every later run
+# of the same act rewrites `mission-output/<dir>/certificate.pdf`, and rewrites
+# it after `withdraw_certificate()` has deleted the previous page. Picking the
+# newest recording and then copying whatever occupies the path today pairs the
+# two only by luck, and the luck ran out on 2026-08-10: five consecutive
+# bundles shipped an airliner recording announcing seal d889461d... /
+# C-2026-0918 beside a PDF printing aeccc6bf... / C-2026-5686.
+#
+# That is camera-facing. `control_room.html` renders `EVIDENCE SEAL <the
+# EVENT's hash>` directly above a link to the PDF, so on the laptop the console
+# shows one seal and the certificate one click away shows another -- the demo's
+# own tamper-evidence claim visibly failing, in Act 1, inside the only artifact
+# that leaves this box.
+#
+# Two mechanisms below, and they are deliberately both:
+#   1. SELECTION. `pick_missions` no longer takes the newest recording on
+#      faith. It walks the complete recordings newest-first and takes the
+#      first one whose certificate events AGREE with the files on disk, so a
+#      recording is chosen because the artifact describes it, not because it
+#      happens to be last. This is the fix: several intents share one output
+#      directory, so "newest complete mission of this intent" was never the
+#      same question as "the run that wrote this file".
+#   2. ASSERTION. `check_bundle_pairing` re-reads the COPIED bundle and
+#      compares event seal to PDF seal on the shipped bytes. It is not an
+#      optional script and there is no flag to skip it: `main` refuses to
+#      finish the build when it finds a disagreement, because a bundle that
+#      contradicts itself is worse than no bundle.
+#
+# Unverifiable counts as failure. If a certificate's seal cannot be read out
+# of the PDF, the pairing is not guaranteed, and an unguaranteed pairing is
+# exactly what shipped for five builds.
+
+_SEAL_RE = re.compile(rb"\(([0-9a-f]{32})\)\s*Tj")
+_SERIAL_RE = re.compile(rb"\(C-\d{4}-\d{4}\)\s*Tj")
+
+
+def pdf_identity(pdf_path: Path) -> tuple[str | None, str | None]:
+    """(seal, certificate_no) as PRINTED on a certificate PDF, or (None, None).
+
+    The page renders the SHA-256 in two 32-hex halves (`seal[:32]`, `seal[32:]`
+    -- see `certificate.py`), so the seal is the first two halves concatenated.
+    The content streams these certificates carry are uncompressed, which is why
+    a plain byte scan reaches them; a compressed page yields None and, by the
+    rule above, fails the build rather than passing unchecked.
+    """
+    try:
+        raw = pdf_path.read_bytes()
+    except OSError:
+        return (None, None)
+    halves = _SEAL_RE.findall(raw)
+    seal = (halves[0] + halves[1]).decode("ascii") if len(halves) >= 2 else None
+    serial_hit = _SERIAL_RE.search(raw)
+    serial = serial_hit.group(0)[1:-4].strip().decode("ascii") if serial_hit else None
+    if serial:
+        serial = serial.rstrip(")").strip()
+    return (seal, serial)
+
+
+def certificate_expectations(events_path: Path) -> dict[str, dict[str, str]]:
+    """{<output-dir>: {"hash": ..., "certificate_no": ...}} the recording states.
+
+    This is the frozen half of the pair: what the console will display on
+    camera when it replays this recording.
+    """
+    expected: dict[str, dict[str, str]] = {}
+    for line in events_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if CERTIFICATE_EVENT not in line:
+            continue
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if event.get("event") != CERTIFICATE_EVENT:
+            continue
+        payload = event.get("payload") or {}
+        directory = str(payload.get("dir") or "").strip()
+        if not directory or "/" in directory or directory in (".", ".."):
+            continue
+        expected[directory] = {
+            "hash": str(payload.get("hash") or ""),
+            "certificate_no": str(payload.get("certificate_no") or ""),
+        }
+    return expected
+
+
+def pairing_faults(events_path: Path, output_root: Path, *,
+                   require_present: bool = False) -> list[str]:
+    """Every way this recording disagrees with the certificates on disk.
+
+    Empty list means the pair is safe to ship. A certificate that is present
+    and says something else is always a fault.
+
+    `require_present` separates the two callers, and the difference matters.
+    SELECTION passes True: a recording is only worth choosing if the page it
+    announces actually exists to be paired with, since an act whose console
+    announces a seal and whose link opens nothing is a different camera-facing
+    failure from the same root. The GATE passes False, because by then the copy
+    step has already reported referenced-but-absent artifacts by name and a
+    bundle carrying no certificate contradicts nobody.
+    """
+    faults: list[str] = []
+    for directory, expected in sorted(certificate_expectations(events_path).items()):
+        pdf = output_root / directory / "certificate.pdf"
+        if not pdf.exists():
+            if require_present:
+                faults.append(f"{directory}: recording announces "
+                              f"{expected['certificate_no'] or 'a certificate'} "
+                              f"but no page exists at {pdf}")
+            continue
+        seal, serial = pdf_identity(pdf)
+        if seal is None:
+            faults.append(f"{directory}: seal unreadable in {pdf} "
+                          f"(pairing cannot be guaranteed)")
+            continue
+        if expected["hash"] and seal != expected["hash"]:
+            faults.append(
+                f"{directory}: recording says seal {expected['hash'][:16]}... "
+                f"but {pdf.name} prints {seal[:16]}...")
+        if expected["certificate_no"] and serial and serial != expected["certificate_no"]:
+            faults.append(
+                f"{directory}: recording says {expected['certificate_no']} "
+                f"but {pdf.name} prints {serial}")
+    return faults
+
+
+def pick_missions(state_dir: Path,
+                  output_root: Path) -> tuple[dict[str, tuple[str, Path, Path]],
+                                              dict[str, list[str]]]:
+    """The newest COMPLETE recording per intent whose certificates match disk.
+
+    Returns (picked, rejected) where `rejected` maps an intent to the reasons
+    each newer candidate was passed over, so a build that ends up with nothing
+    for an intent can say why rather than silently shipping a mismatch.
+    """
+    picked: dict[str, tuple[str, Path, Path]] = {}
+    rejected: dict[str, list[str]] = {}
+    for intent, candidates in mission_candidates(state_dir).items():
+        for mission_id, meta_path, events_path in candidates:
+            # A recording that seals nothing cannot be checked against
+            # anything, so "no faults" would be vacuously true for it. Taking
+            # such a recording would trade a contradictory certificate for a
+            # MISSING one and report it only as a count -- the sealed page is
+            # the beat every act ends on, so that is not an improvement and it
+            # must not be reached silently.
+            if not certificate_expectations(events_path):
+                rejected.setdefault(intent, []).append(
+                    f"{mission_id}: no certificate.ready event to pair "
+                    f"(an act must ship the sealed page it ends on)")
+                continue
+            faults = pairing_faults(events_path, output_root,
+                                    require_present=True)
+            if not faults:
+                picked[intent] = (mission_id, meta_path, events_path)
+                break
+            rejected.setdefault(intent, []).extend(
+                f"{mission_id}: {f}" for f in faults)
+    return picked, rejected
+
+
+def check_bundle_pairing(bundle: Path) -> list[str]:
+    """Re-check the pairing on the SHIPPED bytes, inside the built bundle.
+
+    Selection above chose a matching pair out of the lab tree; this reads the
+    copies actually in the archive, so a copy that went to the wrong place, or
+    a path rewritten between selection and copy, is still caught.
+    """
+    state_dir = bundle / "mission-state"
+    output_root = bundle / "mission-output"
+    faults: list[str] = []
+    for events_path in sorted(state_dir.glob("m-*.events.jsonl")):
+        faults.extend(f"{events_path.name} -> {f}"
+                      for f in pairing_faults(events_path, output_root))
+    return faults
 
 
 def referenced_artifacts(events_path: Path) -> set[tuple[str, str]]:
@@ -165,8 +350,11 @@ def main() -> int:
     (out / "sdk" / "chief_engineer" / "__init__.py").touch(exist_ok=True)
 
     # ---- 2. the recorded missions ----------------------------------------
-    picked = pick_missions(args.state)
+    picked, rejected = pick_missions(args.state, args.output_root)
     missing = [i for i in WANTED_INTENTS if i not in picked]
+    for intent in WANTED_INTENTS:
+        for reason in rejected.get(intent, []):
+            print(f"  SKIPPED  {intent:24s} {reason}")
     state_out = out / "mission-state"
     state_out.mkdir(parents=True)
     artifacts: set[tuple[str, str]] = set()
@@ -244,7 +432,26 @@ def main() -> int:
     if absent:
         print(f"  WARNING: referenced but absent: {', '.join(absent)}")
     if missing:
-        print(f"  WARNING: no complete recording found for: {', '.join(missing)}")
+        print(f"\n  WARNING: no complete recording could be PAIRED with the "
+              f"certificate on disk for: {', '.join(missing)}")
+        print("  Those acts are absent from this bundle rather than shipped "
+              "with a certificate describing a different run. The SKIPPED "
+              "lines above say which recording disagreed and how.")
+
+    # ---- 7. the pairing gate, on the shipped bytes ------------------------
+    # Not optional, and deliberately BEFORE the zip: a bundle whose console
+    # announces one seal and whose certificate prints another must not become
+    # an archive that leaves this box. See the pairing note above (D136).
+    faults = check_bundle_pairing(out)
+    if faults:
+        print("\n  BUILD REFUSED: event seal does not match the certificate "
+              "it is paired with")
+        for fault in faults:
+            print(f"    {fault}")
+        print("  Nothing was zipped. The bundle at "
+              f"{out} is INTERNALLY CONTRADICTORY and must not ship.")
+        return 2
+    print("  pairing  every bundled event seal matches its bundled certificate")
 
     if args.zip:
         archive = shutil.make_archive(str(out), "zip", root_dir=out.parent,
