@@ -562,14 +562,21 @@ worse.
 
 | row | finding |
 |---|---|
-| **D152** | F1 — the B1 guard on the wrong population |
-| **D153** | F2 + F3 + F4 — the undecidable ordinal, its struck disclosure, and the page that contradicts itself |
-| **D154** | F5 — "every second-column cell" is seven of eight |
-| **D155** | F6 — the charter clause with no instrument, violated by the next write |
-| **D156** | F7 + F8 — the register's false absolute and the red test whose repair went elsewhere |
+| **D158** | F1 — the B1 guard on the wrong population |
+| **D159** | F2 + F3 + F4 — the undecidable ordinal, its struck disclosure, and the page that contradicts itself |
+| **D160** | F5 — "every second-column cell" is seven of eight |
+| **D161** | F6 — the charter clause with no instrument, violated by the next write |
+| **D162** | F7 + F8 — the register's false absolute and the red test whose repair went elsewhere |
 
-IDs were asserted free by execution against `docs/DOCKET.md` immediately before
-writing, not derived by `sort -u` — which is lexical and returns `D99` when the
+**These are not the IDs this round first reserved, and the reason is worth the
+line.** At 20:0xZ `D152`–`D156` were asserted free and were free. By the time the
+rows were written, minutes later, all five had been allocated by another agent
+filing concurrently. The IDs were re-asserted at the moment of writing — inside
+the same process that appended the rows, with an abort if any was taken and a
+second abort if `docs/DOCKET.md` was not byte-identical to `git show
+HEAD:docs/DOCKET.md` — and came out at `D158`–`D162`. **Allocating by execution
+is not enough on its own; the assertion has to be inside the write.** Nothing
+here was derived by `sort -u`, which is lexical and returns `D99` when the
 highest is `D151`.
 
 **Nothing in this round was repaired.** `demo-output/website/closure.html`,
