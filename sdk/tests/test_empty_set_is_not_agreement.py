@@ -363,6 +363,39 @@ class TestEveryGuardedCheckOnAnAbsentSource(unittest.TestCase):
                 self.assertNotEqual(getattr(sa, name)().status, sa.UNKNOWN)
 
 
+def _run_main(*checks, argv=("self_audit.py", "--json")):
+    """`main()` over a substituted CHECKS tuple. Returns (exit code, stdout).
+
+    THE SHIPPED ENTRY POINT, not a recomputation of its condition beside it.
+    `sys.exit(main())` is what `scripts/lab_check.py` runs and what a pre-push
+    hook would read, so the code under test is the integer `main` returns and
+    nothing else. A cell that rebuilt `any(r.status == FAIL ...)` in the test
+    would pass with the arm deleted from the script.
+
+    `_RESULTS_THIS_RUN` is restored as well as `CHECKS`: `main` writes every
+    outcome into it by check name, and a probe left behind there is a fixture
+    leaking into `check_every_value_claim_names_its_source` in a later test.
+    """
+    saved = sa.CHECKS, sys.argv, dict(sa._RESULTS_THIS_RUN)
+    try:
+        sa.CHECKS = tuple(checks)
+        sys.argv = list(argv)
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            code = sa.main()
+    finally:
+        sa.CHECKS, sys.argv = saved[0], saved[1]
+        sa._RESULTS_THIS_RUN.clear()
+        sa._RESULTS_THIS_RUN.update(saved[2])
+    return code, out.getvalue()
+
+
+def _probe(status, summary="probe"):
+    def check():
+        return sa.Result("probe", status, summary)
+    check.__name__ = f"probe_{status.lower()}"
+    return check
+
+
 class TestUnknownRedddensTheRunner(unittest.TestCase):
     def test_an_UNKNOWN_with_no_FAIL_exits_3(self):
         def one_unknown():
@@ -377,6 +410,102 @@ class TestUnknownRedddensTheRunner(unittest.TestCase):
         finally:
             sa.CHECKS, sys.argv = checks, argv
         self.assertEqual(code, 3)
+
+
+class TestTheThreeValuedExitMap(unittest.TestCase):
+    """All three arms of `main`'s exit map, driven through `main` (D211/D212).
+
+    WHY THIS EXISTS. The sibling above pinned the UNKNOWN arm only. The FAIL
+    arm -- `if any(r.status == FAIL for r in results): return 1` -- had NO
+    covering test at all, and the FAIL arm is the one that matters most: exit 1
+    is what `scripts/lab_check.py`'s `EXIT_CONTRACT` reads as FAIL, so it is
+    the code that reddens the runner and would block a push. A pre-push hook
+    whose blocking condition rests on an untested exit path is worth very
+    little.
+
+    HOW THE HOLE STAYED OPEN FOR SO LONG, which is the transferable part: the
+    guard was mutated and the harness reported it KILLED. The harness judged by
+    `returncode != 0` while its control was ALREADY RED, so mutant and control
+    were both red and every mutation in that cell reported KILLED, survivors
+    included. Re-run against a green control and judged by the CHANGE IN
+    FAILURE COUNT it is 0 -> 0 failures: a SURVIVOR. An uncovered guard had
+    been converted into a clean bill of health -- a verdict from a population
+    that was never measured, which is the empty-set shape this file is named
+    for, arriving through the instrument instead of through the check.
+
+    Three mutations, re-measured 2026-08-15 with a green control in an isolated
+    worktree, each named beside the case that now kills it:
+      SAM1  `if any(FAIL): return 1` -> never taken   was SURVIVED, now killed
+      SAM2  `return 3 if any(UNKNOWN) else 0` -> `return 0`   was already
+            killed, by the sibling above; kept measured here as the control
+            that this class did not simply make everything red
+      SAM3  a check that RAISES recorded PASS instead of FAIL   was SURVIVED,
+            now killed -- and it is the worse of the two, because a check that
+            crashes then reports as a passing check rather than a finding
+
+    Both halves, per L-84: the arms that must return non-zero AND the arm that
+    must still return 0, so this class cannot be satisfied by an exit map that
+    reddens unconditionally.
+    """
+
+    def test_a_FAIL_exits_1(self):
+        code, _ = _run_main(_probe(sa.FAIL, "a definite finding"))
+        self.assertEqual(code, 1,
+                         "exit 1 is what lab_check's EXIT_CONTRACT reads as "
+                         "FAIL; without it a FAIL exits 0 beside the passes")
+
+    def test_a_FAIL_beside_PASSes_still_exits_1(self):
+        code, _ = _run_main(_probe(sa.PASS), _probe(sa.FAIL), _probe(sa.INFO))
+        self.assertEqual(code, 1)
+
+    def test_a_FAIL_OUTRANKS_an_UNKNOWN(self):
+        """A definite finding outranks an indefinite one. Order-independent."""
+        for order in ((sa.FAIL, sa.UNKNOWN), (sa.UNKNOWN, sa.FAIL)):
+            with self.subTest(order=order):
+                code, _ = _run_main(*(_probe(s) for s in order))
+                self.assertEqual(code, 1)
+
+    def test_an_UNKNOWN_with_no_FAIL_exits_3_through_the_same_entry_point(self):
+        code, _ = _run_main(_probe(sa.PASS), _probe(sa.UNKNOWN))
+        self.assertEqual(code, 3)
+
+    def test_the_MUST_NOT_FIRE_half_a_clean_run_still_exits_0(self):
+        """L-84. Without this, an exit map that returned 1 always would pass."""
+        code, _ = _run_main(_probe(sa.PASS), _probe(sa.WARN), _probe(sa.INFO))
+        self.assertEqual(code, 0)
+
+    def test_a_WARN_alone_does_not_block_the_push(self):
+        code, _ = _run_main(_probe(sa.WARN, "priced, not blocking"))
+        self.assertEqual(code, 0)
+
+    def test_a_check_that_RAISES_is_recorded_FAIL_and_exits_1(self):
+        """SAM3. A crashed check is a finding, not a pass.
+
+        The exception arm and the exit map are one mechanism: recording the
+        crash as PASS makes `self_audit` exit 0 on a check that never ran, so
+        the arm is asserted here on BOTH surfaces -- the status carried on the
+        JSON and the code `main` returns.
+        """
+        def exploding_check():
+            raise RuntimeError("the check itself is broken")
+
+        code, out = _run_main(exploding_check)
+        self.assertEqual(code, 1,
+                         "a check that raised did not redden the runner")
+        row = json.loads(out)[0]
+        self.assertEqual(row["status"], sa.FAIL)
+        self.assertIn("check raised RuntimeError", row["summary"])
+        self.assertIn("the check itself is broken", row["summary"])
+
+    def test_a_check_that_raises_does_not_stop_the_run(self):
+        """Both halves again: the crash is recorded AND its siblings still run."""
+        def exploding_check():
+            raise ValueError("boom")
+
+        code, out = _run_main(exploding_check, _probe(sa.PASS))
+        rows = json.loads(out)
+        self.assertEqual(len(rows), 2, "a raising check swallowed the rest")
+        self.assertEqual(code, 1)
 
 
 class TestMutations(_LedgerCells):

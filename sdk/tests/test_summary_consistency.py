@@ -68,6 +68,31 @@ TWELVE MUTANTS, each aimed at a named test:
                                        reads as withdrawn: one correct pair
                                        loses its grade and one real defect in
                                        the other direction is missed
+
+AND THE DEFECT THIS FILE ITSELF HAD, D212, 2026-08-15
+------------------------------------------------------
+Everything above tests `grade_document`. Not one cell called `run_controls()`,
+the function that runs the five controls listed above on every real run --
+`currency_block` here is a HAND COPY of `run_controls.block`, and the controls
+were RE-IMPLEMENTED in this file's own helpers and asserted on there. Measured
+in an isolated worktree against a GREEN control: all TEN of `run_controls`'
+misfire guards SURVIVED deletion, as did `main`'s `if bad_controls: verdict =
+UNKNOWN` -- the arm this module's docstring sells -- and so did
+`run_controls()` neutered to `return [], []` before doing anything at all.
+Thirteen mutations, thirteen survivors, suite green throughout.
+
+That is the recompute-instead-of-drive failure, and it is the same shape as the
+subject: a control that only its test re-implements is a control nobody runs,
+so its verdict comes from a population never measured. The repair is
+`TestTheShippedControlsAreDrivenNotRecomputed` and
+`TestAMisfiredControlMakesTheWholeRunUNKNOWN` below, which hand the SHIPPED
+function a corpus in which one named control genuinely misfires and assert on
+what the shipped function RETURNS. Re-measured after: 13 of 13 KILLED.
+
+The transferable form, because this is the third instrument this week with it:
+if a test file builds its own copy of the thing under test in order to check
+it, the copy is what is covered and the shipped one is not. The tell is a
+production entry point that no test names.
 """
 
 from __future__ import annotations
@@ -323,6 +348,222 @@ class TestEmptySetIsNotPass(unittest.TestCase):
 
     def test_the_verdict_words_are_three_and_the_codes_are_pinned(self):
         self.assertEqual(sc.EXIT, {"PASS": 0, "FAIL": 1, "UNKNOWN": 3})
+
+
+# ---------------------------------------------------------------------------
+# THE SHIPPED CONTROLS, DRIVEN -- not re-implemented (D212)
+# ---------------------------------------------------------------------------
+#
+# WHAT WAS WRONG WITH THIS FILE, and it is this file's own subject again.
+# Everything above grades documents through `grade_document`, and
+# `currency_block` above is a HAND COPY of `run_controls.block`. Nothing called
+# `run_controls()`. Measured 2026-08-15: ALL TEN of its misfire guards survived
+# deletion with this suite green, as did `main`'s `if bad_controls: verdict =
+# UNKNOWN` -- the arm this module's own docstring sells. `run_controls()` could
+# have returned `([], log)` unconditionally and every test above would still
+# have passed, because every one of them recomputed the controls instead of
+# driving them. A control that is only re-implemented in its test is a control
+# nobody runs.
+#
+# HOW THESE CELLS DRIVE IT. `run_controls()` reads its corpus through the
+# module-level `_blob`, so substituting `_blob` hands the SHIPPED function a
+# corpus in which a named control genuinely misfires, and the assertion is on
+# what the shipped function RETURNS. Nothing here re-derives a grade: the
+# synthetic corpus is built to a shape and `run_controls` is asked what it made
+# of it. The two synthetic halves are reached the same way, by substituting the
+# module constants they read.
+#
+# Both halves, per L-84: the first cell asserts the controls are CLEAN on the
+# real corpus with nothing substituted, so this class cannot be satisfied by a
+# `run_controls` that reports a misfire unconditionally.
+
+_C_TABLE = "| section | claim | verdict |\n|---|---|---|\n"
+_C_IDENTS = ["4.8"] + [f"4.{i}" for i in range(9, 19)]
+
+
+def _c_doc(rows, sections):
+    return "# Doc\n\n" + _C_TABLE + "".join(rows) + "\n" + "".join(sections)
+
+
+def _c_row(ident, verdict="HOLDS"):
+    return f"| **{ident}** | the widget {ident} is current | **{verdict}** |\n"
+
+
+def _c_sec(ident, verdict):
+    return (f"\n### {ident} The widget {ident} is current -- "
+            f"**{verdict}**\n\nprose.\n")
+
+
+def control_corpus(stale=("4.8",), rows=11, drop_4_8=False):
+    """A stand-in for the control blob: one contiguous table plus its sections.
+
+    `stale` names the rows whose section says FALSIFIED under a row that says
+    HOLDS -- the D141 shape. The block is CONTIGUOUS so `run_controls.block`
+    grows over exactly these rows, which is what makes N1's denominator real.
+    """
+    idents = _C_IDENTS[:rows]
+    body, secs = [], []
+    for i in idents:
+        if drop_4_8 and i == "4.8":
+            continue
+        body.append(_c_row(i))
+        secs.append(_c_sec(i, "FALSIFIED 2026-08-11" if i in stale else
+                              "VERIFIED"))
+    return _c_doc(body, secs)
+
+
+GOOD_PRE = control_corpus(stale=("4.8",))
+GOOD_POST = control_corpus(stale=())
+AGREES = _c_doc([_c_row("9.2")], [_c_sec("9.2", "VERIFIED")])
+FIRES = _c_doc([_c_row("9.2")], [_c_sec("9.2", "FALSIFIED 2026-08-11")])
+
+
+def drive_controls(pre=GOOD_PRE, post=GOOD_POST, blob=None, **constants):
+    """Call the SHIPPED `run_controls()` over a substituted corpus.
+
+    Returns exactly what it returns: `(misfires, log)`.
+    """
+    saved_blob = sc._blob
+    saved = {k: getattr(sc, k) for k in constants}
+    sc._blob = blob or (lambda commit, path:
+                        ((pre, "") if commit.endswith("~1") else (post, "")))
+    for k, v in constants.items():
+        setattr(sc, k, v)
+    try:
+        return sc.run_controls()
+    finally:
+        sc._blob = saved_blob
+        for k, v in saved.items():
+            setattr(sc, k, v)
+
+
+class TestTheShippedControlsAreDrivenNotRecomputed(unittest.TestCase):
+    """One cell per misfire guard in `run_controls`, driven through it."""
+
+    def test_THE_MUST_NOT_FIRE_HALF_the_real_corpus_reports_no_misfire(self):
+        """No substitution at all: the controls as they ship, on the two real
+        blobs, must be clean. Without this the class would be satisfied by a
+        `run_controls` that reported a misfire on everything."""
+        bad, log = sc.run_controls()
+        self.assertEqual(bad, [], f"the shipped controls misfired: {bad}")
+        self.assertEqual(len(log), 5, "five controls, one log line each")
+        self.assertTrue(all("MISFIRE" not in line for line in log), log)
+
+    def test_the_positive_control_is_reported_when_it_stops_firing(self):
+        """P1 -- the real defect, at its real pre-repair state, must FIRE."""
+        bad, log = drive_controls(pre=control_corpus(stale=()))
+        self.assertTrue([b for b in bad if b.startswith("P1:")],
+                        f"P1 stopped firing and run_controls said nothing: {bad}")
+        self.assertIn("produced 0 hits, want 1", " ".join(bad))
+        self.assertIn("MISFIRE", log[0])
+
+    def test_the_ten_correct_rows_firing_is_reported_and_they_are_NAMED(self):
+        """N1, the important half. An instrument that fires on all eleven rows
+        is measuring byte-identity, and it would still pass P1."""
+        bad, _ = drive_controls(pre=control_corpus(stale=tuple(_C_IDENTS)))
+        n1 = [b for b in bad if b.startswith("N1:")]
+        self.assertEqual(len(n1), 1, f"N1 did not report the misfire: {bad}")
+        self.assertIn("10 of the ten correct rows fired", n1[0])
+        self.assertIn("4.9", n1[0],
+                      "a misfire that does not name the rows is unactionable")
+
+    def test_a_must_not_match_control_over_too_few_rows_is_reported(self):
+        """N1's second guard: a discrimination control needs something to
+        discriminate against. Three rows is not the eleven-row block."""
+        bad, _ = drive_controls(pre=control_corpus(rows=3))
+        self.assertIn("only 2 sibling rows were paired at all", " ".join(bad))
+
+    def test_the_repaired_row_firing_again_is_reported(self):
+        """N2 -- the row after its repair must not fire."""
+        bad, log = drive_controls(post=control_corpus(stale=("4.8",)))
+        self.assertIn("N2: the repaired 4.8 row still fires", bad)
+        self.assertTrue(any("MISFIRE" in line for line in log))
+
+    def test_the_repaired_row_vanishing_from_the_corpus_is_reported(self):
+        """N2's second guard, and it is the empty-set shape: a must-not-fire
+        control over a row that is not there fires zero times and clears
+        nothing."""
+        bad, _ = drive_controls(post=control_corpus(drop_4_8=True))
+        self.assertIn("N2: the repaired 4.8 row was not paired at all", bad)
+
+    def test_a_corpus_with_no_target_row_is_reported_and_does_not_raise(self):
+        """`block()`'s no-seed guard. Without it the block grows outward from
+        `None` and `run_controls` raises instead of reporting -- an instrument
+        that crashes reports nothing at all, which is worse than a misfire."""
+        bad, _ = drive_controls(pre=control_corpus(drop_4_8=True))
+        self.assertTrue([b for b in bad if b.startswith("P1:")], bad)
+        self.assertIn("only 0 sibling rows were paired at all", " ".join(bad))
+
+    def test_an_unreadable_control_corpus_is_a_misfire_and_says_so(self):
+        """The controls run on two immutable git blobs. If they cannot be read
+        the controls did not run, and a run whose controls did not run has
+        cleared nothing -- it must NOT fall through to grading the corpus."""
+        def dead(commit, path):
+            return "", f"git show {commit}:{path} rc=128: bad object"
+
+        bad, log = drive_controls(blob=dead)
+        self.assertEqual(len(bad), 2, f"both blobs must be reported: {bad}")
+        self.assertTrue(all("bad object" in b for b in bad), bad)
+        self.assertEqual(
+            log, ["control corpus unreadable -- the two git blobs the controls "
+                  "run on could not be read"],
+            "an unreadable corpus must be named as such, not reported as a "
+            "grading misfire further down")
+
+    def test_the_synthetic_positive_not_firing_is_reported(self):
+        """P2."""
+        bad, _ = drive_controls(SYNTH_FIRE=AGREES)
+        self.assertIn("P2: synthetic positive produced 0 hits, want 1", bad)
+
+    def test_a_struck_historical_row_firing_is_reported(self):
+        """N3. A row struck through is a historical record, not a stale claim;
+        an instrument that fires on it would fault every withdrawal."""
+        bad, _ = drive_controls(SYNTH_STRUCK=FIRES)
+        self.assertIn("N3: a correctly struck historical row fired", bad)
+
+    def test_a_struck_row_that_is_not_recognised_as_exempt_is_reported(self):
+        """N3's second guard, isolated: nothing fires here EITHER, so a check
+        that only counted hits would call this clean. What is wrong is that the
+        struck row was never recognised, so N3 cleared an empty set."""
+        bad, _ = drive_controls(SYNTH_STRUCK=AGREES)
+        self.assertEqual(bad, ["N3: the struck row was not recognised as "
+                               "exempt -- mask_exempt is not reaching it"])
+
+
+class TestAMisfiredControlMakesTheWholeRunUNKNOWN(unittest.TestCase):
+    """`main`'s `if bad_controls: verdict = UNKNOWN`, driven through the CLI.
+
+    This is the arm the module's own docstring sells, and it survived deletion.
+    Both halves on ONE corpus, so the only difference between them is whether
+    the controls ran: a document whose single pair AGREEs, which is a PASS when
+    the controls are sound and must be UNKNOWN when they are not.
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        root = Path(self._tmp.name)
+        (root / "a.md").write_text(AGREES, encoding="utf-8")
+        subprocess.run(["git", "-C", self._tmp.name, "init", "-q"], check=True)
+        subprocess.run(["git", "-C", self._tmp.name, "add", "a.md"], check=True)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def test_the_must_not_fire_half_sound_controls_leave_the_PASS_alone(self):
+        rc, text = run_cli(sc, "--root", self._tmp.name)
+        self.assertIn("VERDICT: PASS", text)
+        self.assertEqual(rc, sc.EXIT[sc.PASS])
+
+    def test_a_control_misfire_turns_that_same_PASS_into_UNKNOWN(self):
+        m = _mutant("dead_control_commit",
+                    f'CONTROL_COMMIT = "{sc.CONTROL_COMMIT}"',
+                    'CONTROL_COMMIT = "0000000000000000000000000000000000000000"')
+        rc, text = run_cli(m, "--root", self._tmp.name)
+        self.assertIn("VERDICT: UNKNOWN", text)
+        self.assertNotIn("VERDICT: PASS", text)
+        self.assertEqual(rc, sc.EXIT[sc.UNKNOWN])
+        self.assertIn("control misfired:", text,
+                      "the run must say WHICH control, not merely go UNKNOWN")
 
 
 class TestTheFramePrintsItsOwnReach(unittest.TestCase):
