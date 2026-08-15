@@ -19,18 +19,53 @@
 #   suite runs.
 #
 # WHAT BLOCKS A PUSH, AND WHAT DELIBERATELY DOES NOT
-#   FAIL     blocks. A check that ran and found something is a finding.
-#   UNKNOWN  warns loudly and does NOT block. This is a considered choice, not
-#            laziness: the runner is permanently UNKNOWN on this tree because
-#            some checks are skipped for reasons that could hide a verdict
-#            (needs-compute, writes-to-tree). A hook that blocks on the
-#            permanent state of the repository is a hook that gets deleted, and
-#            a deleted hook checks nothing. The warning is printed on every
-#            push so the state stays visible instead of going quiet.
+#   0  PASS     does not block.
+#   1  FAIL     blocks. A check that ran and found something is a finding.
+#   3  UNKNOWN ABOUT REACH -- warns loudly and does NOT block. This is a
+#               considered choice, not laziness: the runner is permanently
+#               UNKNOWN on this tree because some checks are skipped for
+#               reasons that could hide a verdict (needs-compute,
+#               writes-to-tree). A hook that blocks on the permanent state of
+#               the repository is a hook that gets deleted, and a deleted hook
+#               checks nothing. The warning is printed on every push so the
+#               state stays visible instead of going quiet.
+#   4  UNKNOWN ABOUT A CHECK'S OUTPUT -- BLOCKS. A check was launched and did
+#               not come back with a usable verdict: it crashed, timed out,
+#               would not start, exited outside the contract, or the runner
+#               admitted nothing at all. See below.
+#   *  ANY OTHER CODE -- BLOCKS. See below.
+#
+# WHY 4 AND `*` BLOCK (V15 round 7 finding F0, docket D101; repaired 2026-08-15)
+# ------------------------------------------------------------------------------
+# Until 2026-08-15 this file mapped UNKNOWN, and every code outside the runner's
+# contract, to `rc=0`. Combined with `lab_check.py` downgrading FAIL to UNKNOWN
+# whenever a check's OWN stderr contained "Traceback (most recent call last)",
+# that gave the graded party control of the predicate deciding whether it had
+# been graded. Demonstrated in a scratch repository with one gate, run twice,
+# same finding and the same exit code 1, differing by one line of stderr:
+#
+#     plain                       FAIL     runner exit 1   this hook BLOCKED
+#     + one traceback line      UNKNOWN    runner exit 3   this hook ALLOWED
+#
+# A check that crashes is exactly the check most likely to be hiding something.
+# The runner now separates UNKNOWN-about-reach (3) from UNKNOWN-about-a-check's-
+# output (4), and this hook blocks on the second. The property that matters is
+# that no text a check can emit buys it a better outcome: the best it can do is
+# trade a blocking FAIL for a blocking UNKNOWN while deleting the evidence.
+#
+# `*` blocks for the same reason one level out. "The runner exited $rc, outside
+# its own contract -- not blocking; nothing was checked" was the single most
+# dangerous line in this file: it is exactly the state a broken, tampered-with
+# or renumbered runner produces, and it read as success. NOTHING WAS CHECKED is
+# a reason to stop, not a reason to continue. A mutation of the runner's own
+# exit constants to {0, 77, 99} -- which left all 25 of its tests green -- put
+# every FAIL into this arm.
 #
 # ESCAPE HATCH, stated rather than hidden: LAB_CHECK_SKIP=1 git push. An owner
 # must be able to push a fix for the runner itself when the runner is broken.
-# Every use of it prints a line saying so.
+# Every use of it prints a line saying so. That is the answer to every "but
+# this blocks a push I need to make": one word, visible in the shell history,
+# rather than a silent rc=0 nobody can see afterwards.
 
 set -uo pipefail
 
@@ -43,10 +78,13 @@ if [ "${LAB_CHECK_SKIP:-0}" = "1" ]; then
 fi
 
 if [ ! -f "$runner" ]; then
-    echo "pre-push: $runner is missing. Not blocking, because a missing runner" >&2
-    echo "          is a statement about the hook, not about the push --" >&2
-    echo "          but nothing was checked." >&2
-    exit 0
+    echo "pre-push: $runner is missing, so NOTHING WAS CHECKED -- and that is" >&2
+    echo "          the state this hook exists to refuse to wave through." >&2
+    echo "          A missing runner is a statement about the hook and not" >&2
+    echo "          about the push, which is why it is worth saying out loud" >&2
+    echo "          rather than worth exiting 0 on." >&2
+    echo "          To push anyway: LAB_CHECK_SKIP=1 git push" >&2
+    exit 1
 fi
 
 echo "pre-push: lab_check --no-tests (the fast tier; the suite runs nightly)" >&2
@@ -58,13 +96,26 @@ case "$rc" in
     1) echo "pre-push: FAIL -- push blocked. Read the frame above: it names" >&2
        echo "          which check failed and what it examined." >&2
        echo "          To push anyway: LAB_CHECK_SKIP=1 git push" >&2 ;;
-    3) echo "pre-push: UNKNOWN -- NOT blocking, and that is on purpose (see the" >&2
-       echo "          header of scripts/installed/pre-push). Some check could" >&2
-       echo "          not be run; the reasons are printed above." >&2
+    3) echo "pre-push: UNKNOWN about REACH -- NOT blocking, and that is on" >&2
+       echo "          purpose (see the header of scripts/installed/pre-push)." >&2
+       echo "          Every check that ran came back with a verdict; what is" >&2
+       echo "          unknown is what this runner did not examine, and the" >&2
+       echo "          coverage statement above names all of it." >&2
        rc=0 ;;
-    *) echo "pre-push: the runner exited $rc, outside its own contract." >&2
-       echo "          Not blocking; nothing was checked." >&2
-       rc=0 ;;
+    4) echo "pre-push: UNKNOWN about a CHECK'S OUTPUT -- push blocked. A check" >&2
+       echo "          was launched and did not come back with a usable" >&2
+       echo "          verdict: it crashed, timed out, would not start, exited" >&2
+       echo "          outside the contract, or nothing was admitted at all." >&2
+       echo "          The lines above name it. This blocks because a check" >&2
+       echo "          that could not report is the one most likely to have" >&2
+       echo "          been about to report something (docket D101)." >&2
+       echo "          To push anyway: LAB_CHECK_SKIP=1 git push" >&2 ;;
+    *) echo "pre-push: the runner exited $rc, outside its own contract of" >&2
+       echo "          0/1/3/4 -- push blocked. NOTHING WAS CHECKED, and this" >&2
+       echo "          is exactly the state a broken or renumbered runner" >&2
+       echo "          produces. It used to exit 0 here; that was docket D101." >&2
+       echo "          To push anyway: LAB_CHECK_SKIP=1 git push" >&2
+       rc=1 ;;
 esac
 
 exit "$rc"

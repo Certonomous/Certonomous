@@ -21,10 +21,25 @@ The four things being pinned, each of which this lab has been burned by:
     not admitted, and a tree containing only printers reads UNKNOWN rather than
     PASS -- which is D64's own criterion about `gate_table.py` turned into a
     test.
+
+THE EXIT CODES ARE TYPED OUT IN THIS FILE, AS NUMBERS (V15 round 7 F0, D101)
+----------------------------------------------------------------------------
+Every whole-runner assertion here used to read `assertEqual(rc, lc.EXIT[lc.FAIL])`
+-- the subprocess's exit code compared against the module-under-test's OWN
+dictionary. Both sides move together, so mutating
+
+    EXIT = {PASS: 0, FAIL: 1, UNKNOWN: 3}  ->  EXIT = {PASS: 0, FAIL: 77, UNKNOWN: 99}
+
+left 25 of 25 tests green, while `scripts/installed/pre-push`, which reads the
+numbers directly, fell through to its out-of-contract arm on every FAIL. The
+literals below are the contract. A test that asks the thing under test what the
+right answer is has not tested it.
 """
 from __future__ import annotations
 
 import importlib.util
+import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -33,6 +48,16 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 RUNNER = REPO / "scripts" / "lab_check.py"
+HOOK = REPO / "scripts" / "installed" / "pre-push"
+
+#: THE PUBLISHED EXIT-CODE CONTRACT, as numbers, typed here and imported from
+#: nowhere. `lab_check.py` and `scripts/installed/pre-push` are the two files
+#: that have to agree about them; this is the third place, and it is the only
+#: one that is not free to change its mind.
+RC_PASS = 0
+RC_FAIL = 1
+RC_UNKNOWN_REACH = 3
+RC_UNKNOWN_OUTPUT = 4
 
 _SPEC = importlib.util.spec_from_file_location("lab_check_under_test", RUNNER)
 lc = importlib.util.module_from_spec(_SPEC)
@@ -113,7 +138,7 @@ class TheRunnerFiresOnAPlantedDefect(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = _repo(Path(tmp), gate_findings="['a defect']")
             rc, out = _run(root, "--no-tests")
-        self.assertEqual(rc, lc.EXIT[lc.FAIL], out)
+        self.assertEqual(rc, RC_FAIL, out)
         self.assertIn("VERDICT: FAIL", out)
         self.assertIn("scripts/gate.py", out)
 
@@ -121,7 +146,7 @@ class TheRunnerFiresOnAPlantedDefect(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = _repo(Path(tmp), tests="2")
             rc, out = _run(root)
-        self.assertEqual(rc, lc.EXIT[lc.FAIL], out)
+        self.assertEqual(rc, RC_FAIL, out)
         self.assertIn("test_planted.py", out)
 
 
@@ -132,24 +157,31 @@ class TheRunnerIsSilentWhereItShouldBe(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = _repo(Path(tmp), gate_findings="[]")
             rc, out = _run(root, "--no-tests")
-        self.assertEqual(rc, lc.EXIT[lc.PASS], out)
+        self.assertEqual(rc, RC_PASS, out)
         self.assertIn("VERDICT: PASS", out)
 
     def test_a_passing_gate_and_a_passing_suite_together_are_PASS(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = _repo(Path(tmp), gate_findings="[]", tests="1")
             rc, out = _run(root)
-        self.assertEqual(rc, lc.EXIT[lc.PASS], out)
+        self.assertEqual(rc, RC_PASS, out)
 
 
 class AnEmptyCheckSetIsNeverAPass(unittest.TestCase):
-    """Defect class B1: the sweep that examined nothing and reported clean."""
+    """Defect class B1: the sweep that examined nothing and reported clean.
 
-    def test_no_checks_at_all_is_UNKNOWN(self):
+    Both cases here now assert exit 4 rather than exit 3, and the change is not
+    cosmetic: 3 is the code `scripts/installed/pre-push` deliberately does NOT
+    block on. A run that admitted no check at all reaching a hook as "warn and
+    push" is B1 with a schedule attached, so an empty admitted set is UNKNOWN
+    ABOUT WHAT THE CHECKS WOULD HAVE SAID, which blocks.
+    """
+
+    def test_no_checks_at_all_is_UNKNOWN_and_blocks(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = _repo(Path(tmp))
             rc, out = _run(root, "--no-tests")
-        self.assertEqual(rc, lc.EXIT[lc.UNKNOWN], out)
+        self.assertEqual(rc, RC_UNKNOWN_OUTPUT, out)
         self.assertIn("VERDICT: UNKNOWN", out)
         self.assertIn("no check was admitted", out)
 
@@ -158,7 +190,7 @@ class AnEmptyCheckSetIsNeverAPass(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = _repo(Path(tmp), printer=True)
             rc, out = _run(root, "--no-tests")
-        self.assertEqual(rc, lc.EXIT[lc.UNKNOWN], out)
+        self.assertEqual(rc, RC_UNKNOWN_OUTPUT, out)
         self.assertIn("cannot-fail", out)
 
 
@@ -199,7 +231,7 @@ CONSTANT = 3
                 self.COLLECTS_NOTHING)
             subprocess.run(["git", "add", "-A"], cwd=root, check=True)
             rc, out = _run(root)
-        self.assertEqual(rc, lc.EXIT[lc.FAIL], out)
+        self.assertEqual(rc, RC_FAIL, out)
         self.assertIn("enumerated but not collected: sdk/tests/test_silent.py",
                       out)
         self.assertIn("test files enumerated 2", out)
@@ -214,14 +246,14 @@ CONSTANT = 3
                 self.HELPER_WITH_NO_TESTS)
             subprocess.run(["git", "add", "-A"], cwd=root, check=True)
             rc, out = _run(root)
-        self.assertEqual(rc, lc.EXIT[lc.UNKNOWN], out)
+        self.assertEqual(rc, RC_UNKNOWN_REACH, out)
         self.assertIn("none of them declares a test", out)
 
     def test_without_the_plant_the_same_tree_is_PASS(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = _repo(Path(tmp), tests="1")
             rc, out = _run(root)
-        self.assertEqual(rc, lc.EXIT[lc.PASS], out)
+        self.assertEqual(rc, RC_PASS, out)
 
     def test_every_run_prints_what_the_suite_actually_covered(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -375,16 +407,266 @@ class ExitCodeReading(unittest.TestCase):
         out = self._run_one('raise RuntimeError("the check itself is broken")\n')
         self.assertEqual(out.verdict, lc.UNKNOWN, out.reason)
         self.assertIn("crashed", out.reason)
+        self.assertTrue(out.blocking, "a crash the runner cannot read a verdict "
+                                      "out of must not be a free pass")
 
     def test_exit_three_is_the_checks_own_UNKNOWN(self):
         out = self._run_one('import sys\nsys.exit(3)\n')
         self.assertEqual(out.verdict, lc.UNKNOWN)
+        self.assertTrue(out.blocking)
+
+    def test_a_PASS_is_the_only_non_blocking_outcome_a_check_can_earn(self):
+        """The must-not-match half of `blocking`: it is not on by default."""
+        out = self._run_one(
+            'import sys\nprint("VERDICT: PASS")\nsys.exit(0)\n')
+        self.assertEqual(out.verdict, lc.PASS, out.reason)
+        self.assertFalse(out.blocking, out.reason)
 
     def test_stderr_is_reported_and_never_discarded(self):
         out = self._run_one(
             'import sys\nprint("a problem", file=sys.stderr)\nsys.exit(0)\n')
         self.assertEqual(out.stderr_lines, 1)
         self.assertIn("a problem", out.stderr_tail)
+
+
+# ---------------------------------------------------------------------------
+# V15 round 7, F0 / docket D101. The graded party controlled the predicate that
+# decided whether it had been graded.
+# ---------------------------------------------------------------------------
+
+#: The demonstration gate from the round document, both halves. The ONLY
+#: difference between them is one line written to the check's own stderr; the
+#: finding, the stdout report and the exit code are identical.
+GATE_REPORTS_AND_FAILS = '''\
+#!/usr/bin/env python3
+"""A gate whose exit code is a function of its finding."""
+import sys
+
+
+def main():
+    print("VERDICT: FAIL -- the corpus is bad")
+{extra}    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+'''
+
+#: The other half of the escape: a gate that hides its finding entirely and
+#: shows the runner only a traceback line. It gets UNKNOWN -- which is the
+#: honest reading -- and it gets a BLOCKING exit code, which is what makes the
+#: escape worthless rather than merely narrower.
+GATE_HIDES_ITS_FINDING = '''\
+#!/usr/bin/env python3
+"""A gate that found something and would rather not be counted."""
+import sys
+
+
+def main():
+    sys.stderr.write("Traceback (most recent call last)\\n")
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+'''
+
+_TRACEBACK_LINE = ('    sys.stderr.write("Traceback (most recent call last)'
+                   '\\n")\n')
+
+
+class AGradedCheckCannotBuyABetterOutcomeByPrinting(unittest.TestCase):
+    """F0, reproduced as a regression pair and then closed.
+
+    Reproduced in a scratch repository before the repair: one gate, the same
+    finding, the same exit code 1, run twice.
+
+        plain                    FAIL      runner exit 1    push blocked
+        + one stderr line      UNKNOWN     runner exit 3    push ALLOWED
+
+    The finding was still on stdout in the second run; the runner read it,
+    printed it, and did not act on it. This is one level worse than docket D78
+    (a detector that switches itself off), because the GRADED PARTY controls the
+    predicate deciding whether it was graded -- and a check that crashes is
+    exactly the check most likely to be hiding something.
+
+    Two locks, one test each, plus the must-not-match half for both.
+    """
+
+    def _run_gate(self, source: str) -> tuple[int, str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "repo"
+            (root / "scripts").mkdir(parents=True)
+            (root / "sdk" / "tests").mkdir(parents=True)
+            (root / "scripts" / "gate.py").write_text(source)
+            (root / "README").write_text("fixture tree\n")
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+            subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t",
+                            "commit", "-qm", "fixture"], cwd=root, check=True)
+            return _run(root, "--no-tests")
+
+    def test_LOCK_1_a_traceback_does_not_unsay_a_finding_already_reported(self):
+        rc, out = self._run_gate(
+            GATE_REPORTS_AND_FAILS.format(extra=_TRACEBACK_LINE))
+        self.assertEqual(
+            rc, RC_FAIL,
+            "one line on the check's OWN stderr erased its own reported FAIL. "
+            "This is docket D101 back:\n" + out)
+        self.assertIn("VERDICT: FAIL", out)
+
+    def test_LOCK_1_control_the_same_gate_without_the_stderr_line(self):
+        """The must-not-match half. If this and the case above did not agree,
+        the assertion above would be proving nothing about the stderr line."""
+        rc, out = self._run_gate(GATE_REPORTS_AND_FAILS.format(extra=""))
+        self.assertEqual(rc, RC_FAIL, out)
+        self.assertIn("VERDICT: FAIL", out)
+
+    def test_LOCK_2_hiding_the_finding_behind_a_crash_still_blocks(self):
+        """The escape that is still REACHABLE, shown to be worth nothing.
+
+        A check can still reach UNKNOWN -- by suppressing its own finding
+        entirely, which is the only way left. What it cannot do is reach a
+        non-blocking exit code, and `RC_UNKNOWN_REACH` (3) is the one
+        `scripts/installed/pre-push` does not block on. So the whole trade is a
+        blocking code for a blocking code, at the price of deleting the
+        evidence: no monotone improvement is available.
+        """
+        rc, out = self._run_gate(GATE_HIDES_ITS_FINDING)
+        self.assertEqual(
+            rc, RC_UNKNOWN_OUTPUT,
+            "a check that crashed instead of reporting reached a code the "
+            "pre-push hook waves through:\n" + out)
+        self.assertNotEqual(rc, RC_UNKNOWN_REACH, out)
+        self.assertNotEqual(rc, RC_PASS, out)
+        self.assertIn("VERDICT: UNKNOWN", out)
+
+    def test_LOCK_2_control_a_clean_tree_is_still_a_non_blocking_PASS(self):
+        """L-84's other half: the repair must not make everything block.
+
+        A gate that ran, reported and passed comes back 0. If this reddens, the
+        two locks above have been implemented as an alarm rather than a gate,
+        and an alarm gets switched off inside a day.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _repo(Path(tmp), gate_findings="[]")
+            rc, out = _run(root, "--no-tests")
+        self.assertEqual(rc, RC_PASS, out)
+        self.assertIn("exit 0 -- clean", out)
+
+
+class TheExitCodeContractIsPinned(unittest.TestCase):
+    """The `{0, 77, 99}` mutation that left 25 of 25 tests green (F0, D101).
+
+    `EXIT = {PASS: 0, FAIL: 1, UNKNOWN: 3}` was mutated to
+    `{PASS: 0, FAIL: 77, UNKNOWN: 99}` in a scratch copy of the runner and its
+    suite, `__pycache__` purged before both: control and mutant alike returned
+    `25 passed`. Nothing pinned the numbers, and `scripts/installed/pre-push`
+    hardcodes them -- so under that mutation every FAIL fell into the hook's
+    out-of-contract arm, which at the time printed "Not blocking; nothing was
+    checked" and returned 0.
+
+    Two independent pins, so the mutation reddens twice:
+      * the numbers, asserted as literals typed in THIS file;
+      * the hook, RUN against a stub runner for each code the runner publishes.
+        That second one is the anti-drift pin: renumber the runner and the
+        hook's own arms stop covering it, whatever the literals say.
+    """
+
+    STUB = 'import sys\nprint("stub runner")\nsys.exit({code})\n'
+
+    def _run_hook(self, runner_exit: int | None, *, skip: str = "0"
+                  ) -> tuple[int, str]:
+        """Run the REAL hook against a stub runner. `None` omits the runner."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "repo"
+            (root / "scripts" / "installed").mkdir(parents=True)
+            if runner_exit is not None:
+                (root / "scripts" / "lab_check.py").write_text(
+                    self.STUB.format(code=runner_exit))
+            hook = root / "scripts" / "installed" / "pre-push"
+            shutil.copy(HOOK, hook)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            proc = subprocess.run(
+                ["bash", str(hook)], cwd=root, capture_output=True, text=True,
+                timeout=120, stdin=subprocess.DEVNULL,
+                env={**os.environ, "LAB_CHECK_SKIP": skip})
+        return proc.returncode, proc.stdout + proc.stderr
+
+    def test_the_published_codes_are_exactly_these_numbers(self):
+        self.assertEqual(lc.EXIT_PASS, RC_PASS)
+        self.assertEqual(lc.EXIT_FAIL, RC_FAIL)
+        self.assertEqual(lc.EXIT_UNKNOWN, RC_UNKNOWN_REACH)
+        self.assertEqual(lc.EXIT_UNSOUND, RC_UNKNOWN_OUTPUT)
+
+    def test_exit_code_maps_every_verdict_and_blocking_pair(self):
+        self.assertEqual(lc.exit_code(lc.PASS, False), RC_PASS)
+        self.assertEqual(lc.exit_code(lc.FAIL, True), RC_FAIL)
+        self.assertEqual(lc.exit_code(lc.UNKNOWN, False), RC_UNKNOWN_REACH)
+        self.assertEqual(lc.exit_code(lc.UNKNOWN, True), RC_UNKNOWN_OUTPUT)
+
+    def test_the_hook_blocks_on_FAIL(self):
+        rc, out = self._run_hook(RC_FAIL)
+        self.assertNotEqual(rc, 0, out)
+
+    def test_the_hook_does_not_block_on_PASS(self):
+        rc, out = self._run_hook(RC_PASS)
+        self.assertEqual(rc, 0, out)
+
+    def test_the_hook_warns_and_does_not_block_on_UNKNOWN_about_reach(self):
+        """The must-not-match half at the hook level. A hook that blocks on the
+        permanent state of this repository is a hook that gets deleted, and a
+        deleted hook checks nothing."""
+        rc, out = self._run_hook(RC_UNKNOWN_REACH)
+        self.assertEqual(rc, 0, out)
+        self.assertIn("REACH", out)
+
+    def test_the_hook_blocks_on_UNKNOWN_about_a_checks_output(self):
+        rc, out = self._run_hook(RC_UNKNOWN_OUTPUT)
+        self.assertNotEqual(
+            rc, 0,
+            "a check that could not report reached the hook and was waved "
+            "through. That is docket D101's second half:\n" + out)
+
+    def test_the_hook_blocks_on_every_code_outside_the_contract(self):
+        """Including 77 and 99 -- the mutation's own codes -- and 2."""
+        for code in (2, 5, 77, 99, 127):
+            with self.subTest(code=code):
+                rc, out = self._run_hook(code)
+                self.assertNotEqual(
+                    rc, 0,
+                    f"the runner exited {code}, nothing was checked, and the "
+                    f"hook allowed the push:\n{out}")
+
+    def test_the_hook_blocks_when_the_runner_is_missing_entirely(self):
+        rc, out = self._run_hook(None)
+        self.assertNotEqual(rc, 0, out)
+        self.assertIn("NOTHING WAS CHECKED", out)
+
+    def test_every_code_the_runner_publishes_has_its_own_arm_in_the_hook(self):
+        """THE ANTI-DRIFT PIN, and the one that survives a rename.
+
+        Renumber `lab_check.py`'s constants and these codes stop matching the
+        hook's `case` arms, so each falls into `*` -- which now blocks, but
+        which also names itself in the output. This reddens on any renumbering
+        even if someone updates the literals at the top of this file to match.
+        """
+        for code in (lc.EXIT_PASS, lc.EXIT_FAIL, lc.EXIT_UNKNOWN,
+                     lc.EXIT_UNSOUND):
+            with self.subTest(code=code):
+                rc, out = self._run_hook(code)
+                self.assertNotIn(
+                    "outside its own contract", out,
+                    f"the runner publishes exit code {code} and the hook has "
+                    f"no arm for it, so it is being handled as an unknown "
+                    f"code:\n{out}")
+
+    def test_the_stated_escape_hatch_still_works(self):
+        """LAB_CHECK_SKIP=1 is the answer to every blocked push, and it has to
+        keep working or the blocking arms above become a reason to uninstall."""
+        rc, out = self._run_hook(RC_FAIL, skip="1")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("SKIPPED", out)
 
 
 if __name__ == "__main__":

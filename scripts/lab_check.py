@@ -124,7 +124,7 @@ clean having never opened the four records it exists to examine").
               reason that could hide a verdict.
 
 An empty admitted set is UNKNOWN with the reason `no check was admitted`, never
-PASS. The exit code carries the same three values: 0 PASS, 1 FAIL, 3 UNKNOWN.
+PASS.
 
 Per-check verdicts come from the exit code under a published contract --
 0 PASS, 1 or 2 FAIL, 3 UNKNOWN, anything else UNKNOWN with the code named. The
@@ -137,6 +137,70 @@ A check that dies with a traceback is UNKNOWN, not FAIL. The difference
 matters: FAIL is a statement about the lab, UNKNOWN is a statement about the
 instrument, and merging them is how a broken checker gets read as a finding
 (or, worse, how a finding gets read as a broken checker and then ignored).
+
+THE GRADED PARTY MUST NOT CONTROL THE PREDICATE THAT DECIDES WHETHER IT WAS
+GRADED (V15 round 7 F0, docket D101 -- repaired 2026-08-15)
+==========================================================================
+The paragraph above was true and the mechanism built on it was not. The
+downgrade was `crashed = "Traceback (most recent call last)" in err`, over the
+CHECK'S OWN STDERR, with no other condition; and `scripts/installed/pre-push`
+mapped UNKNOWN, and every code outside the contract, to `rc=0`. Demonstrated in
+a scratch repository with one gate, run twice, same finding and same exit 1,
+differing by one line:
+
+    plain                                   FAIL     exit 1   push blocked
+    + sys.stderr.write("Traceback (most   UNKNOWN    exit 3   push ALLOWED
+      recent call last)\n")
+
+The finding was still on stdout in the second run. The runner read it, printed
+it, and did not act on it. **A check that crashes is exactly the check most
+likely to be hiding something, and this converted its crash into a pass.**
+
+The repair is two locks, and each is stated here as the argument for why no
+text a check emits can improve the aggregate:
+
+  LOCK 1 -- A REPORTED FINDING SURVIVES ANY STDERR. The crash downgrade now
+  requires that the check produced NO verdict line on its own stdout. This is
+  the same standard the `usage_error` path has carried since it was written
+  (`not out.strip()`), applied to the path that lacked it. A check that said
+  FAIL has said FAIL; writing to stderr afterwards does not unsay it.
+
+  LOCK 2 -- THE ESCAPE IS WORTH NOTHING EVEN WHEN IT WORKS. To reach UNKNOWN a
+  check must now ALSO suppress its own finding from stdout -- and an UNKNOWN
+  that a check produced by running exits `EXIT_UNSOUND` (4), which the hook
+  BLOCKS on, exactly as it blocks on FAIL. So the best a graded check can do by
+  emitting text is trade one blocking code for another blocking code while
+  deleting the evidence of what it found. There is no monotone improvement
+  available, which is the property that makes this a gate.
+
+  The cut between the two UNKNOWNs is not a severity judgement, it is the
+  control boundary: **a check controls its own output; it does not control the
+  runner's reach.** UNKNOWN about a check's OUTPUT (crashed, timed out, would
+  not start, exited outside the contract, returned its own UNKNOWN, or wrote to
+  the tree it was being graded against) blocks. UNKNOWN about the runner's
+  REACH (a candidate skipped `needs-compute` or `writes-to-tree`, `--no-tests`,
+  an enumerated file that declares no test) does not block: nothing is hidden
+  there, the coverage statement is printed in full on every run, and a hook
+  that blocks on the permanent state of the repository is a hook that gets
+  deleted -- after which it checks nothing at all.
+
+  Note what is deliberately NOT done: the downgrade is not deleted. A traceback
+  really can mean the instrument is broken rather than the lab, and calling
+  that FAIL is how a finding gets read as a broken checker and ignored. What is
+  removed is the REWARD for it.
+
+THE EXIT CODES, AND WHERE THEY ARE PINNED
+=========================================
+    0  PASS
+    1  FAIL
+    3  UNKNOWN about reach          -- warn, do not block
+    4  UNKNOWN about a check's output -- BLOCK; the runner does not know what
+                                        that check would have found
+Anything else is a runner this hook does not understand, and `pre-push` blocks
+on it rather than waving it through. These four numbers are asserted as
+literals in `sdk/tests/test_lab_check.py`, and the hook's behaviour on each of
+them is asserted by RUNNING the hook against a stub runner rather than by
+matching text in it.
 
 NO `2>/dev/null`, ANYWHERE
 ==========================
@@ -238,7 +302,30 @@ from typing import Iterable, Sequence
 REPO = Path(__file__).resolve().parents[1]
 
 PASS, FAIL, UNKNOWN = "PASS", "FAIL", "UNKNOWN"
-EXIT = {PASS: 0, FAIL: 1, UNKNOWN: 3}
+
+#: THE EXIT-CODE CONTRACT. Written as four named literals rather than as one
+#: dictionary, because `sdk/tests/test_lab_check.py::TheExitCodeContractIsPinned`
+#: asserts these NUMBERS. Every whole-runner assertion in that file used to read
+#: `assertEqual(rc, lc.EXIT[lc.FAIL])`, which compares a subprocess's exit code
+#: against the module-under-test's own dictionary: mutating the dictionary moves
+#: both sides together, so `{PASS: 0, FAIL: 77, UNKNOWN: 99}` left 25 of 25
+#: tests green while `scripts/installed/pre-push`, which reads the numbers
+#: directly, fell through to its out-of-contract arm on every FAIL. A contract
+#: shared by two files and pinned in neither is not a contract.
+EXIT_PASS = 0
+EXIT_FAIL = 1
+#: UNKNOWN ABOUT REACH -- the runner knows exactly what it did and did not
+#: examine, and nothing a check emitted is in question. Non-blocking.
+EXIT_UNKNOWN = 3
+#: UNKNOWN ABOUT A CHECK'S OUTPUT -- a check was launched and did not come back
+#: with a usable verdict (crashed, timed out, would not start, exited outside
+#: the contract, or returned its own UNKNOWN). The runner does not know what it
+#: would have found. BLOCKING: see WHY A CRASH BLOCKS in the module docstring.
+EXIT_UNSOUND = 4
+
+#: Kept for the three-valued verdict word. It does NOT carry the blocking
+#: dimension and must not be used to compute an exit code; `exit_code()` is.
+EXIT = {PASS: EXIT_PASS, FAIL: EXIT_FAIL, UNKNOWN: EXIT_UNKNOWN}
 
 #: Directories the enumeration reads. Both are DIRECTORIES, not file lists:
 #: a check added to either is picked up without editing this module.
@@ -648,6 +735,13 @@ class Outcome:
     stderr_lines: int = 0
     stderr_tail: str = ""
     detail: list[str] = dataclasses.field(default_factory=list)
+    #: True when this outcome leaves the runner not knowing what the check
+    #: would have found -- see THE GRADED PARTY MUST NOT CONTROL THE PREDICATE
+    #: in the module docstring. Set at the point the verdict is manufactured,
+    #: never derived from the verdict word afterwards, so that "UNKNOWN about a
+    #: check's output" and "UNKNOWN about the runner's reach" cannot be
+    #: confused by a later reader.
+    blocking: bool = False
 
 
 def _cpu_children() -> float:
@@ -681,13 +775,31 @@ def run_script(root: Path, cand: Candidate, timeout: int, *,
         return Outcome(cand.path, UNKNOWN,
                        f"timed out after {timeout}s -- no verdict was produced",
                        time.monotonic() - t0, _cpu_children() - c0, None,
-                       len(err.splitlines()), _tail(err))
+                       len(err.splitlines()), _tail(err), blocking=True)
     except OSError as exc:
         return Outcome(cand.path, UNKNOWN, f"could not launch: {exc}",
-                       time.monotonic() - t0, _cpu_children() - c0)
+                       time.monotonic() - t0, _cpu_children() - c0,
+                       blocking=True)
 
     secs, cpu = time.monotonic() - t0, _cpu_children() - c0
-    crashed = "Traceback (most recent call last)" in err
+    reported = _scrape_verdicts(out)
+    # THE STDERR SUBSTRING IS NOT ENOUGH ON ITS OWN (F0, docket D101). `err` is
+    # the CHECK'S OWN stderr and the check controls every byte of it, so this
+    # predicate alone let the graded party decide whether it had been graded:
+    # one `sys.stderr.write("Traceback (most recent call last)\n")` turned FAIL
+    # / exit 1 / push blocked into UNKNOWN / exit 3 / push allowed, with the
+    # finding still printed on stdout. A check that got as far as reporting a
+    # verdict did not fail to start, and that report stands whatever it wrote
+    # afterwards. This is the same "did it report anything?" standard
+    # `usage_error` below has always carried; it was simply missing here.
+    #
+    # The bar is A REPORTED VERDICT, not "any stdout at all": a check that
+    # prints its frame and then dies really has crashed, and calling that FAIL
+    # is how a broken instrument gets read as a finding. `_scrape_verdicts`
+    # already knows the three shapes a check in this repository reports in, so
+    # the bar is the same one the runner uses to display sub-results -- no
+    # second, quietly different notion of "it said something".
+    crashed = "Traceback (most recent call last)" in err and not reported
     # argparse writes `usage: ...` and exits 2 when the invocation is wrong.
     # That is a statement about how THIS RUNNER called the check -- it passes no
     # arguments -- and reading it as a finding would manufacture red exactly as
@@ -700,34 +812,61 @@ def run_script(root: Path, cand: Candidate, timeout: int, *,
     # AS FAR AS REPORTING. Every check in this repository prints its frame or
     # its verdict before it decides anything, so silence on stdout with a
     # complaint on stderr is a failure to start, not a finding.
+    #
+    # AND IT BLOCKS, WHICH IT DID NOT BEFORE (F0, docket D101). Every word of
+    # this diagnosis is written by the graded check: `code`, `out` and `err`
+    # are all its own. A check that would have exited 1 could instead exit 2
+    # with an empty stdout and one word on stderr, and under the old mapping
+    # that traded a blocking FAIL for a non-blocking UNKNOWN -- a strict
+    # improvement bought by printing less. There is no signal here the check
+    # does not control, so the hole cannot be closed by a better predicate;
+    # it is closed by making the escape lead somewhere no better than FAIL.
+    # The verdict stays UNKNOWN, because that is what is true, and the exit
+    # code says BLOCKING, because "this check did not run and I cannot tell
+    # you why not, in its own words" is not a state to push on top of.
     usage_error = code == 2 and (re.match(r"\s*usage:", err)
                                  or (not out.strip() and err.strip()))
     if usage_error:
         v, why = UNKNOWN, ("exited 2 on invocation, before reporting anything "
                            "on stdout: it requires arguments and this runner "
                            "passes none by design. A statement about the "
-                           "runner, not about the lab")
+                           "runner, not about the lab -- but a BLOCKING one, "
+                           "because nothing about it is outside this check's "
+                           "control. Give it a schedulable default frame, or "
+                           "make it exit 3 on purpose, or make the argument "
+                           "REQUIRED so the static predicate skips it before "
+                           "it is ever launched")
     elif crashed and code != 0:
         v, why = UNKNOWN, ("the check crashed; a traceback is a statement about "
-                           "the instrument, not about the lab")
+                           "the instrument, not about the lab -- and it BLOCKS: "
+                           "a check that crashed is the check most likely to be "
+                           "hiding something, and the runner cannot say what it "
+                           "would have found")
     else:
         v = EXIT_CONTRACT.get(code, UNKNOWN)
         why = {PASS: "exit 0", FAIL: f"exit {code}",
                UNKNOWN: f"exit {code} (outside the published contract)"}[v]
-    detail = _scrape_verdicts(out)
+    # Every UNKNOWN reachable from here is UNKNOWN ABOUT THIS CHECK'S OUTPUT --
+    # it ran (or was launched) and did not come back with a usable verdict --
+    # which is the class the graded party controls and therefore the class that
+    # must not pay. UNKNOWN about the runner's REACH never passes through
+    # `run_script`; it comes from the skip list, and it does not block.
+    blocking = v == UNKNOWN
+    detail = list(reported)
     touched = sorted(_tree_state(root) - before)
     if touched:
         detail = [f"TREE CHANGED DURING THIS CHECK: {t}" for t in touched[:8]] \
             + detail
         if exclusive:
-            v = UNKNOWN
+            v, blocking = UNKNOWN, True
             why = (f"{why}, but the check changed {len(touched)} path(s) in the "
                    f"tree; its exit code is not a clean finding")
         else:
             detail.insert(0, "(live tree: other agents write here too, so this "
                              "is reported and not charged to the check)")
     return Outcome(cand.path, v, why, secs, cpu, code,
-                   len(err.splitlines()), _tail(err), detail=detail)
+                   len(err.splitlines()), _tail(err), detail=detail,
+                   blocking=blocking)
 
 
 _VERDICT_LINE = re.compile(
@@ -804,11 +943,13 @@ def run_pytest(root: Path, files: Sequence[str], timeout: int,
     except subprocess.TimeoutExpired:
         return (Outcome("sdk/tests (pytest)", UNKNOWN,
                         f"suite timed out after {timeout}s",
-                        time.monotonic() - t0, _cpu_children() - c0),
+                        time.monotonic() - t0, _cpu_children() - c0,
+                        blocking=True),
                 {"purged_pycache_dirs": purged})
     except OSError as exc:
         return (Outcome("sdk/tests (pytest)", UNKNOWN, f"could not launch: {exc}",
-                        time.monotonic() - t0, _cpu_children() - c0),
+                        time.monotonic() - t0, _cpu_children() - c0,
+                        blocking=True),
                 {"purged_pycache_dirs": purged})
     secs, cpu = time.monotonic() - t0, _cpu_children() - c0
 
@@ -853,12 +994,23 @@ def run_pytest(root: Path, files: Sequence[str], timeout: int,
     missing = sorted(enumerated - collected)
     extra = sorted(collected - enumerated)
 
+    # `blocking` is set per branch rather than derived from `v`, because the two
+    # UNKNOWNs this function can produce are on opposite sides of the control
+    # boundary (see the module docstring): a suite that would not run or would
+    # not parse is UNKNOWN ABOUT ITS OUTPUT and blocks; an enumerated file that
+    # declares no test is UNKNOWN ABOUT REACH and must not, or the runner earns
+    # a permanent false alarm on every helper named `test_*.py` and gets
+    # switched off, which is L-84's warning with the sign flipped.
+    blocking = False
     if parse_note or (total == 0 and code != 0):
         v, why = UNKNOWN, parse_note or f"no tests were collected (rc={code})"
+        blocking = True
     elif total == 0:
         v, why = UNKNOWN, "zero tests collected -- an empty suite is not a pass"
+        blocking = True
     elif fails or errors:
         v = FAIL if fails else UNKNOWN
+        blocking = not fails
         why = f"{fails} failed, {errors} errored, out of {total}"
     elif missing:
         # A file that DECLARES tests and contributed none is a defect in the
@@ -875,12 +1027,16 @@ def run_pytest(root: Path, files: Sequence[str], timeout: int,
                    f"contributed none to this run")
         else:
             v = UNKNOWN
+            # REACH, not output: the suite ran, everything it collected passed,
+            # and the runner is telling you which enumerated files contributed
+            # nothing. Nothing is hidden, so this does not block.
             why = (f"{len(missing)} enumerated test file(s) produced no "
                    f"collected test (none of them declares a test)")
     else:
         v, why = EXIT_CONTRACT.get(code, UNKNOWN), f"{total} tests, exit {code}"
         if v is PASS and code != 0:
             v = UNKNOWN
+        blocking = v == UNKNOWN
 
     detail = []
     for f in missing:
@@ -901,7 +1057,8 @@ def run_pytest(root: Path, files: Sequence[str], timeout: int,
         "argv": " ".join(argv),
     }
     return (Outcome("sdk/tests (pytest)", v, why, secs, cpu, code,
-                    len(err.splitlines()), _tail(err), detail), frame)
+                    len(err.splitlines()), _tail(err), detail,
+                    blocking=blocking), frame)
 
 
 # ---------------------------------------------------------------------------
@@ -928,24 +1085,52 @@ def drop_snapshot(root: Path, wt: Path) -> None:
 # ---------------------------------------------------------------------------
 
 def aggregate(outcomes: Sequence[Outcome], skipped_hiding: Sequence[Candidate]
-              ) -> tuple[str, list[str]]:
+              ) -> tuple[str, list[str], bool]:
+    """(verdict, reasons, blocking).
+
+    `blocking` is the second half of the F0 repair and it is NOT a function of
+    the verdict word. It answers a different question -- *is there a check whose
+    finding this run cannot state?* -- and it is what the exit code and the
+    pre-push hook act on. See THE GRADED PARTY MUST NOT CONTROL THE PREDICATE
+    in the module docstring for why the two questions had to be separated.
+    """
     reasons: list[str] = []
     if not outcomes:
+        # B1, the silent-zero sweep: examined nothing, reported clean. This is
+        # the class the lab ranks highest, so it blocks as well as reading
+        # UNKNOWN -- a run that checked nothing must not be pushable as though
+        # it had.
         return UNKNOWN, ["no check was admitted -- an empty check set is not a "
-                         "pass (defect class B1, the silent-zero sweep)"]
+                         "pass (defect class B1, the silent-zero sweep)"], True
     fails = [o for o in outcomes if o.verdict == FAIL]
     unks = [o for o in outcomes if o.verdict == UNKNOWN]
     for o in fails:
         reasons.append(f"FAIL {o.name}: {o.reason}")
     for o in unks:
-        reasons.append(f"UNKNOWN {o.name}: {o.reason}")
+        reasons.append(f"{'BLOCKING ' if o.blocking else ''}UNKNOWN {o.name}: "
+                       f"{o.reason}")
     for c in skipped_hiding:
         reasons.append(f"UNKNOWN {c.path}: skipped -- {c.reason}")
+    blocking = bool(fails) or any(o.blocking for o in outcomes)
     if fails:
-        return FAIL, reasons
+        return FAIL, reasons, blocking
     if unks or skipped_hiding:
-        return UNKNOWN, reasons
-    return PASS, [f"{len(outcomes)} check(s) ran, every one returned PASS"]
+        return UNKNOWN, reasons, blocking
+    return PASS, [f"{len(outcomes)} check(s) ran, every one returned PASS"], False
+
+
+def exit_code(verdict: str, blocking: bool) -> int:
+    """THE ONLY PLACE A VERDICT BECOMES A NUMBER.
+
+    Pinned as literals by `sdk/tests/test_lab_check.py::TheExitCodeContractIsPinned`,
+    and consumed by `scripts/installed/pre-push`, whose behaviour on each of
+    these four codes is asserted by RUNNING it against a stub runner.
+    """
+    if verdict == PASS:
+        return EXIT_PASS
+    if verdict == FAIL:
+        return EXIT_FAIL
+    return EXIT_UNSOUND if blocking else EXIT_UNKNOWN
 
 
 #: Skip reasons that could be hiding a verdict, so they downgrade a PASS to
@@ -993,8 +1178,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             snapshot, snap_head = make_snapshot(root)
         except RuntimeError as exc:
             print(f"VERDICT: {UNKNOWN}\n  because the snapshot could not be "
-                  f"made: {exc}")
-            return EXIT[UNKNOWN]
+                  f"made: {exc}\n  exit {EXIT_UNSOUND} -- BLOCKING: nothing was "
+                  f"checked, and a run that checked nothing is not a pass")
+            return EXIT_UNSOUND
         tree_desc = f"snapshot worktree of HEAD {snap_head} at {snapshot}"
 
     try:
@@ -1068,9 +1254,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                 if c.kind == "python":
                     lines.append(f"           {c.reason}")
             lines.append("")
-            lines.append("--list: nothing was run, so there is no verdict.")
+            lines.append(f"--list: nothing was run, so there is no verdict. "
+                         f"Exit {EXIT_UNKNOWN} (UNKNOWN about reach, "
+                         f"non-blocking): nothing was ASKED to run, so there is "
+                         f"no check whose finding is being withheld.")
             print("\n".join(lines))
-            return EXIT[UNKNOWN]
+            return EXIT_UNKNOWN
 
         outcomes: list[Outcome] = []
         suite_frame: dict = {}
@@ -1127,10 +1316,23 @@ def main(argv: Sequence[str] | None = None) -> int:
                 lines.append(f"  NOT COLLECTED         {f}")
             lines.append("")
 
-        verdict, reasons = aggregate(outcomes, hiding)
+        verdict, reasons, blocking = aggregate(outcomes, hiding)
+        rc = exit_code(verdict, blocking)
         ran = len(outcomes)
         lines.append("=" * 78)
         lines.append(f"VERDICT: {verdict}")
+        lines.append(
+            f"  exit {rc} -- "
+            + ("BLOCKING. At least one check did not come back with a usable "
+               "verdict, so this run cannot say what it would have found."
+               if blocking and verdict == UNKNOWN else
+               "BLOCKING. A check that ran returned a finding."
+               if blocking else
+               "not blocking. Every UNKNOWN above is about this runner's REACH "
+               "-- what it did not examine, printed in full in the coverage "
+               "statement -- and not about any check's output."
+               if verdict == UNKNOWN else
+               "clean."))
         if only_note:
             lines.append(f"  {only_note}")
         lines.append(f"  frame: {ran} check(s) ran, {len(skipped)} not "
@@ -1143,6 +1345,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.json:
             print(json.dumps({
                 "verdict": verdict,
+                "blocking": blocking,
+                "exit": rc,
                 "reasons": reasons,
                 "frame": frame,
                 "suite": suite_frame,
@@ -1151,7 +1355,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             }, indent=1))
         else:
             print("\n".join(lines))
-        return EXIT[verdict]
+        return rc
     finally:
         if snapshot is not None:
             drop_snapshot(root, snapshot)
