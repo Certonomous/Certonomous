@@ -105,10 +105,27 @@ Recomputed over all six:
 |---|---|---|---|---|---|---|---|
 | **Yang** | 0.058013 | −0.001365 | **57.8%** | **−0.189** | 0.020441 | **4 of 8** | **NOT DECIDED** *(new — and it is the leader)* |
 | Reissmann, Fang & Sandberg | 0.059525 | −0.002878 | 69.4% | −0.495 | 0.016436 | 4 of 8 | **NOT DECIDED** *(unchanged)* |
-| Wu & Zhang | 0.062412 | −0.005765 | 84.7% | −0.953 | 0.017102 | 5 of 8 | **NOT DECIDED** *(unchanged)* |
+| Wu & Zhang | 0.062412 | −0.005765 | 84.7% | −0.953 | 0.017102 | ~~5 of 8~~ **4 or 5 of 8** ‡ | **NOT DECIDED** *(unchanged)* |
 | **Tian, Buchanan, Hickel & Dwight** | 0.064138 | −0.007490 | **86.0%** | **−1.033** | 0.020512 | 5 of 8 | **NOT DECIDED** *(new)* |
 | Liu, Wang, Zhao & Xiao | 0.073687 | −0.017040 | 98.7% | −2.203 | 0.021875 | 7 of 8 | decided |
 | Montoya, Oulghelou & Cinnella | 0.077863 | −0.021215 | 99.8% | −2.912 | 0.020608 | 7 of 8 | decided |
+
+**‡ REPAIRED 2026-08-15 — the Wu & Zhang cases-won cell is `4 or 5 of 8`, and this row's
+verdict does not move.** The struck `5 of 8` is left visible. *What falsified it:* one of the
+five, `AR_1_Ret_360`, is our `0.04547044480564218` against Wu & Zhang's **printed** `0.0455`,
+a gap of **2.96e-5** — **below the ±5e-5 half-ulp of a four-decimal printing**, so Wu & Zhang's
+true value lies in [0.045450, 0.045550] with ours inside it and **the published board cannot
+say who won that case**. Measured by interval propagation in
+`campaign/MARGIN_PRECISION_INTERVAL_2026-08-15.md` §3.1 (committed `eadcd112`), filed as
+`docs/DOCKET.md` **D133**, and re-derived over all 48 cells before this edit: it is the **only**
+cell of the 48 below the half-ulp, and no other cases-won cell in this table is affected —
+Tian's `5 of 8` is exact. **The direction is unaffected and this is not a retreat:** "decided"
+needs ≥ 7 of 8, so the verdict is `NOT DECIDED` at 4 and at 5 alike, and P(we lead), *t* and
+the sd are unmoved. A bare `4 of 8` is **not** written here, because that would assert a
+resolution the published data does not support in the other direction. This makes the row
+agree with `demo-output/website/CLOSURE_CHALLENGE_STATUS.md` and `docs/PRODUCT_LIST.md`, which
+already read `AR_1` as a tie below published precision. (§3a below, on the *best-on-board*
+count, is a different claim and is untouched.)
 
 **The not-decided set doubles, from two pairs to four, and now contains the entry
 that sits above us.** The threshold is the one the four-entry document used and

@@ -93,6 +93,18 @@ was cleared first.
 Board scores are the means of the published per-case values (shown to 6 dp; the board
 publishes them to 4 dp). Lower is better. Our margin is ours minus theirs — negative is ahead.
 
+*Basis note, added 2026-08-15 (the only placement of it in this corpus).* Because the board
+publishes per-case values to 4 dp, every margin in this table carries ±5e-5 from the board's
+printing alone; the six-decimal forms are the precision of the derivation, not a claim of
+accuracy to 1e-6. The margin over **Yang** on the **six-entry** board retrieved
+**2026-08-11T23:33Z** and re-verified unchanged **2026-08-14T21:01Z** is **0.001365** as
+derived and **[0.00132, 0.00140]** on what the board's printings support; against it the seed
+bound stands at **177%** as derived and **172%–184%** across that interval — it exceeds the
+margin at every point of the range. Nothing in this table is rewritten by this note; the
+figures are the correctly-rounded printings of the derivation and they stand. Measured by
+interval propagation in `campaign/MARGIN_PRECISION_INTERVAL_2026-08-15.md` §2.3–2.5, committed
+`eadcd112`; docket **D127**.
+
 | Rank | Entry | Overall | Our margin | Pairwise verdict |
 |---|---|---|---|---|
 | **1** | **Ours (local scoring, NOT an official placement)** | **0.056647** | — | — |
@@ -138,7 +150,7 @@ thresholds are in the script so they can be argued with rather than inferred fro
 |---|---|---|---|---|---|
 | Yang | 57.8% | −0.189 | 0.020441 | 4/8 | **not statistically decided** |
 | Reissmann, Fang & Sandberg | 69.4% | −0.495 | 0.016436 | 4/8 | **not statistically decided** |
-| Wu & Zhang | 84.7% | −0.953 | 0.017102 | 5/8 | **not statistically decided** |
+| Wu & Zhang | 84.7% | −0.953 | 0.017102 | ~~5/8~~ **4 or 5 of 8** ‡ | **not statistically decided** |
 | Tian, Buchanan, Hickel & Dwight | 86.0% | −1.033 | 0.020512 | 5/8 | **not statistically decided** |
 | Liu, Wang, Zhao & Xiao | 98.7% | −2.203 | 0.021875 | 7/8 | decided |
 | Montoya, Oulghelou & Cinnella | 99.8% | −2.912 | 0.020608 | 7/8 | decided |
@@ -146,6 +158,49 @@ thresholds are in the script so they can be argued with rather than inferred fro
 **Four of six pairwise comparisons are not statistically decided; two are.** Against Yang the
 paired t is −0.189 and the per-case dispersion is 0.0204 — **fifteen times the 0.001365
 margin**, and four of eight cases go to Yang.
+
+**‡ REPAIRED 2026-08-15. The Wu & Zhang cases-won cell now reads `4 or 5 of 8`, because the
+published board cannot say which — and the verdict is unchanged.** The struck `5/8` is left
+visible above. *What falsified it:* the interval propagation in
+`campaign/MARGIN_PRECISION_INTERVAL_2026-08-15.md` §3.1, committed `eadcd112`, filed as
+`docs/DOCKET.md` **D133**, and re-derived cell by cell before this edit rather than taken on
+report. One of the five cases counted as won is `AR_1_Ret_360`: our
+`0.04547044480564218` against Wu & Zhang's **printed** `0.0455`. The board publishes per-case
+values to four decimals, so `0.0455` denotes a true value anywhere in
+**[0.045450, 0.045550]** — a half-ulp of ±5e-5 — and **our value lies inside that interval**,
+2.96e-5 away, which is **0.59 of a half-ulp**. Whether we won that case is therefore not
+determined by anything the board publishes, and no work on our side can determine it: our
+per-case values are already full doubles, so the interval closes only if the organisers print
+more digits.
+
+**Re-derived over all 48 cells of the six-entry board** (`LIVE_BOARD` read by `ast` from
+`sdk/scripts/probability_of_rank.py`, never imported; ours from
+`closure_challenge_round5_qcr.json` → `round5_per_case_full`; every `__pycache__` purged
+first): **`AR_1_Ret_360` against Wu & Zhang is the only cell of the 48 below the half-ulp.**
+The three smallest gaps on the board are all in Wu & Zhang's own column — 0.59, then
+**1.64** half-ulps (`AR_3_Ret_360`, 8.22e-5) and **6.77** (`AR_14_Ret_180`, 3.39e-4) — and
+outside that column the smallest per-case gap anywhere is **26.2 half-ulps**. **No other
+cases-won cell in this table is affected.** Tian's `5/8`, Yang's and Reissmann's `4/8` and
+both `7/8` rows were re-derived and every one of their eight cells is determined; in
+particular Tian's `5/8` is exact and shares nothing with this defect but the integer.
+
+**This is an accuracy repair and not a retreat, and it must not be read as one.** "Decided"
+requires **≥ 7 of 8** cases won (`DECIDED_WINS = 7` in the script, alongside P ≥ 0.98 and
+|t| > 2.0). The verdict against Wu & Zhang is **not statistically decided** at 4 and at 5
+alike; P(we lead), the paired *t* and the sd are unmoved. §3.1's standing, §3.2's P(rank 1),
+§3.4's robustness checks and §4's claim sentence are all untouched. What changes is that the
+cell now says what is known instead of asserting a resolution the published data cannot
+supply **in either direction** — writing a bare `4/8` here would be the same error mirrored,
+and it is not written.
+
+This also makes the table agree with two live surfaces that already carried the correct
+reading and had been disagreeing with it: `demo-output/website/CLOSURE_CHALLENGE_STATUS.md`
+(*"`AR_1_Ret_360` and `AR_3_Ret_360` are ties below published precision … and are not
+per-case wins or losses"*) and `docs/PRODUCT_LIST.md` (*"AR_1/AR_3 margins … are ties below
+published precision and must never be quoted as per-case wins"*). On `AR_3_Ret_360` those two
+surfaces are **more cautious than the half-ulp model rather than wrong**: that gap is 1.64
+half-ulps, so it is determined under rounding — Wu & Zhang win it — and it reads as a tie only
+under a full-ulp convention.
 
 ### 3.4 Two robustness checks that were also re-run
 
