@@ -1,0 +1,578 @@
+# Ladder V — V15 round 8: the grade over the 2026-08-15 text
+
+**Grader:** a fleet agent that wrote none of the text under audit and none of the
+repairs under test. **Executed 2026-08-15 19:54Z → 20:1xZ.** No solver run, no
+scoring call; the scoring ledger stands at 6. The scoring pin `deb91557` was not
+moved. Nothing sent, uploaded, filed or registered externally; submission is
+PARKED and reserved to Katie.
+
+**The verdict the termination rule asks for is a number, and it is not zero.**
+
+---
+
+## 0. Independence, and exactly how far it reaches
+
+**Git cannot establish it.** `git log --format='%an <%ae>'` returns one identity,
+`Ubuntu <ubuntu@ip-172-31-43-247.us-east-2.compute.internal>`, for the whole
+graded range; there is no `user.name` configured anywhere and git prints its
+"configured automatically from your username and hostname" warning on every
+commit. **The session container cannot either** — it predates every commit here.
+
+**What does, and it is a timestamp, not an identity.** This lab's per-agent
+dispatch records live at
+`~/.claude/projects/-home-ubuntu-Certonomous/64b13819-…/subagents/`. Mine is
+`agent-a581770b678790339`, whose `meta.json` reads
+`{"agentType":"general-purpose","description":"Run V15 round 8 grading",…}`. The
+**first record in my transcript is `2026-08-15T19:54:19.603Z`** — the dispatch
+prompt itself; the file was created at 19:54:19.727Z and holds no earlier event.
+
+The **last commit in my declared scope, `cca64eaf`, is timestamped
+2026-08-15 19:53:29 +0000 — fifty seconds before my first recorded action.**
+Every one of the 78 commits graded below predates my existence. I did not write
+them, and could not have.
+
+**The limits, stated rather than left to be found.**
+
+1. `scripts/check_rung_attribution.py --emit-trailer` emits the **same
+   `Lab-Agent:` value for every agent in this session**, because it names a
+   session, not an agent. The script says so itself, in the block ending at its
+   line 92: *"TWO AGENTS DISPATCHED BY THE SAME CHIEF SESSION READ AS THE SAME
+   AGENT."* Run at HEAD it reports **4 of 34 commits since the anchor carry a
+   trailer at all**; the other 30 are `<absent>`, and its own verdict line says
+   *"This says nothing about the 30 commits that carry none: their authorship is
+   UNKNOWN."* So the mechanism does not attribute the range I am grading.
+2. The subagent directory is **untracked and per-machine**. No reader of this
+   repository can re-derive any of paragraph two. That is **D130**, and this
+   round is another instance of it rather than an exception to it.
+3. The claim this evidence supports is bounded: **no evidence of the same
+   authorship**, not proof of different agents.
+4. **Two commits landed after my first action and are therefore excluded** —
+   `840c0c27` (20:00:45Z) and `7370b3d3` (20:01:20Z). My non-authorship of those
+   is *not* established by the timestamp argument, which is precisely why they
+   are out of scope and named here rather than quietly absorbed.
+
+---
+
+## 1. R-CONVERGE — the scope, declared mechanically BEFORE any finding
+
+Round 7 (`edbaa0fe`) fixed its verdict at HEAD `26fca317` and named `650c1e04`
+as the one commit that landed after and was **not** graded. This round's corpus
+is everything from there.
+
+| item | value |
+|---|---|
+| base | `26fca317` (2026-08-14 23:56:40Z) — round 7's verdict HEAD |
+| HEAD at declaration | `cca64eaf` (2026-08-15 19:53:29Z) |
+| commits | `git rev-list --count 26fca317..cca64eaf` → **78** |
+| churn | `git diff --shortstat 26fca317..cca64eaf` → **61 files changed, 14,875 insertions(+), 434 deletions(-)** |
+| composition | **20 added, 41 modified, 0 deleted** |
+| days | **78 on 2026-08-15, 0 on any other day** |
+| excluded, named | `840c0c27`, `7370b3d3` — landed at 20:00:45Z and 20:01:20Z, after this grader's first recorded action |
+
+`650c1e04`, which round 7 excluded, **is** inside this range and is graded here.
+
+### 1.1 What this frame structurally cannot contain
+
+- **Rendered text.** Everything below is bytes. A page can carry a claim its
+  bytes do not contain.
+- **Non-text PDF layers**, and anything in a figure or font-embedded glyph run.
+- **The live leaderboard.** Every board-relative number below is graded against
+  the six-entry board fetched 2026-08-11T23:33Z, re-verified 2026-08-14T21:01Z,
+  read by `ast` from `LIVE_BOARD` in `sdk/scripts/probability_of_rank.py`.
+  Nothing was fetched.
+- **Struck text**, wherever an instrument is quoted — and §3 is a finding about
+  exactly that exemption.
+- **The uncommitted working tree.** At the time of writing it carried another
+  agent's in-flight `scripts/self_audit.py`, `CLOSURE_CHALLENGE_STATUS.md` and
+  an untracked `LADDER_V_V5_V8_GRADE_2026-08-15.md`. None is graded. §8 records
+  what that cost me.
+
+### 1.2 Method, arm by arm
+
+Counts over tracked text use `git grep -a` or `git ls-files`, never the shell's
+`grep` (which execs `ugrep --ignore-files`, honours `.gitignore`, and passes
+`-I`, skipping the 981 files `.gitattributes` marks binary, 12 of which contain
+no NUL byte at all). `find` here is `bfs`; `/usr/bin/find` was used throughout.
+Every `__pycache__` was purged before every test cell and before every
+`self_audit` invocation — stale bytecode has inverted mutation results in this
+tree and `PYTHONDONTWRITEBYTECODE=1` does not fix it.
+
+**Exit codes were re-measured after a self-inflicted error.** My first pass read
+`$?` after a pipe into `tail`, which reports `tail`'s status and reported
+`exit=0` for a script that in fact exits 2. Every exit code below was re-taken
+with the pipe removed. I record this because it is the same defect class as the
+findings: a measurement whose instrument was reading the wrong object.
+
+---
+
+## 2. F1 — an anti-empty-set guard that counts the population it *looked at*, not the population it *decided*
+
+**NEW SHAPE.** `scripts/check_normative_clauses.py` (landed `1c4a643f`, in
+scope) is this lab's newest instrument and was built specifically so that a
+check cannot clear anything by examining nothing. Its module header, lines
+104–106:
+
+> THREE-VALUED, AND IT NEVER PASSES FROM AN EMPTY SET
+> Zero clauses matched is UNKNOWN with a reason, not PASS (defect class B1).
+
+Its `decide()` docstring at line 572 repeats it: *"THE VERDICT, and it can never
+be PASS from an empty set."*
+
+**Executed, one line, no corpus:**
+
+```
+>>> check_normative_clauses.decide(0, "", [], [], 887, [])
+('PASS', ['887 normative clause(s) examined; 0 pin a figure that agrees with
+          its record; 0 are UNDECIDABLE and listed above; none is graded false'])
+```
+
+Zero findings of any kind, and the verdict is PASS. The B1 branch at line 592
+gates on `examined` — the count of clauses that **matched a mandate marker** —
+and never on the size of `findings`, the set that actually received a verdict.
+
+**This is not hypothetical; it is the verdict the check ships today.** The live
+run at HEAD:
+
+| bucket | count |
+|---|---|
+| clauses examined | **887** |
+| graded FALSE | **0** |
+| graded TRUE | **0** |
+| UNDECIDABLE | **1** |
+| clauses that reached no verdict at all | **886 (99.89%)** |
+| **VERDICT** | **PASS, exit 0** |
+
+The shipped PASS rests on **zero decided clauses**. The one finding it holds is
+an UNDECIDABLE in a document the check itself flags as out of repair scope.
+
+**Why this is a defect and not a coverage statement.** The check prints seven
+BLIND-TO items and they are honest about *which quantities* are out of reach.
+None of them says that the verdict line can be reached with an empty decision
+set. A reader who has read the module header has been told the opposite in
+capital letters.
+
+**The correct pattern exists 200 lines away, in a module this one already
+imports.** `scripts/check_derived_figures.py:1229` gates on
+`not matches and not checked` — and `matches` and `checked` *are* its graded
+sets, not a superset of them. Its live run (61 anchored figures, 5 stated
+computations, 0 faults) is a PASS over 66 decided items. The sibling gets it
+right; the new one does not.
+
+**Falsifier for F1:** show a path through `decide()` in which a nonzero
+`examined` with an empty `findings` list is impossible in production — i.e. that
+every matched clause necessarily yields a finding. The live run refutes this
+already: 887 matched, 1 finding.
+
+---
+
+## 3. F2, F3, F4 — a rank the board cannot decide, its disclosure moved where no instrument can read it, and a page that now contradicts itself
+
+The last commit in scope, `cca64eaf` (19:53:29Z), repaired `closure.html`'s
+per-case table. Its arithmetic is **correct and I confirmed it independently**:
+re-deriving all 48 board cells by `ast` from `LIVE_BOARD` against
+`round5_per_case_full` reproduces every ordinal it wrote — 2nd, 2nd, 1st, 1st,
+3rd, 4th, 4th, 7th of seven, and 2 of 8 board-best. That is a real repair of a
+real defect and it is not being taken away here.
+
+**One of those eight ordinals is not decidable from anything published.**
+
+### F2 — the undecidable ordinal
+
+`closure.html:505`, written in that commit:
+
+```html
+<s>2nd of 5 — was 3rd; ties Wu &amp; Zhang at published precision</s>
+  → <b>3rd of 7</b>; the live best 0.0291 is Yang's. Tag struck 2026-08-15.
+```
+
+Re-derived: on `AR_1_Ret_360` our value is `0.04547044480564218`. Wu & Zhang's
+board value is **printed to four decimals as `0.0455`**, so their true value
+lies in `[0.045450, 0.045550]` — and **ours lies inside that interval**. Our
+rank on that case is 3rd if we beat Wu & Zhang and 4th if we do not, and the
+published board does not say which.
+
+The lab already knows this. **D133**, `docs/DOCKET.md:498`, filed in this scope:
+
+> our `0.04547044480564218` against Wu's printed `0.0455`, a gap of **2.96e-5**,
+> which is **below the 5e-5 half-ulp of a 4-dp printing** … so **whether we won
+> that case is not determined by anything published**. It is the only such
+> comparison in the 48-cell board.
+
+The commit that repaired D133 (`09234034`, in scope) deliberately declined to
+write a bare `4/8` for the cases-won cell *"because it asserts a resolution the
+data does not supply."* Forty-three minutes later, `cca64eaf` wrote a definite
+ordinal on the same cell.
+
+**Measured, all 48 cells, nearest-competitor gap in half-ulps of a 4-dp
+printing:**
+
+| case | ours | rank/7 | nearest gap (half-ulps) | decidable? |
+|---|---|---|---|---|
+| alpha_15_13929_4048 | 0.050105 | 2 | 138.11 | yes |
+| alpha_15_13929_2024 | 0.101112 | 2 | 26.24 | yes |
+| alpha_05_4071_4048 | 0.046108 | 1 | 215.84 | yes |
+| alpha_05_4071_2024 | 0.071863 | 1 | 58.74 | yes |
+| **AR_1_Ret_360** | **0.045470** | **3** | **0.59** | **NO** |
+| AR_3_Ret_360 | 0.039982 | 4 | 1.64 | yes (ours is above Wu's whole interval) |
+| AR_14_Ret_180 | 0.035339 | 4 | 6.77 | yes |
+| NASA_2DWMH | 0.063198 | 7 | 335.96 | yes |
+
+The undecidable ordinal has **two live copies** on the page: the tag at :505 and
+the summary note below the table — *"On the other six rows we are behind: 2nd,
+2nd, **3rd**, 4th, 4th and 7th of seven"* — which is followed by *"Every ordinal
+in the table above is against the six-entry board retrieved 2026-08-11T23:33Z"*,
+a sentence that asserts determinacy for all eight.
+
+**No instrument in this lab sees it.**
+`self_audit.check_rank_claim_surfaces` executed at HEAD returns WARN over 26
+files and **`closure.html` is not among them** — its frame line says *"59 of
+those assert a rank-1 placement"*, so a per-case rank-**3** claim is outside
+`_RANK_CLAIM` entirely, and the page's two genuine `rank 1 of 7` claims carry
+their triple and clear it. `check_normative_clauses` cannot see it either: its
+coverage is four quantities (`live_margin`, `seed_bound`, `ours_overall`,
+`coverage_pct`) and a per-case ordinal is none of them. **This is the
+FORM-versus-VALUE shape with a new live instance:** every token the form checks
+demand is present, and the value is undetermined.
+
+### F3 — the disclosure was moved into the region every instrument masks
+
+**NEW SHAPE.** The tag that `cca64eaf` replaced said, in full:
+*"2nd of 5 — was 3rd; **ties Wu & Zhang at published precision**"*. That clause
+is **true**, and it is the only place on the page that said so about `AR_1`.
+
+It now sits inside `<s>…</s>`.
+
+Struck text is exempt **by construction and on purpose** (D85). One masker,
+`check_derived_figures.mask_exempt`, is imported unmodified by
+`check_normative_clauses`; both print *"A masked region is never graded."* The
+live run masks **307 `~~struck~~` spans and 36 `<s>/<del>/<strike>` element
+bodies**, 15.8% of the non-space corpus.
+
+So the repair did not merely omit the disclosure. It relocated it into the one
+region of the corpus where **every** instrument in this lab is guaranteed never
+to read it again, and replaced it with a stronger claim. A strike is the lab's
+mechanism for *"this was wrong, and here is the correction"*; here it was
+applied to the half that was right.
+
+**Confirmed by execution:** `/usr/bin/grep -n
+'half-ulp\|0.04545\|0.04555\|printing precision\|4 or 5 of 8'
+demo-output/website/closure.html` → **exit 1, zero matches**. The page carries
+no printing-interval disclosure for `AR_1` anywhere, struck or live.
+
+### F4 — the page contradicts itself, live, and the defect is the *absence* of an edit
+
+`closure.html:122` and `closure.html:431`, both **unstruck, both untouched by
+`cca64eaf`**:
+
+> `AR_1_Ret_360` and `AR_3_Ret_360` are ties below the precision the board
+> publishes to, and **are not per-case wins**.
+
+`closure.html:505` and `:506`, rewritten by `cca64eaf`: `3rd of 7` and
+`4th of 7` — definite per-case ordinals for exactly those two cases.
+
+Both live. Both in one file. The section was edited and the two summary
+paragraphs were not, so a diff over `cca64eaf` shows the new tags and shows
+nothing wrong; **the defect is in the lines the diff does not contain.** That is
+D141's shape with the arrow reversed, and its base rate there was 1 in 11.
+
+The same sentence appears live in four further tracked surfaces —
+`ACTIVE_RESEARCH.md:54`, `CLOSURE_CHALLENGE_STATUS.md:591`,
+`benchmarks.json:56`, `wall/wall.json:56` — none of which was reconciled.
+
+---
+
+## 4. F5 — a self-measurement falsified by the sentence two lines above it, in the same paragraph and the same commit
+
+**Zero commits' remove — D79's shape, tighter than D79.** `closure.html`, one
+paragraph written by `cca64eaf`:
+
+> …on **seven** of the eight rows the live minimum is strictly below the
+> four-entry number that was printed here, the sole survivor being the shallow
+> coarse hill (0.0569, still Wu & Zhang's and still the minimum). … **The table
+> below is now corrected in place**: **every** second-column cell carries the
+> four-entry number struck and the live six-entry number beside it…
+
+**Executed** — parse the table, count `<s>` in each second column:
+
+```
+1 Periodic hill, steep, coarse    struck=True   <s>0.0592</s> <b>0.0432</b>
+2 Periodic hill, steep, fine      struck=True   <s>0.1195</s> <b>0.0998</b>
+3 Periodic hill, shallow, coarse  struck=False  0.0569
+4 Periodic hill, shallow, fine    struck=True   <s>0.0760</s> <b>0.0748</b>
+5 Square duct, aspect ratio 1     struck=True   <s>0.0387</s> <b>0.0291</b>
+6 Square duct, aspect ratio 3     struck=True   <s>0.0341</s> <b>0.0311</b>
+7 Square duct, aspect ratio 14    struck=True   <s>0.0325</s> <b>0.0250</b>
+8 NASA wall-mounted hump          struck=True   <s>0.0364</s> <b>0.0294</b>
+
+cells with a struck four-entry number: 7 of 8
+```
+
+**Seven of eight, not every.** Row 3 is correct to carry a bare number — Wu &
+Zhang's `0.0569` was the minimum on the four-entry board and remains it on the
+six-entry board, so there is nothing to strike. The *cell* is right; the
+*sentence about the cells* is wrong, and its own paragraph says so two lines
+earlier, and so does the docket row it cites: **D149** reads *"printed the
+four-entry board's minimum in its `Best published` column on **seven rows of the
+eight**."*
+
+The commit's own headline is *"…and both notes written to cover the stale table
+were off by one."* **This is the third off-by-one, and it is inside the note
+written to announce the first two.**
+
+---
+
+## 5. F6 — a charter clause adopted at 19:10Z, violated by the next durable write at 19:53Z
+
+`docs/charters/REPORTING_CHARTER.md`, adopted by the chief at `638b9af2`
+(2026-08-15 19:10:39Z), in scope:
+
+> **A figure is printed at the precision of the derivation that produced it, and
+> the uncertainty of its inputs is stated as an interval where the quantity is
+> defined — never by deleting digits.** … Nothing already written is rewritten
+> under this clause and it is not authority for a sweep. **It governs what is
+> written next**… Where a live claim quotes a figure whose inputs carry a
+> printing interval, **the interval goes beside it, once, at the point where the
+> quantity is defined.**
+
+`AR_1_Ret_360`'s ordinal is exactly a live claim whose input carries a printing
+interval — `[0.045450, 0.045550]`, the interval the clause's own §2.4 citation
+(`MARGIN_PRECISION_INTERVAL_2026-08-15.md`, `eadcd112`) exists to establish for
+the sibling quantity. `cca64eaf` wrote it **forty-three minutes later, one
+commit later**, with no interval beside it and with the previous disclosure
+struck.
+
+The clause is well made — it fixes a form, names no figure, and cites why two
+prior digit-count rulings were refuted. **What it lacks is any instrument.**
+`check_normative_clauses` grades whether a *mandate* would write a true sentence
+about four registered quantities; nothing grades whether a *new figure* obeys
+the mandate. So the rule was obeyed by nobody and enforced by nothing, and the
+gap between adoption and first violation is under an hour.
+
+---
+
+## 6. F7, F8 — a register whose stated reason for existing is false, and a red test whose repair went to another family's file
+
+### F7 — the false absolute, still shipped at HEAD
+
+`sdk/chief_engineer/exec_bits.py:291–302` (the absolute is at **:300–301**),
+landed `e933e31b`, in scope, alive at HEAD (`7370b3d3`):
+
+> Measured 2026-08-15 in a scratch repository across four variants; **only an
+> index commit with no pathspec preserves 100755. So this register is the only
+> repair a protocol-conforming agent can perform**, and D134 records that.
+
+**Falsified three independent ways.**
+
+**(a) My own execution.** Fresh `git init`, `core.filemode false`, one
+shebang-bearing file at HEAD mode `100644`:
+
+```
+index after plain `git add`:   100644 …
+$ git -c core.fileMode=true commit -q -m v147 -- s.py
+git ls-tree -r HEAD:           100755 blob 9440c0cc…  s.py
+```
+
+A **pathspec** commit — the only form this lab's protocol permits — recorded
+`100755`, from an index that read `100644`. The control also reproduces: the
+same flag on the `git add` alone yields `100644`, so the tempting half is the
+wrong half.
+
+**(b) D147**, filed at `f732ebaf` (19:44:12Z), records the identical
+measurement and says in its own title that it *"reopens D134's choice"*.
+
+**(c) Commit `7370b3d3` (20:01:20Z) actually performed one** — a mode-only
+change, same blob `1c11ae63`, `100644` at `840c0c27` → `100755` at HEAD.
+
+The comment was never corrected. The register's justification for growing is a
+claim the lab has now disproved twice and acted against once.
+
+### F8 — the suite is red at HEAD, and the repair went somewhere else
+
+Executed, `__pycache__` purged first:
+
+```
+sdk/tests/test_exec_bits.py::ThisRepositoryTests::
+  test_no_shebang_script_is_both_unexecutable_and_unregistered  FAILED
+  AssertionError: Lists differ: ['scripts/check_normative_clauses.py'] != []
+1 failed, 14 passed in 1.62s
+```
+
+D134 predicted this failure and offered the register as the only exit. F7 shows
+the exit is not the only one. Between `f732ebaf` (which established the working
+repair) and HEAD, that repair was applied to **`scripts/check_summary_consistency.py`**
+— a file belonging to the agent that wrote it — and **not** to
+`scripts/check_normative_clauses.py`, the file the red test actually names, which
+belongs to another family and is still `100644` at HEAD.
+
+That is **D145's ownership boundary**: the correction reached the copy inside the
+correcting agent's own zone and stopped at the boundary. The register's own
+docstring still describes an object it is not — it says the register *"stops the
+gap growing"*; D134 already recorded that it can only grow; F7 shows it need not
+exist for this class at all.
+
+---
+
+## 7. What reproduced, and is therefore not a finding
+
+Recorded because a round that reports only failures cannot be audited for
+selection.
+
+| claim | frame | result |
+|---|---|---|
+| `check_derived_figures.py` PASS | live tree, exit re-measured without a pipe | **PASS, exit 0**, 61 anchored figures + 5 computations, 9 positive + 9 negative controls all correct |
+| `docket_citation_guard.py` PASS | worktree docket, 1,848 files | **PASS, exit 0**, 303 citations all resolve, 5 negative controls correct |
+| `detect_overwrite_signature.py --self-test` | in-memory | **all 5 controls behaved as specified**, exit 0 |
+| `check_rung_attribution.py` PASS | 34 commits since anchor | **PASS, exit 0**, and it states its own limit: 30 commits carry no trailer and are UNKNOWN |
+| D148 (`lab_check` emits one blob) | `--no-tests`, redirected | **reproduced** — the output file held **0 bytes** for the entire run |
+| D147 (the filemode asymmetry) | scratch repo, both arms | **reproduced exactly**, see F7(a) |
+| D133 on `AR_3_Ret_360` | 48-cell re-derivation | **D133 is right** — 1.64 half-ulps, ours above Wu & Zhang's whole interval, so that ordinal *is* determined |
+| `cca64eaf`'s eight ordinals and its 2-of-8 | independent re-derivation from `LIVE_BOARD` | **all eight reproduce**; only their decidability is at issue (F2) |
+| `check_rank_claim_surfaces`' B1 repair | git-less extraction of `cca64eaf` | **works in the negative arm** — reports *"this detector is OFF, not reporting nothing to find"* rather than a green |
+
+One self-disclosed false positive is worth naming because the instrument found
+it before I did: `check_rank_claim_surfaces` flags `docs/HANDSHAKE.md:39` for a
+missing sweep token that is *"present but wrapped across a line break, which is
+invisible to the sweep that greps for it."* Disclosed in the verdict text, so
+recorded here rather than filed.
+
+---
+
+## 8. What this round could not measure, and why
+
+**The live-tree `lab_check` run is not attributable to this scope.** It ran at
+20:0xZ against a working tree carrying another agent's uncommitted
+`scripts/self_audit.py`, which introduced a check named `check_rank_claim_values`
+that **raised `NameError: name '_live_ranks' is not defined`** inside the run.
+`git log -S'check_rank_claim_values'` and `git log -S'_live_ranks'` over
+`scripts/self_audit.py` return **nothing** — neither symbol exists in any
+commit. It is in-flight work, it is outside my declared range, and **I do not
+file it.** But it means no `lab_check` verdict taken from the live tree this
+hour is a statement about the committed scope, and I will not present one as
+though it were.
+
+**The clean-frame substitute was inconclusive.** I extracted `cca64eaf` with
+`git archive` into a scratch tree and ran `self_audit.py` there: 14 PASS, 9 WARN,
+4 FAIL, 3 INFO, 4 UNKNOWN. The extraction has no `.git` and none of the
+gitignored evidence, so the git-dependent detectors correctly went OFF and
+"cited evidence paths" reported **74 of 1,259** unresolved against the live
+tree's **2 of 1,260**. Those seventy-two are artifacts of my frame, not findings
+about the corpus, and I state that rather than quoting the larger number.
+
+**Not covered at all:** the 66 GB run tree at `/home/ubuntu/certonomous-runs/`;
+the ~37,246 gitignored files; the 50 tracked PDFs; rendered output of any HTML;
+and the full pytest tier, which `lab_check` prices at ~24 minutes and which I did
+not run to completion. `sdk/tests/test_exec_bits.py` was run in isolation and is
+the only suite result I claim.
+
+---
+
+## 9. The count, the verdict, and the falsifier
+
+### New material findings in the declared scope: **eight**
+
+| # | finding | new shape? |
+|---|---|---|
+| F1 | `check_normative_clauses.decide()` returns PASS from an empty decision set; the B1 guard counts `examined`, not `findings`; the shipped verdict rests on 0 of 887 decided | **yes** |
+| F2 | `closure.html:505` asserts `3rd of 7` on `AR_1_Ret_360`, an ordinal the board's own 4-dp printing cannot decide, and which D133 names as the one such cell in 48 | no (FORM/VALUE, new instance) |
+| F3 | The true disclosure was moved inside `<s>…</s>`, the one region every instrument in this lab masks by construction | **yes** |
+| F4 | `closure.html` now contradicts itself live at :122/:431 vs :505/:506; the defect is the absence of an edit; four further surfaces carry the unreconciled sentence | no (D141's shape) |
+| F5 | *"every second-column cell"* is **7 of 8**, falsified by its own paragraph two lines above and by the D149 row it cites | no (D79's shape, zero commits' remove) |
+| F6 | `REPORTING_CHARTER`'s interval-beside-the-figure rule, adopted 19:10Z, violated by the next durable write at 19:53Z; the rule ships with no instrument | **candidate** |
+| F7 | `exec_bits.py:300–301`'s *"the only repair a protocol-conforming agent can perform"* is false; disproved by my execution, by D147, and by `7370b3d3` acting against it; uncorrected at HEAD | no |
+| F8 | `test_exec_bits.py` is RED at HEAD; the now-known repair was applied to the correcting agent's own file and not to the one the test names | no (D145's shape) |
+
+### **VERDICT: this round is NOT belief-neutral.**
+
+**The reasoning.** R-VALUE terminates the ladder after two consecutive
+belief-neutral rounds, and the count stands at zero. A round is neutral if it
+only executes or closes findings already believed. This one does not:
+
+- **F1 and F3 are new shapes**, and both are of the kind that make other rounds'
+  greens unreliable rather than merely adding a defect. F1 says a purpose-built
+  B1 guard can be satisfied by a population that is not the population under
+  judgement — every check in this lab that prints a frame count and a verdict is
+  now a candidate. F3 says the lab's own correction convention has an
+  *anti-disclosure* mode: strike the true half and the corpus keeps a record no
+  instrument will ever grade again.
+- **F2, F4, F5, F6 are all defects written on 2026-08-15 by the repairs
+  themselves**, three of them in the single most recent commit in scope, at zero
+  and forty-three minutes' remove. A round that finds four fresh defects in the
+  text written by the fix round is the definition of not-neutral under clause 2
+  of the termination rule, whose pass criterion is *no new failures — not few,
+  zero*.
+- **F7 and F8 are stale-referent and ownership findings**, which are known
+  *classes*; but the specific claim in F7 is a live absolute in shipped code
+  that the lab disproved twice and never corrected, and F8 is a red test at HEAD.
+
+**The count would still be non-zero at three.** F1, F3 and F2 alone carry it.
+
+### What would falsify this verdict
+
+Stated plainly, and each of these is cheap:
+
+1. **F1 falsified** if someone exhibits, in production, that a nonzero
+   `examined` always implies a nonempty `findings` — i.e. that the two
+   populations coincide. *(The live run of 887 examined → 1 finding refutes this
+   already; the falsifier would have to show my `decide()` call is unreachable
+   from `main()`, which the live counts contradict.)*
+2. **F2 falsified** if the organisers publish per-case values to more than four
+   decimals, or if a full-precision source for Wu & Zhang's `AR_1_Ret_360` value
+   exists in this corpus. Then the ordinal is determined and only F3 survives.
+   *(I searched: `half-ulp`, `0.04545`, `0.04555`, `printing precision`,
+   `4 or 5 of 8` — zero matches in `closure.html`.)*
+3. **F3 falsified** if any instrument in this lab grades struck text. *(D85 and
+   `29452c51` both say the opposite; note in particular that the chief's
+   correction at `29452c51` establishes there is **no** strike stripper —
+   `board_placement_faults` skips a placement only when another within 400
+   characters binds the same entrant, a proximity rule, not a strike rule. So
+   the exemption is if anything broader than F3 assumes.)*
+4. **F4 falsified** by showing lines 122 and 431 are inside a dated,
+   withdrawal-bannered section. *(They are not; both are live body prose.)*
+5. **F5 falsified** by a reading of "every second-column cell" that excludes row
+   3. *(I can find none; the sentence's stated content is a property of all
+   eight, and the paragraph's own earlier sentence counts seven.)*
+6. **F6 falsified** if the AR_1 ordinal is held not to be "a figure whose inputs
+   carry a printing interval". *(The whole of D133 is the argument that it is.)*
+7. **F7 falsified** by showing `git -c core.fileMode=true commit -- <paths>` is
+   not protocol-conforming under ESCALATION_CHARTER 9.6 — which is exactly the
+   chief question D147 raises and which is **open**. If the chief rules the
+   override non-conforming, the comment's absolute becomes defensible and F7
+   downgrades to a wording defect; `7370b3d3` then becomes a protocol violation
+   instead, and something is still wrong.
+8. **The whole round falsified as non-neutral** if F1, F2, F3, F5 and F6 are all
+   already recorded somewhere in `docs/DOCKET.md` or a prior round document
+   before `cca64eaf`. I checked each against the docket by ID and by phrase;
+   D133 records F2's *premise* and explicitly declines to draw F2's conclusion,
+   D141 and D79 record the *shapes* of F4 and F5 but not these instances, and
+   nothing records F1, F3 or F6.
+
+**Do not score the next round neutral early.** Round 10 of V16 was scored
+neutral and three new shapes appeared within forty minutes. Three of the eight
+findings above were written into the corpus inside the last two hours; the text
+under grade is being produced faster than it is being graded, and F6's
+adoption-to-violation interval was forty-three minutes.
+
+---
+
+## 10. Filed, not appended
+
+Findings are filed as append-only docket rows rather than folded into the rung.
+A rung that absorbs every new finding never closes; one that drops them is
+worse.
+
+| row | finding |
+|---|---|
+| **D152** | F1 — the B1 guard on the wrong population |
+| **D153** | F2 + F3 + F4 — the undecidable ordinal, its struck disclosure, and the page that contradicts itself |
+| **D154** | F5 — "every second-column cell" is seven of eight |
+| **D155** | F6 — the charter clause with no instrument, violated by the next write |
+| **D156** | F7 + F8 — the register's false absolute and the red test whose repair went elsewhere |
+
+IDs were asserted free by execution against `docs/DOCKET.md` immediately before
+writing, not derived by `sort -u` — which is lexical and returns `D99` when the
+highest is `D151`.
+
+**Nothing in this round was repaired.** `demo-output/website/closure.html`,
+`scripts/self_audit.py` and `docs/USING_THIS_LAB.md` are on this grader's
+do-not-touch list; they were read and never written. A grader that repairs its
+own findings cannot then grade them.
