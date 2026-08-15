@@ -402,9 +402,34 @@ everything else the list says.
 >   Yang**. ~~84% of the margin~~ was true of the four-entry board's `0.0028863` over
 >   Reissmann, Fang and Sandberg and is true of nothing now.
 > - **Loaded adversely, our own seed uncertainty loses the point lead outright.** Overall
->   `0.059047` against Yang's `0.058013` (`BOARD_RESCORE_2026-08-14.md` §3.4): point rank
->   2, P(rank 1) 34.2%. As scored: `0.056647`, point rank 1, P(rank 1) 50.2%. Favourable:
->   `0.054247`, 65.4%.
+>   ~~`0.059047`~~ **`0.059066`** against Yang's `0.058013` (`BOARD_RESCORE_2026-08-14.md`
+>   §3.4): point rank 2, P(rank 1) 34.2%. As scored: `0.056647`, point rank 1, P(rank 1)
+>   50.2%. Favourable: ~~`0.054247`~~ **`0.054228`**, 65.4%. **See ‡‡ below.**
+>
+> **‡‡ REPAIRED 2026-08-15 — the two loaded overalls were computed from the SCRIPT's
+> rounded constant, one bullet after the bullet that quotes the JSON to eighteen digits.**
+> The struck pair is left visible. *What falsified it:* the bullet immediately above states
+> the bound as `closure_challenge_seed_sensitivity.json`
+> `spreads.overall_equivalent_S_bound` = `0.002419121853891026`. Re-derived here from that
+> file and from `closure_challenge_round5_qcr.json` → `round5_overall_full`
+> = `0.056647191704213645`, both read as JSON and neither transcribed:
+>
+> | loading | arithmetic | to six decimals |
+> |---|---|---|
+> | adverse, **bound of record** | `0.056647191704213645 + 0.002419121853891026` = `0.059066313558104669` | **`0.059066`** |
+> | favourable, **bound of record** | `0.056647191704213645 − 0.002419121853891026` = `0.054228069850322622` | **`0.054228`** |
+> | adverse, script constant `0.0024` | `0.056647191704213645 + 0.0024` | `0.059047` ← the struck figure, exactly |
+> | favourable, script constant `0.0024` | `0.056647191704213645 − 0.0024` | `0.054247` ← the struck figure, exactly |
+>
+> `0.0024` is `SEED_BOUND_ON_OVERALL` at `sdk/scripts/probability_of_rank.py:64` — the
+> script's **two-digit rounding** of the same quantity. The struck pair is not a
+> transcription slip: it is the rounded constant, used without a note that it differs from
+> the bound the sentence above it cites. **The conclusion is unaffected and this is not a
+> retreat**: `0.059066` and `0.059047` both sort **2nd of 7** on the live six-entry board,
+> above Reissmann's `0.059525` and below Yang's `0.058013`, so the lead is given up under
+> either figure. What changes is that one document no longer states two different values of
+> one bound in adjacent bullets. Raised as **R3** by the non-author grade of V12/V13/V14 at
+> `9c2734f8`; filed as `docs/DOCKET.md` **D197**.
 > - **P(rank 1) = 50% (50.2%, i.e. 200,609 of 400,000 case-level bootstrap draws), and an
 >   eight-case sample cannot pin it tighter than 0–97% at 95%** (double bootstrap, 2,000
 >   outer × 4,000 inner). ~~0.674 / 68% / 2–100%~~ were the four-entry board's. **No
@@ -515,17 +540,81 @@ already.
 **Where the package is exposed anyway.** It computed a quantified P(rank 1) and ruled it
 **internal-only**, keeping the number out of the outward artifact while the outward
 artifact continues to assert "rank 1 of 5, locally." I never read that internal file — and
-I got 0.674 from the shipped CSVs and the public leaderboard in about a minute. **Any
-reviewer can.** The withholding therefore buys nothing and costs the one thing the entry
-is trading on. If a steward later learns a probability was computed and deliberately
-stripped from the outward draft, "we described it qualitatively" will not survive the
-sentence in the JSON that says *"INTERNAL ONLY; the figure never appears in an external
-claim."*
+~~I got 0.674 from the shipped CSVs and the public leaderboard in about a minute~~ *(struck
+2026-08-15: `0.674` was the **four-entry** board's figure; the same one-minute derivation
+against the live six-entry board gives **50.2%** — see the repair block above and § R1
+below)*. **Any reviewer can.** The withholding therefore buys nothing and costs the one
+thing the entry is trading on. If a steward later learns a probability was computed and
+deliberately stripped from the outward draft, "we described it qualitatively" will not
+survive the sentence in the JSON that says *"INTERNAL ONLY; the figure never appears in an
+external claim."*
 
-**Recommendation, and it is the cheapest thing in this report:** put the number in the
+~~**Recommendation, and it is the cheapest thing in this report:** put the number in the
 external text. "Rank 1 on the point estimate; P(rank 1) ≈ 0.67 by a case-level bootstrap
 over eight cases" is a *stronger* claim than "rank 1," because it is the one a competent
-reader will believe.
+reader will believe.~~
+
+**R1 — REPAIRED 2026-08-15. The recommendation above was struck because it instructed this
+lab to publish, in external text, a figure this same document strikes at the bullet above.**
+The struck sentence is kept because that is what strike-and-keep is for; it must not be
+acted on. *What falsified it:* `0.67` is the four-entry board's `0.674`, and this document
+already records at the bullet immediately above that the live figure is **50.2%**. The gap
+is **17 points, in the direction that flatters us**, on the one sentence in this report that
+proposes text for a surface that leaves the lab — and **the send gate routes this document
+to Sanaa**, so it was a live instruction to a steward-facing reader, not a stale lab record.
+Raised as **R1** by the non-author grade of V12/V13/V14 at `9c2734f8`; filed as
+`docs/DOCKET.md` **D197**.
+
+> **Recommendation, restated, and it is still the cheapest thing in this report:** put the
+> number in the external text — **with its interval and its board, or not at all.** The
+> admissible sentence is:
+>
+> > *"Rank 1 on the point estimate against the closure-challenge leaderboard as published
+> > with **six entries**, retrieved **2026-08-11T23:33Z** and re-verified unchanged
+> > **2026-08-14T21:01Z**; **P(rank 1) = 50.2%**, and eight cases cannot pin that
+> > probability tighter than **0–97% at 95%**. Scored locally; nothing has been submitted
+> > and this is not an official placement."*
+>
+> **Three conditions on it, and the first is what R1 got wrong.**
+>
+> 1. **The figure travels with its interval.** `50.2%` alone is a point estimate from a
+>    case-level bootstrap over **eight** cases; the double bootstrap (2,000 outer × 4,000
+>    inner) puts a 95% interval of **0–97%** around it. A published `50.2%` without
+>    `0–97% at 95%` overstates what eight cases can support, and is the same defect as the
+>    struck `0.67` one order of magnitude smaller.
+> 2. **The figure travels with its board, identified by entrant count and retrieval date.**
+>    `P(rank 1)` is a claim about a board *at a moment*: the identical arithmetic gave
+>    `0.674` on 2026-08-10 and `0.502` on 2026-08-11 because two entrants appeared. Any
+>    external sentence must carry **six entries, retrieved 2026-08-11T23:33Z, re-verified
+>    2026-08-14T21:01Z**.
+> 3. **A commit anchor is NOT an admissible board identifier.** `deb91557` is the frozen
+>    **scoring** pin. It fixes the code that computes our score; it says nothing whatever
+>    about how many entries the public leaderboard carries, and the board moved under it
+>    without the pin changing by one character. A sentence of the form *"rank 1 at
+>    `deb91557`"* names a benchmark commit where a board identity is required and is
+>    therefore inadmissible — that is precisely the construction still live in the shipped
+>    `site/closure.html:502` (*"rank 1 of 5 is our local scoring at a pinned benchmark
+>    commit"*), whose denominator is a four-entry artifact the pin did nothing to protect.
+>    **The pin scores; it does not rank.**
+>
+> **Every figure in this restatement was re-derived for this repair and not copied.**
+> `LIVE_BOARD` was read from `sdk/scripts/probability_of_rank.py` by `ast.literal_eval`,
+> **never imported** — six entrants, `fetched` `2026-08-11T23:33Z`. Our per-case block came
+> from `closure_challenge_round5_qcr.json` → `round5_per_case_full`, overall
+> `0.056647191704213645`. `P(rank 1)` is a 400,000-draw case-level bootstrap written for
+> this repair with its own seed: **`200,924 / 400,000` = `0.5023`**; the double bootstrap
+> gives **[0.007, 0.979]**, i.e. `0–97%` at the precision the sentence states it to. Yang
+> leads at the mean of his eight published per-case values, `0.0580125`, so the margin is
+> `0.001365`. **Route dependence, stated because it is the weakness of the whole
+> re-derivation:** every route above — this repair's, the repair block's, the ledger row's,
+> the grade's — reads the board from **one `LIVE_BOARD` literal in one tracked file**.
+> Agreement between them is agreement about a transcription, not corroboration of the
+> board. The only genuine input-side corroboration on the record is the **second, separate
+> fetch** of the rendered project page recorded at
+> `campaign/BOARD_MOVED_2026-08-11.md:22`, which independently returns the same six-row
+> table (Yang 0.0580, Reissmann 0.0595, Wu & Zhang 0.0624, Tian 0.0641, Liu 0.0737,
+> Montoya 0.0779). **No new fetch was made for this repair**, and none of the numbers here
+> is more current than that record.
 
 ---
 
@@ -558,11 +647,39 @@ such refusal on the record, after the 0.0066 shortcut of §4.2 and the AR_14 reg
 
 And there is a finding here the steward may value more than the rank, which I verified
 independently rather than inherit: **on exactly the two test cases the train-only decline
-gate withheld the correction, the supplied baseline beats all four published entries**
-(0.046108 against a best published 0.0569; 0.071863 against a best published 0.0760). A
-rule fitted on 21 training cases and validated on 4 non-test cases identified, blind, the
-two flows on which every published method in the field damages the answer. That is a
-result about the benchmark, and it does not depend on the entry's own score at all.
+gate withheld the correction, the supplied baseline beats ~~all four published entries~~
+all SIX published entries** (0.046108 against a best published 0.0569; 0.071863 against a
+best published ~~0.0760~~ **0.0748**). A rule fitted on 21 training cases and validated on
+4 non-test cases identified, blind, the two flows on which every published method in the
+field damages the answer. That is a result about the benchmark, and it does not depend on
+the entry's own score at all.
+
+**R2 — REPAIRED 2026-08-15. §W3 was outside the scope of the 2026-08-15 repair block, and
+carried the four-entry framing and one stale value four days after the board moved.** The
+struck text is kept. *The direction of the claim survives and is now stronger, not
+weaker*: re-derived here over all 48 cells of the six-entry board (`LIVE_BOARD` read from
+`sdk/scripts/probability_of_rank.py` by `ast.literal_eval`, **never imported**; ours from
+`closure_challenge_round5_qcr.json` → `round5_per_case_full`), the supplied baseline still
+beats **every one of the six** published entries on both decline-gate cases:
+>
+> | case | ours (the supplied baseline, passed through) | best published, six entries | by whom | beats all six |
+> |---|---|---|---|---|
+> | `alpha_05_4071_4048` | `0.046108` | **`0.0569`** | Wu & Zhang | **yes** |
+> | `alpha_05_4071_2024` | `0.071863` | **`0.0748`** | **Yang** | **yes** |
+>
+> `0.0760` is **Reissmann, Fang & Sandberg's** value on `alpha_05_4071_2024` — the best on
+> the *four*-entry board, and **second**-best on the six-entry board, behind Yang's
+> `0.0748` and ahead of Liu, Wang, Zhao & Xiao's `0.0769`. Yang is one of the two entrants
+> that appeared on
+> 2026-08-11, so the correct value could not have been written before that fetch. **These
+> are the only two of the eight cases on which our column is best on the board** (2 of 8),
+> and both are the organisers' own unmodified RANS field passed through by the decline
+> gate — contribution `0` in the decomposition table above — so **the count belonging to
+> our own model is 0 of 8**, which is stated here so the repaired sentence cannot be read
+> as a claim about the model. Raised as **R2** by the non-author grade of V12/V13/V14 at
+> `9c2734f8`; filed as `docs/DOCKET.md` **D197**. Same route dependence as R1: one
+> `LIVE_BOARD` literal, corroborated on the input side only by the separate fetch at
+> `campaign/BOARD_MOVED_2026-08-11.md:22`.
 
 **Where the package supports no answer.** Nothing in it claims the entry demonstrates a
 learned closure that beats the board — correctly, because it does not. **But a leaderboard
