@@ -403,6 +403,45 @@ been effort spent on the term that had already stopped mattering.
 `demo-output/website/mfmc_error_budget.json`. The result priority charter's
 section 4.5 carries the rule; this is the row that shows it.
 
+**A figure is printed at the precision of the derivation that produced it, and the
+uncertainty of its inputs is stated as an interval where the quantity is defined — never by
+deleting digits.** Digits record *what was computed*; an interval records *what is known*.
+They are different statements and a figure needs both. Truncating a figure to its
+input-supported precision destroys reproducibility — a reader can no longer re-derive the
+subtraction — without conveying the uncertainty, because a shortened number still reads as
+exact. Adopted by the chief 2026-08-15.
+
+**This clause fixes a FORM. It names no figure and no sentence, and naming either is
+prohibited.** There is no reference sentence to copy under it, and no digit string it blesses
+or forbids. A normative clause that pins a number is a claim generator: it keeps producing
+copies of itself after the world it described has moved, and every copy reads as
+independently sourced. Three such clauses were found in this corpus in one week, one of them
+*ordering* surfaces to state a figure that had already been withdrawn. The shape to copy is
+`demo-output/website/CLOSURE_FAMILY_SUPERVISION_GUIDELINES.md` §4 clause **(b-1)**
+(`65659488`), which mandates a form and prohibits designating a wording; the instrument that
+grades clauses of this shape is `scripts/check_normative_clauses.py`, docket **D119**.
+
+Two rulings that tried to settle a digit count came first and both were refuted, in opposite
+directions, which is why this one settles neither: docket **D127** records a chief ruling that
+a derived quantity be rewritten `0.001365` → `0.001366`, refuted by execution because it took
+a printing of the basis for the basis, and then that same row's successor guess that the
+honestly-supported precision was *"nearer `0.0014`"*, refuted by measurement because the
+propagated interval `[0.0013153, 0.0014028]` straddles `0.00135` — so even the four-decimal
+rounding is undetermined and only one significant figure is stable
+(`demo-output/website/campaign/MARGIN_PRECISION_INTERVAL_2026-08-15.md` §2.4, committed
+`eadcd112`). A coarser single figure is not more honest than a finer one; it is a different
+unsupported claim, and that is the whole reason the answer here is an interval and not a digit
+count.
+
+Nothing already written is rewritten under this clause and it is not authority for a sweep. It
+governs what is written next, and it says so on its own face. The margin family in
+`demo-output/website/campaign/BOARD_RESCORE_2026-08-14.md` §3.1 stands exactly as committed —
+those are correctly-rounded printings of quantities derived from the most precise inputs the
+lab holds, which is what this clause asks for — and the measurement that produced the clause
+changed zero instances and recorded that it had. Where a live claim quotes a figure whose
+inputs carry a printing interval, the interval goes **beside** it, once, at the point where
+the quantity is defined; it is not scattered across every surface that repeats the figure.
+
 ## 11. What the report never does
 
 - **Never omits a section.** An empty section prints `nothing`, and section 2
