@@ -568,14 +568,64 @@ def test_two_independent_groupings_agree_on_the_verdict_case(contract):
 
 def test_contract_is_runnable_as_a_script():
     """The contract must be executable end to end, not just importable — the
-    verdict is meant to be re-derivable by anyone with the repo."""
+    verdict is meant to be re-derivable by anyone with the repo.
+
+    ASSERTION CHANGED 2026-08-15 (V15 round 7 F6, docket D95), stated rather
+    than flipped quietly:
+
+      WHAT WAS ASSERTED   `assert out.returncode == 0` — on the exact case
+                          whose printed verdict is FAIL (max|d| 11.03% against
+                          a 5% tolerance).
+      WHY IT WAS WRONG    it pinned a fail-open as correct behaviour. The gate
+                          printed FAIL and exited 0, so every composing caller
+                          — a shell `&&`, a CI step, an admission predicate —
+                          read the failing re-gate as clean, and repairing the
+                          exit code would have REDDENED this suite. The
+                          fail-open was not un-guarded; it was guarded in
+                          place, under a docstring about re-derivability.
+      WHAT REPLACED IT    the exit code is now asserted to be a function of the
+                          verdict, on both sides: 1 on this FAIL case and 3 on
+                          an UNGRADEABLE one. Asserting only the FAIL would
+                          leave "exit 1 always" green, which is an alarm rather
+                          than a gate (L-84).
+
+    The verdict itself is unchanged and is not re-litigated here: §2.6 forbids
+    revising a verdict after the numbers are known, and nothing about an exit
+    code touches a number.
+    """
     out = subprocess.run(
         [sys.executable, os.path.join(F7, "f7a_contract.py"),
          os.path.join("F7a_R1", "res32y128_base")],
         cwd=F7, capture_output=True, text=True, timeout=300)
-    assert out.returncode == 0, out.stderr
     assert "VERDICT:" in out.stdout
     assert "11.03%" in out.stdout
+    assert "VERDICT: FAIL" in out.stdout, out.stdout
+    assert out.returncode == 1, (
+        "the contract printed FAIL and exited %r. A gate is a program whose "
+        "exit code is a function of its finding (docket D78); this one is the "
+        "re-gate of record and it is composed by callers that read only the "
+        "code.\nstderr:\n%s" % (out.returncode, out.stderr))
+
+
+def test_the_scripts_exit_code_is_a_function_of_the_verdict_not_a_constant():
+    """The must-not-match half of the assertion above (L-84).
+
+    A gate that returns 1 unconditionally is an alarm, and an alarm is switched
+    off inside a day. `res32y256_base` is UNGRADEABLE under §2.2's threshold
+    sweep — a different verdict on the same instrument — and it must come back
+    with a different code. Together the two cases pin the MAPPING rather than
+    either endpoint of it.
+    """
+    ungradeable = subprocess.run(
+        [sys.executable, os.path.join(F7, "f7a_contract.py"),
+         os.path.join("F7a_R1", "res32y256_base")],
+        cwd=F7, capture_output=True, text=True, timeout=300)
+    assert "VERDICT: UNGRADEABLE" in ungradeable.stdout, ungradeable.stdout
+    assert ungradeable.returncode == 3, (
+        "an UNGRADEABLE case exited %r. 3 is this lab's UNKNOWN, and reading "
+        "'the check could not be run on this case' as a finding about the "
+        "solver is how a frame error gets recorded as physics.\nstderr:\n%s"
+        % (ungradeable.returncode, ungradeable.stderr))
 
 
 # --------------------------------------------------------------------------

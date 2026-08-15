@@ -156,6 +156,27 @@ DY_DIAGNOSTIC_FLOOR_DIV = 32
 
 PASS, FAIL, UNGRADEABLE = "PASS", "FAIL", "UNGRADEABLE"
 
+# THE EXIT CODE IS A FUNCTION OF THE VERDICT (V15 round 7 F6, docket D95).
+#
+# Until 2026-08-15 `main()` printed `VERDICT: FAIL` and returned None, so this
+# module exited 0 on every case including the three that fail the re-gate:
+#
+#     $ f7a_contract.py F7a_R1/res32y128_base
+#     ... max|d| 11.03% against a 5% tolerance
+#     VERDICT: FAIL
+#     $ echo $?
+#     0
+#
+# Docket D78's criterion is that a gate is a program whose exit code is a
+# function of its finding; a program that prints FAIL and exits 0 is a printer,
+# and any caller that composes it -- a shell `&&`, a CI step, `lab_check.py`'s
+# admission predicate -- reads it as clean. The codes match this lab's runner
+# contract (`scripts/lab_check.py`: 0 PASS, 1 FAIL, 3 UNKNOWN) so that the two
+# compose without a translation table. A `ContractViolation` is deliberately
+# NOT in this table: it is a FAIL LOUD condition, it propagates as an uncaught
+# exception, and the non-zero exit that produces is the right answer.
+EXIT_BY_VERDICT = {PASS: 0, FAIL: 1, UNGRADEABLE: 3}
+
 
 class ContractViolation(Exception):
     """A §2 FAIL LOUD condition.  The input is not what the contract describes,
@@ -580,7 +601,8 @@ def main():
         print("   - %s" % reason)
     if len(sys.argv) > 2:
         json.dump(r, open(sys.argv[2], "w"), indent=1, default=str)
+    return EXIT_BY_VERDICT[r["verdict"]]
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

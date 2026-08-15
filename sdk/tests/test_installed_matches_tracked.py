@@ -475,5 +475,78 @@ class NoTrackedGhostBesideARegisteredArtifactTests(unittest.TestCase):
             f"caught a file that is not one; got {ghosts}")
 
 
+class EveryFindingTheRunPrintsReachesTheExitCode(unittest.TestCase):
+    """V15 round 7 F6 / docket D95, and both halves of it (L-84).
+
+    `main()` used to end `return 1 if any(f.is_failure ...) else 0`, so GHOST
+    and STALE were computed, printed, and dropped. A finding that reaches
+    stdout and not the exit code is invisible to every caller that composes
+    this module -- `lab_check.py` among them, which reported
+    `[PASS] scripts/installed_registry.py`.
+
+    The classes that must NOT fail are asserted here too, in the same place, so
+    that widening this rule later has to argue with a test rather than with a
+    comment: ABSENT and PENDING are declared states with stated reasons, and a
+    registry that fails on a laptop with no root crontab is a registry nobody
+    runs on a laptop.
+    """
+
+    DEP = None
+
+    def setUp(self):
+        self.DEP = reg.Deployment(
+            name="scratch pair", tracked="scripts/thing.sh",
+            source="/nowhere", why="a control", reinstall="none")
+
+    def _f(self, state, dep=None):
+        return reg.Finding(dep or self.DEP, state, "detail")
+
+    def test_a_clean_run_has_no_failures(self):
+        """The must-not-match half."""
+        self.assertEqual(reg.failures([self._f(reg.MATCH)], [], []), [])
+
+    def test_drift_and_a_dangling_tracked_side_fail(self):
+        self.assertEqual(len(reg.failures([self._f(reg.DRIFT)], [], [])), 1)
+        self.assertEqual(len(reg.failures([self._f(reg.DANGLING)], [], [])), 1)
+
+    def test_a_tracked_ghost_reaches_the_exit_code(self):
+        bad = reg.failures([self._f(reg.MATCH)],
+                           [("scripts/thing.sh.proposed", "scripts/thing.sh")],
+                           [])
+        self.assertEqual(len(bad), 1, bad)
+        self.assertIn("GHOST", bad[0])
+
+    def test_a_stale_waiver_reaches_the_exit_code(self):
+        bad = reg.failures([self._f(reg.MATCH)], [],
+                           [("scratch pair", "the fix was installed")])
+        self.assertEqual(len(bad), 1, bad)
+        self.assertIn("STALE", bad[0])
+
+    def test_main_ACTUALLY_consumes_the_rule_and_not_just_prints_it(self):
+        """The pin that matters: `failures()` being right is worth nothing if
+        `main()` still returns its own answer. Driven through the shipped entry
+        point, with one ghost planted into the sweep and nothing else changed.
+        """
+        real_ghosts = reg.staging_ghosts
+        try:
+            reg.staging_ghosts = lambda *a, **k: [
+                ("scripts/thing.sh.proposed", "scripts/thing.sh")]
+            self.assertEqual(
+                reg.main(), 1,
+                "a GHOST was printed by the run and the process still exited "
+                "0, so no caller composing this module can see it")
+        finally:
+            reg.staging_ghosts = real_ghosts
+        # ...and with the sweep honest again, the live tree's own answer.
+        self.assertEqual(reg.main(), 0 if not reg.staging_ghosts() else 1)
+
+    def test_absence_and_a_declared_pending_install_do_NOT_fail(self):
+        """The line this repair must not cross. Both are argued at length in
+        `installed_registry`'s docstring; asserting them here means widening
+        the rule has to come with a reason."""
+        self.assertEqual(reg.failures([self._f(reg.ABSENT)], [], []), [])
+        self.assertEqual(reg.failures([self._f(reg.PENDING)], [], []), [])
+
+
 if __name__ == "__main__":
     unittest.main()

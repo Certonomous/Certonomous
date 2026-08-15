@@ -466,19 +466,90 @@ def _emit_intake(k: dict) -> None:
               f"+ {k['refused_count']} refused")
 
 
+def defects(d: dict) -> list[str]:
+    """The findings whose presence must move the exit code, one line each.
+
+    WHY THIS FUNCTION EXISTS (V15 round 7 F6, docket D95; repaired 2026-08-15)
+    -------------------------------------------------------------------------
+    Until 2026-08-15 `main()` ended:
+
+        return 0 if data["intake"].get("reconciles", False) else 2
+
+    and `reconciles` is `len(on_disk) == len(admitted) + len(refused)`, where
+    `admitted` and `refused` come from one pass of `agenda.read_inbox()` whose
+    every loop iteration terminates in exactly one of the two lists. The sum IS
+    the file count, so the only non-zero path this instrument had was a
+    CONSTRUCTION IDENTITY. It printed `satisfied: False`, `hit rate 3 of 9`,
+    two coerced statuses and a displaced window, and exited 0 -- the lab's
+    forecasting grader could not exit non-zero on a forecasting defect.
+
+    The identity is kept, because an invariant that must balance is still the
+    right shape for the silent-drop class it was built for (it is simply not
+    the only thing this instrument knows). What is added is every finding here
+    that is a DEFECT IN THE RECORD rather than a MEASUREMENT OF IT.
+
+    WHAT IS DELIBERATELY NOT IN THIS LIST, and the line is worth defending:
+
+      * the hit rate, and `rule_satisfied`. Those are the measurement. This
+        module's own docstring is that §4's auto-approve rule cannot run
+        because the lab does not write outturns back -- that is the finding it
+        exists to REPORT, and a grader that goes red because the thing it
+        grades scored badly is an alarm, not a gate (L-84). It would be red
+        every day until §4 passes, and it would be switched off first.
+      * refusals at intake. `agenda` refuses a file on its own schema and style
+        rails, records why, and this scorecard's job is that the judgement is
+        visible and counted -- not to overrule it. A refusal is a declared,
+        counted state with a named reason, which is the opposite of a silence.
+
+    What IS in it, in every case, is a record that says one thing while the
+    lab reads back another, or that cannot be read at all.
+    """
+    out: list[str] = []
+    k = d["intake"]
+    if not k.get("available"):
+        out.append(f"the inbox reader would not import: {k.get('error')} -- "
+                   f"nothing about intake was checked on this run")
+    elif not k.get("reconciles"):
+        out.append(f"intake unreconciled by {k['unreconciled_by']}: files on "
+                   f"disk != admitted + refused, so a record is being dropped "
+                   f"by a path that writes no refusal")
+    if d["unparseable"]:
+        out.append(f"{len(d['unparseable'])} proposal file(s) would not parse, "
+                   f"so every rate above is over the subset that happened to "
+                   f"be well-formed")
+    if k.get("status_coerced"):
+        out.append(f"{len(k['status_coerced'])} record(s) carry a status the "
+                   f"reader does not recognise and silently rewrites to "
+                   f"'proposed': the file says one thing and the instrument "
+                   f"returns another")
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--json", action="store_true", help="emit JSON")
     args = ap.parse_args(argv)
     data = collect()
+    found = defects(data)
+    data["defects"] = found
     if args.json:
         json.dump(data, sys.stdout, indent=2, sort_keys=True)
         sys.stdout.write("\n")
     else:
         _emit(data)
-    # A silently-refused record is the defect this instrument was repaired
-    # for; it does not get to exit 0 while the intake arithmetic is short.
-    return 0 if data["intake"].get("reconciles", False) else 2
+        if found:
+            print()
+            print(f"DEFECTS ({len(found)}) -- each of these moves the exit code:")
+            for f in found:
+                print(f"  · {f}")
+        else:
+            print()
+            print("DEFECTS: none. Every record on disk parsed, was accounted "
+                  "for by intake, and reads back as it was written. The rates "
+                  "above are measurements and do not move this exit code.")
+    # A silently-refused or silently-rewritten record is the defect this
+    # instrument was repaired for; it does not get to exit 0.
+    return 2 if found else 0
 
 
 if __name__ == "__main__":

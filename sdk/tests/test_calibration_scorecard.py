@@ -21,6 +21,7 @@ an instrument can fire, not that it fires only where it should).
 """
 from __future__ import annotations
 
+import copy
 import importlib.util
 import json
 import unittest
@@ -234,8 +235,28 @@ class IntakeIsReconciled(unittest.TestCase):
         finally:
             agenda.read_inbox = real
         # ...and with the reader honest again, it balances.
-        self.assertTrue(cs.intake(self.records)["reconciles"])
-        self.assertEqual(cs.main([]), 0)
+        k = cs.intake(self.records)
+        self.assertTrue(k["reconciles"])
+        # ASSERTION CHANGED 2026-08-15 (V15 round 7 F6, docket D95), stated
+        # rather than flipped quietly:
+        #
+        #   WHAT WAS ASSERTED   `self.assertEqual(cs.main([]), 0)` -- the live
+        #                       corpus, reader honest, exits 0.
+        #   WHY IT WAS WRONG    it read as "the honest reader balances", but
+        #                       what it actually pinned was that `reconciles`
+        #                       was the ONLY thing that could move this exit
+        #                       code -- and `reconciles` is a construction
+        #                       identity (every iteration of read_inbox()'s
+        #                       loop lands in exactly one of admitted/refused,
+        #                       so the sum IS the file count). The live corpus
+        #                       carried two silently-coerced statuses at the
+        #                       time and this line certified them as exit 0.
+        #   WHAT REPLACED IT    the reconcile arithmetic is asserted directly,
+        #                       which is what this test is about, and the exit
+        #                       code is left to `TheExitCodeIsAFunctionOfTheFinding`
+        #                       below, which drives every defect class in both
+        #                       directions on a fabricated report.
+        self.assertEqual(k["unreconciled_by"], 0)
 
     def test_every_refusal_names_a_file_and_at_least_one_violation(self):
         for entry in self.intake["refused"]:
@@ -262,6 +283,24 @@ class IntakeIsReconciled(unittest.TestCase):
                 entry["file"][:-5], admitted_ids,
                 f"{entry['file']} is refused AND admitted -- the reporting "
                 f"fix must not have re-opened the rails")
+
+    def test_the_live_corpus_exit_code_names_a_defect_that_is_not_the_identity(self):
+        """The whole of F6 for this file, on the real corpus.
+
+        Before 2026-08-15 this instrument printed `satisfied: False`, a hit
+        rate of 3 of 9, two coerced statuses and a displaced scoring window,
+        and exited 0 -- because its only non-zero path was the reconcile
+        identity. The lab's forecasting grader could not exit non-zero on a
+        forecasting defect. Whatever the corpus holds on any given day, the
+        exit code and the printed defect list must agree with each other.
+        """
+        data = cs.collect()
+        found = cs.defects(data)
+        self.assertEqual(cs.main([]), 2 if found else 0,
+                         f"exit code disagrees with the defect list: {found}")
+        if found:
+            self.assertNotEqual(
+                found, [], "a defect list of one identity is not a gate")
 
     def test_a_silently_coerced_status_is_named_and_costed(self):
         # `status if status in STATUSES else "proposed"` is the same silence
@@ -327,6 +366,80 @@ class TheRealCorpusResultsHold(unittest.TestCase):
         self.assertEqual(unpaired + len(self.data["pairs"]), done,
                          "every done record is either paired or named as "
                          "carrying no measured cost")
+
+
+class TheExitCodeIsAFunctionOfTheFinding(unittest.TestCase):
+    """V15 round 7 F6 / docket D95, closed with both halves (L-84).
+
+    `cs.defects()` is driven directly on fabricated reports rather than on the
+    live corpus, so these bind whatever the proposals directory holds today.
+    Each defect class is shown to fire ON ITS OWN and to be SILENT when its
+    input is clean -- and, in the same breath, the classes that must NOT move
+    the exit code are shown not to, because a grader that goes red because the
+    thing it grades scored badly is an alarm and gets switched off.
+    """
+
+    CLEAN = {
+        "unparseable": [],
+        "intake": {"available": True, "reconciles": True, "unreconciled_by": 0,
+                   "status_coerced": [], "refused_count": 0, "refused": []},
+    }
+
+    def test_a_clean_report_has_no_defects_and_exits_zero(self):
+        """The must-not-match half. Without it the assertions below prove only
+        that the function can return a non-empty list."""
+        self.assertEqual(cs.defects(self.CLEAN), [])
+
+    def test_an_unparseable_proposal_file_is_a_defect(self):
+        d = copy.deepcopy(self.CLEAN)
+        d["unparseable"] = ["broken.json: JSONDecodeError: ..."]
+        self.assertEqual(len(cs.defects(d)), 1, cs.defects(d))
+        self.assertIn("would not parse", cs.defects(d)[0])
+
+    def test_a_silently_coerced_status_is_a_defect(self):
+        d = copy.deepcopy(self.CLEAN)
+        d["intake"]["status_coerced"] = [
+            {"file": "x.json", "status_on_disk": "queued",
+             "read_back_as": "proposed", "est_core_min": 1.0}]
+        self.assertEqual(len(cs.defects(d)), 1, cs.defects(d))
+        self.assertIn("silently rewrites", cs.defects(d)[0])
+
+    def test_an_unreconciled_intake_is_a_defect(self):
+        d = copy.deepcopy(self.CLEAN)
+        d["intake"]["reconciles"] = False
+        d["intake"]["unreconciled_by"] = 3
+        self.assertEqual(len(cs.defects(d)), 1, cs.defects(d))
+        self.assertIn("unreconciled", cs.defects(d)[0])
+
+    def test_an_inbox_reader_that_would_not_import_is_a_defect(self):
+        """The fail-open one level out: if the reader will not load, nothing
+        about intake was checked, and that must not read as checked-and-fine."""
+        d = copy.deepcopy(self.CLEAN)
+        d["intake"] = {"available": False, "error": "ImportError: no agenda"}
+        self.assertEqual(len(cs.defects(d)), 1, cs.defects(d))
+        self.assertIn("would not import", cs.defects(d)[0])
+
+    def test_a_bad_hit_rate_is_NOT_a_defect(self):
+        """The line this repair must not cross, asserted so it cannot be
+        crossed quietly. §4's rule failing is the measurement this instrument
+        exists to publish; a grader that reddens because the lab forecasts
+        badly is red every day until §4 passes, and it is switched off first.
+        """
+        d = copy.deepcopy(self.CLEAN)
+        d.update({"rule_satisfied": False, "hit_rate": 0.0,
+                  "unpaired_done": ["a", "b", "c"], "done": 19,
+                  "window_displaced_by": ["something-newer"]})
+        self.assertEqual(cs.defects(d), [])
+
+    def test_a_refusal_at_intake_is_NOT_a_defect_of_this_instrument(self):
+        """Refusals are `agenda`'s judgement, recorded with a stated reason and
+        counted here. A counted refusal is the opposite of a silence, and this
+        module's docstring commits to not overruling it."""
+        d = copy.deepcopy(self.CLEAN)
+        d["intake"]["refused_count"] = 3
+        d["intake"]["refused"] = [
+            {"file": "r.json", "violations": ["objective: absent"]}]
+        self.assertEqual(cs.defects(d), [])
 
 
 if __name__ == "__main__":

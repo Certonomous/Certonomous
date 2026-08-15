@@ -507,6 +507,46 @@ def staging_ghosts(repo: Path | None = None,
     return sorted(ghosts)
 
 
+def failures(findings: list[Finding],
+             ghosts: list[tuple[str, str]],
+             stale: list[tuple[str, str]]) -> list[str]:
+    """Everything printed above that must move the exit code, one line each.
+
+    WHY THIS IS A FUNCTION (V15 round 7 F6, docket D95; repaired 2026-08-15)
+    -----------------------------------------------------------------------
+    `main()` used to end `return 1 if any(f.is_failure for f in findings)
+    else 0`, which covers DRIFT and DANGLING and nothing else. Ghosts and stale
+    waivers were computed, PRINTED, and then dropped on the floor: the module
+    could print `GHOST scripts/auto-stop.sh.proposed is a tracked staging copy`
+    -- which is the 2026-07-30 incident's own artifact, the file that sat in
+    the tree for thirteen days while the box ran the broken gate -- and exit 0.
+    A finding that reaches stdout and not the exit code is invisible to every
+    caller that composes this module, which is all of them.
+
+    WHAT STILL DOES NOT FAIL, and both are argued at length in the module
+    docstring rather than being oversights:
+
+      * ABSENT. A laptop or CI box has no root crontab and no
+        `/usr/local/bin/auto-stop.sh`; nothing is powering that box off, so
+        there is nothing to drift. It is a skip with a stated reason, and
+        `reached()` is how a caller finds out what was actually compared.
+      * PENDING. A declared divergence with an owner, a reason, an expiry and
+        the sha256 of what is expected to still be installed. It fails the
+        moment the waiver expires or the installed copy becomes anything other
+        than the pinned one -- both of which land in DRIFT above.
+
+    V15 round 7 listed this module's `1 PENDING, 2 ABSENT -> exit 0` alongside
+    two genuine fail-opens. Re-executed, that part does not hold: PENDING and
+    ABSENT are declared non-failure states and DRIFT and DANGLING do exit 1.
+    The part that does hold is GHOST and STALE, and that is what changes here.
+    """
+    out = [f"{f.state.upper()} {f.dep.name}" for f in findings if f.is_failure]
+    out += [f"GHOST {ghost} is a tracked staging copy of {artifact}"
+            for ghost, artifact in ghosts]
+    out += [f"STALE waiver on {name}" for name, _ in stale]
+    return out
+
+
 def main() -> int:
     findings = report()
     for f in findings:
@@ -516,12 +556,19 @@ def main() -> int:
             print("         " + f.detail.replace("\n", "\n         "))
         if f.state in (DRIFT, PENDING):
             print(f"         reinstall: {f.dep.reinstall}")
-    for ghost, artifact in staging_ghosts():
+    ghosts = staging_ghosts()
+    stale = stale_waivers(findings)
+    for ghost, artifact in ghosts:
         print(f"GHOST    {ghost} is a tracked staging copy of {artifact}")
-    for name, why in stale_waivers(findings):
+    for name, why in stale:
         print(f"STALE    waiver on {name}: {why}")
     print(f"\nreached on this host: {', '.join(reached(findings)) or 'nothing'}")
-    return 1 if any(f.is_failure for f in findings) else 0
+    bad = failures(findings, ghosts, stale)
+    if bad:
+        print(f"FAILURES ({len(bad)}) -- each of these moves the exit code:")
+        for b in bad:
+            print(f"  · {b}")
+    return 1 if bad else 0
 
 
 if __name__ == "__main__":
