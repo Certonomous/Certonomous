@@ -88,6 +88,7 @@ from __future__ import annotations
 import argparse
 import ast
 import functools
+import importlib.util
 import json
 import math
 import os
@@ -971,17 +972,29 @@ def _travelling_names() -> set[str]:
     everything inside a submission package directory. A surface that travels
     is read by somebody outside this lab, so a bad claim on one is a FAIL; the
     same claim on a lab record is a WARN. Both are reported.
+
+    THE SEVERITY DOWNGRADE THIS USED TO HIDE, 2026-08-15. The `except` below
+    used to `continue` in silence. An archive that will not open therefore
+    contributed NO travelling names, every shipped surface was reclassified as
+    a lab record, and every FAIL in both rank checks became a WARN -- a
+    corrupted zip made the report quieter. The unopened archives are returned
+    now and both callers put them on the verdict.
     """
     names: set[str] = set()
+    unopened: list[str] = []
     for archive in _shipping_archives():
         try:
             with zipfile.ZipFile(archive) as zf:
                 names.update(Path(n).name for n in zf.namelist())
-        except (OSError, zipfile.BadZipFile):
-            continue
+        except (OSError, zipfile.BadZipFile) as exc:
+            unopened.append(f"{_rel(archive)}: the set of names that TRAVEL "
+                            f"could not be derived from it ({exc}), so a fault "
+                            f"on a surface it packs would have been reported "
+                            f"as a lab record")
     for package in sorted(WEB.glob("closure_challenge_submission*")):
         if package.is_dir():
             names.update(p.name for p in package.rglob("*") if p.is_file())
+    _travelling_names.unopened = unopened          # type: ignore[attr-defined]
     return names
 
 
@@ -1032,13 +1045,19 @@ def check_rank_claim_surfaces() -> Result:
     """
     tracked = _tracked_files()
     if tracked is None:
-        return Result("rank claims carry their probability", WARN,
-                      "could not enumerate tracked files (git unavailable): "
-                      "this detector is OFF, not reporting nothing to find")
+        # B1, 2026-08-15: this was a WARN, which lab_check does not block on
+        # and which reads on the report beside real findings. A guard that
+        # could not enumerate its own corpus examined nothing.
+        return _no_evidence("rank claims carry their probability",
+                            "git could not be asked which files exist, so no "
+                            "surface was opened and no claim was graded",
+                            ["git ls-files"])
 
     travelling = _travelling_names()
     surfaces: list[tuple[str, str, bool]] = []   # (label, text, travels)
     opened = skipped = 0
+    unreadable: list[str] = list(
+        getattr(_travelling_names, "unopened", []))
     for path in tracked:
         try:
             if not path.is_file():
@@ -1075,8 +1094,14 @@ def check_rank_claim_surfaces() -> Result:
                         (f"{archive.relative_to(REPO)}!{info.filename}",
                          text, True))
         except (OSError, zipfile.BadZipFile) as exc:
-            surfaces.append((f"{archive.relative_to(REPO)} (unreadable: "
-                             f"{exc})", "", False))
+            # B1, 2026-08-15. This used to append a surface whose text was the
+            # EMPTY STRING. An empty string makes no rank claim, so it raised
+            # no fault, so an archive that would not open read on the report
+            # as a clean one. An archive that cannot be opened is a statement
+            # about the instrument and it now travels to the verdict.
+            unreadable.append(f"{_rel(archive)}: could not be opened ({exc}), "
+                              f"so every member inside it was graded by "
+                              f"nothing")
 
     claiming, shipped_faults, internal_faults = 0, [], []
     for label, text, travels in surfaces:
@@ -1119,20 +1144,867 @@ def check_rank_claim_surfaces() -> Result:
     frame += (f". The interval required is {interval}, derived from "
               f"{_PROB_RECORD.name} and checked against the board in "
               f"{_PROB_SCRIPT.name}; it is not written in this file")
+    # THE VERDICT IS ABOUT FORM AND SAYS SO, 2026-08-15. Until D145 this
+    # summary read "every travelling surface complies", which is a sentence
+    # about the surfaces. It was true of their FORM and false of their VALUE
+    # on the same run, over the same bytes: the shipped bundle's
+    # `site/closure.html:502` was read, recognised and cleared while saying
+    # `rank 1 of 5` against a board where it is 1 of 7. The word FORM is in
+    # every verdict below so that no reader can quote this line as a statement
+    # that a page is right. `check_rank_claim_values` grades the other half.
+    blind = [f"NOT GRADED AT ALL: {u}" for u in unreadable]
     if shipped_faults:
         return Result("rank claims carry their probability", FAIL,
                       f"{len(shipped_faults)} surface(s) that TRAVEL claim "
-                      f"rank 1 without what V8 requires "
+                      f"rank 1 without the FORM V8 requires "
                       f"({len(internal_faults)} more on lab records)",
-                      shipped_faults + internal_faults + [frame])
+                      shipped_faults + internal_faults + blind + [frame])
+    if not claiming:
+        return _no_evidence(
+            "rank claims carry their probability",
+            "no rank claim was found on any surface, so no form was graded",
+            ["every tracked file and every shipping archive member"],
+            blind + [frame])
+    if unreadable:
+        return _no_evidence(
+            "rank claims carry their probability",
+            f"no travelling surface fails on FORM, but {len(unreadable)} "
+            f"shipping archive(s) could not be opened at all",
+            [u.split(":")[0] for u in unreadable],
+            internal_faults + [frame])
     if internal_faults:
         return Result("rank claims carry their probability", WARN,
-                      f"every travelling surface complies; "
+                      f"every travelling surface complies ON FORM (this "
+                      f"verdict says nothing about whether its values are "
+                      f"right -- see `rank claims carry the right values`); "
                       f"{len(internal_faults)} lab record(s) claim rank 1 "
                       f"without what V8 requires", internal_faults + [frame])
     return Result("rank claims carry their probability", PASS,
                   f"all {claiming} surface(s) that claim rank 1 carry the "
-                  f"figure, its interval and the not-decided pairs", [frame])
+                  f"figure, its interval and the not-decided pairs -- a "
+                  f"statement about FORM only", [frame])
+
+
+# ---------------------------------------------------------------------------
+# THE VALUE GRADER (D145, 2026-08-15): FORM AND VALUE ARE SEPARATE VERDICTS
+# ---------------------------------------------------------------------------
+#
+# THE DEFECT, reproduced at HEAD 82fb3d46 before anything was changed.
+# `check_rank_claim_surfaces` DOES open `dist/certonomous-demo.zip`, DOES read
+# member `certonomous-demo/site/closure.html`, DOES recognise its line 502 as a
+# rank claim -- `_rank_claim_lines` returns that member's claims as
+# `[95, 96, 108, 112, 139, 141, 366, 370, 375, 391, 391, 502]` -- and reported:
+#
+#     [WARN] rank claims carry their probability
+#            every travelling surface complies; 27 lab record(s) claim rank 1
+#            without what V8 requires
+#
+# The sentence it cleared reads "rank 1 of 5 is our local scoring at a pinned
+# benchmark commit, with a seed-uncertainty bound comparable to its margin."
+# Against the live six-entry board that is rank 1 of SEVEN, and the bound is
+# 177% of the margin -- it EXCEEDS the margin it is called comparable to. Two
+# withdrawn claims in one sentence, perfectly formed, on a surface that ships.
+#
+# WHY IT SAID SO. That guard grades claim FORM: does the sentence carry
+# `P(rank 1)`, does it carry the current interval, does it carry the literal
+# `not statistically decided`. All three are present on that page. It has no
+# opinion about the DENOMINATOR, about the MARGIN, or about whether
+# `comparable` is still a true word. A FORM CHECK ON A STALE ARTIFACT IS NOT A
+# BLIND SPOT. IT IS A FALSE CLEAN, and it is worse than no check at all,
+# because a blind spot reports nothing and this one reports agreement -- and
+# the report gets quoted as reassurance.
+#
+# TWO VERDICTS AND NOT ONE, deliberately. Form and value fail differently: a
+# sentence can be TRUE and undated, or WELL-FORMED and false. Merging them is
+# how a green on one hides a red on the other. So this is a second check with
+# its own name, its own BASIS row and its own priced remedy, and both verdicts
+# appear on every report.
+#
+# NOTHING ARITHMETIC IS REIMPLEMENTED HERE. `scripts/check_derived_figures.py`
+# already reads the five source records, already holds the half-ulp predicate
+# (`agrees`, `written_digits`, `Basis`, `Quantity.verdict`), already derives
+# the live margin and the coverage ratio over every admissible basis, and
+# already holds the masker for struck and quoted text -- 252 strike spans in
+# this corpus, 69 of them multi-line and 8 crossing blockquote continuations,
+# and two authors' line-by-line first cuts were both wrong. It is IMPORTED BY
+# PATH and used. A second copy of that arithmetic is exactly the defect this
+# lab keeps filing: a copy that survives its own correction.
+#
+# THE ONE THING ADDED HERE is the DATED-CONTEXT DISCRIMINATOR, and it is added
+# because `check_derived_figures.py` names its absence as the reason P(rank 1)
+# is measured and NOT SHIPPED there -- "13 hits on the corpus, mostly correct
+# dated records; needs a dated-context discriminator (docket)" -- and D85 and
+# D89 both name building it as the prerequisite. `mask_exempt` masks a struck
+# SPAN, a kept-record BLOCK, a heading that declares ITSELF struck and a
+# whole-document banner. What it does not have is D145's measured unit of
+# classification: THE LINE PLUS THE NEAREST BANNER ABOVE IT. The two false
+# positives D145 recorded, `CLOSURE_CHALLENGE_STATUS.md:406` and `:667`, are
+# both correct round-3/round-4 history sitting under a section banner:
+#
+#     ## 0e. Round 4 (2026-07-31) -- ... *(superseded as entry of record by
+#     round 5, sec 0f, 2026-08-07)*
+#     > **Superseded 2026-08-07, see sec 0f.** ... The table below stands
+#     > unchanged as the round-3/round-4 record.
+#
+# `_STRUCK_HEAD` misses the first because its alternation carries `SUPERSEDED`
+# and `Superseded` but not the lower-case spelling, and misses the second
+# because a blockquote banner is not a heading.
+#
+# THE DATE IS REQUIRED, and that is the whole discriminator. An UNDATED
+# withdrawal word masks nothing here: this corpus is full of live sections
+# that mention supersession in passing, and a historical record that does not
+# say WHEN it was true is not a dated record, it is a stale one. So
+# "superseded" alone is not an exemption; "superseded 2026-08-07" is.
+
+_DERIVED_FIGURES = _HERE / "scripts" / "check_derived_figures.py"
+
+
+@functools.lru_cache(maxsize=1)
+def _derived_figures():
+    """`scripts/check_derived_figures.py` imported by path, or why it is not.
+
+    By path and not by name: `scripts/` is not a package, and this file is run
+    both as `python3 scripts/self_audit.py` and imported from `sdk/tests/` by
+    the same `spec_from_file_location` route. A plain `import` works in one and
+    not the other, and a check that silently loses its arithmetic in the test
+    harness is the failure mode this whole block exists to remove.
+
+    Never raises. The caller turns a failure into UNKNOWN, because a value
+    grader that could not load its own arithmetic has graded nothing and an
+    empty sweep is not agreement (defect class B1).
+    """
+    try:
+        spec = importlib.util.spec_from_file_location(
+            "self_audit_derived_figures", _DERIVED_FIGURES)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        spec.loader.exec_module(module)
+    except Exception as exc:                        # noqa: BLE001
+        return None, (f"{_rel(_DERIVED_FIGURES)} could not be imported, so no "
+                      f"value could be derived and nothing was graded "
+                      f"({type(exc).__name__}: {exc})")
+    for symbol in ("mask_exempt", "read_sources", "build_registry", "agrees",
+                   "written_digits", "_is_rejection", "_is_discrepancy_report",
+                   "_kept_block_end", "_HEADING"):
+        if not hasattr(module, symbol):
+            return None, (f"{_rel(_DERIVED_FIGURES)} no longer exports "
+                          f"`{symbol}`; this check reuses that module's "
+                          f"arithmetic and masker rather than holding a second "
+                          f"copy, and it will not grade against a copy it "
+                          f"cannot find")
+    return module, ""
+
+
+#: A withdrawal verb ANYWHERE on the line, in any case, together with an ISO
+#: date on the same line. Both halves are required: the verb without a date is
+#: a live section discussing supersession, and a date without a verb is every
+#: dated heading in the corpus.
+_HISTORY_VERB = re.compile(
+    r"\b(?:superseded|struck|withdrawn|retracted|falsified|obsolete|"
+    r"no longer (?:the )?(?:current|live|in force)|as it (?:then )?stood|"
+    r"stands unchanged as the|kept as the record|kept for the record)\b", re.I)
+_ISO_DATE = re.compile(r"\b20\d{2}-[01]\d-[0-3]\d\b")
+#: How far below a heading a banner may sit and still govern the section. The
+#: two measured cases put it on the heading itself and two lines below it; the
+#: window is the paragraph, not the section, so a withdrawal verb in the
+#: section's BODY does not retroactively date the whole section.
+_BANNER_LINES = 8
+
+# THE THREE MARKUP DIALECTS `mask_exempt` DOES NOT SPEAK, each measured on this
+# corpus before it was written down, and each ADDITIVE -- every one of them can
+# only mask more, never less, so none of them can hide a fault the imported
+# masker would have exposed. They are enumerated rather than folded into a
+# widened pattern for the reason the interval table above this file already
+# gives: a guard that fails compliant surfaces gets switched off, and the
+# cheapest way to silence it is to "fix" the surface that was right.
+#
+#   Y1  HTML ENTITY QUOTATION. `check_derived_figures.py` reads only `*.md`
+#       and `*.html`, and its `_QUOTED` knows the ASCII and Unicode quote
+#       characters. The repaired pages spell their quotes as ENTITIES --
+#       `&ldquo;comparable&rdquo; was fair` at `benchmarks.html:158` and
+#       `closure.html:406,468` -- and all three are repair notes explaining why
+#       the word was withdrawn. Without Y1 this check faults the three surfaces
+#       that were repaired FIRST, which is the exact false-fault shape D115
+#       records.
+#
+#   Y2  LATEX STRIKE. `latex/closure_challenge_report.tex:83` reads
+#       `\sout{\textbf{rank 1 of 5, scored locally}, ...}`. That IS struck, in
+#       the only dialect LaTeX has for it, and `mask_exempt` has no LaTeX
+#       dialect because it never opens a `.tex`. This check does. Brace-
+#       balanced, so a nested `\textbf{...}` inside the strike is covered.
+#
+#   Y3  LINE-SCOPED QUOTATION. `_QUOTED` may cross a newline, so an unbalanced
+#       quote earlier in a file shifts every pairing after it. Measured at
+#       `campaign/OWNERSHIP_BOUNDARY_SWEEP_2026-08-15.md:165`, where the
+#       quotation `*"rank 1 of 5, scored locally; P 68% ..."*` came out of the
+#       imported masker with its OPENING quote blanked and its body live -- a
+#       document enumerating stale figures faulted for enumerating them, which
+#       is D71's trap one level down. Y3 re-pairs quotes WITHIN a single line
+#       and masks what it finds.
+_Y1_ENTITY_QUOTE = re.compile(
+    r"&ldquo;.*?&rdquo;|&#8220;.*?&#8221;|&quot;.*?&quot;|&#34;.*?&#34;")
+_Y2_LATEX_STRIKE = re.compile(r"\\(?:sout|st|cancel|xcancel|xout)\s*\{")
+_Y3_LINE_QUOTE = re.compile(r"\"[^\"\n]{1,400}\"|\u201c[^\u201d\n]{1,400}\u201d")
+
+#   Y4  `record` IS A NOUN HERE. `check_derived_figures._REPORTED` lists
+#       `record|records|recorded` among the verbs that mean "this document is
+#       narrating what some other surface says". In this lab the commonest use
+#       of the word is the NOUN in "the entry of record", and the suppressor
+#       fired on it: `CLOSURE_CHALLENGE_STATUS.md:9` reads "the entry of
+#       record, **rank 1 of 5 scored locally**" -- a live, present-tense,
+#       wrong claim in the document's own header -- and was silently dropped
+#       as a report about somebody else's words. Y4 blanks the NOUN so the
+#       verb list cannot see it. It masks no digit and no claim: only the six
+#       characters of the word itself, inside two fixed phrases.
+_Y4_RECORD_NOUN = re.compile(r"(?<=\bof )record\b|(?<=\bthe )record\b", re.I)
+
+
+def _y2_spans(text: str) -> list[tuple[int, int]]:
+    """Brace-balanced spans of every LaTeX strike macro."""
+    spans = []
+    for m in _Y2_LATEX_STRIKE.finditer(text):
+        depth, i = 1, m.end()
+        while i < len(text) and depth:
+            if text[i] == "{":
+                depth += 1
+            elif text[i] == "}":
+                depth -= 1
+            i += 1
+        spans.append((m.start(), i))
+    return spans
+
+
+def _dated_history_spans(text: str, cdf) -> list[tuple[int, int, str]]:
+    """(start, end, why) for every section a DATED banner declares historical.
+
+    The banner may be the heading itself or a paragraph within the first
+    `_BANNER_LINES` lines under it. The span runs to the next heading of the
+    same or a shallower level, which is `check_derived_figures._kept_block_end`
+    -- reused, not rewritten, so a change to how this corpus delimits a section
+    changes both checks together.
+
+    THE BANNER IS NOT INSIDE ITS OWN SPAN, and the first cut of this function
+    had it the other way round. A supersession banner is written in the PRESENT
+    TENSE about the CURRENT record -- `CLOSURE_CHALLENGE_STATUS.md:689-694`
+    reads "Superseded again 2026-08-07, see sec 0f. The entry of record is now
+    round 5: overall 0.0566, rank 1 of 5 scored locally ... The notes below
+    stand as the superseded round-3/round-4 record." The notes BELOW are
+    history. The banner itself is a live claim, and it is wrong: that is the
+    `rank 1 of 5` D150 records at line 691, and masking from the heading
+    swallowed it. The span therefore begins at the END of the banner
+    paragraph. D145's unit is the line plus the nearest banner ABOVE it, and a
+    banner is not above itself.
+    """
+    lines = text.split("\n")
+    starts, pos = [], 0
+    for line in lines:
+        starts.append(pos)
+        pos += len(line) + 1
+    heads = [i for i, line in enumerate(lines) if cdf._HEADING.match(line)]
+    spans = []
+    for index, head in enumerate(heads):
+        limit = min(head + _BANNER_LINES + 1,
+                    heads[index + 1] if index + 1 < len(heads) else len(lines))
+        banner = None
+        for j in range(head, limit):
+            if _HISTORY_VERB.search(lines[j]) and _ISO_DATE.search(lines[j]):
+                banner = j
+                break
+        if banner is None:
+            continue
+        # The banner's own paragraph stays live. It runs to the first blank
+        # line after it, which is how this corpus ends a banner block.
+        body = banner + 1
+        while body < len(lines) and lines[body].strip():
+            body += 1
+        end_line = cdf._kept_block_end(text, lines, head)
+        if body >= end_line:
+            continue
+        start = starts[body]
+        end = starts[end_line] if end_line < len(starts) else len(text)
+        spans.append((start, end,
+                      f"L{body + 1}-{end_line}: dated historical section, "
+                      f"banner at L{banner + 1} (the banner itself is LIVE "
+                      f"text and is graded): {lines[banner].strip()[:80]!r}"))
+    return spans
+
+
+def _live_claim_text(text: str, cdf) -> tuple[str, list[str]]:
+    """`text` with every exempt region blanked, offsets preserved.
+
+    Two layers, in order, and the order is the point: `mask_exempt` blanks what
+    the AUTHOR marked (strike markup, kept-record blocks, code, quotations,
+    correction arrows), and `_dated_history_spans` blanks what the SECTION
+    declares. A claim that survives both is a claim this document is making
+    now, in its own voice, undated.
+    """
+    live, _ = cdf.mask_exempt(text)
+    out = list(live)
+    notes = []
+
+    def blank(start, end):
+        for i in range(start, min(end, len(out))):
+            if out[i] != "\n":
+                out[i] = " "
+
+    for rx in (_Y1_ENTITY_QUOTE, _Y3_LINE_QUOTE, _Y4_RECORD_NOUN):
+        for m in rx.finditer(text):
+            blank(m.start(), m.end())
+    for start, end in _y2_spans(text):
+        blank(start, end)
+    for start, end, why in _dated_history_spans(text, cdf):
+        blank(start, end)
+        notes.append(why)
+    return "".join(out), notes
+
+
+# THE VALUE RULES. Each names the authority it grades against, and not one of
+# them holds a number. `rank 1 of N` is graded against the length of
+# `LIVE_BOARD` read by AST out of `sdk/scripts/probability_of_rank.py`; the
+# best-on-board count against `round5_per_case_full` compared cell by cell
+# against that same board; and `comparable` against the ratio
+# `check_derived_figures.py` derives from
+# `closure_challenge_seed_sensitivity.json` over every admissible margin basis.
+# The day the board moves, all three move, and the surfaces that did not move
+# go red -- which is the direction that matters.
+
+# THE DENOMINATOR PREDICATE (D151, 2026-08-15), and why it is `rank N of M`
+# and not `rank 1 of M`. `self_audit.py`'s own word-form guard defers this
+# class: `_PLACE_OFN` skips `^\s*of\s+\d` after an ordinal with the comment
+# "OUR claim, owned by the sibling guard". The sibling it names is
+# `check_rank_claim_surfaces`, which grades FORM and has no arithmetic, so the
+# deferral had no receiving end and NO INSTRUMENT IN THIS LAB HELD A
+# DENOMINATOR PREDICATE. That is why `rank 1 of 5` has now been found live on
+# six separate surfaces over four days, each repair finding another copy.
+# Rule A of the word-form guard binds an ordinal to a NAMED PUBLISHED
+# ENTRANT, so it is structurally incapable of reaching a claim about
+# ourselves; this rule reaches both, because the arithmetic is the same
+# arithmetic and building it twice is how the copies got here.
+#
+# BOTH DIGITS ARE GRADED. N is a rank on the live board counting us -- ours
+# derived by sorting our overall against the entrants' means, an entrant's by
+# their own position in that same sort. M is the number of positions the claim
+# implicitly asserts exist.
+#
+# TWO ADMISSIBLE DENOMINATORS, and the reason is D55's two referents. A
+# sentence may count the board WITH us in it (`entries + 1`, the standing
+# question) or the published board WITHOUT us (`entries`, who is on the
+# leaderboard). Both are true statements about different sets, so both pass
+# and the message names both. What is not admissible is `5` against a board of
+# six.
+_VALUE_BOARD_SIZE = re.compile(
+    r"\brank[ \-]?(?P<n>\d{1,3}|one|two|three|four|five|six|seven|eight|nine|"
+    r"ten)\s+of\s+\*{0,2}(?P<v>\d{1,3}|zero|one|two|three|four|five|"
+    r"six|seven|eight|nine|ten)\b", re.I)
+
+#: A third-party placement on the FROZEN SCORING PIN is a claim about a
+#: different board -- `deb91557` carries four entrants and Reissmann leads it,
+#: which is why `SUBMISSION_DRAFT.md:729` says "on the frozen scoring pin
+#: `deb91557` Reissmann is rank 1 of four" and is CORRECT. This check reads
+#: only the live board, so it declines that class by name instead of faulting
+#: it. It is NOT an exemption for our own claims: `rank 1 of 5 is our local
+#: scoring at a pinned benchmark commit` is the shipped defect, and the pin
+#: scores but does not rank (D55).
+_VALUE_FROZEN_PIN = re.compile(
+    r"deb9155|frozen (?:scoring )?pin|pinned (?:scoring )?board|"
+    r"four-entry board|4-entry board", re.I)
+
+#: `comparable` is a value claim wearing a word. It is only graded where it
+#: binds the SEED BOUND to the MARGIN: this corpus carries 149 occurrences of
+#: the word and the overwhelming majority are comparable meshes, comparable
+#: Mach numbers and comparable steps. Both operands must be named inside the
+#: window or nothing is graded, and the un-graded case is counted and printed.
+_VALUE_COMPARABLE = re.compile(
+    r"\b(?:comparable|of comparable size|the same size as|no larger than|"
+    r"roughly the same size)\b", re.I)
+_VALUE_MARGIN_WORD = re.compile(r"\bmargin\b", re.I)
+_VALUE_BOUND_WORD = re.compile(
+    r"seed[- ](?:uncertainty|stability|sensitivity)|seed bound|"
+    r"(?:uncertainty|truth-free|one-seed|single-seed)[- ]bound|"
+    r"bound of comparable|bound\b", re.I)
+_VALUE_WINDOW = 160
+
+# A LABELLED TEST CORPUS IS NOT A CLAIM SURFACE, and this is a definition
+# rather than a tuning. `sdk/tests/fixtures/absolute_claims_labelled*.json`
+# and `sdk/tests/test_rank_claim_surfaces.py` EXIST to carry the withdrawn
+# sentences verbatim -- `CLOSURE_HTML_BEFORE`, `SUPERSEDED`, and 252 labelled
+# units quoting surfaces as they read before repair. Faulting them is faulting
+# the control, and D140 records the same fixture as "quoted historical text
+# inside a labelled test fixture and is correct as history". The imported
+# arithmetic module never reads these files at all: its own `PROSE_GLOBS` is
+# `("*.md", "*.html")`. So this narrows TOWARD the module whose predicate is
+# being reused, not away from it. The count is printed in the frame; nothing is
+# dropped silently.
+_VALUE_NOT_A_SURFACE = ("sdk/tests/",)
+
+#: A CHEAP GATE BEFORE AN EXPENSIVE MASK. Masking a surface costs a dozen
+#: multi-line regexes; grading 1,400 of them cost 85 seconds of the audit's
+#: runtime, and almost none of them carries a value claim at all. This runs on
+#: the RAW text first. It is SAFE because masking only ever blanks characters:
+#: a trigger present after masking was present before it, so a surface this
+#: skips could not have produced a fault. The count of what it skipped is
+#: printed in the frame rather than being silent.
+_VALUE_TRIGGER = re.compile(
+    r"rank[ \-]?(?:\d{1,3}|one|two|three|four|five|six|seven|eight|nine|ten)"
+    r"\s+of\s"
+    r"|\bof\s+(?:the\s+)?(?:8|eight)\b"
+    r"|comparable|the same size as|no larger than|roughly the same size", re.I)
+
+#: SOMEBODY ELSE'S PLACEMENT IS NOT OUR CLAIM. `CLOSURE_CHALLENGE_SUBMISSION_
+#: DRAFT.md:729` reads "on the frozen scoring pin `deb91557` Reissmann is rank
+#: 1 of four", which is TRUE -- the pin's board has four entrants and Reissmann
+#: leads it. A denominator rule that assumes every `rank 1 of N` is ours faults
+#: a correct sentence about a competitor on a frozen board. The binding is
+#: deliberately narrow: the entrant must be the SUBJECT of the copula
+#: immediately before the ordinal, which is the same discipline
+#: `check_board_placement_words` RULE A uses and for the same reason. Anything
+#: looser exempts "below Reissmann's published 0.059525, rank 1 of 5", which is
+#: OUR claim with a competitor's name 30 characters upstream.
+_VALUE_OTHERS_SUBJECT = re.compile(
+    r"\b(?P<who>[A-Z][A-Za-z'’\-]+)\**\s+"
+    r"(?:is|was|were|are|remains|stays|sits\s+at|stands\s+at|holds|ranks)"
+    # An adverb may sit between the copula and the ordinal. Measured:
+    # `docs/P33_CROSS_SURFACE_SWEEP.md:48` reads "Montoya is now **rank 6 of
+    # 6** on the live board, not 4" -- a CORRECT third-party statement that a
+    # binding without this group read as a claim about US.
+    r"(?:\s+(?:now|still|currently|already|only|nominally))?"
+    r"\s+\**\s*$")
+
+#: THE CORRECTION IDIOM `mask_exempt` HAS ONLY IN ARROW FORM. `_ARROW_OLD`
+#: blanks the left of `4 of 8 -> 2 of 8`. This corpus writes the same
+#: correction in prose -- "the best-on-board count falls from 4 of 8 to 2 of 8"
+#: at `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md:11` -- and the left
+#: operand is the superseded value in both. Without this the document that
+#: ANNOUNCED the correction is faulted for announcing it.
+_VALUE_FROM_TO = re.compile(
+    r"\bfrom\s+\**\s*$")
+_VALUE_TO_NEW = re.compile(
+    r"^[^.;\n]{0,30}?\bto\s+\**\s*"
+    r"(?:\d{1,3}|zero|one|two|three|four|five|six|seven|eight|nine|ten)\b")
+
+
+@functools.lru_cache(maxsize=1)
+def _live_ranks() -> dict:
+    """{first-author surname -> rank on the live board counting us}, plus us.
+
+    Our own position is keyed by the empty string. Derived, not listed: the
+    board's own `entrants` block is read by AST, each entrant's overall is the
+    mean of their eight published per-case values, our overall comes from the
+    entry of record through `_closure_facts`, and the ranks are the order of
+    that sort. An entrant added to the board is ranked here the day the board
+    file changes, and no name and no ordinal is written in this file.
+    """
+    facts = _closure_facts()
+    try:
+        board = _module_literal(_PROB_SCRIPT, "LIVE_BOARD")
+    except (OSError, SyntaxError, ValueError, KeyError):
+        return {}
+    entrants = board.get("entrants") or {}
+    ours = facts.get("our_overall")
+    if not entrants or ours is None:
+        return {}
+    scored = [("", float(ours))]
+    for key, values in entrants.items():
+        head = re.split(r"[,&]", key)[0].strip()
+        if head and values:
+            scored.append((head.split()[0], sum(values) / len(values)))
+    scored.sort(key=lambda pair: pair[1])
+    return {name: index + 1 for index, (name, _) in enumerate(scored)}
+
+
+def _superseded_by_correction(live: str, start: int, end: int) -> bool:
+    """`from <old> ... to <new>`: the left operand is the value being retired."""
+    return bool(_VALUE_FROM_TO.search(live[max(0, start - 40):start])
+                and _VALUE_TO_NEW.match(live[end:end + 40]))
+
+
+def _in_board_context(text: str, start: int, end: int) -> bool:
+    """The same two gates the FORM guard applies, applied to a value claim.
+
+    Reused rather than re-derived so a homonym the form guard learns to ignore
+    is ignored here on the same day. Without them `rank 1 of 35` in a mission
+    transcript and the `rank 1 of 5` inside this file's own regex comment are
+    both faults.
+    """
+    near = text[max(0, start - _RANK_HOMONYM_WINDOW):end + _RANK_HOMONYM_WINDOW]
+    if _RANK_HOMONYM.search(near):
+        return False
+    window = text[max(0, start - _RANK_WINDOW):end + _RANK_WINDOW]
+    return bool(_RANK_BOARD.search(window))
+
+
+def _rank_value_faults(text: str, cdf, facts: dict, ratio_lo, ratio_hi):
+    """(faults, ungraded) for one surface. Faults are (line, rule, message).
+
+    `ungraded` is not a residue to be swallowed: every passage a rule matched
+    and could not decide is returned with its reason, and the caller prints
+    the count. A value grader that quietly drops what it cannot decide is the
+    same instrument as the one this block replaces.
+    """
+    live, history = _live_claim_text(text, cdf)
+    faults, ungraded = [], list(history)
+    board_n = facts["entries"] + 1
+    admissible_m = {board_n, facts["entries"]}
+    ranks = _live_ranks()
+    best, earned = len(facts["best"]), len(facts["earned"])
+
+    def line_of(off):
+        return live.count("\n", 0, off) + 1
+
+    # RULE V1 -- the denominator of a rank-1 placement is the board's own
+    # length plus us. `rank 1 of 5` was true of a four-entry board and is the
+    # single most-copied withdrawn claim in this corpus.
+    for m in _VALUE_BOARD_SIZE.finditer(live):
+        if not _in_board_context(live, m.start(), m.end()):
+            continue
+        if cdf._is_rejection(live, m.start("v")):
+            ungraded.append(f"L{line_of(m.start())}: `rank 1 of "
+                            f"{m.group('v')}` is stated in order to be "
+                            f"rejected or is reported as another surface's "
+                            f"words; not graded")
+            continue
+        quoted = m.group(0)
+        if _superseded_by_correction(live, m.start(), m.end()):
+            ungraded.append(f"L{line_of(m.start())}: `{quoted}` is the LEFT "
+                            f"operand of a `from ... to ...` correction, so it "
+                            f"is the value being retired; not graded")
+            continue
+        raw_n, raw_m = m.group("n").lower(), m.group("v").lower()
+        got_n = _COUNT_WORDS.get(raw_n, int(raw_n) if raw_n.isdigit() else None)
+        got_m = _COUNT_WORDS.get(raw_m, int(raw_m) if raw_m.isdigit() else None)
+        if got_n is None or got_m is None:
+            ungraded.append(f"L{line_of(m.start())}: `{quoted}` -- one of the "
+                            f"two digits is not a number this check reads")
+            continue
+        subject = _VALUE_OTHERS_SUBJECT.search(
+            live[max(0, m.start() - 60):m.start()])
+        who = subject.group("who") if subject else None
+        if who is not None and who not in ranks:
+            who = None
+        if who is not None:
+            # SOMEBODY ELSE's placement. Reached deliberately: the word-form
+            # guard binds these to a name and then has no arithmetic, so
+            # without this arm the denominator class is ungraded for third
+            # parties too, and D151 asks that the predicate be built once for
+            # both.
+            window = live[max(0, m.start() - _VALUE_WINDOW):
+                          m.end() + _VALUE_WINDOW]
+            if _VALUE_FROZEN_PIN.search(window):
+                ungraded.append(
+                    f"L{line_of(m.start())}: `{quoted}` is bound to {who} on "
+                    f"the FROZEN SCORING PIN, a different board from the live "
+                    f"one this check reads; declined rather than faulted")
+                continue
+            # The two readings must be CONSISTENT, not independently
+            # admissible: an entrant's rank counting us goes with a
+            # denominator counting us, and their rank on the published board
+            # goes with the published board's own length. Measured on
+            # `docs/P33_CROSS_SURFACE_SWEEP.md:48` -- "Montoya is now rank 6
+            # of 6 on the live board" is correct as (published rank,
+            # published length) and would be wrong as (6, 7).
+            live_n = ranks[who]
+            ours_n = ranks.get("")
+            pub_n = live_n - 1 if ours_n is not None and live_n > ours_n \
+                else live_n
+            readings = {(live_n, board_n), (pub_n, facts["entries"])}
+            if (got_n, got_m) not in readings:
+                faults.append((
+                    line_of(m.start()), "third-party placement",
+                    f"claims `{quoted}` about {who}; on the live board in "
+                    f"{_PROB_SCRIPT.name} {who} is rank {live_n} of "
+                    f"{board_n} counting us, or rank {pub_n} of "
+                    f"{facts['entries']} on the published board without us"))
+            continue
+        want_n = ranks.get("")
+        if want_n is None:
+            ungraded.append(f"L{line_of(m.start())}: `{quoted}` -- our own "
+                            f"position on the live board could not be derived")
+            continue
+        if got_n != want_n or got_m not in admissible_m:
+            faults.append((
+                line_of(m.start()), "our placement",
+                f"claims `{quoted}`; the live board in {_PROB_SCRIPT.name} "
+                f"carries {facts['entries']} entrants and our entry of record "
+                f"sorts to rank {want_n}, so the claim is rank {want_n} of "
+                f"{board_n} counting us (or of {facts['entries']} if the "
+                f"sentence means the published board without us)"))
+
+    # RULE V2 -- the best-on-board count, against the same board and the
+    # entry of record's own per-case block. Two values are admissible and both
+    # are named in the message: the arithmetic count and the count belonging to
+    # our MODEL after the decline gate's passthroughs are removed.
+    for m in _BEST_COUNT.finditer(live):
+        if not _in_board_context(live, m.start(), m.end()):
+            continue
+        if cdf._is_rejection(live, m.start(1)):
+            ungraded.append(f"L{line_of(m.start())}: a best-on-board count "
+                            f"stated in order to be rejected, or reported as "
+                            f"another surface's words; not graded")
+            continue
+        if _superseded_by_correction(live, m.start(1), m.end()):
+            ungraded.append(f"L{line_of(m.start())}: best-on-board "
+                            f"`{m.group(1)} of eight` is the LEFT operand of a "
+                            f"`from ... to ...` correction, so it is the "
+                            f"value being retired; not graded")
+            continue
+        raw = m.group(1).lower()
+        value = _COUNT_WORDS.get(raw, int(raw) if raw.isdigit() else None)
+        if value is None:
+            continue
+        if value not in (best, earned):
+            faults.append((
+                line_of(m.start()), "best-on-board count",
+                f"claims best-on-board `{raw} of eight`; against the "
+                f"{facts['entries']}-entry board the arithmetic count is "
+                f"{best} of eight ({', '.join(facts['best']) or 'none'}) and "
+                f"the count belonging to OUR MODEL is {earned} of eight -- "
+                f"every one of the {best} is a row the decline gate passed "
+                f"through as the organisers' own unmodified RANS field"))
+
+    # RULE V3 -- `comparable` is a claim about a RATIO. It is false in the one
+    # direction that flatters us whenever the bound EXCEEDS the margin, and the
+    # threshold is 100% and not a tuned band: at 177% the bound is not
+    # comparable to the margin, it is larger than it.
+    if ratio_lo is not None:
+        for m in _VALUE_COMPARABLE.finditer(live):
+            lo = max(0, m.start() - _VALUE_WINDOW)
+            hi = min(len(live), m.end() + _VALUE_WINDOW)
+            window = live[lo:hi]
+            if not (_VALUE_MARGIN_WORD.search(window)
+                    and _VALUE_BOUND_WORD.search(window)):
+                continue
+            if not _in_board_context(live, m.start(), m.end()):
+                continue
+            if cdf._is_rejection(live, m.start()):
+                ungraded.append(
+                    f"L{line_of(m.start())}: `comparable` beside a margin and "
+                    f"a bound, stated in order to be rejected or reported as "
+                    f"another surface's words; not graded")
+                continue
+            if ratio_lo <= 100 <= ratio_hi:
+                ungraded.append(
+                    f"L{line_of(m.start())}: `comparable` beside the margin "
+                    f"and the bound, and the admissible ratio "
+                    f"[{ratio_lo:.2f}%, {ratio_hi:.2f}%] straddles 100%, so "
+                    f"this check CANNOT say the word is false")
+                continue
+            if ratio_lo > 100:
+                faults.append((
+                    line_of(m.start()), "bound vs margin",
+                    f"calls the seed bound comparable to the margin; over "
+                    f"every admissible basis the bound is "
+                    f"[{ratio_lo:.2f}%, {ratio_hi:.2f}%] of the margin, so it "
+                    f"EXCEEDS the margin it is called comparable to"))
+    return faults, ungraded
+
+
+def check_rank_claim_values() -> Result:
+    """Every rank claim's VALUE, graded against the board it is a claim about.
+
+    THE SIBLING, and why they are two checks. `check_rank_claim_surfaces`
+    grades FORM -- P(rank 1), the current interval, the sweep token. This
+    grades VALUE -- the denominator, the best-on-board count, and whether
+    `comparable` is still a true word about the seed bound. On 2026-08-15 the
+    form guard read line 502 of `site/closure.html` inside the shipped bundle,
+    recognised it as a rank claim, and reported "every travelling surface
+    complies" over "rank 1 of 5 ... a seed-uncertainty bound comparable to its
+    margin". Both of those are false against the live board and neither is a
+    form defect. They are reported separately because they fail separately.
+
+    THREE-VALUED, and it will not PASS from an empty set. If the arithmetic
+    module cannot be imported, if a source record is unreadable, if the board
+    record is stale, if an archive will not open, or if the sweep finds no rank
+    claim at all, this returns UNKNOWN and names what it could not read. That
+    is defect class B1 and it is exactly how the sibling arrived at a false
+    clean: a check whose cleanest verdict is the one it produces by reading
+    nothing.
+
+    WHAT IT CANNOT SEE, stated rather than discovered later. Anything the FORM
+    guard cannot see, because the board-context and homonym gates are the same
+    two: a claim phrased outside `_RANK_CLAIM`'s vocabulary, anything that is
+    not UTF-8 (every compiled PDF here, and `latex/closure_challenge_report.pdf`
+    is the corpus's largest single concentration of withdrawn claims),
+    untracked files, files over 4 MB, and render-time text. Beyond those: a
+    value claim carrying no number at all ("we lead comfortably"); P(rank 1)
+    itself, which is MEASURED AND NOT SHIPPED here for the reason
+    `check_derived_figures.py` records against the same quantity and this
+    check's own measurement confirms; and any wrong figure inside a section
+    whose banner carries a withdrawal verb and a date, because a dated
+    historical section is exempt by construction.
+    """
+    name = "rank claims carry the right values"
+    cdf, why = _derived_figures()
+    if cdf is None:
+        return _no_evidence(name, "the value grader could not load its "
+                                  "arithmetic and graded nothing",
+                            [_DERIVED_FIGURES], [why])
+
+    facts = _closure_facts()
+    if facts["stale"]:
+        return _no_evidence(
+            name, "the board record is not current, so no value could be "
+                  "derived to grade any surface against",
+            [_PROB_SCRIPT, _PROB_RECORD, _ENTRY_OF_RECORD],
+            [f"STALE INSTRUMENT: {s}" for s in facts["stale"]])
+
+    src = cdf.read_sources(REPO)
+    quantities, problems, derived = cdf.build_registry(src)
+    if problems:
+        return _no_evidence(
+            name, f"{len(problems)} source record(s) could not be read, so "
+                  f"the derived values are incomplete and nothing was graded",
+            sorted({r.path for r in src.values() if r.error}) or [_PROB_SCRIPT],
+            [f"SOURCE: {p}" for p in problems])
+
+    ratio_lo = ratio_hi = None
+    ratio_why = ("the coverage ratio could not be derived from "
+                 f"{cdf.SOURCES['seed'][0]} and the board, so `comparable` "
+                 f"was not graded on any surface")
+    for q in quantities:
+        if q.qid == "coverage_pct" and q.bases:
+            values = [float(b.value) for b in q.bases]
+            ratio_lo, ratio_hi = min(values), max(values)
+            ratio_why = (f"`comparable` graded against the seed bound as a "
+                         f"percentage of the margin over {derived['leader']}: "
+                         f"[{ratio_lo:.2f}%, {ratio_hi:.2f}%] over "
+                         f"{len(values)} admissible margin bases")
+
+    tracked = _tracked_files()
+    if tracked is None:
+        return _no_evidence(name, "git could not be asked which files exist, "
+                                  "so no surface was opened",
+                            ["git ls-files"])
+
+    travelling = _travelling_names()
+    surfaces: list[tuple[str, str, bool]] = []
+    opened = skipped = members = 0
+    blind: list[str] = list(getattr(_travelling_names, "unopened", []))
+    for path in tracked:
+        try:
+            if not path.is_file():
+                skipped += 1
+                continue
+            if path.stat().st_size > _RANK_MAX_BYTES:
+                skipped += 1
+                continue
+            raw = path.read_bytes()
+        except OSError as exc:
+            blind.append(f"{_rel(path)}: unreadable ({exc})")
+            skipped += 1
+            continue
+        opened += 1
+        text = _surface_text(raw)
+        if text is None:
+            continue
+        surfaces.append((str(path.relative_to(REPO)), text,
+                         path.name in travelling))
+    archives = _shipping_archives()
+    for archive in archives:
+        try:
+            with zipfile.ZipFile(archive) as zf:
+                for info in zf.infolist():
+                    if info.is_dir():
+                        skipped += 1
+                        continue
+                    if info.file_size > _RANK_MAX_BYTES:
+                        skipped += 1
+                        blind.append(f"{_rel(archive)}!{info.filename}: over "
+                                     f"{_RANK_MAX_BYTES // 1_000_000} MB, not "
+                                     f"opened")
+                        continue
+                    members += 1
+                    opened += 1
+                    text = _surface_text(zf.read(info))
+                    if text is None:
+                        continue
+                    surfaces.append(
+                        (f"{archive.relative_to(REPO)}!{info.filename}",
+                         text, True))
+        except (OSError, zipfile.BadZipFile) as exc:
+            # NOT a surface with empty text. That is how the sibling swallowed
+            # an unreadable archive: an empty string makes no claim, makes no
+            # fault, and reads on the report as a clean member.
+            blind.append(f"{_rel(archive)}: could not be opened ({exc}), so "
+                         f"every member inside it was graded by nothing")
+
+    claims = form_graded = value_graded = fixtures = untriggered = 0
+    shipped, internal, ungraded = [], [], []
+    for label, text, travels in surfaces:
+        if label.startswith(_VALUE_NOT_A_SURFACE):
+            fixtures += 1
+            continue
+        found = _rank_claim_lines(text)
+        if not _VALUE_TRIGGER.search(text):
+            claims += len(found)
+            form_graded += len(found)
+            untriggered += 1
+            continue
+        if found:
+            claims += len(found)
+            form_graded += len(found)
+        faults, notes = _rank_value_faults(text, cdf, facts, ratio_lo, ratio_hi)
+        value_graded += len(faults)
+        for line, rule, message in faults:
+            entry = f"{label}:{line} [{rule}] {message}"
+            (shipped if travels else internal).append(entry)
+        ungraded += [f"{label} {n}" for n in notes]
+
+    frame = (
+        f"frame: {len(tracked)} tracked path(s) and {len(archives)} shipping "
+        f"archive(s) considered; {opened} opened ({members} of them archive "
+        f"MEMBERS), {skipped} skipped as absent, a directory or over "
+        f"{_RANK_MAX_BYTES // 1_000_000} MB; {len(surfaces)} decoded as UTF-8 "
+        f"and mention 'rank' or 'overall'; {claims} rank claim(s) found and "
+        f"{form_graded} graded for FORM by the sibling check; "
+        f"{value_graded} value fault(s) found by {3} value rule(s) "
+        f"(board size, best-on-board count, bound-vs-margin); "
+        f"{len(ungraded)} passage(s) matched a rule and were NOT graded, "
+        f"each named below with its reason; {fixtures} surface(s) under "
+        f"{'/'.join(_VALUE_NOT_A_SURFACE)} were not graded at all, because a "
+        f"labelled test corpus exists to carry the withdrawn text and "
+        f"faulting it is faulting the control; {untriggered} surface(s) "
+        f"carried no value-rule trigger at all on the RAW text and were not "
+        f"masked (masking only blanks characters, so a trigger absent before "
+        f"masking is absent after it). {ratio_why}. The board is "
+        f"{facts['entries']} entrants from {_PROB_SCRIPT.name} read by AST, "
+        f"so a rank-1 placement is rank 1 of {facts['entries'] + 1}; "
+        f"best-on-board is {len(facts['best'])} of {len(facts['cases'])} and "
+        f"the count belonging to our model is {len(facts['earned'])}. "
+        f"Arithmetic, source records and the strike masker are imported from "
+        f"{_rel(_DERIVED_FIGURES)}; no figure is written in this file")
+
+    detail = shipped + internal
+    if blind:
+        detail += [f"NOT GRADED AT ALL: {b}" for b in blind]
+    detail += [f"ungraded: {u}" for u in ungraded[:80]]
+    if len(ungraded) > 80:
+        detail.append(f"ungraded: ... and {len(ungraded) - 80} more")
+    detail.append(frame)
+
+    if not surfaces or not claims:
+        return _no_evidence(
+            name, "no rank claim was found on any surface, so no value was "
+                  "graded",
+            ["every tracked file and every shipping archive member"], detail)
+    if shipped:
+        return Result(name, FAIL,
+                      f"{len(shipped)} claim(s) on surfaces that TRAVEL state "
+                      f"a value the board contradicts "
+                      f"({len(internal)} more on lab records)", detail)
+    if blind:
+        return _no_evidence(
+            name, f"no travelling surface states a contradicted value, but "
+                  f"{len(blind)} surface(s) could not be read at all",
+            [b.split(":")[0] for b in blind], detail)
+    if internal:
+        return Result(name, WARN,
+                      f"every travelling surface states values the board "
+                      f"supports; {len(internal)} lab record(s) do not",
+                      detail)
+    return Result(name, PASS,
+                  f"all {claims} rank claim(s) state a denominator, a "
+                  f"best-on-board count and a bound-to-margin comparison the "
+                  f"live board supports", detail)
 
 
 # ---------------------------------------------------------------------------
@@ -1703,8 +2575,22 @@ def _place_pattern(upto: int) -> re.Pattern:
 # Homonyms of the WORD. This is an exclusion list and is named as one: it
 # excludes SENSES of `rank`, never surfaces. Each was met in this corpus.
 _PLACE_PROB = re.compile(r"P\(\s*$", re.I)            # P(rank 1): a probability
+# THE DEFERRAL BELOW WAS FALSE UNTIL 2026-08-15 (D151), and it is corrected
+# here rather than left standing. It read "OUR claim, owned by the sibling
+# guard". The sibling it meant is `check_rank_claim_surfaces`, which grades
+# claim FORM and holds no arithmetic over a denominator -- so the deferral
+# pointed at a function that did not do the thing it was deferred for, and the
+# consequence was measured: no instrument in this lab held a denominator
+# predicate, and `rank 1 of 5` was found live on six separate surfaces over
+# four days, each repair finding another copy. Rule A binds an ordinal to a
+# NAMED PUBLISHED ENTRANT and is structurally incapable of faulting a claim
+# about OUR OWN placement, so this was not a gap rule A could ever have closed.
+# The receiver now exists and is named: `check_rank_claim_values`, whose
+# `_VALUE_BOARD_SIZE` rule grades BOTH digits of `rank N of M`, for our own
+# claims and for third-party ones, against the live board.
 _PLACE_OFN = re.compile(r"^\s*of\s+\d", re.I)         # rank 1 of 5: OUR claim,
-                                                      # owned by the sibling guard
+                                                      # graded by
+                                                      # check_rank_claim_values
 _PLACE_LINALG_R = re.compile(                         # rank-one pure-shear tensor;
     r"^\s*(pure|tensor|shear|out of|approximation|deficient)", re.I)
 _PLACE_LINALG_L = re.compile(                         # ...is rank three out of five
@@ -5566,7 +6452,41 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "here while its .tex source is not; untracked files; files over 4 MB; "
         "text produced at render time by a generator or a browser; and WHERE "
         "the companion sits -- the companion test is per file, so one "
-        "compliant paragraph clears every claim in that file", None),
+        "compliant paragraph clears every claim in that file. IT GRADES FORM "
+        "AND NOT VALUE, and that limit is now a separate check rather than a "
+        "footnote: on 2026-08-15 it opened dist/certonomous-demo.zip, read "
+        "line 502 of site/closure.html inside it, recognised the rank claim "
+        "and cleared 'rank 1 of 5 ... a seed-uncertainty bound comparable to "
+        "its margin' against a board where the placement is 1 of 7 and the "
+        "bound is 177% of the margin. See check_rank_claim_values", None),
+    "check_rank_claim_values": (
+        EVIDENCE,
+        "a rank claim whose VALUE the live board contradicts, on any tracked "
+        "file or any member of any archive under dist/: a `rank 1 of N` whose "
+        "denominator is not the board's own length plus us, a best-on-board "
+        "count that is neither the arithmetic count nor the count belonging "
+        "to our model after the decline gate, and the word `comparable` "
+        "binding the seed bound to the margin when the bound EXCEEDS it. "
+        "Every value is derived -- LIVE_BOARD read by AST from "
+        "sdk/scripts/probability_of_rank.py, the per-case block from the "
+        "entry of record, and the coverage ratio over every admissible margin "
+        "basis from scripts/check_derived_figures.py, whose arithmetic and "
+        "strike masker are IMPORTED rather than copied. Nothing numeric is "
+        "written in this file, so the day the board moves the surfaces that "
+        "did not move go red",
+        "everything the form guard is blind to, because the board-context and "
+        "homonym gates are the same two: phrasing outside _RANK_CLAIM's "
+        "vocabulary, anything that is not UTF-8 (every compiled PDF, and "
+        "latex/closure_challenge_report.pdf is this corpus's largest single "
+        "concentration of withdrawn claims), untracked files, files over 4 MB "
+        "and render-time text. Beyond those: a value claim carrying no number "
+        "('we lead comfortably'); P(rank 1) itself, MEASURED AND NOT SHIPPED "
+        "here for the reason check_derived_figures.py records against the "
+        "same quantity -- its hits on this corpus are overwhelmingly correct "
+        "dated records; and any wrong figure inside a section whose banner "
+        "carries a withdrawal verb AND an ISO date, which is exempt by "
+        "construction and is the discriminator that makes the check usable at "
+        "all", None),
     "check_board_placement_words": (
         EVIDENCE,
         "an ordinal this lab pins on a leaderboard entrant that disagrees with "
@@ -6197,6 +7117,17 @@ REMEDIES: dict[str, tuple[str, bool, str]] = {
         "decided' unbroken on one line; a fault on an archive member clears "
         "by rebuilding the bundle after the tree copy is fixed",
         False, "text on surfaces already on disk"),
+    "check_rank_claim_values": (
+        "correct the figure on the named surface to the value the live board "
+        "supports, strike-and-keep: `rank 1 of N` takes the board's own "
+        "length plus us, a best-on-board count takes the derived count with "
+        "the decline-gate passthroughs disclosed, and a bound the margin no "
+        "longer covers is not `comparable` to it and must say by how much it "
+        "exceeds it. A fault on an archive member is NOT cleared by editing "
+        "the member: the tree copy it was built from is already correct, and "
+        "the remedy is one run of scripts/build_laptop_bundle.py by whoever "
+        "owns dist/. Correct dated history is exempt and must NOT be edited",
+        False, "every value is already derived on this box; the edit is prose"),
     "check_board_placement_words": (
         "correct the ordinal to the entrant's rank on the published board, or "
         "name the entrant instead of designating them by a position; a "
@@ -6367,6 +7298,7 @@ CHECKS = (
     check_ledger_stalls,
     check_closure_entry_of_record,
     check_rank_claim_surfaces,
+    check_rank_claim_values,
     check_board_placement_words,
     check_memory_scaling_law,
     check_withdrawn_numbers,

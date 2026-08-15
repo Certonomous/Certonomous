@@ -82,8 +82,17 @@ _SOLVER_LABEL = {
 # is this lab's own internally measured position against the public board,
 # current as of round 5, the entry of record
 # (closure_challenge_round5_qcr.json, scored 2026-08-07, commit 07a7fe9e:
-# overall 0.056647, rank 1 of 5 scored locally at benchmark commit deb91557 --
-# a local scoring, not an official placement).
+# overall 0.056647, ~~rank 1 of 5~~ RANK 1 OF 7 scored locally at benchmark
+# commit deb91557 -- a local scoring, not an official placement).
+#
+# STRUCK 2026-08-15, and the strike is kept because the correction is the
+# point. `rank 1 of 5` was true of the FOUR-entry board. The board went to six
+# entries on 2026-08-11T23:33Z, so the placement counting us is 1 of 7 -- which
+# `_CLOSURE["our_entry"]` below has said correctly since that day. This comment
+# is the copy that did not travel with the repair, and it sits three lines
+# above the literal it describes. Found by `check_rank_claim_values`, the
+# denominator predicate added under D145/D151; the count is derived from
+# LIVE_BOARD in sdk/scripts/probability_of_rank.py and is not written here.
 # This literal is the single source for the status text: build_benchmarks.py
 # writes it into benchmarks.json, and lab_stats.research_programs() reads it
 # back from that file rather than holding its own copy. KEEP THIS IN SYNC:
