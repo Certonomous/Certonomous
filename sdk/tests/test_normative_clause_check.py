@@ -518,6 +518,94 @@ def test_corpus_examines_a_nonzero_clause_count(qs):
     assert total > 50, total
 
 
+# ---------------------------------------------------------------------------
+# Guards found by ENUMERATION rather than by asking what the tests cover
+# ---------------------------------------------------------------------------
+#
+# Every branch in this module that changes a finding, a count printed in the
+# frame, or a verdict was enumerated and mutated, 2026-08-15. The ones below
+# each SURVIVED and are pinned here. None of them was a false green -- they
+# change a REASON or a printed FRAME COUNT, not a PASS -- which is exactly why
+# nothing noticed: a check whose verdict is right and whose stated reason is
+# wrong reads as working, and the reason is what an operator acts on.
+#
+# One recorded non-finding, so the census can be audited: mutating
+# `unreadable.append(...)` to `opened.append(rel) or unreadable.append(...)`
+# reported a SURVIVOR, and it is not one -- `list.append` returns None, so the
+# `or` still evaluated the original call and the mutant was a no-op. Deleting
+# the line outright kills two tests. A harness that asserts its site occurs
+# once cannot tell a mutation from a no-op; only the KILLED result can.
+
+def test_a_pointer_designation_and_an_inline_one_get_different_reasons(qs):
+    """W1's discriminator. Both arms are UNDECIDABLE, so the verdict cannot
+    tell them apart and only the reason can -- and the two call for opposite
+    actions: chase the pointer, or read the sentence that is already here."""
+    pointer = _scan(
+        "- Every surface **must** copy it: `closure.html`'s stability note is\n"
+        "  the reference wording.\n", qs)
+    assert pointer and all(f.verdict == N.UNKNOWN for f in pointer)
+    assert any("POINTER" in f.why for f in pointer if f.rule == "W1"), \
+        [(f.rule, f.why[:60]) for f in pointer]
+    inline = _scan(
+        "- Every surface **must** use the wording to copy, and it is fixed "
+        "right here.\n", qs)
+    w1 = [f for f in inline if f.rule == "W1"]
+    assert w1, "a designated wording with no pointer must still be reported"
+    assert not any("POINTER" in f.why for f in w1), \
+        "an inline designation was reported as a cross-document pointer"
+
+
+def test_w3_does_not_double_report_a_clause_w2_already_graded(qs):
+    """A qualitative relation that ALSO carries a literal is W2's, not W3's.
+
+    Without the deferral the same clause is reported twice under two rules,
+    which inflates the UNDECIDABLE count a reader acts on. The verdict does not
+    move, so nothing else would notice.
+    """
+    both = ("- Every surface **must** state the seed bound as 0.0024, which is\n"
+            "  comparable to the margin.\n")
+    found = _scan(both, qs)
+    assert found, "fixture produced no finding at all"
+    assert not [f for f in found if f.rule == "W3"], \
+        [(f.rule, f.quantity) for f in found]
+    # Control: strip the literal and W3 is exactly what must fire.
+    only_qual = ("- Every surface **must** state a seed bound comparable to "
+                 "the margin.\n")
+    assert [f for f in _scan(only_qual, qs) if f.rule == "W3"]
+
+
+def test_generated_report_html_is_excluded_and_counted_not_silently_skipped(
+        tmp_path):
+    """53 of 57 tracked HTML files are DAFoam OpenMDAO reports carrying
+    minified d3 and no prose. Reading them is not wrong so much as unbounded --
+    but a skip that is not COUNTED is a silent skip, which is the defect class
+    the frame block exists to close."""
+    rep = tmp_path / "reports"
+    rep.mkdir()
+    doc = rep / "opt_report.html"
+    doc.write_text("<p>the gate **must** hold at 0.0029 margin</p>\n",
+                   encoding="utf-8")
+    assert N.GENERATED_HTML.search(str(doc)), "fixture does not match the rule"
+    code, out = _run_main([str(doc)])
+    assert "files opened        0" in out, out[:1500]
+    assert "1 generated OpenMDAO report HTML" in out
+    assert code == N.EXIT[N.UNKNOWN], "an all-excluded corpus must not PASS"
+
+
+def test_an_oversize_file_is_excluded_and_named_in_the_frame(tmp_path):
+    doc = tmp_path / "huge.md"
+    doc.write_text("x" * (N.MAX_BYTES + 1), encoding="utf-8")
+    code, out = _run_main([str(doc)])
+    assert "files opened        0" in out, out[:1500]
+    assert "oversize        " in out, "an excluded file was not named"
+    assert code == N.EXIT[N.UNKNOWN]
+    # Control: the same file one byte under the cap IS opened.
+    small = tmp_path / "small.md"
+    small.write_text("x" * (N.MAX_BYTES - 1), encoding="utf-8")
+    _, out2 = _run_main([str(small)])
+    assert "files opened        1" in out2
+
+
 def test_exit_contract_matches_the_runner():
     assert N.EXIT == {"PASS": 0, "FAIL": 1, "UNKNOWN": 3}
 

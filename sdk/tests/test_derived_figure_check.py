@@ -372,6 +372,60 @@ class PositiveControls(unittest.TestCase):
         self.assertTrue(any(f.quantity == "live_margin" for f in faults))
 
 
+class TheUnreachableLookingGuardsAreReachable(unittest.TestCase):
+    """Guards found by enumeration, 2026-08-15, each surviving deletion.
+
+    Enumerated every branch in this module that sets a verdict, returns an exit
+    code, or returns `None` in place of a value the caller grades on -- 12 of
+    them -- and mutated each. Nine were already killed by the tests above. These
+    two survived, and neither is a false green: both fail LOUD (a wrong
+    comparison, or a traceback the runner reads as UNKNOWN) rather than
+    clearing anything. They are pinned anyway, because "it fails loudly" is a
+    claim about a path nobody had executed.
+
+    A third survivor is recorded and deliberately NOT pinned:
+    `parse_written`'s `if not isinstance(exp, int)` is reachable only for a
+    Decimal whose exponent is `n`/`N`/`F` -- NaN or Infinity -- and the regexes
+    that feed it match neither. Writing a test would mean calling the function
+    with an input the module cannot produce, which pins the test's own fixture
+    rather than the check. Stated instead of quietly counted as covered.
+    """
+
+    def test_a_figure_the_decimal_parser_rejects_yields_no_value_to_grade(self):
+        """`except InvalidOperation: return None`.
+
+        Mutated to return `(Decimal(0), Decimal(0))` -- an exact zero with zero
+        tolerance -- the suite stayed green, and every unparseable figure would
+        then be graded as if the author had written a precise 0.
+        """
+        from decimal import Decimal
+        self.assertIsNone(cdf.parse_written("."))
+        self.assertIsNone(cdf.parse_written("--"))
+        self.assertIsNone(cdf.parse_written(""))
+        # ... and the control: a figure it CAN parse still comes back with its
+        # half-ulp, or the assertions above pass against a dead function.
+        v, half = cdf.parse_written("0.838")
+        self.assertEqual(v, Decimal("0.838"))
+        self.assertEqual(half, Decimal("0.0005"))
+
+    def test_a_divisor_whose_interval_spans_zero_refuses_rather_than_raising(self):
+        """The interval-arithmetic guard on division.
+
+        `0.0000 / ...` denotes `[-0.00005, 0.00005]`, which contains zero, so
+        the quotient is unbounded and there is no interval to compare against.
+        Deleting the guard leaves the suite green and turns the next such
+        sentence in the corpus into a ZeroDivisionError.
+        """
+        from decimal import Decimal
+        one = (Decimal("1"), Decimal("0.5"))
+        spans_zero = (Decimal("0.0000"), Decimal("0.00005"))
+        self.assertIsNone(cdf._interval("/", [one, spans_zero]))
+        # Control: a divisor clear of zero still yields an interval.
+        got = cdf._interval("/", [one, (Decimal("2"), Decimal("0.5"))])
+        self.assertIsNotNone(got)
+        self.assertLess(got[0], got[1])
+
+
 class MustNotMatch(unittest.TestCase):
     """The half that decides whether anyone will act on the other half."""
 
