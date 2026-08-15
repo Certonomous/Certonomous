@@ -468,13 +468,15 @@ the only suite result I claim.
 
 ## 9. The count, the verdict, and the falsifier
 
-### New material findings in the declared scope: **fifteen**
+### New material findings in the declared scope: **thirty**
 
 Eight from the text-and-instrument pass (§2–§6), seven from the mutation cell
-(§11). The mutation cell ran after §9 was first drafted, and this section was
-revised upward rather than left at the number that was convenient — **§11's M1
-also corrects §2 of this document**, which is recorded there rather than
-silently amended.
+(§11), fifteen from the document-verification cell (§12). **This section has now
+been revised upward twice** — first drafted at eight, revised to fifteen when the
+mutation cell reported, revised to thirty when the document cell reported. Both
+revisions are recorded rather than made silently, and both corrected earlier
+sections of this same document: **§11's M1 corrects §2, and §12's closing note
+corrects §7.**
 
 | # | finding | new shape? |
 |---|---|---|
@@ -493,6 +495,21 @@ silently amended.
 | M5 | `test_a_root_that_does_not_exist_empties_the_ledger` never checks the ledger was emptied; the assertion is satisfied by an unrelated root filter | no (the `test_an_empty_directory_is_UNKNOWN` shape, new family) |
 | M6 | The D137 banned-language guard covers `build_certificate_v2` and not `build_certificate` v1; the withdrawn footer can be reinstated there with 62 tests green | no |
 | M7 | The QCR attribution control guards the generator and not the two shipped JSON surfaces; two of five mutations survive | no |
+| P1 | `OWNERSHIP_BOUNDARY_SWEEP` quotes `self_audit.py:5948` with a sentence **absent from the tree it declares as its frame**, three minutes old, dated *"for three days"* — off by ~1,440× — and it is the sole support for one of the document's four durable fixes | no (stale referent, extreme instance) |
+| P2 | Its printed remedy **W1 does not run**: `ulem.sty` is not installed, `pdflatex` emergency-stops, **no PDF is produced**. This falsifies the document's thesis that all 26 residuals are *"blocked on a name — not on compute"* | no (remedy printed but never run) |
+| P3 | Its printed remedy **W2 exits 1** and silently drops **15 of 90** shipping zip members; the gate causing it predates the document's own commit | no (same shape) |
+| P4 | Its printed `sweep.py` demonstration returns **33 files**, not the three named — a ~10% subset — and is the sole evidence for its proposal (b) | no (same shape) |
+| P5 | *"six times across six rows"* is **4 at the declared frame**, and reaches six only by counting the row the document itself filed | no (D79's shape) |
+| P6 | A bolded finding says *"returns a PASS"*; the evidence quoted **two lines below it** says `WARN`; neither edited | no (F4/D141's shape) |
+| P7 | `AGENT_ATTRIBUTION` and the module it documents quote adoption ratios (`2 of 40`, `1 of 40`) that **no tree has ever produced**; the instrument's frame is anchored, not a window | no |
+| P8 | `HANDSHAKE.md` anchors a correction to `29beb7cf`, a commit that **never touched the file** | no (the class filed at `3314d746`, recurring inside the range that filed it) |
+| P9 | A heading says *"seventeen"*, its own first sentence says *"eighteen"*; both wrong at the document's commit; neither edited | no |
+| P10 | `MARGIN_PRECISION_INTERVAL` files its finding as **D132**, an ID the **same commit** gave to an unrelated row | no (zero commits' remove) |
+| P11 | *"Twelve rows"* is **eleven at every tree**, the sentence that narrows a FAIL depends on it, and a locator off by 44 lines was **transcribed into a shipping document** | no |
+| P12 | Six present-tense sites in dated records (W-5); one **falsified** by `e639796e`. One was falsified by this round's own first commit, and is recorded rather than repaired | no |
+| P13 | *"All fifteen table entries are LIVE AND WRONG"* over a 13-row table, one row of which says the wording there **is correct**; the fifteen propagates into D145 | no |
+| P14 | *"27 live wrong passages, in 7 files"* — the document's own enumeration gives 5 or 6; copied verbatim into D145 | no |
+| P15 | **The attribution instrument's discriminating field has taken exactly one value across 100% of its deployed life** — all four real `Lab-Agent` trailers are one string, it is this session's, and the instrument returns **AUTHOR** on its own adopters | **yes** |
 
 ### **VERDICT: this round is NOT belief-neutral.**
 
@@ -500,7 +517,7 @@ silently amended.
 belief-neutral rounds, and the count stands at zero. A round is neutral if it
 only executes or closes findings already believed. This one does not:
 
-- **F1, F3 and M3 are new shapes**, and all three are of the kind that make other
+- **F1, F3, M3 and P15 are new shapes**, and all four are of the kind that make other
   rounds' greens unreliable rather than merely adding a defect. F1 says a
   purpose-built B1 guard can be satisfied by a population that is not the
   population under judgement — every check in this lab that prints a frame count
@@ -510,7 +527,11 @@ only executes or closes findings already believed. This one does not:
   of failing for any reason connected to the module it names** while carrying
   that module's name and, in one case, the words "MUTATION PROOF" — which is the
   `test_an_empty_directory_is_UNKNOWN` finding taken one step further: not an arm
-  left unasserted, but an assertion aimed at nothing.
+  left unasserted, but an assertion aimed at nothing. **P15 says an instrument's
+  verdict field can have one value across its whole deployed life** — four runs
+  are then one constant observed four times, not four confirmations, and D124 and
+  D130 record the design limit without ever recording that it has already bound
+  every adopting commit.
 - **F1 and M1 together are stronger than either.** `check_normative_clauses`
   factored its verdict out expressly so a test could drive the empty-set arm; the
   test exists, and the guard it drives is wrong. `check_derived_figures` has the
@@ -530,12 +551,22 @@ only executes or closes findings already believed. This one does not:
   *classes*; but the specific claim in F7 is a live absolute in shipped code
   that the lab disproved twice and never corrected, and F8 is a red test at HEAD.
 
-**The count would still be non-zero at three.** F1, F3 and M3 alone carry it —
-three new shapes, none previously recorded.
+**The count would still be non-zero at four.** F1, F3, M3 and P15 alone carry it
+— four new shapes, none previously recorded.
 
-**And it was scored too low once already, in this document.** §9 was first
-drafted at eight, before the mutation cell reported. Seven more landed, one of
-them correcting §2. That is the concrete form of the warning below.
+**And it was scored too low twice already, in this document.** §9 was drafted at
+eight; the mutation cell took it to fifteen and corrected §2; the document cell
+took it to thirty and corrected §7. **Each revision arrived after the section it
+revised had been written and committed.** That is the concrete form of the
+warning below, twice, inside one round.
+
+**Three of the thirty are one document faulting its own evidence.** P1, P5 and
+P13/P14 are all inside `OWNERSHIP_BOUNDARY_SWEEP`, whose §2.1/§2.2/§6 forensics
+were independently re-derived and are **exact** — 14 PDF strings at their stated
+lines, 90 zip members with zero md5 mismatches, a rank-claim line list correct
+byte for byte. **A document can be meticulous in its measurements and wrong in
+almost every sentence that cites them**, and this round found that pattern in
+three separate documents in one range.
 
 ### What would falsify this verdict
 
@@ -587,13 +618,13 @@ Stated plainly, and each of these is cheap:
 
 **Do not score the next round neutral early.** Round 10 of V16 was scored
 neutral and three new shapes appeared within forty minutes. **Three of the
-fifteen findings above were written into the corpus inside the two hours before
+thirty findings above were written into the corpus inside the two hours before
 this round began** — F2, F4 and F5 all in `cca64eaf` — the text under grade is
 being produced faster than it is being graded, and F6's adoption-to-violation
 interval was forty-three minutes.
 
-*(That sentence read "three of the **eight**" until the mutation cell reported
-and §9 was revised to fifteen. It is corrected here rather than left, and named
+*(That sentence read "three of the **eight**", then "three of the **fifteen**", as
+§9 was revised twice. It is corrected here rather than left, and named
 rather than corrected silently, because a summary going stale against its own
 revised section with neither flagged is F4's defect and this document is not
 exempt from it. `check_summary_consistency.py`, built at `840c0c27` for exactly
@@ -617,6 +648,10 @@ worse.
 | **D164** | M1 + M2 + M4 — four empty-set-agreement instances in four modules, and the claim that no instrument here is both correct and verified on that arm |
 | **D165** | M3 + M5 + M6 — assertions aimed at nothing, including one labelled "MUTATION PROOF" |
 | **D166** | M7 — a control on the generator and none on the artifact that travels |
+| **D170** | P2 + P3 + P4 — three printed remedies executed: one produces no PDF, one exits 1 and drops 15 of 90 members, one returns 33 files where it claims three |
+| **D171** | P1 + P5 + P6 + P9 + P13 + P14 — six citation and count defects inside one sweep whose own forensics are exact |
+| **D172** | P7 + P8 + P10 + P11 — four citations contradicted by the artifacts they name, one of them transcribed into a shipping document |
+| **D173** | P15 — an instrument whose discriminating field has taken one value across its entire deployed life |
 
 **These are not the IDs this round first reserved, and the reason is worth the
 line.** At 20:0xZ `D152`–`D156` were asserted free and were free. By the time the
@@ -625,7 +660,16 @@ filing concurrently. The IDs were re-asserted at the moment of writing — insid
 the same process that appended the rows, with an abort if any was taken and a
 second abort if `docs/DOCKET.md` was not byte-identical to `git show
 HEAD:docs/DOCKET.md` — and came out at `D158`–`D162`. **Allocating by execution
-is not enough on its own; the assertion has to be inside the write.** Nothing
+is not enough on its own; the assertion has to be inside the write.**
+
+**It happened a second time, and the second fix is the one that holds.** The
+document cell's rows were drafted against `D167`–`D170`, asserted free; `D167` was
+taken by a concurrent filer before they were written. The filing script was
+changed to **compute the high-water mark and take the next free block inside the
+same process that appends**, re-asserting each: it found the high-water at `D169`
+and allocated **D170–D173**. Three collisions in one round, on one file, is the
+measurement — and it says the remedy is not "assert before writing" but "assert
+*in* the write". Nothing
 here was derived by `sort -u`, which is lexical and returns `D99` when the
 highest is `D151`.
 
@@ -810,3 +854,338 @@ is green, but **if another agent wrote to that file inside one of the ~5–20 s
 mutate-run-restore windows, that write was overwritten.** Stated rather than
 discovered later. Nothing else was touched: `git diff` on every mutated file is
 empty.
+
+---
+
+## 12. The document-verification cell — fourteen more, and one that bears on §0
+
+A third execution pass, run in parallel with §11, over the eight campaign and
+`docs/` documents added or modified in the declared range. Every number was
+**re-derived**, never read from the document's own summary. Where a count is
+time-sensitive it is given at the document's **own stated frame** as well as at
+HEAD, so no finding rests on drift.
+
+### P1 — a citation whose quoted sentence did not exist at the frame the document declares, dated "three days" when it was three minutes old
+
+`OWNERSHIP_BOUNDARY_SWEEP_2026-08-15.md:3` declares *"Swept 2026-08-15 at HEAD
+`1360a5a9`."* Its `latex/` zone register at `:63` quotes
+`self_audit.py:5948` as printing *"nothing in this file opens a PDF, so a claim
+that exists only in a compiled report is invisible while its `.tex` source is
+not"*, and §5.1(d) at `:368-373` says of it: **"That sentence described
+`latex/closure_challenge_report.pdf` exactly, for three days, and no one
+acted."**
+
+Executed, and re-verified independently by this grader:
+
+```
+git show 1360a5a9:scripts/self_audit.py | grep -c "nothing in this file opens a PDF"  → 0
+git show 1360a5a9:scripts/self_audit.py | grep -c "_blind_corpus"                     → 0
+git log --oneline -S'nothing in this file opens a PDF' -- scripts/self_audit.py
+                                                     → 9af7e2d3 (19:31:04Z)
+```
+
+The sweep's own commit is `a3342d9a`, 19:34:20Z. **The quoted sentence was three
+minutes and sixteen seconds old**, and was **absent** from the tree the document
+names as its frame. "For three days" is wrong by a factor of about 1,440. At HEAD
+the sentence is at `:6847`; it has never been at `:5948`.
+
+**§5.1(d) is one of the document's four proposed durable fixes, and this
+quotation is its entire evidential support.**
+
+### P2 — the printed remedy W1 does not run, and its failure falsifies the sweep's thesis
+
+`OWNERSHIP…:295` prints W1 as *"`cd demo-output/website/latex && pdflatex
+closure_challenge_report.tex && pdflatex closure_challenge_report.tex` … **No
+source edit is needed.** `pdflatex` is installed; `latexmk` is not"*, cost
+*"**two commands, no compute**"*, and at `:175` *"The whole zone reduces to a
+two-command rebuild."*
+
+Executed on a scratch copy of the real directory:
+
+```
+! LaTeX Error: File `ulem.sty' not found.
+! Emergency stop.
+!  ==> Fatal error occurred, no output PDF file produced!
+rc1=1  rc2=1
+```
+
+Confirmed here independently: `kpsewhich ulem.sty` → **exit 1**; the `.tex`
+requires it at line 19 and uses `\sout` **30 times** — *the missing package is
+the strike macro the repaired `.tex` depends on*. Control: the sibling
+`dafoam_defect_report.tex` builds `rc=0` from the same directory, so the
+toolchain works and the failure is specific.
+
+**The document verified that `pdflatex` is installed. It never verified that the
+document builds.** That falsifies its thesis sentence at `:310-311`: *"Twenty-six
+remain, and every single one is blocked on a name — not on a sweep, not on
+compute, not on a measurement."* Fifteen of the twenty-six are additionally
+blocked on a missing TeX package.
+
+### P3 — the printed remedy W2 exits 1 and silently drops 15 of 90 shipping members
+
+`OWNERSHIP…:296` prints W2 as *"re-run `python3 scripts/build_laptop_bundle.py`
+and commit the rebuilt `.zip`. It is a `shutil.copy2` of the already-repaired
+sources — **no content edit is needed**"*, cost *"**one command**"*.
+
+Executed twice into scratch: **`rc=1` both times**, with 16 `SKIPPED … no
+certificate.ready event to pair` lines. Member diff against the committed zip:
+**90 → 75, fifteen members lost, none added** — the entire `aircraft-optimization`
+act (`certificate.pdf`, 9 `.stl`, 3 `.png`, 2 mission-state files); 1.48 MB →
+1.02 MB. The gate that causes it landed at `67e472c6`, which
+`git merge-base --is-ancestor 67e472c6 a3342d9a` confirms **predates the sweep's
+own commit** — W2 was already broken when it was printed.
+
+*Fair to the document:* the rebuilt `site/closure.html` does clear the live wrong
+copies. The defect is the cost claim and the exit code, not the repair intent.
+
+### P4 — the printed `sweep.py` demonstration returns 33 files, not the three named
+
+`OWNERSHIP…:350-352`: *"Run at `1360a5a9`, `sweep.py -F \"rank 1 of 5\" --frame
+everything --files-only` returns [three files] **without any change
+whatsoever**."* Executed verbatim at HEAD:
+
+```
+MATCHES: 33 files / 90 lines matched 'rank 1 of 5' under frame 'everything'
+```
+
+At the document's own stated frame, `git grep -a -l "rank 1 of 5" 1360a5a9` → **26
+tracked files**, plus two gitignored `dist/` files ≈ 30. The three named files are
+about a **10% subset**. This sentence is the sole evidence for the document's
+proposal (b), *"nearly free, because the machinery already exists"*.
+
+### P5 — "six times across six rows" is four at the stated frame, and reaches six only because the document counted itself
+
+`OWNERSHIP…:62`, the `dist/` row: *"**UNOWNED.** Called \"the designated owner\"
+six times across six rows and never once given a name."*
+
+| tree | occurrences | rows |
+|---|---|---|
+| `1360a5a9` — the declared frame | **4** | 4 (D71, D115, D118, D136) |
+| `a3342d9a` — its own commit — through HEAD | **6** | **5** (…plus **D145 ×2**) |
+
+It is never "six rows". It reaches six only because **the D145 row this same
+document filed says "designated owner" twice**. And of the four pre-existing
+rows, D71 and D115 are `latex/` rows — the document's own `latex/` register cell
+cites them as such — so only three belong to `dist/`.
+
+### P6 — a bolded finding says "returns a PASS"; the evidence quoted two lines below it says `WARN`
+
+`OWNERSHIP…:106-107`: *"**THE FINDING. A check crosses this boundary, reads
+exactly these bytes, and returns a PASS.**"* and `:62` *"(currently a **false
+PASS**, §2.1)"*. Its own quote at `:110`: *"> `WARN — every travelling surface
+complies; 26 lab record(s) claim rank 1 without what V8 requires`"*.
+
+Executed at HEAD: `check_rank_claim_surfaces()` → **`status='WARN'`**, and now 27
+lab records. The document's quote was faithful to the instrument; **the mismatch
+is internal, between a headline and the evidence beneath it, with neither
+edited** — F4's shape again, in a different document, at 15 minutes' remove.
+
+### P7 — an adoption ratio quoted by two surfaces that no run has ever produced
+
+`docs/AGENT_ATTRIBUTION.md:214`: *"While it reads `2 of 40`, the honest summary of
+this repository is still 'authorship is unknown for 38 of the last 40
+commits'."* `scripts/check_rung_attribution.py:156`, the module the document
+documents: *"`1 of 40` … unknown for 39 of the last 40 commits."*
+
+The instrument, executed:
+
+```
+frame    : git rev-list e933e31b..HEAD, plus the anchor itself
+examined : 44
+ADOPTION : 4 of 44 commits since the anchor carry an identity; 40 carry none
+```
+
+The frame is **anchored, not a forty-commit window**. Frame size by tree:
+`44ac957a` (the doc's own commit) → **3**; `cca64eaf` → 34; at this grader's run
+→ **44**. **There is no tree at which the denominator is 40.** At the document's
+own commit the instrument printed `2 of 3`. The document and the module disagree
+with each other and both disagree with the instrument.
+
+### P8 — a correction anchored to a commit that never touched the file
+
+`docs/HANDSHAKE.md:270`: *"**[CORRECTED 2026-08-15 at `29beb7cf`. …]**"*
+
+```
+git show 29beb7cf:docs/HANDSHAKE.md | grep -c "CORRECTED 2026-08-15"  → 0
+git show 0b0041b1:docs/HANDSHAKE.md | grep -c "CORRECTED 2026-08-15"  → 1
+git show --stat 29beb7cf  → scripts/check_derived_figures.py  (1 file changed)
+```
+
+`29beb7cf` (01:01:21Z) never touched `HANDSHAKE.md`; the block landed at
+`0b0041b1` (01:40:43Z), 39 minutes later. Exactly the class the lab filed at
+`3314d746` — *"the one citation that was contradicted by the artifact it named"* —
+recurring inside the same range that filed it.
+
+### P9 — a heading and its own first sentence disagree, and both are wrong at the document's commit
+
+`OWNERSHIP…:228` heading: *"### 2.7 The other **seventeen** `LADDER_V_*`
+documents"*. `:230` body: *"All **eighteen** `LADDER_V_*` files other than the
+repaired one were swept."* Executed: 19 such files at `1360a5a9` (18 others), 20
+at its own commit and at HEAD (19 others). **The body is right at the stated frame
+and wrong at its own commit; the heading is wrong at both, and neither was
+edited.**
+
+### P10 — a document files its finding under a docket ID the same commit gave to a different row
+
+`MARGIN_PRECISION_INTERVAL_2026-08-15.md:208`: *"It is recorded here, filed as
+**D132**, and **not repaired**."* Its own Related section at `:312` says *"**D133**
+(C10, filed by this document)"*.
+
+At HEAD, re-verified here: **D132** is *"D124's option (a) is built and anchored:
+commit authorship now travels in the artifact…"* — the attribution mechanism,
+nothing to do with margins. **D133** is the `AR_1_Ret_360` row.
+`git log -S'| D132 |'` and `-S'| D133 |'` both return **`eadcd112`**, the very
+commit that wrote the sentence. **The citation was false the moment it landed**,
+and a reader following §3.1 to D132 lands on an unrelated row. Zero commits'
+remove.
+
+### P11 — "twelve rows" is eleven at every tree, and a locator off by 44 lines, transcribed into a shipping document
+
+`LADDER_V_V6_V10_GRADE_2026-08-15.md:133-134` says *"Twelve rows"*; `:223-224`
+narrows a FAIL with *"**eleven of twelve verdict rows** … are MEASURED-PASS"*.
+Programmatic extraction with a sha256 per row, across five trees:
+
+| tree | rows | identical to `472f9f92` |
+|---|---|---|
+| `472f9f92` | **11** | 11 |
+| `99c66254` (the grade's own anchor) | **11** | — |
+| `377d6afb` | **11** | 10 (§4.7 differs) |
+| `87324012` / `bd8280de` / `be0a0c5d` / HEAD | **11** | 9 (§4.7, §4.8) |
+
+**Eleven at every tree, never twelve.** And `:193`'s *"`:519+`, 212 lines below in
+the same file, §4.8 is now headed…"* — at `99c66254`, line 519 is **§4.7's**
+heading; §4.8's is at 563 and the row at 307, so the distance is **256**. Both
+errors were **transcribed forward into the shipped
+`CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md:321`**.
+
+### P12 — present tense in dated records (owner rule W-5), one of them now falsified
+
+Six sites confirmed. The one that has gone false: `LADDER_V_V5_GRADE…:89-90`,
+*"**at HEAD**, 118 tracked files name QCR and 29 of the 64 … contain no
+occurrence of 'Spalart'"* — repaired at `e639796e`, so `build_benchmarks.py`,
+`benchmarks.json` and `wall.json` all now name Spalart (2000). `:95-99`'s table
+column is literally headed *"met at HEAD?"*, a present-tense verdict against a
+moving HEAD, in a dated grade.
+
+**And one that this round falsified itself.** `docs/HANDSHAKE.md:284-285` reads
+*"V15's **latest round** returned 25 new failures (`…ROUND7.md`)"*. That was true
+until `e0a4117a` — **this document's own first commit** — made ROUND8 the latest
+round. A present-tense sentence in a durable record went stale because a grader
+did its job. Recorded here rather than repaired: `HANDSHAKE.md` belongs to another
+family and a grader that edits the record it grades is no longer grading it.
+
+### P13, P14 — two counts that no reading of their own tables reproduces
+
+`OWNERSHIP…:148`: *"All **fifteen** table entries below are LIVE AND WRONG"*, over
+a table with **13 data rows** covering **16** distinct PDF line locations. Fifteen
+is reachable only as "16 minus row 260" — and **row 260's own cell says the
+wording there *is correct***, contradicting the headline above it. The fifteen
+propagates into W1 and into the **D145 docket row**.
+
+`OWNERSHIP…:307-309`, copied verbatim into **D145**: *"27 live wrong passages, in
+**7** files."* The document's own enumeration gives **5 or 6** depending on
+whether the zip counts as one file or two. The passage arithmetic
+(15+4+4+3+1 = 27) is internally consistent; the file count is not.
+
+### P15 — the attribution mechanism has recorded exactly one identity in its entire life, and it is this session's
+
+**NEW SHAPE, and it bears directly on §0 of this document.**
+
+Every `Lab-Agent` trailer ever written, executed at HEAD:
+
+```
+git log --format='%H%n%b' --all | grep -oE 'Lab-Agent: .*' | sort | uniq -c
+      1 Lab-Agent: <host>/<session-uuid>/<tag>          ← the docstring's template
+      4 Lab-Agent: ip-172-31-43-247/64b13819-…-3720bab19084/-
+```
+
+**Four real trailers, one distinct value.** And:
+
+```
+$ python3 scripts/check_rung_attribution.py --emit-trailer
+Lab-Agent: ip-172-31-43-247/64b13819-…-3720bab19084/-      ← what THIS grader emits
+
+$ python3 scripts/check_rung_attribution.py --closing 44ac957a --graded e933e31b
+VERDICT: AUTHOR
+BECAUSE: 1 of 1 graded commits carry the closing commit's own identity … The measurer is an author
+```
+
+So the lab's own independence instrument, run on the lab's own adopting commits,
+returns **AUTHOR**. Every non-author claim made anywhere in this commit range —
+including `LADDER_V_V6_V10_REGRADE`'s §0, which names this same `64b13819-…`
+transcript as its independence evidence, **and including §0 of this document** —
+would grade AUTHOR under it.
+
+**Why this is a new shape and not just D124/D130 restated.** D130 says the
+evidence does not travel. `AGENT_ATTRIBUTION.md:98` predicts the collision in the
+abstract (*"Two agents dispatched by the same chief session read as the same
+agent"*). **What neither records is that the discriminating output of this
+instrument has taken exactly one value across one hundred percent of its deployed
+life.** An instrument whose verdict field has never varied has not been shown to
+discriminate anything; its four green-adjacent runs are not four confirmations,
+they are one constant observed four times. That is a property of the *deployment*,
+not of the design, and it is measurable — which is why it is filed rather than
+argued.
+
+**This does not rescue §0 and is not offered as doing so.** §0 rests on a
+timestamp — my transcript opens fifty seconds after the last commit I grade — and
+that argument is untouched by P15. What P15 removes is the *other* leg: nobody
+should cite a green `check_rung_attribution` run as independence evidence,
+because the field it decides on has one value.
+
+### What this cell verified as correct
+
+Reported because a cell that lists only failures cannot be audited for selection.
+
+- **`MARGIN_PRECISION_INTERVAL`'s arithmetic is essentially flawless.** §2.2's six
+  intersections and widths, §2.3's six margin intervals, §2.4, §2.5
+  (`[172.45%, 183.92%]`, point `177.19%`), and C2–C11 were all re-derived from
+  `LIVE_BOARD`, `closure_challenge_round5_qcr.json`,
+  `closure_challenge_seed_sensitivity.json` and `probability_of_rank_record.json`
+  — **every figure reproduced exactly**, including the half-ulp slack column
+  (26/57/114/149/340/424), C4's `|t| ∈ [2.1915, 2.2152]`, C7's ±1.76 pp and C11's
+  `[14.53×, 15.58×]`. **One cell error only:** `:94`, Montoya's "from published
+  overall" reads `[0.0778500, 0.0779125]` where it should read
+  `[0.0778500, 0.0779500]`; the intersection column itself is right, so nothing
+  downstream moves.
+- **`OWNERSHIP`'s §2.1, §2.2 and §6 forensics are exact.** All 14 `68%` strings in
+  the PDF at the stated lines, `rank 1 of 5` exactly twice, `Yang` and `Tian` zero
+  times; tracked `20,688` at `1360a5a9`; `git grep -I` skipping 1,476 of which 50
+  are PDFs; 90 zip members with **0 md5 mismatches** against the unpacked mirror;
+  `_rank_claim_lines` on the shipped `closure.html` byte-for-byte the doc's list.
+- **`LADDER_V_V6_V10_REGRADE` §2.1–§2.4 is exact — and it is the document that
+  caught P11.** Its 11/11-10-9-9-9 row table and its 240/256/256/256 distances all
+  reproduce.
+- **`AGENT_ATTRIBUTION`'s measurement table is exact at its stated frame**
+  (1,849/4, 1,217/1, 36/1, five distinct `Co-Authored-By` values), and **every
+  printed command behaves as documented** — `--emit-trailer`, `--tag`, empty-set →
+  UNKNOWN exit 3 naming the reason, a same-session pair → AUTHOR. Its suite is 24
+  passed. P7 is a defect in one sentence of an otherwise well-executed document.
+- **`LADDER_V_V13_PENDING2_MEASURED`** — no falsified claim found.
+
+### Suspected, not proven — recorded so the next round does not re-open them cold
+
+`LADDER_V_V5_GRADE:89-90`'s `118 / 64 / 29` could not be reproduced by any
+`git grep` arm (`-a` → 108, `-I` → 100, `-a -i` → 154); either an unstated
+predicate or wrong numbers. `OWNERSHIP:273`'s *"four published certificate
+PDFs"* against five tracked PDFs matching "certificate" — "published" may denote
+a narrower set the document never defines, which is itself a figure without its
+denominator. `HANDSHAKE:282`'s *"SUPPLIED SEVEN TIMES … through grade round 10"*
+against four tracked V16 grade documents carrying six grades by the most generous
+count. `AGENT_ATTRIBUTION:243-246`'s *"12 mutants, all killed"* against
+`grep -ci mutant sdk/tests/test_rung_attribution.py` → **0** and no tracked
+mutation record — **the same "evidence that does not travel" defect the document
+is about.** `OWNERSHIP:62`'s `self_audit.py:1060-1079` locator matches no
+revision, but that file was dirty throughout and grew 1,005 lines in-range, so it
+is not closed.
+
+### A correction to §7 of this document
+
+§7 recorded `check_derived_figures.py` PASS at **61** anchored figures and
+`check_normative_clauses.py` PASS at **887** clauses. This cell, running later,
+measured **62** and **890**. Both are right at their own moment; the corpus grew
+under both. Recorded rather than reconciled, because reconciling them would hide
+the only interesting fact — **that a "PASS with N examined" is a statement with a
+half-life measured in minutes in this tree**, which is F1's problem seen from the
+other side.
+
