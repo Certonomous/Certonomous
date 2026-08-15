@@ -9,13 +9,23 @@ an external board was intended instead, this file should be pointed at it — th
 question is logged in the blockers list, and work did not wait on the answer.
 
 Last updated: 2026-08-07 UTC (Ladder C — **round 5 is the entry of record:
-overall 0.0566, rank 1 of 5 scored locally at benchmark commit `deb91557`**
+overall 0.0566, ~~rank 1 of 5 scored locally at benchmark commit `deb91557`~~
+**STRUCK 2026-08-15 — it is rank 1 of 7.** The board of record is the
+**six**-entry board retrieved **2026-08-11T23:33Z** and re-verified unchanged
+**2026-08-14T21:01Z**; with our own entry that is **seven** rows, so the live
+standing is **rank 1 of 7**. `deb91557` is the **four**-entry scoring clone: it
+scores but does not rank, and **a commit anchor is not an admissible board
+identifier** — a board is named by entrant count and retrieval date or it is not
+named. Re-derived 2026-08-15 by three executed routes.**
 — a local scoring, not an official placement; the untrained QCR2000 term
 took the ducts under a rule frozen before any solve. Dated update paragraph
 in the Ladder C section).
 
 Update 2026-08-07 UTC: Ladder C — **round 5 (2026-08-07) is the entry of
-record: overall 0.0566, locally rank 1 of 5** under the R5 pre-registration
+record: overall 0.0566, ~~locally rank 1 of 5~~ **locally rank 1 of 7**
+(STRUCK 2026-08-15: `1 of 5` was the four-entry clone's denominator; against
+the **six**-entry board retrieved **2026-08-11T23:33Z**, re-verified unchanged
+**2026-08-14T21:01Z**, it is **1 of 7** counting our own row)** under the R5 pre-registration
 (criterion overall < 0.065438 → ACCEPT); AR_14's nominal best-on-board tie
 was lost as pre-accepted in writing (+0.0029) against −0.0731 on the two
 Ret_360 ducts; the 6th cumulative scoring call. The round-4 paragraph below
@@ -559,9 +569,37 @@ estimates, not an exact error budget.*
 ## Ladder C — closure challenge
 
 **Round 5 (2026-08-07), the entry of record: closure metric moved
-0.0654 → 0.0566 (−0.0088), RANK 1 of 5 scored locally at benchmark commit
-`deb91557` — a local scoring, not an official placement; we remain
-unsubmitted.** A duct-only change with physics instead of a fit: the
+0.0654 → 0.0566 (−0.0088), ~~RANK 1 of 5 scored locally at benchmark commit
+`deb91557`~~ — a local scoring, not an official placement; we remain
+unsubmitted.**
+
+> **STRUCK 2026-08-15 — the ordinal above was `RANK 1 of 5` and the live value
+> is `RANK 1 of 7`.** The board of record for this entry is the **six**-entry
+> board retrieved **2026-08-11T23:33Z** and re-verified unchanged by read-only
+> fetch **2026-08-14T21:01Z**; counting our own row that is **seven** positions,
+> so the standing is **rank 1 of 7** on the point score. The rank itself did not
+> move — only its denominator, which had been the four-entry clone's since
+> 2026-08-11.
+>
+> **The board was also named the wrong way, and that is the more transferable
+> half.** `deb91557` is the **four**-entry scoring clone: it is the pin the
+> per-case scores were computed at, and it **scores but does not rank**. **A
+> commit anchor is not an admissible board identifier.** Every ordinal on this
+> page names its board by **entrant count and retrieval date** or it does not
+> name one at all. This is the same rule the frame warning further down this
+> file already states; three claims on this page contradicted it for four days,
+> including this one, and the frame warning sat 650 lines below the first of them
+> — **a correction placed below the claims it corrects is not a correction a
+> reader meets.**
+>
+> Re-derived 2026-08-15 by three executed routes over two committed records
+> (`LIVE_BOARD` in `sdk/scripts/probability_of_rank.py` read by AST and never
+> imported; `round5_per_case_full` in `closure_challenge_round5_qcr.json`;
+> `scripts/self_audit.py::_closure_facts()`; and `probability_of_rank.py`
+> re-executed from seeds `20260810` / `31415`, whose section-1 output places our
+> overall lowest of the seven rows on the six-entry board). Ledger unchanged at
+> 6; no scoring call was made and the pin
+> `deb91557` was not moved. Docket **D149**. A duct-only change with physics instead of a fit: the
 untrained QCR2000 constitutive term (`kOmegaSSTQCR`, `Ccr1 = 0.3`,
 Spalart's published constant, nothing fitted to anything) replaced the
 round-4 ML duct correction on all three test ducts, forward-solved to
@@ -723,11 +761,36 @@ as it does: this entry is consistent, not peaked.
 > paragraph stated it in the **present tense** under a heading that says
 > where we stand — so it was a claim about the live board, made from a
 > superseded one, and it survived four days after the board moved on
-> 2026-08-11T23:33Z. Six of its eight comparison values were wrong against
+> 2026-08-11T23:33Z. ~~Six of its eight comparison values were wrong against
 > the live board, not one: the two alpha_15 best-others (0.0592, 0.1195),
 > `alpha_05_4071_2024`'s (0.0760), and all three duct best-others, none of
 > which had Yang in them because Yang was not on the board they were
-> written against. Re-derived by executing over two committed records that
+> written against.~~ **STRUCK 2026-08-15: it is SEVEN of the eight, not six.**
+> The enumeration omitted `NASA_2DWMH`, whose stated best-other **0.0364** is
+> Wu &amp; Zhang's — the minimum of the **four**-entry column — where the live
+> minimum is **0.0294**, held by Tian, Buchanan, Hickel &amp; Dwight. (The
+> `LAST` verdict attached to that row survives; only the number it was measured
+> against does not.) So the wrong values are the two alpha_15 best-others
+> (0.0592, 0.1195), `alpha_05_4071_2024`'s (0.0760), all three duct best-others
+> (0.0387, 0.0341, 0.0325) and `NASA_2DWMH`'s (0.0364) — **seven**. The **only**
+> survivor is `alpha_05_4071_4048`'s 0.0569, still Wu &amp; Zhang's and still the
+> minimum.
+>
+> **This was an off-by-one in the repair's own new prose, and the identical
+> off-by-one — six where the truth is seven — was live on `closure.html` at the
+> same moment**, in the note above its per-case table, written four days earlier
+> by a different hand. Two surfaces, no shared source, the same mistake twice,
+> and both times inside a sentence whose entire subject was a count that had gone
+> stale. Both are repaired in this pass.
+>
+> **Counted twice, by two routes that do not share a rule, both executed
+> 2026-08-15.** Route A, numeric: compare each stated value against
+> `min` over the six live entrants — **7 of 8** differ. Route B, by holder
+> identity rather than by arithmetic: a four-entry figure is wrong exactly where
+> the live minimum is held by an entrant **absent** from the four-entry clone, and
+> Yang or Tian hold the live minimum on **7 of 8** cases (all but
+> `alpha_05_4071_4048`, held by Wu &amp; Zhang on both boards). The two routes
+> agree at seven. Docket **D149**. Re-derived by executing over two committed records that
 > do not consult one another — `LIVE_BOARD` in
 > `sdk/scripts/probability_of_rank.py`, read by AST, and
 > `round5_per_case_full` in `closure_challenge_round5_qcr.json` — and
