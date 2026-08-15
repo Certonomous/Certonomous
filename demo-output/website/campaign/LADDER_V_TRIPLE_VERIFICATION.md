@@ -543,18 +543,18 @@ which is which instead of showing an undifferentiated column of PASS.*
 | V2 pre-registration chain | **PASS** | YES — re-derived and strengthened by a second pass |
 | V3 leakage assertions | **PASS** (one leg failed on re-run; fixed) | YES, twice |
 | V4 duct traced end to end | **PASS** | YES — re-derived at 0.000e+00 deviation |
-| V5 QCR provenance | **PASS WITH EXCEPTIONS** | YES — its own re-run overturned an earlier PASS; **2 gaps still open** |
-| V6 compliance audit vs round 5 | **PASS** (was FAIL on currency) | **PARTIAL — one commit unread by anyone but its author** |
+| V5 QCR provenance | **PASS WITH EXCEPTIONS** | YES — its own re-run overturned an earlier PASS; ~~**2 gaps still open**~~ *(struck 2026-08-15: **both closed on 2026-08-11**, eleven minutes after this table was written — `benchmarks.html` at `e071075d`, 01:36:17Z, and `CLOSURE_CHALLENGE_STATUS.md` at `514876b0`, 01:36:30Z, against this table's own `d06edc62` at 01:25:33Z. Re-verified by execution rather than by reading those commit messages: `benchmarks.html:126` and `:146` both name Spalart (2000) beside `Ccr1 = 0.3` at the two sites that make the untrained claim, and `CLOSURE_CHALLENGE_STATUS.md:449` and `:1009` do the same, `:449` carrying "nothing fitted to anything" in the same sentence. Both commits are ancestors of HEAD. The three surfaces V5 **correctly refused** — two frozen artifacts and another agent's signed report — were never gaps and remain refused.)* |
+| V6 compliance audit vs round 5 | **PASS** (was FAIL on currency) | ~~**PARTIAL — one commit unread by anyone but its author**~~ *(struck 2026-08-15: **`472f9f92` was read by a non-author six minutes after this table was written.** `LADDER_V_V15_ROUND4.md` (`65e79de4`, 2026-08-11 01:30:23Z, against this table's `d06edc62` at 01:25:33Z), by an agent that states it wrote none of the audited text and had never written to the closure line, re-derived V6's anchors at `472f9f92` in its §2j — Q62–Q70, **eight PASS, exact, at line-anchor precision**, plus **one row honestly marked inherited** (Q69, the run-tree `*_LES*` positive control, because the run tree is outside the repository). What is still owed is that one inherited row, not the commit. See the 2026-08-15 note below the ledger.)* |
 | V7 known defects killed | **PASS** — three, not the two we knew | YES — two more stale generator strings found later |
 | V8 claims table | ~~**FAIL — 8 claims** (corrections landed; re-verification in flight)~~ *(that row described the state of 2026-08-10; the re-verification it says is in flight landed 2026-08-11 at FAIL on 5 findings)* → re-verified again **2026-08-14 at `f8c889cc`: still FAIL**, on one blocking finding and one changed-shape finding, with four of the five 2026-08-11 findings cleared on executed evidence. Round document: `campaign/LADDER_V_V8_REVERIFICATION_2026-08-14.md` | YES, three times, each by an agent that wrote none of the graded text — and the 2026-08-14 round graded the ordinal repair for **durability** by mutation, returning PASS WITH A NAMED RESIDUAL (D85) |
 | V9 prior-art completeness | **FAIL → FIXED** | YES — the struck sentence was then found still in the shipping archive |
-| V10 cross-surface / mechanical sweep | PASS → FAIL → FAIL → **closed** | **NO — SELF-GRADED at the last step; independent check ordered** |
+| V10 cross-surface / mechanical sweep | PASS → FAIL → FAIL → **closed** | ~~**NO — SELF-GRADED at the last step; independent check ordered**~~ *(struck 2026-08-15: the ordered check **ran, and it ran before this row was six minutes old.** `LADDER_V_V15_ROUND4.md` §2i (`65e79de4`) reproduced the wrap-proof absence finding on a planted control, re-verified the struck sentence absent across all 82 text members of the committed zip with its positive control firing, and confirmed `2b251689`'s two absorbed members **by sha256 against the tree** rather than by inference. It also returned **one FAIL of its own** — Q58/R6, the bundle-wide file counts "78 text / 23 binary" reproduce under no classification — and **one honestly-inherited row**, Q60, because re-running the drift check or re-serving over HTTP is not a read-only act. So V10 is independently read, not independently clean.)* |
 | V11 cold reproduction | **PASS** | YES — bit-for-bit, from the package alone |
-| V12 skeptic's report | **DELIVERED** | PARTIAL — two circulating figures flagged |
-| V13 close-out | **DELIVERED** | N/A — stated rather than hidden |
-| V14 mechanical surface discovery | **PASS as executed** | YES — one classification changed by a later pass |
-| V15 ladder-written text | **FAIL → FAIL → round 3 fixed → round 4 fixed → round 5 PENDING** | YES by construction (never its own author) |
-| V16 rank-claim guard reach | opened 2026-08-11 by the fix round that found the guard blind → **BUILT the same night** (`862d2cff`), chief ruling `8bdda313` assigning it back to the finder | **NO — SELF-GRADED by construction; the builder is the finder and may not sign it off** |
+| V12 skeptic's report | **DELIVERED** | ~~PARTIAL — two circulating figures flagged~~ *(struck 2026-08-15: **the briefing understated the skeptic's own case**, and it did so for four days on every figure it carries. Repaired in place at `LADDER_V_PASS3_COLD_2026-08-11.md` §W2: the margin is `0.001365` over Yang on the six-entry board retrieved 2026-08-11T23:33Z and re-verified 2026-08-14T21:01Z, not `0.0029`; the `0.002419` seed bound is **177% of it** rather than 84%; loaded adversely the overall is `0.059047` against Yang's `0.058013` and **the point lead is gone**; P(rank 1) is 50% with an interval of 0–97% at 95%; **three** of eight leave-one-out deletions lose point rank 1, not one; **four** pairwise leads are `not statistically decided`, not two; best-on-board is **2 of 8**. The rung's product is Sanaa's briefing, so this was a defect in the rung's own instrument. **The repair pass is now an author of that text and may not grade it.**)* |
+| V13 close-out | **DELIVERED** | N/A — stated rather than hidden. *(2026-08-15: both of §8's PENDING slots are still empty as slots, and **both were answered in substance six minutes after the close-out committed** — see the note below the ledger.)* |
+| V14 mechanical surface discovery | **PASS as executed** ~~(2026-08-10)~~ — *the 2026-08-10 green is a measurement of a corpus that has since grown from 48,654 files / 15 GB to **57,421 files / 17 GB**, and the rung's own criterion forbids treating its output as a list. **Re-run 2026-08-15 over the current text; the result and its derived surface set are in the section below the ledger, and it is NOT clean.*** | YES — one classification changed by a later pass; the 2026-08-15 re-sweep was run by an agent that had written to none of the surfaces it swept **at the time it swept them** |
+| V15 ladder-written text | ~~**FAIL → FAIL → round 3 fixed → round 4 fixed → round 5 PENDING**~~ *(struck 2026-08-15 — three further rounds have run and none returned zero.* **round 5** *= `V15_ROUND5_NUMBER_RECONCILIATION.md`, `1b0433eb`;* **round 6** *= `LADDER_V_V15_ROUND6.md`, `769b43f6`, 2026-08-11, seven rotted claims;* **round 7** *= `LADDER_V_V15_ROUND7.md`, `edbaa0fe`, 2026-08-15 00:27Z, over the 08-12 and 08-14 text —* **25 new failures**, *declared corpus `88e915e4..26fca317`, 101 commits / 118 files, and the round states outright that it is not belief-neutral. Rounds 5–7 also file docket rows D90–D103 and D108–D110 out of scope.)* → **round 7 FAIL, 25 findings** | YES by construction (never its own author) |
+| V16 rank-claim guard reach | opened 2026-08-11 by the fix round that found the guard blind → **BUILT the same night** (`862d2cff`), chief ruling `8bdda313` assigning it back to the finder | ~~**NO — SELF-GRADED by construction; the builder is the finder and may not sign it off**~~ *(struck 2026-08-15: this is the ledger's worst staleness, and it is stale against the lab. **V16 has been independently graded at least seven times since this row was written**: grades 1–4 in `campaign/V16_GRADE.md` §§6/8.4/9.6/10.5 by an agent that wrote none of it; **round 5** `V16_GRADE_ROUND5.md`, worktree-isolated under R-ISOLATE part 1; **round 6** `5ef1fd1a`; **round 7** `db18553b` / `V16_GRADE_ROUND7.md`, which built an independent precision set and returned the author's figure 27 points optimistic; **round 8** `5e4a0cc5` gave the precision figure a second row measured by someone else; **round 9** `067caac0` found the two rows scored under different admission predicates (D49); **round 10** `0c7b968d` settled it on one predicate, moving the author's own row from 49% to 71%.* **The rung is still not PASS** *— round 7's R-VALUE verdict is "V16 does not close this round", on two MATERIAL findings — but "self-graded" has been false since 2026-08-11 and the reason to correct it is that it understates the lab's own evidence.)* |
 
 **Consolidated change list: 64** — 11 to text that travels with the entry, 13 to public or shipping
 surfaces, 9 to live code or generators, the remainder to the lab's own records. *That distribution
@@ -565,10 +565,38 @@ line through two measured points**, and its reading is the honest one: severity 
 count and the failure class migrated inward, away from the reader — but **every round so far has
 produced at least one NEW-SHAPED finding, so a falling count is not the classes being exhausted.**
 
-**GREEN REQUIRES**, per the termination rule: V8's re-verification, V10's independent confirmation,
+~~**GREEN REQUIRES**, per the termination rule: V8's re-verification, V10's independent confirmation,
 V5's two open gaps, the six corrections that have not travelled, **V16's guard-reach rung — now
 built, and owing the independent check its own builder cannot supply** — and a round of V15
-returning no new failures. **The gate holds until every one of those closes.**
+returning no new failures. **The gate holds until every one of those closes.**~~
+
+> **[REWRITTEN 2026-08-15 by a records-repair pass, at `29beb7cf`. The paragraph above was
+> written 2026-08-11 at `d06edc62` and never touched again while ~360 commits landed. Three of
+> its six items were closed within eleven minutes of it being written, by commits it could not
+> have seen, and it has been telling the fleet since that the lab is further from green than it
+> is. A rung recorded as blocked when it is clear is the same family of defect as a rung
+> recorded as clear when it is blocked, and this one erred in the direction that makes us look
+> worse — which is the direction least likely to be checked.]**
+>
+> **GREEN REQUIRES, as of 2026-08-15 — and the gate is still shut:**
+>
+> | item | state | anchor |
+> |---|---|---|
+> | V8's re-verification | **OPEN — and it has now failed three times**, most recently 2026-08-14 at `f8c889cc` on one blocking and one changed-shape finding | `campaign/LADDER_V_V8_REVERIFICATION_2026-08-14.md` |
+> | V10's independent confirmation | ~~open~~ **DELIVERED 2026-08-11**, and it returned a FAIL of its own (R6) plus one honestly-inherited row (Q60) | `LADDER_V_V15_ROUND4.md` §2i, `65e79de4` |
+> | V5's two open gaps | ~~open~~ **CLOSED 2026-08-11**, both re-verified by execution here | `e071075d`, `514876b0` |
+> | the six corrections that have not travelled | **NOT RE-MEASURED BY THIS PASS.** Out of scope; whoever re-measures it must state its frame, because the count is four days old | — |
+> | V16's independent grade | ~~owed~~ **SUPPLIED SEVEN TIMES**; the rung is still not PASS, on round 7's two MATERIAL findings | `V16_GRADE.md`, `…ROUND5/6/7.md`, `5e4a0cc5`, `067caac0`, `0c7b968d` |
+> | a round of V15 returning no new failures | **OPEN, and further from closing than it was.** Round 7 returned **25** | `LADDER_V_V15_ROUND7.md`, `edbaa0fe` |
+> | **NEW — V14's green is a measurement of a smaller corpus** | **OPEN.** Re-run 2026-08-15; not clean. See the section below | this document, §"V14 re-sweep" |
+> | **NEW — D38, the rule set that contradicts the charters in six places** | **OPEN and Katie's**, and V15 round 6 records that a rung cannot close over a rule set that contradicts the charter defining what closing means | `docs/DOCKET.md` D38 |
+>
+> **Nothing here marks any rung green, and this pass has no standing to.** Two rungs now look
+> closeable on the evidence and **each needs a non-author to say so**: **V5**, whose two gaps
+> this pass verified closed and which therefore needs a grader that wrote neither the gap-closing
+> commits nor this paragraph; and **V6/V10's PENDING-2 residue**, which needs someone who can
+> reach the run tree (Q69) and who may re-run a build and an HTTP serve (Q60) — neither of which
+> is a read-only act, which is exactly why round 4 left them inherited.
 
 ### 2026-08-11 — V8's fix round closed five, and opened a rung by finding the guard blind
 
@@ -761,5 +789,159 @@ work, and that applies to a fix round exactly as it applies to a build.
 finding, which under the termination rule is exactly what a **non**-fixed-point round looks like.
 Four rounds running have now produced at least one new shape. The V15 round that audits *this*
 round's output has not yet run, so the count for round 5 stands at **unmeasured**, not zero — and
-the distinction is the whole content of the termination rule.
+the distinction is the whole content of the termination rule. *(2026-08-15: round 5 is no longer
+unmeasured — `V15_ROUND5_NUMBER_RECONCILIATION.md`, `1b0433eb` — and rounds 6 and 7 have run since.
+Round 7 returned **25**. Recorded here rather than left, because "unmeasured" reads as "possibly
+zero" and it is not.)*
+
+---
+
+## 2026-08-15 — RECORDS REPAIR: V13's two PENDING slots, and V14 re-run over the current corpus
+
+**Written by a records-repair pass at `29beb7cf`.** No solver run, no scoring call; the ledger
+stands at 6. Nothing sent, uploaded, filed or registered; the scoring pin `deb91557` was not
+moved. **This pass graded no rung and marked none green**, and it is now an author of the text
+below and of the V12 repair, so under R-ISOLATE it may not measure either.
+
+### 1. V13's §8 PENDING-1 and PENDING-2 — what they actually need, and who can do them
+
+`LADDER_V_V13_CLOSEOUT.md` §8 is **not edited** (it is a signed close-out and this pass did not
+write it). Its state is recorded here instead. **Both slots are still empty as slots. Both were
+answered in substance six minutes after the close-out committed**, and the reason is a race
+nobody could have avoided: the close-out committed at `46a64042`, 2026-08-11 01:24:34Z, and the
+document that answers both slots committed at `65e79de4`, **01:30:23Z**. §8's own words — *"I
+could not identify their agents from the commit stream at 01:18 UTC"* — are the tell.
+
+**PENDING-1 — the round-4 audit, "is the ladder at the fixed point?"**
+- **ANSWERED. The answer is NO.** `LADDER_V_V15_ROUND4.md` §7 reads, in its own display type,
+  **`# NO.`** — seven ranked new failures (R1–R7) plus R8 MINOR and R9 OBSERVATION, in round 3's
+  and round 4's own output, three of them in text written for the sole purpose of recording a
+  defect accurately.
+- **Scope containment was verified mechanically, not assumed.** All **fourteen** commits PENDING-1
+  names — `d9552d73`, `07af6f02`, `8ce7cedd`, `35c59035`, `4e719a6b`, `2b251689`, `7cd558b1`,
+  `f2e16a47`, `935f0f52`, `d7d51974`, `5fa933ee`, `e2fb6883`, `45b3be0f`, `ae6254cf` — are inside
+  round 4's declared corpus and, independently, inside round 6's declared range
+  `656c09c9..2266c4e3` (checked with `git rev-list`, fourteen of fourteen).
+- **What is still owed:** nothing for this slot. Its successor obligation is live and larger —
+  rounds 5, 6 and 7 have each returned failures, so the fixed point has not been reached and
+  round 8 exists by the termination rule's own clause.
+
+**PENDING-2 — the three unread commits and V10's self-graded closure.**
+- **ANSWERED for the reading; NOT answered for two rows, and this is the accurate distinction.**
+  `LADDER_V_V15_ROUND4.md` — whose owner states it *"wrote none of the text below, has never
+  written to the closure line, and did not participate in rounds 1, 2 or 3"* — read all three:
+  **`656c09c9`** in §2c, **`63009dd3`** in §2h (returning **FAIL R5**: the enumeration is 16, not
+  15, and its frame counts do not reproduce), and **`472f9f92`** in §2j, where V6's anchors were
+  **re-derived at the frame rather than inherited** — nine rows, eight exact PASS at line-anchor
+  precision. V10's `2b251689` / `7cd558b1` were confirmed in §2i, including sha256 identity of the
+  two absorbed members and an independently planted wrap-proof control, and returned **FAIL R6**.
+- **What is still owed, precisely two rows:**
+  - **Q69** — the untrained-duct compliance line's positive control (0 `*_LES*` in the three test
+    arms against 3 each in both `AR_7_Ret_180` arms). Inherited because **the run tree is outside
+    the repository.**
+  - **Q60** — V10's *"drift check PASS at 56 of 56"* and *"served and read over HTTP"*. Inherited
+    because **rebuilding or serving is not a read-only act.**
+- **Who can do them.** Not a worktree-isolated agent: R-ISOLATE's own caveat says a fresh worktree
+  does not carry gitignored files, and the run tree is exactly that class — such an agent would
+  return an honest, confident, empty result. **Q69 needs an agent in the MAIN checkout with an
+  exclusive scratch path, that wrote none of `472f9f92`,** and it must print the count of run-tree
+  evidence files it can see before it reports what it found in them. **Q60 needs an agent with
+  write and serve authority** that wrote neither `2b251689` nor `7cd558b1`. Both are non-author
+  acts by definition, and **this pass has just become an author of the paragraph describing
+  them**, so it is not eligible for either.
+
+### 2. V14 re-run, 2026-08-15 — mechanical surface discovery over the current corpus
+
+**Why re-run.** V14's green was measured 2026-08-10. **Its own criterion is that the method must
+be a SEARCH and not a list, so re-running it as a list of what it found last time fails it by
+construction.** The literal set below was therefore re-derived from the machine records, not
+copied from the 08-10 report.
+
+**FRAME, STATED BEFORE ANY COUNT.** The shell's `grep` is a function wrapping
+`ugrep --ignore-files` and the shell's `find` wraps `bfs` — verified in this shell with `type
+grep` / `type find`, not assumed. **Every count below used `/usr/bin/grep` (GNU grep 3.11) and
+`/usr/bin/find` (GNU findutils 4.9.0)**, both confirmed by `--version`. Clock audited: `date -u`
+before any date was written.
+
+| measure | 2026-08-10 (V14 as executed) | 2026-08-15 (this re-run) |
+|---|---|---|
+| files present, excluding `.git` | 48,654 | **57,421** |
+| tracked files | 20,493 | **20,677** |
+| tree size, excluding `.git` | 15 GB | **17 GB** |
+
+**THE DERIVED SURFACE SET — four rules, each sourced, none of them a list.**
+
+- **Rule S (our own scores).** Every numeric leaf under `official_test_harness_result` in every
+  `demo-output/website/closure_challenge_*.json`, at 4 dp and full precision. Yields **39 distinct
+  values** — rounds 1–5 overalls and per-case plus the RANS-identity floor — including
+  `0.0869`, `0.0741`, `0.0676`, `0.0654`/`0.06543140783850523`, `0.0566`/`0.056647191704213645`
+  and `0.1036`. *This is where the 08-10 list came from and it is re-derived, not inherited.*
+- **Rule B (the board).** Every value in `LIVE_BOARD` and `CONTROL_BOARD_2026_08_10` in
+  `sdk/scripts/probability_of_rank.py`: six entrants × eight published per-case values plus six
+  published overalls. Yields **54 distinct values**. **This family did not exist on 2026-08-10**,
+  because the board had four rows then — which is the whole reason a re-run was owed.
+- **Rule R (derived arithmetically from S and B).** The margin over the leader,
+  `0.00136530…` → **`0.001365`**, and over the four-entry board's leader, `0.0028778…`; plus the
+  rank-companion literals the V8 recomputation note binds — `P(rank 1)`, its interval, and the
+  entrant count.
+- **Rule P (prior art).** The struck sentence's fragments, recovered from `git show 92562841` as
+  the 08-10 run did.
+
+**FRAMES AND REACH, every negative carrying a control run in the same frame.**
+
+| frame | reach | measured |
+|---|---|---|
+| **A — working tree as text** | `/usr/bin/grep -rIn --exclude-dir=.git` | Rule-S overall literals: **232,779 hit lines in 5,964 files** (08-10: 178,262 / 4,383). Of those, **234 files** are prose or markup; the remaining ~5,730 are OpenFOAM field and log data — `U`, `xy`, `p`, `phi`, `points` — **numeric coincidence, NOT-A-CLAIM by construction**, the same finding the 08-10 run reached |
+| **B — gzip** | `zgrep` over **529** `.gz` files | **Zero** four-entry rank-claim hits. Control: `zgrep -c ""` on a member returns 15,522 lines, so the null is an absence, not a broken pipe |
+| **C — tracked shipping archive, opened** | `unzip` of `dist/certonomous-demo.zip`, **90 members** | 1,476,024 bytes, sha256 `34b8feed…`, rebuilt 2026-08-14 21:16 under D56's clearance. **Six hits. Five are correct struck-and-kept tombstones. One is not** — see the finding below. Control: `Closure` present in 7 members |
+| **D — PDF** | `pdftotext` over **68** PDFs | **68 non-empty, 0 extraction failures.** 8 four-entry hits, **all** in `latex/closure_challenge_report.pdf` — confirms **D91** independently; not re-filed |
+| **E — git history** | commit messages and blobs | **NOT-A-CLAIM by construction.** Rewriting a dated commit message to fix a number is strictly worse than the stale number |
+| **F — images** | *cannot be read by any text search* | **955 PNGs, 0 SVGs.** Unchanged blind spot, stated rather than closed |
+
+**WHAT THIS FRAME STRUCTURALLY CANNOT CONTAIN**, stated because a sweep that does not say this is
+selling a green it has not earned: rendered text (a page can carry a claim its bytes do not
+contain); PDF figure and font layers, which `pdftotext` silently drops; anything inside the 955
+PNGs; and text inside binary members `grep -I` skips. **It CAN contain** — and this is where the
+shell's default tools cannot follow — untracked and gitignored trees, which is how the finding
+below was reached at all.
+
+**THE STALENESS PREDICATE, applied mechanically rather than by eye.** A surface is a stale
+candidate if it carries a four-entry-board-only claim (`P(rank 1) = 68`, `rank 1 of 5`,
+`rank 1 of 4`, `2–100%`) **and** contains no six-entry marker anywhere in the file (`Yang`,
+`six-entry`, `0.0580`, `0–97`, `2026-08-11T23:33Z`). **49 surfaces carry a four-entry phrase; 16
+of them carry no six-entry marker.** Of those 16: eleven are dated rung reports of 08-08/08-10/
+08-11 (HISTORICAL — and see the chief ruling at `02e941c4`, which is what makes an unmarked one a
+defect rather than history); two are test fixtures that exist to be matched (NOT-A-CLAIM); one is
+`latex/closure_challenge_report.aux`, **untracked build junk** that corroborates D91 from the
+other direction — the last PDF build predates the `.tex` repair — and one,
+`docs/CAPABILITY_STRATEGY.md:85`, is **already filed as D59** and is deliberately not re-filed
+here, because re-filing a known open row as new is how a docket inflates.
+
+**THE FINDING THE RE-RUN EXISTS FOR, and it is exactly V14's declared class.**
+`dist/certonomous-demo.zip` was rebuilt on 2026-08-14 at 21:16 to clear **D56**, and the
+clearance was verified **member by member against the row's own enumeration of three members**.
+The rebuilt archive is genuinely better — `RANK 1 OF 7`, `P(rank 1) = 50%`, `0–97% at 95%`, with
+`68%` and `2–100%` surviving only inside dated `<s>` tombstones. **And it carries a fourth
+four-entry claim that the row never listed, unstruck, in the same file it did list:**
+`certonomous-demo/site/closure.html:502` — *"holds no official rank — rank 1 of 5 is our local
+scoring at a pinned benchmark commit, with a seed-uncertainty bound comparable to its margin."*
+Its source is `demo-output/website/closure.html:525`, whose own line `:139` says **rank 1 of 7 on
+the live board** 386 lines earlier, so the page contradicts itself. The second clause is not
+merely stale but **arithmetically false**: the truth-free bound is `0.002419` against a
+`0.001365` margin over Yang, i.e. **177% of it** — and the identical sentence was struck on the
+sibling page `benchmarks.html:155–156` on 2026-08-14 and left standing here.
+
+**It was already known on the source page** — `docs/P33_CROSS_SURFACE_SWEEP.md` item 3, swept
+2026-08-12 at `5a15844f`, names it. **What is new is that it has since travelled into the tracked
+shipping bundle**, because P33 read the archive as it stood *before* the D56 rebuild. **The
+transferable shape, which is D56's own shape one level up: a clearance verified against a list
+cannot see a fourth defect standing beside the three the list names.** Filed, not fixed —
+`dist/` and the public pages belong to their owners.
+
+**VERDICT OF THE RE-RUN: NOT CLEAN, and V14's 2026-08-10 green does not carry to the current
+corpus.** It is not re-graded here and no rung is marked green by this pass. **A non-author of
+this section must grade it**, and the honest weakness to attack first is that the staleness
+predicate's six-entry marker list is *mine*: a file that discusses the board move in words I did
+not anticipate reads as stale to it, and a file that names Yang in an unrelated sentence reads as
+current.
 

@@ -361,6 +361,92 @@ everything else the list says.
 
 ### W2. "Your margin is 0.0029. Your own measured seed uncertainty on the model behind three of your eight files is 0.0024. Delete one case and you are rank 2. This is a point estimate wearing a crown."
 
+> **[REPAIRED 2026-08-15 — THE SKEPTIC'S CASE IS STRONGER THAN THE HEADING ABOVE STATES,
+> AND THIS RUNG UNDERSTATED IT FOR FOUR DAYS.]** The heading is left exactly as the cold
+> reviewer posed it on 2026-08-10 — it is a quotation, and quotations are not corrected —
+> but **every figure in it and in the four bullets below was computed against a
+> FOUR-entry board that no longer exists.** This rung is V12, whose entire product is
+> Sanaa's briefing for the steward's questions. **A red-team brief that hands the skeptic
+> a weaker version of the true case is a defect in the rung's own instrument**, and it
+> errs in the direction least likely to be checked, because the error flatters us.
+>
+> **The board of record is the SIX-ENTRY board, retrieved 2026-08-11T23:33Z and
+> re-verified unchanged by read-only fetch 2026-08-14T21:01Z**
+> (`campaign/BOARD_MOVED_2026-08-11.md` `9cb2a20a`; `campaign/BOARD_RESCORE_2026-08-14.md`
+> §1.2). **A commit anchor is not admissible as the board's identifier**: the frozen pin
+> `deb91557` is the four-entry clone, and it scores but does not rank. Every corrected
+> figure below therefore travels as the triple the submission draft's binding rule
+> requires — **the margin, the entrant it is over by name, and the board by entrant count
+> and retrieval date.**
+>
+> **What the skeptic can now say, and it is worse than what he said:**
+>
+> - **The margin is `0.001365` over Yang, who leads the six-entry board retrieved
+>   2026-08-11T23:33Z (re-verified 2026-08-14T21:01Z), not `0.0029`.** *Basis, stated
+>   because the digits matter:* Yang's overall is the mean of his eight published
+>   per-case values, each published to four decimals, = `0.0580125`; ours is
+>   `0.056647191704213645` from `closure_challenge_round5_qcr.json`
+>   `official_test_harness_result.round5_overall_full`; the difference is
+>   `0.00136530…`, **stated to six decimals as `0.001365`** because six decimals is what
+>   the board's own precision supports. *(Do not propagate the eleven-digit form that
+>   circulated in a chief brief — docket **D104** is the authority and states the position
+>   more carefully than a summary can. That string is exactly
+>   `0.058013 - 0.056647191704213645`: it differences the **six-decimal printing** of Yang
+>   rather than his full mean `0.0580125`, so its digits past the sixth measure the printing
+>   and not the board. **Three margins are in circulation on three defensible bases and all
+>   three give 177%**, so nothing here turns on the choice; the defect is narrowly that
+>   eleven digits are quoted for a basis that supports six.)*
+> - **The seed bound does not sit inside the margin; it exceeds it.**
+>   `closure_challenge_seed_sensitivity.json` `spreads.overall_equivalent_S_bound` =
+>   `0.002419121853891026`, i.e. **`0.002419`, which is 177% of the `0.001365` margin over
+>   Yang**. ~~84% of the margin~~ was true of the four-entry board's `0.0028863` over
+>   Reissmann, Fang and Sandberg and is true of nothing now.
+> - **Loaded adversely, our own seed uncertainty loses the point lead outright.** Overall
+>   `0.059047` against Yang's `0.058013` (`BOARD_RESCORE_2026-08-14.md` §3.4): point rank
+>   2, P(rank 1) 34.2%. As scored: `0.056647`, point rank 1, P(rank 1) 50.2%. Favourable:
+>   `0.054247`, 65.4%.
+> - **P(rank 1) = 50% (50.2%, i.e. 200,609 of 400,000 case-level bootstrap draws), and an
+>   eight-case sample cannot pin it tighter than 0–97% at 95%** (double bootstrap, 2,000
+>   outer × 4,000 inner). ~~0.674 / 68% / 2–100%~~ were the four-entry board's. **No
+>   surface may state the figure without its interval and its board.**
+> - **Leave-one-out is three times as bad as this rung reported.** ~~Drop
+>   `alpha_15_13929_2024` and the entry falls to rank 2; every other single deletion keeps
+>   rank 1~~ — on the six-entry board **three of the eight single deletions lose point rank
+>   1**: `alpha_15_13929_4048` → rank 2, `alpha_15_13929_2024` → rank 3,
+>   `alpha_05_4071_4048` → rank 2, with P(rank 1) 31.7–32.2% in those three. The other five
+>   hold at 44.2–78.5%. **Three separate cases each individually carry the point-rank-1
+>   claim**, not one.
+> - **Four pairwise comparisons are `not statistically decided`, not two**: Yang (P(we
+>   lead) 57.8%, paired t = −0.189, 4 of 8 cases won), Reissmann, Fang and Sandberg (69.4%,
+>   −0.495, 4 of 8), Wu and Zhang (84.7%, −0.953, 5 of 8), and Tian, Buchanan, Hickel and
+>   Dwight (86.0%, −1.033, 5 of 8). Liu, Wang, Zhao and Xiao (98.7%) and Montoya, Oulghelou
+>   and Cinnella (99.8%) remain decided. Against Yang the per-case dispersion is 0.0204 —
+>   **fifteen times the `0.001365` margin.**
+> - **The per-case picture is the part this rung never restated at all.** Re-derived here
+>   from `closure_challenge_round5_qcr.json` against the six-entry board's forty-eight
+>   published per-case values: our eight predictions are the best on the board on **2 of 8**
+>   cases (`alpha_05_4071_4048`, `alpha_05_4071_2024`), and both survivors are the
+>   organisers' own unmodified RANS field passed through by the decline gate. ~~`AR_1` and
+>   `AR_3` are ties below published precision (0.00003, 0.00008)~~ — that was a statement
+>   about **Wu and Zhang's** column and it remains arithmetically true of that column, but
+>   it is no longer the relevant comparison: on the six-entry board the best published
+>   values on those two cases are 0.0291 and 0.0311 against our 0.045470 and 0.039982,
+>   so we are behind by 0.0164 and 0.0089. **Quoting the tie without the board's best is
+>   the four-entry framing surviving inside a true sentence.**
+>
+> **The defensible sentence, restated.** *The point estimate is rank 1 of 7 on a local
+> scoring against the six-entry board retrieved 2026-08-11T23:33Z and re-verified
+> 2026-08-14T21:01Z, by `0.001365` over Yang; P(rank 1) = 50% with an interval of 0–97% at
+> 95%; four of the six pairwise leads, including the one over Yang, are `not
+> statistically decided`; our own truth-free seed bound of `0.002419` is 177% of the margin
+> and loading it adversely gives up the lead. Nothing has been submitted and this is not an
+> official placement.*
+>
+> **Repaired by a records pass, 2026-08-15, at `29beb7cf`.** No scoring call; the ledger
+> stands at 6. Nothing was fetched; the board is read from the record above. **This pass is
+> now an author of this text and may not grade it** — the corrected briefing owes a V15
+> claims-table pass by a non-author under R-ISOLATE part 3.
+
 **The answer the package supports — the honesty, but not the claim.**
 
 §10 already says the lead is not statistically decided, that the standing is two cases
@@ -368,20 +454,30 @@ wide, that `alpha_15_13929_2024` alone supplies more than the whole margin and
 `NASA_2DWMH` alone costs more than it, and that `AR_1_Ret_360` and `AR_3_Ret_360` are ties
 below published precision. All of that is true and I confirmed it independently:
 
-- Case-level bootstrap over the eight scored cases on the frozen CSVs, B = 200,000:
-  **P(rank 1) = 0.674.**
-- Leave-one-case-out: **drop `alpha_15_13929_2024` and the entry falls to rank 2**
-  (0.05030 vs 0.04891). Every other single deletion keeps rank 1.
-- Paired per-case differences: **t = 0.50 vs Reissmann, t = 0.96 vs Wu & Zhang** on eight
-  cases. Not decided. The leads over Liu et al. and Montoya et al. are.
-- `closure_challenge_seed_sensitivity.json` bounds the round-1 PH model's
-  overall-equivalent spread at **0.002419 — 84% of the 0.0028863 margin** — and that model
+- ~~Case-level bootstrap over the eight scored cases on the frozen CSVs, B = 200,000:
+  **P(rank 1) = 0.674.**~~ *Struck 2026-08-15: four-entry board. Now 50.2% over 400,000
+  draws against the six-entry board retrieved 2026-08-11T23:33Z — see the repair block
+  above.*
+- ~~Leave-one-case-out: **drop `alpha_15_13929_2024` and the entry falls to rank 2**
+  (0.05030 vs 0.04891). Every other single deletion keeps rank 1.~~ *Struck 2026-08-15:
+  three of eight deletions now lose point rank 1, not one.*
+- ~~Paired per-case differences: **t = 0.50 vs Reissmann, t = 0.96 vs Wu & Zhang** on eight
+  cases. Not decided. The leads over Liu et al. and Montoya et al. are.~~ *Struck
+  2026-08-15: the t values hold, but two more comparisons — Yang and Tian, Buchanan,
+  Hickel & Dwight — are also `not statistically decided`, and one of them is the leader.*
+- ~~`closure_challenge_seed_sensitivity.json` bounds the round-1 PH model's
+  overall-equivalent spread at **0.002419 — 84% of the 0.0028863 margin**~~ — *struck
+  2026-08-15: the bound is unchanged at `0.002419` and the margin is not. Against Yang it
+  is **177% of the `0.001365` margin**: the bound EXCEEDS the margin rather than sitting
+  inside it, which inverts what this bullet was written to concede.* — and that model
   still produces three of the eight shipped CSVs, including the one case the standing
   rests on.
 
-So the defensible sentence is: *the point estimate is rank 1; on eight cases the ordering
+~~So the defensible sentence is: *the point estimate is rank 1; on eight cases the ordering
 against Reissmann and Wu & Zhang is not resolved; the ordering against Liu and Montoya
-is.* The package says close to this already.
+is.*~~ *Struck 2026-08-15 — it names two undecided orderings and there are four. The
+current defensible sentence is in the repair block above.* The package says close to this
+already.
 
 **Where the package is exposed anyway.** It computed a quantified P(rank 1) and ruled it
 **internal-only**, keeping the number out of the outward artifact while the outward

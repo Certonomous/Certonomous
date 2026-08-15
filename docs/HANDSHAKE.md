@@ -267,6 +267,26 @@ V16's independent grade, and one V15 round returning no new failures) is a
 separate gate and remains **open** — a passing suite was never that gate, and
 this record previously let the two read as one.
 
+> **[CORRECTED 2026-08-15 at `29beb7cf`. The parenthesised GREEN REQUIRES list above is a
+> copy of `LADDER_V_TRIPLE_VERIFICATION.md`'s, and it inherited that paragraph's staleness
+> along with its wording.]** Three of its six items were closed on 2026-08-11 by commits the
+> paragraph was written eleven minutes too early to see, and **it has been under-reporting
+> the lab's own position for four days:**
+> - ~~*V5's two open gaps*~~ — **CLOSED 2026-08-11**, `e071075d` (`benchmarks.html:126,146`)
+>   and `514876b0` (`CLOSURE_CHALLENGE_STATUS.md:449,1009`), both naming Spalart (2000)
+>   beside `Ccr1 = 0.3` at every site that makes the untrained claim. Re-verified by
+>   execution, not by reading the commit messages; both are ancestors of HEAD.
+> - ~~*V10's independent confirmation*~~ — **DELIVERED 2026-08-11**, `LADDER_V_V15_ROUND4.md`
+>   §2i (`65e79de4`), which returned one FAIL of its own and one honestly-inherited row.
+> - ~~*V16's independent grade*~~ — **SUPPLIED SEVEN TIMES** since, through grade round 10.
+>
+> **The gate is still shut**, and on two counts that got worse rather than better: V8's
+> re-verification has now failed three times (`campaign/LADDER_V_V8_REVERIFICATION_2026-08-14.md`),
+> and V15's latest round returned **25** new failures (`LADDER_V_V15_ROUND7.md`, `edbaa0fe`),
+> not zero. The authoritative list is the table under **GREEN REQUIRES** in
+> `LADDER_V_TRIPLE_VERIFICATION.md`; this note exists so that a reader who stops here is not
+> left with the 2026-08-11 picture.
+
 Closed **without moving the frozen pin and without altering the guard by one
 character.**
 
