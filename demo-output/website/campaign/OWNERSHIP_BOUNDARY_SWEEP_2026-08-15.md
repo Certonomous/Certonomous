@@ -346,12 +346,26 @@ unit and should be the standard one.
 **(b) Reporting is not editing, and nothing forbids it — so make the sweeps report across
 boundaries and edit only inside them.** **This is nearly free, because the machinery already
 exists and is already unrestricted**: `scripts/sweep.py` ships an `everything` frame whose
-own `filter_words` read *"none — no ignore rules, no directory exclusions"*. Run at
-`1360a5a9`, `sweep.py -F "rank 1 of 5" --frame everything --files-only` returns
-`dist/certonomous-demo/site/closure.html`, `dist/certonomous-demo/site/benchmarks.html` and
-`latex/closure_challenge_report.tex` **without any change whatsoever**. What is missing is
-not permission and not reach — it is **container decoding** and **a route from the report to
-an owner**.
+own `filter_words` read *"none — no ignore rules, no directory exclusions"*.
+`sweep.py -F "rank 1 of 5" --frame everything --files-only` reaches into both zones this
+document calls unowned — `dist/certonomous-demo/site/closure.html`,
+`dist/certonomous-demo/site/benchmarks.html` and `latex/closure_challenge_report.tex` are
+all among its hits, **without any change whatsoever**. Do not take a count from this page;
+it moves with the corpus. **Take your own reading — it is one line:**
+
+```bash
+python3 scripts/sweep.py -F "rank 1 of 5" --frame everything --files-only
+```
+
+> **Corrected 2026-08-15 (D177).** This passage said the command *"returns"* those three
+> files. It does not, and never did: it returned **34 files / 111 lines** at `def3ac00`,
+> 20:50Z, and **33 / 90** when the V15 round-8 cell ran it hours earlier. The three named
+> are about a 10% subset. The **reach** they demonstrate is real and the proposal below
+> stands on it; the closed count did not, and a closed count was the wrong shape for a
+> number that changes every time anyone commits.
+
+What is missing is not permission and not reach — it is **container decoding** and **a
+route from the report to an owner**.
 *Cost, measured today, for decoding every container in the corpus:* 50 tracked PDFs **8.2 s**,
 18 gitignored PDFs **0.5 s**, 454 tracked `.gz` **3.4 s**, the one tracked `.zip` instant,
 the 11.9 GB gitignored arm by fixed-string prefilter **12.3 s**. **Under 25 seconds for the

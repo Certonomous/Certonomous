@@ -256,6 +256,75 @@ def pick_missions(state_dir: Path,
     return picked, rejected
 
 
+def pick_unpairable(state_dir: Path, output_root: Path,
+                    intents) -> dict[str, tuple[str, Path, Path, list[str]]]:
+    """Last resort for an act NO recording can be paired with (docket D177).
+
+    `pick_missions` is right to refuse a contradictory pair, but refusing the
+    PAIR was implemented as refusing the ACT, and those are not the same size.
+    The airliner act is fifteen zip members: one certificate, nine `.stl`, three
+    `.png` and the two recording files. Twelve of those artifacts are on disk,
+    unambiguous and referenced by the recording; only the certificate disagrees.
+    Dropping all fifteen to withhold the one is a fourteen-member overcorrection,
+    and it happened silently enough that a rebuild-and-commit remedy was printed
+    and costed as `one command` while it shipped a demo missing an entire act.
+
+    So: for an intent with no paired recording, take the newest complete
+    recording that seals something and whose NON-certificate artifacts are all
+    present, ship those, and withhold the certificate by name. The caller must
+    write the withdrawal note and must not exit 0 -- an act without its sealed
+    page is a real loss, it is just a smaller and a NAMED one. Nothing here
+    relaxes `check_bundle_pairing`: no contradicting PDF is copied, so the gate
+    on the shipped bytes still passes on truth rather than on tolerance.
+
+    Returns {intent: (mission_id, meta_path, events_path, faults)} where
+    `faults` is why the certificate could not be paired.
+    """
+    fallback: dict[str, tuple[str, Path, Path, list[str]]] = {}
+    wanted = set(intents)
+    for intent, candidates in mission_candidates(state_dir).items():
+        if intent not in wanted:
+            continue
+        for mission_id, meta_path, events_path in candidates:
+            if not certificate_expectations(events_path):
+                continue
+            absent = [f"{d}/{f}" for d, f in sorted(referenced_artifacts(events_path))
+                      if f != "certificate.pdf" and not (output_root / d / f).exists()]
+            if absent:
+                continue
+            faults = pairing_faults(events_path, output_root,
+                                    require_present=True)
+            if not faults:  # pick_missions would have taken it
+                continue
+            fallback[intent] = (mission_id, meta_path, events_path, faults)
+            break
+    return fallback
+
+
+def withheld_directories(events_path: Path, output_root: Path) -> list[str]:
+    """The announced certificate directories this recording cannot be paired to.
+
+    Per DIRECTORY, not per recording: an act that seals two pages and disagrees
+    about one of them must still ship the one it agrees about.
+    """
+    bad: list[str] = []
+    for directory in sorted(certificate_expectations(events_path)):
+        pdf = output_root / directory / "certificate.pdf"
+        if not pdf.exists():
+            bad.append(directory)
+            continue
+        seal, serial = pdf_identity(pdf)
+        expected = certificate_expectations(events_path)[directory]
+        if seal is None:
+            bad.append(directory)
+        elif expected["hash"] and seal != expected["hash"]:
+            bad.append(directory)
+        elif (expected["certificate_no"] and serial
+              and serial != expected["certificate_no"]):
+            bad.append(directory)
+    return bad
+
+
 def check_bundle_pairing(bundle: Path) -> list[str]:
     """Re-check the pairing on the SHIPPED bytes, inside the built bundle.
 
@@ -351,6 +420,13 @@ def main() -> int:
 
     # ---- 2. the recorded missions ----------------------------------------
     picked, rejected = pick_missions(args.state, args.output_root)
+    fallback = pick_unpairable(args.state, args.output_root,
+                               [i for i in WANTED_INTENTS if i not in picked])
+    withheld: dict[str, list[str]] = {}   # output directory -> why
+    for intent, (mission_id, meta_path, events_path, faults) in fallback.items():
+        picked[intent] = (mission_id, meta_path, events_path)
+        for directory in withheld_directories(events_path, args.output_root):
+            withheld[directory] = faults
     missing = [i for i in WANTED_INTENTS if i not in picked]
     for intent in WANTED_INTENTS:
         for reason in rejected.get(intent, []):
@@ -371,6 +447,8 @@ def main() -> int:
     copied = skipped = 0
     absent: list[str] = []
     for directory, filename in sorted(artifacts):
+        if filename == "certificate.pdf" and directory in withheld:
+            continue    # named below and left out on purpose, not lost
         src = args.output_root / directory / filename
         if not src.exists():
             skipped += 1
@@ -380,9 +458,33 @@ def main() -> int:
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, dst)
         copied += 1
-    certs = sorted(d for d, f in artifacts if f == "certificate.pdf")
+    certs = sorted(d for d, f in artifacts
+                   if f == "certificate.pdf" and d not in withheld)
     print(f"  certificates {len(certs)} of {len(picked)} acts: "
           f"{', '.join(certs) if certs else 'NONE'}")
+
+    # The withdrawal note travels INSIDE the archive. A count printed on a
+    # terminal that nobody kept is how fifteen members went missing under a
+    # remedy costed at "one command"; a file in the bundle is readable by
+    # whoever opens the bundle, which is the person the omission is about.
+    for directory, faults in sorted(withheld.items()):
+        note = out / "mission-output" / directory / "CERTIFICATE_WITHDRAWN.txt"
+        note.parent.mkdir(parents=True, exist_ok=True)
+        note.write_text(
+            "No certificate is shipped for this act.\n\n"
+            "The recording in this bundle announces a seal, and the page at "
+            f"mission-output/{directory}/certificate.pdf on the lab box "
+            "describes a different run, so shipping it would put one seal in "
+            "the console and another one click away. The rest of the act -- "
+            "the recording and every geometry and plot it references -- is "
+            "here and is unchanged.\n\n"
+            + "".join(f"  {f}\n" for f in faults)
+            + "\nThe repair is to re-run this act through the control room so "
+              "that one run writes both the recording and the certificate; it "
+              "is not to copy whatever occupies the path today.\n",
+            encoding="utf-8")
+        print(f"  WITHHELD  {directory}/certificate.pdf -- "
+              f"{len(faults)} pairing fault(s), note written beside it")
 
     # ---- 4. the standing panels, as a build-time snapshot -----------------
     # These two panels are DERIVED, not stored: the credentials wall re-grades
@@ -431,6 +533,14 @@ def main() -> int:
     print(f"  size {total / 1024 / 1024:.1f} MB")
     if absent:
         print(f"  WARNING: referenced but absent: {', '.join(absent)}")
+    if withheld:
+        print(f"\n  WARNING: the certificate is WITHHELD for: "
+              f"{', '.join(sorted(withheld))}")
+        print("  Those acts ship complete except for the sealed page, with "
+              "CERTIFICATE_WITHDRAWN.txt beside it saying why. This build "
+              "does NOT exit 0: an act without its certificate is a real "
+              "loss, it is only a named and a much smaller one than dropping "
+              "the act.")
     if missing:
         print(f"\n  WARNING: no complete recording could be PAIRED with the "
               f"certificate on disk for: {', '.join(missing)}")
@@ -453,12 +563,24 @@ def main() -> int:
         return 2
     print("  pairing  every bundled event seal matches its bundled certificate")
 
+    # A whole filmed act missing is not something a caller should be able to
+    # ship by ignoring an exit code. The gate above refuses to zip a bundle
+    # that contradicts itself; this refuses to zip one that is short an act,
+    # which is the failure that actually reached the owner as "one command".
+    if missing and args.zip:
+        print("\n  NOT ZIPPED: a filmed act is absent, so no archive was "
+              "written. Fix the pairing (or pass --out and inspect) rather "
+              "than shipping a bundle that is short an act.")
+        return 3
+
     if args.zip:
         archive = shutil.make_archive(str(out), "zip", root_dir=out.parent,
                                       base_dir=out.name)
         print(f"  zip  {archive}  "
               f"({Path(archive).stat().st_size / 1024 / 1024:.1f} MB)")
-    return 1 if missing else 0
+    if missing:
+        return 3
+    return 1 if withheld else 0
 
 
 if __name__ == "__main__":
