@@ -1292,7 +1292,12 @@ def main() -> int:
             out.append(f"         line      {f.excerpt}")
         out.append("")
 
-    out.append("BLIND TO -- read this before reading the verdict")
+    # Indented by two spaces on purpose: `lab_check.py`'s generic sub-verdict
+    # scrape matches a line BEGINNING with `BLIND`, and an unindented heading
+    # here is reported to the runner as though it were a finding -- which, with
+    # the runner's 25-line cap, pushes a real sub-result out of view. Silent
+    # truncation is the class that module exists to close.
+    out.append("  BLIND TO -- read this before reading the verdict")
     out.append("  1. A figure correct to the digits written but derived from a "
                "stale referent that")
     out.append("     rounds the same way. 84% of a four-entry margin and any "
