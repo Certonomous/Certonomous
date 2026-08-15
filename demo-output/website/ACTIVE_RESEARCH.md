@@ -659,6 +659,18 @@ benchmark README at commit `deb91557`; ours scored locally through the
 unmodified eval package at `1c4e22c8` — a local scoring, not an official
 placement.)*
 
+> **FRAME WARNING ADDED 2026-08-15, and it is about the table as much as the
+> paragraph below it.** The table's ordinals come off `deb91557`, the **four**-entrant
+> scoring clone frozen 2026-05-04, which **scores but does not rank** — so the table is a
+> correct rendering of a board that has not existed since 2026-08-11T23:33Z, and its
+> "Rank 1" is not a standing. **The board of record for every ordinal on this page is the
+> SIX-entry board retrieved 2026-08-11T23:33Z and re-verified unchanged 2026-08-14T21:01Z**
+> (`campaign/BOARD_MOVED_2026-08-11.md`, re-fetched in `campaign/BOARD_RESCORE_2026-08-14.md`).
+> Against it there are two more entrants — Yang at 0.0580 and Tian, Buchanan, Hickel &
+> Dwight at 0.0641 — neither of which appears in the five rows below. The mandatory
+> companion clauses for any statement of rank 1 are at the top of this file (2026-08-11),
+> and they bind this table too.
+
 | Rank | Entry | Overall |
 | --- | --- | --- |
 | **1** | **ours, unsubmitted (round 5, scored locally)** | **0.0566** |
@@ -668,17 +680,61 @@ placement.)*
 | 4 | Liu, Wang, Zhao, and Xiao | 0.0737 |
 | 5 | Montoya, Oulghelou, and Cinnella | 0.0779 |
 
-**We hold the best score on the entire leaderboard on four of eight cases**
-(was five — AR_14's nominal lead was spent, knowingly, on the round-5
-bundle): alpha_15_13929_4048 at 0.0501 against a best-other 0.0592,
-alpha_15_13929_2024 at 0.1011 against 0.1195, alpha_05_4071_4048 at 0.0461
-against 0.0569, alpha_05_4071_2024 at 0.0719 against 0.0760 (both alpha_05
-cases the gated raw-RANS value, which itself beats every published entry on
-those two cases). On the ducts: AR_1_Ret_360 0.0455 (a published-precision
-tie with Wu & Zhang, behind Reissmann's 0.0387), AR_3_Ret_360 0.0400 (vs Wu
-& Zhang 0.0399, Reissmann 0.0341), AR_14_Ret_180 0.0353 (vs Reissmann
-0.0325, Wu & Zhang 0.0350). Last on the board only on NASA_2DWMH (0.0632 vs
-best 0.0364).
+**Best score on the entire leaderboard: 2 of the 8 cases — recomputed
+2026-08-15 against the six-entry board retrieved 2026-08-11T23:33Z,
+re-verified unchanged 2026-08-14T21:01Z.** And the count belonging to our
+own model is **zero of the 8**, which is the figure that has to be read
+first, because the two we do lead are not a result of ours at all.
+
+The two are `alpha_05_4071_4048` (ours 0.0461, next-best 0.0569) and
+`alpha_05_4071_2024` (ours 0.0719, next-best 0.0748). On **both**, our
+submitted prediction *is* the organisers' own unmodified RANS field: the
+decline gate declined to correct those cases and we passed the baseline
+through untouched. **Anyone submitting that baseline unchanged scores
+exactly the same on those two rows.** The credit there belongs to a file
+every entrant is handed for free, and to nothing we built. So "2 of 8" on
+its own is still a misleading way to say this; the honest form is *2 of 8
+on the board, 0 of 8 earned by the model.*
+
+The other six, live: on `alpha_15_13929_4048` (ours 0.0501) and
+`alpha_15_13929_2024` (ours 0.1011) we are behind Tian, Buchanan, Hickel &
+Dwight, at 0.0432 and 0.0998 — these two are the cases the count lost when
+the board grew. Ducts, all three behind Yang: `AR_1_Ret_360` 0.0455 against
+0.0291, `AR_3_Ret_360` 0.0400 against 0.0311, `AR_14_Ret_180` 0.0353
+against 0.0250. `NASA_2DWMH` is our worst row on the whole board, 0.0632
+against 0.0294. The overall is a mean and not a count of wins, which is why
+0.056647 is still the lowest overall number while the per-case tally reads
+as it does: this entry is consistent, not peaked.
+
+> ~~**We hold the best score on the entire leaderboard on four of eight
+> cases** (was five — AR_14's nominal lead was spent, knowingly, on the
+> round-5 bundle): alpha_15_13929_4048 at 0.0501 against a best-other
+> 0.0592, alpha_15_13929_2024 at 0.1011 against 0.1195, alpha_05_4071_4048
+> at 0.0461 against 0.0569, alpha_05_4071_2024 at 0.0719 against 0.0760
+> (both alpha_05 cases the gated raw-RANS value, which itself beats every
+> published entry on those two cases). On the ducts: AR_1_Ret_360 0.0455 (a
+> published-precision tie with Wu & Zhang, behind Reissmann's 0.0387),
+> AR_3_Ret_360 0.0400 (vs Wu & Zhang 0.0399, Reissmann 0.0341),
+> AR_14_Ret_180 0.0353 (vs Reissmann 0.0325, Wu & Zhang 0.0350). Last on
+> the board only on NASA_2DWMH (0.0632 vs best 0.0364).~~
+>
+> **STRUCK 2026-08-15, kept so the correction stays visible.** Every
+> comparison figure above was a **four**-entry-board number, and the
+> paragraph stated it in the **present tense** under a heading that says
+> where we stand — so it was a claim about the live board, made from a
+> superseded one, and it survived four days after the board moved on
+> 2026-08-11T23:33Z. Six of its eight comparison values were wrong against
+> the live board, not one: the two alpha_15 best-others (0.0592, 0.1195),
+> `alpha_05_4071_2024`'s (0.0760), and all three duct best-others, none of
+> which had Yang in them because Yang was not on the board they were
+> written against. Re-derived by executing over two committed records that
+> do not consult one another — `LIVE_BOARD` in
+> `sdk/scripts/probability_of_rank.py`, read by AST, and
+> `round5_per_case_full` in `closure_challenge_round5_qcr.json` — and
+> cross-checked against `scripts/self_audit.py`'s own `_closure_facts()`,
+> which derives `best` = 2, `declined` = 2, **`earned` = 0** from the same
+> two files by a different route. Found by the Ladder V V6/V10 grade of
+> 2026-08-15 (`campaign/LADDER_V_V6_V10_GRADE_2026-08-15.md`, failure 2).
 
 **What is still blocked, unchanged**: the duct streamwise-profile deficit
 (Term 2, the larger of the two identified recoverable terms) remains gated

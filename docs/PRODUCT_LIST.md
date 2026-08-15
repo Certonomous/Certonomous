@@ -50,9 +50,16 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - [ ] M3 hybridization experiments (each with a named hypothesis).
 
 ## 4B. Closure benchmark challenge
-- [x] ~~0.0741~~ → ~~round 4, 0.0654, rank 3~~ → **ROUND 5, 0.056647, RANK 1 OF 5** (scored locally at benchmark commit
+- [x] ~~0.0741~~ → ~~round 4, 0.0654, rank 3~~ → **ROUND 5, 0.056647,** ~~RANK 1 OF 5~~ **RANK 1 OF 7** (scored locally at benchmark commit
       deb91557; 07a7fe9e; the 6th pre-registered call, ACCEPTED mechanically under the criterion frozen at 0bade54a
-      before any solve): **us 0.0566** · Reissmann 0.0595 · Wu&Zhang 0.0624 · Liu 0.0737 · Montoya 0.0779. The whole
+      before any solve): **us 0.0566** · ~~Reissmann 0.0595 · Wu&Zhang 0.0624 · Liu 0.0737 · Montoya 0.0779~~
+      **[BOARD CORRECTED 2026-08-15: the five-row list was the FOUR-entry scoring clone `deb91557` plus us, and that
+      clone scores but does not rank. The board of record is the SIX-entry board retrieved 2026-08-11T23:33Z,
+      re-verified unchanged 2026-08-14T21:01Z: Yang 0.0580 · Reissmann 0.0595 · Wu&Zhang 0.0624 ·
+      Tian/Buchanan/Hickel/Dwight 0.0641 · Liu 0.0737 · Montoya 0.0779 — six entrants plus us is seven rows, so the
+      point standing is 1 of 7. The two names the old list omitted are Yang, whom we lead by **0.001365 on that
+      same six-entry board retrieved 2026-08-11T23:33Z and re-verified 2026-08-14T21:01Z**, and
+      Tian/Buchanan/Hickel/Dwight.]** The whole
       delta is the ducts (untrained QCR2000: AR_1 0.0811→0.0455, AR_3 0.0775→0.0400); AR_14's tie LOST (+0.0029) exactly
       as priced in writing, not reverted per the bundle's terms; our QCR ducts land within 0.0004 of Wu&Zhang's published
       ducts — same term, independent solve, same answer. Caveat everywhere: LOCAL scoring, not an official placement.
@@ -66,18 +73,43 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       Tian/Buchanan/Hickel/Dwight (t = −1.033). Only Liu (98.7%) and Montoya (99.8%) are beaten on method.
       **And best-on-board fell 4 of 8 → 2 of 8, both survivors being the organisers' own baseline rows, so the count
       belonging to our model is ZERO of 8** — see `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md` §3a.
-      Eight cases cannot resolve a
+      ~~Eight cases cannot resolve a
       rank probability better than 2–100% at 95% (double bootstrap). The standing is TWO CASES WIDE: drop alpha_15
-      and we are rank 2 on the point score; drop the hump and P = 91%. AR_1/AR_3 margins (0.00003 / 0.00008) are ties
+      and we are rank 2 on the point score; drop the hump and P = 91%.~~
+      **CORRECTED 2026-08-15 — this was D93's core.** The 08-14 repair rewrote the paragraph above it and stopped one
+      line short, so the tail of the sentence it replaced survived underneath, still carrying every four-entry figure.
+      Re-derived against the SIX-entry board retrieved 2026-08-11T23:33Z, re-verified unchanged 2026-08-14T21:01Z,
+      from `sdk/scripts/probability_of_rank_record.json` (`frame.entries` = 6, `frame.fetched` = 2026-08-11T23:33Z),
+      which is the committed output of `sdk/scripts/probability_of_rank.py` — pure arithmetic over already-scored
+      values, no scoring call, ledger unchanged at 6. Corrected text:
+      **eight cases cannot resolve a rank probability better than 0–97% at 95%** (double bootstrap; `double95` =
+      0.0025–0.9690). **The standing is THREE DELETIONS WIDE, not two:**
+      deleting `alpha_15_13929_4048` drops the point rank to 2, `alpha_15_13929_2024` to 3, and `alpha_05_4071_4048`
+      to 2 — the same three that the rank-1 companion at the top of this file and the KATIE-ONLY held-package bullet
+      further down this section already state correctly. **Deleting the hump
+      (`NASA_2DWMH`) raises P(rank 1) to 78.5%, not 91%.** AR_1/AR_3 margins (0.00003 / 0.00008) are ties
       below published precision and must never be quoted as per-case wins. ~~The number is INTERNAL and never appears
       in an external claim~~ **[SUPERSEDED 2026-08-10: the internal-only restriction was WITHDRAWN by chief ruling —
       an outsider recomputed the figure from public data in about a minute, so withholding it bought nothing and
-      only looked concealed. The figure TRAVELS with the entry, and may never appear without its interval (2-100%
-      at 95%) and the not-decided pairs.]** — and no surface, internal or outward, may print "rank 1" without it.
+      only looked concealed. The figure TRAVELS with the entry, and may never appear without its interval ~~(2-100%
+      at 95%)~~ (0-97% at 95%) and the not-decided pairs, which are now FOUR and include the leader.]** — and no
+      surface, internal or outward, may print "rank 1" without it, and without naming the board it is a rank on
+      **by entrant count and retrieval date** (six entries, retrieved 2026-08-11T23:33Z, re-verified unchanged
+      2026-08-14T21:01Z). A commit anchor is not an admissible board identifier: `deb91557` is the four-entry
+      scoring clone and it scores but does not rank.
+      **The interval inside the rule was corrected 2026-08-15**, and it is D93's worst line: until then the
+      prohibition named the very value it forbids, in the copy other passes read this file for.
       → NEW ITEM (from this cross-off): **closure.html coherent rewrite** under Katie's GUI conventions — DONE
       (page is round-5 current; consistency re-verified by Ladder V rung V10, 49f71b8c).
-- [x] alpha=15,AR14 status (superseded by round 5, kept for history): AR_14 is now 3 of 5 and best-on-board is 4 of 8
-      after the priced-in-writing round-5 tie loss (+0.0029); the earlier "best-on-board with a 0.00003 lead" reading
+- [x] alpha=15,AR14 status (superseded by round 5, kept for history): ~~AR_14 is now 3 of 5 and best-on-board is 4 of 8~~
+      **CORRECTED 2026-08-15.** Both were four-entry-board figures, live and unstruck one bullet below the region D93
+      enumerates — D93's own shape, *"the repair stopped one line short"*, recurring one line further down. Against
+      the SIX-entry board retrieved 2026-08-11T23:33Z and re-verified unchanged 2026-08-14T21:01Z, `AR_14_Ret_180`
+      places **4 of 7**, and the best-on-board tally is **2 of the 8** cases.
+      The tally belonging to our own model is **zero of the 8**, which is the one to quote: both survivors
+      (`alpha_05_4071_4048`, `alpha_05_4071_2024`) are the organisers' own unmodified RANS field that the decline
+      gate passed through untouched, so anyone submitting that baseline unchanged scores identically on them.
+      After the priced-in-writing round-5 tie loss (+0.0029); the earlier "best-on-board with a 0.00003 lead" reading
       is obsolete — must not be reported as a comfortable win, and per V8's banned-claims list, not as "best-on-board"
       either.
 - [x] Find out challenge policies / whether Certonomous can submit. DONE (`CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §1–§4):
