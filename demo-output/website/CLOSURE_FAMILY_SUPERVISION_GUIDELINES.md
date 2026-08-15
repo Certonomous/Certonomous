@@ -108,15 +108,50 @@ Katie's GUI conventions, applied family-wide:
   opposite of the struck one**: the bound is **larger than the margin**, and the
   rank-1 reading does not *carry* that uncertainty — **it does not survive it**
   (loaded adversely our overall is **0.059047** against Yang's **0.058013**, i.e.
-  rank 2 on the point score). §6 below already said this — *"clause (b)'s
-  'comparable to the margin' is now an understatement: the bound is 1.8× the
-  0.001365 margin, where it was 0.83× the 0.0029 one"* — but the clause it
+  rank 2 on the point score). **Clause (e) of this same section already said this**
+  — *"clause (b)'s 'comparable to the margin' is now an understatement: the bound
+  is 1.8× the 0.001365 margin, where it was 0.83× the 0.0029 one"*, recorded
+  2026-08-11 at `5c9c63fb` and readable eighty lines below — but the clause it
   corrects was left standing and binding, so surfaces kept being told to copy the
-  false form. **The reference wording is no longer `closure.html`'s stability note
-  as it stood**: that sentence was itself one of the copies and was repaired in the
-  same pass as this clause. Falsified by the board move of 2026-08-11T23:33Z;
-  withdrawn in the travelling document at `cc906ec9` and in the cover email at
-  `d80649f9`, neither of which reached this clause. Docket **D114**.
+  false form. A correction filed as an *observation* beside a *mandate* loses to
+  the mandate, because the mandate is what the next author obeys. **The reference
+  wording is no longer `closure.html`'s stability note as it stood**: that sentence
+  was itself one of the copies and was repaired in the same pass as this clause.
+  Falsified by the board move of 2026-08-11T23:33Z; withdrawn in the travelling
+  document at `cc906ec9` and in the cover email at `d80649f9`, neither of which
+  reached this clause; struck here at `6138d452`. Docket **D114**.
+  - **(b-1) THE REPLACEMENT RULE, in force 2026-08-15 — it fixes a FORM, and no
+    figure and no sentence.** Struck (b) failed in a way worth naming, because the
+    naming is the only thing that stops the next one: **it mandated a number and it
+    mandated a wording.** A mandated number is a claim generator — it keeps
+    producing copies of itself after the world it described has moved, and every
+    copy reads as independently sourced. A mandated *sentence to copy* is the same
+    defect with the arithmetic hidden inside it. Neither is fixed here. The rule is:
+    **no surface in this family may quote the margin except as a triple —
+    (1) the margin, (2) the entrant it is a margin over, by name, and (3) the board
+    it is measured against, given by entrant count and retrieval date.**
+    A commit anchor is **not** an admissible board identifier: `deb91557` is the
+    frozen four-entry scoring clone, and it scores but does not rank
+    (`campaign/LADDER_V_PASS3_COLD_2026-08-11.md` §1.2 states the same exclusion).
+    The same triple is required of the seed bound whenever it is stated as a
+    fraction of the margin, since that fraction inherits the margin's board. **There
+    is no reference sentence to copy, and naming one is prohibited** — naming one is
+    precisely what (b) did. This is the rule the submission draft adopted at
+    `5bec65f0` (`CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md`, *"THE REPLACEMENT BINDING
+    RULE"*); it is restated here so the family's standing rule document stops
+    contradicting the package it governs.
+    **The figures below are regenerable and are not to be retyped from this
+    document**: recompute from `campaign/BOARD_RESCORE_2026-08-14.md` §3.1 and
+    `closure_challenge_seed_sensitivity.json` → `overall_equivalent_S_bound`. If the
+    retrieval date on the face of a sentence is older than the newest board
+    retrieval this lab holds, that sentence is unverified until re-derived. At the
+    time of writing the triple reads: margin **0.001365 over Yang**, on the
+    **six-entry** board retrieved **2026-08-11T23:33Z** and re-verified unchanged
+    **2026-08-14T21:01Z**; against it the seed bound of **0.002419** stands at
+    **177%** — the bound **exceeds** the margin rather than sitting inside it, and
+    loaded adversely on the three seed-dependent cases the overall becomes
+    **0.059047** against Yang's **0.058013**, so the point lead is not retained.
+    Docket **D114**; the instrument that grades clauses of this shape is **D119**.
   **(c) Added 2026-08-10, chief ruling — MANDATORY:
   P(rank 1) and the not-decided pairs.** **EVERY FIGURE IN (c) AND (d) IS
   SUPERSEDED 2026-08-11 — SEE (e). All of them were computed against a FOUR-entry
@@ -143,6 +178,20 @@ Katie's GUI conventions, applied family-wide:
     access to the internal document. A figure an outsider reproduces trivially is
     not protected by being withheld; it only reads as concealed, and it reads
     that way to exactly the reader the disclosure strategy exists to convince.
+    **[FIGURES SUPERSEDED 2026-08-11; THAT FACT BROUGHT DOWN TO THE MANDATE
+    ITSELF 2026-08-15, docket D119.** The travel rule in the next sentence
+    **stands**. Its two figures **do not**: P(rank 1) is **50%** (50.2%, and
+    **0–97% at 95%**, which is *wider* than the 2–100% below), and the
+    not-decided list is **four** entries and includes the leader — see (e), which
+    is where the live figures and the board that dates them live. This note is
+    added on the mandate rather than beside it because (d)'s own header announces
+    the supersession of the internal/external **split**, not of these figures, and
+    the banner that does cover them sits eighty lines up inside (c): a reader who
+    enters at (d) — which is what a supervisor looking up the propagation rule
+    does — meets a MANDATE that reads live and copies a four-entry figure out of
+    it. **That is precisely the shape struck clause (b) had**, found by the same
+    census, and it is the second instance in this one section. The clause is not
+    rewritten, per this section's own rule.]**
     **The figure now TRAVELS with the entry.** Every surface, internal or public
     — including anything shipping in `dist/` and the entry's own cover material —
     carries **P(rank 1) = 68%** *with its interval* (**2–100% at 95%**, double
