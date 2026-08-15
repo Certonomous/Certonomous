@@ -113,6 +113,43 @@ supervisors' four personal checks apply per the supervision charter.
   > defect committed a frame defect, a conflation defect, and a rule-citation defect, and a
   > non-author found all three by execution in one pass. Rulings are not exempt from grading and
   > this one was improved by it.
+  >
+  > **[CHIEF RULING 2026-08-15, at repo `e65137cd`, ON V5's PREDICATE — the question D122 owns and
+  > every previous ruling left open. Carrying a FOURTH correction to my own amendment.]**
+  >
+  > **THE CORRECTION FIRST.** My amendment conceded a sound impossibility ground for
+  > `MANIFEST.json` **alone**. Wrong. The enumeration pass established the ground is a property of
+  > **the container, not of freezing**: L-44's dated addendum needs a region below the freeze line,
+  > and **a Markdown record has one where a JSON object does not.** So it covers **both JSONs** and
+  > **neither Markdown report** — wider than I allowed on one side, narrower on the other. It also
+  > established that *"left to its owner"* is a **routing rule, not a frame exclusion**: it answers
+  > who edits, never whether a surface is in frame. Two refusals fall on that, the second because a
+  > ground that fails for one file cannot be kept for another merely because nobody has yet
+  > exercised it.
+  >
+  > **THE PREDICATE. V5's site is where the UNTRAINED CLAIM ABOUT OUR OWN MODEL is made — not
+  > every place the string QCR appears.** The rung's own text gives the purpose in the same
+  > sentence as the criterion: *"the 'untrained' claim is load-bearing — prove it by showing there
+  > is nothing that could be fitted."* The citation discharges **that** claim. A sentence naming a
+  > third party's SST-QCRC makes no such claim and needs no attribution from us; a held-out
+  > corpus's uncited sentence **is the datum**, and citing it would destroy the instrument.
+  >
+  > **THIS IS A NARROWING AND I AM SAYING SO, having rejected a narrowing three paragraphs above.**
+  > The difference is not that this one suits me. The two-site reading was rejected because it
+  > arrived **by transcription**, unstated, and shrank the site list to a convenient number. This
+  > one is stated on the rung's face, with its reason, **before the next grade**, and it makes the
+  > criterion **discriminate** rather than shrink: under it `QCR_ACTIVITY_CHECK`'s 23 QCR mentions
+  > and zero "untrained" are not a site at all, while `PRODUCT_LIST.md`'s four — excluded in
+  > writing on 2026-08-08 as *"PRODUCT_LIST (chief's)"*, with no ground and no hash — squarely are.
+  > **The file that later failed this rung was excluded by ownership, on purpose, and that is the
+  > third time this week ownership stood where a frame was needed.**
+  >
+  > **WHAT WOULD REVERSE IT:** a surface naming QCR **without** the untrained claim, where a reader
+  > would be misled by the absence of attribution. Produce one and the predicate widens.
+  >
+  > **AND THIS RULING IS SUBJECT TO GRADING LIKE THE OTHERS.** Four of my arguments about this rung
+  > have now been refuted by execution — three in the amendment above, and the `MANIFEST.json`
+  > concession here. Measure V5 against this predicate; do not inherit it.
 
   ### V5 FRAME ENUMERATION — the four refusals, on the rung's face, 2026-08-15
 
