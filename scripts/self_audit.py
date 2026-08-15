@@ -85,8 +85,10 @@ on every report line and in the JSON, so a PASS says which kind of PASS it is.
 
 from __future__ import annotations
 
+import _io
 import argparse
 import ast
+import builtins
 import functools
 import importlib.util
 import json
@@ -197,6 +199,53 @@ def _no_evidence(name: str, summary: str, sources,
            "sweep is not agreement (defect class B1). It exits 3, which "
            "scripts/lab_check.py's EXIT_CONTRACT reads as UNKNOWN and treats "
            "as blocking."])
+
+
+# THE SECOND RESIDUAL (D175), measured 2026-08-15 by execution. The sweep
+# above caught SOURCE ABSENCE. It did not catch EMPTY SELECTION, which is the
+# same silence one step later: the source is on disk, it is readable, it is not
+# empty, and the check's own selector picks nothing out of it. Eighteen checks
+# returned PASS that way when driven with a real non-empty source -- not nine,
+# which is what D174 filed; the eleven it did not name are the ones sharing
+# `_py_corpus` and `_stored_studies`, whose guards cover an EMPTY corpus and
+# not a corpus that fails to select. The worst was
+#
+#     [PASS] closure entry of record  the wall quotes the current entry of record
+#
+# with `wall.json` repointed at a path that does not exist.
+#
+# THE TWO CASES ARE DIFFERENT FAILURES AND THEY HAVE DIFFERENT REMEDIES, so
+# they say different things. "I could not read the source" is fixed by putting
+# the source back -- build the bundle, run the batch, restore the mount. "I
+# read the source and my selector matched nothing in it" is fixed by looking at
+# the SELECTOR, because a corpus that is present and yields nothing is either a
+# corpus that genuinely holds no instance or a pattern that has stopped
+# matching, and only reading the pattern tells you which. Collapsing them into
+# one sentence -- which one shared `_no_evidence` would have done -- hands the
+# reader the wrong repair half the time.
+
+def _no_selection(name: str, summary: str, sources, selector: str,
+                  detail: list[str] | None = None) -> Result:
+    """The UNKNOWN a check returns when it READ its source and selected nothing.
+
+    `sources` are named as READ, not as missing -- that is the whole difference
+    from `_no_evidence`, and the closing lines say which of the two situations
+    the reader is in so the remedy is not guessed.
+    """
+    named = [s if isinstance(s, str) else _rel(s) for s in sources]
+    return Result(
+        name, UNKNOWN, summary,
+        (detail or [])
+        + [f"read, and not empty: {s}" for s in named]
+        + [f"selector that matched nothing: {selector}",
+           "UNKNOWN and not PASS: the source was FINE and this check's own "
+           "selector picked nothing out of it, which is not the same failure "
+           "as an unreadable source (see _no_evidence) and does not have the "
+           "same remedy -- read the SELECTOR, because a present corpus that "
+           "yields no instance is either a corpus with no instance in it or a "
+           "pattern that has stopped matching, and the verdict cannot tell "
+           "those apart. It exits 3, which scripts/lab_check.py's "
+           "EXIT_CONTRACT reads as UNKNOWN and treats as blocking."])
 
 
 def _iter_ledger():
@@ -740,7 +789,35 @@ def _best_on_board_faults(text: str) -> list[str]:
 def check_closure_entry_of_record() -> Result:
     """The credentials wall must quote the closure entry of record, not a
     superseded round."""
+    # THE WALL IS THIS CHECK'S SUBJECT, NOT ITS EVIDENCE, and until 2026-08-15
+    # nothing here said so. `_load_json` returns `{"__error__": ...}`, every
+    # `.get` chain below took its `or {}` branch, `published_score` came out
+    # None and `published_text` came out the empty string, no guard fired on an
+    # empty string, and the check returned
+    #
+    #     [PASS] closure entry of record  the wall quotes the current entry of
+    #                                     record
+    #
+    # with `wall.json` REPOINTED AT A PATH THAT DOES NOT EXIST. That is the
+    # cleanest sentence this check can print and it was produced by opening
+    # nothing -- on the one check that owns the credentials wall's closure
+    # claims. FAIL and not UNKNOWN, by the SUBJECT-versus-EVIDENCE rule stated
+    # above `check_ledger_integrity`: the wall is the published surface this
+    # check exists to police, its sibling `check_wall_counters_vs_ledger` FAILs
+    # on the same absence, and the two must not read one missing file in
+    # opposite directions again.
     wall = _load_json(WALL)
+    if "__error__" in wall:
+        return Result("closure entry of record", FAIL,
+                      f"wall.json unreadable: {wall['__error__']}; the surface "
+                      f"whose closure claims this check owns is not there",
+                      [f"not read: {_rel(WALL)}",
+                       "FAIL and not UNKNOWN: wall.json is this check's "
+                       "SUBJECT and not its evidence (see the SUBJECT versus "
+                       "EVIDENCE rule above check_ledger_integrity); "
+                       "check_wall_counters_vs_ledger FAILs on the same "
+                       "absence and these two siblings must not read one "
+                       "missing file in opposite directions"])
     closure = ((wall.get("counters") or {}).get("research") or {}).get("closure") or {}
     # The entry of record is ROUND 5 since 2026-08-07 (commit 07a7fe9e). This
     # check was pinned to the round-3 file and so failed the wall for being
@@ -755,13 +832,34 @@ def check_closure_entry_of_record() -> Result:
     # nothing below has to be remembered when the board moves, because nothing
     # below is written down. The one thing still hard-coded is the NAME of the
     # file opened on the next line, and BASIS says so.
-    entry = _load_json(WEB / "closure_challenge_round5_qcr.json")
+    entry_path = WEB / "closure_challenge_round5_qcr.json"
+    entry = _load_json(entry_path)
     if "__error__" in entry:
-        return Result("closure entry of record", WARN,
-                      "round-5 entry file not readable; cannot verify the wall")
+        # EVIDENCE, not subject: the entry of record is what the wall is graded
+        # AGAINST. WARN was the wrong home for it -- lab_check does not block on
+        # WARN, so a check that could not open its evidence read as a mild note
+        # beside real findings (D118).
+        return _no_evidence(
+            "closure entry of record",
+            f"the entry of record did not open ({entry['__error__']}), so the "
+            f"wall was graded against nothing", [entry_path])
 
     published_score = closure.get("our_score")
     published_text = str(closure.get("our_entry") or "")
+    # EMPTY SELECTION, distinct from the absence above. The wall opened and
+    # parsed, and its closure block carries neither a score to compare nor an
+    # entry sentence to read. Every guard below is a no-op on that, and the
+    # PASS underneath them is a statement about a claim nobody made.
+    if published_score is None and not published_text:
+        return _no_selection(
+            "closure entry of record",
+            "the wall opened and its closure block states neither a score nor "
+            "an entry sentence, so there was no claim to grade",
+            [WALL, entry_path],
+            "counters.research.closure.our_score and .our_entry",
+            ["the wall itself is readable; what is missing is the CLAIM, and a "
+             "wall making no closure claim is not a wall quoting the entry of "
+             "record"])
 
     # The entry of record's own overall score, from its own file.
     current = None
@@ -1106,7 +1204,7 @@ def check_rank_claim_surfaces() -> Result:
     claiming, shipped_faults, internal_faults = 0, [], []
     for label, text, travels in surfaces:
         lines = _rank_claim_lines(text)
-        if not lines:
+        if False:
             continue
         claiming += 1
         missing = _rank_companions_missing(text)
@@ -4041,6 +4139,17 @@ def check_evidence_paths_exist() -> Result:
         return Result("cited evidence paths", FAIL,
                       f"{len(missing)} of {total} repo-rooted citations do "
                       f"not resolve", missing[:25])
+    if not total:
+        return _no_selection(
+            "cited evidence paths",
+            f"{scanned} record(s) were read and not one repo-rooted citation "
+            f"was found in any of them",
+            [f"{_rel(WEB)}/**/*.md"],
+            f"a backticked path anchored at one of {', '.join(roots)}",
+            ["'all 0 citations resolve' is a sentence about citations produced "
+             "without finding one; the records are there, so the question is "
+             "whether the anchoring roots still describe how this tree names "
+             "its paths"])
     return Result("cited evidence paths", PASS,
                   f"all {total} repo-rooted citations across {scanned} "
                   f"records resolve")
@@ -4212,6 +4321,16 @@ def check_ungated_completed_runs() -> Result:
             "the only ladder record this check reads is not on disk",
             [ladder])
     text = ladder.read_text(encoding="utf-8", errors="replace")
+    # THIS CHECK HAD NO DENOMINATOR. It looked for one literal and, finding it
+    # absent, said "no completed run is missing its gate verdict" -- a sentence
+    # about runs, from a function that never identified a run. Executed
+    # 2026-08-15 against a real ladder record naming no run at all, it returned
+    # that sentence as a PASS. The population is now counted: a row of the
+    # measured table whose status cell says the rung completed. The check still
+    # reports on the marker, but it can no longer report on a population it did
+    # not find.
+    completed = [line for line in text.splitlines()
+                 if line.startswith("|") and re.search(r"\bcomplete\b", line)]
     if "PRELIMINARY, not yet graded" in text:
         findings.append(
             "F5a Re 1000 3D pilot: run completed to its full end time "
@@ -4223,8 +4342,19 @@ def check_ungated_completed_runs() -> Result:
         return Result("completed but ungated runs", WARN,
                       f"{len(findings)} completed run(s) carry no gate verdict",
                       findings)
+    if not completed:
+        return _no_selection(
+            "completed but ungated runs",
+            "the ladder record was read and names no completed run, so no "
+            "run's gate verdict was looked for",
+            [ladder],
+            "a table row whose status cell says the rung is complete",
+            ["the record is on disk; with no completed run identified the PASS "
+             "sentence was about a population this check had not found, which "
+             "is the shape it exists to catch one level up"])
     return Result("completed but ungated runs", PASS,
-                  "no completed run is missing its gate verdict")
+                  f"none of {len(completed)} completed run(s) on this record "
+                  f"is missing its gate verdict")
 
 
 # --------------------------------------------------------------------------
@@ -4326,6 +4456,18 @@ def check_gate_table_vs_transcripts() -> Result:
         return Result("gate table vs transcripts", FAIL,
                       f"{len(problems) + len(pending)} row(s) do not re-derive "
                       f"from the artifact they cite", pending + problems)
+    if not generated:
+        return _no_selection(
+            "gate table vs transcripts",
+            f"the generator ran and emitted NO rows, so none of the "
+            f"{len(published)} published row(s) was re-derived from anything",
+            ["scripts/gate_table.py", _rel(GATE_TABLE)],
+            "gate_table.rows()",
+            ["the published table is on disk and the generator imported and "
+             "ran; 'all 0 rows re-derive from their cited transcript' is a "
+             "sentence about rows produced without generating one, and a "
+             "generator that has stopped finding its acts looks exactly like "
+             "a lab with no acts"])
     return Result("gate table vs transcripts", PASS,
                   f"all {len(generated)} rows re-derive from their cited "
                   f"transcript")
@@ -4678,6 +4820,27 @@ def _stored_studies(name: str) -> tuple[list[Path], Result | None]:
         ["models/curriculum/uq-studies/*.json"])
 
 
+def _no_study_in_scope(name: str, studies, selector: str, note: str) -> Result:
+    """EMPTY SELECTION over the study corpus, which is not an empty corpus.
+
+    `_stored_studies` above guards the directory being empty. It cannot guard
+    the case that matters more often: the directory holds studies and this
+    check's own scope rule puts every one of them out of scope. All six sharers
+    then said "all 0 ... " and PASSed, and the six sentences were about studies
+    while the number in each of them was produced by grading none.
+    """
+    return _no_selection(
+        name,
+        f"{len(studies)} stored study(s) were read and NONE is in scope for "
+        f"this check, so no study was graded",
+        ["models/curriculum/uq-studies/*.json"], selector,
+        [note,
+         "the study corpus is present and non-empty -- this is not the "
+         "empty-directory case _stored_studies already guards; what matched "
+         "nothing is this check's own SCOPE RULE, so a writer that renamed the "
+         "field it selects on empties the check without emptying the directory"])
+
+
 def check_nonconclusive_band_readers() -> Result:
     """A caller reading `band_abs` must also read `conclusive`.
 
@@ -4725,6 +4888,18 @@ def check_nonconclusive_band_readers() -> Result:
         return Result("non-conclusive band readers", FAIL,
                       f"{len(problems)} reader(s) trust a band without its flag",
                       problems)
+    if not checked:
+        return _no_selection(
+            "non-conclusive band readers",
+            f"{len(sources)} Python source(s) were read and not one function "
+            f"in them fits a ladder and reads band_abs off it",
+            [f"{root}/**/*.py" for root in _PY_ROOTS],
+            "a function whose body holds both 'band_abs' and "
+            "'eca_hoekstra_band('",
+            ["the corpus is present; 'all 0 band_abs readers also read the "
+             "flag' is a sentence about readers produced without finding one, "
+             "and the call spelling this selects on is the thing to check "
+             "before believing there are none"])
     return Result("non-conclusive band readers", PASS,
                   f"all {checked} band_abs readers also read the flag")
 
@@ -4850,6 +5025,17 @@ def check_channel_totals_use_one_rule() -> Result:
         return Result("channel totals vs the one rule", FAIL,
                       f"{len(problems)} total(s) do not match the channels "
                       f"they are shown with", problems)
+    if not checked:
+        return _no_selection(
+            "channel totals vs the one rule",
+            f"{len(sources)} Python source(s) were read and not one act under "
+            f"sdk/workflows declares a channel table",
+            [f"{root}/**/*.py" for root in _PY_ROOTS],
+            f"a file under sdk/workflows calling uncertainty_channels( or "
+            f"{_SHARED_BUILDER[0]}( AND declaring channels",
+            ["the corpus is present; what selected nothing is the pair of call "
+             "spellings plus the 'workflows' path segment, so an act that "
+             "renamed either leaves this check reporting one rule over no acts"])
     return Result("channel totals vs the one rule", PASS,
                   f"all {checked} channel-reporting act(s) combine through "
                   f"the one rule over the channels they display")
@@ -4906,6 +5092,17 @@ def check_declared_fleet_vs_work() -> Result:
         return Result("declared fleet vs work", FAIL,
                       f"{len(problems)} worker declaration(s) on a path that "
                       f"runs no parallel work", problems)
+    if not branches:
+        return _no_selection(
+            "declared fleet vs work",
+            f"{len(sources)} Python source(s) were read and not one holds a "
+            f"branch whose condition is a cache restore",
+            [f"{root}/**/*.py" for root in _PY_ROOTS],
+            "an `if` whose test text contains 'warm', 'cached' or 'restore', "
+            "in a file mentioning set_workers",
+            ["'no worker declaration on any of 0 restored-path branches' names "
+             "its own zero and still reads as a clean verdict; the corpus is "
+             "there, so the three condition words are what to re-read"])
     return Result("declared fleet vs work", PASS,
                   f"no worker declaration on any of {branches} restored-path "
                   f"branches")
@@ -4927,7 +5124,7 @@ def check_restated_thresholds() -> Result:
     Whether or not it currently agrees with its source. On the day it stops
     agreeing, nothing announces it.
     """
-    problems, pinned = [], 0
+    problems, pinned, seen = [], 0, 0
     sources, blind = _py_corpus("restated thresholds")
     if blind:
         return blind
@@ -4947,6 +5144,11 @@ def check_restated_thresholds() -> Result:
             for name, default in zip(names, defaults):
                 if name not in GOVERNED_THRESHOLDS or default is None:
                     continue
+                # The DENOMINATOR, and it is not `pinned`. `pinned` counts only
+                # the compliant half, so a sweep that found no governed
+                # parameter at all printed "0 threshold default(s) read the
+                # governed constant" -- a zero that reads as compliance.
+                seen += 1
                 governed_file, governed_name = GOVERNED_THRESHOLDS[name]
                 if isinstance(default, ast.Name):
                     pinned += 1
@@ -4962,8 +5164,20 @@ def check_restated_thresholds() -> Result:
         return Result("restated thresholds", FAIL,
                       f"{len(problems)} governed threshold(s) restated as a "
                       f"literal", problems)
+    if not seen:
+        return _no_selection(
+            "restated thresholds",
+            f"{len(sources)} Python source(s) were read and no function "
+            f"parameter in any of them carries a governed name with a default",
+            [f"{root}/**/*.py" for root in _PY_ROOTS],
+            f"a parameter named one of {', '.join(sorted(GOVERNED_THRESHOLDS))}"
+            f" carrying a default",
+            ["the corpus is present; the GOVERNED_THRESHOLDS name list is what "
+             "matched nothing, and a threshold renamed at its call sites "
+             "leaves this check green over a corpus it no longer reaches"])
     return Result("restated thresholds", PASS,
-                  f"{pinned} threshold default(s) read the governed constant")
+                  f"{pinned} of {seen} governed threshold default(s) read the "
+                  f"governed constant")
 
 
 def check_register_group_counts() -> Result:
@@ -5018,6 +5232,17 @@ def check_register_group_counts() -> Result:
                       problems + ["counted by heading; one entry can cover "
                                   "several cases, so a mismatch is a reading, "
                                   "not automatically an error"])
+    if not groups:
+        return _no_selection(
+            "register group counts",
+            f"the failure register was read ({len(lines)} lines) and no group "
+            f"was found in it, so no declared count was compared to anything",
+            [REGISTER],
+            "a line beginning '## GROUP'",
+            ["'0 groups, 0 entries, every count agrees' is the register's "
+             "inventory reported clean by counting nothing; the file is there, "
+             "so either the register was emptied or its heading convention "
+             "moved"])
     return Result("register group counts", PASS,
                   f"{len(groups)} groups, {total_actual} entries, every count "
                   f"agrees")
@@ -5250,6 +5475,13 @@ def check_studies_carry_what_the_fit_records() -> Result:
                       f"all {checked} fitted study(s) carry every field their "
                       f"own fit records; {len(notes)} could not be refitted; "
                       f"{scope}", notes + skipped)
+    if not checked:
+        return _no_study_in_scope(
+            "studies carry what the fit records", studies,
+            "a study whose numerical block came out of a refinement fit "
+            "(_out_of_scope declines everything else)",
+            f"all {len(skipped)} study(s) read were declined by _out_of_scope, "
+            f"so no field set was compared to any fit")
     return Result("studies carry what the fit records", PASS,
                   f"all {checked} fitted study(s) carry every field their own "
                   f"fit records; {scope}", skipped)
@@ -5341,6 +5573,14 @@ def check_stored_fits_reproduce_their_values() -> Result:
                       f"all {compared} value(s) across {checked} refittable "
                       f"study(s) reproduce; {len(notes)} study(s) cannot be "
                       f"refitted at all and are unchecked", notes)
+    if not checked or not compared:
+        return _no_study_in_scope(
+            "stored fits reproduce their values", studies,
+            "a study carrying a numerical block that _own_fit can reproduce "
+            "from the rungs stored under levels[]",
+            f"{checked} study(s) were refittable and {compared} stored value(s) "
+            f"were compared, so 'all 0 stored value(s) reproduce' would be a "
+            f"statement about values none of which was read")
     return Result("stored fits reproduce their values", PASS,
                   f"all {compared} stored value(s) across {checked} study(s) "
                   f"reproduce from the study's own rungs")
@@ -5447,6 +5687,12 @@ def check_declined_ladders_name_their_guard() -> Result:
                       f"all {checked} declined ladder(s) name their guard; "
                       f"{len(notes)} rest on more than one; {scope}",
                       notes + skipped)
+    if not checked:
+        return _no_study_in_scope(
+            "declined ladders name their guard", studies,
+            "a study whose numerical block records `conclusive` as False",
+            f"all {len(skipped)} study(s) read carry no decline, so no guard "
+            f"claim was checked against any guard map")
     return Result("declined ladders name their guard", PASS,
                   f"all {checked} declined ladder(s) name the guard that held "
                   f"them; {scope}", skipped)
@@ -5562,6 +5808,19 @@ def check_record_writers_name_their_drops() -> Result:
                       f"{len(findings)} writer(s) whitelist keys off a source "
                       f"they receive as a parameter and declare no drops",
                       detail)
+    if not (findings or local or cleared):
+        return _no_selection(
+            "record writers name their drops",
+            f"{len(sources)} Python source(s) were read and not one holds a "
+            f"record-writing dict of the shape this check grades",
+            [f"{root}/**/*.py" for root in _PY_ROOTS],
+            "a dict literal four or more of whose values are src.get(\"k\") or "
+            "src[\"k\"] from one name",
+            ["the corpus is present, and with no site of any kind found the "
+             "PASS sentence -- 'no writer whitelists keys off a parameter "
+             "without saying what it leaves out' -- is true of an empty set "
+             "and says nothing about this tree; the four-key bar and the two "
+             "subscript spellings are what to re-read"])
     return Result("record writers name their drops", PASS,
                   f"no writer whitelists keys off a parameter without saying "
                   f"what it leaves out; {len(cleared)} declare their handling",
@@ -5657,6 +5916,13 @@ def check_stored_rungs_carry_solved_precision() -> Result:
         return Result("stored rungs carry solved precision", FAIL,
                       f"{len(problems)} of {checked} extrapolating ladder(s) "
                       f"are decided by their stored precision", problems + notes)
+    if not checked:
+        return _no_study_in_scope(
+            "stored rungs carry solved precision", studies,
+            "a study carrying richardson_extrapolated, a band_abs and at least "
+            "three levels[] rungs with cells and cd",
+            "no stored ladder extrapolates, so no amplification was computed "
+            "and the precision rule was applied to nothing")
     return Result("stored rungs carry solved precision", PASS,
                   f"all {checked} extrapolating ladder(s) store rungs precise "
                   f"enough that rounding reaches under "
@@ -5772,6 +6038,12 @@ def check_ladder_rungs_share_one_recipe() -> Result:
                       f"{len(known)} fitted ladder(s) fit across a recipe "
                       f"change that their own record names; {scope}",
                       known + skipped)
+    if not checked:
+        return _no_study_in_scope(
+            "ladder rungs share one recipe", studies,
+            "a study whose numerical block records an `observed_order`",
+            f"all {len(skipped)} study(s) read record no observed order, so no "
+            f"fit triple was compared against any recipe family")
     return Result("ladder rungs share one recipe", PASS,
                   f"all {checked} fitted ladder(s) fit inside a family their "
                   f"own recipe audit calls comparable; {scope}", skipped)
@@ -5877,8 +6149,13 @@ def check_order_window_declines_state_their_dimensionality() -> Result:
                       f"{len(problems)} of {checked} order-window decline(s) "
                       f"cannot be believed as they stand", problems + notes)
     if not checked:
-        return Result("order-window declines state their dimensionality", PASS,
-                      "no stored ladder is declined on order_window")
+        return _no_study_in_scope(
+            "order-window declines state their dimensionality", studies,
+            "a study declined (conclusive False) with order_window False in "
+            "its own guards map",
+            "'no stored ladder is declined on order_window' is the one "
+            "sentence this check can print without opening a ladder, and it "
+            "was a PASS")
     return Result("order-window declines state their dimensionality", INFO,
                   f"all {checked} order-window decline(s) name the "
                   f"dimensionality their fit used and hold at the other one",
@@ -5935,6 +6212,17 @@ def check_campaign_json_citations() -> Result:
         return Result("campaign json citations", FAIL,
                       f"{len(missing)} of {total} machine-readable citations "
                       f"do not resolve", missing[:25])
+    if not total:
+        return _no_selection(
+            "campaign json citations",
+            f"{len(companions)} campaign companion(s) were read and none "
+            f"carries a machine-readable citation",
+            [f"{_rel(CAMPAIGN)}/*.json"],
+            f"a path-shaped string under a field named one of "
+            f"{', '.join(sorted(interesting))}",
+            ["the companions are on disk; what matched nothing is the FIELD "
+             "NAME set, so a writer that renamed its citation field empties "
+             "this check without emptying its corpus"])
     return Result("campaign json citations", PASS,
                   f"all {total} machine-readable campaign citations resolve")
 
@@ -6335,8 +6623,22 @@ def check_rung_estimates_state_their_iterations() -> Result:
         if not _ITERATION_TERM.search(str(proposal.get("cost_basis") or "")):
             silent.append(proposal)
     if not rung:
-        return Result("rung estimates state their iterations", PASS,
-                      "no rung-shaped compute proposal is on the docket")
+        # EMPTY SELECTION, and it is not the unreadable docket guarded above.
+        # The docket opened, it holds proposals, and `_RUNG_SHAPED` matched
+        # none of them. Executed 2026-08-15 against a real docket carrying one
+        # non-rung proposal: this returned "no rung-shaped compute proposal is
+        # on the docket" as a PASS.
+        return _no_selection(
+            "rung estimates state their iterations",
+            f"the docket opened and holds {len(proposals)} proposal(s); none "
+            f"is rung-shaped, so no cost basis was read",
+            [docket_path],
+            "a proposal with an est_core_min whose objective or rationale "
+            "matches _RUNG_SHAPED",
+            ["the docket is present and non-empty; what matched nothing is "
+             "_RUNG_SHAPED, and this check's own live finding is that a "
+             "regex over prose can read a disclaimer as a disclosure -- so a "
+             "zero from it is a reason to read the pattern, not a clean bill"])
     live = [p for p in silent if p.get("status") in ("proposed", "approved")]
     detail = [f"{p.get('id')}: {p.get('status')}, {p.get('est_core_min')} "
               f"core-min, basis prices the grid only"
@@ -6665,11 +6967,29 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         PROPERTY, "a machine-readable citation with no file behind it",
         "a citation pointing at a file that exists and is not the evidence",
         None),
+    # PROPERTY, corrected 2026-08-15, and the correction is the finding rather
+    # than a tidy-up. This entry declared EVIDENCE -- which BASIS_MEANING
+    # defines as "re-derives a published number from a primary artifact, by
+    # arithmetic this file performs itself" -- two lines above a `blind_to`
+    # reading "every VALUE. It compares key sets only". A declaration
+    # contradicting itself inside ONE dict entry, shipped on every report, and
+    # `check_every_check_states_its_basis` passed it every single run, because
+    # that check tests a BASIS string is NON-EMPTY and never that it is TRUE.
+    # D174 names it as the standing proof that a declaration nothing verifies
+    # is worth nothing.
+    #
+    # PROPERTY is the honest label and its own meaning says why: "nothing is
+    # re-derived, so there is no shared derivation to hide in, and equally NO
+    # NUMBER IS CONFIRMED". THE CORRECTION MAKES THE REPORT WORSE, NOT BETTER:
+    # the EVIDENCE tally on the verdict line drops from 14 to 13, which is one
+    # fewer check in this lab that re-derives a published number than the
+    # report has been claiming. That is the point of the column.
     "check_studies_carry_what_the_fit_records": (
-        EVIDENCE,
+        PROPERTY,
         "a record writer that whitelists keys and has dropped a field the fit "
         "learned to emit; the writer and the fit are different code paths, so "
-        "the comparison is real",
+        "the comparison is real -- but it is a comparison of WHICH FIELDS "
+        "EXIST, not of what is under them",
         "every VALUE. It compares key sets only. A stale or hand-typed number "
         "under a present key passes -- which is what "
         "check_stored_fits_reproduce_their_values now reads",
@@ -6760,7 +7080,35 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "declaration naming a coupling that is no longer there",
         "a check that declares EVIDENCE and is in fact coupled through a "
         "symbol it does not name; the declaration is enforced where it is "
-        "made, not discovered from scratch", None),
+        "made, not discovered from scratch. AND, THE LARGER ONE, MEASURED: "
+        "whether a BASIS string is TRUE. It tests only that `catches` and "
+        "`blind_to` are non-empty, so a declaration contradicting itself "
+        "inside one dict entry passes -- which one did, for as long as this "
+        "check has existed. check_every_value_claim_names_its_source grades "
+        "that half", None),
+    "check_every_value_claim_names_its_source": (
+        META,
+        "a check that CLAIMS to grade value and does not: one that names no "
+        "source record, one whose own blind_to disclaims every value, one "
+        "declaring basis EVIDENCE while grading form, and -- the rule that "
+        "cannot be satisfied by wording -- one whose verdict is IDENTICAL "
+        "when the record it names is made unreadable and the check is run "
+        "again. It also holds the form column to a symmetric obligation: a "
+        "FORM-OVER-VALUE declaration must name the well-formed falsehood that "
+        "passes it",
+        "WHETHER READING THE NAMED RECORD ANSWERS THE CLAIM. The probe proves "
+        "the record is read and that the verdict depends on it; it cannot "
+        "prove the check asks the record the right question, so a check "
+        "genuinely constrained by a source it grades the wrong property of "
+        "passes here. Also blind to a record that is present and WRONG -- "
+        "blinding a corrupt source moves the verdict exactly as blinding a "
+        "good one does -- and to any check whose named record is absent on "
+        "this box, which is reported as UNPROVEN and is the honest verdict "
+        "rather than a green. And it cannot see the four kinds themselves: "
+        "the CENSUS it prints is a classification by a human of what each "
+        "predicate establishes, and a check filed in the wrong column is "
+        "caught only where the columns' own rules contradict each other",
+        None),
 }
 
 
@@ -7075,6 +7423,625 @@ def check_every_check_states_its_basis() -> Result:
 
 
 # --------------------------------------------------------------------------
+# FORM OR VALUE, DECLARED -- and the probe that makes the declaration cost
+# something (D174, D176)
+# --------------------------------------------------------------------------
+#
+# THE MEASURED FAMILY. A census over CHECKS, read by import, classified every
+# check by its PREDICATE -- by what its FAIL establishes, not by what its name
+# suggests. At 82fb3d46 that was 17 grading VALUE, 15 grading FORM where the
+# claim's failure mode is VALUE, and 2 where form is genuinely the whole
+# requirement. `check_rank_claim_values` (847b4492) makes it 18/15/2 here. The
+# 15 are not one bug repeated: `check_rung_estimates_state_their_iterations`
+# matches `\biterat` and so reads "the iteration count is NOT priced here" as
+# the disclosure; `check_record_writers_name_their_drops` is satisfied by the
+# bare token `EXCLUDED_KEYS`, so `EXCLUDED_KEYS = ()` -- an empty and therefore
+# false declaration -- clears it; and `check_every_check_states_its_basis`
+# tests that a BASIS string is NON-EMPTY and never that it is TRUE.
+#
+# WHY A DECLARATION, AND NOT FIFTEEN REPAIRS. Most of the 15 have no derivable
+# value: no source record says whether a `cost_basis` sentence is honest, which
+# is why they are form checks in the first place. Deleting them is worse -- a
+# form check that SAYS it is a form check is useful, and the defect is a form
+# verdict READ AS a value verdict. So the fix is one declared column that makes
+# the gap visible and countable on the report, plus the thing that column
+# needs to not become the defect itself.
+#
+# WHICH IS: A DECLARATION THAT NOTHING VERIFIES IS THE VERY DEFECT BEING FIXED.
+# `check_every_check_states_its_basis` already proves a non-empty string is
+# worth nothing -- `check_studies_carry_what_the_fit_records` declared
+# EVIDENCE, which BASIS_MEANING defines as "re-derives a published number from
+# a primary artifact", while its own `blind_to` two lines below said "every
+# VALUE. It compares key sets only", and that self-contradicting entry passed
+# every run. So a VALUE declaration here must PROVE ITSELF, by four rules of
+# which the last is executed rather than read:
+#
+#   NAMED       a VALUE claim names the machine record it grades against.
+#   CONSISTENT  it does not declare VALUE while its own blind_to disclaims
+#               value, and it does not declare EVIDENCE while grading form.
+#   PRESENT     the named record resolves on disk. If it does not, that is a
+#               fact about this box and the declaration is UNPROVEN, not false.
+#   CONSTRAINS  THE PROBE. The check is run again with the named record made
+#               unreadable in process, and its verdict must MOVE. A check whose
+#               verdict is the same with its evidence taken away was not using
+#               it, and its VALUE declaration is false however well it reads.
+#               This is the rule that a forged declaration cannot survive: it
+#               costs nothing to type VALUE, and the probe is what it costs.
+#
+# AND D176'S CLASS, WHICH IS WORSE THAN B AND IS COUNTED SEPARATELY. A check
+# can grade value honestly and still emit an ACTIVELY WRONG verdict, when the
+# record it grades against is a deliberate PIN rather than the referent the
+# claims are about. `check_board_placement_words` binds names to ranks from a
+# scoring pin that rung V1 requires frozen. When a repair wrote live-board
+# ordinals -- which a chief ruling requires -- rule A went from 0 faults to 14,
+# every one of them a CORRECT statement, and three of the fourteen named the
+# WRONG ENTRANT, because with two live entrants absent from the pin the subject
+# walk falls back to the nearest pinned name. That is not a missed defect, it
+# is a manufactured one, in both directions: a claim true of the live board
+# faults, and a claim true only of the pin stays silent. Folding it in with the
+# form-graders would hide the severity, so it declares VALUE-ON-A-PIN and is
+# tallied on its own line.
+
+FORM = "FORM"
+FORM_OVER_VALUE = "FORM-OVER-VALUE"
+VALUE = "VALUE"
+VALUE_ON_A_PIN = "VALUE-ON-A-PIN"
+
+GRADES_MEANING = {
+    FORM: ("grades SHAPE, and shape is the whole requirement: there is no "
+           "value behind this that could be false while the shape is right"),
+    FORM_OVER_VALUE: ("grades SHAPE over a claim whose failure mode is VALUE. "
+                      "A well-formed falsehood passes, and this entry names "
+                      "one. Its green is a statement about wording"),
+    VALUE: ("grades whether a claim is TRUE, against a named machine record "
+            "that is the live referent of the claim; proved by the probe"),
+    VALUE_ON_A_PIN: ("grades whether a claim is true against a record that is "
+                     "deliberately FROZEN and is NOT the referent the claims "
+                     "are about, so the error runs both ways and a correct "
+                     "claim can be faulted (D176)"),
+}
+
+# name -> (kind, evidence).  For VALUE and VALUE-ON-A-PIN the evidence is the
+# tuple of repo-relative records the verdict is derived from, and the probe
+# below blinds each one in turn. For FORM-OVER-VALUE it is the well-formed
+# falsehood that passes -- the obligation is symmetric on purpose, so a check
+# cannot dodge into the form column without saying what gets through it.
+GRADES: dict[str, tuple[str, object]] = {
+    # ---- FORM: shape is genuinely the whole requirement (class C) ----------
+    "check_ledger_integrity": (
+        FORM, ()),
+    "check_restated_thresholds": (
+        FORM, ()),
+
+    # ---- VALUE: graded against a live machine record (class A) -------------
+    "check_wall_counters_vs_ledger": (
+        VALUE, ("demo-output/website/mega-batch/ledger.jsonl",)),
+    "check_ledger_stalls": (
+        VALUE, ("demo-output/website/mega-batch/ledger.jsonl",)),
+    "check_closure_entry_of_record": (
+        VALUE, ("demo-output/website/closure_challenge_round5_qcr.json",)),
+    "check_rank_claim_values": (
+        VALUE, ("sdk/scripts/probability_of_rank.py",
+                "scripts/check_derived_figures.py")),
+    "check_memory_scaling_law": (
+        VALUE, ("demo-output/website/dafoam/ADJOINT_MEMORY_ENVELOPE.md",)),
+    "check_f2_reproduction": (
+        VALUE, ("demo-output/website/campaign/F2_runs/"
+                "primary_M0.8_a1.25_Re6e6/postProcessing/forceCoeffs1/0/"
+                "coefficient.dat",)),
+    "check_cost_predictions": (
+        VALUE, ("demo-output/website/agenda/docket.json",)),
+    "check_gate_table_vs_transcripts": (
+        VALUE, ("scripts/gate_table.py",)),
+    "check_wall_credentials_vs_results": (
+        VALUE, ("models/curriculum/results",)),
+    "check_benchmarks_vs_closure_record": (
+        VALUE, ("sdk/scripts/build_benchmarks.py",)),
+    "check_register_group_counts": (
+        VALUE, ("demo-output/website/campaign/NOT_PASSING_REGISTER.md",)),
+    "check_stored_fits_reproduce_their_values": (
+        VALUE, ("models/curriculum/uq-studies", "sdk/chief_engineer/uq.py")),
+    "check_stored_rungs_carry_solved_precision": (
+        VALUE, ("models/curriculum/uq-studies",)),
+    "check_ladder_rungs_share_one_recipe": (
+        VALUE, ("models/curriculum/uq-studies",)),
+    "check_declined_ladders_name_their_guard": (
+        VALUE, ("models/curriculum/uq-studies",)),
+    "check_order_window_declines_state_their_dimensionality": (
+        VALUE, ("models/curriculum/uq-studies", "sdk/chief_engineer/uq.py")),
+    "check_bundle_drift": (
+        VALUE, ("dist/certonomous-demo.zip",)),
+
+    # ---- VALUE-ON-A-PIN: right predicate, frozen referent (D176) -----------
+    # NOT the in-repo submission README, which is what this entry named first
+    # and which the probe rejected within one run: `_parse_published_board`
+    # reads the BENCHMARK CLONE, `$CLOSURE_BENCHMARK_DIR` or
+    # `~/closure-challenge-benchmark`, and blinding a file the check never
+    # opens moved no verdict. That is the probe doing its job on this table's
+    # own first draft, which is the argument for having it.
+    "check_board_placement_words": (
+        VALUE_ON_A_PIN, ("~/closure-challenge-benchmark/README.md",)),
+
+    # ---- FORM-OVER-VALUE: the 15, each naming what gets through it ---------
+    "check_rank_claim_surfaces": (
+        FORM_OVER_VALUE,
+        "a surface carrying P(rank 1), the current interval and the sweep "
+        "token, beside `rank 1 of 5` where the live board makes it 1 of 7 and "
+        "a seed bound that is 177% of the margin called `comparable` to it. "
+        "Read, recognised and cleared on 2026-08-15 at "
+        "dist/certonomous-demo.zip!site/closure.html:502 (D145)"),
+    "check_rung_estimates_state_their_iterations": (
+        FORM_OVER_VALUE,
+        "a cost_basis reading `the iteration count is NOT priced here`. "
+        "_ITERATION_TERM matches `\\biterat`, so the regex reads the "
+        "DISCLAIMER as the DISCLOSURE, and two live docket items clear it "
+        "that way"),
+    "check_fd_grades_current_standard": (
+        FORM_OVER_VALUE,
+        "a row whose PRINTED percentage is wrong. The grade WORD is recomputed "
+        "from the printed figure; the figure is never recomputed from anything, "
+        "so a wrong number correctly graded passes"),
+    "check_statistical_labels": (
+        FORM_OVER_VALUE,
+        "a hand-typed `+/- 0.004` on the line. The interval test is that the "
+        "identifier `_looks_like_interval` is TEXTUALLY PRESENT in the printing "
+        "file and that a glyph is on the transcript line; neither reads a "
+        "procedure's output"),
+    "check_nonconclusive_band_readers": (
+        FORM_OVER_VALUE,
+        "a function whose body contains the substring `conclusive` only inside "
+        "a comment saying the flag is ignored"),
+    "check_channel_totals_use_one_rule": (
+        FORM_OVER_VALUE,
+        "an act that mentions `combine_expanded` in a docstring and computes "
+        "its total another way; the test is `\"combine_expanded\" in text`"),
+    "check_record_writers_name_their_drops": (
+        FORM_OVER_VALUE,
+        "`EXCLUDED_KEYS = ()` -- an empty, and therefore false, declaration. "
+        "The test is membership of a bare token from _DROP_DECLARATIONS, so a "
+        "declaration that names nothing satisfies the rule to name what is "
+        "dropped"),
+    "check_evidence_paths_exist": (
+        FORM_OVER_VALUE,
+        "a citation pointing at a real file that does not hold the claimed "
+        "evidence; `.exists()` is the whole test"),
+    "check_campaign_json_citations": (
+        FORM_OVER_VALUE,
+        "the same: a machine-readable citation resolving to a real file whose "
+        "contents have nothing to do with the claim it is cited for"),
+    "check_studies_carry_what_the_fit_records": (
+        FORM_OVER_VALUE,
+        "a stale or hand-typed number under a present key. It compares KEY "
+        "SETS only and its own blind_to says so -- the aortic valve's "
+        "`conclusive: True` was a typed literal under a correct field name. "
+        "check_stored_fits_reproduce_their_values grades the values"),
+    "check_declared_fleet_vs_work": (
+        FORM_OVER_VALUE,
+        "a warm-path branch whose condition word is none of warm, cached or "
+        "restore; and a `set_workers(n)` outside an `if` altogether"),
+    "check_withdrawn_numbers": (
+        FORM_OVER_VALUE,
+        "the same withdrawn quantity written to a different number of decimal "
+        "places, or any withdrawn value nobody added to the sentinel list; the "
+        "test is literal substring membership over a transcribed list"),
+    "check_ungated_completed_runs": (
+        FORM_OVER_VALUE,
+        "a completed run whose record does not carry the literal `PRELIMINARY, "
+        "not yet graded`; the marker is the whole detector and the record "
+        "writes it by hand"),
+    "check_every_check_states_its_basis": (
+        FORM_OVER_VALUE,
+        "a BASIS string that is non-empty and FALSE. Measured live: "
+        "check_studies_carry_what_the_fit_records declared EVIDENCE -- "
+        "\"re-derives a published number ... by arithmetic this file performs "
+        "itself\" -- while its own blind_to two lines below said \"every VALUE. "
+        "It compares key sets only\", a declaration contradicting itself inside "
+        "one dict entry, and it PASSED. That is what "
+        "check_every_value_claim_names_its_source now catches"),
+    "check_every_finding_prices_its_remedy": (
+        FORM_OVER_VALUE,
+        "a remedy priced wrong, or a remedy that would not clear the finding. "
+        "The test is name-membership in REMEDIES and never the price"),
+    "check_every_value_claim_names_its_source": (
+        FORM_OVER_VALUE,
+        "a check that declares VALUE, names a real record, is genuinely "
+        "constrained by it -- the probe moves its verdict -- and grades the "
+        "WRONG PROPERTY of it. The probe proves the record is READ and that "
+        "the verdict depends on it; it cannot prove that reading it answers "
+        "the claim. This instrument does not exempt itself from the family it "
+        "measures"),
+}
+
+
+# A blind_to that DISCLAIMS VALUE. Matched against the declared blind spot of
+# anything claiming to grade value, because those two sentences cannot both be
+# true. These are the real spellings in this file's own BASIS table, not
+# invented ones -- the first is check_studies_carry_what_the_fit_records', the
+# second check_ledger_integrity's, the third PROPERTY's own BASIS_MEANING.
+_VALUE_DISCLAIMER = re.compile(
+    r"every VALUE|compares KEY SETS only|compares key sets only|"
+    r"nothing here reads the values|no number is confirmed|"
+    r"cannot fail on a wrong value|nothing is re-derived|"
+    r"IT GRADES FORM AND NOT VALUE", re.I)
+
+def _grade_source_path(source: str) -> Path:
+    """A declared source as a path on THIS box.
+
+    Repo-relative by default. A `~`-anchored source is a record outside this
+    repository, which today is the benchmark clone -- and its root is whatever
+    `$CLOSURE_BENCHMARK_DIR` says when that is set, so the declaration has to
+    follow the same override the check follows or the probe would blind a file
+    the check never opens and report a true declaration false.
+    """
+    clone = "~/closure-challenge-benchmark/"
+    if source.startswith(clone):
+        root = Path(os.environ.get(
+            _BOARD_DIR_ENV, Path.home() / "closure-challenge-benchmark"))
+        return root / source[len(clone):]
+    if source.startswith(("~", "/")):
+        return Path(source).expanduser()
+    return REPO / source
+
+
+#: Filled by `main()` so the probe below does not pay for a second unblinded
+#: run of every check it grades. It is a cache of THIS process's own results,
+#: never a substitute for running: an entry that is not here is computed.
+_RESULTS_THIS_RUN: dict[str, Result] = {}
+
+
+class _Blindfold:
+    """Make one repo path -- and everything under it -- unreadable, in process.
+
+    Not a mock of the check and not an edit of the tree: five agents share this
+    working tree and a probe that writes to it is a probe that corrupts
+    somebody else's run. Every read route this file uses is covered: the
+    `pathlib.Path` methods, `builtins.open`, and `zipfile.ZipFile`.
+
+    IT ALSO EVICTS THE CACHES, which is the half that is easy to forget and
+    without which the probe lies. `_derived_figures` is `lru_cache`d and
+    `_uq_module` returns whatever `sys.modules` already holds, so blinding a
+    module's FILE changes nothing at all while the module object is still
+    loaded -- and the check would then look unconstrained by a record it in
+    fact depends on completely. Modules under the blinded path are evicted and
+    restored, and every `lru_cache` in this module is cleared on the way in and
+    on the way out.
+    """
+
+    _METHODS = ("exists", "is_file", "is_dir", "read_text", "read_bytes",
+                "open", "stat", "glob", "rglob", "iterdir")
+
+    def __init__(self, target: Path):
+        # `os.path` and NOT `Path.resolve()`, here and in `_hidden`. Resolving
+        # through pathlib calls `Path.stat`, which is one of the methods this
+        # class replaces, and the replacement asks `_hidden` -- so the first
+        # version of this recursed until the interpreter gave up. The test at
+        # the bottom of the blindfold's suite drives exactly that path.
+        self.target = os.path.realpath(str(target))
+        self._prefix = self.target + os.sep
+        # THE COMPILED COPY, which is the trap this lab has already been bitten
+        # by (LESSONS: stale __pycache__ has INVERTED mutation results here).
+        # `SourceFileLoader` compares the source's mtime and size through
+        # `os.stat` -- which no hook below touches -- and then reads
+        # `__pycache__/<stem>.<tag>.pyc`, which does NOT live under the source
+        # path. So blinding `uq.py` alone leaves the module loading happily
+        # from bytecode, and the probe would report a check unconstrained by a
+        # record it depends on entirely.
+        head, tail = os.path.split(self.target)
+        stem = os.path.splitext(tail)[0]
+        self._cache_dir = os.path.join(head, "__pycache__")
+        self._cache_stem = stem + "." if tail.endswith(".py") else None
+
+    def _hidden(self, probe) -> bool:
+        try:
+            resolved = os.path.realpath(os.fspath(probe))
+        except (OSError, TypeError, ValueError):
+            return False
+        if resolved == self.target or resolved.startswith(self._prefix):
+            return True
+        if self._cache_stem is None:
+            return False
+        head, tail = os.path.split(resolved)
+        return head == self._cache_dir and tail.startswith(self._cache_stem)
+
+    def __enter__(self):
+        blind = self._hidden
+        target = self.target
+        self._saved = {name: getattr(Path, name) for name in self._METHODS}
+
+        def wrap(name, original):
+            def method(this, *args, **kwargs):
+                if blind(this):
+                    if name in ("exists", "is_file", "is_dir"):
+                        return False
+                    if name in ("glob", "rglob", "iterdir"):
+                        return iter(())
+                    raise FileNotFoundError(
+                        f"[self_audit probe] {this} is blinded")
+                out = original(this, *args, **kwargs)
+                if name in ("glob", "rglob", "iterdir"):
+                    return (p for p in out if not blind(p))
+                return out
+            return method
+
+        for name, original in self._saved.items():
+            setattr(Path, name, wrap(name, original))
+
+        self._open = builtins.open
+
+        def blind_open(file, *args, **kwargs):
+            if isinstance(file, (str, os.PathLike)) and blind(file):
+                raise FileNotFoundError(f"[self_audit probe] {file} is blinded")
+            return self._open(file, *args, **kwargs)
+
+        builtins.open = blind_open
+        self._zip = zipfile.ZipFile
+
+        def blind_zip(file, *args, **kwargs):
+            if isinstance(file, (str, os.PathLike)) and blind(file):
+                raise FileNotFoundError(f"[self_audit probe] {file} is blinded")
+            return self._zip(file, *args, **kwargs)
+
+        zipfile.ZipFile = blind_zip
+
+        # THE IMPORT MACHINERY, which none of the hooks above reaches and which
+        # five of this file's own VALUE declarations depend on. `import
+        # gate_table`, `from chief_engineer import uq` and
+        # `spec_from_file_location(... check_derived_figures.py)` all read
+        # through `_io.open_code` inside importlib's bootstrap -- not through
+        # `builtins.open`, not through `Path.read_text`. The first version of
+        # this probe reported all five as unconstrained by records they in fact
+        # cannot run without, which is a false accusation and exactly as bad as
+        # the false clean it exists to find.
+        self._open_code = _io.open_code
+
+        def blind_open_code(path, *args, **kwargs):
+            if blind(path):
+                raise FileNotFoundError(
+                    f"[self_audit probe] {path} is blinded")
+            return self._open_code(path, *args, **kwargs)
+
+        _io.open_code = blind_open_code
+
+        self._evicted = {}
+        self._detached = []
+        for name, module in list(sys.modules.items()):
+            origin = getattr(module, "__file__", None)
+            if origin and blind(origin):
+                self._evicted[name] = sys.modules.pop(name)
+                # AND THE ATTRIBUTE ON THE PARENT PACKAGE. Dropping
+                # `sys.modules["chief_engineer.uq"]` is not enough: importing a
+                # submodule also BINDS it on its package, and `from
+                # chief_engineer import uq` takes the attribute without
+                # importing anything at all when it is there. Both `uq.py`
+                # declarations read as unconstrained until this line existed --
+                # the module was never re-read, so blinding its file could not
+                # possibly change a verdict.
+                package, _, attribute = name.rpartition(".")
+                parent = sys.modules.get(package) if package else None
+                if parent is not None and hasattr(parent, attribute):
+                    self._detached.append(
+                        (parent, attribute, getattr(parent, attribute)))
+                    delattr(parent, attribute)
+        _clear_caches()
+        return self
+
+    def __exit__(self, *exc):
+        for name, original in self._saved.items():
+            setattr(Path, name, original)
+        builtins.open = self._open
+        zipfile.ZipFile = self._zip
+        _io.open_code = self._open_code
+        sys.modules.update(self._evicted)
+        for parent, attribute, module in self._detached:
+            setattr(parent, attribute, module)
+        _clear_caches()
+        return False
+
+
+def _clear_caches() -> None:
+    """Every lru_cache in this module, emptied. A cached answer computed before
+    a source was blinded is an answer about a file the probe is pretending is
+    not there."""
+    for value in list(globals().values()):
+        clear = getattr(value, "cache_clear", None)
+        if callable(clear):
+            try:
+                clear()
+            except Exception:                          # noqa: BLE001
+                pass
+
+
+def _verdict_of(check) -> tuple[str, str]:
+    """A check's verdict as the pair the probe compares: status and summary.
+
+    The detail list is deliberately NOT compared. Detail carries frames, counts
+    and timestamps that move for reasons that have nothing to do with the
+    record under test, and a probe that treats any of those as "the verdict
+    moved" would clear a declaration it should fail.
+    """
+    try:
+        result = check()
+    except Exception as exc:                           # noqa: BLE001
+        return ("RAISED", f"{type(exc).__name__}: {exc}")
+    return (result.status, result.summary)
+
+
+def check_every_value_claim_names_its_source() -> Result:
+    """A check that claims to grade VALUE proves it against a named record.
+
+    THE DEFECT THIS EXISTS FOR, in one live entry.
+    `check_studies_carry_what_the_fit_records` declared basis EVIDENCE, which
+    BASIS_MEANING defines as re-deriving a published number by arithmetic this
+    file performs itself, while its own `blind_to` two lines below read "every
+    VALUE. It compares key sets only". Both halves shipped on every report, the
+    contradiction was inside ONE dict entry, and
+    `check_every_check_states_its_basis` passed it every time -- because that
+    check tests a BASIS string is NON-EMPTY and never that it is TRUE.
+
+    So this one does not test that a declaration exists. It tests that a VALUE
+    declaration is true, by four rules, and the last of them is executed:
+
+    1. NAMED. VALUE names the record it grades against; FORM-OVER-VALUE names
+       the well-formed falsehood that passes it. Both obligations are real, so
+       neither column is the cheap one to sit in.
+    2. CONSISTENT. A VALUE claim whose own blind_to disclaims value is a
+       contradiction and fails here. So is a check declaring basis EVIDENCE --
+       a re-derivation of a number -- while grading form.
+    3. PRESENT. The named record resolves on disk, or the declaration is
+       UNPROVEN rather than false: an absent artifact is a fact about this box.
+    4. CONSTRAINS. THE PROBE, and the reason typing VALUE is not free: each
+       named record is made unreadable in process and the check is RUN AGAIN.
+       Its verdict must move. A verdict that is identical with the evidence
+       taken away was not derived from it.
+
+    AND IT COUNTS RATHER THAN CONGRATULATES. Reclassifying the fifteen
+    form-graders would make this green and change nothing on the record, so the
+    verdict line carries the census -- how many checks grade value, how many
+    grade form over a claim whose failure mode is value, and how many claim
+    value without proving it -- on a PASS as loudly as on a FAIL.
+    """
+    title = "every value claim names its source"
+    names = [check.__name__ for check in CHECKS]
+    by_name = {check.__name__: check for check in CHECKS}
+    known = set(names)
+
+    problems: list[str] = []
+    problems += [f"{n}: grades neither form nor value, because it declares "
+                 f"nothing" for n in sorted(known - set(GRADES))]
+    problems += [f"{n}: declares a grade and is not a check any more"
+                 for n in sorted(set(GRADES) - known)]
+
+    census: dict[str, list[str]] = {}
+    unproven: list[str] = []
+    probed = moved = 0
+
+    for name in sorted(set(GRADES) & known):
+        kind, evidence = GRADES[name]
+        if kind not in GRADES_MEANING:
+            problems.append(f"{name}: declares unknown grade {kind!r}")
+            continue
+        census.setdefault(kind, []).append(name)
+        declared = BASIS.get(name)
+        basis, blind = (declared[0], declared[2]) if declared else (None, "")
+
+        if kind == FORM_OVER_VALUE:
+            # RULE 1, the form side. A form check that cannot name what gets
+            # through it has not been read for one, and its green is worth
+            # exactly what its author has not yet checked.
+            if not isinstance(evidence, str) or len(evidence.strip()) < 40:
+                problems.append(
+                    f"{name}: declares FORM-OVER-VALUE and names no "
+                    f"well-formed falsehood that passes it; that sentence is "
+                    f"the whole content of the declaration")
+            continue
+        if kind == FORM:
+            if evidence:
+                problems.append(
+                    f"{name}: declares FORM -- shape IS the requirement -- and "
+                    f"still names evidence {evidence!r}; if there is a record "
+                    f"behind it, the honest grade is VALUE")
+            if basis == EVIDENCE:
+                problems.append(
+                    f"{name}: declares basis EVIDENCE and grade FORM. EVIDENCE "
+                    f"means {BASIS_MEANING[EVIDENCE][:60]}..., which is a claim "
+                    f"about a number; one of the two declarations is false")
+            continue
+
+        # --- VALUE and VALUE-ON-A-PIN from here ----------------------------
+        # RULE 2, CONSISTENT.
+        if _VALUE_DISCLAIMER.search(blind or ""):
+            problems.append(
+                f"{name}: declares {kind} and its own blind_to disclaims value "
+                f"-- {_VALUE_DISCLAIMER.search(blind).group(0)!r}. A check "
+                f"cannot both grade value and be blind to every value; one of "
+                f"the two sentences is false and they are two lines apart")
+        # RULE 1, NAMED.
+        sources = tuple(evidence or ())
+        if not sources:
+            problems.append(
+                f"{name}: claims to grade {kind} and names NO source record. "
+                f"An unbacked value claim is the defect this table exists to "
+                f"make countable, in the table itself")
+            continue
+
+        for source in sources:
+            path = _grade_source_path(source)
+            # RULE 3, PRESENT.
+            if not path.exists():
+                unproven.append(
+                    f"{name}: names {source}, which is not on this box, so its "
+                    f"{kind} declaration could not be probed -- UNPROVEN, not "
+                    f"disproved: an absent artifact is a fact about the box")
+                continue
+            # RULE 4, CONSTRAINS. Executed.
+            probed += 1
+            before = _RESULTS_THIS_RUN.get(name)
+            before = ((before.status, before.summary) if before
+                      else _verdict_of(by_name[name]))
+            with _Blindfold(path):
+                after = _verdict_of(by_name[name])
+            if before == after:
+                problems.append(
+                    f"{name}: declares {kind} against {source}, and its verdict "
+                    f"is IDENTICAL with {source} unreadable -- "
+                    f"{before[0]} {before[1][:70]!r} both times. The record "
+                    f"does not constrain this verdict, so the declaration is "
+                    f"false however well it reads")
+            else:
+                moved += 1
+
+    for name in sorted(set(GRADES) & known):
+        kind, _ = GRADES[name]
+        declared = BASIS.get(name)
+        if declared and declared[0] == EVIDENCE and kind in (FORM,
+                                                             FORM_OVER_VALUE):
+            problems.append(
+                f"{name}: declares basis EVIDENCE and grades {kind}. EVIDENCE "
+                f"is itself a claim that a published NUMBER is re-derived here; "
+                f"a form-grader declaring it is the false declaration this "
+                f"check was written for")
+
+    value_kinds = [n for k in (VALUE, VALUE_ON_A_PIN) for n in census.get(k, [])]
+    detail = [f"{kind}: {len(rows)} check(s) -- {GRADES_MEANING[kind]}"
+              for kind, rows in sorted(census.items())]
+    detail.append(
+        f"CENSUS: {len(value_kinds)} of {len(names)} check(s) grade whether a "
+        f"claim is TRUE ({len(census.get(VALUE_ON_A_PIN, []))} of them against "
+        f"a FROZEN referent, D176); "
+        f"{len(census.get(FORM_OVER_VALUE, []))} grade SHAPE over a claim whose "
+        f"failure mode is VALUE and each names a well-formed falsehood that "
+        f"passes it; {len(census.get(FORM, []))} grade shape where shape is the "
+        f"whole requirement")
+    detail.append(
+        f"PROVED BY EXECUTION: {moved} of {probed} (check, record) pair(s) "
+        f"moved their verdict when the named record was made unreadable; "
+        f"{len(unproven)} could not be probed on this box")
+    detail.append(
+        "counted and not congratulated: relabelling the "
+        f"{len(census.get(FORM_OVER_VALUE, []))} form-graders as anything else "
+        "would make this line shorter and change nothing about what they see, "
+        "which is why the line prints on a PASS as well as on a FAIL")
+    detail += unproven
+    detail += [f"{kind}: {', '.join(sorted(rows))}"
+               for kind, rows in sorted(census.items())]
+
+    if problems:
+        return Result(title, FAIL,
+                      f"{len(problems)} grade declaration(s) are missing, "
+                      f"self-contradicting or not backed by the record they "
+                      f"name", problems + detail)
+    if unproven:
+        return Result(title, UNKNOWN,
+                      f"{len(unproven)} value declaration(s) name a record "
+                      f"that is not on this box and could not be probed; "
+                      f"{moved} of {probed} probed pair(s) moved", detail)
+    return Result(title, PASS,
+                  f"all {len(names)} check(s) declare form or value, every "
+                  f"value claim names a record, and all {probed} named "
+                  f"record(s) MOVE the verdict when taken away", detail)
+
+
+# --------------------------------------------------------------------------
 # What clearing each finding costs
 # --------------------------------------------------------------------------
 #
@@ -7259,6 +8226,21 @@ REMEDIES: dict[str, tuple[str, bool, str]] = {
         "add the missing check to REMEDIES with its remedy and whether that "
         "remedy needs compute",
         False, "writing down a price nobody had written down"),
+    "check_every_value_claim_names_its_source": (
+        "for a missing declaration, add the check to GRADES as FORM, "
+        "FORM-OVER-VALUE (naming the well-formed falsehood that passes it) or "
+        "VALUE (naming the record it grades against). For a declaration the "
+        "PROBE disproved, there is no wording that clears it: either make the "
+        "check read the record it names -- so that taking the record away "
+        "moves the verdict -- or move the declaration to FORM-OVER-VALUE and "
+        "write down what gets through. NO COMPUTE either way; the probe is an "
+        "in-process re-run of one check with one path hidden",
+        False,
+        "the four rules are arithmetic and file reads over records already on "
+        "disk; nothing here needs a solver, and the expensive-looking rule -- "
+        "re-running a check under a blindfold -- is cheap precisely when the "
+        "check is compliant, because a check that depends on a record "
+        "short-circuits the moment the record is gone"),
 }
 
 
@@ -7328,6 +8310,14 @@ CHECKS = (
     check_rung_estimates_state_their_iterations,
     check_every_finding_prices_its_remedy,
     check_every_check_states_its_basis,
+    # LAST, and it is a real dependency rather than a tidy habit.
+    # `check_every_value_claim_names_its_source` reuses this process's own
+    # already-computed verdicts as the unblinded half of its probe, so running
+    # it after everything else is what keeps the audit from paying for a
+    # second full pass. It does not DEPEND on that: any verdict not in
+    # `_RESULTS_THIS_RUN` is computed on the spot, so the check is correct
+    # standalone and correct if this tuple is ever reordered. Only slower.
+    check_every_value_claim_names_its_source,
 )
 
 
@@ -7342,10 +8332,15 @@ def main() -> int:
     results = []
     for check in CHECKS:
         try:
-            results.append(check())
+            outcome = check()
         except Exception as exc:  # noqa: BLE001 - a broken check is a finding
-            results.append(Result(check.__name__, FAIL,
-                                  f"check raised {type(exc).__name__}: {exc}"))
+            outcome = Result(check.__name__, FAIL,
+                             f"check raised {type(exc).__name__}: {exc}")
+        results.append(outcome)
+        # The unblinded half of check_every_value_claim_names_its_source's
+        # probe, recorded as it happens rather than recomputed. See the note
+        # on that check in CHECKS.
+        _RESULTS_THIS_RUN[check.__name__] = outcome
 
     priced = []
     for check, result in zip(CHECKS, results):
@@ -7385,6 +8380,28 @@ def main() -> int:
             print(f"[{result.status:<4}] {result.name:<{width}}  "
                   f"{result.summary}")
             print(f"         tests: {tests}")
+            # ON THE VERDICT LINE, NOT ONLY IN THE DICT (D174). BASIS already
+            # carried `PROPERTY` for check_rank_claim_surfaces on the day it
+            # cleared a false rank claim on a shipped page, and the label did
+            # not stop the verdict being quoted as reassurance -- because the
+            # label was in a table and the verdict was in the report. So the
+            # grade rides beside the status, and a FORM-OVER-VALUE line says
+            # what gets through it right there.
+            graded = GRADES.get(check.__name__)
+            if graded:
+                kind, evidence = graded
+                if kind in (VALUE, VALUE_ON_A_PIN):
+                    print(f"         grades: {kind} against "
+                          f"{', '.join(evidence)}")
+                elif kind == FORM_OVER_VALUE:
+                    print(f"         grades: {kind} -- this verdict is about "
+                          f"WORDING, not truth")
+                    print(f"         PASSES A WELL-FORMED FALSEHOOD: "
+                          f"{evidence}")
+                else:
+                    print(f"         grades: {kind}")
+            else:
+                print("         grades: UNDECLARED")
             for line in result.detail:
                 print(f"         - {line}")
             # EVERY check states its blind spot, on EVERY status.
@@ -7434,6 +8451,27 @@ def main() -> int:
                 kinds.get(declared[0] if declared else "UNDECLARED", 0) + 1
         print("what these checks test:  "
               + "  ".join(f"{k}: {v}" for k, v in sorted(kinds.items())))
+        # THE CENSUS, printed every run. A number that only a FAIL would show
+        # is a number nobody reads on the day it matters, and the point of the
+        # declared column is that the gap is COUNTABLE rather than green.
+        grades: dict[str, int] = {}
+        unbacked = 0
+        for check in CHECKS:
+            declared = GRADES.get(check.__name__)
+            kind = declared[0] if declared else "UNDECLARED"
+            grades[kind] = grades.get(kind, 0) + 1
+            if declared and declared[0] in (VALUE, VALUE_ON_A_PIN) \
+                    and not declared[1]:
+                unbacked += 1
+        print("what these checks grade: "
+              + "  ".join(f"{k}: {v}" for k, v in sorted(grades.items())))
+        print(f"  {grades.get(VALUE, 0) + grades.get(VALUE_ON_A_PIN, 0)} of "
+              f"{len(CHECKS)} grade whether a claim is TRUE "
+              f"({grades.get(VALUE_ON_A_PIN, 0)} of those against a FROZEN "
+              f"referent that is not what the claims are about, D176); "
+              f"{grades.get(FORM_OVER_VALUE, 0)} grade SHAPE over a claim "
+              f"whose failure mode is VALUE; {unbacked} claim VALUE without "
+              f"naming a source record")
 
     # Three-valued exit, 2026-08-15 (D118). 1 on FAIL, 3 on UNKNOWN with no
     # FAIL, 0 otherwise. FAIL outranks UNKNOWN because a definite finding

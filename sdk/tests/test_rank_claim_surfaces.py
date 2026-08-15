@@ -511,11 +511,37 @@ class TheSurfaceSetIsDerivedNotListedTests(unittest.TestCase):
         self.assertIn("Blind to", frame[0])
 
     def test_git_unavailable_is_reported_as_a_detector_that_is_off(self):
+        """WHICH CHANGE MOVED THIS, and why UNKNOWN is the right verdict.
+
+        This asserted WARN and the word "OFF" in the summary until 847b4492,
+        which converted the branch to `_no_evidence` and made it UNKNOWN. The
+        expectation was stale, not the change, and the reason is written at the
+        call site: WARN is not a blocking status. `scripts/lab_check.py` records
+        at its own line 229 that self_audit "exits non-zero only on FAIL -- so
+        an OFF detector reddens nothing here" (docket D78). A guard that could
+        not enumerate its own corpus examined nothing, and under this file's B1
+        rule a check that examined nothing returns UNKNOWN, which exits 3 and
+        which lab_check's EXIT_CONTRACT reads as UNKNOWN and treats as
+        blocking. So the detector being off now reddens the runner instead of
+        sitting beside the passes.
+
+        THE TEST'S INTENT SURVIVES AND IS ASSERTED HARDER. The point was never
+        the string "OFF"; it was that the report must say the detector did not
+        look, rather than that there was nothing to find. That is asserted
+        below on the real text -- the source it could not read is NAMED, and
+        the B1 sentence is present -- rather than on one word. The assertion is
+        NOT relaxed to accept either status: UNKNOWN is required and WARN now
+        fails.
+        """
         sa._tracked_files = lambda: None
         sa._travelling_names = lambda: set()
         result = sa.check_rank_claim_surfaces()
-        self.assertEqual(sa.WARN, result.status)
-        self.assertIn("OFF", result.summary)
+        self.assertEqual(sa.UNKNOWN, result.status, result.summary)
+        self.assertIn("no surface was opened", result.summary)
+        self.assertIn("not read: git ls-files", result.detail)
+        self.assertTrue(
+            any("an empty sweep is not agreement" in d for d in result.detail),
+            result.detail)
 
 
 class TheGuardIsRegisteredTests(unittest.TestCase):

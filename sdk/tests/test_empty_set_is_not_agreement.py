@@ -418,10 +418,26 @@ class TestMutations(_LedgerCells):
         self.assertEqual(mutant.check_ledger_stalls().status, mutant.WARN)
 
     def test_defanging_the_shared_guard_turns_every_arm_red_together(self):
+        """THE ANCHOR WAS NARROWED, and which change moved it.
+
+        `return Result(\\n        name, UNKNOWN, summary,` matched exactly one
+        site until D175 added `_no_selection` beside `_no_evidence` -- a second
+        shared guard, for the case where the source is present and the
+        SELECTOR matches nothing, which is a different failure with a different
+        remedy. Two identical sites tripped this helper's own uniqueness check,
+        which is the check working: the code moved and the mutation was fixed
+        rather than the test deleted. The anchor now carries the line that
+        distinguishes the two guards, and the second guard is mutated below in
+        its own cell so BOTH remain proved.
+        """
         mutant = _mutant(
             "no_evidence_passes",
-            "    return Result(\n        name, UNKNOWN, summary,",
-            "    return Result(\n        name, PASS, summary,")
+            "    return Result(\n        name, UNKNOWN, summary,\n"
+            "        (detail or [])\n"
+            '        + [f"not read: {s}" for s in named]',
+            "    return Result(\n        name, PASS, summary,\n"
+            "        (detail or [])\n"
+            '        + [f"not read: {s}" for s in named]')
         self.absent(mutant)
         self.assertEqual(mutant.check_ledger_stalls().status, mutant.PASS)
         self.assertEqual(mutant.check_ledger_integrity().status, mutant.PASS)
@@ -429,7 +445,50 @@ class TestMutations(_LedgerCells):
         self.assertEqual(
             mutant.check_nonconclusive_band_readers().status, mutant.PASS)
 
-    def test_removing_the_corpus_guard_lets_an_empty_sweep_PASS(self):
+    def test_defanging_the_SECOND_shared_guard_turns_its_arms_red_too(self):
+        """`_no_selection` is load-bearing in its own right (D175).
+
+        It is the guard for a source that is PRESENT, readable and non-empty
+        whose selector matches nothing -- eighteen checks returned PASS that
+        way. Mutate it to PASS and the arm goes green over a real corpus that
+        simply did not select, which is the defect it was written for.
+        """
+        mutant = _mutant(
+            "no_selection_passes",
+            "    return Result(\n        name, UNKNOWN, summary,\n"
+            "        (detail or [])\n"
+            '        + [f"read, and not empty: {s}" for s in named]',
+            "    return Result(\n        name, PASS, summary,\n"
+            "        (detail or [])\n"
+            '        + [f"read, and not empty: {s}" for s in named]')
+        # A REAL, NON-EMPTY corpus that selects nothing: not an empty one.
+        plain = Path(mutant.REPO) / "plain.py"
+        plain.parent.mkdir(parents=True, exist_ok=True)
+        plain.write_text("def hello():\n    return 'selects under no rule'\n")
+        mutant._py_corpus = lambda name: ([plain], None)
+        self.assertEqual(
+            mutant.check_nonconclusive_band_readers().status, mutant.PASS)
+
+    def test_removing_the_corpus_guard_now_MISDIAGNOSES_instead_of_passing(
+            self):
+        """RENAMED AND RE-AIMED, and here is exactly what moved it.
+
+        This asserted that removing `_py_corpus`'s guard lets an empty sweep
+        return PASS, and it did, because that guard was the only thing between
+        an absent corpus and a green. D175 added a SECOND, independent guard
+        downstream -- `if not checked: _no_selection(...)` -- so the mutant can
+        no longer produce a green at all. Defence in depth is the substance of
+        the repair, and it is asserted first below.
+
+        THE ASSERTION IS NOT RELAXED TO ACCEPT EITHER STATUS, which would test
+        nothing. It is re-aimed at what the corpus guard still uniquely
+        prevents: a MISDIAGNOSIS. With the guard removed, an ABSENT corpus is
+        reported as "my selector matched nothing" -- which sends the reader to
+        re-read a regex when the actual problem is that every root is gone.
+        The two failures have different remedies, which is the whole reason
+        `_no_selection` exists as a separate helper, and this mutation proves
+        the first guard is what keeps them apart.
+        """
         mutant = _mutant(
             "py_corpus_unguarded",
             "    sources = _py_sources()\n"
@@ -439,9 +498,22 @@ class TestMutations(_LedgerCells):
             "    if True:\n"
             "        return sources, None\n")
         mutant._py_sources = lambda: []
-        self.assertEqual(
-            mutant.check_nonconclusive_band_readers().status, mutant.PASS)
-        self.assertIn("0", mutant.check_nonconclusive_band_readers().summary)
+        mutated = mutant.check_nonconclusive_band_readers()
+        # Still not a green: the downstream guard holds the line.
+        self.assertEqual(mutant.UNKNOWN, mutated.status, mutated.summary)
+        # But the reason is now the WRONG one, and that is the finding.
+        joined = " ".join(mutated.detail)
+        self.assertIn("selector that matched nothing", joined)
+        self.assertNotIn("no Python source was found to scan", mutated.summary)
+
+        # The unmutated module, on the same absent corpus, says the true thing.
+        clean = _mutant("py_corpus_intact", "def _py_corpus", "def _py_corpus")
+        clean._py_sources = lambda: []
+        honest = clean.check_nonconclusive_band_readers()
+        self.assertEqual(clean.UNKNOWN, honest.status)
+        self.assertIn("no Python source was found to scan", honest.summary)
+        self.assertNotIn("selector that matched nothing",
+                         " ".join(honest.detail))
 
 
 if __name__ == "__main__":
