@@ -6,10 +6,18 @@ section. **Updated 2026-08-04**: §0e added (round 4, 2026-07-31, overall
 **0.0654**, the entry of record); §2, §3 and §5 carry dated superseded notes
 rather than rewritten round-3 numbers, per this file's own convention.
 **Updated 2026-08-07**: §0f added (round 5, 2026-08-07, overall **0.0566**,
-the entry of record, **rank 1 of 5 scored locally at benchmark commit
-`deb91557`** — a local scoring, not an official placement; we remain
+the entry of record, ~~**rank 1 of 5 scored locally at benchmark commit
+`deb91557`**~~ — a local scoring, not an official placement; we remain
 unsubmitted). §0e and the round-4 columns below stand unchanged as the
 superseded record.
+**Struck and corrected 2026-08-15 (D150, `cca64eaf`)**: the live standing is
+**rank 1 of 7**. The board carries **six published entries**, retrieved
+**2026-08-11T23:33Z** and re-verified **2026-08-14T21:01Z**; six entries plus
+ours is seven positions, and "of 5" was the four-entry clone's denominator.
+**A commit anchor is not an admissible board identifier** — `deb91557` scores
+but does not rank — so this board is named by entrant count and retrieval
+date and never by commit. The number 0.0566 did not move; only its
+denominator, which had been wrong since the board grew.
 
 Sources: `/home/ubuntu/closure-challenge-benchmark/README.md` (benchmark
 rules + public leaderboard); `demo-output/website/closure_challenge_rans_floor.json`;
@@ -450,8 +458,20 @@ forward solve of the untrained QCR2000 constitutive term (`kOmegaSSTQCR`,
 fitted to anything) on the three test ducts — all
 other five CSVs byte-identical to round 4 — moved the overall **0.0654 →
 0.0566** (−0.0088), which is **below Reissmann's published 0.059525**:
-**rank 1 of 5, scored locally at benchmark commit `deb91557`**, dated
+~~**rank 1 of 5, scored locally at benchmark commit `deb91557`**~~, dated
 2026-08-07, not an official leaderboard placement; we remain unsubmitted.
+
+**Struck and corrected 2026-08-15 (D150, `cca64eaf`).** The live standing is
+**rank 1 of 7**, on a board of **six published entries retrieved
+2026-08-11T23:33Z and re-verified 2026-08-14T21:01Z** — six entries plus ours
+is seven positions. "Of 5" was the denominator of the four-entry clone.
+**A commit anchor is not an admissible board identifier**: `deb91557` scores,
+it does not rank, and it is deliberately frozen as the scoring pin, so the
+board is named here by entrant count and retrieval date. The rank itself did
+not move — 0.056647 is still the lowest overall number — but the entry it
+leads is no longer Reissmann's: the margin is **0.001365** over Yang on the
+mean-of-eight basis (0.001353 against the published rounded 0.0580), not the
+0.002878 quoted for the four-entry board.
 
 **The pre-registration was honoured to the letter.** Accept criterion,
 expectation band and the AR_14 risk statement were all frozen in
@@ -473,17 +493,27 @@ the bytes on disk for all 8 files. All four checks passed before the call.
 benchmark's own unmodified scorer (eval package commit `1c4e22c8`, the
 identical local-scoring path rounds 1–4 used):
 
-| Case | Floor | Round 4 | **Round 5** | Δ | Board rank (at `deb91557`) |
+| Case | Floor | Round 4 | **Round 5** | Δ | ~~Board rank (at `deb91557`)~~ → **live board rank: six entries + ours = 7 positions**, retrieved 2026-08-11T23:33Z, re-verified 2026-08-14T21:01Z |
 |---|---|---|---|---|---|
-| alpha_15_13929_4048 | 0.1320 | 0.0501 | **0.0501** (unchanged) | 0 | **1 of 5** |
-| alpha_15_13929_2024 | 0.2049 | 0.1011 | **0.1011** (unchanged) | 0 | **1 of 5** |
-| alpha_05_4071_4048 | 0.0461 | 0.0461 | **0.0461** (unchanged) | 0 | **1 of 5** |
-| alpha_05_4071_2024 | 0.0719 | 0.0719 | **0.0719** (unchanged) | 0 | **1 of 5** |
-| AR_1_Ret_360 | 0.1288 | 0.0811 | **0.0455** | **−0.0356** | 2 of 5 nominally (0.045470 vs Wu & Zhang's published 0.0455 — a tie at published precision) |
-| AR_3_Ret_360 | 0.1243 | 0.0775 | **0.0400** | **−0.0375** | 3 of 5 nominally (0.039982 vs Wu & Zhang's published 0.0399) |
-| AR_14_Ret_180 | 0.0590 | 0.0325 | **0.0353** | **+0.0029** | 3 of 5 — **the nominal best-on-board tie is lost** (see below) |
-| NASA_2DWMH | 0.0621 | 0.0632 | **0.0632** (unchanged) | 0 | 5 of 5 (unchanged, still our only last-place case) |
-| **OVERALL** | 0.1036 | 0.0654 | **0.0566** (0.056647) | **−0.0088** | **1 of 5, scored locally** |
+| alpha_15_13929_4048 | 0.1320 | 0.0501 | **0.0501** (unchanged) | 0 | ~~**1 of 5**~~ → **2 of 7 — we LOSE this case** (best is Tian, Buchanan, Hickel & Dwight's 0.0432 against our 0.0501) |
+| alpha_15_13929_2024 | 0.2049 | 0.1011 | **0.1011** (unchanged) | 0 | ~~**1 of 5**~~ → **2 of 7 — we LOSE this case** (best is Tian, Buchanan, Hickel & Dwight's 0.0998 against our 0.1011) |
+| alpha_05_4071_4048 | 0.0461 | 0.0461 | **0.0461** (unchanged) | 0 | ~~**1 of 5**~~ → **1 of 7** (survives; and see the "zero of 8 earned" note below — this is the declined RANS baseline, not our model) |
+| alpha_05_4071_2024 | 0.0719 | 0.0719 | **0.0719** (unchanged) | 0 | ~~**1 of 5**~~ → **1 of 7** (survives; same caveat — the declined RANS baseline) |
+| AR_1_Ret_360 | 0.1288 | 0.0811 | **0.0455** | **−0.0356** | ~~2 of 5 nominally (0.045470 vs Wu & Zhang's published 0.0455 — a tie at published precision)~~ → **3 of 7** (best is Yang's 0.0291; the tie-at-published-precision with Wu & Zhang stands) |
+| AR_3_Ret_360 | 0.1243 | 0.0775 | **0.0400** | **−0.0375** | ~~3 of 5 nominally (0.039982 vs Wu & Zhang's published 0.0399)~~ → **4 of 7** (best is Yang's 0.0311; the tie-at-published-precision with Wu & Zhang stands) |
+| AR_14_Ret_180 | 0.0590 | 0.0325 | **0.0353** | **+0.0029** | ~~3 of 5 — **the nominal best-on-board tie is lost** (see below)~~ → **4 of 7** (best is Yang's 0.0250; the tie is lost, see below) |
+| NASA_2DWMH | 0.0621 | 0.0632 | **0.0632** (unchanged) | 0 | ~~5 of 5 (unchanged, still our only last-place case)~~ → **LAST — 7 of 7** (best is Tian, Buchanan, Hickel & Dwight's 0.0294; still our only last-place case) |
+| **OVERALL** | 0.1036 | 0.0654 | **0.0566** (0.056647) | **−0.0088** | ~~**1 of 5, scored locally**~~ → **1 of 7, scored locally** |
+
+**The whole right-hand column was struck and re-derived 2026-08-15 (D150,
+`cca64eaf`).** Every cell in it carried the **four**-entry clone's
+denominator, and the column header named its board by the commit `deb91557`
+— **not an admissible board identifier**, because that pin scores and does
+not rank. The live column is derived against the **six**-entry board
+retrieved 2026-08-11T23:33Z and re-verified 2026-08-14T21:01Z; six entries
+plus ours is **seven positions**, which is where every "of 7" comes from.
+The old values are struck and kept, not deleted: they are the true record of
+what the four-entry board said.
 
 The five unchanged cases scored **identically** to round 4, as their
 byte-identity requires; the entire delta is the duct family.
@@ -581,9 +611,18 @@ behind `alpha_15_13929_4048`, `alpha_15_13929_2024` and `NASA_2DWMH` was
 trained at a single seed, and the truth-free seed-spread bound on the
 overall is **0.0024** (estimated effect ~0.0003; bound not tightenable
 without a scoring call — `closure_challenge_stability_physicality_audit.md`
-§1). **0.0024 is comparable to the 0.002878 rank-1 margin, and the rank-1
-reading carries that uncertainty**; the three duct predictions contribute
+§1). ~~**0.0024 is comparable to the 0.002878 rank-1 margin, and the rank-1
+reading carries that uncertainty**~~; the three duct predictions contribute
 zero seed variance (nothing in them was trained at all).
+**Struck and corrected 2026-08-15 (D150, `cca64eaf`) — and the correction
+changes the verdict, not just the digits.** 0.002878 was the margin over
+Reissmann on the four-entry clone. Against the live six-entry board the
+margin is **0.001365** over Yang, and the seed bound is **0.002419**
+(`closure_challenge_stability_physicality_audit.md` §1, `S_bound`). The bound
+is therefore **177% of the margin** — it does not merely sit "comparable to"
+the margin, it **exceeds** it, so the one-seed uncertainty alone spans the
+whole lead and cannot be tightened without a scoring call. Re-derived, not
+carried over: 0.002419 / 0.001365 = 1.772.
 
 **A measured consistency check, not designed for**: the rank-2 entry (Wu &
 Zhang) runs SST-QCRC, which carries the same untrained QCR2000 term. Our
@@ -688,10 +727,22 @@ placement):
 
 > **Superseded again 2026-08-07, see §0f.** The entry of record is now
 > **round 5: overall 0.0566** (`closure_challenge_round5_qcr.json`),
-> **rank 1 of 5 scored locally at benchmark commit `deb91557`** — 0.002878
-> below Reissmann's published 0.059525. Still unsubmitted; local scoring,
+> ~~**rank 1 of 5 scored locally at benchmark commit `deb91557`** — 0.002878
+> below Reissmann's published 0.059525.~~ Still unsubmitted; local scoring,
 > not an official placement. The notes below stand as the superseded
 > round-3/round-4 record.
+>
+> **Struck and corrected 2026-08-15 (D150, `cca64eaf`).** This sentence sits
+> inside a supersession banner but is **not itself superseded**: the banner
+> supersedes the round-3/round-4 notes *below* it, while this sentence is the
+> section's statement of the **current** entry of record, so nothing covered
+> it. Live value: **rank 1 of 7** on a board of **six published entries,
+> retrieved 2026-08-11T23:33Z, re-verified 2026-08-14T21:01Z** — six entries
+> plus ours is seven positions. **A commit anchor is not an admissible board
+> identifier**: `deb91557` is the four-entry clone, and it scores but does
+> not rank. The margin is **0.001365** over Yang on the mean-of-eight basis
+> (0.001353 against the published rounded 0.0580), not 0.002878 over
+> Reissmann, whose entry the board no longer puts at the top.
 
 > **Superseded 2026-07-31 (recorded 2026-08-04), see §0e.** The entry of
 > record is now **round 4: overall 0.0654**
@@ -1009,9 +1060,16 @@ physics instead of a fit**: the untrained QCR2000 constitutive term of
 **Spalart (2000)**, run at his published `Ccr1 = 0.3`, forward
 solved to convergence on the three test ducts under a rule frozen before any
 solve, moved the metric **−0.0088, from 0.0654 to 0.0566** — below
-Reissmann's published 0.059525, **rank 1 of 5 scored locally at benchmark
-commit `deb91557`** (local scoring, not an official placement; still
-unsubmitted). Cost: AR_14's nominal 0.00003 best-on-board tie, put at risk
+Reissmann's published 0.059525, ~~**rank 1 of 5 scored locally at benchmark
+commit `deb91557`**~~ (local scoring, not an official placement; still
+unsubmitted). **Struck and corrected 2026-08-15 (D150, `cca64eaf`): the live
+standing is rank 1 of 7** — **six published entries, retrieved
+2026-08-11T23:33Z, re-verified 2026-08-14T21:01Z**, plus ours, which is seven
+positions. **A commit anchor is not an admissible board identifier**;
+`deb91557` scores and does not rank, so the board is named by entrant count
+and retrieval date. On that board the entry we are ahead of at the margin is
+Yang's, by **0.001365** (mean-of-eight basis), not Reissmann's by 0.002878.
+Cost: AR_14's nominal 0.00003 best-on-board tie, put at risk
 in writing before the call and lost as the pre-registration said it might
 be (+0.0029 there against −0.0731 on the two Ret_360 ducts). The 6th
 cumulative scoring call.
