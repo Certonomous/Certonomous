@@ -67,38 +67,82 @@ check, so A FALSE POSITIVE ON CORRECTLY STRUCK TEXT IS A WORSE DEFECT THAN A MIS
 and the masker is written that way round. The idioms below were enumerated FROM
 THE CORPUS, not assumed:
 
-  X1  `~~ ... ~~`.  277 spans across the tracked corpus, of which 69 SPAN
-      MULTIPLE LINES -- so a line-by-line masker is wrong here, and an early cut
+  X1  `~~ ... ~~`.  252 spans across the 404 prose files this check opens, of
+      which 69 SPAN MULTIPLE LINES and 8 of those cross blockquote `> `
+      continuations -- so a line-by-line masker is wrong here, and an early cut
       of this one was. Spans are bounded by a blank line (no renderer carries a
-      strikethrough across a paragraph break), which also contains the damage
-      from the 27 files that hold an ODD number of `~~` markers: every one is a
-      generated OpenMDAO `n2.html` whose embedded payload happens to contain the
-      digraph. Without the blank-line bound a single stray marker masks the rest
-      of a file, which is a silent loss of coverage rather than a visible one.
+      strikethrough across a paragraph break); the bound is what stops the one
+      file with ODD `~~` parity among the opened set
+      (`docs/charters/ESCALATION_CHARTER.md`, a single stray marker) from
+      masking everything after it. Without it a stray marker loses coverage
+      SILENTLY, which is worse than losing it loudly.
 
-  X2  `<s>`, `<del>`, `<strike>` element bodies, case-insensitive, and the
-      `text-decoration: line-through` class names used on the website pages.
+  X2  `<s>`, `<del>`, `<strike>` element bodies, case-insensitive, and any
+      element carrying a strike/struck/line-through/superseded/withdrawn class.
+      Only `<s>` is actually used here (15 bodies, several of them multi-line on
+      `closure.html` and `benchmarks.html`); the class matcher reports 0 and is
+      kept so that adding one is not a silent gap.
 
-  X3  KEPT-RECORD BLOCKS. A block preserved verbatim as history, WITHOUT any
-      inline strike marker, opened by a heading or bolded line saying `KEPT AS
-      THE RECORD` / `kept for the record` / `AS WRITTEN <date>, KEPT ...`. The
-      draft's `### <STOP> THE BANNER AS WRITTEN 2026-08-10, KEPT AS THE RECORD`
-      is the load-bearing instance: the `84%` at `:652` sits inside it, is
-      correct against the four-entry margin named on the same line, and must not
-      fire. The block runs to the end of the enclosing blockquote when the
-      marker is inside one, otherwise to the next heading at the same or a
-      shallower level.
+  X3  BLOCKS PRESERVED AS HISTORY WITH NO INLINE MARKER, in three shapes:
+      (a) opened by a heading or bolded line saying `KEPT AS THE RECORD` /
+          `kept for the record` / `AS WRITTEN <date>, KEPT ...` -- 7 of them.
+          The draft's `### <STOP> THE BANNER AS WRITTEN 2026-08-10, KEPT AS THE
+          RECORD` is the load-bearing instance: the `84%` at `:652` sits inside
+          it, is correct against the four-entry margin named on the same line,
+          and must not fire.
+      (b) a HEADING that declares its own section struck, withdrawn, superseded,
+          retracted or falsified -- 30 of them, e.g.
+          `### 6.1 STRUCK, 2026-08-14 -- "..."`. Withdrawal verbs only:
+          `AMENDED`, `RESTATED`, `CORRECTED` and `UPDATE` head blocks whose text
+          still STANDS, and 17 `**[RESTATED ...]**` banners in this corpus end
+          with the literal sentence "This is not a withdrawal".
+      (c) a whole-document supersession banner in the opening lines -- 1 of
+          them, `campaign/PROBABILITY_OF_RANK_2026-08-10.md`'s
+          `# EVERY PROBABILITY IN THIS DOCUMENT IS SUPERSEDED`. The file is
+          masked entire and the count is printed.
+      A block runs to the end of the enclosing blockquote when the marker is
+      inside one, otherwise to the next heading at the same or shallower level.
 
-  X4  NEGATED AND QUOTED VALUES. `**177%**, not 84%` and `0.0028863 rather than
-      0.001365` state a figure in order to REJECT it. A match whose number is
-      immediately preceded by `not`, `rather than`, `instead of`, `no longer`,
-      `never`, `was` or `used to` is a rejection, not a claim.
+  X4  A FIGURE STATED IN ORDER NOT TO BE BELIEVED, in three shapes:
+      (a) NEGATED. `It does not cover 84% of the margin`. Searched across the 45
+          characters before the figure with no sentence break, because a
+          four-character lookbehind -- the first cut -- missed every instance
+          with a verb in between.
+      (b) REPORTED. `all four now carry P(rank 1) = 68%`, `the old page still
+          reads ...`. A reporting verb means the document is narrating what
+          another surface says. Without this the check faults the graders who
+          FOUND the stale figure, and D71 records that trap in its own words: a
+          docket row that quotes its own false positive files a fresh fault.
+      (c) A DISCREPANCY REPORT. If an admissible basis of the same quantity is
+          also quoted within 200 characters, the window is about the difference
+          between the two. No document in this corpus asserts both 84% and 177%
+          as the same quantity.
+
+  X5  INLINE CODE, FENCED BLOCKS AND QUOTATIONS. `docs/P33_CROSS_SURFACE_SWEEP.md`
+      and `docs/DOCKET.md` exist to enumerate stale figures on other surfaces,
+      and every one of them is backticked or quoted. Quotation spans are bounded
+      at 300 characters and never cross `<`, `>` or `=`: an unguarded version
+      paired HTML attribute delimiters and reported 185,549 "quotations",
+      swallowing whole pages.
+
+  X6  THE LEFT OF A CORRECTION ARROW. `~~68%~~ -> **50.2%**` and `0.0029 ->
+      0.0014`: the left-hand value is the superseded one.
 
   What is NOT masked, deliberately: a `**STRUCK <date> -- ...**` or
   `**CORRECTED <date> ...**` NOTE. Those notes are the live corrected text and
   carry the figures a reader is meant to believe; the text they withdraw carries
   its own `~~` and is masked by X1. Masking the note as well would have hidden
   this run's flagship finding.
+
+  MASKING IS 13.9% OF THE NON-SPACE CORPUS and the run prints that fraction.
+  A masker that over-reaches gives up coverage without anyone noticing, so the
+  number is on the verdict page rather than in this docstring where it would go
+  stale.
+
+  NOT OPENED AT ALL: the 52 tracked `*/reports/*.html` files, which are
+  generated OpenMDAO reports carrying minified d3 and Tabulator. Their payloads
+  contain `<s` (from `i<s;++i`) and `~~` as JS operators. Counted and named in
+  the frame, never silently dropped.
 
 TOLERANCE IS A DESIGN DECISION, AND THIS IS THE DECISION
 ========================================================
@@ -126,6 +170,21 @@ legitimate. So:
       agrees with ANY basis -- BUT ONLY UP TO THE DIGITS THAT BASIS SUPPORTS. A
       basis derived from a 6-dp input supports 6 dp; seventeen digits printed
       from it are digits nobody measured, and that is a fault, not a rounding.
+      This is the predicate that found the live defect in the submission draft,
+      and it only works because the derived margins are computed the way the
+      lab's own Python computes them -- IEEE double, then `repr` -- rather than
+      in exact decimal. `0.058013 - 0.056647191704213645` is
+      0.0013658082957863568 in double and 0.001365808295786355 in exact decimal;
+      grading against the decimal form would have faulted the draft at the
+      eighteenth digit for a representation difference and hidden the real
+      finding.
+
+  (d) A QUANTITY WHOSE LEGITIMATE VALUES CANNOT BE TOLD APART IS NOT SHIPPED.
+      P(rank 1) has twelve admissible values in the record and a thirteenth in
+      the corpus that was true until a board move; enabling it returns 13
+      further disagreements, mostly correct dated records. It is measured,
+      printed under MEASURED, PRICED, AND NOT SHIPPED on every run, and filed
+      rather than shipped. See the docket row.
 
 WHAT THE TOLERANCE RULE CANNOT DISTINGUISH
   * A figure correct to the digits written but derived from a stale referent
