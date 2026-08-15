@@ -810,9 +810,19 @@ before this session committed them. Nothing was lost and the rows are at HEAD �
 under a commit message about a mutation harness, and this is precisely the defect that session's own
 D212 describes in its remedy column (*"this pass's own docket commit captured another agent's
 row"*). **It is the fourth instance of the same mechanism in one evening, and it happened to the row
-that was written after the row that named it.** The transferable point is not "be careful": a
-shared, append-only, single-file docket under a live fleet has no way for two authors to commit
-disjoint appends, and every mitigation so far has been an instruction rather than a mechanism.
+that was written after the row that named it.**
+
+**And it then happened in the opposite direction, in the same hour, which is the part that shows it
+is symmetric rather than careless.** My D218 commit carried a D212 that had **grown from 4,658 to
+7,350 bytes** since `c75f6198` — the chief had appended a CHIEF ACCEPTANCE block to their own row in
+the shared working tree between committing it and my read. **Checked before reporting, so this is
+not an accusation of damage:** the change is a **pure insertion** — common prefix 4,549 bytes,
+common suffix 109 bytes, **nothing removed** — so their text is preserved whole and extended, and my
+append-only assertion held against the file as it stood when I read it. Nothing was lost either way.
+**The transferable point is not "be careful": a shared, append-only, single-file docket under a live
+fleet has no mechanism by which two authors can commit disjoint appends. Every mitigation so far has
+been an instruction, and instructions did not survive four attempts in one evening by authors who
+each checked `git status` and each found it clean at the instant they checked.**
 
 ## 11. Findings reported to other owners and NOT repaired here
 
