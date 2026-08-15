@@ -159,6 +159,74 @@ not. Reported to the owners of both documents; not edited here.
 
 ---
 
+## 1b. §1 IS NOT AN INSTANCE, IT IS A CLASS — measured
+
+The W1-only arm's defect (a kill that never reached the surface an agent dispatches from) looked
+like one stale proposal. It is not. Two more instances on the same line, then the measurement.
+
+**Instance 2, and it is worse: `s1-whitened-reinversion-does-the-correction-move-when-sensitivity-is-divided-out.json`, 340 core-min.**
+`"status": "proposed"`. It has **no `decision_note` field at all**, and a
+`/usr/bin/grep -c 'D45\|D68\|enabling premise'` over the file returns **0**. Yet **D45 is a docket
+row filed about this exact item**, headed *"A filed 340 core-min item's enabling premise is measured
+false, and the gate it is filed to cross has a bar above its own ceiling"*, and
+`S1_ZEROCOMPUTE_TRIAGE_2026-08-14.md:86` lists it in class (c) with *"§2.1 removes the last route by
+which the premise could have been rescued"*. An agent opening that JSON meets a clean, priced,
+gated, `proposed` item with a fully specified launch prompt and **nothing anywhere in it saying the
+premise it exists to test has been measured false.**
+
+**Instance 3, and it has already run: `w3-qcr-forward-on-the-ducts-is-the-rank-1-route.json`, 95 core-min.**
+`"status": "proposed"`, created 2026-08-05T17:35:00Z. **`closure_challenge_round5_qcr.json` names
+this id as its own `"item"`** — it is the work that produced the round-5 entry of record at
+0.056647, executed 2026-08-05/07, and `agenda/docket.json` carries it as `"status": "done"`,
+`"closed_at": "2026-08-07T20:45:02+00:00"`. **The inbox advertises a 95 core-min item that
+delivered the entry of record eight days ago.**
+
+### The measurement
+
+`agenda/proposals/*.json` and `agenda/docket.json` are joined on `id` and their `status` fields
+compared. Both are tracked; no other arm is involved.
+
+| quantity | value |
+|---|---|
+| `docket.json` records | **264** |
+| proposal files | **131** |
+| ids present in **both** | **75** |
+| proposals with **no** docket record | **56** |
+| docket records with **no** proposal file | **189** |
+| **statuses that DISAGREE** | **34 of 75 = 45.3%** |
+
+**The two directions that cost something, separated because they cost different things:**
+
+- **`proposed` on the surface, `done` in the docket — 15 items, 463 core-min advertised as
+  available for work already finished.** Largest: `fiml-adjoint-conditioning-unblock` **240**,
+  `w3-qcr-forward-on-the-ducts-is-the-rank-1-route` **95**,
+  `closure-baseline-error-estimator-gate` **45**.
+- **`proposed` on the surface, `approved` in the docket — 10 items, 7,650 core-min that are
+  dispatchable and whose surface does not say so.** Largest: `hlpw6-testcase1-coarse-grid-entry`
+  **6,390**, `closure-duct-field-inversion` **420**, `dpw8-v1-oat15a-committee-grid-primal` **240**.
+
+**Closure/S1-line subset of those two directions: 6 items, 868 core-min** —
+`closure-duct-field-inversion` 420 (approved), `fiml-adjoint-conditioning-unblock` 240 (done),
+`w3-qcr-forward-on-the-ducts-is-the-rank-1-route` 95 (done),
+`r2-closure-coefficient-uncertainty` 60 (approved), `closure-baseline-error-estimator-gate` 45
+(done), `f6a-hump-qcr-arm-on-the-challenge-run` 8 (done).
+
+**Nobody has measured this before and nothing checks it.** `git grep` for any prior statement of a
+proposal/docket status divergence returns **one** hit —
+`campaign/COLD_START_TEST_2026-08-11.md:36`, which lists both surfaces as things a cold reader
+should open, and is a checklist rather than a measurement. No script joins them:
+`scripts/calibration_scorecard.py` and `scripts/add_proposals_supervisor_review_2026_08_07.py` read
+the inbox and never open `docket.json`.
+
+**This is D38 item (5) made concrete.** That row records that *"two live documents are both 'the
+docket', definite article … they overlap on substance, and neither names the collision"*. **Here is
+what the collision costs, measured: 45.3% of the overlap disagrees, and the disagreement is on the
+one field that decides whether an agent starts work.** D213's W1-only arm is not a rot instance to
+be repaired one file at a time; it is the visible corner of a surface that is wrong about a third to
+a half of what it advertises.
+
+---
+
 ## 2. STRAND 1 — SUBMISSION POLICY: established, with one unbacked count
 
 **PARKED, and nothing was done.** No registration, no email, no issue, no upload, no contact.
@@ -721,15 +789,30 @@ for i, c in enumerate(ours):
   backwards, and the audit that cleared it verified the arithmetic instead.
 - **D216** — "four of the five policy questions bind a first send" is enumerated nowhere in any arm.
   Owner: Katie.
+- **D218** — the two surfaces that both call themselves the docket disagree on 45.3% of what they
+  share, and the disagreement is on the field that dispatches work. §1b. This is the class D213 is
+  an instance of.
 
-**Allocation note, because it is the second time today the hazard fired.** These were drafted as
-D212–D215. The free-ID assertion, run **inside** the write rather than before it, refused D212 —
-another agent had appended it to the working tree, uncommitted, between drafting and writing. The
-gap is not reused and nothing was renumbered. The write also asserted, before touching the file,
-that it contained **no `<s>` or `</s>` tag**: `docs/DOCKET.md` carries **nine opening strike tags
-against three closing ones**, so a balanced pair inside a new row closes the nearest dangling opener
-above it and blanks another author's claim. Verified after writing: opener/closer counts are **9/3
-before and 9/3 after**, HEAD's first 576 lines are byte-identical, and D212 is intact.
+**Allocation notes, because the hazard fired three times in one hour and each time differently.**
+Rows 1–4 were drafted as D212–D215; the free-ID assertion, run **inside** the write rather than
+before it, refused D212 — another agent had appended it to the working tree, uncommitted, between
+drafting and writing. The fifth row was drafted as D217 and the same assertion refused it, because a
+second agent had committed D217 in the intervening two minutes. **Neither gap is reused and nothing
+was renumbered.** Both writes also asserted, before touching the file, that they contained **no
+`<s>` or `</s>` tag**: `docs/DOCKET.md` carries **nine opening strike tags against three closing
+ones**, so a balanced pair inside a new row closes the nearest dangling opener above it and blanks
+another author's claim. Verified both times: opener/closer counts **9/3 before and 9/3 after**, and
+the pre-existing bytes byte-identical.
+
+**And a third thing happened that is worth recording rather than tidying away.** D213–D216 were
+written into the shared working tree and then **swept into another session's commit** (`c75f6198`)
+before this session committed them. Nothing was lost and the rows are at HEAD — but they travel
+under a commit message about a mutation harness, and this is precisely the defect that session's own
+D212 describes in its remedy column (*"this pass's own docket commit captured another agent's
+row"*). **It is the fourth instance of the same mechanism in one evening, and it happened to the row
+that was written after the row that named it.** The transferable point is not "be careful": a
+shared, append-only, single-file docket under a live fleet has no way for two authors to commit
+disjoint appends, and every mitigation so far has been an instruction rather than a mechanism.
 
 ## 11. Findings reported to other owners and NOT repaired here
 
