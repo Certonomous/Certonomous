@@ -726,26 +726,38 @@ class TheAuditMustNotSHIPAMutantTests(unittest.TestCase):
                     f"a mutation captured by a commit, as happened at "
                     f"fb30e00f and was restored at 0a3e82d7")
 
-    def test_the_form_guard_has_no_PASS_path_at_all(self):
-        # By design: this check grades FORM, and a form verdict is not a
-        # statement that a page is right -- which is the sentence that got
-        # quoted as reassurance and started this whole line of work. Every one
-        # of its returns is WARN, FAIL or UNKNOWN, including the branch where
-        # every surface complies. A `PASS` appearing anywhere in its body is
-        # either that design being abandoned or the exact mutant that shipped.
+    def test_the_compliant_fall_through_is_PASS_and_not_UNKNOWN(self):
+        """The SECOND mutant, and the first draft of this test asserted it.
+
+        This class was written believing the chief's diagnosis that
+        `fb30e00f` mutated `UNKNOWN -> PASS`. Executed, the history says the
+        opposite: `847b4492`, `fb30e00f` AND `9b9951a1` all carry **PASS** on
+        the compliant fall-through, the census spec records `PASS` as the
+        ORIGINAL and `UNKNOWN` as its mutant, and
+        `test_rank_claim_surfaces.py::test_a_compliant_unlisted_surface_passes`
+        has been asserting `PASS` all along. The `UNKNOWN` arrived at
+        `0a3e82d7` -- the restore itself captured a live mutant, from the same
+        harness and the same window as the defect it was repairing.
+
+        **So the first version of this test enshrined the mutant as the
+        invariant**, and it was green while doing it. It is written the other
+        way round now, and it is the direction that has evidence: three
+        commits, the harness's own spec, and a sibling test.
+
+        Why it matters beyond tidiness: `lab_check`'s EXIT_CONTRACT treats
+        UNKNOWN as BLOCKING, so the mutant turns the everything-complies path
+        into a hard stop -- a fail-CLOSED regression on the one branch that is
+        supposed to mean "nothing is wrong".
+        """
         start = self.SOURCE.index("def check_rank_claim_surfaces(")
         end = self.SOURCE.index("\ndef ", start + 1)
         body = self.SOURCE[start:end]
-        self.assertNotIn("PASS", body,
-                         "check_rank_claim_surfaces returns PASS somewhere; "
-                         "its compliant path is UNKNOWN on purpose, and "
-                         "UNKNOWN -> PASS is the second mutant that was live "
-                         "in HEAD at fb30e00f")
-        # The control: the assertion above must be capable of failing, so the
-        # token has to be findable in the module it is scoped out of.
-        self.assertIn("PASS", self.SOURCE,
-                      "if the audit contains no PASS at all, the test above "
-                      "passes for the wrong reason")
+        tail = body[body.rindex(
+            'return Result("rank claims carry their probability",'):]
+        self.assertIn("PASS", tail.split("\n")[0],
+                      "the compliant fall-through must be PASS; UNKNOWN there "
+                      "is census mutant RC10, and it BLOCKS lab_check")
+        self.assertNotIn("UNKNOWN", tail.split("\n")[0])
 
     def test_the_empty_set_is_still_UNKNOWN_in_both_rank_checks(self):
         # The executable half of the same pair. Kept beside the source

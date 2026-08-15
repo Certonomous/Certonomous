@@ -1277,7 +1277,7 @@ def check_rank_claim_surfaces() -> Result:
                       f"right -- see `rank claims carry the right values`); "
                       f"{len(internal_faults)} lab record(s) claim rank 1 "
                       f"without what V8 requires", internal_faults + [frame])
-    return Result("rank claims carry their probability", UNKNOWN,
+    return Result("rank claims carry their probability", PASS,
                   f"all {claiming} surface(s) that claim rank 1 carry the "
                   f"figure, its interval and the not-decided pairs -- a "
                   f"statement about FORM only", [frame])
