@@ -1045,39 +1045,96 @@ def draft_ledger_proposals() -> list[dict]:
     return [proposal] if proposal else []
 
 
-# Inbox files refused at intake, keyed by filename so repeated refreshes
-# update rather than duplicate. Same reasoning as _REFUSED_COST_BASES: a
-# skipped file used to vanish without a trace, and on 2026-08-07 nineteen of
-# fifty-six inbox files were being silently dropped, two of them filed that
-# same day and destined never to reach the docket with nothing anywhere
-# saying so (family supervision pass, finding A-3). A filter nobody can see
-# is a filter nobody can question.
+# Inbox files refused at intake, keyed by filename so one read's refusals can
+# be looked up by name. A skipped file used to vanish without a trace, and on
+# 2026-08-07 nineteen of fifty-six inbox files were being silently dropped, two
+# of them filed that same day and destined never to reach the docket with
+# nothing anywhere saying so (family supervision pass, finding A-3). A filter
+# nobody can see is a filter nobody can question.
+#
+# WHAT THIS LEDGER'S LIFETIME IS, and why it is stated here rather than left to
+# be inferred (docket D111). It is ONE READ. Until 2026-08-15 it was the
+# lifetime of the PROCESS: every `read_inbox()` wrote into this dict and none of
+# them took anything out, so it accumulated across reads of different
+# directories. A filename is meaningless without the directory it came from --
+# `bad.json` in a test's temporary agenda root and `bad.json` in the live corpus
+# are one key -- so refusals from a deleted temporary tree stayed in the ledger
+# and were counted by `scripts/calibration_scorecard.py`'s live reconcile: 131
+# files on disk against 128 admitted + 7 refused, with an EMPTY residual,
+# because three of the refusals named files that were not on that disk at all.
+# Guarded by `sdk/tests/test_refused_inbox_lifecycle.py`.
 _REFUSED_INBOX: dict[str, dict] = {}
+
+#: The directory the ledger above describes, so a filename in it is anchored to
+#: something. `None` until the first read of this process.
+_REFUSED_INBOX_ROOT: str | None = None
+
+
+def _publish_refused_inbox(root: Path, refused: dict[str, dict]) -> None:
+    """Replace the refusal ledger with one read's result, wholesale (D111).
+
+    Called at every exit from ``read_inbox()``, including the one where the
+    inbox directory is absent, so whatever this process did earlier the ledger
+    afterwards describes THIS read of THIS directory and nothing else. That is
+    what ``refused_inbox()`` has claimed since it was written; from 2026-08-15
+    it is also what happens.
+
+    `scripts/check_derived_figures.py`'s `build_registry()` clears
+    `P_RANK1_NOT_SHIPPED` on the same principle and at the same point: a ledger
+    a read fills is a ledger that read owns.
+    """
+    global _REFUSED_INBOX_ROOT
+    _REFUSED_INBOX.clear()
+    _REFUSED_INBOX.update(refused)
+    _REFUSED_INBOX_ROOT = str(root)
+
+
+def refused_inbox_root() -> str | None:
+    """Which directory ``refused_inbox()`` is answering about, or None if this
+    process has not read one. Exported so an empty answer below is inspectable
+    rather than a filter nobody can see."""
+    return _REFUSED_INBOX_ROOT
 
 
 def refused_inbox() -> list[dict]:
-    """Every inbox file the last reads refused, with its violations."""
+    """Every inbox file the LAST read refused, with its violations.
+
+    Empty when the last read refused nothing -- and also when the last read was
+    of a different directory than ``inbox_dir()`` names now, because a refusal
+    is a statement about a file in the directory that was read, and handing one
+    directory's refusals to a caller asking about another is exactly the defect
+    D111 records. ``refused_inbox_root()`` says which directory the ledger holds,
+    so the two cases are told apart by asking rather than by guessing.
+    """
+    if _REFUSED_INBOX_ROOT != str(inbox_dir()):
+        return []
     return [dict(entry) for _, entry in sorted(_REFUSED_INBOX.items())]
 
 
 def read_inbox() -> list[dict]:
     """Proposals other overnight agents dropped as JSON files. Each file is
     schema-checked and style-checked; a file that breaks the rails is skipped
-    rather than displayed, and the skip is recorded in ``refused_inbox()``."""
+    rather than displayed, and the skip is recorded in ``refused_inbox()``.
+
+    The refusals are collected locally and published at the end, so the ledger
+    is replaced by this read rather than added to by it (D111).
+    """
     root = inbox_dir()
+    refused: dict[str, dict] = {}
     if not root.exists():
+        _publish_refused_inbox(root, refused)
         return []
     out: list[dict] = []
     for path in sorted(root.glob("*.json")):
         data = _load_json(path)
         if not isinstance(data, dict):
-            _REFUSED_INBOX[path.name] = {
+            refused[path.name] = {
                 "file": path.name, "id": "", "objective": "",
                 "violations": ["file: not a JSON object"]}
             continue
         objective = _clean(data.get("objective") or "")
         if not objective:
-            _REFUSED_INBOX[path.name] = {
+            refused[path.name] = {
                 "file": path.name, "id": str(data.get("id") or ""),
                 "objective": "", "violations": ["objective: absent"]}
             continue
@@ -1138,12 +1195,18 @@ def read_inbox() -> list[dict]:
                          else str(value))
         violations = proposal_violations(item)
         if violations:
-            _REFUSED_INBOX[path.name] = {
+            refused[path.name] = {
                 "file": path.name, "id": item["id"],
                 "objective": item["objective"], "violations": violations}
             continue
-        _REFUSED_INBOX.pop(path.name, None)
+        # No `pop` here any more. It used to remove a name a PREVIOUS read had
+        # refused, which was the whole of the old invalidation and covered only
+        # the one case where the same directory was read twice and the file had
+        # been repaired in between. Publishing the local dict below covers that
+        # case and the three it missed: the file deleted, the directory
+        # replaced, and the directory gone (D111).
         out.append(item)
+    _publish_refused_inbox(root, refused)
     return out
 
 
