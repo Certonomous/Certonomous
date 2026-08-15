@@ -288,6 +288,19 @@ WAIVED_NO_EXEC_BIT = (
     "scripts/check_absolutes.py",
     "scripts/check_convergence.py",
     "scripts/check_convergence_sweep.py",
+    # Added 2026-08-15 with the mechanism it belongs to (anchor `e933e31b`).
+    # The bit is not load-bearing: its published adoption line is
+    # `python3 scripts/check_rung_attribution.py --emit-trailer >> <msgfile>`
+    # and `scripts/lab_check.py` launches it as `sys.executable <path>`, so no
+    # bare-path invocation exists. It is registered rather than chmod'd for a
+    # measured reason: under this repository's `core.filemode = false`, a
+    # PARTIAL commit -- `git commit -F <msg> -- <paths>`, the only form this
+    # lab's commit protocol permits -- discards the index's mode and re-records
+    # 100644. Measured 2026-08-15 in a scratch repository across four variants;
+    # only an index commit with no pathspec preserves 100755. So this register
+    # is the only repair a protocol-conforming agent can perform, and D134
+    # records that.
+    "scripts/check_rung_attribution.py",
     "scripts/check_convergence_validate.py",
     "scripts/coefficient_uq_plate.py",
     "scripts/coefficient_uq_plate_analysis.py",
