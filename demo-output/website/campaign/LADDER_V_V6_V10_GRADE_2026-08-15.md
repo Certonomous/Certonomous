@@ -386,6 +386,49 @@ after the sweep rather than predicted here.
 
 ---
 
-## 8. Post-write sweep
+## 8. Post-write sweep — and this document created faults
 
-*(Filled in after §§1–7 were written. See the commit that carries this file.)*
+Run after §§1–7 were written and committed at `377d6afb`, over the committed bytes. It had
+to be run after the commit and not before: **both newer instruments enumerate their frame
+with `git ls-files`**, so an uncommitted grade is outside the corpus its own sweep examines
+— a grader who sweeps before committing measures everything except its own output. The frame
+moved from 458 considered / 406 opened / 844 clauses to **459 / 407 / 847** when this file
+landed, which is how its inclusion was confirmed rather than assumed.
+
+| instrument | frame | result |
+|---|---|---|
+| `scripts/check_derived_figures.py` | 459 considered, 407 opened, 61 figures matched, 5 recomputed | **PASS**, 0 faults, 0 bad controls, exit 0 |
+| `scripts/check_normative_clauses.py` | 459 considered, 407 opened, **847** clauses examined | **PASS**, 0 graded false, 0 bad controls, exit 0. Its one UNDECIDABLE row is in another pass's document, not this one |
+| `self_audit.board_placement_faults` (HEAD copy, both referents live) | this document, and the three docket rows separately | **rule A = 0, rule B = 0** on both. Positive control fires: a planted known-bad sentence returns 1 rule-A fault |
+
+**And the sweep that matters returned five faults on this document.** Driven with its own
+line-boundedness removed — the same whitespace collapse that proves D129 — `_best_on_board_faults`
+returns **five** faults here: four count faults and one missing-disclosure fault. Every one of
+them is this document **quoting** the stale figures it exists to report, and the disclosure fault
+fires because the model-earned zero is written in this file as a digit where the guard's pattern
+reads the word.
+
+**All five are mentions, none is a claim, and the distinction is the guard's known limit** — rule
+B *"cannot tell use from mention"*, which docket **D4** records catching five agents in five files.
+The prose is **not** contorted to clear them. The last pass that tried faulted a second time inside
+the sentence admitting the first fault, and a report on stale numbers that may not quote stale
+numbers cannot be written.
+
+Two things follow, and the second is worth more than the first. In production these five never
+fire — the guard does not read this file, and its pattern cannot cross the line breaks this
+document wraps at — so **the same blind spot that let both of V10's failures through is what makes
+this document read clean.** A grader's output being clean by the identical mechanism that hid the
+defects it is reporting is not a reassurance; it is D129 confirmed from the other direction, and
+it is recorded here because the alternative is to publish a green that was never earned.
+
+*(Predicted in §7 before the sweep ran, then observed. That ordering is deliberate: this is the
+fifth pass this week whose text about a rank repair generated faults, and the pattern is now
+regular enough that a pass which does **not** predict it is the one to distrust.)*
+
+**The sweep was then run a third time, over §8 itself**, because §8 is text this pass wrote and
+the loop does not get to stop at its own summary. Writing it moved the normative frame from 847
+clauses to **848** — §8 contributes one — and all three instruments returned the same verdicts:
+`check_derived_figures` PASS with 0 faults and 0 bad controls, `check_normative_clauses` PASS with
+0 graded false, and the placement guard 0/0 on both rules with its control still firing. The
+figures in the table above are the §§1–7 sweep at `377d6afb` and are left at their measured values
+rather than restated, because a count edited to match a later run is no longer a measurement.
