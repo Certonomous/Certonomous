@@ -103,10 +103,24 @@ POS-2 fires on.
 
 THREE-VALUED, AND IT NEVER PASSES FROM AN EMPTY SET
 ===================================================
-Zero clauses matched is UNKNOWN with a reason, not PASS (defect class B1). So is
-an unreadable source record, so is a misfired control. stderr is not swallowed:
-`git ls-files`'s stderr is captured and PRINTED in the frame, and a non-zero
-return code is UNKNOWN rather than an empty file list.
+THE EMPTY SET IS THE SET THAT WAS DECIDED, NOT THE SET THAT WAS LOOKED AT. Zero
+clauses DECIDED is UNKNOWN with a reason, not PASS (defect class B1) -- and the
+reason names which of three ways the run got there: EMPTY-1 no clause matched at
+all, EMPTY-2 clauses matched but none was gradeable, EMPTY-3 a source could not
+be read so the emptiness is unattributable. Both numbers, examined and decided,
+are printed in the DECISION SET block above the verdict.
+
+This paragraph used to be true only of `examined`, and the check shipped a PASS
+over 887 examined and 0 decided (LADDER_V_V15_ROUND8 F1, 2026-08-15). The guard
+now gates on the DECIDED set: the findings, PLUS the clauses graded and found
+compliant. That second half is not decoration. A compliant clause is silent by
+design (control NEG-6), so a guard that counted findings alone would return
+UNKNOWN on a PERFECT corpus and PASS only while defects remained -- an
+instrument that punishes repair, which is the failure mode on the other side of
+B1. `scan` collects them into `cleared` and the DECISION SET block prints the
+count. An unreadable source record is UNKNOWN, and so is a misfired control.
+stderr is not swallowed: `git ls-files`'s stderr is captured and PRINTED in the
+frame, and a non-zero return code is UNKNOWN rather than an empty file list.
 
 WHAT IT IS BLIND TO
 ===================
@@ -397,8 +411,15 @@ def grade_literal(q, written: str) -> tuple[str, str]:
                   f"{note}")
 
 
-def scan(live: str, rel: str, qs, out: list) -> int:
-    """Append findings for one masked file. Returns clauses examined."""
+def scan(live: str, rel: str, qs, out: list, cleared: list | None = None) -> int:
+    """Append findings for one masked file. Returns clauses examined.
+
+    `cleared`, if given, collects the clauses that were GRADED AND FOUND
+    COMPLIANT -- a correct literal carrying its full board triple. Those are
+    deliberately NOT findings (control NEG-6 pins that: reporting an obeyed
+    mandate trains readers to ignore the check), but they ARE decisions, and a
+    verdict that cannot see them has no positive evidence to rest on.
+    """
     lines = live.split("\n")
     starts, pos = [], 0
     for ln in lines:
@@ -449,7 +470,27 @@ def scan(live: str, rel: str, qs, out: list) -> int:
                                   and RETRIEVED.search(clause))
                 v, why = grade_literal(q, written)
                 if v == PASS and has_triple:
-                    continue              # the triple, obeyed. Not a finding.
+                    # THE TRIPLE, OBEYED. Not a FINDING -- NEG-6 is the control
+                    # that says so and it must keep holding -- but it IS a
+                    # DECISION, and it is now recorded as one.
+                    #
+                    # Until 2026-08-15 this was a bare `continue` and the
+                    # clause vanished. That threw away this check's only
+                    # positive evidence: a corpus in which every mandate is
+                    # obeyed produced an EMPTY graded set, which is why the B1
+                    # guard had to gate on `examined` -- the population looked
+                    # at -- instead of on the population graded. That is F1.
+                    # `cleared` is the missing half: silent in the report,
+                    # counted in the decision set.
+                    if cleared is not None:
+                        cleared.append(Clause(
+                            "W2", rel,
+                            base_line + clause.count("\n", 0, nm.start()),
+                            PASS, qid, written,
+                            f"[{side}] " + why + "; and it carries its board "
+                            "triple, so obeying it does not go stale",
+                            _excerpt(clause)))
+                    continue
                 if v == PASS:
                     v, why = (UNKNOWN,
                               why + "; but the clause pins it with NO board "
@@ -567,16 +608,100 @@ def run_controls(qs) -> tuple[list, list]:
 # Frame
 # ---------------------------------------------------------------------------
 
+#: The three ways a run can reach the verdict line with NOTHING DECIDED. Named,
+#: because "empty" is not one state and the repair for each is different:
+#:   EMPTY-1  the frame found no clause at all              -> widen the frame
+#:   EMPTY-2  clauses matched, none of them reached a verdict -> widen coverage
+#:   EMPTY-3  a source could not be read, so emptiness is unattributable
+#: `decide` returns the arm alongside the verdict so `main` can print WHICH one
+#: was taken rather than a single undifferentiated "empty".
+EMPTY_NO_CLAUSES = "EMPTY-1"
+EMPTY_NONE_GRADEABLE = "EMPTY-2"
+EMPTY_UNREADABLE = "EMPTY-3"
+
+
+def empty_arm(examined: int, findings, unreadable=(), cleared=()) -> str | None:
+    """Which of the three empty-set arms this run is in, or None if it decided.
+
+    Split out from `decide` so the printed frame and the verdict cannot drift:
+    both call this, neither recomputes it.
+
+    THE POPULATION THAT MATTERS IS THE DECIDED ONE -- the clauses that received
+    a verdict (`findings`) plus the clauses graded and found compliant
+    (`cleared`) -- and NOT `examined`, which counts every clause a mandate
+    marker was seen in. An earlier cut gated on `examined` alone and returned
+    PASS from 887 examined / 0 decided (F1, LADDER_V_V15_ROUND8 §2): the
+    population it looked at, not the one it graded.
+
+    `cleared` is counted here and reported nowhere else, on purpose. A corpus
+    whose mandates are all obeyed emits no findings at all, so a guard that
+    knew only about `findings` would return UNKNOWN on a PERFECT corpus and
+    PASS only while defects remained -- an instrument that punishes repair.
+    """
+    if findings or cleared:
+        return None
+    if unreadable:
+        return EMPTY_UNREADABLE
+    if not examined:
+        return EMPTY_NO_CLAUSES
+    return EMPTY_NONE_GRADEABLE
+
+
+#: The reason text for each arm. Keyed so a test can assert the arm without
+#: matching prose, and so the frame and the verdict print the same sentence.
+EMPTY_WHY = {
+    EMPTY_NO_CLAUSES:
+        "zero normative clauses matched and zero reached a verdict -- an "
+        "instrument that examined nothing has not cleared anything "
+        "(defect class B1)",
+    EMPTY_NONE_GRADEABLE:
+        "%d normative clause(s) matched a mandate marker and ZERO reached a "
+        "verdict -- the decision set is empty, so nothing has been cleared "
+        "(defect class B1)",
+    EMPTY_UNREADABLE:
+        "the decision set is empty AND %d source(s) could not be read, so the "
+        "emptiness is unattributable: it may be the corpus or it may be the "
+        "read (defect class B1)",
+}
+
+
+def empty_reason(arm: str, examined: int, unreadable=()) -> str:
+    """The one sentence for an empty-set arm. ONE definition, two callers.
+
+    `decide` returns it and the frame prints it, so a reader cannot be shown a
+    frame that names one arm above a verdict that took another.
+    """
+    why = EMPTY_WHY[arm]
+    if arm == EMPTY_NONE_GRADEABLE:
+        why = why % examined
+    elif arm == EMPTY_UNREADABLE:
+        why = why % len(unreadable)
+    return f"{arm}: {why}"
+
+
 def decide(git_rc: int, git_err: str, problems, bad_controls,
-           examined: int, findings) -> tuple[str, list]:
+           examined: int, findings, unreadable=(),
+           cleared=()) -> tuple[str, list]:
     """THE VERDICT, and it can never be PASS from an empty set.
 
     Order matters and is deliberate: a broken frame, a broken record and a
     misfired control all outrank the findings, because in each of those states
-    the finding list is not evidence about the lab. Zero clauses examined is
-    UNKNOWN with a reason, never PASS -- defect class B1, this lab's highest
-    priority, and the reason this function exists separately from `main` is so
-    a test can drive it to that state without a corpus.
+    the finding list is not evidence about the lab.
+
+    AN EMPTY DECISION SET IS UNKNOWN WITH A NAMED REASON, NEVER PASS -- defect
+    class B1, this lab's highest priority, and the reason this function exists
+    separately from `main` is so a test can drive it to that state without a
+    corpus. The set that must be non-empty is the DECIDED one: `findings`, the
+    clauses that received a verdict, plus `cleared`, the clauses graded and
+    found compliant (silent by design, see `scan`). `examined` is the superset
+    that merely matched a mandate marker; gating on it is how the shipped check
+    reported PASS over 887 examined and 0 decided. The three ways in are
+    distinguished by name (EMPTY-1/2/3) because they call for three different
+    repairs.
+
+    NOT counted as a read source: files skipped for SIZE and the generated
+    OpenMDAO report HTML. Both are frame exclusions stated in the report, not
+    failures to read, so they do not make an empty set unattributable.
     """
     false_ = [f for f in findings if f.verdict == FAIL]
     undec = [f for f in findings if f.verdict == UNKNOWN]
@@ -589,14 +714,15 @@ def decide(git_rc: int, git_err: str, problems, bad_controls,
         return UNKNOWN, [f"source record problem: {p}" for p in problems]
     if bad_controls:
         return UNKNOWN, [f"control misfired: {b}" for b in bad_controls]
-    if not examined:
-        return UNKNOWN, ["zero normative clauses matched -- an instrument that "
-                         "examined nothing has not cleared anything "
-                         "(defect class B1)"]
+    arm = empty_arm(examined, findings, unreadable, cleared)
+    if arm is not None:
+        return UNKNOWN, [empty_reason(arm, examined, unreadable)]
     if false_:
         return FAIL, [f"{len(false_)} normative clause(s) would, if obeyed, "
                       f"produce a sentence the records contradict"]
-    return PASS, [f"{examined} normative clause(s) examined; {len(true_)} pin "
+    return PASS, [f"{examined} normative clause(s) examined and "
+                  f"{len(findings) + len(cleared)} decided; "
+                  f"{len(true_) + len(cleared)} pin "
                   f"a figure that agrees with its record; {len(undec)} are "
                   f"UNDECIDABLE and listed above; none is graded false"]
 
@@ -629,6 +755,7 @@ def main() -> int:
     files, git_err, git_rc = tracked_prose(root)
     opened, unreadable, oversize, generated = [], [], [], []
     findings: list = []
+    cleared: list = []
     examined = 0
     mask_tot = {"tilde": 0, "tag": 0, "class": 0, "kept_block": 0,
                 "struck_head": 0, "doc_banner": 0, "code": 0, "quoted": 0,
@@ -656,14 +783,15 @@ def main() -> int:
         live, counts = mask_exempt(raw)
         for k in mask_tot:
             mask_tot[k] += counts[k]
-        examined += scan(live, rel, qs, findings)
+        examined += scan(live, rel, qs, findings, cleared)
 
     false_ = [f for f in findings if f.verdict == FAIL]
     undec = [f for f in findings if f.verdict == UNKNOWN]
     true_ = [f for f in findings if f.verdict == PASS]
 
     verdict, reasons = decide(git_rc, git_err, problems, bad_controls,
-                              examined, findings)
+                              examined, findings, unreadable, cleared)
+    arm = empty_arm(examined, findings, unreadable, cleared)
 
     # ---- report --------------------------------------------------------
     o = ["=" * 78,
@@ -694,6 +822,31 @@ def main() -> int:
     o += [f"  normative clauses   {examined} examined "
           f"(a clause = the list item or paragraph a mandate marker sits in)",
           "  network             none. Every source is a committed artifact.",
+          "",
+          "DECISION SET -- the population the verdict actually rests on",
+          "  EXAMINED and DECIDED are two different numbers and only the "
+          "second one can clear anything.",
+          f"  clauses examined    {examined}  (a mandate marker was seen in "
+          f"them)",
+          f"  clauses DECIDED     {len(findings) + len(cleared)}  (they "
+          f"reached a verdict: {len(false_)} FALSE, {len(true_) + len(cleared)}"
+          f" TRUE, {len(undec)} UNDECIDABLE)",
+          f"      of those, CLEARED {len(cleared)}  (correct literal WITH its "
+          f"board triple: graded, compliant, and deliberately not reported as",
+          "                      a finding -- control NEG-6 pins that. Counted "
+          "here because a corpus whose mandates are all",
+          "                      obeyed emits no findings, and an instrument "
+          "that goes UNKNOWN on a perfect corpus is useless.)",
+          f"  sources unread      {len(unreadable)}  (an unread source makes an "
+          f"empty decision set unattributable)",
+          "  empty-set arm       " + (
+              empty_reason(arm, examined, unreadable) if arm else
+              "(none) -- the decision set is non-empty, so a verdict is "
+              "admissible"),
+          "  A PASS is only reachable from a NON-EMPTY decision set. 887 "
+          "examined with 0 decided is",
+          "  UNKNOWN, not PASS -- the population looked at is not the "
+          "population graded (defect class B1).",
           "",
           "EXEMPT TEXT -- masked before anything was read, via "
           "check_derived_figures.mask_exempt",
@@ -797,7 +950,10 @@ def main() -> int:
                       "generated_html_skipped": len(generated),
                       "oversize": oversize, "unreadable": unreadable,
                       "git_rc": git_rc, "git_stderr": git_err,
-                      "clauses_examined": examined},
+                      "clauses_examined": examined,
+                      "clauses_decided": len(findings) + len(cleared),
+                      "clauses_cleared": len(cleared),
+                      "empty_set_arm": arm},
             "controls_bad": bad_controls,
             "counts": {"FALSE": len(false_), "UNDECIDABLE": len(undec),
                        "TRUE": len(true_)},

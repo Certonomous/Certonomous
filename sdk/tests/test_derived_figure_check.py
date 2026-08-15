@@ -35,13 +35,31 @@ WHAT IS PINNED, and which real defect each one comes from:
 
 THE EXIT CODES ARE TYPED OUT HERE AS NUMBERS and compared against the module's
 own mapping, so a silent change to the contract reddens rather than passing.
+
+`main()` IS DRIVEN, NOT RE-DERIVED (added 2026-08-15)
+====================================================
+Until today nothing in this repo called `check_derived_figures.main`. Measured:
+all three of its UNKNOWN guards -- `problems`, `bad_controls`, and `not matches
+and not checked` -- survived being replaced by `if False:` with both this file
+and `test_normative_clause_check.py` green at exit 0. The class asserting the
+property was named `ItCannotPassFromAnEmptySet` and exercised only the
+predicates. `TheShippedEntryPointCannotPassFromAnEmptySet` closes that: it
+patches the SOURCE OF RECORDS (`tracked_prose`, `read_sources`, `run_controls`)
+into returning nothing and asserts on the code `main` RETURNS. It does not
+recompute the invariant beside the function -- that is how a sibling
+instrument's tests once passed against an `intake()` hardcoded to reconcile.
+All five verdict-block mutants are killed as of this file's landing.
 """
 from __future__ import annotations
 
+import contextlib
 import importlib.util
+import io
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 REPO = Path(__file__).resolve().parents[2]
 CHECK = REPO / "scripts" / "check_derived_figures.py"
@@ -80,6 +98,214 @@ def _scan(text: str):
 WITHDRAWN = "Our 0.002419 seed bound covers 84% of that margin.\n"
 FALSE_MARGIN = ("our locally scored 0.056647191704213645 sits "
                 "**0.013658082957863568** below it\n")
+
+#: A sentence that MATCHES an anchor and AGREES with the record, so a corpus
+#: made only of it puts a real item in the decided set. Used as the live control
+#: for the PASS arm: without one of these, `main`'s PASS is unreachable and the
+#: FAIL/UNKNOWN tests below would pass against an instrument that can only ever
+#: be red (L-84's other half).
+CLEAN_MATCH = "Our 0.002419 seed bound covers 177% of that margin.\n"
+
+
+# ---------------------------------------------------------------------------
+# Driving the SHIPPED ENTRY POINT
+# ---------------------------------------------------------------------------
+#
+# `_run_main` calls `cdf.main()` itself. It does NOT recompute the verdict
+# beside it, and that distinction is the whole reason this section exists: an
+# earlier agent's tests on a sibling instrument passed against an `intake()`
+# hardcoded to reconcile, precisely because they recomputed the invariant
+# instead of driving the function that ships. Measured 2026-08-15: all three
+# UNKNOWN guards in `main` survived deletion because `main` was never called
+# from any test in this repo (LADDER_V_V15_ROUND8 M1).
+#
+# The corpus is injected by patching `tracked_prose` -- the SOURCE OF RECORDS
+# `main` reads its population from -- rather than by editing the tree. Absolute
+# paths are returned as the "relative" entries because `Path(root) / "/abs"` is
+# "/abs", so a fixture outside the repo is reachable without a second root.
+
+def _run_main(*, files=None, git_note="", sources=None, controls=None,
+              argv=("--root",)):
+    """Run `cdf.main()` and return (exit_code, printed_report).
+
+    Every keyword patches a SOURCE `main` reads from; none of them patches the
+    verdict block, the reasons, or the exit mapping.
+    """
+    args = ["check_derived_figures"]
+    args += list(argv) + ([str(REPO)] if argv and argv[-1] == "--root" else [])
+    stack = contextlib.ExitStack()
+    with stack:
+        stack.enter_context(mock.patch.object(sys, "argv", args))
+        if files is not None:
+            stack.enter_context(mock.patch.object(
+                cdf, "tracked_prose", lambda root: (list(files), git_note)))
+        if sources is not None:
+            stack.enter_context(mock.patch.object(
+                cdf, "read_sources", lambda root: sources(root)))
+        if controls is not None:
+            stack.enter_context(mock.patch.object(
+                cdf, "run_controls", lambda *a, **k: controls))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code = cdf.main()
+    return code, buf.getvalue()
+
+
+#: Bound before any patch: a lambda that reaches for `cdf.read_sources` at call
+#: time reaches for the patch and recurses until the interpreter stops it.
+_READ_SOURCES = cdf.read_sources
+
+
+@contextlib.contextmanager
+def _corpus(*texts: str):
+    """One file per argument, handed to `main` as its whole corpus.
+
+    Separate FILES and not one concatenated document on purpose: the
+    discrepancy guard suppresses a wrong figure that has the right figure
+    beside it, so pairing a clean sentence with a violation in one file
+    correctly yields no fault, and a FAIL fixture built that way would be
+    testing the guard rather than the verdict.
+    """
+    with tempfile.TemporaryDirectory() as d:
+        out = []
+        for i, text in enumerate(texts):
+            p = Path(d) / f"fixture{i}.md"
+            p.write_text(text, encoding="utf-8")
+            out.append(str(p))
+        yield out
+
+
+class TheShippedEntryPointCannotPassFromAnEmptySet(unittest.TestCase):
+    """`main()` itself, not a re-derivation of it. Defect class B1 (D62).
+
+    The sibling class below asserts the same property about the predicates.
+    That is not the same claim: the predicates can be perfect and the verdict
+    block still return 0, which is exactly what was measured on 2026-08-15.
+    """
+
+    def test_a_corpus_with_no_files_at_all_is_unknown_not_pass(self):
+        """The source of records returns NOTHING. The verdict must refuse."""
+        code, out = _run_main(files=[])
+        self.assertEqual(code, EXIT_UNKNOWN,
+                         f"an empty corpus did not return {EXIT_UNKNOWN}:\n"
+                         + out[-1500:])
+        self.assertIn("VERDICT: UNKNOWN", out)
+        self.assertIn("zero figures matched", out)
+        self.assertIn("B1", out)
+
+    def test_a_corpus_of_prose_with_no_figures_is_unknown_not_pass(self):
+        """Files present, readable, and nothing in them is gradeable.
+
+        Distinct from the no-files case: `opened` is non-empty here, so a guard
+        that gated on the population LOOKED AT rather than the population
+        DECIDED would clear this one.
+        """
+        with _corpus("There are no figures in this sentence at all.\n") as f:
+            code, out = _run_main(files=f)
+        self.assertEqual(code, EXIT_UNKNOWN, out[-1500:])
+        self.assertIn("zero figures matched", out)
+
+    def test_an_unreadable_source_record_is_unknown_through_main(self):
+        """`problems` -> UNKNOWN, driven, not recomputed."""
+        with _corpus(CLEAN_MATCH) as f:
+            code, out = _run_main(
+                files=f,
+                sources=lambda root: _READ_SOURCES(
+                    Path("/nonexistent-directory-for-this-test")))
+        self.assertEqual(code, EXIT_UNKNOWN, out[-1500:])
+        self.assertIn("source record problem", out)
+
+    def test_a_misfired_control_is_unknown_through_main(self):
+        """`bad_controls` -> UNKNOWN. A corpus that would otherwise PASS."""
+        with _corpus(CLEAN_MATCH) as f:
+            code, out = _run_main(
+                files=f, controls=(["R1-POS did not fire"], ["    [BAD] x"]))
+        self.assertEqual(code, EXIT_UNKNOWN, out[-1500:])
+        self.assertIn("control misfired", out)
+
+    def test_the_enumerator_itself_reports_a_git_failure_rather_than_nothing(self):
+        """`tracked_prose` executed against a directory that is not a repo.
+
+        The sibling test below injects the note, so it pins `main`'s handling
+        and NOT the guard that produces the note -- measured: with only that
+        test present, deleting `tracked_prose`'s `if proc.returncode != 0:`
+        left the suite green. Both halves are needed and this is the half that
+        runs git.
+        """
+        with tempfile.TemporaryDirectory() as d:
+            files, note = cdf.tracked_prose(Path(d))
+        self.assertEqual(files, [])
+        self.assertTrue(note.startswith(cdf.GIT_FAILED),
+                        f"a failed enumeration reported {note!r}")
+        self.assertIn("rc=", note, "the note drops git's return code")
+
+    def test_a_broken_file_enumeration_is_a_frame_error_not_an_empty_corpus(self):
+        """The guard that had no covering test at all.
+
+        Measured 2026-08-15: mutating `tracked_prose`'s `if proc.returncode !=
+        0:` to `if False:` left both test files green at exit 0, because a git
+        failure returns an empty list and the empty-set guard reaches UNKNOWN
+        anyway. The exit code was right and the REASON was wrong, and for a
+        three-valued check the reason is the product: an operator told "zero
+        figures matched" audits the corpus, when the corpus was never read.
+        """
+        code, out = _run_main(files=[], git_note=cdf.GIT_FAILED + " rc=128: "
+                              "fatal: not a git repository")
+        self.assertEqual(code, EXIT_UNKNOWN, out[-1500:])
+        tail = out.split("VERDICT:", 1)[1]
+        self.assertIn("FRAME error", tail, tail)
+        self.assertIn("not a git repository", tail)
+        self.assertNotIn("zero figures matched", tail,
+                         "a broken frame was reported as an empty corpus")
+
+    def test_the_unknown_arms_are_reachable_only_because_pass_is_reachable(self):
+        """L-84 both halves, in one assertion, through one entry point.
+
+        If this fails, every UNKNOWN above is worthless: it would mean the
+        instrument returns 3 for any input and the guards were never exercised.
+        """
+        with _corpus(CLEAN_MATCH) as f:
+            passing, _ = _run_main(files=f)
+        empty, _ = _run_main(files=[])
+        self.assertEqual((passing, empty), (EXIT_PASS, EXIT_UNKNOWN))
+
+
+class TheShippedEntryPointStillGradesTheCorpus(unittest.TestCase):
+    """The must-not-match half: after the guards, real inputs still decide."""
+
+    def test_a_clean_corpus_passes_with_exit_zero(self):
+        with _corpus(CLEAN_MATCH) as f:
+            code, out = _run_main(files=f)
+        self.assertEqual(code, EXIT_PASS, out[-1500:])
+        self.assertIn("VERDICT: PASS", out)
+        self.assertIn("all agree", out)
+
+    def test_a_genuine_violation_fails_with_exit_one(self):
+        with _corpus(CLEAN_MATCH, WITHDRAWN) as f:
+            code, out = _run_main(files=f)
+        self.assertEqual(code, EXIT_FAIL, out[-1500:])
+        self.assertIn("VERDICT: FAIL", out)
+        self.assertIn("disagree with the record", out)
+
+    def test_a_correctly_struck_violation_does_not_fail_through_main(self):
+        """D85 through the entry point: the struck copy must not turn the
+        whole run red, or the strike convention becomes unusable."""
+        with _corpus(CLEAN_MATCH,
+                     "~~" + WITHDRAWN.rstrip("\n") + "~~ Struck.\n") as f:
+            code, out = _run_main(files=f)
+        self.assertEqual(code, EXIT_PASS, out[-1500:])
+
+    def test_the_exit_code_returned_is_the_published_mapping(self):
+        """Pins the RETURN of `main`, not the `EXIT` dict it reads. The dict is
+        already asserted in `TheExitContract`; a test of the dict alone stays
+        green if `main` stops returning through it -- measured."""
+        with _corpus(CLEAN_MATCH) as f:
+            ok, _ = _run_main(files=f)
+        with _corpus(CLEAN_MATCH, WITHDRAWN) as f:
+            bad, _ = _run_main(files=f)
+        unknown, _ = _run_main(files=[])
+        self.assertEqual([ok, bad, unknown],
+                         [EXIT_PASS, EXIT_FAIL, EXIT_UNKNOWN])
 
 
 class TheExitContract(unittest.TestCase):
@@ -260,8 +486,19 @@ class MustNotMatch(unittest.TestCase):
         self.assertEqual(faults, [])
 
 
-class ItCannotPassFromAnEmptySet(unittest.TestCase):
-    """Defect class B1, the silent-zero sweep (D62)."""
+class ThePredicatesAndTheRegistryReportEmptinessAsAProblem(unittest.TestCase):
+    """The INPUTS to the verdict, not the verdict. Defect class B1 (D62).
+
+    RENAMED 2026-08-15. This class was called `ItCannotPassFromAnEmptySet` and
+    it never called anything that can PASS: its four tests exercise the
+    predicates, `read_sources`, `build_registry` and `dig`. All three UNKNOWN
+    guards in `main` survived deletion underneath a name that asserted they
+    could not (LADDER_V_V15_ROUND8 M1). A class name is read as a coverage
+    statement, so a name for a property the body does not test is worse than no
+    test -- it occupies the slot where the absence would have been noticed.
+    The property itself is now held by
+    `TheShippedEntryPointCannotPassFromAnEmptySet` above, which drives `main`.
+    """
 
     def test_a_document_with_no_figures_matches_nothing(self):
         faults, _, _ = _scan("There are no figures in this sentence at all.\n")

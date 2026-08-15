@@ -279,6 +279,215 @@ def test_empty_set_is_unknown_not_pass():
     assert "B1" in why[0]
 
 
+# ---------------------------------------------------------------------------
+# F1: the population LOOKED AT is not the population GRADED
+# ---------------------------------------------------------------------------
+#
+# LADDER_V_V15_ROUND8 §2, reproduced at HEAD before the repair:
+#
+#     >>> N.decide(0, "", [], [], 887, [])
+#     ('PASS', ['887 normative clause(s) examined; 0 pin a figure that agrees
+#               with its record; 0 are UNDECIDABLE ...; none is graded false'])
+#
+# The B1 branch gated on `examined` -- the count of clauses a mandate marker was
+# seen in -- and never on `findings`, the set that actually received a verdict.
+# The shipped PASS rested on 0 of 887 decided. These tests gate on the decided
+# set, and they name WHICH of the three empty arms each state is in, because
+# "no clause matched" and "895 matched and none was gradeable" call for
+# opposite repairs and an undifferentiated "empty" hides that.
+
+def test_a_nonzero_examined_count_with_no_verdicts_is_unknown_not_pass():
+    """THE F1 REGRESSION, verbatim. 887 examined, 0 decided, must not PASS."""
+    v, why = N.decide(0, "", [], [], 887, [])
+    assert v == N.UNKNOWN, f"F1 is back: {why}"
+    assert why[0].startswith(N.EMPTY_NONE_GRADEABLE + ":"), why
+    assert "887" in why[0] and "ZERO reached a verdict" in why[0]
+    assert "B1" in why[0]
+
+
+def test_a_compliant_clause_is_silent_in_the_report_but_counted_as_decided(qs):
+    """The half of the repair that keeps this from becoming a useless alarm.
+
+    NEG-6 pins that an obeyed mandate is NOT a finding -- reporting one trains
+    readers to ignore the check. But it IS a decision, and if nothing counts it
+    then a corpus in which every mandate is obeyed has an empty graded set and
+    the B1 guard fires on a PERFECT corpus. `cleared` is that count.
+    """
+    text = ("- Every surface **must** state the seed bound as **0.002419**, "
+            "i.e.\n  177% of the **0.001365** margin over **Yang** on the "
+            "**six-entry**\n  board retrieved **2026-08-11T23:33Z**.\n")
+    live, _ = mask_exempt(text)
+    found, cleared = [], []
+    examined = N.scan(live, "<t>", qs, found, cleared)
+    assert examined == 1
+    assert found == [], "an obeyed mandate was reported as a finding (NEG-6)"
+    assert cleared, "an obeyed mandate was graded and then thrown away"
+    assert all(c.verdict == N.PASS for c in cleared)
+    assert N.empty_arm(examined, found, (), cleared) is None
+    assert N.decide(0, "", [], [], examined, found, (), cleared)[0] == N.PASS
+
+
+def test_a_perfect_corpus_passes_rather_than_going_unknown(tmp_path):
+    """L-84's other half at the level of the whole instrument.
+
+    A check that returns UNKNOWN once the corpus is clean has replaced false
+    greens with an alarm nobody can switch off. Driven through `main`.
+    """
+    doc = tmp_path / "clean.md"
+    doc.write_text(
+        "- Every surface **must** state the seed bound as **0.002419**, i.e.\n"
+        "  177% of the **0.001365** margin over **Yang** on the **six-entry**\n"
+        "  board retrieved **2026-08-11T23:33Z**.\n", encoding="utf-8")
+    code, out = _run_main([str(doc)])
+    assert code == N.EXIT[N.PASS], out[-2500:]
+    assert "1 decided" in out
+    assert "of those, CLEARED 1" in out
+
+
+def test_the_three_empty_arms_are_distinguished_by_name():
+    """One UNKNOWN is three different states and the reason must say which."""
+    assert N.empty_arm(0, []) == N.EMPTY_NO_CLAUSES
+    assert N.empty_arm(887, []) == N.EMPTY_NONE_GRADEABLE
+    assert N.empty_arm(887, [], ["x.md: [Errno 2]"]) == N.EMPTY_UNREADABLE
+    assert N.empty_arm(0, [], ["x.md: [Errno 2]"]) == N.EMPTY_UNREADABLE
+    arms = {N.decide(0, "", [], [], ex, [], un)[1][0].split(":")[0]
+            for ex, un in ((0, ()), (887, ()), (887, ("x.md: boom",)))}
+    assert arms == {N.EMPTY_NO_CLAUSES, N.EMPTY_NONE_GRADEABLE,
+                    N.EMPTY_UNREADABLE}, arms
+
+
+def test_an_unreadable_source_makes_an_empty_set_unattributable():
+    v, why = N.decide(0, "", [], [], 0, [], ["a.md: [Errno 2] No such file"])
+    assert v == N.UNKNOWN
+    assert why[0].startswith(N.EMPTY_UNREADABLE + ":"), why
+    assert "unattributable" in why[0]
+
+
+def test_a_nonempty_decision_set_is_still_gradeable(qs):
+    """MUST-NOT-MATCH, L-84's other half: this must not become an instrument
+    that only ever returns UNKNOWN. One real finding is enough to decide."""
+    found = _scan(
+        "- Every surface **must** state our margin as 0.0029 on the live "
+        "board.\n", qs)
+    assert found, "fixture produced no finding; the control below is vacuous"
+    assert N.decide(0, "", [], [], 895, found)[0] in (N.PASS, N.FAIL)
+    assert N.empty_arm(895, found) is None
+
+
+def test_a_false_clause_still_fails_over_a_nonempty_set(qs):
+    fail = [f for f in _scan(N.CLAUSE_B_PRE, qs) if f.verdict == N.FAIL]
+    assert fail, "fixture produced no FAIL finding"
+    v, why = N.decide(0, "", [], [], 895, fail)
+    assert v == N.FAIL, why
+
+
+def test_an_undecidable_only_set_is_pass_and_the_frame_says_so(qs):
+    """Recorded, not hidden: the live corpus decides 2 clauses and both are
+    UNDECIDABLE, so today's PASS confirms nothing positively. That is inside
+    the contract -- an UNDECIDABLE is a verdict, so the set is not empty -- but
+    the count of TRUE findings is printed beside it precisely so a reader can
+    see what the PASS rests on."""
+    undec = [f for f in _scan(
+        "- Every surface **must** state our margin as 0.001365 at the pinned\n"
+        "  benchmark commit `deb91557`.\n", qs) if f.verdict == N.UNKNOWN]
+    assert undec
+    v, why = N.decide(0, "", [], [], 895, undec)
+    assert v == N.PASS
+    assert f"{len(undec)} decided" in why[0]
+    assert "0 pin a figure that agrees" in why[0]
+
+
+# ---------------------------------------------------------------------------
+# The SHIPPED ENTRY POINT, driven -- not a re-derivation beside it
+# ---------------------------------------------------------------------------
+#
+# `decide` being right is not the same claim as `main` calling it with the
+# right arguments. The `unreadable` list is assembled in `main` and nowhere
+# else, so an arm that is correct in `decide` and never reached from `main` is
+# the M1 shape on this module. These call `N.main()`.
+
+def _run_main(files, *, err="", rc=0, argv=()):
+    """Run `N.main()` over an injected corpus. Patches only its SOURCES."""
+    import contextlib
+    import io
+    from unittest import mock
+
+    args = ["check_normative_clauses", "--root", str(REPO), *argv]
+    buf = io.StringIO()
+    with mock.patch.object(sys, "argv", args), \
+         mock.patch.object(N, "tracked_prose",
+                           lambda root: (list(files), err, rc)):
+        with contextlib.redirect_stdout(buf):
+            code = N.main()
+    return code, buf.getvalue()
+
+
+def _verdict_block(out):
+    """Only the text BELOW `VERDICT:`.
+
+    Asserting over the whole report is how a test goes vacuous here: the frame
+    names the arm too, so `EMPTY-3 in out` stayed true under a mutant in which
+    `main` stopped passing `unreadable` to `decide` and the verdict fell back to
+    EMPTY-1. Measured -- that mutant SURVIVED the first cut of this test.
+    """
+    return out.split("VERDICT:", 1)[1]
+
+
+def test_main_refuses_to_pass_over_a_corpus_of_no_files(tmp_path):
+    code, out = _run_main([])
+    assert code == N.EXIT[N.UNKNOWN], out[-2000:]
+    assert "VERDICT: UNKNOWN" in out
+    assert N.EMPTY_NO_CLAUSES in _verdict_block(out)
+
+
+def test_main_refuses_to_pass_when_the_only_source_is_unreadable(tmp_path):
+    """The `unreadable` wiring, which exists only inside `main`."""
+    code, out = _run_main([str(tmp_path / "never-written.md")])
+    assert code == N.EXIT[N.UNKNOWN], out[-2000:]
+    tail = _verdict_block(out)
+    assert N.EMPTY_UNREADABLE in tail, tail
+    assert "1 source(s) could not be read" in tail
+    assert "sources unread      1" in out
+
+
+def test_main_prints_the_same_arm_in_the_frame_and_in_the_verdict(tmp_path):
+    """One sentence, two places. A frame that names EMPTY-3 above a verdict
+    that took EMPTY-1 is worse than printing neither."""
+    code, out = _run_main([str(tmp_path / "never-written.md")])
+    frame = out.split("empty-set arm", 1)[1].split("\n", 1)[0].strip()
+    assert frame == N.empty_reason(N.EMPTY_UNREADABLE, 0,
+                                   ["never-written.md: x"]), frame
+    assert frame in _verdict_block(out)
+
+
+def test_main_prints_the_decided_count_beside_the_examined_count(tmp_path):
+    """The frame must carry both numbers. F1 was invisible because only the
+    number that could not clear anything was printed."""
+    doc = tmp_path / "fixture.md"
+    doc.write_text(
+        "- Every surface **must** state our margin as 0.001365 at the pinned\n"
+        "  benchmark commit `deb91557`.\n", encoding="utf-8")
+    code, out = _run_main([str(doc)])
+    assert "clauses examined" in out and "clauses DECIDED" in out
+    assert code in (N.EXIT[N.PASS], N.EXIT[N.FAIL]), out[-2000:]
+    assert "empty-set arm       (none)" in out
+
+
+def test_main_still_fails_on_a_genuine_violation(tmp_path):
+    """MUST-NOT-MATCH control on the runner: FAIL is still reachable."""
+    doc = tmp_path / "fixture.md"
+    doc.write_text(N.CLAUSE_B_PRE, encoding="utf-8")
+    code, out = _run_main([str(doc)])
+    assert code == N.EXIT[N.FAIL], out[-2000:]
+    assert "VERDICT: FAIL" in out
+
+
+def test_main_reports_a_broken_frame_as_unknown(tmp_path):
+    code, out = _run_main([], err="fatal: not a git repository", rc=128)
+    assert code == N.EXIT[N.UNKNOWN], out[-2000:]
+    assert "not a git repository" in out
+
+
 def test_broken_frame_is_unknown_not_empty():
     v, why = N.decide(128, "fatal: not a git repository", [], [], 0, [])
     assert v == N.UNKNOWN

@@ -1141,12 +1141,21 @@ def run_controls(qs, anchors, coverage) -> tuple[list, list]:
 # Frame and run
 # ---------------------------------------------------------------------------
 
+#: Written by `tracked_prose` and read by `main`, so a broken FRAME is never
+#: reported as an empty CORPUS. Measured 2026-08-15: mutating the failure guard
+#: below to `if False:` left both this module's test files green at exit 0,
+#: because a git failure yielded an empty list and the empty-set guard returned
+#: UNKNOWN anyway -- the right verdict under the wrong reason. An operator told
+#: "zero figures matched" goes looking at the corpus; the corpus was never read.
+GIT_FAILED = "git ls-files failed"
+
+
 def tracked_prose(root: Path) -> tuple[list, str]:
     proc = subprocess.run(
         ["git", "-C", str(root), "ls-files", "-z", "--", *PROSE_GLOBS],
         capture_output=True, text=True)
     if proc.returncode != 0:
-        return [], f"git ls-files failed rc={proc.returncode}: {proc.stderr}"
+        return [], f"{GIT_FAILED} rc={proc.returncode}: {proc.stderr}"
     return sorted(p for p in proc.stdout.split("\0") if p), proc.stderr.strip()
 
 
@@ -1220,7 +1229,15 @@ def main() -> int:
 
     # ---- verdict -------------------------------------------------------
     reasons = []
-    if problems:
+    if git_note.startswith(GIT_FAILED):
+        # A BROKEN FRAME IS NOT AN EMPTY CORPUS. Both end in UNKNOWN, so the
+        # exit code was already right; the REASON was wrong, and the reason is
+        # the whole product of a three-valued check.
+        verdict = UNKNOWN
+        reasons.append(f"the file enumeration failed, so the corpus was never "
+                       f"read and the empty result is a FRAME error, not a "
+                       f"finding about the lab: {git_note}")
+    elif problems:
         verdict = UNKNOWN
         reasons += [f"source record problem: {p}" for p in problems]
     elif bad_controls:
