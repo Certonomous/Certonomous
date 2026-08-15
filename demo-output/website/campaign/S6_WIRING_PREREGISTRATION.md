@@ -35,6 +35,69 @@ about itself, with no magic constant anywhere.
 Validated on the corrected corpus (1,375 run logs, 222 gated) **before**
 adoption, which is what section 3.1 asks for:
 
+> **DATED ADDENDUM 2026-08-15 — the table below is RETROSPECTIVE, and two of its
+> three rows were superseded four days after it was written. Nothing below this
+> note is altered and no gate is touched.**
+>
+> **The W-3 legality check comes first, and is stated here because W-3 requires
+> it to be stated in the writing it governs.** A pre-registration may be
+> AMENDED only while no compute has run against it, checked against run
+> directories; after first compute, only dated addenda that cannot alter gates.
+> Checked 2026-08-15 against the run archive at `/home/ubuntu/certonomous-runs/`,
+> which lies **outside this repository and is invisible to every git-based
+> search and to this shell's `grep`** (it execs `ugrep --ignore-files`), so
+> `/usr/bin/find` and `/usr/bin/grep` were used throughout:
+>
+> | # | searched | found |
+> |---|---|---|
+> | 1 | the **446** top-level run directories, then the whole archive at any depth, for any path matching *s6*, *residual_gate*, *monitor_rule* | **0**, against an independently obtained total of **132,049** files |
+> | 2 | every `ledger.csv` in the archive, for `s6` | **0** |
+> | 3 | anything written in the archive since this document was authored (`-newermt "2026-08-10 22:00"`, no depth limit) | **0 files.** The archive's newest file is dated 2026-08-10 |
+> | 4 | the repository, for any S6 result record | `S6_HELD_OUT_RESCORE.md`, plus this file's own RESULT and ADDENDUM sections |
+>
+> **And the verdict is the opposite of the one that evidence alone would give.**
+> By W-3's *literal* test S6 consumed no run directory, and an amendment would
+> read as legal. **It is not legal.** S6's gates were **scored, twice** — the
+> RESULT section of 2026-08-10 (`1471b8f3`) and the ADDENDUM of 2026-08-11
+> (`b4144116`) — both by replay over an already-archived corpus, at zero
+> core-minutes. The answer exists and is written in this file, so the property
+> the L-44 freeze protects, that a gate could not have been tuned to an answer,
+> **is already spent.** This is therefore a **dated addendum and not an
+> amendment**: section 3's bars, section 4's refutation conditions, and every
+> number in the table below are untouched by it.
+>
+> **The general defect is W-3's, not this document's:** a gate scored by REPLAY
+> over a corpus that already exists **consumes no run directory**, so W-3's
+> run-directory test is structurally blind to exactly this class and returns
+> "legal to amend" for a pre-registration whose answer is already known. S6 is
+> that case, and it is the cheapest possible specimen because its own record
+> says "Zero core-minutes" in the same breath as it reports eight scored rows.
+>
+> **What the marking says.** This table was computed **in the same commit that
+> states it** (`ab0c8d76`, 2026-08-10 21:42:11), so it is a **measurement
+> restated, not a prediction met**. It is evidence FOR the section 2 conditions;
+> it is not one of the bars section 3 fixes. That distinction was drawn for the
+> RESULT table on 2026-08-11 and was **never drawn here**. Row by row, re-read
+> against the repaired parser (`b4144116`):
+>
+> | row below | as written 2026-08-10 | status at 2026-08-15 |
+> |---|---|---|
+> | excluded — 135 logs, 134 fire, 135 of 135 sentinel | 135 | **stands.** Unchanged by the repair; the exclusion is untouched and no case crosses the boundary |
+> | gated — 81 logs, 35 fire, 43% | 81 / 35 / 43% | **superseded → 87 / 41 / 47%** |
+> | tolerance unreadable, fail open — 6 | 6 | **superseded → 0.** All six were the parser, not the archive |
+>
+> The two superseded rows are **left exactly as written**, because a dated
+> record re-based onto a later finding destroys the evidence of what was
+> decided on what evidence. The supersession is recorded here, beside them.
+>
+> **One thing this addendum deliberately does not repair.** The RESULT heading
+> below still reads *"every prediction met"*. That sentence is falsified twice
+> by this same document — by its own 2026-08-11 labelling note (three of the
+> eight rows are restated measurements, and the PRIMARY prediction was never
+> scored at all) and by the addendum (four of the eight numbers moved). It is a
+> dated heading and is left standing; a reader who reaches the heading and stops
+> gets a false summary, and that is named here rather than silently corrected.
+
 | class | logs | fire | rate | of which the `1e-15` sentinel |
 |---|---|---|---|---|
 | target ≤ field's own solver tolerance (**excluded**) | 135 | 134 | 99% | **135 of 135** |

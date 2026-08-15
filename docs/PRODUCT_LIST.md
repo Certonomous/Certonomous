@@ -2895,10 +2895,38 @@ lesson that commissioned it, on two specifics.**
   `residualControl { "(U|p)" }` never meets `solvers { "(U|k)" }` because matching is string equality. **All 6
   "fail-open" logs are this**, so a parser artefact has been reported as a property of the archive; and one case is
   **armed on a third of what it declares.** Fails safe, but it silently disarms the gate.
+  - **SETTLED 2026-08-15, and the record above was stale rather than open — anchored at `b4144116` (2026-08-11
+    03:52:50), which is four days before this settlement and one day after the line above was written.** The defect
+    was **not repaired in `_solver_tolerances`**, which is why a reader following this line to that function still
+    finds it keyed by declared key and concludes the defect is live. It was repaired **one level down**: resolution
+    moved into `_dict_lookup` + `_field_reachability`, per FIELD, using OpenFOAM's own order from
+    `dictionarySearch.C::csearch` — literal keys before pattern keys, last-declared matching pattern wins,
+    `fullmatch` because `regExp::match` is `std::regex_match`, and an uncompilable key left UNRESOLVED rather than
+    guessed. `_solver_tolerances` and `_residual_controls` **survive as dead code with no production caller** (swept
+    2026-08-15 across all four arms: tracked, untracked, gitignored via `git ls-files --others --ignored
+    --exclude-standard`, and the out-of-repo run archive), each carrying a docstring that says it must not be
+    indexed by field name. **Verified by mutation, not by reading**, every `__pycache__` purged before each cell and
+    control plus both mutants in one invocation: control **9/9 green**; deleting the pattern walk (the original
+    string-equality defect) **kills 6 of 9**; and the **must-not-match control (L-84)** — `fullmatch` weakened to
+    `search`, so the lookup starts resolving keys it should not — **kills 2 of 9**, which is the half that proves
+    the repair did not buy recall by over-matching. Reverted, green at both ends, working tree clean.
 - **AND THE FINDING I MOST NEEDED TO HEAR: our pre-registration's own sentinel row is retrospective wearing a
   prediction's clothes.** Its 135/81/6 table was **computed in the same commit that states it**, yet sits in the
   RESULT table beside genuinely forward predictions marked "met". **That is L-63's failure mode reproduced inside the
   document L-63 is about.**
+  - **SETTLED 2026-08-15, in two halves, and the halves were in different places.** The **RESULT** table's copy of
+    this row was marked the day after the line above was written — the `LABELLING NOTE ADDED 2026-08-11` grades all
+    eight RESULT rows FORWARD or RESTATED against a stated test (did section 3 nominate the number as a bar before
+    the wiring existed?) and marks `sentinel-excluded 135`, `gated logs 81` and `fires 35` **RESTATED**. **The
+    section 2 validation table the row actually lives in was never marked at all**, and that is what was still open:
+    a reader meets 135/81/6 in section 2 with no signal that it is retrospective and no signal that **two of its
+    three rows were superseded** by the `b4144116` re-score (gated 81/35/43% → **87/41/47%**; fail-open 6 → **0**;
+    the 135 sentinel row **stands**). Marked 2026-08-15 as a dated addendum beside the table, table left
+    byte-identical, no gate altered. **The W-3 check that authorised the form of that marking is the finding worth
+    more than the marking:** by W-3's literal run-directory test S6 consumed **0 of 132,049** archived files and an
+    *amendment* would have read as legal — but S6's gates were scored twice by REPLAY over an already-archived
+    corpus, at zero core-minutes, so the answer already exists and the L-44 freeze is spent. **A replay-scored gate
+    consumes no run directory, so W-3's test is structurally blind to it.** Filed as a docket row.
 - Worth keeping: **retaining the superseded artifact is the only reason provenance was answerable at all.** Without
   the superseded replay JSON the answer would have been "not establishable."
 
