@@ -74,8 +74,42 @@ performance exactly.
 **A finding earned by this, not designed for it**: on both declined cases
 the raw RANS floor (0.0461, 0.0719) is lower than every entry on the public
 leaderboard for that case (best published 0.0569 and 0.0760 respectively).
-**We now lead the public board on 5 of 8 cases**, not 3 — two of the five
-by simply not having broken what RANS already got right.
+~~**We now lead the public board on 5 of 8 cases**, not 3 — two of the five
+by simply not having broken what RANS already got right.~~
+
+> **Struck 2026-08-15 (docket D157). This sentence was present tense and
+> carried no banner of its own**, so it read as a current claim while being
+> true only of the round-3 entry against the **four-entry** leaderboard frozen
+> at benchmark commit `deb91557` (2026-05-04). Two things are wrong with it
+> today and they are different in kind.
+>
+> **The count.** Against the **six-entry** live board — retrieved
+> **2026-08-11T23:33Z** from
+> `raw.githubusercontent.com/rmcconke/closure-challenge-benchmark/main/README.md`,
+> **re-verified unchanged by read-only fetch 2026-08-14T21:01Z** — we hold the
+> best score on **2 of 8** cases, not 5: `alpha_05_4071_4048` and
+> `alpha_05_4071_2024`. Both `alpha_15` cases were lost to Tian, Buchanan,
+> Hickel and Dwight (0.0432 against our 0.0501; 0.0998 against our 0.1011), and
+> `AR_14_Ret_180`'s 0.00003 nominal tie was already gone at round 5 (§0e).
+>
+> **The credit, and this is the half that does not move when the board moves.**
+> The count belonging to **our own model is ZERO of 8**. The two rows that
+> survive are exactly the two the decline gate passed through as **the
+> organisers' own unmodified RANS field** — our score there *equals* the
+> RANS-identity floor — so anyone submitting that untouched baseline scores
+> identically on them. The struck sentence half-said this ("two of the five by
+> simply not having broken what RANS already got right"); what it did not say
+> is that on the live board those pass-throughs are the *only* two left, so the
+> figure and the caveat are now the same fact. The entry wins on consistency
+> across eight cases, not on any peak, and must be described that way.
+>
+> A commit anchor is **not** an admissible board identifier: `deb91557` scores,
+> it does not rank. Derived from `sdk/scripts/probability_of_rank.py`
+> `LIVE_BOARD` against `closure_challenge_round5_qcr.json` →
+> `official_test_harness_result.round5_per_case_full`, with the decline judged
+> structurally against `rans_identity_floor_per_case`. See
+> `campaign/BOARD_MOVED_2026-08-11.md` and the re-fetch in
+> `campaign/BOARD_RESCORE_2026-08-14.md` §1.2.
 
 **Leakage discipline, stated plainly**: the gate's parameters (feature
 screening, RidgeCV alpha, standardization, final coefficients, decision
@@ -383,11 +417,23 @@ the round-3 gate's behaviour is untouched.
 
 **Per-case movement** (round 3 → round 4):
 
-| Case | Round 3 | Round 4 | Δ | Board rank |
-|---|---|---|---|---|
-| `AR_1_Ret_360` | 0.0919 | **0.0811** | −0.0108 | 5 of 5 → 3 of 5 |
-| `AR_3_Ret_360` | 0.0862 | **0.0775** | −0.0087 | 4 of 5 → 3 of 5 |
-| `AR_14_Ret_180` | 0.0303 | **0.0325** | **+0.0022** | 1 of 5 → 1 of 5, margin collapsed |
+| Case | Round 3 | Round 4 | Δ | ~~Board rank~~ **Board rank — FOUR-entry clone, struck** | **Board rank — SIX published entries, retrieved 2026-08-11T23:33Z, re-verified 2026-08-14T21:01Z** |
+|---|---|---|---|---|---|
+| `AR_1_Ret_360` | 0.0919 | **0.0811** | −0.0108 | ~~5 of 5 → 3 of 5~~ | **7 of 7 → 5 of 7** |
+| `AR_3_Ret_360` | 0.0862 | **0.0775** | −0.0087 | ~~4 of 5 → 3 of 5~~ | **6 of 7 → 5 of 7** |
+| `AR_14_Ret_180` | 0.0303 | **0.0325** | **+0.0022** | ~~1 of 5 → 1 of 5, margin collapsed~~ | **2 of 7 → 2 of 7 — we never led this case on the live board; Yang holds it at 0.0250** |
+
+> **Column struck and re-derived 2026-08-15 (docket D157).** The struck column
+> was the **four-entry** clone's, and its header named no board at all — which
+> is the same defect as naming one by a commit, one step worse: `deb91557`
+> scores, it does not rank, and a board must be named by **entrant count and
+> retrieval date**. The correction that matters is not the digits but the
+> `AR_14_Ret_180` row: on the four-entry clone round 4 read as holding the case
+> outright (`1 of 5`), and on the six-entry live board it was **never held** —
+> Yang's 0.0250 is below both 0.0303 and 0.0325, so the "margin collapsed"
+> story describes a lead that did not exist against the live population.
+> Derived from `sdk/scripts/probability_of_rank.py` `LIVE_BOARD`; the three
+> round-3/round-4 scores themselves are unchanged.
 
 **The `AR_14_Ret_180` regression is deliberately NOT reverted**, for the
 same reason the NASA hump's +0.0011 was not reverted in round 2/3: choosing
@@ -410,10 +456,31 @@ pattern matches on all three.
 
 **Standings** (public board re-scored locally at benchmark commit
 `deb91557`; all four entrants reproduce their published values exactly):
-**rank 3 of 5**, gap to rank 2 (Wu & Zhang, 0.0624) cut **0.0052 → 0.0030**.
+~~**rank 3 of 5**, gap to rank 2 (Wu & Zhang, 0.0624) cut **0.0052 → 0.0030**.
 Best-on-board count **5 of 8, unchanged** (AR_14 now nominally, per the
 warning above). We are no longer last on any duct; last on the board only on
-`NASA_2DWMH` (0.0632 vs best 0.0364).
+`NASA_2DWMH` (0.0632 vs best 0.0364).~~
+
+> **Struck 2026-08-15 (docket D157).** The section header above supersedes
+> round 4 as the *entry of record*; it does not supersede these standings, and
+> a commit anchor is **not** an admissible board identifier — `deb91557`
+> scores, it does not rank. Re-derived for round 4's own 0.0654 against the
+> **six-entry** live board (retrieved **2026-08-11T23:33Z**, **re-verified
+> unchanged 2026-08-14T21:01Z**; **seven** positions counting our own row):
+> round 4 stands **5 of 7**, not 3 of 5. Wu and Zhang are **rank 3** at 0.0624;
+> Liu, Wang, Zhao and Xiao are **rank 5** at 0.0737; Tian, Buchanan, Hickel and
+> Dwight are **rank 4** at 0.0641, immediately above 0.0654.
+> **What the same entrants stood at on the four-entry clone frozen at
+> `deb91557`, kept beside the live values so the move is visible**: Reissmann,
+> Fang and Sandberg **rank 1**, Wu and Zhang **rank 2**, Liu, Wang, Zhao and
+> Xiao **rank 3**, Montoya, Oulghelou and Cinnella **rank 4** — Yang and Tian,
+> Buchanan, Hickel and Dwight were not on that board at all, which is why two
+> of the live ordinals have no predecessor to strike.
+> Round 4's best-on-board count is
+> **2 of 8**, not 5 — and the count belonging to **our own model is ZERO of
+> 8**, both surviving rows being the ones the decline gate passed through as
+> **the organisers' own unmodified RANS field**. Round 4 is also last on
+> `NASA_2DWMH` at **7 of 7**, not 5 of 5.
 
 **Seed-stability qualifier (added 2026-08-05, audit finding G1 — the
 pre-registered consequence of a material finding)**: the PH model behind 3
@@ -624,7 +691,11 @@ the margin, it **exceeds** it, so the one-seed uncertainty alone spans the
 whole lead and cannot be tightened without a scoring call. Re-derived, not
 carried over: 0.002419 / 0.001365 = 1.772.
 
-**A measured consistency check, not designed for**: the rank-2 entry (Wu &
+**A measured consistency check, not designed for**: ~~the rank-2 entry~~ **the
+Wu and Zhang entry — rank 3 on the six-entry live board retrieved
+2026-08-11T23:33Z and re-verified unchanged 2026-08-14T21:01Z; "rank 2" was
+their position on the four-entry board frozen at `deb91557`, struck
+2026-08-15 per D157** — (Wu &
 Zhang) runs SST-QCRC, which carries the same untrained QCR2000 term. Our
 three QCR duct scores land within 0.0004 of theirs on all three ducts
 (0.0455/0.0455, 0.0400/0.0399, 0.0353/0.0350) — independent solves, same
@@ -687,12 +758,30 @@ manifest `demo-output/website/closure_challenge_submission_round5/`
 > §0f's struck note of 2026-08-12). §0f carries the full per-case and
 > standings tables at benchmark commit `deb91557`. The table below stands
 > unchanged as the round-3/round-4 record.
+>
+> **Extended 2026-08-15 (docket D157), because this banner covered the counts
+> and not the population.** Every entrant ordinal and every "best anywhere"
+> cell below is the **four-entry** clone's, and the section heading's own
+> "rank-2" is one of them: on the **six-entry** live board — retrieved
+> **2026-08-11T23:33Z**, **re-verified unchanged 2026-08-14T21:01Z** — Wu and
+> Zhang are **rank 3**, Liu, Wang, Zhao and Xiao **rank 5**, Montoya,
+> Oulghelou and Cinnella **rank 6**.
+> **The struck four-entry ordinals for the same entrants, kept beside them**:
+> Reissmann, Fang and Sandberg **rank 1**, Wu and Zhang **rank 2**, Liu, Wang,
+> Zhao and Xiao **rank 3**, Montoya, Oulghelou and Cinnella **rank 4**.
+> Yang (live **rank 1**) and Tian, Buchanan, Hickel and Dwight (live **rank
+> 4**) are absent from the table entirely. So a cell reading
+> "best anywhere on leaderboard" means *best among four entrants*, and on two
+> rows the live best is an entrant the table does not list. The column headers
+> below now say so. **A commit anchor is not an admissible board identifier**:
+> `deb91557` scores, it does not rank; a board is named by **entrant count and
+> retrieval date**.
 
 *(Round-4 column added 2026-08-04; the round-3 column stands unchanged as
 the superseded record. The five non-duct rows are byte-identical between the
 two rounds — §0e.)*
 
-| Case | RANS-identity floor | Our score (round 3, gated) | **Our score (round 4, entry of record)** | Rank-2 (Wu & Zhang, 0.0624) | Best anywhere on leaderboard | We lead the board? |
+| Case | RANS-identity floor | Our score (round 3, gated) | **Our score (round 4, entry of record)** | ~~Rank-2~~ **Wu and Zhang — rank 3 on the six-entry live board** (Wu & Zhang, 0.0624) | ~~Best anywhere on leaderboard~~ **Best among the FOUR entrants of the deb91557 clone — not the live board** | ~~We lead the board?~~ **Led the FOUR-entry board** |
 |---|---|---|---|---|---|---|
 | alpha_15_13929_4048 | 0.1320 | 0.0501 | **0.0501** (unchanged) | 0.0813 | 0.0592 (Reissmann) | **YES** |
 | alpha_15_13929_2024 | 0.2049 | 0.1011 | **0.1011** (unchanged) | 0.1195 | 0.1195 (Wu & Zhang) | **YES** |
@@ -703,25 +792,79 @@ two rounds — §0e.)*
 | AR_14_Ret_180 | 0.0590 | 0.0303 | **0.0325** (regressed; not reverted, §0e) | 0.0350 | 0.0325 (Reissmann) | **YES — by 0.00003, nominal only (§0e)** |
 | NASA_2DWMH | 0.0621 | 0.0632 | **0.0632** (unchanged) | 0.0364 | 0.0364 (Wu & Zhang) | no |
 
-**We hold the best score on the entire public leaderboard on 5 of 8 cases**:
+~~**We hold the best score on the entire public leaderboard on 5 of 8 cases**:
 both `alpha_15_13929` cases, both `alpha_05_4071` cases (now that the gate
 withholds the correction and reports raw RANS, which itself beats every
 published entry there), and `AR_14_Ret_180` — the last of these now by a
-0.00003 margin that must not be reported as a comfortable win (§0e).
+0.00003 margin that must not be reported as a comfortable win (§0e).~~
 
-Full public leaderboard (`closure-challenge-benchmark/README.md`; round-5
+> **Struck 2026-08-15 (docket D157).** The §2 banner above supersedes the
+> best-on-board *count*, but it sits thirty lines up and this sentence reads as
+> a current claim on its own, so it is struck here as well. Live, against the
+> **six-entry** board retrieved **2026-08-11T23:33Z** and **re-verified
+> unchanged 2026-08-14T21:01Z**: **2 of 8**, and the count belonging to **our
+> own model is ZERO of 8** — both surviving rows are the two the decline gate
+> passed through as **the organisers' own unmodified RANS field**, so an
+> unchanged baseline submission scores identically there. Both `alpha_15` cases
+> are lost to Tian, Buchanan, Hickel and Dwight; `AR_14_Ret_180`'s nominal
+> 0.00003 lead was already gone at round 5 (§0e).
+
+~~Full public leaderboard (`closure-challenge-benchmark/README.md`; round-5
 row added 2026-08-07 per §0f — ours is a local scoring, not an official
-placement):
+placement):~~
 
 | Rank | Authors | Overall |
 |---|---|---|
-| — | **ours (unsubmitted, round 5, entry of record — locally rank 1, §0f)** | **0.0566** |
-| 1 | Reissmann, Fang, and Sandberg | 0.0595 |
-| 2 | Wu and Zhang | 0.0624 |
+| — | ~~**ours (unsubmitted, round 5, entry of record — locally rank 1, §0f)**~~ | ~~**0.0566**~~ |
+| ~~1~~ | ~~Reissmann, Fang, and Sandberg~~ | ~~0.0595~~ |
+| ~~2~~ | ~~Wu and Zhang~~ | ~~0.0624~~ |
+| — | ~~ours (unsubmitted, round 4, superseded 2026-08-07)~~ | ~~0.0654~~ |
+| — | ~~ours (unsubmitted, round 3, superseded)~~ | ~~0.0676~~ |
+| ~~3~~ | ~~Liu, Wang, Zhao, and Xiao~~ | ~~0.0737~~ |
+| ~~4~~ | ~~Montoya, Oulghelou, and Cinnella~~ | ~~0.0779~~ |
+
+> **Struck 2026-08-15 (docket D157): this table was titled "Full public
+> leaderboard" and was not full.** It listed **four** entrants under no banner.
+> The word *full* is what makes it a defect rather than a stale figure — a
+> partial table labelled partial misinforms nobody, and a partial table
+> labelled complete tells the reader there is nothing else to look for. Two
+> entrants were missing, and one of them leads. Kept struck rather than
+> deleted, because the four scores in it are correct and were correct on the
+> day; only the population was wrong.
+
+**Full public leaderboard, live — SIX published entries**, retrieved
+**2026-08-11T23:33Z** from
+`raw.githubusercontent.com/rmcconke/closure-challenge-benchmark/main/README.md`
+(sha256 `1f124a8857a6b611832478879fc22ff353ee3308434b966849d4f29946d85c5b`),
+**re-verified unchanged by read-only fetch 2026-08-14T21:01Z**. Recorded in
+`campaign/BOARD_MOVED_2026-08-11.md`, re-fetch in
+`campaign/BOARD_RESCORE_2026-08-14.md` §1.2. **The board is named by entrant
+count and retrieval date and never by a commit**: `deb91557` scores, it does
+not rank, so it is not an admissible board identifier. Ours is a **local
+scoring, not an official placement** — nothing has been submitted.
+
+| Rank | Authors | Overall |
+|---|---|---|
+| — | **ours (unsubmitted, round 5, entry of record)** — 7 positions counting our own row, so **1 of 7** | **0.0566** |
+| 1 | **Yang** | **0.0580** |
+| 2 | Reissmann, Fang, and Sandberg | 0.0595 |
+| 3 | Wu and Zhang | 0.0624 |
+| 4 | **Tian, Buchanan, Hickel, and Dwight** | **0.0641** |
 | — | ours (unsubmitted, round 4, superseded 2026-08-07) | 0.0654 |
 | — | ours (unsubmitted, round 3, superseded) | 0.0676 |
-| 3 | Liu, Wang, Zhao, and Xiao | 0.0737 |
-| 4 | Montoya, Oulghelou, and Cinnella | 0.0779 |
+| 5 | Liu, Wang, Zhao, and Xiao | 0.0737 |
+| 6 | Montoya, Oulghelou, and Cinnella | 0.0779 |
+
+Two entries are new since the four-entry table above — **Yang at the top** and
+**Tian, Buchanan, Hickel, and Dwight at 4**. Montoya moved from 4 to 6 without
+changing score: the board grew underneath them. The eight case columns are
+unchanged, so scores remain like-for-like. **The ordinal may never travel
+alone**: P(rank 1) = **50.2%**, which eight cases pin no tighter than
+**0–97% at 95%**, and **four** leads are **not statistically decided** —
+including the leader's. The margin over Yang is **0.001365** on the
+mean-of-eight basis (0.001353 against Yang's published rounded 0.0580), and the
+truth-free seed bound of **0.002419** is **177%** of it, so the bound
+**exceeds** the lead.
 
 ## 3. Our overall number and position
 
@@ -756,11 +899,25 @@ placement):
 - **Overall: 0.0676** (`closure_challenge_trained_entry_round3_gated.json`,
   `official_test_harness_result.round3_gated_overall`).
 - RANS-identity floor: **0.1036**. We beat it by **−0.0360** (34.7% below).
-- Docket-recorded rank-4 target (Montoya, Oulghelou, Cinnella): **0.0779**.
-  We beat it by **−0.0103**.
-- Against the full public board: we now sit **between rank 2 (0.0624) and
+- ~~Docket-recorded rank-4 target (Montoya, Oulghelou, Cinnella): **0.0779**.
+  We beat it by **−0.0103**.~~
+- ~~Against the full public board: we now sit **between rank 2 (0.0624) and
   rank 3 (0.0737)** — genuinely better than rank 3 by −0.0061, not merely
-  tied with it as round 2 was.
+  tied with it as round 2 was.~~
+- > **Both struck 2026-08-15 (docket D157): the ordinals moved, the scores did
+  > not.** On the **six-entry** live board (retrieved **2026-08-11T23:33Z**,
+  > **re-verified unchanged 2026-08-14T21:01Z**) Montoya, Oulghelou and
+  > Cinnella are **rank 6** at 0.0779, Wu and Zhang are **rank 3** at 0.0624,
+  > and Liu, Wang, Zhao and Xiao are **rank 5** at 0.0737.
+  > **The struck ordinals for the same entrants, from the four-entry clone**:
+  > Montoya, Oulghelou and Cinnella **rank 4**, Wu and Zhang **rank 2**, Liu,
+  > Wang, Zhao and Xiao **rank 3**, Reissmann, Fang and Sandberg **rank 1**.
+  > Round 3's 0.0676 is **5 of 7** counting our own row: below Tian, Buchanan,
+  > Hickel and Dwight at 0.0641 (live **rank 4**; not on the clone) and above
+  > Liu, Wang, Zhao and Xiao, whose clone ordinal was **rank 3**. The margins
+  > (−0.0103, −0.0061) are unchanged — only the positions those entrants
+  > occupy moved, because the board grew underneath them. A commit anchor is
+  > not an admissible board identifier.
 - We are **unsubmitted** — this is our internally measured position against
   the public board, not an official ranking. No entry has been sent to the
   benchmark steward.
@@ -1012,13 +1169,19 @@ Part 1 column (b) and finding G3. Companion stability/physicality evidence:
   explicitly as such — "scaled MAE does not decompose exactly," so this is
   not an exact error budget** — not a measured decomposition.
 - Consequence: **at least 76% of the duct error is streamwise-profile error**,
-  and rank 2's total duct error (4.55%, 3.99%) is already smaller than our
+  and ~~rank 2's~~ **Wu and Zhang's (rank 3 on the six-entry live board
+  retrieved 2026-08-11T23:33Z, re-verified unchanged 2026-08-14T21:01Z; "rank
+  2" was the four-entry board's ordinal — struck 2026-08-15, D157)** total duct
+  error (4.55%, 3.99%) is already smaller than our
   streamwise-only remainder (~7.0%, ~6.6%) — meaning a scalar
   eddy-viscosity-style correction (exactly what FIML/Ladder-B targets) is
   well-aimed at the dominant term, not a wasted effort against an
   anisotropy-only gap.
 - **Not banked** because the recovery route (Ladder B3, DAFoam discrete-adjoint
-  field inversion reproducing Wu, Zhang & Zhang's rank-2 method) hit a real,
+  field inversion reproducing Wu, Zhang & Zhang's ~~rank-2~~ **rank-3 (six
+  entries, retrieved 2026-08-11T23:33Z, re-verified unchanged
+  2026-08-14T21:01Z; "rank-2" was the four-entry board's — struck 2026-08-15,
+  D157)** method) hit a real,
   reproducible numerical blocker before completing a single field-inversion
   iteration (§7) — nothing was withheld by choice here, the compute path is
   currently stopped.
@@ -1088,8 +1251,35 @@ that case's board lead nominal at 0.00003.
 only on non-test PH data in a prior session, was evaluated on the 4 official
 PH test cases for the first time and correctly withheld the correction on
 the 2 cases it was hurting. Movement: **−0.0065**, from 0.0741 to **0.0676**,
-now genuinely better than public rank 3 (0.0737), between rank 2 (0.0624)
-and rank 3. We lead the public board on 5 of 8 cases, not 3.
+~~now genuinely better than public rank 3 (0.0737), between rank 2 (0.0624)
+and rank 3. We lead the public board on 5 of 8 cases, not 3.~~
+
+> **Struck 2026-08-15 (docket D157)** — present tense, no banner, and three
+> separate claims in it are false of the live board. Round 3's **0.0676 is not
+> restated**; only the standing language around it moves.
+>
+> **The entrant ordinals.** "rank 2 (0.0624)" and "rank 3 (0.0737)" were the
+> **four-entry** board's. On the **six-entry** board — retrieved
+> **2026-08-11T23:33Z**, **re-verified unchanged 2026-08-14T21:01Z** — Wu and
+> Zhang are **rank 3** at 0.0624 and Liu, Wang, Zhao and Xiao are **rank 5** at
+> 0.0737 — where the four-entry clone put Wu and Zhang at **rank 2** and Liu,
+> Wang, Zhao and Xiao at **rank 3**, the two ordinals struck above. Two
+> entrants sit between them that were not on the old board at all.
+>
+> **Where 0.0676 would actually sit.** Not between those two. Counting our own
+> row it is **5th of 7**: below Tian, Buchanan, Hickel and Dwight at 0.0641
+> (live **rank 4**, absent from the clone) and above Liu, Wang, Zhao and Xiao
+> at 0.0737 (live **rank 5**, clone **rank 3**).
+>
+> **The count.** We hold the best score on **2 of 8** cases against the live
+> board, not 5 — and the count belonging to **our own model is ZERO of 8**,
+> because both surviving rows are the ones the decline gate passed through as
+> **the organisers' own unmodified RANS field**, where any unchanged baseline
+> submission scores the same. See the struck note in §0.
+>
+> The entry of record is round 5 at **0.0566**, not round 3; this paragraph is
+> round-3 history and is kept as history. A commit anchor is not an admissible
+> board identifier — `deb91557` scores, it does not rank.
 
 **Term 2 (the duct streamwise-profile deficit, §6) remains blocked** on the
 same real, unresolved DAFoam/PETSc GMRES numerical failure (§7) — nothing

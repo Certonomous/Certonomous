@@ -120,8 +120,10 @@
       "Liu_Wang_Zhao_Xiao": 0.0737,
       "Montoya_Oulghelou_Cinnella": 0.0779
     },
+    "our_rank_overall_2026_08_11_six_entry_board": "SUPERSEDES THE ORDINAL AND THE MARGIN IN THE KEY IMMEDIATELY BELOW, and is placed ABOVE it rather than after it on purpose: nothing that walks this block in order - reader or parser - should reach the dated ordinal without meeting the live one first. Appended 2026-08-15 under docket D157. The key below is left BYTE-IDENTICAL, which is the treatment qcr_vs_rank2_duct_consistency_2026_08_11_six_entry_board, rank_companion_2026_08_11_six_entry_board and best_on_board_count_2026_08_11_six_entry_board already give the keys they supersede, and the reason is the same one: RANK 1 of 5 was TRUE of the board this whole block is dated to. This block records the 2026-08-07 scoring call, scored against the FOUR-entry leaderboard frozen at benchmark commit deb91557 (2026-05-04). Overwriting its ordinal would make a dated record false of its own date, which is a worse defect than the one being repaired. THE BOARD IDENTIFIER IN THE KEY BELOW IS NOT ADMISSIBLE EITHER: 'scored locally at deb91557' names a COMMIT, and a commit anchor is not a board identifier - deb91557 SCORES, it does not RANK, and a board must be named by ENTRANT COUNT and RETRIEVAL DATE. THE LIVE VALUE. On the SIX-ENTRY live board - retrieved 2026-08-11T23:33Z from raw.githubusercontent.com/rmcconke/closure-challenge-benchmark/main/README.md (sha256 1f124a8857a6b611832478879fc22ff353ee3308434b966849d4f29946d85c5b), re-verified unchanged by read-only fetch 2026-08-14T21:01Z - there are SEVEN positions counting our own row, so our overall standing is RANK 1 OF 7, not 1 of 5. THE MARGIN MOVED WITH IT, and the entrant it is a margin over has changed: Reissmann, Fang and Sandberg are no longer the entry immediately above us. The live margin is 0.001365 over Yang on the mean-of-eight basis (Yang's eight case values mean to 0.0580125 against our 0.056647191704213645), and the mean basis is the one used here because our own overall is a mean of the same eight cases; measured instead against Yang's published rounded 0.0580 it is 0.001353. Both are less than half the 0.002878 recorded below. AND THE VERDICT ON THE SEED BOUND CHANGES, not only its digits: the truth-free seed bound of 0.002419 is 177 percent of the live margin, so it EXCEEDS the lead, where against the 0.002878 recorded below it did not; its adverse leg puts our overall at 0.059047, which is above Yang's 0.058013. P(rank 1) = 50.2 percent, which eight cases pin no tighter than 0-97 percent at 95 percent, and FOUR leads are not statistically decided, one of them the leader's - the full companion is rank_companion_2026_08_11_six_entry_board in this same block, and the ordinal must never travel without it. Sources: campaign/BOARD_MOVED_2026-08-11.md, with the re-fetch in campaign/BOARD_RESCORE_2026-08-14.md section 1.2; script sdk/scripts/probability_of_rank.py, whose LIVE_BOARD literal is where the ordinal should be regenerated from and never from here. Local scoring, NOT an official placement: nothing has been submitted, no scoring call was made for this key, and the ledger stands at 6.",
     "our_rank_overall": "RANK 1 of 5, scored locally at deb91557 - 0.056647 vs Reissmann's published 0.059525, margin 0.002878",
     "rank_companion_2026_08_10": "MANDATORY companion to our_rank_overall, chief ruling 2026-08-10, appended without altering the dated 2026-08-07 block above. P(rank 1) = 68 percent from a case-level bootstrap over the eight scored cases (B=400,000); an eight-case sample cannot pin it tighter than 2-100 percent at 95 percent. The leads over Reissmann and Wu & Zhang are not statistically decided (paired per-case differences t = -0.50 and t = -0.95, against a per-case dispersion five times the 0.002878 margin); the leads over Liu (98.7 percent) and Montoya (99.8 percent) are. The standing is two cases wide: deleting alpha_15_13929_2024 drops the point ranking to rank 2 (P(rank 1) 38 percent), deleting NASA_2DWMH raises it to 91 percent. AR_1_Ret_360 and AR_3_Ret_360 are ties below published precision (0.00003 and 0.00008) and are not per-case wins or losses. The 0.0024 seed bound moves P(rank 1) from 52 to 81 percent. Source: campaign/PROBABILITY_OF_RANK_2026-08-10.md - SUPERSEDED 2026-08-10 - the internal-only restriction was WITHDRAWN by chief ruling; the 68 percent figure now TRAVELS with the entry, and may never appear without its interval (2-100 percent at 95 percent) and the not-decided pairs. No scoring call was made; the ledger stands at 6.",
+    "per_case_our_rank_2026_08_11_six_entry_board": "SUPERSEDES EVERY our_case_rank IN THE BLOCK IMMEDIATELY BELOW, and is placed ABOVE that block on purpose, for the same reason the other live siblings in this record are placed above what they supersede. Appended 2026-08-15 under docket D157. THE KEY NAME BELOW IS ITSELF THE INADMISSIBLE IDENTIFIER: 'per_case_published_at_deb91557' names the board by a COMMIT, and a commit anchor is not a board identifier - deb91557 SCORES, it does not RANK. The block below is the FOUR-entry leaderboard frozen at benchmark commit deb91557 (2026-05-04) and every one of its eight ordinals is left BYTE-IDENTICAL, because each was true of the date this whole block carries; overwriting them would make a dated record false of its own date. THE LIVE VALUES. Against the SIX-ENTRY board - retrieved 2026-08-11T23:33Z from raw.githubusercontent.com/rmcconke/closure-challenge-benchmark/main/README.md, re-verified unchanged by read-only fetch 2026-08-14T21:01Z, SEVEN positions counting our own row - our eight per-case ranks are, in the order the cases appear below: alpha_15_13929_4048 2 of 7 (we LOSE it), alpha_15_13929_2024 2 of 7 (we LOSE it), alpha_05_4071_4048 1 of 7, alpha_05_4071_2024 1 of 7, AR_1_Ret_360 3 of 7, AR_3_Ret_360 4 of 7, AR_14_Ret_180 4 of 7, NASA_2DWMH 7 of 7 and LAST. THE COUNT, AND THE DISTINCTION THAT MUST TRAVEL WITH IT: that is best on the board on TWO of the eight, not the five this file's round-3 companion pages state and not the four the key further down states - and the count belonging to OUR OWN MODEL IS ZERO of eight. Both surviving rows are exactly the two the decline gate passed through as the organisers' own unmodified RANS field, so anyone submitting that untouched baseline scores identically on them; no part of those two rows is earned by our closure model, and the entry wins on consistency across eight cases rather than on any peak. Derived case by case, at zero compute, from sdk/scripts/probability_of_rank.py LIVE_BOARD against official_test_harness_result.round5_per_case_full in this same file, with the decline judged structurally against rans_identity_floor_per_case rather than from any prose. Regenerate from there and never from here. No scoring call was made; the ledger stands at 6.",
     "per_case_published_at_deb91557": {
       "alpha_15_13929_4048": {
         "ours_r5": 0.0501,
@@ -129,6 +131,7 @@
         "Wu_Zhang": 0.0813,
         "Liu_Wang": 0.06,
         "Montoya": 0.068,
+        "our_case_rank_2026_08_11_six_entry_board": "On the SIX-ENTRY live board - retrieved 2026-08-11T23:33Z, re-verified unchanged by read-only fetch 2026-08-14T21:01Z, SEVEN positions counting our own row - this case is 2 of 7 - we do NOT lead it; it is held by Tian, Buchanan, Hickel and Dwight at 0.0432 against our 0.050105. The ordinal in the key below is left byte-identical: it was true of the FOUR-entry board frozen at benchmark commit deb91557 (2026-05-04), which this whole block is dated to, and a commit anchor is not an admissible board identifier in any case - deb91557 scores, it does not rank. Derived from sdk/scripts/probability_of_rank.py LIVE_BOARD; regenerate there.",
         "our_case_rank": "1 of 5"
       },
       "alpha_15_13929_2024": {
@@ -137,6 +140,7 @@
         "Wu_Zhang": 0.1195,
         "Liu_Wang": 0.1308,
         "Montoya": 0.1364,
+        "our_case_rank_2026_08_11_six_entry_board": "On the SIX-ENTRY live board - retrieved 2026-08-11T23:33Z, re-verified unchanged by read-only fetch 2026-08-14T21:01Z, SEVEN positions counting our own row - this case is 2 of 7 - we do NOT lead it; it is held by Tian, Buchanan, Hickel and Dwight at 0.0998 against our 0.101112. The ordinal in the key below is left byte-identical: it was true of the FOUR-entry board frozen at benchmark commit deb91557 (2026-05-04), which this whole block is dated to, and a commit anchor is not an admissible board identifier in any case - deb91557 scores, it does not rank. Derived from sdk/scripts/probability_of_rank.py LIVE_BOARD; regenerate there.",
         "our_case_rank": "1 of 5"
       },
       "alpha_05_4071_4048": {
@@ -145,6 +149,7 @@
         "Wu_Zhang": 0.0569,
         "Liu_Wang": 0.0613,
         "Montoya": 0.0591,
+        "our_case_rank_2026_08_11_six_entry_board": "On the SIX-ENTRY live board - retrieved 2026-08-11T23:33Z, re-verified unchanged by read-only fetch 2026-08-14T21:01Z, SEVEN positions counting our own row - this case is 1 of 7 and we hold the lowest score on it, ahead of Wu and Zhang at 0.0569. THE CREDIT IS NOT OURS: this is one of the two rows the decline gate passed through as the organisers' own unmodified RANS field, so our score equals the RANS-identity floor recorded in official_test_harness_result.rans_identity_floor_per_case and anyone submitting that untouched baseline scores identically here. It is not a win earned by our closure model. The ordinal in the key below is left byte-identical: it was true of the FOUR-entry board frozen at benchmark commit deb91557 (2026-05-04), which this whole block is dated to, and a commit anchor is not an admissible board identifier in any case - deb91557 scores, it does not rank. Derived from sdk/scripts/probability_of_rank.py LIVE_BOARD; regenerate there.",
         "our_case_rank": "1 of 5"
       },
       "alpha_05_4071_2024": {
@@ -153,6 +158,7 @@
         "Wu_Zhang": 0.0848,
         "Liu_Wang": 0.0769,
         "Montoya": 0.0882,
+        "our_case_rank_2026_08_11_six_entry_board": "On the SIX-ENTRY live board - retrieved 2026-08-11T23:33Z, re-verified unchanged by read-only fetch 2026-08-14T21:01Z, SEVEN positions counting our own row - this case is 1 of 7 and we hold the lowest score on it, ahead of Yang at 0.0748. THE CREDIT IS NOT OURS: this is one of the two rows the decline gate passed through as the organisers' own unmodified RANS field, so our score equals the RANS-identity floor recorded in official_test_harness_result.rans_identity_floor_per_case and anyone submitting that untouched baseline scores identically here. It is not a win earned by our closure model. The ordinal in the key below is left byte-identical: it was true of the FOUR-entry board frozen at benchmark commit deb91557 (2026-05-04), which this whole block is dated to, and a commit anchor is not an admissible board identifier in any case - deb91557 scores, it does not rank. Derived from sdk/scripts/probability_of_rank.py LIVE_BOARD; regenerate there.",
         "our_case_rank": "1 of 5"
       },
       "AR_1_Ret_360": {
@@ -161,6 +167,7 @@
         "Wu_Zhang": 0.0455,
         "Liu_Wang": 0.0875,
         "Montoya": 0.0895,
+        "our_case_rank_2026_08_11_six_entry_board": "On the SIX-ENTRY live board - retrieved 2026-08-11T23:33Z, re-verified unchanged by read-only fetch 2026-08-14T21:01Z, SEVEN positions counting our own row - this case is 3 of 7 - we do NOT lead it; it is held by Yang at 0.0291 against our 0.045470. The ordinal in the key below is left byte-identical: it was true of the FOUR-entry board frozen at benchmark commit deb91557 (2026-05-04), which this whole block is dated to, and a commit anchor is not an admissible board identifier in any case - deb91557 scores, it does not rank. Derived from sdk/scripts/probability_of_rank.py LIVE_BOARD; regenerate there.",
         "our_case_rank": "2 of 5 nominally (ours 0.045470 vs Wu & Zhang's published four-decimal 0.0455 - a tie at published precision), behind Reissmann"
       },
       "AR_3_Ret_360": {
@@ -169,6 +176,7 @@
         "Wu_Zhang": 0.0399,
         "Liu_Wang": 0.0805,
         "Montoya": 0.0866,
+        "our_case_rank_2026_08_11_six_entry_board": "On the SIX-ENTRY live board - retrieved 2026-08-11T23:33Z, re-verified unchanged by read-only fetch 2026-08-14T21:01Z, SEVEN positions counting our own row - this case is 4 of 7 - we do NOT lead it; it is held by Yang at 0.0311 against our 0.039982. The ordinal in the key below is left byte-identical: it was true of the FOUR-entry board frozen at benchmark commit deb91557 (2026-05-04), which this whole block is dated to, and a commit anchor is not an admissible board identifier in any case - deb91557 scores, it does not rank. Derived from sdk/scripts/probability_of_rank.py LIVE_BOARD; regenerate there.",
         "our_case_rank": "3 of 5 nominally (ours 0.039982 vs Wu & Zhang's published 0.0399 - within published-precision noise)"
       },
       "AR_14_Ret_180": {
@@ -177,6 +185,7 @@
         "Wu_Zhang": 0.035,
         "Liu_Wang": 0.0548,
         "Montoya": 0.0487,
+        "our_case_rank_2026_08_11_six_entry_board": "On the SIX-ENTRY live board - retrieved 2026-08-11T23:33Z, re-verified unchanged by read-only fetch 2026-08-14T21:01Z, SEVEN positions counting our own row - this case is 4 of 7 - we do NOT lead it; it is held by Yang at 0.025 against our 0.035339. The ordinal in the key below is left byte-identical: it was true of the FOUR-entry board frozen at benchmark commit deb91557 (2026-05-04), which this whole block is dated to, and a commit anchor is not an admissible board identifier in any case - deb91557 scores, it does not rank. Derived from sdk/scripts/probability_of_rank.py LIVE_BOARD; regenerate there.",
         "our_case_rank": "3 of 5 - the round-4 nominal tie for best is lost, per the pre-registered risk"
       },
       "NASA_2DWMH": {
@@ -185,6 +194,7 @@
         "Wu_Zhang": 0.0364,
         "Liu_Wang": 0.0377,
         "Montoya": 0.0464,
+        "our_case_rank_2026_08_11_six_entry_board": "On the SIX-ENTRY live board - retrieved 2026-08-11T23:33Z, re-verified unchanged by read-only fetch 2026-08-14T21:01Z, SEVEN positions counting our own row - this case is 7 of 7 and we are LAST on it, not 5 of 5; the row is held by Tian, Buchanan, Hickel and Dwight at 0.0294 against our 0.063198. Last of seven is a worse standing than last of five, and the denominator is the part that moved. The ordinal in the key below is left byte-identical: it was true of the FOUR-entry board frozen at benchmark commit deb91557 (2026-05-04), which this whole block is dated to, and a commit anchor is not an admissible board identifier in any case - deb91557 scores, it does not rank. Derived from sdk/scripts/probability_of_rank.py LIVE_BOARD; regenerate there.",
         "our_case_rank": "5 of 5 - the one case where we are last on the board, unchanged"
       }
     },
