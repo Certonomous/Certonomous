@@ -134,6 +134,70 @@ def _load_json(path: Path):
         return {"__error__": f"{type(exc).__name__}: {exc}"}
 
 
+def _rel(path: Path) -> str:
+    """A path as the repository names it, for a report line."""
+    try:
+        return str(Path(path).resolve().relative_to(REPO))
+    except (ValueError, OSError):
+        return str(path)
+
+
+# --------------------------------------------------------------------------
+# THE EMPTY SET IS NOT AGREEMENT (defect class B1)
+# --------------------------------------------------------------------------
+#
+# THE DEFECT, measured 2026-08-15 on this file. `check_ledger_stalls` iterated
+# `_iter_ledger()`, which returns immediately when the gitignored ledger is
+# absent, fell through to its `if not stalls` branch and returned
+#
+#     [PASS] ledger stall contamination  no row exceeds the stall threshold
+#
+# having read ZERO ROWS. With the ledger on disk the same function returns WARN
+# on six stall rows carrying 11.3% of published core-hours. So the verdict that
+# reads cleanest was the one produced by reading nothing, which is the exact
+# inversion this lab calls defect class B1: a silence that reads as success
+# where it costs most.
+#
+# THE RULE, applied uniformly below. **A check's verdict is a statement about
+# what it examined. A check that examined nothing returns UNKNOWN and names
+# what it could not read.** It does not return PASS, because PASS asserts that
+# evidence was read and was clean, and it does not return FAIL, because FAIL
+# asserts a defect in the record and a check with no evidence cannot tell a
+# deleted artifact from one that was never written on this box.
+#
+# TWO DELIBERATE EXCEPTIONS, enumerated here so they are exceptions and not
+# oversights. `check_gate_table_vs_transcripts` and `check_register_group_counts`
+# FAIL when their file is missing, because that file is the PUBLISHED SURFACE
+# the check exists to police rather than the evidence it polices it with, and
+# no other check owns its existence: a nine-act gate table gone from the tree
+# is a finding, not an instrument problem. The distinction is SUBJECT versus
+# EVIDENCE. `check_wall_counters_vs_ledger` sits on both sides of it and is
+# written that way: wall.json absent is FAIL (subject), ledger absent is
+# UNKNOWN (evidence).
+#
+# The precedent is `check_bundle_drift`, repaired at e01dfdf6 (D118), which
+# returns UNKNOWN and not PASS on a missing archive with the same reasoning.
+
+def _no_evidence(name: str, summary: str, sources,
+                 detail: list[str] | None = None) -> Result:
+    """The UNKNOWN a check returns when its evidence was not there to read.
+
+    Every caller reaches this from the branch that used to return PASS on an
+    empty sweep. The closing lines are uniform on purpose: a reader who meets
+    one of these should not have to work out, check by check, whether the
+    silence means clean or means blind.
+    """
+    named = [s if isinstance(s, str) else _rel(s) for s in sources]
+    return Result(
+        name, UNKNOWN, summary,
+        (detail or [])
+        + [f"not read: {s}" for s in named]
+        + ["UNKNOWN and not PASS: this check examined nothing, and an empty "
+           "sweep is not agreement (defect class B1). It exits 3, which "
+           "scripts/lab_check.py's EXIT_CONTRACT reads as UNKNOWN and treats "
+           "as blocking."])
+
+
 def _iter_ledger():
     """Yield (line_number, row_or_None). A torn row yields None so integrity
     checks can count it rather than crash on it."""
@@ -154,6 +218,33 @@ def _iter_ledger():
 # Checks
 # --------------------------------------------------------------------------
 
+# THE SETTLED VERDICT ON AN ABSENT LEDGER, and why it is UNKNOWN in BOTH of
+# the two checks below rather than whichever one was edited first.
+#
+# Until 2026-08-15 these siblings read the same nothing in opposite directions:
+# `check_ledger_integrity` returned FAIL on an absent ledger and
+# `check_ledger_stalls` returned PASS. Both were wrong, in the two available
+# directions.
+#
+# The ledger is gitignored (`.gitignore:25`) and is written by the mega-batch
+# runner. It is absent by design on a fresh clone, in the laptop bundle, and on
+# any box that has not run the batch. Its absence is therefore a fact about
+# THIS BOX and not about the record, and neither a defect (FAIL) nor a clean
+# reading (PASS) can be inferred from it.
+#
+# WHAT THE FAIL WAS STANDING IN FOR, and why dropping it loses no coverage.
+# The case worth catching is a published counter with no ledger under it. That
+# case belongs to `check_wall_counters_vs_ledger` and it was measured on
+# 2026-08-15 with the ledger hidden and wall.json left in place:
+#
+#     [FAIL] wall counters vs ledger  3 counter(s) disagree with the ledger
+#            - missions_run: published 208102, ledger says 0
+#
+# So the loud finding survives, in the check that owns the published number,
+# while the check that owns the ledger's health says the true thing: it could
+# not read it. That check now guards the same absence and returns UNKNOWN for
+# it, so a missing ledger cannot be reported as three disagreeing counters.
+
 def check_ledger_integrity() -> Result:
     """Every ledger line parses. A torn line is silent data loss."""
     torn, total = [], 0
@@ -162,7 +253,15 @@ def check_ledger_integrity() -> Result:
         if row is None:
             torn.append(number)
     if not total:
-        return Result("ledger integrity", FAIL, "ledger not found or empty")
+        return _no_evidence(
+            "ledger integrity",
+            "the ledger is absent or holds no rows; no line was read",
+            [LEDGER],
+            ["the ledger is gitignored (.gitignore:25) and written by the "
+             "mega-batch runner, so its absence is a fact about this box and "
+             "not about the record; a published counter with no ledger under "
+             "it is check_wall_counters_vs_ledger's finding and it FAILs "
+             "there"])
     if torn:
         return Result(
             "ledger integrity", WARN,
@@ -184,8 +283,10 @@ def check_wall_counters_vs_ledger() -> Result:
 
     ok_rows = failed_rows = 0
     ok_seconds = 0.0
+    rows = 0
     per_solver: dict[str, list] = {}
     for _, row in _iter_ledger():
+        rows += 1
         if row is None:
             continue
         seconds = float(row.get("wall_seconds") or 0.0)
@@ -203,6 +304,21 @@ def check_wall_counters_vs_ledger() -> Result:
             ok_seconds += seconds
         else:
             failed_rows += 1
+
+    # SUBJECT versus EVIDENCE, both of them in this one check. wall.json is the
+    # subject and its absence is the FAIL above. The ledger is the evidence,
+    # and with no ledger every counter below "disagrees" with a zero this
+    # function invented -- three FAIL lines diagnosing the wall for a file that
+    # is not there. That is a misdiagnosis, not a finding.
+    if not rows:
+        return _no_evidence(
+            "wall counters vs ledger",
+            "the ledger is absent or holds no rows; no counter could be "
+            "re-derived",
+            [LEDGER],
+            [f"wall.json is readable and publishes "
+             f"missions_run={counters.get('missions_run')}; nothing here "
+             f"contradicts it, because nothing was measured against it"])
 
     problems, notes = [], []
 
@@ -252,7 +368,9 @@ def check_ledger_stalls() -> Result:
     """
     stalls = []
     ok_seconds = 0.0
+    rows = 0
     for _, row in _iter_ledger():
+        rows += 1
         if row is None:
             continue
         seconds = float(row.get("wall_seconds") or 0.0)
@@ -260,9 +378,21 @@ def check_ledger_stalls() -> Result:
             ok_seconds += seconds
         if seconds > STALL_SECONDS:
             stalls.append((row.get("solver"), seconds, row.get("timestamp")))
+    # The rows counter, and not `stalls`, is what separates "I read the ledger
+    # and nothing in it stalled" from "there was no ledger to read". Before
+    # 2026-08-15 the two shared one branch and both printed the clean sentence.
+    if not rows:
+        return _no_evidence(
+            "ledger stall contamination",
+            "the ledger is absent or holds no rows; no wall time was read",
+            [LEDGER],
+            ["the threshold was applied to zero rows, so this says nothing "
+             "about published solver_core_hours; see the settled verdict "
+             "above check_ledger_integrity"])
     if not stalls:
         return Result("ledger stall contamination", PASS,
-                      "no row exceeds the stall threshold")
+                      f"no row of {rows} exceeds the stall threshold "
+                      f"({STALL_SECONDS:.0f} s)")
     stall_seconds = sum(s for _, s, _ in stalls)
     share = 100.0 * stall_seconds / ok_seconds if ok_seconds else 0.0
     families = {solver for solver, _, _ in stalls}
@@ -2954,16 +3084,25 @@ def check_withdrawn_numbers() -> Result:
         ("10.04%", "A4's adjoint-vs-FD gradient grade, not a drag number",
          [WALL, WEB / "benchmarks.json"]),
     ]
-    problems, checked = [], []
+    problems, checked, unread = [], [], []
     for value, reason, surfaces in sentinels:
         for surface in surfaces:
             if not surface.exists():
+                # A sentinel skipped is a sentinel NOT enforced, and until
+                # 2026-08-15 the skip was silent and the check still PASSed.
+                unread.append(f"{value} on {_rel(surface)}")
                 continue
             text = surface.read_text(encoding="utf-8", errors="replace")
             checked.append(f"{value} not on {surface.name}")
             if value in text:
                 problems.append(
                     f"{value} ({reason}) appears on {surface.name}")
+    if unread and not problems:
+        return _no_evidence(
+            "withdrawn numbers",
+            f"{len(unread)} of {len(unread) + len(checked)} sentinel(s) could "
+            f"not be enforced; their surface is not on disk", unread,
+            [f"{len(checked)} sentinel(s) that COULD be read are clear"])
     if problems:
         return Result("withdrawn numbers", FAIL,
                       f"{len(problems)} withdrawn value(s) still published",
@@ -3007,6 +3146,11 @@ def check_evidence_paths_exist() -> Result:
                     continue
                 missing.append(
                     f"{doc.relative_to(REPO)}:{number + 1} cites {cited}")
+    if not scanned:
+        return _no_evidence(
+            "cited evidence paths",
+            "no record was found to read citations out of",
+            [f"{_rel(WEB)}/**/*.md"])
     if missing:
         return Result("cited evidence paths", FAIL,
                       f"{len(missing)} of {total} repo-rooted citations do "
@@ -3173,15 +3317,22 @@ def check_ungated_completed_runs() -> Result:
     """A completed run whose gate was never resolved is an unfinished gate."""
     findings = []
     ladder = WEB / "campaign" / "F5a_cylinder_reynolds_ladder.md"
-    if ladder.exists():
-        text = ladder.read_text(encoding="utf-8", errors="replace")
-        if "PRELIMINARY, not yet graded" in text:
-            findings.append(
-                "F5a Re 1000 3D pilot: run completed to its full end time "
-                "(44,102 s wall on 8 ranks, about 98 core-hours, the most "
-                "expensive single solve in the lab) but its statistics are "
-                "recorded as preliminary and not yet graded against the "
-                "pre-stated expectation")
+    if not ladder.exists():
+        # The `if ladder.exists()` this replaces skipped in silence and fell
+        # through to "no completed run is missing its gate verdict", which is
+        # a sentence about runs and was produced by reading no runs.
+        return _no_evidence(
+            "completed but ungated runs",
+            "the only ladder record this check reads is not on disk",
+            [ladder])
+    text = ladder.read_text(encoding="utf-8", errors="replace")
+    if "PRELIMINARY, not yet graded" in text:
+        findings.append(
+            "F5a Re 1000 3D pilot: run completed to its full end time "
+            "(44,102 s wall on 8 ranks, about 98 core-hours, the most "
+            "expensive single solve in the lab) but its statistics are "
+            "recorded as preliminary and not yet graded against the "
+            "pre-stated expectation")
     if findings:
         return Result("completed but ungated runs", WARN,
                       f"{len(findings)} completed run(s) carry no gate verdict",
@@ -3451,9 +3602,10 @@ def check_fd_grades_current_standard() -> Result:
     recomputed every time a table is regenerated, and a row carrying a retired
     grade is a defect.
     """
-    surfaces = [ACTIVE]
+    surfaces = [ACTIVE] if ACTIVE.exists() else []
     surfaces += sorted(WEB.rglob("*.md"))
     seen, problems, ungraded = set(), [], []
+    graded = 0
     percent = re.compile(r"\*\*([\d.]+)%\*\*")
     for doc in surfaces:
         if doc in seen or any(p in {"work", "processor0"} for p in doc.parts):
@@ -3477,6 +3629,7 @@ def check_fd_grades_current_standard() -> Result:
             if not stated:
                 ungraded.append(f"{where}: {value}% carries no grade")
                 continue
+            graded += 1
             if stated[0] != expected:
                 problems.append(
                     f"{where}: graded {stated[0]} at {value}%"
@@ -3486,9 +3639,20 @@ def check_fd_grades_current_standard() -> Result:
         return Result("FD grades vs current standard", FAIL,
                       f"{len(problems)} FD row(s) carry a grade the current "
                       f"standard does not give", problems + ungraded[:5])
+    # Two ways to reach a clean verdict here and only one of them is a PASS:
+    # every graded row agreed, or no graded row was found. Until 2026-08-15
+    # the second printed the first's sentence, and an absent ACTIVE raised
+    # instead of reporting.
+    if not graded:
+        return _no_evidence(
+            "FD grades vs current standard",
+            f"no graded FD row was found across {len(seen)} surface(s); no "
+            f"grade was recomputed", [_rel(ACTIVE), f"{_rel(WEB)}/**/*.md"],
+            [f"{len(ungraded)} row(s) carry a percentage and no grade word"]
+            + ungraded[:5])
     return Result("FD grades vs current standard", PASS,
-                  f"no published FD grade disagrees with the current standard",
-                  ungraded[:10])
+                  f"none of {graded} published FD grade(s) disagrees with the "
+                  f"current standard", ungraded[:10])
 
 
 def _looks_like_interval(text: str) -> bool:
@@ -3514,6 +3678,7 @@ def check_statistical_labels() -> Result:
     next to it.
     """
     problems, checked = [], 0
+    sites = transcripts = 0
     caption = "95% confidence interval"
     for source in sorted(REPO.rglob("certificate.py")):
         if "__pycache__" in source.parts:
@@ -3522,6 +3687,7 @@ def check_statistical_labels() -> Result:
         if caption not in text:
             continue
         checked += 1
+        sites += 1
         if "_looks_like_interval" not in text:
             problems.append(
                 f"{source.relative_to(REPO)} prints {caption!r} with no "
@@ -3529,6 +3695,7 @@ def check_statistical_labels() -> Result:
                 f"becomes a statistical claim")
     for transcript in sorted(MISSION.glob("*/transcript.*")):
         checked += 1
+        transcripts += 1
         for number, line in enumerate(
                 transcript.read_text(encoding="utf-8",
                                      errors="replace").splitlines(), 1):
@@ -3548,9 +3715,25 @@ def check_statistical_labels() -> Result:
         return Result("statistical labels", FAIL,
                       f"{len(problems)} statistical label(s) sit on something "
                       f"that is not an interval", problems)
+    # This check has two halves and either can be empty independently. The
+    # transcript half reads `mission-output/`, which is GITIGNORED
+    # (.gitignore:13) and absent on a fresh clone -- so on a clone this
+    # returned PASS on a sentence naming transcripts, having opened none.
+    if not sites or not transcripts:
+        off = ([f"{_rel(REPO)}/**/certificate.py carrying {caption!r}"]
+               if not sites else [])
+        off += [f"{_rel(MISSION)}/*/transcript.*"] if not transcripts else []
+        return _no_evidence(
+            "statistical labels",
+            f"{'both halves' if not sites and not transcripts else 'one half'}"
+            f" of this check read nothing: {sites} caption site(s) and "
+            f"{transcripts} transcript(s)", off,
+            ["mission-output/ is gitignored (.gitignore:13) and is absent on "
+             "a fresh clone and in the laptop bundle"])
     return Result("statistical labels", PASS,
                   f"{checked} caption site(s) and transcripts carry no "
-                  f"unearned confidence interval")
+                  f"unearned confidence interval ({sites} caption site(s), "
+                  f"{transcripts} transcript(s))")
 
 
 # Where the source-shape checks look. THE DEFECT THIS LIST GREW FOR: it held
@@ -3576,6 +3759,39 @@ def _py_sources() -> list[Path]:
     return out
 
 
+def _py_corpus(name: str) -> tuple[list[Path], Result | None]:
+    """The source corpus, and the UNKNOWN to return if it came back empty.
+
+    `_py_sources` skips a root that is not on disk, so a renamed or unmounted
+    root shrinks the corpus silently and every source-shape check below then
+    reports agreement over nothing. Five checks share this corpus and all five
+    used to say "all 0 ... " and PASS.
+    """
+    sources = _py_sources()
+    if sources:
+        return sources, None
+    return sources, _no_evidence(
+        name, "no Python source was found to scan",
+        [f"{root}/**/*.py" for root in _PY_ROOTS],
+        ["every root this check reads is missing or empty, so the sweep "
+         "examined no code at all"])
+
+
+def _stored_studies(name: str) -> tuple[list[Path], Result | None]:
+    """The stored UQ studies, and the UNKNOWN to return if there are none.
+
+    Six checks read this one directory. An empty glob used to read as "all 0
+    stored study(s) in scope" and PASS in every one of them.
+    """
+    studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
+                     .glob("*.json"))
+    if studies:
+        return studies, None
+    return studies, _no_evidence(
+        name, "no stored study was found to read",
+        ["models/curriculum/uq-studies/*.json"])
+
+
 def check_nonconclusive_band_readers() -> Result:
     """A caller reading `band_abs` must also read `conclusive`.
 
@@ -3591,7 +3807,10 @@ def check_nonconclusive_band_readers() -> Result:
     defect behind it. `uq.py` itself is exempt: it owns the return shape.
     """
     problems, checked = [], 0
-    for source in _py_sources():
+    sources, blind = _py_corpus("non-conclusive band readers")
+    if blind:
+        return blind
+    for source in sources:
         if source.name == "uq.py":
             continue
         text = source.read_text(encoding="utf-8", errors="replace")
@@ -3691,7 +3910,10 @@ def check_channel_totals_use_one_rule() -> Result:
         encoding="utf-8", errors="replace") \
         if (REPO / _SHARED_BUILDER[1]).exists() else ""
     shared_declared = _declared_channels(shared_text) or {}
-    for source in _py_sources():
+    sources, blind = _py_corpus("channel totals vs the one rule")
+    if blind:
+        return blind
+    for source in sources:
         if source.name == "uq.py" or "workflows" not in source.parts:
             continue
         text = source.read_text(encoding="utf-8", errors="replace")
@@ -3757,7 +3979,10 @@ def check_declared_fleet_vs_work() -> Result:
     declaration inside a branch whose condition is a cache restore.
     """
     problems, branches = [], 0
-    for source in _py_sources():
+    sources, blind = _py_corpus("declared fleet vs work")
+    if blind:
+        return blind
+    for source in sources:
         text = source.read_text(encoding="utf-8", errors="replace")
         if "set_workers" not in text:
             continue
@@ -3817,7 +4042,10 @@ def check_restated_thresholds() -> Result:
     agreeing, nothing announces it.
     """
     problems, pinned = [], 0
-    for source in _py_sources():
+    sources, blind = _py_corpus("restated thresholds")
+    if blind:
+        return blind
+    for source in sources:
         text = source.read_text(encoding="utf-8", errors="replace")
         try:
             tree = ast.parse(text)
@@ -4068,8 +4296,9 @@ def check_studies_carry_what_the_fit_records() -> Result:
                               f"{type(exc).__name__}: {exc}")
     expected -= set(uq.STUDY_NUMERICAL_DROPS)
     expected -= {"band_abs_middle"}   # a runner-chosen alternative to band_abs
-    studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
-                     .glob("*.json"))
+    studies, blind = _stored_studies("studies carry what the fit records")
+    if blind:
+        return blind
     problems, notes, skipped, checked = [], [], [], 0
     for path in studies:
         study = _load_json(path)
@@ -4169,8 +4398,9 @@ def check_stored_fits_reproduce_their_values() -> Result:
     except Exception as exc:  # noqa: BLE001
         return Result("stored fits reproduce their values", WARN,
                       f"cannot import the fit: {type(exc).__name__}: {exc}")
-    studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
-                     .glob("*.json"))
+    studies, blind = _stored_studies("stored fits reproduce their values")
+    if blind:
+        return blind
     problems, notes, checked, compared = [], [], 0, 0
     for path in studies:
         study = _load_json(path)
@@ -4259,8 +4489,9 @@ def check_declined_ladders_name_their_guard() -> Result:
     except Exception as exc:  # noqa: BLE001
         return Result("declined ladders name their guard", WARN,
                       f"cannot import the fit: {type(exc).__name__}: {exc}")
-    studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
-                     .glob("*.json"))
+    studies, blind = _stored_studies("declined ladders name their guard")
+    if blind:
+        return blind
     problems, notes, skipped, checked = [], [], [], 0
     for path in studies:
         study = _load_json(path)
@@ -4389,7 +4620,10 @@ def check_record_writers_name_their_drops() -> Result:
     writer doing neither is one upstream field away from the study defect.
     """
     findings, local, cleared = [], [], []
-    for source in _py_sources():
+    sources, blind = _py_corpus("record writers name their drops")
+    if blind:
+        return blind
+    for source in sources:
         text = source.read_text(encoding="utf-8", errors="replace")
         try:
             tree = ast.parse(text)
@@ -4486,8 +4720,9 @@ def check_stored_rungs_carry_solved_precision() -> Result:
     the number. A study whose rungs are stored at full solved precision passes
     at any amplification, which is the behaviour to keep.
     """
-    studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
-                     .glob("*.json"))
+    studies, blind = _stored_studies("stored rungs carry solved precision")
+    if blind:
+        return blind
     problems, notes, checked = [], [], 0
     for path in studies:
         study = _load_json(path)
@@ -4573,8 +4808,9 @@ def check_ladder_rungs_share_one_recipe() -> Result:
     fits across recipes with nothing on its record saying so, or that publishes
     an order with no recipe audit at all, is the case this check exists for.
     """
-    studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
-                     .glob("*.json"))
+    studies, blind = _stored_studies("ladder rungs share one recipe")
+    if blind:
+        return blind
     problems, known, skipped, checked = [], [], [], 0
     for path in studies:
         study = _load_json(path)
@@ -4687,8 +4923,9 @@ def check_order_window_declines_state_their_dimensionality() -> Result:
     except Exception as exc:  # noqa: BLE001
         return Result("order-window declines state their dimensionality", WARN,
                       f"cannot import the fit: {type(exc).__name__}: {exc}")
-    studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
-                     .glob("*.json"))
+    studies, blind = _stored_studies("order-window declines state their dimensionality")
+    if blind:
+        return blind
     problems, notes, checked = [], [], 0
     for path in studies:
         study = _load_json(path)
@@ -4800,7 +5037,13 @@ def check_campaign_json_citations() -> Result:
             if not resolved.exists():
                 missing.append(f"{where}: {path} cites {node}")
 
-    for source in sorted(CAMPAIGN.glob("*.json")):
+    companions = sorted(CAMPAIGN.glob("*.json"))
+    if not companions:
+        return _no_evidence(
+            "campaign json citations",
+            "no campaign JSON companion was found to read citations out of",
+            [f"{_rel(CAMPAIGN)}/*.json"])
+    for source in companions:
         walk(_load_json(source), "", source.relative_to(REPO))
     if missing:
         return Result("campaign json citations", FAIL,
@@ -5178,8 +5421,18 @@ def check_rung_estimates_state_their_iterations() -> Result:
     step or sweep count. This never blocks a proposal: it counts them, so the
     gap is a number on a report rather than a surprise on a run.
     """
-    docket = _load_json(REPO / "demo-output" / "website" / "agenda"
-                        / "docket.json")
+    docket_path = REPO / "demo-output" / "website" / "agenda" / "docket.json"
+    docket = _load_json(docket_path)
+    # An unreadable docket used to arrive here as `{"__error__": ...}`, take
+    # `.get("proposals")` -> None -> `or []`, and land on the "no rung-shaped
+    # compute proposal is on the docket" PASS below -- a sentence about the
+    # docket produced without reading one. The SOURCE being unreadable and the
+    # docket holding no rung-shaped proposal are different facts and only the
+    # second is a PASS.
+    if isinstance(docket, dict) and "__error__" in docket:
+        return _no_evidence(
+            "rung estimates state their iterations",
+            f"the docket did not open: {docket['__error__']}", [docket_path])
     proposals = (docket.get("proposals") if isinstance(docket, dict)
                  else docket) or []
     if not isinstance(proposals, list):
@@ -5286,8 +5539,17 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         EVIDENCE,
         "a wall score that disagrees with the entry file of record, which "
         "this check opens and searches itself",
-        "whether the file it opens is the entry of record; that name is "
-        "hard-coded here", None),
+        "A WRONG NUMBER THAT BOTH FILES AGREE ON. It compares the wall's "
+        "score against the entry file and nothing re-derives either from the "
+        "predictions, so a scoring error committed to the entry of record "
+        "reads here as perfect agreement. It is blind to whether the file it "
+        "opens IS the entry of record -- that name is hard-coded here, and "
+        "this check once failed the wall for quoting round 5 while it was "
+        "itself still pinned to round 3. Its prose guards are keyword "
+        "detectors over one JSON string field: a claim reworded past "
+        "`_BEST_COUNT`, `_BASELINE_CREDIT` or the single-scoring-call pattern "
+        "is not a claim it declines to fault, it is a claim it never saw",
+        None),
     "check_rank_claim_surfaces": (
         PROPERTY,
         "a surface that asserts a rank-1 placement for this lab's entry "
@@ -5580,6 +5842,236 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "symbol it does not name; the declaration is enforced where it is "
         "made, not discovered from scratch", None),
 }
+
+
+# --------------------------------------------------------------------------
+# Blind spots that MEASURE THEMSELVES
+# --------------------------------------------------------------------------
+#
+# THE DEFECT THIS EXISTS FOR, and it is this file's own (2026-08-15). Every
+# entry in `BASIS` above already carried a blind spot. Thirty of the thirty-four
+# never reached the report: the terminal printer emitted `BLIND TO:` only for a
+# `GENERATOR`/`TRANSCRIBED` verdict or one naming a shared symbol, so 4 checks
+# printed theirs and 30 did not. Measured two ways on 2026-08-15 and both give
+# 30 -- by the printer gate (4 print), and by scanning what each `Result`
+# itself says (3 print under D34's own ruling, which threw out
+# `check_record_writers_name_their_drops` as a false positive because there the
+# subject of "cannot see" is the AUDITED function, not the instrument). D34
+# published "3 of 34, 31 silent" for the second frame and this reproduces it.
+# **A blind spot nobody reads is not a disclosure**, and a declaration that
+# exists only to satisfy a guard that reads the dict is a comment with extra
+# steps.
+#
+# THE SECOND DEFECT, which is why this is a table of CALLABLES and not more
+# prose. L-79 watched typed figures in this very file go stale within the week,
+# and `_board_pin_date` was written precisely so that BLIND TO item 12 could not
+# misreport the age of the thing it exists to disclose. A blind spot stating a
+# reach -- how many files, which extensions, what threshold -- is a figure, and
+# a typed figure rots exactly like a published one. So where the extent of a
+# blind spot can be MEASURED, it is measured here at report time, from the same
+# state the check itself reads.
+#
+# name -> callable returning the derived half of that check's blind spot. The
+# static half in `BASIS` says WHAT CLASS OF DEFECT is invisible; the callable
+# says HOW MUCH is currently invisible. A deriver that raises must not take the
+# report down with it -- an instrument that cannot state its own reach says so
+# rather than exiting -- so `_derived_blind_spot` catches and reports.
+
+
+@functools.lru_cache(maxsize=1)
+def _corpus_reach() -> dict[str, int]:
+    """What the tracked-markdown/UTF-8 frame does and does not contain.
+
+    MEASURED, NEVER TYPED. Every number here is counted off the working tree
+    at report time: the moment somebody commits the first PDF, or an act
+    transcript is promoted out of `.gitignore`, these move without anybody
+    remembering to edit a sentence. The whole point of the table below is that
+    the audit's own reach is a figure like any other, and this lab has been
+    burned by figures that were true when they were typed.
+    """
+    reach = {"tracked": 0, "pdf": 0, "over_cap": 0, "not_utf8": 0,
+             "untracked": 0, "act_transcripts": 0}
+    try:
+        listed = subprocess.run(
+            ["git", "ls-files", "-z"], cwd=REPO, capture_output=True,
+            text=True, check=True).stdout.split("\0")
+        ignored = subprocess.run(
+            ["git", "ls-files", "-o", "-i", "--exclude-standard", "-z"],
+            cwd=REPO, capture_output=True, text=True,
+            check=True).stdout.split("\0")
+        loose = subprocess.run(
+            ["git", "ls-files", "-o", "--exclude-standard", "-z"], cwd=REPO,
+            capture_output=True, text=True, check=True).stdout.split("\0")
+    except (OSError, subprocess.SubprocessError):
+        return reach
+    unread = [p for p in ignored + loose if p]
+    reach["untracked"] = len(unread)
+    reach["act_transcripts"] = sum(
+        1 for p in unread
+        if p.startswith("mission-output/") and Path(p).stem == "transcript")
+    for name in listed:
+        if not name:
+            continue
+        path = REPO / name
+        try:
+            size = path.stat().st_size
+        except OSError:
+            continue
+        reach["tracked"] += 1
+        if path.suffix.lower() == ".pdf":
+            reach["pdf"] += 1
+        # The cap is READ FROM THE CONSTANT the sweeps actually enforce. Typing
+        # "4 MB" here would be a second copy of a threshold, and a second copy
+        # is the defect `check_restated_thresholds` exists to catch.
+        if size > _RANK_MAX_BYTES:
+            reach["over_cap"] += 1
+            continue
+        try:
+            path.read_bytes().decode("utf-8")
+        except UnicodeDecodeError:
+            reach["not_utf8"] += 1
+        except OSError:
+            continue
+    return reach
+
+
+def _blind_corpus() -> str:
+    """The reach every corpus-sweeping check shares, counted now."""
+    reach = _corpus_reach()
+    if not reach["tracked"]:
+        return ("the corpus frame could not be enumerated, so this check "
+                "cannot state how much of the tree it did not read")
+    return (
+        f"the frame is TRACKED, UTF-8-DECODABLE files at or under "
+        f"{_RANK_MAX_BYTES:,} bytes. Counted now against the working tree: of "
+        f"{reach['tracked']:,} tracked files this check's frame excludes "
+        f"{reach['pdf']} PDF(s) -- nothing in this file opens a PDF, so a "
+        f"claim that exists only in a compiled report is invisible while its "
+        f".tex source is not -- {reach['over_cap']} file(s) over the cap and "
+        f"{reach['not_utf8']:,} that do not decode as UTF-8. It reads NO "
+        f"untracked file: {reach['untracked']:,} of those exist, including "
+        f"{reach['act_transcripts']} act transcript(s) under mission-output/, "
+        f"which published tables cite as their evidence")
+
+
+def _blind_stall_threshold() -> str:
+    """How far the stall verdict sits from the cut that produced it."""
+    # THE SAME SOURCE THE CHECK ITSELF READS. Deriving this sensitivity from
+    # any other reader would make the disclosure a claim about a different
+    # ledger from the one the verdict was computed on.
+    walls = sorted(float(row.get("wall_seconds") or 0.0)
+                   for _, row in _iter_ledger() if row is not None)
+    below = [w for w in walls if w <= STALL_SECONDS]
+    nearest = max(below) if below else None
+    near = (f"the nearest row UNDER the cut sits at {nearest:,.0f}s, "
+            f"{STALL_SECONDS - nearest:,.0f}s below it"
+            if nearest is not None else "no row sits under the cut")
+    return (f"whether {STALL_SECONDS:,.0f}s is the right cut. The threshold is "
+            f"declared in this file and derived from nothing, and this line "
+            f"states the sensitivity rather than asserting there is none: "
+            f"{near}, so every row between it and the cut is one the verdict "
+            f"calls solver cost purely because of where the constant was put")
+
+
+def _blind_placement_binding() -> str:
+    """Which live entrants the identity binding cannot name.
+
+    DERIVED FROM BOTH BOARDS, never listed. The scoring pin supplies the
+    surnames `board_placement_faults` will bind an ordinal to; the ranking
+    referent supplies who is actually on the board. Anybody outside the first
+    set is unfaultable no matter what a sentence says about them, and on
+    2026-08-15 that set includes the board's own leader.
+    """
+    try:
+        board, _ = _published_board()
+        ranking = _ranking_board()
+    except Exception:                              # noqa: BLE001
+        return ("which entrants the identity binding covers could not be "
+                "read, so this check cannot state whom it is unable to fault")
+    live = dict(ranking[0]) if isinstance(ranking, tuple) else dict(ranking or {})
+    # THE EMPTY SET IS NOT AGREEMENT (defect class B1). An unreadable or empty
+    # ranking referent makes `unreachable` empty, and the sentence "every live
+    # entrant is in the identity binding" is then TRUE AND VACUOUS -- it would
+    # read, to anybody, as this check having full coverage at the exact moment
+    # it has none. A blind-spot line that under-reports the blind spot when its
+    # own evidence goes missing is worse than no line.
+    if not live:
+        verdict = ("the ranking referent is EMPTY or unreadable, so this check "
+                   "cannot say whom it is unable to fault -- and that is NOT "
+                   "the same as being able to fault everybody")
+    else:
+        unreachable = sorted(n for n in live if n not in board)
+        leader = sorted((n for n, r in live.items() if r == 1))
+        lead = leader[0] if leader else None
+        verdict = (
+            f"NO sentence about {', '.join(unreachable)} can be faulted by "
+            f"rule A: the identity binding is built from the {len(board)}-entry "
+            f"scoring pin and those {len(unreachable)} entrant(s) are not in it"
+            if unreachable else
+            f"all {len(live)} live entrant(s) are in the identity binding")
+        if lead and lead in unreachable:
+            verdict += (f" -- and {lead} is the board's CURRENT LEADER, so in "
+                        f"the shipping configuration this check cannot fault "
+                        f"any sentence about the entrant in first place")
+    return (f"any placement claim it has no predicate for. It compares an "
+            f"ORDINAL against a rank and nothing else: it has NO ARITHMETIC "
+            f"predicate, so a false claim about a margin, a percentage or a "
+            f"score gap passes it untouched however wrong the number is. And "
+            f"{verdict}")
+
+
+def _blind_best_on_board() -> str:
+    """Why the best-on-board pattern cannot cross a line, measured."""
+    gap = "[^.\\n]" in _BEST_COUNT.pattern
+    try:
+        wall = _load_json(WALL)
+        entry = str((((wall.get("counters") or {}).get("research") or {})
+                     .get("closure") or {}).get("our_entry") or "")
+    except Exception:                              # noqa: BLE001
+        entry = ""
+    shape = (f"its only caller feeds it `our_entry` from the wall, which is "
+             f"{len(entry):,} character(s) on {entry.count(chr(10)) + 1} "
+             f"line(s)" if entry else
+             "its only caller's input could not be read")
+    return (f"a best-on-board claim it cannot match. The gap in `_BEST_COUNT` "
+            f"is newline-bounded"
+            f"{' (`[^.\\n]`)' if gap else ''}, so the pattern CANNOT CROSS A "
+            f"LINE BREAK -- and {shape}, which is why that limit has never "
+            f"been exercised and would go unnoticed the day the wall's entry "
+            f"text is written multi-line. Also blind to whether the file it "
+            f"opens is the entry of record; that name is hard-coded here")
+
+
+BLIND_DERIVED: dict[str, object] = {
+    "check_ledger_stalls": _blind_stall_threshold,
+    "check_rank_claim_surfaces": _blind_corpus,
+    "check_board_placement_words": _blind_placement_binding,
+    "check_closure_entry_of_record": _blind_best_on_board,
+    "check_evidence_paths_exist": _blind_corpus,
+    "check_statistical_labels": _blind_corpus,
+    "check_restated_thresholds": _blind_corpus,
+    "check_campaign_json_citations": _blind_corpus,
+    "check_record_writers_name_their_drops": _blind_corpus,
+    "check_declared_fleet_vs_work": _blind_corpus,
+}
+
+
+def _derived_blind_spot(name: str) -> str | None:
+    """The measured half of a check's blind spot, or None if it has none.
+
+    A deriver that raises reports the failure IN PLACE OF the measurement. It
+    must never take the report down: this whole block exists so the audit can
+    state its own reach, and an instrument that cannot state its reach should
+    say exactly that rather than exit.
+    """
+    deriver = BLIND_DERIVED.get(name)
+    if deriver is None:
+        return None
+    try:
+        return str(deriver())
+    except Exception as exc:                       # noqa: BLE001
+        return (f"the extent of this blind spot could not be measured "
+                f"({type(exc).__name__}: {exc}); it is not thereby smaller")
 
 
 def check_every_check_states_its_basis() -> Result:
@@ -5938,6 +6430,11 @@ def main() -> int:
             row["tests"] = tests
             row["catches"] = catches
             row["blind_to"] = blind
+            # The measured half rides on the JSON as well as the terminal.
+            # A hook that reads only `--json` was, until 2026-08-15, the ONLY
+            # consumer that saw the thirty unprinted blind spots at all, and
+            # the two surfaces must not now disagree about what they say.
+            row["blind_to_measured"] = _derived_blind_spot(check.__name__)
             row["shares_with_producer"] = (
                 f"{shared[0]} in {shared[1]}" if shared else None)
         priced.append(row)
@@ -5958,13 +6455,27 @@ def main() -> int:
             print(f"         tests: {tests}")
             for line in result.detail:
                 print(f"         - {line}")
-            # A GENERATOR or TRANSCRIBED verdict states its blind spot on
-            # EVERY status, not only on a failure. The point of the
-            # declaration is that a PASS from a check nobody can fail should
-            # read as one.
-            if declared and (declared[0] in (GENERATOR, TRANSCRIBED)
-                             or declared[3]):
+            # EVERY check states its blind spot, on EVERY status.
+            #
+            # This used to be gated: `GENERATOR`/`TRANSCRIBED`, or a declared
+            # shared symbol. Four checks printed and thirty did not, and the
+            # thirty had blind spots all along -- written into BASIS, carried
+            # in the JSON, and never once put in front of the person reading
+            # the report. A disclosure nobody reads is not a disclosure. The
+            # gate was also the wrong shape for its own argument: it justified
+            # itself by saying a PASS from a check nobody can FAIL should read
+            # as one, which is true, and then inferred that a check which CAN
+            # fail has nothing to disclose -- when a PROPERTY check that reads
+            # only tracked UTF-8 markdown is blind to every claim in a PDF,
+            # and says so, and said so only to the dict.
+            if declared:
                 print(f"         BLIND TO: {declared[2]}")
+                measured = _derived_blind_spot(check.__name__)
+                if measured:
+                    # MEASURED, not typed. See the BLIND_DERIVED block: a
+                    # blind spot that states a reach is stating a figure, and
+                    # a typed figure rots.
+                    print(f"         BLIND TO (measured now): {measured}")
                 if declared[3]:
                     print(f"         shares {declared[3][0]} with "
                           f"{declared[3][1]}")
