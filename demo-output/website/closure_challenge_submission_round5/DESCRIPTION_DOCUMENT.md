@@ -371,18 +371,46 @@ submitted, and if your scoring differs from ours, your number is the number.**
 
 ### What the standing is actually worth, quantified
 
-On the published board at `deb91557` our 0.056647 is the best overall number, by
-**0.0028863** over Reissmann, Fang & Sandberg. *(A note on that figure: the README
+~~On the published board at `deb91557` our 0.056647 is the best overall number, by
+**0.0028863** over Reissmann, Fang & Sandberg.~~
+
+> **STRUCK 2026-08-15 — a commit anchor is not a board.** `deb91557` is the frozen
+> benchmark clone we *score* at. It has **four** entrants and it **scores but does
+> not rank**, so naming it here answered a standing question with a scoring
+> artifact. This document adopted the correct idiom for exactly this failure mode
+> 320 lines above, in §2 — **entrant count and retrieval date on the face of the
+> sentence** — and this sentence did not use it. It also sits *above* the
+> recomputation box below, whose own scope rule reads *"anything **below** not
+> struck is live against the six-entry board"*, so that box never reached it.
+> **Restated in this document's own idiom:** on the **six-entry** board
+> **retrieved 2026-08-11T23:33Z and re-verified unchanged by read-only fetch at
+> 2026-08-14T21:01Z**, our locally scored **0.056647** is the lowest overall number
+> on the board, **0.001365 below Yang, at 0.058013**. **This is a local scoring and
+> not an official placement**, and the lead is **not statistically decided** — see
+> §8, where our own one-seed bound of 0.002419 is shown to be **177% of that
+> 0.001365 margin**, so that the adverse end of the seed loses the point lead
+> outright. The **0.0028863** discussed in the note below is the margin over
+> **Reissmann, Fang & Sandberg**, who are not the entry immediately ahead of us on
+> that board; it is kept because the re-score behind it is still the correct
+> like-for-like treatment of that entrant's own figure, not because it is the
+> operative margin. Both figures are **regenerable and should not be retyped** —
+> recompute from `campaign/BOARD_RESCORE_2026-08-14.md` §3.1.
+
+*(A note on that figure: the README
 publishes 0.0595 to four decimals. A like-for-like full-precision re-score of
 Reissmann, Fang & Sandberg's own eight submitted CSVs on the same harness gives
 0.0595335 — that entrant's value alone, not a figure for the accepted
-submissions as a set — and it is what the margin above uses. Earlier drafts of
+submissions as a set — and it is what the struck **0.0028863** margin over that
+entrant uses (*"the margin above"* until 2026-08-15; disambiguated here, because
+the margin above is now the **0.001365 over Yang** and the two must not be read as
+one figure). Earlier drafts of
 ours quoted a "published 0.059525", which is the mean of eight rounded per-case
 values and is not a number you publish — the error was small and ran against us,
 but the word was wrong.)*
 
 **Two values of that score are in play in this section, and we would rather say
-so than have you find it.** The margin above uses the re-scored **0.0595335**.
+so than have you find it.** The **0.0028863** margin over that entrant uses the
+re-scored **0.0595335**.
 The P(rank 1) below — struck 68% and live 50% alike — and every pairwise
 probability in the table with it, come from a bootstrap whose Reissmann input is
 the transcribed **0.059525**; that bootstrap

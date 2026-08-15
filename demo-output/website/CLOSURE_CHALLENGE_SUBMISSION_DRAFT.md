@@ -725,9 +725,34 @@ above — and, until `fdb1ec5c` (2026-08-11 01:41:00Z), in `DESCRIPTION_DOCUMENT
 is a transcription slip in the seventh decimal: **it does not subtract to the margin
 printed beside it**, and the correct pair is **0.0595335 / 0.0028863**. **The
 travelling document was corrected at `fdb1ec5c` and now reads `0.0595335` at both of
-its sites**, checked on that file rather than on a report of it. The 0.002419 seed
-bound covers 84% of that margin either way (0.8380). *This re-score touched a competitor's public files only;
+its sites**, checked on that file rather than on a report of it. ~~The 0.002419 seed
+bound covers 84% of that margin either way (0.8380).~~ *This re-score touched a competitor's public files only;
 the lab's scoring-call ledger stands at 6, unchanged.*
+
+> **STRUCK 2026-08-15 — AND THE CONCLUSION REVERSES, IT DOES NOT WEAKEN.** The
+> 0.0028863 above is a margin over **Reissmann, Fang & Sandberg**, who are no longer
+> the entry immediately ahead of us. The board gained two entrants at
+> **2026-08-11T23:33Z**; on the **six-entry** board retrieved at that timestamp and
+> re-verified unchanged by read-only fetch at **2026-08-14T21:01Z**, the entry
+> immediately ahead of ours is **Yang, at 0.058013**, and our locally scored
+> 0.056647191704213645 sits **0.0013658082957863568** below it. Re-derived at full
+> precision from the lab's own committed sources —
+> `closure_challenge_seed_sensitivity.json` → `overall_equivalent_S_bound` =
+> **0.002419121853891026**, and the scores in
+> `campaign/BOARD_RESCORE_2026-08-14.md` §3.1 — the ratio is
+> **0.002419121853891026 / 0.0013658082957863568 = 1.7712**, i.e. **177%**, not 84%.
+> **The bound does not cover part of the margin. It exceeds the margin by 77%.**
+> Loaded adversely onto the three seed-dependent cases our overall becomes
+> **0.059047**, *above* 0.058013, and the point lead is lost outright
+> (`campaign/BOARD_RESCORE_2026-08-14.md` §3.4; at the unrounded bound the adverse
+> overall is 0.0590663, further above). **There is no weaker restatement of the old
+> sentence that this evidence supports** — a bound covering most of a margin is a
+> qualification on a standing that survives it, and this standing does not survive
+> the bound. Falsified by the board move of 2026-08-11T23:33Z; withdrawn in the
+> travelling document at commit `cc906ec9`
+> (`closure_challenge_submission_round5/DESCRIPTION_DOCUMENT.md` §8) and **not
+> carried to this draft until now**, which is the defect this note exists to record
+> as much as the arithmetic is.
 
 **A second pair that must not be smoothed together.** The 0.0028863 margin rests on
 the re-scored 0.0595335. The P(rank 1) — struck 68% and live 50% alike — and every
@@ -901,14 +926,60 @@ steward's own scoring differs from ours, the steward's number is the number.
    sklearn's 200k binning subsample). Across 8 seeds the validation-proxied
    overall-equivalent spread is ~0.0003; a truth-free bound at the test points cannot
    exclude **0.002419**. **Round-5 correction, 2026-08-11:** this item used to anchor
-   that bound to "the 0.0030 gap to rank 2", which no longer exists. The operative
+   that bound to "the 0.0030 gap to rank 2", which no longer exists. ~~The operative
    comparison is the **0.0028863 margin over Reissmann, Fang & Sandberg**, of which
    the seed bound covers **84%** (0.002419 / 0.0028863 = 0.838 — the 84% figure is
-   correct only with the *unrounded* bound, so both are stated unrounded). The
+   correct only with the *unrounded* bound, so both are stated unrounded).~~ The
    three duct predictions
-   carry zero seed variance, since nothing in them was trained. **No document in this
-   package may quote the margin without this qualifier**
+   carry zero seed variance, since nothing in them was trained. ~~**No document in this
+   package may quote the margin without this qualifier**~~
    (`closure_challenge_seed_sensitivity.json`).
+
+   > **STRUCK 2026-08-15, BOTH THE FIGURE AND THE RULE, AND THE RULE IS THE MORE
+   > IMPORTANT OF THE TWO.** The struck text named a superseded comparison "the
+   > operative" one and then bound the whole package to it — *"no document in this
+   > package may quote the margin without this qualifier"* — so for four days this
+   > item **mandated that every document quote a figure whose direction of argument
+   > had already reversed.** A corrected number under that rule would have gone stale
+   > the next time the board moved, which is why the rule is replaced and not merely
+   > re-pointed.
+   >
+   > **The figure.** Reissmann, Fang & Sandberg are no longer the entry immediately
+   > ahead of us. On the **six-entry** board retrieved **2026-08-11T23:33Z** and
+   > re-verified unchanged by read-only fetch at **2026-08-14T21:01Z**, the entry
+   > immediately ahead is **Yang, at 0.058013**, and our margin is
+   > **0.0013658082957863568**. The seed bound of **0.002419121853891026** is
+   > therefore **1.7712 × that margin — 177%, not 84%.** It does not cover part of
+   > the margin; **it exceeds it.** Loaded adversely on the three seed-dependent
+   > cases our overall becomes **0.059047**, above 0.058013, and the point lead is
+   > lost. The old conclusion — a seed bound sitting inside a margin that survives it
+   > — **does not survive, and is not restated in weaker words, because there is no
+   > weaker form of it the evidence supports.** Sources, both committed and both
+   > re-read for this correction: `closure_challenge_seed_sensitivity.json` →
+   > `overall_equivalent_S_bound`; `campaign/BOARD_RESCORE_2026-08-14.md` §3.1 and
+   > §3.4. Withdrawn in the travelling document at commit `cc906ec9`
+   > (`closure_challenge_submission_round5/DESCRIPTION_DOCUMENT.md` §8).
+   >
+   > **THE REPLACEMENT BINDING RULE, stated so that it cannot silently go stale.**
+   > A margin is a claim about a board at a moment, and a "qualifier" is not a board.
+   > So: **no document in this package may quote the margin except as a triple —
+   > (1) the margin, (2) the entrant it is a margin over, named, and (3) the board it
+   > is measured against, given by ENTRANT COUNT and RETRIEVAL DATE.** As of this
+   > writing that reads: *0.001365 over Yang, on the six-entry board retrieved
+   > 2026-08-11T23:33Z and re-verified unchanged 2026-08-14T21:01Z.* A commit anchor
+   > is **not** an admissible board identifier for a margin: `deb91557` is the frozen
+   > four-entry scoring clone, and it scores but does not rank. The same triple is
+   > required of the seed bound stated as a fraction of the margin, since that
+   > fraction inherits the margin's board. **The figures are regenerable and should
+   > not be retyped from here**: recompute them from
+   > `campaign/BOARD_RESCORE_2026-08-14.md` §3.1, and if the retrieval date on the
+   > face of a sentence is older than the newest board retrieval the lab holds, the
+   > sentence is unverified until re-derived — that staleness is now visible on the
+   > sentence itself rather than resting on a reader remembering which board was
+   > meant. **No instrument enforces this** (docket D85): a strike-and-keep marker
+   > adjudicates the very placement it corrects away from
+   > `board_placement_faults`, so this rule is enforced by re-derivation and review,
+   > not by the guard.
 
 ### 5.4 Draft cover email — DRAFT, NOT SENT
 
@@ -996,17 +1067,40 @@ steward's own scoring differs from ours, the steward's number is the number.
 > with a limit; the benchmark sets none and tells submitters to preview.
 >
 > **On where that leaves us.** On these eight cases 0.056647 is the lowest overall
-> on your published board, by 0.0029 over Reissmann, Fang and Sandberg. We
-> bootstrapped what that is worth rather than leave you to: **P(rank 1) = 50%, with
-> a 95% interval of 0–97%** — eight cases cannot pin it tighter than that, and 50%
+> on your board as we retrieved it — the **six-entry** board of **2026-08-11T23:33Z**,
+> re-verified unchanged by a read-only fetch at **2026-08-14T21:01Z** — ~~by 0.0029
+> over Reissmann, Fang and Sandberg~~ **by 0.001365 over Yang, at 0.058013.** That
+> is our own scoring, run locally against the frozen benchmark commit `deb91557`,
+> which scores but does not rank; it is not a placement on your board and we do not
+> claim one. We
+> bootstrapped what the lead is worth rather than leave you to: **P(rank 1) = 50.2%,
+> with a 95% interval of 0–97%** — eight cases cannot pin it tighter than that, and 50%
 > on its own would sound far more settled than it is. The leads over Yang, Reissmann,
 > Wu & Zhang, and Tian, Buchanan, Hickel & Dwight are
 > **not statistically decided**; the leads over Liu and over Montoya are, at 98.7%
 > and 99.8%. *(~~68%, 2–100%, by 0.0029 over Reissmann~~ — struck 2026-08-11: that
-> was the four-entry board. The margin above is **0.0014 over Yang**.)* Our own measured one-seed training uncertainty on the three cases that
-> are our model is 0.002419, which covers 84% of that margin, and `AR_1_Ret_360` and
+> was the four-entry board. **The 0.0029-over-Reissmann figure opening this paragraph
+> was struck only here and left standing there until 2026-08-15, so this letter gave
+> two answers to one question for four days; both are now struck and the live figure
+> is the 0.001365 over Yang above.**)*
+>
+> **And our own seed uncertainty takes that lead away rather than qualifying it.**
+> ~~Our own measured one-seed training uncertainty on the three cases that
+> are our model is 0.002419, which covers 84% of that margin~~ — **struck 2026-08-15:
+> that arithmetic was done against a margin over Reissmann on a four-entry board, and
+> against the margin that is actually in play it inverts.** 0.002419 is **177%** of
+> the 0.001365 above (0.002419 / 0.001365 = 1.77), not 84% of it. Load it adversely
+> onto the three cases it applies to and our overall is **0.059047**, above 0.058013
+> — the lead is gone. So we are not offering you a lead with an uncertainty attached
+> to it: **on this evidence the difference between our number and 0.058013 is not
+> distinguishable from the single training seed we happened to draw, and we are not
+> claiming our method beats Yang's, or Reissmann's, or Wu and Zhang's, or Tian,
+> Buchanan, Hickel and Dwight's.** What we do claim is narrower and we would rather
+> claim it plainly: the two comparisons that are decided, against Liu (98.7%) and
+> against Montoya (99.8%), and consistency across eight cases rather than a peak on
+> any of them. `AR_1_Ret_360` and
 > `AR_3_Ret_360` are ties below the precision your board prints rather than per-case
-> wins. **We are not claiming our method beats theirs.** All of it is reproducible
+> wins. All of it is reproducible
 > from the attached files and your own board in about a minute, which is why we would
 > rather compute it for you than have it computed against us.
 >
