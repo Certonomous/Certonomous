@@ -116,7 +116,7 @@ Katie's GUI conventions, applied family-wide:
   as it stood**: that sentence was itself one of the copies and was repaired in the
   same pass as this clause. Falsified by the board move of 2026-08-11T23:33Z;
   withdrawn in the travelling document at `cc906ec9` and in the cover email at
-  `d80649f9`, neither of which reached this clause. Docket **D112**.
+  `d80649f9`, neither of which reached this clause. Docket **D114**.
   **(c) Added 2026-08-10, chief ruling — MANDATORY:
   P(rank 1) and the not-decided pairs.** **EVERY FIGURE IN (c) AND (d) IS
   SUPERSEDED 2026-08-11 — SEE (e). All of them were computed against a FOUR-entry
