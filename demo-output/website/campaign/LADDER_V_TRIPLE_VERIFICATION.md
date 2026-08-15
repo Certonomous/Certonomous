@@ -376,7 +376,50 @@ hand-maintained list had ever included.
   `dist/`. The searcher must prove its own reach first (gzip, ignore-files, untracked
   trees, archives that must be opened to be read) and state what its frame structurally
   cannot contain. **A surface nobody listed is exactly where a stale claim survives**, so
-  the rung fails if its method is a list rather than a search. Owner: an agent that has
+  the rung fails if its method is a list rather than a search.
+
+  > **[CHIEF RULING 2026-08-15, at repo `86dd1866`, on V14's DENOMINATOR GAP — issued on a
+  > measurement rather than on reasoning, because four of my rulings have been refuted by
+  > execution today.]**
+  >
+  > **The gap is real and definitional.** V14 searches for **score literals**. Ordinals and
+  > counts *about ourselves* — "rank 1 of 5", "3rd of 5" — belong to no rule it names, which is
+  > why the shipping archive carried **eight live four-entry claims while the sweep of record
+  > named one**. A ninth was then found: `closure.html:426` says the board move lowers the
+  > best-published column on *"six of the eight rows"*, and re-derived cell by cell it is
+  > **seven**.
+  >
+  > **THE RULING: REACH IS REPO-WIDE, GATING IS TRAVELLING-SCOPED, AND THE REMAINDER IS
+  > REPORTED WITH ITS COUNT.** The criterion's "search, not a list" requirement is about
+  > **method** — derive the surface set mechanically — and never about **severity**. Those were
+  > conflated, and separating them is what the measurement supports: a denominator predicate
+  > runs everywhere and **gates** only on surfaces that travel.
+  >
+  > **The numbers that force it.** Measured false-positive rate: **14.3% on the shipping
+  > archive** (7 faults, 6 true) against **≥92.5% at 95% confidence on the tracked corpus** (393
+  > faults, 0 true in a 40-sample) and **99.8% gitignored**, where a single adjoint counter
+  > (`Major iteration N of 47`) contributes 7,671. Repo-wide *gating* would fault the labelled
+  > test corpus and the guards' own comments — it is not a stricter rule, it is an unusable one.
+  > Striking the mask moves tracked 616 → 393, which is not the difference between usable and
+  > unusable. **This is the same shipped-versus-internal split the sibling instrument already
+  > publishes at 0% travelling against 77% overall, arrived at independently.**
+  >
+  > **THE FIX IS ONE LINE, NOT A SECOND CHECKER.** `check_rank_claim_values` misses this class
+  > for exactly one reason: `_VALUE_BOARD_SIZE` requires the literal token `rank`, so `2nd of 5`
+  > falls outside its **regex** — not outside its arithmetic. Widen that one pattern. A second
+  > instrument would duplicate a working arithmetic core to reach a string form.
+  >
+  > **WHAT THIS RULING DOES NOT DO.** It does not close V14 — the ninth claim and the eight
+  > shipped ones are live, and `:342`'s `5 of 8 → 4 of 8` is **structurally unreachable** by any
+  > board arithmetic, because `4` is simultaneously the withdrawn best-on-board count and the
+  > correct cases-won count against the leader. That one needs a human reading and the rung
+  > should say so rather than pretend a rule covers it.
+  >
+  > **WHAT WOULD REVERSE IT:** a travelling surface whose correct claim this predicate faults —
+  > i.e. any false positive on the 14.3% arm that is not one of the six confirmed true. **And
+  > this ruling is subject to grading like the rest**; measure it, do not inherit it.
+
+  Owner: an agent that has
   written to none of the surfaces.
 
 - **V15 (A15). Verification-created text re-enters the claims table.** Pass 1 established
