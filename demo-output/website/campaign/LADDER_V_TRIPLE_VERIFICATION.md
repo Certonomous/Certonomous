@@ -116,7 +116,9 @@ supervisors' four personal checks apply per the supervision charter.
 
   ### V5 FRAME ENUMERATION — the four refusals, on the rung's face, 2026-08-15
 
-  **Written by the repair pass at repo `1a847fa8`, in answer to the ruling's own requirement that
+  **Written by the repair pass across repo `1a847fa8`→`05354615` and committed at `f956e348`
+  (three concurrent agents landed commits while it was being written; the anchor is given as a span
+  rather than a point because a single SHA here would be false), in answer to the ruling's own requirement that
   "frozen artifacts and third-party signed reports are OUT OF FRAME — but only when enumerated on
   this rung's face, each with its sha256 and a dated refusal ground."** Until this block existed the
   rung had, in the ruling's words, four gaps and not four exclusions. **This pass is an author of
@@ -217,6 +219,33 @@ supervisors' four personal checks apply per the supervision charter.
   records, capability items, review lines, and Wu & Zhang's SST-QCRC at `:351` — and are reported,
   not repaired, because the predicate question in (b) is unruled. The guard itself is **4 passed**,
   `__pycache__` purged first, before and after.
+
+  **The frame, re-derived by this pass rather than inherited — four arms, each reported.**
+  `__pycache__` purged tree-wide before every cell. **Tracked**, `git grep -a` (not `-I`, and not
+  the shell's `grep`, which is `ugrep --ignore-files` and passes `-I`): 20,698 files; claim pattern
+  `untrained[- ]QCR` matched **46** files at 20:14Z and **47** at 20:22Z — a concurrent agent
+  committed `campaign/LADDER_V_V15_ROUND8.md` between the two reads, so the grade's "47 tracked
+  files" reproduces at the later clock and not the earlier one; **15** carried zero "Spalart" at
+  both reads, and every one was opened. **Untracked**, `git ls-files --others --exclude-standard`:
+  **2** files, **0** hits. **Gitignored**, `git ls-files --others --ignored --exclude-standard -z |
+  xargs -0 /usr/bin/grep -aIlF -f <patterns>`: **37,254** files in 64 s, **3** hits, all under
+  `dist/` — `site/benchmarks.html` (3 Spalart), `site/closure.html` (3), `snapshot/lab_stats.json`
+  (**0**). **Run tree**, `/usr/bin/find /home/ubuntu/certonomous-runs/` (`find` here is `bfs`):
+  **132,050** files, completed 20:24Z with exit 0 and **1** hit — the seeded positive control
+  `__probe_v5_repair.txt`, since removed and confirmed absent. **The control fired, so the zero is a
+  measurement.** Nothing in this pass is recorded UNMEASURED.
+
+  **The 15, classified — out of frame, with the ground argued rather than assumed:** the two frozen
+  JSONs (permanent, above); `CLOSURE_METHODS_COMPARISON.md:216` and
+  `closure_challenge_C2_error_decomposition.md:255` describe **Wu & Zhang's** SST-QCRC, not ours
+  (`PRODUCT_LIST.md:351` likewise, and it is a knowingly-declined site, cheap to cite if a chief
+  reads the criterion literally); `campaign/V16_GRADE_HELDOUT_SETS.py:70` and
+  `sdk/tests/test_rank_claim_surfaces.py:584` are **held-out guard corpora** where the uncited
+  sentence *is* the test datum and editing it destroys the control; `LADDER_V_V6_V10_V14_CLOSURE.md:146`,
+  `LADDER_V_V8_REVERIFICATION_2026-08-11.md:214`, `V15_ROUND5_NUMBER_RECONCILIATION.md:194` and
+  `reports/MORNING_REPORT_2026-08-07.md:188` are dated records of a state, not surfaces a future
+  build or edit rewrites. **In frame:** the two repaired above, plus the three below. And the two
+  withdrawn exclusions, which are in frame and unrepaired.
 
   **Still in frame, carrying the claim, and NOT repaired by this pass** — the third generator and
   its two tracked outputs, which need the eval battery re-run and are D128's, not this pass's:
