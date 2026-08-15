@@ -564,6 +564,53 @@ agents; whichever rung lands first should be read into the slot it answers.
 - **Until it lands, treat V6 as PASS-pending-confirmation and V10 as CLOSED-BY-ITS-AUTHOR**
   in any statement made outside this lab.
 
+#### DISCHARGED 2026-08-15 — no inherited row remains in this slot
+
+**Both halves have now been measured by non-authors, and this slot records what they
+measured. It does not mark any rung green: under R-ISOLATE the measurer may not also
+declare the closure.**
+
+- **The three commits — discharged at `0b0041b1`.** The records repair established that
+  `656c09c9`, `63009dd3` and `472f9f92` **were** read by a non-author in round 4; the
+  earlier audit that called them unread was itself stale. This slot's own framing of
+  "three unread commits" was wrong when written.
+- **Q69, the run-tree `*_LES*` positive control — MEASURED-PASS**, at `dde6e1cf`
+  (`LADDER_V_V15_ROUND4.md` row Q69 carried it as *"Inherited"* because the run tree is
+  outside the repository and that rung was worktree-isolated). Re-run in the **main
+  checkout** with `/usr/bin/find` against `/home/ubuntu/certonomous-runs/w3-qcr-rank1/`:
+  **266 files searched** across the five arms — the count is stated because a control that
+  searches nothing and reports no violations is the silent-zero defect this lab ranks
+  highest — and measured **0 / 0 / 0** in `AR_1_Ret_360_qcr`, `AR_3_Ret_360_qcr` and
+  `AR_14_Ret_180_qcr` against **3 / 3** in both `AR_7_Ret_180` arms, **6 control hits**,
+  matching the compliance line exactly. Recorded against it: the glob is an enumeration
+  over **filenames**, so it cannot see truth read from outside the arms — that half rests
+  on round 4's Q62/Q63 code-path rows, and **the compliance line must not be cited as
+  though the glob alone settled it.**
+- **Q60, V10's drift check and HTTP serve — MEASURED-PASS on the claim**, at `dde6e1cf`.
+  The **56** denominator re-derives independently (49 control-room modules + 4 launcher +
+  3 pages), with the copy list and file set byte-identical at `2b251689` and at HEAD.
+  Against a **harder reference than the claim used** — the tracked shipped zip rather than
+  the gitignored build directory — both `2b251689` and `7cd558b1` measure **56 / 56
+  byte-for-byte, 0 differ, 0 absent**. The serve re-executes: hero and KPI both `0.0566`,
+  the struck prior-art sentence **0 hits** under the wrap-proof normalised instrument whose
+  planted five-line tag-split control recovers **2 / 2**.
+- **V10 therefore moves off CLOSED-BY-ITS-AUTHOR — but only as a statement about
+  `2b251689`.** At HEAD `297b82a0` the same check measures **51 / 56 and returns FAIL**:
+  `agenda.py`, `exec_bits.py`, `closure.html`, `benchmarks.html` and `wall.html` are stale
+  in the shipped zip, and `site/closure.html:502` carries **D112's unstruck "rank 1 of 5…
+  comparable to its margin" as live prose** while its source at `:554` carries the
+  corrected clause and the 177% bound. **Reported, not repaired — `dist/` has a designated
+  owner.** Filed as **`D118`**, whose durable half is D112's shape one level up:
+  **`check_bundle_drift()` never opens the shipped artifact** — it compares against
+  `dist/certonomous-demo/`, gitignored at `.gitignore:72` — so the one file that leaves
+  this box is the one the drift detector does not read, and because that reference is
+  untracked **no later agent can reconstruct what the check saw on 2026-08-11.**
+- **Who can close this slot:** the V13 close-out owner, or any Ladder V pass owner who
+  wrote none of `472f9f92`, `2b251689`, `7cd558b1` and none of `dde6e1cf`. Both
+  measurements are re-runnable in minutes. **The bundle's own repair is `dist/`'s owner's,
+  per D112(i) and D118 — not any Ladder V rung's.**
+- Full record: `LADDER_V_V13_PENDING2_MEASURED_2026-08-15.md` (`dde6e1cf`).
+
 ---
 
 ## 9. SIGNATURES
