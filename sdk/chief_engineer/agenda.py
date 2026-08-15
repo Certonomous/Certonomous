@@ -1062,7 +1062,8 @@ def draft_ledger_proposals() -> list[dict]:
 # and were counted by `scripts/calibration_scorecard.py`'s live reconcile: 131
 # files on disk against 128 admitted + 7 refused, with an EMPTY residual,
 # because three of the refusals named files that were not on that disk at all.
-# Guarded by `sdk/tests/test_refused_inbox_lifecycle.py`.
+# Guarded by test_a_read_of_another_root_does_not_survive_into_this_one and
+# test_the_live_reconcile_balances_after_a_temporary_root_was_read.
 _REFUSED_INBOX: dict[str, dict] = {}
 
 #: The directory the ledger above describes, so a filename in it is anchored to

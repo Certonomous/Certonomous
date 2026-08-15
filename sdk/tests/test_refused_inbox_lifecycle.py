@@ -1,13 +1,15 @@
 """The refusal ledger describes ONE read, and this file is why (docket D111).
 
 `agenda._REFUSED_INBOX` is a module-level dict keyed by FILENAME. Until
-2026-08-15 nothing cleared it, so every `read_inbox()` in a process wrote into
-the same ledger and no read ever took anything out of it. A filename means
-nothing without the directory it came from -- `bad.json` in a test's temporary
-agenda root and `bad.json` in the live corpus are one key -- so a test that
-pointed `CERTONOMOUS_AGENDA_DIR` at a temporary tree and read four deliberately
-malformed fixtures left those four in the ledger for the rest of the process,
-including for the live reconcile in `scripts/calibration_scorecard.py`.
+2026-08-15 the module lacked any step that emptied it, so successive
+`read_inbox()` calls in one process added to the same ledger and removed only
+what a repeat read of the same directory happened to admit. A filename is
+meaningless without the directory it came from -- `bad.json` in a test's
+temporary agenda root and `bad.json` in the live corpus are one key -- so a test
+that pointed `CERTONOMOUS_AGENDA_DIR` at a temporary tree and read four
+deliberately malformed fixtures left those four in the ledger for the rest of
+the process, including for the live reconcile in
+`scripts/calibration_scorecard.py`.
 
 What that produced, measured on 2026-08-15:
 
