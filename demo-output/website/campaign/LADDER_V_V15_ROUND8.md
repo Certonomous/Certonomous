@@ -586,10 +586,18 @@ Stated plainly, and each of these is cheap:
    nothing records F1, F3 or F6.
 
 **Do not score the next round neutral early.** Round 10 of V16 was scored
-neutral and three new shapes appeared within forty minutes. Three of the eight
-findings above were written into the corpus inside the last two hours; the text
-under grade is being produced faster than it is being graded, and F6's
-adoption-to-violation interval was forty-three minutes.
+neutral and three new shapes appeared within forty minutes. **Three of the
+fifteen findings above were written into the corpus inside the two hours before
+this round began** — F2, F4 and F5 all in `cca64eaf` — the text under grade is
+being produced faster than it is being graded, and F6's adoption-to-violation
+interval was forty-three minutes.
+
+*(That sentence read "three of the **eight**" until the mutation cell reported
+and §9 was revised to fifteen. It is corrected here rather than left, and named
+rather than corrected silently, because a summary going stale against its own
+revised section with neither flagged is F4's defect and this document is not
+exempt from it. `check_summary_consistency.py`, built at `840c0c27` for exactly
+this class and outside this round's range, would have had a pair to grade here.)*
 
 ---
 
