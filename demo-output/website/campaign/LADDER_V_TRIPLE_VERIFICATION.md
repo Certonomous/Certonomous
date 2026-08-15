@@ -32,6 +32,48 @@ supervisors' four personal checks apply per the supervision charter.
   prove it by showing there is nothing that could be fitted); Spalart (2000) cited wherever QCR is
   named.
 
+  > **[CHIEF RULING 2026-08-15, at repo `b1d7faa3`, on V5's frame. Requested by Pass 1 at
+  > `LADDER_V_PASS1_2026-08-11.md:486-487` and never answered; addendum `e59ae644` issued Rulings 1
+  > and 2 and left this one open. Three readings have been live since.]**
+  >
+  > **THE CRITERION IS EVERY SURFACE A FUTURE BUILD OR EDIT CAN CHANGE, PLUS THE GENERATORS THAT
+  > WRITE THEM.** Frozen artifacts and third-party signed reports are OUT OF FRAME — but only when
+  > **enumerated on this rung's face, each with its sha256 and a dated refusal ground.** An
+  > unenumerated exclusion is not a frame, it is a gap.
+  >
+  > **THE TWO-SITE READING IS REJECTED.** It was never pre-registered. It arrived by transcription
+  > through the V13 close-out §7 item 9, and a criterion that narrows by being copied is the bar
+  > moving under the measurement. Pass 1's own table is headed *"five load-bearing gaps"*, and the
+  > record should read that way.
+  >
+  > **THE LITERAL READING IS ALSO REJECTED, AND SAYING WHY IS THE POINT.** Under "wherever QCR is
+  > named" with no exclusions, V5 can **never** reach plain PASS, because two of its surfaces are
+  > frozen artifacts that may never take a revision. A criterion no execution can satisfy is not a
+  > high standard, it is an unfalsifiable one, and this lab has already ruled that a gate whose
+  > verdict is fixed by construction is not a gate (W-2).
+  >
+  > **THIS RULING DOES NOT CLOSE V5 — IT KEEPS IT OPEN, AND THAT IS THE HONEST DIRECTION.** The
+  > grader's falsifier said V5 would pass on §3 alone under a ruling fixing the two-site reading. I
+  > am declining that reading, so the rung stays open on **B3**: `sdk/scripts/build_benchmarks.py:106`
+  > writes the same unattributed untrained claim into `benchmarks.json`, `wall/wall.json` and
+  > `dist/certonomous-demo/snapshot/lab_stats.json`. **A generator is the most load-bearing surface
+  > there is** — it manufactures new copies after every repair — and it is squarely in frame. This is
+  > the second generator found in two days; the first was a mandatory clause ordering surfaces to
+  > state a withdrawn figure.
+  >
+  > **WHY `e071075d` MISSED IT, kept because the near-miss is instructive:** it *did* check for a
+  > generator. It asked whether anything writes that **file**, not whether anything writes that
+  > **sentence**.
+  >
+  > **THE REFUSED COUNT IS FOUR, NOT THREE**, and one refusal's ground is stale:
+  > `QCR_ACTIVITY_CHECK_2026-08-08.md` was refused as a signed report *"left to its owner"*, but
+  > `fe612d03` amended it 20 hours after signing with exactly the dated additive note V5 declined to
+  > make — three days before the refusal was written.
+  >
+  > **AND THIS RULING IS ITSELF SUBJECT TO GRADING.** Under §2 the chief's own record is never the
+  > presumed-correct side of a conflict. A non-author must still measure V5 against this frame; the
+  > ruling fixes what to measure, not whether it passed.
+
 ## PASS 2 — ADVERSARIAL (owner: a different agent than any Pass-1 executor; brief: assume wrong until defended)
 
 - **V6.** Re-run the §4 adversarial audit against the ROUND-5 entry specifically — the existing
