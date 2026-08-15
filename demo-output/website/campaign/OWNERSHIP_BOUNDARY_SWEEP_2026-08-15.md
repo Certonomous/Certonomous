@@ -1,9 +1,18 @@
 # Ownership boundaries as a defect class — the zone register and the owner's worklist
 
-**Filed 2026-08-15 at HEAD `1360a5a9`.** Docket **D145** — the row was written as D143 and
-renumbered on discovering that a concurrent dispatch had claimed D143 and D144 between the
-free-ID check and the write. The instance that named the class is **D140** (commit
-`09234034`), repaired at `be0a0c5d`.
+**Swept 2026-08-15 at HEAD `1360a5a9`.** Docket **D145**. This document landed at
+`a3342d9a`. The instance that named the class is **D140** (commit `09234034`), repaired at
+`be0a0c5d`.
+
+**Two concurrency facts are recorded here rather than tidied away, because both are the
+shared working tree behaving exactly as the register above predicts.** (1) The row was
+written as **D143** and renumbered to **D145** on discovering that a concurrent dispatch had
+claimed D143 and D144 in the seconds between the free-ID check and the write. (2) **The
+D145 row itself is not carried by this dispatch's commit.** It was staged in the shared
+working tree and swept into a concurrent dispatch's commit **`60073572`** before this one
+ran, so `git log -- docs/DOCKET.md` attributes it to an author who did not write it. **That
+is this document's own subject in miniature: a shared surface with no per-writer boundary at
+all, where the pathspec that protects your file cannot protect your line.**
 
 **No scoring call was made; the ledger stands at 6. Nothing was fetched, sent, uploaded,
 filed or registered. The scoring pin `deb91557` was not moved. No solver ran.**
