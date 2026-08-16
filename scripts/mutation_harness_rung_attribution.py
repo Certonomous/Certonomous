@@ -104,6 +104,15 @@ PROBE_REFUSE = f"{PROBE}::test_an_unresolvable_probe_emits_nothing_rather_than_t
 PROBE_CLI_REFUSE = f"{PROBE}::test_the_cli_refuses_an_unresolvable_probe_and_exits_unknown"
 PROBE_CLI_EMIT = f"{PROBE}::test_the_cli_emits_the_resolved_handle"
 
+GLOSS_DERIVED = f"{LIMITSOUT}::test_the_identities_gloss_is_derived_from_the_reading_beside_it"
+GLOSS_STOPS = f"{LIMITSOUT}::test_the_printed_frame_row_stops_saying_never_varied_once_it_has"
+GLOSS_SAYS = f"{LIMITSOUT}::test_the_printed_frame_row_does_say_never_varied_when_it_has_not"
+PROBE_UUID = f"{PROBE}::test_a_session_that_is_not_a_uuid_is_refused_before_any_search"
+PROBE_ROOT = f"{PROBE}::test_a_missing_transcript_root_is_named_not_read_as_no_match"
+PROBE_STREAM = f"{PROBE}::test_a_failed_probe_puts_its_refusal_on_stderr_and_no_trailer_anywhere"
+PROBE_APPEND = f"{PROBE}::test_the_published_append_form_can_never_gain_a_trailer_from_a_failure"
+NO_ANCHOR = f"{GRAM}::test_no_anchor_at_all_is_unknown_rather_than_after"
+
 BACKFILL = f"{LIMITSOUT}::test_every_run_prints_the_backfill_statement"
 ONE_CONSTANT = f"{LIMITSOUT}::test_one_identity_observed_says_it_has_not_been_shown_to_discriminate"
 AGENT_COUNTS = f"{LIMITSOUT}::test_per_agent_handles_are_counted_in_the_integrity_frame"
@@ -589,11 +598,117 @@ MUTATIONS: list[tuple[str, str, str, str, list[str]]] = [
      "    print(f\"GRANULARITY: {frame['granularity']}\")",
      "    pass",
      [BACKFILL, AGENT_SPLIT]),
-    ("the_never_varied_wording_is_unconditional",
-     "the notice becomes a slogan that is printed whatever was measured",
-     "    if sessions <= 1 and agents == 0:",
-     "    if True:",
-     [TWO_IDENTITIES]),
+    # ---- the never-varied caveat, after D241 moved the predicate -----------
+    # This block replaces a single cell that anchored on
+    # `if sessions <= 1 and agents == 0:` inside `_discrimination_note`. D241
+    # (`42f3e7b4`) took that predicate out into `_field_has_not_varied` so the
+    # frame row and the note could not disagree, which left the old anchor
+    # matching NOTHING -- the harness reported `anchor not unique` and refused
+    # to score the cell rather than scoring it silently, which is the only
+    # reason the gap was visible. Three cells now cover what one did.
+    ("never_varied_predicate_always_true",
+     "the caveat becomes a slogan printed whatever was measured",
+     "    return sessions <= 1 and agents == 0",
+     "    return True",
+     [TWO_IDENTITIES, GLOSS_DERIVED, GLOSS_STOPS]),
+    ("never_varied_predicate_always_false",
+     "the caveat is deleted, so one constant observed N times reads as N "
+     "confirmations -- the opposite failure and the worse one",
+     "    return sessions <= 1 and agents == 0",
+     "    return False",
+     [ONE_CONSTANT, GLOSS_DERIVED, GLOSS_SAYS]),
+    ("frame_row_gloss_is_a_constant_again",
+     "D241 reintroduced: the frame row asserts never-varied beside a reading "
+     "that contradicts it",
+     '    if _field_has_not_varied(sessions, agents):\n'
+     '        return (f"{reading} -- {_NEVER_VARIED} in this frame, so a green run "',
+     '    if True:\n'
+     '        return (f"{reading} -- {_NEVER_VARIED} in this frame, so a green run "',
+     [TWO_IDENTITIES, GLOSS_DERIVED, GLOSS_STOPS]),
+
+    # ---- the AUTHOR path's granularity decision ----------------------------
+    # Both arms of `closing.agent and all(...)`. An AUTHOR verdict that claims
+    # AGENT granularity it has not earned reads as a sharper finding than it is.
+    ("agent_granularity_without_a_handle",
+     "AUTHOR claims AGENT granularity when neither side carries a handle",
+     "        if closing.agent and all(c.agent == closing.agent for c in same):",
+     "        if all(c.agent == closing.agent for c in same):",
+     [NO_OVERCLAIM, AUTHOR_HALF]),
+    ("agent_granularity_ignores_the_graded_side",
+     "one handle on the closing side alone upgrades the verdict to agent "
+     "granularity, which is the one-sided case D225 ruled on",
+     "        if closing.agent and all(c.agent == closing.agent for c in same):",
+     "        if closing.agent:",
+     [AGENT_ONE_SIDED, NO_OVERCLAIM]),
+
+    # ---- the probe: an identity READ rather than TAKEN ---------------------
+    ("the_probe_matches_any_transcript",
+     "the needle stops deciding, so the first transcript of the session "
+     "resolves and the identity is TAKEN rather than read",
+     "        if needle in blob and name not in hits:",
+     "        if name not in hits:",
+     [PROBE_NONE, PROBE_ONE, PROBE_TWO]),
+    ("the_probe_searches_a_non_uuid_session",
+     "a session field that is not a UUID scopes the search instead of stopping it",
+     '    if not _UUID_RE.match(session):\n'
+     '        return None, f"session {session!r} is not a UUID; no transcript to search"',
+     '    if False:\n'
+     '        return None, f"session {session!r} is not a UUID; no transcript to search"',
+     [PROBE_SESSION, PROBE_BADNAME, PROBE_UUID]),
+    ("a_missing_transcript_root_is_not_named",
+     "an environment that CANNOT answer reports as one that answered NO",
+     "    if not base.is_dir():",
+     "    if False:",
+     [PROBE_NONE, PROBE_ROOT]),
+
+    # ---- the fail-open surface D245 is about ------------------------------
+    # `--emit-trailer --probe <t> >> <msgfile>` splices STDOUT into a durable
+    # record, so what reaches which stream, and what the exit code says, are
+    # the whole safety story on a failed probe.
+    ("a_failed_probe_emits_the_session_line_anyway",
+     "the repair is reverted: a probe that could not resolve emits the weaker "
+     "line, which is then cited as the per-agent evidence it is not",
+     "    agent, why = find_own_agent(probe, session, transcripts)\n"
+     "    if agent is None:",
+     "    agent, why = find_own_agent(probe, session, transcripts)\n"
+     "    if agent is None and False:",
+     [PROBE_REFUSE, PROBE_CLI_REFUSE, PROBE_APPEND]),
+    ("the_refusal_moves_to_stdout",
+     "the refusal is printed to stdout, so the published `>> msgfile` form "
+     "appends the ERROR TEXT into the commit message instead of nothing",
+     '            print(f"no identity: {why}", file=sys.stderr)',
+     '            print(f"no identity: {why}")',
+     [PROBE_CLI_REFUSE, EMIT_NO_SESSION, PROBE_STREAM]),
+    ("a_failed_probe_exits_pass",
+     "the caller's rc check is defeated: a refusal reports success, and the rc "
+     "is the ONLY signal the published append form gives (D245)",
+     '            print(f"no identity: {why}", file=sys.stderr)\n'
+     "            return EXIT_UNKNOWN",
+     '            print(f"no identity: {why}", file=sys.stderr)\n'
+     "            return EXIT_PASS",
+     [PROBE_CLI_REFUSE]),
+    ("the_refusal_stops_naming_the_probe",
+     "the refusal no longer says WHICH token failed, so a caller running "
+     "several cannot tell which one did not resolve",
+     '        return None, (f"probe {probe!r} appears in no subagent transcript under "',
+     '        return None, (f"a probe appears in no subagent transcript under "',
+     [PROBE_STREAM]),
+
+    # ---- anchor and selector arms -----------------------------------------
+    ("an_absent_anchor_reads_as_after",
+     "an unanchored build claims every commit sits after an anchor it does "
+     "not have; killed at the function boundary because the value is inert "
+     "downstream -- `Commit.after_anchor` is stored and never read (D246)",
+     "    if not anchor:\n        return None",
+     "    if not anchor:\n        return True",
+     [UNANCHORED, UNANCHORED_REASON, PREDATES, NO_ANCHOR]),
+    ("an_unresolvable_selector_is_ignored",
+     "a graded spec git cannot resolve contributes nothing rather than "
+     "stopping the run, so the graded set silently SHRINKS",
+     '        if r.returncode != 0:\n'
+     '            return [], f"cannot resolve {spec!r}: {r.stderr.strip()}"',
+     "        if r.returncode != 0:\n            pass",
+     [BAD_SPEC, EMPTY_SELECTOR]),
 
     # ---- the exit contract ------------------------------------------------
     ("non_author_exits_fail",

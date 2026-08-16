@@ -702,6 +702,87 @@ class TheProbeReadsTheIdentityRatherThanTakingIt(_Tmp):
         self.assertEqual(p.stdout.strip(), "", "emitted a weaker line anyway")
         self.assertEqual(p.returncode, RC_UNKNOWN)
 
+    def test_a_session_that_is_not_a_uuid_is_refused_before_any_search(self):
+        """The session id SCOPES the search, so a field that is not one must
+        stop it rather than widen it.
+
+        Built so that removing the guard would SUCCEED rather than merely
+        differ: a transcript carrying the probe is planted at exactly the path
+        an unguarded search would glob, so the unguarded module resolves a
+        handle and this test sees a handle where there must be none.
+        """
+        root = fake_transcripts(self.tmp / "h", "not-a-uuid-at-all",
+                                {AGENT_1: "PROBE-TOKEN-abc123\n"})
+        got, why = ra.find_own_agent("PROBE-TOKEN-abc123", "not-a-uuid-at-all",
+                                     root)
+        self.assertIsNone(got, "searched a session field that is not a UUID")
+        self.assertIn("is not a UUID", why)
+
+    def test_a_missing_transcript_root_is_named_not_read_as_no_match(self):
+        """An environment that CANNOT answer and an environment that answered
+        NO are different states, and only one of them is about the probe.
+
+        Asserted on the IDENTITY of the reason rather than on the refusal
+        alone: both the guarded and the unguarded module return None here, and
+        the only thing that separates them is which reason they give. A test
+        that asserted only `assertIsNone` would pass on both.
+        """
+        missing = self.tmp / "no-such-transcript-root"
+        self.assertFalse(missing.exists())
+        got, why = ra.find_own_agent("PROBE-TOKEN-abc123", SESSION_C, missing)
+        self.assertIsNone(got)
+        self.assertIn("no transcript root", why)
+        self.assertNotIn("appears in no subagent transcript", why)
+
+    def test_a_failed_probe_puts_its_refusal_on_stderr_and_no_trailer_anywhere(self):
+        """WHICH STREAM, for WHICH probe -- not how many bytes.
+
+        The published adoption line is `--emit-trailer --probe <token> >>
+        <msgfile>`, so stdout is spliced into a durable record and stderr is
+        not. A refusal that moved to stdout would be appended INTO the commit
+        message; a trailer emitted despite the failure would be cited as the
+        per-agent evidence it is not. Both are assertions about identity of
+        content per stream, and a byte-count assertion would survive either.
+        """
+        r = self.repo()
+        root = fake_transcripts(self.tmp / "h", SESSION_C, {AGENT_1: "x\n"})
+        p = run(r, "--emit-trailer", "--probe", "PROBE-TOKEN-unresolvable1",
+                "--transcripts", str(root),
+                env={"CLAUDE_CODE_SESSION_ID": SESSION_C})
+        self.assertEqual(p.returncode, RC_UNKNOWN)
+        self.assertNotIn("Lab-Agent:", p.stdout,
+                         "a failed probe put a trailer on the appended stream")
+        self.assertIn("PROBE-TOKEN-unresolvable1", p.stderr)
+        self.assertIn("appears in no subagent transcript", p.stderr)
+        self.assertIn("Emitting nothing", p.stderr)
+
+    def test_the_published_append_form_can_never_gain_a_trailer_from_a_failure(self):
+        """D245: the published `>> <msgfile>` form appends NOTHING when the
+        probe fails, so the commit lands with no identity and reads exactly
+        like a healthy one -- the exit code is the only signal the caller gets.
+
+        WHAT IS ASSERTED HERE IS THE SAFETY HALF, and deliberately not the
+        defect: a failed probe must never append anything that could parse as a
+        trailer, and it must report a non-zero status. That both must hold
+        under ANY repair of D245 is the reason they are pinned; that the file
+        comes back byte-identical is the DEFECT and is recorded in D245 rather
+        than asserted here, so repairing it does not redden this test.
+        """
+        r = self.repo()
+        root = fake_transcripts(self.tmp / "h", SESSION_C, {AGENT_1: "x\n"})
+        msg = self.tmp / "commit-message.txt"
+        msg.write_text("subject line\n\nbody paragraph\n", encoding="utf-8")
+        p = run(r, "--emit-trailer", "--probe", "PROBE-TOKEN-unresolvable2",
+                "--transcripts", str(root),
+                env={"CLAUDE_CODE_SESSION_ID": SESSION_C})
+        with msg.open("a", encoding="utf-8") as fh:   # exactly what `>>` does
+            fh.write(p.stdout)
+        landed = msg.read_text(encoding="utf-8")
+        self.assertEqual(p.returncode, RC_UNKNOWN,
+                         "a failed probe reported success to the caller")
+        self.assertNotIn("Lab-Agent:", landed,
+                         "a failed probe appended a trailer to the message")
+
     def test_the_cli_emits_the_resolved_handle(self):
         r = self.repo()
         root = fake_transcripts(self.tmp / "h", SESSION_C,
@@ -1180,6 +1261,25 @@ class TheEmitterCannotProduceWhatTheGrammarRejects(_Tmp):
         p = run(r, "--anchor", "0" * 40, "--closing", closing, "--graded", naked)
         self.assertEqual(verdict_of(p), "UNKNOWN", p.stdout)
         self.assertNotIn("predate", p.stdout.lower())
+
+    def test_no_anchor_at_all_is_unknown_rather_than_after(self):
+        """An unanchored build knows NOTHING about where a commit sits, and
+        `True` there would be a claim.
+
+        PINNED AT THE FUNCTION BOUNDARY ON PURPOSE, and the reason is recorded
+        because it is the difference between a proof and a decoration: the only
+        consumer of this value tests `after is False`, which `None` and `True`
+        both fail, and `Commit.after_anchor` is stored and never read again. So
+        the distinction is currently INERT downstream and no end-to-end test
+        can reach it -- the same shape D231 recorded for three other guards
+        here. It is asserted anyway, because the value is what a future reader
+        of that field would rely on, and D246 records that the field is
+        write-only.
+        """
+        r = self.repo()
+        sha = r.commit("the only commit", trailer(SESSION_A))
+        self.assertIsNone(ra._is_after_anchor(r.root, sha, None))
+        self.assertIsNone(ra._is_after_anchor(r.root, sha, ""))
 
 
 if __name__ == "__main__":
