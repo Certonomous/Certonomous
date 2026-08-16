@@ -3964,6 +3964,14 @@ def check_board_placement_words() -> Result:
     travelling = _travelling_names()
     names = _board_names(board)
     surveyed = opened = naming = 0
+    # D265(b). The rule-A and rule-B counts are accumulated because the frame
+    # line below REPORTS the rule-A count, and until 2026-08-16 it reported a
+    # LITERAL `2` that had been true on 2026-08-14 and was 34 when the defect
+    # was filed and 53 when it was repaired. A figure typed beside a call that
+    # computes a different figure is the defect class this file exists to hunt.
+    # These two counters change no window, pattern, admission rule or board:
+    # they count what the sweep already decided.
+    rule_a_faults = rule_b_faults = 0
     shipped, internal, skipped = [], [], []
     for path in tracked:
         try:
@@ -4014,6 +4022,8 @@ def check_board_placement_words() -> Result:
         label = str(path.relative_to(REPO))
         bucket = shipped if path.name in travelling else internal
         bucket.extend(f"{label}: {fault}" for fault in disagree + unnamed)
+        rule_a_faults += len(disagree)
+        rule_b_faults += len(unnamed)
 
     order = ", ".join(f"{who} {rank}" for who, rank
                       in sorted(board.items(), key=lambda kv: kv[1]))
@@ -4039,11 +4049,18 @@ def check_board_placement_words() -> Result:
         f"scores to recompute identically); it is simply not a rank oracle. "
         f"NOT re-pointed: the name-to-rank binding, deliberately -- swapping "
         f"it to the live board was measured across this corpus on 2026-08-14 "
-        f"and re-measured at 48d3f05a, and takes rule-A faults from 2 to 68 "
-        f"over DISJOINT sets: both current faults clear and 68 new ones "
-        f"appear, 50 of them dated records this check cannot tell from a live "
-        f"claim (item 9) and 18 of them inside its own held-out sets and "
-        f"source, where moving the binding moves the ruler with the sample. ")
+        f"and re-measured at 48d3f05a, and took rule-A faults from 2 to 68 "
+        f"over DISJOINT sets AS THAT TREE THEN STOOD: both of its two faults "
+        f"cleared and 68 new ones appeared, 50 of them dated records this "
+        f"check cannot tell from a live claim (item 9) and 18 of them inside "
+        f"its own held-out sets and source, where moving the binding moves "
+        f"the ruler with the sample. THAT PAIR IS A DATED MEASUREMENT AND NOT "
+        f"A LIVE FIGURE: only re-running the swap moves the 68, and this "
+        f"check does not run it. THIS run's own rule-A fault count is "
+        f"{rule_a_faults} and its rule-B count is {rule_b_faults}, both "
+        f"derived from the faults listed above rather than typed -- D265(b) "
+        f"was filed because a literal `2` stood here while the same call's "
+        f"detail carried 34, and it was 53 when the literal was removed. ")
     frame = (f"frame: " + two_referents
              + f"board read from the benchmark's own README table at "
              f"{head[:8]} ({pin_note}) -- {order}. MARGIN: that README has "
