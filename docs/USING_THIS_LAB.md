@@ -1578,6 +1578,9 @@ TREE=$(git write-tree)
 NEW=$(git commit-tree $TREE -p $EXPECTED_OLD -F $D/msg.txt)
 unset GIT_INDEX_FILE
 git update-ref refs/heads/main $NEW $EXPECTED_OLD          # MANDATORY, never optional
+# AND THEN, once the CAS has succeeded — this step is part of the protocol:
+# write your row into the WORKTREE copy too, inserted in numeric order by ID.
+# The form above never touched the worktree file, so without this the two diverge.
 ```
 
 **Why the compare-and-swap is not optional, stated plainly because its failure is
@@ -1601,6 +1604,65 @@ that is the normal case and not the incident, which is the whole argument for th
 CAS. Declare the row count with `python3 scripts/hunk_check.py docs/DOCKET.md:<n>`
 and verify the landed commit with its `--at <sha>` mode — the worktree mode will
 read high, because it sees the foreign rows too.
+
+**The write-back is not an afterthought, and the protocol is incomplete without
+it.** *[Added 2026-08-16 after the incompleteness was measured, not predicted.]*
+The form above rebuilds the blob from **HEAD's** docket and commits it directly;
+it never writes the row back into the working copy. So **every private-index
+commit widens the gap between HEAD and the worktree**, monotonically, and nothing
+in the repository reports it. Measured at `5a0127d3`: HEAD's docket held **244**
+rows and the worktree copy held **243**, the missing one being **D241**, landed by
+private index and never written back.
+
+Why it had not bitten yet: a *conforming* agent rebuilds from HEAD's blob, so it
+picks up every row it does not have and cannot drop one. Why it will bite: any
+agent that edits the worktree copy and commits it **by pathspec** — the form still
+mandated for every other file, and the one an agent reaches for by habit —
+silently reverts every private-index row landed since the worktree last matched
+HEAD. The gap is invisible in `git log` and grows with each conforming commit.
+
+**So run the reconciliation check before you edit `docs/DOCKET.md` at all.** It is
+two commands and a `diff`, and `command grep` is required because the interactive
+`grep` on this box is a shell function wrapping `ugrep` (§3) — verified to run as
+written at `5a0127d3`:
+
+```bash
+git show HEAD:docs/DOCKET.md \
+  | command grep -oE '^\| \*{0,2}[A-G][0-9]+[a-z]?' \
+  | command grep -oE '[A-G][0-9]+[a-z]?' | sort > /tmp/head.ids
+command grep -oE '^\| \*{0,2}[A-G][0-9]+[a-z]?' docs/DOCKET.md \
+  | command grep -oE '[A-G][0-9]+[a-z]?' | sort > /tmp/wt.ids
+diff /tmp/head.ids /tmp/wt.ids && echo "RECONCILED"
+```
+
+Read the output by direction, and the two directions mean opposite things:
+
+- **`< D<n>` — in HEAD, not in the worktree.** A row landed by private index and
+  never written back. **HEAD wins.** Restore it into the worktree by **inserting
+  it in numeric order by ID**. This is a worktree edit only; it is already
+  committed and must not be committed again.
+- **`> D<n>` — in the worktree, not in HEAD.** That is **unlanded work**, and it
+  is somebody's finding living in no commit (see the orphaned-rows paragraph
+  below). **Land it by ID through the form above** — never by copying the
+  worktree file into a commit, which is the capture this whole item exists to
+  prevent, and never by `git checkout -- docs/DOCKET.md`, which item 4 forbids and
+  which would destroy it outright.
+
+Run at `5a0127d3` it printed `< D241`; after inserting D241 in numeric order the
+same commands printed nothing and `diff` exited 0, at **278 rows in both frames**
+counting every lettered section. The insertion was done by a script that asserted
+every pre-existing worktree line survived in order — a restore that silently drops
+a peer's uncommitted row is the failure it is supposed to prevent.
+
+> **One trap in verifying this, measured at the same time.** `git diff -- <path>`
+> compares the worktree against the **INDEX**, not against HEAD, and the shared
+> index on this tree may hold another agent's stale blob (item 9). Immediately
+> after the reconciliation, `git diff --stat -- docs/DOCKET.md` reported **8
+> insertions and 2 deletions** on a file that was byte-identical to HEAD, because
+> it was measuring against a poisoned index entry. `git diff --stat HEAD --
+> docs/DOCKET.md` printed nothing, correctly. **Compare against `HEAD`
+> explicitly, or against `git show HEAD:<path>` — never against a bare
+> `git diff`.** §9.3's `git diff -- <path>` line has the same exposure.
 
 **And record the by-product, because somebody owns it.** An agent that declines to
 commit rather than capture leaves **ORPHANED ROWS**: text that lives in the
