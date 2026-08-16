@@ -260,19 +260,22 @@ the remaining three (`:116`, `:702`, `:720`) are handled in §6.
 
 Three findings fell outside clause (i) — they sit in §1 (`A11`, which is V11's product), in §2's
 package-defect list, or on other surfaces entirely. Under the dispatch they are **filed as docket
-rows and are not part of this verdict**.
+rows and are not part of this verdict**. They landed at `644793a6` as **D250, D251, D252**; the
+commit message of this grade at `b4596cb4` named them D248–D250, which is wrong — those two IDs
+were claimed by another agent between the read that chose them and the read immediately before the
+docket landing, and the docket commit took the next free IDs instead.
 
-* **D248** — four-entry reproduction framing outside the W blocks: `:116-119` (*"All four accepted
+* **D250** — four-entry reproduction framing outside the W blocks: `:116-119` (*"All four accepted
   submissions re-score… **4 / 4**"*), `:265` (*"best-on-board count of 4 of 8"*), `:702` (*"all
   four published entrants re-scoring to their board values"*). The reproduction check was re-run
   here over **all six** entrants and all six reproduced their published four-decimal overalls, so
   the record now supports **6 / 6**. (`:720`, *"All four are writing"*, is the four recommended
   fixes and is not a board claim.)
-* **D249** — `:339`'s four-entry sentence had travelled unstruck to two further surfaces:
+* **D251** — `:339`'s four-entry sentence had travelled unstruck to two further surfaces:
   `demo-output/website/ACTIVE_RESEARCH.md:29`, a **V10-enumerated** surface whose *same paragraph*
   was repaired `1 of 5` → `1 of 7` on 2026-08-15 while the tie clause beside it was left; and
   `campaign/LADDER_V_V13_CLOSEOUT.md:184`, verbatim.
-* **D250** — the shipped archive states its rank two ways: `dist/certonomous-demo/site/closure.html`
+* **D252** — the shipped archive states its rank two ways: `dist/certonomous-demo/site/closure.html`
   reads *"rank 1 of 7 on the live"* at `:139` and *"rank 1 of 5"* at `:502`. The path is
   **untracked**, so no `git grep` sweep can see either line; `:502` was already named by the R1
   block, `:139` was not, and the inconsistency between them was on no record found here.
