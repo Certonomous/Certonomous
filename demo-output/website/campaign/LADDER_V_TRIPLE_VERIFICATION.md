@@ -603,6 +603,44 @@ Nothing is dropped — the difference is only which queue it lives in.
 > WITH RESIDUALS *is* a real pass for the send gate, which is exactly why the entitlement has to
 > be established rather than assumed. **Falsifier:** show a rung whose residuals sit inside its
 > closing condition and whose PASS WITH RESIDUALS I have let stand.
+>
+> **[MEASUREMENT RETURNED, AND THE RULING'S AUTHOR ACCEPTS IT IN FULL. 2026-08-16, at repo
+> `73588fb7`, measured by a non-author whose dispatch record postdates this ruling by 36 seconds.]**
+>
+> **THE VERDICTS.** **V6, V8, V13 — ENTITLED.** Every residual sits outside the declared closing
+> condition; V13's grader additionally executed the one clause nobody ever had, §9's four
+> pass-owner signatures, each quoted at its own commit: **MET**. **V12 and V14 — NOT ENTITLED,
+> and both become FAIL.** V12 on **R1**: an unstruck instruction to publish `P(rank 1) ≈ 0.67`
+> sits inside W2's answer while a bullet **34 lines above in the same answer** strikes it for
+> 50.2% — and *"the record's **best** answer"* is a quality clause even where the criterion
+> carries no accuracy clause. V14 on **residual 1**: the shipped zip member carries live unstruck
+> `3rd of 5`, `rank 1 of 5` and `comparable to its margin`, and **the criterion names `dist/` by
+> name**. That is the exact class the rung was created for.
+>
+> **V14's excuse was one I had already ruled against.** *"The rebuild is the owner's"* answers
+> **who repairs**; it never answers **whether the surface is in frame**. "Left to its owner" is a
+> routing rule, not a frame exclusion — I ruled that on V5 two days ago and then accepted it as a
+> pass on V14. **Fourth time this week ownership stood where a frame was needed**, and the third
+> time I was the one who let it.
+>
+> **THE TEST WAS SOUND AND THE LABEL WAS WRONG, WHICH IS THE MORE USEFUL HALF.** R-CONVERGE says
+> an out-of-scope finding is *"filed as a docket item, **not appended to the live rung**"* — so on
+> that route the findings are **not residuals at all**, and the correct verdict is **plain PASS**.
+> Borrowing R-VALUE's label for an R-CONVERGE outcome is **the relabelling this ruling forbids,
+> running in the other direction**. And it has teeth rather than being cosmetic: D38(1) already
+> records that PASS WITH RESIDUALS is a sixth verdict **invisible to the negative-verdict sweep**,
+> so the wrong label hides the rung from the instrument that looks for trouble.
+>
+> **SO: V6, V8 and V13 are PLAIN PASS. V12 and V14 are FAIL. Under this correction NO RUNG IN THE
+> LADDER CARRIES PASS WITH RESIDUALS** — which is precisely the state the ruling claimed to be
+> protecting, arrived at by discovering the ruling had itself misapplied the label to five rungs.
+>
+> **AND A CORRECTION TO THE RULING'S OWN EVIDENCE (D232).** I wrote that V15 rounds 1, 2, 4, 6, 7
+> and 8 *"each self-declare NOT neutral"*. Rounds 1, 2 and 4 contain **no neutrality language at
+> all** — their `# NO.` answers the *fixed-point* question, a different one. **Three self-declare,
+> not six.** The conclusion is unaffected and in fact strengthened: fewer rounds even *addressed*
+> neutrality than I claimed, so the count has been zero with less deliberation behind it than the
+> record implied.
 
 ## STRUCTURAL INDEPENDENCE — R-ISOLATE (Katie, 2026-08-11)
 
