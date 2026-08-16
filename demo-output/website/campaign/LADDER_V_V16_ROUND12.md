@@ -916,3 +916,42 @@ something smaller without a single one of the 24 having been true or false any d
 Allocated against `e1ede44a` where D277 was the maximum, asserted free inside the same
 read-modify-write as the append, and landed at `72fc323e`. The register had moved from
 D249 to D277 in the 32 minutes since this round's first block was chosen.
+
+### 9.9 LATE ADDITION — the discriminator was BUILT while this addendum was being written, and it independently returns ZERO assertions
+
+`79e52dfa` (2026-08-16T18:25:58Z) landed `scripts/use_mention_discriminator.py` — 192
+lines plus a 901-line control set, measured at **70% and 77% on held-out sentences**,
+narrowing D257's addendum-only class from 39 sites to 2 with 15 it refuses to call. **Its
+own docstring names this round's D264 as one of the three measurements that motivated it**,
+and it touches no guard: it is standalone, and `self_audit.py` does not call it.
+
+So §9.5's *"the discriminator is not merely worth building"* was answered inside the hour.
+The number nobody had was *what wiring it into rule A would be worth*, and it is measurable
+now. Applied to this round's 24, each fault's claim span located in its file and the
+enclosing line supplied as the sentence:
+
+| verdict | count |
+|---|---|
+| **MENTION** — set off as a quotation or code span, attributed, or adjudicated | **12** |
+| **CANNOT_TELL** — refuses to call | **7** |
+| **ASSERT** | **0** |
+| not locatable by this harness's excerpt matcher (a limit of the locator, not of the discriminator) | 5 |
+
+**Of the 19 it could be given, it calls twelve MENTION, seven CANNOT_TELL, and not one
+ASSERT.** That is an independent corroboration of §9.3's adjudication — *0 of 24 true* —
+reached by an instrument built by a different agent, for a different register, against a
+different corpus, and it did not exist when §9.3 was written.
+
+**And it confirms the two gaps are genuinely separate**, in the most useful way available:
+the `LADDER_V_TRIPLE_VERIFICATION.md` fault — one of the two real assertions — comes back
+**`CANNOT_TELL`**, with the reason *"both stances present — a record speaking about its own
+claim."* That is correct and it is the point: the sentence **is** an assertion, so a
+use-versus-mention discriminator cannot and should not clear it. It is false for the other
+reason — it is **true of the board it names** — and only GAP-B reaches that. **A guard
+wired to this discriminator alone would still fault the V10 closure's correct sentence.**
+
+Two things follow for whoever wires it in: the composition is with `_VALUE_NOT_A_SURFACE`
+rather than instead of it (the module says so — *"that rule is about WHERE a sentence
+lives; this one is about WHAT THE SENTENCE DOES"*), and **`CANNOT_TELL` must not be read as
+`ASSERT`.** Seven of nineteen here are `CANNOT_TELL`, and a wiring that treats abstention
+as a fault keeps 7 of the 24 false positives while claiming to have fixed them.
