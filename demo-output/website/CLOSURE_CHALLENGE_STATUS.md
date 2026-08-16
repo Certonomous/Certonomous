@@ -1266,9 +1266,14 @@ positions. **A commit anchor is not an admissible board identifier**;
 `deb91557` scores and does not rank, so the board is named by entrant count
 and retrieval date. On that board the entry we are ahead of at the margin is
 Yang's, by **0.001365** (mean-of-eight basis), not Reissmann's by 0.002878.
-Cost: AR_14's nominal 0.00003 best-on-board tie, put at risk
+Cost: AR_14's nominal 0.00003 ~~best-on-board~~ tie **with Reissmann**, put at risk
 in writing before the call and lost as the pre-registration said it might
-be (+0.0029 there against −0.0731 on the two Ret_360 ducts). The 6th
+be (+0.0029 there against −0.0731 on the two Ret_360 ducts). *(The phrase
+struck 2026-08-16, one clause after the margin above it was repaired to Yang's
+`0.001365`: on the same six-entry board round 4's `0.0325` stood **2 of 7**,
+tied with Reissmann for **second** behind Yang's `0.0250`, so it was never a
+best-on-board tie. `:579` of this file already carried the corrected reading —
+**4 of 7** (best is Yang's `0.0250`) — from 2026-08-12.)* The 6th
 cumulative scoring call.
 
 **Round 4 (§0e, superseded 2026-08-07) took the duct family**: Variant D

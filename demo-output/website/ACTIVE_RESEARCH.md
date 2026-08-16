@@ -26,8 +26,17 @@ record: overall 0.0566, ~~locally rank 1 of 5~~ **locally rank 1 of 7**
 (STRUCK 2026-08-15: `1 of 5` was the four-entry clone's denominator; against
 the **six**-entry board retrieved **2026-08-11T23:33Z**, re-verified unchanged
 **2026-08-14T21:01Z**, it is **1 of 7** counting our own row)** under the R5 pre-registration
-(criterion overall < 0.065438 → ACCEPT); AR_14's nominal best-on-board tie
-was lost as pre-accepted in writing (+0.0029) against −0.0731 on the two
+(criterion overall < 0.065438 → ACCEPT); ~~AR_14's nominal best-on-board tie
+was lost as pre-accepted in writing (+0.0029)~~ **AR_14's nominal tie with
+Reissmann was lost as pre-accepted in writing (+0.0029)** (STRUCK 2026-08-16:
+`best-on-board` was the **four**-entry clone's characterisation and this
+paragraph's other board claim was repaired on 2026-08-15 without it. Against
+the **six**-entry board retrieved **2026-08-11T23:33Z**, re-verified unchanged
+**2026-08-14T21:01Z**, round 4's `0.0325` stood **2 of 7** — tied with
+Reissmann for **second**, behind Yang's `0.0250` — and round 5's `0.035339`
+stands **4 of 7**, so there was no best-on-board tie to lose. Re-derived by
+execution, `LIVE_BOARD` read by `ast.literal_eval` and never imported. The
+loss and the refusal to revert are unaffected) against −0.0731 on the two
 Ret_360 ducts; the 6th cumulative scoring call. The round-4 paragraph below
 is superseded and the new paragraph in Ladder C carries the numbers.
 
@@ -614,8 +623,11 @@ independent pre-score verification (hashes vs round-4 manifest, 1000×3
 finiteness, fresh ordering-check rerun, pre-registration hash table vs
 disk) all passed. Per-case: AR_1_Ret_360 0.0811 → **0.0455** (−0.0356),
 AR_3_Ret_360 0.0775 → **0.0400** (−0.0375), AR_14_Ret_180 0.0325 →
-**0.0353 — the pre-accepted regression: the 0.00003 nominal best-on-board
-tie with Reissmann is LOST**, exactly the risk the pre-registration put in
+**0.0353 — the pre-accepted regression: the 0.00003 nominal ~~best-on-board~~
+tie with Reissmann is LOST** *(the phrase struck 2026-08-16: on the six-entry
+board round 4's `0.0325` was a tie for **second**, behind Yang's `0.0250`, not
+for best; the tie with Reissmann is exact and stands)*, exactly the risk the
+pre-registration put in
 writing, not reverted (reverting one duct after seeing its score is
 per-case selection on test outcomes; the bundle was judged as a bundle and
 won 12× over). ~~Best-on-board now 4 of 8 (both alpha_15, both alpha_05).~~
