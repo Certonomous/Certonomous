@@ -147,9 +147,19 @@ supervisors' four personal checks apply per the supervision charter.
   > **WHAT WOULD REVERSE IT:** a surface naming QCR **without** the untrained claim, where a reader
   > would be misled by the absence of attribution. Produce one and the predicate widens.
   >
-  > **AND THIS RULING IS SUBJECT TO GRADING LIKE THE OTHERS.** Four of my arguments about this rung
-  > have now been refuted by execution — three in the amendment above, and the `MANIFEST.json`
-  > concession here. Measure V5 against this predicate; do not inherit it.
+  > **AND THIS RULING IS SUBJECT TO GRADING LIKE THE OTHERS.** ~~Four~~ **FIVE** of my arguments
+  > about this rung have now been refuted by execution — three in the amendment above, the
+  > `MANIFEST.json` concession here, and **the textual argument for the predicate itself**, which
+  > a later grade showed attaches the "untrained is load-bearing" parenthetical to the
+  > zero-fitted-parameters clause, separated from the citation clause by a semicolon. Measure V5
+  > against this predicate; do not inherit it.
+  >
+  > **[CHIEF CORRECTION 2026-08-16, at repo `43eac3f2`, filed as D228 by the consolidation pass.]**
+  > The count above read "four" while a fifth was accepted **four hours later on this same page**,
+  > and **neither line was edited**. That is the stale-summary defect (D141) — the very defect the
+  > amendment on this page indicts this ruling for — **committed again, in the same document, by
+  > the same hand, after writing the amendment about it.** Corrected in place rather than
+  > rewritten, because the count's being wrong is part of the record.
 
   ### V5 FRAME ENUMERATION — the four refusals, on the rung's face, 2026-08-15
 
@@ -557,6 +567,42 @@ that is not this rung's.
 These rules can end a rung. They cannot end it quietly: a rung closed under R-VALUE
 names its residuals, and a finding filed under R-CONVERGE names the rung it was found in.
 Nothing is dropped — the difference is only which queue it lives in.
+
+> **[CHIEF RULING 2026-08-16, at repo `43eac3f2`, on D227 — whether five rungs now carrying
+> PASS WITH RESIDUALS were entitled to that verdict. I am naming the TEST rather than asserting
+> the answer, because five of my rulings have been refuted by execution in two days and this one
+> would, if I got it wrong in the comfortable direction, promote five rungs on my say-so.]**
+>
+> **THE FACT THAT FORCES THE QUESTION.** R-VALUE's condition has **never once been met**.
+> Measured from the round documents rather than from anyone's assertion: V15 rounds 1, 2, 4, 6,
+> 7, 8 each self-declare NOT neutral; round 5 states no verdict; V16 rounds 5, 6, 7, 11
+> self-declare NOT neutral; and **V16 rounds 8, 9 and 10 have no documents at all** — three
+> commit messages, none containing the string R-VALUE. **No round in this ladder's history has
+> ever declared itself belief-neutral.** The "round 10 was neutral" claim I relayed is round 11's
+> assertion *about* round 10, echoed by V15 round 8 — and **both of those documents state it as a
+> warning against scoring neutrality early**, not as a finding. I repeated it as a finding. That
+> is the sixth.
+>
+> **THE TEST, AND IT IS DECIDABLE PER RUNG RATHER THAN IN GENERAL.** R-VALUE is a *sufficient*
+> condition for PASS WITH RESIDUALS, not the only route to it — R-CONVERGE independently provides
+> that a finding **outside a rung's declared scope** is filed rather than appended, which leaves a
+> rung whose declared closing condition is met and whose surviving findings are all out of scope.
+> That is a real pass with real filings. **So the question is not which rule was invoked. It is,
+> for each of the five: IS EVERY NAMED RESIDUAL OUTSIDE THAT RUNG'S DECLARED CLOSING CONDITION?**
+> If yes, the verdict stands on R-CONVERGE and R-VALUE was never needed. **If any residual sits
+> INSIDE the closing condition, the condition is not met and the honest verdict is FAIL** — the
+> residual list would be doing the work the criterion was supposed to do.
+>
+> **WHY I AM NOT RULING BOTH ROUTES SIMPLY LEGITIMATE**, which is the answer that would cost me
+> nothing: if any grader may declare PASS WITH RESIDUALS by naming residuals, then R-VALUE's
+> two-round bar is never binding on anything and Katie's rule is decorative. A rule that can be
+> satisfied by relabelling is not a rule.
+>
+> **This is dispatched as a measurement, per rung, by a non-author**, and until it returns the
+> five verdicts are **provisional and must not be read as send-gate passes** — R-VALUE says PASS
+> WITH RESIDUALS *is* a real pass for the send gate, which is exactly why the entitlement has to
+> be established rather than assumed. **Falsifier:** show a rung whose residuals sit inside its
+> closing condition and whose PASS WITH RESIDUALS I have let stand.
 
 ## STRUCTURAL INDEPENDENCE — R-ISOLATE (Katie, 2026-08-11)
 
