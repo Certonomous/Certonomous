@@ -3617,3 +3617,50 @@ Related: L-74 (a check sharing the knowledge of the thing it checks measures tra
 fidelity), L-75 (the frame is part of the number), L-82 (the insider's set understates, and
 the gap is measurable by building a second one), L-83 (fixing a circular measurement moves
 the circle up one level).
+
+---
+
+## L-85. A number that has moved five times in four days is not a number, it is a measurement — and the argument against typing it is the movement itself, not the tidiness of deriving it
+
+**The record, and it is the whole lesson.** One figure inside
+`check_board_placement_words`' verdict — the live rule-A fault count — read
+**2**, then **34**, then **53**, then **56**, then **61**, across four days.
+Nobody edited the sentence carrying it between the last three readings. Twice it
+moved *under a grader who had been sent to check it*, which is the interesting
+half: the number changed while being audited, without the auditor touching it.
+
+It was typed as a literal `2` when it was written, and the `2` was true that day.
+Every later reading falsified it, and each falsification arrived as a surprise to
+somebody reading the verdict rather than as a test failure, because **a literal
+agrees with itself forever.**
+
+**Why "just derive it" is the conclusion but not the argument.** The repair —
+accumulate the count from the sweep's own verdicts and interpolate it — is
+obvious once stated, and obviousness is exactly the trap: a derived figure and a
+lucky literal are indistinguishable on the day they agree. The proof that a
+figure is derived is a **mutation**: replace the interpolation with a hardcoded
+literal *of the same digits*, plant known faults, and require the emitted figure
+to stop tracking. Executed here — derived code emitted 61 pristine and 63 with
+two plants, while a hardcoded `61` emitted 61 against a true 63. **The mutation
+kills the literal; agreement does not prove derivation.**
+
+**THE COROLLARY THAT COSTS MORE, and it is why this lesson is not only about
+literals.** A rate is a literal's sophisticated cousin: it looks derived because
+it has a numerator and a denominator, and it is gameable at the denominator. On
+the same guard, the *same 20 errors* read **71%** under one admission predicate
+and **49%** under another — a 23-point swing with the numerator untouched. So a
+pre-registered threshold on a rate, without a pre-registered **admission
+predicate**, is not a threshold: whoever chooses which sentences count chooses
+the verdict. **Binding the number without binding what it is measured over
+reproduces the defect one level up** — L-83's move exactly, in a second guise.
+
+**The operational rule.** Any figure a verdict *states* must be (a) derived from
+the run that states it, (b) proved derived by mutation rather than by agreement,
+and (c) if it is a ratio, published with the admission predicate that fixes its
+denominator. A figure failing (c) is not wrong; it is **unfalsifiable**, which is
+worse.
+
+Related: L-74 (a check sharing the knowledge of the thing it checks measures
+transcription fidelity), L-75 (the frame is part of the number), L-83 (fixing a
+circular measurement moves the circle up one level), L-84 (a positive control
+proves an instrument can fire, not its reach).
