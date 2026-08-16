@@ -170,3 +170,42 @@ uncommitted work, all historical JSON records, everything in
 - **V2: PASS** — the chain is proven by commit timestamps and solver logs, and the 6th call MATCHES its pre-registration clause by clause.
 - **V7: PASS** — defect (a)'s fix verified and three further stale count claims corrected in place; defect (b)'s artifact exists, is 1000×3 headerless in an accepted layout, and hash-matches its pre-registration.
 - **V10: PASS after fixes** — six of eight surfaces were already consistent; `benchmarks.html` (round-3 fossil) and two sentences in `ACTIVE_RESEARCH.md` were drifted and are fixed; PRODUCT_LIST and the `.tex` audited and left to their owners (two minor PRODUCT_LIST staleness notes reported above).
+
+## 2026-08-16 addendum — Ladder V rung V5 leg 3: the untrained QCR2000 claim at `:121` gets its citation
+
+The V10 number list above states *"duct gains from the **untrained** QCR2000
+term (nothing fitted)"* at `:121`, and this record named Spalart 0 times when
+measured at repo `fdfc3eba` on 2026-08-16 — the load-bearing untrained claim
+about **our own** model with no attribution beside it, and so an unmet site
+under V5 leg 3 on both live readings: the pre-registered literal one (*"Spalart
+(2000) cited wherever QCR is named"*,
+`campaign/LADDER_V_TRIPLE_VERIFICATION.md:32-33`) and the chief's narrowed
+predicate of 2026-08-15 at `e65137cd`, under which a site is where the untrained
+claim about our own model is made. It was filed as the fourth in-frame unmet
+site of D222.
+
+The attribution, which is what the claim was missing: the QCR2000 term's one
+coefficient `Ccr1 = 0.3` is the published constant of **Spalart (2000)**,
+*"Strategies for turbulence modelling and simulations"*, International Journal
+of Heat and Fluid Flow 21(3):252-263, adopted untrained and overridden nowhere —
+so *"nothing fitted"* at `:121` reports Spalart (2000)'s own value carried
+through unchanged, not a value this lab fitted or chose.
+
+**No number, table row, verdict or line of the signed text above is changed by
+this note.** It sits below the freeze line as L-44 permits, in the shape the
+sibling report `campaign/QCR_ACTIVITY_CHECK_2026-08-08.md` accepted at
+`fe612d03` (2026-08-08T22:25:35Z), 20 h 07 m after its own signing commit.
+
+**Why a later pass wrote it rather than the signing agent, stated because it is
+the contested half.** This surface was refused from V5's frame at
+`campaign/LADDER_V_RUNGS_V1_V3_V4_V5_2026-08-08.md:258-260` as *"the signed
+report of another verification agent, left to its owner"*; that exclusion was
+withdrawn on the rung's face and filed as D167, because *"left to its owner"*
+answers who repairs a surface and never whether it is in frame. Unlike its
+sibling this report had never been amended — `49f71b8c` @ 2026-08-08T02:08:13Z
+was its only commit before this note — which is precisely why the ground had to
+be tested rather than inherited. The routing half survives and is honoured by
+keeping this note strictly additive. If the chief holds that only the signing
+agent may add it, this block reverts cleanly and the site returns to open; what
+may not happen is a re-exclusion on ownership grounds, which is the error D167
+records.

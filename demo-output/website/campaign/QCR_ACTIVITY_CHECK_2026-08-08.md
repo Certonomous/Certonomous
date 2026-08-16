@@ -108,3 +108,35 @@ The audit located the run's genuine log in the solve registry:
 "Selecting RAS turbulence model kOmegaSST", whose `Case` header names
 `campaign/F6b_runs/medium`. All four legs of check 1 now carry runtime
 selection lines; nothing else in this record changes.
+
+## 2026-08-16 addendum — Ladder V rung V5 leg 3: the QCR2000 constant read out above is Spalart (2000)'s, and gets its citation
+
+Measured at repo `fdfc3eba` on 2026-08-16, this record named QCR 23 times and
+Spalart 0 times, so under V5 leg 3 as pre-registered — *"Spalart (2000) cited
+wherever QCR is named"* (`campaign/LADDER_V_TRIPLE_VERIFICATION.md:32-33`) — it
+stood as an unmet in-frame site. The attribution it was missing: the coefficient
+this check reads out of both printCoeffs banners in the table above, `Ccr1 0.3`,
+is the published constant of **Spalart (2000)**, *"Strategies for turbulence
+modelling and simulations"*, International Journal of Heat and Fluid Flow
+21(3):252-263, adopted untrained and overridden nowhere in this lab's QCR2000
+build — Spalart (2000)'s own value carried through unchanged rather than a value
+this lab chose.
+
+**No measurement, verdict, table row or line of the signed text above is changed
+by this note**, and it makes no claim about our model that the record above did
+not already carry. It sits below the freeze line as L-44 permits, in the same
+shape this record itself accepted at `fe612d03` (2026-08-08T22:25:35Z) — a dated
+additive note appended 20 h 07 m after `1a14e90b` signed the record, by a later
+pass that was not its author.
+
+**Why a later pass wrote it rather than the signing agent, stated because it is
+the contested half.** The exclusion that had kept this surface out of V5's frame
+— *"another verification agent's signed report, left to its owner"*
+(`campaign/LADDER_V_PASS1_2026-08-11.md:467-469`) — was withdrawn on the rung's
+face and filed as D167: *"left to its owner"* answers who repairs a surface and
+never whether the surface is in frame, and `fe612d03` above is this file's own
+worked counterexample to the "may not be touched" reading. The routing half
+survives and is honoured by keeping this note strictly additive. If the chief
+holds that only the signing agent may add it, this block reverts cleanly and the
+site returns to open; what may not happen is a re-exclusion on ownership grounds,
+which is the error D167 records.
