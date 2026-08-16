@@ -201,6 +201,92 @@ in the failing class are grading records excluded under it.
 
 ---
 
+## 7. THE REPORTED-SPEECH RULING, AND WHAT MEASURING ITS PREDICATE DID TO THE ROUTING
+
+**The ruling, recorded so the next sweep of this class does not re-derive it** (chief,
+2026-08-16):
+
+> **Reported speech is not an assertion.** *"On 2026-08-07 we claimed a best-on-board tie"* is
+> a true statement about what was claimed, and under D238/D255 it does not assert the tie. As a
+> matter of **truth** it needs no correction.
+>
+> **But V10's criterion is "the same caveats", not "the same truth values",** and that clause
+> decides it:
+> - **On a TRAVELLING surface, reported speech MUST carry the correction.** A reader outside
+>   the lab meeting *"we claimed a best-on-board tie"* with no withdrawal beside it takes the
+>   tie as fact whatever the sentence's grammatical mood. **This is a caveats failure, not a
+>   truth failure, and is recorded as such.**
+> - **On a lab record, reported speech stands without the correction.** The record's job is to
+>   say what was said; forcing a correction into every historical mention would make the record
+>   unable to describe its own history — unsatisfiable by construction.
+
+### 7.1 I measured the predicate instead of inheriting it, and three of four routings change
+
+The ruling turns entirely on *does this surface travel*. That was **derived, not assumed**, by
+the same two derivations `self_audit._travelling_names` uses — the member names of every
+shipping archive plus the contents of every submission-package directory — reimplemented
+rather than imported. **One archive, `dist/certonomous-demo.zip`, 103 members; 111 travelling
+basenames**, controlled both ways (`DESCRIPTION_DOCUMENT.md` **travels: True**; `LESSONS.md`
+**travels: False**).
+
+| surface | in the travelling set? |
+|---|---|
+| `CLOSURE_CHALLENGE_STATUS.md` | **NO — lab record** |
+| `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` | **NO — lab record** |
+| `latex/closure_challenge_report.tex` (and its `.pdf`) | **NO — lab record** |
+| *control:* `DESCRIPTION_DOCUMENT.md` | yes |
+| *control:* `closure.html` | yes |
+| *control:* `LESSONS.md` | no |
+
+**So under the ruling exactly as written, all four sites are lab records and reported speech
+stands at every one of them. No correction is required anywhere.** That is the opposite of the
+routing the ruling anticipated for three of the four, and it is reported rather than smoothed.
+
+### 7.2 AND THE PREDICATE IS WRONG FOR TWO OF THEM — which is the real finding here
+
+`_travelling_names()` is a **snapshot of what is currently packed**. It therefore cannot see a
+document whose entire purpose is to *become* the thing that is sent, and the lab's own records
+say both of these in its own words:
+
+- **`CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` is the send-package.**
+  `closure_challenge_round5_qcr.json:213` calls it *"Katie's send-package"* and records that
+  *"Items 6-7 (author names, Katie's proofread and approval) remain the only things between the
+  package and the steward."* The file's own first lines read *"draft package … This document
+  exists to be proofread."* **A draft is pre-travelling, and the binary has no third state.**
+- **`latex/closure_challenge_report.pdf` is called SHIPPED by the docket** (D243, in those
+  words), while the predicate classifies it as a lab record because it is packed in neither
+  route.
+
+**Directionally this is the worst way for the predicate to be wrong:** the two surfaces whose
+content is *destined for an outside reader* are the two it marks safest, so a rule that keys
+correction-required off this predicate exempts exactly the sites that most need the caveat.
+
+### 7.3 Routing — surface, travel status, rung, and who may act
+
+| # | site | travels? | rung whose criterion covers it | who may act |
+|---|---|---|---|---|
+| 1 | `CLOSURE_CHALLENGE_STATUS.md:617-621` | **no**, measured | **none** — not among V10's five | **a non-author of that file.** Under the ruling: reported speech **stands**. Filed for the record, no repair owed |
+| 2 | `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md:1239` | **no** by predicate, **but it is the send-package** | **none** — not among V10's five | **a non-author of that file, plus the chief** on whether a draft counts as travelling. `:1239` carries its repair parenthetical on the *next line*, which is D294's shape and fails half (b) whichever way the travel question is ruled |
+| 3 | `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md:1273` | as above | none | as above |
+| 4 | `latex/closure_challenge_report.tex:860-862` | **no** by predicate; its `.pdf` is called **shipped** in the docket | another rung's `.tex`/PDF arm, **not V10's** | **the `latex/` owner only.** `latex/` is never-touch here and the fix is a **rebuild, not an edit** |
+
+**And where R-CONVERGE kept this pass out, it was right.** `docs/PRODUCT_LIST.md` and the
+submission package sit inside **V10's** declared criterion, and **V10 closed PASS at
+`700d2f08`** — so any live site there is a **reopening question for a non-author grader**, not
+a repair available to this pass. Named, not decided.
+
+### 7.4 One rule to add beside the four delimiter classes (D309's standing rule)
+
+**SENTENCE SCOPE IS NOT CLAUSE SCOPE.** A detector that bounds scope at the sentence still
+attaches a negator to the wrong proposition inside it: *"what was lost was a tie for second,
+**not** for best"* is an AGREEMENT with *"the tie was for second"*, and this instrument scored
+it a denial. **That is rule 3's failure one level down**, it was found by this sweep failing
+against itself, and in this class the error runs in the direction that **manufactures** a
+disagreement. It belongs with the four delimiter classes as the fifth thing a wrap-safe
+recogniser must handle, and no instrument in this lab reaches it today.
+
+---
+
 *Swept 2026-08-16 at `8c01202f` by an agent that wrote none of the four surfaces named in §5.
 Every figure re-derived by parsing an assignment node, never by importing a module and never by
 quoting a document. Controls planted by line index into scratchpad copies and read back by
