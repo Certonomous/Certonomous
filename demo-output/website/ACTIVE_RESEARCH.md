@@ -677,7 +677,7 @@ exists to prevent; Variant D was frozen on validation evidence and applied to
 all three ducts or none. AR_14's lead over Reissmann collapses from 0.0022 to
 0.00003 (0.0324698 against the published 0.0325) — a nominal lead that must
 not be reported as a comfortable win. We are no longer last on any duct; last
-on the board only on NASA_2DWMH. Best-on-board 5 of 8, unchanged. This was
+on the board only on NASA_2DWMH. Best-on-board 5 of 8, unchanged. *(Board identifier added 2026-08-16: `5 of 8` is the **four**-entry `deb91557` clone's count. Against the **six**-entry board retrieved **2026-08-11T23:33Z**, re-verified unchanged **2026-08-14T21:01Z** round 4's count is **2 of 8**, both `alpha_15` cases having gone to Tian, Buchanan, Hickel & Dwight.)* This was
 the 5th cumulative scoring call (distinct prediction sets scored — a
 self-imposed ledger; the benchmark imposes no limit). The sign pattern
 matched the pre-registered diagnosis on all three ducts: improvement

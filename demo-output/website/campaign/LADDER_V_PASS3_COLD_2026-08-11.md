@@ -267,7 +267,7 @@ best-on-board count of 4 of 8; the round-5 JSON sources its rank companion to
 to `W3_QCR_DUCT_FALSIFIER.md` §3 and its plan of record to `CLOSURE_RANK1_CAMPAIGN.md`
 §5. None ships. A submission must not instruct its own cover letter to cite a file the
 recipient will never see. (I did not read any of these; I verified the 4-of-8 count
-directly against the published board instead, and it is correct.)
+directly against the published board instead, and it is correct.) *(Board identifier added 2026-08-16: correct against the **four**-entry `deb91557` clone, which is the board that existed when this was written. Against the **six**-entry board retrieved **2026-08-11T23:33Z**, re-verified unchanged **2026-08-14T21:01Z** the best-on-board count is **2 of 8**, and both survivors are the organisers' own unmodified baseline rows, so the count belonging to our own model is **zero of 8**.)*
 
 ### D8 — MEDIUM. Three of the eight predictions are irreproducible by anyone outside the lab.
 
@@ -336,7 +336,7 @@ against something other than the prose:
 - **The `AR_14_Ret_180` loss accepted in advance, in writing**, with the reason stated:
   keeping ML on AR_14 while switching the other two is exactly the per-case selection the
   rule exists to forbid. **The loss then happened** — 0.0325 → 0.0353, the nominal
-  best-on-board tie gone — **and was not reverted.** A pre-registration that never costs
+  best-on-board tie gone *(board identifier added 2026-08-16: that tie was against the **four**-entry `deb91557` clone. Against the **six**-entry board retrieved **2026-08-11T23:33Z**, re-verified unchanged **2026-08-14T21:01Z** there was **no best-on-board tie to give up** — round 4's 0.0325 stood **2 of 7**, behind Yang's 0.0250, and round 5's 0.0353 stands **4 of 7**. Re-derived here by parsing `LIVE_BOARD` out of `sdk/scripts/probability_of_rank.py`, not read from any document. The cost the pre-registration paid is real and is a second place given up, not a first.)* — **and was not reverted.** A pre-registration that never costs
   anything is decoration; this one cost something and was honoured.
 - **No test ground truth was reachable.** No `*_LES` file exists in any of the three
   test-duct run directories, though the benchmark ships one for each; both AR_7 arms have

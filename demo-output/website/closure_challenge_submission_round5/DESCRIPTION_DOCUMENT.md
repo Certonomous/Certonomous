@@ -163,7 +163,7 @@ What was then closed, in writing, before any solve:
 - **The `AR_14_Ret_180` loss accepted in advance, in writing**, with its reason:
   keeping ML on AR_14 while switching the other two is exactly the per-case
   selection the rule exists to forbid. **The loss then happened** — 0.0325 →
-  0.0353, the best-on-board tie gone — **and was not reverted.**
+  0.0353, the best-on-board tie gone *(board identifier added 2026-08-16, the same correction section 4 of this document already carries: the tie was against the **four**-entry `deb91557` clone; against the **six**-entry board retrieved **2026-08-11T23:33Z**, re-verified unchanged **2026-08-14T21:01Z** this case's best is Yang's 0.0250, round 4's 0.0325 stood **2 of 7** and round 5's 0.0353 stands **4 of 7**)* — **and was not reverted.**
 - **No test ground truth was reachable.** No `*_LES` file exists in any of the
   three test-duct run directories, though the benchmark ships one for each; both
   `AR_7` arms have them, which is where they belong.
