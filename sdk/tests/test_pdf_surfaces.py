@@ -172,6 +172,48 @@ class TestFindsTheStaleArtifactByName(unittest.TestCase):
             "dropped")
 
 
+class TestReportsItsOwnRecall(unittest.TestCase):
+    """A check that finds one of two known instances of its own class must say
+    so. A bare PASS over 50% recall is read as a bare PASS."""
+
+    def setUp(self):
+        self.m = load_check()
+
+    def test_the_known_missed_instance_is_named_with_its_docket_row(self):
+        missed = {rel: v for rel, v in self.m.KNOWN_CLASS_INSTANCES.items()
+                  if not v["detected"]}
+        self.assertIn(
+            "demo-output/website/certificates/b52-certificate-redesign.pdf",
+            missed,
+            "D137's certificate is a known member of this class that this "
+            "check cannot see, and it must be enumerated as a MISS")
+        self.assertEqual(
+            missed["demo-output/website/certificates/"
+                   "b52-certificate-redesign.pdf"]["docket"], "D137")
+
+    def test_the_miss_names_both_independent_mechanisms(self):
+        why = self.m.KNOWN_CLASS_INSTANCES[
+            "demo-output/website/certificates/"
+            "b52-certificate-redesign.pdf"]["why"]
+        self.assertIn("SOURCE NOT PATH-DERIVABLE", why,
+                      "mechanism 1 must be named: no X.tex beside X.pdf")
+        self.assertIn("CLAIM CLASS NOT COVERED", why,
+                      "mechanism 2 must be named: a reproducibility claim is "
+                      "not a board claim")
+
+    def test_recall_is_printed_on_a_real_run(self):
+        purge_pycache()
+        pr = subprocess.run([sys.executable, str(CHECK), "--frame"],
+                            capture_output=True, text=True, cwd=str(REPO))
+        self.assertIn("MEASURED RECALL", pr.stdout)
+        self.assertIn("1/2", pr.stdout,
+                      "the run must print the measured recall, not just a "
+                      "verdict")
+        self.assertIn("b52-certificate-redesign.pdf", pr.stdout,
+                      "the missed instance must be named on the run, not only "
+                      "in the source")
+
+
 class TestExitContract(unittest.TestCase):
 
     def test_control_failure_outranks_findings(self):

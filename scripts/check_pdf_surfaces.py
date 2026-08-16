@@ -3,15 +3,21 @@
 
 WHY THIS FILE EXISTS
 --------------------
-`scripts/check_derived_figures.py:251` and `scripts/check_normative_clauses.py:153`
-both set ``PROSE_GLOBS = ("*.md", "*.html")``. Every tracked ``*.tex`` and every
-tracked ``*.pdf`` is therefore outside the frame of both standing instruments —
-not *missed* by them, never *looked at* by them. That is a silent zero at the
-level of the corpus definition, and V14's residual 6 recorded the consequence:
-the PDF arm is this corpus's largest single concentration of withdrawn claims.
+Both standing instruments set ``PROSE_GLOBS = ("*.md", "*.html")`` until
+2026-08-16, so every tracked ``*.tex`` and every tracked ``*.pdf`` was outside
+the frame of both — not *missed* by them, never *looked at* by them. That is a
+silent zero at the level of the corpus definition, and V14's residual 6 recorded
+the consequence: the PDF arm is this corpus's largest single concentration of
+withdrawn claims.
+
+``*.tex`` was subsequently ADDED to both globs at `530fcf15`, on a measurement of
+zero new faults. ``*.pdf`` was NOT, for the reason below, and the PDF arm is
+therefore this file's alone.
 
 Widening the glob was measured before this file was written, and it is NOT the
-repair. Adding ``*.pdf`` to `check_normative_clauses` took its frame from 424 to
+repair. Measured at HEAD `4186fdfb` — anchored, because this corpus grows
+several files an hour and an unanchored frame count is stale within it — adding
+``*.pdf`` to `check_normative_clauses` took its frame from 424 to
 476 opened files and 965 to 1,277 clauses, cost **zero** new faults, and still
 returned ``PASS`` on `demo-output/website/latex/closure_challenge_report.pdf` —
 a build whose page 1 read "rank 1 of 5, scored locally" and "P(rank 1) = 68%"
@@ -85,6 +91,7 @@ import re
 import shutil
 import subprocess
 import sys
+import textwrap
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -150,6 +157,48 @@ REPAIR_PROBES = {
     "board_fetched":  "2026\n-\n08\n-\n11T23:33",
     "struck_dated":   "struck\n2026\n-\n08\n-\n12",
 }
+
+
+#: KNOWN MEMBERS of the class this check exists to catch -- "a tracked build
+#: product that outlived its input". Enumerated so the check reports its own
+#: MEASURED RECALL instead of a bare PASS. A check that finds one of two known
+#: instances has 50% recall on its own class, and a reader told only PASS will
+#: over-read it. Each miss names the MECHANISM of the miss, not just the fact.
+KNOWN_CLASS_INSTANCES = {
+    "demo-output/website/latex/closure_challenge_report.pdf": {
+        "detected": True,
+        "docket": "D243",
+        "why": "has a path-sibling .tex source, so the commit-recency test "
+               "applies, and its stale claims are in the board claim class "
+               "this check patterns for",
+    },
+    "demo-output/website/certificates/b52-certificate-redesign.pdf": {
+        "detected": False,
+        "docket": "D137",
+        "why": "MISSED for two INDEPENDENT reasons, either sufficient alone. "
+               "(1) SOURCE NOT PATH-DERIVABLE: its input is the Python "
+               "generator sdk/chief_engineer/certificate.py, not an X.tex "
+               "beside X.pdf, so OUTLIVED_ITS_INPUT has nothing to compare. "
+               "(2) CLAIM CLASS NOT COVERED: its stale sentence is "
+               "'Reproducible from the sealed evidence bundle', a "
+               "reproducibility claim, while every pattern here is a "
+               "four-entry-board claim.",
+    },
+}
+
+
+def class_recall() -> tuple[int, int, list[str]]:
+    """Measured recall over KNOWN_CLASS_INSTANCES, printed on every run."""
+    found = sum(1 for v in KNOWN_CLASS_INSTANCES.values() if v["detected"])
+    total = len(KNOWN_CLASS_INSTANCES)
+    log = []
+    for rel, v in KNOWN_CLASS_INSTANCES.items():
+        log.append(f"    {'HIT ' if v['detected'] else 'MISS'} "
+                   f"[{v['docket']}] {rel}")
+        if not v["detected"]:
+            log += [f"           {line}"
+                    for line in textwrap.wrap(v["why"], 66)]
+    return found, total, log
 
 
 def wrap_safety_selftest() -> tuple[bool, list[str]]:
@@ -376,6 +425,14 @@ def main() -> int:
         o.append(f"    image-only: {r}")
     for r in res["unreadable"]:
         o.append(f"    unreadable: {r}")
+
+    found, total, rlog = class_recall()
+    pct = (100 * found // total) if total else 0
+    o += ["",
+          f"MEASURED RECALL ON THIS CHECK'S OWN CLASS: {found}/{total} ({pct}%)",
+          "  (a PASS below is a PASS over what this check can see, and this is",
+          "   how much of its own defect class that is -- see each MISS)"]
+    o += rlog
 
     if args.frame:
         print("\n".join(o))
