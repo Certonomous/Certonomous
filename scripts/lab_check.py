@@ -260,6 +260,93 @@ outcome than not scheduling it. So the scheduled run is the LIVE tree, snapshot
 mode stays available for the write-capable checks and for grading a commit, and
 the difference is written down here rather than discovered twice.
 
+THE REPORT IS STREAMED, AND A TRUNCATED LOG SAYS SO (docket D148, 2026-08-16)
+=============================================================================
+Until 2026-08-16 this module built its entire report in a list and printed it
+in ONE terminal write, after the last check had finished. Measured on the live
+tree, and the artifact is the point:
+
+    timeout 45 python3 scripts/lab_check.py --no-tests
+      -> exit 124, stdout 0 bytes, stderr 0 bytes
+
+A full run is ~20-24 minutes and the fast tier ~3, so that window is reachable
+in ordinary operation, not only under contention. Two consequences, and the
+second is the one that ranks:
+
+  1. AN INTERRUPTED RUN DESTROYED EVERYTHING IT HAD ALREADY LEARNED. Twenty
+     minutes of check output, including any FAIL already in hand, went with it.
+  2. **"THE RUNNER TIMED OUT" AND "THE RUNNER FOUND NOTHING" WERE THE SAME
+     ARTIFACT.** A nightly cron that hits its window appends a zero-byte block
+     to `/home/ubuntu/lab-check.log`, and a zero-byte block is exactly what a
+     clean run looks like to anyone who greps that log for faults. That is
+     defect class B1, the silent-zero -- the class this lab ranks highest --
+     sitting in the instrument that reports every other check's verdict.
+
+The repair has two halves, and the second is the one that closes B1.
+
+STREAMED. Every line is written and FLUSHED at the moment it is produced: the
+frame first, then one block per check as that check returns. `stdout` is block
+buffered when it is a file, which is exactly the cron case, so the flush is not
+decoration -- without it a killed run loses the last 4-8 KB it had "written".
+
+SELF-IDENTIFYING. Absence of output is not evidence of anything, so the run
+does not rely on it. Three markers, all greppable, all at column 0:
+
+    LAB-CHECK-BEGIN    written BEFORE enumeration, before any git call. Its
+                       presence means a run started here.
+    LAB-CHECK-PLAN     how many check units were admitted and are expected to
+                       run, and their names. Written before the first one
+                       starts, so the DENOMINATOR survives truncation.
+    LAB-CHECK-END      the terminator, and the only line that certifies a
+                       report. `LAB-CHECK-END COMPLETE ...` on a run that
+                       finished; `LAB-CHECK-END INCOMPLETE ...` on one that was
+                       interrupted and got as far as saying so.
+
+Plus, inside the run, a `>>` line naming each check as it STARTS and a
+`[VERDICT]` block as it finishes. A `>>` with no verdict block under it names
+the check that was in flight when the log ends -- so "died at check 3 of 17" is
+readable off the log rather than inferred from silence.
+
+The reader's test, which is the requirement this was built against: someone who
+greps a log for faults and finds none can now tell three states apart --
+
+    LAB-CHECK-END COMPLETE     the run finished. No faults means no faults.
+    LAB-CHECK-END INCOMPLETE   it was interrupted; the `ran=k/n` on that line
+                               says how far it got, and everything up to there
+                               is above it.
+    no LAB-CHECK-END at all    it died without even getting to say so
+                               (SIGKILL, the box went down, the disk filled).
+                               A `LAB-CHECK-BEGIN` with no end is a truncated
+                               log; NEITHER marker present is a run that never
+                               started, which is its own finding.
+
+WHAT THE EXIT CODE CAN AND CANNOT CARRY (measured, not assumed)
+===============================================================
+Under `timeout`, the runner does not get to choose. Measured on this box:
+
+    timeout 2 python3 sigtest.py   (handler catches SIGTERM, exits 4)
+      -> the shell sees 124, not 4
+
+GNU `timeout` reports 124 whenever it had to kill, whatever the child then
+chose. So on the path that produced D148's artifact THE EXIT CODE IS NOT THE
+RUNNER'S TO SET, and any scheme that leans on it is broken at that exact point.
+That is why the marker is in the LOG: the log is the one channel the runner
+controls all the way through.
+
+Where the runner IS asked -- a direct SIGTERM, a person's SIGINT, an unhandled
+exception in the runner itself -- it answers `EXIT_UNSOUND` (4), measured at 4
+through a direct `send_signal` in the same experiment. 4 is not a new code and
+it is not a weakening: it already means "a check was launched and did not come
+back with a usable verdict, and the runner cannot say what it would have
+found", which is precisely an interrupted run, and `scripts/installed/pre-push`
+already blocks on it. The existing contract is untouched: UNKNOWN about a
+check's output still blocks (4), UNKNOWN about reach still does not (3), and a
+`requires-arguments` skip still does not downgrade the aggregate.
+
+An unhandled exception inside the runner used to exit 1, which is FAIL -- the
+runner's own crash was reported in the vocabulary of a finding about the lab.
+It now exits 4, with the traceback printed above an INCOMPLETE terminator.
+
 STALE BYTECODE (a method note that is load-bearing here)
 ========================================================
 `__pycache__` under this repo has INVERTED mutation results in this lab: the
@@ -291,8 +378,10 @@ import os
 import re
 import resource
 import shutil
+import signal
 import subprocess
 import sys
+import traceback as _traceback
 import tempfile
 import time
 import xml.etree.ElementTree as ET
@@ -1141,6 +1230,160 @@ HIDING_PREFIXES = ("needs-compute:", "writes-to-tree:", "unparseable:",
                    "tracked but absent")
 
 
+# ---------------------------------------------------------------------------
+# Streaming -- see THE REPORT IS STREAMED in the module docstring (D148)
+# ---------------------------------------------------------------------------
+
+#: The four markers, at column 0 so `grep -c '^LAB-CHECK-END'` over an appended
+#: log counts finished runs. They are typed as literals HERE and as literals
+#: again in `sdk/tests/test_lab_check.py`, for the reason the exit codes are:
+#: a test that asks the module under test what the marker is has pinned nothing.
+MARK_BEGIN = "LAB-CHECK-BEGIN"
+MARK_PLAN = "LAB-CHECK-PLAN"
+MARK_END = "LAB-CHECK-END"
+#: The in-flight line. Indented, because it belongs to the CHECKS RUN block and
+#: is read positionally (last one without a verdict under it), not counted.
+MARK_RUNNING = ">>"
+
+
+class _Interrupted(Exception):
+    """A signal the runner caught. Carries the number so the log can name it."""
+
+    def __init__(self, signum: int):
+        self.signum = signum
+        self.name = signal.Signals(signum).name
+        super().__init__(self.name)
+
+
+def _install_interrupt_handlers() -> None:
+    """Catch SIGTERM and SIGINT so the run can say it was interrupted.
+
+    RAISING rather than exiting from the handler is deliberate: the handler
+    runs in the main thread, so the exception propagates out of whatever
+    `subprocess.run` is blocked in a check, and `subprocess.run`'s own bare
+    `except:` arm kills that child on the way out. Exiting from the handler
+    would leave a check process orphaned, still holding whatever it holds.
+    """
+    def handler(signum, _frame):
+        raise _Interrupted(signum)
+
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        try:
+            signal.signal(sig, handler)
+        except (ValueError, OSError):    # not the main thread; nothing to do
+            pass
+
+
+@dataclasses.dataclass
+class Progress:
+    """What the run has got through so far, readable at any instant.
+
+    This exists so the terminator can state `ran=k/n` on the interrupted path,
+    where `n` was fixed and printed before the first check started. A partial
+    run that could not say what it was aiming at would be only half repaired.
+    """
+    expected: int = 0
+    completed: int = 0
+    in_flight: str = ""
+    outcomes: list = dataclasses.field(default_factory=list)
+
+    def start(self, name: str) -> None:
+        self.in_flight = name
+
+    def finish(self, outcome: "Outcome") -> None:
+        self.outcomes.append(outcome)
+        self.completed += 1
+        self.in_flight = ""
+
+
+class Report:
+    """One line at a time, flushed at the moment it is produced.
+
+    The flush is the whole point on the cron path: `stdout` redirected to a log
+    is BLOCK buffered, so a run killed at minute 19 would lose the last several
+    KB it believed it had written. Nothing here accumulates.
+    """
+
+    def __init__(self, stream):
+        self.stream = stream
+
+    def line(self, text: str = "") -> None:
+        self.stream.write(text + "\n")
+        self.stream.flush()
+
+    def begin(self, args_desc: str) -> None:
+        self.line(f"{MARK_BEGIN} {time.strftime('%Y-%m-%dT%H:%M:%S%z')} "
+                  f"pid={os.getpid()} argv={args_desc}")
+        self.line(f"  This report is STREAMED as it is produced, and it is "
+                  f"COMPLETE only if it ends")
+        self.line(f"  with a `{MARK_END} COMPLETE` line. A log that stops "
+                  f"before one is a run that")
+        self.line(f"  was interrupted, NOT a run that found nothing "
+                  f"(docket D148).")
+
+    def plan(self, names: Sequence[str], note: str) -> None:
+        self.line(f"{MARK_PLAN} expected={len(names)} -- {note}")
+        for n in names:
+            self.line(f"  will run  {n}")
+        self.line("")
+
+    def end_complete(self, verdict: str, rc: int, prog: Progress,
+                     elapsed: float) -> None:
+        self.line(f"{MARK_END} COMPLETE verdict={verdict} exit={rc} "
+                  f"ran={prog.completed}/{prog.expected} "
+                  f"elapsed={elapsed:.1f}s")
+
+    def end_incomplete(self, cause: str, prog: Progress, elapsed: float,
+                       rc: int) -> None:
+        """The line that makes a truncated log unmistakable.
+
+        `INCOMPLETE` is stated, not implied, and `ran=k/n` against the `n`
+        printed in the plan line says how much of the lab this log covers.
+        """
+        self.line("")
+        self.line("=" * 78)
+        self.line(f"VERDICT: {UNKNOWN}")
+        self.line(f"  THIS RUN DID NOT FINISH: {cause}")
+        self.line(f"  {prog.completed} of {prog.expected} check unit(s) "
+                  f"completed. Their results are above this line and are "
+                  f"good; ")
+        self.line(f"  the remaining "
+                  f"{max(prog.expected - prog.completed, 0)} were NOT RUN and "
+                  f"this run says nothing about them.")
+        if prog.in_flight:
+            self.line(f"  IN FLIGHT WHEN INTERRUPTED: {prog.in_flight} "
+                      f"-- no verdict was produced for it.")
+        self.line(f"  exit {rc} -- BLOCKING, and it is UNKNOWN about those "
+                  f"checks' output, not about reach.")
+        self.line(f"  NOTE: under `timeout` the shell sees 124 and not {rc}; "
+                  f"`timeout` reports its own")
+        self.line(f"  code whatever the runner chose, which is why the "
+                  f"{MARK_END} line below is the")
+        self.line(f"  channel that carries this and the exit code is not.")
+        self.line("=" * 78)
+        self.line(f"{MARK_END} INCOMPLETE cause={cause.split()[0]} "
+                  f"ran={prog.completed}/{prog.expected} "
+                  f"in-flight={prog.in_flight or '(none)'} "
+                  f"elapsed={elapsed:.1f}s")
+
+
+def _emit_outcome(rep: Report, o: Outcome, prog: Progress) -> None:
+    """One check's block, written the instant that check returns."""
+    rep.line(f"  [{o.verdict:<7}] {o.name}")
+    rep.line(f"            {o.reason}   "
+             f"({o.seconds:.1f}s wall, {o.cpu:.1f}s cpu)")
+    for d in o.detail[:25]:
+        rep.line(f"            - {d}")
+    if len(o.detail) > 25:
+        # Silent truncation is the class this module exists to close.
+        rep.line(f"            - ... and {len(o.detail) - 25} "
+                 f"further sub-result line(s), not shown")
+    if o.stderr_lines:
+        rep.line(f"            stderr ({o.stderr_lines} lines, NOT discarded):")
+        for l in o.stderr_tail.splitlines():
+            rep.line(f"              | {l[:150]}")
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     p = argparse.ArgumentParser(
         prog="lab_check",
@@ -1167,6 +1410,90 @@ def main(argv: Sequence[str] | None = None) -> int:
     p.add_argument("--json", action="store_true")
     args = p.parse_args(argv)
 
+    # STREAMED, AND THE STREAM IS CHOSEN BY MODE. In `--json` the document on
+    # stdout has to stay ONE parseable object, so the narration goes to stderr
+    # -- where the cron line's `2>&1` puts it in the same log anyway, and where
+    # an interrupted `--json` run still leaves its markers. In every other mode
+    # the narration IS the output and goes to stdout, unchanged in shape.
+    rep = Report(sys.stderr if args.json else sys.stdout)
+    _install_interrupt_handlers()
+    prog = Progress()
+    t_start = time.monotonic()
+
+    rep.line("=" * 78)
+    rep.line("LAB CHECK -- one entry point, three-valued  (docket D64)")
+    rep.line("=" * 78)
+    rep.begin(" ".join(sys.argv[1:] if argv is None else argv) or "(none)")
+    rep.line("")
+
+    try:
+        verdict, rc = _execute(rep, args, prog)
+    except _Interrupted as exc:
+        # SIGTERM (what `timeout` sends, and what D148's artifact came from) or
+        # SIGINT (a person at a terminal). Everything above this line is real.
+        _interrupted_exit(rep, args, prog, t_start,
+                          f"{exc.name} was received and the run stopped there")
+        return EXIT_UNSOUND
+    except KeyboardInterrupt:
+        # Reachable only in the window before the handler is installed, or if
+        # the interpreter is not on the main thread. Same treatment.
+        _interrupted_exit(rep, args, prog, t_start,
+                          "KeyboardInterrupt was received and the run stopped "
+                          "there")
+        return EXIT_UNSOUND
+    except BrokenPipeError:
+        # THE READER HUNG UP (`lab_check.py | head`). There is nobody left to
+        # tell, so nothing is written -- but the report IS truncated, so this
+        # exits BLOCKING like every other unfinished run, and the log ends
+        # without a terminator, which is exactly the true statement about it.
+        # stdout is redirected to /dev/null first or the interpreter's own
+        # shutdown flush raises again and turns this into a bare exit 120.
+        try:
+            os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+        except OSError:
+            pass
+        return EXIT_UNSOUND
+    except Exception:
+        # THE RUNNER ITSELF CRASHED. This used to be an uncaught traceback and
+        # a Python exit 1 -- which is EXIT_FAIL, so a broken instrument was
+        # reported in the vocabulary of a finding about the lab, and every line
+        # it had already produced was lost with it. It is UNKNOWN about the
+        # checks that never ran, it BLOCKS, and the traceback is printed rather
+        # than swallowed.
+        rep.line("")
+        rep.line("RUNNER TRACEBACK -- this is the instrument, not the lab:")
+        for l in _traceback.format_exc().splitlines():
+            rep.line(f"  | {l}")
+        _interrupted_exit(rep, args, prog, t_start,
+                          "an unhandled exception inside the runner itself "
+                          "(traceback above)")
+        return EXIT_UNSOUND
+
+    rep.end_complete(verdict, rc, prog, time.monotonic() - t_start)
+    return rc
+
+
+def _interrupted_exit(rep: Report, args, prog: Progress, t_start: float,
+                      cause: str) -> None:
+    rep.end_incomplete(cause, prog, time.monotonic() - t_start, EXIT_UNSOUND)
+    if args.json:
+        # stdout in `--json` mode carries a document or nothing. A partial run
+        # gets a partial document, explicitly flagged, rather than silence.
+        print(json.dumps({
+            "verdict": UNKNOWN,
+            "complete": False,
+            "interrupted": cause,
+            "blocking": True,
+            "exit": EXIT_UNSOUND,
+            "expected": prog.expected,
+            "completed": prog.completed,
+            "in_flight": prog.in_flight,
+            "checks": [dataclasses.asdict(o) for o in prog.outcomes],
+        }, indent=1), flush=True)
+
+
+def _execute(rep: Report, args, prog: Progress) -> tuple[str, int]:
+    """The run, streaming into `rep`. Returns (verdict, exit code)."""
     root = Path(args.root).resolve()
     snapshot = None
     head = _git(root, "rev-parse", "--short", "HEAD").stdout.strip() or "?"
@@ -1177,10 +1504,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             snapshot, snap_head = make_snapshot(root)
         except RuntimeError as exc:
-            print(f"VERDICT: {UNKNOWN}\n  because the snapshot could not be "
-                  f"made: {exc}\n  exit {EXIT_UNSOUND} -- BLOCKING: nothing was "
-                  f"checked, and a run that checked nothing is not a pass")
-            return EXIT_UNSOUND
+            rep.line(f"VERDICT: {UNKNOWN}\n  because the snapshot could not be "
+                     f"made: {exc}\n  exit {EXIT_UNSOUND} -- BLOCKING: nothing "
+                     f"was checked, and a run that checked nothing is not a "
+                     f"pass")
+            return UNKNOWN, EXIT_UNSOUND
         tree_desc = f"snapshot worktree of HEAD {snap_head} at {snapshot}"
 
     try:
@@ -1205,123 +1533,137 @@ def main(argv: Sequence[str] | None = None) -> int:
         hiding = [c for c in skipped
                   if c.reason.startswith(HIDING_PREFIXES)]
 
-        lines: list[str] = []
-        lines.append("=" * 78)
-        lines.append("LAB CHECK -- one entry point, three-valued  (docket D64)")
-        lines.append("=" * 78)
-        lines.append("")
-        lines.append("FRAME -- what was looked at, and how it was found")
-        lines.append(f"  repo               {root}")
-        lines.append(f"  HEAD               {head}")
-        lines.append(f"  tree               {tree_desc}")
-        lines.append(f"  enumeration        {frame['how']}")
-        lines.append(f"  candidates         {len(cands)}  "
-                     f"(tracked {frame['tracked']}, on disk {frame['worktree']})")
+        # THE FRAME GOES OUT FIRST, so it survives truncation. It is the
+        # coverage statement, and a partial log without it would say what was
+        # found while hiding what was looked at.
+        rep.line("FRAME -- what was looked at, and how it was found")
+        rep.line(f"  repo               {root}")
+        rep.line(f"  HEAD               {head}")
+        rep.line(f"  tree               {tree_desc}")
+        rep.line(f"  enumeration        {frame['how']}")
+        rep.line(f"  candidates         {len(cands)}  "
+                 f"(tracked {frame['tracked']}, on disk {frame['worktree']})")
         if frame["untracked_only"]:
-            lines.append(f"  untracked only     {len(frame['untracked_only'])}"
-                         f" -- present here, will not travel: "
-                         + ", ".join(frame["untracked_only"][:6])
-                         + (" ..." if len(frame["untracked_only"]) > 6 else ""))
+            rep.line(f"  untracked only     {len(frame['untracked_only'])}"
+                     f" -- present here, will not travel: "
+                     + ", ".join(frame["untracked_only"][:6])
+                     + (" ..." if len(frame["untracked_only"]) > 6 else ""))
         if frame["tracked_only"]:
-            lines.append(f"  tracked, absent    "
-                         + ", ".join(frame["tracked_only"][:6]))
+            rep.line(f"  tracked, absent    "
+                     + ", ".join(frame["tracked_only"][:6]))
         if frame["git_note"]:
-            lines.append(f"  git note           {frame['git_note']}")
+            rep.line(f"  git note           {frame['git_note']}")
         if only_note:
-            lines.append(f"  FILTER             {only_note}")
-        lines.append(f"  admitted           {len(admitted)}  "
-                     f"({len(scripts)} script gate(s), {len(tests)} test file(s))")
-        lines.append(f"  skipped            {len(skipped)}  "
-                     f"({len(hiding)} of them could be hiding a verdict)")
-        lines.append("")
+            rep.line(f"  FILTER             {only_note}")
+        rep.line(f"  admitted           {len(admitted)}  "
+                 f"({len(scripts)} script gate(s), {len(tests)} test file(s))")
+        rep.line(f"  skipped            {len(skipped)}  "
+                 f"({len(hiding)} of them could be hiding a verdict)")
+        rep.line("")
 
         by_reason: dict[str, list[str]] = {}
         for c in skipped:
             by_reason.setdefault(c.reason.split(":")[0], []).append(c.path)
-        lines.append("SKIPPED, BY REASON -- this list is the coverage statement")
+        rep.line("SKIPPED, BY REASON -- this list is the coverage statement")
         for r, paths in sorted(by_reason.items(), key=lambda kv: -len(kv[1])):
-            lines.append(f"  {len(paths):3d}  {r}")
+            rep.line(f"  {len(paths):3d}  {r}")
             for path in sorted(paths)[:4]:
-                lines.append(f"         {path}")
+                rep.line(f"         {path}")
             if len(paths) > 4:
-                lines.append(f"         ... and {len(paths) - 4} more")
-        lines.append("")
+                rep.line(f"         ... and {len(paths) - 4} more")
+        rep.line("")
 
         if args.list:
-            lines.append("ADMITTED")
+            rep.plan([], "--list: nothing will be run")
+            rep.line("ADMITTED")
             for c in sorted(admitted, key=lambda c: c.path):
-                lines.append(f"  {c.kind:8s} {c.path}")
+                rep.line(f"  {c.kind:8s} {c.path}")
                 if c.kind == "python":
-                    lines.append(f"           {c.reason}")
-            lines.append("")
-            lines.append(f"--list: nothing was run, so there is no verdict. "
-                         f"Exit {EXIT_UNKNOWN} (UNKNOWN about reach, "
-                         f"non-blocking): nothing was ASKED to run, so there is "
-                         f"no check whose finding is being withheld.")
-            print("\n".join(lines))
-            return EXIT_UNKNOWN
+                    rep.line(f"           {c.reason}")
+            rep.line("")
+            rep.line(f"--list: nothing was run, so there is no verdict. "
+                     f"Exit {EXIT_UNKNOWN} (UNKNOWN about reach, "
+                     f"non-blocking): nothing was ASKED to run, so there is "
+                     f"no check whose finding is being withheld.")
+            return UNKNOWN, EXIT_UNKNOWN
+
+        # THE DENOMINATOR, PRINTED BEFORE THE FIRST CHECK STARTS. This is what
+        # makes `ran=3/17` on an interrupted run mean something: `17` was fixed
+        # and written down while the log was still being produced, so a reader
+        # of a truncated log knows what it was aiming at and not merely what it
+        # reached. A test file group counts as ONE unit because it is one
+        # pytest invocation and dies as one.
+        plan = [c.path for c in sorted(scripts, key=lambda c: c.path)]
+        if tests and not args.no_tests:
+            plan.append(f"sdk/tests (pytest) -- {len(tests)} file(s), "
+                        f"one invocation")
+        prog.expected = len(plan)
+        rep.plan(plan, "check unit(s) admitted and expected to run in this "
+                       "order; every one of them reports below as it finishes")
 
         outcomes: list[Outcome] = []
         suite_frame: dict = {}
+        if tests and args.no_tests:
+            rep.line(f"NOTE: --no-tests, so {len(tests)} test file(s) were "
+                     f"enumerated and NOT run.")
+            hiding = list(hiding) + [Candidate(
+                path="sdk/tests (pytest)", frames=(),
+                reason="needs-compute: --no-tests was passed; the suite was not run")]
+
+        rep.line("CHECKS RUN")
+        rep.line(f"  Streamed: a `{MARK_RUNNING}` line is written when a check "
+                 f"STARTS and its [VERDICT]")
+        rep.line(f"  block when it finishes. A `{MARK_RUNNING}` with no block "
+                 f"under it is the check that")
+        rep.line(f"  was still running when this log ends.")
         for c in sorted(scripts, key=lambda c: c.path):
-            outcomes.append(run_script(run_root, c, args.timeout,
-                                       exclusive=(args.tree == "snapshot")))
+            prog.start(c.path)
+            rep.line(f"  {MARK_RUNNING} ({prog.completed + 1}/{prog.expected}) "
+                     f"{c.path} ...")
+            o = run_script(run_root, c, args.timeout,
+                           exclusive=(args.tree == "snapshot"))
+            outcomes.append(o)
+            prog.finish(o)
+            _emit_outcome(rep, o, prog)
         if tests and not args.no_tests:
             # Without a filter the suite is run over the DIRECTORY and then
             # diffed against the enumeration -- that diff is the point. With a
             # filter it is run over the named files, because running the whole
             # directory under a filter would report a coverage the caller did
             # not ask for and did not get.
+            prog.start("sdk/tests (pytest)")
+            rep.line(f"  {MARK_RUNNING} ({prog.completed + 1}/{prog.expected}) "
+                     f"sdk/tests (pytest), {len(tests)} file(s) -- this is the "
+                     f"long one (~15 min)")
             o, suite_frame = run_pytest(
                 run_root, [c.path for c in tests], args.suite_timeout,
                 target=[c.path for c in tests] if args.only else None)
             outcomes.append(o)
-        elif tests and args.no_tests:
-            lines.append(f"NOTE: --no-tests, so {len(tests)} test file(s) were "
-                         f"enumerated and NOT run.")
-            hiding = list(hiding) + [Candidate(
-                path="sdk/tests (pytest)", frames=(),
-                reason="needs-compute: --no-tests was passed; the suite was not run")]
-
-        lines.append("CHECKS RUN")
-        for o in outcomes:
-            lines.append(f"  [{o.verdict:<7}] {o.name}")
-            lines.append(f"            {o.reason}   "
-                         f"({o.seconds:.1f}s wall, {o.cpu:.1f}s cpu)")
-            for d in o.detail[:25]:
-                lines.append(f"            - {d}")
-            if len(o.detail) > 25:
-                # Silent truncation is the class this module exists to close.
-                lines.append(f"            - ... and {len(o.detail) - 25} "
-                             f"further sub-result line(s), not shown")
-            if o.stderr_lines:
-                lines.append(f"            stderr ({o.stderr_lines} lines, "
-                             f"NOT discarded):")
-                for l in o.stderr_tail.splitlines():
-                    lines.append(f"              | {l[:150]}")
-        lines.append("")
+            prog.finish(o)
+            _emit_outcome(rep, o, prog)
+        rep.line("")
 
         if suite_frame:
-            lines.append("SUITE FRAME -- what 'the suite' meant on this run")
-            lines.append(f"  argv                 {suite_frame['argv']}")
-            lines.append(f"  test files enumerated {suite_frame['files_enumerated']}")
-            lines.append(f"  test files collected  {suite_frame['files_collected']}")
-            lines.append(f"  tests collected       {suite_frame['tests_collected']}"
-                         f"  (failed {suite_frame['failed']}, errored "
-                         f"{suite_frame['errored']}, skipped {suite_frame['skipped']})")
-            lines.append(f"  __pycache__ purged    "
-                         f"{suite_frame['purged_pycache_dirs']} directories, before "
-                         f"the run (stale bytecode has inverted results here)")
+            rep.line("SUITE FRAME -- what 'the suite' meant on this run")
+            rep.line(f"  argv                 {suite_frame['argv']}")
+            rep.line(f"  test files enumerated {suite_frame['files_enumerated']}")
+            rep.line(f"  test files collected  {suite_frame['files_collected']}")
+            rep.line(f"  tests collected       {suite_frame['tests_collected']}"
+                     f"  (failed {suite_frame['failed']}, errored "
+                     f"{suite_frame['errored']}, skipped {suite_frame['skipped']})")
+            rep.line(f"  __pycache__ purged    "
+                     f"{suite_frame['purged_pycache_dirs']} directories, before "
+                     f"the run (stale bytecode has inverted results here)")
             for f in suite_frame["files_missing"]:
-                lines.append(f"  NOT COLLECTED         {f}")
-            lines.append("")
+                rep.line(f"  NOT COLLECTED         {f}")
+            rep.line("")
 
         verdict, reasons, blocking = aggregate(outcomes, hiding)
         rc = exit_code(verdict, blocking)
         ran = len(outcomes)
-        lines.append("=" * 78)
-        lines.append(f"VERDICT: {verdict}")
-        lines.append(
+        rep.line("=" * 78)
+        rep.line(f"VERDICT: {verdict}")
+        rep.line(
             f"  exit {rc} -- "
             + ("BLOCKING. At least one check did not come back with a usable "
                "verdict, so this run cannot say what it would have found."
@@ -1334,28 +1676,31 @@ def main(argv: Sequence[str] | None = None) -> int:
                if verdict == UNKNOWN else
                "clean."))
         if only_note:
-            lines.append(f"  {only_note}")
-        lines.append(f"  frame: {ran} check(s) ran, {len(skipped)} not "
-                     f"admitted, {len(hiding)} unrun check(s) whose skip "
-                     f"reason could be hiding a verdict")
+            rep.line(f"  {only_note}")
+        rep.line(f"  frame: {ran} check(s) ran, {len(skipped)} not "
+                 f"admitted, {len(hiding)} unrun check(s) whose skip "
+                 f"reason could be hiding a verdict")
         for r in reasons:
-            lines.append(f"  {r}")
-        lines.append("=" * 78)
+            rep.line(f"  {r}")
+        rep.line("=" * 78)
 
         if args.json:
             print(json.dumps({
                 "verdict": verdict,
+                #: Additive, and the one key a consumer of a partial document
+                #: needs: the interrupted path emits `false` here.
+                "complete": True,
                 "blocking": blocking,
                 "exit": rc,
+                "expected": prog.expected,
+                "completed": prog.completed,
                 "reasons": reasons,
                 "frame": frame,
                 "suite": suite_frame,
                 "checks": [dataclasses.asdict(o) for o in outcomes],
                 "skipped": [{"path": c.path, "reason": c.reason} for c in skipped],
-            }, indent=1))
-        else:
-            print("\n".join(lines))
-        return rc
+            }, indent=1), flush=True)
+        return verdict, rc
     finally:
         if snapshot is not None:
             drop_snapshot(root, snapshot)

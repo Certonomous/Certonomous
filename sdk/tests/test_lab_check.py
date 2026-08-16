@@ -37,12 +37,17 @@ right answer is has not tested it.
 """
 from __future__ import annotations
 
+import contextlib
 import importlib.util
+import io
+import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -667,6 +672,385 @@ class TheExitCodeContractIsPinned(unittest.TestCase):
         rc, out = self._run_hook(RC_FAIL, skip="1")
         self.assertEqual(rc, 0, out)
         self.assertIn("SKIPPED", out)
+
+
+# ---------------------------------------------------------------------------
+# D148 -- an interrupted run keeps what it learned, and says it was interrupted
+# ---------------------------------------------------------------------------
+
+#: THE MARKERS, TYPED HERE AS LITERALS, imported from nowhere -- the same
+#: discipline as the exit codes above and for the same reason. A test that asks
+#: `lc.MARK_END` what the terminator is would stay green under a mutation that
+#: renamed it, while every log already on disk and every reader's `grep` broke.
+MARK_BEGIN = "LAB-CHECK-BEGIN"
+MARK_PLAN = "LAB-CHECK-PLAN"
+MARK_END = "LAB-CHECK-END"
+END_COMPLETE = "LAB-CHECK-END COMPLETE"
+END_INCOMPLETE = "LAB-CHECK-END INCOMPLETE"
+
+
+def _terminator(text: str) -> str:
+    """The terminator LINE, at column 0, or "" if the log carries none.
+
+    Every assertion below goes through this rather than through `assertIn`
+    over the whole log, and the reason is a real near-miss in writing these
+    tests: the run's own preamble says "COMPLETE only if it ends with a
+    `LAB-CHECK-END COMPLETE` line", so a substring search over the log matches
+    that sentence. `assertIn(END_COMPLETE, out)` would have been green on a
+    runner that emitted no terminator at all, and `assertNotIn(END_COMPLETE,
+    partial)` red on a correctly interrupted one. The marker is specified at
+    column 0; the test reads it at column 0.
+    """
+    ends = [l for l in text.splitlines() if l.startswith(MARK_END)]
+    return ends[-1] if ends else ""
+
+#: A gate that takes long enough to be killed while it is running. It is a PASS
+#: gate: nothing in the mid-flight kill case depends on a finding, so a reader
+#: grepping the killed log for faults finds none -- which is the exact state
+#: D148 says must be distinguishable from a clean run.
+#: It is a real gate -- `return 1 if FINDINGS else 0` -- and not a `return 0`,
+#: or the runner's own `cannot-fail` predicate would refuse to admit it and the
+#: fixture would silently have one check in it instead of two.
+SLOW_GATE = '''\
+#!/usr/bin/env python3
+"""A gate that is still running when the kill arrives."""
+import sys, time
+
+FINDINGS = []
+
+
+def main():
+    time.sleep({seconds})
+    print(f"VERDICT: {{'FAIL' if FINDINGS else 'PASS'}}")
+    return 1 if FINDINGS else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+'''
+
+
+class AnInterruptedRunSaysSo(unittest.TestCase):
+    """Docket D148. Both L-84 halves, and the positive one is the whole point.
+
+    THE ARTIFACT, measured on the live tree before the repair:
+
+        timeout 45 python3 scripts/lab_check.py --no-tests
+          -> exit 124, stdout 0 bytes, stderr 0 bytes
+
+    The runner built its whole report in a list and printed it in one write at
+    the end, so an interrupted run destroyed everything it had already learned
+    AND -- the part that ranks -- produced an artifact indistinguishable from a
+    clean one. A nightly cron that hits its window appends nothing to the log,
+    and nothing is what a clean run looks like to anyone who greps it for
+    faults. Defect class B1, the silent-zero, in the instrument that reports
+    every other check's verdict.
+
+    The must-not-match half is `test_a_complete_clean_run_is_not_marked_
+    incomplete` and it is not a formality: a runner that marked every run
+    INCOMPLETE would pass every positive case here and be worthless.
+    """
+
+    #: Long enough that the kill lands inside it on a loaded box, short enough
+    #: that the test does not hang if the kill misses.
+    SLOW_SECONDS = 45
+
+    def _slow_repo(self, tmp: Path) -> Path:
+        """A fast PASS gate, then a slow one. Scripts run in sorted path order,
+        so `gate_a` is guaranteed to have finished and `gate_b_slow` to be in
+        flight at the moment of the kill."""
+        root = tmp / "repo"
+        (root / "scripts").mkdir(parents=True)
+        (root / "sdk" / "tests").mkdir(parents=True)
+        (root / "scripts" / "gate_a.py").write_text(GATE.format(findings="[]"))
+        (root / "scripts" / "gate_b_slow.py").write_text(
+            SLOW_GATE.format(seconds=self.SLOW_SECONDS))
+        (root / "README").write_text("fixture tree\n")
+        subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+        subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+        subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t",
+                        "commit", "-qm", "fixture"], cwd=root, check=True)
+        return root
+
+    def _kill_mid_flight(self, root: Path, log: Path, sig: int) -> tuple[int, str]:
+        """Start a run, wait until it is demonstrably inside the slow gate, and
+        signal it. Returns (exit code, everything the run wrote).
+
+        The wait is on the LOG, not on a sleep: the test asserts the runner had
+        streamed the first gate's result before the kill, which is the property
+        under test. Polling a clock instead would make this pass on a runner
+        that buffered everything and happened to be lucky.
+        """
+        with log.open("wb") as fh:
+            proc = subprocess.Popen(
+                [sys.executable, str(RUNNER), "--root", str(root),
+                 "--no-tests"], stdout=fh, stderr=subprocess.STDOUT)
+            deadline = time.monotonic() + 60
+            while time.monotonic() < deadline:
+                text = log.read_text(errors="replace")
+                if "gate_b_slow.py ..." in text and "gate_a.py" in text:
+                    break
+                if proc.poll() is not None:
+                    break
+                time.sleep(0.2)
+            else:
+                proc.kill()
+                self.fail("the runner never reached the slow gate")
+            proc.send_signal(sig)
+            rc = proc.wait(timeout=60)
+        return rc, log.read_text(errors="replace")
+
+    # -- the positive half -------------------------------------------------
+
+    def test_a_run_killed_mid_flight_keeps_everything_up_to_the_kill(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._slow_repo(Path(tmp))
+            log = Path(tmp) / "run.log"
+            rc, out = self._kill_mid_flight(root, log, signal.SIGTERM)
+
+        # (a) NON-EMPTY. The whole defect in one assertion.
+        self.assertTrue(out.strip(), "a killed run wrote nothing at all")
+        # (b) EVERYTHING UP TO THE KILL. The gate that finished is reported
+        #     with its verdict, and the frame that names what was looked at is
+        #     above it.
+        self.assertIn("FRAME", out)
+        self.assertIn("SKIPPED, BY REASON", out)
+        self.assertIn("scripts/gate_a.py", out)
+        self.assertIn("[PASS", out)
+        # (c) UNMISTAKABLY INCOMPLETE, said rather than implied.
+        self.assertTrue(_terminator(out).startswith(END_INCOMPLETE),
+                        f"terminator was {_terminator(out)!r}\n{out}")
+        self.assertIn("THIS RUN DID NOT FINISH", out)
+        # and it names what it was inside when it died, and how far it got
+        # against a denominator fixed before the first check started.
+        self.assertIn("scripts/gate_b_slow.py", out)
+        self.assertIn("ran=1/2", out)
+
+    def test_the_frame_and_the_plan_are_written_before_any_check_runs(self):
+        """Truncation takes the END of a log. Anything that must survive it has
+        to be at the START -- which is why the coverage statement and the
+        denominator are emitted before the first check is launched."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._slow_repo(Path(tmp))
+            log = Path(tmp) / "run.log"
+            rc, out = self._kill_mid_flight(root, log, signal.SIGTERM)
+        self.assertIn(MARK_BEGIN, out)
+        self.assertIn(f"{MARK_PLAN} expected=2", out)
+        self.assertIn("candidates", out)
+        # the plan names them, so a reader of a truncated log knows which
+        # checks this run never reached
+        self.assertIn("will run  scripts/gate_b_slow.py", out)
+
+    def test_a_reader_grepping_for_faults_can_tell_partial_from_clean(self):
+        """THE REQUIREMENT, stated as the test that decides it.
+
+        Both logs below contain no fault. One is a clean run and one died at
+        check 2 of 2. Before D148 the second was zero bytes and the two were
+        the same artifact; a reader could not tell them apart, and a nightly
+        cron would have shown "no faults" every night it timed out.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._slow_repo(Path(tmp))
+            log = Path(tmp) / "run.log"
+            _, partial = self._kill_mid_flight(root, log, signal.SIGTERM)
+            clean_root = _repo(Path(tmp) / "clean", gate_findings="[]")
+            _, clean = _run(clean_root, "--no-tests")
+
+        # the premise: neither log reports a fault
+        for name, text in (("partial", partial), ("clean", clean)):
+            with self.subTest(log=name):
+                self.assertNotIn("VERDICT: FAIL", text)
+                self.assertNotIn("[FAIL", text)
+        # and yet they are distinguishable, by one greppable line each
+        self.assertTrue(_terminator(clean).startswith(END_COMPLETE),
+                        f"clean run terminator: {_terminator(clean)!r}")
+        self.assertTrue(_terminator(partial).startswith(END_INCOMPLETE),
+                        f"partial run terminator: {_terminator(partial)!r}")
+
+    def test_sigint_from_a_person_is_reported_the_same_way(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._slow_repo(Path(tmp))
+            log = Path(tmp) / "run.log"
+            rc, out = self._kill_mid_flight(root, log, signal.SIGINT)
+        self.assertTrue(_terminator(out).startswith(END_INCOMPLETE), out)
+        self.assertIn("cause=SIGINT", _terminator(out))
+        self.assertIn("scripts/gate_a.py", out)
+        # and no bare Python traceback in place of a report
+        self.assertNotIn("KeyboardInterrupt\n", out)
+
+    def test_a_direct_signal_exits_blocking_and_inside_the_contract(self):
+        """What the runner CAN control. `timeout` is the case where it cannot
+        -- see the test below -- but a supervisor that signals the runner
+        itself gets 4: UNKNOWN about the output of the checks that never ran,
+        which is the code `scripts/installed/pre-push` already blocks on. Not a
+        new code, not a weakening of the contract, and not 1: an interrupted
+        run has NOT found a fault, and reporting it as FAIL would be a claim
+        about the lab that this run is in no position to make.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._slow_repo(Path(tmp))
+            log = Path(tmp) / "run.log"
+            rc, out = self._kill_mid_flight(root, log, signal.SIGTERM)
+        self.assertEqual(rc, RC_UNKNOWN_OUTPUT, out)
+
+    def test_under_timeout_the_exit_code_is_124_and_the_LOG_carries_the_truth(self):
+        """D148's own reproduction, run forward.
+
+        `timeout` reports 124 whenever it had to kill, WHATEVER the child then
+        chose -- measured, not assumed. So on the path that produced the
+        artifact the exit code is not the runner's to set, and any repair that
+        leaned on it would be broken at exactly that point. The log is the
+        channel the runner controls all the way through, and this is the test
+        that says so.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._slow_repo(Path(tmp))
+            proc = subprocess.run(
+                ["timeout", "8", sys.executable, str(RUNNER), "--root",
+                 str(root), "--no-tests"],
+                capture_output=True, text=True, timeout=120)
+        out = proc.stdout + proc.stderr
+        self.assertEqual(proc.returncode, 124,
+                         "expected timeout's own code, not the runner's")
+        self.assertTrue(out.strip(),
+                        "THE D148 ARTIFACT: exit 124 with a zero-byte report")
+        self.assertTrue(_terminator(out).startswith(END_INCOMPLETE), out)
+        self.assertIn("the shell sees 124", out)
+
+    def test_an_unhandled_exception_inside_the_runner_is_UNKNOWN_not_FAIL(self):
+        """The third interrupt path.
+
+        A crash inside a CHECK is a subprocess and was already handled (it is
+        UNKNOWN and blocking; see `test_a_traceback_is_UNKNOWN_not_FAIL`). A
+        crash inside the RUNNER was not: Python exits 1 on an unhandled
+        exception, 1 is EXIT_FAIL, and the hook printed "a check that ran
+        returned a finding" over a runner that had never got that far -- while
+        every line it had already produced went with it.
+
+        Patched on the imported module OBJECT, never on the file: the tracked
+        worktree is not mutated by this suite.
+        """
+        def boom(*a, **kw):
+            raise RuntimeError("the instrument broke, not the lab")
+
+        buf = io.StringIO()
+        original = lc.run_script
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _repo(Path(tmp), gate_findings="[]")
+            lc.run_script = boom
+            try:
+                with contextlib.redirect_stdout(buf):
+                    rc = lc.main(["--root", str(root), "--no-tests"])
+            finally:
+                lc.run_script = original
+        out = buf.getvalue()
+        self.assertEqual(rc, RC_UNKNOWN_OUTPUT, out)
+        self.assertNotEqual(rc, RC_FAIL, "a broken runner is not a finding")
+        self.assertTrue(_terminator(out).startswith(END_INCOMPLETE), out)
+        self.assertIn("RUNNER TRACEBACK", out)
+        self.assertIn("the instrument broke, not the lab", out)
+
+    def test_results_are_flushed_as_they_are_produced_not_at_the_end(self):
+        """The streaming pin proper, and the one the terminator rests on.
+
+        Read the log WHILE the run is still in flight. `stdout` redirected to a
+        file is block buffered, so a report that is merely `print`ed line by
+        line still loses its last several KB to a kill; only an explicit flush
+        at each line makes the bytes real. This asserts the first gate's
+        verdict is on disk while the second gate is still running.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._slow_repo(Path(tmp))
+            log = Path(tmp) / "run.log"
+            with log.open("wb") as fh:
+                proc = subprocess.Popen(
+                    [sys.executable, str(RUNNER), "--root", str(root),
+                     "--no-tests"], stdout=fh, stderr=subprocess.STDOUT)
+                mid = ""
+                deadline = time.monotonic() + 60
+                while time.monotonic() < deadline:
+                    mid = log.read_text(errors="replace")
+                    if "[PASS" in mid and "gate_a.py" in mid:
+                        break
+                    if proc.poll() is not None:
+                        break
+                    time.sleep(0.2)
+                still_running = proc.poll() is None
+                proc.kill()
+                proc.wait(timeout=30)
+        self.assertTrue(still_running,
+                        "the run finished before the assertion could be made")
+        self.assertIn("scripts/gate_a.py", mid)
+        self.assertIn("[PASS", mid)
+        self.assertEqual(_terminator(mid), "",
+                         "the run had already terminated; nothing was proved")
+
+    # -- the must-not-match half -------------------------------------------
+
+    def test_a_complete_clean_run_is_not_marked_incomplete(self):
+        """L-84's other half. A runner that marked every run INCOMPLETE would
+        pass every positive case above and be worth nothing."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _repo(Path(tmp), gate_findings="[]")
+            rc, out = _run(root, "--no-tests")
+        self.assertEqual(rc, RC_PASS, out)
+        self.assertTrue(_terminator(out).startswith(END_COMPLETE),
+                        f"terminator was {_terminator(out)!r}\n{out}")
+        self.assertIn("ran=1/1", _terminator(out))
+        self.assertNotIn("THIS RUN DID NOT FINISH", out)
+
+    def test_a_complete_run_keeps_the_shape_its_consumers_already_parse(self):
+        """The consumers are `scripts/installed/pre-push` (exit code only),
+        the cron line (appends the stream to a log), and this file (substrings
+        on stdout). Streaming must not have moved any of them."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _repo(Path(tmp), gate_findings="['a defect']")
+            rc, out = _run(root, "--no-tests")
+        self.assertEqual(rc, RC_FAIL, out)
+        for expected in ("LAB CHECK -- one entry point", "FRAME",
+                         "SKIPPED, BY REASON", "CHECKS RUN", "VERDICT: FAIL",
+                         "check(s) ran", "scripts/gate.py"):
+            with self.subTest(expected=expected):
+                self.assertIn(expected, out)
+        # the verdict block is still the last thing before the terminator, so
+        # a reader who tails the log sees the verdict without scrolling
+        tail = [l for l in out.splitlines() if l.strip()][-2:]
+        self.assertTrue(tail[0].startswith("="), tail)
+        self.assertTrue(tail[1].startswith(END_COMPLETE), tail)
+
+    def test_the_terminator_reports_the_verdict_and_the_exit_code(self):
+        """A log reader must not have to parse prose to get the verdict. Each
+        case is checked in both directions: the code on the terminator is the
+        code the process actually returned."""
+        cases = [("[]", RC_PASS, "PASS"), ("['x']", RC_FAIL, "FAIL")]
+        for findings, want_rc, want_verdict in cases:
+            with self.subTest(findings=findings):
+                with tempfile.TemporaryDirectory() as tmp:
+                    root = _repo(Path(tmp), gate_findings=findings)
+                    rc, out = _run(root, "--no-tests")
+                self.assertEqual(rc, want_rc, out)
+                self.assertTrue(
+                    _terminator(out).startswith(
+                        f"{END_COMPLETE} verdict={want_verdict} "
+                        f"exit={want_rc} "),
+                    f"terminator was {_terminator(out)!r}")
+
+    def test_json_mode_still_emits_one_parseable_document_on_stdout(self):
+        """`--json` streams its narration to stderr precisely so that stdout
+        stays one object. A partial run gets a partial document flagged
+        `complete: false` rather than a truncated one."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _repo(Path(tmp), gate_findings="[]")
+            proc = subprocess.run(
+                [sys.executable, str(RUNNER), "--root", str(root),
+                 "--no-tests", "--json"], capture_output=True, text=True,
+                timeout=600)
+        doc = json.loads(proc.stdout)
+        self.assertEqual(doc["verdict"], "PASS")
+        self.assertIs(doc["complete"], True)
+        self.assertTrue(_terminator(proc.stderr).startswith(END_COMPLETE),
+                        proc.stderr)
+        self.assertNotIn(MARK_BEGIN, proc.stdout)
 
 
 if __name__ == "__main__":
