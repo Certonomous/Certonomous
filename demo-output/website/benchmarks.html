@@ -7,12 +7,12 @@
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --line:#30363d; --ink:#e6edf3; --dim:#8b949e;
-    --good:#3fb950; --accent:#58a6ff; --gold:#e3b341;
+    --good:#3fb950; --accent:#58a6ff; --gold:#e3b341; --warn:#f85149;
     --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
   }
   @media (prefers-color-scheme:light){
     :root{--bg:#fff;--panel:#f6f8fa;--line:#d0d7de;--ink:#1f2328;--dim:#656d76;
-          --good:#1a7f37;--accent:#0969da;--gold:#9a6700;}
+          --good:#1a7f37;--accent:#0969da;--gold:#9a6700;--warn:#cf222e;}
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
@@ -40,7 +40,10 @@
   .tag{display:inline-block;font:600 10.5px/1 var(--mono);padding:4px 7px;border-radius:5px;letter-spacing:.05em}
   .t-good{background:color-mix(in srgb,var(--good) 20%,transparent);color:var(--good)}
   .t-gold{background:color-mix(in srgb,var(--gold) 22%,transparent);color:var(--gold)}
+  .t-open{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+  .t-flat{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
   .win{color:var(--good);font-weight:600}
+  .lose{color:var(--warn);font-weight:600}
   .note{border-left:3px solid var(--accent);padding:11px 0 11px 15px;margin:18px 0;
         color:var(--dim);font-size:13.5px;max-width:82ch}
   .note b{color:var(--ink)}
@@ -106,19 +109,29 @@ publishes to, and are not per-case wins.</p>
     <div class="f">part-time, one laptop, then cloud</div></div>
 </div>
 
-<p class="lede" style="margin-top:26px"><b style="color:var(--ink)">Cases where we lead the entire
-public leaderboard.</b> Score is a scaled velocity error; lower is better. Two of these four are cases
-where a trained correction was tried and found to hurt, so a test-blind gate — trained and checked
-only on non-test cases — withholds it and reports the uncorrected physics solve instead. (Round 4
-held a nominal 0.00003-level tie for best on a fifth case, AR_14_Ret_180; round 5 spent it, knowingly,
-per the pre-registered risk statement.)</p>
+<p class="lede" style="margin-top:26px"><b style="color:var(--ink)"><s>Cases where we lead the entire
+public leaderboard.</s> → The four hill cases, re-derived against the live board: we lead two, and
+neither lead is our model's.</b> <b style="color:var(--warn)">Corrected 2026-08-16.</b> Every row of this
+table was tagged gold <code>#1</code> against the <b>four</b>-entry board frozen at benchmark commit
+<code>deb91557</code> (2026-05-04). Against the <b>six</b>-entry board retrieved <b>2026-08-11T23:33Z</b>
+and re-verified unchanged <b>2026-08-14T21:01Z</b> — seven rows counting ours —
+<b>two of the four were lost</b>, and the sign of the margin flipped on both. The table below carries
+every stale figure struck beside the live one; nothing has been deleted, so the claim that was made is
+still readable beside what replaced it. Score is a scaled velocity error; lower is better. The two rows
+that survived are the two on which a trained correction was tried and found to hurt, so a test-blind gate
+— trained and checked only on non-test cases — withheld it and reported the organisers' own uncorrected
+RANS solve instead: <b>anyone submitting that baseline unchanged scores identically on them</b>, which is
+why they are tagged as the baseline's and not as ours, and why the hero count above reads <b>0 of 8</b>.
+(Round 4 held a nominal 0.00003-level tie for best on a fifth case, AR_14_Ret_180, against that same
+superseded four-entry board; round 5 spent it, knowingly, per the pre-registered risk statement. On the
+six-entry board AR_14_Ret_180's best was Yang's 0.0250, so that tie was never a live one.)</p>
 <div class="scroll"><table>
-<thead><tr><th>Test case</th><th class="n">Best published</th><th class="n">Certonomous</th><th class="n">Margin</th><th></th></tr></thead>
+<thead><tr><th>Test case</th><th class="n">Best published<br><span style="font-weight:400;letter-spacing:0"><s>4-entry</s> → <b>live 6-entry</b></span></th><th class="n">Certonomous</th><th class="n">Margin</th><th>Where we actually stood<br><span style="font-weight:400;letter-spacing:0">on the 6-entry board (7 rows with ours)</span></th></tr></thead>
 <tbody>
-<tr class="us"><td>alpha_15_13929_4048</td><td class="n">0.0592</td><td class="n">0.0501</td><td class="n win">−15.4%</td><td><span class="tag t-gold">#1</span></td></tr>
-<tr class="us"><td>alpha_15_13929_2024</td><td class="n">0.1195</td><td class="n">0.1011</td><td class="n win">−15.4%</td><td><span class="tag t-gold">#1</span></td></tr>
-<tr class="us"><td>alpha_05_4071_4048</td><td class="n">0.0569</td><td class="n">0.0461</td><td class="n win">−19.0%</td><td><span class="tag t-gold">#1</span></td></tr>
-<tr class="us"><td>alpha_05_4071_2024</td><td class="n">0.0760</td><td class="n">0.0719</td><td class="n win">−5.4%</td><td><span class="tag t-gold">#1</span></td></tr>
+<tr class="us"><td>alpha_15_13929_4048</td><td class="n"><s>0.0592</s> <b>0.0432</b></td><td class="n">0.0501</td><td class="n lose"><s>−15.4%</s> <b>+16.0%</b></td><td><span class="tag t-open"><s>#1</s> → <b>2nd of 7 — WE LOSE</b></span> — 0.0432 is held by Tian, Buchanan, Hickel and Dwight. Badge struck 2026-08-16.</td></tr>
+<tr class="us"><td>alpha_15_13929_2024</td><td class="n"><s>0.1195</s> <b>0.0998</b></td><td class="n">0.1011</td><td class="n lose"><s>−15.4%</s> <b>+1.3%</b></td><td><span class="tag t-open"><s>#1</s> → <b>2nd of 7 — WE LOSE</b></span> — 0.0998 is held by Tian, Buchanan, Hickel and Dwight. Badge struck 2026-08-16.</td></tr>
+<tr class="us"><td>alpha_05_4071_4048</td><td class="n">0.0569</td><td class="n">0.0461</td><td class="n win">−19.0%</td><td><span class="tag t-flat"><s>#1</s> → <b>BASELINE, NOT OUR MODEL</b></span> — 1st of 7, and 0.0569 is still Wu and Zhang's and still the minimum, but the credit is the organisers' unmodified RANS field's, not ours.</td></tr>
+<tr class="us"><td>alpha_05_4071_2024</td><td class="n"><s>0.0760</s> <b>0.0748</b></td><td class="n">0.0719</td><td class="n win"><s>−5.4%</s> <b>−3.9%</b></td><td><span class="tag t-flat"><s>#1</s> → <b>BASELINE, NOT OUR MODEL</b></span> — 1st of 7 against Yang's 0.0748, and again the credit is the baseline's. Margin restated 2026-08-16.</td></tr>
 </tbody></table></div>
 
 <p class="lede" style="margin-top:26px">Improvement over the uncorrected reference on those cases and
