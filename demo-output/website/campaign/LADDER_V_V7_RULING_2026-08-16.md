@@ -115,20 +115,52 @@ scoring calls`; `seven scoring-call budget` (hyphenated). **Two negative forms c
 *"a fifth place finish in the race"*, *"five cases were scored by the harness"* — so the pattern is
 not merely loose.
 
-**What the pre-filter provably supersets.** The sweep pre-filters with
-`git grep -a -l -iE "scoring|prediction[ -]sets?|\bcalls?\b"`, keeping **568** paths. This is a
-superset **by construction, not by hope**: every alternative in the recogniser's `CALLNP` noun
-phrase — `(official )?scoring[-\s]calls?`, `scoring[-\s]call \w+`, `prediction sets? scored`,
-`calls? (made|scored|spent|used)`, `distinct prediction sets?` — contains the literal `scoring`, or
-`prediction set`, or `call`. **So no text the recogniser could match can fail the filter**, and the
-filter cannot generate a silent zero. Stated because a pre-filter that is not provably a superset is
-exactly that.
+### `\s+` does not reach a wrap across a blockquote prefix, and my first pass had this wrong twice
+
+**`>` is not whitespace.** A clause wrapping as `` are `not `` / `` > statistically decided`; `` has a
+newline **and a `>`** between the words, so a literal space misses it and **`\s+` misses it too**.
+Measured elsewhere in this lab on `LADDER_V_PASS3_COLD_2026-08-11.md:465`, where a sweep reported a
+clause absent at a site that states it plainly. This corpus is largely blockquoted rulings, so the
+exposure is wide.
+
+**Repaired here by stripping line-continuation prefixes FOR DETECTION ONLY** — leading `>`, nested
+`> >`, list markers, heading marks — never altering quoted text or offsets. **The repair's own
+control**, planted and read back:
+
+| planted form | `\s+` only | prefix-stripped |
+|---|---|---|
+| `> Whether to spend a 5th official scoring` / `> call on anything…` | **MISSED** | found |
+| `> > the ledger stands at six scoring` / `> > calls, ever` | **MISSED** | found |
+| `- five distinct prediction` / `  sets scored to date` | found | found |
+
+**And it corrected my pre-filter, which was not the superset I claimed.** The first pass filtered on
+`scoring|prediction[ -]sets?|\bcalls?\b` and kept **568** paths. `prediction[ -]sets?` is a **two-word
+phrase**, so a blockquote wrap between `prediction` and `sets` would defeat the filter itself — the
+silent-zero shape one level up from the sweep. **Corrected to single tokens only,
+`scoring|prediction|calls?`, which a wrap cannot split**, and the filter now keeps **937 paths, 369
+more than the claim I first published.**
+
+**What the pre-filter provably supersets, restated so it is checkable:** every alternative in the
+recogniser's `CALLNP` noun phrase — `(official )?scoring[-\s]calls?`, `scoring[-\s]call \w+`,
+`prediction sets? scored`, `calls? (made|scored|spent|used)`, `distinct prediction sets?` — contains
+the **single token** `scoring`, or `prediction`, or `call`. Single tokens are the load-bearing part:
+a wrap can split a phrase but not a word. **So no text the recogniser could match can fail the
+filter.**
 
 Blobs were read through **one `git cat-file --batch`** rather than one subprocess per file, after a
 per-file version timed out twice. Strike spans blanked in place, offsets preserved.
 
-**Result: 130 files carry a scoring-call count claim, 637 claims in total.** The two sentences of
-`D284` are among them, and so is the same-era sibling that decides the ruling.
+**Result at HEAD: 694 claims in 132 files** (the first pass under-reported this as 637 in 130,
+because of the narrow pre-filter). **The prefix-strip moved the corpus count 693 → 694 and gained
+zero files** — that movement is the repair's control on real text rather than on a plant. The one
+claim it revealed is in `campaign/LADDER_V_PASS2_2026-08-11.md`, inside **V7's own verification
+record** (*"RUNG V7 … (a) The scoring-call count claims — full reconciliation Ledger: 6 cumulative …
+Frame: I grepped code **and** records"*). It is a **mention**, not a new defect.
+
+**The ruling's own evidence did not move under either normaliser** —
+`closure_criterion_on_test_features.py` **4 hits both ways**, `closure_round4_manifest.py` **3 both
+ways**, `export_closure_submission_csvs.py` **11 both ways** — so §2 and §3 stand unchanged, and the
+verdict does not rest on the corrected figures.
 
 ---
 
@@ -174,9 +206,13 @@ it: a grader may not repair what he grades.**
   only when a neighbouring key names the unit.
 * **Counts in images, PDFs and the shipped archive** — not in frame here; `dist/` and
   `demo-output/website/latex/` were excluded by instruction.
-* **Use versus mention.** Of the 637 claims, many are records *quoting* a count in order to correct
-  it. They were separated by reading, which does not scale; the discriminator at `79e52dfa` is what a
-  future pass should call, as `D286` already records.
+* **Use versus mention.** Of the 694 claims, many are records *quoting* a count in order to correct
+  it — including the single claim the blockquote repair revealed. They were separated by reading,
+  which does not scale; the discriminator at `79e52dfa` is what a future pass should call, as `D286`
+  already records.
+* **Wraps across prefixes I did not enumerate.** The strip covers `>`, `> >`, list markers and
+  heading marks. A wrap across a table pipe, a code-fence gutter, or an HTML tag between the words
+  would still be missed, and I have not measured whether any exists.
 
 ---
 
