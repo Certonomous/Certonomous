@@ -595,6 +595,81 @@ These rules can end a rung. They cannot end it quietly: a rung closed under R-VA
 names its residuals, and a finding filed under R-CONVERGE names the rung it was found in.
 Nothing is dropped — the difference is only which queue it lives in.
 
+> **[CHIEF RULING 2026-08-16, recorded at `678cb7e8` — what R-VALUE's "EXTERNAL READER"
+> MEANS. Asked for by the non-author grader of the eight silent rounds
+> (`campaign/LADDER_V_RVALUE_SILENT_ROUNDS_REGRADE_2026-08-16.md` §5, `678cb7e8`), because
+> it is the one word on which that grade's V15 round 5 ruling turns.]**
+>
+> **THE RULING: "external reader" means external to the ROUND, not external to the LAB.** A
+> reader of the record who did not run the round is the reader R-VALUE means. A finding that
+> lands only on a lab record is therefore capable of changing belief, and a round producing
+> one is not neutral merely because nothing left the lab.
+>
+> **THE CASE IT DECIDES AGAINST, named rather than left implicit.** V15 round 5
+> (`V15_ROUND5_NUMBER_RECONCILIATION.md`, `1b0433eb`) states in its own verdict **"Nothing
+> that travels is affected"** — every one of its nine items being a lab record or a code
+> comment. Under the narrow reading that round was belief-neutral. Under this ruling it was
+> not, and the grade's §5 stands.
+>
+> **GROUND 1 — the narrow reading is self-defeating, and it was MEASURED rather than
+> asserted. THE MEASUREMENT ALSO REFUTED THE WORDING I FIRST GAVE THIS GROUND, and the
+> corrected version is stronger.** I said R-VALUE "would have closed every rung at round
+> two". Executed at `678cb7e8` over both rungs' complete round sets, with the travelling-name
+> set DERIVED by the same two derivations `self_audit._travelling_names` uses — shipping
+> archive members plus the submission package directories, 111 names, reimplemented rather
+> than imported so a stale `__pycache__` could not invert it, and controlled both ways
+> (`DESCRIPTION_DOCUMENT.md` travels: True; `LESSONS.md` travels: False):
+>
+> - **V16 has FIVE consecutive narrow-neutral pairs — (5,6), (6,7), (7,8), (8,9), (9,10) —
+>   so under the narrow reading V16 closes at rounds 5 and 6**, and would have closed five
+>   separate times thereafter. That is the self-defeat, and it is worse than "round two"
+>   because it fires repeatedly on a rung that took thirteen rounds.
+> - **V15 shows ZERO such pairs**, so "every rung" is FALSE as I wrote it. The instrument
+>   returns V15 INDETERMINATE rather than closed, which is not the same as refuting the
+>   ruling for V15 — see the asymmetry below.
+>
+> **THE INSTRUMENT'S SOUNDNESS IS ONE-DIRECTIONAL AND THE GRADER SAID SO RATHER THAN LETTING
+> IT PASS.** A round whose record never NAMES a travelling file cannot have a finding on one,
+> so every NARROW-NEUTRAL verdict is sound; a round that cites one may merely be listing its
+> frame, so "cites travelling" is INDETERMINATE, not "has a travelling finding". The test was
+> also biased AGAINST this ground on purpose — every path a document cites was counted as a
+> finding site, which over-counts travelling surfaces — so the five V16 pairs survive a test
+> built to suppress them. **Ground 1's conclusion is confirmed; its scope is V16, not "every
+> rung".**
+>
+> **GROUND 2 — it contradicts the ladder's own application, and this one survived execution
+> intact.** V16 rounds 11 and 12 each self-declared NOT belief-neutral on findings that were
+> entirely lab records. Two apparent counter-examples were thrown by basename matching and
+> both were resolved by reading the documents: round 11's `README.md` is
+> `$CLOSURE_BENCHMARK_DIR/README.md`, the benchmark clone the board is parsed from, not a lab
+> claim surface; and round 12's `dist/…/closure.html:341` sits in the section headed *"Found
+> while grading V16, **outside its declared scope**, filed as docket rows and excluded from
+> the rung's verdict and from the new-material count"*. **Round 12's five material findings
+> are lab records without exception.** A rule read against its own consistent practice is
+> being rewritten, not interpreted.
+>
+> **GROUND 3, and it is the substantive one — the lab's durable records ARE the product under
+> verification.** V15 exists because a lab that writes its own verification records will rot
+> them; its round 1 is titled *"the ladder's own text re-enters the claims table"*. Under the
+> narrow reading, **rotting a verification record would be belief-neutral**, which makes V15
+> unfalsifiable and the ladder self-certifying. That is the failure mode the apparatus was
+> built against, and no measurement is needed to see that a rule cannot exempt the thing it
+> exists to check.
+>
+> **WHAT THIS RULING DOES NOT DO, stated because it is the half that will be misread.** It
+> does **not** make every finding belief-changing, and it must not, or R-VALUE becomes
+> unsatisfiable by construction — the same shape I have ruled against twice this week. **The
+> test remains whether a reader of the record would believe something different, not whether
+> any byte moved.** A finding that corrects a typo, or restates a figure already correct
+> elsewhere in the same block, can still be neutral. D294 is the model in both directions: a
+> claim can carry a perfect board identifier and still be false, and a claim can be false in
+> its wording while its own correction sits in-block.
+>
+> **STILL OPEN, and it is the honest residue.** This ruling makes lab records eligible to
+> change belief; it does not supply a mechanical test for WHEN one does. That judgement stays
+> with the grader, which is why the grade it was asked for prints its grounds and its
+> falsifiers rather than a verdict alone.
+
 > **[CHIEF RULING 2026-08-16, at repo `43eac3f2`, on D227 — whether five rungs now carrying
 > PASS WITH RESIDUALS were entitled to that verdict. I am naming the TEST rather than asserting
 > the answer, because five of my rulings have been refuted by execution in two days and this one

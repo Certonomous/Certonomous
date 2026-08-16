@@ -453,6 +453,74 @@ landed in the same commit; neither row closes, promotes or re-opens a rung.
 
 ---
 
+## 8. THE RULING §5 ASKED FOR, AND WHAT EXECUTION DID TO IT
+
+§6.2 named the chief's ruling on *"external reader"* as the one call that could overturn §5.
+It was made and recorded in `LADDER_V_TRIPLE_VERIFICATION.md` at `678cb7e8`: **"external
+reader" means external to the ROUND, not external to the LAB**, which upholds §5 and decides
+against V15 round 5's *"Nothing that travels is affected"*.
+
+**The ruling's three grounds were tested by execution rather than accepted, and one of them
+did not survive as worded.** The travelling-name set was **derived**, not listed, by the same
+two derivations `self_audit._travelling_names` uses — shipping archive members plus the
+submission package directories — **reimplemented rather than imported**, so a stale
+`__pycache__` could not invert the result: **111 names**, 0 unopened archives, controlled in
+both directions (`DESCRIPTION_DOCUMENT.md` travels: **True**; `LESSONS.md` travels:
+**False**). Every V15 and V16 grade round was then marked narrow-neutral if its own record —
+document, or commit message where the commit **is** the record — names no travelling file at
+all.
+
+| rung | rounds that name no travelling surface | consecutive pairs under the NARROW reading |
+|---|---|---|
+| **V16** | 5, 6, 7, 8, 9, 10, 13 | **(5,6) (6,7) (7,8) (8,9) (9,10)** — five |
+| **V15** | none | **none** |
+
+**GROUND 1's CONCLUSION IS CONFIRMED AND ITS WORDING IS REFUTED.** The ruling said R-VALUE
+*"would have closed every rung at round two"*. Measured: **V16 would have closed at rounds 5
+and 6**, and four more times after that — worse than "round two", because it fires repeatedly
+on a rung that took thirteen rounds. But **V15 returns zero pairs**, so *"every rung"* is
+false as written. The self-defeat is real and its scope is V16.
+
+**THE INSTRUMENT IS SOUND IN ONE DIRECTION ONLY, AND THAT IS WHY THE REFUTATION IS PARTIAL
+RATHER THAN TOTAL.** A round whose record never *names* a travelling file cannot have a
+finding on one, so every NARROW-NEUTRAL verdict is established; a round that cites one may
+merely be listing its frame, so *"cites travelling"* is **INDETERMINATE**, not *"has a
+travelling finding"*. **V15 is therefore undetermined by this instrument, not shown safe under
+the narrow reading.** The test was also deliberately biased **against** ground 1 — every path
+a document cites was treated as a finding site, which over-counts travelling surfaces — so
+the five V16 pairs survive an instrument built to suppress them.
+
+**GROUND 2 SURVIVED INTACT, after two false positives were resolved by hand.** Basename
+matching flagged round 11 and round 12 as citing travelling surfaces. Both were read:
+
+- Round 11's `README.md` is `$CLOSURE_BENCHMARK_DIR/README.md`, i.e.
+  `/home/ubuntu/closure-challenge-benchmark/README.md` — the benchmark clone the board is
+  parsed from, **not a lab claim surface**. (`LADDER_V_V16_ROUND11.md:789–791`.)
+- Round 12's `dist/…/closure.html:341` sits inside the section headed *"Found while grading
+  V16, **outside its declared scope**, filed as docket rows and excluded from the rung's
+  verdict and from the new-material count"*, and its other two hits sit in a *"nothing was
+  written to"* list. **Round 12's five material findings are lab records without exception.**
+
+So both rounds self-declared NOT belief-neutral on findings that were entirely lab records,
+exactly as ground 2 states. **This is the ladder's own practice contradicting the narrow
+reading, and it is now measured rather than recalled.**
+
+**GROUND 3 needs no measurement and got one anyway on its single factual premise:** V15's
+subject **is** the lab's own verification records — round 1 is titled *"the ladder's own text
+re-enters the claims table"*. Under the narrow reading, rotting a verification record would be
+belief-neutral, which makes V15 unfalsifiable. A rule cannot exempt the thing it exists to
+check.
+
+**A LIMITATION OF THE GUARD, NOT ONLY OF THIS TEST, MET WHILE RUNNING IT.**
+`_travelling_names()` classifies by **basename**, so the submission package's `README.md`
+makes *every* `README.md` in every citation look travelling — including the benchmark clone's,
+which is the one file in this lab that must never be read as a lab claim surface. That is why
+ground 2 needed two hand resolutions. It is noted here and **not filed**, because it is a
+property of a peer-held instrument that this grade did not measure at scale and would be
+re-finding rather than finding.
+
+---
+
 *Graded 2026-08-16 at `9cdb1851` by a non-author. Every figure in §0.2 and §1.1 was re-derived
 by parsing an assignment node, never by importing a module and never by quoting a brief, a
 docket row or a commit message. The recognition control in §1.3 was frozen and hashed before
