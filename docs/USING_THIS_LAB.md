@@ -897,6 +897,15 @@ file. §9.6b makes the `git diff <path>` read before the commit mandatory, and
 §9.6c forbids the polite alternative of leaving it uncommitted. So: read the diff,
 commit, and **name in your commit message what else you carried**.
 
+> **[AMENDED 2026-08-16 at `29fd7030`. Nothing above is struck — it is still the
+> rule for a shared file in general.]** For `docs/DOCKET.md` specifically there
+> IS now a safe granularity, and "carry the peer's row and name it" is no longer
+> the best available option: **§11b item 8** gives a private-index form that
+> commits the PARENT's blob plus only your own rows, selected by row ID and never
+> copied from the worktree, landed with a mandatory compare-and-swap. Measured at
+> `e4c1319e`, a pathspec commit of the docket would have carried 2 foreign rows.
+> Use item 8 on the docket; use the paragraph above everywhere else.
+
 **And it cuts both ways, which is the half people miss.** While this guide was
 being written I appended a docket row and went to finish a paragraph before
 committing it. Fourteen minutes later:
@@ -1353,10 +1362,100 @@ resolved to exactly one file. Note what actually decides it — a `$(echo <liter
 probe RESOLVES, because the literal is in the recorded call. Typing the token is a
 rule that is always safe, not a description of the mechanism.
 
+**The condition, stated exactly, because this document publishes the rule:** the
+token's **VALUE must be present in the tool call as the harness recorded it.** An
+unpredictable substitution fails not because it contains `$(...)` but because the
+shell expands it *before* the harness writes the call down, so the value the
+emitter searches for was never recorded. Both directions were re-executed at
+HEAD `42f3e7b4` and again at `fe54ec0a`, same results both times, exit codes
+captured as `cmd > out 2>&1; rc=$?` and never through a pipe, since a pipe
+replaces the status:
+
+    $ python3 scripts/check_rung_attribution.py --emit-trailer \
+        --probe "D240CTL$(od -An -N8 -tx1 /dev/urandom | tr -d ' ')"
+    rc=3, no trailer — ~620 bytes of refusal text naming the probe
+    $ python3 scripts/check_rung_attribution.py --emit-trailer \
+        --probe "$(echo D240ECHOLITERAL8WQ)"
+    rc=0, agent form emitted: .../-/agent-a2abe5ddb4adedc53
+
+**And check the exit code, not the message file** — a sentence written here from
+reasoning and then corrected by executing it. The refusal goes to **stderr**, and
+stdout is empty: split-stream measured at `fe54ec0a`, **stdout 0 bytes, stderr
+621**. So the adoption line's `>> <msgfile>` redirect appends **nothing at all**
+on a failed probe, silently, and the commit lands with no identity while looking
+exactly like a commit whose emitter ran fine. `rc=$?` is the only thing that tells
+you which happened.
+
+The second one is a `$(...)` that RESOLVES. So *"type the token"* is a
+**sufficient** rule, and the whole of what it is doing is guaranteeing the value
+reaches the record. The bare form was re-executed in the same pass and still
+emitted the session line, `.../-` with no fourth field, rc=0 — which grades AUTHOR
+for every sibling pairing, so quoting it costs adoption effort and buys nothing.
+
 Two limits survive the repair. **The chief session itself cannot probe**, having
 no per-subagent transcript of its own. And nothing before the anchor `e933e31b`
 is attributable — *"backfill is impossible"*. The `--tag` slug is recorded,
 printed, and **never decides a verdict**.
+
+#### A per-agent handle is a DIFFERENCE, not independence — and a green run is not admissible as one
+
+*[Added 2026-08-16 to close a gap this guide was measured to have: before this
+paragraph the word `fork` appeared in it **zero** times, so a dispatcher could
+follow §11a end to end and construct a grader that passes the attribution check
+while being contextually the same reader.]*
+
+Chief ruling, `docs/DOCKET.md` **D240** (`29fd7030`). The instrument was shown to
+return the negative for the first time, at commit-pair `01e94313`/`62d5757e` —
+re-executed at HEAD `4a923413` by an agent that wrote neither commit, returning
+`VERDICT: NON-AUTHOR`, `GRANULARITY: agent`, exit 0, over a frame reading
+`1 session, 2 per-agent, over 2 commits`. That closed the objection that it could
+not discriminate. It did **not** turn a green run into an independence warrant,
+and **no ladder rung may cite one as its warrant.** Three measured reasons:
+
+- **The verdict is asymmetric.** `NON-AUTHOR` is informative; `AUTHOR` is what
+  almost every pair returns out of **absence of data**, for reasons that have
+  nothing to do with who did the work. Measured at `4a923413`: 6 of the 108
+  commits since anchor `e933e31b` carried a per-agent handle, so **15 of the 5,778
+  commit pairs — 0.26% — could be asked the agent-granularity question at all.**
+  The other 99.74% answer `AUTHOR`, or answer at session granularity, because one
+  side or both carried no handle.
+
+- **A `fork` subagent defeats the measure by construction, and this is the trap
+  the dispatcher walks into.** A fork inherits its parent's **entire
+  conversation** — it has read everything the parent read — and it still carries
+  its own `agent-<hex>`, so it grades `NON-AUTHOR`.
+  `docs/AGENT_ATTRIBUTION.md:198-201`: *"a different agent by this measure, having
+  read everything the parent read. R-ISOLATE's spirit is not satisfied by
+  dispatching a fork, and the check cannot see the difference."* The tool prints
+  the same caveat on **every** run, in its `FORGEABILITY` line, verbatim:
+  *"a `fork` subagent inherits its parent's whole context and is still a different
+  agent here."* **So when you need a grader that has not read the author's
+  reasoning, dispatch a FRESH agent, not a fork.** Nothing in the trailer, in the
+  transcripts, or in the tree records dispatch KIND, so no later reader can
+  recover which one you dispatched — the choice is unauditable after the fact,
+  which is why it has to be made correctly at dispatch time.
+
+- **Existence is unverifiable from a clone, permanently.** The handles resolve
+  from harness transcripts under `~/.claude/projects/<slug>/<session>/subagents/`,
+  and that root is **not inside this repository**. Measured 2026-08-16 at
+  `4a923413`: a fresh `git clone` of this repo contained **no `subagents`
+  directory and no `agent-<hex>.jsonl`**, and `--emit-trailer --probe <typed
+  token> --transcripts <clone>` exited **3**. A *verdict* still reproduced from
+  inside that clone, because a verdict reads commit trailers — so the mechanism
+  makes **DIFFERENCE** checkable and leaves **EXISTENCE** unverifiable. And it
+  reaches nothing before the anchor: 1,858 commits up to and including
+  `e933e31b`, exactly **one** of which carries a trailer (the anchor itself).
+
+There is also a whole half of R-ISOLATE the check cannot see at all: the rule
+requires a grader to **EXECUTE** the claim rather than read the author's summary
+of it, and a grader that read a summary and a grader that ran the code commit
+identical bytes. So rung-level independence continued to rest on the **untracked
+dispatch record**, exactly as the rest of §11a says, and the attribution run is
+one of two necessary conditions rather than a warrant. What would change that:
+adoption reaching the point where a representative sample of grader/graded pairs
+carries a probed four-field trailer on **both** sides. The distance, at
+`4a923413`: 9 of 108 commits since the anchor carried any identity, 6 a per-agent
+handle, across three distinct handles.
 
 ---
 
@@ -1429,6 +1528,126 @@ records `git add` failing with `Unable to create '.git/index.lock'` while the
 following pathspec commit succeeded anyway. Retry the `add`, or skip it — but read
 the diffstat, because a form that commits without staging also commits when you did
 not mean it to.
+
+**7. The session scratchpad is SHARED, and a peer will overwrite your files under
+you.** *[Added 2026-08-16, measured while landing `29fd7030`.]* A commit message
+written to `<scratchpad>/msg.txt` was **replaced wholesale by another agent's
+message** in the interval between the `Write` and the commit. It was caught only
+because the identity trailer had already been appended to the file, so a `tail` of
+it showed my own `Lab-Agent:` line sitting under a peer's prose — **a peer's text
+would otherwise have landed under my handle, with my trailer attesting it.** A
+listing of that directory at the time showed 120 entries written by many agents,
+including six differently-named copies of the docket. The protocol, and it applies
+to **every round-tripped intermediate file, not just commit messages**:
+
+- Work in a **per-agent subdirectory** — `<scratchpad>/<task>-<your agent-hex>/`,
+  the hex being the one `--emit-trailer --probe` resolves for you — never in the
+  scratchpad root.
+- **Byte-verify immediately before the file is consumed, not when you wrote it.**
+  Before `commit-tree`, re-read the message and re-check the staging blob; after
+  landing, compare content rather than a summary (item 5). The D240 row was
+  compared byte-for-byte against its staged copy after `29fd7030` landed, and the
+  message file was rewritten under a private path and re-read before use.
+- **Why it matters far beyond commit messages:** a peer overwriting a
+  planted-control readback converts a **broken sweep into a clean bill of
+  health**. §10 step 3 and docket D239 both turn on a positive control having
+  actually fired; a control you re-read from a shared path is a control you have
+  not run. Same fail-open shape as the worktree-isolation caveat in §11a — an
+  honest, confident, empty result.
+
+**8. On `docs/DOCKET.md` the pathspec form is unsafe whenever a peer holds a row,
+and its replacement is a private index plus a compare-and-swap.** §9.3 tells you a
+pathspec isolates by file and not by author; the sharper statement is the
+mechanism — `git commit -- <path>` takes the file from the **WORKING TREE**, so it
+commits every foreign row sitting in it. Measured at `e4c1319e`: `git diff HEAD --
+docs/DOCKET.md` showed **2 added lines, both of them foreign rows (D236, D237)**,
+so a pathspec commit at that moment would have landed two other agents' work under
+my message. The standing form instead, executed for D221 and again at `01e94313`,
+`16bc2f7f` and `29fd7030`:
+
+```bash
+EXPECTED_OLD=$(git rev-parse HEAD)          # read ONCE; this is the CAS token
+# Rebuild the blob as the PARENT's docket plus ONLY your own rows, selected by
+# row ID. Never copy the worktree file — that is the capture you are avoiding.
+git show $EXPECTED_OLD:docs/DOCKET.md > $D/new.md && cat $D/myrow.txt >> $D/new.md
+BLOB=$(git hash-object -w $D/new.md)
+export GIT_INDEX_FILE=$D/index && rm -f $GIT_INDEX_FILE   # the SHARED index holds
+git read-tree $EXPECTED_OLD                               # other agents' staged files
+git update-index --cacheinfo 100644,$BLOB,docs/DOCKET.md
+TREE=$(git write-tree)
+NEW=$(git commit-tree $TREE -p $EXPECTED_OLD -F $D/msg.txt)
+unset GIT_INDEX_FILE
+git update-ref refs/heads/main $NEW $EXPECTED_OLD          # MANDATORY, never optional
+```
+
+**Why the compare-and-swap is not optional, stated plainly because its failure is
+worse than the one the private index prevents.** The commit was built with
+`$EXPECTED_OLD` as its only parent. If HEAD moved while you were building it, a
+plain `git update-ref refs/heads/main $NEW` makes your commit **REVERT the
+intervening one** — deleting a peer's work outright, silently, with a clean
+diffstat. Capture publishes a peer's work under the wrong message; a lost race
+**destroys** it, so the failure the CAS prevents is strictly the worse of the two.
+The CAS refuses instead, and refuses loudly. Measured at `e4c1319e` against a real
+stale sha, exit status captured directly:
+
+    $ git update-ref refs/heads/main $H $(git rev-parse HEAD~3) ; echo "exit=$?"
+    fatal: update_ref failed for ref 'refs/heads/main': cannot lock ref
+    'refs/heads/main': is at e4c1319e... but expected f3c27a0c...
+    exit=128
+
+`f3c27a0c` in that message is the parent `29fd7030` was actually built on, about
+twenty minutes earlier; HEAD had moved three commits in the interval. On this tree
+that is the normal case and not the incident, which is the whole argument for the
+CAS. Declare the row count with `python3 scripts/hunk_check.py docs/DOCKET.md:<n>`
+and verify the landed commit with its `--at <sha>` mode — the worktree mode will
+read high, because it sees the foreign rows too.
+
+**And record the by-product, because somebody owns it.** An agent that declines to
+commit rather than capture leaves **ORPHANED ROWS**: text that lives in the
+worktree and in no commit, invisible to `git log`, and destroyed outright by any
+of the reverting commands item 4 forbids. D236 and D237 sat orphaned across at
+least four commits (`4a923413` at 16:59:52Z through `e4c1319e`); D238 and D239 had
+been orphaned before them and were landed only because an agent was dispatched to
+do it (`4a923413`). **So the protocol has a second half: whoever leaves foreign
+rows uncommitted must SAY SO in their commit message, and somebody must be
+dispatched to land them.** Leaving them and saying nothing is item 2's failure
+arriving by a different route.
+
+**9. The shared index is a loaded gun, and `git commit` with NO pathspec fires
+it.** *[Added 2026-08-16, measured — this was found while committing the section
+above, not reasoned about.]* There is **one** `.git/index` and every agent's
+`git add` writes to it. At `fe54ec0a`, `git diff --cached --stat` read:
+
+    docs/AGENT_ATTRIBUTION.md              |  11 --
+    docs/DOCKET.md                         |  10 +-
+    docs/USING_THIS_LAB.md                 |  49 +++------
+    scripts/self_audit.py                  | 117 +++------
+    sdk/tests/test_rank_claim_surfaces.py  |  67 ------
+    sdk/tests/test_rank_claim_values.py    | 189 ++---------
+    6 files changed, 41 insertions(+), 402 deletions(-)
+
+None of it was mine, and it was **stale against HEAD in the reverting direction**.
+`git show :docs/USING_THIS_LAB.md` returned a 1,559-line blob containing `--probe`
+**zero** times — a pre-`9416db99` snapshot of §11a, which if committed would have
+republished the corrected-and-struck adoption line as live text and re-broken the
+citation to `scripts/check_rung_attribution.py:90` as `:92`. `git show
+:docs/DOCKET.md` did not contain **D240**, so committing the index would have
+**deleted a landed docket row**. A bare `git commit` by anybody, for any reason,
+would have reverted 402 lines across six files with a clean-looking diffstat and a
+message about something else entirely.
+
+- **Never run `git commit` without a pathspec on this tree**, and check
+  `git diff --cached --stat` before any commit form at all — `hunk_check.py` now
+  reports staged-and-undeclared paths for exactly this reason, and it reported
+  these.
+- **Do not "clean up" the index either.** Those blobs are other agents' in-flight
+  work, and item 4 plus `ESCALATION_CHARTER.md` §3 govern: inspected, never
+  reverted. Report it; do not `git reset`.
+- **The private-index form of item 8 is immune to all of this**, and that is a
+  second reason to prefer it over a pathspec commit even for an ordinary file: it
+  builds from `git read-tree $EXPECTED_OLD` in a `GIT_INDEX_FILE` of its own, so
+  the shared index is neither read nor written, nothing rides along, and nobody
+  else's staged work is destroyed. This section was committed that way.
 
 ---
 
