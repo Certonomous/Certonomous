@@ -143,6 +143,38 @@ class ThePositiveControlIsTheShippedArtifactTests(unittest.TestCase):
                         f"both withdrawn claims in that sentence must fire; "
                         f"got {rules(faults)}")
 
+    def test_the_shipped_best_on_board_count_is_reached_at_last(self):
+        """D236, on the artifact and not on a fixture.
+
+        Member line 341-342 wraps mid-claim: "and our best-on-board count" /
+        "drops <b>5 of 8 -> 4 of 8</b>". V14's ruling recorded this as
+        "structurally unreachable by any board arithmetic ... needs a human
+        reading"; its author withdrew that at `b2668906` once the obstruction
+        was executed and turned out to be the line break. Against the live
+        board the count is 2 of 8 and the count belonging to our model is 0,
+        so `4 of 8` is false and must fault.
+
+        WHEN `dist/` IS REBUILT this control goes green-by-absence, exactly as
+        its neighbours in this class do -- the tracked source already carries
+        the correction at `demo-output/website/closure.html:358`. That is the
+        residual on V14's face, not a defect in this test.
+        """
+        faults, _ = grade(self._member())
+        named = [m for line, rule, m in faults
+                 if rule == "best-on-board count"]
+        self.assertTrue(
+            named,
+            "the wrapped best-on-board claim in the shipping member went "
+            "ungraded; that is the newline defect D236 repaired")
+        self.assertTrue(any("`4 of eight`" in m for m in named),
+                        f"the rule fired on the wrong value: {named}")
+
+    def _member(self):
+        archives = sa._shipping_archives()
+        self.assertTrue(archives, "there is no shipping archive to control on")
+        with zipfile.ZipFile(archives[0]) as zf:
+            return zf.read(self.MEMBER).decode("utf-8")
+
     def test_the_whole_check_fails_and_names_the_member(self):
         result = verdict(sa.check_rank_claim_values)
         self.assertEqual(result.status, sa.FAIL)
@@ -274,6 +306,121 @@ class TheMustNotMatchHalfTests(unittest.TestCase):
                 "of 8 to 2 of 8 on the leaderboard.\n")
         faults, _ = grade(text)
         self.assertEqual(faults, [], f"the correction faulted: {faults}")
+
+    def test_the_count_rule_crosses_a_soft_wrap(self):
+        """D236. The obstruction was a newline, not board arithmetic.
+
+        THE SPECIFICATION THIS IS DERIVED FROM, and it is not the pattern:
+        V14's ruling `9b9951a1` called the shipped sentence "structurally
+        unreachable by any board arithmetic ... that one needs a human
+        reading", and its author withdrew that at `b2668906` because the only
+        obstruction was a 25-character gap containing a line break. So the
+        claim must be graded when it wraps, and the value it must name is the
+        one the sentence asserts.
+        """
+        # The shipped shape: the noun phrase ends one line, the count begins
+        # the next, inside an inline tag. Written out rather than read from
+        # `dist/`, because a test that reads the artifact under repair cannot
+        # say whether the artifact or the rule moved.
+        text = ("On the closure leaderboard the tie is gone and our "
+                "best-on-board count\ndrops <b>4 of 8</b> today.\n")
+        faults, _ = grade(text)
+        self.assertIn("best-on-board count", rules(faults),
+                      "a wrapped best-on-board claim went ungraded, which is "
+                      "the defect D236 repaired")
+        # NAME the thing, do not count it: an assertion on the number of faults
+        # survives a rule that fires on the wrong value.
+        self.assertTrue(
+            any("`4 of eight`" in m for _, r, m in faults
+                if r == "best-on-board count"),
+            f"the rule fired but did not name the claimed value: {faults}")
+
+    def test_the_same_claim_unwrapped_grades_identically(self):
+        # The two readings must agree, or the repair has made the verdict
+        # depend on where the line happens to break.
+        wrapped = ("On the closure leaderboard the tie is gone and our "
+                   "best-on-board count\ndrops <b>4 of 8</b> today.\n")
+        flat = wrapped.replace("count\ndrops", "count drops")
+        self.assertEqual(
+            [(r, m) for _, r, m in grade(wrapped)[0]],
+            [(r, m) for _, r, m in grade(flat)[0]],
+            "the wrapped and unwrapped spellings of one claim graded "
+            "differently")
+
+    def test_the_gap_stops_at_a_block_boundary(self):
+        """THE BOUND, and this half is the proof of it (L-84).
+
+        A newline is not the only thing that ends a claim. Deleting the
+        exclusion outright lets `best` in one block bind to a count in the
+        next, which manufactures a fault out of two unrelated sentences --
+        strictly worse than the miss it repairs, because a false fault is what
+        gets a guard switched off. Every case below is a SUBJECT and a COUNT
+        that belong to different blocks, and none of them may match.
+        """
+        hazards = {
+            "paragraph break":
+                "we are best on the ducts of the board.\n\nSeparately, Yang "
+                "wins 4 of 8 cases",
+            "blank line carrying whitespace":
+                "our best-on-board count is settled\n   \nYang takes 4 of 8 "
+                "cases on the board",
+            "table row boundary":
+                "| metric | best-on-board |\n| Yang wins | 4 of 8 |",
+            "markdown heading":
+                "which board entrant is best\n## Yang takes 4 of 8 cases",
+            "bullet":
+                "the best board entrants are ranked\n- Yang wins 4 of 8 cases",
+            "ordered list item":
+                "the best board entrants are ranked\n1. Yang wins 4 of 8",
+            "blockquote":
+                "we are best on the board\n> Yang wins 4 of 8 cases",
+            "html block opens":
+                "we are best on the board\n<p>Yang wins 4 of 8 cases</p>",
+            "html block closes":
+                "we are best on the board\n</p><p>Yang wins 4 of 8 cases",
+            "sentence boundary":
+                "we are best on the board. Yang wins 4 of 8 cases",
+            "the 80-character budget still binds":
+                "best on the board " + "x" * 60 + "\n" + "y" * 30 + " 4 of 8",
+        }
+        for name, text in hazards.items():
+            with self.subTest(hazard=name):
+                self.assertIsNone(
+                    sa._BEST_COUNT.search(text),
+                    f"the count rule bound a subject to a count across a "
+                    f"{name}; the gap may cross a SOFT WRAP and nothing else")
+
+    def test_a_soft_wrap_is_still_allowed_inside_the_block(self):
+        # The other half of the bound: it must not be so tight that it
+        # re-creates the defect. Each of these is ONE claim that happens to
+        # wrap, and each must match.
+        for text in ("our best-on-board count is\nstill **4 of 8** today",
+                     "our best-on-board count\ndrops <b>4 of 8</b> today",
+                     "we are best on the board on\nfour of the eight cases"):
+            with self.subTest(text=text):
+                self.assertIsNotNone(sa._BEST_COUNT.search(text))
+
+    def test_the_denominator_of_eight_is_not_a_decimal(self):
+        """The sibling defect `f4c531cb` closed on `_VALUE_BOARD_SIZE`.
+
+        `\\b` succeeds between `8` and `.`, so `of 8.5` used to read as a board
+        of eight cases. Residual 4 on V14's face; closed here by the same
+        `(?![.,]\\d)` guard.
+        """
+        for text in ("we are best on the board on 4 of 8.5 cases",
+                     "we are best on the board on 4 of 8,5 cases"):
+            with self.subTest(text=text):
+                self.assertIsNone(
+                    sa._BEST_COUNT.search(text),
+                    "the integer part of a decimal was read as the board of "
+                    "eight cases")
+        # And the numerator needs no guard of its own -- MEASURED, not assumed:
+        # the gap class still excludes `.`, so it cannot reach across `0.`
+        self.assertIsNone(
+            sa._BEST_COUNT.search("we are best on the board on 0.5 of 8"))
+        self.assertIsNotNone(
+            sa._BEST_COUNT.search("we are best on the board on 4 of 8 cases"),
+            "and the honest claim must still be graded")
 
     def test_measured_false_positive_rate_is_reported_not_assumed(self):
         # Not a threshold. The corpus run must PRODUCE a triage-able list --
@@ -448,15 +595,41 @@ class TheBareOrdinalIsInsideTheRegexNowTests(unittest.TestCase):
     # ---- the aimed test: the widening's own positive control ----------------
 
     def test_the_shipped_bare_ordinal_now_faults(self):
-        # `dist/certonomous-demo.zip!certonomous-demo/site/closure.html:341`
-        # reads "the case falls to 3rd of 5". Against the live six-entry board
-        # there is no placement out of five. This is the line the widening
-        # exists for, and it is the real shipped member, not a fixture.
+        """The widening's own positive control, on the real shipped member.
+
+        `dist/certonomous-demo.zip!certonomous-demo/site/closure.html:341`
+        reads "the case falls to 3rd of 5". Against the live six-entry board
+        there is no placement out of five.
+
+        THIS PROBE NAMES ITS CLAIM RATHER THAN COUNTING THE LINE'S FAULTS, and
+        it was rewritten on 2026-08-16 (D236) because the counting form was
+        wrong in a way that mattered. It asserted the line's fault list equalled
+        exactly `[(341, "board size")]`, which reads as "the bare ordinal is
+        graded as a denominator" and actually says "no other rule may ever fault
+        this line". Those are different sentences, and the second is not this
+        class's specification: line 341 also carries "our best-on-board count
+        drops 5 of 8 -> 4 of 8", a SECOND and DIFFERENT wrong claim that
+        `_BEST_COUNT` could not reach while its gap class excluded the newline
+        it wraps on. When that was repaired the count fault appeared here and
+        reddened a test whose stated intent it satisfies. An over-specified
+        probe fails on correct changes, and the cheapest way to green it is to
+        undo the repair.
+        """
         faults, _ = grade(self._member())
-        hit = [(line, rule) for line, rule, _ in faults if line == 341]
-        self.assertEqual(hit, [(341, "board size")],
-                         f"the shipped `3rd of 5` must fault, and as a "
-                         f"DENOMINATOR fault; got {sorted(faults)}")
+        at_341 = {rule for line, rule, _ in faults if line == 341}
+        self.assertIn("board size", at_341,
+                      f"the shipped `3rd of 5` must fault; got {sorted(faults)}")
+        # ... and as a DENOMINATOR fault. The numerator of a bare ordinal is
+        # undecidable (see this class's docstring), so grading it against the
+        # overall sort would fault a correct travelling claim -- the outcome
+        # the ruling names as reversing the widening.
+        self.assertNotIn("our placement", at_341,
+                         "the bare ordinal was graded against the overall "
+                         "sort; only its DENOMINATOR is decidable")
+        self.assertTrue(
+            any("`3rd of 5`" in m for line, rule, m in faults
+                if line == 341 and rule == "board size"),
+            "the denominator fault did not name the claim it is about")
 
     def test_a_bare_ordinal_with_a_wrong_denominator_faults(self):
         facts = facts_now()

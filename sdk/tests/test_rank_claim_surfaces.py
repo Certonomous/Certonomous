@@ -457,6 +457,73 @@ class TheBestOnBoardDisclosureTests(unittest.TestCase):
         self.assertEqual([], sa._best_on_board_faults(
             "Best on the board on four of the eight cases."))
 
+    def test_the_declared_blind_spot_names_the_CALLER_and_not_the_pattern(self):
+        """D129/D236. The frame of this rule is its caller, not its regex.
+
+        `_best_on_board_faults` is reached from exactly one place, and that
+        place hands it ONE whitespace-collapsed string out of `wall.json`. It
+        opens no SURFACE. Until 2026-08-16 the declared blind spot instead
+        named `_BEST_COUNT`'s inability to cross a line break -- a real limit,
+        and the flattering one to confess, because repairing it changes nothing
+        about how many surfaces this check reads.
+
+        THE FIRST VERSION OF THIS TEST PROVED NOTHING, and it is worth saying
+        why in the file it was written in. It asserted "opens no file" by
+        spying on `sa.Path.read_bytes` from inside a class whose `setUp`
+        replaces `_closure_facts` with a lambda. Two independent reasons it
+        could not fail: the rule's file reads go through `Path.read_text`
+        (`_load_json` and `_module_literal` both read TEXT), and the only
+        function that makes them was stubbed out. Measured on 2026-08-16 with
+        the real `_closure_facts` and a cold cache, the rule opens FOUR files.
+        They are the BOARD it grades against, never a surface that could carry
+        a claim, and that is the sentence the blind-spot line has to earn.
+        """
+        line = sa._blind_best_on_board()
+        self.assertIn("THE FRAME IS THE CALLER, NOT THE PATTERN", line)
+        self.assertIn("It opens no SURFACE of its own", line)
+        self.assertIn("check_rank_claim_", line,
+                      "the line must send the reader to the check that does "
+                      "sweep the corpus, or the limit reads as a dead end")
+        # And the claim must be TRUE, not recited. Drive the rule with its REAL
+        # board reader on a cold cache, spying on every API it could open a
+        # file through, and assert that everything it touches is a board
+        # record. A surface appearing in this list is the day the frame moved.
+        opened = []
+        real_facts = self._real
+        sa._closure_facts = real_facts
+        if hasattr(real_facts, "cache_clear"):
+            real_facts.cache_clear()
+        real_bytes, real_text, real_open = (sa.Path.read_bytes,
+                                            sa.Path.read_text, sa.Path.open)
+
+        def spy(fn):
+            def wrapped(self_path, *a, **k):
+                opened.append(str(self_path))
+                return fn(self_path, *a, **k)
+            return wrapped
+
+        sa.Path.read_bytes = spy(real_bytes)
+        sa.Path.read_text = spy(real_text)
+        sa.Path.open = spy(real_open)
+        try:
+            sa._best_on_board_faults(
+                "Best result on the public board on four of the eight cases.")
+        finally:
+            (sa.Path.read_bytes, sa.Path.read_text,
+             sa.Path.open) = real_bytes, real_text, real_open
+            sa._closure_facts = lambda: self.FACTS
+        board = {str(sa._PROB_SCRIPT), str(sa._PROB_RECORD),
+                 str(sa._ENTRY_OF_RECORD)}
+        # THE SPY MUST FIRE, or this test is the vacuous one it replaced: an
+        # empty list here means the probe is watching an API nothing calls.
+        self.assertTrue(opened,
+                        "the file-open probe recorded nothing at all, so it "
+                        "is not watching the API the rule reads through")
+        self.assertEqual(
+            [], sorted(set(opened) - board),
+            f"the rule opened something that is not a board record, so the "
+            f"declared frame is wrong; it opened {sorted(set(opened))}")
+
 
 class TheSurfaceSetIsDerivedNotListedTests(unittest.TestCase):
     """A file nobody has ever named must be covered the day it claims."""

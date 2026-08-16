@@ -737,9 +737,64 @@ def _states_the_interval(text: str) -> bool:
 
 _COUNT_WORDS = {"zero": 0, "no": 0, "one": 1, "two": 2, "three": 3, "four": 4,
                 "five": 5, "six": 6, "seven": 7, "eight": 8}
+# THE GAP MAY CROSS A SOFT WRAP, AND IT MAY NOT CROSS INTO A NEW BLOCK.
+#
+# Until 2026-08-16 the gap class was `[^.\n]{0,80}`, and the newline in it was
+# read as a fact about the world. The V14 ruling `9b9951a1` recorded the
+# shipped sentence at `dist/certonomous-demo.zip!site/closure.html:341-342` --
+# "our best-on-board count / drops <b>5 of 8 -> 4 of 8</b>" -- as
+# "STRUCTURALLY UNREACHABLE by any board arithmetic ... that one needs a human
+# reading". It is reachable. The gap between `best` and the count is 25
+# characters, comfortably inside the 80-character budget; the only thing in it
+# the class excluded is the `\n` where the HTML line-wraps. Executed both ways:
+# the old pattern does NOT match the shipped bytes and DOES match the identical
+# text with the newline replaced by a space. The same rule already faults that
+# quantity, with that same wrong value, at ten other tracked sites -- one of
+# them `campaign/LADDER_V_RUNGS_V2_V7_V10_2026-08-08.md:120`, the identical
+# claim in Markdown. The ruling's author withdrew the concession at `b2668906`.
+#
+# WHY THIS IS NOT THE TUNING THE SAME RULING FORBIDS, and the distinction is
+# the whole point. The forbidden move was widening `_RANK_WINDOW` 5x so a
+# control would pass: that changes WHAT COUNTS AS EVIDENCE for a claim. This
+# changes only WHAT COUNTS AS ONE SENTENCE, and the predicate itself is already
+# proven right by the sites it decides today.
+#
+# BUT A NEWLINE IS NOT THE ONLY THING THAT ENDS A CLAIM, so the boundary is
+# replaced rather than deleted. Deleting it outright (`[^.]`) was measured and
+# breaks 7 of the 11 must-not-match controls -- it joins a subject to a count
+# across a blank line, across a table-row boundary, and across a heading. (The
+# other four hold under `[^.]` too, because a `.` or the 80-character budget
+# already stops them, so they do not discriminate on the newline; the first
+# measurement of this said 9 of 11 and did not reproduce.) What
+# is allowed here is a SOFT WRAP: a single newline whose next line does not
+# OPEN A NEW BLOCK -- not blank, not a table row, not a blockquote, not a
+# heading, not a bullet, not an ordered-list item, not an HTML block tag. The
+# `.` exclusion is kept, so a sentence boundary still ends the gap, and it is
+# also what keeps a decimal numerator (`0.5 of 8`) out. The must-not-match
+# controls are in `sdk/tests/test_rank_claim_values.py` and they are the proof;
+# the argument above is not.
+#
+# MEASURED BOTH WAYS BEFORE IT SHIPPED (2026-08-16, D236): travelling arm
+# 3 -> 4 faults, and the one it gains is TRUE -- the withdrawn count, live and
+# unstruck in a bundle built before the correction landed -- so the arm's false
+# positives stay 0 and the ruling's reversal condition is not triggered.
+# Tracked arm 26 -> 27, false-positive rate 92.3% -> 92.6%, which is the arm
+# that reports and does not gate. Corpus-wide, the widened class admits nine
+# newline-crossing matches and NONE crosses more than one newline.
+#
+# `(?![.,]\d)` is the sibling defect closed on this pattern too: `\b` after `8`
+# succeeds inside `8.5`, so `of 8.5` used to read as a board of eight. It is
+# the same guard `_VALUE_BOARD_SIZE` took at `f4c531cb` for `rank 2 of 0.0030`.
+# The NUMERATOR needs no such guard and that was measured, not assumed: `0.5 of
+# 8` cannot match because the gap class still excludes the `.`.
+_BEST_SOFT_WRAP = (
+    r"\n(?![ \t]*(?:\r?\n|[|>]|\#{1,6}[ \t]|[-*+][ \t]|\d+[.)][ \t]|"
+    r"</?(?:p|div|li|tr|td|th|h[1-6]|ul|ol|dl|table|section|article|header|"
+    r"footer|main|blockquote|pre)\b))")
 _BEST_COUNT = re.compile(
-    r"\bbest\b[^.\n]{0,80}?\b(zero|no|one|two|three|four|five|six|seven|eight|\d+)"
-    r"\s+of\s+(?:the\s+)?(?:eight|8)\b", re.I)
+    r"\bbest\b(?:[^.\n]|" + _BEST_SOFT_WRAP + r"){0,80}?"
+    r"\b(zero|no|one|two|three|four|five|six|seven|eight|\d+)"
+    r"\s+of\s+(?:the\s+)?(?:eight|8)\b(?![.,]\d)", re.I)
 # The disclosure the count may not travel without, in any of the spellings the
 # lab's own records use for it.
 _BASELINE_CREDIT = re.compile(
@@ -7420,25 +7475,57 @@ def _blind_placement_binding() -> str:
 
 
 def _blind_best_on_board() -> str:
-    """Why the best-on-board pattern cannot cross a line, measured."""
-    gap = "[^.\\n]" in _BEST_COUNT.pattern
+    """What this check cannot see about a best-on-board claim, measured.
+
+    UNTIL 2026-08-16 THIS FUNCTION NAMED THE WRONG BLIND SPOT, and the wrong
+    one was the flattering one. It reported that `_BEST_COUNT` cannot cross a
+    line break -- true then, and repaired at D236 -- while the limit that
+    actually decides what this check grades went unnamed: THE CALLER OPENS NO
+    SURFACE. `_best_on_board_faults` has exactly one caller,
+    `check_closure_entry_of_record`, and it is handed one whitespace-collapsed
+    string out of `wall.json` (D129). Widening the pattern does not change that
+    by one file, and a blind-spot line that advertises a pattern repair while
+    the caller still reads one string would be the form-over-value defect this
+    whole line of work exists to remove.
+
+    "OPENS NO SURFACE" AND NOT "OPENS NO FILE", and the distinction was
+    measured on 2026-08-16 rather than assumed. `_best_on_board_faults` does
+    open files: `_closure_facts` reads `probability_of_rank.py` twice by AST,
+    plus the entry of record and the probability record -- four `Path.read_text`
+    calls from a cold `lru_cache`, zero from a warm one. Those are the BOARD it
+    grades against, not surfaces that could carry a claim, and it is the second
+    set that is empty. A probe that spies on `Path.read_bytes` alone measures
+    neither, because `_load_json` and `_module_literal` both read TEXT.
+    """
     try:
         wall = _load_json(WALL)
         entry = str((((wall.get("counters") or {}).get("research") or {})
                      .get("closure") or {}).get("our_entry") or "")
     except Exception:                              # noqa: BLE001
         entry = ""
-    shape = (f"its only caller feeds it `our_entry` from the wall, which is "
-             f"{len(entry):,} character(s) on {entry.count(chr(10)) + 1} "
-             f"line(s)" if entry else
-             "its only caller's input could not be read")
-    return (f"a best-on-board claim it cannot match. The gap in `_BEST_COUNT` "
-            f"is newline-bounded"
-            f"{' (`[^.\\n]`)' if gap else ''}, so the pattern CANNOT CROSS A "
-            f"LINE BREAK -- and {shape}, which is why that limit has never "
-            f"been exercised and would go unnoticed the day the wall's entry "
-            f"text is written multi-line. Also blind to whether the file it "
-            f"opens is the entry of record; that name is hard-coded here")
+    reach = (f"ONE string of {len(entry):,} character(s) on "
+             f"{entry.count(chr(10)) + 1} line(s)" if entry else
+             "its only caller's input, which could not be read at all")
+    wrap = "\\n(?!" in _BEST_COUNT.pattern
+    return (f"a best-on-board claim on any surface it is never shown -- and "
+            f"that is nearly all of them. THE FRAME IS THE CALLER, NOT THE "
+            f"PATTERN: `_best_on_board_faults` is reached only from this "
+            f"check, which hands it {reach} taken from "
+            f"`counters.research.closure.our_entry` in {_rel(WALL)}. It opens "
+            f"no SURFACE of its own -- the only files it reads are the BOARD "
+            f"records it grades against -- so a best-on-board count stated "
+            f"anywhere else in the tree is outside this check entirely; "
+            f"`check_rank_claim_"
+            f"values` is the one that sweeps the corpus with the same pattern. "
+            f"The gap class itself now crosses a SOFT WRAP and still refuses a "
+            f"blank line, a table row, a heading, a bullet and an HTML block "
+            f"boundary{'' if wrap else ' -- BUT THE WRAP ALTERNATIVE IS GONE '
+                                     'FROM THE PATTERN, so this sentence is '
+                                     'stale and should not be believed'}, "
+            f"which matters to the sweeping sibling and changes NOTHING here, "
+            f"because a one-line input has no line break to cross. Also blind "
+            f"to whether the file it opens is the entry of record; that name "
+            f"is hard-coded here")
 
 
 BLIND_DERIVED: dict[str, object] = {
