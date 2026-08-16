@@ -54,7 +54,7 @@ WHY IT IS ANCHORED TO A QUANTITY REGISTRY, AND THE MEASUREMENT THAT DECIDED IT
 An unanchored version was built first and MEASURED before being rejected. Rule:
 *any markdown block carrying a mandate marker, and any decimal or percentage
 inside it that is not a threshold and not a date.* Over the 404 prose files this
-check opens it returned **561 hits in 95 files**, and inspection of the head and
+check opened AT THAT TIME it returned **561 hits in 95 files**, and inspection of the head and
 tail of that list found essentially none of them normative-figure defects: they
 were dated result tables inside a paragraph that happened to also contain the
 word `must`, checklist rows, `control_room.html` JavaScript, and literature
@@ -150,7 +150,39 @@ from check_derived_figures import (          # noqa: E402
 PASS, FAIL, UNKNOWN = "PASS", "FAIL", "UNKNOWN"
 EXIT = {PASS: 0, FAIL: 1, UNKNOWN: 3}
 
-PROSE_GLOBS = ("*.md", "*.html")
+#: THE FRAME MOVED, 2026-08-16, measured at HEAD `faa02f80`. Stated rather
+#: than swapped, because a frame count is quoted by other documents and a
+#: silent change strands every one of them. BOTH SIDES OF THE PAIR BELOW ARE
+#: ANCHORED: the tracked corpus itself grows several files an hour here, so
+#: the live count moved again (481/429) while this note was being written.
+#: An unanchored frame count in this lab is stale within the hour; that is a
+#: property of the corpus, not of this change.
+#: `*.tex` was ADDED here; every figure in this docstring above predates
+#: that and is left at the value it was measured at.
+#:
+#:      before  478 considered / 426 opened /  974 clauses   (globs md, html)
+#:      after   480 considered / 428 opened / 1011 clauses   (globs md, html, tex)
+#:      cost    0 new faults, 0 new UNDECIDABLE; verdict PASS both sides
+#:
+#: The 1011 was measured BEFORE this note existed. Writing it moved the live
+#: count to 1013, because this check reads its own source and these lines carry
+#: mandate markers. The measured value is left at 1011 rather than restated: a
+#: count edited to match a later run is no longer a measurement, and the two
+#: extra clauses are this comment.
+#:
+#: WHY, and why only `*.tex`. Both standing instruments globbed `*.md`/`*.html`
+#: only, so the two tracked `.tex` files had never been opened by anything -- a
+#: silent zero at the level of the corpus definition rather than of a sweep.
+#: Adding `*.pdf` was measured at the same time and REJECTED: it cost 0 new
+#: faults too, and the widened check then returned PASS on
+#: `demo-output/website/latex/closure_challenge_report.pdf`, an artifact
+#: carrying `rank 1 of 5` and `P(rank 1) = 68%` five days after its own source
+#: was repaired. This check grades DIRECTIVES; a withdrawn ordinal is not one,
+#: so the wider glob would have shipped a green frame over the defect that
+#: motivated widening it -- worse than the gap, because a gap is visible and a
+#: green frame is not. The PDF arm has its own instrument,
+#: `scripts/check_pdf_surfaces.py`, which grades it on its own claim class.
+PROSE_GLOBS = ("*.md", "*.html", "*.tex")
 MAX_BYTES = 2_000_000
 
 #: 53 of 57 tracked HTML files are DAFoam-generated OpenMDAO reports carrying

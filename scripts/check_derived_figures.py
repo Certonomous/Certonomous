@@ -67,7 +67,8 @@ check, so A FALSE POSITIVE ON CORRECTLY STRUCK TEXT IS A WORSE DEFECT THAN A MIS
 and the masker is written that way round. The idioms below were enumerated FROM
 THE CORPUS, not assumed:
 
-  X1  `~~ ... ~~`.  252 spans across the 404 prose files this check opens, of
+  X1  `~~ ... ~~`.  252 spans across the 404 prose files this check opened AT
+      THAT TIME (see THE FRAME MOVED, below), of
       which 69 SPAN MULTIPLE LINES and 8 of those cross blockquote `> `
       continuations -- so a line-by-line masker is wrong here, and an early cut
       of this one was. Spans are bounded by a blank line (no renderer carries a
@@ -248,7 +249,32 @@ EXIT = {PASS: 0, FAIL: 1, UNKNOWN: 3}
 
 #: Tracked prose. HTML is in scope because `closure.html` and `benchmarks.html`
 #: are travelling surfaces and have both carried a stale figure this week.
-PROSE_GLOBS = ("*.md", "*.html")
+#: THE FRAME MOVED, 2026-08-16, measured at HEAD `faa02f80`. Stated rather
+#: than swapped, because a frame count is quoted by other documents and a
+#: silent change strands every one of them. BOTH SIDES OF THE PAIR BELOW ARE
+#: ANCHORED: the tracked corpus itself grows several files an hour here, so
+#: the live count moved again (481/429) while this note was being written.
+#: An unanchored frame count in this lab is stale within the hour; that is a
+#: property of the corpus, not of this change.
+#: `*.tex` was ADDED here; every figure in this docstring above predates
+#: that and is left at the value it was measured at.
+#:
+#:      before  478 considered / 426 opened / 0 faults   (globs md, html)
+#:      after   480 considered / 428 opened / 0 faults   (globs md, html, tex)
+#:      cost    0 new faults, 0 new bad controls; verdict PASS both sides
+#:
+#: WHY, and why only `*.tex`. Both standing instruments globbed `*.md`/`*.html`
+#: only, so the two tracked `.tex` files had never been opened by anything -- a
+#: silent zero at the level of the corpus definition rather than of a sweep.
+#: Adding `*.pdf` was measured at the same time and REJECTED: it cost 0 new
+#: faults too, and the widened sibling check then returned PASS on
+#: `demo-output/website/latex/closure_challenge_report.pdf`, an artifact
+#: carrying `rank 1 of 5` and `P(rank 1) = 68%` five days after its own source
+#: was repaired. A wider glob that cannot see the defect class it was widened
+#: for ships a green frame over it, which is worse than the gap, because a gap
+#: is visible and a green frame is not. The PDF arm has its own instrument,
+#: `scripts/check_pdf_surfaces.py`.
+PROSE_GLOBS = ("*.md", "*.html", "*.tex")
 
 #: Files above this are machine-generated report payloads, not prose. Stated
 #: rather than silent: the count and the names are printed in the frame.
