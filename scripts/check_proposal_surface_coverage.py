@@ -160,17 +160,40 @@ BACKREF_KEYS = ("item", "agenda_entry")
 #: The fault classes, each with the repair the rule names for it. A class with
 #: no stated repair is a complaint, not a check.
 FAULTS = {
-    "LOST": "a decision recorded ONLY in the file; move it into docket.json "
-            "via set_status so the control room can act on it",
+    # THE REMEDY PRINTED HERE USED TO NAME `set_status` AND WAS A SILENT
+    # NO-OP ON EVERY ID THIS CLASS REPORTS (D261). `set_status` iterates
+    # `load_docket()` and returns None for an id it does not find -- and LOST
+    # means precisely that the docket has no record of the id. An operator who
+    # followed the old instruction literally got no exception, no message and
+    # no change, then saw the same ids reported on the next run and concluded
+    # the CHECK was broken rather than the remedy. Reproduced 2026-08-16 on a
+    # scratch copy of the agenda: `set_status(<a real LOST id>, "done",
+    # outcome=...)` returned None with docket.json's sha256 unchanged.
+    # `refresh_docket()` is the call that works, and it was verified by
+    # execution on all seven at once rather than argued: every one is read by
+    # `read_inbox`, all seven are reached by `draft_all()`, none collides by id
+    # or by normalized objective, and one call moved 0 of 7 to 7 of 7.
+    "LOST": "a decision recorded ONLY in the file; ONE `refresh_docket()` "
+            "merges every id in this class into docket.json -- NOT "
+            "`set_status`, which returns None for an id the docket does not "
+            "yet hold and changes nothing",
     "BLOCKED": "the style rails refuse this file, so no refresh can ever "
                "merge it; repair the file or withdraw it",
     "SHADOWED": "its objective already belongs to another docket id, so "
                 "refresh_docket skips it forever; merge the two or reword",
     "ORPHANED": "entered from a file that no longer exists, so the record can "
                 "never be re-read from its source; restore or note the file",
+    # The OPPOSITE call to LOST's, and the two must not be confused. These ids
+    # ARE on the docket, so `set_status` reaches them; and `refresh_docket()`
+    # cannot help, because it carries only what the FILE holds and the
+    # evidence here lives in an ARTIFACT no carry reaches. Verified 2026-08-16
+    # on a scratch copy: a refresh left both without an outcome, both inbox
+    # files carry none, and `set_status` returned a record for both.
     "UNABSORBED": "an artifact on disk names this item and the docket record "
-                  "carries no trace of that work; read the artifact and "
-                  "record what it found on the docket",
+                  "carries no trace of that work; READ THE ARTIFACT, then "
+                  "`set_status(<id>, <status>, outcome=...)` -- a "
+                  "`refresh_docket()` cannot fix this class, it carries only "
+                  "what the inbox FILE holds",
 }
 LEGITIMATE = {
     "PENDING": "inbox-only and undecided; the next refresh_docket merges it",
