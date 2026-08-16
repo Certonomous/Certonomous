@@ -161,7 +161,7 @@ the paper's first mention, not 16 hours. The two are not contradictory: the clai
 prediction was **written**, and git records only when it was **committed**. But the 16-hour figure
 rests on a write time **no tracked artifact carries**, while the margin the record can actually
 demonstrate is two minutes. The direction flatters us. The clause asks for a check, the check exists
-and its substantive core holds, so this does not fail the rung — it is `D273`.
+and its substantive core holds, so this does not fail the rung — it is `D285`.
 
 ---
 
@@ -181,7 +181,7 @@ instance, not one this grader wrote.
 
 **It is filed and not appended, because it is outside V9's declared scope.** V9 names *the
 description*; `docket.json` is neither the description document nor an archive member — the archive's
-JSON members are mission and snapshot files only, and `docket.json` does not ship. Filed as `D272`.
+JSON members are mission and snapshot files only, and `docket.json` does not ship. Filed as `D286`. *(Both IDs were reassigned after a race: the grade as landed at `27295b9b` named D272 and D273, which had been taken between writing and landing — D272 by this grader's own earlier renumbered row. Corrected here rather than silently renumbered.)*
 
 ---
 
@@ -214,8 +214,8 @@ read visually.
 
 **The verdict of record was right. The certification that produced it would not have detected the
 defect had it been present in any other wording, and could not have seen it at all in the four PDF
-members.** Two findings are filed rather than appended: `D272` (the live rolled-together sentence in
-`docket.json`) and `D273` (the unverifiable 16-hour figure).
+members.** Two findings are filed rather than appended: `D286` (the live rolled-together sentence in
+`docket.json`) and `D285` (the unverifiable 16-hour figure).
 
 ---
 
