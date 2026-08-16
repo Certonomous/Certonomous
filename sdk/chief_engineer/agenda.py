@@ -352,6 +352,58 @@ def source_kind_violations(proposal: dict) -> list[str]:
             f"are {stated}"]
 
 
+#: Values seen in real inbox files that are NOT statuses, mapped to the member
+#: of STATUSES the author almost certainly meant. Naming the near-miss is the
+#: whole value of refusing: "queued" is one hyphenated word away from
+#: "approved-queued", and an author who is told only that the value is illegal
+#: will guess again rather than look the vocabulary up.
+_STATUS_NEAR_MISSES = {
+    "queued": "approved-queued",
+    "approved_queued": "approved-queued",
+    "complete": "done",
+    "completed": "done",
+    "closed": "done",
+    "rejected": "dismissed",
+    "open": "proposed",
+}
+
+
+def status_violations(proposal: dict) -> list[str]:
+    """Refuse a status outside the closed vocabulary instead of coercing it.
+
+    D219 measured the defect this replaces. ``read_inbox`` used to write
+    ``status if status in STATUSES else "proposed"``, so a file carrying
+    ``queued`` -- two did -- was read as ``proposed`` by every consumer that
+    goes through this module, and carried ``queued`` only for a reader that
+    opened the raw file, which is exactly what an agent does before starting a
+    run. Two surfaces, one of them silent, and the silent one is the one the
+    module publishes.
+
+    Refusal rather than coercion, and the choice is narrow on purpose. A value
+    outside STATUSES can never become a decision: ``set_status`` raises
+    ``ValueError`` on it, so no code path in this tree can ever record it. A
+    file carrying one is therefore already unactionable; what coercion added
+    was the pretence that it was actionable as something else. Refusing states
+    the same fact loudly, in ``refused_inbox()``, where the control room shows
+    it.
+
+    NOT grandfathered by ``_schema_binds``, unlike the other rails, and the
+    reason is that this one is not a schema tightening: an illegal status was
+    never legal, at any date, because ``set_status`` has always refused it.
+    Measured before the change: zero of the 131 live inbox files carry a value
+    outside the vocabulary, so nothing standing is refused by this rail today.
+    """
+    status = str(proposal.get("status") or "proposed").strip()
+    if status in STATUSES:
+        return []
+    stated = "|".join(STATUSES)
+    hint = _STATUS_NEAR_MISSES.get(status.casefold())
+    suffix = f"; did you mean {hint!r}?" if hint else ""
+    return [f"status: {status!r} is outside the closed vocabulary "
+            f"({stated}), and set_status refuses it, so no decision can ever "
+            f"be recorded from it{suffix}"]
+
+
 def outcome_violations(proposal: dict) -> list[str]:
     """Refuse a done proposal that does not say what the work found.
 
@@ -489,6 +541,7 @@ def proposal_violations(proposal: dict) -> list[str]:
     found.extend(hard_criterion_violations(proposal))
     found.extend(archive_replay_violations(proposal))
     found.extend(outcome_violations(proposal))
+    found.extend(status_violations(proposal))
     return found
 
 
@@ -1156,7 +1209,14 @@ def read_inbox() -> list[dict]:
             "expected_knowledge_gain": _clean(
                 data.get("expected_knowledge_gain") or ""),
             "source_kind": str(data.get("source_kind") or "inbox"),
-            "status": status if status in STATUSES else "proposed",
+            # The file's own word, NOT coerced. This line used to read
+            # `status if status in STATUSES else "proposed"`, which turned an
+            # illegal value into a legal-looking one and published the lie:
+            # `queued` on disk read `proposed` through the module, so the
+            # divergence was visible only to an agent opening the raw file
+            # (D219). `status_violations` refuses it below instead, which puts
+            # the same fact in `refused_inbox()` where it can be read.
+            "status": status,
             "created_at": str(data.get("created_at") or _now_iso()),
         }
         # The hardness-floor field rides in from the file when it carries
@@ -1194,6 +1254,21 @@ def read_inbox() -> list[dict]:
                 continue
             item[key] = (_clean(str(value)) if key != "decided_at"
                          else str(value))
+        # `measured_core_min` rides in as well, and it is the same defect the
+        # decision fields above were repaired for. It was dropped at intake
+        # while 37 docket records carry it, so a file that recorded what the
+        # work actually cost lost that number on ingest and the docket could
+        # never learn it -- two live files, `n-a10-third-member-under-an-
+        # adjusted-settle-criterion` (1.07) and `s1-cbfs-field-inversion-run`
+        # (335.98), hold a measured cost their docket record does not.
+        # Numeric, so it is validated rather than cleaned as text: a string
+        # here would rank and price wrongly everywhere downstream.
+        measured = data.get("measured_core_min")
+        if measured is not None:
+            try:
+                item["measured_core_min"] = round(float(measured), 2)
+            except (TypeError, ValueError):
+                pass
         violations = proposal_violations(item)
         if violations:
             refused[path.name] = {
@@ -1258,26 +1333,105 @@ def save_docket(proposals: list[dict]) -> None:
     staging.replace(path)
 
 
+#: The fields a re-draft may carry INTO an existing docket record, and the only
+#: ones. `status` is deliberately absent and must stay absent: the docket is
+#: authoritative for status on any id it holds (D219's ruling), so a file's
+#: status is intake-only -- load-bearing before first merge, non-authoritative
+#: after it. These two are the fields where the FILE can legitimately be ahead,
+#: because nothing in this module ever writes them into a file: an agent that
+#: finishes work records what it found and what it cost in the record it was
+#: working in, which is the file.
+_EVIDENCE_FIELDS = ("outcome", "measured_core_min")
+
+#: What the last refresh carried forward, published for the same reason
+#: `refused_inbox` and `unscored_kinds` are: a merge nobody can see is a merge
+#: nobody can question. Replaced by each refresh, never appended to.
+_CARRIED_EVIDENCE: list[dict] = []
+
+
+def carried_evidence() -> list[dict]:
+    """Every evidence field the LAST refresh moved from a file into the docket.
+
+    Each row is ``{id, field, value}``. Empty means the last refresh found no
+    docket record missing evidence its file already held -- which is the state
+    this rail exists to keep the tree in.
+    """
+    return [dict(row) for row in _CARRIED_EVIDENCE]
+
+
+def _carry_evidence(record: dict, drafted: dict) -> list[dict]:
+    """Fill gaps in an existing docket record from a re-read of its source.
+
+    ADDITIVE ONLY, and that is the whole safety argument. A field the docket
+    already carries is never touched, so this can neither overwrite a decision
+    nor destroy a record; it can only give the docket something it does not
+    have. `status` is not in `_EVIDENCE_FIELDS`, so the authority ruling is
+    enforced by construction rather than by a conditional somebody can edit.
+    """
+    carried = []
+    for field in _EVIDENCE_FIELDS:
+        value = drafted.get(field)
+        if value in (None, "") or record.get(field) not in (None, ""):
+            continue
+        record[field] = value
+        carried.append({"id": record["id"], "field": field, "value": value})
+    return carried
+
+
 def refresh_docket() -> list[dict]:
     """Draft from the current records, merge with the persisted docket, save,
-    and return the ranked result. Existing entries always win the merge: a
-    decision (approved, dismissed, done) is never overwritten by a re-draft,
-    and drafted text stays as first recorded."""
+    and return the ranked result. Existing entries always win the merge on
+    every field they carry: a decision (approved, dismissed, done) is never
+    overwritten by a re-draft, and drafted text stays as first recorded.
+
+    THE MERGE IS NOW TWO-WAY, AND ONLY FOR EVIDENCE (D219, D222). This
+    function used to `continue` the moment an id was already on the docket, so
+    a file was never re-read after its first merge -- which is the exact
+    mechanism by which the two surfaces drifted to 45.3% disagreement on
+    `status` over nine days, measured in D218 and re-derived in D219. Skipping
+    is right for `status`, because the docket is authoritative for it. It is
+    wrong for the fields where the FILE can legitimately be ahead: authority is
+    not evidence, and where a file carries an `outcome` or a
+    `measured_core_min` the docket lacks, the file holds a record the docket
+    LOST. The repair the ruling names is to move it INTO the docket, never to
+    promote the file to a dispatch surface, and that is what `_carry_evidence`
+    does -- additively, never overwriting, never touching `status`.
+
+    What this does NOT do, deliberately: it does not promote a file's terminal
+    status. D219's three file-ahead closures each had to be checked against a
+    named pre-registration commit before they could be believed, and a merge
+    that closed an item on the filer's say-so would defeat `set_status`'s own
+    precondition that a done proposal carries an outcome saying what it found.
+    Carrying the outcome forward is what MAKES that later close possible; it
+    is not the close.
+    """
     with _LOCK:
         existing = load_docket()
         by_id = {p["id"]: p for p in existing}
         by_objective = {normalize_objective(p.get("objective", "")): p
                         for p in existing}
+        carried: list[dict] = []
         for proposal in draft_all():
             if proposal["id"] in by_id:
+                carried.extend(_carry_evidence(by_id[proposal["id"]],
+                                               proposal))
                 continue
             key = normalize_objective(proposal["objective"])
             if key in by_objective:
                 continue
             by_id[proposal["id"]] = proposal
             by_objective[key] = proposal
+        _CARRIED_EVIDENCE[:] = carried
         result = ranked(by_id.values())
-        if result != existing:
+        # `or carried` is load-bearing and is not belt-and-braces.
+        # `_carry_evidence` mutates the very dict objects `existing` holds --
+        # `load_docket` hands out one object per record and `by_id` indexes
+        # those same objects -- so after a carry, `result != existing` compares
+        # the mutated records against themselves and reads EQUAL. Without this
+        # clause the carry would happen in memory, be reported by
+        # `carried_evidence()`, and never reach the file: a repair that says it
+        # ran and does not persist, which is worse than not running.
+        if result != existing or carried:
             save_docket(result)
         return result
 
