@@ -99,9 +99,14 @@ claims** (`3rd of 5`, `rank 1 of 5`, and a seed-bound comparison), verified by o
 picks up a QCR-attribution repair under `dist/` that only a rebuild can reach — a V5 leg-3 site
 (`6d95f812:98-101`). **The repair is a rebuild and the rebuild is yours; no agent performed it.**
 
-**The decision that comes first is not technical:** whether the archive is a camera-facing Act 1
-artifact or a sealed certificate. That choice governs what a rebuild is allowed to change, so it is
-owed before the rebuild rather than after.
+**A second decision is open and is also yours:** whether shipping Act 1 with a withdrawn-certificate
+notice, rather than a sealed page, is acceptable **on camera** — the console still replays the
+recording's `certificate.ready`, so it announces a seal whose link now reads *"no certificate for
+this mission"* (D177; the control-room surface is D136). *(Corrected 2026-08-16, after this document
+first landed: it stated that this decision "comes first" and had to be taken before the rebuild.
+**No record sequences it that way.** Every record that prescribes the rebuild — D233, D224 — calls
+for a plain re-run with no hand-editing. The two decisions are both yours and neither is recorded as
+gating the other.)*
 
 ### 3.2 The `latex/` PDF rebuild
 `demo-output/website/latex/closure_challenge_report.pdf` — **40 pages**, tracked, `CreationDate`
@@ -210,7 +215,10 @@ a measurement."* That distinction is what reopened V10 and what put V9 and V7 un
   recogniser could not see a reworded claim. Non-authors were routed; no result existed at HEAD.
 * **How much stale text remains outside every instrument's reach.** `git grep -a` reached **20,701 of
   20,727** tracked files at HEAD; `dist/` is untracked and reachable by no `git grep` route at all,
-  and 67 tracked PDFs had never been rendered and read.
+  and **49 of the 50 tracked PDFs had never been rendered and read**. *(Corrected 2026-08-16, after
+  this document first landed: it read "67 tracked PDFs", inheriting an error from D243. `git ls-files
+  '*.pdf'` returns **50** at HEAD and **50** at D243's own frame `5a0127d3`. The 68 in "68-PDF arm" is
+  **50 tracked plus 18 gitignored**, never 68 tracked.)*
 * **Whether the EIG ranking finding can ever be acted on.** Its statistics correlate against a
   per-item grade that exists in **no committed artifact**, so the headline figure cannot be
   recomputed by anyone. A chief ruling to implement it was **withdrawn** on that ground (D276). It is

@@ -61,7 +61,7 @@ the ladder's governance file and refuted by its own author (`faa02f80`).
 | **V10 repair** `fe54ec0a` | 18 files, 5 surfaces | same literal set, strike-blanked; controls incl. a live positive on the pre-repair tree | its **first cut used literal spaces** and returned 7 on the file whose heading wraps — self-caught, 7→8; residual `PRODUCT_LIST.md:1811` reported not repaired |
 | **V12 grade** `b4596cb4` | **one file**, whole-file, wrap-safe, 17 strike spans blanked | 10 stale-literal/ordinal classes + board-comparative claims, closed by enumeration | **every other surface** — proved by D251, where the failing sentence had already travelled unstruck to two more files; untracked `dist/`; non-numeric staleness |
 | **board-identification costing** D245 `fdfc3eba` | 474 tracked `.md`/`.html` at a pinned commit; 1,884 sites | whether a board claim *identifies* its board, in 5 classes | `.json`/`.py`/`.tex`/`.pdf`/`dist/`; **the TRUTH of any claim**, only its identification; ±10% on the meta split; and the **live tree** — `74848c6c` shipped "three sites are held" 94 seconds after a peer repaired two |
-| **certification / sweep-shape audit** D242/D243 `6097856c` | 28 ladder records, 15,902 lines, read in full; 1 PDF rendered | certification read-extent; unread remainder **for class (b) only** | class-(d) reach is unboundable *in principle*; non-literal staleness; the **other 67 tracked PDFs**; and **its own literal-space patterns**, corrected at D244 |
+| **certification / sweep-shape audit** D242/D243 `6097856c` | 28 ladder records, 15,902 lines, read in full; 1 PDF rendered | certification read-extent; unread remainder **for class (b) only** | class-(d) reach is unboundable *in principle*; non-literal staleness; the other **49 tracked PDFs** (see s3 item 4); and **its own literal-space patterns**, corrected at D244 |
 
 ### The four generators of a blind class, hardest to notice last
 
@@ -131,9 +131,12 @@ false-positive rate** on that tier.
 **Route: the owner of `latex/` for the rebuild; and whoever next cites "33 → 10" must carry the
 exclusion in the same sentence.**
 
-### 4. The **67 tracked PDFs never rendered**, plus 18 gitignored ones — an open frame gap, not a finding.
-D243 rendered one PDF and found live four-entry claims on its front page. Its own limit: *"Cannot
-see: the other 67 tracked PDFs, which were not rendered."* Every one is invisible to `git grep -I`
+### 4. The **49 tracked PDFs never rendered**, plus 18 gitignored ones — an open frame gap, not a finding.
+D243 rendered one PDF and found live four-entry claims on its front page. Its own limit, **quoted as D243 wrote it and wrong in its count**: *"Cannot
+see: the other 67 tracked PDFs, which were not rendered."* **CORRECTED 2026-08-16: `git ls-files '*.pdf'`
+returns 50 at HEAD and 50 at D243's own frame `5a0127d3`, so the unrendered remainder is 49, not 67,
+and the 68 in "68-PDF arm" is 50 tracked plus 18 gitignored. This pass repeated D243's figure without
+checking it and propagated it to an owner-facing document.** Every one is invisible to `git grep -I`
 by `.gitattributes`, and text-layer extraction is **one-sided** — `\sout{}` is strike-and-keep, so
 only the *absence of every post-repair token* is decisive.
 **Route: the holder of `scripts/check_pdf_surfaces.py`. This is a frame gap with a known method, not
