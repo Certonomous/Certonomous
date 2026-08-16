@@ -53,7 +53,7 @@ grades none. Sixty-eight PDFs are in the corpus and eight four-entry hits are re
 
 | arm | measured here |
 |---|---|
-| tracked | **20,714** files; `git grep -I` sees **19,212** of them, so **1,502** are binary-marked and invisible to a plain `-I` sweep — `git grep -a` is required |
+| tracked | **20,714** files; `git grep -I` saw **19,212** of them, a gap of **1,502**. ~~so **1,502** are binary-marked and invisible to a plain `-I` sweep — `git grep -a` is required~~ **Attribution corrected 2026-08-16; the two figures were right and the explanation was not.** Of the 1,502, **1,476 were binary-marked** and are reached by `git grep -a`; the remaining **26 are reached by `git grep` in NO mode** — **17 symlinks** (mode `120000`, which git grep does not search) and **9 empty blobs** (mode `100644`, size 0, with no content to match). **`git grep -a` therefore reached 20,688 of 20,714, not all of them**, and a reader following the struck sentence believing `-a` closes the gap is wrong by 26 files. Established by set difference at `04144e7c`, not by subtraction. |
 | untracked, not ignored | **3** |
 | gitignored | **37,244** |
 | whole tree excluding `.git` | **57,463** files (V14's 2026-08-15 re-run measured 57,421 at `29beb7cf`) |
@@ -90,7 +90,7 @@ Verdicts are read from the grade document that produced them. "Ledger row" means
 | **V3** leakage assertions | **PASS**; leg (c) failed on re-run and was fixed by the chief at `2ef8ae3b`, then verified line-by-line by V15 round 1 | `campaign/LADDER_V_PASS1_2026-08-11.md:321`, re-run at `:743-745`; closure at `campaign/LADDER_V_V13_CLOSEOUT.md:87` | `2ef8ae3b` | 2026-08-10/11 | `:882` PASS (one leg failed on re-run; fixed) | **YES** |
 | **V4** duct traced end to end | **PASS** | `campaign/LADDER_V_PASS1_2026-08-11.md:394-395` | — | 2026-08-10 | `:883` PASS | **YES** |
 | **V5** QCR provenance | **FAIL** | `campaign/LADDER_V_V5_V14_REGRADE_2026-08-16.md:232`, `:475` | **`6d95f812`** | **2026-08-16T00:20:34Z** | `:884` **PASS WITH EXCEPTIONS** | **NO — D226(a)** |
-| **V6** compliance audit vs round 5 | **PASS WITH RESIDUALS** (three) | `campaign/LADDER_V_V6_V10_REGRADE_2026-08-15.md:4`, `:191-193` | **`60073572`** | **2026-08-15T19:34:11Z** | `:885` **FAIL** at `377d6afb` | **NO — D226(b)** |
+| **V6** compliance audit vs round 5 | **PASS WITH RESIDUALS** (three) | `campaign/LADDER_V_V6_V10_REGRADE_2026-08-15.md:4`, `:191-193` | **`60073572`** | **2026-08-15T19:34:11Z** | ~~`:885` **FAIL** at `377d6afb`~~ **`:885` verdict cell = PASS (was FAIL on currency)** *(corrected 2026-08-16: the ledger row was internally split and this document printed one half without saying so. Its **verdict** cell read `**PASS** (was FAIL on currency)`; the `FAIL` quoted here sat in the row's **confirmation** cell. The anchor was also mixed-frame — `:885` is the row's line at `04144e7c`, while at `377d6afb` the same row sat at `:589`, and the verdict cell read PASS at both.)* | **NO — D226(b)** |
 | **V7** known defects killed | **PASS** — three, not the two we knew | `campaign/LADDER_V_PASS2_2026-08-11.md:52` | — | 2026-08-10 | `:886` PASS | **YES** |
 | **V8** claims table | **PASS WITH RESIDUALS** (three) | `campaign/LADDER_V_V5_V8_GRADE_2026-08-15.md:13`, `:437-439` | **`2a686b0a`** | **2026-08-15T20:07:27Z** | `:887` **FAIL** at `f8c889cc`; `:924` "OPEN — failed three times" | **NO — D226(c)** |
 | **V9** prior-art completeness | **PASS** (FAIL → FIXED; the fix is durable — re-measured here) | `campaign/LADDER_V_PASS2_2026-08-11.md:54`; closure at `campaign/LADDER_V_V13_CLOSEOUT.md:93`, `:362` | `2b251689` / `7cd558b1` | 2026-08-10/11 | `:888` FAIL → FIXED, but the confirmation column still reads *"the struck sentence was then found still in the shipping archive"* | **Verdict yes; confirmation column STALE — D226(d)** |
@@ -123,13 +123,13 @@ these are filed as **D226** and left for a non-author.
 | # | Rung | Ledger says (HEAD) | Grade of record says | Age of the disagreement |
 |---|---|---|---|---|
 | a | **V5** | `:884` **PASS WITH EXCEPTIONS** | **FAIL**, three times over: `7ea96c0f` (02:23Z), `2a686b0a` (20:07Z), `6d95f812` (00:20Z) | **22 hours**, across three independent grades |
-| b | **V6** | `:885` **FAIL** at `377d6afb`, on the §4.8 currency row | **PASS WITH RESIDUALS** at `60073572` — the blocker was repaired and the regrade cleared it | 5 hours |
+| b | **V6** | ~~`:885` **FAIL** at `377d6afb`, on the §4.8 currency row~~ **`:885` verdict cell = PASS (was FAIL on currency); the FAIL sat in the confirmation cell** *(corrected 2026-08-16; see the rung table above — same row, same split, and at `377d6afb` the row sat at `:589`)* | **PASS WITH RESIDUALS** at `60073572` — the blocker was repaired and the regrade cleared it | 5 hours |
 | c | **V8** | `:887` **FAIL** at `f8c889cc`; and `:924` says "OPEN — and it has now failed three times" | **PASS WITH RESIDUALS** at `2a686b0a`; G1 clears, the 84%→177% reversal is real and propagated to all three sites including the cover email | 4½ hours |
 | d | **V9** | `:888` confirmation column: *"the struck sentence was then found still in the shipping archive"* | The sentence was removed by the 2026-08-10 rebuild and **is not in the current archive** — re-measured here (below) | 5 days |
 | e | **V10** | `:889` **FAIL on three of five named surfaces** at `377d6afb` | **FAIL on four named blockers** at `60073572` — a different, later, and more specific finding; and all four are since repaired | 5 hours |
 | f | **V12** | `:892` **DELIVERED** | **PASS WITH RESIDUALS**, three named, all since repaired at `6dbb3be6` | 3½ hours |
 | g | **V13** | `:893` **DELIVERED** | **PASS WITH RESIDUALS**, four named (V13-a … V13-d) | 3½ hours |
-| h | **V14** | `:894` **PASS as executed**, re-run "NOT clean"; `:930` OPEN | **PASS WITH RESIDUALS**, six named | 4 minutes at the time of writing, and it is the one row nobody could reasonably have updated yet |
+| h | **V14** | `:894` **PASS as executed**, re-run "NOT clean"; `:930` OPEN | **PASS WITH RESIDUALS**, six named | ~~4 minutes~~ **8 m 26 s** at the time of writing, and it is the one row nobody could reasonably have updated yet *(corrected 2026-08-16: `6d95f812` committed 2026-08-16T00:20:34Z against this document's declared execution start of 00:29Z at `:3` gives **8 m 26 s**; no anchor in the window yields 4 minutes. What the row asserts — that nobody could reasonably have updated it yet — is unaffected, which is why the figure is corrected rather than the claim withdrawn.)* |
 | i | **V15** | `:895` **round 7 FAIL, 25 findings** | **Round 8**, 30 findings, four new shapes | 4 hours |
 | j | **V16** | `:896` enumerates grades 1–4 and rounds 5–10 | **Round 11**, 8 findings, four new shapes | 2 hours |
 | k | **GREEN REQUIRES table** `:922-931` | V8 "OPEN, failed three times"; V16 "the rung is still not PASS" on round 7's two MATERIAL findings; V15 "round 7 returned 25"; V14 "OPEN"; V10 "DELIVERED 2026-08-11" | V8 passes with residuals; V16 is at round 11; V15 is at round 8; V14 passes with residuals; V10's independent confirmation is **owed again** | 4–5 hours; **five of eight rows** |
@@ -196,7 +196,7 @@ later than 19:32Z by mtime, and no commit after `cca64eaf` re-grades the rung.
 |---|---|---|
 | **B1** per-case table | `demo-output/website/closure.html:501-502` | Both gold badges struck and **replaced**: `<s>OUR MODEL LEADS</s> → <b>2nd of 7 — WE LOSE</b> this case`, each naming the holder and both numbers. **CLEARED** |
 | **B2** the disclaimer | `closure.html:480-482` | Struck, with all three defects named at `:486-490`: the wrong column identified, *"it is **seven** of the eight rows, not six"*, and the badges and tags now covered. **CLEARED** |
-| **B3** three live `rank 1 of 5` | `demo-output/website/ACTIVE_RESEARCH.md:12`, `:25`, `:580` | All three struck and corrected to **rank 1 of 7**, each naming the board by entrant count and retrieval date, each stating that a commit anchor is not an admissible board identifier. **CLEARED** |
+| **B3** three live `rank 1 of 5` | `demo-output/website/ACTIVE_RESEARCH.md:12`, `:25`, ~~`:580`~~ **`:572`** *(locator corrected 2026-08-16: at this document's own frame `04144e7c`, `:572` carried the struck `RANK 1 of 5`; `:580` sat inside the correction block and read "so the standing is **rank 1 of 7**" — it held no `rank 1 of 5` at any frame in the window. The peer V10 grade gave all three correctly.)* | All three struck and corrected to **rank 1 of 7**, each naming the board by entrant count and retrieval date, each stating that a commit anchor is not an admissible board identifier. **CLEARED** |
 | **B4** six-not-seven | `ACTIVE_RESEARCH.md:764` | `~~Six of its eight comparison values were wrong~~` struck and corrected to seven. **CLEARED** |
 | **D150** sixth surface, outside V10's five | `demo-output/website/CLOSURE_CHALLENGE_STATUS.md:9`, `:528`, `:873`, `:1226` | All four `rank 1 of 5` struck and corrected to `rank 1 of 7` on a six-entry board. **CLEARED** |
 
@@ -257,7 +257,7 @@ after it was written. **Whose: FLEET.**
 
 | round | document | findings | new shapes | the round's own verdict | neutral? |
 |---|---|---|---|---|---|
-| 1 | `LADDER_V_V15_LADDER_TEXT_CLAIMS.md:145`, `:489` | 10 | — | *"NO. V15 FAILS. Two blocking defects…"* | **NO** |
+| 1 | ~~`LADDER_V_V15_LADDER_TEXT_CLAIMS.md:145`~~ **`:334-460`**, `:489` | 10 | — | *"NO. V15 FAILS. Two blocking defects…"* | **NO** |
 | 2 | `LADDER_V_V15_ROUND2.md:508`, `:513` | 6 | — | `# NO.` *"Six new failures are in the fix round's own output"* | **NO** |
 | 3 | (fix round; graded by round 4) | — | — | — | — |
 | 4 | `LADDER_V_V15_ROUND4.md:680`, `:685` | 7 | — | `# NO.` *"Seven new failures are in round 3's own output"* | **NO** |
@@ -340,8 +340,8 @@ which is **D141**, V6's own blocker, still true after the repair.
 
 | id | residual | site | state |
 |---|---|---|---|
-| **V12-R1** | **The one actionable recommendation in the rung's product instructed the lab to publish a figure the same document strikes 34 lines earlier** — `P(rank 1) ≈ 0.67`, the four-entry board's figure, **17 points optimistic in the direction that flatters us**, on the document that routes to the steward | `LADDER_V_PASS3_COLD_2026-08-11.md:525-527` | repaired at `6dbb3be6`: restated to **50.2%, 0–97% at 95%**, six entries retrieved 2026-08-11T23:33Z |
-| **V12-R2** | §W3 claims the declined-gate baseline beats *"all four published entries (… a best published 0.0760)"*. The direction survives and **strengthens** — it beats all six — but the value is **Yang's 0.0748**; 0.0760 is Reissmann's | `LADDER_V_PASS3_COLD_2026-08-11.md:559-562` | repaired at `6dbb3be6` |
+| **V12-R1** | **The one actionable recommendation in the rung's product instructed the lab to publish a figure the same document strikes 34 lines earlier** — `P(rank 1) ≈ 0.67`, the four-entry board's figure, **17 points optimistic in the direction that flatters us**, on the document that routes to the steward | ~~`LADDER_V_PASS3_COLD_2026-08-11.md:525-527`~~ **`:552-555` at HEAD** *(re-anchored 2026-08-16: `:525-527` was correct at the pre-repair frame `6dbb3be6^` and was carried into a row whose own state column records the repair that moved it. This document's preamble at `:13-15` says "**It is a measurement, not a summary**", and a locator inherited across a repair is the summary behaviour it disclaims.)* | repaired at `6dbb3be6`: restated to **50.2%, 0–97% at 95%**, six entries retrieved 2026-08-11T23:33Z |
+| **V12-R2** | §W3 claims the declined-gate baseline beats *"all four published entries (… a best published 0.0760)"*. The direction survives and **strengthens** — it beats all six — but the value is **Yang's 0.0748**; 0.0760 is Reissmann's | ~~`LADDER_V_PASS3_COLD_2026-08-11.md:559-562`~~ **`:650-652` at HEAD** *(re-anchored 2026-08-16, same cause as V12-R1 above)* | repaired at `6dbb3be6` |
 | **V12-R3** | **Adjacent bullets state one bound two ways.** `:399-403` quotes the JSON to eighteen digits (`0.002419121853891026` → 177% of the margin); `:404-407` prints `0.059047`/`0.054247`, which are `0.056647191704213645 ± 0.0024` — the **rounded script constant** `SEED_BOUND_ON_OVERALL` at `sdk/scripts/probability_of_rank.py:64`. The conclusion is unaffected (adverse sorts 2nd of 7 under either bound), which is why it survived — nothing downstream moved. **D179** | `LADDER_V_PASS3_COLD_2026-08-11.md:399-407` | repaired at `6dbb3be6` to `0.059066`/`0.054228` with an arithmetic table |
 
 ### V13 — four (`campaign/LADDER_V_V12_V13_V14_GRADE_2026-08-15.md:239-293`)

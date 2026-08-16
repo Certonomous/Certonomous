@@ -54,7 +54,7 @@ is the earliest moment at which this agent existed on this machine. My first exe
 | the V12/V13/V14 grade (V12, V13 = PASS WITH RESIDUALS) | `9c2734f8` | 2026-08-15T21:00:12Z | **3 h 46 m** |
 | the V5/V14 regrade (V14 = PASS WITH RESIDUALS) | `6d95f812` | 2026-08-16T00:20:34Z | **26 m** |
 | V12's residual repair | `6dbb3be6` | 2026-08-15T21:34:43Z | **3 h 12 m** |
-| the consolidation | `04144e7c` / `43eac3f2` | 00:43:36Z / 00:44:34Z | **3 m 33 s / 2 h 35 s** |
+| the consolidation | `04144e7c` / `43eac3f2` | 00:43:36Z / 00:44:34Z | **3 m 33 s / ~~2 h 35 s~~ 2 m 35 s** *(unit corrected 2026-08-16: `43eac3f2` at 00:44:34Z against the dispatch record opening at 00:47:09.339Z is **155 s = 2 m 35 s**; `2 h 35 s` would be 7,235 s. Typographic, but it sits on the row that establishes ordering, and the corrected value tightens the margin rather than loosening it.)* |
 | **the chief ruling that dispatched me** | `20966952` | **00:46:33Z** | **36 s** |
 
 The tightest margin is 36 seconds and it is the ruling that created this task — the correct
@@ -136,7 +136,10 @@ the count is zero*.
 
 `LADDER_V_TRIPLE_VERIFICATION.md:305-307`. Two determinate clauses: **(i)** every §4 finding
 carries a round-5 verdict; **(ii)** a QCR compliance line answering three named questions. The
-deliverable is the currency block at `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md:296-334`.
+deliverable is the currency block at `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md:` ~~`296-334`~~ **`296-335`**
+*(range corrected 2026-08-16: the block's QCR compliance table carries four rows, `:332`, `:333`, `:334`
+and `:335`, and `:335` — "Stated in the description?" — is the last compliance row. `296-334` cut off
+the row answering the question the clause exists to ask.)*
 
 ### The three residuals, re-derived by my own execution and not read
 
@@ -199,9 +202,18 @@ measurement.
 > **V8. Claims-language audit of the cover email + description document**: every quantitative
 > sentence maps to a named artifact; the banned-claims list enforced — no novelty claim on gated
 > correction (§7.4), no *"comfortable"* AR_14 lead (0.00003), no best-on-board counts that lean on
-> organizer-baseline rows (§4.7), no *"official rank"* language anywhere, soft-adaptive-leakage
+> organizer-baseline rows (§4.7), no *"official rank"* language anywhere **(local scoring stated
+> plainly)**, soft-adaptive-leakage
 > disclosure present in the lab's own words (§4.3). **A claims table: sentence → artifact →
 > verdict.**
+
+**Quotation repaired 2026-08-16.** The parenthetical **(local scoring stated plainly)** was missing
+from this blockquote, dropped with no ellipsis under a heading that promises the condition *"quoted
+as written"*. It is restored above rather than marked with an ellipsis, because the heading claims
+completeness and an ellipsis would only make the omission legible instead of removing it. The clause
+is load-bearing for this section's own argument: it is the half of the "no official rank" ban that
+says what the lab **may** state, and V8's entitlement turns on the distinction. Verified against
+`LADDER_V_TRIPLE_VERIFICATION.md:315` at `73588fb7`, this document's own frame.
 
 `:311-317`, plus three chief protocol edits at `:318-354` which extend the rung to **any rank
 claim, internal or external** (P(rank 1) + interval + not-decided pairs), add the prohibition that
@@ -221,7 +233,8 @@ for rather than denied: `/ 0.0028863 = 0.8381` → the four-entry board's margin
 **V8's own falsifier, executed by me:** *find a surviving live, unstruck, undated "covers 84%" in
 the cover email or the description document.* `DESCRIPTION_DOCUMENT.md` carries three `84%`
 occurrences, all inside strikes or inside the sentence denying it (`:244` *"It does not cover 84%
-of the margin"*). The draft carries seven; `:743`, `:775`, `:967`, `:993`, `:1132`, `:1135` are all
+of the margin"*). The draft carries ~~seven~~ **eight occurrences on seven lines** *(corrected 2026-08-16: `:967` carries
+**two**; the seven lines are `:666`, `:743`, `:775`, `:967`, `:993`, `:1132`, `:1135`)*; `:743`, `:775`, `:967`, `:993`, `:1132`, `:1135` are all
 inside `~~…~~` strike-and-keep or are the corrections themselves — I read `:955-1005` to confirm
 §5.3 item 9's `84%` sits between a `~~` opener at `:965` and its closer at `:968`. **The only live
 unstruck `84%` in the corpus is `:666`, which is V8-R2. The falsifier does not fire.**
@@ -395,7 +408,7 @@ open.** Every clause checked by me directly:
 
 | clause | measured at HEAD |
 |---|---|
-| every rung PASS/FAIL with evidence links | **§2**, `:82-96` — fifteen rows, each with Verdict, Owner, Evidence and confirmation columns |
+| every rung PASS/FAIL with evidence links | **§2**, ~~`:82-96`~~ **`:85-99`** — fifteen rows, each with Verdict, Owner, Evidence and confirmation columns *(range corrected 2026-08-16: the **count of fifteen was right**; `:82-96` spans only **twelve** rows, V1 through V12, dropping V13, V14 and V15. The table's rows run `:85` (V1) to `:99` (V15), under the header at `:83-84`.)* |
 | the claims table | **§3**, `:124` |
 | the skeptic's report | **§4**, `:158` |
 | a single consolidated list of anything that changed | **§5**, `:297` |
@@ -462,8 +475,14 @@ three faults are live, unstruck, and true.**
   fourth time this week ownership has stood where a frame was needed.**
 - **Residual 6 — INSIDE, independently.** *"The PDF arm is unmeasured."* The criterion requires the
   search to run across tracked files and to *"state what its frame **structurally** cannot
-  contain."* Sixty-eight tracked PDFs hold this corpus's largest single concentration of withdrawn
-  claims. A PDF is **not** something the frame structurally cannot contain — it renders to PNG; the
+  contain."* ~~Sixty-eight tracked PDFs~~ **Fifty tracked PDFs** hold this corpus's largest single
+  concentration of withdrawn claims. *(Count corrected 2026-08-16, and the word doing the work is
+  "tracked": this bullet argues under V14's own **"across tracked files"** clause, so the supporting
+  count must be the tracked one. **50 PDFs are tracked; 68 is the whole-tree count.** The 18 extra are
+  all named `certificate.pdf` — 4 under `dist/certonomous-demo/mission-output/*` and 14 under
+  `mission-output/*` — and every one is untracked and therefore invisible to `git ls-tree`,
+  `git grep` and `git ls-files` alike. Measured by set difference between `git ls-tree -r --name-only`
+  and a whole-tree `find`, not by subtraction.)* A PDF is **not** something the frame structurally cannot contain — it renders to PNG; the
   grade's own words are that rendering *"was outside the time this grade had."* **An arm skipped for
   time and disclosed as a blind spot is a gap, not a structural limit**, and the criterion's escape
   hatch is for limits, not for gaps.
