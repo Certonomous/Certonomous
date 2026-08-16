@@ -304,6 +304,18 @@ WAIVED_NO_EXEC_BIT = (
     # records that.
     "scripts/check_rung_attribution.py",
     "scripts/check_convergence_validate.py",
+    # THE FOUR BELOW (and `hunk_check.py` and `mutation_harness_rung_attribution.py`
+    # further down) were added 2026-08-16, after WAIVER_REGISTER_DATED, for the
+    # reason D134 records and `check_rung_attribution.py` above states at length:
+    # under this repository's `core.filemode = false` a PARTIAL commit -- the only
+    # form this lab's commit protocol permits -- re-records 100644 whatever the
+    # index holds, so the register is the only repair a protocol-conforming agent
+    # can perform. The bit is not load-bearing for any of them: each was checked
+    # at HEAD for a bare-path call site and none exists anywhere in the tree, in
+    # the docs, or in the tests -- every invocation is `python3 <path>`, and the
+    # tests load them through `importlib.util.spec_from_file_location`.
+    "scripts/check_docket_surface_agreement.py",
+    "scripts/check_proposal_surface_coverage.py",
     "scripts/coefficient_uq_plate.py",
     "scripts/coefficient_uq_plate_analysis.py",
     "scripts/contention_audit.py",
@@ -313,12 +325,19 @@ WAIVED_NO_EXEC_BIT = (
     "scripts/filming_keepalive.sh",
     "scripts/filming_mode.sh",
     "scripts/gate_table.py",
+    # Added 2026-08-16; see the note above. Its published invocation is
+    # `python3 scripts/hunk_check.py <path>:<added>[-<removed>]`, quoted in that
+    # form by every dispatch brief that gates on it.
+    "scripts/hunk_check.py",
     "scripts/kill_worker.sh",
     "scripts/laptop_bundle/replay_console.py",
     "scripts/laptop_bundle/run-demo.sh",
     "scripts/ledger_backup.py",
     "scripts/memwatch.py",
     "scripts/morning_report.py",
+    # Added 2026-08-16; see the note above. Run as
+    # `python3 scripts/mutation_harness_rung_attribution.py`.
+    "scripts/mutation_harness_rung_attribution.py",
     "scripts/package_caches.sh",
     # run as `python3 scripts/phase2_move_map.py` -- its own proposal document
     # and the map header name it that way, and no bare-path call site exists.
