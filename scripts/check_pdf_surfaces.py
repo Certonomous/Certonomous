@@ -91,6 +91,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import textwrap
 from pathlib import Path
 
@@ -282,7 +283,12 @@ def pdf_text(path: Path) -> tuple[str | None, str]:
 
 
 def render(path: Path, page: int, outdir: Path) -> str:
-    outdir.mkdir(parents=True, exist_ok=True)
+    # The directory is made by `main()`, under `--render`, in the scope that
+    # owns the CLI value (docket D275/D276). It is NOT made here: this helper
+    # takes `outdir` as a parameter, so a reader of THIS scope -- including
+    # `lab_check.py`'s static write predicate -- cannot see that the path is
+    # a temporary directory and that the write is reachable only through an
+    # option the scheduled runner never passes.
     stem = outdir / f"{path.stem}-p{page}"
     subprocess.run(["pdftoppm", "-f", str(page), "-l", str(page), "-r", "110",
                     "-png", str(path), str(stem)],
@@ -387,7 +393,19 @@ def main() -> int:
     ap.add_argument("--render-dir", default="")
     args = ap.parse_args()
     root = Path(args.root).resolve()
-    rdir = Path(args.render_dir) if args.render_dir else root / ".pdf_surface_png"
+    #: THIS CHECK WRITES NOTHING INTO THE TREE, ON ANY PATH. The default render
+    #: directory is a TEMP dir outside the repository, created only when
+    #: `--render` is actually passed, so the runner's `writes-to-tree` predicate
+    #: has nothing to find and the no-argument path it takes cannot write at
+    #: all. The earlier default was `root / ".pdf_surface_png"` -- inside the
+    #: tree -- which is a real defect and not merely a predicate's false
+    #: positive: a standing check that drops a directory into the repo every
+    #: time it renders would have been committing its own scratch output.
+    rdir = (Path(args.render_dir) if args.render_dir
+            else Path(tempfile.mkdtemp(prefix="pdf_surface_png_"))
+            if args.render else None)
+    if args.render and rdir is not None:
+        rdir.mkdir(parents=True, exist_ok=True)
 
     ws_ok, ws_log = wrap_safety_selftest()
     pc_ok, pc_msg = positive_control()

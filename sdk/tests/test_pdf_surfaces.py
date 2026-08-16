@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import re
 import shutil
 import subprocess
 import sys
@@ -234,6 +235,31 @@ class TestExitContract(unittest.TestCase):
 
 
 class TestDoesNotMutateTheRepo(unittest.TestCase):
+
+    def test_default_run_creates_no_directory_inside_the_tree(self):
+        """The standing runner passes no arguments and refuses a check that
+        can write to the tree. The default render dir used to be
+        `root/.pdf_surface_png` -- inside the repo -- which is a real defect
+        and not merely a predicate's false positive."""
+        stray = REPO / ".pdf_surface_png"
+        purge_pycache()
+        subprocess.run([sys.executable, str(CHECK)],
+                       capture_output=True, text=True, cwd=str(REPO))
+        self.assertFalse(
+            stray.exists(),
+            f"{stray} was created by a no-argument run; a standing check must "
+            f"not drop scratch output into the repository")
+
+    def test_render_writes_outside_the_repository(self):
+        purge_pycache()
+        pr = subprocess.run([sys.executable, str(CHECK), "--render"],
+                            capture_output=True, text=True, cwd=str(REPO))
+        paths = re.findall(r"'(/[^']+\.png)'", pr.stdout)
+        self.assertTrue(paths, "--render produced no render paths to check")
+        for p in paths:
+            self.assertFalse(
+                p.startswith(str(REPO)),
+                f"render wrote inside the repository: {p}")
 
     def test_check_leaves_the_graded_artifact_byte_identical(self):
         target = REPO / STALE_PDF
