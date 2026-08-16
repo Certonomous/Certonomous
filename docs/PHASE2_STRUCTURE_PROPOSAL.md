@@ -1,5 +1,37 @@
 # Phase-2 repo professionalization — proposed target tree and MOVE_MAP
 
+> ## ⛔ SUPERSEDED IN KIND — DO NOT EXECUTE ANY ROW OF THIS PROPOSAL
+>
+> **Marked 2026-08-16 at `b0ab070d`. Struck and kept, not deleted: the
+> reasoning below was sound against the tree it was drawn for, and the
+> measurements it carries were re-used by the map that replaced it.**
+>
+> The owner's target tree, recorded at **`330faa32`** in
+> `campaign/MOVE_MAP_2026-08-16.md` and filed as docket **D331**, overrules this
+> document in three load-bearing places. This is **not a re-frame of stale
+> counts** — the destinations themselves were reversed:
+>
+> | | this document | the owner's tree |
+> |---|---|---|
+> | the webroot | `demo-output/website/**` → `web/site/**` **wholesale** | `/web/` serves **site files only**; everything else moves out |
+> | `scripts/` | renamed wholesale → `ops/` | `/scripts/` **retained**; `/ops/` takes launchers only |
+> | `cases/` | `models/` + `demo-surfaces/` | **one folder per physics family**; `models/` unchanged |
+>
+> §5's veto item **V8** offered *"records to `docs/campaign/`"* as the
+> alternative to keeping records under the served root, and recorded the
+> default as **records stay**. **The owner took the alternative**, which
+> inverts §2's stage-3 rule rather than adjusting it.
+>
+> `docs/PHASE2_MOVE_MAP.tsv` was generated from that inverted rule and is
+> superseded with this document. Its generator, `scripts/phase2_move_map.py`,
+> **was made to refuse to write** at `b0ab070d` rather than left runnable,
+> because a banner in a docstring is not read by whoever types the command.
+>
+> **What survives and was carried forward** rather than re-derived: §3.5's
+> eight hard-breaking runtime consumers, §3.4's guard-layer census, §4's
+> `.gitignore`-edit-blinds-live-greps constraint, and the out-of-tree checklist
+> (crontab, `/usr/local/bin/auto-stop.sh`, the served-root `--directory` flag).
+
 **PROPOSAL ONLY — AWAITING SANAA'S VETO. No file was moved in preparing this
 document.** Filed 2026-08-14 as docket item **F1**; drafted against commit
 `975f3a8b` (tree measurements individually anchored below, because the tree
