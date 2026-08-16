@@ -297,6 +297,38 @@ eight lines below at `:99-104` and again at `:449`, so D246's third and fourth g
 **not** transfer to it. That is the strongest case against this ruling and it is stated here
 rather than omitted.
 
+**CHIEF RULED ON F1 at `700d2f08`, and the ruling was recorded with its limitation on its
+face rather than as a clean call: `DESCRIPTION_DOCUMENT.md:92` is NOT a V10 blocker, and
+THE RULING RESTS ON ONE GROUND.** The decisive ground was stated as **(1) a claim true of
+every candidate board cannot be an inconsistency between boards** — the
+board-identification requirement (D255, D238) exists so a reader can determine *which*
+board a claim is about, and it is not violated where the answer does not change the
+claim's truth, so the identifier was held **not load-bearing here**. Three supporting
+grounds were recorded and are **not** load-bearing either: (2) every prior V10 blocker was
+FALSE of the live board and this one is true of both, a different object; (3) no criterion
+surface states the claim with *"six"*, so there is no inconsistent surface, which is the
+criterion's actual test; (4) failing here would reverse D246 and reopen `:1811`, and a rung
+should not be closed or opened by a side effect on a neighbouring ruling.
+
+**The chief recorded the case against the chief's own ruling, from the flank this grade
+supplied, and it is not disposed of:** `:92` sits in an **undated live disclosure section**
+and its own page states six entries **eight lines below**, so **D246's third and fourth
+grounds do NOT transfer to it**. That was accepted as a genuine weakness. It was held not
+to overturn ground 1, because truth-on-both-boards survives whatever the section's dating —
+**but it means this ruling rests on ground 1 alone and must be read that way.**
+
+**THE RULING'S OWN FALSIFIER, on its face: if a future measurement shows `:92` false on
+either board, the ruling falls immediately.** The measurements it stands on were, at
+`e71faf8b`: baseline `0.0461` against the clone's `0.0606 / 0.0569 / 0.0613 / 0.0591` and
+the live six's `0.0645 / 0.0606 / 0.0569 / 0.0744 / 0.0613 / 0.0591`; baseline `0.0719`
+against `0.0760 / 0.0848 / 0.0769 / 0.0882` and the live `0.0748 / 0.0760 / 0.0848 /
+0.0960 / 0.0769 / 0.0882`. A board move that put any entrant below either baseline value on
+either case would falsify it.
+
+**F2 was accepted as out of scope by surface** and left filed for the owner of
+`CLOSURE_CHALLENGE_STATUS.md`. **V10 was closed `PASS` at `700d2f08` and is not to be
+re-graded by this agent, who authored it.**
+
 **F2 — `CLOSURE_CHALLENGE_STATUS.md:454` and `:781`, out of scope by surface.** The
 criterion names five surfaces and this document is none of them; the reopen repaired its
 `:1269` voluntarily. `:781` classifies **MENTION** (positionally set off — blockquote) and
