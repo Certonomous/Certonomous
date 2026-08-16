@@ -290,12 +290,24 @@ the rung could close.
 
 | row | finding | in V16's scope? |
 |---|---|---|
-| **D289** | C1 is satisfied-or-void under `bcad2bbc`; the rung has been mis-scored for six rounds, including by this agent | yes |
-| **D290** | C4/C5 are disclosure clauses and are SATISFIED; the two discriminators are off V16's critical path; D265(b) is the one clause still failing | yes |
-| **D291** | GAP-B costed — D255(2) governs the travelling arm, the guard has 0 faults there, the intersection is ZERO; do not build | yes |
+| ~~**D289**~~ **D303** | C1 is satisfied-or-void under `bcad2bbc`; the rung has been mis-scored for six rounds, including by this agent | yes |
+| ~~**D290**~~ **D304** | C4/C5 are disclosure clauses and are SATISFIED; the two discriminators are off V16's critical path; D265(b) is the one clause still failing | yes |
+| ~~**D291**~~ **D305** | GAP-B costed — D255(2) governs the travelling arm, the guard has 0 faults there, the intersection is ZERO; do not build | yes |
 
-Allocated against `22e32c03` where D288 was the maximum, asserted free inside the same
-read-modify-write as the append, and landed at `cbb9e4c6`.
+> **[CORRECTED 2026-08-16, and the correction is against this document's own author.**
+> **D289–D291 ARE NOT THIS ROUND'S ROWS.** They are a verbatim re-append of the round-12
+> addendum rows D278–D280, and D298–D300 are a third copy of the same three. The allocator
+> `renumber.py` reads and writes one hard-coded path; this round's rows were written to a
+> different file, so the allocator silently renumbered the stale one and appended it. It
+> printed a correct-looking mapping and the compare-and-swap passed, **because the CAS
+> asserts an ID is FREE and never that the CONTENT is new — ID-freedom is not
+> content-freedom.** This round's real rows landed later as **D303–D305**; the six copies
+> are struck in place, never deleted or renumbered; the whole defect is recorded at
+> **D302**, which also records a second slip inside its own repair. **The struck IDs above
+> are kept rather than removed, because this document asserted them and a reader who saw
+> that assertion must be able to see it corrected.** This is the defect of `38844271`,
+> which this same agent quoted in round 12 §0.4 as the failure its re-read discipline had
+> avoided — avoided from the direction it was watching, met from the direction it was not.]**
 
 ---
 
