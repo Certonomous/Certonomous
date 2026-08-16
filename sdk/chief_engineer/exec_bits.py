@@ -315,6 +315,9 @@ WAIVED_NO_EXEC_BIT = (
     # the docs, or in the tests -- every invocation is `python3 <path>`, and the
     # tests load them through `importlib.util.spec_from_file_location`.
     # Added 2026-08-16; see the note above. Run as
+    # `python3 scripts/check_belief_neutrality.py`.
+    "scripts/check_belief_neutrality.py",
+    # Added 2026-08-16; see the note above. Run as
     # `python3 scripts/check_docket_reconciliation.py`, which is the form its
     # own docstring, its tests and its mutation harness all use; no bare-path
     # call site exists anywhere in the tree, the docs or the tests.
