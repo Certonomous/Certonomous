@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-"""Refuse a commit whose contents the author cannot name in advance (docket D219).
+"""Refuse a commit whose contents the author cannot name in advance (docket D220).
 
 THE DEFECT CLASS
 ================
 Under a live fleet a pathspec commit isolates by FILE, not by AUTHOR. On
-2026-08-15 six commits in one evening carried edits their author never wrote:
-two mutation-harness mutants into `scripts/self_audit.py` (`fb30e00f`, live in
-HEAD for 65 minutes), census mutant RC10 into the commit that repaired them
-(`0a3e82d7`), four other agents' docket rows into a docket commit (`49b36e57`),
-one more into an earlier one (`1aa90081`), and the chief's own acceptance block
-into an agent's commit about something else (`d6ff862d`). EVERY author checked
+2026-08-15 FIVE commits in one evening carried edits their author never wrote
+(re-counted by execution on D220 -- the sixth in the records never became a
+commit, and one of the six shas is an amend of another): two mutation-harness
+mutants into `scripts/self_audit.py` (`fb30e00f`, live in HEAD for 65 minutes),
+census mutant RC10 into the commit that repaired them (`0a3e82d7`), four other
+agents' docket rows into a docket commit (`49b36e57`), one more into an earlier
+one (`1aa90081`), and the chief's own acceptance block into an agent's commit
+about something else (`d6ff862d`). EVERY author checked
 `git status` or `git diff`, and every one was clean at the instant checked. The
 window is between the check and the `git add`, and `git log -1 --stat` does not
 show it, because a plausible stat is exactly what a capture produces.
@@ -33,12 +35,12 @@ token per path, what they are committing:
 
 Added/removed LINES, not `@@` hunks, because the real captures were contiguous
 appends: five docket rows on five adjacent lines are ONE hunk at any -U, and a
-hunk count would have missed three of the six. The hunk count is printed
+hunk count would have missed three of the five. The hunk count is printed
 alongside as context; it is not what is graded.
 
 THE THREE MODES, AND WHICH ONE IS DEFEATABLE
 ============================================
-Measured in a scratch repository, not assumed (the transcript is on D219):
+Measured in a scratch repository, not assumed (the transcript is on D220):
 
   * `git commit -F msg -- <paths>` takes those paths' content FROM THE WORKING
     TREE and IGNORES THE INDEX. Stage 1+/1-, let a concurrent agent append one
