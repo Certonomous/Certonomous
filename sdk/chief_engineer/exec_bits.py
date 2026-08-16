@@ -314,6 +314,11 @@ WAIVED_NO_EXEC_BIT = (
     # at HEAD for a bare-path call site and none exists anywhere in the tree, in
     # the docs, or in the tests -- every invocation is `python3 <path>`, and the
     # tests load them through `importlib.util.spec_from_file_location`.
+    # Added 2026-08-16; see the note above. Run as
+    # `python3 scripts/check_docket_reconciliation.py`, which is the form its
+    # own docstring, its tests and its mutation harness all use; no bare-path
+    # call site exists anywhere in the tree, the docs or the tests.
+    "scripts/check_docket_reconciliation.py",
     "scripts/check_docket_surface_agreement.py",
     "scripts/check_proposal_surface_coverage.py",
     "scripts/coefficient_uq_plate.py",
@@ -335,6 +340,9 @@ WAIVED_NO_EXEC_BIT = (
     "scripts/ledger_backup.py",
     "scripts/memwatch.py",
     "scripts/morning_report.py",
+    # Added 2026-08-16; see the note above. Run as
+    # `python3 scripts/mutation_harness_docket_reconciliation.py`.
+    "scripts/mutation_harness_docket_reconciliation.py",
     # Added 2026-08-16; see the note above. Run as
     # `python3 scripts/mutation_harness_rung_attribution.py`.
     "scripts/mutation_harness_rung_attribution.py",
