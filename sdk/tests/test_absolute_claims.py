@@ -386,6 +386,79 @@ class TheVerdictIsThreeValuedTests(unittest.TestCase):
         for word in ("binary", "over size cap", "unreadable", "unparseable"):
             self.assertIn(word, skips.words())
 
+    def test_a_caller_named_path_that_does_not_exist_yields_unknown_not_pass(
+            self):
+        """THE FAIL-OPEN REGRESSION, and it is the one this class exists for.
+
+        `--paths` is the mode every caller outside a derived frame uses, and a
+        path handed to it is a CONTRACT: the caller is asserting this file is
+        the thing to audit. A path that does not resolve breaks that contract,
+        and the only honest answer is UNKNOWN -- the checker cannot say a file
+        it never found is clean.
+
+        Before the repair the missing path was dropped before it was ever
+        stat-ed, because selection filtered on SUFFIX first: a nonexistent
+        `.md` raised `FileNotFoundError` and blinded the verdict correctly,
+        while a nonexistent `.json`, `.png` or extensionless path vanished and
+        the audit returned CLEAN -- exit 0, PASS. Which of the two happened
+        turned on the spelling of the filename, which is not a property any
+        verdict may depend on.
+
+        This matters beyond the CLI: it is the shape a repository
+        reorganization produces at scale, where every caller naming a moved
+        path would have been told PASS by a checker that read nothing.
+
+        Positive control on the negative:
+        `test_an_existing_file_outside_the_prose_frame_is_narrower_not_blinder`
+        asserts a file that EXISTS and is merely out of frame stays CLEAN, so
+        UNKNOWN here is the missing path and not this mode refusing to reach a
+        verdict at all.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            self._tree(d)
+            for missing in ("gone.json", "gone.png", "gone"):
+                with self.subTest(missing=missing):
+                    res = ca.audit(root=d, paths=["has_a_claim.md", missing],
+                                   known_tests=set())
+                    self.assertEqual(
+                        "UNKNOWN", res.verdict,
+                        f"a named path that does not exist ({missing}) was "
+                        f"reported {res.verdict}; a checker that reads nothing "
+                        f"and says PASS is worse than no checker")
+                    self.assertEqual(1, res.skips.missing, res.skips.words())
+                    self.assertGreaterEqual(res.skips.blinding, 1)
+                    self.assertTrue(
+                        res.claims,
+                        "claims found beside the missing path were lost")
+                    self.assertIn("UNKNOWN because", res.verdict_line())
+
+    def test_an_existing_file_outside_the_prose_frame_is_narrower_not_blinder(
+            self):
+        """THE MUST-NOT-MATCH CONTROL for the test above.
+
+        A repair that blinded on every path outside the prose frame would
+        satisfy the regression above and make the checker useless: `--paths`
+        would go UNKNOWN whenever a caller named a `.json` beside its `.md`.
+
+        The line the repair draws: EXISTENCE is the caller's contract and a
+        breach of it blinds; the prose-SUFFIX filter is the module's own frame
+        and narrowing it does not. So a `.json` that exists is skipped,
+        counted, said out loud -- and CLEAN.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            (d / "clean.md").write_text(
+                f"This can never happen again. Evidence: `{A_REAL_TEST}`.\n",
+                encoding="utf-8")
+            (d / "data.json").write_text("{}\n", encoding="utf-8")
+            res = ca.audit(root=d, paths=["clean.md", "data.json"],
+                           known_tests={A_REAL_TEST})
+        self.assertEqual("CLEAN", res.verdict, res.report())
+        self.assertEqual(0, res.skips.missing, res.skips.words())
+        self.assertEqual(0, res.skips.blinding)
+        self.assertEqual(1, res.skips.out_of_frame, res.skips.words())
+
 
 class TheFrameIsDerivedTests(unittest.TestCase):
     """Evidence FOR: the file list is walked, not enumerated."""

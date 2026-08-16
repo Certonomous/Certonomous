@@ -742,23 +742,41 @@ class Skips:
     unreadable: int = 0
     unparsed: int = 0
     not_a_regular_file: int = 0
+    #: Caller-named paths that do not exist. BLINDING -- see `blinding`.
+    missing: int = 0
+    #: Caller-named paths that exist but carry no prose suffix. NOT blinding.
+    out_of_frame: int = 0
     unreadable_paths: list[str] = field(default_factory=list)
 
     @property
     def total(self) -> int:
         return (self.binary + self.over_size_cap + self.unreadable
-                + self.unparsed + self.not_a_regular_file)
+                + self.unparsed + self.not_a_regular_file
+                + self.missing + self.out_of_frame)
 
     @property
     def blinding(self) -> int:
-        """Skips that make the verdict UNKNOWN rather than merely narrower."""
-        return self.unreadable + self.unparsed
+        """Skips that make the verdict UNKNOWN rather than merely narrower.
+
+        `missing` is here and `out_of_frame` is not, and the line between them
+        is the whole repair: EXISTENCE is the caller's contract -- a path
+        handed to `--paths` asserts "this is the thing to audit", so one that
+        does not resolve means the checker never read the subject and cannot
+        call it clean. The prose-SUFFIX filter is this module's OWN frame, and
+        narrowing a sweep by a rule the module publishes is not blindness.
+        Evidence: `test_a_caller_named_path_that_does_not_exist_yields_unknown_not_pass`
+        and its must-not-match control
+        `test_an_existing_file_outside_the_prose_frame_is_narrower_not_blinder`.
+        """
+        return self.unreadable + self.unparsed + self.missing
 
     def words(self) -> str:
         return (f"{self.binary} binary, {self.over_size_cap} over size cap, "
                 f"{self.unreadable} unreadable (raised), "
                 f"{self.unparsed} unparseable, "
-                f"{self.not_a_regular_file} not a regular file")
+                f"{self.not_a_regular_file} not a regular file, "
+                f"{self.missing} named but missing (raised), "
+                f"{self.out_of_frame} named but outside the prose frame")
 
 
 @dataclass
@@ -835,9 +853,13 @@ class AuditResult:
                 f"unit(s) across {self.read} of {self.in_frame} in-frame files, "
                 f"at {self.commit}{'+dirty' if self.dirty else ''}")
         if self.verdict == "UNKNOWN":
+            # Every blinding reason is named here. A verdict line that reports
+            # UNKNOWN while its stated cause reads `0 ... and 0 ...` sends the
+            # reader looking for a failure the sentence has already hidden.
             why = self.walk_error or (
-                f"{self.skips.unreadable} file(s) raised on read and "
-                f"{self.skips.unparsed} would not parse")
+                f"{self.skips.unreadable} file(s) raised on read, "
+                f"{self.skips.unparsed} would not parse and "
+                f"{self.skips.missing} named path(s) do not exist")
             base += f"; UNKNOWN because {why}"
         return base
 
@@ -891,6 +913,23 @@ def audit(root: str | os.PathLike = REPO,
         frame_name = "explicit-paths"
         rule_words = "paths named by the caller"
         filter_words = "none beyond the caller's list -- NOT a derived frame"
+        # THE FAIL-OPEN THIS BRANCH USED TO CARRY, fixed rather than noted.
+        # `in_frame` below filters on SUFFIX, and it used to do so before
+        # anything was stat-ed. A caller-named path that did not exist was
+        # therefore dropped without a trace unless its suffix happened to be
+        # a prose one -- a missing `.md` raised FileNotFoundError and blinded
+        # the verdict correctly, while a missing `.json`, `.png` or
+        # extensionless path vanished and the audit returned CLEAN, exit 0,
+        # PASS. Which of the two happened turned on the SPELLING of the
+        # filename. A checker that reads nothing and reports PASS is counted
+        # as coverage while guarding nothing, so the missing path is now
+        # counted here, before the suffix filter can hide it, and it BLINDS.
+        for p in selected:
+            if not p.exists():
+                skips.missing += 1
+                skips.unreadable_paths.append(f"{p} (named but does not exist)")
+            elif p.suffix not in suffixes:
+                skips.out_of_frame += 1
     else:
         f = sweep_mod.FRAMES[frame]
         frame_name, rule_words = f.name, f.rule_words
