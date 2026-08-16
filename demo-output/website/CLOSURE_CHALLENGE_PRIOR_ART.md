@@ -324,10 +324,19 @@ vocabulary is more honest and more useful than presenting it as new machinery.
    question: *how large is the baseline's error going to be?* — and declines when the
    answer is "small", because a small baseline error is what a corrector cannot beat.
    That framing was not found in the located literature.
-3. **The refusal is reported as a result, not hidden.** Two of the entry's five
-   best-on-board cases are cases where the method declined to act. No leaderboard
-   convention exists for that, and disclosing it is a contribution to how such
-   benchmarks are read.
+3. **The refusal is reported as a result, not hidden.** ~~Two of the entry's five
+   best-on-board cases are cases where the method declined to act.~~ **Struck
+   2026-08-16.** *"Five"* was round 4's count against the **four**-entry board frozen
+   at benchmark commit `deb91557` (2026-05-04), and it was true when this line was
+   written at `92840d8c` (2026-07-31). It has been superseded twice since: round 5
+   spent the `AR_14_Ret_180` tie on 2026-08-07, taking the count to 4 of 8, and the
+   board gained two entrants on 2026-08-11T23:33Z. Against that **six**-entry board,
+   re-verified unchanged 2026-08-14T21:01Z and carrying **seven** rows counting ours,
+   the entry was best on **2 of the 8** cases — and **both** of those two were cases
+   where the method declined to act, so the count belonging to the lab's own trained
+   model was **zero of 8**. That states the point more sharply than the struck
+   sentence did, not more weakly. No leaderboard convention exists for that, and
+   disclosing it is a contribution to how such benchmarks are read.
 
 **Recommended one-sentence framing for the submission:**
 
