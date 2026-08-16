@@ -7,8 +7,10 @@ applied to each in the round-3 gated entry.
 THIS IS A DECISION-TABLE EXERCISE, NOT A DECISION. It changes nothing: no
 correction is altered, no closure_challenge.score()/evaluate_by_case() call
 is made, and no ground truth (U_LES/tauij_LES) of any test case is read.
-Whether to spend a 5th official scoring call on anything this table shows
-is explicitly the coordinator's decision, not this script's.
+Whether to spend a further official scoring call ("a 5th" as this
+round-3-era script was written; the cumulative count is six after round 5's
+2026-08-07 call, so the next one would be the 7th) on anything this table
+shows is explicitly the coordinator's decision, not this script's.
 
 LEAKAGE STATEMENT, stated the same way as every other artifact on this
 ladder: the criterion's parameters (training-regime bounds for the PH and
@@ -245,8 +247,10 @@ def main() -> None:
             f"than 'no action is available'. "
             f"BOTTOM LINE: the criterion, applied strictly within the domain it was proven for, "
             f"changes nothing about the current entry, and there is no case for which it "
-            f"identifies an available, leakage-clean action. Zero cases warrant a 5th official "
-            f"scoring call on this evidence."
+            f"identifies an available, leakage-clean action. Zero cases warrant a further "
+            f"official scoring call on this evidence (\"a 5th\" as this round-3-era script was "
+            f"written; the cumulative count is six after round 5's 2026-08-07 call, so the next "
+            f"one would be the 7th)."
         ),
     }
     print("\n=== VERDICT ===")
