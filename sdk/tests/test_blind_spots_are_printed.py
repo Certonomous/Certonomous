@@ -198,8 +198,63 @@ class TheMeasuredHalfIsMeasured(unittest.TestCase):
         self.assertIn(f"{fake['act_transcripts']} act transcript(s)", moved)
 
     def test_the_corpus_reach_names_the_cap_it_actually_enforces(self):
-        """The stated cap is the constant the sweeps use, not a second copy."""
+        """The stated cap is the constant the sweeps use, NOT A SECOND COPY.
+
+        THIS TEST COULD NOT FAIL FOR ITS OWN SENTENCE UNTIL 2026-08-16, and the
+        sentence is the whole point of it. It asserted only that the current
+        digits appear somewhere in the text -- which a hardcoded literal
+        carrying those same digits satisfies exactly, and a hardcoded literal
+        is precisely the second copy the docstring forbids. Measured by
+        mutation in an isolated worktree: replacing `{_RANK_MAX_BYTES:,}` in
+        `_blind_corpus` with the literal `4,000,000` SURVIVED this test while
+        four sibling mutations in the same file were killed.
+
+        A value that matches is not a value that is DERIVED. So the constant is
+        moved and the disclosure has to move with it; a second copy stays put
+        and is caught.
+        """
         self.assertIn(f"{sa._RANK_MAX_BYTES:,}", sa._blind_corpus())
+        original = sa._RANK_MAX_BYTES
+        sa._RANK_MAX_BYTES = original + 111_000
+        try:
+            moved = sa._blind_corpus()
+        finally:
+            sa._RANK_MAX_BYTES = original
+        self.assertIn(
+            f"{original + 111_000:,}", moved,
+            "the stated cap did not move when the enforced cap did, so the "
+            "blind spot carries a SECOND COPY of the number rather than the "
+            "constant the sweeps actually enforce")
+
+    def test_the_measured_line_is_the_derivers_own_words(self):
+        """The printed `measured now` line must come FROM the deriver.
+
+        The measured half exists because a typed figure rots. Nothing pinned
+        that the line the reader sees was produced by `BLIND_DERIVED` at all:
+        measured 2026-08-16, making the printer emit the DECLARED text under
+        the `(measured now)` label survived every test in this file. A
+        disclosure that says "measured now" over a constant is worse than no
+        second line, because the label is the reason it gets believed.
+
+        Asserts an IDENTITY -- a sentinel only the deriver could have put
+        there -- and not that two lines are present.
+        """
+        live = {c.__name__ for c in sa.CHECKS}
+        name = next((n for n in sa.BLIND_DERIVED if n in live), None)
+        self.assertIsNotNone(name, "no live check has a deriver to test")
+        sentinel = "SENTINEL-REACH-9c1f-only-the-deriver-can-say-this"
+        original = sa.BLIND_DERIVED[name]
+        sa.BLIND_DERIVED[name] = lambda: sentinel
+        try:
+            report = _render([name])
+        finally:
+            sa.BLIND_DERIVED[name] = original
+        section = _section(report, name)
+        self.assertIn(
+            sentinel, section,
+            f"the `(measured now)` line for {name} did not carry the "
+            f"deriver's own output, so the label is asserting a measurement "
+            f"the reader never receives")
 
     def test_the_placement_binding_derives_who_it_cannot_fault(self):
         """Whom rule A cannot reach is read off the two boards, not listed.

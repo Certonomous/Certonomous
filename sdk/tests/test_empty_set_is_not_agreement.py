@@ -645,5 +645,111 @@ class TestMutations(_LedgerCells):
                          " ".join(honest.detail))
 
 
+def _lab_check_exit_contract() -> dict:
+    """`EXIT_CONTRACT` read out of `scripts/lab_check.py` BY AST, not copied.
+
+    Read from the real table rather than restated here, because a second copy
+    of a contract cannot detect the contract being described backwards -- and
+    describing it backwards is the exact mutation this file failed to catch.
+    Read rather than imported: `lab_check` is another agent's file and this
+    test has no business running its module body.
+    """
+    import ast
+    src = (REPO / "scripts" / "lab_check.py").read_text(encoding="utf-8")
+    tree = ast.parse(src)
+    consts: dict = {}
+    contract = None
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        for target in node.targets:
+            if isinstance(target, ast.Name) and target.id == "EXIT_CONTRACT":
+                contract = node.value
+            elif (isinstance(target, ast.Tuple)
+                    and isinstance(node.value, ast.Tuple)):
+                for nm, val in zip(target.elts, node.value.elts):
+                    if isinstance(nm, ast.Name) and isinstance(val, ast.Constant):
+                        consts[nm.id] = val.value
+            elif (isinstance(target, ast.Name)
+                    and isinstance(node.value, ast.Constant)):
+                consts[target.id] = node.value.value
+    if not isinstance(contract, ast.Dict):
+        raise AssertionError("EXIT_CONTRACT is not a literal dict in "
+                            "scripts/lab_check.py; this reader must be fixed "
+                            "rather than deleted")
+    out = {}
+    for key, value in zip(contract.keys, contract.values):
+        name = value.id if isinstance(value, ast.Name) else None
+        out[ast.literal_eval(key)] = (consts[name] if name
+                                      else ast.literal_eval(value))
+    return out
+
+
+class TheB1DisclosureIsTrueAndNotJustPresent(unittest.TestCase):
+    """The sentence every blind check closes with must say the true thing.
+
+    THE VERDICT WAS PINNED AND THE DISCLOSURE WAS NOT. Measured by mutation in
+    an isolated worktree on 2026-08-16, against a green control of 40 tests:
+    turning `_no_evidence`'s UNKNOWN into PASS was killed by 23 failures, so
+    the RULE is well guarded. But three mutations to the sentence it prints all
+    SURVIVED -- dropping "UNKNOWN and not PASS", dropping the "(defect class
+    B1)" citation, and INVERTING the stated exit contract from "reads as
+    UNKNOWN" to "reads as PASS". Nothing in the suite read that sentence.
+
+    That sentence is not decoration. `_no_evidence`'s own docstring says the
+    closing lines are uniform on purpose, so that "a reader who meets one of
+    these should not have to work out, check by check, whether the silence
+    means clean or means blind". A disclosure that tells the reader the
+    opposite of what `lab_check` does is worse than no disclosure, because it
+    is the sentence that stops them checking.
+    """
+
+    def _closing(self) -> str:
+        result = sa._no_evidence("a check that read nothing",
+                                 "its evidence was not there",
+                                 ["some/absent/path"])
+        lines = [d for d in result.detail
+                 if "empty sweep is not agreement" in d]
+        self.assertEqual(1, len(lines),
+                         f"expected exactly one B1 closing line: {result.detail}")
+        return lines[0]
+
+    def test_it_states_the_entitlement_UNKNOWN_and_not_PASS(self):
+        self.assertIn("UNKNOWN and not PASS", self._closing(),
+                      "the closing line no longer tells the reader that this "
+                      "silence is UNKNOWN rather than agreement")
+
+    def test_it_cites_the_defect_class_it_is_an_instance_of(self):
+        self.assertIn("B1", self._closing(),
+                      "the closing line dropped the defect class, so a reader "
+                      "cannot find the row that settled it")
+
+    def test_the_exit_contract_it_states_is_the_one_lab_check_implements(self):
+        """DERIVED against the real table, never against a second copy."""
+        import re
+        line = self._closing()
+        # `.*?` and NOT `[^.]*?`: the gap contains "lab_check.py", so a class
+        # excluding `.` cannot reach across it. The first draft of this line
+        # used `[^.]*?` and matched nothing -- the same character-class defect
+        # this lab repaired in `_BEST_COUNT` the same day, committed here by
+        # the agent who had just repaired it.
+        match = re.search(
+            r"exits (\d+), which .*?EXIT_CONTRACT reads as ([A-Z]+)", line)
+        self.assertIsNotNone(
+            match, f"the closing line no longer states an exit code and the "
+                   f"verdict lab_check reads from it: {line}")
+        code, claimed = int(match.group(1)), match.group(2)
+        contract = _lab_check_exit_contract()
+        self.assertIn(code, contract,
+                      f"self_audit says it exits {code}, which is outside "
+                      f"lab_check's published contract {contract}")
+        self.assertEqual(
+            contract[code], claimed,
+            f"self_audit's blind-check disclosure says exit {code} reads as "
+            f"{claimed}, but lab_check's EXIT_CONTRACT reads it as "
+            f"{contract[code]}. The sentence a reader trusts to tell them "
+            f"silence is not agreement is describing the gate backwards")
+
+
 if __name__ == "__main__":
     unittest.main()
