@@ -188,7 +188,14 @@ existing win at risk in writing, rather than let a test score choose what to sub
 <tr><td>4</td><td class="n">0.0654</td><td>Reynolds-invariant duct features fixed a measured extrapolation failure</td>
     <td>a +0.0022 regression on one duct, left standing rather than reverted by the answer key</td></tr>
 <tr class="us"><td>5</td><td class="n">0.0566</td><td>the untrained QCR physics term replaced the fitted duct correction, §4</td>
-    <td>a best-on-board tie put at risk in writing before the call — lost, and left standing</td></tr>
+    <td><s>a best-on-board tie put at risk in writing before the call — lost, and left standing</s>
+    <b>— struck 2026-08-16: there was no best-on-board tie to lose.</b> On the <b>six</b>-entry board
+    retrieved <b>2026-08-11T23:33Z</b> and re-verified unchanged <b>2026-08-14T21:01Z</b>, seven rows
+    counting ours, round 4's <span class="num">0.0325</span> on the aspect-ratio-14 duct <b>tied
+    Reissmann, Fang &amp; Sandberg for SECOND</b> — <b>2nd of 7</b>, behind Yang's
+    <span class="num">0.0250</span>. What was put at risk in writing and lost was a tie for second,
+    not for best; the tie for best was true only of the superseded <b>four</b>-entry board frozen at
+    benchmark commit <code>deb91557</code>, on which Yang did not appear.</td></tr>
 </tbody></table></div>
 
 <div class="note gold"><b>The ledger, and how the last call was authorized.</b> Six scoring calls, ever:
@@ -287,8 +294,13 @@ correction respects no conservation law.</div>
     <span>Committed 2026-08-05, before any solve: QCR ships on <b>all three</b> test ducts or on
     <b>none</b>, decided solely by the benchmark's own suggested validation duct — error ratio
     ≤ <span class="num">0.70</span> of the standard solve's, secondary-flow correlation
-    r ≥ <span class="num">0.85</span>, both solves fully converged. The duct where we held a
-    best-on-board tie got <b>no exemption</b>: the freeze names it, says QCR may well be worse there,
+    r ≥ <span class="num">0.85</span>, both solves fully converged. The duct where we held
+    <s>a best-on-board tie</s> <b>a tie for second</b> got <b>no exemption</b>
+    — <b>struck 2026-08-16: on the <b>six</b>-entry board retrieved <b>2026-08-11T23:33Z</b> and
+    re-verified unchanged <b>2026-08-14T21:01Z</b>, round 4's <span class="num">0.0325</span> there
+    tied Reissmann, Fang &amp; Sandberg at <b>2nd of 7</b>, behind Yang's
+    <span class="num">0.0250</span>; the best-on-board reading was true only of the superseded
+    <b>four</b>-entry board frozen at <code>deb91557</code></b>: the freeze names it, says QCR may well be worse there,
     and accepts the possible loss in writing — because protecting it per-case would mean choosing by a
     known test score.</span>
   </li>
@@ -302,7 +314,11 @@ correction respects no conservation law.</div>
   <li class="hit">
     <b>The submission was pre-registered before the one scoring call</b>
     <span>Accept criterion (beat round 4's <span class="num">0.065438</span>), expectation band
-    (<span class="num">0.059–0.0666</span>) and the tie-loss risk statement all committed first. Only the
+    (<span class="num">0.059–0.0666</span>) and the tie-loss risk statement all committed first
+    — <b>the risk statement was committed first and that is unchanged; what it called a
+    best-on-board tie was, on the <b>six</b>-entry board retrieved <b>2026-08-11T23:33Z</b>, a tie
+    for <b>second</b> with Reissmann at 2nd of 7 behind Yang's <span class="num">0.0250</span>
+    (noted 2026-08-16)</b>. Only the
     three duct files changed; the other five were copied byte-identical and hash-asserted. The test truth
     files were never copied into the run tree — <b>not merely unread; absent</b>. Solver cost:
     37 core-minutes against a 95-minute budget.</span>
@@ -347,8 +363,15 @@ correction respects no conservation law.</div>
   post-hoc selector in either direction.</figcaption>
 </figure>
 
-<div class="note warn"><b>The pre-registered risk materialised, and we are volunteering it: the tie is
-lost.</b> Round 4 held a nominal 0.00003-level tie for best-on-board on the aspect-ratio-14 duct. The
+<div class="note warn"><b>The pre-registered risk materialised, and we are volunteering it: <s>the tie is
+lost</s> <b>the tie for SECOND is lost</b>.</b> <s>Round 4 held a nominal 0.00003-level tie for
+best-on-board on the aspect-ratio-14 duct.</s> <b>— struck 2026-08-16, and this is D294: the caveats
+below were already correct and the wording above them was still false.</b> Round 4 held a nominal
+0.00003-level tie <b>for second</b> on the aspect-ratio-14 duct: against the <b>six</b>-entry board
+retrieved <b>2026-08-11T23:33Z</b>, <span class="num">0.0325</span> tied Reissmann, Fang &amp;
+Sandberg at <b>2nd of 7</b>, behind Yang's <span class="num">0.0250</span>, so <b>there was never a
+best-on-board tie to lose</b> — that reading was true only of the superseded <b>four</b>-entry board
+frozen at <code>deb91557</code>. The
 freeze put that tie at risk in writing; the risk landed: <span class="num" style="font-family:var(--mono)">
 0.0325 → 0.0353</span> (+0.0029) and the tie is gone. <s>the case falls to 3rd of 5, and our best-on-board
 count drops <b>5 of 8 → 4 of 8</b></s> — <b>struck 2026-08-15: both of those were four-entry-board figures
@@ -374,7 +397,10 @@ vs 0.0350) — independent solves, same constitutive term, same answer. So state
 signal is <b>Spalart's 25-year-old published term</b>, not a Certonomous invention, exactly as the decline
 gate in §3 has published ancestors. What is ours is narrower and we claim only it: the measured diagnosis
 that ruled the trained route out, the topology evidence above, and the frozen all-or-none rule that shipped
-the term blind — including onto the duct where it lost us a tie.
+the term blind — including onto the duct where it lost us <s>a tie</s> <b>a tie for second</b>
+<b>(struck 2026-08-16: on the <b>six</b>-entry board retrieved <b>2026-08-11T23:33Z</b> that duct's
+round-4 <span class="num">0.0325</span> tied Reissmann at <b>2nd of 7</b>, behind Yang's
+<span class="num">0.0250</span> — it was never best-on-board)</b>.
 <br><br><b>Struck 2026-08-14 — and this is the second repair of this same claim, which is worth more than
 the fix.</b> &ldquo;rank-2&rdquo; was true of the <b>four</b>-entry board frozen at benchmark commit
 <code>deb91557</code> (2026-05-04), and it was repaired to that board on 2026-08-11. The live board gained
@@ -504,7 +530,7 @@ beside it, and every tag has been re-derived against the same six-entry board. D
 <tr><td>Periodic hill, shallow, fine</td><td class="n"><s>0.0760</s> <b>0.0748</b></td><td class="n">0.0719</td><td class="n">0.0719</td><td><span class="tag t-flat"><b>BASELINE, NOT OUR MODEL</b> — 1st of 7, and the credit there belongs to the organisers' own unmodified RANS field, not to us</span></td></tr>
 <tr><td>Square duct, aspect ratio 1</td><td class="n"><s>0.0387</s> <b>0.0291</b></td><td class="n lose">0.0455</td><td class="n">0.1288</td><td><span class="tag t-open"><s>2nd of 5 — was 3rd; ties Wu &amp; Zhang at published precision</s> → <b>3rd of 7</b>; the live best 0.0291 is Yang's. Tag struck 2026-08-15.</span></td></tr>
 <tr><td>Square duct, aspect ratio 3</td><td class="n"><s>0.0341</s> <b>0.0311</b></td><td class="n lose">0.0400</td><td class="n">0.1243</td><td><span class="tag t-open"><s>3rd of 5 — 0.03998 against Wu &amp; Zhang's 0.0399</s> → <b>4th of 7</b>; the live best 0.0311 is Yang's. Tag struck 2026-08-15.</span></td></tr>
-<tr><td>Square duct, aspect ratio 14</td><td class="n"><s>0.0325</s> <b>0.0250</b></td><td class="n lose">0.0353</td><td class="n">0.0590</td><td><span class="tag t-open"><s>3rd of 5</s> → <b>4th of 7</b> — the tie for best, lost as pre-registered (§4); the live best 0.0250 is Yang's. Tag struck 2026-08-15.</span></td></tr>
+<tr><td>Square duct, aspect ratio 14</td><td class="n"><s>0.0325</s> <b>0.0250</b></td><td class="n lose">0.0353</td><td class="n">0.0590</td><td><span class="tag t-open"><s>3rd of 5</s> → <b>4th of 7</b> — <s>the tie for best, lost as pre-registered (§4)</s> <b>the tie for SECOND, lost as pre-registered (§4)</b>; the live best 0.0250 is Yang's, so round 4's 0.0325 tied Reissmann at 2nd of 7 on this same six-entry board and was never best. Tag struck 2026-08-15; wording struck 2026-08-16.</span></td></tr>
 <tr><td>NASA wall-mounted hump</td><td class="n"><s>0.0364</s> <b>0.0294</b></td><td class="n lose">0.0632</td><td class="n">0.0621</td><td><span class="tag t-open"><b>LAST — 7th of 7</b>, and worse than not correcting; the live best 0.0294 is Tian, Buchanan, Hickel &amp; Dwight's</span></td></tr>
 </tbody></table></div>
 
