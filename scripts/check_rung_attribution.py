@@ -107,7 +107,9 @@ But the harness keeps one transcript per subagent on disk:
     ~/.claude/projects/<project-slug>/<session-uuid>/subagents/agent-<hex>.jsonl
     ~/.claude/projects/<project-slug>/<session-uuid>/subagents/agent-<hex>.meta.json
 
-One file per dispatched agent, 716 of them for this session, each `.meta.json`
+One file per dispatched agent -- 363 of them for this session when last counted,
+2026-08-16T16:48Z at `d91b101a`, and the count is LIVE: three `ls | wc -l` calls
+minutes apart returned 361, 362, 363, so no fixed number belongs here. Each `.meta.json`
 naming the `toolUseId` of the `Agent` call that spawned it. An agent finds its
 OWN file by probe: it types a fresh token into the tool call that runs the
 emitter, and the emitter searches those transcripts for the token. Verified
@@ -245,16 +247,26 @@ USAGE
 
 ADOPTION -- one line, quotable in a dispatch brief:
 
-    Before committing, append your agent identity to the message file:
-    `python3 scripts/check_rung_attribution.py --emit-trailer >> <msgfile>`
+    Before committing, append your agent identity to the message file, typing a
+    fresh token of your own into the command:
+    `python3 scripts/check_rung_attribution.py --emit-trailer --probe <a-typed-token> >> <msgfile>`
 
-    For PER-AGENT granularity -- required if the grader shares a chief session
-    with the author -- type a fresh token of your own into the same command:
-    `python3 scripts/check_rung_attribution.py --emit-trailer --probe <fresh-token> >> <msgfile>`
+    That IS the line. `--emit-trailer` on its own is the SESSION-granularity form
+    and it is byte-identical for every agent one chief dispatches, so a brief
+    quoting it buys the adoption cost and grades every sibling pair AUTHOR. This
+    docstring published the bare form as the adoption line until `d91b101a`; the
+    same defect was corrected in `docs/AGENT_ATTRIBUTION.md` at `9416db99`, and
+    D230 is the row. The chief session itself CANNOT probe, having no
+    per-subagent transcript; it emits the session line and should say so.
 
-    The token must be TYPED, not shell-substituted: `$(...)` is expanded before
-    the harness records the call, so the harness's transcript would contain the
-    dollar sign and the probe would find nothing. `--probe` that cannot be
+    The token must be TYPED, not shell-substituted. What the probe actually
+    requires is that the token's VALUE appear in the tool call the harness
+    RECORDED, and `$(...)` is expanded by the shell before that record is
+    written, so the substituted value never reaches the transcript being
+    searched. Measured at `d91b101a`: an unpredictable `$(...)` value exited 3,
+    while `$(echo <literal>)` RESOLVED -- because the literal was typed and so
+    was recorded. Typing the token is therefore a rule that is always safe
+    rather than a statement of the mechanism. `--probe` that cannot be
     resolved emits NOTHING and exits 3, rather than quietly handing back the
     weaker session-granularity line the caller did not ask for.
 

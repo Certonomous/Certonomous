@@ -35,6 +35,17 @@ handles that correctly and loudly: an unresolvable probe **emits nothing and
 exits 3** rather than falling back to the session line, on the stated ground that
 the weaker line would be cited as the per-agent evidence it is not.
 
+**[SHARPENED at `d91b101a`, D230's staleness sweep.]** The condition measured is
+narrower than the rule stated above, and the rule stays anyway. What the probe
+requires is that the token's **value** appear in the tool call the harness
+*recorded*. An unpredictable substitution satisfies the paragraph above —
+`--probe "D230CTL$(od -An -N8 -tx1 /dev/urandom | tr -d ' ')"` exited 3 — but
+`--probe "$(echo D230DOLLARCONTROL16AUGZZ9)"` **resolved, exit 0**, because the
+literal was typed into the call and therefore recorded (`fgrep -o` found it twice
+in the emitting agent's own transcript). So "never `$(...)`" is a *sufficient*
+rule and not the mechanism. Keep the rule: it is the one form an agent can follow
+without knowing any of this.
+
 Adoption cost is one line and one invented word. There is still **no per-agent
 configuration**, no `git config`, no environment variable, no hook. The commit
 invocation this lab mandates — `git add <paths>` then

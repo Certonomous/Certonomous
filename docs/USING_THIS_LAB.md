@@ -1321,25 +1321,42 @@ carries one identity** — `Ubuntu <ubuntu@ip-172-31-43-247…>` — because the
 hostname (`docs/AGENT_ATTRIBUTION.md`, measured: 1,217 commits since 2026-08-01,
 **one** author identity). The author field cannot discriminate between two agents.
 
-There is a mechanism, and its adoption cost is one line appended before committing:
+There is a mechanism, and its adoption cost is one line appended before
+committing, with a fresh token you TYPE into the command yourself:
 
-    $ python3 scripts/check_rung_attribution.py --emit-trailer >> <msgfile>
-    Lab-Agent: ip-172-31-43-247/64b13819-ff95-4d4d-a50f-3720bab19084/-
+    $ python3 scripts/check_rung_attribution.py --emit-trailer --probe <a-typed-token> >> <msgfile>
+    Lab-Agent: ip-172-31-43-247/64b13819-ff95-4d4d-a50f-3720bab19084/-/agent-a51eee0d63411897c
 
-**Know its limit before you rely on it.** The identity is `<host>/<session-uuid>`,
-and that UUID names a Claude Code *session*, not an agent. The script says so
-itself, in capitals, at `scripts/check_rung_attribution.py:92`:
+**[CORRECTED at `d91b101a` (D230's staleness sweep). The block below said the
+bare `--emit-trailer` form was the adoption line, and it was written when that
+was the only form there was.]** ~~`--emit-trailer` alone, and the trailer
+separates chief sessions but not siblings, so for sibling agents independence
+still rests on the untracked dispatch record and not on anything in the
+repository.~~ That was true until `62d5757e`, which added the fourth
+`agent-<hex>` field, and the published adoption line was corrected to the
+`--probe` form at `9416db99`. **Bare `--emit-trailer` still emits the SESSION
+form**, which is byte-identical for every agent of one chief and therefore grades
+AUTHOR for every sibling pairing — so quoting it buys adoption cost and changes
+nothing. The script still says, in capitals, at `scripts/check_rung_attribution.py:90`:
 
     TWO AGENTS DISPATCHED BY THE SAME CHIEF SESSION READ AS THE SAME AGENT.
 
-So the trailer separates chief sessions, not siblings. For sibling agents — which
-is what a chief's author and its grader usually are — independence still rests on
-the **dispatch record** (the per-agent transcripts and their meta records under
-`~/.claude/projects/<project>/<session>/subagents/`, which carry a distinct
-`agent-<id>` and its dispatching brief), and **not** on anything in the
-repository. Nothing before the anchor `e933e31b` is attributable and *"backfill is
-impossible"*; the `--tag` slug is recorded, printed, and **never decides a
-verdict**.
+That sentence is about the SESSION field, and it is why `--probe` exists. The
+probe's token must be typed rather than shell-substituted: the harness records
+the tool call as you wrote it, and the emitter finds your own subagent transcript
+under `~/.claude/projects/<project>/<session>/subagents/` by searching those
+records for the token. A token whose value never reaches the record resolves to
+nothing, and the emitter then **prints nothing and exits 3** rather than falling
+back to the session line. Measured at `d91b101a`: `--probe "D230CTL$(od -An -N8
+-tx1 /dev/urandom | tr -d ' ')"` exited 3 and emitted nothing; a typed token
+resolved to exactly one file. Note what actually decides it — a `$(echo <literal>)`
+probe RESOLVES, because the literal is in the recorded call. Typing the token is a
+rule that is always safe, not a description of the mechanism.
+
+Two limits survive the repair. **The chief session itself cannot probe**, having
+no per-subagent transcript of its own. And nothing before the anchor `e933e31b`
+is attributable — *"backfill is impossible"*. The `--tag` slug is recorded,
+printed, and **never decides a verdict**.
 
 ---
 

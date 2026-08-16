@@ -290,7 +290,9 @@ WAIVED_NO_EXEC_BIT = (
     "scripts/check_convergence_sweep.py",
     # Added 2026-08-15 with the mechanism it belongs to (anchor `e933e31b`).
     # The bit is not load-bearing: its published adoption line is
-    # `python3 scripts/check_rung_attribution.py --emit-trailer >> <msgfile>`
+    # `python3 scripts/check_rung_attribution.py --emit-trailer --probe <token>
+    # >> <msgfile>` -- corrected from the bare `--emit-trailer` form at
+    # `9416db99`, re-swept at `d91b101a` (D230) --
     # and `scripts/lab_check.py` launches it as `sys.executable <path>`, so no
     # bare-path invocation exists. It is registered rather than chmod'd for a
     # measured reason: under this repository's `core.filemode = false`, a
