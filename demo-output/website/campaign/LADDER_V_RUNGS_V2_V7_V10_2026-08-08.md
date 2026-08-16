@@ -209,3 +209,5 @@ keeping this note strictly additive. If the chief holds that only the signing
 agent may add it, this block reverts cleanly and the site returns to open; what
 may not happen is a re-exclusion on ownership grounds, which is the error D167
 records.
+
+**HELD PROVISIONAL, 2026-08-16, by chief ruling on `a8c25b47`.** This block stands pending two rulings that were owed before it was written: whether a non-owner may append a dated additive addendum to another agent's signed verification report (routed to Katie; `fe612d03` set the precedent by act and nobody ruled it), and whether Ladder V leg 3 is graded per file or per sentence (unruled; if per sentence, an addendum below a freeze line is structurally incapable of attributing a sentence above it, so this block cannot close the site it was written to close). **Nothing depends on this block meanwhile: the site it addresses is recorded OPEN, not closed, and no rung, verdict or ledger row rests on it.** It was not reverted because a revert is as unilateral as the write was, and an additive, disclosed, precedented block is the safer state to hold.
