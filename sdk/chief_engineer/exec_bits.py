@@ -344,6 +344,9 @@ WAIVED_NO_EXEC_BIT = (
     # `python3 scripts/mutation_harness_docket_reconciliation.py`.
     "scripts/mutation_harness_docket_reconciliation.py",
     # Added 2026-08-16; see the note above. Run as
+    # `python3 scripts/mutation_harness_hunk_check.py`.
+    "scripts/mutation_harness_hunk_check.py",
+    # Added 2026-08-16; see the note above. Run as
     # `python3 scripts/mutation_harness_rung_attribution.py`.
     "scripts/mutation_harness_rung_attribution.py",
     "scripts/package_caches.sh",

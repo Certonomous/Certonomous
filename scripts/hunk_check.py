@@ -63,11 +63,48 @@ Measured in a scratch repository, not assumed (the transcript is on D220):
     loud one in the same minute, which is what the two caught ones had.
 
   MODE            SOURCE OF TRUTH                              WINDOW
-  standalone      worktree vs HEAD, restricted to the          seconds
-                  declared paths (+ any path another agent
+  standalone      HEAD's BLOB vs the FILE ON DISK, per          seconds
+                  declared path (+ any path another agent
                   staged into the SHARED index)
   hook            $GIT_INDEX_FILE vs HEAD -- all paths         zero
   --at <sha>      the commit object                            n/a (post hoc)
+
+THE MODE THAT WAS BROKEN, AND THE ONE THAT WAS NOT (repaired 2026-08-16)
+=======================================================================
+The standalone mode used `git diff --numstat HEAD -- <paths>`. That is a
+diff-INDEX walk: git reaches HEAD through `.git/index`, and a path with NO
+index entry is not tracked as far as that walk is concerned, so a file sitting
+on disk was reported as a whole-file DELETION.
+
+This was not a rare edge. It is the state THIS LAB'S OWN COMMIT PROTOCOL
+CREATES. A commit built with `GIT_INDEX_FILE` -- the private-index form
+mandated on `docs/DOCKET.md` and preferred wherever the shared index is dirty
+-- never writes the shared index, so every NEW file it lands is in HEAD and
+absent from the index. Every later declaration against such a file was graded
+against a phantom deletion. Measured at `1a9f7f12`: this module declared
+`0+/289-` for `sdk/tests/test_docket_reconciliation.py` whose true delta was
+`0+/1-`, and `git ls-files -s` on that path printed nothing at all.
+
+So the gate that is this lab's primary defence against capture was FAIL-FALSE
+for exactly the files its own protocol produces. Class B2.
+
+The repair is immunity by construction rather than a correction bolted on: the
+standalone mode now resolves each declared path from `git cat-file blob
+<rev>:<path>` and the file on disk, compared with `git diff --no-index`, which
+cannot reach an index by definition. `worktree_numstat` is that function.
+
+`--at` WAS NEVER BROKEN, and this was verified rather than assumed: it uses
+`git show --numstat`, which diffs a commit object against its parent, and no
+index is consulted on either side. At `f12e40d4` the two modes were run against
+the same file and the same declaration -- worktree mode said `0+/289-`, `--at`
+said `0+/1-`, and `--at` was right. If you are ever unsure which mode you can
+trust, `--at` is the one, at the cost of grading a commit that already exists.
+
+The shared index is still read in ONE place, on purpose (`index_anomalies`),
+because a peer's `git add` reaching your commit is the defect this module
+exists to catch. It now distinguishes a genuinely STAGED foreign edit from a
+path with NO INDEX ENTRY, which the old code would have reported as somebody
+else's staged work and sent the reader hunting an agent who never touched it.
 
 THREE-VALUED, AND IT CANNOT PASS FROM AN EMPTY SET (defect class B1)
 ===================================================================
@@ -88,6 +125,7 @@ import argparse
 import os
 import subprocess
 import sys
+import tempfile
 
 PASS, FAIL, UNKNOWN = "PASS", "FAIL", "UNKNOWN"
 EXIT = {PASS: 0, FAIL: 1, UNKNOWN: 3}
@@ -96,6 +134,105 @@ EXIT = {PASS: 0, FAIL: 1, UNKNOWN: 3}
 def _git(root: str, *args: str) -> subprocess.CompletedProcess:
     return subprocess.run(["git", "-C", root, *args],
                           capture_output=True, text=True)
+
+
+def _git_bytes(root: str, *args: str) -> subprocess.CompletedProcess:
+    """As `_git`, but binary-safe -- blobs are not necessarily text."""
+    return subprocess.run(["git", "-C", root, *args], capture_output=True)
+
+
+def _count_lines(data: bytes) -> int:
+    return data.count(b"\n") + (1 if data and not data.endswith(b"\n") else 0)
+
+
+def _pair_numstat(text: str):
+    """First numstat record of a two-file `--no-index` diff -> (added, removed)."""
+    for line in text.splitlines():
+        fields = line.split("\t")
+        if len(fields) < 3:
+            continue
+        a, r = fields[0], fields[1]
+        return (None if a == "-" else int(a), None if r == "-" else int(r))
+    return (0, 0)
+
+
+def worktree_numstat(root, rev, declared):
+    """Added/removed per declared path, comparing *rev* to the FILE ON DISK.
+
+    INDEX-FREE BY CONSTRUCTION, and that is the whole point of this function
+    rather than an implementation detail. It never runs `git diff HEAD`,
+    `git diff-index` or anything else that consults `.git/index`. Each path is
+    resolved from three facts only: whether the blob exists at *rev*, whether
+    the file exists on disk, and -- when both -- a `git diff --no-index`
+    between a temporary copy of the blob and the file, which by definition
+    cannot reach an index.
+
+    The four cases are all first-class; none is a degenerate diff:
+
+        in rev, on disk        -> the real line delta
+        NOT in rev, on disk    -> N+/0-, a wholly new file
+        in rev, NOT on disk    -> 0+/N-, a deletion
+        neither                -> absent from the result ("nothing changed")
+    """
+    actual = {}
+    for path in sorted(declared):
+        disk = os.path.join(root, path)
+        on_disk = os.path.isfile(disk)
+        in_rev = _git(root, "cat-file", "-e", "%s:%s" % (rev, path)).returncode == 0
+        if not on_disk and not in_rev:
+            continue
+        if not in_rev:
+            with open(disk, "rb") as fh:
+                actual[path] = (_count_lines(fh.read()), 0)
+            continue
+        blob = _git_bytes(root, "cat-file", "blob", "%s:%s" % (rev, path))
+        if blob.returncode != 0:                      # unreadable -> ungradeable
+            actual[path] = (None, None)
+            continue
+        if not on_disk:
+            actual[path] = (0, _count_lines(blob.stdout))
+            continue
+        with tempfile.TemporaryDirectory() as tmp:
+            ref = os.path.join(tmp, "ref")
+            with open(ref, "wb") as fh:
+                fh.write(blob.stdout)
+            cp = _git(root, "diff", "--no-index", "--numstat", "--no-renames",
+                      ref, os.path.abspath(disk))
+        delta = _pair_numstat(cp.stdout)
+        # An UNCHANGED file stays ABSENT from the result, which is what the old
+        # `git diff` call did and what the B1 clause of this module's contract
+        # requires: "nothing changed at the declared path" must reach the
+        # UNKNOWN branch of `reconcile`, never be graded as a 0+/0- FAIL.
+        # Reporting (0, 0) here turned that clause into a FAIL and reddened
+        # test_nothing_changed_at_the_declared_path_is_UNKNOWN_and_not_PASS --
+        # caught by running the pre-existing suite against both versions.
+        if delta == (0, 0):
+            continue
+        actual[path] = delta
+    return actual
+
+
+def index_anomalies(root, declared):
+    """What the SHARED index holds that the author did not declare.
+
+    This is the one place the index is read ON PURPOSE, because a peer's
+    `git add` landing in your commit is the defect this module exists to catch.
+    It distinguishes two states that `git diff --cached` renders identically:
+
+      STAGED      the path has an index entry differing from HEAD -- somebody
+                  staged an edit, and a pathspec-less commit would land it.
+      NO ENTRY    the path is in HEAD and has NO index entry at all. That is
+                  the private-index protocol's own by-product, not a peer's
+                  edit, and calling it "staged" would send the reader hunting
+                  for an agent who never touched the file.
+    """
+    tracked = {p for p in _git(root, "ls-files").stdout.splitlines() if p}
+    changed = {p for p in _git(root, "diff", "--cached", "--name-only",
+                               "--no-renames", "HEAD").stdout.splitlines() if p}
+    staged, missing = set(), set()
+    for path in changed - set(declared):
+        (missing if path not in tracked else staged).add(path)
+    return staged, missing
 
 
 def parse_declaration(items):
@@ -133,32 +270,23 @@ def parse_numstat(text):
 def collect(root, rev, declared):
     """(actual, staged_but_undeclared, mode) for whichever mode applies."""
     if rev:
+        # SOUND, and verified rather than assumed: `git show --numstat` diffs
+        # the commit object against its parent. Neither side is the index, so
+        # this mode never had the defect the worktree mode had.
         cp = _git(root, "show", "--numstat", "--no-renames", "--format=", rev)
-        return parse_numstat(cp.stdout), set(), f"commit {rev}"
+        return parse_numstat(cp.stdout), (set(), set()), f"commit {rev}"
     if os.environ.get("GIT_INDEX_FILE"):
+        # Reads an index ON PURPOSE -- the private one git builds for the hook,
+        # holding exactly what it is about to write. Not the shared index.
         cp = _git(root, "diff-index", "--cached", "--numstat", "--no-renames",
                   "HEAD")
-        return parse_numstat(cp.stdout), set(), "hook ($GIT_INDEX_FILE)"
-    cp = _git(root, "diff", "--numstat", "--no-renames", "HEAD", "--",
-              *sorted(declared))
-    actual = parse_numstat(cp.stdout)
-    # `git diff HEAD -- <path>` is BLIND to an untracked path, so a declared
-    # new file read as "nothing changed". Found by dogfooding this check on its
-    # own first commit. A path that is on disk and not in HEAD is wholly added.
-    for path in declared:
-        disk = os.path.join(root, path)
-        if path in actual or not os.path.isfile(disk):
-            continue
-        if _git(root, "cat-file", "-e", "HEAD:" + path).returncode == 0:
-            continue
-        with open(disk, "rb") as fh:
-            data = fh.read()
-        actual[path] = (data.count(b"\n")
-                        + (1 if data and not data.endswith(b"\n") else 0), 0)
-    staged = _git(root, "diff", "--cached", "--name-only", "--no-renames",
-                  "HEAD")
-    extra = {p for p in staged.stdout.splitlines() if p and p not in declared}
-    return actual, extra, "worktree vs HEAD"
+        return parse_numstat(cp.stdout), (set(), set()), "hook ($GIT_INDEX_FILE)"
+    # INDEX-FREE. `git diff HEAD -- <path>` walked the index and reported a
+    # phantom whole-file DELETION for any path with no index entry -- exactly
+    # what the private-index protocol leaves behind for every new file it
+    # lands. See "THE MODE THAT WAS BROKEN" in the module docstring.
+    actual = worktree_numstat(root, "HEAD", declared)
+    return actual, index_anomalies(root, declared), "worktree vs HEAD"
 
 
 def _fmt(pair):
@@ -167,10 +295,11 @@ def _fmt(pair):
 
 def reconcile(decl, actual, staged_extra):
     """-> (verdict, [findings], [ungraded]).  Never PASS from an empty set."""
+    staged_extra, missing_entry = staged_extra
     if not decl:
         return UNKNOWN, [], ["no declaration supplied -- nothing to compare "
                              "against, so this is not a pass"]
-    if not actual and not staged_extra:
+    if not actual and not staged_extra and not missing_entry:
         return UNKNOWN, [], ["nothing changed at the declared path(s) and "
                              "nothing is staged -- there is no commit to grade"]
     findings, ungraded = [], []
@@ -194,6 +323,11 @@ def reconcile(decl, actual, staged_extra):
     for path in sorted(staged_extra):
         findings.append("%s: STAGED in the shared index and NOT DECLARED "
                         "(another agent's `git add` reaches your index)" % path)
+    for path in sorted(missing_entry):
+        ungraded.append("%s: in HEAD with NO shared-index entry -- the "
+                        "private-index protocol's by-product, not a peer's "
+                        "edit. A pathspec-less commit would DELETE it. Not a "
+                        "finding against your declaration" % path)
     if findings:
         return FAIL, findings, ungraded
     if ungraded:
