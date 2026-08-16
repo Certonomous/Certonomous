@@ -1417,8 +1417,13 @@ field; they do not rank *us* above anyone. The honest count of the eight cases i
 
 **What *is* defensible, and it is a better finding than the one it replaces.** Crossing
 the recorded per-case floor against the published per-case leaderboard: **on exactly two
-of the eight test cases the uncorrected baseline beats all four published entries — and
-they are exactly the two the gate declined.** The gate chose them from 21 training cases,
+of the eight test cases the uncorrected baseline beats all ~~four~~ **six** published
+entries — and they are exactly the two the gate declined.** *(Count corrected 2026-08-16:
+"four" was the entrant count of the board frozen at `deb91557`; the live board retrieved
+2026-08-11T23:33Z and re-verified unchanged 2026-08-14T21:01Z carries **six** entrants,
+seven rows counting ours. Re-derived against it, the finding holds on both cases —
+0.0461 against a best published 0.0569 and 0.0719 against Yang's 0.0748 — so the
+correction widens the claim rather than weakening it.)* The gate chose them from 21 training cases,
 validated on 4 non-test cases, having never seen a test case. **The claim is about the
 selection, not the score:** a train-only rule identified, blind, the two flows on which
 every published method in the field damages the answer. That is also a finding about the

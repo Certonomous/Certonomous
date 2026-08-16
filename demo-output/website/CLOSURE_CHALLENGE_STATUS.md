@@ -72,8 +72,16 @@ cases the gate had never been evaluated on before, matching its validation
 performance exactly.
 
 **A finding earned by this, not designed for it**: on both declined cases
-the raw RANS floor (0.0461, 0.0719) is lower than every entry on the public
-leaderboard for that case (best published 0.0569 and 0.0760 respectively).
+the raw RANS floor (0.0461, 0.0719) was lower than every entry on the public
+leaderboard for that case (best published 0.0569 and ~~0.0760~~ **0.0748**
+respectively). **Comparator corrected 2026-08-16.** `0.0760` was the minimum of
+the **four**-entry board frozen at benchmark commit `deb91557` (2026-05-04),
+which scores but does not rank. On the **six**-entry board retrieved
+2026-08-11T23:33Z and re-verified unchanged 2026-08-14T21:01Z — seven rows
+counting ours — `alpha_05_4071_2024`'s best published is **Yang's 0.0748**;
+`0.0569` is Wu and Zhang's and is unchanged by the move. **The finding itself
+survives the correction and is stated at its true size**: 0.0461 and 0.0719 are
+lower than all **six** published entries on those two cases, not four.
 ~~**We now lead the public board on 5 of 8 cases**, not 3 — two of the five
 by simply not having broken what RANS already got right.~~
 
