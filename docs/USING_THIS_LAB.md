@@ -1701,10 +1701,44 @@ surprised.
 > night (item 9), and re-run at the same commit `5a0127d3` afterwards, both forms
 > returned **0 bytes, rc 0**. The trap is a property of `git diff`'s definition,
 > not of that one poisoned entry, so it re-arms the moment any agent runs `git
-> add`. **Compare against `HEAD` explicitly, or against `git show HEAD:<path>` —
-> never against a bare `git diff`.** §9.3's `git diff -- <path>` line has the same
-> exposure. A figure recorded without the state that produced it is the D230
-> defect; this block is what carrying both anchors looks like.
+> add`. §9.3's `git diff -- <path>` line has the same exposure. A figure recorded
+> without the state that produced it is the D230 defect; this block is what
+> carrying both anchors looks like.
+>
+> ### ⚠ The repair this block originally printed was itself wrong. Struck.
+>
+> **[STRUCK 2026-08-16 at `1a9f7f12`, by executing it.]** The line above used to
+> read *"Compare against `HEAD` explicitly, or against `git show HEAD:<path>` —
+> never against a bare `git diff`."* The first half of that is **false**, and the
+> half-truth is worse than the original trap because it names a command that
+> fails in the same direction while sounding safe.
+>
+> **`git diff HEAD -- <path>` walks the INDEX too.** A path with no index entry
+> reads as **deleted** even though the file is on disk and byte-present.
+> Measured at `1a9f7f12`: `git diff HEAD --numstat --
+> sdk/tests/test_docket_reconciliation.py` returned **`0  289`** — a whole-file
+> deletion — on a file that was 288 lines on disk and 289 lines in HEAD, whose
+> true difference was **one line**. `git ls-files -s` on it printed nothing:
+> **no index entry at all.**
+>
+> **And this is a by-product of the private-index protocol itself, so it will
+> keep happening.** A commit built with `GIT_INDEX_FILE` never writes the shared
+> index, so a NEW file it lands has no entry there and every `git diff HEAD` on
+> it reports a phantom deletion until somebody runs `git add` or `git reset`.
+> The docket write-back gap (item 8) and this are the same shape: the form is
+> correct, and it leaves a surface it does not update.
+>
+> **The forms that actually compare content, both verified at `1a9f7f12` on that
+> file, returning the true one-line difference:**
+>
+> ```bash
+> git show HEAD:<path> > /tmp/head.copy && diff /tmp/head.copy <path>
+> test "$(git rev-parse HEAD:<path>)" = "$(git hash-object <path>)"
+> ```
+>
+> Neither consults the index. `scripts/check_docket_reconciliation.py` is built
+> on the first of them for exactly this reason and returned PASS on the same
+> tree where `git diff HEAD` was reporting phantom deletions.
 
 **And record the by-product, because somebody owns it.** An agent that declines to
 commit rather than capture leaves **ORPHANED ROWS**: text that lives in the

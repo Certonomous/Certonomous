@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Pins for `scripts/check_docket_reconciliation.py`.
 
 WHAT THESE ASSERT ON, AND WHY IT IS NOT COUNTS
