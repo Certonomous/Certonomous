@@ -169,8 +169,20 @@ nothing else.
 
 **Control 3 — over-blanking.** Each file was swept twice, with stripping off and on, and the difference
 reconciled: `closure.html` 25 raw → 4 live, `benchmarks.html` 8 → 2, `ACTIVE_RESEARCH.md` 34 → 17,
-`PRODUCT_LIST.md` 15 → 13, `build_benchmarks.py` 4 → 3, and 0 suppressed on every other file. No
-suppression fell outside a genuine strike span.
+`PRODUCT_LIST.md` 15 → 13, `build_benchmarks.py` 4 → 3, and 0 suppressed on every other file — **136
+raw hits to 89 live, 47 suppressed.** Each of the 47 was then located and its containing span
+identified: **all 47 sat inside a genuine strike span, 0 unexplained.**
+
+**And that reconciliation caught a defect in itself before it was believed, which is the only reason
+it is reported as evidence.** Its first run flagged **20** of the 47 as falling outside any strike
+span — on `ACTIVE_RESEARCH.md`, `docs/PRODUCT_LIST.md` and `build_benchmarks.py`. The flags were
+real but the instrument was wrong: the depth probe knew `<s>` and `<del>` and **did not know markdown
+`~~`**, which is the strike form those three files use (`ACTIVE_RESEARCH.md:12`,
+*"~~rank 1 of 5 scored locally at benchmark commit `deb91557`~~"*; `build_benchmarks.py:85`,
+*"~~rank 1 of 5~~ RANK 1 OF 7"*). Re-run against both mechanisms, all 20 resolved to real `~~…~~`
+spans and the unexplained count went to **0**. A reconciliation that had been trusted on its first
+pass would have reported twenty phantom over-blankings; one that had been skipped would have
+asserted the same zero without earning it.
 
 **Control 4 — live positive against the pre-repair tree.** The same instrument was run unchanged
 against `git show 1a08e75d:` for both repaired files. It returned **6** live hits on `closure.html`,
@@ -210,7 +222,7 @@ the generator carried no `<s>` tags at all.
 > train-only gate DECLINED, the supplied baseline beats all four published entries (0.046108 vs 0.0569;
 > 0.071863 vs 0.0760).
 
-**Ruling: OUTSIDE V10's claim class. Filed as D244, not appended to the rung.** The ground is stated in
+**Ruling: OUTSIDE V10's claim class. Filed as D246, not appended to the rung.** The ground is stated in
 full because the reasoning, not the conclusion, is what a later grader has to check.
 
 1. **Its round-5 numbers were correct and current.** `0.046108` and `0.071863` were our round-5 per-case
@@ -258,7 +270,7 @@ and a live positive control that saw both graded blockers at their graded lines 
 returned **no live in-scope inconsistency on any surface**. Every live hit was opened and adjudicated;
 none was cleared by pattern alone. V10's criterion carries no tolerance and none was applied — the one
 surface item that could have carried it, `PRODUCT_LIST.md:1811`, was ruled outside the claim class on
-five stated grounds in §5, filed as **D244**, and the condition under which it reopens the rung was
+five stated grounds in §5, filed as **D246**, and the condition under which it reopens the rung was
 written down rather than left implicit.
 
 **Falsifier for this closure.** Show any of the four clauses of C2 or the one satisfied clause of C1
