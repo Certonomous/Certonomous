@@ -741,8 +741,10 @@ the board grew. Ducts, all three behind Yang: `AR_1_Ret_360` 0.0455 against
 0.0291, `AR_3_Ret_360` 0.0400 against 0.0311, `AR_14_Ret_180` 0.0353
 against 0.0250. `NASA_2DWMH` is our worst row on the whole board, 0.0632
 against 0.0294. The overall is a mean and not a count of wins, which is why
-0.056647 is still the lowest overall number while the per-case tally reads
-as it does: this entry is consistent, not peaked.
+0.056647 was still the lowest overall number while the per-case tally read
+as it does: this entry is consistent, not peaked. **Board: the six-entry board
+retrieved 2026-08-11T23:33Z, re-verified unchanged 2026-08-14T21:01Z, seven rows
+counting ours (identifier added 2026-08-16).**
 
 > ~~**We hold the best score on the entire leaderboard on four of eight
 > cases** (was five — AR_14's nominal lead was spent, knowingly, on the
@@ -952,8 +954,13 @@ the commit hash, which is unambiguous.
 
 **Highest reputational exposure, and it is not a rules problem**: on
 `alpha_05_4071_4048` and `alpha_05_4071_2024` our submitted field IS the unmodified
-baseline RANS solve, and those two of our five "best on board" rows credit the
-organisers' own baseline, not our model. Legitimate, already stated on `closure.html`
+baseline RANS solve, and those two of our ~~five~~ **two** "best on board" rows credit the
+organisers' own baseline, not our model. **Count corrected 2026-08-16**: on the
+**six**-entry board retrieved **2026-08-11T23:33Z** and re-verified unchanged
+**2026-08-14T21:01Z**, seven rows counting ours, the best-on-board count is **2 of 8** and
+both of the two are these declined-baseline rows — so the count belonging to our model is
+**zero of 8**, and "two of five" understated the exposure by describing three leads we do
+not have. `five` was the count against the superseded four-entry clone. Legitimate, already stated on `closure.html`
 — but it must go in the submission email itself, because being discovered is far
 worse than disclosing.
 
@@ -986,7 +993,13 @@ check this result would ever have had.
 
 ### C2 — where the deficit lives
 
-| case | share of the gap to rank 2 |
+*(Board identifier added 2026-08-16: "rank 2" below is against the **four**-entry clone
+frozen at benchmark commit `deb91557` (2026-05-04), which scores but does not rank — this
+is round-4 deficit analysis. On the **six**-entry board retrieved **2026-08-11T23:33Z** and
+re-verified unchanged **2026-08-14T21:01Z** the entrant above us is Yang and the margin is
+0.001365.)*
+
+| case | share of the gap to rank 2 *(four-entry `deb91557` frame, round 4; live board six-entry, retrieved 2026-08-11T23:33Z)* |
 | --- | --- |
 | AR_1_Ret_360 | **31.5%** |
 | AR_3_Ret_360 | **31.4%** |

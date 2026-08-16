@@ -182,7 +182,10 @@ we would rather you weighed it than found it.**
 ### 4. The `AR_14_Ret_180` regression was not reverted
 
 `AR_14_Ret_180` went 0.0325 → 0.0353 (+0.0029) in round 5 and its 0.00003
-best-on-board tie is lost. It is reported, not reverted, for the reason in 3b.
+best-on-board tie is lost. *(Board identifier added 2026-08-16: the tie was against the
+**four**-entry `deb91557` clone; on the **six**-entry board retrieved
+**2026-08-11T23:33Z**, re-verified unchanged **2026-08-14T21:01Z**, this case's best is
+Yang's 0.0250 and our 0.0353 is 4th of 7.)* It is reported, not reverted, for the reason in 3b.
 The round-2 `NASA_2DWMH` regression of +0.0011 was handled the same way.
 
 ### 5. Train / validation / test discipline
@@ -257,7 +260,10 @@ the evidence supports.**
 
 **Nothing above is reconciled after the fact; every other measure the lab holds
 already said this.** P(rank 1) = **50.2%**, which eight cases pin no tighter than
-**0–97% at 95%** (double bootstrap, 2,000 × 4,000). Against Yang the paired
+**0–97% at 95%** (double bootstrap, 2,000 × 4,000). *(Board identifier added 2026-08-16:
+every probability and margin in this section is against the **six**-entry board retrieved
+**2026-08-11T23:33Z** and re-verified unchanged **2026-08-14T21:01Z**, seven rows counting
+ours.)* Against Yang the paired
 *t* = **−0.189**, the per-case dispersion is **fifteen times** the margin, and
 four of the eight cases go to Yang. The lead is **not statistically decided**
 against Yang, Reissmann/Fang & Sandberg, Wu & Zhang, or
@@ -269,7 +275,11 @@ seed bound favourably instead gives P(rank 1) **65.4%** and adversely **34.2%**
 **The frame, on the face of the claim, because a figure without it is what broke
 this section.** 0.056647 is a **local** scoring computed at the **frozen**
 benchmark commit `deb91557` (2026-05-04), which **scores but does not rank**. It
-is the lowest overall figure on the six-entry board named above, and it is
+is the lowest overall figure on the **six**-entry board **retrieved 2026-08-11T23:33Z and
+re-verified unchanged 2026-08-14T21:01Z** — seven rows counting ours, so **rank 1 of 7**
+(retrieval date put on the face of the claim 2026-08-16, rather than left as "named
+above": a cross-reference is not an identifier, which is the defect this section exists to
+prevent). It is
 **not an official placement**; nothing has been submitted. The board figures and
 every margin against them are **regenerable rather than typed** — recomputed by
 `sdk/scripts/probability_of_rank.py` from the recorded board and from

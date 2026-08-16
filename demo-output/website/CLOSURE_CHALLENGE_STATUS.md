@@ -452,7 +452,11 @@ to all three ducts or none. It was applied to all three.
 
 **Margin warning, stated so it cannot be misquoted**: `AR_14_Ret_180`'s
 best-on-board lead over Reissmann collapsed from 0.0022 to **0.00003** (ours
-0.0324698 against the published four-decimal 0.0325). That is a nominal
+0.0324698 against the published four-decimal 0.0325). *(Board identifier added
+2026-08-16: this is round 4 against the **four**-entry clone frozen at `deb91557`
+(2026-05-04). On the **six**-entry board retrieved **2026-08-11T23:33Z**, re-verified
+unchanged **2026-08-14T21:01Z**, `AR_14_Ret_180`'s best is Yang's 0.0250 and the round-5
+score 0.0353 is 4th of 7 — the lead is gone, not narrow.)* That is a nominal
 lead, not a meaningful one, and it must not be reported as a comfortable
 win.
 
@@ -500,7 +504,11 @@ truth-free prediction-spread bound at the test points cannot rule out
 per-case movement up to ~0.0099 (overall-equivalent **0.0024**) without a
 scoring call — i.e. the one-seed uncertainty on 0.0654 is an estimated
 tenth of, and cannot be *bounded* tighter than about, the 0.0030 gap to
-rank 2. The gap language above therefore carries this qualifier. Full
+rank 2. The gap language above therefore carries this qualifier. *(Board identifier
+added 2026-08-16: "rank 2" is the **four**-entry clone frozen at `deb91557`, the
+round-4 frame. On the **six**-entry board retrieved **2026-08-11T23:33Z**, re-verified
+**2026-08-14T21:01Z**, the round-5 margin is 0.001365 over Yang and the seed bound is
+177% of it.)* Full
 record: `closure_challenge_stability_physicality_audit.md`,
 `closure_challenge_seed_sensitivity.json`.
 
@@ -525,7 +533,13 @@ entry `demo-output/website/ACTIVE_RESEARCH.md`, Ladder C (commit
 
 ---
 
-## 0f. Round 5 (2026-08-07) — the untrained QCR term takes the ducts; the entry of record is now 0.0566, rank 1 scored locally
+## 0f. Round 5 (2026-08-07) — the untrained QCR term takes the ducts; the entry of record is now 0.0566, rank 1 of 7 scored locally (six-entry board retrieved 2026-08-11T23:33Z, re-verified 2026-08-14T21:01Z)
+
+*(Board identifier added 2026-08-16: "rank 1" in this heading and section is against the
+**six**-entry board retrieved **2026-08-11T23:33Z** and re-verified unchanged
+**2026-08-14T21:01Z** — seven rows counting ours, so rank 1 of 7. Where the text below
+says "as of benchmark commit `deb91557`", that pin **scores but does not rank** and is not
+an admissible board identifier.)*
 
 **One sentence**: replacing the round-4 ML duct correction with a converged
 forward solve of the untrained QCR2000 constitutive term (`kOmegaSSTQCR`,
@@ -638,8 +652,12 @@ the right way: AR_14 is the one duct QCR made worse.
 
 **RANK 1, stated plainly and with its caveat in the same breath**: as of
 benchmark commit `deb91557`, scored locally on 2026-08-07 through the
-benchmark's own unmodified scorer, our round-5 entry's 0.056647 is the best
-overall number on the board, 0.002878 below Reissmann's published 0.059525.
+benchmark's own unmodified scorer, our round-5 entry's 0.056647 was the best
+overall number on the board, ~~0.002878 below Reissmann's published 0.059525~~
+**0.001365 below Yang's 0.0580125**. *(Corrected and identified 2026-08-16: the board of
+record is the **six**-entry board retrieved **2026-08-11T23:33Z**, re-verified unchanged
+**2026-08-14T21:01Z**, seven rows counting ours — **rank 1 of 7**, and the entrant
+immediately above us is **Yang**, not Reissmann. `deb91557` scores but does not rank.)*
 This is a **local scoring, not an official leaderboard placement** — nothing
 has been submitted, and if the steward's own scoring differs from ours, the
 steward's number is the number.
@@ -789,7 +807,13 @@ manifest `demo-output/website/closure_challenge_submission_round5/`
 the superseded record. The five non-duct rows are byte-identical between the
 two rounds — §0e.)*
 
-| Case | RANS-identity floor | Our score (round 3, gated) | **Our score (round 4, entry of record)** | ~~Rank-2~~ **Wu and Zhang — rank 3 on the six-entry live board** (Wu & Zhang, 0.0624) | ~~Best anywhere on leaderboard~~ **Best among the FOUR entrants of the deb91557 clone — not the live board** | ~~We lead the board?~~ **Led the FOUR-entry board** |
+*(Board identifier added 2026-08-16: the live-board placements in this table's headers —
+"Wu and Zhang — rank 3" — are against the **six**-entry board retrieved
+**2026-08-11T23:33Z** and re-verified unchanged **2026-08-14T21:01Z**, seven rows counting
+ours. The columns marked as the `deb91557` clone's are the **four**-entry frame and are
+kept as superseded history.)*
+
+| Case | RANS-identity floor | Our score (round 3, gated) | **Our score (round 4, entry of record)** | ~~Rank-2~~ **Wu and Zhang — rank 3 on the six-entry live board retrieved 2026-08-11T23:33Z, re-verified 2026-08-14T21:01Z** (Wu & Zhang, 0.0624) | ~~Best anywhere on leaderboard~~ **Best among the FOUR entrants of the deb91557 clone — not the live board** | ~~We lead the board?~~ **Led the FOUR-entry board** |
 |---|---|---|---|---|---|---|
 | alpha_15_13929_4048 | 0.1320 | 0.0501 | **0.0501** (unchanged) | 0.0813 | 0.0592 (Reissmann) | **YES** |
 | alpha_15_13929_2024 | 0.2049 | 0.1011 | **0.1011** (unchanged) | 0.1195 | 0.1195 (Wu & Zhang) | **YES** |
@@ -867,7 +891,9 @@ Two entries are new since the four-entry table above — **Yang at the top** and
 **Tian, Buchanan, Hickel, and Dwight at 4**. Montoya moved from 4 to 6 without
 changing score: the board grew underneath them. The eight case columns are
 unchanged, so scores remain like-for-like. **The ordinal may never travel
-alone**: P(rank 1) = **50.2%**, which eight cases pin no tighter than
+alone**: P(rank 1) = **50.2%** *(all figures in this paragraph against the **six**-entry
+board retrieved **2026-08-11T23:33Z**, re-verified unchanged **2026-08-14T21:01Z**, seven
+rows counting ours; identifier added 2026-08-16)*, which eight cases pin no tighter than
 **0–97% at 95%**, and **four** leads are **not statistically decided** —
 including the leader's. The margin over Yang is **0.001365** on the
 mean-of-eight basis (0.001353 against Yang's published rounded 0.0580), and the

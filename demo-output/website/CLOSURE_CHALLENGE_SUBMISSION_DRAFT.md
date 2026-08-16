@@ -1217,7 +1217,14 @@ entry from 0.0676 to **0.0654**. The five non-duct CSVs were **copied, not regen
 and all five were hash-verified against the round-3 `MANIFEST.json`, so the entire delta
 is attributable to the duct family and the decline gate's behaviour is untouched.
 
-| case | round 3 | round 4 |
+*(Board identifier added 2026-08-16: every "of 5" ordinal in this table is against the
+**four**-entry clone frozen at benchmark commit `deb91557` (2026-05-04) — four entrants
+plus us — which **scores but does not rank**. On the **six**-entry board retrieved
+**2026-08-11T23:33Z** and re-verified unchanged **2026-08-14T21:01Z** there are seven rows
+counting ours, and the round-5 duct standings are 3rd, 4th and 4th of 7. This table is
+kept as round-3/round-4 history and is not the entry of record.)*
+
+| case | round 3 *(ordinals: four-entry `deb91557` frame)* | round 4 *(same frame; live board six-entry, retrieved 2026-08-11T23:33Z)* |
 | --- | --- | --- |
 | `AR_1_Ret_360` | 0.0919 (last of 5) | **0.0811** (3rd of 5) |
 | `AR_3_Ret_360` | 0.0862 (4th of 5) | **0.0775** (3rd of 5) |
@@ -1230,7 +1237,10 @@ Two consequences must be disclosed, not buried:
   per-case test scores is selection on test outcomes. The fix was frozen on validation
   evidence and applied to all three ducts or none.
 - **The `AR_14_Ret_180` best-on-board margin collapsed from 0.0022 to 0.00003** against a
-  published four-decimal value. It is a nominal lead, not a meaningful one. §5.3 must say
+  published four-decimal value. *(Board identifier added 2026-08-16: that is the
+  **four**-entry `deb91557` frame. On the **six**-entry board retrieved
+  **2026-08-11T23:33Z**, re-verified **2026-08-14T21:01Z**, `AR_14_Ret_180`'s best is
+  Yang's 0.0250 and the tie no longer exists at all.)* It is a nominal lead, not a meaningful one. §5.3 must say
   so; describing it as a win would be misleading.
 
 New disclosure item for §5.3, and it replaces item 6 outright: the published duct
@@ -1459,7 +1469,12 @@ left the 0.0066 of §4.2 and the `AR_14_Ret_180` regression of §7.1 standing.
 **This is the third such refusal on the record and the smallest of the three.** It is
 stated on `closure.html` in the lab's own voice rather than left in this file.
 
-No other honest improvement was attempted. The remaining gap lives in the ducts —
+No other honest improvement was attempted. *(Board identifier added 2026-08-16: "the best
+published entry" and "the gap to rank 1" in this sentence are the **four**-entry
+`deb91557` frame in which it was written. On the **six**-entry board retrieved
+**2026-08-11T23:33Z**, re-verified **2026-08-14T21:01Z**, seven rows counting ours, we hold
+rank 1 of 7 by 0.001365 over Yang, and the duct leader is Yang at 0.0291 / 0.0311 /
+0.0250.)* The remaining gap lives in the ducts —
 matching the best published entry on the two aspect ratios we trail is worth about 0.011,
 more than the entire gap to rank 1 — and every move now visible there is either
 contaminated by knowledge of per-case test outcomes or needs evidence this benchmark
@@ -1587,7 +1602,12 @@ approves, not before — the value of the check is in being the last thing done.
 
 ---
 
-## 10. ADDENDUM 2026-08-07 — this package now carries the round-5 entry: 0.0566, locally rank 1
+## 10. ADDENDUM 2026-08-07 — this package now carries the round-5 entry: 0.0566, locally rank 1 of 7 (six-entry board retrieved 2026-08-11T23:33Z, re-verified 2026-08-14T21:01Z)
+
+*(Board identifier added 2026-08-16: "locally rank 1" is **rank 1 of 7** against the
+**six**-entry board retrieved **2026-08-11T23:33Z** and re-verified unchanged
+**2026-08-14T21:01Z**, seven rows counting ours, by a margin of 0.001365 over Yang against
+a seed bound 177% of that margin. It is a local scoring, not an official placement.)*
 
 Everything above describes the round-3/round-4 entries. On 2026-08-07 the
 pre-registered round-5 scoring call (the lab's 6th cumulative) was made and
