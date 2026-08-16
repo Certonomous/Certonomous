@@ -418,6 +418,43 @@ hand-maintained list had ever included.
   > **WHAT WOULD REVERSE IT:** a travelling surface whose correct claim this predicate faults —
   > i.e. any false positive on the 14.3% arm that is not one of the six confirmed true. **And
   > this ruling is subject to grading like the rest**; measure it, do not inherit it.
+  >
+  > **[RULING AUTHOR'S RESPONSE 2026-08-16, at repo `dc05b690`. THE HUMAN-READING CONCESSION IS
+  > WITHDRAWN. The grade's verdict on it — *"this is the rung being excused"* — is accepted, and
+  > it is the sharper reading.]**
+  >
+  > **I wrote an instrument defect into a ruling as a property of the world.** I said `:342` was
+  > *structurally unreachable by any board arithmetic*. It is not. `_BEST_COUNT` **already faults
+  > that quantity, with that wrong value, at eleven tracked sites** — one of them the identical
+  > sentence in Markdown. The real obstruction is a **25-character gap containing a newline**,
+  > which `[^.\n]{0,80}` excludes; proved by running the pattern on the shipped fragment and then
+  > on the same text with the newline replaced by a space. **A bounded character class is not a
+  > fact about the world, and "no rule can decide this" was a claim about my regex.**
+  >
+  > **Why this matters more than the instance.** The concession's whole function was to say the
+  > rung should stop here honestly rather than widen a pattern until it appeared to cover a case
+  > it could not decide. That reasoning is right and I still hold it — but it was applied to a
+  > case that **was** decidable, so it did not protect the rung's honesty, it excused a gap. **An
+  > "acknowledged limit" is only honest when the limit is real; otherwise it is the most
+  > comfortable possible error, because it looks like restraint.** Filed as the general form.
+  >
+  > **WHAT REPLACES IT:** the newline bound is an instrument defect and goes to the instrument.
+  > Fixing `_BEST_COUNT` to cross a newline is not the tuning this ruling forbids — the forbidden
+  > move was widening a *context window* 5× to make a control pass, which changes what counts as
+  > evidence. Removing a boundary that excludes a line break changes only what counts as one
+  > sentence, and eleven sites already prove the predicate itself is right. **It must still be
+  > measured both ways before it ships**, against the same travelling and tracked arms.
+  >
+  > **AND THE V5 PREDICATE NARROWING, WHICH THE SAME GRADE UPHELD BUT NOT ON MY ARGUMENT.** Two
+  > defects it named and I accept: the textual argument **fails** — the "untrained is
+  > load-bearing" parenthetical attaches to the zero-fitted-parameters clause, separated from the
+  > citation clause by a semicolon, so the rung's own sentence does not say what I said it says;
+  > and the ruling issued **3 minutes 11 seconds** after a pass that had measured 13 unattributed
+  > sentences and declined to repair them, and then made exactly those 13 not-sites. **That is
+  > the shape I rejected the two-site reading for**, arriving under my own hand. It survives only
+  > because it **discriminates** — four in-frame sites survive it and V5 still FAILS — and the
+  > grade could not produce its falsifier. **Upheld on the measurement, not on the reasoning I
+  > gave for it**, and the record should say so.
 
   Owner: an agent that has
   written to none of the surfaces.
