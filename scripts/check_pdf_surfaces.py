@@ -284,7 +284,7 @@ def pdf_text(path: Path) -> tuple[str | None, str]:
 
 def render(path: Path, page: int, outdir: Path) -> str:
     # The directory is made by `main()`, under `--render`, in the scope that
-    # owns the CLI value (docket D275/D276). It is NOT made here: this helper
+    # owns the CLI value (docket D275/D283). It is NOT made here: this helper
     # takes `outdir` as a parameter, so a reader of THIS scope -- including
     # `lab_check.py`'s static write predicate -- cannot see that the path is
     # a temporary directory and that the write is reachable only through an

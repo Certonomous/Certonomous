@@ -1572,7 +1572,7 @@ class TheTrackedFrameReadsHEADAndNotTheIndex(unittest.TestCase):
 
 
 class TheTempScopeExemptionIsPerFunctionNotPerModule(unittest.TestCase):
-    """Docket D276: one `mkdtemp` anywhere disabled the write predicate for a
+    """Docket D283: one `mkdtemp` anywhere disabled the write predicate for a
     WHOLE FILE, and the direction of that failure is the one that matters.
 
     `_write_primitive` collected `ast.Module` as a scope, and a scope counts as

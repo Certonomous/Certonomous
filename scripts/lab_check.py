@@ -716,7 +716,7 @@ def _write_primitive(tree: ast.Module, src: str) -> str:
     scopes: list[tuple[ast.AST, bool]] = []
     for fn in ast.walk(tree):
         if isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Module)):
-            # THE EXEMPTION IS PER-FUNCTION AND NEVER MODULE-WIDE (docket D276).
+            # THE EXEMPTION IS PER-FUNCTION AND NEVER MODULE-WIDE (docket D283).
             # `ast.Module` contains every node in the file, so granting IT the
             # temp-scope exemption made a single `tempfile.mkdtemp()` anywhere in
             # a module exempt EVERY write in that module -- including writes to
