@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Pins for `scripts/check_pdf_surfaces.py`.
 
 WHY THESE ASSERT ON IDENTITY AND NEVER ON COUNTS
