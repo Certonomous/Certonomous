@@ -109,8 +109,15 @@ ours.
 
 ~~Our round-5 entry is the best number on the published board on **4 of the 8**
 cases — and **two of those four are the baseline rows above**. The count that
-belongs to our model is therefore **2 of 8**, not 4.~~ `AR_14_Ret_180` was best on
-board in round 4 by 0.00003 and **is not any more** (see disclosure 4).
+belongs to our model is therefore **2 of 8**, not 4.~~ *(Board identifier added
+2026-08-16, and the claim beside it corrected: `AR_14_Ret_180`'s round-4 margin of
+0.00003 was measured against the **four**-entry `deb91557` clone, in which Yang
+does not appear. On the **six**-entry board retrieved **2026-08-11T23:33Z**,
+re-verified unchanged **2026-08-14T21:01Z**, this case's best is Yang's 0.0250 —
+so round 4's 0.0325 stood **2 of 7**, tied with Reissmann, and round 5's 0.0353
+stands **4 of 7**. **`AR_14_Ret_180` was never best on board**, and there was no
+best-on-board tie on this case to lose; what was lost was a tie for second. See
+disclosure 4.)*
 
 ### 3a. Adaptive leakage across rounds 1–3, in full
 
