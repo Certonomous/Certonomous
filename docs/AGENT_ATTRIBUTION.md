@@ -14,15 +14,33 @@ mechanism, its limits, and the one line a dispatch brief quotes.
 
 ## THE ONE LINE FOR A DISPATCH BRIEF
 
-> Before committing, append your agent identity to the message file:
-> `python3 scripts/check_rung_attribution.py --emit-trailer >> <msgfile>`
+> Before committing, append your agent identity to the message file, **typing a
+> fresh token of your own into the command**:
+> `python3 scripts/check_rung_attribution.py --emit-trailer --probe <a-unique-token-you-type> >> <msgfile>`
 
-That is the whole adoption cost. There is **no per-agent configuration**, no
-`git config`, no environment variable to export, no hook to install. The command
-reads the identity out of the environment the harness already sets and prints
-one line; the shell's `>>` puts it in the message file. The commit invocation
-this lab mandates — `git add <paths>` then `git commit -F <msgfile> -- <paths>` —
-is unchanged.
+**[CHIEF CORRECTION 2026-08-16, at repo `f6bf8c39`.]** ~~`--emit-trailer` alone.~~
+The line published here was the **session**-granularity form, and that is the
+form which returns `AUTHOR` for every pairing inside one chief session — the
+exact defect this document exists to repair. Executed just now: plain
+`--emit-trailer` prints `…/64b13819-…/-`, byte-identical to the trailer on a
+commit written by a different agent. **A brief quoting the old line would have
+bought adoption cost and changed nothing.** This is the stale-summary shape
+(D141) in the document shipping the fix for it, and it is the second time in two
+days a "how to adopt" line has been published without being run.
+
+**`--probe` is not optional and its token must be TYPED, not substituted.** A
+`$(...)` expansion is resolved by the shell *before* the harness records the tool
+call, so the token never reaches the transcript the probe searches. The tool
+handles that correctly and loudly: an unresolvable probe **emits nothing and
+exits 3** rather than falling back to the session line, on the stated ground that
+the weaker line would be cited as the per-agent evidence it is not.
+
+Adoption cost is one line and one invented word. There is still **no per-agent
+configuration**, no `git config`, no environment variable, no hook. The commit
+invocation this lab mandates — `git add <paths>` then
+`git commit -F <msgfile> -- <paths>` — is unchanged. **The chief session itself
+cannot probe**, having no per-subagent transcript; it emits the session line and
+should say so rather than claim agent granularity.
 
 Graders who want to be legible in the log can name themselves:
 
