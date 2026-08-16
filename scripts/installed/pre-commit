@@ -1,0 +1,274 @@
+#!/usr/bin/env bash
+# Certonomous pre-commit index guard -- docket D242.
+#
+# NOT INSTALLED BY BEING COMMITTED. This file is tracked; it is not a hook
+# until someone runs:
+#
+#     install -m 755 scripts/installed/pre-commit .git/hooks/pre-commit
+#
+# `.git/hooks/` is not tracked by git and never travels with a clone, so the
+# tracked copy here and `scripts/installed_registry.py` are the only things
+# that can tell a reader whether the hook on THIS box is the reviewed one.
+#
+# THE DEFECT CLASS THIS REFUSES (measured 2026-08-16, anchor 6097856c)
+# ====================================================================
+# `.git/index` is SHARED by every agent in this lab. The convention is
+# `git add <paths>` before every commit, so the index is written constantly --
+# and an entry staged by an agent that then landed its work by the pathspec
+# form (which IGNORES the index) is never cleared. It sits there matching an
+# ANCESTOR of HEAD, in the reverting direction, for as long as the session
+# lasts.
+#
+# Measured at HEAD 6097856c, minutes before this file was written:
+#
+#     docs/USING_THIS_LAB.md   index blob 22d6b1bc = HEAD's blob at 5a0127d3,
+#                              two commits back -- 62 deletions against HEAD.
+#     docs/DOCKET.md           index blob e1cac5df = HEAD's blob at 5fc6c092,
+#                              one commit back -- 2 deletions against HEAD.
+#
+# A bare `git commit` by anyone, for any reason, would have written both of
+# those, reverting 64 lines of two other agents' landed work under an
+# unrelated commit message. `git log -1 --stat` on the result looks ordinary,
+# which is what makes it a silent class rather than a loud one. An earlier
+# frame of the same index (anchor fe54ec0a) held 41 insertions / 402 deletions
+# across six paths, none of them belonging to the agent that found it.
+#
+# THE PREDICATE, AND WHY IT IS THIS ONE
+# =====================================
+# A commit is refused when any path it is about to write carries content
+# matching NEITHER HEAD NOR THE WORKING TREE.
+#
+# That is not a heuristic about what a diff "looks like". It is the definition
+# of the hazard: content that is in neither of the two places anyone has looked
+# came from the index and from nowhere else, and nobody chose it.
+#
+#     staged == HEAD             not in the commit at all; nothing to judge
+#     staged == worktree         the author's own file; ALLOWED
+#     staged == neither          nobody typed this; REFUSED
+#
+# It follows -- and this is the point -- that the two mandated commit forms
+# cannot trip it:
+#
+#   * `git commit -F msg -- <paths>` builds a TEMPORARY index from HEAD plus
+#     those paths taken from the WORKING TREE, exports GIT_INDEX_FILE at it,
+#     and runs this hook against that. Every staged blob equals the worktree
+#     by construction, so the second arm passes on every path, every time.
+#     The stale shared-index entries are not even present in what the hook is
+#     handed. Demonstrated, not reasoned: see D242.
+#
+#   * The private-index / compare-and-swap form (`GIT_INDEX_FILE=<tmp>
+#     git read-tree HEAD`, `git update-index --cacheinfo`, `git commit-tree`,
+#     `git update-ref refs/heads/main $NEW $OLD`) never invokes `git commit`,
+#     so no pre-commit hook runs at any point. This file cannot block it
+#     because it is never asked.
+#
+# What IS refused is the bare `git commit`, and the one legitimate-looking
+# case that shares the hazard's shape: staging a path and then editing it
+# further before committing bare. That case is refused on purpose. Under a
+# live fleet there is no way for this hook to distinguish "I staged it and
+# then edited it" from "someone else staged it three hours ago", because the
+# bytes are identical -- and the second is the one that has cost this lab
+# work. Re-run `git add <paths>` and the refusal clears in one command.
+#
+# WHAT IT DOES NOT CLOSE, stated rather than hidden
+# ==================================================
+#   * `git commit --no-verify` skips every pre-commit hook. Git provides no
+#     way to refuse that from inside a hook, and pretending otherwise would be
+#     the false clean this lab keeps finding. This guard narrows the hazard to
+#     an operator who typed `--no-verify`; it does not eliminate it.
+#   * It says nothing about a STALE WORKTREE. At the same measurement
+#     `docs/DOCKET.md` was two lines behind HEAD in the working tree as well
+#     as the index, and a pathspec commit of it would have reverted the same
+#     row this hook is protecting. Worktree staleness is a different defect
+#     with a different repair (re-read `git show HEAD:<path>` before editing)
+#     and this hook is silent on it, by construction: it grades the index
+#     against the worktree, and it cannot grade the worktree against HEAD
+#     without refusing every legitimate edit in the lab.
+#   * It is not installed anywhere it has not been installed. See the header.
+#
+# NO PIPELINE DECIDES ANYTHING HERE (docket D101's class)
+# =======================================================
+# This lab's own pre-commit check once printed `declared 1, actual 5`, exited
+# 1, and was waved through because the caller had piped it to `tail -3` and
+# chained with `&&`: the pipeline returned `tail`'s zero and the finding was
+# discarded between the reading and the acting. `pipefail` is set below, and
+# every git invocation whose result is acted on has its status captured into a
+# variable on the line that runs it. Nothing in the decision path is the exit
+# status of a pipeline.
+#
+# ESCAPE HATCH, stated rather than hidden: CERTONOMOUS_INDEX_GUARD=off, which
+# prints a line saying nothing was checked. It exists so that an operator who
+# genuinely means to commit an index-only state can, visibly, in the shell
+# history -- rather than reaching for `--no-verify` and turning off the other
+# hooks too.
+
+set -uo pipefail
+
+if [ "${CERTONOMOUS_INDEX_GUARD:-on}" = "off" ]; then
+    echo "pre-commit: index guard SKIPPED by CERTONOMOUS_INDEX_GUARD=off --" >&2
+    echo "            nothing was checked about what this commit will write." >&2
+    exit 0
+fi
+
+# An initial commit has no HEAD to compare against. There is no ancestor for a
+# stale entry to have come from, so there is nothing here to refuse.
+git rev-parse -q --verify HEAD >/dev/null 2>&1
+have_head=$?
+if [ "$have_head" -ne 0 ]; then
+    exit 0
+fi
+
+# Paths whose staged content differs from HEAD: exactly the set this commit
+# will write. Read through whatever index git handed us -- the real shared
+# .git/index for a bare commit, git's private temporary one for a pathspec
+# commit. HEAD is NAMED: a bare `git diff` compares the worktree against the
+# INDEX, which is the very thing under investigation here.
+# The path list goes through a TEMPORARY FILE and not a `$(...)`. Command
+# substitution silently DISCARDS NUL bytes -- bash even warns `ignored null
+# byte in input` on stderr, which git swallows -- so `-z` output collapses into
+# one unsplittable string and the loop below runs ZERO times. This guard did
+# exactly that on its first run: it exited 0 on a repository whose index was
+# holding a two-commit-old revert, and it looked like a pass. A file preserves
+# the NULs and still lets the exit status be captured.
+_guard_tmp=$(mktemp "${TMPDIR:-/tmp}/certonomous-index-guard.XXXXXX")
+trap 'rm -f "$_guard_tmp"' EXIT
+
+git diff-index --cached --name-only -z --no-renames HEAD > "$_guard_tmp"
+list_rc=$?
+if [ "$list_rc" -ne 0 ]; then
+    echo "pre-commit: \`git diff-index --cached HEAD\` exited $list_rc, so the" >&2
+    echo "            set of paths this commit would write is UNKNOWN. That is" >&2
+    echo "            the state this guard refuses to wave through, not a" >&2
+    echo "            reason to continue." >&2
+    exit 1
+fi
+
+bad=""
+n_bad=0
+n_seen=0
+# `< "$_guard_tmp"` is a redirect and not a pipe, so the loop body runs in THIS
+# shell and `n_bad` survives it. A `git ... | while` here would count in a
+# subshell and always arrive at zero -- the same shape as the pipe defect.
+while IFS= read -r -d '' path; do
+    [ -n "$path" ] || continue
+    n_seen=$((n_seen + 1))
+
+    # The staged object id, or empty when the index has no entry for the path
+    # (a staged deletion). `git ls-files -s` prints `<mode> <sha> <stage>\t<path>`;
+    # the fields are split by `read` rather than by a pipeline, so that nothing
+    # in the decision path is a pipeline's exit status.
+    entry=$(git ls-files -s -- "$path")
+    idx_sha=""
+    if [ -n "$entry" ]; then
+        read -r _mode idx_sha _stage _rest <<< "$entry"
+    fi
+
+    if [ -z "$idx_sha" ]; then
+        # Staged deletion. Honest if the file is gone from the working tree
+        # too; a deletion of a file that is still on disk is the index acting
+        # on its own.
+        if [ -e "$path" ]; then
+            bad="$bad
+  $path
+      the index DELETES this path, and the file is still in the working tree.
+      Nobody deleted it here; the index is carrying someone else's removal."
+            n_bad=$((n_bad + 1))
+        fi
+        continue
+    fi
+
+    # Does the staged blob match the working tree? Two independent readings,
+    # OR-ed, so that a difference has to be visible to both before this
+    # refuses: git's own index-vs-worktree comparator, and a direct content
+    # hash. A filter or attribute this hook did not anticipate can make the
+    # second disagree; it cannot make BOTH disagree on identical content.
+    git diff-files --quiet -- "$path"
+    df_rc=$?
+    if [ "$df_rc" -eq 0 ]; then
+        continue                       # index == worktree
+    fi
+
+    wt_sha=""
+    if [ -f "$path" ]; then
+        wt_sha=$(git hash-object -- "$path")
+        ho_rc=$?
+        [ "$ho_rc" -eq 0 ] || wt_sha=""
+    fi
+    if [ -n "$wt_sha" ] && [ "$wt_sha" = "$idx_sha" ]; then
+        continue                       # index == worktree
+    fi
+
+    head_sha=$(git rev-parse -q --verify "HEAD:$path" 2>/dev/null)
+    [ -n "$head_sha" ] || head_sha="(not in HEAD)"
+    [ -n "$wt_sha" ] || wt_sha="(not a file in the working tree)"
+
+    # Where did this blob come from? Naming the commit turns "something is
+    # wrong" into a fact the author can act on in the same minute.
+    origin=""
+    for c in $(git rev-list --max-count=400 HEAD); do
+        b=$(git rev-parse -q --verify "$c:$path" 2>/dev/null) || continue
+        if [ "$b" = "$idx_sha" ]; then
+            origin=$c
+            break
+        fi
+    done
+    if [ -n "$origin" ]; then
+        behind=$(git rev-list --count "$origin..HEAD" -- "$path")
+        origin="it is HEAD's blob as of $(git rev-parse --short "$origin"), $behind commit(s) back"
+    else
+        origin="it matches no commit in the last 400 of this branch"
+    fi
+
+    bad="$bad
+  $path
+      staged   $idx_sha  <- would be committed
+      HEAD     $head_sha
+      worktree $wt_sha
+      $origin"
+    n_bad=$((n_bad + 1))
+done < "$_guard_tmp"
+
+# A guard that examined nothing must say so rather than read as a pass. If the
+# commit writes paths and this loop saw none of them, the reader is broken.
+n_paths=0
+if [ -s "$_guard_tmp" ]; then
+    # One NUL per path. This is the only pipeline in the file, and its VALUE is
+    # sanitised below rather than its exit status trusted: anything that is not
+    # a plain integer becomes -1, which can never equal `n_seen` and therefore
+    # BLOCKS. A broken counter must not be able to buy a pass.
+    n_paths=$(tr -cd '\0' < "$_guard_tmp" | wc -c)
+    n_paths=${n_paths//[[:space:]]/}
+    case "$n_paths" in ''|*[!0-9]*) n_paths=-1 ;; esac
+fi
+if [ "$n_seen" -ne "$n_paths" ]; then
+    echo "pre-commit: this guard was handed $n_paths path(s) and examined" >&2
+    echo "            $n_seen of them, so NOTHING WAS CHECKED about the rest." >&2
+    echo "            That is a defect in the guard, and it blocks rather than" >&2
+    echo "            waving the commit through (docket D101's class)." >&2
+    exit 1
+fi
+
+if [ "$n_bad" -eq 0 ]; then
+    exit 0
+fi
+
+echo "pre-commit: REFUSED -- $n_bad path(s) staged with content that is in" >&2
+echo "            NEITHER HEAD NOR the working tree. Nobody here typed this;" >&2
+echo "            it is the shared .git/index carrying an older snapshot, and" >&2
+echo "            committing it would revert landed work under this message." >&2
+echo "$bad" >&2
+echo "" >&2
+echo "            WHAT TO DO. If you meant to commit your own files, use the" >&2
+echo "            mandated form, which takes content from the working tree and" >&2
+echo "            ignores the index entirely:" >&2
+echo "" >&2
+echo "                git commit -F <msgfile> -- <your paths>" >&2
+echo "" >&2
+echo "            If you meant a bare commit, refresh the index first:" >&2
+echo "" >&2
+echo "                git reset            # index := HEAD, worktree untouched" >&2
+echo "                git add <your paths>" >&2
+echo "" >&2
+echo "            Never \`git reset --hard\`; peers' live edits are in that tree." >&2
+echo "            To commit anyway: CERTONOMOUS_INDEX_GUARD=off git commit ..." >&2
+exit 1

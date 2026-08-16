@@ -96,8 +96,10 @@ left out, so the next reader does not have to re-derive the negative:
   counterpart that does not and should not exist.
 * NO local systemd unit on this host references this repository
   (`grep -rl Certonomous /etc/systemd/` is empty), so there is no unit to pair.
-* `.git/hooks` contains only the `*.sample` files git ships. No installed hook,
-  so no hook pair. A hook added later is a registry entry.
+* `.git/hooks` contained only the `*.sample` files git ships when this file was
+  written on 2026-08-14; that sentence said "a hook added later is a registry
+  entry", and two now are -- the pre-push gate (D64) and the pre-commit index
+  guard (D242, installed 2026-08-16 at HEAD 6097856c). Both are pairs below.
 * `/etc/cron.d` holds only `e2scrub_all` and `sysstat`, both distribution
   files, and `/etc/crontab` is stock.
 * `dist/certonomous-demo.zip` drifts from the tree too, but it lives INSIDE the
@@ -328,6 +330,26 @@ DEPLOYMENTS: tuple[Deployment, ...] = (
             "clone, so this pair is also the only thing that can tell a reader "
             "whether the hook on THIS box is the reviewed one",
         reinstall="install -m 755 scripts/installed/pre-push .git/hooks/pre-push",
+    ),
+    Deployment(
+        name="pre-commit index guard",
+        tracked="scripts/installed/pre-commit",
+        source=str(REPO / ".git" / "hooks" / "pre-commit"),
+        why="D242. `.git/index` is SHARED by every agent in this lab, and the "
+            "convention is `git add <paths>` before every commit, so entries "
+            "staged by an agent that then landed by the pathspec form -- which "
+            "ignores the index -- are never cleared. Measured at HEAD 6097856c "
+            "the index held `docs/USING_THIS_LAB.md` as of 5a0127d3 and "
+            "`docs/DOCKET.md` as of 5fc6c092, 64 deletions of two other "
+            "agents' landed work, which any bare `git commit` would have "
+            "written under an unrelated message. This hook refuses a commit "
+            "carrying content that is in NEITHER HEAD NOR the working tree. "
+            "Like the pre-push pair it needs no root, and like it the "
+            "installed side is untracked, so this row is the only thing that "
+            "can tell a reader whether the hook on THIS box is the reviewed "
+            "one",
+        reinstall="install -m 755 scripts/installed/pre-commit "
+                  ".git/hooks/pre-commit",
     ),
 )
 
