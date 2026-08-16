@@ -1476,7 +1476,7 @@ class AFailedEnumerationIsNotAnEmptyOne(unittest.TestCase):
     """MEASURED SURVIVOR: dropping `tracked_frame`'s `returncode != 0` arm left
     the suite at 52 passed.
 
-    Without it a failed `git ls-files` returns an EMPTY tracked frame and an
+    Without it a failed enumeration returns an EMPTY tracked frame and an
     empty note, so the run reports "tracked 0" as though the repository
     genuinely tracked nothing -- the silent-zero, in the half of the enumeration
     that decides what TRAVELS. The whole point of two frames is that the
@@ -1488,7 +1488,7 @@ class AFailedEnumerationIsNotAnEmptyOne(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             paths, note = lc.tracked_frame(Path(tmp))       # not a repository
         self.assertEqual(paths, [])
-        self.assertIn("git ls-files failed", note)
+        self.assertIn("git ls-tree HEAD failed", note)
 
     def test_the_run_prints_that_note_in_its_frame(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -1496,14 +1496,157 @@ class AFailedEnumerationIsNotAnEmptyOne(unittest.TestCase):
                 "scripts/gate.py": GATE.format(findings="[]")}, git=False)
             rc, out = _run(root, "--no-tests")
         self.assertIn("git note", out)
-        self.assertIn("git ls-files failed", out)
+        self.assertIn("git ls-tree HEAD failed", out)
 
     def test_a_working_repository_carries_no_such_note(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = _tree(Path(tmp), {
                 "scripts/gate.py": GATE.format(findings="[]")})
             rc, out = _run(root, "--no-tests")
-        self.assertNotIn("git ls-files failed", out)
+        self.assertNotIn("git ls-tree HEAD failed", out)
+
+
+class TheTrackedFrameReadsHEADAndNotTheIndex(unittest.TestCase):
+    """Docket D274, ruled 2026-08-16: HEAD is the referent, never the index.
+
+    THE PIN IS THE FAILING CASE, NOT AN ORDINARY ONE, and that distinction is
+    the whole test. `git ls-files` lists INDEX entries, so a check over a
+    NORMALLY-STAGED file passes throughout the broken period -- the index and
+    HEAD agree about it. The state that separates them is A COMMITTED FILE WITH
+    NO INDEX ENTRY, which on this tree is not exotic: every commit made by the
+    private-index docket protocol leaves one, so the defect GROWS rather than
+    staying constant. Measured at `452a0764`, 11 files were in that state and
+    this runner reported all 11 as `untracked only -- present here, will not
+    travel`, `scripts/check_docket_reconciliation.py` among them.
+
+    `git rm --cached` reproduces exactly that state: the file stays on disk,
+    stays in HEAD, and loses its index entry.
+    """
+
+    def _repo_with_a_deindexed_file(self, tmp: Path) -> Path:
+        root = _tree(tmp, {"scripts/gate.py": GATE.format(findings="[]")})
+        subprocess.run(["git", "rm", "--cached", "-q", "scripts/gate.py"],
+                       cwd=root, check=True)
+        # the premise, asserted rather than assumed: in HEAD, absent from the index
+        listed = subprocess.run(["git", "ls-files", "--", "scripts/gate.py"],
+                                cwd=root, capture_output=True, text=True)
+        in_head = subprocess.run(["git", "cat-file", "-e",
+                                  "HEAD:scripts/gate.py"], cwd=root)
+        self.assertEqual(listed.stdout.strip(), "",
+                         "the fixture did not remove the index entry")
+        self.assertEqual(in_head.returncode, 0,
+                         "the fixture did not leave the file in HEAD")
+        return root
+
+    def test_a_committed_file_with_no_index_entry_is_still_TRACKED(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._repo_with_a_deindexed_file(Path(tmp))
+            paths, note = lc.tracked_frame(root)
+        self.assertEqual(note, "")
+        self.assertIn(
+            "scripts/gate.py", paths,
+            "a committed file was dropped from the frame that answers 'will "
+            "this travel' because somebody's staging area did not mention it")
+
+    def test_the_run_does_not_report_it_as_not_travelling(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._repo_with_a_deindexed_file(Path(tmp))
+            rc, out = _run(root, "--no-tests")
+        self.assertEqual(rc, RC_PASS, out)
+        self.assertNotIn(
+            "will not travel", out,
+            "the runner told its reader that a COMMITTED file would not "
+            "travel, which is the D274 defect:\n" + out)
+
+    def test_a_genuinely_untracked_file_is_still_reported(self):
+        """The must-not-match half. Reading HEAD must not silence the frame:
+        a file that really is absent from HEAD does not travel, and saying so
+        is the reason the two frames are diffed at all."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _tree(Path(tmp), {"scripts/gate.py": GATE.format(findings="[]")})
+            (root / "scripts" / "never_committed.py").write_text(
+                GATE.format(findings="[]"))
+            rc, out = _run(root, "--no-tests")
+        self.assertIn("will not travel", out)
+        self.assertIn("scripts/never_committed.py", out)
+
+
+class TheTempScopeExemptionIsPerFunctionNotPerModule(unittest.TestCase):
+    """Docket D276: one `mkdtemp` anywhere disabled the write predicate for a
+    WHOLE FILE, and the direction of that failure is the one that matters.
+
+    `_write_primitive` collected `ast.Module` as a scope, and a scope counts as
+    temp-scoped if ANY call inside it makes a temporary directory. The module
+    contains every node in the file, so a single `tempfile.mkdtemp()` in some
+    unrelated helper marked the module temp-scoped and the containment check
+    then forgave EVERY write in it.
+
+    This is a FALSE ADMIT, not a false skip. The module's own comment states the
+    asymmetry: a false SKIP is printed and costs coverage, a false ADMIT runs a
+    writer against a tree ten agents are working in. Measured at the repair: 8
+    of 25 admitted script gates were admitted only by that blanket, and SEVEN
+    were mutation harnesses -- programs that hold a tracked file mutated by
+    construction -- reachable from `scripts/installed/pre-push`, which runs
+    every admitted gate on every push.
+
+    The positive case writes to an ABSOLUTE PATH INSIDE THE REPOSITORY, so
+    there is no reading of it under which running the file would be safe.
+    """
+
+    def _classify(self, body: str):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "scripts").mkdir()
+            (root / "scripts" / "c.py").write_text(body)
+            return lc.classify(root, lc.Candidate(path="scripts/c.py",
+                                                  frames=("worktree",)),
+                               allow_writers=False)
+
+    #: The write and the `mkdtemp` are in DIFFERENT functions and have nothing
+    #: to do with each other. Only the module encloses both.
+    UNRELATED = (
+        'import sys, tempfile\n'
+        'from pathlib import Path\n'
+        'def scratch():\n'
+        '    return tempfile.mkdtemp()\n'
+        'def main():\n'
+        '    Path("/home/ubuntu/Certonomous/EVIDENCE.txt").write_text("x")\n'
+        '    return 1 if True else 0\n'
+        'if __name__ == "__main__":\n'
+        '    sys.exit(main())\n')
+
+    def test_a_mkdtemp_in_another_function_does_not_exempt_a_repo_write(self):
+        c = self._classify(self.UNRELATED)
+        self.assertFalse(
+            c.admitted,
+            "a module writing to an absolute path inside this repository was "
+            "admitted against the LIVE tree because an unrelated helper "
+            "elsewhere in the file called mkdtemp: " + c.reason)
+        self.assertIn("writes-to-tree", c.reason)
+        self.assertIn("write_text(...)", c.reason)
+
+    def test_the_control_without_the_mkdtemp_is_skipped_the_same_way(self):
+        """The two must agree, or the test above is measuring the write rather
+        than the exemption."""
+        c = self._classify(self.UNRELATED.replace(
+            "    return tempfile.mkdtemp()\n", "    return 1\n"))
+        self.assertFalse(c.admitted)
+        self.assertIn("writes-to-tree", c.reason)
+
+    def test_a_write_beside_its_own_mkdtemp_is_still_exempt(self):
+        """The must-not-match half, and it is the case the exemption exists for:
+        `detect_overwrite_signature.py` builds its whole control corpus under
+        `mkdtemp` IN THE FUNCTION THAT WRITES. Refusing that would drop a
+        working control for nothing."""
+        c = self._classify(
+            'import sys, tempfile\n'
+            'def main():\n'
+            '    d = tempfile.mkdtemp()\n'
+            '    open(d + "/corpus.txt", "w").write("control")\n'
+            '    return 1 if d else 0\n'
+            'if __name__ == "__main__":\n'
+            '    sys.exit(main())\n')
+        self.assertTrue(c.admitted, c.reason)
 
 
 class ShellActuatorsAreNamedAsShell(unittest.TestCase):

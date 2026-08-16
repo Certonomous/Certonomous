@@ -50,8 +50,12 @@ check you forget to add is invisible, and the runner is green anyway.
 
 So the candidate set is DERIVED, in two frames, and both are printed:
 
-    TRACKED   `git ls-files scripts sdk/tests`  -- what travels
-    WORKTREE  the same directories on disk      -- what is here now
+    TRACKED   `git ls-tree -r HEAD scripts sdk/tests` -- what travels
+    WORKTREE  the same directories on disk            -- what is here now
+
+HEAD, and never the index: the index is a per-machine scratch state no reader of
+the repository ever sees, and reading it answers a different question than the
+one this frame asks (docket D274).
 
 The difference between them is itself reported. A check that exists only in the
 worktree does not travel, and a tracked path that is not on disk is a dangling
@@ -201,6 +205,18 @@ on it rather than waving it through. These four numbers are asserted as
 literals in `sdk/tests/test_lab_check.py`, and the hook's behaviour on each of
 them is asserted by RUNNING the hook against a stub runner rather than by
 matching text in it.
+
+THE CONTRACT IS A SEVERITY LADDER, NOT A TAXONOMY -- a decision, not an
+oversight (ruled 2026-08-16; recorded here so it is not re-filed as a defect).
+`EXIT_CONTRACT` maps a check's 1 and its 2 BOTH to FAIL. Measured on
+`check_docket_reconciliation.py`, whose exit 1 means "write-back owed" and
+whose exit 2 means "unlanded rows": both reach runner exit 1 and both block, so
+the severity distinction survives only in the check's own stdout, which this
+runner scrapes and prints. That is correct and stays. The contract's job is to
+tell a caller WHETHER TO PROCEED, and both of those mean do not proceed. A
+taxonomy that reached the exit code would need a wider contract and would make
+every consumer parse a code space that grows with every new check added to the
+lab. The distinction belongs in the report, and that is where it is.
 
 NO `2>/dev/null`, ANYWHERE
 ==========================
@@ -468,10 +484,35 @@ def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
 
 
 def tracked_frame(root: Path) -> tuple[list[str], str]:
-    """`git ls-files` over the check directories. Returns (paths, note)."""
-    proc = _git(root, "ls-files", "-z", "--", *CHECK_DIRS)
+    """HEAD's tree over the check directories. Returns (paths, note).
+
+    READS HEAD, NEVER THE INDEX (docket D274, ruled 2026-08-16). This used
+    `git ls-files`, which lists INDEX entries. The question this frame answers
+    is "will this travel" -- will a reader who clones the repository receive it
+    -- and the index is a per-machine, per-moment scratch state no reader of the
+    repository ever sees. A file's presence in somebody's staging area has no
+    bearing on whether it travels.
+
+    It is not a near-miss on this tree, it is a growing one: every commit made
+    by the private-index docket protocol leaves committed files with NO index
+    entry. Measured at `452a0764`, 11 files present in HEAD had no index entry
+    and were reported by this runner as `untracked only -- present here, will
+    not travel`, among them `scripts/check_docket_reconciliation.py`, a landed
+    check that was at that moment being asked for by name. `scripts/hunk_check.py`
+    reported the same 11 independently, which is corroboration from a second
+    instrument rather than a second reading of the same one.
+
+    THE STANDING QUESTION THIS BELONGS TO: *does this instrument read the
+    index?* Three were found consulting it in one evening -- `git diff HEAD --
+    <path>` (which walks it despite naming HEAD), `hunk_check`'s worktree mode
+    (repaired at `b917f56d` after declaring `0+/289-` against a true `0+/1-`),
+    and this one. The pattern is the finding; this is the third instance of it.
+    """
+    proc = _git(root, "ls-tree", "-r", "-z", "--name-only", "HEAD",
+                "--", *CHECK_DIRS)
     if proc.returncode != 0:
-        return [], f"git ls-files failed rc={proc.returncode}: {proc.stderr.strip()}"
+        return [], (f"git ls-tree HEAD failed rc={proc.returncode}: "
+                    f"{proc.stderr.strip()}")
     return sorted(p for p in proc.stdout.split("\0") if p), ""
 
 
@@ -675,10 +716,24 @@ def _write_primitive(tree: ast.Module, src: str) -> str:
     scopes: list[tuple[ast.AST, bool]] = []
     for fn in ast.walk(tree):
         if isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Module)):
-            temps = any(
+            # THE EXEMPTION IS PER-FUNCTION AND NEVER MODULE-WIDE (docket D276).
+            # `ast.Module` contains every node in the file, so granting IT the
+            # temp-scope exemption made a single `tempfile.mkdtemp()` anywhere in
+            # a module exempt EVERY write in that module -- including writes to
+            # absolute paths inside this repository. That is a false ADMIT, the
+            # one direction this predicate must never err in: a false SKIP is
+            # printed and costs coverage, a false ADMIT runs a writer against a
+            # tree ten agents are working in.
+            #
+            # Measured before the repair: 8 of 25 admitted script gates were
+            # admitted ONLY by that blanket, and SEVEN were mutation harnesses --
+            # programs that hold a tracked file mutated by construction. They
+            # were reachable from `scripts/installed/pre-push`, which runs every
+            # admitted gate on every push.
+            temps = (False if isinstance(fn, ast.Module) else any(
                 isinstance(n, ast.Call)
                 and (getattr(n.func, "attr", None) or getattr(n.func, "id", None))
-                in _TEMPMAKERS for n in ast.walk(fn))
+                in _TEMPMAKERS for n in ast.walk(fn)))
             scopes.append((fn, temps))
     for fn, temp_scoped in scopes:
         if temp_scoped:
@@ -798,8 +853,10 @@ def enumerate_candidates(root: Path, *, allow_writers: bool
     out = [classify(root, c, allow_writers=allow_writers)
            for c in cands.values()]
     frame = {
-        "how": "git ls-files + os.walk over " + ", ".join(CHECK_DIRS)
-               + " (never the shell's grep/find)",
+        # The frame states WHICH referent it read, because the whole of D274 was
+        # a frame that answered a different question than its label claimed.
+        "how": "git ls-tree -r HEAD (not the index) + os.walk over "
+               + ", ".join(CHECK_DIRS) + " (never the shell's grep/find)",
         "tracked": len(tset),
         "worktree": len(dset),
         "untracked_only": sorted(dset - tset),
