@@ -7442,7 +7442,16 @@ def _blind_placement_binding() -> str:
     except Exception:                              # noqa: BLE001
         return ("which entrants the identity binding covers could not be "
                 "read, so this check cannot state whom it is unable to fault")
-    live = dict(ranking[0]) if isinstance(ranking, tuple) else dict(ranking or {})
+    # `or {}` IS LOAD-BEARING AND IS THE WHOLE OF DOCKET D263. `_ranking_board`
+    # reports failure by RETURNING `(None, message)`, not by raising, so the
+    # `except` above never fires for an unreadable referent and `dict(None)`
+    # raised `TypeError` here -- one line ABOVE the B1 branch written for
+    # exactly that case, which was therefore unreachable by all three routes
+    # the referent can go missing (path absent, file empty, no board table).
+    # Measured 2026-08-16 at `faa02f80`: with this token the branch is reached
+    # in all three, the real-referent control is unchanged, and the check's
+    # status, summary and all 53 faults are IDENTICAL.
+    live = dict(ranking[0] or {}) if isinstance(ranking, tuple) else dict(ranking or {})
     # THE EMPTY SET IS NOT AGREEMENT (defect class B1). An unreadable or empty
     # ranking referent makes `unreachable` empty, and the sentence "every live
     # entrant is in the identity binding" is then TRUE AND VACUOUS -- it would

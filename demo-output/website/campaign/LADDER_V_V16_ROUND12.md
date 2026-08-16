@@ -700,3 +700,219 @@ settled it. **An AST call-graph is a summary too.**
 - The detached worktree at `fdfc3eba` was removed after the measurements.
 - **No PDF claim is made by this round.** None was opened, so none is reported — round 11's
   §6 stands unamended.
+
+---
+
+## 9. ADDENDUM 2026-08-16 — D264 ADJUDICATED: THE NEW FAULTS ARE 24, AND NONE OF THEM IS TRUE
+
+**Why this section exists.** The chief accepted round 12 and asked one question back:
+`29 → 48` could be the guard **seeing more** (a reach increase, good) or **discriminating
+less** (a precision regression, bad), and §5.4 had not separated them. It is separated
+here, by execution, at frame **`faa02f80`** (2026-08-16T17:59:52Z).
+
+### 9.1 The guard did not move at all — so this is corpus, not code
+
+The transitive callee closure of `check_board_placement_words` was compared name by name
+between round 11's frame `9dca4738` and `faa02f80`:
+
+```
+closure size at HEAD                                   68 names
+names in that closure whose SOURCE CHANGED 9dca4738..faa02f80   NONE
+same for board_placement_faults (30 names)                      NONE
+```
+
+**Not one of the guard's 68 closure names changed.** So the movement cannot be the guard
+discriminating less; the guard is byte-identical. What changed is the corpus it is pointed
+at. That also means the two arms are directly comparable: one fixed instrument, two
+corpora.
+
+### 9.2 Run the one fixed guard over both corpora: 24 new, 0 gone
+
+Detached worktrees at each frame, `__pycache__` purged, faults diffed **by identity**
+rather than by file count:
+
+| corpus | faults | verdict |
+|---|---|---|
+| `9dca4738` (round 11's) | **29** | WARN |
+| `faa02f80` (now) | **53** | WARN |
+| **new** | **24** | |
+| **gone** | **0** | |
+
+**It is 53 and not the 48 §5.4 reported, and the extra five are this round's own
+paperwork**: three faults now come from `LADDER_V_V16_ROUND12.md` itself and two more from
+the docket rows it filed. The recursion D264 measured did not stop at round 11; **this
+document is now inside the corpus it audits**, which is §5.4's own finding arriving one
+round later against its author. Stated here rather than left for round 13 to find.
+
+### 9.3 The adjudication — rubric fixed before looking
+
+> **TRUE** — the surface ASSERTS, in this lab's own voice as a live claim, an ordinal that
+> is WRONG about the board the sentence refers to.
+> **FALSE** — either **(a)** the ordinal is CORRECT about the board the sentence names, or
+> **(b)** the sentence does not assert it at all: it quotes, corrects, strikes, or exhibits
+> it as a probe, control or fault message.
+
+Each fault's `(entrant, claimed ordinal)` was extracted from the fault message and tested
+against **both** boards mechanically:
+
+| measure | count of 24 |
+|---|---|
+| ordinal **correct on the LIVE board** (6 entrants) | **13** |
+| ordinal **correct on the PIN** (4 entrants, `deb91557`) | **0** |
+| rule B, no entrant bound (`margin over the leader`, quoted inside a grading record) | 2 |
+| **TRUE faults** | **0** |
+| **FALSE faults** | **24** |
+
+**Zero of the twenty-four is a true fault.** The split by which gap clears it:
+
+- **22 are META** — probe sentences in a results table, rows literally labelled
+  `**CONTROL**`, quoted fault messages, struck markup examples, and docket rows quoting
+  those. Under the chief's own ruling at **D255** — *"Quoting a claim in order to strike,
+  grade or refute it is not making the claim"* — these are **not claims at all**.
+- **2 are ASSERTIONS, and both are TRUE.** `LADDER_V_V10_CLOSURE_2026-08-16.md:92` and the
+  ledger's V10 narrative both read *"the live duct leader was Yang at
+  `0.0291 / 0.0311 / 0.0250`; Reissmann placed 2nd, 2nd and 2nd **of seven**"*. Re-derived
+  from `LIVE_BOARD` joined to `round5_per_case_full`: Yang first and Reissmann second on
+  **all three** duct cases. The sentence **names its own board** — *of seven* — and is
+  right about it.
+
+**So it is a precision regression, not a reach increase**, and the regression is on V16's
+own gate: the rung fails *"if the check does not state its false-positive rate against a
+measured corpus"*, and the corpus false-fault count went from 29 to 53 without one true
+catch among the additions.
+
+### 9.4 The precision pair at HEAD — and the gap that matters
+
+Re-measured at `faa02f80`, both rows under the `_placements` predicate round 10 settled on:
+
+| row | admitted | falsely faulted | rate | controls missed |
+|---|---|---|---|---|
+| author, `V16_PRECISION_SET.py` (holds 41) | 28 | 20 | **71.4%** | 0 of 5 |
+| grader, `V16_GRADE_ROUND7_PRECISION_SET.py` (holds 43) | 25 | 19 | **76.0%** | 0 of 4 |
+
+**Unmoved.** Reported as a pair with its frame, because a single figure hides the 5-point
+spread and the two builders.
+
+**And that is the finding, not a null result.** The guard's *published* false-positive rate
+did not move by a tenth of a point while its *live* false-fault count grew by **24**. The
+published figure is measured over held-out **sentences**; the cost is a property of
+**surface classes**. Round 11's F5 argued this; it now has a number on both sides —
+`71.4% / 76.0%` unchanged against `29 → 53`. **A disclosure that cannot move when the cost
+doubles is not a disclosure of that cost.**
+
+### 9.5 The mechanism — there are TWO gaps, and only one of them is the shared one
+
+Driven directly at `faa02f80`, one sentence per probe:
+
+```
+GAP-B  does rule A read a board identifier the sentence carries?
+  Reissmann placed 2nd.                        -> 1 fault
+  Reissmann placed 2nd of seven.   (TRUE)      -> 1 fault
+  Reissmann placed 2nd of five.    (false)     -> 1 fault
+  Reissmann placed 2nd of four.    (the pin)   -> 1 fault
+  Reissmann is rank 2 on the live board.       -> 1 fault
+  Reissmann is rank 2 on the published board.  -> 1 fault
+
+GAP-Q  does rule A read whether the ordinal is ASSERTED?
+  bare assertion (control)                     -> 1 fault
+  inside double quotes                         -> 1 fault
+  introduced as a QUOTATION                    -> 1 fault
+  labelled a PROBE / a CONTROL                 -> 1 fault each
+  negated                                      -> 1 fault
+  markdown struck                              -> 1 fault
+  explicitly CORRECTED nearby                  -> 0 faults
+```
+
+**Both gaps are total.** The board identifier is completely unread — *of seven*, *of five*,
+*of four* and no denominator at all give the identical verdict, and so do *live board* and
+*published board*. And nothing distinguishes use from mention except
+`_PLACE_ADJUDICATED`, a 400-character proximity window, which is why only the
+"explicitly corrected" probe clears.
+
+**GAP-Q IS the same gap the peer named, and it now has a ruling and a population behind
+it.** Three rows converge:
+
+- **D257** — *"the instrument cannot distinguish a surface ASSERTING the untrained claim
+  from one QUOTING it in order to grade it, and the grading records dominate the count"*,
+  measured at **27 of 39 quoted, 12 bare assertions**. Named there as the single largest
+  uncertainty in that sweep.
+- **D245** — the same distinction measured at scale over board claims: **1,501 of 1,884
+  sites are meta, 383 are assertions**, 42 of those on shipping surfaces.
+- **D255** — the chief's ruling, already issued: **meta is exempt, and it is an IDENTITY,
+  not a policy.**
+
+So the discriminator is not merely worth building: **the ruling that requires it already
+exists, the population it governs is already measured, and V16's rule A has no predicate
+implementing it.** One discriminator closes 22 of the 24 faults here, D257's 39-site
+uncertainty, and D245's 1,501 meta sites. That is the answer to *"does one discriminator
+close two problems"* — it closes three.
+
+**GAP-B is NOT that gap, and a meta discriminator will not touch it.** The two assertions
+on the V10 closure narrative are not quotations; they are the lab stating a derived fact,
+correctly, about a board they name by entrant count. D255's identity does not exempt them
+because they *are* claims. They need a predicate that reads *"of seven"* — the entrant
+count the sentence carries — which is the same triple the submission draft already binds
+(margin, entrant by name, board by count and date) and the same thing chief ruling
+`377d6afb` says fixes the referent: **the claim names its board, so grade it against that
+board.** The guard implements none of it.
+
+### 9.6 What was repaired, and which kind of change it is
+
+**D263 repaired**, one token, at `scripts/self_audit.py:7445`:
+
+```
+-    live = dict(ranking[0]) if isinstance(ranking, tuple) else dict(ranking or {})
++    live = dict(ranking[0] or {}) if isinstance(ranking, tuple) else dict(ranking or {})
+```
+
+Proven verdict-neutral **in a real git tree** — the first attempt at this proof ran in a
+temp directory where the check degraded to *"could not enumerate tracked files (git
+unavailable)"* and therefore compared two broken verdicts, which is recorded because it
+would have passed for a proof:
+
+| property | baseline | patched |
+|---|---|---|
+| B1 branch, referent path missing / file empty / no board table | `TypeError` ×3 | **reached ×3** |
+| real-referent positive control | normal line | **unchanged** |
+| author precision row | 20 of 28 | **20 of 28** |
+| `check_board_placement_words` status | WARN | **WARN** |
+| summary | 53 lab record placements | **identical** |
+| **full fault set** | 53 | **identical, all 53** |
+
+**Which kind of change:** it touches no pattern, no window, no admission rule and no board.
+It cannot change what counts as evidence, and it demonstrably changes no verdict — it makes
+an already-written disclosure branch reachable. That is the legitimate category.
+
+**WHAT WAS NOT DONE, and this is the load-bearing half.** No tuning. `_PLACE_BIND`,
+`_PLACE_OVER`, `_PLACE_ADJUDICATED` and the pin were left exactly as they were; the only
+plants made to them were the §3.1 controls, on throwaway copies, destroyed after
+measurement. **The honest answer to "what would fix the 24" is that the guard needs two
+discriminators that do not exist**, one of which the chief has already ruled into existence
+in principle (D255) and neither of which this round is authorised to design into V16's
+subject. Widening a window to make 24 faults disappear would change what counts as evidence,
+which is the move V16's own history forbids — and it would have taken the number from 53 to
+something smaller without a single one of the 24 having been true or false any differently.
+
+### 9.7 What this addendum does and does not change
+
+- **The verdict does not move.** V16 still does **not** close, and round 12 remains **NOT
+  belief-neutral**; R-VALUE stays at **zero**.
+- **§5.4's count is superseded**: `29 → 48` at `fdfc3eba` is `29 → 53` at `faa02f80`, and
+  five of the additions are this document and its own docket rows.
+- **§5.4's characterisation is confirmed and sharpened**: the two non-guard-record faults
+  are not merely "on a rung closure", they are **the only two assertions in the whole set,
+  and both are true**.
+- **One repair landed** (D263), proven neutral; **no repair was made to the rung's subject
+  behaviour**, and none should be until the discriminators exist.
+
+### 9.8 Rows filed by this addendum
+
+| row | finding | in V16's scope? |
+|---|---|---|
+| **D278** | D264 adjudicated — 24 new faults, 0 true, 13 correct on the live board, 22 meta; the precision pair unmoved at 71.4% / 76.0% while the live cost went 29 → 53 | yes |
+| **D279** | two discriminators, not one — use-versus-mention (the D257 / D245 / D255 gap) and the board identifier the sentence carries (the `377d6afb` gap); both measured total | yes |
+| **D280** | D263 repaired and proven neutral in a real tree — and the first proof of that neutrality was worthless, because both of its arms were dead | yes |
+
+Allocated against `e1ede44a` where D277 was the maximum, asserted free inside the same
+read-modify-write as the append, and landed at `72fc323e`. The register had moved from
+D249 to D277 in the 32 minutes since this round's first block was chosen.
