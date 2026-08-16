@@ -11,6 +11,9 @@
  "cost_basis": "estimate from the paper's stated iteration count combined with our own measured per solve adjoint cost; flagged as needing a timed pilot before it is trusted",
  "expected_knowledge_gain": "The largest single recoverable term on the benchmark, plus a reproduction of a published adjoint field inversion end to end on our own stack",
  "source_kind": "reading",
- "status": "proposed",
- "created_at": "2026-07-28"
+ "status": "approved",
+ "created_at": "2026-07-28",
+ "decided_at": "2026-07-31T22:18:09Z",
+ "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+ "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here"
 }

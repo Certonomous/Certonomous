@@ -13,6 +13,9 @@
  "cost_basis": "measured on the NACA 4412 precedent: its three-rung layer-resolved ladder ran roughly 45 to 60 minutes on 4 cores, meshing dominating the solve 5 to 10 times over, with the finest rung alone at 1574 s of meshing and 279 s of solve. The derivation step adds no compute. The superseded proposal for this body priced the whole job at 3.04 core-minutes, taken from the wall time of the defective solve itself.",
  "expected_knowledge_gain": "A NACA 0012 reference that was built rather than asserted, with its band as an RSS of pre-committed terms, and a ladder solved with the boundary layer resolved so the remaining deviation is a physics finding rather than a mesh artifact",
  "source_kind": "measurement",
- "status": "proposed",
- "created_at": "2026-07-31"
+ "status": "approved",
+ "created_at": "2026-07-31",
+ "decided_at": "2026-07-31T22:18:09Z",
+ "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+ "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here"
 }

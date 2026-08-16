@@ -9,6 +9,9 @@
   "est_core_min": 0,
   "expected_knowledge_gain": "The fleet ledger stops silently absorbing 800-fold wall-time excursions, and the cost model behind mission planning stops being polluted by infrastructure stalls counted as solver time",
   "source_kind": "reading",
-  "status": "proposed",
-  "created_at": "2026-07-25"
+  "status": "done",
+  "created_at": "2026-07-25",
+  "outcome": "In force, and the retrospective assessment it made possible has been generated over all 208,193 ledger rows: 19 rows would have been flagged and 11 called fatal, and every one of the 30 was recorded ok at the time with nothing flagged, because the rule did not exist yet. The six worst are the six runs near 16,300 seconds on 2026-07-23 and 2026-07-24, at 1,047 to 2,214 times their own solver's 99th percentile, judged against an envelope learned from that same ledger: cylinder p99 15.23 s over 69,288 runs, wing p99 7.37 s over 69,149. Closing the item caught a second defect, in the rule itself: check_wall_time carried its own literal 20.0 for five days after the shared constant had been corrected to the approved 10.0, so every caller taking the default was judging on a threshold nobody approved. The assessment is labelled an assessment throughout and rewrites no row.",
+  "decided_at": "2026-07-31T08:25:35+00:00",
+  "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here"
 }

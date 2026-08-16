@@ -9,6 +9,9 @@
   "est_core_min": 0,
   "expected_knowledge_gain": "A tier label per case that explains the ceiling on its fidelity chip and tells the owner exactly which tier new experimental data would unlock",
   "source_kind": "reading",
-  "status": "proposed",
-  "created_at": "2026-07-25"
+  "status": "done",
+  "created_at": "2026-07-25",
+  "outcome": "All 24 cases the lab holds are placed in the building-block hierarchy: 8 unit problems, 11 benchmark cases, 2 subsystem cases and 3 complete-system cases, each carrying the basis for its placement, what data can exist at that tier, the ceiling that puts on its fidelity chip, and the single thing that would unlock the next tier. The field is named validation_tier and never tier, because tier already means the fidelity chip everywhere in this codebase, and the artifact deliberately carries no chip of its own: a second copy of a grade is a second thing to drift. Three of the 24, the CRM wing-body, the NASA hump and the ONERA M6, have no entry in the ratified display-name registry, and the record declares which three rather than inventing names beside them. A test regenerates the artifact and fails if it drifts from the module behind it.",
+  "decided_at": "2026-07-31T08:50:09+00:00",
+  "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here"
 }

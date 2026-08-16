@@ -17,6 +17,9 @@
   "TMR verification workflow, the wildcarded reads that are the counter-example"
  ],
  "in_sample_verdict": "Not applicable. Nothing is fitted, inverted or calibrated; this is a defect in how a measurement is read off disk.",
- "status": "proposed",
- "created_at": "2026-08-02"
+ "status": "done",
+ "created_at": "2026-08-02",
+ "outcome": "Both halves of the gate closed. The mega-batch y+ gate now selects its state by the Time written inside the file across the wildcarded y+ outputs, matching the bump collector's repair, with a regression test that builds the renamed-restart layout and proves the fresh state wins where the old read picked a header-only leftover. The retrospective found zero affected rows: all 52 Ahmed ledger rows are single-attempt, every attempt builds in a wiped case directory since the family's first commit, and the 17 surviving case directories hold no renamed file, no multi-run time directory and no header-only original. The finding was latent, never armed, and the ledger stands.",
+ "decided_at": "2026-08-07T22:52:59+00:00",
+ "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here"
 }

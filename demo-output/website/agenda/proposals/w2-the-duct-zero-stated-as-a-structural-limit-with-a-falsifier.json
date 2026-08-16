@@ -17,7 +17,7 @@
   "Pope, JFM 72 331 to 340, 1975, READ IN FULL 2026-08-02"
  ],
  "in_sample_verdict": "Clean. The structural statement is about a model class, not about any scored case; the one solve runs on a training duct, the scored test ducts are never opened by it, nothing is fitted, and no score call is made. The gate measurement it interprets read baseline predictions on test geometries, which the rules permit; no test data enters any trained or tuned object here.",
- "status": "approved",
+ "status": "done",
  "created_at": "2026-08-04T15:25:00Z",
  "decided_at": "2026-08-05T16:20:00Z",
  "decision_note": "approved under Katie's blanket approval 2026-08-05",
@@ -25,5 +25,8 @@
   "claimed_by": "research-agent w3-qcr-rank2-parity (closure session)",
   "claimed_at": "2026-08-05T16:20:00Z",
   "note": "Falsifier arm claimed jointly with w3-qcr-constitutive-term-for-rank2-parity: the quadratic-constitutive instrument is QCR2000 (c_r=0.3) on the smallest training duct's existing mesh, graded by the same duct_secondary_flow.py probe. Prediction stands as pre-registered: nonzero transverse mean flow at the percent-of-bulk scale."
- }
+ },
+ "outcome": "Falsifier RUN and fired as pre-registered: SST+QCR2000 on the same duct mesh produces in-plane secondary flow at 0.6239% of bulk vs stock SST 3.16e-16 and LES 0.7570% — the structural-limit claim is CONFIRMED (commit 303247bb; Ccr1=0 control reproduces stock exactly). Claim released by chief reconciliation 2026-08-07 after the infra supervisor flagged it orphaned; the claiming agent delivered the substance and never wrote the release.",
+ "measured_core_min": 24.95,
+ "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here"
 }

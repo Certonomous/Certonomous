@@ -10,6 +10,10 @@
  "cost_basis": "estimate, model fitting on cached feature sets already reconstructed for round two; no new flow solves",
  "expected_knowledge_gain": "Recovery of the loss term without a second scoring call, and a stated domain of validity for the correction, which is itself a result about the model class",
  "source_kind": "measurement",
- "status": "proposed",
- "created_at": "2026-07-28"
+ "status": "done",
+ "created_at": "2026-07-28",
+ "outcome": "Built and validated on train and validation cases only, AUC 1.0 and 4 of 4 correct on held-out periodic-hill validation, then applied test-blind to the 4 official periodic-hill test cases on 2026-07-29 using RANS-derived features with no ground truth. It declined the correction on the two alpha 0.5 cases, predicted baseline error 0.0420 and 0.0034 against a threshold of 0.1263, and applied it on the two alpha 1.5 cases at 0.1503 and 0.1525. The overall eight-case score moved from 0.0741 to 0.0676 in a single new official scoring call, recovering 0.0065 of the 0.0066 the decomposition predicted, in 83 seconds on 2 cores against a 45 core-minute estimate. The refit check reproduced the frozen gate's own alpha of 0.7499 and threshold of 0.1263.",
+ "decided_at": "2026-07-29T20:28:00+00:00",
+ "measured_core_min": 2.767,
+ "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here"
 }

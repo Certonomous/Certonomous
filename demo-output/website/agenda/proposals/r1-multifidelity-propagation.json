@@ -9,7 +9,7 @@
   "est_core_min": 20,
   "expected_knowledge_gain": "The measured correlation between the reduced-order lane and the solver lane on a shared design set, the resulting optimal allocation, and a fused envelope whose variance undercuts the solver-only estimate at equal budget or is honestly reported as not paying",
   "source_kind": "reading",
-  "status": "proposed",
+  "status": "done",
   "created_at": "2026-07-25",
   "launch_prompt": "On the race act design space, take the paired records where both lanes evaluated the same design, measure the correlation and the cost ratio, compute the optimal multifidelity Monte Carlo allocation and control-variate coefficient, then run the fused estimator at the same core-minute budget as the solver-only lane and report both envelopes side by side with the allocation stated.",
   "evidence": {
@@ -195,5 +195,8 @@
       "note": "both lanes estimate the same target (the paired population mean of the solver lane), so this confirms the estimator's VARIANCE. It does not test the control-variate shift reported above, which deliberately aims at the wider Reynolds population the 15 drawn samples represent."
     },
     "verdict": "Fusion pays and the budget says why it does not matter much. On the race's own estimand (peak L/D under the drawn chord-Reynolds spread) the Reynolds-aware cheap lane correlates at rho 0.999549 with the solver over 15 paired samples; the optimal allocation at the lane's own budget is 14 solves plus 1.03e6 cheap evaluations, variance ratio 0.000928 (1077x), confirmed empirically at 0.000859 over 4000 resamples. That drops the estimator's standard error from 0.02832 to 0.00086 L/D. It does not drop the other three terms: the cheap lane's held-out RMSE 0.26255 is what the answer would carry if the anchors were dropped (it contributes zero BIAS while they are kept, which is the point of a control variate); the measured missing-member bias is 0.00015; and VSPAERO's own model-form error against truth is UNQUANTIFIED, named as a Roadmap gap in docs/UNCERTAINTY.md. Combined over the quantified channels the answer is 0.21938 at 95%, of which the physical Reynolds spread is 100.0% and the fused estimator is 0.79%. After fusion the estimator is no longer the largest term in this budget and the largest term is the one nobody has measured."
-  }
+  },
+  "outcome": "Fused the race ensemble with solver anchors and budgeted the error: rho 0.999549 over 15 paired Reynolds samples, allocation 14 solves + 1.03e6 cheap evaluations, variance ratio 0.000928 (1077x, empirical 0.000859), which cuts the estimator's standard error from 0.02832 to 0.00086 L/D and leaves it at 0.79% of the 0.21938 combined 95% band; the 88 ensemble members the race silently dropped were recovered and re-solved, and their measured contribution to the estimand is +0.00015 L/D (0.0009%), while VSPAERO's own model-form error stays unquantified and is now the largest term in the budget.",
+  "decided_at": "2026-07-31T14:36:02+00:00",
+  "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here"
 }

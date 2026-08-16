@@ -9,6 +9,9 @@
  "cost_basis": "measured, the smallest rung cost 3.51 core minutes so a sweep of five sizes with peak memory sampling is bounded",
  "expected_knowledge_gain": "A predictive feasibility rule for every future adjoint case, replacing case by case discovery of the same wall",
  "source_kind": "measurement",
- "status": "proposed",
- "created_at": "2026-07-28"
+ "status": "approved",
+ "created_at": "2026-07-28",
+ "decided_at": "2026-07-31T22:18:09Z",
+ "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+ "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here"
 }

@@ -9,6 +9,9 @@
   "est_core_min": 0,
   "expected_knowledge_gain": "Every certificate states how well its inputs are traced and how well its sensitivities are known, in the same leveled language NASA uses for simulation credibility",
   "source_kind": "reading",
-  "status": "proposed",
-  "created_at": "2026-07-25"
+  "status": "done",
+  "created_at": "2026-07-25",
+  "outcome": "Both factors the fidelity chips do not encode, input pedigree and results robustness, are now scored on the standard's 0 to 4 scale from what each record actually carries, so a case cannot score for evidence it does not hold. An unplaced case prints nothing rather than a row of zeros, because a zero on a sealed page reads as a measured verdict and never assessed is not the same claim as assessed and poor. The scorecard reached the certificate surface on 2026-07-31 in commit 2a841bb3, printing beneath the fidelity chip beside the validation tier, with 47 certificate tests passing. Nothing about what a chip means changed.",
+  "decided_at": "2026-07-31T10:18:18Z",
+  "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here"
 }

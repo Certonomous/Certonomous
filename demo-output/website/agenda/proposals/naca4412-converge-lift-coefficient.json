@@ -9,6 +9,9 @@
  "cost_basis": "estimate from measured cost of the 2.09 million cell rung at 37.4 core minutes, allowing for a tip refinement study and one further rung",
  "expected_knowledge_gain": "An asymptotic ladder, a defensible observed order, and a materially tighter acceptance band on a wall credential",
  "source_kind": "measurement",
- "status": "proposed",
- "created_at": "2026-07-28"
+ "status": "approved",
+ "created_at": "2026-07-28",
+ "decided_at": "2026-07-31T22:18:09Z",
+ "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+ "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here"
 }

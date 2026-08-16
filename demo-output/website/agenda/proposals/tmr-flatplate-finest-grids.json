@@ -9,8 +9,12 @@
   "est_core_min": 327,
   "expected_knowledge_gain": "Asymptotic-range verification of the wall treatment and convection discretization; a defensible infinite-grid drag number",
   "source_kind": "challenge",
-  "status": "queued",
+  "status": "done",
   "created_at": "2026-07-25T00:13:52",
   "launch_prompt": "Using sdk/workflows/tmr_verification.py as is, add 273x193 and 545x385 rungs to LEVELS with the same fixed gradings, run them when the machine is quiet (the finest rung is hours, not minutes), and extend demo-output/website/tmr/flatplate_sst.json and the figures with the five-rung ladder.",
-  "status_note": "Queued as the next TMR run after the owner's GO; not started on filming day by direction"
+  "status_note": "Queued as the next TMR run after the owner's GO; not started on filming day by direction",
+  "outcome": "Both rungs measured. 273x193 gave Cd = 0.0028564381699 (already solved 2026-07-27, recovered not re-run); 545x385 gives Cd = 0.0028635838023 and Cf(x=0.970084) = 0.0027045510419, tail-50 spread 6.62e-10, y+ max 0.1255, run 2026-07-31 19:13:39 to 20:11:30 UTC in /home/ubuntu/certonomous-runs/tmr-flatplate-finest. The finest triple 137x97+273x193+545x385 is the FIRST ladder in this corpus that eca_hoekstra_band declares conclusive, on both functionals: Cd observed order 1.6344, reportable band 4.244e-6 (0.148% of value, GCI 0.1482%); Cf order 1.5281, band 5.085e-6 (0.188%). Fitted dim=2 (h=sqrt(1/N), r=2.0), which is what this module always used and what NASA's own drag_convergence_sstv.dat header declares; the published 1.0833 and 1.2587 were already 2D and are unchanged. Increments shrink at all four steps. CONCLUSIVE IS NOT ASYMPTOTIC: the observed order is still rising at every rung (1.0833, 1.2587, 1.6344), so the ladder has earned a band but has not demonstrated a settled order. The result was decided by iteration count, not grid count: at the module's own 15000 cap this rung read Cd = 0.0028936144511, 1.05% high and still falling 1.04e-5 per thousand, and the same certifier reads p = -0.745 with growing increments, i.e. a divergence. 36000 iterations were needed. Grids are this module's blockMesh at matching cell counts, NOT NASA's point files. Matched-grid Cd vs CFL3D: -1.387, -0.140, +0.293, +0.382, +0.360 percent. MEASURED SPEND 483.6 core-min against the 327 estimate (1.48x): 28.1 for 273x193 at 2 ranks, 455.5 for 545x385 at 8 ranks, of which 202.7 went on the 0-15000 stage the module then refused. NOT DONE: the figures still show three rungs, because _figures zips profiles against a 3-colour palette in sdk/workflows/tmr_verification.py, which this agent was scoped out of editing.",
+  "decided_at": "2026-07-31T20:15:25+00:00",
+  "measured_core_min": 483.6,
+  "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here"
 }

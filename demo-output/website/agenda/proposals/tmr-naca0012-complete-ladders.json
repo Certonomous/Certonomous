@@ -9,7 +9,11 @@
   "est_core_min": 480,
   "expected_knowledge_gain": "First lifting-body ladder; whether the verification discipline holds when pressure drag and lift dominate",
   "source_kind": "challenge",
-  "status": "queued",
+  "status": "approved",
   "created_at": "2026-07-25T17:09:51",
-  "launch_prompt": "Resolve the NACA 0012 coarse-rung state honestly: run pimpleFoam on the 113x33 TMR grid from the cold start for at least 300 convective units (detached, polled), watching transition onset via y+ and Cd; if a limit cycle emerges, average over 10 periods with the envelope; if the flow stays steady, report that the steady-solver oscillation is a pseudo-time artifact and quote the steady state instead. Only then extend up the ladder. Start from demo-output/website/tmr/naca0012_status.json and honor the STOP file."
+  "launch_prompt": "Resolve the NACA 0012 coarse-rung state honestly: run pimpleFoam on the 113x33 TMR grid from the cold start for at least 300 convective units (detached, polled), watching transition onset via y+ and Cd; if a limit cycle emerges, average over 10 periods with the envelope; if the flow stays steady, report that the steady-solver oscillation is a pseudo-time artifact and quote the steady state instead. Only then extend up the ladder. Start from demo-output/website/tmr/naca0012_status.json and honor the STOP file.",
+  "decided_at": "2026-07-31T22:18:09Z",
+  "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+  "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here",
+  "owner_decision_pending": "OWNER DECISION PENDING (D219, 2026-08-15). The status disagreement is settled -- this file carried queued, which is outside the closed status vocabulary and which agenda.read_inbox silently coerces to proposed, and the docket's approved of 2026-07-31T22:18:09Z is a recorded owner decision. What is NOT settled is whether the approval should still stand at 480 core-min: demo-output/website/tmr/C4_naca0012_closure.json records that the medium and fine rungs' wake-driven oscillation cannot be resolved inside this item's 480-core-minute time-accurate budget and that the honest next step is a budget or method reset rather than another attempt, and OTHER_WORK_STATUS.md separately records an approval ambiguity against blocker B-3. Reprice, retire, or leave approved is Katie's call."
 }

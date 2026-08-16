@@ -10,7 +10,7 @@
   "est_core_min": 6,
   "expected_knowledge_gain": "Main and total effect Sobol indices for the valve inputs (flow amplitude 5 percent, discharge coefficient 6 percent) and the airliner inputs (span, area, sweep, taper), plus a standing answer to which spread is worth buying down first",
   "source_kind": "reading",
-  "status": "proposed",
+  "status": "done",
   "created_at": "2026-07-25",
   "launch_prompt": "Run a Sobol sensitivity mission on the valve screen: inputs are flow amplitude (sigma 5 percent) and discharge coefficient (sigma 6 percent); evaluate the cycle-weighted loss through the reduced-order orifice path with a pick-and-freeze design, N 200, cost N times (M plus 2) equals 800 evaluations; report main and total effect indices with bootstrap confidence intervals, then repeat on the airliner input spreads through the fitted surrogate with one confirming solver run at the highest-index corner. Present the result as a variance-share bar per input with the earned-badge convention.",
   "evidence": {
@@ -154,5 +154,8 @@
       "max_abs_error": 0.0225
     }
   },
-  "evidence_stage": "offline-evidence-measured"
+  "evidence_stage": "offline-evidence-measured",
+  "outcome": "The mission ships as a routed act and apportions the variance of two screens over their own published spreads. Discharge coefficient owns 0.584 [0.527, 0.648] of the valve loss variance against 0.430 [0.370, 0.488] for flow amplitude; non-wing drag owns 0.664 [0.587, 0.741] of the airliner lift-to-drag variance against 0.314 [0.258, 0.376] for payload mass. The approved design of 200 base samples settled neither case, so the act doubles to 800 and reports the budget the ranking rests on. 11200 evaluations, 0.44 s measured against a 6 core-minute estimate. Gate criteria now sit in docs/physics_rules.yaml.",
+  "decided_at": "2026-07-31T12:40:55+00:00",
+  "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here"
 }

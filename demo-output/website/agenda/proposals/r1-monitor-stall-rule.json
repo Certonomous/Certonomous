@@ -9,6 +9,9 @@
   "est_core_min": 0,
   "expected_knowledge_gain": "The monitor recognizes the graceful-degradation family of failures, so a run that exits on its iteration cap can never be mistaken for evidence again",
   "source_kind": "reading",
-  "status": "proposed",
-  "created_at": "2026-07-25"
+  "status": "done",
+  "created_at": "2026-07-25",
+  "outcome": "Closed against a failure the lab actually had, not the archive alone. S6 residual stall and S8 Courant excursion were already running; this added S10, the family that catches the Ahmed body primal whose drag was published and then withdrawn. That run reads converged to every earlier rule: its omega field sat pegged at the top of its clipping range while the number the log calls its residual finished at 5.9e-31, because a normalised residual is a ratio and the denominator blew up with the field. S10 names it three independent ways, and all three were swept over the 383 archived solver logs before adoption: together they name exactly that one run, and the healthy coarse solve of the same case raises nothing. The measurement that went against the proposal is on the record too. S7 oscillatory divergence, ungated, fires on 68 of the lab's 106 archived steady logs and calls 65 of them fatal, every one a completed run whose results are on the record; four tightenings were measured and none rescued it. S7 was withdrawn on 2026-08-01 under ruling R1 and its detector removed, so this item delivered two of the three rules it proposed and a measurement that killed the third.",
+  "decided_at": "2026-07-31T08:45:24+00:00",
+  "reconciled_note": "reconciled 2026-08-15 by the inbox/docket status join (docket row D219): docket.json is authoritative for status on a shared id; this field was copied from the docket record, not decided here"
 }
