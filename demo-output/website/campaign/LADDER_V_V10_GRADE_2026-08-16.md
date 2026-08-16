@@ -208,11 +208,18 @@ ranks first, and it produced a `✔` on the surface that carries the lab's hero 
 
 ## 5. Filed under R-CONVERGE, not appended to the rung
 
-Both rows were written to `docs/DOCKET.md` in the working tree and **deliberately left uncommitted**:
-at the time of this pass that file also carried another agent's uncommitted D236, D237 and an
-in-progress D230 edit, and a pathspec commit takes paths from the working tree, so committing it
-would have swallowed three of another agent's rows — the capture declared at `78300277`. The two rows
-are owed a commit by the docket's owner.
+**Both rows landed at `4a923413`, and the shape of that commit is part of the record.**
+`docs/DOCKET.md` in the working tree carried **four** rows above HEAD's — D236 and D237 belonging to
+a peer, D238 and D239 to this pass — while HEAD's own blob topped out at **D235**. The pathspec form
+takes a path from the working tree, so committing the file would have swallowed the peer's two rows:
+the capture declared at `78300277`. It was built instead by D221's private-index form — `GIT_INDEX_FILE`
+at a temp path, `git read-tree HEAD`, the blob rebuilt as **HEAD's blob plus only the lines matching
+`^\| D(238|239)\b`**, the worktree file never copied — and landed by compare-and-swap
+(`git update-ref refs/heads/main $NEW $EXPECTED_OLD`), so a moved HEAD would have failed the update
+rather than reverting whoever moved it. Verified after: the commit touched one file with **two**
+insertions; HEAD carried D238 and D239 and **zero** occurrences of D236 or D237; and the worktree
+still held the peer's two rows, untouched and theirs to commit. Docket IDs were not renumbered — 236
+and 237 stay reserved to the peer even though HEAD skips from 235 to 238 until they land.
 
 * **D238** — `ACTIVE_RESEARCH.md:73`, `:652`, `:668`: round-4 ordinals (`rank 3 of 5`,
   `Best-on-board 5 of 8`) held as dated history, naming no board by entrant count and retrieval date,
