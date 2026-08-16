@@ -110,6 +110,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import control_kind  # noqa: E402
+
 EXIT_PASS = 0
 EXIT_FAIL_WRITEBACK_OWED = 1
 EXIT_FAIL_UNLANDED = 2
@@ -175,8 +178,44 @@ def read_worktree(worktree_file: Path) -> tuple[str | None, str]:
         return None, f"could not read {worktree_file}: {exc}"
 
 
-def reconcile(committed_text: str, worktree_text: str) -> dict:
-    """The comparison itself. Pure, so the tests can drive it on fixtures."""
+def run_controls() -> control_kind.ControlLedger:
+    """Plant the docket's OWN id vocabulary and check the pattern finds it.
+
+    WHY THIS CHECK NEEDS A RECOGNITION CONTROL AND NOT A REACHABILITY ONE.
+    This module's PASS is a zero: an empty symmetric difference. A pattern that
+    failed to recognise one decoration would drop that id from BOTH sides, the
+    difference would cancel, and the run would report a false PASS -- so a row
+    landed bold and never written back would be invisible to the very check
+    written to catch it. Proving the module can READ both files would not touch
+    that failure. So the forms below are planted in the docket's own row
+    vocabulary, mutually independent (no one of them is a substring of
+    another), and the note row is planted as a NEGATIVE form because a pattern
+    loose enough to match it invents ids that duplicate real rows.
+    """
+    forms = {
+        "| D9001 | a bare row |": "D9001",
+        "| **D9002** | a bold row |": "D9002",
+        "| ~~D9003~~ | a struck row |": "D9003",
+        "| **~~D9004~~** | a bold struck row |": "D9004",
+        "| B9005a | a lettered row with a suffix |": "B9005a",
+    }
+    planted = {form: (expect in parse_ids(form)) for form, expect in forms.items()}
+    negative_form = "| D9006-D9007 note | commentary, not a row |"
+    ledger = control_kind.ControlLedger(claim_class="a docket row id")
+    ledger.plant("docket id decorations",
+                 vocabulary="docs/DOCKET.md table rows",
+                 planted=planted,
+                 negative={negative_form: bool(parse_ids(negative_form))})
+    return ledger
+
+
+def reconcile(committed_text: str, worktree_text: str,
+              ledger: "control_kind.ControlLedger | None" = None) -> dict:
+    """The comparison itself. Pure, so the tests can drive it on fixtures.
+
+    *ledger* is injectable so a test can drive a REACHABILITY-only control
+    through the same path and see the zero refused.
+    """
     committed_ids = parse_ids(committed_text)
     worktree_ids = parse_ids(worktree_text)
     committed_set = set(committed_ids)
@@ -185,12 +224,23 @@ def reconcile(committed_text: str, worktree_text: str) -> dict:
     head_only = sorted(committed_set - worktree_set, key=sort_key)
     worktree_only = sorted(worktree_set - committed_set, key=sort_key)
 
+    ledger = run_controls() if ledger is None else ledger
+    hits = len(head_only) + len(worktree_only)
+    zero_verdict, zero_why = ledger.verdict_for(hits)
+
     if not committed_ids or not worktree_ids:
         verdict, code = "UNKNOWN", EXIT_UNKNOWN
     elif worktree_only:
         verdict, code = "FAIL", EXIT_FAIL_UNLANDED
     elif head_only:
         verdict, code = "FAIL", EXIT_FAIL_WRITEBACK_OWED
+    elif zero_verdict != control_kind.ZERO_IS_A_MEASUREMENT:
+        # THE TEETH. An empty symmetric difference is a ZERO, and this module
+        # refuses to present a zero as PASS unless its own pattern has been
+        # shown to RECOGNISE the claim class -- not merely to have read the
+        # files. Weaken the pattern and the control degrades to REACHABILITY
+        # (or BROKEN), and PASS stops being reachable at all.
+        verdict, code = "UNKNOWN", EXIT_UNKNOWN
     else:
         verdict, code = "PASS", EXIT_PASS
 
@@ -202,6 +252,10 @@ def reconcile(committed_text: str, worktree_text: str) -> dict:
         "committed_row_count": len(committed_ids),
         "worktree_row_count": len(worktree_ids),
         "id_pattern": ID_PATTERN,
+        "control_kind": ledger.kind,
+        "zero_verdict": zero_verdict,
+        "zero_because": zero_why,
+        "control_report": ledger.render(hits),
     }
 
 
@@ -263,6 +317,8 @@ def render(result: dict, rev: str, path: str, worktree_file: Path) -> str:
     if not result["head_only"] and not result["worktree_only"]:
         out.append("Both sides carry the same set of row IDs.")
 
+    if result.get("control_report"):
+        out.append(result["control_report"])
     out.append("-" * width)
     out.append(f"VERDICT: {result['verdict']}")
     out.append(

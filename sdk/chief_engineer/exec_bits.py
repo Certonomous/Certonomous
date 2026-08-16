@@ -341,6 +341,9 @@ WAIVED_NO_EXEC_BIT = (
     "scripts/memwatch.py",
     "scripts/morning_report.py",
     # Added 2026-08-16; see the note above. Run as
+    # `python3 scripts/mutation_harness_control_kind.py`.
+    "scripts/mutation_harness_control_kind.py",
+    # Added 2026-08-16; see the note above. Run as
     # `python3 scripts/mutation_harness_coverage_remedy.py`.
     "scripts/mutation_harness_coverage_remedy.py",
     # Added 2026-08-16; see the note above. Run as
