@@ -1,0 +1,901 @@
+{
+ "what": "Labelled control set for scripts/use_mention_discriminator.py.",
+ "labelling": "Gold labels were assigned by one annotator (the module's author) on the semantic test: does the sentence COMMIT the lab to the claim being true (ASSERT), or does it report, quote or adjudicate someone's words (MENTION)? AMBIGUOUS marks sentences a competent reader could take either way; they are excluded from the denominator of neither precision figure -- they are counted, and a prediction on them is counted as wrong for neither class. SINGLE-ANNOTATOR LABELS ARE A STATED LIMITATION: nobody has re-labelled these independently.",
+ "splits": "DESIGN was drawn first and the rules were revised against it. FRESH_HELDOUT was drawn from sentences never seen during design and scored EXACTLY ONCE; the figures below are that single measurement and no rule was changed afterwards.",
+ "measured_precision_on_FRESH_HELDOUT": {
+  "n": 78,
+  "ASSERT": "7/10 = 70%",
+  "MENTION": "23/30 = 77%",
+  "decided": "40/78 = 51%",
+  "cannot_tell": "38/78 = 49%"
+ },
+ "known_error_classes_named_not_fixed": [
+  "A JSON string value is read as a quotation: the enclosure test cannot tell a quoted claim from a JSON string delimiter (fresh held-out items 13, 15).",
+  "A grading record written in the first person ('our untrained QCR2000') trips the ASSERT signal while adjudicating (items 21, 32, 33).",
+  "Adjudication vocabulary appears in assertive prose ('verdict', 'record') and pulls an assertion to MENTION (items 51, 55, 56, 71)."
+ ],
+ "rows": [
+  {
+   "id": 1,
+   "file": "demo-output/website/campaign/LADDER_V_PASS1_2026-08-11.md",
+   "sentence": "But **five carry the load-bearing \"untrained / nothing fitted\" claim about OUR model without naming whose constant 0.3 is**, and the 08-08 PASS does not cover them: | surface | what it says | why it matters | status | |---|---|---|---| | `demo-output/website/benchmarks.html` (path corrected 2026-08-14 at `13b965dd`: , a path that has never existed in this repo at any commit; the page carrying the sentence is the one now cited, and the claim about it is unchanged) | \"a converged forward solve of the untrained QCR2000 physics term — nothing fitted to anything\" ×2 | **a PUBLIC page.** `git log -S` shows this sentence was written by **`49f71b8c`** — the sibling Ladder V **V10** rung, 2026-08-08T02:08:13, i.e.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 2,
+   "file": "demo-output/website/campaign/LADDER_V_PASS1_2026-08-11.md",
+   "sentence": "**13 minutes before the V5 sweep committed** | **NEW since the 08-08 sweep's scope** | | `CLOSURE_CHALLENGE_STATUS.md` §0f | \"the untrained QCR2000 constitutive term (`kOmegaSSTQCR`, `Ccr1 = 0.3`, nothing fitted to anything)\" ×9 QCR mentions | the lab's primary closure status surface | gap, from `07a7fe9e` | | `closure_challenge_submission_round5/MANIFEST.json` | \"QCR2000 forward solve (kOmegaSSTQCR, Ccr1=0.3 untrained, library commit 303247bb)\" ×3 rows | the **submission package's own manifest** | gap, from `07a7fe9e` | | `closure_challenge_round5_qcr_forward.json` | `\"RASModel\": \"kOmegaSSTQCR\", \"Ccr1\": 0.3, \"trained\": false` | its **sibling** `closure_challenge_round5_qcr.json` **does** carry the full journal reference; the forward record does not | gap, from `e865076b` | | `campaign/QCR_ACTIVITY_CHECK_2026-08-08.md` | **27** QCR mentions, a dedicated QCR record | committed `1a14e90b` at 2026-08-08T**02:18:29** — **3 minutes before** the V5 sweep's own commit at 02:21:52 | **raced the sweep** | Confirmed still citing correctly (controls for the sweep): `closure.html` (**3** Spalart mentions), the `.tex` (**4**), `closure_challenge_round5_qcr.json` (**1**, the full journal reference in `model.provenance`), plus `R5_RULE_FREEZE.md`, `W3_QCR_DUCT_FALSIFIER.md`, `LADDER_V_TRIPLE_VERIFICATION.md`, and the five records the 08-08 pass gave dated citation notes (`R5_PREREGISTRATION.md`, `F6b_QCR_*`, `W1_HUMP_CHALLENGE_*`) — **all five notes verified present today**.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 3,
+   "file": "demo-output/website/campaign/LADDER_V_PASS2_2026-08-11.md",
+   "sentence": "RUNG V10 — cross-surface number sweep Numbers checked on every surface: 0.0566 / 0.056647; rank 1 of 5 **scored locally** at `deb91557`; six scoring calls; AR_14 tie **lost**; best-on-board **4 of 8** *and its baseline qualification*; seed bound vs margin; untrained QCR.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 4,
+   "file": "demo-output/website/campaign/LADDER_V_PASS3_COLD_2026-08-11.md",
+   "sentence": "**The QCR half of the entry is untrained in the strict sense, verified in code and dictionaries rather than taken on trust.** ### 1.7 Is any test data touching the method?",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 5,
+   "file": "demo-output/website/campaign/LADDER_V_PASS3_COLD_2026-08-11.md",
+   "sentence": "| component | cases | contribution to overall | | --- | --- | --- | | trained PH ML correction | `alpha_15_13929_4048`, `alpha_15_13929_2024` | **−0.0232** | | untrained QCR2000 forward solves | 3 ducts | **−0.0239** | | trained ML on the hump | `NASA_2DWMH` | **+0.00014** (worse than doing nothing: 0.063198 vs baseline 0.062061) | | the organisers' own file, byte-for-byte | `alpha_05_4071_4048`, `alpha_05_4071_2024` | **0** | | | | **= 0.056647** | Three of the eight predictions are the entrant's machine learning.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 6,
+   "file": "demo-output/website/campaign/LADDER_V_RUNGS_V1_V3_V4_V5_2026-08-08.md",
+   "sentence": "**Missing and fixed** — five campaign records that present QCR work but never named its source; each received an identical **dated citation note** (2026-08-08, marked additive-only, appended below the \"nothing below this line\" frontier where one exists, no frozen clause touched): - `campaign/R5_PREREGISTRATION.md` - `campaign/F6b_QCR_PREREGISTRATION.md` - `campaign/F6b_QCR_RESULTS.md` - `campaign/W1_HUMP_CHALLENGE_PREREGISTRATION.md` - `campaign/W1_HUMP_CHALLENGE_RESULTS.md` **Reported, not edited:** `LADDER_V_RUNGS_V2_V7_V10_2026-08-08.md` names \"untrained QCR2000\" without the citation — it is the signed report of another verification agent, left to its owner (this report carries the full citation for both).",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 7,
+   "file": "demo-output/website/campaign/LADDER_V_RUNGS_V2_V7_V10_2026-08-08.md",
+   "sentence": "**Nothing was sent anywhere; the artifact stays local and submissions stay parked.** --- ## RUNG V10 — cross-surface number sweep: **PASS after fixes** (two drifted surfaces found, both mine to fix, both fixed) Numbers checked on every surface: 0.0566 / 0.056647; rank 1 of 5 **scored locally** at `deb91557`, not an official placement, unsubmitted; six scoring calls; AR_14 tie (the round-4 0.00003 nominal lead) **spent/lost** per the pre-registered risk; best-on-board 4 of 8 (was 5); seed-uncertainty bound 0.0024 vs the 0.002878 margin; duct gains from the **untrained** QCR2000 term (nothing fitted).",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 8,
+   "file": "demo-output/website/campaign/LADDER_V_RUNGS_V2_V7_V10_2026-08-08.md",
+   "sentence": "| verdict | |---|---|---|---| | `demo-output/website/closure.html` | 0.0566 hero, 0.056647 in §2/§4 | rank-1-local (lines 95, 109, 338, 434), AR_14 tie lost + 0.00003 (line 304), seed bound comparable to margin (113, 346–353), untrained framing (155, 238, 293, 411) | **CONSISTENT** — no edit | | `demo-output/website/ACTIVE_RESEARCH.md` | round 5 in header (11–19), standings table (624–639) with rank-1-local + \"was five\" best-on-board | yes throughout | **CONSISTENT after 2 fixes**: two round-4-era sentences read as present-tense with 0.0654 — the \"Ambition ahead … its 0.0654\" line (now scoped: 0.0566 since round 5, submissions parked) and the defect-2 parenthetical calling round 4 \"the entry of record\" (now points at the round-5 CSVs too) | | `demo-output/website/wall/wall.json` | 0.0566, \"six pre-registered scoring calls\", \"four of the eight\", rank-1-local caveat verbatim | yes | **CONSISTENT** — no edit | | `demo-output/website/wall/wall.html` | renders `wall.json`; carries no closure literal of its own | n/a | **CONSISTENT** — no edit | | `demo-output/website/benchmarks.json` | 0.0566, six calls, round-5 per-case, rank-1-local caveat | yes | **CONSISTENT** — no edit | | `demo-output/website/benchmarks.html` | **WAS: 0.0676, \"4 scoring calls\", \"four … across three rounds\", \"5 of 8\", round-3 duct per-case (0.0303/0.0862/0.0919)** — hand-maintained page last touched 2026-07-30, whole §1 a round-3 fossil | were absent | **DRIFTED → FIXED**: §1 rewritten to round 5 (0.0566, six calls, 4 of 8, round-5 duct rows with recomputed improvements −67.8/−64.7/−40.2%, AR_14 removed from the best-on-board table with the spent-tie note), rank-1-local caveat in the lede and the score tile, seed-bound-vs-margin and steward's-number caveats in the closing note, sources line updated | | `docs/PRODUCT_LIST.md` §4B (READ-ONLY for this rung — chief-owned) | round 5, 0.056647, rank 1, 6th call, \"Caveat everywhere: LOCAL scoring\" | yes | **CONSISTENT on the numbers — NOT EDITED.** Two minor stale notes reported to the chief below | | `demo-output/website/latex/closure_challenge_report.tex` (owned by its designated Opus writer — NOT EDITED) | 0.056647 throughout; \"rank 1, stated once with its caveat attached\" (215); AR_14 0.00003 priced-and-lost (85, 690, 715); seed bound 0.00242 vs margin (1731); untrained-QCR framing (261–262, 603+) | yes, thoroughly | **CONSISTENT — no drift to report** | ### Reported to the chief, not edited (chief-owned surface) `docs/PRODUCT_LIST.md`, two stale sentences inside §4B — numbers are fine, the staleness is in side-notes: 1.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 9,
+   "file": "demo-output/website/campaign/LADDER_V_STATE_2026-08-16.md",
+   "sentence": "Graded against the chief's narrowed predicate (`78eb5530`): *\"V5's site is where the UNTRAINED CLAIM ABOUT OUR OWN MODEL is made — not every place the string QCR appears.\"* | # | site | what is wrong | what clears it | **whose** | |---|---|---|---|---| | **V5-1** | `sdk/scripts/closure_eval_battery/build_master_table.py:246` and `:371` | **The third generator.** Both lines emit *\"round 5 (untrained QCR2000 duct forward solve, the sixth pre-registered scoring call)\"* with **zero** occurrences of Spalart.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 10,
+   "file": "demo-output/website/campaign/LADDER_V_STATE_2026-08-16.md",
+   "sentence": "It is a site under **both** the literal and the narrowed predicate | An **L-44 dated addendum by the report's owner** — it is a signed report and may not be silently edited (`REGRADE:241`) | **OWNER of that report** (not the fleet, not the chief) | | **V5-5** | `dist/certonomous-demo/snapshot/lab_stats.json` | gitignored arm; derived at build from `benchmarks.json`, so it carries the claim until a rebuild | **a bundle rebuild** | **OWNER** | **Not a blocker, correctly:** `demo-output/website/closure_challenge_round5_qcr_forward.json` makes the same claim as **JSON structure** — `\"Ccr1\": 0.3`, `\"trained\": false` — carries **zero** occurrences of the string *untrained*, and matches **neither** the sweep pattern `untrained[- ]QCR` **nor** the attribution guard's regex-plus-sentence-splitter predicate.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 11,
+   "file": "demo-output/website/campaign/LADDER_V_TRIPLE_VERIFICATION.md",
+   "sentence": "**And the ruling's own test caught the rung:** V5 > FAILS because its face carries no enumeration at all (the ledger still says three refusals > where there are four), and because `docs/PRODUCT_LIST.md` carries the untrained-QCR claim with > zero Spalart **outside every V5 sweep frame ever executed** — leg 3 swept 920 files under > `demo-output/website/` and `docs/` was never in it.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 12,
+   "file": "demo-output/website/campaign/LADDER_V_TRIPLE_VERIFICATION.md",
+   "sentence": "V5's site is where the UNTRAINED CLAIM ABOUT OUR OWN MODEL is made — not > every place the string QCR appears.** The rung's own text gives the purpose in the same > sentence as the criterion: *\"the 'untrained' claim is load-bearing — prove it by showing there > is nothing that could be fitted.\"* The citation discharges **that** claim.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 13,
+   "file": "demo-output/website/campaign/LADDER_V_V10_CLOSURE_2026-08-16.md",
+   "sentence": "What survived unstruck was then read and re-derived rather than assumed, because a strike-and-keep repair can leave a false remainder: *\"All three round-5 duct scores landed within 0.0004 of Wu & Zhang's published entry, the one carrying the same untrained QCR term — 0.0455, 0.0399, 0.0350 against our 0.0455, 0.0400, 0.0353, so 0.00003, 0.00008 and 0.00034 apart … We were behind the leader on all three.\"* Every clause of that checked out against §2: Wu & Zhang's live duct column was `0.0455 / 0.0399 / 0.0350`; the three separations computed to `0.000030`, `0.000082`, `0.000339`; Yang led all three and our three values were larger than his; and the stated gaps to Yang, `0.0164 / 0.0089 / 0.0103`, reproduced to the digit.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 14,
+   "file": "demo-output/website/campaign/LADDER_V_V13_CLOSEOUT.md",
+   "sentence": "The untrained claim is proven **structurally** — an exhaustive enumeration of every numeric literal in the QCR implementation finds exactly one free coefficient, `Ccr1`, defaulting to Spalart's published 0.3, with every override channel measured shut in all three test arms.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 15,
+   "file": "demo-output/website/campaign/LADDER_V_V13_CLOSEOUT.md",
+   "sentence": "Leg (c), the stale §4.1 citations in the send draft, was **failed by Pass 1 against its own pre-registered failure condition**, fixed by the chief (`2ef8ae3b`), and that fix was then verified line-by-line by **V15 round 1** (T38–T41), an agent that wrote none of it | | **V4** — one duct traced end to end | **PASS** | Pass 1 | 08-08 record §V4; re-run §A4 — `AR_1_Ret_360`, 14 shipped files byte-identical, 395-iteration converged solve, CSV sha256 `bb8d61fb…` → `0.04547044480564218` | **YES — Pass 3** re-derived the same three duct CSVs from the frozen fields at **max abs deviation 0.000e+00**, without reading Pass 1's report | | **V5** — QCR provenance | **PASS WITH EXCEPTIONS** (chief declined to upgrade) | Pass 1 | `LADDER_V_PASS1…` §A5; addendum `e59ae644` | **YES, and it is the sharpest self-correction in the ladder**: the 08-08 PASS was overturned *by the same role re-running it*, which found five load-bearing surfaces naming our untrained QCR2000 without citing whose constant 0.3 is — one of them a public page into which the **sibling V10 rung** had written the claim 13 minutes before the V5 sweep committed (`git log -S` → `49f71b8c`).",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 16,
+   "file": "demo-output/website/campaign/LADDER_V_V15_ROUND4.md",
+   "sentence": "225 = `for c in ph._PH_TRAIN:`; 228 = `_load_ground_truth_U` | **PASS — exact** | | **Q63** | test loop at `:178`, `_load_rans_fields` at `:179` annotated `# no U_LES read` | verbatim at both lines | **PASS** | | **Q64** | three executable assertions at `closure_baseline_error_gate.py:84–86` | three `assert` statements on train/val/test disjointness and the 21/4 counts | **PASS** | | **Q65** | *\"4.4's four call sites counted at 218-219 and 301-302\"* | `score(floor_predictions)` / `evaluate_by_case(floor_predictions)` at 218–219; `score(predictions)` / `evaluate_by_case(predictions)` at 301–302 | **PASS — four, exact** | | **Q66** | 4.6's discharge at `MANIFEST.json:37` and `README.md:52–54` | MANIFEST line 37 = `eval_package_version_string_note`, stating 0.2.1 vs 0.3.1 and *\"Cite the commit hash, not the version string\"*; README 52–54 the same in prose | **PASS — both line anchors exact** | | **Q67** | all eight round-5 CSVs are 1000×3, and `AR_1_Ret_360.csv` hashes to `bb8d61fb…` | parsed all eight: **1000 rows × 3 columns each**; `AR_1_Ret_360.csv` sha256 = **bb8d61fbbf…** | **PASS — matches the value Pass 1 traced end-to-end in V4** | | **Q68** | `Ccr1 = 0.3` compiled as the default at `kOmegaSSTQCR.C:91–99`; the QCR term is in-PDE at `:60` | 60 = `-Ccr1_*symm((O & taul) - (taul & O))`; 91–99 = `getOrAddToDict(\"Ccr1\", this->coeffDict_, 0.3)` | **PASS — both exact** | | **Q69** | the untrained-path compliance line's positive control: 0 `*_LES*` in the three test-duct arms, **3 each in both `AR_7_Ret_180` arms** | run-tree counts not re-run by this rung (the run tree is outside the repository).",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 17,
+   "file": "demo-output/website/campaign/LADDER_V_V5_GRADE_2026-08-15.md",
+   "sentence": "| |---|---|---|---| | C1 | Spalart cited **wherever QCR is named** | the ladder itself, `:32–33` | **NO** | | C2 | Spalart cited wherever a surface carries the **load-bearing untrained / nothing-fitted claim about OUR model** | `LADDER_V_PASS1_2026-08-11.md` §A5 leg 3, which adopted it after finding C1 failed | **NO** (§4) | | C3 | Spalart cited at **the two sites the close-out named** | `LADDER_V_V13_CLOSEOUT.md` §7 item 9 → the ledger's GREEN REQUIRES → `0b0041b1` | **YES** (§3) | **No ruling ever chose between them.** `LADDER_V_PASS1_2026-08-11.md:486–487` closes leg 3 with *\"**Chief ruling requested** on (a) the frame, and (b) who fixes the public page and the frozen artifacts.\"* The chief's addendum (`e59ae644`, in the same file at 571–657) issues **Ruling 1** (the pre-registration file's freeze) and **Ruling 2** (the stale §4.1 citations) — and never answers (a).",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 18,
+   "file": "demo-output/website/campaign/LADDER_V_V5_GRADE_2026-08-15.md",
+   "sentence": "Arm 3's own control is the paragraph above.) **Derivation, not a check of four handed line numbers.** Candidate pool = files that name QCR (`\\bQCR\\b|kOmegaSSTQCR|QCR2000|SA-QCR`) **and** carry untrained-claim vocabulary (`untrained|nothing fitted|Ccr1|\"trained\": false`), then partitioned on whether the file contains \"Spalart\" at all: | arm | names QCR | candidates | **candidates with no Spalart** | |---|---|---|---| | tracked | 118 | 64 | **29** | | untracked | 0 | 0 | 0 | | gitignored | 11 | 5 | 5 (see below) | All 29 tracked and all 5 ignored were opened and classified by reading the matching lines.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 19,
+   "file": "demo-output/website/campaign/LADDER_V_V5_V14_REGRADE_2026-08-16.md",
+   "sentence": "**Out of scope, and FILED rather than acted on:** every other rung; the correctness of any claim that is not an untrained-QCR attribution (V5) or a board ordinal / denominator / best-on-board count (V14); the contents of `dist/`, `demo-output/website/latex/`, `LAPTOP_SHOOT.md`, `motorbike-video/`, `.autostop-hold` and `scripts/self_audit.py`, all of which were **read and never written**.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 20,
+   "file": "demo-output/website/campaign/LADDER_V_V5_V14_REGRADE_2026-08-16.md",
+   "sentence": "Claim pattern `untrained[- ]QCR`, the same one the enumeration used, so the numbers are comparable.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 21,
+   "file": "demo-output/website/campaign/LADDER_V_V5_V8_GRADE_2026-08-15.md",
+   "sentence": "| arm | enumerator | size measured this pass | reached | |---|---|---|---| | **tracked** | `git grep -a` (**not** `-I`, and **not** the shell's `grep`, which is `ugrep --ignore-files` and passes `-I` too) | 20,688 files | yes | | **untracked** | `git ls-files --others --exclude-standard` | **5** files | yes, zero hits | | **gitignored** | `git ls-files --others --ignored --exclude-standard -z \\| xargs -0 /usr/bin/grep -aIlF -f <patterns>` | **37,242** files | yes, ~7 s | | **run tree** | `/usr/bin/find /home/ubuntu/certonomous-runs/ -type f -print0 \\| xargs -0 …` (`find` is `bfs` here) | **132,049** files | yes, with a positive control | **Positive control for the run-tree arm, because a silent zero over an out-of-repo tree is the exact fail-open shape R-ISOLATE warns about.** A file reading *\"the untrained QCR2000 forward solve\"* was seeded at `/home/ubuntu/certonomous-runs/A1-simplec-off/__probe_v5.txt`, the identical sweep returned it, and the probe was removed (`ls` confirms absence).",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 22,
+   "file": "demo-output/website/campaign/LADDER_V_V5_V8_GRADE_2026-08-15.md",
+   "sentence": "**47 tracked files** carry the untrained-QCR claim; **15 of them contain zero occurrences of \"Spalart\"**.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 23,
+   "file": "demo-output/website/campaign/LADDER_V_V6_V10_V14_CLOSURE.md",
+   "sentence": "Round 5 replaced all three duct predictions with an untrained QCR forward solve.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 24,
+   "file": "demo-output/website/campaign/LADDER_V_V8_REVERIFICATION_2026-08-11.md",
+   "sentence": "`DESCRIPTION_DOCUMENT.md` | # | claim | primary artifact | verdict | |---|---|---|---| | D1 | header: round 5, overall 0.056647, scored locally at `deb91557` | round-5 JSON; re-scored | **PASS** | | D2 | §1 eight CSVs 1000 × 3, hashes in `MANIFEST.json` | disk, 8/8 | **PASS** | | D3 | §2 table: 3 trained / 2 baseline / 3 untrained QCR | round-5 JSON + manifest | **PASS** | | D4 | §2 \"our three duct scores land within **0.0004** of theirs on all three ducts\" | full-precision deltas vs Wu & Zhang: 0.00003 / 0.000075 / **0.000329** — max 0.00033 | **PASS** | | D5 | §2 **\"The rank-3 entry, Wu & Zhang's SST-QCRC\"** | board at `deb91557`: Wu & Zhang **rank 2**, Liu rank 3.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 25,
+   "file": "demo-output/website/campaign/V16_GRADE.md",
+   "sentence": "The headline, which I was not looking for `demo-output/website/latex/closure_challenge_report.tex`, committed and in the tree at grading time, contains this, with the line break exactly where it is: > `The published entry ranked` > `second before round 5 --- Wu \\& Zhang's SST-QCRC --- carries the same untrained` > `QCR2000 term` That sentence is: 1.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 26,
+   "file": "demo-output/website/campaign/V16_GRADE_HELDOUT_SETS.py",
+   "sentence": "# (family, sentence, the guard declares itself blind to this family) # -------------------------------------------------------------------------- _FIRST_RAW = [ (\"written ordinal\", \"The {O} entry, Wu and Zhang, runs SST-QCRC on every duct.\", 3, False), (\"written ordinal\", \"Liu, Wang, Zhao and Xiao are the {O} entry on the published board.\", 2, False), (\"parenthetical ordinal\", \"Wu and Zhang ({S}) carry the same untrained QCR2000 term as we do.\", 3, False), (\"parenthetical ordinal\", \"Reissmann, Fang and Sandberg (rank {D}) publish an overall of 0.0595.\", 2, False), (\"possessive\", \"Wu and Zhang's {O} place on the board is the closest comparison we have.\", 3, False), (\"possessive\", \"We land 0.0028 inside Reissmann's {O} place.\", 2, False), (\"verbal placement\", \"Wu and Zhang placed {O} on the closure challenge board.\", 3, False), (\"verbal placement\", \"Montoya, Oulghelou and Cinnella finished {O} overall.\", 3, False), (\"verbal placement\", \"Liu, Wang, Zhao and Xiao came {O} on the published board.\", 2, False), (\"verbal placement\", \"Wu and Zhang took {O} on the leaderboard with 0.0624.\", 3, False), (\"'ranked' participle\", \"The {O}-ranked entry, Wu and Zhang, runs SST-QCRC.\", 3, False), (\"'ranked' participle\", \"Wu and Zhang are ranked {O} on the published board.\", 3, False), (\"'ranks' verb\", \"Reissmann, Fang and Sandberg rank {O} on the closure board.\", 2, False), (\"numeric designator\", \"Wu and Zhang sit at No.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 27,
+   "file": "demo-output/website/campaign/V16_GRADE_HELDOUT_SETS.py",
+   "sentence": "{D} on the published board.\", 3, False), (\"numeric designator\", \"Entry #{D} is Wu and Zhang, whose SST-QCRC carries QCR2000.\", 3, False), (\"position/slot/seed\", \"Wu and Zhang hold position {D} on the published leaderboard.\", 3, False), (\"position/slot/seed\", \"The board's {O} slot belongs to Wu and Zhang.\", 3, False), (\"bare ordinal, in\", \"Wu and Zhang are in {O} on the published board.\", 3, False), (\"bare ordinal + overall\", \"Wu and Zhang are {O} overall at benchmark commit deb91557.\", 3, False), (\"bare ordinal + best\", \"Wu and Zhang have the {O}-best overall on the published board.\", 3, False), (\"markdown table row\", \"| {D} | Wu and Zhang | 0.0624 |\", 3, False), (\"markdown table row\", \"| Rank | Entrant |\\n| {D} | Liu, Wang, Zhao and Xiao |\", 2, False), (\"csv / structured\", \"rank,entrant,overall\\n{D},Wu and Zhang,0.0624\", 3, False), (\"medal language\", \"Wu and Zhang took the bronze on the closure challenge board.\", 3, False), (\"medal language\", \"Reissmann, Fang and Sandberg took silver on the published board.\", 2, False), (\"podium language\", \"Montoya, Oulghelou and Cinnella are on the podium at number {N}.\", 2, False), (\"roman numeral\", \"Rank III on the published board is Wu and Zhang.\", 3, False), (\"word ordinal + 'position'\", \"Wu and Zhang occupy the {O} position on the board.\", 3, False), (\"'out of' construction\", \"Wu and Zhang are {D} of 4 on the published leaderboard.\", 3, False), (\"'top N' construction\", \"Wu and Zhang {T} the published board with 0.0624.\", 1, False), (\"'top N' construction\", \"Liu, Wang, Zhao and Xiao are the {T} entry on the board.\", 1, False), (\"hyphenated compound\", \"the {O}-place-finishing Wu and Zhang entry runs SST-QCRC\", 3, False), (\"plural/list form\", \"Ranks {N} and three are Liu and Montoya respectively.\", 2, False), (\"ordinal as noun phrase\", \"Wu and Zhang, the board's {O}, carry QCR2000 untrained.\", 3, False), (\"non-English ordinal\", \"Wu and Zhang belegen Platz {D} auf dem Board.\", 3, False), (\"relational comparative\", \"Wu and Zhang sit one {P} ahead of Reissmann on the board.\", 3, True), (\"relational comparative\", \"Reissmann trails Wu and Zhang on the published board.\", 3, True), (\"relational comparative\", \"Liu is the next-best after Wu and Zhang.\", 3, True), (\"co-author naming\", \"The rank-{D} entry, Zhang's SST-QCRC, carries the same term.\", 3, True), (\"co-author naming\", \"Sandberg's group is the rank-{D} entry on the published board.\", 2, True), (\"rule B, fresh phrasing\", \"Our advantage over the {O}-place entry is 0.0058 on the overall.\", 3, False), (\"rule B, fresh phrasing\", \"We beat the {R} by 0.0028863 on the overall.\", 2, False), (\"rule B, fresh phrasing\", \"The gap between us and the {F} is 0.0028863.\", 1, False), (\"rule B, fresh phrasing\", \"Our overall sits 0.0028 clear of the {O}-place submission.\", 2, False), (\"rule B, fresh phrasing\", \"Our margin on the ducts over the {L} is 0.0004.\", 1, False), ] # -------------------------------------------------------------------------- # SET 2 -- invented AFTER reading the widened pattern list, deliberately # outside it.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 28,
+   "file": "demo-output/website/ACTIVE_RESEARCH.md",
+   "sentence": "Re-derived 2026-08-15 by three executed routes.** — a local scoring, not an official placement; the untrained QCR2000 term took the ducts under a rule frozen before any solve.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 29,
+   "file": "demo-output/website/ACTIVE_RESEARCH.md",
+   "sentence": "(2)) *plus* an untrained QCR2000 quadratic constitutive term, > `c_r = 0.3` (entry Eq.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 30,
+   "file": "demo-output/website/CLOSURE_CHALLENGE_STATUS.md",
+   "sentence": "Round 5 (2026-08-07) — the untrained QCR term takes the ducts; the entry of record is now 0.0566, rank 1 scored locally *(Board identifier added 2026-08-16: \"rank 1\" in this heading and section is against the **six**-entry board retrieved **2026-08-11T23:33Z** and re-verified unchanged **2026-08-14T21:01Z** — seven rows counting ours, so rank 1 of 7.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 31,
+   "file": "demo-output/website/CLOSURE_CHALLENGE_STATUS.md",
+   "sentence": "**A measured consistency check, not designed for**: **the Wu and Zhang entry — rank 3 on the six-entry live board retrieved 2026-08-11T23:33Z and re-verified unchanged 2026-08-14T21:01Z; \"rank 2\" was their position on the four-entry board frozen at `deb91557`, struck 2026-08-15 per D157** — (Wu & Zhang) runs SST-QCRC, which carries the same untrained QCR2000 term.",
+   "gold": "AMBIGUOUS",
+   "split": "DESIGN"
+  },
+  {
+   "id": 32,
+   "file": "demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md",
+   "sentence": "stated in the > description?); the fourth is the one that makes \"untrained\" mean anything, so it is > asked here too.* > > | question | verdict | how this pass knows, rather than who told it | > |---|---|---| > | **Used at solve time only?** | **YES.** `kOmegaSSTQCR` is an **in-PDE constitutive term**: `tau_ij,QCR = tau_ij − Ccr1 [O_ik tau_jk + O_jk tau_ik]`, applied inside a converged SIMPLE solve.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 33,
+   "file": "demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md",
+   "sentence": "Now YES**, and it is stated as a *concession*: the term is published, it is not ours, and the entry above ours already runs one | `DESCRIPTION_DOCUMENT.md` §2 (row: *\"a converged forward solve of the **untrained** QCR2000 constitutive term — it is a 25-year-old published model, not ours\"*), §3 (`Ccr1 = 0.3` frozen before any solve), §6 | > > **Nothing in this block changes a §4 verdict on the rule.** The audit's central finding — > that the one strict rule is not violated — survives round 5 and covers a **smaller** > fitted surface than it did, because three of the eight rows are now produced by a > published term with nothing in it to fit.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 34,
+   "file": "demo-output/website/CLOSURE_METHODS_COMPARISON.md",
+   "sentence": "Two changes to Menter SST: a **fixed, untrained QCR-style quadratic Reynolds-stress term** (c_r = 0.3 \"directly adopted...",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 35,
+   "file": "demo-output/website/CLOSURE_RANK1_CAMPAIGN.md",
+   "sentence": "> This plan's starting position is round 4 and round 4 is no longer the entry of > record.** Round 4 held that status until **2026-08-07**, when round 5 (untrained > QCR2000 duct forward solve, the sixth pre-registered scoring call) superseded it at > **0.056647** overall.",
+   "gold": "AMBIGUOUS",
+   "split": "DESIGN"
+  },
+  {
+   "id": 36,
+   "file": "demo-output/website/CLOSURE_RANK1_CAMPAIGN.md",
+   "sentence": "- *A route that needs no donor at all.* This one is real and it is new: **QCR is untrained.** Applying it to the hump requires no donor, no training set and no Reynolds-number match, and so escapes objections 1 and 2 entirely.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 37,
+   "file": "demo-output/website/CLOSURE_SUBMISSION_REQUIREMENTS.md",
+   "sentence": "- **The three new duct CSVs**: untrained QCR forward solves (`Ccr1 = 0.3` frozen before any solve at `0bade54a`; nothing fitted).",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 38,
+   "file": "demo-output/website/campaign/F6b_QCR_PREREGISTRATION.md",
+   "sentence": "The executed hump QCR null (outcome two at a 0.010 x/c bar, `W1_HUMP_CHALLENGE_RESULTS.md`) makes this the deciding leg: on the ducts the untrained QCR2000 term was decisive (AR_1 0.0811→0.0455), on the hump it was null.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 39,
+   "file": "demo-output/website/campaign/F6b_QCR_RESULTS.md",
+   "sentence": "The two-leg question is now a three-leg answer, all on the same untrained QCR2000 library: | leg | flow class | QCR2000 effect | | --- | --- | --- | | ducts (round 5) | secondary flow of the second kind | decisive (0.0811→0.0455, 0.0775→0.0400) | | hump (challenge conditions) | 2D separation bubble | null (+0.0022 x/c, away) | | **hills (this arm)** | 2D APG separation, +72% FAIL | **null (+0.034 x/h, away)** | Class-level statement, now earned: **QCR2000 resurrects what Boussinesq structurally cannot represent — normal-stress-anisotropy-driven secondary flow — and does not touch separated-shear-layer bubble length on either 2D separated leg.** The constitutive route is closed for the separated-flow class on this record; the stress-magnitude route is open and now carries a mechanism: the concurrent a1 arm (`W1_HUMP_A1_RESULTS.md`) measured d(reatt)/d(a1) ≈ −1.66 per unit a1 on the hump — including the reconciliation with the 2026-08-01 diffusion-study points the ordering review had not cited.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 40,
+   "file": "demo-output/website/campaign/LADDER_V_V10_CLOSURE_2026-08-16.md",
+   "sentence": "What survived unstruck was then read and re-derived rather than assumed, because a strike-and-keep repair can leave a false remainder: *\"All three round-5 duct scores landed within 0.0004 of Wu & Zhang's published entry, the one carrying the same untrained QCR term — 0.0455, 0.0399, 0.0350 against our 0.0455, 0.0400, 0.0353, so 0.00003, 0.00008 and 0.00034 apart … We were behind the leader on all three.\"* Every clause of that checked out against §2: Wu & Zhang's live duct column was `0.0455 / 0.0399 / 0.0350`; the three separations computed to `0.000030`, `0.000082`, `0.000339`; Yang led all three and our three values were larger than his; and the stated gaps to Yang, `0.0164 / 0.0089 / 0.0103`, reproduced to the digit.",
+   "gold": "MENTION",
+   "split": "DESIGN"
+  },
+  {
+   "id": 41,
+   "file": "demo-output/website/campaign/W2_WU_ZHANG_DESTRUCTION_FIML_READING.md",
+   "sentence": "| | **The entry's second modification, QCR**: `τ_ij = τ^l_ij − c_r(O_ik τ^l_kj − τ^l_ik O_kj)`, `O_ij = (∂_j U_i − ∂_i U_j)/√(∂_n U_m ∂_n U_m)`, c_r = 0.3, untrained.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 42,
+   "file": "demo-output/website/campaign/W2_WU_ZHANG_DESTRUCTION_FIML_READING.md",
+   "sentence": "- **The model to reproduce for duct parity is the entry's SST-QCRC** — the three-feature expression above **plus** the untrained QCR term.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 43,
+   "file": "demo-output/website/campaign/W3_QCR_DUCT_FALSIFIER.md",
+   "sentence": "# W3 — QCR2000 on the training ducts: the falsifier verdict and the rank-2 parity term Record for two docket items executed together, 2026-08-05: - `w3-qcr-constitutive-term-for-rank2-parity` — build the untrained QCR2000 constitutive term the rank-2 closure-challenge entry carries.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 44,
+   "file": "demo-output/website/campaign/W3_QCR_DUCT_FALSIFIER.md",
+   "sentence": "| case | cells | SST in-plane % | QCR in-plane % | ref in-plane % | SST scaled MAE | QCR scaled MAE | change | in-plane r | |---|---|---|---|---|---|---|---|---| | `AR_1_Ret_180` | 2,209 | 3.2e-16 | 0.624 | 0.757 | 0.1076 | **0.0632** | **−41.2%** | 0.953 | | `AR_3_Ret_180` | 6,627 | 5.5e-16 | 0.705 | 0.813 | 0.1122 | **0.0477** | **−57.5%** | 0.935 | | `AR_5_Ret_180` | 11,045 | 8.3e-16 | 0.676 | 0.749 | 0.0958 | **0.0437** | **−54.4%** | 0.930 | | `AR_10_Ret_180` | 22,090 | 1.1e-15 | 0.590 | 0.661 | 0.0604 | **0.0401** | **−33.5%** | 0.877 | Every arm, every case: the linear model reads machine zero, QCR reads 79–93 percent of the reference magnitude, and the scaled MAE falls by a third to well over a half — **from an untrained constant**.",
+   "gold": "AMBIGUOUS",
+   "split": "DESIGN"
+  },
+  {
+   "id": 45,
+   "file": "demo-output/website/closure.html",
+   "sentence": "It moved <b>0.0741 → 0.0676 → 0.0654 → 0.0566</b> across four scored rounds, and every step was bought by paying for honesty in advance: each round left a known free improvement on the table, or put an existing win at risk in writing, rather than let a test score choose what to submit.</p> <div class=\"scroll\"><table> <thead><tr><th>Round</th><th class=\"n\">Overall</th><th>What moved it</th><th>What it refused</th></tr></thead> <tbody> <tr><td>2</td><td class=\"n\">0.0741</td><td>first full trained correction across all eight flows</td> <td>the 0.0066 answer-key shortcut, §3</td></tr> <tr><td>3</td><td class=\"n\">0.0676</td><td>a blind decline gate withheld the correction where it hurt</td> <td>took the honest route to 0.0001 <em>behind</em> the refused shortcut</td></tr> <tr><td>4</td><td class=\"n\">0.0654</td><td>Reynolds-invariant duct features fixed a measured extrapolation failure</td> <td>a +0.0022 regression on one duct, left standing rather than reverted by the answer key</td></tr> <tr class=\"us\"><td>5</td><td class=\"n\">0.0566</td><td>the untrained QCR physics term replaced the fitted duct correction, §4</td> <td>a best-on-board tie put at risk in writing before the call — lost, and left standing</td></tr> </tbody></table></div> <div class=\"note gold\"><b>The ledger, and how the last call was authorized.</b> Six scoring calls, ever: the uncorrected floor, then rounds 1 through 5 — one call per prediction set, self-imposed; the benchmark sets no limit and instructs submitters to preview their scores.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 46,
+   "file": "demo-output/website/closure.html",
+   "sentence": "Middle: the untrained QCR term reproduces that pair — same positions, same sense, same flanking high-speed wall lobes — at a mean intensity of 4.65&times;10<sup>&minus;3</sup> of bulk against the truth's 4.90&times;10<sup>&minus;3</sup>.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 47,
+   "file": "demo-output/website/latex/closure_challenge_report.tex",
+   "sentence": "The entry is now \\emph{two} method classes rather than one, and round 5 is the reason: five of the eight predictions remain post-hoc velocity-field corrections, two of them withheld by a train-only \\emph{decline gate} that submits the untouched baseline where it predicts correction would do harm, while the three ducts are converged forward solves of an untrained QCR2000 constitutive term with nothing fitted to anything --- adopted at Spalart's published constant and shipped on all three ducts or none, under a rule frozen before the first validation iteration existed.",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 48,
+   "file": "demo-output/website/latex/closure_challenge_report.tex",
+   "sentence": "\\paragraph{Update, 2026-08-07 --- that description is now true of five predictions and false of three.} Round 5 replaced the duct correction with a converged forward solve of an untrained QCR2000 constitutive term (\\S\\ref{sec:round5}).",
+   "gold": "ASSERT",
+   "split": "DESIGN"
+  },
+  {
+   "id": 1,
+   "file": "demo-output/website/ACTIVE_RESEARCH.md",
+   "sentence": "A duct-only change with physics instead of a fit: the untrained QCR2000 constitutive term (`kOmegaSSTQCR`, `Ccr1 = 0.3`, Spalart's published constant, nothing fitted to anything) replaced the round-4 ML duct correction on all three test ducts, forward-solved to convergence on the shipped meshes; the five non-duct CSVs are byte-identical to round 4 and scored identically.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 2,
+   "file": "demo-output/website/ACTIVE_RESEARCH.md",
+   "sentence": "The result landed *below* the pre-stated expectation band; the campaign's central arithmetic (match rank 2's ducts ≈ 0.056288) was nearly exact, and our three QCR duct scores land within 0.0004 of the SST-QCRC entry's (Wu & Zhang) published duct scores on all three ducts — same untrained term, independent solve, same answer.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 3,
+   "file": "demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md",
+   "sentence": "Every row below was read out of a primary artifact — the round-5 JSON, the benchmark's own README, or the scorer itself — and none of it was copied from a sibling document.* | Claim | Value | Source | | --- | --- | --- | | Overall score | **0.056647** (0.056647191704213645) | `closure_challenge_round5_qcr.json` → `official_test_harness_result.round5_overall_full` | | Per-case | 0.0501 / 0.1011 / 0.0461 / 0.0719 / 0.0455 / 0.0400 / 0.0353 / 0.0632 | same file, `round5_per_case` | | RANS-identity floor, our harness | **0.1036** (0.1036347 on cold re-derivation) | our figure, not one the benchmark publishes — §7.2 stands | | Improvement over floor | **−0.0470, 45.3% below** | derived from the two rows above | | Superseded round-4 entry | 0.0654, ducts 0.0811 / 0.0775 / 0.0325 | `closure_challenge_trained_entry_round4_duct.json`; round 5 moved it by −0.0088 | | What is actually ours | **3 of the 8 predictions.** 2 are the supplied baseline unchanged; 3 are an untrained QCR2000 forward solve | §10; `DESCRIPTION_DOCUMENT.md` §2 | | Best on published board | **2 of 8 against the live six-entry board — and BOTH are the organisers' own baseline file, so ZERO of 8 belong to our model.** Both `alpha_15` hills lost to Tian, Buchanan, Hickel & Dwight | `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md` §3a; re-derived case by case against the six published entries | | Standing | 0.056647 is the lowest overall on the **live six-entry** board fetched 2026-08-11 (our own scoring is at `deb91557`, which scores but does not rank), **scored locally by us — not an official placement.** P(rank 1) = **50%**, interval **0–97% at 95%**; the leads over **Yang, Reissmann, Wu & Zhang, and Tian/Buchanan/Hickel/Dwight** are **not statistically decided**, the leads over Liu (98.7%) and Montoya (99.8%) are.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 4,
+   "file": "demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md",
+   "sentence": "On the three ducts the submitted field is a converged forward solve of > **QCR2000 with `Ccr1 = 0.3`** — Spalart's published constant, untrained, > nothing fitted to anything.",
+   "gold": "AMBIGUOUS",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 5,
+   "file": "demo-output/website/CLOSURE_RANK1_CAMPAIGN.md",
+   "sentence": "The ranking | rank | route | expected overall gain | cost, core-min | gain per core-min | build risk | |---|---|---|---|---|---| | **1** | **A1 — untrained QCR forward on ducts** | **+0.0037** (band −0.0007 to +0.0063) | **95** | **3.9e-5** | **none — built and validated today** | | 2 | A2 — full rank-2 parity (QCR + beta destruction) | +0.0091, **now conditional** (§3.C.1) | 425–725, **+ a discriminating duct inversion its basis must absorb** | 1.6e-5 | **high**: unpriced DAFoam rebuild **and** a beta lever measured weak on CBFS | | 3 | B-decline — ship the hump uncorrected | +0.00014 | **0** | — | none | | 4 | B′ — QCR-on-CBFS gate for the hump | 0 (a decision, not a score) | **78** (was mispriced at 10) | n/a | none | | 5 | C — learned-beta forward from S1 | ~0, **measured**: 0.149% against a 30% bar | 310 spent | ~0 | — | **A1 leads on every axis that matters**: highest gain per core-min, lowest cost, zero build risk, zero leakage surface, and it is the only route whose enabling artifact already exists and has already been validated against a bit-exact control.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 6,
+   "file": "demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md",
+   "sentence": "Set against the ducts, where the same untrained QCR was decisive (0.0811→0.0455), this is a clean separation of \"anisotropy missing\" (ducts) from \"shear stress mis-scaled\" (hump).",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 7,
+   "file": "demo-output/website/agenda/docket.json",
+   "sentence": "Records: UPSTREAM_BUG_REPORT_decomposition_adjoint.md, /home/ubuntu/certonomous-runs/W4-a4-du0check/ (PREDICTION.md, ledger.txt, du0_np1.log, du0_np1b.log, du0_np4scotch.log).\" }, { \"id\": \"f6b-qcr2000-on-the-hills\", \"well\": \"W3\", \"objective\": \"Run the untrained QCR2000 constitutive term forward on the periodic hills medium rung and rule, under a discriminator frozen before launch, whether anisotropy moves the reattachment toward the literature band or leaves the omega budget implicated\", \"rationale\": \"The ducts proved that the QCR2000 term resurrects missing physics cheaply, and the hills' verified failure is adverse-pressure-gradient separation, where anisotropy also matters.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 8,
+   "file": "demo-output/website/agenda/docket.json",
+   "sentence": "This decides the review's open question: the ducts-vs-hump separation GENERALISES -- on one untrained QCR2000 library the ducts are decisive (0.0811 to 0.0455), the hump null (+0.0022 x/c), the hills null (+0.034 x/h).",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 9,
+   "file": "demo-output/website/agenda/docket.json",
+   "sentence": "SCOPE CORRECTION from the same reading: the rank-2 entry model is SST-QCRC -- it also carries an untrained QCR2000 constitutive term (c_r=0.3) in the momentum equation, so this patch alone reproduces the paper's inversion capability, not the entry's deployed model; duct-score parity additionally needs w3-qcr-constitutive-term-for-rank2-parity, filed by the reading.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 10,
+   "file": "demo-output/website/agenda/docket.json",
+   "sentence": "Kept on the docket as a record of a line of attack that the root cause closes.\" }, { \"id\": \"w3-qcr-forward-on-the-ducts-is-the-rank-1-route\", \"well\": \"W3\", \"objective\": \"Run the untrained QCR2000 term forward on the benchmark's duct validation case and then, under a rule frozen beforehand, on the three scored test ducts, because the whole deficit to rank 1 lives in two of them and the term that closes it needs no training at all\", \"rationale\": \"The deficit to rank 1 is +0.005913 on the overall and it is not spread across the board: we already beat Reissmann on four of eight cases by a combined -0.00756, while AR_1_Ret_360 and AR_3_Ret_360 alone contribute +0.01073, which is 1.8 times the entire gap.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 11,
+   "file": "demo-output/website/agenda/docket.json",
+   "sentence": "The QCR library built for the falsifier arm closes it: on the same meshes, with k and omega transport unchanged, untrained Ccr1 = 0.3 recovers 79 to 93 percent of the reference in-plane magnitude at Pearson r 0.877 to 0.953, and cuts scaled MAE by 33 to 57 percent on all four training ducts.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 12,
+   "file": "demo-output/website/agenda/docket.json",
+   "sentence": "Heat and Fluid Flow 21(3) 252-263, 2000, the QCR2000 constitutive relation and its untrained c_r of 0.3\", \"The W2 reading of the Wu and Zhang destruction-term field inversion\", \"The rank-2 entry's own description document, equation 1, READ IN FULL 2026-08-04\", \"The benchmark README's train, validation and test split table\", \"The method-priority review of 2026-08-05, which found every located data-driven RANS correction re-enters the equations\" ], \"in_sample_verdict\": \"The falsifier work this rests on is clean: four training ducts, no test duct opened, nothing fitted, no scoring call.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 13,
+   "file": "demo-output/website/agenda/proposals/f6b-qcr2000-on-the-hills.json",
+   "sentence": "{ \"id\": \"f6b-qcr2000-on-the-hills\", \"well\": \"W3\", \"objective\": \"Run the untrained QCR2000 constitutive term forward on the periodic hills medium rung and rule, under a discriminator frozen before launch, whether anisotropy moves the reattachment toward the literature band or leaves the omega budget implicated\", \"rationale\": \"The ducts proved that the QCR2000 term resurrects missing physics cheaply, and the hills' verified failure is adverse-pressure-gradient separation, where anisotropy also matters.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 14,
+   "file": "demo-output/website/agenda/proposals/f6b-qcr2000-on-the-hills.json",
+   "sentence": "This decides the review's open question: the ducts-vs-hump separation GENERALISES -- on one untrained QCR2000 library the ducts are decisive (0.0811 to 0.0455), the hump null (+0.0022 x/c), the hills null (+0.034 x/h).",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 15,
+   "file": "demo-output/website/agenda/proposals/w3-qcr-forward-on-the-ducts-is-the-rank-1-route.json",
+   "sentence": "{ \"id\": \"w3-qcr-forward-on-the-ducts-is-the-rank-1-route\", \"well\": \"W3\", \"objective\": \"Run the untrained QCR2000 term forward on the benchmark's duct validation case and then, under a rule frozen beforehand, on the three scored test ducts, because the whole deficit to rank 1 lives in two of them and the term that closes it needs no training at all\", \"rationale\": \"The deficit to rank 1 is +0.005913 on the overall and it is not spread across the board: we already beat Reissmann on four of eight cases by a combined -0.00756, while AR_1_Ret_360 and AR_3_Ret_360 alone contribute +0.01073, which is 1.8 times the entire gap.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 16,
+   "file": "demo-output/website/agenda/proposals/w3-qcr-forward-on-the-ducts-is-the-rank-1-route.json",
+   "sentence": "The QCR library built for the falsifier arm closes it: on the same meshes, with k and omega transport unchanged, untrained Ccr1 = 0.3 recovers 79 to 93 percent of the reference in-plane magnitude at Pearson r 0.877 to 0.953, and cuts scaled MAE by 33 to 57 percent on all four training ducts.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 17,
+   "file": "demo-output/website/agenda/proposals/w3-qcr-forward-on-the-ducts-is-the-rank-1-route.json",
+   "sentence": "Heat and Fluid Flow 21(3) 252-263, 2000, the QCR2000 constitutive relation and its untrained c_r of 0.3\", \"The W2 reading of the Wu and Zhang destruction-term field inversion\", \"The rank-2 entry's own description document, equation 1, READ IN FULL 2026-08-04\", \"The benchmark README's train, validation and test split table\", \"The method-priority review of 2026-08-05, which found every located data-driven RANS correction re-enters the equations\" ], \"in_sample_verdict\": \"The falsifier work this rests on is clean: four training ducts, no test duct opened, nothing fitted, no scoring call.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 19,
+   "file": "demo-output/website/campaign/LADDER_V_PASS1_2026-08-11.md",
+   "sentence": "**This pass changed no file other than this report.** **The finding in one sentence.** The 08-08 V5 PASS was true of the surfaces it swept, and its sweep frame (`campaign/*.md`, `closure.html`, the `.tex`, the round-5 JSONs) did not include the public `benchmarks.html` — into which a *sibling Ladder V rung*, executing the same night, wrote a fresh uncited \"untrained QCR2000 / nothing fitted to anything\" claim.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 20,
+   "file": "demo-output/website/campaign/LADDER_V_PASS1_2026-08-11.md",
+   "sentence": "- **A5 — QCR provenance: PASS WITH EXCEPTIONS.** In-house single-commit history at `303247bb` with the built `.so` hash matching the record and zero occurrences in stock v2606 (positive-controlled); **untrained proven structurally by exhaustive numeric-literal enumeration — exactly one free coefficient exists in the implementation, `Ccr1`, default 0.3, Spalart's published constant**, with every override channel measured shut across all three test ducts and zero ML artifacts in the run tree (positive-controlled).",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 21,
+   "file": "demo-output/website/campaign/LADDER_V_PASS1_2026-08-11.md",
+   "sentence": "**Leg 3 CHANGED**: five load-bearing surfaces name our untrained QCR2000 without citing Spalart, one of them a public page into which the sibling V10 rung wrote the claim on 2026-08-08.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 22,
+   "file": "demo-output/website/campaign/LADDER_V_PASS1_2026-08-11.md",
+   "sentence": "That is precisely how A5's finding was reached: the uncited \"untrained QCR2000\" sentence on the public page was traced by `git log -S` to `49f71b8c`, the sibling V10 rung, and not to the round-5 producers.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 23,
+   "file": "demo-output/website/campaign/LADDER_V_PASS1_2026-08-11.md",
+   "sentence": "### Baseline to compare against (this pass's measured numbers) 920 files swept · **55** name QCR · **27** also cite Spalart · **28** do not · **5** of those 28 carry the load-bearing untrained claim.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 24,
+   "file": "demo-output/website/campaign/LADDER_V_PASS1_2026-08-11.md",
+   "sentence": "**Touched-and-left, reported not fixed.** Pass 2 edited `benchmarks.html` — the public surface A5 flagged — adding a 3-line best-on-board caveat, and **left the uncited \"untrained QCR2000 … nothing fitted to anything\" sentence in place**.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 25,
+   "file": "demo-output/website/campaign/LADDER_V_PASS3_COLD_2026-08-11.md",
+   "sentence": "It should: one line in the cover email, of the form *\"three of our eight predictions are an untrained QCR2000 forward solve and two are your own baseline unchanged; only three are our model,\"* converts the worst discoverable fact about this entry into its most credible one.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 26,
+   "file": "demo-output/website/campaign/LADDER_V_TRIPLE_VERIFICATION.md",
+   "sentence": "This > one is stated on the rung's face, with its reason, **before the next grade**, and it makes the > criterion **discriminate** rather than shrink: under it `QCR_ACTIVITY_CHECK`'s 23 QCR mentions > and zero \"untrained\" are not a site at all, while `PRODUCT_LIST.md`'s four — excluded in > writing on 2026-08-08 as *\"PRODUCT_LIST (chief's)\"*, with no ground and no hash — squarely are.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 27,
+   "file": "demo-output/website/campaign/LADDER_V_TRIPLE_VERIFICATION.md",
+   "sentence": "> **The file that later failed this rung was excluded by ownership, on purpose, and that is the > third time this week ownership stood where a frame was needed.** > > **WHAT WOULD REVERSE IT:** a surface naming QCR **without** the untrained claim, where a reader > would be misled by the absence of attribution.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 28,
+   "file": "demo-output/website/campaign/LADDER_V_TRIPLE_VERIFICATION.md",
+   "sentence": "*Recorded with it, because it changes what the site is worth:* the file contains **23** mentions of QCR and **zero** occurrences of \"untrained\".",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 29,
+   "file": "demo-output/website/campaign/LADDER_V_TRIPLE_VERIFICATION.md",
+   "sentence": "**Withdrawn, and it is the more consequential of the two:** line 121 reads *\"duct gains from the **untrained** QCR2000 term (nothing fitted)\"* — the load-bearing claim about **our** model, a site under both predicates, with zero Spalart in the file.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 30,
+   "file": "demo-output/website/campaign/LADDER_V_TRIPLE_VERIFICATION.md",
+   "sentence": "The 13 that remain in `PRODUCT_LIST.md` are QCR mentions that carry no untrained claim about our model — build records, capability items, review lines, and Wu & Zhang's SST-QCRC at `:351` — and are reported, not repaired, because the predicate question in (b) is unruled.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 31,
+   "file": "demo-output/website/campaign/LADDER_V_TRIPLE_VERIFICATION.md",
+   "sentence": "**Tracked**, `git grep -a` (not `-I`, and not the shell's `grep`, which is `ugrep --ignore-files` and passes `-I`): 20,698 files; claim pattern `untrained[- ]QCR` matched **46** files at 20:14Z and **47** at 20:22Z — a concurrent agent committed `campaign/LADDER_V_V15_ROUND8.md` between the two reads, so the grade's \"47 tracked files\" reproduces at the later clock and not the earlier one; **15** carried zero \"Spalart\" at both reads, and every one was opened.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 32,
+   "file": "demo-output/website/campaign/LADDER_V_V13_CLOSEOUT.md",
+   "sentence": "You are not entering a closure model; you are entering a well-chosen file-selection strategy.\" **This is the charge that a leaderboard row cannot answer, so answer it before the row does.** The decomposition, all of it reproducible from the package plus the public benchmark (floor = the supplied RANS field everywhere = **0.1036347**): | component | cases | contribution | |---|---|---| | trained PH ML correction | `alpha_15_13929_4048`, `alpha_15_13929_2024` | **−0.0232** | | **untrained** QCR2000 forward solves | the three ducts | **−0.0239** | | trained ML on the hump | `NASA_2DWMH` | **+0.00014** — worse than doing nothing | | the organisers' own file, byte-for-byte | `alpha_05_4071_*` | **0** | | | | **= 0.056647** | Three of eight are our machine learning.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 33,
+   "file": "demo-output/website/campaign/LADDER_V_V13_CLOSEOUT.md",
+   "sentence": "**That result does not depend on our score at all.** **Where the package supported no answer, and now does:** *\"a leaderboard row carries a name and a number and nothing else.\"* Pass 3's recommendation — one line in the cover material saying **three of our eight predictions are an untrained QCR2000 forward solve and two are your own baseline unchanged; only three are our model** — is now in the description document's §2 table and §6, and the best-on-board count carries *\"two of which are the baseline rows\"* in the same sentence, unhedged, with the model's own count given as **2 of 8**.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 34,
+   "file": "demo-output/website/campaign/LADDER_V_V13_CLOSEOUT.md",
+   "sentence": "- **`benchmarks.html` and `CLOSURE_CHALLENGE_STATUS.md`** still carry the load-bearing *\"untrained QCR2000 … nothing fitted to anything\"* claim **without naming whose constant 0.3 is** (V5's leg-3 exceptions, open since 2026-08-08).",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 35,
+   "file": "demo-output/website/campaign/LADDER_V_V5_GRADE_2026-08-15.md",
+   "sentence": "- **Unrelated idiom.** `dafoam/ladder-b/S1_*`, `sdk/scripts/fit_cost_scaling.py`, `sdk/tests/test_pope_basis.py` — \"nothing fitted\" used of positive controls and cost curves, no QCR content.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 36,
+   "file": "demo-output/website/campaign/LADDER_V_V5_GRADE_2026-08-15.md",
+   "sentence": "- **`docs/PRODUCT_LIST.md`** — 7 untrained-QCR mentions, no Spalart.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 37,
+   "file": "demo-output/website/campaign/LADDER_V_V5_GRADE_2026-08-15.md",
+   "sentence": "**UNMET SITES — carrying the untrained claim about our own model, no attribution, never counted by any V5 execution:** | # | surface | arm | what it says | why it counts | |---|---|---|---|---| | **U1** | `sdk/scripts/build_benchmarks.py:106` | tracked | `\"…round-5 untrained QCR2000 forward solve on the ducts…\"` inside the `our_entry` string | **the generator.** `e071075d` correctly checked that nothing generates `benchmarks.html` — and the string it did not look at is the one this script emits | | **U2** | `demo-output/website/benchmarks.json` (`/closure_challenge/our_entry`) | tracked | same string, written by U1 at `build_benchmarks.py:346` | the **machine-readable twin of the page that was fixed**, on the same public surface | | **U3** | `demo-output/website/wall/wall.json:56` | tracked | same string, via `lab_stats.research_programs()` → `build_wall.py:333` | third copy, shipped | | **U4** | `dist/certonomous-demo/snapshot/lab_stats.json` | **gitignored** | same string | fourth copy, in the arm no git instrument reaches | | **U5** | `campaign/LADDER_V_RUNGS_V2_V7_V10_2026-08-08.md:121` | tracked | *\"duct gains from the **untrained** QCR2000 term (nothing fitted).\"* | the **exact load-bearing phrase**, zero Spalart in the file.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 38,
+   "file": "demo-output/website/campaign/LADDER_V_V5_GRADE_2026-08-15.md",
+   "sentence": "Note also that this surface is a gap under **C1 only**: it carries 27 QCR mentions and **zero occurrences of \"untrained\"**, so under C2 it is not a claim site at all.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 39,
+   "file": "demo-output/website/campaign/LADDER_V_V5_V14_REGRADE_2026-08-16.md",
+   "sentence": "### 3.4 What still blocks the rung — measured, not inherited | # | surface | the claim | Spalart | in frame because | |---|---|---|---|---| | **1** | `sdk/scripts/closure_eval_battery/build_master_table.py` `:246`, `:371` | *\"round 5 (untrained QCR2000 duct forward solve, …)\"* | **0** | **it is a generator** — the ruling's frame is *\"every surface a future build or edit can change, **plus the generators that write them**\"* | | **2** | `demo-output/website/closure_eval/closure_eval_master_table.md:20` | same sentence, emitted | **0** | tracked output of (1) | | **3** | `demo-output/website/closure_eval/closure_eval_master_table.json:84` | same sentence, emitted | **0** | tracked output of (1) | | **4** | `demo-output/website/campaign/LADDER_V_RUNGS_V2_V7_V10_2026-08-08.md:121` | *\"duct gains from the **untrained** QCR2000 term (nothing fitted)\"* | **0** | a **withdrawn exclusion**, returned to frame by the enumeration itself | Item (1) is decisive.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 40,
+   "file": "demo-output/website/campaign/LADDER_V_V5_V14_REGRADE_2026-08-16.md",
+   "sentence": "### 3.5 A frame hole the enumeration did not find, and no arm of the sweep can **`demo-output/website/closure_challenge_round5_qcr_forward.json` makes the untrained claim about our own model — as `\"Ccr1\": 0.3,` `\"trained\": false` — and matches NEITHER the sweep pattern `untrained[- ]QCR` NOR the guard's `_QCR` + sentence predicate.** It carries zero occurrences of the string \"untrained\".",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 41,
+   "file": "demo-output/website/campaign/LADDER_V_V5_V14_REGRADE_2026-08-16.md",
+   "sentence": "Its classification paragraph then excludes **six more** in prose: two Wu & Zhang surfaces plus `PRODUCT_LIST.md:351`, two held-out guard corpora, and four dated records — **none with a hash, none with a dated refusal.** I opened all six and the grounds are substantively right: `CLOSURE_METHODS_COMPARISON.md:216` sits under the heading *\"### 2.2 Wu & Zhang — rank 2, 0.0624 (SST-QCRC)\"* and quotes their own description document; `closure_challenge_C2_error_decomposition.md:255`'s *\"the entry adds an untrained QCR2000 … term\"* is the **rank-2** entry, established three bullets above.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 42,
+   "file": "demo-output/website/campaign/LADDER_V_V5_V14_REGRADE_2026-08-16.md",
+   "sentence": "### 3.7 GRADE OF THE PREDICATE NARROWING — **legitimate, with two defects named** The narrowing (`78eb5530`): *V5's site is where the untrained claim about **our own model** is made, not every place the string QCR appears.* **I tried to falsify it and could not.** The falsifier the ruling names is *a surface naming QCR without the untrained claim, where a reader would be misled by the absence of attribution.* My closest candidate is `PRODUCT_LIST.md:462` — *\"QCR2000 built as a turbulence-model class (~180 lines, no rebuild)\"* — where \"built\" could be read as origination.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 43,
+   "file": "demo-output/website/campaign/LADDER_V_V5_V14_REGRADE_2026-08-16.md",
+   "sentence": "SUMMARY | rung | verdict | what decides it | |---|---|---| | **V5** | **FAIL** | the third generator `build_master_table.py:246,371`, its two tracked outputs, and `LADDER_V_RUNGS_V2_V7_V10:121` — four in-frame surfaces claiming untrained QCR about our own model with zero Spalart | | **V14** | **PASS WITH RESIDUALS** (6, named in §4.10) | the search is mechanical, reaches repo-wide, states its blind spots, and gates at 0 false positives; every claim is repaired at source; the three travelling faults are a `dist/` bundle built before the corrections | | ruling | grade | |---|---| | V5's predicate narrowing (`78eb5530`) | **legitimate** — its textual argument fails and its sequencing is the shape it condemned, but it discriminates, it is stated with its falsifier, I could not falsify it, and it does not save the rung | | V14's human-reading concession (`9b9951a1`) | **NOT legitimate** — the rung being excused; the same rule faults the same value at eleven sites and the obstruction is a line break | | V14's reach/gating split (`9b9951a1`) | **legitimate** — re-measured, 0 false positives on the gating arm, falsifier not triggered | **Docket: D222, D223, D224.** --- *No solver run.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 44,
+   "file": "demo-output/website/campaign/LADDER_V_V5_V8_GRADE_2026-08-15.md",
+   "sentence": "Classified by hand, every one opened: **In frame and unenumerated — these are the finding:** | surface | sites | what it says | why it is in frame | |---|---|---|---| | **`docs/PRODUCT_LIST.md`** | **:63, :136, :608, :655** | *\"the ducts (untrained QCR2000: AR_1 0.0811→0.0455 …)\"*, *\"untrained-QCR proven structurally\"* ×2, *\"where the same untrained QCR was decisive\"* | **A tracked, editable, non-frozen product surface — and it lies outside every V5 sweep frame ever executed.** Pass 1 leg 3's frame was 920 files under `demo-output/website/`; `docs/` was never in it.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 45,
+   "file": "demo-output/website/campaign/LADDER_V_V5_V8_GRADE_2026-08-15.md",
+   "sentence": "| | `demo-output/website/CLOSURE_EVALUATION_PROTOCOL.md:391` | 1 | *\"Round 5 replaced all three with an untrained QCR2000 forward solve\"* | inside Pass 1's frame, among its \"28 that do not cite\", classified as a passing mention.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 46,
+   "file": "demo-output/website/campaign/LADDER_V_V5_V8_GRADE_2026-08-15.md",
+   "sentence": "| | `sdk/scripts/closure_eval_battery/build_master_table.py:246, :371` | 2 | *\"round 5 (untrained QCR2000 duct forward solve, the sixth pre-registered scoring call)\"* | **the third generator** (D128), confirmed present at both line numbers | | `demo-output/website/closure_eval/closure_eval_master_table.md:20` and `.json:84` | 2 | the same sentence, emitted | its two **tracked** outputs, zero Spalart in either | | `dist/certonomous-demo/snapshot/lab_stats.json` | — | the claim, **0 Spalart** | gitignored arm; derived-at-build from `benchmarks.json`, so it takes the repair on the next bundle rebuild, which is the owner's | **Out of frame on inspection, and named so the exclusion is argued rather than assumed:** `CLOSURE_METHODS_COMPARISON.md:216` and `closure_challenge_C2_error_decomposition.md:255` describe **Wu & Zhang's** SST-QCRC, not ours (`PRODUCT_LIST.md:351` likewise); `V16_GRADE_HELDOUT_SETS.py:70,101` and `test_rank_claim_surfaces.py:584` are **held-out guard corpora**, where the uncited sentence is the test datum and editing it destroys the control; `LADDER_V_RUNGS_V2_V7_V10`, `LADDER_V_V6_V10_V14_CLOSURE`, `LADDER_V_V8_REVERIFICATION_2026-08-11`, `V15_ROUND5_NUMBER_RECONCILIATION` and `reports/MORNING_REPORT_2026-08-07.md` are dated ladder reports, which the ladder's own termination rule holds do not travel.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 47,
+   "file": "demo-output/website/campaign/V15_ROUND5_NUMBER_RECONCILIATION.md",
+   "sentence": "Item 5 — the `.tex` sentence and its compiled PDF **Both halves clean.** | check | result | |---|---| | source sentence, whole-file whitespace collapsed | *\"The published entry ranked second before round 5 — Wu & Zhang's SST-QCRC — carries the same untrained QCR2000 term.\"* | | true against the parsed board?",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 48,
+   "file": "demo-output/website/campaign/W2_WU_ZHANG_DESTRUCTION_FIML_READING.md",
+   "sentence": "- `w3-qcr-constitutive-term-for-rank2-parity`: **new**, filed by this reading — the untrained QCR2000 term (c_r = 0.3) the rank-2 entry carries in addition to the beta hook, without which no duct-score comparison is like-for-like.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 49,
+   "file": "demo-output/website/campaign/W3_QCR_DUCT_FALSIFIER.md",
+   "sentence": "The untrained constant is systematically slightly weak, which is precisely the residue a trained coefficient or a trained beta would take up, and is consistent with the rank-2 entry carrying a trained beta alongside its untrained QCR.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 50,
+   "file": "demo-output/website/campaign/reports/MORNING_REPORT_2026-08-07.md",
+   "sentence": "| Rank | id | objective | source_kind | est_core_min | cost_basis kind | status | | --- | --- | --- | --- | --- | --- | --- | | 1 | w5-audit-every-citation-in-the-submission-draft | Check every quotation in the submission draft against a source on disk before it is sent | challenge | none | estimate | proposed | | 2 | w5-hlpw6-ai-ml-focus-group-is-the-cheap-way-in | Establish whether HLPW-6's AI/ML technology focus group is a route into the workshop that needs no CFD, and what an entry to it would consist of | challenge | none | estimate | proposed | | 3 | w5-autocfd5-scouted-and-declined | Record AutoCFD5 as scouted and declined on physical grounds, so its deadline does not pull compute toward it | challenge | none | estimate | proposed | | 4 | w5-rescope-the-high-lift-entry-on-physics | Rescope the high-lift entry on the two findings that decide it, and stop citing price | challenge | none | estimate | proposed | | 5 | w5-decide-what-cannot-be-submitted | Rule on entries the lab can prepare and cannot send, before their compute is spent | challenge | none | estimate | proposed | | 6 | w5-decide-what-cannot-be-sent-before-it-is-run | Rule on entries whose submission route is closed before their compute is committed | challenge | none | estimate | proposed | | 7 | w5-what-else-does-the-importer-unlock | Survey which public workshop entries are now reachable, given topology decides and not the workshop | challenge | none | estimate | proposed | | 8 | w5-the-wedge-extrapolates-to-an-impossible-angle | Correct a filmed act that fails two guards and prints the milder one | gate | none | estimate | proposed | | 9 | w3-valve-band-never-adjudicated | Correct the one stored band that reports itself conclusive without ever facing a guard | measurement | none | estimate | proposed | | 10 | w3-a-verdict-a-mesh-can-move | Decide what a credential may claim when an independently generated mesh moves it across its own band | measurement | none | estimate | proposed | | 11 | w3-where-settling-scatter-belongs | Decide which channel carries settled-state scatter, and make the two filmed acts agree with it | measurement | none | estimate | proposed | | 12 | w3-non-orthogonality-belongs-in-the-numerical-channel | Make mesh non-orthogonality a stated input to the numerical uncertainty, since it now predicts divergence | measurement | none | estimate | proposed | | 13 | w3-narrate-the-strongest-signal-not-the-first | Order every declined verdict by how strong its evidence is, not by where it sits in a list | measurement | none | estimate | proposed | | 14 | w3-a-declined-ladder-still-publishes-an-envelope | Rule on whether a credential may print an envelope taken from a ladder the certifier declined | measurement | none | estimate | proposed | | 15 | w6-a-measurement-that-raised-the-price | Add the first calibration point where measuring made an item more expensive, not less | ledger | none | estimate | proposed | | 16 | w6-idle-is-a-dispatch-failure-not-a-capacity-one | Close the loop between an approved item and a machine with nothing to do | capability | none | estimate | proposed | | 17 | w6-a-queue-that-drains-itself-needs-a-ceiling | Decide the standing budget a self-dispatching queue may spend without asking | ledger | none | estimate | proposed | | 18 | w6-the-lab-uses-a-tenth-of-its-box | Find out why the lab sustains 1.4 of 14 usable cores and decide whether that is a choice | ledger | none | estimate | proposed | | 19 | w6-forecast-the-approved-backlog | Forecast the approved backlog against measured throughput before it is dispatched | ledger | none | estimate | proposed | | 20 | w6-the-box-is-oversubscribed-now | Give the lab a concurrency limit, since it has gone from a tenth of its box to over it | ledger | none | estimate | proposed | | 21 | agp-527efc1cbb44 | Harmonic-balance cycle solve | capability | none | estimate | approved | | 22 | w6-the-box-went-from-a-tenth-to-full | Measure what changed when utilisation went from 1.4 cores to saturation, and whether the throughput followed | ledger | none | estimate | proposed | | 23 | w2-mit-access-list | Open the paywalled-paper list for Katie MIT library access and work the open-access seed list down | reading | none | estimate | approved (standing authorization) | | 24 | w6-a-rank-count-needs-cells-per-rank | Qualify the parallel rule, which inverts at thin decompositions | ledger | none | estimate | proposed | | 25 | w5-close-the-secco-2021-citation-gap | Read the primary IDWarp reference and close the one disclosed gap in the novelty claim | reading | none | estimate | approved (standing authorization) | | 26 | w6-papers-price-the-cheap-step | Record the cost gap between what closure papers report and what reproduction actually takes | ledger | none | estimate | approved (standing authorization) | | 27 | w6-a-recipe-that-cannot-be-replicated | Record which recipes cannot be rebuilt, because one of four attempts could not be meshed at all | ledger | none | estimate | proposed | | 28 | w6-an-estimate-without-a-rank-count | Refuse a compute estimate that does not state the rank count it was measured at | ledger | none | estimate | proposed | | 29 | w6-the-largest-miss-was-on-an-unapproved-item | Refuse to spend on an item that was never approved, and count what already was | ledger | none | estimate | proposed | | 30 | w4-aflr3-pyramid-convention | Report the grid-format convention that the published documentation states incorrectly | capability | none | estimate | proposed | | 31 | w6-estimates-enumerate-cost-not-prerequisites | Require an estimate to name what must exist before the work can start | ledger | none | estimate | proposed | | 32 | w6-a-cost-without-a-rank-count-is-not-a-cost | Require every compute estimate to state the rank count it assumes | ledger | none | estimate | proposed | | 33 | agp-a3cc843ce473 | Resolve the shedding | capability | none | estimate | approved | | 34 | w6-the-ledger-understates-a-failed-cold-solve | Spend the cost of a cold solve that raises, which currently costs the ledger nothing | ledger | none | estimate | proposed | | 35 | agp-37da30f972b3 | Unsteady fluid-structure interaction | capability | none | estimate | approved | | 36 | w7-a-print-interval-is-a-measurement-instrument | Audit every archive claim that rests on what a solver printed rather than what it did | report | none | estimate | proposed | | 37 | w7-a-top-score-reachable-by-writing-one-key | Audit every graded level for one that can be reached without the evidence it claims | report | none | estimate | proposed | | 38 | w8-a-label-is-fixed-where-it-is-emitted | Audit every place a surface renders an identifier as if it were a label | report | none | estimate | approved (standing authorization) | | 39 | w7-weekly-claim-audit | Build the rolling re-verification of published claims against primary evidence as a scheduled script | report | none | estimate | approved (standing authorization) | | 40 | w7-verify-reachability-from-outside | Check every surface the operator needs from outside the box, not from the box | report | none | estimate | approved (standing authorization) | | 41 | w6-charter-clauses-resolve-to-their-evidence | Check that every charter clause citing an incident resolves to a file or a commit that exists | report | none | estimate | approved (standing authorization) | | 42 | w7-instruction-echo-is-a-check | Check that every stated instruction is echoed and answered on camera | report | none | estimate | approved (standing authorization) | | 43 | w6-generator-claims-are-per-case | Check which mesh generator a case actually uses before attributing a defect to one | report | none | estimate | approved (standing authorization) | | 44 | w7-two-studies-moved-with-no-value-change | Decide whether a record timestamp should move when nothing it records did | report | none | estimate | proposed | | 45 | w7-solver-stub-detector | Detect a solver launch that produced only a launcher stub and no run | report | none | estimate | approved (standing authorization) | | 46 | w8-certificate-interval-lesson | Distil the certificate confidence-interval defect into a charter clause and a preflight check | report | none | estimate | approved (standing authorization) | | 47 | w8-a-guard-states-its-sample | Find every guard in the stack whose tolerance is measured over more than it guards | report | none | estimate | approved (standing authorization) | | 48 | w7-claim-an-item-before-working-it | Give the docket a claim, because three collisions have now happened | report | none | estimate | proposed | | 49 | w7-two-agents-one-question | Make concurrent work on one docket item visible before it is duplicated | report | none | estimate | proposed | | 50 | w7-an-unauditable-record-is-invisible | Make the audit see the records it currently skips | report | none | estimate | proposed | | 51 | w7-every-run-writes-to-the-registry | Make the solve registry cover every solver run, or state plainly what it does not cover | report | none | estimate | proposed | | 52 | w8-a-premise-can-be-false-and-still-worth-filing | Record how often a proposal premise turned out false, and what that says about how they are drafted | report | none | estimate | proposed | | 53 | w8-a-category-can-be-the-error | Record that the unit of analysis is itself a hypothesis, from the committee-grid result | report | none | estimate | proposed | | 54 | w8-right-verdict-wrong-reason | Record the near miss where a gate held for a reason that turned out to be arithmetic | report | none | estimate | approved (standing authorization) | | 55 | w7-a-run-that-invoked-the-wrong-script | Record which script produced a result, and check it against the one the case documents | report | none | estimate | proposed | | 56 | w7-exit-zero-is-not-a-solve | Refuse to read a solver exit status as evidence that a case converged | report | none | estimate | proposed | | 57 | w7-the-m6-act-cannot-be-verified-at-all | Register the ONERA M6 act in the replay verification, which currently cannot drive it | report | none | estimate | proposed | | 58 | w7-s4-and-s5-are-not-watching | Repair or withdraw the two monitor rules the archive replay showed are not working | report | none | estimate | proposed | | 59 | w8-a-ruling-cites-what-it-protects | Require a ruling to name the artifact it claims to protect, and check that it does | report | none | estimate | proposed | | 60 | w8-a-ruling-states-its-stake-and-checks-it | Require a ruling to name the consequence it rests on, and to verify that consequence | report | none | estimate | proposed | | 61 | w7-a-record-written-names-the-item-it-closes | Require a study record to name the docket item it closes, or say that it closes none | report | none | estimate | proposed | | 62 | w8-an-audit-attribution-is-a-claim | Require an audit finding to name the file it inspected, and check it before the finding travels | report | none | estimate | approved (standing authorization) | | 63 | w8-a-style-rail-drops-a-proposal-on-a-slash | Stop the proposal style rails reading a quoted numeric ratio as a file path and dropping the proposal | report | none | estimate | proposed | | 64 | w8-a-builder-that-infers-its-contents | Write down that a packager which infers its contents will miss anything built at run time | report | none | estimate | proposed | | 65 | w3-race-bracket-on-a-local-fit | Bracket the race act's angle grid on a fit local to the peak, and re run the act on the tightened band | measurement | 6 | measured | proposed | | 66 | w3-locationinmesh-lands-on-a-symmetry-plane | Move the generated case's mesh seed off the symmetry planes it currently sits exactly on | measurement | 10 | measured | proposed | | 67 | w3-the-race-band-is-two-and-a-half-times-too-wide | Re-run and re-verify the race act with its bracket on a local fit | measurement | 10 | estimate | proposed | | 68 | w2-the-duct-zero-stated-as-a-structural-limit-with-a-falsifier | State the duct secondary-flow zero as a structural limit of the linear eddy-viscosity class, defended from the integrity basis the lab has read, with a pre-registered falsifier run before the claim is published | gate | 10 | estimate | approved (standing authorization) | | 69 | c5-duct-velocity-scale-transfer | Give the duct correction a genuine Reynolds-transfer test by generating our own duct training data at a second Reynolds number | | 12 | measured | approved (standing authorization) | | 70 | credential-layer-coverage-gate | Add a boundary layer coverage gate to every credential that grades on drag alone | measurement | 20 | estimate | approved (standing authorization) | | 71 | dafoam-simplec-comparison-audit | Audit every comparison between a DAFoam result and a plain OpenFOAM baseline for the silently dropped consistent pressure correction | measurement | 25 | estimate | approved (standing authorization) | | 72 | w1-ahmed-family-asymptotic-ladder | Build one asymptotic refinement ladder for the Ahmed family on the 35 degree slant, the half of this item that is still open; the 25 degree half is answered in the negative by R4 and is out of scope | gate | 27 | estimate | approved (standing authorization) | | 73 | w3-a-verdict-protocol-for-mesh-draw-sensitive-credentials | Adopt a verdict protocol for band-edge credentials, with replicate meshes required before a verdict, scatter printed beside the value, and an interval stated where the scatter crosses the band | capability | 20 | measured | proposed | | 74 | r8-how-often-does-convergence-reporting-mask-divergence | Establish how often a solver's convergence reporting can mask a run that did not converge, by classifying every run this lab holds with an automated checker and separately auditing what a sample of published papers on our own validation cases actually state about convergence | measurement | 30 | measured | approved (standing authorization) | | 75 | w3-refinement-rungs-varies-two-knobs | Make a generated refinement ladder vary one knob, and make the guard check comparability rather than distinctness | measurement | 30 | estimate | proposed | | 76 | dafoam-shape-derivative-step-size-study | Establish whether the shape derivative disagreement against finite difference is a step size artefact by sweeping the difference step across several decades | measurement | 35 | measured | approved (standing authorization) | | 77 | w3-run-uq-studies-still-caps-every-rung-at-300 | Give the curriculum ladders the cell-count-derived iteration cap the TMR ladders already have | measurement | 40 | estimate | proposed | | 78 | dafoam-adjoint-memory-scaling-law | Measure the adjoint peak memory as a function of cell count so case feasibility can be predicted before a run rather than discovered by failure | measurement | 40 | measured | approved (standing authorization) | | 79 | w3-qcr-constitutive-term-for-rank2-parity | Add the untrained QCR2000 quadratic constitutive term (c_r = 0.3) the rank-2 closure entry carries, so a duct-score comparison against 0.0455/0.0399 can ever be like-for-like | capability | 30 | estimate | approved (standing authorization) | | 80 | w3-beta-on-omega-destruction-model-patch | Expose a per-cell beta on the SST omega DESTRUCTION term, so the roadmap's original Stage 1 target and the Wu, Zhang and Zhang reproduction become buildable | capability | 30 | estimate | proposed | | 81 | r5-a5-second-gradient-defect | Explain the single component -- idx16 of shapexUpper -- that the corrected warp moves further from the finite difference on the U-bend, now that 26 of the other 27 are clean | gate | 60 | estimate | approved (standing authorization) | | 82 | w1-hump-challenge-conditions | Spawn the NASA hump at the closure challenge conditions as the successor to the passed steady gate | gate | 60 | estimate | approved (standing authorization) | | 83 | r5-warp-linearisation-workaround | Establish whether the mesh-warp linearisation defect can be avoided in practice by expressing an opposing-direction combination design variable as a weighted set of single-point variables, and whether the resulting gradient then verifies | capability | 45 | measured | approved (standing authorization) | | 84 | r7-locate-the-strouhal-onset | Pair the middle rung of the cylinder ladder so the Strouhal sensitivity onset is located rather than bracketed | gate | 78 | measured | proposed | | 85 | w4-the-compressible-abort-is-ours | Diagnose the compressible solver abort, which is not a grid problem and was filed as one | capability | 60 | estimate | proposed | | 86 | w5-probe-the-item-that-is-a-third-of-the-backlog | Establish whether the largest approved item is feasible before its cost is committed | capability | 60 | estimate | proposed | | 87 | w3-explain-the-residual-2-7-percent | Explain the field-inversion gradient residual, now that clipping and convergence are both eliminated | measurement | 90 | estimate | proposed | | 88 | w3-find-an-invertible-closure-case | Find a closure-relevant case this lab can actually invert on | measurement | 90 | estimate | approved (standing authorization) | | 89 | r2-closure-coefficient-uncertainty | Give the model channel a measured parametric basis: propagate published k-omega SST closure-coefficient intervals through solves on the motorcycle held mesh and report the resulting drag envelope as coefficient-interval evidence alongside the current transferred estimate | reading | 60 | estimate | approved (standing authorization) | | 90 | w5-degenerate-point-derivative-check | Make a reusable check that evaluates every adjoint at its own degenerate point, and run it across the stack | capability | 60 | estimate | approved (standing authorization) | | 91 | w3-vspaero-model-form-band | Quantify the vortex-lattice model-form error, now the largest term in the race error budget | measurement | 90 | estimate | approved (standing authorization) | | 92 | w2-tbnn-duct-reynolds-generalisation | Rebuild Ling's tensor-basis neural network and run his own Reynolds-number-generalisation experiment on the closure challenge's duct family: train on AR_1, AR_3, AR_5 and AR_10 at Ret 180, hold AR_7_Ret_180 for hyper-parameters, and predict the three scored duct cases without opening them | reading | 60 | estimate | approved (standing authorization) | | 93 | r4-m6-wall-treatment-plateau | Test whether the ONERA M6 primal residual plateau at 1.02e-06 is caused by wall resolution sitting in the buffer layer, by re-running the case on a wall-resolved mesh (yPlus below 1) and on a clean wall-function mesh (yPlus above 30) and observing whether the plateau moves | gate | 90 | measured | approved (standing authorization) | | 94 | r6-cylinder-wake-topology-onset | Locate the Reynolds number at which a two-dimensional cylinder wake stops producing a time-mean recirculation bubble, by running the single intermediate rung that halves the interval in which the transition is now known to lie | gate | 110 | measured | approved (standing authorization) | | 95 | tmr-naca0012-complete-ladders | Complete the NACA 0012 ladders on the TMR-distributed grids: 225x65 and 449x129 at alpha 10, then full ladders at alpha 0 and 15, with observed order and Richardson values against the published finest-grid results | challenge | 150 | estimate | approved (standing authorization) | | 96 | w1-f5b-pitching-naca0012 | Complete the F5b pitching NACA 0012 dynamic-stall physics and gate rungs | gate | 120 | estimate | approved (standing authorization) | | 97 | r4-coarse-adjoint-prolongation | Determine whether a gradient computed on a coarse adjoint mesh is accurate enough to drive optimization on a fine primal mesh, by measuring gradient direction agreement (cosine similarity, not just magnitude) between coarse and fine adjoints on the one case where both are affordable | measurement | 120 | estimate | approved (standing authorization) | | 98 | closure-duct-tensor-basis-carrier | Replace the duct correction's scalar-invariant inputs with a tensor-basis carrier, because the invariants are provably three-dimensional on a duct while the basis tensors are not, and grade it on the suggested duct validation case before any test score exists | gate | 120 | estimate | proposed | | 99 | w4-a5-second-defect | Isolate the U-bend adjoint defect using the link-by-link method that closed A1 | capability | 90 | estimate | approved (standing authorization) | | 100 | w5-rotations-off-mesh-quality-price | Price the useRotations=False workaround before anyone is told to use it | capability | 90 | estimate | approved (standing authorization) | | 101 | r4-band-tightening-hump | Determine how tight the model-form uncertainty band on hump reattachment can be made while still containing the experiment, by replacing the extremal anisotropy limiting states with physically weighted perturbations and measuring the containment/width trade-off curve | challenge | 200 | estimate | approved (standing authorization) | | 102 | w3-valid-family-for-ahmed-35-cube-and-sail | Build a single-knob production-recipe ladder for the cube and the NACA 0015 sail (ahmed_35 is being built under W1) | measurement | 160 | estimate | proposed | | 103 | dpw8-v1-oat15a-committee-grid-primal | Run the DPW-8 V1 ONERA OAT15A transonic verification case on the committee-supplied Rizzi grid family, levels 1 through 4, to a converged primal at a single angle of attack, and report a grid-convergence trend on lift, drag and surface pressure against the workshop's own gridding and numerics rulebook | challenge | 240 | estimate | approved (standing authorization) | | 104 | r5-perturbation-destroys-its-own-measurand | Test whether the anisotropy-perturbation uncertainty method destroys the very quantity it is built to bound, by establishing at what perturbation magnitude the separation bubble stops being a single closing structure and whether a converged solution exists beyond that point at all | challenge | 250 | estimate | approved (standing authorization) | | 105 | naca0012-derive-reference-then-relayer | Derive the NACA 0012 finite-wing reference, then re-run its ladder with the boundary layer resolved | measurement | 200 | measured | approved (standing authorization) | | 106 | naca4412-converge-lift-coefficient | Identify and remove the remaining driver of lift non-monotonicity on the NACA 4412 refinement ladder so the ladder reaches the asymptotic range | measurement | 220 | estimate | approved (standing authorization) | | 107 | w4-a-pivoting-factorization-for-the-blocked-adjoints | Measure whether a pivoting-capable factorization converges the CBFS adjoint, on the case where a direct solve of its own dumped system already works | capability | 240 | estimate | proposed | | 108 | w5-idwarp-singularity-free-rotation-patch | Patch getRotationMatrix3d to the singularity-free rotation form and show the gradient comes out right with rotations still ON | capability | 240 | estimate | approved (standing authorization) | | 109 | w1-dpw5-hex-three-level-ladder | Run the two upper DPW5 hex levels and build the first committee-grid convergence ladder | gate | 400 | estimate | proposed | | 110 | closure-duct-field-inversion | Reproduce the rank two entry's field inversion on the square duct cases, inverting a correction field on the turbulence destruction term through the discrete adjoint | reading | 420 | estimate | approved (standing authorization) | | 111 | hlpw6-testcase1-coarse-grid-entry | Prepare a candidate entry for the sixth High-Lift Prediction Workshop test case 1 by running the published CRM-HLS blind case on the coarsest committee grid of 2.66 million cells across the six specified angles of attack, and assess whether the result is strong enough to be worth Katie approving an approach to the workshop organisers | challenge | 6390 | estimate | approved (standing authorization) | Source: demo-output/website/agenda/docket.json ## 6.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 51,
+   "file": "demo-output/website/closure.html",
+   "sentence": "They run a model carrying the same untrained QCR term.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 52,
+   "file": "demo-output/website/closure.html",
+   "sentence": "<b>That makes four refusals on the same grounds — the 0.0066 in §3, the round-4 and round-5 duct regressions in §2 and §4, and this, the smallest of them.</b> An improvement that comes from leakage is worth less than no improvement, so the honest number stays on the board and this paragraph stays with it.</div> <div class=\"note warn\"><b>And the ducts were better, not solved.</b> All three round-5 duct scores landed within 0.0004 of Wu &amp; Zhang's published entry, the one carrying the same untrained QCR term — 0.0455, 0.0399, 0.0350 against our 0.0455, 0.0400, 0.0353, so 0.00003, 0.00008 and 0.00034 apart, as §4 above sets out at length.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 53,
+   "file": "demo-output/website/closure_challenge_C2_error_decomposition.md",
+   "sentence": "(2)), the entry **adds an untrained QCR2000 quadratic constitutive > term** on the Reynolds stress, `c_r = 0.3` (entry Eq.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 54,
+   "file": "demo-output/website/closure_challenge_round5_qcr.json",
+   "sentence": "The untrained QCR2000 constitutive term (kOmegaSSTQCR, Ccr1 = 0.3, nothing fitted to anything) replaces the round-4 ML duct correction on all three test ducts, forward-solved to convergence on the shipped meshes.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 55,
+   "file": "demo-output/website/closure_challenge_round5_qcr.json",
+   "sentence": "On the six-entry live board Wu and Zhang are rank 3; the key below puts Wu and Zhang at rank 2, which is what the four-entry pin says and is not what the live board says.\", \"qcr_vs_rank2_duct_consistency\": \"The rank-2 entry (Wu & Zhang) runs SST-QCRC, which carries the same untrained QCR2000 term.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 56,
+   "file": "demo-output/website/closure_challenge_round5_qcr.json",
+   "sentence": "Improvement concentrated where the mechanism said it would, on a term with nothing fitted to anything.\", \"cost\": { \"solver_core_min_total_measured\": 37.0, \"budget_core_min\": 95, \"detail\": \"AR_7 SST 5.4 + AR_7 QCR 5.1 (validation pair) + AR_1 0.2 + AR_3 1.4 + AR_14 24.8; per-arm ledger in R5_PREREGISTRATION.md section 7 and the run tree /home/ubuntu/certonomous-runs/w3-qcr-rank1/.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 57,
+   "file": "demo-output/website/closure_challenge_submission_round5/DESCRIPTION_DOCUMENT.md",
+   "sentence": "| |---|---|---| | `alpha_15_13929_4048`, `alpha_15_13929_2024`, `NASA_2DWMH` (3) | a trained post-hoc velocity-field correction | yes | | `alpha_05_4071_4048`, `alpha_05_4071_2024` (2) | **the supplied RANS field, unmodified** — a train-only gate declined to correct them | **no** | | `AR_1_Ret_360`, `AR_3_Ret_360`, `AR_14_Ret_180` (3) | a converged forward solve of the **untrained** QCR2000 constitutive term | it is a 25-year-old published model, not ours | **The trained part.** Target `delta_U = U_LES − U_RANS` per cell; `HistGradientBoostingRegressor` ×3 on 7 features (Pope's 5 scalar invariants, `Re_y`, `tke_ratio`); applied once to an already-converged RANS field as post-processing.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 58,
+   "file": "demo-output/website/closure_challenge_submission_round5/MANIFEST.json",
+   "sentence": "The three duct CSVs are untrained-QCR2000 forward solves; the five non-duct CSVs are byte-identical to the round-4 submission and hash-asserted against its manifest, so its gate provenance is their provenance.\", \"produced_by\": \"the round-5 scoring agent, 2026-08-07, alongside the one pre-registered scoring call\", \"reproduces\": \"demo-output/website/closure_challenge_round5_qcr.json\", \"scoring_calls_made_by_this_run\": 1, \"scoring_call_note\": \"This manifest was written by the same session that made the one pre-registered round-5 scoring call (the lab's 6th cumulative distinct prediction set scored).",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 59,
+   "file": "demo-output/website/closure_challenge_submission_round5/MANIFEST.json",
+   "sentence": "Cite the commit hash, not the version string.\" }, \"verification_against_prior_rounds\": { \"unchanged_cases_sha256_match_round4_manifest\": true, \"unchanged_cases_sha256_match_round5_preregistration\": true, \"duct_csvs_sha256_match_round5_preregistration\": true, \"duct_csvs_ordering_verified_by_fresh_rerun_of_points_order_check\": true, \"benchmark_repo_commit_matches_round4_manifest\": true, \"eval_package_repo_commit_matches_round4_manifest\": true }, \"recorded_scores\": { \"overall\": 0.0566, \"overall_full\": 0.056647191704213645, \"per_case\": { \"alpha_15_13929_4048\": 0.0501, \"alpha_15_13929_2024\": 0.1011, \"alpha_05_4071_4048\": 0.0461, \"alpha_05_4071_2024\": 0.0719, \"AR_1_Ret_360\": 0.0455, \"AR_3_Ret_360\": 0.04, \"AR_14_Ret_180\": 0.0353, \"NASA_2DWMH\": 0.0632 }, \"source\": \"closure_challenge_round5_qcr.json (round-5 run, official call #6, 2026-08-07)\" }, \"files\": { \"AR_14_Ret_180\": { \"file\": \"test/AR_14_Ret_180.csv\", \"rows\": 1000, \"cols\": 3, \"has_header\": false, \"delimiter\": \",\", \"sha256\": \"286610c0488d202c84c389b18befc2d1352fbbbbef7ae125066f9e289fa699ce\", \"all_finite\": true, \"prediction_source\": \"QCR2000 forward solve (kOmegaSSTQCR, Ccr1=0.3 untrained, library commit 303247bb; sdk/scripts/closure_round5_qcr_forward.py; pre-registered in campaign/R5_PREREGISTRATION.md @ e865076b, rule frozen in campaign/R5_RULE_FREEZE.md @ 0bade54a)\" }, \"AR_1_Ret_360\": { \"file\": \"test/AR_1_Ret_360.csv\", \"rows\": 1000, \"cols\": 3, \"has_header\": false, \"delimiter\": \",\", \"sha256\": \"bb8d61fbbfd99f5099628cedf7b76a203558daa87e3235006b0c8527ea703e7e\", \"all_finite\": true, \"prediction_source\": \"QCR2000 forward solve (kOmegaSSTQCR, Ccr1=0.3 untrained, library commit 303247bb; sdk/scripts/closure_round5_qcr_forward.py; pre-registered in campaign/R5_PREREGISTRATION.md @ e865076b, rule frozen in campaign/R5_RULE_FREEZE.md @ 0bade54a)\" }, \"AR_3_Ret_360\": { \"file\": \"test/AR_3_Ret_360.csv\", \"rows\": 1000, \"cols\": 3, \"has_header\": false, \"delimiter\": \",\", \"sha256\": \"c567ff25577a20a2ac8afa8b434ea2c5ceb647c9307389021641ac89e33b4789\", \"all_finite\": true, \"prediction_source\": \"QCR2000 forward solve (kOmegaSSTQCR, Ccr1=0.3 untrained, library commit 303247bb; sdk/scripts/closure_round5_qcr_forward.py; pre-registered in campaign/R5_PREREGISTRATION.md @ e865076b, rule frozen in campaign/R5_RULE_FREEZE.md @ 0bade54a)\" }, \"NASA_2DWMH\": { \"file\": \"test/NASA_2DWMH.csv\", \"rows\": 1000, \"cols\": 3, \"has_header\": false, \"delimiter\": \",\", \"sha256\": \"cf8e023c7b8fcb0572a1189977cbfebbb8f4f76b0d59f305aebca2e3e0fba686\", \"all_finite\": true, \"prediction_source\": \"round-2 trained correction, unchanged (byte-identical to rounds 3 and 4)\" }, \"alpha_05_4071_2024\": { \"file\": \"test/alpha_05_4071_2024.csv\", \"rows\": 1000, \"cols\": 3, \"has_header\": false, \"delimiter\": \",\", \"sha256\": \"af9cccda9c322b87e2d89f79829b74152f23c8829f7f32d1d92afcca68033b4e\", \"all_finite\": true, \"prediction_source\": \"raw RANS floor (gate says DECLINE), unchanged (byte-identical to rounds 3 and 4)\" }, \"alpha_05_4071_4048\": { \"file\": \"test/alpha_05_4071_4048.csv\", \"rows\": 1000, \"cols\": 3, \"has_header\": false, \"delimiter\": \",\", \"sha256\": \"0c3865984218474ad83c97eb0be37389385dd446fcff499b510bd72839b2db4c\", \"all_finite\": true, \"prediction_source\": \"raw RANS floor (gate says DECLINE), unchanged (byte-identical to rounds 3 and 4)\" }, \"alpha_15_13929_2024\": { \"file\": \"test/alpha_15_13929_2024.csv\", \"rows\": 1000, \"cols\": 3, \"has_header\": false, \"delimiter\": \",\", \"sha256\": \"1d49b9e3135a76096046479b56883a680dc0b036b1f2876b0d9ae2c54f7b54b7\", \"all_finite\": true, \"prediction_source\": \"corrected (round-1 PH model, gate says APPLY), unchanged (byte-identical to rounds 3 and 4)\" }, \"alpha_15_13929_4048\": { \"file\": \"test/alpha_15_13929_4048.csv\", \"rows\": 1000, \"cols\": 3, \"has_header\": false, \"delimiter\": \",\", \"sha256\": \"e7b28d5357decf691f21b1b685c641ae054f421575e97bbb94f9cf0dafbbf3e9\", \"all_finite\": true, \"prediction_source\": \"corrected (round-1 PH model, gate says APPLY), unchanged (byte-identical to rounds 3 and 4)\" } } }",
+   "gold": "AMBIGUOUS",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 60,
+   "file": "demo-output/website/closure_eval/closure_eval_master_table.json",
+   "sentence": "{ \"generated_at\": \"2026-08-05T17:36:03.206798+00:00\", \"produced_by\": \"sdk/scripts/closure_eval_battery/build_master_table.py\", \"scoring_calls\": 0, \"ground_truth_reads\": 0, \"leaderboard_as_published\": [ { \"rank\": 1, \"authors\": \"Reissmann, Fang, and Sandberg\", \"overall\": 0.0595, \"per_case\": { \"alpha_15_13929_4048\": 0.0592, \"alpha_15_13929_2024\": 0.1339, \"alpha_05_4071_4048\": 0.0606, \"alpha_05_4071_2024\": 0.076, \"AR_1_Ret_360\": 0.0387, \"AR_3_Ret_360\": 0.0341, \"AR_14_Ret_180\": 0.0325, \"NASA_2DWMH\": 0.0412 } }, { \"rank\": 2, \"authors\": \"Wu and Zhang\", \"overall\": 0.0624, \"per_case\": { \"alpha_15_13929_4048\": 0.0813, \"alpha_15_13929_2024\": 0.1195, \"alpha_05_4071_4048\": 0.0569, \"alpha_05_4071_2024\": 0.0848, \"AR_1_Ret_360\": 0.0455, \"AR_3_Ret_360\": 0.0399, \"AR_14_Ret_180\": 0.035, \"NASA_2DWMH\": 0.0364 } }, { \"rank\": 3, \"authors\": \"Liu, Wang, Zhao, and Xiao\", \"overall\": 0.0737, \"per_case\": { \"alpha_15_13929_4048\": 0.06, \"alpha_15_13929_2024\": 0.1308, \"alpha_05_4071_4048\": 0.0613, \"alpha_05_4071_2024\": 0.0769, \"AR_1_Ret_360\": 0.0875, \"AR_3_Ret_360\": 0.0805, \"AR_14_Ret_180\": 0.0548, \"NASA_2DWMH\": 0.0377 } }, { \"rank\": 4, \"authors\": \"Montoya, Oulghelou, and Cinnella\", \"overall\": 0.0779, \"per_case\": { \"alpha_15_13929_4048\": 0.068, \"alpha_15_13929_2024\": 0.1364, \"alpha_05_4071_4048\": 0.0591, \"alpha_05_4071_2024\": 0.0882, \"AR_1_Ret_360\": 0.0895, \"AR_3_Ret_360\": 0.0866, \"AR_14_Ret_180\": 0.0487, \"NASA_2DWMH\": 0.0464 } } ], \"leaderboard_source\": \"/home/ubuntu/closure-challenge-benchmark/README.md\", \"leaderboard_row_count_readme\": 4, \"leaderboard_row_count_preprint_table1\": 3, \"our_round4\": { \"overall\": 0.0654, \"per_case\": { \"alpha_15_13929_4048\": 0.0501, \"alpha_15_13929_2024\": 0.1011, \"alpha_05_4071_4048\": 0.0461, \"alpha_05_4071_2024\": 0.0719, \"AR_1_Ret_360\": 0.0811, \"AR_3_Ret_360\": 0.0775, \"AR_14_Ret_180\": 0.0325, \"NASA_2DWMH\": 0.0632 }, \"submitted_to_organisers\": false, \"superseded_as_entry_of_record\": \"Round 4 was the entry of record until 2026-08-07, when round 5 (untrained QCR2000 duct forward solve, the sixth pre-registered scoring call) superseded it at 0.056647 overall.",
+   "gold": "AMBIGUOUS",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 61,
+   "file": "demo-output/website/closure_eval/closure_eval_master_table.md",
+   "sentence": "Montoya, Oulghelou, and Cinnella (published) | 0.0779 | 0.0680 | 0.1364 | 0.0591 | 0.0882 | 0.0895 | 0.0866 | 0.0487 | 0.0464 | | **ours, round 4 (recorded, not submitted)** | **0.0654** | **0.0501** | **0.1011** | **0.0461** | **0.0719** | **0.0811** | **0.0775** | **0.0325** | **0.0632** | | raw-RANS floor (our measurement, zero ML) | 0.1036 | 0.1320 | 0.2049 | 0.0461 | 0.0719 | 0.1288 | 0.1243 | 0.0590 | 0.0621 | **Supersession note (added 2026-08-10) — the `ours` row is round 4, and round 4 is no longer the entry of record.** Round 4 held that status until 2026-08-07, when round 5 (untrained QCR2000 duct forward solve, the sixth pre-registered scoring call) superseded it at **0.056647** overall, the three ducts moving to 0.0455 / 0.0400 / 0.0353 and the other five cases scoring identically.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 62,
+   "file": "demo-output/website/latex/closure_challenge_report.tex",
+   "sentence": "\\\\ \\midrule Corrected object & \\textbf{velocity field, post-hoc} (5 cases); \\textbf{untrained QCR2000} in the constitutive relation (3 ducts) & anisotropy + SST coefficients & $\\beta$ on $\\omega$-destruction + fixed QCR & TBNN anisotropy $+$ $k$--$\\omega$ coefficients, coupled & blended tensor-basis + $R_k$ \\\\ \\addlinespace Re-solved with the correction & \\textbf{on 3 of 8, from round 5}; no on the other 5 & yes (inferred) & yes & yes & yes \\\\ \\addlinespace Conservation satisfied by the submitted field & \\textbf{ducts yes, by construction (round 5); hills no --- measured} (\\S\\ref{sec:stability}) & yes, by construction & yes & yes & yes \\\\ \\addlinespace Trains on a scored case & no --- enforced by executable asserts & no & no & \\textbf{yes, per their own paper} (entry-level status unverifiable) & no \\\\ \\addlinespace Case-level do-no-harm gate & \\textbf{yes} & absent from their documents & region shield $f_d$, hand-designed & absent from their documents & baseline-as-expert local fallback \\\\ \\addlinespace Pre-registration before scoring & \\textbf{yes} & absent & absent & absent & absent \\\\ \\addlinespace Scoring-call ledger & \\textbf{yes, 6 calls, self-imposed} & none visible & none visible & none visible & none visible \\\\ \\bottomrule \\end{tabular} \\end{table} The first three rows were the honest headline of this report when every one of our predictions was post-hoc, and half of that headline still stands.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 63,
+   "file": "demo-output/website/latex/closure_challenge_report.tex",
+   "sentence": "The untrained QCR2000 term replaced Variant D on all three ducts, by forward solve rather than by correction; the same five non-duct predictions carried through byte-identical for a second round.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 64,
+   "file": "demo-output/website/latex/closure_challenge_report.tex",
+   "sentence": "\\\\ \\addlinespace 2026-08-04 (W2 deep read) & One paper cited where there are \\textbf{two artifacts}; three claims did not survive reading both & (i) ``train only on public CBFS'' is true of the \\emph{entry} and false of the \\emph{paper}, which trains on mixed NASA hump + CBFS --- and the hump is a scored case, so the paper's protocol scored on this benchmark would be in-sample by construction; (ii) ``zero-shot generalise to duct'' is stated by neither artifact and is \\emph{our} inference from the entry's training plus the leaderboard, sound but ours to carry; (iii) the rank-2 model is \\textbf{SST-QCRC}, carrying an untrained QCR2000 quadratic constitutive term ($c_r = 0.3$) that no laboratory document had noticed.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 65,
+   "file": "demo-output/website/latex/closure_challenge_report.tex",
+   "sentence": "\\emph{The structure the ducts are scored on losing is the corner pair, and the untrained in-PDE term produces it where the trained post-hoc field, restoring the right amount of the wrong thing, could not.} \\paragraph{Independent corroboration nobody designed for.} The published entry ranked second before round 5 --- Wu \\& Zhang's SST-QCRC --- carries the same untrained QCR2000 term inside a larger model.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 66,
+   "file": "demo-output/website/latex/closure_challenge_report.tex",
+   "sentence": "Their SST-QCRC combines a fixed, untrained QCR-style quadratic Reynolds-stress term ($c_r = 0.3$, ``directly adopted'', no data-driven training) with a learned multiplicative field $\\beta_{\\mathrm{CND}}$ on the $\\omega$-destruction term obtained by conditioned field inversion and PySR symbolic regression; the final law is three local features collapsed to $\\beta_{\\mathrm{CND}} = \\max(-0.1157,\\,0.0058525\\,\\lambda_2)\\cdot \\lambda_2$, bounded below 4 by hand for stability (Wu \\& Zhang, \\emph{The Training of the SST-QCRC Model}, the entry's own description document; backing paper Wu, Zhang \\& Zhang, \\emph{AIAA J.} 63(2):687--706 (2025), DOI 10.2514/1.J064416, arXiv:2402.16355).",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 67,
+   "file": "demo-output/website/latex/closure_challenge_report.tex",
+   "sentence": "\\item \\textbf{A $\\beta$-on-destruction patch alone reproduces the paper's inversion capability, not the deployed rank-2 model.} Duct parity additionally needs the untrained QCR2000 constitutive term, filed separately as \\code{w3-qcr-constitutive-term-for-rank2-parity}.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 68,
+   "file": "demo-output/website/latex/closure_challenge_report.tex",
+   "sentence": "The deployed SST-QCRC is the untrained QCR term \\emph{plus} a conditioned $\\beta$ on $\\omega$ destruction.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 69,
+   "file": "docs/DOCKET.md",
+   "sentence": "**Pre-repair:** `QCR_ACTIVITY_CHECK` 23 QCR occurrences, **0** Spalart, **0** *untrained*, **0** *fitted* -- a site under the pre-registered literal reading and **not a site at all** under the `e65137cd` predicate; `LADDER_V_RUNGS_V2_V7_V10` 8 QCR occurrences, **0** Spalart, one claim-carrying unattributed sentence at `:121` -- a site under **both**.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 70,
+   "file": "docs/PRODUCT_LIST.md",
+   "sentence": "THREE C2 corrections found: paper trains hump+CBFS (hump is a scored test case — paper protocol would be in-sample); \"zero-shot to DUCT\" is our inference, not theirs; rank-2 model = SST-QCRC (beta + untrained QCR2000, c_r=0.3) — beta patch alone does not buy parity.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 71,
+   "file": "scripts/add_proposals_supervisor_review_2026_08_07.py",
+   "sentence": "Record: \" \"evidence file in demo-output/website/campaign/, docket update \" \"on this item, honest verdict.\"), \"status\": \"proposed\", \"created_at\": NOW, }, { \"id\": \"f6b-qcr2000-on-the-hills\", \"well\": \"W3\", \"objective\": ( \"Run the untrained QCR2000 constitutive term forward on the \" \"periodic hills medium rung and rule, under a discriminator \" \"frozen before launch, whether anisotropy moves the \" \"reattachment toward the literature band or leaves the omega \" \"budget implicated\"), \"rationale\": ( \"The ducts proved that the QCR2000 term resurrects missing \" \"physics cheaply, and the hills' verified failure is \" \"adverse-pressure-gradient separation, where anisotropy also \" \"matters.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 72,
+   "file": "sdk/scripts/build_benchmarks.py",
+   "sentence": "``our_score`` is our internally measured, auditable position against that public board: the round-5 entry of record, scored through the benchmark's own unmodified code across six pre-registered scoring calls (RANS-identity floor -> round-1 periodic-hills correction -> round-2 extended to ducts/NASA hump -> round-3 test-blind decline-gate -> round-4 Reynolds-invariant duct rescale -> round-5 untrained QCR2000 forward solve on the ducts).",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 73,
+   "file": "sdk/scripts/closure_eval_battery/build_master_table.py",
+   "sentence": "{r['authors']} (published)\", f\"{r['overall']:.4f}\"] cells += [f\"{r['per_case'].get(c, float('nan')):.4f}\" for c in CASE_ORDER] A(\"| \" + \" | \".join(cells) + \" |\") A(\"| **ours, round 4 (recorded, not submitted)** | \" f\"**{res['round4_overall']:.4f}** | \" + \" | \".join(f\"**{per_case[c]:.4f}**\" for c in CASE_ORDER) + \" |\") A(\"| raw-RANS floor (our measurement, zero ML) | 0.1036 | \" + \" | \".join(f\"{floor[c]:.4f}\" for c in CASE_ORDER) + \" |\") A(\"\") A(\"**Supersession note (added 2026-08-10) — the `ours` row is round 4, \" \"and round 4 is no longer the entry of record.** Round 4 held that status until \" \"2026-08-07, when round 5 (untrained QCR2000 duct forward solve, the \" \"sixth pre-registered scoring call) superseded it at **0.056647** \" \"overall, the three ducts moving to 0.0455 / 0.0400 / 0.0353 and the \" \"other five cases scoring identically.",
+   "gold": "AMBIGUOUS",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 74,
+   "file": "sdk/scripts/closure_eval_battery/build_master_table.py",
+   "sentence": "The \" \"part of the entry that does nothing is the part that survives a \" \"physics check.\") A(\"\") md = \"\\n\".join(L) + \"\\n\" (bc.OUT_DIR / \"closure_eval_master_table.md\").write_text(md, encoding=\"utf-8\") print(f\"wrote {bc.OUT_DIR / 'closure_eval_master_table.md'}\") bc.write_json(bc.OUT_DIR / \"closure_eval_master_table.json\", { \"generated_at\": datetime.now(timezone.utc).isoformat(), \"produced_by\": \"sdk/scripts/closure_eval_battery/build_master_table.py\", \"scoring_calls\": 0, \"ground_truth_reads\": 0, \"leaderboard_as_published\": board, \"leaderboard_source\": str(_BENCH_README), \"leaderboard_row_count_readme\": len(board), \"leaderboard_row_count_preprint_table1\": 3, \"our_round4\": {\"overall\": res[\"round4_overall\"], \"per_case\": per_case, \"submitted_to_organisers\": False, \"superseded_as_entry_of_record\": ( \"Round 4 was the entry of record until 2026-08-07, when \" \"round 5 (untrained QCR2000 duct forward solve, the sixth \" \"pre-registered scoring call) superseded it at 0.056647 \" \"overall.",
+   "gold": "ASSERT",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 75,
+   "file": "sdk/tests/fixtures/absolute_claims_labelled_second_instance.json",
+   "sentence": "The deployed SST-QCRC is the\\n untrained QCR term \\\\emph{plus} a conditioned\\n $\\\\beta$ on $\\\\omega$ destruction.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 76,
+   "file": "sdk/tests/test_rank_claim_surfaces.py",
+   "sentence": "DEFECT_B_WAS = (\"**A measured consistency check, not designed for**: the \" f\"{_WRONG} entry (Wu &\\nZhang) runs SST-QCRC, which carries \" \"the same untrained QCR2000 term.\") DEFECT_B_NOW = DEFECT_B_WAS.replace(_WRONG, _RIGHT) DEFECT_C_WAS = (\"The truth-free bound on the overall is 0.002419.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 77,
+   "file": "sdk/tests/test_rank_claim_surfaces.py",
+   "sentence": "REAL_WRAP = (\"The published entry ranked\\nsecond before round 5 --- Wu \" \"and Zhang's SST-QCRC --- carries the same untrained \" \"QCR2000 term.\") def test_the_real_wrap_in_the_report_source_needs_whole_text(self): board, reason = sa._published_board() if board is None: self.skipTest(f\"detector OFF, not a silent pass: {reason}\") names = sa._board_names(board) whole = sa._placements(self.REAL_WRAP, names, board) line_bounded = [p for line in self.REAL_WRAP.splitlines() for p in sa._placements(line, names, board)] self.assertEqual(1, len(whole), \"whole-text missed the report's wrap\") self.assertEqual(0, len(line_bounded), \"the control is void: a line reader sees this one too\") self.assertEqual(([], []), sa.board_placement_faults( self.REAL_WRAP, board), \"the report's sentence is correct\") def test_the_retracted_justification_is_retracted_in_the_code(self): \"\"\"The parent instance is NOT defeated by its own reflow.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 78,
+   "file": "sdk/tests/test_untrained_qcr_attribution.py",
+   "sentence": "\"\"\"Ladder V rung V5, at the generator: the untrained QCR claim carries its citation.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  },
+  {
+   "id": 79,
+   "file": "sdk/tests/test_untrained_qcr_attribution.py",
+   "sentence": "near = (\"round-5 untrained QCR2000 forward solve on the ducts, \" \"Spalart's constant.\") self.assertEqual([near], self._unattributed(near)) def test_the_shipped_json_surfaces_carry_the_attribution(self): \"\"\"The literal is the subject, but a stale output is the same defect one step later, so the two in-tree artifacts are read as well.",
+   "gold": "MENTION",
+   "split": "FRESH_HELDOUT"
+  }
+ ]
+}
