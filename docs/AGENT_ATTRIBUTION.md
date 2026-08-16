@@ -64,7 +64,14 @@ from the unix user and the hostname.
 ## THE CARRIER
 
     Lab-Agent: <host>/<session-uuid>/<tag>
+    Lab-Agent: <host>/<session-uuid>/<tag>/agent-<hex>
     Lab-Agent: ip-172-31-43-247/64b13819-ff95-4d4d-a50f-3720bab19084/-
+    Lab-Agent: ip-172-31-43-247/64b13819-ff95-4d4d-a50f-3720bab19084/-/agent-afa60c3f2045c7ce3
+
+The fourth field is optional and was added 2026-08-16. Three-field trailers —
+which is every trailer written before that date — keep parsing, at session
+granularity. A repair that made its own first adopters MALFORMED would turn the
+integrity run red on history nobody can rewrite.
 
 A trailer in the **commit message**, which is part of the commit object. It
 travels with `clone`, `fetch`, `format-patch`, `bundle` and `archive`, and is
@@ -90,24 +97,92 @@ and `$CLAUDE_CODE_SESSION_ID`. That UUID names a Claude Code **session**: one
 `claude` process, one context window, one transcript. It is set by the harness,
 not chosen by the agent.
 
-**It does not name an individual subagent.** Measured 2026-08-15: every subagent
-of a session inherits the same `CLAUDE_CODE_SESSION_ID` and the same
-`CLAUDE_PID` (the pid of the `claude` process itself); the per-call shell pid
-changes on every tool call. No finer handle is derivable from the environment.
+**The session UUID does not name an individual subagent.** Measured 2026-08-15
+and re-measured 2026-08-16 on Claude Code 2.1.232: every subagent inherits the
+same `CLAUDE_CODE_SESSION_ID`, the same `CLAUDE_PID` and the same
+`CLAUDE_CODE_MESSAGING_SOCKET`; `CLAUDE_CODE_CHILD_SESSION=1` says an agent *is*
+a subagent and not *which*; the per-call shell pid changes on every tool call.
+**No per-agent handle exists in the environment at all.**
 
-> **Two agents dispatched by the same chief session read as the same agent.**
+> **At session granularity, two agents dispatched by the same chief session read
+> as the same agent.**
 
-The price, stated so nobody discovers it inside a rung: **to close a rung
-mechanically, the grader must be dispatched from a different chief session than
-the author.** Two chief sessions run on this box, so that is reachable. Where it
-is not, the checker says AUTHOR, the closure is not certified here, and it rests
-on dispatch records exactly as it does today. Nothing regresses; some things
-stop being claimable.
+### What that cost, measured — D173
+
+For the whole of the mechanism's deployed life the discriminating field took
+**one value**: `ip-172-31-43-247/64b13819-…/-`, on all four commits that ever
+carried it. Four runs of a constant are not four confirmations. Every non-author
+claim in that range graded **AUTHOR** under the lab's own instrument, and a
+grader citing a green run was citing noise. `distinct identities observed` is now
+printed in the frame of **every** run for exactly that reason, and when it reads
+`1 session, 0 per-agent` the output says in words that the instrument has not
+been shown to discriminate.
+
+### The per-agent handle, and where it comes from
+
+The environment has no handle; the **filesystem** does. The harness keeps one
+transcript per dispatched subagent:
+
+    ~/.claude/projects/<project-slug>/<session-uuid>/subagents/agent-<hex>.jsonl
+    ~/.claude/projects/<project-slug>/<session-uuid>/subagents/agent-<hex>.meta.json
+
+716 of them for this session, each `.meta.json` naming the `toolUseId` of the
+`Agent` call that spawned it. An agent finds its **own** file by probe: it types
+a fresh token into the tool call that runs the emitter, and the emitter searches
+those transcripts for the token.
+
+    python3 scripts/check_rung_attribution.py --emit-trailer --probe <fresh-token>
+
+Verified by execution, both directions: a token typed into the call resolves to
+exactly one transcript — the harness has already flushed the call's record
+before the command runs — and a token produced by `$(…)` substitution, which the
+shell expands *before* the harness records the call, resolves to none and the
+emitter refuses.
+
+**The probe is a lookup key, not the identity.** The value that lands in the
+trailer is read off the harness's own filesystem and never typed. A duplicated
+token — the copied-brief accident — appears in two transcripts, and two matches
+is UNKNOWN. Zero matches is UNKNOWN. An unresolvable `--probe` emits **nothing**
+and exits 3 rather than handing back the weaker session line, because a session
+identity given to a caller who asked for a per-agent one is exactly what gets
+cited as per-agent evidence.
+
+### What the agent field may decide, and in which direction only
+
+| both sides | verdict |
+|---|---|
+| different **sessions** | NON-AUTHOR (unchanged) |
+| same session, **both** carry a well-formed agent id, and they differ | NON-AUTHOR **at agent granularity** |
+| same session, either side carries none | **AUTHOR**, exactly as before |
+| same session, same agent id | AUTHOR |
+
+The only new independence claim needs two derived, non-typed, **different**
+handles. Everything else keeps the old conservative answer, and the granularity
+that decided each verdict is printed on every run.
+
+**Residual risk, named rather than hidden:** if one agent could obtain two
+different handles across its life this would manufacture a false NON-AUTHOR. Its
+transcript file is stable for its lifetime and a resumed agent appends to the
+same file, so the known routes to a second handle are a harness change or a
+deleted transcript — neither silent, both outside this repository.
+
+**And per-agent difference is not contextual independence.** A `fork` subagent
+inherits its parent's whole conversation: a different agent by this measure,
+having read everything the parent read. R-ISOLATE's spirit is not satisfied by
+dispatching a fork, and the check cannot see the difference.
+
+The price is now repaid rather than abolished: a grader sharing a chief session
+with the author **is** machine-checkable, but only if both sides emitted a
+probed, four-field trailer. Where either side did not, the checker says AUTHOR,
+the closure is not certified here, and it rests on dispatch records exactly as it
+does today. Nothing regresses; some things stop being claimable.
 
 ### The tag does not decide
 
-`<tag>` is a free slug an agent may pass. A same-session pair is **AUTHOR
-whatever the tags say**. The tag is the one field an agent types, therefore the
+`<tag>` is a free slug an agent may pass, and it still decides nothing. A
+same-session pair with two agent handles is separated by the **handles**, never
+by the tags; a same-session pair without them is **AUTHOR whatever the tags
+say**. The tag is the one field an agent types, therefore the
 one field a copied dispatch brief can duplicate by accident, therefore the last
 field that should be allowed to certify independence. It is carried so a human
 reading the log can see which agent, and so a later mechanism with a real
@@ -240,10 +315,25 @@ git repository in a tempdir:
 - different tags, one session → still AUTHOR
 - and the stated hazards (cherry-pick replay, the frame, the exit numbers) pinned
 
-Every test is mutation-proved: 12 mutants, all killed, control and mutant in one
-invocation with every `__pycache__` purged before each cell — stale bytecode has
-INVERTED mutation results in this lab and `PYTHONDONTWRITEBYTECODE=1` does not
-fix it.
+The mutation proof is a **tracked, runnable file** —
+`scripts/mutation_harness_rung_attribution.py` — and not a sentence in this
+document. D173 measured why that matters: this paragraph previously read "12
+mutants, all killed" while `grep -ci mutant sdk/tests/test_rung_attribution.py`
+returned 0 and no harness for this module existed anywhere in the tree, which is
+the same evidence-does-not-travel defect the rest of this document is about.
+
+    python3 scripts/mutation_harness_rung_attribution.py          # 87 mutants
+    python3 scripts/mutation_harness_rung_attribution.py --list   # the table
+
+Measured 2026-08-16: **control green over 68 aimed tests, 87 mutants, all 87
+reddened a test they aimed at.** A mutant is scored killed only when a test *it
+named* is in the new-failure set — `killed = returncode != 0` scores every
+survivor a kill the moment the control is red. Mutants are applied to a copy in a
+symlink mirror, never to the working tree; `__pycache__` is purged before every
+cell in both trees, because stale bytecode has INVERTED mutation results in this
+lab and `PYTHONDONTWRITEBYTECODE=1` does not fix it. A mutant that does not parse
+is reported as a defect in the **table**, since it reddens every aimed test for
+the wrong reason or none of them for no reason.
 
 ---
 

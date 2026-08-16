@@ -59,9 +59,39 @@ SESSION_A = "64b13819-ff95-4d4d-a50f-3720bab19084"
 SESSION_B = "982d6244-5800-47f3-a450-80ce0b0a24b7"
 HOST = "ip-172-31-43-247"
 
+#: A session UUID that is deliberately NOT one this box has ever run. The
+#: probe controls build fake transcripts under it, so a mutant that ignores
+#: the --transcripts override searches the real harness state and finds
+#: nothing, instead of quietly passing on a real transcript.
+SESSION_C = "0f0e0d0c-0b0a-0908-0706-050403020100"
 
-def trailer(session: str, tag: str = "-", host: str = HOST) -> str:
-    return f"Lab-Agent: {host}/{session}/{tag}"
+
+#: Two per-agent handles, shaped exactly as the harness names its own
+#: per-subagent transcripts: `agent-<hex>.jsonl` under
+#: `~/.claude/projects/<slug>/<session-uuid>/subagents/`.
+AGENT_1 = "agent-afa60c3f2045c7ce3"
+AGENT_2 = "agent-afc0fa9cd734f6641"
+
+
+def trailer(session: str, tag: str = "-", host: str = HOST,
+            agent: str | None = None) -> str:
+    line = f"Lab-Agent: {host}/{session}/{tag}"
+    return f"{line}/{agent}" if agent else line
+
+
+def fake_transcripts(root: Path, session: str,
+                     contents: dict[str, str]) -> Path:
+    """A stand-in for `~/.claude/projects/<slug>/<session>/subagents/`.
+
+    The controls must never read the real harness state of whatever box they
+    run on: a box with no transcripts would make the negative half pass for the
+    wrong reason, and a box with real ones would make it flaky.
+    """
+    d = root / "projects" / "-a-project" / session / "subagents"
+    d.mkdir(parents=True, exist_ok=True)
+    for name, text in contents.items():
+        (d / f"{name}.jsonl").write_text(text, encoding="utf-8")
+    return root / "projects"
 
 
 class Repo:
@@ -255,19 +285,21 @@ class TheAmbiguousCasesResolveTheSafeWay(_Tmp):
 
     def test_two_trailers_on_one_commit_do_not_resolve_to_the_first(self):
         """A commit claiming two identities has not said which agent made it."""
-        state, ident, _ = ra.parse_trailer(
+        state, ident, _, agent = ra.parse_trailer(
             trailer(SESSION_A) + "\n" + trailer(SESSION_B))
         self.assertEqual(state, "duplicate")
         self.assertIsNone(ident)
+        self.assertIsNone(agent)
 
     def test_the_emitter_and_the_grammar_agree(self):
         """What --emit-trailer prints must parse. Otherwise the mechanism emits
         exactly what it rejects, and every adopter reads MALFORMED."""
         line, why = ra.local_identity("some.tag-1")
         self.assertIsNotNone(line, why)
-        state, ident, tag = ra.parse_trailer(line)
+        state, ident, tag, agent = ra.parse_trailer(line)
         self.assertEqual(state, "ok")
         self.assertEqual(tag, "some.tag-1")
+        self.assertIsNone(agent, "an unprobed emit must not claim an agent id")
         self.assertTrue(ident.endswith(os.environ["CLAUDE_CODE_SESSION_ID"]))
 
     def test_emit_without_a_session_emits_nothing_and_says_unknown(self):
@@ -448,6 +480,648 @@ class TheExitContractIsPinned(_Tmp):
                             frames=("tracked", "worktree"))
         cand = lc.classify(REPO, cand, allow_writers=False)
         self.assertTrue(cand.admitted, cand.reason)
+
+
+# ---------------------------------------------------------------------------
+# THE PER-AGENT IDENTITY -- D173's defect, and the half that decides
+# ---------------------------------------------------------------------------
+
+class ThePerAgentIdentity(_Tmp):
+    """D173: one identity across one hundred percent of the deployed life.
+
+    Session granularity cannot separate two agents of one chief, and on this box
+    a chief runs three to five at once, so every same-chief pair graded AUTHOR
+    and no real pair ever returned NON-AUTHOR. These are the cases that decide
+    whether the fourth field repaired that or merely renamed it.
+    """
+
+    def test_a_same_session_pair_with_different_agents_is_non_author(self):
+        """THE POSITIVE HALF OF THE REPAIR, and the case D173 says never fired.
+
+        One chief session, two dispatched agents, and the checker separates
+        them. Before the fourth field existed this pairing was AUTHOR.
+        """
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A, agent=AGENT_1))
+        g1 = r.commit("the work", trailer(SESSION_A, "builder", agent=AGENT_1))
+        closing = r.commit("rung closed",
+                           trailer(SESSION_A, "grader", agent=AGENT_2))
+
+        p = run(r, "--anchor", anchor, "--closing", closing, "--graded", g1)
+        self.assertEqual(verdict_of(p), "NON-AUTHOR", p.stdout)
+        self.assertEqual(p.returncode, RC_PASS, p.stdout)
+        self.assertIn("GRANULARITY: agent", p.stdout)
+        # Name the thing, do not count it: the verdict must be about THESE two
+        # handles. A count would survive an inverted comparison.
+        self.assertIn(AGENT_2, p.stdout)
+        self.assertIn(AGENT_1, p.stdout)
+
+    def test_the_same_agent_on_both_sides_is_still_caught(self):
+        """THE MUST-NOT-MATCH HALF. A genuine author must not be cleared.
+
+        This is the sharp one: the repair widens the only path to NON-AUTHOR,
+        so if it also cleared an agent grading its own work it would have turned
+        the check into a rubber stamp.
+        """
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A, agent=AGENT_1))
+        g1 = r.commit("the work", trailer(SESSION_A, "me", agent=AGENT_1))
+        closing = r.commit("I graded my own work",
+                           trailer(SESSION_A, "also-me", agent=AGENT_1))
+
+        p = run(r, "--anchor", anchor, "--closing", closing, "--graded", g1)
+        self.assertEqual(verdict_of(p), "AUTHOR", p.stdout)
+        self.assertEqual(p.returncode, RC_FAIL, p.stdout)
+        self.assertIn("GRANULARITY: agent", p.stdout)
+        self.assertIn(g1[:8], p.stdout)
+
+    def test_an_agent_id_on_only_the_closing_side_does_not_upgrade(self):
+        """A handle on one side is not evidence of anything about the other."""
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        g1 = r.commit("the work", trailer(SESSION_A, "builder"))
+        closing = r.commit("closed", trailer(SESSION_A, "grader", agent=AGENT_2))
+
+        p = run(r, "--anchor", anchor, "--closing", closing, "--graded", g1)
+        self.assertEqual(verdict_of(p), "AUTHOR", p.stdout)
+        self.assertEqual(p.returncode, RC_FAIL)
+        self.assertIn("GRANULARITY: session", p.stdout)
+
+    def test_an_agent_id_on_only_the_graded_side_does_not_upgrade(self):
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        g1 = r.commit("the work", trailer(SESSION_A, "builder", agent=AGENT_1))
+        closing = r.commit("closed", trailer(SESSION_A, "grader"))
+
+        p = run(r, "--anchor", anchor, "--closing", closing, "--graded", g1)
+        self.assertEqual(verdict_of(p), "AUTHOR", p.stdout)
+        self.assertEqual(p.returncode, RC_FAIL)
+        self.assertIn("GRANULARITY: session", p.stdout)
+
+    def test_a_session_only_trailer_still_parses(self):
+        """Backward compatibility is not a nicety here.
+
+        The four trailers this mechanism has ever emitted are three-field. If
+        the repair made them MALFORMED it would turn the integrity run red on
+        history nobody can rewrite, and the check would be deleted.
+        """
+        state, ident, tag, agent = ra.parse_trailer(
+            "Lab-Agent: ip-172-31-43-247/"
+            "64b13819-ff95-4d4d-a50f-3720bab19084/-")
+        self.assertEqual(state, "ok")
+        self.assertEqual(
+            ident, "ip-172-31-43-247/64b13819-ff95-4d4d-a50f-3720bab19084")
+        self.assertEqual(tag, "-")
+        self.assertIsNone(agent)
+
+    def test_a_fourth_field_that_is_not_an_agent_handle_is_malformed(self):
+        for bad in ("Lab-Agent: h/" + SESSION_A + "/-/notanagent",
+                    "Lab-Agent: h/" + SESSION_A + "/-/agent-ZZZZZZ",
+                    "Lab-Agent: h/" + SESSION_A + "/-/agent-ab",
+                    "Lab-Agent: h/" + SESSION_A + "/-/agent-ab/agent-cd"):
+            self.assertEqual(ra.parse_trailer(bad)[0], "malformed", bad)
+
+    def test_distinct_agents_needs_two_well_formed_and_different_handles(self):
+        def c(agent):
+            return ra.Commit(sha="x" * 40, when="", subject="", state="ok",
+                             identity="h/" + SESSION_A, agent=agent)
+        self.assertFalse(ra.distinct_agents(c(None), c(AGENT_1)))
+        self.assertFalse(ra.distinct_agents(c(AGENT_1), c(None)))
+        self.assertFalse(ra.distinct_agents(c(AGENT_1), c(AGENT_1)))
+        self.assertFalse(ra.distinct_agents(c("agent-ZZ"), c(AGENT_1)))
+        self.assertTrue(ra.distinct_agents(c(AGENT_1), c(AGENT_2)))
+
+
+class TheProbeReadsTheIdentityRatherThanTakingIt(_Tmp):
+    """The fourth field is only worth having because it is not typed.
+
+    `<tag>` has existed since the mechanism shipped and has never been allowed
+    to decide, for the reason D132 gives: a copied dispatch brief duplicates a
+    typed field by accident. So the probe is a LOOKUP KEY and the value it finds
+    is read off the harness's own per-subagent transcripts.
+    """
+
+    def test_a_probe_in_exactly_one_transcript_resolves_to_that_agent(self):
+        root = fake_transcripts(self.tmp / "h", SESSION_C, {
+            AGENT_1: '{"x":"...PROBE-TOKEN-abc123..."}\n',
+            AGENT_2: '{"x":"something else entirely"}\n'})
+        got, why = ra.find_own_agent("PROBE-TOKEN-abc123", SESSION_C, root)
+        self.assertEqual(got, AGENT_1, why)
+
+    def test_a_probe_in_two_transcripts_is_refused_not_guessed(self):
+        """The copied-brief accident, and the one it must not resolve.
+
+        A second agent typing a token a first agent already used produces two
+        matches. Picking either would attribute a commit to the wrong agent,
+        and picking the first would do it silently.
+        """
+        root = fake_transcripts(self.tmp / "h", SESSION_C, {
+            AGENT_1: "PROBE-TOKEN-abc123\n",
+            AGENT_2: "PROBE-TOKEN-abc123\n"})
+        got, why = ra.find_own_agent("PROBE-TOKEN-abc123", SESSION_C, root)
+        self.assertIsNone(got)
+        self.assertIn("2 subagent transcripts", why)
+
+    def test_a_probe_in_no_transcript_is_refused(self):
+        root = fake_transcripts(self.tmp / "h", SESSION_C,
+                                {AGENT_1: "nothing to see\n"})
+        got, why = ra.find_own_agent("PROBE-TOKEN-abc123", SESSION_C, root)
+        self.assertIsNone(got)
+        self.assertIn("appears in no subagent transcript", why)
+
+    def test_a_short_probe_is_refused_before_it_is_searched(self):
+        """A three-character token matches by accident, and an accidental match
+        names the wrong agent -- which is worse than naming none."""
+        root = fake_transcripts(self.tmp / "h", SESSION_C, {AGENT_1: "abc\n"})
+        got, why = ra.find_own_agent("abc", SESSION_C, root)
+        self.assertIsNone(got)
+        self.assertIn("not usable", why)
+
+    def test_a_transcript_filename_that_is_not_a_handle_is_not_returned(self):
+        """The value goes into a commit message and is read back by the grammar
+        in this same file. A filename the grammar rejects must never be emitted,
+        or the emitter produces exactly what the checker calls MALFORMED."""
+        root = fake_transcripts(self.tmp / "h", SESSION_C, {
+            "agent-NOTHEX": "PROBE-TOKEN-abc123\n",
+            AGENT_1: "PROBE-TOKEN-abc123\n"})
+        got, why = ra.find_own_agent("PROBE-TOKEN-abc123", SESSION_C, root)
+        self.assertEqual(got, AGENT_1, why)
+
+    def test_a_transcript_of_another_session_is_not_searched(self):
+        root = fake_transcripts(self.tmp / "h", SESSION_B,
+                                {AGENT_1: "PROBE-TOKEN-abc123\n"})
+        got, why = ra.find_own_agent("PROBE-TOKEN-abc123", SESSION_C, root)
+        self.assertIsNone(got)
+        del why
+
+    def test_emit_with_a_probe_yields_a_four_field_trailer_that_parses(self):
+        from unittest import mock
+        root = fake_transcripts(self.tmp / "h", SESSION_C,
+                                {AGENT_1: "PROBE-TOKEN-abc123\n"})
+        with mock.patch.dict(os.environ,
+                             {"CLAUDE_CODE_SESSION_ID": SESSION_C}):
+            line, why = ra.local_identity("grader", "PROBE-TOKEN-abc123", root)
+        self.assertIsNotNone(line, why)
+        state, ident, tag, agent = ra.parse_trailer(line)
+        self.assertEqual(state, "ok")
+        self.assertEqual(agent, AGENT_1)
+        self.assertEqual(tag, "grader")
+        del ident
+
+    def test_an_unresolvable_probe_emits_nothing_rather_than_the_weaker_line(self):
+        """The whole defect in one sentence: a session-granularity identity
+        handed to a caller who asked for a per-agent one gets cited as the
+        per-agent evidence it is not."""
+        from unittest import mock
+        root = fake_transcripts(self.tmp / "h", SESSION_C, {AGENT_1: "x\n"})
+        with mock.patch.dict(os.environ,
+                             {"CLAUDE_CODE_SESSION_ID": SESSION_C}):
+            line, why = ra.local_identity("grader", "PROBE-TOKEN-abc123", root)
+        self.assertIsNone(line)
+        self.assertIn("appears in no subagent transcript", why)
+        self.assertIn("Emitting nothing", why)
+
+    def test_the_cli_refuses_an_unresolvable_probe_and_exits_unknown(self):
+        r = self.repo()
+        root = fake_transcripts(self.tmp / "h", SESSION_C, {AGENT_1: "x\n"})
+        p = run(r, "--emit-trailer", "--probe", "PROBE-TOKEN-abc123",
+                "--transcripts", str(root),
+                env={"CLAUDE_CODE_SESSION_ID": SESSION_C})
+        self.assertEqual(p.stdout.strip(), "", "emitted a weaker line anyway")
+        self.assertEqual(p.returncode, RC_UNKNOWN)
+
+    def test_the_cli_emits_the_resolved_handle(self):
+        r = self.repo()
+        root = fake_transcripts(self.tmp / "h", SESSION_C,
+                                {AGENT_1: "PROBE-TOKEN-abc123\n"})
+        p = run(r, "--emit-trailer", "--probe", "PROBE-TOKEN-abc123",
+                "--transcripts", str(root),
+                env={"CLAUDE_CODE_SESSION_ID": SESSION_C})
+        self.assertEqual(
+            p.stdout.strip(),
+            f"Lab-Agent: {ra.local_identity()[0].split(': ')[1].split('/')[0]}"
+            f"/{SESSION_C}/-/{AGENT_1}", p.stderr)
+        self.assertEqual(p.returncode, RC_PASS)
+
+
+# ---------------------------------------------------------------------------
+# WHAT THE CHECK REFUSES TO CLAIM -- printed, not merely documented
+# ---------------------------------------------------------------------------
+
+class TheOutputCarriesItsOwnLimits(_Tmp):
+
+    def test_every_run_prints_the_backfill_statement(self):
+        """Backfill is impossible for the 1,849+ commits before the anchor, and
+        that has to be where the verdict is, or a green reads as covering
+        earlier work."""
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        for args in (("--anchor", anchor),
+                     ("--anchor", anchor, "--closing", anchor,
+                      "--graded", anchor)):
+            p = run(r, *args)
+            self.assertIn("BACKFILL IS IMPOSSIBLE", p.stdout, args)
+            self.assertIn("REFUSES TO CLAIM", p.stdout, args)
+            self.assertIn("GRANULARITY:", p.stdout, args)
+
+    def test_one_identity_observed_says_it_has_not_been_shown_to_discriminate(self):
+        """D173's number, in the frame, in words.
+
+        Four runs of a constant are not four confirmations, and the count is the
+        single fact that tells a reader what a green run is worth.
+        """
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        r.commit("more of the same", trailer(SESSION_A, "other"))
+        p = run(r, "--anchor", anchor)
+        self.assertIn("ONE CONSTANT OBSERVED", p.stdout)
+        self.assertIn("distinct identities observed", p.stdout)
+        self.assertIn("1 session, 0 per-agent", p.stdout)
+
+    def test_per_agent_handles_are_counted_in_the_integrity_frame(self):
+        """Sessions and agents are counted separately, because one session with
+        two agents in it is a different state from two sessions -- and it is the
+        state this box is actually in."""
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A, agent=AGENT_1))
+        r.commit("someone else in the same chief",
+                 trailer(SESSION_A, "b", agent=AGENT_2))
+        p = run(r, "--anchor", anchor, "--json")
+        frame = json.loads(p.stdout)
+        self.assertEqual(frame["stats"]["distinct_sessions"], 1, frame)
+        self.assertEqual(frame["stats"]["distinct_agents"], 2, frame)
+        self.assertNotIn("ONE CONSTANT OBSERVED", frame["discrimination"])
+
+    def test_two_identities_observed_drops_the_never_varied_wording(self):
+        """The must-not-match half of the notice: it has to stop saying it once
+        the field HAS varied, or it is a slogan and not a measurement."""
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        r.commit("someone else", trailer(SESSION_B))
+        p = run(r, "--anchor", anchor)
+        self.assertNotIn("ONE CONSTANT OBSERVED", p.stdout)
+        self.assertIn("2 distinct session identities", p.stdout)
+
+    def test_the_json_frame_carries_the_granularity_and_the_counts(self):
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A, agent=AGENT_1))
+        g1 = r.commit("work", trailer(SESSION_A, "b", agent=AGENT_1))
+        closing = r.commit("closed", trailer(SESSION_A, "g", agent=AGENT_2))
+        p = run(r, "--anchor", anchor, "--closing", closing, "--graded", g1,
+                "--json")
+        frame = json.loads(p.stdout)
+        self.assertEqual(frame["verdict"], "NON-AUTHOR", frame)
+        self.assertEqual(frame["granularity"], "agent", frame)
+        self.assertEqual(frame["distinct_agents"], 2, frame)
+        self.assertEqual(frame["distinct_sessions"], 1, frame)
+        self.assertIn("BACKFILL IS IMPOSSIBLE", frame["refuses_to_claim"])
+
+    def test_a_session_granularity_author_does_not_claim_the_measurer_wrote_it(self):
+        """AUTHOR at session granularity means "the same chief session", and a
+        chief runs several agents at once. Saying "the measurer is an author"
+        there is an overclaim in the other direction."""
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        g1 = r.commit("work", trailer(SESSION_A, "builder"))
+        closing = r.commit("closed", trailer(SESSION_A, "grader"))
+        p = run(r, "--anchor", anchor, "--closing", closing, "--graded", g1)
+        self.assertEqual(verdict_of(p), "AUTHOR", p.stdout)
+        self.assertIn("SESSION identity", p.stdout)
+        self.assertIn("does not establish that the measurer personally wrote",
+                      p.stdout)
+
+
+# ---------------------------------------------------------------------------
+# THE SELECTORS -- every one of these can SHRINK the graded set, and a graded
+# set that lost the author's commit returns a false NON-AUTHOR nobody can see.
+# ---------------------------------------------------------------------------
+
+class TheGradedSetIsNeverSilentlySmaller(_Tmp):
+
+    def test_a_range_selector_grades_every_commit_in_the_range(self):
+        """`--graded A..B` must not collapse to B.
+
+        Named, not counted: the frame has to list the exact shas, because a
+        count is satisfied by any three commits and the defect is about WHICH.
+        """
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_B))
+        first = r.commit("theirs", trailer(SESSION_B, "a"))
+        mine = r.commit("MINE -- the one a collapsed range would drop",
+                        trailer(SESSION_A, "b"))
+        tip = r.commit("theirs again", trailer(SESSION_B, "c"))
+        closing = r.commit("closed", trailer(SESSION_A, "grader"))
+
+        p = run(r, "--anchor", anchor, "--closing", closing,
+                "--graded", f"{first}..{tip}", "--json")
+        frame = json.loads(p.stdout)
+        self.assertEqual(sorted(frame["graded_shas"]), sorted([mine, tip]),
+                         frame)
+        self.assertEqual(frame["verdict"], "AUTHOR", frame)
+
+    def test_a_selector_matching_nothing_is_named_not_ignored(self):
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        closing = r.commit("closed", trailer(SESSION_B))
+        p = run(r, "--anchor", anchor, "--closing", closing,
+                "--graded", f"{closing}..{closing}")
+        self.assertEqual(verdict_of(p), "UNKNOWN", p.stdout)
+        self.assertEqual(p.returncode, RC_UNKNOWN)
+        self.assertIn("resolved to zero commits", p.stdout)
+
+    def test_an_unresolvable_graded_spec_is_unknown_never_a_verdict(self):
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        g1 = r.commit("work", trailer(SESSION_A))
+        closing = r.commit("closed", trailer(SESSION_B))
+        p = run(r, "--anchor", anchor, "--closing", closing,
+                "--graded", g1, "--graded", "0" * 40)
+        self.assertEqual(verdict_of(p), "UNKNOWN", p.stdout)
+        self.assertEqual(p.returncode, RC_UNKNOWN)
+        self.assertIn("cannot resolve", p.stdout)
+
+    def test_read_commits_reports_a_bad_rev_rather_than_dropping_it(self):
+        """The same defect one layer down, where `resolve` cannot catch it: a
+        commit that fails to read must abort the answer, not shrink the set."""
+        r = self.repo()
+        good = r.commit("work", trailer(SESSION_A))
+        commits, err = ra.read_commits(r.root, [good, "0" * 40], None)
+        self.assertEqual(commits, [])
+        self.assertIn("git log failed", err)
+
+    def test_the_same_commit_named_twice_is_graded_once(self):
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        g1 = r.commit("work", trailer(SESSION_A))
+        closing = r.commit("closed", trailer(SESSION_B))
+        p = run(r, "--anchor", anchor, "--closing", closing,
+                "--graded", g1, "--graded", g1, "--json")
+        frame = json.loads(p.stdout)
+        self.assertEqual(frame["graded_shas"], [g1], frame)
+
+    def test_a_closing_spec_naming_more_than_one_commit_is_refused(self):
+        """`--closing` is the MEASURER. Taking the first of a range picks an
+        arbitrary one and drops the rest without saying so."""
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        a = r.commit("one", trailer(SESSION_B))
+        b = r.commit("two", trailer(SESSION_B))
+        g1 = r.commit("work", trailer(SESSION_A))
+        p = run(r, "--anchor", anchor, "--closing", f"{anchor}..{b}",
+                "--graded", g1)
+        self.assertEqual(verdict_of(p), "UNKNOWN", p.stdout)
+        self.assertEqual(p.returncode, RC_UNKNOWN)
+        self.assertIn("must name exactly one", p.stdout)
+        del a
+
+    def test_a_closing_commit_inside_its_own_graded_set_is_author(self):
+        """A dispatch error, surfaced rather than tidied away. Filtering it out
+        would turn "you graded your own closing commit" into a clean answer."""
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        closing = r.commit("closed", trailer(SESSION_B, "grader"))
+        p = run(r, "--anchor", anchor, "--closing", closing, "--graded", closing)
+        self.assertEqual(verdict_of(p), "AUTHOR", p.stdout)
+        self.assertEqual(p.returncode, RC_FAIL)
+
+    def test_graded_without_closing_exits_unknown_with_a_reason(self):
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        p = run(r, "--anchor", anchor, "--graded", anchor)
+        self.assertEqual(p.returncode, RC_UNKNOWN)
+        self.assertIn("no attribution question without a measurer", p.stderr)
+
+
+# ---------------------------------------------------------------------------
+# THE INTEGRITY RUN'S OWN FAIL-OPEN SHAPES
+# ---------------------------------------------------------------------------
+
+class TheIntegrityRunNeverPassesFromNothing(_Tmp):
+
+    def test_zero_adoption_since_the_anchor_is_unknown_not_pass(self):
+        """B1's shape at the top level: no commit carries an identity, so there
+        is nothing to check, so the answer is not PASS."""
+        r = self.repo()
+        anchor = r.commit("anchor with no trailer at all")
+        r.commit("nor this one")
+        p = run(r, "--anchor", anchor)
+        self.assertEqual(verdict_of(p), "UNKNOWN", p.stdout)
+        self.assertEqual(p.returncode, RC_UNKNOWN)
+        self.assertIn("nothing here to check", p.stdout)
+
+    def test_zero_commits_examined_is_unknown_naming_b1(self):
+        verdict, why, stats = ra.integrity([], [])
+        self.assertEqual(verdict, "UNKNOWN")
+        self.assertIn("B1", why)
+        self.assertEqual(stats["examined"], 0)
+
+    def test_a_duplicate_trailer_is_a_broken_emitter_not_an_adoption_gap(self):
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        r.commit("two claims",
+                 trailer(SESSION_A, "one") + "\n" + trailer(SESSION_B, "two"))
+        p = run(r, "--anchor", anchor)
+        self.assertEqual(verdict_of(p), "FAIL", p.stdout)
+        self.assertEqual(p.returncode, RC_FAIL)
+        self.assertIn("duplicate", p.stdout)
+
+    def test_the_pass_reason_states_the_adoption_ratio_not_the_examined_count(self):
+        """The ratio is the number that says what the PASS is worth. Printing
+        `4 of 4` where the truth is `2 of 4` is the whole defect D173 filed."""
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        r.commit("adopted", trailer(SESSION_B))
+        r.commit("did not")
+        r.commit("nor did this")
+        p = run(r, "--anchor", anchor)
+        self.assertEqual(verdict_of(p), "PASS", p.stdout)
+        self.assertIn("(2 of 4 commits carry one)", p.stdout)
+
+    def test_an_anchor_on_another_branch_is_unknown_and_says_so(self):
+        """A branch that does not contain the mechanism's starting commit has
+        no range to check, and the range it would compute is not the one the
+        frame claims."""
+        r = self.repo()
+        r.commit("base", trailer(SESSION_A))
+        r._git("checkout", "-q", "-b", "side")
+        side = r.commit("side work", trailer(SESSION_A), fname="side.txt")
+        r._git("checkout", "-q", "main")
+        r.commit("main work", trailer(SESSION_B), fname="main.txt")
+        p = run(r, "--anchor", side)
+        self.assertEqual(verdict_of(p), "UNKNOWN", p.stdout)
+        self.assertEqual(p.returncode, RC_UNKNOWN)
+        self.assertIn("not a descendant of the anchor", p.stdout)
+
+    def test_an_unanchored_build_is_unknown_and_names_the_reason(self):
+        """Right verdict, wrong reason sends the next reader to the wrong
+        repair: an unanchored BUILD and an absent anchor are different faults."""
+        r = self.repo()
+        r.commit("anything", trailer(SESSION_A))
+        saved = ra.ANCHOR
+        try:
+            ra.ANCHOR = None
+            verdict, frame = ra.run_integrity(r.root, True)
+        finally:
+            ra.ANCHOR = saved
+        self.assertEqual(verdict, "UNKNOWN")
+        self.assertIn("not anchored", frame["reason"])
+
+    def test_a_range_that_comes_back_empty_is_an_error_not_a_clean_sheet(self):
+        r = self.repo()
+        base = r.commit("base", trailer(SESSION_A))
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        shas, err = ra._since_anchor(r.root, anchor, base)
+        self.assertEqual(shas, [])
+        self.assertIn("range is empty", err)
+
+    def test_a_pre_anchor_sweep_that_cannot_run_is_unknown_not_clean(self):
+        """The instrument's one FAIL condition, switched off by a non-zero exit
+        code nobody reads. A sweep that did not run has found nothing in the
+        sense that matters, and reporting it as clean is the fail-open shape."""
+        r = self.repo()
+        r.commit("base carrying no trailer")
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        claims, err = ra._pre_anchor_claims(r.root, anchor)
+        self.assertEqual((claims, err), ([], ""))
+        claims, err = ra._pre_anchor_claims(r.root, "0" * 40)
+        self.assertIn("is not a commit in this repository", err)
+        self.assertEqual(claims, [])
+        # And the same shape one level down: an absent rev is not a root commit.
+        self.assertEqual(ra._has_parent(r.root, anchor), (True, ""))
+        self.assertIsNone(ra._has_parent(r.root, "0" * 40)[0])
+
+    def test_the_integrity_run_reports_a_sweep_that_could_not_run(self):
+        """The unit refusing is not enough: the caller has to carry the refusal
+        to the verdict. A guard that returns an error nobody reads is a guard
+        that does not exist."""
+        from unittest import mock
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        saved = ra.ANCHOR
+        try:
+            ra.ANCHOR = anchor
+            with mock.patch.object(ra, "_pre_anchor_claims",
+                                   return_value=([], "the sweep did not run")):
+                verdict, frame = ra.run_integrity(r.root, True)
+        finally:
+            ra.ANCHOR = saved
+        self.assertEqual(verdict, "UNKNOWN")
+        self.assertIn("the sweep did not run", frame["reason"])
+
+    def test_a_root_anchor_has_no_ancestry_to_sweep(self):
+        r = self.repo()
+        anchor = r.commit("root anchor", trailer(SESSION_A))
+        claims, err = ra._pre_anchor_claims(r.root, anchor)
+        self.assertEqual((claims, err), ([], ""))
+
+    def test_the_pre_anchor_sweep_walks_both_parents_of_a_merge(self):
+        """`<anchor>~1` walks the first-parent side only and reports a clean
+        zero over the half it never opened. A merge anchor has two."""
+        r = self.repo()
+        r.commit("base", trailer(SESSION_A))
+        r._git("checkout", "-q", "-b", "side")
+        smuggled = r.commit("a trailer on the second-parent side",
+                            trailer(SESSION_B), fname="side.txt")
+        r._git("checkout", "-q", "main")
+        r.commit("main moves", trailer(SESSION_A), fname="main.txt")
+        r._git("merge", "-q", "--no-ff", "-m", "merge anchor", "side")
+        anchor = r._git("rev-parse", "HEAD").stdout.strip()
+        claims, err = ra._pre_anchor_claims(r.root, anchor)
+        self.assertEqual(err, "")
+        self.assertIn(smuggled, claims)
+
+
+# ---------------------------------------------------------------------------
+# THE GRAMMAR AND THE EMITTER, WHICH MUST AGREE IN BOTH DIRECTIONS
+# ---------------------------------------------------------------------------
+
+class TheEmitterCannotProduceWhatTheGrammarRejects(_Tmp):
+
+    def test_the_host_distinguishes_two_commits_of_the_same_session_id(self):
+        """A session UUID is unique per box, not per world. Dropping the host
+        merges two machines' sessions into one identity."""
+        a = ra.parse_trailer(trailer(SESSION_A, host="box-one"))[1]
+        b = ra.parse_trailer(trailer(SESSION_A, host="box-two"))[1]
+        self.assertNotEqual(a, b)
+        self.assertEqual(a, f"box-one/{SESSION_A}")
+
+    def test_a_tag_with_a_separator_or_a_space_is_malformed(self):
+        for bad in (f"Lab-Agent: h/{SESSION_A}/two words",
+                    f"Lab-Agent: h/{SESSION_A}/a/b",
+                    f"Lab-Agent: h/{SESSION_A}/"):
+            self.assertEqual(ra.parse_trailer(bad)[0], "malformed", bad)
+
+    def test_a_tab_separated_broken_line_is_malformed_not_absent(self):
+        """"the emitter is broken" and "this agent did not adopt" are different
+        findings, and only one of them is a FAIL."""
+        self.assertEqual(ra.parse_trailer("Lab-Agent:\tnonsense")[0],
+                         "malformed")
+
+    def test_a_hostile_hostname_is_sanitised_into_something_that_parses(self):
+        import types
+        from unittest import mock
+        fake = types.SimpleNamespace(nodename="ip 172/31:43")
+        with mock.patch.object(ra.os, "uname", return_value=fake):
+            line, why = ra.local_identity("t")
+        self.assertIsNotNone(line, why)
+        state, ident, _, _ = ra.parse_trailer(line)
+        self.assertEqual(state, "ok")
+        self.assertEqual(ident.split("/")[0], "ip-172-31-43")
+
+    def test_a_hostname_with_no_usable_field_emits_nothing(self):
+        import types
+        from unittest import mock
+        fake = types.SimpleNamespace(nodename="!!!")
+        with mock.patch.object(ra.os, "uname", return_value=fake):
+            line, why = ra.local_identity("t")
+        self.assertIsNone(line)
+        self.assertIn("no usable host field", why)
+
+    def test_a_hostile_tag_is_sanitised_into_something_that_parses(self):
+        line, why = ra.local_identity("grader/v13 round 8")
+        self.assertIsNotNone(line, why)
+        state, _, tag, _ = ra.parse_trailer(line)
+        self.assertEqual(state, "ok")
+        self.assertEqual(tag, "grader-v13-round-8")
+
+    def test_an_empty_tag_becomes_the_no_tag_marker(self):
+        line, why = ra.local_identity("")
+        self.assertIsNotNone(line, why)
+        self.assertEqual(ra.parse_trailer(line)[0], "ok")
+        self.assertEqual(ra.parse_trailer(line)[2], "-")
+
+    def test_a_non_uuid_session_emits_nothing_and_exits_unknown(self):
+        p = subprocess.run(
+            [sys.executable, str(CHECKER), "--emit-trailer"],
+            capture_output=True, text=True,
+            env={**os.environ, "CLAUDE_CODE_SESSION_ID": "not-a-uuid"})
+        self.assertEqual(p.stdout.strip(), "")
+        self.assertEqual(p.returncode, RC_UNKNOWN)
+        self.assertIn("is not a UUID", p.stderr)
+
+    def test_a_body_carrying_the_unit_separator_keeps_its_trailer(self):
+        """The record separator is a control character, and a commit body is
+        free to contain one. Splitting without a bound truncates the body there
+        and turns an identity into an absence."""
+        parts, err = ra._split_record(
+            "sha\x1fwhen\x1fsubject\x1fline one\x1fLab-Agent: x")
+        self.assertEqual(err, "")
+        self.assertEqual(parts[3], "line one\x1fLab-Agent: x")
+        parts, err = ra._split_record("sha\x1fwhen")
+        self.assertEqual(parts, [])
+        self.assertIn("not 4", err)
+
+    def test_an_unknown_ancestry_is_not_reported_as_predating_the_anchor(self):
+        """`merge-base --is-ancestor` answers 0, 1 or an error, and the error is
+        not a No. Reading it as one labels a commit PRE_ANCHOR and tells the
+        reader backfill is why it has no identity."""
+        r = self.repo()
+        naked = r.commit("no trailer here")
+        closing = r.commit("closed", trailer(SESSION_B))
+        self.assertIsNone(ra._is_after_anchor(r.root, naked, "0" * 40))
+        p = run(r, "--anchor", "0" * 40, "--closing", closing, "--graded", naked)
+        self.assertEqual(verdict_of(p), "UNKNOWN", p.stdout)
+        self.assertNotIn("predate", p.stdout.lower())
 
 
 if __name__ == "__main__":
