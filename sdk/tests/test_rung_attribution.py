@@ -72,6 +72,18 @@ SESSION_C = "0f0e0d0c-0b0a-0908-0706-050403020100"
 AGENT_1 = "agent-afa60c3f2045c7ce3"
 AGENT_2 = "agent-afc0fa9cd734f6641"
 
+#: THE NEVER-VARIED WORDING, TYPED OUT HERE, and imported from nowhere -- for
+#: this file's opening reason. Reading it off the module under test
+#: (`ra._NEVER_VARIED`) would move both sides of every assertion together, so a
+#: mutant that printed the phrase unconditionally would still be green. D235's
+#: defect was that this phrase was appended to the identity reading as a
+#: CONSTANT, so the instrument said the discriminating field had never varied
+#: while printing `2 per-agent` beside it. The assertions below are on the
+#: IDENTITY of the wording emitted for a given reading -- never on how much
+#: text came out -- because a probe that asserts a COUNT survives an inverted
+#: comparison, which has been caught in this lab three times.
+NEVER_VARIED = "has never varied"
+
 
 def trailer(session: str, tag: str = "-", host: str = HOST,
             agent: str | None = None) -> str:
@@ -761,6 +773,52 @@ class TheOutputCarriesItsOwnLimits(_Tmp):
         p = run(r, "--anchor", anchor)
         self.assertNotIn("ONE CONSTANT OBSERVED", p.stdout)
         self.assertIn("2 distinct session identities", p.stdout)
+
+    def test_the_identities_gloss_is_derived_from_the_reading_beside_it(self):
+        """D235: the gloss must be a function of the two numbers it glosses.
+
+        Driven directly, one reading at a time. A reading where the field has
+        NOT varied must carry the never-varied wording; every reading where it
+        HAS varied must not. Replacing the branch with a literal -- the defect
+        this pins -- fails at least one arm whichever literal is chosen.
+        """
+        varied = ((1, 1), (1, 2), (2, 0), (2, 2), (3, 5))
+        for sessions, agents in varied:
+            row = ra._identities_row(sessions, agents)
+            self.assertIn(f"{sessions} session, {agents} per-agent", row)
+            self.assertNotIn(NEVER_VARIED, row, (sessions, agents, row))
+        for sessions, agents in ((0, 0), (1, 0)):
+            row = ra._identities_row(sessions, agents)
+            self.assertIn(f"{sessions} session, {agents} per-agent", row)
+            self.assertIn(NEVER_VARIED, row, (sessions, agents, row))
+
+    def test_the_printed_frame_row_stops_saying_never_varied_once_it_has(self):
+        """The same assertion through the real tool, on real commits, because a
+        derivation that is never wired into the row it feeds is not a repair.
+
+        Two agents inside ONE chief session: the reading is `1 session,
+        2 per-agent`, and the never-varied wording must be absent from the
+        WHOLE output -- the frame row included, which is where it used to be
+        printed as a constant.
+        """
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A, agent=AGENT_1))
+        r.commit("a second agent in the same chief",
+                 trailer(SESSION_A, "b", agent=AGENT_2))
+        p = run(r, "--anchor", anchor)
+        self.assertIn("1 session, 2 per-agent", p.stdout)
+        self.assertNotIn(NEVER_VARIED, p.stdout)
+
+    def test_the_printed_frame_row_does_say_never_varied_when_it_has_not(self):
+        """The must-match half of the pair above. Without it, a repair that
+        deleted the wording outright would pass every assertion, and deleting
+        the caveat is a worse defect than printing it in the wrong place."""
+        r = self.repo()
+        anchor = r.commit("anchor", trailer(SESSION_A))
+        r.commit("the same one again", trailer(SESSION_A, "other"))
+        p = run(r, "--anchor", anchor)
+        self.assertIn("1 session, 0 per-agent", p.stdout)
+        self.assertIn(NEVER_VARIED, p.stdout)
 
     def test_the_json_frame_carries_the_granularity_and_the_counts(self):
         r = self.repo()

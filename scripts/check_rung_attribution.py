@@ -774,11 +774,50 @@ _REFUSES = (
     "mechanism makes DIFFERENCE checkable and leaves EXISTENCE unverifiable.")
 
 
+#: The one phrase that says the discriminating field never moved. It is a named
+#: constant so that both surfaces that can say it say the SAME thing, and so a
+#: test can assert on the IDENTITY of the wording rather than on how much text
+#: came out. Every use of it MUST sit behind `_field_has_not_varied`.
+_NEVER_VARIED = "the discriminating field has never varied"
+
+
+def _field_has_not_varied(sessions: int, agents: int) -> bool:
+    """Is this frame ONE CONSTANT OBSERVED N TIMES rather than N confirmations?
+
+    D235's class (B4): the frame row that prints the identity counts used to
+    append the never-varied gloss as a CONSTANT STRING, so the instrument went
+    on asserting that the field had never varied while printing `2 per-agent`
+    one column to its left -- a generated claim contradicted by the measurement
+    beside it, inside the lab's own integrity instrument. The predicate lives
+    here, once, and every surface that glosses the reading branches on it, so
+    the wording cannot disagree with the number it glosses.
+    """
+    return sessions <= 1 and agents == 0
+
+
+def _identities_row(sessions: int, agents: int) -> str:
+    """The identity reading and a gloss DERIVED from that reading.
+
+    The gloss is chosen by `_field_has_not_varied` on the same two numbers that
+    are printed, so changing the reading changes the wording. A literal here is
+    the defect this function exists to prevent.
+    """
+    reading = f"{sessions} session, {agents} per-agent"
+    if _field_has_not_varied(sessions, agents):
+        return (f"{reading} -- {_NEVER_VARIED} in this frame, so a green run "
+                f"proves nothing about discrimination")
+    return (f"{reading} -- the discriminating field DID vary in this frame "
+            f"({sessions} distinct session identit"
+            f"{'y' if sessions == 1 else 'ies'}, {agents} distinct per-agent "
+            f"handle{'' if agents == 1 else 's'}), so the never-varied caveat "
+            f"does not apply to this reading")
+
+
 def _discrimination_note(sessions: int, agents: int) -> str:
     """D173's number, in words, because the count alone gets skipped."""
-    if sessions <= 1 and agents == 0:
+    if _field_has_not_varied(sessions, agents):
         return ("DISCRIMINATION: 1 distinct identity observed and 0 per-agent "
-                "handles. The discriminating field has not varied here, so these "
+                f"handles. Here {_NEVER_VARIED}, so these "
                 "runs are ONE CONSTANT OBSERVED N TIMES and not N confirmations. "
                 "This instrument has not been shown to discriminate on this "
                 "corpus; do not cite a green run of it as independence evidence.")
@@ -869,10 +908,8 @@ def run_integrity(root: Path, as_json: bool) -> tuple[str, dict]:
                      f"carry an identity; {stats.get(ABSENT, 0)} carry none and "
                      f"their authorship is UNKNOWN"),
         ("distinct identities observed",
-         f"{stats.get('distinct_sessions', 0)} session, "
-         f"{stats.get('distinct_agents', 0)} per-agent "
-         f"-- 1 session and 0 agents means the discriminating field has never "
-         f"varied and a green run proves nothing about discrimination"),
+         _identities_row(int(stats.get("distinct_sessions", 0)),
+                         int(stats.get("distinct_agents", 0)))),
         ("malformed", str(stats.get(MALFORMED, 0))),
         ("duplicate", str(stats.get(DUPLICATE, 0))),
         ("pre-anchor claims", str(len(pre))),
