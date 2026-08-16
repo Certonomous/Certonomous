@@ -451,6 +451,19 @@ copies had no way to learn.**
 is filed. Docket row **D297**, landed `74caabcd`. This grade itself is docket row **D296**,
 landed in the same commit; neither row closes, promotes or re-opens a rung.
 
+**Its disposition is docket row `D301`, landed `b327c8ce`, and the call is made there rather
+than left to the owner: RESTATE — not struck, not withdrawn.** Not withdrawn because L-82's
+conclusion is not falsified (the grader's rate exceeds the author's under **both** rules in
+`_PLACE_ADMISSION`, 71.4% vs 76.0% and 48.8% vs 73.1%, which is what keeps the *"worst case"*
+strike standing). Not struck because L-76 strikes what execution has **falsified**, and these
+three are **superseded** — the distinction D58 drew for an unsourced date. **And the
+restatement owes more than three digits:** L-82's rule names one variable, the provenance of
+the sample; D49 established a second of comparable size that the lesson never names, the
+**admission predicate**, confounded with the first and worth 5-to-24 points on its own. So
+L-82's promise that the distrust is *"quantifiable for the price of one more sample"* is
+incomplete as written — **L-82's own worked example is the counter-example to L-82's own
+remedy.**
+
 ---
 
 ## 8. THE RULING §5 ASKED FOR, AND WHAT EXECUTION DID TO IT
