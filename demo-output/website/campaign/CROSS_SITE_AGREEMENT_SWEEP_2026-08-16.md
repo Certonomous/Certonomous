@@ -238,9 +238,16 @@ basenames**, controlled both ways (`DESCRIPTION_DOCUMENT.md` **travels: True**; 
 | *control:* `closure.html` | yes |
 | *control:* `LESSONS.md` | no |
 
-**So under the ruling exactly as written, all four sites are lab records and reported speech
-stands at every one of them. No correction is required anywhere.** That is the opposite of the
+~~**So under the ruling exactly as written, all four sites are lab records and reported speech
+stands at every one of them. No correction is required anywhere.**~~ That is the opposite of the
 routing the ruling anticipated for three of the four, and it is reported rather than smoothed.
+
+> **[SUPERSEDED 2026-08-16 by the chief ruling in §8, and struck rather than deleted because
+> the measurement that produced it is unchanged and is what forced the ruling.** The
+> *measurement* stands: none of the four is in `_travelling_names()`. What changed is the
+> *definition*: **travelling now means packed OR staged-to-send**, so three of the four are
+> travelling after all and two need corrections. Leaving this conclusion live beside §8 would
+> be the exact cross-site disagreement this document was written to find.]**
 
 ### 7.2 AND THE PREDICATE IS WRONG FOR TWO OF THEM — which is the real finding here
 
@@ -284,6 +291,84 @@ it a denial. **That is rule 3's failure one level down**, it was found by this s
 against itself, and in this class the error runs in the direction that **manufactures** a
 disagreement. It belongs with the four delimiter classes as the fifth thing a wrap-safe
 recogniser must handle, and no instrument in this lab reaches it today.
+
+---
+
+## 8. THE RULING AS ISSUED, AND THE FINAL ROUTING
+
+> **[CHIEF RULING 2026-08-16, on the question §7.2 routed.] A document whose only remaining
+> gate is the owner's proofread IS TRAVELLING for the purpose of the caveats clause.
+> TRAVELLING = PACKED **or** STAGED-TO-SEND.**
+>
+> **Ground 1 — the clause protects a reader outside this lab.** A send-package one approval
+> away from leaving will reach that reader carrying whatever it says now, so **the moment of
+> correction must precede the gate, not follow it.** A rule attaching the caveat only after
+> packing corrects the document after the only person who could have caught it has approved it.
+>
+> **Ground 2 — `_travelling_names()` measures the present, not the intent**, and using it as
+> the *definition* inverts the rule's purpose. It exempts precisely the documents most likely
+> to be read externally. **A predicate that marks the send-package safest is not a definition
+> of travelling; it is a measurement of packing.**
+>
+> **Ground 3 — the asymmetry decides it.** Erring toward *travelling* costs a redundant caveat
+> on a lab record. Erring the other way **ships an uncorrected claim to an outside reader.**
+> Where a binary has no third state, the error must fall on the recoverable side.
+>
+> **NOT RULED:** `_travelling_names()` is **not** widened by fiat. The predicate is an
+> instrument, and changing it changes every verdict that has ever cited it. The gap is filed as
+> a finding and the instrument change is routed to the fleet **as a proposal**.
+
+### 8.1 Final routing — two repairs, neither of them this pass's to make
+
+| site | status under the ruling | who may act |
+|---|---|---|
+| `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md:1239` | **TRAVELLING — correction required.** It also fails **either way**: the repair parenthetical sits on the *next line*, which is D294 half (b) regardless of travel status | **a non-author of these sites** |
+| `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md:1273` | **TRAVELLING — correction required** | **a non-author of these sites** |
+| `latex/closure_challenge_report.tex:860-862` | **TRAVELLING — correction required**, and the fix is a **REBUILD, not an edit**; joins the `dist/` decision already before Katie | **the `latex/` owner alone** |
+| `CLOSURE_CHALLENGE_STATUS.md:617-621` | **not travelling under either reading — reported speech STANDS**, no repair owed | filed for the record only |
+
+**This pass made none of these repairs and graded no rung.**
+
+### 8.2 The instrument gap, measured, and routed as a PROPOSAL rather than a change
+
+**The gap:** `_travelling_names()` derives from shipping-archive members plus
+submission-package directories, so it classifies **by what is currently packed** and has no
+state for *staged-to-send*. **It misclassifies exactly two surfaces**, both named by the lab's
+own records: `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` (*"Katie's send-package"*,
+`closure_challenge_round5_qcr.json:213`) and `latex/closure_challenge_report.pdf` (called
+**SHIPPED** at D243).
+
+**The blast radius, measured rather than asserted, because that is why this is a proposal:**
+
+- **Three checks consume it**, resolved from the call sites by walking the AST rather than by
+  reading: `check_rank_claim_surfaces`, `check_rank_claim_values`, `check_board_placement_words`
+  (`scripts/self_audit.py:1209`, `:2162`, `:3964`). Widening the predicate moves the
+  **FAIL/WARN severity split** in all three.
+- **34 tracked files cite the travelling/lab-record distinction in prose**, 24 of them campaign
+  grade and ladder records — i.e. evidence already relied on by closed rungs.
+- **Two test files install doubles for it** (`sdk/tests/test_rank_claim_surfaces.py`,
+  `test_rank_claim_values.py`), so a change has a ready harness.
+
+**One distinction the proposal must carry, and it narrows the risk:** **V14's criterion names
+`dist/` for its SEARCH FRAME, not for severity** — *"across tracked files, built artifacts, and
+shipping archives including `dist/`"* (`LADDER_V_TRIPLE_VERIFICATION.md:409-416`). Widening
+`_travelling_names()` changes **what severity a fault is reported at**, not **what gets
+searched**, so V14's frame is untouched by it. **That is stated as a bound on the blast radius
+and is not a ruling on V14**, which is not this pass's.
+
+### 8.3 The fifth delimiter, recorded beside D309's standing rule
+
+**SENTENCE SCOPE IS NOT CLAUSE SCOPE.** *"what was lost was a tie for second, **not** for
+best"* is an **agreement** with *"the tie was for second"*, and this sweep's instrument scored
+it a **denial**, because the negator attaches to a neighbouring clause **inside the same
+sentence**. It is **rule 3's failure one level down**; it was found by the sweep failing
+against itself; and **for an agreement checker it runs in the dangerous direction — it
+manufactures a disagreement rather than hiding one.**
+
+**No instrument in this lab reaches it today.** **The control it needs is a sentence carrying
+two clauses of opposite polarity** — planted, read back, and required to classify each clause
+separately; a single-polarity control cannot distinguish a clause-scoped detector from a
+sentence-scoped one and would pass either.
 
 ---
 
