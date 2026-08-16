@@ -1392,6 +1392,19 @@ reaches the record. The bare form was re-executed in the same pass and still
 emitted the session line, `.../-` with no fourth field, rc=0 — which grades AUTHOR
 for every sibling pairing, so quoting it costs adoption effort and buys nothing.
 
+**Exit 3 has more than one cause, and reading it as "I must have used `$(...)`"
+will send you after the wrong bug.** Measured at `5a0127d3`: `--probe
+"$(echo WBECHOLIT44)"` returned **rc 3** on a token that was typed, present in the
+recorded call, and found in exactly one transcript on a direct search. The refusal
+named the real reason — the token *"must be 12-128 characters of
+`[A-Za-z0-9._:-]` starting alphanumeric"*, and `WBECHOLIT44` is **11**. The same
+call with `ECHOLIT77BETA` (13) returned rc 0 and the agent form. So the emitter
+rejects a **malformed** probe before it ever looks at a transcript, on the stated
+grounds that *"a short token matches transcripts by accident, and an accidental
+match names the wrong agent"*. **Read the refusal text, which says which of the
+two happened; do not infer the cause from the exit code alone**, and give the
+token at least twelve characters.
+
 Two limits survive the repair. **The chief session itself cannot probe**, having
 no per-subagent transcript of its own. And nothing before the anchor `e933e31b`
 is attributable — *"backfill is impossible"*. The `--tag` slug is recorded,
@@ -1610,9 +1623,18 @@ it.** *[Added 2026-08-16 after the incompleteness was measured, not predicted.]*
 The form above rebuilds the blob from **HEAD's** docket and commits it directly;
 it never writes the row back into the working copy. So **every private-index
 commit widens the gap between HEAD and the worktree**, monotonically, and nothing
-in the repository reports it. Measured at `5a0127d3`: HEAD's docket held **244**
-rows and the worktree copy held **243**, the missing one being **D241**, landed by
-private index and never written back.
+in the repository reports it. Measured at `5a0127d3`: HEAD's docket held **242**
+`D` rows and the worktree copy held **241** — 278 against 277 counting every
+lettered section — the missing one being **D241**, landed by private index and
+never written back.
+
+> **Count it yourself before you quote it.** The figure reached me as *"244 rows
+> against 243"* and re-measuring at the same commit returned **242 against 241**,
+> both with a bold-tolerant pattern (`^\| \*{0,2}D[0-9]+`) that catches struck and
+> bolded rows, and confirmed without a pipe. The divergence — one row, `D241` —
+> was exactly as reported; the totals were not. This is the third chief-supplied
+> count tonight that did not survive re-measurement, which is the argument for
+> §8's rule rather than an anecdote about anyone.
 
 Why it had not bitten yet: a *conforming* agent rebuilds from HEAD's blob, so it
 picks up every row it does not have and cannot drop one. Why it will bite: any
@@ -1654,15 +1676,35 @@ counting every lettered section. The insertion was done by a script that asserte
 every pre-existing worktree line survived in order — a restore that silently drops
 a peer's uncommitted row is the failure it is supposed to prevent.
 
-> **One trap in verifying this, measured at the same time.** `git diff -- <path>`
-> compares the worktree against the **INDEX**, not against HEAD, and the shared
-> index on this tree may hold another agent's stale blob (item 9). Immediately
-> after the reconciliation, `git diff --stat -- docs/DOCKET.md` reported **8
-> insertions and 2 deletions** on a file that was byte-identical to HEAD, because
-> it was measuring against a poisoned index entry. `git diff --stat HEAD --
-> docs/DOCKET.md` printed nothing, correctly. **Compare against `HEAD`
-> explicitly, or against `git show HEAD:<path>` — never against a bare
-> `git diff`.** §9.3's `git diff -- <path>` line has the same exposure.
+**It recurred within the hour, which is the strongest thing that can be said for
+running this check habitually.** At `6097856c`, about an hour after the D241
+reconciliation and with nothing done wrong by anyone, the same commands printed
+`< D242` and `< D243` — 278 rows in HEAD against 276 in the worktree, two more
+private-index commits by peers, neither written back. Reconciled the same way, to
+**280 in both frames**, `diff` exit 0, `git diff --stat HEAD -- docs/DOCKET.md`
+empty. **Treat the divergence as the steady state of this file, not as an
+incident**: it reappears every time anybody follows item 8 without the write-back
+step, so run the check before you edit the docket rather than after you are
+surprised.
+
+> **One trap in verifying this — and the reproduction is anchored to a state that
+> no longer exists, so both anchors are given.** `git diff -- <path>` compares the
+> worktree against the **INDEX**, not against HEAD, and the index on this tree is
+> shared with every other agent (item 9). **At `5a0127d3`, with a peer's stale
+> docket blob staged**, `git diff --stat -- docs/DOCKET.md` reported **8
+> insertions and 2 deletions on a file that was byte-identical to HEAD** — it was
+> measuring against the poisoned index entry — while `git diff --stat HEAD --
+> docs/DOCKET.md` printed nothing, correctly.
+>
+> **That specific reading will NOT reproduce**, and you should know why before you
+> conclude the trap is imaginary: the index was cleared by the chief later the same
+> night (item 9), and re-run at the same commit `5a0127d3` afterwards, both forms
+> returned **0 bytes, rc 0**. The trap is a property of `git diff`'s definition,
+> not of that one poisoned entry, so it re-arms the moment any agent runs `git
+> add`. **Compare against `HEAD` explicitly, or against `git show HEAD:<path>` —
+> never against a bare `git diff`.** §9.3's `git diff -- <path>` line has the same
+> exposure. A figure recorded without the state that produced it is the D230
+> defect; this block is what carrying both anchors looks like.
 
 **And record the by-product, because somebody owns it.** An agent that declines to
 commit rather than capture leaves **ORPHANED ROWS**: text that lives in the
@@ -1702,14 +1744,46 @@ message about something else entirely.
   `git diff --cached --stat` before any commit form at all — `hunk_check.py` now
   reports staged-and-undeclared paths for exactly this reason, and it reported
   these.
-- **Do not "clean up" the index either.** Those blobs are other agents' in-flight
-  work, and item 4 plus `ESCALATION_CHARTER.md` §3 govern: inspected, never
-  reverted. Report it; do not `git reset`.
+- **Do not "clean up" the index yourself.** Those blobs may be another agent's
+  in-flight work, and item 4 plus `ESCALATION_CHARTER.md` §3 govern: inspected,
+  never reverted. **Escalate it; the clearing is the chief's call, not yours.**
 - **The private-index form of item 8 is immune to all of this**, and that is a
   second reason to prefer it over a pathspec commit even for an ordinary file: it
   builds from `git read-tree $EXPECTED_OLD` in a `GIT_INDEX_FILE` of its own, so
   the shared index is neither read nor written, nothing rides along, and nobody
   else's staged work is destroyed. This section was committed that way.
+
+**How this one ended, recorded because "the gun exists" is weaker than "the gun
+was found loaded and unloaded, and here is the safe procedure."** It was found by
+an agent that had gone to commit §11b items 7 and 8 and read
+`git diff --cached --stat` first; it escalated rather than clearing it. **The
+chief cleared it later the same night**, and the order of operations is the part
+worth copying: it verified that **all three remaining staged paths were
+byte-identical between worktree and HEAD**, so that discarding the index entries
+could not destroy anything, and only then ran a bare **`git reset`** — index to
+HEAD, worktree untouched — rc 0. Re-measured at `5a0127d3` afterwards,
+`git diff --cached` returned **0 bytes, rc 0**.
+
+So the standing procedure when you find the index dirty with work that is not
+yours is three steps and none of them is a reflex: **read what is staged**
+(`git show :<path>`, not the diffstat alone — the diffstat here looked like a
+tidy 41/402 and the content was a reverting snapshot), **report it**, and **let
+the owner or the chief decide.** Clearing is safe only after each staged path has
+been shown to match both worktree and HEAD, which is a measurement and not an
+assumption.
+
+**And it reloaded within the hour, which is why "it was cleared" is not the end of
+this item.** Measured at `6097856c`, after the clearing above:
+`git diff --cached --stat` read `docs/DOCKET.md | 2 --` and
+`docs/USING_THIS_LAB.md | 62 ---` — **64 deletions**, another stale snapshot,
+staged by somebody going about their work normally. Minutes later it was empty
+again. **The dirty index is not an incident that got fixed; it is a state this
+tree passes through continuously**, so the check belongs before every commit and
+the immunity of item 8's private-index form is worth more than the convenience of
+a pathspec. Both readings above were taken with `git diff --cached`, whose exit
+status is `0` whether it is empty or not — **measure the byte count, not the exit
+code**, which is the opposite of the advice two paragraphs up in §11a and the
+reason each of these is stated separately rather than as a general rule.
 
 ---
 
