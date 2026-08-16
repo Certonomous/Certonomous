@@ -1236,18 +1236,28 @@ Two consequences must be disclosed, not buried:
   NASA hump's +0.0011 was not: choosing per-case between two models after reading their
   per-case test scores is selection on test outcomes. The fix was frozen on validation
   evidence and applied to all three ducts or none.
-- **The `AR_14_Ret_180` best-on-board margin collapsed from 0.0022 to 0.00003** against a
-  published four-decimal value. *(Board identifier added 2026-08-16: that is the
-  **four**-entry `deb91557` frame. On the **six**-entry board retrieved
-  **2026-08-11T23:33Z**, re-verified **2026-08-14T21:01Z**, `AR_14_Ret_180`'s best is
-  Yang's 0.0250 and the tie no longer exists at all.)* It is a nominal lead, not a meaningful one. §5.3 must say
+- **The `AR_14_Ret_180` ~~best-on-board margin~~ margin over Reissmann collapsed from 0.0022 to
+  0.00003** against a published four-decimal value. *(Characterisation struck 2026-08-16 and the
+  board identified inside this item: `best-on-board` was true only of the **four**-entry
+  `deb91557` frame, in which Yang does not appear. On the **six**-entry board retrieved
+  **2026-08-11T23:33Z**, re-verified unchanged **2026-08-14T21:01Z**, this case's best is Yang's
+  **0.0250** — so round 4's `0.0325` stood **2 of 7**, tied with Reissmann for **second**, and
+  round 5's `0.035339` stands **4 of 7**. The margin over Reissmann is real on either board;
+  only the word `best` was not.)* It is a nominal lead, not a meaningful one. §5.3 must say
   so; describing it as a win would be misleading.
 
 New disclosure item for §5.3, and it replaces item 6 outright: the published duct
 diagnosis was **wrong**. `I3_S3` and `I4_W2S` are indeed algebraically zero on every
 duct — that is reproduced — but they are equally zero on `AR_14_Ret_180`, the duct we
-score best on. The mechanism that actually discriminates is that `Re_y` reaches 1.85×
-and 2.07× its trained maximum on the two ducts we lose and 0.90× on the one we win, and
+~~score best on~~ **trail by least on**. The mechanism that actually discriminates is that
+`Re_y` reaches 1.85× and 2.07× its trained maximum on the two ducts we trail most and 0.90×
+on the one we trail least, and *(characterisation struck 2026-08-16 and the board identified
+inside this paragraph, to agree with §8.1's already-corrected copy of this same sentence:
+`score best on` and `win` were true only of the **four**-entry `deb91557` board. On the
+**six**-entry board retrieved **2026-08-11T23:33Z**, re-verified unchanged
+**2026-08-14T21:01Z**, `AR_14_Ret_180`'s best is Yang's **0.0250**, so round 3's `0.0303`
+stood **2 of 7** and round 5's `0.035339` stands **4 of 7** — we win no duct on the live
+board.)*
 a gradient-boosted tree cannot extrapolate. Full record:
 `closure_challenge_duct_reynolds_transfer.json`. **The fix is validated for no-harm on
 every held-out set the rules permit and is NOT proven to close the deficit** — no legal
@@ -1270,8 +1280,13 @@ must be corrected before sending.**
 
 The lab's working belief, repeated in internal notes, was that it was last on the board
 across the duct family. Re-derived from the harness: at round 3 it was last on
-`AR_1_Ret_360` only, 4th of 5 on `AR_3_Ret_360`, and **best on board** on
-`AR_14_Ret_180`. It was also last on `NASA_2DWMH`, which the belief never mentioned.
+`AR_1_Ret_360` only, 4th of 5 on `AR_3_Ret_360`, and ~~**best on board**~~ **1 of 5 on the
+four-entry board** on `AR_14_Ret_180`. *(Characterisation struck 2026-08-16 and the board
+identified inside this paragraph: every ordinal in the sentence above, `4th of 5` included, is
+against the **four**-entry `deb91557` board. On the **six**-entry board retrieved
+**2026-08-11T23:33Z**, re-verified unchanged **2026-08-14T21:01Z**, round 3's `0.0303` on
+`AR_14_Ret_180` stands **2 of 7**, behind Yang's **0.0250** — it was never best on the live
+board.)* It was also last on `NASA_2DWMH`, which the belief never mentioned.
 After round 4 the lab is last on **NASA_2DWMH alone**.
 
 ### 7.4 The decline gate is not novel, and the nearest prior art is by the challenge's own authors
@@ -1379,7 +1394,12 @@ Control: on the four periodic-hill test cases the same four residuals run from
 2.5×10⁻³ to 9.1×10⁻¹, so nothing is degenerate there and the test is not vacuous.
 
 **The causal half stays refuted, now independently.** The identities hold in identical
-measure on `AR_14_Ret_180`, the duct the entry scores best on the board on. This
+measure on `AR_14_Ret_180`, the duct the entry ~~scores best on the board on~~ **trails by
+least on**. *(Characterisation struck 2026-08-16 and the board identified inside this
+paragraph: `best on the board` was true only of the **four**-entry `deb91557` board. On the
+**six**-entry board retrieved **2026-08-11T23:33Z**, re-verified unchanged
+**2026-08-14T21:01Z**, this case's best is Yang's **0.0250**, so round 5's `0.035339` stands
+**4 of 7**.)* This
 reconfirms §7.1 rather than inheriting it.
 
 **A hypothesis of our own, tested and killed.** Every feature is an O(3) invariant of
@@ -1736,8 +1756,14 @@ What changed in the package's payload:
   validation duct. §5.3's leakage-disclosure story gets *simpler* for the
   ducts: there is no trained duct model left in the entry to disclose.
 - **One disclosure must be updated, not softened**: `AR_14_Ret_180`
-  regressed 0.0325 → 0.0353 and its 0.00003 nominal best-on-board tie is
-  lost — the pre-registration accepted that risk in writing before the
+  regressed 0.0325 → 0.0353 and its 0.00003 nominal ~~best-on-board tie~~ **tie
+  for second** is lost *(characterisation struck 2026-08-16 and the board identified
+  inside this item: the tie was against the **four**-entry `deb91557` board, in which
+  Yang does not appear, and the best-on-board reading was true only there; on the
+  **six**-entry board retrieved **2026-08-11T23:33Z**, re-verified unchanged
+  **2026-08-14T21:01Z**, this case's best is Yang's **0.0250**, so round 4's `0.0325`
+  stood **2 of 7** tied with Reissmann and round 5's `0.035339` stands **4 of 7**)*
+  — the pre-registration accepted that risk in writing before the
   score existed, and the regression is reported, not reverted. ~~Best-on-board
   is now **4 of 8**, not 5 of 8; §5.3 and the cover email's item 2 must say
   4 and cite §0f of `CLOSURE_CHALLENGE_STATUS.md`.~~ *(Struck 2026-08-12:
