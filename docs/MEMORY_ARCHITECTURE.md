@@ -1,6 +1,23 @@
 # Certonomous Memory Architecture
 
-Version 1.0, dated 2026-08-10. Written on Katie's dispatch of 2026-08-10, section F.
+Version 1.1, dated 2026-08-16. Version 1.0 was dated 2026-08-10 and written on
+Katie's dispatch of 2026-08-10, section F.
+
+**Amendment log, kept here because D-2 of this document's own duplicate register
+is a file whose header stayed stale through six amending commits, and a map that
+does not apply its own §8 to itself is worth nothing.**
+
+- **v1.1, 2026-08-16 — D-1 is closed by a ruling, and six places in this file
+  carried the superseded answer.** `docket.json` is authoritative for `status`
+  on any id it holds; a proposal file's `status` is intake-only. Amended: the
+  two custody rows in §2 (the inbox is not "ahead of the docket"), question 8 of
+  the §6 cold-start test and its calibration note, the D-1 row itself, and
+  defect 1 of §9. Every one of those said "neither is authoritative" or
+  "contested", which stopped being true at `73a42b03`. Ruling in `docs/DOCKET.md`
+  D219; enforcement and the one-sided rule in D225. **This document's D-1 was
+  right and was FIRST**: written 2026-08-10 at `975d4098`, it carried the
+  arithmetic and named the mechanism five days before D218 restated it and
+  asserted that nobody had measured it.
 
 This document says what the lab remembers, where each kind of fact lives, who
 writes it, what dies at session end, and the order a fresh agent reads files in
@@ -59,8 +76,8 @@ this is the one that wins.
 | **Family standing rules** | Four files, four directories — see §2.3 | Family supervisor (`SUPERVISION_CHARTER.md` §2.1) | Per incident in the family | Binds that family only |
 | **Open work / checklist** | `docs/PRODUCT_LIST.md` §4A-4I | Chief ("supervisor-maintained", line 1) | Continuously | The list is Katie's; maintenance is the chief's |
 | **What happened** | `docs/PRODUCT_LIST.md` `## Changelog` | Chief, and agents appending their own entries | Per closing | The lab's narrative spine |
-| **Proposed work** | `demo-output/website/agenda/proposals/*.json` (109 files) | Any agent | On filing | **Contested — see D-1.** The inbox is currently ahead of the docket |
-| **Costed queue snapshot** | `demo-output/website/agenda/docket.json` (264 records) | `sdk/chief_engineer/agenda.py` | On `save_docket()` | **Stale by design failure — see D-1** |
+| **Proposed work — INTAKE ONLY** | `demo-output/website/agenda/proposals/*.json` (131 files) | Any agent | On filing | **Ruled, 2026-08-16 (was "contested"): a file's `status` is load-bearing before its first merge and non-authoritative after it.** The file may still be ahead on *evidence* — see D-1 |
+| **Costed queue snapshot — AUTHORITATIVE FOR `status`** | `demo-output/website/agenda/docket.json` (264 records) | `sdk/chief_engineer/agenda.py` | On `save_docket()` | **Authoritative for `status` on any id it holds — see D-1.** `generated_at` is still stale, which is D-1's other half and is not fixed |
 | **Evidence: pre-registration** | `demo-output/website/campaign/*_PREREGISTRATION.md` | The agent that will run it | **Before any compute.** Frozen thereafter, per L-44 | Frozen. A retroactive edit destroys it as proof |
 | **Evidence: results** | `demo-output/website/campaign/*_RESULTS.md`, `*_runs/` | The agent that ran it | On completion | Primary. Satellites are not the record (L-32) |
 | **Provenance / verdicts per case** | The case's own `ladder-*` record, `.md` **and** `.json` | Case owner | **First, not last**, when a verdict moves (L-32) | The case file wins over every summary of it |
@@ -591,7 +608,7 @@ the files carry it, not whether the agent guessed it.
 | 5 | What must be committed before compute, and what are the three mechanisms that made fleet kills survivable? | Pre-registration (predictions, thresholds, caps, labels); pre-registration-first **plus** out-of-process execution **plus** per-eval checkpoints |
 | 6 | How many fleet deaths have there been, and what is the date of the most recent? | Eight; the eighth ran 2026-08-08 late to 2026-08-10 14:48 (`PRODUCT_LIST.md:670`) |
 | 7 | What does CERTIFIED mean for a mesh in the 2026-08-08 audit, and how many of the 105 carried an actual certificate? | It means a `log.checkMesh` exists, not that a certificate was written. **Zero** of 105 carried `birth_certificate.json` |
-| 8 | Which is authoritative for a proposal's status: the file in `proposals/`, or `docket.json`? | **Neither is currently authoritative** — this is a known open defect (D-1). An agent that confidently picks one has failed |
+| 8 | Which is authoritative for a proposal's status: the file in `proposals/`, or `docket.json`? | **`docket.json`, for `status`, on any id it holds.** A proposal file's `status` is intake-only: load-bearing before its first merge, non-authoritative after it. **AND the limb, which is half the answer: authority is not evidence.** Where the FILE carries an `outcome` or a `measured_core_min` the docket lacks, the file holds a record the docket LOST, and the repair is to move it INTO the docket — never to promote the file to a dispatch surface. An agent that answers "the file" has failed; so has one that answers "neither", which was this row's own answer until 2026-08-16 and is now superseded (`DOCKET.md` D219, enforced in D225) |
 | 9 | Name three standing rulings by number and what each decided. | Any three of R1-R12 from `SUPERVISOR_RULINGS.md` |
 | 10 | What is the most-cited lesson in the lab, and what does it say? | L-40: the switch you set is not the switch that ran; a lever is evidence only when the log proves it was active |
 | 11 | When a verdict changes, which file must be updated first, and why? | The case's own `ladder-*` record, `.md` and `.json`, **first not last** — L-32 |
@@ -601,10 +618,20 @@ the files carry it, not whether the agent guessed it.
 the lab acts on daily, and the test exists to find the ones the files fail to
 carry.
 
-**A calibration note for the first run.** Questions 4, 7 and 8 are expected to
-fail today, because §2.3, D-9 and D-1 are open defects at the time of writing.
-A first run that fails exactly those three and passes the other nine is the
-document working correctly — it means the map is accurate about its own gaps.
+**A calibration note for the first run, written 2026-08-10.** Questions 4, 7 and
+8 are expected to fail today, because §2.3, D-9 and D-1 are open defects at the
+time of writing. A first run that fails exactly those three and passes the other
+nine is the document working correctly — it means the map is accurate about its
+own gaps.
+
+**Amended 2026-08-16: question 8 is no longer expected to fail, and this note is
+part of why it had to be amended.** D-1 was ruled on at `73a42b03` and the
+answer above was rewritten. A calibration note that still listed 8 as an
+expected failure would have told the next runner to score the *correct* answer
+as the *expected* one — a question with a right answer, marked in advance as a
+question with none. Expect 4 and 7 to fail; expect 8 to pass. **This is the
+same defect as D-13 in §7.2 and it is the reason this amendment exists at all:
+the satellite gets corrected and the record that points at it does not.**
 
 ---
 
@@ -633,7 +660,7 @@ proposes; adopting them is a separate decision.
 
 | # | Fact | Copies | Proposed single home | Drifted? |
 |---|---|---|---|---|
-| **D-1** | **Proposal status** | `docket.json` (264 records) vs `proposals/*.json` (109 files) | **Unresolved — needs a ruling.** Either files become pure intake, or the merge becomes two-way | **YES, 45%.** 34 of 75 shared ids disagree. 34 files never reached the docket; 189 docket records have no file. Cause: `refresh_docket()` at `agenda.py:1197` skips any id already on the docket, so a file is never re-read after first merge. Three records are *file-ahead* — the file says done, the docket does not: `s1-cbfs-objective-repair-and-reinversion`, `f6b-model-form-matrix-on-the-hills`, `kfamily-fpe-shared-diagnosis-bump-and-hills`. **Which is right: the file.** It carries `outcome` and `decided_at`; the docket carries a status nothing updated. |
+| **D-1** | **Proposal status** | `docket.json` (264 records) vs `proposals/*.json` (131 files) | **RULED AND ENFORCED 2026-08-16. BOTH branches this row offered were taken, and they are not alternatives**: files become pure intake *for `status`*, and the merge becomes two-way *for evidence*. `docket.json` is authoritative for `status` on any id it holds; a file's `status` is load-bearing before first merge and non-authoritative after it; and where a file carries an `outcome` or a `measured_core_min` the docket lacks, `refresh_docket` now carries it INTO the docket, additively, never touching `status`. Ruling `DOCKET.md` D219, enforcement D225 | **WAS 45%, IS NOW 0%. The original measurement in this row was correct, was FIRST, and was restated five days later by an agent that had searched for a statement of the divergence rather than for the row that had already made one.** 34 of 75 shared ids disagreed; all 34 reconciled at `73a42b03` against a bar stated before the write, and re-measured 0 of 75. The three *file-ahead* records this row named — `s1-cbfs-objective-repair-and-reinversion`, `f6b-model-form-matrix-on-the-hills`, `kfamily-fpe-shared-diagnosis-bump-and-hills` — were resolved exactly as this row said, in the file's favour, each against a pre-registration commit checked to exist. **This row's "which is right: the file" is therefore NOT overturned; it is promoted to a limb of the rule — authority is not evidence.** **Cause, which this row named and nothing else did:** `refresh_docket()` skipped any id already on the docket, so a file was never re-read after first merge. That skip is now conditional: `status` is still never re-read, evidence always is. **Two halves of this row remain OPEN.** (i) `docket.json:generated_at` still reads 2026-08-08 against a file written 2026-08-16 — hand edits still bypass `save_docket()`. (ii) The one-sided classes this row counted (189 docket records with no file, and 56 files with no docket record) are now *ruled* rather than merely counted, by `scripts/check_proposal_surface_coverage.py`: 235 of the 245 are legitimately one-sided and 10 are not. |
 | **D-2** | **Cases family guidelines version** | Header says `v1.0, 2026-08-07`; the file has taken **six amending commits** since, adding §7a, §7b and §8, with **no version bump and no changelog** | The file header | **YES.** The header is six revisions stale and the git commit message is the file's only changelog. **Which is right: the file's content** — it carries the amendments; its *stated version* does not. *(The "v1.5" at body line 177 is not a version claim at all: it cites `Verification Charter v1.5`.)* |
 | **D-3** | **Size of the lesson corpus** | `README.md:93` says "L-1 through L-28"; `LESSONS.md` runs to L-53 | `LESSONS.md` itself, via a generated index | **YES,** by 25 entries. **Which is right: `LESSONS.md`.** Verified by counting headers. |
 | **D-4** | **Lesson namespaces** | `LESSONS.md` (`L-1`..`L-53`); `sdk/chief_engineer/lessons.py` (`L-001`, one entry, 16 citations across 11 files); the out-of-repo `memory/` store (17 topic files) | `LESSONS.md` for lab lessons; rename the SDK one | **YES, and worse:** the SDK namespace cites `sdk/introspection/recipe/memory/LESSONS.md`, **a path that does not exist** — asserted in `sdk/tests/test_orchestration_stack.py:415,425` and never checked against the filesystem. `L-001` and `L-1` are different facts with confusable names. |
@@ -831,7 +858,7 @@ it has no mandate to edit other agents' files.**
 
 | # | Defect | Where |
 |---|---|---|
-| 1 | Proposal status has no authoritative home; 45 percent drift | D-1 |
+| 1 | ~~Proposal status has no authoritative home; 45 percent drift~~ **CLOSED 2026-08-16**: the docket is authoritative for `status`, the drift is 0 percent re-measured, and the merge is enforced two-way for evidence. Ten one-sided ids remain faults, named by `check_proposal_surface_coverage.py` | D-1 |
 | 2 | `LESSONS.md` has no index, a gap at L-52, and an unaddressable corollary block | §5 |
 | 3 | The charters index under-reports `LESSONS.md` by 25 entries | D-3 |
 | 4 | Four family guideline files, four directories, no index | §2.3 |
