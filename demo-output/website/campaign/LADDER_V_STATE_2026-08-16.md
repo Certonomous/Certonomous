@@ -571,5 +571,17 @@ same document, with neither line edited.
 **D229** — V10's four blockers were repaired nineteen minutes after the grade that named them, and
 its verdict of record is a FAIL of a tree that no longer exists.
 
+> **ANCHOR NOTE, because a row anchored at a commit that does not mention it is a defect this lab
+> has already filed once (`b1d7faa3`).** All four rows landed at **`a8b3bce6`** (2026-08-16T00:42:57Z),
+> which is **another agent's commit**, not this pass's: that agent was committing its own `D225` with
+> a `docs/DOCKET.md` pathspec while my four rows sat uncommitted in the same working tree, and
+> `git commit -- <path>` takes the **working tree**, so all five rows travelled together. **The
+> capture was declared by its author at `78300277`** (00:43:45Z) within a minute. The rows are
+> byte-intact — verified here by reading them back out of `git show HEAD:docs/DOCKET.md` and
+> checking column count and content. **Nothing was lost and nothing was silently taken**; this note
+> exists so that a reader who runs `git log -S'| D226 |'` and finds a commit message about
+> one-sided ids does not conclude the row is misfiled. This document itself is anchored at
+> **`04144e7c`**.
+
 *This document graded no rung, marked none green, repaired nothing, and is now an author of the
 text above — so under R-ISOLATE it may not measure any of it again.*
