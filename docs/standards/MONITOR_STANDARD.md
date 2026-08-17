@@ -1,5 +1,24 @@
 # Certonomous Monitor Standard
 
+Version 1.9, dated 2026-08-17. **Three thermal signatures adopted at rung K1a
+of F14, and the first of them is the one that would have changed a published
+result.** S13 fires when a steady buoyant run meets its own `residualControl`
+while the quantity the rung is graded on is still moving: measured at K0c on
+four mesh pairs, where every fine mesh met its residual target and missed the
+graded criterion by two to three orders of magnitude, and where grading on
+residuals would have reported a FINE mesh further from the benchmark than its
+own COARSE mesh. S14 fires on the opposite error — a heat-balance closure
+number quoted as evidence on a sealed impermeable case, where it is very nearly
+an identity and K0b measured 0.013% against its own prediction of over 20%.
+S15 fires when a planted source is witnessed in a dictionary and not in the
+solver's log, or when a case's logs disagree about it; **it caught this rung's
+own no-source control**, which had inherited two foreign stage logs from the
+case it was copied from and would otherwise have read as planted. All three are
+WIRED, in `scripts/check_convergence.py` and `scripts/heat_balance.py`, and
+their thresholds are governed from `docs/physics_rules.yaml` block `thermal`
+rather than held in the checkers. Replay lines and corpus reach are stated with
+each; the corpus is small and the rules say so.
+
 Version 1.8, dated 2026-08-11. **S6's arming parser could not read OpenFOAM
 regex-group field keys, and the six "tolerance unreadable" cases were that
 parser, not those cases.** A `residualControl` target and its field's
@@ -669,6 +688,145 @@ answered rather than merely recorded.
 - Status: implemented (`detect_unsettled_stop`, `unsettled_window` in
   `sdk/chief_engineer/log_signatures.py`). Tests assert the motivating pair:
   fires on the capped rung, silent on the same case once settled.
+
+### The thermal three (S13–S15), adopted 2026-08-17 at rung K1a of F14
+
+These three come out of one campaign and share one corpus, so their reach is
+stated once, here, rather than three times in weaker words.
+
+> **CORPUS REACH — READ THIS BEFORE QUOTING A FIRE RATE.** The corpus is the
+> eleven committed K0c solver logs (`docs/campaigns/F14-cooling-ladder/K0c_runs/
+> <case>/log.buoyantBoussinesqSimpleFoam[.stage2|.stage3]`) plus six control
+> cases built for K1c, and nothing else. It is **one solver**
+> (`buoyantBoussinesqSimpleFoam`), **one case class** (a sealed
+> two-dimensional differentially heated cavity), **one mesh family** and
+> **one physics regime** (laminar natural convection, Ra 1e3 to 1e6). It is
+> not a sample of this lab's logs and no rate measured on it transfers to the
+> registry at large. What it IS is the complete population of thermal solves
+> this lab has run, which is the population these rules are for. Section 3.1's
+> standing complaint — that six rules were adopted on a corpus selected by a
+> filename accident — is answered here by naming the population rather than by
+> pretending to a larger one.
+>
+> S13 and S15 are additionally **not general log rules**: S13 needs the caller
+> to nominate which printed quantity the run is graded on, because no log says
+> that, and S15 needs to know which of a case's logs produced the field being
+> audited. Both are therefore invoked per audit rather than swept over the
+> registry, and neither is claimed to have a registry-wide fire rate.
+
+### S13. Converged residuals over a graded quantity that is still moving
+
+- Detection: the peak-to-peak spread of a solver-printed monitored quantity,
+  over a **fixed window of outer iterations**, exceeds
+  `thermal.monitor_peak_to_peak_max_pct` in `docs/physics_rules.yaml` (0.02%
+  over 400 iterations sampled every 50, giving 9 samples). Fewer samples than
+  span the window is `CANNOT_TELL`, never a score. The solver's own
+  convergence statement is **not** evidence against this signature: S13 exists
+  precisely for runs that print it. Neither the endpoint difference over the
+  same window nor the drift over the last quarter of the run is gated, and
+  both are printed beside the gated number labelled NOT GATED, because a
+  reader who sees only the number that gates cannot tell a choice was made.
+  Endpoint differences alias against a case approaching steady state as a
+  decaying oscillation whose period is near the window length; a
+  fraction-of-run window silently loosens as a run is extended, so the same
+  case passes by being run longer.
+- Severity: **FATAL** for any number graded off that quantity. The arithmetic
+  is sound and the answer is not converged, which is a different fault from
+  S3 or S6 and is not covered by either: those watch the residuals, and the
+  whole content of this signature is that the residuals were fine.
+- Action: continue the run, or report the drift beside the number. Never both
+  quote the number and omit the drift.
+- Status: **wired**, `classify_monitor()` in `scripts/check_convergence.py`,
+  mode `--monitor-regex`. Thresholds read from `docs/physics_rules.yaml`.
+- **Replay line.** Corpus: the eleven committed K0c logs. Fires on **1 of 11**
+  (`C3_Ra1e5_m64_source`, peak-to-peak 0.123720% against 0.02%); silent on the
+  other ten, whose spreads run 0.000219% to 0.008403%. Fatal count on the
+  graded set: **0 of 8** — every graded case passes, which is what makes the
+  K0c gate's pass readable. Reproduces that rung's own published convergence
+  table to six decimal places on all eleven rows, from the committed logs
+  alone, which is the check that it is the same criterion and not a new one
+  wearing its name.
+  Behaviour on the case that motivated it: the K0c fine meshes under K0b's
+  relaxation factors drifted 2.19%, 3.98% and 4.67%, and the g = 0 twin
+  14.65%, all with `residualControl` met. S13 fires on all four.
+  **And on this rung's own controls**: all six K1c control cases stopped on
+  `residualControl` at 685 to 793 iterations with peak-to-peak spreads of
+  0.176% to 0.575%. S13 fired on all six. Re-run to 4000 iterations they pass
+  at 0.000e+00 to 1.793e-08%, and the planted-source recovery error improved
+  by **four orders of magnitude**, from -7.943e-05% to +2.388e-09%. The rule
+  changed this rung's own numbers; it is not decorative.
+
+### S14. A closure number quoted as evidence on a sealed case
+
+- Detection: the audited case has **no non-wall active patch** (so no advective
+  enthalpy flux) **and** the solver's own log reports that no finite-volume
+  option was constructed (so no volumetric source). Under those two conditions
+  the boundary heat balance is very nearly an identity: `div(phi,T)` integrates
+  to zero because `phi` is conservative and no wall passes mass, so the
+  boundary conduction terms are forced to sum to zero at **every** iteration,
+  converged or not.
+- Severity: **CONFIGURATION RISK**, in the sense this standard's preamble gives
+  that word — the severity that sits outside the ladder — and for the same reason — the numbers are untouched and stand; what is at fault
+  is the sentence a reader is about to write about them. It is never FATAL,
+  because the closure figure is not wrong, and it is never folded into
+  "nothing fatal", because it is not a verdict on the arithmetic.
+- Action: the report stamps `closure_is_identity_class` and prints, in words,
+  that a passing number here is not evidence the physics is right. Per W-2 a
+  quantity derivable by construction cannot gate anything, so the row is
+  reported and never counted as evidence for a rung.
+- Status: **wired**, `scripts/heat_balance.py`, keys `closure_is_identity_class`
+  and `closure_identity_basis` in the JSON and a stamped block in the printed
+  report. The three-valued answer is deliberate: `true`, `false`, and `null`
+  for UNKNOWN when the log cannot answer.
+- **Replay line.** Corpus: the six K1c control cases. Fires on **1 of 6** —
+  `KC0_nosource`, the only sealed source-free case in the set — and is silent
+  on the four planted cases and on the probe. Fatal count: **0**, by
+  construction; the severity is not fatal.
+  Behaviour on the case that motivated it: K0b pre-registered "imbalance above
+  20% on an early, unconverged snapshot" and measured **0.0128%** at iteration
+  10, never above 0.13% at any iteration. Re-measured at K1c on the same case
+  class, the sealed no-source control closes to **0.000000005%** with a net
+  leak of -5.960965e-14 W against 1.298878e-03 W of heat crossing the boundary. That number is not an achievement and S14 is what says so.
+  The contrast that makes the rule readable: the same auditor's recovery of a
+  **planted** source on the same mesh tracks the T residual across seven
+  decades, -24.139% at iteration 100 to +2.388e-09% at 4000. One of those two
+  quantities measures the solution; the other measures the discretisation.
+
+### S15. A plant witnessed in the dictionary and not in the solver's log
+
+- Detection: read every solver log in the case for OpenFOAM's own construction
+  lines — `Selecting finite volume options` against `No finite volume options
+  present`. Three findings, all reported and none inferred: the logs say
+  **none** while `constant/fvOptions` exists (a plant the solver never opened
+  is a silent no-op that reads exactly like a clean case); the logs
+  **disagree** with each other (a case holding a history it did not all run);
+  or there is **no solver log** at all, which is UNKNOWN and is reported as
+  UNKNOWN rather than as a `false`.
+- Severity: **FATAL for the control**, never for the case. A control whose
+  plant did not reach the solver has not run, and a control that has not run
+  yields UNKNOWN, never PASS — this is `scripts/control_kind.py`'s rule that a
+  broken instrument is not a clean bill of health, applied to a plant instead
+  of to a pattern.
+- Action: rebuild the case cleanly and re-run. Never adjudicate between
+  disagreeing logs by taking a vote; picking either reading invents the
+  history.
+- Status: **wired**, `fvoptions_witness()` in `scripts/heat_balance.py`, keys
+  `fvOptions_in_log.state` and `.per_log`.
+- **Replay line.** Corpus: the six K1c control cases and the eleven committed
+  K0c logs. Fires on **1 of 6** at first attempt — and the one it fired on was
+  the **negative control**. `KC0_nosource` was copied from the committed
+  `C3_Ra1e5_m64_source` case and inherited its `.stage2` and `.stage3` logs;
+  the fresh solve overwrote only `log.buoyantBoussinesqSimpleFoam`, so the case
+  held one log saying `none` and two saying `constructed`. Reported
+  `disagreement`, identity class UNKNOWN. Without this rule the no-source
+  control would have read as **planted** and the control set would have been
+  quietly worthless. The cases were rebuilt with the foreign logs removed and
+  all six then report a single consistent state. Fires **0 of 11** on the
+  committed K0c logs, whose staged logs agree with each other by construction.
+  Behaviour on the case that motivated it: K0b's C3b, where the plant was
+  verified in the solver log rather than in the input file precisely because
+  an `fvOptions` the solver never opened reads as a clean pass. S15 makes that
+  one-off check standing.
 
 ## 3. The set as a set, reviewed 2026-07-31
 

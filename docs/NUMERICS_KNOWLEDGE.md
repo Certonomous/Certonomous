@@ -843,3 +843,129 @@ and forced convection measures:
   approval protocol in demo Part 2).
 - Unsteady metrics: time-averaged coefficients + shedding amplitude/Strouhal
   as first-class mission metrics.
+
+## Buoyant steady solves: convergence, closure and Boussinesq validity (added 2026-08-17, F14 rung K1a)
+
+Everything in this section is **VERIFIED by measurement on this repository's own
+cases** unless the row says otherwise. Where a value is standard in the field
+but was not read from a source document here, it is marked RECALLED, following
+the citation standard of the convection regime map above. Solver throughout:
+`buoyantBoussinesqSimpleFoam`, OpenFOAM v2606; case class: sealed
+two-dimensional differentially heated cavity, laminar, Ra 1e3 to 1e6.
+
+### 1. `residualControl` is not a convergence criterion for a graded quantity
+
+| Fact | Value | Basis |
+|---|---|---|
+| Rate at which an under-relaxed SIMPLE outer loop moves the smooth, domain-scale modes | falls off like **1/N²** with mesh count per direction | RECALLED as theory; **VERIFIED in consequence** — see the next two rows |
+| Iteration factor to reach the same distance to the fixed point on a mesh refined 2× | about **4×** | VERIFIED, F14 K0c: every coarse mesh settled and every fine mesh did not, under identical relaxation and identical residual targets |
+| Drift in the graded Nusselt number on fine meshes that **had met** `residualControl` | **2.19 %, 3.98 %, 4.67 %**, and **14.65 %** on a g = 0 twin, against a 0.02 % criterion | VERIFIED, `docs/campaigns/F14-cooling-ladder/K0c_runs/continue_cases.sh` docstring and `K0c_RESULTS.md` |
+| Consequence if graded on residuals | at Ra = 1e3 the **fine** mesh reports **further** from the benchmark than its own **coarse** mesh: 1.0940 against 1.1191 | VERIFIED, same source |
+| Clean demonstration | g = 0 twin, exact answer Nu = 1: read **1.328** after 3000 iterations with the core near its initial uniform 300 K, residuals nominal | VERIFIED |
+
+**Practice.** Gate the peak-to-peak spread of the graded quantity over a
+**fixed** iteration window, read from the running solver's own in-pass function
+objects. Governed values in `docs/physics_rules.yaml` block `thermal`:
+0.02 % over 400 outer iterations sampled every 50 (9 samples), refusing to score
+below 9 samples. Implemented as `classify_monitor()` /
+`--monitor-regex` in `scripts/check_convergence.py`.
+
+Two alternatives are **refused**, both for measured reasons:
+- **Endpoint difference over the window** — aliases against a case approaching
+  steady state as a decaying oscillation. VERIFIED: one K0c case oscillates with
+  a period of about 400 outer iterations, the same length as the window.
+- **A fraction of the run (e.g. last quarter)** — loosens as a run is extended.
+  VERIFIED: on `Ra1e3_m64` the last-quarter statistic reads **2.164275 %** where
+  the fixed-window spread reads **0.002813 %**.
+
+### 2. Boundary heat balance on a sealed case is very nearly an identity
+
+| Fact | Value | Basis |
+|---|---|---|
+| Boundary imbalance on a sealed impermeable steady case at **iteration 10** | **0.0128 %** | VERIFIED, F14 K0b (capability rung) |
+| Same, maximum over the whole run | never above **0.13 %** | VERIFIED, same |
+| Converged sealed no-source case | **0.000000005 %**, net leak −5.960965e-14 W against 1.298878e-03 W of boundary traffic | VERIFIED, F14 K1c control `KC0_nosource` |
+| Why | `div(phi,T)` integrates to zero over the domain (conservative flux, impermeable walls), so the boundary conduction terms are forced to sum to zero **at every iteration, converged or not** | VERIFIED by the numbers above; derivation standard |
+
+**Practice.** A closure figure at or under tolerance on a sealed case is **not**
+evidence the physics is right. It is reported and never counted as evidence for
+a rung. `scripts/heat_balance.py` stamps `closure_is_identity_class` and says so
+in words; `docs/physics_rules.yaml` carries
+`heat_balance_closure_is_evidence_on_sealed_case: false`.
+
+**What the check IS worth, narrowly:** wrong fluid properties, wrong patch
+areas, a wrong sign convention, a patch omitted from the sum, any unaccounted
+volumetric source or sink, and — the one regime where the balance is genuinely
+not an identity — any domain with through-flow, where the advective enthalpy
+flux is an independent contribution. That advective path is **UNVALIDATED** in
+this lab and is refused with exit 2 unless explicitly allowed.
+
+### 3. Planted-source recovery IS convergence-sensitive — the contrast that makes §2 readable
+
+Same script, same case, same field. Plant +5.000000000e-03 W as a uniform
+volumetric source and audit at increasing iteration counts. VERIFIED, F14 K1c
+control `KC4_identity_probe`:
+
+| iteration | T equation initial residual | recovery error |
+| ---: | ---: | ---: |
+| 100 | 4.511e-03 | −24.139 % |
+| 300 | 8.456e-05 | −0.66860 % |
+| 500 | 2.101e-06 | −1.6706e-02 % |
+| 1000 | 2.218e-10 | −1.7593e-06 % |
+| 4000 | 3.486e-12 | **+2.3876e-09 %** |
+
+The error tracks the residual across **seven decades**. This is the operational
+test for whether any gate quantity is a measurement or an identity: evaluate it
+on a deliberately unconverged field. If it is already at its final value, it is
+an identity.
+
+### 4. Detection floor of a closure check
+
+| Fact | Value | Basis |
+|---|---|---|
+| Smallest source detectable at a 0.5 % tolerance on this case class | about **6.5 µW**, i.e. tolerance × boundary traffic (1.30e-03 W) | VERIFIED, F14 K1c: a planted 1.000e-05 W source gives 0.772869 % (FAIL); a planted 5.000e-06 W source gives 0.385690 % (PASS) |
+| Linearity of the reported imbalance in the planted defect | plant ratio 2.000000 → measured imbalance ratio **2.003862** | VERIFIED, same pair |
+
+**Practice.** A passing closure number does not mean there is no unaccounted
+source; it means there is none larger than tolerance × boundary traffic. Quote
+that floor beside the pass.
+
+### 5. Boussinesq validity, in kelvin
+
+| Fact | Value | Basis |
+|---|---|---|
+| Validity condition | β·ΔT ≪ 1; the working limit used here is **0.1** | RECALLED (standard statement of the approximation); the limit value is a lab convention recorded in `docs/physics_rules.yaml` |
+| β for an ideal gas | 1/T_ref | VERIFIED by derivation |
+| ΔT at which β·ΔT reaches 0.1, at T_ref = 300 K | **30.0000 K exactly** (30.000003 K at the cases' rounded β = 3.333333e-03 1/K) | VERIFIED by calculation from the case dictionaries |
+| β·ΔT at ΔT = 40 K | **0.1333** | VERIFIED by calculation |
+| Measured on the F14 capability rung K0a (ΔT = 10 K) | **3.333333e-02** — satisfied, by a factor of 3 | VERIFIED, `constant/transportProperties` and `0.orig/T` of that case |
+
+**Practice, and this is the consequential row.** The limit is a **warning**, not
+a hard gate: a violation does not make the arithmetic wrong, it means the
+momentum equation being solved is no longer the one the problem has. **Any
+buoyant rung run at a realistic temperature rise crosses this line**, because
+30 K is inside the range these problems produce. Such a rung must either justify
+Boussinesq explicitly or move to a compressible thermo solver.
+`scripts/heat_balance.py` prints β·ΔT, the limit, and the ΔT at which the limit
+is reached, on every run.
+
+### 6. Turbulent Prandtl number
+
+| Fact | Value | Basis |
+|---|---|---|
+| Relation | alphat = nut / Prt, so Prt sets every wall heat flux a turbulent thermal solve reports | VERIFIED by derivation |
+| Value used across this lab's thermal cases | **0.85**, declared in each case's `constant/transportProperties` | VERIFIED by reading the case dictionaries |
+| Status | a **modelling choice**, not a measured value. No case in this lab has measured or varied it | VERIFIED — no turbulent thermal case has been run |
+
+**Practice.** Recorded per solve with its provenance (case dictionary, or the
+`thermal.turbulent_prandtl_default` fallback), and recorded even on laminar
+solves where alphat is identically zero and Prt does not enter the answer. A
+reader cannot reconstruct it from anything else in a report, and "it did not
+matter here" is a fact about this case, not the next one.
+
+### 7. Two traps in the auditor itself, both measured
+
+| Trap | Measurement | Rule |
+|---|---|---|
+| `grad(T)` written to disk and read back loses the `snGrad` boundary correction | integral n·grad(T) dA = 0.595629494 recomputed in-pass against **0.377856775** read back — **−36.6 %** | VERIFIED, F14 K0a. Recompute the gradient in the **same** postProcess pass as the surface integral. |
+| An imbalance ratio whose denominator is floating-point residue | one adiabatic patch carrying **+7.94e-24 W** produced a reported imbalance of **6.25e+22 %** | VERIFIED, F14 K1c. Test that the denominator is the quantity the ratio claims to be measured against, not merely that it is non-zero. |

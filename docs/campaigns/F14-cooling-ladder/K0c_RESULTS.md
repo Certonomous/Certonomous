@@ -478,3 +478,46 @@ was run and none is authorized; each needs the owner's word with a cost
 estimate. Nothing in this document should be read as evidence about any of
 them, and the trust tier this rung supports is capped at TREND ONLY by the
 specification's own Section 2.5 because no experimental comparison was made.
+
+---
+
+## Addendum, 2026-08-17 — P1 is closed, and its remedy was refused
+
+Appended rather than inserted: citations reach this file by line number, and
+rewriting section "Proposals, not actions" in place would move every line under
+it. Nothing above this rule is altered.
+
+**P1 as filed above** asked for `scripts/heat_balance.py` to report a defined
+imbalance when every patch carries heat outward, by normalising with
+`max(sum(Q>0), |sum(Q<0)|)`, "without changing any existing answer".
+
+**Closed at rung K1c: the complaint is adopted, the remedy is rejected.** With
+no inward patch, `sum(Q<0)` *is* the net, so the proposed ratio is
+|net| / |net| = **1 exactly** — it would print 100.0000 % for every such case
+whatever the source size. That is a second identity, and by this campaign's own
+W-2 finding an identity cannot gate anything. Measured rather than argued: plant
+the mirror defect, a **sink** instead of a source, so that every patch carries
+heat *in* and `Q_out` is zero, and the **existing** code already prints
+`100.000000000 %` (K1c control `KC2_sink_5mW`).
+
+The same measurement found a second failure P1 did not anticipate: at
+intermediate iterations of a planted case, an adiabatic patch carrying
+**+7.94e-24 W** of floating-point residue made `Q_in > 0` true and the reported
+imbalance **6.25e+22 %**. A denominator of residue is not a denominator.
+
+**Adopted instead:** the ratio is declared UNDEFINED whenever `Q_in <= 0` or
+`Q_in < |Q_net|`, with a named reason and the net leak in watts, and the case
+fails. Proved not more permissive by running HEAD's script and the patched one
+over the same 13 sets of fields: **0 exit-code changes, 0 pre-existing JSON keys
+moved.** C3's verdict is unchanged — exit 1, plant witnessed in the solver log.
+
+**P2 remains open**, unchanged: the laminar stratification row still needs
+acquisition, not solving.
+
+Two further findings from that rung touch cases in this tree and are filed to
+the docket rather than acted on here: **D350** (this rung's `C3_Ra1e5_m64_source`
+reads 0.123720 % against the 0.02 % criterion this rung established — the same
+figure the convergence table above prints, on a case this rung did not grade)
+and **D351** (a planted defect moves the Rayleigh number the auditor reports).
+
+Full record: `docs/campaigns/F14-cooling-ladder/K1_STANDING_THERMAL_CHECKS.md`.

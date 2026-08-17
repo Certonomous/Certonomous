@@ -57,6 +57,81 @@ Q_into_domain must be zero.  The reported imbalance is
 
 i.e. the net leak as a percentage of the total heat actually entering.
 
+WHAT A PASSING CLOSURE NUMBER IS NOT -- READ THIS BEFORE QUOTING ONE
+--------------------------------------------------------------------
+On a SEALED, IMPERMEABLE, STEADY case this balance is very nearly an IDENTITY.
+The discrete temperature equation is solved to a tight linear tolerance at every
+outer iteration; `div(phi,T)` integrates to zero over the domain because `phi`
+is conservative and no wall passes mass; so the boundary conduction terms are
+forced to sum to zero AT EVERY ITERATION, CONVERGED OR NOT.  K0b pre-registered
+"imbalance above 20 percent on an early, unconverged snapshot" and measured
+0.0128 percent at iteration 10, never above 0.13 percent at any iteration.
+
+So a number at or below `--tol` on a sealed case is NOT evidence that the
+physics is right.  A quantity derivable by construction is an identity and per
+W-2 cannot gate anything.  This script therefore STAMPS such a report:
+`closure_is_identity_class` in the JSON and a line in the printed output.  The
+stamp is not a warning about this script; it is a warning about the sentence a
+reader is about to write.
+
+What the check IS still worth, narrowly: wrong fluid properties, wrong patch
+areas, a wrong sign convention, a patch omitted from the sum, any unaccounted
+energy source or sink, and any domain with through-flow -- where the advective
+enthalpy flux is a genuinely independent contribution and the balance is not an
+identity at all.
+
+And the part that IS a measurement: the RECOVERY of a planted volumetric source
+is convergence-sensitive, unlike the sealed-case closure.  Measured at K1c on
+one case at eight iteration counts against a +5.000000000e-03 W plant, the
+recovery error falls from -24.139 percent at iteration 100 to +2.3876e-09
+percent at iteration 4000, tracking the T equation's own initial residual across
+SEVEN decades.  Set that beside K0b's sealed no-source case, which read 0.0128
+percent at iteration 10 and never rose above 0.13 percent at any iteration: one
+of these two is measuring the solution and the other is measuring the
+discretisation.  The full table is in docs/physics_rules.yaml, block `thermal`.
+
+WHEN THE IMBALANCE RATIO IS UNDEFINED (proposal P1, closed 2026-08-17 at K1c)
+-----------------------------------------------------------------------------
+The denominator is the heat actually ENTERING.  On a case whose every patch
+carries heat OUT -- which is exactly what a planted volumetric source produces
+-- there is no such heat and the ratio has no denominator.  Two things follow,
+and the second is the reason P1 was closed by REFUSING it rather than by
+adopting it.
+
+  1. The ratio is reported as UNDEFINED, with a named reason and with the watts
+     stated, and the case FAILS.  It used to print a bare `nan`, which failed
+     safe -- `nan` loses its own comparison -- but told the reader nothing about
+     why.  A verdict nobody can act on is a verdict that gets ignored.
+
+  2. P1 PROPOSED normalising by `max(sum(Q>0), |sum(Q<0)|)` to "give C3 a real
+     percentage instead of nan".  That is REJECTED.  With no inward patch,
+     `sum(Q<0)` IS the net, so the proposed ratio is |net|/|net| = 1 EXACTLY --
+     100.0000 percent for every such case, whatever the source size, forever.
+     It is another identity, and trading an honest refusal for a number that
+     looks like a measurement is a straight loss.  This is not a prediction:
+     the MIRROR case already does it.  Plant a SINK instead of a source, so that
+     every patch carries heat IN and `Q_out` is zero, and the existing
+     denominator prints exactly `100.0000 %` -- measured at K1c on
+     KC2_sink_5mW.  The arithmetic is symmetric and so is the emptiness.
+
+  A related failure the same measurement turned up, and the reason the test is
+  on the RATIO and not merely on `Q_in == 0`: at intermediate iterations of the
+  same planted case one adiabatic patch carried +1.63e-22 W of pure
+  floating-point residue, so `Q_in > 0` was TRUE and the reported imbalance was
+  3.07e+21 percent.  A denominator of residue is not a denominator.  The ratio
+  is therefore declared undefined whenever `Q_in <= 0` OR `Q_in < |Q_net|`: if
+  the leak is larger than all the heat entering, the quotient is not "a
+  percentage of the heat entering" in any sense a reader can use.
+
+  THIS IS NOT MORE PERMISSIVE, AND THAT IS PROVABLE RATHER THAN ASSERTED.  A
+  case that passed before satisfies `100.|Q_net|/Q_in <= tol` with `tol` well
+  under 100, hence `|Q_net| < Q_in`, hence the ratio is DEFINED and the verdict
+  is byte-identical.  Every previously passing case still passes and every
+  previously failing case still fails; only the words change on the cases that
+  had no number to begin with.  Re-audited at K1c across all eleven committed
+  K0c cases plus five controls; the diff on every pre-existing JSON key is
+  empty.
+
 REFUSALS -- what this script will NOT guess at
 ----------------------------------------------
 It exits 2, loudly, rather than print a wrong number, when:
@@ -76,6 +151,25 @@ It exits 2, loudly, rather than print a wrong number, when:
 
 Both refusals are deliberate.  A checker that returns a number for every input
 is a checker nobody can learn anything from.
+
+WHERE THE THRESHOLDS COME FROM
+------------------------------
+`--tol` and the Boussinesq limit default from `docs/physics_rules.yaml`, block
+`thermal`, so the numbers are GOVERNED rather than moving: a ruling can point at
+a stated criterion instead of at a default buried in an argparse call.  An
+explicit `--tol` on the command line still wins, and the report always says
+which source it used (`thresholds.source`).  If the rules file cannot be read
+the built-in values are used and the report says so -- a checker that dies
+because a YAML file moved is a checker that stops running, and a check that
+stops running is the failure mode this lab keeps meeting.
+
+Also recorded on every solve, per the same block: the TURBULENT PRANDTL NUMBER
+and where it came from.  Prt sets alphat = nut/Prt and therefore every wall heat
+flux a turbulent thermal solve reports; it is a modelling choice with no
+measured value on this lab's cases, it is rarely written down, and a reader
+cannot reconstruct it from anything else in the report.  On a laminar solve it
+does not enter the answer, and it is still recorded, because "it did not matter
+here" is a fact about this case and not about the next one.
 
 CALIBRATION
 -----------
@@ -104,6 +198,115 @@ import sys
 FOAM_BASHRC = os.environ.get(
     "FOAM_BASHRC", "/usr/lib/openfoam/openfoam2606/etc/bashrc"
 )
+
+PHYSICS_RULES = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "docs", "physics_rules.yaml")
+
+#: Used ONLY if docs/physics_rules.yaml cannot be read, and the report says so
+#: when they are used.  `heat_balance_tol_pct` is deliberately the pre-K1a
+#: built-in 1.0 rather than a copy of the governed 0.5: a fallback that silently
+#: matched the governed value would make a missing rules file invisible, and the
+#: looser number can only ever be reached on a run that has ALREADY announced it
+#: could not read its thresholds.
+BUILTIN_THERMAL = dict(
+    heat_balance_tol_pct=1.0,
+    boussinesq_beta_dT_max=0.1,
+    turbulent_prandtl_default=0.85,
+)
+
+
+def load_thermal_rules():
+    """The `thermal` block of docs/physics_rules.yaml, and where it came from.
+
+    Returns (rules_dict, source_string).  Never raises: a threshold file that
+    has moved must not take the check offline with it, because a check that
+    stops running is worth less than a check running on a stale number that
+    says it is stale.  The source string travels into the report so a reader
+    can always see which of the two was used.
+    """
+    try:
+        import yaml  # noqa: PLC0415 -- optional, and its absence must not be fatal
+        with open(PHYSICS_RULES) as fh:
+            block = (yaml.safe_load(fh) or {}).get("thermal") or {}
+        if not block:
+            raise KeyError("no 'thermal' block")
+        merged = dict(BUILTIN_THERMAL)
+        merged.update(block)
+        return merged, PHYSICS_RULES
+    except Exception as exc:                       # noqa: BLE001 -- deliberate
+        return dict(BUILTIN_THERMAL), f"built-in defaults ({type(exc).__name__}: {exc})"
+
+
+def fvoptions_witness(case):
+    """What the SOLVER'S OWN LOG says about finite-volume options in this case.
+
+    A source sitting in `constant/fvOptions` that the solver never constructed
+    is a silent no-op and reads exactly like a clean case.  This lab's first
+    false zero was a plant verified in the dictionary and never in the log, so
+    the dictionary is not the referent here and never is: the referent is the
+    line `buoyantBoussinesqSimpleFoam` prints at construction.
+
+    OpenFOAM prints exactly one of two things.  Both are matched, because the
+    absence of the positive line is not the same evidence as the presence of
+    the negative one -- a truncated log has neither.
+
+    EVERY solver log in the case is read, because a staged run legitimately has
+    several (`log.solver`, `.stage2`, `.stage3` on the K0c tree) and the plant
+    must be witnessed in the stage that produced the field being audited.  When
+    they DISAGREE the answer is `disagreement`, never a vote: a case holding one
+    log that constructed a source and another that did not is a case whose
+    history changed under it, and picking either reading would be inventing the
+    history.  That state is treated as UNKNOWN by every caller.
+
+    THIS IS NOT HYPOTHETICAL.  It fired on this rung's own control cases at
+    first attempt: they were copied from the committed `C3_Ra1e5_m64_source`
+    case, whose `.stage2`/`.stage3` logs came with them, and the fresh solve
+    only overwrote `log.buoyantBoussinesqSimpleFoam`.  The no-source negative
+    control therefore held two logs saying `constructed` and one saying `none`.
+    Before this branch existed it read as `constructed` and the negative control
+    would have been silently wrong.  The cases were rebuilt with the foreign
+    logs removed; the branch stays, because the next agent will make the same
+    copy.
+
+    Returns a dict, never raises.  `state` is one of:
+        "constructed"   -- every solver log selected at least one fvOption
+        "none"          -- every solver log said "No finite volume options present"
+        "disagreement"  -- the logs do not agree: UNKNOWN, with both counts
+        "no_log"        -- no solver log in the case directory: UNKNOWN, and the
+                           caller is told so rather than being handed a False
+    """
+    logs = [p for p in sorted(glob.glob(os.path.join(case, "log.*")))
+            if os.path.isfile(p)]
+    dict_present = os.path.isfile(os.path.join(case, "constant", "fvOptions"))
+    per_log, sources = {}, []
+    selecting = absent = 0
+    for p in logs:
+        try:
+            with open(p, errors="replace") as fh:
+                txt = fh.read()
+        except OSError:
+            continue
+        s = len(re.findall(r"Selecting finite volume options", txt))
+        n = len(re.findall(r"No finite volume options present", txt))
+        if not (s or n):
+            continue                      # not a solver log (blockMesh, checkMesh)
+        selecting += s
+        absent += n
+        sources += re.findall(r"^\s*Source:\s*(\S+)", txt, re.M)
+        per_log[os.path.basename(p)] = "constructed" if s else "none"
+    if not per_log:
+        state = "no_log"
+    elif selecting and absent:
+        state = "disagreement"
+    elif selecting:
+        state = "constructed"
+    else:
+        state = "none"
+    return dict(state=state, dict_present=dict_present,
+                n_selecting_lines=selecting, n_absent_lines=absent,
+                sources=sorted(set(sources)), per_log=per_log,
+                logs_read=sorted(per_log))
 
 
 # ---------------------------------------------------------------------------
@@ -275,8 +478,10 @@ def main(argv=None):
     ap.add_argument("case")
     ap.add_argument("--time", default="latestTime",
                     help="time to audit; 'latestTime' (default) or a value")
-    ap.add_argument("--tol", type=float, default=1.0,
-                    help="pass threshold on imbalance, percent (default 1.0)")
+    ap.add_argument("--tol", type=float, default=None,
+                    help="pass threshold on imbalance, percent. Default is "
+                         "thermal.heat_balance_tol_pct from docs/physics_rules.yaml, "
+                         "falling back to 1.0 if that file cannot be read.")
     ap.add_argument("--length", type=float, default=None,
                     help="characteristic length L for Rayleigh number, metres")
     ap.add_argument("--rho", type=float, default=None)
@@ -295,6 +500,14 @@ def main(argv=None):
     if not os.path.isdir(case):
         raise SystemExit(f"REFUSE: no such case directory {case}")
 
+    rules, rules_source = load_thermal_rules()
+    tol_from = "--tol on the command line"
+    if a.tol is None:
+        a.tol = float(rules["heat_balance_tol_pct"])
+        tol_from = rules_source
+    beta_dT_max = float(rules["boussinesq_beta_dT_max"])
+    prt_default = float(rules["turbulent_prandtl_default"])
+
     # Delete any previous --json output FIRST. If this run dies, the caller must
     # find no file rather than last run's numbers wearing this run's name. A
     # stale artefact that reads as fresh is how a wrong figure survives a fix.
@@ -304,7 +517,13 @@ def main(argv=None):
     tp = os.path.join(case, "constant", "transportProperties")
     nu = read_scalar(tp, "nu")
     Pr = read_scalar(tp, "Pr")
-    Prt = read_scalar(tp, "Prt", 0.85)
+    # Prt: recorded on EVERY solve, with its provenance. It is a modelling
+    # choice, not a measurement, and a report that omits it cannot be checked.
+    with open(tp) as _fh:
+        Prt_in_case = re.search(r"^\s*Prt\s+([^;]+);", _fh.read(), re.M) is not None
+    Prt = read_scalar(tp, "Prt", prt_default)
+    Prt_source = ("case constant/transportProperties" if Prt_in_case
+                  else f"thermal.turbulent_prandtl_default ({rules_source})")
     TRef = read_scalar(tp, "TRef", 300.0)
     beta = read_scalar(tp, "beta", 1.0 / TRef)
 
@@ -427,7 +646,44 @@ def main(argv=None):
     Q_net = sum(Qs)
     Q_in = sum(q for q in Qs if q > 0)
     Q_out = sum(q for q in Qs if q < 0)
-    imbalance_pct = 100.0 * abs(Q_net) / Q_in if Q_in > 0 else float("nan")
+
+    # ---- is the ratio defined at all?  (proposal P1, closed at K1c) ---------
+    # The denominator is "the heat actually entering".  Two ways it stops being
+    # that, both measured on planted cases at K1c and both explained at the top
+    # of this file under "WHEN THE IMBALANCE RATIO IS UNDEFINED":
+    #   Q_in <= 0        -- no patch carries heat inward at all.  Renormalising
+    #                       onto the outflow would return exactly 100.0000 % for
+    #                       every such case whatever the source size, which is an
+    #                       identity, so the ratio is refused rather than faked.
+    #   Q_in < |Q_net|   -- the leak exceeds all the heat entering, so the
+    #                       quotient is not a percentage of anything a reader can
+    #                       use.  Measured: an adiabatic patch carrying +1.63e-22 W
+    #                       of floating-point residue made Q_in > 0 true and the
+    #                       reported imbalance 3.07e+21 %.
+    # This can only turn a number into a refusal, never a FAIL into a PASS: a
+    # case that passed satisfied 100.|Q_net|/Q_in <= tol with tol far below 100,
+    # hence |Q_net| < Q_in, hence the ratio is defined and the verdict is
+    # unchanged.
+    if Q_in <= 0.0:
+        imbalance_defined = False
+        imbalance_undefined_reason = (
+            "no patch carries heat INWARD, so the ratio has no denominator. "
+            "Every patch is outward, which on a sealed steady case means an "
+            "unaccounted volumetric source. Normalising by the outflow instead "
+            "would read 100.0000 % by construction for any source size and is "
+            "refused (P1, rejected 2026-08-17). Net and gross are in watts below."
+        )
+    elif Q_in < abs(Q_net):
+        imbalance_defined = False
+        imbalance_undefined_reason = (
+            f"the net leak ({abs(Q_net):.6e} W) exceeds all the heat entering "
+            f"({Q_in:.6e} W), so the quotient is not a percentage of the heat "
+            "entering. A denominator this small is residue, not heat traffic."
+        )
+    else:
+        imbalance_defined = True
+        imbalance_undefined_reason = None
+    imbalance_pct = 100.0 * abs(Q_net) / Q_in if imbalance_defined else float("nan")
 
     # ---- regime -----------------------------------------------------------
     Twall_max = max(p["T_area_avg"] for p in per_patch)
@@ -441,22 +697,66 @@ def main(argv=None):
         Ra = gmag * beta * dT * L ** 3 / (nu * alpha)
         Gr = Ra / Pr
 
+    # ---- is a passing closure number evidence about this case? --------------
+    # Only when the balance is NOT an identity.  It is an identity class when
+    # the domain is sealed (every active patch a wall, so no advective term) AND
+    # the solver constructed no volumetric source.  The source question is
+    # answered from the SOLVER'S OWN LOG, never from constant/fvOptions: a
+    # dictionary the solver never opened is a silent no-op that reads exactly
+    # like a clean case, and that is how this lab's first false zero happened.
+    fvo = fvoptions_witness(case)
+    sealed = not nonwall
+    if fvo["state"] in ("no_log", "disagreement"):
+        closure_is_identity_class = None      # UNKNOWN, and said so
+        closure_identity_basis = (
+            "no solver log in the case directory, so whether a volumetric source "
+            "was constructed is UNKNOWN and the identity question cannot be "
+            "answered. The dictionary is not the referent."
+            if fvo["state"] == "no_log" else
+            "the solver logs in this case DISAGREE about whether finite volume "
+            f"options were constructed ({fvo['per_log']}). The case holds a "
+            "history it did not all run; audit it after a clean rebuild."
+        )
+    else:
+        closure_is_identity_class = bool(sealed and fvo["state"] == "none")
+        closure_identity_basis = (
+            f"every active patch is a wall: {sealed}; solver log says finite "
+            f"volume options were {fvo['state']}"
+            + (f" ({', '.join(fvo['sources'])})" if fvo["sources"] else "")
+        )
+
     res = dict(
         case=case, time=tval,
         properties=dict(nu=nu, Pr=Pr, Prt=Prt, beta=beta, TRef=TRef, rho=rho,
                         cp=cp, alpha=alpha, k_derived=kcond, g=gmag),
+        turbulent_prandtl=dict(Prt=Prt, source=Prt_source,
+                               enters_the_answer=bool(alphat_max > 1e-14)),
+        thresholds=dict(source=rules_source, tolerance_pct_from=tol_from,
+                        heat_balance_tol_pct=a.tol,
+                        boussinesq_beta_dT_max=beta_dT_max,
+                        turbulent_prandtl_default=prt_default),
         patches=per_patch,
         Q_in_W=Q_in, Q_out_W=Q_out, Q_net_W=Q_net,
         imbalance_pct=imbalance_pct, tolerance_pct=a.tol,
+        imbalance_defined=imbalance_defined,
+        imbalance_undefined_reason=imbalance_undefined_reason,
+        fvOptions_in_log=fvo,
+        closure_is_identity_class=closure_is_identity_class,
+        closure_identity_basis=closure_identity_basis,
         dT_field_K=dT_field, dT_wall_K=dT_wall, dT_used_K=dT,
-        beta_dT=beta * dT, boussinesq_ok=bool(beta * dT < 0.1),
+        beta_dT=beta * dT, boussinesq_ok=bool(beta * dT < beta_dT_max),
+        boussinesq_beta_dT_max=beta_dT_max,
+        boussinesq_dT_limit_K=(beta_dT_max / beta) if beta > 0 else None,
         T_max_K=Tmax, T_min_K=Tmin, U_max_magnitude_ms=Umax,
         alphat_max=alphat_max, laminar=bool(alphat_max <= 1e-14),
         Rayleigh=Ra, Grashof=Gr, Prandtl=Pr, length_scale_m=L,
         Richardson_note=("not defined independently: no imposed velocity scale. "
                          "With Re built from the buoyancy velocity, Ri = Gr/Re^2 = 1 "
                          "identically, by construction. Ra and Pr carry the regime."),
-        passed=bool(imbalance_pct == imbalance_pct and imbalance_pct <= a.tol),
+        # An undefined ratio is a FAIL, exactly as the bare `nan` already was:
+        # `nan` loses every comparison. The condition is written out rather than
+        # left to that accident so a reader does not have to know it.
+        passed=bool(imbalance_defined and imbalance_pct <= a.tol),
     )
 
     if a.selftest_conduction is not None:
@@ -489,6 +789,19 @@ def patch_area(case, foname):
     return float("nan")
 
 
+def _wrap(text, width):
+    out, line = [], ""
+    for word in (text or "").split():
+        if line and len(line) + 1 + len(word) > width:
+            out.append(line)
+            line = word
+        else:
+            line = f"{line} {word}".strip()
+    if line:
+        out.append(line)
+    return out
+
+
 def emit(r):
     p = print
     p("=" * 74)
@@ -503,6 +816,12 @@ def emit(r):
       f"  -> k = rho.cp.alpha = {r['properties']['k_derived']:.6f} W/m/K")
     p(f"              |g| = {r['properties']['g']:.4f} m/s2"
       f"   {'(LAMINAR: alphat = 0, alphaEff = nu/Pr exactly)' if r['laminar'] else '(TURBULENT)'}")
+    p(f"  thresholds: {r['thresholds']['source']}")
+    p(f"              tolerance {r['thresholds']['heat_balance_tol_pct']:g} % from "
+      f"{r['thresholds']['tolerance_pct_from']}")
+    p(f"  fvOptions in the SOLVER LOG: {r['fvOptions_in_log']['state']}"
+      + (f"  {r['fvOptions_in_log']['sources']}" if r["fvOptions_in_log"].get("sources") else "")
+      + f"   (logs read: {', '.join(r['fvOptions_in_log']['logs_read']) or 'none'})")
     p("-" * 74)
     p(f"{'patch':<20}{'type':<10}{'area m2':>12}{'int snGradT':>16}{'Q into dom. W':>16}")
     for q in r["patches"]:
@@ -512,17 +831,58 @@ def emit(r):
     p(f"  heat IN   = {r['Q_in_W']:+.6e} W")
     p(f"  heat OUT  = {r['Q_out_W']:+.6e} W")
     p(f"  net       = {r['Q_net_W']:+.6e} W")
-    p(f"  IMBALANCE = {r['imbalance_pct']:.4f} %  of heat in   "
-      f"(tolerance {r['tolerance_pct']:.4f} %)  -> {'PASS' if r['passed'] else 'FAIL'}")
+    if r["imbalance_defined"]:
+        p(f"  IMBALANCE = {r['imbalance_pct']:.4f} %  of heat in   "
+          f"(tolerance {r['tolerance_pct']:.4f} %)  -> {'PASS' if r['passed'] else 'FAIL'}")
+    else:
+        p(f"  IMBALANCE = UNDEFINED  (tolerance {r['tolerance_pct']:.4f} %)  -> FAIL")
+        for line in _wrap(r["imbalance_undefined_reason"], 68):
+            p(f"      {line}")
+        p(f"      net leak in watts = {abs(r['Q_net_W']):.9e} W")
+    p("-" * 74)
+    if r["closure_is_identity_class"] is True:
+        p("  WHAT THIS NUMBER IS NOT: this case is SEALED and the solver "
+          "constructed no")
+        p("  volumetric source, so the boundary balance is very nearly an "
+          "IDENTITY -- the")
+        p("  discrete equation conserves at EVERY iteration, converged or not. "
+          "K0b predicted")
+        p("  over 20 % on an unconverged snapshot and measured 0.0128 %. A "
+          "closure number")
+        p("  here is NOT evidence that the physics is right, and per W-2 a "
+          "quantity")
+        p("  derivable by construction cannot gate anything. Do not quote it as "
+          "a result.")
+    elif r["closure_is_identity_class"] is False:
+        p("  NOT of the identity class, so the balance is a genuine constraint "
+          "here rather")
+        p("  than a restatement of the discretisation:")
+        for line in _wrap(r["closure_identity_basis"], 68):
+            p(f"      {line}")
+    else:
+        p("  IDENTITY CLASS UNKNOWN:")
+        for line in _wrap(r["closure_identity_basis"], 68):
+            p(f"      {line}")
     p("-" * 74)
     p(f"  max |U|        = {r['U_max_magnitude_ms']:.6e} m/s")
     p(f"  T range, cells = {r['T_min_K']:.6f} .. {r['T_max_K']:.6f} K")
     p(f"  max dT used    = {r['dT_used_K']:.6f} K "
       f"(field {r['dT_field_K']:.6f}, wall-average {r['dT_wall_K']:.6f})")
+    p(f"  Prt            = {r['turbulent_prandtl']['Prt']:.6g}"
+      f"   from {r['turbulent_prandtl']['source']}"
+      + ("   (enters alphaEff on this solve)"
+         if r["turbulent_prandtl"]["enters_the_answer"]
+         else "   (laminar solve: alphat = 0, so Prt does not enter the answer)"))
     p(f"  BOUSSINESQ     : beta.dT = {r['beta_dT']:.6e}  -> "
-      + ("SATISFIED (<< 1)" if r["boussinesq_ok"]
-         else "VIOLATED: beta.dT is NOT small, the constant-density assumption "
-              "in the momentum equation does not hold at this dT"))
+      + (f"SATISFIED (limit {r['boussinesq_beta_dT_max']:g})" if r["boussinesq_ok"]
+         else f"WARNING -- VIOLATED against the limit {r['boussinesq_beta_dT_max']:g}: "
+              "beta.dT is NOT small, the constant-density assumption in the "
+              "momentum equation does not hold at this dT. Justify it explicitly "
+              "or move to a compressible thermo solver."))
+    if r.get("boussinesq_dT_limit_K"):
+        p(f"                   at this beta the limit is reached at "
+          f"dT = {r['boussinesq_dT_limit_K']:.4f} K; this case runs at "
+          f"dT = {r['dT_used_K']:.4f} K")
     if r["Rayleigh"]:
         p(f"  Ra = {r['Rayleigh']:.6e}   Gr = {r['Grashof']:.6e}   Pr = {r['Prandtl']:.6f}"
           f"   (L = {r['length_scale_m']} m, dT = {r['dT_used_K']:.6f} K)")

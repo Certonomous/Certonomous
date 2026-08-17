@@ -3829,3 +3829,244 @@ agreement does not prove derivation), L-75 (our own sweeps inherit ignore rules,
 and here the inverse cost the same: a sweep that ignored `.gitignore` failed a
 correct package), L-43 (the audit instrument has its own blind spots), L-86 (a
 disclosure written from memory of a restructure is not a measurement of it).
+
+---
+
+## L-88. A quantity the discretisation forces cannot gate anything, and the author who wrote the gate is the last person able to see it — the test is whether the number is already right before the solve is
+
+**2026-08-17, F14 thermal ladder.** A rung pre-registered "boundary heat
+imbalance above 20 percent on an early, unconverged snapshot" as the positive
+control for its heat-balance gate. **Measured: 0.0128 percent at iteration 10,
+and never above 0.13 percent at any iteration of the run.** The prediction did
+not miss by a factor; it was the wrong kind of quantity.
+
+**The reason, and it generalises past heat.** On a sealed, impermeable, steady
+case the discrete temperature equation is solved to a tight linear tolerance at
+every outer iteration; `div(phi,T)` integrates to zero over the domain because
+the flux field is conservative and no wall passes mass; so the boundary
+conduction terms are **forced to sum to zero at every iteration, converged or
+not**. The residual few hundredths of a percent is linear-solver tolerance and
+continuity residue. The gate was reading its own discretisation.
+
+**What would have caught it, and it costs one audit.** Ask the quantity to be
+*wrong* and see whether it can be. Concretely: **evaluate the gate quantity on a
+deliberately unconverged field and see whether its error tracks the solver
+residual.** A quantity that is already at its final value on iteration 10 is an
+identity. A quantity whose error falls with the residual is a measurement.
+Re-run at K1c on the same case class, this separates cleanly:
+
+| | sealed, no source | the same mesh with a planted source |
+| --- | --- | --- |
+| iteration 10 / 100 | 0.0128 % | −24.139 % |
+| converged | ~0.000000005 % | +2.3876e-09 % |
+| decades of movement | none | **seven**, tracking the T residual |
+
+One of those two quantities measures the solution. The other measures the
+discretisation. **They are computed by the same script, on the same case, from
+the same field**, and nothing about the printed number distinguishes them —
+which is why the distinction has to be a stamp on the report and not a habit of
+the reader. It is now `closure_is_identity_class` in `scripts/heat_balance.py`
+and `heat_balance_closure_is_evidence_on_sealed_case: false` in
+`docs/physics_rules.yaml`.
+
+**THE COROLLARY THAT ALMOST GOT COMMITTED AS A FIX, and it is the sharper half.**
+The same rung filed a proposal to repair a cosmetic wart: when every patch
+carries heat outward the imbalance denominator is zero and the script printed
+`nan`, so the proposal was to normalise by `max(sum(Q>0), |sum(Q<0)|)` and "give
+the case a real percentage instead". **That would have produced exactly
+100.0000 percent, for every such case, whatever the defect size, forever** —
+because with no inward patch `sum(Q<0)` *is* the net, so the ratio is
+|net|/|net| = 1 identically. The proposal was to cure an identity by installing
+a second one. It is not hypothetical: plant the mirror defect, a *sink* instead
+of a source, so every patch carries heat inward, and the **existing** code
+already prints `100.000000000 %`. Measured, not argued.
+
+> **An undefined number is more honest than a defined constant.** `nan` at least
+> refuses. A number that is 100.0000 every time reads as a measurement to every
+> reader who did not derive it, and the first thing anyone does with a
+> percentage is compare it to a threshold.
+
+The proposal was closed by **rejecting its remedy and adopting its complaint**:
+the ratio is now reported as UNDEFINED with a named reason and the watts stated,
+and the case still fails. Proved not-more-permissive two ways — algebraically
+(a case that passed satisfied |Q_net| < Q_in, so the new test finds it defined
+and unchanged) and by running the old and new scripts over the same 13 sets of
+fields: **0 verdict changes, 0 pre-existing keys moved.**
+
+**And the sweep for identities is not finished, because they hide at the
+denominator too.** The same measurement found the old ratio reporting
+**6.25e+22 percent** on a case where one adiabatic patch carried +7.9e-24 W of
+floating-point residue. `Q_in > 0` was true, so the guard passed, and the
+denominator was noise. The test is not "is the denominator non-zero"; it is
+"is the denominator the thing the ratio claims to be measured against".
+
+Related: L-83 (fixing a circular measurement moves the circle up one level — and
+here the proposed fix moved it sideways instead), L-84 (a positive control proves
+an instrument can fire, not its reach), L-85 (a figure a verdict states must be
+derived from the run that states it, and proved derived by mutation).
+
+---
+
+## L-89. Residuals measure the change per iteration, not the distance to the answer, and the gap between those widens with the mesh — so refinement can move you further from the truth while every convergence light stays green
+
+**2026-08-17, F14 thermal ladder, and it changed a rung's result.** A laminar
+cavity rung ran four Rayleigh numbers on a mandatory two-mesh pair each. Every
+case met its own `residualControl` and printed the solver's own
+`SIMPLE solution converged` statement. Every **coarse** mesh had genuinely
+settled. Every **fine** mesh had not, and missed the criterion on the graded
+quantity by two to three orders of magnitude:
+
+| | coarse | fine |
+| --- | ---: | ---: |
+| Ra 1e3 | 0.0004 % | **2.19 %** |
+| Ra 1e4 | 0.0084 % | **3.98 %** |
+| Ra 1e5 | 0.0031 % | **4.67 %** |
+| g = 0 control, 128² | — | **14.65 %** |
+
+against a criterion of 0.02 percent. **Had the rung graded on "the residuals
+stopped moving", its Ra = 1e3 pair would have reported a FINE mesh further from
+the published benchmark than its own COARSE mesh — 1.0940 against 1.1191 — and
+a mesh-convergence claim would have been built on iteration error.**
+
+**The mechanism, which is why this is a rule and not an anecdote.** An
+under-relaxed SIMPLE outer loop propagates the smooth, domain-scale modes at a
+rate that falls off like **1/N²**. Doubling the mesh therefore needs roughly
+**four times** the iterations to travel the same distance to the fixed point.
+The residual, meanwhile, is a per-iteration difference: it goes quiet on
+schedule regardless, and it goes quiet *sooner* on the finer mesh because each
+step is smaller. **The two curves move in opposite directions with refinement.**
+The g = 0 control is the clean demonstration: its exact answer is Nu = 1, and
+after 3000 iterations it read 1.328 with the core still near its initial
+uniform temperature, residuals nominal.
+
+**What would have caught it, and it is two things, both cheap.**
+
+1. **Gate the graded quantity, not the residuals** — the peak-to-peak spread of
+   the number the rung is actually judged on, over a **fixed** iteration window.
+   Not the endpoint difference over that window: a case approaching steady state
+   as a decaying oscillation whose period is near the window length can be read
+   at a phase where the two ends agree while the quantity is still swinging by
+   ten times the band between them (measured: one case oscillating with a period
+   of about 400 iterations against a 400-iteration window). Not a fraction of
+   the run either: a last-quarter window silently loosens as a run is extended,
+   so the same case passes by being run longer. On this lab's own data the
+   last-quarter statistic reads **2.164275 percent** on a case whose gated
+   window reads **0.002813 percent**.
+2. **A two-mesh pair is itself an instrument, if you read it in the right
+   order.** When refinement moves a quantity *away* from the reference, the
+   first hypothesis is iteration error, not mesh error. A monotone approach is
+   what a converged mesh study looks like; a non-monotone one is a question
+   about convergence before it is a claim about discretisation.
+
+**The rule bites its own author.** This lesson's own verification rung built six
+control cases, ran them to `residualControl`, and every one of them stopped at
+685 to 793 iterations with peak-to-peak spreads of **0.176 to 0.575 percent**
+against the 0.02 percent criterion. The new check fired on all six. Re-run to
+4000 iterations they pass at 0.000e+00 to 1.8e-08 percent — and the number those
+controls exist to report, the recovery of a planted heat source, improved by
+**four orders of magnitude**, from −7.9e-05 percent to +2.4e-09 percent. A rule
+that only ever fires on other people's runs has not been tested.
+
+Related: L-88 (a quantity the discretisation forces cannot gate anything), L-85
+(a number that has moved is a measurement, not a literal), L-75 (the frame is
+part of the number).
+
+---
+
+## L-90. Documentation written before the run it documents has finished is a forecast, and it fails in the one direction that costs the reader everything — following it
+
+**2026-08-17, and twice in one campaign, by different hands.** Both times the
+prose was written while the thing it described was still executing, and both
+times it was wrong in the same direction: it described the *intended* run rather
+than the one that happened.
+
+- **A reproduction recipe named the command that had to be abandoned.** A run
+  tree's README told a reader to rebuild its hardest case with
+  `./continue_cases.sh 24000`. That invocation sets `writeInterval` equal to
+  `endTime`; the case met its convergence criterion at iteration 6400, had no
+  scheduled write until 24000, and the build has `writeNowSignal -1` so a
+  running solver cannot be asked to write. It was **killed and re-run** with
+  intermediate writes, at a cost of about 9.8 core-minutes. The README, written
+  before that happened, still recommended it. **A reader following the recipe
+  literally would have reproduced the failure rather than the result.**
+- **A snapshot README claimed "every case" while holding nine of eleven.** Same
+  campaign, same cause: the sentence was true of the plan and false of the
+  directory.
+
+**Why this specific failure is worse than an ordinary stale document.** Most
+stale prose is merely *believed*. A recipe is **executed**. The reader spends
+compute on it, and the failure arrives as a dead run with no obvious cause,
+because the instructions look authoritative and the state they describe once
+existed.
+
+**What would have caught it — and it is not "review the document".**
+
+> **Write documentation against the committed state, then follow your own
+> instructions literally, from a clean checkout, before calling them done.**
+
+Literally: in a fresh worktree, paste your own commands, run them, and compare
+the output to what your document says the output is. This is the only check that
+distinguishes "I described what I meant to do" from "I described what happens".
+It catches the abandoned command, the missing rebuild step, the path that only
+exists in your scratch directory, and the count that was true an hour ago. It is
+also the only one that runs at the same moment the document is written, which is
+the moment the error is made.
+
+This lesson's own rung records the recipe it published, the fact that it was
+executed in a clean detached worktree before publication, and the one thing the
+recipe cannot reproduce bit-for-bit (a gitignored mesh, rebuilt by `blockMesh`,
+which is why the rebuild step is not optional). **A recipe with a known
+irreproducible step, stated, is honest. A recipe nobody has run is a guess.**
+
+Related: L-85 (a figure a verdict states must be derived from the run that
+states it), L-84 (a control that only shows an instrument firing is half a
+control), L-53 (two verification passes running at once can invalidate each
+other, and neither can see it).
+
+---
+
+## L-91. A control case copied from another case inherits that case's evidence, and the evidence outlives the thing it was evidence for
+
+**2026-08-17, caught by the check it was written to install, on the run that was
+installing it.** A rung needed a **negative** control: a thermal case with no
+planted heat source, which the auditor must pass, guarding against a check so
+loose it fires on anything. It was built the obvious way — copy the committed
+planted-source case, delete `constant/fvOptions`, re-run.
+
+The copy brought the original's **solver logs** with it. The fresh solve
+overwrote `log.buoyantBoussinesqSimpleFoam` and left
+`log.buoyantBoussinesqSimpleFoam.stage2` and `.stage3` untouched, because the
+original had run in three stages and the new one ran in one. So the no-source
+control sat on disk holding **one log saying `No finite volume options present`
+and two saying `Selecting finite volume options ... Source: heatPlant`.**
+
+**A witness that read "any log" would have reported the negative control as
+planted.** It would then have "passed" for the wrong reason, and the whole
+control set would have been worthless in the specific way that leaves no trace:
+every number present, every exit code plausible.
+
+**What caught it, and it is a design rule rather than a habit.**
+
+> **When several artefacts answer the same question, disagreement is an answer
+> in itself — and it is never resolved by a vote.** A case holding logs that
+> contradict each other is a case holding a history it did not all run. Report
+> `disagreement` and refuse the verdict; picking either reading invents the
+> history.
+
+The witness now returns four states — `constructed`, `none`, `disagreement`,
+`no_log` — and the last two are UNKNOWN to every caller. The three-valued answer
+is the point: `no_log` must not be reported as "no source", because absence of
+evidence arrived by a different route than evidence of absence.
+
+**The narrower operational rule, for anyone building a control by copying:**
+**strip the parent's evidence before you run, not after you read.** Logs,
+`postProcessing/`, time directories, cost files. Whatever a checker will later
+read as testimony, a copy has already forged. It is one `rm -f log.*` and it is
+the difference between a control and a decoration.
+
+Related: L-84 (a positive control proves an instrument can fire, not its reach —
+this is the negative control's version of the same hole), L-87 (a control that
+plants only the defects its author imagined certifies the author's imagination
+— this one was not planted at all, and that is how the shape was found), L-88 (a
+quantity the discretisation forces cannot gate anything), L-75 (the frame is
+part of the number).

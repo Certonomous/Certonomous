@@ -97,3 +97,161 @@ sobol:
   max_base_samples: 3200
   bootstrap_resamples: 200
   confidence_level: 0.95
+
+thermal:
+  # Buoyant-flow admissibility gates, codified 2026-08-17 at rung K1a of the F14
+  # cooling ladder out of what rungs K0a, K0b and K0c measured. Until K1a every
+  # one of these lived inside a single rung's own analysis script and died with
+  # it; the whole point of this block is that the next thermal solve inherits
+  # them instead of re-deriving them. The primitives that read these numbers are
+  # scripts/heat_balance.py and scripts/check_convergence.py.
+  #
+  # ===========================================================================
+  # 1. CONVERGENCE, ON THE GRADED QUANTITY -- NOT ON THE RESIDUALS
+  # ===========================================================================
+  # The criterion is a PEAK-TO-PEAK SPREAD of the graded thermal quantity
+  # (Nusselt number, wall heat flux, whatever the rung grades) over a FIXED
+  # window of outer iterations, read out of the running solver's own in-pass
+  # function-object output. It is not a residual test, it is not an endpoint
+  # test, and it is not a fraction of the run. Each of those three was tried and
+  # each failed on a measured case:
+  #
+  #  - NOT THE RESIDUALS. K0c's four fine meshes all met their own
+  #    `residualControl` and were still two to three orders of magnitude off
+  #    the criterion below: 2.19, 3.98 and 4.67 percent of drift in Nu_avg
+  #    against 0.02 percent, and 14.65 percent on the g = 0 twin. An
+  #    under-relaxed SIMPLE outer loop moves the smooth modes at a rate that
+  #    falls off like 1/N^2, so doubling the mesh needs roughly four times the
+  #    iterations while the residuals go quiet on schedule. Graded on "the
+  #    residuals stopped moving", K0c's Ra = 1e3 pair would have reported a
+  #    FINE mesh FURTHER from the benchmark than its own COARSE mesh -- 1.0940
+  #    against 1.1191 -- and the rung would have failed on iteration error
+  #    while calling it a mesh result.
+  #  - NOT THE ENDPOINT DIFFERENCE. K0c's Ra1e6_m192 approaches steady state as
+  #    a decaying oscillation whose period is about 400 outer iterations, the
+  #    same length as the window. An endpoint test can be read at a phase where
+  #    the two ends happen to agree while the quantity is still swinging by ten
+  #    times the band between them. The peak-to-peak spread over the same window
+  #    cannot be aliased that way and is never smaller than the endpoint
+  #    difference, so it is the conservative reading of the same samples.
+  #  - NOT A FRACTION OF THE RUN. A last-quarter window silently loosens as a
+  #    run is extended: the same case passes by being run longer. A fixed
+  #    iteration count means the same thing whatever the run length.
+  #
+  # 0.02 percent is one fiftieth of the tightest pass band K0c gated on (1.0
+  # percent), so iteration error is a fiftieth of the smallest thing the gate is
+  # asked to resolve. The window of 400 iterations at a sample interval of 50
+  # gives 9 samples; fewer than that is REFUSED rather than scored, because a
+  # spread over three points is not a spread.
+  monitor_peak_to_peak_max_pct: 0.02
+  monitor_window_iterations: 400
+  monitor_sample_interval_iterations: 50
+  monitor_min_samples: 9
+  #
+  # ===========================================================================
+  # 2. BOUSSINESQ VALIDITY -- A WARNING, AND IT IS NOT ACADEMIC
+  # ===========================================================================
+  # The Boussinesq approximation carries density variation in the buoyancy term
+  # only and treats it as constant everywhere else. That needs beta.dT << 1.
+  # This is a WARNING and not a hard gate: a violation does not mean the
+  # arithmetic is wrong, it means the momentum equation being solved is no
+  # longer the momentum equation the problem has, and the run must either
+  # justify that explicitly or move to a compressible thermo solver.
+  #
+  # THE NUMBERS, RE-DERIVED AT K1a FROM THE CASE DICTIONARIES THEMSELVES:
+  #  - K0a ran at beta = 3.333333e-03 1/K (constant/transportProperties) with a
+  #    wall-to-wall dT of 10 K (0.orig/T: 310 K against 300 K), so
+  #    beta.dT = 3.333333e-02. Satisfied, by a factor of 3.
+  #  - For an ideal gas beta = 1/TRef, so at TRef = 300 K the approximation
+  #    reaches beta.dT = 0.1 at dT = 0.1 * 300 = 30.0 K exactly, and at the
+  #    case's own rounded beta at dT = 30.000003 K.
+  #  - THIS IS INSIDE THE RANGE THE LADDER IS AIMED AT. A 40 K rise puts
+  #    beta.dT at 0.1333. The ladder's later rungs are not a laboratory cavity
+  #    at 1 K; any of them run at a realistic rise crosses this line, and the
+  #    crossing is the reason the threshold is recorded here rather than left in
+  #    one rung's prose.
+  boussinesq_beta_dT_max: 0.1
+  boussinesq_dT_max_K_at_TRef_300: 30.0
+  #
+  # ===========================================================================
+  # 3. TURBULENT PRANDTL NUMBER -- RECORDED ON EVERY SOLVE
+  # ===========================================================================
+  # Prt sets the turbulent thermal diffusivity, alphat = nut/Prt, and therefore
+  # every wall heat flux a turbulent thermal solve reports. It is a MODELLING
+  # CHOICE with no measured value on this lab's cases, it is rarely stated in a
+  # write-up, and a reader cannot reconstruct it from anything else in the
+  # report. So it is recorded per solve, with its provenance -- read from the
+  # case's own constant/transportProperties, or this default when the case is
+  # silent -- and never silently assumed. On a laminar solve alphat is
+  # identically zero and Prt does not enter the answer; it is still recorded,
+  # because "it did not matter here" is a fact about this case and not about the
+  # next one.
+  turbulent_prandtl_default: 0.85
+  #
+  # ===========================================================================
+  # 4. HEAT-BALANCE CLOSURE -- AND WHY A PASS IS NOT EVIDENCE
+  # ===========================================================================
+  # THE THRESHOLD CARRIES ITS OWN REFUTATION, BECAUSE A THRESHOLD THAT DOES NOT
+  # INVITES EXACTLY THE FALSE CONFIDENCE W-2 FORBIDS.
+  #
+  # On a SEALED, IMPERMEABLE, STEADY case the boundary heat balance is very
+  # nearly an IDENTITY. The discrete temperature equation is solved to a tight
+  # linear tolerance at every outer iteration; div(phi,T) integrates to zero
+  # over the domain because phi is conservative and no wall passes mass; so the
+  # boundary conduction terms are forced to sum to zero AT EVERY ITERATION,
+  # CONVERGED OR NOT. K0b pre-registered "imbalance above 20 percent on an
+  # early, unconverged snapshot" and measured 0.0128 percent at iteration 10,
+  # never above 0.13 percent at any iteration. The prediction was not a near
+  # miss; it was the wrong kind of quantity.
+  #
+  # SO: a closure number at or below this threshold, on a sealed case, is NOT
+  # evidence that the physics is right. A quantity derivable by construction is
+  # an identity and cannot gate anything. It is reported because the
+  # specification requires it and because it is cheap, and it is never counted
+  # as evidence for a rung.
+  #
+  # WHAT THE CHECK IS STILL WORTH, STATED NARROWLY. It catches wrong fluid
+  # properties, wrong patch areas, a wrong sign convention, a patch omitted from
+  # the sum, ANY unaccounted energy source or sink, and -- the case where it is
+  # genuinely not an identity -- any domain with through-flow, where the
+  # advective enthalpy flux is an independent contribution.
+  heat_balance_tol_pct: 0.5
+  heat_balance_closure_is_evidence_on_sealed_case: false
+  #
+  # THE PART THAT IS A MEASUREMENT, AND THE CONTRAST IS THE WHOLE POINT. Unlike
+  # the sealed-case closure, the RECOVERY OF A PLANTED SOURCE is
+  # convergence-sensitive and therefore says something. Measured at K1c on one
+  # case (K0c's C3 cavity, plant +5.000000000e-03 W) at eight iteration counts,
+  # against the T equation's own initial residual at the same iteration:
+  #
+  #     iter   T initial residual   recovery error
+  #      100        4.511e-03         -24.139   %
+  #      200        5.546e-04          -4.2034 %
+  #      300        8.456e-05          -0.66860 %
+  #      400        1.321e-05          -0.10497 %
+  #      500        2.101e-06          -1.6706e-02 %
+  #     1000        2.218e-10          -1.7593e-06 %
+  #     2000        2.574e-12          +3.6348e-09 %
+  #     4000        3.486e-12          +2.3876e-09 %
+  #
+  # The error tracks the residual across SEVEN decades. Set that beside K0b's
+  # sealed no-source case, which read 0.0128 percent at iteration 10 and never
+  # rose above 0.13 percent at any iteration: one of these two quantities is
+  # measuring the solution and the other is measuring the discretisation. That
+  # is why the planted-source control earns its keep and the bare closure number
+  # does not.
+  heat_balance_source_recovery_tol_pct: 0.1
+  #
+  # WHEN THE RATIO HAS NO DENOMINATOR. imbalance% = 100.|sum Q| / sum(Q > 0)
+  # divides by the heat actually entering. On a case whose every patch carries
+  # heat OUT -- exactly what a planted volumetric source produces -- that
+  # denominator is zero and the ratio is undefined. It must be REPORTED as
+  # undefined, with the watts stated, and the case must FAIL. It must NOT be
+  # rescued by renormalising onto the outflow: with no inward patch,
+  # sum(Q<0) IS the net, so |net| / |sum(Q<0)| = 1 exactly, and the "percentage"
+  # would read 100.0000 percent for every such case whatever the source size.
+  # That is another identity, and swapping an honest refusal for one is a
+  # straight loss. Measured at K1c: the mirror case (a planted SINK, every patch
+  # carrying heat IN) already prints exactly 100.0000 percent today, for that
+  # reason. See scripts/heat_balance.py, "WHEN THE IMBALANCE RATIO IS UNDEFINED".
+  heat_balance_undefined_ratio_fails: true

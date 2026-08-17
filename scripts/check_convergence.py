@@ -41,6 +41,46 @@ same night this file was written):
      exactly what makes it tempting to misread. (The r4 sweep's Delta=0.25
      point.)
 
+SIGNATURE 5, added 2026-08-17 at rung K1a, AND IT NEEDS ITS OWN MODE
+--------------------------------------------------------------------
+  5. A steady buoyant run meets its own `residualControl` -- it prints the
+     convergence statement, signature 3 is satisfied, everything above says
+     CONVERGED -- and the quantity the rung is actually graded on is still
+     moving by two to three orders of magnitude more than the gate allows.
+
+     Measured at K0c on four mesh pairs. Under K0b's relaxation factors every
+     coarse mesh met the graded-quantity criterion and every fine mesh missed
+     it: 2.19, 3.98 and 4.67 percent of drift in Nu_avg against a 0.02 percent
+     criterion, and 14.65 percent on the g = 0 control -- whose exact answer is
+     Nu = 1 and which was still reading 1.328 after 3000 iterations with its
+     core sitting near the initial 300 K. The cause is not a bug: an
+     under-relaxed SIMPLE outer loop moves the smooth modes at a rate that
+     falls off like 1/N^2, so doubling the mesh needs roughly four times the
+     iterations, while the residuals -- which measure the change per iteration,
+     not the distance to the fixed point -- go quiet on schedule.
+
+     Had K0c graded on "the residuals stopped moving", its Ra = 1e3 pair would
+     have reported a FINE mesh FURTHER from the benchmark than its own COARSE
+     mesh, 1.0940 against 1.1191, and the rung would have failed on iteration
+     error while calling it a mesh result.
+
+     WHY THIS CANNOT BE FOLDED INTO `classify()`. Signatures 1 to 4 are
+     properties of the LOG. This one is a property of a QUANTITY THE CALLER
+     NOMINATES -- there is no way to know from a log which of its numbers the
+     rung is graded on. So it is a separate mode, `--monitor-regex`, and the
+     caller states the quantity. What the checker supplies is the criterion and
+     the refusal to score too few samples.
+
+     THE CRITERION IS A PEAK-TO-PEAK SPREAD OVER A FIXED ITERATION WINDOW, and
+     the two obvious alternatives are both refused in writing on every run:
+     an ENDPOINT difference aliases against a case approaching steady state as
+     a decaying oscillation whose period is near the window length (K0c's
+     Ra1e6_m192, period about 400 iterations against a 400-iteration window),
+     and a LAST-QUARTER window silently loosens as a run is extended, so the
+     same case passes by being run longer. Both are computed and printed
+     beside the gated number, labelled NOT GATED, because a reader who sees
+     only the number that gates cannot tell that a choice was made.
+
 THE RULE THIS CHECKER ENFORCES: only the solver's own convergence statement
 (OpenFOAM's "SIMPLE solution converged" string, or PETSc's own
 ConvergedReason) counts as a positive signal, cross-checked against raw
@@ -50,9 +90,13 @@ prose "success" message are both explicitly NOT trusted (signature 2).
 
 USAGE
     check_convergence.py <log_file> [--case CASE_DIR] [--json]
+    check_convergence.py <log> [<log> ...] --monitor-regex RE [--json]   # signature 5
     python3 -c "from check_convergence import classify; print(classify('x.log'))"
 
 Exit code: 0 = CONVERGED, 1 = NOT_CONVERGED, 2 = CANNOT_TELL, 3 = usage/IO error.
+
+Read THIS script's exit status, never a pipeline's. `check_convergence.py log |
+head` reports head's status, not the checker's.
 """
 from __future__ import annotations
 
@@ -442,15 +486,186 @@ def classify(log_path: str, case_dir: Optional[str] = None) -> dict:
     return result
 
 
+# ---------------------------------------------------------------------------
+# SIGNATURE 5, added 2026-08-17 at rung K1a: converged residuals over a graded
+# quantity that is still moving.  See the module docstring section
+# "SIGNATURE 5" for the measurement that forced it.
+# ---------------------------------------------------------------------------
+
+def _thermal_rules() -> dict:
+    """thermal block of docs/physics_rules.yaml; built-ins if unreadable.
+
+    Same contract as scripts/heat_balance.py: a threshold file that has moved
+    must not take the check offline with it, and the report always says which
+    source was used.
+    """
+    builtin = dict(monitor_peak_to_peak_max_pct=0.02, monitor_window_iterations=400,
+                   monitor_sample_interval_iterations=50, monitor_min_samples=9)
+    path = Path(__file__).resolve().parent.parent / "docs" / "physics_rules.yaml"
+    try:
+        import yaml  # noqa: PLC0415
+        block = (yaml.safe_load(path.read_text()) or {}).get("thermal") or {}
+        if not block:
+            raise KeyError("no 'thermal' block")
+        merged = dict(builtin)
+        merged.update(block)
+        return merged, str(path)
+    except Exception as exc:  # noqa: BLE001 -- deliberate
+        return builtin, f"built-in defaults ({type(exc).__name__}: {exc})"
+
+
+def monitor_series(logs: list[str], regex: str) -> list[float]:
+    """Every value of one monitored quantity, in order, across staged logs.
+
+    Staged runs are the normal case on this ladder -- K0c ran stage 1 under one
+    set of relaxation factors and stage 2 continued from `latestTime` under
+    another -- and the series is continuous across them because each stage
+    restarts from the field the last one left.  Logs are read in the order
+    given, so the caller states the staging rather than a sort order guessing
+    at it: `.stage3` sorts after `.stage2` by luck, not by rule.
+    """
+    rx = re.compile(regex)
+    out: list[float] = []
+    for p in logs:
+        text = _read(Path(p))
+        for m in rx.finditer(text):
+            out.append(float(m.group(1)))
+    return out
+
+
+def classify_monitor(logs, regex, tol_pct=None, window=None, interval=None,
+                     min_samples=None) -> dict:
+    """Has the GRADED quantity stopped moving, on a fixed iteration window?
+
+    Returns the peak-to-peak spread that gates, and alongside it the two
+    criteria that do NOT gate and the reason each is refused, so the report
+    teaches the distinction rather than assuming the reader knows it.
+    """
+    rules, rules_source = _thermal_rules()
+    tol_pct = float(rules["monitor_peak_to_peak_max_pct"]) if tol_pct is None else tol_pct
+    window = int(rules["monitor_window_iterations"]) if window is None else window
+    interval = (int(rules["monitor_sample_interval_iterations"])
+                if interval is None else interval)
+    min_samples = (int(rules["monitor_min_samples"])
+                   if min_samples is None else min_samples)
+
+    series = monitor_series(logs, regex)
+    n_window = window // interval + 1        # 400/50 + 1 = 9 samples spanning 400
+    result = dict(logs=[str(p) for p in logs], regex=regex,
+                  thresholds=dict(source=rules_source, peak_to_peak_max_pct=tol_pct,
+                                  window_iterations=window,
+                                  sample_interval_iterations=interval,
+                                  min_samples=min_samples,
+                                  samples_in_window=n_window),
+                  n_samples=len(series))
+    if len(series) < max(min_samples, n_window):
+        result.update(status="CANNOT_TELL", reason=(
+            f"only {len(series)} samples matched the monitor pattern; "
+            f"{max(min_samples, n_window)} are needed to span a {window}-iteration "
+            "window. A spread over three points is not a spread, so this is "
+            "REFUSED rather than scored."))
+        return result
+
+    win = series[-n_window:]
+    last = series[-1]
+    if last == 0:
+        result.update(status="CANNOT_TELL",
+                      reason="the last monitored value is zero; a relative spread "
+                             "has no scale here.")
+        return result
+    spread = 100.0 * (max(win) - min(win)) / abs(last)
+    endpoint = 100.0 * abs(win[-1] - win[0]) / abs(last)
+    q = series[int(0.75 * (len(series) - 1))]
+    lastquarter = 100.0 * abs(last - q) / abs(last)
+
+    result.update(
+        peak_to_peak_pct=spread,
+        endpoint_drift_pct=endpoint,
+        last_quarter_drift_pct=lastquarter,
+        window_first=win[0], window_last=win[-1],
+        window_min=min(win), window_max=max(win),
+        criteria_not_used=dict(
+            endpoint_difference=(
+                "NOT GATED. Aliasing: a case approaching steady state as a "
+                "decaying oscillation whose period is near the window length can "
+                "be read at a phase where the two ends agree while the quantity "
+                "is still swinging. K0c's Ra1e6_m192 oscillates with a period of "
+                "about 400 iterations, the same length as the window. The "
+                "peak-to-peak spread is never smaller than the endpoint "
+                "difference, so it is the conservative reading of the same "
+                "samples."),
+            last_quarter_of_run=(
+                "NOT GATED. A fraction-of-the-run window silently loosens as a "
+                "run is extended, so the same case passes by being run longer. "
+                "The window here is a fixed iteration count."),
+            solver_residuals=(
+                "NOT GATED, and this is the measured one. K0c's four fine meshes "
+                "all met their own residualControl while drifting 2.19, 3.98 and "
+                "4.67 percent in Nu_avg against a 0.02 percent criterion, and "
+                "14.65 percent on the g=0 twin. An under-relaxed SIMPLE outer "
+                "loop moves the smooth modes at a rate falling off like 1/N^2, so "
+                "doubling the mesh needs about four times the iterations while "
+                "the residuals go quiet on schedule. Graded on residuals, K0c's "
+                "Ra=1e3 pair would have reported a FINE mesh further from the "
+                "benchmark than its own COARSE mesh, 1.0940 against 1.1191."),
+        ),
+        status=("CONVERGED" if spread <= tol_pct else "NOT_CONVERGED"),
+        reason=(f"peak-to-peak spread of the monitored quantity over the last "
+                f"{window} iterations is {spread:.6f} percent against a criterion "
+                f"of {tol_pct} percent"),
+    )
+    return result
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("log", help="path to a solver log file")
+    ap.add_argument("log", nargs="+", help="path to a solver log file; give the "
+                                           "stages in order for --monitor-regex")
     ap.add_argument("--case", default=None, help="case directory (for residualControl enrichment)")
     ap.add_argument("--json", action="store_true", help="emit full JSON instead of one summary line")
     ap.add_argument("--oneline", action="store_true", help="emit a single compact 'STATUS: reason' line (for the collector)")
+    ap.add_argument("--monitor-regex", default=None, metavar="RE",
+                    help="signature 5: gate the PEAK-TO-PEAK SPREAD of a monitored "
+                         "quantity printed by the running solver, instead of the "
+                         "residuals. One capture group, the value. Example for the "
+                         "F14 cavity rungs: "
+                         r"'areaNormalIntegrate\(hotWall\) of k0cGradT = ([-\d.eE+]+)'")
+    ap.add_argument("--monitor-tol-pct", type=float, default=None)
+    ap.add_argument("--monitor-window", type=int, default=None)
+    ap.add_argument("--monitor-interval", type=int, default=None)
     args = ap.parse_args()
 
-    result = classify(args.log, args.case)
+    if args.monitor_regex:
+        result = classify_monitor(args.log, args.monitor_regex,
+                                  args.monitor_tol_pct, args.monitor_window,
+                                  args.monitor_interval)
+        if args.json:
+            print(json.dumps(result, indent=2, default=str))
+        elif args.oneline:
+            print(f"{result['status']}: {result.get('reason','')}")
+        else:
+            print(f"logs:      {', '.join(result['logs'])}")
+            print(f"status:    {result['status']}")
+            print(f"reason:    {result.get('reason','')}")
+            print(f"samples:   {result['n_samples']}")
+            if "peak_to_peak_pct" in result:
+                print(f"GATED  peak-to-peak over last "
+                      f"{result['thresholds']['window_iterations']} iters : "
+                      f"{result['peak_to_peak_pct']:.6f} %  "
+                      f"(criterion {result['thresholds']['peak_to_peak_max_pct']} %)")
+                print(f"shown  endpoint difference over the same window  : "
+                      f"{result['endpoint_drift_pct']:.6f} %   NOT GATED")
+                print(f"shown  drift over the last quarter of the run    : "
+                      f"{result['last_quarter_drift_pct']:.6f} %   NOT GATED")
+            print(f"thresholds from: {result['thresholds']['source']}")
+        return {"CONVERGED": 0, "NOT_CONVERGED": 1, "CANNOT_TELL": 2}.get(result["status"], 3)
+
+    if len(args.log) != 1:
+        sys.stderr.write("REFUSE: the residual-signature mode takes exactly one "
+                         "log; several were given and only --monitor-regex "
+                         "consumes a staged sequence.\n")
+        return 3
+    result = classify(args.log[0], args.case)
 
     if args.json:
         print(json.dumps(result, indent=2, default=str))
