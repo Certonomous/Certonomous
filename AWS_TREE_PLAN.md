@@ -251,8 +251,13 @@ Each of the 15 verified by reading the file:
 
 **And a published evidence record names the venv as the scoring environment:**
 `demo-output/website/dafoam/ladder-b/B2_duct_baseline.json` field
-`scoring_environment` reads
-`"~/closure-venv (numpy, scipy, Ofpp, closure_challenge==0.2.1)"`.
+`scoring_environment`. When this plan was written that field read
+`"~/closure-venv (numpy, scipy, Ofpp, closure_challenge==0.2.1)"`; on 2026-08-17
+its prose was amended to pin the scorer by commit hash instead (§7.5), so it now
+opens `"~/closure-venv (numpy, scipy, Ofpp), scoring through the eval package
+clone /home/ubuntu/closure-challenge-pkg pinned at commit 1c4e22c8…"`. **No
+figure in that record changed.** The point for this plan is unchanged: the venv
+is named by a published record and cannot be quietly discarded.
 
 **The venv also contains an editable install pointing outside itself:**
 
@@ -263,14 +268,28 @@ Each of the 15 verified by reading the file:
 
 So `closure-venv/` and `closure-challenge-pkg/` are welded together at absolute
 paths. **Moving either one, on its own, silently breaks `import
-closure_challenge` in every script above.** Note also the version skew worth
-flagging: the recorded scoring environment says `closure_challenge==0.2.1`,
-while what is installed today is `0.3.1`.
+closure_challenge` in every script above.**
 
-`closure-venv/` is technically REGENERABLE — `python -m venv ~/closure-venv`,
-per `run_closure_challenge_evidence.py` — but rebuilding it will produce 0.3.1,
-not the 0.2.1 that the published record names. It is classified **KEEP** on that
-basis, not REGENERABLE.
+**Corrected 2026-08-17.** This paragraph previously read: *"Note also the version
+skew worth flagging: the recorded scoring environment says
+`closure_challenge==0.2.1`, while what is installed today is `0.3.1`."* And the
+next one: *"rebuilding it will produce 0.3.1, not the 0.2.1 that the published
+record names. It is classified **KEEP** on that basis."* **Both were wrong, and
+the second put a real classification on a false basis.** There is no skew.
+`0.2.1` and `0.3.1` are two reporting mechanisms — `__init__.__version__` and
+the `dist-info` metadata — describing the *one* editable install of the *one*
+clone pinned at `1c4e22c8`. §7.5 has the demonstration. Because the install is
+editable and points at that pinned clone, rebuilding the venv reproduces the
+identical scorer, byte for byte; it does not "produce 0.3.1" in any sense that
+differs from what is there now.
+
+`closure-venv/` therefore stays **KEEP**, but on the basis that actually holds:
+the absolute-path welding to `closure-challenge-pkg` documented just above, the
+25 scripts that hard-code paths into it, and a published record
+(`B2_duct_baseline.json`) that names it as the scoring environment. It remains
+technically REGENERABLE — `python -m venv ~/closure-venv`, per
+`run_closure_challenge_evidence.py` — and the reason not to regenerate it is the
+coupling, not a version number.
 
 **Bound on the blast radius, measured.** A completed sweep of all 132,049
 run-tree files found **zero** references to `closure-venv` (§7.4). The coupling
@@ -644,16 +663,114 @@ plus the F4 `swbli_cylflare` `controlDict`s and `Make/files`.
 custom solvers. That number is unmeasured. The existence of the coupling is
 established; its extent is not.
 
-### 7.5 `closure-venv` version skew
+### 7.5 `closure-venv` version strings — resolved, and it was never a code skew
 
-`B2_duct_baseline.json` records the scoring environment as
-`closure_challenge==0.2.1`. The venv today holds `0.3.1`, and
-`closure-challenge-pkg` is pinned at `1c4e22c` = v0.3.1, whose commit message
-reads "vector magnitude metric, mean over cases" — a **metric change**. Whether
-the published B2 numbers were produced under 0.2.1 and are still consistent with
-a 0.3.1 environment is a scientific question outside this plan's scope, but it
-is flagged here because a reorganisation is exactly when someone might "clean
-up" the venv and destroy the ability to check.
+**This section previously read "`closure-venv` version skew" and left a
+scientific question open: whether B2's published numbers were produced under
+0.2.1 and are still consistent with a 0.3.1 environment. That question was
+answered on 2026-08-17. The answer is *no, there is no skew* — the two version
+strings are two reporting mechanisms describing one commit. The old framing is
+recorded here rather than quietly deleted, because the reason it looked like a
+hazard is itself the thing worth keeping.**
+
+**There is only one scorer on this box, and it is `1c4e22c8`.** The venv's
+`closure_challenge` is an *editable* install pointing at
+`/home/ubuntu/closure-challenge-pkg/src` (§4.2), and that clone is pinned at
+`1c4e22c8ac6b2e5f978ba6918f4f44b2db66d162`. There is no second checkout and
+there never was a 0.2.1 install. Both strings come out of that one tree:
+
+```sh
+/home/ubuntu/closure-venv/bin/python -c \
+  "import closure_challenge, importlib.metadata as m; \
+   print(closure_challenge.__version__, m.version('closure-challenge'))"
+# -> 0.2.1 0.3.1
+```
+
+`0.2.1` is `src/closure_challenge/__init__.py`'s `__version__`; `0.3.1` is the
+`dist-info` metadata, built from `pyproject.toml`. Upstream bumped
+`pyproject.toml` and never `__init__.py` — confirmed against the full upstream
+history, where `__init__.py` is **byte-identical** from tag `v0.2.1` (`4796ce35`)
+through the pin:
+
+```sh
+git -C /home/ubuntu/mirrors/closure-challenge.git diff 4796ce35 1c4e22c8 \
+  -- src/closure_challenge/__init__.py    # empty
+```
+
+So the version strings differ **by reporting mechanism, not by code**. A tool
+that reads `__version__` and a tool that reads package metadata will disagree
+forever about this commit, and neither is reporting a different scorer.
+
+**The metric change is real, and it is what makes the record checkable.**
+`evaluate_individual_case` genuinely differs between `v0.2.1` and the pin —
+componentwise `np.mean(np.abs(...))` became vector-magnitude
+`np.mean(np.linalg.norm(..., axis=-1))` — so the two produce *different numbers
+from identical inputs* and are distinguishable by inspection of any record
+scored under them.
+
+**What settles it is the record's own internal self-consistency, not its prose.**
+All 14 scoring figures in `B2_duct_baseline.json` were re-derived from the same
+fields, through the same unmodified scorer, under *both* candidate metrics, by
+a read-only instrument added beside the original generator:
+
+```sh
+/home/ubuntu/closure-venv/bin/python \
+  demo-output/website/dafoam/ladder-b/duct_baseline/recheck_scorer_revision.py
+# -> AT PIN 1c4e22c8 (v0.3.1 metric): 14/14 reproduce exactly
+#    AT TAG v0.2.1  (4796ce35 metric):  6/14 reproduce exactly
+```
+
+It writes nothing, and in particular does not overwrite
+`score_our_baseline_result.json`, which `score_our_baseline.py` produced in
+2026-07 and which is left as it stands. Under the metric at `1c4e22c8`, all 14
+reproduce. Under the `v0.2.1` metric, restored from the mirror, the 8
+metric-dependent figures all move and none reproduce:
+
+| Figure | Published (= at `1c4e22c8`) | Under `v0.2.1` code |
+|---|---|---|
+| `AR_1` our score | 0.129 | 0.1414 |
+| `AR_1` reproduced benchmark baseline | 0.1288 | 0.1412 |
+| `AR_3` our score | 0.1251 | 0.1371 |
+| `AR_3` reproduced benchmark baseline | 0.1243 | 0.1363 |
+
+The remaining 6 figures are metric-independent — the two floor constants copied
+from `closure_challenge_rans_floor.json`, and the two field-vs-field scaled MAEs
+with their percentages, which are computed in numpy and never pass through the
+scorer — so they match either way and carry no information about which metric
+ran. **The record is self-consistent under `1c4e22c8` and under no other
+revision.** `0.2.1` in its prose was a stale string, not a different scorer.
+
+**Two caveats on that "all 14", stated because the arithmetic is not uniform.**
+Two of the figures are rounded restatements of the figures beside them, not
+independent quantities: `deviation_..._relative_pct` divides the *already
+rounded* absolute deviation by the floor (`0.0008 / 0.1243 = 0.64%`, where the
+unrounded deviation would give 0.62%), and `internal_field_scaled_mae_pct` is
+`100 x` the scaled MAE shown at each case's own precision (0.023 for `AR_1`,
+0.09 for `AR_3`). Both are reproducible on the record's own basis; neither is a
+second measurement.
+
+**What survives as a warning, and it is the useful half of the old section.**
+Never cite this scorer by version string. `0.2.1` and `0.3.1` both name
+`1c4e22c8`, and a `pip install closure-challenge` by name can resolve to a
+genuinely different metric and return a different number for identical CSVs.
+The lab's own written standard already says exactly this —
+`Certonomous_closure_challenge/evidence/REPRODUCE.md:70`, *"Pin the scorer by
+commit hash, not version string."* As of 2026-08-17 all seven published JSON
+records that name an eval-package version also pin `1c4e22c8`;
+`B2_duct_baseline.json` was the last one that did not — the other six already
+did — and its `scoring_environment` prose was amended
+to pin it (figures untouched; the amendment is recorded in the record itself
+under `data_provenance.amendment_2026_08_17`).
+
+**The real fragility this surfaced is the clone, not the version.**
+`/home/ubuntu/closure-challenge-pkg` is a **depth-1 shallow clone** — its
+`.git/shallow` contains exactly `1c4e22c8`, so it holds that one commit and
+cannot show what changed to produce it. The counterfactual above was only
+runnable because the `v0.2.1` history was fetched from GitHub. If that upstream
+repository moved, were renamed or were deleted, this check would have become
+unrebuildable and every record pinning `1c4e22c8` would have lost its referent.
+A full mirror now exists at **`/home/ubuntu/mirrors/closure-challenge.git`** and
+has been restored from with the network removed; see LOCATIONS.md §4.2b.
 
 ### 7.6 Live services
 

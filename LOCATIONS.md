@@ -29,6 +29,7 @@ here and by how much.
 | Loose files directly in `/home/ubuntu` | 39 | 0.91 GB | 0.91 GB | this machine only |
 | **Cannot live in a git repository** | | **90.66 GB** | **84.24 GB** | |
 | Dotted directories in `/home/ubuntu` (§4.6, frame 2026-08-17) | 37,837 | 12.04 GB | | this machine only |
+| The scorer mirror, `/home/ubuntu/mirrors/` (§4.2b, frame 2026-08-17) | 22 | 0.0012 GB | 0.0012 GB | this machine only |
 | **Including them** | | **102.70 GB** | | |
 
 The deduplicated column is measured on all four off-repository bodies, not
@@ -37,14 +38,17 @@ columns are equal because there are none to remove. File counts are the
 enumeration commands' own counts; sizes are summed over the regular files among
 them.
 
-**The last two rows are a later frame and are set apart on purpose.** Until
+**The last three rows are a later frame and are set apart on purpose.** Until
 2026-08-17 this page enumerated the run tree, the named directories and the
 loose files, and stopped there. A reader reconstructing this machine from it was
 short by the whole of §4.6 — 12.04 GB, including the agent dispatch records that
 §4.5 calls the only sound R-ISOLATE evidence and which had no size or location on
-this page at all. The two rows carry their own frame stamp because the five rows
-above them are readings at `8cefb4e9` and mixing frames in one total is the
-defect this page exists to prevent. The 12.04 GB in the Apparent column is
+this page at all. It was also short of §4.2b, the scorer mirror, which did not
+exist until 2026-08-17 and which is small enough to overlook and load-bearing
+enough that seven published records depend on what it holds. Those rows carry
+their own frame stamp because the five rows above them are readings at
+`8cefb4e9` and mixing frames in one total is the defect this page exists to
+prevent. The mirror's 0.0012 GB does not move either printed total. The 12.04 GB in the Apparent column is
 apparent bytes, 12,038,545,742 B, to match the column it sits in; `du -sb` over
 the same population reads 12,038,546,180 B and §4.6 gives both with the commands.
 
@@ -219,6 +223,80 @@ its four-entrant README is not the live board. The live board carries six
 entrants plus this lab's entry, retrieved 2026-08-11T23:33Z and re-verified
 unchanged 2026-08-14T21:01Z.
 
+### 4.2b The scorer mirror — the eval package's full history
+
+```
+/home/ubuntu/mirrors/closure-challenge.git
+```
+
+| Quantity | Value | How to re-derive |
+|---|---|---|
+| Files | 22 | `find /home/ubuntu/mirrors/closure-challenge.git -type f \| wc -l` |
+| Size | 1,225,553 B = 1.3 MB (`du -sh` 1.3M, pack 1.14 MiB) | `du -sb /home/ubuntu/mirrors/closure-challenge.git` |
+| Commits | 8, the complete history | `git -C … rev-list --all --count` |
+| Refs | `main` + tags `v0.2.0`, `v0.2.1`, `v0.3.0`, `v0.3.1` | `git -C … show-ref` |
+| Integrity | `git fsck --full` clean, exit 0 | `git -C … fsck --full` |
+| Upstream | `https://github.com/rmcconke/closure-challenge.git` | |
+| Created | 2026-08-17, frame stamp for §1 and §4.3 | |
+
+Created with:
+
+```sh
+git clone --mirror https://github.com/rmcconke/closure-challenge.git \
+  /home/ubuntu/mirrors/closure-challenge.git
+```
+
+**Why this exists: the working clone is shallow.**
+`/home/ubuntu/closure-challenge-pkg` — the clone every scoring script actually
+imports, via the editable install in `closure-venv` — is a **depth-1 shallow
+clone**. Its `.git/shallow` contains exactly one line,
+`1c4e22c8ac6b2e5f978ba6918f4f44b2db66d162`. It holds that single commit and
+**cannot show what changed to produce it**. Seven published JSON records pin
+`1c4e22c8` as the scorer that produced their figures. Until 2026-08-17 the only
+copy of the history behind that pin was GitHub's. **If that repository were
+moved, renamed or deleted, every one of those records would keep its hash and
+lose its referent**, and the one check that distinguishes the pinned metric from
+its predecessor would have become unrebuildable. This is a five-commit, 1.3 MB
+exposure on a body of published work; the mirror closes it.
+
+That check is not hypothetical. `evaluate_individual_case` genuinely changed
+between tag `v0.2.1` (`4796ce35`, componentwise `np.abs`) and the pin
+(vector-magnitude `np.linalg.norm`), which is what lets a record's own figures
+say which revision scored it — see `AWS_TREE_PLAN.md` §7.5 and
+`demo-output/website/dafoam/ladder-b/duct_baseline/recheck_scorer_revision.py`.
+The investigation that established it had to fetch `v0.2.1` from GitHub because
+nothing on this machine had it.
+
+**Restored from, not merely written.** A backup nobody has restored from is a
+hope. On 2026-08-17 the mirror was restored from inside an empty network
+namespace, with a live negative control confirming the network was actually
+gone before the restore was attempted:
+
+```sh
+sudo unshare -n sudo -u ubuntu bash -c '
+  git ls-remote https://github.com/rmcconke/closure-challenge.git   # negative control
+  git clone --no-local /home/ubuntu/mirrors/closure-challenge.git rebuilt
+  cd rebuilt && git checkout tags/v0.2.1 && git rev-parse HEAD
+  grep __version__ src/closure_challenge/__init__.py'
+```
+
+Results: the negative control **failed** as required — `fatal: unable to access
+… Could not resolve host: github.com`, exit 128 — so the namespace had no
+network. The clone then succeeded from the mirror alone, `v0.2.1` checked out at
+`4796ce359f8f65930ac641ead59dbc837a39ca94` with `__version__ = "0.2.1"`, and the
+pinned commit `1c4e22c8…` checked out from the same rebuilt clone. **The mirror
+alone is sufficient to rebuild the check.**
+
+**Do not "tidy" this into `closure-challenge-pkg`.** It is deliberately separate
+and deliberately bare. 25 scripts hard-code paths into the working clone and a
+published record names the venv welded to it (`AWS_TREE_PLAN.md` §4.2), so the
+working clone is not a safe place to add history. Refresh the mirror in place
+instead:
+
+```sh
+git -C /home/ubuntu/mirrors/closure-challenge.git remote update --prune
+```
+
 ### 4.3 Everything else outside the repository
 
 | Location | Files | Size | What it is |
@@ -229,13 +307,30 @@ unchanged 2026-08-14T21:01Z.
 | `/home/ubuntu/dafoam-tutorials/` | 1,215 | 0.01 GB | upstream DAFoam tutorial cases |
 | `/home/ubuntu/OpenFOAM/` | 19 | 0.01 GB | OpenFOAM user directory |
 | `/home/ubuntu/Certonomous_closure_challenge/` | 164 | <0.01 GB | a second closure working copy |
-| `/home/ubuntu/closure-challenge-pkg/` | 84 | <0.01 GB | packaged submission staging |
+| `/home/ubuntu/closure-challenge-pkg/` | 84 | <0.01 GB | the eval package clone the scorer actually runs from, pinned at `1c4e22c8` — **depth-1 shallow, holds that one commit only**; its history lives in §4.2b |
 | `/home/ubuntu/memory-import/` | 8 | <0.01 GB | memory import staging |
 | **Total** | **17,558** | **2.06 GB** | |
+| `/home/ubuntu/mirrors/` (§4.2b, frame 2026-08-17) | 22 | <0.01 GB | full mirror of the scorer's history |
+| **Including it** | **17,580** | **2.06 GB** | |
 
 The benchmark clone is listed here as well as in section 4.2 because the total
 includes it. A total that silently included a row the table did not show is the
 defect this arrangement closes.
+
+**`/home/ubuntu/mirrors/` is set below the total on purpose, for the same reason
+§1's last two rows are.** The eight rows above are readings at `8cefb4e9`; the
+mirror was created on 2026-08-17 and did not exist when they were taken. Folding
+it silently into 17,558 would mix two frames in one total, which is the defect
+this page exists to prevent. Its 1,225,553 B do not move the 2.06 GB at the
+precision printed — `0.0012 GB` — but the file count does move, from 17,558 to
+17,580, and that is shown rather than absorbed.
+
+**One description in the table above was corrected on 2026-08-17, not its
+figures.** The `closure-challenge-pkg` row previously read *"packaged submission
+staging"*. It is not staging: it is the eval package clone that
+`closure-venv`'s editable install imports, i.e. the scorer itself, and it is
+shallow. Its 84 files and <0.01 GB are unchanged and remain the `8cefb4e9`
+reading.
 
 `/home/ubuntu/Certonomous_closure_challenge/` is the most volatile row in this
 table: it is a working copy and its file count moved by more than a hundred
