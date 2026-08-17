@@ -622,7 +622,7 @@ case in the same run, so on mutation work **you are the harness**.
 
 ---
 
-## 8. Git here has six traps, and five of them are silent
+## 8. Git here has seven traps, and six of them are silent
 
 ### 8.1 Backticks in `git commit -m`
 
@@ -843,6 +843,55 @@ Two further habits from the same family:
   today's filenames has been proven to match those filenames. Running
   `--no-index` against `mbc_retry7.log` and `scipy-1.2.3-cp312.whl`, neither of
   which is on disk, is what shows the pattern is doing the work.
+
+### 8.7 `git ls-files` cannot see a file this lab's own commit protocol landed
+
+The private-index commit form of 8.5 and of section 9 item 8 writes a tree and
+moves the ref. It never touches the shared index. A file that entered the
+repository that way is therefore **in `HEAD` and absent from `git ls-files`**,
+and any instrument that takes `git ls-files` to mean "the tracked set" reports
+it as untracked.
+
+`scripts/check_verdict_cells.py` was the specimen. It was reported as untracked,
+and as existing only in the working tree, by five separate sessions on
+2026-08-17. It was in `HEAD` for all five, mode **100755**, landed at `12f8a83e`
+and extended at `a5080f6e`, and the answers below were re-taken at three
+different HEADs across the day and did not move.
+
+| The question you meant to ask | The command that answers it | Answer at `3af826ed` |
+|---|---|---|
+| Is it in the commit? | `git cat-file -e HEAD:scripts/check_verdict_cells.py; echo $?` | **0**, it is |
+| What does a fresh clone materialise? | `git ls-tree HEAD scripts/check_verdict_cells.py` | **`100755 blob 126ba8e9`** |
+| What does the shared index believe? | `git ls-files -- scripts/check_verdict_cells.py` | **nothing, and exit 0** |
+
+The third row is the whole trap. `ls-files` exits **0** while printing nothing,
+so a caller that gates on the exit code reads success and a caller that gates on
+the output reads "untracked". Both readings are wrong and neither errors, which
+is why this one survived five tellings in a single day.
+
+**`HEAD` is the referent. The index is never the frame.** Section 8.2 already
+said so for the exec bit, *"`ls-tree` is what a clone materialises; `ls-files -s`
+is what your index believes"*, and the rule generalises from modes to existence.
+Before writing that a file is untracked, run `git cat-file -e HEAD:<path>`, which
+answers the question that was actually asked. A detached worktree checked out of
+`HEAD` is the second and independent check rather than a rerun of the first: the
+gate worktrees cut at `32d4ae0d`, `e9f66498` and `3af826ed` while this section
+was written each materialised the file on disk.
+
+**The blast radius is not one file, and it grows on its own.** `902b72fc`
+measured **160** files that live in `HEAD` and that `git ls-files` cannot see,
+and a reorganisation had built its entire rule set by classifying `git ls-files`
+output, so three trees, one of them 1.51 GB, appeared in no rule at all. D348
+re-measured it at `3af826ed` and found **477 paths present in `HEAD` and absent
+from the index, and zero the other way** -- the asymmetry is what identifies them
+as landed work rather than deletions. Worse, the invisible files skew NEWEST,
+because every commit made this way adds one: `scripts/check_absolutes.py` was
+condemning citations to the lab's own freshest tests as `CITES_MISSING_CHECK`.
+
+A census whose frame is `git ls-files` is a census of the index, and this lab
+does not write the index. State the frame as `git ls-tree -r HEAD` and the count
+moves. `scripts/lab_check.py:tracked_frame` already carries that referent under
+D274; prefer it to rolling your own.
 
 ---
 

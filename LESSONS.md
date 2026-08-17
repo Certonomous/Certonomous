@@ -4162,3 +4162,106 @@ imagined certifies the imagination; the private-index shape is one an author
 building a fixture the obvious way will never plant), L-43 (the audit instrument
 has its own blind spots), L-75 (our own sweeps inherit rules nobody restates —
 there an ignore file, here a staging area).
+
+## L-93. A stale referent that still resolves is worse than one that fails — every "did it error?" check passes, and the blind-spot warning written for exactly this case cannot fire
+
+**The rule.** A check whose subject is named by a path inherits every migration
+of that path. When the named thing *disappears*, you get the failure you want: a
+read raises, a glob matches nothing, the check reports UNKNOWN, and somebody
+looks. The dangerous case is the one where the path **still resolves** — to a
+stale copy, a frozen snapshot, or a file somebody else updates on a schedule you
+do not control — because then the read succeeds, every error branch is skipped,
+and the check returns a confident verdict about the wrong subject. Absence and
+staleness are different failures, and only one of them is loud. **Design the
+check so that "I cannot see" is a third value, and never let it collapse into
+"I looked and there was nothing there."**
+
+**Two instances on 2026-08-17, from opposite ends of the lab, and the second one
+powered the machine off.**
+
+*One: a gate whose verdict moved with nothing edited.* `self_audit.py`'s
+`check_board_placement_words` went WARN → FAIL mid-session, from *"every
+travelling surface agrees with the board; 80 lab record placements do not"* to
+*"1 placement on surfaces that TRAVEL disagree (146 more on lab records)"*. The
+obvious suspect was the edit under test. **Re-running the clean, unedited
+worktree returned the same FAIL**, which exonerated the edit by measurement
+rather than by argument. The check grades against
+`~/closure-challenge-benchmark/README.md` — a file **outside this repository**,
+in a separate benchmark clone, which no `git worktree` can pin. Its mtime was
+2026-08-17 17:29:00 UTC, sitting exactly between the two runs. The board had
+gained an entrant, Yang moved to rank 1, and `demo-output/website/closure.html`
+— travelling because `_travelling_names()` matches by BASENAME against the
+members of `dist/*.zip` — became a disagreement on a surface that ships. The
+path never once failed to open. `self_audit` already labels this check
+VALUE-ON-A-PIN (D176); what the label does not say is that the pin is a
+working-tree file in another directory, so **the check is not reproducible from
+this repository alone**, and any before/after pair straddling that instant was
+never a controlled pair.
+
+*Two: a hold that read an occupied control room as an idle box.*
+`/usr/local/bin/auto-stop.sh` decided whether anyone was working by looking for
+recent session transcripts under one hardcoded directory. The session config
+directory was migrated; the live control room moved to
+`/home/ubuntu/.claude/projects/...`, and **the old directory still existed**,
+holding a copy nobody appends to. So `find` succeeded, matched nothing recent,
+raised nothing, and an occupied box read as idle. It took a clean systemd
+poweroff at 17:45:14 UTC with five agents working. The script's own comment had
+already named the mechanism from a previous instance: *"The test was never
+wrong. Its SUBJECT moved."*
+
+**The limb that makes this worth its own entry: the repair existed and was not
+running.** The fixed script — the one that scans a glob, refuses to treat a
+no-match as an empty room, and surfaces scan errors instead of swallowing them —
+had been written and committed **three days earlier**. It was never installed. A
+registry asserted that the tracked and installed copies were identical **without
+ever comparing bytes**. Two `md5sum` lines settled it: installed
+`aad0a124…` against tracked `2f83a38a…`. After the repair both read
+`2f83a38aee9b9b68e4438160e6370e2a`, verified by execution.
+
+**And the trap folds in on itself.** The repaired clause emits *"clause (3) is
+BLIND"* only when the glob matches **no** directory at all
+(`auto-stop.sh:159-166`). A stale-but-present directory matches, so the warning
+written for precisely this failure is the one thing a stale referent guarantees
+you will not see. **A blind-spot warning that triggers on absence cannot fire on
+staleness.**
+
+**What would have caught both, and it is the same two things.**
+
+1. **Compare bytes; never assert identity.** A registry that reports
+   "installed == tracked" without hashing both is publishing a claim in the
+   voice of a measurement. Two md5s would have shown a three-day-old divergence
+   in one line. The same rule covers referents: record the mtime, size or hash
+   of the artifact a check grades against, **in the check's own output**, so a
+   verdict that moved because its subject moved says so on its face.
+2. **Test a hold, a gate or a clause in BOTH directions.** A fix that merely
+   disables a mechanism passes the positive test and fails the negative one: the
+   box no longer powers off while occupied, and it no longer powers off when
+   genuinely idle either. The positive arm ("does it still hold when someone is
+   working?") is the one everybody runs. The negative arm ("does it still
+   release when nobody is?", "does this gate still FAIL on a planted defect?")
+   is the arm that distinguishes a repair from an amputation.
+
+**The operational corollary for anyone measuring a change here.** Run the before
+and the after as a **same-moment pair**, in two worktrees, at one HEAD. A
+baseline taken an hour earlier is not a baseline; it is a different experiment.
+This entry's own gate comparison was discarded and re-run twice for exactly that
+reason — once because HEAD moved under it, once because the benchmark README
+did.
+
+Related: L-43 (the audit instrument has its own blind spots — a search that
+cannot see the evidence reports absence, not innocence; this entry is that
+sentence applied to a subject that MOVED rather than to one the search could not
+reach), L-84 (a positive control proves an instrument can fire, not its reach,
+and not that it fires only where it should — the negative arm above is the same
+missing control), L-45 (a verification instrument may fail open, never false —
+a stale referent makes it fail *false*, which is the direction that is never
+acceptable), L-51 (a search has a method and a FRAME; nothing governs the frame
+unless you make it — a referent outside the repository is a frame nobody
+declared), L-40 (the switch you set is not the switch that ran — configured and
+active are different claims, and a resolving path is the same illusion one layer
+down), D65 (the 2026-08-14 instance that moved this clause from a path to a
+glob), D176 (the VALUE-ON-A-PIN label), L-92 and D348 (the same class in
+`git ls-files`: an instrument reading the index while this lab writes only
+HEAD -- that entry is an INSTANCE of this one, and it was written by a
+different agent on the same day, which is itself evidence the class is worth
+naming).
