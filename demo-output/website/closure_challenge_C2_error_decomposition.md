@@ -166,9 +166,19 @@ We sit **between rank 3 and rank 4**, 0.0004 off rank 3 — far closer than
 | AR_14_Ret_180 | 0.0303 | 0.0350 | −0.0047 | 0.0325 | **−0.0022** |
 | NASA_2DWMH | 0.0632 | 0.0364 | +0.0268 | 0.0364 | +0.0268 |
 
-**We hold the best score on the entire leaderboard on three of eight cases** —
+~~**We hold the best score on the entire leaderboard on three of eight cases** —
 both alpha_15 cases and AR_14_Ret_180. That is a genuinely strong result and it
-was invisible against the floor.
+was invisible against the floor.~~
+
+*(Struck 2026-08-17. That count was taken against the four-entry clone frozen at
+benchmark commit `deb91557`. Against the six-entry board fetched
+2026-08-11T23:33Z the arithmetic count is **2 of 8** — `alpha_05_4071_4048` and
+`alpha_05_4071_2024`. Both `alpha_15` hills lost to Tian, Buchanan, Hickel &
+Dwight, and `AR_14_Ret_180` now sits behind Yang's 0.0250 and Wu & Zhang's
+0.0350. Both surviving rows are the organisers' own unmodified RANS baseline
+passed through the decline gate, so the model's own count is **zero of 8**; the
+count may not be stated without that disclosure. Re-derived from
+`sdk/scripts/probability_of_rank.py` against the live board.)*
 
 ## The deficit is the ducts, not alpha_05
 

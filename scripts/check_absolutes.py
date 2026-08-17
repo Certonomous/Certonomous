@@ -520,12 +520,40 @@ def _sentence_around(text: str, index: int) -> tuple[str, int, int]:
 def known_test_names(root: Path | None = None) -> set[str]:
     """Every test function and test class defined in the tracked corpus.
 
-    Derived from `git ls-files`, not from a list of test files: a suite nobody
-    has named must still be able to back a claim.
+    Derived from the COMMITTED tree, not from a list of test files: a suite
+    nobody has named must still be able to back a claim.
+
+    READS HEAD, NEVER THE INDEX (docket D274, ruled 2026-08-16 -- the same
+    repair `scripts/lab_check.py:tracked_frame` already carries, so this is
+    precedent in the tree rather than a new rule). This used `git ls-files`,
+    which lists INDEX entries. The question a cited test name has to answer is
+    "does this test exist for a reader who clones the repository", and the
+    index is a per-machine, per-moment scratch state no such reader ever sees.
+
+    THE BIAS RAN IN THE WORST AVAILABLE DIRECTION. This lab's private-index
+    commit protocol lands files with NO shared-index entry at all, so the
+    tests the old frame could not see were disproportionately the NEWEST --
+    which is to say the claims most likely to be freshly evidenced were the
+    ones most likely to be condemned CITES_MISSING_CHECK, the severe class.
+    Measured in the live checkout: 2,597 names off the index against 2,658 off
+    HEAD, so 61 test functions that genuinely exist could not back a claim.
+    477 paths were present in HEAD and absent from the index and ZERO were in
+    the index and absent from HEAD -- an asymmetry that names them as landed
+    work the index has not caught up with, not as deletions. The gap GROWS on
+    its own: every private-index commit adds another committed file with no
+    index entry.
+
+    Evidence: `scripts/mutation_harness_known_test_names.py`. Its positive
+    control is a file landed by the private-index form, because a NORMALLY
+    STAGED file passes both before and after the repair and so proves
+    nothing; its negative control is an absolute citing a test that exists
+    nowhere in HEAD, which must stay condemned, so the repair is a narrowing
+    of the frame and not a blinding of the class.
     """
     root = root or REPO
-    proc = subprocess.run(["git", "-C", str(root), "ls-files", "-z"],
-                          capture_output=True, text=True, check=False)
+    proc = subprocess.run(
+        ["git", "-C", str(root), "ls-tree", "-r", "-z", "--name-only", "HEAD"],
+        capture_output=True, text=True, check=False)
     if proc.returncode != 0:
         return set()
     names: set[str] = set()
@@ -537,7 +565,15 @@ def known_test_names(root: Path | None = None) -> set[str]:
         try:
             body = (root / rel).read_text(encoding="utf-8", errors="replace")
         except OSError:
-            continue
+            # In HEAD but not on disk. HEAD is the referent, so fall back to
+            # the committed blob rather than dropping the name: a reader who
+            # clones receives this test whatever this worktree looks like.
+            blob = subprocess.run(
+                ["git", "-C", str(root), "show", f"HEAD:{rel}"],
+                capture_output=True, text=True, check=False)
+            if blob.returncode != 0:
+                continue
+            body = blob.stdout
         names.update(m.group(1) for m in
                      re.finditer(r"^\s*def\s+(test_\w+)", body, re.MULTILINE))
         names.update(m.group(1) for m in

@@ -785,8 +785,9 @@ manifest `demo-output/website/closure_challenge_submission_round5/`
 > overall 0.0566**, and the three duct rows and both "lead the board"
 > columns below have moved (AR_1 0.0811 → 0.0455, AR_3 0.0775 → 0.0400,
 > AR_14 0.0325 → 0.0353 with its nominal best-on-board tie lost;
-> best-on-board 5 of 8 → 4 of 8, itself superseded 2026-08-11 by the
-> six-entry board: **2 of 8**, the model's own count **ZERO of 8** — see
+> best-on-board fell from 5 of 8 to 4 of 8 on that day's four-entry board,
+> itself superseded 2026-08-11 by the six-entry board, where the arithmetic
+> count is **2 of 8** and the model's own count is **ZERO of 8** — see
 > §0f's struck note of 2026-08-12). §0f carries the full per-case and
 > standings tables at benchmark commit `deb91557`. The table below stands
 > unchanged as the round-3/round-4 record.

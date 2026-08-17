@@ -640,8 +640,10 @@ count may not be stated without that disclosure.
 `campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md` §3a.)*
 Overall 0.056647 vs Reissmann's published 0.059525 — margin 0.002878,
 **which carries the G1 seed qualifier: the truth-free seed-spread bound on
-the three unchanged PH-model predictions is 0.0024 overall-equivalent,
-comparable to the margin itself**
+the three unchanged PH-model predictions is 0.0024 overall-equivalent, and
+that bound EXCEEDS the 0.001365 margin to the board leader — loaded
+adversely on those three cases it moves the overall to 0.059047, which is
+behind Yang's 0.058013**
 (`closure_challenge_stability_physicality_audit.md` §1; carried forward
 2026-08-07, family supervision review F1). The
 result landed *below* the pre-stated expectation band; the campaign's

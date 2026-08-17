@@ -142,10 +142,67 @@ CITE = re.compile(r"\bD(\d+)\b(?!\.[A-Za-z]{1,4}\b)")
 
 #: The cue that makes a candidate a docket citation. Also matches the path
 #: `docs/DOCKET.md`, which is how several citations name their target.
-CUE = re.compile(r"docket", re.I)
+#:
+#: THE LEFT BOUNDARY IS LOAD-BEARING. The cue was a bare substring, so it
+#: matched inside an IDENTIFIER: `TempDocketRepo`, the throwaway-repo fixture
+#: class in `sdk/tests/test_docket_reconciliation.py`, supplied a "docket" cue
+#: to the synthetic IDs on its own line and reddened them. The resulting
+#: behaviour was arbitrary rather than merely strict -- in that one file some
+#: fixture lines escaped and others did not, decided entirely by how far the
+#: identifier happened to sit from each ID. A lookbehind for a letter fixes
+#: it: prose forms (`docket D1`, `docketed as D37`) and the path form
+#: (`docs/DOCKET.md`, whose `D` follows a slash) all still match, because none
+#: of them has a LETTER immediately before the cue. Control NEG7 pins it.
+#: Recall cost, measured rather than assumed: a citation whose only cue is
+#: glued to the back of a word -- `subdocket D5` -- is no longer seen, and the
+#: only occurrence of that shape in the corpus is this comment's own example.
+#: Every candidate the boundary drops is a `TempDocketRepo(...)` fixture line,
+#: which is the target.
+CUE = re.compile(r"(?<![A-Za-z])docket", re.I)
 
 #: How far from the cue a citation may sit, in characters, on the same line.
 CUE_WINDOW = 60
+
+#: AN ID SAID TO BE ABSENT IS MENTIONED, NOT CITED, and this is the guard's
+#: own question turned on it: it asks "does every cited D<n> have a row?", so
+#: a sentence whose whole content is that a number has NO row is the inverse of
+#: the defect, not an instance of it. Measured case: `LADDER_V_V16_ROUND12.md`
+#: reports the docket's ID census at a named frame as "one gap (D188)". That
+#: number has never been a row -- a `git log --all -S` pickaxe for it over the
+#: docket file is empty across every ref, and the ID sequence at HEAD has
+#: exactly that one hole. (This paragraph states the number once, above,
+#: inside the absence language that excludes it; naming it again beside a bare
+#: cue would make this very comment an unresolved citation, which is how the
+#: first cut of it reddened its own file.) The hole is deliberate: an ID block
+#: was asserted and aborted under concurrency, and the settlement record for
+#: that round states it "was deliberately NOT filled ... Nothing was reused or
+#: renumbered".
+#:
+#: So neither available repair was legitimate before this: W-4 forbids
+#: renumbering and the standing rule forbids creating a row to satisfy a
+#: citation, while editing the sentence would delete a TRUE measurement to
+#: appease a checker. The citing text is correct and the guard was wrong.
+#: Control NEG6 pins it. Recall cost, stated: an author who writes "D<n> is
+#: missing from the docket" while meaning to cite a row that ought to exist is
+#: no longer flagged. That is the intended trade -- the guard exists to stop a
+#: citation SILENTLY reserving a number, and a sentence asserting the number is
+#: empty reserves nothing.
+ABSENCE = re.compile(
+    r"\b(?:gaps?|missing|absent|unallocated|no row|"
+    r"never (?:allocated|filled|used)|not (?:filled|allocated|used))\b", re.I)
+
+#: MUCH tighter than CUE_WINDOW, and the number was measured rather than
+#: picked. At 40 characters this over-reached in exactly the way a suppression
+#: rule must not: it dropped a genuine citation to the allocated row D35
+#: because the phrase "the smallest gap in the data" sat 21 characters away --
+#: a gap in the DATA, nothing to do with the ID sequence -- and it matched a
+#: section name of the form "GAP-B" as though it were absence language.
+#: Absence language binds TIGHTLY to the token it is about ("one gap (D188)"
+#: puts 5 characters between them; "D188 is a gap" puts 9), so 12 keeps every
+#: real form and drops both over-matches. Re-measured after the change: the
+#: exclusion fires on the census sentence this rule exists for, and on the two
+#: places in this file that quote it, and on nothing else in the corpus.
+ABSENCE_WINDOW = 12
 
 #: Text files only. A `.gz` solve log and a PDF both contain the byte sequence
 #: "D63" and neither is a citation of anything.
@@ -178,8 +235,13 @@ def citations_in(text: str) -> list[tuple[int, str, str]]:
         for m in CITE.finditer(line):
             lo = max(0, m.start() - CUE_WINDOW)
             hi = min(len(line), m.end() + CUE_WINDOW)
-            if CUE.search(line[lo:hi]):
-                found.append((lineno, "D" + m.group(1), line.strip()))
+            if not CUE.search(line[lo:hi]):
+                continue
+            alo = max(0, m.start() - ABSENCE_WINDOW)
+            ahi = min(len(line), m.end() + ABSENCE_WINDOW)
+            if ABSENCE.search(line[alo:ahi]):
+                continue  # mentioned as absent -> not a citation. See ABSENCE.
+            found.append((lineno, "D" + m.group(1), line.strip()))
     return found
 
 
@@ -255,6 +317,37 @@ def run_controls() -> tuple[bool, list[str]]:
     neg5 = "the docket shard `docs/docket/D0083.md` holds that row"
     cell("NEG5", bool(citations_in(neg5)), False,
          "a D<n>.md filename near the cue -> must not be read as a citation")
+
+    # MUST-NOT-MATCH 6 -- an ID MENTIONED AS ABSENT. The census sentence that
+    # forced this: a record stating the docket's ID range at a named frame and
+    # naming the one hole in it. Split tokens, for the reason POS gives.
+    gap_id = "D" + "188"
+    neg6 = (f"docket IDs at that frame: 244 distinct, min D1, one gap "
+            f"({gap_id}) over docs/DOCKET.md")
+    cell("NEG6", bool(citations_in(neg6)), False,
+         "an ID named as a GAP -> mentioned, not cited; must not be seen")
+
+    # ...and its POSITIVE twin. The same unallocated ID, the same cue, with the
+    # absence language removed. If this stopped firing, NEG6 would be a
+    # blinding of the class rather than a narrowing of it.
+    pos6 = f"docket {gap_id} settles this, over docs/DOCKET.md"
+    cell("POS6", bool(unresolved(citations_in(pos6), alloc_w)), True,
+         "same ID, same cue, no absence language -> must still flag")
+
+    # MUST-NOT-MATCH 7 -- the cue glued to the back of an IDENTIFIER. The
+    # fixture class name that forced this builds a throwaway repo in a temp
+    # directory; its IDs are chosen out of range precisely so they cannot
+    # collide with real ones, and it makes no claim about the real docket.
+    fixture_id = "D" + "901"
+    neg7 = f'    repo = TempDocketRepo(rows("D1", "{fixture_id}"))'
+    cell("NEG7", bool(citations_in(neg7)), False,
+         "cue inside an identifier (TempDocketRepo) -> must not be seen")
+
+    # ...and its POSITIVE twin, so the left boundary is shown to have cost the
+    # cue nothing it should keep: the same out-of-range ID beside a real cue.
+    pos7 = f"filed under docket {fixture_id} as the governing ruling"
+    cell("POS7", bool(unresolved(citations_in(pos7), alloc_w)), True,
+         "same ID beside a word-boundary cue -> must still flag")
 
     return ok, lines
 

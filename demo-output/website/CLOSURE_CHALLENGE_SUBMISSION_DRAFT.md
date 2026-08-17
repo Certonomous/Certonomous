@@ -1295,8 +1295,8 @@ kept as round-3/round-4 history and is not the entry of record.)*
 
 | case | round 3 *(ordinals: four-entry `deb91557` frame)* | round 4 *(same frame; live board six-entry, retrieved 2026-08-11T23:33Z)* |
 | --- | --- | --- |
-| `AR_1_Ret_360` | 0.0919 (last of 5) | **0.0811** (3rd of 5) |
-| `AR_3_Ret_360` | 0.0862 (4th of 5) | **0.0775** (3rd of 5) |
+| `AR_1_Ret_360` | 0.0919 (last of 5, four-entry board) | **0.0811** (3rd of 5, four-entry board) |
+| `AR_3_Ret_360` | 0.0862 (4th of 5, four-entry board) | **0.0775** (3rd of 5, four-entry board) |
 | `AR_14_Ret_180` | 0.0303 (best) | **0.0325** (still best, by 0.00003) |
 
 Two consequences must be disclosed, not buried:
