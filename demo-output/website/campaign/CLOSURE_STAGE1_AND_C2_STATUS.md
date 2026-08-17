@@ -496,7 +496,9 @@ repo, old name.
 **The single most decision-relevant finding.** The eval package **ships
 `ground_truth_test.npz`** and the README *instructs* previewing your score with it.
 **There is no limit on scoring calls and there cannot be one.** The lab's "four official
-scoring calls, ever" is **self-imposed discipline, not compliance** — which
+scoring calls, ever" *(as this round-3-era finding was written; the cumulative count is
+six after round 5's 2026-08-07 call -- the ledger stood at six as of frame `c143d4c0`)*
+is **self-imposed discipline, not compliance** — which
 `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md:169-172` already states correctly. The lab has
 been holding itself to a stricter standard than the organisers impose. That is a
 defensible choice and it should be named as a choice.

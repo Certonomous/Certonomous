@@ -186,7 +186,9 @@ submitters to preview their score with it. `evaluate_by_case()` — per-case tes
 — is a documented, first-class public function of the package.
 
 > **This matters for how we describe ourselves.** Certonomous's "four official scoring
-> calls, ever" is a **self-imposed discipline, stricter than the benchmark requires**.
+> calls, ever" *(as this round-3-era finding was written; the cumulative count is six
+> after round 5's 2026-08-07 call -- the ledger stood at six as of frame `c143d4c0`)*
+> is a **self-imposed discipline, stricter than the benchmark requires**.
 > It is not compliance with a rule. Any public statement of ours must not imply the
 > benchmark rations scoring calls, because it does not.
 
@@ -444,7 +446,9 @@ sets.**
 unmodified baseline already scored as ledger call #1, reproducing 0.1036 as a harness
 check. It conveys no new information and cannot tune anything.
 
-**But it must be fixed.** The ledger's "four official scoring calls" counts *distinct
+**But it must be fixed.** The ledger's "four official scoring calls" *(as this
+round-3-era finding was written; the cumulative count is six after round 5's
+2026-08-07 call -- the ledger stood at six as of frame `c143d4c0`)* counts *distinct
 prediction sets scored*, which is a defensible and meaningful unit. The docstring
 states something stronger and demonstrably false. An entry whose entire credibility
 rests on precise self-accounting cannot ship with a sentence a reviewer can falsify by
@@ -472,7 +476,10 @@ record exists as an in-memory `predictions` dict and a JSON of *scores*.
 **The entry of record is currently a number, not a submission.** Producing the eight
 CSVs requires re-running the pipeline with a CSV dump added.
 
-**This does not require a fifth scoring call, and must not be allowed to become one.**
+**This does not require a fifth scoring call** *("a fifth" as this round-3-era finding
+was written on 2026-07-29; the cumulative count is six after round 5's 2026-08-07 call,
+so the next one would be the 7th -- the ledger stood at six as of frame `c143d4c0`)*
+**, and must not be allowed to become one.**
 Recommendation: add CSV output and run with the `score()`/`evaluate_by_case()` calls
 disabled, then verify the files are 1000×3 by inspection alone. The scores are already
 recorded; re-deriving them buys nothing.

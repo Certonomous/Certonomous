@@ -878,7 +878,10 @@ explodes in NASA's low-turbulence outer-flow region) -- not the proven
 DUCT mechanism, and its already-known actual outcome (+0.0011, mild) does
 not match what the proven mechanism predicts, so it is reported separately
 rather than folded in as equivalent evidence. **Zero cases warrant a 5th
-official scoring call on this evidence** -- the criterion changes nothing
+official scoring call on this evidence** *("a 5th" as this round-3-era pass
+was written on 2026-07-29; the cumulative count is six after round 5's
+2026-08-07 call, so the next one would be the 7th -- the ledger stood at six
+as of frame `c143d4c0`)* -- the criterion changes nothing
 about the current entry. Full account: `CLOSURE_CHALLENGE_STATUS.md` §0d,
 `demo-output/website/closure_challenge_criterion_test_case_table.json`,
 `sdk/scripts/closure_criterion_on_test_features.py`. Compute: 52.9s /
@@ -911,7 +914,9 @@ HEAD is still `deb9155` (pushed 2026-05-04), identical to our clone, so the rule
 | Format | CSV, 1000 rows x 3 cols, no header, emailed to the steward with authors + references | README, confirmed against the 4 accepted submissions |
 | The one strict rule | Train or validate on a test case -> **automatic withdrawal plus a note on the leaderboard** | README, verbatim |
 
-**Our "four official scoring calls, ever" is a self-imposed discipline, NOT
+**Our "four official scoring calls, ever"** *(as this round-3-era finding was
+written; the cumulative count is six after round 5's 2026-08-07 call -- the
+ledger stood at six as of frame `c143d4c0`)* **is a self-imposed discipline, NOT
 compliance with a benchmark limit.** No such limit exists. Nothing we publish may
 imply otherwise.
 

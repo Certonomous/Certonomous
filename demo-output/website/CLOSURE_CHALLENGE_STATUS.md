@@ -376,7 +376,10 @@ forbids.
 > **Nothing about the entry of record changes and no scoring call was made.**
 > The verdict below — that the criterion identifies no available leakage-clean
 > action *without a pre-registration first*, and that zero cases warrant a 5th
-> scoring call on this evidence — survives intact. Full reasoning, both routes
+> scoring call on this evidence *("a 5th" as this round-3-era pass was written
+> on 2026-07-29; the cumulative count is six after round 5's 2026-08-07 call,
+> so the next one would be the 7th -- the ledger stood at six as of frame
+> `c143d4c0`)* — survives intact. Full reasoning, both routes
 > priced, neither taken: `closure_challenge_C6_hump_decision.md`. The same
 > withdrawal is applied at
 > `closure_challenge_criterion_test_case_table.json` (`verdict.
@@ -387,7 +390,10 @@ forbids.
 **Answer to the bounded question asked**: the criterion changes nothing
 about the current entry. There is no case for which it identifies an
 available, leakage-clean action. **Zero cases warrant a 5th official
-scoring call on this evidence** — a negative result, reported as such,
+scoring call on this evidence** *("a 5th" as this round-3-era pass was written
+on 2026-07-29; the cumulative count is six after round 5's 2026-08-07 call, so
+the next one would be the 7th -- the ledger stood at six as of frame
+`c143d4c0`)* — a negative result, reported as such,
 costing nothing to have checked.
 
 **Compute**: 52.9 s wall time on a 2-core cap, peak RSS 179 MB — no model
