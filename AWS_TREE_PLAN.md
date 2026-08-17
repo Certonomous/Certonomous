@@ -13,14 +13,15 @@ their own reorganisation order.
 
 ## 0. How to read this, and what "size" means here
 
-Three different byte quantities appear in this lab and they are not
+Four different byte quantities appear in this lab and they are not
 interchangeable. This page states which one each figure is, every time.
 
 | Quantity | How obtained | What it counts |
 |---|---|---|
 | **Apparent** | summed `st_size` over regular files | every hardlink instance separately |
-| **Deduplicated** | same, keyed on `(st_dev, st_ino)` | each inode once |
-| **Disk usage** | `du -s --block-size=1` | allocated blocks, plus directory inodes |
+| **Deduplicated** | same, keyed on `(st_dev, st_ino)` | each regular-file inode once |
+| **`du -sb`** | `du --apparent-size --block-size=1` | each regular-file inode once (it deduplicates hardlinks itself) **plus symlink target-path bytes**; **not** directory `st_size` — see §2 |
+| **Disk usage** | `du -s --block-size=1` | allocated blocks, including the blocks of directory inodes |
 
 All totals on this page are **decimal bytes** (GB = 10⁹ B), summed from
 unrounded byte counts. **No figure here is a GiB reading relabelled as GB.**
@@ -45,6 +46,8 @@ here (three sweeps one night lost 238, then 119, then 0), and that
 | Byte/inode measurement | `os.walk(onerror=…)` + `lstat`, errors collected | 0 |
 | Duplicate hash sweep | `os.walk(onerror=…)` + full-file MD5 | 0 |
 | `du -sb` on all nine in-scope directories | stderr redirected to file | 0 |
+| The nine dotted directories, §2.1 (re-derived 16:04) | `/usr/bin/find … -type f 2>>walk_err_find.txt` + `du -sb … 2>>walk_err_du.txt` | 0 (`wc -l` on both files) |
+| Run tree symlinks and directory `st_size`, §2 (16:06) | `os.walk(onerror=…)` + `lstat` | 0 |
 
 **Were the counts over a moving target?** Partly, and here is exactly where.
 
@@ -103,42 +106,126 @@ figure it states still holds.** Nothing has drifted.
 | Loose files in `/home/ubuntu` | 39, 0.91 GB | 39, 0.909 GB (909,065,714 B) | ✅ exact |
 | Two tarballs carry almost all loose bytes | 0.544 + 0.362 GB | 544,309,252 + 362,066,284 B | ✅ exact |
 
-**One sub-rounding note, reported for completeness, not as a drift.**
-LOCATIONS.md §6 says the run tree's deduplicated byte count "matches `du -sb`
-exactly". Measured here, deduplicated regular-file bytes are 69,364,664,057 and
-`du -sb` is 69,364,681,327 — a difference of **17,270 bytes**, which is `du`
-also counting directory inodes. Both round to 69.36 GB. This is a definitional
-detail in the LOCATIONS.md wording, not a change in the tree.
+**One definitional note, and a correction to what this page previously said
+caused it.**
+LOCATIONS.md §6 used to say the run tree's deduplicated byte count "matches
+`du -sb` exactly". It does not, quite: deduplicated regular-file bytes are
+69,364,664,057 and `du -sb` is 69,364,681,327, a difference of **17,270 bytes**.
+Both round to 69.36 GB.
+
+**This page previously attributed that 17,270 B to `du` "also counting directory
+inodes". That is wrong, and it was wrong by three orders of magnitude.**
+Re-derived 2026-08-17 16:06–16:12 UTC by one `os.walk(onerror=…)` + `lstat` pass
+over the tree with stderr collected, **0 walk errors**, alongside
+`/usr/bin/du -sb /home/ubuntu/certonomous-runs` with stderr redirected to a file
+(**0 lines**):
+
+```
+regular files                            132,049
+deduplicated regular-file bytes   69,364,664,057   keyed on (st_dev, st_ino)
+du -sb                            69,364,681,327
+difference                                17,270
+sum of st_size over 748 symlinks          17,270   <- exactly the difference
+sum of st_size over 37,650 directories 154,271,744  <- 8,933x too large to be it
+```
+
+State the definition rather than the claim: **`du -sb` is
+`du --apparent-size --block-size=1`. It counts each regular-file inode once — it
+deduplicates hardlinks itself — and it adds symlinks, whose apparent size is the
+byte length of the target path. It does not add directory `st_size`.** Had it
+done so the gap would be about 154 MB, not 17 KB.
+
+Confirmed in a controlled scratch directory rather than argued from `du`'s
+documentation: a 1,000 B file, a hardlink to it, a 500 B file in a
+subdirectory, and a 2-byte symlink give `du -sb` = **1,502** = 1,000 + 500 + 2,
+with the two 4,096 B directories contributing nothing. Both 4,096 B directory
+`st_size` values are visible in `stat -c %s` on the same run, so their absence
+from 1,502 is not an inference.
+
+So the honest statement is that `du -sb` and a deduplicated `st_size` sum agree
+on this tree **to within the symlink target bytes**, and they agree closely only
+because 748 symlinks is a small population. LOCATIONS.md §6.2 now carries the
+same correction.
 
 ### 2.1 What LOCATIONS.md does *not* cover
 
+**Corrected 2026-08-17. This section previously stated a total of
+13,867,617,999 B (13.87 GB) that its own rows did not sum to.** The nine rows
+sum to 12,007,617,999 B; the stated total exceeded them by exactly
+1,860,000,000 B. **The rows were right and the total was wrong**, so every
+downstream figure derived from 13.87 GB — including §8 ASK-8's "15.93 GB" — was
+wrong with it. The corrected figures are below and they were re-derived here,
+not copied from LOCATIONS.md.
+
 LOCATIONS.md enumerates the run tree, the named directories and the loose files.
 It does **not** enumerate the dotted directories in `/home/ubuntu`, which hold
-**13.87 GB** — more than six times the 2.06 GB its §4.3 "everything else" total
+**12.04 GB** — nearly six times the 2.06 GB its §4.3 "everything else" total
 covers. Two of them are load-bearing evidence by its own §4.5 argument.
 
-| Dotted directory | Files | `du -sb` | Note |
-|---|---|---|---|
-| `.mutarc-64b13819/` | 20,853 | 7,036,239,167 | **undocumented 7.04 GB git tree — see §8 ASK-1** |
-| `.claude/` | 3,648 | 1,790,759,298 | agent dispatch records (LOCATIONS §4.5 evidence) |
-| `.claude-sanaa/` | 3,273 | 1,762,655,576 | agent dispatch records (LOCATIONS §4.5 evidence) |
-| `.local/` | 9,627 | 1,291,641,783 | user-installed tooling |
-| `.cache/` | 302 | 125,677,762 | caches |
-| `.texlive2023/` | 23 | 621,612 | TeX Live user tree |
-| `.npm/` | 13 | 19,519 | npm cache |
-| `.ssh/` | 10 | 3,167 | keys — do not relocate |
-| `.config/` | 2 | 115 | |
-| **Total** | **37,751** | **13,867,617,999 (13.87 GB)** | |
+Census at **2026-08-17 15:52 UTC**, which is the same reading LOCATIONS.md §4.6
+carries, so the two pages agree row for row:
 
-Agent dispatch records found: **1,557** `agent-*.jsonl` files across
-`.claude/projects/` and `.claude-sanaa/projects/`. These are the only sound
-evidence for R-ISOLATE (LOCATIONS.md §4.5) and no clone contains them.
+| Dotted directory | Files | `du -sb` (B) | Apparent (B) | Note |
+|---|---:|---:|---:|---|
+| `.mutarc-64b13819/` | 20,853 | 7,036,239,167 | 7,036,238,778 | 7.04 GB harness archive — see §8 ASK-1 |
+| `.claude/` | 3,734 | 1,821,687,479 | 1,821,687,479 | agent dispatch records (LOCATIONS §4.5 evidence) — **live, a floor** |
+| `.claude-sanaa/` | 3,273 | 1,762,655,576 | 1,762,655,576 | agent dispatch records (LOCATIONS §4.5 evidence) |
+| `.local/` | 9,627 | 1,291,641,783 | 1,291,641,734 | user-installed tooling |
+| `.cache/` | 302 | 125,677,762 | 125,677,762 | caches |
+| `.texlive2023/` | 23 | 621,612 | 621,612 | TeX Live user tree |
+| `.npm/` | 13 | 19,519 | 19,519 | npm cache |
+| `.ssh/` | 10 | 3,167 | 3,167 | keys — do not relocate |
+| `.config/` | 2 | 115 | 115 | |
+| **Total** | **37,837** | **12,038,546,180** | **12,038,545,742** | **12.04 GB either way** |
 
-**Recommendation: LOCATIONS.md should gain a section for the dotted
-directories.** A reader following it today would conclude that everything
-outside the repos and the run tree is 2.06 GB, and would be wrong by 13.87 GB —
-including the entire independence-evidence corpus that §4.5 declares
-irreplaceable.
+**Re-derived independently at 16:04–16:05 UTC**, stderr captured on every walk
+and **0 errors recorded** (`wc -l` on both stderr files returned 0):
+
+```sh
+for d in .mutarc-64b13819 .claude .claude-sanaa .local .cache \
+         .texlive2023 .npm .ssh .config; do
+  /usr/bin/find "/home/ubuntu/$d" -type f 2>>walk_err_find.txt | wc -l   # Files
+  /usr/bin/du -sb "/home/ubuntu/$d" 2>>walk_err_du.txt                   # du -sb
+done
+# Apparent: one os.walk(onerror=...) + lstat pass per directory, summing
+# st_size over regular files; deduplicated by (st_dev, st_ino) in the same
+# pass (the two agree here — these trees hold no extra hardlink instances).
+```
+
+That pass returned **37,845 files, `du -sb` 12,042,204,886 B, apparent
+12,042,241,334 B**. Eight of the nine rows reproduced the 15:52 census **to the
+byte**. The entire difference — 8 files, 3,658,706 B — is `.claude/`, and it is
+**this page's own reflection**: the fleet writes a dispatch record for every
+agent it launches, including the agent that ran the sweep above, so a walk of
+`.claude/` conducted from inside the fleet counts its own tracks. `.claude/`'s
+row is a floor. The other eight rows are censuses.
+
+Agent dispatch records: **1,579** `agent-*.jsonl` files at 16:16 UTC —
+
+```sh
+/usr/bin/find /home/ubuntu/.claude/projects /home/ubuntu/.claude-sanaa/projects \
+              -type f -name 'agent-*.jsonl' 2>>walk_err_dispatch.txt | wc -l
+```
+
+with 0 stderr lines. This count moves — 1,557 at 15:00, 1,573 at 15:52, 1,579 at
+16:16 — for the same reason: **take your own reading, and never quote this one as
+a constant.** These are the only sound evidence for R-ISOLATE (LOCATIONS.md §4.5)
+and no clone contains them.
+
+**What this changes for a reader of §1.** Outside the two repositories and the
+run tree the machine holds 2.06 GB (LOCATIONS.md §4.3) **plus** the 12.04 GB
+here — **14.10 GB, not 2.06 GB**. Exactly: 2,060,624,033 + 12,038,546,180 =
+14,099,170,213 B. The §4.3 half was re-derived here too, by the same
+`find -type f` / `du -sb` pair over its eight directories with stderr captured
+(0 errors), and came to 2,060,624,033 B — its file count read 17,656 rather than
+the 17,558 on record, entirely in `Certonomous_closure_challenge/`, the volatile
+working copy that row already flags.
+
+**Recommendation, now discharged: LOCATIONS.md has gained §4.6 for the dotted
+directories.** A reader following the old LOCATIONS.md would have concluded that
+everything outside the repos and the run tree was 2.06 GB, and would have been
+short by 12.04 GB — including the entire independence-evidence corpus that §4.5
+declares irreplaceable.
 
 ---
 
@@ -469,15 +556,19 @@ Five paths whose class cannot be settled without the owner. Full questions in §
 | `closure-challenge-benchmark/scripts/rans_identity_baseline.py` | 1 | 2,827 | ASK-3 |
 | **Subtotal** | **5** | **906,388,323** | **0.9064 GB** |
 
-**The default for every one of these while unanswered is: do nothing.** If
-ASK-5 and ASK-6 are both answered "delete", **0.906 GB** is recoverable — the
-only meaningful quantity of space in this entire plan. ASK-3 points the other
-way: that file may need *more* protection, not less.
+**Status 2026-08-17: ASK-3, ASK-5 and ASK-6 are resolved; only ASK-7 is still
+open.** See §8 for each answer and where it lives. In short: ASK-3 is settled the
+protective way — a byte-identical copy is now committed and the original stays in
+the clone; ASK-5 and ASK-6 both come out "deletable, and here is exactly what
+goes with it", making **0.906 GB** recoverable, the only meaningful quantity of
+space in this entire plan. **The default for anything still unanswered is: do
+nothing.**
 
-Two further ASK items (ASK-1, ASK-2) concern paths that are classified
-elsewhere — `.mutarc-64b13819/` is outside the enumerated scope, and the
-OpenFOAM binaries sit in REGENERABLE §6.3 with a hold placed on them. Neither
-adds bytes to this subtotal.
+Three further ASK items concern paths classified elsewhere and none adds bytes to
+this subtotal: `.mutarc-64b13819/` (ASK-1, still open) is outside the enumerated
+scope, the OpenFOAM binaries (ASK-2, resolved) sit in REGENERABLE §6.3 with a
+hold placed on them, and ASK-4 (resolved) and ASK-8 (resolved) are not
+file-disposition questions.
 
 ---
 
@@ -804,54 +895,111 @@ snapshot holding work that never landed on `main`? Until answered it is
 should assume it is disposable. If it holds unlanded commits, that is a finding
 well beyond tidying.
 
-**ASK-2 — May the four compiled OpenFOAM solver binaries be rebuilt rather than
-kept?** They are §6.3 REGENERABLE by `wmake`, but they are the exact binaries
-behind published `swbli_cylflare` and `w3-qcr-*` results, and **no build
-procedure is documented anywhere in the repo**. *I need to know:* is a
-bit-identical binary required for any published claim, or is "rebuildable from
-tracked source" sufficient? My recommendation regardless: **keep them, and write
-the build procedure down first.** 6.48 MB is not worth the risk.
+**ASK-2 — RESOLVED 2026-08-17. May the four compiled OpenFOAM solver binaries be
+rebuilt rather than kept?** *Answer:* `docs/OPENFOAM_SOLVER_BUILD.md` §6–8. The
+build procedure this ASK said was documented nowhere is now §4 of that page, and
+§8 carries its correction to this page's §6.3.
 
-**ASK-3 — `closure-challenge-benchmark/scripts/rans_identity_baseline.py`: a
-lab-authored file living inside an upstream clone.** 2,827 bytes, MD5
-`e5faef412884f3552222752e5a277c74`, the **only** untracked file in that clone,
-and a whole-home search found **no other copy anywhere**. It is therefore
-unique, lab-authored, and currently stored in the one directory a reader would
-assume is pure upstream and safe to re-clone. *I need to know:* is this a
-throwaway experiment or real work? If real, it should be moved into the
-Certonomous repo and committed — **a `git clean` or a re-clone of that
-benchmark destroys it, and it exists nowhere else.** This is the single most
-fragile file found in the whole sweep.
+**The trade-off this ASK was built on collapsed.** It asked the owner to choose
+between "rebuildable from tracked source" and "the exact published binary". §6
+measures that **all four artifacts rebuild bit-identical**, so on this box the
+two options are the same thing and there is nothing left to trade off. Read §6
+for the measurement; do not restate it here.
 
-**ASK-4 — the version-ladder scripts: keep every rung, or only the tip?**
-Thirteen loose scripts, all byte-distinct, in two families:
-`render_naca_{case,batch,batch_v2,json,json_v2,annotated}.py` and
-`test_paraview_{simple,batch,headless,headless_v2..v5}.py`. The `_v2`…`_v5`
-naming says the later ones supersede the earlier. They are not duplicates — no
-two share an MD5 — so they cannot be resolved by hash. *I need to know:* is the
-progression itself a record worth keeping (in which case all 13 move to
-`lab-scripts/paraview-render/` with a README explaining the ladder), or should
-only the working tip survive? Total at stake: 38,691 bytes, so there is no
-space argument either way — this is purely about what a newcomer should see.
+**ASK-3 — RESOLVED 2026-08-17. `rans_identity_baseline.py`: a lab-authored file
+living inside an upstream clone, existing in no other copy anywhere.** *Answer:*
+`LOCATIONS.md` §4.2, under "One file in it is, and it is now also in git", which
+records what the file generates, where the byte-identical copy was committed, why
+the original was deliberately left in the clone, and how to run it. Do not
+restate it here.
 
-**ASK-5 — `certonomous-git-backup-20260730T033814Z.tar.gz` (544,309,252 B).**
-Its contents begin `.git/` — it is a bare-ish backup of the repository's git
-directory taken 2026-07-30. The repository is now on GitHub
-(`git@github.com:Certonomous/Certonomous.git`), so in principle this is
-redundant. **But** `MIGRATION_STATUS.md` records that this box holds **no git
-credentials** and was synced by bundle over ssh, and this snapshot predates
-current `main` (`101079fd…`). *I need to know:* does this tarball contain any
-branch, stash or reflog entry that never reached GitHub? If not, it is 0.544 GB
-of recoverable space. **I would not delete it without someone checking its refs
-against the remote first** — that check is cheap and I can run it on request.
+**ASK-4 — RESOLVED 2026-08-17. The thirteen ParaView version-ladder scripts: keep
+every rung, or only the tip?** *Answer:* the README at
+**`/home/ubuntu/lab-scripts/paraview-render/README.md`**, which carries the
+disposition, the per-rung table of what changed at each step, and the citation
+evidence for the keep decision; `LOCATIONS.md` §4.4 records the move and that
+every MD5 is unchanged by it. Do not restate either here.
 
-**ASK-6 — `certonomous-cache.tar.gz` (362,066,284 B).** Contents begin
-`.mesh-cache/cone-M2.35-th10-fine/polyMesh/…` — an archived OpenFOAM mesh cache.
-Meshes are regenerable by re-running `blockMesh`/`snappyHexMesh`, but
-regenerating them costs compute and the cache may be what made specific runs
-reproducible quickly. *I need to know:* is `.mesh-cache` still used by any active
-workflow, and does an unpacked copy already exist inside the repo? If the answer
-is no and no, this is 0.362 GB of recoverable space.
+**ASK-5 — RESOLVED 2026-08-17. `certonomous-git-backup-20260730T033814Z.tar.gz`
+(544,309,252 B): does it contain any branch, stash or reflog entry that never
+reached GitHub?** *Answer: yes — it did, and one of them existed in no other
+copy anywhere, including the live repository.* The check this ASK asked for was
+run, and it was run at object level rather than ref level, because a ref-level
+comparison is exactly what missed this.
+
+Method — the tarball was extracted to scratch (`tar -xzf`, 0 stderr lines) and
+every object it holds was enumerated, reachable or not, then differenced against
+everything reachable from the remote:
+
+```sh
+git --git-dir=<tarball>/.git cat-file --batch-all-objects \
+    --batch-check='%(objectname) %(objecttype)'   # -> 15,765 objects: 345 commits,
+                                                  #    5,166 trees, 10,254 blobs
+git rev-list --objects --remotes=origin | awk '{print $1}' | sort -u
+comm -23 <tarball objects> <remote objects>
+```
+
+**282 of the tarball's 15,765 objects were not reachable from the remote,
+including 16 commits — not the three that a stash-stack reading suggests.** The
+16 are the machinery of **seven** stash tops: three still in the live stash stack
+(`stash@{1..3}`) and **four that had already been dropped from it**. Of those
+four, `0474ca6a` (*"On main: field_render fix - temp for baseline"*, 2026-07-26)
+was **absent from the live repository altogether** — `git cat-file -t` on it
+failed there — so the tarball was its only copy on Earth. The other three
+survived only as dangling objects, one `git gc --prune` from gone.
+
+Each of the seven was then audited path by path against `origin/main`, comparing
+content after CRLF→LF normalisation (much of this stash traffic is line-ending
+churn, which a naive blob comparison reports as unlanded work). **Two held real
+unlanded work and were pushed to the remote as named refs:**
+
+| Ref pushed to `origin` | From | Unlanded content |
+|---|---|---|
+| `stash-archive/2026-07-26-field-render-physical-range` | dropped stash `0474ca6a` | `field_render.py`: reports physical extremes from undecimated per-face data so display decimation cannot alter the physics the JSON claims — 17 lines still absent from `origin/main` |
+| `stash-archive/2026-07-25-field-render-body-mask` | dropped stash `9a972d24` | `field_render.py`: even-odd point-in-polygon body masking with a bounding-box prefilter (18 lines still absent from `origin/main`), plus 2 more in `render_shape_optimization_frames.py` |
+
+**The other five hold nothing.** `stash@{3}` is `motorBike.obj` with CRLF
+applied and is byte-identical to the landed blob once normalised (both MD5
+`07a0a078805b8bfef0e5aaf2d5767773`); two more are fully landed; `stash@{1}` and
+`stash@{2}` are superseded, their only unlanded residue being a dead PID file, a
+rolling `runner.log` tail, two regenerable derived rollups and six reworded
+matplotlib label strings.
+
+**Disposition.** After the two pushes, 254 objects totalling 38,476,559 B
+uncompressed remain in the tarball and nowhere else, and every one of them
+belongs to those five valueless stash tops. **Deleting the tarball is therefore
+supportable and recovers 0.544 GB, but it is the owner's call and it is not
+free** — it discards those 254 objects permanently. Nothing was deleted here.
+
+**ASK-6 — RESOLVED 2026-08-17. `certonomous-cache.tar.gz` (362,066,284 B): is
+`.mesh-cache` still used by any active workflow, and does an unpacked copy
+already exist?** *Answer: yes to both, and the archive is a strict subset of the
+live copy.*
+
+The cache is live, not orphaned: `sdk/chief_engineer/docker_dafoam.py` and
+`head_engineer.py` key on it (`CERTONOMOUS_MESH_CACHE=0` forces a rebuild),
+`scripts/package_caches.sh` is what produced this archive, and
+`docs/DEMO_RUNBOOK.md` and `docs/NIGHT-VALIDATION-SERIES.md` both cite
+`~/certonomous-runs/.mesh-cache/<body>` by path for published cell counts.
+
+The unpacked copy is `/home/ubuntu/certonomous-runs/.mesh-cache/` and
+`.solve-cache/`. Comparing entry sets:
+
+```sh
+tar -tzf /home/ubuntu/certonomous-cache.tar.gz | awk -F/ 'NF>=2{print $1"/"$2}' | sort -u
+ls -1 /home/ubuntu/certonomous-runs/.mesh-cache  /home/ubuntu/certonomous-runs/.solve-cache
+comm -23 <archive entries> <live entries>
+```
+
+The archive holds **24** mesh-cache and **22** solve-cache entries; the live tree
+holds **36** and **26**. `comm -23` in both directions of interest returned
+**empty**: every entry in the archive is present live, and the live tree has 12
+mesh and 4 solve entries the archive does not. **The archive is a stale subset**,
+so it is 0.362 GB of recoverable space.
+
+**State the limit.** This compares entry *names*, not contents. If someone needs
+to prove the live copies are the same meshes rather than merely the same names,
+that is a further check and it has not been run.
 
 **ASK-7 — `.bashrc.bak` (5,880 B) and `.bashrc.bak2` (4,080 B).** Two manual
 backups of `.bashrc` (4,152 B). All three are byte-distinct, so they are not
@@ -861,15 +1009,19 @@ should be recoverable? If not, these are the definition of "random files lying
 around". Trivial in size; listed because the brief asks for a complete
 classification and dotfile backups are exactly the clutter a newcomer trips on.
 
-**ASK-8 — should `LOCATIONS.md` be extended to cover the dotted directories?**
-Not a file-disposition question, but it belongs on this list. §2.1 shows
-LOCATIONS.md accounts for 2.06 GB outside the repos and run tree while the true
-figure including dotted directories is 15.93 GB, and the 13.87 GB gap contains
-the 1,557 agent dispatch records that LOCATIONS.md §4.5 itself calls the only
-sound R-ISOLATE evidence. *I need to know:* whether extending LOCATIONS.md is in
-scope for the reorganisation, or a separate task. **A newcomer reading
-LOCATIONS.md today would not know the independence evidence has a size or a
-location on disk.**
+**ASK-8 — RESOLVED 2026-08-17: `LOCATIONS.md` has been extended to cover the
+dotted directories.** *Answer:* `LOCATIONS.md` §4.6.
+
+**Its figures are corrected here too.** This ASK previously read "the true figure
+including dotted directories is 15.93 GB, and the 13.87 GB gap" — both were
+carried over from §2.1's bad total (§2.1 above: the rows summed to
+12,007,617,999 B against a stated 13,867,617,999 B). Corrected: LOCATIONS.md
+accounted for **2.06 GB** outside the repos and run tree while the true figure
+including the dotted directories is **14.10 GB**, and the gap is **12.04 GB**. It
+contained the agent dispatch records — 1,557 when this ASK was written, 1,579 at
+16:16 UTC, a count that moves — that LOCATIONS.md §4.5 itself calls the only
+sound R-ISOLATE evidence. A newcomer reading LOCATIONS.md today *does* now find
+that the independence evidence has a size and a location on disk.
 
 ---
 
@@ -878,15 +1030,18 @@ location on disk.**
 Ordered so that the reversible and the checked come first, and nothing
 irreversible happens before an ASK is answered.
 
-1. **Answer ASK-1 and ASK-3 first.** Both concern data that exists in exactly one
-   place and could be destroyed by ordinary tooling (`git clean`, harness
-   cleanup) before anyone touches this plan.
+1. **Answer ASK-1 first.** It concerns data that exists in exactly one place and
+   could be destroyed by ordinary tooling (harness cleanup) before anyone touches
+   this plan. **ASK-3, the other item that was on this step, is resolved** — a
+   byte-identical copy is committed and the original is deliberately still in the
+   clone (§8 ASK-3), so a `git clean` there no longer destroys anything unique.
 2. **Create the target directories and write every README**, including the
    "do not delete" statements. Zero risk; immediately improves legibility.
 3. **Move the EVIDENCE loose files** into `evidence/` — additive, reversible,
    nothing references them by path. Rename `scratch_live_readme.md` here.
-4. **Move `memory-import/` → `notes/` and the lab scripts → `lab-scripts/`**
-   (subject to ASK-4).
+4. **Move `memory-import/` → `notes/`.** The lab scripts half of this step is
+   already done: ASK-4 is resolved and all thirteen ParaView rungs are in
+   `/home/ubuntu/lab-scripts/paraview-render/` with their README.
 5. **Place `upstream/`** — move the three pinned clones, then immediately
    restore `~/closure-challenge-pkg` as a symlink (§4.2) and verify with
    `/home/ubuntu/closure-venv/bin/python -c "import closure_challenge"`.
@@ -909,8 +1064,17 @@ for d in OpenFOAM backups certonomous-runs closure-challenge-benchmark \
   /usr/bin/find /home/ubuntu/$d -type f 2>>walk_err_$d.txt | wc -l
 done
 
-# deduplicated bytes
-du -sb /home/ubuntu/certonomous-runs
+# du -sb: deduplicated regular-file bytes PLUS symlink target-path bytes (§0, §2)
+du -sb /home/ubuntu/certonomous-runs 2>walk_err_du.txt   # stderr to a file, then wc -l it
+
+# the dotted directories §2.1 covers, which no loop above reaches
+for d in .mutarc-64b13819 .claude .claude-sanaa .local .cache \
+         .texlive2023 .npm .ssh .config; do
+  /usr/bin/find /home/ubuntu/$d -type f 2>>walk_err_find.txt | wc -l
+  /usr/bin/du -sb /home/ubuntu/$d 2>>walk_err_du.txt
+done
+# `.claude/` grows while the fleet runs, and a sweep launched by an agent is
+# counted by its own walk — treat that row as a floor and say so (§2.1).
 
 # apparent vs deduplicated, keyed on (st_dev, st_ino), with os.walk(onerror=...)
 # and the duplicate sweep by full-file MD5: see §6.4
@@ -922,9 +1086,11 @@ ls -la /home/ubuntu
 /usr/bin/grep -rn -I --binary-files=without-match PATTERN /home/ubuntu/...
 ```
 
-**Limits of this page.** Every figure is a reading taken 2026-08-17 15:00–16:00
+**Limits of this page.** Every figure is a reading taken 2026-08-17 15:00–16:20
 UTC, not a constant. Three loose log files were growing during the frame and
-their sizes are floors. One full-tree grep — the custom-solver name sweep over
+their sizes are floors, and so is `.claude/` (§2.1) — which grew by 8 files and
+3,658,706 B *between two passes of this page's own sweep*, because the fleet
+writes a dispatch record for the agent doing the sweeping. One full-tree grep — the custom-solver name sweep over
 the run tree — did not finish (§7.4), and nothing here depends on it.
 
 **One figure on this page was wrong twice before it was right** (§7.4): once
