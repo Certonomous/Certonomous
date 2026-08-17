@@ -3684,3 +3684,148 @@ Related: L-74 (a check sharing the knowledge of the thing it checks measures
 transcription fidelity), L-75 (the frame is part of the number), L-83 (fixing a
 circular measurement moves the circle up one level), L-84 (a positive control
 proves an instrument can fire, not its reach).
+
+---
+
+## L-86. A restructure invalidates every pointer that was true when it was written, and a disclosure written from the restructurer's memory of what it broke is not a measurement of what it broke
+
+**The incident, and the arithmetic is the lesson.** A repair pass on the closure
+package regrouped `evidence/` from a flat list of nine documents into `frozen/`,
+`audits/` and `reproduction/`. The same pass noticed that the move had broken two
+citations inside the two frozen artifacts, disclosed them as "exception 9", wrote
+a reading rule for them, and said in terms: *"Only those two citations are
+affected."* The package's index then said **"Nine departures are on record"** and
+**"All nine departures are set out with their locations"**, which is a claim of
+completeness.
+
+**Measured rather than recalled, the move broke ten pointers, not two.** The
+enumeration that produced ten, run from the repository root:
+
+* Bare citations inside the frozen bytes: match every
+  `[\w./-]+\.(?:md|json|py|csv)` token in the two frozen documents against the
+  basenames the package ships. That returns **four** sites naming three files,
+  not two. The two missed were both `R5_RULE_FREEZE.md`, at lines 13 and 192.
+* Prose pointers in the audit records: five files under `audits/` each told a
+  reader to see `README.md` "in this directory" for a named section. After the
+  move the README beside them is a 21-line folder index holding neither section;
+  both are one level up.
+* One inside a shell command: a shipped re-derivation command still named the
+  pre-move path and raised `FileNotFoundError` when run verbatim.
+
+An independent cold verification of the same package found **five** of the ten
+and reported them as five. The brief written from that verification repeated
+five. Ten is what the enumeration returns. **Every party in the chain was working
+from a recollection of the move, and each recollection was short by a different
+amount.**
+
+**The half that is worse than silence.** Exception 9's reading rule read: *"a
+bare `.md` filename inside either frozen document that names a file this package
+ships is to be read as `evidence/audits/<name>`."* Applied to the two sites it
+had missed, that rule sends a reader to an `R5_RULE_FREEZE.md` under `audits/`,
+**a path the package does not have**, when the file is sitting in `frozen/`. A
+disclosure that is incomplete leaves a reader where they were. A disclosure whose
+rule is derived from the incomplete list actively misdirects, and it does so
+under the authority of having been disclosed.
+
+**What would have caught it, and one of the two is not a path check.** Five of
+the ten broken pointers **resolved**. `README.md` written in
+`evidence/audits/CLOSURE_METHODS_COMPARISON.md` names a real file. No path
+resolver can see that it is wrong, because nothing is unresolvable. What sees it
+is a **section** check: parse a citation of the form `` `<path>` under
+"<Section>" ``, resolve the path by the same convention a reader would, and
+require the target document to carry a heading matching the section. On the
+broken five that check fires immediately, naming the headings the target does
+have. So:
+
+1. After any move, re-resolve **every** path-like token in the tree from the file
+   it is written in, including tokens inside fenced blocks and inside backticked
+   shell commands, which is where the `FileNotFoundError` one lived.
+2. Check **section** references separately, because a pointer can resolve and
+   still be false, and that is the majority case here, five of ten.
+3. Any disclosure stating a count must ship the command that produced the count,
+   and that command must be re-run by the package's own checker on every run. The
+   exception-9 count is now enumerated by the checker and fails if it moves, so
+   the completeness claim is measured rather than asserted.
+
+**The generalisable form.** A restructure is not a diff over content, it is a
+diff over the ground every pointer stands on, and the set of pointers it
+invalidates is a fact about the corpus rather than about the person who moved the
+files. Ask what broke, not what you remember breaking. The distance between those
+two, here, was a factor of five.
+
+Related: L-82 (a set built by the party being measured understates, and the
+understatement is itself measurable by building a second one), L-83 (fixing a
+circular measurement moves the circle up one level), L-43 (an instrument that
+cannot see the evidence reports absence, not innocence), L-87 (a control that
+plants only the defects its author imagined certifies the author's imagination).
+
+---
+
+## L-87. A control that plants only the defects its author imagined certifies the author's imagination, not the checker; the missing shapes are found by breaking the checker on copies
+
+**The incident.** `scripts/check_consistency.py` in the closure package ran six
+cross-file checks and carried a planted-error control on the reasoning that **a
+checker that cannot fail is not a checker.** The control planted two defects,
+caught both, and printed `PASS` on every run. The package then went to an
+independent cold verification, which returned NOT FINISHED with **sixteen**
+findings. The checker had been green over every one of them.
+
+**The two plants were not a sample of the defect space. They were a sample of the
+author's.** Reproduced on copies, one shape at a time, plant and run and record
+the exit code:
+
+| shape planted | old checker | why it was invisible |
+|---|---|---|
+| one of `README.md`'s three occurrences of `-2.203` changed, two left intact | `rc=0` | figures were matched per file, so a file disagreeing with itself is not a cross-file disagreement |
+| a `` `../<name>.md` `` reference broken | `rc=0` | the in-package test asked whether the first component was a top-level directory. The author's own plant used `../evidence/<name>`, whose head **is** one; the adjacent shape's head is a filename |
+| a path broken inside a backticked span containing spaces | `rc=0` | spans with spaces were skipped whole, and a span with spaces is what a shell command in prose looks like |
+| a citation repointed at a `README.md` that exists and lacks the cited section | `rc=0` | `README.md` was on the bare-name exemption list, and there was no section check at all |
+| the inventory table row for `records/MANIFEST.json` deleted | `rc=0` | the inventory test asked whether the path appeared anywhere in the file, and it appears eight more times |
+| a stray `scripts/__pycache__/*.pyc`, which `.gitignore` excludes | `rc=1` | the walk did not honour `.gitignore`, so the script failed, **aborted its own control**, and printed that nothing it reported could be trusted, on a package with nothing wrong with it |
+
+Five shapes green that should have been red, and one red that should have been
+silent. The author's `../evidence/<name>` plant and the live `../<name>` defect
+differ by one path component; the plant was caught and five real instances of its
+neighbour were not.
+
+**The technique, and it is the transferable part: break the checker on copies.**
+Copy the package to a temporary directory, plant exactly one defect, run **the
+copy's own checker**, record the exit code, discard the copy. It costs a few
+seconds per shape, it needs no cooperation from the checker, and it is the only
+way to learn what a green tick is worth. Running it against the shipped tree and
+the shipped checker is what turned "the checker passes" into the table above.
+
+**What would have caught it: derive the plant list from the corpus, not from the
+author.** A control's shapes are enumerable rather than imaginable:
+
+* For a path check, enumerate the distinct **shapes** of path token the corpus
+  actually contains, bare name, `dir/...`, `../dir/...`, `../name`, inside a
+  fence, inside a backticked command, and require one plant per shape. The corpus
+  contained `../name`; the control did not.
+* For a figure check, wherever any file states a pinned figure more than once,
+  require a plant at multiplicity greater than one. The pin is now a map from
+  file to **occurrence count**, generated from the tree, so a partial edit fails.
+* For any check with an exemption list, require a plant that the exemption hides.
+  `README.md` was exempt; the plant that exposes it is a citation to a section
+  that README does not have.
+* Require at least one **negative** plant: a file the package deliberately
+  ignores, asserting the checker stays silent. Without it, "fails when it should"
+  is half a control, which is L-84's point in a second guise.
+
+**Measured after the rebuild**, same six shapes, same harness: five caught, and
+the stray bytecode ignored, with the ordinary run planting all six every time and
+exiting non-zero if any is missed or if the ignorable one is reported.
+
+**The uncomfortable corollary.** The rebuilt control is still an author's list.
+It is a longer list, drawn from a corpus rather than from memory, and it is
+falsifiable in the same way the old one was: by someone breaking this checker on
+copies with a shape neither of us thought of. That is not a reason to trust it
+less than the old one. It is the reason the technique, and not the list, is what
+this entry records.
+
+Related: L-84 (a positive control proves an instrument can fire, not its reach,
+and not that it fires only where it should), L-85 (mutation kills the literal;
+agreement does not prove derivation), L-75 (our own sweeps inherit ignore rules,
+and here the inverse cost the same: a sweep that ignored `.gitignore` failed a
+correct package), L-43 (the audit instrument has its own blind spots), L-86 (a
+disclosure written from memory of a restructure is not a measurement of it).
