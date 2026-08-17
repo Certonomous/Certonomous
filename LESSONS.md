@@ -4914,3 +4914,145 @@ exited 1 on the scorer's own test ground truth and the consistency checker
 exited 1 with 48 disagreements. **A quoted receipt that is never re-executed is
 a memory of a measurement, and it decays exactly like any other memory.** Run
 them, from the directory the document tells the reader to run them from.
+
+## L-105. An instrument that prints a claim about the strength of its own check, backed by a quantity it never computes, is worse than one that simply lacks the feature
+
+`scripts/heat_balance.py` had a `--allow-advective` flag. At `267a4021` the
+attribute `a.allow_advective` was read at **exactly one place** — the guard on an
+exit-2 refusal — and nowhere else. The only per-patch heat the script computed
+was `Q = kcond * G`, pure conduction. No advective key reached the JSON; no
+advective line reached the printed report. The docstring said the flag "adds the
+term but the report is then stamped UNVALIDATED", and **both halves were false**:
+the flag added no term, and the string `UNVALIDATED` never appeared in any report
+— only in the docstring and in two stderr messages.
+
+That is a missing feature, and a missing feature is a gap a reader can see.
+
+**Here is the part that is not a missing feature.** `sealed = not nonwall`, so on
+an open case the script took the `closure_is_identity_class is False` branch and
+printed, verbatim:
+
+> NOT of the identity class, so the balance is a genuine constraint here rather
+> than a restatement of the discretisation
+
+**The instrument made a positive claim about the strength of its own check, on
+exactly the class of case where the quantity backing that claim did not exist.**
+It was the script's most emphatic endorsement, spent on its least trustworthy
+output. Measured on a real open case afterwards, the number under that
+endorsement was wrong by 98.6 percent.
+
+**Why this is worse than the bare absence.** A checker that says "I do not
+compute this" costs a reader one lookup. A checker that says "the balance is a
+genuine constraint **here**" transfers its own credibility onto a number it has
+not earned the right to vouch for. The reader's correct response to the first is
+to go and compute the term; the correct response to the second is to quote the
+number. And the endorsement is *load-bearing downstream*: K2a §8 had already
+written its instrument prerequisite assuming a stamp would mark unvalidated
+numbers, so a specification written to catch exactly this was itself resting on
+a stamp that did not exist.
+
+**The rule.** When a check has a branch it cannot evaluate, the branch must
+degrade to UNKNOWN and say so — never to the confident negation. `false` and
+`could not be determined` are different answers and only one of them is honest
+when the input is missing. Concretely, in the repair: an incomplete ledger sets
+`closure_is_identity_class` to `null`, not `false`, because a balance missing a
+term is neither an identity nor a genuine constraint — it is an unfinished sum.
+And it cannot PASS, whatever the arithmetic reads.
+
+**The ordering matters and it is cheap.** The repair was done in two commits and
+the first computed nothing new: it removed the false endorsement and left the
+feature still missing. That takes minutes, needs no compute, and means the
+instrument is honest for the whole time the real work is in progress. Fix the
+stamp before the physics.
+
+Found and repaired at rung KV1 of campaign F14, 2026-08-17.
+`docs/campaigns/F14-cooling-ladder/KV1_RESULTS.md` §0.
+
+## L-106. A new term validated only on a case where its own sum is identically zero has been validated against nothing, and the control that catches this is a mutation that must BITE
+
+Having implemented the advective enthalpy flux, the obvious control was a duct
+with through-flow and no source: the balance must close. It closed —
+**0.0000 percent, net 1.8e-12 W, exit 0** — and it was worth nothing.
+
+The duct had adiabatic walls and an inlet at 305 K, so it converged to *exactly*
+305 K everywhere. Therefore:
+
+```
+Q_adv(inlet) = +0.146191 W    Q_adv(outlet) = -0.146191 W    SUM = 0
+```
+
+Flip the sign of the whole advective term: the sum is still zero. Scale it by
+two: still zero. **The closure passes for any scaling and any sign of the term it
+was built to validate.** That is the sealed-case identity defect — a quantity
+that closes whether the physics is right or not — arriving in a new domain under
+a new name, on the very case built to escape it.
+
+**It was caught by asking the mutation question rather than the closure
+question.** Not *"does it close?"* but *"what would have to be wrong for it to
+fail?"*. Four independent wrongnesses were put into the term and the same field
+set re-audited: three of the four changed nothing at all. That is not a fact
+about the term; it is a fact about the case.
+
+**The fix is a case whose ledger has two INDEPENDENT non-zero terms that must
+cancel each other.** A heated wall was added, so heat enters by conduction
+(+0.0617726 W) and leaves by advection (−0.0617726 W). The mutations then bit
+hard: sign flipped → 45.66 percent FAIL, scaled by two → 17.44 percent FAIL, one
+open patch dropped → 100 percent FAIL.
+
+**The degenerate case was kept, not deleted.** It is now the negative control:
+the case where the mutations are *correctly* invisible, which is what shows the
+sensitivity measured on the good case belongs to the physics and not to the
+harness. A mutation set that fires everywhere is as uninformative as one that
+fires nowhere.
+
+**The general rule.** Before quoting a control as validating a term, ask what the
+term's contribution to the graded quantity actually is on that case. If it is
+zero, or if it cancels against itself, the control has exercised the code path
+and nothing more — reachability, not recognition. **A control has to be able to
+come out wrong, and "able to come out wrong" is measured by breaking the thing
+on purpose, never by inspecting the result.**
+
+Found at rung KV1 of campaign F14, 2026-08-17.
+`docs/campaigns/F14-cooling-ladder/KV1_RESULTS.md` §2, and the harness is
+`KV1_runs/mutate_advective.py`.
+
+## L-107. A normalisation choice can loosen a gate many-fold while every number the gate reports stays put, so the choice is part of the threshold and has to be governed with it
+
+An enthalpy flux is defined only up to a temperature datum. Over a boundary that
+conserves mass the datum cancels exactly from the **net**, which is the number
+the audit reports. It does **not** cancel from the **denominator** of the
+imbalance ratio, because the datum decides how much of the through-flow's
+absolute enthalpy is counted as "heat entering".
+
+Measured, on one duct: with the datum at the case's own `TRef` the denominator is
+**0.2079685 W**; with the datum at 0 K — the apparently neutral, choice-free
+option — it is **8.979442 W**. A factor of **43.2**. The governed tolerance is
+0.5 percent in both cases and *the printed tolerance never changes*, but the slack
+it buys goes from **1.04e-03 W** to **4.49e-02 W**.
+
+**And no control catches it.** The datum was one of four mutations in a harness
+built to prove the term could fail. The other three fired. This one did not, and
+*cannot*: the net is unchanged to 1e-10 W and the case passes. Every control in
+the rung still passed with the gate 43-fold looser.
+
+**So the taxonomy that matters is not "which numbers are reported" but "which
+numbers the reported ones are divided by".** A reviewer reading the report sees
+an unchanged threshold, an unchanged net, and a passing verdict. Nothing on the
+page moves. The only thing that moved was what "0.5 percent" meant.
+
+**The rule.** A normalisation, a datum, a reference state or a denominator that
+sits under a governed threshold is *part of that threshold*. It belongs in the
+same governed file, stated with the same force, with the factor it is worth
+measured rather than asserted — not left as a default in the code, and never
+left to a caller's flag. In the repair it went into `docs/physics_rules.yaml`
+beside the tolerance as `heat_balance_advective_datum: TRef`, with the 43.2 on
+the same page, and the report carries `advective.datum_K` and
+`advective.datum_source` on every run so a reader can see which one was used.
+
+**The tell that generalises.** If someone proposes simplifying a normalisation
+"since it cancels anyway", the question is *cancels from what*. It very likely
+cancels from the numerator. Check the denominator, and check it as a mutation
+that must be allowed to pass — because if it silently passes, that is the finding.
+
+Found at rung KV1 of campaign F14, 2026-08-17.
+`docs/campaigns/F14-cooling-ladder/KV1_RESULTS.md` §3c.
