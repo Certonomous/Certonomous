@@ -229,6 +229,49 @@ def operative_label(cell_live: str) -> str | None:
     return found[-1][1] if found else None
 
 
+def uncited_newer(rung: str, cited: list[Path]) -> list[Path]:
+    """Records for this rung that landed AFTER the newest one the cell cites.
+
+    THIS CLOSES THE INSTRUMENT'S ORIGINAL BLIND SPOT, and it was found by a
+    grader rather than by the author. The cell-versus-record check compares
+    against the newest record the cell NAMES, so a cell that simply fails to
+    name a newer grade passes it silently. That is not hypothetical: on
+    2026-08-17 the V8 row recorded a 2026-08-15 PASS while a GATE FAIL and its
+    repair had both landed since, and this checker reported the row clean
+    because the newer records were nowhere in the cell to be compared against.
+
+    A check whose blind class is "the thing it is supposed to detect, when the
+    author omits the citation" is worth very little, since omission is exactly
+    what staleness looks like.
+    """
+    m = re.match(r"(V\d{1,2})\b", rung)
+    if not m:
+        return []
+    tag = m.group(1)
+    pat = re.compile(rf"(?:^|[_-]){tag}(?:[_-]|\.)")
+    newest_cited = _landed(cited[-1]) if cited else 0
+    out = []
+    for p in sorted(CAMPAIGN.glob("*.md")):
+        if not pat.search(p.name):
+            continue
+        if p in cited:
+            continue
+        if _landed(p) > newest_cited:
+            out.append(p)
+    return out
+
+
+def _landed(p: Path) -> int:
+    try:
+        out = subprocess.run(
+            ["git", "log", "-1", "--format=%ct", "--", str(p)],
+            cwd=REPO, capture_output=True, text=True, timeout=30,
+        ).stdout.strip()
+        return int(out) if out else 0
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return 0
+
+
 @dataclass
 class Row:
     rung: str
@@ -364,6 +407,30 @@ def check(strict_fail: bool, ledger_text: str | None = None) -> list[Row]:
                 row.add("FAIL", "CELL-VS-RECORD",
                         f"cell says {operative}; its newest cited record "
                         f"{newest.name} says {stated}")
+
+        # The blind spot a grader found: a cell cannot disagree with a record
+        # it never names, so staleness by OMISSION passed silently until now.
+        #
+        # A cell citing NOTHING is a separate finding and must not be reported
+        # as this one. With no citation the newest-cited timestamp is zero, so
+        # every record for the rung dates "after" it and the row reads as
+        # eleven-deep stale when the true defect is that it names no source at
+        # all. Reporting the wrong one sends the repair to the wrong place.
+        missed = uncited_newer(row.rung, cited)
+        if not cited:
+            n = len(missed)
+            row.add("FAIL", "NO-CITATION",
+                    f"cell names no grade record; {n} exist(s) for this rung"
+                    if n else "cell names no grade record, and none was found")
+        elif missed:
+            names = ", ".join(p.name for p in missed[:3])
+            more = f" (+{len(missed) - 3} more)" if len(missed) > 3 else ""
+            verdicts = {record_verdict(p) for p in missed} - {None}
+            row.add("FAIL", "UNCITED-NEWER",
+                    f"{len(missed)} record(s) for this rung landed after the "
+                    f"newest one the cell cites, saying "
+                    f"{'/'.join(sorted(verdicts)) or 'no verdict found'}: "
+                    f"{names}{more}")
 
         # C3 -- the intra-row contradiction ad4d2315 created. Heuristic by
         # construction: a confirmation column may legitimately narrate an
