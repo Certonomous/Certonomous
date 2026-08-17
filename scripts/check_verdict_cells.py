@@ -250,15 +250,19 @@ def uncited_newer(rung: str, cited: list[Path]) -> list[Path]:
     tag = m.group(1)
     pat = re.compile(rf"(?:^|[_-]){tag}(?:[_-]|\.)")
     newest_cited = _landed(cited[-1]) if cited else 0
-    out = []
+    out: list[Path] = []
+    skipped: list[str] = []
     for p in sorted(CAMPAIGN.glob("*.md")):
-        if not pat.search(p.name):
+        if not pat.search(p.name) or p in cited:
             continue
-        if p in cited:
+        if _landed(p) <= newest_cited:
             continue
-        if _landed(p) > newest_cited:
+        ok, why = is_grade_record(p)
+        if ok:
             out.append(p)
-    return out
+        else:
+            skipped.append(f"{p.name} ({why})")
+    return out, skipped
 
 
 def _landed(p: Path) -> int:
@@ -304,6 +308,41 @@ def parse_rows(ledger_text: str) -> list[Row]:
     return rows
 
 
+# A document can be named for a rung, sit in the campaign directory, and still
+# not be a grade of it. `V16_C4_AMENDMENT_PROPOSAL.md` says so on its own face:
+# NOT IN FORCE, FORWARD ONLY, and it regrades nothing. Binding records to rungs
+# by FILENAME alone made this checker report that the V16 cell disagreed with a
+# document that decides nothing about V16 -- a false FAIL, and the same
+# use-versus-mention failure one level up: a file ABOUT a rung is not a VERDICT
+# on it. The same defect is latent on V2, where a case file `DPW8_V2_joukowski.md`
+# matches the V2 pattern.
+NOT_A_GRADE_RE = re.compile(
+    r"\bNOT\s+IN\s+FORCE\b|\bFORWARD[- ]ONLY\b|\bPROPOSAL\b|"
+    r"\bdoes\s+not\s+re-?grade\b|\bgrades\s+no\s+rung\b",
+    re.IGNORECASE,
+)
+
+
+def is_grade_record(path: Path) -> tuple[bool, str]:
+    """Is this a grade of a rung, or merely a document naming one.
+
+    Returns (verdict, reason). Exclusions are REPORTED, never silent: a control
+    that drops a case without saying so is how K0c's C5 witness list hid two
+    missing rows, and 'failed the criterion' became indistinguishable from 'was
+    never considered'.
+    """
+    try:
+        head = path.read_text(errors="replace")[:4000]
+    except OSError:
+        return False, "unreadable"
+    m = NOT_A_GRADE_RE.search(head)
+    if m:
+        return False, f"declares itself {m.group(0).strip()!r}"
+    if record_verdict(path) is None:
+        return False, "states no verdict"
+    return True, ""
+
+
 def record_verdict(path: Path) -> str | None:
     """The verdict a grade record states about itself.
 
@@ -313,9 +352,14 @@ def record_verdict(path: Path) -> str | None:
     FAILS**`` with a rung name interposed and the verb inflected. A pattern
     demanding the label immediately after the colon reads two of those three as
     verdict-less.
+
+    Read WHOLE, not a head window. An 8,000-byte window reported four real grade
+    records as stating no verdict, because they state it past that point. A
+    reader that gives up early and a document that says nothing produce the same
+    output, which is the truncation failure this lab has now met in four guises.
     """
     try:
-        head = path.read_text(errors="replace")[:8000]
+        head = path.read_text(errors="replace")
     except OSError:
         return None
     for anchor in VERDICT_ANCHOR_RE.finditer(head):
@@ -416,7 +460,11 @@ def check(strict_fail: bool, ledger_text: str | None = None) -> list[Row]:
         # every record for the rung dates "after" it and the row reads as
         # eleven-deep stale when the true defect is that it names no source at
         # all. Reporting the wrong one sends the repair to the wrong place.
-        missed = uncited_newer(row.rung, cited)
+        missed, skipped = uncited_newer(row.rung, cited)
+        if skipped:
+            row.add("INFO", "NOT-A-GRADE",
+                    f"{len(skipped)} newer file(s) named for this rung are not "
+                    f"grades and were excluded: {'; '.join(skipped[:3])}")
         if not cited:
             n = len(missed)
             row.add("FAIL", "NO-CITATION",
