@@ -1,0 +1,220 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : buoyantBoussinesqSimpleFoam
+Date   : Aug 17 2026
+Time   : 16:27:01
+Host   : ip-172-31-43-247
+PID    : 209508
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/docs/campaigns/F14-cooling-ladder/K0c_runs/Ra1e5_m128
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 7697
+
+
+SIMPLE: convergence criteria
+    field p_rgh	 tolerance 1e-07
+    field U	 tolerance 1e-08
+    field T	 tolerance 1e-08
+
+Reading thermophysical properties
+
+Reading field T
+
+Reading field p_rgh
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Selecting incompressible transport model Newtonian
+Creating turbulence model
+
+Selecting turbulence model type laminar
+Selecting laminar stress model Stokes
+Reading field alphat
+
+
+Reading g
+
+Reading hRef
+Calculating field g.h
+
+No MRF models present
+
+Radiation model not active: radiationProperties not found
+Selecting radiationModel none
+No finite volume options present
+
+Starting time loop
+
+surfaceFieldValue hotFlux:
+    operation     = areaNormalIntegrate
+
+
+surfaceFieldValue coldFlux:
+    operation     = areaNormalIntegrate
+
+
+surfaceFieldValue hotT:
+    operation     = areaAverage
+
+
+surfaceFieldValue coldT:
+    operation     = areaAverage
+
+
+Time = 7698
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 1.159357749159838e-07, Final residual = 4.149414045830139e-11, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 1.274409048291271e-07, Final residual = 4.425370573030414e-11, No Iterations 2
+DILUPBiCGStab:  Solving for T, Initial residual = 4.503315728902805e-07, Final residual = 2.774760896907879e-10, No Iterations 2
+DICPCG:  Solving for p_rgh, Initial residual = 5.360901736708442e-06, Final residual = 4.815126728802979e-09, No Iterations 55
+time step continuity errors : sum local = 2.369940489298507e-10, global = 3.638060897198448e-18, cumulative = -2.513248062028016e-16
+ExecutionTime = 0.14 s  ClockTime = 1 s
+
+Time = 7699
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 2.49457290211234e-08, Final residual = 1.402906662989999e-11, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 2.727459422490811e-08, Final residual = 1.478753423415168e-11, No Iterations 2
+DILUPBiCGStab:  Solving for T, Initial residual = 4.103435637500317e-08, Final residual = 2.096123251931843e-11, No Iterations 3
+DICPCG:  Solving for p_rgh, Initial residual = 7.429974124954838e-07, Final residual = 7.089710094994072e-10, No Iterations 79
+time step continuity errors : sum local = 3.910312235715489e-11, global = -1.851961667968732e-18, cumulative = -2.531767678707703e-16
+ExecutionTime = 0.17 s  ClockTime = 1 s
+
+Time = 7700
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 1.648069005947531e-08, Final residual = 1.033808484213653e-11, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 1.801849397395613e-08, Final residual = 1.121950931266242e-11, No Iterations 2
+DILUPBiCGStab:  Solving for T, Initial residual = 1.076808793059505e-08, Final residual = 6.997406431077687e-12, No Iterations 3
+DICPCG:  Solving for p_rgh, Initial residual = 2.011584388182671e-06, Final residual = 1.640145298084917e-09, No Iterations 57
+time step continuity errors : sum local = 8.674294158733467e-11, global = 2.730039333691217e-20, cumulative = -2.531494674774334e-16
+ExecutionTime = 0.2 s  ClockTime = 1 s
+
+surfaceFieldValue hotFlux write:
+    total faces   = 128
+    total area    = 0.001000000000000001
+
+    areaNormalIntegrate(hotWall) of k0cGradT = 0.04930482109318516
+
+surfaceFieldValue coldFlux write:
+    total faces   = 128
+    total area    = 0.001000000000000001
+
+    areaNormalIntegrate(coldWall) of k0cGradT = -0.04930483132208918
+
+surfaceFieldValue hotT write:
+    total faces   = 128
+    total area    = 0.001000000000000001
+
+    areaAverage(hotWall) of T = 300.5440810999999
+
+surfaceFieldValue coldT write:
+    total faces   = 128
+    total area    = 0.001000000000000001
+
+    areaAverage(coldWall) of T = 299.4559188999996
+
+Time = 7701
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 7.509511856661203e-09, Final residual = 3.694351221250008e-12, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 7.996727104031473e-09, Final residual = 4.082077707624688e-12, No Iterations 2
+DILUPBiCGStab:  Solving for T, Initial residual = 9.691998149260646e-09, Final residual = 4.021387724473176e-12, No Iterations 3
+DICPCG:  Solving for p_rgh, Initial residual = 2.048950723665471e-06, Final residual = 1.977616119856816e-09, No Iterations 57
+time step continuity errors : sum local = 1.050718011627521e-10, global = 1.897587868113782e-19, cumulative = -2.529597086906221e-16
+ExecutionTime = 0.23 s  ClockTime = 1 s
+
+Time = 7702
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 6.042295314633645e-09, Final residual = 1.899397069860594e-12, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 6.668029245444955e-09, Final residual = 2.183885619603692e-12, No Iterations 2
+DILUPBiCGStab:  Solving for T, Initial residual = 9.539738596638251e-09, Final residual = 7.89137888053733e-12, No Iterations 2
+DICPCG:  Solving for p_rgh, Initial residual = 1.13856993804242e-06, Final residual = 1.133543636979572e-09, No Iterations 63
+time step continuity errors : sum local = 6.542500954448862e-11, global = -2.750696634681954e-18, cumulative = -2.55710405325304e-16
+ExecutionTime = 0.26 s  ClockTime = 1 s
+
+Time = 7703
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 7.340271300150484e-09, Final residual = 2.907186968049449e-12, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 8.083221063825628e-09, Final residual = 3.284271508757859e-12, No Iterations 2
+DILUPBiCGStab:  Solving for T, Initial residual = 9.445912617142755e-09, Final residual = 3.654295899312982e-12, No Iterations 3
+DICPCG:  Solving for p_rgh, Initial residual = 4.786372728890772e-07, Final residual = 4.763074274088034e-10, No Iterations 146
+time step continuity errors : sum local = 2.322223132666664e-11, global = -2.847944882722714e-18, cumulative = -2.585583502080268e-16
+ExecutionTime = 0.31 s  ClockTime = 1 s
+
+Time = 7704
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 5.907515282699242e-09, Final residual = 1.811098403232355e-12, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 6.575971279703707e-09, Final residual = 2.050280177168457e-12, No Iterations 2
+DILUPBiCGStab:  Solving for T, Initial residual = 9.360615640840302e-09, Final residual = 4.426258064458303e-12, No Iterations 2
+DICPCG:  Solving for p_rgh, Initial residual = 4.293420754077511e-07, Final residual = 4.263115681967139e-10, No Iterations 78
+time step continuity errors : sum local = 2.327826789039335e-11, global = 1.635043851694717e-18, cumulative = -2.56923306356332e-16
+ExecutionTime = 0.35 s  ClockTime = 1 s
+
+Time = 7705
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 5.232988550082547e-09, Final residual = 1.083256743186069e-12, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 5.845992607246586e-09, Final residual = 1.210030659032858e-12, No Iterations 2
+DILUPBiCGStab:  Solving for T, Initial residual = 9.277257477451671e-09, Final residual = 2.981364531947057e-12, No Iterations 2
+DICPCG:  Solving for p_rgh, Initial residual = 2.735476955828839e-07, Final residual = 2.493823035894216e-10, No Iterations 78
+time step continuity errors : sum local = 1.251942041351872e-11, global = 3.766418285245475e-19, cumulative = -2.565466645278075e-16
+ExecutionTime = 0.38 s  ClockTime = 1 s
+
+Time = 7706
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 5.441325619597424e-09, Final residual = 9.191756552776206e-13, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 6.171086692603209e-09, Final residual = 1.011990496707818e-12, No Iterations 2
+DILUPBiCGStab:  Solving for T, Initial residual = 9.192979675791458e-09, Final residual = 2.804968217090026e-12, No Iterations 2
+DICPCG:  Solving for p_rgh, Initial residual = 1.532517943594617e-07, Final residual = 1.443023780141251e-10, No Iterations 97
+time step continuity errors : sum local = 7.576281932034327e-12, global = -3.333409631360284e-18, cumulative = -2.598800741591678e-16
+ExecutionTime = 0.42 s  ClockTime = 1 s
+
+Time = 7707
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 5.191788324180547e-09, Final residual = 5.959946298003327e-13, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 6.050870468022315e-09, Final residual = 6.593699924272389e-13, No Iterations 2
+DILUPBiCGStab:  Solving for T, Initial residual = 9.10824097474944e-09, Final residual = 2.661348748649534e-12, No Iterations 2
+DICPCG:  Solving for p_rgh, Initial residual = 1.588257820655404e-07, Final residual = 1.415255682387647e-10, No Iterations 158
+time step continuity errors : sum local = 6.899037667071537e-12, global = 5.578497165328942e-18, cumulative = -2.543015769938389e-16
+ExecutionTime = 0.47 s  ClockTime = 1 s
+
+Time = 7708
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 5.136806120712311e-09, Final residual = 4.285713206704684e-12, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 6.119373377434815e-09, Final residual = 4.8230368271917e-12, No Iterations 1
+DILUPBiCGStab:  Solving for T, Initial residual = 9.02282907821965e-09, Final residual = 2.560954349421143e-12, No Iterations 2
+DICPCG:  Solving for p_rgh, Initial residual = 1.006840315239724e-07, Final residual = 9.66580597117795e-11, No Iterations 159
+time step continuity errors : sum local = 4.708256609813427e-12, global = -4.90595247529638e-19, cumulative = -2.547921722413685e-16
+ExecutionTime = 0.52 s  ClockTime = 1 s
+
+Time = 7709
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 5.226677029716779e-09, Final residual = 3.333834793061906e-12, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 6.279719971995115e-09, Final residual = 3.718583941957275e-12, No Iterations 1
+DILUPBiCGStab:  Solving for T, Initial residual = 8.936661211250294e-09, Final residual = 2.48988209788604e-12, No Iterations 2
+DICPCG:  Solving for p_rgh, Initial residual = 6.277485780821624e-08, Final residual = 8.885208240042795e-11, No Iterations 159
+time step continuity errors : sum local = 4.329215083944438e-12, global = -4.14194737813023e-18, cumulative = -2.589341196194987e-16
+ExecutionTime = 0.57 s  ClockTime = 1 s
+
+
+SIMPLE solution converged in 7709 iterations
+
+End
+

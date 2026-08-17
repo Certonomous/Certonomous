@@ -121,3 +121,18 @@ demo-output/website/latex/*.toc
 # re-included first and its contents second.
 !demo-output/website/campaign/THERMAL_K0_runs/*/0.orig/
 !demo-output/website/campaign/THERMAL_K0_runs/*/0.orig/**
+
+# --- F14 cooling ladder, rungs K0b (mesh sensitivity) and K0c (2026-08-17) ---
+# Same policy as the K0 block above and for the same two reasons. Solver time
+# directories are run output and are rebuilt from the tracked dictionaries;
+# `0.orig/` is case INPUT and must travel, and because `[0-9]*` matches `0.orig`
+# the directory is re-included first and its contents second. git will not
+# descend into an excluded directory, so a negation on the files alone does not
+# work. The cost of getting this wrong is on record: one `[0-9]*` loop deleted
+# every initial-condition directory in the K0b tree.
+docs/campaigns/F14-cooling-ladder/K0c_runs/*/[0-9]*/
+docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/*/[0-9]*/
+!docs/campaigns/F14-cooling-ladder/K0c_runs/*/0.orig/
+!docs/campaigns/F14-cooling-ladder/K0c_runs/*/0.orig/**
+!docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/*/0.orig/
+!docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/*/0.orig/**

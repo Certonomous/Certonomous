@@ -1,0 +1,6 @@
+case Ra1e6_m128
+wall_clock_s 420.696
+cores 1
+core_minutes 7.0116
+stage2_wall_clock_s 32.555
+stage3_wall_clock_s 0.605

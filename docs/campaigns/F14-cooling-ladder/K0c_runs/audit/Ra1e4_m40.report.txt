@@ -1,0 +1,28 @@
+$ python3 scripts/heat_balance.py Ra1e4_m40 --tol 0.5 --length 0.1
+exit status 0
+
+==========================================================================
+HEAT BALANCE AUDIT   /home/ubuntu/Certonomous/docs/campaigns/F14-cooling-ladder/K0c_runs/Ra1e4_m40
+time = 2738     regime: Ra = 1.0000e+04, Pr = 0.710000
+==========================================================================
+  properties: nu=1.589461e-05 m2/s  Pr=0.710000  alpha=2.238677e-05 m2/s
+              rho=1.1614 kg/m3  cp=1007 J/kg/K  -> k = rho.cp.alpha = 0.026182 W/m/K
+              |g| = 9.8100 m/s2   (LAMINAR: alphat = 0, alphaEff = nu/Pr exactly)
+--------------------------------------------------------------------------
+patch               type           area m2     int snGradT   Q into dom. W
+hotWall             wall             0.001      0.00245646     6.43151e-05
+coldWall            wall             0.001     -0.00245646    -6.43152e-05
+adiabaticWalls      wall             0.002               0               0
+--------------------------------------------------------------------------
+  heat IN   = +6.431513e-05 W
+  heat OUT  = -6.431515e-05 W
+  net       = -1.969186e-11 W
+  IMBALANCE = 0.0000 %  of heat in   (tolerance 0.5000 %)  -> PASS
+--------------------------------------------------------------------------
+  max |U|        = 4.408416e-03 m/s
+  T range, cells = 299.946385 .. 300.053615 K
+  max dT used    = 0.108816 K (field 0.107230, wall-average 0.108816)
+  BOUSSINESQ     : beta.dT = 3.627207e-04  -> SATISFIED (<< 1)
+  Ra = 9.999998e+03   Gr = 1.408450e+04   Pr = 0.710000   (L = 0.1 m, dT = 0.108816 K)
+  Ri: not defined independently: no imposed velocity scale. With Re built from the buoyancy velocity, Ri = Gr/Re^2 = 1 identically, by construction. Ra and Pr carry the regime.
+==========================================================================

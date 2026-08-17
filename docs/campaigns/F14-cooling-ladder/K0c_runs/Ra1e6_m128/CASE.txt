@@ -1,0 +1,11 @@
+case            Ra1e6_m128
+Ra_target       1.000000e+06
+dT_multiplier   1.000000
+Ra_effective    1.000000e+06
+mesh            128 x 128 x 1 uniform
+dT              10.881622391 K
+T_hot           305.440811196 K
+T_cold          294.559188804 K
+g_y             -9.810000 m/s2
+planted_source  none W
+endTime         12000

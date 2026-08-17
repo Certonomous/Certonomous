@@ -1,0 +1,113 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     buoyantBoussinesqSimpleFoam;
+startFrom       latestTime;
+startTime       0;
+stopAt          endTime;
+endTime         4552;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   4552;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  16;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    gradT
+    {
+        type            grad;
+        libs            (fieldFunctionObjects);
+        field           T;
+        result          k0cGradT;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    none;
+        log             false;
+    }
+    hotFlux
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            hotWall;
+        operation       areaNormalIntegrate;
+        fields          (k0cGradT);
+        writeFields     false;
+        writeToFile     true;
+        log             true;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+    }
+    coldFlux
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            coldWall;
+        operation       areaNormalIntegrate;
+        fields          (k0cGradT);
+        writeFields     false;
+        writeToFile     true;
+        log             true;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+    }
+    hotT
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            hotWall;
+        operation       areaAverage;
+        fields          (T);
+        writeFields     false;
+        writeToFile     true;
+        log             true;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+    }
+    coldT
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            coldWall;
+        operation       areaAverage;
+        fields          (T);
+        writeFields     false;
+        writeToFile     true;
+        log             true;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+    }
+}
+
+// ************************************************************************* //

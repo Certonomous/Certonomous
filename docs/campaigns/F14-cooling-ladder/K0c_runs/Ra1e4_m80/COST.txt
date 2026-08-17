@@ -1,0 +1,6 @@
+case Ra1e4_m80
+wall_clock_s 52.201
+cores 1
+core_minutes 0.8700
+stage2_wall_clock_s 16.470
+stage3_wall_clock_s 0.487

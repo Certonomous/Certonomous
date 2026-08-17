@@ -1,0 +1,11 @@
+case            Ra1e3_m64
+Ra_target       1.000000e+03
+dT_multiplier   1.000000
+Ra_effective    1.000000e+03
+mesh            64 x 64 x 1 uniform
+dT              0.010881622 K
+T_hot           300.005440811 K
+T_cold          299.994559189 K
+g_y             -9.810000 m/s2
+planted_source  none W
+endTime         3000

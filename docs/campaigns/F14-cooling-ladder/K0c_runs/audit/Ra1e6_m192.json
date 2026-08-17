@@ -1,0 +1,66 @@
+{
+  "case": "/home/ubuntu/Certonomous/docs/campaigns/F14-cooling-ladder/K0c_runs/Ra1e6_m192",
+  "time": 7885.0,
+  "properties": {
+    "nu": 1.589461e-05,
+    "Pr": 0.71,
+    "Prt": 0.85,
+    "beta": 0.003333333333,
+    "TRef": 300.0,
+    "rho": 1.1614,
+    "cp": 1007.0,
+    "alpha": 2.2386774647887325e-05,
+    "k_derived": 0.026182000076588736,
+    "g": 9.81
+  },
+  "patches": [
+    {
+      "patch": "hotWall",
+      "type": "wall",
+      "nFaces": 192,
+      "area": 0.0009999999999999983,
+      "int_snGradT": 0.963214854199594,
+      "Q_in_W": 0.025218891386425177,
+      "T_area_avg": 305.4408111960005
+    },
+    {
+      "patch": "coldWall",
+      "type": "wall",
+      "nFaces": 192,
+      "area": 0.000999999999999998,
+      "int_snGradT": -0.9632148608454242,
+      "Q_in_W": -0.025218891560426303,
+      "T_area_avg": 294.55918880400026
+    },
+    {
+      "patch": "adiabaticWalls",
+      "type": "wall",
+      "nFaces": 384,
+      "area": 0.0020000000000000035,
+      "int_snGradT": -2.285487210769571e-20,
+      "Q_in_W": -5.983862632741148e-22,
+      "T_area_avg": 300.000000015197
+    }
+  ],
+  "Q_in_W": 0.025218891386425177,
+  "Q_out_W": -0.025218891560426303,
+  "Q_net_W": -1.7400112600822635e-10,
+  "imbalance_pct": 6.899634220316586e-07,
+  "tolerance_pct": 0.5,
+  "dT_field_K": 10.826209036932028,
+  "dT_wall_K": 10.881622392000224,
+  "dT_used_K": 10.881622392000224,
+  "beta_dT": 0.03627207463637354,
+  "boussinesq_ok": true,
+  "T_max_K": 305.4131045186969,
+  "T_min_K": 294.5868954817649,
+  "U_max_magnitude_ms": 0.04942997392092907,
+  "alphat_max": 0.0,
+  "laminar": true,
+  "Rayleigh": 999999.9999909174,
+  "Grashof": 1408450.7042125599,
+  "Prandtl": 0.71,
+  "length_scale_m": 0.1,
+  "Richardson_note": "not defined independently: no imposed velocity scale. With Re built from the buoyancy velocity, Ri = Gr/Re^2 = 1 identically, by construction. Ra and Pr carry the regime.",
+  "passed": true
+}

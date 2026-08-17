@@ -1,0 +1,11 @@
+case            C1_Ra1e5_m128_g0
+Ra_target       1.000000e+05
+dT_multiplier   1.000000
+Ra_effective    1.000000e+05  (gravity OFF: buoyancy inactive, effective Ra = 0)
+mesh            128 x 128 x 1 uniform
+dT              1.088162239 K
+T_hot           300.544081120 K
+T_cold          299.455918880 K
+g_y             0.000000 m/s2
+planted_source  none W
+endTime         3000

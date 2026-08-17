@@ -1,0 +1,6 @@
+case C2_Ra1e5_m128_dT110
+wall_clock_s 265.099
+cores 1
+core_minutes 4.4183
+stage2_wall_clock_s 100.596
+stage3_wall_clock_s 0.848

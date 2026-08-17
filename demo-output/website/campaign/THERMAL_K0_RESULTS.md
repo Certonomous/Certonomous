@@ -371,6 +371,38 @@ basis that has never over-run by more than 1.05x here.
 Worth doing **before** K0c rather than after: a validation gate against a
 mesh-unconverged solution tells you nothing about the model.
 
+> **P2 EXECUTED, 2026-08-17 later the same day.** Run under an authorization
+> covering K0c and this pair, at `docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/`,
+> with results in `k0b_mesh_sensitivity.json` and the campaign write-up in
+> `docs/campaigns/F14-cooling-ladder/K0c_RESULTS.md`. **Cost: 12.82
+> core-minutes against the 15 asked for above** — the measured basis held, as
+> `cost_calibration.py`'s finding predicted. The two new legs (32x32, 128x128)
+> changed exactly one line against the committed case, the cell counts in
+> `blockMeshDict`, and the build script refuses if any other dictionary differs
+> byte-for-byte.
+>
+> **The answer to P2's question: yes, and by how much is now a number.**
+> Nu_avg goes 4.6497 / 4.5538 / 4.5288 across 32/64/128 with an observed order
+> of 1.94 and a fine-pair GCI of 0.24 percent, so **the 4.5538 quoted above is
+> 0.75 percent high against the Richardson limit of 4.520.** Every quantity
+> studied shows second-order behaviour (p between 1.75 and 2.98) and a GCI
+> below 0.79 percent.
+>
+> **And a trap this exposed, which is the more useful half.** The 128x128 leg
+> was first run at K0b's own `endTime 4000` and came out with initial residuals
+> of 5.3e-05 on T against the 64x64 leg's 9.6e-08. It was not converged, and
+> taken at face value it made the triple look *divergent* under refinement —
+> 4.6497 / 4.5538 / 4.3255, observed order **-1.25**. That is iteration error
+> wearing a mesh study's clothes, and a mesh study is exactly the place it would
+> have been believed. Continued to 16000 iterations the leg reaches 2.5e-08 and
+> the triple behaves. **Iteration count is not a discretisation parameter**, so
+> extending it is not a change to the study.
+>
+> P2's advice to do this **before** K0c was not followed: both ran in the same
+> session, K0c first. That was the wrong order and it cost something — the same
+> under-convergence defect showed up independently on all four K0c fine meshes
+> and had to be found twice. Recorded rather than tidied away.
+
 **P3 — extend `heat_balance.py` to the advective and turbulent paths.** Both
 currently **refuse** rather than guess. The rack-row module needs both, and
 neither should be enabled without its own calibration case with a known answer,

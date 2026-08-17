@@ -1,0 +1,6 @@
+case Ra1e3_m32
+wall_clock_s 4.738
+cores 1
+core_minutes 0.0790
+stage2_wall_clock_s 0.555
+stage3_wall_clock_s 0.288

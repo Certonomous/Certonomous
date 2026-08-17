@@ -1,0 +1,124 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : buoyantBoussinesqSimpleFoam
+Date   : Aug 17 2026
+Time   : 16:27:03
+Host   : ip-172-31-43-247
+PID    : 210622
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/docs/campaigns/F14-cooling-ladder/K0c_runs/C1_Ra1e5_m128_g0
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 4909
+
+
+SIMPLE: convergence criteria
+    field p_rgh	 tolerance 1e-07
+    field U	 tolerance 1e-08
+    field T	 tolerance 1e-08
+
+Reading thermophysical properties
+
+Reading field T
+
+Reading field p_rgh
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Selecting incompressible transport model Newtonian
+Creating turbulence model
+
+Selecting turbulence model type laminar
+Selecting laminar stress model Stokes
+Reading field alphat
+
+
+Reading g
+
+Reading hRef
+Calculating field g.h
+
+No MRF models present
+
+Radiation model not active: radiationProperties not found
+Selecting radiationModel none
+No finite volume options present
+
+Starting time loop
+
+surfaceFieldValue hotFlux:
+    operation     = areaNormalIntegrate
+
+
+surfaceFieldValue coldFlux:
+    operation     = areaNormalIntegrate
+
+
+surfaceFieldValue hotT:
+    operation     = areaAverage
+
+
+surfaceFieldValue coldT:
+    operation     = areaAverage
+
+
+Time = 4910
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0, Final residual = 0, No Iterations 0
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+DILUPBiCGStab:  Solving for T, Initial residual = 1.899771241800014e-07, Final residual = 1.03462430387298e-10, No Iterations 3
+DICPCG:  Solving for p_rgh, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors : sum local = 0, global = 0, cumulative = 0
+ExecutionTime = 0.1 s  ClockTime = 0 s
+
+Time = 4911
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0, Final residual = 0, No Iterations 0
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+DILUPBiCGStab:  Solving for T, Initial residual = 3.015406470964208e-08, Final residual = 2.496841578024615e-11, No Iterations 3
+DICPCG:  Solving for p_rgh, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors : sum local = 0, global = 0, cumulative = 0
+ExecutionTime = 0.11 s  ClockTime = 0 s
+
+Time = 4912
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0, Final residual = 0, No Iterations 0
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+DILUPBiCGStab:  Solving for T, Initial residual = 1.104511908528868e-08, Final residual = 7.968228406526703e-12, No Iterations 3
+DICPCG:  Solving for p_rgh, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors : sum local = 0, global = 0, cumulative = 0
+ExecutionTime = 0.13 s  ClockTime = 0 s
+
+Time = 4913
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0, Final residual = 0, No Iterations 0
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+DILUPBiCGStab:  Solving for T, Initial residual = 9.7708847790258e-09, Final residual = 3.832198943796191e-12, No Iterations 3
+DICPCG:  Solving for p_rgh, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors : sum local = 0, global = 0, cumulative = 0
+ExecutionTime = 0.14 s  ClockTime = 0 s
+
+
+SIMPLE solution converged in 4913 iterations
+
+End
+

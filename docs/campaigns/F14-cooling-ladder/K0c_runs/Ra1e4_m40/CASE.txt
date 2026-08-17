@@ -1,0 +1,11 @@
+case            Ra1e4_m40
+Ra_target       1.000000e+04
+dT_multiplier   1.000000
+Ra_effective    1.000000e+04
+mesh            40 x 40 x 1 uniform
+dT              0.108816224 K
+T_hot           300.054408112 K
+T_cold          299.945591888 K
+g_y             -9.810000 m/s2
+planted_source  none W
+endTime         4000

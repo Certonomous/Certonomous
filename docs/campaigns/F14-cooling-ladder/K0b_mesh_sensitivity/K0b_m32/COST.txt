@@ -1,0 +1,4 @@
+case K0b_m32
+wall_clock_s 3.623
+cores 1
+core_minutes 0.0604

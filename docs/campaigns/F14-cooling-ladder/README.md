@@ -5,6 +5,16 @@ validation rungs, written from the literature before any fine mesh burns. No
 solver was launched in producing anything here; compute authorization is the
 owner's and was not spent.
 
+> **Addendum 2026-08-17, later the same day.** The paragraph above is left
+> standing because it was true when written and because the specifications'
+> value is that they can be diffed against their own commit. It is now out of
+> date in one respect: the **K0c laminar rung has been executed** under a
+> compute authorization scoped to it and to the K0b mesh-sensitivity pair, and
+> two run trees have joined this folder — `K0c_runs/` and
+> `K0b_mesh_sensitivity/`. The specifications themselves are untouched. The
+> result is `K0c_RESULTS.md`. **K0c's turbulent rung, K0d, K2b, the rack-row
+> module and any turbulent SST case remain unrun and unauthorized.**
+
 ## Naming collision: ruled 2026-08-17. This campaign is F14
 
 **The ruling.** This cooling campaign was dispatched on 2026-08-17 under the label
@@ -54,6 +64,9 @@ materials.
 | `compute_reference_metrics.py` | Recomputes every derived number in the K0c turbulent-rung table from the primary data files. The gate quotes nothing derived that this script does not print |
 | `reference-data/MANIFEST.md` | Provenance of the primary data: source URLs, archive SHA-256, file naming key |
 | `reference-data/betts_bokhari/` | The 22 primary data files the K0c gate names, byte-identical copies from the ERCOFTAC Case 079 archive |
+| `K0c_RESULTS.md` | **Added 2026-08-17.** The executed laminar rung: the gate table with every deviation as a number, the five controls and their kinds, the cost in core-minutes, and the core stratification reported as an explicitly ungraded measurement |
+| `K0c_runs/` | **Added 2026-08-17.** The eight graded cases (four Ra on a mandatory two-mesh pair each) plus three control twins, their dictionaries, `0.orig/` initial conditions, solver logs and `scripts/heat_balance.py` audits. Time directories and meshes are gitignored and rebuilt from the dictionaries |
+| `K0b_mesh_sensitivity/` | **Added 2026-08-17.** The K0b mesh-sensitivity pair (32x32 and 128x128) that completes the triple with the committed 64x64 leg, answering proposal P2 of `THERMAL_K0_RESULTS.md` |
 
 ## Trust position, stated up front
 

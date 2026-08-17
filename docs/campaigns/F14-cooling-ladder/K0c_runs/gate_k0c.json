@@ -1,0 +1,2057 @@
+{
+  "gate_specification": "docs/campaigns/F14-cooling-ladder/K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md",
+  "reference_tier": "SECONDARY (Han and Xie 2019 Table 3, attributed to de Vahl Davis 1983, which is paywalled and was not read)",
+  "reference_table_parsed_from_spec": {
+    "1000.0": {
+      "u1max": 3.649,
+      "u2max": 3.697,
+      "Nu_avg": 1.118,
+      "Nu_max": 1.505,
+      "Nu_min": 0.692
+    },
+    "10000.0": {
+      "u1max": 16.178,
+      "u2max": 19.617,
+      "Nu_avg": 2.243,
+      "Nu_max": 3.528,
+      "Nu_min": 0.586
+    },
+    "100000.0": {
+      "u1max": 34.81,
+      "u2max": 68.22,
+      "Nu_avg": 4.519,
+      "Nu_max": 7.717,
+      "Nu_min": 0.729
+    },
+    "1000000.0": {
+      "u1max": 64.63,
+      "u2max": 219.36,
+      "Nu_avg": 8.8,
+      "Nu_max": 17.925,
+      "Nu_min": 0.989
+    }
+  },
+  "pass_bands_parsed_from_spec": {
+    "Nu_avg@1e+03": 1.0,
+    "Nu_avg@1e+04": 1.0,
+    "Nu_avg@1e+05": 1.0,
+    "Nu_avg@1e+06": 1.0,
+    "Nu_max@1e+03": 2.0,
+    "Nu_max@1e+04": 2.0,
+    "Nu_max@1e+05": 2.0,
+    "Nu_max@1e+06": 3.0,
+    "Nu_min@1e+03": 2.0,
+    "Nu_min@1e+04": 2.0,
+    "Nu_min@1e+05": 2.0,
+    "Nu_min@1e+06": 3.0,
+    "energy_balance@1e+03": 0.5,
+    "energy_balance@1e+04": 0.5,
+    "energy_balance@1e+05": 0.5,
+    "energy_balance@1e+06": 0.5,
+    "u1max@1e+03": 2.0,
+    "u1max@1e+04": 2.0,
+    "u1max@1e+05": 2.0,
+    "u1max@1e+06": 2.0,
+    "u2max@1e+03": 2.0,
+    "u2max@1e+04": 2.0,
+    "u2max@1e+05": 2.0,
+    "u2max@1e+06": 2.0
+  },
+  "graded_estimator": "Nu_2pt (solver-consistent snGrad from raw T cells); declared before the run, see this file's docstring",
+  "cases": {
+    "Ra1e3_m32": {
+      "case": "Ra1e3_m32",
+      "time": "2436",
+      "mesh": [
+        32,
+        32
+      ],
+      "nu": 1.589461e-05,
+      "Pr": 0.71,
+      "beta": 0.003333333333,
+      "alpha": 2.2386774647887325e-05,
+      "g": 9.81,
+      "T_hot": 300.0054408,
+      "T_cold": 299.9945592,
+      "dT_K": 0.010881599999947866,
+      "dT_intended_K": 0.010881622000056268,
+      "dT_write_truncation_K": -2.2000108401698526e-08,
+      "dT_from_solver_log_K": 0.010881599999947866,
+      "Ra_from_solver_log": 999.9979422047206,
+      "beta_dT": 3.627199999619902e-05,
+      "Nu_avg": 1.1190775747305637,
+      "Nu_max": 1.5128229354165852,
+      "Nu_min": 0.6891650226793629,
+      "Nu_avg_3pt": 1.11924422785915,
+      "Nu_max_3pt": 1.5130126118449616,
+      "Nu_min_3pt": 0.6894170360252677,
+      "Nu_avg_cold": 1.119077919084167,
+      "Nu_avg_cold_3pt": 1.119244573175676,
+      "Nu_avg_inpass_hot_lastlog": 1.1190767570999065,
+      "Nu_avg_inpass_cold_lastlog": 1.1190776007258438,
+      "Nu_avg_heat_balance_hot": 1.1190775747305635,
+      "Nu_avg_heat_balance_cold": 1.119077919084166,
+      "raw_cell_vs_inpass_rel": 1.9841752702308618e-16,
+      "heat_balance_exit": 0,
+      "heat_balance_imbalance_pct": 3.0771200348444704e-05,
+      "heat_balance_Q_hot_W": 3.188274974237795e-06,
+      "heat_balance_Q_net_W": -9.810704799820356e-13,
+      "heat_balance_k_W_per_mK": 0.026182000076588736,
+      "boussinesq_ok": true,
+      "energy_balance_pct": 3.077119560935319e-05,
+      "u1max": 3.6326229067700626,
+      "u2max": 3.6925345616794756,
+      "Umax_ms": 0.0008154762116510725,
+      "stratification_S_leastsq_mid25pct_UNGRADED": 0.5197875768432093,
+      "stratification_S_central_difference_UNGRADED": 0.5315390767094419,
+      "convergence_drift_pct": 0.00019807272219543446,
+      "convergence_spread_pct": 0.0009360003679789504,
+      "convergence_drift_lastquarter_pct": 0.0002490690573853215,
+      "T_initial_residual_final": 2.316591387990508e-09,
+      "residual_control_met": true,
+      "solver_log_stages": [
+        [
+          "log.buoyantBoussinesqSimpleFoam",
+          0,
+          46
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage2",
+          46,
+          48
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage3",
+          48,
+          48
+        ]
+      ],
+      "n_log_samples": 48,
+      "momentum_identically_zero": false,
+      "fvoptions_log_lines": [],
+      "wall_clock_s": 5.581
+    },
+    "Ra1e3_m64": {
+      "case": "Ra1e3_m64",
+      "time": "4016",
+      "mesh": [
+        64,
+        64
+      ],
+      "nu": 1.589461e-05,
+      "Pr": 0.71,
+      "beta": 0.003333333333,
+      "alpha": 2.2386774647887325e-05,
+      "g": 9.81,
+      "T_hot": 300.0054408,
+      "T_cold": 299.9945592,
+      "dT_K": 0.010881599999947866,
+      "dT_intended_K": 0.010881622000056268,
+      "dT_write_truncation_K": -2.2000108401698526e-08,
+      "dT_from_solver_log_K": 0.0108816000005163,
+      "Ra_from_solver_log": 999.9979422569585,
+      "beta_dT": 3.627199999619902e-05,
+      "Nu_avg": 1.118113206216419,
+      "Nu_max": 1.5079891766858293,
+      "Nu_min": 0.6907407520050179,
+      "Nu_avg_3pt": 1.1181340098963921,
+      "Nu_max_3pt": 1.507954650055063,
+      "Nu_min_3pt": 0.690807102146484,
+      "Nu_avg_cold": 1.118113596257471,
+      "Nu_avg_cold_3pt": 1.1181344003048523,
+      "Nu_avg_inpass_hot_lastlog": 1.1181130952313356,
+      "Nu_avg_inpass_cold_lastlog": 1.1181135115585799,
+      "Nu_avg_heat_balance_hot": 1.1181132062164192,
+      "Nu_avg_heat_balance_cold": 1.118113596257447,
+      "raw_cell_vs_inpass_rel": 1.9858866140791554e-16,
+      "heat_balance_exit": 0,
+      "heat_balance_imbalance_pct": 3.488385844088223e-05,
+      "heat_balance_Q_hot_W": 3.185527468551846e-06,
+      "heat_balance_Q_net_W": -1.1112348927250454e-12,
+      "heat_balance_k_W_per_mK": 0.026182000076588736,
+      "boussinesq_ok": true,
+      "energy_balance_pct": 3.4883852343471855e-05,
+      "u1max": 3.645480381774869,
+      "u2max": 3.6966232880060264,
+      "Umax_ms": 0.0008171949002283495,
+      "stratification_S_leastsq_mid25pct_UNGRADED": 0.5187139458010434,
+      "stratification_S_central_difference_UNGRADED": 0.5311053392745744,
+      "convergence_drift_pct": 0.0028127471201394023,
+      "convergence_spread_pct": 0.0028127471201394023,
+      "convergence_drift_lastquarter_pct": 2.1642750780627598,
+      "T_initial_residual_final": 4.28654612653278e-09,
+      "residual_control_met": true,
+      "solver_log_stages": [
+        [
+          "log.buoyantBoussinesqSimpleFoam",
+          0,
+          60
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage2",
+          60,
+          79
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage3",
+          79,
+          80
+        ]
+      ],
+      "n_log_samples": 80,
+      "momentum_identically_zero": false,
+      "fvoptions_log_lines": [],
+      "wall_clock_s": 36.123000000000005
+    },
+    "Ra1e4_m40": {
+      "case": "Ra1e4_m40",
+      "time": "2738",
+      "mesh": [
+        40,
+        40
+      ],
+      "nu": 1.589461e-05,
+      "Pr": 0.71,
+      "beta": 0.003333333333,
+      "alpha": 2.2386774647887325e-05,
+      "g": 9.81,
+      "T_hot": 300.0544081,
+      "T_cold": 299.9455919,
+      "dT_K": 0.10881619999997838,
+      "dT_intended_K": 0.10881622399995194,
+      "dT_write_truncation_K": -2.3999973564059474e-08,
+      "dT_from_solver_log_K": 0.10881619999997838,
+      "Ra_from_solver_log": 9999.997801705358,
+      "beta_dT": 0.00036272066663032253,
+      "Nu_avg": 2.257443031178389,
+      "Nu_max": 3.5771697779667737,
+      "Nu_min": 0.5831262547851364,
+      "Nu_avg_3pt": 2.2597313418601734,
+      "Nu_max_3pt": 3.58225925209522,
+      "Nu_min_3pt": 0.5844501516595008,
+      "Nu_avg_cold": 2.257443722356233,
+      "Nu_avg_cold_3pt": 2.259732035703549,
+      "Nu_avg_inpass_hot_lastlog": 2.2574439826059796,
+      "Nu_avg_inpass_cold_lastlog": 2.257445432757703,
+      "Nu_avg_heat_balance_hot": 2.2574430311773432,
+      "Nu_avg_heat_balance_cold": 2.257443722356194,
+      "raw_cell_vs_inpass_rel": 4.632808335594883e-13,
+      "heat_balance_exit": 0,
+      "heat_balance_imbalance_pct": 3.061777600565668e-05,
+      "heat_balance_Q_hot_W": 6.431513340182866e-05,
+      "heat_balance_Q_net_W": -1.969186348271118e-11,
+      "heat_balance_k_W_per_mK": 0.026182000076588736,
+      "boussinesq_ok": true,
+      "energy_balance_pct": 3.061777131207827e-05,
+      "u1max": 16.118549995296434,
+      "u2max": 19.5959010081647,
+      "Umax_ms": 0.003613928220434175,
+      "stratification_S_leastsq_mid25pct_UNGRADED": 0.8399421523284338,
+      "stratification_S_central_difference_UNGRADED": 0.8391488750498031,
+      "convergence_drift_pct": 0.001894429782852655,
+      "convergence_spread_pct": 0.0019988074251892697,
+      "convergence_drift_lastquarter_pct": 0.009805147788809516,
+      "T_initial_residual_final": 2.73340684113733e-09,
+      "residual_control_met": true,
+      "solver_log_stages": [
+        [
+          "log.buoyantBoussinesqSimpleFoam",
+          0,
+          52
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage2",
+          52,
+          54
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage3",
+          54,
+          54
+        ]
+      ],
+      "n_log_samples": 54,
+      "momentum_identically_zero": false,
+      "fvoptions_log_lines": [],
+      "wall_clock_s": 8.120000000000001
+    },
+    "Ra1e4_m80": {
+      "case": "Ra1e4_m80",
+      "time": "4866",
+      "mesh": [
+        80,
+        80
+      ],
+      "nu": 1.589461e-05,
+      "Pr": 0.71,
+      "beta": 0.003333333333,
+      "alpha": 2.2386774647887325e-05,
+      "g": 9.81,
+      "T_hot": 300.0544081,
+      "T_cold": 299.9455919,
+      "dT_K": 0.10881619999997838,
+      "dT_intended_K": 0.10881622399995194,
+      "dT_write_truncation_K": -2.3999973564059474e-08,
+      "dT_from_solver_log_K": 0.10881620000083103,
+      "Ra_from_solver_log": 9999.997801783717,
+      "beta_dT": 0.00036272066663032253,
+      "Nu_avg": 2.2479886325848764,
+      "Nu_max": 3.5427302176222413,
+      "Nu_min": 0.5845432348713482,
+      "Nu_avg_3pt": 2.2482728229347115,
+      "Nu_max_3pt": 3.5430358949761547,
+      "Nu_min_3pt": 0.5848850065179737,
+      "Nu_avg_cold": 2.247990226128396,
+      "Nu_avg_cold_3pt": 2.248274417603786,
+      "Nu_avg_inpass_hot_lastlog": 2.2479892107896613,
+      "Nu_avg_inpass_cold_lastlog": 2.247991139076428,
+      "Nu_avg_heat_balance_hot": 2.2479886325848732,
+      "Nu_avg_heat_balance_cold": 2.247990226128373,
+      "raw_cell_vs_inpass_rel": 1.3828470588732265e-15,
+      "heat_balance_exit": 0,
+      "heat_balance_imbalance_pct": 7.088752482553449e-05,
+      "heat_balance_Q_hot_W": 6.404577515078496e-05,
+      "heat_balance_Q_net_W": -4.5400464759718685e-11,
+      "heat_balance_k_W_per_mK": 0.026182000076588736,
+      "boussinesq_ok": true,
+      "energy_balance_pct": 7.088749969250221e-05,
+      "u1max": 16.170338453410785,
+      "u2max": 19.625830778473354,
+      "Umax_ms": 0.003625107344602915,
+      "stratification_S_leastsq_mid25pct_UNGRADED": 0.8368530543159698,
+      "stratification_S_central_difference_UNGRADED": 0.8358733687405969,
+      "convergence_drift_pct": 0.0007502487931623292,
+      "convergence_spread_pct": 0.003589847352072139,
+      "convergence_drift_lastquarter_pct": 0.7968512869955108,
+      "T_initial_residual_final": 4.719150784252969e-09,
+      "residual_control_met": true,
+      "solver_log_stages": [
+        [
+          "log.buoyantBoussinesqSimpleFoam",
+          0,
+          80
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage2",
+          80,
+          96
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage3",
+          96,
+          97
+        ]
+      ],
+      "n_log_samples": 97,
+      "momentum_identically_zero": false,
+      "fvoptions_log_lines": [],
+      "wall_clock_s": 69.15799999999999
+    },
+    "Ra1e5_m64": {
+      "case": "Ra1e5_m64",
+      "time": "5073",
+      "mesh": [
+        64,
+        64
+      ],
+      "nu": 1.589461e-05,
+      "Pr": 0.71,
+      "beta": 0.003333333333,
+      "alpha": 2.2386774647887325e-05,
+      "g": 9.81,
+      "T_hot": 300.5440811,
+      "T_cold": 299.4559189,
+      "dT_K": 1.0881622000000561,
+      "dT_intended_K": 1.0881622399999742,
+      "dT_write_truncation_K": -3.999991804448655e-08,
+      "dT_from_solver_log_K": 1.0881622000000561,
+      "Ra_from_solver_log": 99999.99639669083,
+      "beta_dT": 0.0036272073329707997,
+      "Nu_avg": 4.559023387201588,
+      "Nu_max": 7.89023865325389,
+      "Nu_min": 0.7245218632103725,
+      "Nu_avg_3pt": 4.567207519655668,
+      "Nu_max_3pt": 7.9216411130312965,
+      "Nu_min_3pt": 0.7266541045829286,
+      "Nu_avg_cold": 4.559023801397539,
+      "Nu_avg_cold_3pt": 4.567207935366677,
+      "Nu_avg_inpass_hot_lastlog": 4.55902222389249,
+      "Nu_avg_inpass_cold_lastlog": 4.559022752306361,
+      "Nu_avg_heat_balance_hot": 4.559023387201586,
+      "Nu_avg_heat_balance_cold": 4.559023801397442,
+      "raw_cell_vs_inpass_rel": 3.896353864704808e-16,
+      "heat_balance_exit": 0,
+      "heat_balance_imbalance_pct": 9.085188215592031e-06,
+      "heat_balance_Q_hot_W": 0.0012988777442978117,
+      "heat_balance_Q_net_W": -1.180054877598924e-10,
+      "heat_balance_k_W_per_mK": 0.026182000076588736,
+      "boussinesq_ok": true,
+      "energy_balance_pct": 9.085187800069665e-06,
+      "u1max": 34.784814627280085,
+      "u2max": 68.43965463286237,
+      "Umax_ms": 0.009800910560939477,
+      "stratification_S_leastsq_mid25pct_UNGRADED": 1.040716890741998,
+      "stratification_S_central_difference_UNGRADED": 1.0738363608472523,
+      "convergence_drift_pct": 0.0018739131430216597,
+      "convergence_spread_pct": 0.002038941830434267,
+      "convergence_drift_lastquarter_pct": 0.0014459915592458898,
+      "T_initial_residual_final": 6.078511593801307e-09,
+      "residual_control_met": true,
+      "solver_log_stages": [
+        [
+          "log.buoyantBoussinesqSimpleFoam",
+          0,
+          98
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage2",
+          98,
+          101
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage3",
+          101,
+          101
+        ]
+      ],
+      "n_log_samples": 101,
+      "momentum_identically_zero": false,
+      "fvoptions_log_lines": [],
+      "wall_clock_s": 37.189
+    },
+    "Ra1e5_m128": {
+      "case": "Ra1e5_m128",
+      "time": "7709",
+      "mesh": [
+        128,
+        128
+      ],
+      "nu": 1.589461e-05,
+      "Pr": 0.71,
+      "beta": 0.003333333333,
+      "alpha": 2.2386774647887325e-05,
+      "g": 9.81,
+      "T_hot": 300.5440811,
+      "T_cold": 299.4559189,
+      "dT_K": 1.0881622000000561,
+      "dT_intended_K": 1.0881622399999742,
+      "dT_write_truncation_K": -3.999991804448655e-08,
+      "dT_from_solver_log_K": 1.0881622000003404,
+      "Ra_from_solver_log": 99999.99639671698,
+      "beta_dT": 0.0036272073329707997,
+      "Nu_avg": 4.531017050594347,
+      "Nu_max": 7.763917106204141,
+      "Nu_min": 0.727163203523518,
+      "Nu_avg_3pt": 4.532030599785855,
+      "Nu_max_3pt": 7.766848610916581,
+      "Nu_min_3pt": 0.7277224412013387,
+      "Nu_avg_cold": 4.531017933030328,
+      "Nu_avg_cold_3pt": 4.532031482752749,
+      "Nu_avg_inpass_hot_lastlog": 4.531017627076425,
+      "Nu_avg_inpass_cold_lastlog": 4.5310185670929055,
+      "Nu_avg_heat_balance_hot": 4.531017050594342,
+      "Nu_avg_heat_balance_cold": 4.5310179330301255,
+      "raw_cell_vs_inpass_rel": 9.801093328302761e-16,
+      "heat_balance_exit": 0,
+      "heat_balance_imbalance_pct": 1.9475446081001143e-05,
+      "heat_balance_Q_hot_W": 0.001290898665396709,
+      "heat_balance_Q_net_W": -2.514082735396994e-10,
+      "heat_balance_k_W_per_mK": 0.026182000076588736,
+      "boussinesq_ok": true,
+      "energy_balance_pct": 1.947544419561941e-05,
+      "u1max": 34.75524216348067,
+      "u2max": 68.65235275546368,
+      "Umax_ms": 0.009823375160005712,
+      "stratification_S_leastsq_mid25pct_UNGRADED": 1.0368478218498682,
+      "stratification_S_central_difference_UNGRADED": 1.0701665858199685,
+      "convergence_drift_pct": 0.0003089214843165106,
+      "convergence_spread_pct": 0.0009044348810416324,
+      "convergence_drift_lastquarter_pct": 0.717579557070406,
+      "T_initial_residual_final": 8.936661211250294e-09,
+      "residual_control_met": true,
+      "solver_log_stages": [
+        [
+          "log.buoyantBoussinesqSimpleFoam",
+          0,
+          120
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage2",
+          120,
+          153
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage3",
+          153,
+          154
+        ]
+      ],
+      "n_log_samples": 154,
+      "momentum_identically_zero": false,
+      "fvoptions_log_lines": [],
+      "wall_clock_s": 355.492
+    },
+    "Ra1e6_m128": {
+      "case": "Ra1e6_m128",
+      "time": "12540",
+      "mesh": [
+        128,
+        128
+      ],
+      "nu": 1.589461e-05,
+      "Pr": 0.71,
+      "beta": 0.003333333333,
+      "alpha": 2.2386774647887325e-05,
+      "g": 9.81,
+      "T_hot": 305.4408112,
+      "T_cold": 294.5591888,
+      "dT_K": 10.88162239999997,
+      "dT_intended_K": 10.881622392000054,
+      "dT_write_truncation_K": 7.999915396794677e-09,
+      "dT_from_solver_log_K": 10.88162239999997,
+      "Ra_from_solver_log": 1000000.0007260783,
+      "beta_dT": 0.036272074663039354,
+      "Nu_avg": 8.88481735879518,
+      "Nu_max": 17.981679560836444,
+      "Nu_min": 0.9753916008871938,
+      "Nu_avg_3pt": 8.899310578741126,
+      "Nu_max_3pt": 18.073854760197005,
+      "Nu_min_3pt": 0.9778455053862503,
+      "Nu_avg_cold": 8.884817483002443,
+      "Nu_avg_cold_3pt": 8.899310703264257,
+      "Nu_avg_inpass_hot_lastlog": 8.884816304598134,
+      "Nu_avg_inpass_cold_lastlog": 8.884816467257703,
+      "Nu_avg_heat_balance_hot": 8.884817358795166,
+      "Nu_avg_heat_balance_cold": 8.884817483002037,
+      "raw_cell_vs_inpass_rel": 1.599453780682902e-15,
+      "heat_balance_exit": 0,
+      "heat_balance_imbalance_pct": 1.3979676355591519e-06,
+      "heat_balance_Q_hot_W": 0.025313079082020518,
+      "heat_balance_Q_net_W": -3.538686531301405e-10,
+      "heat_balance_k_W_per_mK": 0.026182000076588736,
+      "boussinesq_ok": true,
+      "energy_balance_pct": 1.3979676191692151e-06,
+      "u1max": 64.94963103949188,
+      "u2max": 220.49541157452478,
+      "Umax_ms": 0.0287424855694159,
+      "stratification_S_leastsq_mid25pct_UNGRADED": 0.9323952537107097,
+      "stratification_S_central_difference_UNGRADED": 0.917727391996383,
+      "convergence_drift_pct": 0.00014497128360326357,
+      "convergence_spread_pct": 0.0002575474430348938,
+      "convergence_drift_lastquarter_pct": 0.001979629629006238,
+      "T_initial_residual_final": 7.153821726878194e-09,
+      "residual_control_met": true,
+      "solver_log_stages": [
+        [
+          "log.buoyantBoussinesqSimpleFoam",
+          0,
+          240
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage2",
+          240,
+          250
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage3",
+          250,
+          250
+        ]
+      ],
+      "n_log_samples": 250,
+      "momentum_identically_zero": false,
+      "fvoptions_log_lines": [],
+      "wall_clock_s": 453.85600000000005
+    },
+    "Ra1e6_m192": {
+      "case": "Ra1e6_m192",
+      "time": "7885",
+      "mesh": [
+        192,
+        192
+      ],
+      "nu": 1.589461e-05,
+      "Pr": 0.71,
+      "beta": 0.003333333333,
+      "alpha": 2.2386774647887325e-05,
+      "g": 9.81,
+      "T_hot": 305.440811196,
+      "T_cold": 294.559188804,
+      "dT_K": 10.881622392000054,
+      "dT_intended_K": 10.881622392000054,
+      "dT_write_truncation_K": 0.0,
+      "dT_from_solver_log_K": 10.881622392000168,
+      "Ra_from_solver_log": 999999.9999909123,
+      "beta_dT": 0.03627207463637297,
+      "Nu_avg": 8.851757757259884,
+      "Nu_max": 17.73544717036964,
+      "Nu_min": 0.9777369312335321,
+      "Nu_avg_3pt": 8.85603163376764,
+      "Nu_max_3pt": 17.759578564304547,
+      "Nu_min_3pt": 0.9788653565088764,
+      "Nu_avg_cold": 8.85175781833412,
+      "Nu_avg_cold_3pt": 8.856031694521969,
+      "Nu_avg_inpass_hot_lastlog": 8.85175468058,
+      "Nu_avg_inpass_cold_lastlog": 8.851754748399877,
+      "Nu_avg_heat_balance_hot": 8.851757757259904,
+      "Nu_avg_heat_balance_cold": 8.851757818333798,
+      "raw_cell_vs_inpass_rel": 2.2074627174898443e-15,
+      "heat_balance_exit": 0,
+      "heat_balance_imbalance_pct": 6.899634220316586e-07,
+      "heat_balance_Q_hot_W": 0.025218891386425177,
+      "heat_balance_Q_net_W": -1.7400112600822635e-10,
+      "heat_balance_k_W_per_mK": 0.026182000076588736,
+      "boussinesq_ok": true,
+      "energy_balance_pct": 6.89963460934862e-07,
+      "u1max": 64.89158973413292,
+      "u2max": 220.54122455215915,
+      "Umax_ms": 0.02878091545373672,
+      "stratification_S_leastsq_mid25pct_UNGRADED": 0.9297876638168033,
+      "stratification_S_central_difference_UNGRADED": 0.9150107191927104,
+      "convergence_drift_pct": 4.3780774263610106e-05,
+      "convergence_spread_pct": 0.00021898919493917377,
+      "convergence_drift_lastquarter_pct": 0.01371189414446115,
+      "T_initial_residual_final": 9.979066922673462e-09,
+      "residual_control_met": true,
+      "solver_log_stages": [
+        [
+          "log.buoyantBoussinesqSimpleFoam",
+          0,
+          80
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage2",
+          80,
+          157
+        ]
+      ],
+      "n_log_samples": 157,
+      "momentum_identically_zero": false,
+      "fvoptions_log_lines": [],
+      "wall_clock_s": 1081.659
+    },
+    "C1_Ra1e5_m128_g0": {
+      "case": "C1_Ra1e5_m128_g0",
+      "time": "4913",
+      "mesh": [
+        128,
+        128
+      ],
+      "nu": 1.589461e-05,
+      "Pr": 0.71,
+      "beta": 0.003333333333,
+      "alpha": 2.2386774647887325e-05,
+      "g": 0.0,
+      "T_hot": 300.5440811,
+      "T_cold": 299.4559189,
+      "dT_K": 1.0881622000000561,
+      "dT_intended_K": 1.0881622399999742,
+      "dT_write_truncation_K": -3.999991804448655e-08,
+      "dT_from_solver_log_K": 1.0881622000000561,
+      "Ra_from_solver_log": 0.0,
+      "beta_dT": 0.0036272073329707997,
+      "Nu_avg": 1.0000098122800931,
+      "Nu_max": 1.0000101699797053,
+      "Nu_min": 1.0000096166346724,
+      "Nu_avg_3pt": 1.0000098148733787,
+      "Nu_max_3pt": 1.0000101699462727,
+      "Nu_min_3pt": 1.0000096225811677,
+      "Nu_avg_cold": 1.0000100882026808,
+      "Nu_avg_cold_3pt": 1.0000100872600632,
+      "Nu_avg_inpass_hot_lastlog": 1.0000106905017871,
+      "Nu_avg_inpass_cold_lastlog": 1.0000109661959804,
+      "Nu_avg_heat_balance_hot": 1.000009812280092,
+      "Nu_avg_heat_balance_cold": 1.0000100882026357,
+      "raw_cell_vs_inpass_rel": 1.1102121309127665e-15,
+      "heat_balance_exit": 0,
+      "heat_balance_imbalance_pct": 2.7591983644113014e-05,
+      "heat_balance_Q_hot_W": 0.00028490542358180994,
+      "heat_balance_Q_net_W": -7.86110578758839e-11,
+      "heat_balance_k_W_per_mK": 0.026182000076588736,
+      "boussinesq_ok": true,
+      "energy_balance_pct": 2.7591979823353344e-05,
+      "u1max": 0.0,
+      "u2max": 0.0,
+      "Umax_ms": 0.0,
+      "stratification_S_leastsq_mid25pct_UNGRADED": 2.491988888373633e-07,
+      "stratification_S_central_difference_UNGRADED": 2.2715256242959607e-07,
+      "convergence_drift_pct": 0.008403069181310204,
+      "convergence_spread_pct": 0.008403069181310204,
+      "convergence_drift_lastquarter_pct": 0.9569982004888207,
+      "T_initial_residual_final": 9.7708847790258e-09,
+      "residual_control_met": true,
+      "solver_log_stages": [
+        [
+          "log.buoyantBoussinesqSimpleFoam",
+          0,
+          60
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage2",
+          60,
+          98
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage3",
+          98,
+          98
+        ]
+      ],
+      "n_log_samples": 98,
+      "momentum_identically_zero": true,
+      "fvoptions_log_lines": [],
+      "wall_clock_s": 58.65
+    },
+    "C2_Ra1e5_m128_dT110": {
+      "case": "C2_Ra1e5_m128_dT110",
+      "time": "7747",
+      "mesh": [
+        128,
+        128
+      ],
+      "nu": 1.589461e-05,
+      "Pr": 0.71,
+      "beta": 0.003333333333,
+      "alpha": 2.2386774647887325e-05,
+      "g": 9.81,
+      "T_hot": 300.5984892,
+      "T_cold": 299.4015108,
+      "dT_K": 1.1969784000000345,
+      "dT_intended_K": 1.1969784640000398,
+      "dT_write_truncation_K": -6.400000529538374e-08,
+      "dT_from_solver_log_K": 1.1969784000000345,
+      "Ra_from_solver_log": 109999.99419839619,
+      "beta_dT": 0.003989927999601122,
+      "Nu_avg": 4.663155439929242,
+      "Nu_max": 8.03883212598478,
+      "Nu_min": 0.7348105404490546,
+      "Nu_avg_3pt": 4.664290060618089,
+      "Nu_max_3pt": 8.04224578538797,
+      "Nu_min_3pt": 0.7354043410196451,
+      "Nu_avg_cold": 4.663156112911429,
+      "Nu_avg_cold_3pt": 4.664290734022865,
+      "Nu_avg_inpass_hot_lastlog": 4.663152360978142,
+      "Nu_avg_inpass_cold_lastlog": 4.663153152136947,
+      "Nu_avg_heat_balance_hot": 4.663155439929239,
+      "Nu_avg_heat_balance_cold": 4.66315611291122,
+      "raw_cell_vs_inpass_rel": 5.7140176719925265e-16,
+      "heat_balance_exit": 0,
+      "heat_balance_imbalance_pct": 1.4431901080798963e-05,
+      "heat_balance_Q_hot_W": 0.0014613997393429585,
+      "heat_balance_Q_net_W": -2.1090776477702966e-10,
+      "heat_balance_k_W_per_mK": 0.026182000076588736,
+      "boussinesq_ok": true,
+      "energy_balance_pct": 1.4431900040059981e-05,
+      "u1max": 35.60753967837264,
+      "u2max": 72.07837036858618,
+      "Umax_ms": 0.01025131656090562,
+      "stratification_S_leastsq_mid25pct_UNGRADED": 1.0495908607252116,
+      "stratification_S_central_difference_UNGRADED": 1.0827045686492518,
+      "convergence_drift_pct": 0.0010654653293566648,
+      "convergence_spread_pct": 0.0014787449819577971,
+      "convergence_drift_lastquarter_pct": 0.6000148537021408,
+      "T_initial_residual_final": 7.999429764211548e-09,
+      "residual_control_met": true,
+      "solver_log_stages": [
+        [
+          "log.buoyantBoussinesqSimpleFoam",
+          0,
+          120
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage2",
+          120,
+          154
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage3",
+          154,
+          154
+        ]
+      ],
+      "n_log_samples": 154,
+      "momentum_identically_zero": false,
+      "fvoptions_log_lines": [],
+      "wall_clock_s": 366.543
+    },
+    "C3_Ra1e5_m64_source": {
+      "case": "C3_Ra1e5_m64_source",
+      "time": "4358",
+      "mesh": [
+        64,
+        64
+      ],
+      "nu": 1.589461e-05,
+      "Pr": 0.71,
+      "beta": 0.003333333333,
+      "alpha": 2.2386774647887325e-05,
+      "g": 9.81,
+      "T_hot": 300.5440811,
+      "T_cold": 299.4559189,
+      "dT_K": 1.0881622000000561,
+      "dT_intended_K": 1.0881622399999742,
+      "dT_write_truncation_K": -3.999991804448655e-08,
+      "dT_from_solver_log_K": 1.0881622000000561,
+      "Ra_from_solver_log": 99999.99639669083,
+      "beta_dT": 0.0036272073329707997,
+      "Nu_avg": -3.639311212868206,
+      "Nu_max": -1.1981526209127635,
+      "Nu_min": -9.207876376168677,
+      "Nu_avg_3pt": -3.7364942762587154,
+      "Nu_max_3pt": -1.291160520873847,
+      "Nu_min_3pt": -9.337927550330388,
+      "Nu_avg_cold": 13.91053202565434,
+      "Nu_avg_cold_3pt": 14.046438239163589,
+      "Nu_avg_inpass_hot_lastlog": -3.6393103243246228,
+      "Nu_avg_inpass_cold_lastlog": 13.910530975987973,
+      "Nu_avg_heat_balance_hot": -3.6393112128682072,
+      "Nu_avg_heat_balance_cold": 13.910532025654053,
+      "raw_cell_vs_inpass_rel": 3.6607686224784376e-16,
+      "heat_balance_exit": 1,
+      "heat_balance_imbalance_pct": NaN,
+      "heat_balance_Q_hot_W": -0.0010368493287922183,
+      "heat_balance_Q_net_W": -0.0049999964602998135,
+      "heat_balance_k_W_per_mK": 0.026182000076588736,
+      "boussinesq_ok": true,
+      "energy_balance_pct": 341.7284772356529,
+      "u1max": 30.80759274753952,
+      "u2max": 25.256897869260126,
+      "Umax_ms": 0.01854212412780677,
+      "stratification_S_leastsq_mid25pct_UNGRADED": 0.9576567121578727,
+      "stratification_S_central_difference_UNGRADED": 0.8901574337564608,
+      "convergence_drift_pct": 0.12371954890309257,
+      "convergence_spread_pct": 0.12371954890309257,
+      "convergence_drift_lastquarter_pct": 0.5149448851968301,
+      "T_initial_residual_final": 8.902992673508027e-09,
+      "residual_control_met": true,
+      "solver_log_stages": [
+        [
+          "log.buoyantBoussinesqSimpleFoam",
+          0,
+          80
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage2",
+          80,
+          87
+        ],
+        [
+          "log.buoyantBoussinesqSimpleFoam.stage3",
+          87,
+          87
+        ]
+      ],
+      "n_log_samples": 87,
+      "momentum_identically_zero": false,
+      "fvoptions_log_lines": [
+        "Selecting finite volume options type scalarSemiImplicitSource",
+        "    Source: heatPlant",
+        "Selecting finite volume options type scalarSemiImplicitSource",
+        "    Source: heatPlant",
+        "Selecting finite volume options type scalarSemiImplicitSource",
+        "    Source: heatPlant"
+      ],
+      "wall_clock_s": 31.703
+    }
+  },
+  "gate_rows": [
+    {
+      "quantity": "Nu_avg",
+      "Ra": 1000.0,
+      "reference": 1.118,
+      "solved": 1.118113206216419,
+      "deviation_pct": 0.010125779643905155,
+      "band_pct": 1.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e3_m32",
+      "fine_mesh": "Ra1e3_m64",
+      "coarse_value": 1.1190775747305637,
+      "coarse_deviation_pct": 0.09638414405756525,
+      "fine_value_3pt_estimator": 1.1181340098963921,
+      "fine_deviation_pct_3pt": 0.011986573916995228
+    },
+    {
+      "quantity": "Nu_max",
+      "Ra": 1000.0,
+      "reference": 1.505,
+      "solved": 1.5079891766858293,
+      "deviation_pct": 0.19861639108501206,
+      "band_pct": 2.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e3_m32",
+      "fine_mesh": "Ra1e3_m64",
+      "coarse_value": 1.5128229354165852,
+      "coarse_deviation_pct": 0.5197963731950364,
+      "fine_value_3pt_estimator": 1.507954650055063,
+      "fine_deviation_pct_3pt": 0.1963222627948846
+    },
+    {
+      "quantity": "Nu_min",
+      "Ra": 1000.0,
+      "reference": 0.692,
+      "solved": 0.6907407520050179,
+      "deviation_pct": 0.1819722536101163,
+      "band_pct": 2.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e3_m32",
+      "fine_mesh": "Ra1e3_m64",
+      "coarse_value": 0.6891650226793629,
+      "coarse_deviation_pct": 0.409678803560273,
+      "fine_value_3pt_estimator": 0.690807102146484,
+      "fine_deviation_pct_3pt": 0.17238408287802756
+    },
+    {
+      "quantity": "u1max",
+      "Ra": 1000.0,
+      "reference": 3.649,
+      "solved": 3.645480381774869,
+      "deviation_pct": 0.0964543224206883,
+      "band_pct": 2.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e3_m32",
+      "fine_mesh": "Ra1e3_m64",
+      "coarse_value": 3.6326229067700626,
+      "coarse_deviation_pct": 0.44881044751815324
+    },
+    {
+      "quantity": "u2max",
+      "Ra": 1000.0,
+      "reference": 3.697,
+      "solved": 3.6966232880060264,
+      "deviation_pct": 0.010189667134804185,
+      "band_pct": 2.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e3_m32",
+      "fine_mesh": "Ra1e3_m64",
+      "coarse_value": 3.6925345616794756,
+      "coarse_deviation_pct": 0.12078545633011858
+    },
+    {
+      "quantity": "energy_balance",
+      "Ra": 1000.0,
+      "reference": 0.0,
+      "solved": 3.4883852343471855e-05,
+      "deviation_pct": 3.4883852343471855e-05,
+      "band_pct": 0.5,
+      "passed": true,
+      "coarse_mesh": "Ra1e3_m32",
+      "fine_mesh": "Ra1e3_m64",
+      "coarse_value": 3.077119560935319e-05,
+      "coarse_deviation_pct": 3.077119560935319e-05
+    },
+    {
+      "quantity": "Nu_avg",
+      "Ra": 10000.0,
+      "reference": 2.243,
+      "solved": 2.2479886325848764,
+      "deviation_pct": 0.2224089427051482,
+      "band_pct": 1.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e4_m40",
+      "fine_mesh": "Ra1e4_m80",
+      "coarse_value": 2.257443031178389,
+      "coarse_deviation_pct": 0.6439157903873913,
+      "fine_value_3pt_estimator": 2.2482728229347115,
+      "fine_deviation_pct_3pt": 0.23507904300988194
+    },
+    {
+      "quantity": "Nu_max",
+      "Ra": 10000.0,
+      "reference": 3.528,
+      "solved": 3.5427302176222413,
+      "deviation_pct": 0.4175231752335955,
+      "band_pct": 2.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e4_m40",
+      "fine_mesh": "Ra1e4_m80",
+      "coarse_value": 3.5771697779667737,
+      "coarse_deviation_pct": 1.3937011895344016,
+      "fine_value_3pt_estimator": 3.5430358949761547,
+      "fine_deviation_pct_3pt": 0.42618749932411143
+    },
+    {
+      "quantity": "Nu_min",
+      "Ra": 10000.0,
+      "reference": 0.586,
+      "solved": 0.5845432348713482,
+      "deviation_pct": 0.24859473185184003,
+      "band_pct": 2.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e4_m40",
+      "fine_mesh": "Ra1e4_m80",
+      "coarse_value": 0.5831262547851364,
+      "coarse_deviation_pct": 0.49040020731460926,
+      "fine_value_3pt_estimator": 0.5848850065179737,
+      "fine_deviation_pct_3pt": 0.19027192526045408
+    },
+    {
+      "quantity": "u1max",
+      "Ra": 10000.0,
+      "reference": 16.178,
+      "solved": 16.170338453410785,
+      "deviation_pct": 0.047357810540334784,
+      "band_pct": 2.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e4_m40",
+      "fine_mesh": "Ra1e4_m80",
+      "coarse_value": 16.118549995296434,
+      "coarse_deviation_pct": 0.36747437695368596
+    },
+    {
+      "quantity": "u2max",
+      "Ra": 10000.0,
+      "reference": 19.617,
+      "solved": 19.625830778473354,
+      "deviation_pct": 0.04501594776649338,
+      "band_pct": 2.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e4_m40",
+      "fine_mesh": "Ra1e4_m80",
+      "coarse_value": 19.5959010081647,
+      "coarse_deviation_pct": 0.10755463034766871
+    },
+    {
+      "quantity": "energy_balance",
+      "Ra": 10000.0,
+      "reference": 0.0,
+      "solved": 7.088749969250221e-05,
+      "deviation_pct": 7.088749969250221e-05,
+      "band_pct": 0.5,
+      "passed": true,
+      "coarse_mesh": "Ra1e4_m40",
+      "fine_mesh": "Ra1e4_m80",
+      "coarse_value": 3.061777131207827e-05,
+      "coarse_deviation_pct": 3.061777131207827e-05
+    },
+    {
+      "quantity": "Nu_avg",
+      "Ra": 100000.0,
+      "reference": 4.519,
+      "solved": 4.531017050594347,
+      "deviation_pct": 0.26592278367662436,
+      "band_pct": 1.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e5_m64",
+      "fine_mesh": "Ra1e5_m128",
+      "coarse_value": 4.559023387201588,
+      "coarse_deviation_pct": 0.8856691126706754,
+      "fine_value_3pt_estimator": 4.532030599785855,
+      "fine_deviation_pct_3pt": 0.2883514004393738
+    },
+    {
+      "quantity": "Nu_max",
+      "Ra": 100000.0,
+      "reference": 7.717,
+      "solved": 7.763917106204141,
+      "deviation_pct": 0.6079707944037985,
+      "band_pct": 2.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e5_m64",
+      "fine_mesh": "Ra1e5_m128",
+      "coarse_value": 7.89023865325389,
+      "coarse_deviation_pct": 2.244896374937029,
+      "fine_value_3pt_estimator": 7.766848610916581,
+      "fine_deviation_pct_3pt": 0.6459584154021151
+    },
+    {
+      "quantity": "Nu_min",
+      "Ra": 100000.0,
+      "reference": 0.729,
+      "solved": 0.727163203523518,
+      "deviation_pct": 0.2519611078850396,
+      "band_pct": 2.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e5_m64",
+      "fine_mesh": "Ra1e5_m128",
+      "coarse_value": 0.7245218632103725,
+      "coarse_deviation_pct": 0.6142848819790804,
+      "fine_value_3pt_estimator": 0.7277224412013387,
+      "fine_deviation_pct_3pt": 0.17524812052967295
+    },
+    {
+      "quantity": "u1max",
+      "Ra": 100000.0,
+      "reference": 34.81,
+      "solved": 34.75524216348067,
+      "deviation_pct": 0.1573049023824443,
+      "band_pct": 2.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e5_m64",
+      "fine_mesh": "Ra1e5_m128",
+      "coarse_value": 34.784814627280085,
+      "coarse_deviation_pct": 0.07235097018074578
+    },
+    {
+      "quantity": "u2max",
+      "Ra": 100000.0,
+      "reference": 68.22,
+      "solved": 68.65235275546368,
+      "deviation_pct": 0.6337624676981568,
+      "band_pct": 2.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e5_m64",
+      "fine_mesh": "Ra1e5_m128",
+      "coarse_value": 68.43965463286237,
+      "coarse_deviation_pct": 0.3219798194992268
+    },
+    {
+      "quantity": "energy_balance",
+      "Ra": 100000.0,
+      "reference": 0.0,
+      "solved": 1.947544419561941e-05,
+      "deviation_pct": 1.947544419561941e-05,
+      "band_pct": 0.5,
+      "passed": true,
+      "coarse_mesh": "Ra1e5_m64",
+      "fine_mesh": "Ra1e5_m128",
+      "coarse_value": 9.085187800069665e-06,
+      "coarse_deviation_pct": 9.085187800069665e-06
+    },
+    {
+      "quantity": "Nu_avg",
+      "Ra": 1000000.0,
+      "reference": 8.8,
+      "solved": 8.851757757259884,
+      "deviation_pct": 0.5881563324986763,
+      "band_pct": 1.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e6_m128",
+      "fine_mesh": "Ra1e6_m192",
+      "coarse_value": 8.88481735879518,
+      "coarse_deviation_pct": 0.9638336226724941,
+      "fine_value_3pt_estimator": 8.85603163376764,
+      "fine_deviation_pct_3pt": 0.6367231109959101
+    },
+    {
+      "quantity": "Nu_max",
+      "Ra": 1000000.0,
+      "reference": 17.925,
+      "solved": 17.73544717036964,
+      "deviation_pct": 1.057477431689605,
+      "band_pct": 3.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e6_m128",
+      "fine_mesh": "Ra1e6_m192",
+      "coarse_value": 17.981679560836444,
+      "coarse_deviation_pct": 0.3162039656147447,
+      "fine_value_3pt_estimator": 17.759578564304547,
+      "fine_deviation_pct_3pt": 0.9228531977431147
+    },
+    {
+      "quantity": "Nu_min",
+      "Ra": 1000000.0,
+      "reference": 0.989,
+      "solved": 0.9777369312335321,
+      "deviation_pct": 1.1388340512100987,
+      "band_pct": 3.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e6_m128",
+      "fine_mesh": "Ra1e6_m192",
+      "coarse_value": 0.9753916008871938,
+      "coarse_deviation_pct": 1.3759756433575534,
+      "fine_value_3pt_estimator": 0.9788653565088764,
+      "fine_deviation_pct_3pt": 1.024736450063052
+    },
+    {
+      "quantity": "u1max",
+      "Ra": 1000000.0,
+      "reference": 64.63,
+      "solved": 64.89158973413292,
+      "deviation_pct": 0.4047497046772797,
+      "band_pct": 2.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e6_m128",
+      "fine_mesh": "Ra1e6_m192",
+      "coarse_value": 64.94963103949188,
+      "coarse_deviation_pct": 0.4945552212469149
+    },
+    {
+      "quantity": "u2max",
+      "Ra": 1000000.0,
+      "reference": 219.36,
+      "solved": 220.54122455215915,
+      "deviation_pct": 0.5384867579135377,
+      "band_pct": 2.0,
+      "passed": true,
+      "coarse_mesh": "Ra1e6_m128",
+      "fine_mesh": "Ra1e6_m192",
+      "coarse_value": 220.49541157452478,
+      "coarse_deviation_pct": 0.5176019212822606
+    },
+    {
+      "quantity": "energy_balance",
+      "Ra": 1000000.0,
+      "reference": 0.0,
+      "solved": 6.89963460934862e-07,
+      "deviation_pct": 6.89963460934862e-07,
+      "band_pct": 0.5,
+      "passed": true,
+      "coarse_mesh": "Ra1e6_m128",
+      "fine_mesh": "Ra1e6_m192",
+      "coarse_value": 1.3979676191692151e-06,
+      "coarse_deviation_pct": 1.3979676191692151e-06
+    }
+  ],
+  "controls": {
+    "C1_g0": {
+      "kind": "RECOGNITION (gross wrong physics); also demonstrates REACHABILITY of the comparator's FAIL branch",
+      "plant": "constant/g set to (0 0 0) on an exact twin of the Ra=1e5 fine case",
+      "in_log_witness": {
+        "momentum_identically_zero": true,
+        "wall_dT_unchanged_K": 1.0881622000000561,
+        "note": "the plant is witnessed by the solver's own Ux residuals being exactly zero at every one of its solves, and by the wall temperatures it prints being unchanged from the graded case, which is what separates this plant from C2's"
+      },
+      "Nu_avg": 1.0000098122800931,
+      "Nu_max": 1.0000101699797053,
+      "Nu_min": 1.0000096166346724,
+      "u1max": 0.0,
+      "u2max": 0.0,
+      "rows": [
+        {
+          "quantity": "Nu_avg",
+          "Ra": 100000.0,
+          "reference": 4.519,
+          "solved": 1.0000098122800931,
+          "deviation_pct": 77.87099331090742,
+          "band_pct": 1.0,
+          "passed": false
+        },
+        {
+          "quantity": "Nu_max",
+          "Ra": 100000.0,
+          "reference": 7.717,
+          "solved": 1.0000101699797053,
+          "deviation_pct": 87.04146468861337,
+          "band_pct": 2.0,
+          "passed": false
+        },
+        {
+          "quantity": "Nu_min",
+          "Ra": 100000.0,
+          "reference": 0.729,
+          "solved": 1.0000096166346724,
+          "deviation_pct": 37.17553040256137,
+          "band_pct": 2.0,
+          "passed": false
+        },
+        {
+          "quantity": "u1max",
+          "Ra": 100000.0,
+          "reference": 34.81,
+          "solved": 0.0,
+          "deviation_pct": 100.0,
+          "band_pct": 2.0,
+          "passed": false
+        },
+        {
+          "quantity": "u2max",
+          "Ra": 100000.0,
+          "reference": 68.22,
+          "solved": 0.0,
+          "deviation_pct": 100.0,
+          "band_pct": 2.0,
+          "passed": false
+        },
+        {
+          "quantity": "energy_balance",
+          "Ra": 100000.0,
+          "reference": 0.0,
+          "solved": 2.7591979823353344e-05,
+          "deviation_pct": 2.7591979823353344e-05,
+          "band_pct": 0.5,
+          "passed": true
+        }
+      ],
+      "all_Nu_rows_failed": true,
+      "deviation_Nu_avg_pct": 77.87099331090742
+    },
+    "C2_Ra_plus_10pct": {
+      "kind": "RECOGNITION at the gate's own scale: does the 1.0 percent Nu_avg band resolve a 10 percent error in the Rayleigh number?",
+      "plant": "dT multiplied by exactly 1.10, i.e. Ra = 1.10e5",
+      "in_log_witness": {
+        "wall_dT_graded_case_K": 1.0881622000003404,
+        "wall_dT_control_case_K": 1.1969784000000345,
+        "ratio": 1.0999999816200747,
+        "Ra_from_solver_log": 109999.99419839619,
+        "note": "both numbers are area-averages printed by the RUNNING solver every 50 iterations into log.buoyantBoussinesqSimpleFoam; a plant living only in 0.orig/T would not move them"
+      },
+      "Nu_avg": 4.663155439929242,
+      "shift_vs_graded_case_pct": 2.916307483715214,
+      "deviation_vs_reference_pct": 3.1899853934331035,
+      "Nu_avg_row_failed": true,
+      "rows": [
+        {
+          "quantity": "Nu_avg",
+          "Ra": 100000.0,
+          "reference": 4.519,
+          "solved": 4.663155439929242,
+          "deviation_pct": 3.1899853934331035,
+          "band_pct": 1.0,
+          "passed": false
+        },
+        {
+          "quantity": "Nu_max",
+          "Ra": 100000.0,
+          "reference": 7.717,
+          "solved": 8.03883212598478,
+          "deviation_pct": 4.17043055571828,
+          "band_pct": 2.0,
+          "passed": false
+        },
+        {
+          "quantity": "Nu_min",
+          "Ra": 100000.0,
+          "reference": 0.729,
+          "solved": 0.7348105404490546,
+          "deviation_pct": 0.7970563030253226,
+          "band_pct": 2.0,
+          "passed": true
+        },
+        {
+          "quantity": "u1max",
+          "Ra": 100000.0,
+          "reference": 34.81,
+          "solved": 35.60753967837264,
+          "deviation_pct": 2.291122316497089,
+          "band_pct": 2.0,
+          "passed": false
+        },
+        {
+          "quantity": "u2max",
+          "Ra": 100000.0,
+          "reference": 68.22,
+          "solved": 72.07837036858618,
+          "deviation_pct": 5.655775972715009,
+          "band_pct": 2.0,
+          "passed": false
+        },
+        {
+          "quantity": "energy_balance",
+          "Ra": 100000.0,
+          "reference": 0.0,
+          "solved": 1.4431900040059981e-05,
+          "deviation_pct": 1.4431900040059981e-05,
+          "band_pct": 0.5,
+          "passed": true
+        }
+      ]
+    },
+    "C3_planted_source": {
+      "kind": "REACHABILITY of the energy-balance row, plus a stated limit on what that row can ever prove",
+      "plant": "uniform volumetric source of 5.000e-03 W via fvOptions scalarSemiImplicitSource on T",
+      "in_log_witness": {
+        "fvoptions_lines_in_solver_log": [
+          "Selecting finite volume options type scalarSemiImplicitSource",
+          "    Source: heatPlant",
+          "Selecting finite volume options type scalarSemiImplicitSource",
+          "    Source: heatPlant",
+          "Selecting finite volume options type scalarSemiImplicitSource",
+          "    Source: heatPlant"
+        ],
+        "constructed_by_solver": true,
+        "note": "the solver echoes fvOptions at construction; a source present in constant/fvOptions but not constructed would leave the log empty here"
+      },
+      "planted_W": 0.005,
+      "recovered_net_W": -0.0049999964602998135,
+      "recovery_error_pct": -7.079400373213862e-05,
+      "heat_balance_exit": 1,
+      "heat_balance_imbalance_pct": NaN,
+      "energy_balance_row_pct": 341.7284772356529,
+      "energy_balance_row_failed": true,
+      "limit_of_this_row": "On a SEALED, impermeable, steady cavity with no source the boundary heat balance is very nearly an identity: the discrete T equation conserves at every iteration, converged or not (K0b C3, W-2). The energy-balance row of this gate therefore has teeth only against conservation defects such as this planted source, and NONE against the failure modes the rung actually faces -- wrong Ra, wrong Pr, under-resolved boundary layers. It is reported because the specification requires it, and it is not counted as evidence that the physics is right."
+    },
+    "C5_relaxation_invariance": {
+      "kind": "RECOGNITION of a confound: the stage-2 relaxation factors are a property of the path to the fixed point, not of the fixed point. This control asks whether that is true here rather than asserting it.",
+      "criterion_pct": 0.02,
+      "note": "witnesses are the cases that ALREADY met the convergence criterion at the end of stage 1, so any movement in their Nu_avg across the relaxation change is a change to the answer and not the completion of a convergence that had not happened.",
+      "witnesses": {
+        "Ra1e3_m32": {
+          "Nu_avg_stage1": 1.1190706681218567,
+          "Nu_avg_final": 1.1190775747305637,
+          "shift_pct": 0.0006171697890210878,
+          "passed": true
+        },
+        "Ra1e4_m40": {
+          "Nu_avg_stage1": 2.2573983085261444,
+          "Nu_avg_final": 2.257443031178389,
+          "shift_pct": 0.00198111986114214,
+          "passed": true
+        },
+        "Ra1e5_m64": {
+          "Nu_avg_stage1": 4.558947717206406,
+          "Nu_avg_final": 4.559023387201588,
+          "shift_pct": 0.001659785194220596,
+          "passed": true
+        },
+        "Ra1e6_m128": {
+          "Nu_avg_stage1": 8.884713537485425,
+          "Nu_avg_final": 8.88481735879518,
+          "shift_pct": 0.0011685249742666808,
+          "passed": true
+        }
+      },
+      "all_witnesses_passed": true
+    },
+    "C4_comparator_mutation": {
+      "kind": "REACHABILITY of every band in the gate table, individually",
+      "method": "each solved value perturbed by 1.5x its own band; that row and only that row must flip to FAIL",
+      "rows": [
+        {
+          "Ra": 1000.0,
+          "perturbed": "Nu_avg",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "Nu_avg"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 1000.0,
+          "perturbed": "Nu_max",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "Nu_max"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 1000.0,
+          "perturbed": "Nu_min",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "Nu_min"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 1000.0,
+          "perturbed": "u1max",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "u1max"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 1000.0,
+          "perturbed": "u2max",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "u2max"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 1000.0,
+          "perturbed": "energy_balance",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "energy_balance"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 10000.0,
+          "perturbed": "Nu_avg",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "Nu_avg"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 10000.0,
+          "perturbed": "Nu_max",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "Nu_max"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 10000.0,
+          "perturbed": "Nu_min",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "Nu_min"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 10000.0,
+          "perturbed": "u1max",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "u1max"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 10000.0,
+          "perturbed": "u2max",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "u2max"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 10000.0,
+          "perturbed": "energy_balance",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "energy_balance"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 100000.0,
+          "perturbed": "Nu_avg",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "Nu_avg"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 100000.0,
+          "perturbed": "Nu_max",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "Nu_max"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 100000.0,
+          "perturbed": "Nu_min",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "Nu_min"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 100000.0,
+          "perturbed": "u1max",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "u1max"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 100000.0,
+          "perturbed": "u2max",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "u2max"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 100000.0,
+          "perturbed": "energy_balance",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "energy_balance"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 1000000.0,
+          "perturbed": "Nu_avg",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "Nu_avg"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 1000000.0,
+          "perturbed": "Nu_max",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "Nu_max"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 1000000.0,
+          "perturbed": "Nu_min",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "Nu_min"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 1000000.0,
+          "perturbed": "u1max",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "u1max"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 1000000.0,
+          "perturbed": "u2max",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "u2max"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        },
+        {
+          "Ra": 1000000.0,
+          "perturbed": "energy_balance",
+          "perturbation": "band x1.5",
+          "rows_that_changed": [
+            "energy_balance"
+          ],
+          "row_flipped_to_fail": true,
+          "base_row_passed": true
+        }
+      ],
+      "every_row_reachable": true
+    }
+  },
+  "mutation_C4": [
+    {
+      "Ra": 1000.0,
+      "perturbed": "Nu_avg",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "Nu_avg"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 1000.0,
+      "perturbed": "Nu_max",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "Nu_max"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 1000.0,
+      "perturbed": "Nu_min",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "Nu_min"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 1000.0,
+      "perturbed": "u1max",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "u1max"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 1000.0,
+      "perturbed": "u2max",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "u2max"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 1000.0,
+      "perturbed": "energy_balance",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "energy_balance"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 10000.0,
+      "perturbed": "Nu_avg",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "Nu_avg"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 10000.0,
+      "perturbed": "Nu_max",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "Nu_max"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 10000.0,
+      "perturbed": "Nu_min",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "Nu_min"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 10000.0,
+      "perturbed": "u1max",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "u1max"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 10000.0,
+      "perturbed": "u2max",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "u2max"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 10000.0,
+      "perturbed": "energy_balance",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "energy_balance"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 100000.0,
+      "perturbed": "Nu_avg",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "Nu_avg"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 100000.0,
+      "perturbed": "Nu_max",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "Nu_max"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 100000.0,
+      "perturbed": "Nu_min",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "Nu_min"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 100000.0,
+      "perturbed": "u1max",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "u1max"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 100000.0,
+      "perturbed": "u2max",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "u2max"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 100000.0,
+      "perturbed": "energy_balance",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "energy_balance"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 1000000.0,
+      "perturbed": "Nu_avg",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "Nu_avg"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 1000000.0,
+      "perturbed": "Nu_max",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "Nu_max"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 1000000.0,
+      "perturbed": "Nu_min",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "Nu_min"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 1000000.0,
+      "perturbed": "u1max",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "u1max"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 1000000.0,
+      "perturbed": "u2max",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "u2max"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    },
+    {
+      "Ra": 1000000.0,
+      "perturbed": "energy_balance",
+      "perturbation": "band x1.5",
+      "rows_that_changed": [
+        "energy_balance"
+      ],
+      "row_flipped_to_fail": true,
+      "base_row_passed": true
+    }
+  ],
+  "stratification_UNGRADED": {
+    "Ra=1e+03": {
+      "fine_mesh": "Ra1e3_m64",
+      "S_leastsq_mid25pct": 0.5187139458010434,
+      "S_central_difference": 0.5311053392745744,
+      "coarse_mesh": "Ra1e3_m32",
+      "S_leastsq_mid25pct_coarse": 0.5197875768432093,
+      "status": "MEASURED, NOT GRADED. Gate Section 1.4: the laminar core stratification reference was NOT OBTAINED (de Vahl Davis 1983 and Le Quere 1991 both paywalled). There is nothing to compare this to and it is not permitted to grade anything against a number this agent produced itself."
+    },
+    "Ra=1e+04": {
+      "fine_mesh": "Ra1e4_m80",
+      "S_leastsq_mid25pct": 0.8368530543159698,
+      "S_central_difference": 0.8358733687405969,
+      "coarse_mesh": "Ra1e4_m40",
+      "S_leastsq_mid25pct_coarse": 0.8399421523284338,
+      "status": "MEASURED, NOT GRADED. Gate Section 1.4: the laminar core stratification reference was NOT OBTAINED (de Vahl Davis 1983 and Le Quere 1991 both paywalled). There is nothing to compare this to and it is not permitted to grade anything against a number this agent produced itself."
+    },
+    "Ra=1e+05": {
+      "fine_mesh": "Ra1e5_m128",
+      "S_leastsq_mid25pct": 1.0368478218498682,
+      "S_central_difference": 1.0701665858199685,
+      "coarse_mesh": "Ra1e5_m64",
+      "S_leastsq_mid25pct_coarse": 1.040716890741998,
+      "status": "MEASURED, NOT GRADED. Gate Section 1.4: the laminar core stratification reference was NOT OBTAINED (de Vahl Davis 1983 and Le Quere 1991 both paywalled). There is nothing to compare this to and it is not permitted to grade anything against a number this agent produced itself."
+    },
+    "Ra=1e+06": {
+      "fine_mesh": "Ra1e6_m192",
+      "S_leastsq_mid25pct": 0.9297876638168033,
+      "S_central_difference": 0.9150107191927104,
+      "coarse_mesh": "Ra1e6_m128",
+      "S_leastsq_mid25pct_coarse": 0.9323952537107097,
+      "status": "MEASURED, NOT GRADED. Gate Section 1.4: the laminar core stratification reference was NOT OBTAINED (de Vahl Davis 1983 and Le Quere 1991 both paywalled). There is nothing to compare this to and it is not permitted to grade anything against a number this agent produced itself."
+    }
+  },
+  "cost": {
+    "Ra1e3_m32": {
+      "wall_clock_s": 5.581,
+      "cores": 1,
+      "core_minutes": 0.09301666666666668
+    },
+    "Ra1e3_m64": {
+      "wall_clock_s": 36.123000000000005,
+      "cores": 1,
+      "core_minutes": 0.6020500000000001
+    },
+    "Ra1e4_m40": {
+      "wall_clock_s": 8.120000000000001,
+      "cores": 1,
+      "core_minutes": 0.13533333333333336
+    },
+    "Ra1e4_m80": {
+      "wall_clock_s": 69.15799999999999,
+      "cores": 1,
+      "core_minutes": 1.1526333333333332
+    },
+    "Ra1e5_m64": {
+      "wall_clock_s": 37.189,
+      "cores": 1,
+      "core_minutes": 0.6198166666666667
+    },
+    "Ra1e5_m128": {
+      "wall_clock_s": 355.492,
+      "cores": 1,
+      "core_minutes": 5.924866666666667
+    },
+    "Ra1e6_m128": {
+      "wall_clock_s": 453.85600000000005,
+      "cores": 1,
+      "core_minutes": 7.564266666666668
+    },
+    "Ra1e6_m192": {
+      "wall_clock_s": 1081.659,
+      "cores": 1,
+      "core_minutes": 18.02765
+    },
+    "C1_Ra1e5_m128_g0": {
+      "wall_clock_s": 58.65,
+      "cores": 1,
+      "core_minutes": 0.9774999999999999
+    },
+    "C2_Ra1e5_m128_dT110": {
+      "wall_clock_s": 366.543,
+      "cores": 1,
+      "core_minutes": 6.10905
+    },
+    "C3_Ra1e5_m64_source": {
+      "wall_clock_s": 31.703,
+      "cores": 1,
+      "core_minutes": 0.5283833333333333
+    },
+    "TOTAL": {
+      "core_seconds": 2504.074,
+      "core_minutes": 41.734566666666666,
+      "note": "single-core solves, so core-minutes is the sum of the per-case wall clocks. No monetary figure: there is no verified rate for this machine."
+    }
+  },
+  "convergence": {
+    "Ra1e3_m32": {
+      "spread_pct": 0.0009360003679789504,
+      "endpoint_drift_pct": 0.00019807272219543446,
+      "residual_control_met": true,
+      "graded": true
+    },
+    "Ra1e3_m64": {
+      "spread_pct": 0.0028127471201394023,
+      "endpoint_drift_pct": 0.0028127471201394023,
+      "residual_control_met": true,
+      "graded": true
+    },
+    "Ra1e4_m40": {
+      "spread_pct": 0.0019988074251892697,
+      "endpoint_drift_pct": 0.001894429782852655,
+      "residual_control_met": true,
+      "graded": true
+    },
+    "Ra1e4_m80": {
+      "spread_pct": 0.003589847352072139,
+      "endpoint_drift_pct": 0.0007502487931623292,
+      "residual_control_met": true,
+      "graded": true
+    },
+    "Ra1e5_m64": {
+      "spread_pct": 0.002038941830434267,
+      "endpoint_drift_pct": 0.0018739131430216597,
+      "residual_control_met": true,
+      "graded": true
+    },
+    "Ra1e5_m128": {
+      "spread_pct": 0.0009044348810416324,
+      "endpoint_drift_pct": 0.0003089214843165106,
+      "residual_control_met": true,
+      "graded": true
+    },
+    "Ra1e6_m128": {
+      "spread_pct": 0.0002575474430348938,
+      "endpoint_drift_pct": 0.00014497128360326357,
+      "residual_control_met": true,
+      "graded": true
+    },
+    "Ra1e6_m192": {
+      "spread_pct": 0.00021898919493917377,
+      "endpoint_drift_pct": 4.3780774263610106e-05,
+      "residual_control_met": true,
+      "graded": true
+    },
+    "C1_Ra1e5_m128_g0": {
+      "spread_pct": 0.008403069181310204,
+      "endpoint_drift_pct": 0.008403069181310204,
+      "residual_control_met": true,
+      "graded": false
+    },
+    "C2_Ra1e5_m128_dT110": {
+      "spread_pct": 0.0014787449819577971,
+      "endpoint_drift_pct": 0.0010654653293566648,
+      "residual_control_met": true,
+      "graded": false
+    },
+    "C3_Ra1e5_m64_source": {
+      "spread_pct": 0.12371954890309257,
+      "endpoint_drift_pct": 0.12371954890309257,
+      "residual_control_met": true,
+      "graded": false
+    }
+  },
+  "convergence_criterion": "Nu_avg, as printed by the running solver's own in-pass function object every 50 iterations, has a PEAK-TO-PEAK SPREAD below 0.02 percent over the last 400 outer iterations of the case. 0.02 percent is one fiftieth of the tightest band on this gate. A fixed iteration window is used rather than a fraction of the run because a last-quarter window silently loosens as a run is extended. The spread is gated rather than the endpoint difference because Ra1e6_m192 approaches steady state as a decaying oscillation of period about 400 iterations, and an endpoint test over a 400-iteration window can be aliased by exactly that.",
+  "control_predictions_registered": "CONTROL PREDICTIONS -- F14 rung K0c, laminar differentially heated cavity\nRegistered before any control result was read.  Every number below is derived\neither from the gate's own reference table or from a closed-form property of the\ncase; none of it depends on a solved field.\n\n-----------------------------------------------------------------------------\nC1  Ra1e5_m128 twin with g = 0.   KIND: RECOGNITION (gross), and it also\n    demonstrates REACHABILITY of the comparator's FAIL branch.\n\n    With g = 0 there is no buoyancy source in the momentum equation, U stays\n    identically zero, and the cavity solves pure 1-D conduction between two\n    isothermal walls with two adiabatic walls.  For that solution\n    dT/dx = -dT/L everywhere and Nu(y) = 1 exactly at every y.\n\n    PREDICTED:  Nu_avg = 1.000, Nu_max = 1.000, Nu_min = 1.000,\n                u1max = u2max = 0.000, max|U| = 0 exactly.\n    PREDICTED GATE VERDICT: FAIL.  REL(Nu_avg) = 100*|1.000-4.519|/4.519\n                = 77.87 percent against a 1.0 percent band.\n    IN-LOG WITNESS OF THE PLANT: `Solving for Ux/Uy` initial residuals collapse\n                to zero, and areaNormalIntegrate(hotWall) printed by the running\n                solver equals the conduction value.  The wall temperatures\n                printed by hotT/coldT must be UNCHANGED from the graded case,\n                which is what distinguishes this plant from C2's.\n\n-----------------------------------------------------------------------------\nC2  Ra1e5_m128 twin with dT raised by exactly 1.10, i.e. Ra = 1.10e5.\n    KIND: RECOGNITION AT THE GATE'S OWN SCALE.  This is the control that\n    answers \"can this gate fail?\" for the row that actually grades the rung.\n\n    The gate bands Nu_avg at 1.0 percent.  The question is whether that band can\n    resolve a realistic error in the driving parameter.  The exponent comes from\n    the gate's OWN reference table (Section 1.3), not from a correlation:\n        ln(4.519/2.243)/ln(10) = 0.3040   (Ra 1e4 -> 1e5)\n        ln(8.800/4.519)/ln(10) = 0.2895   (Ra 1e5 -> 1e6)\n    so locally Nu ~ Ra^n with n in [0.289, 0.304], and\n        dNu/Nu = n * ln(1.10) = n * 0.09531  =  2.76 to 2.90 percent.\n\n    PREDICTED:  Nu_avg on the C2 case lands 2.6 to 3.0 percent ABOVE the\n                Ra = 1e5 graded value, i.e. Nu_avg = 4.63 to 4.66.\n    PREDICTED GATE VERDICT: FAIL against the Ra = 1e5 reference 4.519, with\n                REL between 2.6 and 3.0 percent versus a 1.0 percent band.\n    IF IT PASSED, the 1.0 percent band would be unable to see a 10 percent\n    error in the Rayleigh number and the rung's pass would mean nothing.\n    IN-LOG WITNESS OF THE PLANT: hotT/coldT are printed by the RUNNING solver\n    every 50 iterations; their difference must equal 1.196978 K, exactly 1.10x\n    the 1.088162 K of the graded case.  A plant that existed only in 0.orig/T\n    would not move these lines.\n\n-----------------------------------------------------------------------------\nC3  Ra1e5_m64 twin with a planted uniform volumetric source of 5.000e-03 W.\n    KIND: REACHABILITY of the energy-balance row, plus a stated limit on what\n    that row can ever prove.\n\n    K0b's C3 predicted a large heat imbalance on an unconverged sealed cavity\n    and measured 0.013 percent, because on a closed impermeable steady case the\n    discrete T equation conserves at every iteration whether or not the field\n    has converged: the boundary heat balance there is very nearly an IDENTITY\n    and cannot gate anything (W-2).  That finding applies unchanged to this\n    gate's energy-balance row, which is stated in the report rather than hidden.\n    C3 therefore does not try to make the row fail on convergence error.  It\n    plants a real conservation defect and checks the row sees it.\n\n    PREDICTED:  sum of wall fluxes recovers -5.000e-03 W to within 0.1 percent\n                (the source leaves the domain through the walls at steady\n                state, so the boundary integral must equal minus the source).\n    PREDICTED GATE VERDICT on the energy-balance row: FAIL, with\n                |Nu_hot - Nu_cold|/Nu_avg of order tens of percent, against a\n                0.5 percent band.\n    IN-LOG WITNESS OF THE PLANT: buoyantBoussinesqSimpleFoam echoes fvOptions\n    at construction; the log must contain the source name `heatPlant` and its\n    cell-set selection.  A source present in constant/fvOptions but not\n    constructed by the solver would not appear there.\n\n-----------------------------------------------------------------------------\nC4  Comparator mutation.  NO COMPUTE.  KIND: REACHABILITY of every band in the\n    gate table, individually.\n\n    C1 to C3 prove that some rows can fail.  They do not prove that the other\n    rows are not hard-wired to pass.  C4 perturbs each solved value in turn by a\n    factor just outside its own band and asserts that exactly that row flips to\n    FAIL and no other row moves.\n\n    PREDICTED: every one of the gate's rows flips to FAIL under its own\n    perturbation and under no other row's.  Any row that stays PASS under a\n    perturbation larger than its band is a row that grades nothing.\nregistered 2026-08-17T16:05:42Z\n",
+  "verdict": {
+    "rows_total": 24,
+    "rows_failed": 0,
+    "failed_rows": [],
+    "gate": "PASS"
+  }
+}

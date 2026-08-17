@@ -1,0 +1,6 @@
+case C3_Ra1e5_m64_source
+wall_clock_s 26.723
+cores 1
+core_minutes 0.4454
+stage2_wall_clock_s 4.671
+stage3_wall_clock_s 0.309
