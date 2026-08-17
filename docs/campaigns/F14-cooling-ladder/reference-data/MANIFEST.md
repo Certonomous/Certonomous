@@ -1,4 +1,4 @@
-# Reference data manifest, campaign F11 gate K0c
+# Reference data manifest, campaign F14 gate K0c
 
 ## betts_bokhari/
 

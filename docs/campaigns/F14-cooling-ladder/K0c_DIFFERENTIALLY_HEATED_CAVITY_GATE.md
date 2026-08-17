@@ -1,9 +1,18 @@
 # K0c. Differentially heated cavity validation gate
 
-Campaign F11, gate K0c. Written 2026-08-17, zero compute spent, no solver launched.
+Campaign F14, gate K0c. Written 2026-08-17, zero compute spent, no solver launched.
 This document is the F3-equivalent for thermal work: an exact published reference,
 nowhere to hide. A later agent executes this gate without rereading the literature;
 everything needed is here or in `reference-data/`.
+
+> **Two references on this gate were NOT OBTAINED, and the rows they would grade
+> cannot pass.** (1) The **laminar** core stratification reference: no tabulated
+> core temperature gradient was obtained; de Vahl Davis 1983 and Le Quere 1991 are
+> both paywalled (Section 1, end). (2) The **turbulent** Nusselt number reference:
+> the database ships no Nusselt files and the paper is paywalled (Section 2.3).
+> Acquisition paths are named at each place and summarised in the campaign README.
+> An executing agent must not mark either row passed on a number it produced
+> itself; with no reference there is nothing to compare against.
 
 The gate has two rungs. The laminar rung is a **verification** rung against a
 numerical benchmark of the de Vahl Davis lineage. The turbulent rung is a

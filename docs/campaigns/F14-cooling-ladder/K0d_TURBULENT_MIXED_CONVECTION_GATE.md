@@ -1,6 +1,6 @@
 # K0d. Turbulent mixed convection gate
 
-Campaign F11, gate K0d. Written 2026-08-17, zero compute spent, no solver launched.
+Campaign F14, gate K0d. Written 2026-08-17, zero compute spent, no solver launched.
 Order of this document, per the brief: the claim first, then the sourcing, then the
 gate spec with references.
 
