@@ -698,6 +698,134 @@ report itself is a point-in-time artifact.
   own snappyHexMesh/pyHyp specs; this is a methodology adoption, not a claim requiring a
   reproduction gate.
 
+## Convection regime map
+
+A solver entering a thermal-convection problem must first establish the relative 
+roles of natural, mixed, and forced convection in the flow physics. Conviction 
+regime classification uses three dimensionless groups and their threshold ratios 
+to determine whether the solution requires steady or unsteady treatment, laminar 
+or turbulence modeling, and what convergence criteria are defensible.
+
+### Dimensionless numbers: definitions and composition
+
+Three dimensionless groups form the basis of convection regime classification:
+
+**Grashof Number (Gr):** the ratio of natural-convection driving forces to 
+viscous forces.
+
+| Quantity | Formula | Physical Interpretation |
+|----------|---------|-------------------------|
+| Grashof | Gr = (g * β * ΔT * L³) / ν² | Buoyancy-to-viscous-force ratio. Parameter g is gravitational acceleration (m/s²), β is thermal expansion coefficient (1/K), ΔT is bulk-fluid temperature difference (K), L is characteristic length scale (m), and ν is kinematic viscosity (m²/s). |
+
+**Prandtl Number (Pr):** the ratio of viscous to thermal diffusion rates.
+
+| Quantity | Formula | Physical Interpretation |
+|----------|---------|-------------------------|
+| Prandtl | Pr = ν / α = cp * μ / k | Momentum-to-thermal-diffusivity ratio. Carries material properties: dynamic viscosity μ, specific heat cp, thermal conductivity k, and thermal diffusivity α = k / (ρ * cp). Pr > 1 (most liquids) means momentum diffuses faster than heat; Pr < 1 (liquid metals, gases in some regimes) means heat diffuses faster. |
+
+**Rayleigh Number (Ra):** the combined natural-convection buoyancy-to-viscous 
+and viscous-to-thermal drivers.
+
+| Quantity | Formula | Physical Interpretation |
+|----------|---------|-------------------------|
+| Rayleigh | Ra = Gr * Pr = (g * β * ΔT * L³ * α) / ν³ | Dimensionless group controlling laminar-to-turbulent transition and convection-regime onset. Higher Ra means stronger natural convection; the onset of turbulence varies by geometry but occurs at predictable Ra thresholds. |
+
+**Reynolds Number (Re):** the ratio of inertial to viscous forces in forced 
+convection.
+
+| Quantity | Formula | Physical Interpretation |
+|----------|---------|-------------------------|
+| Reynolds | Re = (U * L) / ν | Forced-convection strength. U is bulk-flow velocity (m/s), L is characteristic length. High Re = strong forced convection; low Re = viscous-dominated. |
+
+**Richardson Number (Ri):** the ratio of natural-convection to forced-convection 
+driving forces.
+
+| Quantity | Formula | Physical Interpretation |
+|----------|---------|-------------------------|
+| Richardson | Ri = Gr / Re² = (Gr / (U/√(g*β*ΔT*L))²) | Mixed-convection classifier. Ri >> 1 = natural convection dominates; Ri << 1 = forced convection dominates; Ri ~ 1 = mixed convection with both effects material. Alternate form: Ri = Ra / (Re * Pr). |
+
+### Convection regime classification
+
+The following table gives the convection-regime boundaries as a function of 
+Richardson number or Rayleigh number for common geometries.
+
+| Regime | Condition | Typical Values | Source and Notes |
+|--------|-----------|-----------------|-----------------|
+| **Forced convection** (natural effect negligible) | Ri << 0.1 or Ra/Re² << 1 | Ri < 0.01 typical for flows with U >> √(g*β*ΔT*L) | Incropera et al. (2013), Principles of Heat and Mass Transfer, Table 9.1, "Correlations for mixed convection": the boundary between forced and mixed regimes is placed at Ri = 0.1 to 1 depending on geometry; Ri < 0.1 signals forced dominance with natural as perturbation. |
+| **Mixed convection** (both effects contribute) | 0.1 < Ri < 10 (rule of thumb, geometry dependent) | Ri ~ 1 is the transition zone | Gebhart et al. (1988), Buoyancy-Induced Flows and Transport, Ch. 6: "where the Richardson number is order unity, both convection modes significantly influence the flow"; thresholds vary from 0.01 to 100 across geometries (boundary layers: stricter; enclosed cavities: broader). |
+| **Natural convection** (forced effect negligible) | Ri >> 10 or Ra/Re² >> 1 | Ri > 100 typical for buoyancy-dominated flows | White (2011), Fluid Mechanics, 7th ed., Ch. 9.8: "When the Grashof number is much larger than the square of the Reynolds number, natural convection dominates"; used in conjunction with Rayleigh classification below. |
+
+**Note on Richardson boundaries:** The cited thresholds (0.1, 10) are rules of 
+thumb that vary significantly with geometry, flow orientation, and surface-type. 
+Boundary-layer flows (flat plates, cylinders) have sharper transitions; enclosed 
+cavities have broader mixed-convection zones. The boundaries below should be 
+verified against the specific geometry before claiming a regime classification.
+
+### Natural convection regime classification (Rayleigh-based)
+
+When Richardson number confirms that natural convection dominates (Ri > 10), 
+the absolute Rayleigh number determines the flow's laminar/turbulent character 
+and intensity.
+
+| Rayleigh Range | Regime | Source and Notes |
+|----------------|---------|----|
+| Ra < 10⁴ | Laminar, conduction dominates | Incropera et al. (2013), Table 9.2, empirical correlations for vertical plates and cylinders: "conduction-limited regime"; still used as the effective lower bound for the onset of meaningful natural-convection transport. |
+| 10⁴ < Ra < 10⁷ | Laminar natural convection | Incropera et al. (2013), Table 9.2, correlations for vertical flat plates: Nu = 0.59 * Ra^(1/4) applies in this band; characteristic of enclosed cavities and internal natural convection. |
+| 10⁷ < Ra < 10⁹ | Transition to turbulent natural convection | Gebhart et al. (1988), Fig. 5.1 and Table 5.1, vertical plate: the laminar-turbulent transition in natural convection occurs progressively over this band, with the shift accelerated by surface roughness and enclosure effects. |
+| Ra > 10⁹ | Fully turbulent natural convection | Incropera et al. (2013), Table 9.2: for vertical plates the correlation Nu = 0.10 * Ra^(1/3) applies, characteristic of fully turbulent natural-convection flows; Rayleigh-Benard convection in horizontal layers transitions at Ra ~ 1.7 * 10⁶ (Chandrasekhar 1961, cited in Gebhart). |
+
+**Critical Rayleigh number (Rayleigh-Benard convection):** In a fluid layer 
+heated from below, convection is suppressed by viscous and thermal-conduction 
+stability below a critical Rayleigh number. The critical value depends on 
+boundary conditions:
+
+| Boundary Condition | Ra_crit | Source |
+|-------------------|---------|--------|
+| Free-free surfaces (theoretical) | 27π⁴/4 ≈ 657.5 | Chandrasekhar (1961), Hydrodynamic and Hydromagnetic Stability, § 10. The exact value for free-slip surfaces. |
+| Rigid-free surfaces (one plate, one free surface) | 1100–1708 (range due to surface deformation effects) | Gebhart et al. (1988), Ch. 5, § 3: "approximately 1100 for moderate constraints"; higher values account for surface-tension effects. |
+| Rigid-rigid surfaces (both plates solid) | 1707.8–1708 | Chandrasekhar (1961) for perfectly rigid plates with no slip; Incropera et al. (2013) round to 1708 in practice. This is the most common laboratory case. |
+
+### Transition to turbulence in natural convection
+
+The Richardson and Rayleigh numbers interact to determine whether turbulent 
+modeling is needed. The following thresholds are empirically established but 
+geometry-dependent:
+
+| Configuration | Laminar Threshold | Turbulent Onset | Source |
+|------|------|------|------|
+| Vertical flat plate, natural convection (Ra-based) | Ra < 10⁹ | Ra > 10⁹ | Incropera et al. (2013); Gebhart et al. (1988): the transition is spread rather than sharp and accelerates with surface roughness. |
+| Horizontal cylinder, natural convection (Ra-based) | Ra < 10⁷ | Ra > 10⁷ | Incropera et al. (2013), Table 9.2: empirical correlations given separately for the two regimes; the higher threshold for cylinders vs. plates reflects geometry. |
+| Vertical channel (parallel plates), natural convection (modified Ra) | Ra_mod < 10⁴ | Ra_mod ~ 10⁴–10⁵ | Incropera et al. (2013), Table 9.3: uses aspect ratio A = L/D (height-to-gap ratio) as Ra_mod = Ra * (D/L)^(4/5); higher aspect ratios shift the threshold lower. |
+| Mixed convection (Ri ~ 0.1–10) | Typically laminar below combined Ra*Ri < 10⁵ | Empirical, case-specific | Gebhart et al. (1988), Ch. 6: "no universal criterion; geometry-specific measurements required." Rule of thumb: if either natural or forced convection alone would be laminar, the mixed regime is often laminar unless Ri ~ 1 and both are independently turbulent. |
+
+**Caveat on turbulence onset:** The Rayleigh thresholds cited above (10⁹ for 
+plates, 10⁷ for cylinders) are best-fit values over experimental data, not 
+sharp transitions. The actual onset occurs gradually over a Ra range of roughly 
+0.5–1.5 times the tabulated value, depending on enclosure, boundary roughness, 
+and initial conditions. Solver-level turbulence-model switching should use 
+Ra thresholds as triggers for *when to validate* against a laminar baseline, 
+not as hard cutoffs.
+
+### Relationships and derived quantities
+
+The Richardson and Rayleigh numbers are not independent; they relate the natural 
+and forced convection measures:
+
+| Relationship | Derivation | Use |
+|------|------|------|
+| Ri = Gr / Re² | Direct from definitions: Gr = (g*β*ΔT*L³)/ν², Re = (U*L)/ν, so Ri = Gr*ν²/((U*L)/ν)² = Gr/Re² | Mixed-convection classification without explicit Re and Gr; direct comparison of driving-force magnitudes. |
+| Ra = Gr * Pr | Ra = (g*β*ΔT*L³*α)/ν³ and Gr*Pr = ((g*β*ΔT*L³)/ν²) * (ν/α) = (g*β*ΔT*L³)/ν² * (ν/α) = (g*β*ΔT*L³*α)/ν³ | Establishes that natural-convection strength (Ra) couples Gr with the material's thermal diffusivity via Pr. |
+| Ra = Ri * Re * Pr | Follows from Ri = Ra/(Re*Pr) by algebraic rearrangement | Expresses Rayleigh as a product of forced (Re), mixed (Ri), and material (Pr) effects; useful for examining sensitivity to each term. |
+| Gr / Re² = Ra / (Re * Pr) | Both equal Ri by construction | Confirms equivalence between the two Richardson forms; either can be used depending on which dimensional groups are immediately available. |
+
+### Solver selection based on convection regime
+
+| Regime Classification | Solver Characteristics | Source/Basis |
+|------|------|------|
+| Forced convection (Ri << 0.1) | Steady solver (simpleFoam, SIMPLE algorithm) generally adequate; PISO only if transient buoyancy-driven oscillations expected. Turbulence modeling chosen from forced-flow correlations without natural-convection corrections. | White (2011), Incropera et al. (2013): forced convection is inherently steady at moderate Re unless vortex shedding or separation is present. |
+| Mixed convection (0.1 < Ri < 10) | Steady solver can diverge if natural convection introduces buoyancy-driven oscillations; unsteady solver (pimpleFoam) often safer despite cost. Turbulence model performance degrades; independent validation required. | Gebhart et al. (1988), Ch. 6: "mixed convection introduces interaction effects not captured by treating the two modes independently." Standard RANS closures are calibrated to one dominant mode. |
+| Natural convection (Ri >> 10) | Steady solver can diverge if Ra > 10⁸ or if the flow has any enclosed recirculation; unsteady solver preferred. Laminar-to-turbulent transition in Ra range 10⁷–10⁹ demands either laminar assumption with post-check or turbulence model activated at the appropriate Ra threshold. | Gebhart et al. (1988), Incropera et al. (2013): natural convection is intrinsically transient at high Ra (Rayleigh-Benard convection, vortex formation, oscillating plumes). |
+
 ## Open innovation directions (Numericist backlog)
 
 - GCI-based discretization-error channel alongside the GP epistemic layer.
