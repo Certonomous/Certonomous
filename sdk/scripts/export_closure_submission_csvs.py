@@ -437,7 +437,10 @@ def main() -> None:
         "scoring_call_limit_note": (
             "The benchmark imposes no scoring-call limit. It ships the test ground "
             "truth in the evaluation package and instructs submitters to preview "
-            "their score. The lab's four-calls-ever ledger is a self-imposed "
+            "their score. The lab's scoring-call ledger (\"four-calls-ever\" as this "
+            "round-3-era script was written; the cumulative count is six after "
+            "round 5's 2026-08-07 call, so the next one would be the 7th) is a "
+            "self-imposed "
             "discipline, stricter than the rules require, and is not compliance "
             "with any benchmark rule."
         ),

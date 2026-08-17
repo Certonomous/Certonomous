@@ -255,7 +255,10 @@ The problem our ledger addresses has a name and a canonical paper:
 > poorly understood heuristics such as **limiting the bit precision of answers
 > and the rate of re-submission**."
 
-Read that last clause against our own practice. **Our five-call ledger is, in
+Read that last clause against our own practice. **Our five-call ledger** *("a
+five-call ledger" as this 2026-08-05 review was written; the cumulative count is
+six after round 5's 2026-08-07 call, so the next one would be the 7th -- the
+ledger stood at six as of frame `353191c7`)* **is, in
 Blum & Hardt's own words, one of the "poorly understood heuristics" — rate
 limiting — applied by the submitter to itself.** They say it is a heuristic and
 build a principled alternative. We should say the same about ours before a
