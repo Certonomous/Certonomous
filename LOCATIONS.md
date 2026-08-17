@@ -28,12 +28,25 @@ here and by how much.
 | Other directories outside the repository | 17,558 | 2.06 GB | 2.06 GB | this machine only |
 | Loose files directly in `/home/ubuntu` | 39 | 0.91 GB | 0.91 GB | this machine only |
 | **Cannot live in a git repository** | | **90.66 GB** | **84.24 GB** | |
+| Dotted directories in `/home/ubuntu` (§4.6, frame 2026-08-17) | 37,837 | 12.04 GB | | this machine only |
+| **Including them** | | **102.70 GB** | | |
 
 The deduplicated column is measured on all four off-repository bodies, not
 assumed. Only the run tree contains hardlinks; on the other three the two
 columns are equal because there are none to remove. File counts are the
 enumeration commands' own counts; sizes are summed over the regular files among
 them.
+
+**The last two rows are a later frame and are set apart on purpose.** Until
+2026-08-17 this page enumerated the run tree, the named directories and the
+loose files, and stopped there. A reader reconstructing this machine from it was
+short by the whole of §4.6 — 12.04 GB, including the agent dispatch records that
+§4.5 calls the only sound R-ISOLATE evidence and which had no size or location on
+this page at all. The two rows carry their own frame stamp because the five rows
+above them are readings at `8cefb4e9` and mixing frames in one total is the
+defect this page exists to prevent. The 12.04 GB in the Apparent column is
+apparent bytes, 12,038,545,742 B, to match the column it sits in; `du -sb` over
+the same population reads 12,038,546,180 B and §4.6 gives both with the commands.
 
 Both totals are computed from unrounded bytes, so adding the deduplicated column
 as printed gives 84.23 rather than 84.24. That 0.01 GB is per-row rounding and
@@ -173,6 +186,34 @@ GNU expressions such as `-printf`; use `/usr/bin/find`.
 
 This one is reachable by anyone. It is not private lab state.
 
+**One file in it is, and it is now also in git.** `scripts/rans_identity_baseline.py`
+(2,827 B, MD5 `e5faef412884f3552222752e5a277c74`) is lab-authored, was the only
+untracked file in the clone, and existed in **no other copy anywhere on this
+machine**. It is the sole generator of the published **0.1036 RANS-identity
+floor** — the figure in `demo-output/website/closure_challenge_rans_floor.json`,
+carried into `benchmarks.json`, and argued in
+`CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §7.2. A `git clean` or a re-clone of the
+benchmark would have destroyed it, and
+`campaign/AUDIT_AGED_FAIL_SWEEP_2026-08-14.md` already recorded it as a FAIL:
+*"cited evidence paths … Files not in git history."*
+
+On **2026-08-17** a byte-identical copy was committed to
+**`sdk/scripts/rans_identity_baseline.py`**, alongside the eighteen sibling
+`closure_*` scripts. **The original was deliberately left in the clone**, because
+two dated documents state as a finding that it lives there and is untracked
+(`CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §7.2 and
+`campaign/LADDER_V_PASS3_COLD_2026-08-11.md`, the latter with a path correction
+recorded at `13b965dd`), and removing it would have made both false. Nothing was
+deleted; what changed is that the file now survives loss of the clone.
+
+It expects the benchmark clone as its working directory — its data paths are
+relative, e.g. `data/DUCT/AR_1_Ret_360/constant/C` — so run it as:
+
+```sh
+cd /home/ubuntu/closure-challenge-benchmark && \
+  /home/ubuntu/closure-venv/bin/python /home/ubuntu/Certonomous/sdk/scripts/rans_identity_baseline.py
+```
+
 **It scores but does not rank.** It is not an admissible board identifier, and
 its four-entrant README is not the live board. The live board carries six
 entrants plus this lab's entry, retrieved 2026-08-11T23:33Z and re-verified
@@ -213,6 +254,23 @@ of the directories above. Two of them carry almost all the bytes:
 
 `ls -la /home/ubuntu` reaches them. Nothing else does.
 
+**Changed 2026-08-17: 39 → 26 files.** Thirteen lab-authored ParaView scripts
+(`render_naca_*.py` ×6, `test_paraview_*.py` ×7, 38,691 B apparent, 13 distinct
+MD5s) were moved out of the home directory to
+`/home/ubuntu/lab-scripts/paraview-render/`, which carries a README explaining
+the version ladder and the citation evidence for keeping every rung. **Nothing
+was deleted and every MD5 is unchanged by the move.** Re-derived after it:
+
+```sh
+/usr/bin/find /home/ubuntu -maxdepth 1 -type f | wc -l                              # -> 26
+/usr/bin/find /home/ubuntu -maxdepth 1 -type f -exec stat -c %s {} + \
+  | awk '{s+=$1} END{print s}'                                                       # -> 909,027,023
+```
+
+26 files, 909,027,023 B apparent. The drop from the `8cefb4e9` reading of
+909,065,714 B is 38,691 B — exactly the thirteen scripts, and nothing else moved.
+The two tarballs still carry 906,375,536 B of the remaining total.
+
 ### 4.5 Agent dispatch records, the independence evidence
 
 ```
@@ -225,6 +283,70 @@ checked from the repository at all: every commit on this box carries the same
 `Ubuntu <ubuntu@ip-172-31-43-247…>` identity, so `git log --format=%an` cannot
 discriminate between agents. The dispatch records are the only sound evidence of
 which agent did what, and they live here, outside version control, permanently.
+
+**They have a size and it is in §4.6.** Re-derived 2026-08-17:
+
+```sh
+/usr/bin/find /home/ubuntu/.claude/projects /home/ubuntu/.claude-sanaa/projects \
+              -type f -name 'agent-*.jsonl' | wc -l                     # -> 1,573
+```
+
+**1,573 dispatch records**, in the two `.claude*` trees, which hold 3.58 GB
+between them. This count moves: it was 1,557 earlier the same day, because the
+fleet writes a new record every time an agent is dispatched. Take your own
+reading.
+
+### 4.6 The dotted directories in `/home/ubuntu`
+
+**This section did not exist until 2026-08-17, and its absence was the largest
+hole in this page.** Sections 4.1–4.4 enumerate the run tree, the named
+directories and the loose files, and a reader who took them as complete would
+conclude that everything outside the repositories and the run tree came to
+2.06 GB. The true figure is 14.10 GB. The 12.04 GB difference is below, and two
+of its entries are the evidence corpus §4.5 has always called irreplaceable.
+
+Frame **2026-08-17 15:52 UTC**. Both columns were re-derived here, not copied
+from any other document; stderr was captured on every walk and **zero errors were
+recorded**.
+
+```sh
+for d in .mutarc-64b13819 .claude .claude-sanaa .local .cache .texlive2023 .npm .ssh .config; do
+  /usr/bin/find "/home/ubuntu/$d" -type f 2>>walk_err_$d.txt | wc -l          # Files
+  du -sb "/home/ubuntu/$d"                                                    # du -sb
+  /usr/bin/find "/home/ubuntu/$d" -type f -exec stat -c %s {} + \
+    | awk '{s+=$1} END{print s}'                                              # Apparent
+done
+```
+
+| Directory | Files | `du -sb` (B) | Apparent (B) | What it is |
+|---|---:|---:|---:|---|
+| `.mutarc-64b13819/` | 20,853 | 7,036,239,167 | 7,036,238,778 | **harness session scratch, not lab content** — see the note below |
+| `.claude/` | 3,734 | 1,821,687,479 | 1,821,687,479 | agent dispatch records (§4.5) — **live, grows while the fleet runs** |
+| `.claude-sanaa/` | 3,273 | 1,762,655,576 | 1,762,655,576 | agent dispatch records (§4.5) |
+| `.local/` | 9,627 | 1,291,641,783 | 1,291,641,734 | user-installed tooling |
+| `.cache/` | 302 | 125,677,762 | 125,677,762 | caches |
+| `.texlive2023/` | 23 | 621,612 | 621,612 | TeX Live user tree |
+| `.npm/` | 13 | 19,519 | 19,519 | npm cache |
+| `.ssh/` | 10 | 3,167 | 3,167 | keys — **do not relocate** |
+| `.config/` | 2 | 115 | 115 | |
+| **Total** | **37,837** | **12,038,546,180** | **12,038,545,742** | **12.04 GB either way** |
+
+**`.claude/` is a moving target and its row is a floor, not a census.** It read
+3,648 files / 1,790,759,298 B a little under an hour earlier the same day. Every
+other row reproduced its earlier reading to the byte.
+
+**`.mutarc-64b13819/` is 7.04 GB and it is not lab content.** It is a harness
+archive of commit `e1ede44a`, verified an ancestor of `main`, holding exactly one
+commit whose message is "archive of `e1ede44a`". It contains **no unlanded git
+history**, and nothing in it needs preserving that `main` does not already carry.
+It is listed here because it is 58% of this section's bytes and a reader
+measuring the machine will trip over it, not because it is evidence. Its name
+suffix is an agent session ID.
+
+**What this section changes for a reader of §1.** Outside the two repositories
+and the run tree, the machine holds 2.06 GB (§4.3) **plus** 12.04 GB here —
+14.10 GB, not 2.06 GB. `ls -la /home/ubuntu` shows these directories; `ls` alone
+and every `find` without `-name '.*'` handling does not.
 
 ---
 
@@ -286,16 +408,43 @@ rendering the page to PNG and looking at it.
 
 2. **Three size quantities differ here, and they are not interchangeable.**
 
-   | Quantity | Run tree value | What it counts |
-   |---|---|---|
-   | Apparent, summed `st_size` | 75.79 GB | every hardlink instance separately |
-   | Deduplicated by `(st_dev, st_ino)` | 69.36 GB | each inode once; matches `du -sb` exactly |
-   | Disk usage, `du -s --block-size=1` | 69.85 GB | allocated blocks |
+   | Quantity | Run tree value | Exact bytes | What it counts |
+   |---|---|---:|---|
+   | Apparent, summed `st_size` over regular files | 75.79 GB | 75,789,971,753 | every hardlink instance separately |
+   | Deduplicated by `(st_dev, st_ino)` | 69.36 GB | 69,364,664,057 | each regular-file inode once |
+   | `du -sb` | 69.36 GB | 69,364,681,327 | the deduplicated figure **plus symlink targets** |
+   | Disk usage, `du -s --block-size=1` | 69.85 GB | 69,847,584,768 | allocated blocks |
 
    The run tree holds 135 extra hardlink instances, so its apparent total counts
    about 6.43 GB of bytes twice. Disk usage exceeds the deduplicated byte count,
    which is the normal direction and is block-rounding, not sparseness. A size
-   figure quoted without naming which of these three it is cannot be checked.
+   figure quoted without naming which of these four it is cannot be checked.
+
+   **Correction, 2026-08-17: the deduplicated count does not "match `du -sb`
+   exactly", and the 17,270-byte gap is not directory inodes.** This page said
+   the first and `AWS_TREE_PLAN.md` §2 said the second. Re-derived by one
+   `os.walk(onerror=…)` + `lstat` pass over the tree, 0 walk errors:
+
+   ```
+   deduplicated regular-file bytes   69,364,664,057
+   du -sb                            69,364,681,327
+   difference                                17,270
+   sum of st_size over 748 symlinks          17,270   <- exactly the difference
+   sum of st_size over 37,650 directories 154,271,744   <- three orders too large
+   ```
+
+   `du -sb` is `du --apparent-size --block-size=1`. It counts each regular-file
+   inode once (it deduplicates hardlinks itself) **and adds the symlinks**, whose
+   apparent size is the byte length of the target path. It does **not** add
+   directory `st_size`: if it did, the gap would be about 154 MB, not 17 KB.
+   Confirmed in a controlled scratch directory rather than argued from `du`'s
+   documentation — one 1,000 B file, a hardlink to it, a 500 B file in a
+   subdirectory, and a 2-byte symlink give `du -sb` = 1,502 = 1,000 + 500 + 2,
+   with the two 4,096 B directories contributing nothing.
+
+   So the honest statement is: **`du -sb` and a deduplicated `st_size` sum agree
+   on this tree to within the symlink targets, and only because they are 17 KB.**
+   On a tree with many symlinks they would visibly diverge.
 
 3. **If this instance is lost, sections 3 and 4 are lost with it.** The machine
    is an AWS EC2 instance, hostname `ip-172-31-43-247`. Only section 2 survives,
