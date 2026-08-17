@@ -4832,3 +4832,85 @@ intersection and one listing, and neither was reachable by re-running anything.
   rather than executed. An instrument shown wrong about one row of a table has
   not been shown right about the others, and the safe direction — fewer files
   leave tracking — costs nothing but a sentence saying so.
+
+## L-104. A check pinned to remembered sites certifies memory, not coverage, and its control must mutate the POPULATION rather than the defect shapes
+
+A package of 26 shipped files had a cross-file consistency checker, thirteen
+checks deep, with a planted-error control that copied the package fifteen times
+over, planted a different shape of defect in each copy, and required the check
+that owned each shape to fail on it. Five waves of repair had run through it.
+Three independent verifications had read it. Each verification found a fresh
+crop of false statements, and each wave answered by adding the check that would
+have caught them.
+
+The third verification found **fourteen false statements and zero new classes**.
+Every one was a recurrence of a class already checked. Its diagnosis was not
+"the checks are wrong"; it was that **the checks kept covering the remembered
+sites rather than the measured ones**, and it proved that mechanically:
+
+> Cut the pinned-figure list from its 42 entries to the 2 that the control's own
+> plants happen to use. **All 13 checks PASS. The control still prints "all 15
+> planted defect shapes were caught". The script exits 0.** Then drift the
+> headline score in a file the two surviving pins do not name, and nothing says
+> so.
+
+**The control was certifying the checker's shapes and never its coverage.**
+Every plant was a defect of a shape somebody had already thought of, placed at a
+site somebody had already thought of. Deleting nine tenths of what the checker
+watched changed nothing the control could see, because the control never
+mutated what the checker watched. It only mutated the documents.
+
+**The measurement that ends this.** Instead of a sixth wave of "add the check
+that would have caught these fourteen", the populations were enumerated:
+
+| what had been remembered | what it is when measured |
+|---|---|
+| 42 hand-written figure pins | **380** distinct numeric figures actually stated across the shipped documents. 42 pins covered **32** of them |
+| "21 quoted receipts across 6 files" | **31** quoted commands found by scanning, of which **0** had ever been re-executed |
+| an expected-results table a reader is told to check their run against | never compared against a run, in any wave |
+| a departure count pinned as the constant 10 against two remembered sentences | six other places state that count; **four of them said nine or six** while the constant and its two sentences agreed |
+
+Each population is now derived on every run and its coverage printed: 380
+figures, 53 pinned, 22 checked against a shipped record, **31 listed as
+deliberately unpinned with the reason for each**, 12 inside frozen bytes, 262
+stated in fewer than three documents, **0 unaccounted for**. 31 quoted commands,
+28 executed and compared here, 20 in a bare export, every skip printed with its
+reason. **A figure nobody chose to pin is now visible as such rather than
+invisible**, which is the whole of the repair: the unpinned count is not a
+failure, it is the number that was missing.
+
+**And the control now deletes pins and requires the checker to fail.** Cut to 2
+pins it reports 23 unpinned figures instead of passing green. That control also
+reports its own reach honestly: **deleting any one of 25 of the 64 pins is
+caught, and deleting one of the other 39 is not**, because those sit outside the
+enumerated token class or are checked against a shipped record instead. That
+number is printed rather than implied, because a residual you have counted is a
+different object from one you have asserted is small.
+
+**The rule.** A checker's pin list and the thing it is supposed to cover are two
+different sets, and nothing in a passing run compares them. Every check written
+from a worked defect inherits that defect's *site* as well as its *shape*, and
+the site is almost never the class. So: **before trusting a check, delete part
+of what it watches and require it to notice.** If it does not, the control is
+measuring your imagination. And when you write the control, mutate the
+population, not only the specimens. This is the coverage-shaped sibling of L-87
+(a control that plants only the defects its author imagined certifies the
+author's imagination) and of L-103 (a gate built for one instance of a hazard
+detects that instance's symptom): L-87 says the shapes are incomplete, L-103
+says the rule reaches too little, and this one says **the shapes can be complete
+and the rule can be right and the check can still be pointed at two files out of
+twenty-six, with nothing in the run that would tell you.**
+
+**The corollary about quoted receipts, because it cost two live defects here.**
+This package's habit was to quote a command and the output it gave, as proof
+that a figure was measured and not recalled. Twenty-one of those shipped and
+none had been re-run. Two did not run at all: `sha256sum -c` against a JSON
+manifest prints `no properly formatted checksum lines found`, under a column
+headed "all executed"; and `git archive ... | tar -x -C /tmp/x` fails wherever
+`/tmp/x` does not already exist. A third was worse than either: the package's
+own scoring recipe, followed from the directory its own heading names, cloned
+the scorer **into** the working tree, at which point the leakage assertion
+exited 1 on the scorer's own test ground truth and the consistency checker
+exited 1 with 48 disagreements. **A quoted receipt that is never re-executed is
+a memory of a measurement, and it decays exactly like any other memory.** Run
+them, from the directory the document tells the reader to run them from.
