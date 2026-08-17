@@ -1,0 +1,25 @@
+==========================================================================
+HEAT BALANCE AUDIT   /home/ubuntu/Certonomous/demo-output/website/campaign/THERMAL_K0_runs/K0b_cavity_Ra1e5
+time = 4000     regime: Ra = 1.0000e+05, Pr = 0.706814
+==========================================================================
+  properties: nu=1.589461e-05 m2/s  Pr=0.706814  alpha=2.248768e-05 m2/s
+              rho=1.1614 kg/m3  cp=1007 J/kg/K  -> k = rho.cp.alpha = 0.026300 W/m/K
+              |g| = 9.8100 m/s2   (LAMINAR: alphat = 0, alphaEff = nu/Pr exactly)
+--------------------------------------------------------------------------
+patch               type           area m2     int snGradT   Q into dom. W
+hotWall             wall             0.001        0.049776      0.00130911
+coldWall            wall             0.001      -0.0497762     -0.00130911
+adiabaticWalls      wall             0.002               0               0
+--------------------------------------------------------------------------
+  heat IN   = +1.309110e-03 W
+  heat OUT  = -1.309114e-03 W
+  net       = -4.050203e-09 W
+  IMBALANCE = 0.0003 %  of heat in   (tolerance 0.5000 %)  -> PASS
+--------------------------------------------------------------------------
+  max |U|        = 1.539991e-02 m/s
+  T range, cells = 299.459664 .. 300.540336 K
+  max dT used    = 1.093066 K (field 1.080672, wall-average 1.093066)
+  BOUSSINESQ     : beta.dT = 3.643553e-03  -> SATISFIED (<< 1)
+  Ra = 9.999988e+04   Gr = 1.414798e+05   Pr = 0.706814   (L = 0.1 m, dT = 1.093066 K)
+  Ri: not defined independently: no imposed velocity scale. With Re built from the buoyancy velocity, Ri = Gr/Re^2 = 1 identically, by construction. Ra and Pr carry the regime.
+==========================================================================

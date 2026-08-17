@@ -1,0 +1,35 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      fvOptions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// PLANTED POSITIVE CONTROL for scripts/heat_balance.py.
+// Total power P = 5.000000e-03 W, entered into the kinematic T equation as
+//   Su = P/(rho.cp) = 5.000000e-03/(1.1614*1007.0) = 4.275222401e-06 K.m^3/s
+// volumeMode absolute => the value is the TOTAL over the selected cells.
+
+plantedHeatSource
+{
+    type            scalarSemiImplicitSource;
+    active          yes;
+    selectionMode   all;
+    volumeMode      absolute;
+    sources
+    {
+        T           (4.275222401e-06 0);
+    }
+}
+
+// ************************************************************************* //

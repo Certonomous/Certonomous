@@ -111,3 +111,13 @@ demo-output/website/latex/*.toc
 # tracked evidence files into the ignore-matching population.
 !/uq_batch.err
 !/uq_batch.log
+
+# --- thermal ladder K0: 0.orig/ initial conditions must travel (2026-08-17) ---
+# The rule above, `demo-output/website/campaign/*_runs/*/[0-9]*/`, correctly
+# excludes solver time directories. `[0-9]*` also matches `0.orig`, which is the
+# OpenFOAM convention for the initial conditions a case is REBUILT from and is
+# case input, not solver output. A negation on the files alone cannot work --
+# git will not descend into an excluded directory -- so the directory is
+# re-included first and its contents second.
+!demo-output/website/campaign/THERMAL_K0_runs/*/0.orig/
+!demo-output/website/campaign/THERMAL_K0_runs/*/0.orig/**

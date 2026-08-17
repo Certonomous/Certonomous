@@ -1,0 +1,76 @@
+{
+  "case": "/home/ubuntu/Certonomous/demo-output/website/campaign/THERMAL_K0_runs/K0b_cavity_g0",
+  "time": 4000.0,
+  "properties": {
+    "nu": 1.589461e-05,
+    "Pr": 0.706814,
+    "Prt": 0.85,
+    "beta": 0.003333333,
+    "TRef": 300.0,
+    "rho": 1.1614,
+    "cp": 1007.0,
+    "alpha": 2.2487684171507635e-05,
+    "k_derived": 0.02630001677156649,
+    "g": 0.0
+  },
+  "patches": [
+    {
+      "patch": "hotWall",
+      "type": "wall",
+      "nFaces": 64,
+      "area": 0.001,
+      "int_snGradT": 0.010931968,
+      "Q_in_W": 0.0002875109417462282,
+      "T_area_avg": 300.546533
+    },
+    {
+      "patch": "coldWall",
+      "type": "wall",
+      "nFaces": 64,
+      "area": 0.001,
+      "int_snGradT": -0.010932018,
+      "Q_in_W": -0.00028751225674706677,
+      "T_area_avg": 299.453467
+    },
+    {
+      "patch": "adiabaticWalls",
+      "type": "wall",
+      "nFaces": 128,
+      "area": 0.002,
+      "int_snGradT": 0.0,
+      "Q_in_W": 0.0,
+      "T_area_avg": 300.00000018
+    }
+  ],
+  "Q_in_W": 0.0002875109417462282,
+  "Q_out_W": -0.00028751225674706677,
+  "Q_net_W": -1.3150008385800702e-09,
+  "imbalance_pct": 0.0004573741891676446,
+  "tolerance_pct": 0.5,
+  "dT_field_K": 1.0759848000000147,
+  "dT_wall_K": 1.0930660000000216,
+  "dT_used_K": 1.0930660000000216,
+  "beta_dT": 0.0036435529689780722,
+  "boussinesq_ok": true,
+  "T_max_K": 300.5379924,
+  "T_min_K": 299.4620076,
+  "U_max_magnitude_ms": 0.0,
+  "alphat_max": 0.0,
+  "laminar": true,
+  "Rayleigh": null,
+  "Grashof": null,
+  "Prandtl": 0.706814,
+  "length_scale_m": 0.1,
+  "Richardson_note": "not defined independently: no imposed velocity scale. With Re built from the buoyancy velocity, Ri = Gr/Re^2 = 1 identically, by construction. Ra and Pr carry the regime.",
+  "passed": true,
+  "selftest_conduction": {
+    "patch": "hotWall",
+    "dT": 1.093066,
+    "L": 0.1,
+    "area": 0.001,
+    "Q_closed_form_W": 0.00028747654132429094,
+    "Q_measured_W": 0.0002875109417462282,
+    "error_pct": 0.011966340550354752,
+    "passed": true
+  }
+}
