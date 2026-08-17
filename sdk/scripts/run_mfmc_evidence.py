@@ -53,10 +53,22 @@ from chief_engineer.multifidelity import (control_variate_alpha,  # noqa: E402
 # Read-only import of the exact quadratic-fit machinery the race lane used.
 from workflows.shape_optimization import _fit_quadratic, _predict  # noqa: E402
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 RACE_WORK = SDK.parent / "mission-output" / "race-study" / "work"
-RACE_SUMMARY = (SDK.parent / "demo-output" / "website" / "race"
+RACE_SUMMARY = (lab_paths.RACE
                 / "pass1" / "race.json")
-PROPOSAL = (SDK.parent / "demo-output" / "website" / "agenda" / "proposals"
+PROPOSAL = (lab_paths.AGENDA / "proposals"
             / "r1-multifidelity-propagation.json")
 SEED = 20260725
 REPLAY_BUDGET_SOLVES = 10       # small-budget replay: ten solves' worth

@@ -66,9 +66,21 @@ sys.path.insert(0, str(REPO / "sdk"))
 from chief_engineer.head_engineer import LogMonitor  # noqa: E402
 from chief_engineer.log_signatures import normalise_log_key  # noqa: E402
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 # The same root the S10 archive sweep uses (sdk/tests/test_log_signatures.py,
 # ArchiveSweepTests), so the corpora of the two measurements are comparable.
-ARCHIVE_ROOT = REPO / "demo-output"
+ARCHIVE_ROOT = lab_paths.DEMO_OUTPUT
 
 #: An OpenFOAM APPLICATION RUN writes an `Exec   :` line in its startup
 #: banner. Dictionary and field files carry the same FoamFile banner but never
@@ -191,7 +203,7 @@ def replay(log: Path, *, residual_target: float | None = None) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", default=str(
-        REPO / "demo-output" / "website" / "monitor" / "replay_s1_s6.json"))
+        lab_paths.MONITOR / "replay_s1_s6.json"))
     parser.add_argument("--limit", type=int, default=0)
     args = parser.parse_args()
 

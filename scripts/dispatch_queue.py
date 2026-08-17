@@ -53,14 +53,26 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[1]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 REPO = Path(__file__).resolve().parents[1]
 # Overridable so a past window can be replayed through this same code rather
 # than reasoned about in prose. `git show <sha>:...docket.json > /tmp/x.json`
 # then `--docket /tmp/x.json --load 0` answers what the arbiter would have done
 # then, using the arbiter that exists now and not a remembered version of it.
 DOCKET = Path(os.environ.get("DISPATCH_DOCKET") or
-              REPO / "demo-output" / "website" / "agenda" / "docket.json")
-REGISTRY = REPO / "demo-output" / "website" / "solve_registry"
+              lab_paths.AGENDA / "docket.json")
+REGISTRY = lab_paths.SOLVE_REGISTRY
 CHARTER = REPO / "docs" / "charters" / "COMPUTE_BUDGET_CHARTER.md"
 
 # The charter's proposed standing ceilings, in core-minutes, in ONE place.

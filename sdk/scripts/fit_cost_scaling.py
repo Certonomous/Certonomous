@@ -58,8 +58,20 @@ import sys
 import time
 from pathlib import Path
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 REPO = Path(__file__).resolve().parents[2]
-LEDGER = REPO / "demo-output" / "website" / "mega-batch" / "ledger.jsonl"
+LEDGER = lab_paths.MEGA_BATCH / "ledger.jsonl"
 
 # The audit's own threshold (scripts/self_audit.py STALL_SECONDS), so the two
 # readings of this ledger clean it the same way.
@@ -275,7 +287,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--ledger", default=str(LEDGER))
     parser.add_argument("--out", default=str(
-        REPO / "demo-output" / "website" / "mega-batch" / "cost_scaling.json"))
+        lab_paths.MEGA_BATCH / "cost_scaling.json"))
     args = parser.parse_args()
 
     torn = not_ok = stalled = 0

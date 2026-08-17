@@ -59,10 +59,27 @@ from workflows import tmr_verification as tv  # noqa: E402
 from chief_engineer.log_signatures import detect_unsettled_stop  # noqa: E402
 from chief_engineer import lever_echo  # noqa: E402
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 REPO_ROOT = _SDK_ROOT.parent
-OUT_ROOT = REPO_ROOT / "demo-output" / "website" / "campaign" / "MODEL_FORM_runs"
-BAND_JSON = REPO_ROOT / "demo-output" / "website" / "campaign" / "MODEL_FORM_BAND.json"
-BAND_MD = REPO_ROOT / "demo-output" / "website" / "campaign" / "MODEL_FORM_BAND.md"
+# The prefix was re-spelled four times here rather than factored -- the
+# pattern MOVE_MAP s4.1 names as the reason for one imported module.  Note
+# `MODEL_FORM_runs` is a RUN ARCHIVE (R20 -> `verification/runs/`) while
+# the two band records beside it are campaign records (R21 ->
+# `verification/campaign/`): the same directory, two destinations.
+OUT_ROOT = lab_paths.RUNS / "MODEL_FORM_runs"
+BAND_JSON = lab_paths.CAMPAIGN / "MODEL_FORM_BAND.json"
+BAND_MD = lab_paths.CAMPAIGN / "MODEL_FORM_BAND.md"
 LEDGER = OUT_ROOT / "ledger.jsonl"
 RUNNER_LOG = OUT_ROOT / "runner.log"
 

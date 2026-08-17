@@ -50,7 +50,19 @@ sys.path.insert(0, str(_SDK))
 import train_closure_periodic_hill_correction as ph  # noqa: E402
 import train_closure_extended_correction as ex  # noqa: E402
 
-_OUT = _REPO / "demo-output" / "website" / "closure_challenge_seed_sensitivity.json"
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
+_OUT = lab_paths.web_file("closure_challenge_seed_sensitivity.json")
 _SCRATCH = Path(os.environ.get(
     "CLOSURE_SCRATCH",
     "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad"))
@@ -212,8 +224,8 @@ def main() -> None:
               + f"  ({per_seed[seed]['fit_seconds']}s)")
 
     # ---------------- seed-0 reproduction check ---------------------------
-    rec1 = json.loads((_REPO / "demo-output" / "website" /
-                       "closure_challenge_trained_entry.json").read_text())
+    rec1 = json.loads(lab_paths.web_file(
+        "closure_challenge_trained_entry.json").read_text())
     recorded_val = rec1["scores"]["validation_pooled_scaled_mae"]
     seed0_val = round(per_seed[0]["validation_pooled_scaled_mae"], 4)
     seed0_ok = seed0_val == recorded_val
@@ -224,7 +236,7 @@ def main() -> None:
     # Also anchor seed-0 test predictions against the shipped round-4 CSVs
     # (byte-written at %.10g): proves the seed-0 member of this ensemble IS
     # the entry of record's model, so the spread is ABOUT the entry.
-    csv_dir = _REPO / "demo-output" / "website" / "closure_challenge_submission_round4" / "test"
+    csv_dir = lab_paths.CLOSURE_SUBMISSION_ROUND4 / "test"
     csv_match = {}
     for c in SERVED:
         shipped = np.loadtxt(csv_dir / f"{c}.csv", delimiter=",")

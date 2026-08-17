@@ -66,6 +66,18 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import control_kind  # noqa: E402
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[1]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 REPO = Path(__file__).resolve().parents[1]
 
 #: FROZEN BEFORE THE PATTERNS BELOW WERE WRITTEN. Do not add a form here to make
@@ -237,7 +249,8 @@ def build_control() -> control_kind.ControlLedger:
 
 def round_documents() -> list[str]:
     out = subprocess.run(
-        ["git", "-C", str(REPO), "ls-files", "demo-output/website/campaign/"],
+        ["git", "-C", str(REPO), "ls-files",
+         str(lab_paths.CAMPAIGN.relative_to(lab_paths.REPO)) + "/"],
         capture_output=True, text=True, check=True).stdout.split("\n")
     keep = re.compile(r"(ROUND|GRADE|RUNGS|CLOSEOUT|ENTITLEMENT|STATE|PENDING|VERIFICATION)", re.I)
     return [p for p in out if p.endswith(".md") and keep.search(p)]

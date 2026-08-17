@@ -31,12 +31,24 @@ from pathlib import Path
 
 import numpy as np
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 _REPO = Path(__file__).resolve().parents[2]
-_WEB = _REPO / "demo-output" / "website"
-_R3_MANIFEST = _WEB / "closure_challenge_submission" / "MANIFEST.json"
-_R4_DIR = _WEB / "closure_challenge_submission_round4"
+_R3_MANIFEST = lab_paths.CLOSURE_SUBMISSION / "MANIFEST.json"
+_R4_DIR = lab_paths.CLOSURE_SUBMISSION_ROUND4
 _R4_TEST = _R4_DIR / "test"
-_R4_ENTRY = _WEB / "closure_challenge_trained_entry_round4_duct.json"
+_R4_ENTRY = lab_paths.web_file(
+    "closure_challenge_trained_entry_round4_duct.json")
 _OUT = _R4_DIR / "MANIFEST.json"
 _SCRATCH = Path(os.environ.get(
     "CLOSURE_SCRATCH",

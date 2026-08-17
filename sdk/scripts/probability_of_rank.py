@@ -51,6 +51,18 @@ import sys
 
 import numpy as np
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 CASES = [
     "alpha_15_13929_4048", "alpha_15_13929_2024", "alpha_05_4071_4048",
     "alpha_05_4071_2024", "AR_1_Ret_360", "AR_3_Ret_360",
@@ -65,10 +77,7 @@ SEED_BOUND_ON_OVERALL = 0.0024
 
 # Our entry of record. Read from the scoring call's own machine record rather
 # than transcribed, so it cannot drift from it.
-OUR_RECORD = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "..", "..", "demo-output", "website", "closure_challenge_round5_qcr.json",
-)
+OUR_RECORD = str(lab_paths.web_file("closure_challenge_round5_qcr.json"))
 
 # The LIVE board, fetched 2026-08-11T23:33Z from
 # raw.githubusercontent.com/rmcconke/closure-challenge-benchmark/main/README.md

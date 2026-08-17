@@ -17,6 +17,18 @@ sys.path.insert(0, str(REPO / "scripts"))
 
 from morning_report import check_report  # noqa: E402
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 
 HEADER = """CERTONOMOUS MORNING REPORT
 Date:       2026-08-01
@@ -28,7 +40,7 @@ Missing:    none
 # Two paths that exist in this repository, used so rule 7 is exercised on real
 # resolution rather than on a stub.
 REAL = "docs/charters/REPORTING_CHARTER.md"
-REAL2 = "demo-output/website/agenda/docket.json"
+REAL2 = str((lab_paths.AGENDA / "docket.json").relative_to(lab_paths.REPO))
 
 
 def body(section: str, text: str) -> str:

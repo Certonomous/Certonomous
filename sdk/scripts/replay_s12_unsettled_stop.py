@@ -47,7 +47,20 @@ from chief_engineer.log_signatures import (  # noqa: E402
     detect_unsettled_stop,
 )
 
-DEFAULT_ROOTS = ("demo-output", "/home/ubuntu/certonomous-runs")
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
+DEFAULT_ROOTS = (str(lab_paths.DEMO_OUTPUT),
+                 "/home/ubuntu/certonomous-runs")
 
 # The solver's own statement that it stopped because its residual criterion was
 # met. Matched rather than assumed: the alternative stop is simply reaching the
@@ -132,7 +145,7 @@ def main() -> int:
     parser.add_argument("--root", action="append", default=None,
                         help="corpus root (repeatable)")
     parser.add_argument("--out",
-                        default="demo-output/website/monitor/replay_s12.json")
+                        default=str(lab_paths.MONITOR / "replay_s12.json"))
     parser.add_argument("--quantity", action="append", default=None,
                         help="coefficient column to grade (default Cd and Cl)")
     args = parser.parse_args()

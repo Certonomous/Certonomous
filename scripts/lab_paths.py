@@ -79,11 +79,11 @@ import re
 from pathlib import Path
 
 __all__ = [
-    "REPO", "MOVES", "UNRESOLVED", "AMBIGUOUS", "NEVER_MOVE",
+    "REPO", "MOVES", "RULES", "UNRESOLVED", "AMBIGUOUS", "NEVER_MOVE",
     "redirect", "unredirect", "resolve", "require", "resolved",
-    "unknown_reason", "state", "run_archive",
+    "unknown_reason", "state", "run_archive", "web_file",
     "RECORD_ROOTS", "RECORD_ROOT_NAMES", "SWEEP_ROOTS", "BUNDLE_PAGES",
-    "SERVED_SET", "DARK_TREES",
+    "SUBMISSION_PACKAGES", "SERVED_SET", "DARK_TREES",
 ]
 
 REPO = Path(os.environ.get("LAB_REPO") or Path(__file__).resolve().parents[1])
@@ -118,6 +118,47 @@ _RUN_ARCHIVE = re.compile(r"^[^/]+_(runs|work)$")
 #: prefix: `demo-output/plots/` is R11 and `demo-output/acts/` is R10.
 _LOOSE_PNG = re.compile(r"^demo-output/[^/]+\.png$")
 
+#: **R25, RULING 1 of 2026-08-17** (`campaign/MOVE_MAP_BATCH0_RULINGS_2026-08-17.md`
+#: s1.2).  A run tree is classified by WHAT IT IS, not by where it sits:
+#: `docs/campaigns/<campaign>/<tree>/**` where `<tree>` matches `*_runs` or
+#: `*_sensitivity` is a run archive and follows R20's destination, not R7's
+#: "`docs/**` unchanged".  315 tracked files -- `K0c_runs` 274,
+#: `K0b_mesh_sensitivity` 41 -- confirmed unchanged at `4d7c195a`, `7554e5d3`
+#: and again at `267a4021` over `git ls-tree -r HEAD`.
+#:
+#: THE CAMPAIGN SEGMENT IS PRESERVED, and that is the sub-decision the ruling
+#: flagged as the owner's: `verification/runs/` is a flat namespace holding 27
+#: distinct `*_runs`/`*_work` names already, `docs/campaigns/` is a
+#: PER-CAMPAIGN directory, and two campaigns each landing a `K0c_runs` would
+#: collide the moment the second one arrives.  If the owner prefers the flat
+#: form it is one line here and no count moves.
+#:
+#: Binding this rule was measured before it was made, at `267a4021` over one
+#: `git ls-tree -r HEAD` snapshot handed to both runs of `hand_carry.derive`:
+#: **617 dark trees / 5,447 files / 835,459,647 gitignored bytes move from
+#: STAYS PUT to RIDES ALONG, and the hand-carry set does not move at all** --
+#: 2 trees / 307 files / 1,510,309,145 bytes, byte-identical either way.  Those
+#: 617 ride along ONLY if batch 7's `git mv` names the DIRECTORY.
+_R25 = re.compile(r"^docs/campaigns/([^/]+)/([^/]+_(?:runs|sensitivity))(/.*)?$")
+_R25_BACK = re.compile(
+    r"^verification/runs/([^/]+)/([^/]+_(?:runs|sensitivity))(/.*)?$")
+
+#: **R16 / R17** -- loose files sitting directly in the webroot.  19 `*.md` to
+#: `research/closure/md/` and 21 `*.json` to `research/closure/data/`.
+#:
+#: THIS WAS MEASURED MISSING, 2026-08-17.  The table below implements R1-R15
+#: and R18-R25 and had no row for these two rules, so all 40 fell through to
+#: the `WEB` catch-all and were routed to `web/` -- which contradicts R13's
+#: own "the webroot is FIVE files" and would have sent every
+#: `closure_challenge_*.json` generator's output to the wrong root under batch
+#: 3b.  They cannot be table rows: the rule is "a loose file of this suffix",
+#: not a directory prefix.  `benchmarks.json` (R14), `benchmarks.png` (R15) and
+#: `wall/wall.json` (R18) have explicit rows and keep them -- see
+#: `_EXPLICIT_LEGACY` -- and a loose file of any other suffix still falls to
+#: the webroot, which is what R13 means.
+_LOOSE_WEB = re.compile(r"^" + re.escape(_W) + r"/([^/]+\.(?:md|json))$")
+_LOOSE_WEB_BACK = re.compile(r"^research/closure/(?:md|data)/([^/]+\.(?:md|json))$")
+
 
 def _special(rel: str) -> str | None | bool:
     """Non-prefix rules.  Returns a successor, None (no rule), or False
@@ -136,6 +177,15 @@ def _special(rel: str) -> str | None | bool:
         return "verification/campaign/" + rest          # R21
     if rel == camp:
         return "verification/campaign"
+    m = _R25.match(rel)
+    if m:                                               # R25
+        return "verification/runs/%s/%s%s" % (
+            m.group(1), m.group(2), m.group(3) or "")
+    m = _LOOSE_WEB.match(rel)
+    if m and rel not in _EXPLICIT_LEGACY:               # R16 / R17
+        name = m.group(1)
+        return ("research/closure/md/" if name.endswith(".md")
+                else "research/closure/data/") + name
     if _LOOSE_PNG.match(rel):
         return "media/" + rel.split("/", 1)[1]          # R12
     return None
@@ -145,12 +195,24 @@ def _unspecial(rel: str) -> str | None:
     """Inverse of `_special`."""
     if rel == "web/campaign/duct_secondary_flow_AR_7_validation_qcr.png":
         return _SERVED_PNG
+    # R25 before R20, and the discriminator is the FIRST segment under
+    # `verification/runs/`.  R20 puts a `*_runs`/`*_work` tree name there; R25
+    # puts a campaign name.  A campaign that named itself `X_runs` would be
+    # read as R20's, which is the right precedence -- R20 owns that namespace
+    # and R25 is the guest in it.
+    m = _R25_BACK.match(rel)
+    if m and not _RUN_ARCHIVE.match(m.group(1)):
+        return "docs/campaigns/%s/%s%s" % (
+            m.group(1), m.group(2), m.group(3) or "")
     if rel == "verification/runs" or rel.startswith("verification/runs/"):
         rest = rel[len("verification/runs"):].lstrip("/")
         return (_W + "/campaign/" + rest) if rest else (_W + "/campaign")
     if rel == "verification/campaign" or rel.startswith("verification/campaign/"):
         rest = rel[len("verification/campaign"):].lstrip("/")
         return (_W + "/campaign/" + rest) if rest else (_W + "/campaign")
+    m = _LOOSE_WEB_BACK.match(rel)
+    if m and rel not in _EXPLICIT_TARGET:               # R16 / R17
+        return _W + "/" + m.group(1)
     m = re.match(r"^media/([^/]+\.png)$", rel)
     if m:
         return "demo-output/" + m.group(1)
@@ -275,6 +337,15 @@ _MOVES: tuple[tuple[str, str, str, str], ...] = (
     # into UNKNOWN rather than a path that is not there.
     ("CAMPAIGN", _W + "/campaign", "verification/campaign", "R21"),
     ("RUNS", _W + "/campaign", "verification/runs", "R20"),
+    # R25's two trees, named so a consumer can ask for one and so `state()`
+    # reports each side of the move.  `_special` answers for every path under
+    # them, so these rows are BIND-ONLY: a prefix row consulted by `redirect()`
+    # would be dead code a later reader would trust.
+    ("F14_K0C_RUNS", "docs/campaigns/F14-cooling-ladder/K0c_runs",
+     "verification/runs/F14-cooling-ladder/K0c_runs", "R25"),
+    ("F14_K0B_MESH_SENSITIVITY",
+     "docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity",
+     "verification/runs/F14-cooling-ladder/K0b_mesh_sensitivity", "R25"),
     ("CLOSURE", "research/closure", "research/closure", "R14-R18/R23"),
     ("CLOSURE_DATA", "research/closure/data", "research/closure/data", "R14"),
     ("CLOSURE_MD", "research/closure/md", "research/closure/md", "R16"),
@@ -317,11 +388,29 @@ class Move:
 
 #: Bound and probed, but never consulted by `redirect()` -- see the comment on
 #: the bind-only block of `_MOVES`.
-_BIND_ONLY = frozenset({"CAMPAIGN", "RUNS"})
+_BIND_ONLY = frozenset({"CAMPAIGN", "RUNS",
+                        "F14_K0C_RUNS", "F14_K0B_MESH_SENSITIVITY"})
 
 MOVES: tuple[Move, ...] = tuple(Move(*row) for row in _MOVES)
 _BY_NAME = {m.name: m for m in MOVES}
 _MOVING = tuple(m for m in MOVES if m.moves and m.name not in _BIND_ONLY)
+
+#: A path with its OWN row is answered by that row, not by R16/R17's
+#: loose-file rule.  `benchmarks.json` is R14 and `wall/wall.json` is R18;
+#: both land in `research/closure/data/` either way, but the row is where the
+#: rule id lives and a rule that quietly stops being consulted is how a table
+#: becomes decoration.  Consulted by `_special` / `_unspecial` at call time,
+#: which is after this module finishes importing.
+_EXPLICIT_LEGACY = frozenset(m.legacy for m in MOVES)
+_EXPLICIT_TARGET = frozenset(m.target for m in MOVES)
+
+#: Every rule of `MOVE_MAP` s2.2 this module implements, INCLUDING the ones
+#: that are not table rows.  Named as data so the coverage claim is testable
+#: rather than assumed: R12, R16, R17, R20, R21 and R25 are regex rules in
+#: `_special` and would otherwise be invisible to a test that reads `MOVES`.
+#: Evidence: `test_every_move_rule_of_section_2_2_is_represented`.
+RULES: frozenset[str] = frozenset(
+    {m.rule for m in MOVES} | {"R12", "R16", "R17", "R20", "R21", "R25"})
 
 
 def _check_prefix_order() -> None:
@@ -509,16 +598,81 @@ def unknown_reason(*names: str) -> str | None:
             "path nor their successor: %s" % (len(gone), ", ".join(sorted(gone))))
 
 
-def run_archive(name: str) -> Path | None:
-    """Where campaign run archive `<name>` lives right now, or None.
+def run_archive(name: str, campaign: str | None = None) -> Path | None:
+    """Where run archive `<name>` lives right now, or None.
 
-    R20 moves each `*_runs`/`*_work` tree to `verification/runs/<name>`.  There
-    is no single root that answers this before the move, so it is a function.
+    R20 moves each `*_runs`/`*_work` tree under the webroot's `campaign/` to
+    `verification/runs/<name>`.  R25 moves `docs/campaigns/<campaign>/<name>`
+    to `verification/runs/<campaign>/<name>`, WITH the campaign segment, so a
+    caller that knows the campaign passes it and one that does not gets a
+    deterministic search over the campaigns that exist.
     """
-    for cand in ("verification/runs/" + name, _W + "/campaign/" + name):
+    cands = []
+    if campaign is not None:
+        cands += ["verification/runs/%s/%s" % (campaign, name),
+                  "docs/campaigns/%s/%s" % (campaign, name)]
+    cands += ["verification/runs/" + name, _W + "/campaign/" + name]
+    for cand in cands:
         if (REPO / cand).exists():
             return REPO / cand
+    if campaign is None:                       # R25, campaign not named
+        for parent in ("verification/runs", "docs/campaigns"):
+            root = REPO / parent
+            if not root.is_dir():
+                continue
+            for child in sorted(root.iterdir()):
+                cand = child / name
+                if cand.exists():
+                    return cand
     return None
+
+
+def web_file(name: str) -> Path:
+    """Where a LOOSE webroot file lives right now -- for READING OR WRITING.
+
+    `resolve()` answers for a file that exists.  R16/R17's 40 loose webroot
+    files are mostly GENERATOR OUTPUT -- 21 `closure_challenge_*.json` written
+    by `sdk/scripts/closure_*.py` -- and a generator names its output before
+    the output is there, so `resolve()` returning None is the wrong answer for
+    it and a hard-coded successor is the wrong answer too (it would write into
+    a directory that does not exist until batch 5).
+
+    So: the successor if the FILE is there, else the successor if its
+    DIRECTORY is there (the region has moved, this file has not been written
+    yet), else the legacy path.  A name with its own table row -- `benchmarks.
+    json` (R14) -- is answered by the row, through `redirect`, not specially.
+    Evidence: `test_web_file_answers_where_a_file_that_does_not_exist_yet_goes`
+    and its control `test_web_file_prefers_the_side_the_file_is_actually_on`.
+    """
+    legacy = _W + "/" + name
+    fwd = redirect(legacy)
+    if fwd is None:
+        return REPO / legacy
+    target = REPO / fwd
+    if target.exists() or target.parent.is_dir():
+        return target
+    return REPO / legacy
+
+
+def SUBMISSION_PACKAGES() -> tuple[Path, ...]:
+    """The `closure_challenge_submission*` packages, wherever they are now.
+
+    Replaces `self_audit.py`'s `WEB.glob("closure_challenge_submission*")`.
+    R23 sends the three of them into `research/closure/`, each keeping its own
+    segment, so after batch 5 a glob rooted at the webroot finds nothing and
+    the check that walks them reports a clean sweep of zero packages -- this
+    corpus's most repeated failure.  Absent packages are dropped, so a caller
+    that must not be blinded pairs this with `unknown_reason` on the same
+    three names.
+    Evidence: `test_submission_packages_reproduces_the_webroot_glob`.
+    """
+    out = []
+    for n in ("CLOSURE_SUBMISSION", "CLOSURE_SUBMISSION_ROUND4",
+              "CLOSURE_SUBMISSION_ROUND5"):
+        p = _BOUND[n]
+        if p.exists():
+            out.append(p)
+    return tuple(sorted(out))
 
 
 def __getattr__(name: str) -> Path:

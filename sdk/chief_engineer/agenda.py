@@ -91,6 +91,18 @@ from typing import Any, Iterable
 from . import uq
 from .display_names import display_name
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 _HERE = Path(__file__).resolve()
 _REPO_ROOT = _HERE.parents[2]
 
@@ -181,7 +193,7 @@ def _agenda_dir() -> Path:
     env = os.environ.get("CERTONOMOUS_AGENDA_DIR")
     if env:
         return Path(env).resolve()
-    return (_REPO_ROOT / "demo-output" / "website" / "agenda").resolve()
+    return lab_paths.AGENDA.resolve()
 
 
 def docket_path() -> Path:
@@ -196,16 +208,14 @@ def _report_roots() -> list[Path]:
     env = os.environ.get("CERTONOMOUS_REPORT_ROOTS")
     if env:
         return [Path(part).resolve() for part in env.split(os.pathsep) if part]
-    return [(_REPO_ROOT / "demo-output" / "acts").resolve(),
-            (_REPO_ROOT / "mission-output").resolve()]
+    return [lab_paths.ACTS.resolve(), lab_paths.MISSION_OUTPUT.resolve()]
 
 
 def _tmr_card_path() -> Path:
     env = os.environ.get("CERTONOMOUS_TMR_CARD")
     if env:
         return Path(env).resolve()
-    return (_REPO_ROOT / "demo-output" / "website" / "tmr"
-            / "flatplate_sst.json").resolve()
+    return (lab_paths.TMR / "flatplate_sst.json").resolve()
 
 
 def _uq_studies_root() -> Path:
@@ -226,8 +236,7 @@ def _ledger_study_path() -> Path:
     env = os.environ.get("CERTONOMOUS_LEDGER_STUDY")
     if env:
         return Path(env).resolve()
-    return (_REPO_ROOT / "demo-output" / "website" / "mega-batch"
-            / "learned_study.json").resolve()
+    return (lab_paths.MEGA_BATCH / "learned_study.json").resolve()
 
 
 def _load_json(path: Path) -> Any:

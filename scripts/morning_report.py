@@ -61,6 +61,18 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[1]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 REPO = Path(__file__).resolve().parents[1]
 
 TITLE = "CERTONOMOUS MORNING REPORT"
@@ -263,13 +275,21 @@ def check_report(text: str, *, repo: Path = REPO) -> tuple[list[Finding],
 # word `nothing` is printed per rule 4.
 # ---------------------------------------------------------------------------
 
-WEB = "demo-output/website"
-SRC_LEDGER = f"{WEB}/mega-batch/ledger.jsonl"
-SRC_BOARD = f"{WEB}/ACTIVE_RESEARCH.md"
-SRC_GATES = f"{WEB}/campaign/NINE_ACT_GATE_TABLE.md"
-SRC_DOCKET = f"{WEB}/agenda/docket.json"
-SRC_BLOCKERS = f"{WEB}/agenda/BLOCKERS.md"
-REPORTS_DIR = f"{WEB}/campaign/reports"
+# MOVE_MAP s4: this `WEB` is a SPLIT-3 constant -- `mega-batch/` goes to
+# `cases/`, `campaign/` to `verification/`, `agenda/` to `research/`, and
+# `ACTIVE_RESEARCH.md` to `research/closure/md/`.  Each source is named
+# separately through `lab_paths`, which binds every one to a
+# legacy/successor pair resolved against the filesystem.
+_R = lab_paths.REPO
+SRC_LEDGER = str((lab_paths.MEGA_BATCH / "ledger.jsonl").relative_to(_R))
+SRC_BOARD = str(lab_paths.web_file("ACTIVE_RESEARCH.md").relative_to(_R))
+SRC_GATES = str((lab_paths.CAMPAIGN / "NINE_ACT_GATE_TABLE.md")
+                .relative_to(_R))
+SRC_DOCKET = str((lab_paths.AGENDA / "docket.json").relative_to(_R))
+SRC_BLOCKERS = str((lab_paths.AGENDA / "BLOCKERS.md").relative_to(_R))
+REPORTS_DIR = str((lab_paths.CAMPAIGN / "reports").relative_to(_R))
+SRC_AHMED = str((lab_paths.CAMPAIGN / "AHMED_BODY_RECONCILIATION.md")
+                .relative_to(_R))
 
 # scripts/self_audit.py's cleaning rule: a ledger row over 3600 wall seconds
 # is host stall, not solver cost. Named here because the charter requires the
@@ -531,8 +551,7 @@ def _build_gates(repo: Path, date: str) -> tuple[list[str], list[str]]:
     if findings:
         out += [""] + findings
     out += ["", "The Ahmed body row: the source directs readers to "
-            f"{WEB}/campaign/AHMED_BODY_RECONCILIATION.md before narrating "
-            "it."]
+            f"{SRC_AHMED} before narrating it."]
     return out, [SRC_GATES]
 
 

@@ -86,6 +86,18 @@ from chief_engineer.reynolds_surrogate import (fit_quality,            # noqa: E
 from chief_engineer.vspaero import VspAeroWingApi                      # noqa: E402
 from workflows.race_benchmark import RE_NOMINAL, WING                   # noqa: E402
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 RE_REF = RE_NOMINAL  # 1.0e6
 
 # Identical training/validation grid to commit 069cf13's evidence run, so the
@@ -101,7 +113,7 @@ WORK = SDK.parent / "mission-output" / "reynolds-surrogate" / "work"
 # solve in this repo (gitignored). Only the distilled JSON result below is
 # written under demo-output/website.
 CONFIRM_WORK = SDK.parent / "mission-output" / "race-reynolds-gradient" / "confirm"
-OUT = SDK.parent / "demo-output" / "website" / "race-reynolds-gradient"
+OUT = lab_paths.RACE_REYNOLDS_GRADIENT
 
 ALPHA_LO, ALPHA_HI = 0.0, 10.0
 RE_LO, RE_HI = 0.70e6, 1.30e6
@@ -256,7 +268,7 @@ def main() -> int:
     print("=" * 78)
     print("STEP 1 -- baseline: race act's alpha-only ROM lane (recorded, not "
           "touched by this script)")
-    baseline_recorded_path = (SDK.parent / "demo-output" / "website" / "race"
+    baseline_recorded_path = (lab_paths.RACE
                               / "pass2" / "race.json")
     baseline_recorded = None
     if baseline_recorded_path.exists():

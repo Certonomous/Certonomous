@@ -70,12 +70,25 @@ import Ofpp  # noqa: E402
 from sklearn.ensemble import HistGradientBoostingRegressor  # noqa: E402
 from scipy.interpolate import NearestNDInterpolator  # noqa: E402
 
-_WEB = _REPO / "demo-output" / "website"
-_ENTRY_DIR = _WEB / "closure_challenge_submission" / "test"
-_ENTRY_MANIFEST = _WEB / "closure_challenge_submission" / "MANIFEST.json"
-_OUT_DIR = _WEB / "closure_challenge_submission_round4" / "test"
-_OUT_JSON = _WEB / "closure_challenge_trained_entry_round4_duct.json"
-_ROUND3 = _WEB / "closure_challenge_trained_entry_round3_gated.json"
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
+_ENTRY_DIR = lab_paths.CLOSURE_SUBMISSION / "test"
+_ENTRY_MANIFEST = lab_paths.CLOSURE_SUBMISSION / "MANIFEST.json"
+_OUT_DIR = lab_paths.CLOSURE_SUBMISSION_ROUND4 / "test"
+_OUT_JSON = lab_paths.web_file(
+    "closure_challenge_trained_entry_round4_duct.json")
+_ROUND3 = lab_paths.web_file(
+    "closure_challenge_trained_entry_round3_gated.json")
 
 _FMT = "%.10g"
 HP = dict(max_iter=300, max_depth=6, learning_rate=0.05,

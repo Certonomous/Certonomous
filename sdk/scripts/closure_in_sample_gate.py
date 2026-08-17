@@ -58,6 +58,18 @@ import re
 import sys
 from pathlib import Path
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 _SDK_SCRIPTS = Path(__file__).resolve().parent
 _REPO = _SDK_SCRIPTS.parents[1]
 
@@ -97,9 +109,10 @@ _PROSE_VERB = re.compile(
     r"\b(train(?:ed|ing)?|fit(?:ted|ting)?|invert(?:ed|ing)?|inversion|"
     r"calibrat(?:ed|ing|ion))\b", re.I)
 
-_SCAN_JSON_ROOTS = ("demo-output/website", "models")
+_WEBROOT_REL = str(lab_paths.WEB.relative_to(lab_paths.REPO))
+_SCAN_JSON_ROOTS = (_WEBROOT_REL, "models")
 _SCAN_PY_ROOTS = ("sdk/scripts", "sdk/workflows", "scripts")
-_SCAN_MD_ROOTS = ("demo-output/website", "docs")
+_SCAN_MD_ROOTS = (_WEBROOT_REL, "docs")
 
 _SKIP_DIR_PARTS = {"__pycache__", ".git", "node_modules", "solve_registry",
                    "mega-batch", "work"}

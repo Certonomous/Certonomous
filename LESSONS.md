@@ -5056,3 +5056,178 @@ that must be allowed to pass — because if it silently passes, that is the find
 
 Found at rung KV1 of campaign F14, 2026-08-17.
 `docs/campaigns/F14-cooling-ladder/KV1_RESULTS.md` §3c.
+
+## L-108. A coverage test reads an ENUMERATION, and the enumeration is chosen by implementation shape — so the rules implemented in a different shape are not "failing", they are invisible
+
+`scripts/lab_paths.py` is the module the whole MOVE_MAP reorganisation routes
+through: one table, one function, every rule of the map. It carried a test
+called `test_every_move_rule_of_section_2_2_is_represented`, which is exactly
+the test you would write, and it read
+
+```python
+rules = {m.rule for m in L.MOVES}
+for r in ("R1", "R2", "R5", ..., "R24"):
+    self.assertIn(r, rules)
+```
+
+**R16 and R17 were not implemented at all.** Nineteen loose `*.md` and
+twenty-one loose `*.json` sitting directly in the webroot were falling through
+to the catch-all prefix row and being routed to `web/` instead of to
+`research/closure/md/` and `research/closure/data/` — forty tracked files
+landing in a directory the map says holds **five**. The test was green the whole
+time, and so was `test_the_webroot_is_fully_classified`, which asserts every
+webroot file reaches *a* rule. Every one of them did. The wrong one.
+
+**Two independent reasons the test could not see it, and the second is the
+transferable one.**
+
+1. The expected-rule list was hand-written and R16/R17 were simply not on it.
+   That is an ordinary omission and it is the shallow half.
+2. **`MOVES` is the prefix TABLE. Six of the map's rules — R12, R16, R17, R20,
+   R21, R25 — are not table rows at all**; they are regexes, because "everything
+   under `campaign/` EXCEPT the run archives" and "a loose file of this suffix"
+   are not prefixes. So the collection the test enumerated was not the rule set.
+   It was *the rules that happened to be expressible as table rows*. Adding
+   R16 and R17 to the expected list would not have made the test pass — it
+   would have made it fail for a reason no one could act on, because they can
+   never appear in `MOVES` no matter how correctly they are implemented.
+
+**The generalisation.** Whenever a check asserts coverage by iterating a
+collection, ask what SELECTED that collection. If the answer is anything about
+how the items are stored — a table, a registry, a decorator, a directory of
+files, a dict of handlers — then the check covers the storage shape and not the
+requirement. The items implemented some other way are not reported as gaps.
+They are not reported at all, and the check goes green over their absence,
+which is the same silent-zero this lab keeps finding in other clothing: an
+instrument whose input is empty of the thing it was looking for and which says
+so by saying nothing.
+
+**The repair has two halves and neither works alone.** The module now exports
+`RULES`, a set covering table rows *and* regex rules, and the coverage test
+reads that. But `RULES` is written by hand, so on its own it is a wish list: a
+rule id added to it without a rule behind it turns the coverage test green
+again, one level up. So beside it sits
+`test_the_rules_set_is_not_a_wish_list`, which takes a witness path for each
+non-table rule and asserts the rule **fires** on it. Declaration plus firing.
+The declaration is what makes the gap visible; the firing is what makes the
+declaration mean something.
+
+**The tell.** If a coverage test's list of expected items is written in the
+test, and the collection it checks them against is written in the code, they
+can only ever disagree about names — never about existence. A coverage test
+worth having has to be able to say *"you claim to implement R17; show me a path
+it moves."*
+
+Found while binding R25 into `lab_paths` for MOVE_MAP batch 3, 2026-08-17.
+`demo-output/website/campaign/MOVE_MAP_BATCH3_EXECUTION_2026-08-17.md` §2.
+
+## L-109. A count ratified alongside a rule is a FRAME; the rule survives the drift and the count does not, so ratify the rule and re-derive the count
+
+RULING 1 of 2026-08-17 created R25 — `docs/campaigns/<campaign>/<tree>/**` where
+`<tree>` matches `*_runs` or `*_sensitivity` is a run archive and follows R20's
+destination — and it was ratified as **"R25 = 315 files"**, a figure carefully
+confirmed identical at two named commits four apart, `7554e5d3` and `4d7c195a`.
+Two downstream documents carry 315 forward into batch 7's totals.
+
+**Eleven hours later it is 490.** The thermal lane landed `KV1_runs`, 175
+tracked files, under the same campaign directory. The ruling's own §1.1 is
+careful about this — it shows the number holding across two anchors and says the
+class that moved is documentation — but "this figure did not move between these
+two commits" and "this figure is fixed" are different claims, and the second one
+is what a reader takes from a bolded total.
+
+**Nothing needed re-ruling, and the reason is worth naming, because it was a
+choice and could have gone the other way.** The ruling was written as a rule
+over a *pattern*: `*_runs` or `*_sensitivity`. So `redirect()` routed `KV1_runs`
+correctly the moment it appeared, with no edit anywhere. Had it been written as
+the enumeration it was measured from — *"`K0c_runs` and `K0b_mesh_sensitivity`
+move"*, which is what the composition table in front of the author showed and
+what an enumeration-shaped ruling would naturally say — then batch 7 would today
+move 315 files and strand 175 in `docs/` with nothing in the tree saying so.
+Same ruling, same evidence, same day; one form is robust to a live lane and the
+other is a time bomb with an eleven-hour fuse.
+
+**So: a ruling states a rule. Any count beside it is evidence FOR the rule, at a
+named frame, and is re-derived by whoever acts on it.** The count belongs in the
+sentence that says how the rule was checked, not in the sentence that says what
+the rule is. When a later batch needs the number, it runs the rule again.
+
+**And the check that would catch the other outcome.** If the number a plan acts
+on is a count, the batch that acts on it re-derives it against its own frame and
+aborts on drift, rather than reading it out of the record that ratified it —
+which is why `hand_carry.py` re-derives its whole census at every invocation and
+refuses on any drift from the plan, instead of comparing against a table in a
+document. The general form: **a plan may cite a measurement, but it must not
+consume one.**
+
+Found at MOVE_MAP batch 3, 2026-08-17, re-measuring R25 before binding it.
+`demo-output/website/campaign/MOVE_MAP_BATCH3_EXECUTION_2026-08-17.md` §1.2.
+
+## L-110. Routing a module through an indirection moves WHERE its names resolve — and a test that blinds a check by REBINDING one of those names is testing exactly that, so the safest-looking refactor in the repository can delete a guard's only proof while every behaviour check passes
+
+Batch 3b converted `scripts/self_audit.py` to import `scripts/lab_paths.py`
+instead of spelling the tree. The conversion was behaviour-identical by every
+measure built for it. Three instruments ran over all 98 converted files:
+importing each module in a subprocess and diffing every path-valued constant
+(97/98 identical); a static AST evaluator comparing the set of repository paths
+each file NAMES against the same answer from HEAD's blob (94/98, the four
+explained); and a free-name sweep proving no rewrite un-bound a name still read
+(0/98). All three passed `self_audit.py`.
+
+**The suite failed anyway, in two files nobody had touched.**
+`sdk/tests/test_empty_set_is_not_agreement.py` and
+`test_form_or_value_and_empty_selection.py` went from 0 failures to 8. They are
+this lab's **empty-set controls**: they blind a check by rebinding
+`self_audit`'s module-level `WEB`, `REPO`, `ACTIVE`, `WALL`, `CAMPAIGN` or
+`MISSION` to an empty directory and assert the check returns UNKNOWN rather
+than a clean sweep of nothing. Thirteen checks are covered that way, each with
+a live-arm control beside it.
+
+The conversion replaced `ladder = WEB / "campaign" / "F5a_….md"` with
+`lab_paths.CAMPAIGN / "F5a_….md"`, and `docket_path = REPO / "demo-output" / …`
+with `lab_paths.AGENDA / "docket.json"`. Both are *more* correct — they survive
+a move that the literals do not. **Both also reach past the handle the test
+rebinds.** Rebinding `WEB` no longer blinded anything. Five checks kept reading
+the live tree and returned WARN, PASS and FAIL where the tests demanded UNKNOWN.
+
+**The guards were still right. What was destroyed was the only evidence that
+they are** — which is the silent-zero failure this corpus keeps re-finding,
+moved up one level: not a check that reads nothing and reports clean, but a
+check whose blindness can no longer be demonstrated. That is worse, because it
+is invisible to every instrument that asks about behaviour, and the two are
+easy to confuse: the check's answer on the real tree never changed at all.
+
+**Why every behaviour instrument was blind to it, stated precisely.** Each one
+asks *does this constant name the same path*. The answer was yes, everywhere,
+including for the five checks that broke. The property that changed is not the
+VALUE a name resolves to; it is **which object owns the resolution**. Before,
+`self_audit.WEB` owned it and anyone could rebind it. After, `lab_paths.WEB`
+owned it and `self_audit.WEB` was a copy nobody consulted. No comparison of
+values can see that, because at rest the two are equal — that is the entire
+point of the refactor.
+
+**The rule.** Before routing a module through an indirection, ask *which of my
+names does other code REBIND*, not only *which paths do I read*. `grep` for the
+module's own attribute names appearing on the left of a `setattr`, in a
+`monkeypatch`, in a `mock.patch`, or in a `with` block that saves and restores
+them. Every such name is a **seam**, and a seam is part of a module's contract
+exactly as much as its return values are. Moving resolution behind a seam
+removes the seam.
+
+**The repair keeps both properties and neither is optional.** `self_audit._at()`
+re-roots every call-time answer on THIS module's `REPO`, and on THIS module's
+`WEB` when `WEB` has actually been rebound — the second condition being what
+stops the two re-rootings from fighting while the webroot is still inside the
+repository. A region that has genuinely moved out of both passes through
+unchanged, which is what the later batches need. The shim keeps its
+legacy/successor pair; the seam keeps its ability to blind.
+
+**And the general shape, which is why this is a lesson and not a note.** Three
+instruments were built for this batch, each measuring something real, and the
+defect was found by a test written eight weeks earlier for an unrelated reason.
+Purpose-built verification measures what its author was worried about. The
+standing suite is what measures what they were not.
+
+Found at MOVE_MAP batch 3b, 2026-08-17.
+`demo-output/website/campaign/MOVE_MAP_BATCH3_EXECUTION_2026-08-17.md` §4,
+instrument D.

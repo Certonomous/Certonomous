@@ -117,10 +117,40 @@ class TheTableIsWellFormed(unittest.TestCase):
             self.assertIn("mis-ordered", str(cm.exception))
 
     def test_every_move_rule_of_section_2_2_is_represented(self):
-        rules = {m.rule for m in L.MOVES}
-        for r in ("R1", "R2", "R5", "R6", "R8", "R10", "R11", "R13", "R14",
-                  "R15", "R18", "R19", "R20", "R21", "R22", "R23", "R24"):
-            self.assertIn(r, rules, f"{r} is unrepresented in lab_paths._MOVES")
+        """R1-R25, and it is asked of `RULES` rather than of `MOVES`.
+
+        R12, R16, R17, R20, R21 and R25 are regex rules in `_special`, not
+        table rows, so a test that reads `MOVES` cannot see them -- and it did
+        not: R16 and R17 were UNIMPLEMENTED for a whole batch while this test
+        was green, and all 40 loose webroot files were being routed to `web/`
+        instead of to `research/closure/{md,data}/`.  A coverage claim taken
+        over the wrong collection is a coverage claim about the collection.
+        """
+        for r in ("R1", "R2", "R5", "R6", "R8", "R10", "R11", "R12", "R13",
+                  "R14", "R15", "R16", "R17", "R18", "R19", "R20", "R21",
+                  "R22", "R23", "R24", "R25"):
+            self.assertIn(r, L.RULES, f"{r} is unimplemented in lab_paths")
+
+    def test_the_rules_set_is_not_a_wish_list(self):
+        """The must-not-match control for the test above.
+
+        `RULES` is written by hand, so on its own it proves nothing: a name
+        added to it without a rule behind it would turn the coverage test
+        green.  Every rule id claimed must actually fire on some path.
+        """
+        witness = {
+            "R12": "demo-output/duct.png",
+            "R16": _W + "/ACTIVE_RESEARCH.md",
+            "R17": _W + "/closure_challenge_round5_qcr.json",
+            "R20": _W + "/campaign/F8_runs/log.simpleFoam",
+            "R21": _W + "/campaign/RECORD.md",
+            "R25": "docs/campaigns/F14-cooling-ladder/K0c_runs/x",
+        }
+        for rule, path in witness.items():
+            with self.subTest(rule=rule):
+                self.assertIsNotNone(L.redirect(path),
+                                     f"{rule} is in RULES and fires on nothing")
+        self.assertNotIn("R99", L.RULES)
 
     def test_dark_tree_destinations_agree_with_the_table(self):
         by_legacy = {m.legacy: m.target for m in L.MOVES}
@@ -225,6 +255,99 @@ class Redirect(unittest.TestCase):
                 self.assertIsNotNone(once)
                 self.assertIsNone(L.redirect(once))
 
+    def test_r25_sends_a_docs_campaign_run_tree_to_verification_runs(self):
+        """RULING 1 of 2026-08-17: a run tree is classified by WHAT IT IS.
+
+        `docs/campaigns/<campaign>/*_{runs,sensitivity}/**` is an OpenFOAM run
+        archive sitting in the documentation tree because of an authoring
+        accident, and it follows R20's destination.
+        """
+        self.assertEqual(
+            L.redirect("docs/campaigns/F14-cooling-ladder/K0c_runs/c/0.orig/T"),
+            "verification/runs/F14-cooling-ladder/K0c_runs/c/0.orig/T")
+        self.assertEqual(
+            L.redirect("docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity"),
+            "verification/runs/F14-cooling-ladder/K0b_mesh_sensitivity")
+
+    def test_r25_preserves_the_campaign_segment(self):
+        """The sub-decision the ruling flagged as the owner's.
+
+        `verification/runs/` is flat and already holds 27 `*_runs`/`*_work`
+        names; `docs/campaigns/` is per-campaign.  Two campaigns each landing
+        a `K0c_runs` collide the moment the second one arrives.
+        """
+        a = L.redirect("docs/campaigns/F14-cooling-ladder/K0c_runs/x")
+        b = L.redirect("docs/campaigns/ANOTHER-CAMPAIGN/K0c_runs/x")
+        self.assertNotEqual(a, b, "the campaign segment was flattened away")
+        self.assertIn("/F14-cooling-ladder/", "/" + a)
+
+    def test_the_must_not_match_control_for_r25(self):
+        """R7 keeps the campaign's DOCUMENTATION, and the ruling says so.
+
+        Without this, an R25 written as "everything under docs/campaigns/"
+        would satisfy both tests above and move 31 gate specifications,
+        results documents and reference tables out of `docs/`.
+        """
+        for keep in ("docs/campaigns/F14-cooling-ladder/README.md",
+                     "docs/campaigns/F14-cooling-ladder/K0c_RESULTS.md",
+                     "docs/campaigns/F14-cooling-ladder/reference-data/M.md",
+                     "docs/campaigns/F14-cooling-ladder/compute_reference_metrics.py"):
+            with self.subTest(keep=keep):
+                self.assertIsNone(L.redirect(keep))
+
+    def test_r25_inverts_without_being_swallowed_by_r20(self):
+        """`verification/runs/` holds both, and only the first segment tells
+        them apart: R20 puts a `*_runs`/`*_work` TREE name there and R25 puts
+        a CAMPAIGN name.  Reading an R25 path back as R20's would rewrite a
+        citation to `docs/campaigns/...` as `demo-output/website/campaign/...`
+        -- a path that never existed."""
+        self.assertEqual(
+            L.unredirect("verification/runs/F14-cooling-ladder/K0c_runs/x"),
+            "docs/campaigns/F14-cooling-ladder/K0c_runs/x")
+        self.assertEqual(
+            L.unredirect("verification/runs/F8_runs/phase6_mrf/log.simpleFoam"),
+            _W + "/campaign/F8_runs/phase6_mrf/log.simpleFoam")
+
+    def test_r16_and_r17_take_the_loose_webroot_files_out_of_the_webroot(self):
+        """MEASURED MISSING 2026-08-17: 19 `*.md` and 21 `*.json` sitting
+        loose in the webroot were falling through to the `WEB` catch-all and
+        being routed to `web/`, which contradicts R13's own "the webroot is
+        five files" and would have pointed every closure generator's output
+        at the wrong root."""
+        self.assertEqual(L.redirect(_W + "/ACTIVE_RESEARCH.md"),
+                         "research/closure/md/ACTIVE_RESEARCH.md")
+        self.assertEqual(
+            L.redirect(_W + "/closure_challenge_round5_qcr.json"),
+            "research/closure/data/closure_challenge_round5_qcr.json")
+
+    def test_the_must_not_match_control_for_r16_r17(self):
+        """Three ways the loose-file rule could over-reach, each checked.
+
+        A rule written as "anything directly under the webroot" would take
+        the served HTML pages (R13), and one that ignored the table would
+        take `benchmarks.json` and `benchmarks.png` away from R14/R15 -- same
+        destination for the JSON, WRONG destination for the PNG.
+        """
+        self.assertEqual(L.redirect(_W + "/closure.html"), "web/closure.html")
+        self.assertEqual(L.redirect(_W + "/anything-unclaimed.txt"),
+                         "web/anything-unclaimed.txt")
+        self.assertEqual(L.redirect(_W + "/benchmarks.png"),
+                         "research/closure/plots/benchmarks.png")
+        self.assertEqual(L.redirect(_W + "/benchmarks.json"),
+                         "research/closure/data/benchmarks.json")
+        # not loose: one level down is R18's, and it keeps its own row
+        self.assertEqual(L.redirect(_W + "/wall/wall.json"),
+                         "research/closure/data/wall.json")
+
+    def test_the_webroot_keeps_exactly_the_five_served_files(self):
+        """R13 says the webroot is five files.  Run over the tracked corpus,
+        because that is the claim -- not over an example."""
+        landing = {p: L.redirect(p) for p in TrackedCorpus.tracked()}
+        web = sorted(p for p, out in landing.items()
+                     if out is not None and out.split("/")[0] == "web")
+        self.assertEqual(len(web), 5, f"web/ would hold {len(web)}: {web}")
+        self.assertEqual(set(web), set(L.SERVED_SET))
+
     def test_unredirect_inverts_redirect(self):
         cases = [m.legacy + "/leaf.txt" for m in L.MOVES
                  if m.moves and m.name not in ("CAMPAIGN", "RUNS")
@@ -241,15 +364,40 @@ class Redirect(unittest.TestCase):
                 self.assertEqual(L.unredirect(fwd), p)
 
 
+_TRACKED: list[str] | None = None
+
+
+def tracked_paths() -> list[str]:
+    """HEAD's tree, NEVER the index (docket D274).
+
+    `git ls-files` reads the INDEX, and this lab's own commit protocol builds
+    every commit under a private `GIT_INDEX_FILE` and never writes the shared
+    one -- so a file another agent landed an hour ago is in HEAD and invisible
+    to `ls-files` until somebody runs `git add`.  Measured at `f40f6ef5`:
+    13,814 against 13,974.  A corpus-wide assertion taken over the smaller
+    frame is an assertion about a stale corpus, and this file's own sweeps are
+    exactly the assertions that must not be.
+    """
+    global _TRACKED
+    if _TRACKED is None:
+        cp = subprocess.run(
+            ["git", "-C", str(_REPO), "ls-tree", "-r", "-z", "--name-only",
+             "HEAD"], capture_output=True)
+        _TRACKED = [p.decode("utf-8", "surrogateescape")
+                    for p in cp.stdout.split(b"\0") if p]
+    return _TRACKED
+
+
+class TrackedCorpus:
+    tracked = staticmethod(tracked_paths)
+
+
 class TheCorpusRoutesSomewhereReal(unittest.TestCase):
     """Run over every tracked path, not over hand-picked examples."""
 
     @classmethod
     def setUpClass(cls):
-        cp = subprocess.run(["git", "-C", str(_REPO), "ls-files", "-z"],
-                            capture_output=True)
-        cls.tracked = [p.decode("utf-8", "surrogateescape")
-                       for p in cp.stdout.split(b"\0") if p]
+        cls.tracked = tracked_paths()
 
     def test_there_are_tracked_files_to_test_against(self):
         # A sweep over an empty corpus passes every assertion below it.
@@ -389,25 +537,128 @@ class FailsClosed(TreeCase):
         self.assertIsNotNone(m.unknown_reason(*m.RECORD_ROOT_NAMES))
 
 
-class ItReplacesWhatItClaimsTo(unittest.TestCase):
+class ItReplacesWhatItClaimsTo(TreeCase):
     """Pinned against the live modules, so drift in either one is caught."""
 
     def test_sweep_roots_reproduces_self_audit_4309_before_the_move(self):
-        """`self_audit.py`'s `check_evidence_paths_exist` whitelist.  Read out
-        of the source rather than copied, so a change to either side fails."""
+        """`self_audit.py`'s `check_evidence_paths_exist` whitelist.
+
+        Batch 3b made `self_audit.py` CALL this function instead of carrying
+        its own copy, so there is no longer a second spelling to read out of
+        its source and diff against -- and a test that kept reading for one
+        would go green on the absence of what it was checking.  What has to be
+        pinned now is the VALUE: before the move it must still be exactly the
+        seven roots that whitelist named at `4d7c195a`, because those seven
+        are what `check_evidence_paths_exist`'s reach was measured against.
+        The call site is pinned separately, below.
+        """
+        self.assertEqual(
+            L.SWEEP_ROOTS(),
+            ("demo-output/", "sdk/", "scripts/", "models/", "mission-output/",
+             "docs/", "dist/"))
+
+    def test_self_audit_actually_calls_the_shared_roots_and_pages(self):
+        """The other half: a value that matches proves nothing if nobody
+        reads it.  Both call sites are asserted in the module's own source."""
         src = (_REPO / "scripts" / "self_audit.py").read_text()
-        m = re.search(r'roots = \((.*?)\)\n', src, re.S)
-        self.assertIsNotNone(m, "the `roots` whitelist moved; re-derive it")
-        declared = tuple(re.findall(r'"([^"]+)"', m.group(1)))
-        self.assertEqual(set(L.SWEEP_ROOTS()), set(declared))
+        self.assertIn("roots = lab_paths.SWEEP_ROOTS()", src)
+        self.assertIn("lab_paths.BUNDLE_PAGES()", src)
+        self.assertIn("lab_paths.RECORD_ROOTS()", src)
+        self.assertNotIn('roots = ("demo-output/"', src)
 
     def test_bundle_pages_reproduces_self_audit_6484_before_the_move(self):
-        src = (_REPO / "scripts" / "self_audit.py").read_text()
-        block = re.search(r'_BUNDLE_PAGES = \((.*?)\n\)\n', src, re.S)
-        self.assertIsNotNone(block)
-        repo_paths = re.findall(r'Path\("(demo-output/[^"]+)"\)', block.group(1))
-        mine = [str(p.relative_to(L.REPO)) for _, p, _ in L.BUNDLE_PAGES()]
-        self.assertEqual(repo_paths, mine)
+        """The triple `_BUNDLE_PAGES` held at `4d7c195a`, value for value.
+
+        The member path inside the ZIP is not the repo path, which is the
+        whole reason the triple exists, and `build_laptop_bundle.py:53`'s
+        deliberate omission of `shoot.html` is preserved.
+        """
+        self.assertEqual(
+            [(label, str(p.relative_to(L.REPO)), member)
+             for label, p, member in L.BUNDLE_PAGES()],
+            [("closure.html", "demo-output/website/closure.html",
+              "site/closure.html"),
+             ("benchmarks.html", "demo-output/website/benchmarks.html",
+              "site/benchmarks.html"),
+             ("wall.html", "demo-output/website/wall/wall.html",
+              "site/wall/wall.html")])
+
+    def test_record_documents_reproduces_the_rglob_before_the_move(self):
+        """`self_audit._record_documents()` replaces `WEB.rglob("*.md")`.
+
+        Before the move every record root is under the one webroot, so the
+        deduplicated root list collapses to that webroot and the two must
+        return the IDENTICAL list -- not merely the same count.  A sweep that
+        walked eight overlapping roots would report every finding eight times;
+        one that walked none would report a clean zero.  Both are checked by
+        comparing the lists.
+        """
+        import importlib.util
+        import sys as _s
+        spec = importlib.util.spec_from_file_location(
+            "_self_audit_under_test", _REPO / "scripts" / "self_audit.py")
+        mod = importlib.util.module_from_spec(spec)
+        _s.modules["_self_audit_under_test"] = mod
+        try:
+            spec.loader.exec_module(mod)
+            got = mod._record_documents()
+            want = sorted(mod.WEB.rglob("*.md"))
+            self.assertGreater(len(want), 100, "the corpus is empty; nothing "
+                                               "below this line means anything")
+            self.assertEqual(got, want)
+        finally:
+            _s.modules.pop("_self_audit_under_test", None)
+
+    def test_web_file_answers_where_a_file_that_does_not_exist_yet_goes(self):
+        """R16/R17's files are mostly GENERATOR OUTPUT, and a generator names
+        its output before the output is there.  `resolve()` returns None for
+        that, which is the wrong answer for a write.  Once the destination
+        DIRECTORY exists, a not-yet-written file belongs at the successor."""
+        touch(self.root, _W + "/keep.md")
+        (self.root / "research" / "closure" / "data").mkdir(parents=True)
+        m = load(self.root, "lp_webfile")
+        self.assertEqual(m.web_file("brand_new_output.json"),
+                         self.root / "research/closure/data/brand_new_output.json")
+
+    def test_web_file_prefers_the_side_the_file_is_actually_on(self):
+        """The must-not-match control.  A `web_file` that always answered
+        with the successor would satisfy the test above and send every
+        pre-move reader to a path with nothing in it."""
+        touch(self.root, _W + "/closure_challenge_x.json")
+        m = load(self.root, "lp_webfile2")
+        self.assertEqual(m.web_file("closure_challenge_x.json"),
+                         self.root / _W / "closure_challenge_x.json")
+
+    def test_submission_packages_reproduces_the_webroot_glob(self):
+        """Replaces `self_audit.py`'s `WEB.glob("closure_challenge_submission*")`.
+        R23 scatters the three into `research/closure/`, after which that glob
+        finds nothing and the check reports a clean sweep of zero packages."""
+        got = [p.name for p in L.SUBMISSION_PACKAGES()]
+        web = L.REPO / _W
+        if web.is_dir():
+            self.assertEqual(
+                got, sorted(p.name for p in
+                            web.glob("closure_challenge_submission*")))
+        self.assertGreater(len(got), 0)
+
+    def test_submission_packages_is_not_a_hardcoded_three(self):
+        """The control: an accessor that returned three names unconditionally
+        would satisfy the test above and would keep reporting three after the
+        packages moved and were not found."""
+        m = load(self.root, "lp_pkgs")
+        self.assertEqual(m.SUBMISSION_PACKAGES(), ())
+
+    def test_run_archive_finds_an_r25_tree_under_its_campaign(self):
+        """R25's trees are one segment deeper than R20's, so the accessor
+        that answers "where is run archive X" has to know about the campaign
+        namespace or it returns None for 490 files."""
+        touch(self.root, "docs/campaigns/F14-cooling-ladder/K0c_runs/c/log.x")
+        m = load(self.root, "lp_ra")
+        self.assertEqual(m.run_archive("K0c_runs", "F14-cooling-ladder"),
+                         self.root / "docs/campaigns/F14-cooling-ladder/K0c_runs")
+        self.assertEqual(m.run_archive("K0c_runs"),
+                         self.root / "docs/campaigns/F14-cooling-ladder/K0c_runs")
+        self.assertIsNone(m.run_archive("NO_SUCH_runs"))
 
     def test_served_set_is_the_five_files_of_section_3_and_all_exist(self):
         self.assertEqual(len(L.SERVED_SET), 5)
@@ -432,19 +683,31 @@ class ItReplacesWhatItClaimsTo(unittest.TestCase):
                                 or web in r.parents for r in roots))
 
     def test_the_solve_registry_constant_names_the_tree_four_modules_name(self):
-        """MOVE_MAP section 4.3 names the four consumers.  If the constant in
-        `lab_paths` and the literal in those modules ever disagree, the
-        hand-carry lands the tree somewhere the code will not look."""
+        """MOVE_MAP section 4.3 names four consumers of the 1.51 GB tree that
+        `git mv` cannot move.  If the constant here and what those modules
+        name ever disagree, the hand-carry lands it where nothing looks.
+
+        Batch 3b converted the three Python ones to IMPORT the constant, which
+        is strictly stronger than agreeing with it -- they cannot disagree.
+        `launch_solve.sh` is shell and cannot import, so it still carries the
+        literal and is still checked as one.
+        """
         legacy = str(L.MOVES[[m.name for m in L.MOVES].index("SOLVE_REGISTRY")].legacy)
         for rel in ("scripts/dispatch_queue.py", "scripts/check_convergence_sweep.py",
-                    "scripts/contention_audit.py", "scripts/launch_solve.sh"):
+                    "scripts/contention_audit.py"):
             with self.subTest(rel=rel):
                 src = (_REPO / rel).read_text()
-                pieces = legacy.split("/")
-                self.assertTrue(
-                    legacy in src
-                    or all(f'"{seg}"' in src for seg in pieces),
-                    f"{rel} no longer names {legacy}")
+                self.assertIn("lab_paths.SOLVE_REGISTRY", src,
+                              f"{rel} stopped importing the constant")
+                # Prose may still narrate the old path -- these are records
+                # as much as code.  What must be gone is the CODE-level
+                # re-spelling, which is the pattern the module exists to end.
+                self.assertNotIn('"solve_registry"', src,
+                                 f"{rel} still builds the path from segments "
+                                 f"as well as importing the constant")
+        shell = (_REPO / "scripts" / "launch_solve.sh").read_text()
+        self.assertIn(legacy, shell, "launch_solve.sh no longer names "
+                                     + legacy)
 
 
 if __name__ == "__main__":  # pragma: no cover

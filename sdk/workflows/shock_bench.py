@@ -19,10 +19,22 @@ import time
 from pathlib import Path
 from typing import Any, Callable
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 _HERE = Path(__file__).resolve()
 _REPO = _HERE.parents[2]
-F3_DIR = _REPO / "demo-output" / "website" / "campaign" / "F3_runs"
-F4_DIR = _REPO / "demo-output" / "website" / "campaign" / "F4_runs"
+F3_DIR = lab_paths.RUNS / "F3_runs"
+F4_DIR = lab_paths.RUNS / "F4_runs"
 for _d in (F3_DIR, F4_DIR):
     if str(_d) not in sys.path:
         sys.path.insert(0, str(_d))

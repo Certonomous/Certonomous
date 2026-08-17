@@ -43,9 +43,21 @@ from .geometry_study import (INPUT_ASSUMED_NOTE, MAX_NON_ORTHOGONALITY,
                              MAX_SKEWNESS, _emit_table, mesh_gates_pass,
                              mesh_validity)
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 LABEL = "nasa_hump"
 SURFACE = "nasa_hump.stl"
-CASE_TEMPLATE = (Path(__file__).resolve().parents[2] / "demo-output" / "website"
+CASE_TEMPLATE = (lab_paths.WEB
                 / "dafoam" / "f6a_nasa_hump" / "case_template")
 CASE_DEF = CASE_TEMPLATE / "caseDef"
 GATE_SOURCE = "NASA Turbulence Modeling Resource, wall-mounted hump experiment"

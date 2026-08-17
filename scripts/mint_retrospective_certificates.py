@@ -43,8 +43,19 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "sdk"))
 from chief_engineer import mesh_certificate  # noqa: E402
 
-AUDIT = (REPO / "demo-output" / "website" / "campaign"
-         / "MESH_BIRTH_CERTIFICATE_AUDIT_2026-08-08.md")
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[1]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
+AUDIT = lab_paths.CAMPAIGN / "MESH_BIRTH_CERTIFICATE_AUDIT_2026-08-08.md"
 MARK = "CERTIFIED (pre-existing record)"
 ROOTS = (Path("/home/ubuntu/certonomous-runs"), Path("/home/ubuntu"))
 

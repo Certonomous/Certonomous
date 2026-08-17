@@ -19,6 +19,18 @@ from chief_engineer.head_engineer import (
 )
 from chief_engineer.log_signatures import SEVERITY_CONFIGURATION_RISK
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 
 class LogMonitorTests(unittest.TestCase):
     def test_nan_and_fpe_are_fatal(self):
@@ -161,8 +173,7 @@ class MonitorStandardRuleTests(unittest.TestCase):
     def test_archived_transient_run_raises_nothing(self):
         # The lab's own archived transient runs are healthy and must stay so.
         monitor = LogMonitor(courant_limit=1.5)
-        log = (Path(__file__).resolve().parents[2] / "demo-output" / "website"
-               / "mega-batch" / "work" / "cylinder-unsteady")
+        log = lab_paths.MEGA_BATCH / "work" / "cylinder-unsteady"
         paths = sorted(log.glob("*/log.pimpleFoam"))
         self.assertTrue(paths)
         with open(paths[0], encoding="utf-8", errors="replace") as handle:
@@ -238,8 +249,7 @@ class DivergenceBehindAConvergedResidualTests(unittest.TestCase):
     separate them.
     """
 
-    LOGS = (Path(__file__).resolve().parents[2] / "demo-output" / "website"
-            / "dafoam" / "ladder-a" / "logs_A4")
+    LOGS = lab_paths.DAFOAM / "ladder-a" / "logs_A4"
     WITHDRAWN = LOGS / "A4_fine_primal_par4.log"
     HEALTHY = LOGS / "A4_coarse_primal_par4.log"
 
@@ -415,8 +425,11 @@ class SystemOperationsTests(unittest.TestCase):
 
     def test_vetted_case_passes_and_records_its_reason(self):
         engineer = HeadEngineer.__new__(HeadEngineer)
-        template = ("/home/ubuntu/Certonomous/demo-output/website/dafoam/"
-                    "f6a_nasa_hump/case_template")
+        # MOVE_MAP EXECUTION s5: this assertion is a `str.endswith` that
+        # never touches disk, so after the move it would keep PASSING while
+        # naming a path that no longer exists.  Bound through `lab_paths`
+        # it names whichever of the two the tree actually has.
+        template = str(lab_paths.DAFOAM / "f6a_nasa_hump" / "case_template")
         engineer.assert_case_code_vetted(template, [f"{template}/caseDef"])
         self.assertIn("act 7", vetted_case_reason(template))
 

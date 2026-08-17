@@ -1,7 +1,19 @@
 import json, pathlib, sys
 sys.path.insert(0, "sdk")
 from chief_engineer import agenda
-DOCKET = pathlib.Path("demo-output/website/agenda/docket.json")
+
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[1]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+DOCKET = lab_paths.AGENDA / "docket.json"
 NOW = "2026-07-30T04:05:00Z"
 NEW = [{
     "id": "r8-how-often-does-convergence-reporting-mask-divergence",

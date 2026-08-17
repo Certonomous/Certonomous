@@ -60,6 +60,18 @@ from chief_engineer.log_signatures import (detect_magnitude_explosion,
                                            detect_unsettled_stop)
 from chief_engineer import lever_echo
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 _HERE = Path(__file__).resolve()
 _REPO_ROOT = _HERE.parents[2]
 
@@ -1737,7 +1749,7 @@ def run_flat_plate_ladder(out_root: str | Path | None = None,
     persisted as if it were a completed ladder.
     """
     out_dir = Path(out_root) if out_root else (
-        _REPO_ROOT / "demo-output" / "website" / "tmr")
+        lab_paths.TMR)
     out_dir.mkdir(parents=True, exist_ok=True)
     case_root = _REPO_ROOT / "models" / "tmr" / "flatplate"
     grids = []
@@ -2463,7 +2475,7 @@ def write_proposals(proposals: list[dict[str, Any]],
                     out_dir: str | Path | None = None) -> list[str]:
     """Write each proposal to demo-output/website/agenda/proposals/<id>.json."""
     target = Path(out_dir) if out_dir else (
-        _REPO_ROOT / "demo-output" / "website" / "agenda" / "proposals")
+        lab_paths.AGENDA / "proposals")
     target.mkdir(parents=True, exist_ok=True)
     written = []
     for proposal in proposals:
@@ -3704,7 +3716,7 @@ def run_naca_transient(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
 def stop_requested(out_root: Path | None = None) -> bool:
     """The owner's STOP file: when present, no new solve may be launched."""
     root = Path(out_root) if out_root else (
-        _REPO_ROOT / "demo-output" / "website" / "tmr")
+        lab_paths.TMR)
     return (root / "STOP").exists()
 
 

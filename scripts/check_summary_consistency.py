@@ -206,12 +206,25 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import check_derived_figures as cdf  # noqa: E402  (mask_exempt, _STRUCK_HEAD)
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[1]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 PASS, FAIL, UNKNOWN = "PASS", "FAIL", "UNKNOWN"
 EXIT = {PASS: 0, FAIL: 1, UNKNOWN: 3}
 
 #: The commit that repaired the D141 instance. Its parent holds the defect.
 CONTROL_COMMIT = "87324012"
-CONTROL_PATH = "demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md"
+CONTROL_PATH = str(lab_paths.web_file(
+    "CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md").relative_to(lab_paths.REPO))
 
 # ---------------------------------------------------------------------------
 # Verdict vocabulary

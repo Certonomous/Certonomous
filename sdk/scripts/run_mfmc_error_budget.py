@@ -88,11 +88,23 @@ from chief_engineer.vspaero import VspAeroWingApi                  # noqa: E402
 from workflows.race_benchmark import RE_NOMINAL, WING              # noqa: E402
 from workflows.shape_optimization import _fit_quadratic, _predict  # noqa: E402
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 ROOT = SDK.parent
 RACE_WORK = ROOT / "mission-output" / "race-study" / "work"
 RECOVERED = ROOT / "mission-output" / "mfmc-recovery" / "work"
 SURROGATE_WORK = ROOT / "mission-output" / "mfmc-recovery" / "surrogate"
-OUT_JSON = ROOT / "demo-output" / "website" / "mfmc_error_budget.json"
+OUT_JSON = lab_paths.web_file("mfmc_error_budget.json")
 
 RE_REF = RE_NOMINAL
 TRAIN_ALPHAS = [0.0, 2.5, 5.0, 7.5, 10.0]

@@ -47,9 +47,20 @@ if str(SDK) not in sys.path:
 from chief_engineer import credibility as cred  # noqa: E402
 from chief_engineer.display_names import display_name  # noqa: E402
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 RESULTS = SDK.parent / "models" / "curriculum" / "results"
-DEFAULT_OUT = (SDK.parent / "demo-output" / "website" / "credibility"
-               / "validation_tiers.json")
+DEFAULT_OUT = lab_paths.CREDIBILITY / "validation_tiers.json"
 
 PURPOSE = (
     "Where every case the lab holds sits in the building-block validation "

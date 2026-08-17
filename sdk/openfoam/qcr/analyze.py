@@ -1,5 +1,17 @@
 import sys, re, json, numpy as np
-sys.path.insert(0,'/home/ubuntu/Certonomous/demo-output/website/dafoam/ladder-b/duct_baseline')
+
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[3]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+sys.path.insert(0, str(lab_paths.DAFOAM / "ladder-b" / "duct_baseline"))
 from duct_secondary_flow import read_of_vector_field
 
 Ubar = 37.5  # fvOptions meanVelocityForce target, Re_b*nu/h = 2500*1.5e-5/1e-3

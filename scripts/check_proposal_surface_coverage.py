@@ -135,12 +135,27 @@ import os
 import sys
 from pathlib import Path
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[1]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 PASS, FAIL, UNKNOWN = "PASS", "FAIL", "UNKNOWN"
 EXIT = {PASS: 0, FAIL: 1, UNKNOWN: 3}
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-AGENDA = REPO_ROOT / "demo-output" / "website" / "agenda"
-ARTIFACTS = REPO_ROOT / "demo-output"
+# MOVE_MAP s4: SPLIT-2 by design.  `AGENDA` follows R23 to `research/`;
+# `ARTIFACTS` is the whole `demo-output/` archive, which R10-R12 thin but
+# do not relocate as a unit, so it is bound as a non-moving name.
+AGENDA = lab_paths.AGENDA
+ARTIFACTS = lab_paths.DEMO_OUTPUT
 
 #: The status that means "no decision has been taken yet". Everything else in
 #: `agenda.STATUSES` -- approved, approved-queued, dismissed, done -- is a

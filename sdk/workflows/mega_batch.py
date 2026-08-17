@@ -75,6 +75,18 @@ from workflows import cylinder_vortex_shedding as cvs  # noqa: E402
 from workflows import transonic_airfoil as ta  # noqa: E402
 from workflows.tmr_verification import _foam, parse_yplus_dat  # noqa: E402
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 CYLINDER = "openfoam-cylinder"
 WING = "vspaero-wing"
 VALVE = "reduced-order"
@@ -1108,8 +1120,8 @@ def acquire_runner_lock(pid_file: Path, *, force: bool = False, log=print) -> bo
 def _default_paths() -> tuple[Path, Path]:
     # demo-output/website/mega-batch/ledger.jsonl relative to repo root.
     repo_root = _SDK_ROOT.parent
-    ledger = repo_root / "demo-output" / "website" / "mega-batch" / "ledger.jsonl"
-    work_root = repo_root / "demo-output" / "website" / "mega-batch" / "work"
+    ledger = lab_paths.MEGA_BATCH / "ledger.jsonl"
+    work_root = lab_paths.MEGA_BATCH / "work"
     return ledger, work_root
 
 

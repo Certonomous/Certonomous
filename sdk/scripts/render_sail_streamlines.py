@@ -33,6 +33,18 @@ import sys
 import tempfile
 from pathlib import Path
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 SDK = Path(__file__).resolve().parents[1]
 if str(SDK) not in sys.path:
     sys.path.insert(0, str(SDK))
@@ -41,7 +53,7 @@ ROOT = SDK.parent
 CASE_DIR = ROOT / "mission-output" / "geometry-study" / "study-naca0015_sail"
 FIELD_JSON = ROOT / "mission-output" / "geometry-study" / "naca0015_sail_field.json"
 STL = ROOT / "demo-surfaces" / "naca0015_sail.stl"
-OUT_DIR = ROOT / "demo-output" / "plots" / "pressure_slices"
+OUT_DIR = lab_paths.PLOTS / "pressure_slices"
 WSL_CASE = "/home/foam/certonomous-runs/study-naca0015_sail-16e5ff"
 WSL_VTU = (WSL_CASE + "/VTK/study-naca0015_sail-16e5ff_138/internal.vtu")
 

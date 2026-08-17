@@ -101,10 +101,71 @@ import zipfile
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[1]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 REPO = Path(__file__).resolve().parents[1]
-WEB = REPO / "demo-output" / "website"
-LEDGER = WEB / "mega-batch" / "ledger.jsonl"
-WALL = WEB / "wall" / "wall.json"
+
+# `WEB` IS THE ONE CONSTANT IN THIS REPOSITORY WITH NO SINGLE SUCCESSOR
+# (MOVE_MAP 2026-08-16 s4.1).  The children joined onto it below scatter
+# across seven roots -- `mega-batch/` to `cases/`, `wall.json` to
+# `research/closure/data/`, `campaign/` splitting between
+# `verification/runs/` and `verification/campaign/` -- and the whole-tree
+# `rglob("*.md")` at `check_evidence_paths_exist` reaches markdown that
+# ends up under eight.  So each child is named SEPARATELY below and `WEB`
+# itself now means only the webroot proper (R13, five files).  Every name
+# is bound by `lab_paths` to a legacy/successor PAIR resolved against the
+# filesystem at import, so this module is correct before the move, between
+# batches with the tree half-migrated, and after -- with no edit here.
+WEB = lab_paths.WEB
+LEDGER = lab_paths.MEGA_BATCH / "ledger.jsonl"
+WALL = lab_paths.WALL_JSON
+
+
+def _at(p):
+    """A `lab_paths` answer, re-rooted on THIS module's `WEB` / `REPO` names.
+
+    THE PROPERTY THIS EXISTS TO KEEP, and it was broken for one commit before
+    the tests caught it. `WEB`, `REPO`, `ACTIVE`, `WALL`, `CAMPAIGN` and
+    `MISSION` are the handles `sdk/tests/test_empty_set_is_not_agreement.py`'s
+    `_ABSENT_SOURCE_CASES` and
+    `sdk/tests/test_form_or_value_and_empty_selection.py`'s `_Swap` REBIND, to
+    point a check at an empty directory and assert it returns UNKNOWN rather
+    than a clean sweep of nothing. A check that reached past them straight into
+    `lab_paths` could no longer be blinded -- so its "an empty sweep is not
+    agreement" guard could no longer be exercised, and thirteen of them lost
+    their only proof at once. Defect class B1, L-45: the guard would still be
+    correct and nothing would be able to say so.
+
+    So every call-time path in this module goes through here. While a region is
+    still under the webroot the answer is re-rooted on `WEB`; otherwise on
+    `REPO`; and once a region has actually moved out of both it is returned
+    unchanged, which is the honest answer and the one the batches need.
+    Evidence: `test_an_absent_source_is_UNKNOWN_in_every_repaired_check` and
+    its live-arm control `test_the_live_tree_still_reaches_a_verdict_in_every_one_of_them`.
+    """
+    if isinstance(p, (tuple, list)):
+        return type(p)(_at(x) for x in p)
+    out = p
+    try:                                    # REPO always, when it applies
+        out = REPO / p.relative_to(lab_paths.REPO)
+    except ValueError:
+        pass
+    if WEB != lab_paths.WEB:                # WEB only when it was REBOUND,
+        try:                                # because before the move the
+            out = WEB / p.relative_to(lab_paths.WEB)   # webroot is inside the
+        except ValueError:                  # repo and the two re-rootings
+            pass                            # would otherwise fight
+    return out
 
 # A ledger row longer than this is an infrastructure stall, not solver cost.
 # Justification is measured, not assumed: the six rows above this threshold
@@ -507,8 +568,7 @@ def check_ledger_stalls() -> Result:
 _HERE = Path(__file__).resolve().parents[1]
 _PROB_SCRIPT = _HERE / "sdk" / "scripts" / "probability_of_rank.py"
 _PROB_RECORD = _HERE / "sdk" / "scripts" / "probability_of_rank_record.json"
-_ENTRY_OF_RECORD = (_HERE / "demo-output" / "website"
-                    / "closure_challenge_round5_qcr.json")
+_ENTRY_OF_RECORD = lab_paths.web_file("closure_challenge_round5_qcr.json")
 
 
 def _module_literal(path: Path, name: str):
@@ -887,7 +947,7 @@ def check_closure_entry_of_record() -> Result:
     # nothing below has to be remembered when the board moves, because nothing
     # below is written down. The one thing still hard-coded is the NAME of the
     # file opened on the next line, and BASIS says so.
-    entry_path = WEB / "closure_challenge_round5_qcr.json"
+    entry_path = _at(lab_paths.web_file("closure_challenge_round5_qcr.json"))
     entry = _load_json(entry_path)
     if "__error__" in entry:
         # EVIDENCE, not subject: the entry of record is what the wall is graded
@@ -1144,7 +1204,7 @@ def _travelling_names() -> set[str]:
                             f"could not be derived from it ({exc}), so a fault "
                             f"on a surface it packs would have been reported "
                             f"as a lab record")
-    for package in sorted(WEB.glob("closure_challenge_submission*")):
+    for package in _at(lab_paths.SUBMISSION_PACKAGES()):
         if package.is_dir():
             names.update(p.name for p in package.rglob("*") if p.is_file())
     _travelling_names.unopened = unopened          # type: ignore[attr-defined]
@@ -2364,8 +2424,7 @@ def check_rank_claim_values() -> Result:
 # `sdk/tests/test_rank_claim_surfaces.py` proves the two modes disagree on a
 # text where only the wrap differs.
 _BOARD_DIR_ENV = "CLOSURE_BENCHMARK_DIR"
-_BOARD_PIN = REPO / ("demo-output/website/closure_challenge_submission_round5"
-                     "/README.md")
+_BOARD_PIN = lab_paths.CLOSURE_SUBMISSION_ROUND5 / "README.md"
 _BOARD_ROW = re.compile(r"^\|\s*(\d+)\s*\|\s*\[([^\],]+)", re.M)
 
 # THE ORDINAL VOCABULARY IS DERIVED FROM THE BOARD, not typed in.
@@ -3448,7 +3507,8 @@ def _board_pin_date() -> str:
 #: The RANKING referent. A committed, dated record of the live board, read for
 #: the questions that are about STANDING; the frozen clone above stays the
 #: SCORING referent and is read for the questions that are about SCORE.
-_RANKING_RECORD = "demo-output/website/campaign/BOARD_MOVED_2026-08-11.md"
+_RANKING_RECORD = str((lab_paths.CAMPAIGN / "BOARD_MOVED_2026-08-11.md")
+                      .relative_to(lab_paths.REPO))
 _RANKING_RECORD_ENV = "CERTONOMOUS_RANKING_RECORD"
 
 
@@ -4210,7 +4270,7 @@ def check_board_placement_words() -> Result:
 
 def check_memory_scaling_law() -> Result:
     """Refit the published adjoint memory law from its own three measurements."""
-    doc = WEB / "dafoam" / "ADJOINT_MEMORY_ENVELOPE.md"
+    doc = _at(lab_paths.DAFOAM / "ADJOINT_MEMORY_ENVELOPE.md")
     if not doc.exists():
         return Result("adjoint memory law", WARN, "memory envelope record absent")
     text = doc.read_text(encoding="utf-8", errors="replace")
@@ -4267,9 +4327,9 @@ def check_withdrawn_numbers() -> Result:
     sentinels = [
         # (value as written, why withdrawn, surfaces it must not appear on)
         ("0.2510", "A4's DAFoam Ahmed primal, withdrawn",
-         [WALL, WEB / "benchmarks.json"]),
+         [WALL, _at(lab_paths.BENCHMARKS_JSON)]),
         ("10.04%", "A4's adjoint-vs-FD gradient grade, not a drag number",
-         [WALL, WEB / "benchmarks.json"]),
+         [WALL, _at(lab_paths.BENCHMARKS_JSON)]),
     ]
     problems, checked, unread = [], [], []
     for value, reason, surfaces in sentinels:
@@ -4298,6 +4358,30 @@ def check_withdrawn_numbers() -> Result:
                   f"{len(checked)} withdrawn-value sentinel(s) clear")
 
 
+def _record_documents() -> list[Path]:
+    """The markdown `WEB.rglob("*.md")` used to reach, as ROOTS.
+
+    That rglob is MOVE_MAP s4.1's reason `WEB` has no single successor:
+    afterwards the same documents sit under `verification/campaign/`,
+    `research/closure/md/`, `research/agenda/`, `cases/dafoam/` and four
+    more roots.  `lab_paths.RECORD_ROOTS()` names them, deduplicated, so
+    that BEFORE the move -- when every root is under the one webroot -- it
+    collapses to exactly that webroot and this function returns exactly the
+    list the rglob returned, rather than walking the tree eight times and
+    counting every finding eight times.
+    Evidence: `test_record_roots_covers_every_record_the_rglob_reached`,
+    `test_record_documents_reproduces_the_rglob_before_the_move`.
+    """
+    seen: set[Path] = set()
+    out: list[Path] = []
+    for root in _at(lab_paths.RECORD_ROOTS()):
+        for doc in root.rglob("*.md"):
+            if doc not in seen:
+                seen.add(doc)
+                out.append(doc)
+    return sorted(out)
+
+
 def check_evidence_paths_exist() -> Result:
     """Repo-rooted evidence paths cited by the records must exist on disk.
 
@@ -4306,8 +4390,11 @@ def check_evidence_paths_exist() -> Result:
     cannot be resolved from the citation alone, so checking it would produce
     noise rather than findings.
     """
-    roots = ("demo-output/", "sdk/", "scripts/", "models/", "mission-output/",
-             "docs/", "dist/")
+    # `lab_paths.SWEEP_ROOTS()` emits BOTH spellings of every root while
+    # both exist on disk, so a citation written before the move and one
+    # written after both resolve while the batches are landing.  Before the
+    # move it reproduces this whitelist exactly.
+    roots = lab_paths.SWEEP_ROOTS()
     pattern = re.compile(r"`([A-Za-z0-9_][A-Za-z0-9_./-]*\.[A-Za-z0-9]{1,6})`")
     # A record that documents a past citation defect necessarily quotes the
     # broken path. Quoting a withdrawn path is the opposite of citing it, so
@@ -4316,7 +4403,7 @@ def check_evidence_paths_exist() -> Result:
         r"previously pointed at|never existed|did not exist|neither path|"
         r"path corrected|citation correction|withdrawn|do not cite", re.I)
     missing, total, scanned = [], 0, 0
-    for doc in sorted(WEB.rglob("*.md")):
+    for doc in _record_documents():
         if any(part in {"work", "processor0"} for part in doc.parts):
             continue
         scanned += 1
@@ -4360,8 +4447,8 @@ def check_evidence_paths_exist() -> Result:
 
 def check_f2_reproduction() -> Result:
     """F2's published coefficients must match its own raw force file."""
-    record = WEB / "campaign" / "F2_runs" / "F2_reproduction_2026-07-30.json"
-    raw = (WEB / "campaign" / "F2_runs" / "primary_M0.8_a1.25_Re6e6" /
+    record = _at(lab_paths.RUNS / "F2_runs") / "F2_reproduction_2026-07-30.json"
+    raw = (_at(lab_paths.RUNS / "F2_runs") / "primary_M0.8_a1.25_Re6e6" /
            "postProcessing" / "forceCoeffs1" / "0" / "coefficient.dat")
     if not record.exists() or not raw.exists():
         return Result("F2 reproduction", WARN,
@@ -4514,7 +4601,7 @@ def check_cost_predictions() -> Result:
 def check_ungated_completed_runs() -> Result:
     """A completed run whose gate was never resolved is an unfinished gate."""
     findings = []
-    ladder = WEB / "campaign" / "F5a_cylinder_reynolds_ladder.md"
+    ladder = _at(lab_paths.CAMPAIGN / "F5a_cylinder_reynolds_ladder.md")
     if not ladder.exists():
         # The `if ladder.exists()` this replaces skipped in silence and fell
         # through to "no completed run is missing its gate verdict", which is
@@ -4572,9 +4659,9 @@ def check_ungated_completed_runs() -> Result:
 # --------------------------------------------------------------------------
 
 MISSION = REPO / "mission-output"
-CAMPAIGN = WEB / "campaign"
+CAMPAIGN = lab_paths.CAMPAIGN
 GATE_TABLE = CAMPAIGN / "NINE_ACT_GATE_TABLE.md"
-ACTIVE = WEB / "ACTIVE_RESEARCH.md"
+ACTIVE = lab_paths.web_file("ACTIVE_RESEARCH.md")
 REGISTER = CAMPAIGN / "NOT_PASSING_REGISTER.md"
 RESULTS = REPO / "models" / "curriculum" / "results"
 
@@ -4762,7 +4849,7 @@ def check_benchmarks_vs_closure_record() -> Result:
     regeneration. The generator's own docstring says KEEP THIS IN SYNC. That
     instruction is a check waiting to be written, so here it is.
     """
-    published = _load_json(WEB / "benchmarks.json")
+    published = _load_json(_at(lab_paths.BENCHMARKS_JSON))
     block = published.get("closure_challenge", {}) if isinstance(published, dict) else {}
     generator = REPO / "sdk" / "scripts" / "build_benchmarks.py"
     if not block:
@@ -4796,7 +4883,8 @@ def check_benchmarks_vs_closure_record() -> Result:
         problems.append(f"could not read the generator: {type(exc).__name__}: {exc}")
 
     # And the published block against the scored artifacts themselves.
-    entry = _load_json(WEB / "closure_challenge_trained_entry_round3_gated.json")
+    entry = _load_json(_at(lab_paths.web_file(
+        "closure_challenge_trained_entry_round3_gated.json")))
     harness = entry.get("official_test_harness_result", {}) if isinstance(entry, dict) else {}
     scored = harness.get("overall") or harness.get("overall_score")
     if scored is not None and block.get("our_score") is not None:
@@ -4834,7 +4922,7 @@ def check_fd_grades_current_standard() -> Result:
     grade is a defect.
     """
     surfaces = [ACTIVE] if ACTIVE.exists() else []
-    surfaces += sorted(WEB.rglob("*.md"))
+    surfaces += _record_documents()
     seen, problems, ungraded = set(), [], []
     graded = 0
     percent = re.compile(r"\*\*([\d.]+)%\*\*")
@@ -6480,14 +6568,9 @@ _BUNDLE_VERBATIM = (
 )
 # The static pages, which move from demo-output/website into site/ and are the
 # one set whose member path is not its repo path.
-_BUNDLE_PAGES = (
-    ("closure.html", Path("demo-output/website/closure.html"),
-     Path("site/closure.html")),
-    ("benchmarks.html", Path("demo-output/website/benchmarks.html"),
-     Path("site/benchmarks.html")),
-    ("wall.html", Path("demo-output/website/wall/wall.html"),
-     Path("site/wall/wall.html")),
-)
+_BUNDLE_PAGES = tuple(
+    (label, src.relative_to(lab_paths.REPO), Path(member))
+    for label, src, member in lab_paths.BUNDLE_PAGES())
 _BUNDLE_SKIP = ("__pycache__", ".pyc")
 
 # Classes a shipped member can fall into. The classification is applied to the
@@ -6798,7 +6881,7 @@ def check_rung_estimates_state_their_iterations() -> Result:
     step or sweep count. This never blocks a proposal: it counts them, so the
     gap is a number on a report rather than a surprise on a run.
     """
-    docket_path = REPO / "demo-output" / "website" / "agenda" / "docket.json"
+    docket_path = _at(lab_paths.AGENDA / "docket.json")
     docket = _load_json(docket_path)
     # An unreadable docket used to arrive here as `{"__error__": ...}`, take
     # `.get("proposals")` -> None -> `or []`, and land on the "no rung-shaped

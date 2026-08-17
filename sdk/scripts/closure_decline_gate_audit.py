@@ -63,10 +63,21 @@ import train_closure_periodic_hill_correction as ph  # noqa: E402
 import Ofpp  # noqa: E402
 from scipy.interpolate import NearestNDInterpolator  # noqa: E402
 
-_WEB = _REPO / "demo-output" / "website"
-_SUB = _WEB / "closure_challenge_submission_round4" / "test"
-_R4 = _WEB / "closure_challenge_trained_entry_round4_duct.json"
-_OUT = _WEB / "closure_challenge_decline_gate_audit.json"
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
+_SUB = lab_paths.CLOSURE_SUBMISSION_ROUND4 / "test"
+_R4 = lab_paths.web_file("closure_challenge_trained_entry_round4_duct.json")
+_OUT = lab_paths.web_file("closure_challenge_decline_gate_audit.json")
 
 DECLINED = ["alpha_05_4071_4048", "alpha_05_4071_2024"]
 CORRECTED_PH = ["alpha_15_13929_4048", "alpha_15_13929_2024"]

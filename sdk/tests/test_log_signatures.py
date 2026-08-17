@@ -45,13 +45,24 @@ from chief_engineer.log_signatures import (
     wall_time_record_field,
 )
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 LEDGER_SLICE = Path(__file__).resolve().parent / "fixtures" / "ledger_slice.jsonl"
 
 # The lab's archived transient runs, used as the healthy-baseline evidence for
 # S8. Four unsteady cylinder cases, requested maximum Courant number 1.5.
 TRANSIENT_LOGS = sorted(
-    (Path(__file__).resolve().parents[2] / "demo-output" / "website"
-     / "mega-batch" / "work" / "cylinder-unsteady").glob(
+    (lab_paths.MEGA_BATCH / "work" / "cylinder-unsteady").glob(
         "*/log.pimpleFoam"))
 TRANSIENT_LIMIT = 1.5
 _COURANT_LINE = re.compile(
@@ -470,7 +481,7 @@ class ArchiveSweepTests(unittest.TestCase):
     the ceiling-clip-only set unnoticed.
     """
 
-    ROOT = Path(__file__).resolve().parents[2] / "demo-output"
+    ROOT = lab_paths.DEMO_OUTPUT
     WITHDRAWN = "A4_fine_primal_par4.log"
 
     # Ceiling clip only, and only in the SIMPLE startup transient. Each is one
@@ -603,14 +614,10 @@ class SystemOperationsDetectorTests(unittest.TestCase):
 # 36000 once it had actually settled. The Verification Charter section 4
 # records that accepting the first as settled published the ladder as a
 # divergence at p = -0.745.
-FLATPLATE_CAPPED = (Path(__file__).resolve().parents[2] / "demo-output"
-                    / "website" / "tmr" / "runs" / "finest"
-                    / "postProcessing" / "forceCoeffs1" / "0"
-                    / "coefficient.dat")
-FLATPLATE_SETTLED = (Path(__file__).resolve().parents[2] / "demo-output"
-                     / "website" / "tmr" / "runs" / "finest"
-                     / "postProcessing" / "forceCoeffs1" / "15000"
-                     / "coefficient.dat")
+_FLATPLATE = (lab_paths.TMR / "runs" / "finest" / "postProcessing"
+              / "forceCoeffs1")
+FLATPLATE_CAPPED = _FLATPLATE / "0" / "coefficient.dat"
+FLATPLATE_SETTLED = _FLATPLATE / "15000" / "coefficient.dat"
 
 
 def archived_coefficient(path: Path, column: int = 1) -> list[float]:
@@ -695,8 +702,7 @@ class UnsettledStopTests(unittest.TestCase):
         self.assertIsNone(detect_unsettled_stop(series, quantity="Cd"))
 
 
-F8_SPECIMEN_DIR = (Path(__file__).resolve().parents[2] / "demo-output"
-                   / "website" / "campaign" / "F8_runs" / "phase6_mrf_pfinit"
+F8_SPECIMEN_DIR = (lab_paths.RUNS / "F8_runs" / "phase6_mrf_pfinit"
                    / "postProcessing" / "bladeForces" / "0")
 
 
@@ -805,7 +811,7 @@ class MagnitudeExplosionTests(unittest.TestCase):
                     if detect_magnitude_explosion(series):
                         fires.append(f"{dat}:1")
 
-        sweep(repo / "demo-output")
+        sweep(lab_paths.DEMO_OUTPUT)
         expected = {f"{F8_SPECIMEN_DIR / 'moment.dat'}:1",
                     f"{F8_SPECIMEN_DIR / 'force.dat'}:1"}
         self.assertEqual(set(fires), expected,

@@ -88,6 +88,18 @@ from workflows.race_benchmark import RE_NOMINAL, WING               # noqa: E402
 from workflows.shape_optimization import _fit_quadratic, _predict   # noqa: E402
 import run_mfmc_evidence as baseline                                 # noqa: E402
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 SEED = 20260727
 REPLAY_RESAMPLES = 4000
 
@@ -104,7 +116,7 @@ VAL_ALPHAS = [1.25, 3.75, 6.25, 8.75]
 VAL_RES = [0.775e6, 0.925e6, 1.075e6, 1.225e6]
 
 WORK = SDK.parent / "mission-output" / "reynolds-surrogate" / "work"
-PROPOSAL = (SDK.parent / "demo-output" / "website" / "agenda" / "proposals"
+PROPOSAL = (lab_paths.AGENDA / "proposals"
             / "r1-multifidelity-propagation.json")
 COST_TIMING_N = 200_000
 
@@ -448,7 +460,7 @@ def main() -> int:
         },
         "verdict": verdict,
     }
-    out_path = SDK.parent / "demo-output" / "website" / "reynolds_surrogate_evidence.json"
+    out_path = lab_paths.web_file("reynolds_surrogate_evidence.json")
     out_path.write_text(json.dumps(evidence, indent=2), encoding="utf-8")
     print(f"\nevidence written: {out_path}")
 

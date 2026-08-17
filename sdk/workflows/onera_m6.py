@@ -41,6 +41,18 @@ from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
 from .crm_wingbody import _CD_RE, _CL_RE, _TIME_RE, _parse_history
 from .geometry_study import _emit_table, mesh_validity
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 LABEL = "onera_m6"
 SURFACE = "onera_m6_wing.stl"
 TUTORIAL_SOURCE = Path("/home/ubuntu/dafoam-tutorials/Onera_M6_Wing")
@@ -48,7 +60,7 @@ CACHED_SURFACE_MESH = Path(
     "/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/m6_surfaceMesh_fine.cgns.tar.gz")
 EXTRACT_SCRIPT = Path("/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/extract_cp.py")
 COMPARE_SCRIPT = Path("/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/compare_cp.py")
-CASE_2308 = Path("/home/ubuntu/Certonomous/demo-output/website/dafoam/ladder-a/logs_A3/case_2308.dat")
+CASE_2308 = lab_paths.DAFOAM / "ladder-a" / "logs_A3" / "case_2308.dat"
 GATE_SOURCE = "AGARD AR-138 / NASA Turbulence Modeling Resource, Case 2308"
 STATIONS = (0.20, 0.44, 0.65, 0.80, 0.90, 0.96, 0.99)
 CP_RMS_GATE = 0.12   # Cp: a clean forward RANS solve on this mesh family stays under this

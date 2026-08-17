@@ -34,6 +34,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 _HERE = Path(__file__).resolve()
 _REPO_ROOT = _HERE.parents[2]
 
@@ -54,7 +66,7 @@ def default_ledger_path() -> Path:
     env = os.environ.get("CERTONOMOUS_MEGABATCH_LEDGER")
     if env:
         return Path(env).resolve()
-    return (_REPO_ROOT / "demo-output" / "website" / "mega-batch" / "ledger.jsonl").resolve()
+    return (lab_paths.MEGA_BATCH / "ledger.jsonl").resolve()
 
 
 def default_study_path(ledger_path: Path | None = None) -> Path:

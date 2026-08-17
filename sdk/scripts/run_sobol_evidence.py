@@ -56,7 +56,19 @@ from workflows.aircraft_optimization import (_CD0_NONWING,       # noqa: E402
                                              evaluate_design,
                                              parse_requirements)
 
-PROPOSAL = (SDK.parent / "demo-output" / "website" / "agenda" / "proposals"
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
+PROPOSAL = (lab_paths.AGENDA / "proposals"
             / "r1-sobol-sensitivity-mission.json")
 
 N_BASE = 4096          # cost n_base*(M+2): 16384 evals for M=2, seconds total

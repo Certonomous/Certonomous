@@ -35,6 +35,18 @@ from chief_engineer.compute_audit import audit
 from chief_engineer.vspaero import VspAeroWingApi
 from workflows.shape_optimization import _fit_quadratic, _predict
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 # The curriculum wing (models/curriculum/naca4412_wing/reference.yaml).
 WING = {"span": 3.0, "area": 3.0, "sweep": 0.0, "taper": 1.0,
         "camber": 0.04, "camber_loc": 0.4, "thick_chord": 0.12}
@@ -67,7 +79,7 @@ ANCHOR_ALPHAS = [0.0, 3.3, 6.7, 10.0]
 VSPAERO_THREADS = 4               # OpenMP threads per solve (measured banner)
 MAX_WORKERS = 6
 
-RACE_ROOT = OUT_ROOT.parent / "demo-output" / "website" / "race"
+RACE_ROOT = lab_paths.RACE
 
 INK = "#1c2430"
 BLUE = "#2563b8"

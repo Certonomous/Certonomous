@@ -24,8 +24,19 @@ import struct
 from pathlib import Path
 from typing import Any
 
-_LADDER = (Path(__file__).resolve().parents[2]
-           / "demo-output" / "website" / "dafoam" / "ladder-a")
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
+_LADDER = lab_paths.DAFOAM / "ladder-a"
 FRAMES_FILE = _LADDER / "A2_shape_frames.json"
 
 # The baseline wing, written out as a surface anyone can upload. It exists so
@@ -33,8 +44,10 @@ FRAMES_FILE = _LADDER / "A2_shape_frames.json"
 # through the ordinary upload path, instead of the viewer having to take on
 # faith that the surface on screen is the one the result belongs to.
 BASELINE_STL = "mach_tutorial_wing.stl"
-BASELINE_STL_PATH = (Path(__file__).resolve().parents[2]
-                     / "demo-output" / "website" / "surfaces" / BASELINE_STL)
+# `surfaces/` holds NO tracked file, so `git mv` never reaches it: it is
+# one of the two HAND-CARRY trees (`scripts/hand_carry.py`, batch 7H).
+# `lab_paths.SURFACES` is bound to where the 2.18 MB actually is.
+BASELINE_STL_PATH = lab_paths.SURFACES / BASELINE_STL
 
 # ITEM 5 (owner, 2026-07-31): ONE canonical reference for surface motion, so
 # the act never puts three near-miss millimetre figures on screen and leaves a

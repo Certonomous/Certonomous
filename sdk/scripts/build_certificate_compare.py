@@ -26,7 +26,19 @@ if str(_SDK) not in sys.path:
 
 from chief_engineer import certificate  # noqa: E402
 
-_OUT = _SDK.parent / "demo-output" / "website" / "certificates"
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
+_OUT = lab_paths.CERTIFICATES
 
 # Documented real B-52 solve (see module docstring). Mission slug substituted.
 _MISSION_ID = "geometry-study-b52"
