@@ -1,6 +1,0 @@
-WARNING 7: VSPAERO Viewer Not Found. 
-	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
-IDWARP_IMPORTED_FROM: /mnt/idwarp/idwarp/__init__.py
-WARPDERIV_RESULT idx=4 h=1.000e-04 seed=2026 nRanks=4 nXvGlobal=25758 FD_scalar=4.852992879698e+02 AN_scalar=4.853010014193e+02 abs_diff=-1.713449e-03 rel_err=3.530707e-06
-WARPDERIV_RESULT idx=6 h=1.000e-04 seed=2026 nRanks=4 nXvGlobal=25758 FD_scalar=1.313375850877e+01 AN_scalar=1.313393233762e+01 abs_diff=-1.738289e-04 rel_err=1.323527e-05
-WARPDERIV_RESULT idx=7 h=1.000e-04 seed=2026 nRanks=4 nXvGlobal=25758 FD_scalar=-7.434965006952e+00 AN_scalar=-7.435061233793e+00 abs_diff=9.622684e-05 rel_err=1.294247e-05

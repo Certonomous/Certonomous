@@ -497,6 +497,110 @@ class TheBatch2GateFiredBothWays(RepoCase):
         self.assertNotIn(rec, hc.batch2_survivors(tracked, untrack_list=[rec]))
 
 
+class InitialConditionsAreSourceNotSolverOutput(RepoCase):
+    """`0.orig/` is CASE INPUT, added 2026-08-17 while executing batch 2.
+
+    `batch2_class_candidates` spared `system/`, `constant/` and `0/` and did
+    NOT spare `0.orig/`, which is the OpenFOAM spelling for the initial
+    conditions a case is rebuilt from -- the same table row of MOVE_MAP
+    section 7.2, ruled source.  On the live tree at `fc1e3bac` the unrepaired
+    function reached **122 tracked initial-condition files**, 64 of them
+    tracked only because two `.gitignore` negation blocks written that same day
+    re-include them.  Batch 2 would have untracked exactly the files those two
+    blocks exist to keep.
+
+    Fired in both directions, because a `stays()` that spared everything would
+    satisfy the first assertion on its own.
+    """
+
+    def fixture(self):
+        rels = ["c/K0c_runs/case1/0.orig/T",
+                "c/K0c_runs/case1/0.orig/U",
+                "c/K0c_runs/case1/0/T",
+                "c/K0c_runs/case1/system/controlDict",
+                "c/K0c_runs/case1/constant/g",
+                "c/K0c_runs/case1/log.blockMesh",
+                "c/K0c_runs/case1/500/T"]
+        for r in rels:
+            write(self.root, r)
+        self.commit(*rels)
+        hc = self.mod()
+        hc.BATCH2_EXCLUSIONS = ()
+        return hc, hc.tracked_paths()
+
+    def test_initial_conditions_are_not_in_the_untracking_class(self):
+        hc, tracked = self.fixture()
+        cand = hc.batch2_class_candidates(tracked)
+        for p in ("c/K0c_runs/case1/0.orig/T", "c/K0c_runs/case1/0.orig/U",
+                  "c/K0c_runs/case1/0/T", "c/K0c_runs/case1/system/controlDict",
+                  "c/K0c_runs/case1/constant/g"):
+            self.assertNotIn(p, cand, f"{p} is case INPUT and stays tracked")
+
+    def test_the_control_solver_output_beside_them_still_goes(self):
+        """The must-not-match control.  Without it, a `stays()` that returned
+        True for everything passes the test above and untracks nothing, which
+        is a batch 2 that reports success having done nothing."""
+        hc, tracked = self.fixture()
+        cand = hc.batch2_class_candidates(tracked)
+        self.assertIn("c/K0c_runs/case1/log.blockMesh", cand)
+        self.assertIn("c/K0c_runs/case1/500/T", cand)
+
+
+class TheR25ExclusionIsNotVisibleToTheGoDarkGate(RepoCase):
+    """`docs/campaigns/` excluded 2026-08-17, and why a constant was needed.
+
+    R25 sends `docs/campaigns/<c>/*_{runs,sensitivity}/**` to
+    `verification/runs/<c>/`.  Batch 2's class rule reaches part of that tree
+    but not all of it, so -- unlike `MESH_AUDIT_runs` -- the tree never goes
+    dark and `project_after_untracking` reads 0 whether batch 2 spares those
+    files or takes every one of them.  The gate is a GO-DARK detector; this
+    hazard is not a go-dark, and the two tests below are the pair that says so.
+    """
+
+    def fixture(self):
+        rels = ["docs/campaigns/F14/K0c_runs/case1/system/controlDict",
+                "docs/campaigns/F14/K0c_runs/case1/constant/g",
+                "docs/campaigns/F14/K0c_runs/case1/log.blockMesh",
+                "docs/campaigns/F14/K0c_runs/case1/log.checkMesh"]
+        for r in rels:
+            write(self.root, r)
+        self.commit(*rels)
+        return self.mod()
+
+    def test_the_ruled_exclusion_keeps_r25_files_out_of_batch_2s_list(self):
+        """Read the DEFAULT, never a hand-passed tuple.
+
+        The first cut of this test passed `("docs/campaigns",)` explicitly and
+        was therefore green against a `BATCH2_EXCLUSIONS` that did not contain
+        it -- it pinned the filtering, not the ruling.  That is the failure the
+        option-A amendment already records in its own words: *"a gate whose
+        default differs from the batch's own choice reads one thing while the
+        batch does another."*  Caught by the m3 mutant, which dropped the
+        constant's second entry and passed all four tests.
+        """
+        hc = self.fixture()
+        tracked = hc.tracked_paths()
+        self.assertIn("docs/campaigns", hc.BATCH2_EXCLUSIONS,
+                      "the ruled exclusion must be IN the constant, because "
+                      "the constant is what batch 2's list is built from")
+        self.assertEqual(hc.batch2_untrack_list(tracked), [],
+                         "with no argument at all -- the default must BE the "
+                         "ruled option")
+
+    def test_the_go_dark_gate_reads_zero_either_way_so_it_is_not_the_check(self):
+        """The load-bearing negative result.  The projection reads 0 with the
+        exclusion honoured AND with it dropped, so a green batch-2 gate is not
+        evidence that R25 was left alone.  If this test ever reddens, the gate
+        has become able to see this hazard and the constant can be revisited."""
+        hc = self.fixture()
+        tracked = hc.tracked_paths()
+        spared = hc.batch2_untrack_list(tracked, ("docs/campaigns",))
+        taken = hc.batch2_untrack_list(tracked, ())
+        self.assertNotEqual(spared, taken, "the fixture must differ both ways")
+        self.assertEqual(hc.project_after_untracking(tracked, spared), [])
+        self.assertEqual(hc.project_after_untracking(tracked, taken), [])
+
+
 class TheBatch2GateOnTheLiveTree(unittest.TestCase):
     """The same plant, against the tree the ruling is about.  Read-only."""
 

@@ -4768,3 +4768,67 @@ corrected three of its own figures on its face — and still shipped two
 dispositions whose supporting evidence was a search that was never run. **Rigour
 about the quantities you did measure is not evidence about the ones you did
 not.**
+
+## L-103. A gate built for one instance of a hazard detects that instance's SYMPTOM, so the second instance reads clean — the only thing that finds it is measuring what your rule reaches
+
+A batch plan named one interaction between two of its steps: a directory whose
+every tracked file was in the class step 2 untracks, which would therefore lose
+its last tracked file and abort step 7's `git mv`. A gate was written, amended
+after it was found to point the wrong way, fired in both directions on the live
+tree, and pinned by tests with a planted mutant. It was a good gate. It read
+**0** — correctly, and for the wrong question.
+
+**There was a second interaction, it was larger, and the gate reads 0 whether
+the batch commits it or not.** Step 2's class rule reached **109 tracked files
+of a 315-file run archive** that a ruling made that same morning had assigned to
+step 7. The gate detects trees that **go dark**; that archive had 274 tracked
+files, 109 reachable, and **165 left**, so it never goes dark, `git mv` never
+aborts, and the projection is silent. Fired four ways — the ruled option, the
+riskier option, the ruled option with the batch taking all 109, and that again
+with the missing rule binding supplied by a probe — it read **0, 1, 0, 0**. The
+two firings that differ by the entire finding are indistinguishable.
+
+**The gate was not weak and it was not wrong. It was measuring the symptom of
+the first instance.** "Goes dark" is what that hazard *looked like*; the hazard
+itself was "step 2's rule reaches files step 7 owns". Every gate written from a
+worked example inherits that example's shape, and the shape is almost never the
+class.
+
+The same pass found a second one of exactly this form and it was worse. The
+class rule's list of path segments that mean *case input* was `{system,
+constant, 0}`. The initial-condition directory is spelled `0.orig`, so the rule
+reached **122 tracked initial-condition files** — and **64 of them were tracked
+only because two ignore-file negation blocks re-included them, both written that
+same day by the lanes that owned those trees, one of whose comments recorded
+that a `[0-9]*` loop had already deleted every initial-condition directory in
+one of them once.** No gate covered it either, because the files did not go
+dark, did not move, and did not change count. It was found by listing what the
+rule reached and reading the list.
+
+**The transferable rule, and it is cheap.** Before a rule-driven batch runs,
+compute the set the rule REACHES and intersect it with the sets every other rule
+OWNS. Not the gate's output — the rule's reach. A gate answers "did the failure
+I already know about happen"; the intersection answers "does my rule touch
+something that is not mine", which is the question a plan with twenty-five rules
+and nine batches is actually asking. Both findings here fell out of one
+intersection and one listing, and neither was reachable by re-running anything.
+
+**Two corollaries worth carrying separately.**
+
+- **An exclusion belongs in a named constant and its test must read the
+  DEFAULT.** The first cut of the test for this exclusion passed the exclusion
+  in as an argument and was green against a constant that did not contain it —
+  it pinned the filtering, not the ruling. A planted mutant that dropped the
+  constant's entry passed every test in the class. This is the same defect the
+  gate's own earlier amendment had already named in its own words — *"a gate
+  whose default differs from the batch's own choice reads one thing while the
+  batch does another"* — reappearing one layer up, in the test of the thing that
+  said it.
+- **When you find your classifier wrong once, stop trusting its other verdicts
+  in the same pass.** The disposition table had three untrack classes; the same
+  classifier that had just been shown to sweep in initial conditions also
+  reconstructed the third class, and inspecting its 198 files found **a custom
+  solver's C++ source and 26 case dictionaries** in it. That class was deferred
+  rather than executed. An instrument shown wrong about one row of a table has
+  not been shown right about the others, and the safe direction — fewer files
+  leave tracking — costs nothing but a sentence saying so.

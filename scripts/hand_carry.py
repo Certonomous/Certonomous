@@ -46,6 +46,15 @@ list, and one of them is created by the plan's own ordering:
     checks this had to be amended in the same change: see `batch2_survivors`,
     which tested FILE CLASS and so passed under the riskier option and failed
     under the safer one.
+  * `docs/campaigns/F14-cooling-ladder/` is the SAME hazard one campaign over
+    and the projection above cannot see it, because that tree does not go
+    dark.  R25 sends its `K0c_runs` and `K0b_mesh_sensitivity` trees --
+    315 tracked files -- to `verification/runs/<campaign>/` under batch 7, and
+    batch 2's class rule reaches 109 of them while leaving 165 tracked, so
+    `git mv` never aborts and the go-dark projection reads 0 whether batch 2
+    spares them or takes them.  **Excluded by the same ruling, 2026-08-17**,
+    and 44 of the 109 were `0.orig` initial conditions the class rule should
+    never have reached at all: see `batch2_class_candidates`.
 
 So the census is re-derived from the live tree at every invocation, and
 `derive` is the mode you run before believing anything below it.
@@ -423,8 +432,29 @@ def derive(tracked: list[str] | None = None) -> dict:
 #: This tuple IS the exclusion.  Changing it changes what batch 2 untracks and
 #: what the projection below reports, in one place, and the ruling is legible
 #: from the constant rather than from a paragraph.
+#: `docs/campaigns` ADDED 2026-08-17, by batch 2 itself, for the same reason
+#: and by the same ruling.  RULING 1 of 2026-08-17 (R25) classifies
+#: `docs/campaigns/<campaign>/*_{runs,sensitivity}/**` as a run archive and
+#: sends its **315 tracked files** to `verification/runs/<campaign>/` under
+#: batch 7.  The FILE-CLASS rule above reaches 109 of those 315 -- 44 `0.orig`
+#: initial conditions, closed by the `src_seg` repair, and **65 solver logs**
+#: that no repair removes.  Untracking those 65 would take them out of a count
+#: ratified this morning, in the same day, with no ruling; and the thermal lane
+#: is writing that tree RIGHT NOW, so the list is a snapshot of a live
+#: producer's output.
+#:
+#: THE GATE CANNOT SEE THIS ONE, which is why it is a constant and not a
+#: judgement call left to batch 7.  `project_after_untracking` reports trees
+#: that GO DARK, and `K0c_runs` does not: 274 tracked files, 109 reachable, 165
+#: left.  Fired four ways at `fc1e3bac` -- option A, option B, option A plus
+#: all 109 F14 files, and that again with R25 bound into `redirect` by a probe
+#: -- the projection read 0, 1, 0, 0.  It reads 0 whether batch 2 spares the
+#: F14 files or takes every one of them, so passing batch 2's stated
+#: verification is not evidence that batch 2 left R25 alone.  MESH_AUDIT_runs
+#: was caught because it goes dark; this one had to be measured directly.
 BATCH2_EXCLUSIONS: tuple[str, ...] = (
     "demo-output/website/campaign/MESH_AUDIT_runs",
+    "docs/campaigns",
 )
 
 
@@ -443,7 +473,23 @@ def batch2_class_candidates(tracked: list[str]) -> list[str]:
     """
     stay_ext = (".json", ".py", ".sh", ".md", ".png", ".stl", ".obj", ".csv",
                 ".html", ".pdf", ".txt", ".yaml", ".yml", ".ps1", ".jsonl")
-    src_seg = {"system", "constant", "0"}
+    #: `0.orig` ADDED 2026-08-17, executing batch 2.  It is the OpenFOAM
+    #: convention for the initial conditions a case is REBUILT from -- case
+    #: INPUT, which section 7.2 rules stays tracked, in the same table row as
+    #: `0/`.  Without it this function reached **122 tracked initial-condition
+    #: files** and called them solver output: 45 under `campaign/F7_runs`, 44
+    #: under `docs/campaigns/F14-cooling-ladder/K0c_runs`, 20 under
+    #: `campaign/THERMAL_K0_runs` and 13 under `dafoam/`.  The last two
+    #: populations are tracked ONLY because `.gitignore:122-123` and `:135-138`
+    #: re-include them, and both blocks were written on 2026-08-17 by the lanes
+    #: that own those trees, one of them recording that *"one `[0-9]*` loop
+    #: deleted every initial-condition directory in the K0b tree"*.  A batch-2
+    #: list built from the unrepaired function would have untracked the files
+    #: those two blocks exist to keep.  `0.org` is the other spelling of the
+    #: same convention; it matches nothing in this tree today, and it is here
+    #: because a rule proven only against today's filenames has been proven
+    #: only against today's filenames.
+    src_seg = {"system", "constant", "0", "0.orig", "0.org"}
 
     def in_run_tree(p: str) -> bool:
         for s in p.split("/")[:-1]:

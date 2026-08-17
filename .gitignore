@@ -136,3 +136,71 @@ docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/*/[0-9]*/
 !docs/campaigns/F14-cooling-ladder/K0c_runs/*/0.orig/**
 !docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/*/0.orig/
 !docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/*/0.orig/**
+
+# --- BATCH 2: solver output inside the campaign and dafoam run trees (2026-08-17) ---
+# `campaign/MOVE_MAP_2026-08-16.md` section 7.2: a run tree's INPUTS stay
+# tracked and its OUTPUTS leave tracking. Case dictionaries (`system/`,
+# `constant/`) and initial conditions (`0/`, `0.orig/`) are source -- they
+# regenerate the run -- while solver time directories and solver logs are
+# output, rebuilt by re-running it. Nothing is deleted: every path these rules
+# untrack stays on disk at the same path with the same byte count.
+#
+# SCOPED TO THESE TWO ROOTS ON PURPOSE, and the scope is the ruling. A
+# repo-wide `**/log.*` or `**/[0-9]*/` also reaches
+# `docs/campaigns/F14-cooling-ladder/`, whose run trees R25 sends to
+# `verification/runs/` under batch 7. It would not untrack the logs already
+# committed there -- a tracked file overrides an ignore rule -- but it WOULD
+# silently ignore every solver log the lane writing that tree produces next.
+# Those trees are excluded exactly as `MESH_AUDIT_runs` is, and batch 7
+# untracks them at their new path. Batch 7 must re-point these two roots when
+# it moves them, which is the obligation
+# `MOVE_MAP_EXECUTION_2026-08-17.md` section 3.2 already records for lines
+# 122-123 above.
+
+# Solver time directories, at any depth under the two roots.
+#
+# `[1-9]*/` and `0.[0-9]*/` rather than the `[0-9]*/` used above, and the
+# difference is 572 files. `[0-9]*/` matches `0/` and `0.orig/` too -- case
+# INPUT, 773 and 108 tracked files under these two roots -- so it needs them
+# re-included, and a re-inclusion is not free: measured over all 43,663 files
+# on disk under these roots, negating `**/0/` and `**/0.orig/` back in stops
+# 572 currently-ignored UNTRACKED files from being ignored, because a rule
+# above already excluded them at their own depth. Un-ignoring 572 files of
+# solver output is how the 25-million-line commit recorded at line 56 happened.
+# These two patterns never match `0` or `0.orig` in the first place: `0.orig`
+# fails `0.[0-9]` on its `o`, and neither matches a bare `0`. Verified over
+# every directory segment on disk under both roots -- 577 distinct
+# digit-leading segments, of which exactly three are not purely numeric:
+# `0.orig`, `2026-08-08` and `4G_runs`, each handled below or not matched.
+demo-output/website/campaign/**/[1-9]*/
+demo-output/website/campaign/**/0.[0-9]*/
+demo-output/website/dafoam/**/[1-9]*/
+demo-output/website/dafoam/**/0.[0-9]*/
+
+# `4G_runs` is a run TREE whose name begins with a digit, 42 tracked files, and
+# `[1-9]*/` would otherwise ignore the whole of it. git will not descend into an
+# excluded directory, so the directory itself is re-included; the time
+# directories inside it are still matched by the rules above, which come first
+# and are not negated for anything below `4G_runs`.
+!demo-output/website/campaign/4G_runs/
+
+# Solver logs under the two roots.
+demo-output/website/campaign/**/log.*
+demo-output/website/campaign/**/*.log
+demo-output/website/campaign/**/*.log.*
+demo-output/website/dafoam/**/log.*
+demo-output/website/dafoam/**/*.log
+demo-output/website/dafoam/**/*.log.*
+
+# NAMED EXCEPTION, and it is the ruling of 2026-08-17 written where a reader of
+# the rule will meet it. `MESH_AUDIT_runs` holds 78 tracked files and every one
+# is a `*.log.checkMesh` under a dated directory, so the rules above reach the
+# whole tree and batch 2 would take its last tracked file -- after which batch
+# 7's `git mv` of it aborts, taking every other source in that invocation with
+# it. Option A was ruled: batch 2 spares it, and it is untracked at
+# `verification/runs/MESH_AUDIT_runs` once batch 7 has moved it. The negation
+# lives here so the sparing is legible from the rule and not only from a
+# record, and it re-includes nothing that was ignored before it: 78 files on
+# disk, 78 tracked, 0 ignored. REMOVING IT IS PART OF BATCH 7.
+!demo-output/website/campaign/MESH_AUDIT_runs/
+!demo-output/website/campaign/MESH_AUDIT_runs/**
