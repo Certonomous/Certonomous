@@ -285,28 +285,29 @@ The claim, its retraction and the frame that caused it are all §1.
 
 Two further buckets the derivation separates and the mover must not confuse:
 
-- **DISCARD — 8 trees, 38 files, 976,586 bytes.** `__pycache__` and
+- **DISCARD — 8-10 trees, ~40 files, ~1 MB**, and the count moves with every test run. `__pycache__` and
   `.pytest_cache` go dark like anything else, and a rule's prefix will claim
   them: `demo-output/website/campaign/__pycache__` redirects cleanly to
   `verification/campaign/__pycache__`. Carrying one is wrong twice — it is not
   evidence, and a stale `.pyc` carries an embedded source path that no longer
   exists. They are reported and never carried.
-- **STAYS PUT — 7 trees, 16,027 files, 1,484,990,437 bytes** (§3.5).
+- **STAYS PUT — 7 trees, ~16,020 files, ~1.49 GB** at this frame (§3.5).
 
 **Destinations follow §7.3's own rule** — *"/verification/runs/ is the
 tracked-record side, /evidence/ is the gitignored bulk"* — rather than an
-invention. `solve_registry` and `surfaces` are 100% gitignored bulk cited from
-records (`.gitignore:37` and `:76` say so of `solve_registry` in as many words),
-so they go to `/evidence/`. `THERMAL_K0_runs` goes where R20 sends it, because
-`.gitignore:122-123` — added **today** — deliberately re-includes
-`THERMAL_K0_runs/*/0.orig/` so that its initial conditions become tracked. **All
-three destinations are decisions and are the owner's to ratify.** They live in
-one place, `lab_paths._MOVES`, and changing them there changes every consumer.
+invention. Both carried trees are 100% gitignored bulk cited from records
+(`.gitignore:37` and `:76` say so of `solve_registry` in as many words), so both
+go to `/evidence/`. **Both destinations are decisions and are the owner's to
+ratify.** They live in one place, `lab_paths._MOVES`, and changing them there
+changes every consumer.
 
-`THERMAL_K0_runs` was measured at **387 files**, then at **362**, then at
-**368**, across forty minutes. It is live. That is why the carry re-measures
-immediately before the move and aborts on any drift from the plan, rather than
-trusting a number in a checklist.
+**Every count in this section is a frame, and these trees move under you.**
+`THERMAL_K0_runs` was measured at **387 files**, then **362**, then **368**
+across forty minutes, and then turned out not to belong on the list at all.
+`docs/campaigns/` read 27 files at one reading and 5,333 at another an hour
+later. That is why `carry` re-measures immediately before the move and aborts on
+any drift from the plan, instead of trusting a number in a checklist — and why
+G1 in §4 is a re-derivation rather than a comparison against this table.
 
 ### 3.2 The `.gitignore` re-point that must land in the same commit
 
