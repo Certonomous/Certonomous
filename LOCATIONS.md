@@ -463,19 +463,24 @@ instrument matching itself — and zero citations anywhere else.
 Re-derived after the moves, stderr captured on every walk (**0 errors**):
 
 ```sh
-/usr/bin/find /home/ubuntu -maxdepth 1 -type f 2>walk_err.txt | wc -l          # -> 15
+/usr/bin/find /home/ubuntu -maxdepth 1 -type f 2>walk_err.txt | wc -l          # -> 16
 /usr/bin/find /home/ubuntu -maxdepth 1 -type f -exec stat -c %s {} + \
-  | awk '{s+=$1} END{print s}'                                                  # -> 2,104,480
+  | awk '{s+=$1} END{print s}'                                                  # -> 2,118,479
 wc -l < walk_err.txt                                                            # -> 0
 ```
 
-15 files, 2,104,480 B apparent. That reconciles exactly: 909,027,908 (the reading
-taken immediately before the moves, 885 B above the 909,027,023 recorded earlier
-because the three live logs and `.claude.json` had grown in between) minus the
-906,923,428 B in the table = 2,104,480 B, with no residue.
+16 files, 2,118,479 B apparent. That reconciles exactly, in two steps and with no
+residue at either. **Moves only:** 909,027,908 (the reading taken immediately
+before the moves, 885 B above the 909,027,023 recorded earlier because the three
+live logs and `.claude.json` had grown in between) minus the 906,923,428 B in the
+table = **15 files, 2,104,480 B**. **Then one file was added:**
+`/home/ubuntu/README.md`, the orientation page, 13,999 B — written after that
+reading was taken, which is why it is stated as a second step rather than folded
+back into the first. 2,104,480 + 13,999 = 2,118,479.
 
-**The 15 that remain are all deliberate**, and `/home/ubuntu/README.md` says why
-for each: three live logs whose writers hold open file descriptors on them, the
+**Fifteen of the sixteen remain because they must**, and
+`/home/ubuntu/README.md` — the sixteenth — says why for each: three live logs
+whose writers hold open file descriptors on them, the
 seven shell/user dotfiles, `.bash_history`, the two `.bashrc` backups awaiting an
 answer, and `lab.sh` and `provision.sh` — which are **installed deployments**
 registered in `scripts/installed_registry.py`, not the stray duplicates
