@@ -4070,3 +4070,95 @@ plants only the defects its author imagined certifies the author's imagination
 — this one was not planted at all, and that is how the shape was found), L-88 (a
 quantity the discretisation forces cannot gate anything), L-75 (the frame is
 part of the number).
+
+## L-92. An instrument that reads the index is measuring a per-machine, per-moment scratch state that no reader of the repository will ever see — and the error grows on its own, because every commit made the private-index way leaves a committed file with no index entry
+
+**The incident.** `scripts/check_absolutes.py:known_test_names()` decides
+whether a test named in an absolute's prose actually exists. An absolute naming
+a test it cannot find is condemned `CITES_MISSING_CHECK`, the severe class. It
+enumerated the corpus with `git ls-files`, and its docstring said so as a
+virtue — *"Derived from `git ls-files`, not from a list of test files"* — as
+though the alternative to a hand-maintained list were the index rather than the
+committed tree. `git ls-files` lists INDEX entries. Measured in the live
+checkout, same harvester, only the enumeration swapped:
+
+| frame | test names harvested |
+|---|---|
+| `git ls-files` — the index | 2,597 |
+| `git ls-tree -r HEAD` — the committed tree | 2,658 |
+
+61 test functions that genuinely exist could not back a claim, and **100 prose
+citation sites across 5 files** were condemned for citing one.
+
+**The asymmetry is the diagnosis, not a detail.** 477 paths were present in
+HEAD and absent from the index; **zero** were present in the index and absent
+from HEAD. A gap that runs one way only is not a set of deletions the index has
+recorded and the tree has not — it is landed work the index never heard about.
+Had the difference run both ways, "the index is ahead" would have been a live
+hypothesis and the repair would have been a merge rather than a change of
+referent.
+
+**The error grows on its own, which is what makes it worth a lesson rather than
+a fix.** This lab commits with a private index — `GIT_INDEX_FILE=<tmp> git add`,
+`write-tree`, `commit-tree`, `update-ref` — precisely so that concurrent agents
+never fight over the shared one. Every such commit leaves a committed file with
+**no shared-index entry at all**. So the population of files invisible to any
+index-reading instrument is not a fixed backlog that someone will eventually
+clear; it is a monotonically growing set, and it grows fastest exactly when the
+lab is busiest.
+
+**And the bias runs the worst way available.** Because the invisible files are
+the ones most recently landed, the tests an index-reading instrument cannot see
+are disproportionately the NEWEST. The claims most likely to be freshly
+evidenced are therefore the ones most likely to be reported as unevidenced. An
+instrument with this defect does not degrade uniformly; it attacks new work.
+
+**The control is the hard part, and an ordinary tracked file will not do it.**
+A test fixture built the obvious way — write a file, `git add`, commit — puts
+the file in the index *and* in HEAD, so it is visible to both frames and passes
+identically before and after the repair. It certifies nothing. The failing case
+must be a file landed by **the private-index form**, because that is the only
+ordinary way to produce a committed file with no index entry. In
+`scripts/mutation_harness_known_test_names.py` both are built and the
+normally-staged one is asserted to be INSENSITIVE to the repair, so the
+control's own discriminating power is measured instead of assumed.
+
+**What would have caught it, and what will catch the next one.**
+
+* **Make every frame print its referent, in words that name `index` or `HEAD`.**
+  `scripts/sweep.py` does: its `tracked` frame's `rule_words` read *"git ls-files
+  — files in the index, and only those"*, and being forced to write that sentence
+  is what keeps it honest. `known_test_names` claimed "the tracked corpus", a
+  phrase that sounds like the tree and was the index. A frame that cannot state
+  its referent in a printed sentence has not decided what it is measuring.
+* **Ask the instrument's question out loud.** Every one of these instruments is
+  really answering *"will a reader who clones this repository receive X?"* The
+  index is not in a clone. Once the question is phrased that way the referent is
+  not a judgement call.
+* **Test in a repository where the index and HEAD DISAGREE**, and make them
+  disagree the way this lab actually makes them disagree. A fixture repo built by
+  ordinary `git add` cannot exhibit the defect at all.
+
+**A warning about the frame you measure in, which cost me a measurement.**
+The hygienic habit here is to measure in a clean detached worktree, and
+`git worktree add` writes a fresh index that matches HEAD exactly. In that
+worktree `ls-files` and `ls-tree HEAD` agree to the file, the gap is **0**, and
+this entire defect class is **invisible**. The clean room is the wrong room for
+this one: an index defect can only be seen in a checkout with a dirty index, so
+this class must be measured in the live one even though nothing else should be.
+
+**Three instruments have now been caught reading the index** — `lab_check`'s
+`tracked_frame` (repaired under D274, and the precedent this repair followed),
+`hunk_check`'s worktree mode, and now `known_test_names` — and the three were
+found separately, months of work apart, by people who had each read the previous
+repair. That is the signature of a class rather than a bug: the fix does not
+generalise on its own because `git ls-files` is the shorter command and the more
+familiar one, and nothing in its name says *index*.
+
+Related: L-84 (a positive control proves an instrument can fire, not its reach —
+here the ordinary tracked file is a control that fires in both worlds and so
+measures neither), L-87 (a control that plants only the shapes its author
+imagined certifies the imagination; the private-index shape is one an author
+building a fixture the obvious way will never plant), L-43 (the audit instrument
+has its own blind spots), L-75 (our own sweeps inherit rules nobody restates —
+there an ignore file, here a staging area).
