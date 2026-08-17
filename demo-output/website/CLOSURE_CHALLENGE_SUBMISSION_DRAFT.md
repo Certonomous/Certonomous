@@ -617,13 +617,75 @@ a warning without an owner and a period is a comment, not a control.**
 > payload, every number re-verified against a primary artifact rather than against
 > a sibling document — which is how the round-4 text went stale in the first place.
 > The banner below is kept **as the record of what was found**, and the word
-> *verbatim* is retired here because it was one line too strong. **Its thirty body
+> *verbatim* is retired here because it was one line too strong. ~~**Its thirty body
 > lines are byte-identical** — every row of the ten-row defect table, including the
-> round-4 numbers it indicts — but **its heading was replaced and demoted `##` →
+> round-4 numbers it indicts —~~ ***(struck 2026-08-17: twenty-nine of the thirty
+> were, and nine of the defect table's ten rows were; one row — the seventh — was
+> edited at `2cec44ee` after this sentence was written at `b65bdf01`. Re-certified
+> line by line immediately below.)*** but **its heading was replaced and demoted `##` →
 > `###`**, that heading being the one line which described the text underneath it,
 > and that text is no longer what it described; the blank line that closed the
 > blockquote became `>` so the closure table joins it. Row-by-row closure follows
 > the table.*
+>
+> **RE-CERTIFIED 2026-08-17 AT FRAME `101079fd`. THE STRUCK CLAIM WAS TRUE WHEN IT
+> WAS WRITTEN AND WAS FALSIFIED THE NEXT DAY, AND NAMING WHICH LINE IS THE WHOLE
+> POINT OF IT.** The struck clause landed at `b65bdf01` (2026-08-11 02:42:53Z). The
+> measurement was an aligned 32-line byte comparison of the banner block below
+> against `e87650db^` (`514876b0`), each side anchored on its own heading line
+> rather than on a line number, index 0 being that heading and indices 1–30 the
+> thirty body lines the clause spoke about:
+>
+> - **3 of the 32 block lines differed at `101079fd`** — block indices **0, 21 and
+>   31**. **29 of 32 matched byte for byte**, and of the **thirty body lines, 29
+>   matched and one did not.**
+> - **Two of the three were declared, and both declarations were left standing above**: index 0,
+>   the heading replaced and demoted `##` → `###`; index 31, the blank line that
+>   closed the blockquote, which became `>`.
+> - **The third was not declared, and it was a row of the ten-row defect table.** At
+>   `101079fd` that table's header sat at index 13, its separator at index 14 and its
+>   ten data rows at indices 15–24. The undeclared line was **index 21, the seventh
+>   of those ten rows** — the row whose first cell reads `§5.4, §5.2`. **9 of the 10
+>   rows were byte-identical, not 10.**
+>
+> **What `2cec44ee` (2026-08-12 18:05:51Z) did to index 21.** Walking every commit
+> that touched this file between `e87650db^` and `101079fd`, it was the only one that
+> moved any block line other than 0 and 31, and no later commit touched index 21
+> again. Its edit was a **pure insertion of 186 bytes** — the row went from 579 bytes
+> to 765 — with **nothing deleted and nothing reworded**: immediately after that
+> row's clause `**and must now carry P(rank 1) = 68% with its 2–100% interval**` it
+> inserted the dated scope note `*(figures as recorded at this banner's date against
+> the four-entry board; the rule's live figures are 50% and 0–97% on the six-entry
+> board — see §10's re-correction of 2026-08-12)*`. Every other byte of the row was
+> carried across unchanged.
+>
+> **Why the certification was corrected and index 21 was NOT restored.** That row did
+> not narrate, it **mandated** — *"must now carry P(rank 1) = 68% with its 2–100%
+> interval"* — and the six-entry board fetched 2026-08-11T23:33Z
+> (`campaign/BOARD_MOVED_2026-08-11.md`) falsified both of those figures, so a reader
+> obeying the row as it stood would have written a superseded probability into §5.2
+> and §5.4. That was the claim-generator shape `scripts/check_normative_clauses.py`
+> was built against (docket `D119`); at `101079fd` that instrument's own BLIND-TO
+> census named a mandate pinning a four-entry `P(rank 1)` as its live uncaught
+> instance. Restoring index 21 to its `e87650db^` bytes would have reinstated an
+> un-scoped four-entry mandate inside a package held open for proofreading, and would
+> have deleted a dated repair, against `W-4`. **The false thing was the certification,
+> not the edit**, so the certification was corrected and the banner's bytes were left
+> as `2cec44ee` left them.
+>
+> **What let this survive three re-verifications, recorded so the shape is not
+> re-learned.** `2cec44ee`'s own commit message declared its edits to §10 and to two
+> rows of the closure table *below* this banner and named no edit to the banner
+> itself; and the sentence the edit falsified sat four lines *above* the row it
+> changed, inside a paragraph whose announced subject was the rewrite of §5.1–§5.4
+> rather than the banner's bytes. Nothing on the page joined the edit to the claim
+> about it, and at `101079fd` no instrument in this lab took a byte-identity
+> ASSERTION as its unit — `scripts/check_summary_consistency.py`, the one check built
+> around a byte-identical block, records in its own header that byte-identity decides
+> nothing in either direction and that it never looks at a diff. So this claim was
+> re-derived only by whoever chose to re-derive it: three graders did, on
+> 2026-08-14, 2026-08-15 and 2026-08-17, and none left an executable behind that
+> would have re-measured it for the next reader. Filed as `D339`.
 >
 > **What has NOT changed: nothing is sent.** §5.6 items 6 and 7 are Katie's and
 > remain OUTSTANDING, and they are the send block. This rewrite makes the package
