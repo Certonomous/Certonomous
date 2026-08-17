@@ -2,7 +2,27 @@
 
 Process rules earned from real incidents on this project. Each entry states the
 rule, the incident that produced it, and how to apply it. Rules are added only
-after something actually went wrong or was actually caught — not from theory.
+after something actually went wrong or was actually caught, never from theory.
+
+**This file is a record, not a handbook.** Each entry below is an attestation:
+the incident is described as it happened, at the frame it happened in, and
+entries are amended in place rather than rewritten. That is why the prose here
+reads differently from `README.md` or `docs/USING_THIS_LAB.md`, and why a reader
+should meet those two first. `docs/charters/README.md` and
+`docs/MEMORY_ARCHITECTURE.md` section 5 explain how to read this one.
+
+**Do not carry a count of this file into any other document.** It grows several
+times a day. Take the reading instead, and say which of the three figures you
+mean:
+
+| What | Command | Value at `8cefb4e9` |
+|---|---|---|
+| Lesson blocks | `command grep -c '^## L-' LESSONS.md` | 85 |
+| Distinct lesson numbers | derived from the same list | 84 |
+| Highest lesson number | `command grep -oE '^## L-[0-9]+' LESSONS.md \| sort -t- -k2 -n \| tail -1` | L-85 |
+
+The three differ. L-43 carries a second corollary block under the same number and
+L-52 does not exist, so 85 blocks span 84 numbers reaching L-85.
 
 ---
 

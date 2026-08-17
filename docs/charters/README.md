@@ -1,21 +1,26 @@
 # Certonomous charters
 
-A charter is a standing rule the lab holds itself to when nobody is watching.
-It is not a mission statement and it is not a summary of good intentions. The
-test every charter here has to pass is simple.
+A charter is a standing rule the lab holds itself to when nobody is watching. It
+is not a mission statement and it is not a summary of good intentions. The test
+every charter here has to pass is simple.
 
 > **If no decision could ever violate it, it is not a charter and it does not
 > belong in this directory.**
 
-That is the working standard, and it is why these documents carry numbers,
-named files, bright lines and worked examples rather than principles. A clause
-you cannot point at a decision and say "that broke it" is decoration, and it
-gets deleted at the next revision.
+That is the working standard, and it is why these documents carry numbers, named
+files, bright lines and worked examples rather than principles. A clause you
+cannot point at a decision and say "that broke it" is decoration, and it gets
+deleted at the next revision.
 
-## The nine
+---
+
+## 1. The nine
+
+Nine files match `docs/charters/*_CHARTER.md` at frame `8cefb4e9`. Re-derive with
+`ls docs/charters/*_CHARTER.md | wc -l`.
 
 | # | Charter | The one line it turns on |
-| --- | --- | --- |
+|---|---|---|
 | 1 | [Goals and research proposals](GOALS_AND_PROPOSALS_CHARTER.md) | A proposal that cannot come out more than one way is not a proposal. |
 | 2 | [Literature review](LITERATURE_CHARTER.md) | Zero fabricated citations, and the tolerance is zero. |
 | 3 | [Case selection](CASE_SELECTION_CHARTER.md) | No new family below HARD without written approval, watched or unwatched. |
@@ -26,7 +31,13 @@ gets deleted at the next revision.
 | 8 | [Reporting](REPORTING_CHARTER.md) | Six sections, fixed order, every morning, including the mornings with nothing good in them. From version 2.0 the headings are fixed strings, so a missing section fails a match rather than a taste test. |
 | 9 | [Supervision](SUPERVISION_CHARTER.md) | Every big task family has a standing supervisor, and four kinds of check are done by a supervisor personally or they have not been done. |
 
-## How to read one
+`SUPERVISOR_RULINGS.md` sits in this directory and is not a charter, but it binds
+like one. `PROPOSALS_OPEN.md` and `CUSTODY_PROPOSAL.md` are proposals and bind
+nothing.
+
+---
+
+## 2. How to read one
 
 Every charter follows the shape of `docs/DEMO_DISCRETION_CHARTER.md`, which was
 written first and set the house style:
@@ -36,33 +47,37 @@ written first and set the house style:
 3. Numbered sections working that line out, with explicit lists of what is
    required, what is allowed and what is forbidden.
 4. Worked examples drawn from things this lab actually did.
-5. Enforcement. What checks the clause, or an honest statement that nothing
-   does yet.
+5. Enforcement: what checks the clause, or an honest statement that nothing does
+   yet.
 
-Clauses cite `LESSONS.md` by number wherever the rule was learned the hard way.
-A clause carrying a lesson number is a rule the lab paid for. A clause without
-one is either obvious or new, and if it is new it says so.
+Clauses cite `LESSONS.md` by number wherever the rule was learned the hard way. A
+clause carrying a lesson number is a rule the lab paid for. A clause without one
+is either obvious or new, and if it is new it says so.
 
-## PROPOSAL markers
+---
 
-Some clauses encode a decision the owner has already made. Others are drafts
-the lab wrote because the gap needed filling and nobody had ruled on it. Those
-are marked inline:
+## 3. PROPOSAL markers
 
-> **PROPOSAL.** Nobody has ruled on this. Written so there is something to
-> argue with.
+Some clauses encode a decision the owner has already made. Others are drafts the
+lab wrote because the gap needed filling and nobody had ruled on it. Those are
+marked inline:
+
+> **PROPOSAL.** Nobody has ruled on this. Written so there is something to argue
+> with.
 
 Everything not marked that way traces to a recorded instruction, an existing
 standards document, or a lesson. The distinction matters more than any single
 clause: the lab must never present its own invention as the owner's policy.
 
-`PROPOSALS_OPEN.md` collects every open marker across all nine in one place,
-so the owner can react to the whole set without reading the whole set. From
-version 2.0 it also carries the conflicts, which are rulings rather than
-proposals, and the escalations the weekly audit turns up. Every item in it is
-answerable by label: "P-1.1: A" is a complete decision.
+`PROPOSALS_OPEN.md` collects every open marker across all nine in one place, so
+the owner can react to the whole set without reading the whole set. From version
+2.0 it also carries the conflicts, which are rulings rather than proposals, and
+the escalations the weekly audit turns up. Every item in it is answerable by
+label: "P-1.1: A" is a complete decision.
 
-## How they get revised
+---
+
+## 4. How they get revised
 
 They are iterated like code, on the owner's instruction.
 
@@ -70,44 +85,48 @@ They are iterated like code, on the owner's instruction.
    incident comes first, the clause second. This is the same discipline
    `LESSONS.md` states in its own header: rules are added after something
    actually went wrong or was actually caught, never from theory.
-2. **Bump the version and date in the file.** Charters carry `Version N.M,
-   dated YYYY-MM-DD` on the first line, exactly as the demo discretion charter
-   does.
+2. **Bump the version and date in the file.** Charters carry
+   `Version N.M, dated YYYY-MM-DD` on the first line, exactly as the demo
+   discretion charter does.
 3. **A revision that weakens a clause must name the decision that forced it.**
-   Widening a gate after a result misses it is the failure mode the demo
-   charter already forbids on camera, and it is no more acceptable here.
+   Widening a gate after a result misses it is the failure mode the demo charter
+   already forbids on camera, and it is no more acceptable here.
 4. **Contradictions get surfaced, not resolved locally.** If a new clause would
    conflict with a rule the owner has already set, the conflict is reported to
-   her rather than settled by whoever noticed it.
-5. **Deletions are fine.** A charter that has never bound anything is worse
-   than no charter, because it teaches the lab that these documents are
-   scenery.
+   the owner rather than settled by whoever noticed it.
+5. **Deletions are fine.** A charter that has never bound anything is worse than
+   no charter, because it teaches the lab that these documents are scenery.
 
-## Related standing documents
+---
 
-- `docs/DEMO_DISCRETION_CHARTER.md`. The promotional surface. Withhold method,
-  never misstate result.
-- `docs/standards/INNOVATION_STANDARD.md`. How a new method enters the lab.
-- `docs/standards/MESH_STANDARD.md`, `docs/standards/MONITOR_STANDARD.md`.
-- `docs/UNCERTAINTY-DOCTRINE.md`. The three channels and their recipes.
-- `LESSONS.md`. The numbered lessons plus the process doctrine P1 through P5.
-  It is large and grows daily; do not read it cold. For its current extent run
-  `grep -c '^## L-' LESSONS.md` for the block count and
-  `grep -o '^## L-[0-9]*' LESSONS.md | tail -1` for the highest number, and see
-  `docs/MEMORY_ARCHITECTURE.md` §5 for how to read it.
-  *[AMENDED 2026-08-11 (cold-start repair). This line read "L-1 through L-28"
-  from some point before 2026-08-04 until today. Original wording retained here
-  per `docs/MEMORY_ARCHITECTURE.md` §8.1. It was wrong by 25 entries when the
-  2026-08-10 memory survey caught it (logged as D-3), by 29 when the first
-  cold-start run re-measured it at 01:19 UTC today, and by 51 when the second
-  run re-measured it this evening — the same literal going stale three times in
-  36 hours. **It is replaced by the commands above rather than by a fresh
-  number, deliberately**: a count of a file that grows several times a day
-  cannot be maintained by hand in an index nobody revisits, and re-copying
-  today's figure would only schedule the fourth report. This entry is the index
-  of the corpus; it was never the census of it.]*
-- `demo-output/website/campaign/NOT_PASSING_REGISTER.md`. Where failures live.
-- `scripts/self_audit.py`. The weekly re-verification of published claims
-  against the artifacts they cite. It is where several of these clauses stop
-  being text: a charter that is checked by something is worth more than a
-  charter that is remembered. It reports and never repairs.
+## 5. Related standing documents
+
+| Document | What it is |
+|---|---|
+| `docs/DEMO_DISCRETION_CHARTER.md` | The promotional surface. Withhold method, never misstate result. |
+| `docs/standards/INNOVATION_STANDARD.md` | How a new method enters the lab. |
+| `docs/standards/MESH_STANDARD.md`, `docs/standards/MONITOR_STANDARD.md` | The two technical standards. |
+| `docs/UNCERTAINTY-DOCTRINE.md` | The three channels and their recipes. |
+| `LESSONS.md` | The numbered lessons plus the process doctrine P1 through P5. |
+| `demo-output/website/campaign/NOT_PASSING_REGISTER.md` | Where failures live. |
+| `scripts/self_audit.py` | The weekly re-verification of published claims against the artifacts they cite. It reports and never repairs. |
+
+`LESSONS.md` is large and grows daily. Do not read it cold, and do not carry a
+count of it in any index. Take the reading instead:
+
+| What | Command | Value at `8cefb4e9` |
+|---|---|---|
+| Lesson blocks | `command grep -c '^## L-' LESSONS.md` | 85 |
+| Distinct lesson numbers | derived from the same list | 84 |
+| Highest lesson number | `command grep -oE '^## L-[0-9]+' LESSONS.md \| sort -t- -k2 -n \| tail -1` | L-85 |
+
+**Block count, distinct count and highest number are three different figures,
+and at this frame two of them agree by coincidence.** L-43 carries a second
+corollary block under the same number, and L-52 does not exist, so 85 blocks span
+84 numbers reaching L-85. A count of lessons is therefore not a count of blocks
+and neither is the highest number. Say which one you mean.
+
+`docs/MEMORY_ARCHITECTURE.md` section 5 covers how to read the file. Section 8.1
+records why this entry gives commands rather than a figure: a hand-maintained
+count of a file that grows several times a day schedules its own next correction.
+This entry is the index of the corpus; it was never the census of it.
