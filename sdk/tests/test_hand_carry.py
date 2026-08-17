@@ -152,6 +152,20 @@ class Derivation(RepoCase):
         self.assertEqual(rides[_W + "/dafoam/case/processor0"]["carried_by"],
                          _W + "/dafoam")
 
+    def test_a_regenerated_cache_tree_is_discarded_not_carried(self):
+        """A `__pycache__` under `campaign/` goes dark like anything else and
+        a rule's prefix claims it.  Carrying it moves a stale `.pyc` whose
+        embedded source path no longer exists into the new tree."""
+        write(self.root, _W + "/campaign/RECORD.md")
+        self.commit(_W + "/campaign/RECORD.md")
+        write(self.root, _W + "/campaign/__pycache__/x.cpython-312.pyc")
+        hc = self.mod()
+        d = hc.derive()
+        self.assertNotIn(_W + "/campaign/__pycache__",
+                         {r["source"] for r in d["carry"]})
+        self.assertIn(_W + "/campaign/__pycache__",
+                      {r["source"] for r in d["discard"]})
+
     def test_a_tree_no_rule_maps_stays_put(self):
         """`mission-output/` holds 8,625 files and appears nowhere in the
         target tree.  It must be reported as staying, not carried anywhere."""
@@ -368,13 +382,35 @@ class AgainstTheLiveTree(unittest.TestCase):
     def test_solve_registry_is_still_dark(self):
         """MOVE_MAP section 4.3's named instance.  If it ever gains a tracked
         file this test fails, which is the correct alarm: `git mv` then works
-        and the hand-carry must not run."""
+        and the hand-carry must not run.
+
+        Asked of HEAD, not of `git ls-files`.  The index on this tree is
+        missing every file landed by a private-index commit -- 160 of them at
+        `f40f6ef5` -- and `THERMAL_K0_runs` was called dark on exactly that
+        mistake."""
         cp = subprocess.run(
-            ["git", "-C", str(_REPO), "ls-files", "--", _W + "/solve_registry"],
+            ["git", "-C", str(_REPO), "ls-tree", "-r", "--name-only", "HEAD",
+             "--", _W + "/solve_registry"],
             capture_output=True, text=True)
         self.assertEqual(cp.stdout.strip(), "",
                          "solve_registry gained tracked files: re-derive the "
                          "carry set before moving anything")
+
+    def test_the_tracked_frame_is_head_and_not_the_index(self):
+        """The frame itself, pinned.  A regression to `git ls-files` here is
+        silent and puts a git-mv-able tree on the hand-carry list."""
+        hc = self.hc
+        head = subprocess.run(
+            ["git", "-C", str(_REPO), "ls-tree", "-r", "--name-only", "HEAD"],
+            capture_output=True, text=True).stdout.split("\n")
+        head = [p for p in head if p]
+        self.assertEqual(sorted(self.tracked), sorted(head))
+        idx = subprocess.run(["git", "-C", str(_REPO), "ls-files"],
+                             capture_output=True, text=True).stdout.split("\n")
+        idx = [p for p in idx if p]
+        # Not an equality assertion: the two frames may coincide at a quiet
+        # moment.  What is pinned is that the module took the HEAD one.
+        self.assertGreaterEqual(len(self.tracked), len(set(self.tracked) & set(idx)))
 
     def test_the_carry_set_is_reachable_and_every_member_has_a_destination(self):
         d = self.hc.derive(self.tracked)
@@ -387,7 +423,7 @@ class AgainstTheLiveTree(unittest.TestCase):
     def test_no_tree_is_in_two_buckets_at_once(self):
         d = self.hc.derive(self.tracked)
         buckets = [{r["source"] for r in d[k]}
-                   for k in ("carry", "rides_along", "stays")]
+                   for k in ("carry", "rides_along", "stays", "discard")]
         for i, a in enumerate(buckets):
             for b in buckets[i + 1:]:
                 self.assertEqual(a & b, set())

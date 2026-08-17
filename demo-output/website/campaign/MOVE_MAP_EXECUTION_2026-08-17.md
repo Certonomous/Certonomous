@@ -11,22 +11,58 @@ document adds three things the map left as prose: an executable hand-carry, the
 `lab_paths` shim its §4.1 proposed, and a batch order whose every step states
 what breaks if the next one never lands.
 
-Measured at **`718793362c3496b79c9ee4ba2513a08b77680879`** unless a different
-anchor is named beside it. The tree moves several times an hour; every count
-below is a reading at a frame. Two of them were measured twice, ten minutes
-apart, and disagreed — that is recorded in §3 rather than smoothed away.
+Measured at **`f40f6ef5`** unless a different anchor is named beside it, and
+**over `git ls-tree -r HEAD`, not `git ls-files`** — §1 is about why that
+distinction moved an answer. The tree moves several times an hour; every count
+below is a reading at a frame. `THERMAL_K0_runs` was measured three times in
+forty minutes at 387, 362 and 368 files, and then turned out not to belong on
+the list at all — both facts are recorded in §3 rather than smoothed away.
 
 ---
 
-## 1. The reconciliation, re-derived — and it does not close at 13,810
+## 1. The reconciliation — and the frame it was taken in is the wrong one
 
-The map's §2.5 identity was **721 keep + 13,082 move + 6,952 untrack + 7
-exceptions = 20,762** at `371be610`. Re-derived at HEAD by classifying every
-tracked path into exactly one rule, **zero unclassified**, over both frames:
+**The map counts the INDEX, and this lab's own commit protocol never writes
+it.** `MOVE_MAP` §2 states that its totals *"reconcile to `git ls-files | wc -l`
+exactly"*, and every count in it was taken that way. `git ls-files` lists
+**index** entries. `docs/USING_THIS_LAB.md` §8.5's private-index form — the
+mandated one — builds a commit under `GIT_INDEX_FILE` and **never touches the
+shared index**, so every file a conforming agent lands is in HEAD and absent
+from `git ls-files` until somebody runs `git add` or `git reset`. Under a live
+fleet nobody does.
 
-| | claimed | measured at `371be610` | measured at HEAD |
+Measured at `f40f6ef5`:
+
+```
+git ls-files                     | wc -l   ->  13,814
+git ls-tree -r --name-only HEAD  | wc -l   ->  13,974
+comm -13  (in HEAD, not the index)         ->     160
+comm -23  (in the index, not HEAD)         ->       0
+```
+
+**160 tracked files are invisible to the frame the map counts in**, and the
+asymmetry says what they are: nothing is staged that HEAD lacks, so all 160 are
+landed work that the index has not caught up with. `scripts/lab_check.py:486-496`
+records this exact repair — `tracked_frame` moved from `git ls-files` to
+`git ls-tree -r HEAD` on docket D274, ruled 2026-08-16 — with the reasoning that
+applies verbatim here: *"the question this frame answers is 'will this travel'…
+and the index is a per-machine, per-moment scratch state no reader of the
+repository ever sees."*
+
+**This is not bookkeeping. It changed an answer in §3**, and the direction it
+changed it in is the dangerous one: `campaign/THERMAL_K0_runs/` holds **97
+tracked files at HEAD and 0 in the index**, so the index frame called it dark
+and put it on the hand-carry list — a tree `git mv` is about to rename, hand-moved
+out from under it, leaving the index and the disk pointing at different places.
+
+### The counts
+
+Re-derived over the index frame, for comparability with the map, classifying
+every tracked path into exactly one rule with **zero unclassified**:
+
+| | claimed at `371be610` | measured at `371be610` | measured at HEAD (index frame) |
 |---|---:|---:|---:|
-| `git ls-files \| wc -l` | 20,762 | **20,762** | **13,814** |
+| tracked total | 20,762 | **20,762** | **13,814** |
 | R11 `demo-output/plots/` | 752 | 752 | **752** |
 | R20 campaign `*_runs`/`*_work` | 7,940 | 13,742 − 5,802 = 7,940 | **7,940** |
 | R22 `dafoam` | 3,268 | 3,268 | **3,268** |
@@ -35,14 +71,13 @@ tracked path into exactly one rule, **zero unclassified**, over both frames:
 | R10 / R12 / R24 | 77 / 10 / 7 | same | **same** |
 | **R21 campaign records** | **269** | **269** | **271** |
 
-The map was exactly right when it was written. It does not close now, and the
-brief's account of why — *"the four extra being files landed within the hour"* —
-is half wrong:
+The map was exactly right at its own anchor, in its own frame. It does not close
+at HEAD, and the brief's account of why — *"the four extra being files landed
+within the hour"* — is half wrong:
 
-1. **R21 is 271, not 269 (+2).** Two campaign records were added since the
-   baseline: `LADDER_V_V7_GRADE_2026-08-16.md` and `MOVE_MAP_2026-08-16.md`
-   itself, the map having since been committed into its own corpus. These
-   **are** new files. The move subtotal is therefore **13,084**.
+1. **R21 is 271, not 269 (+2).** `LADDER_V_V7_GRADE_2026-08-16.md` and
+   `MOVE_MAP_2026-08-16.md` itself, the map having since been committed into its
+   own corpus. These **are** new files. The move subtotal becomes **13,084**.
 2. **`uq_batch.err` and `uq_batch.log` are still tracked (+2), and they are
    supposed to be.** They are not stragglers of an incomplete sweep.
    `.gitignore:105-113` carries a named exception for exactly these two files,
@@ -51,23 +86,27 @@ is half wrong:
    belong in the **keep-in-place** bucket, not the untracking one. The map
    contradicts the repository's own committed ignore policy at that line.
 
-Corrected identity, and it closes exactly:
-
 ```
     723   keep in place   R0(3) R3(327) R4(202) R7(137) R9(52) + uq_batch(2)
  13,084   move            R21 now 271
       7   exceptions      X1(1) X2(1) X3(5)
  ------
- 13,814   =  git ls-files | wc -l   at 718793362
+ 13,814   =  git ls-files | wc -l     <-- the INDEX frame, and 160 short of HEAD
 ```
 
-`comm` over the two frames: **6,950 paths left tracking and 2 arrived**, and
-every one of the 6,950 is a U-rule file — U1 2 wheels, U2 10 `mbc_retry*`, U3
-5,802, U4 1,136. **Zero R-rule files lost tracking.** Batch 1 executed cleanly.
+`comm` over the two index frames: **6,950 paths left tracking and 2 arrived**,
+all 6,950 U-rule files — U1 2 wheels, U2 10 `mbc_retry*`, U3 5,802, U4 1,136.
+**Zero R-rule files lost tracking.** Batch 1 executed cleanly.
 
-**A counting hazard for whoever runs this next.** `git ls-files -- 'demo-output/*.png'`
-returns **874**, not R12's 10: git pathspec globs match across `/`. R12 is only
-measurable with an anchored regex over a `git ls-files` snapshot.
+**Before batch 0 runs, the whole of §2 must be re-derived over
+`git ls-tree -r HEAD`**, and the 160-file gap says the rule counts will move.
+That re-derivation is not done here: it is the map's, and it is a batch-0
+prerequisite rather than a note.
+
+**A second counting hazard for whoever runs it.**
+`git ls-files -- 'demo-output/*.png'` returns **874**, not R12's 10: git pathspec
+globs match across `/`. R12 is only measurable with an anchored regex over a
+path snapshot.
 
 ---
 
@@ -174,6 +213,39 @@ green is to loosen it — which is how the positive controls stop being controls
 Measured now against `lab_paths.resolve()`: **223 of 223 resolve, 0 unresolved.**
 That is the pre-batch baseline the gate compares against.
 
+### 2.4 The same frame defect, live in a second instrument
+
+`scripts/check_absolutes.py:520-547`'s `known_test_names()` derives the set of
+names that can back an absolute claim from **`git ls-files`**. Its docstring
+gets the intent exactly right — *"a suite nobody has named must still be able to
+back a claim"* — and then reads the frame that cannot see a suite landed by this
+lab's own commit protocol.
+
+Measured at `f40f6ef5`, running its own harvester over both frames:
+
+```
+ls-files (index):  2,334 test names
+ls-tree  (HEAD) :  2,393 test names
+```
+
+**59 test functions exist in HEAD and are invisible to the checker.** Every
+absolute claim citing one of them is condemned `CITES_MISSING_CHECK` — the more
+severe class, and one that deliberately is not rescued by a resolving sibling
+citation. That is a false positive produced by the instrument, on the claims most
+likely to be freshly evidenced, and it is D274's defect class unrepaired in a
+second place. Not repaired here: `check_absolutes` is a shared instrument
+mid-flight and this is not that batch. Recorded so it is not rediscovered.
+
+**One consequence worth carrying forward for record authors.** The same function
+resolves a `test_*` token only against **function and class definitions**, so a
+test MODULE's filename never resolves: writing `sdk/tests/test_lab_paths.py` in
+prose yields the token `test_lab_paths`, which is not a function, and condemns
+the unit. Every `Evidence:` line in this record and in both new modules
+therefore names functions, not files — and they will keep reading as dangling
+until the index catches up with HEAD.
+
+---
+
 ---
 
 ## 3. The hand-carry set, derived
@@ -194,13 +266,32 @@ invocation and the numbers below are a frame, not a constant.**
 
 | Tree | files | bytes | destination | why |
 |---|---:|---:|---|---|
-| `demo-output/website/solve_registry` | 300 | **1,508,128,888** | `evidence/solve_registry` | in no rule at all — 0 tracked files, so the classifier never saw it |
-| `demo-output/website/campaign/THERMAL_K0_runs` | 368 | 12,553,796 | `verification/runs/THERMAL_K0_runs` | **named by R20** and holds 0 tracked files: a rule pointing at a tree it cannot move |
+| `demo-output/website/solve_registry` | 300 | **1,508,128,888** | `evidence/solve_registry` | in no rule at all — 0 tracked files at HEAD, so the classifier never saw it |
 | `demo-output/website/surfaces` | 7 | 2,180,257 | `evidence/surfaces` | in no rule; §9 already records `**/surfaces/` stranded once |
-| | **675** | **1,522,862,941** | | |
+| | **307** | **1,510,309,145** | | |
 
-The map named only `solve_registry/`. The other two are new, and the numbers on
-`solve_registry` reproduce §4.3's "300 files / 1.51 GB" exactly.
+The numbers on `solve_registry` reproduce §4.3's "300 files / 1.51 GB" exactly.
+`surfaces/` is new, and it is the `**/surfaces/` §9 records as stranded once
+before — seven `.stl` geometries caught by an ignore rule aimed at
+functionObject sampled-surface output.
+
+**`campaign/THERMAL_K0_runs/` was on this list and has been struck.** Over the
+index frame it read 0 tracked files, 368 on disk, and the derivation put it here
+as *"a rule pointing at a tree it cannot move"*. Over HEAD it holds **97 tracked
+files** — `0.orig/` initial conditions and `constant/` dictionaries, landed by
+another agent behind `.gitignore:122-123`'s re-inclusion, which was added
+**today**. `git mv` moves it under R20 and a hand-carry would have been wrong.
+The claim, its retraction and the frame that caused it are all §1.
+
+Two further buckets the derivation separates and the mover must not confuse:
+
+- **DISCARD — 8 trees, 38 files, 976,586 bytes.** `__pycache__` and
+  `.pytest_cache` go dark like anything else, and a rule's prefix will claim
+  them: `demo-output/website/campaign/__pycache__` redirects cleanly to
+  `verification/campaign/__pycache__`. Carrying one is wrong twice — it is not
+  evidence, and a stale `.pyc` carries an embedded source path that no longer
+  exists. They are reported and never carried.
+- **STAYS PUT — 7 trees, 16,027 files, 1,484,990,437 bytes** (§3.5).
 
 **Destinations follow §7.3's own rule** — *"/verification/runs/ is the
 tracked-record side, /evidence/ is the gitignored bulk"* — rather than an
@@ -224,12 +315,24 @@ the moment it lands**, and the next `git add` sweeps 300 files of solver log
 into the index. Reported by `hand_carry.py plan`, never edited by it:
 
 ```
-.gitignore:38  demo-output/website/solve_registry/            -> evidence/solve_registry/
+.gitignore:38  demo-output/website/solve_registry/  ->  evidence/solve_registry/
+```
+
+`.gitignore:68`'s `**/surfaces/` is path-independent and needs nothing.
+
+**Two more `.gitignore` lines belong to batch 7 rather than to the carry**, and
+they are the reason the frame repair mattered:
+
+```
 .gitignore:122 !demo-output/website/campaign/THERMAL_K0_runs/*/0.orig/    -> !verification/runs/THERMAL_K0_runs/*/0.orig/
 .gitignore:123 !demo-output/website/campaign/THERMAL_K0_runs/*/0.orig/**  -> !verification/runs/THERMAL_K0_runs/*/0.orig/**
 ```
 
-`.gitignore:68`'s `**/surfaces/` is path-independent and needs nothing.
+`THERMAL_K0_runs` moves by `git mv` under R20, and its 97 tracked files are
+tracked **only because those two negations re-include them**. If R20's move
+lands without re-pointing them in the same commit, the ignore rule above them
+(`campaign/*_runs/*/[0-9]*/`) no longer has its exception at the new path and
+the case's initial conditions stop being tracked at the next index refresh.
 
 ### 3.3 The hazard the plan creates for itself — `MESH_AUDIT_runs`
 
@@ -248,7 +351,7 @@ directory going dark is harmless while an ancestor is still renamed as a unit.
 
 **Two ways out, and batch 2 must pick one before it runs** (§4, batch 2).
 
-### 3.4 RIDES ALONG — 931 trees, 33,549 files, **10,556,749,428 bytes**
+### 3.4 RIDES ALONG — 963 trees, 33,819 files, **10,560,965,662 bytes**
 
 These are dark trees that an ancestor's rename carries: `dafoam/f6d_random_matrix_uq/ens`
 (6,223 files, 2.79 GB), `f6d_option_a` (8,723 files, 1.70 GB),
@@ -259,18 +362,19 @@ file-by-file.** `git mv <dir>` is a `rename(2)`, so gitignored content travels;
 a per-file `git mv` loop leaves 10.5 GB behind. That is the invariant on batches
 4 through 7, stated as an invariant because §9's own note — *"`git reset --hard`
 does not undo a `git mv`'s effect on gitignored siblings"*, the revert having
-stranded ~11 GB — is the same 10.5 GB seen from the other side.
+stranded ~11 GB — is the same 10.56 GB seen from the other side.
 
 ### 3.5 STAYS PUT — named by constants, mapped by no rule
 
 | Tree | files | bytes | consumers |
 |---|---:|---:|---|
-| `docs/campaigns` | 5,333 | 802,784,217 | — (R7 keeps `docs/**`) |
+| `docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity` | 4,964 | 765,858,513 | — (R7 keeps `docs/**`) |
 | `mission-output` | 8,625 | 573,298,685 | **13 tracked modules**, incl. `self_audit.py`, `gate_table.py`, `build_laptop_bundle.py` |
+| `docs/campaigns/F14-cooling-ladder/K0c_runs` | 776 | 98,781,140 | — (R7) |
 | `sdk/chief-engineer-runs` | 1,568 | 41,241,873 | `self_audit.py:6518` (R3 keeps `sdk/**`) |
 | `dist/certonomous-demo` | 90 | 5,432,332 | X1 DEFERRED |
 | `chief-engineer-runs` (root) | 3 | 157,442 | 6 `sdk/scripts/` modules |
-| `.pytest_cache` ×3, `.claude`, `__pycache__` ×2 | — | — | infrastructure |
+| `.claude` | 1 | 182 | infrastructure |
 
 **`mission-output/` appears nowhere in §1's target tree**, and it is 573 MB
 named by thirteen modules. It does not move under this map. Saying so here is
@@ -293,7 +397,9 @@ python3 scripts/lab_check.py --no-tests --root /home/ubuntu/Certonomous   # gate
 A green suite is necessary and not sufficient:
 
 ```bash
-# G1  the carry set must not have grown
+# G1  the carry set must not have grown.  Reads HEAD, never the index --
+#     see section 1; the index is 160 files behind and calling a tracked tree
+#     dark is the error that strands data.
 python3 scripts/hand_carry.py derive | sed -n '/HAND-CARRY/,/RIDES/p'
 
 # G2  the control corpora -- section 2.3's 223, fail-closed on any field that
@@ -345,7 +451,7 @@ every field resolves can still have stopped discriminating.
 | **5** | Research: R14-R18, R23 — 437 files, incl. R6's proposals move | Directory granularity. The R23 many-to-one merges preserve the child segment (§5 below) | full suite + G1 G2 G3 + `python3 -c "import json,glob;[json.load(open(p)) for p in glob.glob('research/agenda/proposals/*.json')]"` | **`research/closure/` is half-assembled.** R14/R15/R18 put `benchmarks.json`, `benchmarks.png` and `wall.json` under it while R23's four `closure_*` source trees are still under the webroot, so a reader finds a `research/closure/` that contains the outputs and none of the inputs. Recoverable, and legible, but the directory lies about itself until batch 5 completes |
 | **6** | Cases: R5, R22 — 3,553 files | Directory granularity. **786 files under `dafoam/**/work_sail/` are root-owned** — `chown` them BEFORE the batch, not on discovery | full suite + G1 G2 G3 + `find cases -user root \| wc -l` | **`cases/` and the webroot both hold physics families.** The R22 sources are ten separate directories, so a partial batch is a tree where `cases/tmr` exists and `cases/dafoam` does not. Every citation still resolves through `lab_paths.resolve()`, which is what makes stopping here survivable rather than merely bad |
 | **7** | Verification: R20, R21, R24 — 8,216 files, the mass | Directory granularity per run archive. **`campaign/` is never moved as a unit** — R20 and R21 split it | full suite + G1 G2 G3 + `hand_carry.py derive` carry set unchanged | **`verification/campaign/` and `verification/runs/` are populated and `demo-output/website/campaign/` still exists.** The 45 `LADDER_V_*` records keep their `campaign/` segment either way, so intra-ladder citations survive. This is the largest batch and the one most likely to be stopped part-way; it is also the one where `git status --porcelain` is most useless — it reported **19,975 renames** at the reverted attempt, pairing byte-identical OpenFOAM case files across unrelated studies. **Git's rename inference is never quoted here** |
-| **7H** | **The hand-carry** — §3.1's three trees, plus `MESH_AUDIT_runs` if batch 2 took it | Source empty or gone; destination holds the **exact measured path set**, not merely the count | `hand_carry.py plan --manifest M` → `carry --manifest M` → `verify --manifest M`; **and the `.gitignore` re-points of §3.2 in the same commit** | **1.51 GB is in the old tree while four modules look for it in the new one.** `dispatch_queue.py:63`, `check_convergence_sweep.py:62`, `contention_audit.py:55` and `launch_solve.sh:21` would find an empty or absent directory. `dispatch_queue.py:137` guards with `if REGISTRY.is_dir()`, so **it returns an empty record set rather than raising** — a dispatch audit that silently sees no jobs. This batch has no suite signal at all and is why the carry verifies itself |
+| **7H** | **The hand-carry** — §3.1's two trees, plus `MESH_AUDIT_runs` if batch 2 took it | Source empty or gone; destination holds the **exact measured path set**, not merely the count | `hand_carry.py plan --manifest M` → `carry --manifest M` → `verify --manifest M`; **and the `.gitignore` re-points of §3.2 in the same commit** | **1.51 GB is in the old tree while four modules look for it in the new one.** `dispatch_queue.py:63`, `check_convergence_sweep.py:62`, `contention_audit.py:55` and `launch_solve.sh:21` would find an empty or absent directory. `dispatch_queue.py:137` guards with `if REGISTRY.is_dir()`, so **it returns an empty record set rather than raising** — a dispatch audit that silently sees no jobs. This batch has no suite signal at all and is why the carry verifies itself |
 | **8** | **The webroot cut** — R13, 5 files, **with every §5 re-point in the same commit** | The four pages answer over HTTP after the commit | full suite + a live fetch of all four pages off port 8080 + G1 G2 G3 | **A live surface goes down.** This is the only batch that can do that, which is why it is last. If it lands and batch 9 never does, `check_evidence_paths_exist` walks a webroot with five files in it and reports a clean sweep of nothing — §6 |
 | **9** | The guard resolver | `check_evidence_paths_exist` resolves a citation at its literal location **or** its successor, via `lab_paths.resolve()` | full suite + a planted control both ways: a citation that must resolve and one that must not | **`check_evidence_paths_exist` is blind.** 1,236 backticked `demo-output/…` citations across 234 records, and after batch 8 the guard's `WEB.rglob("*.md")` reaches almost none of them. It does not fail — it scans fewer documents and passes. That is the silent-zero failure this corpus has recorded repeatedly, and it is the reason batch 9 is not optional |
 

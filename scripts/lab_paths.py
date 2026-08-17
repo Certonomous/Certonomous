@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """One place where this repository's tree layout is named, and one only.
 
 WHY THIS MODULE EXISTS

@@ -115,16 +115,55 @@ PASS, FAIL, UNKNOWN = 0, 1, 3
 #: be verified by count.  Overridable, never silently.
 QUIET_SECONDS = 300
 
+#: Regenerated build and cache trees.  These go dark like any other gitignored
+#: directory and a rule's prefix will happily claim them, but carrying one is
+#: wrong twice over: it is not evidence, and moving a stale `__pycache__` into
+#: the new tree hands the next importer a `.pyc` whose embedded source path no
+#: longer exists.  They are reported as DISCARD and never carried.
+DISCARD_NAMES = frozenset({"__pycache__", ".pytest_cache", ".mypy_cache",
+                           ".ruff_cache", ".ipynb_checkpoints", ".DS_Store"})
+
+
+def _is_discardable(rel: str) -> bool:
+    return any(seg in DISCARD_NAMES for seg in rel.split("/"))
+
 
 # ---------------------------------------------------------------------------
 # Measurement
 # ---------------------------------------------------------------------------
 
 def tracked_paths() -> list[str]:
-    cp = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z"],
-                        capture_output=True)
+    """HEAD's tree.  READS HEAD, NEVER THE INDEX (docket D274).
+
+    This used `git ls-files`, and that was wrong in the one direction that
+    matters here.  `git ls-files` lists INDEX entries, and THIS LAB'S OWN
+    COMMIT PROTOCOL NEVER WRITES THE SHARED INDEX: a commit built with
+    `GIT_INDEX_FILE` lands a file in HEAD that has no index entry until
+    somebody runs `git add` or `git reset`, which under a live fleet nobody
+    does.  Measured at `f40f6ef5`: `git ls-files` returned **13,814** and
+    `git ls-tree -r HEAD` returned **13,974** -- **160 files present in HEAD
+    and absent from the index**, every one landed by a conforming agent.
+
+    The consequence for THIS module is a wrong answer in the dangerous
+    direction.  `demo-output/website/campaign/THERMAL_K0_runs/` holds **97
+    tracked files at HEAD** and **0 in the index**, so the index frame called
+    it dark and put it on the hand-carry list -- a tree `git mv` is about to
+    rename, hand-moved underneath it, leaving the index and the disk pointing
+    at different places.  `scripts/lab_check.py:486-496` records the same
+    repair for the same reason; `scripts/check_absolutes.py:520-547`'s
+    `known_test_names` still has the unrepaired form.
+
+    The question this frame answers is "will `git mv` move it" -- and `git mv`
+    reads the index, but the index on this tree is missing work that HEAD has,
+    so HEAD is the safe over-approximation: a file in HEAD and not the index
+    means the tree is NOT dark, and treating it as dark is the error that
+    strands data.
+    """
+    cp = subprocess.run(
+        ["git", "-C", str(REPO), "ls-tree", "-r", "-z", "--name-only", "HEAD"],
+        capture_output=True)
     if cp.returncode:
-        raise SystemExit("git ls-files failed: "
+        raise SystemExit("git ls-tree HEAD failed: "
                          + cp.stderr.decode("utf-8", "replace"))
     return [p.decode("utf-8", "surrogateescape")
             for p in cp.stdout.split(b"\0") if p]
@@ -242,11 +281,15 @@ def derive(tracked: list[str] | None = None) -> dict:
     """The carry set, the ride-along set, and the trees that stay put."""
     tracked = tracked if tracked is not None else tracked_paths()
     memo: dict[str, bool] = {}
-    carry, rides, stays = [], [], []
+    carry, rides, stays, discard = [], [], [], []
     for d in maximal_dark_trees(tracked):
         dst = lab_paths.redirect(d)
         m = measure(REPO / d)
         row = {"source": d, "dest": dst, **m}
+        if _is_discardable(d):
+            row["why"] = "regenerated build/cache tree: DISCARD, never carry"
+            discard.append(row)
+            continue
         if dst is None:
             row["why"] = "no rule maps it; it stays where it is"
             stays.append(row)
@@ -268,11 +311,10 @@ def derive(tracked: list[str] | None = None) -> dict:
             row["why"] = ("no ancestor is renamed as a unit, so `git mv` never "
                           "reaches it: HAND-CARRY")
             carry.append(row)
-    carry.sort(key=lambda r: -r["bytes"])
-    rides.sort(key=lambda r: -r["bytes"])
-    stays.sort(key=lambda r: -r["bytes"])
+    for bucket in (carry, rides, stays, discard):
+        bucket.sort(key=lambda r: -r["bytes"])
     return {"carry": carry, "rides_along": rides, "stays": stays,
-            "tracked": len(tracked)}
+            "discard": discard, "tracked": len(tracked)}
 
 
 def batch2_survivors(tracked: list[str]) -> list[str]:
@@ -410,13 +452,15 @@ def carry(plan: dict, only: list[str], quiet_seconds: int) -> int:
         # Re-derive darkness at the instant of the move.  A tree that has
         # gained a tracked file since `plan` ran must go by `git mv`, not by
         # hand, or the index and the disk disagree.
-        cp = subprocess.run(["git", "-C", str(REPO), "ls-files", "--", it["source"]],
+        cp = subprocess.run(["git", "-C", str(REPO), "ls-tree", "-r",
+                             "--name-only", "HEAD", "--", it["source"]],
                             capture_output=True, text=True)
         if cp.stdout.strip():
             n = len(cp.stdout.strip().splitlines())
             print(f"  FAIL: {n} tracked file(s) appeared under this tree since "
                   f"the plan was written. `git mv` now works and MUST be used; "
-                  f"a hand `mv` would leave the index pointing at the old path.")
+                  f"a hand `mv` would leave the index pointing at the old path. "
+                  f"(HEAD, not the index -- see `tracked_paths`.)")
             rc = FAIL
             continue
 
@@ -527,6 +571,7 @@ def main(argv: list[str]) -> int:
         _table(d["rides_along"],
                "RIDES ALONG -- carried by an ancestor's directory rename ONLY")
         _table(d["stays"], "STAYS PUT -- no rule maps these")
+        _table(d["discard"], "DISCARD -- regenerated, never carried")
         print(f"\n=== GOES DARK AFTER BATCH 2's UNTRACKING ({len(proj)}) ===")
         for r in proj:
             print(f"  {r['bytes']:>13,}B  {r['files']:>6} f  {r['source']}"
