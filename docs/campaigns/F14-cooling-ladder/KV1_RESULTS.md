@@ -394,7 +394,19 @@ figure**: there is no verified rate for this machine.
 | before sweep, 18 field sets | **0.0979** | measured |
 | after sweep, 18 field sets | **0.0916** | measured |
 | stage-1 sweep, convergence sweep, ad-hoc audits (~43 audits) | ~0.219 | reconstructed at the measured 0.306 s/audit |
-| **total charged to this rung** | **~0.93** | |
+| reproduction check in a fresh clone (§9) | ~0.55 | reconstructed; itemised below |
+| **total charged to this rung** | **~1.48** | |
+
+**The reproduction check is itself compute and is charged rather than omitted.**
+The first version of this table stopped at 0.93 and left it out, which would
+have understated the rung by more than a third. It re-ran, in a clone of the
+committed state: the three solves (**0.0415** measured, from the clone's own
+`COST.txt` files — 0.0081 / 0.0253 / 0.0081, agreeing with the primary run to
+the fourth decimal), the mutation harness twice (once refusing immediately, once
+in full at the primary run's measured **0.480**), eleven `blockMesh` rebuilds
+and about five audits (~0.03, reconstructed). It found two real defects, so it
+paid for itself; that is a judgement, and the number is here so a reader can
+make their own.
 
 **The authorized compute was the small open-duct control case; it cost 0.0406
 core-minutes**, under 5 % of the 0.86 core-minutes K0a and K0b cost between them.
