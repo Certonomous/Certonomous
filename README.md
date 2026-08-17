@@ -58,11 +58,11 @@ derived by joining that record to the `LIVE_BOARD` table in
 | Overall score, round 5 | 0.056647 | `closure_challenge_round5_qcr.json` |
 | Its predecessor, round 4 | 0.065431 | same record |
 | Board | 6 entrants plus this entry, 7 positions | `probability_of_rank.py`, board fetched 2026-08-11T23:33Z |
-| Overall rank on that board | 1 of 7 | derived |
-| Margin over the board leader | 0.001365 | derived |
+| Overall rank on that board | 1 of 7, with P(rank 1) 50.2% on a 0.2-96.9% at 95% interval, and not statistically decided against 4 of the 6 | derived |
+| Margin over Yang, the board leader | 0.001365 | derived |
 | P(rank 1) | 50.2% | `probability_of_rank.py`, B = 400,000 |
-| Its interval, 95% double bootstrap | 0.2% to 96.9% | same, 2,000 outer by 4,000 inner |
-| Pairs not statistically decided | 4 of 6, one of them the leader | same |
+| Its interval, 95% double bootstrap | 0.2-96.9% at 95% | same, 2,000 outer by 4,000 inner |
+| Pairs not statistically decided | 4 of 6, Yang among them | same |
 | Best-on-board individual cases | 2 of 8 | derived |
 | Of those, earned by this lab's trained model | 0 of 8 | derived; both are cases where a gate declined and the organisers' own RANS field was submitted unmodified |
 
@@ -217,15 +217,16 @@ Three conventions will save a new reader time.
    working. Each count above carries the command that reproduces it; run it.
 
 2. **The headline score is local, and the standing is not decided.** The
-   one-seed uncertainty on the overall exceeds the margin over the board leader:
+   one-seed uncertainty on the overall exceeds the margin over Yang, who leads
+   the board:
 
    | Quantity | Value |
    |---|---|
    | Truth-free one-seed bound on the overall | 0.002419 |
-   | Margin over the board leader | 0.001365 |
+   | Margin over Yang, the board leader | 0.001365 |
    | Bound as a fraction of the margin | 177% |
    | Overall under adverse seed loading | 0.059066 |
-   | The board leader's overall | 0.058013 |
+   | Yang's overall | 0.058013 |
 
    0.059066 is above 0.058013, so the adverse leg of a seed the lab did not
    control loses the point lead outright. First on the point estimate, and not
@@ -239,8 +240,8 @@ Three conventions will save a new reader time.
    |---|---|---|
    | Tracked blobs `git grep -a` can read | 20,738 | 20,764 |
    | Unreachable by `git grep` in any mode | 26 | 17 symlinks and 9 empty blobs |
-   | Additionally skipped by `git grep -I` | 1,476 | files `.gitattributes` marks binary |
-   | Of those, containing no NUL byte at all | 11 | plain text, including published certificate PDFs |
+   | Additionally skipped by `git grep -I` | 1,476 | 981 that `.gitattributes` marks binary, plus 495 git auto-detects from NUL bytes |
+   | Of the 981 marked, containing no NUL byte at all | 11 | plain text, including published certificate PDFs |
 
    The 26-file gap has been stable across every frame measured this week even as
    both totals moved.

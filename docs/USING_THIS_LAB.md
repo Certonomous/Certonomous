@@ -67,11 +67,11 @@ What it produces, in rough order of how much of the tree each occupies:
 | Round-5 overall closure score | 0.056647 | `demo-output/website/closure_challenge_round5_qcr.json` |
 | Scored at benchmark commit | `deb91557` | pinned clone, scores but does not rank |
 | Board | 6 entrants plus this entry, 7 positions | fetched 2026-08-11T23:33Z |
-| Overall standing on that board | rank 1 of 7 | `sdk/scripts/probability_of_rank.py` |
-| Margin over the board leader | 0.001365 | leader 0.058013 |
+| Overall standing on that board | rank 1 of 7, at P(rank 1) 50.2% on a 0.2-96.9% at 95% interval, and not statistically decided against 4 of the 6 | `sdk/scripts/probability_of_rank.py` |
+| Margin over Yang, the board leader | 0.001365 | Yang 0.058013 |
 | P(rank 1) | 50.2% | 400,000-draw case bootstrap |
-| Interval on P(rank 1) | 0.2% to 96.9% at 95% | double bootstrap, 2,000 x 4,000 |
-| Pairwise comparisons not statistically decided | 4 of 6, including the leader | same script, section 3 |
+| Interval on P(rank 1) | 0.2-96.9% at 95% | double bootstrap, 2,000 x 4,000 |
+| Pairwise comparisons not statistically decided | 4 of 6, Yang among them | same script, section 3 |
 | Best-on-board individual cases | 2 of 8 | both of them declined rows |
 | Individual cases won by the lab's own model | 0 of 8 | declined rows carry the organisers' RANS field |
 | One-seed uncertainty bound on the overall | 0.002419 | `closure_challenge_seed_sensitivity.json` |
@@ -191,8 +191,9 @@ echo "$(grep -rl '' . | wc -l) $(/usr/bin/find . -path ./.git -prune -o -type f 
   | awk '{printf "%d of %d = %.1f%%\n", $1, $2, 100*$1/$2}'
 ```
 
-**A `grep -r` that returns nothing here is a confident, clean zero over roughly
-four fifths of the corpus.** It is not a negative result.
+**A `grep -r` that returns nothing here is a confident, clean zero over the
+fifth of the corpus it visited, and says nothing whatever about the other four
+fifths.** It is not a negative result.
 
 `bfs` rejects GNU expressions. `find . -newermt "-30 min"` returns
 `bfs: error: ... Invalid timestamp.` and exit 1, while `/usr/bin/find` with the
@@ -480,7 +481,7 @@ FAIL, 3: UNKNOWN}`, with 4 meaning a blocking UNKNOWN.
 |---|---|---|---|---|
 | `--list` | 0.6 s | negligible | negligible | 3 (UNKNOWN, nothing ran) |
 | `--no-tests` | 325.6 s | 315.2 s | 12.9 s | 1 (FAIL) |
-| full tier including the suite | not measured in this pass | | | |
+| full tier including the suite | not measured at this frame | | | |
 
 Both tiers were run against a box carrying other agents' work at the same time.
 The wall figure is therefore a measurement of this box under load, not a clean
@@ -1311,7 +1312,7 @@ write-back.
 Stated rather than omitted, per §6.2: a thing not checked is UNKNOWN, and UNKNOWN
 does not get filed beside the passes.
 
-1. **The full `lab_check.py` tier was not run in this pass.** The `--list` and
+1. **The full `lab_check.py` tier was not run at this frame.** The `--list` and
    `--no-tests` tiers were run at `8cefb4e9` and their figures are in §7. No
    figure is offered for the full tier or for the test suite's collection count,
    rather than carrying an older one forward.

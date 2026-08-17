@@ -249,12 +249,21 @@ including symlinks, or 132,761 excluding the 36 loose root files (section 4.1).
 |---|---|---|---|
 | `git grep -a` reach | 20,738 | 20,764 tracked | 26 files |
 | Unreachable by `git grep` in any mode, `-a` included | 26 | | 17 symlinks (mode 120000) and 9 empty blobs |
-| Additionally skipped by `git grep -I` | 1,476 | | files `.gitattributes` marks binary |
-| Of those, containing no NUL byte at all | 11 | 1,476 | plain text, including published certificate PDFs |
+| Additionally skipped by `git grep -I` | 1,476 | | 981 that `.gitattributes` marks binary, plus 495 git auto-detects from NUL bytes |
+| Of the 981 marked, containing no NUL byte at all | 11 | 981 | plain text, including published certificate PDFs |
 
 The 26-file gap has been stable across every frame measured this week even as
 both totals moved. The shell `grep` is `ugrep --ignore-files` and already passes
 `-I`, so it drops the gitignored arm and the binary-marked files at once.
+
+**The 1,476 and the 981 are different populations and neither is the other.**
+`.gitattributes` marks 981 tracked files binary by extension (875 `.png`, 54
+`.stl`, 50 `.pdf`, 2 `.obj`, re-derived with `git check-attr --stdin binary`).
+`git grep -I` skips those and a further 495 it auto-detects from NUL bytes,
+which is where 1,476 comes from. Of the 981, exactly 11 contain no NUL byte in
+the whole blob. The figure is 12 if the test looks only at the first 8,000
+bytes, and the one file that separates the two readings is
+`docs/papers/Paper3.pdf`. Say which window a NUL test used.
 
 **PDFs cannot be graded from their text layer.** LaTeX `\sout{}` is
 strike-and-keep: a withdrawn figure sits in the text stream of a corrected
