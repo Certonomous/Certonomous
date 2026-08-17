@@ -1,0 +1,16 @@
+case             KV1a_duct_source
+geometry         0.3 x 0.05 x 0.01 m
+mesh             60 x 20 x 1 uniform (1200 cells)
+U_in             0.05 m/s
+Re_H             157.3
+T_in             305.0 K
+TRef (datum)     300.0 K
+g                0 (forced convection)
+Vdot             2.500000e-05 m3/s
+mdot             2.903500e-05 kg/s
+heated_wall      none (adiabatic)
+planted_source   0.005 W
+S_kinematic      4.275222401345e-06 K.m3/s
+dT_expected      0.171009 K
+Q_in_expected    1.461912e-01 W
+endTime          1000

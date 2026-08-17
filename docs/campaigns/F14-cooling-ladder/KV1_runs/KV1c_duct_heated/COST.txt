@@ -1,0 +1,4 @@
+case KV1c_duct_heated
+wall_clock_s .488227212
+cores 1
+core_minutes .0081

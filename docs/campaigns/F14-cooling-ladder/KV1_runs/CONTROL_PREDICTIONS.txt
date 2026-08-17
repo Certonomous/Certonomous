@@ -1,0 +1,103 @@
+KV1 CONTROL PREDICTIONS -- REGISTERED BEFORE ANY SOLVER RAN
+============================================================
+Campaign F14, cooling ladder, rung KV1: validation of the ADVECTIVE path of
+scripts/heat_balance.py on an open duct with through-flow.
+
+Registered 2026-08-17 by the thermal lane, against HEAD 965777d2 (the stamp-fix
+commit; the advective term is implemented in the working tree and NOT yet
+committed).  The cases were built by build_kv1.py in the same session and NO
+solver had been launched when this file was written.  Nothing below was read off
+a result.  This file is reproduced verbatim into KV1_RESULTS.md so the
+prediction and the outcome travel together and neither can be quietly adjusted
+to fit the other.
+
+WHY THE PAIR
+------------
+KV1a is the positive control specified by K2a section 8 lines 378-381.  KV1b is
+its no-source negative twin, built because at K1c the negative control was the
+case that fired S15 and the set would otherwise have been worthless.  KV1a is
+graded on RECOVERY in watts; KV1b is graded on CLOSURE in percent.  Neither
+grades the other's quantity.
+
+GOVERNED THRESHOLDS USED (docs/physics_rules.yaml, block thermal)
+-----------------------------------------------------------------
+  heat_balance_source_recovery_tol_pct : 0.1
+  heat_balance_tol_pct                 : 0.5
+
+DERIVED BEFORE THE RUN, FROM THE CASE TABLE ALONE
+--------------------------------------------------
+  rho.cp        = 1169.529800 J/m3/K
+  S_plant       = 4.275222401345e-06 K.m3/s   (= 5.000e-03 W)
+                  identical to K0c C3's plant, because the fluid is identical
+  Vdot          = 2.500000e-05 m3/s
+  mdot          = 2.903500e-05 kg/s
+  dT expected   = 0.171009 K       -> T_out about 305.1710 K
+  Q_in expected = 1.461912e-01 W   (inlet advection above the 300 K datum)
+  Re_H          = 157.3            beta.dT = 0.016667, Boussinesq satisfied
+
+P1. KV1a RECOVERY.  Q_net_W recovers -5.000e-03 W to within 0.1 percent.
+    KIND CLAIMED: RECOGNITION of the advective term's magnitude and sign.
+    Rationale: with adiabatic walls the plant can leave only through the outlet,
+    advectively.  A conduction-only ledger reads about -1e-05 W here, three
+    orders of magnitude off, so the branch is not satisfiable by an absent term.
+
+P2. KV1a CLOSURE ROW.  FAILS.  Predicted imbalance 3.42 percent
+    (= 100 * 5.000e-03 / 0.1461912) against the 0.5 percent band.  A case with
+    an unaccounted volumetric source is NOT supposed to close and the auditor
+    is not supposed to let it.  Exit status 1.
+
+P3. KV1b CLOSURE.  PASSES.  Imbalance below 0.5 percent and predicted below
+    0.01 percent.  Exit status 0.  This is the open-case closure the whole rung
+    exists to make meaningful.
+
+P4. KV1b MASS LEDGER.  Net boundary mass flux below 0.01 percent of the
+    2.903500e-05 kg/s of traffic.  `advective.ledger_complete` true.
+
+P5. THE CONVERGENCE-SENSITIVITY TEST, AND ITS FALSIFIER.  This is the
+    prediction that distinguishes an open-case closure from the sealed identity
+    and it is the one most likely to be wrong.
+
+    PREDICTED: audited at iteration 20, KV1b's imbalance EXCEEDS 5 percent, and
+    falls by at least three orders of magnitude by the final iteration.
+
+    REGISTERED FALSIFIER: if the early-iteration imbalance never rises above
+    0.13 percent -- the ceiling K0b measured across every iteration of a SEALED
+    case -- then the open-case balance is behaving like the sealed identity, the
+    claim that it is convergence-sensitive is REFUTED, and it must be written up
+    as refuted.  K0b pre-registered ">20 percent on an unconverged snapshot" on
+    a sealed case and measured 0.0128 percent; that prediction was not a near
+    miss, it was the wrong kind of quantity, and this one can fail the same way.
+
+P6. THE MUTATION SET (no compute; the auditor is mutated, the field set is not).
+    Four independent wrongnesses in the advective term, each applied alone to
+    the repaired auditor and re-run over the SAME committed KV1b field set:
+      M1  sign of the advective term flipped
+      M2  advective term scaled by 2
+      M3  the outlet patch dropped from the advective sum
+      M4  the datum moved from TRef to 0 K
+    PREDICTED: KV1b FAILS under every one of the four, and the eleven committed
+    K0c sealed field sets are BYTE-IDENTICAL under every one of the four.
+    KIND CLAIMED: RECOGNITION -- four distinct forms, none a restatement of
+    another, all required to fire.  The sealed half is the negative control that
+    shows the sensitivity belongs to the open case and not to the harness.
+
+P7. IN-LOG WITNESS OF THE PLANT.  KV1a's solver log prints
+    `Selecting finite volume options` and `Source: heatPlant`; KV1b's prints
+    `No finite volume options present`.  The dictionary is NOT the referent.
+    Additionally the running solver's own `outletT` function object reads about
+    305.171 K in KV1a and 305.000 K in KV1b, so the plant is witnessed in the
+    THERMAL FIELD in the log, not only in the construction banner.
+
+P8. NOT MORE PERMISSIVE.  Over the 18 committed thermal field sets, the
+    advective implementation changes ZERO exit codes and moves ZERO pre-existing
+    JSON keys.  Every one of them is sealed, so `advective.state` reads
+    `not_applicable_sealed` on all of them and no advective function object is
+    even written.
+
+WHAT KV1 CANNOT ESTABLISH, STATED IN ADVANCE SO IT CANNOT BE CLAIMED LATER
+---------------------------------------------------------------------------
+Nothing about CIRCULATION.  A duct with one inlet and one outlet has no aisle
+flow to get wrong.  KV1 validates that the advective term is computed, is
+correctly signed, is correctly scaled and can fail.  Per K2a section 8 a closure
+number on an open case is NECESSARY, NEVER SUFFICIENT, and no K2b sentence may
+cite KV1 as validation of a flow field.

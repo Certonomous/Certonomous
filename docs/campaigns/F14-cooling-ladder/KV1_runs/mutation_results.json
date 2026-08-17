@@ -1,0 +1,741 @@
+{
+  "M0_unmutated": {
+    "why": "the repaired auditor, unaltered. The control's control: if this does not pass, nothing below means anything.",
+    "cases": {
+      "KV1c_duct_heated": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": 1.9670973183579784e-11,
+        "Q_in_W": 0.20796848162809722,
+        "imbalance_pct": 9.458631918444593e-09,
+        "imbalance_defined": true
+      },
+      "KV1b_duct_nosource": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": 1.8431367543314536e-12,
+        "Q_in_W": 0.14619122500000517,
+        "imbalance_pct": 1.2607711265374433e-09,
+        "imbalance_defined": true
+      }
+    },
+    "sealed": {
+      "C1_Ra1e5_m128_g0": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -7.86110578758839e-11,
+        "Q_in_W": 0.00028490542358180994,
+        "imbalance_pct": 2.7591983644113014e-05,
+        "imbalance_defined": true
+      },
+      "C2_Ra1e5_m128_dT110": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -2.1090776477702966e-10,
+        "Q_in_W": 0.0014613997393429585,
+        "imbalance_pct": 1.4431901080798963e-05,
+        "imbalance_defined": true
+      },
+      "C3_Ra1e5_m64_source": {
+        "exit": 1,
+        "stderr": "",
+        "passed": false,
+        "Q_net_W": -0.0049999964602998135,
+        "Q_in_W": 0,
+        "imbalance_pct": NaN,
+        "imbalance_defined": false
+      },
+      "Ra1e3_m32": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -9.810704799820356e-13,
+        "Q_in_W": 3.188274974237795e-06,
+        "imbalance_pct": 3.0771200348444704e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e3_m64": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.1112348927250454e-12,
+        "Q_in_W": 3.185527468551846e-06,
+        "imbalance_pct": 3.488385844088223e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e4_m40": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.969186348271118e-11,
+        "Q_in_W": 6.431513340182866e-05,
+        "imbalance_pct": 3.061777600565668e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e4_m80": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -4.5400464759718685e-11,
+        "Q_in_W": 6.404577515078496e-05,
+        "imbalance_pct": 7.088752482553449e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e5_m128": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -2.514082735396994e-10,
+        "Q_in_W": 0.001290898665396709,
+        "imbalance_pct": 1.9475446081001143e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e5_m64": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.180054877598924e-10,
+        "Q_in_W": 0.0012988777442978117,
+        "imbalance_pct": 9.085188215592031e-06,
+        "imbalance_defined": true
+      },
+      "Ra1e6_m128": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -3.538686531301405e-10,
+        "Q_in_W": 0.025313079082020518,
+        "imbalance_pct": 1.3979676355591519e-06,
+        "imbalance_defined": true
+      },
+      "Ra1e6_m192": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.7400112600822635e-10,
+        "Q_in_W": 0.025218891386425177,
+        "imbalance_pct": 6.899634220316586e-07,
+        "imbalance_defined": true
+      }
+    }
+  },
+  "M1_sign_flipped": {
+    "why": "the advective enthalpy flux enters the ledger with the wrong sign.",
+    "cases": {
+      "KV1c_duct_heated": {
+        "exit": 1,
+        "stderr": "",
+        "passed": false,
+        "Q_net_W": 0.1235545132365131,
+        "Q_in_W": 0.27059361795219716,
+        "imbalance_pct": 45.66054224469556,
+        "imbalance_defined": true
+      },
+      "KV1b_duct_nosource": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.843192265482685e-12,
+        "Q_in_W": 0.14619122499816203,
+        "imbalance_pct": 1.2608090981561022e-09,
+        "imbalance_defined": true
+      }
+    },
+    "sealed": {
+      "C1_Ra1e5_m128_g0": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -7.86110578758839e-11,
+        "Q_in_W": 0.00028490542358180994,
+        "imbalance_pct": 2.7591983644113014e-05,
+        "imbalance_defined": true
+      },
+      "C2_Ra1e5_m128_dT110": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -2.1090776477702966e-10,
+        "Q_in_W": 0.0014613997393429585,
+        "imbalance_pct": 1.4431901080798963e-05,
+        "imbalance_defined": true
+      },
+      "C3_Ra1e5_m64_source": {
+        "exit": 1,
+        "stderr": "",
+        "passed": false,
+        "Q_net_W": -0.0049999964602998135,
+        "Q_in_W": 0,
+        "imbalance_pct": NaN,
+        "imbalance_defined": false
+      },
+      "Ra1e3_m32": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -9.810704799820356e-13,
+        "Q_in_W": 3.188274974237795e-06,
+        "imbalance_pct": 3.0771200348444704e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e3_m64": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.1112348927250454e-12,
+        "Q_in_W": 3.185527468551846e-06,
+        "imbalance_pct": 3.488385844088223e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e4_m40": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.969186348271118e-11,
+        "Q_in_W": 6.431513340182866e-05,
+        "imbalance_pct": 3.061777600565668e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e4_m80": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -4.5400464759718685e-11,
+        "Q_in_W": 6.404577515078496e-05,
+        "imbalance_pct": 7.088752482553449e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e5_m128": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -2.514082735396994e-10,
+        "Q_in_W": 0.001290898665396709,
+        "imbalance_pct": 1.9475446081001143e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e5_m64": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.180054877598924e-10,
+        "Q_in_W": 0.0012988777442978117,
+        "imbalance_pct": 9.085188215592031e-06,
+        "imbalance_defined": true
+      },
+      "Ra1e6_m128": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -3.538686531301405e-10,
+        "Q_in_W": 0.025313079082020518,
+        "imbalance_pct": 1.3979676355591519e-06,
+        "imbalance_defined": true
+      },
+      "Ra1e6_m192": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.7400112600822635e-10,
+        "Q_in_W": 0.025218891386425177,
+        "imbalance_pct": 6.899634220316586e-07,
+        "imbalance_defined": true
+      }
+    },
+    "sealed_identical_to_unmutated": true
+  },
+  "M2_scaled_by_two": {
+    "why": "the advective term is twice what it should be: a wrong rho.cp, a wrong unit conversion, a double-counted face.",
+    "cases": {
+      "KV1c_duct_heated": {
+        "exit": 1,
+        "stderr": "",
+        "passed": false,
+        "Q_net_W": -0.061777256588750065,
+        "Q_in_W": 0.3541597066281025,
+        "imbalance_pct": 17.44333288982007,
+        "imbalance_defined": true
+      },
+      "KV1b_duct_nosource": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": 3.686273508662907e-12,
+        "Q_in_W": 0.29238245000001034,
+        "imbalance_pct": 1.2607711265374433e-09,
+        "imbalance_defined": true
+      }
+    },
+    "sealed": {
+      "C1_Ra1e5_m128_g0": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -7.86110578758839e-11,
+        "Q_in_W": 0.00028490542358180994,
+        "imbalance_pct": 2.7591983644113014e-05,
+        "imbalance_defined": true
+      },
+      "C2_Ra1e5_m128_dT110": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -2.1090776477702966e-10,
+        "Q_in_W": 0.0014613997393429585,
+        "imbalance_pct": 1.4431901080798963e-05,
+        "imbalance_defined": true
+      },
+      "C3_Ra1e5_m64_source": {
+        "exit": 1,
+        "stderr": "",
+        "passed": false,
+        "Q_net_W": -0.0049999964602998135,
+        "Q_in_W": 0,
+        "imbalance_pct": NaN,
+        "imbalance_defined": false
+      },
+      "Ra1e3_m32": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -9.810704799820356e-13,
+        "Q_in_W": 3.188274974237795e-06,
+        "imbalance_pct": 3.0771200348444704e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e3_m64": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.1112348927250454e-12,
+        "Q_in_W": 3.185527468551846e-06,
+        "imbalance_pct": 3.488385844088223e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e4_m40": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.969186348271118e-11,
+        "Q_in_W": 6.431513340182866e-05,
+        "imbalance_pct": 3.061777600565668e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e4_m80": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -4.5400464759718685e-11,
+        "Q_in_W": 6.404577515078496e-05,
+        "imbalance_pct": 7.088752482553449e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e5_m128": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -2.514082735396994e-10,
+        "Q_in_W": 0.001290898665396709,
+        "imbalance_pct": 1.9475446081001143e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e5_m64": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.180054877598924e-10,
+        "Q_in_W": 0.0012988777442978117,
+        "imbalance_pct": 9.085188215592031e-06,
+        "imbalance_defined": true
+      },
+      "Ra1e6_m128": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -3.538686531301405e-10,
+        "Q_in_W": 0.025313079082020518,
+        "imbalance_pct": 1.3979676355591519e-06,
+        "imbalance_defined": true
+      },
+      "Ra1e6_m192": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.7400112600822635e-10,
+        "Q_in_W": 0.025218891386425177,
+        "imbalance_pct": 6.899634220316586e-07,
+        "imbalance_defined": true
+      }
+    },
+    "sealed_identical_to_unmutated": true
+  },
+  "M3_outlet_dropped": {
+    "why": "one open patch is silently missing from the advective sum.",
+    "cases": {
+      "KV1c_duct_heated": {
+        "exit": 1,
+        "stderr": "",
+        "passed": false,
+        "Q_net_W": 0.20796848162809722,
+        "Q_in_W": 0.20796848162809722,
+        "imbalance_pct": 100.0,
+        "imbalance_defined": true
+      },
+      "KV1b_duct_nosource": {
+        "exit": 1,
+        "stderr": "",
+        "passed": false,
+        "Q_net_W": 0.14619122500000517,
+        "Q_in_W": 0.14619122500000517,
+        "imbalance_pct": 100.0,
+        "imbalance_defined": true
+      }
+    },
+    "sealed": {
+      "C1_Ra1e5_m128_g0": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -7.86110578758839e-11,
+        "Q_in_W": 0.00028490542358180994,
+        "imbalance_pct": 2.7591983644113014e-05,
+        "imbalance_defined": true
+      },
+      "C2_Ra1e5_m128_dT110": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -2.1090776477702966e-10,
+        "Q_in_W": 0.0014613997393429585,
+        "imbalance_pct": 1.4431901080798963e-05,
+        "imbalance_defined": true
+      },
+      "C3_Ra1e5_m64_source": {
+        "exit": 1,
+        "stderr": "",
+        "passed": false,
+        "Q_net_W": -0.0049999964602998135,
+        "Q_in_W": 0,
+        "imbalance_pct": NaN,
+        "imbalance_defined": false
+      },
+      "Ra1e3_m32": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -9.810704799820356e-13,
+        "Q_in_W": 3.188274974237795e-06,
+        "imbalance_pct": 3.0771200348444704e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e3_m64": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.1112348927250454e-12,
+        "Q_in_W": 3.185527468551846e-06,
+        "imbalance_pct": 3.488385844088223e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e4_m40": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.969186348271118e-11,
+        "Q_in_W": 6.431513340182866e-05,
+        "imbalance_pct": 3.061777600565668e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e4_m80": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -4.5400464759718685e-11,
+        "Q_in_W": 6.404577515078496e-05,
+        "imbalance_pct": 7.088752482553449e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e5_m128": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -2.514082735396994e-10,
+        "Q_in_W": 0.001290898665396709,
+        "imbalance_pct": 1.9475446081001143e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e5_m64": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.180054877598924e-10,
+        "Q_in_W": 0.0012988777442978117,
+        "imbalance_pct": 9.085188215592031e-06,
+        "imbalance_defined": true
+      },
+      "Ra1e6_m128": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -3.538686531301405e-10,
+        "Q_in_W": 0.025313079082020518,
+        "imbalance_pct": 1.3979676355591519e-06,
+        "imbalance_defined": true
+      },
+      "Ra1e6_m192": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.7400112600822635e-10,
+        "Q_in_W": 0.025218891386425177,
+        "imbalance_pct": 6.899634220316586e-07,
+        "imbalance_defined": true
+      }
+    },
+    "sealed_identical_to_unmutated": true
+  },
+  "M4_datum_zero": {
+    "why": "the enthalpy datum is moved from the case's TRef to 0 K.",
+    "cases": {
+      "KV1c_duct_heated": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": 9.071880746604697e-11,
+        "Q_in_W": 8.979441981628094,
+        "imbalance_pct": 1.010294488807404e-09,
+        "imbalance_defined": true
+      },
+      "KV1b_duct_nosource": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": 1.120561421430466e-10,
+        "Q_in_W": 8.917664725000002,
+        "imbalance_pct": 1.256563748454297e-09,
+        "imbalance_defined": true
+      }
+    },
+    "sealed": {
+      "C1_Ra1e5_m128_g0": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -7.86110578758839e-11,
+        "Q_in_W": 0.00028490542358180994,
+        "imbalance_pct": 2.7591983644113014e-05,
+        "imbalance_defined": true
+      },
+      "C2_Ra1e5_m128_dT110": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -2.1090776477702966e-10,
+        "Q_in_W": 0.0014613997393429585,
+        "imbalance_pct": 1.4431901080798963e-05,
+        "imbalance_defined": true
+      },
+      "C3_Ra1e5_m64_source": {
+        "exit": 1,
+        "stderr": "",
+        "passed": false,
+        "Q_net_W": -0.0049999964602998135,
+        "Q_in_W": 0,
+        "imbalance_pct": NaN,
+        "imbalance_defined": false
+      },
+      "Ra1e3_m32": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -9.810704799820356e-13,
+        "Q_in_W": 3.188274974237795e-06,
+        "imbalance_pct": 3.0771200348444704e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e3_m64": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.1112348927250454e-12,
+        "Q_in_W": 3.185527468551846e-06,
+        "imbalance_pct": 3.488385844088223e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e4_m40": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.969186348271118e-11,
+        "Q_in_W": 6.431513340182866e-05,
+        "imbalance_pct": 3.061777600565668e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e4_m80": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -4.5400464759718685e-11,
+        "Q_in_W": 6.404577515078496e-05,
+        "imbalance_pct": 7.088752482553449e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e5_m128": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -2.514082735396994e-10,
+        "Q_in_W": 0.001290898665396709,
+        "imbalance_pct": 1.9475446081001143e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e5_m64": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.180054877598924e-10,
+        "Q_in_W": 0.0012988777442978117,
+        "imbalance_pct": 9.085188215592031e-06,
+        "imbalance_defined": true
+      },
+      "Ra1e6_m128": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -3.538686531301405e-10,
+        "Q_in_W": 0.025313079082020518,
+        "imbalance_pct": 1.3979676355591519e-06,
+        "imbalance_defined": true
+      },
+      "Ra1e6_m192": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.7400112600822635e-10,
+        "Q_in_W": 0.025218891386425177,
+        "imbalance_pct": 6.899634220316586e-07,
+        "imbalance_defined": true
+      }
+    },
+    "sealed_identical_to_unmutated": true
+  },
+  "M5_weight_dropped": {
+    "why": "surfaceFieldValue silently returns the UNWEIGHTED sum(phi), which is what it really does when canWeight() is false. This one is aimed at the GUARD, not at the balance: the auditor must REFUSE, not report a wrong number.",
+    "cases": {
+      "KV1c_duct_heated": {
+        "exit": 1,
+        "stderr": "REFUSE: on patch 'inlet' the flux-weighted mean face temperature is 1.000000e+00 K, outside the field range 304.967874..314.438667 K.\n        That is the signature of surfaceFieldValue dropping the T weight and returning a bare sum(phi). The advective term would be silently wrong; no balance is produced."
+      },
+      "KV1b_duct_nosource": {
+        "exit": 1,
+        "stderr": "REFUSE: on patch 'inlet' the flux-weighted mean face temperature is 1.000000e+00 K, outside the field range 305.000000..305.000000 K.\n        That is the signature of surfaceFieldValue dropping the T weight and returning a bare sum(phi). The advective term would be silently wrong; no balance is produced."
+      }
+    },
+    "sealed": {
+      "C1_Ra1e5_m128_g0": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -7.86110578758839e-11,
+        "Q_in_W": 0.00028490542358180994,
+        "imbalance_pct": 2.7591983644113014e-05,
+        "imbalance_defined": true
+      },
+      "C2_Ra1e5_m128_dT110": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -2.1090776477702966e-10,
+        "Q_in_W": 0.0014613997393429585,
+        "imbalance_pct": 1.4431901080798963e-05,
+        "imbalance_defined": true
+      },
+      "C3_Ra1e5_m64_source": {
+        "exit": 1,
+        "stderr": "",
+        "passed": false,
+        "Q_net_W": -0.0049999964602998135,
+        "Q_in_W": 0,
+        "imbalance_pct": NaN,
+        "imbalance_defined": false
+      },
+      "Ra1e3_m32": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -9.810704799820356e-13,
+        "Q_in_W": 3.188274974237795e-06,
+        "imbalance_pct": 3.0771200348444704e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e3_m64": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.1112348927250454e-12,
+        "Q_in_W": 3.185527468551846e-06,
+        "imbalance_pct": 3.488385844088223e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e4_m40": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.969186348271118e-11,
+        "Q_in_W": 6.431513340182866e-05,
+        "imbalance_pct": 3.061777600565668e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e4_m80": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -4.5400464759718685e-11,
+        "Q_in_W": 6.404577515078496e-05,
+        "imbalance_pct": 7.088752482553449e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e5_m128": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -2.514082735396994e-10,
+        "Q_in_W": 0.001290898665396709,
+        "imbalance_pct": 1.9475446081001143e-05,
+        "imbalance_defined": true
+      },
+      "Ra1e5_m64": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.180054877598924e-10,
+        "Q_in_W": 0.0012988777442978117,
+        "imbalance_pct": 9.085188215592031e-06,
+        "imbalance_defined": true
+      },
+      "Ra1e6_m128": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -3.538686531301405e-10,
+        "Q_in_W": 0.025313079082020518,
+        "imbalance_pct": 1.3979676355591519e-06,
+        "imbalance_defined": true
+      },
+      "Ra1e6_m192": {
+        "exit": 0,
+        "stderr": "",
+        "passed": true,
+        "Q_net_W": -1.7400112600822635e-10,
+        "Q_in_W": 0.025218891386425177,
+        "imbalance_pct": 6.899634220316586e-07,
+        "imbalance_defined": true
+      }
+    },
+    "sealed_identical_to_unmutated": true
+  }
+}

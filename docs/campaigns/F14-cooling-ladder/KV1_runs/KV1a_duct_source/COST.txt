@@ -1,0 +1,4 @@
+case KV1a_duct_source
+wall_clock_s .488449095
+cores 1
+core_minutes .0081

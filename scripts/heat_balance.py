@@ -114,6 +114,84 @@ stamped as a genuine constraint either: `closure_is_identity_class` goes to
 `null`/UNKNOWN, because a balance missing a term is neither an identity nor a
 constraint, it is an unfinished sum.
 
+WHAT IS COMPUTED NOW, AND AGAINST WHAT
+--------------------------------------
+On every active patch of a case that has a non-wall patch:
+
+    Q_adv_into_domain_p = -rho.cp . integral_p (T - datum) (U.n) dA
+
+summed into the SAME ledger as the conductive term, so `Q_in_W` on a patch is
+conduction plus advection and `Q_net_W` is the whole boundary.
+
+  * The integral is `integral_p T phi_f` read from `surfaceFieldValue` with
+    `operation weightedSum`, `fields (phi)`, `weightField T`.  That is
+    `gSum(T_f . phi_f)` over the patch faces against the SOLVER'S OWN
+    conservative face flux, not a geometric `Sf & U_f` this script builds
+    itself -- `div(phi,T)` is the term the solver assembled and reproducing it
+    rather than inventing a second one is this file's standing rule.  For a
+    volScalarField on a patch OpenFOAM's `filterField` returns the BOUNDARY
+    field, so `T_f` is the same face value the convection term saw.  No `phi`
+    on disk at the audited time is a REFUSAL, never a fallback to U.
+
+  * THE DATUM IS THE CASE'S OWN `TRef`, NOT 0 K, AND THAT IS A GATE DECISION
+    RATHER THAN A CONVENIENCE.  The NET is datum-free when mass balances, but
+    the DENOMINATOR of the imbalance ratio is not: the datum decides how much
+    of the through-flow's absolute enthalpy is counted as "heat entering".  A
+    0 K datum adds `rho.cp.TRef.mdot` to that denominator -- on this lab's air
+    at 300 K, hundreds of times the heat traffic actually being audited -- so
+    the same 0.5 percent tolerance would become a vastly LOOSER gate wearing
+    an unchanged number.  MEASURED at KV1 by mutation M4 on the KV1c duct: the
+    denominator is 8.979442 W at a 0 K datum against 0.2079685 W at TRef, a
+    factor of 43.2, so the 0.5 percent band is 4.49e-02 W of slack instead of
+    1.04e-03 W.  M4 is also the one advective error the CLOSURE TEST CANNOT
+    CATCH -- the datum cancels from the net when mass balances, so the case
+    still passes -- which is exactly why the datum is fixed here in code and
+    stated, rather than left to a caller to choose.
+
+  * MASS IS CHECKED, NOT ASSUMED.  Shifting the datum by dT moves the ledger by
+    `rho.cp.dT.(net volumetric flux)`, so the enthalpy number is only
+    meaningful to the extent the boundary conserves mass.  The mass ledger is
+    reported (`advective.mass_flux_*`, `mass_imbalance_pct`) and GATED against
+    the same governed `--tol`: a case whose mass does not balance has
+    `ledger_complete: false` and CANNOT PASS.  `datum_sensitivity_W_per_K`
+    states what one kelvin of datum error is worth so a reader can compare it
+    against the net directly.
+
+  * THE SILENT-FALLBACK GUARD.  `surfaceFieldValue` returns the UNWEIGHTED sum,
+    without a word on stderr, when `canWeight()` is false.  The advective term
+    would then be ~`datum` times too small and nothing would say so.  So the
+    invariant is checked: `integral T phi / integral phi` is a flux-weighted
+    mean face temperature and must lie inside the field's own T range.  If the
+    weight was dropped that ratio is exactly 1.0, and the auditor REFUSES.
+
+WHAT THE OPEN-CASE CLOSURE IS WORTH -- CARRIED FROM K2a SECTION 8, NOT REDERIVED
+-------------------------------------------------------------------------------
+It DOES establish: an unconverged energy field, a mis-set temperature offset, a
+flow-rate mismatch between a face pair, a patch omitted from the ledger.  Unlike
+the sealed closure it is convergence-sensitive, because the advective term
+depends on the SOLUTION -- on the outlet temperature and on `phi` -- and the
+discretisation does not force it.  MEASURED at KV1 on the KV1c duct, the same
+case audited at eleven iteration counts: 20.881 percent at iteration 20, 0.593
+at 80, 0.0009 at 120, and 0.000000 percent (net +1.967e-11 W) at 201, tracking
+the T equation's own initial residual from 8.01e-03 to 4.35e-12.  Set that
+beside K0b's SEALED case, which read 0.0128 percent at iteration 10 and never
+rose above 0.13 percent at any iteration: the open-case number crosses the 0.5
+percent gate between iteration 80 and 100, and the sealed one never approaches
+it.  One of the two is measuring the solution.
+
+And it can FAIL, which was checked rather than hoped: `KV1_runs/
+mutate_advective.py` puts four independent wrongnesses into the advective term
+and re-audits the same field set.  Sign flipped -> 45.66 percent.  Scaled by
+two -> 17.44 percent.  One open patch dropped from the sum -> 100 percent.  The
+weight silently dropped -> REFUSED by the guard above.  All eleven sealed K0c
+reports are byte-identical under every one of the four.
+
+It does NOT establish CIRCULATION.  A solve with the flow structure entirely
+wrong -- supply short-circuiting to the return, reversed aisle recirculation --
+still closes perfectly once converged, because closure tests conservation and
+not WHERE the energy travelled.  Closure is NECESSARY, NEVER SUFFICIENT, and no
+K2b figure may cite it as validation evidence.
+
 And the part that IS a measurement: the RECOVERY of a planted volumetric source
 is convergence-sensitive, unlike the sealed-case closure.  Measured at K1c on
 one case at eight iteration counts against a +5.000000000e-03 W plant, the
@@ -173,10 +251,15 @@ It exits 2, loudly, rather than print a wrong number, when:
   * a non-wall, non-empty patch exists (inlet/outlet).  Those carry an
     ADVECTIVE enthalpy flux rho.cp.integral(T (U.n))dA, and a balance that
     silently omits it would be wrong by whatever the through-flow carries.
-    `--allow-advective` suppresses this refusal.  READ THE NEXT SECTION BEFORE
-    USING IT: until KV1 it did NOT add the term, and the sentence that used to
-    stand here -- "`--allow-advective` adds the term but the report is then
-    stamped UNVALIDATED" -- was false in both halves.
+    `--allow-advective` suppresses this refusal and the term IS computed, from
+    rung KV1 onward, and validated there against a planted source.  The refusal
+    is KEPT rather than dropped because the flag is also where a reader is told
+    what an open-case closure does and does not establish -- see "WHAT THE
+    OPEN-CASE CLOSURE IS WORTH" below.  Removing the gate would make this
+    checker more permissive, which is not a thing this rung is allowed to do.
+    (Before KV1 the flag added NOTHING; the sentence that used to stand here --
+    "`--allow-advective` adds the term but the report is then stamped
+    UNVALIDATED" -- was false in both halves.  See "THE ADVECTIVE PATH".)
   * alphat is non-zero anywhere, i.e. a turbulence model is contributing
     turbulent thermal diffusivity.  Then alphaEff varies over the patch and
     `alphaEff . integral(n.grad T) dA` is NOT `integral(alphaEff n.grad T) dA`.
@@ -559,8 +642,16 @@ def main(argv=None):
     Prt = read_scalar(tp, "Prt", prt_default)
     Prt_source = ("case constant/transportProperties" if Prt_in_case
                   else f"thermal.turbulent_prandtl_default ({rules_source})")
+    with open(tp) as _fh:
+        TRef_in_case = re.search(r"^\s*TRef\s+([^;]+);", _fh.read(), re.M) is not None
     TRef = read_scalar(tp, "TRef", 300.0)
     beta = read_scalar(tp, "beta", 1.0 / TRef)
+    # The enthalpy DATUM for the advective term. See the docstring section
+    # "THE ADVECTIVE PATH": it is the case's own TRef, never 0 K, and the
+    # choice is recorded because it moves the DENOMINATOR of the imbalance
+    # ratio even though it leaves the net alone.
+    datum_source = ("TRef from case constant/transportProperties" if TRef_in_case
+                    else "TRef absent from the case; built-in 300.0 K used")
 
     ap_file = os.path.join(case, "constant", "thermalAuditProperties")
     rho = a.rho if a.rho is not None else read_scalar(ap_file, "rho0")
@@ -605,6 +696,26 @@ def main(argv=None):
         tspec = a.time
         tval = float(a.time)
 
+    # The advective term is integrated against the SOLVER'S OWN conservative
+    # face flux `phi`, never against a flux this script builds out of U and the
+    # mesh normals. `div(phi,T)` is the term the solver actually assembled; a
+    # geometric Sf & U_f is a different number, and reproducing the solver's
+    # numerics rather than inventing a second set is this whole file's rule.
+    # No phi on disk therefore means no advective term, and a refusal.
+    if nonwall:
+        tdir_actual = next((d for v, d in times if d == tspec or v == tval), None)
+        if tdir_actual is None:
+            raise SystemExit(
+                f"REFUSE: no time directory matching {a.time!r} in {case}")
+        if not any(os.path.isfile(os.path.join(case, tdir_actual, f))
+                   for f in ("phi", "phi.gz")):
+            raise SystemExit(
+                f"REFUSE: {os.path.join(case, tdir_actual, 'phi')} not found, so "
+                "the advective enthalpy flux cannot be integrated against the "
+                "solver's own face flux.\n        This auditor will not guess a "
+                "boundary mass flux from U instead. Re-run the solve with phi "
+                "written at the audited time.")
+
     # ---- build function objects ------------------------------------------
     sysdir = os.path.join(case, "system")
     made = []
@@ -627,6 +738,27 @@ def main(argv=None):
         made += [fq, ft]
         funcs += [fq, ft]
         fo_map[name] = (fq, ft)
+    # The advective pair, built ONLY when the case has a non-wall patch. On a
+    # sealed case these function objects are not written, not run and not read,
+    # so a sealed report is byte-identical to the pre-KV1 one except for the
+    # `advective` block that says the term does not arise.
+    adv_map = {}
+    if nonwall:
+        for name, _t, _n in active:
+            fa = f"hbAudit_adv_{name}"
+            fv = f"hbAudit_vdot_{name}"
+            # weightedSum of phi weighted by T is gSum(T_f . phi_f) over the
+            # patch faces, which IS integral T (U.n) dA in the discretisation
+            # the solver used: for a volScalarField on a patch OpenFOAM's
+            # `filterField` hands back the BOUNDARY field, so T_f is the same
+            # face value `div(phi,T)` saw.
+            open(os.path.join(sysdir, fa), "w").write(
+                fo_surface(fa, name, "weightedSum", "phi", weight="T"))
+            open(os.path.join(sysdir, fv), "w").write(
+                fo_surface(fv, name, "sum", "phi"))
+            made += [fa, fv]
+            funcs += [fa, fv]
+            adv_map[name] = (fa, fv)
     for nm, op, fld in (("hbAudit_Tmax", "max", "T"),
                         ("hbAudit_Tmin", "min", "T"),
                         ("hbAudit_alphatMax", "max", "alphat"),
@@ -667,9 +799,46 @@ def main(argv=None):
             _t2, tv = read_dat(case, ft)
             Twall = tv[0]
             area = patch_area(case, fq)
-            Q = kcond * G
-            per_patch.append(dict(patch=name, type=ptype, nFaces=nf, area=area,
-                                  int_snGradT=G, Q_in_W=Q, T_area_avg=Twall))
+            Q_cond = kcond * G
+            rec = dict(patch=name, type=ptype, nFaces=nf, area=area,
+                       int_snGradT=G, Q_in_W=Q_cond, T_area_avg=Twall)
+            if adv_map:
+                fa, fv = adv_map[name]
+                int_T_phi = read_dat(case, fa)[1][0]     # integral T (U.n) dA
+                Vdot = read_dat(case, fv)[1][0]          # integral (U.n) dA
+                # THE SILENT-FALLBACK GUARD, and it is not hypothetical.
+                # `surfaceFieldValue` falls back to the UNWEIGHTED sum without
+                # complaint when `canWeight()` is false (an empty weight field
+                # on this patch), which would make `int_T_phi` come back as
+                # plain `Vdot` and the advective term come out ~300x too small
+                # with nothing on stderr. So the invariant is checked instead
+                # of trusted: int_T_phi / Vdot is a flux-weighted mean face
+                # temperature and MUST lie inside the field's own T range.
+                # If the weight silently dropped, that ratio is exactly 1.0.
+                if abs(Vdot) > 1e-30:
+                    T_flux_avg = int_T_phi / Vdot
+                    span = max(Tmax - Tmin, 1.0)
+                    if not (Tmin - span <= T_flux_avg <= Tmax + span):
+                        raise SystemExit(
+                            f"REFUSE: on patch '{name}' the flux-weighted mean "
+                            f"face temperature is {T_flux_avg:.6e} K, outside "
+                            f"the field range {Tmin:.6f}..{Tmax:.6f} K.\n"
+                            "        That is the signature of surfaceFieldValue "
+                            "dropping the T weight and returning a bare sum(phi). "
+                            "The advective term would be silently wrong; no "
+                            "balance is produced.")
+                else:
+                    T_flux_avg = float("nan")
+                # Heat INTO the domain, so the OUTWARD enthalpy flux is negated.
+                # The datum subtraction is exact per patch; summed over the
+                # boundary it cancels to the extent mass is conserved, which is
+                # measured below rather than assumed.
+                Q_adv = -rho * cp * (int_T_phi - TRef * Vdot)
+                rec.update(Q_cond_in_W=Q_cond, Q_adv_in_W=Q_adv,
+                           Q_in_W=Q_cond + Q_adv,
+                           int_T_phi=int_T_phi, volumetric_flux_m3_s=Vdot,
+                           mass_flux_kg_s=rho * Vdot, T_flux_avg=T_flux_avg)
+            per_patch.append(rec)
     finally:
         for nm in made:
             try:
@@ -754,14 +923,57 @@ def main(argv=None):
             note="every active patch is a wall, so no patch passes mass and "
                  "there is no advective enthalpy flux to compute.")
     else:
+        # ---- the mass ledger, which the enthalpy ledger rests on -----------
+        # sum_p Q_adv_p is datum-independent ONLY to the extent that mass is
+        # conserved: shifting the datum by dT moves the total by
+        # rho.cp.dT.(net volumetric flux). So the net mass flux is not a
+        # nicety here, it is the thing that makes the enthalpy number mean
+        # anything, and it is REPORTED and GATED rather than assumed small.
+        Vd = [p["volumetric_flux_m3_s"] for p in per_patch]
+        m_out = rho * sum(v for v in Vd if v > 0)
+        m_in = -rho * sum(v for v in Vd if v < 0)
+        m_net = rho * sum(Vd)
+        m_gross = max(m_in, m_out)
+        mass_imbalance_pct = (100.0 * abs(m_net) / m_gross) if m_gross > 0 else 0.0
+        mass_balanced = bool(mass_imbalance_pct <= a.tol)
         advective = dict(
-            state="not_implemented", ledger_complete=False,
-            note="this case has non-wall patches carrying an advective enthalpy "
-                 "flux rho.cp.integral(T (U.n))dA, and THIS SCRIPT DOES NOT "
-                 "COMPUTE IT. The ledger below is conduction only and is short "
-                 "by whatever the through-flow carries. --allow-advective "
-                 "suppressed the refusal; it did not supply the term.",
-            open_patches=[n for n, _t, _n in nonwall])
+            state="computed", ledger_complete=bool(mass_balanced),
+            note=("the advective enthalpy flux -rho.cp.integral (T - datum)(U.n) dA "
+                  "is computed on every active patch and summed into the same "
+                  "ledger as the conductive term. Validated at rung KV1 of "
+                  "campaign F14 against a planted volumetric source on an open "
+                  "duct; see docs/campaigns/F14-cooling-ladder/KV1_RESULTS.md."),
+            open_patches=[n for n, _t, _n in nonwall],
+            datum_K=TRef, datum_source=datum_source,
+            Q_advective_total_W=sum(p["Q_adv_in_W"] for p in per_patch),
+            Q_conductive_total_W=sum(p["Q_cond_in_W"] for p in per_patch),
+            mass_flux_in_kg_s=m_in, mass_flux_out_kg_s=m_out,
+            mass_flux_net_kg_s=m_net,
+            mass_imbalance_pct=mass_imbalance_pct,
+            mass_balanced=mass_balanced,
+            # What one kelvin of datum error is worth in the ledger. Zero iff
+            # mass balances exactly; a reader can compare it against the net.
+            datum_sensitivity_W_per_K=abs(cp * m_net),
+            denominator_note=(
+                "on an open case the imbalance DENOMINATOR is datum-dependent "
+                "even though the net is not: the datum sets how much of the "
+                "through-flow's absolute enthalpy is counted as 'heat entering'. "
+                "It is the case's own TRef and NOT 0 K, deliberately. With a 0 K "
+                "datum the denominator gains rho.cp.TRef.mdot -- on this lab's "
+                "air at 300 K that is hundreds of times the heat traffic being "
+                "audited, and a fixed percentage tolerance against it would be a "
+                "vastly LOOSER gate wearing the same number."),
+        )
+        if not mass_balanced:
+            advective["note"] = (
+                f"MASS DOES NOT BALANCE across the boundary: net "
+                f"{m_net:+.6e} kg/s against {m_gross:.6e} kg/s of traffic, "
+                f"{mass_imbalance_pct:.4f} % against a {a.tol:g} % band. An "
+                "enthalpy ledger over a boundary that does not conserve mass "
+                "depends on the arbitrary temperature datum -- here worth "
+                f"{abs(cp * m_net):.6e} W per kelvin of datum -- so the ledger "
+                "is not complete and cannot pass. Converge the continuity "
+                "equation, or find the patch missing from the sum.")
 
     if not advective["ledger_complete"]:
         closure_is_identity_class = None          # UNKNOWN, and said so
@@ -789,6 +1001,19 @@ def main(argv=None):
             f"volume options were {fvo['state']}"
             + (f" ({', '.join(fvo['sources'])})" if fvo["sources"] else "")
         )
+        if not sealed:
+            closure_identity_basis += (
+                ". The advective enthalpy flux is computed and carried in the "
+                "ledger, and it depends on the SOLUTION -- on the outlet "
+                "temperature and on phi -- so this closure is convergence- and "
+                "bookkeeping-sensitive rather than forced by the discretisation. "
+                "It catches an unconverged energy field, a mis-set temperature "
+                "offset, a mismatched face pair and a patch omitted from the "
+                "sum. It establishes NOTHING about circulation: a solve whose "
+                "flow structure is entirely wrong still closes perfectly once "
+                "converged, because closure tests conservation and not where the "
+                "energy travelled. Necessary, never sufficient (K2a section 8)."
+            )
 
     res = dict(
         case=case, time=tval,
@@ -896,10 +1121,19 @@ def emit(r):
       + (f"  {r['fvOptions_in_log']['sources']}" if r["fvOptions_in_log"].get("sources") else "")
       + f"   (logs read: {', '.join(r['fvOptions_in_log']['logs_read']) or 'none'})")
     p("-" * 74)
-    p(f"{'patch':<20}{'type':<10}{'area m2':>12}{'int snGradT':>16}{'Q into dom. W':>16}")
-    for q in r["patches"]:
-        p(f"{q['patch']:<20}{q['type']:<10}{q['area']:>12.6g}"
-          f"{q['int_snGradT']:>16.6g}{q['Q_in_W']:>16.6g}")
+    split = any("Q_adv_in_W" in q for q in r["patches"])
+    if split:
+        p(f"{'patch':<16}{'type':<8}{'mdot kg/s':>13}{'Q cond W':>14}"
+          f"{'Q adv W':>14}{'Q into dom. W':>16}")
+        for q in r["patches"]:
+            p(f"{q['patch']:<16}{q['type']:<8}{q['mass_flux_kg_s']:>13.6g}"
+              f"{q['Q_cond_in_W']:>14.6g}{q['Q_adv_in_W']:>14.6g}"
+              f"{q['Q_in_W']:>16.6g}")
+    else:
+        p(f"{'patch':<20}{'type':<10}{'area m2':>12}{'int snGradT':>16}{'Q into dom. W':>16}")
+        for q in r["patches"]:
+            p(f"{q['patch']:<20}{q['type']:<10}{q['area']:>12.6g}"
+              f"{q['int_snGradT']:>16.6g}{q['Q_in_W']:>16.6g}")
     p("-" * 74)
     p(f"  heat IN   = {r['Q_in_W']:+.6e} W")
     p(f"  heat OUT  = {r['Q_out_W']:+.6e} W")
@@ -922,6 +1156,30 @@ def emit(r):
         if adv.get("open_patches"):
             p(f"      open patches: {', '.join(adv['open_patches'])}")
         p("-" * 74)
+    elif adv.get("state") == "computed":
+        p(f"  ADVECTIVE TERM: computed on {len(adv['open_patches'])} open patch(es) "
+          f"({', '.join(adv['open_patches'])})")
+        p(f"      conduction  = {adv['Q_conductive_total_W']:+.6e} W")
+        p(f"      advection   = {adv['Q_advective_total_W']:+.6e} W"
+          f"   (datum {adv['datum_K']:g} K, {adv['datum_source']})")
+        p(f"      mass in/out = {adv['mass_flux_in_kg_s']:.6e} / "
+          f"{adv['mass_flux_out_kg_s']:.6e} kg/s, net "
+          f"{adv['mass_flux_net_kg_s']:+.6e} kg/s")
+        p(f"      mass imbalance {adv['mass_imbalance_pct']:.6f} % -> "
+          + ("OK" if adv["mass_balanced"] else "FAIL: the enthalpy ledger rests "
+             "on a boundary that does not conserve mass"))
+        p(f"      one kelvin of datum error is worth "
+          f"{adv['datum_sensitivity_W_per_K']:.6e} W in this ledger")
+        for line in _wrap("READ THIS BEFORE QUOTING THE CLOSURE: on an open case "
+                          "closure catches an unconverged energy field, a mis-set "
+                          "temperature offset, a mismatched face pair and a patch "
+                          "omitted from the sum. It establishes NOTHING about "
+                          "circulation -- a solve whose flow structure is entirely "
+                          "wrong still closes perfectly once converged, because "
+                          "closure tests conservation and not where the energy "
+                          "travelled. Necessary, never sufficient.", 68):
+            p(f"      {line}")
+        p("-" * 74)
     else:
         p(f"  advective term: {adv.get('state', 'unknown')}")
     if r["closure_is_identity_class"] is True:
@@ -938,9 +1196,9 @@ def emit(r):
         p("  derivable by construction cannot gate anything. Do not quote it as "
           "a result.")
     elif r["closure_is_identity_class"] is False:
-        p("  NOT of the identity class, so the balance is a genuine constraint "
-          "here rather")
-        p("  than a restatement of the discretisation:")
+        p("  NOT of the identity class. The balance constrains something the "
+          "discretisation")
+        p("  does not force -- but read what it does and does not reach:")
         for line in _wrap(r["closure_identity_basis"], 68):
             p(f"      {line}")
     else:
