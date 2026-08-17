@@ -4265,3 +4265,94 @@ glob), D176 (the VALUE-ON-A-PIN label), L-92 and D348 (the same class in
 HEAD -- that entry is an INSTANCE of this one, and it was written by a
 different agent on the same day, which is itself evidence the class is worth
 naming).
+
+---
+
+## L-94. A partition recorded by count and not by membership cannot be re-derived, and a sum-based reconciliation is structurally incapable of catching an error in it
+
+**The rule.** When a corpus is split into buckets and the split is documented as
+*"bucket X: 26 files"* rather than as a list of which files, the split is not
+reproducible — and if the reconciliation that validates the whole classification
+is an identity over **sums**, then moving a file from one bucket to its neighbour
+leaves the identity closing exactly as before. The check that is supposed to
+prove the classification correct is blind to the one error the missing list makes
+easy. **Record the membership, or record a second subtotal that crosses the
+boundary; a total alone certifies nothing about where the boundary is.**
+
+**The instance.** `MOVE_MAP_2026-08-16.md` §2.2 states rule R8 as
+*"`scripts/{installed,laptop_bundle}/**` + **15 named launchers** → `ops/**`,
+26 files"*, and R9 as *"`scripts/**` — the check/audit apparatus that stays,
+52"*. **The 15 names appear in no committed artefact.** `git grep` over `*.py`,
+`*.sh` and `*.md` returns the phrase and no list; `scripts/phase2_move_map.py`
+is the superseded F1 generator and encodes a different target tree entirely.
+
+R8 and R9 are not neighbours of equal consequence: **R8 is in the MOVE bucket and
+R9 is in the KEEP bucket**, the two largest of the four the reconciliation is
+built from. Re-deriving every rule count at batch 0, an independent
+reconstruction of the launcher list produced **R8 = 27 / R9 = 51** — and
+reconciled to precisely the same grand total, 13,814, with zero unclassified,
+because `R8 + R9 = scripts/** = 78` is fixed no matter where the line is drawn.
+The error was caught only because a *different* document had separately recorded
+the keep subtotal as **723**, and 722 is not 723. Had that subtotal not existed,
+a wrong boundary would have been carried into a batch that moves one of those
+files into `ops/`.
+
+**What makes it more than an arithmetic curiosity.** The map's own prose is
+internally checkable and was not checked: `scripts/installed/` holds **7** files
+and `scripts/laptop_bundle/` holds **4**, so `26 − 11 = 15` — the stated launcher
+count is consistent with the stated total, which is exactly why nobody noticed
+that neither is a list. A reconstruction that *fits* both numbers is not the
+author's set; it is a set with the same cardinality. This document records the
+reconstruction as a reconstruction for that reason.
+
+**The habit.** For any rule that partitions a directory, commit the enumeration
+next to the count, and make the reconciliation carry at least one subtotal that
+does not straddle the boundary — here, the keep subtotal. Related: D274 and L-92
+(a total taken in the wrong frame), and the standing rule that a count is
+meaningless without naming the population it is over. This one is the companion:
+a count is also meaningless as evidence for a boundary it does not cross.
+
+## L-95. "Zero unclassified" is a measurement of the frame, not of the rule set — and the frame that under-reports hides exactly the files most likely to need a rule that does not exist yet
+
+**The rule.** A completeness gate — *every path classified, zero unclassified;
+every citation resolved, zero dangling* — reports on the population it was handed.
+If that population is systematically missing the newest members of the corpus,
+the gate is not merely stale, it is **structurally guaranteed to stay green**,
+because the thing a new rule would be needed for is the thing the frame cannot
+show. A completeness gate that has never once gone non-zero has not been passed;
+it has not been tested. **Re-take a completeness gate in the frame a reader
+actually sees, and treat an always-green completeness gate as unproven until you
+have watched it go red.**
+
+**The instance, measured at `fc9301c5` on 2026-08-17.**
+`MOVE_MAP_2026-08-16.md`'s classifier reported *"all tracked paths classified
+into exactly one rule, **zero unclassified**"*, reconciling to
+`git ls-files | wc -l`. Re-derived over that same index frame today, it still
+reports **zero unclassified** and closes at 13,814. Re-derived over
+`git ls-tree -r HEAD` — the frame every reader of the repository sees, and the
+only frame this lab's own private-index commit protocol writes into (L-92,
+`USING_THIS_LAB.md` §8.7) — it closes at 14,293 and reports **one**:
+`AWS_TREE_PLAN.md`, a root-level record landed the same day by another agent,
+which R0's closed three-file keep list does not name and which no other rule
+reaches.
+
+**The second finding is the same shape and larger.** In the index frame, rule R7
+(*"`docs/**` — unchanged"*) counts **137 documentation files**, exactly as the map
+recorded it. At HEAD it counts **497**, and 344 of the 360 new ones are an
+OpenFOAM case corpus under `docs/campaigns/F14-cooling-ladder/` — leaf
+directories `system/` (75), `constant/` (53), `0.orig/` (52). That is the same
+class of artifact that `demo-output/website/campaign/*_runs/` holds and that R20
+sends to `verification/runs/`. **A rule quietly changed meaning — from "keep the
+documentation where it is" to "keep a solver run archive in `docs/`" — and the
+index frame shows none of it.** The rule's count did not move at all in that
+frame. Neither the new unclassified path nor the changed rule is drift a re-count
+would smooth away; both are decisions somebody now has to take.
+
+**Why this is not just L-92 again.** L-92 says an instrument reading the index
+measures a scratch state and the error grows. This is that seen from the gate's
+side: the error is not random with respect to what the gate is checking. The 479
+HEAD-only paths at `fc9301c5` are, by construction, **the most recently written
+files in the corpus** — and recency is precisely correlated with "no rule covers
+this yet". So the bias runs in the one direction that makes a completeness gate
+useless while leaving it green. The remedy is cheap and it is the one D274 already
+applied to `tracked_frame`: read HEAD.
