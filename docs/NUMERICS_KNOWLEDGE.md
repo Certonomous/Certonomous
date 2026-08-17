@@ -1067,3 +1067,106 @@ were correct. Blast radius, measured rather than assumed: `git grep` at HEAD
 finds the misprinted forms nowhere outside this file, and the one regime table
 computed from this map in the same commit window (F14 K2a §5) derives from the
 Gr/Re/Pr definitions directly and is unaffected.
+
+## Digitizing a published figure as a measurement (F14 rung K2c-A, 2026-08-17)
+
+Recorded at addendum time, zero compute, no solver launched. Everything in this
+section is **VERIFIED by measurement on this repository's own copy of the
+source** unless a row says otherwise; the source is
+`docs/papers/wibron_ljung_lundstrom_2018_en11030644.pdf`, SHA-256
+`4de4798ed5eed60feda123c7a2398674a6a9177f44906175847d90f5227d7b77`, and every
+figure below is reproduced by
+`python3 docs/campaigns/F14-cooling-ladder/digitize_wibron2018.py`.
+
+### 1. Most journal plots are vector, and a vector plot is not a picture of the data
+
+| Fact | Value | Basis |
+|---|---|---|
+| Fraction of this paper's figures that carry their data as PDF path operators rather than pixels | **4 of 10** figures, and all four of the ones a gate would grade (3, 6, 7, 8) | VERIFIED, F14 K2c-A: `pdfimages -list` reports no image object on pages 7, 10 or 11; pypdf reports `/Subtype /Form` for all seven objects on those pages. The six raster figures are the geometry views and the contour planes |
+| What a Form XObject's content stream contains for a bar chart | the bar as an `re` operator whose height IS the value | VERIFIED, same |
+| What it contains for a scatter marker | a closed 8-segment polygon (a circle drawn as an octagon), whose centre is exactly the mean of the vertex extrema | VERIFIED, same. Marker radius 30 raw units, vertices at 30 cos(45k degrees) |
+| What it contains for a computed profile | a polyline, here 500 vertices sampled uniformly in the ordinate | VERIFIED, same |
+| Coordinate precision written into the stream | 6 significant figures | VERIFIED, same. At this paper's scales that is 6.5e-5 deg C and 7e-6 m/s, i.e. below every other error |
+| Axis calibration error from a least-squares fit of tick position against tick label value | **4.9e-7 deg C** on a 9-tick temperature axis; **5.8e-9 m/s** on a 4-tick velocity axis | VERIFIED, same. Tick marks are stroked segments planted on the plot box, so the calibration is read from geometry, not from label glyph positions |
+
+**Consequence, and it is the whole reason this matters:** the usual dominant
+digitisation errors (pixel-to-data scale, curve thickness, reader repeatability)
+are **identically zero** on a vector figure, because there is no pixel stage, the
+paths carry their own centrelines, and the extraction is deterministic. What is
+left is primitive placement, and that is measurable. *Applies*: any literature
+reference whose numbers live in figures. Check `/Subtype` before writing a pixel
+digitiser.
+
+### 2. The error that replaces them: marker placement, and it must be measured across figures
+
+| Fact | Value | Basis |
+|---|---|---|
+| Experimental-marker centre coordinates in this paper's Figure 7 | every one of 34 coordinates an exact multiple of 5 raw units | VERIFIED, F14 K2c-A. The exporter quantised marker positions; polyline vertices in the same stream are not quantised |
+| Disagreement between the same experimental point digitised from two different figures on different axis limits | **0.0060 m/s maximum, 0.0037 m/s rms** over 6 common points; 0.0043 m in height | VERIFIED, F14 K2c-A, control C6 |
+| Disagreement between the same computed CURVE digitised from two different figures | **1.2e-5 m/s** maximum over 500 vertices | VERIFIED, F14 K2c-A, control C5 |
+
+Markers are three orders of magnitude worse than curves in the same document.
+*Applies*: quote a marker-derived reference at the cross-figure bound, not at the
+stream's coordinate precision. Where a paper plots the same data twice, that
+redundancy is the instrument that measures the error; where it does not, the
+error is unmeasured and the reading is digitized-uncontrolled.
+
+### 3. Three kinds of control, and only one of them establishes accuracy
+
+| Control kind | Example on this primary | What it can and cannot catch |
+|---|---|---|
+| **Internal redundancy** | Figure 6 bar height against the midpoint of its own error-bar caps: agree to **6.5e-5 deg C** | Catches an extraction bug. **Cannot catch a systematic error common to both encodings**, so it must never be reported as the digitisation accuracy |
+| **Cross-figure identity** | the fine-grid RSM profile plotted as both Figure 3a and Figure 7a: **1.2e-5 m/s** over 500 vertices | Catches calibration error, since the two panels have different axis limits. Also identifies which unlabelled grey curve is which model |
+| **Text-stated value recovered from a figure** | the plus or minus 1 deg C sensor accuracy drawn as Figure 6's error bars (**recovered to 1.3e-7 deg C**); the 0.0521 m/s GCI band drawn in Figure 3b (**0.052073, error 2.7e-5**); the 3.150 m room height as Figure 7's height-axis limit (**error 2.9e-6 m**) | **This is the one that establishes accuracy**, because the reference did not come out of the same figure |
+
+A fourth kind is worth naming because it caught the most: **a relation the paper
+states in prose with tabulated inputs.** Here, Eq. (9)'s dT = q/(m_dot c_p) with
+the Table 2 loads and face velocities forces (dT)(v)/q to be one constant across
+racks, and it was, to **0.202 %** over 8 racks, which is **0.029 K** on a 13 K
+rise. That residual is 460 times the internal redundancy figure, and it is the
+one to adopt: it is the only control that carries the paper's own modelling
+detail as well as the reading error. *Applies*: adopt the largest
+control-established bound, not the flattering one.
+
+### 4. The legend key is a data point unless you exclude it, and a box test is not enough
+
+VERIFIED, F14 K2c-A, by having it happen: this paper's Figure 7 puts its legend
+above the panels, where a plot-box membership test excludes it; Figure 8 puts its
+legend **inside** the axes box, where the same test admits the legend's own
+marker as a fourth measurement at 1.32 m/s and 0.19 m. The cross-figure control
+of item 2 then read **0.84 m/s** instead of 0.0060, an inflation of 140 times,
+and that is the only reason it was noticed. Two further traps in the same figure
+family: a legend entry drawn as a marker has **no line sample**, so the bounding
+box of the line keys misses it by one row pitch; and the legend text is emitted
+into the stream **shifted by one entry** relative to the swatches, so reading
+label-follows-swatch in stream order mislabels every curve. *Applies*: every
+figure extractor. The control that caught it was cross-figure agreement, not
+inspection.
+
+### 5. What no control on a figure can reach
+
+**Whether the value the authors plotted equals the value they measured.**
+Rounding, averaging or transcription between instrument and figure is invisible
+to all of the above. RECALLED as a general point, VERIFIED as a live one here:
+this paper's Figure 6b back-side CFD bar for rack R6 implies a heat load near
+5030 W under its own Eq. (9) and its own Table 2 flow, against the 1762 W Table 2
+records for that rack, a residual of **9.1 K** where the other eight racks close
+to 0.03 K. Something in that pairing is wrong and no reading of the figure can
+say which. *Applies*: state the reading uncertainty as the uncertainty of reading
+the figure, and say so in those words.
+
+### 6. What the Wibron 2018 facility numbers are, once digitized
+
+DIGITIZED, tier as recorded in `docs/campaigns/F14-cooling-ladder/K2c_DIGITIZATION_ADDENDUM.md` §4:
+
+- Rack-front temperature at the 1.09 m sensor point, measured, **20.07 to 20.25
+  deg C** across the 8 racks that carry a sensor, against CRAC supply of 19.7 to
+  20.0 deg C. The whole cold aisle sat within 0.6 K of supply.
+- Rack-back temperature, measured, **33.70 to 35.97 deg C** across the 7 racks
+  that carry a sensor.
+- Measured velocities at the five profile locations, **0.14 to 0.96 m/s**, all
+  inside the anemometer's 0.05 to 1 m/s accuracy band.
+- **Five sensor values are absent from the paper's own figures**: R5 and R6 on
+  the front, R1, R5 and R6 on the back. The paper does not remark on it. A gate
+  written from the paper's prose alone would have specified 10 racks and 20
+  comparisons where only 15 exist.

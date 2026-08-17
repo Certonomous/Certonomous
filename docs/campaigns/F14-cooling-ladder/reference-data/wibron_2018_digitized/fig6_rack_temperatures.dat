@@ -1,0 +1,24 @@
+# DIGITIZED from Wibron, Ljung and Lundstrom 2018, Energies 11(3):644, CC-BY.
+# Source PDF sha256 4de4798ed5eed60feda123c7a2398674a6a9177f44906175847d90f5227d7b77
+# Produced by docs/campaigns/F14-cooling-ladder/digitize_wibron2018.py --write
+# NOT TABULATED IN THE PAPER.  Every value below is a figure reading.
+# Digitisation increments, derived by the controls printed by the
+# command above and restated here so no reader can quote a value
+# finer than it was measured (L-28):
+#   temperature  +-0.03 K      velocity  +-0.007 m/s      height  +-0.005 m
+# More decimals are carried below only so the file round-trips; the
+# graded value is the one at the increment.
+# Figure 6a (front) and 6b (back), sensor point 1.09 m above the
+# lower edge of the rack doors.  NO DATUM = the paper plots no
+# experimental bar for that rack (bar height exactly zero).
+# rack  T_exp_front  T_cfd_front  T_exp_back  T_cfd_back   (deg C)
+R1         20.1544      20.0000      NODATUM      34.8730
+R2         20.2248      19.9030      34.4917      32.8670
+R3         20.1256      19.7000      34.9822      32.2990
+R4         20.0790      19.7090      33.7000      32.8210
+R5         NODATUM      19.7000      NODATUM      19.8521
+R6         NODATUM      19.8250      NODATUM      33.8960
+R7         20.2480      19.8030      35.9662      35.4880
+R8         20.1000      19.8010      34.3133      33.8570
+R9         20.0717      19.8731      35.1402      34.4300
+R10        20.1189      19.9000      34.8421      35.2030

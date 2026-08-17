@@ -1,0 +1,29 @@
+# DIGITIZED from Wibron, Ljung and Lundstrom 2018, Energies 11(3):644, CC-BY.
+# Source PDF sha256 4de4798ed5eed60feda123c7a2398674a6a9177f44906175847d90f5227d7b77
+# Produced by docs/campaigns/F14-cooling-ladder/digitize_wibron2018.py --write
+# NOT TABULATED IN THE PAPER.  Every value below is a figure reading.
+# Digitisation increments, derived by the controls printed by the
+# command above and restated here so no reader can quote a value
+# finer than it was measured (L-28):
+#   temperature  +-0.03 K      velocity  +-0.007 m/s      height  +-0.005 m
+# More decimals are carried below only so the file round-trips; the
+# graded value is the one at the increment.
+# Figure 7a-e, measured (Exp.) velocity profiles.
+# loc  height_m  velocity_mps
+L1      0.5056    0.4800
+L1      0.9981    0.7026
+L1      1.5037    0.9113
+L2      0.5056    0.5009
+L2      0.9981    0.6678
+L2      1.5037    0.9600
+L3      0.5056    0.4870
+L3      0.9981    0.5704
+L3      1.5037    0.6678
+L4      0.5056    0.2515
+L4      0.9981    0.2655
+L4      1.5037    0.1397
+L4      1.9963    0.1817
+L5      0.5056    0.4661
+L5      0.9981    0.5217
+L5      1.5037    0.5496
+L5      1.9963    0.1461

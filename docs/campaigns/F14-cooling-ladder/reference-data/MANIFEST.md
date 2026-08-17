@@ -33,3 +33,26 @@ Kept files:
 Derived gate metrics are recomputed from these files by
 `../compute_reference_metrics.py`; the gate spec quotes no derived number that the
 script does not print.
+
+---
+
+## `wibron_2018_digitized/` (added 2026-08-17, F14 rung K2c-A)
+
+**These files are DIGITIZED, not tabulated, and they are the only files in this
+directory that are.** Everything under `betts_bokhari/` is a byte-identical copy
+of a published data file; everything here is a reading taken off a figure.
+
+| Field | Value |
+| --- | --- |
+| Source | Wibron, E., Ljung, A.-L., Lundström, T.S. (2018). Computational Fluid Dynamics Modeling and Validating Experiments of Airflow in a Data Center. *Energies* 11(3), 644. DOI `10.3390/en11030644`, CC-BY |
+| Copy read | `docs/papers/wibron_ljung_lundstrom_2018_en11030644.pdf`, SHA-256 `4de4798ed5eed60feda123c7a2398674a6a9177f44906175847d90f5227d7b77` |
+| Figures read | 6a, 6b (per-rack temperatures) and 7a to 7e (velocity profiles). Figures 3 and 8 were read for controls only and are not written here |
+| Method | Vector path extraction from the figures' PDF Form XObjects, calibrated on the axis tick marks. Not pixel digitization |
+| Produced by | `../digitize_wibron2018.py --write`, which re-verifies the SHA-256 before reading |
+| Digitization increments | temperature plus or minus 0.03 K, velocity plus or minus 0.007 m/s, height plus or minus 0.005 m, each derived from a control and restated in every file header |
+| Controls and recovery errors | `../K2c_DIGITIZATION_ADDENDUM.md` §3. Seven controls; three recover values the paper states in its own prose |
+| Files | `fig6_rack_temperatures.dat`, `fig7_velocity_profiles.dat` |
+
+`NODATUM` in `fig6_rack_temperatures.dat` means the paper plots no experimental
+bar for that rack and face, which is a property of the reference and not of the
+extraction. It is R5 and R6 on the front, and R1, R5 and R6 on the back.

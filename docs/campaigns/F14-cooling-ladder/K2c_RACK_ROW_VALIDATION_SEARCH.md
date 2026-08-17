@@ -207,3 +207,34 @@ for parameter choices, never as a reference value.
 | k–ε mispredicts the above-rack low-velocity regions; RSM and DES agree; solution-time argument favors RSM | same, §§4.4–5 | Model-choice caveats on any K2b solve; the qualitative Fig. 9 gate row | Any claim about k–ω SST, which the primary did not test |
 | CFD results for this facility class stop changing significantly only below ~15.2 cm grid size, and are not fully grid-independent even at 2.5 cm | VanGilder et al. via Wibron 2018 p. 10 (SECONDARY — the underlying study is NOT OBTAINED) | Sanity floor for K2a §6's 6 cm base cell | Grading any mesh claim; the primary study is unread |
 | ASHRAE recommended/allowable rack-inlet envelopes are 18–27 °C / 15–32 °C | ASHRAE 2011 guidelines via Wibron 2018 p. 2 (SECONDARY) | Context for reporting T_in,i | Any pass band; guidelines are not measurements |
+
+---
+
+## 6. Addendum pointer, appended 2026-08-17 (W-4: nothing above is edited)
+
+The digitization addendum §3.1 called for was written and landed as
+`K2c_DIGITIZATION_ADDENDUM.md`. It is appended to rather than merged into this
+document, so this document can still be diffed against its own commit.
+
+**What it changed, precisely:**
+
+| Row of §3.1 | Status before the addendum | Status after |
+| --- | --- | --- |
+| Rack-front temperature, per rack | reference unarmed, rung TREND-ONLY | **ARMED for 8 racks at plus or minus 1.03 K.** R5 and R6 are NOT ARMABLE: the addendum found the paper plots no experimental bar for them. "Per rack" in §3.1 was written before that was known |
+| Rack-back temperature, per rack | REPORT-ONLY | **REPORT-ONLY, unchanged.** Values digitized and labelled; 7 racks carry data, and the digitized values reproduce the authors' own "all except two" count exactly |
+| Velocity at L5 and L3 | reference unarmed | **ARMED, 7 points**, bands per the addendum §5.2 |
+| Velocity at L1, L2, L4 | REPORT-ONLY with the plus or minus 0.15 m sweep | **unchanged**, values digitized and labelled |
+| Above-rack low-velocity region | REPORT: present / absent | **unchanged.** Figure 9 is raster; nothing was digitized |
+| Heat-balance closure (advective) | blocked on KV1 | **still blocked.** KV1 was verified open and unattempted at `fc1e3bac`, and the script's `--allow-advective` was found not to compute the advective term at all |
+
+**What it did not change, and this is the half that travels badly:**
+
+- **§3.2, rung K2c-B, is untouched and remains NOT OBTAINED in its entirety.**
+  No raised-floor gate rows exist. Any K2b solve of the tile-supply
+  configuration is TREND-ONLY however well it converges.
+- Of §4's three NOT OBTAINED rows, only the second (digitized reference values
+  from this repository's own primary) is discharged. The raised-floor primary
+  row and the Hamann DOE report row stand exactly as written.
+- **No solve has run.** The header's prohibition is unchanged. Arming a
+  reference column is not a grade, and the rung is VALIDATED-ELIGIBLE on two
+  rows rather than VALIDATED on any.
