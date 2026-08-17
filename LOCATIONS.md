@@ -35,6 +35,10 @@ columns are equal because there are none to remove. File counts are the
 enumeration commands' own counts; sizes are summed over the regular files among
 them.
 
+Both totals are computed from unrounded bytes, so adding the deduplicated column
+as printed gives 84.23 rather than 84.24. That 0.01 GB is per-row rounding and
+nothing else. The apparent column happens to sum exactly.
+
 GitHub rejects any file over 100 MB, warns above 50 MB, and treats repositories
 over roughly 5 GB as out of policy. Everything that can be committed has been.
 Everything that cannot is enumerated below.

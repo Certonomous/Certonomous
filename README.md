@@ -90,9 +90,10 @@ outward. This is a local score, not an official placement.
 | Lab software | `sdk/`, `scripts/` | The chief-engineer server, mission workflows, and the self-audit and check apparatus |
 | Research notes | `docs/`, `docs/papers/`, `docs/research/` | Operating notes, numerics knowledge, prior art |
 | Validation curriculum | `models/curriculum/` | Parametric bodies and their experimental references |
-| Demo and filming | `demo-output/plots/`, `gui-proof/`, `acts/`, `dist/`, `mission-output/` | The demo bundle, plots, and control-room evidence |
+| Demo and filming | `demo-output/plots/`, `demo-output/gui-proof/`, `demo-output/acts/`, `dist/`, `mission-output/` | The demo bundle, plots, and control-room evidence |
 
-Sizes of the two largest bodies, at `8cefb4e9`:
+Every path in the table above was checked to exist at `8cefb4e9`. Sizes of the
+principal bodies:
 
 | Body | Files | Size | How to re-derive |
 |---|---|---|---|
