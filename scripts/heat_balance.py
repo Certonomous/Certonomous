@@ -80,6 +80,40 @@ energy source or sink, and any domain with through-flow -- where the advective
 enthalpy flux is a genuinely independent contribution and the balance is not an
 identity at all.
 
+THE ADVECTIVE PATH: WHAT IT WAS, AND THE DEFECT THAT MADE IT WORSE THAN MISSING
+-------------------------------------------------------------------------------
+Recorded here because the shape of this defect is more instructive than the
+missing feature, and because the next person to add a flag needs to see it.
+
+Until rung KV1 this script had a `--allow-advective` flag that read at EXACTLY
+ONE place -- the exit-2 refusal guard -- and nowhere else.  The only per-patch
+heat it ever computed was `Q = kcond * G`, pure conduction.  No advective key
+reached the JSON and no advective line reached the printed report.  So the flag
+did not "add an UNVALIDATED term"; it added NOTHING, and the docstring's claim
+that it did was false in both halves.
+
+THAT IS NOT THE WORST OF IT.  `sealed = not nonwall`, so an open case took the
+`closure_is_identity_class is False` branch of the report and printed
+
+    "NOT of the identity class, so the balance is a genuine constraint here
+     rather than a restatement of the discretisation"
+
+over a ledger whose advective term HAD NEVER BEEN COMPUTED.  The instrument made
+a positive claim about the STRENGTH OF ITS OWN CHECK on exactly the case where
+the quantity backing that claim did not exist.  A missing feature is a gap a
+reader can see.  A missing feature under a printed assurance that the check is
+strong here is a gap that reads as a result, and any figure quoted on top of it
+inherits the assurance without the quantity.  That is the lesson (L-105) and it
+is why the stamp was repaired BEFORE the term was implemented, in its own
+commit, rather than after.
+
+THE LEDGER IS NOW COMPLETE OR IT SAYS SO.  Every report carries
+`advective.state` and `advective.ledger_complete`.  An incomplete ledger CANNOT
+PASS -- `passed` is false whatever the imbalance reads -- and it cannot be
+stamped as a genuine constraint either: `closure_is_identity_class` goes to
+`null`/UNKNOWN, because a balance missing a term is neither an identity nor a
+constraint, it is an unfinished sum.
+
 And the part that IS a measurement: the RECOVERY of a planted volumetric source
 is convergence-sensitive, unlike the sealed-case closure.  Measured at K1c on
 one case at eight iteration counts against a +5.000000000e-03 W plant, the
@@ -137,11 +171,12 @@ REFUSALS -- what this script will NOT guess at
 It exits 2, loudly, rather than print a wrong number, when:
 
   * a non-wall, non-empty patch exists (inlet/outlet).  Those carry an
-    ADVECTIVE enthalpy flux rho.cp.integral(T (U.n))dA that this script does not
-    yet compute, and a balance that silently omits it would be wrong by
-    whatever the through-flow carries.  `--allow-advective` adds the term but
-    the report is then stamped UNVALIDATED: the advective path has never been
-    checked against a closed-form answer, and until it is, it is not trusted.
+    ADVECTIVE enthalpy flux rho.cp.integral(T (U.n))dA, and a balance that
+    silently omits it would be wrong by whatever the through-flow carries.
+    `--allow-advective` suppresses this refusal.  READ THE NEXT SECTION BEFORE
+    USING IT: until KV1 it did NOT add the term, and the sentence that used to
+    stand here -- "`--allow-advective` adds the term but the report is then
+    stamped UNVALIDATED" -- was false in both halves.
   * alphat is non-zero anywhere, i.e. a turbulence model is contributing
     turbulent thermal diffusivity.  Then alphaEff varies over the patch and
     `alphaEff . integral(n.grad T) dA` is NOT `integral(alphaEff n.grad T) dA`.
@@ -553,8 +588,10 @@ def main(argv=None):
             "REFUSE: non-wall patches carry an advective enthalpy flux this "
             "auditor does not compute: "
             + ", ".join(f"{n} (type {t})" for n, t, _ in nonwall)
-            + "\n        Re-run with --allow-advective to include an UNVALIDATED "
-              "advective term, or audit a closed domain.\n"
+            + "\n        Re-run with --allow-advective, or audit a closed domain.\n"
+              "        NOTE: --allow-advective does NOT currently compute the term.\n"
+              "        It suppresses this refusal and the report is then marked\n"
+              "        advective.ledger_complete = false, which cannot PASS.\n"
         )
         return 2
 
@@ -706,7 +743,35 @@ def main(argv=None):
     # like a clean case, and that is how this lab's first false zero happened.
     fvo = fvoptions_witness(case)
     sealed = not nonwall
-    if fvo["state"] in ("no_log", "disagreement"):
+
+    # ---- is the LEDGER COMPLETE? ------------------------------------------
+    # Asked before the identity question, because it OUTRANKS it. A sum with a
+    # term missing is neither an identity nor a constraint. See the docstring
+    # section "THE ADVECTIVE PATH".
+    if sealed:
+        advective = dict(
+            state="not_applicable_sealed", ledger_complete=True,
+            note="every active patch is a wall, so no patch passes mass and "
+                 "there is no advective enthalpy flux to compute.")
+    else:
+        advective = dict(
+            state="not_implemented", ledger_complete=False,
+            note="this case has non-wall patches carrying an advective enthalpy "
+                 "flux rho.cp.integral(T (U.n))dA, and THIS SCRIPT DOES NOT "
+                 "COMPUTE IT. The ledger below is conduction only and is short "
+                 "by whatever the through-flow carries. --allow-advective "
+                 "suppressed the refusal; it did not supply the term.",
+            open_patches=[n for n, _t, _n in nonwall])
+
+    if not advective["ledger_complete"]:
+        closure_is_identity_class = None          # UNKNOWN, and said so
+        closure_identity_basis = (
+            "the ledger is INCOMPLETE: " + advective["note"] + " A balance "
+            "missing a term is neither an identity nor a genuine constraint, so "
+            "the identity question is not answered here and no claim is made "
+            "about the strength of this check on this case."
+        )
+    elif fvo["state"] in ("no_log", "disagreement"):
         closure_is_identity_class = None      # UNKNOWN, and said so
         closure_identity_basis = (
             "no solver log in the case directory, so whether a volumetric source "
@@ -741,6 +806,7 @@ def main(argv=None):
         imbalance_defined=imbalance_defined,
         imbalance_undefined_reason=imbalance_undefined_reason,
         fvOptions_in_log=fvo,
+        advective=advective,
         closure_is_identity_class=closure_is_identity_class,
         closure_identity_basis=closure_identity_basis,
         dT_field_K=dT_field, dT_wall_K=dT_wall, dT_used_K=dT,
@@ -756,7 +822,14 @@ def main(argv=None):
         # An undefined ratio is a FAIL, exactly as the bare `nan` already was:
         # `nan` loses every comparison. The condition is written out rather than
         # left to that accident so a reader does not have to know it.
-        passed=bool(imbalance_defined and imbalance_pct <= a.tol),
+        #
+        # AN INCOMPLETE LEDGER IS ALSO A FAIL, added at KV1 and STRICTLY
+        # STRICTER: `ledger_complete` is True on every sealed case, which is
+        # every case this repository holds a field set for, so no committed
+        # case's verdict can move. It can only ever turn a number into a FAIL
+        # on a case that was previously being scored against a short sum.
+        passed=bool(advective["ledger_complete"]
+                    and imbalance_defined and imbalance_pct <= a.tol),
     )
 
     if a.selftest_conduction is not None:
@@ -840,6 +913,17 @@ def emit(r):
             p(f"      {line}")
         p(f"      net leak in watts = {abs(r['Q_net_W']):.9e} W")
     p("-" * 74)
+    adv = r.get("advective") or {}
+    if adv.get("ledger_complete") is False:
+        p("  LEDGER INCOMPLETE -- THIS REPORT CANNOT PASS, WHATEVER THE NUMBER "
+          "ABOVE READS:")
+        for line in _wrap(adv.get("note"), 68):
+            p(f"      {line}")
+        if adv.get("open_patches"):
+            p(f"      open patches: {', '.join(adv['open_patches'])}")
+        p("-" * 74)
+    else:
+        p(f"  advective term: {adv.get('state', 'unknown')}")
     if r["closure_is_identity_class"] is True:
         p("  WHAT THIS NUMBER IS NOT: this case is SEALED and the solver "
           "constructed no")
