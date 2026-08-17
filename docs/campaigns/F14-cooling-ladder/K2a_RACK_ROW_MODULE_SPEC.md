@@ -381,6 +381,36 @@ source of known watts; the audited net must recover the plant within
 budget (Section 10), and until it passes, every advective closure number is
 reported UNVALIDATED in the script's own words.
 
+> **Addendum 2026-08-17, later the same day. KV1 IS CLOSED.** The paragraph
+> above is left standing because a specification's value is that it can be
+> diffed against its own commit, and because it named the right prerequisite.
+> Two of its statements are now superseded and one of them was never true:
+>
+> - **Superseded.** The advective path is implemented and validated. KV1a
+>   recovers a planted 5.000e-03 W source at **−4.999999998798e−03 W, error
+>   +2.40e−08 %**, against the 0.1 % this section names — three orders of
+>   magnitude inside it, and three orders better than K0c's own C3. Full record:
+>   `KV1_RESULTS.md`.
+> - **Never true.** "Its own docstring stamps the advective path UNVALIDATED"
+>   describes a stamp that did not exist. At `267a4021` the string `UNVALIDATED`
+>   appeared only in the docstring and in two stderr messages — never in the JSON
+>   and never in the printed report. Worse, on an open case the report printed
+>   *"NOT of the identity class, so the balance is a genuine constraint here"*
+>   over a ledger whose advective term had never been computed. This section's
+>   own instrument prerequisite was therefore weaker than it read: it assumed a
+>   stamp would mark unvalidated numbers, and nothing would have.
+> - **Unchanged, and carried into two standing documents rather than left here.**
+>   The §8 distinction between what closure does and does not establish is
+>   correct as written and is now quoted verbatim in
+>   `docs/physics_rules.yaml` (block `thermal`, section 4b) and in
+>   `docs/standards/MONITOR_STANDARD.md` **S16**, a rule adopted specifically so
+>   that no K2b sentence can cite an open-case closure as evidence about
+>   circulation. KV1 itself establishes nothing about circulation: a duct with
+>   one inlet and one outlet has no aisle flow to get wrong.
+>
+> **K2b, the rack-row module and every turbulent case remain unrun and
+> unauthorized.** KV1 removed an instrument blocker; it did not licence a solve.
+
 **Pre-registered controls for K2b** (kinds per the K0c convention, budgeted in
 Section 10): C1 gravity-off twin (θ becomes pure forced transport; predicted
 direction: cold-aisle stratification collapses), C2 ΔT-plant (+10% on one

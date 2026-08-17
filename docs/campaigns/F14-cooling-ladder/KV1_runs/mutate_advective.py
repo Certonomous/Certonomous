@@ -120,10 +120,22 @@ OPEN_CASES = [
     os.path.join(HERE, "KV1c_duct_heated"),
     os.path.join(HERE, "KV1b_duct_nosource"),
 ]
+#: The sealed half of the corpus. Selected on the presence of a MESH, because
+#: an auditor cannot audit a case whose `constant/polyMesh/boundary` is absent.
 SEALED_CASES = sorted(
     d for d in glob.glob(os.path.join(REPO, "docs", "campaigns",
                                       "F14-cooling-ladder", "K0c_runs", "*"))
     if os.path.isfile(os.path.join(d, "constant", "polyMesh", "boundary")))
+
+#: How many sealed cases MUST be found. `constant/polyMesh/` is not tracked
+#: (.gitignore:60) and is rebuilt from the dictionaries, so in a FRESH CLONE
+#: this list is EMPTY -- and `all(...)` over an empty corpus returns True.
+#: The harness would then print `sealed_identical_to_unmutated: True` for every
+#: mutation having compared nothing at all. That is exactly the vacuous pass
+#: L-98 is about, and it was found by running this file's own reproduction
+#: recipe in a fresh clone rather than by reading it. An empty corpus is a
+#: BROKEN INSTRUMENT and a broken instrument yields a refusal, never a PASS.
+SEALED_EXPECTED = 11
 
 
 def build_mutant(tmp, name, sub):
@@ -165,6 +177,22 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", default=os.path.join(HERE, "mutation_results.json"))
     a = ap.parse_args()
+    if len(SEALED_CASES) != SEALED_EXPECTED:
+        raise SystemExit(
+            f"REFUSE: found {len(SEALED_CASES)} meshed sealed K0c cases, "
+            f"expected {SEALED_EXPECTED}. `constant/polyMesh/` is not tracked "
+            "(.gitignore:60), so a fresh clone has none and the sealed half of "
+            "this harness would compare an EMPTY corpus and report True for "
+            "every mutation.\n        Rebuild the K0c meshes first:\n"
+            "        for c in docs/campaigns/F14-cooling-ladder/K0c_runs/*/; do\n"
+            "          [ -f \"$c/system/blockMeshDict\" ] && (cd \"$c\" && blockMesh > log.blockMesh 2>&1)\n"
+            "        done\n"
+            "        The open half (KV1b, KV1c) is unaffected: their meshes are "
+            "rebuilt by run_kv1.sh.")
+    for c in OPEN_CASES:
+        if not os.path.isfile(os.path.join(c, "constant", "polyMesh", "boundary")):
+            raise SystemExit(
+                f"REFUSE: {c} has no mesh. Run KV1_runs/run_kv1.sh first.")
     tmp = tempfile.mkdtemp(prefix="kv1mut_")
     out = {}
     try:
@@ -215,7 +243,8 @@ def main():
         w(f"{name:<20}{cell('KV1c_duct_heated'):>26}"
           f"{cell('KV1b_duct_nosource'):>26}")
     w("-" * 78)
-    w("sealed K0c set (11 cases), JSON identical to the unmutated auditor:")
+    w(f"sealed K0c set ({len(SEALED_CASES)} cases found, {SEALED_EXPECTED} required), "
+      "JSON identical to the unmutated auditor:")
     for name, _s, _w2 in MUTATIONS[1:]:
         w(f"    {name:<20} {out[name]['sealed_identical_to_unmutated']}")
     w("=" * 78)

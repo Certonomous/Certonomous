@@ -449,8 +449,26 @@ and a reader is entitled to weigh that.
 
 ## 9. Reproducing this
 
-Verified by following these instructions literally from a fresh temporary
-directory, against the committed state, after they were written.
+Verified by cloning the committed state into a fresh temporary directory and
+following these instructions literally, after they were written. **The check
+found two real defects, which is the only reason it is worth doing**, and both
+are fixed above rather than worked around:
+
+1. **`run_kv1.sh` step 2 failed outright.** Its case list was
+   `for c in "${@:-A B C}"`, which collapses the default into a single word;
+   `cd` then failed on a directory literally named `A B C`. Every earlier
+   invocation had passed an explicit case name, so the default path — the one
+   the recipe uses — had never been taken. Fixed with an array, and the failure
+   is recorded in a comment in the script so it is not "simplified" back.
+2. **`mutate_advective.py` step 4 reported a vacuous pass.** `constant/polyMesh/`
+   is not tracked, so in a fresh clone the sealed K0c corpus selected on the
+   presence of a mesh is **empty** — and `all(...)` over an empty corpus returns
+   `True`. The harness printed `sealed_identical_to_unmutated: True` for every
+   mutation having compared nothing. That is L-98's vacuous pass. It now
+   **refuses** unless it finds all eleven, and prints the count it found beside
+   the count it requires.
+
+Neither defect is visible by reading. Both were found by running.
 
 ```bash
 cd docs/campaigns/F14-cooling-ladder/KV1_runs
@@ -466,7 +484,13 @@ cd ../../../..
 python3 scripts/heat_balance.py docs/campaigns/F14-cooling-ladder/KV1_runs/KV1a_duct_source --allow-advective
 python3 scripts/heat_balance.py docs/campaigns/F14-cooling-ladder/KV1_runs/KV1c_duct_heated --allow-advective
 
-# 4. the mutation harness (no solver; about 30 s)
+# 4. the mutation harness (no solver; about 30 s).
+#    Its sealed half needs the eleven K0c meshes, which are NOT tracked. In a
+#    fresh clone it refuses until they are rebuilt, which takes a few seconds:
+for c in docs/campaigns/F14-cooling-ladder/K0c_runs/*/; do
+  [ -f "$c/system/blockMeshDict" ] && ( . /usr/lib/openfoam/openfoam2606/etc/bashrc >/dev/null 2>&1
+                                        cd "$c" && blockMesh > log.blockMesh 2>&1 )
+done
 python3 docs/campaigns/F14-cooling-ladder/KV1_runs/mutate_advective.py
 
 # 5. the convergence sweep, any written time of KV1c

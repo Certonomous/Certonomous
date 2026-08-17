@@ -9,7 +9,17 @@
 . /usr/lib/openfoam/openfoam2606/etc/bashrc >/dev/null 2>&1
 set -e
 HERE=$(cd "$(dirname "$0")" && pwd)
-for c in "${@:-KV1a_duct_source KV1b_duct_nosource KV1c_duct_heated}"; do
+# Cases: all three by default, or exactly the ones named on the command line.
+# MEASURED, DO NOT "SIMPLIFY" BACK: `for c in "${@:-a b c}"` collapses the
+# default into ONE word and `cd` then fails on a directory named "a b c". This
+# script was written that way, exercised only with an explicit argument, and the
+# default path was first taken by the reproduction check in a fresh clone -- where
+# it failed on step 2 of a recipe that had already been written up as working.
+CASES=("$@")
+if [ ${#CASES[@]} -eq 0 ]; then
+  CASES=(KV1a_duct_source KV1b_duct_nosource KV1c_duct_heated)
+fi
+for c in "${CASES[@]}"; do
   cd "$HERE/$c"
   rm -rf 0 postProcessing constant/polyMesh
   rm -f log.*

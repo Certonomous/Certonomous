@@ -897,8 +897,14 @@ in words; `docs/physics_rules.yaml` carries
 areas, a wrong sign convention, a patch omitted from the sum, any unaccounted
 volumetric source or sink, and — the one regime where the balance is genuinely
 not an identity — any domain with through-flow, where the advective enthalpy
-flux is an independent contribution. That advective path is **UNVALIDATED** in
-this lab and is refused with exit 2 unless explicitly allowed.
+flux is an independent contribution. ~~That advective path is **UNVALIDATED** in
+this lab and is refused with exit 2 unless explicitly allowed.~~
+**Superseded 2026-08-17 at rung KV1: the advective path is implemented and
+validated. See §8 below.** The exit-2 refusal is retained deliberately, so the
+struck sentence's second clause still holds. Note also that the struck sentence
+overstated the old state in the same direction K2a §8 did: before KV1 the path
+was not merely unvalidated, it was **not computed at all**, while the printed
+report positively vouched for open-case ledgers as "a genuine constraint here".
 
 ### 3. Planted-source recovery IS convergence-sensitive — the contrast that makes §2 readable
 
@@ -1170,3 +1176,123 @@ DIGITIZED, tier as recorded in `docs/campaigns/F14-cooling-ladder/K2c_DIGITIZATI
   the front, R1, R5 and R6 on the back. The paper does not remark on it. A gate
   written from the paper's prose alone would have specified 10 racks and 20
   comparisons where only 15 exist.
+
+## Open-domain thermal solves: the advective enthalpy flux and what its closure is worth (added 2026-08-17, F14 rung KV1)
+
+Everything in this section is **VERIFIED by measurement on this repository's own
+cases** unless the row says otherwise; RECALLED marks a value standard in the
+field but not read from a source document here, following the citation standard
+above. Solver: `buoyantBoussinesqSimpleFoam`, OpenFOAM v2606. Case class: a
+two-dimensional straight duct, 0.30 x 0.05 m, 60 x 20 cells, laminar forced
+convection at Re_H = 157, g = 0, one inlet and one outlet. **Three cases. That
+is the entire population of open-domain thermal solves this lab has run, and no
+rate or tolerance below is claimed to transfer beyond it.**
+
+### 1. Computing the term against the solver's own flux, not against a normal you build
+
+| Fact | Value | Basis |
+|---|---|---|
+| The advective boundary term the solver actually assembled | `sum_f T_f . phi_f` over the patch faces, with `phi` the conservative face flux and `T_f` the boundary field value | **VERIFIED** — reproduced to 12 figures by the plant recovery below |
+| How to get it out of OpenFOAM | `surfaceFieldValue`, `operation weightedSum`, `fields (phi)`, `weightField T` on the patch | **VERIFIED**, v2606 |
+| Why the weight lands on the boundary values and not on cell values | for a `volScalarField` on a patch, `getFieldValues` routes through `filterField`, which returns the patch's **boundaryField** | **VERIFIED** by reading `surfaceFieldValueTemplates.C` and confirmed numerically: the inlet's flux-weighted mean face temperature reads 305.0000000000002 K against a `fixedValue` of 305.0 |
+| Building the flux geometrically instead, as `Sf & U_f` | not done, and not equivalent — it is a different number from the one `div(phi,T)` used | **RECALLED** as reasoning; not measured here |
+
+### 2. `surfaceFieldValue` FAILS OPEN on a weighted operation, silently
+
+| Fact | Value | Basis |
+|---|---|---|
+| Behaviour when `canWeight()` is false | falls through to the **unweighted** `gSum(values)` with nothing on stderr | **VERIFIED** — `surfaceFieldValueTemplates.C`, `case opWeightedSum`, the `else // Unweighted form` branch |
+| Size of the resulting error | the advective term comes out smaller by a factor of the absolute temperature, so ~300x on air at 300 K | **VERIFIED** by mutation M5 |
+| The invariant that catches it | `integral T phi / integral phi` is a flux-weighted mean FACE temperature and must lie inside the field's own T range. If the weight was dropped it is **exactly 1.0** | **VERIFIED** — the mutated run reports `1.000000e+00 K` against a field range of 304.967874..314.438667 K |
+
+**Practice.** Never take a weighted `surfaceFieldValue` result on trust. Compute
+the unweighted companion in the same pass and check the ratio against a physical
+range. `scripts/heat_balance.py` refuses rather than reporting when it is out.
+
+### 3. The plant recovery on an OPEN case
+
+| Fact | Value | Basis |
+|---|---|---|
+| Planted volumetric source, `scalarSemiImplicitSource`, `volumeMode absolute` | 4.275222401345e-06 K.m3/s = **5.000e-03 W** at rho.cp = 1169.5298 J/m3/K | **VERIFIED**; identical to K0c C3's plant because the fluid is identical |
+| Recovered net boundary flux | **-4.999999998798e-03 W**, error **+2.403e-08 %** | **VERIFIED**, against the governed 0.1 % |
+| The same field set with the advective term ABSENT (conduction only) | -7.448816e-06 W — wrong by **99.85 %** | **VERIFIED** by re-running the pre-repair auditor |
+| Comparison: K0c C3's SEALED planted-source recovery | -4.999996460e-03 W, error -7.08e-05 % | prior measurement, K0c |
+
+The open-case recovery is three orders of magnitude tighter than the sealed one.
+No mechanism is claimed for that; it is one case against one case.
+
+### 4. The open-case closure IS convergence-sensitive — it is not a second identity
+
+The same duct, one heated wall, no source, audited at eleven iteration counts
+against the T equation's own initial residual read from the solver log:
+
+| iteration | T initial residual | imbalance | exit |
+|---:|---:|---:|---:|
+| 20 | 8.011e-03 | **20.881167 %** | 1 |
+| 40 | 3.166e-03 | 9.856046 % | 1 |
+| 60 | 1.002e-03 | 3.184486 % | 1 |
+| 80 | 1.886e-04 | 0.593174 % | 1 |
+| 100 | 2.459e-05 | 0.069250 % | 0 |
+| 120 | 5.150e-07 | 0.000889 % | 0 |
+| 140 | 8.819e-09 | 0.000009 % | 0 |
+| 201 | 4.346e-12 | 0.000000 % | 0 |
+
+**VERIFIED.** Nine decades, and the exit code flips 1 -> 0 between iteration 80
+and 100 where the percentage crosses the governed 0.5 % band. Set beside the
+SEALED case, which reads 0.0128 % at iteration 10 and never rises above 0.13 %
+at any iteration: the sealed number never approaches its own gate and the open
+one crosses it. **That contrast is the evidence, not the argument.**
+
+### 5. A term can be computed, correct, and still unfalsifiable on the wrong case
+
+| Fact | Value | Basis |
+|---|---|---|
+| Adiabatic duct, inlet 305 K, no source | converges to exactly 305 K everywhere; `Q_adv(inlet)` = +0.146191 W, `Q_adv(outlet)` = -0.146191 W, **advective sum identically zero** | **VERIFIED** |
+| Its closure | 0.0000 %, net 1.843e-12 W, exit 0 | **VERIFIED** |
+| Its closure under a SIGN FLIP of the whole advective term | 0.0000 %, exit 0 — unchanged | **VERIFIED** |
+| Its closure under the term SCALED BY TWO | 0.0000 %, exit 0 — unchanged | **VERIFIED** |
+| The same mutations on a duct with a HEATED WALL (conduction in +0.0617726 W, advection out -0.0617726 W) | sign flipped **45.6605 %**, scaled by two **17.4433 %**, one open patch dropped **100.0000 %** — all FAIL | **VERIFIED** |
+
+**Practice.** A validation case must have the term under test contributing a
+NON-ZERO, non-self-cancelling amount to the graded quantity. Two independent
+terms that must cancel each other is the shape that works; one term that cancels
+against itself is the shape that does not.
+
+### 6. The datum: invariant in the numerator, not in the denominator
+
+| Fact | Value | Basis |
+|---|---|---|
+| Effect of the enthalpy datum on the NET | cancels exactly when boundary mass balances; here to within 1e-10 W | **VERIFIED** |
+| Effect on the imbalance DENOMINATOR, `sum(Q > 0)` | 0.2079685 W at the case's `TRef` against **8.979442 W** at a 0 K datum — a factor of **43.2** | **VERIFIED** |
+| What that does to a fixed 0.5 % tolerance | slack goes from 1.04e-03 W to **4.49e-02 W** at an unchanged printed threshold | **VERIFIED** |
+| Whether any closure control detects it | **no.** The case still passes under a 0 K datum. It is the one advective error closure cannot catch | **VERIFIED** by mutation M4 |
+| What one kelvin of datum error is worth in the ledger | `rho.cp.(net volumetric flux)`; zero iff mass balances, and reported per run as `advective.datum_sensitivity_W_per_K` | **VERIFIED** |
+
+**Practice.** An enthalpy ledger over a boundary is meaningful only to the extent
+that boundary conserves mass, and its PERCENTAGE is meaningful only relative to a
+stated datum. Both are now governed: `heat_balance_advective_datum: TRef` and
+`heat_balance_open_case_gates_mass_imbalance: true` in
+`docs/physics_rules.yaml`, and an open case whose mass imbalance exceeds the same
+tolerance is reported `ledger_complete: false` and cannot pass.
+
+### 7. Regime and case-design notes for the next open thermal case
+
+| Fact | Value | Basis |
+|---|---|---|
+| Inlet held AT the datum | inlet advective term is identically zero, no patch carries heat inward, and the imbalance ratio is UNDEFINED by the P1 rule — the closure cannot be tested at all | **VERIFIED**; this is why KV1's inlet runs at 305 K against a 300 K datum |
+| Bulk temperature rise for a planted source | `dT = Q / (mdot.cp)` — 5.000e-03 W at 2.9035e-05 kg/s gives 0.171 K, and the solver's own `outletT` read 305.1830 against a predicted 305.171 | **VERIFIED** |
+| Cost of a case in this class | 1200 cells, 201 SIMPLE iterations to `residualControl` 1e-9/1e-10, **0.0081 core-minutes** single core | **VERIFIED**, `KV1_runs/*/COST.txt` |
+| `g = 0` on `buoyantBoussinesqSimpleFoam` | runs normally and reduces to forced convection; `Ra` is then reported as n/a rather than zero | **VERIFIED**; precedent K0c C1 |
+
+### 8. What none of this establishes
+
+- **Circulation.** A duct with one inlet and one outlet has no flow structure to
+  get wrong. A solve whose flow field is entirely wrong still closes perfectly
+  once converged, because closure tests conservation and not where the energy
+  travelled. `MONITOR_STANDARD.md` **S16** exists to stop that inference.
+- **Turbulent open flow.** `--allow-turbulent` remains uncalibrated.
+- **Buoyant open flow.** Every case here runs at g = 0. A buoyant open case
+  integrates the advective term against a `phi` the temperature field helped set,
+  and nothing here speaks to it either way.
+- **Compressible or variable-property flow.** The derivation assumes constant
+  `rho` and `cp` throughout.

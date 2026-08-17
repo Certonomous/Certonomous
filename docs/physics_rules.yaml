@@ -218,6 +218,83 @@ thermal:
   heat_balance_tol_pct: 0.5
   heat_balance_closure_is_evidence_on_sealed_case: false
   #
+  # ===========================================================================
+  # 4b. THE OPEN CASE, WHICH IS A DIFFERENT ANSWER (rung KV1, 2026-08-17)
+  # ===========================================================================
+  # The line above says `..._on_sealed_case` and until KV1 the open case had no
+  # statement of its own, because scripts/heat_balance.py did not compute the
+  # advective enthalpy flux at all -- while printing, on exactly those cases,
+  # that the balance was "a genuine constraint here". The term is now computed
+  # and validated (docs/campaigns/F14-cooling-ladder/KV1_RESULTS.md), so the
+  # open case gets its own answer and it is NOT the sealed one.
+  #
+  # ON AN OPEN CASE WITH THROUGH-FLOW THE CLOSURE IS A MEASUREMENT. The
+  # advective term depends on the SOLUTION -- on the outlet temperature and on
+  # the solver's own face flux phi -- and the discretisation does not force it,
+  # so unlike the sealed closure it moves with convergence. MEASURED at KV1 on
+  # the KV1c heated duct, the same case at eleven iteration counts against the
+  # T equation's own initial residual:
+  #
+  #     iter   T initial residual   imbalance      exit
+  #       20        8.011e-03        20.881167 %     1
+  #       40        3.166e-03         9.856046 %     1
+  #       60        1.002e-03         3.184486 %     1
+  #       80        1.886e-04         0.593174 %     1
+  #      100        2.459e-05         0.069250 %     0
+  #      120        5.150e-07         0.000889 %     0
+  #      140        8.819e-09         0.000009 %     0
+  #      201        4.346e-12         0.000000 %     0
+  #
+  # Nine decades, and the gate actually discriminates: the exit code flips
+  # between iteration 80 and 100 where the percentage crosses this block's own
+  # 0.5 percent band. Set that beside K0b's SEALED case, which read 0.0128
+  # percent at iteration 10 and never rose above 0.13 percent at ANY iteration.
+  # The sealed number never approaches its gate; the open one crosses it.
+  #
+  # WHAT IT CATCHES, STATED NARROWLY: an unconverged energy field, a mis-set
+  # temperature offset, a flow-rate mismatch between a face pair, a patch
+  # omitted from the ledger. Measured at KV1 by mutation, on the same committed
+  # field set: sign of the advective term flipped -> 45.66 percent, scaled by
+  # two -> 17.44 percent, one open patch dropped -> 100 percent.
+  #
+  # AND WHAT IT DOES NOT CATCH, WHICH MUST TRAVEL WITH IT EVERY TIME IT IS
+  # QUOTED. CIRCULATION. Carried from K2a section 8 unchanged, not re-derived:
+  # a solve with the aisle flow structure entirely wrong -- supply
+  # short-circuiting to the return, reversed aisle recirculation -- still closes
+  # perfectly once converged, because closure tests conservation and not WHERE
+  # the energy travelled. Closure on an open case is NECESSARY, NEVER
+  # SUFFICIENT, and no K2b sentence may cite it as validation evidence.
+  #
+  # KV1 itself establishes nothing about circulation either: a duct with one
+  # inlet and one outlet has no aisle flow to get wrong.
+  heat_balance_closure_is_convergence_sensitive_on_open_case: true
+  heat_balance_closure_establishes_circulation: false
+  #
+  # THE DATUM, AND WHY IT IS GOVERNED RATHER THAN LEFT TO A CALLER. The
+  # advective enthalpy flux is referred to a temperature datum. The NET is
+  # datum-free when mass balances, but the DENOMINATOR of the imbalance ratio is
+  # not: the datum decides how much of the through-flow's ABSOLUTE enthalpy is
+  # counted as "heat entering". Measured at KV1 on KV1c, the denominator is
+  # 8.979442 W at a 0 K datum against 0.2079685 W at the case's TRef -- a factor
+  # of 43.2, so the same 0.5 percent band would carry 4.49e-02 W of slack
+  # instead of 1.04e-03 W. Using absolute T is a 43-fold LOOSENING of this gate
+  # at an unchanged number.
+  #
+  # It is also the one advective error the closure test CANNOT catch: the datum
+  # cancels from the net when mass balances, so a case with the wrong datum
+  # still passes. Hence the datum is fixed to the case's own TRef in
+  # scripts/heat_balance.py, recorded per report as `advective.datum_K` and
+  # `advective.datum_source`, and never taken from a command line.
+  heat_balance_advective_datum: TRef
+  #
+  # MASS IS GATED, BECAUSE THE ENTHALPY LEDGER RESTS ON IT. Shifting the datum
+  # by dT moves the ledger by rho.cp.dT.(net volumetric flux), so an enthalpy
+  # balance over a boundary that does not conserve mass depends on an arbitrary
+  # number. An open case whose boundary mass imbalance exceeds
+  # `heat_balance_tol_pct` is reported with `advective.ledger_complete: false`
+  # and CANNOT PASS. No new threshold: the same governed tolerance is used.
+  heat_balance_open_case_gates_mass_imbalance: true
+  #
   # THE PART THAT IS A MEASUREMENT, AND THE CONTRAST IS THE WHOLE POINT. Unlike
   # the sealed-case closure, the RECOVERY OF A PLANTED SOURCE is
   # convergence-sensitive and therefore says something. Measured at K1c on one

@@ -1,5 +1,23 @@
 # Certonomous Monitor Standard
 
+Version 1.10, dated 2026-08-17. **Adds exactly one rule, S16, and gives S14 the
+branch its own detection clause had always implied and never answered.** S14
+detects on a conjunction — no non-wall patch **and** no constructed source — and
+until now the negation of that conjunction was simply silent. It was worse than
+silent in the instrument: `scripts/heat_balance.py` printed "NOT of the identity
+class, so the balance is a genuine constraint here" on open cases while never
+computing the advective enthalpy flux that claim rested on. Rung KV1 implemented
+and validated that term, so the open case now has an answer of its own, and it
+is not S14's: measured on one heated duct at eleven iteration counts, the
+open-case closure reads **20.881% at iteration 20 and 0.000000% at 201**,
+tracking the T residual across nine decades and crossing the governed 0.5% band
+between iteration 80 and 100. It is a measurement. **S16 is the rule that stops
+that measurement from being read as more than it is:** an open-case closure
+establishes nothing about circulation, a solve with the flow structure entirely
+wrong closes perfectly once converged, and S16 is adopted with a corpus of
+**zero cases** — before K2b produces the population it governs — because a rule
+written after the first closure figure is quoted arrives too late.
+
 Version 1.9, dated 2026-08-17. **Three thermal signatures adopted at rung K1a
 of F14, and the first of them is the one that would have changed a published
 result.** S13 fires when a steady buoyant run meets its own `residualControl`
@@ -791,6 +809,24 @@ stated once, here, rather than three times in weaker words.
   **planted** source on the same mesh tracks the T residual across seven
   decades, -24.139% at iteration 100 to +2.388e-09% at 4000. One of those two
   quantities measures the solution; the other measures the discretisation.
+- **The other branch, added 2026-08-17 at rung KV1, because S14's detection is a
+  two-condition conjunction and its negation was silent rather than answered.**
+  When the case is **open** — a non-wall active patch, so mass crosses the
+  boundary — S14 does **not** fire and the closure is a genuine measurement. It
+  is convergence-sensitive, because the advective enthalpy flux depends on the
+  solution rather than being forced by the discretisation. Measured at KV1 on
+  one heated duct at eleven iteration counts: **20.881% at iteration 20, 0.593%
+  at 80, 0.000000% at 201**, tracking the T equation's own initial residual
+  across nine decades, with the exit code flipping 1 → 0 between iteration 80
+  and 100 as it crosses the governed 0.5% band. The sealed case never
+  approaches its gate; the open one crosses it.
+
+  **Three things must travel with any open-case closure number and S16 below is
+  the rule that enforces the third.** (i) It catches an unconverged energy
+  field, a mis-set temperature offset, a flow-rate mismatch between a face
+  pair, and a patch omitted from the ledger. (ii) It rests on the boundary
+  conserving mass, which `scripts/heat_balance.py` now gates against the same
+  `heat_balance_tol_pct`. (iii) **It establishes nothing about circulation.**
 
 ### S15. A plant witnessed in the dictionary and not in the solver's log
 
@@ -827,6 +863,49 @@ stated once, here, rather than three times in weaker words.
   verified in the solver log rather than in the input file precisely because
   an `fvOptions` the solver never opened reads as a clean pass. S15 makes that
   one-off check standing.
+
+### S16. An open-case closure number cited as evidence about a flow field
+
+- Detection: a closure or heat-balance figure from a case with through-flow
+  quoted in support of a claim about **where the energy went** — aisle flow,
+  recirculation, short-circuiting, rack inlet temperatures, any θ.
+- Severity: **CONFIGURATION RISK**, exactly as S14 and for exactly the same
+  reason: the number is not wrong, the sentence about it is. Never FATAL.
+- Why it is a separate rule and not a clause of S14. S14's whole content is
+  "this number is near-identity, so it is not evidence." S16's content is the
+  opposite shape: the number **is** a measurement, and is still not evidence for
+  *this* claim. Folding them together would let a reader who has satisfied S14
+  by opening the domain believe they had answered S16 too, and that is precisely
+  the inference K2b is at risk of making.
+- The statement, carried verbatim from `K2a_RACK_ROW_MODULE_SPEC.md` §8 rather
+  than re-derived loosely, because it is already written correctly there:
+
+  > A solve with the aisle flow structure entirely wrong — supply
+  > short-circuiting to the return, reversed aisle recirculation — still closes
+  > perfectly once converged, because closure tests conservation, not *where*
+  > the energy travelled. […] Closure is therefore **necessary, never
+  > sufficient**, and no K2b sentence may cite it as validation evidence;
+  > validation is K2c's gate alone.
+
+- Action: the closure figure stands and is reported. The sentence is struck or
+  re-sourced to a validation gate.
+- Status: **partly wired.** `scripts/heat_balance.py` prints the
+  necessary-never-sufficient warning on every open-case report and carries it in
+  `closure_identity_basis`, and `docs/physics_rules.yaml` holds
+  `heat_balance_closure_establishes_circulation: false`. The *citation* side is
+  **not** wired: nothing scans prose for an open-case closure figure supporting a
+  circulation claim, and this rule is therefore enforced by reading. Said
+  plainly rather than left to be assumed from "wired" appearing elsewhere on
+  this page.
+- **Replay line.** Corpus: **zero cases.** This lab has run exactly three
+  open-domain thermal solves, all of them at KV1, all of them straight ducts
+  with one inlet and one outlet — geometries with no circulation to get wrong.
+  So S16 has **never fired and could not have**, and no fire rate is claimed.
+  It is adopted **before** the population it governs exists, which is the
+  opposite of this standard's usual practice and is deliberate: K2b is the
+  campaign that will produce that population, and a rule written after the first
+  closure figure is quoted arrives too late to stop the sentence it exists to
+  stop. When K2b runs, this line must be replaced by a measured one.
 
 ## 3. The set as a set, reviewed 2026-07-31
 
