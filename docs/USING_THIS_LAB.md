@@ -622,7 +622,7 @@ case in the same run, so on mutation work **you are the harness**.
 
 ---
 
-## 8. Git here has four traps, and three of them are silent
+## 8. Git here has six traps, and five of them are silent
 
 ### 8.1 Backticks in `git commit -m`
 
@@ -764,6 +764,85 @@ pgrep -f "$PAT" | command grep -vxe "$$" -e "$PPID"
 # resolve to a PID list, drop your own and your parent's, PRINT what remains,
 # and only then kill it.
 ```
+
+### 8.5 The mandated commit form cannot express an untracking
+
+`git commit -F <msgfile> -- <paths>` takes those paths' content **from the
+working tree**. Untracking a file that stays on disk is therefore the one
+operation the charter's own commit form cannot perform: `git rm --cached` stages
+the removal, and the pathspec commit puts the file straight back from the
+worktree, with no error and an ordinary-looking diffstat.
+
+Demonstrated in a scratch repository at `52cdf6dd`, not inferred:
+
+| Step | Result |
+|---|---|
+| `git rm --cached junk.log` | index shows `D junk.log` |
+| `git add -- .gitignore` | index shows `M .gitignore`, `D junk.log` |
+| `git commit -F msg -- .gitignore junk.log` | commit lands |
+| `git ls-files` afterwards | **`junk.log` is back**, and the deletion is gone from the tree |
+
+The working form is the index-isolated one, which is the same instrument §9
+item 8 gives for the docket and for the same underlying reason: it states the
+tree it intends to write instead of inheriting one.
+
+```bash
+OLD=$(git rev-parse HEAD)
+BLOB=$(git hash-object -w .gitignore)          # any file you are also changing
+export GIT_INDEX_FILE=$(mktemp)                # a PRIVATE index; never the shared one
+git read-tree "$OLD"
+git ls-files <paths> | git update-index --force-remove --stdin
+git update-index --cacheinfo 100644,"$BLOB",.gitignore
+TREE=$(git write-tree)
+NEW=$(git commit-tree "$TREE" -p "$OLD" -F <msgfile>)
+unset GIT_INDEX_FILE
+git diff --name-status "$OLD" "$NEW"           # <-- ASSERT before the ref moves
+git update-ref refs/heads/main "$NEW" "$OLD"   # compare-and-swap on the parent
+```
+
+Three properties are load-bearing and none is optional. The index is **private**,
+so a concurrent agent's staged work is never read into your tree. The
+**tree-diff assertion runs before `update-ref`**, because after the ref moves
+there is nothing left to refuse. And `update-ref` is given the **observed
+parent**, so it fails rather than clobbers if HEAD moved while you worked.
+
+**The final step is an index cleanup, and it must be surgical under a live
+fleet.** A blanket `git read-tree HEAD` on the shared index is the obvious
+tidy-up and it will un-stage whatever anyone else has staged. When batch B of the
+untracking ran, the shared index held another session's staged docket rows, a
+staged ladder edit and a staged deletion of a grade record. The cleanup was
+`git update-index --force-remove --stdin` over **only the paths this agent
+removed**, and the other session's three entries were compared before and after
+and were byte-identical. Remove your own paths; leave everything else alone.
+
+### 8.6 `git check-ignore` is silent about tracked files, which is the only kind you are asking about
+
+`git check-ignore` skips paths that are in the index. Asking it "does this
+tracked file match an ignore rule?" therefore returns **nothing and exit 1**,
+which reads exactly like "no rule matches it".
+
+| Invocation | Result on a tracked path that `.gitignore` matches |
+|---|---|
+| `git check-ignore -v <path>` | no output, exit 1 |
+| `git check-ignore --no-index -v <path>` | `.gitignore:48:**/processor[0-9]*/  <path>` |
+
+An audit of 6,938 tracked files against the committed `.gitignore` returned zero
+rows on the first pass for this reason. Zero rows was the shape of the answer
+that would have justified doing nothing, and it was produced by the instrument
+rather than by the corpus. **Pass `--no-index` whenever the question is about a
+file that is already tracked**, which is every interesting case, because a file
+that is both ignored and untracked raises no question.
+
+Two further habits from the same family:
+
+- **Gate on the exit code, not on the printed rule.** `check-ignore -v` prints
+  the matching line for a negation such as `!/uq_batch.log` as readily as for a
+  positive rule, so the printed line does not tell you which way the answer went.
+  `git check-ignore -q <path>; echo $?` returns 0 for ignored and 1 for not.
+- **Test the class on files that do not exist.** A rule proven only against
+  today's filenames has been proven to match those filenames. Running
+  `--no-index` against `mbc_retry7.log` and `scipy-1.2.3-cp312.whl`, neither of
+  which is on disk, is what shows the pattern is doing the work.
 
 ---
 
