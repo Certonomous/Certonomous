@@ -1,6 +1,6 @@
 # Certonomous Reporting Charter
 
-Version 2.0, dated 2026-07-31. Freezes the morning report. It is the one
+Version 2.1, dated 2026-08-17. Freezes the morning report. It is the one
 document the owner reads every day, so its shape is fixed and its sections do
 not get reordered, merged or skipped.
 
@@ -426,7 +426,7 @@ directions, which is why this one settles neither: docket **D127** records a chi
 a derived quantity be rewritten `0.001365` → `0.001366`, refuted by execution because it took
 a printing of the basis for the basis, and then that same row's successor guess that the
 honestly-supported precision was *"nearer `0.0014`"*, refuted by measurement because the
-propagated interval `[0.0013153, 0.0014028]` straddles `0.00135` — so even the four-decimal
+propagated interval `[0.0013153, 0.0014028]` straddles `0.00135`, so even the four-decimal
 rounding is undetermined and only one significant figure is stable
 (`demo-output/website/campaign/MARGIN_PRECISION_INTERVAL_2026-08-15.md` §2.4, committed
 `eadcd112`). A coarser single figure is not more honest than a finer one; it is a different
@@ -435,9 +435,9 @@ count.
 
 Nothing already written is rewritten under this clause and it is not authority for a sweep. It
 governs what is written next, and it says so on its own face. The margin family in
-`demo-output/website/campaign/BOARD_RESCORE_2026-08-14.md` §3.1 stands exactly as committed —
+`demo-output/website/campaign/BOARD_RESCORE_2026-08-14.md` §3.1 stands exactly as committed:
 those are correctly-rounded printings of quantities derived from the most precise inputs the
-lab holds, which is what this clause asks for — and the measurement that produced the clause
+lab holds, which is what this clause asks for, and the measurement that produced the clause
 changed zero instances and recorded that it had. Where a live claim quotes a figure whose
 inputs carry a printing interval, the interval goes **beside** it, once, at the point where
 the quantity is defined; it is not scattered across every surface that repeats the figure.
@@ -567,3 +567,42 @@ the quantity is defined; it is not scattered across every surface that repeats t
 - `docs/charters/GOALS_AND_PROPOSALS_CHARTER.md`. The queue's rank order.
 - `docs/standards/MONITOR_STANDARD.md`. The severities the report reproduces.
 - `LESSONS.md` L-1, L-5, L-6, L-27.
+
+## Amendment record
+
+**Version 2.1, dated 2026-08-17. A style amendment, measured at frame `101079fd`.**
+The sections above were brought to the owner's standard for a durable
+record: em dashes and en dashes replaced by ordinary punctuation, and the
+result of each replacement read back against the clause it sits in.
+
+| what the amendment did | figure |
+| --- | --- |
+| em dashes replaced in the live sections | 3 |
+| en dashes replaced in the live sections | 0 |
+| em dashes left standing inside dated records | 5 |
+| en dashes left standing inside dated records | 0 |
+| clauses opened and declined, listed below | 2 |
+| lines whose number changed above this section | 0 |
+
+**No clause was added, removed, widened or narrowed, and no modal, scope or
+tense inside a clause was altered.** Both the counts above and the gates were
+taken in a detached worktree held at frame `101079fd`, so that a peer's
+concurrent commit could not be read as part of this batch. The gates run either
+side of the edit were `scripts/check_verdict_cells.py` with and without
+`--selftest`, `scripts/check_absolutes.py`,
+`scripts/check_normative_clauses.py`, `scripts/withdrawal_sweep.py`,
+`scripts/self_audit.py` and `scripts/lab_check.py --no-tests`; the `sdk/tests`
+suite was run either side in the live checkout. No gate moved its verdict. `check_absolutes.py` moved its verdict
+COUNTS and not its verdict, and the movement was traced to the
+sentences of this record rather than to the sections above.
+
+**The line numbering above this section was held fixed on purpose.** Other
+records cite this directory by line, and one of those citations sits inside an
+executable check. An amendment that inserted its own changelog at the head of
+the file would have moved the cited lines below it, so this record was appended
+at the foot instead. The version-history entries above stand unedited, because their
+figures describe the versions and the dates they name.
+
+**What was opened and left alone.**
+1. §10's precision clause is quoted verbatim, and cited by line range, in a live grading record. Restyling the quoted sentence would falsify that quotation without changing what the clause requires, so the clause was left alone.
+2. The three strike-in-place blocks in §12 record what earlier versions said. They were left byte-identical.

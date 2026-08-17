@@ -1,6 +1,6 @@
 # Certonomous Result Priority Charter
 
-Version 0.4, dated 2026-08-05. **This is a draft for the owner to react to, not
+Version 0.5, dated 2026-08-17. **This is a draft for the owner to react to, not
 a settled charter.** Her own note on it is "still need to think abt how to go
 abt this", and this document takes that literally. The orderings below are
 proposals. The open questions in section 6 are named rather than papered over,
@@ -615,3 +615,42 @@ is D6, and answering D8 to D13 does not answer it.
   the same "no invented exchange rate" problem and take the same answer.
 - `docs/charters/ESCALATION_CHARTER.md`. Where an undecidable trade goes.
 - `LESSONS.md` L-24, L-25, P2.
+
+## Amendment record
+
+**Version 0.5, dated 2026-08-17. A style amendment, measured at frame `101079fd`.**
+The sections above were brought to the owner's standard for a durable
+record: em dashes and en dashes replaced by ordinary punctuation, and the
+result of each replacement read back against the clause it sits in.
+
+| what the amendment did | figure |
+| --- | --- |
+| em dashes replaced in the live sections | 0 |
+| en dashes replaced in the live sections | 0 |
+| em dashes left standing inside dated records | 3 |
+| en dashes left standing inside dated records | 0 |
+| clauses opened and declined, listed below | 2 |
+| lines whose number changed above this section | 0 |
+
+**No clause was added, removed, widened or narrowed, and no modal, scope or
+tense inside a clause was altered.** Both the counts above and the gates were
+taken in a detached worktree held at frame `101079fd`, so that a peer's
+concurrent commit could not be read as part of this batch. The gates run either
+side of the edit were `scripts/check_verdict_cells.py` with and without
+`--selftest`, `scripts/check_absolutes.py`,
+`scripts/check_normative_clauses.py`, `scripts/withdrawal_sweep.py`,
+`scripts/self_audit.py` and `scripts/lab_check.py --no-tests`; the `sdk/tests`
+suite was run either side in the live checkout. No gate moved its verdict. `check_absolutes.py` moved its verdict
+COUNTS and not its verdict, and the movement was traced to the
+sentences of this record rather than to the sections above.
+
+**The line numbering above this section was held fixed on purpose.** Other
+records cite this directory by line, and one of those citations sits inside an
+executable check. An amendment that inserted its own changelog at the head of
+the file would have moved the cited lines below it, so this record was appended
+at the foot instead. The version-history entries above stand unedited, because their
+figures describe the versions and the dates they name.
+
+**What was opened and left alone.**
+1. The two dated caveats at §4.5 and §8.1 carry figures that describe the record as it stood on 2026-08-11. They were left byte-identical, dashes included, and they are the only dash sites in this file.
+2. The version literal stays below 1.0. This charter becomes 1.0 when the owner rules on it, and a style amendment is not that ruling.

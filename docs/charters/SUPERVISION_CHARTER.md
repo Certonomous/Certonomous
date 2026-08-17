@@ -1,6 +1,6 @@
 # Certonomous Supervision Charter
 
-Version 1.2, dated 2026-08-12. Governs who supervises what, which checks a
+Version 1.3, dated 2026-08-17. Governs who supervises what, which checks a
 supervisor performs with their own eyes, and which model each kind of agent
 runs on. It binds the fleet's org chart the way the case-selection charter
 binds the queue: the structure holds when nobody is watching, and a check that
@@ -82,8 +82,8 @@ what was opened. The four checks below are that standard made a duty.
    crash, a divergence or a refused solve is treated as a finding about the
    case, the method or the toolchain until triage demonstrates otherwise.
    The two exemplars are both from F8. The init-arm divergence read like a
-   crashed run — forces to 1e99 behind a 1.4e-8 residual, a live S10
-   specimen — and triage of it produced the hurricane: potentialFoam's
+   crashed run (forces to 1e99 behind a 1.4e-8 residual, a live S10
+   specimen), and triage of it produced the hurricane: potentialFoam's
    makeAbsolute had baked the frame's solid-body sweep into the whole-domain
    MRF zone, roughly 150 m/s against a 7 m/s inflow, a real mechanism with
    source-line citations, not a bug to be rerun past
@@ -108,8 +108,8 @@ what was opened. The four checks below are that standard made a duty.
 > **A superseded entry whose author is gone is withdrawn by the current family
 > supervisor, within the cycle. A weekly sweep asserts zero unowned supersessions.**
 
-**The standing rule was that a superseded entry is withdrawn by its author** — right in
-spirit, because the author knows what they meant, and **structurally broken**, because
+**The standing rule was that a superseded entry is withdrawn by its author.** That was right
+in spirit, because the author knows what they meant, and **structurally broken**, because
 authors here are sessions and sessions end. When the author is gone the rule names nobody,
 and a rule that names nobody is not enforcement; it is a refuted claim staying published
 with a note explaining that someone ought to remove it.
@@ -118,7 +118,7 @@ with a note explaining that someone ought to remove it.
 refuted it by execution, and the correction's dependent gate had already been re-based on
 the strength of it. The peer session then ended. Under the author rule the withdrawal had
 no owner at all, so a claim known to be false and a gate known to be uninformative both sat
-live in the record — not through disagreement or backlog, but because the rule pointed at
+live in the record, not through disagreement or backlog, but because the rule pointed at
 a ghost.
 
 **Why the role and not "whoever finds it".** Discovery is not duty. Anyone may notice; if
@@ -127,26 +127,26 @@ is the failure this rule exists to close. The **family supervisor for the record
 owns the withdrawal, and the chief owns it where no family does.
 
 **What "within the cycle" means.** Before the family's next reporting cycle closes. Not
-"soon" — a superseded claim's cost is exactly the time it spends readable, and a reader
+"soon": a superseded claim's cost is exactly the time it spends readable, and a reader
 cannot tell a claim awaiting withdrawal from a claim in force.
 
 **The sweep is the enforcement, and it is the part that must not be skipped.** Weekly,
 assert **zero unowned supersessions**: every withdrawn, retracted or superseded entry has a
 named current owner, and every refutation filed against a live claim has a withdrawal
 either done or assigned. A rule without a sweep is a preference. Anything the sweep finds
-unowned is assigned by the chief on the spot — the assignment is the deliverable, not a
+unowned is assigned by the chief on the spot, and the assignment is the deliverable, not a
 plan to assign.
 
-**The sweep, as of `94d6510b`, is `scripts/withdrawal_sweep.py`** — run it weekly with no
+**The sweep, as of `94d6510b`, is `scripts/withdrawal_sweep.py`.** Run it weekly with no
 arguments. Between this clause landing (2026-08-11) and that commit (2026-08-14) the rule
 had no executable form, which is the state this clause's own last paragraph describes. The
 script states its definitions, its frame and its reach in its own output, returns
 PASS / FAIL / **UNKNOWN** (an empty candidate set is UNKNOWN, never PASS), and plants both
 halves of L-84's control on every run. Its first executed result, at `94d6510b`, was
-**FAIL on one** — `campaign/F5bc_unsteady_statistics.md:48`, filed as docket **C4**.
+**FAIL on one**, `campaign/F5bc_unsteady_statistics.md:48`, filed as docket **C4**.
 
 Two things the sweep does not do, so nobody reads a PASS as more than it is. It gates on
-this clause's own three words — *withdrawn, retracted, superseded* — and reports
+this clause's own three words (*withdrawn, retracted, superseded*) and reports
 `[AMENDED` / `[CORRECTED` separately; and it can only see supersessions that carry a
 marker, so a silent edit or a deletion is invisible to it. The script's `REACH` block
 enumerates six such classes.
@@ -224,7 +224,7 @@ is recorded as *"research / scientific writing"*, and its item H6 reads
 *"[FABLE] drafts / [HAIKU] files: LESSONS, conventions, charters"*
 (`docs/HANDSHAKE.md` at `33f36365`). Both cannot be honoured at once, which is
 the contradiction a grader raised at `10cf7f21` and the H4 allocation audit
-recorded as item 4 before any of it executed — flagged before dispatch, not
+recorded as item 4 before any of it executed, flagged before dispatch and not
 after, which is why nothing has to be undone.
 
 **(c) Which one governs today.** The order does. Katie is the principal; §5's
@@ -240,28 +240,28 @@ date of the v1.1 bump that carried the rule forward. The order is dated
 paragraph is unstruck and live: *"A dispatch that overrides this rule says so
 in the brief and says why."* On that reading the order is not a violation of
 §5 at all but a declared override of the kind §5 already provides for. **What
-§5 has no mechanism for is making a declared override standing** — that is the
+§5 has no mechanism for is making a declared override standing.** That is the
 actual gap, and it is the thing the options below are about.
 
 **(d) The standing rule is Katie's to set, and it is still open.** The two
 options, with the honest consideration on each side and no recommendation:
 
-**Option A — keep the clause, treat the order as a dated override.** §5's third
+**Option A. Keep the clause, treat the order as a dated override.** §5's third
 sentence is restored; Katie's order of 2026-08-12 stands as a declared,
 order-scoped override under §5's existing override paragraph, on the record
 with its date and reason.
 - *For:* the designation rule keeps one testable line, and it survives changes
-  in which model is strongest or available — it names the task class, not the
+  in which model is strongest or available: it names the task class, not the
   fleet roster. The recorded reason for the clause is a decision Katie made on
   evidence: the two LaTeX reports of 2026-08-05 (`docs/PRODUCT_LIST.md`,
   2026-08-05 changelog). Overrides stay individually visible and auditable.
 - *Against:* if writing-goes-to-Fable is the intended norm, every future day's
   order must re-declare the override, and a rule overridden by default is
-  scenery — which is exactly what `docs/charters/README.md` says disqualifies a
+  scenery, which is exactly what `docs/charters/README.md` says disqualifies a
   clause from this directory. §7 already admits nothing mechanical checks model
   designation, so "declared in the brief" is worth only what the brief is worth.
 
-**Option B — re-designate: long-form technical writing goes to Fable.** §5's
+**Option B. Re-designate: long-form technical writing goes to Fable.** §5's
 third sentence is replaced rather than restored; Opus keeps engineering,
 execution and launches.
 - *For:* it matches the fleet's role classes as the 2026-08-12 order states
@@ -320,9 +320,9 @@ only after two supervisor sweeps had personally verified regrades produced
 under it. The convention did not become policy by being used; it became
 policy by being checked.
 
-**Crash triage paying for itself.** F8's steady-MRF line closed three ways —
-geometry exonerated to the millimeter, frame terms audited to source lines,
-initialization tested single-variable — because every crash and every
+**Crash triage paying for itself.** F8's steady-MRF line closed three ways
+(geometry exonerated to the millimeter, frame terms audited to source lines,
+initialization tested single-variable), because every crash and every
 diverged arm was triaged as a suspect rather than rerun as a nuisance. The
 hurricane finding, which killed a borrowed "cure" that was actively toxic in
 a whole-domain MRF zone, exists only because the divergence was treated as
@@ -362,3 +362,43 @@ supervisor's read.
   The inaugural negative-verdict review.
 - `docs/PRODUCT_LIST.md`. The 2026-08-05 changelog entry that is the Opus
   precedent.
+
+## Amendment record
+
+**Version 1.3, dated 2026-08-17. A style amendment, measured at frame `101079fd`.**
+The sections above were brought to the owner's standard for a durable
+record: em dashes and en dashes replaced by ordinary punctuation, and the
+result of each replacement read back against the clause it sits in.
+
+| what the amendment did | figure |
+| --- | --- |
+| em dashes replaced in the live sections | 18 |
+| en dashes replaced in the live sections | 0 |
+| em dashes left standing inside dated records | 0 |
+| en dashes left standing inside dated records | 0 |
+| clauses opened and declined, listed below | 3 |
+| lines whose number changed above this section | 0 |
+
+**No clause was added, removed, widened or narrowed, and no modal, scope or
+tense inside a clause was altered.** Both the counts above and the gates were
+taken in a detached worktree held at frame `101079fd`, so that a peer's
+concurrent commit could not be read as part of this batch. The gates run either
+side of the edit were `scripts/check_verdict_cells.py` with and without
+`--selftest`, `scripts/check_absolutes.py`,
+`scripts/check_normative_clauses.py`, `scripts/withdrawal_sweep.py`,
+`scripts/self_audit.py` and `scripts/lab_check.py --no-tests`; the `sdk/tests`
+suite was run either side in the live checkout. No gate moved its verdict. `check_absolutes.py` moved its verdict
+COUNTS and not its verdict, and the movement was traced to the
+sentences of this record rather than to the sections above.
+
+**The line numbering above this section was held fixed on purpose.** Other
+records cite this directory by line, and one of those citations sits inside an
+executable check. An amendment that inserted its own changelog at the head of
+the file would have moved the cited lines below it, so this record was appended
+at the foot instead. The version-history entries above stand unedited, because their
+figures describe the versions and the dates they name.
+
+**What was opened and left alone.**
+1. §3a's rule turns on the three words *withdrawn, retracted, superseded*, and `scripts/withdrawal_sweep.py` gates on exactly those three. Altering the framing would change the set the sweep matches.
+2. §5 and §5a name the principal eleven times, and every one of those names decides whose ruling settles an open question or which order governs today. A role noun would not carry the same answer while two humans give instructions to this lab, so the names were left in place.
+3. §5a(e) records which model drafted the amendment and in what order. That is process narrative by shape and evidence by function: it is what shows the disputed clause was not used to adjudicate the dispute about itself.

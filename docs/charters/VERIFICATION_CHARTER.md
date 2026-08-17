@@ -1,6 +1,6 @@
 # Certonomous Verification Charter
 
-Version 1.8, dated 2026-08-11. Defines what counts as done. It binds every
+Version 1.9, dated 2026-08-17. Defines what counts as done. It binds every
 solve, every gradient check, every ladder rung and every number that reaches a
 record, a certificate or a camera surface.
 
@@ -101,7 +101,7 @@ screen, UNCONVERGED when the solve did not settle and the number is not
 evidence yet. Honesty is carried by the value, its interval, the chip and the
 uncertainty channels, never by hedging prose.
 
-## 2a. The identity test — a gate declares its own failure mode at creation (Katie, 2026-08-11)
+## 2a. The identity test: a gate declares its own failure mode at creation (Katie, 2026-08-11)
 
 > **Every gate answers two questions before it is a gate:**
 > **(1) What result would make this gate FAIL?**
@@ -112,16 +112,16 @@ uncertainty channels, never by hedging prose.
 
 **The distinction is not subtle once stated, and it is nearly invisible in practice.** A
 control tests a claim about the world, so a wrong treatment fails it. An identity tests
-arithmetic, so a wrong treatment reproduces it exactly — and reports a clean PASS while
+arithmetic, so a wrong treatment reproduces it exactly, and reports a clean PASS while
 being wrong about everything the gate existed to check.
 
 **The instance that earned the rule, on 2026-08-11.** Gate G-P4 asked that a posterior
 treatment reproduce the plateau balance of a prior run. It was re-based, in good faith and
-inside a correction, onto `|g_penalty| = 2·λ_L2·‖β−1‖₂` — a quantity **any** treatment that
+inside a correction, onto `|g_penalty| = 2·λ_L2·‖β−1‖₂`, a quantity **any** treatment that
 knows λ_L2 and β computes exactly, including one whose posterior is wrong. The re-basing
 replaced a control that could fail with one that could not, and the informative leg it
-discarded — the **cosine**, which carries whether the prior pull actually opposed the
-likelihood gradient — was the only part testing the balance at all.
+discarded, the **cosine**, which carries whether the prior pull actually opposed the
+likelihood gradient, was the only part testing the balance at all.
 
 The tell was available at creation and nobody asked for it: *could a wrong treatment still
 pass this?* For the analytic quantity the answer is yes, trivially, by algebra.
@@ -131,11 +131,11 @@ pass this?* For the analytic quantity the answer is yes, trivially, by algebra.
 - An acceptance band calibrated from a defective run, then used to grade its successor.
 - A random-seed test whose two arms could not differ.
 - A cross-check whose divisor had been **fitted to the printed value** in a sibling
-  document — a check solved for by requiring it to pass.
+  document, a check solved for by requiring it to pass.
 
 **What to write down.** The two answers go in the gate's own text, beside the threshold,
 in the pre-registration where the gate is fixed. *"This gate fails if X"* and *"a wrong
-treatment could still pass it by Y, which is why Z is also gated"* — or the honest
+treatment could still pass it by Y, which is why Z is also gated"*, or the honest
 alternative, *"we know of no way a wrong treatment passes this"*, which is a claim a grader
 can attack.
 
@@ -144,29 +144,29 @@ is a useful cross-check on arithmetic and provenance, and it belongs in the reco
 the *gating* that is forbidden: a threshold on a quantity that cannot miss is a green light
 wired to nothing.
 
-## 2b. Pre-registration amendment — legal only while there is no answer to tune to (Katie, 2026-08-11)
+## 2b. Pre-registration amendment: legal only while there is no answer to tune to (Katie, 2026-08-11)
 
 A pre-registration is frozen against improvement (L-44), and the freeze is not ceremony:
 **it is the entire evidentiary content of the document.** A pre-registration proves one
-thing — that the gate could not have been chosen to fit the answer — and an amendment made
+thing, that the gate could not have been chosen to fit the answer, and an amendment made
 after the answer exists destroys exactly that.
 
 **So the rule follows the property rather than the calendar:**
 
 1. **Before first compute, amendments are legal.** There is no answer to tune to, so the
    protected property is intact. The amendment must **state that condition and how it was
-   checked** — name the run directory that does not exist, or the empty registry query.
+   checked**: name the run directory that does not exist, or the empty registry query.
    Asserting it is not enough; the check is the point.
 2. **After first compute, gates are closed.** Changes land only as **dated addenda that
    cannot alter a gate, a threshold, a cap or a label.** An addendum may record, correct a
-   citation, or note that a gate was later found defective — the last of those is a
+   citation, or note that a gate was later found defective. The last of those is a
    *finding*, and it belongs in the docket and the results record, never as a quiet edit to
    the bar.
 3. **Originals are always retained and struck, never rewritten**, under either condition.
 
 **Worked example, same day.** `S1_PRIORS_PREREGISTRATION.md` had its §8 withdrawn and its
-gate G-P4 restored. Legal, because no `S1-priors` run directory existed — checked, not
-assumed — and the amendment says so on its face. Had one solve run, the correct action
+gate G-P4 restored. Legal, because no `S1-priors` run directory existed (checked, not
+assumed), and the amendment says so on its face. Had one solve run, the correct action
 would have been an addendum recording that G-P4 as written was an identity, and a **failed
 gate shipped as a documented failure** under §8 of this charter rather than a repaired one.
 
@@ -394,9 +394,9 @@ same class of error one layer down.
 
 **The worked case, and both readings are on the record.** The supersonic wedge
 ladder was extrapolated twice from the same three rungs. Fitted on the values
-as the act's ladder table *prints* them, at three decimals — 47.588 / 46.123 /
-44.693 — the extrapolated shock angle is **−13.733 degrees**. Fitted on what
-the act *solved* — 47.58767882153372 / 46.12330850878531 / 44.692792746510406 —
+as the act's ladder table *prints* them, at three decimals (47.588 / 46.123 /
+44.693), the extrapolated shock angle is **−13.733 degrees**. Fitted on what
+the act *solved* (47.58767882153372 / 46.12330850878531 / 44.692792746510406),
 it is **−15.753**. Two point zero two degrees apart, and the entire difference
 is rounding. `demo-output/website/campaign/W3_2D_LADDER_REFIT.md` §4a;
 `sdk/tests/test_uq.py::test_rounding_the_rungs_moves_the_digit_and_not_the_verdict`
@@ -404,7 +404,7 @@ pins the pair.
 
 **Why the size of that difference is not a coincidence.** At an observed order
 near zero the Richardson extrapolation amplifies the finest increment by a
-large factor — **42.25** on that ladder, against an observed order of 0.034.
+large factor: **42.25** on that ladder, against an observed order of 0.034.
 Whatever error the stored rungs carry is multiplied by exactly the same factor.
 So the worse a ladder behaves, the more its refit depends on precision nobody
 is thinking about, and the ladders most likely to be refitted are the badly
@@ -422,8 +422,8 @@ not be so forgiving, not because this one was harmed.
 **What follows, all checkable before any compute is spent.**
 
 1. **A refit names the artifact it read**, and that artifact is the one the
-   solver wrote — a forces file, a coefficient file, a stored `levels[]` block
-   — never a document. A refit that cannot name one is not a refit.
+   solver wrote (a forces file, a coefficient file, a stored `levels[]` block),
+   never a document. A refit that cannot name one is not a refit.
 2. **An extrapolation is reported with its amplification.** The factor is
    `|phi0 − phi_fine| / |e21|`, arithmetic on rungs already stored, and it is
    the single number that says whether the input precision matters.
@@ -771,7 +771,7 @@ say it.
 
 ## 6a. The referent travels with the verdict (added 2026-08-11)
 
-> **A verdict label — VALIDATED, PASS, verified, confirmed, reproduces — carries
+> **A verdict label (VALIDATED, PASS, verified, confirmed, reproduces) carries
 > the thing it was checked against, on every surface it appears on. Where there is
 > no external referent, the label says so.**
 
@@ -784,8 +784,8 @@ optional.
 2026-08-11 classified 1,549 verification sections across 297 tracked documents and
 found the corpus in better shape than expected: the lab has repeatedly caught and
 retracted verifications that could not fail, and one credentials-wall row already
-implements the "declares it has none" clause. **The live defect is not blindness —
-it is transmission loss.** The referent is stated correctly in the canonical record
+implements the "declares it has none" clause. **The live defect is not blindness.
+It is transmission loss.** The referent is stated correctly in the canonical record
 and does not survive the trip to the surface people read. Four of that audit's seven
 findings are this and nothing else.
 
@@ -796,8 +796,8 @@ rather than in a report:
   attributes to its own task prompt. The number passes at 0.75% against the form
   actually used and **misses at 5.54% against the form named on screen.**
 - A `VALIDATED` chip earned **code-to-code against another solver's tutorial
-  documentation** — stated plainly in the case record, which refuses the workshop
-  band by name — loses the qualifier on the filmed table, where it then reads as
+  documentation**, stated plainly in the case record, which refuses the workshop
+  band by name, loses the qualifier on the filmed table, where it then reads as
   the best *experimental* agreement beside two rows that genuinely are.
 
 Neither is a wrong number. Both are a correct number whose meaning did not travel.
@@ -809,21 +809,21 @@ was written for one number. **This is the same rule, unpinned from that number.*
 
 **What satisfies the clause:**
 
-- **EXTERNAL** — a published value, an exact analytic result, a benchmark
+- **EXTERNAL**. A published value, an exact analytic result, a benchmark
   distribution, an independent implementation. Name it specifically. "Validated
   against the literature" names nothing.
-- **SELF-REFERENTIAL** — checked with the same code, helpers or conventions as the
+- **SELF-REFERENTIAL**. Checked with the same code, helpers or conventions as the
   thing checked. **This is not a defect and must not be hidden.** Transcription
   fidelity is worth having; it is worth having *labelled*, because it is routinely
   read as external.
-- **NONE** — say so. `F9 is verified in part and validated against nothing` is a
+- **NONE**. Say so. `F9 is verified in part and validated against nothing` is a
   model sentence. It costs nothing and it is impossible to misread.
 
 **The failure this forbids** is L-74's: a check written with the same helpers as the
 thing it checks proves only that a number was transcribed faithfully, while the
 question everyone believes it answers is whether the number is right. The sharpest
 instance found on 2026-08-11 was a cross-check whose divisor had been **fitted to the
-printed value in a sibling document** — a check that could not fail, reported as
+printed value in a sibling document**, a check that could not fail, reported as
 confirmation.
 
 **Scope.** Load-bearing verdicts: anything a published conclusion rests on, and
@@ -978,10 +978,10 @@ reads them as being in tension has read the demo charter's scope clause wrong.
 - The case dictionaries, so the setup is inspectable.
 - The gate verdict and the reference identity.
 - The detector resolution for every quantity reported, per section 5.
-- **`levers_verified_active` (v1.5, L-40): every load-bearing option** — each
+- **`levers_verified_active` (v1.5, L-40): every load-bearing option**. Each
   solver option, flag, model choice or lever the conclusion's reasoning cites
   (preconditioners, turbulence-model switches, scheme selections, MRF settings,
-  adjoint modes) — **listed with the runtime-log line proving it actually ran.**
+  adjoint modes), **listed with the runtime-log line proving it actually ran.**
   THE SWITCH YOU SET IS NOT THE SWITCH THAT RAN: "configured" and "active" are
   different claims, and only the second is evidence. A dictionary entry can be
   dead code for the solver that executed (the A3 record measured its
@@ -998,7 +998,7 @@ reads them as being in tension has read the demo charter's scope clause wrong.
   different facts: conflating them impugns work whose only fault is a missing
   log, which is the opposite error and just as wrong. The rule exists because a
   mesh-quality parser returned `clean` on a log where the tool had fatally
-  errored — it matched error PATTERNS, and a crashed log contains none — and
+  errored (it matched error PATTERNS, and a crashed log contains none), and
   the guard believed to be covering that case did not, because the tool prints
   its cell count BEFORE the checks it dies in. A gate that reads silence as
   success can manufacture a pass, which outranks every gate that merely misses
@@ -1352,14 +1352,14 @@ a negative verdict closes a question, and left alone it quietly closes the
 diagnostics behind it too, because nothing in the lab's machinery ever asks a
 FAIL what should be measured next.
 
-> **Every negative verdict — a gate FAIL, a NO-GO, a no-verdict, a refuted
-> prediction — triggers a supervisor review that proposes new diagnostics,
+> **Every negative verdict (a gate FAIL, a NO-GO, a no-verdict, a refuted
+> prediction) triggers a supervisor review that proposes new diagnostics,
 > and the review is recorded.** Owner's instruction, 2026-08-07.
 
 **The inaugural instance is the pattern, and it is cited rather than
 paraphrased:** `demo-output/website/SUPERVISOR_NEGATIVE_VERDICT_REVIEW_2026-08-07.md`,
 written personally by the chief supervisor, covering every standing negative
-verdict on the record in one pass — ten of them, from the periodic hills'
+verdict on the record in one pass, ten of them, from the periodic hills'
 physics FAIL to the TMR aspect-ratio pathology. Its eleven filed diagnostics
 set the bar for what a review proposes. Precisely: the review marks thirteen
 diagnostics `[FILE]`, of which two ride existing approved runs (the standing
@@ -1401,7 +1401,7 @@ demands evidence which cannot exist does not make the record stronger; it makes
 it wrong in a new direction, while wearing the costume of care. Section 17 was
 adopted on a Monday evening and by that night its own first application had
 found that **eleven of the ladders it annotated use deterministic generators,
-where the quantity it demands is identically zero** — so the annotation was
+where the quantity it demands is identically zero**, so the annotation was
 false on every one of them.
 
 Therefore, before any rule in this charter is applied to a record:
@@ -1410,14 +1410,14 @@ Therefore, before any rule in this charter is applied to a record:
    cannot, the rule is satisfied by SAYING so, and demanding a number is the
    failure.
 2. **Ask which quantity the record actually means.** The same word names
-   different measurables — the case that triggered this had measured its
+   different measurables. The case that triggered this had measured its
    *temporal* scatter carefully, per rung, and was annotated for lacking a
    *mesh-draw* scatter it could never have had.
 3. **State the scope of the rule's applicability in the rule itself**, so the
    next reader does not have to re-derive it by spending.
 
 Under-reach leaves a gap, which invites a fix. Over-reach writes a false
-constraint, which forbids one (L-48) — and a rule applied where it cannot hold
+constraint, which forbids one (L-48), and a rule applied where it cannot hold
 manufactures verdicts, which is the failure mode every other section here
 exists to prevent.
 
@@ -1429,7 +1429,7 @@ exists to prevent.
 `w3-no-ladder-feature-without-draw-scatter`.
 
 > **A ladder increment may not be published as a FEATURE without draw-scatter
-> evidence at the rung it turns on — or with the absence of that evidence stated
+> evidence at the rung it turns on, or with the absence of that evidence stated
 > on its face.**
 
 **A "feature" is a claim about the SHAPE of a sequence of grid-refinement
@@ -1440,19 +1440,19 @@ does not reach it. *"The fit returns p = 2.25 and we reject it"* does not fire;
 *"its increments grow with refinement"* does.
 
 **The remedy is RESTATEMENT, not withdrawal.** A feature whose scatter has never
-been measured is not thereby false — it is unchecked, and the rule is satisfied
+been measured is not thereby false. It is unchecked, and the rule is satisfied
 by saying so where the feature is stated. Withdrawal is only for features that
 have been measured against draw scatter and did not survive.
 
-**Why it was adopted — the evidence, not the argument.** Every replicate family
+**Why it was adopted: the evidence, not the argument.** Every replicate family
 this lab has ever measured has returned a material finding. **Four for four:**
 
 | family | what the replicates found |
 | --- | --- |
-| B-52 | the published turn was `max(rung 6) − min(rung 7)` of eight draws — **withdrawn** |
+| B-52 | the published turn was `max(rung 6) − min(rung 7)` of eight draws; **withdrawn** |
 | NACA 0012 | the published mesh is the family **maximum** at +1.35σ |
 | NACA 4412 | construction scatter 5.82 / 12.74 / 4.20% of the mean, worst at the graded rung |
-| Ahmed 25° | the increment **inverts or halves** depending on which draw is excluded — **withdrawn** |
+| Ahmed 25° | the increment **inverts or halves** depending on which draw is excluded; **withdrawn** |
 
 **The check has never once come back clean.** A check with that hit rate across
 four independent families is not a precaution; it is a measurement everyone had
@@ -1463,7 +1463,7 @@ differences of.
 
 **The archive replay that carried it** (the entry condition: a rule firing on
 every record or on none is not adopted). Of **151** campaign and website records,
-**32** assert a ladder feature — neither all nor none:
+**32** assert a ladder feature, neither all nor none:
 
 | disposition | count |
 | --- | --- |
@@ -1472,19 +1472,19 @@ every record or on none is not adopted). Of **151** campaign and website records
 | already state the absence themselves | 2 |
 | **RESTATE** | **17** |
 
-**77% of the records the rule acts on need restatement, not withdrawal** — the
+**77% of the records the rule acts on need restatement, not withdrawal**, the
 number that decided adoption. **The replay's first pass got this wrong** (16
 records, 5 restatements, 50%) because its search vocabulary came from the two
 families already under investigation; an independent second route of a different
 kind found nine further bodies. That correction is L-49 and §7a of the Cases
 family guidelines, and the counts above are the reconciled ones.
 
-**Scope of the priced retrofit, stated honestly.** The approved retrofit —
-**12.8–21.7 core-min** for two further draws at the turn rung of each unchecked
-ladder — covers **only the five ladders stored in
+**Scope of the priced retrofit, stated honestly.** The approved retrofit, at
+**12.8 to 21.7 core-min** for two further draws at the turn rung of each unchecked
+ladder, covers **only the five ladders stored in
 `models/curriculum/uq-studies/`**: `ahmed_25`, `ahmed_35`, `motorBike`, `cube`,
 `naca0015_sail`. **It does not cover bodies whose ladders live only in campaign
-records** — F3 wedge, F4 hypersonic, F7 dam-break, F6b ERCOFTAC, TMR bump,
+records**: F3 wedge, F4 hypersonic, F7 dam-break, F6b ERCOFTAC, TMR bump,
 lid-driven cavity, DPW8. Those need their own measured per-body solve costs and
 are **flagged, not guessed**. For scale: the whole curriculum retrofit costs less
 than checking the B-52 alone cost (40.9 core-min), and that one ended in a
@@ -1521,12 +1521,12 @@ Where the published draw sits in its own distribution is reported and **never
 graded**: at n = 3 a draw is an extremum with prior probability 2/3 under no
 selection at all.
 
-**SCOPE — the rule applies only where a DRAW EXISTS. Added 2026-08-10 the same
+**SCOPE. The rule applies only where a DRAW EXISTS. Added 2026-08-10 the same
 day, on finding that it did not.**
 
 **Mesh-draw scatter is a property of a NONDETERMINISTIC generator.**
 snappyHexMesh's castellation is nonlinear in the background lattice, so two
-meshes built to one recipe genuinely differ — that is what makes a *draw* a
+meshes built to one recipe genuinely differ, and that is what makes a *draw* a
 sample of anything. **A deterministic structured `blockMesh` generator produces a
 byte-identical mesh from the same parameters. There is no second draw to take,
 and the scatter this rule asks for is identically zero by construction.**
@@ -1536,8 +1536,8 @@ and the scatter this rule asks for is identically zero by construction.**
 > cannot exist.
 
 **This was found by pre-flighting an approved run rather than by running it.**
-All 11 campaign-record ladders restated as *"clean, no scatter measured"* — F3,
-F4, F6b, F7, TMR bump, the NASA bump grids, the lid-driven cavity, DPW8 — turned
+All 11 campaign-record ladders restated as *"clean, no scatter measured"* (F3,
+F4, F6b, F7, TMR bump, the NASA bump grids, the lid-driven cavity, DPW8) turned
 out to use deterministic structured generators. **The ≈7.5 core-min approved for
 F4 was declined because there was nothing for it to measure**, and the
 restatements on all 11 were corrected. Only the snappyHexMesh bodies (B-52,
@@ -1545,19 +1545,19 @@ Ahmed, the NACA wings, motorBike, cube, the sail) have a draw distribution at
 all.
 
 **A related trap, from the same finding.** F4's record says *"scatter does not
-fully explain it"* — and the scatter it means is **temporal snapshot scatter,
+fully explain it"*, and the scatter it means is **temporal snapshot scatter,
 which it measured per rung**. A restatement that reads "scatter" as *mesh-draw*
 scatter mis-describes the claim it is annotating. **Check which scatter a record
 means before annotating it for lacking one.**
 
-**FORM OF A RESTATEMENT — a restatement names the recipe class, because the class
+**FORM OF A RESTATEMENT. A restatement names the recipe class, because the class
 determines what the absence means.** Added 2026-08-10 on the chief's ruling.
 *"No scatter measured here"* means two different things:
 
 | class | what the absence means |
 | --- | --- |
-| **CLEAN** (one knob moves per rung) | the feature is **one measurement away from real** — its increments are genuine discretization increments |
-| **CONFOUNDED** (more than one knob moves) | the feature is **unsupported twice over** — its increments were never discretization increments, so the missing scatter is the lesser problem |
+| **CLEAN** (one knob moves per rung) | the feature is **one measurement away from real**, and its increments are genuine discretization increments |
+| **CONFOUNDED** (more than one knob moves) | the feature is **unsupported twice over**, and its increments were never discretization increments, so the missing scatter is the lesser problem |
 | **UNDETERMINABLE** (rung cases no longer exist) | **neither** the recipe nor the scatter can now be established at all |
 
 A reader who cannot tell those apart would draw the wrong conclusion from an
@@ -1582,18 +1582,18 @@ this lab is:
 
 **This is the honest end state, not a shrug.** It says the rule has no unspent
 work, and it says so because the work was looked for three times and the search
-corrected itself each time — a text sweep corrected by a structural one, the
+corrected itself each time: a text sweep corrected by a structural one, the
 structural one corrected on its sampling frame, and the whole set corrected again
 when a pre-flight found the quantity undefined for most of them.
 
 **A reader arriving later should not re-derive this by spending.** If a new
-ladder is built, the rule applies to it from §17's scope test — *does a draw
-exist for this generator?* — and not from this table, which is a statement about
+ladder is built, the rule applies to it from §17's scope test (*does a draw
+exist for this generator?*) and not from this table, which is a statement about
 the corpus as it stood, not a permanent property of it.
 
 **Calibration convention, binding on every retrofit verdict.** The bar separating
 "the scatter is structured" from "the scatter is broad" is **calibrated by
-simulation against the null before the draws exist**, never chosen after — so
+simulation against the null before the draws exist**, never chosen after, so
 every verdict arrives with its false-positive rate stated. The Ahmed 25° arm is
 the worked precedent (`R4_AHMED_C3_LEG2_PREREGISTRATION.md`): the bar was the
 10th percentile of the pure-scatter null, it was missed by 0.044, and the near
@@ -1614,3 +1614,44 @@ not a bar.
   and the four checks a supervisor performs personally.
 - `LESSONS.md` L-3, L-7, L-14, L-15, L-16, L-19, L-21, L-22, L-24, L-25, L-26,
   L-27, L-28, P1, P3, D12.
+
+## Amendment record
+
+**Version 1.9, dated 2026-08-17. A style amendment, measured at frame `101079fd`.**
+The sections above were brought to the owner's standard for a durable
+record: em dashes and en dashes replaced by ordinary punctuation, and the
+result of each replacement read back against the clause it sits in.
+
+| what the amendment did | figure |
+| --- | --- |
+| em dashes replaced in the live sections | 62 |
+| en dashes replaced in the live sections | 1 |
+| em dashes left standing inside dated records | 9 |
+| en dashes left standing inside dated records | 0 |
+| clauses opened and declined, listed below | 4 |
+| lines whose number changed above this section | 0 |
+
+**No clause was added, removed, widened or narrowed, and no modal, scope or
+tense inside a clause was altered.** Both the counts above and the gates were
+taken in a detached worktree held at frame `101079fd`, so that a peer's
+concurrent commit could not be read as part of this batch. The gates run either
+side of the edit were `scripts/check_verdict_cells.py` with and without
+`--selftest`, `scripts/check_absolutes.py`,
+`scripts/check_normative_clauses.py`, `scripts/withdrawal_sweep.py`,
+`scripts/self_audit.py` and `scripts/lab_check.py --no-tests`; the `sdk/tests`
+suite was run either side in the live checkout. No gate moved its verdict. `check_absolutes.py` moved its verdict
+COUNTS and not its verdict, and the movement was traced to the
+sentences of this record rather than to the sections above.
+
+**The line numbering above this section was held fixed on purpose.** Other
+records cite this directory by line, and one of those citations sits inside an
+executable check. An amendment that inserted its own changelog at the head of
+the file would have moved the cited lines below it, so this record was appended
+at the foot instead. The version-history entries above stand unedited, because their
+figures describe the versions and the dates they name.
+
+**What was opened and left alone.**
+1. §1's verdict vocabulary reads GATE FAIL while the rung cells in the Ladder V ledger read bare FAIL; `scripts/check_verdict_cells.py --strict-fail` counted 4 such cells at frame `101079fd`. Both readings are defensible, neither side was touched, and the question is referred for a ruling.
+2. §2a and §2b name the principal in their headings, which is what marks them as recorded instructions rather than lab-written proposals. The names were left in place; only the heading punctuation was changed.
+3. §17's CORRECTION block of 2026-08-10 and its end-state table of the same date carry figures that describe the corpus at that date. They were left byte-identical, dashes included.
+4. The three AMENDED blocks in §3.2 and §3.3 were left byte-identical.

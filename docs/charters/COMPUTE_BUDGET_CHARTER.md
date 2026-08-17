@@ -1,6 +1,6 @@
 # Certonomous Compute Budget Charter
 
-Version 1.2, dated 2026-08-05. Governs what the lab is allowed to spend, how it
+Version 1.3, dated 2026-08-17. Governs what the lab is allowed to spend, how it
 counts what it spent, and the contract between the lab and the machine it runs
 on.
 
@@ -381,15 +381,53 @@ body have never over-run by more than 1.84x, while forecast-based estimates
 have reached 13.55x. This clause closes the loophole in that rule.
 
 A measured basis is only a basis **within its own solver family and regime**.
-Two ladders were priced from the nearest measured bases available — both
-steady, incompressible `simpleFoam` on snappyHexMesh bodies — and applied to a
+Two ladders were priced from the nearest measured bases available (both
+steady, incompressible `simpleFoam` on snappyHexMesh bodies) and applied to a
 case running **transient, explicit `rhoCentralFoam` to a fixed end time**. The
 per-cell rate does not cross that gap: the honest price, read from that case's
 own record, was **8.9x** the borrowed one.
 
 The rule: **a repricing crosses solver families only from that case's own
 record.** Where no such record exists, the item is reported UNPRICED rather
-than given a number — an unpriced item invites the measurement that would price
+than given a number: an unpriced item invites the measurement that would price
 it, and a wrong price is spent before anyone checks it. Naming several
 candidates unpriced, rather than extending one rate across all of them, is the
 correct and expected outcome.
+
+## Amendment record
+
+**Version 1.3, dated 2026-08-17. A style amendment, measured at frame `101079fd`.**
+The sections above were brought to the owner's standard for a durable
+record: em dashes and en dashes replaced by ordinary punctuation, and the
+result of each replacement read back against the clause it sits in.
+
+| what the amendment did | figure |
+| --- | --- |
+| em dashes replaced in the live sections | 3 |
+| en dashes replaced in the live sections | 0 |
+| em dashes left standing inside dated records | 0 |
+| en dashes left standing inside dated records | 0 |
+| clauses opened and declined, listed below | 1 |
+| lines whose number changed above this section | 0 |
+
+**No clause was added, removed, widened or narrowed, and no modal, scope or
+tense inside a clause was altered.** Both the counts above and the gates were
+taken in a detached worktree held at frame `101079fd`, so that a peer's
+concurrent commit could not be read as part of this batch. The gates run either
+side of the edit were `scripts/check_verdict_cells.py` with and without
+`--selftest`, `scripts/check_absolutes.py`,
+`scripts/check_normative_clauses.py`, `scripts/withdrawal_sweep.py`,
+`scripts/self_audit.py` and `scripts/lab_check.py --no-tests`; the `sdk/tests`
+suite was run either side in the live checkout. No gate moved its verdict. `check_absolutes.py` moved its verdict
+COUNTS and not its verdict, and the movement was traced to the
+sentences of this record rather than to the sections above.
+
+**The line numbering above this section was held fixed on purpose.** Other
+records cite this directory by line, and one of those citations sits inside an
+executable check. An amendment that inserted its own changelog at the head of
+the file would have moved the cited lines below it, so this record was appended
+at the foot instead. The version-history entries above stand unedited, because their
+figures describe the versions and the dates they name.
+
+**What was opened and left alone.**
+1. §2's *"may not cite a run the lab has since superseded, withdrawn or retracted"* names three states a cost basis may be in. Altering the framing would change what the clause forbids, so the three words were left in place.

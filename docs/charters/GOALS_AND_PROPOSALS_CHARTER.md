@@ -1,6 +1,6 @@
 # Certonomous Goals and Research Proposal Charter
 
-Version 1.4, dated 2026-08-07. Governs what the lab optimizes for when it
+Version 1.5, dated 2026-08-17. Governs what the lab optimizes for when it
 drafts its own work. It applies to every proposal that reaches the agenda
 inbox, and therefore to every night the lab spends unattended.
 
@@ -498,8 +498,8 @@ pending work.
 would feed a submission keeps its full standing on every axis. Axis C scores
 challenge work exactly as before; a proposal that improves a scored case by d
 still moves the overall by d/8 and still ranks on it. Prepared submission
-artifacts — the draft, the disclosures, the prediction files, the
-reproducible report — are kept current and are not dismantled, because
+artifacts (the draft, the disclosures, the prediction files, the
+reproducible report) are kept current and are not dismantled, because
 parked is not cancelled. What no longer exists is any reading under which
 readiness slides into sending: the ruling R8 precedent, prepared and not
 sent, is now the standing state for the whole class rather than a per-item
@@ -516,3 +516,41 @@ deferral.
 - `docs/standards/INNOVATION_STANDARD.md`. The five-stage path a new method
   walks after its proposal is approved.
 - `LESSONS.md` P2, P5, L-19, L-24, L-26, L-27.
+
+## Amendment record
+
+**Version 1.5, dated 2026-08-17. A style amendment, measured at frame `101079fd`.**
+The sections above were brought to the owner's standard for a durable
+record: em dashes and en dashes replaced by ordinary punctuation, and the
+result of each replacement read back against the clause it sits in.
+
+| what the amendment did | figure |
+| --- | --- |
+| em dashes replaced in the live sections | 2 |
+| en dashes replaced in the live sections | 0 |
+| em dashes left standing inside dated records | 2 |
+| en dashes left standing inside dated records | 0 |
+| clauses opened and declined, listed below | 1 |
+| lines whose number changed above this section | 0 |
+
+**No clause was added, removed, widened or narrowed, and no modal, scope or
+tense inside a clause was altered.** Both the counts above and the gates were
+taken in a detached worktree held at frame `101079fd`, so that a peer's
+concurrent commit could not be read as part of this batch. The gates run either
+side of the edit were `scripts/check_verdict_cells.py` with and without
+`--selftest`, `scripts/check_absolutes.py`,
+`scripts/check_normative_clauses.py`, `scripts/withdrawal_sweep.py`,
+`scripts/self_audit.py` and `scripts/lab_check.py --no-tests`; the `sdk/tests`
+suite was run either side in the live checkout. No gate moved its verdict. `check_absolutes.py` moved its verdict
+COUNTS and not its verdict, and the movement was traced to the
+sentences of this record rather than to the sections above.
+
+**The line numbering above this section was held fixed on purpose.** Other
+records cite this directory by line, and one of those citations sits inside an
+executable check. An amendment that inserted its own changelog at the head of
+the file would have moved the cited lines below it, so this record was appended
+at the foot instead. The version-history entries above stand unedited, because their
+figures describe the versions and the dates they name.
+
+**What was opened and left alone.**
+1. The citation caveat under Axis A carries its own date and its own figures. It was left byte-identical, dashes included.

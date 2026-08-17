@@ -1,6 +1,6 @@
 # Certonomous Escalation Charter
 
-Version 1.5, dated 2026-08-11. Governs what the lab decides alone and what goes
+Version 1.6, dated 2026-08-17. Governs what the lab decides alone and what goes
 to the owner. It binds unattended work, which is where the question actually
 arises.
 
@@ -417,7 +417,7 @@ time and collection, both of which are re-runnable, and nothing else.
 otherwise have had with itself.** One survival is an anecdote and two is a
 coincidence; three deaths from three unrelated causes, all survived by the
 same discipline, is a measurement of the discipline rather than of the
-causes — and none of the three causes was predictable from inside the box.
+causes, and none of the three causes was predictable from inside the box.
 That is the whole case for making rule 1 mandatory instead of advisable.
 
 The account of all three lives in `docs/PRODUCT_LIST.md`'s changelog under
@@ -447,14 +447,14 @@ artifacts).
    exactly the case where the session is gone and the compute is not. Arm the
    session hold as the first command of every working day. Neither script
    disables the auto-stop, which is the owner's cost control and stays.
-4. **Check before you resume — and NOT with `pgrep` first (L-41, corrected
+4. **Check before you resume, and NOT with `pgrep` first (L-41, corrected
    2026-08-10).** A completion notice with no result does not prove an agent
    is dead, and a process sweep cannot prove it either: fleet agents execute
    inside the SDK server, so a busy peer is INVISIBLE to `pgrep`/`ps | grep
    claude`. That mistake collided two agents on one rung. Ask in this order:
-   (a) `git log --since=<minutes>` — a working agent commits, and a
+   (a) `git log --since=<minutes>`: a working agent commits, and a
    pre-registration appearing after your dispatch is proof of a live peer;
-   (b) run-directory and case-directory mtimes (`find <runs> -mmin -10`) — a
+   (b) run-directory and case-directory mtimes (`find <runs> -mmin -10`): a
    live solve writes constantly under no matching process name; (c) the
    docket/inbox claim state. Only then process sweeps, which answer "is a
    SOLVER running", never "is an AGENT working". Prefer resuming the
@@ -507,7 +507,7 @@ none of them has a check, which is the honest state of it.
 
 Two agents' staged files were swallowed into other agents' commits in one
 afternoon because concurrent workers ran `git add -A` / `git add .` on the
-shared tree. Both times the content survived and the narrative did not — the
+shared tree. Both times the content survived and the narrative did not: the
 files landed under another commit's message, and a provenance note had to be
 committed after the fact to keep the log auditable (`ecb5bdbe` is the pattern).
 
@@ -545,10 +545,10 @@ The rule as it must now read, in two parts:
 ```
 git add <paths>
 git commit -m "..." -- <paths>      # the SCOPE
-git diff <path>                     # the CHECK — read it before you commit
+git diff <path>                     # the CHECK, read it before you commit
 ```
 
-**The check is not optional on a shared, high-traffic file** — a changelog, a
+**The check is not optional on a shared, high-traffic file**: a changelog, a
 status record, a checklist, an index. Those are exactly the files a supervisor
 writes most often and exactly the files everyone else is writing to at the same
 time, so this is where the scope rule has least protection and most opportunity
@@ -557,17 +557,17 @@ to fire. If the diff contains hunks you did not write, stage your own hunks only
 message.
 
 The narrative and the incident are `LESSONS.md` L-57. **The line count in that
-lesson was itself corrected on 2026-08-11** — first written as 59 lines, which
-was the commit's total insertion count, then recounted by hunk as 34 — so cite
+lesson was itself corrected on 2026-08-11**, first written as 59 lines, which
+was the commit's total insertion count, then recounted by hunk as 34, so cite
 L-57 for the rule rather than restating its figure here. That correction is the
 rule applied to itself: read the diff, not the summary of it.
 
-##### 9.6c. Do not "leave it uncommitted to be polite" — that fails in the other direction
+##### 9.6c. Do not "leave it uncommitted to be polite": that fails in the other direction
 
 **Added 2026-08-11, same day, after the considerate response to 9.6b turned out to
 be the wrong one.** An agent found another agent's rows in `docs/DOCKET.md`,
 correctly declined to sweep them under its own message, and **deliberately left
-the file uncommitted**. The other agent then committed the file — and swept *its*
+the file uncommitted**. The other agent then committed the file, and swept *its*
 two rows in, under a message about something else entirely. Nothing was lost; the
 attribution was.
 
@@ -580,7 +580,7 @@ polite one loses.
 
 ```
 git diff <path> > /tmp/full.patch          # everything currently uncommitted
-# keep only the hunks you wrote — split the patch, do not eyeball it
+# keep only the hunks you wrote: split the patch, do not eyeball it
 git apply --cached /tmp/mine.patch         # stage YOUR hunks only
 git diff --cached --stat                   # confirm what is staged
 git diff --cached | grep -c '<their marker>'   # confirm theirs is NOT
@@ -590,7 +590,7 @@ git commit -m "..."                        # the index holds only your hunks
 Two notes that make this safe rather than clever:
 
 - **Verify the index is empty before you start** (`git diff --cached --name-only`).
-  The final `git commit` has no pathspec, which is normally forbidden — it is safe
+  The final `git commit` has no pathspec, which is normally forbidden. It is safe
   *only* because the index was empty and you put exactly your own hunks in it.
   Check that, do not assume it.
 - **Say in the commit message that you did this and why.** A commit that touches
@@ -606,3 +606,42 @@ answer is "whoever runs `git add` next."
 the charter did not yet carry. Two independent cold-start runs on 2026-08-11
 filed it. Version header bumped to 1.4 in the same commit — not bumping it for
 9.6 and 9.6a is half of why D-8 exists.*
+
+## Amendment record
+
+**Version 1.6, dated 2026-08-17. A style amendment, measured at frame `101079fd`.**
+The sections above were brought to the owner's standard for a durable
+record: em dashes and en dashes replaced by ordinary punctuation, and the
+result of each replacement read back against the clause it sits in.
+
+| what the amendment did | figure |
+| --- | --- |
+| em dashes replaced in the live sections | 13 |
+| en dashes replaced in the live sections | 0 |
+| em dashes left standing inside dated records | 6 |
+| en dashes left standing inside dated records | 0 |
+| clauses opened and declined, listed below | 2 |
+| lines whose number changed above this section | 0 |
+
+**No clause was added, removed, widened or narrowed, and no modal, scope or
+tense inside a clause was altered.** Both the counts above and the gates were
+taken in a detached worktree held at frame `101079fd`, so that a peer's
+concurrent commit could not be read as part of this batch. The gates run either
+side of the edit were `scripts/check_verdict_cells.py` with and without
+`--selftest`, `scripts/check_absolutes.py`,
+`scripts/check_normative_clauses.py`, `scripts/withdrawal_sweep.py`,
+`scripts/self_audit.py` and `scripts/lab_check.py --no-tests`; the `sdk/tests`
+suite was run either side in the live checkout. No gate moved its verdict. `check_absolutes.py` moved its verdict
+COUNTS and not its verdict, and the movement was traced to the
+sentences of this record rather than to the sections above.
+
+**The line numbering above this section was held fixed on purpose.** Other
+records cite this directory by line, and one of those citations sits inside an
+executable check. An amendment that inserted its own changelog at the head of
+the file would have moved the cited lines below it, so this record was appended
+at the foot instead. The version-history entries above stand unedited, because their
+figures describe the versions and the dates they name.
+
+**What was opened and left alone.**
+1. §3 item 2's amendment block records the 2026-08-05 rule and the two measurements that moved it. It was left byte-identical, dashes included.
+2. §9.6 item 4's struck original is retained under *"the original text follows, superseded"*. The word carries the strike, so it was left in place.

@@ -1,6 +1,6 @@
 # Certonomous Literature Review Charter
 
-Version 1.2, dated 2026-08-05. Governs every reading the lab does: overnight
+Version 1.3, dated 2026-08-17. Governs every reading the lab does: overnight
 reading programs, no-compute review tasks, a single paper fetched to settle an
 argument, and any citation that reaches a record, a certificate, a proposal or
 a camera surface.
@@ -268,3 +268,41 @@ a person reading the paper; nothing mechanical looked at the tier.
 - `docs/charters/GOALS_AND_PROPOSALS_CHARTER.md`. What a proposal has to
   contain once a reading triggers one.
 - `LESSONS.md` L-18, L-20, L-22, L-23, L-26, L-28.
+
+## Amendment record
+
+**Version 1.3, dated 2026-08-17. A style amendment, measured at frame `101079fd`.**
+The sections above were brought to the owner's standard for a durable
+record: em dashes and en dashes replaced by ordinary punctuation, and the
+result of each replacement read back against the clause it sits in.
+
+| what the amendment did | figure |
+| --- | --- |
+| em dashes replaced in the live sections | 0 |
+| en dashes replaced in the live sections | 0 |
+| em dashes left standing inside dated records | 0 |
+| en dashes left standing inside dated records | 0 |
+| clauses opened and declined, listed below | 1 |
+| lines whose number changed above this section | 0 |
+
+**No clause was added, removed, widened or narrowed, and no modal, scope or
+tense inside a clause was altered.** Both the counts above and the gates were
+taken in a detached worktree held at frame `101079fd`, so that a peer's
+concurrent commit could not be read as part of this batch. The gates run either
+side of the edit were `scripts/check_verdict_cells.py` with and without
+`--selftest`, `scripts/check_absolutes.py`,
+`scripts/check_normative_clauses.py`, `scripts/withdrawal_sweep.py`,
+`scripts/self_audit.py` and `scripts/lab_check.py --no-tests`; the `sdk/tests`
+suite was run either side in the live checkout. No gate moved its verdict. `check_absolutes.py` moved its verdict
+COUNTS and not its verdict, and the movement was traced to the
+sentences of this record rather than to the sections above.
+
+**The line numbering above this section was held fixed on purpose.** Other
+records cite this directory by line, and one of those citations sits inside an
+executable check. An amendment that inserted its own changelog at the head of
+the file would have moved the cited lines below it, so this record was appended
+at the foot instead. The version-history entries above stand unedited, because their
+figures describe the versions and the dates they name.
+
+**What was opened and left alone.**
+1. The measured counts for this file at frame `101079fd` stood at 0 em dashes, 0 en dashes, 0 personal names as actors and 0 sites of the framing this standard removes, so the amendment reached the version line and stopped there.

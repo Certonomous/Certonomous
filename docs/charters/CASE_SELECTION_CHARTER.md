@@ -1,6 +1,6 @@
 # Certonomous Case Selection Charter
 
-Version 1.3, dated 2026-08-07. Governs which cases the lab starts. It binds
+Version 1.4, dated 2026-08-17. Governs which cases the lab starts. It binds
 overnight work, unattended work and anything an agent picks up on its own
 initiative, which is the whole point of writing it down.
 
@@ -236,8 +236,8 @@ answer is a closed-form line. None of those became acceptable.
 
 **How to apply it, since it is now a judgement rather than a word match.** Ask
 what the case is being asked to resolve. If the answer is something the regime
-produces — an unsteady wake with a shedding frequency, a shock with a standoff
-distance, a separation with a reattachment point, a transition — the shape it
+produces (an unsteady wake with a shedding frequency, a shock with a standoff
+distance, a separation with a reattachment point, a transition), the shape it
 happens on does not disqualify it. If the answer is a number that a correlation
 or a closed form gives directly and the solve is only reproducing arithmetic,
 it is a toy case whatever it is shaped like. **The shape list is a prompt to
@@ -378,7 +378,7 @@ its pre-registration committed before compute per the standing OPS rule, and
 it is labelled a capability rung at launch the same way section 3 labels a
 regression test: before it produces a number, never after. The slate's
 hardest entries are the destination, and F7a already taught what the shortcut
-costs — a free-surface family entered at full difficulty produced a headline
+costs. A free-surface family entered at full difficulty produced a headline
 finding that was a metric artifact twice over, and the retraction cost more
 than a rung would have.
 
@@ -397,3 +397,41 @@ result, which is the verification charter's problem, same as ever.
   for.
 - `docs/DEMO_DISCRETION_CHARTER.md`. The camera half of the toy-geometry rule.
 - `LESSONS.md` L-11, L-13, L-17, L-18, L-25, L-28.
+
+## Amendment record
+
+**Version 1.4, dated 2026-08-17. A style amendment, measured at frame `101079fd`.**
+The sections above were brought to the owner's standard for a durable
+record: em dashes and en dashes replaced by ordinary punctuation, and the
+result of each replacement read back against the clause it sits in.
+
+| what the amendment did | figure |
+| --- | --- |
+| em dashes replaced in the live sections | 3 |
+| en dashes replaced in the live sections | 0 |
+| em dashes left standing inside dated records | 0 |
+| en dashes left standing inside dated records | 0 |
+| clauses opened and declined, listed below | 1 |
+| lines whose number changed above this section | 0 |
+
+**No clause was added, removed, widened or narrowed, and no modal, scope or
+tense inside a clause was altered.** Both the counts above and the gates were
+taken in a detached worktree held at frame `101079fd`, so that a peer's
+concurrent commit could not be read as part of this batch. The gates run either
+side of the edit were `scripts/check_verdict_cells.py` with and without
+`--selftest`, `scripts/check_absolutes.py`,
+`scripts/check_normative_clauses.py`, `scripts/withdrawal_sweep.py`,
+`scripts/self_audit.py` and `scripts/lab_check.py --no-tests`; the `sdk/tests`
+suite was run either side in the live checkout. No gate moved its verdict. `check_absolutes.py` moved its verdict
+COUNTS and not its verdict, and the movement was traced to the
+sentences of this record rather than to the sections above.
+
+**The line numbering above this section was held fixed on purpose.** Other
+records cite this directory by line, and one of those citations sits inside an
+executable check. An amendment that inserted its own changelog at the head of
+the file would have moved the cited lines below it, so this record was appended
+at the foot instead. The version-history entries above stand unedited, because their
+figures describe the versions and the dates they name.
+
+**What was opened and left alone.**
+1. §9's *"a superseded cost"* is the vocabulary the intake path gates on, so the word was left in place; removing it would narrow what the gate refuses.
