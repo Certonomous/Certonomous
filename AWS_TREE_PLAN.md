@@ -352,7 +352,7 @@ The default class where anything is uncertain.
 | `certonomous-runs/` | 132,049 | 75,789,971,753 | Every solver run the lab has executed. 446 studies, 748 symlinks, 135 extra hardlink instances. No off-box replica exists. LOCATIONS.md §4.1 points at it. |
 | └ the 36 files at the run-tree root | (of above) | (of above) | Not incidental: these are the **drivers that produced the runs** — `w3_solve_queue.sh`, `stage_run.sh`, `triage_run.sh`, `a1_run.sh`, `w3_mesh_rung.sh`, `diag_run.sh`, `img_run.sh`, `commit_img.sh`, plus queue logs. They are the record of *how* the tree was generated and sit in no study directory. LOCATIONS.md §4.1 warns they are easy to miss. |
 | `backups/` (4 × `.jsonl` + 4 × `.METADATA`) | 8 | 358,757,970 | Recovery points for `Certonomous/demo-output/website/mega-batch/ledger.jsonl`, which is **gitignored** — no clone has it. Each `.METADATA` records source path, MD5, row counts and `Partial tail dropped: YES`. All four are **byte-distinct** (MD5s `0f03fa06…`, `fec7b881…`, `7b2e586e…`, `1c2ee5be…`) and none equals the live ledger (`8c760796…`). Not duplicates; incremental recovery points. |
-| `scratch_live_readme.md` | 1 | 10,080 | **Misleadingly named and easy to lose.** This is the retrieved live leaderboard, mtime `2026-08-11 23:33:50 UTC`, which matches LOCATIONS.md §4.2's "retrieved 2026-08-11T23:33Z" to the minute. It carries the six named entrants and their per-case scores. LOCATIONS.md's claim that the benchmark README "is not the live board" rests on this file, **18 repo files derive from it, and 5 of those are executable audit/test code that asserts against the board** (§7.4) — but it is the only copy of the retrieval itself. Verified safe to rename: no file in either repo cites the name `scratch_live_readme` (§7.4). Rename it to say what it is, keep its bytes byte-identical, and record the old name in the destination README. |
+| `scratch_live_readme.md` | 1 | 10,080 | **Misleadingly named and easy to lose.** This is the retrieved live leaderboard, mtime `2026-08-11 23:33:50 UTC`, which matches LOCATIONS.md §4.2's "retrieved 2026-08-11T23:33Z" to the minute. It carries the six named entrants and their per-case scores. LOCATIONS.md's claim that the benchmark README "is not the live board" rests on this file, **18 repo files derive from it, and 5 of those are executable audit/test code that asserts against the board** (§7.4) — but it is the only copy of the retrieval itself. **Rename is verified safe** — a sweep excluding this file, run to a completion sentinel, found **zero** citations of `scratch_live_readme` in either repository (§7.4; an earlier assertion of this was retracted as unchecked before being re-established properly). Keep the bytes byte-identical and record the old name in the destination README. |
 | `NIGHT_STATUS.md` | 1 | 79,268 | Outage post-mortem of 2026-07-27 with figures copied from logs, `sar` samples and filesystem timestamps. A contemporaneous incident record. |
 | `MIGRATION_STATUS.md` | 1 | 4,178 | Records instance identity `i-0e417e686a5a6ac1a`, disk state, and the verified-working list at commit `47fffd3`, with the note that no git credentials are stored on this box. Provenance record for the whole machine. |
 | `provision.log` | 1 | 305,369 | The actual build log of this instance. |
@@ -573,13 +573,57 @@ The conclusion stands and is strengthened: the board content is **not** unique t
 retrieval itself**, and it is now known to sit upstream of test assertions. Its
 EVIDENCE classification stands.
 
-**Established negative — no repo file cites the filename.** A sweep for the
-string `scratch_live_readme` across `Certonomous/` and
-`Certonomous_closure_challenge/`, `.git` directories included, completed with
-**zero hits**. Nothing references the loose file by name, so the rename proposed
-in §6.1 breaks no citation. Record the old name in the destination README
-anyway, because LOCATIONS.md §4.2 cites the *retrieval time* and a reader will
-arrive looking for it.
+**A third wrong reading, on the same page, from the same cause.** An earlier
+draft of this section asserted as an "established negative" that no repo file
+cites the string `scratch_live_readme`, and used that to declare the §6.1 rename
+safe. **That assertion was made from an output file that was still being
+written** — the header line had appeared, the result line had not, and empty was
+read as zero. The sweep's real answer, once it finished, was **7 lines**.
+
+On inspection all 7 lines are inside **this file, `AWS_TREE_PLAN.md`** — the
+sweep matched the plan's own prose about the rename. So the substantive
+conclusion survives, but it was asserted before it was known, and the number
+that would have contradicted it was sitting unread in a file this page had
+already quoted from twice.
+
+**Three readings on this page have now been wrong for two causes, and both
+causes are "a bounded or partial read reported as a complete one":**
+
+| # | Claim | Cause |
+|---|---|---|
+| 1 | "7 repo files carry the board text" | read a sweep's output while it was still being written |
+| 2 | "10 repo files carry the board text" | the sweep ended in `\| head -10` and returned its own limit |
+| 3 | "0 files cite `scratch_live_readme`" | read a sweep's output while it was still being written |
+
+**And twice the instrument contaminated its own measurement:** this file matched
+both the board-text sweep (1 of 19) and the filename sweep (7 of 7). Any sweep
+run from inside a tree it is also describing must exclude itself, or say which
+of its hits are its own reflection.
+
+**The rename question, now actually settled.** A sweep excluding this file was
+run to completion with an explicit end-of-run sentinel, so "finished" could be
+distinguished from "still writing" — the precise failure that produced readings
+1 and 3:
+
+```bash
+/usr/bin/grep -rn -I --binary-files=without-match --exclude=AWS_TREE_PLAN.md \
+  "scratch_live_readme" /home/ubuntu/Certonomous /home/ubuntu/Certonomous_closure_challenge
+# EXIT=1  (grep's "no matches"; 2 would be an error)
+# LINES=0
+# SWEEP-COMPLETE
+```
+
+**Zero citations.** No file in either repository references
+`scratch_live_readme` by name. The rename proposed in §6.1 breaks nothing. The
+earlier claim was right in substance and wrong in method; this one is checked.
+
+Record the old name in the destination README regardless, because LOCATIONS.md
+§4.2 cites the *retrieval time* and a reader will arrive looking for it.
+
+**The method that finally worked, for reuse:** exclude the measuring file from
+its own sweep, drop every `head`/`tail`, emit a sentinel line after the result,
+and wait for the sentinel rather than for silence. Silence is indistinguishable
+from an unfinished sweep, and that is what went wrong twice.
 
 **Established negative — the run tree does not reference the venv.** The sweep
 for `closure-venv` across all 132,049 run-tree files completed with **zero
