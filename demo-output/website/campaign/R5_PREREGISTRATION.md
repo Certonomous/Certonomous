@@ -203,3 +203,14 @@ frozen clause touched):** the QCR2000 term this record names throughout is
 Spalart, P. R., "Strategies for turbulence modelling and simulations,"
 *Int. J. Heat Fluid Flow* **21**(3), 252–263 (2000); `Ccr1 = 0.3` is that
 paper's published constant, adopted untouched.
+
+**Dated ledger note, 2026-08-17 (Ladder V rung V7; additive only, no frozen
+clause touched):** the opening block's sentence *"The scoring-call ledger
+stands at 5, where round 4 left it"* was true **as of this file's commit
+(2026-08-07, `e865076b`, before the call)** and is scoped to that moment,
+because the standing count has since moved: the supervisor's designated
+scoring agent made the round-5 call later the same day, and **the cumulative
+ledger is now SIX** distinct prediction sets scored (floor, rounds 1–5), so
+the next call would be the **7th**. Nothing in this file made or makes a
+call, and no frozen clause is altered; only the sentence describing the
+ledger needed a date on it.

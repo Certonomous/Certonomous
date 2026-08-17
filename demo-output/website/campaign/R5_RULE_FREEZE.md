@@ -122,3 +122,14 @@ selector in either direction.
   supervisor; the scoring-call ledger stays at 5 in this session.
 
 *Nothing below §7 existed when the AR_7 arms were launched.*
+
+**Dated ledger note, 2026-08-17 (Ladder V rung V7; additive only, no frozen
+clause touched, and the first addendum this file has carried):** §7's
+sentence *"the scoring-call ledger stays at 5 in this session"* was true **of
+the session that wrote this file (committed 2026-08-05 at `0bade54a`, before
+the first validation iteration existed)** and is scoped to it, because the
+standing count has since moved: the supervisor's designated scoring agent
+made the round-5 call on 2026-08-07, and **the cumulative ledger is now SIX**
+distinct prediction sets scored (floor, rounds 1–5), so the next call would
+be the **7th**. This session made none, the frozen rule above is untouched,
+and only the sentence describing the ledger needed a date on it.

@@ -322,7 +322,7 @@ submission") — treated as unconfirmed.
 | Case-level do-no-harm gate | **yes — C1, fit train-only, its "off" state submits the uncorrected field** | absent from their documents | region shield f_d (hand-designed) — not case-level | absent from their documents | baseline-as-expert local fallback — not case-level |
 | Pre-registration of choices before scoring | **yes** (NASA model choice; Variant D on AR_7; R5 written and *failed by its own gate*) | absent from their documents | absent from their documents | absent from their documents | absent from their documents |
 | Stability / physicality evidence | n/a for solves (nothing re-solved); **no field-physicality check (G2)** | none cited | β ≤ 4 bound | g⁽²⁾ zeroed by hand on 2 cases | additive form + convexity |
-| Scoring-call ledger | **yes, 5 calls, self-imposed** | none visible (notebook scores locally) | none visible | none visible | none visible |
+| Scoring-call ledger | **yes, self-imposed — 5 calls as of round 4, the era this column names; the cumulative ledger is now SIX (floor, rounds 1–5) after the round-5 call of 2026-08-07, so the next would be the 7th** | none visible (notebook scores locally) | none visible | none visible | none visible |
 
 **On the two claims Katie asked verified by absence**: across all four
 entrant documents there is **no mention of a case-level decline gate and no
