@@ -16,6 +16,14 @@ apparent file sizes unless a row says otherwise, and apparent size is not disk
 usage and not a deduplicated byte count. Section 6 states the three that differ
 here and by how much.
 
+**If you are sitting on the machine rather than reading the repository, start at
+`/home/ubuntu/README.md`.** That page is the orientation document: what this box
+is, what each top-level folder means, which things cannot be moved and why, and
+the traps that will cost you an afternoon. It deliberately does not repeat the
+figures below — this page remains the index, and a second copy of an index is a
+second thing to go stale. Every themed directory under `/home/ubuntu` also has
+its own README; §4.3a lists them.
+
 ---
 
 ## 1. The whole picture
@@ -308,7 +316,7 @@ git -C /home/ubuntu/mirrors/closure-challenge.git remote update --prune
 | `/home/ubuntu/OpenFOAM/` | 19 | 0.01 GB | OpenFOAM user directory |
 | `/home/ubuntu/Certonomous_closure_challenge/` | 164 | <0.01 GB | a second closure working copy |
 | `/home/ubuntu/closure-challenge-pkg/` | 84 | <0.01 GB | the eval package clone the scorer actually runs from, pinned at `1c4e22c8` — **depth-1 shallow, holds that one commit only**; its history lives in §4.2b |
-| `/home/ubuntu/memory-import/` | 8 | <0.01 GB | memory import staging |
+| `/home/ubuntu/notes/` | 8 | <0.01 GB | hand-written agent-memory notes. **Renamed from `/home/ubuntu/memory-import/` on 2026-08-17**; the 8 files and their MD5s are unchanged, and a 9th file, `README.md`, was added there after this reading |
 | **Total** | **17,558** | **2.06 GB** | |
 | `/home/ubuntu/mirrors/` (§4.2b, frame 2026-08-17) | 22 | <0.01 GB | full mirror of the scorer's history |
 | **Including it** | **17,580** | **2.06 GB** | |
@@ -335,6 +343,60 @@ reading.
 `/home/ubuntu/Certonomous_closure_challenge/` is the most volatile row in this
 table: it is a working copy and its file count moved by more than a hundred
 inside the hour this frame was taken. Its size stayed below 0.01 GB throughout.
+
+#### 4.3a The themed directories added on 2026-08-17
+
+**A later frame, set apart from the eight rows above for the reason §1 gives.**
+`/home/ubuntu` was reorganised on 2026-08-17 so that every file sits in a folder
+named for its theme and every such folder carries a README. Six directories are
+new or newly populated. None of the eight rows above changed size as a result —
+the bytes came out of §4.4's loose-file population, not out of these — but the
+file counts below include the READMEs written at the same time, which did not
+exist for any earlier frame.
+
+Re-derived at 2026-08-17 20:47 UTC by one `os.walk(onerror=...)` + `lstat` pass
+per directory with errors collected and raised rather than swallowed, **0 walk
+errors**:
+
+| Directory | Files | Apparent (B) | Symlinks | What it holds |
+|---|---:|---:|---:|---|
+| `/home/ubuntu/evidence/` | 12 | 558,709 | 2 | 8 loose evidence files moved out of `$HOME`, 4 READMEs, and symlinks `runs/` → `../certonomous-runs` and `ledger-backups/` → `../backups` |
+| `/home/ubuntu/archives/` | 3 | 906,380,615 | 0 | the two large tarballs (§4.4) and a README |
+| `/home/ubuntu/lab-scripts/` | 17 | 50,219 | 0 | 13 ParaView ladder rungs, `solverless_plugin.py`, 3 READMEs |
+| `/home/ubuntu/notes/` | 9 | 22,278 | 0 | the 8 memory notes of §4.3 plus a README |
+| `/home/ubuntu/upstream/` | 1 | 6,391 | 3 | a README and symlinks to the three pinned clones |
+| `/home/ubuntu/toolchain/` | 1 | 6,579 | 2 | a README and symlinks to `OpenFOAM/` and `closure-venv/` |
+| `/home/ubuntu/mirrors/` | 23 | 1,228,936 | 0 | §4.2b, plus the README added on 2026-08-17 |
+
+```sh
+# the walk used, per directory; it raises on any OSError rather than continuing
+python3 - <<'EOF'
+import os
+errs=[]
+for dp,dns,fns in os.walk(D, onerror=errs.append):
+    ...   # sum st_size over regular files; collect sorted relpaths
+assert not errs, errs
+EOF
+```
+
+**Six of the seven symlinks point *out* of these directories at things that did
+not move**, because each target is named by absolute path in code or in a
+published record. `/home/ubuntu/README.md` states the rule and the measurements
+behind it; `evidence/README.md`, `upstream/README.md` and `toolchain/README.md`
+give the per-target detail. `closure-venv/lib64` is the eighth symlink under
+`/home/ubuntu` at depth 2 and is the virtualenv's own, not part of this change.
+
+**Nothing in the §4.3 table moved.** `closure-challenge-benchmark/`,
+`dafoam-tutorials/`, `backups/`, `closure-venv/`, `closure-challenge-pkg/`,
+`OpenFOAM/` and `certonomous-runs/` are all exactly where they were. A reference
+sweep on 2026-08-17 (`/usr/bin/grep -rn -I --binary-files=without-match`, no
+`head` in the pipeline, stderr captured, 0 errors) measured **85 lines in 59
+files** naming `/home/ubuntu/closure-challenge-benchmark` and **17 lines in 14
+files** naming `/home/ubuntu/dafoam-tutorials`, including
+`sdk/workflows/onera_m6.py:46` and `sdk/workflows/crm_wingbody.py:43`; and
+`scripts/ledger_backup.py:26` hard-codes `BACKUP_DIR = Path("/home/ubuntu/backups")`
+as its **write target**. `AWS_TREE_PLAN.md` §3 proposed moving all three and did
+not measure any of this.
 
 ### 4.4 Loose files directly in `/home/ubuntu`
 
@@ -365,6 +427,72 @@ was deleted and every MD5 is unchanged by the move.** Re-derived after it:
 26 files, 909,027,023 B apparent. The drop from the `8cefb4e9` reading of
 909,065,714 B is 38,691 B — exactly the thirteen scripts, and nothing else moved.
 The two tarballs still carry 906,375,536 B of the remaining total.
+
+**Changed again 2026-08-17: 26 → 15 files.** Eleven more files were moved out of
+the home directory into the themed tree of §4.3a. **Nothing was deleted in this
+step and every MD5 is unchanged by it** — each move was verified by comparing the
+sorted path set, the byte size and the full-file MD5 before and after, and
+asserting the source path gone.
+
+| Moved from `/home/ubuntu/` | To | Bytes | MD5 |
+|---|---|---:|---|
+| `NIGHT_STATUS.md` | `evidence/status-records/` | 79,268 | `fb1a0abacb0dbe88bc58f7d48d911d19` |
+| `MIGRATION_STATUS.md` | `evidence/status-records/` | 4,178 | `1fe90574f921c936c2841efc4f41d167` |
+| `provision.log` | `evidence/provisioning-logs/` | 305,369 | `ae4268798a04b0ebb83728aea20b881f` |
+| `suite.log` | `evidence/provisioning-logs/` | 135,265 | `79b6a8ddb37982ac3d45ede74a2e9344` |
+| `suite-47fffd3.log` | `evidence/provisioning-logs/` | 12,157 | `ccf02dffe8aa9541b9fe491916b98a52` |
+| `suite-47fffd3-solverless.log` | `evidence/provisioning-logs/` | 124 | `7c8afbe9fa623b4e466fe7f1cf8e3341` |
+| `openvsp.log` | `evidence/provisioning-logs/` | 406 | `3f4d39b7c595421338dba4ab52bc43e8` |
+| `scratch_live_readme.md` | `evidence/leaderboard/closure-challenge-live-board-2026-08-11T2333Z.md` | 10,080 | `30a58e97d59ebf8d463b434457d1adb5` |
+| `solverless_plugin.py` | `lab-scripts/plugins/` | 1,045 | `accc25ddfb49767a6ccc8df06bef4922` |
+| `certonomous-cache.tar.gz` | `archives/` | 362,066,284 | `d8857f35df9d458fa67e9934324feb1b` |
+| `certonomous-git-backup-20260730T033814Z.tar.gz` | `archives/` | 544,309,252 | `5469d1873d4941fa8faf753af0750509` |
+| **Total moved** | | **906,923,428** | |
+
+**One of the eleven was renamed.** `scratch_live_readme.md` — a name that says
+"scratch" about the only copy of the retrieved live leaderboard — is now
+`evidence/leaderboard/closure-challenge-live-board-2026-08-11T2333Z.md`. §4.2 of
+this page cites the retrieval time, "retrieved 2026-08-11T23:33Z", and the rename
+preserved the mtime that carries it: `mv` within one filesystem is a rename, so
+the inode, its mtime `2026-08-11 23:33:50 UTC` and its bytes are untouched. The
+old name is recorded in `evidence/leaderboard/README.md`. A sweep for the string
+`scratch_live_readme` across both repositories returned 10 lines, **all 10 inside
+`AWS_TREE_PLAN.md`** — that page's own prose about this rename, i.e. the
+instrument matching itself — and zero citations anywhere else.
+
+Re-derived after the moves, stderr captured on every walk (**0 errors**):
+
+```sh
+/usr/bin/find /home/ubuntu -maxdepth 1 -type f 2>walk_err.txt | wc -l          # -> 15
+/usr/bin/find /home/ubuntu -maxdepth 1 -type f -exec stat -c %s {} + \
+  | awk '{s+=$1} END{print s}'                                                  # -> 2,104,480
+wc -l < walk_err.txt                                                            # -> 0
+```
+
+15 files, 2,104,480 B apparent. That reconciles exactly: 909,027,908 (the reading
+taken immediately before the moves, 885 B above the 909,027,023 recorded earlier
+because the three live logs and `.claude.json` had grown in between) minus the
+906,923,428 B in the table = 2,104,480 B, with no residue.
+
+**The 15 that remain are all deliberate**, and `/home/ubuntu/README.md` says why
+for each: three live logs whose writers hold open file descriptors on them, the
+seven shell/user dotfiles, `.bash_history`, the two `.bashrc` backups awaiting an
+answer, and `lab.sh` and `provision.sh` — which are **installed deployments**
+registered in `scripts/installed_registry.py`, not the stray duplicates
+`AWS_TREE_PLAN.md` §6.4 classified them as. The registry reads MATCH for both
+today, and `sdk/tests/test_installed_matches_tracked.py` refuses any difference,
+so deleting either would break a passing check and remove the tmux session
+operators attach to.
+
+**One file was deleted from `/home/ubuntu` on 2026-08-17, and only one:**
+`__pycache__/solverless_plugin.cpython-312-pytest-9.1.1.pyc`, 1,819 B, MD5
+`778dd062e28a6e0116fd5304889baf8a`, together with the emptied `__pycache__/`
+directory. It was a derived CPython bytecode cache, proved redundant by
+regenerating it from the unchanged source and by the fact that
+`/home/ubuntu/solverless_plugin.py` no longer exists so CPython could not consult
+it. Nothing referenced it. The full manifest line is in `/home/ubuntu/README.md`.
+That 1,819 B is the **entire** deletion made against this machine in the
+reorganisation.
 
 ### 4.5 Agent dispatch records, the independence evidence
 

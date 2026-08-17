@@ -4686,3 +4686,85 @@ instrument's error handling is. The corollary is a test-design one: the tests
 that catch this need a **planted read failure**, not a planted data difference,
 and they need a readable-tree control beside them, because an instrument that
 raised on everything would satisfy every failure test and be worthless.
+
+## L-102. Byte-identity is not redundancy: when two copies of a file are a deployment pair, the matching MD5 is the check's PASS condition, and deleting either one breaks it
+
+`AWS_TREE_PLAN.md` §6.4 classified `/home/ubuntu/lab.sh` (779 B) and
+`/home/ubuntu/provision.sh` (2,667 B) as **DUPLICATE** — "the entire actionable
+duplicate population in scope", 3,446 B, the plan's whole deletion authority. The
+evidence given was a full-file MD5 sweep: each `$HOME` copy matched a tracked
+copy in the repository exactly, and the tracked copy survives loss of the box.
+The disposition column named the repository path as "the survivor" and the
+supporting negative read: *"Nothing found referencing the `$HOME` copy by
+path."*
+
+**Both `$HOME` paths are named, in this repository, as the installed location of
+the tracked file.** `scripts/installed_registry.py`:
+
+```python
+Deployment(name="provision script", tracked="docs/aws/provision.sh",
+           source="/home/ubuntu/provision.sh", ...)
+Deployment(name="lab session launcher", tracked="scripts/installed/lab.sh",
+           source="/home/ubuntu/lab.sh", ...)
+```
+
+and `scripts/installed/README.md` describes `/home/ubuntu/lab.sh` as *"the tmux
+session operators attach to"*. Running the registry on the box:
+
+```
+MATCH    provision script  (docs/aws/provision.sh -> /home/ubuntu/provision.sh)
+MATCH    lab session launcher  (scripts/installed/lab.sh -> /home/ubuntu/lab.sh)
+```
+
+Deleting either file flips its row to ABSENT and
+`sdk/tests/test_installed_matches_tracked.py` refuses the difference. It also
+removes the tmux session every operator attaches to and the only thing that
+starts the control room by hand. The plan's own §5 bottom line — "the population
+deletable on this plan's own authority is 3,446 bytes" — was the whole of its
+deletion budget, and **all of it was this**. Nothing was deleted; the real
+deletable population on that machine turned out to be 1,819 B of Python
+bytecode.
+
+**The rule.** A duplicate detector answers *are these bytes the same*. It cannot
+answer *is one of them redundant*, and the two come apart precisely when the
+identity is itself the thing being asserted. A deployment pair, a golden-output
+fixture beside the output it pins, a checked-in vendored copy diffed against its
+source — in every one of these the matching hash is the passing state of a check,
+and "deduplicating" it deletes the check's second operand. **Before deleting any
+proven duplicate, ask what would notice if the two copies stopped matching.** If
+the answer is a test, a registry or a gate, the copy is not spare.
+
+**And name the failure in the sweep, because it is reusable.** The negative that
+licensed the deletion was looking for the wrong shape. `/home/ubuntu/lab.sh` does
+not appear in this repository as a command to run; it appears as **data** — a
+string in a `Deployment(...)` constructor and a cell in a Markdown table. A sweep
+framed as "does anything invoke this?" will not see either. The question that
+finds them is "does this path appear anywhere at all, in any context?", and it
+must be answered with `/usr/bin/grep` — **L-75**: the shell `grep` here is a
+`ugrep --ignore-files` wrapper that skips gitignored files silently, so a sweep
+run through it has a denominator nobody declared — and with no `head` in the
+pipeline, per that same plan's §7.4, where a sweep ending in `| head -10`
+returned exactly 10 and was quoted as a census against a true 19.
+
+**The sibling error, same page, same cause.** That plan's §3 also proposed moving
+`closure-challenge-benchmark/`, `dafoam-tutorials/` and `backups/` into tidier
+parents without measuring what named them. The sweep that was not run finds **85
+lines in 59 files** carrying `/home/ubuntu/closure-challenge-benchmark` — 15 of
+them executable `.py`/`.sh`, 8 of them published `.json` evidence records — **17
+lines in 14 files** for `/home/ubuntu/dafoam-tutorials`, including
+`sdk/workflows/onera_m6.py:46` and `sdk/workflows/crm_wingbody.py:43`
+(`TUTORIAL_SOURCE = Path(...)`), and `scripts/ledger_backup.py:26`, which
+hard-codes `BACKUP_DIR = Path("/home/ubuntu/backups")` as its **write target** —
+so moving that directory would not move the writer, and the next backup would
+silently recreate the old path and split the recovery points across two
+locations. All three were left in place and represented by symlinks pointing at
+them instead.
+
+**The generalisation across both halves:** a plan that proposes an irreversible
+operation on a path owes a measurement of what names that path, and the
+measurement has to search for the path as a *string*, not as a *usage*. The plan
+was scrupulous about its byte totals — it re-derived them, captured stderr, and
+corrected three of its own figures on its face — and still shipped two
+dispositions whose supporting evidence was a search that was never run. **Rigour
+about the quantities you did measure is not evidence about the ones you did
+not.**
