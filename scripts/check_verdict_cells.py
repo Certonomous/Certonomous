@@ -266,12 +266,41 @@ def uncited_newer(rung: str, cited: list[Path]) -> list[Path]:
 
 
 def _landed(p: Path) -> int:
+    """When this grade LANDED -- the commit that ADDED it, not the last to touch it.
+
+    THIS WAS WRONG AND A GRADER'S OWN COMMIT PROVED IT (2026-08-17, D356).
+    `git log -1` returns the most recent commit touching the path, which is the
+    last EDIT, not the landing. The two are the same only until somebody amends a
+    grade record -- and amending one is exactly what this instrument's own
+    findings ask for. On 2026-08-17 a non-author amended the withdrawn label in
+    `LADDER_V_V6_V10_REGRADE_2026-08-15.md` and
+    `LADDER_V_V12_V13_V14_GRADE_2026-08-15.md`, and both files instantly read as
+    though they had been GRADED that afternoon. Three rungs the amendment never
+    touched -- V10, V12 and V14 -- were reported stale or contradicted against
+    2026-08-15 grades that had not moved, and V14's cell was convicted of
+    disagreeing with a record that agrees with it. **Repairing a record must not
+    re-date it**, or the instrument punishes the repair it asked for.
+
+    The ledger already uses the word this way and is the reason it is decidable:
+    its cells read *"landed `60073572`"* and `60073572` is the ADD commit at
+    19:34:11Z, not the amendment at 19:34:20Z two days later. So this is the
+    corpus's own sense of "landed", not a new convention invented here.
+    """
     try:
         out = subprocess.run(
+            ["git", "log", "--diff-filter=A", "--format=%ct", "--", str(p)],
+            cwd=REPO, capture_output=True, text=True, timeout=30,
+        ).stdout.split()
+        if out:
+            return int(out[-1])  # earliest ADD, if a path was added more than once
+        # No add commit in history (a path only ever modified, or unreadable
+        # history): fall back to last-touch rather than silently returning 0,
+        # which would make every record for the rung look newer than it.
+        last = subprocess.run(
             ["git", "log", "-1", "--format=%ct", "--", str(p)],
             cwd=REPO, capture_output=True, text=True, timeout=30,
         ).stdout.strip()
-        return int(out) if out else 0
+        return int(last) if last else 0
     except (OSError, ValueError, subprocess.SubprocessError):
         return 0
 
@@ -389,15 +418,9 @@ def newest_cited(cell: str) -> list[Path]:
         landed; the filename only knows how it was typed. Filename date is the
         fallback for a record git has never seen.
         """
-        try:
-            out = subprocess.run(
-                ["git", "log", "-1", "--format=%ct", "--", str(p)],
-                cwd=REPO, capture_output=True, text=True, timeout=30,
-            ).stdout.strip()
-            if out:
-                return (1, int(out), p.name)
-        except (OSError, ValueError, subprocess.SubprocessError):
-            pass
+        ts = _landed(p)
+        if ts:
+            return (1, ts, p.name)
         d = DATE_RE.search(p.name)
         return (0, d.group(0) if d else "", p.name)
 
@@ -568,7 +591,40 @@ def selftest() -> int:
               f"-> {got}")
         failures += 0 if ok else 1
 
-    total = len(plants) + len(negatives) + len(shapes)
+    # Recognition control for _landed (D356). A control that merely proves
+    # `_landed` returns a number earns nothing -- the OLD reader returned a
+    # number too, and the wrong one. This control is only meaningful on a record
+    # that was ADDED once and EDITED later, so it asserts that such a record
+    # exists before believing the comparison: an amended grade must report its
+    # ADD time and must NOT report its last-touch time.
+    n_landing = 0
+    for name in ("LADDER_V_V6_V10_REGRADE_2026-08-15.md",
+                 "LADDER_V_V12_V13_V14_GRADE_2026-08-15.md"):
+        p = CAMPAIGN / name
+        add = subprocess.run(["git", "log", "--diff-filter=A", "--format=%ct",
+                              "--", str(p)], cwd=REPO, capture_output=True,
+                             text=True).stdout.split()
+        last = subprocess.run(["git", "log", "-1", "--format=%ct", "--", str(p)],
+                              cwd=REPO, capture_output=True, text=True).stdout.strip()
+        if not add or not last:
+            print(f"  SKIP    landing control {name[:36]:<38} -> no history")
+            continue
+        n_landing += 1
+        add_ts, last_ts = int(add[-1]), int(last)
+        if add_ts == last_ts:
+            # Never amended: the control cannot discriminate, and saying so is
+            # the point -- a control that cannot fail is not a control.
+            print(f"  VACUOUS landing control {name[:36]:<38} -> add == last; "
+                  f"this record has never been amended, nothing to distinguish")
+            continue
+        got = _landed(p)
+        ok = got == add_ts and got != last_ts
+        print(f"  {'HELD   ' if ok else 'BROKE  '} landing control {name[:36]:<38} "
+              f"-> add={add_ts} last={last_ts} _landed={got} "
+              f"(delta {last_ts - add_ts}s the old reader would have added)")
+        failures += 0 if ok else 1
+
+    total = len(plants) + len(negatives) + len(shapes) + n_landing
     print(f"\nselftest: {total - failures}/{total} controls correct")
     return 1 if failures else 0
 
