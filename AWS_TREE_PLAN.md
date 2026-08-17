@@ -60,6 +60,14 @@ here (three sweeps one night lost 238, then 119, then 0), and that
 - **Out of scope but moving:** `Certonomous_closure_challenge/` is the volatile
   working copy LOCATIONS.md §4.3 already flags; it read 201 files here against
   164 at frame `8cefb4e9`.
+- **Out of scope and moving hard:** the `Certonomous/` repository itself was
+  being committed to *during* this frame — HEAD advanced from `101079fd` to
+  `7c606b74` across two commits while this page was being written, and its index
+  currently holds an unrelated in-flight staged change (47 deletions, 6
+  modifications, 0 additions; every affected file still present on disk). None
+  of that touches the classification here, because the repo's tracked contents
+  are outside this plan's scope — but no figure on this page should be read as a
+  statement about the repository's tracked arm.
 
 So: the size and count figures for the nine in-scope directories are solid; the
 three live log sizes are floors, not censuses.
@@ -208,8 +216,20 @@ relocated, `~/OpenFOAM` must remain as a symlink.
 The brief asked what references the venv before anything is proposed. Checked,
 and the answer is: a great deal.
 
-**Fifteen-plus reproduction scripts hard-code the interpreter path.** Examples,
-each verified by reading the file:
+**Exactly 15 reproduction scripts hard-code the interpreter path**, plus one
+test fixture. This is a **complete** enumeration over `sdk/`, `scripts/` and
+`docs/`, re-derived with no `head` after the truncation trap in §7.4 was found:
+`/usr/bin/grep -rl -I "closure-venv" Certonomous/{sdk,scripts,docs}` returns 16
+files — the 15 below plus
+`sdk/tests/fixtures/absolute_claims_labelled_second_instance.json`.
+
+**Scope limit, stated rather than glossed:** `demo-output/` was **not**
+exhaustively counted — a full sweep of it timed out twice (it is the 11.9 GB
+gitignored arm). At least one reference is known to exist there
+(`ladder-b/B2_duct_baseline.json`, below). So 16 is a complete count for
+`sdk/scripts/docs` and a **floor** for the repository as a whole.
+
+Each of the 15 verified by reading the file:
 
 | Script (under `sdk/scripts/`) | Hard-coded reference |
 |---|---|
@@ -332,7 +352,7 @@ The default class where anything is uncertain.
 | `certonomous-runs/` | 132,049 | 75,789,971,753 | Every solver run the lab has executed. 446 studies, 748 symlinks, 135 extra hardlink instances. No off-box replica exists. LOCATIONS.md §4.1 points at it. |
 | └ the 36 files at the run-tree root | (of above) | (of above) | Not incidental: these are the **drivers that produced the runs** — `w3_solve_queue.sh`, `stage_run.sh`, `triage_run.sh`, `a1_run.sh`, `w3_mesh_rung.sh`, `diag_run.sh`, `img_run.sh`, `commit_img.sh`, plus queue logs. They are the record of *how* the tree was generated and sit in no study directory. LOCATIONS.md §4.1 warns they are easy to miss. |
 | `backups/` (4 × `.jsonl` + 4 × `.METADATA`) | 8 | 358,757,970 | Recovery points for `Certonomous/demo-output/website/mega-batch/ledger.jsonl`, which is **gitignored** — no clone has it. Each `.METADATA` records source path, MD5, row counts and `Partial tail dropped: YES`. All four are **byte-distinct** (MD5s `0f03fa06…`, `fec7b881…`, `7b2e586e…`, `1c2ee5be…`) and none equals the live ledger (`8c760796…`). Not duplicates; incremental recovery points. |
-| `scratch_live_readme.md` | 1 | 10,080 | **Misleadingly named and easy to lose.** This is the retrieved live leaderboard, mtime `2026-08-11 23:33:50 UTC`, which matches LOCATIONS.md §4.2's "retrieved 2026-08-11T23:33Z" to the minute. It carries the six named entrants and their per-case scores. LOCATIONS.md's claim that the benchmark README "is not the live board" rests on this file, and **ten repo documents are derived from it** (§7.4) — but it is the only copy of the retrieval itself. Verified safe to rename: no file in either repo cites the name `scratch_live_readme` (§7.4). Rename it to say what it is, keep its bytes byte-identical, and record the old name in the destination README. |
+| `scratch_live_readme.md` | 1 | 10,080 | **Misleadingly named and easy to lose.** This is the retrieved live leaderboard, mtime `2026-08-11 23:33:50 UTC`, which matches LOCATIONS.md §4.2's "retrieved 2026-08-11T23:33Z" to the minute. It carries the six named entrants and their per-case scores. LOCATIONS.md's claim that the benchmark README "is not the live board" rests on this file, **18 repo files derive from it, and 5 of those are executable audit/test code that asserts against the board** (§7.4) — but it is the only copy of the retrieval itself. Verified safe to rename: no file in either repo cites the name `scratch_live_readme` (§7.4). Rename it to say what it is, keep its bytes byte-identical, and record the old name in the destination README. |
 | `NIGHT_STATUS.md` | 1 | 79,268 | Outage post-mortem of 2026-07-27 with figures copied from logs, `sar` samples and filesystem timestamps. A contemporaneous incident record. |
 | `MIGRATION_STATUS.md` | 1 | 4,178 | Records instance identity `i-0e417e686a5a6ac1a`, disk state, and the verified-working list at commit `47fffd3`, with the note that no git credentials are stored on this box. Provenance record for the whole machine. |
 | `provision.log` | 1 | 305,369 | The actual build log of this instance. |
@@ -355,7 +375,7 @@ LOCATIONS.md §4.2 cites the retrieval time and a reader will come looking.
 | Path | Files | Apparent B | Where it goes, and why it earns a place |
 |---|---:|---:|---|
 | `closure-challenge-benchmark/` (6,262 tracked-upstream files; the 6,263rd is ASK-3) | 6,262 | 1,300,565,636 | → `upstream/`. Pinned at `deb91557184af3cb95f5190494ec52d8f2c6a0d1`, remote `github.com/rmcconke/closure-challenge-benchmark`. Publicly re-clonable, so arguably regenerable — but it is the **scoring** clone the lab's numbers were produced against, and re-cloning would silently take upstream's current tip. Keep pinned. **Carries one untracked lab-authored file — see ASK-3.** |
-| `closure-venv/` | 9,797 | 376,085,773 | → stays at `/home/ubuntu/closure-venv` or is symlinked from it. Load-bearing for 15+ documented reproduction commands and named in a published evidence record. Full argument in §4.2. |
+| `closure-venv/` | 9,797 | 376,085,773 | → stays at `/home/ubuntu/closure-venv` or is symlinked from it. Load-bearing for 15 documented reproduction commands (a complete count over `sdk/scripts/docs`; a floor repo-wide) and named in a published evidence record. Full argument in §4.2. |
 | `dafoam-tutorials/` | 1,215 | 13,513,420 | → `upstream/`. Clean clone of `github.com/DAFoam/tutorials` at `d3b7e38b058aba2a98a74092e15c41ec455c570d`, **working tree clean** — verified, no local modifications. Reference cases for the DAFoam work. |
 | `closure-challenge-pkg/` | 84 | 3,639,704 | → stays at `/home/ubuntu/closure-challenge-pkg` or is symlinked from it. Pinned at `1c4e22c` ("v0.3.1: vector magnitude metric, mean over cases"), remote `github.com/rmcconke/closure-challenge`. **The venv's editable install points here by absolute path** (§4.2). |
 | `memory-import/` | 8 | 18,963 | → `notes/`. Eight hand-written agent-memory notes: `MEMORY.md`, `supervisor-delegation-doctrine.md`, `clock-audit-before-rate-judgments.md`, `katie-gui-conventions.md`, `openvsp-wsl-install.md`, `port-8765-reuseaddr-trap.md`, `wsl-glob-quoting-trap.md`, `wsl-glob-substitution-trap.md`. Lab-authored operating knowledge, not derived from anything. Small and genuinely useful to a newcomer. |
@@ -489,33 +509,69 @@ Several `/usr/bin/grep -rl` sweeps were launched; the slow ones ran 20+ minutes
 against the 69 GB run tree. Status is reported per sweep, because a plan that
 quotes an unfinished walk is a failure mode this lab already knows about.
 
-**Correction, recorded rather than quietly fixed.** An earlier draft of this
-page said the leaderboard text appears in **7** repo files and listed seven. That
-was wrong. It was read off a `tail -8` of a file the sweep was still writing —
-the same class of error as trusting `find | wc -l` without its stderr. The
-completed sweep for the entrant string "Reissmann, Fang, and Sandberg" across
-`Certonomous/` found **10 files**:
+**A count on this page was wrong twice, for two different reasons. Both are
+recorded rather than quietly fixed, because the second one is a trap worth
+naming.**
+
+The question was: how many files in `Certonomous/` carry the leaderboard entrant
+text ("Reissmann, Fang, and Sandberg")?
+
+| Reading | Answer given | Why it was wrong |
+|---|---|---|
+| First | 7 | Read off a `tail -8` of the sweep's output file **while the sweep was still writing it**. A partial file mistaken for a finished one. |
+| Second | 10 | The sweep itself ended in `\| head -10`. It returned exactly its own truncation limit. **A bounded read reported as a census.** |
+| Third, correct | **19** | `grep -rl … \| sort \| wc -l`, no `head`, run to completion. |
+
+The second failure is the instructive one: `head -10` returning ten results does
+not mean there are ten, and the pipeline gives no signal that it truncated —
+exactly the family of defect LOCATIONS.md §4.1 warns about with `find … | wc -l`
+discarding stderr, and with `-size ±2M` losing 4,418 files between two bands
+that look complementary. **A count whose value equals its own limit should never
+be trusted.** Any sweep in this lab that ends in `head -N` and returns `N` must
+be re-run without the `head` before its number is quoted.
+
+**One of the 19 is this file.** `AWS_TREE_PLAN.md` quotes the entrant string in
+this very section, so the sweep matched it. The count of **pre-existing** repo
+files is therefore **18**. Stating 19 without that caveat would be a measurement
+contaminated by its own instrument.
+
+The 18, in full:
 
 ```
-demo-output/website/closure.html
 demo-output/website/ACTIVE_RESEARCH.md
+demo-output/website/CLOSURE_CHALLENGE_STATUS.md
+demo-output/website/closure.html
 demo-output/website/closure_challenge_C2_error_decomposition.md
+demo-output/website/closure_challenge_decline_gate_audit.json
 demo-output/website/closure_eval/closure_eval_master_table.md
 demo-output/website/closure_eval/closure_eval_master_table.json
 demo-output/website/campaign/BOARD_MOVED_2026-08-11.md
 demo-output/website/campaign/BOARD_RESCORE_2026-08-14.md
 demo-output/website/campaign/PROBABILITY_OF_RANK_SIX_ENTRY_2026-08-11.md
-demo-output/website/campaign/reports/MORNING_REPORT_2026-08-07.md
 demo-output/website/campaign/reports/MORNING_REPORT_2026-08-04.md
+demo-output/website/campaign/reports/MORNING_REPORT_2026-08-07.md
+dist/certonomous-demo/site/closure.html
+docs/papers/mcconkey_et_al_closure_challenge_2603.28884.txt
+scripts/self_audit.py
+scripts/use_mention_control_set.json
+sdk/scripts/closure_decline_gate_audit.py
+sdk/tests/test_rank_claim_surfaces.py
 ```
 
-The three missed by the truncated read were the two `closure_eval_master_table`
-files and `closure_challenge_C2_error_decomposition.md`. The conclusion is
-unchanged and slightly strengthened: the board content is **not** unique to
-`scratch_live_readme.md` — ten repo documents derive from it, including ones
-dated to the 2026-08-11 retrieval and the 2026-08-14 re-verification that
-LOCATIONS.md §4.2 cites — but that loose file remains the **only copy of the
-retrieval itself**. Its EVIDENCE classification stands.
+**And the widened result changes the picture materially.** The first two readings
+suggested the board appeared only in prose reports. It does not. It is embedded
+in **executable audit and test code** — `scripts/self_audit.py`,
+`sdk/tests/test_rank_claim_surfaces.py`, `sdk/scripts/closure_decline_gate_audit.py`
+— and in the machine-readable `use_mention_control_set.json` and
+`closure_challenge_decline_gate_audit.json`. So the leaderboard is not merely
+cited in the lab's writing; **a test suite asserts against it.** That raises the
+stakes on `scratch_live_readme.md` rather than lowering them, and it is a
+coupling nobody would have found from the truncated counts.
+
+The conclusion stands and is strengthened: the board content is **not** unique to
+`scratch_live_readme.md`, but that loose file remains the **only copy of the
+retrieval itself**, and it is now known to sit upstream of test assertions. Its
+EVIDENCE classification stands.
 
 **Established negative — no repo file cites the filename.** A sweep for the
 string `scratch_live_readme` across `Certonomous/` and
@@ -708,7 +764,12 @@ ls -la /home/ubuntu
 **Limits of this page.** Every figure is a reading taken 2026-08-17 15:00–16:00
 UTC, not a constant. Three loose log files were growing during the frame and
 their sizes are floors. One full-tree grep — the custom-solver name sweep over
-the run tree — did not finish (§7.4), and nothing here depends on it. One figure
-on this page was already corrected once after a truncated read of a
-still-running sweep (§7.4); assume others could be wrong the same way and
-re-derive before quoting. No third party has re-derived any figure on this page.
+the run tree — did not finish (§7.4), and nothing here depends on it.
+
+**One figure on this page was wrong twice before it was right** (§7.4): once
+from reading a sweep's output file while it was still being written, and once
+from a sweep that ended in `| head -10` and returned exactly 10. Assume other
+figures could be wrong the same way. Before quoting any count from this page,
+re-derive it with no `head`, no `tail`, and stderr captured — and check whether
+this file is itself among the matches. No third party has re-derived any figure
+on this page.
