@@ -1390,6 +1390,19 @@
           "passed": true
         }
       },
+      "excluded_from_witnesses": {
+        "Ra1e3_m64": "stage-1 drift was 2.18822 percent, above the 0.02 percent criterion, so it had not converged under the stage-1 factors and any later movement would be convergence rather than a change of answer",
+        "Ra1e4_m80": "stage-1 drift was 3.98290 percent, above the 0.02 percent criterion, so it had not converged under the stage-1 factors and any later movement would be convergence rather than a change of answer",
+        "Ra1e5_m128": "absent from stage1_values.json: no stage-1 measurement was snapshotted for this case. Not data loss -- see README.md, 'The two cases missing from stage1_values.json'. Its stage-1 figures remain recoverable from its committed solver log.",
+        "Ra1e6_m192": "absent from stage1_values.json: no stage-1 measurement was snapshotted for this case. Not data loss -- see README.md, 'The two cases missing from stage1_values.json'. Its stage-1 figures remain recoverable from its committed solver log.",
+        "C1_Ra1e5_m128_g0": "stage-1 drift was 14.65485 percent, above the 0.02 percent criterion, so it had not converged under the stage-1 factors and any later movement would be convergence rather than a change of answer",
+        "C2_Ra1e5_m128_dT110": "stage-1 drift was 3.54345 percent, above the 0.02 percent criterion, so it had not converged under the stage-1 factors and any later movement would be convergence rather than a change of answer",
+        "C3_Ra1e5_m64_source": "stage-1 drift was 0.71671 percent, above the 0.02 percent criterion, so it had not converged under the stage-1 factors and any later movement would be convergence rather than a change of answer"
+      },
+      "cases_total": 11,
+      "witness_count": 4,
+      "excluded_count": 7,
+      "accounting_balances": true,
       "all_witnesses_passed": true
     },
     "C4_comparator_mutation": {

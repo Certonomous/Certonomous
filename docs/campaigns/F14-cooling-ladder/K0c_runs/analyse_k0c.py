@@ -827,6 +827,33 @@ def main():
             c5["witnesses"][n] = dict(
                 Nu_avg_stage1=v["Nu_avg"], Nu_avg_final=after,
                 shift_pct=shift, passed=bool(shift <= 0.02))
+        # Every case that is NOT a witness says so, with its reason. The loop
+        # above iterates the snapshot, so a case absent from the snapshot drops
+        # out of C5 silently -- and two of them do, for reasons that are sound
+        # but were invisible here until they were looked for. A filter nobody
+        # can see is a filter nobody can question, so the filter reports itself
+        # and the arithmetic is made to balance: witnesses + excluded == cases.
+        for n, c in res["cases"].items():
+            if n in c5["witnesses"]:
+                continue
+            if n not in s1:
+                why = ("absent from stage1_values.json: no stage-1 measurement "
+                       "was snapshotted for this case. Not data loss -- see "
+                       "README.md, 'The two cases missing from "
+                       "stage1_values.json'. Its stage-1 figures remain "
+                       "recoverable from its committed solver log.")
+            else:
+                why = (f"stage-1 drift was {s1[n]['convergence_drift_pct']:.5f} "
+                       "percent, above the 0.02 percent criterion, so it had "
+                       "not converged under the stage-1 factors and any later "
+                       "movement would be convergence rather than a change of "
+                       "answer")
+            c5.setdefault("excluded_from_witnesses", {})[n] = why
+        c5["cases_total"] = len(res["cases"])
+        c5["witness_count"] = len(c5["witnesses"])
+        c5["excluded_count"] = len(c5.get("excluded_from_witnesses", {}))
+        c5["accounting_balances"] = bool(
+            c5["witness_count"] + c5["excluded_count"] == c5["cases_total"])
         c5["all_witnesses_passed"] = bool(
             c5["witnesses"] and all(w["passed"] for w in c5["witnesses"].values()))
     else:

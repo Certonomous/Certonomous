@@ -14,7 +14,7 @@ written first, by a different agent, at zero compute; nothing here edits it.
 | `rewrite_precision.sh` | Stage 3: rewrite the converged fields at `writePrecision 16`. Its docstring carries the measurement that forced *it*. |
 | `analyse_k0c.py` | Grades the rung. Reads the reference values and the pass bands **out of the specification file**, not from a copy of its own. Writes `gate_k0c.json`. |
 | `CONTROL_PREDICTIONS.txt` | The control predictions, registered with a timestamp before any control result was read. |
-| `stage1_values.json` | Snapshot of every case's stage-1 measurement, taken before stage 2 overwrote the fields. It is the evidence base for control C5. |
+| `stage1_values.json` | Snapshot of the stage-1 measurement for **nine of the eleven cases**, taken before stage 2 overwrote the fields. It is the evidence base for control C5. The two absences are sequencing, not data loss, and are explained below. |
 | `gate_k0c.json` | The graded result, every deviation as a number, with the controls and the cost. |
 | `audit/` | `scripts/heat_balance.py` output per case: the JSON and the printed report, including its exit status. |
 | `<case>/` | One OpenFOAM case each. `0.orig/`, `constant/`, `system/` and every `log.*` travel; time directories, `postProcessing/` and `constant/polyMesh/` are gitignored and are rebuilt from the dictionaries. |
@@ -85,6 +85,51 @@ python3 build_cases.py Ra1e6_m192   # selector: rebuilds this case only
    `log.buoyantBoussinesqSimpleFoam.stage3` recording it. Counted, not
    remembered: ten stage-3 logs against eleven cases, the missing one being
    this case.
+
+## The two cases missing from `stage1_values.json`
+
+Checked by execution 2026-08-17 after a poweroff interrupted the check that
+found it, so that a file being written when the power cut could be ruled out as
+the cause. It was: the file was written at 16:20:50, forty minutes before the
+17:45:14 poweroff, it parses cleanly, and it is byte-identical to its committed
+blob. **Nothing was truncated.**
+
+The snapshot holds nine of eleven cases. Absent: `Ra1e5_m128` and
+`Ra1e6_m192`. Both absences are sequencing:
+
+- **`Ra1e5_m128` was the pilot** for the accelerated continuation. It was
+  continued to stage 2 first, to measure how much the new relaxation factors
+  bought, and only then was the snapshot taken for the remaining cases — by
+  which time its stage-1 field had already been overwritten.
+- **`Ra1e6_m192` never had a stage-1 leg under the stage-1 factors.** It was
+  rebuilt from scratch after the watcher race (`../K0c_RESULTS.md`, "What did
+  not work", item 3), long after the snapshot was taken.
+
+**Neither absence touches a graded number, and this was verified rather than
+argued.** `stage1_values.json` is read in exactly one place in
+`analyse_k0c.py` — inside the C5 block — and feeds only C5's witness list. With
+the file renamed away, `Ra1e5_m128`'s entire gate row re-measures **bit for
+bit**: Nu_avg 4.531017, Nu_max 7.763917, Nu_min 0.727163, u1max 34.755242,
+u2max 68.652353, every delta 0.00e+00 and every verdict unchanged. The gate
+row's provenance is the case's own final field and logs, cross-checked against
+`scripts/heat_balance.py`, not this snapshot.
+
+**Neither absence weakens C5 either.** C5 admits only cases that had already
+met the convergence criterion at the end of stage 1. `Ra1e5_m128`'s stage-1
+drift was 4.669 percent, so it would have been excluded as a witness even if
+its row existed; `Ra1e6_m192` has no stage-1 leg to compare. The four witnesses
+C5 reports are the complete set of eligible cases.
+
+**And the stage-1 figures for both are recoverable from committed evidence
+anyway**, because each case's stage-1 solver log travels and carries the
+in-pass Nusselt history that the snapshot was built from. Recomputing
+`Ra1e5_m128`'s last-quarter stage-1 drift from `log.buoyantBoussinesqSimpleFoam`
+alone gives **4.66904 percent**, matching the 4.67 percent quoted in
+`continue_cases.sh`, `analyse_k0c.py` and `../K0c_RESULTS.md`. That
+recomputation is method-controlled: run against the four cases that *do* have
+snapshot rows it reproduces them to better than 1e-06 (2.18822, 3.98290,
+14.65485, 3.54345 percent), so it is the same quantity by the same route and
+not a lookalike.
 
 ## One warning that is not decoration
 

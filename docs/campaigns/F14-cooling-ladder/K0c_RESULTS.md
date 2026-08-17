@@ -244,6 +244,41 @@ Criterion 0.02 percent; the largest shift is
 0.00198 percent, a factor of ten inside it.
 The relaxation change moved the path, not the answer.
 
+**Four witnesses out of eleven cases, and why the other seven are not — added
+2026-08-17 after the question was asked.** C5 originally reported only its
+witnesses, so the seven non-witnesses vanished without saying why. Five are
+excluded on the stated rule (their stage-1 drift was above the 0.02 percent
+criterion, so they had not converged under the stage-1 factors and any later
+movement would be convergence rather than a change of answer). **Two —
+`Ra1e5_m128` and `Ra1e6_m192` — were excluded for a different reason that the
+report did not distinguish: they have no row in `stage1_values.json` at all.**
+`Ra1e5_m128` was the pilot for the accelerated continuation and was continued
+before the snapshot was taken; `Ra1e6_m192` was rebuilt from scratch after the
+watcher race and never had a stage-1 leg under those factors. Neither is data
+loss, and neither is a poweroff casualty — the file was written at 16:20:50,
+forty minutes before the 17:45:14 poweroff, parses cleanly and is byte-identical
+to its committed blob.
+
+**`Ra1e5_m128` carries a graded row, so this was settled by execution rather
+than by argument.** `stage1_values.json` is read in exactly one place in
+`analyse_k0c.py`, inside the C5 block, and feeds only the witness list. With the
+file renamed away, that case's entire gate row re-measures **bit for bit** —
+Nu_avg 4.531017, Nu_max 7.763917, Nu_min 0.727163, u1max 34.755242,
+u2max 68.652353, every delta 0.00e+00, every verdict unchanged. **The gate row
+never came from that file.** Its stage-1 figures are recoverable anyway: the
+4.67 percent quoted throughout this document recomputes to 4.66904 percent from
+the case's committed solver log alone, by a route method-controlled against the
+four cases that do have snapshot rows, which it reproduces to better than 1e-06.
+And `Ra1e5_m128` would have been excluded as a witness even with its row present,
+because 4.669 percent is far above the 0.02 percent admission rule.
+
+C5 now reports every non-witness with its reason and asserts the arithmetic
+`witnesses + excluded == cases` (**4 + 7 = 11**). That reporting is
+mutation-proven, not assumed: removing a genuine witness from the snapshot moves
+it into `excluded` with the "absent" reason and drops the witness count to three,
+so the report is driven by the data rather than printing the same thing whatever
+it is finding. A filter nobody can see is a filter nobody can question.
+
 ## The controls' preamble, kept where it belongs
 
 Predictions were registered with a timestamp in
