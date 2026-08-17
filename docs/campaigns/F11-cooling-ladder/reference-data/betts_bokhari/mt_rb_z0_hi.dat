@@ -1,0 +1,9 @@
+# Natural Convection in Tall Cavity: Ra=1.43E+6
+# Expts of Betts and Bokhari
+# Temperature profile across the cavity at mid-height of the 5cm bottom rubber wall at z= 0 mm
+#  x (mm)    T (deg C)
+        1       14.41 
+        9       18.43 
+        38.1    33.41 
+        67.2    49.47 
+        75.2    54.09 

@@ -1,0 +1,544 @@
+© 2002 WIT Press, Ashurst Lodge, Southampton, SO40 7AA, UK. All rights reserved.
+Web: www.witpress.com Email witpress@witpress.com
+Paper from: Advances in Fluid Mechanics IV, M Rahman, R Verhoeven and CA Brebbia (Editors).
+ISBN 1-85312-910-0
+
+Benchmark solutions for the natural convective
+heat transfer problem in a square cavity
+J. Vierendeels', B. Merci' &L E. Dick'
+'Department of Flow, Heat and Combustion Mechanics,
+Ghent University, Belgium.
+
+Abstract
+In this study, benchmark solutions are derived for the problem of two-dimensional
+laminar flow of air in a square cavity which is heated on the left, cooled on the
+right and insulated on the top and bottom boundaries. The temperature differences
+between the hot and the cold wall are large. No Boussinesq nor low-Mach number approximations of the Navier-Stokes equations are used. The ideal-gas law is
+used and viscosity is given by Sutherland's law. A constant local Prandtl number
+is assumed. An accurate and fast multigrid solver is used, which was developed in
+previous work. The solver is constructed so that its convergence behaviour is independent of grid size, grid aspect ratio, Mach number and Rayleigh number. Grid
+converged results with an accuracy of 4 up to 5 digits are obtained for a variety of
+Rayleigh numbers.
+
+1 Introduction
+Buoyancy-drivenflows,especially in two dimensions, have been the object of thorough study for over 50 years. Most studies in the past have dealt with rectangular
+domains with different aspect ratios. De Vahl Davis and Jones [2]presented a study
+which resulted into a benchmark solution for the problem of a two-dimensional
+flow of a Boussinesq fluid in a square cavity which is heated on the left, cooled
+on the right and insulated on the top and bottom boundaries. They used the stream
+function-vorticityformulationof the governing equations. Chenoweth and Paolucci
+[ l ] investigated the steady-state flow in rectangular cavities with large temperature differences between vertical isothermal walls. They used the transient form
+of the flow equations, simplified for low-Mach number flows. Le QuCrC [3] studied incompressible flow in a thermally driven square cavity with a pseudo-spectral
+
+© 2002 WIT Press, Ashurst Lodge, Southampton, SO40 7AA, UK. All rights reserved.
+Web: www.witpress.com Email witpress@witpress.com
+Paper from: Advances in Fluid Mechanics IV, M Rahman, R Verhoeven and CA Brebbia (Editors).
+ISBN 1-85312-910-0
+
+46
+
+A d v m c e s irl Fluid M e c h u n k s W
+
+discretization scheme based on Chebyshev polynomials. Ramaswamy and Moreno
+[4] computed three-dimensionalbuoyancy driven flows of incompressible fluids in
+complex geometries.
+In this paper benchmark solutions are computed for a square cavity with large
+temperature differencesbetween vertical isothermal walls.The Navier-Stokes equations are used without Boussinesq nor low-Mach number approximation.
+The computational method gives the solution very quickly and accurately, also
+on very fine meshes and meshes with high grid aspect ratios. Normally the computational cost increases dramatically when finer meshes are used. Not only the
+computational cost for one time step increases with the number of cells but also
+the number of time steps needed to obtain a steady state solution increases due to
+the Courant-Friedrich-Lewyrestriction. Furthermore, very accurate solutions need
+high grid aspect ratio grids in zones with steep gradients. The use of such high grid
+aspect ratio meshes leads to unacceptably small time steps so that often a choice has
+to be made between highly accurate solutions with enormous computational time
+and less accurate solutions with an acceptable computational time. In our method,
+the problem due to the grid aspect ratio is removed by the use of a linemethod. The
+low Mach number stiffness is avoided by an appropriate discretization and a local
+preconditioning technique. Multigrid is used as convergence accelerator. The time
+needed for the calculation varies linearly with the number of grid cells.
+Results are shown for air, for Rayleigh numbers equal to lo2, lo3, 104,105,l o6
+and l o 7 for E = 0.6. Because of the large value of E , the Boussinesq approximation
+is not valid.
+
+2 Definition of the problem
+We consider the flow in a differentiallyheated square cavity in which a temperature
+difference is applied to the vertical walls while the horizontal walls are thermally
+insulated (figure 1). This test case was the object of a previous comparison exercise for incompressible flow solvers with Boussinesq approximation [2] in which a
+series of reference solutions for Rayleigh numbers between l o 3 and l o 6 were produced. Here, we consider large temperature differences which impose the use of
+compressible solvers able to treat low Mach number flows.
+For a compressible fluid, the Rayleigh number is defined as:
+R a = Pr
+
+S&Th
+
+-w
+
+3
+l
+
+TOP;
+
+where P r is the Prandtl number (0.71for air), p the viscosity coefficient, g the gravitational constant, L the dimension of the square cavity, T h and T,respectively the
+hot and cold temperatures applied to the vertical walls, TOa reference temperature
+equal to ( T h Tc)/2and p 0 a reference density corresponding to TO.The temperature difference may be represented by a non-dimensional parameter:
+
++
+
+© 2002 WIT Press, Ashurst Lodge, Southampton, SO40 7AA, UK. All rights reserved.
+Web: www.witpress.com Email witpress@witpress.com
+Paper from: Advances in Fluid Mechanics IV, M Rahman, R Verhoeven and CA Brebbia (Editors).
+ISBN 1-85312-910-0
+
+A d m c c ~ isll Flu id M d x z n i c s I V
+
+47
+
+adiabatic wall
+
+To, P o
+
+Th
+
+gl
+
+L
+
+L
+
+Tc
+
+--+
+
+adiabatic wall
+
+Figure 1 : Geometry,initial and boundary conditions for the thermally driven cavity
+problem.
+The heat transfer through the wall is represented by local and average Nusselt numbers N u and N u :
+
+L
+
+N u ( y ) = h ( T h - 5%)
+
+q
+
+d z wall
+
+where k ( T ) is the heat conduction coefficient, k o = k ( T 0 ) . In the test cases considered here, the Prandtl number is assumed to remain constant, equal to 0.7 1, and
+the viscosity coefficient is given by Sutherland's law:
+
+with T*=273 K, S=110.5 K, p*=1.68 lop5 kghds, C, = yR/ (y - l),y=1.4 and
+R=287.0 J/kg/K. The influence of the temperature on C, is neglected.
+The parameters defining the problem are p ( p * ,S , T*),
+R, 7, IC, T o , P o , E , L and
+g. The independent dimensionless parameters appearing in the problem are: E , +y,
+P r , R a , SIT', T o / T * and M a * = v , , f / c o with C O the speed of sound, v,,f =
+R u ~ ~ ~ ~ ( T o )and
+/ ( p~0 =
+o PLo )/ ( R T o ) . The Ma*-number only affects differences
+in the hydrodynamic part of the pressure [l]. As long as the Mach number is very
+small, this parameter does not affect the flow field nor the heat transfer.
+The problem is completely defined by the Rayleigh number, the value of E , a
+reference state: PO= 101325 Pa, TO= 600 K, and the initial conditions:
+
+© 2002 WIT Press, Ashurst Lodge, Southampton, SO40 7AA, UK. All rights reserved.
+Web: www.witpress.com Email witpress@witpress.com
+Paper from: Advances in Fluid Mechanics IV, M Rahman, R Verhoeven and CA Brebbia (Editors).
+ISBN 1-85312-910-0
+
+48
+
+A d v m c e s irl Fluid M e c h u n k s W
+
+T(z,y)= T o
+
+Y) = P o
+U ( E , y) = v ( 2 , y) = 0.
+
+,.d
+
+3 Computational method
+3.1 Governing equations
+
+The two-dimensional steady Navier-Stokes equations in conservative form for a
+compressible fluid are
+
+where F, and G, are the convective fluxes, F, and G , are the acoustic fluxes and
+F, and G, are the viscous fluxes, in our method defined by:
+
+where p is the density, U and v are the Cartesian components of velocity, p is the
+pressure, T is the temperature, H is the total enthalpy and T ~ are
+J the components
+of the viscous stress tensor. The source term S is given by
+0
+
+S=
+
+0
+
+-PS
+- P
+-YV
+
+-
+
+where g is the gravitational acceleration constant.
+
+© 2002 WIT Press, Ashurst Lodge, Southampton, SO40 7AA, UK. All rights reserved.
+Web: www.witpress.com Email witpress@witpress.com
+Paper from: Advances in Fluid Mechanics IV, M Rahman, R Verhoeven and CA Brebbia (Editors).
+ISBN 1-85312-910-0
+
+A d m c c ~ isl l Flu id M d x z n i c s I V
+
+49
+
+3.2 Solution method
+An orthogonal 1024x1024 stretched grid is used with maximum grid aspect ratio
+equal to 80. The grid is stretched in both dimensions. The solution method is given
+in [5]. The solver is basically a multistage time stepping algorithm accelerated with
+multigrid. In order to avoid the problemscoming from the acoustic terms (low speed
+flow), the aspect ratio and the viscous terms, these terms are treated implicitly along
+lines. Each pre- and postrelaxation in the multigrid cycle consist of two multistage
+steppings. One with lines in the x-direction and one with lines in the y-direction.
+The convergence behaviour of the scheme is independent of the Mach number, the
+Rayleigh number, E and the grid aspect ratio [ 5 ] .
+
+4 Results
+For the present study, six Rayleigh numbers, Ra = l o 2 , l o 3 ,l o 4 , l o 5 , 106 and l o 7
+are considered with a temperature difference parameter E = 0.6. Results are computed on a 1024x1024 stretched grid, of which the maximum aspect ratio is 80.
+Streamline patterns and temperature distributions are shown in figures 2-3. Nusselt
+numbers and mean pressure values for the different Rayleigh numbers are given in
+table 1. The mean pressure is defined by
+j7= J L p d S
+
+S
+
+where S is the area of the cavity.
+
+PIP0
+
+0.9574
+0.9380
+0.9146
+0.9220
+0.92449
+0.92263
+Table 1: Nusselt numberandmean
+E = 0.6
+
+pressure for different Rayleigh numbers,
+
+In[5],itwasshownwiththeuseofa384x384,512x512,768x748and1024x1024
+grid that quadratic grid convergenceis obtained,that very good accuracy is obtained
+and that the computed results are correct up to 4 or 5 digits. It was also shown that
+the convergence behaviour is not influenced by the number of grid cells and grid
+aspect ratio.
+
+© 2002 WIT Press, Ashurst Lodge, Southampton, SO40 7AA, UK. All rights reserved.
+Web: www.witpress.com Email witpress@witpress.com
+Paper from: Advances in Fluid Mechanics IV, M Rahman, R Verhoeven and CA Brebbia (Editors).
+ISBN 1-85312-910-0
+
+50
+
+Advmces irl Fluid Mechunks W
+
+I
+
+I
+
+Figure 2: Streamline patterns and temperature contours, ~ = 0 . 6Ra=102,
+,
+lo3, l o 4
+
+Nusselt and velocity profiles in the midplane are shown in figures 4-S. Table 2
+shows for Ra=106 and Ra=107 computed values for different dimensionless quantities: the maximum and minimum Nusselt number and the Nusselt number at y =
+0 . j are computed at left, mid andright position, the mean pressure, maximum Mach
+number, minimum and maximumvelocity components at the mid planes, minimum
+and maximum divergence of the velocity and the stream function at the center and
+local minima and maxima of the streamfunction.
+
+5 Conclusion
+Benchmark solutions are presented for different Ea-numbers for the square cavity problem with large temperature differences between the vertical planes with an
+accuracy of 4 up to 5 digits.
+
+References
+[ l ] Chenoweth, D.R. & Paolucci, S., Natural convection in an enclosed vertical air
+layer with large horizontal temperature differences. JoumaZ of Fluid Mechan~ C S ,169, pp. 173-2105, 1986.
+[2] De Vahl Davis, G. & Jones, LP., Natural convection in a square cavity, a comparison exercise. International Journal of Numerical Methods in Fluids, 3,
+pp. 249-264,1983.
+[3] Le QuCrC l?, Accurate solutions to the square thermally driven cavity at high
+
+© 2002 WIT Press, Ashurst Lodge, Southampton, SO40 7AA, UK. All rights reserved.
+Web: www.witpress.com Email witpress@witpress.com
+Paper from: Advances in Fluid Mechanics IV, M Rahman, R Verhoeven and CA Brebbia (Editors).
+ISBN 1-85312-910-0
+
+A d m c c . s i l l Flu id M d x z n i c s I V
+
+5I
+
+Figure 3: Streamline patterns and temperature contours, ~ = 0 . 6Ra=105,
+,
+l o 6 , 107
+
+Rayleigh number. Computers Fluids,20, pp. 29-41, 1991.
+Ramaswamy, B. & Moreno, R., Numerical study of three-dimensional incompressible thermal flows in complex geometries. Part I: theory and benchmark
+solutions. International Journal of Numerical Methods in Heat and
+Fluid
+Flow, 7,pp. 297-343, 1997.
+Vierendeels, J., Merci, B., & Dick, E., Numerical study of natural convective heat transfer with large temperature differences. International Journal of
+Numerical Methodsf o r Heat & Fluid Flow 11, pp. 329-341,2001.
+
+© 2002 WIT Press, Ashurst Lodge, Southampton, SO40 7AA, UK. All rights reserved.
+Web: www.witpress.com Email witpress@witpress.com
+Paper from: Advances in Fluid Mechanics IV, M Rahman, R Verhoeven and CA Brebbia (Editors).
+ISBN 1-85312-910-0
+
+52
+
+A d v m c e s irl Fluid M e c h u n k s W
+
+Nu
+
+v.
+
+4
+
+Figure 4: Nusselt profile in the vertical mid plane and velocity profiles in both mid
+planes, R a = l o 2 , 103and104,E = 0.6
+
+© 2002 WIT Press, Ashurst Lodge, Southampton, SO40 7AA, UK. All rights reserved.
+Web: www.witpress.com Email witpress@witpress.com
+Paper from: Advances in Fluid Mechanics IV, M Rahman, R Verhoeven and CA Brebbia (Editors).
+ISBN 1-85312-910-0
+
+A d ~ m c c i~l lsFlu id M d x z n i c s I V
+
+53
+
+Nu
+
+NU
+
+Nu
+
+Figure 5: Nusselt profile in the vertical mid plane and velocity profiles in both mid
+planes, R a = l o 5 , lo6, l o 7 , E = 0.6
+
+© 2002 WIT Press, Ashurst Lodge, Southampton, SO40 7AA, UK. All rights reserved.
+Web: www.witpress.com Email witpress@witpress.com
+Paper from: Advances in Fluid Mechanics IV, M Rahman, R Verhoeven and CA Brebbia (Editors).
+ISBN 1-85312-910-0
+
+54
+
+A d v m c e s irl Fluid M e c h u n k s W
+
+T
+
+~
+
+Ra=106
+
+~
+
+Value
+
+Position
+
+Value
+
+Position
+
+15.519
+0.758
+
+(0.9676)
+
+34.269
+
+(0.9848)
+
+(0)
+
+I .089
+
+(0)
+
+8.637
+
+(0.5)
+
+15.512
+
+(0.5)
+
+8.687
+(0.0365)
+
+46.379
+
+(0.0164)
+
+1.067
+
+(1)
+
+I.454
+
+(1)
+
+7.459
+
+(0.5)
+
+13.188
+
+(0.5)
+
+8.687
+
+16.241
+
+65.23
+
+(0.8544)
+
+129.35
+
+(0.8260)
+
+-43.56
+
+(0.0905)
+
+-88.43
+
+(0.0693)
+
+8.687
+
+16.241
+
+8.690
+
+16.205
+
+-0.004
+
+0.036
+
+0.92449
+0.3203
+-0.3001
+0.1193
+-0.07972
+
+1 1
+
+16.240
+
+20.270
+
+3.720e-05
+
+~
+
+(0.979LO.3787)
+(0.0537)
+(0.9756)
+(0.8541)
+(0.0905)
+
+0.92263
+1.175-04
+0.3229
+
+(0.9883,0.3754)
+
+-0.3011
+
+(0.0305)
+(0.9861)
+
+0.07490
+-0.05124
+
+(0.8260)
+(0.0693)
+
+1.0394
+
+(0.0384,0.0303)
+
+1.7061
+
+(0.0172,0.0134)
+
+1.0393
+-0.6086
+
+(0.0384,0.0303)
+(0.9794,0.9762)
+(0.9794,0.9762)
+
+l .7058
+
+(0.0172,0.0134)
+(0.9903,0.9888)
+(0.9903,0.9888)
+
+-0.6086
+
+0.02209
+0.02351
+0.02312
+0.021 26
+
+-0.9051
+-0.9052
+
+(0.5,0.5)
+(0.8688,0.3926)
+
+0.01265
+
+(0.2081,0.6477)
+
+0.01211
+0.01282
+
+(0.8880,0.1458)
+
+0.01315
+
+(0.5,0.5)
+(0.0989.0.5016)
+(0.1639,0.8211)
+
+-0.00013
+
+(0.2798,0.4556)
+(0.8009,0.0419)
+
+0.01288
+
+(0.8040,0.4301)
+
+0.00922
+0.01104
+0.01324
+
+(0.8807.0.1765)
+(0.9207,0.0793)
+(0.9256,0.3909)
+
+Table 2: Computed values for Ra = l o 6 and lo7, E = 0.6
+
+0
+
+~
+
+

@@ -1,0 +1,639 @@
+Xu, W. and Chen, Q. 2000. “Simulation of mixed convection flow in a room with a two-layer
+turbulence model”, Indoor Air, 10, 306-314.
+
+Simulation of Mixed Convection Flow in a Room
+with a Two-Layer Turbulence Model
+WEIRAN XU AND QINGYAN CHEN*
+Abstract Most indoor airflows are mixed convection. In order to simulate mixed
+convection accurately and efficiently, this paper uses a two-layer turbulence model. The
+two-layer model combines a one-equation model for near wall flow together with the
+standard k-ε model for outer-wall flow. The model has been used to predict the mixed
+convection by displacement ventilation in an office. The computed results agree well
+with the corresponding airflow pattern and the distributions of air temperature, air
+velocity, air velocity fluctuation, and tracer-gas concentration. The model can predict
+correctly heat transfer from a wall where the standard k-ε model and re-normalization
+group (RNG) k-ε model with wall functions often fails. The computing cost required by
+the two-layer model is comparable to that of the standard k-ε model and RNG k-ε model
+and is significantly less than that by a low-Reynolds number model.
+Practical Implications
+This paper presents a new two-layer model that can be used to calculate natural, forced,
+and mixed convection flow in a room. The model can predict correctly room airflow and
+heat transfer while use similar numerical grid cells as the standard k-ε model. It is
+particularly useful for rooms with many heated or cooled surfaces. This is because the
+computing costs are not higher than that with the standard k-ε model, but the computed
+air flow and heat transfer are more accurate.
+Key words CFD; turbulence modeling; validation; displacement ventilation; office
+rooms.
+
+Nomenclature
+Ary
+
+C
+C1ε, C2ε, C3ε
+Cμ
+
+local Archimedes number, gβΔTy n /U 2
+Contaminant concentration
+constants used in the ε equation
+constant used for calculating νt
+
+Building Technology Program, Massachusetts Institute of Technology, 77 Mass. Ave.,
+Cambridge, MA 02139-4307, U.S.A., Tel: 1-617-253-7714, Fax: 1-617-253-6152.
+*
+
+Author to whom correspondence should be addressed.
+
+1
+
+dk
+flμ, flε, fvv
+gi
+Gk
+
+diffusion of turbulent kinetic energy
+functions used in the one-equation model
+component i of the gravitation vector
+gravity production of turbulent kinetic energy, − βgi ui t
+
+k
+l, lμ, lε
+Pk
+
+turbulent kinetic energy, ui ui / 2
+characteristic lengths
+shear production of the turbulent kinetic energy, − ui u j ∂U i ∂x j
+
+Prt
+T
+t
+Ui, Uj
+U, V, W
+u, v
+xi, xj
+x, y, z
+yn
+y*
+
+turbulent Prandtl number
+mean temperature
+fluctuating temperature or time
+component i and j of the mean velocity
+mean velocity component in x, y and z direction
+fluctuating velocity component in x, y direction
+spatial coordinate in i and j direction
+spatial coordinate
+normal distance to the nearest wall
+dimensionless wall distance, yn k / ν
+
+Greek Symbols
+
+β
+
+thermal expansion coefficient, −
+
+ε
+ν
+νt
+σk, σε
+
+turbulent energy dissipation
+molecular viscosity
+turbulent viscosity
+Prandtl number of k and ε
+
+Subscripts
+i, j
+in
+t
+
+spatial coordinate indices
+inlet
+turbulent quantities
+
+1 ∂ρ
+ρ ∂T
+
+Introduction
+Design of an acceptable indoor environment requires detailed information of
+indoor air distribution, thermal comfort, indoor air quality, etc. The information includes
+air velocity, temperature, contaminant concentration, turbulence intensity, etc. that can be
+predicted by computational fluid dynamics (CFD). The CFD application to indoor
+environment design has enjoyed a great success in the past two decades. However, there are
+still some uncertainties in the CFD results. This is because most indoor airflows are
+turbulent. A turbulence model should be used in the CFD to make the flow solvable with the
+present computer capacity and speed. Unfortunately, the existing turbulence models are
+
+2
+
+either inaccurate (such as the standard k-ε model (Launder and Spalding 1974) or
+inefficient (such as low-Reynolds number standard k-ε models and Reynolds stress
+models) to predict indoor airflow.
+Most indoor airflows involve three types of convection: forced, natural and mixed
+convection. For example, the flow from an air-conditioning device is forced convection,
+and the thermal plumes around the equipment or exterior walls and windows are natural
+convection. In a typical air-conditioned office with equipment or exterior walls, the
+airflow is mixed convection. Hence, it is desirable to develop a turbulence model that can
+predict accurately and effectively these three types of flow. This paper presents a twolayer turbulence model (Xu 1998) that performs two tasks:
+1) The model can accurately predict indoor airflows under various conditions, i.e., from
+purely forced to purely natural convection airflows (Xu 1998). This model allows
+designers to use one single model to calculate indoor airflows instead of selecting
+different turbulence models empirically from many available models.
+2) The model can be more efficient than available turbulence models, such as lowReynolds-number k-ε models and Reynolds stress models.
+
+Review of Previous Work
+Purely forced and natural convection can be viewed as two extreme cases of
+mixed convection. Mixed convection is more complicated than forced convection and
+natural convection since it combines the complexity of both. Turbulent forced convection
+has been extensively studied and most turbulence models are developed for forced flows.
+This section reviews the state-of-art studies of turbulent mixed convection and identifies
+the problems with the existing turbulence models.
+Studies on turbulent mixed convection fall into three categories: theoretical
+analysis, experimental investigation and numerical simulation. Theoretical studies
+include those by Nakajima et al. (1980), Chen et al. (1987) and Aicher and Martin
+(1997). Nakajima et al. (1980) and Chen et al. (1987) independently proposed damping
+functions similar to Van Driest’s (1956) to enable the mixing-length model to count the
+buoyancy effects. They also conducted an experiment in a long channel to study basic
+turbulence and heat transfer characteristics of mixed convection. Aicher and Martin
+(1997) proposed two heat transfer correlations for the mixed convection in a tube. These
+studies provided some physical insights to understand the mixed convection. For
+example, Nakajima and Fukui (1980) found that the heat transfer in the boundary layer of
+a plate was decreased when the plate was slightly heated. Aicher and Martin (1997)
+suggested that the decrease is due to the reduction of the turbulent energy in the boundary
+layer.
+Experimental investigations on turbulent mixed convection are very few. The
+only notable contributions are those by Schwenke (1975) and Blay et al. (1992).
+Schwenke (1975) conducted a series of measurements in a ventilated room with a heated
+wall. He measured the penetration length, which is the length of how far the air stream
+from a diffuser can propagate against the buoyancy-induced wall jet. He found that the
+energy imposed on the heated wall had a significant impact on the airflow pattern. This
+
+3
+
+case can represent the airflow in a typical ventilated room with a hot window. Blay et al.
+(1992) measured the mixed convection flow in a two-dimensional cavity. Their measured
+quantities include velocities, temperatures and velocity fluctuations at mid-width and midheight plane of the cavity.
+Many researches have contributed to the numerical simulations of mixed
+convection. Nielsen et al. (1979) used the standard k-ε model with wall functions and
+calculated the flows in a ventilated room with floor heating. This early attempt showed
+the great potential of numerical simulation and it was considered a milestone in applying
+the computational fluid dynamics (CFD) technique to indoor airflow simulations.
+Many other researchers have applied low-Reynolds-number k-ε models to
+calculate mixed convection flows in vertical pipes (Jackson et al. 1990), vertical channels
+(Inagaki and Komori, 1995; Fedorov et al., 1997), vertical boundary layers (Patel et al.
+1996), and cavities (To and Humphrey, 1986; Blay et al., 1992). Their computational
+results have been compared with corresponding experimental data and the agreement has
+been reasonably good. However, the computing costs in those applications were very
+high. For example, To and Humphrey (1986) found that at least five grids are needed in
+the viscous sublayer and 17 in the buffer layer to produce acceptable results.
+Chen (1995) systematically compared the performance of several k-ε models on
+indoor airflow simulation and found that the performance of various turbulence models
+was so diverse that no model can be used universally. For example, he found the RNG kε model performed best in mixed convection but very poor in forced convection flows.
+His study included a two-layer model from Rodi (1991). Since the model was developed
+for forced convection flow, it performed poorly for natural and mixed convection flows
+in rooms. Therefore, it is important to develop a model that could work for forced,
+natural, and mixed convection flows normally found indoors.
+Very few researchers have attempted to apply the Reynolds-stress models on
+indoor airflow simulations. Chen (1996) found that the performance of the three
+Reynolds number model in mixed convection do not perform much better than the RNG
+k-ε models.
+In summary, for turbulent mixed convection, few theoretical and experimental
+studies exist due to its complexity. Most numerical simulations on the mixed convection
+have employed various versions of the low-Reynolds-number k-ε models while few
+others have applied the Reynolds stress models. The computing efforts required by a lowReynolds-number k-ε models or a Reynolds stress model are much higher than the
+standard k-ε model and RNG k-ε model (Xu and Chen 1998 and Chen 1996). An
+accurate and cost-effective turbulence model is not available.
+
+Turbulence Model
+In order to predict accurate mixed convection flow in a room with reasonable
+computing costs, Xu (1998) recently used the data of direct numerical simulation from
+(Kasagi and Nishimura, 1997) to develop a new two-layer model. In addition to the
+directional numerical simulation data, this new model is based on the two-layer model for
+forced convection flow (Rodi 1991) and another for natural convection flow (Xu et al.
+
+4
+
+1998). Hence, the model should work for forced, natural, and mixed convection flows
+found indoors. This section briefly introduces the model.
+A two-layer model consists of two turbulence models. This paper uses a single kequation turbulence model for near wall flow and the standard k-ε model for the flow in
+outer-wall region. The criteria to switch the model from one to the other is the y* value.
+If y*<y*prescribed the single-equation model applies; otherwise, the standard k-ε model will
+be used. y*prescribed = 80 was found to be the best for room airflows.
+In the near-wall region, where y*<80, the new one equation model is used; i.e., the
+k is solved by Eq. (1), i.e.,
+∂k
+∂k
++ Ui
+= d k + Pk + Gk − ε
+(1)
+∂t
+∂xi
+The eddy viscosity is calculated by Eq. (2):
+ν t = vvlμ
+
+(2)
+
+vvk
+lε
+
+(3)
+
+the ε by Eq. (3):
+ε=
+
+and lμ, lε, and
+
+vv
+by Eqs. (4), (5) and (6) respectively.
+k
+(0.33 + 0.214 f lμ ) y
+lμ =
+*[1.53+ 0.12 f lμ ]
+1 + 5.025 × 10 −4 yv
+(1.3 + 7.5 f lε ) y
+lε =
+1 + 2.12 + 7.88 f lε / y v* + (0.028 + 0.0235 f lε ) y v*
+
+(
+
+)
+
+⎡
+⎛
+⎞⎤
+y *( 2− f vv / k )
+vv
+⎟⎟⎥
+= 0.4⎢1 − exp⎜⎜ −
+k
+⎝ 4200(1 − 0.99 f vv / k ) ⎠⎦
+⎣
+where
+
+f lμ = f l ε =
+
+[
+
+1
+1 + tanh(50 * Ary − 4)
+2
+
+[
+
+]
+
+(4)
+(5)
+(6)
+
+(7)
+
+]
+
+1
+1 + tanh(120 * Ary − 4)
+(8)
+2
+2) In the outer-wall region, where y*≥80, the standard k-ε model, Eqs. (9) and (10), are
+used:
+∂U j
+ν ∂T
+ν ∂k ⎞
+∂U
+∂ ⎛
+Dk
+⎜ (ν + t )
+⎟ + νt ( i +
+) − ε + gi β t
+=
+(9)
+Prt ∂xi
+σ k ∂xi ⎠
+∂x j
+∂xi
+Dt ∂xi ⎝
+f vv / k =
+
+where σk =1.0. The ε solved by a transport equation
+∂U j
+ν ∂ε ⎞ ε ⎡
+∂U
+ν ∂T ⎤
+Dε
+∂ ⎛
+⎜ (ν + t )
+⎟ + ⎢C1ε ν t ( i +
+=
+) − C2 ε ε + C3ε gi β t
+⎥
+Prt ∂xi ⎥⎦
+Dt ∂xi ⎝
+σ ε ∂xi ⎠ k ⎢⎣
+∂x j
+∂xi
+
+5
+
+(10)
+
+k2
+, where Cμ = 0.09. The standard k-ε
+The eddy viscosity is calculated by ν t = Cμ
+ε
+model does not need length scale prescription.
+
+Simulation of Displacement Ventilation in a Room Using the TwoLayer Turbulence Model
+The model used in this paper has been validated against many cases including:
+natural convection and forced convection in simplified rooms, etc. (Xu 1998). In those
+simple cases, the velocity and turbulence distributions are measured with anemometers
+with high precision, such as Laser Doppler Anemometers. However, it is also necessary
+to examine model performance in a scenario close to a real room, which a design
+engineer most likely deals with. Altough it is difficult to use high precision anemometers
+in a real room, a good model must be validated with data obtained from real rooms to
+evaluate its performance. .
+There are many kinds of mixed convection flows in a room. This investigation
+selects displacement ventilation flow for the validation of the two-layer model.
+Displacement ventilation has attracted much interest in recent years because of its
+demonstrated capabilities to improve indoor air quality and reduce energy consumption
+in buildings (Yuan et al. 1998 and Hu et al. 1999). Prediction of the airflow in a room
+with displacement ventilation is more crucial than that with mixing ventilation because
+the displacement ventilation generates stratified air temperature and contaminant
+concentrations. The distributions of the air temperature and contaminant concentrations
+are very important information needed by a designer of the HVAC system. The
+experimental data of displacement ventilation from Yuan et al. (1999) have been used in
+the current study to verify the performance of the two-layer model. The following section
+describes the room airflow conditions with the displacement ventilation and computation
+methods used.
+Fig. 1 shows the experimental setup. The experimental rig simulates a 5.16m ×
+3.65 m × 2.44m office occupied by two simulated persons and equipped with two tables,
+two heated computers, two file cabinets and six overhead lights. A 3.65m×1.04m window
+was mounted on the wall connecting the office room to an environmental chamber, where
+the temperature was controlled to simulate outdoor conditions. All other walls were
+insulated to minimize the heat gain/loss. The displacement ventilation system provided
+air for the room from a diffuser that was situated on the opposite wall of the window. The
+air was exhausted through the outlet at the ceiling. Internal heat flows were generated
+from the computers, occupants and lights. The simulated pollutants, SF6 and CO2, were
+discharged at occupants’ head level.
+The prediction solved the three-dimensional equations for mass, momentum,
+energy and concentration conservation on a non-uniform grid system: 52 × 48 × 28. This
+grid appears to be sufficient according to the grid independence study performed in other
+validation cases (Xu 1998). The boundary conditions and computation details are
+summarized in Table 1. It should be noted that on the enclosure surfaces, we used the
+
+6
+
+measured wall temperatures as the boundary conditions, not empirical data used by Yuan
+et al. (1999).
+Fig. 2 shows that the observed and calculated airflow patterns in the mid-width
+section via the displacement diffuser. Due to buoyancy, the cold air from the diffuser
+spreads on the floor level and induced a reverse flow in the layer between 0.5 to 1m. In
+addition, the hot window induced an upward flow close to it. Our prediction has precisely
+reproduced all these patterns observed by the smoke-visualization. With the smoke
+visualization technique, we can measure accurately the low velocity in the room through
+image analysis.
+Fig. 3 shows the temperature profiles at nine locations in the simulated office. The
+agreement is very good in the region close to the ceiling. In the region close to the floor,
+some discrepancies occur but the largest difference between the calculated temperatures
+and measured ones is less than 1°C, about 4% of the measured temperature, which can be
+considered as a good agreement. The numerical simulation conducted by Yuan et al.
+(1999) used the RNG k-ε model with wall functions to predict the flow and heat transfer.
+Since wall functions would predict grid dependent heat flux a prescribed convective heat
+transfer coefficient was used to obtain the correct temperature distributions. The value of
+the coefficient used in their study was calibrated by the experimental data. This is
+undesirable in a numerical prediction because the coefficient is generally unknown. The
+two-layer model does not require prescribing a convective heat transfer coefficient and
+thus is more favorable for numerical simulations.
+Fig. 4 compares the computed and the measured mean velocity profiles. The
+agreement is acceptable. . The hot-wire anemometers used in the experiment cannot
+measure accurately when the air velocity is lower than 0.1 to 0.15 m/s. Since the velocity
+level in this case is low, the uncertainty in the measurements of the velocities is rather
+high. The predicted velocities are still within the uncertainties of the experimental data.
+Similarly, the turbulence quantities measured by the experiment has large
+uncertainties as well. Therefore, the comparison between experimental data and
+prediction is not very indicative but we still present it here anyway.. Fig. 5 shows the
+computed fluctuatingvelocity deviates significant from the measured data for the
+displacement ventilation. Chen (1995 and 1996) reported the same problems with other
+k-ε models and Reynolds stress models. Nevertheless, the computation does predict the
+trend of the flow turbulence in the room.
+In another study (Xu 1998) where turbulence quantities were measured by a Laser
+Doppler Anemometer, the agreement between the computed results and the measured
+data is much better. This further confirms that the omni-directional hot sphere
+anemometers have a poor accuracy in measuring the velocity fluctuations.
+The investigation uses a tracer-gas (SF6) to simulate a contaminant gas, because
+the background concentration of SF6 in atmosphere is very low. Fig. 6 shows the SF6
+concentration profiles. The overall agreement between the computed results and
+measured data is reasonably good but worse than that with other quantities. Yuan et al.
+(1999) also found that the concentration prediction was difficult to match the
+experimental data since it was very sensitive to the position and boundary conditions.
+
+7
+
+Nevertheless, the accuracy of the prediction in the lower part as well as the upper part of
+the zones 4, 5, 6 and 9 is still acceptable.
+This study shows that the computing cost with the two-layer model (52 × 48 × 28)
+is slightly higher than that with the RNG k-ε model (48 × 42 × 24, Yuan et al. 1999), but
+significantly lower than that would be required by a low-Reynolds-number k-ε modelA
+low-Reynolds-number model would require at least a million grid cells and result in very
+poor grid aspect ratios because there are many heated surfaces in the room and each
+surface needs at least 20 grid cells to calculate heat transfercorrectly.The computing
+effort would be tremendous and prohibitive for practical engineering design
+This paper compares the computed results by the two-layer model with the
+experimental data obtained in a real room. Since the data quality is not very high, it is
+difficult to identify whether discrepancies are from the model or from the experiment.
+However, Xu (1998) has used the two-layer model to predict two-dimensional flows with
+high quality data, the performance of the two-layer model is much better.
+
+Conclusions
+This paper briefly reviews the effort to predict mixed convection with
+computational fluid dynamics. With a two-layer turbulence model recently developed
+from the data of direct numerical simulation and two-layer models for natural and forced
+convection, it is possible to accurately predict mixed convection in a room.
+Since displacement ventilation design requires accurate information of
+airflow,This study used the two-layer model to predict the airflow pattern and
+distributions of air temperature, air velocity, air velocity distributions, and contaminant
+concentration simulated by a tracer gas in a room with displacement ventilation.
+Designing such ventilation system often requires accurate information of airflow. The
+model can predict accurately the airflow pattern, air velocity, and air temperature.
+However, it is more difficult to predict the turbulence (velocity fluctuation) and
+contaminant concentration.
+The computing resources required by the simulation with the two-layer model is
+slightly higher than that with the RNG k-ε model, but significantly lower than a lowReynolds number k-ε model.
+
+Acknowledgements
+This study is supported by the National Science Foundations through grant CMS9623864.
+
+8
+
+References
+Aicher, T. and Martin, H. (1997) “New correlations for mixed turbulent natural and
+forced convection heat transfer in vertical tubes,” Int. J. Heat Mass Transfer,
+40(15), 3617-3626.
+Blay, D., Mergui, S. and Niculae, C. (1992) “Confined turbulent mixed convection in the
+presence of a horizontal buoyant wall jet,” Fundamentals of Mixed Convection,
+HTD, 213, 65-72.
+Chen, Q. (1995) “Comparison of different k-ε models for indoor air flow computations,”
+Numerical Heat Transfer, Part B, 28, 353-369.
+Chen, Q. (1996) “Prediction of Room Air Motion by Reynolds-Stress Models,” Building
+and Environment, 31, 233-244.
+Chen, T.S., Armaly, B.F. and Ali, M.M. (1987) “Turbulent mixed convection along a
+vertical plate,” J. Heat Transfer, 109, 251-253.
+Fedorov, G.A., Viskanta, R. and Mohamad, A.A. (1997) “Turbulent heat and mass
+transfer in an asymmetrically heated vertical parallel-plate channel,” Int. J. Heat
+and Fluid Flow, 18, 307-315.
+Hu, S., Chen, Q. and Glicksman, L.R. (1999) “Comparison of energy consumption
+between displacement and mixing ventilation systems for different U.S. buildings
+and climates,” ASHRAE Transactions, 105(2).
+Inagaki, T, and Komori, K. (1995) “Numerical modeling on turbulent transport with
+combined forced and natural convection between two vertical parallel plates,”
+Numerical Heat Transfer, Part A, 27, 417-431.
+Jackson, J.D., Cotton, M.A., Yu, L.S.L. and Rouai, M.M. (1990) “Experimental and
+computational studies of turbulent forced and mixed convection heat transfer to
+water in a vertical pipe,” In Engineering Turbulence Modeling and Experiments
+(Rodi W. and Ganic E.N. Editors), p809-818, Elsevier Science Publishing Co.,
+Inc., New York.
+Kasagi, N. and Nishimura, M. (1997) “Direct numerical simulation of combined forced
+and natural convection in a vertical plane channel,” Int. J. Heat and Fluid Flow,
+18, 88-99.
+Launder, B.E. and Spalding, D.B. (1974) “The numerical computation of turbulent
+flows,” Computer Methods in Applied Mechanics and Energy, 3: 269-289.
+Nakajima, M. and Fukui, K. (1980) “Buoyancy effects on turbulent transport in
+combined free and forced convection between vertical parallel plates,” Int. J.
+Heat Mass Transfer, 23(10), 1325-1336.
+Nielsen, P.V., Restivo, A. and Whitelaw, J.H. (1979) “Buoyancy-affected flows in
+ventilated rooms,” Numerical Heat Transfer, 2, 115-127.
+Patel, K., Armaly, B.F. and Chen, T.S. (1996) “Transition from turbulent natural to
+turbulent forced convection adjacent to an isothermal vertical plate,” HTD, 324,
+51-56.
+
+9
+
+Rodi, W. (1991). “Experience with two-layer models combining the k-ε model with a
+one-equation model near the wall,” AIAA-91-0216, 29th Aerospace Sciences
+Meeting, Nevada.
+Schwenke, H. (1975) “Ueber das Verhalten elener horizontaler Zuluftstrahlen im
+begrenzten Raum,” Luft- und Kaltetechnik, 5, 241-246.
+To W.M. and Humphrey, J.A.C. (1986) “Numerical simulation of turbulent buoyancy,
+turbulent flow⎯I. Free convection along a heated, vertical, flat plate,” Int. J. Heat
+Mass Transfer, 29, 573-592.
+Van Driest E.R. (1956) “On turbulent flow near a wall,” Journal of the Aeronautical
+Science, 23, 1007
+Xu, W. (1998) “New turbulence models for indoor airflow simulation,” Ph.D. Thesis,
+Department of Architecture, Massachusetts Institute of Technology, Cambridge,
+MA, USA.
+Xu, W. and Chen, Q. (1998) “Numerical simulation of air flow in a room with
+differentially heated vertical walls,” ASHRAE Transactions, 104(1), 168-175.Xu,
+W., Chen, Q. and Nieuwstadt, F.T.M. (1998). “A new turbulence model for nearwall natural convection,” Int. J. Heat and Mass Transfer, 41, 3161-3176.
+Yuan, X., Chen, Q. and Glicksman, L.R. (1998) “A critical review on displacement
+ventilation,” ASHRAE Transactions, 104(1), 78-90.
+Yuan, X., Chen, Q., Glicksman, L.R., Hu, Y. and X. Yang. (1999) “Measurements and
+computations of room airflow with displacement ventilation,” ASHRAE
+Transactions, 105(1), 340-352.
+
+10
+
+Table 1 Boundary conditions and computation details
+P
+U
+V
+W
+T
+B. C.1
+-2
+Uin
+0
+0
+Tin
+at inlet
+
+B. C. 1
+at outlet
+
+0
+
+k
+3x10-2
+U in2
+
+∂U
+∂V
+∂W
+∂T
+∂k
+=0
+=0
+=0
+=0
+=0
+∂z
+∂z
+∂z
+∂z
+∂z
+
+ε
+0.09k in3 / 2
+0.55lin
+∂ε
+=0
+∂z
+
+C
+Cin
+∂C
+=0
+∂z
+
+3
+-2
+B. C. 1
+0
+0
+0
+0
+Eq.
+Constant flux for
+at
+(3)
+human top surfaces,
+Walls
+otherwise no flux
+FalseFalse-time-step
+Relaxa- Linear False- False- False- False- Falsetime- time-step
+timetimetimetimetion
+step
+step
+step
+step
+step
+method
+Factor
+0.5
+0.1
+0.1
+0.1
+0.5
+0.001
+0.001
+0.1
+1
+Boundary Conditions.
+2
+No need to specify.
+3
+Fixed temperature for the enclosure surfaces, constant heat flux for the surfaces of the
+computer, occupants and lights; no-flux condition for the other surfaces.
+
+11
+
+Fig. 1 Configuration of the simulated office.
+
+12
+
+(a) Observed
+
+(b) Predicted
+Fig. 2 The observed and predicted airflow pattern at the mid-width section via the
+displacement diffuser.
+
+13
+
+

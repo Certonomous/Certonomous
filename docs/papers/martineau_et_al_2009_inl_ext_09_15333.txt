@@ -1,0 +1,3546 @@
+# Source: INL/EXT-09-15333, https://inldigitallibrary.inl.gov/sites/sti/sti/4156456.pdf
+# Fetched 2026-08-17. PDF sha256: 18d475caa85428b209fc0c86c0a00c595a6e7a4fb8836823c005d43b48e20d06. Text extract follows; PDF not duplicated into the repo for size (4.6 MB, publicly hosted).
+INL/EXT-09-15333
+
+Comparative Analysis of
+Natural Convection Flows
+Simulated by Both the
+Conservation and
+Incompressible Forms of the
+Navier-Stokes Equations in a
+Differentially-Heated Square
+Cavity
+Richard C. Martineau
+Ray A. Berry
+Aurélia Esteve
+Kurt D. Hamman
+Dana A. Knoll
+Ryosuke Park
+William Taitano
+January 2009
+
+The INL is a U.S. Department of Energy National Laboratory
+operated by Battelle Energy Alliance
+
+INL/EXT-09-15333
+
+Comparative Analysis of Natural Convection Flows
+Simulated by Both the Conservation and
+Incompressible Forms of the Navier-Stokes Equations
+in a Differentially-Heated Square Cavity
+Richard C. Martineau
+Ray A. Berry
+Aurélia Esteve
+Kurt D. Hamman
+Dana A. Knoll
+Ryosuke Park
+William Taitano
+January 2009
+
+Idaho National Laboratory
+Idaho Falls, Idaho 83415
+http://www.inl.gov
+
+Prepared for the
+U.S. Department of Energy
+Office of Nuclear Energy
+Under DOE Idaho Operations Office
+Contract DE-AC07-05ID14517
+
+Issued by the Idaho National Laboratory, operated for the United States Department of Energy
+by Battelle Energy Alliance.
+NOTICE: This report was prepared as an account of work sponsored by an agency of the United
+States Government. Neither the United States Government, nor any agency thereof, nor any
+of their employees, nor any of their contractors, subcontractors, or their employees, make any
+warranty, express or implied, or assume any legal liability or responsibility for the accuracy,
+completeness, or usefulness of any information, apparatus, product, or process disclosed, or represent that its use would not infringe privately owned rights. Reference herein to any speciﬁc
+commercial product, process, or service by trade name, trademark, manufacturer, or otherwise,
+does not necessarily constitute or imply its endorsement, recommendation, or favoring by the
+United States Government, any agency thereof, or any of their contractors or subcontractors.
+The views and opinions expressed herein do not necessarily state or reﬂect those of the United
+States Government, any agency thereof, or any of their contractors.
+
+NT OF E
+ME
+N
+RT
+
+GY
+ER
+
+•
+
+U NIT
+
+IC A
+
+•
+
+ED
+
+ST
+
+ER
+
+DEP
+A
+
+Printed in the United States of America. This report has been reproduced directly from the best
+available copy.
+
+A TES OF A
+
+M
+
+Abstract
+This report illustrates a comparative study to analyze the physical differences between
+numerical simulations obtained with both the conservation and incompressible forms of the
+Navier-Stokes equations for natural convection flows in simple geometries. The purpose of
+this study is to quantify how the incompressible flow assumption (which is based upon constant density advection, divergence-free flow, and the Boussinesq gravitational body force approximation) differs from the conservation form (which only assumes that the fluid is a continuum) when solving flows driven by gravity acting upon density variations resulting from local
+temperature gradients. Driving this study is the common use of the incompressible flow assumption in fluid flow simulations for nuclear power applications in natural convection flows
+subjected to a high heat flux (large temperature differences). A series of simulations were
+conducted on two-dimensional, differentially-heated rectangular geometries and modeled with
+both hydrodynamic formulations. From these simulations, the selected characterization parameters of maximum Nusselt number, average Nusselt number, and normalized pressure reduction were calculated. Comparisons of these parameters were made with available benchmark
+solutions for air with the ideal gas assumption at both low and high heat fluxes. Additionally,
+we generated body force, velocity, and divergence of velocity distributions to provide a basis
+for further analysis. The simulations and analysis were then extended to include helium at the
+Very High Temperature gas-cooled Reactor (VHTR) normal operating conditions. Our results
+show that the consequences of incorporating the incompressible flow assumption in high heat
+flux situations may lead to unrepresentative results. The results question the use of the incompressible flow assumption for simulating fluid flow in an operating nuclear reactor, where large
+temperature variations are present. The results show that the use of the incompressible flow
+assumption with the Boussinesq gravitational body force approximation should be restricted
+to flows where the density change of a fluid particle along a pathline is negligible.
+
+4
+
+Contents
+1
+2
+
+Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+Governing Equations and Definitions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+2.1 The Conservative Navier-Stokes Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+2.2 The Strict Definition of Incompressible Flow . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+2.3 The Incompressible Navier-Stokes Equations with Thermal Energy . . . . . . . . . . . . 16
+3 Computational Domain and Test Cases . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+3.1 Domain Description and Physical Parameters . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+3.2 Benchmark Solution Description and History . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+3.3 Comparative Study Approach and Test Cases . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+4 Simulation Results and Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23
+4.1 Solution Methods and Computational Meshes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23
+4.2 General Solution of the Differentially Heated Cavity Problem . . . . . . . . . . . . . . . . . 25
+4.3 Comparison with Benchmark Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29
+4.4 Extended Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 35
+4.5 Helium Natural Convection Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40
+5 Summary and Conclusions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51
+References . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 55
+
+5
+
+Figures
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+
+13
+14
+
+15
+16
+
+17
+18
+19
+
+20
+21
+
+Differentially heated square cavity domain with generic specification of boundary
+conditions and gravitational vector. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Triangular finite element mesh for differentially heated square cavity domain. . . . .
+Quadrilateral finite volume mesh for differentially heated square cavity domain. . .
+Streamline comparison for test case TC-2. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Density comparison for test case TC-2. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Pressure comparison for test case TC-2. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Temperature comparison for test case TC-2. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Divergence of velocity comparison for test case TC-2. . . . . . . . . . . . . . . . . . . . . . . .
+Test Case TC-1 hot and cold wall Nusselt distributions. . . . . . . . . . . . . . . . . . . . . . .
+Test Case TC-2 hot and cold wall Nusselt distributions. . . . . . . . . . . . . . . . . . . . . . .
+Test Case TC-3 hot and cold wall Nusselt distributions. . . . . . . . . . . . . . . . . . . . . . .
+Test Case TC-1 specific force distribution in the hot wall boundary layer taken
+along the centerline at y = 0.5 m. The solid lines refer to the conservative profiles
+of a) inertia, b) thermodynamic pressure gradient, c) stress component, and d)
+gravitational body force. The dashed lines refer to the incompressible profiles of e)
+inertia, f) pressure gradient, g) stress component, and h) Boussinesq gravitational
+body force approximation. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Viscous and thermal boundary layer profile comparison for test case TC-1. . . . . . .
+Test Case TC-2 specific force distribution in the hot wall boundary layer taken
+along the centerline at y = 0.5 m. The solid lines refer to the conservative profiles
+of a) inertia, b) thermodynamic pressure gradient, c) stress component, and d)
+gravitational body force. The dashed lines refer to the incompressible profiles of e)
+inertia, f) pressure gradient, g) stress component, and h) Boussinesq gravitational
+body force approximation. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Viscous and thermal boundary layer profile comparison for test case TC-2. . . . . . .
+Test Case TC-3 specific force distribution in the hot wall boundary layer taken
+along the centerline at y = 0.5 m. The solid lines refer to the conservative profiles
+of a) inertia, b) thermodynamic pressure gradient, c) stress component, and d)
+gravitational body force. The dashed lines refer to the incompressible profiles of e)
+inertia, f) pressure gradient, g) stress component, and h) Boussinesq gravitational
+body force approximation. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Viscous and thermal boundary layer profile comparison for test case TC-3. . . . . . .
+Test Case TC-4 hot and cold wall Nusselt distributions. . . . . . . . . . . . . . . . . . . . . . .
+Test Case TC-4 specific force distribution in the hot wall boundary layer taken
+along the centerline at y = 0.5 m. The solid lines refer to the conservative profiles
+of a) inertia, b) thermodynamic pressure gradient, c) stress component, and d)
+gravitational body force. The dashed lines refer to the incompressible profiles of e)
+inertia, f) pressure gradient, g) stress component, and h) Boussinesq gravitational
+body force approximation. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Viscous and thermal boundary layer profile comparison for test case TC-4. . . . . . .
+Test Case TC-5 hot and cold wall Nusselt distributions. . . . . . . . . . . . . . . . . . . . . . .
+6
+
+18
+24
+25
+26
+26
+27
+28
+29
+30
+32
+34
+
+36
+37
+
+38
+39
+
+40
+41
+42
+
+43
+44
+44
+
+22
+
+23
+24
+
+Test Case TC-5 specific force distribution in the hot wall boundary layer taken
+along the centerline at y = 0.5 m. The solid lines refer to the conservative profiles
+of a) inertia, b) thermodynamic pressure gradient, c) stress component, and d)
+gravitational body force. The dashed lines refer to the incompressible profiles of e)
+inertia, f) pressure gradient, g) stress component, and h) Boussinesq gravitational
+body force approximation. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Viscous and thermal boundary layer profile comparison for test case TC-5. . . . . . .
+Transient Nusselt comparison for test case TC-6. . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+7
+
+46
+47
+48
+
+Tables
+1
+2
+3
+4
+5
+6
+7
+
+Air Benchmark Test Cases, (Ra = 106 , To = 600 K, and Po = 101.325 kPa). . . . . . . 21
+Helium Test Cases, (Ra = 106 , To = 1148.15 K, and Po = 7.0 MPa). . . . . . . . . . . . . 22
+Test Case 1 Comparison, (Ra = 106 , ε = 0.01, and constant transport coefficients). 31
+Test Case 2 Comparison, (Ra = 106 , ε = 0.6, and constant transport coefficients). . 33
+Test Case 3 Comparison, (Ra = 106 , ε = 0.6, and variable transport coefficients). . 34
+Test Case 4 Comparison, (Ra = 106 , ε = 0.3267, and constant transport coefficients). 42
+Test Case 5 Comparison, (Ra = 106 , ε = 0.3267, and variable transport coefficients). 45
+
+8
+
+1 Introduction
+Natural convection is a highly relied upon cooling mechanism in nuclear reactor safety. Unlike
+forced convection in reactors, where the fluid is driven by pump pressure gradients, the driving
+force for natural convection is buoyancy. Natural convection heat transfer is defined as mass and
+energy transport driven by buoyancy forces due to density variations acted upon by gravitation. The
+density variations result from local temperature gradients generated by heat conduction and internal
+energy advection. Typical natural convection problems result in flow speeds which are relatively
+slow, i.e. low Mach number. This often encourages the use of the incompressible flow assumption
+to reduce computational effort. However, the single fluid incompressible flow model assumes
+constant density advection and, thus, one is forced to use an additional approximation for the
+gravitational body force to simulate natural convection. Typically, the Boussinesq approximation is
+employed to model the gravitational body force for incompressible natural convection simulations.
+The Boussinesq approximation uses a first-order Taylor series to approximate the density variations
+based upon the difference between local temperature and a reference temperature.
+This first-order approximation brings into question the validity of the incompressible flow
+assumption incorporating the Boussinesq approximation for simulating natural convection flows
+in certain nuclear power applications where high heat fluxes (large temperature differences) are
+present which can result in significant variations in density. This question of validity has not gone
+unnoticed in the nuclear engineering community, given two recent workshops sponsored by CEA
+and INRIA on the subject [2, 10]. The goal of these workshops was to generate benchmark reference solutions on non-Boussinesq natural convection flows by extending the well-known de Vahl
+Davis [8, 7] differentially heated square cavity problem to the case of large temperature differences
+(high heat flux) for which the Boussinesq approximation is no longer valid. The simulation domain
+consisted of a two-dimensional square cavity containing air differentially heated along the vertical
+walls with specified temperatures. Adiabatic boundary conditions were applied to both the lower
+and upper horizontal walls. The various test cases were defined by Rayleigh number, constant
+or variable transport coefficients, and non-dimensional temperature difference. The benchmark
+solutions were based upon the conservation of mass and internal energy requirements. The chosen benchmark solution parameters were integrated Nusselt numbers along both the “hot” and
+“cold” walls (conservation of energy) and the ratio of maximum steady-state pressure to initial
+pressure (conservation of mass and energy). Additionally, workshop contributers were also asked
+to provide other non-benchmark solution parameters, such as maximum Nusselt number, to further
+characterize simulation results. The results of these workshops are tabulated in Le Quere [19] and
+Paillere [16].
+In this study, we extended the goals of the CEA and INRIA workshops by further investigating
+the effects of density variation upon natural convection heat transfer subjected to a large temperature variation. The contributors to the workshops had already concluded that the incompressible
+Boussinesq approximation was invalid for high heat flux (causing significant variations in fluid
+density) boundary conditions. Here, we desire to quantify the differences by comparing ”incompressible” and ”compressible” solutions for both small and large temperature difference boundary
+conditions. The motivation for conducting these comparisons is due to the common use of the
+9
+
+incompressible flow assumption in fluid flow simulations for nuclear power applications, including the gas-cooled Next Generation Nuclear Plant (NGNP) reactor designs [12]. We expanded
+our analysis over the workshops criteria to include volumetric body force distributions, centerline
+velocity distributions, and rate of expansion.
+Our approach is to perform simulations with two computational fluid dynamic (CFD) computer
+codes with one solving the conservation form of the governing hydrodynamic equations and the
+other solving the incompressible form. We first reproduced the results of the de Vahl Davis benchmark with a small temperature difference to demonstrate the equivalency of both formulations in
+the incompressible limit. Next, we duplicated two of the high heat flux test cases for air from the
+CEA and INRIA workshops. The two test cases chosen varied only in that one incorporated constant transport coefficients and the other employed temperature dependent transport coefficients.
+The reason for choosing these two test cases was twofold: First, the conservation CFD code we
+used incorporated a conservation form of the total energy equation where the workshops only required a primitive variable form of the energy equation (that also neglected viscous heating), in
+terms of thermal energy, which neglects kinetic energy contributions. This provided an opportunity to validate our conservation CFD code against an accepted numerical benchmark experiment
+for variable density, low-Mach number flow. And second, the two test cases provided an avenue to
+quantify the differing results obtained with an incompressible formulation when compared to the
+high heat flux benchmark solutions. Our simulations culminated by applying our analysis criteria
+to helium natural convection at the global normal operating conditions of the Very High Temperature gas-cooled Reactor (VHTR) [12], i.e. maximum coolant temperature difference and average
+reactor pressure.
+For this report, we first define the governing equations and parameter definitions needed to
+conduct this comparative study. The problem description follows with defined test cases and computational domain, including the computational meshes, boundary conditions, initial conditions,
+and fluid properties. A detailed results section is next. This report ends with summary and conclusions.
+
+10
+
+2 Governing Equations and Definitions
+This section details the governing hydrodynamic models employed in this study. We define the
+conservation and incompressible forms along with a strict mathematical definition of the incompressible flow assumption. Definitions of various flow parameters pertinent to this study are also
+included.
+
+2.1
+
+The Conservative Navier-Stokes Equations
+
+The conservation form of the governing hydrodynamic equations are defined in terms of density,
+momentum, and total energy per unit volume. They are commonly referred to as the conservative
+form of the Navier-Stokes equations. Strictly speaking though, only the balance of momentum
+equations are the Navier-Stokes equations. The conservation of mass and total energy equations,
+along with an equation of state, determine closure quantities. Expressed in two-dimensional planar
+space-time coordinates (x, y,t), these equations are
+the conservation of mass equation,
+
+∂ ρ ∂ ρu ∂ ρv
++
++
+=0,
+∂t
+∂x
+∂y
+
+(1)
+
+the balance of momentum in the x-direction,
+
+∂ ρ u ∂ (ρ u2 + P) ∂ ρ uv ∂ τxx ∂ τyx
++
++
+=
++
++ ρ gx ,
+∂t
+∂x
+∂y
+∂x
+∂y
+
+(2)
+
+the balance of momentum in the y-direction,
+
+∂ ρ v ∂ ρ uv ∂ (ρ v2 + P) ∂ τxy ∂ τyy
++
++
+=
++
++ ρ gy ,
+∂t
+∂x
+∂y
+∂x
+∂y
+
+(3)
+
+and the conservation of total energy equation,
+
+∂ ρ et ∂ ρ uht ∂ ρ vht
++
++
+∂t
+∂x
+∂y
+
+= ρ (ugx + vgy )
++
+
+∂
+∂
+(uτxx + vτxy − qx ) +
+(uτxy + vτyy − qy ) .
+∂x
+∂y
+11
+
+(4)
+
+In equations (1)-(4), the variable ρ is density, u and v are the components of the velocity vector u
+in the x and radial y directions, respectively, P is the thermodynamic pressure, gx and gy are the
+gravitational vector components, and et is the specific total energy. The specific total enthalpy ht
+is defined by
+ht =
+
+ρ et + P
+.
+ρ
+
+(5)
+
+For a Newtonian fluid with the Stokes hypothesis, the viscous stress tensor components are defined
+as
+
+
+
+
+
+
+2
+2
+∂u ∂v
+∂u ∂v
+∂v ∂u
+τxx = μ 2 −
+, τxy = τyx = μ
++
+, and τyy = μ 2 −
+,
+3
+∂x ∂x
+∂y ∂x
+3
+∂y ∂x
+
+(6)
+
+where μ is the viscous transport coefficient, dynamic viscosity. The components of the heat flux
+vector are defined as
+qx = −k
+
+∂T
+∂T
+and qy = −k
+,
+∂x
+∂y
+
+(7)
+
+where k is the thermal transport coefficient, or thermal conductivity, and T is the absolute temperature.
+The ideal gas equation of state is employed in this the study for it’s functional dependence on
+density and energy,
+P = (γ − 1)ρ e = ρ Rc T ,
+
+(8)
+
+where e is the specific internal energy, γ is the ratio of specific heats, and Rc is the specific gas
+constant per unit mass of the gas. As temperature T is not one of the solution variables of equations (1)-(4), the ideal gas equation of state is more commonly expressed in terms of the conserved
+variables,
+
+
+ρu · ρu
+P = (γ − 1) ρ et −
+2ρ
+
+and
+
+
+
+1
+u ·u
+T=
+et −
+,
+cv
+2
+
+(9)
+
+where cv is the specific heat at constant volume.
+With equations (1)-(4), no assumptions about the flow are made outside of the continuum
+assumption. These equations govern all fluids, even those traditionally considered incompressible.
+In the case of liquid metals, an enormous change in pressure results in relatively little change in
+density, thus one of the motivations for the incompressible flow assumption. However, liquid metal
+12
+
+density can vary significantly in the presence of high energy deposition. In the Advanced Burner
+Test Reactor (ABTR), normal reactor operating conditions will see approximately an 11% variation
+in density of the sodium coolant [?]. In the ABTR protected loss of flow (PLOF) scenario, the
+resulting natural circulation flow field will see an estimated 7% variation in the sodium density [?].
+In the VHTR, the helium density will vary by a factor of two across the flow field under normal
+reactor operating conditions. In the VHTR loss of forced cooling (LOFC) scenario, it is unknown
+at this time the approximate magnitude in the variation of helium density. However, however the
+density variation in space and time will be relatively large and the incompressible flow assumption
+with the Boussinesq approximation will most likely give unrepresentative results.
+Also, equations (1)-(4) are commonly referred to in the literature as the “fully compressible”
+equations. We prefer to use the term “conservative” or “conservation” equations. We feel that
+“compressible” may be somewhat misleading as compressible infers large pressure gradients resulting in density variation due to compression. Compressibility is not a requirement of the flow
+but a natural outcome of the governing equations with a consistent set of initial and boundary
+conditions and equation of state. Some researchers believe it is appropriate to employ the incompressible flow assumption purely because of small pressure gradients in low Mach number flow
+conditions. This study includes simulations with large density variations that are due to high energy deposition, not compression. In this context, referring to the equations as compressible is
+a poor descriptive. Also, there are many forms of compressible equations. It is common to see
+variable density simulations modeled with all, or partly, primitive variable equation sets [9, 15, 5].
+In this context, the use of “compressible” to describe an equation seems to be arbitrary.
+
+2.2
+
+The Strict Definition of Incompressible Flow
+
+Many analysts assume that the definition of incompressible flow is simply that density is constant
+in the flow field. However, the definition is much more than that. Here, we will strictly define
+the incompressible flow assumption in order to help quantify the physical differences with the
+conservative form of the Navier-Stokes equations, equations (1)-(4).
+Following Panton [17], the term “incompressible flow” is applied to any situation where changes
+in the density of a particle along a pathline is negligible. A mathematical definition can be derived
+from the conservation of mass equation. Recasting equation (1) in vector form,
+
+∂ρ
++ ∇ · ρu = 0 ,
+∂t
+
+(10)
+
+and applying the chain rule to the spatial derivative, yields
+
+∂ρ
++u · ∇ρ = −ρ ∇ ·u .
+∂t
+
+(11)
+
+The left-hand side of equation (11) represents density advection and is commonly known as the
+13
+
+material derivative, a time derivative of density following a material particle along a pathline in
+space and time. The material derivative is denoted by
+
+∂ρ
+Dρ
+=
++u · ∇ρ ,
+Dt
+∂t
+
+(12)
+
+and, thus, equation (11) becomes
+Dρ
+= −ρ ∇ ·u .
+Dt
+
+(13)
+
+The strict mathematical definition of ”incompressible flow” is
+1 Dρ
+=0.
+ρ Dt
+
+(14)
+
+Notice that equation (14) does not declare that density must be constant. In fact, variable density
+flows, such as two immiscible fluids (like oil and water) are commonly modeled with the incompressible flow assumption. The only requirement is that the density of each fluid particle remain
+unchanged along a pathline. Therefore, the local pressure and energy have no influence upon the
+density of the fluid particle. Thus, density in an incompressible flow is not described by an equation of state but only by the initial conditions. An interesting sidelight of equation (14) is that it
+is not satisfied with ρ = 0, which of course would violate the continuum assumption. Satisfying
+equation (14) requires that the flow field become “divergence free”, or
+∇ ·u = 0 .
+
+(15)
+
+With equation (15), the mass conservation equation (10) reduces to a mathematical constraint
+imposed upon the flow field for the incompressible flow assumption.
+In reality, a divergence free flow field is non-physical, especially for non-isothermal flow fields.
+As a material particle changes position in a flow field, the volume of the fluid particle may change
+due to mechanical or thermodynamic influences. If the particle volume is changing (expanding
+or contracting), it is doing work on the surrounding fluid. In Section 4.2, it will be shown that
+∇ ·u is a significant quantity for variable density flows, even for low Mach numbers. We can
+describe this quantity in physical terms by returning to the mass conservation equation (10). First,
+define specific volume as the volume of a material particle occupied by a unit of mass, υ = 1/ρ .
+Substituting the definition for υ into equation (10), yields
+∇ ·u =
+
+1 Dυ
+,
+υ Dt
+
+(16)
+
+which gives a volumetric rate interpretation for ∇ ·u and is known as the “rate of expansion” of a
+fluid particle. This quantity is also known as the “dilatation” rate.
+14
+
+For this study, it is also useful to analyze another consequence of the incompressible flow
+assumption. The gravitational body force terms of the conservation form of the Navier-Stokes
+equations (2) and (3) are reliant upon variations in density due to thermo-mechanical effects. Ignoring the mechanical (pressure) effects, the density dependence on internal energy (temperature)
+must be approximated for incompressible flow. Referring to Burmeister [4], the definition of the
+coefficient of thermal expansion is
+1
+β =−
+ρ
+
+
+
+∂ρ
+∂T
+
+
+P
+
+.
+
+(17)
+
+We can approximate the partial differential in equation (17) with a Taylor series expansion about
+the reference density,
+
+ρ = ρo +
+
+∂ρ
+∂ 2 ρ (T − To )
+(T − To ) +
++... ,
+∂T
+∂T2
+2
+
+(18)
+
+where ρo and To are the reference density and temperature, respectively. Ignoring second-order and
+higher terms, a first-order approximation for the density difference is obtained by incorporating
+equation (17),
+
+ρ − ρo ≈ −ρo β (T − To )
+
+(19)
+
+The approximate gravitational body force is then
+
+ρg ≈ ρog − ρogβ (T − To ) .
+
+(20)
+
+Equation (20) is commonly referred to as the Boussinesq buoyancy model for natural convection.
+Obviously, β must have units of inverse temperature. We can easily see this by operating on
+equation (8) with equation (17) to obtain
+1
+β=
+ρo
+
+
+
+P
+T 2 Rc
+
+
+=
+
+ρ
+.
+ρo T
+
+(21)
+
+For a single fluid incompressible flow, ρ = ρo , so that
+
+β=
+
+1
+.
+To
+
+(22)
+
+Note that the coefficient of thermal expansion β must be a constant for incompressible flow. β
+is based upon the assumption that the fluid particle’s density must remain a constant in space and
+time (the material derivative definition for incompressible flow). Therefore, we can not assume
+a temperature dependency for β as this implies variable particle density. Also, a higher-order
+approximation in terms of the temperature difference won’t fully alleviate the impact of a constant
+β.
+15
+
+2.3
+
+The Incompressible Navier-Stokes Equations with Thermal Energy
+
+The incompressible form of the governing hydrodynamic equations may be derived from equations (1-4) by imposing the definition of incompressible flow, equations (14) and(15).
+As shown in the previous section, the conservation of mass equation becomes a mathematical
+constraint on velocity. In two dimensions, this constraint is
+
+∂u ∂v
++
+=0.
+∂x ∂y
+
+(23)
+
+The two-dimensional incompressible Navier-Stokes equations with the Boussinesq buoyancy model
+are the balance of x-momentum,
+
+ρo
+
+∂u
+∂u
+∂ u ∂ σxx ∂ σyx ∂ p
++ ρo u + ρo v
+=
++
+−
++ ρo gx [1 − β (T − To )] ,
+∂t
+∂x
+∂y
+∂x
+∂y
+∂x
+
+(24)
+
+and the balance of y-momentum,
+
+ρo
+
+∂v
+∂v
+∂ v ∂ σxy ∂ σyy ∂ p
++ ρo u + ρo v =
++
++
++ ρo gy [1 − β (T − To )] ,
+∂t
+∂x
+∂y
+∂x
+∂y
+∂y
+
+(25)
+
+where p (lower case) is the incompressible pressure (not thermodynamic pressure) and is a variance
+from the reference pressure Po . The components of the incompressible viscous stress tensor, σxx ,
+σxy , σyx , and σyy , are defined as
+
+
+σxx = 2μ
+
+∂u
+∂x
+
+
+
+
+, σxy = σyx = μ
+
+∂u ∂v
++
+∂y ∂x
+
+
+
+
+, and σyy = 2μ
+
+∂v
+∂y
+
+
+.
+
+(26)
+
+Neglecting viscous heating, the thermal energy transport equation in an incompressible gas can be
+written in the form
+
+
+ρo c p
+
+∂T
+∂T
+∂T
++u
++v
+∂t
+∂x
+∂y
+
+
+=−
+
+∂ qx ∂ qy
+−
+,
+∂x
+∂y
+
+where c p is specific heat at constant pressure.
+
+16
+
+(27)
+
+3
+
+Computational Domain and Test Cases
+
+This comparative study will be composed of six simulation test cases performed on a common
+computational domain. The domain is comprised of a two-dimensional square cavity with the four
+walls being zero-mass flux boundaries. The vertical walls are differentially heated with specified
+temperatures. The horizontal walls are defined as adiabatic (zero heat flux). Initial and boundary
+conditions for the first three test cases are taken from established benchmark reference solutions
+for natural convection of air. These three test cases provide a solution baseline for the comparative
+analysis between the conservative and incompressible flow models. The final three test cases are
+designed to analyze helium natural convection flow at the global normal operating conditions of
+the Very High Temperature gas-cooled Reactor (VHTR) [12], i.e., maximum coolant temperature
+difference and average reactor pressure. The first helium test case is with constant transport properties and the second helium test case is with variable transport properties. The third helium test
+case is transient with a cosine temporal wave defining the hot wall temperature.
+Here, we will give a generic description of the computational domain, including initial and
+boundary conditions, and the physical parameters important in defining the nature of the flow and
+analyzing the solution. Then, a brief history and description of the benchmark reference solutions
+employed in this study will follow. This study’s simulation test cases will then be defined by
+specific values of initial and boundary conditions for each test case. Finally, a brief description of
+the conservative and incompressible flow solvers and computational meshes concludes this chapter.
+
+3.1
+
+Domain Description and Physical Parameters
+
+The computational domain for the comparison study presented here is based upon the De Vahl
+Davis differentially heated square cavity problem [8, 7] as shown in Figure 1. The square domain
+is L width and height. The natural convection problem is described by two vertically heated walls
+with prescribed temperatures, Th and Tc , which are the “hot” and “cold” wall temperatures, respectively. Adiabatic heat transfer boundary conditions are applied along the horizontal walls, defined
+by zero heat flux in the y-direction, qy = 0. All four walls have no-slip, zero-mass flux boundary
+conditions, u = 0. The gravitational vector, g, is applied anti-parallel to the y-coordinate. Initial
+conditions are composed of constant distributions of reference pressure and temperature, Po and To ,
+and stationary flow, u = 0. Note that nothing about these initial and boundary conditions indicate
+a compressible event as there are no initial pressure gradients and pressure is not even prescribed
+at the boundary.
+The flow field for this natural convection problem can be characterized by two non-dimensional
+parameters. The first is a non-dimensional temperature difference, given by
+
+ε=
+
+Th − Tc Th − Tc
+=
+,
+Th + Tc
+2To
+
+(28)
+
+where To is the reference temperature taken to be the average of Th and Tc . The second and more
+17
+
+qy = 0, u = 0
+
+Th , u = 0
+
+g
+
+L
+
+Tc , u = 0
+
+y
+L
+x
+
+qy = 0, u = 0
+
+Figure 1. Differentially heated square cavity domain with generic
+specification of boundary conditions and gravitational vector.
+
+important parameter is Rayleigh number. The Rayleigh number for a natural convection problem
+is a dimensionless number associated with the heat transfer within the fluid. When the Rayleigh
+number is below the critical value for the flow field, heat transfer is primarily in the form of
+conduction. When it exceeds the critical value, heat transfer is primarily in the form of convection.
+The Rayleigh number is defined as the product of the Grashof number, which is the ratio of the
+buoyancy and viscous forces within a fluid, and the Prandtl number, which is the ratio of the
+momentum and thermal diffusivities. For an ideal gas, the Rayleigh number for a square cavity is
+expressed as
+Ra = GrPr = Pr
+
+gρo2 (Th − Tc )L3
+,
+To μo2
+
+(29)
+
+where ρo is the reference density determined from the equation of state at the reference pressure
+and temperature, Po and To , respectively, μo is the reference dynamic viscosity determined from
+thermal dependence at the reference temperature, and g is the magnitude of the gravitational vector.
+All three workshop benchmark solutions are also in the form of non-dimensional parameters.
+Non-dimensional wall heat flux, or local Nusselt number Nu, is defined as
+
+k(T ) ∂ T 
+1
+,
+Nu(y) =
+(Th − Tc ) k(To ) ∂n w
+
+(30)
+
+where n is the outward normal vector to the vertical walls. From equation (30) we can compute
+18
+
+the integrated (average) Nusselt number along the wall,
+1
+Nu =
+L
+
+ y=L
+y=0
+
+Nu(y) dy .
+
+(31)
+
+The CEA and INRIA workshops required the calculation of a thermodynamic pressure ratio.
+Here, we have only concerned ourselves with a closed system where the mass of the system is
+constant. The thermodynamic pressure of this system is defined as
+
+Pth = mo
+
+
+
+−1
+1
+,
+dΩ
+Ω RT
+
+(32)
+
+where Ω is the volume of the system and mo is defined as the initial mass of the system,
+
+
+1
+mo = ρo dΩ =
+R
+Ω
+
+
+
+Po
+dΩ .
+Ω To
+
+(33)
+
+The thermodynamic pressure ratio is then defined as Pth /Po .
+For those simulations that require variable transport properties, temperature dependent dynamic
+viscosity and thermal conductivity, are given by Sutherland’s law [21],
+
+μ (T )
+=
+μSuth
+
+
+
+T
+TSuth
+
+1.5
+
+μ (T )c p
+TSuth + S
+, k(T ) =
+.
+T +S
+Pr
+
+(34)
+
+This study will include one air benchmark from the CEA and INRIA workshops with variable
+transport properties. For this case, Sutherland coefficients for air [10] are S = 110.5 K, TSuth =
+273.15 K, and μSuth = 1.68 × 10−5 kg/(m·s).
+
+3.2
+
+Benchmark Solution Description and History
+
+The first of the three benchmark solutions employed in this study was suggested during the conference on Numerical Methods in Thermal Problems, which took place in Swansea, U.K. during July
+1979. There, I.P. Jones [11] proposed that buoyancy-driven flow in a differentially heated square
+cavity (see Figure 1 below) would be a suitable benchmark problem for “testing” and validating
+computer codes. Following this conference, an informal workshop was formed which produced
+what is now commonly referred to as the de Vahl Davis benchmark [8, 7] solution for natural convection in a differentially heated square cavity. At the time of this workshop (March of 1980), it
+was decided that this benchmark problem provided a non-trivial solution structure that had practical application in studying the effectiveness of reactor insulation and the cooling of radioactive
+19
+
+waste containers. The problem statement for workshop contributers required incompressible, gridconverged solutions for Rayleigh numbers of Ra = 103 , 104 , 105 , and 106 . For Ra = 103 and 104 ,
+solutions were required on uniform meshes of 11 × 11, 21 × 21, and 41 × 41. At the higher values
+of Ra = 105 and 106 , a uniform mesh of 81 × 81 was also required as the solutions for these higher
+Rayleigh numbers contained multiple vortices. Richardson’s extrapolation was then applied to
+determine benchmark solutions for the following parameters: average Nusselt number; maximum
+and minimum Nusselt numbers along the hot wall and their locations; maximum vertical velocity
+on the horizontal mid-plane and its location; and maximum horizontal velocity on the vertical midplane and its location. For a converged steady-state solution, the average Nusselt number should
+be the same on both the hot and cold walls for energy conservation.
+The second and third benchmark solutions were obtained from two recent French workshops.
+The first workshop [2], titled Modeling and Simulation of Natural Convection Flows with Large
+Temperature Differences and hosted by the CEA Nuclear Reactor Division of the French Atomic
+Energy Commission, was held in January of 2000 at the Institut National des Sciences & Techniques Nucléaires (INSTN) in Saclay, France. In the call for contributions to this workshop, a
+benchmark problem was designed around the extension of the incompressible de Vahl Davis benchmark problem to cases with large temperature differences imposed upon the vertical walls. Eight
+test cases, simulating air at a prescribed Rayleigh number of Ra = 106 , were described by four
+non-dimensional temperature differences, ε = 0.01, 0.2, 0.4, and 0.6, and both constant and variable viscous and thermal diffusion coefficients with the temperature dependent coefficients defined
+by Sutherland’s Law, given by equation (34). The two test cases for ε = 0.01 are designed to show
+the equivalence between the conservative and incompressible formulations in the incompressible
+limit.
+While the objective of the CEA workshop was to establish reference solutions from a codeto-code comparison of various flow models and solvers, the results of this workshop were not
+published until the next French workshop in 2004 [10]. Contributors to the CEA workshop identified several numerical difficulties, such as mass and energy conservation issues, post-processing of
+Nusselt numbers, and CPU performance constraints. Following the CEA workshop, several contributors performed additional simulations to further refine the reference solutions. These results
+were then presented in the framework of the second French workshop [10], Mathematical and Numerical aspects of Low Mach Number Flows, organized by INRIA and held June 21-25, 2004 in
+Porquerolles, France. The number of selected reference solutions were scaled back to include the
+two original Rayleigh number Ra = 106 air test cases from the CEA workshop and an additional
+test case at a Rayleigh number of Ra = 107 with variable transport properties, all at ε = 0.6.
+
+3.3
+
+Comparative Study Approach and Test Cases
+
+As stated before, the goal of this comparative study is to quantify the differences between “incompressible” and “compressible” solutions for high-heat flux natural convection simulations. Our
+comparative study approach is to solve both hydrodynamic formulations to:
+1. Reproduce the results of the de Vahl Davis benchmark [8, 7] with a small temperature dif20
+
+ference to demonstrate the equivalency of both model formulations in the incompressible
+limit.
+2. Duplicate two of the high heat flux benchmark cases for air from the CEA and INRIA workshops [2, 10]. This will provide baseline comparisons between the conservative and incompressible solutions against accepted solutions.
+3. Generate additional analysis criteria to include such terms as volumetric body force distributions, centerline velocity distributions, and rate of expansion. A more in-depth analysis will
+be performed in the immediate vicinity of the vertical hot wall boundary layer for the steadystate cases. In this region, the analysis will be based upon the summation of forces in the
+vertical direction composed of the pressure gradient force, the gravitational force, viscous
+force, and the inertial force.
+4. Finally, apply the comparative analysis criteria to helium natural convection test cases at the
+global normal operating conditions of the VHTR (maximum coolant temperature difference
+and average reactor pressure).
+The first five test cases defined in this study are the constant wall temperature, differentiallyheated square cavity geometry of de Vahl Davis at a chosen Rayleigh number of Ra = 106 . We
+chose this value as it ensures a laminar flow field and avoids the problem of turbulence modeling
+(mathematical model dependency) between codes. A sixth test is defined with a transient hot wall
+boundary condition (see Table 2 below). For this transient test case the Rayleigh number varies
+between Ra = 0−106 . In all test cases, the initial conditions are composed of constant distributions
+of reference pressure and temperature, Po and To (given in Tables 1 and 2), and stationary flow,
+u = 0.
+The test cases for the comparisons with air benchmark solutions are tabulated in Table 1 and are
+defined by non-dimensional temperature difference ε , specified hot and cold wall temperatures Th
+and Tc , respectively, and whether the transport properties are constant and variable. Test case TC-1,
+Table 1. Air Benchmark Test Cases, (Ra = 106 , To = 600 K, and
+Po = 101.325 kPa).
+
+Test Case #
+ε
+TC-1
+0.01
+TC-2
+0.6
+TC-3
+0.6
+
+Th (K)
+606.0
+960.0
+960.0
+
+Tc (K)
+594.0
+240.0
+240.0
+
+Properties
+constant
+constant
+Eqn. (34)
+
+with it’s small temperature difference, is is used to approximate the de Vahl Davis reference [8, 7]
+solution.
+Similarily, the helium test cases are tabulated in Table 2. The transient test case is TC-6 with
+the transient temperature boundary condition for the hot wall given by
+Th (t) = 1148.15 + 375.0 cos(0.4π t) K ,
+
+(35)
+21
+
+Table 2. Helium Test Cases, (Ra = 106 , To = 1148.15 K, and
+Po = 7.0 MPa).
+
+Test Case #
+ε
+TC-4
+0.3267
+TC-5
+0.3267
+TC-6
+0.0-0.3267
+
+Th (K)
+1523.15
+1523.15
+Eqn. (35)
+
+Tc (K)
+773.15
+773.15
+773.15
+
+Properties
+constant
+Eqn. (34)
+Eqn. (34)
+
+where the period is 5 seconds. For the helium cases with variable transport properties (TC-5 and
+TC-6) defined by equation (34), Sutherland coefficients for helium [21] are S = 97.4 K, TSuth =
+273.15 K, and μSuth = 1.864 × 10−4 kg/(m·s).
+
+22
+
+4 Simulation Results and Analysis
+In this chapter, the simulation and analysis results of the comparative study to quantify the physical
+differences between numerical simulations obtained with both the conservation and incompressible
+forms of the Navier-Stokes equations for natural convection flows is presented. Preceding this,
+the numerical solution methods and computational meshes for both hydrodynamic formulations
+will be briefly discussed. Contour plots of test case TC-2 are then presented to give the general
+solution structure of natural convection in a differentially heated cavity for both the conservative
+and incompressible formulations. Then, the analysis begins with direct comparison of the two
+solution methods/formulations against the known air benchmarks to provide a baseline assessment.
+Developed for this study, an extended set of analysis criteria is then applied to the air benchmark
+test cases. Following the air benchmark comparison analysis, the benchmark and extended analysis
+criteria is applied to two helium test cases whose initial and boundary conditions are based upon the
+global operating conditions of the helium-cooled VHTR concept. Finally, a preliminary analysis
+of transient effects is conducted.
+
+4.1
+
+Solution Methods and Computational Meshes
+
+The conservative solver employed in this study is the PCICE-FEM scheme [13, 14, 3]. The PCICEFEM scheme is a finite element method (FEM) spatial discretization of the Pressure-Corrected
+Implicit Continuous-fluid Eulerian (PCICE) algorithm. The PCICE algorithm defines the temporal
+discretization and hydrodynamic coupling procedure for the PCICE-FEM scheme. It is an advanced semi-implicit, mass-momentum coupled pressure-based scheme. The governing hydrodynamic equations for this scheme are the conservative form of the balance of momentum equations
+(Navier-Stokes), mass conservation equation, and the total energy equation. An operator splitting
+process is performed along explicit and implicit operators of the semi-implicit governing equations
+to render the PCICE-FEM scheme in the class of predictor-corrector schemes. The complete set of
+semi-implicit governing equations in the PCICE-FEM scheme are cast in this form, an explicit predictor step and a semi-implicit pressure-correction step with the elliptic pressure Poisson solution
+coupling the predictor-corrector steps. The result of this predictor-corrector formulation is that the
+pressure Poisson equation in the PCICE-FEM scheme is provided with sufficient internal energy
+information to avoid an iterative scheme. In the PCICE-FEM code employed here, linear triangular (unstructured) finite elements are used exclusively for the finite element formulation as they
+are easily generated on domains with complex geometries, they achieve near second-order spatial
+accuracy, they can be easily adapted to minimize error in the solution, and they can be integrated
+exactly, which eliminates the need of quadrature integration.
+The incompressible studies were conducted using the commercial CFD package STAR-CCM+
+produced by CD-adapco [1]. STAR-CCM+ uses a face-based cell formulation, enabling it to use
+cells with any number of faces. Therefore, it employs a meshing technology which can automatically generate tetrahedral, polyhedral and trimmed hexahedral and dodecahedral meshes. In this
+two-dimensional study, quadrilateral elements were used in order to better approximate the computational mesh utilized by the PCICE-FEM code. The governing equations are discretized using
+23
+
+the finite volume method (FVM). The default interpolation approach used for the convective terms
+is a second-order upwind scheme while the diffusive terms are interpolated by a linear approach.
+The discretized equations are solved with the segregated solver using algebraic multigrid, which is
+based on the iterative Gauss-Siedel solution method. The segregated solver solves the governing
+equations in an uncoupled manner in which the linkage between the momentum and continuity
+equations occurs using a predictor-corrector approach. The complete process is developed using collocated variables and a Rhie-Chow [20] type pressure-velocity coupling combined with the
+SIMPLE algorithm [18]. Although the segregated solver is not suitable for high Raleigh-number
+applications, it was chosen for this study because it is capable of handling mildly compressible
+flow and low Raleigh number natural convection flow; furthermore, difficulties were encountered
+in obtaining optimal coupled solver settings for this study.
+Figures 2 and 3 illustrate the two computational meshes utilized in this study. The mesh shown
+in Figure 2 is essentially a structured 120 × 120 FEM mesh consisting of 28,800 orthogonal tri1
+
+0.8
+
+y (m)
+
+0.6
+
+0.4
+
+0.2
+
+0
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+x (m)
+
+Figure 2. Triangular finite element mesh for differentially heated
+square cavity domain.
+
+angular elements defined by 14,641 nodal points. It is upon this mesh that the conservative hydrodynamic formulation is solved for the various test cases. The conservative solution variables
+computed on this FEM mesh are located at the nodes of the triangular element vertices. The mesh
+shown in Figure 3 is of a structured 120 × 120 quadrilateral FVM mesh. The incompressible formulation is solved by STAR-CCM+ on this mesh where the incompressible variables are computed
+at the cell centers. These two meshes are essentially the same mesh as the cell vertices for both
+24
+
+1
+
+0.8
+
+y (m)
+
+0.6
+
+0.4
+
+0.2
+
+0
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+x (m)
+
+Figure 3. Quadrilateral finite volume mesh for differentially
+heated square cavity domain.
+
+meshes are at identical coordinate locations.
+
+4.2
+
+General Solution of the Differentially Heated Cavity Problem
+
+In this section, we will provide an example of a natural convection solution in a differentially heated
+square cavity. The solution profiles for all the steady-state test cases are similar in form (but not
+in magnitude) as the solution to the square cavity problem is in large part defined by the Rayleigh
+number, irrespective of non-dimensional temperature difference or working fluid (air or helium).
+Thus, we chose test case TC-2 to provide a graphical illustration of a Rayleigh number Ra = 106
+natural convection solution in a square cavity solution for both conservative and incompressible
+formulations. This test case, with its large temperature difference (ε = 0.6), clearly demonstrates
+some of the physical differences in solutions between the formulations for this natural convection
+problem. Even with the large temperature difference, this flow field is relatively slow compared to
+that of a natural convection scenario in a gas-cooled reactor. The peak velocity magnitude for test
+case TC-2 corresponds to an approximate Mach number of M = 2.0 × 10−3 .
+Figure 4 is a side-by-side comparison of the steady-state streamline solutions. The obvious
+difference between the two solutions is the asymmetry of the conservative streamline solution
+25
+
+1
+
+0.8
+
+0.8
+
+0.6
+
+0.6
+
+y(m)
+
+y(m)
+
+1
+
+0.4
+
+0.2
+
+0.4
+
+0.2
+
+0
+
+0
+0
+
+0.2
+
+0.4
+
+x(m)
+
+0.6
+
+0.8
+
+1
+
+0
+
+(a) Streamlines for conservative solution.
+
+0.2
+
+0.4
+
+x(m)
+
+0.6
+
+0.8
+
+1
+
+(b) Streamlines for incompressible solution.
+
+Figure 4. Streamline comparison for test case TC-2.
+
+shown in Figure 4(a) versus the symmetric incompressible streamline solution (odd-function with
+the origin shifted to x = y = 0.5) shown in Figure 4(b). The asymmetry of the conservative solution
+is a direct result of the expansion of the gas (decrease in density) along the hot wall and the
+contraction (increase in density) of the gas along the cold wall. With the material derivate forced
+to be zero in the incompressible formulation resulting in a divergence-free flow field (no expansion
+or contraction), the incompressible solution illustrated in Figure 4(b) is then symmetric.
+The density solution comparison, shown in Figure 5, highlights the most striking physical
+difference between the two model formulations. Figure 5(a) reflects the density solution obtained
+1
+
+1
+
+0.8
+
+1.22
+1.12
+1.02
+0.92
+0.82
+0.72
+0.62
+0.52
+0.42
+0.32
+
+0.4
+
+0.2
+
+Density
+(kg/m3 )
+
+0.6
+
+y(m)
+
+0.6
+
+y(m)
+
+0.8
+
+Density
+(kg/m3 )
+
+0.58833
+
+0.4
+
+0.2
+
+0
+
+0
+0
+
+0.2
+
+0.4
+
+x(m)
+
+0.6
+
+0.8
+
+1
+
+0
+
+(a) Density contour for conservative solution.
+
+0.2
+
+0.4
+
+x(m)
+
+0.6
+
+0.8
+
+1
+
+(b) Density contour for incompressible solution.
+
+Figure 5. Density comparison for test case TC-2.
+
+26
+
+with the conservative formulation. With ε = 0.6 the density varies approximately by a factor of
+four. For helium natural convection in the VHTR reactor (ε ≈ 0.33), density varies by a factor of
+two. In contrast, Figure 5(a) illustrates the incompressible rendition of density which is a specified
+constant for a single-phase, single-component fluid.
+In Figure 6, we see a side-by-side comparison of the absolute pressure solutions. Figure 6(a)
+1
+
+1
+
+0.8
+
+0.8
+Pressure (Pa)
+
+0.4
+
+0.2
+
+101331
+101330
+101330
+101329
+101328
+101328
+101327
+101326
+101326
+101325
+
+0.6
+
+y(m)
+
+0.6
+
+y(m)
+
+Pressure (Pa)
+
+87015.5
+87014.8
+87014.1
+87013.4
+87012.7
+87012.0
+87011.3
+87010.6
+87009.9
+87009.2
+
+0.4
+
+0.2
+
+0
+
+0
+0
+
+0.2
+
+0.4
+
+x(m)
+
+0.6
+
+0.8
+
+1
+
+0
+
+(a) Pressure contour for conservative solution.
+
+0.2
+
+0.4
+
+x(m)
+
+0.6
+
+0.8
+
+1
+
+(b) Pressure contour for incompressible solution.
+
+Figure 6. Pressure comparison for test case TC-2.
+shows the pressure contour for the conservative solution and Figure 6(b) represents the pressure
+distribution for the incompressible solution. While at first glance, the solutions appear to be similar
+because both pressure solutions appear to be nearly hydrostatic. Both simulations were started
+at a prescribed pressure of one atmosphere (101,325 Pa). However, the steady-state solutions
+have significantly different domain integrated (average) pressures. The average pressure for the
+conservative solution is P̄ ≈ 87, 012 Pa while the average pressure for the incompressible solution is
+p̄ ≈ 101, 328 Pa. The incompressible average pressure is essentially the sum of the initial pressure
+and half of the hydrostatic pressure difference (linear distribution).
+The reason for these differences in integrated pressure is purely physical. The conservative
+pressure is thermodynamic (physical) and requires an equation of state to define its functional
+dependency upon density and energy. In order to conserve mass in this closed system, square
+cavity, the thermodynamic pressure of the conservative solution has to adjust to the total integrated
+energy in the domain and, in this case, causes an overall reduction in absolute pressure. In contrast
+to thermodynamic pressure’s functional dependency, the incompressible absolute pressure (nonphysical) is dependent upon an arbitrary reference value. Considering the incompressible flow
+equations (23)-(27), only the momentum equations (24) and (25) rely upon pressure in the form
+of a differential pressure gradient. Because the density ρ and thermal energy T do not depend
+upon pressure (basis of the incompressible flow assumption, see Section 2.2), the average initial
+(or reference) pressure is purely arbitrary. In fact, we could have started the incompressible flow
+test cases with a prescribed pressure of negative one atmosphere (-101,325 Pa) and obtained a final
+27
+
+averaged pressure of p̄ ≈ −101, 322 Pa. The velocity and temperature profiles would have been
+identical to the incompressible solution presented here. Typically, incompressible flow simulations
+do not employ a reference pressure in terms of absolute pressure. A zero “gauge” pressure is quite
+common. Thus, the pressure determined at the computational points are actually departures from
+this gauge pressure.
+Figure 7 is a side-by-side comparison of absolute temperature solutions for both the conservative and incompressible formulations, shown in Figure 7(a) and Figure 7(b), respectively.
+Qualitatively, these two temperature solutions appear to be very similar. That is to be expected
+1
+
+1
+
+0.8
+
+Temperature (K)
+
+890
+810
+730
+650
+570
+490
+410
+330
+250
+
+0.4
+
+0.2
+
+890
+810
+730
+650
+570
+490
+410
+330
+250
+
+0.6
+
+y(m)
+
+0.6
+
+y(m)
+
+0.8
+
+Temperature (K)
+
+0.4
+
+0.2
+
+0
+
+0
+0
+
+0.2
+
+0.4
+
+x(m)
+
+0.6
+
+0.8
+
+1
+
+0
+
+(a) Temperature contour for conservative solution.
+
+0.2
+
+0.4
+
+x(m)
+
+0.6
+
+0.8
+
+1
+
+(b) Temperature contour for incompressible solution.
+
+Figure 7. Temperature comparison for test case TC-2.
+as the heat conduction terms in both formulations are the same. As we will see in later sections,
+the large density variations apparent in Figure 5(a) result in noticeably different velocity profiles
+between both formulations. Thus, the viscous and thermal boundary layer thicknesses are then different, which result in different wall heat fluxes. We can see some of the resulting velocity profile
+differences with the deeper penetration of “cold” gas (more dense fluid with greater momentum
+and inertia) along the bottom wall in the conservative solution (Figure 7(a)).
+The last quantity that we will be comparing is divergence of velocity (or rate of expansion), another fundamental difference between the two formulations. Figure 8(a) illustrates the divergence
+of velocity distribution for test case TC-2 conservative solution. The divergence of velocity, or
+rate of expansion, represents a physical quantity that we can see demonstrated by the expansion
+of the gas along the hot wall (positive values) as well as the contraction of the fluid along the
+cold wall (negative values). The magnitude of the expansion and contraction of the gas is on the
+order of 2.0 − 2.5 s−1 . This is not insignificant as the peak velocity in the vertical boundary layers is approximately 1.0 m/s, which is nearly 10% higher than the corresponding incompressible
+solution.
+Where divergence of velocity is a physical quantity for the conservative solution, the numerical
+28
+
+1
+
+0.8
+
+Divergence
+of Velocity
+2.50
+2.00
+1.50
+1.00
+0.50
+0.00
+-0.50
+-1.00
+-1.50
+-2.00
+
+y(m)
+
+0.6
+
+0.4
+
+0.2
+
+0
+0
+
+0.2
+
+0.4
+
+x(m)
+
+0.6
+
+0.8
+
+1
+
+(a) Conservative divergence of velocity contour.
+
+(b) Incompressible divergence of velocity contour.
+
+Figure 8. Divergence of velocity comparison for test case TC-2.
+
+divergence of velocity profile for the incompressible solution, shown in Figure 8(b), is based upon
+nothing more than the spatial discretization error and the convergence error in the iterative solution
+method used to drive the divergence of velocity towards zero. Ideally, the mathematical divergence
+of velocity is zero across the domain but is never perfectly achieved in a numerical approximation.
+The plot shown in Figure 8(b) is actually the mass imbalance field, which represents the total mass
+flux in each cell. Computing the divergence of velocity is not an option available in STAR-CCM+.
+The mass imbalance field is “representative” of the divergence of velocity at steady-state.
+
+4.3
+
+Comparison with Benchmark Results
+
+Here, we will compare our conservative and incompressible solutions of the differentially heated
+square cavity problem with the accepted benchmark solutions of de Vahl Davis [8, 7] and the CEA
+and INRA workshops [2, 10]. Reproducing the de Vahl Davis problem with a small difference in
+specified wall temperatures allows for; 1) Quantification of the error between the incompressible
+solution obtained with STAR-CCM+ on the moderately fine (relative to the 80×80 mesh employed
+in the de Vahl Davis benchmark) mesh of Figure 3 and 2) Obtaining a baseline comparison of
+the conservative solution in the nearly incompressible limit, where the conservative solution is
+not divergence-free. Reproducing the high-temperature difference CEA and INRA air benchmark
+problems allows us to; 1) Verify the accuracy of the conservation solution obtained with the PCICE
+code on the moderately coarse (relative to the contributors in the CEA and INRA workshops) mesh
+of Figure 2 and 2) Quantify the differences between the conservative and incompressible solutions
+for the high-temperature air benchmark test cases.
+In the following three sections, direct comparisons for test cases TC-1 through TC-3 are made
+between the solutions obtained with the conservative and incompressible solvers and the estab29
+
+lished benchmark reference solutions. The de Vahl Davis benchmark comparison results are described in Section 4.3.1, where the reference values are all in terms of various non-dimensional
+wall heat (Nusselt number Nu) parameters. For graphical purposes, the cold wall Nusselt numbers
+are presented as absolute values. With equation (30), the cold wall Nusselt numbers would have
+been negative, which denotes heat flowing out of the boundary. Sections 4.3.2 and 4.3.3 contain
+the comparisons with the CEA and INRIA benchmark results. There, the reference solutions are
+in terms of integrated wall Nu and non-dimensional thermodynamic pressure reduction.
+
+4.3.1
+
+Test Case TC-1, De Vahl Davis Air Benchmark
+
+Figure 9 illustrates the Nusselt number Nu comparison results for the de Vahl Davis problem
+(test case TC-1) at a Rayleigh number of Ra = 106 . The line plots are of local Nusselt number
+Nu computed along the vertical hot and cold walls according to equation (30). For this low-
+
+Conservative (hot wall)
+Incompressible (hot wall)
+
+Nusselt
+
+15
+
+Conservative (cold wall)
+Incompressible (cold wall)
+
+10
+
+5
+
+0
+
+0
+
+0.2
+
+0.4
+
+y(m)
+
+0.6
+
+0.8
+
+1
+
+Figure 9. Test Case TC-1 hot and cold wall Nusselt distributions.
+temperature difference (nearly isothermal) case, it is difficult to delineate between the conservative
+and incompressible solutions. This is clear evidence that, for nearly isothermal density-driven flow,
+the formulations are nearly equivalent. Note that the solutions are symmetric about y = 0.5 m, a
+result of constant density definition for the incompressible formulation and nearly constant density
+distribution for the conservative formulation.
+Table 3 gives the computed benchmark values of various parameters for both the conservative
+and compressible formulations and their corresponding relative error compared to the accepted
+30
+
+h
+
+c
+
+benchmark reference values. In Table 3, Nu and Nu are the integrated (average) Nusselt numbers
+Table 3. Test Case 1 Comparison, (Ra = 106 , ε = 0.01, and constant transport coefficients).
+
+Parameter Conservative
+h
+Nu
+8.79721
+c
+Nu
+8.79721
+h
+Numax
+17.5370
+h
+Nuy=0.5
+8.31960
+Nuhmin
+0.95816
+c
+Numax
+17.5370
+Nucy=0.5
+8.31961
+c
+Numin
+0.95816
+
+Incompressible Reference % REC % REI
+8.83511
+8.8
+0.032
+0.399
+8.83534
+8.8
+0.032
+0.407
+17.5891
+17.925
+2.165
+1.874
+8.37688
+8.799
+5.448
+4.797
+0.97981
+0.989
+3.118
+0.929
+17.5913
+17.925
+2.165
+1.862
+8.37693
+8.799
+5.448
+4.797
+0.98088
+0.989
+3.118
+0.821
+
+along the hot and cold walls, respectively, determined by equation (31). For these square-cavity,
+h
+c
+natural convection problems, if Nu = Nu , then we have conserved energy in the simulation due to
+the adiabatic top and bottom horizontal walls. Nuhmax and Nucmax are the maximum Nusselt values
+along the hot and cold walls, respectively, with corresponding minimum Nusselt values Nuhmax
+and Nucmax . Nuhy=0.5 and Nucy=0.5 are the Nusselt values at y = 0.5m for the hot and cold walls,
+respectively. %REC and %REI are the percent relative errors compared to the Reference values
+for the conservative and incompressible formulations, respectively.
+There is one note to make about the given number of significant digits in the Reference column
+of Table 3. The de Vahl Davis [8, 7] required grid converged results on uniform meshes of 11 × 11,
+21 × 21, 41 × 41, and 81 × 81 grid points for this Ra = 106 problem. Given commonly available
+computer hardware and the algorithms of 1980, an 81 × 81 grid required significant computational
+effort for this non-trivial problem. However, a uniform grid of this size is not adequate to accurately
+capture the five vortices of this flow field. Nor does this coarse grid have the required resolution
+for accurate heat transfer calculations at the boundary. There was a wide variation in contributor
+h
+solution results, thus the lack of significant digits in the given reference solutions for Nu and
+c
+Nu . The attention should be more focused upon the comparison between our solutions, which
+were computed on a clustered 121 × 121 grid. With two different source codes containing different
+governing equations, algorithms, and spatial discretization methods, the two solutions we obtained
+for the de Vahl Davis problem are nearly identical, which implies that the two formulations achieve
+comparable results in the incompressible limit.
+
+4.3.2
+
+Test Case TC-2, CEA and INRIA Air Benchmark (Constant Transport Properties)
+
+Figure 10 illustrates the Nusselt number Nu comparison results for the high temperature difference,
+constant transport property problem of test case TC-2. The line plots are of local Nusselt number
+Nu computed along the vertical hot and cold walls with equation (30). Here we begin to see
+31
+
+20
+Conservative (hot wall)
+Incompressible (hot wall)
+Conservative (cold wall)
+Incompressible (cold wall)
+
+Nusselt
+
+15
+
+10
+
+5
+
+0
+
+0
+
+0.2
+
+0.4
+
+y(m)
+
+0.6
+
+0.8
+
+Figure 10. Test Case TC-2 hot and cold wall Nusselt distributions.
+
+significant variations in the solutions between the conservative an incompressible formulations for
+high-heat flux situations. Note that the incompressible Nusselt distribution is symmetric and the
+conservative Nusselt distribution is not. In this constant transport property case, the variance in the
+solutions can be traced back to the strong variation in density for the conservative formulation (see
+Figure 5). The variation in density increases the “buoyancy” of the gas in this region and creates
+the rate of expansion (non-zero divergence of velocity) of the gas (see Figure 8), accelerating the
+gas upward resulting in a thinner thermal boundary layer. We see this effect in Figure 10 where
+the heat flux is higher for the conservative solution through the hot wall boundary layer and lower
+through the cold wall boundary layer.
+The benchmark reference solutions for the CEA and INRIA workshops are in terms of interh
+c
+grated wall Nusselt numbers Nu and Nu and thermodynamic pressure ratio Pth /Po , determined by
+equation (32). These reference values are provided in Tables 4 and 5. The thermodynamic pressure
+ratio Pth /Po is not a parameter that can be applied for the incompressible solution and is denoted by
+NA. Additional variables that are consistent with the de Vahl Davis benchmark reference solution
+were also provided by various workshop contributors but were not defined as reference values.
+One of the contributors to the workshops, Vierendeels, produced results on a 2048 × 2048 grid.
+Vierendeels solution [16] agrees exactly with benchmark values (for the given number of significant digits). Additional non-reference variables provided by Vierendeels are then assumed to be
+correct for this study. They are denoted by an * in Tables 4 and 5 and used as reference values for
+our comparison study.
+32
+
+Table 4. Test Case 2 Comparison, (Ra = 106 , ε = 0.6, and con-
+
+stant transport coefficients).
+
+Parameter Conservative
+h
+Nu
+8.85439
+c
+Nu
+8.85449
+Pth /Po
+0.85871
+h
+Numax
+19.5409
+h
+Nuy=0.5
+7.80950
+Nuhmin
+1.07294
+c
+Numax
+16.3407
+Nucy=0.5
+8.81809
+c
+Numin
+0.85819
+
+Incompressible Reference % REC % REI
+8.82412
+8.85978
+0.061
+0.402
+8.82418
+8.85978
+0.060
+0.402
+NA
+0.85634
+0.277
+NA
+∗
+17.5929
+19.5964
+0.283 10.223
+∗
+8.37693
+7.81938
+0.127
+7.130
+∗ 1.07345
+0.97917
+0.048
+8.783
+∗
+17.5929
+16.3623
+0.132
+7.521
+∗ 8.79636
+8.37664
+0.247
+4.772
+∗
+0.97916
+0.85512
+0.359 14.506
+
+Overall, the conservative solution obtained with our code on a relatively coarse mesh agrees
+well with the benchmark reference values given in Table 4, well within 1%. This is important as
+we extend the simulation analysis to helium VHTR conditions of test cases TC-4 through TC-6.
+We can thus expect equally accurate results for the VHTR conditions where no reference solutions
+exist. As expected, the constant density profile and first-order body force approximation (Boussinesq) of the incompressible formulation produced less representative results with peak errors on
+the order of 10%.
+
+4.3.3
+
+Test Case TC-3, CEA and INRIA Air Benchmark (Temperature Dependent Transport
+Properties)
+
+Figure 11 illustrates the wall Nusselt number Nu comparison results for the high temperature difference, temperature-dependent transport property problem of test case TC-3. The line plots are
+of local Nusselt number Nu computed along the vertical hot and cold walls according to equation (30). The temperature dependent dynamic viscosity is given by equation (34) and scaled to
+achieve a Rayleigh number of Ra = 106 . Now note that, for variable transport coefficients, neither
+solution is symmetric.
+The reference values, including the Vierendeels values, for test case TC-3 are provided in
+Table 5. Note that the peak hot wall Nusselt number Nuhmax are higher than test case TC-2 and
+the centerline hot wall Nusselt number Nuhmin are lower than test case TC-2. Also, The average
+temperature of the domain for the conservative solution is higher than the average temperature
+for the constant transport property test case TC-2. This has resulted in a higher thermodynamic
+pressure ratio, Pth /Po = 0.923853, than pressure reduction ratio of test case TC-2 (see Table 4),
+Pth /Po = 0.85871. These two thermodynamic phenomena will be explained in Section 4.4.3.
+As with test case TC-2, the conservative solution agrees well with the air benchmark reference
+values for the variable transport property test case TC-3. Again, the conservative values are within
+33
+
+20
+Conservative (hot wall)
+Incompressible (hot wall)
+Conservative (cold wall)
+Incompressible (cold wall)
+
+Nusselt
+
+15
+
+10
+
+5
+
+0
+
+0
+
+0.2
+
+0.4
+
+y(m)
+
+0.6
+
+0.8
+
+Figure 11. Test Case TC-3 hot and cold wall Nusselt distributions.
+
+Table 5. Test Case 3 Comparison, (Ra = 106 , ε = 0.6, and variable transport coefficients).
+
+Parameter Conservative Incompressible
+h
+Nu
+8.6810
+8.5888
+c
+Nu
+8.6815
+8.5888
+Pth /Po
+0.923853
+NA
+Nuhmax
+20.2725
+17.6753
+Nuhy=.05
+7.4455
+8.0161
+h
+Numin
+1.0765
+0.9815
+Nucmax
+15.4255
+16.3898
+Nucy=.05
+8.6195
+8.2566
+c
+Numin
+0.7577
+0.8539
+
+Reference % REC % REI
+8.6866
+0.064
+1.126
+8.6866
+0.059
+1.126
+0.924487
+0.069
+NA
+∗ 20.2704
+0.010
+12.80
+∗ 7.4593
+0.185
+7.464
+∗ 1.0667
+0.919
+7.987
+∗ 15.5194
+0.605
+5.608
+∗ 8.6372
+0.205
+4.407
+∗ 0.7575
+0.026 12.726
+
+1% error. The peak errors on the incompressible solution Nusselt numbers have now risen to
+approximately 12%.
+34
+
+4.4
+
+Extended Analysis
+
+Here, we further extend the air benchmark reference solution analysis of test cases TC-1 through
+TC-3 to include the examination of individual terms of the governing equations and to compare
+their effects upon the viscous and and thermal boundary layers. Specifically, we compare the
+individual terms of the y-component of the balance of momentum equations at steady-state in the
+vicinity of the hot wall boundary layer. The steady-state form of equations (3) and (25) can be
+recast in terms of the summation of specific forces,
+0=−
+
+∂ ρ uv ∂ (ρ v2 ) ∂ P ∂ τxy ∂ τyy
+−
+−
++
++
++ ρ gy ,
+∂x
+∂y
+∂y
+∂x
+∂y
+
+(36)
+
+and
+0 = −ρo u
+
+∂v
+∂ v ∂ p ∂ σxy ∂ σyy
+− ρo v −
++
++
++ ρo gy [1 − β (T − To )] .
+∂x
+∂y ∂y
+∂x
+∂y
+
+(37)
+
+Equations (36) and (37) are the y-components of the steady-state balance of momentum for the
+conservative and incompressible forms, respectively.
+In the following analysis, the sum of the first two terms on the right-hand-side of equations (36)
+and (37) are referred to as the inertia of the conservative and incompressible forms, respectively.
+The y-component of the pressure gradient terms of equations (36) and (37) appear identical. However, it must be kept in mind that only the pressure gradient of the conservative form is thermodynamic where as the pressure in the incompressible form is actually deviation from the reference
+pressure. The sum of the two stress components, fourth and fifth terms, are referred to as the stress
+component of the conservative and incompressible forms, respectively. The final momentum terms
+to compare are the y-component of the body force.
+The extended analysis also includes comparisons of the y-component of velocity and temperature distributions in the hot wall boundary layer. This allows us a starting point to explain the
+differences in Nusselt numbers between conservative and incompressible formulations for large
+temperature variations.
+4.4.1
+
+Test Case TC-1, De Vahl Davis Air Benchmark
+
+Figure 12 illustrates the distributions of the specific force terms of equations (36) and (37) along
+the centerline (y = 0.5 m) in the vicinity of the hot wall boundary layer for the small temperature
+difference test case, TC-1. For this nearly isothermal, constant property test case, the conservative
+and incompressible solutions nearly overlap. The specific force terms relating to inertia and stress
+are clustered near zero and are negligible compared to the balance between the pressure gradient
+and the body force terms. The Boussinesq gravitational body force (line h) approximates the the
+conservative body force (line d) very well, which implies that this approximation is valid for small
+35
+
+6
+a)
+b)
+c)
+d)
+e)
+f)
+g)
+h)
+
+Specific Force (N/m3)
+
+4
+
+2
+
+0
+
+-2
+
+-4
+
+-6
+0
+
+0.05
+
+0.1
+
+x(m)
+
+0.15
+
+0.2
+
+Figure 12. Test Case TC-1 specific force distribution in the hot
+wall boundary layer taken along the centerline at y = 0.5 m. The
+solid lines refer to the conservative profiles of a) inertia, b) thermodynamic pressure gradient, c) stress component, and d) gravitational body force. The dashed lines refer to the incompressible
+profiles of e) inertia, f) pressure gradient, g) stress component, and
+h) Boussinesq gravitational body force approximation.
+
+temperature differences. The equivalency of the stress and inertia terms for nearly isothermal flows
+results in nearly equivalent velocity profiles in the boundary layer as shown in Figure 13(a). With
+the convective velocities nearly equivalent in the boundary layer, the temperature profiles in the
+thermal boundary layer are nearly indistinguishable, as shown in Figure 13(b). The end result is
+the nearly identical Nusselt distributions of Figure 9.
+
+4.4.2
+
+Test Case TC-2, CEA and INRIA Air Benchmark
+
+The specific force distribution near the hot wall for test case TC-2 is shown in Figure 14. For
+this high temperature difference test case, we see a relatively wide (compared to test case TC-1)
+variation in the specific force distributions between the conservative and incompressible solutions.
+With identical transport properties utilized for both simulations, these specific force variations
+are primarily due to the variable density profile of the conservative formulation, which varies
+by a factor of four across the domain, versus the constant density profile of the incompressible
+assumption (see Figure 5).
+36
+
+606
+
+0.1
+Conservative
+
+604
+
+Incompressible
+
+Conservative
+
+T(K)
+
+v (m/s)
+
+Incompressible
+
+0.05
+
+602
+
+600
+0
+0
+
+0.05
+
+0.1
+
+x(m)
+
+0.15
+
+0.2
+
+0
+
+(a) Hot wall viscous boundary layer comparison taken
+along the centerline at y = 0.5.
+
+0.05
+
+0.1
+
+x(m)
+
+0.15
+
+0.2
+
+(b) Hot wall thermal boundary layer comparison taken
+along the centerline at y = 0.5.
+
+Figure 13. Viscous and thermal boundary layer profile comparison for test case TC-1.
+
+In Figure 14, we see that the inertia profiles are still relatively insignificant to the balance
+of specific forces. Even though peak boundary layer velocity for this test case is an order of
+magnitude higher than the boundary layer velocity of test case TC-1, the velocity magnitudes
+and variations in velocity for these square cavity problems are too low for the inertia terms to
+contribute significantly to the viscous and thermal boundary layer profiles. However, in the nearwall region (0 < x < 0.05 m), the stress terms (lines c and g) are now nearly the same order of
+magnitude as the body force terms. Also, we now see a significant departure in the body force
+terms, lines d and h of Figure 14. In fact, this departure, on the order of 10%, is evident across
+the domain. Global integration of the body force terms indicates that the domain is subjected to
+different total body forces determined by the two formulations. The question here, open of coarse
+to personal interpretation and accuracy requirements, is whether the Boussinesq gravitational body
+force approximation is valid for this flow field. One more point to make here, in the absence of
+significant dynamical pressure variations, the y-component of the pressure gradient are still nearly
+constant for this test case. The incompressible pressure gradient is larger primarily due to the
+error in the Boussinesq body force approximation away from the wall. Near the wall, differences
+between the stress distributions are nearly equivalent to the differences in the body force terms,
+which sum to the difference between the pressure gradients.
+Figure 15(a) plots the velocity distribution in the vicinity of the hot wall boundary layer for test
+case TC-2. Here, the peak conservative velocity is 20% higher than the peak incompressible velocity. Also, the viscous boundary layer is much thicker. It is interesting that in the near-wall region
+(0.0 < x < 0.03 m), the velocity distributions for the conservative and incompressible solutions are
+nearly identical, yet this is the region of largest disparity between the stress distributions (see lines
+c and g of Figure 14). It must also be remembered that the conservative density is one-half the
+incompressible density in this region (see Figure 5), however, the magnitude of the conservative
+37
+
+6
+a)
+b)
+c)
+d)
+e)
+f)
+g)
+h)
+
+Specific Force (N/m3)
+
+4
+
+2
+
+0
+
+-2
+
+-4
+
+-6
+0
+
+0.05
+
+0.1
+
+x(m)
+
+0.15
+
+0.2
+
+Figure 14. Test Case TC-2 specific force distribution in the hot
+wall boundary layer taken along the centerline at y = 0.5 m. The
+solid lines refer to the conservative profiles of a) inertia, b) thermodynamic pressure gradient, c) stress component, and d) gravitational body force. The dashed lines refer to the incompressible
+profiles of e) inertia, f) pressure gradient, g) stress component, and
+h) Boussinesq gravitational body force approximation.
+
+body force is larger than the incompressible body force approximation. That is because T − To
+Boussinesq gravitational body force is linear and poorly represents the nonlinear change in density over large temperature changes. Figure 15(b) compares the temperature distributions through
+the hot wall thermal boundary layer. We can see that the conservative thermal boundary layer is
+thicker and has a higher temperature drop than the incompressible solution. However, the gradient
+of the incompressible temperature distribution normal to the hot wall is slightly higher. This yields
+a larger hot wall heat flux at the centerline, Nuhy=0.5 , as noted in Table 4.
+4.4.3
+
+Test Case TC-3, CEA and INRIA Air Benchmark
+
+The distribution of specific forces is plotted in Figure 16 for the last air benchmark test case, TC-3.
+The transport properties in this test case were given a temperature dependency according to equation (34). Interestingly, the temperature dependent transport properties impacts the thermodynamic
+characteristics of this test case in several ways. Along the hot wall, the un-scaled values of dynamic
+viscosity and thermal conductivity are μ = 3.967006 × 10−5 kg/(m·s) and k = 5.613034 × 10−2
+W/(m·K), respectively, versus μ = 2.953289 × 10−5 kg/(m·s) and k = 4.178691 × 10−2 W/(m·K)
+38
+
+950
+1
+900
+850
+Conservative
+
+T(K)
+
+v (m/s)
+
+Conservative
+
+800
+
+Incompressible
+
+0.5
+
+Incompressible
+
+750
+700
+650
+600
+
+0
+
+550
+0
+
+0.05
+
+0.1
+
+x(m)
+
+0.15
+
+0
+
+(a) Hot wall viscous boundary layer comparison taken
+along the centerline at y = 0.5 m.
+
+0.05
+
+0.1
+
+x(m)
+
+0.15
+
+0.2
+
+(b) Hot wall thermal boundary layer comparison taken
+along the centerline at y = 0.5.
+
+Figure 15. Viscous and thermal boundary layer profile comparison for test case TC-2.
+
+for test case TC-2. The higher value of dynamic viscosity μ results in a thicker viscous boundary
+layer with a smaller peak velocity, approximately 0.1 m/s smaller as shown in Figure 17(a). The
+higher value of thermal conductivity k results in a thicker thermal boundary layer with a smaller
+drop in temperature (approximately 50 K smaller) across the boundary layer, as shown in Figure 17(b).
+As noted in Section 4.3.3, the thermodynamic pressure ratio Pth /Po is closer to one for test
+case TC-3 than it is for the constant transport property test case TC-2. This is because the variable
+thermal conductivity of test case TC-3 allows a larger region of “hot” gas in the domain. The
+contraction of the gas is then not as great. Also, the peak Nusselt number Nuhmax along the hot
+wall is greater in test case TC-3 than TC-2. This is because, along the hot wall, the coefficient
+k/ko = 1.343252 in equation (30) for test case TC-3. k/ko = 1.0 in test case TC-2 where the
+thermal conductivity is constant across the domain. On the contrary, the reference heat flux at
+the centerline, Nuhy=0.5 , is lower than the reference heat flux of test case TC-2. This is because
+there is a smaller temperature drop across the thicker thermal boundary resulting in a smaller
+normal temperature gradient that the coefficient k/ko can not overcome. With a larger region
+of “hot” gas, the average conservative density away from the boundary layers is closer to the
+specified incompressible density. Thus, the Boussinesq approximation results in a more accurate
+prediction, lines d and h of Figure 16, of the incompressible body force than it did for test case
+TC-2, lines d and h of Figure 14. A result of the better Boussinesq approximation is that the ycomponent of the pressure gradients, lines d and h of Figure 16, more closely than they did in test
+case TC-2. However, in the vicinity of the hot wall boundary layer, where the temperature profile
+is still quite nonlinear, the Boussinesq approximation continues to fail in accurately representing
+the gravitational body force.
+39
+
+6
+a)
+b)
+c)
+d)
+e)
+f)
+g)
+h)
+
+Specific Force (N/m3)
+
+4
+
+2
+
+0
+
+-2
+
+-4
+
+-6
+0
+
+0.05
+
+0.1
+
+x(m)
+
+0.15
+
+0.2
+
+Figure 16. Test Case TC-3 specific force distribution in the hot
+wall boundary layer taken along the centerline at y = 0.5 m. The
+solid lines refer to the conservative profiles of a) inertia, b) thermodynamic pressure gradient, c) stress component, and d) gravitational body force. The dashed lines refer to the incompressible
+profiles of e) inertia, f) pressure gradient, g) stress component, and
+h) Boussinesq gravitational body force approximation.
+
+4.5
+
+Helium Natural Convection Results
+
+Several conclusions can be drawn from the results described in Sections 4.3 and 4.4. First, both the
+conservative and incompressible formulations (and the codes we employed for this study) produce
+nearly equivalent solutions with comparable accuracy in the incompressible limit, approximated
+with a small temperature difference on the de Vahl Davis benchmark problem TC-1. Second,
+comparisons with the CEA and INRIA air benchmark test cases, TC-2 and TC-3, confirmed that
+our conservative code can be expected can be expected to provide accuracy within 1% for large
+temperature difference natural convection flows, where the flow field is laminar and the fluid properties follow the ideal gas assumption, equation (8). Finally, the Boussinesq approximation can not
+be counted on to accurately represent the gravitational body force for density driven flows with a
+highly nonlinear temperature profile.
+Now, we can apply our analysis criteria for the air benchmark test cases to helium natural
+convection flow in a square cavity under the average operating parameters of the Very High Temperature gas-cooled Reactor (VHTR) [12], i.e. maximum coolant temperature difference and average reactor pressure. For test cases TC-4 and TC-5, The hot and cold wall temperatures are
+40
+
+1
+
+950
+900
+
+0.8
+
+850
+Conservative
+
+Conservative
+
+Incompressib
+
+800
+
+T(K)
+
+v (m/s)
+
+0.6
+
+0.4
+
+Incompressible
+
+750
+700
+
+0.2
+
+650
+600
+
+0
+550
+0
+
+0.05
+
+0.1
+
+x(m)
+
+0.15
+
+0
+
+(a) Hot wall viscous boundary layer comparison taken
+along the centerline at y = 0.5 m.
+
+0.05
+
+0.1
+
+x(m)
+
+0.15
+
+0.2
+
+(b) Hot wall thermal boundary layer comparison taken
+along the centerline at y = 0.5 m.
+
+Figure 17. Viscous and thermal boundary layer profile comparison for test case TC-3.
+
+Th = 1523.15 K and Tc = 773.15 K, respectively, which translates into a non-dimensional temperature difference of ε = 0.3267. The reference temperature, pressure, and density are To = 1148.15
+K, Po = 7.0 MPa, and ρo = 2.860625 kg/m3 , respectively. Test case TC-4 is defined with constant
+transport properties and test TC-5 is defined with temperature dependent transport properties with
+the properties of both test cases scaled to achieve a Rayleigh number of Ra = 106 . Finally, we
+end the analysis with a transient test case TC-6, which will have initial conditions obtained from
+the test case TC-5 steady-state solution and is also defined by temperature dependent transport
+properties.
+
+4.5.1
+
+Test Case TC-4, Helium with Constant Transport Properties
+
+Our first helium natural convection simulation is the constant transport property test case TC-4.
+Figure 18 illustrates the hot and cold wall non-dimensional heat flux (Nusselt) distributions for both
+of the conservative and incompressible steady-state solutions. Once again for constant transport
+properties, we see that the incompressible solution is symmetric and the conservative solution is
+not. However, with the non-dimensional temperature difference ε equal to roughly half of the hightemperature difference air test cases, the disparity between the conservative and incompressible
+Nusselt distributions is reduced considerably. The density distribution for the conservative solution
+now varies by a factor of two compared to the high-temperature difference air test cases where the
+density varied by a factor of four across the domain.
+Table 6 lists the derived solution values, based upon the high-temperature difference air benchmark reference variables, for test case TC-4. Both solutions show excellent steady-state conver41
+
+Conservative (hot wall)
+Incompressible (hot wall)
+Conservative (cold wall)
+Incompressible (cold wall)
+
+Nusselt
+
+15
+
+10
+
+5
+
+0
+
+0
+
+0.2
+
+0.4
+
+y(m)
+
+0.6
+
+0.8
+
+Figure 18. Test Case TC-4 hot and cold wall Nusselt distributions.
+
+gence (and energy conservation) as the integrated hot and cold wall Nusselt numbers, Nuh and Nuc ,
+are nearly equivalent. In other words, Nuh ≈ Nuc for each of the conservative and incompressible
+solutions. In the absence of helium benchmark reference solutions and based upon our experience
+Table 6. Test Case 4 Comparison, (Ra = 106 , ε = 0.3267, and
+constant transport coefficients).
+
+Parameter Conservative Incompressible
+Nuh
+8.7878
+8.7969
+Nuc
+8.7879
+8.7968
+Pth /Po
+0.96200
+NA
+h
+Numax
+18.2215
+17.4699
+Nuhy=.05
+8.0937
+8.3583
+h
+Numin
+1.0313
+0.9813
+c
+Numax
+16.6723
+17.4699
+Nucy=.05
+8.5876
+8.3581
+c
+Numin
+0.9388
+0.9814
+
+% Difference
+0.104
+0.101
+NA
+4.125
+3.269
+4.848
+4.765
+2.672
+4.538
+
+with the air benchmark solutions, we assume here that the conservative solution is the most accurate in determining the percentage of difference between the two solutions. The peak differences
+between the solutions is on the order of 4%.
+42
+
+The specific force distribution near the hot wall for test case TC-4 is shown in Figure 19.
+For this helium high-temperature difference test case, we see a relatively narrow variation in the
+specific force distributions between the conservative and incompressible solutions. The widest
+30
+25
+
+a)
+b)
+c)
+d)
+e)
+f)
+g)
+h)
+
+20
+
+Specific Force (N/m3)
+
+15
+10
+5
+0
+-5
+-10
+-15
+-20
+-25
+-30
+
+0
+
+0.05
+
+0.1
+
+x(m)
+
+0.15
+
+0.2
+
+Figure 19. Test Case TC-4 specific force distribution in the hot
+wall boundary layer taken along the centerline at y = 0.5 m. The
+solid lines refer to the conservative profiles of a) inertia, b) thermodynamic pressure gradient, c) stress component, and d) gravitational body force. The dashed lines refer to the incompressible
+profiles of e) inertia, f) pressure gradient, g) stress component, and
+h) Boussinesq gravitational body force approximation.
+
+disparity between the solutions occurs in the near-wall region (0.0 < x < 0.03 m) for the stress
+(lines c and g) and body force (lines d and h) distributions.
+Figure 20 compares the velocity and temperature distributions through the hot wall boundary
+layer for test case TC-4.
+
+4.5.2
+
+Test Case TC-5, Helium with Variable Transport Properties
+
+Our second helium natural convection simulation is the temperature dependent transport property
+test case TC-5. Figure 21 illustrates the hot and cold wall non-dimensional heat flux (Nusselt)
+distributions for both of the conservative and incompressible steady-state solutions. As with test
+case TC-3, niether solution is symmetric for variable transport properties.
+43
+
+0.8
+1500
+1450
+0.6
+
+1400
+Conservative
+
+Conservative
+
+1350
+
+0.4
+
+Incompressible
+
+1300
+
+T(K)
+
+v (m/s)
+
+Incompressible
+
+1250
+0.2
+
+1200
+1150
+
+0
+
+1100
+
+0
+
+0.05
+
+0.1
+
+x(m)
+
+1050
+
+0.15
+
+(a) Hot wall viscous boundary layer comparison taken
+along the centerline at y = 0.5 m.
+
+0
+
+0.05
+
+0.1
+
+0.15
+
+x(m)
+
+0.2
+
+(b) Hot wall thermal boundary layer comparison taken
+along the centerline at y = 0.5 m.
+
+Figure 20. Viscous and thermal boundary layer profile comparison for test case TC-4.
+
+Conservative (hot wall)
+Incompressible (hot wall)
+Conservative (cold wall)
+Incompressible (cold wall)
+
+Nusselt
+
+15
+
+10
+
+5
+
+0
+
+0
+
+0.2
+
+0.4
+
+y(m)
+
+0.6
+
+0.8
+
+1
+
+Figure 21. Test Case TC-5 hot and cold wall Nusselt distributions.
+
+Table 7 lists the derived solution values, based upon the high-temperature difference benchmark
+reference variables, for test case TC-4. Both solutions show excellent steady-state convergence
+44
+
+(and energy conservation)
+Table 7. Test Case 5 Comparison, (Ra = 106 , ε = 0.3267, and
+
+variable transport coefficients).
+
+Parameter Conservative Incompressible
+Nuh
+8.7246
+8.7417
+Nuc
+8.7248
+8.7416
+Pth /Po
+0.97506
+NA
+Nuhmax
+18.4194
+17.6807
+Nuhy=.05
+7.9822
+8.2367
+h
+Numin
+1.0492
+0.9900
+Nucmax
+16.3842
+17.0198
+Nucy=.05
+8.5289
+8.1630
+c
+Numin
+0.8924
+0.9469
+
+% Difference
+0.196
+0.196
+NA
+4.010
+3.188
+5.642
+3.879
+4.290
+6.107
+
+The specific force distribution near the hot wall for test case TC-5 is shown in Figure 22.
+For this helium high-temperature difference test case, we see a relatively narrow variation in the
+specific force distributions between the conservative and incompressible solutions.
+Figure 23 compares the velocity and temperature distributions through the hot wall boundary
+layer for test case TC-5.
+4.5.3
+
+Test Case TC-6, Transient Helium Conditions with Variable Transport Properties
+
+Our last test case for this comparative study is transient natural convection flow of helium gas in a
+square cavity. The transient nature of test case TC-6 is defined by a temporal variation of the hot
+vertical wall given by the cosine function of equation (35). With this equation, we vary the hot
+wall temperature between 1523.15 K to 773.15 K over a 5 second period for a toal of three periods
+(15 seconds). As with our previous helium test cases, TC-4 and TC-5, both the top and bottom
+walls are defined adiabatic and the cold wall temperature boundary condition remains specified
+at a constant 773.15 K. The initial conditions for this test case are derived from the steady-state
+solution of test case TC-5. The transport properties are the temperature dependent properties of
+test case TC-5, which essentially gives us a time dependent Rayleigh number parameter that varies
+between Ra = 0.0 and Ra = 106 .
+The imposition of time dependent behavior for the specified hot wall boundary temperature
+greatly increases the complexity of the flow field compared to the steady-state test cases. Comparing the conservative and incompressible solutions through force balances is no longer possible
+due to non-zero and unequal fluid accelerations (time rate of change in the momentum components) between the conservative and incompressible balance of momentum equations. We now see
+the conservative and incompressible boundary layers evolving in different time frames, with the
+incompressible solution noticeably lagging, not in “sync” shall we say. The following discussion
+45
+
+30
+25
+
+a)
+b)
+c)
+d)
+e)
+f)
+g)
+h)
+
+20
+
+Specific Force (N/m3)
+
+15
+10
+5
+0
+-5
+-10
+-15
+-20
+-25
+-30
+
+0
+
+0.05
+
+0.1
+
+x(m)
+
+0.15
+
+0.2
+
+Figure 22. Test Case TC-5 specific force distribution in the hot
+wall boundary layer taken along the centerline at y = 0.5 m. The
+solid lines refer to the conservative profiles of a) inertia, b) thermodynamic pressure gradient, c) stress component, and d) gravitational body force. The dashed lines refer to the incompressible
+profiles of e) inertia, f) pressure gradient, g) stress component, and
+h) Boussinesq gravitational body force approximation.
+
+attempts to explain the significant solution differences in the hot wall Nusselt numbers, depicted
+in Figure 24, at various solution times.
+Without a lengthy mathematical description, describing the transient behavior of the conservative representation (nonlinearly-coupled parabolic-hyperbolic system of equations) of natural
+convection flow is difficult at best due to the strong thermodynamic coupling of the conservative
+equations (1)-(4). In fact, it is pressure’s dependency on density and energy, defined through the
+equation of state (8), that couple the conservation of mass and total energy equations to the balance of momentum equations. This is even true for flows, such as the one presented here, that do
+not depend upon pressure gradients as such to define the velocity field. A rigorous characteristic
+analysis [13] of the conservative equations shows how these equations are coupled through a thermodynamic definition of pressure and become an indeterminate system without a thermodynamic
+definition of pressure. On the other hand, the incompressible equation system, equations (24)-(27),
+are only weakly coupled through the first-oder approximation (Boussinesq) of the gravitational
+body force in the momentum equations and the advection term of the thermal energy equation.
+Pressure in an incompressible formulation plays no thermodynamic role in coupling with the thermal energy equation.
+46
+
+1500
+1450
+
+0.6
+
+1400
+Conservative
+
+Conservative
+
+1350
+
+Incompressible
+
+v (m/s)
+
+0.4
+
+Incompressible
+
+T(K)
+
+1300
+1250
+
+0.2
+
+1200
+1150
+
+0
+
+1100
+
+0
+
+0.05
+
+0.1
+
+x(m)
+
+1050
+
+0.15
+
+(a) Hot wall viscous boundary layer comparison taken
+along the centerline at y = 0.5 m.
+
+0
+
+0.05
+
+0.1
+
+x(m)
+
+0.15
+
+0.2
+
+(b) Hot wall thermal boundary layer comparison taken
+along the centerline at y = 0.5 m.
+
+Figure 23. Viscous and thermal boundary layer profile comparison for test case TC-5.
+
+Up to this point, we have rigorously avoided the use of the word “compressible” in this study to
+describe the phenomena associated with natural convection flows represented by the conservative
+form of the governing equations. We have already shown that these natural convection flows
+are density driven due to internal energy variations and not due to pressure gradients. However,
+what can be best described as “thermal compression and expansion” takes place globally in the
+conservative solution for this transient test case. As volume (and mass) is constant in this closed
+system, the internal energy of the system is proportional to the average pressure of the system at
+any point in time during the transient period. The system pressure remains in near thermodynamic
+equilibrium with the system internal energy and the constant mass of the system. Dynamic pressure
+effects are almost non-existent because the time scale of the pressure propagation speeds are four
+orders of magnitude smaller than the period of the thermal transient being investigated here. Thus,
+the pressure distribution maintains a hydrostatic profile even as the system, or average, pressure
+rises and falls.
+Through a combination of interior domain heat conduction and hot wall heat flux resulting
+from the transient specified hot wall temperature, we achieve the lowest system internal energy at
+time t = 13.425 s. At this point in time, the thermodynamic pressure ratio is Pth /Po = 0.82220
+for a system pressure of 5.75467 MPa versus an initial thermodynamic pressure ratio of Pth /Po =
+0.97506 with a system pressure of 6.82542 MPa at the beginning of the simulation. At the end time
+t = 15.0 s, the thermodynamic pressure ratio is now Pth /Po = 0.86057 with the system pressure
+rising to 6.02401 MPa. There is no reflection of this transient thermodynamic response in the
+incompressible flow results.
+The transient thermodynamic response effects local phenomena as well, such as in the near
+wall regions of the hot and cold walls. Near these walls, the temperature of the gas closely follows
+47
+
+20
+-4
+
+18
+
+-6
+
+16
+
+Conservative
+Incompressible
+
+-12
+
+12
+10
+
+-14
+
+8
+
+-16
+
+6
+
+-18
+
+4
+
+-20
+
+Conservative
+Incompressible
+
+14
+
+-10
+
+Nusselt
+
+Nusselt
+
+-8
+
+0
+
+0.2
+
+0.4
+
+y(m)
+
+0.6
+
+0.8
+
+2
+
+1
+
+(a) Hot wall Nusselt distribution at t = 2.5 s.
+
+0
+
+0.2
+
+0.4
+
+y(m)
+
+0.6
+
+0.8
+
+1
+
+(b) Hot wall Nusselt distribution at t = 5.0 s.
+
+-2
+
+20
+
+-4
+Conservative
+Incompressible
+
+15
+
+Conservative
+Incompressible
+
+-8
+
+Nusselt
+
+Nusselt
+
+-6
+
+10
+
+-10
+
+-12
+
+-14
+
+5
+
+0
+
+0.2
+
+0.4
+
+y(m)
+
+0.6
+
+0.8
+
+1
+
+0
+
+(c) Hot wall Nusselt distribution at t = 7.5 s.
+
+0.2
+
+0.4
+
+y(m)
+
+0.6
+
+0.8
+
+1
+
+(d) Hot wall Nusselt distribution at t = 10.0 s.
+
+-2
+
+20
+18
+
+-4
+
+16
+
+Conservative
+Incompressible
+
+14
+-6
+
+Nusselt
+
+Nusselt
+
+Conservative
+Incompressible
+
+-8
+
+12
+10
+8
+6
+
+-10
+
+4
+-12
+
+0
+
+0.2
+
+0.4
+
+y(m)
+
+0.6
+
+0.8
+
+2
+
+1
+
+(e) Hot wall Nusselt distribution at t = 12.5 s.
+
+0
+
+0.2
+
+0.4
+
+y(m)
+
+0.6
+
+0.8
+
+(f) Hot wall Nusselt distribution at t = 15.0 s.
+
+Figure 24. Transient Nusselt comparison for test case TC-6.
+
+48
+
+1
+
+the transient hot wall temperature and remains close to the constant cold wall temperature. As
+the system thermodynamic pressure rises and falls through the transient cycle, the local density in
+these near wall regions must react accordingly. This can be explained in terms of the equation of
+state by differentiating equation (8) over some differential change in time,
+
+ΔP =
+
+∂P
+∂ρ
+
+
+
+
+
+∂P
+Δρ +
+∂e
+e
+
+
+ρ
+
+Δe ,
+
+(38)
+
+or,
+ΔP = Rc T Δρ + Rc ρ ΔT ,
+
+(39)
+
+where ΔP, Δρ , and ΔT are temporal increments of pressure, density and temperature, respectively.
+Solving for Δρ ,
+Δρ =
+
+ρ
+ΔP
+− ΔT ,
+Rc T T
+
+(40)
+
+we can see that the change in density near the wall is a nonlinear combination of the changes in
+pressure and temperature, and we know from above that the change in pressure over time is not
+zero. As the temperature of the hot wall boundary condition increases, the local density near the
+wall must decrease even as the system’s thermodynamic pressure must increase. In order to conserve mass of the system, the density must increase elsewhere in the system. This is accomplished
+by the increasing system pressure.
+The transient nature of the near wall density must also satisfy the conservation of mass equation (1). Locally, the divergence of the mass flux ρu must be equal to the time rate of change
+in density. Therefore, the velocity field must compensate for the expansion and contraction of
+the fluid. Conversely, the Boussinesq approximation assumes that the local change in density is
+approximated only by a function of the difference between the local temperature and a reference
+temperature. Thus, the velocity profile in the incompressible solution only responds to the effects of the transient temperature boundary condition along the hot wall on the system, a thermal
+response.
+The results of the transient thermodynamic response of the conservative solution versus the
+transient thermal response for the incompressible solution are clearly displayed in Figure 24. Figures 24(a), 24(c), and 24(e) are the Nusselt number distribution along the hot wall at times t = 2.5
+s, t = 7.5 s, and t = 12.5 s, respectively. At these simulation times, the specified temperature along
+the “hot” wall is equal to the constant specified cold wall temperature of test cases TC-4 and TC-5,
+Th = Tc = 773.15 K. Note that the Nusselt number distributions at these solution times are negative along the wall indicating that heat is flowing out of the hot wall boundary (the interior is at
+a higher temperature than the specified wall temperature). While the Nusselt number profiles for
+both the conservative and incompressible solutions appear similar, the magnitude of the Nusselt
+49
+
+numbers are decreasing in time. The differences in peak Nusselt numbers between the solutions
+are ΔNu = 2.5, ΔNu = 1.8, and ΔNu = 1.5 at times t = 2.5 s, t = 7.5 s, and t = 12.5 s, respectively.
+At these solution times, the difference in peak Nusselt numbers translate into 14.8%, 13.2%, and
+13.2%, respectively. Figures 24(b), 24(d), and 24(f) are the Nusselt number distribution along the
+hot wall at times t = 5.0 s, t = 10.0 s, and t = 15.0 s, respectively. At these simulation times, the
+specified temperature along the hot wall is equal to the constant specified hot wall temperature of
+test cases TC-4 and TC-5, Th = 1523.15 K. At these solution times, the Nusselt number profiles
+are similar with the peak Nusselt numbers for both solutions slightly increasing in time (indicating
+that the interior near wall temperature is slightly decreasing with time). Also, the peak difference
+in Nusselt numbers remain fairly constant in time, approximately 13.2%.
+Figures 24(a)- 24(f) clearly shows that the incompressible solution consistently under predicts
+the magnitude of hot wall heat flux during this transient simulation. The thermodynamic response
+for the conservative solution is significantly different than the thermal response of the incompressible solution. The conservative velocity distribution differs from the incompressible velocity
+distribution due to expansion and contraction of the gas and the different representations of the
+gravitational body force. While the steady-state temperature distributions for both the conservative and incompressible solutions for test cases TC-4 and TC-5 were relatively close, the transient
+temperature distributions for both solutions of test case TC-6 are significantly different in time.
+Therefore, the temperature dependent transport properties differ accordingly.
+
+50
+
+5 Summary and Conclusions
+In summary, this report illustrates a comparative study to analyze the physical differences between numerical simulations obtained with both the conservation and incompressible forms of the
+Navier-Stokes equations for natural convection flows in simple geometries with the goal of investigating the possible consequences of assuming incompressible flow in Next Generation Nuclear
+Plant (NGNP) simulations, specifically for helium-cooled reactor concepts. The purpose of this
+study is to quantify how the incompressible flow assumption (which is based upon constant density advection, divergence-free flow, and the Boussinesq gravitational body force approximation)
+differs from the conservation form (which only assumes that the fluid is a continuum) when solving
+flows driven by gravity acting upon density variations resulting from local temperature gradients.
+Our approach was to perform simulations with two computational fluid dynamic (CFD) computer codes with one solving the conservation form of the governing hydrodynamic equations and
+the other solving the incompressible form. We first reproduced the results of the de Vahl Davis
+benchmark [8, 7] with a small temperature difference to demonstrate the equivalency of both formulations in the incompressible limit. Next, we duplicated two of the high heat flux test cases for
+air from the CEA and INRIA workshops [2, 10]. The two test cases chosen varied only in that one
+incorporated constant transport coefficients and the other employed temperature dependent transport coefficients. The reason for choosing these two test cases was twofold: First, the conservation
+CFD code we used incorporated a conservation form of the total energy equation where the workshops only required a primitive variable form of the energy equation (that also neglected viscous
+heating), in terms of thermal energy, which neglects kinetic energy contributions. This provided
+an opportunity to validate our conservation CFD code against an accepted numerical benchmark
+experiment for variable density, low-Mach number flow. And second, the test cases provided an
+avenue to quantify the differing results obtained with an incompressible formulation when compared to the high heat flux benchmark solutions. Our simulations culminated with the application
+of our analysis criteria to three helium natural convection test cases at the global normal operating
+conditions of the Very High Temperature gas-cooled Reactor (VHTR) [12], i.e., maximum coolant
+temperature difference and average reactor pressure.
+The solutions obtained with both the conservative and incompressible formulations for the de
+Vahl Davis air benchmark test case TC-1 were nearly identical and compared well with the benchmark solutions. There was only a 1.0% variation in local density from the incompressible reference
+density ρo for this low-temperature difference (ε = 0.01), constant transport property test case. The
+small density variation seems to have negligibly effected the relative accuracy when compared to
+the incompressible benchmark solution (see Table 3). As discussed in Section 4.3.1, there is some
+question in the validity of the benchmark solution values given the wide variation in contributor
+solution results produced on relatively coarse grids. Our conservative and incompressible results,
+obtained on a grid with much finer boundary layer resolution (see Figures 2 and 3), agree more
+closely with each other than the benchmark solution for some of the specific values of Nusselt
+numbers Nu. The extended analysis for this nearly isothermal test case show that the near wall
+specific force distributions and viscous and thermal boundary layer profiles are nearly identical for
+both hydrodynamic formulations (see Figures 12 and 13). Overall, the solution obtained with the
+51
+
+conservative code showed good behavior and acuracy in the nearly incompressible flow regime.
+As expected, the comparison results diverged significantly for the high-temperature difference
+(ε = 0.6) CEA and INRIA air benchmark test cases TC-2 (constant transport properties) and TC-3
+(temperature dependent transport properties). The solutions obtained with the conservative code
+compared very well with the benchmark Reference values (see Tables 4 and 5) with the relative
+errors in both test cases less than 1%. It is possible in these two test cases for an ideal gas fluid
+particle following a pathline in space and time to undergo a factor of four change in fluid density.
+As discussed in Section 2.2, this magnitude of change in density of a fluid particle clearly results
+in a violation of the incompressible flow assumption, equation (14). The inappropriateness of the
+incompressible flow model for these two test cases is born out in our incompressible results with
+the relative errors in the magnitude hot and cold wall Nusselt numbers Nu approaching 12%. The
+extended analysis for these two air test cases also supports this conclusion. Except for the inertia
+terms, the near wall specific force distributions show significant variation between the conservative
+and incompressible solutions, as shown in Figures 14 and 16. The near wall viscous and thermal
+boundary layer profiles of Figures 15 and 17 also show significant variation. Several conclusions
+can be drawn from the comparison results obtained for test cases TC-2 and TC-3. First, both the
+conservative and incompressible formulations (and the codes we employed for this study) produce
+nearly equivalent solutions with comparable accuracy in the incompressible limit, approximated
+with a small temperature difference on the de Vahl Davis benchmark problem TC-1. Second, comparisons with the CEA and INRIA air benchmark test cases, TC-2 and TC-3, confirmed that our
+conservative code can be expected to provide accuracy within 1% for large temperature difference
+natural convection flows, where the flow field is laminar and the fluid properties follow the ideal
+gas assumption, equation (8). And third, the Boussinesq approximation can not be counted on to
+accurately represent the gravitational body force for density driven flows with a highly nonlinear
+temperature profile.
+With confidence in our conservative code gained by generating representative comparison results for the high-temperature difference air benchmark test cases TC-2 and TC-3, we applied both
+the conservative and incompressible codes to the high-temperature difference helium test cases
+whose initial and boundary conditions are loosely based upon the VHTR operating conditions.
+The single difference between the two helium test cases is that the transport properties for test case
+TC-4 are constant (taken from the reference conditions) and the transport properties for test case
+TC-5 are temperature dependent. As no benchmark solutions exist for the helium test cases, we assumed that the conservative solution provides a more accurate representation of the flow field. We
+then computed the relative error of the incompressible solution based upon the conservative solution. For both helium test cases, the various Nusselt numbers Nu obtained with the incompressible
+code were on the order of 5% different than the results obtained with the conservative code (see
+Tables 4 and 5). These results and the extended results are much closer than those obtained for
+the air test cases TC-2 and TC-3. The reason for this is two-fold: First, while the hot an cold wall
+temperature difference between the air and helium test cases were roughly the same (720.0 K for
+the air test cases and 750.0 K for helium test cases), the non-dimensional temperature difference ε
+is approximately half for the helium test cases (ε = 0.6 for the air test cases and ε ≈ 0.33 for the
+helium test cases). The result is that the variation in density across the helium flow field is approximately a factor of two versus a factor of four for the high-temperature difference air test cases.
+52
+
+Still, a fluid particle density that varies by a factor of two can easily be considered a violation of the
+incompressible flow assumption. And second, helium can be thought of as a thermodynamically
+“stiff” gas. If we consider equation (40), the first term on the right-hand side defines the change
+in density’s dependency upon the change in thermodynamic pressure. The coefficient 1/(Rc T )
+represents the sensitivity of this dependency. Helium’s specific gas constant is Rc = 2077 J/(kg·K)
+and air’s is Rc = 287 J/(kg·K). Rc T is approximately equal to the local sound speed squared. For
+helium, this term translates into Rc T ≈ 3.16 × 106 m2 /s2 at T = 1523.15 K and air is an order of
+magnitude less with Rc T ≈ 2.75 × 105 m2 /s2 at T = 960 K, which implies that the change in the
+density of air is more dependent upon the change in pressure. The influence of this sensitivity
+is born out in the thermodynamic pressure reduction ratio difference between the air and helium
+test cases. For the air test case TC-2, the pressure reduction ratio is Pth /Po = 0.85634, or 14.4%
+deviation from the reference pressure. For the helium test case TC-4, the pressure reduction ratio
+is Pth /Po = 0.97506, or 2.5% deviation from the reference pressure.
+The transient helium test case TC-6 raises more questions about the appropriateness of the
+incompressible flow assumption for high-temperature difference natural convection flows than it
+answers. From the results in Section 4.5.3, it is apparent that the thermodynamic effects upon
+the the velocity field may be more important for time-dependent flows than for steady-state flows.
+These effects, that are physically neglected with the incompressible flow assumption, basically resulted in two different temporal solutions. These are preliminary results on a very simple geometry
+and if further analysis is deemed necessary, we have several suggestions for further analysis:
+1. The square cavity geometry somewhat limits attainable velocity magnitudes. A simple yet
+more representative geometry for NGNP investigations is the 8:1 differentially heated cavity. This geometry was incorporated into a special session of the First MIT Conference on
+Computational Fluid and Solid Dynamics in June, 2001 [6]. One of the objectives of this
+session was to determine the best time-dependent benchmark solution at particular values of
+Rayleigh numbers. Rayleigh numbers were varied to determine a critical number in which
+the flow becomes unsteady and to investigate the transient wall heat fluxes in the unsteady
+regime. The working fluid for this benchmark problem is again air. The benchmark solutions for this session were generated with the incompressible flow assumption. It would be
+interesting to compare conservative solutions with the benchmark incompressible solutions
+to how the magnitude of solution differences react to this tall geometry. Then, apply our
+conservative and incompressible codes to this problem geometry with helium and the global
+VHTR conditions.
+2. Up to this point we have only been investigating laminar flows. It is doubtful that any natural convection scenario in a nuclear reactor is laminar and steady-state. The turbulent flow
+regime is more likely and is inherently three-dimensional and unsteady. Direct Numerical
+Simulation (DNS) approach would be the most desirable but is very expensive computationally. A simple geometry, such as three-dimensional version of the 8:1 differentially heated
+cavity, may be a possible alternative. If DNS is deemed too expensive, a Large Eddy Simulation (LES) approach may be investigated.
+3. In hindsight, it probably would have been more representative to assume transient heat flux
+53
+
+boundary conditions consistent with nuclear core internal heat generation rates instead of
+specified wall temperatures for the helium test cases.
+4. Transient small-scale validation experiments would help in the decision process to determine
+validity of the mathematical models for the governing equations and turbulence models. It
+would provide provide a greater confidence in the mathematical models selected to represent
+the reactor coolant flow fields.
+In general, the incompressible flow assumption is valid in the case of isothermal, or nearly
+isothermal, single phase flows under relatively small pressure gradients. In reality, there is no such
+thing as incompressible flow. The assumption is non-physical and nothing more than a mathematical simplification when we choose to ignore variations in density that are always present. At times,
+it is somewhat arbitrary in the decision process to determine if the incompressible flow assumption has been violated. However, it seems unreasonable to neglect the large variation in density of
+the helium that will be present in NGNP reactor simulations. If a helium fluid particle’s density
+varies by a factor of two in space and time (material derivative), is it not reasonable to conclude
+that this magnitude of density variation constitutes a violation of the incompressible flow assumption? Therefore, the heat transfer results obtained with the incompressible flow assumption are
+also called into question for the helium test cases. The significance of the Nusselt number differences are that the incompressible formulation can over or under predict wall heat flux. If we were
+to apply typical reactor heat fluxes at the boundary instead of specified wall temperatures, wall
+temperatures may vary significantly between the conservative and incompressible solutions. It is
+not enough to have a large number of computational points to obtain results that will agree closely
+with the validation experiments, the mathematical models must adequately represent the physics.
+
+54
+
+References
+[1] Star-ccm+, version 3.04.008, cd-adapco, new york, new york, usa, 2008.
+[2] 12th Seminar ”Computational Fluid Dynamics”, CEA/Nuclear Reactor Division. Modeling
+and simulation of natural flows with large temperature differences: a benchmark problem for
+low Mach number solvers, INSTN Saclay, France, January 25-27, 2000. Numerical Workshop.
+[3] R.A. Berry and R.C. Martineau. Examination of the pcice method in nearly incompressible as
+well as strictly incompressible limits. Journal of Power and Energy Systems, 2(2):598–610,
+2008.
+[4] L.C. Burmeister. Convective Heat Transfer. John Wiley & Sons, Inc., New York, 1983.
+[5] D.R. Chenoweth and S. Paolucci. Natural convection in an enclosed vertical air layer with
+large horizontal temperature differences. Journal of Fluid Mechanics, 169:173–210, 1986.
+[6] M.A. Christon, P.M. Gresho, and S.B. Sutton. Computational predictability of time dependent natural convection flows in inclosures (including a benchmark solution). International
+Journal for Numerical Methods in Fluids, 40:953–980, 2002.
+[7] G. de Vahl Davis. Natural convection of air in a square cavity: A bench mark numerical
+solution. International Journal for Numerical Methods in Fluids, 3:249–264, 1983.
+[8] G. de Vahl Davis and I.P. Jones. Natural convection of air in a square cavity: A comarison
+exercise. International Journal for Numerical Methods in Fluids, 3:227–248, 1983.
+[9] V. Heuveline. On higher-order mixed fem for low mach number flows: Application to a
+natural convection benchmark problem. International Journal for Numerical Methods in
+Fluids, 41:1339–1356, 2003.
+[10] INRIA and MAB. Mathematical and Numerical Aspects of Low Mach Number Flows, Porquerolles, France, June 21-25, 2004. Numerical Workshop.
+[11] I.P. Jones. A comparison problem for numerical methods in fluid dynamics: The “double
+glazing” problem. In Numerical Methods in Thermal Problems, pages 338–348, Swansea,
+U.K., 1979. Pineridge Press.
+[12] P.E. MacDonald. NGNP preliminary point design - results of the initial neutronics and
+thermal-hydraulic assessments. Technical report INEEL/EXT-03-00870, Idaho National Engineering & Environmental Laboratory, Idaho Falls, Idaho, 83415, September 2003.
+[13] R.C. Martineau and R.A. Berry. An efficient, semi-implicit pressure-based scheme employing a high-resolution finite element method for simulating transient and steady, inviscid and
+viscous, compressible flows on unstructured grids. Technical report INEEL/EXT-03-00490,
+Idaho National Engineering & Environmental Laboratory, Idaho Falls, Idaho, 83415, April
+2003.
+55
+
+[14] R.C. Martineau and R.A. Berry. The pressure-corrected ice finite element method (pcicefem) for compressible flows on unstructured meshes. Journal of Computational Physics,
+198:659–685, 2004.
+[15] S. Mazumder. On the use of the fully compressible navier-stokes equations for the steadystate solution of natural convection problems in closed cavities. Journal of Heat Transfer,
+129:387–390, 2007.
+[16] H. Paillere, P. Le Quere, C. Weisman, J. Vierendeels, E. Dick, M. Braack, F. Dabbene,
+A. Beccantini, E. Studer, T. Kloczko, C. Corre, V. Heuveline, M. Darbandi, and S.F. Hosseinizadeh. Modelling of natural convection flows with large temperature differences: A
+benchmark problem for low mach number solvers. part 2. contributions to the june 2004
+conference. ESAIM: MathematicalModelling and Numerical Analysis, 39(3):617–621, 2005.
+[17] R.L. Panton. Incompressible Flow. John Wiley & Sons, Inc., New York, 1984.
+[18] S.V. Patankar. Numerical Heat Transfer and Fluid Flow. McGrawHill, New York, 1980.
+[19] P. Le Quere, C. Weisman, H. Paillere, J. Vierendeels, E. Dick, R. Becker, M. Braack, and
+J. Locke. Modelling of natural convection flows with large temperature differences: A benchmark problem for low mach number solvers. part 1. reference solutions. ESAIM: MathematicalModelling and Numerical Analysis, 39(3):609–616, 2005.
+[20] C.M. Rhie and W.L. Chow. numerical study of the turbulent flow past an airfoil with trailingedge separation. AIAA Journal, 3(11):1525–1532, 1983.
+[21] F.M. White. Viscous Fluid Flow, 2nd edn. McGrawHill, New York, 1991.
+
+56
+
+v1.28
+
+

@@ -1,0 +1,2904 @@
+Robust globally divergence-free weak Galerkin finite element methods for natural convection problems
+
+arXiv:1903.09506v1 [math.NA] 22 Mar 2019
+
+Yihui Han, Xiaoping Xie∗
+School of Mathematics, Sichuan University, Chengdu 610064, China
+
+Abstract. This paper proposes and analyzes a class of weak Galerkin (WG) finite element methods for stationary natural convection problems in two and three dimensions. We use piecewise polynomials of degrees k,k − 1, and k (k ≥ 1) for the velocity,
+pressure, and temperature approximations in the interior of elements, respectively, and
+piecewise polynomials of degrees l,k,l (l = k − 1,k ) for the numerical traces of velocity,
+pressure and temperature on the interfaces of elements. The methods yield globally
+divergence-free velocity solutions. Well-posedness of the discrete scheme is established, optimal a priori error estimates are derived, and an unconditionally convergent iteration algorithm is presented. Numerical experiments confirm the theoretical
+results and show the robustness of the methods with respect to Rayleigh number.
+AMS subject classifications: 52B10, 65D18, 68U05, 68U07
+Key words: natural convection, Weak Galerkin method, Globally divergence-free, error estimate,
+Rayleigh number.
+
+1
+
+Introduction
+
+Let Rd (d = 2,3) be a polygonal or polyhedral domain with a polygonal or polyhedral subdomain Ω f ⊂ Ω and Ωs := Ω \ Ω f , we consider the following stationary natural
+convection (or conduction-convection) problem: seek the velocity u = (u1 ,u2 , ··· ,ud )T , the
+pressure p, and the temperature T such that
+
+− Pr∆u +∇·(u ⊗ u)+∇ p − PrRajT = f
+
+
+
+
+∇· u = 0
+
+−κ∆T +∇·(uT ) = g
+
+
+u≡0
+
+
+
+T=0
+
+in
+in
+in
+in
+on
+
+Ωf ,
+Ωf ,
+Ω,
+S
+Ωs ∂Ω f ,
+∂Ω,
+
+(1.1)
+
+∗ Corresponding author. Email addresses: 1335751459@qq.com (Y. Han), xpxie@scu.edu.cn (X. Xie)
+
+http://www.global-sci.com/
+
+Global Science Preprint
+
+2
+
+where ⊗ is defined by u ⊗ v = (ui v j )d×d for v = (v1 ,v2 , ··· ,vd )T , j is the vector of gravitational acceleration with j = (0,1)T when d = 2 and j = (0,0,1)T when d = 3, f ∈ [ L2 (Ω f )]d ,
+g ∈ L2 (Ω) are the forcing functions, and Pr, Ra denote the Prandtl and Rayleigh numbers,
+respectively,.
+The model problem (1.1), arising both in nature and in engineering applications, is a
+coupled system of fluid flow, governed by the incompressible Navier-Stokes equations,
+and heat transfer, governed by the energy equation. Due to its practical significance, the
+development of efficient numerical methods for natural convection has attracted a great
+many of research efforts; see, e.g. [1], [2], [3], [29], [23], [12], [15], [18], [20], [19], [21],
+[22], [25], [26], [28], [38], [39]. In [2, 3], error estimates for some finite element methods
+were derived in approximating stationary and non-stationary natural convection problems. [19, 20] applied Petrov-Galerkin least squares mixed finite element methods to discretize the problems. [25, 26] developed a nonconforming mixed element method and
+a Petrov-Galerkin least squares nonconforming mixed element method for the stationary problems. In [37], three kinds of decoupled two level finite element methods were
+presented. [38, 39] applied the variational multiscale method to solve the stationary and
+non-stationary problems.
+In this paper, we consider a weak Galerkin (WG) finite element discretization of the
+model problem (1.1). The WG method was first proposed and analyzed to solve secondorder elliptic problems [30, 31]. It is designed by using a weakly defined gradient operator over functions with discontinuity, and then allows the use of totally discontinuous functions in the finite element procedure. Similar to the hybridized discontinuous
+Galerkin (HDG) method [11], the WG method is of the property of local elimination of
+unknowns defined in the interior of elements. We note that in some special cases the WG
+method and the HDG method are equivalent (cf. [6–8]). In [6], a class of robust globally
+divergence-free weak Galerkin methods for Stokes equations were developed, and then
+were extended in [40] to solve incompressible quasi-Newtonian Stokes equations.We also
+refer to [9, 10, 13, 16, 17, 24, 32–36, 41] for some other developments and applications of the
+WG method.
+This paper aims to propose a class of WG methods for the natural convection problems. The methods include as unknowns the velocity, pressure, and temperature variables both in the interior of elements and on the interfaces of elements. In the interior of
+elements, we use piecewise polynomials of degrees k,k − 1, and k (k ≥ 1) for the velocity,
+pressure, and temperature approximations, respectively. On the interfaces of elements,
+we use piecewise polynomials of degrees l,k,l (l = k − 1,k ) for the numerical traces of velocity, pressure and temperature. The methods are shown to yield globally divergencefree velocity approximations.
+The rest of the paper is organized as follows. Section 2 introduces the WG finite element scheme. Section 3 shows the existence and uniqueness of the discrete solution.
+Section 4 derives a priori error estimates. Section 5 discusses the local elimination property and the convergence of an iteration method for the WG scheme. Finally, Section 6
+
+3
+
+provides numerical examples to verify the theoretical results.
+Throughout this paper, we use a>b ( a?b) to denote a ≤ Cb ( a ≥ Cb), where the constant
+C is positive independent of mesh size h,hK ,he and the Pr, κ and Rayleigh number.
+
+2
+
+WG finite element scheme
+
+2.1
+
+Notation
+
+For any bounded domain D ∈ Rs (s = d,d − 1), let H m ( D ) and H0m ( D ) denote the usual
+m,D , |·|m,D denote the norm and semi-norm on
+these spaces. We use (·, ·)m,D to denote the inner product of H m ( D ), with (·, ·) D :=(·, ·)0,D .
+When D = Ω, we set k·km := k·km,Ω , |·|m := |·|m,Ω , and (·, ·) := (·, ·)Ω . In particular, when
+D ⊂ Rd−1 , we use h·, ·i D to replace (·, ·) D . For integer k ⩾ 0, Pk ( D ) denotes the set of all
+polynomials on D with degree no more than k. We also need the following spaces:
+mth -order Sobolev spaces on D, and k·k
+
+L20 (Ω) := {q ∈ L2 (Ω) : (q,1) = 0},
+H (div,D ) := {v ∈ L2 ( D ) : ∇· v ∈ L2 ( D )}.
+f
+
+Let Ths and Th be shape-regular simplicial decompositions of the subdomains Ωs and
+f
+
+Ω f , respectively. Then Th := Ths ∪Th = {K } is a shape-regular simplicial decomposition
+S
+
+f
+
+f
+
+of Ω. Let εsh and ε h be the sets of all edges (faces) of all elements in Ths and Th , respectively,
+f
+
+and set ε h := εsh ∪ ε h = {e}. For any K ∈ Th , e ∈ ε h , we denote by hK and he the diameters
+of K and e, respectively, and set h := max hK . Let nK and ne be the outward unit normal
+S
+
+K ∈Th
+
+vectors along the boundary ∂K and e. We denote by ∇h and ∇h · the piecewise-defined
+gradient and divergence with respect to Th . We also introduce the mesh-dependent inner
+products and mesh-dependent norms:
+
+hu,vi∂Th := ∑ hu,vi∂K ,
+
+kuk0,∂Th :=
+
+K ∈Th
+
+2.2
+
+∑
+
+∑
+
+kuk20,K
+
+K ∈Th
+
+K ∈Th
+
+(u,v)Th := ∑ (u,v)K ,
+
+!1/2
+
+kuk20,∂K
+
+kuk0,Th :=
+
+K ∈Th
+
+Weak problem
+We first introduce the space
+W := {v ∈ [ H01 (Ω f )]d : ∇· v = 0}
+
+!1/2
+.
+
+4
+
+and the following bilinear and trilinear forms: for any u,v,w ∈ H01 (Ω f ), q ∈ L20 (Ω f ), and
+T,s ∈ H01 (Ω),
+a(u,v) := Pr(∇u, ∇v),
+
+b(v,q) := (∇q,v),
+
+d( T,v) := PrRa( jT,v),
+
+a( T,s) := κ (∇ T, ∇s),
+
+c(w;u,v) := ((w ·∇)u,v),
+
+c(w;T,s) := ((w ·∇) T,s).
+
+It is easy to see that, for u ∈ W,
+1
+1
+c(u;u,v) = (∇·(u ⊗ u),v)− (∇·(u ⊗ v),u),
+2
+2
+1
+1
+c(u;T,s) = (∇·(uT ),s)− (∇·(us),T ).
+2
+2
+Then the variational problem of (1.1) reads as follows: seek (u, p,T )∈ W × L20 (Ω f )× H01 (Ω)
+such that
+
+A(u;u,v)+ b(v, p)− b(u,q)− d( T,v) = ( f ,v), ∀(v,q) ∈ W × L20 (Ω f ),
+(2.1)
+A(u;T,s) = ( g,s), ∀s ∈ H01 (Ω),
+where
+A(u;u,v) := a(u,v)+ c(u;u,v),
+A(u;T,s) = a( T,s)+ c(u;T,s).
+Theorem 2.1. [3]For f ∈ [ H −1 (Ω f )]d and g ∈ H −1 (Ω), the weak problem (2.1) has at least
+one solution. In addition, it admits a unique solution (u, p,T ) ∈ W × L20 (Ω f )× H01 (Ω) if
+
+(Pr−1 N Raκ −1 + RaMκ −2 )k gk−1 +N Pr−2 k f k−1 < 1,
+where
+
+N :=
+
+c(w;u,v)
+,
+06=w,u,v∈W | w |1 | u |1 | v |1
+sup
+
+M :=
+
+sup
+06=w∈W,
+06= T,s∈ H01 (Ω)
+
+c(w;T,s)
+.
+| w |1 | T |1 | s |1
+
+In what follows, we assume that the solution (u, p,T ) is unique and, more precisely,
+there exists a fixed constant δ > 0 such that
+
+(Pr−1 N Raκ −1 + RaMκ −2 )k gk−1 +N Pr−2 k f k−1 < 1 − δ.
+
+2.3
+
+Discrete weak operators
+
+In order to design a WG finite element scheme for the problem (1.1), we introduce the
+discrete weak gradient operator ∇w,r and the discrete weak divergence operator ∇w,r · as
+follows.
+
+5
+
+
+Definition 2.1. For any K ∈ Th and v ∈ V (K ) := {v0 ,vb } : v0 ∈ L2 (K ),vb ∈ H 1/2 (∂K ) , the
+discrete weak gradient ∇w,r,K v ∈ [ Pr (K )]d on K is determined by the equation
+
+(∇w,r,K v,τ )K = −(v0 , ∇· τ )K +hvb ,τ · nK i∂K
+
+∀τ ∈ [ Pr (K )]d .
+
+Then we define the global discrete weak gradient operator ∇w,r by
+
+∇w,r |K = ∇w,r,K ,
+
+∀K ∈ Th .
+
+For a vector v = (v1 , ··· ,vd )T ∈ [V (K )]d , we define its discrete weak gradient ∇w,r v by
+
+∇w,r v := (∇w,r v1 , ··· , ∇w,r vd )T .
+
+Definition 2.2. For any K ∈Th and v∈W (K ):= {v0 ,vb } : v0 ∈ [ L2 (K )]d ,vb · nK ∈ H −1/2 (∂K ) ,
+the discrete weak divergence ∇w,r,K · v ∈ Pr (K ) is determined by the equation
+
+(∇w,r,K · v,τ )K = −(v0 , ∇τ )K +hvb · nK ,τ i∂K
+
+∀τ ∈ Pr (K ).
+
+Then we define the global discrete weak divergence operator ∇w,r · by
+
+∇w,r ·|K = ∇w,r,K ·, ∀K ∈ Th .
+For a tensor w = (w1 , ··· ,wd )T ∈ [W (K )]d×d with wi ∈ [W (K )]d for i = 1, ··· ,d, we define its
+discrete weak divergence ∇w,r · w by
+
+∇w,r · w = (∇w,r · w1 , ··· , ∇w,r · wd )T .
+
+2.4
+
+WG finite element scheme
+For any K ∈ Th ,e ∈ ε h and any integer j ≥ 0, let Q0j : L2 (K ) → Pj (K ) and Qbj : L2 (e) → Pj (e)
+
+be the usual L2 projection operators. We shall use Qbj to denote Qbj for vector spaces.
+For any integer k ≥ 1 and l = k − 1,k, we introduce the following finite dimensional
+spaces:
+Vh = {vh = {vh0 ,vhb } : vh0 |K ∈ [ Pk (K )]d ,vhb |e ∈ [ Pl (e)]d , ∀K ∈ Th , ∀e ∈ ε h },
+Vh0 = {vh = {vh0 ,vhb } ∈ Vh : vhb |∂Ω f = 0},
+Qh = {qh = {qh0 ,qhb } : qh0 |K ∈ Pk−1 (K ),qhb |e ∈ Pk (e), ∀K ∈ Th , ∀e ∈ ε h },
+Q0h = {qh = {qh0 ,qhb } ∈ Qh : qh0 ∈ L20 (Ω f )},
+Sh = {sh = {sh0 ,shb } : sh0 |K ∈ Pk (K ),shb |e ∈ Pl (e), ∀K ∈ Th , ∀e ∈ ε h },
+S0h = {sh = {sh0 ,shb } ∈ Sh : shb |∂Ω = 0}.
+
+6
+
+For any uh = {uh0 ,uhb },vh = {vh0 ,vhb } ∈ Vh0 , qh = {qh0 ,qhb } ∈ Q0h , and Th = { Th0 ,Thb },sh =
+{sh0 ,shb } ∈ S0h , define the following bilinear and trilinear forms:
+ah (uh ,vh ) := Pr(∇w,m uh , ∇w,m vh )+ Prhτ ( Qbl uh0 − uhb ),Qbl vh0 − vhb i∂T f ,
+h
+
+bh (vh ,qh ) := (∇w,k qh ,vh0 ),
+dh ( Th ,vh ) := PrRa( jTh0 ,vh0 ),
+ah ( Th ,sh ) := κ (∇w,m Th , ∇w,m sh )+ κ hτ ( Qbl Th0 − Thb ),Qbl sh0 − shb i∂Th ,
+1
+1
+ch (wh ;uh ,vh ) := (∇w,k ·(uh ⊗ wh ),vh0 )− (∇w,k ·(vh ⊗ wh ),uh0 ),
+2
+2
+1
+1
+ch (uh ;Th ,sh ) := (∇w,k ·(uh Th ),sh0 )− (∇w,k ·(uh sh ),Th0 ).
+2
+2
+It is easy to see that
+ch (wh ;vh ,vh ) = 0,
+
+ch (wh ;sh ,sh ) = 0.
+
+(2.2)
+
+The WG finite element scheme for (1.1) is then given as follows: seek uh = {uh0 ,uhb } ∈
+
+Vh0 , ph = { ph0 , phb } ∈ Q0h , and Th = { Th0 ,Thb } ∈ S0h such that
+
+
+Ah (uh ;uh ,vh )+ bh (vh , ph )− bh (uh ,qh )− dh ( Th ,vh ) = ( f ,vh0 ), ∀(vh ,qh ) ∈ Vh0 × Q0h ,
+Ah (uh ;Th ,sh ) = ( g,sh0 ), ∀sh ∈ S0h ,
+
+(2.3)
+
+where
+Ah (wh ;uh ,vh ) := ah (uh ,vh )+ ch (wh ;uh ,vh ),
+
+(2.4)
+
+Ah (uh ;Th ,sh ) := ah ( Th ,sh )+ ch (uh ;Th ,sh ),
+
+(2.5)
+
+1
+τ |∂T = h−
+T , and m is an integer with k − 1 ≤ m ≤ l.
+
+Remark 2.1. It’s easy to show that the scheme (2.3) yields globally divergence-free velocity approximation uh0 . In fact, let K1 ,K2 ∈Th be any two adjacent elements with a common
+face e, introduce a function rhb ∈ L2 (ε h ) with
+(
+f
+−(uh0 · ne )|K1 T e −(uh0 · ne )|K2 T e , ∀e ∈ ε h /∂Ω f ,
+rhb |e =
+0, ∀e ∈ ∂Ω f ,
+and set c0 := |Ω1 |
+
+R
+
+∇h ·uh0 dx. Then, taking (vh0 ,vhb ,qh0 ,qhb ,sh0 ,shb )=(0,0, ∇h ·uh0 −c0 ,rhb −
+c0 ,0,0) in (2.3) yields
+f
+
+Ωf
+
+k∇h · uh0 k20 +
+
+∑
+
+k(uh0 · ne )|K1 +(uh0 · ne )|K2 k20,e = 0.
+
+f
+
+e∈ε h /∂Ω f
+
+This indicates uh0 ∈ H (div,Ω f ) and ∇h · uh0 = ∇· uh0 = 0, i.e. the velocity approximation
+uh0 is globally divergence-free in a pointwise sense.
+
+7
+
+3
+
+Well-posedness of the discrete scheme
+
+3.1
+
+Some basic results
+
+For the projections Q0j and Qbj with j ≥ 0, the following stability and approximation
+results are standard.
+Lemma 3.1. ( [27]) Let s be an integer with 1 ≤ s ≤ j + 1. Then we have, for any K ∈ Th and
+e ∈ εh,
+
+kv − Q0j vk0,K + hK |v − Q0j v|1,K > hsK |v|s,K , ∀v ∈ H s (K ),
+
+kv − Q0j vk0,∂K > hsK−1/2 |v|s,K , ∀v ∈ H s (K ),
+kv − Qbj vk0,∂K > hsK−1/2 |v|s,K , ∀v ∈ H s (K ),
+k Q0j vk0,K ≤ kvk0,K , ∀v ∈ L2 (K ),
+k Qbj vk0,e ≤ kvk0,e , ∀v ∈ L2 (e).
+
+By using the trace theorem, the inverse inequality, and scaling arguments metioned
+in [27], we can get the following lemma.
+Lemma 3.2. For all K ∈ Th , w ∈ H 1 (K ), and 1 ≤ q̃ ≤ ∞, we have
+−1
+
+1− 1
+
+kwk0,q̃,∂K > hK q̃ kwk0,q̃,K + hK q̃ |w|1,q̃,K ,
+
+In particular, for all w ∈ Pk (K ),
+
+−1
+
+kwk0,q̃,∂K > hK q̃ kwk0,q̃,K .
+
+Lemma 3.3. ( [6]) Let 0 ≤ k − 1 ≤ m ≤ l ≤ k. For all K ∈ Th and vh = {vh0 ,vhb } ∈ [ Pk (K )]d ×
+[ Pl (∂K )]d , the following estimates hold:
+1/2
+k Qbl vh0 − vhb k0,∂K ,
+k∇vh0 k0,K > k∇w,m vh k0,K + h−
+K
+
+1/2
+k∇w,m vh k0,K > k∇vh0 k0,K + h−
+k Qbl vh0 − vhb k0,∂K ,
+K
+
+(3.1)
+(3.2)
+
+We introduce the following semi-norms: for any (vh ,qh ,sh ) ∈ Vh × Qh × Sh ,
+9vh 92 :=k∇w,m vh k20 +kτ 1/2 ( Qbl vh0 − vhb )k2
+
+f
+
+0,∂Th
+
+,
+
+kqh k2 :=kqh0 k20 + ∑ k∇w,k qh k20,K ,
+f
+
+K ∈Th
+
+9sh 92 :=k∇w,m sh k20 +kτ 1/2 ( Qbl sh0 − shb )k20,∂Th .
+
+1
+Here we recall that τ |∂K = h−
+K . It is easy to see that the above three semi-norms are norms
+on Vh0 , Q0h and S0h , respectively (cf. [6]). In addition, from the lemma above it follows
+
+k∇h vh0 k0 > 9vh 9,
+
+∀vh ∈ Vh0 .
+
+(3.3)
+
+8
+
+Remark 3.1. We note that the estimates (3.1), (3.2), and (3.3) also hold for all sh ∈ S0h due
+to the fact that sh |K = {sh0 ,shb } ∈ Pk (K )× Pl (∂K ).
+Lemma 3.4. ( [14]) For all sh0 ∈ Sh0 = {sh0 : sh0 |K ∈ Pk (K ), ∀K ∈ Th }, there exists an interpolation Ik sh0 ∈ Sh0 ∩ H01 (Ω) such that
+
+∑ ksh0 − Ik sh0 k20,K > ∑ he k[sh0 ]k20,e ,
+e∈ε h
+
+K ∈Th
+
+∑ k∇(sh0 − Ik sh0 )k20,K > ∑ h−e 1 k[sh0 ]k20,e .
+e∈ε h
+
+K ∈Th
+
+f
+
+From this lemma it follows that, for all vh0 ∈ Vh0 = {vh0 : vh0 |K ∈ Pk (K ), ∀K ∈ Th }, there
+exists an interpolation Ik vh0 ∈ Vh0 ∩[ H01 (Ω)]d such that
+
+∑ kvh0 − Ik vh0 k20,K > ∑ he k[vh0 ]k20,e ,
+
+(3.4)
+
+e∈ε h
+
+K ∈Th
+
+∑ k∇(vh0 − Ik vh0 )k20,K > ∑ h−e 1 k[vh0 ]k20,e .
+
+(3.5)
+
+e∈ε h
+
+K ∈Th
+
+Lemma 3.5. For all vh ∈ Vh0 and sh ∈ S0h , we have
+
+kvh0 k0,q̃ ≤ Cq̃1 9vh 9,
+ksh0 k0,q̃ ≤ Cq̃2 9sh 9,
+
+(3.6)
+(3.7)
+
+where 2 ≤ q̃ < ∞ when d = 2, 2 ≤ q̃ ≤ 6 when d = 3, and Cq̃1 , Cq̃2 are positive constants only
+depending on q̃.
+Proof. For all vh ∈ Vh0 , we apply the Sobolev embedding theorem and Poincáre inequality
+to get
+k Ik vh0 k0,q̃ > k Ik vh0 k1 > k∇ Ik vh0 k0 .
+(3.8)
+From (3.5), (3.3), the definition of 9 · 9, and the projection property of Qbl , it follows
+
+k∇ Ik vh0 k0 > k∇h vh0 k0 +
+> 9vh 9 +
+> 9vh 9.
+
+∑ h−e 1 k[vh0 ]k20,e
+
+ 12
+
+e∈ε h
+
+∑ h−e 1 k[vh0 − vhb ]k20,e
+
+ 12
+
+(3.9)
+
+e∈ε h
+
+Using the Sobolev embedding theorem and the inverse inequality once again, by the
+f
+properties of the projection-mean operator ( [27]) Πh :Vh0 ={vh0 :vh0 |K ∈ Pk (K ), ∀K ∈Th }→
+1,2
+0,
+q̃
+W (Ω f )∩ W (Ω f ) and the fact that 2 ≤ q̃ < ∞ when d = 2 and 2 ≤ q̃ ≤ 6 when d = 3, we
+
+9
+
+have
+
+kvh0 − Ik vh0 k0,q̃ ≤ kvh0 − Πh vh0 k0,q̃ +kΠh vh0 − Ik vh0 k0,q̃
+> hk∇h vh0 k0,q̃ +kΠh vh0 − Ik vh0 k1,2
+1−( d2 − dq̃ )
+
+k∇h vh0 k0,2 +kvh0 − Πh vh0 k1,2 +kvh0 − Ik vh0 k1,2
+> k∇h vh0 k0 +k∇h (vh0 − Ik vh0 )k0
+> 9vh 9,
+>h
+
+which, together with (3.8) and (3.9), yields the desired estimate (3.6).
+Similarly, we can obtain (3.7). This finishes the proof.
+
+
+
+For any nonnegative integer j and any K ∈Th , we introduce the local Raviart-Thomas(RT)
+element space
+RTj (K ) = [ Pj (K )]d + xPj (K ).
+Lemmas 3.6-3.8 show some properties of the RT projection which can be founded in
+( [5].Page 9-10).
+Lemma 3.6. For any vh0 ∈ RTj (K ), ∇· vh0 |K = 0 implies vh0 ∈ [ Pj (K )]d .
+Lemma 3.7. For any K ∈ Th and v ∈ [ H 1 (K )]d , there exists a unique PjRT v ∈ RTj (K ) such
+that
+
+hPjRT v · ne ,w j ie = hv · ne ,w j ie ,
+
+∀w j ∈ Pj (e),e ∈ ∂K,
+
+(3.10)
+
+(PjRT v,w j−1 )K = (v,w j−1 )K ,
+
+d
+
+(3.11)
+
+∀w j−1 ∈ [ Pj−1 (K )] .
+
+If j = 0, PjRT v is determined only by (3.10). Moreover, the following approximation holds:
+
+kv − PjRT vk0,K > hrK |v|r,K ,
+
+∀1 ≤ r ≤ j + 1, ∀v ∈ [ H r (K )]d .
+
+Lemma 3.8. The operator PjRT defined in Lemma 3.7 satisfies
+
+(∇· PjRT v,qh )K = (∇· v,qh )K ,
+
+∀v ∈ [ H 1 (K )]d ,qh ∈ Pj (K ),K ∈ Th .
+
+Lemma 3.9. ( [6]) It holds the following commutativity properties:
+
+∇w,m {PkRT v,Qbl v} = Q0m (∇v),
+
+∀v ∈ [ H 1 (Ω f )]d .
+
+(3.12)
+
+∇w,k { Q0k−1 q,Qbk q} = Q0k (∇q),
+
+∀ q ∈ H 1 ( Ω f ),
+
+(3.13)
+
+∇w,m { Q0k s,Qbl s} = Q0m (∇s),
+
+∀ s ∈ H ( Ω ).
+
+(3.14)
+
+1
+
+10
+
+3.2
+
+Stability conditions
+
+Lemma 3.10. For any uh ,vh ∈ Vh , and Th ,sh ∈ Sh , the following inequalities hold:
+ah (uh ,vh ) > Pr9uh 9 · 9vh 9,
+
+(3.15)
+
+ah ( Th ,sh ) > κ9Th 9 · 9sh 9,
+
+(3.17)
+
+ch (wh ;uh ,vh ) > 9wh 9 · 9uh 9 · 9vh 9,
+
+(3.19)
+
+ah (vh ,vh ) = Pr9vh 92 ,
+
+(3.16)
+
+2
+
+ah (sh ,sh ) = κ9sh 9 ,
+
+(3.18)
+
+ch (wh ;Th ,sh ) > 9wh 9 · 9Th 9 · 9sh 9,
+
+(3.20)
+
+dh ( Th ,vh ) > PrRa9Th 9 · 9vh 9.
+
+(3.21)
+
+Proof. From the definitions of ah (·, ·),ah (·, ·),ch (·; ·, ·),ch (·; ·, ·),dh (·, ·), Cauchy-Schwarz inequality and Lemma 3.5, we can easily get (3.15),(3.17), and (3.21).
+For all uh ,vh ∈ Vh , by the definition of ∇w,k · we have
+2ch (wh ;uh ,vh ) =(vh0 ⊗ wh0 , ∇h uh0 )−(uh0 ⊗ wh0 , ∇h vh0 )
+
+−hvhb ⊗ whb n,uh0 i∂T f +huhb ⊗ whb n,vh0 i∂T f
+h
+h
+
+= (vh0 ⊗ wh0 , ∇h uh0 )−(uh0 ⊗ wh0 , ∇h vh0 )
++h(uh0 − uhb )⊗(wh0 − whb )n,vh0 i
+−h(uh0 − uhb )⊗ wh0 n,vh0 i
+−h(vh0 − vhb )⊗(wh0 − whb )n,uh0 i
++h(vh0 − vhb )⊗ wh0 n,uh0 i
+5
+
+= : ∑ Ri .
+i =1
+
+In light of Hölder’s inequality and Lemma 3.5, we obtain
+
+| R1 | ≤ kvh0 k0,4 kwh0 k0,4 k∇h uh0 k0,2 +kuh0 k0,4 kwh0 k0,4 k∇h vh0 k0,2
+> 9wh 9 · 9uh 9 · 9vh 9.
+
+From Hölder’s inequality, Lemma 3.2, Lemma 3.5, and the inverse inequality, it follows
+
+| R2 | ≤ ∑ kwh0 − whb k0,3,∂K kuh0 − uhb k0,2,∂K kvh0 k0,6,∂K
+f
+
+K ∈Th
+
+− d −1
+
+−1
+
+≤ ∑ hK 6 kwh0 − whb k0,2,∂K kuh0 − uhb k0,2,∂K hK 6 kvh0 k0,6,K
+f
+
+K ∈Th
+
+−1
+
+−1
+
+1− d
+
+≤ ∑ hK 2 kwh0 − whb k0,2,∂K hK 2 kuh0 − uhb k0,2,∂K hK 6 kvh0 k0,6,K
+f
+
+K ∈Th
+
+> 9wh 9 · 9uh 9 · 9vh 9
+
+11
+
+and
+
+| R3 | ≤ ∑ kwh0 k0,4,∂K kuh0 − uhb k0,2,∂K kvh0 k0,4,∂K
+f
+
+K ∈Th
+
+−1
+
+−1
+
+≤ ∑ hK 4 kwh0 k0,4,K kuh0 − uhb k0,2,∂K hK 4 kvh0 k0,4,K
+f
+
+K ∈Th
+
+−1
+
+≤ ∑ kwh0 k0,4,K hK 2 kuh0 − uhb k0,2,∂K kvh0 k0,4,K
+f
+
+K ∈Th
+
+> 9wh 9 · 9uh 9 · 9vh 9.
+Similarly, we can get
+
+| R4 |+| R5 | > 9wh 9 · 9uh 9 · 9vh 9.
+As a result, the estimate (3.19) holds.
+The estimate (3.20) follows similarly.
+
+
+
+By (2.2), Lemma 3.10, and the definitions of the trilinear forms Ah (·; ·, ·) and Ah (·; ·, ·),
+we easily get the following continuity and coercivity results.
+Lemma 3.11. For any wh ,uh ,vh ∈ Vh ,Th ,sh ∈ Sh , it holds
+Ah (wh ;uh ,vh ) > (Pr + 9wh 9) 9uh 9 · 9vh 9,
+
+(3.22)
+
+Ah (wh ;Th ,sh ) > (κ + 9wh 9) 9Th 99sh 9,
+
+(3.23)
+
+2
+
+(3.24)
+
+Ah (vh ;sh ,sh ) = κ9sh 92 .
+
+(3.25)
+
+Ah (vh ;vh ,vh ) = Pr9vh 9 ,
+
+By following the same routine as in the proof of ( [6, Theorem 3.1]), we can obtain the
+following inf-sup inequality.
+Lemma 3.12. For any (vh ,qh ) ∈ Vh0 × Q0h , it holds
+bh (vh ,qh )
+? k q h k.
+9vh 9
+v ∈V 0
+sup
+h
+
+3.3
+
+h
+
+Existence and uniqueness results
+We define a space
+Wh := {wh ∈ Vh0 : bh (wh ,qh ) = 0, ∀qh ∈ Q0h },
+
+12
+
+and introduce the following discretization problem: seek (uh ,Th ) ∈ Wh × S0h
+
+
+Ah (uh ;uh ,vh )− dh ( Th ,vh ) = ( f ,vh0 ), ∀vh ∈ Wh ,
+Ah (uh ;Th ,sh ) = ( g,sh0 ), ∀sh ∈ S0h .
+
+(3.26)
+
+It is easy to see that, by Lemma 3.12 and the theory of mixed finite element methods [5],
+the following conclusion holds.
+Lemma 3.13. The problems (2.3) and (3.26) are equivalent in the sense that (i) and (ii)
+hold:
+(i) if (uh , ph ,Th ) ∈ Vh0 × Q0h × S0h is the solution to the problem (2.3), then (uh ,Th ) is the
+solution to the problem (3.26);
+(ii) if (uh ,Th ) ∈ Wh × S0h is the solution to the problem (3.26), then (uh , ph ,Th ) is the
+solution to the problem (2.3), where ph ∈ Q0h is determined by
+bh (vh , ph ) = ( f ,vh0 )− Ah (uh ;uh ,vh )+ dh ( Th ,vh ), ∀vh ∈ Vh0 .
+In what follows we shall discuss the existence and uniqueness of the solution to the
+problem (3.26). To this end, we set
+
+Nh :=
+Mh :=
+
+ch (wh ;uh ,vh )
+,
+06=wh ,uh ,vh ∈Wh 9wh 9 · 9u h 9 · 9vh 9
+sup
+
+(3.27)
+
+ch (wh ;Th ,sh )
+,
+9w
+h 9 · 9Th 9 · 9s h 9
+06=wh ∈Wh ,
+
+(3.28)
+
+( f ,vh0 )
+,
+06=vh ∈Wh 9vh 9
+
+(3.29)
+
+sup
+
+06= T,s∈S0h
+
+k f kh := sup
+
+( g,sh0 )
+.
+9sh 9
+06 = s ∈ S0
+
+k gkh := sup
+h
+
+(3.30)
+
+h
+
+From Lemma 3.10 we easily know that Nh , Mh are bounded from above by a positive
+constant independent of the mesh size h.
+Theorem 3.1. The problem (3.26) admits at least one solution (uh ,Th ) ∈ Wh × S0h .
+Proof. First, by Lemma 3.11 it is easy to see that, for a given uh ∈ Wh , the bilinear form
+Ah (uh ; ·, ·) is continuous and coercive on S0h × S0h . Hence, by Lax-Milgram theorem there
+is a unique Th ∈ S0h such that the second equation of (3.26) holds.
+Define a mapping F : Wh → S0h by F (uh ) = Th . Then the thing left is to show that there
+exists at least one uh ∈ Wh such that
+Ah (uh ;uh ,vh ) = ah (uh ,vh )+ ch (uh ;uh ,vh ) = dh ( F (uh ),vh )+( f ,vh0 ), ∀vh ∈ Wh .
+
+(3.31)
+
+13
+
+Take sh = Th in the second equation of (3.26), and apply (3.30) and (3.25) to get
+κ9Th 92 = ( g,Th0 ) ≤ k gkh · 9Th 9,
+which yields
+
+9F (uh )9 = 9Th 9 ≤ κ −1 k gkh .
+
+(3.32)
+
+Take vh = uh in (3.31), and we obtain
+
+Pr9uh 92 = dh ( F (uh ),uh )+( f ,uh0 )
+
+≤ (PrRa9F (uh ) 9 +k f kh ) 9uh 9
+
+≤ (PrRaκ −1 k gkh +k f kh ) 9uh 9.
+This indicates
+9uh 9 ≤ Raκ −1 k gkh + Pr−1 k f kh .
+
+(3.33)
+
+By Lemma 3.10 and (3.29), we also have
+
+|−ch (uh ;uh ,vh )+ dh ( F (uh ),vh )+( f ,vh0 )| > 9uh 92 + PrRa9F (uh ) 9 +k f kh 9vh 9.
+
+Now we introduce another mapping, A : Wh → Wh , defined by A(uh ) = w, where
+w ∈ Wh is determined by
+ah (w,vh ) = −ch (uh ;uh ,vh )+ dh ( F (uh ),vh )+( f ,vh0 ), ∀vh ∈ Wh .
+
+(3.34)
+
+Clearly, uh is a solution to (3.31) if it is a solution to
+
+A(uh ) = uh .
+To show this system has a solution, from the Leray-Schauder’s principle it suffices to
+prove the following two assertions: (i) A is a continuous and compact mapping; (ii) for
+any 0 ≤ λ ≤ 1, the set Wλ,h := {vh ∈ Wh : vh = λAvh } is bounded.
+Let u1h ,u2h ∈ Wh , set w2 = A(u2h ) and w1 = A(u1h ), then we obtain
+ah (w1 ,vh ) = −ch (u1h ;u1h ,vh )+ dh ( F (u1h ),vh )+( f ,vh0 ),
+
+(3.35)
+
+ah (w2 ,vh ) = −ch (u2h ;u2h ,vh )+ dh ( F (u2h ),vh )+( f ,vh0 ).
+
+(3.36)
+
+Subtracting (3.36) from (3.35), and taking vh = w := w1 − w2 , we get
+ah (w,w) = −ch (u1h − u2h ;u1h ,w)− ch (u2h ;u1h − u2h ,w)+ dh ( F (u1h )− F (u2h ),w).
+
+(3.37)
+
+Substitute Th = F (u1h ) and Th = F (u2h ) into the second equation of (3.26), respectively, and
+subtract the two resultant equations each other, then, in view of (2.5), we have
+ah ( F (u1h )− F (u2h ),sh ) = −ch (u1h − u2h ;F (u1h ),sh )− ch (u2h ;F (u1h )− F (u2h ),sh ), ∀sh ∈ S0h ,
+
+14
+
+Taking sh = F (u1h )− F (u2h ) in this equation, together with (2.2), (3.32), and Lemma 3.10,
+leads to
+κ9F (u1h )− F (u2h )9 > 9u1h − u2h 9 · 9F (u1h )9
+(3.38)
+≤ κ −1 9u1h − u2h 9 ·k gkh .
+As a result, from (3.37) and (3.33) it follows
+9A(u1h )−A(u2h )9 = 9w9 > (Pr−1 (9u1h 9 + 9u2h 9)+ κ −2 Rak gkh ) 9u1h − u2h 9
+
+≤ 2Pr−1 ( Raκ −1 k gkh + Pr−1 k f kh )+ κ −2 Rak gkh 9u1h − u2h 9,
+which means that A is equicontinuous and uniformly bounded. Thus, A is compact by
+the Arzelá-Ascoli theorem [4].
+It remains to show (ii). If λ = 0, then Wλ,h = {0}. For λ ∈ (0,1] and vh ∈ Wλ,h , by (3.34)
+and (2.2) we have
+λ−1 ah (vh ,vh ) = ah (Avh ,vh ) = −ch (vh ;vh ,vh )+ dh ( F (vh ),vh )+( f ,vh0 )
+
+= dh ( F (vh ),vh )+( f ,vh0 ),
+which implies
+9vh 9 ≤ λRa9F (vh ) 9 +λPr−1 k f kh ≤ λRaκ −1 k gkh + λPr−1 k f kh .
+
+
+
+This completes the proof.
+
+We now give a global uniqueness criteria for the case of small data (small Rayleigh
+number Ra).
+Theorem 3.2. Suppose
+
+(Pr−1 Nh Raκ −1 +Mh Raκ −2 )k gkh +Nh Pr−2 k f kh < 1.
+
+(3.39)
+
+Then the problem (3.26) admits a unique solution (uh ,Th ) ∈ Wh × S0h with Th = F (uh ).
+Proof. By Theorem 3.1, let u1h ,u2h ∈ Wh be two solutions to the problem (3.31). Then it
+suffices to show u1h = u2h . In fact, we have
+ah (u1h ,vh ) = −ch (u1h ;u1h ,vh )+ dh ( F (u1h ),vh )+( f ,vh0 ),
+ah (u2h ,vh ) = −ch (u2h ;u2h ,vh )+ dh ( F (u2h ),vh )+( f ,vh0 ).
+Subtracting the above two equations each other with vh = u1h − u2h , and using (2.2), we
+obtain
+ah (u1h − u2h ,u1h − u2h ) = −ch (u1h − u2h ;u1h ,u1h − u2h )+ dh ( F (u1h )− F (u2h ),u1h − u2h ),
+
+15
+
+which, together with Lemma 3.10, (3.38) and (3.33), yields
+Pr9u1h − u2h 92 ≤ Nh 9u1h − u2h 92 · 9u1h 9 + PrRa9F (u1h )− F (u2h ) 9 · 9u1h − u2h 9
+
+≤ Nh 9u1h − u2h 92 · 9u1h 9 +Mh PrRaκ −2 · 9u1h − u2h 92 ·k gkh ,
+
+≤ (Nh Raκ −1 +Mh PrRaκ −2 )k gkh +Nh Pr−1 k f kh 9u1h − u2h 92 .
+
+If u1h 6= u2h , then, by the assumption (3.39), we further have
+Pr9u1h − u2h 92 < Pr9u1h − u2h 92 ,
+which contradicts. Therefore u1h = u2h .
+
+4
+
+
+
+A priori error estimates
+This section is devoted to the error estimation of the WG scheme (2.3). We set
+Ih u := {PkRT u,Qbl u}, Jh p := { Q0k−1 p,Qbk p}, Hh T := { Q0k T,Qbl T }.
+
+We recall that k ≥ 1 and l = k,k − 1.
+Lemma 4.1. For any w,u ∈ W, T ∈ H01 (Ω), vh ∈ Vh0 and sh ∈ S0h , it holds
+ch ( Ih w; Ih u,vh ) =(∇·(u ⊗ w),vh0 )+ EN (w;u,vh ),
+
+(4.1)
+
+ch ( Ih u; Hh T,sh ) =(∇·(uT ),sh0 )+ E N (u;T,sh ),
+
+(4.2)
+
+where
+1
+1
+EN (w;u,vh ) := (u ⊗ w − PkRT u ⊗ PkRT w, ∇h vh0 )− h(u ⊗ w − Qbl u ⊗ Qbl w)· n,vh0 i∂T f
+2
+2
+h
+1
+1
+− (w ·∇u − PkRT w ·∇h PkRT u,vh0 )− hvhb ⊗ Qbl w · n,PkRT ui∂T f ,
+2
+2
+h
+1
+1
+RT
+b
+b
+0
+E N (u;T,sh ) := (uT − Pk uQk T, ∇h sh0 )− h(uT − Ql uQl T )· n,sh0 i∂Th
+2
+2
+1
+1
+− (u ·∇ T − PKRT u ·∇h Q0k T,sh0 )− h( Qbl ushb )· n,Q0k T i∂Th .
+2
+2
+Proof. From the definition of weak divergence and Green’s formula, we have
+
+(∇w,k ·( Ih u ⊗ Ih w),vh0 ) =(∇·(u ⊗ w),vh0 )+(u ⊗ w − PkRT u ⊗ PkRT w, ∇h vh0 )
+−h(u ⊗ w − Qbl u ⊗ Qbl w)· n,vh0 i∂T f ,
+h
+
+(∇w,k ·(vh ⊗ Ih w),PkRT u) =(∇·(u ⊗ w),vh0 )+(w ·∇u − PKRT w ·∇h PkRT u,vh0 )
++hvhb ⊗ Qbl w · n,PkRT ui∂T f ,
+h
+
+which, together with the definition of the trilinear form ch (·; ·, ·), yields (4.1).
+Similarly, we can obtain (4.2).
+
+
+
+16
+
+Lemma 4.2. Let j,r be nonnegative integers. For any K ∈Th and v ∈[ H r (K )]d , the following
+estimates hold for the RT projection operator:
+
+|v − PjRT v|1,2,K > hrK−1 |v|r,2,K , ∀1 ≤ r ≤ j + 1,
+r − d6
+
+|v − PjRT v|0,3,K > hK |v|r,2,K , ∀0 ≤ r ≤ j + 1,
+r − 12
+
+|v − PjRT v|0,2,∂K > hK |v|r,2,K , ∀1 ≤ r ≤ j + 1,
+r − 1 − d6
+
+|v − PjRT v|0,3,∂K > hK 3
+
+|v|r,2,K , ∀1 ≤ r ≤ j + 1.
+
+(4.3)
+(4.4)
+(4.5)
+(4.6)
+
+Proof. We only prove (4.3), since the estimates (4.4)-(4.6) follow similarly.
+For 1 ≤ r ≤ j + 1, by the triangle inequality, the inverse inequality, Lemma 3.1, and
+Lemma 3.7, we get
+
+|v − PjRT v|1,2,K ≤ |v − Q0r−1 v|1,2,K +| Q0r−1 v − PjRT v|1,2,K
+1
+0
+RT
+> |v − Q0r−1 v|1,2,K + h−
+K | Qr −1 v − Pj v |0,2,K
+
+1
+0
+−1
+RT
+≤ |v − Q0r−1 v|1,2,K + h−
+K | Qr −1 v − v |0,2,K + h K | v − Pj v |0,2,K
+
+> hrK−1 |v|r,2,K ,
+
+
+
+i.e. (4.3) holds.
+Lemma 4.3. For u ∈ [ H k+1 (Ω f )]d with ∇· u = 0 and T ∈ H k+1 (Ω), it holds
+EN (u;u,vh ) > hk kuk2 kukk+1 9vh 9, ∀vh ∈ Vh0 ,
+
+E N (u;T,sh ) > hk (kuk2 k T kk+1 +k T k2 kukk+1 ) 9sh 9, ∀sh ∈ S0h ,
+
+for l = k when d = 2,3, and for l = k − 1 when d = 2.
+Proof. From the hölder inequality, the sobolev inequality, and the projection properties,
+we have
+
+|(u ⊗ u − PkRT u ⊗ PkRT u, ∇h vh0 )|
+≤|((u − PkRT u)⊗ u, ∇h vh0 )|+|(PkRT u ⊗(u − PkRT u), ∇h vh0 )|
+> ∑ |u − PkRT u|0,2,K |u|0,∞,K k∇h vh0 k0,2,K + ∑ |u − PkRT u|0,2,K |PkRT u|0,∞,K k∇h vh0 k0,2,K
+K ∈Th
+
+>h
+
+>h
+
+k +1
+k +1
+
+K ∈Th
+
+|u|0,∞ |u|k+1 9vh 9
+
+kuk2 kukk+1 9vh 9.
+
+17
+
+For l = k when d = 2,3, and for l = k − 1 when d = 2, we have
+
+|h(u ⊗ u − Qbl u ⊗ Qbl u)· n,vh0 i∂T f | = |h(u ⊗ u − Qbl u ⊗ Qbl u)· n,vh0 − vhb i∂T f |
+h
+
+h
+
+≤|h(u − Qbl u)⊗ u · n,vh0 − vhb i∂T f |+|h Qbl u ⊗(u − Qbl u)· n,vh0 − vhb i∂T f |
+h
+
+h
+
+>|h(u − Qbl u)⊗(u − Q0k u)· n,vh0 − vhb i∂T f |+|h(u − Qbl u)⊗ Q0k u · n,vh0 − vhb i∂T f |
+h
+
+h
+
++|h( Q0l u − Qbl u)⊗(u − Qbl u)· n,vh0 − vhb i∂T f |+|h Q0l u ⊗(u − Qbl u)· n,vh0 − vhb i∂T f |
+h
+
+≤ ∑
+
+h
+
+(|u − Qbl u|0,2,∂K |u − Q0k u|0,2,∂K |vh0 − vhb |0,∞,∂K +|u − Qbl u|0,2,∂K | Q0k u|0,∞,∂K |vh0 − vhb |0,2,∂K )
+
+K ∈Th
+
++ ∑ (| Q0l u − Qbl u|0,2,∂K |u − Qbl u|0,2,∂K |vh0 − vhb |0,∞,∂K +|u − Qbl u|0,2,∂K | Q0k u|0,∞,∂K |vh0 − vhb |0,2,∂K )
+K ∈Th
+
+>h
+
+l +1/2
+
+|u|l +1 h1/2 |u|1 h1−d/2 9vh 9 +hl +1/2 |u|l +1 |u|0,∞ h1/2 9vh 9
+
+>hk kuk2 kukk+1 9vh 9,
+
+|(u ·∇u − PkRT u ·∇h PkRT u,vh0 )|
+≤|((u − PkRT u)·∇u,vh0 )|+|(PkRT u ·(∇u −∇h PkRT u),vh0 )|
+> ∑ |u − PkRT u|0,3,K |∇u|0,2,K kvh0 k0,6,K + ∑ |∇u −∇PkRT u|0,2,K |PkRT u|0,∞,K kvh0 k0,2,K
+K ∈Th
+
+>h
+
+k +1−d/6
+
+K ∈Th
+
+k
+
+|u|k+1 |u|1,2 |vh0 |1,2 +|u|0,∞ h |u|k+1 |vh0 |0,2
+
+>hk kuk2 kukk+1 9vh 9,
+and
+
+|hvhb ⊗ Qbl u · n,PkRT ui∂T f | = |hvhb ⊗ Qbl u · n,PkRT u − Qbk ui∂T f |
+h
+
+h
+
+≤|h(vh0 − vhb )⊗( Qbl u − Q0l u)· n,PkRT u − Qbk ui∂T f |+|hvh0 ⊗( Qbl u − Q0l u)· n,PkRT u − Qbk ui∂T f |
+h
+
+h
+
++|h(vh0 − vhb )⊗ Q0l u · n,PkRT u − Qbk ui∂T f |+|hvh0 ⊗ Q0l u · n,PkRT u − Qbk ui∂T f |
+h
+
+≤ ∑
+
+h
+
+|vh0 − vhb |0,∞,∂K | Qbl u − Q0l u|0,2,∂K |PkRT u − Qbk u|0,2,∂K +
+
+K ∈Th
+
++ ∑
+
+K ∈Th
+
+|vh0 − vhb |0,2,∂K | Q0l u|0,6,∂K |PkRT u − Qbk u|0,3,∂K +
+
+K ∈Th
+
+>h
+
+1−d/2
+
+∑ |vh0 |0,∞,∂K |Qbl u − Q0l u|0,2,∂K |PkRT u − Qbk u|0,2,∂K
+
+∑ |vh0 |0,3,∂K |Q0l u|0,6,∂K |PkRT u − Qbk u|0,2,∂K
+
+K ∈Th
+
+9vh 9h
+
+1/2
+
+| u |1 h
+
+k +1/2
+
+| u | k +1 + h
+
+−d/6
+
+|vh0 |0,6 h
+
+1/2
+
+|u|1 hk+1/2 |u|k+1
+
++ h1/2 9vh 9h−1/6 |u|0,6 hk+1−1/3−d/6 |u|k+1 + h−1/3 |vh0 |0,3 h−1/6 |u|0,6 hk+1/2 |u|k+1
+
+>hk kuk2 kukk+1 9vh 9.
+
+18
+
+Similarly, we can obtain
+
+|(uT − PkRT uQ0k T, ∇h sh0 )|
+≤|(u( T − Q0k T ), ∇h sh0 )|+|((u − PkRT u) Q0k T, ∇h sh0 )|
+> ∑ | T − Q0k T |0,2,K |u|0,∞,K k∇h sh0 k0,2,K + ∑ |u − PkRT u|0,2,K | Q0k T |0,∞,K k∇h sh0 k0,2,K
+K ∈Th
+
+>h
+
+>h
+
+k +1
+k +1
+
+K ∈Th
+
+|u|0,∞ | T |k+1 9sh 9 +h
+
+k +1
+
+kuk2 k T kk+1 9sh 9 +h
+
+| T |0,∞ |u|k+1 9sh 9
+
+k +1
+
+k T k2 kukk+1 9sh 9,
+
+|(u ·∇ T − PkRT u ·∇h Q0k T,sh0 )|
+≤|((u − PkRT u)·∇ T,sh0 )|+|(PkRT u ·(∇ T −∇h Q0k T ),sh0 )|
+> ∑ |u − PkRT u|0,3,K |∇ T |0,2,K ksh0 k0,6,K + ∑ |∇ T −∇h Q0k T |0,2,K |PkRT u|0,∞,K ksh0 k0,2,K
+K ∈Th
+
+>h
+
+k+1−d/6
+
+K ∈Th
+
+k
+
+|u|k+1 | T |1,2 |sh0 |1,2 +|u|0,∞ h | T |k+1 |sh0 |0,2
+
+>hk kuk2 k T kk+1 9sh 9 +hk k T k2 kukk+1 9sh 9.
+For l = k when d = 2,3, and for l = k − 1 when d = 2, we have
+
+|h(uT − Qbl uQbl T )· n,sh0 i∂Th | = |h(uT − Qbl uQbl T )· n,sh0 − shb i∂Th |
+≤|h(u( T − Qbl T ))· n,sh0 − shb i∂Th |+|h((u − Qbl u) Qbl T )· n,sh0 − shb i∂Th |
+>|h( T − Qbl T )(u − Q0k u)· n,sh0 − shb i∂Th |+|h( T − Qbl T ) Q0k u · n,sh0 − shb i∂Th |
+
++|h( Qbl T − Q0l T )(u − Qbl u)· n,sh0 − shb i∂Th |+|h Q0l T (u − Qbl u)· n,sh0 − shb i∂Th |
+
+≤ ∑ (| T − Qbl T |0,2,∂K |u − Q0k u|0,2,∂K |sh0 − shb |0,∞,∂K +| T − Qbl T |0,2,∂K | Q0k u|0,∞,∂K |sh0 − shb |0,2,∂K )
+K ∈Th
+
++ ∑ (| Qbl T − Q0l T |0,2,∂K |u − Qbl u|0,2,∂K |sh0 − shb |0,∞,∂K +| Q0l T |0,∞,∂K |u − Qbl u|0,2,∂K |sh0 − shb |0,2,∂K )
+K ∈Th
+
+>h
+
+l +1/2
+
+| T |l +1 h1/2 |u|1 h1−d/2 9sh 9 +hl +1/2 | T |l +1 |u|0,∞ h1/2 9sh 9
+
++ hl +1/2 | T |l +1 h1/2 |u|1 h1−d/2 9sh 9 +| T |0,∞ hl +1/2 |u|l +1 h1/2 9sh 9
+
+>hk kuk2 k T kk+1 9sh 9 +hk k T k2 kukk+1 9sh 9,
+
+19
+
+|hshb Qbl u · n,Q0k T i∂Th | = |hshb Qbl u · n,Q0k T − Qbk T i∂Th |
+≤|h(sh0 − shb )( Qbl u − Q0l u)· n,Q0k T − Qbk T i∂Th |+|hsh0 ( Qbl u − Q0l u)· n,Q0k T − Qbk T i∂Th |
++|h(sh0 − shb ) Q0l u · n,Q0k T − Qbk T i∂Th |+|hsh0 Q0l u · n,Q0k T − Qbk T i∂Th |
+≤ ∑ |sh0 − shb |0,∞,∂K | Qbl u − Q0l u|0,2,∂K | Q0k T − Qbk T |0,2,∂K + ∑ |sh0 |0,∞,∂K | Qbl u − Q0l u|0,2,∂K | Q0k T − Qbk T |0,2,∂K
+K ∈Th
+
+K ∈Th
+
++ ∑
+
+|sh0 − shb |0,2,∂K | Q0l u|0,6,∂K | Q0k T − Qbk T |0,3,∂K +
+
+K ∈Th
+
+>h
+
+1−d/2
+
+∑ |sh0 |0,3,∂K |Q0l u|0,6,∂K |Q0k T − Qbk T |0,2,∂K
+
+K ∈Th
+
+9sh 9h
+
+1/2
+
+| u |1 h
+
+k +1/2
+
+| T | k +1 + h
+
+−d/6
+
+|sh0 |0,6 h
+
+1/2
+
+|u|1 hk+1/2 | T |k+1
+
++ h1/2 9sh 9h−1/6 |u|0,6 hk+2/3−d/6 | T |k+1 + h−1/3 |sh0 |0,3 h−1/6 |u|0,6 hk+1/2 | T |k+1
+
+>hk kuk2 k T kk+1 9sh 9.
+
+As a result, the two desired results follow from the definitions of EN (u;u,vh ), E N (u;T,sh )
+given in Lemma 4.1.
+
+Lemma 4.4. Let (u, p,T ) be the solution to the problem (1.1), then it holds
+Ah ( Ih u; Ih u,vh ) + bh (vh , Jh p)− bh (uh ,qh )− dh ( Hh T,vh )
+
+= ( f ,vh0 )+ EL (u,vh )+ EN (u;u,vh ), ∀(vh ,qh ) ∈ Vh0 × Q0h ,
+Ah ( Ih u; Hh T,sh ) = ( g,sh0 )+ E L ( T,sh )+ E N (u;T,sh ), ∀sh ∈ S0h ,
+
+(4.7)
+(4.8)
+
+where
+EL (u,vh ) := Prh(∇u − Q0m ∇u)· n,vh0 − vhb i∂T f + Prhτ (PkRT u − u),vh0 − vhb i∂T f ,
+h
+
+h
+
+E L ( T,sh ) := κ h(∇ T − Q0m ∇ T )· n,sh0 − shb i∂Th + κ hτ ( Q0k T − T ),sh0 − shb i∂Th .
+In addition, it holds
+PkRT u|K ∈ [ Pk (K )]d ,
+
+f
+
+∀K ∈ Th .
+
+(4.9)
+
+Proof. We first show (4.9). In fact, for all K ∈ Th , ϕ ∈ Pk (K ), by Lemma 3.8 we get
+
+(∇· PkRT u, ϕ)K = (∇· u, ϕ)K = 0,
+which indicates
+
+∇· PkRT u = 0.
+Thus, the result (4.9) follows from Lemma 3.6.
+
+(4.10)
+
+20
+
+By the definition of a0 (·, ·), A(·, ·) and dh (·, ·), we obtain
+Ah ( Ih u; Ih u,vh )+ bh (vh , Jh p)− bh (uh ,qh )− dh ( Hh T,vh )
+
+= Pr(∇w,m Ih u, ∇w,m vh )
++ PrhτQbl (PkRT u − u),Qbl vh0 − vhb i∂T f
+h
+
+1
+1
++ (∇w,k ·( Ih u ⊗ Ih u),vh0 )− (∇w,k ·(vh ⊗ Ih u),PkRT u)
+2
+2
++(∇w,k { Q0k−1 p,Qbk p},vh0 )
+
+(4.11)
+
+−(∇w,k qh ,PkRT u)
+− PrRa( jQ0k T,vh0 )
+6
+
+: = ∑ Ri .
+i =1
+
+From the commutativity property (3.12), the definition of weak gradient, Green’s formula, the property of the projection Qbl , and the relation h∇u · n,vhb i∂Th = 0, it follows
+R1 = Pr( Q0m ∇u, ∇w,k vh )
+
+= − Pr(∇h · Q0m ∇u,vh0 )+ Prh Q0m ∇u · n,vhb i∂T f
+h
+
+(4.12)
+
+= Pr( Q0m ∇u, ∇h vh0 )+ Prh Q0m ∇u · n,vhb − vh0 i∂T f
+h
+
+= − Pr(∆u,vh0 )+ Prh(∇u − Q0m ∇u)· n,vhb − vh0 i∂T f .
+h
+
+By the definitions of the projections Qbl and Q0k , we have
+R2 = Prhτ (PkRT u − u),Qbl vh0 − vhb i∂T f ,
+
+(4.13)
+
+R6 = PrRa( jQ0k T,vh0 ) = PrRa( jT,vh0 ).
+
+(4.14)
+
+R3 =(∇·(u ⊗ u),vh0 )+ EN (u;u,vh ).
+
+(4.15)
+
+h
+
+By (4.1), we get
+
+The commutativity property (3.13) gives
+R4 = ( Q0k ∇ p,vh0 ) = (∇ p,vh0 ).
+
+(4.16)
+
+In view of (4.10), (3.10), and the definitions of dh (·, ·) and weak gradient, we obtain
+R5 = −(PkRT u, ∇w,k qh )
+
+= (∇· PkRT u,qh0 )−hPkRT u · n,qhb i∂T f
+h
+
+= −hu · n,qhb i∂T f
+h
+
+= 0.
+
+(4.17)
+
+21
+
+Finally, the desired relation (4.7) follows from the combination of (4.11)-(4.17) and the
+first equation of (1.1).
+Similarly, we can get the relation (4.8). This completes the proof.
+
+Lemma 4.5. For u ∈ [ H k+1 (Ω f )]d and T ∈ H k+1 (Ω), it holds
+
+| EL (u,vh )| > Prhk |u|k+1 9vh 9,
+k
+
+| E L ( T,sh )| > κh | T |k+1 9sh 9,
+
+∀vh ∈ Vh0 ,
+
+(4.18)
+
+∀sh ∈ S0h .
+
+(4.19)
+
+Proof. By Lemma 3.1 and the definition of Q0m , we have
+
+| EL (u,vh )| = |Prh(∇u − Q0m ∇u)· n,vh0 − vhb i∂T f |+|Prhτ (PkRT u − u),Qbl vh0 − vhb i∂T f |
+h
+
+h
+
+≤ ∑ Prk∇u − Q0m ∇uk0,∂K (kvh0 − Qbl vh0 k0,∂K +k Qbl vh0 − vhb k0,∂K )
+f
+
+K ∈Th
+
++ ∑ Prkτ 1/2 (PkRT u − u)k0,∂K kτ 1/2 ( Qbl vh0 − vhb )k0,∂K
+f
+
+K ∈Th
+
+> Prhk |u|k+1 (k∇h vh0 k0 +kτ 1/2 (vh0 − vhb )k0,∂T f )+ Prhk |u|k+1 k|vh |k
+h
+
+> Prhk |u|k+1 k|vh |k.
+
+
+
+i.e. (4.18) holds. The estimate (4.19) follows similarly.
+
+Theorem 4.1. Let (u, p,T )∈[ H k+1 (Ω f )]d × H k (Ω f )× H k+1 (Ω) and (uh , ph ,Th )∈ Vh0 × Q0h × S0h
+be the solutions to the problem (1.1) and the WG scheme (2.3), respectively. Then, under
+the assumption (3.39) with
+C0 := 1 −(Pr−1 Nh Raκ −1 +Mh Raκ −2 )k gkh +Nh Pr−2 k f kh > 0,
+
+(4.20)
+
+it holds the following estimates: for l = k when d = 2,3, and for l = k − 1 when d = 2,
+9 Ih u − uh 9 > C1 hk kukk+1 ,
+
+9 Hh T − Th 9 > (C1 Mh κ
+
+−2
+
+k gkh + κ
+
+(4.21)
+−1
+
+k
+
+k T k2 )h kukk+1 +(1 + κ
+
+−1
+
+k
+
+k u k 2 ) h k T k k +1 ,
+
+k Jh p − ph k > Pr(C1 + Raκ −1 k T k2 )hk kukk+1 + PrRa(1 + κ −1 kuk2 )hk k T kk+1 ,
+
+(4.22)
+(4.23)
+
+−1
+
+1+Pr kuk2
+.
+where C1 := C +M
+Raκ −2 k gk
+0
+
+h
+
+h
+
+Proof. From (2.3) and Lemma 4.4 we easily get the following error equations:
+ah ( Ih u − uh ,vh )+ ch ( Ih u; Ih u,vh )− ch (uh ;uh ,vh )+ bh (vh , Jh p − ph )
+
+− bh ( Ih u − uh ,qh )− dh ( Hh T − Th ,vh ) = EL (u,vh )+ EN (u;u,vh ), ∀(vh ,qh ) ∈ Vh0 × Q0h ,
+(4.24)
+ah ( Hh T − Th ,sh )+ ch ( Ih u; Hh T,sh )− ch (uh ;Th ,sh ) = E L ( T,sh )+ E N (u;T,sh ), ∀sh ∈ S0h . (4.25)
+
+22
+
+Take (vh ,qh ,sh ) = ( Ih u − uh , Jh p − ph , Hh T − Th ) in the above two equations, then we have
+Pr9Ih u − uh 92 = EL (u, Ih u − uh )+ EN (u;u, Ih u − uh )
+
+(4.26)
+
+κ9 Hh T − Th 92 = E L ( T, Hh T − Th )+ E N (u;T, Hh T − Th )
+
+(4.27)
+
+− ch ( Ih u; Ih u, Ih u − uh )+ ch (uh ;uh , Ih u − uh ),
+
+− ch ( Ih u; Hh T, Hh T − Th )+ ch (uh ;Th , Hh T − Th )
+
+By (2.2) and (3.33), it holds
+ch ( Ih u; Ih u, Ih u − uh )− ch (uh ;uh , Ih u − uh )
+
+=ch ( Ih u − uh ;uh , Ih u − uh )
+≤Nh 9uh 99Ih u − uh 92
+
+≤Nh ( Raκ −1 k gkh + Pr−1 k f kh ) 9 Ih u − uh 92 ,
+which, together with (4.26), (4.20), Lemma 4.3, and Lemma 4.5, leads to
+
+(C0 +Mh Raκ −2 k gkh ) 9 Ih u − uh 9 > (1 + Pr−1 kuk2 )hk kukk+1 ,
+
+i.e. (4.21) holds.
+Similarly, we can obtain
+
+9Hh T − Th 9 ≤ Mh κ −2 k gkh 9 Ih u − uh 9 +κ −1 (κ +kuk2 )hk k T kk+1 + κ −1 hk k T k2 kukk+1
+> (C1 Mh κ −2 k gkh + κ −1 k T k2 )hk kukk+1 +(1 + κ −1 kuk2 )hk k T kk+1 ,
+
+i.e. (4.22) holds.
+Finally, let us estimate k Jh p− ph k. In light of Theorem 3.12, (4.24), Lemma 3.10, Lemma
+4.3, Lemma 4.5, (4.21), and (4.22), we have
+bh (vh , Jh p − ph )
+9vh 9
+06 = v ∈V 0
+
+k Jh p − ph k > sup
+h
+
+h
+
+EL (u,vh )+ EN (u;u,vh )− ah ( Ih u − uh ,vh )− ch ( Ih u; Ih u,vh )+ ch (uh ;uh ,vh )+ dh ( Hh T − Th ,vh )
+= sup
+9vh 9
+06 = v ∈V 0
+h
+
+h
+
+>(Pr +kuk2 )hk kukk+1 +(Pr +Nh ( Raκ −1 k gkh + Pr−1 k f kh )) 9 Ih u − uh 9 + PrRa9 Hh T − Th 9
+
+>Pr(C1 + Raκ −1 k T k2 )hk kukk+1 + PrRa(1 + κ −1 kuk2 )hk k T kk+1 ,
+
+i.e. (4.23) holds.
+
+
+
+From Theorem 4.1, Lemma 3.3, and the triangle inequality, it follows the following
+error estimates:
+
+23
+
+Theorem 4.2. Under the same conditions of Theorem 4.1, it holds
+
+k∇u −∇h uh0 k0 > (C1 + 1)hk kukk+1 ,
+
+k∇u −∇w,m uh k0 > (C1 + 1)hk kukk+1 ,
+
+k∇ T −∇h Th0 k0 > (Mh κ −2 k gkh C1 + κ −1 k T k2 )hk kukk+1 +(1 + κ −1 kuk2 )hk k T kk+1 ,
+
+k∇ T −∇w,m Th k0 > (Mh κ −2 k gkh C1 + κ −1 k T k2 )hk kukk+1 +(1 + κ −1 kuk2 )hk k T kk+1 ,
+
+k p − ph0 k0 > Pr(C1 + Raκ −1 k T k2 )hk kukk+1 + PrRa(1 + κ −1 kuk2 )hk k T kk+1 + hk k pkk .
+
+5
+
+Local elimination property and iteration scheme
+
+5.1
+
+Local elimination
+
+In this subsection, we shall show that in the WG scheme (2.3), the velocity, pressure,
+and temperature approximations, (uh0 , ph0 ,Th0 ), defined in the interior of the elements,
+can be locally eliminated by using the numerical traces, (uhb , phb ,Thb ), defined on the
+interface of the elements. Therefore, after the local elimination the resultant system only
+involves degrees of freedom of (uhb , phb ,Thb ) as unknowns.
+We rewrite the scheme (2.3) as the following form: seek uh = (uh0 ,uhb ) ∈ Vh0 , ph =
+( ph0 , phb ) ∈ Q0h and Th = ( Th0 ,Thb ) ∈ S0h such that
+
+
+
+Ah (uh ;uh ,vh )+ bh (vh , ph )− bh (uh ,qh )− dh ( Th ,vh ) = ( f ,vh0 ), ∀vh ∈ Vh0 ,
+Ah (uh ;Th ,sh ) = ( g,sh0 ), ∀sh ∈ S0h .
+
+(5.1)
+
+f
+
+For all K ∈Th , taking vh0 |T f /K =0,vhb =0, qh0 |T f /K =0,qhb =0 and Th0 |T f /K =0,Thb =0 in (5.1),
+h
+
+h
+
+h
+
+we can get the following local problem: seek (uh0 , ph0 ,Th0 ) ∈ [ Pk (K )]d × Pk−1 (K )× Pk (K )
+such that, for ∀(vh0 ,qh0 ) ∈ [ Pk (K )]d × Pk−1 (K ),sh0 ∈ Pk (K ),
+
+
+
+Ah,K (uh0 ;uh0 ,vh0 )+ bh,K (vh0 , ph0 )− bh,K (uh0 ,qh0 )− dh,K ( Th0 ,vh0 ) = Fh,K (vh0 ),
+Ah,K (uh0 ,Th0 ;sh0 ) = Gh,K (sh0 ).
+
+(5.2)
+
+24
+
+where
+Ah,K (uh0 ;uh0 ,vh0 ) := ah,K (uh0 ,vh0 )+ ch,K (uh0 ;uh0 ,vh0 );
+ah,K (uh0 ,vh0 ) := Pr(∇w,m {uh0 ,0}, ∇w,m {vh0 ,0})+ PrhτQbl uh0 ,Qbl vh0 i∂K ,
+1
+1
+ch,K (uh0 ;uh0 ,vh0 ) := (∇w,k ·{uh0 ⊗ uh0 ,0 ⊗ 0},vh0 )− (∇w,k ·{vh0 ⊗ uh0 ,0 ⊗ 0},uh0 ),
+2
+2
+bh,K (vh0 , ph0 ) :=(∇w,k { ph0 ,0},vh0 ),
+dh,K ( Th0 ,vh0 ) := PrRa( jTh0 ,vh0 ),
+Ah,K (uh0 ,Th0 ;sh0 ) := ah,K ( Th0 ,sh0 )+ ch,K (uh0 ;Th0 ,sh0 );
+ah,K ( Th0 ,sh0 ) :=κ (∇w,m { Th0 ,0}, ∇w,m {sh0 ,0})+ κ hτQbl Th0 ,Qbl sh0 i∂K
+1
+1
+ch,K (uh0 ;Th0 ,sh0 ) := (∇w,k ·{uh0 Th0 ,0},sh0 )− (∇w,k ·{uh0 sh0 ,0},Th0 )
+2
+2
+Fh,K (vh0 ,qh0 ) :=( f ,vh0 )− Pr(∇w,m {0,uhb }, ∇w,m {vh0 ,0})+ Prhτuhb ,Qbl vh0 i∂K
+1
+− (∇w,k ·{0 ⊗ 0,uhb ⊗ uhb },vh0 )−(∇w,k {0, phb },vh0 ),
+2
+Gh,K (sh0 ) :=( g,sh0 )− κ (∇w,m {0,Thb }, ∇w,m {sh0 ,0})+ PrhτThb ,Qbl sh0 i∂K
+1
+− (∇w,k ·{0,uhb Thb },sh0 ).
+2
+For any K ∈ Th , we define the following semi-norms:
+
+1/2
+9vh0 9K := k∇w,m {vh0 ,0}k20,K +kτ 1/2 Qbl vh0 k20,∂K
+,
+
+1/2
+9sh0 9K := k∇w,m {sh0 ,0}k20,K +kτ 1/2 Qbl sh0 k20,∂K
+.
+It is easy to see that the above semi-norms are norms on the local spaces [ Pk (K )]d and
+Pk (K ), respectively.
+By following the same routine as in Section 3 for the global problem (2.3), we can
+obtain the following existence and uniqueness results for the local problem (5.1).
+
+Theorem 5.1. For any given uhb , phb and Thb , and any K ∈Th , the local problem (5.2) admits
+at least one solution. In addition, it admits a unique solution if
+
+(Pr−1 Nh,K Raκ −1 +Mh,K Raκ −2 )k Gh,K kh +Nh,K Pr−2 k Fh,K kh < 1,
+
+25
+
+where
+
+Nh,K :=
+Mh,K :=
+
+ch,K (wh0 ;uh0 ,vh0 )
+,
+06=wh0 ,uh0 ,vh0 ∈Wh,K 9wh0 9K · 9u h0 9K · 9vh0 9K
+sup
+
+ch,K (wh0 ;Th0 ,sh0 )
+,
+06=wh0 ∈Wh,K , 9wh0 9K · 9Th0 9K · 9s h0 9K
+sup
+
+06= Th0 ,sh0 ∈ Pk (K )
+
+k Fh,K kh :=
+
+Fh,K (vh0 )
+,
+06=vh0 ∈Wh,K 9vh0 9K
+sup
+
+k Gh,K kh :=
+
+Gh,K (sh0 )
+,
+06=sh0 ∈ Pk (K ) 9s h0 9K
+sup
+
+and Wh,K := {wh0 ∈ [ Pk (K )]d : bh,K (wh0 ,qh0 ) = 0, ∀qh0 ∈ Pk−1 (K )}.
+
+5.2
+
+Iteration scheme
+
+Since the WG scheme (2.3) is nonlinear, we introduce the following Oseen’s iteration
+scheme: given u0h , for n = 1,2, ··· , and ∀(vh ,qh ,sh ) ∈ Vh0 × Q0h × S0h ,
+
+ah (unh ,vh )+ ch (unh −1 ;unh ,vh )+ bh (vh , pnh )− bh (unh ,qh ) = ( f ,vh0 )+ dh ( Thn ,vh ),
+(5.3)
+ah ( Thn ,sh )+ ch (unh −1 ;Thn ,sh ) = ( g,sh0 ).
+We have the following convergence theorem.
+Theorem 5.2. Let (uh , ph ,Th ) ∈ Vh0 × Q0h × S0h be the solution to the WG scheme (2.3), and
+assume that (4.20) holds. Then the Oseen’s iteration scheme (5.3) is convergent in the
+following sense:
+lim 9unh − uh 9 = 0, lim k pnh − ph k = 0, lim 9Thn − Th 9 = 0.
+
+n−→∞
+
+n−→∞
+
+n−→∞
+
+Proof. Set enu := unh − uh ,enp := pnh − ph ,enT := Thn − Th , then, from (2.3) and (5.3), we have, for
+∀(vh ,qh ,sh ) ∈ Vh0 × Q0h × S0h ,
+
+ah (enu ,vh ) = −bh (vh ,enp )+ bh (eun ,qh )+ ch (uh ;uh ,vh )− ch (unh −1 ;unh ,vh )
+(5.4)
+ah (enT ,sh ) = ch (uh ;Th ,sh )− ch (unh −1 ;Thn ,sh ).
+Taking vh = enu ,qh = enp ,sh = enT in (5.4), in view of (2.2) and Lemma 3.10, we get
+Pr9enu 92 =ch (uh ;uh ,enu )− ch (unh −1 ;unh ,enu )+ dh (enT ,enu )
+
+=− ch (enu−1 ;uh ,enu )− ch (unh −1 ;enu ,enu )+ dh (enT ,enu )
+
+(5.5)
+
+≤Nh 9enu−1 99uh 99enu 9 + PrRa9enT 99enu 9,
+κ9enT 92 =ch (uh ;Th ,enT )− ch (unh −1 ;Thn ,enT )
+
+=− ch (enu−1 ;Th ,enT )− ch (unh −1 ;enT ,enT )
+≤Mh 9enu−1 99Th 99enT 9,
+
+(5.6)
+
+26
+
+which, together with (3.32), (3.33), and (4.20), implies
+9enu 9 ≤ Pr−1 Nh 9enu−1 99uh 9 + Ra9enT 9
+
+≤ (Pr−1 Nh 9uh 9 +κ −1 Mh 9Th 9) 9enu−1 9
+≤ (1 − C0 ) 9enu−1 9 ≤ ··· ≤ (1 − C0 )n 9e0u 9.
+
+Since 0 < C0 < 1, the above inequality leads to the conclusion
+
+lim 9unh − uh 9 = lim 9enu 9 = 0.
+
+n−→∞
+
+n−→∞
+
+(5.7)
+
+Thus, from (5.6) and (3.32) it follows
+lim 9Thn − Th 9 = lim 9enT 9 = 0.
+
+n−→∞
+
+n−→∞
+
+(5.8)
+
+Finally, in light of Lemma 3.12 and the first equation of (5.4), we obtain
+bh (vh ,enp )
+n
+ke p k ≤ sup
+9vh 9
+vh ∈Vh0
+
+1
+(− ah (enu ,vh )+ ch (uh ;uh ,vh )− ch (unh −1 ;unh ,vh )+ dh (enT ,vh ))
+9v
+9
+h
+v ∈V 0
+
+= sup
+h
+
+h
+
+1
+(− ah (enu ,vh )− ch (enu−1 ;uh ,vh )− ch (enu−1 ;enu ,vh )− ch (enu ;uh ,vh )+ dh (enT ,vh ))
+9v
+9
+0
+h
+v ∈V
+
+= sup
+h
+
+h
+
+≤ Pr9enu 9 +Nh (9uh 99enu−1 9 + 9enu 99enu−1 9 + 9uh 99enu 9)+ PrRa9enT 9,
+
+which, together with (5.7) and (5.8), yields lim k pnh − ph k = 0.
+n−→∞
+
+6
+
+
+
+Numerical experiments
+
+In this section, we shall show some numerical results to examine the performance of
+the proposed WG methods for the natural convection equations. The Oseen’s iteration
+scheme (5.3) with initial guess u0h = 0 is used in all the numerical experiments.
+We consider three cases of our WG methods with k = 1,2:
+WG − I : l = k,
+
+m = k,
+
+WG − I I : l = k,
+
+m = k − 1,
+
+WG − I I I : l = k − 1, m = k − 1.
+Example 6.1. Take Ω =[−1,1]×[0,1] and Ω f =[0,1]×[0,1]. The exact solution to the problem (1.1) is given by
+
+u1 = − x2 ( x − 1)2 y(y − 1)(2y − 1) in Ω f ,
+
+
+
+u2 = y2 (y − 1)2 x ( x − 1)(2x − 1)
+in Ω f ,
+6 − y6
+p
+=
+x
+in Ω f ,
+
+
+
+T = ( x − 1)( x + 1)y(y − 1)
+in Ω.
+
+27
+
+with Pr = 1,κ = 1,Ra = 10. Regular triangular meshes are used for the computation (see
+Figure 1).
+
+Figure 1: Regular triangular meshes: 4 × 2 mesh (Left) and 8 × 4 mesh (Right)
+
+Tables 1 and 2 show the history of convergence for the velocity uh0 , pressure ph0 ,
+1
+and temperature Th0 . Results of divh Uh =: max h−
+K k∇· u h0 k0,K are also listed. From the
+f
+
+K ∈Th
+
+numerical results we have the following observations:
+• The convergence rates of k∇u −∇h uh0 k0 , k p − ph0 k0 , and k∇ T −∇h Th0 k0 for the proposed WG methods with k = 1,2 are of kth orders, as is consistent with the theoretical
+results. In addition, the convergence rates of ku−uh0 k0 and k T − Th0 k0 are of (k +1)th
+orders.
+1
+• Since k∇h · uh0 k0,∞ > max h−
+K k∇· u h0 k0,K , the velocity approximations obtained by
+f
+
+K ∈Th
+
+our methods are globally divergence-free, which are conformable to the conclusion
+in Remark 2.1.
+Table 1: Results for different methods with k = 1
+(a) Method:WG-I
+
+mesh
+8×4
+16 × 8
+32 × 16
+64 × 32
+128 × 64
+
+k∇u−∇h uh0 k0
+k∇uk0
+
+error
+5.9412E-01
+3.1494E-01
+1.5988E-01
+8.0247E-02
+4.0162E-02
+
+order
+0.92
+0.98
+0.99
+1.00
+
+ku−uh0 k0
+k u k0
+
+error
+1.6959E-01
+4.7778E-02
+1.2396E-02
+3.1249E-03
+7.8018E-04
+
+order
+1.83
+1.95
+1.99
+2.00
+
+k p− ph0 k0
+k p k0
+
+error
+4.4819E-01
+2.3637E-01
+1.1983E-01
+6.0122E-02
+3.0087E-02
+
+order
+0.92
+0.98
+0.99
+1.00
+
+k∇ T −∇h Th0 k0
+k∇ T k0
+
+error
+2.4656E-01
+1.2464E-01
+6.2498E-02
+3.1272E-02
+1.5639E-02
+
+order
+0.98
+0.99
+1.00
+1.00
+
+k T − Th0 k0
+k T k0
+
+error
+2.7341E-02
+6.8747E-03
+1.7191E-03
+4.2894E-04
+1.0704E-04
+
+order
+1.99
+2.00
+2.00
+2.00
+
+divh Uh
+3.9988E-16
+1.9062E-15
+3.0715E-15
+3.1834E-14
+4.6475E-14
+
+(b) Method:WG-II
+mesh
+8×4
+16 × 8
+32 × 16
+64 × 32
+128 × 64
+
+k∇u−∇h uh0 k0
+k∇uk0
+
+error
+7.0486E-01
+3.2996E-01
+1.6192E-01
+8.0518E-02
+4.0158E-02
+
+order
+1.10
+1.03
+1.01
+1.00
+
+ku−uh0 k0
+k u k0
+
+error
+7.8104E-01
+1.8899E-01
+4.8031E-02
+1.2196E-02
+3.0774E-03
+
+order
+2.05
+1.98
+1.98
+1.99
+
+k p− ph0 k0
+k p k0
+
+error
+4.7353E-01
+2.3962E-01
+1.2025E-01
+6.0178E-02
+3.0095E-02
+
+order
+0.98
+0.99
+1.00
+1.00
+
+k∇ T −∇h Th0 k0
+k∇ T k0
+
+error
+2.6104E-01
+1.2868E-01
+6.4066E-02
+3.1996E-02
+1.5993E-02
+
+order
+1.02
+1.01
+1.00
+1.00
+
+k T − Th0 k0
+k T k0
+
+error
+1.3922E-01
+3.5017E-02
+8.7749E-03
+2.1989E-03
+5.5203E-04
+
+order
+1.99
+2.00
+2.00
+2.00
+
+divh Uh
+1.5492E-15
+5.5321E-16
+6.8348E-15
+9.5579E-15
+2.0390E-14
+
+(c) Method:WG-III
+mesh
+8×4
+16 × 8
+32 × 16
+64 × 32
+128 × 64
+
+k∇u−∇h uh0 k0
+k∇uk0
+
+error
+7.4774E-01
+3.3583E-01
+1.6272E-01
+8.0623E-02
+4.0212E-02
+
+order
+1.02
+1.01
+1.00
+1.00
+
+ku−uh0 k0
+k u k0
+
+error
+8.3792E-01
+1.9985E-01
+5.0551E-02
+1.2810E-02
+3.2282E-03
+
+order
+2.07
+1.98
+1.98
+1.99
+
+k p− ph0 k0
+k p k0
+
+error
+4.7910E-01
+2.4031E-01
+1.2033E-01
+6.0183E-02
+3.0093E-02
+
+order
+0.99
+1.00
+1.00
+1.00
+
+k∇ T −∇h Th0 k0
+k∇ T k0
+
+error
+3.1663E-01
+1.5503E-01
+7.7080E-02
+3.8485E-02
+1.9235E-02
+
+order
+1.03
+1.01
+1.00
+1.00
+
+k T − Th0 k0
+k T k0
+
+error
+1.6162E-01
+4.0626E-02
+1.0178E-02
+2.5494E-03
+6.3946E-04
+
+order
+1.99
+2.00
+2.00
+2.00
+
+divh Uh
+1.0304E-16
+2.0466E-16
+1.7369E-15
+2.3551E-15
+6.5944E-15
+
+28
+
+Table 2: Results for different methods with k = 2
+(a) Method:WG-I
+mesh
+8×4
+16 × 8
+32 × 16
+64 × 32
+128 × 64
+
+k∇u−∇h uh0 k0
+k∇uk0
+
+error
+1.6192E-01
+4.2800E-02
+1.0767E-02
+2.6808E-03
+6.7021E-04
+
+order
+1.92
+1.99
+2.01
+2.00
+
+ku−uh0 k0
+k u k0
+
+error
+2.8177E-02
+3.6801E-03
+4.6124E-04
+5.7386E-05
+7.1513E-06
+
+order
+2.94
+2.99
+3.01
+3.00
+
+k p− ph0 k0
+k p k0
+
+error
+6.6611E-02
+1.7476E-02
+4.4430E-03
+1.1115E-03
+2.7795E-04
+
+order
+1.92
+1.98
+1.99
+2.00
+
+k∇ T −∇h Th0 k0
+k∇ T k0
+
+error
+2.3814E-02
+5.9899E-03
+1.4995E-03
+3.7495E-04
+9.3738E-05
+
+order
+1.98
+1.99
+2.00
+2.00
+
+k T − Th0 k0
+k T k0
+
+error
+1.5210E-03
+1.9029E-04
+2.3790E-05
+2.9736E-06
+3.7173E-07
+
+order
+2.99
+3.00
+3.00
+3.00
+
+divh Uh
+1.5852E-15
+1.3501E-14
+6.8867E-14
+3.8064E-14
+7.2047E-14
+
+(b) Method:WG-II
+mesh
+8×4
+16 × 8
+32 × 16
+64 × 32
+128 × 64
+
+k∇u−∇h uh0 k0
+k∇uk0
+
+error
+2.5023E-01
+6.3163E-02
+1.5659E-02
+3.8820E-03
+9.6547E-04
+
+order
+1.98
+2.01
+2.01
+2.00
+
+ku−uh0 k0
+k u k0
+
+error
+5.9209E-02
+7.4474E-03
+9.3395E-04
+1.1720E-04
+1.4685E-05
+
+order
+2.99
+2.99
+3.00
+3.00
+
+k p− ph0 k0
+k p k0
+
+error
+6.6212E-02
+1.7485E-02
+4.4432E-03
+1.1117E-03
+2.7815E-04
+
+order
+1.92
+1.98
+2.00
+2.00
+
+k∇ T −∇h Th0 k0
+k∇ T k0
+
+error
+4.1197E-02
+1.0276E-02
+2.5691E-03
+6.4257E-04
+1.6070E-04
+
+order
+1.99
+2.00
+2.00
+2.00
+
+k T − Th0 k0
+k T k0
+
+error
+4.9610E-03
+6.1111E-04
+7.5883E-05
+9.4569E-06
+1.1804E-06
+
+order
+3.02
+3.01
+3.00
+3.00
+
+divh Uh
+6.5550E-16
+7.4872E-15
+5.6488E-15
+2.4648E-14
+2.1412E-13
+
+(c) Method:WG-III
+mesh
+8×4
+16 × 8
+32 × 16
+64 × 32
+128 × 64
+
+k∇u−∇h uh0 k0
+k∇uk0
+
+error
+1.3075E-01
+3.4979E-02
+8.9627E-03
+2.2617E-03
+5.6761E-04
+
+order
+1.90
+1.96
+1.99
+2.00
+
+ku−uh0 k0
+k u k0
+
+error
+6.2217E-02
+7.6750E-03
+9.4948E-04
+1.1834E-04
+1.4791E-05
+
+order
+3.02
+3.01
+3.00
+3.00
+
+k p− ph0 k0
+k p k0
+
+error
+6.6237E-02
+1.7492E-02
+4.4333E-03
+1.1121E-03
+2.7826E-04
+
+order
+1.92
+1.98
+2.00
+2.00
+
+k∇ T −∇h Th0 k0
+k∇ T k0
+
+error
+2.1605E-02
+5.4667E-03
+1.3734E-03
+3.4409E-04
+8.6112E-05
+
+order
+1.98
+1.99
+2.00
+2.00
+
+k T − Th0 k0
+k T k0
+
+error
+5.3332E-03
+6.6033E-04
+8.2232E-05
+1.0263E-05
+1.2821E-06
+
+order
+3.02
+3.01
+3.00
+3.00
+
+divh Uh
+1.6739E-15
+3.5685E-15
+3.2603E-14
+7.3185E-14
+2.6642E-13
+
+Figure 2: The physical domain with its boundary conditions: 4 × 4 mesh
+
+Example 6.2. We consider the well-known test cave for the natural convection codes
+which is called buoyancy-driven cavity problem. This problem describes the two-dimensional
+flow of a Boussinesq fluid in an upright square cavity of side L = 1. Fig.2 shows the physical domain with the boundary conditions. The velocity is zero on all the boundaries.
+The horizontal walls are insulated with ∂T
+∂n = 0, and the vertical sides are at temperatures
+TH = 1 and TC = 0. We take Ω = Ω f = [0,1]×[0,1], κ = 1,Pr = 0.71, f = 0, and g = 0.
+For different Rayleigh numbers, i.e. Ra = 103 ,104 ,105 ,106 ,107 , we use the WG-I method
+with k = 1,2 to compute the following quantities at different mesh sizes:
+
+29
+
+u1max
+u2max
+Nu
+Numax
+Numin
+
+the maximum horizontal velocity on the vertical mid-plane of the cavity
+the maximum vertical velocity on the horizontal mid-plane of the cavity
+the average Nusselt number throughout the cavity
+the maximum value of the local Nusselt number on the boundary at x=0
+the minimum value of the local Nusselt number on the boundary at x=0
+
+The results are listed in Table 3 and compared with the famous benchmark solutions
+of de Vahl Davis [12] and of some other authors such as Manzari [21], Massarotti et al [22],
+Wan et al [29], and Zhang et al [38]. Figure 3 and Figure 4 show the contour maps of the
+stream function and the isotherms of the flow. We have the following observations:
+• From Table 3 we can see that the WG-I method gives good results for all the quantities for different Rayleigh numbers. In particular, the method with k = 2 behaves
+very well at the coarsest mesh 40 × 40.
+• Figure 3 demonstrates that, as Rayleigh number Ra increases, the circular vortex
+at the cavity center begins to deform into an ellipse and then breaks up into two
+vortices, and then there’s a big vortex in the center.
+• Figure 4 shows that, when Rayleigh number Ra is small, the heat transfer mainly
+depends on heat conduction (isotherms almost vertical), with the increasing of Ra,
+the heat transfer pattern gradually turns to heat convection and boundary layers
+appear around the two walls (isotherms almost horizontal at the center).
+
+Figure 3: Contour maps of stream function (left to right) with Ra = 103 ,104 ,105 ,106 ,107 .
+
+Figure 4: Isotherms(left to right) with Ra = 103 ,104 ,105 ,106 ,107
+
+30
+
+Table 3: Natural convection in a square cavity: comparison with the benchmark solutions
+Ra
+
+103
+
+104
+
+105
+
+106
+
+107
+
+u1max
+u2max
+Nu
+Numax
+Numin
+u1max
+u2max
+Nu
+Numax
+Numin
+u1max
+u2max
+Nu
+Numax
+Numin
+u1max
+u2max
+Nu
+Numax
+Numin
+u1max
+u2max
+Nu
+Numax
+Numin
+
+WGI,k=1
+40 × 40
+3.653
+3.711
+1.118
+1.506
+0.691
+16.227
+19.744
+2.243
+3.528
+0.585
+34.829
+69.049
+4.515
+7.701
+0.726
+64.977
+217.307
+8.797
+17.676
+0.970
+154.770
+819.329
+16.564
+47.155
+1.359
+
+WGI,k=1
+70 × 70
+3.654
+3.698
+1.118
+1.506
+0.691
+16.188
+19.611
+2.244
+3.530
+0.585
+34.771
+68.736
+4.519
+7.713
+0.727
+64.710
+221.534
+8.813
+17.511
+0.976
+148.802
+695.512
+16.484
+40.374
+1.353
+
+WGI,k=2
+40 × 40
+3.640
+3.697
+1.118
+1.560
+0.691
+16.183
+19.600
+2.245
+3.531
+0.585
+34.715
+67.875
+4.522
+7.716
+0.728
+64.835
+208.237
+8.825
+17.462
+0.980
+148.454
+703.702
+16.522
+40.935
+1.363
+
+WGI,k=2
+50 × 50
+3.646
+3.697
+1.118
+1.506
+0.691
+16.180
+16.628
+2.245
+3.531
+0.585
+34.702
+68.290
+4.522
+7.720
+0.728
+64.541
+220.609
+8.825
+17.536
+0.979
+148.596
+707.696
+16.521
+40.329
+1.367
+
+Ref.
+[12]
+
+Ref.
+[38]
+64 × 64
+3.649
+3.697
+1.118
+1.505
+0.692
+16.178
+16.19
+19.617
+19.63
+2.243
+3.528
+0.586
+34.81
+34.74
+68.22
+68.48
+4.519
+7.717
+0.729
+64.63
+64.81
+219.36
+220.46
+8.800
+17.925
+0.989
+145.267* 148.40
+703.253* 694.14
+41.025*
+1.380*
+-
+
+Ref.
+[21]
+70 × 70
+3.68
+3.73
+1.074
+1.47
+0.623
+16.10
+19.90
+2.084
+3.47
+0.4968
+34.00
+70.00
+4.30
+7.71
+0.614
+65.40
+228
+8.743
+17.46
+0.716
+139.7
+698
+13.99
+30.46
+0.787
+
+Ref.
+[22]
+70 × 70
+3.686
+1.117
+19.63
+2.243
+68.85
+4.521
+221.6
+8.806
+702.3
+16.40
+-
+
+Ref. [29]
+100 × 100
+3.489
+3.69
+1.117
+1.501
+0.691
+16.122
+19.79
+2.254
+3.579
+0.577
+34.00
+70.63
+4.598
+7.945
+0.698
+65.40
+227.11
+8.976
+17.86
+0.913
+143.56
+714.48
+16.656
+38.6
+1.298
+
+1 The benchmark solutions with * were mentioned in [23] when Ra = 107 .
+
+7
+
+Conclusions
+
+In this paper, we have developed a class of weak Galerkin finite element methods
+with globally divergence-free velocity approximation for the steady-state natural convection problems. Well-posedness of the discrete scheme is analyzed, and optimal error
+estimates for the velocity, temperature and pressure approximations are derived. The
+proposed Oseen’s iteration algorithm is unconditionally convergent. Numerical experiments verify the theoretical results.
+
+Acknowledgments
+This work was supported by National Natural Science Foundation of China (11771312)
+and Major Research Plan of National Natural Science Foundation of China (91430105).
+
+31
+
+References
+[1] M. Benı́tez and A. Bermúdez. A second order characteristics finite element scheme for natural convection problems. Journal of Computational and Applied Mathematics, 235(11):3270–3284,
+2011.
+[2] J. Boland and W. Layton. An analysis of the finite element method for natural convection
+problems. Numerical Methods for Partial Differential Equations, 6(2):115–126, 1990.
+[3] J. Boland and W. Layton. Error analysis for finite element methods for steady natural convection problems. Numerical functional analysis and optimization, 11(5-6):449–483, 1990.
+[4] H. Brezis. Functional analysis, Sobolev spaces and partial differential equations. Springer Science
+& Business Media, 2010.
+[5] F. Brezzi, D. Boffi, L. Demkowicz, R.G. Durán, R.S. Falk, and M. Fortin. Mixed finite elements,
+compatibility conditions, and applications. Springer, 2008.
+[6] G. Chen, M. Feng, and X. Xie. Robust globally divergence-free weak Galerkin methods for
+Stokes equations. Journal of Computational Mathematics, 34(5):549–572, 2016.
+[7] G. Chen, M. Feng, and X. Xie. A robust WG finite element method for convection–diffusion–
+reaction equations. Journal of Computational and Applied Mathematics, 315:107–125, 2017.
+[8] G. Chen and X. Xie. A robust weak Galerkin finite element method for linear elasticity
+with strong symmetric stresses. Computational Methods in Applied Mathematics, 16(3):389–
+408, 2016.
+[9] L. Chen, J. Wang, Y. Wang, and X. Ye. An auxiliary space multigrid preconditioner for the
+weak Galerkin method. Computers & Mathematics with Applications, 70(4):330–344, 2015.
+[10] Y. Chen, G. Chen, and X. Xie. Weak Galerkin finite element method for Biot’s consolidation
+problem. Journal of Computational and Applied Mathematics, 330:398–416, 2018.
+[11] B. Cockburn, J. Gopalakrishnan, and R. Lazarov. Unified hybridization of discontinuous
+Galerkin, mixed, and continuous galerkin methods for second order elliptic problems. Siam
+Journal on Numerical Analysis, 47(2):1319–1365, 2009.
+[12] G. de Vahl Davis. Natural convection of air in a square cavity: a bench mark numerical
+solution. International Journal for numerical methods in fluids, 3(3):249–264, 1983.
+[13] B. Deka. A weak galerkin finite element method for elliptic interface problems with polynomial reduction. Numerical Mathematics-Theory Methods and Applications, 11:655–672, 2018.
+[14] O.A. Karakashian and F. Pascal. Convergence of adaptive discontinuous galerkin approximations of second-order elliptic problems. SIAM Journal on Numerical Analysis, 45(2):641–
+665, 2007.
+[15] H.W.J. Lenferink. An accurate solution procedure for fluid flow with natural convection.
+Numerical Functional Analysis and Optimization, 15(5-6):661–687, 1994.
+[16] B. Li and X. Xie. A two-level algorithm for the weak Galerkin discretization of diffusion
+problems. Journal of Computational and Applied Mathematics, 287:179–195, 2015.
+[17] B. Li and X. Xie. BPX preconditioner for nonstandard finite element methods for diffusion
+problems. SIAM Journal on Numerical Analysis, 54(2):1147–1168, 2016.
+[18] J. Loewe and G. Lube. A projection-based variational multiscale method for large-eddy simulation with application to non-isothermal free convection problems. Mathematical Models
+and Methods in Applied Sciences, 22(02):1150011, 2012.
+[19] Z. Luo, J. Chen, I.M. Navon, and J. Zhu. An optimizing reduced plsmfe formulation for
+non-stationary conduction–convection problems. International Journal for Numerical Methods
+in Fluids, 60(4):409–436, 2009.
+[20] Z. Luo and X. Lu. A least squares galerkin/petrov mixed finite element method for the sta-
+
+32
+
+tionary conduction-convection problems. MATHEMATICA NUMERICA SINICA-CHINESE
+EDITION, 25(2):231–244, 2003.
+[21] M.T. Manzari. An explicit finite element algorithm for convection heat transfer problems.
+International Journal of Numerical Methods for Heat & Fluid Flow, 9(8):860–877, 1999.
+[22] N. Massarotti, P. Nithiarasu, and O.C. Zienkiewicz. Characteristic-based-split (cbs) algorithm for incompressible flow problems with heat transfer. International Journal of Numerical
+Methods for Heat & Fluid Flow, 8(8):969–990, 1998.
+[23] D.A. Mayne, A.S. Usmani, and M. Crapper. h-adaptive finite element solution of high
+rayleigh number thermally driven cavity problem. International Journal of Numerical Methods
+for Heat & Fluid Flow, 10(6):598–615, 2000.
+[24] L. Mu, J. Wang, X. Ye, and S. Zhang. A weak Galerkin finite element method for the Maxwell
+equations. Journal of Scientific Computing, 65(1):363–386, 2015.
+[25] D. Shi and J. Ren. Nonconforming mixed finite element method for the stationary
+conduction-convection problem. International Journal of Numerical Analysis & Modeling, 6(2),
+2009.
+[26] D. Shi and J. Ren. A least squares galerkin–petrov nonconforming mixed finite element
+method for the stationary conduction–convection problem. Nonlinear Analysis Theory Methods and Applications, 72(3–4):1653–1667, 2010.
+[27] Z. Shi and M. Wang. Finite element methods. Science Press, 2013.
+[28] Z. Si and Y. He. A defect-correction mixed finite element method for stationary conductionconvection problems. Mathematical Problems in Engineering, 2011, 2011.
+[29] C. Wan, B.S.V. Patnaik, and G.W. Wei. A new benchmark quality solution for the buoyancydriven cavity by discrete singular convolution. Numerical Heat Transfer: Part B: Fundamentals,
+40(3):199–228, 2001.
+[30] J. Wang and X. Ye. A weak Galerkin finite element method for second-order elliptic problems. Journal of Computational and Applied Mathematics, 241:103–115, 2013.
+[31] J. Wang and X. Ye. A weak Galerkin mixed finite element method for second order elliptic
+problems. Mathematics of Computation, 83(289):2101–2126, 2014.
+[32] J. Wang and X. Ye. A weak Galerkin finite element method for the Stokes equations. Advances
+in Computational Mathematics, 42(1):155–174, 2016.
+[33] R. Wang, X. Wang, Q. Zhai, and R. Zhang. A weak Galerkin finite element scheme for
+solving the stationary Stokes equations. Journal of Computational and Applied Mathematics,
+302:171–185, 2016.
+[34] R. Wang, X. Wang, and R. Zhang. A weak galerkin finite element method for elliptic interface problems with polynomial reduction. Numerical Mathematics-Theory Methods and Applications, 11:518–539, 2018.
+[35] Q. Zhai, R. Zhang, N. Malluwawadu, and S. Hussain. The weak Galerkin method for linear
+hyperbolic equation. Communications in Computational Physics, 24:152–166, 2018.
+[36] J. Zhang, K. Zhang, J. Li, and X. Wang. A weak Galerkin finite element method for the
+Navier-Stokes equations. Communications in Computational Physics, 23:706–746, 2018.
+[37] T. Zhang, X. Zhao, and P. Huang. Decoupled two level finite element methods for the steady
+natural convection problem. Numerical Algorithms, 68(4):837–866, 2015.
+[38] Y. Zhang, Y. Hou, and J. Zhao. Error analysis of a fully discrete finite element variational
+multiscale method for the natural convection problem. Computers & Mathematics with Applications, 68(4):543–567, 2014.
+[39] Y. Zhang, Y. Hou, and H. Zheng. A finite element variational multiscale method for steadystate natural convection problem based on two local gauss integrations. Numerical methods
+
+33
+
+for partial differential equations, 30(2):361–375, 2014.
+[40] X. Zheng, G. Chen, and X. Xie. A divergence-free weak Galerkin method for quasiNewtonian Stokes flows. Science China Mathematics, 60(8):1515–1528, 2017.
+[41] X. Zheng and X. Xie. A posteriori error estimator for a weak Galerkin finite element solution
+of the Stokes problem. East Asian Journal on Applied Mathematics, 7(3):508–529, 2017.
+
+

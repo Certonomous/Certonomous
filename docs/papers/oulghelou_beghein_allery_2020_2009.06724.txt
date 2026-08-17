@@ -1,0 +1,1055 @@
+Data-Driven Optimization Approach for Inverse Problems :
+Application to Turbulent Mixed-Convection Flows
+M. Oulghelou1 , C. Beghein2 , C. Allery3
+LaSIE, UMR-7356-CNRS, Université de La Rochelle Pôle Science et Technologie, Avenue Michel
+Crépeau, 17042 La Rochelle Cedex 1, France.
+
+arXiv:2009.06724v2 [cs.CE] 24 Sep 2020
+
+Abstract
+Optimal control of turbulent mixed-convection flows has attracted considerable attention
+from researchers. Numerical algorithms such as Genetic Algorithms (GAs) are powerful
+tools that allow to perform global optimization. These algorithms are particularly of great
+interest in complex optimization problems where cost functionals may lack smoothness and
+regularity. In turbulent flow optimization, the hybridization of GA with high fidelity Computational Fluid Dynamics (CFD) is extremely demanding in terms of computational time and
+memory storage. Thus, alternative approaches aiming to alleviate these requirements are of
+great interest. Nowadays, data driven approaches gained attention due to their potential in
+predicting flow solutions based only on preexisting data. In the present paper, we propose
+a near-real time data-driven genetic algorithm (DDGA) for inverse parameter identification
+problems involving turbulent flows. In this optimization framework, the parametrized flow
+data are used in their reduced form obtained by the POD (Proper Orthogonal Decomposition) and solutions prediction is made by interpolating the temporal and the spatial POD
+subspaces through a recently developed Riemannian barycentric interpolation. The validation of the proposed optimization approach is carried out in the parameter identification
+problem of the turbulent mixed-convection flow in a cavity. The objective is to determine
+the inflow temperature and inflow velocity corresponding to a given temperature distribution in a restricted area of the spatial domain. The results show that the proposed genetic
+programming optimization framework is able to deliver good approximations of the optimal
+solutions within less than two minutes.
+Keywords: Flow inverse problem, optimal control, Data-Driven optimization, indoor
+flows, heat problems, Genetic Algorithm, Proper Orthogonal Decomposition.
+
+1 mourad.oulghelou@univ-lr.fr
+2 cbeghein@univ-lr.fr
+3 cyrille.allery@univ-lr.fr
+
+1. Introduction
+Decreasing energy consumption of buildings is an important aspect of the reducing of
+global warming. However, the energy reduction has to be compromised with the quality of
+thermal comfort inside buildings. To achieve that, optimization applied to indoor airflows,
+which is aimed at determining optimal flow values for some well chosen parameters are of
+great interest. The optimization objective can be expressed in the whole or a part of the
+domain, in terms of field variables such as inlet velocity, wall temperature, heat source,
+etc. For flows in buildings, which are mostly mixed convection turbulent flows, high fidelity solvers are privileged for parameter identification problems. A usual class of flow
+optimization algorithms consists in standard gradient descent algorithms using high fidelity
+adjoint equations. The search direction is computed as the functional cost sensitivity over
+the design variables and the solution is moved along until an optimal solution is reached.
+This approach was used for instance by Liu et al. to find optimal thermo-fluid boundary
+conditions in a two-dimensional cavity [1] and to optimize the air supply location, size, and
+parameters in a two dimensional non isothermal ventilated cavity [2]. It was also used to
+optimize buoyancy-driven ventilation flows governed by Boussinesq equations [3, 4]. A major limitation of high fidelity adjoint-based algorithms is that they are more likely to stuck
+in local optima. To overcome this issue, a global optimization search can be carried out by
+Genetic Algorithms (GAs) [5]. In the context of mixed-convection flows, high fidelity solvers
+combined with GA have been investigated and validated in [6, 7]. Compared to high fidelity
+adjoint based optimization approach, high fidelity based GA is more efficient in terms of
+finding global optimal solutions, yet it requires a tremendous computing load, leading to
+turn the attention to techniques of model reduction.
+Reduced-order models have been extensively used in fluid dynamics in order to reduce the
+computational burden in optimization and control applications. Recently, POD/Galerkin
+reduced order models were successfully combined with optimization approaches allowing a
+drastic alleviation of the optimization computational effort. A standard approach developed by Tallet et al. [8] and Bergmann et al. [9] consists in using high fidelity simulations
+to extract a POD basis representing the main structures of a set of snapshots sampled at
+different parameter values. The temporal dynamics is afterwards calculated by solving an
+ordinary system of differential equations resulting from Galerkin projection of the governing
+equations onto the global POD basis. By considering the global POD/Galerkin ROM as
+the state equations, a reduced scale optimization problem can be formulated and solved
+in near-real time. However, in many physical cases, the global POD/Galerkin ROM may
+experience issues of accuracy due to the overload of information in the global POD basis.
+Sophisticated subspace interpolation techniques such as the ITSGM (Interpolation on the
+Tangent Space of the Grassmann Manifold) proposed by Amsallem et al. [10] is an efficient
+local method meant to restrict the ROM predictions to the wanted physical regime. In the
+context of the adjoint-based optimal control, the ITSGM/Galerkin ROM was successfully
+embedded in a suboptimal control strategy to achieve a near-real time optimal control of
+transfer phenomena [11].
+In the last two decades, interest in data driven model reduction techniques for flow problems
+is increasingly growing. Interestingly, the power of these methods is their dispense on the
+underlying mathematical model. Instead, they explore and learn the dynamics from preexisting data and deliver approximations that are expected to capture most of the dynamics
+of the flow. Numerous attempts have been carried out in this subject. Namely, one can
+refer to [12] where a modified version of the ITSGM referred to as Bi-CITSGM designed for
+non-linear data interpolation is proposed, and to [13, 14, 15, 16, 17] where Artificial Neural
+Networks (ANN) were used with model reduction for the prediction of flow solutions. In
+the context of data driven optimization, the Bi-CITSGM has been used successfully in conjunction with GA to control the flow past a circular cylinder and the flow in a lid driven
+cavity [12]. In the same spirit, ANN are used in conjunction with micro genetic algorithm
+
+2
+
+(MGAs) for the optimization of the location of multiple discrete heat sources in a ventilated
+cavity [18]. In both cases, the Bi-ITSGM or ANN combined with GA demonstrated their
+ability to reach good suboptimal solutions within a near-real computational time.
+In this paper, we formulate a new Data Driven Genetic Algorithm (DDGA) based on the
+Riemannian Barycentric interpolation of subspaces. This interpolation method is based
+upon the geometry of the manifold of fixed rank matrices studied in details in [19]. It was
+initially used to interpolate low-rank solutions of the Luyapunov equations resulting from
+parametric linear input-output reduced order system [20], and recently adapted to interpolate the parametric Navier-Stokes Galerkin/ROM [21]. In contrast to the Bi-CITSGM which
+needs a calibration phase for the interpolated POD subspaces, the barycentric interpolation
+naturally results in modes that are arranged according the POD energetic content. This
+property allows to interpolate the time and space quantities separately and eventually form
+the set of untrained solutions by simply combining them. The aim of the following study
+is to use a preexisting flow database to solve the inverse parameter identification problem
+involving the turbulent mixed-convection flow in a cavity. The optimization objective is to
+determine the inlet velocity and temperature that optimize the cost functional related to
+maintaining a desired temperature distribution inside a part of the spatial domain.
+The remainder of this article is organized as follows: First, the studied Mixed convection
+inverse problem is presented in section 2. In section 3, the barycentric interpolation used
+for nonlinear parametrized data prediction is detailed. Next, the proposed data driven Genetic Algorithm is outlined in section 4. In section 5, numerical experiments assessing the
+potential of this approach are carried out on the inverse problem involving the turbulent
+mixed-convection flow in a cavity. Finally, conclusions are drawn in section 6.
+2. Mixed convection inverse problem
+2.1. Optimization problem settings
+This study focuses on the inverse problem of temperature distribution in a two-dimensional
+ventilated cavity, whose dimensions are 1.04m × 1.04m, and which is shown in figure 1. The
+temperature θhot of the bottom wall of the cavity is higher than the temperature θcold of
+the other walls:
+θhot = 35o C and θcold = 15o C
+(1)
+The air inlet (resp. outlet) is located at the top left (resp. bottom right) corner of the
+
+Figure 1: Description of the studied mixed-convection flow
+
+cavity. The vertical dimension of the air inlet (resp. outlet) is 0.018 m (resp. 0.024 m). At
+the inlet, the air velocity is denoted U , and the air temperature is θ. The turbulent air flow
+in the cavity is governed by the equations of mass conservation, momentum conservation,
+
+3
+
+energy conservation, of an incompressible Newtonian fluid with Boussinesq’s assumption
+
+
+∇ · v = 0
+(2)
+ρ∂t v + ρv · ∇v = −∇p + µ∆v + ρ g β(Θ − Θ0 )ey + ∇σt
+
+
+ρ cp ∂t Θ + ρ cp v · ∇Θ = λ ∆Θ + ∇qt
+where v, Θ, p are the time averaged velocity4 , temperature and pressure obtained with an
+Unsteady Reynolds Averaged Navier-Stokes (URANS) turbulence model. ρ, µ, Cp , λ are the
+density, dynamic viscosity, heat capacity and heat conductivity of the fluid at the reference
+temperature Θ0 , g is the gravitational acceleration, β is the thermal expansion coefficient.
+σt and qt are the turbulent Reynolds stress and the turbulent heat flux given by
+σtij = −ρ vi0 vj0
+
+qti = −ρ cp vi0 Θ0
+
+where v 0 and Θ0 stand for the temporal mean values of the fluctuating velocity and temperature. The aim of the following study is to solve the constrained nonlinear optimization
+problem
+min J (y)
+subject to
+N (y, δ) = 0
+(3)
+δ
+
+where J is the functional describing the cost to minimize, N the non-isothermal NavierStokes equations (2) and y(δ) the state variable which might be represented for example
+by the velocity field v or the temperature Θ. In the present article, since the turbulent
+mixed-convection flow is strongly influenced by the inlet temperature θ and velocity U , we
+use them as optimization variables. For a given temperature distribution Θ̂, the goal is to
+recover the inlet velocity U and inlet temperature θ that minimize the objective functional
+Z tf Z
+J (Θ) =
+(Θ − Θ̂)2 dx dt
+(4)
+0
+
+Ωint
+
+where [0, tf ] is the time frame of simulation and Ωint the restricted occupied zone of the
+spatial domain depicted in figure 1. Two cases of optimization are studied. The first case
+consists in maintaining the inlet temperature θ constant and considering the optimization
+variable to be the inlet velocity δ = U ; and the second case by fixing the inlet velocity U
+and optimizing on the inlet temperature δ = θ. It is worth mentioning that one could also
+think about optimizing on different parameters, such as the coordinates or the intensity of
+a heat source in the domain Ω. But, since a GA strategy is to be used, these parameters
+can directly be incorporated into the cost functional without inducing any modification in
+the optimization process.
+2.2. Standard GA approach
+The general idea of GA is illustrated in the flowchart 2. GA consists in starting from a
+randomly generated set (of size Nchrom ) of chromosomes δ1 , δ2 , . . . , δNchrom , forming a population. The size of populations is unchanged and fixed to Nchrom . In each population, a
+fitness value [22] is assigned to each chromosome δj . Virtually, any fitness function can be
+chosen given that no requirement for continuity in the derivatives is needed. Some examples
+of the choice of fitness functions can be found in [23, 24, 25, 26]. In the present paper, the
+fitness function f is chosen as the inverse of the objective function, i.e, the fitness of the j th
+chromosome is calculated as follows
+1
+f (yj ) =
+J (yj , δj )
+where yj is obtained by solving the constraint problem N (yj , δj ) = 0. In order to evolve
+populations, three main genetic operators [27] modeled on the Darwinian concepts of natural
+selection and evolution are used. These are :
+4 In these equations, v, Θ and p should have been written v, Θ and p. To alleviate the notations in the
+reminder of the paper, the time averaged notation will not be used.
+
+4
+
+Figure 2: Outline of the Genetic Algorithm.
+
+Selection. There are several methods for selecting the best chromosomes and their transfer
+to the next generation. In general, a new population of chromosomes is chosen to survive
+based on their fitness values. That means that a chromosome δj with a large fitness value
+has higher probability of being reproduced and passed down into the next generation. The
+probability of reproduction can be calculated as follows
+Psj = f (yj )
+
+,N
+chrom
+X
+
+f (yi )
+
+i=1
+
+Using this reproduction probability, Nchrom solutions from the current generation are selected
+by the roulette rule [28] to survive for the next generation. These reproduced solutions are
+afterwards modulated by the crossover and mutation operators [27] .
+Crossover. The crossover is the operation wherein genes are exchanged between two chromosomes. In particular, all the surviving chromosomes by the roulette selection rule are
+randomly paired. Precisely, two individuals are randomly selected as parent individuals,
+then arbitrary positions on both individuals are chosen for crossing locations where exchange of genes takes place. In practice, a random number ranging from 0 to 1 is generated.
+If the random number is greater than Pc , the two chromosomes in the original pair remain
+into the next generation. Otherwise, the crossover takes place, and two new chromosomes
+are created to replace the parent chromosomes.
+Mutation. The mutation operator is responsible for bringing new information to the population. With a probability Pm ranging from 0 to 1, the mutation operator accidentally
+changes one of the resulted genes.
+The above genetic operations are repeated for a predetermined number of generations arbitrarily set by the user. The best chromosome of the final generation is declared as the
+global optimized solution. Despite their superiority with respect to other optimization approaches, a serious weakness of high fidelity based GAs is their considerable requirements
+in computational effort and memory storage [29]. In fact, GA needs to perform high fidelity simulations many times for each evolved population (iteration). With the increase
+in the number of generations, the populations and their required crossovers and mutations
+
+5
+
+will increase. These, in turn increase the time complexity of GA, making unfeasible their
+application in near-real time. In order to tackle this issue, an interpolation strategy suited
+for non-linear parameterized data and intended to replace the high fidelity solver in the GA
+is proposed in the next section.
+3. Barycentric interpolation for nonlinear parametrized data
+3.1. Data compression strategy by using the POD
+Consider a set of parametrized matrices {Y k ∈ RNx ×Ns , k = 1, . . . , Np } formed from the
+discrete solutions5 y(δk ) of a transient non-linear flow problem. i.e,
+
+
+y(t1 , x1 , δk ) y(t2 , x1 , δk )
+
+
+
+
+
+
+.
+.
+..
+..
+Yk = 
+
+
+
+
+
+y(t1 , xNx , δk )
+y(tNs , xNx , δk )
+In practice, δ refers to a parameter of the flow problem, Nx the number of spatial degrees
+of freedom and Ns the number of time steps, where it is assumed that Nx exceeds Ns by
+several orders of magnitude. The aim of the following is to extract a set of reduced matrices
+Yk that describes the dynamics of the full order matrices Y k . To this end, assume that each
+matrix Y k is approximated in a POD basis 6 of dimension q as follows
+Y k ≈ Φk Λk T
+
+(5)
+
+where Φi ∈ RNx ×q and Λi ∈ RNs ×q are respectively the spatial and temporal bases. Now,
+consider the POD respectively of orders r and s, r, s ≤ qNp , of the column block matrices
+
+
+
+
+Φ1 Φ2 · · · ΦNp = ΦϕT
+Λ1 Λ2 · · · ΛNp = ΛαT
+and
+where Φ ∈ RNx ×r , ϕ ∈ RqNp ×r , Λ ∈ RNs ×s , α ∈ RqNp ×s . Let ϕi ∈ Rq×r and αi ∈ Rq×s ,
+i = 1, . . . , Np , be the column block matrices of ϕT and αT such as
+
+
+
+
+ϕT = ϕ1 ϕ2 · · · ϕNp
+and αT = α1 α2 · · · αNp
+It yields that the full order snapshots matrix associated to the parameter δk can be written
+as
+Y k ≈ Φϕk αkT ΛT
+(6)
+It is important to note that in the above expression, the change with respect to parameter δk
+occurs only on the nested matrices Yk = ϕk βkT of significantly reduced size r × s, r, s  Nx .
+In parametric studies such as optimization, rather than using the full order matrices Y k , it
+is more convenient to manipulate the corresponding nested reduced matrices Yk in order to
+achieve low cost calculations. The interpolation strategy of the matrices Yk is detailed in
+the next subsection.
+5 In our case, the solutions y correspond to the turbulent mixed convection temperature distribution Θ,
+and the parameter δ to the inlet velocity U or inlet temperature θ.
+6 The POD bases are constructed such that they verify optimality with respect to the Euclidean inner
+product. In this case, the POD is nothing but the Singular Value Decomposition (SVD). However, other
+inner products such as L2 or H 1 can be used. More details about the POD approach can be found in [30].
+
+6
+
+3.2. Data interpolation
+In the following, the interpolation approach is first presented for two data samples. The
+generalization to an arbitrary number of data samples is given afterwards. Let Y1 and Y2
+be two parametrized compressed matrices associated respectively to δ1 and δ2 , such that
+Y1 = ϕ1 α1T
+
+Y2 = ϕ2 α2T
+
+where ϕk and αk are rank-q parameterized matrices resulted from the data compression
+procedure. By using the above representations, the goal is to predict the matrix Ỹ associated to a new parameter value δ̃ different from δ1 and δ2 . To this end, the barycentric
+interpolation proposed in [21] for subspaces interpolation is used. For the sake of simplicity,
+we restrict ourselves to the univariate case and use Lagrange functions to generate interpolation weights. The Lagrange functions constructed by using two points δ1 and δ2 are given
+by
+δ̃ − δ1
+δ̃ − δ2
+ω2 (δ̃) =
+ω1 (δ̃) =
+δ1 − δ2
+δ2 − δ1
+During the interpolation process, two sorts of subspaces have to be distinguished. The spatial subspaces span(ϕ1 ) and span(ϕ2 ), and the temporal subspaces span(α1 ) and span(α2 ).
+The proposed data interpolation technique suggests to predict the new matrix Ỹ by applying
+the barycentric interpolation strategy to the spatial and temporal subspaces separately, i.e,
+it consists in solving the fixed point problems
+
+
+Find ϕ̃ such that :
+
+
+ T
+SVD
+SVD
+ϕ̃ ϕ1 = ξ1 Σ1 η1T and ϕ̃T ϕ2 = ξ2 Σ2 η2T
+(Px )
+
+
+δ̃ − δ1
+δ̃ − δ2
+
+ϕ̃ =
+ϕ1 Q̃1 +
+ϕ2 Q̃2 where Q̃1 = η1 ξ1T and Q̃2 = η2 ξ2T
+δ1 − δ2
+δ2 − δ1
+
+(Pt )
+
+
+
+Find α̃ such that :
+
+
+ T
+SVD
+SVD
+α̃1 α1 = ζ1 Υ1 τ1T and α̃T α2 = ζ2 Υ2 τ2T
+
+
+δ̃ − δ1
+δ̃ − δ2
+
+α̃ =
+α1 K̃1 +
+α2 K̃2 where K̃1 = τ1 ζ1T
+δ1 − δ2
+δ2 − δ1
+
+and K̃2 = τ2 ζ2T
+
+The iterative process to solve the problem (Px ) is described by the following fixed point
+sequence
+ (0)
+ϕ̃ given, for n ≥ 0
+
+
+
+T
+SVD (n) (n) (n)T
+
+(n)
+(n) (n)T
+
+then set Q̃1 = η1 ξ1
+Perform the SVD of ϕ̃(n) ϕ1 = ξ1 Σ1 η1
+T
+SVD (n) (n) (n)T
+(n)
+(n) (n)T
+(Px )
+Perform the SVD of ϕ̃(n) ϕ2 = ξ2 Σ2 η2
+then set Q̃2 = η2 ξ2
+
+
+
+
+
+Update the interpolant as ϕ̃(n+1) = δ̃ − δ2 ϕ1 Q̃(n) + δ̃ − δ1 ϕ2 Q̃(n)
+1
+2
+δ1 − δ2
+δ2 − δ1
+The same strategy applies for the resolution of problem (Pt ). Now, once the solutions ϕ̃ and
+α̃ respectively, of the fixed points problems (Px ) and (Pt ) are found, the reduced snapshot
+matrix Ỹ can be formed as
+!2
+!2
+δ̃ − δ2
+δ̃ − δ1
+T
+T T
+Ỹ = ϕ̃ α̃ =
+ϕ1 Q̃1 K̃1 α1 +
+ϕ2 Q̃2 K̃2T α2T
+δ1 − δ2
+δ2 − δ1
+
+(δ̃ − δ1 )(δ2 − δ̃) 
+T T
+T T
++
+ϕ
+Q̃
+K̃
+α
++
+ϕ
+Q̃
+K̃
+α
+1 1 2 2
+2 2 1 1
+(δ1 − δ2 )2
+A very interesting property of the above formula is that even though space and time reduced
+bases {ϕ1 , ϕ2 } and {α1 , α2 } are separately interpolated, the calibration between the columns
+7
+
+of ϕ̃ and α̃ is naturally ensured by the barycentric interpolation, unlike the Bi-CITSGM
+[12] where the calibration is lost by the Grassmannian interpolation.
+Let’s now state the general framework of the data interpolation approach. To do so, consider a set of parametrized data matrices Y1 , · · · , YNp associated to the parameter values
+δ1 , δ2 , . . . , δNp , such that
+Yk = ϕk αkT , k = 1 . . . , Np
+The approximate matrix Ỹ for a new untrained value δ̃ 6= δk obtained by solving the following
+fixed point problems
+
+
+Find ϕ̃ such that :
+Find α̃ such that :
+
+
+
+
+
+
+
+
+SVD
+T
+ϕ̃T ϕ SVD
+
+k = 1, . . . , Np
+α̃T αk = ζk Υk τkT k = 1, . . . , Np
+k = ξk Σk ηk ,
+(Px )
+(P
+)
+t
+Np
+Np
+X
+X
+
+
+
+
+T
+ϕ̃ =
+
+
+
+ω
+(
+δ̃)
+ϕ
+Q̃
+where
+Q̃
+=
+η
+ξ
+α̃
+=
+κk (δ̃) αk K̃k where K̃k = τk ζkT
+k
+k k
+k
+k k
+
+
+k=1
+
+k=1
+
+The solution is then constructed as follows
+Ỹ =
+
+Np
+X
+
+ωk (δ̃) κh (δ̃) ϕk Q̃k K̃hT αhT
+
+k,h=1
+
+where Q̃k and K̃h are orthogonal matrices and ωk and κh are some interpolation functions
+of sum equal to 1, verifying ωk (δi ) = κk (δi ) = δ ki , with δ ki the piecewise Kronecker delta
+function which value is 1 if k equals i and 0 otherwise. The interpolation procedure of
+nonlinear parametrized data is summarized in algorithm 1.
+In order to tackle the severe computational effort of Genetic algorithms, an optimization
+procedure is proposed in the next section, where algorithm 1 is used as solution predictor
+instead of the high fidelity solver.
+Algorithm 1: Non-linear data interpolation strategy
+Offline :
+Use the POD to compress the trained parametrized data matrices Y k such as
+Y k ≈ ΦYk ΛT
+
+where
+
+Yk = ϕk αkT
+
+Online :
+Give a value of δ̃ (chosen by the user) and calculate the weights ωk (δ̃) and κh (δ̃)
+T
+(0)
+Set Ỹ (0) = ϕ̃k α˜k (0) arbitrary, for example choose a point Yk from the sampling
+while Error > ε do
+for k ∈ {1, . . . , Np } do
+(n)
+
+Calculate the matrix Q̃k
+
+(n)
+
+Calculate the matrix K̃k
+
+(n) (n)T
+
+= ηk ξk
+
+T
+
+(n) (n)
+
+= τk ζk
+
+Update the reduced matrix : Ỹ (n+1) =
+
+T
+
+SVD
+
+(n)
+
+(n) (n)T
+
+T
+
+SVD
+
+(n)
+
+(n) (n)T
+
+where ϕ̃(n) ϕk = ξk Σk ηk
+
+where α̃(n) αk = ζk Υk τk
+
+Np
+X
+
+(n)
+
+(n)T
+
+ωk (δ̃) κh (δ̃) ϕk Q̃k K̃h
+
+αhT
+
+k,h=1
+
+Evaluate the error : Error =
+
+Np Np
+X
+X
+
+(n)
+
+(n)T
+
+||Q̃k K̃h
+
+k=1h=1
+
+denotes the Frobenius norm.
+
+8
+
+(n−1)
+
+− Q̃k
+
+(n−1)T
+
+K̃h
+
+||F where || · ||
+
+4. Data-Driven Reduced Genetic Algorithm
+Basically, the proposed DDGA is a genetic algorithm strategy to solve inverse problems
+by means of available precomputed parametrized flow data. The major advantage of this
+approach is that the relationship between the state variable y and the optimization variable
+δ, earlier established through the mapping N , is now replaced by the cheap explicit formula
+of the barycentric interpolation
+y(tl , xj , δ̃) ≈ Φ(xj )ỸΛT (tl )
+
+(7)
+
+where Φ(xj ) and Λ(tl ) denote respectively the j th and lth rows of the matrices Φ and Λ,
+and Ỹ the reduced snapshots matrix to be found by algorithm 1.
+In order to make sure that DDGA performs in an optimal manner, the chromosomes are
+enriched by virtual genes. These genes are the order of POD truncation q and the number of
+spatial and temporal interpolation neighbors denoted respectively nex and net . To illustrate
+this, let Y1 , . . . , Y4 be four reduced matrices associated to the parameter values δ1 < δ2 <
+δ3 < δ4 respectively such that
+Yk = ϕk αkT ,
+
+k = 1, . . . , 4
+
+where ϕk and αk are rank-q matrices. Suppose that we want to find an approximation of
+the reduced matrix Ỹ for an untrained value δ̃ ∈]δ1 , δ2 [ by using an order of POD truncation
+m < q, three neighbors for spatial interpolation (nex = 3) and two neighbors for temporal
+interpolation (net = 2). Then the untrained reduced matrix is approximated as
+Ỹ =
+
+3 X
+2
+X
+
+ωk (δ̃) κh (δ̃) ϕk Q̃k K̃hT βhT
+
+k=1h=1
+
+where the columns of ϕk and βh are truncated up to the order m and
+ωk (δ̃) =
+
+3
+Y
+δ̃ − δi
+
+δ − δi
+i=1 k
+
+and
+
+κh (δ̃) =
+
+2
+Y
+δ̃ − δi
+
+δ − δi
+i=1 h
+i6=h
+
+i6=k
+
+In the proposed genetic algorithm strategy, the j th chromosome is then the candidate
+δ̄j = {δj , net , nex , m} where δj , net , nex and q are its genes. Accordingly, the original
+optimization problem (3) is modified yielding to
+min J (Ỹ, δ̄)
+
+such that Ỹ is the output of algorithm 1
+
+δ̄
+
+In the next section, the potential of this approach is assessed on the inverse parameter
+identification problem involving a turbulent mixed convection flow.
+5. Numerical experiments
+In this section, the CFD model used to solve the mixed-convection problem is first
+validated with respect to the benchmark experimental data. Then a set of solutions sampled
+in different time instants and different trained parameters are created and eventually used
+to assess the efficiency of the proposed DDGA.
+5.1. CFD validation
+This series of numerical computations was based on the experiment carried out by Blay
+et al. [31], where a turbulent mixed convection flow was generated in a ventilated cavity
+with dimensions 1.04 × 1.04 × 0.7 m3 . In this experiment, a two-dimensional flow was
+generated in the enclosure shown in figure 1, which was surrounded by two guard cavities.
+9
+
+The reference temperature Θ0 was the average temperature in the cavity. The Rayleigh
+number of this configuration, based on the cavity height and on the temperature difference
+between the heated floor (θhot = 35.5o C) and the other walls and the inlet (θcold = θ =
+15o C), was 2.13 × 109 . The Reynolds number based on the air velocity at inlet U =
+0.57m/s and on the inlet height was 654. The two-dimensional turbulent flow was modeled
+with the RNG k-epsilon model [32]. To compute this flow, and to generate all input data
+necessary for the study presented in this paper, the finite volume code OpenFOAM [33] was
+used. The computational domain was discretized into a non uniform grid made of 120000
+hexaedral cells, which was very tight close to the walls, in order to properly discretize the
+boundary layer. The non-isothermal flow described by equations (2) was calculated with
+the buoyantBoussinesqPimpleFoam solver. At the inlet, the velocity boundary conditions
+were u = 0.57 m/s and v = 0 m/s, the temperature was Θ = 15o C, and the turbulent
+boundary conditions were k = 1.25 × 10−3 m2 /s2 and  = 5.76 × 10−3 m2 /s3 . On the walls,
+no-slip boundary conditions were applied for the velocity components, the temperature was
+equal to 35o C on the floor, and to 15o C on the other walls. At the outlet, zero gradient
+boundary conditions were applied for the temperature, the velocity components and the
+turbulent variables. The steady flow presented in this paragraph was reached by computing
+an unsteady flow, starting at t = 0 s from Θini = θcold for the temperature, and uini =
+vini = 0 for the velocity components. The convection terms were discretized with the Gauss
+linear Upwind scheme, and the laplacian terms were approximated with the Gauss linear
+corrected scheme. With this non uniform mesh, the average y + value was equal to 1.1,
+and the maximum value was 3.3. In figure 3, the temperature profiles at x = 0.52 and at
+Θ−Θ0
+∗
+∗
+y = 0.52 are shown such that, Θ∗ = θhot
+−θcold , x = x/H and y = y/H where H is the
+cavity height. A satisfactory agreement can be noticed.
+
+(a) Θ∗ at x∗ = 0.5
+
+(b) Θ∗ at x∗ = 0.5
+
+Figure 3: Comparison between the numerical results (CFD) and the experimental results (Exp Blay et al.)
+of Θ∗ at x∗ = 0.5 (a) and y ∗ = 0.5 (b)
+
+5.2. Optimization problem of the mixed convection flow
+As claimed in the earlier section, a data driven approach (algorithm 1) is to be embedded
+within the GA in order to tackle the severe computational effort due to high fidelity simulations. Thereby, the time required for evaluating the fitness of one chromosome passes from
+several hours to real time, and thus, drastically reducing the time needed for optimization.
+By using a set of parametrized flow solutions, the goal is to act on the inlet velocity or
+temperature in order to minimize the discrete cost functional
+N
+
+J (Θ) =
+
+s
+1 X
+Ns n=1
+
+Z
+Ωint
+
+10
+
+(Θn − Θ̂n )2 dx
+
+(8)
+
+where the interior subdomain represented in figure 1 is considered such that Ωint = [0.1, 0.9]×
+[0.15, 0.7]. The superscript n refers to the time instant, Θn the calculated temperature and
+Θ̂n the target temperature.
+A set of training simulations, based on the configuration presented in figure 1, for different
+values of inlet velocity U and inlet temperature θ were performed with OpenFOAM over the
+time interval [0, tf ]. For all the cases considered in this paper, at t = 0 s, the temperature
+in the cavity is equal to θcold , and the velocity to 0. The final time instant tf was chosen
+in such a way that the temporal evolution of the temperature in the center of the cavity
+did not vary according to time. For all simulations, tf = 1250 s was a sufficiently long
+time interval. 1000 snapshots uniformly spaced in the time interval [0, tf ] are then used to
+build the temperature POD decompositions, where the maximal POD truncation order q is
+initially set to 60. Two series of tests are carried out :
+Test Series 1 : the optimization is performed by fixing the inlet temperature θ = 15◦ C and
+varying the inlet velocity U . The following three values of U are considered for the training
+phase : 0.51m/s, 0.627m/s and 0.798m/s. Knowing the temperature Θ̂ in the subdomain
+Ωint , the aim is to determine by applying DDGA, the corresponding inlet velocity Û with
+values : 0.54m/s, 0.57m/s, 0.5985m/s, 0.67m/s, 0.7125m/s and 0.755m/s. Recall that
+besides the inlet velocity U , the space of search by DDGA is enriched by the order of truncation of the POD decompositions m, and the number of temporal and spatial neighboring
+subspaces net and nex , selected to perform the barycentric interpolation. For this case, the
+DDGA is allowed to search in the following space
+
+K = (U, net , nex , m) ∈ R+ × N3 , 0.51 ≤ U ≤ 0.798; 2 ≤ net , nex ≤ 3 and 4 ≤ m ≤ q
+In order to analyze the performance of the method proposed in this paper, it is interesting
+to have a look at the isovalues of temperature and velocity magnitude in the cavity for the
+three training values of inlet velocity (see figures 4). At the beginning of all simulations
+presented in this paper, the air in the vicinity of the hot floor is warmed by thermal diffusion,
+and it is then lifted by natural convection along the hot floor (one can notice small thermal
+plumes at the beginning of all simulations). For an inlet velocity between 0.51 and 0.798
+m/s, and an inlet temperature value of 15o C, a clockwise recirculation region is generated
+by the combined effects of the forced convection induced by the air injection, and of the
+natural convection which occurs along the hot floor.
+Test Series 2 : in this case, the optimization is performed by acting on the inlet temperature
+θ while the inlet velocity is set to the fixed value 0.57m/s. The considered training injection
+temperature values are : 5◦ C, 10◦ C, 15◦ C, 20◦ C and 25◦ C. As in test series 1, the aim is
+to use DDGA to approximate the optimal inlet temperature θ̂ with values : 7.5◦ C, 12.5◦ C,
+17.5◦ C and 22.5◦ C associated to the known temperature distribution Θ̂. The space of search
+by DDGA in this case is given by
+
+K = (θ, net , nex , m) ∈ R+ × N3 , 5 ≤ θ ≤ 25; 2 ≤ net , nex ≤ 5 and 4 ≤ m ≤ q
+For this test series, let us have a look at the isovalues of temperature and velocity magnitude
+obtained for the inlet temperatures of 5o C, 15o C and 25o C (see figures 5). For small
+inlet temperatures (θ = 5o C), the air in the upper left part of the cavity, which is too
+cold, falls along the left wall. It is then warmed by the hot floor, and lifted by natural
+convection with a counterclockwise motion along the hot floor. For higher inlet temperatures
+(θ = 15o C), the air in the upper part of the cavity is warm and the clockwise motion of a large
+recirculation region induced by the combined effects of the forced convection phenomenon
+and the natural convection phenomenon along the hot floor can be seen. For the highest
+temperature velocities (θ = 25o C), the injected air is hot, it remains in a large region along
+the ceiling, it falls along the left and right cold walls, and is lifted along the heated floor,
+inducing two recirculation regions, a clockwise one in the right part of the cavity, and a
+coutnterclockwise one in the left part of the cavity. For this second series of training tests,
+11
+
+it can be concluded that for various inlet velocities, the flow regimes are different from each
+other.
+In the numerical experiments of DDGA, a population of 20 chromosomes formed by 4 genes
+randomly generated in K is used as initial guess to run the DDGA. The algorithm is allowed
+to run until a maximum number of iterations predetermined by the user is reached. The
+maximum number of iterations here is set to 30.
+
+Figure 4: Temperature distribution at three time instants t = 8.75s (left), t = 55s (middle) and t = 1250s
+(right) for the case of variable inlet temperature
+
+5.3. Temperature optimization by the proposed Data-driven Genetic Algorithm
+In the following, the results of the inverse parameter identification problem involving
+the turbulent mixed convection flow are presented and analyzed. The decay of the averaged
+functional for the cases of variable inlet temperature and variable inlet velocity is plotted in
+figure 6. It shows that after successive generations, the averaged cost decreases and tends
+to stagnate, meaning that the populations contain a chromosome of high recurrence. This
+chromosome is eventually considered as the best individual that approximates the sought
+optimum of the inverse problem. The outputs of this best chromosome from the last generation are listed in Table 1 and Table 2. It can be seen that the DDGA succeeded to recover
+approximations Ũ and θ̃ of the sought optimal inlet values Û and θ̂ with good accuracies.
+Moreover, The L2 percentage of error over the simulation time interval between the target
+temperature and the solution obtained by DDGA for all the cases was less than 0.8% (see
+figure 7). Figures 8 and 9 show the target temperature solutions side by side with the reconstructed temperature solutions obtained at the end of DDGA. The odd columns show the
+first appearance of the thermal plumes that emerge from the heated bottom wall of the cavity, while the even columns represent the temperature distribution in its established regime.
+From a visual perspective, it can be seen that the approached solutions by DDGA are in
+
+12
+
+Figure 5: Temperature distribution at three time instants t = 8.75s (left), t = 55s (middle) and t = 1250s
+(right) for the case of variable inlet velocity.
+
+good agreement with the target high fidelity solutions. The converged DDGA-solution succeeded to track the provided target temperature catching by that the most of the dynamics
+features present in the temperature along the simulation time interval and all over the domain Ω. More particularly, for the first test series which led to similar features but different
+values of velocity and temperature, the velocity and temperature values in the cavity are
+properly recovered by the method proposed in this paper. It can also be pointed out that
+for the second test series which involved various flow regimes and which was much more
+complex than the first case, the new method presented here provided results that showed
+a good accuracy. Here, the attention of the reader is bounced back to the fact that the
+POD truncation order m as well as the neighbors number net and nex , are extremely important parameters of DDGA. These parameters are essentially meant to ensure the good
+performance of the barycentric interpolation inside the DDGA. By analyzing the results
+of tables 1 and 2, we observe that these quantities vary from a test case to another, i.e,
+variable neighbors number with less than 12 modes were needed to represent the DDGAoptimal flow for the case of inlet velocity, while the case of variable inlet temperature has
+more complicated dynamics and needed at least 25 modes to represent the solution. This
+confirms that besides the ability to locate a global optimum of the inlet problem, the DDGA
+has the feature to eliminate the noise that might intervene from further data samples and
+from lower frequency POD modes. Finally, in terms of computational effort, DDGA is very
+efficient and performs in near-real time. The overall computational time needed to perform
+30 generations in a single cluster was less than two minutes. In inverse problems of turbulent
+flows, this represents a tremendous gain in CPU time compared to traditionally used high
+fidelity approaches.
+
+13
+
+Figure 6: Evolution of the averaged functional over generations of DDGA for the cases of variable inlet
+velocity and variable inlet temperature.
+
+Figure 7: Percentage of error of the converged temperature solution by DDGA.
+
+Sought optimal values
+Û = 0.54
+Û = 0.57
+Û = 0.5985
+Û = 0.67
+Û = 0.7125
+Û = 0.755
+
+Approximated value
+Ũ = 0.544
+Ũ = 0.578
+Ũ = 0.59
+Ũ = 0.66
+Ũ = 0.706
+Ũ = 0.755
+
+net
+2
+2
+2
+3
+2
+3
+
+nex
+2
+2
+2
+3
+3
+3
+
+trunc. order m
+8
+10
+10
+10
+7
+12
+
+Table 1: Outputs of the optimal control by using DDGA for the case of variable inlet velocity.
+
+Sought optimal values
+θ̂ = 7.50
+θ̂ = 12.5
+θ̂ = 17.5
+θ̂ = 22.5
+
+Approximated value
+θ̃ = 7.92
+θ̃ = 12.10
+θ̃ = 17.85
+θ̃ = 22.50
+
+net
+4
+2
+2
+3
+
+nex
+4
+2
+2
+4
+
+trunc. order m
+25
+31
+38
+30
+
+Table 2: Outputs of the optimal control by using DDGA for the case of variable inlet temperature.
+
+14
+
+Figure 8: Comparison of the high fidelity and DDGA temperature solutions at two different instants of the
+flow, for the case of variable inlet velocity. The odd columns describe the first appearance of thermal plumes
+at t = 8.75s, and the even columns the established regime of the temperature at t = 1250s.
+
+6. Conclusions
+In this paper, we have proposed the data driven optimization approach DDGA by combining genetic algorithms and the barycentric interpolation. The barycentric interpolation
+is presented here as an equation-free approach that allows to learn from trained data solutions and predict the evolution of new untrained solutions without any knowledge of the
+physics hidden behind. The numerical assessments of DDGA are performed on the inverse
+problem involving a turbulent mixed convection problem, where the variation is carried out
+on the inlet velocity and then on the inlet temperature. We notice that DDGA succeeded
+to track the optimal solutions and to deliver satisfying approximations in less than two
+minutes. This significant gain endorses the great potential of this approach compared to a
+high fidelity based GA that could last for many hours or days.
+Acknowledgement
+This material is based upon work financially supported by CPER BATIMENT DURABLE
+- Axe 3 ”Qualité des Environnement Intérieurs (QEI)” (P-2017-BAFE-102) and French
+Astrid ANR MODULO’PI (ANR-16-ASTR-0018 MODUL’O Π).
+
+References
+References
+[1] W. Liu and Q. Chen, “Optimal air distribution design in enclosed spaces using an
+adjoint method,” Inverse Problems in Science and Engineering, vol. 23, no. 5, pp. 760–
+779, 2015.
+[2] W. Liu, M. Jin, C. Chen, and Q. Chen, “Optimization of air supply location, size,
+and parameters in enclosed environments using a computational fluid dynamics-based
+adjoint method,” Journal of Building Performance Simulation, vol. 9, no. 2, pp. 149–
+161, 2016.
+[3] S. Nabi, P. Grover, and C. Caulfield, “Adjoint-based optimization of displacement
+ventilation flow,” Building and Environment, vol. 124, pp. 342 – 356, 2017.
+15
+
+Figure 9: Comparison of the high fidelity and DDGA temperature solutions at two different instants of the
+flow, for the case of variable inlet temperature. The odd columns describe the first appearance of thermal
+plumes at t = 8.75s, and the even columns the established regime of temperature at t = 1250s.
+
+16
+
+[4] S. Nabi, P. Grover, and C. Caulfield, “Nonlinear optimal control strategies for
+buoyancy-driven flows in the built environment,” Computers & Fluids, vol. 194,
+p. 104313, 2019.
+[5] J. H. Holland, Adaptation in Natural and Artificial Systems. Ann Arbor, MI: University
+of Michigan Press, 1975. second edition, 1992.
+[6] Y. Xue, Z. J. Zhai, and Q. Chen, “Inverse prediction and optimization of flow control
+conditions for confined spaces using a CFD-based genetic algorithm,” Building and
+Environment, vol. 64, pp. 77 – 84, 2013.
+[7] T. Dias and L. F. Milanez, “Optimal location of heat sources on a vertical wall with natural convection through genetic algorithms,” International Journal of Heat and Mass
+Transfer, vol. 49, no. 13, pp. 2090 – 2096, 2006.
+[8] A. Tallet, C. Allery, and C. Leblond, “Optimal flow control using a POD based
+Reduced-Order Model,” Numerical Heat Transfer, Part B, vol. 170, 2016.
+[9] M. Bergmann, L. Cordier, and J.-P. Brancher, “Optimal rotary control of the cylinder
+wake using proper orthogonal decomposition reduced-order model,” Physics of Fluids,
+vol. 17, no. 9, pp. 97–101, 2005.
+[10] D. Amsallem and C. Farhat, “An interpolation method for adapting reduced-order
+models and application to aeroelasticity,” AIAA Journal, pp. 1803–1813, 2008.
+[11] M. Oulghelou and C. Allery, “A fast and robust sub-optimal control approach using
+reduced order model adaptation techniques,” Applied Mathematics and Computation,
+vol. 333, pp. 416 – 434, 2018.
+[12] M. Oulghelou and C. Allery, “Non-intrusive reduced genetic algorithm for near-real
+time flow optimal control,” International Journal for Numerical Methods in Fluids,
+https://doi.org/10.1002/fld.4820, 2020.
+[13] M. Cheng, F. Fang, C. Pain, and I. Navon, “Data-driven modelling of nonlinear spatiotemporal fluid flows using a deep convolutional generative adversarial network,” Computer Methods in Applied Mechanics and Engineering, vol. 365, 2020.
+[14] D. Xiao, C. Heaney, L. Mottet, F. Fang, W. Lin, I. Navon, Y. Guo, O. Matar, A. Robins,
+and C. Pain, “A reduced order model for turbulent flows in the urban environment using
+machine learning,” Building and Environment, vol. 148, pp. 323–337, 2019.
+[15] O. San, R. Maulik, and M. Ahmed, “An artificial neural network framework for reduced order modeling of transient flows,” Communications in Nonlinear Science and
+Numerical Simulation, vol. 77, pp. 271–287, 2019.
+[16] J. Yu, C. Yan, and M. Guo, “Non-intrusive reduced-order modeling for fluid problems:
+A brief review,” Proceedings of the Institution of Mechanical Engineers, Part G: Journal
+of Aerospace Engineering, vol. 233, no. 16, pp. 5896–5912, 2019.
+[17] S. Ahmed, S. Rahman, O. San, A. Rasheed, and I. Navon, “Memory embedded nonintrusive reduced order modeling of non-ergodic flows,” Physics of Fluids, vol. 31,
+no. 12, 2019.
+[18] R. R. Madadi and C. Balaji, “Optimization of the location of multiple discrete heat
+sources in a ventilated cavity using artificial neural networks and micro genetic algorithm,” International Journal of Heat and Mass Transfer, vol. 51, no. 9, pp. 2299 –
+2312, 2008.
+
+17
+
+[19] E. Massart, P.-Y. Gousenbourger, N. Son, T. Stykel, and P.-A. Absil, “Interpolation
+on the manifold of fixed-rank positive-semidefinite matrices for parametric model order
+reduction: preliminary results,” 08 2019.
+[20] E. Massart and P.-A. Absil, “Quotient geometry with simple geodesics for the manifold
+of fixed-rank positive-semidefinite matrices,” SIAM Journal on Matrix Analysis and
+Applications, vol. 41, no. 1, pp. 171–198, 2020.
+[21] M. Oulghelou and C. Allery, “A Riemannian barycentric interpolation : Derivation of
+the parametric unsteady navier-stokes reduced order model,” arXiv:2009.11231, 2020.
+[22] V. Kozeny, “Genetic algorithms for credit scoring: Alternative fitness function performance comparison,” Expert Systems with Applications, vol. 42, no. 6, pp. 2998 – 3004,
+2015.
+[23] S. T. Selvi, S. Baskar, and S. Rajasekar, “Chapter 17 - application of evolutionary
+algorithm for multiobjective transformer design optimization,” in Classical and Recent Aspects of Power System Optimization (A. F. Zobaa, S. H. A. Aleem, and A. Y.
+Abdelaziz, eds.), pp. 463 – 504, Academic Press, 2018.
+[24] J. S. Arora, “Chapter 17 - nature-inspired search methods,” in Introduction to Optimum
+Design (Fourth Edition) (J. S. Arora, ed.), pp. 739 – 769, Boston: Academic Press,
+fourth edition ed., 2017.
+[25] S. Ali, H. Lu, S. Wang, T. Yue, and M. Zhang, “Chapter two - uncertainty-wise testing
+of cyber-physical systems,” vol. 107 of Advances in Computers, pp. 23 – 94, Elsevier,
+2017.
+[26] B. V. Kumar, G. Karpagam, and Y. Zhao, “Chapter 9 - evolutionary algorithm with
+memetic search capability for optic disc localization in retinal fundus images,” in Intelligent Data Analysis for Biomedical Applications (D. J. Hemanth, D. Gupta, and V. E.
+Balas, eds.), Intelligent Data-Centric Systems, pp. 191 – 207, Academic Press, 2019.
+[27] K. Khoo and P. Suganthan, “Evaluation of genetic operators and solution representations for shape recognition by genetic algorithms,” Pattern Recognition Letters, vol. 23,
+no. 13, pp. 1589 – 1597, 2002.
+[28] D. E. Goldberg, Genetic Algorithms in Search, Optimization and Machine Learning.
+Boston, MA, USA: Addison-Wesley Longman Publishing Co., Inc., 1st ed., 1989.
+[29] X. Yang, Z. Yang, G. hua Lu, and J. Li, “A gray-encoded, hybrid-accelerated, genetic algorithm for global optimizations in dynamical systems,” Communications in
+Nonlinear Science and Numerical Simulation, vol. 10, no. 4, pp. 355 – 363, 2005.
+[30] L. Sirovich, “Turbulence and the dynamics of coherent structures : Part I, II and III,”
+Quarterly of Applied Mathematics, pp. 461–590, 1987.
+[31] D. Blay, S. Mergui, and C. Niculae, “Confined turbulent mixed convection in the presence of a horizontal buoyant wall jet,” ASME Heat Transfer Division, vol. 213, pp. 65–
+72, 1992.
+[32] V. Yakhot, V. Orszag, S. Thangam, T. B. Gatski, and C. G. Speziale, “Development of
+turbulence models for shear flows by a double expansion technique,” Physics of Fluids
+A: Fluid Dynamics, vol. 4, no. 7, pp. 1510–1520, 1992.
+[33] OpenFOAM. https://openfoam.org, 2017.
+
+18
+
+
