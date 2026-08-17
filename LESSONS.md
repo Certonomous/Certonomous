@@ -4356,3 +4356,57 @@ files in the corpus** — and recency is precisely correlated with "no rule cove
 this yet". So the bias runs in the one direction that makes a completeness gate
 useless while leaving it green. The remedy is cheap and it is the one D274 already
 applied to `tracked_frame`: read HEAD.
+
+## L-96. Stripping an illegal label is a measurement, not an edit — and the label is only half the repair, because the record it was written into keeps it
+
+**The rule.** When a verdict label is withdrawn as illegal, the verdict
+underneath it is **unknown until it is measured**. Removing `PASS WITH
+RESIDUALS` does not leave a plain `PASS`; it leaves a question. V5 is the proof
+that the answer can be `FAIL` — its exceptions were in-frame sites of its own
+leg 3 — and V6 and V13 are the proof that the answer can be a plain `PASS`. The
+two cases look identical from outside and separate only under the test. **So the
+strip is never a formatting change, and a pass that treats it as one is guessing
+in whichever direction its ledger already points.**
+
+**The test has two limbs, and collapsing it to one decides cases wrongly in both
+directions.** R-CONVERGE fixes a rung's declared scope as *"the specific
+artifacts, the specific claims, the pass criterion"*. An exception is IN SCOPE
+only if it sits inside the criterion's **frame** *and* maps onto a **named
+clause** of it.
+
+* Drop the clause limb and every defect anywhere in a declared artifact fails the
+  rung. V6's three residuals all sit inside its declared currency block, and all
+  three are bookkeeping and locator faults that touch neither *"every finding
+  gets a round-5 verdict"* nor the QCR compliance line. Under the frame limb
+  alone V6 fails on a wrong line number beside a correct verdict.
+* Drop the frame limb and a finding escapes by being described in language the
+  criterion happens not to use. V8's F4 was a real false certification and was
+  correctly filed, because it lived in neither of V8's two named artifacts.
+
+Both limbs together reproduce every placement the chief actually made — V5 and
+V16 in scope, V8's F4 out, V12 and V14 in on sites the criterion named. One limb
+alone reproduces none of them consistently.
+
+**The half that gets forgotten: the grade record.** On 2026-08-17 the V6 and V13
+ledger cells read a plain `PASS` while the grades they cited still read `PASS
+WITH RESIDUALS`, unamended, two days after a ruling corrected the cells. The
+cells were right and the records were wrong, and a checker built to compare them
+reported both rows as defects — correctly. **A ledger corrected against a record
+that still carries the illegal label has not repaired the defect, it has moved
+it**, and moved it somewhere with less traffic. Fixing a cell and leaving its
+source is the same act as fixing a symptom.
+
+**And the disposal step is a step, not a description of one.** R-CONVERGE's
+plain-PASS route is conditional: an out-of-scope finding is *"filed as a docket
+item, **not appended to the live rung**"*. Both rungs closed on that route and
+**neither filing happened** — seven residuals across V6 and V13 existed nowhere
+in `docs/DOCKET.md` as rows, only inside the narrative of the row that measured
+their entitlement, and one grade recorded a filing at its own `:515` that had
+never landed. A rung that closes by filing, without filing, has closed on a step
+that was reported rather than performed. **Check the queue, not the sentence
+saying the queue was used.** Related: D249 and the V5 ledger cell (the same strip
+yielding `FAIL`), D233 (the entitlement measurement), D353/D354 (the filings this
+lesson comes from), D355 (the same illegal label surviving in a third rung's
+verdict inside a file two rungs' amendments had already touched), L-92 and L-93
+(an instrument measuring a frame nobody declared, and a referent that still
+resolves).

@@ -11,6 +11,55 @@ documents were **read and never written**.
 These three rungs had never received a non-author verdict at all. This document supplies one for
 each.
 
+> **LABEL AMENDMENT, 2026-08-17, at `3f46e4e9`, appended by a non-author of this grade and of the
+> ruling that corrected it. Append-only under W-4: nothing below is deleted, renumbered, or
+> re-measured away. This amendment reaches RUNG V13 ONLY.**
+>
+> **Verdict of record for V13: `PASS`.** Every measurement in §3 stands. What was wrong was the
+> LABEL. `PASS WITH RESIDUALS` was withdrawn lab-wide at `7c44cbe2` (D249): it is absent from the
+> five-term vocabulary fixed at `docs/charters/VERIFICATION_CHARTER.md:95-96` and restated at
+> `docs/charters/REPORTING_CHARTER.md:210-211`, it appears nowhere in `docs/charters/`, and it is
+> invisible to section 16's negative-verdict sweep **by construction**, because that sweep
+> enumerates the vocabulary and this label opens with the word PASS.
+>
+> **Stripping the label does NOT automatically leave a plain `PASS`, so it was measured rather than
+> assumed** — the same strip left `FAIL` on V5. V13-a, V13-b, V13-c and V13-d were re-classified
+> against this rung's criterion as written at `LADDER_V_TRIPLE_VERIFICATION.md:1033-1035` — four
+> required contents plus two conditions on the report's own authorship — on the two-limb test the
+> chief applied to V5, V12 and V14: an exception is IN SCOPE only if it sits inside the criterion's
+> **frame** *and* maps onto a **named clause** of it.
+>
+> * **V13-b** and **V13-d** fail the frame limb outright: both sites are rows and sentences in
+>   `LADDER_V_TRIPLE_VERIFICATION.md`, not in this rung's deliverable, which is
+>   `LADDER_V_V13_CLOSEOUT.md`. **OUT.**
+> * **V13-a** is inside the frame (close-out §8) but a bundle-drift count is none of the four
+>   required contents and neither authorship condition. **OUT.**
+> * **V13-c** is inside the frame and is the only one that needed real work. It sits in the
+>   *"Independently confirmed by"* column of §2's V10 row — **not** a PASS/FAIL cell: that row's
+>   verdict chain and its evidence links are present and correct, so required content (1) is met;
+>   and the condition *"no rung self-graded"* is a condition on **this report's own authorship**,
+>   discharged at §9 `:616-641`, where all four pass-owner signatures are quoted from each owner's
+>   own report at the commit carrying it. It maps onto no clause. **OUT.**
+>
+> **All four are therefore OUT OF SCOPE, R-CONVERGE files them, and the rung is a plain `PASS`.**
+>
+> **They are filed at last, as `docs/DOCKET.md` D354.** `:515` below records V13-a as *"Filed to
+> `docs/DOCKET.md`"* — **that filing never landed**; no docket row at HEAD carries V13-a, and V13-b,
+> V13-c and V13-d were appended to the live rung rather than filed. R-CONVERGE's plain-PASS route
+> requires the filing to actually happen, and until now it had not.
+>
+> **Re-measured at `3f46e4e9`, not read.** V13-c is live: `LADDER_V_V13_CLOSEOUT.md:94` still reads
+> *"NO — SELF-GRADED at the last step"* and `:597` still reads *"moves off CLOSED-BY-ITS-AUTHOR"*,
+> unstruck against each other — and both mitigations hold, `:597` self-qualifying *"but only as a
+> statement about `2b251689`"* and `:94` closing *"See §8 PENDING-2"*. V13-d is live and its site has
+> **moved**: the *"not edited"* / *"still empty as slots"* pair is now at
+> `LADDER_V_TRIPLE_VERIFICATION.md:1332-1334`, not the `:1193-1194` recorded on 2026-08-16.
+>
+> **V12 and V14 are untouched by this amendment.** V14's `FAIL` stands. V12's label at `:170` and
+> `:507` below is illegal on the identical ground and is **still unamended**, but V12's verdict of
+> record is a later grade by a different non-author, so correcting it here would be grading V12 —
+> out of this pass's scope, and **filed as D355** rather than acted on.
+
 ---
 
 ## 0. INDEPENDENCE — how it is established, and the exact size of the claim
@@ -294,7 +343,10 @@ against the lab — recurring in the document that made the charge.*
 
 ### 3.5 V13 verdict
 
-> ## PASS WITH RESIDUALS — V13-a, V13-b, V13-c, V13-d
+> ## ~~PASS WITH RESIDUALS~~ **`PASS`** — V13-a, V13-b, V13-c, V13-d, all OUT OF SCOPE and filed as D354
+
+*(Label amended 2026-08-17 at `3f46e4e9` by a non-author; see the LABEL AMENDMENT at the head of
+this file. The verdict and every measurement under it are unchanged — only the label was illegal.)*
 
 Both PENDING slots are answered. PENDING-1's scope containment verifies 14/14 twice over.
 PENDING-2's two measurements — the ones the close-out honestly refused to assume — **reproduce
@@ -505,7 +557,7 @@ re-partition the run tree by any complementary predicate and find a claim-shaped
 | rung | verdict | what it turns on |
 |---|---|---|
 | **V12** skeptic's report | **PASS WITH RESIDUALS** — R1, R2, R3, + criterion ambiguity | every repaired figure re-derives exactly; the product still carries three stale figures, one a live recommendation to publish `P(rank 1) ≈ 0.67` externally |
-| **V13** close-out | **PASS WITH RESIDUALS** — V13-a, V13-b, V13-c, V13-d | both PENDING slots answered; both PENDING-2 measurements reproduce digit-for-digit under my own execution; both ledger corrections check out; four staleness residuals, none touching a measurement |
+| **V13** close-out | ~~**PASS WITH RESIDUALS**~~ **`PASS`** — V13-a, V13-b, V13-c, V13-d, all out of scope, all filed as D354 *(label amended 2026-08-17)* | both PENDING slots answered; both PENDING-2 measurements reproduce digit-for-digit under my own execution; both ledger corrections check out; four staleness residuals, none touching a measurement |
 | **V14** mechanical sweep | **FAIL** — V14-1, V14-2 | eight live claims in the tracked shipping archive, seven never named; and the criterion's literal families structurally cannot reach the class |
 
 **No rung is marked green by this pass beyond what the table says, and this pass has no standing to

@@ -1,7 +1,48 @@
 # Ladder V — V6 and V10 RE-GRADED after the 2026-08-15 repairs
 
 **Date: 2026-08-15, ~19:16–19:40Z. Graded at HEAD `be0a0c5d`.**
-**Verdicts: V6 — PASS WITH RESIDUALS (three, all named below). V10 — FAIL (four blockers, all named below).**
+
+> **LABEL AMENDMENT, 2026-08-17, at `3f46e4e9`, appended by a non-author of this grade and of the
+> ruling that corrected it. Append-only under W-4: nothing below is deleted, renumbered, or
+> re-measured away.**
+>
+> **Verdict of record for V6: `PASS`.** Every measurement in this document stands. What was wrong
+> was the LABEL. `PASS WITH RESIDUALS` was withdrawn lab-wide at `7c44cbe2` (D249): it is absent
+> from the five-term vocabulary fixed at `docs/charters/VERIFICATION_CHARTER.md:95-96` and restated
+> at `docs/charters/REPORTING_CHARTER.md:210-211`, it appears nowhere in `docs/charters/`, and it is
+> invisible to section 16's negative-verdict sweep **by construction**, because that sweep
+> enumerates the vocabulary and this label opens with the word PASS.
+>
+> **Stripping the label does NOT automatically leave a plain `PASS`, so it was measured rather than
+> assumed** — the same strip left `FAIL` on V5. V6-R1, V6-R2 and V6-R3 were re-classified against
+> this rung's criterion as written at `LADDER_V_TRIPLE_VERIFICATION.md:332-334`, on the two-limb
+> test the chief applied to V5, V12 and V14: an exception is IN SCOPE only if it sits inside the
+> criterion's **frame** *and* maps onto a **named clause** of it. All three sit inside the frame
+> (the currency block, §1 below) — but **none maps onto either clause**. Clause (i), *"every finding
+> gets a round-5 verdict"*, is met at eleven rows over nine sections with no gap; clause (ii)'s QCR
+> compliance line is present and answers four questions. R1/R3 are the preamble's byte-identity
+> bookkeeping against the block's own earlier version, which the preamble itself demotes — *"Byte-identity
+> is not the finding, though"*; R2 is a wrong line-distance in the **evidence** column beside a §4.8
+> verdict that is correct and whose stated ground (§4.8 headed `FALSIFIED 2026-08-11`) is true at
+> HEAD line 584. **All three are therefore OUT OF SCOPE, R-CONVERGE files them, and the rung is a
+> plain `PASS`.**
+>
+> **They are filed at last, as `docs/DOCKET.md` D353.** This grade appended all three to the live
+> rung and filed none of them; D233 recorded them only inside its own narrative. R-CONVERGE's
+> plain-PASS route requires the filing to actually happen, and until now it had not.
+>
+> **Re-measured at `3f46e4e9`, not read** — in a clean detached worktree and again in the dirty
+> checkout, identical in both, and both were run because `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` is
+> modified in the working tree and a single-frame measurement could not have known the block was
+> untouched. Four recognition controls planted by line index and read back before the run; all four
+> fired. **Eleven rows, nine byte-identical, §4.7 and §4.8 differing** — V6-R1/R3 live and
+> unrepaired. The §4.8 locator distance is now **584 − 323 = 261** — not the stated **212**, and no
+> longer the **256** measured on 2026-08-16, so the residual has drifted a further five lines.
+>
+> **V10 is untouched by this amendment**; its `FAIL` is unchanged and unre-opened.
+
+~~**Verdicts: V6 — PASS WITH RESIDUALS (three, all named below). V10 — FAIL (four blockers, all named below).**~~
+**Verdicts: V6 — `PASS` (three findings, all named below, all out of scope, all filed as D353). V10 — `FAIL` (four blockers, all named below).**
 
 This document re-grades rungs V6 and V10 of `LADDER_V_TRIPLE_VERIFICATION.md` after the repairs at
 `87324012`, `7a0419f7`, `a20a720b`, `cafb3f8b` and `bd8280de`, superseding nothing in
@@ -188,7 +229,11 @@ Everything the block offers as its evidence, run at HEAD:
 
 ### 2.6 V6 verdict
 
-**PASS WITH RESIDUALS.** The rung's closing condition as written is *every finding gets a round-5
+~~**PASS WITH RESIDUALS.**~~ **`PASS`.** *(Label amended 2026-08-17 at `3f46e4e9` by a non-author;
+see the LABEL AMENDMENT at the head of this file. The three residuals below are OUT OF SCOPE on the
+two-limb test — inside the frame, mapping onto neither clause — so R-CONVERGE files them and the
+rung is a plain `PASS`. Filed as `docs/DOCKET.md` D353. Nothing in the reasoning below is
+withdrawn.)* The rung's closing condition as written is *every finding gets a round-5
 verdict, and QCR gets its own compliance line answering three questions*. Both are met, and the row
 that was failing currency is now current and agrees with its section.
 
@@ -499,7 +544,7 @@ Reported as facts about the guards, not about the text.
 
 | rung | verdict | what decides it |
 |---|---|---|
-| **V6** | **PASS WITH RESIDUALS** (V6-R1 nine-not-ten; V6-R2 256-not-212; V6-R3 a right principle with wrong arithmetic attached) | eleven rows confirmed; nine byte-identical confirmed; §4.8's row and §4.8's heading agree; every §4 finding has a round-5 verdict; the QCR compliance line answers all three questions and a fourth |
+| **V6** | ~~**PASS WITH RESIDUALS**~~ **`PASS`** (V6-R1 nine-not-ten; V6-R2 ~~256~~ **261**-not-212 at `3f46e4e9`; V6-R3 a right principle with wrong arithmetic attached) — *label amended 2026-08-17; all three findings are out of scope and filed as D353* | eleven rows confirmed; nine byte-identical confirmed; §4.8's row and §4.8's heading agree; every §4 finding has a round-5 verdict; the QCR compliance line answers all three questions and a fourth |
 | **V10** | **FAIL** (V10-B1 the per-case table; V10-B2 its disclaimer; V10-B3 three live `rank 1 of 5`; V10-B4 six-not-seven) | *"one inconsistent surface fails the rung"* — two of five are inconsistent, and `closure.html` contradicts itself on the same page |
 
 Every arithmetic figure the four repairs put on a surface re-derives correctly by three routes. **What
