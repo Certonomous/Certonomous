@@ -430,3 +430,31 @@ push, or external interaction occurred. The closure-challenge tree and the
 adaptive-selection disclosure were not touched. Execution of every row in the
 MOVE_MAP waits on Ladder V's confirmed green, the drained fleet, the quiet
 window, and Sanaa's veto and walk.
+
+---
+
+## 7. Supersession chain restated — 2026-08-17, append-only
+
+**The strike at the head of this document was made 2026-08-16 at `b0ab070d` and
+stands. Nothing above this line has been edited.** It is restated here only
+because it names a single successor and the successor is now a chain of four:
+
+1. `demo-output/website/campaign/MOVE_MAP_2026-08-16.md` — the rule set, R0–R25.
+2. `demo-output/website/campaign/MOVE_MAP_EXECUTION_2026-08-17.md` — the batch
+   order, the three gates, and the hand-carry.
+3. `demo-output/website/campaign/MOVE_MAP_BATCH0_RECONCILIATION_2026-08-17.md`
+   — every rule count re-derived over `git ls-tree -r HEAD` rather than over the
+   index, which this document's own generator read.
+4. `demo-output/website/campaign/MOVE_MAP_BATCH0_RULINGS_2026-08-17.md` — the
+   three rulings of 2026-08-17, after which the reconciliation closes at **zero
+   unclassified**.
+
+Three decisions taken since this document was struck are not expressible in its
+target tree at all: **R25**, which routes `docs/campaigns/<campaign>/*_{runs,
+sensitivity}/**` to `verification/runs/` on the ground that a run tree is
+classified by what it is and not by where it sits (315 files); **R1** gaining
+`AWS_TREE_PLAN.md`; and **batch 2's option A**. This document and
+`docs/PHASE2_MOVE_MAP.tsv` remain **superseded in kind — not stale in frame** —
+and are kept, not deleted, because the measurements they carry were re-used by
+the map that replaced them. `scripts/phase2_move_map.py` was made to refuse at
+`dce05a01`; nothing here is to be regenerated or executed.

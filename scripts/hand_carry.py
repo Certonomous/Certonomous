@@ -35,9 +35,17 @@ list, and one of them is created by the plan's own ordering:
     says it moves -- and it holds zero tracked files, so `git mv` will abort
     on it.  A rule naming a tree it cannot move.
   * `campaign/MESH_AUDIT_runs/` is tracked TODAY -- 78 files, every one a
-    `*.log.checkMesh` solver-utility log.  Batch 2 untracks that class.  The
-    moment batch 2 lands, this directory goes dark, and batch 7's `git mv`
-    of it fails.  Nothing in the tree says so until it happens.
+    `*.log.checkMesh` solver-utility log, the class batch 2 untracks.  Left
+    alone, the moment batch 2 lands this directory goes dark and batch 7's
+    `git mv` of it fails, taking every other source in that invocation with
+    it.  Nothing in the tree says so until it happens.
+    **RULED 2026-08-17, option A**: batch 2 EXCLUDES those 78 from its
+    untracking until batch 7 has moved the tree -- `BATCH2_EXCLUSIONS` -- so
+    the move stays a `git mv`, index and disk never disagree, and the carry
+    set stays at 2 trees / 307 files / 1,510,309,145 bytes.  The gate that
+    checks this had to be amended in the same change: see `batch2_survivors`,
+    which tested FILE CLASS and so passed under the riskier option and failed
+    under the safer one.
 
 So the census is re-derived from the live tree at every invocation, and
 `derive` is the mode you run before believing anything below it.
@@ -169,23 +177,77 @@ def tracked_paths() -> list[str]:
             for p in cp.stdout.split(b"\0") if p]
 
 
-def measure(abs_dir: Path) -> dict:
+class MeasurementError(RuntimeError):
+    """A walk or a stat failed, so the measurement is INCOMPLETE.
+
+    THE DEFECT THIS CLASS EXISTS TO CLOSE.  `measure` and
+    `maximal_dark_trees` both walked with `os.walk` and NO `onerror`, and
+    `measure`'s per-file `lstat` was wrapped in a bare `except OSError:
+    continue`.  `os.walk`'s default `onerror` is to swallow the exception and
+    yield nothing for that directory, so an unreadable directory or an
+    unstatable file DROPPED OUT OF THE FILE COUNT, THE BYTE TOTAL AND THE
+    PATH DIGEST AT ONCE, without a line reaching stderr.  All three moved
+    together and consistently, so the after-check -- which compares two
+    measurements taken by the same blinded instrument -- still agreed with
+    itself.  A hand-carry that reports success while data went missing is the
+    precise failure this module exists to prevent, and it is worse than no
+    check at all because it is signed.
+
+    So the repair is not "log it".  A short number is not a measurement, and a
+    carry verified against one is not verified.  Every error is surfaced on
+    stderr, counted into the result, and then RAISED: the tool refuses rather
+    than returning a smaller number.
+    Evidence: `test_an_unreadable_directory_is_refused_not_silently_undercounted`,
+    `test_an_unstatable_file_is_refused_not_silently_undercounted`,
+    `test_the_dark_tree_walk_refuses_rather_than_missing_a_tree`, and the
+    must-not-match control `test_the_control_a_readable_tree_measures_clean`,
+    without which a `measure` that raised unconditionally would satisfy all
+    three.
+    """
+
+    def __init__(self, root, errors: list[str]) -> None:
+        self.root = str(root)
+        self.errors = list(errors)
+        super().__init__(
+            f"{len(self.errors)} walk/stat error(s) under {self.root}; the "
+            f"file count, byte total and path digest would all be short by an "
+            f"unknown amount. REFUSING to report a number. First: "
+            f"{self.errors[0] if self.errors else '-'}")
+
+
+def _report_walk_errors(root, errors: list[str]) -> None:
+    """Every error reaches stderr, one line each, named."""
+    for e in errors:
+        print(f"hand_carry: WALK ERROR under {root}: {e}", file=sys.stderr)
+
+
+def measure(abs_dir: Path, strict: bool = True) -> dict:
     """Files, bytes, newest mtime and the exact relative-path set.
 
     The path set is what makes the after-check evidence.  Two trees can share a
     file count and a byte total and have nothing else in common.
     Evidence: `test_the_after_check_reddens_when_the_path_set_differs`, which
     preserves both the count and the byte total and swaps two names.
+
+    Raises `MeasurementError` on any walk or stat failure -- see that class.
+    `strict=False` is for a caller that wants to inspect `walk_errors` itself;
+    it is never the default, and no caller in this module uses it.
     """
     rels: list[str] = []
     nbytes = 0
     newest = 0.0
-    for dp, _dns, fns in os.walk(abs_dir):
+    errors: list[str] = []
+
+    def _onerror(exc: OSError) -> None:
+        errors.append(f"{getattr(exc, 'filename', None) or abs_dir}: {exc}")
+
+    for dp, _dns, fns in os.walk(abs_dir, onerror=_onerror):
         for fn in fns:
             fp = Path(dp) / fn
             try:
                 st = fp.lstat()
-            except OSError:
+            except OSError as exc:
+                errors.append(f"{fp}: {exc}")
                 continue
             rels.append(str(fp.relative_to(abs_dir)))
             nbytes += st.st_size
@@ -193,8 +255,13 @@ def measure(abs_dir: Path) -> dict:
     rels.sort()
     digest = hashlib.sha256("\n".join(rels).encode("utf-8",
                                                    "surrogateescape")).hexdigest()
+    if errors:
+        _report_walk_errors(abs_dir, errors)
+        if strict:
+            raise MeasurementError(abs_dir, errors)
     return {"files": len(rels), "bytes": nbytes, "newest_mtime": newest,
-            "path_sha256": digest}
+            "path_sha256": digest, "walk_errors": len(errors),
+            "error_paths": errors}
 
 
 # ---------------------------------------------------------------------------
@@ -206,7 +273,19 @@ def maximal_dark_trees(tracked: list[str]) -> list[str]:
 
     Maximal only: a directory whose ancestor is also dark is subsumed, because
     carrying the ancestor carries it.
+
+    Walks with an explicit `onerror` and REFUSES on any failure.  A directory
+    this walk cannot read is a directory whose dark subtrees it will never
+    report, and an unreported dark tree is the 1.51 GB left behind -- the same
+    silent under-report `measure` used to make, one level up, where it costs
+    a whole tree rather than a file.  See `MeasurementError`.
+    Evidence: `test_the_dark_tree_walk_refuses_rather_than_missing_a_tree`.
     """
+    errors: list[str] = []
+
+    def _onerror(exc: OSError) -> None:
+        errors.append(f"{getattr(exc, 'filename', None) or REPO}: {exc}")
+
     tracked_dirs = set()
     for p in tracked:
         parts = p.split("/")
@@ -217,6 +296,7 @@ def maximal_dark_trees(tracked: list[str]) -> list[str]:
     nfiles: dict[str, int] = {}
     lit: dict[str, bool] = {}
     for dirpath, dirnames, filenames in os.walk(REPO, topdown=False,
+                                                onerror=_onerror,
                                                 followlinks=False):
         rel = os.path.relpath(dirpath, REPO)
         rel = "" if rel == "." else rel
@@ -238,6 +318,10 @@ def maximal_dark_trees(tracked: list[str]) -> list[str]:
                     on = True
                     break
         lit[rel] = on
+
+    if errors:
+        _report_walk_errors(REPO, errors)
+        raise MeasurementError(REPO, errors)
 
     dark = {r for r, on in lit.items() if not on and nfiles.get(r, 0) > 0}
     out = []
@@ -282,9 +366,17 @@ def derive(tracked: list[str] | None = None) -> dict:
     tracked = tracked if tracked is not None else tracked_paths()
     memo: dict[str, bool] = {}
     carry, rides, stays, discard = [], [], [], []
+    unmeasurable: list[str] = []
     for d in maximal_dark_trees(tracked):
         dst = lab_paths.redirect(d)
-        m = measure(REPO / d)
+        try:
+            m = measure(REPO / d)
+        except MeasurementError as exc:
+            # Accumulate rather than raise on the first, so the operator sees
+            # every unreadable tree in one pass instead of fixing them one at
+            # a time.  The derivation still refuses -- below.
+            unmeasurable.extend(exc.errors)
+            continue
         row = {"source": d, "dest": dst, **m}
         if _is_discardable(d):
             row["why"] = "regenerated build/cache tree: DISCARD, never carry"
@@ -311,22 +403,43 @@ def derive(tracked: list[str] | None = None) -> dict:
             row["why"] = ("no ancestor is renamed as a unit, so `git mv` never "
                           "reaches it: HAND-CARRY")
             carry.append(row)
+    if unmeasurable:
+        raise MeasurementError(REPO, unmeasurable)
     for bucket in (carry, rides, stays, discard):
         bucket.sort(key=lambda r: -r["bytes"])
     return {"carry": carry, "rides_along": rides, "stays": stays,
             "discard": discard, "tracked": len(tracked)}
 
 
-def batch2_survivors(tracked: list[str]) -> list[str]:
-    """The tracked set as it will stand after batch 2's untracking.
+#: MOVE_MAP EXECUTION section 3.3 offered two ways out of the
+#: `MESH_AUDIT_runs` hazard.  **OPTION A WAS RULED, 2026-08-17**: batch 2
+#: EXCLUDES these trees from its untracking until the batch that moves them has
+#: run, and untracks them at their new path afterwards.  A keeps the move a
+#: `git mv` -- index and disk never disagree -- and holds the hand-carry set at
+#: 2 trees / 307 files / 1,510,309,145 bytes, so G1 keeps its recorded
+#: baseline.  Option B (let it go dark, hand-carry it in 7H) grows the carry
+#: set by design and needs G1's baseline re-stated in the same commit.
+#:
+#: This tuple IS the exclusion.  Changing it changes what batch 2 untracks and
+#: what the projection below reports, in one place, and the ruling is legible
+#: from the constant rather than from a paragraph.
+BATCH2_EXCLUSIONS: tuple[str, ...] = (
+    "demo-output/website/campaign/MESH_AUDIT_runs",
+)
+
+
+def batch2_class_candidates(tracked: list[str]) -> list[str]:
+    """Every tracked path batch 2's FILE-CLASS rule reaches.
 
     MOVE_MAP section 7.2's classes: `system/`, `constant/` and `0/` are case
     dictionaries and initial conditions -- source, they stay -- as are the
     prose and result suffixes.  Everything else inside a run tree is solver
-    output and goes.  This is a PROJECTION, not the batch's own list; it exists
-    to answer one question (which move sources lose their last tracked file),
-    and it is deliberately generous about what stays so that the answer errs
-    towards reporting fewer hazards than exist rather than more.
+    output and goes.  Deliberately generous about what stays, so the answer
+    errs towards reporting fewer hazards than exist rather than more.
+
+    This is the CANDIDATE SET, not batch 2's list.  What batch 2 actually
+    untracks is `batch2_untrack_list`, which is this minus the ruled
+    exclusions.
     """
     stay_ext = (".json", ".py", ".sh", ".md", ".png", ".stl", ".obj", ".csv",
                 ".html", ".pdf", ".txt", ".yaml", ".yml", ".ps1", ".jsonl")
@@ -345,10 +458,55 @@ def batch2_survivors(tracked: list[str]) -> list[str]:
         return any(s in src_seg for s in p.split("/")[:-1]) \
             or p.endswith(stay_ext)
 
-    return [p for p in tracked if not (in_run_tree(p) and not stays(p))]
+    return [p for p in tracked if in_run_tree(p) and not stays(p)]
 
 
-def project_after_untracking(tracked: list[str]) -> list[dict]:
+def batch2_untrack_list(tracked: list[str],
+                        exclusions: tuple[str, ...] | None = None) -> list[str]:
+    """BATCH 2'S OWN LIST: the class candidates, minus the ruled exclusions.
+
+    `exclusions=()` is option B -- batch 2 takes everything its class rule
+    reaches -- and is what the two-direction plant fires to show the gate can
+    still fail.
+    """
+    ex = BATCH2_EXCLUSIONS if exclusions is None else tuple(exclusions)
+    return [p for p in batch2_class_candidates(tracked)
+            if not any(p == e or p.startswith(e + "/") for e in ex)]
+
+
+def batch2_survivors(tracked: list[str],
+                     untrack_list: list[str] | None = None) -> list[str]:
+    """The tracked set as it will stand after batch 2 -- BY MEMBERSHIP OF
+    BATCH 2'S LIST, not by file class.
+
+    WHY THE AMENDMENT.  This function used to classify `*.log.checkMesh`
+    inside a `*_runs` tree as output BY FILE CLASS, and that made batch 2's
+    stated verification -- *"the goes-dark-after-batch-2 section must read 0
+    afterwards, not 1"* -- read the wrong thing entirely.  Under option B the
+    tree is already in today's carry set and the projection reports only the
+    DIFFERENCE, so the section read 0 trivially, without the batch having done
+    anything about the hazard.  Under option A batch 2 spares the 78 files and
+    the tree never goes dark at all, yet a class-based projection kept
+    reporting it, so the section read 1 and the gate FAILED.  **The gate as
+    written was satisfied by the riskier option and not by the safer one**,
+    which is the reverse of the safety ordering and is how a gate gets
+    loosened by whoever meets it.
+
+    Membership is the test that cannot invert like that: a path survives batch
+    2 if and only if batch 2's list does not name it.  Pass `untrack_list` to
+    hand the gate the batch's literal list once it exists -- `derive
+    --batch2-list FILE` does exactly that -- rather than reconstructing it.
+    Evidence: `test_the_gate_passes_when_the_ruled_exclusion_is_honoured` and
+    `test_the_gate_fails_when_the_ruled_exclusion_is_dropped`, which are the
+    same fixture fired in both directions.
+    """
+    removed = set(batch2_untrack_list(tracked) if untrack_list is None
+                  else untrack_list)
+    return [p for p in tracked if p not in removed]
+
+
+def project_after_untracking(tracked: list[str],
+                             untrack_list: list[str] | None = None) -> list[dict]:
     """Hand-carry trees that batch 2's untracking CREATES.
 
     Re-runs the same derivation against the projected post-batch-2 tracked set
@@ -365,8 +523,13 @@ def project_after_untracking(tracked: list[str]) -> list[dict]:
     must-not-match control `test_the_must_not_match_control_for_the_projection`,
     which holds a run tree whose tracked files are case dictionaries and
     asserts nothing fires.
+
+    Since the option-A ruling of 2026-08-17 this reads **0** on the live tree,
+    because batch 2's list no longer names `MESH_AUDIT_runs`'s 78 files -- and
+    it reads **1** again the moment the exclusion is dropped, which is what
+    makes the 0 a measurement rather than a silence.
     """
-    survivors = batch2_survivors(tracked)
+    survivors = batch2_survivors(tracked, untrack_list)
     now = {r["source"] for r in derive(tracked)["carry"]}
     later = derive(survivors)["carry"]
     out = []
@@ -464,7 +627,12 @@ def carry(plan: dict, only: list[str], quiet_seconds: int) -> int:
             rc = FAIL
             continue
 
-        before = measure(src)
+        try:
+            before = measure(src)
+        except MeasurementError as exc:
+            print(f"  FAIL: {exc}")
+            rc = FAIL
+            continue
         drift = [k for k in ("files", "bytes", "path_sha256")
                  if before[k] != it[k]]
         if drift:
@@ -493,10 +661,20 @@ def carry(plan: dict, only: list[str], quiet_seconds: int) -> int:
         shutil.move(str(src), str(dst))
 
         # ---- the check the whole module exists for --------------------------
-        after = measure(dst)
+        # A measurement failure HERE is the worst moment for one: the tree has
+        # already moved.  It is reported as a FAIL rather than absorbed,
+        # because "we cannot count what arrived" is not "it arrived".
+        try:
+            after = measure(dst)
+            leftover = measure(src) if src.exists() else None
+        except MeasurementError as exc:
+            print(f"  FAIL: the move ran and the RESULT CANNOT BE MEASURED. "
+                  f"Do not treat this tree as carried. {exc}")
+            rc = FAIL
+            it["carried"] = False
+            continue
         ok = True
-        if src.exists():
-            leftover = measure(src)
+        if leftover is not None:
             if leftover["files"]:
                 print(f"  FAIL: source still holds {leftover['files']} file(s) "
                       f"/ {leftover['bytes']} bytes after the move")
@@ -527,9 +705,15 @@ def verify(plan: dict) -> int:
         if not dst.exists():
             print(f"NOT CARRIED  {it['source']}")
             continue
-        after = measure(dst)
+        try:
+            after = measure(dst)
+            srcn = measure(src)["files"] if src.exists() else 0
+        except MeasurementError as exc:
+            print(f"FAIL  {it['dest']}: CANNOT MEASURE, so this tree is NOT "
+                  f"verified. {exc}")
+            rc = FAIL
+            continue
         bad = [k for k in ("files", "bytes", "path_sha256") if after[k] != it[k]]
-        srcn = measure(src)["files"] if src.exists() else 0
         if bad or srcn:
             print(f"FAIL  {it['dest']}: mismatch on {bad or '-'}; "
                   f"source still holds {srcn} file(s)")
@@ -551,6 +735,23 @@ def _table(rows, title):
 
 
 def main(argv: list[str]) -> int:
+    """Exit contract 0 PASS / 1 FAIL / 3 UNKNOWN, and 3 is not green.
+
+    A `MeasurementError` exits **3**: the tool could not measure, which is not
+    a pass and is not a failed comparison either.  It is never absorbed into a
+    smaller number.
+    """
+    try:
+        return _main(argv)
+    except MeasurementError as exc:
+        print(f"UNKNOWN: {exc}")
+        print("Every failing path was named on stderr above. Fix the "
+              "permissions or the mount and re-run; do NOT read the partial "
+              "numbers, there are none.")
+        return UNKNOWN
+
+
+def _main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("mode", choices=("derive", "plan", "carry", "verify"))
     ap.add_argument("--manifest", help="where the plan is written/read")
@@ -558,14 +759,35 @@ def main(argv: list[str]) -> int:
                     help="carry only the trees whose path contains these")
     ap.add_argument("--quiet-seconds", type=int, default=QUIET_SECONDS)
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--batch2-list", metavar="FILE",
+                    help="batch 2's ACTUAL untracking list, one path per line. "
+                         "The projection tests membership of this; without it "
+                         "the list is reconstructed as the class candidates "
+                         "minus BATCH2_EXCLUSIONS (option A, ruled 2026-08-17)")
+    ap.add_argument("--batch2-option", choices=("A", "B"), default="A",
+                    help="A (default, ruled): batch 2 spares BATCH2_EXCLUSIONS "
+                         "until their move batch has run. B: batch 2 takes "
+                         "everything its class rule reaches. Ignored when "
+                         "--batch2-list is given")
     args = ap.parse_args(argv)
 
     if args.mode == "derive":
         tracked = tracked_paths()
         d = derive(tracked)
-        proj = project_after_untracking(tracked)
+        if args.batch2_list:
+            b2 = [l for l in Path(args.batch2_list).read_text().splitlines()
+                  if l.strip()]
+            b2_src = f"{args.batch2_list} ({len(b2)} paths)"
+        else:
+            b2 = batch2_untrack_list(
+                tracked, () if args.batch2_option == "B" else None)
+            b2_src = (f"reconstructed, option {args.batch2_option} "
+                      f"({len(b2)} paths)")
+        proj = project_after_untracking(tracked, b2)
         if args.json:
-            print(json.dumps({**d, "dark_after_batch2": proj}, indent=1))
+            print(json.dumps({**d, "dark_after_batch2": proj,
+                              "batch2_list_source": b2_src,
+                              "batch2_untracked": len(b2)}, indent=1))
             return PASS
         _table(d["carry"], "HAND-CARRY -- git mv will never reach these")
         _table(d["rides_along"],
@@ -573,6 +795,7 @@ def main(argv: list[str]) -> int:
         _table(d["stays"], "STAYS PUT -- no rule maps these")
         _table(d["discard"], "DISCARD -- regenerated, never carried")
         print(f"\n=== GOES DARK AFTER BATCH 2's UNTRACKING ({len(proj)}) ===")
+        print(f"  batch 2's list: {b2_src}")
         for r in proj:
             print(f"  {r['bytes']:>13,}B  {r['files']:>6} f  {r['source']}"
                   f"  (tracked now: {r['tracked_now']}, all untracked by "
@@ -580,7 +803,12 @@ def main(argv: list[str]) -> int:
         print("\nThese are move sources whose LAST tracked file batch 2 removes."
               "\nEither carry them by hand after batch 2, or exclude their"
               "\nsurviving files from the untracking until after their move"
-              "\nbatch has run. Doing neither aborts that batch's `git mv`.")
+              "\nbatch has run. Doing neither aborts that batch's `git mv`."
+              "\nOption A was ruled 2026-08-17: the exclusion is"
+              "\n`BATCH2_EXCLUSIONS`, and this section reads 0 because batch 2's"
+              "\nLIST does not name those files -- run again with"
+              "\n`--batch2-option B` and it reads 1, which is what makes the 0 a"
+              "\nmeasurement rather than a silence.")
         return PASS
 
     if args.mode == "plan":

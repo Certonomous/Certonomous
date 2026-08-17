@@ -429,5 +429,207 @@ class AgainstTheLiveTree(unittest.TestCase):
                 self.assertEqual(a & b, set())
 
 
+class TheBatch2GateFiredBothWays(RepoCase):
+    """The amendment of 2026-08-17, and the plant that proves it.
+
+    `batch2_survivors` classified `*.log.checkMesh` inside a `*_runs` tree as
+    output BY FILE CLASS.  Batch 2's stated verification is *"the
+    goes-dark-after-batch-2 section must read 0 afterwards, not 1"*, and under
+    a class test that line read 0 under option B -- the tree is already in the
+    carry set, so the projection reports only the difference -- and 1 under
+    option A, where batch 2 had actually spared the files and nothing was ever
+    going to go dark.  **The gate was satisfied by the riskier option and
+    failed under the safer one.**
+
+    So the two tests below are one fixture fired in both directions.  Neither
+    is evidence alone: a gate that always reads 0 passes the first, and a gate
+    that always reads 1 passes the second.
+    """
+
+    def fixture(self):
+        """A campaign run archive whose every tracked file is a solver log --
+        `MESH_AUDIT_runs` in miniature -- beside a record that keeps
+        `campaign/` lit, so the maximal dark tree is the archive."""
+        write(self.root, _W + "/campaign/RECORD.md")
+        rels = [_W + "/campaign/MESH_AUDIT_runs/a/a.log.checkMesh",
+                _W + "/campaign/MESH_AUDIT_runs/b/b.log.checkMesh"]
+        for r in rels:
+            write(self.root, r)
+        self.commit(_W + "/campaign/RECORD.md", *rels)
+        hc = self.mod()
+        hc.BATCH2_EXCLUSIONS = (_W + "/campaign/MESH_AUDIT_runs",)
+        return hc, hc.tracked_paths()
+
+    def test_the_gate_passes_when_the_ruled_exclusion_is_honoured(self):
+        """Option A: batch 2's list does not name those files, so the tree
+        never goes dark and the section reads 0."""
+        hc, tracked = self.fixture()
+        b2 = hc.batch2_untrack_list(tracked)
+        self.assertNotIn(_W + "/campaign/MESH_AUDIT_runs/a/a.log.checkMesh", b2)
+        self.assertEqual(hc.project_after_untracking(tracked, b2), [])
+        self.assertEqual(hc.project_after_untracking(tracked), [],
+                         "the default must BE the ruled option, or the gate "
+                         "reads one thing and the batch does another")
+
+    def test_the_gate_fails_when_the_ruled_exclusion_is_dropped(self):
+        """The same fixture, exclusion dropped: batch 2 takes the 78, the tree
+        goes dark, and the section reads 1.  Without this direction the test
+        above is satisfied by a projection that never fires."""
+        hc, tracked = self.fixture()
+        b2 = hc.batch2_untrack_list(tracked, ())
+        self.assertIn(_W + "/campaign/MESH_AUDIT_runs/a/a.log.checkMesh", b2)
+        proj = hc.project_after_untracking(tracked, b2)
+        self.assertEqual([r["source"] for r in proj],
+                         [_W + "/campaign/MESH_AUDIT_runs"])
+        self.assertEqual(proj[0]["tracked_now"], 2)
+
+    def test_the_survivors_are_a_membership_test_and_not_a_class_test(self):
+        """The load-bearing property in one line: a path survives batch 2 if
+        and only if batch 2's LIST does not name it.  Handing the function a
+        list that spares a solver log must spare it, whatever its class."""
+        hc, tracked = self.fixture()
+        log = _W + "/campaign/MESH_AUDIT_runs/a/a.log.checkMesh"
+        self.assertIn(log, hc.batch2_survivors(tracked, untrack_list=[]))
+        self.assertNotIn(log, hc.batch2_survivors(tracked, untrack_list=[log]))
+        # ... and a file no class rule would ever touch still goes if the list
+        # names it, which a class test could not express at all.
+        rec = _W + "/campaign/RECORD.md"
+        self.assertNotIn(rec, hc.batch2_survivors(tracked, untrack_list=[rec]))
+
+
+class TheBatch2GateOnTheLiveTree(unittest.TestCase):
+    """The same plant, against the tree the ruling is about.  Read-only."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.hc = load(_REPO, "hc_b2_live")
+        cls.tracked = cls.hc.tracked_paths()
+        cls.tree = _W + "/campaign/MESH_AUDIT_runs"
+
+    def setUp(self):
+        if not any(p.startswith(self.tree + "/") for p in self.tracked):
+            self.skipTest(f"{self.tree} holds no tracked file at HEAD: batch 2 "
+                          "or batch 7 has since run and this plant is spent")
+
+    def test_the_live_gate_reads_zero_under_the_ruled_option(self):
+        proj = self.hc.project_after_untracking(self.tracked)
+        self.assertEqual([r["source"] for r in proj], [],
+                         "batch 2's stated verification does not pass")
+
+    def test_the_live_gate_reads_one_when_the_exclusion_is_dropped(self):
+        proj = self.hc.project_after_untracking(
+            self.tracked, self.hc.batch2_untrack_list(self.tracked, ()))
+        self.assertEqual([r["source"] for r in proj], [self.tree])
+
+
+class WalkErrorsAreRefusedNotSwallowed(RepoCase):
+    """The repair of 2026-08-17 to the instrument guarding 1.51 GB.
+
+    `measure` and `maximal_dark_trees` walked with no `onerror` and swallowed
+    per-file `OSError`, so an unreadable directory left the file count, the
+    byte total AND the path digest short together, with nothing on stderr.
+    The after-check compares two measurements by the same instrument, so all
+    three agreed and the carry reported success while data went missing.
+    """
+
+    def setUp(self):
+        super().setUp()
+        if os.geteuid() == 0:
+            self.skipTest("root ignores the permission bits these tests plant")
+
+    def tree(self):
+        """Three files, one of them behind a directory we will lock."""
+        write(self.root, _W + "/campaign/RECORD.md")
+        self.commit(_W + "/campaign/RECORD.md")
+        for r in ("open/a.dat", "open/b.dat", "locked/c.dat"):
+            write(self.root, _W + "/campaign/K0_runs/" + r)
+        return self.mod(), self.root / _W / "campaign" / "K0_runs"
+
+    def lock(self, d: Path, mode: int):
+        d.chmod(mode)
+        self.addCleanup(lambda: d.chmod(0o755))
+
+    def test_the_control_a_readable_tree_measures_clean(self):
+        """The must-not-match control.  A `measure` that raised on everything
+        would satisfy every test below and be worthless."""
+        hc, src = self.tree()
+        m = hc.measure(src)
+        self.assertEqual(m["files"], 3)
+        self.assertEqual(m["walk_errors"], 0)
+        self.assertEqual(m["error_paths"], [])
+
+    def test_an_unreadable_directory_is_refused_not_silently_undercounted(self):
+        """`os.walk`'s default `onerror` yields nothing for a directory it
+        cannot open.  The file under it used to vanish from all three
+        figures."""
+        hc, src = self.tree()
+        self.lock(src / "locked", 0o000)
+        with self.assertRaises(hc.MeasurementError) as cm:
+            hc.measure(src)
+        self.assertTrue(any("locked" in e for e in cm.exception.errors))
+        # And this is the number it used to return instead: 2 of 3, quietly.
+        loose = hc.measure(src, strict=False)
+        self.assertEqual(loose["files"], 2)
+        self.assertEqual(loose["walk_errors"], 1)
+
+    def test_an_unstatable_file_is_refused_not_silently_undercounted(self):
+        """The other half: the directory lists but its entries do not stat, so
+        the walk succeeds and the per-file `except OSError: continue` ate the
+        file.  Same three figures short, same silence."""
+        hc, src = self.tree()
+        self.lock(src / "locked", 0o400)
+        loose = hc.measure(src, strict=False)
+        if loose["walk_errors"] == 0:  # pragma: no cover - filesystem dependent
+            self.skipTest("this filesystem stats entries the directory bits "
+                          "should have refused")
+        self.assertLess(loose["files"], 3)
+        with self.assertRaises(hc.MeasurementError):
+            hc.measure(src)
+
+    def test_the_dark_tree_walk_refuses_rather_than_missing_a_tree(self):
+        """One level up, where the silent loss is a whole tree rather than a
+        file -- and an unreported dark tree is the 1.51 GB left behind."""
+        hc, _src = self.tree()
+        d = self.root / _W / "campaign" / "K0_runs" / "locked"
+        self.lock(d, 0o000)
+        with self.assertRaises(hc.MeasurementError):
+            hc.maximal_dark_trees(hc.tracked_paths())
+        with self.assertRaises(hc.MeasurementError):
+            hc.derive()
+
+    def test_the_carry_refuses_rather_than_calling_an_unmeasurable_tree_moved(self):
+        """The check the module exists for, at the moment it matters most.
+
+        The REASON is asserted, not just the exit code: a swallowing `measure`
+        also reddens here, via the drift check, and a test satisfied by that
+        would be masked exactly the way this file's own header warns about."""
+        import contextlib, io
+        hc, src = self.tree()
+        plan = self.plan(hc, quiet=0)
+        self.assertEqual([i["source"] for i in plan["items"]],
+                         [_W + "/campaign/K0_runs"])
+        self.lock(src / "locked", 0o000)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            rc = hc.carry(plan, [], 0)
+        self.assertEqual(rc, FAIL)
+        self.assertIn("walk/stat error", out.getvalue())
+        self.assertNotIn("mv ", out.getvalue(),
+                         "it must refuse BEFORE moving anything")
+
+    def test_the_error_reaches_stderr_and_is_not_only_an_exception(self):
+        """*"without reaching stderr"* was half the defect.  A caller that
+        catches the exception must still be able to see which path failed."""
+        import contextlib, io
+        hc, src = self.tree()
+        self.lock(src / "locked", 0o000)
+        buf = io.StringIO()
+        with contextlib.redirect_stderr(buf):
+            with self.assertRaises(hc.MeasurementError):
+                hc.measure(src)
+        self.assertIn("WALK ERROR", buf.getvalue())
+        self.assertIn("locked", buf.getvalue())
+
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()

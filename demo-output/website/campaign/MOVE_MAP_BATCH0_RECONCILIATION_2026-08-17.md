@@ -289,6 +289,19 @@ cannot see, and 786 root-owned files were the standing hazard until today. Not
 repaired: batch 0 moves nothing and edits nothing, and this belongs to whoever
 runs 7H.
 
+**REPAIRED 2026-08-17, the same day, before 7H.** `measure()` and
+`maximal_dark_trees()` now walk with an explicit `onerror`, surface every walk
+and `lstat` failure on stderr, count them into the result, and **raise
+`MeasurementError` rather than return a smaller number**; `carry()` refuses
+before moving anything and reports FAIL if the post-move measurement cannot be
+taken; `main()` exits **3 UNKNOWN**. Controlled by making a directory
+unreadable in a scratch copy and running HEAD's blob of the module beside the
+repaired one over the same bytes: **the pre-repair module returned a green,
+self-consistent, half-size answer and exited 0 with empty stderr; the repaired
+one refuses and names the path.** Four planted mutants, six new tests, and a
+readable-tree control that stays green under all of them. Evidence:
+`campaign/MOVE_MAP_BATCH0_RULINGS_2026-08-17.md` §4.
+
 ---
 
 ## 5. The batch 2 / batch 7 conflict is live
@@ -441,3 +454,21 @@ rather than repaired. **The other half of batch 0 as the map states it — marki
 was not performed here and remains outstanding**; this pass was the
 re-derivation, and saying so is what stops batch 0 from being recorded as
 complete when half of it is.
+
+**CORRECTED 2026-08-17, by checking before doing it: both files were ALREADY
+MARKED SUPERSEDED, at `dce05a01` on 2026-08-16**, and the marks are in HEAD —
+`git show HEAD:docs/PHASE2_MOVE_MAP.tsv | head -2` reads
+*"SUPERSEDED IN KIND -- DO NOT EXECUTE ANY ROW BELOW / Marked 2026-08-16 at
+b0ab070d"*, and both worktree copies are byte-identical to HEAD's blobs. **The
+item was recorded as outstanding without being checked**, and re-marking would
+have presented a second mark as a first. What was genuinely missing is that both
+marks name only `campaign/MOVE_MAP_2026-08-16.md` as the successor, which is now
+a chain of four documents; a dated append-only note naming the whole chain was
+added to the end of each on 2026-08-17, touching no existing line.
+
+**Every other item this document left open has since been ruled or repaired**
+— §2.3's unclassified path (R1), §6's R7 classification error (R25), §5's
+batch-2 choice (option A, with the gate amended), §4.1's instrument defect
+(repaired and controlled) — in
+`campaign/MOVE_MAP_BATCH0_RULINGS_2026-08-17.md`. Nothing was moved there
+either.

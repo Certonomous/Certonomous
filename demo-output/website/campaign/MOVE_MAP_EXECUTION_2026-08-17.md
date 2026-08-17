@@ -352,6 +352,28 @@ directory going dark is harmless while an ancestor is still renamed as a unit.
 
 **Two ways out, and batch 2 must pick one before it runs** (§4, batch 2).
 
+### 3.3a RULED 2026-08-17 — OPTION A, and the verification line was amended with it
+
+**Option A.** Batch 2 **excludes** the 78 from its untracking until batch 7 has
+moved the tree; they are untracked at `verification/runs/MESH_AUDIT_runs`
+afterwards. Index and disk never disagree, the move stays a `git mv`, and the
+carry set stays at **2 trees / 307 files / 1,510,309,145 bytes**, so G1 keeps
+the baseline §3.1 records. Re-measured at `4d7c195a`: 78 tracked files at HEAD,
+78 on disk, **380,082 bytes tracked and 380,082 on disk, suffix distribution
+78 × `.checkMesh` and nothing else.**
+
+**§4's batch-2 verification line did not survive that choice, and it has been
+repaired.** `batch2_survivors()` classified by FILE CLASS, so *"the
+goes-dark-after-batch-2 section must read 0 afterwards, not 1"* read **0
+trivially under B** and **1 under A** — satisfied by the riskier option,
+failed by the safer one. It now tests **membership of batch 2's own list**
+(`batch2_untrack_list`, `BATCH2_EXCLUSIONS`, and `derive --batch2-list FILE`
+for the literal list once batch 2 has written it). Executed at `4d7c195a`,
+stderr empty: option A → list of **7,599** paths, section reads **0**; option B
+→ **7,677** paths, section reads **1**; the difference is exactly 78, and the
+carry set is byte-identical under both. Full evidence and the two-direction
+mutant table: `campaign/MOVE_MAP_BATCH0_RULINGS_2026-08-17.md` §3.
+
 ### 3.4 RIDES ALONG — 963 trees, 33,819 files, **10,560,965,662 bytes**
 
 These are dark trees that an ancestor's rename carries: `dafoam/f6d_random_matrix_uq/ens`
@@ -367,11 +389,23 @@ stranded ~11 GB — is the same 10.56 GB seen from the other side.
 
 ### 3.5 STAYS PUT — named by constants, mapped by no rule
 
+**AMENDED 2026-08-17 — the first and third rows are wrong twice over.** They
+are not single trees: at `4d7c195a` `docs/campaigns/F14-cooling-ladder/`
+contributes **617 of the 622 maximal dark trees in this bucket, 5,447 files,
+835,459,647 bytes** — one tree fragmented into hundreds when 344 tracked files
+landed between them. And they do not stay put: **RULING 1 of
+`campaign/MOVE_MAP_2026-08-16.md` §2.6 puts their 315 tracked files under R25**,
+so once `lab_paths` binds R25 all 617 become **RIDES ALONG**, carried by batch
+7's `git mv` **only if that move names the DIRECTORY**. Measured both ways in
+one invocation: with R25 bound, STAYS PUT falls to 5 trees / 10,287 files /
+620,130,461 bytes, RIDES ALONG rises to 1,580 / 39,266 / 11,396,425,309, and
+**the hand-carry set does not move at all**.
+
 | Tree | files | bytes | consumers |
 |---|---:|---:|---|
-| `docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity` | 4,964 | 765,858,513 | — (R7 keeps `docs/**`) |
+| `docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity` | 4,964 | 765,858,513 | ~~— (R7 keeps `docs/**`)~~ **R25 → `verification/runs/F14-cooling-ladder/`** |
 | `mission-output` | 8,625 | 573,298,685 | **13 tracked modules**, incl. `self_audit.py`, `gate_table.py`, `build_laptop_bundle.py` |
-| `docs/campaigns/F14-cooling-ladder/K0c_runs` | 776 | 98,781,140 | — (R7) |
+| `docs/campaigns/F14-cooling-ladder/K0c_runs` | 776 | 98,781,140 | ~~— (R7)~~ **R25 → `verification/runs/F14-cooling-ladder/`** |
 | `sdk/chief-engineer-runs` | 1,568 | 41,241,873 | `self_audit.py:6518` (R3 keeps `sdk/**`) |
 | `dist/certonomous-demo` | 90 | 5,432,332 | X1 DEFERRED |
 | `chief-engineer-runs` (root) | 3 | 157,442 | 6 `sdk/scripts/` modules |
@@ -445,13 +479,13 @@ every field resolves can still have stopped discriminating.
 |---:|---|---|---|---|
 | **0** | Supersede F1 | No path changes. `git ls-files \| wc -l` unchanged | `--no-tests`; `git ls-files \| wc -l` = 13,814 ± peers | **Nothing.** `PHASE2_MOVE_MAP.tsv` is marked stale, which is strictly better than the current state. This batch is safe to land alone and permanently |
 | **1** | Untrack the already-ignored — **LANDED** | Files leave the index, none leaves disk | `comm` over the two `ls-files` frames: 6,950 out, all U-rule; `find` counts on disk unchanged | **Nothing.** Already stable in this state and defensible with no reference to the target tree |
-| **2** | `.gitignore` rebuild + untrack §7.2 | Same as 1, plus: **no move source loses its last tracked file** | `hand_carry.py derive` — the *goes-dark-after-batch-2* section must read **0** afterwards, not 1 | **Nothing breaks, but batch 7 becomes impossible.** `MESH_AUDIT_runs` goes dark and R20's `git mv` of it aborts, taking every source in that invocation with it. Stopping here is safe; proceeding to 7 without §3.3's fix is not |
+| **2** | `.gitignore` rebuild + untrack §7.2, **less `MESH_AUDIT_runs`'s 78 — OPTION A, RULED 2026-08-17 (§3.3a)** | Same as 1, plus: **no move source loses its last tracked file** | `hand_carry.py derive` — the *goes-dark-after-batch-2* section must read **0** afterwards, not 1. **AMENDED: that section now tests membership of batch 2's LIST, not file class, because the class form read 0 under option B and 1 under option A — satisfied by the riskier option and failed by the safer one. Fire it both ways: `derive` reads 0, `derive --batch2-option B` reads 1** | **Nothing breaks, but batch 7 becomes impossible.** `MESH_AUDIT_runs` goes dark and R20's `git mv` of it aborts, taking every source in that invocation with it. Stopping here is safe; proceeding to 7 without §3.3's fix is not |
 | **3a** | `lab_paths` module + tests — **this commit** | Behaviour-identical. No consumer imports it yet; `scripts/lab_check.py` classifies it *no-entry-point* and never runs it | `pytest sdk/tests/test_lab_paths.py sdk/tests/test_hand_carry.py` (59 passed); full suite | **Nothing.** Two new modules nothing imports and 59 tests. Dead weight, not a defect |
 | **3b** | Convert the 13 split constants + ~150 mechanical ones to import it | Behaviour-identical: every constant resolves to the same path it did before | full suite; `git grep -c 'demo-output' -- '*.py' '*.sh'` falls, and G3 | **Nothing at rest.** Consumers read the same paths through one module. This is the batch that makes 4-8 edit one file instead of thirteen; skipping it makes every later batch thirteen times more expensive, but breaks nothing |
 | **4** | Leaves: `media/` (R10 R11 R12 R2), `ops/` (R6 R8 R19), `docs/` (R1) — 871 files | **Every `git mv` names a DIRECTORY, one source per invocation, stderr never redirected** | full suite + `crontab -l` read back + `/usr/local/bin/auto-stop.sh` re-installed via `installed_registry.py` + G1 G2 G3 | **The crontab dangles.** `@reboot` invokes `scripts/demo_servers.sh`, which R8 moves to `ops/`. No repo sweep sees it. The re-install of `/usr/local/bin/auto-stop.sh` is in this batch for the same reason. Halting here leaves a box that does not come back up correctly after a reboot, and **that is the one batch whose incompleteness is not visible from inside the repository** |
 | **5** | Research: R14-R18, R23 — 437 files, incl. R6's proposals move | Directory granularity. The R23 many-to-one merges preserve the child segment (§5 below) | full suite + G1 G2 G3 + `python3 -c "import json,glob;[json.load(open(p)) for p in glob.glob('research/agenda/proposals/*.json')]"` | **`research/closure/` is half-assembled.** R14/R15/R18 put `benchmarks.json`, `benchmarks.png` and `wall.json` under it while R23's four `closure_*` source trees are still under the webroot, so a reader finds a `research/closure/` that contains the outputs and none of the inputs. Recoverable, and legible, but the directory lies about itself until batch 5 completes |
-| **6** | Cases: R5, R22 — 3,553 files | Directory granularity. **786 files under `dafoam/**/work_sail/` are root-owned** — `chown` them BEFORE the batch, not on discovery | full suite + G1 G2 G3 + `find cases -user root \| wc -l` | **`cases/` and the webroot both hold physics families.** The R22 sources are ten separate directories, so a partial batch is a tree where `cases/tmr` exists and `cases/dafoam` does not. Every citation still resolves through `lab_paths.resolve()`, which is what makes stopping here survivable rather than merely bad |
-| **7** | Verification: R20, R21, R24 — 8,216 files, the mass | Directory granularity per run archive. **`campaign/` is never moved as a unit** — R20 and R21 split it | full suite + G1 G2 G3 + `hand_carry.py derive` carry set unchanged | **`verification/campaign/` and `verification/runs/` are populated and `demo-output/website/campaign/` still exists.** The 45 `LADDER_V_*` records keep their `campaign/` segment either way, so intra-ladder citations survive. This is the largest batch and the one most likely to be stopped part-way; it is also the one where `git status --porcelain` is most useless — it reported **19,975 renames** at the reverted attempt, pairing byte-identical OpenFOAM case files across unrelated studies. **Git's rename inference is never quoted here** |
+| **6** | Cases: R5, R22 — 3,553 files (**3,554** at `4d7c195a`) | Directory granularity. ~~**786 files under `dafoam/**/work_sail/` are root-owned** — `chown` them BEFORE the batch~~ **RE-MEASURED 2026-08-17 at `4d7c195a`: `find . -path ./.git -prune -o ! -user ubuntu -print` returns 0 files REPO-WIDE, stderr empty, and `work_sail` is at `demo-output/website/dafoam/work_sail` — one level, not two. The precondition is stale in the safe direction. RE-RUN THE `find`; do not trust either line, ownership is a filesystem property and can change back** | full suite + G1 G2 G3 + `find cases -user root \| wc -l` | **`cases/` and the webroot both hold physics families.** The R22 sources are ten separate directories, so a partial batch is a tree where `cases/tmr` exists and `cases/dafoam` does not. Every citation still resolves through `lab_paths.resolve()`, which is what makes stopping here survivable rather than merely bad |
+| **7** | Verification: R20, R21, R24, **R25** — ~~8,216~~ **8,643** files at `4d7c195a`, the mass. **R25 adds 315 tracked files and 617 ride-along dark trees / 835,459,647 gitignored bytes out of `docs/campaigns/`, which makes the directory-granularity invariant below worth 835 MB more than it was** | Directory granularity per run archive. **`campaign/` is never moved as a unit** — R20 and R21 split it | full suite + G1 G2 G3 + `hand_carry.py derive` carry set unchanged | **`verification/campaign/` and `verification/runs/` are populated and `demo-output/website/campaign/` still exists.** The 45 `LADDER_V_*` records keep their `campaign/` segment either way, so intra-ladder citations survive. This is the largest batch and the one most likely to be stopped part-way; it is also the one where `git status --porcelain` is most useless — it reported **19,975 renames** at the reverted attempt, pairing byte-identical OpenFOAM case files across unrelated studies. **Git's rename inference is never quoted here** |
 | **7H** | **The hand-carry** — §3.1's two trees, plus `MESH_AUDIT_runs` if batch 2 took it | Source empty or gone; destination holds the **exact measured path set**, not merely the count | `hand_carry.py plan --manifest M` → `carry --manifest M` → `verify --manifest M`; **and the `.gitignore` re-points of §3.2 in the same commit** | **1.51 GB is in the old tree while four modules look for it in the new one.** `dispatch_queue.py:63`, `check_convergence_sweep.py:62`, `contention_audit.py:55` and `launch_solve.sh:21` would find an empty or absent directory. `dispatch_queue.py:137` guards with `if REGISTRY.is_dir()`, so **it returns an empty record set rather than raising** — a dispatch audit that silently sees no jobs. This batch has no suite signal at all and is why the carry verifies itself |
 | **8** | **The webroot cut** — R13, 5 files, **with every §5 re-point in the same commit** | The four pages answer over HTTP after the commit | full suite + a live fetch of all four pages off port 8080 + G1 G2 G3 | **A live surface goes down.** This is the only batch that can do that, which is why it is last. If it lands and batch 9 never does, `check_evidence_paths_exist` walks a webroot with five files in it and reports a clean sweep of nothing — §6 |
 | **9** | The guard resolver | `check_evidence_paths_exist` resolves a citation at its literal location **or** its successor, via `lab_paths.resolve()` | full suite + a planted control both ways: a citation that must resolve and one that must not | **`check_evidence_paths_exist` is blind.** 1,236 backticked `demo-output/…` citations across 234 records, and after batch 8 the guard's `WEB.rglob("*.md")` reaches almost none of them. It does not fail — it scans fewer documents and passes. That is the silent-zero failure this corpus has recorded repeatedly, and it is the reason batch 9 is not optional |

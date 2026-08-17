@@ -20214,3 +20214,17 @@ scripts/session_keepalive.sh	ops/session_keepalive.sh	GIT-MV	2	section F pointer
 scripts/sweep.py	ops/sweep.py	GIT-MV	2	section F pointer list applies
 scripts/ugrid_to_foam.py	ops/ugrid_to_foam.py	GIT-MV	2	section F pointer list applies
 scripts/verify_warm_replay.sh	ops/verify_warm_replay.sh	GIT-MV	2	section F pointer list applies
+#
+# ===== SUPERSESSION CHAIN RESTATED 2026-08-17 (append-only; nothing above was edited) =====
+# The mark at the top of this file was made 2026-08-16 at b0ab070d and stands.
+# It names only campaign/MOVE_MAP_2026-08-16.md. The successor is now a chain:
+#   1. demo-output/website/campaign/MOVE_MAP_2026-08-16.md                        the rule set (R0-R25)
+#   2. demo-output/website/campaign/MOVE_MAP_EXECUTION_2026-08-17.md              the batch order and its gates
+#   3. demo-output/website/campaign/MOVE_MAP_BATCH0_RECONCILIATION_2026-08-17.md  every rule count re-derived over HEAD
+#   4. demo-output/website/campaign/MOVE_MAP_BATCH0_RULINGS_2026-08-17.md         rulings 1-3; the reconciliation closes at zero
+# Ruled 2026-08-17: R25 (docs/campaigns/<c>/*_{runs,sensitivity}/** -> verification/runs/, 315 files),
+# R1 gains AWS_TREE_PLAN.md, batch 2 takes option A. None of that is expressible in this file's
+# destination column, which was drawn for a target tree three decisions out of date.
+# Every row in this file -- all 20,202, above these lines -- is SUPERSEDED IN KIND.
+# Do not execute any of them, and do not regenerate the file: its generator,
+# scripts/phase2_move_map.py, was made to refuse at dce05a01.

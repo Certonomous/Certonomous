@@ -4570,3 +4570,119 @@ An empty population and a clean sweep are indistinguishable in the output and
 opposite in meaning, which is the same disease as L-98 one level up: there, an
 absent input read as a passed check; here, an absent population reads as a
 covered codebase.
+
+## L-100. A gate can be satisfied by the riskier of two options and failed by the safer one, and the agent who meets it will fix the gate by taking the risk
+
+**The rule.** When a plan offers two ways out of a hazard and states one
+verification line for both, check which way the line points **before** the
+choice is made. A gate that reads its subject by CLASS while the decision is
+about a LIST does not merely lose precision: it can invert, passing the option
+that grows the exposure and failing the option that preserves every invariant
+the plan states. The agent who meets an inverted gate does not read it as
+inverted — a red gate under the careful option and a green one under the
+careless option is a very effective argument for the careless option, and it
+arrives with the plan's own authority behind it. **A gate whose pass condition
+is not derived from the decision it is gating is not a weak gate; it is a gate
+pointing the wrong way. Fire every gate in BOTH directions before the decision,
+and make the gate's default equal the decision's default, or the gate reads one
+thing while the batch does another.**
+
+**The instance, 2026-08-17, ruled and repaired at `7554e5d3`.**
+`demo-output/website/campaign/MESH_AUDIT_runs/` held **78 tracked files, every
+one a `*.log.checkMesh`** — exactly the solver-utility class a planned batch 2
+untracks. The moment batch 2 landed, the directory would hold no tracked file
+and batch 7's `git mv` of it would abort, taking every other source in that
+invocation with it. The plan offered **(A)** exclude the 78 from batch 2 until
+batch 7 has moved the tree — index and disk stay in agreement, carry set stays
+at 2 trees / 307 files / 1,510,309,145 bytes — and **(B)** let it go dark and
+hand-carry it, which grows the carry set by design. Its verification line was
+*"the goes-dark-after-batch-2 section must read 0 afterwards, not 1"*.
+
+`hand_carry.batch2_survivors()` classified `*.log.checkMesh` inside a `*_runs`
+tree as output **by file class**. So under **(B)** the section read **0**
+trivially — the tree is already dark, already in the carry set, and the
+projection reports only the *difference* — and under **(A)** it read **1**,
+because batch 2 had spared the files and nothing was ever going to go dark, but
+the projection was still classifying by suffix. **The gate was satisfied by the
+option that grows a 1.5 GB hand-carry and failed by the option that keeps the
+move a `git mv`.**
+
+The repair was to make the test **membership of batch 2's own list**
+(`batch2_untrack_list`, the named constant `BATCH2_EXCLUSIONS`, and a
+`--batch2-list FILE` mode so the gate can be handed the literal list once it
+exists) rather than a re-derivation of what the list ought to contain. Fired
+both ways on the live tree: option A → a list of 7,599 paths, section reads
+**0**; option B → 7,677 paths, section reads **1**; the difference is exactly
+the 78. The pre-amendment code, replanted as a mutant with the new API intact,
+reddens the option-A direction and passes the option-B one — the defect
+reproduced rather than described. A second mutant that makes the projection
+incapable of firing reddens the option-B direction and passes option-A, which
+is what shows the first test is not satisfied by a gate that never fires.
+
+**The transferable half.** This is L-93's shape (*a stale referent that still
+resolves is worse than one that fails*) moved from referents to gates. The
+common thread is that the check ran, returned a number, and the number was
+about something other than the question. **Ask of every gate: what would it
+read if the safe thing had been done, and what would it read if the unsafe
+thing had been done? If those two answers are not different in the right
+direction, the gate is not measuring the decision.** And a two-direction plant
+is cheap: it costs one extra invocation with the exclusion dropped.
+
+## L-101. A before/after check cannot detect a blindness both measurements share — and `os.walk`'s default is to be blind quietly
+
+**The rule.** The standard shape of a data-integrity check is: measure the
+source, do the thing, measure the destination, compare. That shape is only as
+good as the instrument, and it has one blind spot that no amount of comparison
+closes: **anything the instrument cannot see is missing from both readings
+equally, so the comparison agrees with itself and signs off.** A count, a byte
+total and a path digest that all fall together look exactly like a correct
+measurement of a smaller tree. **So an instrument used on both sides of a
+before/after check must FAIL rather than under-report. Surface the read error,
+count it, and refuse to return a number** — because a number that is short by
+an unknown amount is not a measurement, and a carry verified against one is not
+verified.
+
+`os.walk` makes this the default. `onerror` is `None` unless you pass one,
+which means a directory that cannot be opened yields nothing and raises
+nothing; and the idiomatic `try: st = p.lstat(); except OSError: continue` does
+the same thing one level down. Neither reaches stderr. Both are what a careful
+reviewer skims past.
+
+**The instance, 2026-08-17, repaired and controlled at `7554e5d3`.**
+`scripts/hand_carry.py` exists to move two gitignored trees — **307 files,
+1,510,309,145 bytes** — that `git mv` cannot reach, and to prove they arrived,
+because "a hand-carry nobody checks is how 1.51 GB goes missing" is its own
+opening line. Its `measure()` walked with no `onerror` and swallowed per-file
+`OSError`. An unreadable directory therefore dropped out of the file count, the
+byte total **and** the path digest at once. `carry()` compares a before and an
+after taken by that same instrument, so a permission change *between* them was
+the one thing it could not see — and the tree it guards had, until that
+morning, 786 root-owned files in it.
+
+**Controlled rather than argued**, by making one directory unreadable in a
+scratch copy outside the repository and running HEAD's blob of the module beside
+the repaired one over the same bytes. Clean, both report 9 files /
+2,452,694 B with an identical digest. With one directory `chmod 000`:
+
+- **pre-repair: returned 7 files / 2,180,257 B, a fresh digest, exit 0, stderr
+  empty.** Two files and 272,437 bytes gone, silently, in a green run.
+- **repaired: refuses** — `MeasurementError: 1 walk/stat error(s) … REFUSING to
+  report a number`, the failing path on stderr, exit 3 UNKNOWN.
+
+End-to-end through the command line on a scratch repository the pre-repair tool
+reported `HAND-CARRY: 1 tree, 1 file, 689,284 B` and **exited 0**. Same tree,
+same command, green, and wrong.
+
+**Sibling, landed the same day by a peer: `L-98`** — *a verification whose
+input is missing must FAIL, not skip*. That is this lesson one layer up: L-98
+is about a check handed nothing, this one is about a check handed part of
+something and unable to tell. Both end in the same place, a PASS that measured
+less than it claimed.
+
+**The transferable half, and it is not about `os.walk`.** Ask of any
+verification: *is there a failure mode that changes both sides of my comparison
+in the same direction?* If yes, the comparison is not the check — the
+instrument's error handling is. The corollary is a test-design one: the tests
+that catch this need a **planted read failure**, not a planted data difference,
+and they need a readable-tree control beside them, because an instrument that
+raised on everything would satisfy every failure test and be worthless.
