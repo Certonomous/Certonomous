@@ -67,6 +67,9 @@ materials.
 | `K0c_RESULTS.md` | **Added 2026-08-17.** The executed laminar rung: the gate table with every deviation as a number, the five controls and their kinds, the cost in core-minutes, and the core stratification reported as an explicitly ungraded measurement |
 | `K0c_runs/` | **Added 2026-08-17.** The eight graded cases (four Ra on a mandatory two-mesh pair each) plus three control twins, their dictionaries, `0.orig/` initial conditions, solver logs and `scripts/heat_balance.py` audits. Time directories and meshes are gitignored and rebuilt from the dictionaries |
 | `K0b_mesh_sensitivity/` | **Added 2026-08-17.** The K0b mesh-sensitivity pair (32x32 and 128x128) that completes the triple with the committed 64x64 leg, answering proposal P2 of `THERMAL_K0_RESULTS.md` |
+| `K1_STANDING_THERMAL_CHECKS.md` | **Added 2026-08-17.** K1a/K1c: the four thermal checks made standing (`docs/physics_rules.yaml` block `thermal`, monitor standard v1.9 signatures S13–S15) and verified by execution against planted defects |
+| `K2a_RACK_ROW_MODULE_SPEC.md` | **Added 2026-08-17, zero compute.** The parameterized rack-row module: geometry, parameter ranges, a boundary condition on every surface (BC types verified in the installed OpenFOAM v2606 source), the Boussinesq admissibility policy against the lab's own 30.0 K limit, mesh strategy, measurement and audit plan, and the compute cost estimate with its basis. **Awaiting owner approval; no solve authorized** |
+| `K2c_RACK_ROW_VALIDATION_SEARCH.md` | **Added 2026-08-17, zero compute.** The rack-row facility validation search and gate: one experimental primary obtained in full (Wibron et al. 2018, hard-floor 10-rack module, CC-BY, PDF in `docs/papers/`), gate rows fixed with the reference column awaiting a labelled digitization addendum; the raised-floor rung filed NOT OBTAINED in its entirety, every candidate's availability check dated |
 
 ## Trust position, stated up front
 
@@ -75,6 +78,8 @@ materials.
 | K0c laminar (de Vahl Davis) | Numerical benchmark, secondary reproductions cross-checked | Verification only; TREND ONLY ceiling (no experiment) |
 | K0c turbulent (Betts and Bokhari) | Experiment, primary data files in this folder | Eligible for VALIDATED on passing the gate |
 | K0d (Blay cavity) | Experiment, primary not yet obtained | TREND-ONLY until the ASME HTD Vol. 213 paper is acquired; acquisition route named in the spec |
+| K2c-A hard-floor rack-inlet (Wibron 2018) | Experiment, primary READ IN FULL and in `docs/papers/`; reference values live in its figures | TREND-ONLY until the labelled digitization addendum arms the reference column; then eligible for VALIDATED |
+| K2c-B raised-floor / perforated-tile | No primary obtained; every candidate paywalled (checks dated 2026-08-17) | NOT OBTAINED — no gate rows exist; any tile-supply solve is TREND-ONLY whatever it produces |
 
 ## References NOT OBTAINED. Three gate rows cannot be graded today
 
@@ -88,6 +93,8 @@ named acquisition path closes and the row is extended by addendum.**
 | Tabulated core temperature gradient for the de Vahl Davis square cavity | K0c **laminar** rung, stratification half of the K0c mandate | Neither primary carries it openly: de Vahl Davis 1983 (DOI `10.1002/fld.1650030305`) and Le Quere 1991 (*Computers and Fluids* 20, pp. 29-41, DOI `10.1016/0045-7930(91)90025-D`) are both paywalled; Unpaywall `is_oa: false`, checked 2026-08-17. No number was invented | Obtain either paper via the MIT access route (`docs/research/MIT_ACCESS_DOCKET.md` pattern), then extend the K0c laminar table by addendum |
 | Measured Nusselt number for the Betts and Bokhari tall cavity | K0c **turbulent** rung, heat transfer row | The ERCOFTAC database provides no Nusselt files; the paper carrying the measured heat transfer (DOI `10.1016/S0142-727X(00)00033-3`) is paywalled, Unpaywall `is_oa: false` | Obtain Betts and Bokhari (2000) full text, **or** derive wall heat flux from the near-wall temperature files with the derivation and its resolvable increment stated by addendum |
 | Blay, Mergui and Niculae (1992) primary, ASME HTD Vol. 213, pp. 65-72 | **All of K0d.** The rung is filed **TREND-ONLY**: gate rows fixed, reference numbers still awaiting the primary | No DOI exists (CrossRef query on the full title, 2026-08-17, no matching record; ASME HTD volumes of that era are unregistered) and no OA copy was found. The profiles exist today only as figures in secondary papers | Acquire the ASME HTD Vol. 213 proceedings paper; until then K0d cannot rise above TREND-ONLY whatever a solve produces |
+| Any raised-floor rack-inlet or tile-flow measurement primary (best candidates: Schmidt and Cruz 2002, DOI `10.1109/itherm.2002.1012507`; Abdelmaksoud et al. 2010, DOI `10.1109/itherm.2010.5501413`; VanGilder and Schmidt 2006, DOI `10.1016/j.buildenv.2005.03.005`) | **All of K2c-B** (raised-floor rung), and the tile-momentum arbitration of K2a section 2.2 | Every candidate Unpaywall `is_oa: false`, checked 2026-08-17; no repository copies found. Full candidate table in `K2c_RACK_ROW_VALIDATION_SEARCH.md` section 1 | Read Wibron et al. 2019 (`10.3390/en12081473`, OA via the DiVA route) first at zero cost; failing that, the MIT access route on the IEEE/Elsevier candidates |
+| Digitized reference values from Wibron et al. 2018 Figures 3, 6, 7, 8 | Arming K2c-A's reference column; the rung is TREND-ONLY until then | Not paywalled — the primary is in this repository; the labelled extraction has not been performed | Zero-compute digitization addendum against `docs/papers/wibron_ljung_lundstrom_2018_en11030644.pdf`, digitization increment stated per quantity |
 
 The in-document statements these rows summarise are at
 `K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md` §1 ("Core stratification, laminar rung:
@@ -105,3 +112,7 @@ the house pdf-plus-txt convention:
 `vierendeels_merci_dick_2002_wit_afm02`, and the INL report extract
 `martineau_et_al_2009_inl_ext_09_15333` (text extract plus source URL; the PDF is
 public at inldigitallibrary.inl.gov and was not duplicated here for size).
+
+**Added 2026-08-17 with the K2 specifications:**
+`wibron_ljung_lundstrom_2018_en11030644` (CC-BY, fetched from the Luleå DiVA
+repository after the publisher host refused this box; SHA-256 in the K2c spec).

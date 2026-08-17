@@ -4410,3 +4410,41 @@ lesson comes from), D355 (the same illegal label surviving in a third rung's
 verdict inside a file two rungs' amendments had already touched), L-92 and L-93
 (an instrument measuring a frame nobody declared, and a referent that still
 resolves).
+
+## L-97. A validation primary can endorse an abstraction at one scale and document its failure at another — a gate that does not split along that line grades the known defect instead of the solve
+
+**The rule.** When the reference paper for a validation case uses the same
+modelling abstraction you do, read it twice: once for the numbers, and once for
+where the authors say their own comparison broke. Every place the primary
+documents its abstraction failing — a sensor in a region the model represents
+as uniform, a profile that only matches when the comparison line moves out of
+the near field — is a place your gate must be REPORT-ONLY or carry an explicit
+tolerance, because a deviation measured there is the abstraction's documented
+defect, not information about your solve. Grade where the primary validates;
+report where it confesses. A single undifferentiated band over both converts
+the reference's own known error into your failure — or worse, into your pass.
+
+**The instance, F14 rung K2c, 2026-08-17.** The obtained primary (Wibron,
+Ljung, Lundström 2018, *Energies* 11:644, READ IN FULL, PDF in `docs/papers/`)
+models racks exactly as campaign F14's order specifies — an inlet face plus an
+outlet face with ΔT = q/(ṁ·c_p), their Eq. (9) — and then documents, in its own
+results, where that abstraction stops being exact: rack-front temperatures all
+land inside the ±1 °C sensor bars, rack-back temperatures miss on 2 of 10 racks
+*because the imposed outlet temperature is uniform and the real one is not*
+(their §4.3), and near-rack velocity profiles at two of five stations only
+match the measurements when the comparison line is moved 10–15 cm off the rack
+face (their Figure 8), which the authors attribute to door gaps the black-box
+BC cannot carry. The K2c gate therefore grades rack-front temperature and the
+two far-field stations, and files the rack-back sensors and near-face profiles
+REPORT-ONLY with a mandatory position-sensitivity sweep. The alternative —
+one 15% band over all five stations — would have failed a correct solve for
+reproducing the primary's own documented limitation, and a band wide enough to
+pass it there would have been too loose to catch anything at the stations that
+actually discriminate.
+
+**The transferable half.** This is the gate-design complement of L-28 (never
+grade below the data's own resolvable increment): never grade *inside the
+reference's own documented model defect* either. Both are cases of the same
+principle — the pass band's floor is set by the reference's confessed
+limitations, and the confession is usually in the discussion section, not the
+tables.

@@ -736,7 +736,7 @@ and viscous-to-thermal drivers.
 
 | Quantity | Formula | Physical Interpretation |
 |----------|---------|-------------------------|
-| Rayleigh | Ra = Gr * Pr = (g * β * ΔT * L³ * α) / ν³ | Dimensionless group controlling laminar-to-turbulent transition and convection-regime onset. Higher Ra means stronger natural convection; the onset of turbulence varies by geometry but occurs at predictable Ra thresholds. |
+| Rayleigh | Ra = Gr * Pr = (g * β * ΔT * L³) / (ν * α) | Dimensionless group controlling laminar-to-turbulent transition and convection-regime onset. Higher Ra means stronger natural convection; the onset of turbulence varies by geometry but occurs at predictable Ra thresholds. |
 
 **Reynolds Number (Re):** the ratio of inertial to viscous forces in forced 
 convection.
@@ -750,7 +750,7 @@ driving forces.
 
 | Quantity | Formula | Physical Interpretation |
 |----------|---------|-------------------------|
-| Richardson | Ri = Gr / Re² = (Gr / (U/√(g*β*ΔT*L))²) | Mixed-convection classifier. Ri >> 1 = natural convection dominates; Ri << 1 = forced convection dominates; Ri ~ 1 = mixed convection with both effects material. Alternate form: Ri = Ra / (Re * Pr). |
+| Richardson | Ri = Gr / Re² = (Gr / (U/√(g*β*ΔT*L))²) | Mixed-convection classifier. Ri >> 1 = natural convection dominates; Ri << 1 = forced convection dominates; Ri ~ 1 = mixed convection with both effects material. Alternate form: Ri = Ra / (Re² * Pr). |
 
 ### Convection regime classification
 
@@ -822,9 +822,9 @@ and forced convection measures:
 | Relationship | Derivation | Use |
 |------|------|------|
 | Ri = Gr / Re² | Direct from definitions: Gr = (g*β*ΔT*L³)/ν², Re = (U*L)/ν, so Ri = Gr*ν²/((U*L)/ν)² = Gr/Re² | Mixed-convection classification without explicit Re and Gr; direct comparison of driving-force magnitudes. |
-| Ra = Gr * Pr | Ra = (g*β*ΔT*L³*α)/ν³ and Gr*Pr = ((g*β*ΔT*L³)/ν²) * (ν/α) = (g*β*ΔT*L³)/ν² * (ν/α) = (g*β*ΔT*L³*α)/ν³ | Establishes that natural-convection strength (Ra) couples Gr with the material's thermal diffusivity via Pr. |
-| Ra = Ri * Re * Pr | Follows from Ri = Ra/(Re*Pr) by algebraic rearrangement | Expresses Rayleigh as a product of forced (Re), mixed (Ri), and material (Pr) effects; useful for examining sensitivity to each term. |
-| Gr / Re² = Ra / (Re * Pr) | Both equal Ri by construction | Confirms equivalence between the two Richardson forms; either can be used depending on which dimensional groups are immediately available. |
+| Ra = Gr * Pr | Ra = (g*β*ΔT*L³)/(ν*α) and Gr*Pr = ((g*β*ΔT*L³)/ν²) * (ν/α) = (g*β*ΔT*L³)/(ν*α) | Establishes that natural-convection strength (Ra) couples Gr with the material's thermal diffusivity via Pr. |
+| Ra = Ri * Re² * Pr | Follows from Ri = Ra/(Re²*Pr) by algebraic rearrangement | Expresses Rayleigh as a product of forced (Re), mixed (Ri), and material (Pr) effects; useful for examining sensitivity to each term. |
+| Gr / Re² = Ra / (Re² * Pr) | Both equal Ri by construction | Confirms equivalence between the two Richardson forms; either can be used depending on which dimensional groups are immediately available. |
 
 ### Solver selection based on convection regime
 
@@ -969,3 +969,101 @@ matter here" is a fact about this case, not the next one.
 |---|---|---|
 | `grad(T)` written to disk and read back loses the `snGrad` boundary correction | integral n·grad(T) dA = 0.595629494 recomputed in-pass against **0.377856775** read back — **−36.6 %** | VERIFIED, F14 K0a. Recompute the gradient in the **same** postProcess pass as the surface integral. |
 | An imbalance ratio whose denominator is floating-point residue | one adiabatic patch carrying **+7.94e-24 W** produced a reported imbalance of **6.25e+22 %** | VERIFIED, F14 K1c. Test that the denominator is the quantity the ratio claims to be measured against, not merely that it is non-zero. |
+
+## Rack-row facility modelling (F14 rungs K2a/K2c, 2026-08-17)
+
+Recorded at specification time, zero compute. Tier labels as elsewhere in this
+file; READ IN SOURCE means the OpenFOAM v2606 source installed at
+`/usr/lib/openfoam/openfoam2606/` was read this session at the cited path.
+
+### 1. The rack/CRAC face-pair coupling exists as stock boundary conditions
+
+The "rack = inlet face + outlet face with ΔT = P/(ṁ·cp)" abstraction needs no
+coded BC in OpenFOAM v2606; both halves exist in the tree (READ IN SOURCE):
+
+- **Boussinesq solvers** (T is a plain transported field, no thermo package):
+  `outletMappedUniformInlet`
+  (`src/finiteVolume/fields/fvPatchFields/derived/outletMappedUniformInlet/`)
+  imposes φ_inlet = Σ f_i·φ_outlet,i + φ_offset,i, area-weighted average over
+  the named outlet patches (`gWeightedAverage` over `magSf`). With the face
+  pair's ṁ pinned by `flowRateOutletVelocity`/`flowRateInletVelocity`, setting
+  `offset` = ΔT = P/(ṁ·cp) implements the abstraction with **no cp in the
+  case** — ΔT is the primitive and P is derived for reporting only.
+- **Compressible solvers** (`buoyantSimpleFoam` class):
+  `outletMappedUniformInletHeatAddition`
+  (`src/thermoTools/derivedFvPatchFields/outletMappedUniformInletHeatAddition/`)
+  implements the formula literally: `operator==(clamp(averageOutletField +
+  Q/totalPhiCp, TMin_, TMax_))` with `totalPhiCp = sumOutletPatchPhi *
+  gAverage(Cpf)` from the thermo package — Q in watts is the primitive.
+  **Trap, read in the same source: the TMin/TMax clamp (defaults 0/5000 K) is
+  a silent limiter** — a runaway recirculation sits invisibly on the clamp
+  unless TMax is set far above the physics-rules admissibility line and the
+  domain span is monitored independently.
+
+Supporting stock pieces, same tier: `flowRateOutletVelocity` (the "outlet with
+imposed flow" half of the pair), `fixedFluxPressure`, and the incompressible
+`alphatJayatillekeWallFunction`
+(`src/TurbulenceModels/incompressible/.../alphatWallFunctions/`).
+
+### 2. Recirculation amplifies the Boussinesq span beyond the rack ΔT
+
+Derived (VERIFIED by calculation, three lines of steady mixing algebra): if a
+fraction r of a rack's inlet air is recirculated exhaust, the rack-outlet
+excess over supply is θ_out = ΔT_rack/(1−r), so the **domain** temperature
+span the `thermal.boussinesq_beta_dT_max` limit binds is not ΔT_rack but at
+least ΔT_rack/(1−r). At r = 1/3 a 20 K rack already puts 30.0 K in the domain
+— the exact limit at TRef 300. Consequence, written into the K2a spec: the
+a-priori parameter screen on ΔT_rack is necessary but not sufficient, and a
+`fieldMinMax` span check on the solved field is mandatory on every Boussinesq
+run of this module class.
+
+### 3. Measured cell-iteration throughput of the lab's buoyant steady solver
+
+From the committed K0c logs and COST.txt files (VERIFIED, this repo's own
+runs; single core, `buoyantBoussinesqSimpleFoam`, 2D laminar, SIMPLE):
+4.6e5 / 5.6e5 / 3.6e5 / 2.7e5 cell·iterations per core-second at 4.1k / 4.1k /
+16.4k / 36.9k cells respectively — throughput falls with case size, so plan on
+the large-case end. Iterations to meet the S13 monitor criterion ran 4,000–
+7,900. The K2a cost estimate derates the 2.7e5 figure by an **assumed** ÷2.7
+for 3D + SST (three velocity components, two turbulence equations, ~50% more
+faces per cell) to a planning rate of 1.0e5 cell·iter/(core·s); the derate is
+an engineering assumption awaiting its first 3D measurement, and every figure
+built on it is labelled ESTIMATE.
+
+### 4. What the one obtained rack-row facility primary establishes
+
+Wibron, Ljung, Lundström (2018), *Energies* 11(3):644, READ IN FULL
+(`docs/papers/wibron_ljung_lundstrom_2018_en11030644.{pdf,txt}`, CC-BY,
+SHA-256 in the K2c spec; fetched via the Luleå DiVA repository after the
+publisher host returned 403 to this box):
+
+- The face-pair ("black box") rack abstraction with ΔT = q/(ṁ·c_p) — their
+  Eq. (9) — reproduces measured rack-front temperatures within the ±1 °C
+  sensor accuracy on all ten racks of a real hard-floor module, and is
+  documented approximate at rack-back/near-face scale (2 of 10 back sensors
+  outside bars; near-rack velocity profiles recover only 10–15 cm off the
+  face, their Fig. 8). *Applies*: gate design for any face-pair module —
+  grade room-level quantities, REPORT-ONLY the near-face ones (L-97).
+- Steady RANS of the module class failed to converge in their hands
+  ("difficulties converging due to fluctuations"); they used transient
+  averaging over 600 s. *Applies*: cost planning and monitor expectations for
+  any K2b solve.
+- k–ε mispredicts the above-rack low-velocity regions; RSM and DES agree
+  closely (their §4.4). k–ω SST is untested on this class in that paper.
+- Grid-size floor, tier SECONDARY (their p. 10, attributing VanGilder et al.,
+  which is NOT OBTAINED): results change little below ~15.2 cm cells but are
+  not fully independent even at 2.5 cm.
+
+### 5. Correction record for the convection regime map above (2026-08-17)
+
+Four cells of the regime-map tables carried the same algebra misprint family;
+all four are corrected in place this date (VERIFIED by calculation — the
+section's own criterion for independently derivable statements): Ra
+composition read `(g·β·ΔT·L³·α)/ν³` (that is Gr/Pr) where Gr·Pr =
+`(g·β·ΔT·L³)/(ν·α)`; the Richardson alternate form and its two dependent
+relationship rows read `Ri = Ra/(Re·Pr)` where dimensional consistency with
+Ri = Gr/Re² requires `Ri = Ra/(Re²·Pr)`. Definitions of Gr, Pr, Re themselves
+were correct. Blast radius, measured rather than assumed: `git grep` at HEAD
+finds the misprinted forms nowhere outside this file, and the one regime table
+computed from this map in the same commit window (F14 K2a §5) derives from the
+Gr/Re/Pr definitions directly and is unaffected.
