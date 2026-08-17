@@ -51,8 +51,40 @@ python3 build_cases.py
 python3 analyse_k0c.py
 ```
 
-`Ra1e6_m192` is the exception: it takes `endTime 4000` at stage 1 and
-`./continue_cases.sh 24000` at stage 2.
+`Ra1e6_m192` is the exception, in three ways, and the committed case carries
+the settings it actually ran with rather than the ones above:
+
+```
+python3 build_cases.py Ra1e6_m192   # selector: rebuilds this case only
+                                    # then set endTime 4000 in system/controlDict
+./run_cases.sh Ra1e6_m192           # stage 1, 4000 iterations from uniform
+                                    # then set endTime 8000, writeInterval 1000
+                                    # and apply the stage-2 relaxation factors
+                                    # (continue_cases.sh does the latter)
+```
+
+1. **Stage 1 stops at 4000 iterations**, not at the table's `endTime`, because
+   this case was rebuilt from scratch late (see `../K0c_RESULTS.md`, "What did
+   not work", item 3) and only needed enough of a field to accelerate from.
+2. **Stage 2 ran to `endTime 8000` with `writeInterval 1000`, not to 24000
+   with a single write at the end.** The first attempt used
+   `./continue_cases.sh 24000`, whose `writeInterval` equals its `endTime`; the
+   case met the convergence criterion at iteration 6400 but had no scheduled
+   write until 24000, and this build has `writeNowSignal -1` so a running
+   solver cannot be asked to write. It was killed and re-run with intermediate
+   writes, at a cost of about 9.8 core-minutes. It converged on its own
+   `residualControl` at iteration 7885. **Do not reproduce this case with
+   `continue_cases.sh 24000`** — that is the command that had to be abandoned.
+3. **There is no stage 3 for it, and none is needed.** `rewrite_precision.sh`
+   exists to rewrite fields that were written at `writePrecision 10`. By the
+   time this case was rebuilt, `build_cases.py` already wrote
+   `writePrecision 16`, so its fields were full precision from the first write
+   and a stage-3 pass would be a no-op. The same is true of any case rebuilt
+   with the current `build_cases.py`; stage 3 was needed only for the **ten**
+   cases first run before that change, and each of those carries a
+   `log.buoyantBoussinesqSimpleFoam.stage3` recording it. Counted, not
+   remembered: ten stage-3 logs against eleven cases, the missing one being
+   this case.
 
 ## One warning that is not decoration
 
