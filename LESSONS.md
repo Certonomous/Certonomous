@@ -4448,3 +4448,125 @@ reference's own documented model defect* either. Both are cases of the same
 principle — the pass band's floor is set by the reference's confessed
 limitations, and the confession is usually in the discussion section, not the
 tables.
+
+## L-98. A verification whose input is missing must FAIL, not skip: a check that quietly compares nothing reports the same PASS as a check that compared everything
+
+**The rule.** Every check has inputs. When an input is absent, the check has two
+honest options and one dishonest one. It may fail loudly, naming the path it
+looked at. It may refuse to run, and say so in its exit code. What it must never
+do is treat "no input" as "nothing to compare" and fall through to the success
+path. An empty result set is not a satisfied condition. Write the guard as the
+first thing the loader does, before any accumulator is initialised: absent input
+raises, and zero parsed items raises, because zero comparisons is not a passed
+comparison. Then have the run COUNT what it actually compared and print the
+count beside the verdict, so that a run which performed none cannot render the
+same green line as a run which performed all of them. A verification that cannot
+fail is not a verification.
+
+**The corollary about identifiers in messages.** Print the full path you
+resolved, relative to the project root, never the basename. The defect below
+lived four repair waves precisely because the header printed
+`R5_PREREGISTRATION.md`, which was the right FILE at the wrong DIRECTORY, and a
+reader checking the output saw the name they expected.
+
+**The instance, the closure entry package, 2026-08-17.**
+`scripts/verify_manifest.py` cross-checks eight shipped prediction CSVs against
+two independent records: `records/MANIFEST.json`, and the SHA-256 table frozen
+in the pre-registration before the scoring call. The second is the one that
+matters evidentially, because it is what makes "these are the files we committed
+to before we knew the score" checkable by a stranger. The constant naming it
+read `ROOT / "evidence" / "R5_PREREGISTRATION.md"`, the path that file had
+before the package regrouped `evidence/` into `frozen/`, `audits/` and
+`reproduction/`. The regrouping updated the script's own docstring, which named
+the correct path, and left the constant, so the file contradicted itself in two
+places twenty-eight lines apart.
+
+The loader returned `{}` on the missing file. Consequently: the frozen-hash
+cross-check never ran; all eight `vs prereg` cells printed `-`; the header
+printed the basename so the wrong directory was invisible; the PASS line was
+built as `f"...manifest{' and the frozen pre-registration hashes' if frozen else ''}"`
+and so silently dropped its own claim; and the script exited **0 PASS**. The
+package's root README meanwhile stated that this script checks the CSVs against
+the manifest *and* the frozen hashes. It checked one of the two, and said it had
+checked both, through four repair waves and one independent verification. The
+underlying evidence was sound the whole time: with the path corrected, 8 of 8
+CSVs match both records. The failure was entirely in the instrument.
+
+**How to apply it.** Three edits, and the first alone is not enough:
+
+1. fix the path;
+2. make absence and emptiness raise, with the path in the message, and make a
+   record present in one input but missing from the other a failure rather than
+   a shrug, so "where that file records one" cannot decay into "nowhere";
+3. count the comparisons performed, fail if the count is not the expected one,
+   and state the count in the PASS line.
+
+Then prove the check can fail, on copies, and record the proofs: the stale path
+restored, the input present but unparseable, and one datum altered by one
+character. If you cannot produce three distinct failures on demand, you have not
+established that the check is a check.
+
+**The transferable half.** This is the executable form of the rule that a
+negative result must be distinguishable from an unperformed test. It applies far
+beyond hash checks: an empty query result, a config key that defaults to the
+permissive value, a glob that matched no files, a regex that captured nothing,
+an API that returned 200 with an empty body. Each is an absent input wearing the
+costume of a satisfied condition. The tell is always the same shape in the code:
+a function that returns a falsy empty container on a missing input, and a caller
+that iterates it.
+
+## L-99. A consistency checker blind to the way its own codebase writes the thing it checks certifies nothing about that codebase
+
+**The rule.** Before you trust a checker that scans source for a construct,
+measure it against the construct AS YOUR CODEBASE ACTUALLY WRITES IT, not as the
+checker's author imagined it written. A path scanner that recognises
+`"a/b/c.md"` and not `ROOT / "a" / "b" / "c.md"` will report a clean sweep over a
+codebase in which every path is written the second way, and the sweep will be
+empty of both defects and coverage. The number to demand is not "how many
+problems did it find" but "how many sites did it examine", and if that second
+number is zero the first one is meaningless.
+
+**The two-sided test.** Plant the defect in the form your codebase uses, and
+plant it again in the form the checker was built for. If the second is caught
+and the first is missed, the checker is measuring the author's imagination. That
+is exactly what a reader did here: `ROOT / "evidence" / "NO_SUCH_FILE.md"` was
+missed, `ROOT / "evidence/frozen/R5_PREREGISTRATIONX.md"` was caught, and the two
+results together are the whole diagnosis.
+
+**The instance, the closure entry package, 2026-08-17.**
+`scripts/check_consistency.py` resolved every in-package path reference in the
+package's Markdown and JSON, and had been rebuilt once already around six defect
+shapes it had previously missed. Its path scanner matched a single string
+literal containing a slash. Every path constant in all five shipped scripts is
+built by `Path` division across separate literals, and the `.md` scan only ever
+read inside backticked spans, so a path named in plain prose was invisible too.
+Net coverage of the scripts' own paths: zero sites. That blind spot is precisely
+how L-98's fail-open gate survived four waves of repair by a tool whose stated
+job was to catch exactly that class of defect. The fix was an AST evaluator over
+`Path(__file__)`, `.resolve()`, `.parent` and `/` with a string literal, plus an
+unbackticked-prose pass, plus a plant that restores the real defect.
+
+**The second half, which is the same lesson about the CONTROL.** The same
+reading found that one of the six planted shapes was being caught for the wrong
+reason. The check harvested inventory rows from every table in the file, so
+deleting a file's inventory row was caught whenever that file also headed a row
+of some other table. Measured across all 26 shipped files, deletion went
+unreported for five of them, and the control had planted its defect on one of
+the 21 that happened to work. **Run your control's plant against every instance
+in the population, not the one instance you chose.** One passing plant tells you
+the check can fire; it does not tell you the check covers the set.
+
+**The third half, which is about counting.** A related check enumerated four
+citation sites inside frozen documents and the disclosure it guarded asserted
+that all four had stopped resolving. Two had. The check counted sites and never
+asked whether each one resolved, so it could not contradict the claim it
+existed to guard. **How many there are and whether each one works are different
+questions; a check that answers only the first will happily certify a false
+answer to the second.**
+
+**The transferable half.** When a checker reports clean, ask it what it
+examined. Instrument it to emit the population size, not only the failure count.
+An empty population and a clean sweep are indistinguishable in the output and
+opposite in meaning, which is the same disease as L-98 one level up: there, an
+absent input read as a passed check; here, an absent population reads as a
+covered codebase.
