@@ -217,3 +217,36 @@ before launch: **under 2 core-minutes each, under 10 core-minutes total
 including the three control twins.** No parallel decomposition, no cloud
 resource, nothing that touches the spend that needs the owner's word.
 Actual wall-clock is recorded in the results file.
+
+---
+
+# ADDENDUM — 2026-08-17, appended after the runs. §0 is superseded.
+
+**This is an append-only addendum. Nothing above this line has been altered.**
+The body of a preregistration is not editable after compute has run (W-3), and
+its value is precisely that it can be diffed against its own commit. §0 is left
+standing, wrong, with the answer here.
+
+**THE COLLISION IS RULED. THIS CAMPAIGN IS F14.**
+
+- The data-center cooling campaign is tagged **F14**, not F11.
+- **F11 keeps the lid-driven cavity ladder**, by measured precedence: created
+  2026-07-30, carrying gate results against Ghia, Ghia and Shin 1982 and a
+  populated `F11_runs/` tree.
+- **F14 was verified unused repository-wide**, as were F15 through F22.
+- **§0's guess that "F13 is the next unused" is wrong and is superseded.** F12
+  is a live campaign with its own preregistration, which §0 did not check.
+- The campaign's gate specifications live at
+  **`docs/campaigns/F14-cooling-ladder/`**, landed at commit `208fef5c`.
+
+**What does not change.** `THERMAL_K0_*` is a physics name, it never collided,
+and nothing under it is renamed. Only the campaign tag moved.
+
+**Also recorded here, because it constrains every rung after these two:** the
+F14 gate specifications mark **three reference values NOT OBTAINED** — core
+stratification on the laminar rung, Nusselt number on the turbulent rung, and
+the Blay primary for K0d. **No rung may be marked passed against a number the
+executing agent produced itself.** That applies directly to B5 above: the
+Nusselt point estimate of 4.98 in this document is my own scaling estimate,
+it is labelled as such, and it is not a reference value and cannot grade
+anything.

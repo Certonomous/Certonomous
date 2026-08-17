@@ -1,4 +1,4 @@
-# Thermal ladder, rung K0 — RESULTS
+# Cooling ladder (campaign F14), rung K0 — RESULTS
 
 **Date:** 2026-08-17
 **Predictions:** `THERMAL_K0_PREREGISTRATION.md`, written and committed before
@@ -15,11 +15,20 @@ the first solver invocation. Read it first; this file is only the outcomes.
 > permitted to make a claim about reality is **K0c, the validation gate, which
 > was not in this dispatch and was not run.**
 
-> **LABEL:** dispatched as campaign "F11". **F11 is already taken in this repo**
-> by the 2026-07-30 lid-driven-cavity verification ladder
-> (`F11_lid_driven_cavity_ladder.md`, `F11_runs/`), and F1–F12 are all in use.
-> This work is therefore parked under `THERMAL_K0_*` and **the campaign label
-> needs the owner's ruling** before anything here is filed as "F11".
+> **LABEL — RESOLVED, 2026-08-17. This campaign is F14.**
+> It was dispatched as "F11", but F11 was already taken by the 2026-07-30
+> lid-driven-cavity verification ladder (`F11_lid_driven_cavity_ladder.md`,
+> `F11_runs/`). A concurrent agent ruled the collision while these rungs were
+> running: **the cooling campaign is F14 from that commit forward, F11 continues
+> to mean the lid-driven cavity ladder**, and F14 was verified unused
+> repository-wide. See `docs/campaigns/F14-cooling-ladder/README.md`.
+>
+> `THERMAL_K0_PREREGISTRATION.md` §0 still records the collision as open and
+> awaiting a ruling. **It is deliberately not edited.** A preregistration whose
+> text is revised after the fact stops being a preregistration; its whole value
+> is that it can be diffed against its own commit. Read its §0 as superseded by
+> this line. `THERMAL_K0_*` is a physics name that never collided, so nothing
+> here is renamed either.
 
 ---
 
@@ -323,10 +332,20 @@ is a capability rung and stays off every external surface until K0c passes.
 K0b was deliberately built at Ra = 1.000e5 in the standard differentially heated
 square cavity configuration so that a published-benchmark comparison is a
 drop-in: same geometry, same Ra, quantities already extracted (Nu, U*, V*,
-stratification). **K0c is not mine and I did not run it.** Cost is small — the
-solve is 32 s on one core; the work is in sourcing and re-deriving the reference
-data, and per this lab's rule the reference numbers must be re-derived from the
-primary source rather than quoted.
+stratification). **K0c is not mine and I did not run it.**
+
+Its gate specification already exists, written by a concurrent agent while these
+rungs ran: `docs/campaigns/F14-cooling-ladder/K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md`.
+K0b's geometry and Ra line up with its laminar rung, and the solve is 32 s on
+one core, so the compute is not the constraint — the reference sourcing is.
+
+**Constraint carried over from that spec, and it binds B5 in this document:
+three reference values are marked NOT OBTAINED** — core stratification on the
+laminar rung, Nusselt number on the turbulent rung, and the Blay primary for
+K0d. **No rung may be marked passed against a number the executing agent
+produced itself.** My Nu point estimate of 4.98 from 0.28.Ra^(1/4) is my own
+scaling estimate, is labelled as such throughout, and **cannot grade anything**.
+The measured 4.5538 is likewise a capability number and not a validated one.
 
 **P2 — mesh sensitivity on K0b.** Every K0b number above is from a single
 64x64 mesh. A single-mesh number is not a converged number.

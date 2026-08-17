@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 """Build the K0a and K0b thermal capability cases and their control twins.
 
-Rung K0 of the thermal ladder (dispatched as "F11"; see THERMAL_K0_PREREGISTRATION.md
-section 0 for the label collision with the existing lid-driven-cavity F11).
+Rung K0 of the cooling ladder, campaign **F14**.
+
+The campaign was dispatched as "F11", which was already taken by the lid-driven
+cavity ladder. Ruled 2026-08-17: this campaign is F14, F11 keeps the cavity
+ladder. Gate specifications live at `docs/campaigns/F14-cooling-ladder/`.
+THERMAL_K0_PREREGISTRATION.md section 0 records the collision as still open --
+it is a preregistration and its body is not editable after compute has run, so
+the ruling is in a dated addendum at the foot of that file instead. The physics
+name THERMAL_K0 never collided and does not change.
 
     python3 build_cases.py            # writes all four case trees next to this file
 

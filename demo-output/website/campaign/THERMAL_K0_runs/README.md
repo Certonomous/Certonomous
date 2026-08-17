@@ -1,7 +1,7 @@
-# THERMAL_K0_runs — rung K0 of the thermal ladder
+# THERMAL_K0_runs — rung K0 of the cooling ladder, campaign F14
 
 Cases, scripts and logs for **K0a** (feasibility) and **K0b** (physics) of the
-thermal / buoyancy ladder, run 2026-08-17 with `buoyantBoussinesqSimpleFoam`,
+cooling / buoyancy ladder, run 2026-08-17 with `buoyantBoussinesqSimpleFoam`,
 OpenFOAM v2606, laminar, steady, serial.
 
 - Predictions, written before anything ran: `../THERMAL_K0_PREREGISTRATION.md`
@@ -15,10 +15,12 @@ OpenFOAM v2606, laminar, steady, serial.
 > or cooling language attaches to it. The validation gate is **K0c**, which was
 > not in this dispatch and was not run.
 
-> **Campaign label unresolved.** This work was dispatched as "F11", but `F11` in
-> this repository is already the 2026-07-30 lid-driven-cavity verification ladder
-> (`../F11_lid_driven_cavity_ladder.md`, `../F11_runs/`), and F1–F12 are all
-> taken. It is parked under a physics name until the owner rules on the label.
+> **Campaign label: F14, ruled 2026-08-17.** This work was dispatched as "F11",
+> but `F11` was already the 2026-07-30 lid-driven-cavity verification ladder
+> (`../F11_lid_driven_cavity_ladder.md`, `../F11_runs/`), which keeps the tag by
+> precedence. The cooling campaign is **F14**; its gate specifications live at
+> `../../../../docs/campaigns/F14-cooling-ladder/`. `THERMAL_K0` is a physics
+> name, it never collided, and it does not change.
 
 ## Cases
 
