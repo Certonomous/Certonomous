@@ -89,3 +89,25 @@ demo-output/website/latex/*.aux
 demo-output/website/latex/*.log
 demo-output/website/latex/*.out
 demo-output/website/latex/*.toc
+
+# Python wheels are dependencies, not source. Ignored as a CLASS rather than by
+# name, so the next wheel dropped at root does not have to be caught by hand.
+*.whl
+
+# Retry and batch run products at the repository root. These are run products,
+# not source, and the pattern is the class: a rule naming mbc_retry6.log does
+# not stop mbc_retry7.log.
+/mbc_retry*.err
+/mbc_retry*.log
+/*_batch.err
+/*_batch.log
+
+# NAMED EXCEPTION to the batch rule above, and it is load-bearing. uq_batch.log
+# and uq_batch.err are cited as durable evidence by docs/HANDOFF-UQ.md, are
+# ruled KEEP, do not sweep in docs/GITIGNORE_PROPOSAL.md, and sit in the
+# KEEP_ROOT set of scripts/phase2_move_map.py. docs/HANDSHAKE.md H3a marks them
+# DO NOT SWEEP expressly so that a later pass cannot undo the finding. They stay
+# tracked. Without these two lines the batch rule would silently pull two
+# tracked evidence files into the ignore-matching population.
+!/uq_batch.err
+!/uq_batch.log
