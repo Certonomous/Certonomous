@@ -532,7 +532,7 @@ def main() -> int:
         shutil.copy2(website / "wall" / "wall.html", site_out / "wall" / "wall.html")
 
     # ---- 6. launchers and the guide --------------------------------------
-    here = REPO / "scripts" / "laptop_bundle"
+    here = lab_paths.LAPTOP_BUNDLE
     for name in ("replay_console.py", "run-demo.sh", "run-demo.ps1", "START-HERE.md"):
         if (here / name).exists():
             shutil.copy2(here / name, out / name)

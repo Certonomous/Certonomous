@@ -52,8 +52,11 @@ const CP_BODIES = [
   ['b52',   'mission-output/geometry-study/b52_field.json'],
 ];
 const PRESSURE_BODIES = [
-  ['b52 pressure',       'demo-output/plots/pressure_slices/validation/regenerated/b52_field.json'],
-  ['motorBike pressure', 'demo-output/plots/pressure_slices/validation/regenerated/motorBike_field.json'],
+  // R11 moved `demo-output/plots/` to `media/plots/` at MOVE_MAP batch 4.
+  // Shell and JS cannot import `scripts/lab_paths.py`, so this is the one
+  // place the prefix is still spelled -- and it is spelled once.
+  ['b52 pressure',       'media/plots/pressure_slices/validation/regenerated/b52_field.json'],
+  ['motorBike pressure', 'media/plots/pressure_slices/validation/regenerated/motorBike_field.json'],
   ['cube pressure',      'mission-output/geometry-study/cube_field.json'],
 ];
 

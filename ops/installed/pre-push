@@ -3,7 +3,7 @@
 #
 # NOT INSTALLED. This file is tracked; it is not a hook until someone runs:
 #
-#     install -m 755 scripts/installed/pre-push .git/hooks/pre-push
+#     install -m 755 ops/installed/pre-push .git/hooks/pre-push
 #
 # That command needs no root, which is why this file exists at all. The cron
 # side of D64 needs `sudo` and therefore needs Katie or Sanaa (docket row A4);
@@ -15,7 +15,7 @@
 #   scripts/lab_check.py --no-tests  -- the fast tier: the script gates only,
 #   no pytest suite. The suite takes tens of minutes on this box under load and
 #   a pre-push hook that costs that much gets uninstalled within a day. The
-#   nightly cron (scripts/installed/certonomous-lab-check.cron) is where the
+#   nightly cron (ops/installed/certonomous-lab-check.cron) is where the
 #   suite runs.
 #
 # WHAT BLOCKS A PUSH, AND WHAT DELIBERATELY DOES NOT
@@ -97,7 +97,7 @@ case "$rc" in
        echo "          which check failed and what it examined." >&2
        echo "          To push anyway: LAB_CHECK_SKIP=1 git push" >&2 ;;
     3) echo "pre-push: UNKNOWN about REACH -- NOT blocking, and that is on" >&2
-       echo "          purpose (see the header of scripts/installed/pre-push)." >&2
+       echo "          purpose (see the header of ops/installed/pre-push)." >&2
        echo "          Every check that ran came back with a verdict; what is" >&2
        echo "          unknown is what this runner did not examine, and the" >&2
        echo "          coverage statement above names all of it." >&2

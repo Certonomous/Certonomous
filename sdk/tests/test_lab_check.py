@@ -53,8 +53,19 @@ import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 RUNNER = REPO / "scripts" / "lab_check.py"
-HOOK = REPO / "scripts" / "installed" / "pre-push"
+#: R8 moved `scripts/installed/` to `ops/installed/` at MOVE_MAP batch 4.
+#: Named through `lab_paths`, which binds the legacy path and the successor
+#: as a pair, so this file is correct on both sides of that move.
+HOOK = lab_paths.INSTALLED / "pre-push"
 
 #: THE PUBLISHED EXIT-CODE CONTRACT, as numbers, typed here and imported from
 #: nowhere. `lab_check.py` and `scripts/installed/pre-push` are the two files

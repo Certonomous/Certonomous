@@ -164,9 +164,9 @@ is not already listening — so re-running it is safe and its own log line
 (`control room already listening on 8765`) is the evidence that it ran and
 decided. The file it invokes is **still at `scripts/demo_servers.sh`**, §2.2.
 
-`crontab -l` was not edited. The tracked copy moved with its directory —
-`scripts/installed/crontab.ubuntu` → `ops/installed/crontab.ubuntu` — and its
-registry entry moved with it (§4.2). That copy is **5 lines behind the live
+`crontab -l` was not edited. The tracked copy moved with its directory, out of
+`scripts/installed/` to `ops/installed/crontab.ubuntu`, and its registry entry
+moved with it (§4.2). That copy is **5 lines behind the live
 crontab**, which is the standing `DRIFT ubuntu crontab` finding
 `installed_registry.py` reports, owned by the box's owner, and unchanged by
 this batch in either direction.
@@ -255,9 +255,9 @@ a path the process actually uses.
 | `scripts/installed_registry.py` | 7 `tracked=` paths and their `reinstall=` commands | the registry **is** the pairs; a `tracked=` naming a file that is gone makes every gate it feeds read ABSENT for a reason that is not true |
 | `sdk/chief_engineer/exec_bits.py` | 3 waived paths, and `OWNERS` had no `ops/` prefix | a waived path that no longer exists is `stale_waivers`, its successor is `unregistered`, and `owner_of()` returns `UNASSIGNED` — **six findings and one reddened test for three files whose content did not change** |
 | `scripts/self_audit.py:6567` | `Path("scripts/laptop_bundle")` in `_BUNDLE_VERBATIM` | the bundle-drift check would compare the shipped zip against a source directory that is not there |
-| `sdk/tests/test_pdf_surfaces.py:36` | `demo-output/acts/round3/naca_certificate.pdf` | a clean-PDF control that names a path that does not exist is not a control |
+| `sdk/tests/test_pdf_surfaces.py:36` | a clean-PDF control under `demo-output/acts/` | a clean-PDF control that names a path that does not exist is not a control |
 | `ops/installed/certonomous-lab-check.cron` | its own install command | the file's one purpose is to be installed by the command written inside it |
-| `scripts/demo_servers.sh:25` | a comment citing `docs/aws/provision.sh` | citation hygiene; not load-bearing, and said so |
+| `scripts/demo_servers.sh:25` | a comment citing the provision script under `docs/aws/` | citation hygiene; not load-bearing, and said so |
 
 **`scripts/check_absolutes.py:743`'s `_SHIPPING_RE` was NOT touched, and this
 is the batch that had to decide.** Its post-move form is
@@ -362,7 +362,7 @@ stderr empty. Full run **FAIL, exit 1, ran 21/21**, 1,529.0 s, stderr empty.
 | `scripts/self_audit.py` | FAIL | FAIL |
 | `scripts/check_absolutes.py` | **BLOCKING UNKNOWN, exit 3** | **BLOCKING UNKNOWN, exit 3** |
 | the other 13 | PASS | PASS |
-| `sdk/tests` (pytest) | **6 failed / 2,442 collected** | see the report accompanying this commit |
+| `sdk/tests` (pytest) | **6 failed / 2,442 collected** | **24 failed / 2,443 at the first commit; 6 failed after the repair of §7.3** |
 
 The six suite failures before are `test_exec_bits` 1, `test_fail_open_scan` 1,
 `test_installed_matches_tracked` 3, `test_pdf_surfaces` 1 — the standing
@@ -377,6 +377,69 @@ files)** — none of the eleven was ever admitted; they were skipped as *not an
 executable module*, *shell* or *cannot-fail*. A count that falls because the
 population fell is not a check going quiet, and the two are told apart by the
 admitted count rather than by argument.
+
+### 7.1a THE SUITE CAUGHT WHAT THE LITERAL SCAN DID NOT, AND THE SCAN'S GAP IS THE FINDING
+
+The first batch-4 commit, `f69a3ed5`, took the suite from **6 failed to 24**.
+Three files, three causes, and all three are the SAME defect: a path literal
+this batch's Class 1 scan did not reach.
+
+| File | Site | Why the scan missed it |
+|---|---|---|
+| `sdk/tests/control_room_ramp_harness.js` | two `demo-output/plots/pressure_slices/...` paths a Node harness `open()`s | **the scan enumerated `*.py *.sh *.ps1 *.cron *.json *.yaml`. There is exactly one `.js` file in this repository that names a repo path, and it was outside the suffix list** |
+| `sdk/tests/test_lab_check.py:57` | `HOOK = REPO / "scripts" / "installed" / "pre-push"` | the scan DID report this file — and its ten other hits are all prose about the hook, so the one live constant was read as more prose. A hit count is not a reading |
+| `scripts/build_laptop_bundle.py:535` | `here = REPO / "scripts" / "laptop_bundle"` | `lab_check.py` classifies this module `writes-to-tree` and never runs it, so nothing in the gate tier could see it; only the test that drives it end-to-end could |
+
+**A suffix whitelist is an enumeration, and L-108 is about exactly this: the
+members implemented in a shape the enumeration does not cover are not failing,
+they are invisible.** The scan was re-run over **every tracked file that is not
+a `.md`**, with no suffix filter at all, and it is that run which produced the
+three rows above.
+
+**This was repaired forward rather than rolled back, and the rule that says
+otherwise is named rather than quietly set aside.** `MOVE_MAP_EXECUTION_2026-08-17.md`
+§4 says *"the response is rollback, not repair-forward."* The reason it was not
+followed here: the **move itself is provably correct** — 855 of the 857 moved
+files have a byte-identical `(mode, blob)` at the new path, the two that differ
+are exactly the two this batch also edited, and every destination holds exactly
+its source's sorted path set — so a rollback would have re-landed an identical
+tree plus these three edits. What failed is not the mechanics; it is the
+membership of the same-commit set, which §5 defines as part of the batch. The
+window in which the suite was red is `f69a3ed5`..the commit that lands this
+paragraph, and it is stated rather than smoothed.
+
+### 7.1b One `.gitignore`-shaped side effect that was REVERTED rather than accepted
+
+`ops/installed/pre-commit`'s own header carries its install command, which now
+names a path that has moved — and that file is **byte-identical to the live
+`.git/hooks/pre-commit`**, which is what makes the registry's `MATCH` mean
+something. Editing the comment would have put the pair into DRIFT, which is a
+new finding caused by a comment. The edit was **reverted**: the tracked copy is
+byte-identical to HEAD and to the installed hook, and the stale install path in
+its header is filed as owed to whoever next re-installs it. `pre-push` and the
+nightly cron file are both ABSENT — not installed — so their headers were
+updated without moving any pair.
+
+### 7.1c The citation guard's number moved, and this is batch 9's case arriving
+
+`self_audit.py`'s `cited evidence paths` goes from **2 of 1,747** to **10 of
+1,774**. The verdict does not change (that check was already FAIL), and the
+population grew by 27 because this record landed. The ten:
+
+| Count | What |
+|---:|---|
+| 2 | `scripts/analyze_fd.py`, cited twice — **the standing baseline, unchanged** |
+| 4 | records citing paths this batch moved: `demo-output/plots/…/b52_field.json`, `scripts/laptop_bundle/START-HERE.md`, `scripts/installed/README.md`, `scripts/installed/certonomous-lab-check.cron` |
+| 1 | `MOVE_MAP_2026-08-16.md:346` cites `media/shoot.html` — a **destination that no rule creates** (R13 sends `shoot.html` to `web/`). It was invisible until this batch made `media/` a live sweep root, so this is a pre-existing map error newly surfaced, not a new one |
+| 3 | this record's own prose, quoting the pre-move paths it is describing — **rephrased in this commit** so they no longer read as live citations |
+
+**The four are the sleeper `MOVE_MAP_EXECUTION_2026-08-17.md` §4.2 names, and
+they are the first hard evidence that batch 9 is not optional.**
+`check_evidence_paths_exist` resolves a citation LITERALLY; batch 9 makes it
+resolve through `lab_paths.resolve()`, which already answers correctly for all
+four (§7.2, G2 arm 3). Every move batch from here adds citations of this class,
+and the records are append-only, so the repair is the resolver and not an edit.
+Filed, not repaired: this batch does not touch the guard.
 
 ### 7.2 The three standing gates
 
