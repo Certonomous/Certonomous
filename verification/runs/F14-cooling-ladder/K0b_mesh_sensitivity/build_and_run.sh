@@ -108,8 +108,41 @@ FOAM_BASHRC=${FOAM_BASHRC:-/usr/lib/openfoam/openfoam2606/etc/bashrc}
 CONT_END=16000
 CONT_WRITE_INTERVAL=2000
 
+# D410. THE REFUSAL GUARD, BECAUSE A PROSE WARNING IS NOT A GUARD.
+#
+# The loop below opens each leg with `rm -rf "$dst"`. Run where this script's own
+# README documents it, that DESTROYS 36 TRACKED FILES -- the published record of
+# the rung -- before rebuilding half of them. `git ls-files` over K0b_m32 and
+# K0b_m128 counts 17 and 19: both COST.txt, every solver log, system/controlDict.4000
+# and every dictionary of both legs.
+#
+# The D406 repair answered this with a README paragraph saying "run it somewhere
+# else". D406's entire finding was that a REQUIRED STEP EXISTED ONLY AS PROSE.
+# Answering an adjacent hazard in the same file with more prose is the same shape
+# one hazard along, so it is answered here in the only place a warning cannot be
+# skipped: the code that does the deleting.
+#
+# The guard asks git, not a path pattern, because the hazard is "this directory
+# holds committed work" and git is the only thing that knows that. Running in a
+# scratch tree -- which is what both the D403 re-run and the D406 proof did --
+# has no tracked files and passes straight through.
+#
+# K0B_ALLOW_DESTRUCTIVE=1 overrides, for the one legitimate case: deliberately
+# regenerating the archive with intent to commit the result.
 for n in 32 128; do
     dst="$HERE/K0b_m$n"
+    if [ -d "$dst" ] && [ -z "${K0B_ALLOW_DESTRUCTIVE:-}" ]; then
+        tracked=$(cd "$dst" 2>/dev/null && git ls-files 2>/dev/null | wc -l | tr -d ' ')
+        if [ "${tracked:-0}" -gt 0 ]; then
+            echo "REFUSE: $dst holds $tracked TRACKED files and this script would delete them."
+            echo "        Running here destroys the published record of the rung before"
+            echo "        rebuilding part of it. Copy the rung to a scratch tree and run it"
+            echo "        there, as K0b_D403_RERUN_RESULTS.md section 3 and the D406 proof"
+            echo "        run both did. To regenerate the archive on purpose, and only with"
+            echo "        intent to commit the result, set K0B_ALLOW_DESTRUCTIVE=1."
+            exit 2
+        fi
+    fi
     rm -rf "$dst"
     mkdir -p "$dst"
     cp -r "$SRC/0.orig" "$SRC/constant" "$SRC/system" "$dst/"
