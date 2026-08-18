@@ -999,3 +999,91 @@ costing $0.65 twice.
   findings, per W-4.
 - **Nothing here was submitted, sent, filed, uploaded or registered.**
   Submissions are PARKED.
+
+---
+
+## Dated addendum, 2026-08-18 — three of the eight experiments have reported, and two of this document's own claims did not survive them
+
+**Nothing above is edited.** W-4. This records what the experiments this
+document commissioned have returned, including where they contradict it.
+
+### A1. Status of the section 8 list
+
+| # | State | Result |
+| --- | --- | --- |
+| **X7** | **DONE**, $0 | Ampofo Fig. 11 digitised. `K0cS_FIG11_DIGITISATION.md`, D417 |
+| **X2** | **RUNNING**, $0.094 est. | Pre-registered as `K0cQ_PREREGISTRATION.md`; comparator landed before any case completed |
+| **X1** | **HYPOTHESIS SPACE NARROWED before it ran** — see A3 | by `K0cX`, D416 |
+| **X4 arm (a)** | **tall-cavity half DONE** as `K0cX`'s `P_` arm | see A2 |
+| X3, X5, X6, X8 | not started | |
+
+### A2. Section 8's X4 registered the wrong outcome as the informative one
+
+X4 named *"arm (a) closing the tall cavity's -16.8 / -24.8 % Nusselt gap"* as
+the measured geometry dependence this ladder would own. **`K0cX` ran that arm
+and the gap did not close — it widened.** At the measured `Prt`, `kOmegaSST`
+went from -16.79 % to **-19.71 %** and from -24.75 % to **-29.56 %**.
+
+**The geometry dependence is real and larger than X4 anticipated** — 1.75 % on
+the square cavity against up to **14.21 %** here — but its sign depended on
+which side of the experiment the model already sat on. `kEpsilon`, which
+over-predicts, improved from +29.92 % to **+11.45 %** under the same correction
+and carried its stratification row from FAIL to inside the band.
+
+**So constant `Prt` is a knob trading against whatever else is wrong, and this
+document should not have registered gap-closing as the informative outcome.**
+The informative outcome was the one that occurred: a correction that is right on
+the physics and wrong on the answer, which is evidence about the rest of the
+model.
+
+### A3. Section 2.3 named two candidates for the damping-function trigger and X1 was to separate them. Both are now ruled out
+
+Section 2.3 read the LaunderSharma collapse as possibly triggered by **mesh
+refinement alone**, and X1 was registered to separate that from **refinement
+plus a low turbulent-Reynolds-number core**.
+
+`K0cX` ran `LaunderSharmaKE` on the tall cavity over **three** mesh levels, to a
+first cell **finer** than the square cavity's, with `Re_t` at the first cell
+falling to **0.0278** — *lower* than where the square cavity collapsed. The
+damping function's implied maximum held at **0.951 to 0.968** and `bounding k`
+fired **zero** times in every case.
+
+**Refinement alone did not trigger it, and a low `Re_t` core did not trigger it
+either.** Whatever distinguishes the square cavity is neither of the two things
+section 2.3 named.
+
+**X1 is not superseded and should still run** — it asks whether the collapse
+happens on a *non-buoyant* flow at all, which no case here addresses. But **its
+registered outcomes no longer exhaust the possibilities, and its
+pre-registration must say so before it runs.**
+
+### A4. Section 3.5 and section 7.1 are strengthened on the value and overtaken on the form
+
+X7 digitised the square cavity's `Prt`. Section 3.5 read Ampofo's *"about
+unity"* as sitting inside C3's swept interval and nearer 0.85, so that the
+correction the measurement calls for is smaller still.
+
+**That reading holds for the outer layer and fails for the inner one.** Measured
+`Prt` is **0.21 at the wall and 0.00 at X = 0.0067**, so C3's swept range of
+0.85 to 1.28 **does not contain the measurement in the region that sets the wall
+heat flux.**
+
+**And the outer-layer unity is not usable the way section 3.5 uses it.** Over
+X = 0.018-0.030 both `alpha_t` and `nu_t` are **negative**, about -1.4 at
+X = 0.0225; `Prt` is near 1 there because it is the ratio of two negative
+numbers of nearly equal size. A model with `nu_t = Cmu k^2 / epsilon >= 0`
+reproduces that ratio and gets the sign of both transports wrong. **The
+measurement is outside the range this ladder's three models can produce, rather
+than a value they get wrong.**
+
+### A5. What this addendum does not change
+
+- **The central group-C reading still stands and is still untested.** X2 is the
+  experiment that could falsify it and it had not reported when this was
+  written.
+- **R3 remains unsupported and unrefuted.** No anisotropy measurement exists on
+  either cavity. A2, A3 and A4 are about `Prt`, the damping function and the
+  reference, and none of them bears on the anisotropy question.
+- **No verdict in any rung moves.** `K0cS`, `K0cT` and `K0cX` keep their
+  recorded verdicts.
+- **Submissions remain PARKED.**
