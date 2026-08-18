@@ -1,0 +1,1312 @@
+AIAA SciTech Forum
+12-16 January 2026, Orlando, FL
+AIAA SCITECH 2026 Forum
+
+10.2514/6.2026-1418
+
+Uncertainty Quantification and Sensitivity Analysis of Spalart
+Allmaras and Menter Shear Stress Model Coefficients for
+NACA0012 Airfoil
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2026-1418
+
+Angad Sahni∗ and Saleh Rezaeiravesh†
+The University of Manchester, Manchester, M13 9PL, United Kingdom
+This study quantifies epistemic uncertainty associated with the coefficients of two closure models used in Reynolds-Averaged Navier–Stokes simulations. The incompressible flow
+over a NACA0012 airfoil at angles of attack ranging from 2◦ to 17◦ is simulated using the
+Spalart–Allmaras and Menter’s Shear Stress Transport (SST) turbulence models available in
+OpenFOAM. For each model, the three most influential coefficients are treated as uncertain
+parameters. The quantities of interest are the lift and drag coefficients. Uncertainty propagation
+is performed using non-intrusive polynomial chaos expansion (NIPCE), and global sensitivity
+analysis is conducted using Sobol indices. The results show that uncertainty increases with
+the angle of attack, exhibiting a sharp growth near and after stall. Overall, the Menter’s SST
+model displays higher uncertainty than the Spalart–Allmaras model, and the drag coefficient is
+more sensitive to model-based uncertainty than the lift coefficient. In the Spalart–Allmaras
+model, the von Kármán coefficient and 𝜎 are the most influential parameter before and post
+stall, respectively. In contrast, for the Menter’s SST model, the ranking of the most influential
+parameters on the resulting uncertainty varies with angle of attack.
+
+Nomenclature
+𝐶𝐿
+𝐶𝐷
+𝜅
+𝜎
+𝐶𝑣1
+𝜎𝜔1
+𝛽∗
+𝑎1
+CI
+𝑢𝑖
+𝑝
+𝜌
+𝜈
+𝑅𝑒
+𝑘
+𝜖
+𝜈𝑡
+𝜔
+𝑆𝑖
+𝑆𝑖 𝑗
+𝑦+
+
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+
+Lift coefficient
+Drag coefficient
+von Kármán coefficient
+Spalart-Allmaras model coefficient
+Spalart-Allmaras model coefficient
+Menter’s shear stress transport model coefficient
+Menter’s shear stress transport model coefficient
+Menter’s shear stress transport model coefficient
+Confidence interval
+Mean velocity component in the 𝑖-direction
+Pressure
+Fluid density
+Kinematic viscosity
+Reynolds number
+Turbulent kinetic energy
+Turbulent dissipation rate
+Turbulent kinematic viscosity
+Specific dissipation rate
+Main Sobol index associated with 𝑖-th parameter
+Dual-interaction Sobol index between 𝑖-th and 𝑗-th parameters
+Wall-normal distance expressed in wall units
+
+∗ AIAA Student Member, Undergraduate Student, Department of Mechanical and Aerospace Engineering.
+
+† Assistant Professor in Engineering Simulation & Data Science, Department of Mechanical and Aerospace Engineering
+
+1
+Copyright © 2026 by the American Institute of Aeronautics and Astronautics, Inc. All rights reserved.
+
+I. Introduction
+urbulent flows arise in a range of aerospace applications, from flow over wings to flow inside engines, see e.g. [1].
+Due to the complex and chaotic nature of turbulent flows, developing a comprehensive physical understanding of
+turbulent flows remains challenging. Various modelling approaches in Computational Fluid Dynamics(CFD) have been
+proposed to predict turbulent flows [2]. In particular, the Reynolds-Averaged Navier-Stokes (RANS) approach relies
+on on closure models to represent the effects of turbulence on the mean flow. Numerous closure models have been
+proposed in the literature, see e.g. [3]. Such models usually contain several parameters or coefficients, the values of
+which are assigned based on theoretical analyses, empirical correlations, experimental data, and heuristic judgment.
+The applicability of these coefficients may vary across flow regimes, Reynolds numbers, or geometrical configurations.
+Consequently, the lack of knowledge regarding the most appropriate coefficient values introduces epistemic uncertainty
+into RANS predictions of key quantities of interest (QoIs) [4, 5]. It is, therefore, essential to assess the robustness of the
+turbulence closure models with respect to variations in their coefficients, noting the potential impact on the accuracy
+and reliability of CFD predictions [5, 6]. This motivates the application of rigorous uncertainty quantification (UQ)
+techniques to CFD simulations in aerospace engineering.
+This study aims to quantify uncertainty and assess sensitivity in aerodynamic QoIs arising from epistemic
+uncertainty—specifically, uncertainty due to lack of knowledge –in the coefficients of RANS turbulence closure models.
+We consider two widely used models: the Spalart–Allmaras (SA) model [7] and the Menter’s Shear Stress Transport
+(SST) model [8]. For each model, the uncertainty due to the three most influential parameters identified by Schaefer
+et al. [5] are considered, see Section III for details. The QoIs examined are the lift and drag coefficients of a NACA0012
+airfoil over angles of attack ranging from 0◦ to 17◦ . The flow is assumed to be incompressible and simulated using
+OpenFOAM [9], a widely-used finite-volume flow solver.
+A significant amount of work has been done on UQ of model coefficients for RANS turbulence models under different
+conditions and using different frameworks. Edeling et al. [10], developed a posterior error estimate of turbulence models
+using a Bayesian model scenario averaging (BMSA) method. The author, however, concluded that this method was
+computationally intensive for complex geometries. In previous studies by Schaefer et al. [5, 6], the authors identified the
+most influential model coefficients for various integrated coefficients and flow QoIs for the SA [7], Menter’s SST [8],
+and 𝑘 − 𝜔 [11] turbulence models. The study was carried out for the subsonic flat plate, the RAE 2822 airfoil, and the
+NASA Common Research Model [12] based on the configuration of the transonic civil aircraft. The studies employed
+Point Collocation NIPCE for uncertainty propagation and the Sobol Decomposition for global sensitivity analysis.
+These studies were limited to a fixed Lift coefficient (𝐶 𝐿 ) or angle of attack. In another study by Schaefer et al. [13], it
+was shown that these results were independent of the flow solver, the mesh topology, and the scaled dimensionality of
+the geometry.
+In a study by Li et al. [14], Bayesian uncertainty analysis and Bayesian calibration are performed on model
+coefficients of Menter’s Shear Stress Model [8] with pressure coefficient as the quantity of interest. The study was
+performed on RAE 2822 airfoil and ONERA M6 wing for transonic flow at three different angles of attack. This
+study was limited to pressure coefficient as the quantity of interest and limited number of angles of attack. Maruyama
+et al. [15], quantified the epistemic uncertainty in Spalart Allmaras [7] turbulence model using a Bayesian framework
+for RAE 2822 airfoil and transonic XRF1 aircraft. The authors concluded that the epistemic uncertainties in closure
+coefficients result into uncertainties in flow quantities of interest downstream of the shock. Han and Hosder [16],
+conducted UQ and sensitivity analysis of Spalart Allmaras [7] turbulence model for synthetic jet actuator. The author
+concluded that the reference experimental velocity profiles were enveloped by the confidence interval of the RANS
+simulations. In another study by West IV and Hosder [17], the uncertainty propagation in hypersonic re-entry flows
+was studied employing NIPCE with sparse sampling. The study concluded that accurate surrogate model could be
+constructed with a limited number of samples.
+Yang et al. [18], employed Bayesian optimization to optimally calibrate the coefficients of the Menter’s SST
+model [8] for wall pressure in supersonic flows. The authors reported a decrease in average relative error through
+employing optimal model coefficients. Further, the flow field before and after the calibration was consistent, confirming
+the robustness of the model with respect to the variations in its coefficients. This trend is, however, inconsistent
+to the study by He et al. [19], which used the metamodel-based Monte Carlo method to investigate the parametric
+uncertainty of the Spalart Allmaras [7] model for compressor flow features. The author concluded that recalibration of
+the model coefficients to improve the prediction of specific flow features would lead to degraded accuracy in other QoIs,
+highlighting the need for modifying the structure of the Spalart Allmaras [7] model. Bin et al. [20], employed Bayesian
+optimization to recalibrate the model coefficients and functions of Spalart Allmaras [7] model for an axisymmetric jet,
+airfoil near wake, and a fully developed channel flow. The calibrated model showed improvements in both separated
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2026-1418
+
+T
+
+2
+
+(b)
+
+(a)
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2026-1418
+
+Fig. 1 The structured computational mesh around the NACA0012 airfoil: (a) over the whole domain and (b)
+zoomed-in around the airfoil.
+
+and equilibrium wall-bounded flows. The improvements achieved by this study were, however, limited by the specific
+training data used and hence the specific flow configuration. A more comprehensive and structured overview of existing
+body of research relevant to this topic is is provided by Xiao and Cinnella [4].
+The remainder of this paper is structured as follows. Section II presents the details of the numerical setup. Section
+III describes the RANS turbulence models considered in this study. Section IV outlines the uncertainty quantification
+and sensitivity analysis methodologies. Section V reports and discusses the results. Finally, Section VI provides the
+conclusions and highlights potential directions for future work.
+
+II. Flow Solver and CFD Case
+A. Flow Solver
+The flow simulations in this study are performed using OpenFOAM v2012 [9]. OpenFOAM is an open-source,
+finite-volume–based CFD solver. Steady-state RANS simulations are carried out with the simpleFoam solver. A
+second-order upwind scheme is employed for the discretization of the nonlinear convective terms in the momentum
+equations, while a central-difference scheme is used for the diffusive terms. To support UQ analysis, an automated
+Python workflow was developed to handle case setup, systematic modification of the RANS model coefficients, execution
+of the simulations, and post-processing of the results.
+B. CFD Case
+The incompressible flow over a two-dimensional NACA0012 airfoil is considered at Reynolds number 𝑅𝑒 = 6 × 106 ,
+that is based on the inflow velocity, airfoil chord length, and fluid viscosity. The details of this set-up along with the
+reference experimental data are taken from the NASA Turbulence Modeling Resource, "2D NACA0012 Validation
+Case" [21]. The chord length of the airfoil is 𝑐 and the computational domain considered for meshing is 10𝑐 to neutralize
+any blockage affects. A structured C-mesh consisting of of 758, 000 cells is used in this study, with refined resolution
+near the wall to maintain 𝑦 + < 1 along the airfoil surface in all the cases, see Figure 1. This mesh resolution was
+consolidated after conducting a mesh convergence study at 2° angle of attack with Menter’s SST model, see Figure 2.
+The angle of attack was varied between 2◦ to 14◦ at an increment of 2 and an additional 17◦ was considered in the stall
+zone. The angle of attack was varied by changing the direction of freestream velocity vector in the inflow condition,
+while keeping the geometry and mesh fixed.
+
+III. Turbulence Models
+This section briefly describes the RANS models used in this study along with their main equations and uncertain
+parameters. For the latter, information regarding the default values and variation ranges in the UQ analyses is provided.
+
+3
+
+     
+
+      
+
+     
+      
+
+     
+
+CL
+
+CD
+
+     
+
+      
+
+     
+      
+
+     
+     
+
+      
+   
+
+   
+
+   
+
+   
+
+ 1 X P E H U  R I  & H O O V
+
+   
+
+   
+
+   
+
+  H 
+
+   
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2026-1418
+
+(a)
+
+   
+
+   
+
+ 1 X P E H U  R I  & H O O V
+
+   
+
+   
+
+  H 
+
+(b)
+
+Fig. 2 Mesh convergence study at 2° angle of attack using the Menter’s SST model: variation of the (a) lift and
+(b) drag coefficients with the number of mesh cells.
+A. The Spalart-Allamaras Model
+The Spalart-Allmaras (SA) model [7] is a one-equation eddy viscosity-based turbulence model developed to efficiently
+simulate wall-bounded turbulent flows, particularly in aerospace applications. This model is an evolved model of
+Nee-Kovansky model [22] and is inspired by Baldwin-Barth model [23]. It was designed for high Reynolds-number
+flows, providing a balance between accuracy and computational efficiency. The model has been widely used in RANS
+simulations of external aerodynamic flows, including flow over airfoils, see e.g. [5]. However, it has limitations, including
+its reduced accuracy in low Reynolds-number flows, inability to model flow transition and separation effectively [3].
+The differential equation for the scaled eddy kinematic viscosity 𝜈˜ is written as:
+
+
+
+
+ 2
+𝜕 𝜈˜
+1 𝜕
+𝜕 𝜈˜
+𝜕 𝜈˜
+𝜕 𝜈˜ 𝜕 𝜈˜
+𝜈˜
++ 𝑢𝑗
+= 𝐶𝑏1 (1 − 𝑓𝑡2 ) 𝑆˜ 𝜈˜ +
+(𝜈 + 𝜈)
+˜
++ 𝐶𝑏2
+− 𝐶𝑤1 𝑓𝑤
+𝜕𝑡
+𝜕𝑥 𝑗
+𝜎 𝜕𝑥 𝑗
+𝜕𝑥 𝑗
+𝜕𝑥 𝑗 𝜕𝑥 𝑗
+𝑑
+
+(1)
+
+where, 𝑡 is time, 𝑥 𝑗 refers to the spatial coordinate in the 𝑗-th direction, 𝜈 denotes the kinematic viscosity, and 𝑑 is the
+distance of a point in the flow domain from the closest wall surface. The eddy viscosity 𝜈𝑡 and model coefficients are
+given by the following:
+𝜈𝑡 = 𝜈˜ 𝑓𝑣1
+(2)
+𝑓𝑣1 =
+
+"
+𝑓𝑤 = 𝑔
+
+𝜒3
+,
+3
+𝜒3 + 𝐶𝑣1
+
+𝜈˜
+
+𝑆˜ = 𝑆 +
+
+𝑓𝑣2 ,
+𝜅2 𝑑2
+
+6
+1 + 𝐶𝑤3
+
+# 1/6
+,
+
+6
+𝑔 6 + 𝐶𝑤3
+
+𝜒=
+
+𝑓𝑣2 = 1 −
+
+𝜈˜
+𝜈
+
+(3)
+
+𝜒
+1 + 𝜒 𝑓𝑣1
+
+(4)
+
+𝑔 = 𝑟 + 𝐶𝑤2 (𝑟 6 − 𝑟),
+
+𝑟=
+
+𝜈˜
+˜
+𝑆𝜅 2 𝑑 2
+
+(5)
+
+The standard value of the coefficients along with their associated variation range are summarized in Table 1. These
+are taken from Schaefer et al. [5, 6] and Spalart and Allmaras [7]. The three most significant model coefficients
+contributing to uncertainty identified by Schaefer et al. [5, 6] have been selected for the UQ analyses in this study. These
+are 𝜎, 𝜅, and 𝐶𝑣1 with admissible variation ranges shown in Table 1.
+B. The Menter’s Shear Stress Transport Model
+The Menter’s SST Model [8] is a two-equation model which is a blend of the 𝑘 − 𝜔 [11] and the 𝑘 − 𝜖 [24] RANS
+models. The model uses a blending function to switch between the 𝑘 − 𝜔 model [3] in the the near-wall region and the
+𝑘 − 𝜖 model [24] in the outer-layer of the boundary layer to enhance the accuracy in a wide range of turbulent flows.
+The model was designed to improve prediction of the flow separation under adverse pressure-gradient, particularly
+
+4
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2026-1418
+
+Table 1
+
+Table 2
+
+Coefficient Standard Value Lower Bound Upper Bound
+𝜎
+2/3
+0.6
+1.0
+𝜅
+0.41
+0.38
+0.42
+𝑐 𝑣1
+7.1
+6.9
+7.3
+𝑐 𝑤3
+2.0
+1.75
+2.5
+𝑐𝑡1
+1.0
+0.1
+10.0
+𝑐𝑡2
+2.0
+1.9
+2.1
+𝑐 𝑏1
+0.1355
+0.12893
+0.13700
+𝑐 𝑏2
+0.622
+0.60983
+0.68750
+𝑐 𝑤2
+0.3
+0.05500
+0.35250
+The coefficients in the SA model: their standard values and variation range [5–7].
+
+Coefficient Standard Value Lower Bound Upper Bound
+𝜎𝑘1
+0.85
+0.7
+1.0
+𝜎𝑘2
+1.0
+0.8
+1.2
+𝜎𝜔1
+0.5
+0.3
+0.7
+𝜎𝜔2
+0.856
+0.7
+1.0
+𝛽∗ /𝛽1
+1.20
+1.19
+1.31
+𝛽∗ /𝛽2
+1.0870
+1.05
+1.45
+∗
+𝛽
+0.09
+0.0784
+0.1024
+𝜅
+0.41
+0.38
+0.42
+𝑎1
+0.31
+0.31
+0.40
+The coefficients in the Menter’s SST model: their standard values and variation range [6, 8].
+
+in aerospace and turbomachinery flows. The SST model, however, assumes isotropic turbulence that may introduce
+limitations in complex anisotropic flows. The governing equations of the SST model describe the evolution of the
+turbulent kinetic energy 𝑘 and specific dissipation rate 𝜔, and are given by:
+
+
+𝜕𝑘
+𝜕𝑘
+𝜕
+𝜕𝑘
+∗
+(𝜈 + 𝜎𝑘 𝜈𝑡 )
++ 𝑢𝑗
+= 𝑃 𝑘 − 𝛽 𝑘𝜔 +
+,
+(6)
+𝜕𝑡
+𝜕𝑥 𝑗
+𝜕𝑥 𝑗
+𝜕𝑥 𝑗
+
+
+𝜕𝜔
+𝜕𝜔
+𝜕
+𝜕𝜔
+𝜎𝜔2 𝜕𝑘 𝜕𝜔
+𝜔
+(𝜈 + 𝜎𝜔 𝜈𝑡 )
++ 𝑢𝑗
+= 𝑃 𝑘 − 𝛽𝜔2 +
++ 2(1 − 𝐹1 )
+,
+(7)
+𝜕𝑡
+𝜕𝑥 𝑗
+𝑘
+𝜕𝑥 𝑗
+𝜕𝑥 𝑗
+𝜔 𝜕𝑥 𝑗 𝜕𝑥 𝑗
+where 𝑃 𝑘 is the turbulent kinetic energy production and 𝑢 𝑗 is the averaged velocity component in the 𝑗-th direction. The
+model coefficients are blended using the function 𝐹1 , which is to impose the correct behavior in each flow region. The
+default values of the SST model’s coefficients and their variation ranges (used by Schaefer et al. [6]) are summarized in
+Table 2. In this study, we consider three uncertain parameters 𝛽∗ , 𝜎𝑜𝑚𝑒𝑔𝑎1 , and 𝑎 1 .
+
+IV. Uncertainty Quantification Approach
+In general, there are two types of uncertainties: aleatory and epistemic [25]. The aleatory uncertainties are random,
+inherent to a system, and usually cannot be fully removed. Examples are the fluctuations in the ambient temperature
+and pressure when running a wind tunnel experiment. In contrast, the epistemic (systematic) uncertainties originate
+from a lack of knowledge or modelling insufficiency and discrepancy. Therefore, they can be reduced by improving
+our knowledge or modelling approach. In the context of the present study, the uncertainty due to the RANS models’
+coefficients are epistemic. The general approach in UQ is to express such a problem in a stochastic framework to
+apply statistical or probabilistic techniques. This means, we let the uncertain model coefficients to vary over prescribed
+ranges, and then we quantify the resulting uncertainty propagated into the QoIs (here the lift and drag coefficients). As a
+5
+
+complement to this, global sensitivity analyses in the form of the Sobol indices [26] allow for quantifying the share of
+each of the uncertain parameters in the resulting uncertainty in the QoIs. This section provides a brief description of
+the methods employed for these purposes. It is noteworthy that all UQ analyses in this study are performed using the
+open-source Python package UQit [27].
+A. Polynomial Chaos Expansion Method
+In this study, non-intrusive polynomial chaos expansion (NIPCE) method, see Ghanem and Spanos [28] and Eldred [29],
+is employed for efficient uncertainty propagation from a limited number of realizations. The non-intrusive nature of
+the method means that, first, a set of 𝑛 samples for the uncertain parameters q are drawn from their admissible space
+Q ⊂ R 𝑝 . Then, the flow simulations are performed at each of such samples to obtain the associated values of the
+QoIs. As thoroughly explained in Rezaeiravesh et al. [30], using the collected data, the NIPCE method constructs a
+projection-based surrogate for the QoIs in the space of uncertain parameters q. The resulting surrogate reads as,
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2026-1418
+
+𝑓˜(q) =
+
+𝐾
+∑︁
+
+𝑓ˆ𝑘 Ψ𝑘 (𝝃) ,
+
+(8)
+
+𝑘=0
+
+Î𝑝
+where Ψ𝑘 (𝝃) = 𝑖=1
+𝜓 𝑘𝑖 (𝜉𝑖 ) represents the multivariate basis function and 𝜉𝑖 corresponds the 𝑖-th standardized
+uncertain parameter (𝑖 = 1, 2, · · · , 𝑝). The single-variate orthogonal basis functions 𝜓 𝑘𝑖 (𝜉𝑖 ) are chosen based on the
+generalized PCE rule [31]. In this study, all uncertain parameters are assumed to have a uniform distribution, the
+Legendre polynomials are used as the basis functions. For each of the uncertain parameters, we draw 4 samples that
+are the Gauss-Legendre quadrature points [32]. Adopting a tensor-product rule, the total number of samples is 43 for
+𝑝 = 3 (three uncertain parameters) that results in 𝐾 = 63. Unlike other methods like Monte Carlo, the NIPCE approach
+ensures computationally efficient uncertainty propagation by keeping the number of realization at minimum. Once
+the PCE surrogate is constructed, the stochastic mean and variance of 𝑓 (q) can be directly computed. The estimated
+variance is used to construct a 95% confidence interval around the stochastic mean.
+B. Global Sensitivity Analysis
+In most engineering applications, local sensitivity analysis is used to assess the impact of small perturbations in input
+parameters on the nominal model output. However, this approach relies on linearization and does not account for the full
+distribution of input uncertainties [25]. In contrast, global sensitivity analysis (GSA) quantifies the variability in model
+outputs arising from uncertainties in all input parameters simultaneously, capturing their interactions without requiring
+linearization. Therefore, the GSA provides a comprehensive view of the influence of each parameter on the output’s
+uncertainty. Here, we use the Sobol sensitivity indices [26] to measure global sensitivity. The Sobol decomposition of a
+model function 𝑓 (q), up to dual interactions, is written as,
+𝑓 (q) = 𝑓0 +
+
+𝑝
+∑︁
+
+∑︁
+
+𝑓𝑖 (𝑞 𝑖 ) +
+
+𝑓𝑖 𝑗 (𝑞 𝑖 , 𝑞 𝑗 ) ,
+
+(9)
+
+1≤𝑖< 𝑗 ≤ 𝑝
+
+𝑖=1
+
+where 𝑓0 is the stochastic mean of 𝑓 (q), and 𝑓𝑖 and 𝑓𝑖 𝑗 denote the main and dual interaction effects, respectively.
+Similarly, the stochastic variance of 𝑓 (q) can be decomposed as,
+Vq [ 𝑓 (q)] = 𝐷 =
+
+𝑝
+∑︁
+
+𝐷𝑖 +
+
+𝑖=1
+
+∑︁
+
+𝐷𝑖 𝑗
+
+(10)
+
+1≤𝑖< 𝑗 ≤ 𝑝
+
+The main and dual-interaction Sobol indices are the contribution of each 𝐷 𝑖 and 𝐷 𝑖 𝑗 , respectively, to the total variance 𝐷:
+𝑆𝑖 =
+
+𝐷𝑖
+,
+𝐷
+
+𝑆𝑖 𝑗 =
+
+𝐷𝑖 𝑗
+,
+𝐷
+
+𝑆𝑖 +
+
+∑︁
+
+𝑖, 𝑗 = 1, . . . , 𝑝
+
+(11)
+
+𝑆𝑖 𝑗 = 1
+
+(12)
+
+These satisfy the following expression:
+𝑝
+∑︁
+𝑖=1
+
+1≤𝑖< 𝑗 ≤ 𝑝
+
+The total number of distinct main and dual-interaction Sobol indices can be calculated via 𝑝 + 𝑝( 𝑝 − 1)/2.
+6
+
+   
+
+ 6 S D O D U W  $ O O P D U D V
+ ( [ S H U L P H Q W D O  ' D W D
+ & ,  6 S D O D U W  $ O O P D U D V      
+
+   
+
+    
+
+CL       & , 
+
+CL       & , 
+
+   
+
+    
+
+   
+
+    
+
+   
+
+    
+
+   
+
+    
+
+   
+   
+
+ 0 H Q W H U  6 K H D U  6 W U H V V
+ ( [ S H U L P H Q W D O  ' D W D
+ & ,  0 H Q W H U  6 K H D U  6 W U H V V      
+
+    
+
+    
+ 
+
+ 
+
+ 
+
+ 
+
+  
+
+  
+
+ $ Q J O H  R I  $ W W D F N   $ R $ 
+
+  
+
+  
+
+ 
+
+(a)
+
+ 
+
+ 
+
+ 
+
+  
+
+  
+
+ $ Q J O H  R I  $ W W D F N   $ R $ 
+
+  
+
+  
+
+(b)
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2026-1418
+
+Fig. 3 Variation of the lift coefficient 𝐶 𝐿 with the angle of attack using (a) the SA and (b) Menter’s SST
+models. The 95% confidence intervals are shown as shaded areas around the stochastic mean predictions. The
+experimental data are taken from [21].
+
+V. Results and Discussion
+A. Uncertainty Quantification
+First, the propagated uncertainty from the SA and SST models’ parameters into the computed lift and drag coefficients,
+𝐶 𝐿 and 𝐶𝐷 , respectively, is discussed. Figure 3 shows the variation of the 𝐶 𝐿 with the angle of attack (AoA) for both
+SA and SST RANS models. In the plots, the shaded areas show the 95% Confidence Interval (CI) around the stochastic
+mean of the QoIs, obtained from the NIPCE. In addition, the experimental data [21] are added for validation of the
+RANS predictions. For both the turbulence models, the uncertainty in 𝐶 𝐿 is insignificant up to AoA=10° and then
+gradually increases up to 14°. Above this, a sharp increase in the 95% CI is observed due to the stall. This means that,
+in the stall condition, both models become too sensitive to the choice of the coefficients. Nevertheless, no combination
+of the modelling coefficients could result in accurate prediction of the 𝐶 𝐿 at large AoAs where separation occurs. This
+is clear from the deviation between the mean prediction and the reference experimental data.
+A similar trend is observed in the uncertainty of 𝐶𝐷 values, see Figure 4. The uncertainty in 𝐶𝐷 is low up to AoA of
+12° and it significantly grows in the stall region. What is important is that, in general, the confidence interval for the SA
+model is smaller than the SST model indicating more robustness of the SA model to the variation of its coefficients. In
+contrast, for the SST model, the reference experimental data fall within the CI at all AoAs, while for the SA model, this
+only happens for AoAs from 8° to 12°. This behaviour should be interpreted cautiously noting the potential uncertainty
+in the experimental data is not included. Another important observation is that the sensitivity of the 𝐶𝐷 to the variation
+of the modelling coefficients is more than that of the 𝐶 𝐿 for both RANS models and across all AoAs. This can be better
+understood from Figure 5, where the normalized uncertainty (1.96*standard deviation/mean) in both QoIs is plotted at
+different AoAs. Clearly, at any AoA the uncertainty in the 𝐶𝐷 is much higher than that in the 𝐶 𝐿 . For both QoIs, there
+is a sharp increase in the uncertainty after the stall. What is also more evident is the higher uncertainty in the QoIs when
+using the SST model. When interpreting this, we should also note that the uncertain parameters and their variation
+range were not the same in the SA and SST models.
+B. Sensitivity Analysis
+The Sobol indices can quantify the contribution of the uncertain parameters to the propagated uncertainty in the QoIs.
+Figure 6 shows the main and dual-interaction Sobol indices for the 𝐶 𝐿 and 𝐶𝐷 when the SA model is adopted. Looking
+at the main indices, it is clear that for all AoAs except the highest one considered in this study, the von Kármán coefficient
+𝜅 is the most influential parameter on both 𝐶 𝐿 and 𝐶𝐷 . This is only in the stall region, AoA greater than 14° that the
+sensitivity with respect to 𝜅 decreases while seeing an increase with respect to 𝜎. These observations are consistent
+with what is reported by Schaefer et al., [5, 6]. Interestingly, the sensitivity with respect to 𝐶𝑣1 remains almost constant
+at all AoAs, although this parameter ranks second and third, in terms of influence, on the 𝐶 𝐿 and 𝐶𝐷 , respectively. A
+main interpretation from these observations is that if there is only one parameter that can be altered to control the lift
+and drag coefficients, it will be 𝜅. In contrast to the main indices, the dual interactions between the three parameters 𝜅,
+𝜎 and 𝐶𝑣1 are observed to be negligible. It is only after the stall, that the interaction Sobol indices increase although
+
+7
+
+ 6 S D O D U W  $ O O P D U D V
+ ( [ S H U L P H Q W D O  ' D W D
+ & ,  6 S D O D U W  $ O O P D U D V      
+
+    
+
+ 0 H Q W H U  6 K H D U  6 W U H V V
+ ( [ S H U L P H Q W D O  ' D W D
+ & ,  0 H Q W H U  6 K H D U  6 W U H V V      
+
+    
+
+CD       & , 
+
+CD       & , 
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+ 
+
+ 
+
+ 
+
+ 
+
+  
+
+  
+
+ $ Q J O H  R I  $ W W D F N   $ R $ 
+
+  
+
+    
+
+  
+
+ 
+
+ 
+
+ 
+
+ 
+
+  
+
+  
+
+ $ Q J O H  R I  $ W W D F N   $ R $ 
+
+(a)
+
+  
+
+  
+
+(b)
+
+    
+
+   
+
+ 6 S D O D U W  $ O O P D U D V
+ 0 H Q W H U  6 K H D U  6 W U H V V
+
+    
+
+ 1 R U P D O L ] H G  8 Q F H U W D L Q W \
+
+ 1 R U P D O L ] H G  8 Q F H U W D L Q W \
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2026-1418
+
+Fig. 4 Variation of the drag coefficient 𝐶𝐷 with the angle of attack using (a) the SA and (b) Menter’s SST
+models. The 95% confidence intervals are shown as shaded areas around the stochastic mean predictions. The
+experimental data are taken from [21].
+
+    
+    
+    
+    
+    
+    
+
+ 
+
+ 
+
+ 
+
+ 
+
+  
+
+  
+
+ $ Q J O H  R I  $ W W D F N   $ R $ 
+
+  
+
+  
+
+ 6 S D O D U W  $ O O P D U D V
+ 0 H Q W H U  6 K H D U  6 W U H V V
+
+   
+   
+   
+   
+ 
+
+(a)
+
+ 
+
+ 
+
+ 
+
+  
+
+  
+
+ $ Q J O H  R I  $ W W D F N   $ R $ 
+
+  
+
+  
+
+(b)
+
+Fig. 5 Variation of the normalized uncertainty in the (a) 𝐶 𝐿 and (b) 𝐶𝐷 resulted from uncertainty in the selected
+parameters of the SA and SST models.
+
+they are still insignificant compared to the main ones. Relatively, the sensitivity of the 𝐶 𝐿 and 𝐶𝐷 to the dual interaction
+between 𝜅 − 𝜎 is observed to be larger than the other two interactions.
+Figure 7 show the Sobol Indices for Menter’s SST [8] model. Compared to the SA model (Figure 6), a less consistent
+variation of the Sobol indices across AoAs is observed. Particularly for 𝐶 𝐿 , the values of the main Sobol indices with
+respect to the parameters 𝜎𝜔1 , 𝛽∗ , and 𝑎 1 are comparable to each other. At lower AoAs, there is a lack of dominant
+influential parameter. In contrast, for the drag coefficient, the parameter 𝛽∗ shows the highest influence at the AoA
+below 14°. Further, 𝜎𝜔1 and 𝑎 1 consistently rank as the second and third most influential parameters, respectively.
+Furthermore, the parameter 𝑎 1 contributes most to the uncertainty in the stall region with an increasing influence with
+AoA larger than 14°.
+In contrast to the SA model, the dual interactions between the uncertain parameters of the SST model are generally
+larger and often comparable to the associated main indices. For 𝐶 𝐿 , the variation of the dual interactions with AoA is
+less consistent, although a large peak for 𝜎𝜔1 − 𝛽∗ is observed at the 10° AoA. This interaction Sobol index is larger
+than all the main indices, indicating that around this specific AoA, the simultaneous variation in 𝜎𝜔1 and 𝛽∗ is the factor
+that drives the overall uncertainty in 𝐶 𝐿 . For 𝐶𝐷 , however, the variation of the dual interaction indices across different
+values of the AoA exhibits a more consistent behavior. For AoA smaller than 12°, the dual interactions are negligible.
+Above 12°, the index measuring the sensitivity with respect to 𝛽∗ − 𝑎 1 consistently increases and becomes the largest
+among all Sobol indices in the stall region. It is important to note that in the same range of AoA, the dominant main
+Sobol index, namely that with respect to 𝛽∗ , gradually decreases. The overall conclusion for the SST model is that, for
+controlling the accuracy of 𝐶𝐷 , the variations in 𝛽∗ and 𝛽∗ − 𝑎 1 are the most influential factors before and after stall,
+respectively. However, any such conclusion for 𝐶 𝐿 is not suggested from the analysis.
+
+8
+
+   
+
+Cv1
+
+ 6 R E R O  , Q G L F H V
+
+ 6 R E R O  , Q G L F H V
+
+   
+   
+   
+   
+   
+
+Cv1
+
+   
+   
+   
+
+ 
+
+ 
+
+ 
+
+ 
+
+  
+
+  
+
+ $ Q J O H  R I  $ W W D F N   $ R $ 
+
+  
+
+   
+
+  
+
+ 
+
+ 
+
+ 
+
+ 
+
+(a)
+
+ 6 R E R O  , Q G L F H V
+
+ 6 R E R O  , Q G L F H V
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2026-1418
+
+     
+     
+     
+     
+
+ 
+
+ 
+
+ 
+
+ 
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+(b)
+
+Cv1
+Cv1
+
+     
+
+  
+
+ $ Q J O H  R I  $ W W D F N   $ R $ 
+
+  
+
+  
+
+ $ Q J O H  R I  $ W W D F N   $ R $ 
+
+  
+
+  
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+Cv1
+Cv1
+
+ 
+
+ 
+
+(c)
+
+ 
+
+ 
+
+ $ Q J O H  R I  $ W W D F N   $ R $ 
+(d)
+
+Fig. 6 Main Sobol sensitivity indices of (a) 𝐶 𝐿 and (b) 𝐶𝐷 , as well as the dual-interaction Sobol indices of (c) 𝐶 𝐿
+and (d) 𝐶𝐷 with respect to variations in the uncertain parameters 𝜎, 𝜅, and 𝐶𝑣1 in the SA model.
+
+VI. Conclusion and Future Work
+A. Conclusion
+This study conducted uncertainty quantification and global sensitivity analysis for two RANS turbulence models. The
+uncertainties were introduced through three modelling parameters in each model. The quantities of interest were the lift
+and drag coefficients of the NACA0012 airfoil in incompressible flow, computed from CFD simulations over a range of
+angles of attack. The uncertainty propagation results showed that the uncertainty increases with angle of attack, with a
+sharp rise near the stall. In general, Menter’s SST model [8] exhibited higher uncertainty (lower robustness) compared
+to the Spalart–Allmaras (SA) model [7]. Overall, the drag coefficient 𝐶𝐷 showed a higher sensitivity to variations in the
+RANS model parameters than the lift coefficient 𝐶 𝐿 .
+The global sensitivity analysis, based on Sobol indices, showed that up to the stall the von Kármán coefficient 𝜅
+is the most influential parameter driving the uncertainty in both 𝐶 𝐿 and 𝐶𝐷 when using the SA model. After stall,
+the influence of 𝜅 and another parameter becomes nearly identical. For the SA model, interactions between model
+coefficients were found to be insignificant at all angles of attack except beyond stall. For the SST model, no single
+parameter consistently dominated the uncertainty in 𝐶 𝐿 across the angles of attack. In contrast, the parameter 𝛽∗ was
+the most influential factor for 𝐶𝐷 before stall, while after stall the interaction between 𝛽∗ and 𝑎 1 became the dominant
+contributor to uncertainty in 𝐶𝐷 . Overall, this study provides a systematic uncertainty quantification framework for
+comparing RANS models when the influence of their parameters is of interest. Moreover, for the NACA0012 case
+considered here, the analyses suggest that the SA model is more robust and easier to control than the SST model.
+B. Future Work
+This study was limited to two RANS models for the NACA0012 airfoil in incompressible flow regime and a fixed
+Reynolds number. Future studies should focus on uncertainty quantification for multiple airfoils at different angles of
+attack to see if similar trends emerge or if a slight change in geometry, as seen in different airfoils, change the sensitivity
+trends. In addition to this, there is a need to analyze how the trends for epistemic uncertainty quantification and
+
+9
+
+   
+
+1
+
+ 6 R E R O  , Q G L F H V
+
+ 6 R E R O  , Q G L F H V
+
+   
+   
+   
+   
+   
+
+ 
+
+1
+
+   
+
+*
+a1
+
+ 
+
+ 
+
+ 
+
+  
+
+  
+
+ $ Q J O H  R I  $ W W D F N   $ R $ 
+
+  
+
+   
+   
+   
+   
+
+  
+
+*
+a1
+
+ 
+
+ 
+
+ 
+
+ 
+
+(a)
+*
+a1
+* a1
+1
+1
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+*
+a1
+* a1
+1
+1
+
+   
+
+   
+
+ 6 R E R O  , Q G L F H V
+
+ 6 R E R O  , Q G L F H V
+
+   
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2026-1418
+
+  
+
+(b)
+
+   
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   
+
+  
+
+ $ Q J O H  R I  $ W W D F N   $ R $ 
+
+   
+ 
+
+ 
+
+ 
+
+ 
+
+  
+
+  
+
+ $ Q J O H  R I  $ W W D F N   $ R $ 
+
+  
+
+  
+
+ 
+
+ 
+
+ 
+
+ 
+
+ $ Q J O H  R I  $ W W D F N   $ R $ 
+
+(c)
+
+(d)
+
+Fig. 7 Main Sobol sensitivity indices of (a) 𝐶 𝐿 and (b) 𝐶𝐷 , as well as the dual-interaction Sobol indices of (c) 𝐶 𝐿
+and (d) 𝐶𝐷 with respect to variations in the uncertain parameters 𝜎𝜔1 , 𝛽∗ , and 𝑎 1 in the SST model.
+sensitivity analysis emerge for different flow regimes of subsonic compressible, transonic, supersonic and hypersonic
+flows. These analyses can also be extended to three-dimensional wings and complex geometries with variations in
+geometry, although the computational cost of multiple CFD simulations may become a concern.
+
+Acknowledgments
+The authors would like to acknowledge the use of the Computational Shared Facility (CSF) at The University of
+Manchester.
+
+References
+[1] Anderson, J. D., and Wendt, J., Computational fluid dynamics, Vol. 206, Springer, 1995.
+[2] Sagaut, P., Deck, S., and Terracol, M., Multiscale and Multiresolution Approaches in Turbulence: LES, DES and Hybrid
+RANS/LES Methods : Applications and Guidelines, Imperial College Press, 2013.
+[3] Wilcox, D. C., et al., Turbulence modeling for CFD, Vol. 2, DCW industries La Canada, CA, 1998.
+[4] Xiao, H., and Cinnella, P., “Quantification of model uncertainty in RANS simulations: A review,” Progress in Aerospace
+Sciences, Vol. 108, 2019, pp. 1–31.
+[5] Schaefer, J. A., Cary, A. W., Mani, M., and Spalart, P. R., “Uncertainty quantification and sensitivity analysis of SA turbulence
+model coefficients in two and three dimensions,” 55th AIAA aerospace sciences meeting, 2017, p. 1710.
+[6] Schaefer, J., Hosder, S., West, T., Rumsey, C., Carlson, J.-R., and Kleb, W., “Uncertainty quantification of turbulence model
+closure coefficients for transonic wall-bounded flows,” Aiaa Journal, Vol. 55, No. 1, 2017, pp. 195–213.
+
+10
+
+[7] Spalart, P., and Allmaras, S., “A one-equation turbulence model for aerodynamic flows,” 30th aerospace sciences meeting and
+exhibit, 1992, p. 439.
+[8] Menter, F. R., “Two-equation eddy-viscosity turbulence models for engineering applications,” AIAA journal, Vol. 32, No. 8,
+1994, pp. 1598–1605.
+[9] OpenFOAM Foundation, “OpenFOAM User Guide,” https://www.openfoam.com/documentation/user-guide, 2025.
+Accessed: 2025-04-20.
+[10] Edeling, W., Cinnella, P., and Dwight, R. P., “Predictive RANS simulations via Bayesian model-scenario averaging,” Journal of
+Computational Physics, Vol. 275, 2014, pp. 65–91.
+[11] Wilcox, D. C., “Formulation of the kw turbulence model revisited,” AIAA journal, Vol. 46, No. 11, 2008, pp. 2823–2838.
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2026-1418
+
+[12] Vassberg, J., Dehaan, M., Rivers, M., and Wahls, R., “Development of a common research model for applied CFD validation
+studies,” 26th AIAA applied aerodynamics conference, 2008, p. 6919.
+[13] Schaefer, J. A., Hosder, S., Mani, M., Cary, A. W., and Krakos, J., “The effect of grid topology and flow solver on turbulence
+model closure coefficient uncertainties for a transonic airfoil,” 46th AIAA Fluid Dynamics Conference, 2016, p. 4400.
+[14] Li, Y., Li, J.-p., Zeng, F.-z., Sun, M., and Yan, C., “Bayesian uncertainty quantification analysis of the SST model for transonic
+flow around airfoils simulation,” Aerospace Science and Technology, Vol. 137, 2023, p. 108273.
+[15] Maruyama, D., Bekemeyer, P., Görtz, S., Coggon, S., and Sharma, S., “Data-driven Bayesian inference of turbulence model
+closure coefficients incorporating epistemic uncertainty,” Acta Mechanica Sinica, Vol. 37, No. 12, 2021, pp. 1812–1838.
+[16] Han, D., and Hosder, S., “Inherent and epistemic uncertainty analysis for computational fluid dynamics simulations of synthetic
+jet actuators,” International Journal for Uncertainty Quantification, Vol. 4, No. 6, 2014.
+[17] West IV, T. K., and Hosder, S., “Uncertainty quantification of hypersonic reentry flows with sparse sampling and stochastic
+expansions,” Journal of Spacecraft and Rockets, Vol. 52, No. 1, 2015, pp. 120–133.
+[18] Yang, M., Guo, M., Zhang, Y., Tian, Y., Yi, M., Le, J., and Zhang, H., “Uncertainty quantification and identification of
+SST turbulence model parameters based on Bayesian optimization algorithm in supersonic flow,” International Journal for
+Numerical Methods in Fluids, Vol. 96, No. 3, 2024, pp. 277–296.
+[19] He, X., Zhao, F., and Vahdati, M., “Uncertainty quantification of Spalart–Allmaras turbulence model coefficients for simplified
+compressor flow features,” Journal of Fluids Engineering, Vol. 142, No. 9, 2020, p. 091501.
+[20] Bin, Y., Huang, G., and Yang, X. I., “Data-enabled recalibration of the Spalart–Allmaras model,” AIAA journal, Vol. 61, No. 11,
+2023, pp. 4852–4863.
+[21] Rumsey, C., “NASA Langley Research Center Turbulence Modeling Resource,” https://turbmodels.larc.nasa.gov/,
+2021. Accessed: 2025-04-19.
+[22] Nee, V., and Kovasznay, L., “The calculation of the incompressible turbulent boundary layer by a simple theory,” Proc. of
+AFOSR/IFP Conference on Computation of Turbulent Boundary Layers, Vol. 1, Stanford University, 1968, p. 473.
+[23] Baldwin, B., and Barth, T., “A one-equation turbulence transport model for high Reynolds number wall-bounded flows,” 29th
+aerospace sciences meeting, 1991, p. 610.
+[24] Launder, B. E., and Spalding, D. B., “The numerical computation of turbulent flows,” Numerical prediction of flow, heat
+transfer, turbulence and combustion, Elsevier, 1983, pp. 96–116.
+[25] Smith, R. C., Uncertainty quantification: theory, implementation, and applications, SIAM, 2024.
+[26] Sobol, I., “Global sensitivity indices for nonlinear mathematical models and their Monte Carlo estimates,” Mathematics and
+Computers in Simulation, Vol. 55, No. 1, 2001, pp. 271 – 280. The Second IMACS Seminar on Monte Carlo Methods.
+[27] Rezaeiravesh, S., Vinuesa, R., and Schlatter, P., “UQit: A Python package for uncertainty quantification (UQ) in computational
+fluid dynamics (CFD),” Journal of Open Source Software, Vol. 6, No. 60, 2021, p. 2871.
+[28] Ghanem, R. G., and Spanos, P. D., Stochastic Finite Elements: A Spectral Approach, Springer-Verlag, New York, 1991.
+
+11
+
+[29] Eldred, M. S., “Recent Advances in Non-Intrusive Polynomial Chaos and Stochastic Collocation Methods for Uncertainty
+Analysis and Design,” AIAA Non-Deterministic Approaches Conference, American Institute of Aeronautics and Astronautics,
+2009.
+[30] Rezaeiravesh, S., Vinuesa, R., and Schlatter, P., “An uncertainty-quantification framework for assessing accuracy, sensitivity,
+and robustness in computational fluid dynamics,” Journal of Computational Science, Vol. 62, 2022, p. 101688.
+[31] Xiu, D., and Karniadakis, G. E., “The Wiener–Askey Polynomial Chaos for Stochastic Differential Equations,” SIAM Journal
+on Scientific Computing, Vol. 24, No. 2, 2002, pp. 619–644.
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2026-1418
+
+[32] Evans, M., and Swartz, T., “Sampling from Gauss rules,” SIAM Journal on Scientific and Statistical Computing, Vol. 9, No. 5,
+1988, pp. 950–961.
+
+12
+
+

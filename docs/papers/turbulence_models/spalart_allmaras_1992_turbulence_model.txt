@@ -1,0 +1,3265 @@
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+AlAA-92-G439
+A One-Equatlon Turbulence Model
+for Aerodynamic Flows
+P . R . Spalart and S. R. Allmaras
+Boeing Commercial Airplane Group
+Seattle, WA 98214-2207
+
+30th Aerospace Sciences
+Meeting & ExhlbH
+
+January 6-9. 19921 Reno, NV
+
+A ONE-EQUATION TURBULENCE MODEL
+FOR AERODYNAMIC FLOWS
+P. R. Spalart
+
+S. R. Allmaras-
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+Boeing Commercial Airplane Group
+P.O. Box 3707, MS 7H-96
+Seattle, WA 98124-2207
+
+Abstract
+A traDSport equation for the turbulent viscosity was
+usembled, using empiricism and arguments of dimenIIional analysis, Galilean invarianee, and selective dependence on the molecular viscosity. It has similarities
+":'lith the models of Nee &: Kovasznay, Secundov et .1.,
+and ~aldwin &: Barth. The equation includes a destruction term that depends on the distance to the wall, related to the one in Secundov's model and to one due
+to Hunt. Unlike early one-equation models the resulting turbulence model is local (i.e .• the equation at one
+point does not depend on the solution at other points),
+and therefore compatible with &rids of any structure
+and Navier-Stokes solvers in two or three dimensions.
+It is numerically forgiving, in terms of near-wall resolution and stil"ness, and yields fairly rapid convergence to
+steady state. The wall and freestream bonndary conditions are trivial. The model yields relatively smooth
+Iaminar-tur!rulent t_ition, at points epecified by the
+user. It is powerful enough to be calibrated on 2-D mixing layers, wake&, and flat-pla~ bonndary layers, wh~h
+we Itonsider to be the building blocks for aerodynanuc
+lows. It yields satisfactory predictions of bonndary
+layers in preaure gadients. Its Dumerical implementation in a 2-D steadY.fltate Navier-Stokes solver has
+beeR completed and is discussed. The cases presented
+include .bock-induced eep&ration and a blunt trailing
+edge. The model locates Iihocks slightly farther forward
+than the JoImsoD-King model. It perfonm well in the
+near wake and appears to be a good candidate for more
+complex flows such as high-lift systems or wing-body
+junctions. However, _ it is not clear whether steady
+soIutioc'! will or should be obtained.
+
+Motiyation and Related Work
+
+The aerodynamics conununity feels the need for, and
+is ready to invest in, a new generation of turbulence
+models, more onerous than the algebraic models but
+with a wider enveloP'! in terms of flow and grid complexity. The Baldwin-Lomax model [1] made Navier-Stokes
+calculations posaible in situations that are awkward for
+the Cebeci-Smith model [2], because the thicknesses of
+the boundary layer are not well defined. The JohnsonKing model [3] has by-and-Iarge fulfilled the demand for
+more accurate prediction of shock/bonndary-Iayer interactions, compared with the Cebeci-Smith and BaldwinLomax results. However these models, even when used
+in Navier-Stokes codes, are boundary-layer models in
+spirit. Physically, they treat the whole boundary layer
+as a single, tightly-coupled module. which becomes incorrect when detached and multiple shear layers are
+preseDt. At the implementation level, they rely on surveyin, the velocity or vorticity profile on a smooth grid
+line, roughly orthogonal to the surface, thus being "nonlocal". This becomes expeasive and awkward when an
+unstructured grid is used [4]. Even when the only complication is that two solid bodies are present, impl<?men tin, an algebraic model requires decisions that border on artificial intelligence and cannot be fully automated. This comes in addition to the poor accuracy
+expected when a bonndary-layer model is applied to a
+massively-separated 8ow, for instance. Generalizations
+of algebraic models to multiple thin shear layers are
+quite conceivable in boundary-layer calculation met/j·
+ods, by combining the eddy viscOflity "sustained" by
+each shear layer and confined to its vicinity. However.
+in full 2-D calculations, the orientation of the grid line!'
+with respect to these shear layers is not under control.
+In addition, unstructured-grid methods are becoming
+more common. Finally, we do not know of an alg.. hraic
+model that ensures continuity of the eddy "iscosity be·
+tween the airfoil block and the wake block. in a C-grid
+·Member AlAA
+Copyricht eAmerican Institut., 01 A _ t i a and AstJ'O" setting. while offering a plausible formula in the ,,·ake.
+We have abandoned t>lforts in that direction.
+In<::•• 1992. AU riPu raerv<!d.
+
+_ics.
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+On the other hand, transport-equation models such
+as It-f and higher models [5] are usuallr "local"' , although some have non-local near-wall terms, and have
+been a~-ailable Cor years. However, they are Car from
+having shown a decisive advantage for the prediction
+ofshock/boundary-Iayer interactions or eeparation Crom
+smooth surfaces [6). They may be superior Cor massive
+eeparation, but we do not have enough data, nor powerful enougb codes, to assess that. They are also much
+more difficult to use. Tbis is not so much because of tbe
+extra storage, but because they require finer grids near
+a wall, involve strong source terms that often degrade
+the convergence, and demand non-trivial upstream and
+freestream conditions for tbe turbulence variables. The
+near-wall problema oCten lead to the use of wall functions (71, which are unwieldy and lose any justification
+in the situation that matters most, namely, eeparation.
+The new Baldwin-Barth model [8) is an attractive intermediate. It hIlS only one equation and is local, except Cor the
+dependence which they plan to dispose
+of in the long term. It is derived from thE; fro( model,
+through some Curther assumptions. Near the wall it
+does not require finer resolution than the velocity field
+it5eIC. Depending on the version, it predicts adversepressure-gradient cases and shock interactions better
+than Baldwin-Lomax, but not consistently as well as
+Johnson-King. Its accuracy will improve in time, and it
+is much more practical than two-equation models. We
+make more specific remarks on this model during the
+presentation of the new one.
+
+,+
+
+two-equation models are the simplest complete models. The Nee-Kovasznay model was not followed upon
+partly because it was not affordable at the time (1969).
+Tbe Secundo\' model is currently entered in the Collaborative Testing of Turbulence Models (CTTM, [13])
+and Prof. Bradsbaw was kind enough to pro\'ide the
+one-page description that was submitted. Dr. Secundov pro\'ided a few details in a personal communication
+as well as a list of publications ranging from 19i! to
+1986, but none in English. This model is presented as
+an evolution of the Nee-Ko\'&Sznay model but is rich in
+ilear-wall and compressibility corrections. In particular
+we "reinvented" their near-wall destruction term. It is
+expected for simple empirical models, developed under
+roughly the same constraints (invariance, and so on).
+to exhibit strong similarities. However, the leeway is
+large enough to produce models with widely dift'erent
+perCormance.
+
+Presentation and CaIibration of the Mogd
+Overvjew
+In this section we present four nested versions of the
+model Crom the simplest, applicable to Cree shear flows.
+to the most complete, applicable to viscous flows past
+solid bodies and with laminar regions. As each additional physical effect is considered. new terms are added
+and calibrated. They are identified by a common letter
+subscript in the constants and functions involved (e ..~ ..
+constant cu, function f~2; note that tbe constants aie
+normalized so tbat the functions are of order 1). The
+new terms are passive in all tbe lower versions of tbe
+model, so that the calibration proceeds in order. This
+presentation may seem heavy, but should be instructiw
+as it allows the reader to criticize the tbeory or the calibration layer by layer and to test the rele\-ant version
+in tbe situation he or she chooses. It should also help
+preserve some clarity in later alterations of tbe model.
+The Appendix gives a compendium of the equations for
+the complete model.
+
+The present project was prompted by Baldwin &.:
+Barth's work, and by the belief that generating a oneequation model as a simplified version of the k-c model
+is not optimal. A one-equation model is simple enough
+that it can be generated "from scratch" , which may lead
+to better performance and certainly gives Culler control
+over its mechanics. A case in point is tbe BaldwinBarth dift'usion term, which is constrained by the Iro(
+ancestry and the Curther assumptions made. We also
+allow a "eemi-local" near-wall term, as described below. Our calibration strategy was different. 'We expect
+to show that the new model has the same properties as
+that of Baldwin &: Barth in terms of compatibility witb
+unstructured grids and benign near-wall behavior, and Constitutive Relation
+is more accurate, especially away Crom the wall, as well
+as slightly more robust. For instance, it accepts zero
+The \:entral quantity is tbe eddy viscosity v,. TIJf'
+values in the freetit.eam.
+Reynolds stresses are given by -'IT;'iij 2V,Sij whet{·
+The roster of one-equation models also includes tbose S,j :: (lJU,/fJzj + lJUj/lJzj)/2 is the strain-rate tenoC Bradshaw, Ferriss, &: Atwell [9], Nee &: Kovasznay sor. Compared witb a two-equation model we naturally
+[10J, Secundov and his co-workers [1 t], and Mitcheltree, miss tbe Ir term (turbulence kinetic energy). This is not
+Salas, &: Hassan [121. Except for Secundov's and Bald- a major effect in thin sbear flows, and the addition of
+win &: Bartb's, these models are not local, since they 2k/3 to the diagonal elements of the stress tensor is apuse length scales related to the boundary-layer thick- proximate in any case. Note that even in two-equation
+ness. Tbis contributes to the common claim tbat one- models there bas been an erosion of the meaning of k
+c"k~ If i,.
+equation models are not "complete" (i.e., they require a it5elf [14J, and also that tbe equation II,
+carefully-chosen length scale for each new flow' and tbat dearly not satisfied in the log la:rer with the true t· and
+
+=
+
+=
+
+"oe
+
+c.
+are basing this criticism on experimental and
+direct-simulation results [15].
+
+curvature effects, is not properly invariant. 'Ve ha\-,
+used the vorticity ... ;: ~. where nij :: aL';jaXjfJUjlfJx;. The argument is that. in the flows of interest
+to us, turbulence is found only where vorticity is, both
+emanating from the solid boundaries. There are regions
+of vorticity \7ithout turbulence behind shocks; it is normally too weak to produce much eddy viscosity. There
+is a case for using the strain rate ~ or the norm
+of the whole tensor
+instead of IN, but we have
+not yet tested the model in cases for which it would
+make a difference. We normalize any candidate so that
+it reduces to IU,I in a simple shear flow. Note that !r~1
+is not a smooth quantity, but it does not seem to upset
+the numerical methods.
+
+In a one-equation model, or in other models (e.g.,
+zero-equation) which produce ~f but not k, we could obtain a rough approximation of k as proportional to the
+streues given by V,Sij, and introduce it on the diagonal.
+It would certainly be consistent to make it large enough
+for the Reynolds-stress tensor to be positive-<iefinite.
+Usually the trace of the tensor is significantly larger
+than needed for positive-<iefiniteness, with a given deviator. The eigenvalUes are roughly k13, 2kl3 and k in a
+-'lear flow; none are very dose to O. We can approach
+this by adding ../2vf~/(3al) to each diagonal element, where Cll is the "structure parameter" [91. This
+approximation may have some value in flows other than
+The production term, and in fact th~ restriction of
+thin &bear layers, even though it is far from universal. the model to homogeneous turbulence, is
+For iDStance, it fails on the centerline of a wake. The
+diffic:ulties in introducing such a nonlinear component
+DVI
+(1)
+Dt C61 S "1'
+in the turbulent term of the momentum equation may
+be anotber factor.
+The subscript b stands for "basic~. The response of
+the model in homogeneous turbulence is dull. but not
+Free Shear Flows
+grossly inaccurate. Th~ eddy viscosity is stationary in
+isotropic turbulence (Dvt/ Dt 0, because S 0). It is
+Turning our attention to V, itself, since there is no accepted that in such a flow the energy Ii: is proportional
+exact transport equation we could approximate term to t- S / 5 • Then the simplest combination that has the
+by term, we take an empirical approach. We do not same dimensions as V" namely k 2 Ie where c is the diseven follow the c:lassical procedure of establishing and sipation, slowly decays like t-l/S. In anisotropic flows
+calibrating the model in homogeneous turbulent flows Vt can only increase under the effect of production. in
+first. This is because the model, with its single equa- a manner that depends on the choice of S. That choke
+tion, is too simple to yield rich behavior in homogeneous may be re-examined later. but if we consider a shear
+turbulence, and also because of our emphasis on aero- flow with S ;: 1l:,1 we observe that V, grows exponendynamic flows and our limited interest in homogeneous tially like exp(C61St). This is the "classical~ behavior
+turbulence. Thus we proceed to a model equipped with for shear flow, with a growth rate in the 0.1 to 0.16 range
+diffusion terms and calibrate only at that level.
+according to experiments. Our calibration on inhomogeWe construct the model by gathering quantities, de- neous flows yields values of c.. between 0.13 and 0.14.
+rived from the mean flow field and from v" which have Thus, we do not emphasize homogeneous turbult'nce.
+Galilean invariance. For instance, the mean velocity but we are not in strong conflict with it. The BaldwillU is DOt receivable. We then invoke common notions Barth and Secundov models have rather largt' producof turbulence-for instance, related to its diffusion- tion constants, at least 0.2. Note that we have not found
+to auemble dimensionally correct terms that together any plausible and invariant quantity that could constican coostitute a plausible transport equation for VI' We tute a destruction term away from walls. We return to
+consider free shear flows at high Reynolds numbers, and this issue later.
+accordingly the molec:ular visc:osity is not allowed in the
+The search for diffusion terms naturally focuses 011
+equation. The reuoaing is that in such flows the energy spatial derivatives of V" Classical diffusion operators
+and information cascades flow only from the large scales areofthe type V.([vt!l1]vvI) with (T a turbulent Prandtl
+to the small scales.
+number. They conserve the integral of VI' save for
+The left-hand side of the equation, for correct invari- boundary contributions. However there is no real'Oll
+ance, is naturally the Lagrangian or material derivative why the integral of VI should be conserved. Manipofv,: Dv,lDt ;: IJv,I8t+Ui lJvr/lJz;. On the right-han ll uiations of two-equation models often bring out diffuside we provide a production term, and diffusion terms. sion terms that are not conservative, for instance crossterms between VA: and ve. By analogy we allow a nonFor the production term, the deformation tensor conservative diffusion term, involving first derivat iVe5 of
+lJUillJzj presents itself. Since VI is a scalar we seek V" We arrive at the following "basic" model:
+a scalar norm, denoted by S, of that tensor. SVI then
+has the desired dimension. A term such as tll'I{}z (obviDVI
+1 [ '\' .(v,vvr) + C62
+(2)
+Dt
+Cu S V, +;;
+ous notation). however tempting to mimic streamline-
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+.vu::;u:.;
+
+=
+
+=
+
+=
+
+=
+
+(,v,r"J
+
+We break our convention for 0'. which belongs to the 1I\'eak solutions such as (3), and raises the possibility of
+C6 series, because of the traditional notation of Prandtl non-unique solutions. Indeed if tbe initial condition is
+numbers.
+Izl, we have a weak solution in which II, behaves lih
+1
+0, and a smooth solution with
+The diffusion term of (2) conserves the integral of the IzI /(2+< ,,) near z
+c
+/I,
+>
+0
+at
+% = O.
+The
+difference is confined to a
+.,. Recall the lack of a destruction term.
+quantity
+This lack wu responsible for a mild inconsistency in boundary layer near % = O. In a numerical setting with
+iIotropic turbulence. It could also inva1idate the model straightforward second-order centered differencing. the
+in the c.... or Ihear flowl in which v, decreues (nep- weak solution will be obtained if the diffusion term is
+tive Dv,/Dt) luch at an axilymmetric wake. However, written /I, V2 /1,+( 1+cu)(V 11,)2, but the smooth solution
+the difruaion term can eaaily brine down the centerline will be obtained if it is written as in (2). Other forms
+value or v" and the true constraint is that under (2) the tbat give the smooth solution are V2(vl/2)+Ct2(V/l1)2
+intesra1 or v:+ cu cannot decrease. With tbe cl.-ical and (l+eu)V(/I, VV,)-Ct2/1r V2/11' The later addition of
+exponents of the aelf-.imilar axisymmetric wake (length a term proportional to the molecular viscosity formally
+scale oc 11/3, velocity oc t- 2/ 3 ), we find that the intecral resolves this non-uniqueness and leads to the smooth
+increases provided tbat cn ~ 1. Even iCthe calibration solution with /I, > O. Howe\'er, particularly at high
+does not include the axisymmetric wake, it is preferable Reynolds numbers, it is desirable to use a favorable form
+of the diffusion term.
+to satisfy this constraint.
+
+=
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+v:+
+
+Outside a turbulent shear flow the Reynolds stresses.
+Another cODitraint may be obtained from the behavior or a turbulent front. The diffusion term admits the particularly the diagonal components, do not exactly
+vanish. However, they are induced by pressure flucfollowing (weak) one-dimensional solution:
+tuations and bear little relationship to the local strain
+/I,(%,t) = max
+A
++ A(I; (62)
+(3) tensor Sij. For that reason, it is as well to have the eddy
+viscosity be zero outside the turbulent region. and this
+for any cODitant A. This is a linear ramp propagating is the value we recommend in the freestream. In adat the velocity -A(I +(62)/0" If cn > -I it propa,ates dition, tbe model is essentially insensitive to non-zero
+into the non-turbulent region, which is physically cor- values (wbich may help some numerical solvers). prorect. The equivalent of cn is 0 in the Secundov model vided that they are much smaller than the values in the
+(the diffusion term is conservative) . It equaled -2 in turbulent region. This is due to the dominance cf the
+the original Baldwin-Barth model [16) and is somewhat turbulent region (/I, > 0) over the non-turbulent one, as
+below -1 in the published version [8), so that under the illustrated by the ramp solution (3) . This feature adds
+diffusion term alone the turbulent front recedes. We to the "black box" character of the new model and repbelieve this effect is to blame for the sensitivity of that resents a substantial advantage over the Baldwin-Barth
+model to the freestream value of /I, (or RT). Note that model and many two-equation models, some of which
+Baldwin & Barth are constrained in their choice of e62 are highly sensitive to freestream values-that of the
+by the connection with the k-l model, in tbe original time scale for instance.
+version, and by their calibration in the log layer, in all
+The amplification of the eddy viscosity by the proversiODI. We avoid this constraint thanks to a near-wall
+term as explained below. The weak solution shown in duction term is of interest. Note that the linearization
+(3) i. of ,reat interest in practice, as it indeed gives the of (2) for small /I, preserves only the production term .
+.tructure of tbe aoIution at the edge of a turbulent re- Consider the steady flow at a velocity Uoo past a body
+,ion. Tbis occurs because the diffusion term dominates of size L, with thin shear- or boundary layers of thickness 6; these are orders of magnitude. Outside the th in
+there (_ Fig. 6, below).
+shear layers the deformation tensor is of order Uoc / L so
+An approximate analysis of the turbulent front, cou- that, irrespective of the exact definition of S, the logpling the eddy viscosity and the shear rate, indicates arithm of the amplification ratio will be on the order
+that the ratio (1 + en) /0' also deserves attention. If it is of Cu (a growth rate on the order of euS over a resilarger than 2 the eddy-viscosity front, whicb is a ramp, dence time on the order of L/U ) . Thus, small values
+oo
+is slightly ahead of the shear front, making the velocity will remain small. In contrast in the tbin shear layers
+profile smootber. If it is lower than 2 the two fronts co- tbe logarithm ofthe amplification ratio under the effect
+incide. If it equals 1 tbe velocity profile of a mixing layer of the production term alone would be on the order of
+is exactly triangular, i.e., IU.I exhibits a step which is euL/6, and therefore large in the usual situation si'lce
+unphysical. Although these considerations border on L ;» 6. Thus small values of /I,. whether inherited from
+tbe cosmetic they indicate that (1 + en)/O' should be the freestream , or resulting from numerical errors. or inlarger than 1 and suggest that 2 ma~' be a favorable troduced intentionally at the "trip" as described later.
+value.
+will cause transition in the thin shear layers onl~·. By
+The fact that the dependent variable v, itself is the transition we mean growth to such levels that the difdiffusion coefficient is responsible for the existence of fusion terms. which are nonlinear. become actin'. The
+
+(0.
+
+[Z
+
+tD,
+
+4
+
+destruction term introduced later is also nonlinear. The
+sequence of exponential srowth, followed by saturation
+at levels on the order of U00 6, is consistently observed in
+practice. Note also that even though the contribution of
+the eu term is pOlitive the diffusion terms cannot cause
+runaway IfOwth. This is so because their contribution
+is neptive at a local maximum of III ' Recall also the
+c:outraint on the intesral of
+The eddy-viscOlity
+bud,et in a weJl..developed solution always includes a
+IliJeable c:oatribution (rom the production term.
+
+structure at the edge of the turbulent region. as seen in
+the mixing-layer case in FiS. 2. The centered-difference
+solution cannot faithfully reproduce a weak solution at
+the front. but the disturbance d·:>es not propagate. Time
+steps in excess of the stability limit were revealed first
+by short oscillations near the centerline.
+
+We DOW calibrate the free--shear-ftow version o( the
+model by requiring correct levels of shear stress iD twodimensional mixing layers and wakes. Fair values for
+the peak shear stress are 0.01(4U)2 in the mixiDg layer
+aDd 0.06(4U)2 iD the wake, where 4U is the peak
+velocity difference [17]. This lives two conditions for
+three free cOllltants C.1> 11', and C.2, and leaves a onedimensional family of "solutions" which is .hown in
+FiS. 1 parametri%ed by the Prandtl number 11' , the easiest quantity to interpret. The ranse of values of 11' we
+consider plausible is at most [0.6,1]. The corresponding
+values of cn are between 0.6 and 0.7 ana satisfy our
+"guidelines" (-1 < cn ::; 1) with a margin. The ratio
+(1+c.,)/O' varies from about 2.7 to 1.7 and also satisfies
+its suideline (> 1).
+
+O,"t-·--t--~t---hf4-f:,.o'~-!-----;
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+11:+·'".
+
+1.70
+
+1.115
+1.10 .~
+1.55
+
+I ~
+
+UO
+
+'----.,
+10Cll1
+1.30
+
+US
+0.1
+
+i •
+
+~I
+
+r
+
+---0.7
+11'
+
+0.2 t - -- t--JJ"--t--- t-........,""!--- ! - ----;
+
+I~=~ I·
+
+I
+
+I
+°50
+
+0.04
+
+0.06
+
+C61
+
+Cl2
+
+the mixing layer it gives a velocity profile close to that
+lUIIIociated with identical "rollers" of uniform vorticity
+(see Fig. 2). Very low values of 11' would be needed to
+brins it close to the hyperbolic-tangent profile, which is
+a common approximation. In the wake the peak eddy
+viscosity is 0.46M where AI is the momentum of the
+wake, in sood asreement ""ith experiment [18]. We did
+not attempt to match any axisymmetric flow, partly
+because they are not pre\'8lent in our applications and
+partly because, for most models, these flows conflict
+with the 2-D flows. The model is not intended to be
+universal.
+
+/UhCw2
+
+~
+
+"'"
+:------- ~
+
+0.'
+
+y
+
+Based primarily on the edge beha\·ior. we favor a
+I fairly
+diffusive member of our "plausible" range, namely
+=2/3, =0.1355, = 0.622, (l+c62)/O'::::: 2.4. In
+11'
+
+~
+
+-
+
+0.8
+
+°500
+
+0.1 +---;.+--+---t--...,~-l..-i!---ll
+
+Fisure 2: Profiles in a time-developing mixing layer.
+Normalized with velocity difference and time. Velocity
+profiles adjusted to the same slope at y = o.
+
+II
+
+\.Cb2
+
+"'"I ~
+
+U5
+
+0.3+----+--- -f--il'i:*-+---+---+----!
+
+0.02
+
+i'..
+
+1.50
+
+I
+
+--- --
+
+o.5T-~-""----r---..,..--.....,.-..,-"'_-....,
+
+1.0
+
+Fisure 1: Calibrated model constants. - locus of solutiOlll; +, x, • point selected for the calculations.
+~ar-wall Region. high Reynolds Number
+In a boundary layer the blocking effect of a wall is
+felt at a distance through the pressure term, which acts
+as the main dest ruction term for tbe Reynolds shear
+stress. This susgests a destruction term in the transport
+equation for the eddy viscosity. Dimensional analysis
+leads to a combination -CVJ I(IIr/d)2 , witb d the distance
+to the wall. The subscript It' stands for '·walr . This
+
+The solutions were obtained numerically using a
+stretched srid, centered second-order finite differences,
+Runse-Kutta fourth-order time intesration, and zero
+values in the freestream . This artless treatment would
+rapidly reveal poor numerical properties in the model.
+The srowth of the layers was followed until a self-similar
+Itate was attained. The solutions exhibit the ramp
+
+5
+
+term will be passive in free shear flows (d -> oc) and
+therefore does not interfere with our calibration up to
+this point. The Secundov model includes this type of
+term (however their term differs from ours in the viscous
+and the outer regions). The idea of a near-wall, but not
+ViICOUl, "blocking" 'erm is also in Hunt [19]. It is also
+related to the algebraic models, which take the smaller
+of two eddy viscOllities. The outer eddy viscosity scales
+with the boundary-layer thicknell, and the inner eddy
+vilcOllity is pven by the mixing length, I oc d.
+In a claaical log layer with friction velocity u.. we
+have S = U.,f(IC4) and "I = u.,lCd. Equilibrium between
+the production and diffusion terms (all positive) and the
+deltruction term is pOIIIible provided
+C",I
+cU/,,2 + (1 + cu)/tT.
+'Ielta show that the model, when equipped with the
+deltruction term, can produce an accurate log layer.
+This relis OIl th'! treatment of the vilcous regiOll, d~
+ICribed below. On the other hand it produces too low
+a Rin-friction coefficient in a flat-plate boundary layer.
+This shows that the destruction term 8.£ formulated decays too slowly in the outer region of the boundary layer.
+To address this deficiency and allow a new calibration
+we multiply it by a non-dimensional function ItIJ, which
+equals 1 in the log layer. Note that C",I is not negotiable
+(i.e., we would not adjust the C, at the expense of the
+log-law constants), and also that \II"e were not able to
+obtain an accurate skin friction just by using the freedom left by the free-shear-flow calibration (Fig. I). The
+model becomes
+
+1.0
+
+i
+
+!
+
+1
+
+I
+
+i
+
+I
+
+I
+
+:
+
+,
+j
+
+0.1
+
+i
+1'--j'LOQ
+1\ I layer
+
+I
+
+[II
+
+I",
+
+I
+i
+
+/
+
+0.6
+
+/'
+F_
+
+....
+
+8hlar
+
+0.2
+
+7
+
+~·I! V
+HIe,·..."
+FPG
+
+=
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+I
+
+I
+
+I/V
+
+0.0
+0.0
+
+/ 'V
+
+~
+
+I
+
+I
+i
+
+!
+
+,.rt
+
+0uIIr
+
+i
+
+olBL
+
+I
+
+I,
+
+I
+
+!
+
+!
+
+0.•
+
+0.8
+
+r
+
+1.2
+
+Figure 3: I", function involved in the destruction term.
+see (4-6).
+
+fact that S may vanish . The region r > 1 is exercised
+only in adverse pressure gradients, and then rarely beyond r 1.1. Having 1",(0) 0 is not essential, because
+in free shear flo~s ~he destru.ction term vanishes on account o~ the cP. m Its den~lI!lDator. A reasonable value
+for C",3 IS 2. \\e then cahbrate C.. ~ to match the skinfriction coefficient in a flat-plate boundary layer. We
+2
+adopt the value ofth~ CTTM.' namely C,
+DVI =CtlSVI+.!. [V.(VI VVI)+Ct2(VVI)2]-C",l/w
+0.00262
+Dt
+u
+d at R4 = 104 [13]" which requires C",2 = 0.3. All the
+T
+•
+(4) boundary-layer tests relied on a code written by Mr. D.
+Note that Secundov et .1. did not foUow the I", route. Darmofal, ofM.I.T .. during a short stay at Boeing.
+The choice of an adequate argument for I", was inFigure 4 shows the velocity, eddy-viscosity. and shearspired by algebraic models, in which the mixing length stress profiles in a flat plate boundary layer at R, :::: 10 4 .
+plays a major role near the wall. This length can be At 104, C, = 0.00262 and H
+1.31. The Clauser
+defined by I;: VI/tiS and we use the square of I/"d as
+shape factor G;: J2/C,(H - 1)/H is settled at 6.6.
+a convenient nOll-dimensional argument:
+and the shape of the profile is satisfactory. Notice
+V,
+again the ramp structure of V, at the edge of the shear
+(5)
+r;: Sf( 2 d2.
+flow. The peak value of V, is O.021Uoo f.°, compared witl.
+Both r and ItIJ equal 1 in the log layer, and decrease in 0.0168Uoo 6° in the Cebeci-Smith model [2]. Conversely.
+the outer region. Note that any dimensionally conect the Cebeci-Smith eddy viscosity is higher near 11/6° 1.
+The .hear-stress profile approaches the wall with a fifunction oC(v"d,S) that reduces to -CtIJl,,:lU~ in a log
+layer would be as eligible as the one we are choOlling (.f). nite slope, rapidly turning to zero slope at the wall a5
+diICusaed in the context of direct-simulation results [15].
+A satisfactory I", function is
+
+=
+
+=
+
+[!.i)
+
+=
+
+=
+
+=
+
+Figure 5 shows the velocity profile in wall coordinates, illustrating the log layer and the smooth depar[
+ture in the wake. Again, the shape of the outer region
+appears good, showing that the destruction term and
+This function is shown in Fig. 3. The results are the !'" function are fair approximations, at least in thi5
+most sensitive to the slope of Iv. at r
+1, which is flow. The arrival at the freestream velocity is a little too
+controlled by C",2. The step from 9 to /", is merely a abrupt, as it 1\'as in the mixing layer, in Fig. 2. This belimiter that prevents large values of I"" which could up- havior cannot be corrected except by making the model
+set the code and give an undeserved importance to the very diffusive (low u) .
+
+I.,(r)
+
+=, 9 ++c",3
+1
+
+6
+
+/I ] 1/6
+3
+C'6
+,
+
+,
+
+= r + C.,2 (r
+
+G
+
+-
+
+r). (6)
+
+=
+
+6
+
+3
+
+'rr~ff.
+
+2
+
+I
+,
+!
+I
+
+1\
+o
+
+""-
+
+/
+
+-1
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+i
+
+'\ r---- ~. r"
+.---
+
+,I
+
+'\
+
+I>"<-
+
+~
+
+;
+
+i
+
+7
+fo.t
+-4
+I
+
+4
+
+!
+I
+
+!
+I
+i
+I
+
+,
+I
+I
+
+I
+o
+
+4
+
+yW
+
+y/S"
+
+Figure 4: Profiles in a flat-plate boundary layer at
+R, s:t: 10·, outer coordinates. U normalized with Uoo ' r
+with rOIl..", and v, with 0.025Uoo 6".
+
+Jj
+V"'I ,
+"
+
+i
+
+"
+
+I
+
+"
+
+,I
+
+,
+i
+
+'I
+
+I;
+
+Ii
+I:
+
+U+
+
+Ii
+
+I,
+
+i
+i
+
+i
+i
+
+I
+
+I
+
+,
+
+I Ii I
+i
+
+I
+I
+
+Ii
+
+,
+
+'I
+
+I
+
+I:
+I!
+
+I:
+
+II
+Ii
+
+:
+
+,I I
+
+i
+
+8
+
+Figure 6: Eddy-viscosity budget in a flat-plate boundary layer. Normalized with rIVal/.
+ble for the advance of the turbulent front. in qualitative agreement with the budgets of "legitimate" turbulence quantities such as the kinetic energy. Near the
+wall the dift'usion again makes a strong positive contribution, balanced by the destruction. The ideal near·
+wall budget is. in the units of the figure. production
+1, dift'usion
+,,2(1 + e.2)/u /eu ~ 3. destruction
+-1 - K2(1 + et2)/u /eu ~ -4. Note that it is not maintained far up into the layer at all; correspondingly. Vt
+does not follow its ideal linear log-layer behavior ("Yu T )
+far up either (see Fig. 4). However this does not prevent
+a log layer from forming.
+
+=
+
+=
+
+=
+
+This completes the calibration of the model save for
+viscous eft'ects. \\'e later examine the performance of the
+model in what is probably the most sensitive situation.
+the outer region of a boundary layer in adverse pressure
+gradient.
+
+I
+I
+
+Near-wall Region. finite Reynolds Number
+y+
+In the buft'er layer and viscous sublayer. additional
+Figure 5: Velocity profile in a flat-plate boundary layer
+notation is needed. Besides the wall units, y+ and so
+at R, s:t: 10", inner coordinates. - model; - - -log law.
+on, we introduce v which will equal v, except in the
+viscous region, and X == v/v. This is in analogy with
+Mellor
+&.: Herring's notation [20], because from the wall
+The budget of Vt is shown in Fig. 6. The sum (i.e.,
+to
+the
+log
+layer we have X KY+ .
+Dv';Vi) is positive throughout. It is 0 at the wall,
+1000
+
+10000
+
+=
+
+then roughly follows a ramp up to the edge of the turbulent region. Its outer part is representative of the
+outer part of either one of the free shear flows, including the vanishing contribution of the destruction
+term. The production is equal to the shear stress.
+In the outer part the dift'usion is primarily responsi.
+
+We follow Baldwin .\: Barth [8] in choosing a transported quantity which behaves linearly near the wall.
+This is beneficial for numerical solutions: ;; is actually
+easier to resolve than U itself, in contrast with (, for
+instance. Therefore. the model will not require a finer
+grid than an algebraic model would. To arrive at this
+
+v
+
+we cODIider the c1aaical log layer and de\'ise near-wall
+
+"damping functions~ that are compatible with known
+results. These functions are distinct from the I. nearwall inv"lCid destruction term.
+
+made of the momentum equation and (9), as it has been
+obtained starting with a wide range of initial conditions.
+This includes the results of Figs. 4 and 5; in particular
+Fig. 5 displays the viscous and buffer layers.
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+Fine effects of pressure gradients or transpiration are
+The eddy viKOCIity /I, equals "yu. in the los layer,
+but not in the buffer layer. We define v10 that it equals likely to strain the accuracy of the model, although we
+expect the trends to be correct and the database is far .
+,,"',. all the way to the wall. This leads to
+from definitive. Note that the traditional tools for in·
+X3
+(7) serting these effects into the algebraic models are ruled
+1~1 = .,..-:-r.
+X~ + t;;)
+out, because they are not local.
+The 1,,1 fWKtion is borrowed from Mellor k Herring.
+The subKript tI stands for "viscous". We prefer the
+value c,,1 = 7.1 to Mellor & Herring's 6.9, which we
+helieve yields a low intercept for the log law. Other I~)
+fuJldioas could be used, for instance the one compatible
+with the Van-Drieat damping is I,,) = ("1 + 41+2 1)/2X, where t+
+X[I - exp(-xllCA+)] and A+ is the
+familiar 2G [2]. We have not encountered cases b which
+the choice of I .. ) mllde a difference. Note that there is
+DO basis for (7) to apply at the edge of the turbulent
+region, where X is &lao of order 1 and smaller. However,
+the eddy ViK06ity has little inftuence there, because of
+the absence of steep gradients.
+
+Lamjnar &CioD aDd Trjppjnc
+
+The final set of terms provides control over the laminar resions of the sbear layers, a control which has
+two aspects: keeping the 8011' laminar where desired .
+and obtaining transition where desired. Navier-Stokes
+codeiJ with &Igebraic models usually have crude "off-on"
+devices or short ramps hued on the grid index along the
+wall. These do not help the convergence of the codes. In
+addition we require a device that is useable on unstructured grids. The subscript t will stand for "trip". We
+i.Jse this word to mean that the transition point is im·
+p06ed by an actual trip, or natural but obtained from a
+The production term also needs attention. III it S is separate method. 0"
+scco."t do,d' tAt t.rhlt"cf
+replaced with S, given by
+mollel 6( tM/std to prellict tAt transition location. Tbis
+is true of all the models we kno,,·. Some models. in·
+X
+(8) c1uding Ir-(, predict relaminarization. In situations tbat
+/~2 1 - 1 + xl,,)
+should induce relaminarization, this one tends to drop
+The function /,,2 is constructed, just like /01> 110 that the eddy viscOCIity to low levels, but without "snapping"
+S would maintain its log-layer behavior (S
+/(KY» to O. We may be able to improve on tbis using the f'2
+all the way to the wall. S is singular at the wall, but function below.
+ii is 0 there, 10 that the production is well-behaved '
+We delCribed how transition was expected only in
+Note that there is a range of X in which S is _ than thin shear layers. The linearized version of (9) for small
+S and may become negative. This should DOt upset v only contains the production term: DvlDt cuSii;
+the Dumerial salven. Other quantities involved in the therefore,
+0 is an unstable IOlution of (9) (going
+"inviKid" model are redefined in terms of if iDst.ead of in the direction of DIDt). In a boundary-layer code
+the uro solution is easily maintained, but in a Na\'ier/I" for instance r == ii/(SK 2tP).
+We fiwly add a viscous diffusion term, cOMistent Stokes code exactly-aero values are rarely preserved, so
+with a Dirichlet boundary condition at the wall, if O. that the model is "primed" by numerical errors upThis term too is based on an analogy, rather tbaa a rig- stream of the trip. It then transitions at a rate that
+oroua equation. In addition ii behaves linearly, 110 that depends on numerical details and has little to do wit h
+its Laplacian will be small in an established dution. the boundary layer's true propensity to transition, as
+Accordin&ly, we insert the molecular viscOCIity ia a con- controlled by pressure gradient, suction, and so on. We
+venient place and pay little attention to a factor of tT . verified this behavior, and it is not acceptable.
+
+=
+
+"0
+
+=
+
+=...
+
+v=
+
+=
+
+=
+
+A solution is to alter the production term so that
+
+The transport equation has become
+
+Dv
+-_ 1 [
+Dt =c61 S/I+; V.«/I+V)VV)+C.2(VV)
+-c",t!tIJ
+
+v= 0 is a stable solution, albeit with a small basin of
+
+2]
+
+[~r
+
+attraction. For this we take the convention that in the
+laminar region v is of order /I at ID06t , and recall the
+argument x. Note that if 'V ::; /I, then /II <: /I. because of
+the damping by I,,). We multiply the production term
+by 1 -/,2, where
+
+(9)
+
+=
+
+Tbis equation now yields equilibrium (D'VI Dt
+0) all
+(10)
+the way to d
+0 in a classical law-of-the-wan situation. Furthermore, the numerical evidence shows that In order for 0 to attract ii down from values on the
+1.1.
+tbis clusital solution is a stable IOlution of the system order of /1/5 , the following values are fair : Ct3
+
+=
+
+=
+
+8
+
+=
+
+C'4
+2. In any case c,3 must be larger than 1. As
+for Ct. it could be decreased several-fold , if a code still m=CbJ
+D"V
+[1 - f 12 J S- 11+;;
+- 1 [....
+- \ . ((1I+1I)\"V)+Cb
+2 (\"vf"]
+yielded premature transition. The cross-over point of
+1- / 12, i.e., the bound of the basin of attraction), is at
+X=
+og CI3 C,.. However, 2 was small enough in our
+- [cu,du - 112]
++ III AU 2. (11)
+code. Values much smaller than 1 would start affecting
+the results in the turbulent region.
+with
+
+~;
+
+In order to still balance the budget near the wall we
+offset the change in the production term with an opposite change in the destruction term, involving /12, Again
+we take an empirical approach, and have numerical evidence that it yields a stable system. A user that is doing
+boundary-layer calculations can leave the /'2 term out
+(i.e., let C'3 0).
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+=
+
+The task ill now to obtain transition. We refer to
+transition points, in 2-D, and transition lines, in 3D.
+We address only boundary-layer transition, but a generalization to free shear 60ws will be easy. Usually each
+2-D body hu two transition points. We wish to initiate transition near these points in a smooth manner,
+and compatible with any grid . For this a source term
+is added that will be nonzero only in a small domain of
+influence. This domain should not extend outside the
+boundary layer. Not wanting to find this edge, nor violate in\'Ilriance principles, we invoke the quantities I1U
+and Wt. Il.U is the norm of the difference between the
+velocity at the trip (i.e., usually zero since the wall is
+not moving) and that at the field point we are considering. Wt is the vorticity at the 1\'all at the trip point.
+Upstream ofthe trip in a boundary-layer code, it is fair
+to take 101 at the wall at the current station, since 101
+at the trip ill not available yet. The thickness of the
+boundary layer is on the order of U./WI, where U. is
+the edge velocity. Recall that it is still laminar. We
+also introduce d" the distance from the field point to
+the trip point or line.
+Storing, or repeatedly computing, dt for esch field
+point ill a penalty, but it would not be difficult to keep
+a list of the points that are within a r~asonable distance
+of the trip and to compute the trip term only for thOlie.
+The Uler may also watch for the following peculiar situation: the body could be so thin that the trip on one
+side causes transition on the other side. A definition of
+d l as the length of the shortest line that links the field
+point to the trip while not crossing the body would solve
+the problem, but in an expensive manner. It is simpler
+just to override d, (Le., set it to a large value) for field
+points and trips that are known to be on oppOllitt: sides
+of the body. The angle between the line from the trip
+to the field point and the normal to the wall may be
+useful.
+
+[~r
+
+111 =CII gl exp (-CI2 :.J2 [d 2 +9~d;1) ,
+
+(12)
+
+and 9, == min(O.I, taU /w,AZ) ",here Il.z is the grid spacing along the wall at the trip. This equation specifies
+the two I, terms, and the trip term is the last in (11).
+The Gaussian in 111 confines the domain of influence of
+the trip terms as needed ; it is roughly a semi-ellipse.
+The magnitude is adjusted so that the integrated contribution for a particle crossing the domain of influencl"
+is on the order or U.6, 6 the boundary-layer thickness,
+as is ensured by typical algebraic models [2]. The odd
+factor 91 is passive in a situation with an extremely fine
+grid, but is quite active il.nd necessary in practice. This
+is because the domain ofinfluence Dfthe trip scales with
+the boundary layer thickness, which is very small in the
+laminar part. As a result, that domain easily falls between two streamwise grid points, so that the trip is not
+felt at all. The 9, factor guarantees that the trip term
+will be nonzero over a few streamwise sta(ions.
+
+=
+
+The value C'2
+2 reflects typical values of 6""dU.
+in laminar boundary layers and is not a candidate for
+much adjustment. Tests indicate a range of at I'!ast
+two decades for CII between values so low that transition miscarries, and values so high that;; Ilnd the skinfriction overshoot. The value Ctl 1 is well within that
+range; successful transition was obtained with 0.1 and
+with 10. It is possible that at very low Reynolds llum·
+bers CII would require more attention. In any case. we
+recommend that the user check for transition on both
+surfaces. To start with, the two trips should bracket the
+.tagnation point. Except at very low Reynolds numbers
+the skin-friction coefficient is enough of a criterion. Note
+that the trips are often near the leading edge, in a region where the skin friction has violent variations due
+to the pressure gradients. Therefore, it is advisable to
+check the skin-friction coefficient a little downstream. in
+a weak pressure gradient.
+
+=
+
+Note that the grov.·th of ;; to nonlinear levels under the effect of the production term occurs in a few
+boundary-layer thicknesses (C6I being roughly 0.13) .
+This is consistent with the idea that the trip term mimics the secondary instabilities invoked by recent transi·
+tion theories, which have growth rates on the order of
+1/6. However since the streamwise grid is often much
+coarser than 6, transition will still appear very steep to
+that grid . The contribution of the trip source term is
+Dimensional analysis points to AU 2 as a proper rapidly overwhelmed by the exponential amplification
+scale for the source term. and we arrive at due to production . Thus. we have a formal ad\"antag'
+
+9
+
+over the "off-on" models in that transition is a smooth
+process, but in practice it is debatable. Naturally, an
+adaptive gid will focus points at transition, and approach the ideal situation .
+InjtW apd fmstream C9nditjons
+
+Note that T and D(v) are aiways positive or zero. and
+P(V'} is positive as long as S is positive.
+Care should be used in interpreting our notation. For
+example, the complete production 9perator is P(ii)V
+rather than P(ii) alone. The n9tation is intended to
+simplify the foll9wing matrix theory analysis.
+
+The turbulence transport equati"n is discretized on a
+Fair rsuIts have been obtained by initially letting ii
+grid with v the vector of unknowns at all gid points.
+uniformly to iw freeetream value. The turbulent viscatity emanatea at the tripe and IIpreads without no- The solution is integrated in time using an implicit
+backward-Euler scheme of the form,
+ticeably dqrading the cODvergeDCe of the code. In the
+freestre&m the ideal value ill zer9. Some solvers may
+[1- At (!d(v") + rr(v") - tr(v"»)} Av n
+(18)
+have trouble with thill, either because of round-olf errors
+n) - D(vn)] v n + AtT
+At
+[M(v")
++
+P(v
+or 80IJle cODvergence teats dividing by ii. Fr_tream val_ ofil up &0 roughly ~/IO are easily t9lerable with the
+where the nonlinear matrix operat9rs M, P, D and T
+CUrreDt CI3 and C'4 COIUItants. Recall that the
+factor
+are the discrete analogues of AI, P, D and T, respecin (7) theD maltea ~f much Ilmal1er than v, 119 that the
+tively; !d, V, J) are implicit matrices; At is the time
+laminar boundary layers are not disturbed .
+step; and Av is the solution change,
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+=
+
+',,1
+
+(19)
+
+Numerica! Solution Procedure
+We expand 9n the approach of Baldwin & Barth (8]
+for solution of the turbulence transport model within a
+Navier-Stokea solver. The model is advanced in time using an implicit IOlution procedure deaigned to achieve a
+patitive turbulence field for all transient IOlution states,
+as weD as a fast cODvergence ratl' to steady-state. \\'e
+have incorporated the turbulence-model solution module into a modified version of Martinelli &.: Jameson's
+FLOI03 (21], where the updates of the velocity field and
+the turbulence are decoupled at each time step. The
+turbulence is updated at the start of each multistage
+Runge-Kutta time IItep on the finest grid of the multigid cycle; on coarser grids the turbulence is frozen.
+
+The exact solution of the turbulence transport equation cannot become negative. It can be shown that if
+ii 0 at some location and the surrounding values are
+non-negative, then 8v/8t ~ O. An underlying goal of
+tbe solver is to reproduce this analytic behavior-a nonnegative turbulence field-throughout the solution process (i.e. ii ~ 0 at all grid points and at all time steps).
+
+=
+
+We athieve this goal ofa non-negative turbulence field
+through the use of positive discret ... operators and Mtype matrices. A positive operator. when applied to a
+vector of non-negative elements, will produce a vector
+with n9n-negative elements. An M-t.ype matrix is diagonally dominant with positive diagonal elements and
+We begin by rewriting the one-equation model (11) neptive (or zero) off-diagonal elements. A key property of an M-type matrix is that its inverse contains
+in a form more convenient for numerical analysis,
+only non-negative elements; hence, the inverse of an ~f­
+type matrix is a positive operator. Our goal can be
+M(V)v+ P(ii)iI- D(ii)ii+ T
+(13) accomplished by careful discretization and construction
+of the implicit operators !d, rr and Ii'.
+where M(V)ii is the c9mbined advection/diffusion
+Rearrangement of (18) gives v n + I directly a~ a fUII~­
+terlDli,
+tiOD ofv n ,
+
+':: =
+
+M(V)ii= -(ii .V)v+;' [V. [(v+ V)Vii] +
+
+c., (VV)2] , [1_ At{fd + rr -I»J
+(14)
+
+the production IOUfCe term is
+P(V)V = cull - 1121
+
+S V,
+
+_
+
+eu
+
+_]2
+
+v
+
+= [coud.. - ,,2/t2] [d '
+=IIIAU 2 •
+
+(20)
+
+[1+ At (M - Jd) + (P - Ji") - (D - J»)} 'I n + AlT.
+
+(16)
+
+(17)
+
+-!d is M-type
+- rr is M-type
++ J) is M-type
+
+and the trip function is
+
+T
+
+=
+
+Assuming v n ill non-negative, then non-Ilegativity of
+v n +1 is guaranteed if the right-hand-siele operator is
+positive and the left-hand-side operator forms an Mtype matrix. Thus, sufficient constraint~ on the discret e
+operators are given by,
+
+(15)
+
+the wall destruction source term is
+
+D(V)v
+
+V,,+I
+
+10
+
+(218)
+(21 b)
+
+(2Ic)
+
+[M -
+
+KIJ v ~ 0
+
+[p - JS] v ~ 0
+[D -I>] v:S 0
+
+are discretized using second-order-accurate central differencing.
+
+for all v ~ 0
+for all v?.:
+
+°
+
+(22a)
+(22b)
+
+forallv~O
+
+(22c)
+
+1 + Cb2 1 [(
+;";\
+ii.+ 1 - V.
+[M(V)V]\2) = - - - - v+ vIHl/2-"-'""--"':'
+Ax.
+
+CT
+
+A.r.+I/2
+
+_ (v + ii)i-l/2 ii! - Vi_I] ,
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+Baldwin k Barth show, for their model, that similar
+constraints on the implicit and explicit operators in the
+backward-Euler scheme guarantee positivity of the discrete solution. They also show that these constraints
+give unconditional stability of the numerical solutionprocedure.
+
+I.JI. X
+
+(27)
+
+i-I/2
+
+cn
+1
+[M(V)VW') :: - -(v
++ ii)i--"
+Ax.
+
+CT
+
+iii - Vi-I]
+[ AXi+I/2 - AXi-l/2 .
+
+iii+! - Vi
+
+(28)
+
+Description of the discretization and construction of The diffusion coefficients (V+V)i+I/2 and (v+ ii).-1/2 at
+implicit matrices will be given in detail for I-D, where cell faces are taken as averages of adjacent cell-centered
+the notation is simpler. Extension to 2-D and 3-D is values,
+straightforward because there are no cross derivatives
+in the one-equation model.
+(v + ii)i:H/2 = ~ [(v + iI). + (v + ii).:i:Il,
+(29)
+The model is discretized using a cell-centered finiteand AXi+I/2 and Ari_l/2 are distances between cell
+difference scheme.
+centers.
+.
+J acob'lans """,2)
+Th e approXimate
+M
+an d """'M 3) are 0 I)Advection Operators
+tained by freezing the diffusion coefficients.
+The advection terms are discretized using f:rst-order
+...,{2)
+1 + C62
+_
+1
+accurate upwinding.
+Mi,i_1
++ ---(V+V)i_l/2 "A
+
+[M(v)v]ll) = - [ut ('ii ~;:-l) + U.- C'i~; iii)] ,
+(23)
+where the advection velocities U+ and U- are defined.
+
+ut = ~(Ui + IUil).
+
+Ui-
+
+= 1_ (Ui - lUi/).
+
+(24)
+
+=
+:-:{2)
+1 + Cb2
+1
+M, = - - - ( v + ii)i-I/2 ~ ~
+Xi x._I/~
+','
+
+CT
+
+1 + Cb"
+_
+1
+- - - - -(v + 11).+1/2--":-'--
+
+""{2)
+
+M i.i+ 1
+
+The Jacobian of the advection operator is.
+
+=
+
+""",3)
+
+= -. (+ut - Un/AXi,
+fV(~i~1 = - (+Un/AXi.
+Note that _}i;fl) is M-type and (M - IVI)(1lv
+satisfying the positivity constraints.
+
+I
+
+(f
+
+~Zi~J't-1/2
+
+.
+
+1
+= + ""::'(v+ ii)i--':""-AXi~.ri_l/·
+
+...,{.3,l
+
+C6"
+
+Mi,.
+
+(25)
+
+cb2
+
+-(V+ii)i
+
+t.t-
+
+M!~Ll = -- (-Un/AXi,
+
+(30)
+
+CT
+~.r'~X'+1/2
+1 + Cb2
+1
++ - -CT- ( v + ii)'+I/2"',,-.,-... .r ...... .rHln
+
+M;· I:: -
+
+K(~/
+
+~x.~r'_l/2
+
+CT
+
+CT
+Cb2
+
+1-
+
++ -(v+ ii)i
+
+(31)
+,
+
+AXiA.r.+I/2
+1
+-(v + ii)i
+.
+CT
+Ax.Axi+l/2
+CT
+
+""{3)
+
+= 0,
+
+Mi,i+l
+
+=-
+
+C62
+
+These operators satisfy constraint (22a), since
+Diffusion Operators
+
+[M - M](2) v
+
+We have found that positive operators are more easily
+constructed if the diffusion terms are rearranged into the
+form,
+
+where liberties have been taken with differentiation of
+the molecular viscosity v. The form of (26) avoids discretization of the term (V'ii)2, which does not easily lend
+itself to positive discrete operators, The diffusion terms
+11
+
+=0,
+
+i71(3)
+v::O,
+[M-M J
+:-:{2)
+
+(32)
+
+:-:{3)
+
+When negated, the sum M
++M forms an !\I-typt
+matrix. This can be shown by considering individual
+matrix elements. For example, the sum of the matrix
+elements above the diagonal becomes.
+Kf'2)
+
+',i+1
+
++ Kr 3 )
+
+_
+
+',HI - CT~XiA.r'+1/2
+
+[(1 +
+
+Cb2)(V
+
+*
+
++ ii),+1/2 - Cb2( II + ii).] (3:3)
+
+t 'pon substitution of (29) for the diffusion coefficient at
+the right cell face. then the sum b~omes.
+
+possible strategies and explain why they are dE;ficient
+before discussing the strategy we actually employ
+
+M'2)
+
+The obvious choice of setting thE' implicit op",rator~
+equal to their true Jacobians does not satisfy th .. po~­
+itivity constraints. F'J r examplE'. [P - Plv ~ 0 b not
+met ifP' > o.
+
+K(3 )
+
+i"+l +
+
+i.i+l
+
+[0 +
+:s
+
+1
+
+= 20'aZ,aZi + 1/ 2 •
+
+Ct2)(V + ii)i+l + (1- Cb2)(V + ii)i] ' (34)
+
+:s
+
+A second strategy, which always satisfies the M-type
+C.2
+I, these elements are always pOliitive.
+For -1
+Similarly, the elements below the diagonal are always matrix constraints, is to take the negative part of the
+poIitive, and thOle on the diagonal are always negative. production Jacobian and the positive part of the deAlso, the macnitude of the diagonal elements are equal struction Jacobian,
+to the 10m of the off-diagonal elementf-. Hence, the
+If
+-pos [-P - P'Y] ,
+(3ia)
+lurn JJ<2) +JJ<3) it a negated M-type matrix, ..tiBfying
+I)
+pos[D+D'v].
+(3ib)
+constraint (21a).
+Baldwin &: Barth noted that the steady-state dis- This strategy is also defective and must be discarded
+cretization of the diffusion terms in their model must because the other two positivity constraints may not be
+be modified on coarse grids to obtain a non-negative met, For example. ifD > 0 and D' < O. then D - If < 0
+turbulence solution. When ""ritten in the form of (26). will not be satisfied.
+the diffusion terms of the Baldwin-Barth model give an
+A third strategy is to use only the negative parts of
+effective value of C62 below -1. Because of this, they P and P' in (35a) to form P, and the positive parts of
+must limit the averaging of the diffusion coefficients to D and D' in (35b) to form D.
+cell faces to ensure their equivalent of KJ<2) + KJ<3) is
+p
+-pos[-P]- pos[-P']v.
+(38a)
+a negated M-type matrix. This limiting procedure reD
+pos[D] + pos[D'lv.
+(3i'b)
+duces spatial accuracy. As shown by the above construction, discretization of the present model's diffusion
+terms does not require similar modification. The con- This is a viable strategy: the four source term positivity constraints are satisfied for all po~<ible sign combistraint (62 > -1 , derived on physical grounds. also plays
+nations of P . P' , D and D'. However. we dis('ard thi~
+a crucial role in the numerical context.
+strategy because of its slow convergence rate.
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+=
+=
+
+=
+=
+
+In a typical fiow situation, both production and destruction increase in magnitude as v is increased (i.e ..
+p, D and their derivatives are all positive) . In this case
+our third strategy chooses,
+
+Source Operators
+
+The production. wall destruction, and transition trip
+source terms all produce diagonal matrix operators,
+so grid indices are ignored in the following analysis.
+p=O.
+D = D + D'v = [D(v)v]'.
+(39 )
+Though vector notation is used, all equalities and inThis is equivalent to integrating the production term
+equalities apph: on a cell-by-cell basis.
+The starting point for construction of the implicit explicitly and the destruction term implicitly: thi~ tee 11source terms J> and I) is the true Jacobians for the nique has often been used for solution of k-( modE;ls. Altbough this strategy guarantees positivity. it can result
+production and destruction operators,
+in extremely slow convergence in regions where produc[P(v)v)'
+P(v) + P'(v)v.
+(35a) tion and destruction are large and dominate the equa[D(v)v]' = D(y) + D'(v)v,
+(35b) tion budget. In these regions, the Jacobians [P(v)"j'
+and [D(v)vJ' will be individually large but ",;ill tend to
+where we use ( )' for convenience to denote differentia- cancel. No"" if only [D(v)vl' is used to update the sotion with respect to v. Also for convenience we define lution, then the contribution to the diagonal element
+of the matrix will be excessive; the resalting solution
+the following operator:
+change A.v will be correspondingly small e\'en when th o;
+residuals are not close to zero.
+Z ifz>O
+(36)
+pos(.r) =
+{
+This possible analytic cancellation of the individually
+.
+0 if z < O.
+large Jacobians motivates our final strategy for choo;.illg
+the implicit source terms. Ratber than concentraling Oil
+Our objective is to choose If and I) close to the true the individual production and destruction Jacobians w ",
+Jacobians. namely [P(Y)vl' and [D(v)vl'. 110 that rapid consider the source terms combined together and u.,e a
+convergence is obtained when the residuals are small , variation of (38).
+while retaining strict adherence to the positivity con( ·1(1 I
+D - P pos[D - P ] + pos[D' - P']v
+straints for all possible solution states . We give three
+
+=
+
+=
+
+12
+
+With the _ree term6 taken ""ether. only two posit h'ity coutramts are required.
+1) - P' ~ 0,
+
+(41a)
+
+[1>-D]-lP'-P] = [1>-P}-[D-P] ~ O.(4Ib)
+Eumin!!!J the four poaibJe sip combinations for ~D­
+
+PJ and [D - P}. the.e poritivity coostraints are always
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+.w.&ed by (40). Furthermore. aaalytic caoeellation of
+productioD and delltructioD is relec&ed in (40). resultins
+in nperior cOD~pDCe compared to (38).
+We evaluate the Jacobians P' ar.d D' analytically usinS the chain rule. The differentiation is stmptforward. except for the wall delltructioo term I.. Since
+evaluation and difl'erentiatioo of I. involves terr.lS like
+r- s and r12 I care must be taken for r small or larse.
+lest ODe'. computer besina to complain. Tbe form of
+(6) ciws acceptable numerical behavior for r - O. For
+larse r, the functiOD ItIl asymptotes to [1 + c!31 1/t1 , so
+~ eome cutoff' (say r
+10). the derh-ative (I",)' is
+8et to aero.
+
+subiterations of an approximate factorization scheme at
+each time step . .-hich will r~cover the update of the
+original unsplit I~'stem at con\'ersenee (of the subiteration process). We use th'e lubiteration proces!! of
+Steinthorsson &.: Shih [22]. where the splitt in,; error is
+simply Iaged one subiteraticlD. The objeeth'e of the
+approximate factorization is then to minimize splitting
+error for rapid conversence. alld to minimize the number of .ubiterations where th.! candidate updated field
+contains neptive points.
+In 2-D we have tried conventional ADI .-ith aD additional factor due to the SOUtel! terms,
+
+[1- ~tUd [1- ~tt;J"J [1- ~t(F -1i)J.t\,"
+
+=~tRY". (45)
+where R is the residual or risht-band-side operator in
+(18). We have aI.o tried the approximate factorization
+developed by Shih &.: Ch}'u [23J for finite-rate chemistry.
+
+=
+
+[N - ~tUd N-I [N - .1tU,,] = ..1tR,·" , (46a)
+
+N:: 1- ~t(p' -1»).
+
+(46b)
+
+As disc.-ed in {23]. this second form bas Iml'er splittint:
+error and con"erses much faster to the unsplit update
+With the implicit and explicit operators properly de- than conventional ADI. Howe~'er. even this second form
+fined. the backward Euler solution procedure (18) suar- requires several subiterations at start up to achie"e a
+antees a positive turbulence field at each update. It non-nesative updated turbulence field: for example. apdoes. howe~·er. require expensive inversion of a larse proximately 30 subiterations are needed for a time step
+sparse matrix in 2-D or 3-D. Approrimate factoriza- of ~t 10 (baaed on chord and freestream density and
+tion of the implicit operator will reduce the cost of an preaure) to eliminate all nepth'e updated points.
+update, but unconditioaal positivity is lost . To see this
+\\'e use an approximate factorization that outperetrect consider a 2-D flow with zero IOUrce terms. The forn» be '.ll (45) and (46). Prior to splittin,;. we di~' ide
+uusplit implicit system is,
+tJtrousb by the diqonal mment of tbe implicit operator. then use a conventional approximate factorization.
+[1- ~t (R( + R.,)] ~y" ~t (M( + M,,) y". (42) Denotins the diqonal elements of the implicit ad,'~­
+the scbeme
+where M( and M" are finite ditrerences in tbe ( and tion/ditrusion operators .. ~"J and
+"coordiDate directions, respectively, and U( and U" becomes.
+Approximate FI&Wiation
+
+=
+
+=
+
+ti,,"',
+
+satis!'y tbe positivity coutrainu (21a) and (22a). If the
+implicit operator is approximately factorized. tben the
+system becomes.
+[1- ~tU(] (1- ~tU,,) ~y"
+
+[1- ~ttr(J [1- ~ttr~] ~y" =~tRvn,
+
+(4i)
+
+where
+
+=~t(M( + M.,)y".
+(43)
+
+R.earraqing this system to i80Iate y .. +l pves.
+(1-~tUd (1-~tU.,]y"+1
+
+= [1+~t(M(-Ud
+
++ ~t(M., - U.,) + ~t2U(UIj) v". (44)
+
+(4E-)
+
+We incorporate this approximate faetorizatioll
+The splittins error results in the term ~t2JJ'(t;J.,y, ICherne into a aubileration proce5ti in the fashion of
+which may DOt be positive. For small enou,h ~t the SteinlhorMon &:: Shih (22]. .-here the splitting error
+apliuinS error wiD DOt ruin positivity, but the constraint
+.t\t2U(U,,~y is law<! one subiteration.
+equatioo on ~t is a nonline"r matrix equation in it&elf
+and is quite difficult to solve.
+.1v·(t) ~tRvn - ~tn( (..1,.- _ ..1~.)' t_ l.
+We conclude that there appearll to be DO approximate
+factorization of(18) that retainll
+unconditional pos. d . We propose usin~
+itivity of the orisinal unllplit ,.
+
+t"·
+
+13
+
+[1- ..1ttr(]
+=
+[1- ..1tU.,J ..1y(tl = ~v· (· i
+
+The second .tep equation bas been used to rewrite the o.ooa
+eplittiq error 011 the ri&ht-band side in the first ,tep;
+~
+~v- is a coovenieat definition.
+0.0021
+
+I
+I
+
+D~
+
+I
+In practice this 'plittin& perfOl'111& quite well. Usin& 0.11024
+i
+I
+~
+a coutant ~t throupout the field, we have yet to en- 00022
+I
+j
+COUDter a lituatioa where a oeptive turbulence update .
+o~
+1
+ocean eYeD on the first subitentioo. This iDcludes tests 0.0031
+wltere ~t .... varied over 1e1r2l"aI orden between 0.001
+E~\ I!o- Model
+aDd 1000
+0.001'
+.
+C}
+I
+!
+~
+From numerical experimentation. we chooee ~t
+0.0015
+I
+I
+10 aDd Mop IUbiteratin& wbeo the normalized cban&e
+~
+----l
+1f4V/(1f + ~Ib is reduced below O.O!. Typically. 10 to 0.0014
+i
+!
+20 .biteratioae are aeeded for initialilatioa transients 0.0012
+aDd approximately 30 are required wbeo tile traDllitiOll
+!
+trip fuaction "waRs up". Within a few time steps only 0.0010
+!
+one eubit.eration ill Deeded.
+0.0001
+I
+i
+Tbis procedure d dividin, tbroup by the diap0 I'
+i
+aaI elements at.o improYei the scheme', reaistance to 0.000& 1
+2
+3
+z
+1OUIld-oft" error in the inviKid rqion where v is ,maD.
+The eoIutioa module wiD still function properly if the Fisu re 7: Ski-friction coefficient in Samuel-Joubert flow,
+rr-tream Voo or the initial suees for ii is eet to zero. based 011 Uooo. z in meters.
+In c:omparison. round-oft" errors may cause De&ative updates, even at cOllver,ence of tbe ,ubiteratiOlll, if either 0.024
+0;
+(45) or (46) is used .
+
+i
+
+=
+
+,
+
+'\
+
+~
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+f\
+
+0.022
+
+The model shows promisin, conver,ence to steadyI
+8ta&e wbeo coupled to the solver for the velocity field. 0.020
+Cooversence is typically as ,000 or hetter than tbat
+for the Baldwin-Lomax aJ&ebraic model. This may be o . o~. I
+6"
+due to the ah.ence or "blinkin," pbenomenoo in the 0.016
+I
+present model. In aJ&ebraic models, conver,ence to
+lteady-tltate may be adversely affected by dilcontinu- 0 .014 !
+(lUI behavior. For example, the poIitioo _here the eddy
+I
+viKosity switches hetween inner and outer formulations 0 .012
+may _aDder back and fortb between adjacent cells. slow- 0.010
+in, cODver,ence or causin, a limit cycle.
+
+I
+
+!
+
+I
+Mode/_
+
+E"'~
+
+,~7
+
+,
+
+O.ClOl
+0.005
+
+Results
+
+0.004
+
+Boundary-Lug Calculatjons
+
+/
+V
+
+~
+
+....r
+
+~ ~~
+
+Y
+
+...- V
+
+/'
+
+7
+•
+/
+
+/
+
+!
+
+i
+
+,
+I
+!
+
+j..--
+
+0.002 I
+2
+
+Only iDcompreaible boundary layers have been conIidered. With zero prel5ure padient, the model obeys
+the accepted ReyuoId..number Kalin" 10 tbe results
+IhowD at R.
+104 enlUre apeement with the curmat tIaeories. The model &ives satisfactory results in
+attadaed boundary layers with preeaure padients, typical of tille Stanford lQ68 cues. We only present reault.
+for the .mk low aDd the Samuel-Joubert low [24] as
+tile other CUllS with moderate &r&dients Ihow the same
+tread. Darmofal's code was used asain.
+
+=
+
+Fisure 8: Momentum and displacement thicknesses in
+Samuel-Joubert flow. in meters.
+
+[0.0050.0.0057] for C" [1 .35.1 .42J for H. and [700. S00}
+for R.. The eddy-viscoaity profile is atypical. Because
+of the lack or entrainment in the sink flo"., it does not
+show a front at the edse of the boundary layer. Instead.
+it extends iDto the freestream re,iOll. This did not di~­
+turb tbe veloc:ity profile. which is satisfactor~· bot h ill
+In the sink flow. with an acceleration parameter
+terms or thicknea and shape.
+K == v/U;,(dUoo/dz) equal to 1.5 x 10-', we obtain
+In the Samuel-Joubert flo"· the .sreement i5 rath ~ r
+C, 0.00535, H 1.35, and R. 760. T~ results
+are weD within the experimental raDse, which is about Soad for the skiD friction, fig. 7, and the thiclmes-~~.
+
+=
+
+=
+
+=
+
+14
+
+---,--,---,.---,----
+
+0.12'
+1-~!:---,:
+
+1.65
+
+1.10
+
+I
+
+0.1' J...
+0
+
+i
+
+.!
+
+i--+--+--+-+----if---+--.;...!~~
+i JIt::
+0.08 +---f---+--If--+---;---+--i--J-
+
+I
+
+0.08
+
+II
+
+.f·1
+
+~ /
+
+1.80
+Exp' -4::
+
+H
+
+OJ
+0
+
+1.45
+
+c
+0
+
+1.40
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+I
+
+O.'Or-+--+--1r---t--+--+----i-~~
+
+i
+
+1.515
+
+--!-----;--+--+---.1--+---,..--
+
+0
+
+°
+
+O.07+--+_+_-+--t-~--I--+JSoL-1
+
+0.06+-_+_+_-+--t-~-_1-"¥-"4---i
+
+~~I O.05+-_+_+_-+_-t__
+
+2
+
+z
+
+"/
+
+i
+
+~
+
+"i~odel !
+
+_+--+_+--+.-.<-..j,4'7-+_~' _:
+
+1
+0.03+-
+
+"/
+
+I
+
+0.02+-_+_+_-+--;;"..q-r~--1--+----.;
+
+,,"/
+
+0.01 t---t--r--::lI!F;.,-&--+--r--+--f----'
+
+,./
+
+i--1.35
+
+Exp.....
+
+~_--:!!~~~L_
+
+!
+O.04+--+--+---1:..---t--+'<----o,.q:.=~--
+
+V
+
+c
+
+V :
+
+II
+
+~v
+
+0.00 ~_....-_~:....JL-.J--..L-__1_--.J----"
+0.2
+0..
+0.6
+0.11
+' .0
+
+3
+
+U
+
+=
+
+Figure 9: Shape factor in Samuel-Joubert flow .
+
+Figure 10: Velocity profile at z
+304m in SamuelJoubert flow. U normalized with edge \·elocity. y in
+meters.
+
+Fig. 8. The model produces slightly higher skin friction, but lower thicknesses. The shape factors (Fig. 9) 0.'2
+are in disa&reement even before the pressure gradient is 0."
+I
+applied, and are the root of the disagreement in thickI
+nesses. With an adverse gradient, the skin-Criction term 0.'0
+loses its authority in the momentum equation. The ex- 0.08
+perimental values for z between 1 and 2m, H ~ 1.39,
+I
+are surprisingly high considering the weak pressure gra- 0.011
+dient and the Reynolds number, R, ~ 6500. Interest- 0.07 !
+ingly, the calculated shape factor is catching up with Y
+0.06
+the experimental one Cor z > 3m.
+
+i
+
+I
+
+I
+
+"
+
+.
+i
+
+~ "
+.............
+!
+
+I
+
+..............
+
+""k
+
+!
+
+-.........
+
+"-......
+
+jlAodeI !
+
+,
+Figure 10 shows the velocity at z = 3.4m. The posi- 0.05
+tion oC the boundary-layer edge is good, but the com- 0.04
+~ ,
+Exp. ~~i
+puted profile is Cuner than the experimental profile. The
+shear-stress profiles in Fig. 11 show good agreement for 0.03
+7)
+the outer values, but the near-wan agreement may be 0.02
+,..
+poor enough to partly explain the differences in the ve~ I
+locity profiles. Stress disagreements can of course be 0.01
+P
+t--,
+l-i
+compounded by the convection and pressure terms. Cu- 0.00
+0.0016
+0.0000
+0.0004
+0.0008
+0.0020
+0.00'2
+riously Dr. F. Menter, who was kind enough to test the
+r
+model in his Navier-Stokes code [25], obtained similar
+a&reement Cor the stress profiles, but better agreement Figure 11: Shear-stress profile at :r = 3.39m in SamuelJoubert flow . T normalized with edge velocity. y in
+for the velocity.
+meters.
+The Samuel-Joubert results suggest a mild but genuine tendency to underpredict the shape factor and
+thickneMeI in adverse pressure sradients. This may this type of 80w. Neverthl!less, the behavior of the
+make the model a little more resilient to separation than new mod~l is not disappointing and vindicates the noit would ideally be. The tendency is not as strong as tion that a model calibrated Cor mixing layers, wakes.
+with the Cebeci-Smith, Baldwin-Lomax, and IN mod- and zero-gradient boundary layers has a gooa chance in
+els, but our comparison with experiment is not quite adverse-gradent boundary layers, which are an interas Sood as that obtained by Menter \II-ith the Johnson- mediate sit'Jation. In addition, an improvement of the
+King and Ir-w models [25J. Both models have been dt'<;truction !erm 1"Iay yet be found sufficient to obtain
+finely tuned over years. with an emphasis on precisely resuits 011 <i ;"! .... ith the best models.
+~
+
+-
+
+15
+
+~avier-Stokes Calculations
+
+'1.4
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+We present three cues or the RAE 2822 airfoil; the
+first two have a sharp trailing edge but shock interactiooa or different strengths. and the tbird has a blunt
+trailing edge.
+
+'1.2
+
+..
+
+I
+
+~I- L..-" ~
+".0
+
+~
+
+-0.1
+
+Navier-Stoke8 calculations for- Cues 6 and 10 OIl the
+RAE 2822 airfoil [26] were performed using the present -0.6
+model, &I well u the Baldwin-Lomax and Johnson-King -CI'
+turbulence models. The John80n-King results were ob- -0.4
+tained Uling the Navier-Stokes code or Swanson [27].
+Results for- each model were computed on 384 x 80 and -0.2
+768 )( 160 grids to minimize numerieal errors. These
+grids were generated by the elliptic method of Wig- 0.0
+ton r23]. The medium and fine grids contain 257 and
+0.2
+513 points on the airfoil. respectively.
+
+• xperl~t
+- - ptesent~ :
+
+,
+
+- - - . a.tdwi".lomu
+- . - . • .IcIhNon-KJng
+
+I
+
+r
+
+I
+
+i
+
+\..
+\;\
+
+,
+
+V'
+~
+/
+
+l
+
+l.r' ~
+
+~
+
+~
+
+~
+
+i
+I
+
+~
+
+I !
+!
+
+N
+
+;
+
+,I
+
+N
+
+.
+
+'
+
+'" ~ .:J,
+
+I
+AU calculations for Case 6 were performed at tbe same 0.4
+0.4
+0.0
+0.2
+0.6
+0.8
+1.0
+conditions: M
+0.725. He
+6.5 X 106 • a prescribed
+z/c
+lift coefficient of Cl
+0.743. and transition trips at
+Figure
+12:
+Pressure
+distribution
+for Case 6, RAE 2822
+3% chord. Results on the 768 x 160 grid are shown in
+Figs. 12 and 13. AU models converged solidly on both airfoil.
+grids.
+
+=
+
+=
+
+=
+
+0.007,..,..-....---.--,..-....--....----,r-------_
+
+Figure 12 sbows a comparison of surface pretlllures
+- - pteNnt model
+for- Cue 6 obtained with the three turbulence models
+- - - • lIaIdwin-L......
+and experiment [26]. The shock for- tbe present model
+_. - .• ..Ic>hrcon-K"'I!
+is about 1.5% chord farther forward than in the experiment or- as predicted with the Baldwin-Lomax and 0.005 ,!
+.:~_
+•I
+' • . -::'~ ""___-'-.....
+Johnson-King models. but well within the acatter of various models as reported at the Viscous Transonic Airfoil 0.004 TI~j~~_+-·--·~'~~~---~~~-~-~~~--+_~~--"~~
+!I
+Wor-kshop (VTAW) [6]. The new model is farther from
+!
+the experiment near tbe leading edge on the upper sur- 0.003 +-'---<~_+--+--+---+*_I--_+--+--~__I
+face. but cloeer to the experiment near the trailing edge C,
+on the lower surface. All the calculations reveal small
+pressure glitches near the trailing edge. With the new
+model on the fine grid. the angle of attack was 2.37°.
+the drag coefficient 0.0121. and the moment coefficient
+-0.091, compared with 2.9~. 0.0127. and -0.095 in the
+experiment, re8pectively.
+
+~ I
+
+Figure 13 shows the upper-surface skin-friction coeffi- -O.OO,+--~-4--L-+---L---<~~-+-~-0.0
+0.2
+0.4
+0.6
+0.8
+' .0
+cient for the same case. Between the three models there
+z/c
+is a difference or up to 10% upstream of the shock. and
+similar but reversed differences downstream of it. The Figure 13: Skin-friction coefficient on upper surface for
+new model d0e8 not predict wall-shear reversal. The Case 6, RAE 2822 airfoil. C, based on (;at:.
+other two predict reversal at the foot of the shock, but
+only on the finest grid (768 x 160). Reversal was never
+predieted at the VTAW, where the finest grid used was
+Flow conditions for the RAE 2822 Case 10 are M
+369 x 65. It appears that with current codes the simple 0.75, Re = 6.5 X 106 , a prescribed lift coefficient of
+qUe8tion of whether reversal occurs is not firmly an- Cl = 0.743, and trips at 3% chord . The new modd
+swered even at grid resolutions that are considered very obtained a 8teady solution on the 384 x 80 grid. but
+fine. At the shock. the new model produces a larger produced a limit cycle on the finer 768 x 160 grid . All
+step up for the boundary-layer thicknesses than with the cyclic variation was in the separation bubble. The
+Baldwin-Lomax, resulting in a mor-e for~'ard position. new model also produced a limit cycle on the 384 x 8(1
+Intere8tingly, the size or the displacement effect is not grid when the artificial dissipation in the ~a\·ier-Stokes
+solver ~' as cut in half. Baldwin-Lomax and Johnsoncorrelated with the occurrence of reversal at the wall.
+
+=
+
+16
+
+-.
+
+-'.4
+-1.2
+
+(
+
+f'
+
++- j
+
+-,.0 ~.
+-, ....
+-aa
+
+'-
+
+--
+
+...
+
+~~
+
+,
+
+.--1
+
+~'
+
+~\
+.
+
+~;.-
+
+\
+
+----8eldwi~Lomu
+
+-'-"~King
+
+,
+
+\
+
+:;'
+
+trailing edge. lower surface. All the models fail to agree
+with experiment for ric> 0.7. upper surface. The new
+model predicts a flattening pressure for ric> 0.9. upper surface, in qualitative disagreement ..... ith the experiment. The Johnson-King model has shown the &ame
+trend, but not as strongly and only in Coakley's implementation (6). The Baldwin-Barth model also produces
+the flattening (8) .
+
+•
+--~_'
+
+I
+
+•
+
+•
+
+-aa
+-C.,
+
+\
+
+• I
+
+~\.\1'
+
+This behavior of the C., is corr~lated with that of
+the akin-friction coefficient, Fig. 15. Downstream of
+44
+the shock, the experiment and our Johnson-King reIUlta ahow the akin friction returning to .trong posiJ
+~
+-o.z
+tive values. The flow reattaches firmly. The BaldwinLomax results show weakly positive skin friction over
+.rJ
+0.0
+,"""'I
+a short stretch. With the new model th~ skin friction
+~
+gazes zero before again taking moderate negati\'e \'al,J
+~
+G.2
+ues. There is no reattachment, and the flattening pres......... -.'"'
+lUre distribution reflects it. Note that a similar be0.4
+0.6
+0.2
+0.4
+0.1
+0.0
+' .0 havior has been observed with algebraic models: if the
+:rIc
+skin friction approaches zero smoothly enough the VanFipr~ 14: Pressure distribution for Case 10, RAE 2822 Driest damping can, erroneously, "shut dO"'n" th~ eddy
+viscosity across the whole layer. This is not what is
+airfoiL
+happening here.
+
+I\~,~
+
+"
+
+V ~
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+V"
+
+"\
+
+,. .
+
+~ ••
+
+" ~
+"
+
+I
+
+0.007
+
+O.CIIII
+
+I
+
+~I
+
+=
+
+- - - ' 8eIdwi~.
+-'- " ~King
+
+The apparent failure to reattach is not a favorable
+result,
+and this behavior "'as also observed in another
+I
+~ -,
+separated case (B. Paul, personal communication). The
+,I
+~
+.'.,:
+I
+.1
+0.004
+IOlutions show a very 10'" eddy \'iscosity near the wall.
+\
+'- .
+:
+I
+A run with a more diffusive model (i.e .• lower u) that
+~
+could have helped the eddy viscosity diffuse towards the
+.\
+~ ,
+wall failed to show much difference. However we do not
+\ ,
+. I
+believe
+there is a structural reason for the failure to reat 0.002
+tach, baaed on two tests. The first is a cakulation of
+.....
+reattachment on our boundary-layer code, modified to
+0.001
+, , a time-developing code; a layer of reversed ftov.· near the
+I
+wall was eliminated as could be expected . The second
+,0.000
+is
+an unpublished calculation by Menter of a. separation
+-\
+~~
+bubble; again the skin friction returned to positive ""l' .'
+ues without hesitation. Numerical errors in our current
+-0.00'0.0
+0.1
+0.4
+0.6
+0.2
+' .0 Navier-StolEes/turbulence-model solver may be playing
+:rIc
+a role.
+Fipre 15: Skin-friction coeflkient on upper surface for
+For Case 10. with the ne",' model on the 384 x 80
+Cue 10. RAE 2822 airfoil. C, based on U"".
+gid, the angle of attack was 2.52°. the drag coefficient
+0.0238, and the moment coefficient -0.104. compared
+Kin~ produced steady solutions on both gids. Results with 3.19", 0.0242, and -0.106 in the experiment , refor Cue 10 ar~ preaented in Fip. 14 and 15 for aU three spectively.
+turb~nce models on the 384 x 80 grid .
+The blunt-trailing edge airfoil is RAE 2822, truncated
+As uaual, Case 10 produces larger differences than at 94% ofthe original chord (hue height 1.14~ chord) .
+Cue 6. With our policy of matchin~ the Mach number Our objective is to explore the behavior of the model
+and lift coefficient the new model ~ives a better answer and ofthe numerics at corner-induced separation. with
+than Baldwin-Lomax, and slightly better than Johnson- high-lift applications in mind . Accordingly we chos~
+0.6i6, Re =
+King (see Fig 14). This is in terms oCahock location Case 1 (29) which is 8ubcritical: !of
+and pressures near the leading edge. upper surface, and 5.4 x 106 , and lift coefficient CI 0.451 . Calculatiom
+0.005
+
+'.
+f
+
+,~
+
+1I
+
+---- .-
+
+\
+
+\\ .
+\\
+
+,
+
+The limit cycle behavior of the new model on the fine
+grid shows an oscillation between slightly negative and
+slightly positive skin friction near ric 0.8.
+
+--prwent~
+
+,.
+
+.-
+
+=
+
+Ii
+
+=
+
+:I
+
+ylC
+
+~
+
+UminIU.dg.
+0.6
+I
+
+I
+
+,
+
+0.5
+
+....
+
+..,..V
+
+0.4
+
+)'
+
+0.3
+
+•
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+0.2
+
+0.0
+
+.. '""
+..- - - ...~.----.,..,
+•.o:-,-----:,""
+·02::---x-IC--:-'·' -.,:-----:--..,·..
+
+Figure 16: Velocity contours near the trailing edge for
+Case 1. blunt RAE 2822 airfoil. Levels: -0.007 (small
+island), 0., 0.007. ..
+
+-D.1
+
+. ,
+~
+:
+
+V
+
+/
+
+II
+
+0.1
+
+...OIL-_----------------
+
+V
+
+1/
+
+i
+
+0Y
+
+1.00
+
+!
+I
+
+1.02
+
+1.0<1
+
+1.06
+
+1.08
+
+i
+
+i
+
+I
+
+1.10
+
+zlc
+Figure 17: Minimum velocity in wake for Case 1, blunt
+RAE 2622 airfoil. 0 experiment, - - - 768 x 160 grid,
+- - - 384 x 80 grid.
+
+were performed on medium and fine two-block grids.
+The fine grid consists of a 768 x 160 C-grid block around
+the airfoil and a 128 x 64 block downstream of the blunt
+trailing edge. The grid contains 513 points on the airfoil
+and 65 points across the blunt base. The medium grid y/c
+contains blocks of 384 x 80 and 64 x 32. Results for Case
+1 are presented for the fine grid.
+Strong convergence was obtained, and solution
+glitches are less severe than with the sharp trailing edge.
+The angle of attack for Case 1 is 2.035°, the drag coefficient 0.0097, and the moment coefficient -0.061, compared with 2.450 , 0.0098, and -0.060 in the experiment,
+respectively.
+In another example of slow convergence of the detail
+features in the flow. the amplitude of the backflow doubles between the 384 x 80 grid and the 768 x 160 grid.
+The region with negative velocities extends a little over
+one step hei&bt (i.e., 1.35% on the fine grid, the step being 1:14% chord) beyond the trailing edge. The report
+on the experiment also shows about 1.2 step heights,
+but the interpolation is debatable in that the U
+0
+line is shown with an apex, probably due to the understandable sparsity of the measurements. The region of
+reversed flow should not be confused with the displacement body invoked in integral boundary-layer methods,
+which tends to be much longer (2.5 to 5 step heights) .
+Figure 16 shows velocity contours, with the expected
+wedge-shaped region of low velocity. Figure 17 sholl's
+the minimum velocity in the wake, which is in fair agreement with the experiment [29]. The computed curve is
+shifted by about 0.5% chord downstream. This suggests
+
+=
+
+18
+
+Xlc
+
+103
+
+Figure 18: Streamlines near the trailing edge for Case
+I, blunt RAE 2822 airfoil.
+that the model not only gives an accurate growth rate
+for a fully-developed wake (per its calibration), but is
+also fairly accurate for a "youngfl, asymmetric one. The
+wake of a wing, which is combined with a mixing layer.
+is stiD s different problem; nevertheless, we expect the
+model should also be able to treat it well .
+Figure 18 shows streamlines (but not equally-spaced
+stream-function contours). Their pattern is unexpected.
+being rather uymmetric and indicating "reattachment"
+of an upper-surface streamline near the mid-point of the
+base. There are three half-saddles, one saddle, and two
+nodes. This differs from the "educated guess~ made, for
+instance, in [30]. That guess assumes that the streamlines connected to the three half-saddles meet at the full
+
+...
+
+O'Olf===:-~~==~~~g::~~~~~~~~~~~§~
+blends
+boundary-layer
+behavior
+(as
+::
+: eddy
+in fig.visc06ity
+4) into its
+wakeitsbehavior
+(a bell-shaped
+distribution). There is little basis to judge its level in the
+recirculation region.
+
+....
+
+Finall)' Fig. 20 shows the pressure distribution. The
+agreement is good, especially considering the 0.415' difference in angle ofattack, except that the calculated Cp
+is shifted down. This was also observed by Drela for his
+numerical method (31). We also ran Case 4 to measure
+the Reynold&-number effect. In the experiment, Case 4
+had the same angle of attack as Case 1, but a Reynolds
+number of only 1.9 x 106 , resulting in a 1066 of 0.036 in
+C/. We ran Case 4 with imposed C/ 0.415, and the
+angle of attack settled at 1.940 • The lift-curve slope is
+about 0.155 per degree. This implies that the C/ I06S
+due to the lower Reynolds number is about 0.022. This
+is only about 60% of the lift I06S observed in the experiment .
+
+=
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+L--------:=====
+
+01
+...
+
+..... .~-~--:~-~-==---=---=-~--:-:
+.
+1.00
+1.0'
+1.at
+XIC
+1.04 Summary of the results
+l.OJ
+
+Figure 19: Eddy-viscosity contours near the trailing
+edge for Case 1, blunt RAE 2822 airfoil.
+-1.0
+
+-O.s
+
+,
+.....
+
+,I
+
+ElOP
+
+-
+
+'-,.- o.t.!.:
+
+~
+
+-0.11
+
+!!!: ~
+
+-Cp
+
+;Y
+
+-0.2
+
+~
+
+lY
+
+~
+
+I
+
+'j
+
+0.4
+0.0
+
+0.2
+
+0.11
+
+0.4
+
+ric
+
+j
+
+I
+
+'''\
+
+~
+
+1I
+
+0.0
+
+0.2
+
+"f\
+
+x
+
+-o.~
+
+I! !
+I
+
+••
+
+,"
+~
+
+~
+
+~xl,.J
+
+0.'
+
+1.0
+
+Figure 20: Pressure distribution for Case 1, blunt RAE
+2822 airfoil.
+
+•
+
+saddle, isolating the two nodes. There is no reason for
+such a pattern to occur in the absence of symmetry, and
+it is not stable. The saddle and the lower node could also
+eliminate each other under other conditions. Streamline
+patterns can overstate the importance of regions with
+10\\' velocity and little dynamical significance.
+Figure 19 shows eddy-viscosity contours. Continuity between the grid blocks, "'hich is hard to achieve
+with algebraic models, is of course observed. The
+
+19
+
+We have exercised the model outside its domain of
+calibration and with the full Na"ier-Stokes equations.
+instead of just the boundary-layer equations. Its compatibility with unstructured grids has yet to be used.
+but there is no need to demonstrate it. In a few cases
+with shock-induced separation the new model yielded
+a limit cycle, with a pulsation of the bubble. when the
+algebraic models yielded steady solutions. Since timeaccurate solutions Ilfe very expensive, steady solutions
+may be greeted as successes whether they are ph~' si­
+cally correct or not. Outright divergence ofthe iterative
+process has never occurred, and the model seems to be
+reasonably "friendly" to the relaxation process, without
+any attention being paid to the initial condition . Thus.
+the model appears robust enough to be implemented by
+independent users, in a variety of codes and physical
+situations, and it should be particularly attractive to
+unstructured-grid \lIers.
+The accuracy 10 rar is consistent with our expectations. The model's response to grad ual or steep pressure
+gradients, and to the removal of the blocking effect of
+the wall, is encouraging. The post-shnck reattachment
+in an adverse pressure gradient has proven to be difficult
+for the model. Menter also reported somewhat disappointing results over a backward-facing step. traced to
+an excessively-rapid build-up of the shear stress (perIOnal communication). This weakness also afHicts the
+k-£ model, and may respond to a modification of the
+/", function. The quality of our results with the blunt
+trailing edge indicate that this problem cannot be very
+severe. It appears that the calibration cases are indeed representative enough of the flows of interest to
+ensure decent performance in non-trivial situations, and
+to warrant extensive applications and tests ofthe model
+in its present form.
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+Outlook
+
+of order UooR in the recirculation region. A Reynolds
+number based on tbat viscosity would be finite, which
+shows that there is no immediate lCaJing argument that
+can predict whether a steady solution can be stable.
+This question must await extensive tests. The pressure
+to produce time-accurate Navier-Stokes codes will only
+increase, even if the steady-state codes have not reached
+perfection.
+
+The development of the model will nevertheless continue. It will praerve the basic favorable features of
+the model: ainpe trauport equation, local formulation,
+moderate resolution requirements, good numericalltability, iD8eDlitivity to the freestream value, ready control of trauition. The invariance principles wiII allO be
+upheld. Additional tests will be made, notably in three
+Even when unsteady solutions of the modeled equadimelllioal. No additional difficulties are anticipated. tions are obtained, their meaning will need scrutiny.
+Tests in more Itronpy stimulated Oows such a massive Many of the properties of Reynolds-averaging hold apIeparatioD, wakes in pressure gradients, or free vortices, proximately if there is a separation of scales (i.e., a specare likely to reveal weak_ in the model. They will tral gap) hetween the resolved motions and those that
+aIIo aue. the current Navier-Stokea codes, in two re- are left to the turbulence model. We have little evidence
+spects. The first .. the detai1accuracy, for instance the in that domain. An example of legitimate decomposicooaervatioo of momentum in boundary layers, which tion would be a mixing layer that wanders on a time
+is far from perfect in our experience. This problem haa scale much longer that its internal time scale which, afbeen ot.tructed by the difficulty in computing the thick- ter modeling, is 6/AU (with 6 the thickness, and A(,
+nellel6· and IJ in Navier-Stokes codes, but it must now the velocity difference). Note that what we envision
+be addreased, if only on a flat plate at low Mach number. here is different from Large-Eddy Simulation. As the
+The other aspect is the question of steady solutions grid is refined the model does not change, the way it
+in Oows with medium- or large-scale separation. An does in LES (through a narrowing of the filter, so that
+classic example is the flow past a circular cylinder; a the limit is direct simulation). The difficulty of LES is
+pressing industrial example is the Oow past a staDed the filtering without spectral gap. Instead, v..e converge
+airfoil, near its maximum lift coefficient C"mazo. Except to a smooth solution of the modeled equations .
+at very low Reynolds number the Oow is unsteady and
+three-dimensional. On the other hand, provided the geometry is time-independent, it is legitimate to define its
+time-average and to hope for a code that would compute it as a ateady solution. It is .Iso legitimate to request the low-frequency component (i.e., with Strouhal
+number of order 1) of the solution, particularly the Ouetuating loads for Itructural purposes. The ideal turbulence would include a Iwitch between these two options.
+We do not know, in general, whether the exact solution of the Navier-Stokes/turbulence-model system in
+its pretent form is steady. In the design of some models,
+decisions have been made solely on the basis of a preference for the candidate that yielded steady solutions. We
+are far from having the capability of routinely performing time-accurate calculations to explore the issue. All
+the routine calculations aim at Iteady solutions. Failure
+to converge, and the generation of a limit cycle,
+be
+a lign that the exact solution is unsteady. It may allo
+be just a numerical problem.
+
+m.,
+
+Enviaioo a ateady solution, say past a cylinder. An
+aJ«ebraic modelluch as, for instance, Baldwin-Lomax
+would be UIed out of its range, but this does not stop eager UIetI. In the recirculating re&ion it would yield eddy
+viscosities on the order of U00 R, with U00 the freestream
+velocity and R the cylinder radius. We presume here
+that the Baldwin-Lomax fmn condition would occur
+in the wake, and not near the wall. A balance between production, on one side, and diffusion and destruction, on the other, suggests that the new model
+also could produce a IOlution with an eddy vilCOIiity
+
+Some of the near-future directions have been hinted
+at above. There is the choice of S, between the vorticity, the strain rate, or another scalar norm of the deformation tensor. There is the use of an approximation
+of the turbulent kinetic energy Ii: to give the Reynoldsstress tensor a plausible trace (or set of eigen\lllues).
+There is a modification of the /", function in the region
+r > 1, that would alter the results only on adverse preslure gradients. The third modification could be assessed
+in the Samuel-Joubert or airfoil flows, but obvious test
+cases for the first two are not at hand.
+The current model has no compressibilit~· terms. Empirical terms baaed on the turbulent Mach number, such
+as the one in the Secundov model, or on the quantity
+Vp.V;; are available. The former may be calibrated
+in supersonic mixing layers. The latter may assist the
+model in shock/boundary-layer interactions if a consistent trend is found that shows an erroneous shock location, and we can extricate that trend from numer ical concerns (e.g., artificial dissipation) and from the
+endIeaa corrections of tranlOnic airfoil testing. In that
+range of density variations it may be enough to write
+the transport equation in terms of p instead of ii. taking advantage of the flexibility in placing p inside or
+outside various derivatives. This is consistent ",·ith the
+spirit in which the model was devised. To tJ .:s date.
+efforts to devise a curvature term with the required invariance pr(\perties and no d.dependence have failed.
+Note that curvature effects have been obsef\·ed in free
+shear flows. Three-dimensional effects in boundary layers (Le., pressure-gradient vector at an angle to the ve·
+
+20
+
+•
+
+locity vector) are also delicate to introduce even empirThe trip function III is as follows: d, is the distance
+ically without violating the in~-ariance principles. No from the field point to the trip. which is on a wall. ,,:, is
+plana have been made to depart (rom a acalar eddy vis- the wall vorticity at the trip, and ~U is the difference
+c05ity.
+between the velocity at the field point and that at the
+trip. Then" == min(O.I.~U/IoII~Z) where ~.r is th.,
+grid spaein, along the wall at the trip. and
+
+Acknowled,ements
+
+:J%
+
+=
+
+=
+=
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+g~d;]
+
+2
+
+III Cn " exp ( -C,2
+[d +
+) .
+(A6)
+The initial work was performed by the first author while an employee of NASA Ames Reeearch Center. Dr. L. Wilton reviewed the manuscript and ran
+The constants are Cu = 0.1355, tf 2/3, cn 0.622,
+2
+lOme 0( the cues.
+Mr. W. F. NoU8S reviewed the It
+0.41. C",l
+Ctt!lt + (1 + cn)/tf. c .. 2
+0.3,
+maDUKript. Ms. W. Wilkinson provided some of the Ctl/3 2, Ct.l = 7.1, Cn
+1, C,' 2. C'l! = 1.1, Cf4 2.
+rue.. We have benefited from comments by Drs. Bald- Turbulent heat tranlfer obeys.a turbulent Prandtl numwin. Barth, Birch, Bradabaw, Jou, Menter. Speziale, her (not to be confused witb tf) equal to 0.9.
+and Vandromme. Theae comments do not constitute
+endonemeata.
+
+=
+
+=
+
+=
+
+=
+
+=
+=
+
+=
+
+References
+
+Appendix; Summary of the Model. Version I
+We solve the Reynolds-averaged Navier-Stokes equatiODS and a transport equation (or the turbulence model.
+The ReyncJds atreues are given by -1ijlij = 2VI Sij
+where Sij :: (lJUi/lJZ j + lJUj/8zi )/2. The eddy visc05ity v. is pven by
+"1
+
+=ii 1,,1.
+
+1~1
+
+= X X3
+3'
++C.,1
+3
+
+ii
+
+X:: -.
+If
+
+(AI)
+
+v is the molecular visc05ity. ii is the working variable
+and obeys the transport equation
+Dj;
+Di
+=cn [I-I.,] S-_11+;1 [V. «(If + ii)Vii) + cn (Vii) 2]
+
+- [C.,tltI/ - :: 112] [~r + In ~U2
+
+(A3)
+
+[5] Launder. B. E .• &: Tselepidakis, D. P., "Direction!!
+in eecond-moment modelling of near-wall turbulence" • AIAA-91-0219.
+
+[6] Holst, T. L., "Viscous transonic airfoil workshop.
+Compendium of results". AIAA-S7-1460.
+
+The function I., is
+
+1+ I ] 1/'
+I.,=.?
+, ,=,,+cw,(,,6_,,). ,,:.....!--.
+[ +)3
+tl/3
+S,,2d2
+(A4)
+
+For wse " I. reaches a cooatant, so lar,e values of "
+can be truncated to 10 or so.
+
+The wall boundary condition is if = o. In the
+freestream 0 is beat. provided numerical errors do not
+push ;; to negative values near the edge of the boundary layer (the exact solution can't go negative) . Values
+below ,,/10 will be acceptable. The Ame applies to the
+initial condition. The /12 function is
+
+=C,3 exp(-Cr4 :.\').
+
+[3] Jobnson, D. A., &: King. L. S., "A mathematically simple turbulence closure model for attached and separated turbulent boundary layer5~,
+AIAA JoUrnal. Vol. 23, No. 11. 1985, pp. 16841692.
+[4] Mavriplis, D. J .• "Algebraic Turbulence Modeling
+for Unstructured and Adaptive Meshes", AIAA-901653.
+
+and d is the distance to the closest wall.
+
+1,2
+
+[2] Cebeci, T ., &: Smitb, A. M. O ....A finite-difference
+method for calculating compressible laminar
+and turbulent boundary layers~, Journal of Basic
+Engineering, Vol. 92, No.3, pp. 523-535.
+
+(A2)
+
+Here S is the magnitude of the vorticity,
+
+ii
+S == S + «242 1"2,
+
+[1] Baldwin, B. S,' &: Lomax, H., "Thin layer approximation and algebraic model for separated turbulent
+flows". AIAA-7S-257.
+
+(A5)
+
+21
+
+[7] Viegas. J. R., Rubesin, M. W., &: Horstman, C.
+C., "On tbe use of wall functions as boundary conditions for tw~dimensional separated compressible
+ROWIS", AIAA-85-OISO.
+[S] Baldwin, B. S., &: Bartb. T. J .• "A one-equation
+turbulence traoaport model for high Reynolds num·
+her wall-bounded flows". AJAA-9I-061O.
+[9] Bradshaw. P.• Ferriss. D. H., &: Atwell . N. P..
+"Calculation of boundary-layer de\'e1opment us·
+ing the turbulent energy equation", J. fluid ~' t'ch .
+Vol. 2S, 3, 1967, pp. 593-616.
+
+[10] Nee, V. W., &: Kovuznay, L. S. G., "Simple phe- [24] Samuel, A. E., &: Joubert, P. N. "A boundar~'layer
+developing in an increasingly ad\'erse pressure granomenological theory of turbulent ahear flows",
+Physics of Fluids, Vol, 12, No.3, 1969, pp. 473dient", J. Fluid Mech., Vol. 66, 3, 19i4, pp. 4$1484.
+505.
+
+[11] Secundov, Smirnova, Koclov, &: Gulyaev, "One- [25] Menter, F. R., "Performance of popular turbulence
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.1992-439
+
+equation eddy vileosity model (modified L, S. J.
+Kovumay model)". Short aummary of the equatioaa. Personal communication, 1990.
+
+models for attached and separated adverse pressure
+gradient flows", AIAA-91-1784.
+
+[26] Cook, P. H., McDonald, M. A., &: Firmin, M.
+
+C. P., "Aerofoil RAE 2822 - Pressure distri[12] MitcJaeltree, R. A., Salas, M. D., &: Husan, H. A.,
+butions, and boundary layer and wake measure"One-equation turbulence model for transonic airAGARD-AR-138, 1979.
+ments",
+foil lows", AlAA Journal, Vol. 28. No.9, 1990, pp.
+1625-1632.
+[27] Swanson, R. C., &: Turkel. E., "Artificial Dissipation and Central Difference Schemes for the Eu[13J Bradshaw, P., Launder, B. E., &: Lumley, J.
+ler
+and Navier-Stokes Equations", AIAA-Si-llOi,
+L., "Collaborative teating of turbulence models",
+1987.
+AlAA-91-0215.
+[14] Wilcox, D. C., "Reassessment of the scaledetermining equation for advanced turbulence
+models", AIAA Journal, Vol. 26, No. 11, 1988, pp.
+1299-1310.
+[15] Spataft, P. R., "Direct simulation of a turbulent
+boundary layer up to R, 1410", J. Fluid Mech ..
+Vol. 187, 1988, pp. 61-98.
+
+=
+
+[28] Wigton, L. B., "High Quality Grid Generation Using Laplacian Sweeps", Fourth International Symposium on Computational Fluid Dynamics, U .C.
+Da\'is.Sep. 1991, pp. 1222-1228.
+
+[29] Cook, P. H., &: McDonald, M. A., "Wind tunnel measurements in the boundary layer and wake
+of 6.n airfoil with a blunt base at high subsonic
+speeds", RAE Tech. Rept. 84002. 1984.
+
+[16] Baldwin, B. S., &: Barth, T. J., "A one-equation [30J Henne, P. A., &: Gregg, R. D., "A new airfoil design
+turbulence transport model for high Reynolds numconcept", AIAA-89-2201-CP
+ber waIl-bounded flows", NASA TM 102847, 1990.
+[31] Orela, M., "Integral boundary layer formulation for
+[171 Townsend, A. A. The structure of turbulent shear
+blunt trailing edges", AIAA-89-2200.
+flow. Cambridge University Press, New York, 1976.
+[18] Schlichting, H. Boundary-layer theory. McGrawHill, New York, 1979.
+[19] Hunt, J. C. R. "Turbulence structure in thermal convection and shear-free boundary layers".
+J. Fluid Mech., Vol. 138, 1984, pp. 161-184.
+
+[2OJ Mellor, G. L., &: Herring, H. J., "Two methods
+of calculating turbulent boundary layer behavior
+hued on numerical solution of tbe equations of
+motion". Proc. Conf. Turb. Boundary Layer Pred.,
+Stanford, 1968.
+
+[21] Martinelli, L., &: Jameson, A.. "Validation of
+a Multigrid Method for the Reynolds Averaged
+Equations". AIAA-88-0414.
+
+[22J Steintboruon, E., &: Shih, T. I.-P., "A Method
+of Reducing Approximate Factorization Errors in
+Two- and Three-Factored Schemes", submitted to
+SIAM J. of Statistical and Scientific Computing.
+
+[23] Shih, T. I.-P., &: Chyu, W. J., "Approximate Factorisation with Source Terms" , AIAA Journal, Vol.
+29, No. 10, October 1991, pp. 1759-1760.
+22
+
+..j
+
+

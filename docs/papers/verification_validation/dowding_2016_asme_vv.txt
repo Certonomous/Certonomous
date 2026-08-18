@@ -1,0 +1,955 @@
+SAND2016-5342C
+
+Overview of ASME V&V 20-2009 Standard for
+Verification and Validation in Computational Fluid
+Mechanics and Heat Transfer
+Presented at 2016 Inverse Problems Symposium
+5-7 June 2016 Virginia Military Institute
+Kevin Dowding
+Sandia National Laboratories
+V&V, UQ, and Credibility Processes
+Department
+Albuquerque, NM
+kjdowdi@sandia.gov
+Sandia is a multiprogram laboratory operated by Sandia Corporation, a Lockheed Martin Company, for the United
+States Department of Energy’s National Nuclear Security Administration under contract DE-AC04-94AL85000
+1
+
+History of V&V 20
+• In 2004, Professor Hugh Coleman, an expert on
+experimental uncertainty analysis, sought out a
+collection of V&V people
+• Purpose was to provide an approach to validating
+(to be defined) computational simulations
+• Academia, industry and national labs were
+represented on the committee
+• Techniques for developing uncertainty analysis
+for computational simulations should be
+consistent with those used in experimental
+community (ASME PTC 19.1 and ISO GUM)
+
+2
+
+V&V 20 Committee
+• H. W. Coleman (chair), U. Alabama/Huntsville
+• C. J. Freitas (vice chari), SWRI
+• R. L. Crane, ASME
+• B. F. Blackwell, Consultant
+• K. J. Dowding, Sandia
+• U. Ghia, U. Cincinnati
+• R. G. Hills, Sandia
+• R. W. Logan, Consultant
+• P. J. Roache, Consultant
+• W. G. Steele, Jr., MSU
+3
+
+V&V has the goal of providing evidence for the
+credibility of computational simulation
+• Computational simulation is (relatively) inexpensive and has
+advanced to the point that complex systems can be analyzed
+• While computational simulation can be applied to complex
+systems, the accuracy of the results are often unknown
+– Computer codes to solve the simulation models may have bugs or algorithm
+deficiencies (code verification)
+– Computational simulations approximate the solution of the mathematical
+equations (solution verification)
+» Discretization dependencies
+– The mathematical equations solved in a computational simulation (PDEs
+usually) are an approximation at some level (validation)
+» May be based on fundamental principles, but typically contain
+constitutive models or “sub-grid” models that are empirically based
+» There are simplifications and assumptions in developing the
+computation simulation (validation)
+
+4
+
+Definitions of Verification
+• Verification
+– The process of determining that a computational model accurately
+represents the underlying mathematical model and its solution. (V&V10, high level document for solid mechanics)
+– Code verification (V&V-20): “Establishes that the code accurately
+solves the mathematical model incorporated in the code, i.e. that the
+code is free of mistakes for the simulations of interest.”
+– Solution verification (V&V-20): Estimates the numerical accuracy of a
+particular calculation.
+
+• Code Verification precedes validation
+– Establishes that the code solutions are an accurate representation of
+the mathematical models
+– Goal is finding and removing mistakes in the source code and
+numerical algorithms
+
+• Solution (Calculation) Verification performed as part of
+validation
+– Assuring the numerical accuracy of code output for the problem of
+interest
+5
+
+Definition of Validation
+• Definition Validation (ASME V&V-10/V&V-20):
+“The process of determining the degree to which a
+model is an accurate representation of the real
+world from the perspective of the intended uses of
+the model.”
+• Key points:
+– “Process” (that may be iterative)
+– “degree .. accurate representation of real world” (quantitative)
+– Intended uses (adequacy)
+
+6
+
+Code Verification
+• Code verification should be performed prior to validation
+• Establishes that the code solutions are an accurate
+representation of the mathematical equations in the simulation
+– Goal is finding and removing mistakes in the source code and numerical algorithms
+
+• Performed by comparing analytical solutions of mathematical
+equations to simulation code solutions
+– Method of Manufactured solutions (MMS) (see Roach, 1997 or Knupp and
+Salari, 2003)
+– Classical analytical solutions (Beck)
+
+• Simple (conceptually) for single physics (equation) models
+– NS for Laminar flow, Nonlinear heat conduction, etc.
+
+• Challenges exist for verifying the fully-coupled mathematical
+equations
+– CFD for turbulent reacting flow with participating media
+– Nonlinear heat conduction with enclosure radiation and chemical kinetics
+
+7
+
+Overview of the V&V-20
+Validation Procedure
+
+8
+
+Detailed Description of V&V-20
+Methodology (4)
+• Provided the errors are independent
+2
+2
+uval  unum
+ uinput
+ u D2
+
+• unum – uncertainty due to numerical solution of the
+equations – estimated with code verification and solution
+verification processes
+• uinput – uncertainty due to simulation input uncertainty –
+estimated with techniques discussed in this course
+• uD – uncertainty due to experimental measurement
+uncertainty – estimated with similar techniques
+• Methodology is provided in V&V-20 for the case when
+errors are not (approximately) independent
+– Effect of assuming independence in the errors is problem specific
+9
+
+Numerical solution uncertainty
+(unum)
+• Code verification needs to be conducted for the
+simulation capabilities used in a validation activity
+– The evidence for trusting that the simulation code is accurately solving
+the mathematical equations
+– Code verification does not directly contribute to unum
+
+• Numerical uncertainty unum estimated with Grid
+convergence index (GCI)
+• Requires running the simulation model while refining
+the grid (mesh)
+• Procedures to estimate an uncertainty that bounds the
+numerical effects is derived directly from the GCI
+
+10
+
+Simulation input uncertainty
+(uinput)
+• Both Mean Value (MV, propagation of variance)
+and Latin Hypercube Sampling (LHS) approaches
+are described for propagating simulation input
+uncertainty through the simulation software
+• Provides an estimate of uinput that characterizes a
+range of the simulation that can be attributed to
+input uncertainty
+
+11
+
+Experimental uncertainty (uD )
+• Based on the approaches described in ASME
+PTC 19.1 (Test Uncertainty) and ISO GUM
+• Makes a distinction between random and
+systematic contributors to the experimental
+uncertainty
+• Both Mean Value (MV) and Latin Hypercube
+Sampling (LHS) are discussed in V&V 20
+
+12
+
+Validation Metrics
+• Validation metrics involve selecting the what(s)
+and how(s)
+• What can be compared in the validation
+experiment?
+– Validation at the lower levels measures responses that are not
+easily relatable to validation responses at higher levels
+
+• How will the comparisons be quantified
+– Statistics of the measurement-simulation differences
+– Comparison of the measurement-simulation differences to
+uncertainty
+– Estimate the magnitude of model form error
+
+13
+
+V&V-20 Definitions
+• Definitions of Error and Uncertainty*
+– (δ) error (of measurement): “result of a measurement minus a true value of the
+measurand”, and
+– (u) uncertainty (of measurement): “parameter, associated with the result of a
+measurement, that characterizes the dispersion of the values that could
+reasonably be attributed to the measurand”.
+
+• An error δ is then a quantity that has a particular sign and
+magnitude
+– Assume that any known errors have been removed
+– Remaining error is thus of unknown sign and magnitude
+
+• Uncertainty u is estimated with the idea that ±u
+characterizes the range containing the error δ.
+– Consider u an estimate of the standard deviation
+
+* International Vocabulary of Basic and General Terms in Metrology, 2nd Edition,
+International Organization for Standardization, Geneva, Switzerland, 1993.
+14
+
+Detailed Description of V&V-20
+Methodology (1)
+• Simulation (S) and experimental data (D) are
+compared
+E=S-D
+
+• Simulation error
+S = S - T
+
+• Experimental error
+D = D - T
+
+• Comparison Error
+E = S – D = (T + S) – (T + D) = S - D
+
+15
+
+Detailed Description of V&V-20
+Methodology (2)
+• Simulation error has 3 components
+S = model + num + input
+– model is due to modeling assumptions and approximations
+– num is due to numerically solving the model equations
+– input is due to error in the simulation input parameters
+
+• Comparison error can be written in terms of all
+contributions
+E = S – D = model + num + input – D
+
+• Rearranging gives an expression for the modeling error
+model = E – num + input – D)
+
+16
+
+Detailed Description of V&V-20
+Methodology (3)
+• Errors are of unknown sign and magnitude
+• Consider estimating an uncertainty to characterize the
+range containing the error
+• Validation standard uncertainty, uval
+– standard deviation of the parent population of the combination of errors
+num + input – D)
+
+• Given the validation uncertainty, the interval
+E  uval
+– Characterizes a range within which model falls
+
+ model  E  uval , E  uval 
+• Estimation of uval is at the core of the methodology
+presented in V&V-20
+17
+
+– E and uval are the validation metrics
+
+Summary
+• V&V-20 provides a methodology to estimate the
+contribution for sources of uncertainty related to
+comparing a measurement and simulation model
+– Numerical solution uncertainty
+– Simulation input parameter uncertainty
+– Experimental measurement uncertainty
+
+• An approach for aggregating the uncertainties
+and measuring the measurement-simulation
+difference relative to the total uncertainty is
+provided
+• Guidance on interpreting of the comparison is
+given and a procedure to characterize model form
+error – due to approximations and assumptions in
+the simulation – is discussed
+18
+
+Backups
+
+19
+
+Outline
+• Verification and Validation Concepts/Process
+– Verification and Validation Definitions
+– Overview of the V&V Process high-level steps
+
+• Summary of V&V Standard from ASME V&V20
+– Scope and conceptual methodology
+– Description of steps in the methodology
+– Interpretation of the validation comparison
+– Summary of methodologies for addressing uncertainties
+
+20
+
+1
+Intended
+DP
+Application
+Applicatio
+
+Overview of the Validation
+Process
+2
+Planning
+PIRT
+
+3a
+
+4
+Experiment
+Experime
+Design,
+Execution
+nt
+Desig
+& Analysis
+n
+
+Code
+Code
+Verification
+Verificatio
+
+Validation Experiment
+Centered Elements
+5
+
+Metrics
+Metric
+3b
+Calculation
+Calculatio
+Verification
+n
+Verificatio
+
+6
+How
+Adequacy
+is good
+good
+Assessment
+
+Trucano, T. G., M. Pilch, and W. L. Oberkampf, (2002), “General
+Concepts for Experimental Validation of ASCI Code Applications,”
+report SAND2002-0341, Sandia National Laboratories,
+Albuquerque, NM, March 2002.
+21
+
+7
+Prediction
+Predictio
+& Credibility
+n
+
+8
+Document
+Docume
+nt
+
+1
+Intended
+DP
+Application
+Applicatio
+
+Overview of the Validation
+Process
+2
+Planning
+PIRT
+
+3a
+
+4
+Experiment
+Experime
+Design,
+Execution
+nt
+Desig
+& Analysis
+n
+
+Code
+Code
+Verification
+Verificatio
+
+Validation Experiment
+Centered Elements
+5
+
+Metrics
+Metric
+3b
+Calculation
+Calculatio
+Verification
+n
+Verificatio
+
+6
+How
+Adequacy
+is good
+good
+Assessment
+
+Trucano, T. G., M. Pilch, and W. L. Oberkampf, (2002), “General
+Concepts for Experimental Validation of ASCI Code Applications,”
+report SAND2002-0341, Sandia National Laboratories,
+Albuquerque, NM, March 2002.
+22
+
+V&V-20 Standard
+
+7
+Prediction
+Predictio
+& Credibility
+n
+
+8
+Document
+Docume
+nt
+
+2. Planning
+• Given the shear number of capabilities in a code,
+the V&V activities need to be prioritized
+– Thermal analysis code has 120 capabilities and features
+– Subset is used in certain classes of problems
+
+• Phenomenon Identification and Ranking Tables
+(PIRT) are one option to prioritize the V&V
+activities for an application
+– From the Reactor Safety Community
+– Table identifies and ranks the Phenomena based on expert
+opinion
+
+23
+
+Importance Model
+
+Code Ver.
+
+Validation
+
+Phenomena 1
+
+1 (high)
+
+3
+
+2
+
+0
+
+Phenomena 2
+
+3 (low)
+
+1
+
+1
+
+2
+
+Phenomena N
+
+2
+
+2
+
+0
+
+0
+
+4. Design, Execution, and
+Analysis
+For a complex application validation experiments conducted at
+various levels of physics and geometric fidelity
+• Constitutive model validation (material characterization) (10 – 100
+of exps)
+– Representative of intended application environment and materials
+
+• Ensemble Validation (single physics/simple coupling and stylized
+hardware) (10s of experiments)
+– Study accuracy over a range of the conditions
+– May do this for several of important single physics
+
+• Subsystem Validation (Dominant physical coupling and
+representative but simplified hardware) (> 10s of exps)
+• Full system Validation (full coupling with actual or slightly simplified
+hardware) (1 exp)
+• Designing the suite of experiments is a challenging activity
+• “Top-Down” or “Bottom-up” are typical hierarchal validation approaches
+24
+
+6. Adequacy Assessment
+• Is the measured accuracy (value of the metric)
+adequate for the intended application??
+• Judging model adequacy at lower levels in the
+validation hierarchy can be difficult
+– Measured quantities at lower levels may be related, but not
+directly applicable to higher levels and the intended application
+– Lower level validation may be a more highly stressing
+application of the model than at higher levels
+
+• One approach is based on measuring the
+comparison relative to uncertainty
+– Judge if the simulation model has adequate uncertainty relative
+to the exp data -> if so, the simulation model including all
+uncertainties is adequate for application at higher levels and for
+an intended application
+25
+
+Intended Application
+• Goal of validation is to validate the simulation model for
+uses other than where validation is performed (an intended
+application)
+• The intended application needs to be carefully considered.
+Questions to consider:
+– What is the application of interest to apply the simulation model?
+– What simulation outputs are needed and for what simulation
+environments?
+» Lift/drag, maximum temperature, temperature difference, incident
+heat flux, etc.
+» Subsonic/supersonic, shock loading, Fire-level fluxes
+– What is the required accuracy?
+» 20%, factor of 2, conservative
+
+• Clear line-of-sight back to the intended application is
+needed for a validation activity to be successful
+– Success doesn’t necessarily require the model to be acceptable
+26
+
+7. Prediction and Credibility
+• How are the results of the validation experiments
+aggregated in the prediction
+– Model of “Best Estimate + Uncertainty” for making a prediction
+in an application
+
+• Credibility is aimed at due diligence in addressing
+the various steps in the overall process (what is
+the level or rigor achieved)
+– Coverage of the code verification test suite
+– Validation hierarchy is complete
+– Rigorous validation metrics used that address uncertainties
+– Etc.
+
+27
+
+How do we move beyond the
+(validation) process level??
+• ASME V&V-20 committee developed a standard for
+“Verification and Validation in Computational Fluid Dynamics
+and Heat Transfer” (due late summer/early fall)
+• Standard is based on definitions of error and uncertainty
+that have been internationally codified by the experimental
+community over several decades
+• Guide to the Expression of Uncertainty in Measurement
+(GUM) was published by the International Organization for
+Standardization (ISO) in its name and those of six other
+international organizations.
+– Bureau International des Poids et Mesures (BIPM), International Electrotechnical
+Commission (IEC), International Federation of Clinical Chemistry (IFCC), International
+Union of Pure and Applied Chemistry (IUPAC), International Union of Pure and Applied
+Physics (IUPAP), and International Organization of Legal Metrology (OIML)
+
+28
+
+Validation methodology developed
+using error and uncertainty concepts
+• These (error and uncertainty) concepts were first extended
+in [Coleman and Stern, JFE 1997] for Validation
+• V&V-20 Validation Methodology
+– Scope was to quantify the degree of accuracy inferred from the
+comparison of solution (simulation) and data for a specified variable at
+a specified validation point
+– Approaches for estimating the uncertainty in the experimental
+response (based on ASME PTC 19.1)
+– Approaches for code and solution verification (Method of Manufactured
+Solutions, MMS, and Grid Convergence Index, GCI)
+– Approaches for estimating uncertainty due to uncertainty model inputs
+(MV and LHS)
+– Metric for comparing simulation and data while including all previously
+mentioned uncertainties
+
+29
+
+Interpretation of Validation
+Results (1)
+• V&V-20 methodology provides the following
+information without making any assumptions on
+the parent population of combination of errors
+num + input – D)
+ model  E  uval , E  uval   E  uval
+• Two cases can be considered:
+1. E  u
+val
+then  model  E
+2.
+
+E  uval
+then model is of the same order, or less than, the combination
+of errors num + input – D)
+
+30
+
+Interpretation of Validation
+Results (2)
+• To identify an interval within which model falls for a
+given probability level requires a distribution for the
+parent population of the combination of errors num +
+input – D)
+• Given a probability distribution a coverage factor, k,
+can be selected
+U% = k u
+– U is the expanded uncertainty, U95 is an interval within which the
+error would fall about 95 out of 100 times
+
+ model  E  kuval
+
+• Uniform, k=1.73 for 100% of the population
+• Triangular, k=2.45 for 100% of the population
+• Normal, k = 3.00 for 99.7%, k = 3.5 for 99.95%
+31
+
+ASME
+• ASME overview by Ryan Crane
+
+32
+
+Origins of The Society
+• Technical professional society; founded in 1880
+as the American Society of Mechanical
+Engineers; not-for-profit
+• Engineers convened to foster engineering
+innovation, education and research
+• First standard issued in 1884 – boiler efficiency
+test
+• Headquarters in New York City
+• Offices in Atlanta, Houston, New Jersey, Beijing
+(China), Brussels (Belgium), Mumbai (India)
+
+33
+
+Origins of The Society
+ASME’s Mission:
+• To serve our diverse global communities by
+advancing, disseminating and applying
+engineering knowledge for improving the quality
+of life; and communicating the excitement of
+engineering
+
+34
+
+ASME Standards and Certification
+
+• 70 Consensus Committees
+• 700 Total Committees
+• 5 Supervisory Boards
+• 5,100 Volunteers (800 International and growing)
+• 550 Standards
+• ASME Standards Accepted for Use in Over 100 Nations
+• Administer Over 40 U.S. TAG’s to ISO
+• 12 Conformity Assessment Programs
+• More than 200 training programs worldwide
+
+35
+
+Standards & Certification Organization
+Council on Standards and Certification
+
+Board on
+Standardization
+and Testing
+
+Board on
+Pressure Technology
+Codes and Standards
+
+Board on Nuclear
+Codes and Standards
+
+Board on Safety
+Codes and Standards
+
+Board on
+Conformity Assessment
+
+Board on
+Codes and Standards
+Operations
+
+36
+
+Board on
+Strategic Initiatives
+
+Energy and Environmental
+Standards Advisory Board
+
+Board on Hearings
+and Appeals
+
+36
+
+ASME Codes and Standards Consensus
+Process
+• Decisions are reached through consensus among
+those affected.
+• Participation is open to all affected interests: no
+membership fees or requirement to be ASME society
+member
+• Balance is maintained among competing interests
+– Designers, Manufacturers, Users, Regulators, General Interests,
+etc.
+
+• The process is transparent - information on the
+process and progress is directly available.
+
+37
+
+ASME Codes and Standards Consensus
+Process
+• Due process assures that all views will be considered and
+that appeals are possible.
+• The process is flexible, allowing the use of different
+methodologies to meet the needs of different technology
+and product sectors.
+• The process is timely; purely administrative matters do not
+slow down the work.
+• Standards activities are coherent, avoiding overlap or
+conflict.
+• Procedures accredited by the American National
+Standards Institute (ANSI)
+• Consistent with Principles of WTO Technical Barriers to
+Trade Agreement
+38
+
+What does "Consensus" mean?
+•
+•
+
+ASME standards are consensus standards
+Consensus means
+–
+–
+–
+
+•
+
+39
+
+Substantial agreement by affected interest categories
+Consideration of views, attempted resolution is part of the
+process
+Unanimity not required
+
+The Standards Committee is responsible for
+establishing consensus on proposed standards actions.
+
+The Consensus Development Process
+
+•
+•
+•
+•
+•
+•
+
+40
+
+Development of standards action
+Recorded vote
+Public review
+Supervisory Board approval
+Appeals
+ANSI approval
+
+ASME Codes and Standards
+Proprietary Issues
+• ASME does not ‘approve’, ‘rate’ or ‘endorse’ any
+item, construction, proprietary device, or activity
+• Proprietary devices may only be incorporated in a
+generic manner
+
+41
+
+Participation
+Volunteer Participation
+• Individual “voluntary” participation
+• ASME Codes & Standards relies on industry supporting
+participation by knowledgeable experts
+– Involve the best and the brightest people from all around the world to
+develop, maintain, and promote the use of these ASME products and
+services
+
+• ASME membership is not a prerequisite for committee
+membership
+• Technical and administrative support to the committees
+• International Working Groups in China, Germany, India, Italy,
+Korea, and Pan-European Union
+42
+
+ASME Codes and Standards Development
+
+• No funding by government
+• No fees to participate
+• Supported by revenue from S&C sales and related
+programs
+• Volunteer members not compensated by ASME
+
+43
+
+43
+
+U.S. Public Policy
+•
+
+OMB Circular A119
+–
+
+•
+
+Instructs Federal Agencies to use voluntary standards and
+participate in their development, unless impractical
+
+National Technology Transfer and Advancement Act of 1995
+–
+–
+
+•
+
+Mandates government agency use of private sector voluntary
+consensus standards
+Obliges federal government participation in voluntary standards
+development
+
+Fulfills Regulators’ Expectations
+–
+–
+–
+
+44
+
+Meets public safety, health and environmental objectives
+Provides confidence in the technical integrity of the product or
+service
+Supports mutual recognition essential to international trade
+44
+
+ASME Global Growth
+
+Certified Boiler & Pressure Vessel Manufacturers
+
+Certified Manufacturers
+
+7000
+6000
+5000
+4000
+3000
+2000
+1000
+0
+
+90
+
+92
+
+94
+
+US
+45
+
+Data as of 2013-12-31
+
+96
+
+98
+
+00
+
+02
+
+International
+
+04
+
+06
+
+08
+
+Total
+
+10
+
+12
+
+Joint Efforts
+• API 579-1/ASME FFS-1- Fitness-for Service
+• Joint ACI-ASME Committee on Concrete Components for
+Nuclear Service
+• ISO/ASME 14414 - Pump system energy assessment
+• ASTM material specifications for ASME Section II
+• SDO Convergence Board
+• Input to MDEP CSWG and Code Comparison Project
+• Nuclear Energy Standards Coordination Collaborative
+(NESCC)
+• WNA Cooperation in Reactor Design Evaluation and Licensing
+(CORDEL)
+• NAFEMS Analysis Management Working Group
+46
+
+46
+
+Verification and Validation
+Standards Committee
+• Four Subcommittees on Verification and Validation
+in Computational/Computer ….
+– V&V 10 - Solid Mechanics
+– V&V 20 - Fluid Dynamics and Heat Transfer
+– V&V 30 - Simulation of Nuclear System
+Thermal Fluids Behavior
+– V&V 40 - Modeling of Medical Devices
+– V&V 50 - Advanced Manufacturing
+– Others?
+
+47
+
+

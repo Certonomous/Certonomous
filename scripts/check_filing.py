@@ -245,6 +245,32 @@ def check(root: Path, include_untracked: bool = True) -> list[Violation]:
                     "same group.",
                 ))
 
+            # R9. THE SIDECAR HALF OF R8 WAS PROSE ONLY, AND THE PROSE WAS RIGHT.
+            #
+            # FILING_CHARTER R8 says "a PDF and its .txt sidecar always travel
+            # together", and this rule tested only that the NAME was well formed.
+            # Thirteen in-scope PDFs had no sidecar at all and the check reported
+            # ZERO -- including spalart_allmaras_1992_turbulence_model.pdf.
+            #
+            # That is not a hypothetical cost. A lane writing the thermal-closure
+            # synthesis swept the sidecars for prior art on relaminarisation and
+            # MISSED ALL THREE AERODYNAMIC STATEMENTS OF IT, one of which is in
+            # that very paper, because the sidecar it swept did not exist. The
+            # sweep returned a clean zero and the zero meant nothing.
+            #
+            # The sidecar is not decoration: it is how an agent greps a corpus
+            # without re-parsing PDFs, so a missing one silently shrinks the
+            # searchable library while leaving the shelf looking full.
+            if base.endswith(".pdf"):
+                sidecar = (root / p).with_suffix(".txt")
+                if not sidecar.exists():
+                    violations.append(Violation(
+                        "R9-SIDECAR-MISSING", p,
+                        "has no .txt sidecar, so its contents are invisible to "
+                        "every text sweep of this library. Generate it with "
+                        "`pdftotext <file.pdf> <file.txt>`.",
+                    ))
+
     return violations
 
 
@@ -274,10 +300,14 @@ PLANTED = [
     (None,                 "docs/campaigns/X/K2b_3D_UNSTEADINESS_PREREGISTRATION.md", False),
     (None,                 "docs/campaigns/X/digitize_wibron2018.py",           False),
     (None,                 "docs/papers/buoyancy/betts_bokhari_2000_ijhff.pdf", False),
+    (None,                 "docs/papers/buoyancy/betts_bokhari_2000_ijhff.txt", False),
     (None,                 "docs/papers/bench/breuer_peller_caf2009_hills.pdf",  False),
+    (None,                 "docs/papers/bench/breuer_peller_caf2009_hills.txt",  False),
     (None,                 "docs/papers/adj/he_mader_aiaaj2020_dafoam.txt",      False),
     ("R8-PAPER-NAME",      "docs/papers/bench/no_year_in_this_name.pdf",         True),
+    ("R9-SIDECAR-MISSING", "docs/papers/bench/lonely_paper_2011_x.pdf",          True),
     (None,                 "docs/papers/rans/singh_medida_1608.03990.pdf",       False),
+    (None,                 "docs/papers/rans/singh_medida_1608.03990.txt",       False),
     (None,                 "docs/papers/unsorted/UnidentifiedScan.pdf",          False),
     (None,                 "media/plots/figure.png",                            False),
     (None,                 "verification/runs/F14/case/system/controlDict",     False),

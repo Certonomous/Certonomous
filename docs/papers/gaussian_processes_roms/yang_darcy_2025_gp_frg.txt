@@ -1,0 +1,2751 @@
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES AND
+APPLICATIONS TO FUNCTIONAL RENORMALIZATION GROUP EQUATIONS
+
+arXiv:2512.20956v1 [cs.LG] 24 Dec 2025
+
+XIANJIN YANG* , MATTHIEU DARCY, MATTHEW HUDES, FRANCIS J. ALEXANDER, GREGORY EYINK,
+AND HOUMAN OWHADI
+A BSTRACT. We present an operator learning framework for solving non-perturbative functional
+renormalization group equations, which are integro-differential equations defined on functionals.
+Our proposed approach uses Gaussian process operator learning to construct a flexible functional
+representation formulated directly on function space, making it independent of a particular equation
+or discretization. Our method is flexible, and can apply to a broad range of functional differential
+equations while still allowing for the incorporation of physical priors in either the prior mean or
+the kernel design. We demonstrate the performance of our method on several relevant equations,
+such as the Wetterich and Wilson–Polchinski equations, showing that it achieves equal or better
+performance than existing approximations such as the local-potential approximation, while being
+significantly more flexible. In particular, our method can handle non-constant fields, making it
+promising for the study of more complex field configurations, such as instantons.
+
+1. Introduction
+Functional renormalization group (FRG) equations provide a powerful non-perturbative framework for studying quantum and statistical field theories, enabling interpolation between microscopic and macroscopic descriptions of physical systems [15, 17]. Mathematically, they take the
+form of exact functional integro-differential equations for field-theoretic generating functionals,
+but solving these analytically is generally intractable, requiring numerical approximations. Traditional approaches rely on the truncation of expansions, such as the derivative expansion or loop
+expansion, restricting their validity to specific applications where those approximations are accurate. Moreover, numerical schemes are often tailored to particular models, requiring detailed
+knowledge of the underlying physics. While there have been efforts to propose general and flexible approaches to solving FRG equations [18], including machine learning methods [43], existing
+frameworks are either tied to a specific discretization of the underlying continuous functional PDE,
+restricted to specific fields, or rely upon a prescribed ansatz.
+In this work, we introduce an operator learning perspective for solving FRG equations. Our
+framework, based on Gaussian processes (GPs), directly treats FRG flows in function space,
+sidestepping discretization dependence and enabling application across a wide range of FRG equations. This represents a step toward a general and flexible methodology for functional differential
+equations in theoretical physics. The remainder of this introduction reviews operator learning, provides an overview of FRG equations, surveys existing numerical methods, and outlines how our
+approach links the two.
+1.1. Functional data and operator learning. The functional regression problem, where we aim
+to learn a mapping with functional inputs and outputs, has emerged as an important problem within
+the scientific machine learning literature where many applications naturally have functions as data
+Date: December 25, 2025.
+*
+Corresponding author: yxjmath@caltech.edu.
+1
+
+2
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+points. A major challenge in this context is how to effectively adapt existing learning methods
+to this setting. The earliest kernel-based approach to functional regression appears in [22], which
+generalizes vector-valued function learning to the setting of operator-valued kernels (see also [33],
+which extends these concepts to compositions of operator-valued Gaussian processes). More recently, there has also been renewed interest in the field of operator learning, especially in the
+context of accelerating the numerical computation of partial differential equations (PDEs). This
+problem can be traced back to the use of reduced basis methods [1, 27, 32], and in more recent
+years, the development of neural network methods such as DeepONet [26], the Fourier neural
+operator [23], the convolutional neural operators [39], or PCA-Net [7], have extended neural networks to functional inputs and outputs. However, the theoretical analysis of these methods is
+often limited to proving an existence theorem without guarantees about whether these networks
+are computable in practice. To address this, a general kernel-based operator-learning framework
+is introduced in [4], together with theoretical guarantees and convergence rates. A notable feature
+of such frameworks is their discretization-agnostic character [23]: they are formulated independently of any specific discretization and can therefore be applied to data given on different grids at
+prediction time.
+Although the functional data in these problems often arise from PDE models, most operatorlearning approaches treat the task purely as a regression problem and do not exploit the PDE structure that generates the data. In parallel, there has been extensive development of machine learning methods for approximating solutions of PDEs without relying on paired input-output data:
+the governing equations are enforced directly through a physics-informed loss function. Representative examples include physics-informed neural networks (PINNs) [37, 42] and kernel- or
+GP-based schemes [12, 30, 28]. Kernel methods in this setting also enjoy stronger theoretical
+guarantees [2, 3].
+While there has been a growing interest in combining elements of both approaches, for example
+by combining operator learning with a physics-informed loss [24], there has been little research
+into the applications of machine learning methods to partial differential equations defined over
+functionals, i.e., mappings from functions to a real number. Solving such equations requires elements from both of the outlined problems above: the ability to effectively deal with functions as
+inputs to the algorithm and the ability to impose the PDE constraints. Such a problem naturally
+arises in the context of FRG equations which define integro-differential equations over functionals. We briefly describe these equations in the next section. Recently, deep learning methods have
+been applied to problems related to the FRG flow. For example, [14, 16] learn the flow directly
+from data, and [38] uses a simple one layer convolutional neural network to learn the inverse of
+flow, from coarse scale to fine scale. A physics-informed neural network (PINN) [37] has recently
+been proposed to solve FRG equations on a lattice [43], thereby reducing the problem to solving a
+PDE in a high-dimensional lattice space. The approach presented in the latter paper is analogous
+to the discretize then optimize paradigm where the infinite-dimensional problem is first discretized
+into a finite dimensional problem and solved through existing methods. In this paper, we take
+an optimize-then-discretize perspective: we formulate a solution of the flow using the governing
+equations directly in function space before discretizing. To the best of our knowledge, there is no
+pre-existing FRG solution framework formulated directly on function space. This formulation has
+the potential to enable rigorous a priori error analysis taking into account the various sources of
+error, similar to the one presented in [4].
+1.2. Functional renormalization group equations. The nonperturbative FRG provides a framework for interpolating between microscopic and macroscopic descriptions of many systems, from
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+3
+
+condensed matter to statistical field theory. A central object in this framework is a family of
+scale-dependent functionals, such as the effective average action. These functionals evolve with
+the renormalization scale κ and encode how fluctuations at momenta above κ are progressively
+integrated out. Two widely used FRG flow equations are the Wetterich–Morris equation
+ż
+´
+¯´1
+1
+p2q
+Bκ Γκ rϕs “
+Bκ Rκ px, yq Γκ rϕs ` Rκ
+px, yq dx dy,
+(1)
+2 x,y
+which governs the evolution of the effective average action Γκ , and the Wilson–Polchinski equation
+¸
+˜
+ż
+δ 2 Wκ rJs δWκ rJs δWκ rJs
+1
+`
+dx dy,
+(2)
+Bκ Rκ px, yq
+Bκ Wκ rJs “
+2 x,y
+δJx δJy
+δJx
+δJy
+which describes the corresponding flow of the cumulant-generating functional Wκ , related to the
+effective-average action by a generalized Legendre transform duality relation
+ż
+ż
+1
+Γκ rϕs ` Wκ rJs “ Jx ϕx ´
+Rκ px, yqϕx ϕy .
+(3)
+2 x,y
+x
+Here, ϕ and J are fields (functions), Rκ is a scale-dependent regulator kernel that suppresses longp2q
+wavelength modes below the running scale κ, and Γκ rϕs denotes the operator defined by the
+second functional derivative of Γκ with respect to ϕ. For clarity of exposition, in what follows we
+primarily formulate the discussion in terms of the Wetterich equation and its solution, the effective
+average action Γκ . The corresponding formulations for the Wilson–Polchinski flow Wκ are entirely
+analogous, and in Section 3 we include experiments for both formulations.
+In typical applications one prescribes an initial condition for (1) at a large ultraviolet (UV) scale
+κUV . For such large values of κ, the regulator strongly suppresses fluctuations at all resolved scales,
+so that the description remains close to the underlying microscopic model. At this scale one sets
+ΓκUV “ Sbare , where Sbare , called the bare action, is a prescribed action functional specifying
+the microscopic model (for example, the local interactions and parameters before fluctuations are
+integrated out). The flow equation is then integrated in κ towards smaller infrared (IR) scales
+κIR ą 0, corresponding to lower momenta and larger distances. Along this flow, Γκ evolves
+from a microscopic description to an effective macroscopic one. Analytic solutions are available
+only in very simple models, so practical computations typically rely on truncations or modeling
+assumptions tailored to the problem at hand.
+From a mathematical perspective, equations such as (1) and (2) are examples of functional PDEs.
+Abstractly, one may view Γκ as a functional that assigns a real number to each field configuration
+ϕ, and κ ÞÑ Γκ as an evolution in the scale variable on some interval I Ă R. We write this in the
+generic form
+´
+δΓκ
+δ 2 Γκ ¯
+Bκ Γκ rϕs “ F κ, ϕ, Γκ rϕs,
+rϕs,
+rϕs ,
+κ P I,
+(4)
+δϕ
+δϕ2
+with an initial condition prescribed at some reference scale κ0 P I,
+Γκ0 rϕs “ Γinit
+κ0 rϕs.
+
+(5)
+
+Here Γinit
+κ0 is a prescribed functional that encodes the initial data of the problem (for instance,
+the bare action in an FRG flow, or a given energy functional in other applications). The map F
+is a (typically nonlocal) functional that may involve spatial integrals and depends on Γκ and its
+functional derivatives. The Wetterich–Morris equation arises from a particular choice of F , in
+p2q
+which the right-hand side is written as an integral involving the inverse operator of Γκ rϕs ` Rκ ,
+and Γinit
+κ0 is given by the bare action Sbare at the ultraviolet scale κ0 “ κUV . In FRG applications
+
+4
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+one usually takes I “ rκIR , κUV s and integrates the flow from κUV down to κIR , but the abstract
+formulation (4)–(5) equally covers forward evolutions in κ.
+In this work we develop a GP method for solving such functional PDEs. The basic idea is to
+approximate, at each scale κ, the unknown functional Γκ r¨s by a GP surrogate Γ:κ r¨s. We first fix a
+piq N
+finite set of collocation fields Φ “ tϕpiq uN
+i“1 . For a given κ, the values tΓκ rϕ sui“1 are regarded
+as observations of a GP prior on Γκ . Concretely, we place a GP prior on the map ϕ ÞÑ Γκ rϕs with
+a covariance kernel between fields, and define the surrogate Γ:κ as the corresponding GP posterior
+mean. In other words, for any input field ϕ,
+ˇ
+“
+‰
+Γ:κ rϕs :“ E Γκ rϕs ˇ Γκ rϕp1q s, . . . , Γκ rϕpN q s ,
+(6)
+so Γ:κ is uniquely determined by the chosen kernel and by the functional values on the collocation
+set. The functional PDE is then enforced only on the collocation set. At a fixed scale κ and for
+each ϕpiq P Φ, we insert Γ:κ into the right-hand side of the evolution equation, and compute the
+required functional derivatives (for example, functional gradients and Hessians) at ϕpiq through
+Γ:κ . Matching this right-hand side with the κ-derivative of Γ:κ rϕpiq s yields, for i “ 1, . . . , N , a
+closed system of ordinary differential equations (ODEs) in κ for the unknown values Γκ rϕpiq s on
+the collocation set. Solving this finite-dimensional ODE system over the κ-interval of interest
+determines Γκ rϕpiq s for all κ and all collocation fields ϕpiq . At any given scale, the GP surrogate
+Γ:κ r¨s given by (6) can then be evaluated on arbitrary input fields, providing a global approximation
+to the solution of the functional PDE.
+For clarity of exposition, in Section 2 we first develop the methodology in detail for a general class of functional PDEs of the form (4). We then illustrate the framework, and provide the
+corresponding implementation details, for the Wetterich–Morris equation (1).
+1.3. Numerical methods for FRG and functional PDEs. The FRG leads to exact flow equations
+for scale-dependent functionals such as the effective average action Γκ or the cumulant-generating
+functional Wκ . Prototypical examples are the Wetterich–Morris equation (1) and the Wilson–
+Polchinski equation (2). Except in special Gaussian or mean-field limits, these functional PDEs are
+not analytically solvable, and practical FRG computations rely on truncations in functional space
+followed by numerical solution of the resulting PDEs or ODE systems; see, e.g., the reviews [6,
+15, 36, 29, 17].
+A large class of methods begins by projecting the flow onto a finite number of field-dependent
+functions or couplings. The simplest and most widely used example is the local potential approximation (LPA), where the flow is restricted to a scale-dependent local potential evaluated on
+homogeneous backgrounds. Derivative expansions and vertex expansions extend this ansatz by
+including higher-derivative operators or n-point vertex functions, but they still reduce the functional PDE to a coupled system of equations in a few field or momentum variables. Once such a
+truncation is fixed, standard grid-based methods (finite differences or finite volumes) are applied
+to the remaining variables. In particular, finite-volume and discontinuous Galerkin schemes have
+been designed to handle non-analytic features in the flow without spurious oscillations and with
+good stability properties [19].
+Higher-order Galerkin and finite-element methods have recently been developed to improve accuracy and adaptivity. In these approaches, the scale-dependent quantities (e.g., effective potentials
+or vertices) are expanded in local basis functions, and the FRG flow is enforced in a weak sense.
+This allows for mesh refinement near sharp transitions or non-analytic regions while keeping a
+coarser resolution elsewhere. The DiFfRG framework is a representative example, providing a
+finite-element toolbox for a broad class of bosonic and fermionic FRG flows, with parallel and
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+5
+
+GPU implementations for demanding applications [41]. Discontinuous Galerkin variants combine
+the flexibility of finite elements with robust shock-capturing and have been used, for instance, to
+resolve first and second order phase transitions in scalar models with high accuracy [19].
+Spectral and pseudo-spectral methods take a complementary, global viewpoint. In these approaches the scale-dependent functions (for instance effective potentials or fixed-point solutions)
+are expanded in global bases such as Chebyshev polynomials, and the FRG flow equations are enforced at appropriate collocation points. The articles [8, 9] demonstrate that such pseudo-spectral
+schemes can produce exponentially convergent, high-precision solutions for global fixed points
+and critical exponents in scalar and Yukawa models, capturing the behavior at both small and large
+fields. Spectral methods are particularly effective when the flow remains sufficiently smooth, while
+non-analyticities typically require domain decompositions or hybrid strategies.
+A common feature of these FRG approaches is that they start from a model-specific truncation (such as the local potential approximation, derivative expansions, or vertex expansions) and
+then approximate the resulting flow equations in terms of a small number of field or momentum
+variables; see, for example, the reviews [6, 15]. While the functional dependence ϕ ÞÑ Γκ rϕs is
+approximated, one works ultimately with a finite family of scalar or tensor functions defined on
+physical or momentum space.
+More recently, machine-learning-based FRG solvers have been proposed. In particular, physicsinformed neural networks (PINNs) have been used to encode FRG flow equations in the loss functional and to approximate solutions without an explicit spatial grid, for both scalar and fermionic
+models [43]. Such approaches can in principle handle higher-dimensional truncations, although
+issues of training cost, robustness, and a posteriori error control remain active topics of research.
+By contrast, we represent the functional with a GP and impose the FRG flow equation as a
+structural constraint, yielding a GP-based numerical scheme for functional PDEs.
+1.4. Summary of contributions. The main contributions of this work can be summarized as follows.
+(1) GP framework for functional PDEs. We develop a GP method for solving functional evolution equations of the form (4). The method represents the unknown functional directly in
+function space, so it is independent of any particular spatial or temporal discretization. Different physical representations (real or complex Fourier modes, pointwise samples, lattice
+fields) enter only through the choice of feature map and kernel, while the core algorithm
+remains unchanged.
+(2) Application to functional renormalization group flows. We specialize this framework to
+the FRG, with a detailed formulation for the Wetterich–Morris equation (1), and numerical
+experiments for both the Wetterich–Morris and the Wilson–Polchinski equations (2).
+(3) Treatment of non-homogeneous fields. In contrast to standard truncation schemes such
+as the local potential approximation, which are formulated on constant or homogeneous
+backgrounds, our GP method can be trained on nonconstant collocation fields when feasible, and it can then evaluate the functional on arbitrary inputs.
+(4) Physics-informed GP priors. We show how known structure from standard FRG approximations can be encoded in the GP prior, for example through local-potential-type ansatzes.
+This allows the surrogate to incorporate key physical insights while remaining fully nonparametric in function space.
+(5) Numerical validation on FRG benchmarks. We test the method on several FRG flows,
+including Gaussian models with closed-form solutions and interacting ϕ4 field-theory models where no explicit solution is available. All applications here consider fields defined on
+
+6
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+a one-dimensional input domain. In the Gaussian cases, the GP surrogate reproduces the
+exact flow to high accuracy both on and off the collocation set. For the interacting models, we consider a lattice formulation. In fact, among the spatial dimensions considered in
+[44], the approximation error of the LPA is largest in the one-dimensional case. Building
+on the benchmarks of [44], we find that our method yields solutions with smaller pointwise
+errors than a standard LPA flow, over most of the parameter range, for standard physical
+observables.
+1.5. Notation. We write R “ p´8, 8q for the real numbers. We are interested in approximating
+functionals (i.e., functions of functions) that arise as solutions of integro-differential equations.
+Throughout we use the following conventions:
+‚ Capital letters W and Γ are reserved for functionals, i.e. maps from the function space U
+to the real line R.
+‚ For a functional Γ, we write δΓ{δϕ for its first functional derivative and δ 2 Γ{δϕ δϕ for its
+second functional derivative. The latter may be taken as formal kernel defining an integral
+operator, which, following standard practice, we denote as Γp2q rϕs.
+‚ The evolution parameter is the RG scale and is denoted by κ P rκIR , κUV s.
+‚ Lower-case Greek letters such as ϕ, φ, and ψ are used for real-valued functions (fields) in
+the context of the Wetterich equation and, more generally, functional PDEs. Following the
+conventional notation of the Wilson–Polchinski equation in the field theory literature, we
+keep J as the field variable for the Wilson–Polchinski equation.
+‚ Elements of the function space, ϕ P U, are referred to as function-space collocation functions or fields.
+We use the following vector broadcasting convention: given a function f` : R Ñ R and a vector
+˘
+ϕ “ pϕi qni“1 , the notation f pϕq denotes elementwise application, f pϕq :“ f pϕ1 q, . . . , f pϕn q .
+1.6. Outline of the rest of the paper. The rest of the paper is organized as follows. In Section 2,
+we present our methodology for solving general functional PDEs with GPs and its application to
+the illustrative example of the Wetterich–Morris equation. Section 3 presents our main numerical
+results for two FRG flows of interest, the Wilson–Polchinski equation and the Wetterich–Morris
+equation. Several appendices fill in background information. Section A reviews the connection
+between optimal recovery and kernel-based interpolants. We report additional numerical experiments in Section B. In Section C, we provide a self-contained mathematical presentation of the
+FRG flow problem. In Section D, we discuss functional derivatives and Hessians of kernel interpolants. In Section E, we give a brief introduction to the local potential approximation (LPA), a
+standard method for obtaining approximate solutions of the Wetterich equation on constant fields.
+In Section F, we review the transfer-matrix method for computing the limit solution of the Wetterich equation in one dimension. Section G details the implementation of the Wetterich equation
+on the lattice with ϕ4 bare action used in the numerical experiment of Section 3.2. Finally, Section H briefly reviews the definitions of two physical observables, magnetization and susceptibility,
+which can be computed from the infrared local potential and used as numerical benchmarks for the
+Wetterich equation.
+2. Methodology
+We now outline the methodology used in this work and its application to FRG flows. Our starting point is the kernel-based operator learning framework of [4], which is designed to learn maps
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+7
+
+between function spaces from data. In this work we adapt this framework to represent functionals, that is, maps from function spaces to scalars. The key distinction from data-driven operator
+learning is that, in our setting, the functional values are not directly observed. Instead, we incorporate the FRG flow equation as an additional constraint on the surrogate, so that the reconstructed
+functional is informed by the underlying functional PDE rather than by paired input-output data.
+We begin in Section 2.1 by reviewing the relationship between GP regression and kernel interpolation. Section 2.2 then discusses kernel-based approximation of functionals. In Section 2.3, we
+develop a general framework for solving functional PDEs. Finally, in Section 2.4 we specialize
+this framework to the Wetterich–Morris equation (1) as an illustrative example.
+2.1. Gaussian processes and kernel interpolation. In this subsection, we briefly review GPs and
+their connection with kernel interpolation. A real-valued GP is a collection of random variables
+tf pxquxPX indexed by points of an input space X , such that every finite vector pf px1 q, . . . , f pxn qq
+is jointly Gaussian. A GP is characterised by its mean function mpxq “ Erf pxqs and its covariance
+kernel kpx, x1 q “ Covpf pxq, f px1 qq. For a zero-mean prior, mpxq ” 0, the law of the random field
+f is completely determined by the positive-definite kernel k.
+The same kernel k defines a reproducing kernel Hilbert space (RKHS) Hk . Given exact observations yi “ f pxi q at points txi uni“1 , the RKHS kernel interpolant f : P Hk is the unique
+minimum-norm function satisfying
+f : pxi q “ yi ,
+
+i “ 1, . . . , n,
+
+and it admits the explicit representation
+f : pxq “ kpx, Xq KpX, Xq´1 y,
+where X “ px1 , . . . , xn q, y “ py1 , . . . , yn qJ , and KpX, Xqij “ kpxi , xj q.
+If we place a zero-mean GP prior with covariance k on the random field f and condition on the
+same noiseless data, the posterior GP has mean
+Erf pxq | ys “ kpx, Xq KpX, Xq´1 y.
+Thus the GP posterior mean coincides exactly with the RKHS kernel interpolant f : .
+
+Γ
+
+U
+
+γ
+w̃
+
+R
+
+w
+
+Rm
+F IGURE 1. Commutative diagram for the functional learning setup.
+2.2. Kernel approximation of functionals. Let U be a Banach space of functions and further
+let Γ : U Ñ R be an unknown functional that we wish to approximate. The basic idea is to
+encode each field ϕ P U by a finite vector of features wpϕq P Rm , learn a scalar function γ :
+Rm Ñ R on this finite-dimensional feature space, and then approximate the functional Γpϕq by
+the composition γpwpϕqq. A commutative diagram illustrating the relationships among operators,
+function spaces, and functionals is shown in Figure 1, where the reconstruction operator w̃ which
+
+8
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+“inverts” w is discussed later in Remark 2.1. Concretely, when U is infinite-dimensional, one does
+not compute directly with ϕ P U, but with the finite-dimensional projections wpϕq P Rm as in [34].
+In the applications we mainly use two concrete choices. The first choice is based on pointwise
+measurements in space (or time):
+`
+˘m
+wpϕq “ ϕpxj q j“1 ,
+where txj um
+j“1 are prescribed collocation points. This requires the evaluation functionals δxj to lie
+in the dual space of U. A second choice is to use spectral coefficients in an orthonormal basis for
+the case that U is a Hilbert space. For example, if U Ă L2 pr0, 1sq, we may expand
+8
+ÿ
+ϕpxq “
+cj e i2πjx ,
+j“´8
+
+and define the feature vector as a truncated set of Fourier coefficients,
+` ˘m
+wpϕq “ cj j“´m .
+This construction only requires that the fields belong to L2 pr0, 1sq; other orthonormal bases (for
+instance, real Fourier bases or wavelets) can be used in the same way.
+Once a projection w is fixed, our aim is to approximate Γ by a functional that depends on ϕ
+only through the finite-dimensional feature vector wpϕq. Concretely, we seek a scalar function
+γ : Rm Ñ R such that
+`
+˘
+Γpϕq « γ wpϕq
+for ϕ P U.
+Thus the problem of approximating the functional Γ is reduced to approximating the finite-dimensional
+function γ. To construct γ we use optimal recovery and kernel interpolation [34]. Suppose we are
+given training fields Φ “ tϕp1q , . . . , ϕpN q u Ă U and their functional values
+`
+˘J
+Y :“ Γpϕp1q q, . . . , ΓpϕpN q q P RN .
+Let z piq :“ wpϕpiq q P Rm denote the corresponding feature vectors, and let HK be the RKHS
+associated with the kernel K. We seek γ as the minimum-norm interpolant
+γ : “ arg min }γ}2HK
+γPHK
+` ˘
+subject to γ z piq “ Γpϕpiq q,
+
+(7)
+i “ 1, . . . , N.
+
+(8)
+
+The representer theorem (see [34, Sec. 17.8]) implies that γ : has the explicit form
+γ : pzq “ Kpz, ZqJ KpZ, Zq´1 Y,
+
+(9)
+
+where Z “ pz p1q , . . . , z pN q q, Kpz, Zq P RN has entries Kpz, Zqi “ Kpz, z piq q, and KpZ, Zq P
+RN ˆN is the Gram matrix with entries KpZ, Zqij “ Kpz piq , z pjq q. Our kernel surrogate for the
+functional is then
+`
+˘
+`
+˘J
+Γ: pϕq :“ γ : wpϕq “ K wpϕq, Z KpZ, Zq´1 Y,
+(10)
+which we will use in the sequel as an approximation of Γ.
+The framework of [4] uses this projection-reconstruction machinery to address data-driven operator learning, where one is given evaluations of Γ at many input functions (typically from an
+existing numerical solver) and no physics is imposed. In our setting we use the same kernel representation (10) for Γ, but the functional values are not directly available. Instead, we enforce
+that the GP surrogate Γ: satisfies the FRG flow equations, so that the surrogate is informed by the
+underlying functional PDE rather than by paired input-output data. Compared to neural network
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+9
+
+approaches to approximating functionals [26, 23, 33], the proposed approach benefits from the
+solid theoretical foundations of GP methods [34], and can be employed to solve integro-differential
+equations in functional spaces, as shown in the following section.
+Remark 2.1. An important theoretical advantage of this formulation is that it may be rendered
+discretization-agnostic by means of a reconstruction operator w̃ : Rm Ñ U that maps measurement vectors back to elements of U. See Figure 1. This reconstruction operator can be defined
+using the framework of optimal recovery (see section A ), which enables rigorous a priori error
+estimates for the recovery of ϕ P U. Combined with the error rates associated with kernel interpolation, this can yield rigorous convergence guarantees and error rates for the recovery of Γκ . We
+leave this to future work.
+□
+2.3. A GP method for solving functional PDEs. Let U be a (typically infinite-dimensional) function space and let Γκ : U Ñ R, κ P I Ă R, be a one-parameter family of functionals. We consider
+the functional evolution problem (4)–(5), where the right-hand side F is built from ϕ, Γκ rϕs, and a
+finite number of functional derivatives of Γκ . The variable κ plays the role of an evolution parameter and may be advanced either forward or backward. In FRG applications κ is interpreted as a
+momentum scale and the flow is typically integrated backward from a UV scale κUV to an IR scale
+κIR , but the construction below is independent of this choice of direction.
+The main difficulty is that Γκ lives on the infinite-dimensional space U. Our strategy is to
+represent the evolution entirely through the values of Γκ on a finite set of collocation fields and
+to use the GP surrogate from Section 2.2 to extend these values to all ϕ P U. In this way the
+functional PDE is reduced to a closed ODE system in finitely many unknowns.
+We recall the kernel approximation of functionals from Section 2.2. We fix once and for all a
+feature map w : U Ñ Rm , a positive-definite kernel K on Rm with reproducing kernel Hilbert
+space HK , and a set of functional collocation fields
+Φ “ tϕp1q , . . . , ϕpN q u Ă U.
+For instance, one may take wk pϕq “ xek , ϕy, where ek P U are prescribed basis functions and x¨, ¨y
+denotes the inner product in the underlying Hilbert space. Other projections tailored to the problem
+can also be used. The associated feature vectors are
+z piq :“ wpϕpiq q P Rm ,
+
+Z :“ pz p1q , . . . , z pN q q,
+
+and we write KpZ, Zq P RN ˆN for the Gram matrix introduced in Section 2.2. Given a vector
+Y P RN of functional values on Φ, the kernel construction
+(10)
+defines a GP surrogate Γ: . In
+`
+˘
+´1
+numerical computations we replace KpZ, Zq´1 by KpZ, Zq`εI
+for a small ε ą 0 for stability,
+but the representer form itself is unchanged.
+In the evolutionary setting the role of Y is played by the values of the scale-dependent functional
+on the collocation set. For each κ P I we introduce the vector
+`
+˘J
+Yκ :“ Γκ rϕp1q s, . . . , Γκ rϕpN q s P RN ,
+(11)
+which is the primary unknown. At the initial scale κ0 P I these values are prescribed by the initial
+functional Γinit
+κ0 ,
+` init p1q
+˘
+init pN q J
+Yκ0 “ Γinit
+pΦq
+“
+Γ
+rϕ
+s,
+.
+.
+.
+,
+Γ
+rϕ
+s
+,
+κ0
+κ0
+κ0
+which will serve as the initial condition for the finite–dimensional evolution.
+
+10
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+Given Yκ , we approximate Γκ r¨s at scale κ by the GP surrogate defined, as in (10), with Y “ Yκ :
+`
+˘`
+˘´1
+Γ:κ rϕs :“ K wpϕq, Z KpZ, Zq ` εI Yκ ,
+ϕ P U.
+(12)
+Thus Γ:κ is defined for all input fields and depends on κ through the finite-dimensional vector Yκ .
+To obtain a closed evolution for Yκ , we enforce the functional PDE (4) only on the collocation
+set Φ. For a fixed κ P I and each ϕpiq P Φ, we approximate the right-hand side of (4) by inserting
+the surrogate (12):
+˜
+¸
+:ˇ
+2 :ˇ
+δΓ
+δ
+Γ
+κˇ
+κˇ
+Bκ Γκ rϕpiq s « F κ, ϕpiq , Γ:κ rϕpiq s,
+,
+i “ 1, . . . , N,
+(13)
+ˇ ,
+ˇ
+δϕ ϕpiq δϕ2 ϕpiq
+where the functional derivatives of Γ:κ are computed analytically from the kernel representation;
+piq
+see Section D for details. By definition Yκ “ Γκ rϕpiq s, so the left-hand side of (13) is exactly
+d piq
+Y .
+dκ κ
+Hence (13) naturally induces a closed system of ODEs for the vector Yκ :
+˜
+¸
+:ˇ
+2 :ˇ
+δΓ
+δ
+Γ
+d piq
+ˇ
+ˇ
+κ
+κ
+Y “ F κ, ϕpiq , Γ:κ rϕpiq s,
+,
+i “ 1, . . . , N,
+ˇ ,
+ˇ
+dκ κ
+δϕ ϕpiq δϕ2 ϕpiq
+Bκ Γκ rϕpiq s “
+
+(14)
+
+with initial condition
+Yκ0 “ Γinit
+κ0 pΦq.
+Equation (14) is a standard ODE system on RN . In FRG applications one typically takes I “
+rκIR , κUV s and integrates this ODE backward from κUV to κIR , but the same formulation applies
+equally to forward evolutions in κ. Once Yκ has been computed on the interval of interest, the
+surrogate (12) provides an approximation of Γκ rϕs for arbitrary fields ϕ P U.
+2.4. A functional RG example: the Wetterich–Morris equation. Section 2.3 provides a framework for solving general functional PDEs. To illustrate how this framework applies to FRG flows,
+we now specialize it to the Wetterich–Morris equation (1), for fields that are either periodic on the
+one-dimensional torus T, identified with the interval r0, 1s, or defined on a lattice. Recall that the
+scale parameter κ plays the role of a sliding momentum cutoff. At a large ultraviolet scale κUV
+the functional ΓκUV is prescribed by a microscopic action Sbare that encodes the model at short
+distances. We integrate (1) backward in κ from κUV down to κIR . As κ is lowered towards an
+infrared scale κIR ą 0, more and more high-wavenumber modes are integrated out and Γκ evolves
+towards the full effective action.
+Finite-dimensional representation of fields. In the GP method of Section 2.3 the first step is to
+fix a feature map w : U Ñ Rm that encodes each field by a finite vector. We now specify this map
+for the Wetterich–Morris equation.
+We work with a function space U of fields and view U as continuously embedded in a Hilbert
+space X that carries the natural inner product of the problem. For continuum examples in this
+work, X is the periodic L2 -space on the one-dimensional torus T or the corresponding Sobolev
+space H 1 pTq. For lattice examples, X is the discrete L2 -space of grid functions.
+It is convenient to represent fields in an orthonormal basis of Laplacian eigenfunctions, so that
+the Laplacian and standard translation-invariant regulators act diagonally in this basis. We therefore fix a real orthonormal basis teα uαPA of X consisting of eigenfunctions of the continuum
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+11
+
+Laplacian or the discrete Laplacian on the lattice. On the torus T, a standard choice is the complex
+Fourier basis te2πipx upPZ , or, equivalently, the associated real Fourier basis
+?
+?
+e0 pxq “ 1,
+e2p´1 pxq “ 2 cosp2πpxq,
+e2p pxq “ 2 sinp2πpxq, p ě 1.
+On a periodic lattice we use the corresponding discrete Fourier modes.
+For numerical purposes we truncate to a finite index set AP Ă A of active modes and work on
+the finite-dimensional subspace XP :“ spanteα : α P AP u. Here P is a truncation parameter
+that controls how many Fourier modes (or, more generally, eigenmodes) are retained: increasing
+P increases both the dimension of XP and the highest resolved frequency. The truncation level
+P is chosen so that teα uαPAP captures all physically relevant modes while keeping the associated
+matrices of moderate size. Such wavenumber truncation is standard in physics practice as well,
+e.g. in the case of a spatial lattice model with spacing a naturally P “ π{a.
+Given this basis, we define the feature map w by the truncated expansion coefficients
+α P AP ,
+
+cα rϕs :“ xϕ, eα yX ,
+and set
+`
+˘
+wpϕq :“ cα rϕs αPA P Rm ,
+P
+
+m :“ |AP |.
+
+On a lattice the inner product x¨, ¨yX is understood as the corresponding discrete L2 inner product.
+With this choice, all subsequent GP surrogates Γ:κ are constructed from the finite-dimensional
+feature vectors wpϕq as in Section 2.2.
+GP formulation of the Wetterich–Morris flow. We now specialise the general GP framework of
+Section 2.3 to the Wetterich–Morris equation (1).
+On the truncated mode set AP we represent each field ϕ P U by its coefficients in the eigenbasis
+discussed above, and use these coefficients as features:
+`
+˘
+wpϕq :“ cα rϕs αPA ,
+cα rϕs “ xϕ, eα yX .
+P
+
+We then fix a finite set of collocation fields
+z piq :“ wpϕpiq q P Rm ,
+
+Φ “ tϕp1q , . . . , ϕpN q u Ă U,
+
+and collect the feature vectors into Z “ pz p1q , . . . , z pN q q. A covariance kernel K on feature space
+is fixed once and for all, and its Gram matrix KpZ, Zq enters the GP surrogate exactly as in (12).
+For each scale κ, the unknown values on the collocation set are collected into the vector Yκ
+defined in (11), which in turn determines the GP surrogate Γ:κ r¨s through (12). At the ultraviolet
+scale κUV the initial condition is given by the bare action,
+`
+˘J
+YκUV “ ΓκUV pΦq “ Sbare rϕp1q s, . . . , Sbare rϕpN q s ,
+which plays the role of Γinit
+κ0 pΦq in (14). The evolution of Yκ is governed by the finite-dimensional
+ODE system (14), whose right-hand side is obtained by evaluating the Wetterich–Morris flow with
+the surrogate Γ:κ . In this setting, we obtain
+ż
+´
+¯´1
+d piq 1
+piq
+rϕ
+s
+`
+R
+px, yq dx dy,
+i “ 1, . . . , N,
+(15)
+Yκ “
+Bκ Rκ px, yq Γ:p2q
+κ
+κ
+dκ
+2 x,y
+:p2q
+
+where the second functional derivative operator Γκ
+
+is computed from the surrogate Γ:κ .
+
+A computable ODE system for the Wetterich–Morris equation. Next, our goal is to rewrite the
+right-hand side of (15) in an explicit, numerically tractable form.
+
+12
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+In our GP framework all information about fields enters through the feature map w, which only
+retains their projection onto the truncated subspace XP “ spanteα : α P AP u. It is therefore natural to evaluate the integral in (15) on the same finite-dimensional subspace. Concretely, we replace
+:p2q
+Γκ rϕs and Rκ by their restrictions to XP , represented in the basis teα uαPAP . This approximation
+is consistent with the truncation implicit in w and reduces the integration to a finite sum over the
+modes in AP .
+For a fixed field ϕ P U and scale κ, the second functional derivative defines a linear operator
+:p2q
+:p2q
+Γκ rϕs on X . Restricted to the truncated subspace XP , we represent the operator Γκ rϕs by the
+matrix Hκ pϕq with entries
+@
+D
+Hκ pϕqαβ :“ eα , Γ:p2q
+α, β P AP .
+κ rϕs eβ X ,
+The matrix elements Hκ pϕqαβ are computed from the surrogate Γ:κ by taking directional second
+derivatives along eα and eβ ; see Section D for the computations.
+In line with standard FRG practice for field theory and critical phenomena, we restrict attention
+to translation-invariant regulators (see, e.g., [6, 15]). In the Laplacian eigenbasis teα uαPA , with
+´∆eα “ λα eα , such regulators are diagonal and admit the spectral representation
+ÿ
+Rκ px, yq «
+rκ pλα q eα pxqeα pyq,
+αPAP
+
+for some scalar profile λ ÞÑ rκ pλq, where the sum is restricted to the truncated mode set AP . Its
+scale derivative has the analogous expansion
+ÿ
+Bκ Rκ px, yq «
+Bκ rκ pλα q eα pxqeα pyq.
+αPAP
+:p2q
+
+On the truncated subspace XP we represent Γκ rϕs ` Rκ by the matrix Aκ pϕq with entries
+Aκ pϕqαβ :“ Hκ pϕqαβ ` rκ pλα q δαβ ,
+
+α, β P AP ,
+
+and we denote its inverse by
+Bκ pϕq :“ Aκ pϕq´1 .
+In this basis, the inverse kernel
+`
+˘´1
+Gκ rϕspx, yq :“ Γ:p2q
+rϕs
+`
+R
+px, yq
+κ
+κ
+is then approximated by
+Gκ rϕspx, yq «
+
+ÿ
+
+Bκ pϕqβℓ eβ pxq eℓ pyq.
+
+β,ℓPAP
+
+ş
+
+Using orthonormality in X , eα pxqeβ pxq dx “ δαβ (and similarly in y), the approximation of
+(15) on XP takes the form
+` ˘
+d piq 1 ÿ
+Yκ “
+Bκ rκ pλα q Bκ ϕpiq αα ,
+i “ 1, . . . , N.
+(16)
+dκ
+2 αPA
+P
+
+This ODE system is the numerical approximation of the flow (15) used in our computations. Together with the initial condition YκUV “ ΓκUV pΦq, this defines a closed ODE system for the collocated values Yκ . We integrate (16) backward in κ, from κUV down to κIR , using a standard ODE
+solver. At any intermediate scale, the surrogate Γ:κ r¨s for arbitrary ϕ P U is recovered by inserting
+the current Yκ into (12).
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+13
+
+3. Numerical results
+We evaluate the proposed GP solver on FRG flows. The first example is an explicitly solvable
+benchmark: the exact quadratic solution of the Wilson–Polchinski equation for the Gaussian model
+(Subsection 3.1). This case is used to validate correctness under controlled conditions. Here, we
+vary the number and type of collocation functions, report errors both at the collocation set and
+on independently drawn test functions from a different distribution, and study convergence as the
+number of collocation functions increases.
+The second experiment is carried out for the Wetterich equation on a periodic lattice. As documented in [44], the results produced by the LPA when restricted to constant fields can differ
+from those obtained by lattice Monte Carlo (MC) [44] for certain choices of bare parameters. In
+one spatial dimension, both lattice Monte Carlo (MC) [44] and transfer matrix (TM) [5] methods
+provide highly accurate reference solutions for some physical observables of the system. We therefore benchmark our method against LPA, lattice MC, and TM. Our primary accuracy metrics are
+three physical observables: the effective potential, the magnetization and the susceptibility (see
+Appendix H). The magnetization is the field value that minimizes the infrared effective potential
+once a homogeneous source has tilted it by a linear term in the field, and it captures the system’s
+equilibrium response to that source. The susceptibility measures how rapidly this equilibrium
+magnetization changes as the source varies, serving as the local slope of the magnetization curve
+and characterizing the strength of the system’s linear response. In Subsection 3.2, we apply our GP
+method to solve the Wetterich equation. Here the GP prior differs from the one in the first case: it is
+derived from the LPA ansatz, which consists of a kinetic term and a local potential term. We model
+the local potential as a GP, and by the linearity of the ansatz in this potential, the full functional
+inherits a GP prior. This construction readily extends to other settings where a physical ansatz
+is available and can be encoded into the structure of the GP prior. Across the tests, our method
+produces magnetization and susceptibility curves that agree with the TM and MC references more
+closely than LPA over most of the sampled range, demonstrating systematic improvements.
+Throughout the experiments, we study FRG flows on fixed finite spatial domains. For a discussion of the differences between finite-volume and infinite-volume formulations of the FRG, we
+refer the reader to [44].
+All experiments are implemented in Python with JAX [11]. The resulting ODE systems are
+integrated using the LSODA algorithm to automatically handle both nonstiff and stiff regimes.
+Detailed solver settings for each problem, together with scripts to reproduce all experiments, are
+available in the public repository1, 2.
+3.1. The Wilson–Polchinski equation: Gaussian-model. We consider the Wilson–Polchinski
+equation
+˜
+¸
+ż ż
+1 1 1
+δ 2 Wκ rJs δWκ rJs δWκ rJs
+Bκ Wκ rJs “
+Bκ Rκ px, yq
+`
+dx dy,
+(17)
+2 0 0
+δJx δJy
+δJx
+δJy
+which admits the following explicit solution for a Gaussian free-field theory
+ż ż
+1 detpΓ2 ` Rκ q
+1 1 1
+Wκ rJs “ ´
+Jpxq rΓ2 ` Rκ s´1 px, yq Jpyq dx dy ´ ln
+,
+2 0 0
+2
+det Γ2
+1
+
+(18)
+
+https://github.com/yangx0e/KernelsRenormalizationGroups
+All calculations are performed on a MacBook Pro equipped with an Apple M1 Max processor and 64 GB of
+memory.
+2
+
+14
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+with Γ2 “ ´∆ ` 1. Here, the initial data for (17) at the UV scale κUV is prescribed by the explicit
+expression (18) evaluated at κ “ κUV . We work on the periodic Sobolev space
+␣
+(
+1
+Hper
+pr0, 1s; Rq “ J P H 1 pr0, 1s; Rq : Jp0q “ Jp1q ,
+and choose the Litim regulator [25]
+`
+˘
+Rκ ppq “ κ2 ´ p2 Θpκ2 ´ p2 q,
+which adds a mass-like term κ2 ´p2 for Fourier modes with p2 ă κ2 and vanishes otherwise. Here,
+we recall that Θ denotes the Heaviside step function, equal to 1 for positive arguments and 0 for
+nonpositive arguments.
+For computations we truncate to the p2P ` 1q-dimensional Fourier subspace
+P
+!
+)
+ÿ
+2πipx
+1
+: cp P R, cp “ c´p Ă Hper
+VP “ Jpxq “
+cp e
+pr0, 1s; Rq.
+p“´P
+
+TABLE 1. Gaussian-Model Solution of the Wilson–Polchinski Equation: Average
+relative L2 errors on collocation and test sets for varying sample sizes N .
+N “ 50
+N “ 100
+N “ 200
+N “ 500
+N “ 1000
+´8
+´9
+´9
+´10
+Collocation set 1.91 ˆ 10
+2.51 ˆ 10
+1.28 ˆ 10
+8.29 ˆ 10
+8.29 ˆ 10´10
+´8
+´9
+´9
+´10
+Test set
+5.10 ˆ 10
+3.99 ˆ 10
+1.46 ˆ 10
+7.48 ˆ 10
+6.59 ˆ 10´10
+Numerical setup. In this benchmark we fix P “ 20. We compute the reference solution Wκ
+using the explicit formula (18). To study how the solver behaves on a broad collection of fields,
+and to check its ability to generalize beyond the inputs used to drive the flow, we work with a traintest split in function space. We first construct a random positive-definite covariance on Fourier
+coefficients by drawing a matrix A P RpP `1qˆpP `1q with i.i.d. standard normal entries and setting
+Σ “ AJ A. To generate the collocation functions, we draw N “ 1000 coefficient vectors
+2P `1
+from N p0, Σq. We enforce reality by mirroring ĉp ÞÑ ĉ´p and impose a mild
+tĉpiq uN
+i“1 Ă R
+high-frequency decay
+$
+&ĉ0 ,
+p “ 0,
+cp Ð
+%ĉp {|p|, p ‰ 0,
+so that higher Fourier modes are present but slightly damped. Each resulting
+vector defines
+a real
+␣
+(
+ř
+piq
+field J piq pxq “ Pp“´P cp e2πipx P VP , yielding the collocation set J “ J p1q , . . . , J pN q Ă VP .
+To evaluate out-of-sample performance, we construct an independent test set of size Ntest “ 200
+pjq
+pjq
+using the same symmetry and decay, but with coefficients pĉ´P , . . . , ĉP q „ N p0, Iq instead of the
+test
+correlated covariance Σ. We denote these fields by J̃ “ tJ˜pjq uN
+j“1 . This independent ensemble
+plays the role of a hold-out set in function space and is used only for testing the generalization of
+the learned surrogate.
+Since the Gaussian model solution depends quadratically on the Fourier coefficients, we equip
+the field space on VP with the quadratic feature-space kernel
+P
+ÿ
+`
+˘
+`
+˘2
+k J, J 1 “
+cp rJs cp rJ 1 s ` 1 ,
+p“´P
+
+(19)
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+15
+
+( A ) The first three of 1000 collo- ( B ) Exact solutions vs. GP ap- ( C ) Relative L2 error per scale
+cation points.
+proximations.
+variable κ at collocation points.
+
+( D ) The first three of 200 test ( E ) Exact solutions vs. GP ap- ( F ) Relative L2 error per scale
+points.
+proximations.
+variable κ at test points.
+
+F IGURE 2. Numerical results for Gaussian-model solution of the Wilson–
+Polchinski equation. Subfigures (A)–(C) show results at collocation points, while
+(D)–(F) present corresponding results at testing points. For visualization, only the
+first 3 of 1000 collocation points and the first 3 of 200 testing points are displayed.
+The relative L2 error is evaluated for each scale variable κ.
+
+where cp rJs is the pth Fourier coefficient of J. For the GP method described in Section 2, a small
+nugget ε “ 10´12 is added to the Gram matrix for numerical stability. We denote the GP solution
+at scale κ by Wκ: .
+The initial condition of the ODE system is computed from the explicit solution in (18) at the
+ultraviolet scale κUV “ 10. We then integrate the associated ODE system in κ from κUV down to
+κIR “ 10´10 . The trajectories are sampled at NT “ 100 uniformly spaced scales
+κℓ “ κUV ` ℓ ∆κ,
+
+∆κ “
+
+κIR ´ κUV
+,
+NT
+
+ℓ “ 0, . . . , NT .
+
+At each κℓ we evaluate the exact solution and the GP surrogate on both J and r
+J. To measure
+accuracy we use relative discrete L2 errors
+εcoll
+W pκℓ q :“
+
+›
+›
+›Wκ pJq ´ Wκ: pJq›
+ℓ
+ℓ
+2
+›
+›
+,
+›Wκ pJq›
+ℓ
+
+2
+
+εtest
+W pκℓ q :“
+
+›
+›
+›Wκ pr
+Jq ´ Wκ:ℓ pr
+Jq›2
+ℓ
+,
+›
+›
+›Wκ pr
+Jq›
+ℓ
+
+2
+
+16
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+and their averages over the scale grid,
+ε̄coll
+W “
+
+NT
+ÿ
+1
+εcoll
+pκℓ q,
+NT ` 1 ℓ“0 W
+
+ε̄test
+W “
+
+NT
+ÿ
+1
+εtest
+pκℓ q.
+NT ` 1 ℓ“0 W
+
+Numerical results and discussion. Figure 2 summarizes the performance of the GP solver on
+this quadratic benchmark. Panel (A) shows three representative collocation fields generated by the
+sampling procedure above. Panel (B) compares, for the same three fields, the exact trajectories
+obtained from (18) with the GP surrogates. The curves are visually indistinguishable across the
+whole range, indicating that the GP surrogate W : accurately captures the functional dependence
+on the RG scale.
+Panel (C) reports the collocation relative errors εcoll
+W pκq as a function of κ. Panels (D)–(F) repeat
+r Again,
+the same diagnostics for three randomly chosen test fields and for the full test ensemble Φ.
+:
+the pointwise trajectories of Wκ and Wκ coincide to plotting accuracy, and the test errors εtest
+W pκq
+match the collocation errors in magnitude, confirming out-of-sample generalization in function
+space.
+test
+Table 1 aggregates these results by listing ε̄coll
+W and ε̄W for increasing numbers of collocation
+fields N . As N increases, the errors decay rapidly, providing numerical evidence for convergence.
+These results demonstrate that the proposed GP surrogate achieves accurate interpolation and generalization across the entire RG flow.
+3.2. Wetterich–Morris equation: lattice ϕ4 -model. We work on a one-dimensional periodic
+lattice with Nx P N sites, lattice spacing equal to 1, and index set TNx :“ Z{Nx Z (indices taken
+modulo Nx ). A lattice field is ϕ “ pϕi qiPTNx P RNx . The forward difference and second-order
+discrete Laplacian are
+p∇ϕqi “ ϕi`1 ´ ϕi ,
+
+p´∆ϕqi “ 2ϕi ´ ϕi`1 ´ ϕi´1 .
+ř
+We use the discrete inner product xu, vy :“ iPTNx ui vi and the standard matrix trace Trp¨q on
+RNx ˆNx .
+The effective average action Γκ rϕs depends on the RG scale κ that flows backward from a large
+ultraviolet value κUV ě π to an infrared value 0 ď κIR ă π{Nx . For each κ, a symmetric
+translation-invariant regulator Rκ P RN ˆN is given and Bκ Rκ denotes its scale derivative. The
+lattice Wetterich equation is
+ı
+˘´1
+1 ”`
+δ 2 Γk rϕs
+p2q
+:“
+Bκ Γk rϕs “ Tr Γp2q
+rϕs
+`
+R
+B
+R
+,
+Γ
+rϕs
+P RNx ˆNx .
+(20)
+κ
+κ κ
+κ
+κ
+2
+δϕ δϕ
+At κUV , we prescribe the bare lattice ϕ4 action
+¯
+ÿ ´
+2
+1
+m2 2
+λ 4
+ΓκUV rϕs “
+|p∇ϕq
+|
+`
+ϕ
+`
+ϕ
+,
+i
+i
+2
+2
+24 i
+
+m2 P R, λ ą 0.
+
+(21)
+
+iPTNx
+
+To solve (20), we place a GP prior on Γκ , induced by the local ansatz
+¯
+ÿ ´
+2
+1
+Γκ rϕs “
+|p∇ϕqi | ` Uκ pϕi q ,
+2
+
+(22)
+
+iPTNx
+
+where the scalar potential Uκ is modeled as a GP on a fixed field window r´ϕmax , ϕmax s. Hence,
+by linearity, Γκ inherits a GP prior induced by that on Uκ . Concretely, we decompose
+Uκ pϕq “ m0 pϕq ` vκ pϕq ` gκ pϕq,
+
+ϕ P r´L, Ls,
+
+(23)
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+17
+
+where
+λ 4
+m0 pϕq “ 12 m2 ϕ2 ` 24
+ϕ
+
+is the bare ϕ4 potential. We track the running quadratic and quartic couplings through a lowdimensional parametric term
+`
+˘
+vκ pϕq “ softpluspθ2,κ q ϕ2 {2 ` softpluspθ4,κ q ϕ4 {12,
+softpluspθq “ ln 1 ` eθ ,
+with latent parameters θκ “ pθ2,κ , θ4,κ qJ P R2 . Finally,
+gκ „ GPp0, KU q
+is a zero-mean GP remainder with fixed covariance kernel KU on r´ϕmax , ϕmax s, capturing the
+residual nonpolynomial structure.
+Jointly determining vκ and gκ from the flow at each scale would amount to solving a fully nonlinear constrained regression problem in function space at every κ, which is prohibitively expensive
+over long RG trajectories. Instead, we adopt a predictor-projector scheme that interleaves ODE
+integration with constrained reconstruction. At each scale step, we first form a predictor by replacing the nonlinear parametrization of vκ with an unconstrained linear-Gaussian surrogate, yielding a
+closed, linearly parameterized curvature map Uκ2 as a function of the sampled potential values. We
+then apply a projection (correction) step: we fit a constrained polynomial parametrization together
+with a GP remainder to the predicted potential and replace the predicted state by the reconstructed
+potential. The corrected potential is used as the initial condition for the next predictor step. This
+produces an interleaved algorithm that enforces the constraints along the RG evolution while keeping the per-step cost manageable. Implementation details of the predictor closure, the projection
+objective, and the numerical integrator are given in Appendix G. Here we only summarize the
+numerical setup and results.
+Numerical setup. We discretize the periodic lattice with Nx “ 32 sites and take the field window
+r´ϕmax , ϕmax s with ϕmax “ 5.0 on a uniform set of Nϕ “ 800 constant-field collocation points,
+which is denoted by X. The remainder gκ is modeled by a GP on r´ϕmax , ϕmax s with the kernel
+KU given explicitly by
+KU pϕ, ϕ1 q “
+
+Qÿ
+max
+
+´
+¯
+´
+¯
+`
+˘´β
+πq
+1
+σ 2 η 2 ` pπq{ϕmax q2
+cos ϕπq
+ϕ
+cos
+ϕ
+,
+ϕmax
+max
+
+(24)
+
+q“0
+
+with hyperparameters σ 2 “ 1.0, η “ 0.98, β “ 2.0, and spectral cutoff Qmax “ mintNϕ ´1, 1024u.
+The kernel Gram matrix is stabilized with a nugget ϵ “ 10´11 . The kernel choice in (24) reflects
+that the effective potential Uκ should vary smoothly with the field, and that the model is even in
+the field, i.e., Uκ pϕq “ Uκ p´ϕq.
+The flow is integrated backward in κ from κUV “ 100 to κIR “ 10´10 , and we record the solution
+at 1001 uniformly spaced output scales tκs uSs“0 with S “ 1000. We initialize the constrained parameters at the UV scale by θκUV ,2 “ θκUV ,4 “ ´8.0, so that softpluspθq « 0, and warm-start each
+subsequent projection at κs`1 using the previous iterate. At each scale, the projected parameters
+are obtained by minimizing the projection objective (Appendix G) with Tikhonov weight γ “ 10´6
+via a damped Gauss–Newton method (at most six iterations, unit damping). At the infrared scale
+κIR , we set θIR :“ θκS and denote by gIR the GP posterior mean from the final projection. Together
+these define the reconstructed infrared potential
+`
+˘
+`
+˘
+UIR pϕq “ m0 pϕq ` softplus θIR,2 ϕ2 {2 ` softplus θIR,4 ϕ4 {12 ` gIR pϕq.
+
+18
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+( A ) Potential UκIR
+
+( B ) Susceptibility
+
+( D ) Magnetization
+
+( C ) Susceptibility Errors
+
+( E ) Magnetization Errors
+
+F IGURE 3. Benchmark of the GP reconstruction versus standard LPA, lattice
+Monte Carlo, and the transfer matrix method. (A) Values of the potential UκIR pϕq
+on r´5, 5s of different methods. (B) Susceptibility χpcq versus external field c (loglog). (C) Susceptibility errors (relative to transfer matrix); for most values of c, the
+GP exhibits smaller errors than LPA, especially at small c. (D) Magnetization mpcq
+(log-log). (E) Magnetization errors (relative to transfer matrix); in most of the c
+range the GP is more accurate than LPA.
+
+The reconstructed infrared potential UIR pϕq is then used to extract observables (see Appen1
+dix H). In particular, the magnetization mpcq is obtained by solving UIR
+pmpcqq “ c with the
+´4
+0.4
+Newton method on c P r10 , 10 s sampled at 18 logarithmic points, and the longitudinal suscep2
+tibility is given by χpcq “ 1{UIR
+pmpcqq.
+Numerical results and discussion. Figure 3 reports a five-panel comparison of our GP-based reconstruction against a standard local potential flow (LPA) (see Appendix E), lattice Monte Carlo
+(MC) [44], and a transfer-matrix (TM) reference (see Appendix F). For the one-dimensional lattice ϕ4 model with the parameters considered here, TM and high-precision lattice MC provide
+essentially state-of-the-art benchmarks for the magnetization mpcq and the susceptibility χpcq as
+functions of the external field c, see, e.g., [44] and Appendix F. Panel (A) shows the infrared effective potential UκIR pϕq on r´5, 5s. Panel (B) plots the susceptibility χpcq on log-log axes, and
+panel (C) displays the corresponding pointwise absolute errors |χpcq ´ χTM pcq| relative to the TM
+reference. Panel (D) shows the magnetization mpcq on log-log axes, while panel (E) reports the
+pointwise absolute errors |mpcq ´ mTM pcq|. In panels (C) and (E), smaller values indicate closer
+agreement with the TM benchmark.
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+19
+
+The study [44] demonstrates that, for this model, the standard LPA flow already captures the
+qualitative behavior of UκIR pϕq, mpcq, and χpcq, as well known, but exhibits systematic quantitative deviations when compared to lattice MC. These discrepancies originate from the fact that
+the truncation keeps only a local potential Uκ pϕq and neglects momentum-dependent corrections
+p2q
+in Γκ , including wave-function renormalization and higher-derivative operators. As a result, the
+local flow misrepresents how fluctuations redistribute curvature in field space, and this manifests
+as a visible gap between the LPA and the lattice MC/TM results.
+Our GP reconstruction is built on the same local ansatz for Γκ that underlies the standard flow,
+but it replaces a finite low-order polynomial parameterization of Uκ by a physics-informed GP
+prior. Concretely, we encode the bare ϕ4 potential in the mean function m0 , represent the running
+quadratic and quartic couplings in a low-dimensional parametric component vκ , and model the
+remaining nonpolynomial structure by a zero-mean GP remainder gκ with a covariance kernel KU
+derived from a spectral decomposition of the lattice kinetic operator along constant fields. In this
+way, the GP kernel is not a generic smoothness prior but a kernel engineered from the RG ansatz.
+Using TM as the reference, the pointwise errors of mpcq and χpcq obtained from UκIR are reduced for the GP reconstruction compared to the purely LPA flow on most values of c. For LPA,
+the computation requires 27.90 seconds, whereas for the GP method it requires 59.95 seconds.
+Conceptually, this illustrates how physics-driven kernel design can be used to refine the effective
+description of Γκ along selected observables: an ansatz or additional physical information (symmetries or invariances, etc.) for Γκ can be incorporated into the construction of GP priors.
+4. Conclusion
+We have introduced a general framework for solving functional renormalization group (FRG)
+equations directly in function space, leveraging tools from operator learning. The method is both
+general and flexible, and can be applied to a broad class of FRG problems. We have demonstrated
+that it accurately reproduces several flows of interest, while also revealing multiple directions for
+further development.
+On the methodological side, we have worked with a fixed kernel when solving the FRG equations. Kernel-learning techniques such as cross-validation, maximum likelihood estimation (MLE),
+or maximum a posteriori (MAP) estimation [31, 13, 20, 40] could be used to tune kernel hyperparameters and improve accuracy. In addition, approaches based on programmable kernels [35, 10]
+may help uncover structural properties of the solution. Once additional physical insight into the
+underlying FRG solution is available, this knowledge can be encoded directly into the GP kernel.
+On the theoretical side, kernel-based methods open the door to rigorous error analysis. Although
+we do not pursue this here, error estimates analogous to those in [4] could be derived in our
+setting. The encoder-decoder structure of diagram in Figure 1 and the optimal-recovery viewpoint
+of Remark 2.1 were first used in the operator-learning analyses of [4] to provide convergence
+guarantees and rigorous a priori error estimates. We do not pursue such convergence analysis
+here, but note that it could be used in conjunction with an error analysis of time-stepping schemes
+to provide detailed error analysis of the recovery of Γ, and instead leave it for future work. In
+contrast to purely data-driven settings as in [4] where evaluations of Γ are given on many input
+functions, our surrogate Γ: is constrained to satisfy the FRG flow equations. As a result, the
+representation is informed by the underlying functional PDE rather than by paired input-output
+data. Moreover, the Gaussian process viewpoint naturally provides uncertainty quantification and
+a Bayesian interpretation, which could be exploited in inverse problems associated with functional
+differential equations.
+
+20
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+In terms of applications, the proposed framework is particularly promising in situations where
+traditional FRG techniques are difficult to use. Potential targets include large deviation problems
+for dynamical systems and phenomena such as spontaneous stochasticity. Our experiments also
+show that the GP method can handle inhomogeneous fields, suggesting extensions to more complex
+field theories, for instance the study of kink solutions in the ϕ4 model.
+5. Acknowledgments.
+We are grateful to Malo Tarpin for many insightful discussions and suggestions that have substantially improved this work. MD, HO, and XY acknowledge support from the Air Force Office of Scientific Research under MURI awards number FA9550-20-1-0358 (Machine Learning
+and Physics-Based Modeling and Simulation), FOA-AFRL-AFOSR-2023-0004 (Mathematics of
+Digital Twins), the Department of Energy under award number DE-SC0023163 (SEA-CROGS:
+Scalable, Efficient, and Accelerated Causal Reasoning Operators, Graphs and Spikes for Earth and
+Embedded Systems), the National Science Foundation under award number 2425909 (Discovering
+the Law of Stress Transfer and Earthquake Dynamics in a Fault Network using a Computational
+Graph Discovery Approach). HO acknowledges support from the DoD Vannevar Bush Faculty
+Fellowship Program under ONR award number N00014-18-1-2363. GE and MH were partially
+funded for this work by the Simons Foundation, Collaboration Grant MPS-1151713. FA was supported by the Applied Mathematics (M2DT MMICC center) activity within the U.S. Department
+of Energy, Office of Science, Advanced Scientific Computing Research, under Contract DE-AC0206CH11357.
+Appendix A. Optimal recovery
+Let U be a Banach space with norm } ¨ }U , and let w : U Ñ Rm be a measurement map
+with components wi P U ˚ (the dual space of U), so that wpφq “ pw1 pφq, . . . , wm pφqqT . Given data
+z “ wpφq, we reconstruct φ from z by optimal recovery. Namely, we take w̃ to be a data-consistent
+reconstruction rule that minimizes the worst-case relative error
+}φ ´ vpwpφqq}U
+w̃ P argmin v: Rm ÑU sup
+.
+wpvpzqq“z
+}φ}U
+φPU zt0u
+Equivalently, for each z, w̃pzq is the minimax-optimal interpolant among all ψ P U satisfying
+wpψq “ z. As shown in [34], this coincides with the minimum-norm interpolant:
+w̃pzq :“ argminψPU }ψ}2U
+
+subject to
+
+wpψq “ z.
+
+In this paper, we do not evaluate w̃ explicitly. Rather, it provides a useful conceptual link to optimal
+recovery and may serve as a starting point for a convergence analysis of the proposed algorithm,
+as discussed in Section 4.
+Appendix B. Further Experiments
+In this section, we present two additional numerical examples to illustrate our methods. The first
+concerns the exact Gaussian-model solution of the Wetterich–Morris equation (Subsection B.1).
+Here, we use an exponential regulator rather than the Litim regulator used in Section 3.1.
+The second experiment investigates the Wetterich flow on the continuum interval r0, 1s for a
+4
+ϕ model, whose bare action includes a quartic self-interaction term. Because of this nonlinear
+self-interaction, the corresponding flow equation cannot be solved in closed form, and the effective average action Γκ rϕs is no longer available as an explicit analytic expression, in contrast to
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+21
+
+the Gaussian benchmarks. This experiment therefore examines the performance of our GP-based
+solver on a genuinely interacting, non-Gaussian flow without an explicit solution. We draw a randomized set of collocation functions and learn the flow on that set. We then evaluate the learned
+flow on spatially constant functions, which allows a direct comparison with the local-potential approximation (LPA) method (see Appendix E). Hence, although this example yields results similar
+to the LPA method, its purpose is to demonstrate that our approach can directly solve the Wetterich
+equation on non-constant fields, which the LPA cannot.
+B.1. The Wetterich-Morris equation: Gaussian-model. We now turn to the Wetterich–Morris
+equation
+ż ż
+´
+¯´1
+1 1 1
+Bκ Γκ rϕs “
+Bκ Rκ px, yq Γp2q
+rϕs
+`
+R
+px, yq dx dy,
+(25)
+κ
+κ
+2 0 0
+p2q
+
+where Γκ rϕs denotes the linear operator defined by the second functional derivative with respect
+to ϕ. We consider (25) with effective average action Γκ given explicitly by
+“
+‰
+ż
+ı
+1 det ´γ ∆ ` γ m2 ` Rκ
+1 1”
+2
+2
+2
+“
+‰ ,
+γ p∇ϕpxqq ` γ m ϕpxq dx `
+ln
+Γκ rϕs “
+(26)
+2 0
+2
+det ´γ ∆ ` γ m2
+where m ą 0 is the mass and γ ą 0 is a small prefactor in front of the quadratic term that moderates
+the influence of the Laplacian in the numerics. The bare action for (25) at the UV scale κUV is
+chosen by evaluating (26) at κ “ κUV . We refer to (26) as the Gaussian model, since for every
+scale κ the corresponding bare action is a quadratic functional of ϕ (up to an additive constant).
+1
+pr0, 1s; Rq and in the truncated Fourier
+As in the Wilson–Polchinski experiment, we work in Hper
+subspace VP defined in Section 3.1, representing fields by their Fourier coefficients. The exponential regulator
+|p|2α
+Rκ ppq “ p|p|{κq2α
+,
+α “ 1,
+e
+´1
+enters both the logarithmic determinant in Γκ and the flow (25) through its real-space kernel
+Rκ px, yq and its scale derivative Bκ Rκ px, yq obtained by inverse Fourier transform.
+We again place a GP prior on the restriction of Γκ to VP , modeling Γκ as a zero-mean GP with
+the kernel (19).
+Numerical setup. For this benchmark, we use the explicit solution in (26) with γ “ 10´3 and
+m2 “ 1. We reuse the same truncation P , the same Fourier representation, and the same sampling
+strategy as in Section 3.1. In particular, we work with N “ 1000 collocation fields Φ “ tϕpiq uN
+i“1 Ă
+pjq Ntest
+r
+VP and an independent test ensemble Φ “ tϕ̃ uj“1 Ă VP with Ntest “ 200, generated by the
+correlated-Gaussian and i.i.d. Gaussian procedures described in Section 3.1, including the same
+mild 1{|p| decay on high modes.
+We use the explicit solution in (26) to evaluate the effective action at the ultraviolet scale κUV “
+10, and take this as the initial condition for the flow. The associated ODE system in κ is then
+integrated from κUV down to κIR “ 10´10 , and the values of Γκ are recorded on the same grid
+:
+T
+tκℓ uN
+ℓ“0 as in the Wilson–Polchinski example. We denote the GP solution at scale κ by Γκ . At each
+r
+κℓ we evaluate both the exact Γκℓ and the surrogate Γ:κℓ on Φ and Φ.
+The collocation and test errors are defined exactly as in the Wilson–Polchinski experiment, but
+test
+with Wκ pJq replaced by Γκ pϕq. For clarity we denote these by εcoll
+Γ pκℓ q, εΓ pκℓ q, and their averages
+coll test
+ε̄Γ , ε̄Γ , which are reported in Table 2.
+
+22
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+Numerical results and discussion. Figure 5 summarizes the behavior of the GP-based solver for
+the Wetterich Gaussian model. Panel (A) displays three representative fields from the collocation
+set. Panel (B) compares, for the same fields, the trajectories κ ÞÑ Γκ rϕpiq s with the GP surrogate
+κ ÞÑ Γ:κ rϕpiq s. The curves demonstrate accuracy across the full RG range. Panel (C) shows the
+collocation errors εcoll
+Γ pκq as a function of κ; they remain uniformly small along the flow.
+r
+Panels (D)–(F) repeat these diagnostics for three test fields and for the entire test ensemble Φ.
+The out-of-sample trajectories Γκ rϕ̃pjq s and Γ:κ rϕ̃pjq s remain close in absolute size, even though
+the test errors εtest
+Γ pκq are one to three orders of magnitude larger than the collocation errors and
+are still small on the scale of the function values. Together with the averages ε̄coll
+and ε̄test
+in
+Γ
+Γ
+Table 2, these results show that the GP surrogate provides an accurate and stable approximation of
+the Wetterich flow for this Gaussian benchmark, both on and off the training set.
+
+( A ) The first three of 1000 collo- ( B ) Exact solutions vs. GP ap- ( C ) Relative L2 error per scale
+cation points.
+proximations.
+variable κ at collocation points.
+
+( D ) The first three of 200 test ( E ) Exact solutions vs. GP ap- ( F ) Relative L2 error per scale
+points.
+proximations.
+variable κ at test points.
+
+F IGURE 4. Numerical results of the Wetterich Gaussian model. Subfigures (A)–
+(C) show results at collocation points, while (D)–(F) present corresponding results
+at testing points. For visualization, only the first 3 of 1000 collocation points and
+the first 3 of 200 testing points are displayed. The relative L2 error is evaluated for
+each scale variable κ.
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+23
+
+TABLE 2. The Wetterich Gaussian Model: Average relative L2 errors on collocation and test sets for varying sample sizes N .
+N “ 100
+N “ 200
+N “ 500
+N “ 1000
+´9
+´10
+´11
+Collocation set 1.31 ˆ 10
+1.54 ˆ 10
+5.40 ˆ 10
+1.48 ˆ 10´11
+´6
+´8
+´9
+Test set
+1.27 ˆ 10
+4.62 ˆ 10
+3.07 ˆ 10
+8.62 ˆ 10´10
+B.2. The Wetterich equation: continuum ϕ4 -model. In this subsection, we consider the Wetterich–
+Morris equation
+˙´1
+ˆ 2
+ż
+1
+δ Γκ rϕs
+Bκ Γκ rϕs “
+` Rκ
+px, yq dx dy,
+(27)
+Bκ Rκ px, yq
+2
+δϕ δϕ
+with the ϕ4 bare action on the periodic unit interval r0, 1s at κ “ κUV :
+«
+ff
+ż1
+1
+m2 2 λ 4
+2
+ΓκUV rϕs “ dx
+pBx ϕq `
+ϕ ` ϕ , κUV “ 10, m2 “ ´1.5, λ “ 1,
+2
+2
+4!
+0
+
+(28)
+
+and the Litim regulator in Fourier representation
+Rk pq 2 q “ pk 2 ´ q 2 q Θpk 2 ´ q 2 q.
+
+(29)
+
+We work in the periodic Sobolev space
+␣
+(
+1
+Hper
+pr0, 1sq “ ϕ P H 1 pr0, 1sq : ϕp0q “ ϕp1q ,
+1
+and use the standard real Fourier basis teα u8
+α“0 Ă Hper pr0, 1sq given by
+$?
+`
+˘
+& 2 cos 2π ppαq x , α odd,
+e0 pxq “ 1,
+eα pxq “ ?
+`
+˘
+% 2 sin 2π ppαq x , α even, α ą 0,
+1
+pr0, 1sq then has the expansion
+with ppαq “ tpα ` 1q{2u. Any ϕ P Hper
+ż1
+8
+ÿ
+cα eα pxq,
+cα “
+ϕpxq eα pxq dx.
+ϕpxq “
+α“0
+
+0
+
+For the numerical experiments we restrict to the finite–dimensional subspace
+2P
+!
+)
+ÿ
+1
+VP “ ϕ P Hper pr0, 1sq : ϕpxq “
+cα eα pxq ,
+
+(30)
+
+α“0
+
+of dimension 2P ` 1.
+Our Gaussian Process Method. Based on the physical prior, we build our GP prior for Γ for
+solving (27) based on the LPA ansatz (see Appendix E for an introduction of the LPA method)
+„
+ȷ
+ż1
+˘2
+`
+˘
+1`
+2
+Γk rϕs “ dx
+Bx ϕpxq ` Uk ϕpxq
+,
+(31)
+2
+0
+More precisely, we place a fully nonparametric prior on the local potential by assuming
+`
+˘
+Uk puq „ GP 0, KU ,
+
+24
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+a zero-mean GP in the scalar argument u “ ϕ2 . Because Γκ rϕs depends linearly on Uκ , this induces
+a GP prior on the entire functional ϕ ÞÑ Γκ rϕs. Under these assumptions,
+ż 1ż 1
+ż
+´
+¯
+`
+˘
+1 1
+2
+1
+KU ϕpxq2 , ϕ1 pyq2 dx dy.
+Γκ r¨s „ GP mΓ , CΓ , mΓ pϕq “
+pBx ϕq dx, CΓ pϕ, ϕ q “
+2 0
+0 0
+This construction thus carries the nonparametric GP prior on Uκ all the way through to the full
+functional Γκ rϕs. Moreover, the choice of the scalar kernel KU is inspired by the form of the bare
+action in (28). In particular, for the ϕ4 model we adopt the additive kernel
+`
+˘2
+KU pu, u1 q “ 1 ` u u1 ` u u1 ` expp´|u ´ u1 |2 {p2σ 2 qq.
+(32)
+Numerical experiment setup. We restrict the fields to the finite-dimensional subspace VP Ă
+1
+pr0, 1sq defined in (30), spanned by the first 2P ` 1 real Fourier modes. To construct the
+Hper
+piq
+piq
+collocation ensemble, we draw Ncol “ 1000 random coefficient vectors cpiq “ pc0 , . . . , c2P q P
+2P `1
+J
+R
+from a correlated Gaussian prior with covariance Σ “ A A (for a random Gaussian matrix
+A), and then apply a mild high-frequency decay
+piq
+
+cpiq
+α Ð `
+
+cα
+
+˘3{2 ,
+1 ` |ppαq|
+
+thereby biasing the sampled fields toward regular configurations while still retaining nontrivial
+high-frequency modes and improving the conditioning of the computation of the functional Hessian, where ppαq is the Fourier mode index. Each coefficient vector defines a real periodic field
+ϕpiq pxq “
+
+2P
+ÿ
+
+cpiq
+α eα pxq,
+
+i “ 1, . . . , Ncol .
+
+α“0
+
+The Gram matrix KpΦ, Φq induced by the scalar kernel KU in (32) is assembled once and stabilized
+with a small nugget.
+For each RG scale κ, the GP posterior defines a surrogate functional Γ:κ rϕs which approximates
+Γκ rϕs for all ϕ P VP . Inserting Γ:κ into the right-hand side of the Wetterich equation (27), and projecting onto the collocation ensemble, yields a closed system of ODEs in κ for these coefficients.
+At the ultraviolet scale κUV we initialize the flow with the bare action (28). Concretely, for each
+collocation field ϕpiq , we compute its bare functional value ΓκUV rϕpiq s, using the real Fourier representation to compute the kinetic term exactly and the potential term by averaging the integrand
+over the grid. Collecting these values into the vector
+`
+˘J
+ΓκUV pΦq :“ ΓκUV rϕp1q s, . . . , ΓκUV rϕpNcol q s ,
+we treat ΓκUV pΦq as the initial condition of the ODE system. We integrate the resulting ODE
+col
+system backward in scale from κUV “ 10 down to κIR “ 2. The solver outputs pΓ:κ rϕpiq sqN
+i“1
+T
+along a uniform grid of RG scales tκℓ uN
+ℓ“0 Ă r2, 10s.
+Since no explicit solution is available in this case, we compare the GP surrogate Γ:κ pϕq with an
+independently computed LPA solution Uκ pϕ2 q. The latter is obtained by solving the flow for the
+local potential on a grid of ϕ2 values using finite differences and the same Litim regulator (29).
+test
+rpjq as a
+Concretely, we sample a uniform grid of values tϕrpjq uN
+j“1 Ă r0, 4s and regard each ϕ
+constant test field. In the real Fourier basis, these fields are represented by activating only the
+constant mode. For the LPA reference, we independently solve the standard LPA flow equation for
+the local potential Uκ puq (with u “ ϕ2 ) using the same bare parameters as in (28). The variable
+u is discretized on a uniform grid, and the resulting ODE system for tUκ puj qu is integrated in the
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+25
+
+RG scale from the ultraviolet cutoff κUV “ 10 down to an infrared scale κIR “ 2. We compare
+the LPA potential Uκ pϕ2 q with the GP surrogate by evaluating both on the same pκ, ϕq grid. The
+comparison between the GP method and LPA in this section is not intended to demonstrate that
+we can reproduce LPA’s results which, of course, are only approximate. Rather, it illustrates the
+ability of our method to solve the functional on non-constant fields, which lie outside the scope
+of the LPA approximation, and to generalize the resulting functional approximation to previously
+unseen fields.
+
+( A ) Three representative training ( B ) GP surrogate Γ:κ rϕi s along the
+fields tϕi u3i“1 .
+same RG scales k.
+
+( C ) Surrogate Γ:k pϕq on constant ( D ) LPA reference Uκ pϕ2 q on the ( E ) |Γ:κ ´ Uκ |{|Uκ | over pκ, ϕq P
+fields ϕ P r0, 4s.
+same constants.
+r2, 10s ˆ r0, 4s.
+
+F IGURE 5. Numerical results for the Wetterich flow with the ϕ4 bare action. Panels (A)–(B) illustrate three of the Ncol “ 1000 training fields and the corresponding GP predictions, while panels (C)–(D) plot the surrogate and the LPA potential
+on constant-field inputs in r0, 4s. Panel (E) maps the pointwise relative difference
+across RG scales κ P r2, 10s and field amplitudes ϕ P r0, 4s.
+Numerical results and discussion. Figure 5 summarizes the performance of our GP-based solver
+for the interacting ϕ4 Wetterich flow. Panel (A) displays three representative training fields drawn
+from the collocation ensemble Φ. Panel (B) plots the corresponding GP surrogate evaluations
+along the RG trajectory.
+Panel (C) shows the surface Γ:κ pϕq for κ P r2, 10s and ϕ P r0, 4s, while panel (D) presents the
+LPA reference potential Uκ pϕ2 q evaluated on the same pκ, ϕq grid. The two surfaces are visually indistinguishable at the scale of the plots, indicating that the functional GP, which is trained
+on general nonconstant fields, closely tracks the local potential extracted from a dedicated LPA
+computation when restricted to homogeneous configurations.
+
+26
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+Panel (E) quantifies this agreement by plotting the pointwise relative difference between the
+LPA and GP results on constant fields,
+εpκ, ϕq “
+
+Γ:κ pϕq ´ Uκ pϕ2 q
+,
+|Uκ pϕ2 q|
+
+pκ, ϕq P r2, 10s ˆ r0, 4s.
+
+Across this entire grid the errors remain in the range 10´3 –10´2 .
+Taken together, these diagnostics show that the GP prior for Γ, engineered from the LPA ansatz
+and the ϕ4 structure of the bare action, yields a surrogate that accurately captures the RG evolution
+of the effective action while retaining excellent quantitative agreement with the LPA potential
+on constant fields. The plots in panels (A)–(B) demonstrate accurate interpolation on the training
+ensemble, while the constant-field comparison in panels (C)–(E) plays the role of an out-of-sample
+test and confirms generalization of the surrogate across the entire RG flow.
+Appendix C. Mathematical presentation of the FRG flow problem
+For a mathematical audience, it is convenient to recall a probabilistic interpretation of the functional renormalization group (FRG), following [21]. Let ψ be an underlying “true” field and consider a noisy observation
+ϕ “ ψ ` ϵ,
+where ϵ is a Gaussian error with zero mean and covariance matrix Rκ´1 or equivalently precision
+matrix Rκ . We assume that ϵ is independent of ψ. By Bayes’ rule, the conditional law of ψ given
+the observation ϕ is
+P rψs P rϵ “ ϕ ´ ψs
+P rψ | ϕs “
+.
+(33)
+P rϕs
+To encode this conditional distribution, one introduces an external source (or test function) J,
+which should be thought of as an element of the dual of the field space, and defines the conditional
+generating functional
+„ ´ż
+¯ ˇ ȷ
+ˇ
+Zκ rJ | ϕs :“ E exp
+Jpxq ψpxq dx ˇ ϕ .
+x
+
+The associated conditional cumulant-generating functional is then
+Wκ rJ | ϕs :“ ln Zκ rJ | ϕs.
+From Wκ rJ | ϕs one defines a scale-dependent functional Γκ rϕs via a generalized Legendre
+transform in the source variable J:
+"ż
+*
+Γκ rϕs “ sup
+Jpxq ϕpxq dx ´ Wκ rJ | ϕs .
+J
+
+x
+
+In the FRG literature, Γκ is referred to as the effective average action. As the scale parameter
+κ varies, Γκ interpolates between the bare (microscopic) action in the ultraviolet limit κ Ñ 8,
+Rκ Ñ 8 (perfect measurements) and the full effective action in the infrared limit κ Ñ 0, Rκ Ñ O
+(no measurements), which governs the macroscopic behavior. Starting from the probabilistic setup
+above, one can derive, as shown in [21], the Wetterich–Morris flow equation (1) for Γκ .
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+27
+
+Appendix D. Derivative and Hessian of kernel interpolants
+We now discuss the computation of functional derivatives and Hessians of the kernel interpolant
+(12). For a fixed scale κ we suppress the κ–dependence and write the surrogate in the form
+:
+
+Γ rϕs “
+
+N
+ÿ
+
+`
+˘
+ci K wpϕq, wpϕpiq q ,
+
+(34)
+
+i“1
+
+where ϕ P U is a generic field, ϕpiq are the collocation fields, and w : U Ñ Rm is the feature map
+introduced in Section 2.3. The vector c “ pc1 , . . . , cN qJ collects the coefficients appearing in the
+`
+˘´1
+representer formula, for example c “ KpZ, Zq ` εI gκ in (12). In this appendix we treat c as
+fixed and focus on the dependence on the field ϕ.
+Throughout, we consider Gâteaux derivatives of Γ: along directions η, v P U. We assume that
+the feature map w is linear, so that wpϕ ` εηq “ wpϕq ` εwpηq for all ϕ, η P U and ε P R; this
+covers the cases of pointwise sampling and Fourier coefficients considered below.
+D.1. First variation. Fix a collocation field ϕpiq and abbreviate z “ wpϕq P Rm , z piq “ wpϕpiq q P
+Rm . Consider the directional derivative of a single kernel term,
+˘ˇ
+d `
+piq ˇ
+K wpϕ ` εηq, wpϕ q ˇ .
+dε
+ε“0
+Using the chain rule and linearity of w we obtain
+˘ˇˇ
+d `
+K wpϕ ` εηq, wpϕpiq q ˇ
+“ ∇1 Kpz, z piq q ¨ wpηq,
+dε
+ε“0
+
+(35)
+
+where ∇1 denotes the gradient of Kp¨, z piq q with respect to its first argument, and the dot denotes
+the Euclidean inner product in Rm .
+By linearity of the sum in (34), the first variation of Γ: at ϕ in the direction η is
+G
+C
+N
+ˇ
+ÿ
+`
+˘
+d :
+δΓ:
+ˇ
+, η “ Γ rϕ ` εηsˇ
+“
+ci ∇1 K wpϕq, wpϕpiq q ¨ wpηq.
+δϕ
+dε
+ε“0
+i“1
+This expression for the functional derivative δΓ: {δϕ will take a concrete form once a specific form
+of the feature map w is chosen.
+D.2. Second variation. A similar calculation yields the second variation. Differentiating (35)
+once more in the direction v gives
+ıˇ
+`
+˘
+`
+˘J
+`
+˘
+d”
+ˇ
+“ wpηq ∇21 K wpϕq, wpϕpiq q wpvq,
+∇1 K wpϕ ` εvq, wpϕpiq q ¨ wpηq ˇ
+dε
+ε“0
+where ∇21 K denotes the Hessian of Kp¨, z piq q with respect to its first argument. Summing over i
+with weights ci then yields the bilinear form xη, δ 2 Γ: {pδϕ δϕq vy for the second variation. As in
+the first-variation case, this pairing provides an explicit expression for the second-variation kernel
+δ 2 Γ: {pδϕδϕq once the feature map w is specified. We now record the resulting formulas for the
+two choices considered in this paper.
+
+28
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+D.3. Examples of differrent measurements. In this subsection, we detail the functional derivative calculations for kernel interpolants in two examples: pointwise measurements and measurements given by Fourier coefficients.
+Suppose the feature map is given by pointwise samples at physical collocation points x1 , . . . , xm ,
+so that
+`
+˘
+wpϕq “ ϕpx1 q, . . . , ϕpxm q P Rm .
+In this case
+`
+˘
+wpηq “ ηpx1 q, . . . , ηpxm q ,
+and (35) becomes
+m
+ÿ
+`
+˘
+`
+˘
+∇1 K wpϕq, wpϕpiq q ¨ wpηq “
+Bzj K wpϕq, wpϕpiq q ηpxj q
+j“1
+
+ż «ÿ
+m
+
+ff
+˘
+Bzj K wpϕq, wpϕpiq q δxj pxq ηpxq dx,
+`
+
+“
+j“1
+
+where Bzj denotes differentiation with respect to the jth component of the first kernel argument
+and δxj is the Dirac measure at xj . We may therefore identify the functional derivative of a single
+kernel term as
+m
+`
+˘ ÿ
+`
+˘
+δ
+K wpϕq, wpϕpiq q “
+Bzj K wpϕq, wpϕpiq q δxj pxq.
+δϕpxq
+j“1
+Integrals involving δΓ: {δϕ are thus reduced to evaluations of the kernel gradient at the finite set of
+spatial points txj um
+j“1 .
+For the second variation we use the Hessian ∇21 K and the representation wpηq “ pηpxj qqm
+j“1 . A
+calculation analogous to the one above yields
+wpηq
+
+∇21 K
+
+żż
+
+«
+
+J
+
+`
+
+m
+ÿ
+`
+˘
+˘
+wpϕq, wpϕ q wpvq “
+ηpxk q Bzk Bzj K wpϕq, wpϕpiq q vpxj q
+piq
+
+j,k“1
+
+“
+
+ηpyq
+
+m
+ÿ
+
+ff
+˘
+Bzk Bzj K wpϕq, wpϕpiq q δxk pyq δxj pxq vpxq dx dy.
+`
+
+j,k“1
+
+Hence the second functional derivative of a single kernel term is the distribution
+m
+ÿ
+`
+˘
+`
+˘
+δ2
+piq
+K wpϕq, wpϕ q “
+Bzk Bzj K wpϕq, wpϕpiq q δxk pyq δxj pxq.
+δϕpxq δϕpyq
+j,k“1
+
+Again, any integral involving the Hessian of Γ: only depends on the physical collocation points
+txj u and on the kernel Hessian evaluated at the feature vector wpϕq.
+Next, we consider the case where w records Fourier coefficients. For simplicity, let tej um
+j“1 be a
+finite family of (complex or real) Fourier modes on the spatial domain and set
+ż
+` ˘m
+wpϕq “ ϕ̂j j“1 ,
+ϕ̂j :“ ϕpxq ej pxq dx.
+Then
+` ˘m
+wpηq “ η̂j j“1 ,
+
+ż
+η̂j :“
+
+ηpxq ej pxq dx.
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+29
+
+Proceeding as in the pointwise case, we obtain from (35)
+m
+ÿ
+`
+˘
+`
+˘
+∇1 K wpϕq, wpϕpiq q ¨ wpηq “
+Bzj K wpϕq, wpϕpiq q η̂j
+j“1
+
+ż «ÿ
+m
+“
+
+ff
+˘
+Bzj K wpϕq, wpϕpiq q ej pxq ηpxq dx.
+`
+
+j“1
+
+Thus
+
+m
+`
+˘ ÿ
+`
+˘
+δ
+piq
+K wpϕq, wpϕ q “
+Bzj K wpϕq, wpϕpiq q ej pxq.
+δϕpxq
+j“1
+
+For the second derivative we obtain, by the same argument,
+m
+ÿ
+`
+˘
+`
+˘
+J 2
+piq
+wpηq ∇1 K wpϕq, wpϕ q wpvq “
+η̂k Bzk Bzj K wpϕq, wpϕpiq q v̂j
+j,k“1
+
+żż
+“
+
+«
+ηpyq
+
+m
+ÿ
+
+ff
+˘
+Bzk Bzj K wpϕq, wpϕpiq q ek pyq ej pxq vpxq dx dy,
+`
+
+j,k“1
+
+so that
+m
+ÿ
+`
+˘
+`
+˘
+δ2
+piq
+K wpϕq, wpϕ q “
+Bzk Bzj K wpϕq, wpϕpiq q ek pyq ej pxq.
+δϕpxq δϕpyq
+j,k“1
+
+In both the pointwise and Fourier settings, the functional derivatives and Hessians of Γ: are
+obtained by summing the corresponding expressions over i “ 1, . . . , N with weights ci , as in (34).
+Appendix E. Local Potential Approximation (LPA)
+We consider the effective average action Γκ rϕs satisfying the Wetterich flow
+ı
+˘´1
+δ 2 Γκ rϕs
+1 ”`
+p2q
+rϕs
+`
+R
+B
+R
+,
+Γ
+rϕspx,
+yq
+“
+,
+Bκ Γκ rϕs “ Tr Γp2q
+κ
+κ
+κ
+κ
+κ
+2
+δϕpxq δϕpyq
+where the renormalization scale κ flows backward from a large terminal value κUV to an infrared
+value κIR , and Rκ is a symmetric, translation-invariant regulator.
+In the local potential approximation (LPA), one assumes an ansatz with a standard quadratic
+gradient term encoding all scale dependence in a spatially local potential [15]. Concretely, on a
+periodic continuum domain Ω Ă R (for example r0, 1s with periodic boundary conditions)
+ż´
+¯
+2
+1
+Γκ rϕs “
+|B
+ϕpxq|
+`
+U
+pϕpxqq
+dx,
+x
+κ
+2
+Ω
+
+and on a periodic lattice with N sites, spacing h, and index set TN , one sets
+¯
+ÿ´ ˇ
+ˇ2
+ϕi`1 ´ ϕi
+1ˇ
+ˇ
+Γκ rϕs “
+p∇h ϕqi ` Uκ pϕi q h,
+p∇h ϕqi :“
+.
+2
+h
+iPT
+N
+
+The scalar function Uκ is the scale-dependent effective potential to be determined. At a constant
+configuration ϕpxq ” φ P R, the second variational derivative takes the form
+2
+Γp2q
+κ rφs “ ´∆ ` Uκ pφq I
+
+(continuum),
+
+2
+Γp2q
+κ rφs “ ´∆h ` Uκ pφq I
+
+(lattice),
+
+30
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+where ´∆ is the Laplacian on Ω with periodic boundary conditions and ´∆h is the standard
+second–order discrete Laplacian.
+p2q
+Because the regulator is translation-invariant, both Γκ rφs and Rκ are diagonal in a Fourier basis.
+We therefore choose a real orthonormal eigenbasis of the (continuous or discrete) Laplacian,
+´∆ eα,j “ λα eα,j
+
+´ ∆h eα,j “ λα eα,j ,
+
+or
+
+where α P I labels the distinct eigenvalues λα ě 0, and j “ 1, . . . , gα runs over an orthonormal
+basis of the corresponding eigenspace of multiplicity gα P N.
+By translation invariance, the regulator acts in mode:
+Rκ eα,j “ rκ pλα q eα,j ,
+
+pBκ Rκ q eα,j “ Bκ rκ pλα q eα,j ,
+
+for some scalar profile λ ÞÑ rκ pλq. At a constant field φ, the operator inside the trace in the
+Wetterich equation is diagonal in the same basis:
+˘
+˘
+`
+` p2q
+Γκ rφs ` Rκ eα,j “ λα ` Uκ2 pφq ` rκ pλα q eα,j ,
+and hence
+
+1
+eα,j .
+λα ` rκ pλα q ` Uκ2 pφq
+Therefore, the trace reduces to a sum over distinct eigenvalues,
+”`
+ı ÿ
+˘´1
+Bκ rκ pλα q
+Tr Γp2q
+rφs
+`
+R
+B
+R
+“
+gα
+.
+κ
+κ
+κ
+κ
+λα ` rκ pλα q ` Uκ2 pφq
+αPI
+` p2q
+˘´1
+Γκ rφs ` Rκ eα,j “
+
+To treat the continuum and lattice cases uniformly, we work with the potential per unit volume
+(continuum) or per site (lattice). For a constant field φ, define
+$
+&|Ω|, continuum,
+1
+Uκ pφq :“
+Γκ rϕ ” φs,
+volpΩq :“
+%N, lattice,
+volpΩq
+so that Uκ always denotes the effective potential normalized by the size of the domain. With this
+convention,
+1
+cΩ ÿ
+Bκ rκ pλα q
+gα
+,
+cΩ :“
+.
+Bκ Uκ pφq “
+2
+2 αPI λα ` rκ pλα q ` Uκ pφq
+volpΩq
+This is the LPA equation. It applies to both settings; in particular cΩ “ 1 on r0, 1s and cΩ “ 1{N
+on a lattice when Uκ is defined per site.
+A commonly used choice is the Litim profile, defined modewise by
+rκ pλq “ pκ2 ´ λq` ,
+
+Bκ rκ pλq “ 2κ 1tλăκ2 u .
+
+On the active set tλα ă κ2 u the denominator simplifies to κ2 `Uκ2 pφq. Introducing the active-mode
+count
+ÿ
+Spκq :“
+gα ,
+λα ăκ2
+
+the equation collapses to
+Bκ Uκ pφq “ cΩ κ
+
+Spκq
+κ2 ` Uκ2 pφq
+
+.
+
+Integrating this equation backward from κUV to κIR yields the infrared potential UκIR , which can
+then be used to compute physical observables.
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+31
+
+Appendix F. Transfer Matrix Approach
+We outline the transfer-matrix computation used to obtain reference solutions for the onedimensional ϕ4 model studied in Section 3.2. We consider a one-dimensional periodic lattice
+with Nx sites and lattice spacing a ą 0. A field configuration is ϕ “ pϕ1 , . . . , ϕNx q P RNx , and the
+x
+bare action in the presence of an external source c “ pcx qN
+x“1 is
+« ˆ
+ff
+˙2
+Nx
+ÿ
+1 ϕx`1 ´ ϕx
+` U pϕx ; cx q ,
+ϕNx `1 “ ϕ1 ,
+Srϕ; cs “ a
+2
+a
+x“1
+with local potential
+1
+λ 4
+U pϕ; cx q :“ m2 ϕ2 `
+ϕ ´ cx ϕ.
+2
+24
+ś ´x
+The partition function and cumulant-generating functional with Dϕ :“ N
+x“1 dϕx are
+ż
+Zrcs :“ e´Srϕ;cs Dϕ,
+W rcs :“ ln Zrcs.
+To obtain a finite-dimensional representation, we discretise the range of field values. We choose
+an interval r´ϕmax , ϕmax s and a grid
+tϕp1q , . . . , ϕpNϕ q u Ă r´ϕmax , ϕmax s,
+and restrict the field at each site to this grid,
+ϕx P tϕp1q , . . . , ϕpNϕ q u,
+
+x “ 1, . . . , Nx .
+
+For this discretized model the path integral becomes a finite sum and can be written exactly in
+terms of a transfer matrix. We comment that this discretization may introduce inaccuracies when
+|ϕ| ą ϕmax but is chosen here for consistency with the kernel approximation.
+The transfer matrix Tx encodes the Boltzmann weight associated with the nearest-neighbour pair
+between sites x and x ` 1. It is an Nϕ ˆ Nϕ matrix with entries
+»
+¨˜
+˛fi
+¸2
+ϕpjq ´ ϕpiq
+— a
+ffi
+pTx qij :“ exp–´ ˝
+` U pϕpiq ; cx q ` U pϕpjq ; cx`1 q‚fl ,
+i, j “ 1, . . . , Nϕ .
+2
+a
+(36)
+The kinetic term pϕx`1 ´ ϕx q2 couples neighbouring field values ϕpiq and ϕpjq , while the local
+potentials at sites x and x ` 1 are split symmetrically between the two ends of the bond. The
+partition function of the discretised model is
+`
+˘
+`
+˘
+Zrcs “ Tr T1 T2 ¨ ¨ ¨ TNx ,
+W rcs “ ln Tr T1 T2 ¨ ¨ ¨ TNx .
+Let
+ϕx rcs :“ xϕx yc
+denote the expectation value of the field at site x in the Gibbs measure with weight e´Srϕ;cs . Since
+the source couples as ´cx ϕx , we have
+δW rcs @ D
+“ ϕx c “ ϕx rcs.
+δcx
+In the transfer-matrix representation, introduce the diagonal matrix
+Φij :“ ϕpiq δij ,
+
+i, j “ 1, . . . , Nϕ ,
+
+32
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+which represents multiplication by the local field value on field-space indices. Differentiating (36)
+gives
+BTx
+“ a Φ Tx .
+Bcx
+Using Zrcs “ TrpT1 ¨ ¨ ¨ TNx q and cyclicity of the trace, we obtain
+`
+˘
+Tr Φ T1 ¨ ¨ ¨ TNx
+δW rcs
+`
+˘ .
+ϕx rcs “
+“
+(37)
+δcx
+Tr T1 ¨ ¨ ¨ TNx
+Here Φ is an operator (a diagonal matrix); the scalar ϕx rcs is obtained after taking the trace.
+For the observables used in this work (magnetization and susceptibility), it suffices to consider
+homogeneous sources cx ” c. Then all transfer matrices coincide, Tx “ T pcq, and translation
+invariance implies that ϕx rcs is independent of x. We denote this common value by ϕ̄pcq and
+identify it with the magnetisation per site,
+`
+˘
+N
+Tr Φ T pcqNx
+1 ÿx
+`
+˘ .
+mpcq :“
+xϕx yc “ ϕ̄pcq “
+Nx x“1
+Tr T pcqNx
+Thus, in our notation the magnetisation per site is precisely the expectation value of the local field.
+The effective action Γrϕs is the Legendre transform of W rcs,
+Γrϕs “
+
+Nx
+ÿ
+
+cx ϕx rcs ´ W rcs,
+
+x“1
+
+ϕx rcs “
+
+δW rcs
+.
+δcx
+
+For a homogeneous configuration ϕx ” ϕ and cx ” c, the effective potential
+Γrϕs
+Nx
+is the central quantity used to compute the susceptibility. In the double limit Nϕ Ñ 8 and ϕmax Ñ
+8, with a correspondingly refined field-space grid, U pϕq converges to the exact effective potential
+of the continuum model.
+If (36) is used directly in numerical computations, overflow can occur for large homogeneous
+sources c. To avoid this, we use an equivalent transfer matrix based on a shifted local potential.
+Fix a reference field value ϕ0 and introduce
+U pϕq :“
+
+1
+λ 4
+U2 pϕq :“ m2 ϕ2 `
+ϕ ´ c pϕ ´ ϕ0 q.
+2
+24
+The corresponding transfer matrix is
+»
+¨˜
+˛fi
+¸2
+ϕpjq ´ ϕpiq
+— a
+ffi
+` U2 pϕpiq q ` U2 pϕpjq q‚fl .
+pT2 qij :“ exp–´ ˝
+2
+a
+
+(38)
+
+(39)
+
+This shifted formulation is algebraically equivalent to the original one but is numerically more
+stable for large |c|.
+Appendix G. Details of the GP representation for the Wetterich flow
+In this section, we present the implementation details for solving the Wetterich equation on the
+lattice in Section 3.2.
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+33
+
+G.1. GP parametrization of the local potential. In our numerical implementation, the scaledependent local potential Uκ on a field window r´ϕmax , ϕmax s is modeled on the continuum as
+Uκ pϕq “ m0 pϕq ` vκ pϕq ` gκ pϕq,
+
+ϕ P r´ϕmax , ϕmax s,
+
+(40)
+
+with three distinct contributions. The baseline
+λ 4
+m0 pϕq :“ 12 m2 ϕ2 ` 24
+ϕ
+
+is the bare lattice ϕ4 potential, fixed for all κ. The parametric correction
+vκ pϕq “ softpluspθ2,κ q ϕ2 {2 ` softpluspθ4,κ q ϕ4 {12
+tracks the running of the quadratic and quartic couplings through a latent parameter vector θκ “
+pθ2,κ , θ4,κ qJ P R2 . The map softpluspxq “ logp1 ` ex q is smooth and strictly positive, so that the
+effective couplings in vκ are positive by construction. The remainder
+gκ „ GPp0, KU q
+is a zero-mean GP with a fixed covariance kernel KU on r´ϕmax , ϕmax s, given concretely below.
+The latter term captures non-polynomial and higher-order structure that is not represented by the
+quadratic-quartic component.
+A direct use of (40) in the Wetterich equation (20) would proceed as follows. At each RG
+scale κ, the flow provides the values of Uκ at a set of field points, and from these data one would
+infer the latent parameters θκ and the GP remainder gκ that best explain the current profile. The
+curvature Uκ2 entering (20) is then evaluated from the reconstructed Uκ . In practice, this procedure
+requires solving, at each scale, a nonlinear constrained estimation problem for θκ coupled to GP
+interpolation conditions for gκ . This is too expensive for long RG trajectories.
+To obtain a stable and efficient solver, we use an interleaved predictor-projector scheme: on each
+recorded scale interval we (i) advance the flow using a linear-Gaussian surrogate that yields an
+explicit curvature closure, and then (ii) project the predicted profile onto the nonlinear constrained
+GP model. The projection replaces the predicted state and is used as the initial condition for the
+next predictor step.
+Nϕ
+We discretize the field window r´ϕmax , ϕmax s at Nϕ points tϕj uj“1
+and collect the sampled
+potentials in the vector
+`
+˘Nϕ
+Yκ :“ Uκ pϕj q j“1
+P RNϕ .
+We solve the Wetterich equation (20) using the local ansatz (22) for Γκ . The resulting ODE is
+integrated from κUV down to κIR and recorded on a discrete scale grid,
+tpκs , Ys quSs“0 ,
+
+κ0 “ κUV ą ¨ ¨ ¨ ą κS “ κIR ,
+
+`
+˘N ϕ
+with Ys “ Uκs pϕj q j“1
+.
+Prediction: linear-Gaussian surrogate. On each interval rκs , κs`1 s we first advance the flow
+with a linear-Gaussian surrogate. Concretely, we relax the softplus parametrization and write
+«
+ff
+a
+2,κ
+vκ pϕq “ a2,κ ϕ2 {2 ` a4,κ ϕ4 {12,
+aκ :“
+P R2 ,
+a4,κ
+and place a Gaussian prior on the coefficients, aκ „ N p0, Σa q, where Σa is a fixed 2ˆ 2 covariance
+matrix (diagonal and small in the experiments). The remainder is modeled as
+gκ „ GPp0, KU q,
+
+34
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+independent of aκ , where KU denotes the kernel used in the surrogate. Introducing the feature map
+f pϕq :“ pϕ2 {2, ϕ4 {12qJ ,
+the surrogate GP model reads
+Uκ pϕq “ m0 pϕq ` f pϕqJ aκ ` gκ pϕq.
+
+(41)
+
+Under these assumptions, the induced prior on Uκ in the prediction step is
+Uκ „ GPpm0 , K I q,
+
+K I pϕ, ϕ1 q :“ f pϕqJ Σa f pϕ1 q ` KU pϕ, ϕ1 q.
+
+(42)
+
+This model is Gaussian in the latent variables paκ , gκ q and leads to a linear dependence of the
+curvature Uκ2 on the potential samples Yκ . Integrating the resulting closed ODE from κs to κs`1
+produces a predicted profile, which we denote by Ỹs`1 .
+Correction: constrained softplus GP reconstruction. At the correction step, we return to the
+nonlinear GP model (40) and use the predictor output Ỹs`1 as data to reconstruct a constrained
+representation of Uκs`1 . Recall that the discrete profile collects the sampled values
+pYs`1 qj “ Uκs`1 pϕj q,
+
+j “ 1, . . . , Nϕ ,
+
+N
+
+ϕ
+on the fixed field grid X :“ tϕj uj“1
+Ă r´ϕmax , ϕmax s. At each scale κs`1 we adopt the nonlinear
+GP model
+`
+˘
+`
+˘
+Uκs`1 pϕq “ m0 pϕq ` softplus θ2,κs`1 ϕ2 {2 ` softplus θ4,κs`1 ϕ4 {12 ` gκs`1 pϕq,
+
+where pθ2,κs`1 , θ4,κs`1 qJ P R2 are latent parameters and
+gκs`1 „ GPp0, KU q.
+The GP remainder gκs`1 captures the nonpolynomial structure that cannot be represented by a
+quartic polynomial. For a fixed θκs`1 , the polynomial part is deterministic, and we interpret the
+residual at the grid points,
+`
+˘
+`
+˘
+rθκs`1 pϕj q :“ pỸs`1 qj ´ m0 pϕj q ´ softplus θ2,κs`1 ϕ2j {2 ´ softplus θ4,κs`1 ϕ4j {12,
+as observations of gκs`1 at ϕj . Standard GP regression with kernel KU then yields a posterior mean
+gκs`1 ,post p ¨ ; θκs`1 q, and the size of the implied correction is quantified by the squared RKHS norm
+›
+›
+›gκs`1 ,post p ¨ ; θκs`1 q›2 .
+KU
+We determine θκs`1 by solving the two–dimensional optimization problem
+›2
+›2
+γ›
+1›
+(43)
+min 2 ›gκs`1 ,post p ¨ ; θκs`1 q›K ` ›θκs`1 ´ θκs ›2 ,
+U
+θκs`1 PR 2
+2
+where γ ą 0 is a small regularization parameter and θκs denotes the parameter obtained at the
+previous scale. In practice, (43) is minimized at each scale by a damped Gauss–Newton iteration.
+The resulting minimizer θκs`1 and posterior mean gκs`1 ,post define the corrected profile Ys`1 , which
+is then used as the initial condition for the next prediction step.
+In particular, the infrared parameters θIR :“ θκS and remainder gIR :“ gκS ,post define the reconstructed infrared potential
+`
+˘
+`
+˘
+UIR pϕq “ m0 pϕq ` softplus θIR,2 ϕ2 {2 ` softplus θIR,4 ϕ4 {12 ` gIR pϕq,
+from which all physical observables, including the magnetization and susceptibility used in Section 3.2, are subsequently computed.
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+35
+
+Appendix H. Magnetization and Susceptibility
+In the infrared, the scalar effective potential UκIR encodes equilibrium thermodynamics for spatially homogeneous configurations. Introducing a homogeneous external source c that couples
+linearly to the field selects a preferred orientation and probes the system’s linear response. The
+magnetization mpcq is the thermodynamic order parameter conjugate to c; it captures symmetry
+breaking and phase behavior and is defined as the equilibrium field that minimizes the tilted potential
+Fc pϕq :“ UκIR pϕq ´ c ϕ,
+mpcq :“ arg min Fc pϕq.
+ϕPR
+
+Whenever UκIR is twice differentiable and strictly convex at mpcq, first-order optimality yields the
+equivalent scalar equation
+`
+˘
+`
+˘
+Uκ1 IR mpcq “ c,
+Uκ2IR mpcq ą 0.
+The susceptibility χpcq quantifies the linear response of the order parameter to the source and is
+given by
+1
+d mpcq
+˘.
+“ 2 `
+χpcq :“
+dc
+UκIR mpcq
+These two quantities are standard diagnostics in statistical physics: mpcq tracks the emergence
+of spontaneous order, while χpcq measures fluctuations and exhibits enhancement near criticality
+(through small curvature Uκ2IR ). They are also natural validation targets for our reconstruction of
+UκIR , because they depend on both its shape and its curvature and admit high-quality lattice Monte
+Carlo and transfer-matrix benchmarks for direct comparison.
+References
+[1] Bo O Almroth, Perry Stern, and Frank A Brogan. Automatic choice of global shape functions
+in structural analysis. Aiaa Journal, 16(5):525–528, 1978.
+[2] Ricardo Baptista, Edoardo Calvello, Matthieu Darcy, Houman Owhadi, Andrew M. Stuart,
+and Xianjin Yang. Solving roughly forced nonlinear PDEs via misspecified kernel methods
+and neural networks, 2025.
+[3] Pau Batlle, Yifan Chen, Bamdad Hosseini, Houman Owhadi, and Andrew M. Stuart. Error
+analysis of kernel/GP methods for nonlinear and parametric PDEs. Journal of Computational
+Physics, 520:113488, 2025.
+[4] Pau Batlle, Matthieu Darcy, Bamdad Hosseini, and Houman Owhadi. Kernel methods are
+competitive for operator learning. Journal of Computational Physics, 496:112549, 2024.
+[5] Rodney J Baxter. Exactly solved models in statistical mechanics. Elsevier, 2016.
+[6] Juergen Berges, Nikolaos Tetradis, and Christof Wetterich. Non-perturbative renormalization flow in quantum field theory and statistical physics. Physics Reports, 363(4-6):223–386,
+2002.
+[7] Kaushik Bhattacharya, Bamdad Hosseini, Nikola B Kovachki, and Andrew M Stuart. Model
+reduction and neural networks for parametric pdes. The SMAI journal of computational mathematics, 7:121–157, 2021.
+[8] Julia Borchardt and Benjamin Knorr. Global solutions of functional fixed point equations via
+pseudospectral methods. Phys. Rev. D, 91(10):105011, 2015.
+[9] Julia Borchardt and Benjamin Knorr. Solving functional flow equations with pseudospectral
+methods. Phys. Rev. D, 94(2):025027, 2016.
+
+36
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+[10] Théo Bourdais, Pau Batlle, Xianjin Yang, Ricardo Baptista, Nicolas Rouquette, and Houman
+Owhadi. Codiscovering graphical structure and functional relationships within data: A
+Gaussian process framework for connecting the dots. Proceedings of the National Academy
+of Sciences, 121(32):e2403449121, 2024.
+[11] James Bradbury, Roy Frostig, Peter Hawkins, Matthew James Johnson, Chris Leary, Dougal
+Maclaurin, George Necula, Adam Paszke, Jake VanderPlas, Skye Wanderman-Milne, and
+Qiao Zhang. JAX: composable transformations of Python+NumPy programs, 2018.
+[12] Yifan Chen, Bamdad Hosseini, Houman Owhadi, and Andrew M. Stuart. Solving and learning nonlinear PDEs with gaussian processes. Journal of Computational Physics, 447:110668,
+2021.
+[13] Yifan Chen, Houman Owhadi, and Andrew M. Stuart. Consistency of empirical bayes and
+kernel flow for hierarchical parameter estimation, 2021.
+[14] Jui-Hui Chung and Ying-Jer Kao. Neural Monte Carlo renormalization group. Phys. Rev.
+Res., 3:023230, Jun 2021.
+[15] Bertrand Delamotte. An Introduction to the Nonperturbative Renormalization Group, page
+49–132. Springer Berlin Heidelberg, 2012.
+[16] Domenico Di Sante, Matija Medvidović, Alessandro Toschi, Giorgio Sangiovanni, Cesare
+Franchini, Anirvan M. Sengupta, and Andrew J. Millis. Deep learning the functional renormalization group. Phys. Rev. Lett., 129:136402, Sep 2022.
+[17] Nicolas Dupuis, Léonie Canet, Astrid Eichhorn, Walter Metzner, Jan M Pawlowski, Matthieu
+Tissier, and Nicolás Wschebor. The nonperturbative functional renormalization group and its
+applications. Physics Reports, 910:1–114, 2021.
+[18] Thomas Fischbacher and Franziska Synatschke-Czerwonka. Flowpy—a numerical solver
+for functional renormalization group equations. Computer Physics Communications,
+184(8):1931–1945, August 2013.
+[19] Eduardo Grossi and Nicolas Wink. Resolving phase transitions with discontinuous galerkin
+methods. SciPost Phys. Core, 6(4):071, 2023.
+[20] Trevor Hastie, Robert Tibshirani, and Jerome Friedman. The Elements of Statistical Learning:
+Data Mining, Inference, and Prediction. Springer, 2 edition, 2009.
+[21] Matthew Hudes and Gregory Eyink. Probabilistic interpretation of FRG. In progress, 2025.
+[22] Hachem Kadri, Emmanuel Duflos, Philippe Preux, Stéphane Canu, Alain Rakotomamonjy,
+and Julien Audiffren. Operator-valued kernels for learning from functional response data.
+Journal of Machine Learning Research, 17(20):1–54, 2016.
+[23] Zongyi Li, Nikola Kovachki, Kamyar Azizzadenesheli, Burigede Liu, Kaushik Bhattacharya,
+Andrew Stuart, and Anima Anandkumar. Fourier neural operator for parametric partial differential equations. arXiv preprint arXiv:2010.08895, 2020.
+[24] Zongyi Li, Hongkai Zheng, Nikola Kovachki, David Jin, Haoxuan Chen, Burigede Liu, Kamyar Azizzadenesheli, and Anima Anandkumar. Physics-informed neural operator for learning
+partial differential equations, 2023.
+[25] Daniel F Litim. Optimized renormalization group flows. Physical Review D, 64(10):105007,
+2001.
+[26] Lu Lu, Pengzhan Jin, and George Em Karniadakis. Deeponet: Learning nonlinear operators for identifying differential equations based on the universal approximation theorem of
+operators. arXiv preprint arXiv:1910.03193, 2019.
+[27] David J Lucia, Philip S Beran, and Walter A Silva. Reduced-order modeling: new approaches
+for computational physics. Progress in aerospace sciences, 40(1-2):51–117, 2004.
+
+SOLVING FUNCTIONAL PDES WITH GAUSSIAN PROCESSES
+
+37
+
+[28] Rui Meng and Xianjin Yang. Sparse Gaussian processes for solving nonlinear PDEs. Journal
+of Computational Physics, 490:112340, 2023.
+[29] Walter Metzner, Manfred Salmhofer, Carsten Honerkamp, Volker Meden, and Kurt Schönhammer. Functional renormalization group approach to correlated fermion systems. Rev.
+Mod. Phys., 84:299–352, 2012.
+[30] Chenchen Mou, Xianjin Yang, and Chao Zhou. Numerical methods for mean field games
+based on Gaussian processes and Fourier features. Journal of Computational Physics,
+460:111188, 2022.
+[31] Nicholas H Nelsen, Houman Owhadi, Andrew M Stuart, Xianjin Yang, and Zongren Zou.
+Bilevel optimization for learning hyperparameters: Application to solving PDEs and inverse
+problems with Gaussian processes. arXiv preprint arXiv:2510.05568, 2025.
+[32] Ahmed K Noor and Jeanne M Peters. Reduced basis technique for nonlinear analysis of
+structures. Aiaa journal, 18(4):455–462, 1980.
+[33] Houman Owhadi. Do ideas have shape? idea registration as the continuous limit of artificial
+neural networks. Physica D: Nonlinear Phenomena, 444:133592, 2023. arXiv:2008.03920,
+2020.
+[34] Houman Owhadi and Clint Scovel. Operator-Adapted Wavelets, Fast Solvers, and Numerical Homogenization: From a Game Theoretic Approach to Numerical Approximation and
+Algorithm Design, volume 35. Cambridge University Press, 2019.
+[35] Houman Owhadi, Clint Scovel, and Gene Ryan Yoo. Kernel Mode Decomposition and the
+programming of kernels. Springer, 2021.
+[36] Jan M Pawlowski. Aspects of the functional renormalisation group. Annals of Physics,
+322(12):2831–2915, 2007.
+[37] M. Raissi, P. Perdikaris, and G.E. Karniadakis. Physics-informed neural networks: A deep
+learning framework for solving forward and inverse problems involving nonlinear partial
+differential equations. Journal of Computational Physics, 378:686–707, 2019.
+[38] Adam Rançon, Ulysse Rançon, Tomislav Ivek, and Ivan Balog. Dreaming up scale invariance
+via inverse renormalization group. arXiv preprint arXiv:2506.04016, 2025.
+[39] Bogdan Raonic, Roberto Molinaro, Tim De Ryck, Tobias Rohner, Francesca Bartolucci,
+Rima Alaifari, Siddhartha Mishra, and Emmanuel de Bézenac. Convolutional neural operators for robust and accurate learning of pdes. Advances in Neural Information Processing
+Systems, 36:77187–77200, 2023.
+[40] Carl Edward Rasmussen and Christopher K. I. Williams. Gaussian processes for machine
+learning. Adaptive computation and machine learning. MIT Press, 2006.
+[41] Franz R Sattler and Jan M Pawlowski. Diffrg: A discretisation framework for functional
+renormalisation group flows. arXiv preprint arXiv:2412.13043, 2024.
+[42] Sifan Wang, Shyam Sankaran, Hanwen Wang, and Paris Perdikaris. An expert’s guide to
+training physics-informed neural networks, 2023.
+[43] Takeru Yokota. Physics-informed neural networks for solving functional renormalization
+group on a lattice. Phys. Rev. B, 109:214205, Jun 2024.
+[44] Niklas Zorbach, Jan Philipp Klinger, Owe Philipsen, and Jens Braun. Lattice Monte Carlo
+meets the lattice functional renormalization group: A quantitative comparison. Physical Review D, 112(7):076036, 2025.
+
+38
+
+X. YANG, M. DARCY, M. HUDES, F. J. ALEXANDER, G. EYINK, AND H. OWHADI
+
+(X. Yang) C OMPUTING & M ATHEMATICAL S CIENCES , C ALTECH , PASADENA , CA 91125, USA
+Email address, X. Yang: yxjmath@caltech.edu
+(M. Darcy) C OMPUTING & M ATHEMATICAL S CIENCES , C ALTECH , PASADENA , CA 91125, USA
+Email address, M. Darcy: mdarcy@caltech.edu
+(M. Hudes) D EPARTMENT OF A PPLIED M ATHEMATICS & S TATISTICS , J OHNS H OPKINS U NIVERSITY, BALTI MORE , MD 21218, USA
+Email address, M. Hudes: mhudes1@jh.edu
+(F. J. Alexander) A RGONNE NATIONAL L ABORATORY, L EMONT, IL 60439, USA
+Email address, F. J. Alexander: fja@anl.gov
+(G. Eyink) D EPARTMENT OF A PPLIED M ATHEMATICS & S TATISTICS , J OHNS H OPKINS U NIVERSITY, BALTI MORE , MD 21218, USA
+Email address, G. Eyink: eyink@jhu.edu
+(H. Owhadi) C OMPUTING & M ATHEMATICAL S CIENCES , C ALTECH , PASADENA , CA 91125, USA
+Email address, H. Owhadi: owhadi@caltech.edu
+
+

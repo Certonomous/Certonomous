@@ -1,0 +1,1757 @@
+Journal of Computational Physics 262 (2014) 104–130
+
+Contents lists available at ScienceDirect
+
+Journal of Computational Physics
+www.elsevier.com/locate/jcp
+
+A procedure for the estimation of the numerical uncertainty
+of CFD calculations based on grid reﬁnement studies
+L. Eça a,∗ , M. Hoekstra b
+a
+b
+
+Instituto Superior Técnico, Department of Mechanical Engineering, Av. Rovisco Pais, 1049-001 Lisbon, Portugal
+Maritime Research Institute Netherlands, PO Box 28 6700 AA, Wageningen, The Netherlands
+
+a r t i c l e
+
+i n f o
+
+Article history:
+Received 22 March 2013
+Received in revised form 3 January 2014
+Accepted 6 January 2014
+Available online 15 January 2014
+Keywords:
+Numerical uncertainty
+Error estimation
+Discretization errors
+
+a b s t r a c t
+This paper offers a procedure for the estimation of the numerical uncertainty of any
+integral or local ﬂow quantity as a result of a ﬂuid ﬂow computation; the procedure
+requires solutions on systematically reﬁned grids. The error is estimated with power
+series expansions as a function of the typical cell size. These expansions, of which four
+types are used, are ﬁtted to the data in the least-squares sense. The selection of the
+best error estimate is based on the standard deviation of the ﬁts. The error estimate is
+converted into an uncertainty with a safety factor that depends on the observed order
+of grid convergence and on the standard deviation of the ﬁt. For well-behaved data sets,
+i.e. monotonic convergence with the expected observed order of grid convergence and
+no scatter in the data, the method reduces to the well known Grid Convergence Index.
+Examples of application of the procedure are included.
+© 2014 Elsevier Inc. All rights reserved.
+
+1. Introduction
+The maturing of Computational Fluid Dynamics (CFD) codes for practical calculations of complex turbulent ﬂows comes
+with a need to establish the credibility of the results. Either the demands of end-users of the results or just scientiﬁc interest
+will sooner or later persuade or force the numerical analyst to assess the quality of his work. This quality assessment is
+commonly denoted as Veriﬁcation & Validation.
+What is to be understood by Veriﬁcation & Validation in this context has been well expressed in [1]: Veriﬁcation is
+a purely mathematical exercise that intends to show that we are “solving the equations right”, whereas Validation is a
+science/engineering activity that intends to show that we are “solving the right equations”. This means that Veriﬁcation
+deals with numerical errors/uncertainties whereas Validation is concerned with modelling errors/uncertainties.
+Veriﬁcation is in fact composed of two different activities [1]: Code Veriﬁcation and Solution Veriﬁcation. Code Veriﬁcation intends to verify, by error evaluation, that a given code solves correctly the equations of the model that it contains. On
+the other hand, Solution Veriﬁcation intends to estimate the error/uncertainty of a given calculation, for which in general
+the exact solution is not known.
+In the distinction between Code and Solution Veriﬁcation there is mentioning of errors and uncertainties, which are
+conceptually different. We distinguish them, following Roache [2], as: an error requires the knowledge of the “truth/exact
+solution” and has a sign; an uncertainty deﬁnes an interval that should contain the “truth/exact solution” with a certain
+degree of conﬁdence and is deﬁned with a plus-minus sign.1 Furthermore, we will estimate uncertainties as the absolute
+value of an error estimator multiplied by a factor of safety [2].
+
+*1 Corresponding author.
+
+As stated in [3], this is not a general deﬁnition of uncertainty, but in CFD (and Engineering in general) it is widely accepted.
+
+0021-9991/$ – see front matter © 2014 Elsevier Inc. All rights reserved.
+http://dx.doi.org/10.1016/j.jcp.2014.01.006
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+105
+
+In this paper we focus on Solution Veriﬁcation using systematic grid reﬁnement, i.e. we offer a procedure for the estimation of the numerical error/uncertainty of a numerical solution for which the exact solution is unknown. Most of the
+existing methods for uncertainty estimation [2,4–8] require data in the so-called “asymptotic range”, i.e. data on grids ﬁne
+enough to give a single dominant term in a power series expansion of the error. This often means levels of grid reﬁnement
+beyond those normally used in practical applications [9–11]. In order not to let this be a reason to abandon uncertainty
+estimation at all, we have tried to establish an uncertainty estimation procedure that accepts the practical limitations in
+grid density. Obviously, in the absence of contamination by round-off errors, the conﬁdence in solutions on coarse grids will
+usually be less than in solutions on ﬁne grids, which must be reﬂected by an increased level of uncertainty, possibly by
+choosing a higher factor of safety.
+The present paper is organized in the following way: Section 2 presents the error estimators and the least-squares ﬁts
+to estimate the error; the determination of the numerical uncertainty is described in Section 3; examples of the application
+of the proposed procedure are presented in Section 4 and the ﬁnal remarks are summarized in Section 5. For the sake of
+completeness, the paper includes three appendices: the ﬁrst summarizes the proposed procedure; the second presents the
+least-squares solution with and without weights of the (truncated) power series expansions used as error estimators and
+the details of the selected test cases are given in the third.
+2. Error estimation
+2.1. Numerical errors
+It is commonly accepted [2] that the numerical error of a CFD prediction has three components: the round-off error, the
+iterative error and the discretization error. The round-off error is a consequence of the ﬁnite precision of the computers
+and its importance tends to increase with grid reﬁnement. The iterative error is unavoidable due to the non-linearity of the
+mathematical equations, even if direct (non-iterative) methods can be used for the linear equations. The discretization error
+is a consequence of the approximations made (ﬁnite-differences, ﬁnite-volume, ﬁnite-elements, . . . ) to transform the partial
+differential equations of the continuum formulation into a system of algebraic equations. Unlike the other two error sources,
+the relative importance of the discretization error decreases with the grid reﬁnement.
+Procedures for numerical error estimation assume the discretization error to be dominant. In practical CFD applications
+this is usually the case. Double-precision arithmetic makes the round-off error suitably small and in principle one should
+be able to reduce the iterative error to the level of the round-off error. This may not always be practically feasible though,
+particularly in complex ﬂows. Nor is that strictly necessary. As suggested in [12], the iterative error should be two to three
+orders of magnitude smaller than the discretization error in order not to disturb the estimation of the numerical error.
+Anyway, in the remainder of this section, we will assume that the contribution of the round-off and iterative errors to the
+numerical error is negligible compared to the discretization error.
+2.2. Power series representations of the discretization error
+Although several types of error estimators can be found in the literature (see for example [2]), we will focus on the estimation of the discretization error with (truncated) power series expansions. The basic equation to estimate the discretization
+error φ (see for example [1,2,5]) is:
+
+φ ≃ δRE = φi − φo = αhip .
+
+(1)
+
+φi stands for any integral or other functional of a local ﬂow quantity, φo is the estimate of the exact solution, α is a
+constant to be determined, h i is the typical cell size and p is the observed order of grid convergence. The estimation of φ
+requires the determination of φo , α and p. Therefore, the minimum number of grids (n g ) required for the estimation of φ
+is three, unless p is assumed equal to a theoretical value, which is often not justiﬁed for practical problems.
+The assumptions inherent in the application of Eq. (1)2 are:
+1. The grids must be in the “asymptotic range” to guarantee that the leading term of the power series expansion (highorder terms are neglected) is suﬃcient to estimate the error.
+2. The density of the grids is representable by a single parameter, the typical cell size of the grids, h i . This requires the
+grids to be geometrically similar, i.e. the grid reﬁnement ratio must be constant in the complete ﬁeld and grid properties
+like the deviation from orthogonality, skewness, etc. must remain unaffected.
+With equal grid reﬁnement ratios between medium/ﬁnest and coarsest/medium grids, i.e. h2 /h1 = h3 /h2 , a grid triplet
+suﬃces to estimate the apparent grid convergence behaviour [1,2] based on the discriminating ratio:
+
+R=
+
+φ1 − φ2
+,
+φ2 − φ 3
+
+where the subscripts 1 , 2 and 3 stand for ﬁne, medium and coarse grid, respectively.
+2
+
+Naturally, we are also assuming that φ does not include singularities, i.e. it has ﬁnite derivatives.
+
+(2)
+
+106
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+• Monotonic convergence for 0 < R < 1.
+• Monotonic divergence for R > 1.
+• Oscillatory convergence for R < 0 and | R | < 1.
+• Oscillatory divergence for R < 0 and | R | > 1.
+In fact, the discriminating ratio R is related to the observed order of grid convergence p and the grid reﬁnement ratios
+h2 /h1 and h3 /h2 by
+
+
+R=
+
+ p  h2 p
+
+( h1 ) − 1
+,
+h2
+( hh32 ) p − 1
+h1
+
+(3)
+
+which for h2 /h1 = h3 /h2 reduces to
+
+
+log( R ) = plog
+
+h1
+h2
+
+
+.
+
+(4)
+
+Hence, in such conditions, p > 0 is equivalent to 0 < R < 1 and p < 0 to R > 1 ( hh1 < 1).
+2
+Obviously, we can estimate φ from Eq. (1) only when p > 0, the expected outcome when the three grids are in the
+“asymptotic range”3 and the data have no scatter (and the code producing the data has been veriﬁed). In simple problems
+(simple geometry and simple equations) such requirements are easy to satisfy and Eq. (1) suﬃces to make a reliable error
+estimation. However, for what we here call “practical problems”, i.e. complex geometries and complex equations (turbulent
+ﬂow), it is really hard (if not impossible) to comply with all these assumptions. The consequence is that scatter appears in
+the data [13].
+A main contributor to noisy data is the lack of geometrical similarity of the grids [14]. While structured grids essentially
+allow geometrical similarity to be obtained, this is hardly true for unstructured grids. Other sources of scatter in the data
+are ﬂux limiters, commonly used in the discretization of convective terms, as well as damping functions and switches being
+part of many present-day turbulence models. Therefore, in complex ﬂows it is an exception rather than a rule that the
+conditions required for the reliable use of Eq. (1) are met.
+In order to be able to deal with the shortcomings of “practical calculations”, we have added three other error estimators
+(assuming that the CFD code is theoretically second-order accurate):
+
+φ ≃ δ1 = φi − φo = αhi ,
+
+(5)
+
+φ ≃ δ2 = φi − φo = αh2i ,
+
+(6)
+
+φ ≃ δ12 = φi − φo = α1 hi + α2 h2i .
+
+(7)
+
+and
+
+These three alternatives are only used if the estimation with Eq. (1) is impossible or not reliable, i.e. the observed
+order of grid convergence is either too small or too large. The ﬁrst two options ((5) and (6)) are suitable for monotonically
+converging solutions only whereas the latter can be used as well with non-monotonic convergence.
+2.3. Least-squares error estimation
+The error estimators presented above require three grids (using Eqs. (1) and (7)) or two grids (using (5) and (6)) to
+estimate an error. But error estimation based on three (or two) grids is not reliable for noisy data due to the extreme
+sensitivity of the determination of p to small perturbations in the data [13] (the use of the alternative error estimators
+depends on the estimated p). Therefore, it is virtually impossible to decide whether or not a given set of data is in the
+“asymptotic range” (in the presence of scatter, an observed order of grid convergence equal to the formal order of grid
+convergence may be fortuitously obtained and is not suﬃcient to label the data set as being in the “asymptotic range”).
+Furthermore, a single grid triplet gives only one instance of p, because Eq. (1) has three unknowns. Redundancy, and
+therefore the possibility of a quality check on the value of p, only occurs when the fourth grid is added! Therefore it is
+highly recommendable to use at least four grids when some scatter in the data is expected, i.e. for most engineering ﬂow
+problems.
+In such conditions (n g ⩾ 4), it is possible to do the error estimation in the least-squares sense, i.e. to determine φo from
+the minimum of the functions:
+
+3
+
+Usually p is equal to the theoretical order of the method, but not always [1,2].
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+S RE (φo , α , p ) =
+
+
+ ng
+
+
+
+
+p
+φi − φo + αhi
+
+2
+
+107
+
+(8)
+
+,
+
+i =1
+
+S 1 (φo , α ) =
+
+
+ ng
+
+
+
+2
+
+φi − (φo + αhi ) ,
+
+(9)
+
+i =1
+
+S 2 (φo , α ) =
+
+
+ ng
+
+
+
+
+φi − φo + αh2i
+
+2
+
+(10)
+
+i =1
+
+and
+
+S 12 (φo , α1 , α2 ) =
+
+
+ ng
+
+
+
+
+φi − φo + α1 hi + α2 h2i
+
+2
+
+(11)
+
+.
+
+i =1
+
+The least-squares minimization of Eqs. (8) to (11) is presented in Appendix B, which also includes the deﬁnition of the
+standard deviation of the ﬁts σ that will be used as a measure of the quality of the ﬁts. More information about data
+regressions can be found for example in [15].
+2.3.1. Weighted approach
+If in a practical application a ﬂow ﬁeld is computed on four (or more) grids, one may wish to give more value to the
+ﬁner than the coarser grid solutions. Therefore, alternative least-squares error estimators with weights are also adopted,
+leading to the minimization of the following functions:
+
+
+ ng
+ 
+
+p
+S w (φ , α , p ) = 
+w φ − φ + αh
+RE
+
+o
+
+i
+
+o
+
+i
+
+2
+
+i
+
+(12)
+
+,
+
+i =1
+
+
+ ng
+ 
+2
+w
+S (φ , α ) = 
+w φ − (φ + α h ) ,
+1
+
+o
+
+i
+
+o
+
+i
+
+(13)
+
+i
+
+i =1
+
+
+ ng
+ 
+
+S w (φ , α ) = 
+w φ − φ + αh2
+2
+
+o
+
+i
+
+o
+
+i
+
+i
+
+2
+
+(14)
+
+,
+
+i =1
+
+
+ ng
+ 
+
+w
+S (φ , α , α ) = 
+w φ − φ + α h + α h2
+12
+
+o
+
+1
+
+2
+
+i
+
+i
+
+o
+
+1 i
+
+2 i
+
+2
+
+.
+
+(15)
+
+i =1
+
+The weights w i are based on the typical cell size:
+1
+h
+
+wi = n i
+g
+
+i =1
+
+,
+
+(16)
+
+1
+hi
+
+guaranteeing that
+ng
+
+
+w i = 1.
+
+(17)
+
+i =1
+
+The solution of Eqs. (12) to (15) is also given in Appendix B with the respective deﬁnition of the standard deviations of
+the ﬁts, which, naturally, depend on the weights.
+2.4. Proposed procedure for error estimation
+Having described its main ingredients, we can now propose a procedure for the estimation of the discretization error.
+The procedure relies on the availability of at least four data points, on the proper choice of a typical cell size and on the
+assumption that the round-off and iterative errors are negligible relative to the discretization error.
+The ﬁrst step of the procedure is to determine the observed order of grid convergence p from the minimum of S RE
+w
+(Eq. (8)) and S RE
+(Eq. (12)). If both solutions produce a p > 0, we choose the best ﬁt as the one with the smallest standard
+
+108
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+deviation. If one of the solutions yields a negative p it is discarded. If both give negative p, the data behaviour is classiﬁed
+as anomalous.
+Notice that we are also including oscillatory convergence as anomalous behaviour. In fact, “oscillatory convergence” is
+often misused to designate cases where the data in and outside the asymptotic range exhibit the opposite (slope) behaviour
+with grid reﬁnement, which is better referred to as “non-monotonic convergence”. We refer to oscillatory convergence when
+the solution is converging alternatingly above and below the exact solution. Even when more than three grids are available
+it is not easy to conclusively identify the convergence as oscillatory, especially when there is scatter in the data [16,17] and
+the scatter is comparable to the difference between solutions. We will come back to this issue at the end of this section.
+2.4.1. Monotonically convergent data, p > 0
+If the observed order of convergence is positive we proceed as follows. From what has been identiﬁed as the best ﬁt the
+observed order of grid convergence p, the constant α and the estimate of the exact solution, φo , are derived. If the value of
+p is within an acceptable range (compared to the theoretical order of the method), the error is estimated from δRE (1). For
+a second-order method, the acceptable range is empirically deﬁned here as 0.5 ⩽ p ⩽ 2.
+A value of p greater than the formal order of grid convergence (i.e. p > 2) is likely to cause too small error estimates. In
+that case, δRE is dropped and replaced by δ1 (5) or δ2 (6). By solving Eqs. (9), (13), (10) and (14), four ﬁts are determined
+and the best ﬁt (and the associated error estimator) is again decided from the smallest value of the standard deviation of
+the ﬁt.
+If on the other hand p becomes too small (p < 0.5), δRE produces a too conservative error estimate (when p → 0, δRE
+tends to inﬁnity). So for p < 0.5 we also drop the value of δRE in favor of the alternative error estimators with ﬁxed exponents. In order to guarantee that we are not becoming under-conservative, we also include δ12 (7) in the error estimation.
+It means that six ﬁts are performed in this case and the one with the smallest standard deviation is selected.
+2.4.2. Anomalous data behaviour
+Eq. (1) is useless for any data set that does not have p > 0. However, Eqs. (5), (6) and (7) may be used for any data
+behaviour, including non-monotonic convergence in the case of Eq. (7). Therefore, for all anomalous (non-monotonically
+convergent) cases the error is estimated from δ1 (5), δ2 (6) or δ12 (7) with φo , α , α1 and α2 determined in the least-squares
+sense with and without weights. As before, the selected solution is the ﬁt involving the smallest standard deviation.
+As we mentioned above, oscillatory convergence is also included in anomalous behaviour. In that case, it can be argued
+that we are making a very poor error estimation. However, if that is the case, this will be reﬂected in the value of σ and as
+we will describe below this will have consequences for the estimated uncertainty.
+3. Uncertainty estimation
+In the previous section, we described the procedure to estimate the discretization error φ . The procedure gives also a
+measure of the quality of the error estimation, viz. the standard deviation of the ﬁt σ , and in some cases the observed
+order of grid convergence p. All three quantities are used now to reach the ﬁnal goal: an estimate of the uncertainty U φ ,
+i.e. an interval that contains the exact solution with 95% coverage,
+
+φi − U φ ⩽ φexact ⩽ φi + U φ .
+
+(18)
+
+First a judgement is made of the quality of the data ﬁt. To that end we deﬁne a data range parameter as
+
+φ =
+
+(φi )max − (φi )min
+.
+ng − 1
+
+(19)
+
+The error estimation is considered reliable if the solution is monotonically convergent with 0.5 ⩽ p < 2.14 and if σ < φ .
+Following the Grid Convergence Index (GCI) procedure [1,2], the safety factor is chosen as F s = 1.25 if the error estimate is
+deemed reliable, else F s = 3.
+The determination of U φ , usually for the ﬁnest grid (best) solution, but essentially for any φi of a data set, is not only
+dependent on F s . Different expressions are adopted for “good” and “bad” error estimations, i.e. for σ ⩽ φ or σ > φ .
+
+• For σ < φ :
+U φ (φi ) = F s φ (φi ) + σ + |φi − φﬁt |.
+
+(20)
+
+• For σ ⩾ φ :
+U φ (φi ) = 3
+
+4
+
+σ 
+φ (φi ) + σ + |φi − φﬁt | .
+
+φ
+
+Although the error estimation does not allow p > 2, it is reasonable to assume a tolerance for the change in the safety factor.
+
+(21)
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+109
+
+The estimated uncertainty has therefore three components: the absolute value of the estimated discretization error times
+a safety factor; the standard deviation of the ﬁt; the difference between the real data point and the value obtained from the
+ﬁt for the same grid density. Obviously, the latter two quantities are just a consequence of scatter in the data. Consequently,
+for a grid reﬁnement study with monotonically convergent smooth data the method reduces to the well-known GCI [1,2].
+It could be argued that in the cases with σ > φ it is not allowed to base an uncertainty estimation on the present error
+estimators. However, the estimated uncertainty with Eq. (21) will then be high, indicating clearly that the data quality is
+bad (due to e.g. grids without similarity, incomplete iterative convergence, programming mistakes in the code. . .), thus still
+conveying a useful message.
+Our procedure for numerical uncertainty estimation is summarized in Appendix A.
+4. Examples of application
+The behaviour of the procedure presented above will now be illustrated by application to four different test cases of
+incompressible ﬂow:
+1. 2-D manufactured solutions that mimic a near-wall turbulent ﬂow.
+2. The turbulent ﬂow over a ﬂat plate.
+3. The ﬂow over a backward facing step.
+4. The ﬂow around a tanker at model scale Reynolds number.
+The ﬁrst test case concerns 2-D ﬂows in a simple rectangular geometry. Because it permits the evaluation of the true
+discretization error, it is the ideal framework to evaluate the proposed procedure. In such conditions, we will determine the
+U
+
+ratio between the estimated uncertainty U φ and the exact error e φ , F e = e φ .
+φ
+
+The other three test cases do not have an analytical solution. Exact errors are therefore unknown. But it is possible
+to check the proposed procedure by making the grid family much larger than one would normally do. This allows us to
+apply the procedure to subsets of grids and to verify that the results are mutually consistent, i.e. uncertainty intervals are
+overlapping in 95 out of 100 cases.
+In the following comparisons, we will show which of the error estimations, δRE for Eq. (1), δ1 for Eq. (5), δ2 for Eq. (6) and
+δ12 for Eq. (7), is chosen by the procedure (without distinguishing between weighted or non-weighted ﬁts). Such information
+is fundamental to demonstrate the need to consider more than the “standard” error estimator δRE in a procedure applicable
+to practical calculations.
+In order to assess the typical diﬃculties of practical calculations, as for example scatter in the data and too coarse grids,
+we will monitor the cases with σ > φ , or equivalently F σ > 1 (with F σ = σ /φ ).
+Calculation details of the four test cases presented below are given in Appendix C. In the following sections, we will
+describe only the main features of the ﬂow, grid sets and selected ﬂow quantities.
+4.1. 2-D manufactured solutions
+The manufactured solutions (MS’s) mimic a near-wall turbulent ﬂow [18]. Three different MS’s (MS1, MS2 and MS3) at
+a Reynolds number of Rn = 107 have been selected and they are displayed in the left part of Fig. 1. In the results presented
+below, we will use dimensionless variables obtained with L and U 1 as the reference length and velocity.
+For each MS, we have generated three sets of 21 geometrically similar Cartesian grids in a rectangular computational
+domain with 0.1 ⩽ x ⩽ 1 and 0 ⩽ y ⩽ 0.25, where x and y are dimensionless coordinates. The ﬁnest grids include 801 × 801
+nodes and the coarsest grids 51 × 51, covering a grid reﬁnement ratio of 16. In each set, there are 4 grids between each
+doubling of the grid spacing, i.e. there are four groups of 6 grids that cover a grid reﬁnement ratio of 2. The three grid
+sets differ only in the stretching parameter applied at y = 0. Grid set A has the smallest near-wall spacing and set C the
+largest. Next to an illustration of the three MS’s, Fig. 1 presents the minimum and maximum dimensionless distance in wall
++
+coordinates5 at the ﬁrst grid node away from the wall y +
+2 for the three grid sets (the values of y 2 are nearly identical for
+the three MS’s).
+In this case, the grid reﬁnement ratio is simply deﬁned by
+
+hi
+h1
+
+=
+
+N X1 − 1
+N Xi − 1
+
+=
+
+NY1 − 1
+NYi − 1
+
+,
+
+(22)
+
+where N X and N Y are the number of grid nodes in the x and y directions, respectively.
+The calculations of the three MS’s were carried out with the ﬁnite-difference 2D-ﬂow version of PARNASSOS [20] using
+the manufactured eddy-viscosity ﬁeld. All calculations were performed with 15 digits precision and the iterative error was
+reduced to machine accuracy.
+5
+The manufactured horizontal velocity ﬁeld includes a linear sub-layer and the skin friction coeﬃcient at y = 0 matches the values of an empirical
+correlation for turbulent ﬂow over a ﬂat plate.
+
+110
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+Fig. 1. Streamlines and horizontal velocity u x isolines of the three manufactured solutions. Minimum and maximum dimensionless distance in wall coordinates at the ﬁrst grid node away from the wall y +
+2 as a function of the grid reﬁnement ratio.
+
+Four integral quantities have been chosen to check the performance of the proposed procedure:
+1. The friction resistance coeﬃcient.
+
+2
+
+CF =
+
+1
+
+0.9 Rn
+
+∂ ux
+∂y
+
+0 .1
+
+
+dx.
+
+(23)
+
+y =0
+
+2. The displacement thickness at x = 0.55.
+0.25
+
+∗
+
+δ =
+
+(1 − u x ) d y .
+
+(24)
+
+0
+
+3. The momentum thickness at x = 0.55.
+0.25
+
+
+
+θ=
+
+u x − u 2x d y .
+
+(25)
+
+0
+
+4. The shape factor of the horizontal velocity proﬁle at x = 0.55.
+
+H=
+
+δ∗
+.
+θ
+
+(26)
+
+All the integrals were evaluated with a second-order trapezoidal rule.
+Fig. 2 presents the results obtained for the friction resistance coeﬃcient C F of the MS3 (similar results are obtained
+for MS1 and MS2). There is a strong inﬂuence of the near-wall grid line distance on the accuracy of the C F prediction. At
+least half of the data obtained in set A is in the “asymptotic range” (p = 1.99 for h i /h1 = 1 and p = 1.95 for h i /h1 = 2),
+whereas sets B and C may not have reached the “asymptotic range” even for the ﬁnest grids of the sets. This is an important
+observation because the number of grid nodes of the three sets is exactly the same. Although some of the data points are
+clearly outside the “asymptotic range”, all estimated error bars are consistent. Logically, uncertainty estimations based on
+poor quality data lead to very large error bars.
+Figs. 3, 4 and 5 present the convergence of δ ∗ , θ and H at x = 0.55 with the grid reﬁnement for the MS2, which is the
+only MS that reveals inconsistent error bars for δ ∗ and θ . Both inconsistent error bars are obtained with δ2 and a safety
+factor of 3 (F σ < 1 for all the error bars estimated for the MS’s). However, the two outliers occur for h i /h1 = 8 in set C, i.e.
+the estimated uncertainty is based on numerical solutions obtained in really coarse grids with values of y +
+2 above 8. It is
+interesting to remark that H = δ ∗ /θ does not present an inconsistent error bar for the same data set. Nevertheless, we will
+discard the data obtained in the grids with h i /h1 > 8 for the check of the convergence of local ﬂow quantities.
+In each of the three grid sets, there are 361 (19 × 19) grid nodes common to all grids for h i /h1 ⩽ 8 (there would be
+81 if we included the grids with h i /h1 > 8). Therefore, at these locations there is no need for interpolation to estimate the
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+111
+
+Fig. 2. Convergence of the friction resistance coeﬃcient with the grid reﬁnement ratio. Fits obtained from the data with 1 ⩽ hi /h1 ⩽ 2. MS3 manufactured
+solution. (Right part of ﬁgure is detail of left part.)
+
+Fig. 3. Convergence of the displacement thickness δ ∗ at x = 0.55 with the grid reﬁnement ratio. Fits obtained from the data with 1 ⩽ hi /h1 ⩽ 2. MS2
+manufactured solution. (Right part of ﬁgure is detail of left part.)
+
+Fig. 4. Convergence of the momentum thickness θ at x = 0.55 with the grid reﬁnement ratio. Fits obtained from the data with 1 ⩽ hi /h1 ⩽ 2. MS2
+manufactured solution. (Right part of ﬁgure is detail of left part.)
+
+Fig. 5. Convergence of the shape factor H at x = 0.55 with the grid reﬁnement ratio. Fits obtained from the data with 1 ⩽ hi /h1 ⩽ 2. MS2 manufactured
+solution. (Right part of ﬁgure is detail of left part.)
+
+112
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+Fig. 6. Distribution of the number of cases that a speciﬁc error estimator is invoked. Horizontal velocity component u x of the manufactured solutions.
+
+uncertainty of the mean ﬂow quantities, horizontal u x and vertical u y velocity components and pressure coeﬃcient C p . In
+this case, we have calculated the ratio between the estimated uncertainties for h i /h1 = 1, h i /h1 = 2 and h i /h1 = 4 and the
+exact error ratio F e = U φ /e φ for the three grid sets and the three MS’s. As expected (due to the absence of scatter), none of
+the estimated uncertainties presented F σ > 1.
+None of the estimated uncertainties is below the exact error. Although there are some small differences between the
+results for the three mean ﬂow quantities, we will illustrate the results for the horizontal velocity component u x only.
+Fig. 6 presents the distribution of the number of cases that a particular error estimator is used. Although the trends are not
+exactly equal for the three grids sets and the three MS’s, there are some overall tendencies in the data:
+
+• Most of the errors are estimated with the observed p (δRE ) and with p = 2 (δ2 ). Although not systematically, the number
+of cases based on δRE tends to decrease with the grid coarsening, whereas the opposite trend is observed for δ2 .
+• The number of error estimations based on a power series with two terms and ﬁxed exponents (δ12 ) is rather small.
+However, this number tends to increase with the grid coarsening.
+
+• None of the error estimations was based on the single term expansion with p = 1 (δ1 ).
+Fig. 7 presents the histograms of F e for the horizontal velocity component u x . For the ﬁnest grids (1 ⩽ h i /h1 ⩽ 2), the
+majority of cases exhibits 1 ⩽ F e < 2, irrespective of the grid set and the kind of manufactured solution. It is clear that F e
+tends to increase with the grid coarsening, but the number of cases with F e ⩾ 8 tends to be small. The exception is grid set
+C where the values of F e obtained for the coarsest grids (4 ⩽ h i /h1 ⩽ 8) are clearly larger than those obtained for the other
+two grid sets. This is again an indication that the level of accuracy of a numerical calculation is not solely determined by
+the total number of grid nodes, but also by the grid type.
+4.2. Flow over a ﬂat plate
+The second test case is the two-dimensional, incompressible, statistically-steady ﬂow over a ﬂat plate. The computational
+domain is rectangular with the inlet, outlet and external boundaries suﬃciently away from the plate (see Appendix C) to
+guarantee that the results are not affected by the limited domain size [21,22].
+L
+Calculations were performed for Reynolds numbers of Re = 107 , Re = 108 and Re = 109 , with Re L = U ∞
+ν , where U ∞ is
+the undisturbed velocity, L is the length of the plate and ν is the kinematic viscosity of the ﬂuid. As for the previous test
+case, all results presented below use dimensionless variables obtained with L and U ∞ as the reference length and velocity.
+We have made calculations with two eddy-viscosity models: the Spalart and Allmaras (SPAL) one-equation model [23] and
+the Shear-Stress Transport (SST) k − ω two-equation model [24].
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+113
+
+Fig. 7. Ratio between the estimated uncertainties and the exact error F e = U u x /e u x of the horizontal velocity component u x . Manufactured solutions.
+
+Fig. 8. Maximum and average dimensionless distance in wall coordinates at the ﬁrst grid node away from the wall y +
+2 as a function of the grid reﬁnement
+ratio.
+
+For each Reynolds number, we have generated three sets of 13 geometrically similar Cartesian grids (the deﬁnition of
+h i /h1 given by Eq. (22) is still valid). The three grids sets cover a grid reﬁnement ratio of 8 and each set contains 3 grids
+between each doubling of the grid spacing, i.e. there are three groups of 5 grids, each covering a grid reﬁnement ratio of 2.
+As for the previous test case, the three sets have different near-wall grid line distances. Fig. 8 presents the maximum and
+the average non-dimensional distance to the wall y +
+2 at the ﬁrst grid node away from the plate for all the calculations
+performed. The results correspond to the SPAL model, but similar results are obtained for the SST model. All the grids of
++
+set A have ( y +
+2 )max < 1, whereas all the grids of set C have ( y 2 )max > 1.
+As for the previous case, calculations were performed with the ﬁnite-difference 2D-ﬂow version of PARNASSOS [20] with
+15 digits precision and the iterative error was reduced to machine accuracy.
+We have checked the consistency of the uncertainty estimations for h i /h1 = 1, h i /h1 = 2 and h i /h1 = 4 in the three grids
+sets (A, B and C) for each turbulence model (SPAL and SST) and Reynolds number (107 , 108 and 109 ).
+
+114
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+Fig. 9. Convergence of the friction resistance coeﬃcient C F with the grid reﬁnement ratio. Fits obtained from the data with 1 ⩽ hi /h1 ⩽ 2. Turbulent ﬂow
+over a ﬂat plate.
+
+We have selected the same four integral quantities as in the previous test case: C F , δ ∗ , θ and H . Naturally, C F is
+determined with6 0 ⩽ x ⩽ 1 and in this case δ ∗ , θ and H are determined at x = 0.5.
+The convergence of C F with the grid reﬁnement is depicted in Fig. 9. The convergence properties are dependent on the
+turbulence model, grid set and Reynolds number. Not all the cases exhibit monotonic convergence and it is clear that most
+of the data with h i /h1 > 4 are outside the “asymptotic range”. Nevertheless, all the estimated error bars are consistent, i.e.
+for a given turbulence model and Reynolds number, the 9 error bars estimated for the three grid reﬁnement ratios and
+three grid sets have a region of overlap.
+Figs. 10 to 12 present the convergence of δ ∗ , θ and H at x = 0.5 with the grid reﬁnement ratio. The results conﬁrm
+the trends observed for C F , i.e. the convergence properties depend on the selected turbulence model, grid set and Reynolds
+number. Furthermore, the data show that the convergence properties depend on the selected ﬂow variable. For all ﬂow
+variables, turbulence model and Reynolds number, there is overlap between the estimated error bars for the three grid sets
+and three levels of grid reﬁnement, which conﬁrms the consistency of the results obtained with the proposed procedure.
+We observe that none of the ﬁts for C F , δ ∗ , θ and H exhibited F σ > 1, which is perhaps not a very surprising result for
+this simple geometry. However, most of the error estimates performed for the data included in Figs. 9 to 12 were not based
+on δRE , including several of those made for h i /h1 = 1. Therefore, the alternative error estimators play a signiﬁcant role in
+the uncertainty estimation of functional quantities of a “simple practical ﬂow”, i.e. a ﬂow over a ﬂat plate at high Reynolds
+numbers.
+For each Re L and turbulence model and grid set, we have also checked the consistency of the mean ﬂow quantities, u x ,
+u y and C p and eddy-viscosity νt error bars obtained for three grid densities at 1045 (95 × 11) locations. We have even
+
+6
+
+We recall that x is a dimensionless quantity x = X / L.
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+115
+
+Fig. 10. Convergence of the displacement thickness δ ∗ at x = 0.5 with the grid reﬁnement ratio. Fits obtained from the data with 1 ⩽ hi /h1 ⩽ 2. Turbulent
+ﬂow over a ﬂat plate.
+
+checked the consistency between error bars obtained for different grid sets where local quantities were determined with
+second-order polynomial interpolations7 at ﬁxed locations not coinciding with grid nodes.
+As for the previous test case, we have started by determining the number of cases that a given error estimator was used.
+Figs. 13–16 illustrate these distributions for the horizontal velocity component u x and for the eddy-viscosity νt . Although
+the results are not exactly equal for all the conditions tested, there are some clear trends:
+
+• The results obtained for u x and νt with both turbulence models are similar for most of the cases tested. The main
+exception is grid set C for Re L = 108 and Re L = 109 , where the SST model exhibits a very small number of uncertainty
+estimations based on δRE for u x . This is likely a consequence of the too large values of y +
+2 of most of the grids of this
+set.
+
+• Most of the uncertainty estimations for hi /h1 = 1 are based on δRE (followed by δ2 ). With grid coarsening, this number
+decreases, especially for h i /h1 = 4.
+• The number of cases based on δ12 increases with the grid coarsening.
+• The expansion with one linear term δ1 is the least selected.
+• There are some cases with F σ > 1, which are mainly obtained for hi /h1 = 4. Therefore, it is likely that some of them
+are a consequence of the use of data from too coarse grids and not really of scatter in the data. In contrast, the u x
+results obtained in grid sets A with the SST model show the largest number of cases with F σ > 1 for h i /h1 = 1, which
+suggests the existence of some scatter in the data.
+
+7
+
+2-D cubic polynomial was also tested and the results obtained are equivalent to those presented in the paper.
+
+116
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+Fig. 11. Convergence of the momentum thickness θ at x = 0.5 with the grid reﬁnement ratio. Fits obtained from the data with 1 ⩽ hi /h1 ⩽ 2. Turbulent
+ﬂow over a ﬂat plate.
+
+These trends conﬁrm the importance of the error estimations based on power series expansions with ﬁxed exponents for
+practical applications, especially for the coarsest grids.
+The number of cases with non-overlapping error bars at the 1045 locations selected is given in Fig. 17 for the mean ﬂow
+quantities u x , u y and C p and for the eddy-viscosity νt . We have performed twelve checks for each turbulence model and
+Reynolds number. For each grid set (A, B and C) and for all grid sets (G) we have made three different comparisons: the
+error bars at h i /h1 = 1 and h i /h1 = 2 (12 ); the error bars at h i /h1 = 1, h i /h1 = 2 and h i /h1 = 4 (13 ) and the same as the
+previous but with the safety factor equal to 3 for the coarsest grids (13c ).
+For most of the cases, the number of instances with non-overlapping error bars is signiﬁcantly smaller than the target
+value of 5%. There are only seven comparisons that exhibit a number of inconsistent error bars larger than the 5% target
+and they all correspond to comparisons between error bars of the three grid sets (G) at Re L = 107 (top plots of Fig. 17).
+Nevertheless, it is clear that the number of inconsistent error bars decreases when the grids with h i /h1 > 4 are assumed
+to be outside the “asymptotic range” (comparison between G13 and G13c that assumes F s = 3). We must bear in mind that
+the coarsest grids of sets C (in particular at Re L = 109 ) present unreasonably large values of y +
+2 (see Fig. 8) and so the
+performance of the proposed procedure is actually surprisingly good.
+4.3. Flow over a backward facing step
+The ﬂow over a backward facing step has been one of the test cases of the three Lisbon Workshops on Veriﬁcation
+[9–11]. The Reynolds number based on the step height and the velocity of the incoming ﬂow, U ref , is 5 × 105 and the
+present calculations have been reported in [17]. In this paper, we will restrict ourselves to the results obtained with the
+Spalart–Allmaras one-equation model [23] and with the SST k − ω two-equation model [24].
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+117
+
+Fig. 12. Convergence of the shape factor H at x = 0.5 with the grid reﬁnement ratio. Fits obtained from the data with 1 ⩽ hi /h1 ⩽ 2. Turbulent ﬂow over a
+ﬂat plate.
+
+There are two sets of 19 single-block, structured, geometrically similar grids, A and B, with coarsest grids of 41 × 41
+nodes and ﬁnest grids of 401 × 401 nodes covering a grid reﬁnement ratio of 10. Therefore, the deﬁnition of h i /h1 of the
+two previous test cases (Eq. (22)) also applies to this example. The grids in the vicinity of the step are illustrated in Fig. 18.
+As for the previous examples, all the calculations were carried out with the ﬁnite-difference, 2D-ﬂow version of
+PARNASSOS [20] using 15-digits precision and reducing the iterative error to machine accuracy.
+We have estimated the uncertainty of all selected ﬂow quantities for three levels of grid reﬁnement: h i /h1 = 1 using
+the data of the 11 ﬁnest grids covering a grid reﬁnement ratio of 2; h i /h1 = 2 using the data of 6 grids covering a grid
+reﬁnement ratio of 2 and h i /h1 = 4 based on the data of the 4 coarsest grids that cover a grid reﬁnement ratio of 2.5.
+The convergence of the friction resistance coeﬃcient at the top ((C F ) T ) and bottom ((C F ) B ) walls and the pressure
+resistance coeﬃcient (base drag) at the bottom wall ((C P ) B ) with the grid reﬁnement is depicted in Fig. 19.
+As for the previous test cases, the convergence properties depend on the selected ﬂow quantity, turbulence model and
+grid set and the convergence is not always monotonic. The estimated error bars are once more consistent, showing overlap
+between the three levels of grid reﬁnement and the two grid sets for all cases. In this case, the use of an error estimation
+based on δRE is the exception, which illustrates the need for alternative error estimators in practical calculations.
+As for the ﬂat plate ﬂow, we have estimated the uncertainty of the mean ﬂow quantities u x , u y and C p and of the
+eddy-viscosity νt at 361 nodes common to all grids of set A (in the grids with h i /h1 ⩽ 4). Second-order interpolation is
+used for the data of set B to obtain the uncertainties in the same locations.
+Fig. 20 presents the distribution of the number of cases based on each of the four error estimators for the horizontal
+u x and vertical u y velocity components and for the eddy-viscosity νt . The distributions obtained for the two grid sets
+are similar and the most striking feature is the large number of cases using δ12 and the relatively small number of cases
+using δRE . Furthermore, the largest number of cases with F σ > 1 is systematically obtained for h i /h1 = 1. This suggests the
+
+118
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+Fig. 13. Distribution of the number of cases based on each error estimator. Horizontal velocity component u x . Spalart–Allmaras one-equation model.
+Turbulent ﬂow over a ﬂat plate.
+
+Fig. 14. Distribution of the number of cases based on each error estimator. Horizontal velocity component u x . SST k − ω two-equation model. Turbulent
+ﬂow over a ﬂat plate.
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+119
+
+Fig. 15. Distribution of the number of cases based on each error estimator. Eddy-viscosity νt . Spalart–Allmaras one-equation model. Turbulent ﬂow over a
+ﬂat plate.
+
+Fig. 16. Distribution of the number of cases based on each error estimator. Eddy-viscosity νt . SST k − ω two-equation model. Turbulent ﬂow over a ﬂat
+plate.
+
+120
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+Fig. 17. Distribution of the number of cases with non-overlapping error bars of mean ﬂow quantities, u x , u y and C p and eddy-viscosity νt . G stands for all
+grid sets, 12 for error bars of h i /h1 = 1 and h i /h1 = 2, 13 for error bars of h i /h1 = 1, h i /h1 = 2 and h i /h1 = 4, 13c same as 13 but with the safety factor
+equal to 3 for the coarsest grids. Turbulent ﬂow over a ﬂat plate.
+
+Fig. 18. Illustration of the two grids sets for the calculation of the ﬂow over a backward facing step.
+
+existence of a signiﬁcant amount of scatter in the data. Most likely, this is due to the (deliberate [9–11]) lack of quality of
+the grids of both sets.
+The number of cases with non-overlapping error bars at the 361 locations selected is given in Fig. 21 for the mean ﬂow
+quantities u x , u y and C p and for the eddy-viscosity νt . The nomenclature is identical to that deﬁned above for the ﬂat plate
+ﬂow, but in this case we only have nine checks for each turbulence model, because there are only two grid sets.
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+121
+
+Fig. 19. Convergence of the friction resistance coeﬃcient at the top (C F ) T and bottom (C F ) B walls and pressure resistance coeﬃcient (base drag) at the
+bottom wall (C P ) B with the grid reﬁnement ratio. Fits obtained from the data with 1 ⩽ hi /h1 ⩽ 2. Turbulent ﬂow over a backward facing step.
+
+The results are clearly dependent on the turbulence model. For the SST model, all checks produce a number of “failures”
+below 5%. Assuming the data of the four coarsest grids to be outside the “asymptotic range” leads to a clear reduction
+of the number of inconsistent error bars. The same trend is observed in the SPAL data. However, in this case only the
+comparisons between the mean ﬂow variables error bars of h i /h1 = 1 and h i /h1 = 2 lead to a number of “failures” below
+5% for all cases. The comparisons between error bars of the three reﬁnement levels and two grid sets fail to meet the 5%
+target for all variables except the pressure coeﬃcient. However, it must be recognized that the coarsest grids of the two sets
+are really too coarse to capture any ﬂow details, which leads to meaningless changes between the ﬂow ﬁelds obtained for
+coarsest grids levels. In these conditions, it is impossible to expect a reasonable performance from a method based on grid
+reﬁnement studies.
+4.4. Flow around a tanker
+The ﬁnal example is the ﬂow around the KVLCC2 tanker at model scale Reynolds number (4.6 × 106 ). It is a practical
+test case, which has been employed for the last three Workshops on Numerical Ship Hydrodynamics [27–29].
+We have selected a computational domain with a cylindrical shape where we have generated four sets (A, B, C and D)
+of six nearly geometrically similar grids (using exactly the same settings in the grid generators for each family of grids). All
+the grids are single-block H–O grids that differ essentially in the streamwise and girthwise node distributions. Although the
+grids do not respect exact geometric similarity (especially at the bow and stern contours), h i /h1 is again deﬁned by Eq. (22).
+The coarsest grids have 0.7 to 0.8 million cells and the ﬁnest 5.3 to 6.1 million cells, covering always a grid reﬁnement ratio
+of 2. It is noted that the grids near-wall distance ensures a maximum y +
+2 below 0.8 in all 24 grids. Fig. 22 illustrates the
+grids on the ship surface using only half the nodes of the coarsest grids of each set.
+The calculations were made with the three-dimensional version of PARNASSOS [30,31] using the SST k − ω two-equation
+eddy-viscosity turbulence model [24]. We have used 15 digits precision, but we have not converged all solutions to machine
+
+122
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+Fig. 20. Distribution of the number of cases based on each error estimator. Horizontal u x and vertical u y velocity components and eddy-viscosity νt .
+Turbulent ﬂow over a backward facing step.
+
+Fig. 21. Distribution of the number cases with non-overlapping error bars of mean ﬂow quantities, u x , u y and C p and eddy-viscosity νt . G stands for all
+grid sets, 12 for error bars of h i /h1 = 1 and h i /h1 = 2, 13 for error bars of h i /h1 = 1, h i /h1 = 2 and h i /h1 = 4, 13c same as 13 but with the safety factor
+equal to 3 for the coarsest grids. Turbulent ﬂow over a backward facing step.
+
+accuracy. We have ensured, though, that the iterative error was reduced to at least three orders of magnitude below the
+discretization error [12].
+We have chosen four integral ﬂow quantities to check the consistency of the proposed procedure: the friction resistance
+coeﬃcient C F ; the pressure resistance coeﬃcient C P ; the viscous resistance coeﬃcient C V and the nominal wake fraction
+coeﬃcient W f . C F and C P require the integration of the shear-stress and pressure coeﬃcient on the ship surface, which has
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+123
+
+Fig. 22. Illustration of the four grids sets for the calculation of the ﬂow around the KVLCC2 tanker at model scale Reynolds number.
+
+Fig. 23. Convergence of the friction C F and pressure C P and viscous C V resistance coeﬃcients and of the nominal wake fraction W f with the grid
+reﬁnement ratio. Fits obtained from the data with 1 ⩽ hi /h1 ⩽ 2. Flow around the KVLCC2 tanker at model scale Reynolds number.
+
+been done with a second-order Gauss quadrature rule. C V is just the sum of C F and C P and W f requires the integration
+of the axial velocity u x at the propeller disc (located at x = 0.9825L PP ), for which the same numerical integration technique
+was applied as for C F and C P .
+Fig. 23 presents convergence of C F , C P , C V and W f with the grid reﬁnement. The results show a small sensitivity of
+C F to the grid node distribution. On the other hand, C P (and consequently C V ) is signiﬁcantly affected by the selected grid
+set with the smallest uncertainty obtained for set D and the largest for set B (having the largest streamwise spacing at
+the bow and stern contours). Nevertheless, all resistance coeﬃcients converge monotonically with observed orders of grid
+convergence within the expected range. Therefore, it is no surprise that the four error bars overlap for C F , C P and C V .
+The convergence of the nominal wake fraction coeﬃcient W f exhibits more scatter than the resistance coeﬃcients, with
+the exception of set D. This is a consequence of the local streamwise grid line spacing and grid quality (skewness and
+orthogonality), which are signiﬁcantly better in set D than in all the other sets (sets A and B do not have clustering of grid
+nodes at the propeller plane and set C contains highly distorted grids). The proposed procedure leads to four overlapping
+error bars, which is a remarkable result because the data of set B (with the largest streamwise spacing) show clearly an
+anomalous behaviour with only minor changes in W f for the three ﬁnest grids.
+The convergence of local ﬂow quantities was checked at the propeller plane (x = 0.09825L PP ) for 654 locations (which are
+the locations where measurements were made [27,29]). Understandably, these locations do not coincide with grid nodes;
+second-order polynomial interpolation was applied to obtain the local values of the mean velocity components u x , u y
+and u z , the pressure coeﬃcient C p and the eddy-viscosity νt .
+
+124
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+Fig. 24. Distribution of the number of cases that a speciﬁc error estimator is invoked. Axial u x , horizontal u y and vertical u z velocity components, pressure
+coeﬃcient C p and eddy-viscosity νt at the propeller plane, x = 0.9825L PP . Flow around the KVLCC2 tanker at model scale Reynolds number.
+
+The number of cases that each error estimator is called is given in Fig. 24. It is clear that δRE is least called for sets
+A and B that include the grids with the largest streamwise grid line spacing. This tendency is accompanied with a significant number of locations where the error is estimated with δ12 , which is a trend also valid for the other two grid sets.
+Furthermore, there is also a signiﬁcant number of cases that exhibit F σ > 1, which in some cases reaches values above
+20%. These numbers reﬂect the diﬃculties to estimate errors based on power series expansions for the so-called “practical
+applications”. Nevertheless, with the proposed procedure to estimate numerical uncertainty, the number of locations with
+overlapping error bars for the four grid sets is always above 95%. The number of “failures” is 1.68% for u x , 1.07% for u y ,
+0.46% for u z , 1.84% for C p and 2.91% for νt .
+5. Final remarks
+A procedure has been presented for the estimation of the numerical uncertainty of any integral or local ﬂow quantity,
+based on grid reﬁnement studies. The uncertainty is determined by an error estimation multiplied by a safety factor.
+The error is estimated with power series expansions as a function of the typical cell size, which are ﬁtted to the data in
+the least-squares sense. Several alternative formulations are involved, including weighted and non-weighted ﬁts of expressions with different exponents in the leading term of the series. The selection of the best error estimate is based on the
+standard deviation of the ﬁts.
+The choice of the safety factor follows the Grid Convergence Index, i.e. factor of safety equal to 1.25 for reliable error
+estimations and 3 for all other conditions. A reliable error estimation requires monotonic convergence with an observed
+order of grid convergence within a given range and a standard deviation of the ﬁt smaller than an averaged data range
+parameter. For well controlled situations, i.e. monotonic convergence with the expected observed order of grid convergence
+and no scatter in the data, the method reduces to the well known Grid Convergence Index.
+Four examples of application are presented ranging from the well controlled environment of manufactured solutions to
+the “practical calculation” of the ﬂow around a tanker. An excellent performance of the proposed procedure is obtained for
+the manufactured solutions. Although the three solutions tested involve a fairly complex ﬂow, the computational domain is
+simply a rectangle. This allows the use of strictly geometrically similar orthogonal grids, which makes it a less demanding
+test case.
+For the other test cases there are no analytical solutions available, but we checked the proposed procedure for consistency, i.e. the overlap of error bars obtained for different grid densities and/or grid families. In general, we have obtained
+results that satisfy the desired target of 95% of cases with consistent (or conservative in the case of the manufactured solutions) error bars, but not for all the cases tested. The failures occur for error bars estimated for too coarse grids that in some
+cases are hardly able to capture the main ﬂow features. Of course, one cannot expect a procedure based on grid reﬁnement
+studies to produce a reliable error estimate when the solution is almost not changing due to the lack of grid resolution.
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+125
+
+The results also show an increased number of cases that rely on the alternative power series expansions when the ﬂow
+becomes more complex (geometry and ﬂow details). It is further clear that scatter will be very hard to avoid in complex
+ﬂows; the least-squares ﬁts proposed in the present procedure are an effective way to deal with this problem. When
+the scatter level is comparable to the changes in the data, the present procedure may become too conservative. But such
+circumstances are supposed to be the exception and not the rule in uncertainty estimation based on grid reﬁnement studies.
+Appendix A. Summary of procedure for numerical uncertainty estimation
+The present solution veriﬁcation procedure estimates the uncertainty U φ of a functional or local quantity φ from the data
+obtained in n g grids, where n g is supposed to be at least 4. The method is based on power series expansions that neglect
+high-order terms and assume that φ has at least second-order ﬁnite derivatives. It is also assumed that the lowest-order
+schemes used in the discretization are second or ﬁrst-order accurate.
+U φ is determined from an error estimate φ times a safety factor F s . The steps to obtain U (φ) are summarized below.
+1. Determination of φ :
+• Solve
+p
+
+δRE = αhi
+
+in the least-squares sense with and without weights (see Appendix B) to obtain δRE , p and the standard deviations of
+the two ﬁts σ . If any of ﬁts exhibits 0.5 ⩽ p ⩽ 2, φ = δRE . If both ﬁts exhibit 0.5 ⩽ p ⩽ 2, the value of δRE selected
+corresponds to the ﬁt with the smallest standard deviation.
+• If the observed order of grid convergence p > 2, solve
+
+δ1 = α h i
+and
+
+δ2 = αh2i
+in the least-squares sense with and without weights (see Appendix B) and determine the standard deviations of the
+four ﬁts σ . φ is obtained from the ﬁt that exhibits the smallest standard deviation.
+• If the observed order of grid convergence p < 0.5 or impossible to establish, solve
+
+δ1 = α h i ,
+δ2 = αh2i
+and
+
+δ12 = α1 hi + α2 h2i
+in the least-squares sense with and without weights (see Appendix B) and determine the standard deviations of the
+six ﬁts σ . φ is obtained from the ﬁt that exhibits the smallest standard deviation.
+2. Determine a data range parameter
+
+φ =
+
+(φi )max − (φi )min
+ng − 1
+
+to assess the quality of the ﬁt used to obtain the error estimate φ .
+3. Determine the safety factor from p, σ and φ :
+• If 0.5 ⩽ p < 2.1 and σ < φ , F s = 1.25.
+• Otherwise, F s = 3.
+4. Obtain the uncertainty from φ and the safety factor F s using the values of σ and φ to distinguish between “good”
+and “bad” error estimations:
+• For σ < φ :
+
+U φ (φi ) = F s φ (φi ) + σ + |φi − φﬁt |.
+
+• For σ ⩾ φ :
+U φ (φi ) = 3
+
+σ 
+φ
+
+φ (φi ) + σ + |φi − φﬁt | .
+
+126
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+Appendix B. Least-squares solutions of power series expansions
+B.1. Weights
+The equations presented below are valid for least-squares solutions with and without weights.
+
+• Non-weighted approach
+wi = 1
+
+and nw i = 1.
+
+• Weighted approach
+1
+h
+
+wi = n i
+g
+
+i =1
+
+and nw i = n g w i ,
+1
+hi
+
+guaranteeing that
+ng
+
+
+w i = 1.
+
+i =1
+
+B.2. Single term expansion with unknown order of grid convergence
+
+φo , α and p are determined from the minimum of the function
+
+
+ ng
+ 
+
+p
+S RE (φo , α , p ) = 
+w i φi − φo + α h i
+
+2
+
+i =1
+
+that is obtained from
+
+∂ S RE
+= 0,
+∂φo
+
+∂ S RE
+= 0,
+∂α
+
+∂ S RE
+= 0.
+∂p
+
+This leads to a system of non-linear equations
+
+φo =
+
+ng
+
+
+w i φi − α
+
+i =1
+ng
+
+α = i=n g1
+i =1
+ng
+
+
+ng
+
+
+p
+
+w i hi ,
+
+i =1
+
+p
+w i φi h i −
+2p
+w i hi −
+
+ ng
+
+ n g
+
+i =1
+
+ ng
+
+i =1
+
+p
+w i hi
+
+p
+w i φi h i log(h i ) − φo
+
+i =1
+
+w i φi
+
+ng
+
+
+i =1
+
+ n g
+
+i =1
+
+p
+w i hi
+p
+w i hi
+
+
+
+,
+
+p
+w i h i log(h i ) −
+
+i =1
+
+α
+
+ng
+
+
+2p
+
+w i h i log(h i ) = 0
+
+i =1
+
+that has a standard deviation given by
+
+
+ ng
+
+ nw i (φi − (φo + αh p ))2
+i
+
+.
+σRE =  i=1
+(n g − 3)
+B.3. Single term expansion with ﬁrst-order term
+
+φo and α are determined from the minimum of the function
+
+
+ ng
+ 
+2
+S (φ , α ) = 
+w φ − (φ + α h )
+1
+
+o
+
+i
+
+i =1
+
+i
+
+o
+
+i
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+that is obtained from
+
+∂ S1
+= 0,
+∂φo
+
+∂ S1
+= 0.
+∂α
+
+This leads to a system of linear equations
+
+⎡
+⎢1
+⎢
+⎢ ng
+⎣
+
+i =1
+ng
+
+i =1
+
+w i hi
+
+⎡ ng
+
+⎤
+
+ng
+
+w i hi ⎥ 
+
+⎥ φo
+⎥
+⎦ α
+2
+
+
+
+w i hi
+
+i =1
+
+⎤
+
+w i φi ⎥
+⎢
+⎢ i =1
+⎥
+=⎢ n
+⎥
+⎣ g
+⎦
+w i φi h i
+i =1
+
+that has a standard deviation given by
+
+
+ ng
+
+ nw i (φi − (φo + αhi ))2
+
+.
+σ1 =  i = 1
+(n g − 2)
+B.4. Single term expansion with second-order term
+
+φo and α are determined from the minimum of the function
+
+
+ ng
+ 
+
+S (φ , α ) = 
+w φ − φ + αh2
+2
+
+o
+
+i
+
+o
+
+i
+
+2
+
+i
+
+i =1
+
+that is obtained from
+
+∂ S2
+= 0,
+∂φo
+
+∂ S2
+= 0.
+∂α
+
+This leads to a system of linear equations
+
+⎡
+
+ng
+
+⎢1
+
+⎢
+⎢ ng
+⎣
+i =1
+
+w i h2i
+
+i =1
+ng
+i =1
+
+⎡ ng
+
+⎤
+w i h2i ⎥ 
+
+⎥ φo
+⎥
+⎦ α
+4
+
+w i hi
+
+
+
+⎢
+⎢ i =1
+=⎢ n
+⎣ g
+i =1
+
+⎤
+w i φi
+
+⎥
+⎥
+⎥
+⎦
+2
+
+w i φi h i
+
+that has a standard deviation given by
+
+
+ ng
+
+ nw i (φi − (φo + αh2 ))2
+i
+
+.
+σ2 =  i = 1
+(n g − 2)
+B.5. Two-term expansion with ﬁrst and second-order terms
+
+φo , α1 and α2 are determined from the minimum of the function
+
+
+ ng
+ 
+
+S 12 (φo , α1 , α2 ) = 
+w i φi − φo + α1 h i + α2 h2i
+i =1
+
+that is obtained from
+
+∂ S 12
+= 0,
+∂φo
+
+∂ S 12
+= 0,
+∂ α1
+
+∂ S 12
+= 0.
+∂ α2
+
+This leads to a system of linear equations
+
+2
+
+127
+
+128
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+⎡
+
+ng
+
+⎢1
+
+ng
+
+w i hi
+
+⎤
+w i h2i ⎥
+
+⎤
+
+⎡ ng
+w i φi
+
+⎥
+⎢
+⎢
+⎥⎡
+⎥
+i =1
+i =1
+⎤ ⎢ i =1
+⎢ ng
+⎥
+⎥
+⎢
+φ
+n
+n
+n
+o
+g
+g
+g
+⎢
+⎥
+⎥
+⎢
+3 ⎥⎣
+2
+⎢
+⎥
+⎦=⎢
+α
+w
+h
+w
+h
+w
+h
+w
+φ
+h
+1
+i
+i
+i
+i
+i
+i
+i
+⎢
+⎥
+⎢
+i ⎥
+i
+⎢ i =1
+⎥ α2
+⎥
+⎢ i =1
+i =1
+i =1
+⎢ ng
+⎥
+⎥
+⎢
+n
+n
+n
+g
+g
+g
+⎣
+⎦
+⎦
+⎣
+w i h2i
+w i h3i
+w i h4i
+w i φi h2i
+i =1
+
+i =1
+
+i =1
+
+i =1
+
+that has a standard deviation given by
+
+
+ ng
+
+ nw i (φi − (φo + α1 hi + α2 h2 ))2
+i
+
+σ12 =  i=1
+.
+(n g − 3)
+
+Appendix C. Calculation details
+C.1. 2-D manufactured solutions
+The manufactured solutions (MS’s) mimic a near-wall turbulent ﬂow [18] at a Reynolds number based on the velocity at
+the top boundary U 1 and on the domain length L of Rn = 107 . The computational domain is a rectangle with 0.1 ⩽ x ⩽ 1
+and 0 ⩽ y ⩽ 0.25, where x and y are dimensionless coordinates.
+For each MS, we have generated three sets of 21 geometrically similar Cartesian grids. All grids have equally-space nodes
+along the horizontal x direction and one-sided stretching functions [19] are applied in the vertical y direction to obtain
+clustered grid nodes near the “wall” ( y = 0). The three grid sets differ only in the stretching parameter applied at y = 0.
+Grid set A has the smallest near-wall spacing and set C the largest.
+Selected boundary conditions are typical of a ﬂat plate boundary-layer ﬂow: speciﬁed velocity components at the inlet
+and at the bottom; speciﬁed horizontal velocity component u x and pressure coeﬃcient C p at the top boundary and speciﬁed
+C p pressure coeﬃcient at the outlet. Pressure derivatives at the inlet and bottom are zero (satisﬁed by the MS’s) and velocity
+derivatives at the outlet are obtained from the MS’s.
+The calculations of the three MS’s were carried out with the ﬁnite-difference 2D-ﬂow version of PARNASSOS [20] using the manufactured eddy-viscosity ﬁeld. PARNASSOS is formally second-order accurate, but ﬁrst-order velocity derivatives
+(convection and continuity) and pressure derivatives are approximated with third-order schemes. All calculations were performed with 15 digits precision and the iterative error was reduced to machine accuracy.
+C.2. Flow over a ﬂat plate
+The statistically-steady ﬂow over a ﬂat plate is assumed to be two-dimensional and incompressible. The computational
+domain is a rectangle with a length of 1.5L and a width of 0.25L, where L stands for the length of the plate. The inlet
+boundary is located 0.25L upstream of the leading edge of the plate and the outlet boundary 0.25L downstream of the
+trailing edge.
+L
+The Reynolds number is deﬁned by Re L = U ∞
+ν , where U ∞ is the undisturbed velocity, L is the length of the plate and
+
+ν is the kinematic viscosity of the ﬂuid. In this study, we have made calculations for three Reynolds numbers: 107 , 108 ,
+and 109 .
+For each Reynolds number, we have generated three sets of 13 geometrically similar Cartesian grids. For Re L = 107 and
+Re L = 108 , the ﬁnest grids include 1537 × 193 grid nodes and the coarsest 193 × 25, covering a grid reﬁnement ratio of 8.
+For Re L = 109 the number of grid nodes in the vertical y direction is increased leading to grids having between 1537 × 225
+and 193 × 29 nodes. Each set contains 3 grids between each doubling of the grid spacing, i.e. there are three groups of 5
+grids, each covering a grid reﬁnement ratio of 2.
+The grid node distribution in the longitudinal (x) direction (equal for all the sets) is non-uniform with clustering of
+nodes near the leading and trailing edge of the plate using Vinokur’s one or two-sided stretching functions [19]. In all the
+grids, 2/3 of the nodes in the longitudinal direction are located on the plate; 1/6 are located upstream of the plate and 1/6
+downstream of the plate. In the normal ( y) direction, one-sided stretching functions are applied to cluster grid nodes close
+to plate. As for the previous test case, the three sets have different near-wall grid line distances. All the grids of set A have
++
+( y+
+2 )max < 1, whereas all the grids of set C have ( y 2 )max > 1.
+Undisturbed velocity is imposed at the inlet, undisturbed pressure coeﬃcient is imposed at the top boundary and zero
+streamwise derivatives are assumed at the outlet. On the two segments of the bottom boundary coinciding with the symmetry line we impose u y = 0. u x and C p are computed from the momentum equations in the x and y directions, imposing
+the symmetry conditions at virtual grid nodes.
+Boundary conditions for the Spalart and Allmaras (SPAL) one-equation model [23] and the Shear-Stress Transport (SST)
+k − ω two-equation model [24] eddy-viscosity models are: at the inlet boundary, the turbulence quantities are constant and
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+129
+
+deﬁned from given values of the eddy-viscosity, νt , and ω ((νt )inlet = 0.01ν and (ω)inlet = 10UL ∞ ); derivatives of all turbulence
+quantities with respect to y are set equal to zero at the top boundary; on the two segments of the bottom boundary
+coinciding with the symmetry line, symmetry conditions (∂/∂ y = 0) are applied directly to the turbulence quantities; on
+the plate surface, all turbulence quantities are set equal to zero with the exception of ω (that goes to inﬁnity), which is
+speciﬁed at the ﬁrst grid node away from the wall [25] using the near-wall solution of ω [26]; at the outlet boundary, all
+streamwise derivatives of the turbulence quantities are assumed to be zero.
+As for the previous case, calculations were performed with the ﬁnite-difference 2D-ﬂow version of PARNASSOS [20] with
+15 digits precision and the iterative error was reduced to machine accuracy.
+C.3. Flow over a backward facing step
+The ﬂow over a backward facing step has been calculated in a computational domain bounded by two walls and two x
+constant planes, −4H upstream and 40H downstream of the step, where H is the step height. The Reynolds number based
+on the step height and the velocity of the incoming ﬂow, U ref , is 5 × 105 .
+All the required ﬂow quantities are speciﬁed at the inlet, with the exception of the pressure coeﬃcient, which is extrapolated from the interior of the domain assuming that its second derivative in the streamwise direction is zero. At the
+walls, the no-slip and impermeability conditions are applied, which leads to u x = u y = 0. ν̃ and k are set equal to 0 and
+ω is speciﬁed in the way described above for the ﬂat plate ﬂow [25]. The momentum equation in the normal direction is
+solved at the wall to obtain the pressure value. At the outlet boundary, u x , u y and the turbulence quantities are linearly
+extrapolated from the interior of the domain. The pressure coeﬃcient is set to zero.
+There are two sets of 19 single-block, structured, geometrically similar grids, with coarsest grids of 41 × 41 nodes and
+ﬁnest grids of 401 × 401 nodes covering a grid reﬁnement ratio of 10.
+As for the previous examples, all the calculations were carried out with the ﬁnite-difference, 2D-ﬂow version of
+PARNASSOS [20] using 15-digits precision and reducing the iterative error to machine accuracy.
+C.4. Flow around a tanker
+The ﬂow around the KVLCC2 tanker at model scale Reynolds number (4.6 × 106 ) has been calculated in a computational
+domain of cylindrical shape. The boundaries of the domain are two x = constant planes at the inlet and outlet, the planes
+y = 0 (symmetry plane of the ship) and z = 0 (still water plane), the surface of the ship and a cylindrical surface (external
+boundary) with the axis along the x direction at the intersection of the symmetry plane of the ship and the still water
+plane. The inlet and outlet planes are located one ship length (L PP ) upstream and downstream of the forward and aft
+perpendiculars, respectively. The radius of the external boundary is equal to L PP .
+We have generated four sets (A, B, C and D) of six nearly geometrically similar grids (using exactly the same settings
+in the grid generators for each family of grids) in the computational domain described above. All the grids are single-block
+H–O grids that differ essentially in the streamwise and girthwise node distributions. Although the grids do not respect exact
+geometric similarity (especially at the bow and stern contours), h i /h1 is again deﬁned by Eq. (22). The coarsest grids have
+0.7 to 0.8 million cells and the ﬁnest 5.3 to 6.1 million cells, covering always a grid reﬁnement ratio of 2.
+The following boundary conditions are applied at the boundaries of the computational domain: velocity components
+speciﬁed from a potential ﬂow solution and pressure extrapolated from the interior of the domain at the inlet; the eddyviscosity is set equal to 0.01 of the kinematic viscosity, νt = 0.01ν and the non-dimensional value of ω is set equal
+to 10, ω = 10U ∞ / L PP . At the outlet, zero streamwise derivatives are assumed for all ﬂow variables. At the symmetry
+plane of the ship, the normal velocity component is set equal to zero. Tangential velocity components and pressure are
+obtained from the solution of the momentum equations with the symmetry conditions applied at virtual nodes, when
+the symmetry plane of the ship coincides with the bottom of the computational domain (extreme of the normal grid
+lines). Otherwise, the symmetry conditions are applied directly to the tangential velocity components and to the pressure. Symmetry conditions are applied directly to k and ω . At the still water plane (no gravity waves), girthwise velocity
+is set equal to zero and tangential velocity components and pressure are obtained from the solution of the continuity,
+streamwise and normal momentum equations with the symmetry conditions applied at virtual nodes. Girthwise derivatives are set equal to zero for k and ω . Tangential velocity components and pressure are imposed from a potential ﬂow
+calculation at the external boundary. Normal derivatives of k and ω are assumed to be zero. No-slip condition applied
+directly at the wall, i.e. velocity components set equal to zero and wall shear-stress computed from the normal velocity derivative at the ship surface. Normal pressure derivative and k are set equal to zero. As in the previous test cases,
+ω is speciﬁed at the ﬁrst grid node away from the wall [25]. It is noted that the maximum y +
+2 of all 24 grids is below 0.8.
+The calculations were made with the three-dimensional version of PARNASSOS [30,31] using the SST k − ω two-equation
+eddy-viscosity turbulence model [24]. We have used 15 digits precision, but we have not converged all solutions to machine
+accuracy. Nevertheless, we have ensured that the iterative error was reduced to at least three orders of magnitude below
+the discretization error [12].
+
+130
+
+L. Eça, M. Hoekstra / Journal of Computational Physics 262 (2014) 104–130
+
+References
+[1] P.J. Roache, Veriﬁcation and Validation in Computational Science and Engineering, Hermosa Publishers, Albuquerque, New Mexico, 1998.
+[2] P.J. Roache, Fundamentals of Veriﬁcation and Validation, Hermosa Publishers, Albuquerque, New Mexico, 2009.
+[3] ASME Committee PTC 61: ANSI Standard V&V 20: Guide on Veriﬁcation and Validation in Computational Fluid Dynamics and Heat Transfer, 2009.
+[4] I.B. Celik, U. Ghia, P.J. Roache, C.J. Freitas, H. Coleman, P.E. Raad, Procedure for estimation and reporting of uncertainty due to discretization in CFD
+applications, J. Fluids Eng. 130 (July 2008).
+[5] C.J. Roy, Review of code and solution veriﬁcation procedures for computational simulation, J. Comput. Phys. 205 (1) (May 2005) 131–156.
+[6] F. Stern, R.V. Wilson, H. Coleman, E. Patterson, Comprehensive approach to veriﬁcation and validation of CFD simulations—Part 1: Methodology and
+procedures, J. Fluids Eng. 123 (4) (December 2001) 793–802.
+[7] T. Xing, F. Stern, Factors of safety for Richardson extrapolation, J. Fluids Eng. 132 (6) (June 2010), 061403, 13 pp.
+[8] Ismail Celik, Ertan Karaismail, Francisco Elizalde Blancas, Don Parsons, Hayri Sezer, Error estimation using hybrid methods, in: ASME 2012 Fluids
+Engineering Division Summer Meeting, 2012, pp. 1621–1642, Paper No. FEDSM2012-72290.
+[9] L. Eça, M. Hoekstra, P.J. Roache, Veriﬁcation of calculations: an overview of the Lisbon workshop, in: AIAA Computational Fluid Dynamics Conference,
+Toronto, June 2005, AIAA Paper 4728.
+[10] L. Eça, M. Hoekstra, P.J. Roache, Veriﬁcation of calculations: an overview of the 2nd Lisbon workshop, in: AIAA Computational Fluid Dynamics Conference, Miami, June 2007, AIAA Paper 4089.
+[11] L. Eça, M. Hoekstra, P.J. Roache, H.C. Coleman, Code veriﬁcation, solution veriﬁcation and validation: an overview of the 3rd Lisbon workshop, in: AIAA
+Computational Fluid Dynamics Conference, San Antonio, June 2009, AIAA Paper 3647.
+[12] L. Eça, M. Hoekstra, Evaluation of numerical error estimation based on grid reﬁnement studies with the method of the manufactured solutions, Comput.
+Fluids 38 (8) (September 2009) 1580–1591.
+[13] L. Eça, M. Hoekstra, An evaluation of veriﬁcation procedures for CFD applications, in: 24th Symposium on Naval Hydrodynamics, Fukuoka, Japan, July
+2002.
+[14] L. Eça, M. Hoekstra, Error estimation based on grid reﬁnement studies: a challenge for grid generation, in: Conferência de Métodos Numéricos en
+Ingineria 2009, SEMNI Barcelona, Spain, July 2009.
+[15] J.O. Rawlings, S.G. Pantula, D.A. Dickey, Applied Regression Analysis: A Research Tool, 2nd ed., Springer, New York, 1998.
+[16] L. Eça, M. Hoekstra, Discretization uncertainty estimation based on a least-squares version of the Grid Convergence Index, in: 2nd Workshop on CFD
+Uncertainty Analysis, Instituto Superior Técnico, Lisbon, October 2006.
+[17] L. Eça, M. Hoekstra, Testing uncertainty estimation and validation procedures in the ﬂow around a backward facing step, in: 3rd Workshop on CFD
+Uncertainty Analysis, Instituto Superior Técnico, Lisbon, October 2008.
+[18] L. Eça, M. Hoekstra, G. Vaz, Manufactured solutions for steady-ﬂow Reynolds-averaged Navier–Stokes solvers, Int. J. Comput. Fluid Dyn. 26 (5) (2012)
+313–332.
+[19] M. Vinokur, On one-dimensional stretching functions for ﬁnite-difference calculations, J. Comput. Phys. 50 (1983) 215–234.
+[20] José M.Q.B. Jacob, L. Eça, 2-D incompressible steady ﬂow calculations with a fully coupled method, in: VI Congresso Nacional de Mecânica Aplicada e
+Computacional, Aveiro, April 2000.
+[21] L. Eça, M. Hoekstra, The numerical friction line, J. Mar. Sci. Technol. 13 (4) (2008) 328–345.
+[22] L. Eça, M. Hoekstra, Code veriﬁcation and veriﬁcation of calculations with RANS solvers, in: AVT-147—Computational Uncertainty in Military Vehicle
+Design, Athens, December 2007.
+[23] P.R. Spalart, S.R. Allmaras, A one-equation turbulence model for aerodynamic ﬂows, in: AIAA 30th Aerospace Sciences Meeting, Reno, January 1992.
+[24] F.R. Menter, Two-equation eddy-viscosity turbulence models for engineering applications, AIAA J. 32 (August 1994) 1598–1605.
+[25] L. Eça, M. Hoekstra, On the grid sensitivity of the wall boundary condition of the k − ω model, J. Fluids Eng. 126 (6) (November 2004) 900–910.
+[26] D.C. Wilcox, Turbulence Modeling for CFD, 2nd ed., DCW Industries, 1998.
+[27] L. Larsson, F. Stern, V. Bertram (Eds.), Gothenburg 2000—A Workshop on Numerical Ship Hydrodynamics, September 2000.
+[28] T. Hino (Ed.), CFD Workshop Tokyo 2005, March 2005.
+[29] L. Larsson, F. Stern, M. Visonneau (Eds.), Gothenburg 2010—A Workshop on Numerical Ship Hydrodynamics, December 2010.
+[30] A. van der Ploeg, L. Eça, M. Hoekstra, Combining accuracy and eﬃciency with robustness in ship stern ﬂow computations, in: 23rd Symposium on
+Naval Hydrodynamics, Val de Reuil, France, 2000.
+[31] M. Hoekstra, Numerical simulation of ship stern ﬂows with a space-marching Navier–Stokes method, PhD Thesis, Delft, Netherlands, 1999.
+
+

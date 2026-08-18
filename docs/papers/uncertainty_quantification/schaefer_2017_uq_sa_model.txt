@@ -1,0 +1,1362 @@
+AIAA SciTech Forum
+9 - 13 January 2017, Grapevine, Texas
+55th AIAA Aerospace Sciences Meeting
+
+10.2514/6.2017-1710
+
+Uncertainty Quantification and Sensitivity Analysis
+of SA Turbulence Model Coefficients in Two and
+Three Dimensions
+John Schaefer,∗ Andrew Cary,† and Mori Mani,‡
+The Boeing Company, Saint Louis, Missouri, 63166
+
+Philippe Spalart§
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+The Boeing Company, Seattle, Washington, 98124
+
+The goal of this work is to quantify the uncertainty and sensitivity of the SpalartAllmaras turbulence model in Reynolds-Averaged Navier-Stokes codes due to uncertainty
+in the values of model coefficients for three wall-bounded flows, and to rank the contribution
+of each coefficient to uncertainty in various output flow quantities of interest. Specifically,
+uncertainty quantification of turbulence model coefficients is performed for a subsonic flat
+plate, the RAE 2822 transonic airfoil, and transonic flow over the NASA Common Research
+Model. The Boeing-developed BCFD code is used as the flow solver. The uncertainty
+quantification analysis employs stochastic expansions based on non-intrusive polynomial
+chaos for efficient uncertainty propagation. Integrated force coefficients, loads reports,
+pressure coefficient distributions, and skin friction coefficient distributions are considered
+as uncertain output quantities of interest. Turbulence model coefficients are treated as
+epistemic uncertain variables represented with intervals. Sobol indices are used to rank
+the relative contributions of each coefficient to the total uncertainty in the output quantities
+of interest. A new method of characterizing the Spalart-Allmaras coefficient uncertainties
+is discussed and comparisons are made with the old method. The new method employs
+relations between coefficients which were fundamental to the original development of the
+model, and in particular allows only a much narrower range for the variations of the
+logarithmic law.
+
+I.
+
+Introduction
+
+Due to the highly complex and chaotic nature of turbulence, the current physical understanding is
+incomplete (and possibly unknowable). Turbulence models have been created to predict turbulent flows using
+computational fluid dynamics (CFD) at high Reynolds number; however, the lack of physical knowledge has
+forced modelers to use dimensional analysis and a large amount of judgement to identify several constants
+which close or tune the model equations (e.g., choice of transport variables, number of equations, etc.).
+Numerical values of the coefficients in current turbulence models are chosen using a combination of heuristic
+and empirical decision making. While modelers typically use experimental data to validate their choice of
+model coefficients, a turbulence model is not guaranteed to be universally valid for an arbitrary flow.
+The goal of this work is to quantify the uncertainty and sensitivity of transonic, wall-bounded flows due
+to epistemic uncertainties in the values of the Spalart-Allmaras (SA) turbulence model coefficients. In a
+previous study performed by Schaefer et al.,1 the authors showed that only a small subset of the SA model
+coefficients is responsible for the majority of the uncertainty in two 2D, transonic, wall-bounded flows. These
+results were later shown to be independent of mesh and flow solver in studies by Schaefer2 and Schaefer et
+∗ Aerodynamics Engineer, The Boeing Company, Member AIAA.
+† Boeing Technical Fellow, Senior Member AIAA.
+‡ Boeing Senior Technical Fellow, Associate Fellow AIAA.
+§ Boeing Senior Technical Fellow, Senior Member AIAA.
+
+1 of 22
+American
+Copyright © 2017 by the American Institute of Aeronautics and Astronautics,
+Inc. Institute of Aeronautics and Astronautics
+Under the copyright claimed herein, the U.S. Government has a royalty-free license to exercise all rights for Governmental purposes. All other rights are reserved by the copyright owner.
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+al.3 The coefficients κ and σ were found to be the most significant contributors to uncertainty. In the current
+work, the previous results are generalized in three dimensions by studying the NASA Common Research
+Model (CRM).4
+In the previous studies by Schaefer et al.,1–3 the authors treated all coefficients in the SA model as
+independently uncertain. This method of characterizing input uncertainties for the SA model results in
+large uncertainties for some output quantities of interest (QoI) for the flows considered in the work. The
+determination was made that relations exist (and should be enforced) between certain coefficients within the
+SA model to maintain appropriate behavior for canonical flows. This work includes uncertainty quantification
+(UQ) results using these relations.
+To minimize the large computational expense associated with UQ of high-fidelity CFD simulations with
+traditional sampling methods (e.g., Monte Carlo), stochastic expansions based on non-intrusive polynomial
+chaos (NIPC) are used as an efficient means of uncertainty propagation in this work.5 All model coefficients
+are treated as epistemic uncertain variables (i.e., uncertainty due to lack of knowledge and not due to
+inherent, systemic uncertainty). Sobol indices,6 which are global nonlinear sensitivity indices based on
+variance decomposition, are used to rank the relative contributions of each coefficient to the total uncertainty
+in the QoI. For the CFD problems considered in this work, QoIs include integrated force coefficients, running
+loads, pressure coefficient distibutions, and skin friction coefficient distributions.
+NIPC is not the only UQ method applicable to CFD simulations. In a recent study by Barth,7 quadrature
+methods are employed to characterize the uncertainties in the lift, drag, and pressure coefficients for several
+wall-bounded flows. Each analysis includes either freestream, geometric, or turbulence model uncertainties.
+In contrast to the current study, the study by Barth treats all input uncertainties as aleatory (i.e., characterized by probability density functions), not epistemic. The advantages and disadvantages of this approach
+are discussed by Barth.7
+UQ of CFD simulations with aleatory input uncertainties has also been performed using Bayesian approaches. Edeling et al.8 describe a stochastic error estimate of turbulence models based on variability in
+model coefficients. Using Bayesian model-scenario averaging, a stochastic estimate of the output quantities
+of interest in unmeasured (prediction) scenarios is obtained. Papadimitriou and Papadimitriou9 employ a
+Bayesian inference framework and analytical approximations to quantify the uncertainty of the SA model
+due to uncertainty in its coefficients for a backwards-facing step problem.
+Section II contains details about the flow solver and CFD problems employed in this work. The SpalartAllmaras turbulence model is discussed in Section III. An overview of the uncertainty quantification approach
+is given in Section IV, and all results are presented in Section V. Finally in Section VI, conclusions are made
+and suggestions for future work are presented.
+
+II.
+
+Flow Solver and CFD Problem Overviews
+
+The Boeing-developed BCFD10 code was chosen as the flow solver for this work. The details of BCFD
+are provided in Section II.A. The subsonic flat plate problem is described in Section II.B, followed by the
+RAE 2822 airfoil in Section II.C. Information for the Common Research Model CFD problem is provided
+in Section II.D.
+II.A.
+
+Flow Solver: BCFD
+
+The flow solver used in this work is BCFD version 8.0, discussed in Ref. 10. BCFD is an unstructured, grid
+cell-centered, three-dimensional, finite-volume RANS code capable of solving steady and unsteady Euler,
+laminar, or turbulent flows. The code allows changes to the values of the SA turbulence model coefficients
+to support the uncertainty analyses. Multiple cases from the NASA Turbulence Model Resource (TMR)
+webpage11 have been used to validate the SA implementation. For all three CFD problems in this work, the
+UQ training cases were restarted from converged solutions using the baseline SA coefficients for improved
+convergence time.
+II.B.
+
+CFD Problem Overview: Subsonic Flat Plate
+
+The first CFD problem considered in this work is a flat plate at zero degrees angle of attack. The flow has
+freestream M = 0.2, T = 540◦ R, and Re = 5 × 106 (based on a length of L = 1). The 137 x 97 PLOT3D
+flatplate grid from the NASA TMR webpage11 was converted into an unstructured hexahedral format for
+
+2 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+Figure 1. Flat plate problem overview from TMR webpage.11
+
+Figure 2. RAE 2822 mesh and baseline solution pressure coefficient contours.
+
+use in BCFD. The grid is a 2D plane extruded to be one cell thick extending one unit in the z-direction with
+symmetry boundary conditions on either side and a viscous wall boundary condition at the plate surface. A
+graphical overview of the flat plate problem from the NASA TMR webpage is shown in Fig. 1. The QoI for
+the flat plate is the skin friction coefficient distribution along the plate.
+II.C.
+
+CFD Problem Overview: RAE 2822 Airfoil
+
+The second CFD problem considered in this work is the RAE 2822 transonic airfoil considered by Schaefer et
+al.3 The flow has an angle of attack of 2.5478◦ with freestream M = 0.729, T = 540◦ R, and Re = 6.5 × 106
+(based on the airfoil chord of c = 1). Schaefer et al.3 chose the angle of attack to match the lift coefficient
+obtained by integrating the pressure coefficient data reported for Case 6 by Cook et al.12 The grid is a 2D
+C-mesh containing 149,583 cells extruded one unit in the y-direction with symmetry boundary conditions on
+either side and a viscous wall boundary condition on the airfoil surface. An image of the mesh and pressure
+coefficient contours for the RAE 2822 baseline solution are shown in Fig. 2. The QoIs for the RAE 2822
+include integrated force coefficients and pressure coefficient contours in the field. There is no flow separation
+on the airfoil surface, however the velocity is slightly retarded near the wall after the shock.
+II.D.
+
+CFD Problem Overview: Common Research Model (CRM)
+
+As described by Vassberg et al.,4 the CRM is based on a transonic civil transport configuration designed to
+fly at a cruise Mach number of 0.85 with a nominal lift coefficient of 0.5. The wing has an aspect ratio of
+AR = 9.0 and taper ratio of λ = 0.275. Various configurations of the CRM have been studied extensively in
+the AIAA Drag Prediction Workshop Series.13,14
+The CRM mesh used in this work is an unstructured extra-fine mesh from a grid convergence study by
+Mani et al15 containing 109,396,873 cells. The mesh contains a wing, fuselage, and horizontal stabilizer at
+an incidence of 0◦ . A symmetry plane runs along the centerline of the aircraft, such that only the left half is
+simulated. An image of the mesh and pressure coefficient contours for the CRM baseline solution are shown
+in Fig. 3. The pressure contours were generated using the baseline set of SA coefficients with freestream
+
+3 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+Figure 3. CRM mesh and baseline solution pressure coefficient contours.
+
+M = 0.85, T = 540◦ R, Re = 5 × 106 (per reference chord), and an angle of attack of 2.3103◦ . QoIs for
+the CRM include integrated force coefficients, running loads, and pressure and skin friction contours on the
+aircraft surface.
+
+III.
+
+Spalart-Allmaras Turbulence Model (SA)
+
+In this section, the details of the SA turbulence model are outlined. This includes an overview of the
+model equations, the model coefficient values, and estimates of the epistemic intervals for each coefficient.
+Note that in this work, the nomenclature from the NASA LaRC Turbulence Modeling Resource (TMR)
+webpage11 is used.
+The SA model16 was developed as an evolution of the Nee-Kovasznay model17 and with significant
+influence from the Baldwin-Barth model,18 but with several near-wall and compressibility corrections. It is
+simpler, less computationally expensive, and more computationally robust than multi-equation models and
+it is widely used for aerodynamic flows in engineering applications. The model is given by
+ 2
+h
+∂ ν̂
+∂ ν̂
+cb1 i ν̂
++ uj
+= cb1 (1 − ft2 ) Ŝ ν̂ − cw1 fw − 2 ft2
+∂t
+∂xj
+κ
+d
+
+
+
+
+1 ∂
+∂ ν̂
+∂ ν̂ ∂ ν̂
++
+(ν + ν̂)
++ cb2
+σ ∂xj
+∂xj
+∂xi ∂xi
+
+(1)
+
+The full formulation of the model is given by Spalart and Allmaras.16 The coefficients and their suggested
+values are given in Table 1.
+According to Spalart and Allmaras,16 the following constraints should be enforced:
+σ ∈ [0.6, 1.0]
+
+(2)
+
+ct1 ∈ [0.1, 10]
+
+(3)
+
+ct3 > 1.0
+
+(4)
+
+cv1 > 6.9
+
+(5)
+
+Spalart and Allmaras also note in Ref. 16 that ct2 is “not a candidate for much adjustment,” and that ct4 can
+be decreased some, but that “values much smaller than 1 would start affecting the results in the turbulent
+region.” Bailey et al.19 determined that κ = 0.40 ± 0.02 in their turbulent pipe flow experiments, and this
+range of κ is used for all UQ analyses in this work. In 2014, the authors of the current work recommended
+using the bounds of Fig. 1 in Ref. 16 to determine the epistemic intervals of cb1 , cb2 , and cw2 . The authors
+also recommended that
+cw3 ∈ [1.75, 2.5]
+
+4 of 22
+American Institute of Aeronautics and Astronautics
+
+(6)
+
+In the previous works by Schaefer et al.,1,3 eleven coefficients were originally varied in the UQ analysis
+for SA. In the latter work, the authors discovered an unwanted laminarization problem involving ct3 and
+ct4 , and recommended removing these coefficients from the analysis by setting ft2 = 0; This suggestion is
+followed in this work, so only the remaining nine coefficients are varied in the UQ analysis (setting ft2 = 0
+corresponds to the SA-noft2 variation of SA documented in Ref. 11). A summary of the SA model coefficients
+to be varied, and their associated epistemic intervals are included in Table 1.
+Table 1. SA Coefficients and Associated Epistemic Intervals.
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+Coefficient
+σ
+κ
+cv1
+cw3
+ct1
+ct2
+cb1
+cb2
+cw2
+
+Standard Value
+
+Lower Bound
+
+Upper Bound
+
+0.6
+0.38
+6.9
+1.75
+0.1
+1.9
+0.12893
+0.60983
+0.05500
+
+1.0
+0.42
+7.3
+2.5
+10.0
+2.1
+0.13700
+0.68750
+0.35250
+
+2/3
+0.41
+7.1
+2.0
+1.0
+2.0
+0.1355
+0.622
+0.3
+
+A recent discussion between the authors highlighted that relations exist between several of the SA model
+coefficients, and that a rigorous UQ analysis of the SA model should also follow these relations (In fact,
+these relations were fundamental to the original development of the model). First, Fig. 1 in Ref. 16 shows
+Spalart and Allmaras’ reasoning for choosing the values of cb1 , cb2 , and cw2 . Digitizing the plot and creating
+a 3rd order polynomial fit yields the expressions
+cb1 = −0.0291σ 3 + 0.0909σ 2 − 0.1095σ + 0.1768
+
+(7)
+
+3
+
+2
+
+(8)
+
+3
+
+2
+
+(9)
+
+cb2 = −0.1828σ + 0.5309σ − 0.2943σ + 0.6357
+cw2 = −1.5672σ + 4.1858σ − 4.4125σ + 1.8478
+
+The current uncertainty over the value of the Kármán constant (κ) in high Reynolds-number experiments
+tends to link it with the C constant (intercept for the log law) in such a way that the value of u+ in the
+mid-range of a few hundred in y + is rather stable. Using this link results a much smaller uncertain space
+than if the two are allowed to vary independently. The authors rendered this situation by requiring that the
+following expression be enforced for the variation of cv1 (which in the SA model directly controls C) with κ
+so that u+ = 18.67 at y + = 250 for a flat plate boundary layer:
+cv1 = 7.1 + 37.5(κ − 0.41)
+
+(10)
+
+Incorporating Eqns. (7) - (10) into a UQ analysis reduces the dimensionality of the problem by four, which
+significantly decreases the computational resources required (see Section IV). The effects of using the σ and
+κ relations are shown in Section V.
+
+IV.
+
+Uncertainty Quantification Approach
+
+Uncertainties in computational models fall into two categories: aleatory and epistemic. Aleatory uncertainties represent inherent variations in a system, whereas epistemic uncertainties arise due to lack of
+knowledge. (For example, the outcome of a coin flip is aleatory because it is due to inherent chance; however
+if a coin is placed on a table and covered up, the uncertainty in heads/tails is epistemic because it is due to
+a lack of knowledge.) In this work, all SA model coefficients are treated as epistemic uncertain variables due
+to the lack of a complete physical understanding of turbulence. Section IV.A describes the point-collocation
+non-intrusive polynomial chaos method employed to characterize this uncertainty. Sobol indices are used as
+a sensitivity measure, and in Section IV.B a description and derivation of Sobol indices is presented.
+
+5 of 22
+American Institute of Aeronautics and Astronautics
+
+IV.A.
+
+Point-Collocation Non-Intrusive Polynomial Chaos
+
+Rather than resorting to Monte Carlo simulations for uncertainty quantification, stochastic expansions based
+on point-collocation non-intrusive polynomial chaos (NIPC) are employed in this work to reduce computational expense.5 The strategy of point-collocation NIPC is to create a surrogate model via least squares
+approach (i.e., polynomial response surface) by using the CFD output obtained at a number of Latin Hypercube sample points for the propagation of uncertainty. With the polynomial chaos approach, a stochastic
+response function α∗ (e.g., drag coefficient, pressure or skin friction coefficient at a given point in the flow
+field) can be decomposed into separable deterministic and stochastic components within a series expansion:
+∗
+
+α (x, ξ) ≈
+
+P
+X
+
+αi (x)Ψi (ξ)
+
+(11)
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+i=0
+
+where αi is the deterministic component and Ψi is the random variable basis functions corresponding to the
+ith mode. α∗ is assumed to be a function of a deterministic vector x, which includes the spatial coordinates
+and deterministic parameters of the problem, and of the n-dimensional standard random variable vector
+ξ. In theory, the series in Eq. (11) is infinite, but for practical implementation of the polynomial chaos
+expansions it is truncated and a discrete sum is taken over a number of output modes, (P + 1). Further
+details on polynomial chaos theory are given by Ghanem20 and Eldred.21
+There are three parameters that determine the number of samples required to generate the response
+surface: the number of uncertain variables, n; the order of the response surface polynomial, p; and the
+oversampling ratio, np . The total number of samples, Ns , is then given by
+
+
+(n + p)!
+(12)
+Ns = np · (P + 1) = np
+n!p!
+The Point-Collocation NIPC method starts with replacing a stochastic response or random function
+with its polynomial chaos expansion in Eq. (11). Then, Ns vectors are chosen in random space and the
+deterministic code (the CFD flow solver in this case) is evaluated at these points to provide the left-hand
+side of Eq. (11). Finally a linear system of Ns equations is formulated and solved for the spectral modes of
+the random variables. This system is given by:
+1 0
+α∗ (x, ξ0 )
+Ψ0 (ξ0 )
+B
+C B
+α∗ (x, ξ1 )
+Ψ0 (ξ1 )
+B
+C B
+B
+C=B
+..
+..
+B
+C B
+@
+A @
+.
+.
+Ψ0 (ξ(Ns −1) )
+α∗ (x, ξ(Ns −1) )
+0
+
+Ψ1 (ξ0 )
+Ψ1 (ξ1 )
+..
+.
+Ψ1 (ξ(Ns −1) )
+
+...
+...
+..
+.
+...
+
+10
+ΨP (ξ0 )
+α0
+CB
+ΨP (ξ1 )
+C B α1
+CB .
+..
+CB .
+A@ .
+.
+ΨP (ξ(Ns −1) )
+αP
+
+1
+C
+C
+C
+C
+A
+
+(13)
+
+An oversampling ratio of 1.0 yields the minimum number of samples required to produce a response
+surface. Hosder et al.22 demonstrated that an oversampling ratio of np = 2.0 gives a better approximation
+to the statistics at each polynomial degree they considered. For this reason, np = 2.0 is used for all of
+the UQ analyses in this work except for the flat plate analysis with three uncertain coefficients (the flat
+plate solutions are computationally inexpensive to calculate, so in that instance oversampling was raised to
+np = 3.0). Given np > 1.0, Eq. (13) is overdetermined and can be solved using a least squares approach.
+In the current work, a polynomial order of two (p = 2) is used for all UQ analyses except for the CRM
+analysis with all nine SA coefficients treated as independently uncertain; that analysis uses p = 3. The
+results of the third order CRM analysis are shown to be convergent (as np increases) and indistinguishable
+from second order CRM results in Section V; these observations justify the use of p = 2 for all other analyses,
+as the CRM is by far the most complicated flow studied in this work. Furthermore, the choice of p = 2
+has been validated and used successfully in previous studies of complex stochastic CFD problems involving
+hypersonic flows.23,24
+The NIPC parameters of all UQ analyses performed in this work are shown in Table 2. Recall from
+Section III that using the σ and κ relations in Eqns. (7) - (10) reduces the dimensionality (n) of the problem
+by four. Schaefer et al.1 demonstrated that ct1 and ct2 do not contribute significantly to uncertainty for
+transonic, wall-bounded flows, so those coefficients are also removed when the σ and κ relations are employed
+in this work. The total reduction from n = 9 to n = 3 results in significantly smaller Ns . The UQ analyses
+which include uncertainties in all coefficients are referred to as Independently Uncertain Coefficient Analyses
+(IUCA) and the analyses with reduced n are referred to as Reduced Dimensionality Analyses (RDA).
+6 of 22
+American Institute of Aeronautics and Astronautics
+
+The RAE 2822 solutions used for the IUCA in this work were first generated for the work by Schaefer
+et al.3 Those solutions only treated seven SA coefficients as uncertain, which is why the RAE 2822 IUCA
+entry in Table 2 has a value of n = 7. The remaining five sets of solutions were generated specifically for
+this work.
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+Table 2. NIPC parameters of UQ analyses.
+
+CFD Problem
+
+n
+
+IUCA
+p np
+
+Flat Plate
+RAE 2822
+NASA CRM
+
+9
+7
+9
+
+2
+2
+3
+
+2
+2
+2
+
+Ns
+110
+72
+440
+
+n
+
+RDA
+p np
+
+Ns
+
+3
+3
+3
+
+2
+2
+2
+
+30
+20
+20
+
+3
+2
+2
+
+Due to the bounded nature of epistemic input uncertainties, Legendre polynomials are used in this study
+as the basis functions. Although stochastic response surfaces created with the NIPC approach allow the
+calculation of confidence intervals along with various statistics of the output for probabilistic (aleatory)
+input, in this study only the maximum and the minimum of the response are calculated from the response
+surface to determine the epistemic interval for each uncertain output.
+IV.B.
+
+Sobol Indices
+
+Sobol indices (global nonlinear sensitivity indices) are used to rank the relative contributions of each SA
+model coefficient to the total uncertainty in the output quantities of interest. Sobol indices can be derived via
+Sobol Decomposition, which is a variance-based global sensitivity analysis method. This derivation utilizes
+the polynomial chaos expansion coefficients calculated in Eq. (13). All Sobol indices reported in this work
+are the total (combined) Sobol indices, which include both the individual and mixed contributions of each
+coefficient. First, the total variance, D, can be written in terms of the PCE as shown in Eq. (14).
+D=
+
+P
+X
+
+D
+E
+~
+αj2 (t, ~x) Ψ2j (ξ)
+
+(14)
+
+j=1
+
+Then, as shown by Sudret6 and Crestaux et al.,25 the total variance can be decomposed as:
+D=
+
+i=n
+X
+
+i=n−1
+X
+
+Di +
+
+i=1
+
+i=n−2
+X
+
+Di,j +
+
+1≤i<j≤n
+
+Di,j,k + · · · + D1,2,...,n
+
+(15)
+
+1 ≤ i1 < . . . < is ≤ n
+
+(16)
+
+1≤i<j<k≤n
+
+where the partial variances (Di1 ,...,is ) are given by:
+D
+E
+X
+~ ,
+Di1 ,...,is =
+αβ2 Ψ2β (ξ)
+β∈{i1 ,...,is }
+
+Then the Sobol indices (Si1 ···is ) are defined as,
+Si1 ···is =
+
+Di1 ,...,is
+D
+
+(17)
+
+which satisfy the following equation:
+i=n
+X
+
+Si +
+
+i=1
+
+i=n−1
+X
+
+Si,j +
+
+1≤i<j≤n
+
+i=n−2
+X
+
+Si,j,k + · · · + S1,2,...,n = 1.0
+
+(18)
+
+1≤i<j<k≤n
+
+The Sobol indices provide a sensitivity measure due to individual contribution from each input uncertain
+variable (Si ), as well as the mixed contributions ({Si,j }, {Si,j,k }, · · · ). As shown by Sudret6 and Ghaffari et
+al.,26 the total (combined) effect (STi ) of an input parameter i is defined as the summation of the partial
+Sobol indices that include the particular parameter:
+STi =
+
+X Di ,...,i
+1
+
+Li
+
+D
+
+s
+
+; Li = {(i1 , . . . , is ) : ∃ k, 1 ≤ k ≤ s, ik = i}
+
+7 of 22
+American Institute of Aeronautics and Astronautics
+
+(19)
+
+For example, with n = 3, the total contribution to the overall variance from the first uncertain variable
+(i = 1) can be written as:
+ST1 = S1 + S1,2 + S1,3 + S1,2,3
+
+(20)
+
+From these formulations, it is seen that the Sobol indices provide a relative ranking of each input uncertainty
+to the overall variation in the output with the consideration of nonlinear correlation between input variables
+and output quantities of interest.
+
+V.
+
+Results
+
+The results of all UQ analyses are presented in this section. For each flow, both an IUCA (all coefficients
+uncertain) and RDA (employing σ and κ relations) are included. The flat plate results are discussed in
+Section V.A, followed by the RAE 2822 results in Section V.B. The CRM results are presented in Section
+V.C, and a summary of all results is discussed in Section V.D.
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+V.A.
+
+Flat Plate
+
+The subsonic flow over a flat plate is well-documented.27,28 For this reason, there is very little expected
+uncertainty associated with the QoI, such as skin friction coefficient (Cf ). The flat plate flow is included in
+this work as a way to test whether or not the characterization of uncertainty for the SA model is physically
+reasonable; a physically reasonable characterization of SA model coefficient uncertainties should produce flat
+plate Cf profiles with little uncertainty (i.e., small epistemic intervals) because the true flat plate Cf profiles
+are well-known and were used to determine appropriate model coefficient values.
+Plots of Cf versus Reynolds number based on x (Rex ) were generated for all of the cases used in the
+flat plate UQ analyses. Using NIPC, response surfaces for Cf were generated at each x-location along the
+plate. Sobol indices for Cf were also calculated at each x-location. The Cf profiles for the IUCA are
+included in Fig. 4a. The plot contains data for the baseline case, UQ training cases, and minimimum and
+maximum Cf bounds calculated from the NIPC response surfaces. Fig. 4b shows the corresponding Sobol
+index distributiion for Cf of each SA model coefficient. Recall that coefficients with large Sobol indices
+contribute more significantly to uncertainty than coefficients with small Sobol indices. Fig. 4b allows for
+the detailed identification of where along the plate each SA model coefficient contributes significantly to
+uncertainty in Cf . For clarity, only the coefficients with the most significant contributions are shown in
+Fig. 4b.
+Note that the minimum and maximum Cf curves may not in general correspond to one flow solution
+each because each point along each curve is calculated from the response surface generated by using the Cf
+values of the UQ training cases at that specific x-location. While there exist flow solutions that pass through
+or very near to the minimum and maximum Cf curves at each point, there is no flow solution guaranteed
+to pass through all of the minimum or all of the maximum points.
+Skin friction results were also generated for the flat plate RDA. These results are shown in Fig. 5. The
+epitemic interval for Cf is much smaller in Fig. 5a than in Fig. 4a. This observation is due to the the use of
+the σ and κ relations in Eqns. (7) - (10); with this approach, the RDA is more closely following the original
+development and tuning of the SA model, which included matching flat plate skin friction and boundary
+layer profiles. The reduced epistemic interval for Cf also indicates that the characterization of uncertainty
+in the RDA may be more appropriate than the IUCA characterization for future analyses. In both the IUCA
+and RDA for the flat plate, κ is the dominant source of uncertainty in Cf , followed by σ (Figs. 4b and 5b).
+This is remarkable, considering that κ is a measured quantity and a foundation of turbulence knowledge
+(although that has been challenged in some circles), which is not the case for empirical parameters unique
+to the SA model such as σ.
+V.B.
+
+RAE 2822 Airfoil
+
+The first QoIs for the RAE 2822 are the integrated force coefficients. These include the lift coefficient (CL ),
+pressure component of drag coefficient (CDp ), skin friction component of drag coefficient (CDsf ), and total
+drag coefficient (CD ). The baseline integrated force coefficients are shown alongside their epistemic intervals
+and Sobol index distributions for the IUCA in Table 3. Drag coefficients are written in drag counts. The
+
+8 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+(a) Cf versus Rex .
+
+(b) Sobol indices for Cf versus Rex .
+Figure 4. Flat plate Cf results, IUCA.
+
+Table 3. Integrated force coefficient results for RAE 2822, IUCA.
+
+Quantity
+
+Baseline
+
+Min
+
+Max
+
+Interval
+
+CL
+
+0.734
+
+0.725
+
+0.748
+
+0.023
+
+CDp
+
+93.69
+
+91.18
+
+95.86
+
+4.68
+
+CDsf
+
+58.25
+
+50.53
+
+63.11
+
+12.58
+
+CD
+
+151.9
+
+142.7
+
+158.3
+
+15.6
+
+Sobol index distribution (0-1 from left to right)
+
+epistemic intervals for all coefficients are large. In particular, the CDsf interval is more than 20% of the
+baseline value. Most of the uncertainty in the integrated force coefficients is due to κ and σ, with smaller
+contributions from cw2 , cb1 , and cv1 .
+The integrated force coefficient results for the RAE 2822 RDA are shown in Table 4. The epistemic
+intervals for each force coefficient are significantly smaller in the RDA than for the IUCA. The largest
+reduction in interval width occurred for CDsf — the IUCA has 12.58 drag counts of uncertainty in CDsf ,
+but the RDA only has 0.71 counts. Importantly, CDp becomes the largest component of CD uncertainty in
+the RDA, indicating that most of the uncertainty in CD is due to shock position and not skin friction. This
+result is expected for a simple flow with a shock wave, but was not observed in the IUCA. Compared to
+the IUCA, the significance of κ to uncertainty in the RDA has increased for all force coefficients except for
+CDsf . κ is the largest contributor to uncertainty in CDsf , but σ has increased in importance compared to
+the IUCA.
+The next QoI for the RAE 2822 is the Cp distribution in the field around the airfoil. For each UQ training
+case, Cp was calculated in the field. NIPC was then used to calculate Cp intervals and Sobol indices for Cp
+at every point in the grid. The resulting contour plots allow for the identification of where large uncertainty
+occurs, as well as what the major contributors to uncertainty are at each point.
+The Cp distribution results for the IUCA are shown in Fig. 6. σ and κ are the largest contributors to
+uncertainty in Cp , so only the Sobol index contours for those coefficients are shown. The regions of the flow
+with the largest epistemic interval for Cp are near the shock (Figs. 6a, 6b). In that region, κ is the dominant
+source of uncertainty (Fig. 6d). σ contributes significantly to uncertainty immediately after the shock near
+the wall, where the velocity is likely to be retarded or separated (Fig. 6c).
+9 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+(a) Cf versus Rex .
+
+(b) Sobol indices for Cf versus Rex .
+Figure 5. Flat plate Cf results, RDA.
+
+Table 4. Integrated force coefficient results for RAE 2822, RDA.
+
+Quantity
+
+Baseline
+
+Min
+
+Max
+
+Interval
+
+CL
+
+0.734
+
+0.728
+
+0.735
+
+0.007
+
+CDp
+
+93.69
+
+92.51
+
+93.94
+
+1.43
+
+CDsf
+
+58.25
+
+58.03
+
+58.74
+
+0.71
+
+CD
+
+151.9
+
+150.8
+
+152.6
+
+1.8
+
+Sobol index distribution (0-1 from left to right)
+
+Fig. 7 shows the Cp distribution results for the RDA. Similar to the integrated force coefficients, the
+epistemic intervals for the Cp distribution are smaller for the RDA than for the IUCA. Furthermore, κ has
+increased importance towards uncertainty in Cp for the RDA.
+V.C.
+
+NASA Common Research Model
+
+One challenge associated with the NIPC approach is to determine the appropriate number of samples (or
+equivalently oversampling ratio) required to obtain an accurate response surface. As Ns and np grow,
+rows are added to α∗ (x, ξ) and Ψi (ξ) in Eqn. (13) and the values of the NIPC response surface coefficients
+(α0 , α1 , ..., αP ) can change. The change in response surface coefficients is reflected in changes to the variance
+decomposition of Sobol indices (see Eqns. (14) - (20)), making Sobol indices good metrics of statistical
+convergence as Ns and np increase. Sobol indices also capture non-linear effects, enabling them to be used
+to evaluate the choice of NIPC polynomial order.
+The Sobol index convergence for CL and CD of the CRM with all nine SA coefficients is shown in Fig. 8.
+Convergence is plotted for both a polynomial order of p = 2 and p = 3. All four plots show that the Sobol
+indices converge very quickly with np ; this behavior is due to the fact that several SA coefficients do not
+contribute significantly to the uncertainty in CL and CD . The inclusion of the insignificant coefficients in
+the NIPC analysis necessitates additional sampling which provides more information for the calculation of
+response surface coefficients related to significant SA coefficients. The converged values of the Sobol indices
+for p = 2 are the same as for p = 3, indicating that third order effects are negligible for this problem. As
+discussed in Section IV, this justifies the use of p = 2 for all other UQ analyses in this work.
+
+10 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+(a) Baseline Cp contours.
+
+(b) Contours of Cp epistemic interval.
+
+(c) Contours of σ Sobol index for Cp .
+
+(d) Contours of κ Sobol index for Cp .
+
+Figure 6. RAE 2822 Cp distribution results, IUCA.
+
+Table 5. Integrated force coefficient results for CRM, IUCA.
+
+Quantity
+
+Baseline
+
+Min
+
+Max
+
+Interval
+
+CL
+
+0.500
+
+0.4928
+
+0.5136
+
+0.0208
+
+CDp
+
+145.3
+
+143.2
+
+148.1
+
+4.9
+
+CDsf
+
+126.9
+
+110.1
+
+136.8
+
+26.7
+
+CD
+
+272.2
+
+254.8
+
+283.4
+
+28.6
+
+Sobol index distribution (0-1 from left to right)
+
+The first QoIs for the CRM are the integrated force coefficients. As with the RAE 2822, these include CL ,
+CDp , CDsf , and CD . The baseline integrated force coefficients are shown alongside their epistemic intervals
+and Sobol index distributions for the IUCA in Table 5. The CRM results feature the same trends as the
+RAE 2822 results. The Sobol index distributions in Tables 3 and 5 are very similar, particularly for CL , CDp ,
+and CDsf ; this observation confirms the findings of Schaefer et al.1–3 that κ and σ are the most significant
+sources of uncertainty for the SA model, but for a fully three-dimensional flow. Another similarity between
+the RAE 2822 and CRM results is that CDsf has a much larger epistemic interval than CDp , indicating that
+most of the uncertainty for this flow under the IUCA assumptions is due to skin friction effects.
+Table 6 includes the force coefficient results for the CRM RDA. Similarly to the RAE 2822 RDA, the
+epistemic intervals for all force coefficients in the CRM RDA are much smaller than in the IUCA. In particular,
+the interval for CDsf has been greatly reduced from 26.7 drag counts to 1.7 counts. Once again, the Sobol
+indices of κ indicate that it is the dominant source of uncertainty in the RDA.
+
+11 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+(a) Baseline Cp contours.
+
+(b) Contours of Cp epistemic interval.
+
+(c) Contours of σ Sobol index for Cp .
+
+(d) Contours of κ Sobol index for Cp .
+
+Figure 7. RAE 2822 Cp distribution results, RDA.
+
+Table 6. Integrated force coefficient results for CRM, RDA.
+
+Quantity
+
+Baseline
+
+Min
+
+Max
+
+Interval
+
+CL
+
+0.500
+
+0.4950
+
+0.5022
+
+0.0072
+
+CDp
+
+145.3
+
+144.4
+
+145.6
+
+1.2
+
+CDsf
+
+126.9
+
+125.7
+
+127.4
+
+1.7
+
+CD
+
+272.2
+
+270.1
+
+273.0
+
+2.9
+
+Sobol index distribution (0-1 from left to right)
+
+The next QoIs for the CRM are the running loads. Running loads are of particular interest to aircraft
+designers because they allow for a detailed breakdown of how each portion of the aircraft contributes to the
+total forces experienced. Finite slices are taken from nose to tail (x-direction) or from centerline to wing tip
+(y-direction), and the pressure loads are calculated on each slice. In this work, the running loads CN and
+CA are reported, which are normal to the wing planform and along the nose-to-tail axis, respectively.
+The running loads for the IUCA are shown in Fig. 9. Similarly to the flat plate Cf plots, NIPC response
+surfaces were generated at each x or y location on the CRM for each running load coefficient. Sobol indices
+for each running load coefficient were also calculated at each x or y location. Figs. 9a, 9c, and 9e include
+curves for the baseline case, UQ training cases, and minimum and maximum running load coefficient bounds
+calculated from the NIPC response surfaces. Figs. 9b, 9d, and 9f include the Sobol index distributions for
+the running loads, as well as curves depicting the width of the epistemic intervals in Figs. 9a, 9c, and 9e. A
+silhouette (not to scale) of the CRM planform is included behind each plot for reference.
+In general, the uncertainty in CN (x) and CN (y) is greater than for CA (y). Both σ and κ contribute
+significantly to uncertainty, but in regions of larger uncertainty (see the epistemic interval curves in Figs.
+9b, 9d, and 9f), κ contributes most significantly.
+
+12 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+(a) Sobol index convergence for CL , p = 2.
+
+(b) Sobol index convergence for CL , p = 3.
+
+(c) Sobol index convergence for CD , p = 2.
+
+(d) Sobol index convergence for CD , p = 3.
+
+Figure 8. Sobol index convergence of CRM CL and CD for p = 2 and p = 3 (IUCA).
+
+Fig. 10 shows the running loads for the CRM RDA. Note the change in scale for the epistemic interval
+curves in Figs. 10b, 10d, and 10f compared to Fig. 9. The CN (x) and CN (y) intervals have decreased by a
+factor of two, and the CA (y) interval has decreased by a factor of ten. κ is the dominant source of uncertainty
+in the RDA.
+Pressure coefficient contours are the next QoI for the CRM. For each UQ training case, Cp was calculated
+at every point on the aircraft surface. NIPC was then used to calculated Cp intervals and Sobol indices for
+Cp at every point. The resulting contour plots allow for the identification of where large uncertainties occur,
+as well as what the major contributors to uncertainty are at each point.
+The Cp contour results of the IUCA for the CRM are shown in Fig. 11. There is very little uncertainty
+in Cp anywhere on the aircraft except for in the shock region (Figs. 11a, 11b). Some uncertainty in Cp is
+due to cb1 , cv1 , and cw2 (Figs. 11e, 11f, 11g), but most of the uncertainty is due to σ and κ (Figs. 11c, 11d).
+κ is the dominant source of uncertainty in the shock region on the wing, but σ becomes most important
+immediately after the shock.
+Fig. 12 shows the Cp contour results for the CRM RDA. As was observed for the integrated forces and
+running loads, the epistemic intervals for Cp have decreased in magnitude compared to the IUCA. κ has
+grown to become more dominant towards uncertainty in Cp overall, however σ has increased in importance
+in the shock region near the middle of the wing.
+
+13 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+The last QoI for the CRM is the skin friction coefficient distribution on the aircraft surface. Cf contour
+plots were generated in the same manner as the Cp contour plots. The Cf contour results for the IUCA
+are included in Fig. 13. Unlike the Cp results, the Cf epistemic intervals show non-negligible uncertainty
+everywhere on the aircraft surface. The regions with the largest uncertainty are the wing leading edge,
+horizontal stabilizer leading edge, and vortex necklace under the wing (Figs. 13a, 13b). σ contributes most
+significantly to uncertainty in Cf in the vortex necklace region (Fig. 13c), but κ is the dominant source of
+uncertainty everywhere else (Fig. 13d). This observation further supports the argument made in Section
+V.B that σ contributes most significantly to uncertainty in regions of retarded or separated flow, and κ
+contributes most significantly in regions of attached flow. Figs. 13b and 13d explain why κ is the largest
+source of uncertainty in CDsf ; the epistemic intervals for Cf are non-negligible in magnitude everywhere on
+the aircraft surface, and κ contributes most significantly to that uncertainty for most of the wetted surface.
+The Cf results for the CRM RDA are included in Fig. 14. Compared to the IUCA, the RDA results
+feature smaller epistemic intervals for Cf . The importance of κ in the vortex necklace has increased, however
+σ has greatly increased in importance on the forward portion of the wing, immediately aft of the trailing
+edge root, and in the region aft of the bulge in the fuselage. Overall, κ has grown in significance towards
+uncertainty in Cf .
+V.D.
+
+Summmary of Results
+
+When comparing the results of all three CFD problems, some general trends appear. If Eqns. (7) - (10) are
+used to calculate cb1 , cb2 , cw2 , and cv1 , the epistemic intervals for all QoIs decrease compared to considering
+all coefficients to be independently uncertain. When the relations are not used, the uncertainty in Cf for the
+flat plate is large, indicating that the SA model is not properly calibrated for certain combinations of model
+coefficients. If Eqns. (7) - (10) are employed, the UQ process more closely follows the original development
+methodology of the SA model, and more believable epistemic intervals are obtained. For each CFD problem,
+κ is the dominant source of uncertainty when the relations are enforced.
+Both the RAE 2822 and CRM feature regions where the flow is likely to be retarded or separated. In
+these regions, σ is the largest contributor to uncertainty in the QoIs. In regions of attached flow, κ is the
+largest contributor to uncertainty. Although σ dominates the uncertainty in retarded and separated regions,
+its effect is not influential globally (i.e., on integrated force coefficients) because the majority of the flow for
+the RAE 2822 and CRM is attached. This is especially apparent for the CRM, which has a much larger
+portion of its wetted area strongly attached compared to the RAE 2822. The trends in σ and κ sensitivities
+arise because σ is relevant to non-equilibrium boundary layers, while κ drives log-law effects.
+In the IUCA for the CRM, κ and σ were found to be the most significant sources of uncertainty, followed
+by smaller contributions from cb1 , cv1 , and cw2 . This result confirms the findings by Schaefer et al.1–3 for a
+complex three-dimensional flow.
+
+VI.
+
+Conclusions and Future Work
+
+Several analyses were performed to quantify the uncertainty in the Spalart-Allmaras turbulence model
+due to uncertainty in model coefficients. The CFD problems considered include a flat plate, RAE 2822
+transonic airfoil, and the NASA Common Research Model. The uncertainty propagation employed stochastic
+expansions based on non-intrusive polynomial chaos. Sobol indices were used both as global non-linear
+sensitivity metrics and as a means to track convergence of the non-intrusive polynomial chaos response
+surfaces. Output quantities of interest included integrated force coefficients, as well as distributed quantities
+such as skin friction coefficient, pressure coefficient, and running loads. A new method of characterizing
+the input uncertainties for the Spalart-Allmaras model was developed, which led to more realistic flat plate
+solutions and reduced epistemic intervals for all output quantities of interest.
+The independently uncertain coefficient analysis for the NASA Common Research Model in this work
+confirmed the previous two-dimensional results by Schaefer et al.1–3 for a complex three-dimensional flow:
+when the Spalart-Allmaras turbulence model is used for transonic, wall-bounded flows, κ and σ are responsible for the majority of the uncertainty in output flow quantities of interest, independent of grid resolution,
+grid topology, flow solver, and geometric dimensionality. In both the independently uncertain and reduced
+dimensionality analyses, common trends emerged for regions in which different coefficients in the SpalartAllmaras turbulence model have the largest impact on skin friction and pressure coefficient uncertainties.
+
+14 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+In all cases studied, uncertainty in κ is the most significant contributor to uncertainty in output quantities
+of interest in regions where the boundary layer is developed with a significant log layer. Uncertainty in
+σ becomes the dominant contributor to uncertainty in the outputs when the boundary layer is less welldeveloped, such as in regions immediately post-shock, near separated flow, and in the presence of strong
+vortices.
+The authors recommend that future uncertainty analysis associated with turbulence models more closely
+follow the reduced dimensionality analysis approach of identifying the model designer intent to define relationships among the closure coefficients rather than treating them as independent. While considering each
+coefficient as independent can provide insight to the sensitivities, it can also lead to excessive estimates of
+uncertainty. Future work will include an uncertainty quantification analysis associated with the original
+foundational flow fields used to obtain Eqns. (7) - (10) to more completely represent the uncertainty in
+the inputs to the model development. Uncertainty analysis of other turbulence models, such as the Wilcox
+(2006) k-ω model or Menter Shear Stress Transport model, would be insightful to determine if the observations associated with sensitivity of parameters in the Spalart-Allmaras model are general trends. To provide
+a comparison of the significance of the turbulence model uncertainties, an analysis will also be performed
+to assess the uncertainty and sensitivity of the output quantities of interest due to other sources of input
+uncertainty, including the freestream Mach number, angle of attack, and angle of sideslip. While this comparison may vary from cases to case, performing a mixed uncertainty analysis including multiple sources of
+uncertainty will help to identify the level of interconnection among the different sources of uncertainty.
+
+Acknowledgements
+This research used resources of the Oak Ridge Leadership Computing Facility at the Oak Ridge National
+Laboratory, which is supported by the Office of Science of the U.S. Department of Energy under Contract
+No. DE-AC05-00OR22725.
+
+References
+1 Schaefer, J., West, T., Hosder, S., Rumsey, C., Carlson, J., and Kleb, W., “Uncertainty Quantification of Turbulence
+Model Closure Coefficients for Transonic Wall-Bounded Flows,” AIAA Paper 2015-2461, June 2015.
+2 Schaefer, J. A., “Uncertainty Quantification of Turbulence Model Closure Coefficients for Transonic, Wall-Bounded
+Flows,” M.S. Thesis, Mechanical and Aerospace Engineering Department, Missouri University of Science and Technology,
+Rolla, MO, 2015.
+3 Schaefer, J., Hosder, S., Mani, M., Cary, A., and Krakos, J., “The Effect of Grid Topology and Flow Solver on Turbulence
+Model Closure Coefficient Uncertainties for a Transonic Airfoil,” AIAA Paper 2016-4400, June 2016.
+4 Vassberg, J. C., DeHaan, M. A., Rivers, S. M., and Wahls, R. A., “Development of a Common Research Model for
+Applied CFD Validation Studies,” AIAA Paper 2008-6919, August 2008.
+5 Hosder, S., Walters, R. W., and Balch, M., “Point-Collocation Nonintrusive Polynomial Chaos Method for Stochastic
+Computational Fluid Dynamics,” AIAA Journal, Vol. 48, No. 12, December 2010.
+6 Sudret, B., “Global sensitivity analysis using polynomial chaos expansion,” Reliability Engineering and System Safety,
+Vol. 93, No. 7, 2008, pp. 964-979.
+7 Barth, T. J., “An Overview of Combined Uncertainty and A Posteriori Error Bound Estimates for CFD Calculations,”
+AIAA Paper 2016-1062, January 2016.
+8 Edeling, W. N., Cinnella, P., and Dwight, R. P., “Predictive RANS Simulations via Bayesian Model-Scenario Averaging,”
+Journal of Computational Physics, Vol. 275, June-July 2014, pp. 65-91.
+9 Papadimitriou, D. I. and Papadimitriou, C., “Bayesian uncertainty quantification of turbulence models based on highorder adjoint,” Computers and Fluids, Vol. 120, pp. 82-97, July 2015.
+10 Mani, M., Cary, A., Ramakrishnan, S. V., “A Structured and Hybrid-Unstructured Grid Euler and Navier-Stokes Solver
+for General Geometry,” AIAA Paper 2004-524, January 2004.
+11 “NASA Langley Research Center Turbulence Modeling Resource,” http://turbmodels.larc.nasa.gov [retrieved November
+2016].
+12 Cook, P.H., McDonald, M.A., and Firmin, M.C.P., “Aerofoil RAE 2822 - Pressure Distributions, and Boundary Layer
+and Wake Measurements,” Experimental Data Base for Computer Program Assessment, AGARD Report AR 138, 1979.
+13 “Announcing the 6th AIAA CFD Drag Prediction Workshop,” http://aiaa-dpw.larc.nasa.gov/ [retrieved May 2016].
+14 Vassberg, J. C., Tinoco, E. N., Mani, M., Rider, B., Zickuhr, T., Levy, D. W., Brodersen, O. P., Eisfeld, B., Crippa,
+S., Wahls, R. A., Morrison, J. H., Mavriplis, D. J., Murayama, M., “Summary of the Fourth AIAA CFD Drag Prediction
+Workshop,” AIAA Paper 2010-4547, June-July 2010.
+15 Mani, M., Rider, B. J., Sclafani, A. J., Winkler, C., Vassberg, J., Dorgan, A. J., Cary, A., and Tinoco, E. N., “RANS
+Technology for Transonic Drag Prediction: A Boeing Perspective of the 4th Drag Prediction Workshop,” AIAA Paper 2010-4221,
+June-July 2010.
+
+15 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+16 Spalart, P. R. and Allmaras, S. R., “A One-Equation Turbulence Model for Aerodynamic Flows,” Recherche Aerospatiale,
+No. 1, 1994, pp. 5-21.
+17 Nee, V. W. and Kovasznay, L. S. G., “The Calculation of the Incompressible Turbulent Boundary Layer by a Simple
+Theory,” Physics of Fluids, Vol. 12, 1968, pp. 473.
+18 Baldwin, B. S., and Barth, T. J., “A One-Equation Turbulence Transport Model for High Reynolds Number Wall-Bounded
+Flows,” AIAA Paper 1991-610, January 1991.
+19 Bailey, S. C. C., Vallikivi, M., Hultmark, M., and Smits, A. J., “Estimating the value of von Kármán’s constant in
+turbulent pipe flow,” Journal of Fluid Mechanics, Vol. 749, 2014, pp. 79-98.
+20 Ghanem, R. G. and Spanos, P. D., “Stochastic Finite Elements: A Spectral Approach,” Springer-Verlag, New York, 1991.
+21 Eldred, M. S., “Recent Advances in Non-Intrusive Polynomial Chaos and Stochastic Collocation Methods for Uncertainty
+Analysis and Design,” AIAA Paper 2009-2274, May 2009.
+22 Hosder, S., Walters, R. W., and Balch, M., “Efficient Sampling for Non-Intrusive Polynomial Chaos Applications with
+Multiple Input Uncertain Variables,” AIAA-Paper 2007-1939, April 2007.
+23 West, T. K., and Hosder, S., “Uncertainty Quantification of Hypersonic Reentry Flows with Sparse Sampling and
+Stochastic Expansions,” Journal of Spacecraft and Rockets, Vol. 52, No. 1, Jan.-Feb. 2015, pp. 120-133.
+24 West, T. K., Brune, A. J., Hosder, S., and Johnston, C. O., “Uncertainty Analysis of Radiative Heating Predictions for
+Titan Entry,” Journal of Thermodynamics and Heat Transfer, Vol. 30, No. 2, 2016, pp. 438-451.
+25 Crestaux, T., Maitre, O. L., and Martinez, J.-M, “Polynomial chaos expansion for sensitivity analysis,” Reliability
+Engineering and System Safety, 2009.
+26 Ghaffari, S., Magin, T., and Iaccarino, G., “Uncertainty Quantification of Radiative Heat Flux Modeling for Titan
+Atmospheric Entry,” AIAA Paper 2010-239, January 2010.
+27 Wieghardt, K. and Tillman, W., “On the Turbulent Friction Layer for Rising Pressure,” NACA/TM-1314, October 1951.
+28 Coles, D. E., and Hirst, E. A., editors, “Computation of Turbulent Boundary Layers - 1968 AFOSR-IFP-Stanford
+Conference,” Vol. 2, Stanford University, CA, 1969.
+
+16 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+(a) CN (x) versus x.
+
+(b) Sobol indices of CN (x) versus x.
+
+(c) CN (y) versus y.
+
+(d) Sobol indices of CN (y) versus y.
+
+(e) CA (y) versus y.
+
+(f) Sobol indices of CA (y) versus y.
+
+Figure 9. Running loads results for CRM, IUCA.
+
+17 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+(a) CN (x) versus x.
+
+(b) Sobol indices of CN (x) versus x.
+
+(c) CN (y) versus y.
+
+(d) Sobol indices of CN (y) versus y.
+
+(e) CA (y) versus y.
+
+(f) Sobol indices of CA (y) versus y.
+
+Figure 10. Running loads results for CRM, RDA.
+
+18 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+(a) Baseline Cp contours.
+
+(b) Contours of Cp epistemic interval.
+
+(c) σ Sobol indices for Cp .
+
+(d) κ Sobol indices for Cp .
+
+(e) cb1 Sobol indices for Cp .
+
+(f) cv1 Sobol indices for Cp .
+
+(g) cw2 Sobol indices for Cp .
+Figure 11. Cp contour results for CRM, IUCA.
+
+19 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+(a) Baseline Cp contours.
+
+(b) Contours of Cp epistemic interval.
+
+(c) σ Sobol indices for Cp .
+
+(d) κ Sobol indices for Cp .
+
+Figure 12. Cp contour results for CRM, RDA.
+
+20 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+(a) Baseline Cf contours.
+
+(b) Contours of Cf epistemic interval.
+
+(c) σ Sobol indices for Cf .
+
+(d) κ Sobol indices for Cf .
+
+(e) cb1 Sobol indices for Cf .
+
+(f) cv1 Sobol indices for Cf .
+
+(g) cw2 Sobol indices for Cf .
+Figure 13. Cf contour results for CRM, IUCA.
+
+21 of 22
+American Institute of Aeronautics and Astronautics
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/6.2017-1710
+
+(a) Baseline Cf contours.
+
+(b) Contours of Cf epistemic interval.
+
+(c) σ Sobol indices for Cf .
+
+(d) κ Sobol indices for Cf .
+
+Figure 14. Cf contour results for CRM, RDA.
+
+22 of 22
+American Institute of Aeronautics and Astronautics
+
+

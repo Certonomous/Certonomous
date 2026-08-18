@@ -1,0 +1,593 @@
+Cambridge University Press
+978-0-521-11360-1 - Verification and Validation in Scientific Computing
+William L. Oberkampf and Christopher J. Roy
+Frontmatter
+More information
+
+VERIFICATION AND VA LIDATION IN
+SCIENTIFIC COMPUTING
+Advances in scientiﬁc computing have made modeling and simulation an important part
+of the decision-making process in engineering, science, and public policy. This book
+provides a comprehensive and systematic development of the basic concepts, principles,
+and procedures for veriﬁcation and validation of models and simulations. The emphasis
+is placed on models that are described by partial differential and integral equations and
+the simulations that result from their numerical solution. The methods described can be
+applied to a wide range of technical ﬁelds, such as the physical sciences, engineering, and
+technology, as well as to a wide range of applications in industry, environmental regulations
+and safety, product and plant safety, ﬁnancial investing, and governmental regulations.
+This book will be genuinely welcomed by researchers, practitioners, and decision-makers
+in a broad range of ﬁelds who seek to improve the credibility and reliability of simulation
+results. It will also be appropriate for either university courses or independent study.
+william l. oberkampf has 39 years of experience in research and development in
+ﬂuid dynamics, heat transfer, ﬂight dynamics, and solid mechanics. He has worked in both
+computational and experimental areas, and taught 30 short courses in the ﬁeld of veriﬁcation
+and validation. He recently retired as a Distinguished Member of the Technical Staff at
+Sandia National Laboratories.
+christopher j. roy is an Associate Professor in the Aerospace and Ocean Engineering
+Department at Virginia Tech. After receiving his PhD from North Carolina State University
+in 1998, he spent ﬁve years working as a Senior Member of the Technical Staff at Sandia
+National Laboratories. He has published numerous articles on veriﬁcation and validation
+in the area of computational ﬂuid dynamics. In 2006, he received a Presidential Early
+Career Award for Scientists and Engineers for his work on veriﬁcation and validation in
+computational science and engineering.
+
+© in this web service Cambridge University Press
+
+www.cambridge.org
+
+Cambridge University Press
+978-0-521-11360-1 - Verification and Validation in Scientific Computing
+William L. Oberkampf and Christopher J. Roy
+Frontmatter
+More information
+
+V E R I F I C AT I O N A N D VA L I DAT I O N I N
+SCIENTIFIC COMPUTING
+WILLIAM L. OBERKAMPF
+C H R I S TO P H E R J . ROY
+
+© in this web service Cambridge University Press
+
+www.cambridge.org
+
+Cambridge University Press
+978-0-521-11360-1 - Verification and Validation in Scientific Computing
+William L. Oberkampf and Christopher J. Roy
+Frontmatter
+More information
+
+cambridge university press
+Cambridge, New York, Melbourne, Madrid, Cape Town, Singapore,
+São Paulo, Delhi, Dubai, Tokyo, Mexico City
+Cambridge University Press
+The Edinburgh Building, Cambridge CB2 8RU, UK
+Published in the United States of America by Cambridge University Press, New York
+www.cambridge.org
+Information on this title: www.cambridge.org/9780521113601
+
+c W. L. Oberkampf and C. J. Roy 2010
+
+This publication is in copyright. Subject to statutory exception
+and to the provisions of relevant collective licensing agreements,
+no reproduction of any part may take place without the written
+permission of Cambridge University Press.
+First published 2010
+Printed in the United Kingdom at the University Press, Cambridge
+A catalog record for this publication is available from the British Library
+Library of Congress Cataloging in Publication data
+Oberkampf, William L., 1944–
+Veriﬁcation and validation in scientiﬁc computing / William L. Oberkampf, Christopher J. Roy.
+p. cm.
+Includes index.
+ISBN 978-0-521-11360-1 (hardback)
+1. Science – Data processing. 2. Numerical calculations – Veriﬁcation. 3. Computer programs – Validation.
+4. Decision making – Mathematical models. I. Roy, Christopher J. II. Title.
+Q183.9.O24 2010
+502.85 – dc22
+2010021488
+ISBN 978-0-521-11360-1 Hardback
+
+Cambridge University Press has no responsibility for the persistence or
+accuracy of URLs for external or third-party internet websites referred to
+in this publication, and does not guarantee that any content on such
+websites is, or will remain, accurate or appropriate.
+
+© in this web service Cambridge University Press
+
+www.cambridge.org
+
+Cambridge University Press
+978-0-521-11360-1 - Verification and Validation in Scientific Computing
+William L. Oberkampf and Christopher J. Roy
+Frontmatter
+More information
+
+To our wives, Sandra and Rachel
+
+© in this web service Cambridge University Press
+
+www.cambridge.org
+
+Cambridge University Press
+978-0-521-11360-1 - Verification and Validation in Scientific Computing
+William L. Oberkampf and Christopher J. Roy
+Frontmatter
+More information
+
+Contents
+
+Preface
+Acknowledgments
+1 Introduction
+1.1 Historical and modern role of modeling and simulation
+1.2 Credibility of scientiﬁc computing
+1.3 Outline and use of the book
+1.4 References
+
+Part I Fundamental concepts
+2 Fundamental concepts and terminology
+2.1 Development of concepts and terminology
+2.2 Primary terms and concepts
+2.3 Types and sources of uncertainties
+2.4 Error in a quantity
+2.5 Integration of veriﬁcation, validation, and prediction
+2.6 References
+3 Modeling and computational simulation
+3.1 Fundamentals of system speciﬁcations
+3.2 Fundamentals of models and simulations
+3.3 Risk and failure
+3.4 Phases of computational simulation
+3.5 Example problem: missile ﬂight dynamics
+3.6 References
+
+Part II Code veriﬁcation
+4 Software engineering
+4.1 Software development
+4.2 Version control
+4.3 Software veriﬁcation and validation
+4.4 Software quality and reliability
+4.5 Case study in reliability: the T experiments
+
+page xi
+xiii
+1
+1
+8
+15
+17
+19
+21
+21
+32
+51
+57
+59
+75
+83
+84
+89
+115
+116
+127
+137
+145
+146
+147
+151
+153
+159
+161
+
+vii
+
+© in this web service Cambridge University Press
+
+www.cambridge.org
+
+Cambridge University Press
+978-0-521-11360-1 - Verification and Validation in Scientific Computing
+William L. Oberkampf and Christopher J. Roy
+Frontmatter
+More information
+
+viii
+
+Contents
+
+4.6 Software engineering for large software projects
+4.7 References
+5 Code veriﬁcation
+5.1 Code veriﬁcation criteria
+5.2 Deﬁnitions
+5.3 Order of accuracy
+5.4 Systematic mesh reﬁnement
+5.5 Order veriﬁcation procedures
+5.6 Responsibility for code veriﬁcation
+5.7 References
+6 Exact solutions
+6.1 Introduction to differential equations
+6.2 Traditional exact solutions
+6.3 Method of manufactured solutions (MMS)
+6.4 Physically realistic manufactured solutions
+6.5 Approximate solution methods
+6.6 References
+
+Part III Solution veriﬁcation
+7 Solution veriﬁcation
+7.1 Elements of solution veriﬁcation
+7.2 Round-off error
+7.3 Statistical sampling error
+7.4 Iterative error
+7.5 Numerical error versus numerical uncertainty
+7.6 References
+8 Discretization error
+8.1 Elements of the discretization process
+8.2 Approaches for estimating discretization error
+8.3 Richardson extrapolation
+8.4 Reliability of discretization error estimators
+8.5 Discretization error and uncertainty
+8.6 Roache’s grid convergence index (GCI)
+8.7 Mesh reﬁnement issues
+8.8 Open research issues
+8.9 References
+9 Solution adaptation
+9.1 Factors affecting the discretization error
+9.2 Adaptation criteria
+9.3 Adaptation approaches
+9.4 Comparison of methods for driving mesh adaptation
+9.5 References
+
+© in this web service Cambridge University Press
+
+162
+167
+170
+171
+175
+180
+185
+192
+204
+205
+208
+209
+210
+219
+234
+239
+244
+249
+250
+250
+252
+258
+260
+283
+284
+286
+288
+297
+309
+317
+322
+323
+329
+334
+338
+343
+343
+349
+356
+360
+366
+
+www.cambridge.org
+
+Cambridge University Press
+978-0-521-11360-1 - Verification and Validation in Scientific Computing
+William L. Oberkampf and Christopher J. Roy
+Frontmatter
+More information
+
+Contents
+
+ix
+
+Part IV Model validation and prediction
+
+369
+371
+372
+388
+396
+
+10 Model validation fundamentals
+10.1 Philosophy of validation experiments
+10.2 Validation experiment hierarchy
+10.3 Example problem: hypersonic cruise missile
+10.4 Conceptual, technical, and practical difﬁculties
+of validation
+10.5 References
+11 Design and execution of validation experiments
+11.1 Guidelines for validation experiments
+11.2 Validation experiment example: Joint Computational/
+Experimental Aerodynamics Program (JCEAP)
+11.3 Example of estimation of experimental measurement
+uncertainties in JCEAP
+11.4 Example of further computational–experimental synergism
+in JCEAP
+11.5 References
+12 Model accuracy assessment
+12.1 Elements of model accuracy assessment
+12.2 Approaches to parameter estimation and validation metrics
+12.3 Recommended features for validation metrics
+12.4 Introduction to the approach for comparing means
+12.5 Comparison of means using interpolation of experimental
+data
+12.6 Comparison of means requiring linear regression of the
+experimental data
+12.7 Comparison of means requiring nonlinear regression of the
+experimental data
+12.8 Validation metric for comparing p-boxes
+12.9 References
+13 Predictive capability
+13.1 Step 1: identify all relevant sources of uncertainty
+13.2 Step 2: characterize each source of uncertainty
+13.3 Step 3: estimate numerical solution error
+13.4 Step 4: estimate output uncertainty
+13.5 Step 5: conduct model updating
+13.6 Step 6: conduct sensitivity analysis
+13.7 Example problem: thermal heating of a safety component
+13.8 Bayesian approach as opposed to PBA
+13.9 References
+
+© in this web service Cambridge University Press
+
+401
+405
+409
+409
+422
+437
+455
+465
+469
+470
+479
+486
+491
+500
+508
+514
+524
+548
+555
+557
+565
+584
+599
+622
+633
+638
+664
+665
+
+www.cambridge.org
+
+Cambridge University Press
+978-0-521-11360-1 - Verification and Validation in Scientific Computing
+William L. Oberkampf and Christopher J. Roy
+Frontmatter
+More information
+
+x
+
+Contents
+
+Part V Planning, management, and implementation issues
+14 Planning and prioritization in modeling and simulation
+14.1 Methodology for planning and prioritization
+14.2 Phenomena identiﬁcation and ranking table (PIRT)
+14.3 Gap analysis process
+14.4 Planning and prioritization with commercial codes
+14.5 Example problem: aircraft ﬁre spread during crash landing
+14.6 References
+15 Maturity assessment of modeling and simulation
+15.1 Survey of maturity assessment procedures
+15.2 Predictive capability maturity model
+15.3 Additional uses of the PCMM
+15.4 References
+16 Development and responsibilities for veriﬁcation, validation and
+uncertainty quantiﬁcation
+16.1 Needed technical developments
+16.2 Staff responsibilities
+16.3 Management actions and responsibilities
+16.4 Development of databases
+16.5 Development of standards
+16.6 References
+Appendix: Programming practices
+Index
+The color plates will be found between pages 370 and 371.
+
+© in this web service Cambridge University Press
+
+671
+673
+673
+678
+684
+690
+691
+694
+696
+696
+702
+721
+725
+728
+728
+729
+738
+747
+753
+755
+757
+762
+
+www.cambridge.org
+
+Cambridge University Press
+978-0-521-11360-1 - Verification and Validation in Scientific Computing
+William L. Oberkampf and Christopher J. Roy
+Frontmatter
+More information
+
+Preface
+
+Modeling and simulation are used in a myriad of ways in business and government. The
+range covers science, engineering and technology, industry, environmental regulations and
+safety, product and plant safety, ﬁnancial investing, design of military systems, governmental planning, and many more. In all of these activities models are built that are mental
+constructs of how we believe the activity functions and how it is inﬂuenced by events
+or surroundings. All models are abstractions of the real activity that are based on many
+different types of approximation. These models are then programmed for execution on a
+digital computer, and the computer produces a simulation result. The simulation result may
+have high ﬁdelity to the actual activity of interest, or it may be complete nonsense. The
+question is: how can we tell which is which? This book deals with various technical and
+procedural tools that can be used to assess the ﬁdelity of modeling and simulation aspects
+of scientiﬁc computing. Our focus is on physical processes and systems in a broad range
+of the natural sciences and engineering.
+The tools discussed here are primarily focused on mathematical models that are represented by differential and/or integral equations. Many of these mathematical models occur
+in physics, chemistry, astronomy, Earth sciences, and engineering, but they also occur in
+other ﬁelds of modeling and simulation. The topics addressed in this book are all related to
+the principles involved in assessing the credibility of the models and the simulation results.
+We do not deal with the speciﬁc details of modeling the physical process or system of interest, but with assessment procedures relating to the ﬁdelity of the models and simulations.
+These procedures are typically described by the terms veriﬁcation and validation.
+We present the state of the art in veriﬁcation and validation of mathematical models
+and scientiﬁc computing simulations. Although we will discuss the terminology in detail,
+veriﬁcation can simply be described as “solving the equations right” and validation as
+“solving the right equations.” Veriﬁcation and validation (V&V) are built on the concept
+of quantitative accuracy assessment. V&V do not answer the entire question of simulation
+credibility, but they are key contributors. V&V could be described as the processes that
+provide evidence of the correctness and/or accuracy of computational results. To measure
+correctness, one must have accurate benchmarks or reference values with which to compare.
+However, the majority of simulations of complex processes do not have a computable or
+measurable reference value. For these situations we must rely on numerical error estimation
+xi
+
+© in this web service Cambridge University Press
+
+www.cambridge.org
+
+Cambridge University Press
+978-0-521-11360-1 - Verification and Validation in Scientific Computing
+William L. Oberkampf and Christopher J. Roy
+Frontmatter
+More information
+
+xii
+
+Preface
+
+and estimation of the effects of all of the contributors to uncertainty in system responses.
+In veriﬁcation, the primary benchmarks are highly accurate solutions to speciﬁc, although
+limited, mathematical models. In validation, the benchmarks are high-quality experimental
+measurements of system response quantities of interest. These experimental measurements,
+and the detailed information of the system being tested, should also have carefully estimated
+uncertainty in all of the quantities that are needed to perform a simulation of the experiment.
+Mathematical models are built and programmed into software for the purpose of making
+predictions of system responses for cases where we do not have experimental data. We refer
+to this step as prediction. Since prediction is the usual goal of modeling and simulation,
+we discuss how accuracy assessment results from V&V activities enter into prediction
+uncertainty. We discuss methods for including the estimated numerical errors from the
+solution of the differential and/or integral equations into the prediction result. We review
+methods dealing with model input uncertainty and we present one approach for including
+estimated model uncertainty into the prediction result. The topic of how to incorporate
+the outcomes of V&V processes into prediction uncertainty is an active area of current
+research.
+Because the ﬁeld of V&V for models and simulations is in the early development stage,
+this book does not simply provide a prescriptive list of steps to be followed. The procedures
+and techniques presented will apply in the majority of cases, but there remain many open
+research issues. For example, there are times where we point out that some procedures may
+not be reliable, may simply not work, or may yield misleading results.
+As the impact of modeling and simulation has rapidly increased during the last two
+decades, the interest in V&V has also increased. Although various techniques and procedures have been developed in V&V, the philosophical foundation of the ﬁeld is skepticism.
+Stated differently, if the evidence for computer code correctness, numerical error estimation, and model accuracy assessment are not presented as part of a prediction, then
+the V&V perspective presumes these activities were not done and the results should be
+questioned. We feel this is the appropriate counter balance to commonly unsubstantiated
+claims of accuracy made by modeling and simulation. As humankind steadily moves from
+decision making primarily based on system testing to decision making based more heavily
+on modeling and simulation, increased prudence and caution are in order.
+
+© in this web service Cambridge University Press
+
+www.cambridge.org
+
+Cambridge University Press
+978-0-521-11360-1 - Verification and Validation in Scientific Computing
+William L. Oberkampf and Christopher J. Roy
+Frontmatter
+More information
+
+Acknowledgments
+
+Although only two names appear on the cover of this book, we recognize that if other
+people had not been there for us, and many others had not helped, this book would have
+never been written. These people provided training and guidance, created opportunities,
+gave advice and encouragement, corrected us when we were wrong, and showed the way
+to improved understanding of the subject. Although there were many pivotal individuals
+early in our lives, here we only mention those who have contributed during the last decade
+when the idea for this book ﬁrst came to mind.
+Timothy Trucano, Frederic Blottner, Patrick Roache, Dominique Pelletier, Daniel
+Aeschlimam, and Luı́s Eça have been critical in generously providing technical insights for
+many years. We have beneﬁted from their deep knowledge of veriﬁcation and validation,
+as well as a number of other ﬁelds. Jon Helton and Scott Ferson have guided our way to
+an understanding of uncertainty quantiﬁcation and how it is used in risk-informed decision
+making. They have also provided key ideas concerning how to connect quantitative validation results with uncertainty estimates in model predictions. Without these people entering
+our technical lives, we would not be where we are today in our understanding of the ﬁeld.
+Martin Pilch created opportunities and provided long-term funding support at Sandia
+National Laboratories, without which we would not have been able to help advance the
+state of the art in V&V. He, along with Paul Hommert, Walter Rutledge, and Basil Hassan
+at Sandia, understood that V&V and uncertainty quantiﬁcation were critical to building
+credibility and conﬁdence in modeling and simulation. They all recognized that both
+technical advancements and changes in the culture of people and organizations were needed
+so that more reliable and understandable information could be provided to project managers
+and decision makers.
+Many colleagues provided technical and conceptual ideas, as well as help in working
+through analyses. Although we cannot list them all, we must mention Mathew Barone,
+Robert Croll, Sharon DeLand, Kathleen Diegert, Ravi Duggirala, John Henﬂing, Harold
+Iuzzolino, Jay Johnson, Cliff Joslyn, David Larson, Mary McWherter-Payne, Brian Rutherford, Gary Don Seidel, Kari Sentz, James Stewart, Laura Swiler, and Roger Tate. We have
+beneﬁted from the outstanding technical editing support through the years from Rhonda
+Reinert and Cynthia Gruver. Help from students Dylan Wood, S. Pavan Veluri, and John
+Janeski in computations for examples and/or presentation of graphical results was vital.
+xiii
+
+© in this web service Cambridge University Press
+
+www.cambridge.org
+
+Cambridge University Press
+978-0-521-11360-1 - Verification and Validation in Scientific Computing
+William L. Oberkampf and Christopher J. Roy
+Frontmatter
+More information
+
+xiv
+
+Acknowledgments
+
+Reviewers of the manuscript have provided invaluable constructive criticism, corrections,
+and suggestions for improvements. Edward Allen, Ryan Bond, James Carpenter, Anthony
+Giunta, Matthew Hopkins, Edward Luke, Chris Nelson, Martin Pilch, William Rider, and
+William Wood reviewed one or more chapters and helped immeasurably in improving the
+quality and correctness of the material. Special recognition must be given to Tim Trucano,
+Rob Easterling, Luı́s Eça, Patrick Knupp, and Frederick Blottner for commenting on and
+correcting several draft chapters, or in some cases, the entire manuscript. We take full
+responsibility for any errors or misconceptions still remaining.
+We were blessed with encouragement and patience from our wives, Sandra and Rachel.
+They tolerated our long hours of work on this book for longer than we deserved.
+
+© in this web service Cambridge University Press
+
+www.cambridge.org
+
+

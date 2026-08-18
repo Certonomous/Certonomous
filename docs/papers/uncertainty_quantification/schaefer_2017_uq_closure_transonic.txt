@@ -1,0 +1,3297 @@
+AIAA JOURNAL
+Vol. 55, No. 1, January 2017
+
+Uncertainty Quantification of Turbulence Model Closure
+Coefficients for Transonic Wall-Bounded Flows
+John Schaefer∗ and Serhat Hosder†
+Missouri University of Science and Technology, Rolla, Missouri 65409
+and
+Thomas West,‡ Christopher Rumsey,§ Jan-Renee Carlson,¶ and William Kleb**
+NASA Langley Research Center, Hampton, Virginia 23681
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+DOI: 10.2514/1.J054902
+The goal of this work is to quantify the uncertainty and sensitivity of commonly used turbulence models in
+Reynolds-averaged Navier–Stokes codes due to uncertainty in the values of closure coefficients for transonic wallbounded flows and to rank the contribution of each coefficient to uncertainty in various output flow quantities of
+interest. Specifically, uncertainty quantification of turbulence model closure coefficients is performed for transonic
+flow over an axisymmetric bump and the RAE 2822 transonic airfoil. Three turbulence models are considered: the
+Spalart–Allmaras model, Wilcox (2006) k-ω model, and Menter shear-stress transport model. The FUN3D code
+developed by NASA Langley Research Center is used as the flow solver. The uncertainty quantification analysis
+employs stochastic expansions based on non-intrusive polynomial chaos for efficient uncertainty propagation. Several
+integrated and point quantities are considered as uncertain outputs for both computational fluid dynamics problems.
+Closure coefficients are treated as epistemic uncertain variables represented with intervals. Sobol indices are used to
+rank the relative contributions of each closure coefficient to the total uncertainty in the output quantities of interest.
+This study identifies a number of closure coefficients for each turbulence model for which more information will
+reduce the amount of uncertainty in the output significantly for transonic wall-bounded flows.
+
+Nomenclature
+CD
+CDpress
+CDsf
+CDkω
+
+=
+=
+=
+=
+
+Cf
+CL
+Cp
+c
+D
+d
+
+=
+=
+=
+=
+=
+=
+
+F1 , F 2
+
+=
+
+fv1 , fv2 , fw , ft2 , g, r
+
+=
+
+k
+M
+
+=
+=
+
+drag coefficient
+drag coefficient due to pressure
+drag coefficient due to skin friction
+positive portion of shear-stress transport cross-diffusion term
+skin friction coefficient
+lift coefficient
+pressure coefficient
+chord length
+total variance
+distance from field point to nearest
+wall
+blending functions for shear-stress
+transport model
+internal Spalart–Allmaras model
+functions
+turbulent kinetic energy
+Mach number
+
+Presented as Paper 2015-2461 at the 22nd AIAA Computational Fluid
+Dynamics Conference, Dallas, TX, 22–26 June 2015; received 19 November
+2015; revision received 1 June 2016; accepted for publication 8 June 2016;
+published online 26 August 2016. This material is declared a work of the U.S.
+Government and is not subject to copyright protection in the United States.
+Copies of this paper may be made for personal and internal use, on condition
+that the copier pay the per-copy fee to the Copyright Clearance Center (CCC).
+All requests for copying and permission to reprint should be submitted to CCC
+at www.copyright.com; employ the ISSN 0001-1452 (print) or 1533-385X
+(online) to initiate your request.
+*Graduate Student, Department of Aerospace and Mechanical Engineering. Student Member AIAA.
+†
+Associate Professor of Aerospace Engineering, Department of Aerospace
+and Mechanical Engineering. Senior Member AIAA.
+‡
+Aerospace Engineer, Vehicle Analysis Branch, Systems Analysis and
+Concepts Directorate. Member AIAA.
+§
+Aerospace Engineer, Computational Aerosciences Branch, Research
+Directorate. Fellow AIAA.
+¶
+Aerospace Engineer, Computational Aerosciences Branch, Research
+Directorate. Senior Member AIAA.
+**Head, Computational Aerosciences Branch, Research Directorate.
+Lifetime Member AIAA.
+195
+
+Ns
+n
+np
+P
+
+=
+=
+=
+=
+
+p
+Re
+Sij
+Si1 ; : : : ;is
+T
+u
+W ij
+x
+αi
+α
+δij
+μ
+μt
+ν
+νt
+ν^
+
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+
+ξ
+ρ
+σ, κ, cb1 , cb2 , cv1 , cw2 ,
+cw3 , ct1 , ct2 , ct3 , ct4
+σ k , σ w , β , β0 ,
+σ do , Clim , κ, γ
+σ k1 , σ w1 , β1 , β2 , β , σ k2 ,
+σ w2 , κ, a1 , γ 1 , γ 2
+τij
+ϕ
+
+=
+=
+=
+
+χ
+
+=
+
+Ψi
+
+=
+
+Ωij
+Ω
+ω
+
+=
+=
+=
+
+=
+=
+=
+=
+
+total number of samples
+number of uncertain variables
+oversampling ratio
+production term of Wilcox (2006)
+k-ω model
+order of response surface polynomial
+Reynolds number
+mean strain rate tensor
+Sobol indices
+temperature
+velocity
+vorticity
+deterministic vector
+deterministic component of α
+stochastic response function
+Kronecker delta
+molecular dynamic viscosity
+turbulent eddy viscosity
+molecular kinematic viscosity
+turbulent kinematic viscosity
+transport quantity for Spalart–Allmaras model
+random variable vector
+density
+Spalart–Allmaras model closure
+coefficients
+Wilcox (2006) k-ω model closure
+coefficients
+shear-stress transport model closure
+coefficients
+specific Reynolds stress tensor
+blended constant in shear-stress
+transport model
+ratio of turbulent eddy to kinematic
+viscosity
+random variable basis functions
+of α
+mean rotation tensor
+vorticity magnitude
+dissipation per unit turbulence
+kinetic energy
+
+196
+
+SCHAEFER ET AL.
+
+I.
+
+Introduction
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+T
+
+URBULENCE is one of the greatest unsolved mysteries of
+classical physics. Because of the highly complex and chaotic
+nature of the phenomenon, the current physical understanding of
+turbulence is incomplete. Efforts have been made to create turbulence
+models to predict turbulent flows by using computational fluid
+dynamics (CFD); however, the lack of physical knowledge has forced
+modelers to use dimensional analysis and other methods to identify
+several constants that close the model equations (i.e., “closure
+coefficients”). The numerical values of the closure coefficients in
+current turbulence models are chosen by using a combination of
+heuristic and empirical decision making. Although modelers
+typically use experimental data to validate their choice of closure
+coefficients, a turbulence model is not guaranteed to be universally
+valid for any arbitrary flow.
+The goal of this work was to quantify the uncertainty and
+sensitivity of commonly used turbulence models in Reynoldsaveraged Navier–Stokes (RANS) codes due to uncertainty in the
+values of closure coefficients for transonic wall-bounded flows and to
+rank the contribution of each coefficient to uncertainty in various
+output flow quantities of interest. Specifically, three turbulence
+models are considered: the Spalart–Allmaras one-equation model
+(SA) [1], 2006 Wilcox k-ω two-equation model (W2006) [2], and
+Menter shear-stress transport two-equation model (SST) [3]. Each
+model features its own unique set of closure coefficients, which are
+discussed further in Sec. IV.
+FUN3D, an unstructured RANS code from NASA Langley
+Research Center, was chosen as the flow solver for all simulations in
+this work. More information about FUN3D is included in Sec. III.A.
+Two CFD problems are considered in this work. The first is an
+axisymmetric transonic bump validation case from Bachalo and
+Johnson [4], which is discussed in detail in Sec. III.B. The second
+CFD problem is the RAE 2822 transonic airfoil, which is discussed in
+detail in Sec. III.C.
+To minimize the large computational expense associated with
+uncertainty quantification of high-fidelity CFD simulations with
+traditional sampling methods (e.g., Monte Carlo), stochastic
+expansions based on non-intrusive polynomial chaos (NIPC) are
+used as an efficient means of uncertainty propagation in this work [5].
+All closure coefficients were treated as epistemic uncertain variables
+(i.e., uncertainty due to lack of knowledge and not due to inherent,
+systemic uncertainty). Sobol indices [6], which are global nonlinear
+sensitivity indices based on variance decomposition, were used to
+rank the relative contributions of each closure coefficient to the total
+uncertainty in the output quantities of interest. For the transonic
+bump, the output quantities of interest are drag coefficient, pressure
+coefficient, skin friction coefficient, and separation bubble size. For
+the RAE 2822, the output quantities of interest are lift coefficient,
+pressure and skin friction components of drag coefficient, and
+pressure coefficient.
+Section II contains a literature review of previous research related
+to this work. In Sec. III, an overview of the flow solver and CFD test
+problems is presented. In Sec. IV, the details of each of the turbulence
+models considered here are discussed. A summary of the closure
+coefficients and their domains is presented for each model. In Sec. V,
+the uncertainty quantification (UQ) analysis and computational
+expense is discussed in further detail. In Sec. VI, the results of all UQ
+analyses are presented. Finally, in Sec. VII, conclusions are made and
+some suggestions for future work are presented.
+
+Godfrey and Cliff [8] employed the sensitivity-equation method to
+quantify the sensitivities of the Baldwin–Lomax, Spalart–Allmaras,
+and Wilcox k-ω turbulence models due to modeling coefficients;
+however, they did not quantify the uncertainty in the results. Hosder
+et al. [9] quantified the uncertainty in nozzle efficiency for a transonic
+diffuser problem; however, this uncertainty was due to the choice of
+pressure ratios, computational grids, flux limiters, and turbulence
+models. Han and Hosder [10] performed a mixed uncertainty
+quantification of a subsonic two-dimensional (2-D) hump with flow
+control, which included a scaling factor on the turbulent eddy viscosity
+definition in the Spalart–Allmaras model. Platteeuw et al. [11]
+employed probabilistic collocation (based on a chaos expansion) to
+quantify the uncertainty in a flat plate case based on uncertainties in the
+k-ϵ turbulence model coefficients. They used direct numerical
+simulation (DNS) data to obtain input uncertainties, but the DNS data
+were not a fundamental part of their statistical method. Dunn et al. [12]
+employed a similar approach to obtain input uncertainties, but instead
+used the Latin hypercube sampling method for the quantification of
+uncertainty. Emory et al. [13] investigated the model-form uncertainty
+in the SST model using epistemic uncertainties; in addition to avoiding
+the need for prior data, this method avoids the need to assume
+probability density functions for the inputs. Dow and Wang [14] solved
+an inverse RANS problem with the k-ω model using adjoints.
+In a recent work by Edeling et al. [15], the authors state that “The
+turbulence closure model is the dominant source of error in most
+Reynolds-averaged Navier–Stokes simulations, yet no reliable
+estimators for this error component currently exist.” Furthermore,
+“there is no consensus on the best coefficient values for most
+[turbulence] models, as evidenced by the wide range of coefficients
+seen in the literature.” Many current efforts to address these concerns
+employ Bayesian approaches. Edeling et al. [15] describe a stochastic
+error estimate of turbulence models based on variability in model
+coefficients. Using Bayesian model-scenario averaging, a stochastic
+estimate of the output quantities of interest in unmeasured (prediction)
+scenarios is obtained. Papadimitriou and Papadimitriou [16] also
+performed uncertainty quantification of turbulence modeling using a
+Bayesian approach. In their study, Papadimitriou and Papadimitriou
+employed Bayesian inference framework and analytical approximations to quantify the uncertainty of the Spalart–Allmaras turbulence
+model due to uncertainty in its closure coefficients for a backwardfacing step problem. In another study, Cheung et al. [17] used Bayesian
+calibration techniques and showed that cv1 and κ were the most wellinformed coefficients in the Spalart–Allmaras model. Duraisamy et al.
+[18] and Parish and Duraisamy [19] employed Bayesian inversion and
+machine learning to characterize the uncertainty in turbulence models
+due to their functional forms.
+It is generally acknowledged that the RANS turbulence models are
+imperfect [20], and one alternative approach is to use large-eddy
+simulations (LES). Similar to RANS, LES also features uncertainties.
+Lucor et al. [21] use generalized polynomial chaos to perform a
+sensitivity analysis on the Smagorinsky subgrid-scale stress model with
+LES. Meldi et al. [22,23] continued this research by investigating the
+effects of uncertainties in the shape of the energy spectrum on the
+Smagorinsky constant. Tran et al. [24] described an adaptive hierarchical
+sparse grid surrogate modeling approach to Bayesian inference. Using
+this method, they performed an uncertainty quantification of LES results
+for a subcritical flow around a circular cylinder due to parametric
+uncertainties in the Smagorinsky model.
+
+III.
+II.
+
+Literature Review
+
+There is currently a high demand for uncertainty quantification and
+sensitivity analysis in turbulence modeling. In a coordinated study
+between NASA, Boeing, and others, Slotnick et al. [7] propose a
+vision for the capabilities of CFD technology in the year 2030, as well
+as a number of suggestions for how to reach that point. One of the
+authors’ immediate recommendations is to integrate NIPC methods
+and other reduced-order model formulations with current CFD
+technology. Here we outline some of the previous work on the
+sensitivity and uncertainty analysis of turbulence models.
+
+Flow Solver and CFD Test Problems
+
+In this section, the flow solver and CFD test problems are
+discussed. First, the details of the selected solver are provided. Next,
+information is given for the freestream conditions and meshes of each
+CFD test problem.
+A. Flow Solver
+
+All flow solutions in this work were obtained by using a modified
+form of FUN3D version 12.4 [25]. FUN3D is an unstructured, nodebased, three-dimensional finite volume RANS code capable of
+solving steady and unsteady laminar or turbulent flows with subsonic
+
+197
+
+SCHAEFER ET AL.
+Z
+
+y/c = 4.0
+rotation through
+1 deg about x axis
+
+1.2
+
+Y
+
+p
+0.872
+0.79
+0.708
+0.626
+0.544
+0.462
+0.38
+0.298
+
+X
+
+z
+
+1
+
+y/c = 0.375
+x/c = -3.2
+
+0.8
+0.6
+
+x/c = 0
+
+x/c = 1
+x/c = 4.4
+
+x
+
+0.4
+-0.5
+
+(not drawn to scale)
+
+Fig. 2
+bump.
+
+B. Problem 1: Axisymmetric Transonic Bump
+
+The first CFD problem considered in this work is an axisymmetric
+transonic bump validation case from Bachalo and Johnson [4]. The
+test article in the experiment consisted of a thin-walled cylinder that
+extended 61 cm upstream of the bump’s leading edge, and the
+cylinder had an outside diameter of 15.2 cm with a bump chord of
+20.32 cm. The flow has freestream M  0.875, T  540 ° R, and
+Re  2.763 × 106 (based on the bump length of c  1). All flow
+solutions were obtained by using the 721 × 321 grid from the
+turbulence modeling resource (TMR) website,†† which is the second
+finest in a series of uniformly refined grids. The mesh contains
+462,882 nodes; 1,155,121 edges; and 230,400 hexahedral cells. It
+consists of a 1 deg wedge rotated about the x axis. The sides of the
+mesh are treated as periodic interfaces; they are periodic with each
+other and rotated through 1 deg to simulate axisymmetry. The surface
+of the bump and cylinder has a solid wall boundary condition, and all
+other boundary conditions are far-field Riemann. A graphical
+overview of the axisymmetric transonic bump problem is included in
+Fig. 1. The circles below the mesh in the figure represent the
+axisymmetry about the x axis. An example pressure contour plot is
+included in Fig. 2 for the transonic bump case obtained with the SA
+baseline model. The pressure contours in Fig. 2 are scaled by the
+freestream density and speed of sound squared; note that the
+freestream nondimensional pressure is equal to the inverse of the ratio
+of specific heats.
+
+1
+
+1.5
+
+x
+Nondimensional pressure contours of axisymmetric transonic
+
+IV.
+
+Turbulence Models
+
+In this section, the details of the turbulence models employed in this
+work are outlined. Each subsection contains an overview of a
+turbulence model, its closure coefficient values, and estimates of the
+epistemic intervals for each closure coefficient. Note that the twoequation turbulence model equations are written in conserved variable
+form, but the flow solutions are calculated with primitive variable form.
+Note that, in this work, the nomenclature from the TMR website is used
+(see footnote ††). More detailed descriptions of each closure
+coefficient are included in Tables A1–A3 of Appendix A.
+A. Spalart–Allmaras One-Equation Model
+
+The SA model was developed as an evolution of the Nee–Kovasznay
+model [28], but with several near-wall and compressibility corrections [1].
+It is simpler, less computationally expensive, and more computationally
+robust than multi-equation models, and it is widely used for aerodynamic
+flows in engineering applications. The model is given by
+
+0.2
+
+z
+
+to hypersonic speeds. The modifications to the code were performed
+to allow changes to the values of turbulence model closure
+coefficients in the uncertainty analyses. All solutions used a Roe
+second-order flux differencing scheme with no flux limiter and
+second-order spatial accuracy for the viscous terms. The CFL
+numbers for the mean flow and turbulence model equations were
+ramped from 10 to 50 and from 5 to 30, respectively, across 500
+iterations, and then the Courant–Friedrichs–Lewy (CFL) numbers
+were fixed at their maximum values until steady-state convergence
+was achieved.
+
+0.5
+
+C-mesh extruded one unit in the y direction with y-symmetry
+boundary conditions on either side and with a solid wall boundary
+condition on the airfoil surface. All other boundary conditions are farfield Riemann. The RAE 2822 results are demonstrated to be mesh
+independent in a separate study [27]. A graphical view of the RAE
+2822 grid is included in Fig. 3. An example pressure contour plot is
+included in Fig. 4, which was obtained with the SA baseline model.
+
+0
+-0.2
+-0.5
+
+Fig. 3
+
+0
+
+0.5
+
+1
+
+x
+Computational grid around RAE 2822 transonic airfoil.
+
+C. Problem 2: RAE 2822 Transonic Airfoil
+
+The second CFD problem considered in this work is the RAE 2822
+transonic airfoil at a lift coefficient of 0.744. The experimental data
+for this case are from Cook et al. [26]. The flow has freestream
+M  0.729, T  540 ° R, and Re  6.5 × 106 (based on the airfoil
+chord of c  1). Numerical integration of the experimental pressure
+coefficient data yields a lift coefficient of CL  0.744; the angle of
+attack was adjusted for each baseline turbulence model to match this
+value, and all subsequent simulations for each model used the same
+angle of attack as the one found for the baseline. All flow solutions
+were obtained by using a 513 × 161 grid containing 206,272 nodes;
+514,208 edges; and 102,400 hexahedral cells. The grid is a 2-D
+††
+
+Data available online at http://turbmodels.larc.nasa.gov [retrieved
+April 2015].
+
+0.6
+p
+0.952
+0.83
+0.708
+0.586
+0.464
+0.342
+
+0.4
+
+z
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+Fig. 1 Axisymmetric transonic bump overview from the TMR website
+(see footnote ††).
+
+0
+
+0.2
+
+0
+
+-0.2
+-0.5
+
+Fig. 4
+
+0
+
+0.5
+
+1
+
+x
+Nondimensional pressure contours of RAE 2822 airfoil.
+
+198
+
+SCHAEFER ET AL.
+
+
+ 2
+ν^
+∂^ν
+∂^ν
+c
+ uj
+ cb1 1 − ft2 S^ ν^ − cw1 fw − b1
+f
+t2
+d
+∂t
+∂xj
+κ2
+ 
+
+
+1 ∂
+∂^ν
+∂^ν ∂^ν
+
+ν  ν^ 
+ cb2
+σ ∂xj
+∂xj
+∂xi ∂xi
+
+In total, 11 closure coefficients were varied in the UQ analysis for
+SA. A summary of the SA closure coefficients to be varied, and their
+associated epistemic intervals, are included in Table 1.
+(1)
+
+The full formulation of the model is given by Spalart and Allmaras [1].
+The closure coefficients and their suggested values are given in
+Table 1. The closure coefficients also include
+cw1 
+
+cb1 1  cb2
+
+σ
+κ2
+
+(2)
+
+The turbulent eddy viscosity is computed from
+μt  ρ^νfv1
+
+(3)
+
+B. Wilcox 2006 k-ω Two-Equation Model
+
+The k-ω model uses two equations to model a turbulent kinetic
+energy and a length-scale-determining variable. The first equation is
+for turbulent kinetic energy k and the second equation is for the
+dissipation per unit turbulence kinetic energy ω. In 2006, Wilcox
+introduced a new version of the k-ω model that greatly improved its
+accuracy for free shear flows and strongly separated flows by
+introducing a cross-diffusion term and a built-in stress limiter [30].
+The W2006 model is given by
+∂ρk ∂ρuj k
+∂
+ P − β ρωk 
+
+∂xj
+∂t
+∂xj
+
+
+μ  σk
+
+ 
+ρk ∂k
+ω ∂xj
+
+(12)
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+in which
+fv1 
+
+χ3
+;
+χ 3  c3v1
+
+χ
+
+ν^
+ν
+
+(4)
+
+and ρ is the density, ν  μ∕ρ is the molecular kinematic viscosity, and μ is
+the molecular dynamic viscosity. Additional definitions are given by the
+following equations:
+ν^
+S^  Ω  2 2 fν2
+(5)
+κ d
+p
+in which Ω  2W ij W ij is the magnitude of the vorticity, d is the
+distance from the field point to the nearest wall, and
+
+
+χ
+1c6 1∕6
+; fw g 6 w3
+; grcw2 r6 −r;
+fv2  1−
+1χfν1
+g c6w3
+
+
+
+
+ν^
+1 ∂ui ∂uj
+2
+r min
+;10 ; ft2 ct3 exp−ct4 χ ; W ij 
+−
+^ 2 d2
+2 ∂xj ∂xi
+Sκ
+
+∂ρω ∂ρuj ω γω
+∂
+
+P − βρω2 
+
+∂t
+k
+∂xj
+∂xj
+
+
+
+μ  σw
+
+ 
+ρk ∂ω
+ω ∂xj
+
+ρσ d ∂k ∂ω
+ω ∂xj ∂xj
+
+(13)
+
+The full formulation of the model is given by Wilcox [2]. The closure
+coefficients and their suggested values are given in Table 2. The
+closure coefficients also include
+γ
+
+β0
+κ2
+p
+ − σw
+β
+β
+
+Definitions of the terms in the model include
+P  τij
+
+(6)
+
+∂ui
+∂xj
+
+According to Spalart and Allmaras [1], the following constraints should
+be enforced:
+σ ∈ 0.6; 1.0
+
+(7)
+
+ct1 ∈ 0.1; 10
+
+(8)
+
+ct3 > 1.0
+
+(9)
+
+cv1 > 6.9
+
+(10)
+
+Spalart and Allmaras also note in [1] that ct2 is “not a candidate for
+much adjustment,” and that ct4 can be decreased some, but that “values
+much smaller than [one] would start affecting the results in the
+turbulent region.” Bailey et al. [29] determined that κ  0.40 0.02 in
+their turbulent pipe flow experiments, and this range of κ was used for
+all of the turbulence models examined in this work. In private
+communication with the first author,‡‡ Spalart recommended using the
+bounds of Fig. 1 in [1] to determine the epistemic intervals of cb1 , cb2 ,
+and cw2 . Spalart also recommended that
+cw3 ∈ 1.75; 2.5
+
+(11)
+
+‡‡
+Email correspondence between Philippe Spalart (The Boeing Company)
+and John Schaefer, June–December 2014.
+
+(14)
+
+Table 1
+
+SA closure coefficients and associated
+epistemic intervals
+
+Coefficient Standard value
+
+σ
+0.66
+κ
+0.41
+7.1
+cv1
+2.0
+cw3
+1.0
+ct1
+2.0
+ct2
+1.2
+ct3
+0.5
+ct4
+0.1355
+cb1
+0.622
+cb2
+0.3
+cw2
+
+Table 2
+Coefficient
+β
+Clim
+κ
+β ∕β0
+σw
+σk
+
+Lower bound Upper bound
+0.6
+1.0
+0.38
+0.42
+6.9
+7.3
+1.75
+2.5
+0.1
+10.0
+1.9
+2.1
+1.0
+2.0
+0.3
+0.7
+0.12893
+0.13700
+0.60983
+0.68750
+0.05500
+0.35250
+
+W2006 closure coefficients and associated
+epistemic intervals
+Standard value
+0.09
+0.875
+0.40
+1.2712
+0.5
+0.6
+
+Lower bound Upper bound
+0.0784
+0.1024
+0.75
+1.0
+0.38
+0.42
+1.19
+1.31
+0.5
+0.7
+0.5
+0.6
+
+(15)
+
+199
+
+SCHAEFER ET AL.
+
+
+
+2 ∂uk
+2
+τij  μt 2Sij −
+δij − ρkδij
+3 ∂xk
+3
+
+(16)
+
+
+
+∂ρω ∂ρuj ω
+γ
+∂
+∂ω
+
+ P − βρω2 
+μ  σ w μt 
+∂t
+νt
+∂xj
+∂xj
+∂xj
+ 21 − F1 
+
+
+
+Sij 
+
+1 ∂ui ∂uj
+
+2 ∂xj ∂xi
+
+
+(17)
+
+and the turbulent eddy viscosity is computed from
+μt 
+
+ρk
+^
+ω
+
+ρσ w2 ∂k ∂ω
+ω ∂xj ∂xj
+
+(25)
+
+The full formulation of the model is given by Menter [3]. The closure
+coefficients and their suggested values are given in Table 3. The
+closure coefficients also include
+
+(18)
+
+γ1 
+
+β1
+κ2
+− σ w1 p
+
+β
+β
+
+(26)
+
+γ2 
+
+β2
+κ2
+− σ w2 p
+
+β
+β
+
+(27)
+
+in which
+s#
+2Sij Sij
+ω
+^  max ω; Clim
+β
+"
+
+(19)
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+As in the W2006 model, P, τij , and Sij are given by
+1 ∂uk
+δ
+Sij  Sij −
+3 ∂xk ij
+The auxiliary functions are
+
+
+ Ωij Ωjk S^ki 
+185χ ω
+
+fβ  1100χ
+χ ω  β
+ ω3 ;
+ω
+
+
+1 ∂ui ∂uj
+m
+S^ki Ski − 12 ∂u
+∂xm δki ; Ωij  2 ∂xj − ∂xi
+
+; σd 
+
+8
+< 0;
+
+P  τij
+
+(20)
+
+∂k ∂ω
+∂xj ∂xj ≤0
+
+: σ do ; ∂k ∂ω >0
+
+∂ui
+∂xj
+
+
+
+2 ∂uk
+2
+τij  μt 2Sij −
+δij − ρkδij
+3 ∂xk
+3
+
+(21)
+
+(28)
+
+(29)
+
+∂xj ∂xj
+
+In [30], Wilcox states that τxy ∕k ≈ 3∕10, so that
+β  τxy ∕k2 ≈ 9∕100. From this description, the authors assumed
+that τxy ∕k ∈ 0.28; 0.32, yielding β ∈ 0.0784; 0.1024. Wilcox
+also states that β ∕β0  1.25 0.06 and that the following
+inequalities must hold true:
+
+Sij 
+
+
+
+σ do > σ k − σ w
+
+σ k > σ do
+
+In this study, the standard value of one-eighth was used for σ do in
+all flow solutions. Acceptable ranges for σ w and σ k were established
+from inequalities (22) and (23) and from Figs. 4.16 and 4.17 in [30].
+In private communication with the first author,§§ Wilcox stated that
+the standard value of Clim was chosen mainly for applications with
+Mach number greater than two. For the transonic range, Wilcox
+recommended a value of Clim closer to one.
+In total, six closure coefficients were varied in the UQ analysis for
+W2006. A summary of the W2006 closure coefficients to be varied
+and their epistemic intervals are included in Table 2.
+C. Menter Shear-Stress Transport Two-Equation Model
+
+Menter’s model uses blending functions to combine the k-ω and
+k-ϵ models [3]. The objective is to use the k-ω model in the near-wall
+region where it is most accurate and to take advantage of the
+freestream independence of the k-ϵ model in the outer part of the
+boundary layer. The model is given by
+
+
+∂ρk ∂ρuj k
+∂
+∂k
+
+ P − β ρωk 
+μ  σ k μt 
+(24)
+∂t
+∂xj
+∂xj
+∂xj
+
+§§
+Email correspondence between David Wilcox (DCW Industries) and
+John Schaefer, June 2014.
+
+(30)
+
+but the turbulent eddy viscosity is computed from
+μt 
+
+(22)
+
+(23)
+
+
+
+1 ∂ui ∂uj
+
+2 ∂xj ∂xi
+
+ρa1 k
+maxa1 ω; ΩF2 
+
+(31)
+
+Each of the constants is a blend of an 1) inner and 2) outer constant,
+blended via
+ϕ  F1 ϕ1  1 − F1 ϕ2
+
+(32)
+
+in which ϕ1 represents constant 1 and ϕ2 represents constant 2.
+Additional functions are given by
+F1  tanharg41 ;
+νt 
+
+μt
+;
+ρ
+
+F2  tanharg22 ;
+Ω
+
+p
+2W ij W ij ;
+
+
+ p
+
+
+k 500ν 4ρσ ω2 k
+arg1  min max  ; 2
+;
+β ωd d ω CDkω d2
+
+
+1 ∂k ∂ω
+CDkω  max 2ρσ ω2
+; 10−20
+ω ∂xj ∂xj
+ p
+
+k 500ν
+arg2  max 2  ; 2
+β ωd d ω
+
+
+1 ∂ui ∂uj
+−
+(33)
+W ij 
+2 ∂xj ∂xi
+
+in which ρ is the density, νt is the turbulent kinematic viscosity, μ is
+the dynamic viscosity, d is the distance from the field point to the
+nearest wall, and Ω is the vorticity magnitude.
+Menter states “It has been the author’s experience that small changes
+(5–10%) in modeling constraints can lead to a significant improvement
+(or deterioration) of model predictions” [3]. Unfortunately, little more
+information is available regarding plausible domains for SST closure
+coefficients. Many of the SST closure coefficients are shared with
+W2006, and in these cases, the same epistemic intervals from W2006
+were employed for SST. Georgiadis and Yoder [31] determined that
+
+200
+
+SCHAEFER ET AL.
+
+Table 3
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+Coefficient
+σ k1
+σ k2
+σ w1
+σ w2
+β ∕β1
+β ∕β2
+β
+κ
+a1
+
+and a discrete sum is taken over a number of output modes P  1.
+Further details on polynomial chaos theory are given by Ghanem and
+Spanos [36] and Eldred [37].
+There are three parameters that determine the number of samples
+required to generate the response surface: the number of uncertain
+variables n, the order of the response surface polynomial p, and the
+oversampling ratio np . The total number of samples N s is then given by
+
+
+n  p!
+(35)
+N s  np · P  1  np
+n!p!
+
+SST closure coefficients and associated
+epistemic intervals
+Standard value Lower bound Upper bound
+0.85
+0.7
+1.0
+1.0
+0.8
+1.2
+0.5
+0.3
+0.7
+0.856
+0.7
+1.0
+1.20
+1.19
+1.31
+1.0870
+1.05
+1.45
+0.09
+0.0784
+0.1024
+0.41
+0.38
+0.42
+0.31
+0.31
+0.40
+
+a1 ∈ 0.31; 0.40. Menter agreed with this assessment in private
+communication with the first author,¶¶ stating that “one can only
+increase a1 — decreasing it interferes with the log layer calibration.”
+In total, nine closure coefficients were varied in the UQ analysis for
+SST. A summary of the SST closure coefficients to be varied and their
+epistemic intervals is included in Table 3.
+
+V.
+
+Uncertainty Quantification Approach
+
+Uncertainties in computational models fall into two categories:
+aleatory and epistemic. Aleatory uncertainties represent inherent
+variations in a system, whereas epistemic uncertainties arise due to lack
+of knowledge. (For example, the outcome of a coin flip is aleatory
+because it is due to inherent chance; however, if a coin is placed on a
+table and covered up, the uncertainty in heads/tails is epistemic because
+it is due to a lack of knowledge.) In this work, all closure coefficients
+are treated as epistemic uncertainvariables due to the lack of a complete
+physical understanding of turbulence. It should be noted that epistemic
+uncertainties are not the same as probabilistic uncertain variables with
+uniform distributions, because no probability density function is
+assumed by the former. Our approach is to propagate the epistemic
+input uncertainty to the output quantities of interest with surrogate
+response surfaces and quantify the epistemic uncertainty in the output
+by determining the maximum and minimum value of the response
+predicted by the surrogate model.
+Rather than resorting to Monte Carlo simulations for uncertainty
+quantification, stochastic expansions based on point-collocation
+NIPC were employed to reduce computational expense [5]. The
+strategy of point-collocation NIPC is to create a surrogate model via
+least-squares approach (i.e., polynomial response surface) by using
+the CFD output obtained at a number of Latin hypercube sample
+points for the propagation of uncertainty. NIPC has been used
+successfully for CFD applications by West and Hosder [32], Adya
+et al. [33], and Hosder et al. [34]. For more examples, see the review
+by Najm [35].
+An explanation of point-collocation NIPC given by West and
+Hosder [32] follows. With the polynomial chaos approach, a
+stochastic response function α (e.g., drag coefficient, pressure or
+skin friction coefficient at a given point in the flowfield) can be
+decomposed into separable deterministic and stochastic components
+within a series expansion:
+α x; ξ ≈
+
+P
+X
+
+αi xΨi ξ
+
+(34)
+
+i0
+
+in which αi is the deterministic component and Ψi is the random
+variable basis functions corresponding to the ith mode. Furthermore,
+α is assumed to be a function of a deterministic vector x, which
+includes the spatial coordinates and deterministic parameters of the
+problem, and of the n-dimensional standard random variable vector ξ.
+In theory, the series in Eq. (34) is infinite, but for practical
+implementation of the polynomial chaos expansions, it is truncated
+¶¶
+Email correspondence between Florian Menter (ANSYS, Inc.) and John
+Schaefer, June 2014.
+
+The point-collocation NIPC method starts with replacing a
+stochastic response or random function with its polynomial chaos
+expansion in Eq. (34). Then, N s vectors are chosen in random space
+and the deterministic code (the CFD flow solver in this case) is
+evaluated at these points; this is the left-hand side of Eq. (34). Finally, a
+linear system of N s equations is formulated and solved for the spectral
+modes of the random variables. This system is given by
+0
+
+α x;ξ0 
+
+B 
+B α x;ξ1 
+B
+B
+..
+B
+.
+@
+α x;ξNs −1 
+
+1 0
+
+Ψ0 ξ0 
+
+C B
+C B Ψ0 ξ1 
+C B
+CB
+..
+C B
+.
+A @
+
+Ψ1 ξ0 
+
+:::
+
+ΨP ξ0 
+
+Ψ1 ξ1 
+..
+.
+
+:::
+..
+.
+
+ΨP ξ1 
+..
+.
+
+Ψ0 ξNs −1 Ψ1 ξNs −1  ::: ΨP ξNs −1 
+
+10
+
+α0
+
+1
+
+CB C
+CB α1 C
+CB C
+CB . C
+CB .. C
+A@ A
+αP
+(36)
+
+An oversampling ratio of 1.0 yields the minimum number of
+samples required to produce a response surface. Hosder et al. [38]
+demonstrated that an oversampling ratio of np  2.0 gives a better
+approximation to the statistics at each polynomial degree they
+considered. For this reason, np  2.0 was used for all of the UQ
+analyses in this work. Given np > 1.0, Eq. (36) is overdetermined and
+can be solved using a least-squares approach. In the current work, a
+polynomial order of two p  2 was used for all UQ analyses. In
+Sec. VI, it is shown that the choice of p  2 gives sufficient accuracy in
+the representation of the CFD responses by the stochastic surrogate
+model. Furthermore, the choice of p  2 has been validated and used
+successfully in previous work on complex stochastic CFD problems
+involving hypersonic flows [32,39].
+Sobol indices (global nonlinear sensitivity indices) were used to
+rank the relative contributions of each closure coefficient to the total
+uncertainty in the output quantities of interest. Sobol indices can be
+derived via Sobol decomposition, which is a variance-based global
+sensitivity analysis method. This derivation uses the polynomial
+chaos expansion coefficients calculated in Eq. (36) and is included in
+Appendix B. All Sobol indices reported in this work are the total
+(combined) Sobol indices, which include both the individual and
+mixed contributions of each coefficient.
+Because of the bounded nature of epistemic input uncertainties,
+Legendre polynomials are used in this study as the basis functions.
+For the purpose of the calculation of Sobol indices only, each input
+parameter can be interpreted as a uniformly distributed probabilistic
+parameter because Legendre polynomials are the optimal basis
+functions for such variables in the construction of polynomial chaos
+expansions. However, although stochastic response surfaces created
+with the NIPC approach allow the calculation of confidence intervals
+along with other various statistics of the output for probabilistic
+(aleatory) input, in our uncertainty quantification approach, only the
+maximum and minimum of the response are calculated to determine
+the epistemic interval for each uncertain output.
+Initially, all of the closure coefficients in Tables 1–3 were used in
+the uncertainty quantification analyses. The results of these analyses
+are presented in the next section. The closure coefficients that
+contribute most to the uncertain outputs in the original analyses are
+then used as the uncertain variables in a second set of reduceddimensionality analyses (RDA). It is important to note the distinction
+between the accuracy of the surrogate model created as a function of a
+determined set of uncertain variables and the accuracy in
+approximating the stochastic problem with the created surrogate.
+
+201
+
+SCHAEFER ET AL.
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+Table 4
+
+Number of CFD evaluations required for
+transonic bump UQ analyses
+
+Turbulence model
+
+Original analysis
+n p np N s
+
+RDA
+n p np
+
+Ns
+
+SA
+W2006
+SST
+
+11
+6
+9
+
+6
+3
+5
+
+56
+20
+42
+
+2
+2
+2
+
+2
+2
+2
+
+156
+56
+110
+
+2
+2
+2
+
+2
+2
+2
+
+The former can be thought as the “numerical” accuracy of the created
+surrogate, and the latter can be thought as the “model” accuracy of the
+surrogate. In this paper, we used the analysis in the original
+dimensions to identify the significant closure coefficients via total
+Sobol index ranking and performed our uncertainty analysis on the
+reduced dimension with a numerically more accurate surrogate
+model. Because we have retained the closure coefficients that account
+for at least 95% of the uncertainty in each output quantity of interest,
+we expect our uncertainty analysis to be sufficiently accurate in the
+reduced dimension. A summary of the computational cost (i.e.,
+number of CFD evaluations required) of the transonic bump analyses
+is included in Table 4, and a summary of the computational cost of the
+RAE 2822 analyses is included in Table 5.
+
+VI.
+
+Results
+
+The results of all uncertainty quantification analyses are presented
+in this section. The axisymmetric transonic bump original and
+reduced-dimensionality analyses are discussed in the first two
+subsections, and the RAE 2822 transonic airfoil original and
+reduced-dimensionality analyses are discussed in the third and fourth
+subsections. Finally, a comparison of the results from both CFD
+problems is discussed in Sec. VI.E.
+A. Axisymmetric Transonic Bump: Original Analyses
+
+The purpose of the original uncertainty quantification analyses
+was to identify the closure coefficients that contribute significantly to
+uncertainty in the output quantities of interest. These coefficients
+were later used in RDA. For the transonic bump, the output quantities
+of interest include drag coefficient CD , pressure and skin friction
+coefficient distributions Cp and Cf , and separation bubble size.
+Sobol indices were used to rank the relative contributions of each
+closure coefficient to the overall uncertainty in CD . Coefficients with
+higher Sobol indices contribute more to the uncertainty than coefficients
+with lower Sobol indices. The Sobol indices of the closure coefficients
+for each turbulence model for CD are presented in Table 6, in which they
+are ranked from highest to lowest. The largest contributors to
+uncertainty in each model are typed in bold. Coefficients with Sobol
+indices of less than 3.0 × 10−2 were not considered to be significant.
+With this approach, the closure coefficients retained for each turbulence
+model account for at least 95% of the total uncertainty in the output
+quantity of interest (Table 6).
+The largest contributors to uncertainty in CD for the SA model are
+κ, σ, and cv1 . The largest contributors for W2006 are σ w , Clim , and β .
+The largest contributors for SST are β , σ w1 , β ∕β1 , and β ∕β2 . Note
+that β is shared by both the W2006 and SST models. Also note that
+σ w1 in the SST model is the equivalent of σ w in the W2006 model.
+
+Table 5
+
+Number of CFD evaluations required for
+RAE 2822 UQ analyses
+
+Turbulence model
+
+Original analysis
+n p np N s
+
+RDA
+n p np
+
+Ns
+
+SA
+W2006
+SST
+
+11
+6
+9
+
+7
+3
+5
+
+72
+20
+42
+
+2
+2
+2
+
+2
+2
+2
+
+156
+56
+110
+
+2
+2
+2
+
+2
+2
+2
+
+Table 6
+
+Sobol indices of closure coefficients for CD
+of transonic bump
+
+SA
+W2006
+SST
+Coefficient Sobol index Coefficient Sobol index Coefficient Sobol index
+σw
+7.75 × 10−1
+β
+8.03 × 10−1
+κ
+8.50 × 10−1
+σ
+5.99 × 10−2
+Clim
+1.42 × 10−1
+σ w1
+9.24 × 10−2
+cv1
+5.38 × 10−2
+β
+1.26 × 10−1
+β ∕β1
+7.79 × 10−2
+cw2
+2.59 × 10−2
+σk
+2.12 × 10−2
+β ∕β2
+3.54 × 10−2
+cb1
+1.11 × 10−2
+κ
+1.99 × 10−2
+σ w2
+1.85 × 10−3
+cb2
+4.66 × 10−4
+β ∕β0
+7.46 × 10−3
+σ k2
+1.21 × 10−3
+cw3
+5.33 × 10−5
+— —
+— —
+a1
+8.25 × 10−4
+ct3
+9.71 × 10−6
+— —
+— —
+σ k1
+4.91 × 10−4
+ct1
+8.91 × 10−6
+— —
+— —
+κ
+1.24 × 10−4
+ct4
+8.57 × 10−6
+— —
+— —
+— —
+— —
+5.13 × 10−6
+— —
+— —
+— —
+— —
+ct2
+
+Von Kármán’s constant κ is included in all three models, but it is only
+significant to uncertainty in CD for the SA model.
+Response surfaces for pressure coefficient Cp and skin friction
+coefficient Cf were generated at each axial location across the bump.
+Sobol indices for these coefficients were also calculated at each axial
+location. Plots of the Sobol indices for Cp and Cf versus x were
+generated so that the closure coefficients significant to these
+quantities at specific points or regions in the flow could be identified.
+These plots are included in Fig. 5. For clarity, only the Sobol indices
+of coefficients with significant contributions to uncertainty in Cp are
+shown in the plots.
+The largest contributors to uncertainty in Cp and Cf for the SA
+model are σ, κ, cv1 , cw3 , cb1 , and cw2 . The largest contributors for the
+W2006 model are β , Clim , and σ w . The largest contributors for the
+SST model are σ w1 , β ∕β1 , β ∕β2 , β , and a1 .
+The separation bubble size for each case of each model was taken
+as the difference between the x coordinate of the zero-intersection
+points in the Cf versus x curves. Using the same process as before,
+stochastic response surfaces were created for the separation bubble
+size for each model. The Sobol indices of the closure coefficients for
+separation bubble size are given in Table 7.
+The largest contributors to uncertainty in separation bubble size for
+the SA model are σ, κ, cw2 , cb1 , and cw3 . The largest contributors
+for the W2006 model are Clim , β , and σ w . The largest contributors
+for the SST model are β , σ w1 , a1 , β ∕β2 , and β ∕β1 .
+In sum, six closure coefficients were found to contribute
+significantly to at least one output quantity of interest for the SA
+model, three closure coefficients for the W2006 model, and five
+coefficients for the SST model. This information is summarized in
+Table 8.
+B. Axisymmetric Transonic Bump: Reduced-Dimensionality Analyses
+
+To further increase the accuracy of the uncertainty analysis by
+creating the stochastic response surface with a smaller number of
+uncertain variables, an RDA was performed for the axisymmetric
+transonic bump with each turbulence model by using only the
+significant closure coefficients found in Table 8.
+A baseline case was run with the standard set of closure
+coefficients for each turbulence model. Stochastic polynomial
+response surfaces of CD were obtained with NIPC on the uncertain
+domain. The minimum and maximum values of drag coefficient CD
+for each model were calculated from these response surfaces. To
+verify the accuracy of each response surface, additional CFD
+solutions were generated by using the sets of closure coefficients that
+produced the minimum and maximum values of CD on the response
+surface; the CD comparison between the response surfaces and the
+CFD is summarized in Table 9. In each case, the response surface
+(Resp. surf.) is within approximately 4% of the CFD. The difference
+values reported in Table 9 indicate an acceptable level of accuracy for
+epistemic uncertainty analyses.
+In the experiment, Bachalo and Johnson [4] estimated the
+separation and reattachment points to be x  0.70 and x  1.1,
+
+202
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+SCHAEFER ET AL.
+
+Fig. 5
+
+Sobol index distributions for transonic bump (original analyses).
+
+respectively. This yields a separation bubble size of 0.40x∕c (based
+on the bump length of c  1). The separation bubble size results for
+the UQ analyses are included in Table 10. Originally, the SST
+response surface for separation bubble size yielded a negative
+minimum bubble size. This was due to the fact that for certain
+samples there was a very small, or even no separation region, yielding
+negative values for the response. Because this is not physical, the
+minimum value is set to zero.
+The Sobol indices for CD and separation bubble size agree well
+with the Sobol indices in the original analyses. These values are
+
+included in Tables 11 and 12. The ranking of importance is mostly the
+same between the original and reduced-dimensionality analyses.
+Even when the ranking of importance is not the same, the actual
+numeric values of the Sobol indices in the RDA are still reasonably
+close to their corresponding values in the original analyses.
+Response surfaces for pressure coefficient Cp and skin friction
+coefficient Cf were generated at each axial location across the bump.
+Sobol indices for these coefficients were also calculated at each axial
+location. The minimum and maximum possible values of Cp and Cf
+were calculated at each axial location from the response surfaces.
+
+203
+
+SCHAEFER ET AL.
+
+Table 7
+
+Sobol indices of closure coefficients for separation bubble
+size of transonic bump
+
+SA
+W2006
+SST
+Coefficient Sobol index Coefficient Sobol index Coefficient Sobol index
+Clim
+7.26 × 10−1
+β
+6.49 × 10−1
+σ
+5.58 × 10−1
+κ
+1.82 × 10−1
+β
+2.57 × 10−1
+σ w1
+1.15 × 10−1
+cw2
+1.54 × 10−1
+σw
+1.03 × 10−1
+a1
+1.06 × 10−1
+cb1
+6.74 × 10−2
+σk
+1.46 × 10−2
+β ∕β2
+9.48 × 10−2
+cw3
+3.71 × 10−2
+κ
+9.92 × 10−3
+β ∕β1
+9.24 × 10−2
+cv1
+1.87 × 10−3
+β ∕β0
+5.51 × 10−3
+σ k2
+2.09 × 10−2
+ct3
+6.76 × 10−4
+— —
+— —
+κ
+1.70 × 10−2
+ct4
+6.05 × 10−4
+— —
+— —
+σ w2
+1.36 × 10−2
+ct2
+5.98 × 10−4
+— —
+— —
+σ k1
+9.77 × 10−3
+cb2
+5.68 × 10−4
+— —
+— —
+— —
+— —
+5.56 × 10−4
+— —
+— —
+— —
+— —
+ct1
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+Table 8 Closure coefficients
+with significant contributions
+to transonic bump
+SA
+σ
+κ
+cv1
+cw2
+cb1
+cw3
+
+W2006
+β
+Clim
+σw
+— —
+— —
+— —
+
+SST
+σ w1
+β ∕β1
+β ∕β2
+β
+a1
+— —
+
+Baseline CD
+
+Model
+SA
+W2006
+SST
+
+Table 11
+
+Baseline size Minimum size Maximum size
+CFD
+Resp. surf.
+Resp. surf.
+0.467
+0.441
+0.507
+0.535
+0.522
+0.672
+0.507
+0.000
+0.903
+
+Sobol indices of closure coefficients for CD of transonic
+bump for RDA
+
+SA
+W2006
+SST
+Coefficient Sobol index Coefficient Sobol index Coefficient Sobol index
+σw
+7.26 × 10−1
+β
+7.95 × 10−1
+κ
+8.51 × 10−1
+σ
+6.08 × 10−2
+β
+2.07 × 10−1
+σ w1
+9.19 × 10−2
+cv1
+5.35 × 10−2
+Clim
+1.89 × 10−1
+β ∕β1
+7.96 × 10−2
+cw2
+2.56 × 10−2
+— —
+— —
+β ∕β2
+4.86 × 10−2
+cb1
+1.08 × 10−2
+— —
+— —
+a1
+3.01 × 10−3
+cw3
+3.17 × 10−5
+— —
+— —
+— —
+— —
+
+Table 12
+
+Plots of Cp versus x were generated for all of the cases used in the UQ
+analysis, for each turbulence model. This was done to verify the physical
+feasibility of the solutions. Each plot contains data for the baseline case:
+UQ training cases, minimum and maximum Cp bounds, and
+experimental data from Bachalo and Johnson [4]. The authors would
+like to emphasize that Bachalo and Johnson did not report any
+experimental uncertainty in their results, and so the experimental data in
+these figures should be considered as reference only. A proper
+comparison with experiment should take into account the uncertainty
+both in the numerical model and experimental data, and the difference
+should be quantified with appropriate metrics for the validation of the
+numerical model.
+The Cp versus x plots are included in Figs. 6a, 6c, and 6e. The Sobol
+indices for Cp versus x are included in Figs. 6b, 6d, and 6f. For clarity,
+only the Sobol indices of coefficients with significant contributions to
+uncertainty in Cp are shown in the figures. For each model, additional
+cases were run at the corners of the hypercube defined by the epistemic
+interval bounds of only the most significant closure coefficients; this was
+done to eliminate the effect of discontinuities in the response surfaces
+near the shock and to determine the epistemic uncertainty interval for the
+output in the shock region only. The Cp minimum and maximum curves
+in Figs. 6a, 6c, and 6e are piecewise combinations of the NIPC response
+surfaces and these hypercube cases in the shock region.
+Note that each of the minimum and maximum Cp curves may not in
+general correspond to one flow solution each, because each point along
+each curve is calculated from either the response surface generated by
+using the Cp values of each UQ case at that specific x location or by one
+of the hypercube corner cases. Although there exist flow solutions that
+pass through or very near to the minimum and maximum Cp curves at
+each point, there is no flow solution that passes through all of the
+minimum or all of the maximum points. The individual construction of
+Table 9
+
+Table 10 Separation bubble size results of
+transonic bump for RDA
+
+Sobol indices of closure coefficients for separation bubble
+size of transonic bump for RDA
+
+SA
+W2006
+SST
+Coefficient Sobol index Coefficient Sobol index Coefficient Sobol index
+Clim
+7.49 × 10−1
+β
+6.27 × 10−1
+σ
+5.79 × 10−1
+κ
+1.84 × 10−1
+β
+2.71 × 10−1
+β ∕β1
+1.86 × 10−1
+cw2
+1.45 × 10−1
+σw
+7.63 × 10−2
+σ w1
+1.37 × 10−1
+cb1
+5.91 × 10−2
+— —
+— —
+β ∕β2
+1.24 × 10−1
+cw3
+3.27 × 10−2
+— —
+— —
+a1
+7.99 × 10−2
+cv1
+3.65 × 10−3
+— —
+— —
+— —
+— —
+
+the stochastic surrogates for Cp at each x location also has the
+advantage that discontinuities in the shock region will not affect the
+accuracy of the points outside the shock region.
+Plots of skin friction coefficient at each axial location were created
+in a similar fashion as the plots of pressure coefficient. Plots of Cf
+versus x for each UQ case are included in Figs. 7a, 7c, and 7e. As
+before, the minimum and maximum Cf curves in these figures are
+piecewise combinations of the NIPC response surfaces at each axial
+location and hypercube corner samples in the shock region. The
+vertical lines in the plots are the separation and reattachment point
+locations reported by Bachalo and Johnson [4]. The Sobol indices for
+Cf at each axial location are shown in Figs. 7b, 7d, and 7f.
+Based on the reduced-dimensionality results, all of the coefficients
+found to be significant to the axisymmetric transonic bump in
+Sec. VI.A are indeed significant to their respective turbulence
+models, even in the absence of possible numerical “noise” caused by
+the insignificant coefficients in the original analyses. Of the three
+turbulence models, the SST model is most sensitive to changes in its
+closure coefficients; this is evidenced by large variations in the
+model’s values for CD and separation bubble size, as well as the large
+solution bands for Cp and Cf . The SA and W2006 models are
+roughly equally sensitive to changes in their closure coefficients. All
+of the models are most sensitive to changes in their closure
+coefficients in the shock and separated regions of the flow,
+particularly so in the latter region. None of the models exhibit large
+
+Drag coefficient results for transonic bump, in drag counts for RDA
+Minimum CD
+
+Model CFD Resp. surf.
+SA
+2.232
+2.148
+W2006 2.226
+2.116
+SST
+2.284
+1.813
+
+Maximum CD
+
+CFD Difference, % Resp. surf. CFD Difference, %
+2.130
+0.85
+2.270
+2.288
+0.79
+2.098
+0.86
+2.243
+2.224
+0.85
+1.890
+4.07
+2.647
+2.612
+1.34
+
+204
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+SCHAEFER ET AL.
+
+Fig. 6
+
+Pressure coefficient results for transonic bump (RDA).
+
+uncertainties in Cp upstream of the shock or downstream of the
+reattachment point; however, the uncertainty in Cf remains large in
+these regions.
+C. RAE 2822 Airfoil: Original Analyses
+
+As with the original analyses of the transonic bump, the purpose
+of the original analyses of the RAE 2822 airfoil was to identify the
+closure coefficients that contribute significantly to uncertainty in the
+output quantities of interest. For the RAE 2822, the output quantities
+of interest include the lift coefficient CL , drag coefficient due to
+pressure CDpress , drag coefficient due to skin friction CDsf , and
+
+pressure coefficient distribution Cp . The skin friction coefficient
+distribution was not investigated for the RAE 2822 because no
+separation bubble was observed in the baseline case solutions.
+In the same manner as for the transonic bump, Sobol indices were
+calculated for the output quantities of interest of the RAE 2822. The
+results for CL, CDpress , and CDsf are included in Tables 13–15, respectively.
+For the SA model, the largest contributors to uncertainty in CL are
+κ, ct4 , ct3 , cv1 , and cb1 . The largest contributors to uncertainty in
+CDpress are σ, cw2 , cb1 , and ct4 ; and the largest contributors to
+uncertainty in CDsf are κ, σ, cw2 , ct4 , ct3 , and cv1 .
+For the W2006 model, the largest contributors to uncertainty in
+all three integrated quantities are Clim , β , and σ w . The order of
+
+205
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+SCHAEFER ET AL.
+
+Fig. 7
+
+Skin friction coefficient results for transonic bump (RDA).
+
+importance is different for CL, CDpress , and CDsf , but the important
+coefficients are the same for each quantity.
+For the SST model, the largest contributors to uncertainty in CL are
+β ∕β2 , a1 , and β . The largest contributors to uncertainty in CDpress are
+β , β ∕β2 , a1 , and β β1 ; and the largest contributors to uncertainty in
+CDsf are β , σ w1 , and β ∕β1 .
+Response surfaces for Cp were generated at each x location on the
+top and bottom surface of the airfoil so that the closure coefficients
+with significant contributions to Cp at any given point in the flow
+could be identified. These plots are included in Fig. 8. The top and
+bottom surfaces are represented by solid and dashed lines,
+respectively. In Fig. 8a, the largest contributor to uncertainty in Cp for
+
+the majority of the x domain in the SA model is κ. There are also
+spikes in the Sobol indices of ct3 , ct4 , and σ, indicating that these
+coefficients are also important in some parts of the flow; particularly,
+spikes appear near the shock on the upper surface and near the highpressure region at the leading edge on the lower surface. In Fig. 8b,
+the uncertainty in Cp for the W2006 model is almost completely
+dominated by Clim, with only a few minor contributions from β and
+σ 2 . In Fig. 8c, the uncertainty in Cp for the SST model is mostly
+attributed to β ∕β2 , β , and a1 . At x ≈ 0.6, σ w1 also has a minor
+contribution.
+In sum, seven closure coefficients were found to contribute
+significantly to at least one output quantity of interest for the SA
+
+206
+
+SCHAEFER ET AL.
+
+Table 13
+
+Sobol indices of closure coefficients for CL of RAE 2822
+
+SA
+Coefficient
+κ
+ct4
+ct3
+cv1
+cb1
+cw2
+σ
+cb2
+cw3
+ct1
+ct2
+
+Sobol index
+5.07 × 10−1
+2.34 × 10−1
+1.82 × 10−1
+7.30 × 10−2
+3.18 × 10−2
+1.78 × 10−2
+1.55 × 10−2
+1.51 × 10−2
+9.52 × 10−3
+8.12 × 10−3
+6.13 × 10−3
+
+Table 14
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+Sobol index
+4.64 × 10−1
+2.13 × 10−1
+1.91 × 10−1
+7.10 × 10−2
+2.90 × 10−2
+2.74 × 10−2
+2.07 × 10−2
+1.25 × 10−2
+7.16 × 10−3
+5.01 × 10−3
+3.90 × 10−3
+
+Table 15
+
+SST
+Sobol index
+4.22 × 10−1
+4.13 × 10−1
+2.50 × 10−1
+2.37 × 10−2
+1.64 × 10−2
+1.59 × 10−2
+1.11 × 10−2
+9.95 × 10−3
+8.63 × 10−3
+— —
+— —
+
+W2006
+Coefficient
+Sobol index
+Clim
+6.62 × 10−1
+σw
+2.14 × 10−1
+β
+1.71 × 10−1
+β ∕β0
+4.81 × 10−3
+κ
+2.46 × 10−3
+σk
+2.32 × 10−3
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+
+Coefficient
+β
+β ∕β2
+a1
+β ∕β1
+σ w1
+σ w2
+σ k2
+σ k1
+κ
+— —
+— —
+
+SST
+Sobol index
+6.30 × 10−1
+2.36 × 10−1
+1.34 × 10−1
+3.22 × 10−2
+1.18 × 10−2
+1.11 × 10−2
+4.99 × 10−3
+4.71 × 10−3
+1.95 × 10−3
+— —
+— —
+
+Sobol indices of closure coefficients for CDsf of RAE 2822
+
+SA
+Coefficient
+κ
+σ
+cw2
+ct4
+ct3
+cv1
+cb1
+cb2
+ct1
+cw3
+ct2
+
+Coefficient
+β ∕β2
+a1
+β
+σ w2
+σ w1
+β ∕β1
+σ k2
+σ k1
+κ
+— —
+— —
+
+Sobol indices of closure coefficients for CDpress of RAE 2822
+
+SA
+Coefficient
+σ
+cw2
+cb1
+ct4
+cv1
+κ
+ct3
+cb2
+ct2
+ct1
+cw3
+
+W2006
+Coefficient
+Sobol index
+Clim
+8.55 × 10−1
+β
+9.57 × 10−2
+σw
+4.23 × 10−2
+κ
+1.83 × 10−2
+β ∕β0
+1.27 × 10−2
+σk
+1.19 × 10−2
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+
+Sobol index
+5.65 × 10−1
+2.36 × 10−1
+8.50 × 10−2
+4.30 × 10−2
+3.58 × 10−2
+3.06 × 10−2
+1.97 × 10−2
+1.65 × 10−3
+1.36 × 10−3
+1.17 × 10−3
+6.17 × 10−4
+
+W2006
+Coefficient
+Sobol index
+σw
+6.41 × 10−1
+Clim
+2.39 × 10−1
+β
+1.56 × 10−1
+κ
+1.07 × 10−2
+σk
+9.71 × 10−3
+β ∕β0
+3.59 × 10−3
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+
+model, three coefficients for the W2006 model, and five coefficients
+for the SST model. This information is summarized in Table 16.
+D. RAE 2822 Airfoil: Reduced-Dimensionality Analyses
+
+As with the transonic bump, a reduced-dimensionality analysis
+was performed on the RAE 2822 for each of the turbulence models to
+further improve the accuracy of the response surfaces used in the
+uncertainty analyses. A baseline case was run with each of the
+original, unchanged turbulence models for the RAE 2822 airfoil.
+The response surfaces of drag and lift coefficients for the RAE 2822
+were verified in the same manner as the response surfaces of the drag
+coefficient of the transonic bump; the minimum and maximum values
+of CD and CL were first calculated from the response surfaces, and
+then CFD simulations were run by using the closure coefficients that
+produced these minimum and maximum values. The comparison
+between the response surfaces and CFD is summarized in Tables 17
+and 18. All of the CD response surfaces are within approximately
+
+Coefficient
+β
+σ w1
+β ∕β1
+a1
+β ∕β2
+σ w2
+σ k1
+σ k2
+κ
+— —
+— —
+
+SST
+Sobol index
+7.75 × 10−1
+1.22 × 10−1
+9.50 × 10−2
+9.84 × 10−3
+5.32 × 10−3
+1.17 × 10−3
+8.58 × 10−4
+8.34 × 10−4
+1.30 × 10−4
+— —
+— —
+
+4.5% of the CFD, and the CL response surfaces are within
+approximately 1.2% of the CFD.
+The Sobol indices for CL, CDpress , and CDsf agree well with the Sobol
+indices in the original analyses. The results for the reduceddimensionality analyses are included in Tables 19–21. As with the
+transonic bump, the ranking of importance of the closure coefficients for
+each quantity is mostly the same between the original and reduceddimensionality analyses. Even when the ranking of importance is not
+the same, the actual numeric values of the Sobol indices in the reduceddimensionality analyses are still reasonably close to their corresponding
+values in the original analyses.
+Pressure coefficient plots were generated for each turbulence
+model. Each of the plots contains data for the baseline case, UQ
+training cases, the minimum and maximum Cp bounds, and
+experimental data from Cook et al. [26]. Cook et al. did not report any
+experimental uncertainty, and so the experimental results are
+included as reference only. The Cp versus x plots are included in
+
+SCHAEFER ET AL.
+
+207
+
+uncertainty in Cp are shown in the figures. Similar to the transonic
+bump, the minimum and maximum Cp curves Figs. 9a, 9c, and 9e are
+piecewise combinations of the NIPC response surfaces and cases run
+at the corners of the hypercubes defined by the epistemic bounds of
+the closure coefficients in the shock region.
+Based on the reduced-dimensionality results, all of the coefficients
+found to be significant to the RAE 2822 airfoil in Sec. VI.C are indeed
+significant to their respective turbulence models. Of the three models,
+the SST model is most sensitive to changes in its closure coefficients,
+as evidenced by its larger variations in CL , CDpress , and CDsf and by its
+larger solution band for Cp compared with the SA and W2006
+models. The SA and W2006 models are roughly equally sensitive to
+changes in their closure coefficients, with the latter particularly
+insensitive. All of the models are most sensitive to changes in their
+closure coefficients in the shock region; everywhere else, there is very
+little uncertainty in Cp .
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+E. Discussion
+
+Fig. 8 Sobol index distributions for RAE 2822 airfoil: solid lines, top
+surface; dashed lines, bottom surface (original analyses).
+
+Figs. 9a, 9c, and 9e; and the Sobol indices for Cp versus x are
+included in Figs. 9b, 9d, and 9f. The top and bottom surfaces are
+represented by solid and dashed lines, respectively. For clarity, only
+the Sobol indices of coefficients with significant contributions to
+
+The uncertainty quantification and sensitivity results of the
+axisymmetric transonic bump and RAE 2822 airfoil are consistent with
+one another. For the W2006 and SST models, every closure coefficient
+that is significant to at least one output quantity of interest for the
+transonic bump is also significant to at least one output quantity of
+interest for the RAE 2822 and vice versa. This agreement is nearly
+observed by the SA model as well, with only one coefficient significant
+to the transonic bump, but not the RAE 2822, and only two coefficients
+significant to the RAE 2822, but not the transonic bump. A summary of
+all of the significant closure coefficients is included in Fig. 10.
+One interesting result is that κ appears in all three turbulence
+models considered in this work, yet it was only found to contribute
+significantly to uncertainty for the SA model. This result is likely
+due to the fact that the log layer calibration in the SA model is
+very dependent on the value of κ (χ  κy ), but the log layer
+calibrations of the two-equation
+p models contain additional
+parameters (γ  β∕β − σ w κ 2 ∕ β ).
+Compared with the transonic bump results, the RAE 2822 results
+are much less sensitive to changes in all three turbulence models’
+closure coefficients; this is likely because the transonic bump features
+a separation region and the airfoil does not. Note also that cw3 in the
+SA model contributes significantly to uncertainty in the transonic
+bump problem, but not the RAE 2822. Figure 7b shows that cw3 is
+only significant to uncertainty in Cf in the separation region, and
+Table 12 shows that cw3 contributes significantly to uncertainty in
+separation bubble size. These observations suggest that cw3 is only
+significant to separated flows.
+Whether separation is present or not, the same trends apply to all
+models for both CFD problems; the SST model is most sensitive to
+changes in its closure coefficients, and the SA and W2006 models are
+roughly equally sensitive to changes in their closure coefficients.
+Uncertainties in Cp are particularly large in the shock region of each
+flow for all three turbulence models. The fact that the Sobol index
+distributions change significantly with x for both flows suggests that
+certain coefficients contribute more significantly to particular flow
+features (such as a shock or separation bubble) than others.
+There may be two possible reasons that the output quantities for
+SST have such large epistemic intervals compared with those of SA
+or W2006 (see Figs. 6, 7, and 9 for graphical examples). First,
+although verified by expert opinion, the epistemic intervals for some
+SST closure coefficients may extend beyond the physically
+reasonable range. In this case, the SST model may produce
+nonphysical results. A second reason for the SST model’s large
+output epistemic intervals could be that the model itself is not as
+robust to changes in its coefficients as SA or W2006. Particularly, the
+use of blending functions could lead to a highly sensitive model.
+Given that SST and W2006 share many of the same coefficients, it
+seems that this second reason for the SST model’s sensitivity is more
+likely. This conclusion is also consistent with the statement made by
+the author of this model (see Sec. IV) that small changes (5–10%) in
+the values of the SST closure coefficients can yield large changes in
+model behavior.
+
+208
+
+SCHAEFER ET AL.
+
+Table 16 Closure
+coefficients with significant
+contributions to RAE 2822
+SA
+σ
+κ
+cv1
+ct3
+ct4
+cb1
+cw2
+
+W2006
+β
+Clim
+σw
+— —
+— —
+— —
+— —
+
+The information presented in this paper is expected to be of interest
+to the CFD community because it demonstrates that large changes in
+turbulence model behavior can be observed by changing specific sets
+of closure coefficients. In particular, there are two main results that
+can enable the advancement of turbulence models used in RANS
+simulations. The first result is that, if improved matching between
+CFD and experiments (i.e., the data representing the real physical
+phenomena) is desired, the Sobol indices presented in this work for
+certain output quantities of interest give clues for which closure
+coefficients to modify first. The second result is that, if the aerospace
+community can reduce the uncertainty in only a certain set of closure
+
+SST
+σ w1
+β ∕β1
+β ∕β2
+β
+a1
+— —
+— —
+
+Table 17
+
+RAE 2822 drag coefficient results, in drag counts for RDA
+Minimum CD
+
+Baseline CD
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+Model CFD Resp. surf.
+SA
+146.0
+134.7
+W2006 142.3
+130.2
+SST
+128.5
+107.2
+
+Table 18
+
+RAE 2822 lift coefficient results for RDA
+Minimum CL
+
+Baseline CL
+
+Maximum CD
+
+CFD Difference, % Resp. surf. CFD Difference, %
+135.8
+0.81
+152.8
+151.2
+1.06
+128.5
+1.32
+144.4
+144.4
+0.00
+112.1
+4.37
+183.0
+182.8
+0.11
+
+Maximum CL
+
+Model CFD Resp. surf. CFD Difference, % Resp. surf. CFD Difference, %
+SA
+0.744
+0.735
+0.739
+0.57
+0.769
+0.764
+0.69
+W2006 0.744
+0.733
+0.738
+0.68
+0.749
+0.748
+0.13
+SST
+0.744
+0.710
+0.719
+1.18
+0.778
+0.774
+0.45
+
+Table 19
+
+Sobol indices of closure coefficients for CL of RAE 2822 (RDA)
+
+SA
+Coefficient
+κ
+ct4
+ct3
+cv1
+σ
+cb1
+cw2
+
+Sobol index
+5.09 × 10−1
+2.18 × 10−1
+1.81 × 10−1
+1.03 × 10−1
+2.83 × 10−2
+2.60 × 10−2
+2.23 × 10−2
+
+Table 20
+
+W2006
+Coefficient
+Sobol index
+Clim
+8.96 × 10−1
+β
+9.93 × 10−2
+σw
+1.84 × 10−2
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+
+Sobol index
+4.55 × 10−1
+2.24 × 10−1
+2.23 × 10−1
+5.26 × 10−2
+4.27 × 10−2
+3.19 × 10−2
+2.17 × 10−2
+
+Table 21
+
+Coefficient
+Clim
+β
+σw
+— —
+— —
+— —
+— —
+
+W2006
+Sobol index
+7.01 × 10−1
+1.82 × 10−1
+1.64 × 10−1
+— —
+— —
+— —
+— —
+
+SST
+Coefficient
+β
+β ∕β2
+a1
+β ∕β1
+σ w1
+— —
+— —
+
+Sobol index
+6.64 × 10−1
+2.02 × 10−1
+1.77 × 10−1
+5.15 × 10−2
+2.19 × 10−2
+— —
+— —
+
+Sobol indices of closure coefficients for CDsf of RAE 2822 for RDA
+
+SA
+Coefficient
+κ
+σ
+cw2
+ct4
+cv1
+ct3
+cb1
+
+SST
+Sobol index
+5.21 × 10−1
+3.27 × 10−1
+2.81 × 10−1
+1.10 × 10−1
+4.48 × 10−2
+— —
+— —
+
+Sobol indices of closure coefficients for CDpress of RAE 2822 for RDA
+
+SA
+Coefficient
+σ
+cb1
+cw2
+ct4
+κ
+cv1
+ct3
+
+Coefficient
+a1
+β ∕β2
+β
+β ∕β1
+σ w1
+— —
+— —
+
+Sobol index
+5.69 × 10−1
+2.33 × 10−1
+8.30 × 10−2
+4.25 × 10−2
+4.05 × 10−2
+3.52 × 10−2
+1.89 × 10−2
+
+W2006
+Coefficient
+Sobol index
+σw
+6.92 × 10−1
+Clim
+2.10 × 10−1
+β
+1.45 × 10−1
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+— —
+
+Coefficient
+β
+σ w1
+β ∕β1
+a1
+β ∕β2
+— —
+— —
+
+SST
+Sobol index
+7.91 × 10−1
+1.15 × 10−1
+9.10 × 10−2
+1.09 × 10−2
+3.68 × 10−3
+— —
+— —
+
+209
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+SCHAEFER ET AL.
+
+Fig. 9 Pressure coefficient results for RAE 2822 airfoil. For Sobol index distributions, solid lines, top surface; dashed lines, bottom surface (RDA).
+
+coefficients (whether through experimentation, LES/DNS, etc.),
+then the parametric uncertainty (i.e., closure-coefficient-related
+uncertainty) can be greatly reduced. For example, the uncertainty in
+the value of Von Kármán’s constant in the SA model was responsible
+for approximately 85% of the parametric uncertainty in CD of the
+axisymmetric transonic bump. If more information were known
+about the most likely value of this coefficient (i.e., if the epistemic
+interval were smaller), the results of the SA model would be
+much less uncertain in the presence of closure coefficient
+uncertainties.
+
+If improved accuracy is desired, a good starting point may be to
+first consider the integrated quantities. These include CD for the
+axisymmetric transonic bump and CL , CDpress , and CDsf for the RAE
+2822 airfoil. Referring back to Tables 11 and 19–21, a small number
+of closure coefficients can be identified for each turbulence model
+that consistently contribute to very large amounts to uncertainty in the
+output quantities of interest. These coefficients include κ and σ for the
+SA model, Clim and σ w for the W2006 model, and β for the SST
+model. The authors suggest that these coefficients be considered first
+in future refinements of the turbulence models discussed here.
+
+210
+
+SCHAEFER ET AL.
+
+lim
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+a) SA - Significant closure coefficients
+
+b) W2006 - Significant closure coefficients
+
+c) SST - Significant closure coefficients
+Fig. 10 Closure coefficients significant to uncertainty in at least one output quantity of interest for each CFD problem and for each turbulence model.
+
+Knowing the experimental uncertainties would also allow for the
+quantification of model-form uncertainty. In future studies,
+comparison of the computational model results to the experimental
+data with well-quantified uncertainties both for the simulations and
+experiments will allow the calculation validation metrics, which can
+be used in quantification of model-form uncertainty. Such studies
+may help to explain certain findings of this work, such as why the
+experimental data in Fig. 6a were not contained within the epistemic
+intervals of the SA model.
+
+VII.
+
+Conclusions
+
+Two detailed uncertainty quantification studies focusing on
+turbulence model closure coefficients were performed on an
+axisymmetric transonic bump at zero degrees angle of attack and the
+RAE 2822 transonic airfoil at a lift coefficient of 0.744. The transonic
+bump has freestream M  0.875 and Re  2.763 × 106 , and the
+RAE 2822 has freestream M  0.729 and Re  6.5 × 106 . The
+turbulence models considered were the Spalart–Allmaras model,
+Wilcox (2006) k-ω model, and Menter shear-stress transport model.
+The uncertainty quantification employed stochastic expansions
+based on non-intrusive polynomial chaos as an efficient means of
+uncertainty propagation. The drag coefficient, wall pressure and skin
+friction coefficient distributions, and shock-induced separation
+bubble size were considered as uncertain outputs for the transonic
+bump. The lift coefficient, pressure and skin friction components of
+drag coefficient, and wall pressure coefficient distribution were
+considered as uncertain outputs for the RAE 2822. Sobol indices
+were used to rank the relative contributions of each closure
+coefficient to the total uncertainty in the output quantities of interest.
+This sensitivity information can be used as a potential starting point in
+the future advancement of the turbulence models considered here. In
+addition, this study provides the parametric uncertainty in the
+turbulence models due to lack of knowledge for the closure
+coefficient values, which will be a crucial component in the
+quantification of model-form uncertainty.
+Based on the results, the following conclusions can be made: For
+the SA model, the coefficients that contribute most to uncertainty in
+the output quantities of interest are σ, κ, cv1 , cb1 , cw2 , ct3 , ct4 , and cw3 .
+
+For the W2006 model, the coefficients that contribute most to
+uncertainty in the output quantities of interest are β , Clim , and σ w .
+For the SST model, the coefficients that contribute most to
+uncertainty in the output quantities of interest are σ w1 , β ∕β1 , β ∕β2 ,
+β , and a1 . With the exception of cw3 , ct3 , and ct4 in the SA model, all
+other closure coefficients were found to be significant to both the
+axisymmetric transonic bump and RAE 2822 transonic airfoil.
+In the future refinement of the models discussed here, the authors
+suggest that studies should focus on increasing knowledge of
+appropriate values for κ and σ for the SA model, Clim and σ w for the
+W2006 model, and β for the SST model. Improved knowledge of the
+values of these particular closure coefficients will have the largest
+impact on reducing the parametric uncertainty in integrated quantities
+of interest for the Reynolds-averaged Navier–Stokes simulations of
+wall-bounded transonic flows. Future work should also focus on
+determining why certain closure coefficients contribute more or less
+to uncertainty at different flow locations. For example, research
+should be done to determine why σ in the SA model becomes
+important to Cf for the transonic bump after the reattachment point,
+but not before. The global sensitivity results reported in this paper
+will depend on the epistemic intervals chosen for each closure
+coefficient (Tables 1–3). If significant changes were made to these
+intervals through the acquisition of new knowledge on closure
+coefficients, it would be desirable to conduct similar sensitivity
+studies on the refined turbulence models in the future. Future
+experimental work should report the uncertainties in experimental
+data, which would allow for model-form uncertainty quantification
+and for determining the optimum values of the closure coefficients for
+certain flow types.
+Although the focus of this paper is on 2-D transonic wall-bounded
+turbulent flows for the uncertainty analysis, the authors believe that
+the results and conclusions presented here will be a significant
+contribution to the computational fluid dynamics and turbulence
+modeling literature. The accurate modeling of transonic wallbounded turbulent flows is important for aerodynamicists due to the
+vast number of aircraft configurations that are designed to operate in
+this flow regime. By including two test cases relevant to this flow
+regime, the authors aim to generalize the findings for this type of flow.
+
+211
+
+SCHAEFER ET AL.
+
+The authors believe that the consistency of the findings between two
+cases in terms of the identification of most significant coefficients that
+contribute to the output uncertainty strengthens the conclusions
+drawn from this work. Future work, which should include threedimensional test cases in this flow regime, will further enhance the
+generalization of the results outlined in this paper.
+
+X
+
+Di1 ; : : : ;is 
+
+β∈fi1 ; : : : ;is g
+
+α2β hΨ2β ξi;
+
+Then, the Sobol indices Si1 ; : : : ;is are defined as
+Si1 ; : : : ;is 
+
+Appendix A: Closure Coefficient Descriptions
+In this appendix, more detailed descriptions of each closure
+coefficient are given than in Sec. IV. See Tables A1–A3.
+
+Appendix B: Sobol Index Derivation
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+D
+
+P
+X
+
+α2j t; xhΨ2j ξi
+
+(B1)
+
+j1
+
+Then, as shown by Sudret [6] and Crestaux et al. [40], the total
+variance can be decomposed as
+D
+
+in
+X
+
+Di 
+
+in−1
+X
+1≤i<j≤n
+
+i1
+
+Di;j 
+
+in−2
+X
+
+Di;j;k  · · · D1;2; : : : ;n
+(B2)
+
+Table A1
+
+(B4)
+
+Si;j 
+
+1≤i<j≤n
+
+in−2
+X
+
+Si;j;k  · · · S1;2; : : : ;n  1.0
+
+1≤i<j<k≤n
+
+(B5)
+The Sobol indices provide a sensitivity measure due to individual
+contribution from each input uncertain variable Si , as well as the
+mixed contributions (fSi;j g; fSi;j;k g; : : : ). As shown by Sudret [6]
+and Ghaffari et al. [41], the total (combined) effect ST i of an input
+parameter i is defined as the summation of the partial Sobol indices
+that include the particular parameter
+ST i 
+
+X Di ;:::;i
+1
+
+D
+
+s
+
+;
+
+Li  fi1 ; :::;is ∶∃ k;1 ≤ k ≤ s;ik  ig
+
+(B6)
+
+For example, with n  3, the total contribution to the overall variance
+from the first uncertain variable (i  1) can be written as
+(B7)
+
+SA closure coefficient descriptions
+
+Description
+Turbulent Prandtl number, part of diffusion term
+Von Kármán’s constant, calibrates the log layer slope → χ  κy
+Used in turbulent eddy viscosity calculation and production term, helps control the log law intercept
+Part of the fw function (in destruction term), which speeds up the decay rate of the destruction term in the outer region of the boundary layer
+Value empirically selected to control trip location
+Value empirically selected to control trip location
+Part of ft2 function (in production and destruction terms), which helps transition prediction by attracting ν^  0 as a solution
+Part of ft2 function (in production and destruction terms), which helps transition prediction by attracting ν^  0 as a solution
+Calibrates the growth of νt , which grows as expcb1 St
+b2
+Ensures that the integral of ν1c
+can only increase and smooths out velocity profile if 1  cb2 ∕σ > 2
+t
+Part of g function, which controls the slope of fw in destruction, calibrated to match skin friction coefficient of flat plate
+
+Table A2
+Coefficient
+β
+Clim
+κ
+β ∕β0
+σw
+σk
+
+W2006 closure coefficient descriptions
+
+Description
+Relates τxy ∕k, which equals ≈0.3 in the log layer; multiplies kω in k equation of the model
+Stress limiter that improves model accuracy for shear flows and strongly separated
+flows
+p
+Von Kármán’s constant, involved in log layer calibration → γ  β0 ∕β − σ w κ 2 ∕ β
+β0 used in the calculation of β for ω equation; ratio approximates the time decay of homogeneous isotropic turbulence experiments
+Multiplies k∕ω in ω equation; value chosen to match empirical decay rate behavior of k and νT as wall distance increases
+Multiplies k∕ω in k equation; value chosen to match empirical decay rate behavior of k and νT as wall distance increases
+
+Table A3
+Coefficient
+σ k1 , σ k2
+σ w1 , σ w2
+β ∕β1 ,
+β ∕β2
+β
+κ
+a1
+
+in−1
+X
+
+Si 
+
+ST 1  S1  S1;2  S1;3  S1;2;3
+
+where the partial variances Di1 ; : : : ;is are given by
+
+Coefficient
+σ
+κ
+cv1
+cw3
+ct1
+ct2
+ct3
+ct4
+cb1
+cb2
+cw2
+
+in
+X
+
+Li
+
+1≤i<j<k≤n
+
+Di1 ; : : : ;is
+D
+
+which satisfy the following equation:
+
+i1
+
+In this appendix, the derivation of Sobol indices is presented. First,
+the total variance D can be written in terms of the polynomial chaos
+expansion as shown in Eq. (B1):
+
+1 ≤ i1 < : : : < is ≤ n (B3)
+
+SST closure coefficient descriptions
+
+Description
+Blended and multiplied by k∕ω in k equation; values chosen to match empirical decay rate of k and νT as wall distance increases
+Blended and multiplied by k∕ω in ω equation; values chosen to match empirical decay rate of k and νT as wall distance increases
+Blend of β1 and β2 used in the calculation of β for ω equation; blended ratio approximates the time decay of homogeneous isotropic turbulence
+experiments
+Relates τxy ∕k, which equals ≈0.3 in the log layer; multiplies kω in k equation of the model
+Von Kármán’s constant, involved in log layer calibration (γ 1 and γ 2 calculations)
+Used in turbulent eddy viscosity definition
+
+212
+
+SCHAEFER ET AL.
+
+These formulations show that the Sobol indices can be used to
+provide a relative ranking of each input uncertainty to the overall
+variation in the output with the consideration of nonlinear correlation
+between input variables and output quantities of interest.
+
+Acknowledgments
+The support for the first and the second authors for this research is
+provided under NASA Grant NNX14AN17A (Mujeeb Malik,
+program monitor). The first author would also like to thank the NASA
+Langley Research Center and the 2014 Langley Aerospace Research
+Student Scholars program for additional support. The authors would
+like to give special thanks to Philippe Spalart, David Wilcox, Florian
+Menter, and Gary Coleman for their contributions to this research.
+Thanks to Aaron Erb for his help preparing certain figures.
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+References
+[1] Spalart, P. R., and Allmaras, S. R., “AOne-Equation Turbulence Model for
+Aerodynamic Flows,” La Recherche Aerospatiale, No. 1, 1994, pp. 5–21,
+http://turbmodels.larc.nasa.gov/spalart.html.
+[2] Wilcox, D. C., “Formulation of the k-Omega Turbulence Model
+Revisited,” AIAA Journal, Vol. 46, No. 11, 2008, pp. 2823–2838.
+doi:10.2514/1.36541
+[3] Menter, F. R., “Two-Equation Eddy-Viscosity Turbulence Models for
+Engineering Applications,” AIAA Journal, Vol. 32, No. 8, Aug. 1994,
+pp. 1598–1605.
+doi:10.2514/3.12149
+[4] Bachalo, W. D., and Johnson, D. A., “Transonic, Turbulent BoundaryLayer Separation Generated on an Axisymmetric Flow Model,” AIAA
+Journal, Vol. 24, No. 3, 1986, pp. 437–443.
+doi:10.2514/3.9286
+[5] Hosder, S., Walters, R. W., and Balch, M., “Point-Collocation
+Nonintrusive Polynomial Chaos Method for Stochastic Computational
+Fluid Dynamics,” AIAA Journal, Vol. 48, No. 12, Dec. 2010, pp. 2721–
+2730.
+doi:10.2514/1.39389
+[6] Sudret, B., “Global Sensitivity Analysis Using Polynomial Chaos
+Expansion,” Reliability Engineering and System Safety, Vol. 93, No. 7,
+2008, pp. 964–979.
+doi:10.1016/j.ress.2007.04.002
+[7] Slotnick, J., Khodadoust, A., Alonso, J., Darmofal, D., Gropp, W.,
+Lurie, E., and Mavriplis, D., “CFD Vision 2030 Study: A Path to
+Revolutionary Computational Aerosciences,” NASA
+CR20140218178, March 2014.
+[8] Godfrey, A. G., and Cliff, E. M., “Sensitivity Equations for Turbulent
+Flows,” AIAA Paper 2001-1060, Jan. 2001.
+[9] Hosder, S., Grossman, B., Haftka, R. T., Mason, W. H., and Watson, L.
+T., “Quantitative Relative Comparison of CFD Simulation Uncertainties
+for a Transonic Diffuser Problem,” Computers and Fluids, Vol. 35,
+No. 10, Aug. 2005, pp. 1444–1458.
+doi:10.1016/j.compfluid.2005.04.006
+[10] Han, D., and Hosder, S., “Inherent and Epistemic Uncertainty Analysis
+for Computational Fluid Dynamics Simulations of Synthetic Jet
+Actuators,” International Journal for Uncertainty Quantification,
+Vol. 4, No. 6, 2014, pp. 511–533.
+doi:10.1615/Int.J.UncertaintyQuantification.v4.i6
+[11] Platteeuw, P. D. A., Loeven, G. J. A., and Bijl, H., “Uncertainty
+Quantification Applied to the k-epsilon Model of Turbulence Using the
+Probabilistic Collocation Method,” AIAA Paper 2008-2150, April 2008.
+[12] Dunn, M. C., Shotorban, B., and Frendi, A., “Uncertainty Quantification
+of Turbulence Model Coefficients via Latin Hypercube Sampling
+Method,” Journal of Fluids Engineering, Vol. 133, No. 4, 2011,
+Paper 041402.
+doi:10.1115/1.4003762
+[13] Emory, M., Pecnik, R., and Iaccarino, G., “Modeling Structural
+Uncertainties in Reynolds-Averaged Computations of Shock/Boundary
+Layer Interactions,” AIAA Paper 2011-0479, Jan. 2011.
+[14] Dow, E., and Wang, Q., “Quantification of Structural Uncertainties in
+the k-ω Turbulence Model,” AIAA Paper 2011-1762, April 2011.
+[15] Edeling, W. N., Cinnella, P., and Dwight, R. P., “Predictive RANS
+Simulations via Bayesian Model-Scenario Averaging,” Journal of
+Computational Physics, Vol. 275, Oct. 2014, pp. 65–91.
+doi:10.1016/j.jcp.2014.06.052
+[16] Papadimitriou, D. I., and Papadimitriou, C., “Bayesian Uncertainty
+Quantification of Turbulence Models Based on High-Order Adjoint,”
+
+Computers and Fluids, Vol. 120, Oct. 2015, pp. 82–97.
+doi:10.1016/j.compfluid.2015.07.019
+[17] Cheung, S. H., Oliver, T. A., Prudencia, E. E., Prundhomme, S., and
+Moser, R. D., “Bayesian Uncertainty Analysis with Applications to
+Turbulence Modeling,” Reliability Engineering and System Safety,
+Vol. 96, No. 9, 2011, pp. 1137–1149.
+doi:10.1016/j.ress.2010.09.013
+[18] Duraisamy, K., Zhang, Z. J., and Singh, A. P., “New Approaches in
+Turbulence and Transition Modeling Using Data-Driven Techniques,”
+AIAA Paper 2015-1284, Jan. 2015.
+[19] Parish, E., and Duraisamy, K., “Quantification of Turbulence Modeling
+Uncertainties Using Full Field Inversion,” AIAA Paper 2015-2459,
+June 2015.
+[20] Spalart, P. R., “Philosophies and Fallacies in Turbulence Modeling,”
+Progress in Aerospace Sciences, Vol. 74, April 2015, pp. 1–15.
+doi:10.1016/j.paerosci.2014.12.004
+[21] Lucor, D., Meyers, J., and Sagaut, P., “Sensitivity Analysis of LargeEddy Simulations to Subgrid-Scale-Model Parametric Uncertainty
+Using Polynomial Chaos,” Journal of Fluid Mechanics, Vol. 585,
+Aug. 2007, pp. 255–279.
+doi:10.1017/S0022112007006751
+[22] Meldi, M., Lucor, D., and Sagaut, P., “Is the Smagorinsky Coefficient
+Sensitive to Uncertainty in the Form of the Energy Spectrum?” Physics
+of Fluids, Vol. 23, No. 12, 2011, Paper 125109.
+doi:10.1063/1.3663305
+[23] Meldi, M., Lucor, S., and Sagaut, P., “Quantification of the Effects of
+Uncertainties in Turbulent Flows Through Generalized Polynomial
+Chaos,” Journal of Physics, Vol. 318, No. 4, 2011, pp. 1–10.
+doi:10.1088/1742-6596/318/4/042055
+[24] Tran, H., Webster, C. G., and Zhang, G., Sparse Grid Method for
+Bayesian Uncertainty Quantification with Application to Large Eddy
+Simulation Turbulence Models, Springer International, Switzerland,
+2016, pp. 291–313.
+[25] Biedron, R. T., Derlaga, J. M., Gnoffo, P. A., Hammond, D. P., Jones, W.
+T., Kleb, B., Lee-Rausch, E. M., Nielsen, E. J., Park, M. A., Rumsey, C.
+L., Thomas, J. L., and Wood, W. A., “FUN3D Manual: 12.4,” NASA
+TM-2014-218179, March 2014.
+[26] Cook, P. H., McDonald, M. A., and Firmin, M. C. P., “Aerofoil RAE
+2822—Pressure Distributions, and Boundary Layer and Wake
+Measurements,” Experimental Data Base for Computer Program
+Assessment, Technical Editing and Reproduction Ltd. Rept. AR-138,
+London, 1979.
+[27] Schaefer, J. A., “Uncertainty Quantification of Turbulence Model
+Closure Coefficients for Transonic, Wall-Bounded Flows,” M.S. Thesis,
+Mechanical and Aerospace Engineering Dept., Missouri Univ. of
+Science and Technology, Rolla, MO, 2015.
+[28] Nee, V. W., and Kovasznay, L. S. G., “The Calculation of the
+Incompressible Turbulent Boundary Layer by a Simple Theory,”
+Physics of Fluids, Vol. 12, No. 3, 1969, p. 473.
+doi:10.1063/1.1692510
+[29] Bailey, S. C. C., Vallikivi, M., Hultmark, M., and Smits, A. J., “Estimating
+the Value of Von Kármán’s Constant in Turbulent Pipe Flow,” Journal of
+Fluid Mechanics, Vol. 749, June 2014, pp. 79–98.
+doi:10.1017/jfm.2014.208
+[30] Wilcox, D. C., Turbulence Modeling for CFD, 3rd ed., DCW Industries,
+La Cañada, CA, 2006, pp. 107–230, 303–373.
+[31] Georgiadis, N. J., and Yoder, D. A., “Recalibration of the Shear Stress
+Transport Model to Improve Calculation of Shock Separated Flows,”
+AIAA Paper 2013-0685, Jan. 2013.
+[32] West, T. K., and Hosder, S., “Uncertainty Quantification of Hypersonic
+Reentry Flows with Sparse Sampling and Stochastic Expansions,”
+Journal of Spacecraft and Rockets, Vol. 52, No. 1, Jan.–Feb. 2015,
+pp. 120–133.
+doi:10.2514/1.A32947
+[33] Adya, S., Han, D., and Hosder, S., “Uncertainty Quantification
+Integrated to the CFD Modeling of Synthetic Jet Actuators,” AIAA
+Paper 2010-4411, 2010.
+[34] Hosder, S., Walters, R. W., and Balch, M., “Efficient Uncertainty
+Quantification Applied to the Aeroelastic Analysis of a Transonic
+Wing,” AIAA Paper 2008-729, Jan. 2008.
+[35] Najm, H. N., “Uncertainty Quantification and Polynomial Chaos
+Techniques in Computational Fluid Dynamics,” Annual Review of Fluid
+Mechanics, Vol. 41, Jan. 2009, pp. 35–52.
+doi:10.1146/annurev.fluid.010908.165248
+[36] Ghanem, R. G., and Spanos, P. D., Stochastic Finite Elements: A
+Spectral Approach, Springer–Verlag, New York, 1991.
+[37] Eldred, M. S., “Recent Advances in Non-Intrusive Polynomial Chaos
+and Stochastic Collocation Methods for Uncertainty Analysis and
+Design,” AIAA Paper 2009-2274, May 2009.
+
+SCHAEFER ET AL.
+
+Downloaded by MIT Libraries on March 7, 2026 | http://arc.aiaa.org | DOI: 10.2514/1.J054902
+
+[38] Hosder, S., Walters, R. W., and Balch, M., “Efficient Sampling for NonIntrusive Polynomial Chaos Applications with Multiple Input Uncertain
+Variables,” AIAA Paper 2007-1939, April 2007.
+[39] West, T. K., Brune, A. J., Hosder, S., and Johnston, C. O., “Uncertainty
+Analysis of Radiative Heating Predictions for Titan Entry,” Journal of
+Thermodynamics and Heat Transfer, Vol. 30, No. 2, 2016, pp. 438–451.
+doi:10.2514/1.T4620
+[B1] Crestaux, T., Le Maitre, O. L., and Martinez, J.-M., “Polynomial Chaos
+Expansion for Sensitivity Analysis,” Reliability Engineering and System
+
+213
+
+Safety, Vol. 94, No. 7, 2009, pp. 1161–1172.
+doi:10.1016/j.ress.2008.10.008
+[B2] Ghaffari, S., Magin, T., and Iaccarino, G., “Uncertainty Quantification of
+Radiative Heat Flux Modeling for Titan Atmospheric Entry,” AIAA Paper
+2010-239, Jan. 2010.
+
+K. E. Willcox
+Associate Editor
+
+

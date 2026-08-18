@@ -1,0 +1,162 @@
+Sparse and Deep Gaussian Processes Closure
+for 2-D Fluids and Ocean Flows
+
+Sanaa Mouzahir (sanaamz@mit.edu) · Pierre F. J. Lermusiaux (pierrel@mit.edu)
+MSEAS Group · Department of Mechanical Engineering · MIT
+
+Spatial Closure
+
+Temporal Closure
+
+Motivation and Challenges
+
+Motivation
+
+Motivation:
+
+Why a temporal closure?
+
+Fully resolved physics:
+
+Under-resolved physics:
+
+○ High accuracy at High Cost
+
+○ Lower accuracy at Lower Cost
+
+○ Need for reduction
+
+○ Truncation / discretization error
+
+Challenges:
+●
+
+Complex nonlinear, multiscale fluid dynamics with unresolved sub-grid physics
+
+●
+
+Truncated numerical models introduce truncation and discretization biases
+
+●
+
+Regime variability (Reynolds-number shifts, transient forcing) and evolving flow structures
+
+Fast, online data-driven correction of low-resolution dynamics, embedded directly into the solver
+
+●
+
+Uncertainty-aware predictions of resolved fields and wake metrics
+
+●
+
+Transferable across resolutions, domains, and flow conditions
+
+Spatial closure trains on snapshot pairs — no constraint on temporal
+coherence
+
+●
+
+Coarse ΔT introduces its own truncation error, independent of grid
+resolution
+
+●
+
+Errors at step k feed back into step k+1: rollouts can drift over long
+horizons
+
+●
+
+Goal: a closure consistent in time that matches a fine-step reference
+at coarse cost
+
+Approach:
+
+Needs:
+●
+
+●
+
+Deep Gaussian Process
+
+●
+
+Match the local truncation error of K fine AB2CN2 steps (dt = ΔT/K)
+with one coarse ΔT step
+
+●
+
+Closed-form additive RHS correction δR: three terms are pointwise
+spectral, one (Ï) is a neural surrogate
+
+●
+
+AB2CN2 at ΔT behaves like AB2CN2 at ΔT/K, at K-fold lower runtime
+cost
+
+Flow past cape
+
+temporal under-resolution
+[ to be added ]
+ω (Δt = 10⁻⁵) | ω (Δt = 10⁻³) | error
+
+SVGP on deep features
+
+●
+
+Structured priors via the kernel (smoothness, length-scales)
+
+●
+
+Non-parametric — no rigid analytic form
+
+●
+
+Built-in uncertainty: posterior σ² per pixel
+
+●
+
+Inducing points + ELBO scale to many DOFs
+
+Methodology
+
+Methodology
+
+Architecture
+
+Training: Re(t) Modulation Families
+Deterministic broadband
+(multi-sine Re(t))
+
+Deterministic narrowband
+(triangular wave Re(t))
+
+Stochastic
+
+(Ornstein–Uhlenbeck Re(t))
+
+Architecture
+Inference Results: Out-Of-Distribution Rollouts
+
+Conclusion · Acknowledgments
+Conclusions
+
+Acknowledgments
+
+●
+
+We are grateful to the Office of Naval Research for partial support under grant N00014-20-1-2023 (MURI ML-SCOPE) to MIT.
+
+●
+●
+
+Sparse variational GP closures, trained on snapshot pairs, inject mean (or stochastic) corrections directly into the FV solver and yield
+stable OOD rollouts on Re(t) modulations the model never saw at training.
+An analytical δR for AB2CN2 IMEX is derived: three pointwise-spectral terms + one NN surrogate (Ï). Empirical residuals match the
+predicted closure to high accuracy on flow past a cylinder.
+Together: the spatial closure mitigates grid-resolution bias; the temporal closure mitigates step-size bias. Combined, they target an endto-end fast, accurate, uncertainty-aware coarse solver.
+
+Thanks to the MSEAS group at MIT for compute resources and many useful discussions.
+
+Ocean Sciences Meeting 2026
+
+

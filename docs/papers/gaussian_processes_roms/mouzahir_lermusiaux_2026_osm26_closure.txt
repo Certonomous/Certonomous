@@ -1,0 +1,178 @@
+Sparse and Deep Gaussian Processes closure for 2-D Fluids
+and Ocean flows
+
+Poster
+#DO24C1962
+
+Sanaa Mouzahir (sanaamz@mit.edu), Pierre F. J. Lermusiaux (pierrel@mit.edu)
+
+Department of Mechanical Engineering, Massachusetts Institute of Technology, Cambridge, MA 02139
+Motivation and Challenges
+
+Application #1 : Results and discussions
+
+SVGP Training: Training Objectives
+
+Motivation:
+Fully resolved physics:
+
+Under-resolved physics:
+
+o High accuracy at High Cost
+
+o Lower accuracy at Lower Cost
+
+o Need for reduction
+
+o Truncation/discretization error
+
+Challenges:
+• Complex nonlinear, multiscale fluid dynamics with unresolved sub-grid
+physics
+• Truncated numerical models introduce truncation and discretization biases
+• Regime variability (Reynolds number shifts, Transient forcing) and evolving
+flow structures
+Needs:
+• Fast, online data-driven correction of LR dynamics embedded directly into the
+solver
+• Uncertainty-aware predictions of resolved fields and wake metrics
+• Transferable across resolutions, domains, and flow conditions
+
+Where:
+• Uncertainty is minimal near the inlet BC due to high
+correlation with Re and maximal near the cylinder due to
+under resolved boundary layer
+• Uncertainty grows over time due to distribution drift
+
+Sparse variational Gaussian Process (SVGP) Closure
+Why Gaussian Process?
+•
+•
+•
+
+Structured priors: physical smoothness and invariances encoded through
+Kernel
+Non-parametric flexibility : expressive function modeling without rigid
+parametric assumptions
+Uncertainty quantification : posterior variance enables OOD detection,
+confidence-based gating of predictions, and natural extension to
+stochastic solvers
+
+SVGP Inference: Online Finite Volume GP predictions
+
+• Online predictions are
+stable with bounded
+error growth
+
+Application #2 : Out of distribution
+inference, Modulated Flow Past an Obstacle
+Experiment goals
+
+OOD forcing functions
+
+• All the goals from
+Application #1
+• Online FV-GP
+inference on out of
+distribution samples
+• Extrapolation to
+unseen physics
+
+Gaussian Process Regression
+
+Multi-Output GP (Output-as-Input view)
+Linear Model of coregionalization (LMC)
+
+Application #1 : In distribution inference, Tidally Modulated Flow
+Past an Obstacle
+SVGP Training: Closure definition, Inputs and Outputs
+
+Fully resolved truth
+
+Under-resolved
+
+Filtered truth
+
+Experiment goals
+Physics objectives
+• Learn transient wake
+dynamics under
+modulated Re(t)
+• Capture vortex
+shedding frequency
+shifts
+• Represent
+acceleration via
+dRe/dt
+
+Statistical learning
+
+Online deployment
+
+• Learn time dependent
+closure statistics
+• Maintain accuracy
+under slow distribution
+drift
+• Generalize beyond
+training cycles
+
+• Stable FV-GP coupling
+• Bounded long horizon
+growth
+• Detect OOD via
+predictive variance
+• Robustness under
+recursive feedback
+
+Simulation Setup
+
+Application #2 : Results and discussions
+
+• Resolved grid: (Nx,Ny)=1200x400
+• Under-resolved
+grid:(Nx,Ny)=150x50
+• Modulation Period : T=5*T_shed
+• Training window: T_train= 2T
+
+Sdandardize
+
+Training and Prediction Setup
+Overly confident
+
+Over-confident
+
+• Uncertainty has similar properties to the indistribution prediction case and is overall higher
+• Under/over-dispersion (over/under-confidence)
+is governed by dRe/dt. GP is over-confident when
+dRe/dt lies close to training support.
+
+GP input
+
+GP Target
+
+• GP is trained on 2 Re modulation cycles which corresponds to ten eddies
+(events).
+• Offline closure evaluations are successful with little to no dependence
+on the time of the evaluation
+• However, in online deployment due to non-linear error accumulation,
+prediction input samples eventually become OOD as well
+
+Conclusion
+
+Under-confident
+
+• Spatial autocorrelations
+are still very well captured
+under OOD forcing
+• Online predictions are
+stable with bounded error
+growth
+
+We built a sparse variational Gaussian process Finite Volume
+framework to seamlessly inject a mean GP or stochastic GP term inside
+the equation and tested it on in- and out of -distribution flows
+
+Acknowledgments
+
+
