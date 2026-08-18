@@ -1,0 +1,6 @@
+pre-registration commit   d5c43c5375bf9178b9c2d0f868402953c6b643fd
+committed_utc             2026-08-18T23:50:13Z
+first_graded_solve_utc    2026-08-18T23:51:01Z
+pilot                     1 scratch solve of 20 iterations, outside this tree,
+                          charged in K0cR_PREREGISTRATION.md Section 8.1. It
+                          produced a RATE and no case value in this rung.

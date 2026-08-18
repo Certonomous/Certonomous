@@ -1,0 +1,66 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p_rgh
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-10;
+        relTol          0.01;
+    }
+
+    "(U|T|k|omega|epsilon|R)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0.01;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 0;
+    pRefCell        0;
+    pRefValue       0;
+
+    // Convergence is judged by the peak-to-peak criterion registered in
+    // K0cS_PREREGISTRATION.md, never by these.  They are set unreachable so a
+    // residual dip cannot end a run early and be mistaken for convergence.
+    residualControl
+    {
+        p_rgh           1e-30;
+        U               1e-30;
+        T               1e-30;
+        "(k|omega|epsilon)" 1e-30;
+    }
+}
+
+relaxationFactors
+{
+    fields    { p_rgh 0.7; }
+    equations
+    {
+        U               0.4;
+        T               0.6;
+        "(k|omega|epsilon|R)" 0.4;
+    }
+}
+
+// ******************************************************** //
