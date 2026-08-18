@@ -81,3 +81,28 @@ each destination was then confirmed against the filesystem at commit `4323d7e3`.
 The whole 87-path table was appended to `docs/papers/README.md` in the same
 commit. `python3 scripts/check_paper_citations.py` re-derives the rows above and
 exits non-zero if any destination stops resolving.
+
+## ampofo_fig11/
+
+**DIGITISED, not primary.** Turbulent diffusivity, turbulent viscosity and
+turbulent Prandtl number close to the hot wall at mid-height of the Ampofo and
+Karayiannis square cavity, read from the published figure because the authors
+tabulate none of it.
+
+| Field | Value |
+| --- | --- |
+| Digitised | 2026-08-18 |
+| Source | `docs/papers/buoyant_natural_convection/ampofo_karayiannis_2003_ijhmt_46.pdf` page 19, journal p. 3569, Fig. 11 |
+| Publication of record | Ampofo, F., Karayiannis, T.G. (2003). Experimental benchmark data for turbulent natural convection in an air filled square cavity. Int. J. Heat and Mass Transfer 46, pp. 3551-3572 |
+| Method, uncertainty and readings | `../K0cS_FIG11_DIGITISATION.md` |
+| Reading uncertainty | +/- 0.15 on `alpha_t/nu` and `nu_t/nu`; +/- 0.04 on `Prt` |
+| Self-check | `Prt` agrees with the plotted `nu_t / alpha_t` ratio at all four points where the two curves are separable |
+
+**This is a digitisation and is not interchangeable with the primary files in
+`betts_bokhari/`.** It arms no gate row and no band is proposed for it.
+
+Kept files:
+
+- `ampofo_fig11_digitised.dat` — `X=x/L`, `alpha_t/nu`, `nu_t/nu`, `Prt`,
+  and a `marker` column that is 1 at a plotted symbol and 0 at an extremum of
+  the authors' fitted curve between symbols
