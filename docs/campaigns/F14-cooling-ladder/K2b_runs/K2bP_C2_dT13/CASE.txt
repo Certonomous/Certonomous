@@ -1,0 +1,27 @@
+case               K2bP_C2_dT13
+kind               RESTART TWIN of K2bP_under
+slice              y-z, thickness 0.6 m (one rack pitch), empty frontAndBack
+domain             3.5 m (y) x 2.7 m (z)
+rack void          y [1.2, 2.3]  z [0, 2.0]
+cell size          0.0125 m
+cells              46400
+solver             buoyantBoussinesqSimpleFoam
+turbulence         kOmegaSST, Prt 0.85
+gravity            -9.81 m/s2 in z
+Qv_rack            0.35 m3/s   U_face 0.2917 m/s
+Qv_tile            0.245 m3/s   U_tile 0.6806 m/s
+provisioning       70.0 % of rack demand
+dT_rack            13.2 K
+T_sup              289.0 K
+TRef (audit datum) 300.0 K
+beta.dT_rack       0.044000   (limit 0.1 on the DOMAIN span)
+dT_dom limit       30.0000 K
+P_rack (lab rho.cp 1169.5298)  5403.2 W
+P_rack (spec 1.177*1006)          5470.4 W
+Re_tile            3.67e+04
+Re_rack            1.101e+04
+Ri_tile            0.274
+Ri_rack            10.15
+Ra_H               2.388e+10
+planted_source     0.0 W  (S 0.000000000000e+00 K.m3/s)
+endTime            800

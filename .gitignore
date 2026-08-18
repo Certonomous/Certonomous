@@ -137,6 +137,20 @@ docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/*/[0-9]*/
 !docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/*/0.orig/
 !docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/*/0.orig/**
 
+# --- F14 cooling ladder, rung K2b-pilot (2026-08-18) ---
+# Same policy, same two reasons, and the same re-inclusion order: `0.orig/` is
+# case INPUT and must travel, `0/` and every solved time directory are OUTPUT.
+# KV1's run tree tracks its time directories and this one deliberately does not:
+# KV1's cases are 1,200 cells, K2b's are 46,400 and 104,400, and eight ascii
+# fields per written time at ten time directories per case is the size that put
+# .git at 513 MB the last time this was got wrong. Everything a reader needs is
+# tracked: the dictionaries, `0.orig/`, the solver logs, COST.txt, CASE.txt,
+# SEED.txt and the HEATBALANCE_*.json/.txt audit reports. The run is rebuilt by
+# the recipe in `K2b_PILOT_RESULTS.md` section 10.
+docs/campaigns/F14-cooling-ladder/K2b_runs/*/[0-9]*/
+!docs/campaigns/F14-cooling-ladder/K2b_runs/*/0.orig/
+!docs/campaigns/F14-cooling-ladder/K2b_runs/*/0.orig/**
+
 # --- BATCH 2: solver output inside the campaign and dafoam run trees (2026-08-17) ---
 # `campaign/MOVE_MAP_2026-08-16.md` section 7.2: a run tree's INPUTS stay
 # tracked and its OUTPUTS leave tracking. Case dictionaries (`system/`,

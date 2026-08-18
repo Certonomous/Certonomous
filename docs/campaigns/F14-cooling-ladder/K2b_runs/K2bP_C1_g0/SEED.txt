@@ -1,0 +1,5 @@
+control        K2bP_C1_g0
+seeded_from    K2bP_under/5000
+fields         U T p_rgh k omega nut alphat
+internalField  from the parent's converged solution
+boundaryField  from this control's OWN 0.orig -- see seed_k2b.py

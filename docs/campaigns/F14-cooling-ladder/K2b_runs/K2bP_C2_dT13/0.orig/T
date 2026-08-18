@@ -1,0 +1,82 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0.orig";
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 289.0;
+
+boundaryField
+{
+    floor
+    {
+        type            zeroGradient;
+    }
+    ceiling
+    {
+        type            zeroGradient;
+    }
+    wall_cold
+    {
+        type            zeroGradient;
+    }
+    wall_hot
+    {
+        type            zeroGradient;
+    }
+    rack_top
+    {
+        type            zeroGradient;
+    }
+    tile
+    {
+        type            fixedValue;
+        value           uniform 289.0;
+    }
+    return
+    {
+        type            inletOutlet;
+        inletValue      uniform 289.0;
+        value           uniform 289.0;
+    }
+    rack_in
+    {
+        type            zeroGradient;
+    }
+    rack_out
+    {
+        // THE LOAD-BEARING ROW.  dT = P/(mdot.cp) with dT specified directly,
+        // mdot pinned by the paired flowRateOutletVelocity on rack_in.  No cp
+        // ever enters the Boussinesq case.  Offset dropped silently if rack_in
+        // ever loses net outflow -- see build_k2b.py's docstring.
+        type            outletMappedUniformInlet;
+        outlets
+        {
+            rack_in
+            {
+                fraction    constant 1;
+                offset      constant 13.2;
+            }
+        }
+        value           uniform 302.2;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,77 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0.orig";
+    object      k;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 1.417824e-02;
+
+boundaryField
+{
+    floor
+    {
+        type            kqRWallFunction;
+        value           uniform 1.417824e-02;
+    }
+    ceiling
+    {
+        type            kqRWallFunction;
+        value           uniform 1.417824e-02;
+    }
+    wall_cold
+    {
+        type            kqRWallFunction;
+        value           uniform 1.417824e-02;
+    }
+    wall_hot
+    {
+        type            kqRWallFunction;
+        value           uniform 1.417824e-02;
+    }
+    rack_top
+    {
+        type            kqRWallFunction;
+        value           uniform 1.417824e-02;
+    }
+    tile
+    {
+        type            turbulentIntensityKineticEnergyInlet;
+        intensity       0.1;
+        value           uniform 1.417824e-02;
+    }
+    rack_out
+    {
+        type            turbulentIntensityKineticEnergyInlet;
+        intensity       0.1;
+        value           uniform 1.276042e-03;
+    }
+    rack_in
+    {
+        type            zeroGradient;
+    }
+    return
+    {
+        type            inletOutlet;
+        inletValue      uniform 1.417824e-02;
+        value           uniform 1.417824e-02;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

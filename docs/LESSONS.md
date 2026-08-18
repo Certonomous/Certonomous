@@ -5611,3 +5611,128 @@ from a finding — the failure mode L-113 names, in the file that documents itse
 most carefully.
 
 Found 2026-08-18 at F14 rung K2e, while auditing 30 cases; docketed.
+
+## L-119. A control's SIZE is part of its design: a plant carried over from the previous rung cannot fail on this one
+
+**The rule.** When a planted-source control moves to a new case, **re-derive the
+plant size against the new case's own ledger before running it.** A plant is a
+control only while it is large enough that the instrument reading it can be
+wrong. Carry the previous rung's number across unexamined and you get a control
+that passes for the same reason an unplugged instrument reads zero.
+
+**Why.** At rung KV1 the advective heat-balance path was validated by planting
+**5.000e-03 W** into a duct whose ledger carried 0.146 W. The plant was 3.4 % of
+the ledger, its recovery was measured at **+2.40e-08 %**, and the control earned
+its keep. K2b's pre-registered control set (K2a section 8, "C3 planted
+volumetric source — KV1's plant in the room") named the same control for a rack
+row whose ledger carries **4.914e+03 W**. The same 5 mW there is **1.0e-06 of
+the ledger** — nine orders below the 0.5 % band the closure is graded against,
+and roughly seven orders below the several watts of closure noise the case
+actually carries at any affordable convergence. **An instrument that returned
+exactly zero would have "recovered" it**, and the run would have been written up
+as a passing control.
+
+This is KV1b's defect arriving by a different road. KV1b was kept on the record
+precisely because it "passed while proving nothing": its field was uniform, its
+advective sum was identically zero, and sign flips and factor-of-two mutations
+were all correctly invisible. That was a degenerate **field**. This is a
+degenerate **size**, and no amount of reading the case dictionary reveals it —
+the dictionary is identical in both, and the number that decides whether the
+control can fail lives in the *other* case, the one the ledger belongs to.
+
+**How to apply.** Before running any planted control, state three numbers
+together: the plant, the ledger it sits in, and the tolerance it is graded at. If
+the plant is not comfortably above the case's own closure noise, the control
+cannot fail and must be re-sized or dropped — not run and reported. K2b re-sized
+to **500.000 W**, ≈10 % of the rack load, so that its 0.1 % recovery tolerance is
+0.5 W. **And the re-sizing is not free**: at 500 W the control became
+convergence-limited instead of size-limited, its recovery reading 155.55 W at 400
+iterations and 315.57 W at 800 against the planted 500.000 W, and the pilot's
+authorisation did not hold the ~5,000 further iterations needed to land it. A
+control that can fail costs more than one that cannot. That is the trade, and it
+is the right way round.
+
+## L-120. A spec that cites a boundary condition's `Description` has not read its code path, and the branch it quoted was the fallback
+
+**The rule.** When a specification pins behaviour on a library boundary
+condition, the citation must be to the **function that runs** — `updateCoeffs`,
+`correctBoundaryConditions` — and not to the `Description`/`Usage` block above
+it. Doxygen prose describes intent; a BC with branches has more than one
+behaviour and the prose usually documents one of them.
+
+**Why.** `K2a_RACK_ROW_MODULE_SPEC.md` section 3.3 is the load-bearing row of the
+whole module — the rack rise ΔT = P/(ṁ·cp) is imposed by
+`outletMappedUniformInlet` — and it states, with a source path and the tier
+"READ IN SOURCE":
+
+> The face-averaging in the BC is area-weighted (`gWeightedAverage` over `magSf`
+> in the source) ... the analyser must print both once and show their difference
+> is below the gate resolution, **or switch the grading to the BC's own area
+> average**.
+
+Read in `outletMappedUniformInletFvPatchField.txx`, `updateCoeffs()`, v2606 has
+two branches and the one the spec quoted is the **`else`**:
+
+```cpp
+if (sumOutletPhi > SMALL)
+    mapField.append(gSum(outletPhi*outletFld)/sumOutletPhi*fraction + offset);
+else
+    mapField.append(gWeightedAverage(outlet.magSf(), outletFld));
+```
+
+Three consequences, measured at K2b: the BC is **mass-flux**-weighted in normal
+operation, so the spec's remedy pointed the wrong way and taking it would have
+moved the graded quantity **0.403 K — 3.4 % of the rack rise** — away from what
+the BC computes; the two averages are **not** within any gate resolution on this
+geometry; and the fallback branch **appends no `offset` at all**, so a rack front
+face that ever loses net outflow hands the rear face the front face's own
+temperature and a rack that adds no heat reads exactly like a converged one.
+
+**The reversal is the part worth carrying.** The spec's own mandated check ("print
+both once and show the difference is small") was written to close a
+units-of-averaging dispute that does not exist, and it was silent on the branch
+that can silently delete the module's only heat source. **A check aimed at the
+wrong hazard reads as diligence and buys nothing** — which is L-113 (a claim
+about what a check enforces decays faster than a claim about a result) landing on
+a boundary condition instead of a script.
+
+## L-121. A convergence criterion certifies the quantity it watches, and K2b measured it failing in both directions on one module
+
+**The rule.** Do not let one converged quantity stand in for another. A
+peak-to-peak monitor on the graded quantity and a heat-balance closure are two
+independent verdicts, and **neither implies the other in either direction.** Run
+both, report both, and when they disagree say which quantity each was watching.
+
+**Why.** On the K2b rack-row pilot, at the same iteration count, on two cases of
+the same module:
+
+| case | S13 on T_in (peak-to-peak, 0.02 % band) | heat-balance closure (0.5 % band) |
+|---|---|---|
+| `K2bP_coarse` @ 5,000 | **PASS**, 0.00136 % | **FAIL**, 0.5244 % |
+| `K2bP_under` @ 5,000 | **FAIL**, 0.34553 % | **PASS**, 0.1272 % |
+
+The counterexample runs both ways and the reasons are different in each
+direction. On the balanced case the monitored quantity is the rack inlet
+temperature in a **contained** cold aisle that is nearly isothermal: it had
+stopped moving three orders inside its band while the room's energy field was
+still half a percent out of balance. On the recirculating case the ledger closed
+while the monitored quantity was still swinging by a full kelvin, because closure
+is an integral over the whole boundary and averages a swing away.
+
+The sharpest instance is a third case. `K2bP_fine`, at 1,500 iterations, has a
+heat balance of **2.6632 %** and a free boundary swinging **0.23585 %** — and on
+the specified monitored quantity it scores **0.00000 %, the best score the
+criterion can return**, because T_in reads exactly 289.000000 K in a cold aisle
+nothing has reached yet. Two of the rung's controls read perfectly on that same
+case for the same reason: the offset readback errs by **0.000e+00** and the
+mass-versus-area averaging comparison by **−0.0001 %**, both because the rack
+face is still uniform. **A monitor or a control is most flattering exactly where
+the case is least converged**, which is KV1b's uniform field wearing a third
+costume.
+
+**Neither reading was wrong. Each was a fact about the quantity it watched**, and
+a rung that reported only one of them would have shipped a sentence about the
+other. Note also that this cuts across the standing wisdom in the obvious
+direction only half the time: it is well recorded here that residuals do not
+certify the graded quantity (S13's whole content), and K2b adds that **the graded
+quantity does not certify the energy field either.**

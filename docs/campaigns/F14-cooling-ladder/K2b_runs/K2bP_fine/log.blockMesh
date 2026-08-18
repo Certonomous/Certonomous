@@ -1,0 +1,135 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : blockMesh
+Date   : Aug 18 2026
+Time   : 04:08:20
+Host   : ip-172-31-43-247
+PID    : 1468676
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/docs/campaigns/F14-cooling-ladder/K2b_runs/K2bP_fine
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Creating block mesh from "system/blockMeshDict"
+No non-linear block edges defined
+No non-planar block faces defined
+Creating topology blocks
+
+Creating topology patches - from boundary section
+
+Creating block mesh topology
+
+Check topology
+
+	Basic statistics
+		Number of internal faces : 13
+		Number of boundary faces : 40
+		Number of defined boundary faces : 40
+		Number of undefined boundary faces : 0
+	Checking patch -> block consistency
+
+Creating block offsets
+Creating merge list (topological search)...
+
+Creating polyMesh from blockMesh
+Creating patches
+Creating cells
+Creating points with scale (1 1 1)
+    Block 0 cell size :
+        i : 0.6 .. 0.6
+        j : 0.008333333333 .. 0.008333333333
+        k : 0.008333333333 .. 0.008333333333
+
+    Block 1 cell size :
+        i : 0.6 .. 0.6
+        j : 0.008333333333 .. 0.008333333333
+        k : 0.008333333333 .. 0.008333333333
+
+    Block 2 cell size :
+        i : 0.6 .. 0.6
+        j : 0.008333333333 .. 0.008333333333
+        k : 0.008333333333 .. 0.008333333333
+
+    Block 3 cell size :
+        i : 0.6 .. 0.6
+        j : 0.008333333333 .. 0.008333333333
+        k : 0.008333333333 .. 0.008333333333
+
+    Block 4 cell size :
+        i : 0.6 .. 0.6
+        j : 0.008333333333 .. 0.008333333333
+        k : 0.008333333333 .. 0.008333333333
+
+    Block 5 cell size :
+        i : 0.6 .. 0.6
+        j : 0.008333333333 .. 0.008333333333
+        k : 0.008333333333 .. 0.008333333333
+
+    Block 6 cell size :
+        i : 0.6 .. 0.6
+        j : 0.008333333333 .. 0.008333333333
+        k : 0.008333333333 .. 0.008333333333
+
+    Block 7 cell size :
+        i : 0.6 .. 0.6
+        j : 0.008333333333 .. 0.008333333333
+        k : 0.008333333333 .. 0.008333333333
+
+    Block 8 cell size :
+        i : 0.6 .. 0.6
+        j : 0.008333333333 .. 0.008333333333
+        k : 0.008333333333 .. 0.008333333333
+
+    Block 9 cell size :
+        i : 0.6 .. 0.6
+        j : 0.008333333333 .. 0.008333333333
+        k : 0.008333333333 .. 0.008333333333
+
+    Block 10 cell size :
+        i : 0.6 .. 0.6
+        j : 0.008333333333 .. 0.008333333333
+        k : 0.008333333333 .. 0.008333333333
+
+No patch pairs to merge
+
+Writing polyMesh with 0 cellZones
+----------------
+Mesh Information
+----------------
+  boundingBox: (0 0 0) (0.6 3.5 2.7)
+  nPoints: 210770
+  nCells: 104400
+  nFaces: 418584
+  nInternalFaces: 207816
+----------------
+Patches
+----------------
+  patch 0 (start: 207816 size: 216) name: floor
+  patch 1 (start: 208032 size: 348) name: ceiling
+  patch 2 (start: 208380 size: 324) name: wall_cold
+  patch 3 (start: 208704 size: 324) name: wall_hot
+  patch 4 (start: 209028 size: 132) name: rack_top
+  patch 5 (start: 209160 size: 72) name: tile
+  patch 6 (start: 209232 size: 72) name: return
+  patch 7 (start: 209304 size: 240) name: rack_in
+  patch 8 (start: 209544 size: 240) name: rack_out
+  patch 9 (start: 209784 size: 208800) name: frontAndBack
+
+End
+

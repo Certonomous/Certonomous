@@ -1,0 +1,7 @@
+case K2bP_fine
+cells 104400
+iterations 1500
+wall_clock_s 399.366378338
+cores 1
+core_minutes 6.6561
+cell_iter_per_core_s 392121.1

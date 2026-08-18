@@ -1359,3 +1359,163 @@ do not read one scalar limit and assume it protects the quantity being graded.
   Rayleigh number. The **exponents** are the part most likely to transfer,
   because they come from the structure of the expansion; the **coefficients** are
   properties of this case.
+
+## The rack-row module, executed as a 2D slice (F14 rung K2b-pilot, 2026-08-18)
+
+Everything in this block is from `K2b_PILOT_RESULTS.md` and the run tree at
+`docs/campaigns/F14-cooling-ladder/K2b_runs/`. Seven single-core
+`buoyantBoussinesqSimpleFoam` solves, k-ω SST, 46,400 and 104,400 cells. **This
+is a capability rung: none of it is a validation of anything against a
+measurement of a real room.**
+
+### 1. `outletMappedUniformInlet` has two branches and the second one drops the offset
+
+| Fact | Value | Basis |
+|---|---|---|
+| The averaging the BC applies in normal operation | **mass-flux**-weighted: `gSum(outletPhi*outletFld)/sumOutletPhi*fraction + offset` | **VERIFIED**, read in `updateCoeffs()` of `outletMappedUniformInletFvPatchField.txx`, v2606 |
+| The condition selecting that branch | `gSum(phi) > SMALL` on the mapped **outlet** patch | **VERIFIED**, same source |
+| What the `else` branch does | area-weighted `gWeightedAverage(magSf, outletFld)` **and appends no offset** | **VERIFIED**, same source |
+| Consequence | a rack front face that loses net outflow silently hands the rear face the front face's own temperature; a rack adding no heat then reads exactly like a converged rack | **VERIFIED** by construction from the branch above |
+| The control against it | `T̄(rack_out) − T̄_ṁ(rack_in)` printed by the running solver; reads ΔT on the live branch and **0 K** on the fallback | **VERIFIED**: −8.33e-05 % error on the converged balanced case (residual is the log's own 10-digit print precision) |
+| K2a section 3.3 described the `else` branch as the normal one | corrected here; taking its stated remedy would move the graded quantity **0.403 K = 3.4 % of ΔT_rack** away from what the BC computes | **VERIFIED**, measured on `K2bP_under` |
+
+### 2. The mass-flow-weighted and area-weighted face averages are NOT interchangeable on this geometry
+
+| case | mass-weighted T_in | area-weighted T_in | difference, as % of ΔT_rack |
+|---|---:|---:|---:|
+| `K2bP_coarse` (contained) | 289.068443 K | 289.155745 K | **−0.73 %** |
+| `K2bP_under` (r = 0.30) | 294.185416 K | 293.782445 K | **+3.36 %** |
+| `K2bP_C1_g0` (g = 0) | 292.790573 K | 294.742765 K | **−16.27 %** |
+
+**VERIFIED**, all three read from the solvers' own logs. The gap grows with face
+non-uniformity, and on the forced-convection twin it reaches a sixth of the rack
+rise. Any rack-inlet number quoted from this module class must say which average
+it is.
+
+### 3. Recirculation on a 2D slice comes from provisioning imbalance, and the spec's mixing relation holds to sub-percent
+
+| Fact | Value | Basis |
+|---|---|---|
+| θ_in at balanced tile supply (100 % of rack demand) | **0.0057** — the slice is contained and θ **cannot move** | **VERIFIED**, `K2bP_coarse`, 9,000 iterations |
+| θ_in at 70 % tile supply | **0.4321**, θ_out = 1.4326 | **VERIFIED**, `K2bP_under`, 5,000 iterations |
+| Recirculated fraction from the solve, r = 1 − 1/θ_out | **0.3020** | **VERIFIED** |
+| Independent a-priori prediction, r = (Qv_rack − Qv_tile)/Qv_rack | 0.3000 | **VERIFIED** by arithmetic; agreement **+0.67 %** |
+| Effect of switching gravity off at the same provisioning | r falls to **0.2398** (−20.6 %): the measured r is a *thermal* mixing fraction, and without stratification the makeup air is a cooler blend | **VERIFIED**, `K2bP_C1_g0` |
+
+**Design consequence for any later run of this module class.** A balanced,
+contained, leak-free slice reports θ ≈ 0 for a reason that is a construction and
+not a measurement. Build the recirculation source in deliberately — provisioning
+imbalance, row-end effects, leakage — or the recirculation index is dead on
+arrival, in the same way KV1b's advective sum was.
+
+### 3b. Passing the scalar Boussinesq limit is not the same as being inside the model
+
+Rung K2e (same day, `K2e_RESULTS.md`) measured that the two models separate at
+different ORDERS: peak velocity **first order**, D = 24.91·(beta.dT)^1.005 %,
+separating in the bracket beta.dT ∈ (0.0333, 0.0500]; Nusselt number **second
+order**, D = 6.355·(beta.dT)^1.968 %. **K2b's graded quantities — theta and T_in
+— are of the FIRST-order class** (flow structure), and this module has no wall
+heat flux at all: every wall reads exactly 0 W. Measured beta.span on the K2b
+cases: 0.0400, 0.0403, 0.0587, 0.0592, 0.0632, 0.0710 — **every case except the
+two balanced ones runs past the bracket where K2e measured velocity separation
+beginning**. K2e's law does **not** transfer as a number (laminar cavity at
+Ra = 1e5 against a turbulent through-flow module at Ra ≈ 3e10) and is not quoted
+as one; what transfers is the ordering. **Consequence for the next run of this
+module class:** report beta.span against the 0.05 velocity bracket as well as
+against the 0.1 scalar limit, or carry a compressible twin at one operating
+point. VERIFIED as arithmetic on both rungs' own measured spans.
+
+### 4. The Boussinesq admissibility line is a property of the LAYOUT, not of the rack
+
+`thermal.boussinesq_beta_dT_max` = 0.1 is reached at ΔT_domain = 30.0 K at
+TRef 300. With span = ΔT_rack/(1−r):
+
+| measured r | ΔT_rack that puts the span exactly on 30.0 K | Basis |
+|---:|---:|---|
+| 0.0057 (contained) | **29.83 K** | **VERIFIED**, `K2bP_coarse` |
+| 0.2398 (g = 0) | **22.81 K** | **VERIFIED**, `K2bP_C1_g0` |
+| 0.3020 (70 % provisioned) | **20.94 K** | **VERIFIED**, `K2bP_under` |
+| 0.3327 (70 % + 500 W room plant) | **20.02 K** | **VERIFIED**, `K2bP_C3_plant` |
+
+So K2a's table — ΔT_rack ≤ 20 K admissible a priori, 20–30 K conditional, ≥30 K
+refused — survives only just: at r = 0.3020 a 20.0 K rack sits at a 28.65 K span,
+**β·span = 0.0955 against a limit of 0.1**, and the whole "conditional" band is
+inadmissible. Measured spans, none breached: β·span 0.040228 (`K2bP_coarse`),
+0.058756 final and **0.059231 at iteration 2,300** (`K2bP_under`, i.e. the worst
+value was **mid-run**, which an end-of-run-only check would have missed), 0.069624
+(`K2bP_C3_plant`).
+
+### 5. S13 and the heat-balance closure are independent verdicts, measured failing in both directions
+
+| case @ 5,000 | S13 on T_in (band 0.02 %) | closure (band 0.5 %) |
+|---|---|---|
+| `K2bP_coarse` | **PASS** 0.00136 % | **FAIL** 0.5244 % |
+| `K2bP_under` | **FAIL** 0.34553 % | **PASS** 0.1272 % |
+
+| `K2bP_fine` @ 1,500 | **PASS 0.00000 %** | **FAIL 2.6632 %** |
+
+**VERIFIED**, all read from the same runs. The fine-mesh row is the sharpest: at
+1,500 iterations T_in has not moved from its 289.000000 K initial value, so the
+peak-to-peak spread is 1.0e-07 K and the criterion returns its best possible
+score on a case five times further out of balance than the coarse mesh. On the
+same case the offset readback errs by 0.000e+00 and the mass-versus-area
+comparison by −0.0001 %, both because the rack face is still uniform — **a
+best-possible reading produced by an undeveloped field, not by a converged one.**
+
+Also measured on `K2bP_under`: the
+window's **endpoint difference is 0.06764 %, five times smaller than the
+peak-to-peak spread of 0.34553 %** — the aliasing `physics_rules.yaml` section 1
+describes, now measured on this module class rather than inherited from K0c.
+Steady SIMPLE does not converge on the recirculating case; K2a section 5 risk 1
+pre-registered exactly that from the K2c primary's own report, and the pilot
+reproduced it at 1/15 the cost of the 3D module.
+
+### 6. The open-case closure on this geometry, and the instrument gap it was quoted through
+
+| Fact | Value | Basis |
+|---|---|---|
+| Closure on `K2bP_under`, iterations 1,000 / 3,000 / 5,000 | 31.0420 % → 3.7812 % → **0.1272 %**, auditor exit flipping 1 → 0 across the 0.5 % band | **VERIFIED** |
+| `scripts/heat_balance.py` on any k-ω SST case | **REFUSES, exit 2**, unless `--allow-turbulent`, whose path is uncalibrated and stamps the report UNVALIDATED | **VERIFIED**, measured (alphat max 1.047795e-02 m²/s) |
+| KV1, the prerequisite K2a section 8 named for quoting a closure number | a **laminar** rung; it does not cover the turbulent path every K2b case needs | **VERIFIED** by reading KV1_RESULTS.md section 10 |
+| What bounds the damage on THIS module | the uncalibrated path touches only the **conductive** rows; all five wall rows read exactly 0 (adiabatic), leaving total conduction at **5.5e-04 %** of the ledger on `K2bP_under` and **6.6e-05 %** on `K2bP_coarse` | **VERIFIED**, per-patch rows in the audit reports |
+| What that bound does NOT cover | any variant of this module with a non-adiabatic envelope. K2a section 3.1 already records adiabatic walls as a modelling choice | statement of scope |
+
+### 7. Cost, measured, and why the short probe mis-priced it
+
+| case | cells | iterations | wall s | cell·iter/(core·s) |
+|---|---:|---:|---:|---:|
+| 100-iteration probe | 46,400 | 100 | 17.24 | **2.70e5** |
+| `K2bP_coarse` | 46,400 | 5,000 | 444.76 | **5.22e5** |
+| `K2bP_under` | 46,400 | 5,000 | 482.09 | **4.81e5** |
+| `K2bP_C2_dT13` | 46,400 | 800 | 73.32 | **5.06e5** |
+| `K2bP_C3b_noplant` | 46,400 | 800 | 72.50 | **5.12e5** |
+| `K2bP_fine` | 104,400 | 1,500 | 399.37 | **3.92e5** |
+
+**VERIFIED.** The probe is pessimistic by **1.9×** because mesh construction,
+`wallDist` and the first matrix assembly are amortised over 100 iterations
+instead of 5,000 — **a short probe is the wrong instrument for pricing a long
+run.** Note also `K2bP_C1_g0` at 2.24e5, an outlier caused by eight other agents'
+solves sharing the machine during that window, so the honest planning figure is
+the **4.8e5** the repeated 46,400-cell cases agree on and not the best of them.
+The 104,400-cell mesh runs 19 % slower per cell·iteration than the 46,400-cell
+mesh — the same throughput-falls-with-case-size trend K0c measured across its
+four meshes, and a reason any 3D figure built on 4.8e5 is optimistic.
+
+Against section 3 of the block above: K2a's planning rate for the 3D module is
+1.0e5 (2.7e5 derated ÷2.7). The 2D turbulent SST measurement is **4.8e5**, so
+the base rate was 1.9× low and only the **derate** remains unmeasured. The
+cheapest experiment that settles it is a 3D coarse mesh run for 200 iterations,
+≈1.4 core-minutes.
+
+### 8. y+ on the pilot meshes sits BELOW the wall-function band
+
+Measured (`yPlus` function object, in-log, per patch, `K2bP_coarse` at 9,000):
+per-patch averages **2.6 to 9.1**, maxima 8.8 to 26.9, minima as low as 0.217,
+against K2a section 6's stated target band of **30–300**. At a 12.5 mm cell the
+near-wall cell is far too fine for standard wall functions. OpenFOAM's
+`nutkWallFunction` and `omegaWallFunction` blend continuously so the solve is
+stable and nothing failed, but **the wall treatment the mesh delivers is not the
+one the spec names**, and this is measured rather than assumed exactly because
+the spec required it to be. On the 1.5×-refined mesh the per-patch averages fall
+further, to **3.3–5.4**: **refining moves y+ away from the band, not toward it**,
+so this is a wall-treatment decision and not something more cells will fix.

@@ -1,0 +1,7 @@
+case K2bP_C3_plant
+cells 46400
+iterations 800
+wall_clock_s 66.179954585
+cores 1
+core_minutes 1.1029
+cell_iter_per_core_s 560894.9
