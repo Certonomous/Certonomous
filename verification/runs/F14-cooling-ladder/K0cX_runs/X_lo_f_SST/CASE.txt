@@ -1,0 +1,42 @@
+case              X_lo_f_SST
+rung              lo
+model             kOmegaSST
+mesh_level        f
+graded            yes
+wall_treatment    low-Re, integrate to wall
+Ra                8.600000000e+05
+Ra_effective      8.600000000e+05
+H                 2.18 m
+W                 0.076 m
+nx                64
+ny                192
+cells             12288
+d1                1.250000000e-04 m
+expansion_ratio   33.432279 (cell-to-cell 1.119868)
+dy                1.135416667e-02 m
+dT                19.600000000 K
+T_mean            297.920745283 K
+T_hot             307.720745283 K
+T_cold            288.120745283 K
+beta              3.356597403e-03 1/K
+beta_dT           0.065789309
+nu                1.529369777e-05 m2/s
+nu_sutherland     1.549676062e-05 m2/s
+alpha             2.154041940e-05 m2/s
+Pr                0.710000
+Prt               0.850000
+Vc                0.221472069 m/s
+k_seed            1.839370399e-04 m2/s2
+Pe_y_at_peak      70.044062
+endTime           50000
+top_wall_profile_points_x_m_T_K
+  0.001000 288.3200
+  0.038100 298.8200
+  0.067200 305.7800
+  0.075200 307.6300
+bottom_wall_profile_points_x_m_T_K
+  0.001000 287.9800
+  0.009000 289.9800
+  0.038100 297.4300
+  0.067200 303.9100
+  0.075200 307.7200

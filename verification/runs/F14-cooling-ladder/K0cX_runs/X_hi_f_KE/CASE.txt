@@ -1,0 +1,42 @@
+case              X_hi_f_KE
+rung              hi
+model             kEpsilon
+mesh_level        f
+graded            yes
+wall_treatment    high-Re wall functions
+Ra                1.430000000e+06
+Ra_effective      1.430000000e+06
+H                 2.18 m
+W                 0.076 m
+nx                64
+ny                192
+cells             12288
+d1                1.250000000e-04 m
+expansion_ratio   33.432279 (cell-to-cell 1.119868)
+dy                1.135416667e-02 m
+dT                39.900000000 K
+T_mean            307.661907345 K
+T_hot             327.611907345 K
+T_cold            287.711907345 K
+beta              3.250321135e-03 1/K
+beta_dT           0.129687813
+nu                1.665197045e-05 m2/s
+nu_sutherland     1.640341333e-05 m2/s
+alpha             2.345347951e-05 m2/s
+Pr                0.710000
+Prt               0.850000
+Vc                0.310950231 m/s
+k_seed            3.625876728e-04 m2/s2
+Pe_y_at_peak      90.321287
+endTime           50000
+top_wall_profile_points_x_m_T_K
+  0.001000 288.2100
+  0.038100 310.0200
+  0.067200 324.3500
+  0.075200 327.9100
+bottom_wall_profile_points_x_m_T_K
+  0.001000 287.5600
+  0.009000 291.5800
+  0.038100 306.5600
+  0.067200 322.6200
+  0.075200 327.2400
