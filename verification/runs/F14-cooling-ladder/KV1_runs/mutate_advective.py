@@ -122,9 +122,27 @@ OPEN_CASES = [
 ]
 #: The sealed half of the corpus. Selected on the presence of a MESH, because
 #: an auditor cannot audit a case whose `constant/polyMesh/boundary` is absent.
+#:
+#: THE ARCHIVE IS ASKED FOR BY NAME, NOT SPELLED OUT.  R25 moves
+#: `docs/campaigns/<campaign>/*_{runs,sensitivity}/**` to
+#: `verification/runs/<campaign>/`, and this path was assembled from SEGMENTS --
+#: `os.path.join(REPO, "docs", "campaigns", ...)` -- so a scan for the literal
+#: `docs/campaigns` could not see it, which is the same blindness that hid the
+#: depth class (L-127).  `lab_paths.run_archive` probes every spelling the map
+#: knows and prefers the successor, so this is correct on both sides of the move
+#: and of the next one.  A miss REFUSES instead of yielding an empty corpus --
+#: the rule `SEALED_EXPECTED` below already states.
+sys.path.insert(0, os.path.join(REPO, "scripts"))
+import lab_paths as _lab_paths  # noqa: E402
+
+_K0C_RUNS = _lab_paths.run_archive("K0c_runs", "F14-cooling-ladder")
+if _K0C_RUNS is None:
+    raise SystemExit(
+        "REFUSE: no `K0c_runs` archive under any spelling `lab_paths` knows. "
+        "The sealed half would compare an EMPTY corpus and report True for "
+        "every mutation, which is the vacuous pass this harness exists to stop.")
 SEALED_CASES = sorted(
-    d for d in glob.glob(os.path.join(REPO, "docs", "campaigns",
-                                      "F14-cooling-ladder", "K0c_runs", "*"))
+    d for d in glob.glob(os.path.join(str(_K0C_RUNS), "*"))
     if os.path.isfile(os.path.join(d, "constant", "polyMesh", "boundary")))
 
 #: How many sealed cases MUST be found. `constant/polyMesh/` is not tracked
@@ -184,7 +202,7 @@ def main():
             "(.gitignore:60), so a fresh clone has none and the sealed half of "
             "this harness would compare an EMPTY corpus and report True for "
             "every mutation.\n        Rebuild the K0c meshes first:\n"
-            "        for c in docs/campaigns/F14-cooling-ladder/K0c_runs/*/; do\n"
+            f"        for c in {os.path.relpath(_K0C_RUNS, REPO)}/*/; do\n"
             "          [ -f \"$c/system/blockMeshDict\" ] && (cd \"$c\" && blockMesh > log.blockMesh 2>&1)\n"
             "        done\n"
             "        The open half (KV1b, KV1c) is unaffected: their meshes are "

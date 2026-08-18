@@ -6418,3 +6418,49 @@ a `--` pathspec the same way you grep for path literals, and check each one
 **twice**: once in the pre-commit window where the new name has no history, and
 once after, where it has the wrong history. The first failure is loud; the
 second is a date that is merely wrong.
+
+## L-137. A path assembled from segments is invisible to BOTH scans a move batch runs, so a third scan shape is needed: the tokens
+
+Batch 6 found a repository root derived as `parents[3]` — a depth assumption
+about a moving path with **no path literal in it** — and L-127 recorded that an
+exhaustive literal scan cannot match it. Batch 7 generalised the search to the
+*idiom* (`parents[N]`, `parent.parent`, `../..`, `dirname(dirname`) and found
+nineteen modules where the brief predicted seven.
+
+R25 ran both scans over all 1,671 tracked files under its sources and both came
+back clean. The literal scan found 243 files naming `docs/campaigns`, every one
+of them prose or a citation to a document that STAYS. The idiom scan found 20
+files, of which 7 derive a repository root, and **all 7 were proved correct at
+the new path by executing the expression there** — because R25 is the first
+move in this map that is DEPTH-PRESERVING: `docs/campaigns/` and
+`verification/runs/` are both two segments, so `parents[4]` lands on the same
+directory on both sides for all 1,671 paths, asserted as
+`p.count("/") == redirect(p).count("/")` with 0 exceptions.
+
+Two clean scans, and the one real breakage was in neither of them:
+
+```python
+SEALED_CASES = sorted(
+    d for d in glob.glob(os.path.join(REPO, "docs", "campaigns",
+                                      "F14-cooling-ladder", "K0c_runs", "*"))
+    if os.path.isfile(os.path.join(d, "constant", "polyMesh", "boundary")))
+```
+
+**The substring `docs/campaigns` does not occur in that file.** The path is
+assembled from segments, so the literal scan cannot see it; it counts no
+parents, so the idiom scan cannot see it either. It guards the sealed half of
+the advective-term mutation harness — eleven meshed K0c cases — and the file's
+own comment says an empty corpus makes `all(...)` return True for every
+mutation, which is why `SEALED_EXPECTED = 11` exists. R25 would have driven
+that glob to zero.
+
+**The third scan shape is the TOKEN**: search for the path's segments as quoted
+tokens (`"campaigns"`, `"K0c_runs"`, `"F14-cooling-ladder"`) rather than for the
+joined path or for a depth idiom. Run repo-wide it returned exactly two files —
+this one, and a test whose fixture tree is synthetic and keeps its literals.
+
+And the repair is the same one all three classes get: **ask for the thing by
+name, not by spelling.** `lab_paths.run_archive("K0c_runs", "F14-cooling-ladder")`
+probes every spelling the map knows, prefers the successor, and REFUSES rather
+than returning an empty corpus — so the line is correct on both sides of this
+move and of the next one, and no fourth scan will be needed to find it again.

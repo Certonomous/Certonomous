@@ -141,12 +141,20 @@ demo-output/website/latex/*.toc
 # descend into an excluded directory, so a negation on the files alone does not
 # work. The cost of getting this wrong is on record: one `[0-9]*` loop deleted
 # every initial-condition directory in the K0b tree.
-docs/campaigns/F14-cooling-ladder/K0c_runs/*/[0-9]*/
-docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/*/[0-9]*/
-!docs/campaigns/F14-cooling-ladder/K0c_runs/*/0.orig/
-!docs/campaigns/F14-cooling-ladder/K0c_runs/*/0.orig/**
-!docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/*/0.orig/
-!docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/*/0.orig/**
+# RE-POINTED 2026-08-18, EXECUTING R25 -- MOVE_MAP batch 7's DEFERRED HALF, held
+# back under a live solver (D401) and run in the quiet window.  The tree moved to
+# `verification/runs/F14-cooling-ladder/`, campaign segment preserved.  The rule
+# text is otherwise unchanged: one source root, one destination root, so this is
+# fourteen rules in and fourteen out.  NOTE the R20 block below is spelled
+# `verification/runs/*_runs`/`*_work` and NOT `verification/runs/**`, so it does
+# NOT reach these trees -- `F14-cooling-ladder` matches neither.  That is L-135's
+# ruling preserved, and it is what keeps this block the only thing governing them.
+verification/runs/F14-cooling-ladder/K0c_runs/*/[0-9]*/
+verification/runs/F14-cooling-ladder/K0b_mesh_sensitivity/*/[0-9]*/
+!verification/runs/F14-cooling-ladder/K0c_runs/*/0.orig/
+!verification/runs/F14-cooling-ladder/K0c_runs/*/0.orig/**
+!verification/runs/F14-cooling-ladder/K0b_mesh_sensitivity/*/0.orig/
+!verification/runs/F14-cooling-ladder/K0b_mesh_sensitivity/*/0.orig/**
 
 # --- F14 cooling ladder, rung K2b-pilot (2026-08-18) ---
 # Same policy, same two reasons, and the same re-inclusion order: `0.orig/` is
@@ -158,9 +166,17 @@ docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/*/[0-9]*/
 # tracked: the dictionaries, `0.orig/`, the solver logs, COST.txt, CASE.txt,
 # SEED.txt and the HEATBALANCE_*.json/.txt audit reports. The run is rebuilt by
 # the recipe in `K2b_PILOT_RESULTS.md` section 10.
-docs/campaigns/F14-cooling-ladder/K2b_runs/*/[0-9]*/
-!docs/campaigns/F14-cooling-ladder/K2b_runs/*/0.orig/
-!docs/campaigns/F14-cooling-ladder/K2b_runs/*/0.orig/**
+# RE-POINTED 2026-08-18, EXECUTING R25 -- MOVE_MAP batch 7's DEFERRED HALF, held
+# back under a live solver (D401) and run in the quiet window.  The tree moved to
+# `verification/runs/F14-cooling-ladder/`, campaign segment preserved.  The rule
+# text is otherwise unchanged: one source root, one destination root, so this is
+# fourteen rules in and fourteen out.  NOTE the R20 block below is spelled
+# `verification/runs/*_runs`/`*_work` and NOT `verification/runs/**`, so it does
+# NOT reach these trees -- `F14-cooling-ladder` matches neither.  That is L-135's
+# ruling preserved, and it is what keeps this block the only thing governing them.
+verification/runs/F14-cooling-ladder/K2b_runs/*/[0-9]*/
+!verification/runs/F14-cooling-ladder/K2b_runs/*/0.orig/
+!verification/runs/F14-cooling-ladder/K2b_runs/*/0.orig/**
 
 # --- BATCH 2: solver output inside the campaign and dafoam run trees (2026-08-17) ---
 # `campaign/MOVE_MAP_2026-08-16.md` section 7.2: a run tree's INPUTS stay
@@ -281,8 +297,16 @@ cases/dafoam/**/*.log.*
 #     taken on, which the blanket `**/postProcessing/` rule above would otherwise
 #     hide, as it hides the laminar rung's.
 # What is lost is the per-iteration residual trace between samples.
-docs/campaigns/F14-cooling-ladder/K0cT_runs/*/[0-9]*/
-docs/campaigns/F14-cooling-ladder/K0cT_runs/*/constant/polyMesh/
-docs/campaigns/F14-cooling-ladder/K0cT_runs/*/log.buoyantBoussinesqSimpleFoam*
-!docs/campaigns/F14-cooling-ladder/K0cT_runs/*/0.orig/
-!docs/campaigns/F14-cooling-ladder/K0cT_runs/*/0.orig/**
+# RE-POINTED 2026-08-18, EXECUTING R25 -- MOVE_MAP batch 7's DEFERRED HALF, held
+# back under a live solver (D401) and run in the quiet window.  The tree moved to
+# `verification/runs/F14-cooling-ladder/`, campaign segment preserved.  The rule
+# text is otherwise unchanged: one source root, one destination root, so this is
+# fourteen rules in and fourteen out.  NOTE the R20 block below is spelled
+# `verification/runs/*_runs`/`*_work` and NOT `verification/runs/**`, so it does
+# NOT reach these trees -- `F14-cooling-ladder` matches neither.  That is L-135's
+# ruling preserved, and it is what keeps this block the only thing governing them.
+verification/runs/F14-cooling-ladder/K0cT_runs/*/[0-9]*/
+verification/runs/F14-cooling-ladder/K0cT_runs/*/constant/polyMesh/
+verification/runs/F14-cooling-ladder/K0cT_runs/*/log.buoyantBoussinesqSimpleFoam*
+!verification/runs/F14-cooling-ladder/K0cT_runs/*/0.orig/
+!verification/runs/F14-cooling-ladder/K0cT_runs/*/0.orig/**

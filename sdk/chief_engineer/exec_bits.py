@@ -431,12 +431,24 @@ OWNERS = (
     # entries today and is here so the next waiver under one of them is not
     # UNASSIGNED.
     #
-    # ONE THING R25 WILL HAVE TO DECIDE RATHER THAN INHERIT: R25 sends
-    # `docs/campaigns/<campaign>/<tree>_runs` to
-    # `verification/runs/<campaign>/<tree>_runs`, and those files are
-    # "Infrastructure and Standards" under `docs/` and would become "Cases"
-    # here.  0 register entries are under `docs/campaigns/` today, so this
-    # is a decision R25 must make and not one batch 7 has silently made.
+    # R25 DECIDED, 2026-08-18, EXECUTING THE MOVE: "Cases", by letting the
+    # `verification/runs/` row above answer -- NO NEW ROW.  Batch 7 posed this
+    # as a decision rather than an inheritance, and the two are genuinely
+    # different cases.  Batch 7 PRESERVED a family because 61 register entries
+    # would otherwise have been relabelled by a mover; re-measured immediately
+    # before this move, **0 of the 255 waived paths and 0 of the 4 required
+    # ones are under `docs/campaigns/`**, so no path changes family and there
+    # is no assignment to preserve.  What the move does reach is 27 of the 33
+    # `unregistered` findings, and `owner_of` is never called on those.
+    # The alternative -- a `verification/runs/F14-cooling-ladder/` row reading
+    # "Infrastructure and Standards" -- would have been the mover INVENTING a
+    # family boundary inside `verification/runs/`, where all 26 sibling trees
+    # are "Cases", on the strength of where these files used to live.  Carving
+    # an exemption is a larger act than letting a uniform prefix rule apply,
+    # and the substance agrees with it: a broken `run_cases.sh` in a cooling
+    # ladder run tree is answered for by whoever answers for one in `4G_runs`.
+    # Asserted after the move: `stale_waivers` is 0 and `waived_by_owner` is
+    # unmoved at Cases 61 / DAFoam 111 / Demo and website 26 / Infra 57.
     ("verification/campaign/", "Cases"),
     ("verification/runs/", "Cases"),
     ("verification/", "Demo and website"),

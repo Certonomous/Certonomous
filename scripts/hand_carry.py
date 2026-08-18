@@ -507,6 +507,42 @@ def batch2_class_candidates(tracked: list[str]) -> list[str]:
     return [p for p in tracked if in_run_tree(p) and not stays(p)]
 
 
+def _exclusion_spellings(path: str) -> list[str]:
+    """Every name this repository has had, or will have, for one path.
+
+    THE EXCLUSION LIST IS A LIST OF PATHS AND A MOVE INVALIDATES ONE.  This
+    matched `BATCH2_EXCLUSIONS` against the tracked path by string prefix, and
+    R25 renames `docs/campaigns/<campaign>/*_{runs,sensitivity}/**` to
+    `verification/runs/<campaign>/`.  The moment R25 landed, `docs/campaigns`
+    stopped matching and **batch 2's untrack list grew from 198 to 655** -- 457
+    files that a ruling of 2026-08-17 explicitly SPARED, including the 65
+    solver logs the comment on `BATCH2_EXCLUSIONS` says no repair removes.  A
+    mover would have silently enlarged a ruling it does not own, and the count
+    moves in the direction that UNTRACKS MORE, which is the dangerous one.
+
+    So the exclusion keeps the spelling its ruling was written with -- it is a
+    dated ruling and re-writing it is not what makes it true -- and the MATCH
+    is taught the map instead.  Exactly the repair `exec_bits._spellings` makes
+    for the waiver register and `check_summary_consistency._in_commit` makes
+    for a `git show`: probe every spelling rather than pick one.
+
+    Pinned by restoring a pre-move number: 198 before the move and 198 after,
+    the same 1,671-file rename applied to the list itself, while the option-B
+    control (`exclusions=()`) still reads all 655 candidates, so the gate can
+    still fail.  Evidence: `test_the_gate_fails_when_the_ruled_exclusion_is_dropped`
+    is unchanged and still fires.
+    """
+    out = [path]
+    for direction in (lab_paths.redirect, lab_paths.unredirect):
+        try:
+            other = direction(path)
+        except Exception:                      # pragma: no cover - defensive
+            other = None
+        if other and other not in out:
+            out.append(other)
+    return out
+
+
 def batch2_untrack_list(tracked: list[str],
                         exclusions: tuple[str, ...] | None = None) -> list[str]:
     """BATCH 2'S OWN LIST: the class candidates, minus the ruled exclusions.
@@ -514,10 +550,15 @@ def batch2_untrack_list(tracked: list[str],
     `exclusions=()` is option B -- batch 2 takes everything its class rule
     reaches -- and is what the two-direction plant fires to show the gate can
     still fail.
+
+    The exclusion is matched under EVERY SPELLING the map knows for the path
+    (`_exclusion_spellings`), so a batch that renames an excluded tree neither
+    enlarges batch 2's list nor shrinks it.
     """
     ex = BATCH2_EXCLUSIONS if exclusions is None else tuple(exclusions)
     return [p for p in batch2_class_candidates(tracked)
-            if not any(p == e or p.startswith(e + "/") for e in ex)]
+            if not any(cand == e or cand.startswith(e + "/")
+                       for e in ex for cand in _exclusion_spellings(p))]
 
 
 def batch2_survivors(tracked: list[str],
