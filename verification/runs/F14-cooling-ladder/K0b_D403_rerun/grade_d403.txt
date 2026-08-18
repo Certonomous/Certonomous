@@ -1,0 +1,70 @@
+========================================================================================================
+D403 RE-RUN -- K0b mesh sensitivity regraded against its own published numbers
+========================================================================================================
+
+L32  (t=1386, published leg 32x32 at t=1386, 1024 cells)
+  quantity                                            re-run           published         dev %  verdict
+  Nu_avg_hot                                    4.6496899547        4.6496899547         exact  REPRODUCED
+  Nu_max_hot                                    8.2612687614        8.2612687614         exact  REPRODUCED
+  Nu_min_hot                                    0.7171724306        0.7171724306         exact  REPRODUCED
+  V_star_max                                   66.4840039151       66.4840039151         exact  REPRODUCED
+  U_star_max                                   35.3073485111       35.3073485111         exact  REPRODUCED
+  stratification_S_leastsq_mid25pct             1.0551488853        1.0551488853         exact  REPRODUCED
+
+L64  (t=4000, published leg 64x64 at t=4000, 4096 cells)
+  quantity                                            re-run           published         dev %  verdict
+  Nu_avg_hot                                    4.5537989472        4.5537989472         exact  REPRODUCED
+  Nu_max_hot                                    7.8725903102        7.8725903102         exact  REPRODUCED
+  Nu_min_hot                                    0.7256681664        0.7256681664         exact  REPRODUCED
+  V_star_max                                   68.3723121854       68.3723121854         exact  REPRODUCED
+  U_star_max                                   34.8813950124       34.8813950124         exact  REPRODUCED
+  stratification_S_leastsq_mid25pct             1.0412910345        1.0412910345         exact  REPRODUCED
+
+L64P  (t=4000, published leg 64x64 at t=4000, 4096 cells)
+  quantity                                            re-run           published         dev %  verdict
+  Nu_avg_hot                                    4.5537989472        4.5537989472         exact  REPRODUCED
+  Nu_max_hot                                    7.8725903102        7.8725903102         exact  REPRODUCED
+  Nu_min_hot                                    0.7256681664        0.7256681664         exact  REPRODUCED
+  V_star_max                                   68.3723121854       68.3723121854         exact  REPRODUCED
+  U_star_max                                   34.8813950124       34.8813950124         exact  REPRODUCED
+  stratification_S_leastsq_mid25pct             1.0412910345        1.0412910345         exact  REPRODUCED
+
+L128a_endTime4000  (t=4000, published leg 128x128 at t=16000, 16384 cells)
+  quantity                                            re-run           published         dev %  verdict
+  Nu_avg_hot                                    4.3254648850        4.5288167412     -4.490176  NOT REPRODUCED
+  Nu_max_hot                                    7.3064967715        7.7572684541     -5.810959  NOT REPRODUCED
+  Nu_min_hot                                    0.8079556038        0.7276237665     11.040299  NOT REPRODUCED
+  V_star_max                                   66.3550134651       68.6112455926     -3.288429  NOT REPRODUCED
+  U_star_max                                   33.6597990183       34.7968015796     -3.267549  NOT REPRODUCED
+  stratification_S_leastsq_mid25pct             0.9161418789        1.0374274577    -11.690994  NOT REPRODUCED
+
+L128b_endTime16000  (t=16000, published leg 128x128 at t=16000, 16384 cells)
+  quantity                                            re-run           published         dev %  verdict
+  Nu_avg_hot                                    4.5288167412        4.5288167412         exact  REPRODUCED
+  Nu_max_hot                                    7.7572684541        7.7572684541         exact  REPRODUCED
+  Nu_min_hot                                    0.7276237665        0.7276237665         exact  REPRODUCED
+  V_star_max                                   68.6112455926       68.6112455926         exact  REPRODUCED
+  U_star_max                                   34.7968015796       34.7968015796         exact  REPRODUCED
+  stratification_S_leastsq_mid25pct             1.0374274577        1.0374274577         exact  REPRODUCED
+
+========================================================================================================
+
+LADDER: published_protocol_L32_L64_L128b
+  quantity                                     32x32       64x64     128x128  64->128 %       p    GCI %   pub p
+  Nu_avg_hot                                  4.6497      4.5538      4.5288      0.552    1.94    0.243    1.94
+  Nu_max_hot                                  8.2613      7.8726      7.7573      1.487    1.75    0.784    1.75
+  Nu_min_hot                                  0.7172      0.7257      0.7276      0.269    2.12    0.100    2.12
+  V_star_max                                 66.4840     68.3723     68.6112      0.348    2.98    0.063    2.98
+  U_star_max                                 35.3073     34.8814     34.7968      0.243    2.33    0.075    2.33
+  stratification_S_leastsq_mid25pct           1.0551      1.0413      1.0374      0.372    1.84    0.180    1.84
+
+LADDER: script_alone_L32_L64_L128a
+  quantity                                     32x32       64x64     128x128  64->128 %       p    GCI %   pub p
+  Nu_avg_hot                                  4.6497      4.5538      4.3255      5.279   -1.25  -11.376    1.94
+  Nu_max_hot                                  8.2613      7.8726      7.3065      7.748   -0.54  -30.902    1.75
+  Nu_min_hot                                  0.7172      0.7257      0.8080     10.185   -3.28  -14.197    2.12
+  V_star_max                                 66.4840     68.3723     66.3550      3.040      --       --    2.98
+  U_star_max                                 35.3073     34.8814     33.6598      3.629   -1.52   -6.965    2.33
+  stratification_S_leastsq_mid25pct           1.0551      1.0413      0.9161     13.660   -3.17  -19.202    1.84
+    V_star_max: the three values are not monotone (or two coincide); a Richardson extrapolation through such a triple is arithmetic, not evidence
+========================================================================================================
