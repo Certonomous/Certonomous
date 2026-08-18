@@ -521,3 +521,46 @@ figure the convergence table above prints, on a case this rung did not grade)
 and **D351** (a planted defect moves the Rayleigh number the auditor reports).
 
 Full record: `docs/campaigns/F14-cooling-ladder/K1_STANDING_THERMAL_CHECKS.md`.
+
+---
+
+## Dated correction, 2026-08-18 — the denominator, not the verdict
+
+**Nothing above is edited.** This section is appended under W-4 and supersedes
+the row count printed at the head of this record.
+
+**This rung's headline reads "GATE PASS. 0 of 24 graded rows failed."** Four of
+those 24 are the energy-balance rows, and `docs/VALIDATION_INVENTORY.md` line 239
+already classified them as *"reported, **not counted as evidence for the
+rung**"*, with line 644 listing them under boundary heat balance on a sealed
+cavity — a demonstrated identity. `VERIFICATION_CHARTER.md` section 2a is
+unambiguous: a gate whose quantity is derivable by construction from its own
+inputs may be reported and **may never be gated on**.
+
+**The two statements had not been reconciled, and the artifact sided with the
+headline.** `verification/runs/F14-cooling-ladder/K0c_runs/gate_k0c.json` carries
+24 entries in `gate_rows`, of which 4 are `"quantity": "energy_balance"` with
+`"passed": true` against a 0.5 % band, measuring between 3.06e-05 % and
+7.09e-05 % — five orders of magnitude inside a band they could not have missed.
+
+**The corrected statement of this rung is: GATE PASS, 0 of 20 GRADED rows failed,
+with 4 identity rows reported and counted toward nothing.**
+
+**The verdict does not move and no number moves.** Zero rows failed either way.
+What moves is the evidence base, which was overstated by 20 %: a reader was told
+24 independent gate rows had been cleared when 20 had, and the other 4 could not
+have failed. The distinction matters exactly because this rung PASSED — an
+inflated denominator is invisible when nothing fails, and that is when it does
+its damage.
+
+**How it was found.** Not by review. It was found by the discrimination check
+built for D411 (`scripts/check_row_discrimination.py`, rule D3-GUARD-GRADED),
+which ran a g=0 null arm and observed that the energy-balance row was the only
+one of six the null arm also passed, at **0.000 bands** — the signature of a row
+that cannot come out differently. Recorded under D414.
+
+**What is still owed and is not claimed here.** `gate_k0c.json` still carries the
+four identity rows inside `gate_rows`; separating them there means regenerating a
+published artifact, which is a re-run and is named as an open item rather than
+performed in this correction. Until it is, the JSON and this section disagree,
+and **this section is the one that is correct**.
