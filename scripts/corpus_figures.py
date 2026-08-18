@@ -43,7 +43,22 @@ import subprocess
 import sys
 from pathlib import Path
 
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[1]
+                     / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 REPO = Path(__file__).resolve().parent.parent
+
+#: R1 moves this file to `docs/`.  It is named through `lab_paths`, which binds
+#: the legacy path and the successor as a PAIR, because `_read` below returns
+#: `""` for a file that is not there and every lesson figure would then be a
+#: clean zero -- and `scripts/lab_check.py` classifies this module `cannot-fail`
+#: and never runs it, so no suite could have caught that.
+LESSONS_REL = str(lab_paths.LESSONS.relative_to(REPO))
 
 #: The out-of-repo auto-memory store. Durable against session end, NOT against a
 #: fresh clone -- which is why the map counts it separately from the repo.
@@ -82,7 +97,7 @@ def lesson_figures() -> dict:
     an unaddressable 'second corollary'. So `blocks` and `highest` are two
     different facts and neither is the other's check.
     """
-    text = _read("LESSONS.md")
+    text = _read(LESSONS_REL)
     heads = [int(n) for n in re.findall(r"^#+\s*\**\s*L-(\d+)", text, re.M)]
     nums = sorted(set(heads))
     # Found by a SEPARATE pass over the same headings, so that `blocks -
@@ -90,7 +105,7 @@ def lesson_figures() -> dict:
     # That disagreement is the whole value: see the check line in _emit.
     duplicated = {n: heads.count(n) for n in nums if heads.count(n) > 1}
     return {
-        "population": "LESSONS.md, headings matching '# L-<n>'",
+        "population": f"{LESSONS_REL}, headings matching '# L-<n>'",
         "lines": text.count("\n") + (1 if text and not text.endswith("\n") else 0),
         "bytes": len(text.encode("utf-8")),
         "blocks": len(heads),
@@ -131,7 +146,7 @@ def citation_ranking(top: int = 8) -> dict:
     counts: dict[str, int] = {}
     pattern = re.compile(r"\bL-(\d+)(?![\d])")
     for rel in _tracked():
-        if rel == "LESSONS.md":
+        if rel == LESSONS_REL:
             continue
         path = REPO / rel
         try:
@@ -145,7 +160,7 @@ def citation_ranking(top: int = 8) -> dict:
             counts[key] = counts.get(key, 0) + 1
     ranked = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
     return {
-        "population": "tracked files under 4 MB decoding as UTF-8, EXCLUDING LESSONS.md",
+        "population": f"tracked files under 4 MB decoding as UTF-8, EXCLUDING {LESSONS_REL}",
         "cited_lessons": len(counts),
         "total_citations": sum(counts.values()),
         "top": ranked[:top],

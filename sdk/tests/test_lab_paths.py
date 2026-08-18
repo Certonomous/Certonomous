@@ -540,22 +540,63 @@ class FailsClosed(TreeCase):
 class ItReplacesWhatItClaimsTo(TreeCase):
     """Pinned against the live modules, so drift in either one is caught."""
 
-    def test_sweep_roots_reproduces_self_audit_4309_before_the_move(self):
+    #: The seven roots `self_audit.py:4309`'s whitelist named at `4d7c195a`,
+    #: which is what `check_evidence_paths_exist`'s reach was measured against.
+    _SEVEN = ("demo-output/", "sdk/", "scripts/", "models/", "mission-output/",
+              "docs/", "dist/")
+
+    def test_sweep_roots_never_loses_one_of_self_audit_4309s_seven(self):
         """`self_audit.py`'s `check_evidence_paths_exist` whitelist.
 
         Batch 3b made `self_audit.py` CALL this function instead of carrying
         its own copy, so there is no longer a second spelling to read out of
         its source and diff against -- and a test that kept reading for one
-        would go green on the absence of what it was checking.  What has to be
-        pinned now is the VALUE: before the move it must still be exactly the
-        seven roots that whitelist named at `4d7c195a`, because those seven
-        are what `check_evidence_paths_exist`'s reach was measured against.
-        The call site is pinned separately, below.
+        would go green on the absence of what it was checking.
+
+        AMENDED AT BATCH 4, 2026-08-18.  This asserted EQUALITY with the seven
+        and was correct only before the first move landed.  Batch 4 creates
+        `media/` and `ops/`, and emitting a destination root the moment it
+        exists is the whole point of this function -- a citation written after
+        the move has to resolve while a citation written before it still does.
+        So equality was the wrong pin: it reddens on the function working.
+
+        What is load-bearing is that a root never LEAVES.  A whitelist that
+        silently shrinks is `check_evidence_paths_exist` scanning fewer
+        documents and passing, which is this corpus's most repeated failure and
+        the reason batch 9 exists.  So: the seven are all still there, in
+        order, and anything added is a real directory that some rule sends
+        files to.
         """
-        self.assertEqual(
-            L.SWEEP_ROOTS(),
-            ("demo-output/", "sdk/", "scripts/", "models/", "mission-output/",
-             "docs/", "dist/"))
+        got = L.SWEEP_ROOTS()
+        for root in self._SEVEN:
+            with self.subTest(root=root):
+                self.assertIn(root, got, f"{root} left the whitelist")
+        self.assertEqual(tuple(r for r in got if r in self._SEVEN),
+                         self._SEVEN, "the seven changed order")
+        targets = {m.target.split("/")[0] + "/" for m in L.MOVES}
+        for extra in (r for r in got if r not in self._SEVEN):
+            with self.subTest(extra=extra):
+                self.assertTrue((L.REPO / extra).is_dir(),
+                                f"{extra} is not on disk")
+                self.assertIn(extra, targets,
+                              f"{extra} is no rule's destination")
+
+    def test_sweep_roots_does_not_emit_a_root_that_is_not_there(self):
+        """The must-not-match control for the test above.
+
+        Without it, a `SWEEP_ROOTS` that returned every spelling it knows --
+        including `web/`, `cases/`, `research/` and `verification/`, none of
+        which exists until batches 5 to 8 -- would satisfy every assertion
+        above and hand `check_evidence_paths_exist` four prefixes that match
+        nothing.
+        """
+        got = L.SWEEP_ROOTS()
+        for absent in ("web/", "cases/", "research/", "verification/",
+                       "evidence/"):
+            if (L.REPO / absent).is_dir():
+                continue
+            with self.subTest(absent=absent):
+                self.assertNotIn(absent, got)
 
     def test_self_audit_actually_calls_the_shared_roots_and_pages(self):
         """The other half: a value that matches proves nothing if nobody

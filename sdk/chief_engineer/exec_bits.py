@@ -275,7 +275,13 @@ WAIVED_NO_EXEC_BIT = (
     "demo-output/website/hlpw6/rank_sweep.sh",
     "demo-output/website/hlpw6/run_ladder.sh",
     "demo-output/website/hlpw6/ugrid_to_foam.py",
-    "docs/aws/provision.sh",
+    # R8/R6 moved these three to `ops/` at MOVE_MAP batch 4; the register is
+    # a list of REPOSITORY PATHS and a waived path that no longer exists is
+    # reported `stale_waivers` while its successor is reported
+    # `unregistered` -- six findings for three files that did not change.
+    "ops/aws/provision.sh",
+    "ops/laptop_bundle/replay_console.py",
+    "ops/laptop_bundle/run-demo.sh",
     "scripts/add_proposals_r5.py",
     "scripts/audit_camera_discretion.sh",
     "scripts/audit_transcripts.sh",
@@ -338,8 +344,6 @@ WAIVED_NO_EXEC_BIT = (
     # form by every dispatch brief that gates on it.
     "scripts/hunk_check.py",
     "scripts/kill_worker.sh",
-    "scripts/laptop_bundle/replay_console.py",
-    "scripts/laptop_bundle/run-demo.sh",
     "scripts/ledger_backup.py",
     "scripts/memwatch.py",
     "scripts/morning_report.py",
@@ -388,6 +392,10 @@ OWNERS = (
     ("sdk/", "Infrastructure and Standards"),
     ("scripts/", "Infrastructure and Standards"),
     ("docs/", "Infrastructure and Standards"),
+    # `ops/` did not exist until MOVE_MAP batch 4.  Without this row
+    # `owner_of("ops/aws/provision.sh")` is UNASSIGNED and
+    # `test_the_register_is_split_across_families_and_says_so` reddens.
+    ("ops/", "Infrastructure and Standards"),
     ("demo-output/website/campaign/", "Cases"),
     ("demo-output/website/dafoam/", "DAFoam"),
     ("demo-output/website/", "Demo and website"),

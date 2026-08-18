@@ -22,7 +22,7 @@ LOG=/home/ubuntu/demo_servers.log
 # way inherited no launcher, and an act shelling out to an OpenFOAM utility
 # died with FileNotFoundError -- surfacing on camera only as "the wake solve
 # did not complete". Exported here so a cron-started server and a hand-started
-# one are the same server. Matches docs/aws/provision.sh line 49. (VSPAERO
+# one are the same server. Matches ops/aws/provision.sh line 49. (VSPAERO
 # needs no prefix here; it is reachable natively.)
 export OPENFOAM_RUN_PREFIX="${OPENFOAM_RUN_PREFIX:-openfoam2606}"
 

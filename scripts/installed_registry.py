@@ -38,7 +38,7 @@ WHAT THE MECHANISM PROMISES, AND WHAT IT DOES NOT
 
 IT COMPARES CONTENT, NOT MODE -- AND MODE BIT THIS FILE WITHIN THE HOUR
 ------------------------------------------------------------------------
-`scripts/installed/lab.sh` was added here on 2026-08-14 with a shebang and a
+`ops/installed/lab.sh` was added here on 2026-08-14 with a shebang and a
 755 filesystem bit, and landed in the index as 100644: this repository sets
 `core.fileMode=false`, so a `chmod` never reaches the tree that travels. The
 suite that catches exactly that (`sdk/tests/test_exec_bits.py`) went red at the
@@ -53,7 +53,7 @@ than fixed quietly:
   has. The `cp` entries are the exposed ones.
 * Mode is presently governed by a DIFFERENT mechanism, `exec_bits`, with its
   own hand-maintained waiver register -- and `scripts/auto-stop.sh` and
-  `docs/aws/provision.sh` are both waived there while their installed copies
+  `ops/aws/provision.sh` are both waived there while their installed copies
   are 755. Adding a mode rule here would put two checks in disagreement over
   the same files, so it was NOT added unilaterally; whether this registry
   should own mode is filed as a docket row rather than decided in this file.
@@ -124,8 +124,8 @@ left out, so the next reader does not have to re-derive the negative:
 
 HOW THE TRACKED SIDE OF THREE OF THESE PAIRS CAME TO EXIST, WHICH MATTERS
 -------------------------------------------------------------------------
-`scripts/installed/crontab.root`, `scripts/installed/crontab.ubuntu` and
-`scripts/installed/lab.sh` had NO tracked counterpart before 2026-08-14. Their
+`ops/installed/crontab.root`, `ops/installed/crontab.ubuntu` and
+`ops/installed/lab.sh` had NO tracked counterpart before 2026-08-14. Their
 tracked copies were ADOPTED from what was running on this box on that date --
 they were not authored, reviewed and then installed. So at adoption these three
 pairs match BY CONSTRUCTION, and the first comparison of each proves nothing
@@ -270,44 +270,44 @@ DEPLOYMENTS: tuple[Deployment, ...] = (
     ),
     Deployment(
         name="root crontab",
-        tracked="scripts/installed/crontab.root",
+        tracked="ops/installed/crontab.root",
         source=("sudo", "-n", "crontab", "-l"),
         why="the schedule that runs the auto-stop gate. A correct gate on no "
             "schedule is no gate, and a gate on a 1-minute schedule is a "
             "different machine; neither is visible in the script itself",
-        reinstall="sudo crontab scripts/installed/crontab.root",
+        reinstall="sudo crontab ops/installed/crontab.root",
         normalize="crontab",
     ),
     Deployment(
         name="ubuntu crontab",
-        tracked="scripts/installed/crontab.ubuntu",
+        tracked="ops/installed/crontab.ubuntu",
         source=("crontab", "-l"),
         why="brings the demo servers up at boot; an entry silently dropped "
             "here is a control room that is simply not there after a reboot",
-        reinstall="crontab scripts/installed/crontab.ubuntu",
+        reinstall="crontab ops/installed/crontab.ubuntu",
         normalize="crontab",
     ),
     Deployment(
         name="provision script",
-        tracked="docs/aws/provision.sh",
+        tracked="ops/aws/provision.sh",
         source="/home/ubuntu/provision.sh",
         why="the copy that actually provisioned this box. If the reviewed one "
             "and the run one differ, the documented build of this machine is "
             "not the build it has",
-        reinstall="cp docs/aws/provision.sh /home/ubuntu/provision.sh",
+        reinstall="cp ops/aws/provision.sh /home/ubuntu/provision.sh",
     ),
     Deployment(
         name="lab session launcher",
-        tracked="scripts/installed/lab.sh",
+        tracked="ops/installed/lab.sh",
         source="/home/ubuntu/lab.sh",
         why="the tmux session every operator attaches to, and the only thing "
             "that starts the control room by hand. It had NO tracked copy at "
             "all until 2026-08-14 -- unreviewable machinery rather than drift",
-        reinstall="cp scripts/installed/lab.sh /home/ubuntu/lab.sh",
+        reinstall="cp ops/installed/lab.sh /home/ubuntu/lab.sh",
     ),
     Deployment(
         name="nightly lab check cron",
-        tracked="scripts/installed/certonomous-lab-check.cron",
+        tracked="ops/installed/certonomous-lab-check.cron",
         source="/etc/cron.d/certonomous-lab-check",
         why="docket D64: nothing in this lab is scheduled to run any check at "
             "all, so every check reddens only when a human types its name. "
@@ -317,23 +317,23 @@ DEPLOYMENTS: tuple[Deployment, ...] = (
             "already covers it -- rather than being added to this registry "
             "some later day by somebody who remembers",
         reinstall="sudo install -m 644 -o root -g root "
-                  "scripts/installed/certonomous-lab-check.cron "
+                  "ops/installed/certonomous-lab-check.cron "
                   "/etc/cron.d/certonomous-lab-check",
     ),
     Deployment(
         name="pre-push hook",
-        tracked="scripts/installed/pre-push",
+        tracked="ops/installed/pre-push",
         source=str(REPO / ".git" / "hooks" / "pre-push"),
         why="the half of D64 that needs no root. A hook the owner can adopt "
             "alone is worth more than a cron they have to be asked for. Note "
             "that `.git/hooks/` is NOT tracked by git and never travels with a "
             "clone, so this pair is also the only thing that can tell a reader "
             "whether the hook on THIS box is the reviewed one",
-        reinstall="install -m 755 scripts/installed/pre-push .git/hooks/pre-push",
+        reinstall="install -m 755 ops/installed/pre-push .git/hooks/pre-push",
     ),
     Deployment(
         name="pre-commit index guard",
-        tracked="scripts/installed/pre-commit",
+        tracked="ops/installed/pre-commit",
         source=str(REPO / ".git" / "hooks" / "pre-commit"),
         why="D242. `.git/index` is SHARED by every agent in this lab, and the "
             "convention is `git add <paths>` before every commit, so entries "
@@ -348,7 +348,7 @@ DEPLOYMENTS: tuple[Deployment, ...] = (
             "installed side is untracked, so this row is the only thing that "
             "can tell a reader whether the hook on THIS box is the reviewed "
             "one",
-        reinstall="install -m 755 scripts/installed/pre-commit "
+        reinstall="install -m 755 ops/installed/pre-commit "
                   ".git/hooks/pre-commit",
     ),
 )

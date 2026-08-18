@@ -6564,7 +6564,8 @@ _BUNDLE_DIR = Path("dist") / "certonomous-demo"
 _BUNDLE_VERBATIM = (
     ("control room", Path("sdk/chief_engineer"), Path("sdk/chief_engineer"),
      "**/*"),
-    ("launcher", Path("scripts/laptop_bundle"), Path("."), "*"),
+    ("launcher", lab_paths.LAPTOP_BUNDLE.relative_to(lab_paths.REPO),
+     Path("."), "*"),
 )
 # The static pages, which move from demo-output/website into site/ and are the
 # one set whose member path is not its repo path.

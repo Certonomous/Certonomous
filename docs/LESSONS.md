@@ -5231,3 +5231,48 @@ standing suite is what measures what they were not.
 Found at MOVE_MAP batch 3b, 2026-08-17.
 `demo-output/website/campaign/MOVE_MAP_BATCH3_EXECUTION_2026-08-17.md` §4,
 instrument D.
+
+## L-111. A subtotal that reconciles exactly is evidence about arithmetic, not about membership — a rule can be counted, budgeted and scheduled into a batch for a population that is named nowhere
+
+`MOVE_MAP_2026-08-16.md` §2.2 states **R8 = 26 files**:
+`scripts/{installed,laptop_bundle}/**` **plus 15 named launchers** → `ops/**`.
+Measured at `5d1b41a0` over `git ls-tree -r HEAD`: `scripts/installed/` holds 7
+tracked files and `scripts/laptop_bundle/` 4, so 11 + 15 = 26 and the rule
+closes to the file. Batch 4's own total closes the same way — 872 claimed,
+857 derivable from `lab_paths.redirect()` plus R1's `AWS_TREE_PLAN.md`, and the
+difference is exactly 15.
+
+**The 15 are named nowhere.** Not in the map, not in
+`MOVE_MAP_EXECUTION_2026-08-17.md`, not in `scripts/lab_paths.py` — whose table
+implements R8 as two directory rows and nothing else, so `redirect(
+"scripts/demo_servers.sh")` returns `None` — and not in the superseded
+`docs/PHASE2_MOVE_MAP.tsv`, which moved *all* of `scripts/` to `ops/` and was
+superseded precisely for that. `scripts/` holds 12 top-level `*.sh` files, of
+which perhaps seven are launchers, keepalives or preflight by any reading; the
+remaining eight of the fifteen would have to come from `*.py`, and no line
+anywhere says which.
+
+**The arithmetic is what made it invisible.** Every reconciliation this map has
+run — three of them, at three anchors, each closing at zero unclassified — was
+green, because 26 is consistent with 11 + 15 whatever the 15 are. A subtotal
+that closes proves the counts agree with each other. It says nothing about
+whether the population can be *named*, and a batch is executed by naming
+files, not by adding them up.
+
+**The rule.** Before executing a rule, ask for its MEMBERSHIP LIST, not its
+count — and treat a count with no list as unexecutable rather than as
+approximately known. The tell is a rule whose statement contains a bare
+cardinal for part of its own scope: *"+ 15 named launchers"* names nothing;
+`scripts/{installed,laptop_bundle}/**` names everything it covers. When both
+forms sit in one table cell, the reconciliation covers for the half that
+cannot be executed.
+
+This is L-94's *"the class needs a membership list, not a shape"* one level up:
+there the shape was a classifier that could be run and inspected; here there is
+no shape at all, only a number. It is also L-108's shape from the other side —
+there a coverage test read an enumeration and could not see the rules
+implemented differently; here a reconciliation read counts and could not see a
+rule with no enumeration behind it.
+
+Found at MOVE_MAP batch 4, 2026-08-18.
+`demo-output/website/campaign/MOVE_MAP_BATCH4_EXECUTION_2026-08-18.md` §2.

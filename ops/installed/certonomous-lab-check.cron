@@ -4,7 +4,7 @@
 # when someone with root runs, from the repository root:
 #
 #     sudo install -m 644 -o root -g root \
-#          scripts/installed/certonomous-lab-check.cron \
+#          ops/installed/certonomous-lab-check.cron \
 #          /etc/cron.d/certonomous-lab-check
 #
 # That is Katie's or Sanaa's command, not the fleet's: the box's power and cron
@@ -15,7 +15,7 @@
 # it reads ABSENT with a reason on every registry run rather than being
 # forgotten; the day it is installed, the drift check already covers it.
 #
-# WHY /etc/cron.d AND NOT A crontab EDIT. `scripts/installed/crontab.root` and
+# WHY /etc/cron.d AND NOT A crontab EDIT. `ops/installed/crontab.root` and
 # `crontab.ubuntu` are tracked copies of whole crontabs, compared byte-for-byte
 # against the live ones by the registry. Adding a line to either would put
 # tracked and installed into drift the moment it was committed, and would need

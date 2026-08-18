@@ -312,6 +312,13 @@ _MOVES: tuple[tuple[str, str, str, str], ...] = (
     # -- R1 / R2: loose root files.
     ("LESSONS", "LESSONS.md", "docs/LESSONS.md", "R1"),
     ("LOCATIONS", "LOCATIONS.md", "docs/LOCATIONS.md", "R1"),
+    # RULING 2 of `MOVE_MAP_2026-08-16.md` s2.6: a third root-level lab record
+    # of the same class, landed at `d07ef7f7` after the map was written, which
+    # no rule reached.  It was MISSING FROM THIS TABLE UNTIL BATCH 4 -- the
+    # same defect class as R16/R17 in batch 3 -- so `redirect("AWS_TREE_PLAN.md")`
+    # returned None while the map counted it in R1's 3.  A rule ratified in a
+    # record and not bound here is a rule the mover does not have.
+    ("AWS_TREE_PLAN", "AWS_TREE_PLAN.md", "docs/AWS_TREE_PLAN.md", "R1"),
     ("FILMING_COMMANDS", "FILMING_COMMANDS.md",
      "media/FILMING_COMMANDS.md", "R2"),
     ("LAPTOP_SHOOT", "LAPTOP_SHOOT.md", "media/LAPTOP_SHOOT.md", "R2"),

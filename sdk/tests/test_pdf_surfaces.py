@@ -33,7 +33,7 @@ STALE_PDF = "demo-output/website/latex/closure_challenge_report.pdf"
 STALE_SRC = "demo-output/website/latex/closure_challenge_report.tex"
 CLEAN_PDFS = (
     "demo-output/website/certificates/b52-certificate-current.pdf",
-    "demo-output/acts/round3/naca_certificate.pdf",
+    "media/acts/round3/naca_certificate.pdf",
     "docs/papers/pope_jfm1975_effective_viscosity_hypothesis.pdf",
 )
 #: The heading that was V10 blocker C2. It WRAPS between "entire" and "public",
