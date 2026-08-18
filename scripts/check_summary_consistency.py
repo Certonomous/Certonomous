@@ -572,7 +572,36 @@ The widget moved.
 """
 
 
+def _in_commit(commit: str, path: str) -> str:
+    """The spelling `path` has INSIDE `commit`, probed rather than assumed.
+
+    MOVE_MAP batch 5, 2026-08-18.  `CONTROL_PATH` is resolved by
+    `lab_paths.web_file()`, which answers *where the file is NOW* -- the right
+    question for a live read and the WRONG one for a `git show` into an
+    immutable historical commit, where the file is at whatever path that commit
+    used.  Batch 5 moved this control's document out of the webroot and both
+    control blobs stopped being readable in one step, taking the whole check to
+    UNKNOWN with `fatal: path ... exists on disk, but not in '87324012'`.
+
+    A path shim resolves against the FILESYSTEM; history needs the other
+    spelling, and `lab_paths.unredirect()` is exactly that inverse.  Probed
+    with `cat-file -e` against the commit rather than hard-coded, so this stays
+    right through batches 6 to 8 as well, and in either direction: a control
+    commit written AFTER a move is answered by the successor spelling.
+    """
+    for cand in (path, lab_paths.unredirect(path), lab_paths.redirect(path)):
+        if not cand:
+            continue
+        p = subprocess.run(
+            ["git", "-C", str(REPO), "cat-file", "-e", f"{commit}:{cand}"],
+            capture_output=True, text=True)
+        if p.returncode == 0:
+            return cand
+    return path
+
+
 def _blob(commit: str, path: str) -> tuple:
+    path = _in_commit(commit, path)
     p = subprocess.run(["git", "-C", str(REPO), "show", f"{commit}:{path}"],
                        capture_output=True, text=True)
     if p.returncode != 0:

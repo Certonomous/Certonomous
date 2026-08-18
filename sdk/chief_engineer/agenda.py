@@ -311,8 +311,21 @@ def premise_violations(proposal: dict, repo: Path | None = None) -> list[str]:
     rationale = str(proposal.get("rationale") or "")
     if _QUOTED_SEQUENCE.search(rationale):
         root = repo or Path(__file__).resolve().parents[2]
+
+        def _cited_exists(rel: str) -> bool:
+            # MOVE_MAP batch 5.  A citation is satisfied at its literal
+            # location OR at its successor.  `agenda/docket.json` is the most
+            # cited file in the docket and batch 5 moves it to
+            # `research/agenda/docket.json`; without this every proposal
+            # citing it would start reading as a premise nobody checked.
+            # `repo=` callers get the literal test, because they hand in a
+            # synthetic root that `lab_paths` knows nothing about.
+            if (root / rel).exists():
+                return True
+            return repo is None and lab_paths.resolve(rel) is not None
+
         resolved = any(
-            (root / match.group(0)).exists()
+            _cited_exists(match.group(0))
             for citation in (proposal.get("citations") or [])
             for match in [_CITED_FILE.search(str(citation))] if match)
         if not resolved:

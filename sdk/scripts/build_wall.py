@@ -47,7 +47,16 @@ if _LAB_PATHS_DIR not in _sys.path:
 import lab_paths  # noqa: E402
 
 _REPO = _SDK.parent
-_OUT = lab_paths.WALL_JSON.parent
+# MOVE_MAP s4: SPLIT-2, EXECUTED IN BATCH 5.  This module writes TWO files that
+# used to share a directory and no longer do: `wall.json` is R18 and leaves for
+# `research/closure/data/`, while `wall.html` is one of R13's five served files
+# and stays under the webroot until batch 8.  `_OUT = WALL_JSON.parent` was
+# therefore correct only while both were in `demo-output/website/wall/`: the
+# moment batch 5 landed it would have written the LIVE SERVED PAGE into
+# `research/closure/data/wall.html` and left the served copy frozen at its last
+# build, with nothing failing.  One `_OUT` cannot name both, so each is named.
+_WALL_JSON = lab_paths.WALL_JSON
+_WALL_HTML = lab_paths.WEB_WALL_HTML
 _RESULTS = _REPO / "models" / "curriculum" / "results"
 
 # Human display titles for the canonical bodies (no file-facing names on camera).
@@ -341,11 +350,12 @@ def main(argv: list[str] | None = None) -> int:
         cards = _credentials_from_disk()
         counters = lab_stats.lifetime_counters()
 
-    _OUT.mkdir(parents=True, exist_ok=True)
-    (_OUT / "wall.json").write_text(
+    _WALL_JSON.parent.mkdir(parents=True, exist_ok=True)
+    _WALL_HTML.parent.mkdir(parents=True, exist_ok=True)
+    _WALL_JSON.write_text(
         json.dumps({"counters": counters, "credentials": cards}, indent=2),
         encoding="utf-8")
-    (_OUT / "wall.html").write_text(build_html(counters, cards), encoding="utf-8")
+    _WALL_HTML.write_text(build_html(counters, cards), encoding="utf-8")
     print(f"[wall] wrote wall.html + wall.json — {counters['missions_run']:,} missions, "
           f"{len(cards)} credentials")
     return 0

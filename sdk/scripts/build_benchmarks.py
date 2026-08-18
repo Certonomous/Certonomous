@@ -64,7 +64,17 @@ _REPO = _SDK.parent
 # and WRITES `benchmarks.json` (R14) and `benchmarks.png` (R15), which go
 # to two different roots under `research/closure/`.  One `_OUT` cannot
 # name all three, so each is named.
-_OUT = lab_paths.WEB
+#
+# EXECUTED IN BATCH 5, 2026-08-18.  The paragraph above was written in batch 3b
+# and the split was never made: `_OUT = lab_paths.WEB` was still one constant
+# for both outputs, so the comment described a repair the code did not have --
+# the same defect class as R16/R17 in batch 3 and R1's missing `AWS_TREE_PLAN`
+# row in batch 4.  Left alone, the first regeneration after batch 5 would have
+# re-created `benchmarks.json` and `benchmarks.png` in the WEBROOT, beside the
+# five files R13 says the webroot holds, while the moved copies under
+# `research/closure/` went stale and nothing failed.
+_OUT_JSON = lab_paths.BENCHMARKS_JSON
+_OUT_PNG = lab_paths.BENCHMARKS_PNG
 _LEDGER = lab_paths.MEGA_BATCH / "ledger.jsonl"
 
 # Validated categorical palette (dataviz reference, light mode), slots 1-3.
@@ -368,10 +378,11 @@ def render_png(data: dict, out_path: Path) -> None:
 
 
 def main() -> int:
-    _OUT.mkdir(parents=True, exist_ok=True)
+    _OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
+    _OUT_PNG.parent.mkdir(parents=True, exist_ok=True)
     data = compute_stats()
-    (_OUT / "benchmarks.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
-    render_png(data, _OUT / "benchmarks.png")
+    _OUT_JSON.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    render_png(data, _OUT_PNG)
     print(f"[benchmarks] wrote benchmarks.json ({data['totals']['evaluations_ok']} evals) "
           f"+ benchmarks.png")
     return 0

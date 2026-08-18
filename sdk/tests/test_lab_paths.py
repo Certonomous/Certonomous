@@ -228,6 +228,51 @@ class Redirect(unittest.TestCase):
         self.assertEqual(L.redirect(_W + "/tmr-naca0012-transient-300cu/a.json"),
                          "cases/tmr/tmr-naca0012-transient-300cu/a.json")
 
+    def test_the_r23_closure_merge_preserves_the_child_segment(self):
+        """RATIFIED 2026-08-18, EXECUTING BATCH 5.
+
+        `MOVE_MAP_2026-08-16.md` s2.2's R23 sends four `closure_*` source
+        directories to `research/closure` without saying whether each keeps its
+        own segment, and `MOVE_MAP_EXECUTION_2026-08-17.md` s4.3's worked
+        example reads the OTHER way.  s5 rules that the child segment is
+        preserved on every many-to-one merge, and s6 gives R21's reason: a
+        preserved segment keeps relative citations alive.
+
+        THE RATIFICATION IS NOT A PREFERENCE, IT IS A MEASUREMENT, and it is
+        pinned here rather than asserted in prose.  Measured at `7a98c33d`
+        immediately before the batch: the four sources hold 24 + 9 + 9 + 11 =
+        53 tracked files over **35 distinct relative paths**, because
+        `MANIFEST.json` and eight `test/*.csv` are contributed by three of the
+        four submissions apiece.  Flattened into one namespace, 53 files land
+        on 35 paths and **18 are silently overwritten** -- including all three
+        round-over-round `MANIFEST.json`s, whose whole content is that they
+        differ.  The two round-4 and round-1 directories even share a sorted
+        path digest (`55e372ce9b626836`) while differing in bytes, so a
+        path-set check alone would have called the merge clean.
+        """
+        for src, dst in (
+                ("closure_eval", "research/closure/closure_eval"),
+                ("closure_challenge_submission",
+                 "research/closure/closure_challenge_submission"),
+                ("closure_challenge_submission_round4",
+                 "research/closure/closure_challenge_submission_round4"),
+                ("closure_challenge_submission_round5",
+                 "research/closure/closure_challenge_submission_round5")):
+            with self.subTest(src=src):
+                self.assertEqual(L.redirect(f"{_W}/{src}/MANIFEST.json"),
+                                 f"{dst}/MANIFEST.json")
+        # The same rule, the same way, on the other two many-to-one merges.
+        self.assertEqual(L.redirect(_W + "/race-gui/app.js"),
+                         "research/race/race-gui/app.js")
+        self.assertEqual(L.redirect(_W + "/r2-coefficient-uq-flatplate/x.json"),
+                         "research/uq/r2-coefficient-uq-flatplate/x.json")
+        # MUST-NOT-MATCH CONTROL.  A `redirect` that appended the child segment
+        # to everything would satisfy the six assertions above.  The parent of
+        # a merge family flattens -- that is what makes it the parent.
+        self.assertEqual(L.redirect(_W + "/race/benchmarks.md"),
+                         "research/race/benchmarks.md")
+        self.assertEqual(L.redirect(_W + "/tmr/a.json"), "cases/tmr/a.json")
+
     def test_roots_that_do_not_move_return_none(self):
         for p in ("sdk/chief_engineer/agenda.py", "models/curriculum/x.json",
                   "scripts/self_audit.py", "docs/DOCKET.md",
@@ -624,15 +669,27 @@ class ItReplacesWhatItClaimsTo(TreeCase):
              ("wall.html", "demo-output/website/wall/wall.html",
               "site/wall/wall.html")])
 
-    def test_record_documents_reproduces_the_rglob_before_the_move(self):
+    def test_record_documents_never_loses_a_record_the_rglob_reached(self):
         """`self_audit._record_documents()` replaces `WEB.rglob("*.md")`.
 
-        Before the move every record root is under the one webroot, so the
-        deduplicated root list collapses to that webroot and the two must
-        return the IDENTICAL list -- not merely the same count.  A sweep that
-        walked eight overlapping roots would report every finding eight times;
-        one that walked none would report a clean zero.  Both are checked by
-        comparing the lists.
+        AMENDED 2026-08-18, EXECUTING BATCH 5, AND THE OLD PIN WAS THE WRONG
+        ONE.  It asserted EQUALITY with `WEB.rglob("*.md")`, which held only
+        while every record root was still under the one webroot.  Batch 5 is
+        the first batch that takes records OUT of it -- R16's 19 loose `*.md`
+        to `research/closure/md/`, R23's `agenda/`, `race/` and the four
+        `closure_*` trees -- so equality now reddens on the function doing
+        exactly what it exists to do.  That is batch 4's finding on
+        `test_sweep_roots_reproduces_self_audit_4309_before_the_move`,
+        recurring one instrument over.
+
+        WHAT IS LOAD-BEARING IS THE DIRECTION.  A sweep that GAINS a root
+        walks more documents; a sweep that LOSES one scans fewer and passes,
+        which is `check_evidence_paths_exist` reporting a clean bill of health
+        on a corpus it no longer reads -- this repository's most repeated
+        failure.  So: nothing the rglob still reaches may be missing, every
+        record that LEFT the webroot must still be reached, nothing may be
+        double-counted, and the must-not-match control asserts the list is not
+        merely everything.
         """
         import importlib.util
         import sys as _s
@@ -643,10 +700,41 @@ class ItReplacesWhatItClaimsTo(TreeCase):
         try:
             spec.loader.exec_module(mod)
             got = mod._record_documents()
-            want = sorted(mod.WEB.rglob("*.md"))
-            self.assertGreater(len(want), 100, "the corpus is empty; nothing "
-                                               "below this line means anything")
-            self.assertEqual(got, want)
+            web = sorted(mod.WEB.rglob("*.md"))
+            self.assertGreater(len(got), 100, "the corpus is empty; nothing "
+                                              "below this line means anything")
+            # 1. NOTHING IS LOST.  Everything still under the webroot is here.
+            self.assertEqual([], [p for p in web if p not in set(got)],
+                             "the record sweep no longer reaches a document "
+                             "the webroot rglob does")
+            # 2. NOTHING IS DOUBLE-COUNTED.  A root inside another root would
+            #    report every finding in it twice.
+            self.assertEqual(len(got), len(set(got)), "a record is reached "
+                                                      "twice; the roots overlap")
+            # 3. EVERY EXTRA IS A REAL RECORD UNDER A REAL RULE DESTINATION.
+            roots = L.RECORD_ROOTS()
+            for p in got:
+                if p in set(web):
+                    continue
+                self.assertTrue(p.is_file() and p.suffix == ".md", p)
+                self.assertTrue(any(r == p or r in p.parents for r in roots), p)
+            # 4. THE BATCH-5 ARM, and it is the reason this test was amended.
+            #    A record that has LEFT the webroot is still swept.  Skipped
+            #    before the batch lands, named rather than silently passing.
+            moved = [L.resolve("demo-output/website/ACTIVE_RESEARCH.md"),
+                     L.resolve("demo-output/website/CLOSURE_CHALLENGE_STATUS.md")]
+            for m in moved:
+                if m is None or str(m).find("/research/") < 0:
+                    self.skipTest("batch 5 has not landed; the R16 records are "
+                                  "still under the webroot and arm 1 covers them")
+            for m in moved:
+                self.assertIn(m, set(got),
+                              f"{m} left the webroot and the record sweep no "
+                              f"longer reaches it")
+            # 5. MUST-NOT-MATCH CONTROL.  A sweep that returned every `*.md`
+            #    in the repository would satisfy all four arms above.
+            self.assertNotIn(_REPO / "docs" / "LESSONS.md", set(got),
+                             "the record sweep has stopped selecting")
         finally:
             _s.modules.pop("_self_audit_under_test", None)
 
@@ -670,17 +758,39 @@ class ItReplacesWhatItClaimsTo(TreeCase):
         self.assertEqual(m.web_file("closure_challenge_x.json"),
                          self.root / _W / "closure_challenge_x.json")
 
-    def test_submission_packages_reproduces_the_webroot_glob(self):
+    def test_submission_packages_finds_all_three_on_whichever_side_they_are(self):
         """Replaces `self_audit.py`'s `WEB.glob("closure_challenge_submission*")`.
-        R23 scatters the three into `research/closure/`, after which that glob
-        finds nothing and the check reports a clean sweep of zero packages."""
+
+        AMENDED 2026-08-18, EXECUTING BATCH 5.  It asserted EQUALITY with that
+        glob whenever the webroot exists, and the whole reason the accessor was
+        written is stated in its own docstring: R23 scatters the three into
+        `research/closure/`, after which the glob finds nothing.  The webroot
+        still exists after batch 5 -- it keeps 4,487 tracked files until
+        batch 8 -- so the equality arm fired against an empty glob and reddened
+        on the accessor doing its job.  Equality with the thing being replaced
+        is only ever a PRE-move pin.
+
+        What is load-bearing is that all three are found wherever they are, and
+        that the accessor is still counting rather than reciting -- which is
+        `test_submission_packages_is_not_a_hardcoded_three` directly below.
+        """
         got = [p.name for p in L.SUBMISSION_PACKAGES()]
+        self.assertEqual(3, len(got), got)
+        self.assertEqual(sorted(got), got, "the accessor must return sorted")
+        for name in ("closure_challenge_submission",
+                     "closure_challenge_submission_round4",
+                     "closure_challenge_submission_round5"):
+            self.assertIn(name, got)
+        for p in L.SUBMISSION_PACKAGES():
+            self.assertTrue(p.is_dir(), p)
+        # PRE-MOVE ARM, kept: while they are still under the webroot the
+        # accessor must reproduce the glob it replaces, exactly.
         web = L.REPO / _W
-        if web.is_dir():
-            self.assertEqual(
-                got, sorted(p.name for p in
-                            web.glob("closure_challenge_submission*")))
-        self.assertGreater(len(got), 0)
+        legacy = sorted(p.name for p in
+                        web.glob("closure_challenge_submission*")) \
+            if web.is_dir() else []
+        if legacy:
+            self.assertEqual(got, legacy)
 
     def test_submission_packages_is_not_a_hardcoded_three(self):
         """The control: an accessor that returned three names unconditionally

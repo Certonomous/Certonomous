@@ -71,6 +71,29 @@ GUIDELINES = str(lab_paths.web_file(
 STRIKE_COMMIT = "5bec65f0"
 
 
+def _in_commit(commit: str, path: str) -> str:
+    """`path`'s spelling INSIDE `commit`, probed rather than assumed.
+
+    MOVE_MAP batch 5, 2026-08-18.  `GUIDELINES` comes from
+    `lab_paths.web_file()`, which answers *where the file is now* -- right for
+    the live read at the bottom of this module and WRONG for a `git show` into
+    an immutable commit, where the file is at whatever path that commit used.
+    R16 moved this document to `research/closure/md/` and the positive control
+    stopped being readable: `fatal: path ... exists on disk, but not in
+    '5bec65f0^'`.  `lab_paths.unredirect()` is the inverse the history side
+    needs; both directions are probed with `cat-file -e`, so a control commit
+    written after a move is answered by the successor spelling instead.
+    """
+    for cand in (path, lab_paths.unredirect(path), lab_paths.redirect(path)):
+        if not cand:
+            continue
+        p = subprocess.run(["git", "-C", str(REPO), "cat-file", "-e",
+                            f"{commit}:{cand}"], capture_output=True, text=True)
+        if p.returncode == 0:
+            return cand
+    return path
+
+
 @pytest.fixture(scope="module")
 def qs():
     quantities, problems, _ = build_registry(read_sources(REPO))
@@ -114,8 +137,9 @@ def test_fires_on_prerepair_clause_b(qs):
     Not a paraphrase: the file content is fetched from the commit that struck
     it, so the test cannot drift away from the artifact it is about.
     """
+    in_commit = _in_commit(STRIKE_COMMIT + "^", GUIDELINES)
     proc = subprocess.run(
-        ["git", "-C", str(REPO), "show", f"{STRIKE_COMMIT}^:{GUIDELINES}"],
+        ["git", "-C", str(REPO), "show", f"{STRIKE_COMMIT}^:{in_commit}"],
         capture_output=True, text=True)
     assert proc.returncode == 0, proc.stderr
     found = _scan(proc.stdout, qs, GUIDELINES)

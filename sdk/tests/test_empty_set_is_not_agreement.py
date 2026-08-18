@@ -300,9 +300,24 @@ class TestTheSweptCorpora(unittest.TestCase):
 # mutation this file now kills.
 _ABSENT_SOURCE_CASES = (
     ("check_withdrawn_numbers", ("WALL", "WEB")),
-    ("check_evidence_paths_exist", ("WEB",)),
+    # `REPO` ADDED to these two, 2026-08-18, EXECUTING MOVE_MAP BATCH 5, and it
+    # is D368's defect one batch later rather than a new one.  Both reach the
+    # record corpus through `self_audit._record_documents()` ->
+    # `lab_paths.RECORD_ROOTS()`, and until batch 5 every one of those roots was
+    # under the webroot, so rebinding `WEB` blinded all of them.  Batch 5 takes
+    # records OUT of the webroot -- R16's 19 loose `*.md` to
+    # `research/closure/md/`, R23's `agenda/`, `race/` and the four `closure_*`
+    # trees -- so `WEB` now blinds ONE of SEVEN roots and the checks went on
+    # reading the real tree: `check_evidence_paths_exist` returned FAIL and
+    # `check_fd_grades_current_standard` returned PASS where both must return
+    # UNKNOWN.  `_at()` already re-roots every call-time path on this module's
+    # `REPO`, so the handle that blinds all seven exists; this list was simply
+    # naming the one that used to be enough.  The guards were still correct and
+    # nothing could say so -- L-45's defect class B1, which is exactly what this
+    # file exists to refuse.
+    ("check_evidence_paths_exist", ("WEB", "REPO")),
     ("check_ungated_completed_runs", ("WEB",)),
-    ("check_fd_grades_current_standard", ("ACTIVE", "WEB")),
+    ("check_fd_grades_current_standard", ("ACTIVE", "WEB", "REPO")),
     ("check_statistical_labels", ("MISSION",)),
     ("check_campaign_json_citations", ("CAMPAIGN",)),
     ("check_rung_estimates_state_their_iterations", ("REPO",)),

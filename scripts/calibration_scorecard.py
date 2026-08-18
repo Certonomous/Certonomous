@@ -349,7 +349,12 @@ def collect() -> dict:
     out["working_tree_dirty"] = dirty
     out["unparseable"] = broken
     out["intake"] = intake(records)
-    out["frame"] = ("demo-output/website/agenda/proposals/*.json, every file, "
+    # The frame names the directory this run actually read.  It was a literal
+    # `demo-output/website/agenda/proposals/*.json`, which MOVE_MAP batch 5
+    # (R23) made false while `PROPOSALS` above went on resolving correctly --
+    # a frame line that describes a different directory from the one the
+    # numbers came out of is worse than no frame line.
+    out["frame"] = (f"{PROPOSALS.relative_to(REPO)}/*.json, every file, "
                     "no filter; pairs require BOTH est_core_min and "
                     "measured_core_min on the same record")
     return out

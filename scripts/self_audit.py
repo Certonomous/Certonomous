@@ -8008,7 +8008,19 @@ def _grade_source_path(source: str) -> Path:
         return root / source[len(clone):]
     if source.startswith(("~", "/")):
         return Path(source).expanduser()
-    return REPO / source
+    # MOVE_MAP batch 5.  A repo-relative declaration is a CITATION, and a
+    # citation is satisfied at its literal location OR at its successor --
+    # `lab_paths.resolve()` is that rule.  Without this, moving a graded
+    # record turns RULE 3 (PRESENT) into `UNPROVEN` for a file that is on the
+    # box, which reads as "an absent artifact is a fact about the box" and is
+    # false: the artifact is there under its new name.  Two of this table's
+    # declarations move in batch 5 (`closure_challenge_round5_qcr.json`,
+    # `agenda/docket.json`) and four more in batches 6 and 7, so the repair is
+    # made once here rather than once per batch.  `resolve()` returns None for
+    # a record that never existed, and that case still yields the literal path
+    # so the UNPROVEN sentence keeps naming what was actually declared.
+    resolved = lab_paths.resolve(source)
+    return resolved if resolved is not None else REPO / source
 
 
 #: Filled by `main()` so the probe below does not pay for a second unblinded

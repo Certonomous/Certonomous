@@ -37,8 +37,18 @@ sys.path.insert(0, "sdk")
 from chief_engineer import agenda  # noqa: E402
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
-DOCKET = REPO / "demo-output/website/agenda/docket.json"
-INBOX = REPO / "demo-output/website/agenda/proposals"
+
+# The one module that names this repository's tree (MOVE_MAP batch 3).  Every
+# name it exports is bound to a legacy/successor PAIR resolved against the
+# filesystem at import, so the two constants below are correct before the move,
+# between batches and after it, with no edit here.  Batch 5 (R23) sends
+# `demo-output/website/agenda/` to `research/agenda/`; this module was outside
+# batch 3b's conversion set and still spelled the prefix.
+sys.path.insert(0, str(REPO / "scripts"))
+import lab_paths  # noqa: E402
+
+DOCKET = lab_paths.AGENDA / "docket.json"
+INBOX = lab_paths.AGENDA / "proposals"
 NOW = "2026-08-07T22:10:00Z"
 NOTE = "supervisor review 2026-08-07 under Katie's standing green light"
 USD_PER_CORE_MIN = 0.01367  # the docket's own measured pricing ratio

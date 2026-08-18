@@ -79,8 +79,12 @@ if [ -n "$ITEM" ]; then
     ITEM_STATUS=$(python3 - "$ITEM" <<'PY' 2>/dev/null || true
 import json, pathlib, sys
 item = sys.argv[1]
-path = pathlib.Path("/home/ubuntu/Certonomous/demo-output/website/agenda"
-                    "/docket.json")
+# MOVE_MAP batch 5 (R23) moves `agenda/` out of the webroot.  This shell
+# script cannot import, but the python it embeds can, so the docket is named
+# once, by the module that owns the layout, and stays right across the batches.
+sys.path.insert(0, "/home/ubuntu/Certonomous/scripts")
+import lab_paths
+path = pathlib.Path(lab_paths.AGENDA) / "docket.json"
 try:
     data = json.loads(path.read_text(encoding="utf-8"))
 except Exception as exc:  # a docket we cannot read is a finding, not a crash

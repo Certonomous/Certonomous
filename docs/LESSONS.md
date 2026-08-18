@@ -5410,3 +5410,89 @@ buffer read earlier.
 
 Found 2026-08-18 in `Certonomous_closure_challenge`, sixth verification, all
 eight findings.
+
+## L-114. A path shim resolves against the FILESYSTEM, so every lookup into HISTORY it feeds asks a commit for a spelling that commit never had — and at module scope the SkipTest that follows deletes forty-six tests behind one line
+
+`scripts/lab_paths.py` binds every name to a legacy/successor PAIR and picks
+between them with `Path.exists()`. That is the right answer to *"where is this
+file now"*, which is what ninety-eight converted consumers wanted. **It is the
+wrong answer to every question about a different tree** — a git object, an
+archive, a snapshot, a remote, a bundle manifest — and MOVE_MAP batch 5 found
+three callers that were asking the second question with the first call:
+
+- `scripts/check_summary_consistency.py:226`'s `CONTROL_PATH`, feeding
+  `git show 87324012~1:…` and `git show 87324012:…`. Both controls became
+  unreadable, the check's own *"a control that misfires makes the whole run
+  UNKNOWN"* rule fired as designed, and it went **PASS → UNKNOWN exit 3**.
+- `sdk/tests/test_normative_clause_check.py:118`'s `git show 5bec65f0^:…`.
+- `sdk/tests/test_summary_consistency.py:196`, the same two blobs, **at module
+  scope**.
+
+**The third one is the lesson, because the first two failed loudly and it did
+not.** That module loads its two control blobs at import and raises
+`unittest.SkipTest` if `git show` fails. So the whole file left the run:
+`47 tests` became **one `skipped` line**, and the suite's own summary said
+`skipped 1`. Nothing named the forty-six that were gone. The verdict did not
+change — the suite was already FAIL on a standing baseline of six — and the
+failing-module list was, if anything, *shorter*.
+
+**The only thing that showed it was the collected TOTAL: 2,443 before, 2,398
+after.** Not the verdict, not the failure list, not stderr — a count, compared
+across the same instrument in the same frame. This is why a batch reports
+FINDING SETS rather than verdicts, and it is why the count comparison is worth
+doing even when both sides are red for the same reason.
+
+**Two rules follow.**
+
+1. **A shim that answers *where is it now* needs an inverse for *where was it
+   then*, and every caller must pick.** `lab_paths.unredirect()` already existed
+   for this, documented as *"used to read pre-move records"*, and not one of the
+   three callers routed to it. The repair is not a hard-coded legacy string —
+   that rots in the other direction the moment a control commit is written after
+   a move — but a probe of the named commit: try the literal spelling, its
+   `unredirect` and its `redirect`, with `git cat-file -e`, and use the one that
+   commit actually holds.
+
+2. **A `SkipTest` at module scope is a hole the size of the module.** Inside a
+   test it costs one test and says so; at import it costs every test in the file
+   and the runner reports it as a single skip. If a module must be able to
+   decline, the decline belongs in a fixture or in `setUpClass`, where the
+   runner still enumerates what was lost. And whatever raises it should name the
+   path it tried, not only the error: this one printed the successor spelling
+   and the commit, which is what made it a two-minute diagnosis once anybody
+   looked.
+
+## L-115. A test that blinds a check by rebinding one handle blinds exactly the region that handle covers, and a move that splits one root into seven silently cuts it to a seventh
+
+`sdk/tests/test_empty_set_is_not_agreement.py` and
+`sdk/tests/test_form_or_value_and_empty_selection.py` prove that thirteen checks
+return UNKNOWN rather than a clean sweep of nothing when their source is absent,
+by rebinding `self_audit`'s `WEB`, `REPO`, `ACTIVE`, `WALL`, `CAMPAIGN` or
+`MISSION` to an empty directory. D368 repaired `self_audit._at()` so that every
+call-time path is re-rooted on those handles rather than reaching past them into
+`lab_paths`.
+
+**`_at()` was still doing its job. The handle had stopped covering the region.**
+Until MOVE_MAP batch 5, every root `lab_paths.RECORD_ROOTS()` returns was under
+the webroot, so rebinding `WEB` emptied all of them. Batch 5 moved records OUT
+of the webroot — R16's 19 loose `*.md` to `research/closure/md/`, R23's
+`agenda/`, `race/` and the four `closure_*` trees — and `WEB` began blinding
+**one root of seven**. `check_evidence_paths_exist` went on reading the live
+corpus and returned FAIL; `check_fd_grades_current_standard` returned PASS;
+`check_closure_entry_of_record` returned PASS. Three guards that are still
+correct, and nothing left able to say so — L-45's defect class B1, in the file
+written to refuse exactly that.
+
+**The transferable half is a question to ask before any move, not after.** For
+every blinding test: *which handle covers the region after the move?* The answer
+here was `REPO`, which `_at()` re-roots on unconditionally and which covers all
+seven roots, so the repair was to name it in the case list. **And a fixture that
+spells a layout is the same defect wearing different clothes**:
+`test_rung_estimates` built its docket at
+`<tmp>/demo-output/website/agenda/docket.json` under a swapped `REPO`, which
+after R23 is a directory the check no longer looks in — it then returned UNKNOWN
+for the *absence* reason instead of the *empty-selection* one, a different
+sentence and a different finding, and a weaker test that still looked green in
+the count. The fixture now derives its layout from the shim
+(`root / lab_paths.AGENDA.relative_to(lab_paths.REPO)`), so it follows every
+remaining batch with no edit.

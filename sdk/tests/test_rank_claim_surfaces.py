@@ -2356,10 +2356,17 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
                     "/DESCRIPTION_DOCUMENT.md",
                     "demo-output/website/CLOSURE_CHALLENGE_STATUS.md",
                     "demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md"):
-            path = REPO / rel
-            self.assertTrue(path.exists(),
-                            f"the regression surface {rel} is gone; this test "
-                            f"asserts nothing without it")
+            # MOVE_MAP batch 5 moves all three (R16 and R23).  The surface is
+            # named by its legacy spelling and located by `lab_paths.resolve`,
+            # which answers at the literal path or at the successor -- so the
+            # regression stays pinned across the batches.  ABSENCE STILL FAILS:
+            # `resolve` returns None for something that is nowhere, and None
+            # reddens here exactly as a missing file did.
+            path = lab_paths.resolve(rel)
+            self.assertIsNotNone(path,
+                                 f"the regression surface {rel} is at neither "
+                                 f"its literal path nor its successor; this "
+                                 f"test asserts nothing without it")
             rule_a, rule_b = sa.board_placement_faults(
                 path.read_text(encoding="utf-8"), board)
             self.assertEqual(([], []), (rule_a, rule_b), rel)
@@ -2634,8 +2641,13 @@ class TheIntervalIsReadInEveryMarkupDialectTests(unittest.TestCase):
         """`closure_challenge_round5_qcr.json` spells the unit as a word. Its
         superseded four-entry companion is KEPT as a sibling key, so the live
         block is the one that must carry the figure."""
-        path = (REPO / "demo-output" / "website"
-                / "closure_challenge_round5_qcr.json")
+        # R17: MOVE_MAP batch 5 moves the entry of record to
+        # `research/closure/data/`.  `web_file` is the accessor for a LOOSE
+        # webroot file and answers on whichever side it is on.
+        path = lab_paths.web_file("closure_challenge_round5_qcr.json")
+        self.assertTrue(path.exists(),
+                        f"the entry of record is not at {path}; this test "
+                        f"asserts nothing without it")
         record = json.loads(path.read_text(encoding="utf-8"))
 
         def holder(node):
@@ -2705,8 +2717,11 @@ class TheBestOnBoardCountIsFixedAtItsGeneratorTests(unittest.TestCase):
         source = self._generator_entry()
         for rel in ("demo-output/website/benchmarks.json",
                     "demo-output/website/wall/wall.json"):
-            path = REPO / rel
-            self.assertTrue(path.exists(), f"{rel} is gone")
+            # R14 and R18: batch 5 sends both to `research/closure/data/`.
+            # Located by `lab_paths.resolve`; ABSENCE STILL FAILS.
+            path = lab_paths.resolve(rel)
+            self.assertIsNotNone(path, f"{rel} is at neither its literal path "
+                                       f"nor its successor")
             written = self._entry_in(json.loads(path.read_text("utf-8")))
             self.assertEqual(source, written,
                              f"{rel} has drifted from the literal that writes "
@@ -2762,10 +2777,10 @@ class TheSubmissionDraftHeadingCarriesTheCountTests(unittest.TestCase):
     """
 
     def _heading(self) -> str:
-        path = (REPO / "demo-output" / "website"
-                / "CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md")
-        self.assertTrue(path.exists(), "the draft is gone; this test asserts "
-                                       "nothing without it")
+        # R16: MOVE_MAP batch 5 moves the draft to `research/closure/md/`.
+        path = lab_paths.web_file("CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md")
+        self.assertTrue(path.exists(), f"the draft is not at {path}; this test "
+                                       f"asserts nothing without it")
         heads = [line for line in path.read_text(encoding="utf-8").splitlines()
                  if line.startswith("### 4.7 ")]
         self.assertEqual(1, len(heads), heads)

@@ -703,8 +703,20 @@ def __dir__() -> list[str]:
 #: the move these all sit under the one webroot and the tuple is equivalent to
 #: the rglob.  After it they are separate roots, which is exactly why the rglob
 #: had no single successor.
+#:
+#: **`CLOSURE` ADDED 2026-08-18, EXECUTING BATCH 5, and it is the same defect
+#: class as R16/R17 in batch 3 and `AWS_TREE_PLAN.md` in batch 4.** R16 sends
+#: **19 loose `*.md` records** out of the webroot to `research/closure/md/`.
+#: Every other batch-5 destination already had a name in this tuple; that one
+#: did not, so the moment batch 5 landed, `RECORD_ROOTS()` would have stopped
+#: reaching nineteen records and `self_audit._record_documents()` would have
+#: swept a smaller corpus and reported it clean.  A sweep that silently shrinks
+#: is this repository's most repeated failure and the reason `RECORD_ROOTS`
+#: exists at all.  `CLOSURE` is the whole `research/closure` root, so it also
+#: subsumes the four `closure_*` names above it under the dedup -- which is
+#: correct, and is why it is one name rather than four.
 RECORD_ROOT_NAMES: tuple[str, ...] = (
-    "CAMPAIGN", "RUNS", "CLOSURE_EVAL", "CLOSURE_SUBMISSION",
+    "CAMPAIGN", "RUNS", "CLOSURE", "CLOSURE_EVAL", "CLOSURE_SUBMISSION",
     "CLOSURE_SUBMISSION_ROUND4", "CLOSURE_SUBMISSION_ROUND5",
     "AGENDA", "DAFOAM", "MEGA_BATCH", "TMR", "HLPW6", "VALVE",
     "UNSTEADY_CYLINDER", "COMMITTEE_GRIDS", "RACE", "OPTIMIZATION",

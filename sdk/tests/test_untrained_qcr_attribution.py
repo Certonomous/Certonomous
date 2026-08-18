@@ -43,6 +43,14 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 GENERATOR = REPO / "sdk" / "scripts" / "build_benchmarks.py"
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).  The two
+# shipped surfaces below are R14 and R18 and batch 5 sends both to
+# `research/closure/data/`, so they are located by the shim rather than spelled.
+import sys as _sys  # noqa: E402
+if str(REPO / "scripts") not in _sys.path:
+    _sys.path.insert(0, str(REPO / "scripts"))
+import lab_paths  # noqa: E402
+
 # The claim: our own model's QCR2000 term. Matched on the model NAME as a
 # reader meets it, not on a phrase, so re-wording the sentence cannot slip out
 # from under the guard. Case-sensitive on purpose: the lowercase `qcr` in
@@ -166,8 +174,12 @@ class TheGeneratorAttributesItsUntrainedQcrClaim(unittest.TestCase):
         """
         for rel in ("demo-output/website/benchmarks.json",
                     "demo-output/website/wall/wall.json"):
-            path = REPO / rel
-            self.assertTrue(path.exists(), f"{rel} is gone")
+            # Located by `lab_paths.resolve` across MOVE_MAP batch 5.
+            # ABSENCE STILL FAILS: `resolve` returns None for a path that is
+            # nowhere, and None reddens here as a missing file did.
+            path = lab_paths.resolve(rel)
+            self.assertIsNotNone(path, f"{rel} is at neither its literal path "
+                                       f"nor its successor")
             faults = []
             for text in self._emitted_strings(
                     json.loads(path.read_text(encoding="utf-8"))):

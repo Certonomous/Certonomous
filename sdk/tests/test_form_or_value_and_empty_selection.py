@@ -447,10 +447,16 @@ class TheEmptySelectionIsNotAgreementTests(unittest.TestCase):
                     self._assert_empty_selection(getattr(sa, name)())
 
     def test_cited_evidence_paths(self):
-        web = self.tmp / "web"
+        # `REPO` swapped as well, 2026-08-18, MOVE_MAP batch 5.  The record
+        # sweep is `RECORD_ROOTS()`, and until batch 5 every root was under the
+        # webroot so rebinding `WEB` alone emptied it.  R16 and R23 put records
+        # under `research/`, which `_at()` re-roots on `REPO`, so with only
+        # `WEB` swapped this test read the LIVE corpus and got FAIL.
+        root = self.tmp / "cited"
+        web = root / "demo-output" / "website"
         (web / "sub").mkdir(parents=True, exist_ok=True)
         (web / "sub" / "note.md").write_text("A real record citing nothing.\n")
-        with _Swap(WEB=web):
+        with _Swap(WEB=web, REPO=root):
             self._assert_empty_selection(sa.check_evidence_paths_exist())
 
     def test_campaign_json_citations(self):
@@ -468,7 +474,13 @@ class TheEmptySelectionIsNotAgreementTests(unittest.TestCase):
 
     def test_rung_estimates(self):
         root = self.tmp / "r1"
-        agenda = root / "demo-output" / "website" / "agenda"
+        # The fixture's LAYOUT is taken from the shim, not spelled.  MOVE_MAP
+        # batch 5 (R23) moved `agenda/` to `research/agenda/`, and a fixture
+        # that spells the old layout under a swapped `REPO` puts the docket
+        # somewhere the check no longer looks: it then returned UNKNOWN for the
+        # ABSENCE reason instead of the empty-selection one, which is a
+        # different sentence and a different finding.
+        agenda = root / sa.lab_paths.AGENDA.relative_to(sa.lab_paths.REPO)
         agenda.mkdir(parents=True, exist_ok=True)
         (agenda / "docket.json").write_text(json.dumps({"proposals": [
             {"id": "x1", "objective": "write a document",
@@ -542,7 +554,11 @@ class TheTwoReasonsAreDifferentTests(unittest.TestCase):
             self):
         tmp = Path(tempfile.mkdtemp(prefix="entry-"))
         self.addCleanup(shutil.rmtree, tmp, True)
-        with _Swap(WEB=tmp):
+        # `REPO` swapped too, MOVE_MAP batch 5: the entry of record is R17 and
+        # now sits at `research/closure/data/`, which `_at()` re-roots on
+        # `REPO` and not on `WEB`, so blinding `WEB` alone left the check
+        # reading the real file and returning PASS.
+        with _Swap(WEB=tmp, REPO=tmp):
             result = sa.check_closure_entry_of_record()
         self.assertEqual(sa.UNKNOWN, result.status, result.summary)
 

@@ -185,11 +185,29 @@ def _mutant_of(module, name: str, old: str, new: str):
 
 
 def _blob(commit: str) -> str:
+    """The control blob, at the spelling `commit` actually holds it under.
+
+    MOVE_MAP batch 5, 2026-08-18.  `sc.CONTROL_PATH` is resolved by
+    `lab_paths.web_file()` against the LIVE filesystem, and R16 moved that
+    document to `research/closure/md/`.  Both `git show`s below then failed
+    with `exists on disk, but not in '87324012~1'`, and because this call is at
+    MODULE SCOPE the `SkipTest` took the ENTIRE FILE out of the run: **46 tests
+    became one `skipped` line**, the suite's collected total fell 2,443 -> 2,397,
+    and nothing said which tests were gone.  A module-scope `SkipTest` is a
+    silent hole the size of the module.
+
+    So the spelling is asked of the COMMIT (`sc._in_commit`, which probes the
+    literal, the `unredirect` and the `redirect` with `cat-file -e`) rather than
+    of the working tree, and a failure here now names the path it tried.
+    """
+    path = sc._in_commit(commit, sc.CONTROL_PATH)
     p = subprocess.run(
-        ["git", "-C", str(REPO), "show", f"{commit}:{sc.CONTROL_PATH}"],
+        ["git", "-C", str(REPO), "show", f"{commit}:{path}"],
         capture_output=True, text=True)
     if p.returncode != 0:                       # pragma: no cover - env fault
-        raise unittest.SkipTest(f"git show {commit} failed: {p.stderr}")
+        raise unittest.SkipTest(
+            f"git show {commit}:{path} failed (CONTROL_PATH={sc.CONTROL_PATH}): "
+            f"{p.stderr}")
     return p.stdout
 
 
