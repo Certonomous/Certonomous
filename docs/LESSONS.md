@@ -5334,3 +5334,79 @@ read earlier destroyed an unlanded tail here on 2026-08-18.
 
 Found 2026-08-18 in `Certonomous_closure_challenge`, fifth verification,
 findings 1 and 2 and 6.
+
+## L-113. A claim about what a check ENFORCES is as load-bearing as a claim about a result, and it decays faster, because the check changes under it
+
+Six verifications of the closure package returned 35, 16, 14, converging, 11 and
+8 findings. The sixth reported that the falling count was real and the
+new-mechanism defect rate was not falling: three of its eight findings were
+defects inside the mechanisms the fifth wave had just added, and two more were
+false numbers in that wave's own correction notes. Its closing line named the
+class: **a reader cannot trust the sentences that say what the checker
+enforces.** Three such sentences, all written in one wave, were all false.
+
+**The three.** `description/METHOD.md` said the checker "fails if any shipped
+file cites the pre-registration for a pre-solve freeze again"; the scan required
+the citation inside a parenthesis within 200 characters of the claim, so leaving
+that parenthesis correct and appending one ordinary sentence re-planted the same
+false proposition with every check passing. `evidence/audits/README.md` said the
+checker "fails if any of the five stops OPENING the way this paragraph says it
+does"; the test was a substring test, so moving a head note to the bottom of its
+file under an appendix heading passed while the index went on sending a reader
+to the head of the file. The root README said a drift at the census boundary
+"moves at least two numbers on this page, so it now fails rather than passing
+quietly"; a drift that hands the lost occurrence to a value the corpus already
+states merges rather than splitting, and conserves the population, the site
+total, every class total and the record-derived compared split. One line of one
+document was rewritten and every published figure came back byte-identical with
+all five scripts at exit 0. Enumerated afterwards: 40,980 such rewrites were
+available, at 319 of the 484 sites an unpinned figure stood at.
+
+**Why this class decays faster than a claim about a result.** A result is
+written once and the world does not move under it. A sentence describing a check
+is written beside the check, is true when written, and then the check is
+widened, narrowed, renamed or replaced by the next wave, which ports the code
+and not the sentence. Every wave that adds a mechanism adds sentences saying
+what that mechanism prevents; the sentences outlive the mechanism's shape. Three
+of these were written by the wave immediately before the one that found them.
+
+**The rule.** Every sentence stating what a check prevents, enforces, pins or
+fails on must be DERIVED FROM THE CHECK AT RUN TIME, or DELETED. Keep the
+checks; delete the promises. A derived count of the check's reach is a
+measurement that goes stale loudly; a prose description of its guarantee is a
+promise that goes stale silently. Where a limit cannot be closed, publish its
+SIZE: enumerate the defects the check does not reach, print the count on every
+run, and PLANT ONE OF THEM IN THE CONTROL AND REQUIRE IT NOT TO BE CAUGHT, so
+that the day some later check does reach it the control fails and the published
+number is corrected rather than quietly becoming an understatement.
+
+**The control steers around its own shape unless you make it stop.** The plant
+written for the boundary split selected "a drifted spelling no shipped document
+already uses, so that the split makes a NEW value rather than merging into an
+existing one" — it steered, by construction, to the half its author could catch,
+and it did so under a header stating that a control planting only the defects
+its author imagined certifies the author's imagination. A control that chooses
+its instance from the catchable half certifies the check on the half it chose.
+Derive the instance from the population, and where the population contains
+instances the check cannot reach, plant one of those too.
+
+**Bind a derived phrase to the block that makes the claim, not to the page.**
+The wave that first read the README's account of the run compared each derived
+phrase against the whole flattened page. That page's house style is to keep
+correction notes beside live numbers, so falsifying a live table cell and adding
+"an earlier draft of this page said ..." elsewhere passed green. An author who
+writes the correction and forgets the cell gets a run that agrees with them.
+Every derived phrase now names the blocks that must carry it, and every named
+block must carry it: a count restated in a second bullet is a second place to
+port it to, never a second place a stale copy can hide in.
+
+**Two mechanical notes for the entry that records this.** Re-derive the next
+free lesson ID on every commit ATTEMPT by comparing ID SETS with a
+period-anchored regex (`^## L-(\d+)\.`), never by adding one to a remembered
+maximum: this file has a hole at L-52 and blocks, distinct numbers and highest
+number are three different figures. And write this file back by MERGE, reading
+what is on disk at write time and appending to it, never overwriting from a
+buffer read earlier.
+
+Found 2026-08-18 in `Certonomous_closure_challenge`, sixth verification, all
+eight findings.
