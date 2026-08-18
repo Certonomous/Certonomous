@@ -83,6 +83,9 @@ def main():
             iterations=iters,
             yplus_max=m["yplus_max"],
             wall_alphat_over_alpha=d["wall_alphat_over_alpha"],
+            Re_t_first_cell_midheight=d.get("Re_t_first_cell_midheight"),
+            fmu_launder_sharma_formula_first_cell=d.get(
+                "fmu_launder_sharma_formula_first_cell"),
             # the pre-registered thresholds, applied
             meets_prereg_nut=bool(d["nut_over_nu_max"] > PREREG["nut_over_nu_min"]),
             meets_prereg_bounding=bool(bk < PREREG["bounding_k_max"]),
@@ -179,6 +182,37 @@ def main():
             repro["_k0ct_regrade_reference"] = nug["reference_parsed_from_addendum"]
     out["C_REPRO"] = repro
 
+    # ------------------------------- Betts Table 1 centre-line turbulence ---
+    # REPORTED, NOT GRADED.  The specification's Section 2.4 has no row for
+    # either quantity, so no band exists and none is invented.  The comparison
+    # is at the CENTRE-LINE on both sides, which is the like-for-like one:
+    # K0cT_NUSSELT_REGRADE.md 5.1 compared a domain maximum against a
+    # centre-line value and said so, and both are carried here.
+    ct = {}
+    R = g["reference_parsed"]
+    for c in sorted(M):
+        m = M[c]
+        if m["model"] == "laminar":
+            continue
+        rr = m["rung"]
+        nn = m["diagnostics"].get("nut_over_nu_centre")
+        uu = m["diagnostics"].get("uv_centre")
+        lo, hi = R["uv_centreline"][rr]
+        ct[c] = dict(
+            model=m["model"], rung=rr, mesh=m["mesh_level"], Prt=m["Prt"],
+            nut_over_nu_centre=nn,
+            nut_over_nu_centre_reference=R["nut_over_nu_centreline"][rr],
+            nut_centre_E_pct=(None if nn is None else
+                              100.0 * (nn - R["nut_over_nu_centreline"][rr])
+                              / R["nut_over_nu_centreline"][rr]),
+            nut_over_nu_domain_max=m["diagnostics"]["nut_over_nu_max"],
+            uv_centre=uu, uv_centre_reference_range=[lo, hi],
+            uv_centre_inside_range=(None if uu is None else bool(lo <= uu <= hi)),
+            uv_centre_E_pct_vs_range_mid=(None if uu is None else
+                                          100.0 * (uu - 0.5 * (lo + hi))
+                                          / (0.5 * (lo + hi))))
+    out["betts_table1_centreline_REPORTED_NOT_GRADED"] = ct
+
     # ------------------------------------------------- near-identities ------
     out["near_identities_REPORTED_NEVER_GATED"] = {
         c: dict(model=M[c]["model"], rung=M[c]["rung"], mesh=M[c]["mesh_level"],
@@ -255,6 +289,20 @@ def main():
               f"({v['S'][2]:.3f} %)   Nu {v['Nu_avg'][0]:.4f} / {v['Nu_avg'][1]:.4f} "
               f"({v['Nu_avg'][2]:.3f} %)   worst {v['worst_rel_pct']:.3f} %   "
               f"{'OK' if v['within_1pct'] else '*** EXCEEDS 1 % -- BUILD DEFECT ***'}")
+
+    print("\nBETTS TABLE 1 CENTRE-LINE, REPORTED AND NOT GRADED  "
+          "(nu_T/nu 35 lo / 55 hi;  u'v' 2.4-2.8e-3 lo / 4.2-5.0e-3 hi)")
+    print("-" * 118)
+    print(f"{'case':<15}{'model':>17}{'nut/nu centre':>15}{'ref':>6}{'E %':>9}"
+          f"{'nut/nu max':>12}{'uv centre':>12}{'in range':>10}")
+    for c, v in ct.items():
+        e = v["nut_centre_E_pct"]
+        print(f"{c:<15}{v['model']:>17}{(v['nut_over_nu_centre'] or 0):>15.3f}"
+              f"{v['nut_over_nu_centre_reference']:>6.0f}"
+              f"{(e if e is not None else float('nan')):>9.1f}"
+              f"{v['nut_over_nu_domain_max']:>12.3f}"
+              f"{(v['uv_centre'] or 0):>12.3g}"
+              f"{str(v['uv_centre_inside_range']):>10}")
 
     print(f"\nCOST  {out['cost']['total_core_minutes']:.1f} core-minutes = "
           f"${out['cost']['total_usd']:.3f}   "

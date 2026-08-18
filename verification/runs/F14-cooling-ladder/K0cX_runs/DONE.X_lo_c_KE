@@ -1,0 +1,12 @@
+case=X_lo_c_KE
+rc_blockMesh=0
+rc_checkMesh=0
+rc_solve=0
+iterations=60000
+exec_seconds=341.91
+clock_seconds=342
+wall_seconds=342
+bounding_k_events=0
+bounding_epsilon_events=0
+bounding_omega_events=0
+finished_utc=2026-08-18T19:33:57Z

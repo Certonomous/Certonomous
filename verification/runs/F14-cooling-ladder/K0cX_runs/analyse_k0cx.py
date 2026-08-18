@@ -242,6 +242,20 @@ def read_spec():
     if set(ref["Prt_measured"]) != {"lo", "hi"}:
         refuse("REFUSE: A1.6b's measured turbulent Prandtl numbers could not be read.")
 
+    # Betts Table 1's centre-line turbulence rows.  These are NOT gate rows --
+    # the specification Section 2.4 does not grade them -- and they are parsed
+    # so the rung can REPORT against them without inventing a band.
+    m = re.search(r"\|\s*nu_T/nu at centre-line\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|", flat)
+    if not m:
+        refuse("REFUSE: A1.2's 'nu_T/nu at centre-line' row could not be read.")
+    ref["nut_over_nu_centreline"] = {"lo": float(m.group(1)), "hi": float(m.group(2))}
+    m = re.search(r"\|\s*Mid-cavity u'v' \(m2/s2 x 1e3\)\s*\|\s*([\d.]+)-([\d.]+)\s*"
+                  r"\|\s*([\d.]+)-([\d.]+)\s*\|", flat)
+    if not m:
+        refuse("REFUSE: A1.2's mid-cavity u'v' row could not be read.")
+    ref["uv_centreline"] = {"lo": [float(m.group(1)) * 1e-3, float(m.group(2)) * 1e-3],
+                            "hi": [float(m.group(3)) * 1e-3, float(m.group(4)) * 1e-3]}
+
     return ref, bands, dT
 
 
@@ -485,7 +499,10 @@ def measure(name):
     # The K0cS rung's sharpest finding was a model that stopped modelling
     # turbulence when its near-wall mesh was refined.  These are the numbers
     # that showed it, computed the same way, on every case.
-    diag = dict(nut_over_nu_max=0.0, k_max=None, eps_max=None,
+    diag = dict(nut_over_nu_max=0.0, nut_over_nu_centre=None,
+                uv_centre=None, k_max=None, eps_max=None,
+                Re_t_first_cell_midheight=None,
+                fmu_launder_sharma_formula_first_cell=None,
                 fmu_implied_max=None, cmu_k2_eps_max=None,
                 uv_peak_midheight=None, nut_wall_over_alpha=None,
                 wall_alphat_over_alpha=max(wall_at_hot, wall_at_cold))
@@ -494,15 +511,51 @@ def measure(name):
         nut = read_internal(nutp)
         diag["nut_over_nu_max"] = max(nut) / nu
         nut_row = row_at_y(0.5 * H, nut)
-        uv = []
+        uv, uvx = [], []
         for i in range(1, len(xs) - 1):
             dvdx = (Uy[i + 1] - Uy[i - 1]) / (xs[i + 1] - xs[i - 1])
             uv.append(abs(-nut_row[i] * dvdx))
+            uvx.append(xs[i])
         diag["uv_peak_midheight"] = max(uv) if uv else 0.0
+        # BETTS TABLE 1 REPORTS ITS EDDY VISCOSITY AND ITS u'v' AT THE
+        # CENTRE-LINE, so the commensurate comparison is at the centre-line and
+        # not at the domain maximum.  K0cT_NUSSELT_REGRADE.md 5.1 compared a
+        # domain maximum against a centre-line value and said so; this measures
+        # the like-for-like quantity beside it.
+        diag["nut_over_nu_centre"] = interp1(xs, nut_row, 0.5 * W) / nu
+        diag["uv_centre"] = interp1(uvx, uv, 0.5 * W) if uv else 0.0
         kp = os.path.join(case, t, "k")
         if os.path.isfile(kp):
             kf = read_internal(kp)
             diag["k_max"] = max(kf)
+            # THE CAUSAL VARIABLE BEHIND RELAMINARISATION, measured directly.
+            # LaunderSharmaKE damps with fMu = exp(-3.4/(1 + Re_t/50)^2) where
+            # Re_t = k^2/(nu.epsilonTilda).  fMu is what collapsed at K0cS; Re_t
+            # in the FIRST NEAR-WALL CELL is what drives it, and it is the
+            # quantity that can be compared across two geometries.  Reported for
+            # every two-equation model, and the formula is applied only where it
+            # is the model's own.
+            ep2 = os.path.join(case, t, "epsilon")
+            if os.path.isfile(ep2):
+                ef2 = read_internal(ep2)
+                j = min(range(len(ys)), key=lambda q: abs(ys[q] - 0.5 * H))
+                ret = []
+                for xw in (xs[0], xs[-1]):
+                    i = idx[(xw, ys[j])]
+                    if ef2[i] > 1e-30:
+                        ret.append(kf[i] ** 2 / (nu * ef2[i]))
+                if ret:
+                    diag["Re_t_first_cell_midheight"] = min(ret)
+                    # The formula is LaunderSharmaKE's OWN and is evaluated only
+                    # for that model.  kEpsilon has no fMu (it is identically 1),
+                    # and printing an inapplicable damping function beside it
+                    # would invite the reader to compare two different things.
+                    # kEpsilon's implied fMu is computed the other way, from its
+                    # written nut, and must come out at 1 -- which is this
+                    # measurement's own sanity check.
+                    if model == "LaunderSharmaKE":
+                        diag["fmu_launder_sharma_formula_first_cell"] = math.exp(
+                            -3.4 / (1.0 + min(ret) / 50.0) ** 2)
             ep = os.path.join(case, t, "epsilon")
             if os.path.isfile(ep):
                 ef = read_internal(ep)

@@ -1,0 +1,12 @@
+case=X_lo_f_SST
+rc_blockMesh=0
+rc_checkMesh=0
+rc_solve=0
+iterations=50000
+exec_seconds=904.03
+clock_seconds=933
+wall_seconds=937
+bounding_k_events=0
+bounding_epsilon_events=0
+bounding_omega_events=0
+finished_utc=2026-08-18T18:59:09Z

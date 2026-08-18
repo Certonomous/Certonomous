@@ -88,17 +88,20 @@ def main():
     w("K0cS fine mesh, for comparison: `nu_t/nu` **6.1e-04**, **25 996** "
       "bounding-k events of 40 000 iterations, implied `fmu` **0.034**, peak "
       "Reynolds shear stress **3.89e-17**.\n")
-    w("| case | model | cells | first cell | `nu_t/nu` max | `k` max | `fmu` max | "
-      "bounding k | bounding eps/omega | peak u'v' | y+ max | wall alphat/alpha | "
-      "relaminarised |")
-    w("| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
+    w("| case | model | cells | mesh | `nu_t/nu` max | `k` max | `fmu` implied max | "
+      "`Re_t` first cell | `fMu(Re_t)` | bounding k | bounding eps/omega | "
+      "peak u'v' | y+ max | wall alphat/alpha | relaminarised |")
+    w("| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
     for c, v in d["F3_relaminarisation"]["cases"].items():
         f = v["fmu_implied_max"]
         be = v["bounding_epsilon_events"] or 0
         bo = v["bounding_omega_events"] or 0
         w(f"| {c} | {v['model']} | {v['cells']} | {v['mesh']} | "
           f"{v['nut_over_nu_max']:.4g} | {(v['k_max'] or 0):.3g} | "
-          f"{('%.4g' % f) if f is not None else '-'} | {v['bounding_k_events']:.0f} | "
+          f"{('%.4g' % f) if f is not None else '-'} | "
+          f"{('%.3g' % v['Re_t_first_cell_midheight']) if v.get('Re_t_first_cell_midheight') is not None else '-'} | "
+          f"{('%.4f' % v['fmu_launder_sharma_formula_first_cell']) if v.get('fmu_launder_sharma_formula_first_cell') is not None else '-'} | "
+          f"{v['bounding_k_events']:.0f} | "
           f"{be:.0f} / {bo:.0f} | {(v['uv_peak_midheight'] or 0):.3g} | "
           f"{v['yplus_max']:.3f} | {v['wall_alphat_over_alpha']:.3g} | "
           f"**{'YES' if v['relaminarised'] else 'no'}** |")
@@ -148,6 +151,26 @@ def main():
           f"{v['S'][2]:.3f} % | {v['Nu_avg'][0]:.4f} | {v['Nu_avg'][1]:.4f} | "
           f"{v['Nu_avg'][2]:.3f} % | {v['worst_rel_pct']:.3f} % | "
           f"**{'OK' if v['within_1pct'] else 'EXCEEDS -- BUILD DEFECT'}** |")
+
+    # ---- Betts Table 1 centre-line, reported and not graded -----------------
+    w("\n## Betts Table 1 centre-line turbulence -- REPORTED, NOT GRADED\n")
+    w("The specification Section 2.4 has no row for either quantity, so there "
+      "is no band and none is invented. Both sides are taken at the "
+      "**centre-line**, which is the like-for-like comparison; the domain "
+      "maximum is carried beside it because `K0cT_NUSSELT_REGRADE.md` 5.1 used "
+      "that one and said so.\n")
+    w("| case | model | Ra | `nu_t/nu` centre | Betts | E | `nu_t/nu` domain max | "
+      "u'v' centre | Betts range | inside? |")
+    w("| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- | --- |")
+    for c, v in d.get("betts_table1_centreline_REPORTED_NOT_GRADED", {}).items():
+        e = v["nut_centre_E_pct"]
+        lo, hi = v["uv_centre_reference_range"]
+        w(f"| {c} | {v['model']} | {v['rung']} | "
+          f"{(v['nut_over_nu_centre'] or 0):.3f} | "
+          f"{v['nut_over_nu_centre_reference']:.0f} | "
+          f"{('%+.1f %%' % e) if e is not None else '-'} | "
+          f"{v['nut_over_nu_domain_max']:.3f} | {(v['uv_centre'] or 0):.3g} | "
+          f"{lo:.1e} - {hi:.1e} | **{v['uv_centre_inside_range']}** |")
 
     # ---- convergence --------------------------------------------------------
     w("\n## Convergence, on the registered criterion (Nu p2p < 0.02 %, "
