@@ -1,0 +1,965 @@
+Zhang, W. and Chen, Q. 2000. “Large eddy simulation of natural and mixed convection airflow indoors
+with two simple filtered dynamic subgrid scale models.” Numerical Heat Transfer, Part A: Applications,
+37(5), 447-463.
+
+LARGE EDDY SIMULATION
+OF NATURAL AND MIXED CONVECTION AIRFLOW INDOORS
+WITH TWO SIMPLE FILTERED DYNAMIC SUBGRID SCALE MODELS
+Wei Zhang and Qingyan Chen
+Building Technology Program
+Massachusetts Institute of Technology
+77 Mass. Ave., Cambridge, MA 02139-4307, USA
+Phone: (617) 253-7714, fax: (617) 253-6152, email: qchen@mit.edu
+ABSTRACT
+Large eddy simulation (LES) with a dynamic subgrid-scale model (DSM) is a
+powerful tool to predict indoor airflow. Some DSM models need to average the model
+coefficient over a homogeneous direction or need to use an additional parameter. The others
+are too complicated. This study proposes a simple filtered dynamic subgrid scale model
+(FDSM) for indoor flow without a homogeneous direction. The predicted air velocity, air
+temperature and turbulence distributions agree reasonably well with the experimental data.
+The results show that the FDSM can be used to simulate indoor airflow.
+NOMENCLATURE
+Ar :
+Archimedes number
+C:
+Model coefficient (C=Cs2)
+Cs:
+Smagorinsky model coefficient
+D:
+Room depth
+G(xi):
+Filter function
+g:
+Gravitational acceleration
+H:
+Room height
+L:
+Room width
+pi :
+Grid filtered pressure
+Pr:
+Molecular prandtl number
+PrSGS:
+Subgrid-scale prandtl number
+Ra:
+Rayleigh number
+T:
+Temperature
+ui :
+Velocities
+ui :
+Grid filtered velocities
+~
+ui :
+Test filtered velocities
+T:
+Tempearture
+xi :
+Cartesian space coordinate
+Greek symbols
+β:
+Thermal expansion coefficient
+Δt :
+Time step
+Δ:
+Filter size
+ν:
+Kinematic viscocity
+Grid filtered temperature
+θ:
+~
+θ:
+Test filtered temperature
+1
+
+INTRODUCTION
+
+To design a comfortable and healthy indoor environment, one requires information
+about the distributions of air velocity, air temperature, relative humidity, contaminant
+concentrations, and turbulent quantities in the indoor environment. This information can be
+obtained numerically by using a computational fluid dynamics (CFD) program with a
+Reynolds averaged Navier-Stokes equation model. However, the power spectrum of the
+airflow may play an important role in the thermal comfort. A CFD program with a Reynolds
+averaged Navier-Stokes equation model cannot predict the power spectrum. However, with a
+large eddy simulation (LES) model, a CFD program can calculate the power spectrum. A
+CFD program with a LES model should be a next-generation tool to study indoor airflow,
+because the model is more universal, has fewer or no adjustable model coefficients, and can
+provide more flow information than other CFD models.
+Typical indoor airflow includes natural convection, such as winter heating by a
+baseboard heater; forced convection, such as free cooling in shoulder seasons; and mixed
+convection, such as summer cooling with an air conditioner. The indoor airflow is complex
+and is driven by pressure gradients and thermal buoyancy.
+Very few LES studies on indoor airflow have been reported [3, 4, 10]. The results in
+these studies does not agree very well with the experimental data. This is probably due to a
+constant model coefficient used in the Smagorinsky model [13]. The Smagorinsky model has
+some notable drawbacks including: (a) the requirement of a model coefficient C that is flow
+dependent; (b) incorrect prediction of the asymptotic behavior near a wall; and (c) no
+permission of SGS (Sub-grid scale) energy backscatter to the resolved scales.
+On the other hand, Germano et al. [5] and Lilly [8] proposed a dynamic subgrid scale
+model (DSM) to solve the problems associated with the Smagorinsky model by directly
+computing directly the model coefficient with the information from the resolved scales. This
+model can also correctly predict the asymptotic behavior near a wall, and permits energy
+backscatter from small to large scales. However, DSM requires averaging the coefficient over
+a homogeneous flow direction (statistical homogeneity) because the coefficient fluctuates
+significantly. The averaging procedure can dampen large fluctuations of the C often
+encountered in a flow prediction. This procedure gives good results for simple flows with at
+least one homogeneous direction, such as a turbulent channel flow. However, it cannot be
+used for a flow without a homogeneous direction.
+Recently, Ghosal et al. [6] proposed a fully localized model based on a constrained
+variation approach. This approach solves Fredholm’s integral equation of a second kind and
+is very complicated. Since the model is not developed for indoor airflow, the performance of
+this model for complex indoor airflow is unknown.
+Another approach by Meneveau et al. [9] used a Lagrangian dynamic model. This
+model is suitable for inhomogeneous flows and the results look encouraging. The model
+needs an additional parameter, the Lagrangian averaging time, which needs to be prescribed.
+Additional tests are required to establish how to calculate this parameter [11].
+Most indoor airflows do not have a homogeneous direction, and the available
+approaches seem too complicated for indoor airflow. Therefore, it is necessary to find a
+simple method to determine the DSM coefficient for an inhomogeneous indoor airflow. This
+investigation proposes a filtered dynamic subgrid scale model (FDSM) that uses the filter
+technique to determine the model coefficient for indoor airflow without a homogeneous
+direction.
+
+2
+
+THE FILTERED DYNAMIC SUBGRID-SCALE MODEL (FDSM)
+Filter Function and Filtered Navier-Stokes Equations
+The LES requires the separation of small-eddies from large-eddies with a filter. For
+simplicity, the following section uses a one-dimensional notation. The filtered velocity is
+u i = ∫ G ( x , x ' ) u i ( x )dx '
+(1)
+
+where G(x, x’) is a filter function. The filter function is large only when G (x, x’) is less than
+the filter width, a length scale over which averaging is performed. The flow eddies larger
+than the filter width are “large-eddies,” and those smaller than the width are “small-eddies”.
+This paper uses a box filter, i.e.
+Δ
+⎧1
+( xi ≤ i )
+⎪⎪ Δ
+2 ,
+(2)
+G ( xi ) = ⎨ i
+Δ
+i
+⎪0
+( xi > )
+⎪⎩
+2
+With the finite volume method, it seems natural to define the filter width,
+1
+3
+
+Δ i = (Δx1 Δx 2 Δx3 ) , as an average over a grid volume.
+With the filter, it is possible to derive the governing conservation equations for the
+momentum (Navier-Stokes equations), mass continuity, and energy. The filtered NavierStokes equations for an incompressible flow are
+∂τ ij
+∂u i
+∂
+∂2 ui
+1 ∂P
++
++υ
++ g j β( θ − θ 0 )δ ij
+−
+(u i ⋅ u j ) = −
+(3)
+∂t ∂xj
+∂ xi ∂ x j ∂ x j
+ρ ∂ xi
+where the subgrid Reynolds stresses are
+(4)
+τ ij = u i u j − u i ⋅ u j
+LES also solves the filtered energy equation with subgrid heat flux terms for flow
+problems with heat transfer
+∂hj
+∂ υ ∂θ
+∂θ ∂ uj θ
+(5)
+(
+)−
+=
++
+∂xj
+∂xj
+∂ x j Pr ∂ x j
+∂t
+where the sugrid heat fluxes are
+hj = uj θ− uj θ
+(6)
+The terms in the above equations, u i u j and u j θ , are unknown and need to be modeled.
+
+The Filtered Dynamic Subgrid Scale Model Coefficient
+Smagorinsky model In order to close the equations, the subgrid Reynolds stresses
+and heat fluxes can be modeled using the Smagorinsky model and the simplified Boussinesq
+approximation.
+τ ij = 2 Cτ Δ2 S Sij
+(7)
+
+hj =
+
+1
+∂θ
+Cτ Δ 2 S
+PrSGS
+∂xj
+
+(8)
+
+1 ∂u i ∂u j
++
+(
+) Cτ=Cs2, Cs =0.1 ~ 0.25, and PrSGS = 0.5
+2 ∂ x j ∂ xi
+,
+However, the Smagorinsky model coefficient C is flow dependent.
+1
+2
+
+where, S = (2Sij ⋅ Sij ) , Sij =
+
+3
+
+Dynamic sub-grid scale model (DSM) On the other hand, the DSM [5] calculates
+the model coefficient by relating the subgrid scale Reynolds stresses to two different sizes of
+filters. Since the Reynolds stresses vary with time and location, the resulting model
+coefficient is therefore a function of time and location.
+~
+~ ~
+The DSM uses an explicit test filter, G , with a filter width of Δ (Δ = 2Δ ) [5] to
+~
+determine the turbulent stresses on the test filter ( G filter)
+
+~
+
+~~
+Tij = u i u j − u i u j
+
+(9)
+
+The first term on the right side of Eq. (9) cannot be determined directly, like the one in Eq.
+(4). However, substituting Eq. (9) from the Eq. (4) with a test filter can eliminate the terms
+~
+Tij − τ ij = L ij
+(10)
+
+~
+
+~~
+where, L ij = u i u j − u i u j
+The resolved turbulent stresses, L ij , in Eq. (10) can be calculated explicitly. With the
+definition of the Smagorinsky model, the DSM coefficient C can be determined. By using the
+same procedure, the dynamic subgrid scale turbulent Prandtl number can also be obtained [8].
+More detailed information about the DSM can be found in [5] and [8].
+Filtered dynamic sub-grid scale model (FDSM) Note that all of the terms in Eq.
+~
+(10) are related to the test filter ( Δ ). The model coefficient C obtained with Eq. (10) should
+~
+be valid for the test filter ( Δ ). Since the subgrid scale Reynolds stresses, τ ij , are defined with
+the grid filter ( Δ ), the model coefficient C should be related to the grid filter ( Δ ). This can
+be done by applying a grid filter to Eq. (10) to yield
+(11)
+Tij − τ~ij = L ij
+In order to obtain a new model coefficient from Eq. (11), the τij and the Tij in Eq. (11)
+are modeled by using the Smagorinsky model or the mixed model [15] . However, this
+modeling would lead to an error in satisfying Eq. (11), τ ijmodel .
+
+e ij = L ij − (Tijmodel − τ~ijmodel )
+
+(12)
+
+For simplicity, this investigation used the Smagorinsky model for modeling. The
+corresponding error is
+
+~
+
+~ ~~
+e ij = L ij − 2 C T Δ2 S Sij + 2 Cτ Δ2 S S
+
+(13)
+
+ij
+
+~ ~~
+2
+Using the definitions of α ij = 2Δ 2 S Sij and β ij = 2Δ S Sij , Eq. (13) can be rewritten as
+
+~
+
+e ij = L ij − C T α ij + C τ β ij
+
+(14)
+
+If we assume
+C T α ij ≈ C T α ij ,
+
+(15)
+
+~ ~
+C τ β ij ≈ C τ βij
+
+(16)
+
+~
+C ≈ Cτ ≈ CT .
+then Eq. (13) becomes
+
+(17)
+
+~
+
+4
+
+~
+
+e ij = L ij − C T α ij + C τ β ij = L ij − CM ij
+~
+where M ij = α ij − β ij
+
+(18)
+
+Meneveau et al. [9] used direct numerical simulation (DNS) data to analyze the two
+hypotheses used in the DSM. They filtered DNS data at both a grid filter and a test filter, and
+then they compared the coefficients obtained with and without the time averaging procedure.
+Although the two coefficients are not equal without averaging, they are similar with the time
+averaging:
+(19)
+C DNS τ ≠ C DNS T
+DNS
+DNS
+(20)
+{C τ }≈ {C T }
+where {} denotes the time averaging. Meneveau et al. [9] also discussed the minimal error
+~ ~
+caused by approximating Cτ β ij = Cτ β ij with and without using the averaging technique. The
+
+~
+
+study shows that the minimal error with the averaging is much smaller than that without the
+averaging:
+⎫
+~ ~ ⎧
+~ ~
+Errormin ( C τ βij , ⎨C τ β ij ⎬) << Errormin (C τ βij , C τ β ij )
+(21)
+⎩
+⎭
+Since the filtering technique is averaging, the results obtained by Meneveau et al.
+(1996) may be extended to the grid filtering technique. Therefore, the assumptions used in
+Eqs. (15), (16), and (17) may be valid as well, although they still need to be examined further.
+The present investigation uses the least-square approach to obtain the model
+coefficient, the C in Eq. (18), as suggested by Lilly [8] and Ghosal et al. [6]. At any given
+point in a space, x, the eij is a function of the C. In order to obtain an optimal C, the eij should
+be integrated over the entire flow domain with a smooth function, because the square of the
+residual, eijeij, may have locally violent changes. The integrated square of the error function,
+E ij (C) , is
+
+{
+
+}
+
+~
+
+~
+
+E ij (C) = ∫ G f (x, x' ) e ij (x' ) e ij (x' ) d x'
+
+(22)
+
+where G f (x, x' ) is a smooth function. Substitute Eq. (18) into Eq.(22), and Eq. (22) reads:
+
+E ij (C) = ∫ G f ( x, x' )(L ij − C M ij ) 2 d x'
+
+(23)
+
+Since the least square condition for the Eq. (23) is
+
+∂E ij (C)
+∂C
+
+= 0 , then the optimal
+
+model coefficient C is obtained as:
+
+C=
+
+∫ G (x, x') L M d x'
+∫ G (x, x' ) M M d x'
+f
+
+ij
+
+ij
+
+f
+
+ij
+
+ij
+
+(24)
+
+The C is obviously a function of time and space, and it can be applied to inhomogeneous
+flows. The smooth function G f (x, x' ) should be chosen for the entire flow domain and may
+depend on the turbulent scales. Although the smooth function can be in many forms, a box
+filter (Eq. (2)) may be the most convenient ( G f (x, x' ) = G(x, x' ) ). The filter can be either a
+grid filter or a test filter
+C=
+
+L ij M ij
+M ij M ij
+
+(with the grid filter Δ )
+
+(25)
+
+or
+5
+
+C=
+
+~
+~
+
+L ij M ij
+
+~
+(with the test filter Δ )
+
+(26)
+
+M ij M ij
+
+Eqs. (25) and (26) are now defined as the filtered dynamic subgrid scale model
+(FDSM). The FDSMG has the grid filter in Eq. (25), and FDSMT has the test filter in Eq. (26).
+The function of the grid filter is to average the coefficient and to smooth the large fluctuation
+of the coefficient. The filter technique will lead to a stable numerical solution. The FDSM
+can be considered as a simple model compared with those proposed by Ghosal et al. [6] and
+Meneveau et al. [9].
+The FDSMG or FDSMT can also be locally negative. According to Piomelli et al. [12],
+a negative C indicates a negative eddy viscosity and implies an energy transfer from small
+scales to the resolved scales or backscatter. However, the negative C can also lead to a
+numerical instability. In order to avoid the instability, the present investigation uses C = Max
+(0.0, Eq.(25) or (26)) that is also used by the others [10].
+Filtered dynamic subgrid turbulent Prandtl number Similarly, we can also
+calculate the Prandtl number in the dynamic subgrid heat fluxes with the same procedure.
+~
+The subgrid heat flux on the test filter ( G filter) is
+~ ~
+(27)
+Hj = u jθ − uj θ
+
+~
+
+Substitute Eq. (27) from the Eq. (6) with a test filter
+~
+Hj− hj = R j
+
+~
+
+(28)
+
+~ ~
+
+where R j = u j θ − u j θ and apply a grid filter to Eq. (28). Then the equation becomes
+~
+(29)
+Hj− hj = R j
+Now all the terms in Eq. (29) are related to the grid filter. If hj and Hj in Eq. (29) are
+replaced by a simplified Boussinesq approximation, the replacement leads to an error in
+satisfying Eq. (29). The error associated with a model, h model
+, is given by
+j
+~
+(30)
+e h j = R j − (H model
+− h model
+)
+j
+j
+With the simplified Boussinesq approximation,
+
+~
+~
+S
+~
+∂
+θ
+∂θ
+, and H j = 2 C T Δ 2 H
+h j = 2 Cτ Δ 2 h
+Pr SGS ∂ x j
+Pr SGS ∂ x j
+
+S
+
+(31)
+
+~
+~2 ~ ∂θ
+∂θ
+and β h j = 2 Δ 2 S
+, then Eq. (30) can be rewritten as
+If we define α j = 2 Δ S
+∂xj
+∂xj
+H
+
+~
+
+~
+
+1
+1
+1
+1
+β hj ) ≈ R j − C ( H α Hj − h β hj )
+e hj = R j − (C T H α Hj − Cτ
+h
+PrSGS
+PrSGS
+PrSGS
+PrSGS
+With the following assumptions
+
+α Hj
+
+1
+1
+≈ α jH H
+H
+PrSGS
+PrSGS
+
+(32)
+
+(33)
+
+6
+
+~
+
+~
+
+1
+1
+~
+≈ β jh h
+β
+h
+PrSGS
+PrSGS
+h
+j
+
+(34)
+
+1
+1
+1
+≈ H ≈
+h
+PrSGS PrSGS PrSGS
+Eq. (32) becomes,
+1
+e hj = R j − C
+Pj
+PrSGS
+
+(35)
+
+(36)
+
+~
+
+where P j = α Hj − β hj .
+By using the least-square approach, we also can obtain an optimal
+h
+
+integrated square of the error function, E j (
+Eh j(
+
+1
+. The
+PrSGS
+
+1
+) , is
+PrSGS
+
+1
+) = ∫ G fh (x, x' ) e h j (x' ) e h j (x' ) d x'
+PrSGS
+
+(37)
+
+where G fh (x, x' ) is a smooth function.
+Substitute Eq. (36) into Eq.(37)
+
+Eh j(
+
+1
+1
+) = ∫ G fh (x, x' )(R j − C
+Pj ) 2 d x'
+PrSGS
+PrSGS
+
+(38)
+
+1
+)
+PrSGS
+= 0 , then the optimal subgrid
+1
+∂(
+)
+PrSGS
+
+∂ E hj (
+Since the least square condition for the Eq.(38) is
+
+turbulent Prandtl number
+
+1
+is obtained as:
+PrSGS
+
+1
+1 ∫ G f (x, x' ) R j Pj d x'
+=
+PrSGS C ∫ G fh (x, x' ) Pj Pj d x'
+h
+
+(39)
+
+To be consistent with Eqs. (22) and (23), a box filter (Eq.(2)) can be used as the
+1
+smooth function, G fh (x, x' ) . Then the subgrid scale Prandtl number (
+) is
+PrSGS
+1
+1 Pj R j
+=
+PrSGS C Pj Pj
+or
+
+~
+~
+
+1
+1 Pj R j
+=
+PrSGS C
+Pj Pj
+
+(with the grid filter)
+
+(40)
+
+(with the test filter)
+
+(41)
+
+NUMERICAL PROCEDURE
+7
+
+This study uses a finite difference method to solve the spatially filtered Navier-Stokes
+equations. It also uses a staggered mesh with a pressure-smoothing technique. All the spatial
+terms are discretized with the second-order accuracy of the central differencing scheme. A
+second-order explicit differencing scheme (Explicit Adams-Bashforth Scheme) is used to
+discretize time. For example, the intermediate velocity, u *i , is calculated by
+n
+⎫⎪
+∂τ ij
+u *i − u in 3 ⎧⎪ 1 ∂ P
+∂2 ui
+∂
+(u i ⋅ u j )+ υ
++ g j β( θ − θ 0 )δ ij ⎬
+= ⎨−
+−
+−
+Δt
+2 ⎪⎩ ρ ∂ x i ∂ x j
+∂ xi ∂ x j ∂ x j
+⎪⎭
+(42)
+n −1
+2
+⎫⎪
+∂τ ij
+1 ⎧⎪ 1 ∂ P
+∂
+∂ ui
+− ⎨−
+−
+(u i ⋅ u j )+ υ
++ g j β( θ − θ 0 )δ ij ⎬
+−
+2 ⎪⎩ ρ ∂ x i ∂ x j
+∂ xi ∂ x j ∂ x j
+⎪⎭
+where n is time step and n+1 is the next time step.
+By applying a simplified maker and cell (SMAC) method [7], while considering a
+∂ϕ
+= u ' , (where u ' = u n +1 − u * ), and using the
+scalar potential ϕ which is defined by
+∂ xi
+continually equation, the scalar potential ϕ can be written as a Poisson equation
+∂ u*
+∂ 2ϕ
+=− i
+(43)
+∂ xi ∂ xi
+∂ xi
+This Poisson equation of the scalar potential ϕ can be solved by the strong-implicit procedure
+(SIP) [14]. The final pressure and velocity fields are derived from the auxiliary scalar
+potential ϕ though the relations
+∂ϕ
+n +1
+n
+ui = ui +
+(44)
+∂ xi
+1
+(45)
+P n +1 = P n − φ
+Δt
+APPLICATIONS TO INDOOR AIRFLOW
+
+)
+)
+
+The FDSM is used to calculate two typical airflows in rooms
+natural convection in a room with a heated wall and a cooled wall
+mixed convection in a room with a heated floor and a cold air jet near the ceiling
+
+Natural Convection
+The investigation has studied the natural convection flow in a cavity as shown in Fig.
+1(a). Cheesewright [2] measured the air velocity, temperature, turbulence energy, and heat
+transfer in the cavity. The flow characteristics of the cavity are similar to those in a room.
+The simple geometry eliminates many potential errors, such as those caused by the complex
+geometry of a baseboard heater. If there are discrepancies between the computed results and
+measured data, this would allow us to identify the reasons.
+Since natural convection consists of both turbulent and laminar flows, it is very
+challenging to use the LES to simulate the flows. This case enables us to use the DSM, which
+can be averaged over the depth direction. The depth direction can be considered
+homogeneous. The LES with the DSM and FDSM (FDSMG and FDSMT) is used to predict
+the distributions of air velocity, temperature, and turbulence energy.
+Fig. 1(a) shows the cavity geometry (height AC = 2.5 m, width AB = 0.5 m, depth =
+0.5 m) as well as the numerical grid distribution used in the LES simulations. The
+8
+
+temperature difference between the warm and cold walls, Δθ, is 45.8 K (the left wall
+temperature, T1, is 68.0oC, and the right wall temperature, T2, is 22.2oC). All of the other
+walls were insulated. The flow corresponds to a Rayleigh number (Ra) of 5.0x1010, similar to
+that found in a typical room. The Ra is defined as
+(T1 − T2 ) gH 3
+(46)
+Ra =
+υα
+The computations used no-slip velocity conditions for all the walls. The mesh employed was
+62× 62× 12 for the height (x), width (y), and depth (z) directions, respectively (as shown in
+Fig. 1(a)). The time step was Δ t =0.0002 s.
+The initial air velocity was zero, and the air temperature was 45.1oC for the whole
+flow domain. When the flow became statistically steady, the averaging technique was used to
+obtain the mean value of the computed parameters, such as air velocity and temperature. The
+averaging time is about 120 s.
+Figs. 1(b) and 1(c) show respectively the distributions of average air velocity and
+temperature with the FDSMG on the center section (depth = 0.25 m). The velocity field is
+asymmetric. The hot wall generates an upward flow near the wall and the cold wall a
+downward flow. The velocity in the center of the cavity is generally small. The flow is
+laminar in the lower part of the hot wall and the upper part of the cold wall.
+Fig. 2 compares the predicted and measured results in the span-wise of the cavity. The
+results with the DSM (averaging in the depth direction), the FDSMG, and the FDSMT agree
+rather well with the experimental data except near the wall regions. However, the FDSMG
+and FDSMT can predict flow without averaging along a homogeneous direction. This is very
+important because there is no homogeneous direction in most rooms with natural convection.
+As reported by Cheesewright [2], the top and bottom walls of the cavity were not very
+well insulated. The heat loss in the laboratory environment led to a lower mean air
+temperature in the cavity. As a result, the predicted mean air temperature in the cavity is
+higher than the measured data, as illustrated in Fig. 2(b). All models predicted a reasonably
+good temperature profile.
+The present investigation calculates the turbulence energy as k =(u’2+v’2+w’2)/2 (grid
+scale). Fig. 2(c) compares the computed k profiles with the experimental data. The DSM
+model under-predicted the turbulence energy near the walls. The performances of the FDSMG
+and FDSMT are similar to that of the DSM, although they still under-predict the turbulence
+energy, especially near the walls. The reason may be attributed to the ad hoc fix for the
+coefficient C (C≥0.0).
+This case shows that the FDSMG and FDSMT have the same performance as the
+DSM. Since the FDSMG and FDSMT do not need averaging over a homogeneous direction,
+they can be used to calculate more complex airflow. When comparing the FDSMG and the
+FDSMT, the FDSMG is slightly better than the FDSMT.
+Mixed Convection
+The present investigation also applied the FDSM for mixed convection flow in a
+room, as shown in Fig. 3(a). Blay et al. [1] measured the air velocity, temperature, and
+turbulent energy distributions for the case. The geometry of the test rig was H = 1.04 m, L =
+1.04 m, and D = 0.7 m. This is a scale-model of a room and has a homogeneous direction (the
+depth direction) so that the DSM can also be used. The inlet height, hin, was 0.018 m, the
+supply air velocity, Uin, was 0.57 m/s, and the supply air temperature, Tin, was 15°C. The
+outlet height was 0.024m. The test rig used a floor heating system with a floor temperature,
+Tf, of 35oC. All other wall temperatures, Tw, were 15oC. The corresponding Archimedes
+
+9
+
+U h
+β gh in ΔT
+) was 0.0036, and the Reynolds number ( Re = in in ) was 678.
+2
+ν
+U in
+The computations used a non-slip velocity condition for all the walls. The meshes
+employed were 62× 62× 12 for the height (x), width (y), and depth (z) directions.
+Figs. 3(b) and 3(c) show the measured mean air velocity distribution and the averaged
+air velocity distribution using the FDSMG. The measured and computed airflow patterns are
+almost the same. The LES simulation shows a small re-circulation in the left-bottom corner,
+but not in the experiment. It is not clear if this is due to insufficient fine measuring points or
+due to the numerical model used.
+Figs. 4 and 5 compare further the predicted mean air velocity, temperature, and
+turbulent energy distributions using the DSM, FDSMG, and FDSMT with the experimental
+data at two center sections (at x = 0.502 m and y = 0.502 m). Figs. 4(a) and 5 (a) show that
+the three subgrid scale models give very similar air velocity profiles. The FDSMG performed
+slightly better than the others. The predicted velocity profiles agree reasonably well with the
+experimental data.
+However, Figs. 4(b) and 5(b) indicate that the predicted air temperature using the
+three models is about 1.5 K higher than the measured one, though the shape of the predicted
+temperature profiles is the same as the measured one. The models may overpredict the heat
+transfer from the floor or underpredict the heat transfer to the other walls. Since no detailed
+measurements on the heat transfer were available, it is difficult to identify the actual cause of
+the discrepancies. Perhaps the subgrid scale Prandtl number was not correctly modeled for
+the buoyancy effect.
+Fig. 4(c) illustrates the computed turbulent energy (k1/2 ={(u’2+v’2+w’2)/2}1/2) profiles
+at section x = 0.502 m and the comparison with the corresponding experimental data. The
+FDSMG and DSM can predict the turbulence energy distribution well, while the performance
+of the FDSMT was poor. At section y = 0.502 m, all three models overpredicted the
+turbulence energy, as shown in Fig. 5(c).
+The reason for developing the new SGS model is to calculate an indoor airflow
+without a homogeneous flow direction. However, we have not found suitable experimental or
+direct-numerical-simulation data for this type of flow from the literature, although the flow
+exists in most rooms. Validation of the model needs detailed information of Reynolds
+stresses and heat fluxes. Further research in the direction is needed.
+
+number ( Ar =
+
+CONCLUSION
+
+This study has developed two filtered dynamic subgrid-scale models (FDSM), one
+having the grid filter and the other the test filter, for large eddy simulation of complex flow
+without a homogeneous direction.
+The models have been used to predict natural and mixed convection flow in a room.
+The computed results are compared with the experimental data available from the literature
+and those with a dynamic subgrid scale model. The FDSM can correctly predict the average
+air velocity and temperature distributions in a room without a homogenous direction.
+However, it is more difficult to calculate the heat transfer near a wall and the turbulence
+energy distribution in a room. The performance of the FDSM is the same as that of the
+dynamic subgrid scale model, but it can be used for inhomogeneous flows, such as an airflow
+in a room.
+ACKNOWLEDGMENT
+
+10
+
+The research was supported by the Center for Indoor Air Research, MD.
+REFERENCES
+
+1.
+2.
+3.
+4.
+5.
+6.
+7.
+8.
+9.
+10.
+
+11.
+12.
+13.
+14.
+15.
+
+D. Blay, S. Mergui, and C. Niculae, Confined turbulent mixed convection in the
+presence of a horizontal buoyant wall jet, Fundamentals of Mixed Convection, ASME
+HTD-Vol. 213, pp. 65-72, 1992.
+R. Cheesewright, K.J. King, and S. Ziai, Experimental data for the validation of
+computer codes for the prediction of two-dimensional buoyant cavity flows, ASME
+Winter Annual Meeting, HTD-60, p.75, Anaheim,1986.
+L. Davidson and P.V. Nielsen, Large eddy simulation of the flow in a threedimensional ventilated room, Preceding of 5th International Conference on Air
+Distribution in Rooms, ROOMVENT’96, pp. 161-168, 1996.
+S. J. Emmerich, and K.B. McGrattan, Application of a large eddy simulation model
+to study room airflow, ASHRAE Transactions, vol. 104, 1998.
+M. Germano, U. Piomelli, P. Moin, and W.H. Cabot, A dynamic subgrid-scale eddy
+viscosity model, J. Physics Fluids A, vol. 3, p. 1760, 1991.
+S. Ghosal, T. Lund, P. Moin, and K. Akselvoll, A dynamic localization model for
+large-eddy simulation of turbulent flows, J. Fluid Mechanics, vol. 286, p. 229, 1995.
+F.H. Harlow and J.E. Welch, Numerical calculation of time-dependent viscous
+incompressible flow, J. Physics Fluids, vol. 8, p. 12, 1965.
+D.K. Lilly, A proposed modification of the Germano subgrid-scale closure method, J.
+Physics Fluids A, vol. 4, p. 633, 1992.
+C. Meneveau, T. Lund, and W. Cabot, A Lagrangian dynamic sub-grid scale model of
+turbulence,” J. Fluid Mechanics, vol. 315, p. 353 1996.
+S. Murakami, A. Mochida, and K. Matsui, Large eddy simulation of non-isothermal
+room airflow, -comparison between standard and dynamic type of Smagorinsky
+model-, Journal of Institute of Industrial Science, University of Tokyo, vol. 47(2), pp.
+7-12, 1995.
+P. Moin, Numerical and physiscal issues in large eddy simulation of turbulent flows,
+JSME International Journal B, vol. 41(2), p. 454, 1998.
+U. Piomelli, W.H. Cabot, P. Moin, and S. Lee, Subgrid-scale backscatter in turbulent
+& transitional flows, J. Physics Fluids A, vol. 3, p. 1766, 1991.
+J. Smagorinsky, General circulation experiments with the primitive equations, I: The
+basic experiment, Monthly Weather Rev., vol. 91, pp. 99-164, 1963.
+H. L. Stone, Interactive solution of implicit approximations of multidimensional
+partial differential equations, SIAM J. of Num. Anal., vol. 5, p. 530, 1968.
+Y. Zang, , R. L. Street, and J. R. Koseff, A dynamic mixed subgrid-scale model and
+its application to recalculating flow, J. Physics Fluids A, vol. 5, p. 3186, 1993.
+
+11
+
+FIGURE CAPTIONS
+
+Fig. 1 The predicted results of the natural convection in a cavity with the FDSMG at depth
+=0.25 m.(a) the cavity geometry, (b) average air velocity, (c) average air temperature.
+Fig. 2 Comparison of the predicted and measured results at mid height of the cavity. (a)
+average air velocity, (b) average air temperature, (c) average turbulent energy.
+Fig. 3 The predicted and measured mixed convection flow in a room. (a) room geometry, (b)
+average velocity vectors obtained from the experiment (Baly et al,1992), (c) average velocity
+vectors computed by the FDSMG
+Fig. 4 Comparison of the predicted and measured results on the center sections (x=0.502m).
+(a) average velocity, (b) average temperature, (c) average turbulent energy (k1/2).
+Fig. 5 Comparison of the predicted and measured results on the center sections (y=0.502m).
+(a) average velocity, (b) average temperature, (c) average turbulent energy (k1/2).
+To Editor:
+Please do not use these scanned images. The quality is not good. Please use the hardcopy
+instead. Thanks.
+
+Fig. 1 The predicted results of the natural convection in a cavity with the FDSMG at depth =0.25 m.
+(a) The cavity geometry, (b) average air velocity, (c) average air temperature.
+12
+
+Fig. 3 The predicted and measured mixed
+convection flow in a room. (a) room geometry,
+(b) average velocity vectors obtained from the
+experiment (Baly et al,1992), (c) average
+velocity vectors computed by the FDSMG
+
+Fig. 2 Comparison of the predicted and measured
+results at mid height of the cavity. (a) average air
+velocity, (b) average air temperature, (c) average
+turbulent energy.
+
+13
+
+Fig. 4 Comparison of the predicted and measured
+results on the center sections (X=0.502m). (a)
+average velocity, (b) average temperature, (c)
+average turbulent energy (k1/2).
+
+14
+
+Fig. 5 Comparison of the predicted and measured
+results on the center sections (Y=0.502m). (a)
+average velocity, (b) average temperature, (c)
+average turbulent energy (k1/2).
+
+

@@ -1,0 +1,653 @@
+International Journal of Heat and Fluid Flow 21 (2000) 675±683
+
+www.elsevier.com/locate/ijh
+
+Experiments on turbulent natural convection in an enclosed tall
+cavity
+P.L. Betts *, I.H. Bokhari 1
+Department of Mechanical Engineering, UMIST, PO Box 88, Manchester M60 1QD, UK
+Received 29 June 1999; accepted 10 April 2000
+
+Abstract
+Experiments have been undertaken to investigate the natural convection of air in a tall dierentially heated rectangular cavity
+(2.18 m high by 0.076 m wide by 0.52 m in depth). They were performed with temperature dierentials between the vertical plates of
+19.6°C and 39.9°C, giving Rayleigh numbers based on the width of 0:86  106 and 1:43  106 . Under these conditions the ¯ow in the
+core of the cavity is fully turbulent and property variations with temperature are comparatively small. A previously used experimental rig has been modi®ed, by ®tting partially conducting top and bottom walls and outer guard channels, to provide boundary
+conditions which avoid the inadequately de®ned sharp changes in temperature gradient and other problems associated with insucient insulation on nominally adiabatic walls. Mean and turbulent temperature and velocity variations within the cavity have
+been measured, together with heat ¯uxes and turbulent shear stresses. The temperature and ¯ow ®elds were found to be closely twodimensional, except close to the front and back walls, and anti-symmetric across the diagonal of the cavity. The partially conducting
+roof and ¯oor provide locally unstable thermal strati®cation in the wall jet ¯ows there, which enhances the turbulence as the ¯ow
+moves towards the temperature controlled plates. The results provide a greatly improved benchmark for the testing of turbulence
+models in this low turbulence Reynolds number ¯ow. Ó 2000 Elsevier Science Inc. All rights reserved.
+Keywords: Natural convection; Turbulence; Heat transfer; Closed cavity
+
+1. Introduction
+Natural convection within enclosures occurs in many
+practical situations ranging from simple space heating of domestic rooms to parts of industrial and nuclear installations. In
+typical applications, although much of the ¯ow is turbulent,
+there are extensive regions with a low turbulent Reynolds
+number, and often signi®cant regions of laminar ¯ow or regions of stagnation caused by local strati®cation. Moreover,
+when the heat which drives the ¯ow is introduced or extracted
+over approximately vertical boundaries, the thermal conditions there are close to constant heat ¯ux with distance from
+the wall, but the shear stress varies rapidly and changes sign
+close to the wall. For these reasons, simple turbulence modelling of such ¯ows, and particularly the use of standard wall
+laws, is totally inappropriate.
+Despite the widespread occurrence of natural convection in
+enclosed regions, the availability of good quality experimental
+data involving both temperature and velocity ®elds is still very
+limited, e.g., Cheesewright et al. (1986), Dafa'Alla and Betts
+*
+
+Corresponding author.
+Present address: Nuclear Engineering Division, Pakistan Institute
+of Nuclear Science and Technology, P.O. Nilore, Islamabad, Pakistan.
+1
+
+(1996), Mergui et al. (1993), and Tian (1997), although the last
+is for a very low level of turbulent ¯uctuations. Data on
+temperature ®elds and heat ¯ux is extensive, ranging from the
+well-known experiments of MacGregor and Emery (1969) to
+the large models of domestic rooms investigated by Yguel
+(1988). However, the low velocities involved are dicult to
+measure, as hot wire probes generate their own local convection and are insensitive to the ¯ow reversals present in the ¯ow.
+Laser Doppler anemometry (LDA), with Bragg shift to detect
+¯ow reversals, or an equivalent technique, is therefore essential
+for the measurement of velocity ®elds. Variations in refractive
+index of liquids with temperature cause diculties with
+bending of the laser beams and, in a turbulent ¯ow, a consequent movement of the beams and frequent loss of the measuring volume. Velocity measurements are therefore most
+conveniently performed in gases, normally air.
+The experimental situation being investigated here is that of
+a simple rectangular box-shaped cavity, with opposing vertical
+walls held at dierent temperatures. The existence of turbulence within such a cavity depends on aspect ratio A  H =W as
+well as Rayleigh number. For the nearly square cavity of
+Mergui et al. (1993) the ¯ow was only transitional with a
+strati®ed quiescent ¯ow in the core, even at a Rayleigh number
+based on cavity width W of Ra  2:3  109 . Similarly, turbulence was even less extensive in the square cavity of Tian (1997)
+
+0142-727X/00/$ - see front matter Ó 2000 Elsevier Science Inc. All rights reserved.
+PII: S 0 1 4 2 - 7 2 7 X ( 0 0 ) 0 0 0 3 3 - 3
+
+676
+
+P.L. Betts, I.H. Bokhari / Int. J. Heat and Fluid Flow 21 (2000) 675±683
+
+Notation
+A
+D
+H
+
+aspect ratio H =W
+depth of cavity
+height of cavity
+
+at Ra  1:6  109 . In contrast, in the tall cavity of Dafa'Alla
+and Betts (1996) with A  28:6 and Ra  106 , the ¯ow in the
+core region ¯ow was fully turbulent with turbulence levels over
+half the maximum mean vertical velocity. This is consistent
+with the numerical work of Le Quere and Alziary (1985),
+which demonstrated the rapid reduction of the Rayleigh
+number, based on cavity width, required for transition as the
+aspect ratio is increased. Thus, the use of a tall cavity reduces
+the width W and/or the temperature dierence between the
+vertical plates needed to ensure turbulent ¯ow within the
+cavity. The smaller width then means that only moderate
+values of the third dimension, cavity depth, are required to
+produce approximately two-dimensional ¯ow in the region
+either side of the centre-plane of the cavity (cf. Cheesewright et
+al. (1986) with A  5) Similarly a moderate temperature difference between the vertical walls ensures that problems of
+property variations within the gas can be neglected.
+Most experimental work has attempted to provide data
+under idealized thermal boundary conditions, such as constant temperature or constant heat ¯ux active walls and
+adiabatic or perfectly conducting passive ones. For example,
+Dafa'Alla and Betts (1996) attempted to impose a constant
+heat ¯ux on the hot wall, with an isothermal cold wall and all
+other walls insulated. As discussed by Allard (1993) and
+Fusegi and Hyun (1994), all solid insulators have thermal
+conductivities greater than air, so that it was inevitably found
+impossible to reproduce the ideals speci®ed. Dafa'Alla and
+Betts encountered particular diculties at the junction between the electrically heated hot plate and the nominally
+adiabatic top and bottom walls. These problems were typical
+of all attempts to reproduce idealized boundary conditions,
+and consequently, when the results were used by Ince et al.
+(1993) to test low-Reynolds-number turbulence models,
+measured wall temperatures had to be used as input rather
+than the ideals speci®ed.
+Although the results of Ince et al. (1993) were encouraging
+to the turbulence modellers in general terms, the uncertainty in
+boundary layer de®nition in regions of rapidly changing temperature gradient (e.g., at one end of the nominally adiabatic
+top and bottom surfaces) meant that one does not know
+whether the relatively minor dierences between experiment
+and computation should be attributed to the turbulence model
+or the problems with the experiment. The present experiments
+were therefore designed to overcome these diculties and
+provide an appropriate benchmark for modellers. The apparatus of Dafa'Alla and Betts (1996) has been rebuilt to ensure
+well-de®ned, readily measurable, and smoothly varying temperatures within the boundary walls. Conduction within the
+walls becomes part of the problem, but there is now a clear
+unambiguous speci®cation. Moreover, the active walls are now
+both eectively isothermal, the internal surface temperatures
+of the top and bottom vary smoothly, heat loss through the
+front and back walls is small, and the depth of the cavity is
+sucient to produce eectively two-dimensional ¯ow over
+most of the enclosure volume. The results have been used as a
+benchmark for testing the numerical predictions of turbulence
+models at the 5th and 7th ERCOFTAC workshops on re®ned
+¯ow modelling (1996, 1998) and are presented here with more
+detail for a wider audience. A summary of the results at mid-
+
+Ra
+Rayleigh number (gbDTW3 /ma)
+T, Trms
+mean and rms components of temperature
+U, u, V, v mean and rms horizontal and vertical velocities
+W
+width of cavity
+x, y, z
+horizontal, vertical and depth-wise coordinates
+
+height of the cavity is given in Table 1, near the end of this
+paper.
+
+2. Experimental apparatus and instrumentation
+2.1. Apparatus
+The apparatus is a modi®cation to that of Dafa'Alla and
+Betts (1996), and is described in detail in Bokhari (1996). The
+internal dimensions of the cavity shown diagrammatically on
+Fig. 1(a) are 2.18 m high (H), 0.076 m wide between the hot
+and cold walls (W) and 0.52 m deep (D). The hot and cold
+plates are of polished aluminium backed by temperature
+controlled water jackets and the water passes upwards along
+channels behind each plate, with independent ¯ow control of
+each channel to ensure equality of temperature across the
+plates. Temperatures at entry were controlled to +/)0.05°C by
+PID (REX, C10) controllers. For the cold plate it was found to
+be most convenient to cool the cold tank continuously and
+control the temperature by means of a supplementary (1 kW)
+heater inserted in the well-mixed tank. The whole rectangular
+cavity assembly is supported from a shaft at the back of the
+hot plate, which is connected to the separate main support
+frame. The cavity can therefore be tilted if required in the
+future.
+The active plates are oversized relative to the internal dimensions of the cavity as part of the isothermal control, as
+shown on Fig. 1(b) and (c). The new hot plate is 2.38 m by 0.53
+m and is backed by a 10 mm thick water jacket with four
+channels. The water jacket is then insulated on its back with
+1 cm thick closed-cell thermo-¯ux insulating material and
+bolted to a cellular wooden frame with a 5 cm thickness of
+polystyrene behind it, to further reduce heat losses. The cold
+plate is a refurbishment of that used previously and is 2.40 m
+by 0.53 m backed by a 4.8-mm water jacket with three channels. It is supported externally from the hot wall mainly at the
+top and bottom, but with two bolts on the front and back of
+the cavity to ensure a uniform width to the cavity. The cold
+water jacket is backed by 5 cm of polystyrene.
+The passive front and back walls are of 9.5 mm thick acrylic
+sheet. The intention is that temperature gradients normal to
+these faces should be small (close to adiabatic). However with
+the existing instrumentation and supports, it was not possible
+to provide full internal guard cavities of the sort used by
+Mergui et al. (1993) and Tian (1997) without reducing the
+depth dimension of the main cavity unacceptably. As an alternative, the acrylic walls were clamped externally by square
+sectioned stainless steel hollow channels, shown on Fig. 1.
+Water was circulated through these channels from the same
+tanks as were used for the hot and cold plates and the whole
+assembly backed by 5 cm polystyrene slabs. In this way an
+isothermal boundary condition can be imposed in the plane of
+the active plates right out to and through the passive walls.
+Although heat loss through the acrylic walls is only minor, the
+external boundary conditions are fully de®ned by means of a
+strip of seven thermocouples which can be attached to the
+acrylic sheet with good thermal contact at any elevation.
+
+P.L. Betts, I.H. Bokhari / Int. J. Heat and Fluid Flow 21 (2000) 675±683
+
+677
+
+Fig. 1. Diagrams of the experimental apparatus: (a) schematic diagram; (b) vertical section of the top of the cavity; (c) horizontal section of the
+cavity.
+
+The top and bottom walls are constructed from 5 cm thick
+natural hard rubber, with a layer of 35 thermocouples imbedded at mid-thickness. They are wedged by the active walls,
+with good thermal contact ensured by a layer of heat conducting grease. The outer sides of the rubber walls are covered
+with 10 cm of polystyrene insulation and the inner sides by a
+thin (10 lm) sheet of adhesive aluminium foil, to reduce radiation absorption. The natural rubber has a thermal conductivity of 0.155 W/mK, which is close to the eective mean
+conductivity across the cavity under the turbulent conditions
+
+(i.e., Nusselt number times molecular conductivity of air).
+Consequently, this avoids both the excessive drainage of heat
+between the active walls, which would occur with ``perfectly
+conducting'' walls, and the inadequately de®ned sharp temperature variations encountered close to an active wall in attempts at adiabatic conditions. As well as providing well
+de®ned boundary conditions, the use of the rubber also provides unstable thermally strati®ed layers adjacent to both the
+roof and the ¯oor, which oppose the re-laminarization which
+might otherwise occur there (cf. Cheesewright et al., 1986).
+
+678
+
+P.L. Betts, I.H. Bokhari / Int. J. Heat and Fluid Flow 21 (2000) 675±683
+
+Fig. 2. Temperature traverses across the cavity at various heights: (a) mean temperatures, Ra  0:86  106 ; (b) mean temperatures, Ra  1:43  106 ;
+(c) rms temperatures, Ra  0:86  106 ; (d) rms temperatures, Ra  1:43  106 ( : z=W  0 mm; ; z=W  130 mm;  : z=W  230 mm).
+
+2.2. Instrumentation
+Temperatures in the water circulating in the water jackets
+and guard channels were monitored by nine thermocouples on
+the cold side and 21 on the hot. These, like those in the rubber
+roof and ¯oor and on the outside of the acrylic passive walls,
+are K-type and connected to switch boxes. A single traversed
+K-type thermocouple was also used for measurements within
+the turbulent air¯ow inside the cavity. The diameter of the
+Chromel-Alumel wires is 75 lm diameter, which is robust
+enough for long use and has a suciently rapid response time,
+calculated to be 0.07 s (equivalent to 13 Hz). During this work,
+the response time of the traversing thermocouple was also
+measured directly by measuring the time history as the bead
+was intermittently heated by a laser beam. This gave a response time of 0.065 s. Access for the internal thermocouple
+
+traverses is through sealed slots in a vertical acrylic wall and
+positional accuracy as distance from a wall is estimated to be
+smaller than the wire thickness.
+At each traverse position, 2048 samples were recorded in
+128 s. The signal was ampli®ed by a factor of 1000 by a DANA
+type 2850 DC ampli®er before passing to a DISA type 55D26
+signal conditioner for ®nal ampli®cation and low pass ®ltering.
+The signal was then digitized by a 12 bit OEI ADC unit to
+provide a digital accuracy of about 0.1°C. This choice of
+processing conditions re¯ects the known presence of signi®cant
+low frequency components in the turbulent ¯ow. During the
+course of the present work, spectral analyses of both the
+temperature and velocity records were made. These indicated
+that the high frequency cut o from the response time and the
+methods of processing the signals had a negligible eect on the
+recorded rms values.
+
+P.L. Betts, I.H. Bokhari / Int. J. Heat and Fluid Flow 21 (2000) 675±683
+
+679
+
+Fig. 3. Centre-plane temperature traverses normal to top and bottom walls at Ra  0:86  106 : (a) top wall, mean temperatures; (b) top wall, rms
+temperatures; (c) bottom wall, mean temperatures; (d) bottom wall, rms temperatures ( : x  19:1 mm;  : x  38:1 mm;  : x  57:2 mm).
+
+For velocity measurements, a single component LDA system was used with a 15 mW He±Ne laser, in forward scatter
+mode with dual Bragg shift and a beam expander, which
+produced a measuring volume diameter of 0.37 mm, 4 mm
+long. Electrical signals were produced by an avalanche photodetector and processed by an INVENT DSP card. The APD is
+more sensitive to red light than the standard photodiode, and
+its use provides a dramatic improvement in the signal-to-noise
+ratio. Band-pass ®ltering at 0.1±0.5 MHz with a Bragg shift of
+0.1983 MHz (corresponding to a velocity range of )0.46 to
+1.38 m/s) was found to be wide enough to cover the full range
+of instantaneous velocities. The adequacy of these settings was
+checked by occasionally reversing the Bragg shift, especially
+around positions of peak mean velocity, and observing that the
+results were unchanged. Seeding was by smoke from a burning
+joss stick, which was injected for 2±3 min. After leaving the
+¯ow to settle down for about an hour, the smoke is fully diffused with no large particles. Although the particle size is
+somewhat small (order 1 lm), which reduces the signal-tonoise ratio, it is adequate for a session of measurements up to 8
+h without need of further seeding. Typically 4096 samples were
+obtained in 5±10 min. For LDA measurements the acrylic wall
+with sealed slots used with the thermocouple is replaced by an
+optically plane one. Access to the cavity for the optical measurements is obtained by removing only the minimum amount
+of insulation required locally. The traversing equipment for
+
+both temperature and velocity measurements was mounted on
+a Dexion frame which was attached to both the solid ¯oor and
+the wall. Vibration eects were measured by obtaining a LDA
+signal from a ¯aw in a stationary piece of acrylic placed in the
+convection cell. This indicated that vibration eects were less
+than 0.1 mm/s.
+3. Results and discussion
+3.1. Temperatures
+Data was obtained for Rayleigh numbers of 0:86  106 and
+1:43  106 based on cavity width, measured air-side wall
+temperatures and air properties evaluated at mean temperatures. Fig. 2 shows the results of thermocouple traverses across
+the cavity at nine heights and various front-to-back distances
+across it. Oset scales are used for each height, the dimensionless values of which is given as a label on each traverse.
+This data covers vertical planes out to 88% of the cavity depth,
+and mean temperatures over the dierent planes at the same
+height are indistinguishable (Fig. 2(a) and (b)). The same is
+also true of the rms values (Fig. 2(c) and (d)) although the
+scatter is inevitably more evident. Traverses normal to the
+front acrylic wall at mid-height and three equispaced distances
+across the width showed constant mean temperatures to within
+
+680
+
+P.L. Betts, I.H. Bokhari / Int. J. Heat and Fluid Flow 21 (2000) 675±683
+
+5 mm of the wall and decay of the ¯uctuating temperature
+starting about 10 and 15 mm from the wall at the two values of
+Ra. Similarly vertical traverses on the vertical centreline
+x  38:1 mm normal to the top and bottom boundaries at
+z  0 and 130 mm were indistinguishable, and the thermocouples imbedded within the rubber indicated the same linear
+variation of temperature between the plates at all values of z.
+The temperature results therefore demonstrate an eectively
+two-dimensional temperature ®eld over the middle 90% of the
+cavity. Measurements of eects close to the front wall are given
+in Bokhari (1996). Discussion here will concentrate on the twodimensional aspects and in particular over the centre-plane
+z  0 and Ra  0:86  106 , where ¯uid property variations are
+less over the 19°C temperature range.
+The ®rst thing one notices about the results on Fig. 2 is the
+high quality of the anti-symmetry, both across the cavity in
+the mid-height region y=H  0:5 and between the top and the
+bottom (y=H  0:05 and 0.95). A major cause of this was the
+choice of the rubber top and bottom walls which produced
+similar thermal strati®cations in the wall ¯ows there, which is
+con®rmed by the traverses shown on Fig. 3. These traverses
+indicate unstably strati®ed boundary layers with near-wall
+strati®cation and thermal ¯uctuations increasing as the ¯ow
+travels horizontally. This raised level of ¯uctuation continues
+passed the corners into the start region of the vertical ¯ows
+along the active plates, as can be seen on Fig. 2 at y=H  0:95
+on the cold side and y=H  0:05 on the hot side. It can also be
+seen that, although the variation of temperature at the surface
+of the top and bottom walls is not exactly linear between the
+active walls, there are no sudden changes of gradient, which
+can make interpolation of data so dicult (cf., Dafa'Alla and
+Betts, 1996). As a consequence, the benchmark boundary
+conditions can be chosen either as linear on the outer surfaces
+of the rubber (or at the position of the thermo-couples imbedded within it) or by interpolation from the experimental
+data at the surfaces.
+An early examination of the temperature variations normal
+to the active walls showed that in the ®rst 3 mm from the wall
+(seven readings) the variation of temperature is closely linear
+with distance from the wall. Thus, since heat ¯ux is constant
+there, this region is within the molecular conduction layer and
+wall temperatures can be accurately obtained by extrapolation,
+while heat transfer can be determined from the wall gradient.
+The validity of this way of measuring the surface heat ¯ux had
+previously been con®rmed in the earlier experiments of Ince
+(1985) and Dafa'Alla and Betts (1996), where the hot wall was
+heated electrically. From a comparison of these surface temperatures with those obtained from the thermocouples in the
+water jackets, it became apparent that there was a noticeable
+thermal resistance on the water-side of the active plates, particularly on the older cold plate. Despite repeated ¯ushing with
+the anti-corrosion additive Rodol NA1, it was not possible to
+reduce the temperature dierence between the water and the
+air-side of the cold plate to less than 0.9°C at the lower Rayleigh number, while dierences on the hot side were no more
+than 0.3°C. The temperatures quoted in this paper are therefore the air-side temperatures obtained from extrapolation of
+the air traverses. These have a maximum variation of +0.2/
+)0.4°C about the mean on the cold side (compared with a
+temperature rise in the ¯owing water of 0.3°C) and +/)0.2°C
+(compared with 0.2°C) on the hot side. This is a comparatively
+small deviation from isothermal conditions, as is shown on
+Fig. 4(a). For maximum accuracy of the curve ®tting, use was
+made of an analysis similar to that of Launder and Sharma
+(1974). This shows that, in a constant heat ¯ux layer with the
+mean velocity normal to the wall zero, the leading term from
+the near wall turbulence in a polynomial for mean temperature
+is the fourth power of distance from the wall. Account can also
+
+be taken of a linear variation of thermal conductivity with
+temperature by including a calculable second order term (no
+cube term) in the expansion. One then obtains a fourth order
+polynomial for mean temperature with no cubic term and only
+three unknown coecients. Least squares ®tting for this
+polynomial gave excellent agreement over the ®rst eight data
+points, with typical standard errors of 0.07°C. Taking into
+account also uncertainty in positional accuracy and thickness
+of the thermocouple, the wall temperature gradients from this
+
+Fig. 4. Variations along vertical centre-line of active walls: (a) mean
+temperature; (b) normal heat ¯ux: Ra  0:86  106 (: cold wall; +:
+hot wall), Ra  1:43  106 ( cold wall, } hot wall).
+
+P.L. Betts, I.H. Bokhari / Int. J. Heat and Fluid Flow 21 (2000) 675±683
+
+analysis are estimated to be accurate to +/)5%. Allowing for
+the dierence in thermal conductivity of the air on each side
+(6% and 12% at the two Rayleigh numbers), the variation of
+wall heat ¯ux over the height of the active walls can be calculated and is shown on Fig. 4(b). An integration of the ¯uxes
+over the height of the cavity indicates heat transfer rates on the
+hot side 1.1% and 3.3% higher on the hot wall than on the
+cold. This is within the estimated experimental error and
+compares very favourably with the 14.7% imbalance in
+Dafa'Alla and Betts (1996) or 20% of Ziai (1983).
+3.2. Velocities
+Pro®les of mean and ¯uctuating vertical velocity are presented in Fig. 5. As with temperature, the results are essentially
+two dimensional, although limitations of optical access meant
+that this could only be con®rmed out to 50% of the cavity
+depth. Note that the almost linear variation of velocity across
+
+681
+
+the centre at mid-height is associated with the maximum of
+¯uctuating velocities there. The maximum rms vertical velocity
+at the centre, where the mean velocity is zero, is about 70% of
+the maximum mean velocities near the active walls. This is in
+contrast to the quiescent central region that occurs at lower
+aspect ratios (e.g., the square cavity of Mergui et al. (1993))
+and is associated with interference between the rising and descending boundary layers over the opposite walls. As expected
+from the temperature ®elds, anti-symmetry of velocity is good,
+both across the mid-height traverse and across opposite corners of the cavity. It is also noticeable that the ¯ow undergoes
+a strong acceleration as it starts to move along the active
+plates, with peak values reaching maxima at around y=H  0:1
+and 0.9 before decelerating to give approximately constant
+pro®les between 0.3 and 0.7, where the peak velocity is further
+from the wall. The ¯uctuating velocities also indicate a local
+maximum at the start of each active plate, although slightly
+further out in the cavity.
+
+Fig. 5. Traverses of vertical velocity across the cavity at various heights: (a) mean velocities, Ra  0:86  106 ; (b) mean velocities, Ra  1:43  106 ;
+(c) rms velocities, Ra  0:86  106 ; (d) rms velocities, Ra  1:43  106 ( : z=W  0 mm;  : z=W  130 mm).
+
+682
+
+P.L. Betts, I.H. Bokhari / Int. J. Heat and Fluid Flow 21 (2000) 675±683
+
+Fig. 6. Vertical and horizontal ¯uctuating velocities along the vertical
+centre-line at Ra  0:86  106 .
+
+Traverses along the vertical centre-line, shown on Fig. 6,
+reveal that the turbulence level is virtually constant from
+y=H  0:2 to 0.8, with vertical velocity ¯uctuations almost
+twice the horizontal ones. Turbulence levels drop o towards
+the top and bottom, but then the horizontal component
+maintains a constant level of 0.015 m/s (at Ra  0:86  106 )
+through the thermally unstable wall-jet type boundary layers
+close to the top and bottom walls.
+Optical access with the current set-up restricts measurements of horizontal velocity components to only half of the
+cavity width. However, by rotating the single channel laser
+optics between = ÿ 45 and dierencing the rms values, the
+distributions of Reynolds stress across that part of the cavity
+could be obtained and are shown on Fig. 7.
+3.3. Derived and other results
+Spectra of both temperature and velocity have been obtained from the time records. Both indicated signi®cant roll-o
+by 1 Hz. Correction of sample temperature data by a numerical amplifying ®lter to oset the measured response time of
+0.07 s only increased the rms temperature value by 4%. Examples of the spectra are given in Bokhari (1996) and digitised
+
+Fig. 7. Variations of Reynolds stress across centre-plane of cavity at
+various heights, Ra  0:86  106 (; y=H  0:1;
+; y=H  0:4;
+; y=H  0:5; r; y=h  0:6; , y=H  0:9).
+
+samples of time series are available in the ERCOFTAC
+``Classic'' database collection at http://ercoftac.mech.surrey.
+ac.uk. Essentially these con®rm that the thermocouple response time is adequate for the frequencies present in the
+cavity ¯ow. Preliminary experiments with a fast response cold
+wire system by Cooper have con®rmed similar levels of ¯uctuating temperatures.
+A notable feature of the present results is the lack of any
+thermal strati®cation over the mid-height region of the cavity.
+The temperature on the vertical centre-line is eectively constant from y=H  0:3 to 0.7. Moreover, there is little variation
+in the mean and rms pro®les taken across these levels. This
+suggests that the cavity is suciently tall for the mid-height
+region to approximate to that which one might expect in an
+in®nitely tall cavity. If this is the case, then direct comparisons
+can be made with one-dimensional direct numerical simulations
+of the in®nite cavity case (cf. Boudjemadi et al., 1997; Versteegh
+and Nieuwstadt, 1998, 1999). However care is needed in this
+assumption, as there could be residual eects from the top and
+bottom boundaries if the approach to full development is very
+shallow. These may account for the dierence between the
+values of ¯uctuating temperatures reported here and those
+obtained by DNS in an in®nitely high cavity. Con®rmation
+would require the use of an even taller cavity.
+
+4. Conclusions
+The experiments described here have been designed to
+provide benchmark data against which various turbulence
+models can be tested. The provision of partially conducting
+top and bottom walls has successfully overcome the problems
+associated with trying to achieve an adiabatic surface there.
+The diering thermal strati®cation between the ¯ows across
+the top and bottom, which has plagued previous work, has
+also been overcome, so that the experimental results are closely
+two-dimensional and anti-symmetric. Mean and turbulent
+temperature and velocity variations within the cavity have
+Table 1
+Summary of mid-height results
+Lower
+Ra
+
+Higher
+Ra
+
+Cold wall temperature (°C)
+Hot wall temperature (°C)
+Av. wall temp. gradient (°C/m)
+Average Nusselt number
+Centre-line dT/dx (°C/m)
+Mid-cavity rms temperature (°C)
+(uncorrected)
+Max. vert. velocity (Av) (m/s)
+Mid-cavity rms, v (m/s)
+Mid-cavity dV/dx (sÿ1 )
+Mid-cavity rms u (m/s)
+Mid-cavity uv (m2 /s2 103 )
+mT =mC=L
+aT =aC=L
+
+15.1
+34.7
+1540
+5.85
+68
+0.92
+
+15.6
+54.7
+3900
+7.57
+131
+1.48
+
+0.139
+0.10
+4.8
+0.053
+2.4±2.8
+35
+23
+
+0.191
+0.134
+5.1
+0.077
+4.2±5.0
+55
+30
+
+Variations of physical properties
+Tabulated dry air values
+Temperature (°C)
+Thermal conductivity (W/mK 103 )
+b Kÿ1  103 
+m (m2 /s 106 )
+Prandtl number
+Cp (kJ/kg K)
+
+15.1
+25.3
+3.47
+14.6
+0.704
+±
+
+34.7
+26.8
+3.25
+16.5
+0.700
+1.005
+
+54.7
+28.3
+3.05
+18.4
+0.697
+±
+
+P.L. Betts, I.H. Bokhari / Int. J. Heat and Fluid Flow 21 (2000) 675±683
+
+been reported, together with heat ¯uxes and turbulent shear
+stresses. This data is also available to modellers through http://
+ercoftac.mech.surrey.ac.uk, where additional results are given,
+or more directly through http://cfd.me.umist.ac.uk.
+For convenience, the results at the mid-height are summarized on Table 1. This table also contains derived results, such as
+average Nusselt number and an estimate of eddy viscosity at the
+centre-line, by comparing the Reynolds stress with viscous stress
+from the velocity gradient. A comparison of these provides an
+indication of the signi®cant thickness of the viscous dominated
+region near the active walls. In the tall cavity, heat transfer is
+dominated by the turbulent interchange across the central region rather than by convection across the top and bottom.
+Acknowledgements
+Support by EPSRC Grant GR/J/43691 and studentship
+support for IHB from Ministry of Science and Technology,
+Pakistan are gratefully acknowledged.
+References
+Allard, F., 1993. Eects of thermal boundary conditions on natural
+convection in thermally driven cavities. In: Proceedings of the
+Eurotherm Seminar 22, Editions Europeenees Thermiques et
+Industrie, Paris, pp. 235±256.
+Bokhari, I.H., 1996. Turbulent natural convection in a tall cavity.
+Ph.D. Thesis, UMIST.
+Boudjemadi, R., Maupu, V., Laurence, D., Le Quere, P., 1997.
+Budgets of turbulent stresses and ¯uxes in a vertical slot natural
+convection ¯ow at Ra  105 and 5:4  105 . Int. J. Heat Fluid Flow
+18, 70±79.
+Cheesewright, R., King, K.J., Ziai, S., 1986. Experimental data for the
+validation of computer codes for the prediction of two-dimensional
+buoyant cavity ¯ows. In: ASME Winter Annual Meeting, HTD 60,
+pp. 75±81.
+Dafa'Alla, A.A., Betts, P.L., 1996. Experimental study of turbulent
+natural convection in a tall air cavity. Exptl. Heat Transfer 9, 165±
+194.
+
+683
+
+Fusegi, T., Hyun, Y.M., 1994. Laminar and transitional convection in
+an enclosure with complex and realistic conditions. Int. J. Heat
+Fluid Flow 15, 258±268.
+Ince, N.Z. 1985. Experimental and numerical study of natural
+convection in tall cavities. Ph.D. Thesis, UMIST.
+Ince, N.Z., Betts, P.L., Launder, B.E., 1993. Low Reynolds number
+modelling of turbulent buoyant cavity ¯ows. In: Proceedings of the
+Eurotherm Seminar 22, Editions Europeenees Thermiques et
+Industrie, Paris, pp. 76±77.
+Launder, B.E., Sharma, B.I., 1974. Application of the energy dissipation model of turbulence to the calculation of ¯ow near a spinning
+disk. Lett. Heat Mass Transfer 1, 131.
+MacGregor, K., Emery, A.F., ASME, J., 1969. Free convection
+through vertical plane layers and high Prandtl number ¯uids.
+Trans. Heat Transfer 93, 253.
+Mergui, S., Penot, F., Tuhault, J.L., 1993. Experimental natural
+convection in an air-®lled square cavity at Ra  1:7  109 . Proceedings of the Eurotherm Seminar 22, Editions Europeenees
+Thermiques et Industrie, Paris, pp. 97±108.
+Le Quere, P., Alziary de, R.A., 1985. Transition to unsteady natural
+convection of air in dierentially heated cavities. In: Proceedings of
+the Fourth International Conference on Numerical Methods in
+Laminar and Turbulent Flow, Swansea, Pineridge Press, p. 841.
+Tian, Y., 1997. Low turbulence natural convection in an air ®lled
+square cavity. Ph.D Thesis, South Bank University.
+Versteegh, T.A.M., Nieuwstadt, F.T.M., 1998. Turbulent budgets of
+natural convection in an in®nite, dierentially heated vertical
+channel. Int. J. Heat Fluid Flow 19, 135±149.
+Versteegh, T.A.M., Nieuwstadt, F.T.M., 1999 A direct numerical
+simulation of natural convection between two in®nite vertical
+dierentially heated walls, scaling laws and wall functions. Int. J.
+Heat Mass Transfer, to be published.
+Yguel, F., 1988. Etude de la convection naturelle tridimensionelle dans
+les cavites fermees de grandes dimensions. These Docteur es
+Sciences Physiques, Universite de Poitiers, France.
+Ziai, S., 1983. Turbulent natural convection in a large rectangular air
+cavity. Ph.D. Thesis, Queen Mary College, University of London.
+Proceedings of the Fifth ERCOFTAC/IAHR Workshop on Re®ned
+Flow Modelling, 1996. Electricite de France, Chatou, France.
+Proceedings of the Seventh ERCOFTAC/IAHR Workshop on Re®ned
+Flow Modelling, 1998. UMIST, Manchester, UK.
+
+

@@ -1,0 +1,3315 @@
+International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+www.elsevier.com/locate/ijhmt
+
+Experimental benchmark data for turbulent natural
+convection in an air ﬁlled square cavity
+F. Ampofo, T.G. Karayiannis *
+Division of Environmental, Energy and Building Services Engineering, Faculty of Engineering, Science and Technology,
+South Bank University, 103 Borough Road, London SE1 0AA, UK
+Received 11 September 2002; received in revised form 19 March 2003
+
+Abstract
+An experimental study of low-level turbulence natural convection in an air ﬁlled vertical square cavity was conducted. The cavity was 0.75 m high  0.75 m wide  1.5 m deep giving 2D ﬂow. The hot and cold walls of the cavity
+were isothermal at 50 and 10 °C respectively giving a Rayleigh number of 1.58  109 . The local velocity and temperature
+were simultaneously measured at diﬀerent locations in the cavity and both mean and ﬂuctuation quantities are pre0
+sented, i.e. u, u0rms , v, v0rms , T , Trms
+, u0 v0 , u0 T 0 and v0 T 0 . The local and average Nusselt numbers, the wall shear stress as well
+as the turbulent kinetic energy and the dissipation rate of the temperature variance are also presented. The experiments
+were conducted with very high accuracy and as such the results can form experimental benchmark data and will be
+useful for validation of computational ﬂuid dynamics codes.
+Ó 2003 Elsevier Ltd. All rights reserved.
+Keywords: Natural convection; Velocity distribution; Temperature distribution; Heat transfer; Wall shear stress; Turbulence quantities
+
+1. Introduction
+Natural convection in enclosures is of importance in
+many engineering applications. These include energy
+transfer in rooms and buildings, nuclear reactor cooling,
+solar collectors and electronic equipment cooling. Natural convection in a rectangular cavity is also a very
+good vehicle for both experimental and theoretical
+studies. In experimental terms, the geometry of the
+rectangular cavity is simple and its boundary conditions
+are relatively easy to assess so that researchers can focus
+on the measurements of important quantities such as
+velocity and temperature proﬁles. In numerical terms,
+the ﬂow phenomena in the cavity are complicated and
+plentiful that they intrigue both physicists and engineers.
+However, in spite of the developments in the measurement technology and instruments, as well as in numerical methods and computers, fully describing the ﬂuid
+
+*
+
+Corresponding author. Tel.: +44-207-815-7628; fax: +44208-815-7699.
+E-mail address: karayitg@sbu.ac.uk (T.G. Karayiannis).
+
+ﬂow and heat transfer in such a geometry still remains a
+challenge. In experimental studies, the ﬂow is very sensitive to the experimental conditions. Further, boundary
+conditions on the horizontal cavity surfaces, deﬁned in
+numerical work as adiabatic or perfectly conducting, are
+not easily realised in experiments, e.g. in a water ﬁlled
+cavity, the thermal boundary conditions on these surfaces lie somewhere in between the above two limiting
+cases [1]. Diﬀerent ﬂuids, e.g. air and water may exhibit
+signiﬁcantly diﬀerent temperature and ﬂuid ﬂow patterns in cavities of similar dimensions [2]. Although,
+convection in enclosures has been extensively studied
+experimentally, almost all the past researchers measured
+the velocity and temperature proﬁles separately. This
+prevented them from studying the velocity–temperature
+correlations, u0i T 0 , in enclosures which are needed to understand better how the heat transfer is aﬀected by ﬂow
+characteristics and physical parameters such as free
+stream turbulence, pressure gradients and rough walls.
+These experimental data are also needed for the successful modelling of turbulent ﬂows. The simultaneous
+measurement of local velocity and temperature is quite
+diﬃcult. Some of the diﬃculty arises from the fact that in
+
+0017-9310/03/$ - see front matter Ó 2003 Elsevier Ltd. All rights reserved.
+doi:10.1016/S0017-9310(03)00147-9
+
+3552
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+Nomenclature
+A
+ARx
+ARz
+Cl
+D
+g
+h
+hj
+H
+k
+k
+l
+L
+m
+n
+Nu
+Pr
+Q
+Ra
+RaH
+S ij
+T
+u
+u0 v0
+u0i T 0
+v
+Vo
+w
+x
+
+heat transfer area (m2 )
+aspect ratio, ARx ¼ H =L
+aspect ratio for z-direction ARx ¼ D=L
+empirical constant in turbulence models
+depth of the cavity (m)
+gravitational acceleration (m/s2 )
+average convective heat transfer coeﬃcient,
+h ¼ Q=AðTw  Ta Þ (W/m2 K)
+subgrid-scale heat ﬂuxes (m K/s)
+height of the cavity (m)
+thermal conductivity (W/m K)
+turbulent kinetic energy (m2 /s2 )
+turbulence length scale (m)
+width of the cavity (m)
+any variable
+any variable
+local Nusselt number, Nu ¼ hL=k
+Prandtl number, Pr ¼ m=a
+rate of heat transfer (W)
+Rayleigh number, Ra ¼ gbðTh  Tc ÞL3 =ðamÞ
+Rayleigh number based on height,
+RaH ¼ gbðTh  Tc ÞH 3 =ðamÞ
+large-scale strain rate (s1 )
+temperature (°C, K)
+ﬂuid velocity component in x-direction (m/s)
+Reynolds stress (m2 /s2 )
+turbulent heat ﬂux (m K/s)
+ﬂuid velocity component p
+inﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃ
+y-direction
+(m/s)
+ﬃ
+buoyancy velocity, Vo ¼ gbH DT (m/s)
+ﬂuid velocity component in z-direction (m/s)
+displacement in x-direction (m)
+
+most ﬂows, the size of the smallest signiﬁcant turbulent
+eddy is much less than the closest separation at which
+velocity and temperature probes can be used without
+interfering with one another. In principle, it is possible to
+make the measurement using a multi-sensor hot- and
+cold-wire anemometry system since that instrument responds to both temperature and velocity. In practice,
+however, the use of multi-sensor probes has three distinct
+disadvantages: ﬁrstly, interference eﬀects among the
+prongs and/or sensors may be present; secondly, the hotwire data may need to be corrected when using it in a
+heated ﬂuid medium and thirdly, the errors involved in
+extracting the values of turbulence heat ﬂux from the
+instrument signals tend to be unacceptably large. Also,
+the accuracy of measuring the temperature ﬂuctuations is
+limited by the frequency response of the sensor.
+An experimental study of heat transfer and ﬂuid ﬂow
+in a standard air ﬁlled square cavity was conducted in
+this study. The local velocity and temperature were si-
+
+x, y, z Cartesian co-ordinates
+X , Y , Z dimensionless co-ordinates
+DT
+temperature diﬀerence DT ¼ Th  Tc (K)
+Greek symbols
+a
+thermal diﬀusivity (m2 /s)
+b
+thermal expansion coeﬃcient (1/K)
+dij
+Kronecker delta function (dij ¼ 1 if i ¼ j
+and dij ¼ 0 if i 6¼ j)
+e
+turbulent energy dissipation rate (m2 /s3 )
+g
+Kolmogorov length scale (m)
+l
+dynamic viscosity (kg/m s)
+m
+kinematic viscosity (m2 /s)
+q
+ﬂuid density (kg/m3 )
+sij
+turbulent stress tensor (m2 /s2 )
+Superscripts
+–
+average value
+0
+ﬂuctuation component
+Subscripts
+b
+bottom wall
+c
+cold wall
+e
+ambient
+h
+hot wall
+i
+arbitrary quantity
+o
+reference condition
+t
+top wall
+w
+wall
+rms
+root mean square
+SGS
+subgrid-scale
+
+multaneously measured at diﬀerent locations in the
+cavity using a laser Doppler anemometer (LDA) and a
+micro-diameter thermocouple. This helped eliminate the
+above-mentioned problems associated with a multisensor hot- and cold-wire anemometry system. The
+study aimed to provide highly accurate turbulent convection data, which can provide further insight into the
+turbulent heat transfer in natural convection in enclosures and be used for the validation of computational
+ﬂuid dynamics (CFD) codes.
+
+2. Experimental facility and procedure
+The experimental rig, see Fig. 1(a), used in the present study is fully automatically controlled. The major
+subsystems of the rig are the temperature control system, the cavity, and a facility for measuring the air velocity and temperature simultaneously. The temperature
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+3553
+
+Fig. 1. Schematic diagram of the experimental facility and test cavity: (a) experimental facility, (b) three-dimensional schematic diagram of the air ﬁlled cavity and (c) the test cavity indicating detail of construction (all measurements are in mm).
+
+control system comprised of a PC, a Schlumberger
+3531F data acquisition system, a multi-loop propor-
+
+tional–integral–diﬀerential (PID) temperature-process
+controller and low noise K-type thermocouples. It
+
+3554
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+maintained a constant temperature water ﬂow to
+chambers attached to the hot and cold plates, see Fig.
+1(c). The PC, which controlled the Schlumberger 3531F
+data acquisition system, recorded the thermocouple
+readings and sent the signal to the PID controller. The
+PID controller then sent pulses to the burst ﬁring trigger
+modules to alter the heating power, i.e. the power was
+either switched on or oﬀ at zero voltage. The cold and
+hot water streams were pumped through the water
+chambers at a rate of 40 l/min and at predetermined
+temperatures. The test cavity, shown in Fig. 1(b) and (c),
+was 0.75 m high  0.75 m wide  1.5 m deep. The hot
+and cold walls of the cavity were made of 6 mm mild
+steel plate. The hot wall was maintained isothermal at
+50 0.15 °C whilst the cold wall at 10 0.15 °C giving a
+Ra of 1.58  109 . The top and bottom walls were made
+from 1.5 mm mild steel sheet and provided highly conducting boundaries. The temperatures on these isothermal and horizontal walls were measured using K-type
+thermocouples. Two guard cavities surrounded the
+passive vertical walls to reduce the heat exchange with
+the ambient. The room temperature was controlled at
+30 0.2 °C. This was equal to the cavity average temperature (average of hot and cold walls temperatures).
+Penot and NÕDame [3] pointed out that the 2D approximation of experimental natural convection in cavities should be valid if the horizontal aspect ratio (ARz )
+of the cavity is greater than 1.8. In this study, ARz was 2
+and hence the depth of the cavity resulted in a 2D ﬂow in
+the mid-plane of the cavity. Also, as stated earlier, we
+had two guard cavities on each side of the passive vertical walls. In addition, the average temperature of hot
+and cold walls was the same as ambient and the cavity
+was insulated. Hence the heat exchange between the
+cavity and environment was kept to a minimum. The 2D
+of the ﬂow was also thoroughly examined and veriﬁed
+by the earlier work of Tian and Karayiannis [4,5] carried
+out in the same cavity. They measured and compared
+velocity distribution at three cavity depths, Z ¼ 0, 0.533
+and 0.8. The three proﬁles diﬀered by only 4% on the
+peak velocity and 0.5 mm on its position, which proved
+that the depth of the cavity, the guard cavities and the
+ambient of 30 °C provided a 2D ﬂow, especially at cavity
+centre.
+The simultaneous measurements of local velocity and
+temperature are quite diﬃcult and as stated earlier, some
+of the diﬃculty arises from the fact that in most ﬂows
+the size of the smallest signiﬁcant turbulent eddy is much
+less than the closest separation at which velocity and
+temperature probes can be used without interfering with
+one another. In view of this, it was very important to
+estimate the turbulent length scale correctly so as to
+reduce this interference between the probes to the minimum. The Kolmogorov length scale for small eddies,
+g ¼ ðm3 =eÞ1=4 [6], was used to estimate the maximum
+separation between the temperature and velocity probes.
+
+The dissipation rate, e, of turbulent kinetic energy, k,
+was estimated from the relation between the turbulence
+length scale, l, k and e, i.e.
+e ¼ Cl3=4 k 3=2 =l
+
+ð1Þ
+
+where Cl ¼ 0:09 [7]. The turbulence kinetic energy, k, is
+given as
+k ¼ 12ðu02 þ v02 þ w02 Þ
+
+ð2Þ
+
+In this study, the ﬂow is two-dimensional at the mid ¼ 0. Cebeci and
+section (ARz ¼ 2) and as such w
+Bradshaw [8] reported that in isotropic turbulent ﬂow,
+ ¼ 0. In this
+w0 is of the same order as u0 and v0 even if w
+anisotropic turbulent natural convection, it is very difﬁcult to estimate w0 without direct measurements. The
+experimental and numerical works of Kreplin and Eckelmann [9] and Spalart [10] respectively suggest that
+along an isothermal vertical wall the following relationship exists:
+u02 6 w02 6 v02
+
+ð3Þ
+
+As a ﬁrst estimation, we can use
+w02 ¼
+
+u02 þ v02
+2
+
+ð4Þ
+
+i.e. the turbulent ﬂuctuation in the z-direction contributes one third of the k. Therefore,
+k¼
+
+1:5ðu02 þ v02 Þ
+2
+
+ð5Þ
+
+An initial measurement of the velocity distribution at
+mid-height of the cavity was used to estimate the turbulent kinetic energy which peaked near the hot wall at
+4.5  103 m2 /s2 . The velocity distribution was used to
+estimate l. At about cavity mid-height, the experimental
+results gave a boundary layer thickness of 5 mm and
+this value was used for l. Eq. (1) then gives e 102 W/
+kg. The corresponding value of g is 0.4 mm. Therefore,
+the distance between the temperature and velocity
+probes in the present study was around 0.4 mm. An Etype thermocouple of wire diameter 25.4 lm was carried
+by a computer controlled two-dimensional displacement
+device (accurate to 0.1 mm) and was used to measure the
+temperature in the cavity with an accuracy of 0.1 K. The
+response time of the 25.4 lm thermocouple is 20 Hz in
+still air. The choice of thermocouple was based on the
+experimental work of Mergui and Penot [11], who stated
+that the highest turbulent frequency is less than 5 Hz in
+an air ﬁlled cavity (Ra ¼ 2:33  109 , ARx ¼ 0:9). Thus,
+this thermocouple was suﬃciently responsive to the high
+frequencies in this air cavity ﬂow. A back scatter, twodimensional LDA with a burst spectrum analyser and a
+40 MHz frequency shift Bragg cell was used in the velocity measurements in the cavity. The laser source was a
+300 mW argon laser. The measured velocity range was
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+from )0.5082 to +0.5082 m/s with a resolution of
+6.20e)5 m/s and at a bandwidth of 0.125 MHz. The laser
+beams entered the cavity through the guard cavity at an
+angle of 3.5° to the isothermal wall. A front lens with a
+focal length of 1200 mm was used. The probe volume
+dimensions were 0.31 mm (diameter)  9.8 mm (length).
+Incense smoke was used as seeding, which lasted for
+more than 24 h. The velocity was measured with an
+accuracy of 0.07%. The simultaneous velocity and temperature measurements were made by placing the LDA
+probe volume immediately upstream of the thermocouple wire at a distance of around 0.4 mm. The analogue to digital (A/D) board used to sample the
+temperature signal was set to start sampling at the same
+time as the LDA processors and also the A/D data and
+the LDA data were synchronised. Preliminary experiments were conducted at diﬀerent times, at mid-height
+(Y ¼ y=L ¼ 0:50) across the cavity, to check among
+other things the inﬂuence of the measuring volume
+(LDA probe) on the thermocouple probe for the temperature measurements. The results showed that the
+inﬂuence of the measuring volume (LDA probe) on the
+thermocouple probe for the temperature measurements
+was negligible and that the repeatability for the various
+parameters measured was very good. The maximum
+deviation between readings obtained during experiments
+performed at diﬀerent times was 0.5 K for the temperature and 2 mm/s for the velocity, see Ampofo [12] for
+further details. Also, the velocity and temperature results from the preliminary experiments were compared,
+with excellent agreement, to the earlier work of Tian and
+Karayiannis [4,5] carried out in the same cavity but with
+a diﬀerent approach. The velocity and temperature
+proﬁles were measured separately in that study and
+hence they did not report any heat ﬂux measurements.
+Tian and Karayiannis compared their results with the
+work of past researchers like Mergui et al. [13], Lankhorst [14], Beghein et al. [15], Ziai [16], King [17] and
+Paolucci [18]. The authors found that compared with
+earlier results, the agreement on the Nusselt number was
+good. Acceptable agreement was also found when
+comparing the temperature and velocity proﬁles at midheight. Diﬀerences were found along the mid-width and
+the change rates of velocity and temperature along the
+walls. These comparisons will not be repeated in this
+paper since, as mentioned above, the present data agree
+with [4,5]. In the present work, 10 000 velocity and
+temperature samples were acquired simultaneously at
+the mid-plane of the cavity, see Fig. 1(b), for every point
+and the mean, root mean square and cross-correlation
+quantities were calculated as follows:
+The mean quantities (T , u, v)
+N
+1 X
+¼
+m
+mi
+N i¼1
+
+ð6Þ
+
+3555
+
+Table 1
+Summary of uncertainties in the measured and estimated parameters
+Parameter
+
+Degree of uncertainty
+
+Wall temperature
+Air temperature
+Air velocity
+Reynolds stress
+Turbulent heat ﬂux
+Rayleigh number
+Nusselt number
+Wall shear stress
+
+0.15 K
+0.10 K
+0.07%
+0.10%
+0.15%
+0.62%
+0.25–1.13%
+1.38%
+
+0
+The root mean square quantities (Trms
+; u0rms ; v0rms )
+"
+#1=2
+N
+1 X
+ Þ2
+ðmi  m
+m0rms ¼
+N i¼1
+
+ð7Þ
+
+The cross-correlation quantities (u0 v0 ; u0 T 0 ; v0 T 0 )
+m0 n0 ¼
+
+N
+X
+ Þðni  
+ðmi  m
+nÞ
+
+ð8Þ
+
+i¼1
+
+N is the number of readings taken in the experiments––
+10 000 in this study. The choice of the total number of
+samples acquired was based on the experimental work of
+Wardana et al. [19] who proved that the uncertainty of a
+statistical value decreases with increasing number of
+samples, and the uncertainty becomes less than 5%
+when the number of samples is over 5000. All the measurements were taken at steady conditions at the midplane of the cavity on a ﬁne non-uniform mesh. The
+authors performed an energy balance for the cavity. On
+the whole, heat transfer into the cavity from the hot and
+bottom walls was 98.12 and 21.67 W respectively. The
+net loss from the cold and top walls was 97.77 and 22.53
+W respectively. The percentage error of heat input and
+output in the whole cavity was less than 0.5%. Table 1
+gives a summary of the uncertainties in the measured
+and estimated parameters in this study. For further details on error analysis (bias and precision errors) and
+propagation see Ampofo [12].
+
+3. Experimental results
+One of the objectives of the study was to provide
+highly accurate turbulent convection data, which can be
+used for the validation of CFD codes. In view of this, the
+numerical values of the experimental results, v, v0rms , 
+u,
+0
+u0rms , T , Trms
+, u0 v0 , u0 T 0 , v0 T 0 , k, at the mid-height of the
+cavity are included in this paper, see Table 2, for easy
+assess and comparison with CFD results. Tables 3–6
+also present the experimental results for wall shear
+stress, mean temperature distribution on the horizontal
+cavity walls, mean temperature distribution along the
+
+3556
+
+X
+
+v
+V0
+
+u
+
+V0
+
+v0rms
+V0
+
+u0rms
+V0
+
+T Tc
+DT
+
+0
+Trms
+DT
+
+u0 v0
+V02
+
+v0 T 0
+V0 DT
+
+u0 T 0
+V0 DT
+
+k
+V02
+
+0.0000
+3.3333e)4
+6.6667e)4
+1.0000e)3
+1.3333e)3
+1.6667e)3
+2.0000e)3
+2.3333e)3
+2.6667e)3
+3.0000e)3
+3.3333e)3
+3.6667e)3
+4.0000e)3
+6.6667e)3
+9.3333e)3
+0.0133
+0.0200
+0.0267
+0.0333
+0.0400
+0.0533
+0.0667
+0.0800
+0.1067
+0.1333
+0.1600
+0.2000
+0.2400
+0.2800
+0.3200
+0.3600
+0.4000
+0.4400
+0.5000
+0.5600
+
+0.0000
+0.0403
+0.0611
+0.0843
+0.1001
+0.1158
+0.1325
+0.1457
+0.1613
+0.1655
+0.1739
+0.1831
+0.2000
+0.2127
+0.2081
+0.1745
+0.1308
+0.0918
+0.0620
+0.0374
+0.0130
+2.8710e)3
+2.1470e)3
+2.6300e)4
+3.7280e)4
+3.7200e)4
+3.9700e)4
+3.3100e)3
+2.7900e)4
+1.7200e)4
+1.1100e)4
+1.8100e)4
+)1.2700e)4
+)6.9000e)5
+)4.8700e)4
+
+0.0000
+)3.6440e)4
+)4.0890e)4
+)4.1192e)4
+)6.9210e)4
+)7.5100e)4
+)8.1300e)4
+)8.6300e)4
+)6.3400e)4
+)7.4700e)4
+)6.6700e)4
+5.7000e)4
+6.4600e)4
+1.7600e)4
+3.2140e)3
+4.6790e)3
+4.7330e)3
+3.8240e)3
+3.2180e)3
+)2.6610e)3
+)2.4680e)3
+)3.2530e)3
+)3.6510e)3
+)3.3230e)3
+)2.3600e)3
+)1.6450e)3
+)1.1380e)3
+)1.0910e)3
+)1.2860e)3
+)9.7800e)4
+)5.8400e)4
+5.1000e)4
+6.3800e)4
+5.7900e)4
+1.0660e)3
+
+0.0000
+3.9900e)4
+2.3880e)3
+7.5980e)3
+0.0205
+0.0201
+0.0283
+0.0296
+0.0359
+0.0378
+0.0396
+0.0406
+0.0457
+0.0651
+0.0705
+0.0717
+0.0681
+0.0624
+0.0560
+0.0443
+0.0371
+0.0230
+0.0165
+0.0108
+9.8790e)3
+7.7750e)3
+7.7490e)3
+7.5590e)3
+7.4410e)3
+7.1790e)3
+6.5000e)3
+6.1530e)3
+5.4530e)3
+5.0290e)3
+4.4400e)3
+
+0.0000
+2.6400e)4
+3.8600e)4
+1.0700e)3
+4.9570e)3
+5.2520e)3
+6.4380e)3
+6.8920e)3
+7.7500e)3
+8.8760e)3
+9.0360e)3
+0.0109
+0.0116
+0.0178
+0.0270
+0.0281
+0.0306
+0.0323
+0.0343
+0.0298
+0.0263
+0.0208
+0.0106
+8.3850e)3
+7.3030e)3
+6.6490e)3
+4.9050e)3
+4.8580e)3
+4.0490e)3
+4.1550e)3
+4.3470e)3
+3.9160e)3
+4.0150e)3
+5.1590e)3
+5.0040e)3
+
+1.0000
+0.9525
+0.9300
+0.9200
+0.9125
+0.8750
+0.8685
+0.8373
+0.8298
+0.8071
+0.7830
+0.7701
+0.7635
+0.6793
+0.6186
+0.5655
+0.5270
+0.5171
+0.5098
+0.5045
+0.5149
+0.5175
+0.5313
+0.5375
+0.5400
+0.5236
+0.5270
+0.5251
+0.5277
+0.5308
+0.5280
+0.5217
+0.5200
+0.5174
+0.5188
+
+0.0000
+0.0164
+0.0204
+0.0288
+0.0345
+0.0391
+0.0453
+0.0548
+0.0586
+0.0585
+0.0620
+0.0629
+0.0669
+0.0753
+0.0658
+0.0527
+0.0327
+0.0256
+0.0186
+0.0172
+0.0167
+0.0131
+9.1302e)3
+7.8789e)3
+5.3791e)3
+3.3575e)3
+3.0334e)3
+2.8629e)3
+2.9035e)3
+3.2389e)3
+3.1980e)3
+2.8874e)3
+2.9203e)3
+3.1881e)3
+3.1007e)3
+
+0.0000
+)2.0000e)6
+)4.0000e)6
+)7.0000e)6
+)6.0300e)6
+)7.0000e)6
+)7.5000e)6
+)8.0000e)6
+)1.0000e)5
+)1.3200e)5
+)8.0000e)6
+)2.0000e)6
+1.4000e)5
+2.0000e)4
+4.0000e)4
+6.0000e)4
+9.7300e)4
+1.0550e)3
+1.0870e)3
+8.0000e)4
+5.0000e)4
+3.0000e)4
+3.8000e)5
+)1.1000e)5
+)1.0000e)6
+3.0000e)6
+1.3000e)6
+1.50000)6
+1.6000e)6
+2.0000e)6
+1.0000e)6
+)1.0000e)6
+)2.0000e)6
+1.1000e)6
+)2.8000e)6
+
+0.0000
+8.1925e)7
+2.0693e)6
+2.6700e)6
+5.1933e)5
+7.2950e)5
+8.8798e)5
+1.1604e)4
+2.3725e)4
+5.2205e)4
+1.3910e)3
+2.1665e)3
+2.8213e)3
+3.0438e)3
+2.7488e)3
+2.5878e)3
+1.9623e)3
+8.5705e)4
+2.5128e)4
+)8.4875e)5
+)1.6765e)4
+)5.2150e)5
+)4.7125e)6
+2.3270e)5
+1.9900e)6
+)1.5575e)6
+4.9950e)6
+4.0150e)7
+1.0933e)6
+)1.5413e)6
+)2.2993e)6
+)2.1257e)7
+)3.4800e)7
+8.7250e)7
+1.4750e)5
+
+0.0000
+1.8250e)6
+4.3250e)6
+8.6000e)6
+1.5310e)5
+2.7483e)5
+9.1600e)6
+3.6800e)5
+4.9525e)5
+7.6475e)5
+1.2780e)4
+1.8410e)4
+2.2600e)4
+2.5590e)4
+2.7545e)4
+2.4818e)4
+1.7593e)4
+1.2693e)4
+7.0375e)5
+8.9250e)6
+)1.7425e)5
+)3.8650e)5
+)5.4675e)5
+)1.4550e)5
+)1.2750e)6
+)8.5000e)7
+)9.0000e)7
+)9.0000e)7
+)2.2500e)7
+1.7000e)6
+)6.2500e)7
+)2.0000e)7
+1.0000e)7
+1.0325e)6
+1.1250e)6
+
+0.0000
+1.7167e)7
+4.3887e)6
+4.4156e)5
+3.3442e)4
+3.2409e)4
+6.3269e)4
+6.9266e)4
+1.0098e)3
+1.1330e)3
+1.2349e)3
+1.3236e)3
+1.6656e)3
+3.4158e)3
+4.2732e)3
+4.4506e)3
+4.1770e)3
+3.6992e)3
+3.2332e)3
+2.1383e)3
+1.5471e)3
+3.3113e)4
+2.8862e)4
+1.4060e)4
+1.1320e)4
+7.8495e)5
+6.3080e)5
+6.0554e)5
+5.3822e)5
+5.1602e)5
+4.5860e)5
+3.9896e)5
+3.4392e)5
+3.8930e)5
+3.3565e)5
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+Table 2
+Experimental results at Y ¼ 0:5 in the cavity
+
+0.5154
+0.5165
+0.5190
+0.5202
+0.5160
+0.5135
+0.5138
+0.5079
+0.5076
+0.5061
+0.5151
+0.5257
+0.5198
+0.5313
+0.5199
+0.5047
+0.4556
+0.3834
+0.3137
+0.2434
+0.2318
+0.2136
+0.2050
+0.1865
+0.1608
+0.1324
+0.1183
+0.0935
+0.0777
+0.0657
+0.0309
+0.0000
+
+4.8337e)3
+4.0352e)3
+3.0430e)3
+3.3391e)3
+4.3246e)3
+7.0418e)3
+5.0101e)3
+6.5627e)3
+5.8379e)3
+7.7054e)3
+0.0115
+0.0147
+0.0166
+0.0166
+0.0248
+0.0353
+0.0550
+0.0703
+0.0565
+0.0572
+0.0519
+0.0465
+0.0423
+0.0361
+0.0308
+0.0297
+0.0230
+0.0171
+0.0174
+0.0115
+0.0105
+0.0000
+
+)2.0000e)6
+)2.0000e)6
+)3.0000e)6
+)2.0000e)6
+)1.0000e)6
+)1.0000e)6
+)1.0000e)6
+)6.0000e)7
+)2.7000e)5
+3.5000e)5
+1.0000e)5
+3.5700e)4
+5.9600e)4
+8.7000e)4
+9.9300e)4
+9.4400e)4
+6.4700e)4
+)3.3000e)4
+2.0900e)4
+1.0000e)6
+8.0000e)7
+)4.0000e)6
+)6.0000e)6
+)2.3000e)5
+)1.4000e)5
+)6.0000e)6
+)2.0000e)6
+)1.0000e)6
+)1.0000e)6
+)1.0000e)6
+)1.0000e)6
+0.0000
+
+)2.3500e)6
+5.0000e)7
+7.1250e)6
+6.5500e)7
+6.3500e)6
+7.0000e)7
+)5.3500e)6
+3.5250e)6
+)3.9250e)6
+)3.7525e)5
+)6.5450e)5
+)8.3900e)5
+)9.9100e)5
+3.5020e)4
+5.8808e)4
+1.0818e)3
+2.0298e)3
+2.7414e)3
+2.4064e)3
+1.9478e)3
+1.6570e)3
+8.2023e)4
+5.0158e)4
+4.1465e)4
+3.7715e)4
+2.7485e)4
+1.3040e)4
+3.6300e)5
+)9.9750e)6
+)9.5250e)6
+)9.4750e)6
+0.0000
+
+1.1500e)6
+)4.2500e)7
+2.0000e)7
+)7.5000e)8
+)9.3250e)6
+)5.0000e)7
+)3.6750e)6
+)3.9000e)6
+)1.2450e)5
+)3.6425e)5
+3.7775e)5
+6.7250e)5
+7.0725e)5
+8.0750e)5
+1.3713e)4
+1.87780)4
+2.4098e)4
+1.5248e)4
+1.18000)4
+7.0950e)5
+6.11500)5
+5.8625e)5
+3.6425e)5
+3.4300e)5
+3.0850e)5
+1.6625e)5
+1.5750e)5
+1.4000e)5
+1.1500e)5
+1.0200e)5
+8.0250e)6
+0.0000
+
+2.7414e)5
+2.8126e)5
+2.3576e)5
+2.5983e)5
+2.5547e)5
+2.6279e)5
+3.0907e)5
+3.3995e)5
+8.2149e)5
+3.5210e)4
+6.3357e)4
+1.2997e)3
+2.1030e)3
+2.9600e)3
+3.7844e)3
+3.8323e)3
+3.5665e)3
+3.5079e)3
+2.7624e)3
+1.4673e)3
+1.2987e)3
+1.1511e)3
+9.8586e)4
+8.3190e)4
+7.4138e)4
+5.9591e)4
+4.1470e)4
+3.4555e)4
+1.9592e)4
+8.2340e)5
+4.9682e)5
+0.0000
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+)1.8100e)4
+1.7850e)3
+4.4200e)3
+4.1250e)3
+)6.0600e)4
+2.1460e)3
+4.5170e)3
+4.1350e)3
+)4.9400e)4
+2.3670e)3
+4.4180e)3
+3.4520e)3
+)4.9900e)4
+2.4850e)3
+4.8540e)3
+3.3290e)3
+)4.5800e)4
+2.5830e)3
+4.7060e)3
+3.4520e)3
+)2.2700e)4
+3.4510e)3
+4.6640e)3
+3.6450e)3
+)2.4900e)4
+3.1830e)3
+4.9470e)3
+4.0910e)3
+)3.1700e)4
+3.3130e)3
+5.1190e)3
+4.3730e)3
+1.2600e)3
+2.9930e)3
+8.0740e)3
+6.6590e)3
+4.4080e)3
+2.8370e)3
+0.0156
+0.0151
+2.7420e)3
+1.9950e)3
+0.0245
+0.0156
+)0.0108
+1.3280e)3
+0.0352
+0.0223
+)0.0403
+)2.2620e)3
+0.0465
+0.0254
+)0.0684
+)4.3800e)3
+0.0559
+0.0286
+)0.0916
+)5.3000e)3
+0.0639
+0.0310
+)0.1252
+)5.1300e)3
+0.0661
+0.0272
+)0.1828
+)4.9900e)3
+0.0652
+0.0224
+)0.2185
+)4.6620e)3
+0.0659
+0.0183
+)0.2257
+)2.7390e)3
+0.0586
+0.0158
+)0.1884
+)1.5920e)3
+0.0429
+0.0106
+)0.1803
+)1.5680e)3
+0.0404
+9.8470e)3
+)0.1736
+)1.4050e)3
+0.0382
+8.6060e)3
+)0.1604
+)1.4560e)3
+0.0355
+7.4360e)3
+)0.1488
+)8.6500e)4
+0.0326
+6.6200e)3
+)0.1268
+)6.8500e)4
+0.0309
+5.8210e)3
+)0.1056
+)5.1000e)4
+0.0277
+5.0320e)3
+)0.0835
+)4.3900e)4
+0.0230
+4.7780e)3
+)0.0588
+)3.9700e)4
+0.0211
+4.0410e)3
+)0.0314
+)1.9100e)4
+0.0158
+3.3280e)3
+)3.3890e)3
+)2.2000e)5
+0.0101
+2.7850e)3
+)4.1200e)4
+)1.2000e)5
+8.1010e)3
+7.8500e)4
+0.0000
+0.0000
+0.0000
+0.0000
+pﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃ
+X ¼ x=L, Y ¼ y=L, V0 ¼ gbH DT ¼ 1 m/s, DT ¼ Th  Tc ¼ 40 K.
+0.6000
+0.6400
+0.6800
+0.7200
+0.7600
+0.8000
+0.8400
+0.8667
+0.8933
+0.9200
+0.9333
+0.9467
+0.9600
+0.9667
+0.9733
+0.9800
+0.9867
+0.9907
+0.9933
+0.9960
+0.9963
+0.9967
+0.9970
+0.9973
+0.9977
+0.9980
+0.9983
+0.9987
+0.9990
+0.9993
+0.9997
+1.0000
+
+3557
+
+3558
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+Table 3
+Wall shear stress
+
+Table 5
+Mean temperature distribution along mid–width
+
+Hot wall
+
+Cold wall
+3
+
+Distance
+from bottom
+wall, Y
+
+sw  10
+(N/m2 )
+
+Distance
+from top
+wall, 1  Y
+
+sw  10
+(N/m2 )
+
+0.0000
+0.0500
+0.1000
+0.2000
+0.3000
+0.4000
+0.5000
+0.6000
+0.7000
+0.8000
+0.9000
+0.9500
+1.0000
+
+0.0000
+1.0600
+1.4400
+1.5600
+1.6200
+1.6600
+1.6400
+1.5200
+1.3000
+1.2000
+1.0800
+0.7000
+0.0000
+
+1.0000
+0.9500
+0.9000
+0.8000
+0.7000
+0.6000
+0.5000
+0.4000
+0.3000
+0.2000
+0.1000
+0.0500
+0.0000
+
+0.0000
+1.0800
+1.4200
+1.6500
+1.7000
+1.7600
+1.7200
+1.6000
+1.4000
+1.3000
+1.1000
+0.7500
+0.0000
+
+3
+
+Y ¼ y=L.
+Table 4
+Mean temperature distribution on horizontal walls
+X
+0.0000
+2.0000e)3
+6.6700e)3
+0.0133
+0.0267
+0.0533
+0.1000
+0.2000
+0.3000
+0.4000
+0.5000
+0.6000
+0.7000
+0.8000
+0.9000
+0.9467
+0.9733
+0.9867
+0.9933
+0.9980
+1.0000
+
+ðT  Tc Þ=DT
+Top wall
+
+Bottom wall
+
+1.0000
+0.9490
+0.9333
+0.9342
+0.9183
+0.8782
+0.8210
+0.7597
+0.7107
+0.6779
+0.6393
+0.6135
+0.5578
+0.4880
+0.3372
+0.2338
+0.1409
+0.1334
+0.1234
+0.0967
+0.0000
+
+1.0000
+0.9184
+0.9038
+0.8862
+0.8639
+0.7733
+0.6608
+0.5263
+0.4520
+0.3960
+0.3503
+0.3116
+0.2722
+0.2214
+0.1490
+0.0938
+0.0445
+0.0352
+0.0272
+0.0185
+0.0000
+
+X ¼ x=L, DT ¼ Th  Tc ¼ 40 K.
+
+cavity mid-width and local Nusselt number distribution
+along the walls of the cavity respectively. The experimental results at diﬀerent heights of the cavity are also
+available from the authors. The general ﬂow and thermal behaviour of the ﬂuid in the cavity would not be
+presented in graphical form in this paper. Interested
+readers can consult Tian and Karayiannis [4,5] where
+such information is given. Instead, in this section, the
+experimental results in the immediate vicinity to the
+
+ðT  Tc Þ=DT
+
+Y
+
+0.3553
+0.3328
+0.3253
+0.3178
+0.2978
+0.2828
+0.2778
+0.2737
+0.2790
+0.2814
+0.2906
+0.3086
+0.3250
+0.3571
+0.3804
+0.4001
+0.4213
+0.4395
+0.4564
+0.4854
+0.5174
+0.5463
+0.5662
+0.5800
+0.6068
+0.6234
+0.6356
+0.6644
+0.6825
+0.6991
+0.7182
+0.7250
+0.7300
+0.7375
+0.7350
+0.7250
+0.7125
+0.7000
+0.6850
+0.6635
+0.6443
+
+0.0000
+1.3333e)3
+2.6667e)3
+4.0000e)3
+6.6667e)3
+9.3333e)3
+0.0133
+0.0200
+0.0267
+0.0360
+0.0500
+0.0750
+0.1000
+0.1500
+0.2000
+0.2500
+0.3000
+0.3500
+0.4000
+0.4500
+0.5000
+0.5500
+0.6000
+0.6500
+0.7000
+0.7500
+0.8000
+0.8500
+0.9000
+0.9250
+0.9500
+0.9640
+0.9733
+0.9800
+0.9867
+0.9907
+0.9933
+0.9960
+0.9973
+0.9987
+1.0000
+
+Y ¼ y=L, DT ¼ Th  Tc ¼ 40 K.
+
+isothermal vertical walls will be used to study the nearwall turbulence in the cavity. Also, the distribution of
+the turbulent heat ﬂux in the cavity will be presented and
+discussed in detail being the ﬁrst time it has been directly
+measured in an air ﬁlled square cavity at low-level turbulence.
+3.1. Inner and outer boundary layer structures
+A turbulent boundary layer can be described as a
+two-layer structure, namely an inner layer and an outer
+layer [20], separated by the position of the velocity
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+3559
+
+Table 6
+Local Nusselt number distribution along the walls
+Y
+0.0200
+0.0493
+0.1000
+0.2000
+0.3000
+0.4000
+0.5000
+0.6000
+0.7000
+0.8000
+0.9000
+0.9493
+0.9867
+
+Nu
+
+X
+
+Hot wall
+
+Cold wall
+
+136.0000
+122.0000
+95.0000
+84.0000
+72.0000
+65.0000
+58.0000
+52.0000
+47.0000
+40.0000
+36.0000
+28.0000
+17.0000
+
+21.0000
+33.0000
+42.0000
+44.0000
+47.0000
+50.0000
+60.0000
+62.0000
+69.0000
+80.0000
+87.0000
+122.0000
+138.0000
+
+0.0133
+0.0400
+0.0800
+0.1333
+0.2000
+0.2800
+0.3600
+0.5000
+0.6400
+0.7200
+0.8000
+0.8667
+0.9200
+0.9600
+0.9867
+
+Nu
+Bottom wall
+
+Top wall
+
+75.0000
+58.0000
+40.0000
+38.0000
+36.0000
+20.0000
+16.0000
+10.0000
+8.0000
+4.0000
+1.0000
+)12.0000
+)15.0000
+)19.0000
+)25.0000
+
+22.0000
+18.0000
+8.0000
+5.0000
+2.0000
+)4.0000
+)8.0000
+)11.0000
+)18.0000
+)23.0000
+)31.0000
+)35.0000
+)42.0000
+)55.0000
+)70.0000
+
+X ¼ x=L, Y ¼ y=L.
+
+maximum. Fig. 2(a) shows the boundary layer structure
+(vertical velocity proﬁle) along the hot wall in the cavity
+at Y ¼ 0:5. The boundary layer on the cold wall is almost exactly anti-symmetrical. The inner layer is 5 mm
+wide (at Y ¼ 0:5) and the outer layer is 75 mm wide, i.e.
+the inner layer is less than 7% of the outer layer. The
+thickness of the inner layer along the isothermal walls is
+not constant. It varies between 4 and 7 mm depending
+on the height along the isothermal walls. It is narrow at
+the bottom of the hot wall (and at the top of the cold
+wall) and wider at the top of the hot wall (and at the
+bottom of the cold wall). The inner layer can be divided
+further into a viscous layer next to the wall where the
+Reynolds stress is negligible and a buoyant sublayer for
+the rest of the inner layer, see Fig. 2(b). In the viscous
+layer, very close to the wall, the temperature proﬁle is
+nearly linear and this region is referred to as conductive
+layer. The linearity of the temperature proﬁle is shown
+in Fig. 2(b) with a line drawn through the measured
+points. In the conductive layer, the heat ﬂux is constant
+[21]. The viscous layer is about 3 mm in this study with 2
+mm of it being the conductive layer. The velocity proﬁle
+in the viscous layer is a cubic function of distance.
+Figs. 3–10 show the proﬁles of all the measured pa0
+rameters, v, v0rms , u, u0rms , T , Trms
+, u0 v0 , u0 T 0 , v0 T 0 , k, in the
+boundary layer along the isothermal walls at Y ¼ 0:5. In
+some of these ﬁgures, the present results are compared
+with past numerical results. The parameters are divided
+into three main groups (velocity ﬁeld, temperature ﬁeld
+and turbulence quantities).
+3.2. Velocity ﬁeld
+The vertical velocity proﬁle, v, which deﬁnes the
+boundary layer increases steeply from the isothermal
+
+walls to a peak at X ¼ 0:007 (5 mm) and then decreases
+rapidly to zero at about X ¼ 0:107 (80 mm) from the hot
+wall, see Fig. 3(a). The proﬁle of v near the cold wall is
+almost anti-symmetrical at mid-height of the cavity. The
+horizontal velocity proﬁle, 
+u, is almost negligible in the
+boundary layer, see Fig. 3(a). In general, 
+u is one order
+of magnitude smaller than v. Fig. 3(a) also shows a
+comparison of the mean component of the vertical velocity at the cavity mid-height with the numerical simulation of Barozzi et al. [22] in an air ﬁlled cavity with
+ARx ¼ 1 and Ra ¼ 1010 . Also shown in the ﬁgure are
+the large-eddy simulation (LES) results of Peng and
+Davidson [23] in a similar cavity to the present study and
+under the same parameters. For the vertical velocity
+proﬁle, the results of Barozzi et al. [22], which were
+based on the k–e model, and that of Peng and Davidson
+[23] are generally in good agreement with the present
+results. However, from Fig. 3(a), it can be seen that the
+LES results of Peng and Davidson [23] marginally
+overestimated the peak value of the vertical velocity.
+Also, the results of Barozzi et al. [22] have a steeper
+velocity gradient near the wall and the location of the
+peak velocity is much closer to the wall than in the
+present study. Thus near the wall, the k–e model predicts
+a higher rate of change of velocity which can lead to
+overestimation of the wall shear stress.
+Fig. 3(b) shows that the vertical velocity ﬂuctuations,
+v0rms , and the horizontal velocity ﬂuctuation, u0rms , are
+concentrated in the boundary layer and decrease to almost nothing outside the boundary layer. One feature
+shown in Fig. 3(b) is the diﬀerence between u0rms and v0rms .
+The value of u0rms is less than half that of v0rms in the
+boundary layer at the cavity mid-height. On the whole,
+the proﬁle of ﬂuctuation quantities is anti-symmetric.
+Fig. 3(b) also shows a comparison of the ﬂuctuation
+
+3560
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+Inner layer
+Outer layer
+250
+
+Vertical velocity, vx103 (m/s)
+
+200
+
+150
+
+100
+
+50
+
+0
+
+-50
+0
+
+5
+
+10
+
+15
+
+20
+
+25
+
+(a)
+
+30
+
+35
+
+40
+
+45
+
+50
+
+55
+
+60
+
+65
+
+70
+
+75
+
+80
+
+Distance from hot wall (mm)
+Inner layer
+Buoyant sub-layer
+
+Viscous layer
+Conductive layer
+
+250
+
+200
+
+v, T, u'v'
+
+150
+vx103 (m/s)
+T (oC)
+u'v' x106 (m2/s2)
+
+100
+
+50
+
+0
+
+-50
+0.0
+
+(b)
+
+0.5
+
+1.0
+
+1.5
+
+2.0
+
+2.5
+
+3.0
+
+3.5
+
+4.0
+
+4.5
+
+5.0
+
+Distance from hot wall (mm)
+
+Fig. 2. Boundary layer structure at Y ¼ 0:5: (a) vertical velocity proﬁle near the hot wall and (b) inner boundary layer near the hot
+wall.
+
+component of the vertical velocity at the mid-height of
+the cavity with the numerical simulation of Barozzi et al.
+[22] and the LES results of Peng and Davidson [23]. As
+noted above, the numerical simulation of Barozzi et al.
+[22] was based on the k–e model, which assumed the
+local isotropy hypothesis, i.e. both the vertical and
+horizontal velocity ﬂuctuations were assumed to be
+
+the same and were estimated by the following relationship:
+rﬃﬃﬃﬃﬃ
+2k
+0
+vrms ¼
+ð9Þ
+3
+From Fig. 3(b), it can be seen that the experimental
+results are higher than the predicted values from the k–e
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+3561
+
+0.25
+v, this study
+u, this study
+v, [22]
+v, [23]
+
+0.20
+
+v/Vo, u/Vo
+
+0.15
+
+0.10
+
+0.05
+
+0.00
+
+-0.05
+0.000
+
+0.025
+
+0.050
+
+(a)
+
+0.075
+
+0.100
+
+0.125
+
+0.150
+
+0.175
+
+0.200
+
+Distance from hot wall, X=x/L
+0.10
+v'rms, this study
+u'rms, this study
+0.08
+
+v'rms, [22]
+
+v'rms/Vo, u'rms/Vo
+
+v'rms, [23]
+0.06
+
+0.04
+
+0.02
+
+0.00
+
+-0.02
+0.000
+
+(b)
+
+0.025
+
+0.050
+
+0.075
+
+0.100
+
+0.125
+
+0.150
+
+0.175
+
+0.200
+
+Distance from hot wall, X=x/L
+
+Fig. 3. Velocity ﬁeld: (a) mean velocity at Y ¼ 0:5 and (b) velocity ﬂuctuation at Y ¼ 0:5.
+
+model of Barozzi et al. [22]. This is expected because the
+ﬂow in the cavity is a wall shear ﬂow and not isotropic
+and as such the vertical and horizontal velocity ﬂuctuations are not expected to be the same. In the LES of
+Peng and Davidson [23], the subgrid-scale (SGS) stresses
+appearing in the ﬁltered Navier–Stokes equations were
+responsible for the energy occurrence between the largescale and the SGS eddies. They were modelled in
+alignment
+
+ with the large-scale strain rate, S ij ¼
+1
+2
+
+o
+u
+o
+ui
+þ oxji
+oxj
+
+, using the SGS eddy viscosity, mt , i.e.
+dij
+0 0
+sij ¼ ui uj  u0 i u0 j ¼ 2mt S ij þ skk
+ð10Þ
+3
+By means of the gradient diﬀusion hypothesis, the SGS
+heat ﬂuxes, hj , in the ﬁltered thermal energy equation
+were modelled as
+
+hj ¼ T 0 u0j  T 0 u0 j ¼ at
+
+oT 0
+oxj
+
+ð11Þ
+
+The SGS time scaling, TSGS , took the following form:
+TSGS ¼
+
+ 2 gb oT 0
+S  
+d2j
+Prt oxj
+
+!1=2
+ð12Þ
+
+where the
+qﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃ of the resolved local strain rate
+  magnitude
+tensor, S  ¼ 2S ij S ij . The present results agree reasonably well with the LES results of Peng and Davidson
+[23] except that the predicted values have a marginally
+higher peak and a thinner boundary layer structure. Fig.
+3(b) conﬁrms that on the whole, LES predicts turbulent
+quantities much better than k–e models.
+
+3562
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+Dimensionless temperature, (T-Tc)/(Th-Tc)
+
+0.65
+0.60
+0.55
+0.50
+0.45
+0.40
+0.35
+0.30
+0.25
+0.20
+0.15
+0.10
+0.05
+0.00
+0.80
+
+This study
+[23]
+0.82
+
+0.84
+
+0.86
+
+0.88
+
+0.90
+
+0.92
+
+0.94
+
+0.96
+
+0.98
+
+1.00
+
+Distance from the hot wall, X=x/L
+
+(a)
+4.5
+
+This study
+[23]
+
+Temperature fluctuation, T'rms (K)
+
+4.0
+3.5
+3.0
+2.5
+2.0
+1.5
+1.0
+0.5
+0.0
+0.00
+
+(b)
+
+0.02
+
+0.04
+
+0.06
+
+0.08
+
+0.10
+
+0.12
+
+0.14
+
+0.16
+
+0.18
+
+0.20
+
+Distance from the hot wall, X=x/L
+
+Fig. 4. Temperature ﬁeld: (a) mean temperature at Y ¼ 0:5 and (b) temperature ﬂuctuation at Y ¼ 0:5.
+
+The ﬂow in the present cavity was limited in the
+boundary layers along the walls. The velocity proﬁle in
+the viscous layer was used to determine the wall shear
+stress. As stated earlier, in the viscous layer the velocity
+proﬁle is a cubic function of distance from the wall, i.e.
+v ¼ ax þ bx2 þ cx3
+
+ð13Þ
+
+where a, b and c can vary depending on height. Then the
+wall shear stress can be expressed as
+
+ov 
+sw ¼ l  ¼ a
+ð14Þ
+ox 
+x¼0
+
+Using the measured results in the viscous layer and a
+cubic polynomial least squares ﬁtting process, an equa-
+
+tion was obtained for the velocity proﬁle. The equation
+was diﬀerentiated at X ¼ 0 and 1 to obtain the velocity
+gradient and then the wall shear stress. The agreement
+of the shear stress values between the two isothermal
+walls is good, the largest diﬀerence being 0.08%, see
+Table 3.
+3.3. Temperature ﬁeld
+Fig. 4(a) shows the temperature proﬁle, T , in the cold
+wall boundary layer at mid-height. The proﬁle changes
+steeply near the isothermal wall. The temperature proﬁle
+is nearly anti-symmetric in the hot wall boundary layer
+at mid-height. The authors present the cold wall data in
+Fig. 4(a) to allow comparison with the numerical work
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+3563
+
+180
+This study, hot wall
+This study, cold wall
+[23], hot wall
+[23], cold wall
+
+Local Nusselt number, Nu
+
+160
+140
+120
+100
+80
+60
+40
+20
+0
+0.0
+
+0.1
+
+0.2
+
+0.3
+
+0.4
+
+0.5
+
+0.6
+
+0.7
+
+0.8
+
+0.9
+
+1.0
+
+Distance from the bottom wall, Y=y/L for the hot wall
+and distance from the top wall, 1-Y for the cold wall
+
+(a)
+100
+
+This study, bottom wall
+This study, top wall
+[23], bottom wall
+[23], top wall
+
+Local Nusselt number, Nu
+
+80
+
+60
+
+40
+
+20
+
+0
+
+-20
+
+-40
+0.0
+
+(b)
+
+0.1
+
+0.2
+
+0.3
+
+0.4
+
+0.5
+
+0.6
+
+0.7
+
+0.8
+
+0.9
+
+1.0
+
+Distance from the hot wall, X=x/L for the bottom wall
+and distance from the cold wall, 1-X for the top wall
+
+Fig. 5. Comparison of local Nusselt number: (a) local Nusselt number along the isothermal walls and (b) local Nusselt number along
+the horizontal walls.
+
+of Peng and Davidson [23] who reported cold wall values. After an initial sharp decrease (from hot wall) and
+increase (from cold wall), the temperature remained
+fairly constant (from X 0:1 to X 0:9), indicating
+that the ﬂuid in this region of the cavity was nearly
+stationary. The dimensionless temperature at the core of
+the cavity was 0.52 (30.7 °C), which is nearly equal to the
+mean temperature (and the ambient). This indicates that
+there was no heat loss through the passive vertical walls,
+i.e. through the guard cavities. The numerical results of
+Peng and Davidson [23] were obtained under the same
+
+parameters as the present study. Overall, the agreement
+between the present results for the mean temperature
+and the LES results of Peng and Davidson [23] is good
+in the cold wall boundary layer except that the temperature over-shoot is more pronounced in their case.
+As seen in Fig. 4(b), the temperature ﬂuctuation intensity increases with distance from the hot wall to a
+peak and then decreases to almost nothing. At midheight the proﬁle is almost symmetrical with a maximum
+0
+value of around Trms
+¼ 3:0 K near both the hot and cold
+walls. In general, the temperature ﬂuctuation proﬁle in
+
+3564
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+1.50
+This study
+[23]
+1.25
+
+u'v' x103 (m2/s2)
+
+1.00
+
+0.75
+
+0.50
+
+0.25
+
+0.00
+
+-0.25
+0.00
+
+0.02
+
+0.04
+
+0.06
+
+0.08
+
+0.10
+
+0.12
+
+0.14
+
+0.16
+
+0.18
+
+0.20
+
+Distance from the hot wall, X=x/L
+Fig. 6. Reynolds stress at Y ¼ 0:5.
+
+the cavity is nearly anti-symmetrical about the cavity
+centre. The present results are also compared with the
+numerical results of Peng and Davidson [23] in Fig. 4(b).
+The distribution of Peng and Davidson [23] has a higher
+peak value than in the present study but on the whole,
+the agreement between the present results and their results is good.
+The local and average Nusselt numbers on the hot,
+cold, bottom and top walls can be determined using the
+measured temperature data in the thermal conductive
+boundary layer (see Fig. 2(b)) where the heat ﬂux is
+constant as follows:
+
+L
+oT 
+Nulocal ¼ 
+ð15Þ
+Th  Tc oxi w
+From this deﬁnition, the heat ﬂux is positive with axis
+direction, i.e. the heat transfer from the hot wall into the
+cavity and from the cavity into the cold wall is positive.
+The heat transfer from the bottom wall into the cavity
+and from the cavity into the top wall is positive. The
+temperature gradient with respect to x or y was estimated by a linear best ﬁtting from the ﬁrst 6–9 measuring points near the wall. The local Nusselt numbers
+on the hot, cold, bottom and top walls of the cavity are
+presented in Table 6. The local Nusselt number reaches
+a maximum at the bottom of the hot wall and at the top
+of cold wall because of a thinner thermal boundary
+there. The measured maximum Nu number is about 138.
+At mid-height, the local Nusselt number is about 59. At
+the other end, because the ﬂuid ﬂow meets the wall, the
+heat transfer diminishes signiﬁcantly and the local
+Nusselt number drops to about 20. The average Nusselt
+number was 62.9, 62.6, 13.9 and 14.4 for the hot, cold,
+bottom and top walls respectively. The local Nusselt
+
+number on the hot, cold, bottom and top walls in the
+cavity is compared with the numerical results of Peng
+and Davidson [23] at the same parameters as the present
+study in Fig. 5. On the lower part of the hot and cold
+walls, the simulation from Peng and Davidson [23] yields
+lower heat transfer rates than the present results (Fig.
+5(a)). The agreement between the present results and
+that of Peng and Davidson [23] for the local Nusselt
+number along both the bottom and top walls of the
+cavity is good (Fig. 5(b)).
+3.4. Turbulence quantities
+The turbulence quantities obtained in this study are
+presented in Figs. 6–10. The Reynolds stress, u0 v0 , near
+the hot wall is depicted in Fig. 6. For the ﬁrst 3 mm
+form the wall the Reynolds stress in zero (see also Fig.
+10(b)). The maximum positive value of u0 v0 is about
+1.08  103 m2 /s2 and 0.99  103 m2 /s2 near the hot and
+cold walls respectively and is located well outside the
+maximum velocity point (5 mm or X ¼ 0:007) at about
+25 mm (X ¼ 0:033) from the walls, see Fig. 6. This location coincides with the point where the intensities of
+velocity ﬂuctuations become maximum in the outer
+layer. Thus, the outer layer has the same characteristics as the forced convection boundary layer because
+oV =ox < 0 and u0 v0 > 0. The Reynolds stress is near zero
+between X ¼ 0:1 and 0.9 at mid-height because outside
+the boundary layer the budget of u0 v0 are counter-balanced. Also, at mid-height the values of the Reynolds
+stress, u0 v0 , near the two isothermal walls diﬀer by about
+8%. The dynamic viscosity of air is 17.62  106 N s/m2
+at 10 °C and 19.55  106 N s/m2 at 50 °C, i.e. the 40 K
+temperature diﬀerence causes about 11% density diﬀer-
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+3565
+
+220
+This study
+[23]
+
+200
+180
+
+3
+
+v'T' x10 (mK/s)
+
+160
+140
+120
+100
+80
+60
+40
+20
+0
+-20
+0.00
+
+0.02
+
+0.04
+
+0.06
+
+0.08
+
+0.10
+
+0.12
+
+0.14
+
+0.16
+
+0.18
+
+0.20
+
+Distance from hot wall, X=x/L
+
+(a)
+35
+
+This study
+[23]
+
+30
+
+u'T' x103 (mK/s)
+
+25
+20
+15
+10
+5
+0
+-5
+0.00
+
+(b)
+
+0.02
+
+0.04
+
+0.06
+
+0.08
+
+0.10
+
+0.12
+
+0.14
+
+0.16
+
+0.18
+
+0.20
+
+Distance from hot wall, X=x/L
+
+Fig. 7. Turbulent heat ﬂux: (a) Y ¼ 0:5 (vertical) and (b) Y ¼ 0:5 (horizontal).
+
+ence in the cavity and as such the Reynolds stress at midheight can be considered to be symmetric. In Fig. 6, the
+Reynolds stress, u0 v0 , at mid-height in the hot wall
+boundary layer of the cavity is also compared with the
+numerical results of Peng and Davidson [23] at the same
+Ra and aspect ratio. Overall, the agreement between the
+present results and that of Peng and Davidson [23] is
+poor. The numerical results of Peng and Davidson [23]
+have a relatively lower peak value, a narrow boundary
+layer structure and non-zero u0 v0 beyond X ¼ 0:1.
+The experimental results of v0 T 0 and u0 T 0 , the turbulent heat ﬂuxes in the y- and x-directions, at mid-height
+are shown in Fig. 7. At mid-height the values of v0 T 0 near
+the two isothermal walls diﬀer by about 9% and that of
+
+u0 T 0 diﬀer by about 12%. This is due to the change in
+value of the dynamic viscosity of air near the isothermal
+walls as explained above. Both v0 T 0 and u0 T 0 increase
+rapidly from the isothermal walls to a peak; v0 T 0 peaks at
+about 0.121 and 0.110 m K/s near the hot and cold walls
+respectively. The corresponding values for u0 T 0 are about
+0.011 and 0.0097 m K/s. The peak value of the turbulent
+heat ﬂuxes, u0i T 0 , is located in the vicinity of the maximum velocity location, which is about 5–7 mm from the
+walls, see Fig. 7. The turbulent heat ﬂuxes are near zero
+between X ¼ 0:1 and 0.9 at mid-height. In the overall
+boundary layer region, the ﬂuctuating amplitude of v0 T 0
+far exceeds that of u0 T 0 because of the large amplitude of
+the v0 ﬂuctuation, see Fig. 3(b). In general, the horizontal
+
+3566
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+1.0
+
+0.9
+
+Distance from bottom wall, Y=y/L
+
+0.8
+
+0.7
+
+0.6
+
+0.5
+
+0.4
+
+0.3
+
+0.2
+
+0.1
+
+0.0
+0.0
+
+0.1
+
+0.2
+
+0.3
+
+0.4
+
+0.5
+
+0.6
+
+0.7
+
+0.8
+
+0.9
+
+1.0
+
+Distance from hot wall, X=x/L
+Fig. 8. Vector plot of the turbulent heat ﬂux (scale: 0.0168 m K/s/mm).
+
+5.0
+This study
+[24]
+
+4.5
+4.0
+
+k x103 (m2/s2)
+
+3.5
+3.0
+2.5
+2.0
+1.5
+1.0
+0.5
+0.0
+0.00
+
+0.01
+
+0.02
+
+0.03
+
+0.04
+
+0.05
+
+0.06
+
+0.07
+
+0.08
+
+0.09
+
+0.10
+
+Distance from hot wall, X=x/L
+Fig. 9. Turbulent kinetic energy at Y ¼ 0:5.
+
+turbulent heat ﬂux is one order of magnitude smaller
+than the vertical turbulent heat ﬂux. The turbulent heat
+ﬂux at mid-height in the cavity is compared in Fig. 7
+with the numerical simulation of Peng and Davidson
+
+[23] at the same Ra and aspect ratio. For the vertical
+turbulent heat ﬂux, the agreement between the two sets
+of results in terms of the boundary layer thickness is
+good but the simulation over-predicted the peak value
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+3567
+
+3
+
+v x10 (m/s)
+3
+v' x10 (m/s)
+u x103 (m/s)
+u' x103 (m/s)
+T (oC)
+o
+T' ( C)
+220
+
+50
+
+4
+
+45
+
+3
+
+200
+
+140
+120
+100
+
+40
+
+80
+60
+40
+
+2
+
+35
+
+1
+
+30
+
+0
+
+Temperature fluctuation, T' (oC)
+
+Velocity quantities
+
+160
+
+Mean temperature, T (oC)
+
+180
+
+20
+0
+-20
+0.0
+
+0.5
+
+1.0
+
+1.5
+
+2.0
+
+2.5
+
+3.0
+
+3.5
+
+4.0
+
+4.5
+
+5.0
+
+4.0
+
+4.5
+
+5.0
+
+Distance from hot wall (mm)
+
+(a)
+140
+
+u'v' x105 (m2/s2)
+u'T' x103 (mK/s)
+3
+v'T' x10 (mK/s)
+4
+2 2
+k x10 (m /s )
+
+120
+
+Turbulent quantities
+
+100
+80
+60
+40
+20
+0
+-20
+0.0
+
+(b)
+
+0.5
+
+1.0
+
+1.5
+
+2.0
+
+2.5
+
+3.0
+
+3.5
+
+Distance from hot wall (mm)
+
+Fig. 10. Proﬁles of experimental parameters near the hot wall at Y ¼ 0:5: (a) velocity and temperature quantities and (b) turbulent
+quantities.
+
+by about 40% (Fig. 7(a)). In the case of the horizontal
+turbulent heat ﬂux, the numerical simulation over-predicted the peak value by more than 67% (Fig. 7(b)). The
+whole turbulent heat ﬂux vector plot in the cavity is
+given in Fig. 8. The turbulent heat ﬂux vector is based
+on all the experimental data but is plotted on a mesh,
+
+which is coarser than the measurement mesh. This ﬁgure
+provides a very important insight into the structure of
+ﬂow within the cavity. At the bottom of the hot wall (top
+of the cold wall) the turbulent heat ﬂux is eﬀectively
+zero. The absence of a turbulent heat ﬂux in these regions suggests that the lower part of the hot wall (upper
+
+3568
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+part of the cold wall) boundary layer has many of the
+characteristics of a laminar ﬂow. The ﬁgure also conﬁrms that the majority of the turbulent heat ﬂux is
+conﬁned in a narrow strip along the isothermal walls.
+The turbulent kinetic energy was estimated by Eq. (5)
+and the results at mid-height in the cavity are compared
+with the numerical results of Vasic and Hanjalic [24]
+using a low-Re number k–e model at Ra ¼ 5  1010 and
+ARx ¼ 1, see Fig. 9. Very close to the wall, the numerical
+predicted turbulent kinetic energy results of Vasic and
+Hanjalic [24] agree reasonably well with the present results. However, the predicted peak value in their case is
+much smaller and the boundary layer is also thinner
+than the measured one in the present study.
+Fig. 10 shows the proﬁles of all the experimental
+parameters in the inner boundary layer of the hot wall at
+mid-height. The ﬁgure conﬁrms what have been stated
+already in the above paragraphs, i.e. the horizontal velocity proﬁle, u, is one order of magnitude smaller than
+the vertical velocity proﬁle, v; the temperature proﬁle, T ,
+changes steeply near the isothermal wall; the Reynolds
+stress, u0 v0 , is near zero for the ﬁrst 3 mm from the isothermal wall; etc. In addition to these ﬁndings, the ﬁgure
+shows that the horizontal velocity proﬁle, u , is almost
+negligible in the inner boundary layer. The value of the
+horizontal velocity ﬂuctuation, u0 , is less than half that
+of the vertical velocity ﬂuctuation, v0 . Near the isothermal hot wall, the Reynolds stress, u0 v0 , decreases to
+negligible values faster than its individual factors, u0 and
+v0 . Fig. 10(b) shows that in the conductive layer (X < 2
+mm) the turbulent quantities are almost negligible,
+which conﬁrms that the heat transfer in this region of the
+boundary layer is by pure conduction. Beyond this region to a greater part of the outer region, the heat
+transfer is by convection.
+3.5. Turbulent diﬀusivity (at ), turbulent viscosity (mt ) and
+turbulent Prandtl number (Prt )
+In the eddy viscosity model, one gives up the modeling of turbulent heat ﬂux, u0i T 0 , and Reynolds stress,
+u0i u0j , equations and adopts the generalized Boussinesq
+eddy viscosity model. Thus, the turbulent heat ﬂux
+equation is given by
+u0i T 0 ¼ at
+
+oT
+oxi
+
+ð16Þ
+
+whereas the Reynolds stress equation is given by
+u0i u0j ¼ mt
+
+oui ouj
+þ
+oxj oxi
+
+2
+ dij k
+3
+
+ð17Þ
+
+These hypotheses (Eqs. (16) and (17)) are valuable
+concepts, whose limitations should always be borne in
+mind. The turbulent diﬀusion hypothesis (Eq. (16)) implies that the scalar ﬂux vector (in the present study
+
+temperature) is aligned with the mean scalar gradient
+vector. Even in simple turbulent ﬂows this is found not
+to be the case. For example, in an experiment on homogeneous turbulent shear ﬂow [25] the angle between rT
+and u0i T 0 was measured to be 65°. Similarly, the turbulent viscosity hypothesis (Eq. (17)) implies that the
+anisotropy tensor, aij , is aligned with the mean rate of
+strain tensor, i.e.
+2
+oui ouj
+aij  u0i u0j  dij k ¼ mt
+þ
+3
+oxj oxi
+
+ð18Þ
+
+Being symmetric and deviatoric, both aij and the mean
+rate of strain have ﬁve independent components. According to the turbulent viscosity hypothesis, these ﬁve
+components are related to each other through the scalar
+coeﬃcient mt . Again, even in simple shear ﬂow, it is
+found that this alignment does not occur [6]. An important class of ﬂows consists of those that can be described by the two-dimensional turbulent boundary
+layer equations (of which the present study is an
+example). In the present study, the mean velocity is
+predominantly in the y-coordinate direction, while
+variations in mean quantities are predominantly in the xcoordinate direction. As a result of this, only one component (v0 T 0 ) of the scalar ﬂux and one Reynolds stress
+(u0 v0 ) appear in the boundary layer equations. Consequently, the turbulent diﬀusivity hypothesis reduces to
+v0 T 0 ¼ at
+
+oT
+ox
+
+ð19Þ
+
+and the turbulent viscosity hypothesis to
+u0 v0 ¼ mt
+
+ov
+ox
+
+ð20Þ
+
+Both of these equations relate a single covariance to a
+single gradient. Providing that the covariance and the
+gradient have opposite signs––which is almost the
+case––then, rather than being hypotheses or assumptions, these equations can be taken as deﬁnitions of at
+and mt [6]. The distributions of the turbulent diﬀusivity
+and the turbulent viscosity close to the hot wall
+(X ¼ 0–0:0333) at mid-height of the cavity is shown in
+Fig. 11. On the basis of the measured temperature and
+velocity results, these distributions were calculated using
+Eqs. (19) and (20). Using regression analysis, a polynomial equation was ﬁtted to the measured mean data.
+The resulting best ﬁt equation for the respective proﬁle
+(temperature or velocity) was diﬀerentiated at the desired positions to obtain the temperature and velocity
+gradients. The turbulent diﬀusivity and viscosity data in
+Fig. 11 were made dimensionless by the kinematic viscosity of air.
+The distribution of the turbulent Prandtl number,
+Prt , which is also shown in Fig. 11, is given by
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+10
+
+3569
+
+2
+αt/ν
+νt/ν
+
+8
+
+Prt
+
+1
+
+Pr t
+
+αt/ν, νt/ν
+
+6
+
+4
+
+2
+
+0
+
+0
+
+-2
+0.000
+
+0.005
+
+0.010
+
+0.015
+
+0.020
+
+0.025
+
+-1
+0.035
+
+0.030
+
+Distance from hot wall, X=x/L
+Fig. 11. Turbulent diﬀusivity, turbulent viscosity and turbulent Prandtl number.
+
+Prt ¼
+
+mt
+at
+
+ð21Þ
+
+When considering the structure of turbulent heat
+transfer, these quantities are essentially important but
+have not been shown until now for a low level turbulent
+natural convection boundary layer along the isothermal
+walls of an air ﬁlled square cavity. As pointed out above,
+the concept of turbulent diﬀusivity and turbulent viscosity deﬁned by Eqs. (19) and (20) is introduced under
+the condition that turbulent heat ﬂux, v0 T 0 , or Reynolds
+stress, u0 v0 , has a close relation with the mean temperature gradient or the mean velocity gradient. In the natural convection boundary layer, as shown in Fig. 10,
+Reynolds stress takes a very small value of almost zero
+near the wall, in the presence of a large mean velocity
+gradient and has a positive value at the maximum velocity location (ov=ox ¼ 0) without u0 v0 becoming zero.
+Therefore, the distribution of turbulent viscosity for
+momentum has a discontinuity at the maximum velocity
+location. On the other hand, turbulent diﬀusivity for
+heat shows a continuous proﬁle. As a consequence, the
+distribution of turbulent Prandtl number deﬁned as a
+ratio of turbulent viscosity and turbulent diﬀusivity also
+has a discontinuity at the maximum velocity location.
+The signiﬁcance of introducing turbulent diﬀusivity,
+turbulent viscosity and turbulent Prandtl number is
+poor for the inner layer from the wall to the maximum
+velocity location. In the comparatively wide region
+(X ¼ 0:015–0:03 of Fig. 11), turbulent viscosity and
+turbulent diﬀusivity have a similar proﬁle and so the
+turbulent Prandtl number takes a value of about unity.
+
+3.6. Dissipation rate of the temperature variance, eh
+In numerical studies, the strong coupling of the
+boundary layer and the cavity core ﬂow makes computation very diﬃcult for this wall bounded shear ﬂow.
+Direct simulation of turbulent natural convection in a
+cavity is still too costly and numerical results from
+various k–e models are not identical because the twoequation models cannot account correctly for the nonhomogenous ﬂow characteristics. Hanjalic et al. [26]
+proposed three- and four-equation models, k–e–T 02 and
+k–e–T 02 –eh , to solve this problem. Their results were
+compared with experimental data for Nusselt number,
+mean velocity and temperature. However, no comparison was made for the turbulent quantities, possibly due
+to the limitations of experimental data. The dissipation
+rate of the temperature variance, eh , has the form
+eh ¼ 2a
+"
+¼ 2a
+
+oT 0
+oxi
+oT 0
+ox
+
+2
+
+2
+
+þ
+
+oT 0
+oy
+
+2
+
+þ
+
+oT 0
+oz
+
+2
+
+#
+ð22Þ
+
+where a is the ﬂuid thermal diﬀusivity. This equation
+indicates that at least two-point measurements are needed for a direct experimental estimation. The dissipation
+rate of the temperature variance, eh , in the cavity could
+not be measured directly in this study due to time constraint and as such, based on the measured temperature
+proﬁles in the cavity, an estimate would be made for this
+quantity near the isothermal walls (ehw ) in this section.
+
+3570
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+temperature ﬂuctuation proﬁle very close to a wall of a
+2D ﬂow in cavities has no signiﬁcant variation in the
+direction along the wall, see Fig. 12(a) and as such it can
+be expressed as follows (using TaylorÕs series):
+
+Isotropic turbulent scalar ﬁelds have direction-independent mean-square scalar gradients due to the rotational
+symmetry. It is therefore suﬃcient for isotropic ﬁelds to
+measure only one of the three gradients (usually the
+streamwise gradient using TaylorÕs hypothesis), from
+which the scalar dissipation, eh , is then given by the
+isotropic relation
+eh ¼ 6a
+
+oT 0
+ox
+
+T 0 ¼ ai x þ bi x2 þ   
+
+ð24Þ
+
+where the coeﬃcients ai and bi are functions of time and
+their time averages are zero and x is distance from the
+wall. The dissipation rate of the temperature variance at
+the wall, ehw , can then be calculated from the experimental data using
+
+2
+
+ð23Þ
+
+In this study, the ﬂow is not 100% isotropic and as such
+a diﬀerent approach will be used to estimate eh . The
+
+27
+
+Temperature fluctuation,T'rms(K)
+
+24
+21
+
+Y=0.1, T'rms+0
+Y=0.2, T'rms+3
+
+18
+
+Y=0.3, T'rms+6
+Y=0.4, T'rms+9
+
+15
+
+Y=0.5, T'rms+12
+Y=0.6, T'rms+15
+
+12
+
+Y=0.7, T'rms+18
+9
+
+Y=0.8, T'rms+21
+Y=0.9, T'rms+24
+
+6
+3
+0
+0.000
+
+0.001
+
+0.002
+
+0.003
+
+0.004
+
+0.005
+
+0.006
+
+0.007
+
+0.008
+
+0.009
+
+0.010
+
+Distance from hot wall, X=x/L
+
+(a)
+
+Hot wall
+Cold wall
+
+2
+
+Dissipation rate of temperature variance (K /s)
+
+8
+
+6
+
+4
+
+2
+
+0
+0.0
+
+(b)
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1.0
+
+Distance from bottom wall, Y=y/L
+
+Fig. 12. Temperature ﬂuctuation proﬁles with estimated dissipation rate of the temperature variance near the walls: (a) temperature
+ﬂuctuation proﬁles at diﬀerent heights near the hot wall and (b) estimated dissipation rate of the temperature variance near the walls.
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+oT 0
+ehw ¼ 2a
+ox
+
+
+
+
+
+
+2
+w
+
+N
+2a X
+a2
+N i¼1 i
+
+0
+oTrms
+2a
+ox
+
+
+
+
+
+
+2
+
+ð25Þ
+w
+
+and
+vﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃ
+u
+M
+u1 X
+1=2
+0
+02
+T 02
+Trms ¼ ðT Þ ¼ t
+N i¼1 i
+
+ð26Þ
+
+where N in the number of readings taken in the experiments––10 000 in this study. The results based on
+the present measurements are shown in Fig. 12(b). The
+diﬀerence between the hot and cold walls is obvious; the
+average value for ehw is 5.47 at the hot wall and 3.85 at
+the cold wall, i.e. 30% higher. It can be seen from this
+ﬁgure that for a major part of the walls the dissipation is
+nearly constant along the boundary layer. To the best of
+the authorsÕ knowledge, this is the ﬁrst experimental
+evidence relating to the dissipation rate of the temperature variance at a wall and could be useful for numerical modelling where T 02 –eh equations are involved.
+
+4. Conclusions
+The present study shows that for this kind of cavity
+the inner boundary layer along the isothermal walls is
+less than 7% of the outer boundary layer. Also, the
+viscous layer, which next to the isothermal walls, is
+about 3 mm (60% of the inner layer) with 2 mm of it
+being the conductive layer. The turbulent quantities are
+almost negligible in the conductive layer, which conﬁrms
+that the heat transfer in this region of the boundary
+layer is by pure conduction. Overall, the local Nusselt
+number reaches a maximum at the bottom of the hot
+wall and at the top of the cold wall because of a thinner
+thermal boundary there.
+The study also shows that at the bottom of the hot
+wall (top of the cold wall) the turbulent heat ﬂux is effectively zero. The absence of a turbulent heat ﬂux in
+these regions suggests that the lower part of the hot wall
+(upper part of the cold wall) boundary layer has many of
+the characteristics of a laminar ﬂow. In general, the
+horizontal turbulent heat ﬂux is one order of magnitude
+smaller than the vertical turbulent heat ﬂux.
+The turbulent diﬀusivity, turbulent viscosity and
+turbulent Prandtl number are essentially important
+quantities when considering the structure of turbulent
+heat transfer. However, as the present study has shown,
+the signiﬁcance of introducing these quantities is limited
+for the inner layer, i.e. from the wall to the maximum
+velocity location. This is due to the fact that the distribution of turbulent viscosity for momentum has a discontinuity at the maximum velocity location and as such
+the distribution of turbulent Prandtl number deﬁned as
+a ratio of turbulent viscosity and turbulent diﬀusivity
+
+3571
+
+also has a discontinuity at this location. However, beyond the maximum velocity location, turbulent viscosity
+and turbulent diﬀusivity have a similar proﬁle and so the
+turbulent Prandtl number takes a value of about unity.
+From the above comparison and discussion, it can be
+stated that the k–e model and LES can predict the mean
+quantities such as velocity and temperature in the present cavity reasonably well but cannot predict the ﬂuctuation and turbulence quantities. LES predicts the ﬂow
+quantities much better than the k–e model. The results
+described in this paper were obtained with high precision
+and can be useful as benchmark data for comparison
+with CFD codes. Such numerical simulation should include realistic boundary conditions at the top and bottom horizontal walls as given in this study.
+
+References
+[1] M.W. Nansteel, R. Grief, Natural convection in enclosures
+with two- and three-dimensional partitions, Int. J. Heat
+Mass Transfer 27 (4) (1984) 561–571.
+[2] D.A. Olson, L.R. Glicksman, H.M. Ferm, Steady-state
+natural convection in empty and partitioned enclosures at
+high Rayleigh numbers, ASME J. HT 112 (1990) 640–647.
+[3] F. Penot, A. NÕDame, Successive bifurcations of natural
+convection in a vertical enclosure heated from the side, in:
+Heat Transfer, Third UK National Conference Incorporating First European Conference on Thermal Sciences,
+Birmingham, UK, vol. 1, 1992, pp. 507–513.
+[4] Y.S. Tian, T.G. Karayiannis, Low turbulence natural
+convection in an air ﬁlled square cavity, Part I: Thermal
+and ﬂuid ﬂow ﬁelds, Int. J. Heat Mass Transfer 43 (2000)
+849–866.
+[5] Y.S. Tian, T.G. Karayiannis, Low turbulence natural
+convection in an air ﬁlled square cavity, Part II: The
+turbulence quantities, Int. J. Heat Mass Transfer 43 (2000)
+867–884.
+[6] S.B. Pope, Turbulent Flows, Cambridge University Press,
+2000.
+[7] B.E. Launder, B.I. Sharma, Application of the energy
+dissipation model of turbulence to the calculation of ﬂow
+near a spinning disc, Letters in Heat and Mass Transfer 1
+(2) (1974) 131–138.
+[8] T. Cebeci, P. Bradshaw, Physical and Computational
+Aspects of Convective Heat Transfer, Springer-Verlag,
+Berlin, 1988.
+[9] H.P. Kreplin, H. Eckelmann, Behaviour of the three
+ﬂuctuating velocity components in the wall region of a
+turbulent channel ﬂow, Fluid 22 (1979) 1233–1239.
+[10] P.R. Spalart, Direct simulation of a turbulent boundary
+layer up to Rh ¼ 1410, J. Fluid Mech. 187 (1988) 61–98.
+[11] S. Mergui, F. Penot, Natural convection in a diﬀerentially
+heated square cavity: experimental investigation at
+RaH ¼ 1:69  109 , Int. J. Heat Mass Transfer 39 (3)
+(1996) 563–574.
+[12] F. Ampofo, Turbulent natural convection in an air ﬁlled
+standard or partitioned square cavity, PhD Thesis, South
+Bank University, December 2001.
+
+3572
+
+F. Ampofo, T.G. Karayiannis / International Journal of Heat and Mass Transfer 46 (2003) 3551–3572
+
+[13] S. Mergui, F. Penot, J.L. Tuhault, Experimental natural
+convection in an air-ﬁlled square cavity at RaH ¼ 1:7  109 ,
+in: R.A.W.M. Henkes, C.J. Hoogendoorn (Eds.), Turbulent Natural Convection in Enclosures––A Computational
+and Experimental Benchmark Study, Proceedings of the
+Eurotherm Seminar No. 22, Delft, The Netherlands,
+March 25–27, 1992, pp. 97–108.
+[14] A.M. Lankhorst, Laminar and turbulent natural convection in cavities––numerical modelling and experimental
+validation, PhD Thesis, Technology University of Delft,
+1991.
+[15] C. Beghein, F. Allard, A. Draoui, Numerical modelling of
+turbulent convection in a thermally-driven square cavity,
+in: R.A.W.M. Henkes, C.J. Hoogendoorn (Eds.), Turbulent Natural Convection in Enclosures––A Computational
+and Experimental Benchmark Study, Proceedings of the
+Eurotherm Seminar No. 22, Delft, The Netherlands,
+March 25–27, 1992, pp. 31–42.
+[16] S. Ziai, Turbulent natural convection in a large rectangular
+air cavity, PhD Thesis, Queen Mary College, University of
+London, 1983.
+[17] K.J. King, Turbulent natural convection in rectangular air
+cavities. PhD Thesis, Queen Mary College, University of
+London, 1989.
+[18] S. Paolucci, Direct numerical simulation of two-dimensional turbulent natural convection in an enclosed cavity, J.
+Fluid Mech. 215 (1990) 229–262.
+[19] I.N.G. Wardana, T. Ueda, M. Mizomoto, Velocity–temperature correlation in strongly heated channel ﬂow, Exp.
+Fluids 18 (1995) 454–461.
+
+[20] W.K. George, S.P. Capp, A theory for natural convection
+turbulent boundary layer next to heated vertical surfaces,
+Int. J. Heat Mass Transfer 22 (1979) 813–826.
+[21] J.T. Davies, Turbulence Phenomena, Academic Press, New
+York, 1972.
+[22] G.S. Barozzi, E. Nobile, A.C.M. Sousa, Contribution to
+the numerical simulation of turbulent natural convection in
+rectangular enclosures, in: R.A.W.M. Henkes, C.J. Hoogendoorn (Eds.), Turbulent Natural Convection in Enclosures––A Computational and Experimental Benchmark
+Study, Proceedings of the Eurotherm Seminar No. 22,
+Delft, The Netherlands, March 25–27, 1992, pp. 19–30.
+[23] S.H. Peng, L. Davidson, Numerical investigation of
+turbulent buoyant cavity ﬂow using LES, in: 3rd International Symposium on Turbulence, Int. J. Heat Mass
+Transfer (2000) 1–8.
+[24] S. Vasic, K. Hanjalic, Turbulent natural convection in a
+square cavity––benchmark computations, in: R.A.W.M.
+Henkes, C.J. Hoogendoorn (Eds.), Turbulent Natural
+Convection in Enclosures––A Computational and Experimental Benchmark Study, Editions Europeennes Thermique et Industrie, 1993, pp. 133–144.
+[25] S. Tavoularis, S. Corrsin, Experiments in nearly homogeneous turbulent shear ﬂow with a uniform mean
+temperature gradient, Part 1, Fluid Mech. 104 (1981) 311–
+347.
+[26] K. Hanjalic, S. Kenjeres, F. Durst, Natural convection in
+partitioned two-dimensional enclosures at higher Rayleigh
+number, Int. J. Heat Mass Transfer 39 (7) (1996) 1407–
+1427.
+
+

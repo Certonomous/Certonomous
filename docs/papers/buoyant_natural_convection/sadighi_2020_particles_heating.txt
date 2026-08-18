@@ -1,0 +1,398 @@
+Int. J. Nonlinear Anal. Appl.
+Volume 11, Special Issue, Winter and Spring 2020, No. 7, 93-104
+ISSN: 2008-6822 (electronic)
+http://dx.doi.org/10.22075/ijnaa.2020.4540
+
+Numerical modeling of particles deposition in
+domestic floor heating systems
+Reza Sadighia∗ , Majid Abbasalizadehb , Iraj Mirzaeec
+a
+
+MSc. Graduate, Mech Eng. Dep., Urmia University, Urmia, Iran, P.O.B. 5719619813 Urmia.
+Assis. Prof., Mech Eng. Dep., Urmia University, Urmia, Iran.
+c
+Prof., Mech Eng. Dep., Urmia University, Urmia, Iran.
+b
+
+Abstract
+Nowadays due to the variety of heating systems, efforts are being made to optimize each of these
+systems. Due to the fact that people spend most of their time in their home or indoors, providing
+cleaner and more comfortable air should also be of interest to researchers and developers of these
+systems. The floor heating system was initially introduced as the most ideal heating system and
+is used by many people. After the growth of floor heating systems, theories that this system, like
+other common heating systems such as radiator or heater systems, can move particles in the floor
+of living spaces and cause diseases such as allergies; has been raised. But some experts argue that
+radiation is the main mechanism of heat transfer in the floor heating system and that the system is
+unable to move and lift particles. A response to these two contradictory theories must be examined
+in order to further optimize these systems. In the present study, the effect of floor heating systems
+on the behavior of dust on the floor of the study area is investigated. The present work has been
+validated using the results of an experimental work in which the airflow within the desired geometry
+is investigated. In this study software (ANSYS-Fluent 19.1) and discrete phase model two-phase
+is used to simulate this model. By examining the results, it is found that the free displacement
+caused by the floor heating system and the inlet air from the window is capable of lifting and moving
+the particles on the floor at specified directions. Also, by examining the effective parameters on
+the displacement rate of these particles, including diameter, density and velocity of inlet air, it was
+observed that particles with less than 1 micrometer diameter and less than 750 kg/m3 density range
+can move in the geometry space studied.
+Keywords: Floor heating systems, Numerical study, Two phase flow, Particle deposition, Allergies.
+
+∗
+
+Corresponding Author: Reza Sadighi
+Email address: reza.sadighi2011@gmail.com (Reza Sadighia∗ , Majid Abbasalizadehb , Iraj Mirzaeec )
+
+Received: February 2020
+
+Revised: May 2020
+
+94
+
+R. Sadighi, M. Abbasalizadeh, I. Mirzaee
+
+1. Introduction
+Recently, with the increasing growth of various types of home heating and air conditioning systems,
+efforts have been made to optimize each of these systems among researchers and manufacturers.
+During several studies, the issue of optimization of underfloor heating system compared to other
+systems in terms of economy, energy and proximity of the temperature of this system to the desired
+temperature of the human body, etc. has been proven [1]. However, studies have shown that the
+conditions of the air produced by these systems, the effects of these systems on the quality of air in
+the workplace or people’s lives, as well as the production of the most pleasant air by these systems
+are less considered. Fine particles of any kind can damage a person’s respiratory system and can lead
+to asthma, allergies, cancer, or even long-term death [2]. Research has shown that people who are
+constantly exposed to such particles suffer from acute illnesses, respiratory syndromes and even death
+[3]. Since people spend most of their time indoors, such as at home, in offices, and in other indoor
+environments, it is important to provide the cleanest and highest quality air in these environments.
+The importance of this issue from the beginning and with the most basic home heating systems
+after the industrial revolution such as coal or oil heaters and fireplaces to date in the most advanced
+and up-to-date home heating systems such as underfloor heating systems or panel radiators have
+attracted the attention of researchers. In 1996, Moriske et al. [4] compared the pollution caused by
+the production of carbon suspended particles, heavy metals, and dust in open and central heating
+systems with coal fuel. They clearly found that the pollution caused by the scattering of these
+particles in the open system was greater than in the central system. In 2010, Kong et al. [5]
+examined the effect of air temperature and the location of ventilated air on the room on rising and
+moving particles in the room and concluded that the lower the temperature of the air entering the
+room, the greater the concentration of suspended particles in the range. Golkarfard and Talebizadeh
+[6] modeled the floor heating system and the radiator while examining the effect of free convection
+on pre-suspended particles in the air of a room, proving that the percentage of particle scattering in
+underfloor heating systems is higher than the heating system. It is with the radiator that it is shown
+that the stability and the percentage of suspension of these particles are higher in radiator heating
+systems and the particles in these systems are expelled later. They also looked for the percentage of
+particle accumulation on different surfaces and concluded that particles in floor heating systems are
+more scattered on floor and ceiling surfaces than radiators. In figure 1, the percentage of particle
+scattering in the floor heating and radiator heating systems can be compared. As mentioned, the
+percentage of movement and movement of particles in underfloor heating systems is less than the
+heating system with radiators.
+They also looked for the percentage of particle accumulation on different surfaces and concluded
+that particles in floor heating systems are more scattered on floor and ceiling surfaces than radiator
+heating systems, and in radiator heating systems more particles are scattered in the middle of the
+room, that is more exposed to respiration, is dispersed. These results can be seen in Figure 2 and
+Figure 3.
+Studies have shown that in such researches, the effects of underfloor heating systems on particles
+that have been suspended in the room air from the beginning and most parameters such as stability
+time and then subsidence or repulsion of these particles have been studied. Therefore, in the present
+article, by modeling the floor heating system in a room, the effect of this system on the lifting and
+movement of fine dust particles in the floor of the room is examined. This can be used to track the
+movement of these particles, and to find an answer to this challenging theory of whether this system
+or any other similar system can be allergenic. Is it possible to find a way to collect these particles or
+take them out of the desired environment if the particles rise from the bottom? The results of this
+
+Numerical modeling of particles deposition in domestic floor heating systems
+Volume 11, Special Issue, Winter and Spring 2020, No. 7, 93-104
+
+95
+
+Figure 1: Comparison of particle scattering percentage in underfloor heating systems with radiator
+heating system [6]
+
+Figure 2: Comparison of particle scattering percentage on room surfaces in underfloor heating systems
+and radiator heating systems [6]
+research can be used in the best possible design of these systems, especially ventilation systems, as
+well as in the architecture and optimal design of houses.
+
+96
+
+R. Sadighi, M. Abbasalizadeh, I. Mirzaee
+
+Figure 3: Comparison of the distribution of airborne particles in underfloor heating systems and
+heating systems with radiators [6]
+2. MATERIALS AND METHOD
+Reference articles have been used to validate the analysis and modeling. In 1992, Blay et al. [7]
+examined the effect of free and forced displacement caused by underfloor heating system on room
+temperature during an experimental work. In 2018, Yuce and Pulat [8] simulated the numerical
+simulation of Blay et al. and validated their work results with it. According to Figure 4, the
+geometry used in the present simulation is taken from the article by Yuce and Pulat.
+
+Figure 4: Geometry used in numerical simulation
+As shown in Figure 4, a geometry measuring 1.04×1.04m2 with an input of 0.018 meters, an inlet
+air with a velocity of 0.57 m/s and a temperature of 288 Kelvin and an output of 0.024 meters is
+considered. The floor temperature is 308 Kelvin, the wall temperature is 288 Kelvin and the ceiling
+is isolated.
+
+Numerical modeling of particles deposition in domestic floor heating systems
+Volume 11, Special Issue, Winter and Spring 2020, No. 7, 93-104
+
+97
+
+3. SINGLE PHASE EQUATIONS
+The equations of continuity, momentum, and energy for continuous incompressible fluid and for
+the steady states are written as follows:
+∂ ūi
+=0
+∂xi
+[
+]
+∂
+1 ∂ p̄
+∂
+∂ ūi
+(ūi ūj ) = −
++
+(υ + υt )
++ gi β(T̄ − T0 )
+∂xi
+ρ ∂xi ∂xj
+∂xi
+[
+]
+∂
+∂ T̄
+∂
+(ūi ūj ) =
+(α + αt )
+∂xi
+∂xi
+∂xj
+
+Continuity equation
+
+(3.1)
+
+Momentum equation
+
+(3.2)
+
+Energy equation
+
+(3.3)
+
+In these equations, αt is the turbulence thermal diffusivity and υt is the turbulent kinematic viscosity
+and according to the work of Zhou et al. [9], the relations (3.4) and (3.5) are calculated.
+αt = υt /P rt
+
+(3.4)
+
+Cµk 2
+(3.5)
+ϵ
+These equations must be solved simultaneously using boundary conditions. Given the non-slip condition, the velocity on the walls of the room is zero. Also, the gradient of pressure on the walls of the
+room is zero and the temperature of the walls of the room is one of the known boundary conditions
+of the problem.
+υt =
+
+4. TWO PHASE EQUATIONS
+Particle motion equations are rewritten and solved by considering the average velocity of the
+discrete and continuous phase [6].
+(
+)
+−
+→
+18µCD
+ρ
+dūp
+→
+−
+→
+−
+→
+=
+Rep ( u − u p ) +
+−1 −
+g + Fa
+(4.1)
+2
+dt
+24ρp dp
+ρp
+dxp
+= up
+dt
+
+(4.2)
+
+The particle Reynolds number is calculated based on the relation (4.3) [6].
+Rep =
+
+D|u − up |
+υ
+
+(4.3)
+
+Also, the drag coefficient CD is calculated according to the particle Reynolds number of relations
+(4.4) or (4.5) [6].
+if : Rep > 1000 −→ CD = 0.44
+if : Rep ≤ 1000 −→ CD =
+
+24
+(1 + 0.15Rep0.687 )
+Rep
+
+(4.4)
+
+(4.5)
+
+98
+
+R. Sadighi, M. Abbasalizadeh, I. Mirzaee
+
+−
+→
+According to Equation (4.1), F a is effective on the motion of the particle in the continuous phase,
+which in this model includes Thermophoretic force, Saffman Lift Force, virtual mass force, pressure
+gradient force, erosion/accretion. Thermophoretic force due to the presence of temperature difference
+within the continuous phase, Saffman force due to the presence of shear stress during particle motion,
+erosion/accretion due to the possibility of particles colliding with the walls and continuous phase
+and also the accumulation of particles in the corners, are selected. All of these forces, except for the
+virtual mass force caused by the acceleration difference between the continuous and discrete phases
+for particles smaller than one micron, and the pressure difference force because they had no effect
+on the results, are used in this simulation
+5. Modeling and Solution
+As mentioned earlier, the equations of continuity, momentum, and energy must be solved simultaneously. On the other hand, in this paper, the effect of free and forced convection caused by
+underfloor heating systems in a geometry is investigated. In this case, the buoyancy and momentum
+forces will both have an effect. For this purpose, geometry has been drawn and meshed using Gambit
+software and then the model has been simulated and analyzed using Fluent 19.1 software.
+Yuce and Pulat [8] examined the mesh independency of the model in four modes, which include
+120 × 120, 160 × 160, 200 × 200 and 300 × 300 mesh sizes, and after analyzing the model, according
+to Figure 5, 160 × 160 grid size was selected as an optimal. In the present study, using the results of
+their work, according to Figure 6, 160 × 160 grid size has been used also.
+
+Figure 5: Investigating the mesh independency of the model in the work of Yuce and Pulat
+
+Numerical modeling of particles deposition in domestic floor heating systems
+Volume 11, Special Issue, Winter and Spring 2020, No. 7, 93-104
+
+99
+
+Figure 6: The mesh used in the present article
+Air density is estimated using Boussinesq approximation and other physical properties of the air
+are considered as constant. The gravity force is taken into consideration. The material of the floor
+of the room is wooden and the walls are gypsum. The SIMPLE algorithm is applied to solve the
+pressure-velocity coupling. The second order upwind discretization is used for momentum, turbulent
+kinetic energy and turbulent dissipation rate. The values of convergence for all equations is set as
+10−6 respectively. For all considered cases k − ω SST turbulence model is used.
+6. RESULTS
+After analyzing the single-phase model with the proposed boundary conditions, it is observed
+that according to Figure 8 in underfloor heating systems after air is heated in the lower levels of the
+room, due to low density moves toward the upper part of the room. It moves and returns to a low
+level after cooling and density increase. In Figure 9 (A to D) the results of the present work are
+compared and validated with experimental results [7].
+For numerical analysis of the two-phase model, particles of cotton fibers with non-spherical geometry and 0.3 shape factor, and 10−6 meters diameter, 100kg/m3 density, with a temperature of
+300 K, stagnant on floor level of the room and in the vicinity of the room air are considered with
+the pressure and temperature of the environment. After numerical analysis with the discrete phase
+model and reviewing the results, it was observed that according to Figure 9, these particles rose from
+the floor of the room and were in the air path caused by the free convection of the floor heating
+system. These particles pass through the room to the exit and a large number of them exit the
+outlet.
+In the following, the effect of particle density on their displacement is discussed. As shown in
+Figure 10, as the density increases, the concentration of the particles on the line y=0.9 gradually
+decreases, and at densities above 750kg/m3 , the parameter reaches zero, indicating that none of these
+particles are able to pass beyond the line.
+
+100
+
+R. Sadighi, M. Abbasalizadeh, I. Mirzaee
+
+Figure 7: Indicating the path of air flow inside the room with the underfloor heating system by
+velocity vectors
+
+(a)
+
+(b)
+
+(c)
+
+(d)
+
+Figure 8: Comparison of the present paper simulation results with experiment of Blay et al. [7]
+including: (A) Chart (X-T) on line y / H=0.5 (B) Chart (T-Y) on line x/L=0.5 (C) Chart (U-Y)
+on line x / L=0.5 (D) Chart (X-V) on line y / H=0.5
+
+Numerical modeling of particles deposition in domestic floor heating systems
+Volume 11, Special Issue, Winter and Spring 2020, No. 7, 93-104
+
+101
+
+Figure 9: Investigating the direction of particle motion and the direction of air movement inside the
+room
+
+Figure 10: Investigating the effect of density on particle displacement on line y = 0.9
+Among the studied densities, the density of 100kg/m3 , which is a reasonable and close to reality
+density for cotton fibers particles, is selected and the effect of particle size on its motion is investigated.
+For this purpose, diameters of 10−3 , 10−4 , 10−5 , 10−6 and 10−7 meters have been studied. After
+analysis, it is observed that among the selected diameters, only particles with a diameter of 10−6
+meters and smaller are able to cross the middle level of the room. According to Figure 11 and Figure
+12, diameters smaller than 1 micron are unable to rise and move at high levels.
+In the following, the effect of the incoming air velocity is examined. According to the results
+obtained in Figure 13 and Figure 14, it can be seen that as the inlet air velocity increases, particles
+displacement increases, and subsequently, according to Figure 14, the number of particles that exit
+the lower outlet after a certain path; increase.
+
+102
+
+R. Sadighi, M. Abbasalizadeh, I. Mirzaee
+
+Figure 11: The effect of particle diameter on the rate of rising and exiting of particles through the
+outlet
+
+Figure 12: Investigating the effect of particle diameter on their displacement
+
+Numerical modeling of particles deposition in domestic floor heating systems
+Volume 11, Special Issue, Winter and Spring 2020, No. 7, 93-104
+
+103
+
+Figure 13: Investigating the effect of incoming air velocity on the rise rate and particle moving path
+
+Figure 14: The effect of the inlet air velocity on the number of particles exiting the outlet
+7. CONCLUSIONS
+The air quality produced in heating systems is always of interest to the manufacturers and buyers
+of these systems. The main factor in the air conditioning of buildings is the lack of movement or,
+in case of movement, the rapid exit of dust particles. The presence of these particles in the air
+of homes has always caused dissatisfaction among people. With the advent of underfloor heating
+systems and the remarkable success of these systems in providing the most pleasant air temperature
+
+104
+
+R. Sadighi, M. Abbasalizadeh, I. Mirzaee
+
+for homeowners, the theory of the effect of this system on the rise of fine particles in the floor has
+been proposed. Therefore, according to the results of this paper, despite the fact that the air flow
+is not noticeable in underfloor heating systems, the effect of this very slow flow on the movement of
+particles in the air and room surfaces cannot be ignored. The results showed that the free and forced
+convection flow in the studied geometry can lift small particles in the floor of the room with a size
+of less than 1 micrometer and a density of less than 750kg/m3 and move them in certain directions.
+The space of the room makes this range of particle size, despite their very small size, can be harmful
+to human health.
+References
+[1] H. Khorasanizadeh, G.A. Sheikhzadeh, A.A. Azemati, B. Shirkavand Hadavand, 2014. ”Numerical study of air
+flow and heat transfer in a two-dimensional enclosure with floor heating”. Energy and Buildings, vol. 78, August,
+pp. 98-104.
+[2] Fangzhi Chen, Simon C.M. Yu, Alvin C.K. Lai, 2006. “Modeling particle distribution and deposition in indoor
+environments with a new drift–flux model”. Atmospheric Environment, vol. 40, pp. 357-367.
+[3] Pope.CA.III, 2000. ”Epidemiology of Fine Particulate Air Pollution and Human Health, biological mechanisms
+and who’s at risk?”. Environ Health Perspect, vol. 108, pp. 713-723.
+[4] H.-J. Moriske, M. Drews, G. Ebret, G. Menk, C. Scheller, M. Schöndube, L. Konieczny, 1996. ”Indoor air pollution
+by different heating systems: coal burning, open fireplace and central heating”. Toxicology Letters, vol. 88, pp.
+349-354.
+[5] Yanming Kang, Youjun Wang, Ke Zhong, 2011. ”Effects of supply air temperature and inlet location on particle
+dispersion in displacement ventilation rooms”. Particuology, vol. 9, pp. 619-625.
+[6] V. Golkarfard, P. Talebizadeh, 2014. ”Numerical comparison of airborne particles deposition and dispersion in
+radiator and floor heating systems”. Advanced Powder Technology, vol. 25, pp. 389-397.
+[7] D. Blay, S. Mergui, C. Niculae, 1992. ”Confined turbulent mixed convection in the presence of horizontal buoyant
+wall jet”. Fundam. Mix. Convect, pp. 65-72.
+[8] Bahadir Erman Yuce, Erhan Pulat, 2018. ”Forced, natural and mixed convection benchmark studies for indoor
+thermal”. International Communications in Heat and Mass Transfer, vol. 92, pp. 1-14.
+[9] Yu Zhou, Yelin Deng, Peng Wu, Shi-Jie Cao, 2017. ”The effects of ventilation and indoor heating systems on the
+dispersion and deposition of fine particles in an enclosed environment”. Building and Environment, vol. 125, pp.
+192-205.
+
+

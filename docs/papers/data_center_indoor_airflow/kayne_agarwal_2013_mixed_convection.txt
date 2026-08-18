@@ -1,0 +1,951 @@
+INTERNATIONAL JOURNAL OF
+
+ENERGY AND ENVIRONMENT
+Volume 4, Issue 6, 2013 pp.911-932
+Journal homepage: www.IJEE.IEEFoundation.org
+
+Computational fluid dynamics modeling of mixed
+convection flows in buildings enclosures
+Alexander Kayne, Ramesh K. Agarwal
+Department of Mechanical Engineering & Materials Science, Washington University in St. Louis,
+MO 63130, USA.
+
+Abstract
+In recent years Computational Fluid Dynamics (CFD) simulations are increasingly used to model the air
+circulation and temperature environment inside the rooms of residential and office buildings to gain
+insight into the relative energy consumptions of various HVAC systems for cooling/heating for climate
+control and thermal comfort. This requires accurate simulation of turbulent flow and heat transfer for
+various types of ventilation systems using the Reynolds-Averaged Navier-Stokes (RANS) equations of
+fluid dynamics. Large Eddy Simulation (LES) or Direct Numerical Simulation (DNS) of Navier-Stokes
+equations is computationally intensive and expensive for simulations of this kind. As a result, vast
+majority of CFD simulations employ RANS equations in conjunction with a turbulence model. In order
+to assess the modeling requirements (mesh, numerical algorithm, turbulence model etc.) for accurate
+simulations, it is critical to validate the calculations against the experimental data. For this purpose, we
+use three well known benchmark validation cases, one for natural convection in 2D closed vertical
+cavity, second for forced convection in a 2D rectangular cavity and the third for mixed convection in a
+2D square cavity. The simulations are performed on a number of meshes of different density using a
+number of turbulence models. It is found that k-epsilon two-equation turbulence model with a secondorder algorithm on a reasonable mesh gives the best results. This information is then used to determine
+the modeling requirements (mesh, numerical algorithm, turbulence model etc.) for flows in 3D
+enclosures with different ventilation systems. In particular two cases are considered for which the
+experimental data is available. These cases are (1) air flow and heat transfer in a naturally ventilated
+room and (2) airflow and temperature distribution in an atrium. Good agreement with the experimental
+data and computations of other investigators is obtained.
+Copyright © 2013 International Energy and Environment Foundation - All rights reserved.
+Keywords: Forced, natural and mixed-convection flows; Flows in building enclosures; Natural
+ventilation; CFD simulations.
+
+1. Introduction
+In the past decade, environmental concerns and the rising cost of energy have created a shift in building
+architecture towards more energy-efficient designs. The primary environmental concern has been the
+increase in greenhouse gases, due to the increasing fossil fuel consumption for electricity generation and
+transportation. Since buildings are major consumers of energy for heating, cooling, lighting, etc., an
+increase in energy efficiency of buildings will contribute towards a significant decrease in emissions. In
+2009, buildings were the second-largest energy-consuming sector in the United States (Figure 1), using
+
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+912
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+up to 33.9% of the nation’s total energy consumption. Buildings also represented 77.8% of the nation’s
+electrical energy consumption (Figure 2), 44.4% of which is generated through coal combustion (Figure
+3). Coal combustion accounted for 34.6% of the nation’s carbon dioxide emissions (Figure 4), and thus
+for 28.2% of the nation’s overall greenhouse gas emissions (Figure 5). Therefore, to reduce greenhouse
+gas emissions, there has been an emphasis on increasing the energy efficiency of buildings. Heating,
+ventilation and air conditioning (HVAC) has become an integral part of all buildings in US and in many
+parts of the world; the space conditioning now takes up to 53% of the energy consumption by the end
+user in the residential sector [1]. As a result, there is great deal of emphasis on reducing the HVAC
+consumption as well as increasing its efficiency.
+United States Energy Consumption in 2009
+
+United States Electrical Consumption in
+2009
+
+Industry
+Transportation
+Industry
+
+Buildings
+
+Transportation
+Buildings
+
+Non-Energy Use
+
+Figure 1. United States total energy usage by
+sector [2]
+Electrical Energy Production Sources in 2009
+
+Figure 2. United States electrical energy usage
+by sector [2]
+U.S. Energy-Related Carbon
+Dioxide Emissions in 2009
+
+Coal
+Petroleum
+Natural Gas
+Other Gases
+Nuclear
+
+Petroleum
+
+Hydroelectric Conventional
+Other Renew ables
+Wind
+
+Coal
+
+Solar Thermal and Photovoltaic
+Wood and Wood Derived Fuels
+Geothermal
+
+Natural Gas
+
+Other Biomass
+Pumped Storage
+Other
+
+Figure 3. United States electrical energy
+production sources in 2009 [2]
+
+Figure 4. U.S. Energy-related CO2 emissions in
+2009 [3]
+
+U.S. Greenhouse Emissions by Gas
+in 2009
+E-Related CO2
+Other CO2
+Methane
+Nitrous Oxide
+High-GWP
+Gases
+
+Figure 5. U.S. Greenhouse emissions by gas in 2009 [4]
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+913
+
+2. HVAC modeling
+Due to significant improvements in technology over the past several decades, HVAC is no longer
+considered a luxury but a basic need in most of the industrialized countries in the world. Considering that
+the average person in the United States spends over 90% of time indoors [3], coupled with the
+recognition that goods are “produced better, faster, and more economically in a properly controlled
+environment” [5], HVAC has become a vital need for both the health of the people and industrial
+productivity worldwide. Because buildings in different regions of the United States and the world have
+different heating, cooling and ventilation requirements, it is impossible to create a single energy-efficient
+and economical HVAC system that can be applied to every building. This can be seen in the
+balkanization of HVAC industries and materials, in which everything from design to position to setting
+must be carefully chosen for optimal effect. For the design of energy-efficient HVAC system and to
+assess and improve the energy efficiency of buildings, building architects and the HVAC industry are
+increasingly employing flow and heat transfer modeling software to study the flow field in building
+enclosures as well as to determine the impact of various HVAC systems on thermal comfort.
+The main objective of the research reported in this paper is to study the flow field and heat transfer in 3D
+building enclosures using computational fluid dynamics (CFD) software. For this purpose, the CFD
+software from ANSYS Inc., called FLUENT 12.1, is employed. The software is first employed to study
+the flow field in 2-D enclosures for the purpose of code validation and for determining the numerical
+requirements (mesh, algorithm accuracy, turbulence model etc.) for accurate simulations. Three cases for
+which experimental data is available are studied. These cases are: (a) a 2-D rectangular cavity with
+forced convection [6], (b) a 2-D vertical “tall cavity” with natural convection [7], and (c) a 2-D square
+cavity with mixed convection (combined forced and natural convection) [8]. After code validation with
+2-D cases, flow fields in two 3D enclosures are computed. These cases are: (a) a 3-D room with a single
+heater with natural ventilation [9] and (b) a 3-D atrium with both mixed convection and solar radiation
+(from a single external glass wall) [10].
+In the CFD calculations using FLUENT, we employ the Reynolds-Averaged Navier-Stokes (RANS)
+equations. Because of the relatively low airspeed in each case, we apply the incompressible form of the
+equations with the Boussinesq approximation to account for the buoyancy effects. The equations are
+solved using the second-order upwind SIMPLE algorithm with “PISO” scheme for pressure-velocity
+coupling. In all the studies, the computations are performed on a sequence of meshes to ascertain that the
+final solution is mesh-independent. In addition, several turbulence models, in particular the two-equation
+k-ε realizable and k-ω SST models, are employed to assess the effect of turbulence models on the
+accuracy of the solutions. The RANS equations and turbulence models (as well as the radiative heat
+transfer model) create a system of seven equations that are solved numerically which are solved using
+FLUENT. An analytical solution of these equations is impossible; therefore, an iterative numerical
+solution method is used on a mesh to approximate the partial differential equations into approximate
+algebraic equations. The linearized algebraic equations iteratively converge to the nonlinear solutions by
+employing a suitable algorithm built in FLUENT. A convergence criterion is specified to achieve an
+acceptable accuracy. When all the flow properties in all cells of the mesh reach the convergence criteria,
+the solution is considered “converged” and the iterative process ends.
+3. 2D flow field validation cases
+3.1 Simulation of forced convection in a 2-D rectangular cavity
+The 2-D model employed to study the forced convection in a rectangular cavity was studied
+experimentally by Restivo [6]. In this model, the rectangular cavity is of height H = 3 m and length L = 9
+m. An inlet slot with height h = 0.168 m is made near the upper wall of the cavity, and an outlet slot for
+air is made near the wall bottom with a height t = 0.48 m as shown in Figure 6. A steady airflow is forced
+into the cavity chamber at 0.455 m/s, introducing circulation into the cavity. The incoming air has a
+Reynolds Number of 5000, based on the inlet width, inlet velocity and ambient air conditions. It creates
+turbulent flow in the chamber. Experiments of Restivo [6] measured the streamwise velocity (u) along
+the vertical axis at x = 3 m and x = 2 m, and along the horizontal axis at y = 0.084 m and y = 2.916 m.
+Results from our calculations are presented along with the computational results of by Horikiri, Yao and
+Yao [11] and by De Villiers [12] in Figures 7-12.
+In addition to the goal of validation of CFD solver for computing the forced convection flows, one of the
+key focuses of this test case has been to determine the effect of mesh density and turbulence models on
+the accuracy of the results. For this purpose, six cases were computed. Computations were performed for
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+914
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+mesh spacing of 0.05 m, 0.01 m and 0.005 m for both k-ε realizable and k-ω SST models. These three
+meshes resulted in 10800, 270000 and 1080000 nodes.
+Figure 7 shows the comparison of our results for three mesh spacing of 0.05 m, 0.01 m, and 0.005 m
+using the k-ω SST model with the experiments of Restivo [6] and the computations of Horiki, Yao and
+Yao [11] along the line x = 3 m. Figure 8 shows the comparison of our results for three mesh spacing of
+0.05 m, 0.01 m, and 0.005 m using the k-ω SST model with the experimental results of Restivo [6] and
+the computations of Horikiri, Yao and Yao [11] along the line x = 6 m. From Figures 7 and 8, it can be
+seen that the agreement between computations and experiment improves between x = 0.7 m and x = 3 m;
+the discrepancy is larger near the wall between x = 0 m and x = 0.7 m. It can also be noted that the
+coarser mesh with a spacing of 0.05 m gives poor results.
+After determining the appropriate mesh density for accurate simulations, we studied the influence of
+turbulence models on the accuracy of solutions. Figures 9 and 10 show the computed solutions with both
+the k-ω SST and k-ε realizable models on a mesh spacing of 0.008 m at x = 3 m and x = 6 m,
+respectively, and their comparisons with the experimental data of Restivo [6] and the computations of De
+Villiers [12]. It can be seen from Figures 9 and 10 that the k-ε turbulence model gives a better agreement
+with the experimental data. Figures 9 and 10 show the velocity profiles along the x-direction at y = 0.084
+m and y = 2.916 m, respectively. Although in Figures 9 and 10 none of the models do a good job when
+compared with the data, the k-ε realizable turbulence model appears to be more accurate compared to the
+k-ω SST model.
+
+Figure 6. Geometry of the 2-D forced convection model [12]
+
+Figure 7. Comparison of present computed results for three different mesh spacing (0.05 m, 0.01 m and
+0.005 m) with experimental data of Restivo [6] and the computations of Horikiri, Yao and Yao 2011 [11]
+at x = 3 m using the k-ω SST turbulence model
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+915
+
+Figure 8. Comparison of present computed results for three different mesh spacing (0.05 m, 0.01 m and
+0.005 m) with experimental data of Restivo [6] and the computations of Horikiri, Yao and Yao 2011 [11]
+at x = 6 m using the k-ω SST turbulence model (with k-Epsilon and k-Omega SST model)
+
+Figure 9. Comparison of present CFD results (in red and dark blue) with the experimental data [6] and
+computations of de Villiers [12] (in light blue and green) at x = 3 m using the k-ε Realizable and k-ω
+SST turbulence models
+Best results with reasonable computational time are obtained on a mesh of 0.01 m spacing employing the
+k-ε realizable turbulence model. Further refinement of mesh spacing to 0.005 m increases the
+computational time significantly without significant impact on accuracy. Also, the k-ω SST turbulence
+model gives less accurate results when compared to the k-ε realizable model, especially near the vertical
+walls of the cavity.
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+916
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+Figure 10. Comparison of present CFD results (in red and dark blue) with the experimental data [6] and
+computations of de Villiers [12] (in light blue and green) at x = 3 m using the k-ε Realizable and k-ω
+SST turbulence models
+Figures 11 and 12 show the velocity profiles along the x-direction at y = 0.084 m and y = 2.916 m,
+respectively. Although in Figures 11 and 12 none of the models do a good job when compared with the
+data, the k-ε realizable turbulence model appears to be more accurate compared to the k-ω SST model.
+The simulations conducted in this section demonstrate that a suitable mesh spacing and k-ε realizable
+turbulence model can model the forced convection flow with acceptable engineering accuracy. It appears
+that better turbulence models are needed for more accurate prediction.
+
+Figure 11. Comparison of CFD Results (in red and dark blue) with experimental data [6] and
+computations of de Villiers [12] (in light blue and green) at y = 0.084 m using the k-ε realizable and k-ω
+SST turbulence models
+
+Figure 12. Comparison of CFD Results (in red and dark blue) with experimental data [6] and
+computations of de Villiers [12] (in light blue and green) at y = 2.916 m using the k-ε realizable and k-ω
+SST turbulence models
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+917
+
+3.2 Simulation of natural convection in a 2-D vertical rectangular cavity
+This model is based on an experimental study performed by Betts and Bokhari [7]. The model in their
+experiment (Figure 13) is a tall, hollow closed cavity with no inlets or outlets. The cavity has height H=
+2.18 m, width W= 0.076 m, and depth D= 0.52 m. The vertical walls (closest to one another) are polished
+aluminum plates, one heated to 288.25 K and the other at 307.85 K. The top and bottom walls are
+assumed to be adiabatic. These flow conditions correspond to a Rayleigh Number (Ra) of 8.6 x 105,
+defined as:
+Ra =
+
+g β (T h − T t ) H 3
+va
+
+(1)
+
+where Tt is the air temperature at the center of the cavity. Although the experiment was performed in 3D, the enclosure in Figure 13 can be modeled as nominally 2-D. Having established in section 3.1 that
+nearly 150000 to 700000 mesh points are sufficient to obtain reasonably accurate results, a mesh spacing
+of 0.001 m was employed in this case for acceptable accuracy without excessively increasing the
+computational time. The key goal of this study was to determine the relative accuracy of the two
+turbulence models for natural convection flow. Present computations are compared with the experimental
+data of Betts and Bokhari [7] and the computations of Zuo and Chen [13] and de Villiers [12].
+Figures 14-19 show the comparison of present computations with the experimental data of Betts and
+Bokhari [7] and with the computations of Zuo and Chen [13] and of de Villiers [12] at various locations
+in the cavity for both the velocity and temperature profiles. Unlike the forced convection case in section
+3.1, in this case the k-ω SST model gives more accurate results. While the realizable k-ε realizable model
+gives a reasonable prediction of temperature and velocity profiles in the de Villiers [12] study, the k-ω
+SST model employed in the present study gives results in closer agreement with the experimental data,
+especially in capturing the velocity peaks at various x-locations. It also gives more accurate results for
+the velocity and temperature in the y-direction (y/H = 0.05, y/H = 0.1, y/H = 0.9, and y/H = 0.95), thus
+supporting the claim in the literature that the k-ω SST turbulence model is superior in modeling the nearwall layers [14]. This case provides an excellent validation of the CFD solver for computing natural
+convection flows.
+
+Figure 13. Geometry of the 2-D vertical cavity for natural convection flow simulation [13]
+
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+918
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+y/H
+
+Figure 14. Comparisons of present computations for vertical velocity profiles using the k-ω SST and k-ε
+realizable turbulence models (in red and dark blue) with experimental data [7] and the computations of
+de Villiers [12] (in green and light blue)
+
+Figure 15. Comparisons of present computations for vertical velocity profiles at various y/H using the
+k-ε realizable turbulence model with experimental data [7]
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+919
+
+Figure 16. Comparisons of present computations for vertical velocity profiles at various y/H using the
+k-ω SST turbulence model with experimental data [7]
+
+Figure 17. Comparison of present computations for temperature profiles using the k-ω SST and k-ε
+realizable turbulence models (in light blue and red) with experimental data of [7] and the computations of
+de Villiers [12] (in green and light blue)
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+920
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+3.3 Simulation of mixed convection in a 2-D square cavity
+This case is based on the experimental study of Blay et al [8]. In this case (Figure 20), air is forced into a
+1.04 m square cavity through an inlet of length hin = 0.018 m on the chamber’s ceiling. Like the forced
+convection case of section 3.1, the air creates circulation within the chamber, and comes out through an
+outlet of length hout = 0.024 m near the floor. Also, like the natural convection case of section 3.2, the
+walls ceiling and floor are kept at different temperatures. The temperature of the sides, walls and ceiling
+is fixed at Twl = 288.15 K, while the floor is kept at Twh = 308.65 K. As a result, the air in the cavity is
+subjected to both a mixture of inertial and buoyancy forces. This case therefore represents mixed
+convection.
+The key goal of this study is again to validate the CFD solver for computing mixed convection flow, and
+to determine the relative accuracy of k-ε realizable and k-ω SST models. Figures 21 and 22 respectively
+show the vertical temperature profile in the middle of the cavity and the horizontal temperature profile in
+the middle of the cavity. In this case, present computations with the k-ε realizable model are in closer
+agreement with the experimental data, although the k-ω SST model also gives acceptable results. The
+computational results of de Villiers [12] show a greater disagreement with the experimental data.
+Figures 23 and 24 respectively show the comparison of experimental velocity contours (shown by
+arrows) with those computed by Zuo and Chen [13] using the k-ε realizable and k-ω SST turbulence
+models. It can be seen that the flow field velocity contours computed with the k-ω SST model are in
+better agreement with the experimental data.
+
+Figure 18. Comparison of present computations for temperature profiles at various y/H with the
+experiments [7] using the k-ε realizable turbulence model
+
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+921
+
+Figure 19. Comparison of present computations for temperature profiles at various y/H with the
+experiments [7] using the k-ω SST turbulence model
+
+Figure 20. Geometry of the mixed convection model [13]
+4. 3D simulation in enclosures
+4.1 Modeling air flow in a 3-D enclosure in natural ventilation
+This model is based on the experimental study of Jiang and Chen [9] to simulate the indoor environment
+of a 3-D chamber with a single outlet. In the study, a 5.16 x 3.57 x 2.18 m3 room was supplied with a
+single 1,500 W baseboard heater to generate buoyancy forces. In addition, a 0.9 x 1.80 m2 opening was
+constructed in the opposite wall to simulate fluid flow between the room and a “windless” outdoor
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+922
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+environment, thereby creating single-sided ventilation driven by buoyancy forces. Figure 25 shows the
+two views describing the floor plan of the room.
+
+Figure 21. Comparison of present computations for the temperature profile at x = L/2 using the k-ε
+realizable and k- ω SST turbulence models (in dark blue and red) with experimental data [8] and the
+computations of de Villiers [12] (in light blue and green)
+
+Figure 22. Comparison of present computations for the temperature profile at y = L/2 using the k-ε
+realizable and k- ω SST turbulence models (in dark blue and red) with experimental data [8] and the
+computations of de Villiers [12] (in light blue and green)
+
+Figure 23. Comparison of experimental velocity contours (left) [13] with present computed velocity
+contours (right) using the k-ε realizable turbulence model
+
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+923
+
+Figure 24. Comparison of experimental velocity contours (left) [13] with present computed velocity
+contours (right) using the k-ω SST turbulence model
+
+Figure 25. Floor Plan of the room in the 3-D natural convection experiment [9] (all dimensions in cm’s)
+In this study, air velocity and temperature distributions were measured with six hot-sphere anemometers
+at different heights (0.1 m, 0.5 m, 0.9 m, 1.3 m, 1.7 m, and 2.1 m from the floor) in five different
+locations (Jiang and Chan [9]) as shown in Figure 26. These devices displayed considerable uncertainty
+at air velocities of less than 0.1 m/s; temperature measurement error was 3 K. In addition, since the goal
+of the study was “to examine the overall airflow pattern in a room scale driven by buoyancy forces”
+(Jiang and Chan [9]), the heater’s surface temperature and micro-scale thermal environment was not
+measured. Figure 27 shows the 3-D geometry of the room used in the computational study.
+In the absence of the availability of detailed data from the experiment, several assumptions were made in
+the computations regarding the wall, heater and air temperatures. While the heater was modeled with the
+same dimensions (0.16 m x 0.74 m x 0.18 m) as stated in the experimental study, the temperature along
+all five exposed walls was assumed to be 350 K. The surrounding walls were assumed to be adiabatic,
+held at 300 K, and the air characteristics were assumed to be the same as those given in section 3 for the
+2-D cases. The window was assumed to be a pressure outlet with a gauge pressure of 0; the air outside
+the enclosure was assumed to be at 288 K. Based on our good experience with the k-ω SST model in the
+2-D natural convection problem described in section 3, this turbulence model was chosen for this study.
+Figure 28 shows the computed temperature contours in the room’s section that contains temperature
+probes P2, P3 and P5. As can be seen from the contours, the solution satisfies the adiabatic wall
+conditions in the room with the exception of the window outlet through which air flows through freely.
+The contours also show that aside from the air immediately surrounding the heater, temperature remains
+between 288 and 300 K. Figures 29 and 30 are the velocity vector plots in the same section that contains
+the P2, P3 and P5 probes. Both Figures 29 and 30 show qualitatively similar results inside the chamber;
+however, there is significant difference in the flow field near the ceiling. In both figures the air enters
+through the lower section of the window, moves rapidly near the floor and the wall, and circulates back
+along the ceiling to exit the room on the upper section of the outlet. The computation shows evidence of
+recirculation in the upper left corner of the room; however, unlike the Jiang and Chan [9] results, the
+airstream diverges into two distinct areas: one continues the recirculation pattern and the other moves at
+higher speed straight towards the ceiling. The reason for this behavior is currently under investigation.
+Figures 31 and 32 respectively show the comparisons of experimental [9] and computed temperature and
+velocity profiles at four of the five probe locations. The fifth probe, being outside of the room, has been
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+924
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+neglected. Since the computational model was created based on a number of assumptions due to paucity
+of information, a direct comparison with the experimental data is not possible; therefore, a qualitative
+analysis is given. The experimental temperature profiles show close resemblance with their numerical
+counterparts. Specifically, temperatures remain low near the floor and increase with height. Velocity
+profiles also show similar results, indicating an area of stagnation near the center of the room which is
+surrounded by the circulating air. Qualitatively, the experimental and computational results show similar
+trends in velocity and temperature profiles.
+
+Figure 26. Location of temperature and velocity probe positions in the vertical cross-section [9]
+
+Figure 27. Geometry of the 3-D natural convection model
+4.2 Modeling of air flow in a 3-D atrium under forced convection and solar radiation
+This test case is based on the experiments performed by Basarir [10] in the atrium of Concordia
+University’s engineering building (Figures 33-35). The atrium’s size is 12.05 m x 9.39 m x 13.02 m, and
+it contains both a supply and return vent on its east wall. The supply vent forces air at a temperature of
+288 K into the room at a speed of 4.5 m/s; the Reynolds number is 146,633 based on the floor conditions
+at the supply vent. The Reynolds number indicates that the flow is turbulent.
+The atrium’s main feature is an argon-filled double-glazed glass façade that covers the entire south wall.
+This glass façade has a transmittance of 36%, an absorptivity of 17.5%, and a thermal conductivity of
+0.0626 W/m-K and thickness of 24 mm. Noting variables such as wind speed and clear weather, the
+effective sky temperature was calculated to be 14.21° C, and the solar direction vector was calculated to
+be (-0.60, 0.69, -0.40) at the time of the experiment [10].
+
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+925
+
+Figure 28. Computed temperature contours in the 3D room at a section containing probes P2-P3-P5
+
+Figure 29. Experimental velocity vector contours inside the section containing the P2, P3, and P5 Probes [9]
+
+Figure 30. Computed velocity vector contours using the k-ω SST Model inside the section of the room
+containing the P2, P3, P5 Probes
+
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+926
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+Figure 31. Comparison of experimental (left) [9] and computed (right) results for mean air temperature
+profiles at P2, P3, P4, and P5 locations
+
+Figure 32. Comparison of experimental (left) [9] and computed (right) results for mean air velocity
+profiles at P2, P3, P4, and P5 locations
+
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+927
+
+Figure 33. Atrium of Concordia University’s Engineering Building [10]
+
+Figure 34. Dimensions of the supply and return vents on the east wall of the Atrium [10]
+
+Figure 35. Floor plan of the Atrium [10]
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+928
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+Our goal is to create a CFD model that could reproduce the experimental results; in particular, the
+temperature profile of the building at 4:00 PM on August 1, 2007 [10]. The mesh inside the atrium model
+was constructed using a mesh size of 0.125 m. This generated a mesh with 844584 nodes, necessitating a
+computationally intensive simulation. To reduce the computational time, the convergence criteria were
+reduced to 1 x 10-4. The k-ε realizable turbulence model was chosen for this case since it had proven to
+be more accurate in both the 2-D forced- and mixed Convection cases described in section 3. The
+Discrete Transfer Radiation (DTR) model was activated in FLUENT to track the effects due to solar
+radiation. It is important to note here that the glass façade cannot be opaque because it transmits the solar
+radiation inside the atrium. Therefore its material properties should be carefully taken into account in the
+CFD model.
+Figures 36 and 37 respectively show the temperature contours on the building’s façade from the Basarir’s
+[10] experimental study and the present computational study using the k-ε model. It can be noted from
+both the figures that the left side of the façade is considerably warmer than the rest of the façade. This
+means that the left side of the atrium will be warmer than the rest of the atrium due to “a wall that
+partially traps the hot air.” Furthermore, the lower right side has a considerable accumulation of cold air
+near the right wall, possibly due to the “impingement of the cool supply air on this wall.” There is also
+evidence of circulation in both the figures, particularly in the lower middle part of the room. It should be
+noted, however, that on the whole, the computational results computed with the k-ε model show lower
+temperatures than in Basarir’s experiments.
+Figures 38 and 39 respectively show the contour plots of the numerically predicted temperatures by
+Basarir [10] and by the authors of this paper at heights of 2, 6.165 and 10.25 meters above the floor.
+Once again it can be noticed that there is a considerable accumulation of cold air on the lower end of the
+west wall, and the effects of the trapped air on the east end of the façade have become more pronounced.
+Especially noteworthy are the low-temperature contours running parallel to the façade in the y = 2 plane.
+These contour plots, and the fact that they are below the supply vent, lend credence to Basarir’s claim
+that the circulation is responsible for the cool air against the east wall. Again, our computed temperature
+distribution obtained with the k-ε realizable model is cooler than that obtained by Basarir [10].
+Experimental data for this study was collected via a network of 12 thermocouples on the glass façade and
+21 additional thermocouples distributed in the interior space of the atrium. As a result, it is possible to
+compare experimental data with numerical results in greater detail as shown in Tables 1 and 2. As can be
+seen from these tables, the k-ε model yields very accurate results for the façade, particularly on the upper
+level of the building where deviation from experimental results is ~ -0.5%. The same could not be said of
+the air temperature results, as they are consistently 12-15% lower than the experimental data.
+
+Figure 36. Temperature contours in °C on the glass façade in Basarir’s Experiment [10]
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+929
+
+Figure 37. Computed temperature contours in °K on the glass façade using the k-ε realizable turbulence
+model
+
+Figure 38. Temperature contours in °C in the Atrium in y = 2, y = 6.165 and y = 10.25 planes in Basarir’s
+computations [10]
+It can be noticed from Table 2 that temperatures in the experiment and simulations are in close
+agreement. In particular, the temperatures remain low near the floor and increase with height. Velocities
+show similar trends, indicating a period of stagnation near the center of the room which is surrounded by
+the circulating air.
+
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+930
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+Figure 39. Temperature contours in °K in the Atrium at y = 2, y = 6.165 and y = 10.25 planes in the
+present computations using the k-ε realizable turbulence model
+Table 1. Temperatures on the glass façade: Comparison between experimental data [10] and present
+computations (coordinates indicate to thermocouple locations)
+GLASS HIGH
+
+Coordinates
+
+FL_G_T
+FM_G_TH
+FM_G_TL
+FR_G_T
+Average
+
+0,10.25,7.26
+0,10.9,4.22
+0.9.35,4.22
+1,10.25,1.24
+
+GLASS MID
+
+Coordinates
+
+Temperature T (°C)
+Exp.
+Num.
+34.20
+34.66
+34.90
+33.80
+33.60
+33.47
+32.80
+32.93
+33.88
+33.72
+
+∆T (°C)
+0.46
+-1.10
+-0.13
+0.13
+-0.16
+
+FL_G_M
+FM_G_MH
+FM_G_ML
+FR_G_M
+Average
+
+Temperature T (°C)
+Exp.
+Num.
+0,6.165,7.26 31.70
+34.19
+0,6.9,4.22
+34.10
+32.00
+0,5.2,4.22
+31.70
+31.56
+0,6.165,1.24 32.50
+30.45
+32.50
+32.05
+
+2.49
+-2.10
+-0.14
+-2.05
+-0.45
+
+GLASS LOW
+
+Coordinates
+
+∆T (°C)
+
+FL_G_B
+FM_G_BH
+FM_G_BL
+FR_G_B
+Average
+
+0,2.1,7.26
+0,3.05,4.22
+0,1.35,4.22
+0,2.1,1.24
+
+Temperature T (°C)
+Exp.
+Num.
+30.90
+33.33
+30.10
+31.41
+29.50
+32.63
+29.80
+28.76
+30.08
+31.53
+
+∆T (°C)
+
+2.43
+1.31
+3.13
+-1.04
+1.46
+
+Percent
+Difference
+1.3%
+-3.2%
+-0.4%
+0.4%
+-0.5%
+Percent
+Difference
+7.8%
+-6.1%
+-0.5%
+-6.3%
+-1.4%
+Percent
+Difference
+7.9%
+4.3%
+10.6%
+-3.5%
+4.9%
+
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+931
+
+Table 2. Air temperatures: Comparison between experimental data [10] and present computations
+(coordinates indicate to thermocouple locations)
+AIR HIGH
+
+Coordinates
+
+FL_R_T
+FM_R_TH
+FM_R_TL
+FR_R_T
+EW_16
+WW_16
+AA_16
+Average
+
+0.24,10.25,7.26
+0.24,10.9,4.22
+0.24,9.35,4.22
+0.24,10.25,1.24
+5.96,10.25,7
+5.78,10.25,1.05
+8.81,10.25,4.44
+
+AIR MID
+
+Coordinates
+
+FL_R_M
+FM_R_MH
+FM_R_ML
+FR_R_M
+EW_15
+WW_15
+AA_15
+Average
+
+0.24,6.165,7.26
+0.24,6.9,4.22
+0.24,5.2,4.22
+0.24,6.165,1.24
+5.96,6.165,7
+5.78,6.165,1.05
+8.81,6.165,4.44
+
+AIR LOW
+
+Coordinates
+
+FL_R_B
+FM_R_BH
+FM_R_BL
+FR_R_B
+EW_14
+WW_14
+AA_14
+Average
+
+0.24,2.1,7.26
+0.24,3.05,4.22
+0.24,3.05,4.22
+0.24,2.1,1.24
+5.96,2.1,7
+5.78,2.1,1.05
+8.81,2.1,4.44
+
+Temperature T (°C)
+Exp.
+Num.
+26.80
+23.55
+28.20
+23.44
+27.20
+22.86
+26.60
+24.00
+26.20
+22.24
+26.10
+22.98
+26.30
+23.26
+26.77
+23.19
+Temperature T (°C)
+Exp.
+Num.
+25.90
+22.52
+25.60
+21.68
+24.40
+21.69
+26.30
+21.00
+24.50
+21.39
+25.10
+21.72
+24.60
+21.61
+25.20
+21.66
+Temperature T (°C)
+Exp.
+Num.
+23.90
+21.70
+23.90
+21.49
+23.40
+21.10
+23.00
+20.53
+24.00
+20.90
+22.30
+20.77
+23.00
+21.13
+23.36
+21.09
+
+∆T (°C)
+-3.25
+-4.76
+-4.34
+-2.60
+-3.96
+-3.12
+-3.04
+-3.58
+∆T (°C)
+-3.38
+-3.92
+-2.71
+-5.30
+-3.11
+-3.38
+-2.99
+-3.54
+∆T (°C)
+-2.20
+-2.41
+-2.30
+-2.47
+-3.10
+-1.53
+-1.87
+-2.27
+
+Percent
+Difference
+-12.1%
+-16.9%
+-15.9%
+-9.8%
+-15.1%
+-11.9%
+-11.6%
+-13.4%
+Percent
+Difference
+-13.1%
+-15.3%
+-11.1%
+-20.1%
+-12.7%
+-13.5%
+-12.2%
+-14.1%
+Percent
+Difference
+-9.2%
+-10.1%
+-9.8%
+-10.7%
+-12.9%
+-6.8%
+-8.1%
+-9.7%
+
+5. Conclusions
+The goal of the work presented in this paper has been to assess the modeling requirements and accuracy
+of CFD computations using RANS equations for forced-, free- , and mixed- convection flows in 3-D
+building enclosures. The CFD simulation software FLUENT 12.1 is employed for this purpose. In order
+to determine the modeling requirements and accuracy of the RANS simulations, the experimental test
+data is used for validation of computation.
+The 2-D simulation cases served as the validation cases for the CFD software and provided guidelines
+about the mesh size and turbulence models that should be employed for obtaining solutions of acceptable
+engineering accuracy.
+A 3-D room with natural ventilation was modeled; this configuration corresponds to the experimental
+model studied by Jiang and Chen [9]. The computations for velocity and temperature profiles in various
+regions of the room showed reasonable agreement with the experimental data. Detailed quantitative
+comparisons could not be obtained because of lack of detailed information about the flow conditions and
+other parameters from the experiment (e.g. the information about the surface heater temperature).
+Nevertheless, the CFD simulations were satisfactory. As another example, the 3D flow field inside an
+atrium was computed; the experimental data for the atrium was obtained from Basarir [10]. This flow in
+the atrium represents a mixed convection flow with solar radiation. Good comparison between the
+computation and experiment was obtained for the velocity and temperatures inside the atrium. The
+
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+932
+
+International Journal of Energy and Environment (IJEE), Volume 4, Issue 6, 2013, pp.911-932
+
+maximum discrepancy between the computations and experiments was 10-15%, depending on the region
+inside the atrium. In many parts of the atrium, the agreement between computation and experiment was
+excellent, within 0.5% of each other. It is surmised that a finer mesh will improve the accuracy of CFD
+predictions in regions where there is greater discrepancy.
+In summary, it is demonstrated in this paper that CFD can model the flow field and heat transfer in
+building enclosures quite accurately with a proper choice of mesh density and the turbulence model.
+References
+[1] Pérez-Lombard, L., Ortiz J., and Pout, C., 2008, “A Review on Buildings Energy Consumption
+Information,” J. of Energy and Buildings, Vol. 40, pp. 394-398.
+[2] International Energy Agency, 2011, “Energy Balances of OECD Countries.”
+[3] U.S. Environmental Protection Agency, 1995, “The inside Story: A Guide to Indoor Air Quality,”
+Washington D.C., accessed by Web. on 4 Apr 2012, <http://www.epa.gov/iaq/pubs/insidestory.html
+[4] U.S. Energy Information Administration, “Summary Statistics for the United States, 1999-2010,”
+Washington D.C., 2010, accessed by Web. on 13 Mar 2012, http://205.254.135.7/electricity/annual
+[5] McQuiston, F., Parker, J., and Spitler, F., 2005, Heating, Ventilating, and Air Conditioning:
+Analysis and Design, John Wiley and Sons.
+[6] Restivo, 1999, “A Turbulent Flow in Ventilated Rooms” PhD dissertation, University of London,
+U.K.
+[7] Betts, P.L. and Bokhari, I.H., 2000, “Experiments on Turbulent Natural Convection in an Enclosed
+Tall Cavity,” International Journal of Heat and Fluid Flow, Vol. 21, pp. 675-683.
+[8] Blay, D., Mergui, S. and Niculae, C., 1992, “Confined Turbulent Mixed Convection in the
+Presence of a Horizontal Buoyant Wall Jet,” in Fundamentals of Mixed Convection, ASME HTD,
+Vol. 213, pp. 65-72.
+[9] Jiang, Y. and Chen, Q., 2003, “Buoyancy-Driven Single-Sided Natural Ventilation in Buildings
+with Large Openings,” International Journal of Heat and Mass Transfer, Vol. 46, pp. 973-988.
+[10] Basarir, M., 2009, “Numerical Study of the Airflow and Temperature Distributions in an Atrium,”
+M.S thesis, Queen’s University, Canada.
+[11] Horikiri, K., Yao, Y. and Yao, J., 2011, “Numerical Simulation of Convective Airflow in an
+Empty Room,” International Journal of Energy and Environment, Vol. 5, pp. 574-581.
+[12] de Villiers, E., 2010, “Climate Control and HVAC Simulation for Occupied Spaces:
+Implementation and Validation,” presented at the 5thOpenFOAM Workshop, Chalmers
+University, Gothenburg, Sweden, 21 Jun 2010.
+[13] Zuo, W. and Chen, Q., 2009, “Real Time or Faster-than-Real-Time Simulation of Airflow in
+Buildings,” Indoor Air, Vol. 19, pp. 33-34.
+[14] Menter, F.R., Kuntz, M., and Langtry, R., 2003, “Ten Years of Industrial Experience with the SST
+Turbulence Model,” Turbulence, Heat and Mass Transfer, Vol. 4.
+Alexander Kayne received M.S in Mechanical Engineering from Washington University in St. Louis in
+2011. His research interests include applications of heat transfer, thermodynamics and fluid mechanics
+to study the HVAC systems and energy efficiency of buildings by numerical simulations.
+E-mail address: akayne@wustl.edu
+
+Ramesh K. Agarwal received PhD in Aeronautical Sciences from Stanford University in 1975. His
+research interests are in the theory and applications of Computational Fluid Dynamics (CFD) to study
+the fluid flow problems in aerospace and renewable energy systems. He is currently the William Palm
+Professor of Engineering in department of Mechanical Engineering and Materials Science at
+Washington University in St. Louis, MO, USA. He is a Fellow of ASME, AIAA, IEEE, and SAE.
+E-mail address: rka@wustl.edu
+
+ISSN 2076-2895 (Print), ISSN 2076-2909 (Online) ©2013 International Energy & Environment Foundation. All rights reserved.
+
+
