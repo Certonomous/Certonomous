@@ -238,3 +238,190 @@ document, so this document can still be diffed against its own commit.
 - **No solve has run.** The header's prohibition is unchanged. Arming a
   reference column is not a grade, and the rung is VALIDATED-ELIGIBLE on two
   rows rather than VALIDATED on any.
+
+---
+
+## 7. Acquisition addendum, appended 2026-08-18 (W-4: nothing above is edited)
+
+Zero compute. No solver launched. Two of §4's three NOT OBTAINED rows were the
+subject of an acquisition attempt; both attempts succeeded as acquisitions, and
+they came back with opposite results. **Neither changes a tier and neither
+writes a gate row.** §3.2 is untouched and rung K2c-B remains without gate rows.
+
+### 7.1 Wibron et al. 2019 was obtained, and §1's expectation about it was wrong
+
+**Obtained, READ IN FULL.** Wibron, E., Ljung, A.-L., Lundström, T.S. (2019).
+*Comparing Performance Metrics of Partial Aisle Containments in Hard Floor and
+Raised Floor Data Centers Using CFD.* **Energies** 12(8), 1473. DOI
+`10.3390/en12081473`, CC BY. 17 pages. Filed at
+`docs/papers/wibron_ljung_lundstrom_2019_en12081473.{pdf,txt}`, SHA-256
+`7abb37039d23aab8e0119aab9592ec446decab4e5766e0862d0f5dac2033c4bb`.
+
+**The route §1 predicted does not exist, and that is worth recording before the
+content.** §1 said *"a DiVA route likely exists as for the 2018 paper"*. The
+Luleå DiVA record does exist, `urn:nbn:se:ltu:diva-74676` /
+`diva2:1326523`, and it is **metadata only**: no `FULLTEXT01` attachment,
+`ltu.diva-portal.org/smash/get/diva2:1326523/FULLTEXT01.pdf` returns HTTP 404,
+and a scan of the fetched record page for any `get/` or `FULLTEXT` link returns
+nothing. The 2018 route does not generalise across one publisher and one
+research group. **The copy was obtained from the MDPI content host instead**,
+`mdpi-res.com/d_attachment/energies/energies-12-01473/article_deploy/energies-12-01473.pdf`,
+HTTP 200, 4,070,311 bytes. `www.mdpi.com` still returns **HTTP 403** to this box
+on the same article, so the 403 recorded in §1 is a property of the front-end
+host and not of MDPI.
+
+**§1's recorded expectation, quoted: *"this session found no indication either
+contains raised-floor measurements, but neither full text was read, so that is
+an expectation, not a finding."* The expectation is now a finding, and it is
+false.** The paper carries raised-floor measurements, taken in an operating
+facility, with the instrument and its accuracy stated.
+
+**The facility is not the same room as §2's.** The 2019 study is **Module 2**
+at RISE SICS North / SICS ICE, 6.484 x 7.000 x 3.150 m3 (p. 3, §2.1). The 2018
+primary this campaign already holds is **Module 1**, 5.084 x 6.484 x 3.150 m3.
+Same facility, different rooms, different rack counts and different boundary
+conditions. **The two references may not be combined into one facility model**,
+and a rung that graded a Module 1 geometry against a Module 2 measurement would
+be comparing two rooms.
+
+**What it measures, with the locator for each:**
+
+| Measured quantity | Where | Instrument and stated accuracy |
+| --- | --- | --- |
+| **Face velocity through all 14 perforated tiles**, raised floor, supply 18.3 degC | **Table 2, p. 5** | TSI DP-CALC Micromanometer Model 8715 with the Velocity Matrix add-on kit, area-averaged multi-point face velocity, each tile divided into five regions (§2.2, p. 4). **Plus or minus 3 percent of reading plus or minus 0.04 m/s** over 0.25 to 12.5 m/s |
+| **Velocity profiles, raised floor with open aisles**, five locations L1 to L5, five heights each (0.6, 1.0, 1.4, 1.8, 2.2 m) | **§2.3, p. 6; plotted against CFD in Figure 4b, p. 9** | Dantec ComfortSense Mini with the 54T33 omnidirectional draught probe. **Plus or minus 2 percent of reading plus or minus 0.02 m/s** over 0.05 to 1 m/s, **plus or minus 5 percent of reading** over 1 to 5 m/s. 60 s duration at 10 Hz |
+| CRAH inlet velocities, hard floor, four units | Table 1, p. 4 | as Table 2; each front side divided into 15 measurement zones |
+| Per-rack mass flow rate and heat load, raised floor, R1 to R10 | Table 3, p. 5 | derived from measured server load; the correlation is the paper's Equation (1) |
+| Supply temperature, both configurations | §2.2, p. 4 | Kimo VT100 hot-wire thermo-anemometer, plus or minus 0.4 percent of reading plus or minus 0.3 degC. **18.3 degC**, stated independent of location |
+
+**Table 2 as read, with the increment carried through per tile.** Values are
+verbatim from p. 5; the increment is this campaign's arithmetic on the paper's
+own stated accuracy, `0.03 * v + 0.04` m/s, and nothing else:
+
+| Tile | Face velocity (m/s) | Increment (m/s) | Tile | Face velocity (m/s) | Increment (m/s) |
+| --- | --- | --- | --- | --- | --- |
+| T1 | 1.197 | plus or minus 0.0759 | T8 | 1.309 | plus or minus 0.0793 |
+| T2 | 1.358 | plus or minus 0.0807 | T9 | 1.377 | plus or minus 0.0813 |
+| T3 | 1.540 | plus or minus 0.0862 | T10 | 1.512 | plus or minus 0.0854 |
+| T4 | 1.228 | plus or minus 0.0768 | T11 | 1.529 | plus or minus 0.0859 |
+| T5 | 1.220 | plus or minus 0.0766 | T12 | 1.188 | plus or minus 0.0756 |
+| T6 | 1.593 | plus or minus 0.0878 | T13 | 1.206 | plus or minus 0.0762 |
+| T7 | 1.594 | plus or minus 0.0878 | T14 | 1.455 | plus or minus 0.0837 |
+
+Fourteen tiles, 1.188 to 1.594 m/s, mean 1.3790 m/s; the increment runs 5.5 to
+6.4 percent of reading across the set. The spread across tiles, a factor of
+1.34 between the slowest and the fastest, is the quantity a plenum solve would
+have to reproduce, and the paper attributes it to the uneven rack loads of
+Table 3 and to under-floor geometry (p. 5).
+
+**What it does NOT carry, stated as plainly as what it does: no measured
+rack-inlet temperature.** §3.2 (p. 8) states the choice in the authors' own
+words: *"velocity was chosen as the means of comparison."* The only measured
+temperature anywhere in the paper is the 18.3 degC supply. The **"Rack intake
+temperatures"** of Figures 8, 10 and 11 are **simulation outputs** compared
+across containment setups, and they carry no experimental bar. A reader who
+took Figure 8 for a measurement would be reading a CFD result as an experiment.
+
+**What this unblocks, and what it does not:**
+
+| K2c-B half | State before | State after |
+| --- | --- | --- |
+| **Perforated-tile flow** | NOT OBTAINED; every candidate paywalled | **A measurement primary is now in this repository**, tabulated, per tile, with a stated instrument and a stated accuracy. **Usable as a referent only by a rung that SOLVES the under-floor plenum and predicts the per-tile split** |
+| **Rack-inlet temperature** | NOT OBTAINED | **NOT OBTAINED, unchanged.** No candidate is discharged. Schmidt and Cruz 2002, `10.1109/itherm.2002.1012507`, remains the exact-quantity candidate and remains paywalled |
+
+**The caveat that governs how Table 2 may be used, and it is a section 7
+caveat.** In the source these fourteen velocities are **imposed boundary
+conditions**, not predicted quantities: §2.2 (p. 4) states the tiles were
+modelled as fully open with these measured velocities applied, and §2.1 (p. 4)
+states *"the under-floor space was not taken into account in the
+simulations."* **A lab rung that imposed Table 2 and then reported agreement
+with Table 2 would be an identity**, of exactly the class
+`docs/VALIDATION_INVENTORY.md` §7 censuses: the reference and the measurement
+would share a parent. The values are a referent for a rung that predicts the
+split from a plenum solve, and for nothing else.
+
+**K2a §2.2, tile-momentum arbitration: partly, and SECONDARY.** Wibron 2019
+p. 4 states, citing **Abdelmaksoud et al. 2010** (their reference [21], which is
+one of this campaign's eight NOT OBTAINED primaries), that *"a fully open tile
+model is however regarded to be adequate for tiles if the percentage of open
+area is 50 percent or more"*, and records that the facility's tiles are **56
+percent and 77 percent open**, both above that line. **Tier SECONDARY**: the
+claim was read in a full text that attributes it elsewhere, the chain is stated,
+and the underlying measurement is still NOT OBTAINED. It is admissible as a
+warrant for a modelling choice and is not a reference value.
+
+**Effect on the purchase list, which is the practical result.** §4's first row
+named *"read Wibron et al. 2019 first, at zero cost"* as step (1) before any
+paid acquisition. **Step (1) is now discharged, and it changes what is worth
+buying.** The tile-flow candidates (Schmidt et al. 2004, Arghode and Joshi 2014,
+VanGilder and Schmidt, Karki et al. 2003) are no longer the only route to a
+tile-flow referent. The **rack-inlet-temperature** candidates are, and Schmidt
+and Cruz 2002 names that exact quantity in its title.
+
+**No gate row is written here, and §3.2 stands.** K2c-B has no gate rows and
+this addendum writes none: half a reference is not half a rung, and the rung
+specification that would predict a tile split does not exist and is the owner's.
+A reference column is armed for that rung when it is written; per the K2c-A
+precedent, **arming a reference column is not a grade**, and nothing in this
+section moves any tier.
+
+### 7.2 Hamann et al. 2012 was obtained, read, and does NOT support a gate row
+
+**Obtained, READ IN FULL.** Hamann, H. (PI), Klein, L., et al. *Recovery Act: A
+Measurement - Management Technology for Improving Energy Efficiency in Data
+Centers and Telecommunication Facilities.* Final Technical Report, Award
+DE-EE0002897, IBM T.J. Watson Research Center, report dated 06/28/2012. DOE/OSTI
+DOI `10.2172/1044604`. Fetched from `osti.gov/servlets/purl/1044604`, HTTP 200,
+1,440,705 bytes, 27 pages. Filed at
+`docs/papers/hamann_klein_2012_osti_1044604.{pdf,txt}`, SHA-256
+`aa8ceaafbcdc68f83bc9aeaacef9cba56e938449be02029b14936bbb035cbeb1`. The PDF's
+own `Title` metadata field reads *"A Statistical Model for Data-Center
+Temperatures"*, which is **not this document's title**; recorded so that a later
+reader does not lift the metadata as the citation.
+
+**The answer is no, and the deferral in §1 was right.** §1 filed it as *"a
+program final report of unknown data quality, deferred rather than skimmed"*.
+Read in full, it is a program final report on the **MMT** platform: sensing
+hardware, statistical zone mapping, software development, commercialization and
+projected energy savings. **It contains no reference value this campaign, or
+any campaign, can gate on.**
+
+| What was looked for | What is there |
+| --- | --- |
+| Tabulated rack-inlet temperatures | **None.** Every thermal result is a figure: Fig 8 (S-curve vertical inlet profiles at ten air-conditioner settings), Fig 9 (statistical fitting), Fig 10 (thermal zones), Figs 14 and 15 (thermal scans at 0.5 ft and 5.5 ft). No values, no coordinates, no sensor accuracy, no facility geometry, no boundary conditions |
+| Tile flow rates | **None per tile.** The nearest number is Appendix A, p. 24: *"the targeted air flow was 83 percent ... the percentage of air from ACU that is passing through the perforated tiles"*, one facility-level figure with no uncertainty, no tile count and no tile geometry |
+| A validated CFD comparison | **None quantitative.** §2.1 (p. 14) describes a deliberately **reduced-order** real-time model whose complexity is *"traded"* against measurement data, running *"in less than 2 seconds"* over a 50 kft2 facility. Its one validation, Fig 7, is the qualitative statement that predicted and measured cooling-zone maps *"are overlapping"*. No metric, no deviation, no band |
+| Anything tabulated at all | Four tables, all energy and money: Table 1 (savings at three field test sites, kW / MWh per year / dollars per year), Table 2 (achievable savings), Table 3 (economic projection to 2035), Table 4 (power in kW and DCIE before and after) |
+
+**And a measured reason the caution was warranted.** Appendix A, p. 24, states:
+*"in more than 8 locations, the rack inlet temperature was higher than the
+ASHRAE recommended upper temperature value of 80 degC."* **The unit is wrong by
+the report's own subject matter.** §5 of this document already records the
+ASHRAE recommended rack-inlet envelope as **18 to 27 degC** (SECONDARY, via
+Wibron 2018 p. 2); 80 degC is 53 degC above that upper limit and would destroy
+the equipment it is describing. The figure is consistent with **80 degF**, which
+is 26.7 degC and sits within a tenth of a degree of the recorded 27 degC upper.
+**The one rack-inlet number this report states, it states in the wrong unit.**
+That is the demonstration, rather than the assertion, that "unknown data
+quality" was the correct classification, and it is the reason nothing here
+should be cited loosely.
+
+**Effect on §4.** The third NOT OBTAINED row, *"Hamann et al. DOE final report
+content, OA but unread"*, is **DISCHARGED as an acquisition and CLOSED as a
+candidate**. Its "which rung it blocks" column already read *"nothing yet, no
+rung is built on it"*, and that is now a finding rather than a status: it blocks
+nothing, it can arm nothing, and **no later rung should spend a fetch on it
+again**. A negative result is worth the fetch precisely here, because the row as
+written would otherwise have invited the same fetch every time the list was
+re-read.
+
+### 7.3 What still stands after this addendum
+
+- **§3.2 is untouched.** Rung K2c-B has no gate rows and none are written here.
+  Any tile-supply solve is TREND-ONLY however well it converges.
+- **No tier moved and no chip changed.** K2c-A is still VALIDATED-ELIGIBLE on
+  two rows and VALIDATED on none.
+- **No solve has run.** The header's prohibition is unchanged.
+- Of §4's three rows: the first (any raised-floor primary) is **partly
+  discharged on its tile-flow half and untouched on its rack-inlet half**; the
+  second was discharged by the digitization addendum; the third is **closed**.

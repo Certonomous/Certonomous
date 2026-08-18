@@ -777,3 +777,132 @@ verdict once it is there.
   maintained by the lab rather than by this audit.
 - `docs/campaigns/F14-cooling-ladder/README.md`. The model for what a campaign
   record should look like, and the only one using the NOT OBTAINED convention.
+
+---
+
+## 10. Addendum, appended 2026-08-18 (W-4: nothing above is edited). Three of section 8's zero-cost actions were executed, and two of this page's own statements are corrected
+
+Zero compute. No solver launched. This addendum records what changed on the
+rows above and, first, what this page got wrong, because a correction buried
+under a result is a result presented as a clean sweep.
+
+### 10.1 Two statements above are corrected by artifacts this sweep could not read
+
+Both corrections come from `mission-output/`, which is gitignored, and section
+1.3 of this page states in advance that the raw evidence for nearly every gate
+sits there and was not read. **The corrections are what that disclosure was
+for.**
+
+| Where | What this page says | What the artifact says |
+| --- | --- | --- |
+| Section 3.1 row 7 and section 7.2, NASA hump | *"No band is printed in the table and **no threshold exists that a larger miss would have crossed**"* | The first clause was true and is now repaired. **The second clause is wrong.** `mission-output/nasa-hump/transcript.txt:14-17`, in a block headed *"What would falsify this, fixed before the solve"*, pre-registers a separation station of x/c 0.665 falsified outside x/c 0.632 to 0.698 (**plus or minus 5 percent**) and a reattachment station of x/c 1.100 falsified outside x/c 0.880 to 1.320 (**plus or minus 20 percent**, named as *"the documented closure bias"*). Measured +13.9 percent is inside it; **a miss past x/c 1.320 would have crossed it.** Row 7 is a gate that could have failed and did not, rather than a chip with no threshold under it |
+| Section 3.1 row 1, cylinder Strouhal | The row is graded PASS at 0.77 percent | **The act declared its own gate at 0.70 percent** (`mission-output/cylinder-vortex-shedding/transcript.md:5`). 0.77 exceeds it. The PASS was decided by `scripts/gate_table.py:_tolerance_verdict`'s own default limit of 5.0 percent, because the act's transcript carries no `Verdict:` line. **Against the band the act declared for itself, this row does not pass.** Not changed here: a verdict change is the owner's. Filed |
+
+### 10.2 Section 8 item 1, NACA Report 1191, executed: NOT SUPPORTED
+
+The report was obtained from the NASA Technical Reports Server, retained at
+`docs/papers/roshko_1954_naca_tr_1191.{pdf,txt}`, SHA-256
+`7f395ab8ba11f21007dc6f7a84504a2c7ce542c2ed54674d07540ce21db008b4`, 28 pages.
+
+**Printed page 11, section "Relation of Shedding Frequency to Drag":** Roshko
+gives **(2a) `S = 0.212(1 - 21.2/R)` for `50 < R < 150`** and **(2b)
+`S = 0.212(1 - 12.7/R)` for `300 < R < 2,000`**, corresponding to the fits
+(1a) `F = 0.212R - 4.5` and (1b) `F = 0.212R - 2.7` of his figures 9 and 10, and
+the ranges are named on the same page as the stable range 40 to 150, the
+transition range 150 to 300 and the irregular range 300 to 10,000 plus.
+
+**Re 100 is in the stable range, so (2a) governs, and (2a) is the form the code
+comment already cites.** The form the gate evaluates,
+`St = 0.198(1 - 19.7/Re)` at `sdk/workflows/_exact_theory.py:260`, **is not in
+the report in any range**: `grep -c '0\.198\|19\.7'` over the extracted text
+returns 0 against a positive control of 8 for `21\.2\|0\.212`.
+
+**What that does to the gate as it is written.** Against (2a),
+`0.212 * (1 - 21.2/100) = 0.167056`, and the act's measured 0.1578 sits at
+**-5.54 percent**. Against the form used, `0.198 * (1 - 19.7/100) = 0.158994`,
+it sits at -0.75 percent from the printed four-digit values and is reported as
+0.77 percent from the unrounded solve. The two forms disagree by **4.83
+percent** at this Reynolds number, which is between six and seven times the
+act's own passing margin. **The reference cell and the citation beside it name
+two different curves, and the row passes against the one with no source.**
+
+**Not re-graded here.** The proposal that filed this reading asks for a regrade
+on NOT SUPPORTED and says a miss is published as a miss; that is correct and it
+is a verdict change, which this session was instructed not to make and which is
+the owner's. What was done instead is the repair the charter already mandates:
+the surface now carries the referent, its class and the band, and act 1's cell
+states that the constants in its reference are in no cited source. Docket D12
+amended; D13 unblocked and left unexecuted for the same reason.
+
+**A third defect, found while fetching.** The NTRS link in
+`sdk/workflows/cylinder_vortex_shedding.py:22`, `ntrs.nasa.gov/citations/19930091905`,
+**resolves to NACA Report 828** (Stowell, Schwartz and Houbolt 1945, on
+cantilever-beam bending), not to Report 1191, which is `19930092207`. Confirmed
+by fetching the record and by reading the downloaded PDF's title page. Filed.
+
+### 10.3 Section 8 item 3's zero-cost precondition, Wibron et al. 2019, executed: it does carry raised-floor measurements
+
+Section 6 named this as *"the first place to look before paying for any
+paywalled raised-floor candidate"*, and the campaign record recorded the
+expectation that it holds no raised-floor measurements as **an expectation, not
+a finding**. **The expectation is now a finding and it is false.**
+
+Obtained, READ IN FULL, filed at
+`docs/papers/wibron_ljung_lundstrom_2019_en12081473.{pdf,txt}`, SHA-256
+`7abb37039d23aab8e0119aab9592ec446decab4e5766e0862d0f5dac2033c4bb`. **The DiVA
+route this page's section 6 assumed does not exist** for this article: the Luleå
+record `urn:nbn:se:ltu:diva-74676` is metadata only and its `FULLTEXT01` returns
+HTTP 404. The copy came from the MDPI content host `mdpi-res.com`, HTTP 200,
+while `www.mdpi.com` still returns 403 to this box.
+
+It carries **Table 2, p. 5**, measured face velocities through all fourteen
+perforated tiles of a raised-floor room, 1.188 to 1.594 m/s, instrument and
+accuracy stated (plus or minus 3 percent of reading plus or minus 0.04 m/s), and
+**Figure 4b, p. 9**, measured velocity profiles at five locations and five
+heights for the raised-floor configuration. It carries **no measured rack-inlet
+temperature**: section 3.2 states *"velocity was chosen as the means of
+comparison"*, and the *"Rack intake temperatures"* of its Figures 8, 10 and 11
+are simulation outputs. Its facility is **Module 2** at SICS ICE, a different
+room from the **Module 1** of the 2018 primary this lab already holds, so the
+two references may not be combined into one facility model.
+
+**Effect on section 6's largest row.** K2c-B's tile-flow half now has a
+measurement primary in this repository; its rack-inlet-temperature half is
+**NOT OBTAINED, unchanged**. The eight-paper purchase list is not discharged and
+its priority changes: Schmidt and Cruz 2002 names the quantity that is still
+missing. **No gate row was written**, because in the source those fourteen
+velocities are imposed boundary conditions and the paper models no plenum: a
+rung that imposed Table 2 and reported agreement with Table 2 would be a section
+7 identity. Full record in the campaign's own file, section 7.1.
+
+### 10.4 The Hamann DOE report, recorded as obtainable but unread, executed: it supports no gate row
+
+Obtained, READ IN FULL, filed at
+`docs/papers/hamann_klein_2012_osti_1044604.{pdf,txt}`, SHA-256
+`aa8ceaafbcdc68f83bc9aeaacef9cba56e938449be02029b14936bbb035cbeb1`, 27 pages,
+from `osti.gov/servlets/purl/1044604`.
+
+**It is a program final report on a sensing and software platform, its
+commercialization and its projected savings, and it contains no reference value
+any campaign can gate on.** Every thermal result is a figure with no values, no
+coordinates, no sensor accuracy and no boundary conditions; its four tables are
+energy and money; its CFD content is an explicitly reduced-order real-time model
+whose one validation is the qualitative statement that two cooling-zone maps
+*"are overlapping"*. **And the deferral was right for a demonstrable reason:**
+its Appendix A states that rack inlet temperatures exceeded *"the ASHRAE
+recommended upper temperature value of 80 degC"*, where the recommended upper
+limit is 80 degF, 26.7 degC. The one rack-inlet number the report states, it
+states in the wrong unit.
+
+**This is a negative result and it is worth the fetch.** The row is closed
+rather than left open, so no later rung spends the same fetch on the same
+document.
+
+### 10.5 What this addendum did not do
+
+- **No tier and no verdict moved.** Not one chip changed on any record.
+- **No solve ran.**
+- Section 8's items 2 (the CRM qualifier) and, in part, 4 (declare the bands)
+  were executed on the nine-act table only, by making that surface carry the
+  referent, its class and the band. **The eleven other rows section 8 item 4
+  names are untouched.**

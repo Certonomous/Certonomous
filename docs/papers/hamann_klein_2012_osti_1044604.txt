@@ -1,0 +1,1178 @@
+                           Final Technical Report
+
+Project Title:                Recovery Act: A Measurement – Management
+                              Technology for Improving Energy Efficiency in Data
+                              Centers and Telecommunication Facilities
+
+Award Number:                 DE-EE0002897
+
+Project Period:               01/31/2010 – 03/31/2012
+
+
+
+Technical Contact:            PI: Hendrik Hamann, 914-945-2430,
+                              hendrikh@us.ibm.com,
+
+Technical Contact:            Levente Klein, 914-945-3698
+                              IBM TJ Watson Research Center,
+                              kleinl@us.ibm.com
+
+Business Contact:             Same as Technical Contact
+
+DOE Project Officer:          Debo Aichbhaumik, 720-356-1423,
+                              debo.aichbhaumik@go.doe.gov
+DOE Project Monitor:          Chad Sapp, 720-356-1302,
+                              chad.sapp@go.doe.gov
+DOE HQ Contact:               Bob Gemmer, 202-586-5885,
+                              Bob.gemmer@ee.doe.gov
+DOE Contract Specialist:      Christina Kouch, 720-356-1674,
+                              christina.kouch@go.doe.gov
+
+Recipient Organization:       IBM TJ Watson Research Center
+                              1101 Kitchawan Road
+                              Yorktown Heights, NY 10598
+
+Date of Report:               06/28/2012
+
+
+
+
+                                                                                   1
+Acknowledgement: This report is based upon work supported by the US
+Department of Energy under Award No DE-EE0002897
+
+Disclaimer: ”Any findings, opinion, and conclusion or recommendation expressed
+in this report are those of the author(s) and do not necessarily reflects the views
+of the Department of Energy”
+
+
+
+
+Document Availability: Reports are freely available via the U.S. Department of Energy
+(DOE) Information Bridge Website: http://www.osti.gov/bridge
+
+Reports are available to DOE employees, DOE contractors, Energy Technology Data
+Exchange (ETDE) representatives, and Informational Nuclear Information System (INIS)
+representatives from the following source:
+
+       Office of Scientific and Technical Information
+       P.O. Box 62
+       Oak Ridge, TN 37831
+       Tel: (865) 576-8401
+       FAX: (865) 576-5728
+       E-mail: reports@osti.gov
+       Website: http://www.osti.gov/contract.html
+
+
+
+                                                                                        2
+Table of Content
+
+List of Acronyms……………………………………………………………………………….4
+List of Figures……....…………………..…………………………………………………….5
+List of Tables…………………………………….……………………………………………...5
+Summary………………………………………...……………………………………………….6
+Introduction……………...……………………………………………………………………...7
+Background……………….……………………………………………………………………..8
+
+Results…………………………..……………………………………………………………….9
+
+1. MMT Technology Development…..…………………………………………………...10
+     1.1 Corrosion Sensors………………..………………………………...…………..10
+     1.2 Power Sensors……………………….…..……………………………..………..13
+
+2. MMT Modeling Technologies…………………………………………………………….14
+       2.1 Computational Fluid Dynamics modeling………….....………………………..14
+       2.2 Statistical Thermal Zone Mapping……………………...………………….…...15
+       2.3 A Spatio-Temporal Prediction Model………………………………………….17
+3. Software development……..……………………………………………………….…….17
+4. Commercialization……………………………..……………………………………..……18
+5. Benefit assessment………………………………………………………………………..19
+
+6. Accomplishments……………………………….….………………………………….20
+      6.1 Publications and Presentations…………………………………………………20
+      6.2 Patents and Disclosures…………..…………………………………………….22
+
+Conclusions………….………………………………………………………………………...23
+Appendix A…………….......…………………………………………………………………..24
+References…………………………………………………………………………………..…27
+
+
+
+
+                                                                     3
+List of Acronyms
+Å        Angstrom
+AC       Alternating Current
+ACU      Air Conditioning Unit
+ASHRAE   American Society of Heating, Refrigerating and Air Conditioning
+         Engineers
+CCB      Collection Computer Board
+CDU      Cooling Distribution Unit
+CFD      Computational Fluid Dynamics
+CRAC     Computer Room Air Conditioning
+DC       Data Center
+DCIE     Data Center Infrastructure Efficiency
+IT       Information Technology
+LBNL     Lawrence Berkley National Laboratory
+MMT      Measurement and Management Technology
+PDE      Partial Differential Equation
+PCB      Printed Circuit Board
+SPB      Signal Processing Board
+TF       Telecom Facility
+VHO      Video Hub Office
+
+
+
+
+                                                                           4
+List of Figures
+Fig 1 Wireless sensing layout at a telecom facility……….……………………………….10
+Fig 2 Silver corrosion sensor………………………………………………………………….11
+Fig 3 Indoor corrosion rate…………………………………………………………………….12
+Fig 4 Corrosion rate in an air side economized data center …………………………….12
+Fig 5 Power sensors hardware and electronics……………………………………………..13
+Fig 6 Power sensor mounting………………………………………………………………...14
+Fig 7 Simulations of the cooling zones……………………………………………………….15
+Fig 8 S-curve pattern for the vertical temperature profiles…………………………………15
+Fig 9 Statistical temperature fitting…………………………………………………………..16
+Fig 10 Thermal zones in a video hub office….………………………………………………16
+Fig 11 Temperature distribution prediction….……………………………………………….17
+Fig 12 MMT interface for CFD simulation….……………………………………………….18
+Fig 13 Optimization of workload placement....………………………………………………19
+Fig 14 Thermal scan of the Poughkeepsie data center………………………….…………24
+Fig 15 Thermal map of the data center after energy optimization ……………….……….25
+Fig 16 Total energy, IT consumed energy, and DCIE……………………….………….….26
+
+
+
+
+List of Tables
+Table 1 Energy savings achieved at 3 test sites……..…………………………….……….9
+Table 2 Achievable savings using MMT for energy efficiency auditing ………………….19
+Table 3 Economical benefit of adoption of MMT projected until 2035 ...…………………20
+Table 4 Comparison of the power measurements before and after MMT optimization...23
+
+
+
+
+                                                                                 5
+                                    Summary
+
+        Data center (DC) electricity use is increasing at an annual rate of over 20% and
+presents a concern for the Information Technology (IT) industry, governments, and the
+society [1,2]. A large fraction of the energy use is consumed by the compressor cooling
+to maintain the recommended operating conditions for IT equipment [1]. The most
+common way to improve the DC efficiency is achieved by optimally provisioning the
+cooling power to match the global heat dissipation in the DC. However, at a more
+granular level, the large range of heat densities of today’s IT equipment makes the task
+of provisioning cooling power optimized to the level of individual computer room air
+conditioning (CRAC) units much more challenging. Distributed sensing within a DC
+enables the development of new strategies to improve energy efficiency, such as hot
+spot elimination through targeted cooling, matching power consumption at rack level with
+workload schedule, and minimizing power losses. The scope of Measurement and
+Management Technologies (MMT) is to develop a software tool and the underlying
+sensing technology to provide critical decision support and control for DC and
+telecommunication facilities (TF) operations.
+        A key aspect of MMT technology is integration of modeling tools to understand
+how changes in one operational parameter affect the overall DC response. It is
+demonstrated that reduced ordered models for DC can generate, in less than 2 seconds
+computational time, a three dimensional thermal model in a 50 kft2 DC. This rapid
+modeling enables real time visualization of the DC conditions and enables “what if”
+scenarios simulations to characterize response to “disturbances”. One such example is
+thermal zone modeling that matches the cooling power to the heat generated at a local
+level by identifying DC zones cooled by a specific CRAC. Turning off a CRAC unit can
+be simulated to understand how the other CRAC utilization changes and how server
+temperature responds.
+        Several new sensing technologies were added to the existing MMT platform: (1)
+air contamination (corrosion) sensors, (2) power monitoring, and (3) a wireless
+environmental sensing network. All three technologies are built on cost effective sensing
+solutions that increase the density of sensing points and enable high resolution mapping
+of DCs. The wireless sensing solution enables Air Conditioning Unit (ACU) control while
+the corrosion sensor enables air side economization and can quantify the risk of IT
+equipment failure due to air contamination.
+        Validation data for six test sites demonstrate that leveraging MMT energy
+efficiency solutions combined with industry best practices results in an average of 20%
+reduction in cooling energy, without major infrastructure upgrades. As an illustration of
+the unique MMT capabilities, a data center infrastructure efficiency (DCIE) of 87 %
+(industry best operation) was achieved.
+        The technology is commercialized through IBM System and Technology Lab
+Services that offers MMT as a solution to improve DC energy efficiency. Estimation
+indicates that deploying MMT in existing DCs can results in an 8 billion kWh savings and
+projection indicates that constant adoption of MMT can results in obtainable savings of
+44 billion kWh in 2035. Negotiations are under way with business partners to
+commercialize/license the ACU control technology and the new sensor solutions
+(corrosion and power sensing) to enable third party vendors and developers to leverage
+the energy efficiency solutions.
+
+
+                                                                                       6
+Introduction
+
+        In many of today’s DCs the energy used for cooling can be over 20% of the total
+energy use [1-4]. With increasing energy prices and also a commitment from many
+industrial and government organization to reduce the carbon footprint, there is a need to
+develop comprehensive technologies for energy efficiency. There are many commercial
+environmental solutions to measure or to model the temperature, relative humidity, and
+air flow in DCs but those solutions tend to be fragmented and require sophisticated
+integration tools. There is a clear need for a common platform that would integrate both
+the software tools and the underlying technology components (sensing and control) to
+provide critical decision support and controls for DC/TF operations.
+        The key component of such technologies is scalability at existing or new facilities
+under a common platform for data management, modeling, and visualization. To model
+DC operation external data sources like IT server sensors, building management system,
+and complementary data like weather should be integrated. For DCs that use outside air
+for cooling, it may be necessary to understand how indoor air quality is affected by the
+location of pollution sources and how pollution spreads based on wind speed and
+direction.
+        While monitoring the DC/TFs is a prerequisite for energy efficiency, control
+strategies are required to optimize the operation of air conditioning units (ACU) as well
+as of the free cooling (water and/or air side). For optimum control, the environmental
+sensors would provide feedback data to support the control settings and to validate the
+attainable efficiency.
+        Air side economization is investigated as the most direct way to reduce the
+energy used for cooling. Based on simulations of DCs operations, Lawrence Berkley
+National Laboratory (LBNL) demonstrated that outside air cooling can reduce up to 25%
+of the total energy used for cooling [5]. However, with outside air cooling, the relative
+humidity may go as high as 90% and can create a potential risk of condensation [5].
+Another concern for using outside air is the possibility to introduce air pollutants along
+with the “fresh air”. Air pollution can result in an increased particulate matter (dust) and
+corrosion of IT in the DC [6]. Studies undertaken by LBNL demonstrated that corrosion
+rate of the outside air can exceed 300 Å/month [7], a value that is considered the upper
+level of air pollution for reliable IT operations [8]. Industry standards recommend a
+corrosion rate of 300 Å/month for copper and 200 Å/month for silver to be maintained in
+a DC [6,8]. Thus, cost effective corrosion sensors could enable the use of outside air
+while protecting the IT equipment.
+        The effectiveness of recommendation from energy efficiency solutions can be
+achieved through measurement of a common metric before and after energy
+optimization. One such metrics is the data center infrastructure efficiency (DCIE) that is
+calculated by dividing IT equipment power by total facility power. To improve the DCIE
+for a DC, besides environmental sensing, additional actions should be considered like
+capacity planning, virtualization, consolidation, provisioning and cloud computing
+approaches.
+        In this report the energy savings obtained in field testing the MMT technology at
+6 test sites is described and the obtainable energy savings using MMT are quantified.
+Detailed description of achievable savings in a DC is included for a test site where a
+DCIE of 87 % was demonstrated. Descriptions of the sensor technology and validation
+studies are presented along with the description of the modeling tools.
+
+
+
+                                                                                          7
+Background
+    The energy efficiency of DC is largely determined by the extent to which “best
+practices” are implemented, both when physically planning and operating the DC [3,9]
+For example, power consumption of the cooling system, which is a significant fraction of
+the total power needs, is dominantly governed by the placement of the IT or switching
+equipment, the chilled air flow control mechanisms, perforated tile placement,
+confinements of the cold and warm aisles, among other factors.
+    Many of the DC “best practices” are well documented in the open literature [3,9] and
+in addition, there are several solutions such as energy assessments, virtualization and
+consolidation technologies, and modeling services which are all designed to improve DC
+energy efficiency.
+          Every DC is different and to improve energy efficiency for a particular DC, a
+subset of best practices may apply. To develop a solution that can be applied across
+many data centers, a set of requirements has to be integrated:
+
+   1) Scalability: the technology can be applied to any type of data centers on large
+      scale for cost effectiveness
+   2) Provability: the technology should be able to measure quantitatively the resulting
+      efficiency improvements based on an industry acceptable standard metrics
+   3) Manageability: physical energy efficiency improvements have to be manageable
+      without compromising reliability of the operation. Computational Fluid Dynamics
+      of “what-if” modeling scenarios ensures that any implemented changes will not
+      compromise the reliability.
+   4) Integrate-ability: significant energy efficiency improvements will originate from
+      integrating the various dimensions involved in DC/TFs through a single
+      management platform
+   5) Feasibility: tighter integration between IT and facilities will allow targeting
+      virtualization and consolidation projects to provide maximum benefits without
+      major infrastructure investments.
+
+    To address these challenges, MMT 2.0 was developed under supports from the
+Industrial Technologies Program of the DOE Office for Energy Efficiency and Renewable
+Energy (EERE) to improve energy efficiency in the information technology sector. MMT
+2.0 is being built upon an earlier developed solution, which is complemented with a real-
+time, high resolution measurement system using sensor networks (for temperature,
+power, humidity, corrosion rates etc.), embedded IT equipment sensors and other data
+sources (e.g., from building management systems). The technology deploys novel
+measurement-based, energy and thermal modeling methods for generating real-time
+data (i.e. 3D heat, power distributions, cooling provisioning, corrosion risks for outside
+air usage etc.) for optimum manageability of the facilities’ energy efficiency. MMT 2.0 will
+provide control of the fans and set points in the air conditioning units (ACU) as well as
+manage free cooling (water and/or air side). The technology will yield ongoing best
+practices recommendations including the physical IT layout and leverage circuit-level
+power monitoring, which enables not only optimum provisioning but also reduces power
+delivery losses.
+
+
+
+
+                                                                                          8
+Results
+        The MMT technology was field tested at 6 locations chosen to be representative
+of operating DCs and TFs; three IBM’s facilities in Boulder (CO), Raleigh (NC), and
+Poughkeepsie (NY) in addition to three AT&T facilities in Anaheim (CA), Bothell (WA),
+and Dallas (TX).
+        As an initial step, the MMT mobile cart was used to map the temperature and the
+relative humidity in DC/TFs to establish baseline and generate recommendations. In the
+second phase MMT was deployed to monitor spatio-temporal changes and to assess
+how recommendations improved the DC efficiency.
+        Savings were demonstrated for each of the 6 test sites as a result of the
+deployment of MMT. The average savings for the sites was 24.8% of the cooling load
+and 6.3% of the IT load (Table 1).
+
+                                                                        Annual    Annual
+                                                                        energy    savings
+                                                                        Savings
+       Site            UPS       Required     Active #     # CRAC       MWh/yr      $/yr
+                     Load kW     # CRAC        CRAC       shutdown
+   Test site #1        5458         117         157          22          1830     $91,516
+
+   Test site #2        3344         57          129          66          3798     $341,814
+
+   Test site #3        1855         39           55           5           325     $15,595
+
+
+Table 1 Energy savings achieved at 3 field test sites based on MMT analysis and
+recommendations.
+
+          A wireless sensing network was developed for flexible deployments in TFs where
+equipment layout is frequently changing. The wireless sensing network is based on low
+power radios that allow a battery lifetime of 7 years in the field with a sampling rate of 1
+minute. The wireless sensing solution reduces the cost of single point sensing by
+eliminating the wire and power requirements that are associated with wired solution.
+Temperature, relative humidity, air flow, pressure and corrosion sensing are integrated
+into the wireless sensing solution. The technology was tested at AT&T’s Anaheim test
+facility for over 1 year period (Fig 1).
+          A control firmware and algorithm for the wireless sensor network was developed
+to control Air Conditioning Units (ACUs). The control scheme optimizes the utilization of
+the ACU units by turning off systems that are running at very low utilization (<20%) while
+shifting the load to ACUs that have medium utilization (~50%). In a typical DC, the
+control can shut off around 20% of the ACUs, resulting in energy savings up to 10%.
+Multiple layers of security and control loops were implemented to minimize risk and to
+prevent situations where overheating may occur. The DC is continuously monitored by
+temperature and pressure sensors to maintain recommended operating temperature and
+cooling capacity.
+
+
+
+
+                                                                                             9
+Fig 1 Wireless sensing layout at a telecom facility with temperature sensing string attached to the
+rack and the radio position on the top of rack.
+
+        A detailed performance auditing of the IBM’s Green Data Center in
+Poughkeepsie revealed many inefficiencies and that the DC has a DCIE of 74 %. Some
+of the recommendations generated by MMT were the elimination of energy “leaks”,
+improving air flow through perforated tiles placement, and workload consolidation on
+servers. Furthermore based on “what-if” simulations, the DC layout was rearranged such
+that more equipment could be deployed in the DC without increasing the required
+cooling power. The implementation led to a DCIE metrics of 87 % representing one of
+the highest levels of efficiency in the industry. MMT was instrumental in implementing
+the energy efficiency measures and is continued to be used as an active tool to monitor
+in real time the DCIE metrics for the Poughkeepsie data center (see Appendix A for
+more details).
+
+1. MMT Technology Development
+        1.1 Corrosion sensors
+
+        Outside air cooling is the most economical way to reduce energy consumption in
+DCs, TFs and industrial facilities. Many DC operators are concerned about the
+accidental introduction of air pollutants in the DCs along with the fresh air. This may be
+the case if the DC is located in metropolitan or industrial areas, in locations where wild
+fires, occur or geographies where large amount of fertilizer/chemicals are used in a
+nearby location. Continuous air filtering is a possible solution to minimize contamination
+but would increase the operating cost. The most effective way to prevent accidental
+pollution of the DC is to monitor in real time the air contamination.
+        A common way to monitor the air contamination is the use of corrosion sensors
+that measure the reactivity of the contamination molecules with metal films. The
+corrosion sensor can be an integral part of a contamination management solution to
+monitor the air quality and control the intake valve positions that allow mixing of
+outdoor/indoor air ratio. By controlling the amount of outside air used for cooling along
+with temperature and relative humidity, the corrosion rates can be maintained at
+acceptable values at period of times when outdoor pollution may be higher.
+        For corrosion sensor development, large scale semiconductor fabrication
+processes were leveraged through wafer scale deposition of the metal traces on silicon
+
+
+
+                                                                                                10
+substrates. For corrosion rate measurement, the resistance of the metal traces is
+electrically measured as the film thickness is reduced as pollutant molecules interact
+with the metal film surface. The technology was developed for silver and copper and the
+metal film thickness was chosen to be 1.5 μm (lifetime of 7 years at a corrosion rate of
+300 Å/month) and the detection has a sensitivity of 1 Å change in film thickness.
+        The corrosion sensor was designed to be easily replaceable in the field once the
+sensor film is consumed. The sensor is attached to a replaceable Printed Circuit Board
+(PCB) card that fits into the communication board and the PCB card is replaced once the
+sensor element is consumed (Fig 2). The corrosion sensor performance was compared
+with commercially solutions, with the resistive technique fairing better than the quartz
+crystal or metal coupon measurements.
+
+
+
+
+Fig 2 Silver corrosion sensor with sensor element and the detection electronics. Sensor lifetime is
+7 years in an environment with a corrosion rate of 300 Å/month.
+
+        The sensitivity of the corrosion sensor to gaseous pollution was assessed in a
+data center where the indoor corrosion rate was compared with the outdoor fluctuation of
+NO 2 , and SO 2 concentration (Fig 3). When the outdoor contamination is low (from 10
+am until 4 pm), the corrosion rate drops below 300 Å/month while in general the
+corrosion rate can be as high as 600 Å/month the rest of the days. The indoor corrosion
+rate was tracking the outdoor pollutants concentration, demonstrating the link between
+high corrosion rate and poor air quality. The data demonstrate that outdoor pollution
+levels are driving the indoor corrosion rate and there is a direct correlation between
+outside air pollution and indoor corrosion rate (that is expected if the DC is not fully
+sealed from the outside).
+        Corrosion is a synergistic result of temperature, humidity, air flow and gaseous
+contamination. To identify the main driving factors for corrosion, a facility wide
+temperature, relative humidity, and air flow should be monitored and modeled to identify
+high corrosion risk zones. Field test of the corrosion sensor technology demonstrated
+that the corrosion rate measured in a DC is dependent on the location where the sensor
+is placed. To achieve the best repeatability, the corrosion sensors can be placed at the
+outlet of ACU units (under the raised floor) or at the rack air intake. The corrosion
+sensors were tested at a TF Anaheim where a the corrosion rate of less than 120
+Å/month was measured during the summer months and the value increased closer to
+200 Å/month during autumn and winter months.
+
+
+
+
+                                                                                                11
+                                                                                                 Day 1              Day 2
+                                                                                   900
+
+
+
+
+                                                          Silver corrosion
+                                                           rate (A/month)
+                                                                                   600                                                High
+                                                                                                                                      risk
+
+
+
+
+                        Indoor
+                                                                                   300
+                                                                                                                                      Low
+                                                                                                                                      risk
+                                                                                        0
+                                                                                  0.010
+
+
+
+
+                                                      SO2 concentration
+                                                                                  0.008
+
+
+
+
+                                                                          (ppm)
+                                                                                  0.006
+                        Outdoor
+
+
+
+                                                                                  0.004
+
+                                                                                  0.002
+
+
+
+                                                                                   0.10
+                                                       NO2 concentration
+
+
+
+
+                                                                                   0.08
+
+                                                                                   0.06
+                                                            (ppm)
+                        Outdoor
+
+
+
+
+                                                                                   0.04
+
+                                                                                   0.02
+
+                                                                                            0    8     16    24      32       40 48
+                                                                                                            H ours
+Fig 3 Indoor corrosion rate and the corresponding outdoor SO 2 and NO 2 gaseous concentration
+for a two day period.
+
+        The corrosion rate in an air side economized data center depends on the amount
+of outside allowed in the DC. In one of the test studies, the corrosion rate was below 120
+Å/month during summer when no air side economization was used. During the winter
+season, the air side economizer was enabled and occasionally the corrosion rate
+increase for short periods of time well above 300 Å/month while most of the time the
+corrosion rate was below 200 Å/month (Fig 4).
+                                                                                                            8/29-12/29/2011
+
+
+                                                    2000
+                         Corrosion rate (A/month)
+
+
+
+
+                                                    1500                                                     300 A/month
+
+
+                                                    1000
+
+
+                                                     500
+
+
+                                                       0
+                                                             0                    500           1000     1500       2000
+                                            Time (hours)
+Fig 4 Corrosion rate in an air side economized data center.
+
+
+
+
+                                                                                                                                             12
+        The corrosion data from the economized data center proves that contamination
+monitoring would be beneficial as the corrosion rate can have excursion to large values.
+The corrosion sensing solution is fully integrated with MMT and is an effective solution to
+preserve the reliability of IT equipment in air side economized DCs or for DCs situated in
+polluted geographies.
+        A corrosion management solution was developed to manage the risk in data
+center due to air pollution or operation of DC at high level of temperature and humidity.
+Since corrosion can be accelerated by increased temperature and relative humidity
+levels, optimizing the data center environment (controlling dew points and the amount of
+outside air introduced in the DC) can minimize the risk. The corrosion sensors can also
+measure the effectiveness of air filtration in DCs and asses the time when air filters has
+to be changed.
+
+       1.2 Power sensors
+
+        To monitor the energy consumption in DCs, an accurate and non-intrusive power
+monitoring solution was developed based on Hall sensors. The power monitoring
+solution is suitable for dense monitoring of the power consumption at panel and
+distribution circuit levels. Furthermore, the power sensing solution could identify branch
+circuits to which the IT equipment is connected by analyzing the correlation between
+branch circuit and IT equipment power patterns.
+        The Hall sensor is embedded in a ferrite bead that clamps on the power carrying
+cable and is measuring the Alternating Current (AC) current. The signal is sampled at a
+rate of 60 data point/seconds and the root mean square amplitude of the current is
+determined numerically. Calibration was carried out for different gauge wires, commonly
+encountered in data centers, to calibrate the Hall sensor output versus the current in the
+cable. For power factor calculations, the voltage is also sampled in real time through
+electrostatic pickup by a wire running parallel through the ferrite bead. The fast sampling
+allows digital signal processing to determine the phase lag between the current and
+voltage signal. Signal processing and power factor calculations are carried out on the
+Signal Processing Board (SPB) and Collection Computer Board (CCB) (Fig 5).
+
+
+
+
+Fig 5 Power sensors, power sensor board (7 sensors), the Signal Processing Board and the
+Collection Computer Board for real time power monitoring.
+
+
+
+
+                                                                                        13
+For installation of the power sensors, while avoiding power down of power panels, a new
+method was developed where an inexpensive clamp to install the ferrite on a cord can
+be used while wearing just protective gloves. The implementation and installation of the
+clamp and ferrite beads is illustrated in Fig 6. The power sensing data and the digital
+signal processing carried out on the CCB board are integrated with MMT server. The
+technology was tested in two DCs and demonstrated a better sensitivity than existing
+power monitoring solutions, at a fraction of cost.
+
+
+
+
+Fig 6 Sensor and clamping approach of the ferrite beads on a power cable.
+
+2. MMT Modeling Technologies
+       2.1 Computational Fluid Dynamics modeling
+
+         Current state-of-the-art numerical modeling approaches in DCs rely on the use of
+computational fluid dynamics (CFD) models based on solving the Navier-Stokes
+equations for air flow coupled with an equation for heat transfer. While this approach has
+been successfully used and is the most accurate modeling technology, especially for
+planning purposes, it comes with long calculation times, making it unsuitable for
+performing (near) real-time simulations. In addition, it is often not clear whether the
+quality of the modeling input data warrants such detailed or time-consuming
+computations. Hence one of the focus areas within MMT has centered on the
+development of simpler and, computationally speaking, faster CFD models for air and
+heat transfer, thus leveraging the fact that the availability of real-time measurement data
+could be “traded” against the complexity of the partial differential equations comprising
+the model. Real-time sensor measurements, which provide information about current (i.e.
+realistic) conditions in a data center, are used to define the required input information,
+mainly in the form of boundary data for the boundary value problems defining the models.
+         The MMT deployment at a Video Hub Office (VHO) provides a useful example of
+the value of the analytics in MMT for predicting changes in cooling resources. After
+analyzing the real time environmental data, it was determined that there was more
+cooling capacity in that facility than needed. It was recommended that the VHO would
+have plenty of cooling capacity even with one of the four ACU’s turned off. In order to
+see how the environment might change under these conditions, an underutilized ACU
+unit was virtually ‘turned off’ in the MMT client software. The simulation of 3 ACU
+operating was compared with the experiment where the ACU was shut down. With all
+four ACU’s on, the cooling zones are as shown on the left (Fig 7). The middle figure
+
+
+
+                                                                                       14
+show the simulations result when one ACU is turned off and the cooling zones merge
+from four to three zones. The right figure shows the cooling zones using the analytics on
+the real time data after that ACU was turned off in the facility. The prediction and the
+actual results are overlapping demonstrating the accuracy of the modeling.
+
+
+          Before                   MMT what-if modeling              Demonstration with
+      4 ACUs operate                   with 3 ACUs                     3 ACUs operate
+
+
+
+
+Fig 7 Simulations of the cooling zones before and after MMT implementation.
+
+        2.2 Statistical Thermal Zone Mapping
+
+         In the statistical work, a knowledge based models and trends were developed
+and combined with Kriging techniques. A comprehensive knowledge base of thermal
+profiles has been generated from MMT data of over 80 DCs showing s-shaped, vertical
+temperature profiles across the server inlets of a rack (Fig 8). Analysis of extensive
+temperature profiles has shown that the form of s-shape is governed by physical
+parameters such as air flow supply and demand, discharge temperatures of the
+neighboring ACUs, the relative location with respect to ACUs and other servers. The
+statistical models can be used to estimate the temperature distribution in a DC under
+constant air flow conditions (Fig 9). The universality of the S-shaped temperature profile
+allows the extension of the statistical methods to any DC that use air cooling. The
+dynamic model was extended through regression analysis to forecast temperature
+profiles in the DC.
+
+
+
+
+Fig 8 S-curve pattern for the vertical temperature profiles for ten different air conditioner settings.
+Ten solid curves are the MMT observations at ten settings and the dashed curves are the
+statistical model estimations
+
+
+
+                                                                                                    15
+ Fig 9 Statistical temperature fitting for different heights under fixed air conditioner setting. The
+top figures are the MMT temperature measurements where the bottom figures are the fitted
+temperature values.
+
+         A statistical method, which leverages temperature measurements from real-time
+MMT sensing system, is developed for assigning dynamically thermal zones. Such
+thermal zones are generally defined as the region of influence of a particular cooling unit
+or cooling "source" (such as an air condition unit (ACU)) and can provide valuable
+decision support for optimizing cooling. In order to characterize ACU thermal zones, a
+statistical method was developed to model the correlations between temperatures
+observed from sensors located at the discharge of an ACU and the other sensors
+located in the room. Outputs from the statistical solution were used to optimize the
+placement of equipment in a data center (Fig 10), investigate the possible failure
+scenarios, and make sure that a proper cooling solution has been achieved.
+
+
+
+
+Fig 10 Thermal zones in a Video Hub Office characterized by the correlation between each of the
+four ACU discharge temperatures and the temperatures in the room. It shows that ACU#1 has the
+largest impact in its closer vicinity and ACU#1 and ACU#4 have significant larger thermal zones
+than ACU#2 and ACU#3.
+
+
+
+
+                                                                                                  16
+        2.3 A Spatio-Temporal Prediction Model
+
+       A spatio-temporal model was developed to predict the temperature distribution of
+a DC for future time (forecasting) at any locations. The spatio-temporal prediction model
+can be used for “what-if” analysis for energy efficiency improvement. The “what-if”
+analysis capabilities are demonstrated through an air-flow optimization study (Fig 11) for
+the VHO where temperatures are forecasted around the IT racks. Based on temperature
+forecast (Fig 11) a dynamic workload allocation can be implemented based on the
+thermal profiles of the DC.
+
+
+
+
+Fig 11. Temperature distribution prediction for the next time stamp.
+
+3. Software Development
+        A ‘cloud-ready’ analytics repository platform was developed that can be used
+independent of the specific hardware platform. The MMT software was extended to
+include: (1) an improved and more customize-able alarm system, (2) MMT reporting, (3)
+corrosion analytics, (4) real time CFD simulations, and (5) ACU controller.
+        A fully automated CFD analytic module embedded in MMT was developed that
+requires no user interventions and would run either as a real time simulation or as a
+“what-if” module to predict the data center response. The CFD model takes into account
+the physical DC layout, rack placement, and sensor distribution. The module will
+generate either a 2D or a 3D mesh and the solver will set-up the problem and will start
+the execution for CFD simulations. The simulations leverage the existing modeling
+capabilities based on reduced order sensor response and will run in less than 2 seconds
+computational time for a 50 kft2 DC. The CFD based modeling capabilities can create
+temperature, dew point, and plenum pressure modeling and simulations of CRAC
+thermal zones, tile flow, tile cooling power and CRAC set-point temperature optimization.
+A CFD simulation of thermal zones and CRAC thermal zones is shown in Fig 12.
+
+
+
+
+                                                                                       17
+Fig 12 MMT interface for CFD simulation of temperature and cooling power distribution in a data
+center.
+
+        A series of real-time “what-if” optimization algorithms for DC have been
+developed and implemented into the MMT software. For a given cooling configuration
+(which is being measured and characterized in real-time using MMT) an optimization
+algorithm allows identifying the optimum placement of new servers (or workloads) or
+alternatively where to remove servers or to remove workload. Another optimization
+algorithm optimizes performance of the data center without creating hotspots. The
+optimization uses a physical model combined with linear and quadratic programming
+algorithms as well as linear and non-linear least square fitting (with or without
+constraints). The optimization result for optimum workload displacement to obtain best
+performance without creating hotspots for a given total power is shown in Fig 13. The
+two images correspond to different cooling conditions in the DC.
+
+4. Commercialization
+       The corrosion sensor technology that was developed under this program has a
+couple of unique features: (1) 7 year lifetime for sensor at a corrosion rate of 300
+Å/month, (2) sensitivity better than 1 Å in thickness change, and (3) a field replaceable
+sensor. Corrosion rate calculation algorithms were implemented in MMT based on
+moving average algorithm. The corrosion sensors and analytics are fully compatible with
+MMT.
+        The corrosion solution was proposed for licensing to business partners: (1)
+companies that are commercializing gaseous filter solution where the corrosion sensor
+will ensure that filtration effectiveness and (2) companies that are manufacturing ACU
+units to be used in air side economized DCs. The corrosion sensor and management
+solution were evaluated by the business partners interested in licensing the technology.
+We furthermore conducted “round robin” tests where existing corrosion sensing
+technologies were compared side by side to validate IBM’s corrosion sensing
+performance. There are ongoing discussions with two air filter manufacturing companies
+and also one ACU manufacturing company for corrosion sensor licensing.
+
+
+
+
+                                                                                            18
+Fig 13 Optimization of workload placement for a data center with a given cooling capacity.
+
+         For power monitoring solution a licensing agreement with power distribution
+companies is considered. The power sensing technology has unique features (small size,
+accuracy, non intrusive monitoring, possibility to mount them on “live” power line) and
+functionality that allow the current power sensor design to be added to existing power
+monitoring solution that exist on the market. Presentations were made to two of the
+global companies and negotiations are currently underway for the rights to the
+intellectual property covered by the patent applications filed under this project with at
+least one of the companies.
+
+5. Benefit Assessment
+        Energy efficient technologies could significantly improve the performance for
+existing or newly developed DCs. From the field tests it was demonstrated that MMT can
+achieve a 20% to 40% reduction in energy used for cooling, by implementing various
+technology components and best practices. A list of technologies and associated
+benefits are shown in Table 2.
+
+                        Feature                                       Benefits                         Savings
+          Real-time heat/humidity/ pressure/flow                  • Prevents hotspots                   3-5 %
+                          maps                      • critical for best practices’ implementation
+                  Power Management                           • Increases UPS utilization                2-5 %
+                                                            •Reduces “stranded” power
+                Operational CFD support            • Improves planning and optimize DC layout           3-4 %
+
+               Energy Efficiency Reporting         • Enables consistent management of energy            5-8 %
+                                                                    efficiency
+                     Cooling Zones                 • increases utilization of cooling infrastructure    3-5 %
+                  Air side economizer/                      • Outside air economization                10-15%
+                 Corrosion Management                          • Improved reliability
+
+
+Table 2 Achievable energy savings using MMT technology components.
+
+
+
+
+                                                                                                                 19
+        The short and long term impact of MMT commercialization can be estimated for
+DC/TFs assuming that the technology is adopted by industry. In 2006 it was estimated
+that the total energy consumed by data centers to be 60 billion kWh (7 GW) [1]. An
+additional 18 billion kWh would be utilized by telecom facilities [4]. Assuming a 20%
+savings (see Table 2) applicable to 50% of the DC/TF can result in an instant of 8 billion
+kWh savings.
+        For long term projection, it is estimated that there were a total of 6400 data
+centers in 2006 and their number increases annually by 12 % [1]. It is also assumed that
+MMT will be compatible with 50 % of the newly built DCs with a starting deployment date
+of 2012. The assumption consider that in 2012, 5% of all newly built DC will adopt MMT
+and the adoption will increase with additional 5% each year until 2020 when it will reach
+a 50% adoption. Once a 50% penetration is achieved it will remain at that level from
+2020 onwards.
+        In Table 3 the direct electricity displaced is calculated under the above
+assumptions and projected until 2035 assuming that a typical data center consumes 9.5
+MkWh (~1.1 MW). The possible cost savings for businesses are calculated based on
+MMT deployment (assuming electricity cost of 6 c/kWh).
+
+       Impact By year                       2012     2015        2025     2035
+
+       Cumulative units installed           60       1223        12880    45300
+
+       Market penetration                   5%       25%         50%      50%
+
+       Direct electricity displaced (billion 0.060   1.161       12.243   43.050
+       kWh)
+       Energy cost savings ($MM/year)       3.6      69.66       734.58   2583.2
+
+
+
+Table 3 Economical benefit of adoption of MMT projected until 2035.
+
+Adoption on MMT 2.0 in new data centers could be a game changer to improve the
+energy efficiency of existing and future data centers.
+
+6. Accomplishments
+       6.1 Publications and Presentations
+
+1. V. López and H. F. Hamann, “Measurements-based modeling for data centers”, In
+Proceedings of the 12th IEEE Intersociety Conference on Thermal and
+Thermomechanical Phenomena in Electronic Systems (ITherm), June 2010.
+2. M. Cole, L. Hedlund, G. Hutt, T. Kiraly, L.J. Klein, S. Nickel, P. Singh, and T. Tofil,
+“Harsh Environment Impact on Resistor Reliability”, SMTAI, Orlando, FL, 2010.
+3. H. F. Hamann , V. López and A. Stepanchuk, “Thermal zones for more efficient data
+center energy management”, In Proceedings of the 12th IEEE Intersociety Conference
+on Thermal and Thermomechanical Phenomena in Electronic Systems (ITherm), June
+2010.
+4. R. Ghosh, and Y. Joshi, " Dynamic Reduced Order Modeling of Convective transports
+in Data Centers" at NSF I/UCRC meeting, Binghamton, New York, December 2010.
+
+
+                                                                                       20
+5. H. Li, H.F. Hamann, “A Statistical Approach for Thermal Zone Mapping”, InterPack,
+July 2011.
+6. V. López and H. F. Hamann, “Heat transfer modeling in data centers”, International
+Journal of Heat and Mass Transfer, Vol. 54, pp. 5306–5318, 2011.
+7. V. López and H. F. Hamann. “A numerical technique for the approximation of thermal
+zones”, InterPACK 2011. July 2011.
+8. S. Yarlanki, R. Das, H. F. Hamann, V. Lopez, A. Stepanchuk, “Employing Thermal
+Zones for Energy Optimization in Data Centers”, InterPack, Proceedings of the ASME
+2011 Pacific Rim Technical Conference Exhibition on Packaging and Integration of
+Electronic and Photonic Systems, MEMS and NEMS, 2011.
+9. R. Das, S. Yarlanki, H. Hamann, J. O. Kephart, V. Lopez, J. Lenchner, “A unified
+approach to coordinated energy management in data centers”, CNSM 2011, 7th
+International Conference on Network and Service Management, Paris, France, Oct. 24-
+28, 2011.
+10. W.El-Essawy, A. Ferreira, J. Rubio, M. Ware, K. Rajamani, M. A. Schappert, and H.
+Hamann, ”Smarter Data Center Power Monitoring and Management", SenSys '11
+Proceedings of the 9th ACM Conference on Embedded Networked Sensor Systems ,
+2011.
+11. R. Ghosh, V. Sundaralingam, S. Isaacs, P. Kumar, and Y. Joshi, “Transient Air
+Temperature Measurements in a Data Center”, ISHMT conference, Chennai, India, Dec.
+2011
+12. R. Ghosh, V. Sundaralingam, P. Kumar, and Y. Joshi, “Experimental
+Characterization of a Data Center Facility”, ISTP-22 Conference, Delft, The Netherland,
+Nov. 2011.
+13. R. Ghosh, and Y. Joshi, ”Dynamic Reduced Order Thermal Modeling of Data
+Center Air Temperature”, ASME InterPack 2011 Conference, Portland, USA, 2011.
+14. W. El-Essawy, A. Ferreira, J. Rubio, T. Keller, M. Ware, K. Rajamani, M. Schappert
+and H. Hamann, "Demo: Smarter Data Center Power Monitoring and Management",
+SenSys'11,2011
+15. V. López and H.F. Hamann, “Data center metrology and related modeling
+techniques”, Presentation at the International Congress on Industrial and Applied
+Mathematics (ICIAM), Vancouver, BC, Canada, 2011.
+16. W. Huang, M. Allen-Ware, J. B. Carter, E. Elnozahy, H.F. Hamann, T. Keller, C.
+Lefurgy, J. Li, K. Rajamani, and J. Rubio, “TAPO: Thermal-Aware Power Optimization
+Techniques for Servers and Data Centers”, International Green Computing Conference
+(IGCC), Best Paper Award, 2011.
+17. L.J. Klein et. al ,”Humidity control and dew point management”, ASME InterPack
+2011 Conference, Portland, USA, July 2011.
+18. L.J. Klein at al, “Corrosion management for Data Centers”, Semitherm 2011.
+2. H. Jiang, X. Deng, V. Lopez, H.F. Hamann (Invited) “Online Computer Model
+Updating and Forecasting with Applications to Data Center Thermal Management”, The
+International Conference on the Interface between Statistics and Engineering (ICISE),
+2012.
+19. V. Lopez, H.F. Hamann, H.Jiang, and X. Deng, “Mathematical Modeling with Sensor
+Data”, SIAM Conference on Mathematics for Industry, 2012.
+20. S. Yarlanki, B. Rajendran, and H. Hamann, “Optimization of k-ε turbulence model for
+a data center using Neural Networks”, ITherm 2012: Thirteenth Intersociety Conference
+on Thermal and Thermomechanical Phenomena in Electronic Systems, 2012.
+21. L. J Klein, M. Schappert, H. F. Hamann, “Corrosion Risk Management in IT
+Facilities”, Itherm 2012, May 2012.
+
+
+
+                                                                                    21
+22. L. J. Klein, Sergio Bermudez, Hans-Dieter Wehle, Stephan Barabasi, H. F. Hamann,
+“Renewable Energy Powered Data Centers”, Semitherm 2012.
+23. H.F. Hamann and V. López, “Data Center Metrology and Measurement-Based
+Modeling Methods”, Book chapter in Energy Efficient Thermal Management of Data
+Centers, Y. Joshi and P. Kumar (eds.). Springer. March 2012.
+24. R. Ghosh, V. Sundaralingam, and Y. Joshi, "Effect of Rack Server Population on
+Temperatures in Data Centers", ITherm 2012.
+25. W. El-Essawy, A. P. Ferreira, J. C. Rubio, T. Keller, K. Rajamani, M. Ware, and M.
+Schappert , "Managing a Forest Means Measuring Trees: Enabling Data Center Real-
+Time Energy Management”, IEEE Transactions on Computers, 2012.
+
+
+
+       6.2 Patents/Disclosures
+
+        D. Manzer, L. Klein, “Real Time Numerical Computation of Corrosion rates from
+Corrosion Sensors”.
+        L. Klein, F. Marianno, H. Hamann, “Air conditioning filter replacement lifetime
+prediction and implementations”.
+        R. Das, H. F. Hamann, V Lopez, A. Stepanchuk, S Yarlanki, “Provisoning
+Cooling Power and workload to optimize utility of cooling units and processing resources
+within a data centers”.
+        S. Yarlanki, H. LI, A. Stepanchuk, H. Hamann, “Real-time modeling of heat
+distributions”.
+        G. Carpenter, W. El-Essawy, A. Ferreira, T. Keller, J.C. Rubio and M. Schappert,
+“Non-Contact Current and Voltage Sensor”.
+        V. López, H. Hamann.        “Techniques for Determining Physical Zones of
+Influence.”
+        H. Li, H. Hamann, “Data Center Thermal Management”.
+        L. Klein and H. Hamann, "Corrosion device for universal assessment of pollution
+in data centers”
+        L. Klein, H. Hamann, “Forecasting and managing corrosion in energy intensive
+facilities and high tech buildings”.
+        H. Hamann, H.-D. Wehle, S. A Bermudez, A. Stepanchuk, “Method for evaluating
+optimum Data Center Operation“
+        H. Hamann, S. A Bermudez, H.-D. Wehle, “Server Rack for improved Data
+Center Management“
+        S. A Bermudez, H. Hamann, F. J Marianno, “Method for Early Detection of
+Cooling-Loss Events“
+
+
+
+
+                                                                                      22
+Conclusions
+        A scalable and comprehensive energy efficiency solution was developed that
+drastically improves the energy efficiency in data centers and telecom facilities. The
+MMT platform was extended with a new set of sensing solutions; wireless sensor
+network, corrosion sensors, and power monitoring. The sensing solution can be
+leveraged to minimize power loss, to eliminate the risk due to accidental pollution from
+outside air, or failure risk due to higher temperature operation of data centers. The
+modeling and statistical tools offer real time operational support and can be used for
+“what if” scenarios; to optimally allocate the workload on IT servers, optimal placement
+of an IT rack in a data center, and ACU control. These tools broadly applied can reduce
+energy consumption with up to 30% as was demonstrated at field test sites.
+        The technologies developed under this grant were benchmarked to demonstrate
+their robustness and scalability. It was demonstrated that MMT recommendation can
+results in a DCIE of 87 %, one of the best performances in industry. All the developed
+technologies are unique in sensitivity, reliability, and accuracy and offer a clear market
+advantage for any commercial entity that would license the technology. Discussions are
+ongoing with business partners to commercialize the technologies and to deploy them at
+large scale to enable energy efficiency implementations, power monitoring, and air side
+economizations.
+
+
+
+
+                                                                                       23
+        Appendix A
+        This section contains the detailed description for the DC energy efficiency factor
+obtained for IBM’s Green Data Center in Poughkeepsie. The DC has a surface area of
+1100 ft2 and was built in 2009 for hosting IT equipment. The energy intensity of DC is
+3407 kBtu/ft2/yr and the estimated Green House Emission is 945 MTCO 2 /year. The DC
+meets all the industry standards for indoor environmental conditions: (1) Ventilation for
+Acceptable Indoor Air Quality as recommended by ASHRAE Standard 62, (2)
+acceptable thermal environmental conditions as specified by ASHRAE standard 55 for
+thermal comfort, and (3) adequate illuminations as specified by IESNA Lightning
+Handbook for lighting quality.
+        The DC contains 8 racks with IT equipment and one ACU unit. The server
+infrastructure was : Nine BladeCenter, Fifty System x rack mounted servers, two IBM
+Power 570 (POWER6) rack mounted servers, one IBM System z9 and z10, IBM
+TotalStorage racks.
+        The thermal baseline of the DC was assessed using MMT sensor platform. The
+thermal scans at two different heights (0.5 ft and 5.5 ft) reveal that a significant portion of
+the DC has elevated temperatures (Fig 14).
+        In was established that in more than 8 locations, the rack inlet temperature was
+higher than the ASHRAE recommended upper temperature value of 80 ºC. Additionally,
+the MMT scan established that:
+        (1)         ACU utilization was 77 %. This metric was measuring the ratio of heat
+                    removed by the ACU over the nominal ACU removal capacity
+        (2)         The targeted air flow was 83%. This metrics measure the percentage
+                    of air from ACU that is passing through the perforated tiles.
+        (3)         Air recirculation caused the hotspots formation at the inlet of 8 racks.
+
+
+
+
+Fig 14 Thermal scan of the Poughkeepsie data center at 0.5 ft and 5.5 ft prior to optimization.
+
+
+
+
+                                                                                                  24
+        The MMT analysis was complemented by the CFD simulations to establish the
+air circulation for best rack placement and to establish the spaces where additional
+servers can be deployed. After determining the cooling capacity, it was decided to use
+rear door heat exchangers for cooling, to remove the heat from the high density rack.
+There are several reasons for using water for cooling to support the additional IT load.
+Water is 3,500 times more efficient than air at removing heat, and the Cooling
+Distribution Unit (CDU) that supports the read door heat exchanger uses less energy
+than an ACU. With the additional cooling capacity it was determined that additional
+equipment can be added to the DC. The detailed energy use before and after MMT
+recommendation implementation is shown in Table 4 (the highlighted areas represent
+actual measurements). After optimization, the IT power almost doubled while the cooling
+power was just marginally increased.
+
+                     Power (kW)          Start   After optimization   Using water cooling
+                     IT                  52.73   91.73                91.73
+                     CRAC                4.56    5.1                  5.1
+                     CDU                 0       2.6                  2.6
+                     Lighting            1.19    0.3                  0.3
+                     Other               0.82    0.82                 0.82
+                     Data center total   59.3    100.55               100.55
+                     Facilities          11.79   20.0                 4.57
+                     DCIE                0.74    0.76                 0.87
+
+
+Table 4 Power measurements before and after MMT optimization. The column “Using water
+cooling” was achieved when water from the Hudson River was used for back door water cooling
+of the servers.
+
+         In Table 4, the back door water cooling was used for the case and “Using water
+cooling”. The racks were cooled with water from the Hudson River in the case of “Using
+water cooling”. This was possible once the river temperature was below 43 ºF and the
+chiller was turned off and the pumps were used to just pump water.
+         The MMT thermal scan at 5.5 ft height after the MMT recommendations were
+implemented is shown in Fig 14. Majority of the hotspots are eliminated and the
+temperature variation across the DC becomes more uniform.
+
+
+
+
+Fig 15 Thermal map of the data center after energy optimization.
+
+
+
+
+                                                                                            25
+       To validate the data center infrastructure efficiency metrics the power
+consumption in the data center was measured for a whole year in accordance with US
+EPA recommendations [10]. The total consumed power and IT Consumed Power was
+measured at 15 minute interval. The data was aggregated in a monthly total power, the
+monthly consumed IT power, and the DCIE values was calculated based on the
+measured data (Fig 16).
+
+
+                                                 100000
+
+
+
+
+                          Consumption (kWh)
+                          Monthly total Energy
+                                                      80000
+
+                                                      60000
+
+                                                      40000
+
+                                                      20000
+
+                                                                     0
+                                                                          Jul June May Apr March Feb Jan Dec Nov Oct Sept Aug
+
+                                                                                              Month
+
+                                                      80000
+                           Consumption (kWh)
+                           Monthly IT Energy
+
+
+
+
+                                                      60000
+
+
+                                                      40000
+
+
+                                                      20000
+
+
+                                                                     0
+                                                                          Jul June May Apr March Feb Jan Dec Nov Oct Sept Aug
+
+                                                                                              Month
+                                                                    100
+
+
+                                                                     80
+                                                 Monthly DCIE (%)
+
+
+
+
+                                                                     60
+
+
+                                                                     40
+
+
+                                                                     20
+
+
+                                                                     0
+                                                                          Jul June May Apr March Feb Jan Dec Nov Oct Sept Aug
+
+                                                                                               Month
+
+
+Fig 16 Total energy, IT consumed energy, and DCIE variation over a 12 month period.
+
+       A DCIE metrics of 84% (averaged) was maintained in the data center over a 1
+year period [11]. Since 2010, MMT technology is monitoring in real-time the DC
+performance.
+
+
+
+
+                                                                                                                                26
+References
+
+[1] J. G. Koomey, “Estimating Total Power Consumption by Servers in the U.S. and the
+World”, A report by the Lawrence, Berkeley National Laboratory, 2007.
+http://dl.klima2008.net/ccsl/koomey_long.pdf.
+[2] ‘‘Report to Congress on Server and Data Center Energy Efficiency,’’ Public Law 109–
+431, United States Code,2008.
+[3] W. Tschudi, E. Mills, S. Greenberg, and P. Rumsey, "Measuring and Managing Data-
+Center Energy Use", HPAC Engneering,2006.
+[4] US Department of Energy, “Vision and Roadmap: Routing Telecom and Data Centers
+Toward Efficient Energy Use”, 2009.
+[5] A. Shehabi, S. Ganguly, S.K. Traber, H. Price, A. Horvath, W.M. Nazaroff, and A.J.
+Gadgil, "Energy Implications of Economizer Use in California Data Centers."
+Proceedings of the 2008 ACEEE Summer Study on Energy Efficiency in Buildings,
+Asilomar, CA, 2008.
+[6]      ASHRAE Whitepaper, “Gaseous and Particulate Contamination Guidelines for
+Data Centers”, 2011.
+[7] H.C. Coles, T. Han, P.N. Price, A.J. Gadgil, and W.F. Tschudi, “Air Corrosivity in U.S.
+Outdoor-Air-Cooled Data Centers is Similar to That in Conventional Data Centers”,
+Department of Energy (EERE),2011.
+[8] ANSI/ISA-71.04-1985, “Environmental Conditions for Process Measurement and
+Control Systems: Airborne Contaminants”, ANSI/ISA-The Instrumentation, Systems, and
+Automation Society, 1986.
+[9] H. F. Hamann, T. G. van Kessel, M. Iyengar, J.-Y. Chung, W. Hirt, M. A. Schappert, A.
+Claassen, J. M. Cook, W. Min, Y. Amemiya, V. Lopez, J. A. Lacey, and M. O’Boyle,
+"Uncovering energy efficiency opportunities in data centers", IBM J.Res. & Dev. Vol.53,
+No.3, 10:1-10:12, 2009.
+[10] U.S. Environmental Protection Agency’s ENERGY STAR Program,
+“Recommendations for Measuring and Reporting Overall Data Center Efficiency, Version
+1 – Measuring PUE at Dedicated Data Centers”, 15 July 2010.
+http://www.energystar.gov/ia/partners/prod_development/downloads/Data_Center_Metri
+cs_Task_Force_Recommendations.pdf
+[11] http://www-01.ibm.com/software/success/cssdb.nsf/CS/LWIS-8FEUFH
+
+
+
+
+                                                                                       27
+

@@ -6091,3 +6091,100 @@ reader can tell a swept corpus from a convenient one. And when a repair changes
 no verdicts anywhere, treat that as a reason to widen the corpus rather than as
 a result: a repair that cannot move anything may be a repair that has not met
 the case it is for.
+
+## L-130. A gate's band is part of its referent, and a generator that supplies a default for it prints PASS over the act's own failure
+
+**Measured on the lab's most-filmed surface on 2026-08-18.** Act 1 of the
+nine-act gate table, the Re 100 cylinder, declares its own gate in its own
+transcript: `mission-output/cylinder-vortex-shedding/transcript.md:5`, *"Gate:
+Strouhal number against the Roshko and Williamson correlation, **within
+0.70%**"*. The deviation the same transcript prints is **0.77 percent**. The
+published table reads **PASS**.
+
+**Both statements are true and the table is not lying about the number.** It is
+resolving a band the act declared and the table never received. That act's
+transcript carries no `Verdict:` line, so `scripts/gate_table.py` fell through
+to `_tolerance_verdict(dev, limit=5.0)`, a default written into the generator
+years of commits ago as a reasonable screen for the four exact-theory rows
+around it. **The default is not wrong. Its invisibility is.** Four other rows on
+that table declared no band at all and were decided by the same 5 percent
+screen, and no reader of the table could have told those four from the one that
+declared 0.70 and missed it.
+
+**Why this is the same defect as a missing referent and not a smaller cousin of
+it.** `VERIFICATION_CHARTER.md` section 6a requires a verdict to carry the thing
+it was checked against. A band is the second half of that thing: *0.1590* and
+*0.1590 plus or minus 0.70 percent* are different referents, and a surface that
+prints the first and silently supplies the second has substituted its own
+standard for the act's exactly as surely as if it had substituted its own
+number. **Transmission loss on a tolerance looks like agreement.**
+
+**The shape to look for.** Any generator that reads a measured value and a
+reference value out of an artifact and then decides PASS itself is holding a
+threshold the artifact did not give it. Ask of every such default: *what does
+the surface print when the artifact's own threshold and mine disagree?* If the
+answer is "mine, silently", the surface has a verdict it did not earn. The
+repair is not to delete the default, which would turn four honest rows into
+PENDING. It is to **print which one decided the row**, per row, and to parse the
+artifact's band back out rather than assert it, because a band the generator
+supplied would be the generator's band wearing the act's name.
+
+**And the corollary that made this findable at all.** The band was recovered by
+reading the act's transcript, which is gitignored and off-repo. The sweep that
+built `docs/VALIDATION_INVENTORY.md` concluded of the NASA hump row that *"no
+threshold exists that a larger miss would have crossed"*, and that half of the
+sentence is wrong: `mission-output/nasa-hump/transcript.txt:14-17`
+pre-registered plus or minus 5 percent on separation and plus or minus 20
+percent on reattachment, before the solve, in a block headed *"What would
+falsify this, fixed before the solve"*. The inventory's own section 1.3 says
+that the raw evidence for nearly every gate is off-repo and that it could not
+read it. **A record that states what its sweep could not see lets the next
+reader correct it instead of inheriting it**, and that is the second half of why
+this lesson is short.
+
+## L-131. A citation can name the right report and link the wrong one, and a constant attributed to an author can be absent from the work attributed
+
+**Both halves were found in one comment on 2026-08-18**, in
+`sdk/workflows/cylinder_vortex_shedding.py:22-24`, which cites *"Roshko, A.
+(1954), NACA Report 1191 (St ~ 0.212(1 - 21.2/Re) for 50 < Re < 200)"* with the
+link `https://ntrs.nasa.gov/citations/19930091905`.
+
+**The link resolves to NACA Report 828**, Stowell, Schwartz and Houbolt, 1945,
+*"Bending and Shear Stresses Developed by the Instantaneous Arrest of the Root
+of a Moving Cantilever Beam"*, a structures paper with no cylinder in it. This
+was established twice, by fetching the NTRS record and by downloading the PDF at
+that identifier and reading its title page, which prints `REPORT No. 828` three
+times. Roshko's report is NTRS `19930092207`. **Nothing in the repository was in
+a position to notice**: the name is right, the number is right, the year is
+right, and the only wrong field is the one no reader retypes.
+
+**The second half is the one that needed the report itself.** The correlation
+the gate actually evaluates is `St = 0.198(1 - 19.7/Re)`
+(`sdk/workflows/_exact_theory.py:260`), whose docstring calls it *"the
+Roshko/Williamson"* form. Read at last, NACA Report 1191 gives two Strouhal
+forms and the Reynolds range of each, on its printed page 11: **(2a)
+`S = 0.212(1 - 21.2/R)` for `50 < R < 150`** and **(2b) `S = 0.212(1 - 12.7/R)`
+for `300 < R < 2,000`**. `grep -c '0\.198\|19\.7'` over the extracted text
+returns **0**; the positive control `grep -c '21\.2\|0\.212'` on the same file
+returns **8**, so the zero is an absence in the report and not a dead text
+layer. **Neither constant in the form the lab grades against occurs anywhere in
+the report the lab names for it.**
+
+**What no amount of internal checking could have reached.** The lab had a
+correlation, an arithmetic implementation of it, a test of that implementation,
+a passing gate and a citation, and every one of them was self-consistent. The
+proposal that sent this reading put it exactly right in advance: *"a check that
+compared our arithmetic against our own constants would pass with the
+attribution entirely wrong, which is precisely the state the gate is in
+today."* **A source question has no internal answer.**
+
+**The rule.** When a record cites a document by name, number, year and link,
+those are four independent claims and three of them are cheap to check. Resolve
+the identifier, not the name. And when a constant is attributed to a paper,
+**the attribution is verified by the presence of the constant in the paper**,
+which is a one-line grep once the paper is on disk and is unavailable by any
+other means. A citation that has never been opened is a claim about a document
+nobody has seen, and this lab already has the rule for that shape:
+`VERIFICATION_CHARTER.md` section 14, *"an attribution is a claim, and it is a
+claim about a file. Name the file, and open it before the finding leaves the
+room."*

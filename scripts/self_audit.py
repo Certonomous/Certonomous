@@ -4701,10 +4701,31 @@ def check_gate_table_vs_transcripts() -> Result:
         return Result("gate table vs transcripts", FAIL,
                       f"the generator could not run: {type(exc).__name__}: {exc}")
 
-    published = {}
+    # Columns are resolved by HEADER NAME, not by position. They used to be
+    # read at fixed indices 2..5, and on 2026-08-18 the table grew two columns
+    # in front of them (the referent and its band, VERIFICATION_CHARTER.md 6a)
+    # -- at which point an index-addressed check would have compared the
+    # published REFERENT against the re-derived REFERENCE and reported nine
+    # failures with the wrong cause, or, one column further, agreed with
+    # itself over the wrong pairs. A surface that is allowed to gain a column
+    # needs an auditor addressed the way a reader reads it.
+    header, published = None, {}
     for cells in _md_rows(GATE_TABLE):
-        if len(cells) >= 7 and cells[0] not in ("act",):
+        if cells and cells[0] == "act":
+            header = {name: i for i, name in enumerate(cells)}
+            continue
+        if header and len(cells) >= len(header):
             published[cells[0]] = cells
+    if header is None:
+        return Result("gate table vs transcripts", FAIL,
+                      "the published table has no header row, so its columns "
+                      "cannot be resolved by name")
+    missing = [k for k in ("reference", "measured", "deviation", "verdict")
+               if k not in header]
+    if missing:
+        return Result("gate table vs transcripts", FAIL,
+                      f"the published table's header names no column "
+                      f"{', '.join(missing)}")
 
     problems, pending = [], []
     for row in generated:
@@ -4713,8 +4734,8 @@ def check_gate_table_vs_transcripts() -> Result:
             problems.append(f"{case}: generated but not published")
             continue
         pub = published[case]
-        fields = (("reference", pub[2]), ("measured", pub[3]),
-                  ("deviation", pub[4]), ("verdict", pub[5]))
+        fields = tuple((k, pub[header[k]]) for k in
+                       ("reference", "measured", "deviation", "verdict"))
         for key, published_value in fields:
             fresh = str(row[key])
             if fresh == PENDING_TOKEN and published_value != PENDING_TOKEN:

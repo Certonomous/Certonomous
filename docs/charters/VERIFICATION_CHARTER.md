@@ -1655,3 +1655,68 @@ figures describe the versions and the dates they name.
 2. §2a and §2b name the principal in their headings, which is what marks them as recorded instructions rather than lab-written proposals. The names were left in place; only the heading punctuation was changed.
 3. §17's CORRECTION block of 2026-08-10 and its end-state table of the same date carry figures that describe the corpus at that date. They were left byte-identical, dashes included.
 4. The three AMENDED blocks in §3.2 and §3.3 were left byte-identical.
+
+---
+
+## 6b. A reference that was never obtained is recorded in one vocabulary (added 2026-08-18)
+
+**Placed at the foot, and numbered 6b for where it belongs.** Version 1.9's own
+note above states the reason: other records cite this file by line and one of
+those citations sits inside an executable check, so an amendment that inserted
+itself next to section 6a would have moved every cited line below it. **Lines
+whose number changed above this section: 0.** This clause is read with section
+6a and is filed beside it in every index.
+
+> **A gate row whose reference was never obtained says `NOT OBTAINED`, in those
+> two words, and carries four fields: what is missing, which rung or row it
+> blocks, why it was not obtained with the availability check named and dated,
+> and the acquisition path with its price. `NOT OBTAINED` is a statement about
+> a document, never about a verdict, and it changes no tier by itself.**
+
+**This is section 6a's rule applied to the case where the referent is absent
+rather than merely untransmitted.** 6a says a verdict carries what it was
+checked against and, where there is no external referent, says so. It does not
+say in which words, and the corpus answered that question five different times.
+
+**Why a vocabulary is a charter matter and not a style note.** Docket **D382**
+measured the state: `NOT OBTAINED` is campaign F14's local dialect, and the same
+condition is recorded elsewhere in prose that no sweep can match. The
+consequence is not untidiness. **The lab cannot count its own missing
+references**, which is why `docs/VALIDATION_INVENTORY.md` section 6 had to
+assemble that list by hand from two different kinds of record, and says so per
+row. A rule that cannot be counted cannot be audited, and an honesty convention
+that cannot be audited decays in one direction only.
+
+**The token adopted is F14's, because it is the only one already carrying the
+four fields.** `docs/campaigns/F14-cooling-ladder/K2c_RACK_ROW_VALIDATION_SEARCH.md`
+is the worked example: candidate, what its record offers, availability checked
+and dated against a named instrument, verdict. The four fields are what make the
+token actionable rather than decorative, and a bare `NOT OBTAINED` with no
+acquisition path is half a record.
+
+**Nothing is renamed.** Every instance below is in a published record, several
+of them frozen, and rewriting a record's own words to match a token adopted
+afterwards is the edit this charter forbids everywhere else. **The mapping is
+the instrument, not the rename.** A sweep reads the mapping; a reader reads the
+record in the words its author chose. The obligation this clause creates runs
+forward: **a row written from today says `NOT OBTAINED`.**
+
+**The mapping, re-derived at HEAD on 2026-08-18 rather than copied from D382**
+(the counts moved after D382 was filed, because `docs/VALIDATION_INVENTORY.md`
+itself added fourteen occurrences of the token):
+
+| Dialect as the record states it | Where, at HEAD | What it is |
+| --- | --- | --- |
+| `NOT OBTAINED` | `docs/campaigns/F14-cooling-ladder/K2c_RACK_ROW_VALIDATION_SEARCH.md` (15), `docs/VALIDATION_INVENTORY.md` (14), F14 `README.md` (5), `K0cT_runs/analyse_k0ct.py` (5), `K0c_runs/gate_k0c.json` (4), and eleven further files at one to three each | **The canonical form.** It is the only one of the six that a `git grep` can count |
+| *"the reference is a literature-recalled `x/c ~ 0.60`, stated to two significant figures with no retained citation"* | `demo-output/website/campaign/F2_transonic_naca0012.md:186-189` | `NOT OBTAINED`. Field 3 is *no citable digitized dataset was retained*; **field 4 is empty, and the empty field is the finding** |
+| *"No paper was found, despite a genuine search ... that reports a point value of Cd or St at exactly Re=2000"*, followed by a fallback to a secondary reproduced as a figure in a 2014 thesis | `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md:562-571` | `NOT OBTAINED` **as a primary**. What is held is SECONDARY, and the row is graded BANDED and LOWER CONFIDENCE, which is the right handling of the state under a different name |
+| *"No tabulated numeric data for Martin & Moyce (1952) could be located"*, followed by a 600 dpi digitisation of a 2021 figure | `demo-output/website/campaign/F7_marine_free_surface.md:62-64` | `NOT OBTAINED` **as a primary**. The digitisation is the held artifact; its stated provenance and increment are field 4, and the record already supplies them |
+| *"the exact form given in this task's gate"* | `cases/mega-batch/PHYSICS_FAMILIES.md:73-74` | `NOT OBTAINED`, **and the hardest of the five**, because this dialect does not read as a missing reference at all. It reads as a specification. A reader meets a correlation warranted by the prompt that asked for it |
+| **nothing at all** | the nine-act gate table, `demo-output/website/campaign/NINE_ACT_GATE_TABLE.md`, until 2026-08-18 | The sixth state, and the one D382 named as uncountable by construction: a row with an unobtained reference that says nothing about it. **Repaired on that surface on 2026-08-18** by the referent and band columns, which state the class of every row's referent and, on act 1, that the form in the reference cell is in no cited source |
+
+**What this clause does not do.** It does not convert a `NOT OBTAINED` into a
+verdict, it does not license writing a gate row against a reference that is
+absent, and it does not permit the reverse move of deleting a row because its
+reference was never found. Section 2's rule still governs: a gate not reached is
+stated as not reached. **`NOT OBTAINED` is how that sentence is spelled when the
+reason is a document.**
