@@ -119,7 +119,30 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SPEC = os.path.join(HERE, "..", "K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md")
+def _find_up(relpath):
+    """Resolve a repo-relative path by walking up from HERE.
+
+    The hardcoded `HERE/../K0c_...md` this replaces was left dangling by the
+    2026-08-18 documentation reorganisation, which moved the specification into
+    docs/campaigns/.  The analyser could not run at all, which is why D414's
+    one-line fix to gate_rows could not be applied when it was named.  Same
+    helper the K0cS and K0cX comparators already use.
+    """
+    d = HERE
+    while True:
+        cand = os.path.join(d, relpath)
+        if os.path.exists(cand):
+            return os.path.abspath(cand)
+        if os.path.isdir(os.path.join(d, ".git")):
+            return os.path.abspath(os.path.join(d, relpath))
+        parent = os.path.dirname(d)
+        if parent == d:
+            return os.path.abspath(relpath)
+        d = parent
+
+
+SPEC = _find_up("docs/campaigns/F14-cooling-ladder/"
+                "K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md")
 REPO = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
 HEAT_BALANCE = os.path.join(REPO, "scripts", "heat_balance.py")
 FOAM_BASHRC = os.environ.get("FOAM_BASHRC",
@@ -648,7 +671,8 @@ def main():
                                                         key=lambda x: str(x[0]))},
         graded_estimator="Nu_2pt (solver-consistent snGrad from raw T cells); "
                          "declared before the run, see this file's docstring",
-        cases={}, gate_rows=[], controls={}, mutation_C4=[],
+        cases={}, gate_rows=[], reported_never_graded=[],
+        controls={}, mutation_C4=[],
         stratification_UNGRADED={}, cost={})
 
     # ---- measure every case -------------------------------------------------
@@ -706,7 +730,18 @@ def main():
             if q in ("Nu_avg", "Nu_max", "Nu_min"):
                 row["fine_value_3pt_estimator"] = f[q + "_3pt"]
                 row["fine_deviation_pct_3pt"] = rel(f[q + "_3pt"], ref[ra][q])
-            res["gate_rows"].append(row)
+            # VERIFICATION_CHARTER.md 2a: a quantity derivable by
+            # construction from its inputs may be REPORTED, never gated
+            # on.  D414 found all four energy-balance rows sitting in
+            # gate_rows with passed=true, measuring 3.06e-05 to 7.09e-05
+            # percent against a 0.5 percent band -- five orders inside a
+            # band they could not have missed -- while
+            # VALIDATION_INVENTORY.md:239 had already classified them as
+            # "reported, not counted as evidence for the rung".
+            if q == "energy_balance":
+                res["reported_never_graded"].append(row)
+            else:
+                res["gate_rows"].append(row)
         res["mutation_C4"] += mutate_check(f, ra, ref, bands)
         res["stratification_UNGRADED"][f"Ra={ra:.0e}"] = dict(
             fine_mesh=fine,

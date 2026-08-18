@@ -564,3 +564,77 @@ four identity rows inside `gate_rows`; separating them there means regenerating 
 published artifact, which is a re-run and is named as an open item rather than
 performed in this correction. Until it is, the JSON and this section disagree,
 and **this section is the one that is correct**.
+
+---
+
+## Dated correction, 2026-08-18 — D414's owed fix is applied, and the reason it was owed was that the analyser could not run
+
+**Nothing above is edited.** W-4.
+
+D414 recorded: *"`gate_k0c.json` continues to carry the four rows inside
+`gate_rows`; separating them regenerates a published artifact and is a re-run,
+named here rather than performed."* D413 sized it: *"one edit ... no re-solve,
+and the 20 remaining rows keep their verdicts."*
+
+**Both were right about the edit and neither could have known the blocker.**
+
+### The blocker, found only by trying to run it
+
+`analyse_k0c.py:122` resolved the gate specification as
+`HERE/../K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md`. **The 2026-08-18
+documentation reorganisation moved that file into `docs/campaigns/`, and the
+constant was never updated.** The analyser refused on startup:
+
+    REFUSE: gate specification not found at
+    .../F14-cooling-ladder/K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md
+
+**So the K0c comparator has been unrunnable at HEAD since the reorganisation,
+and nothing noticed, because a comparator that is never invoked reports
+nothing.** `analyse_k0cs.py` and `analyse_k0cx.py` both survived the same move
+because they resolve their specification with a `_find_up` walk instead of a
+fixed relative path. **The three analysers differed in a way that looked like
+style and was not.**
+
+Repaired by giving `analyse_k0c.py` the same `_find_up` helper the other two
+already use. **This is a path constant and no number depends on it** — the
+analyser either finds the specification and parses every reference and band out
+of it, or refuses.
+
+### The fix, and the re-run that checks it
+
+| | before | after |
+| --- | --- | --- |
+| `gate_rows` | **24** | **20** |
+| `reported_never_graded` | absent | **4** |
+| Verdict | GATE PASS, 0 of 24 failed | **GATE PASS, 0 of 20 failed** |
+
+**The 20 remaining graded rows compare EQUAL to their previous entries, field
+for field**, and `cases`, `controls`, `mutation_C4`, the parsed reference table
+and the parsed bands are all unchanged. **No verdict moved and no number
+moved**, exactly as D413 predicted. The four energy-balance rows are carried in
+`reported_never_graded` with their values and their `passed: true` intact — they
+are reported, and they are counted toward nothing.
+
+**The JSON and D414's addendum now agree.** Until this edit they disagreed and
+the addendum was correct; that state is ended.
+
+### What this leaves
+
+**D404's dangling-path family is one instance larger than its count**, and
+this instance was load-bearing rather than cosmetic: it silently disabled a
+gate's comparator.
+
+**The sweep for the same shape was performed rather than named, and it came
+back clean.** 428 scripts under `verification/`, `scripts/` and `cases/` were
+scanned for hardcoded `HERE/../*.md` constants that do not resolve: **zero**
+remain after this repair. All **13** analysers under `verification/runs/` were
+then imported and every module-level path constant they define was resolved on
+disk: **all 13 import cleanly and no constant dangles.**
+
+So `analyse_k0c.py` was the only instance, and **the reason it was the only one
+is the reason it was missed** — it is the one analyser that resolved its
+specification by a fixed relative path instead of a search.
+
+**This zero is reported as a measurement rather than as an absence:** the sweep
+returned a hit before the repair and none after, so it was capable of finding
+something.

@@ -927,19 +927,6 @@
       "coarse_deviation_pct": 0.12078545633011858
     },
     {
-      "quantity": "energy_balance",
-      "Ra": 1000.0,
-      "reference": 0.0,
-      "solved": 3.4883852343471855e-05,
-      "deviation_pct": 3.4883852343471855e-05,
-      "band_pct": 0.5,
-      "passed": true,
-      "coarse_mesh": "Ra1e3_m32",
-      "fine_mesh": "Ra1e3_m64",
-      "coarse_value": 3.077119560935319e-05,
-      "coarse_deviation_pct": 3.077119560935319e-05
-    },
-    {
       "quantity": "Nu_avg",
       "Ra": 10000.0,
       "reference": 2.243,
@@ -1009,19 +996,6 @@
       "fine_mesh": "Ra1e4_m80",
       "coarse_value": 19.5959010081647,
       "coarse_deviation_pct": 0.10755463034766871
-    },
-    {
-      "quantity": "energy_balance",
-      "Ra": 10000.0,
-      "reference": 0.0,
-      "solved": 7.088749969250221e-05,
-      "deviation_pct": 7.088749969250221e-05,
-      "band_pct": 0.5,
-      "passed": true,
-      "coarse_mesh": "Ra1e4_m40",
-      "fine_mesh": "Ra1e4_m80",
-      "coarse_value": 3.061777131207827e-05,
-      "coarse_deviation_pct": 3.061777131207827e-05
     },
     {
       "quantity": "Nu_avg",
@@ -1095,19 +1069,6 @@
       "coarse_deviation_pct": 0.3219798194992268
     },
     {
-      "quantity": "energy_balance",
-      "Ra": 100000.0,
-      "reference": 0.0,
-      "solved": 1.947544419561941e-05,
-      "deviation_pct": 1.947544419561941e-05,
-      "band_pct": 0.5,
-      "passed": true,
-      "coarse_mesh": "Ra1e5_m64",
-      "fine_mesh": "Ra1e5_m128",
-      "coarse_value": 9.085187800069665e-06,
-      "coarse_deviation_pct": 9.085187800069665e-06
-    },
-    {
       "quantity": "Nu_avg",
       "Ra": 1000000.0,
       "reference": 8.8,
@@ -1177,6 +1138,47 @@
       "fine_mesh": "Ra1e6_m192",
       "coarse_value": 220.49541157452478,
       "coarse_deviation_pct": 0.5176019212822606
+    }
+  ],
+  "reported_never_graded": [
+    {
+      "quantity": "energy_balance",
+      "Ra": 1000.0,
+      "reference": 0.0,
+      "solved": 3.4883852343471855e-05,
+      "deviation_pct": 3.4883852343471855e-05,
+      "band_pct": 0.5,
+      "passed": true,
+      "coarse_mesh": "Ra1e3_m32",
+      "fine_mesh": "Ra1e3_m64",
+      "coarse_value": 3.077119560935319e-05,
+      "coarse_deviation_pct": 3.077119560935319e-05
+    },
+    {
+      "quantity": "energy_balance",
+      "Ra": 10000.0,
+      "reference": 0.0,
+      "solved": 7.088749969250221e-05,
+      "deviation_pct": 7.088749969250221e-05,
+      "band_pct": 0.5,
+      "passed": true,
+      "coarse_mesh": "Ra1e4_m40",
+      "fine_mesh": "Ra1e4_m80",
+      "coarse_value": 3.061777131207827e-05,
+      "coarse_deviation_pct": 3.061777131207827e-05
+    },
+    {
+      "quantity": "energy_balance",
+      "Ra": 100000.0,
+      "reference": 0.0,
+      "solved": 1.947544419561941e-05,
+      "deviation_pct": 1.947544419561941e-05,
+      "band_pct": 0.5,
+      "passed": true,
+      "coarse_mesh": "Ra1e5_m64",
+      "fine_mesh": "Ra1e5_m128",
+      "coarse_value": 9.085187800069665e-06,
+      "coarse_deviation_pct": 9.085187800069665e-06
     },
     {
       "quantity": "energy_balance",
@@ -2062,7 +2064,7 @@
   "convergence_criterion": "Nu_avg, as printed by the running solver's own in-pass function object every 50 iterations, has a PEAK-TO-PEAK SPREAD below 0.02 percent over the last 400 outer iterations of the case. 0.02 percent is one fiftieth of the tightest band on this gate. A fixed iteration window is used rather than a fraction of the run because a last-quarter window silently loosens as a run is extended. The spread is gated rather than the endpoint difference because Ra1e6_m192 approaches steady state as a decaying oscillation of period about 400 iterations, and an endpoint test over a 400-iteration window can be aliased by exactly that.",
   "control_predictions_registered": "CONTROL PREDICTIONS -- F14 rung K0c, laminar differentially heated cavity\nRegistered before any control result was read.  Every number below is derived\neither from the gate's own reference table or from a closed-form property of the\ncase; none of it depends on a solved field.\n\n-----------------------------------------------------------------------------\nC1  Ra1e5_m128 twin with g = 0.   KIND: RECOGNITION (gross), and it also\n    demonstrates REACHABILITY of the comparator's FAIL branch.\n\n    With g = 0 there is no buoyancy source in the momentum equation, U stays\n    identically zero, and the cavity solves pure 1-D conduction between two\n    isothermal walls with two adiabatic walls.  For that solution\n    dT/dx = -dT/L everywhere and Nu(y) = 1 exactly at every y.\n\n    PREDICTED:  Nu_avg = 1.000, Nu_max = 1.000, Nu_min = 1.000,\n                u1max = u2max = 0.000, max|U| = 0 exactly.\n    PREDICTED GATE VERDICT: FAIL.  REL(Nu_avg) = 100*|1.000-4.519|/4.519\n                = 77.87 percent against a 1.0 percent band.\n    IN-LOG WITNESS OF THE PLANT: `Solving for Ux/Uy` initial residuals collapse\n                to zero, and areaNormalIntegrate(hotWall) printed by the running\n                solver equals the conduction value.  The wall temperatures\n                printed by hotT/coldT must be UNCHANGED from the graded case,\n                which is what distinguishes this plant from C2's.\n\n-----------------------------------------------------------------------------\nC2  Ra1e5_m128 twin with dT raised by exactly 1.10, i.e. Ra = 1.10e5.\n    KIND: RECOGNITION AT THE GATE'S OWN SCALE.  This is the control that\n    answers \"can this gate fail?\" for the row that actually grades the rung.\n\n    The gate bands Nu_avg at 1.0 percent.  The question is whether that band can\n    resolve a realistic error in the driving parameter.  The exponent comes from\n    the gate's OWN reference table (Section 1.3), not from a correlation:\n        ln(4.519/2.243)/ln(10) = 0.3040   (Ra 1e4 -> 1e5)\n        ln(8.800/4.519)/ln(10) = 0.2895   (Ra 1e5 -> 1e6)\n    so locally Nu ~ Ra^n with n in [0.289, 0.304], and\n        dNu/Nu = n * ln(1.10) = n * 0.09531  =  2.76 to 2.90 percent.\n\n    PREDICTED:  Nu_avg on the C2 case lands 2.6 to 3.0 percent ABOVE the\n                Ra = 1e5 graded value, i.e. Nu_avg = 4.63 to 4.66.\n    PREDICTED GATE VERDICT: FAIL against the Ra = 1e5 reference 4.519, with\n                REL between 2.6 and 3.0 percent versus a 1.0 percent band.\n    IF IT PASSED, the 1.0 percent band would be unable to see a 10 percent\n    error in the Rayleigh number and the rung's pass would mean nothing.\n    IN-LOG WITNESS OF THE PLANT: hotT/coldT are printed by the RUNNING solver\n    every 50 iterations; their difference must equal 1.196978 K, exactly 1.10x\n    the 1.088162 K of the graded case.  A plant that existed only in 0.orig/T\n    would not move these lines.\n\n-----------------------------------------------------------------------------\nC3  Ra1e5_m64 twin with a planted uniform volumetric source of 5.000e-03 W.\n    KIND: REACHABILITY of the energy-balance row, plus a stated limit on what\n    that row can ever prove.\n\n    K0b's C3 predicted a large heat imbalance on an unconverged sealed cavity\n    and measured 0.013 percent, because on a closed impermeable steady case the\n    discrete T equation conserves at every iteration whether or not the field\n    has converged: the boundary heat balance there is very nearly an IDENTITY\n    and cannot gate anything (W-2).  That finding applies unchanged to this\n    gate's energy-balance row, which is stated in the report rather than hidden.\n    C3 therefore does not try to make the row fail on convergence error.  It\n    plants a real conservation defect and checks the row sees it.\n\n    PREDICTED:  sum of wall fluxes recovers -5.000e-03 W to within 0.1 percent\n                (the source leaves the domain through the walls at steady\n                state, so the boundary integral must equal minus the source).\n    PREDICTED GATE VERDICT on the energy-balance row: FAIL, with\n                |Nu_hot - Nu_cold|/Nu_avg of order tens of percent, against a\n                0.5 percent band.\n    IN-LOG WITNESS OF THE PLANT: buoyantBoussinesqSimpleFoam echoes fvOptions\n    at construction; the log must contain the source name `heatPlant` and its\n    cell-set selection.  A source present in constant/fvOptions but not\n    constructed by the solver would not appear there.\n\n-----------------------------------------------------------------------------\nC4  Comparator mutation.  NO COMPUTE.  KIND: REACHABILITY of every band in the\n    gate table, individually.\n\n    C1 to C3 prove that some rows can fail.  They do not prove that the other\n    rows are not hard-wired to pass.  C4 perturbs each solved value in turn by a\n    factor just outside its own band and asserts that exactly that row flips to\n    FAIL and no other row moves.\n\n    PREDICTED: every one of the gate's rows flips to FAIL under its own\n    perturbation and under no other row's.  Any row that stays PASS under a\n    perturbation larger than its band is a row that grades nothing.\nregistered 2026-08-17T16:05:42Z\n",
   "verdict": {
-    "rows_total": 24,
+    "rows_total": 20,
     "rows_failed": 0,
     "failed_rows": [],
     "gate": "PASS"
