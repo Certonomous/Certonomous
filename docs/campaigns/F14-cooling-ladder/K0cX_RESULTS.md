@@ -392,3 +392,54 @@ fields, and no verdict depends on them.
 **Falsifier for this disclosure:** exhibit any line in the 18:58-18:59 edits
 that changes a graded value, a band, or a verdict. The diff is 88 lines over
 three files and is fully contained in the commit that lands this record.
+
+---
+
+## Dated correction, 2026-08-18 — the debt §5.2 named is paid, and nothing moved
+
+**Nothing above is edited.** W-4. §5.2 recorded that R3, R7 and R9 *"should be
+moved out of the graded tally into a reported block"* and filed it as **owed**
+because it regenerates a published artifact. It has been done.
+
+**The change is six lines in `analyse_k0cx.py`.** A module-level constant
+`NON_DISCRIMINATING = ("R3", "R7", "R9")` and a split of each model's rows into
+`rows` and `reported_never_graded`, with `n_rows`, `n_fail` and the verdict
+computed from the graded rows only. **No measurement code, no band, no
+reference and no verdict rule was touched.**
+
+**R5 is deliberately NOT in that list.** §5 measured it separating in 1 of 6,
+so it is not in the class the rule catches, and widening the fix past what the
+audit measured would have been the same error in the other direction.
+
+### The re-run, and what it proves
+
+| | before | after |
+| --- | --- | --- |
+| `kOmegaSST` | GATE FAIL, 10 of **20** | GATE FAIL, 10 of **14** |
+| `kEpsilon` | GATE FAIL, 7 of **20** | GATE FAIL, 7 of **14** |
+| `LaunderSharmaKE` | GATE FAIL, 7 of **20** | GATE FAIL, 7 of **14** |
+| `laminar` control | 12 of **20** | 12 of **14** |
+| **The rung** | GATE FAIL, 24 of **60** | GATE FAIL, 24 of **42** |
+
+**Every measurement is byte-identical across the re-run** — `measurements`,
+`convergence`, `reference_parsed`, `bands_parsed` and `laminar_rows` all compare
+equal between the two `gate_k0cx.json` files. **No verdict moved, no failure
+count moved, and no number moved.** The 18 rows were not deleted: they are
+carried in `reported_never_graded` with their values, deviations, bands and
+their own PASS verdicts intact.
+
+**What moved is the denominator, and only the denominator.** The evidence base
+was overstated by 43 % — 60 rows claimed where 42 carried evidence.
+
+### The reading, which is the same one D414 reached from the other side
+
+**This was invisible for the same reason D414's was: the rows all PASSED.** A
+row that grades nothing is only visible when something else fails, and R3, R7
+and R9 passed for every model on every mesh and for the laminar control too.
+**An inflated denominator made of passing rows is the hardest kind to see and
+the kind that most flatters the record.**
+
+D414 counted an identity as evidence; §5.1 here counted a row derived from two
+other graded rows as independent of them. **Both were denominators, both were
+found by instrument rather than by review, and in both cases no verdict moved —
+which is exactly why neither was caught when it was written.**

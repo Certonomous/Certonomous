@@ -100,6 +100,17 @@ CONV = {"Nu_pct": 0.02, "S_abs": 0.001, "Uy_pct": 0.02}
 # widens nothing and it rescues nothing.
 TRANSFERRED_CAUTION_PCT = 8.8
 
+# ROWS THAT GRADE NOTHING, MOVED OUT OF THE TALLY 2026-08-18.
+# K0cX_RESULTS.md 5 measured these three against the laminar control: every
+# model passed them, the control passed them, and none separated from the
+# control by more than its own band -- 18 of 60 rows.  R9 is additionally
+# computed entirely from Vup and Vdn, already graded as R2 and R4, so it
+# carries no measurement those rows do not.  Under VERIFICATION_CHARTER.md 2c
+# a row that grades a hypothesis must distinguish it from a registered trivial
+# baseline.  These are REPORTED and counted toward no verdict.
+# R5 is NOT in this list: it separated in 1 of 6 and so is not in the class.
+NON_DISCRIMINATING = ("R3", "R7", "R9")
+
 
 def refuse(msg):
     sys.stderr.write(msg + "\n")
@@ -840,11 +851,16 @@ def main():
                 r["mesh_moved_toward_experiment"] = bool(
                     r["deviation"] < r["coarse_deviation"])
             rows.extend(rr)
-        nfail = sum(1 for r in rows if r["verdict"] != "PASS")
+        graded_rows = [r for r in rows if r["tag"] not in NON_DISCRIMINATING]
+        reported_rows = [r for r in rows if r["tag"] in NON_DISCRIMINATING]
+        nfail = sum(1 for r in graded_rows if r["verdict"] != "PASS")
         graded[tag] = dict(
-            model=MODELS[tag], rows=rows, n_rows=len(rows), n_fail=nfail,
+            model=MODELS[tag], rows=graded_rows, n_rows=len(graded_rows),
+            n_fail=nfail,
+            reported_never_graded=reported_rows,
+            n_reported_never_graded=len(reported_rows),
             convergence_refusals=refused,
-            verdict=("NOT A RESULT" if not rows else
+            verdict=("NOT A RESULT" if not graded_rows else
                      ("PASS" if nfail == 0 else "GATE FAIL")))
 
     # ---- discrimination against the laminar control -------------------------
