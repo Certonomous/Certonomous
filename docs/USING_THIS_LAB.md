@@ -60,6 +60,13 @@ What it produces, in rough order of how much of the tree each occupies:
 | A control-room server and the SDK behind it | `sdk/chief_engineer/` |
 | The lab's own instrument corpus: checks, guards, sweeps | `scripts/`, `sdk/tests/` |
 
+**Before you read any campaign record, read
+`docs/VALIDATION_INVENTORY.md`.** It is one row per gate or rung across every
+campaign, with what each was checked against, whether that reference was ever
+obtained, the tier of record with its commit anchor, and whether the gate can
+fail at all. It is the only page that holds the shape of the whole, and its
+headline is that almost nothing here is validated against the world.
+
 ### The headline result, with the clauses that are part of it
 
 | Quantity | Value | Provenance |
@@ -1522,6 +1529,11 @@ executed or ruled out is still in the queue.
 **The lab check.** `python3 scripts/lab_check.py --no-tests` returned FAIL at
 `8cefb4e9`, and §7 explains why that is the correct output.
 
+**What is validated, and against what.** `docs/VALIDATION_INVENTORY.md`, one row
+per gate or rung across every campaign. Like everything else in this section it
+is a frame rather than a constant: it states the commit it was taken at, and two
+commits landed while it was being written.
+
 ---
 
 ## 15. Your first hour, as a checklist
@@ -1534,7 +1546,10 @@ executed or ruled out is still in the queue.
    (§9 item 9).
 5. `python3 scripts/lab_check.py --no-tests`, to see the lab's real state, FAIL
    and all (§7).
-6. Read `docs/charters/README.md`, then `VERIFICATION_CHARTER.md` §1, §2a, §9.
+6. Read `docs/VALIDATION_INVENTORY.md`, then `docs/charters/README.md`, then
+   `VERIFICATION_CHARTER.md` §1, §2a, §9. The inventory first, because it tells
+   you which of this lab's numbers are checked against the world and which are
+   only checked against the lab.
 7. Read the docket header rules, then skim the last ten `D` rows for house style
    (§11).
 8. Sweep all four arms before you claim any count (§4).

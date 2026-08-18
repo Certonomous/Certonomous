@@ -5736,3 +5736,73 @@ other. Note also that this cuts across the standing wisdom in the obvious
 direction only half the time: it is well recorded here that residuals do not
 certify the graded quantity (S13's whole content), and K2b adds that **the graded
 quantity does not certify the energy field either.**
+
+## L-122. A population swept over HEAD and a population swept over the working tree are two different populations, and on this tree the difference reached whole rung records
+
+The validation inventory (`docs/VALIDATION_INVENTORY.md`) was measured over
+`git ls-tree -r HEAD` because the commit protocol mandates that frame. Measured
+at `b845b603`, `git status --porcelain` showed **2,699 tracked paths deleted from
+the working tree and present in HEAD**: an uncommitted `git mv` batch had moved
+`demo-output/website/dafoam/`, `tmr/`, `mega-batch/` and others to `cases/`. In
+the other direction, three F14 rung records existed **in the working tree and in
+no commit at all** when the sweep opened, and `K1_STANDING_THERMAL_CHECKS.md`
+existed in HEAD and had been deleted from the working tree.
+
+**Both arms held rung records, so either frame alone gives a wrong population.**
+A HEAD sweep would have missed K2b and K2e entirely; a worktree sweep would have
+missed K1 and would have cited paths under `cases/` that no clone contains. One
+of the three, `K2e_RESULTS.md`, landed at `b845b603` **while the sweep was
+running**, and two more commits landed before it finished.
+
+**The rule.** State the frame, sweep it, and then run `git status --porcelain`
+as a second instrument whose only job is to report what the frame cannot see.
+Cite HEAD paths, because they are the ones a reader can fetch, and say in the
+document that a path not on disk should be looked for under its new root. A
+sweep that names its frame and never measures the other arm has not stated a
+limit; it has stated a preference.
+
+## L-123. `git log -- <path>` truncates at a rename, so a verdict's commit anchor derived per path dates the move rather than the verdict
+
+Every verdict in the inventory had to carry the commit that landed it. The
+obvious derivation, `git log --format='%h' -1 -- <path>`, returned
+**`f69a3ed5`, a MOVE_MAP batch commit**, for lesson L-106's introduction, because
+`LESSONS.md` had been relocated into `docs/` and the default log walk stops at the
+rename. The true anchor is `0ab6c39a`, three commits and one day earlier, and it
+carries a message about the finding rather than about a file move.
+
+`--follow` is not the fix: it "requires exactly one pathspec" and fails on the
+multi-path form the derivation needs. **What worked was dropping the pathspec
+entirely and searching content across all history:**
+`git log --all -S'<distinctive text>' --format='%h %ad %s' --date=short | tail -1`.
+
+**The transferable half.** On a tree with an active reorganisation, *every*
+per-path history query is dated by the reorganisation rather than by the work,
+and the failure is silent and plausible: it returns a real commit, recently, with
+a real message. Anchor a claim by its **text**, not by its **path**, and spot-check
+that the message the anchor carries is about the thing being anchored. Twenty-five
+anchors were checked that way for the inventory's F-series table and all twenty-five
+matched their subject; the one that did not was found only because its subject
+was obviously wrong.
+
+## L-124. A tier is a property of the reference, not of the solve, so a lab-wide tier count is a count of references obtained
+
+Counting the whole lab's gates one row each produced a result none of the
+individual records could show: **135 distinct gates and rungs, and three cases
+carrying a VALIDATED chip.** The largest single reference class, at 43 percent of
+rows, is the lab's own earlier run, its own text or its own code.
+
+**The rungs are not weak. The references are absent.** F14's K0c grades 24 of 24
+rows inside band, on a mandatory two-mesh pair per Rayleigh number, with five
+controls including a planted 10 percent Rayleigh error that the same comparator
+fails at 3.19 percent and a comparator mutation proving every one of the 24 rows
+individually reachable. It is capped at TREND ONLY, correctly, because de Vahl
+Davis is a numerical benchmark rather than an experiment. No amount of further
+instrumentation moves it.
+
+**The consequence for planning.** Asking "what should we run next" optimises the
+wrong variable when the ceiling is set upstream of the solve. Seven of the nine
+highest-value actions the inventory identified cost **no core-minutes at all**:
+read a public-domain NACA report, declare the bands that were never declared,
+record an extraction route, make a caption carry a qualifier that already exists
+in its own case record. The lab's binding constraint is reference acquisition and
+reference transmission, not compute and not solver capability.
