@@ -494,3 +494,40 @@ case.
   travel from K0cS to K0cX says nothing about a third geometry.
 - **Nothing here will be submitted, sent, filed, uploaded or registered.**
   Submissions are PARKED.
+
+---
+
+## Appended 2026-08-18T18:52Z, BEFORE any case result was read: a provenance correction to Section 2.2(b)
+
+**Append-only (W-4). Section 2.2(b) above is left standing and unedited.** It is
+corrected here rather than rewritten, and the correction was made while all 22
+cases were still solving and no measured value had been looked at.
+
+Section 2.2(b) wrote that "two experiments in the same rig disagree by up to
+**8.8 %** while stating uncertainties under 1.2 %" as though that were a property
+of **this** experiment. **It is not.** Traced to its source:
+
+| | |
+| --- | --- |
+| Where 8.8 % actually comes from | `K0cS_SQUARE_CAVITY_GATE.md` §2.2 and its claim row, p. 446: **Ampofo and Karayiannis (2003) against Tian and Karayiannis (2000)**, the same **square-cavity** rig, **top-wall** average Nusselt, 14.4 against 15.67 |
+| What it is | the reproducibility spread of a **different rig, a different geometry and a different Rayleigh number** |
+| What Betts and Bokhari's own tall-cavity reproducibility spread is | **NOT OBTAINED.** There is no second independent measurement of this cavity. A reproducibility spread cannot be computed from one experiment, and none is invented here |
+
+**What changes in how this rung reports, and what does not.**
+
+- **The graded band is unchanged.** Every Nusselt row is graded against
+  `u_val` = 5.43 % (lo) / 5.41 % (hi), quadrature-combined in A1.5 from the
+  authors' own ±5 % on the wall gradient, the paper's 2.09 % / 2.00 % internal
+  inconsistency, and this rung's own grid pair. That band is external to every
+  solve value and it is what the verdict rests on.
+- **8.8 % is retained only as a TRANSFERRED CAUTION, labelled as such**, on the
+  single question of how much weight a ±5 % *stated* uncertainty can carry. Its
+  use is one-directional and negative: **no agreement inside 8.8 % will be
+  called a validation**, because in the one case class where this lab can
+  measure rig-to-rig reproducibility it exceeded the stated uncertainty by
+  sevenfold. It will **not** be used to widen any band, to rescue any row, or to
+  soften any GATE FAIL.
+- **The absence itself is a result to file**, and it goes in the NOT OBTAINED
+  table of the results record: the tall cavity is single-source, exactly as
+  K0cS's turbulence statistics were single-source, and every Nusselt verdict on
+  this geometry inherits that.

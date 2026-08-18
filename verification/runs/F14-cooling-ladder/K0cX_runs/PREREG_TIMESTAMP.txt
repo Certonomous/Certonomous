@@ -1,0 +1,7 @@
+pre-registration commit   2ab6c77b00e48a59458efb6bc706715afabd50de
+parent                    d9475c07b1e4054253fb27796b6cfb75903792be
+committed_utc             2026-08-18T18:42:52+00:00
+first_graded_solve_utc    2026-08-18T18:43:23Z
+pilots                    2 scratch solves of 1000 iterations, outside this tree,
+                          charged in K0cX_PREREGISTRATION.md Section 7. They
+                          produced a RATE and no case value in this rung.
