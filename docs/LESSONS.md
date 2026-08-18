@@ -6464,3 +6464,64 @@ name, not by spelling.** `lab_paths.run_archive("K0c_runs", "F14-cooling-ladder"
 probes every spelling the map knows, prefers the successor, and REFUSES rather
 than returning an empty corpus — so the line is correct on both sides of this
 move and of the next one, and no fourth scan will be needed to find it again.
+
+## L-138. The three scans all ask which files NAME the old path; a bound root re-points the files that name no path at all
+
+L-127, L-135 and L-137 built a three-shape scan for a move batch: the literal
+path, the depth idiom, the quoted token. All three ask one question — *which
+files name the old location?* Batch 8 is where that question stopped being
+sufficient, and the reason is `lab_paths` working exactly as designed.
+
+Batch 3 introduced `scripts/lab_paths.py` so that batches 4-8 would edit **one
+module instead of thirteen files**. The unstated consequence is the mirror of
+the benefit: **every consumer of a bound root is re-pointed by a commit that
+does not name it, does not diff it, and cannot be found by searching for the
+path it used to compute.** Batch 8 moved five files; `lab_paths.WEB` flipped
+from the webroot to `web/`; **six call sites changed value and the diff touches
+none of them.** All three scan shapes came back clean on every one, correctly,
+because not one of them contains a path.
+
+Evaluated on both sides rather than read:
+
+| site | what it computes after the flip | |
+|---|---|---|
+| `scripts/build_laptop_bundle.py:526` | `web/closure.html`, `web/benchmarks.html`, `web/wall/wall.html` | **becomes correct** |
+| `scripts/self_audit.py:129` | the webroot, which is now `web/` | **becomes correct** |
+| `sdk/scripts/capture_video.py:53` | `web/`, the honest binding the map ruled for it | **becomes correct** |
+| `sdk/workflows/nasa_hump.py:60` | `web/dafoam/f6a_nasa_hump/case_template` | dangling before, dangling after — R22 took `dafoam` in batch 6 |
+| `sdk/workflows/rae2822_case9.py:98` | `web/campaign/F12_runs/reference` | dangling before, dangling after — R20 took it in batch 7 |
+| `sdk/scripts/closure_in_sample_gate.py:112` | **a SWEEP ROOT** | the one that matters |
+
+The last one is the lesson:
+
+```python
+_WEBROOT_REL = str(lab_paths.WEB.relative_to(lab_paths.REPO))
+_SCAN_JSON_ROOTS = (_WEBROOT_REL, "models")
+_SCAN_MD_ROOTS = (_WEBROOT_REL, "docs")
+```
+
+Three lines that name no path, that every scan is right to pass over, and that
+decide how much of the tree a gate reads.
+
+**Measured rather than feared: the shrink is one file.** The webroot held
+**0 `.json` and 1 `.md`** when batch 8 ran, because batches 5, 6 and 7 had
+already taken everything else out of it, so the corpus lost exactly
+`demo-output/website/motorbike-video/shotlist.md` — withdrawn spelling, do not
+cite it — on a gate that neither `lab_check` nor the suite invokes. No verdict
+moved. It was **reported and not adjusted**, because a mover who repairs an
+instrument in the same commit as the move that would have moved it has
+destroyed the only evidence that it moved.
+
+**The size is luck and the shape is the lesson.** Run batch 8 before batch 5 and
+those same three lines take that gate from the whole webroot to five HTML files,
+every finding it used to make goes quiet, and all three scans still come back
+clean.
+
+**The fourth question is not "who names the old path" but "who reads a name
+whose VALUE this commit changes".** It is answered by grepping for the module's
+own exported names — `lab_paths.WEB`, `lab_paths.CAMPAIGN`, `lab_paths.RUNS` —
+rather than for any path, and then by EVALUATING each site on both sides of the
+move instead of reading it. A binding that resolves is the whole point of the
+module. A binding that resolves to a **smaller corpus** is this repository's
+most repeated failure wearing the module's face, and it arrives with a clean
+scan report attached.

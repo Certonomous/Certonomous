@@ -658,16 +658,54 @@ class ItReplacesWhatItClaimsTo(TreeCase):
         The member path inside the ZIP is not the repo path, which is the
         whole reason the triple exists, and `build_laptop_bundle.py:53`'s
         deliberate omission of `shoot.html` is preserved.
+
+        AMENDED 2026-08-18, EXECUTING BATCH 8, AND THE OLD PIN NAMED ONE SIDE
+        OF A MOVE IT WAS WATCHING.  It asserted the LEGACY spelling of all
+        three sources.  R13 moves exactly those three pages to `web/`, so the
+        moment batch 8 lands the assertion reddens on the module doing what it
+        exists to do -- which is batch 4's finding on
+        `test_sweep_roots_reproduces_self_audit_4309_before_the_move` and
+        batch 5's on `test_record_documents_...`, recurring a third time.
+
+        The failure mode a bare re-point would create is worse than the
+        failure: an assertion rewritten to the NEW spelling alone stops being
+        able to fail in the pre-move direction, and an instrument that can only
+        agree with wherever the tree happens to be is not an instrument.  So
+        BOTH sides are named and the disk decides which one is in force; a
+        third answer -- a page under neither spelling -- fails.
         """
-        self.assertEqual(
-            [(label, str(p.relative_to(L.REPO)), member)
-             for label, p, member in L.BUNDLE_PAGES()],
-            [("closure.html", "demo-output/website/closure.html",
-              "site/closure.html"),
-             ("benchmarks.html", "demo-output/website/benchmarks.html",
-              "site/benchmarks.html"),
-             ("wall.html", "demo-output/website/wall/wall.html",
-              "site/wall/wall.html")])
+        got = [(label, str(p.relative_to(L.REPO)), member)
+               for label, p, member in L.BUNDLE_PAGES()]
+        legacy = [("closure.html", "demo-output/website/closure.html",
+                   "site/closure.html"),
+                  ("benchmarks.html", "demo-output/website/benchmarks.html",
+                   "site/benchmarks.html"),
+                  ("wall.html", "demo-output/website/wall/wall.html",
+                   "site/wall/wall.html")]
+        moved = [("closure.html", "web/closure.html", "site/closure.html"),
+                 ("benchmarks.html", "web/benchmarks.html",
+                  "site/benchmarks.html"),
+                 ("wall.html", "web/wall/wall.html", "site/wall/wall.html")]
+        # WHICH SIDE IS IN FORCE IS READ OFF THE DISK, NOT OFF THE ASSERTION.
+        want = moved if (L.REPO / "web" / "closure.html").exists() else legacy
+        self.assertEqual(got, want)
+        # THE MEMBER PATHS DO NOT MOVE.  The name inside the ZIP is the
+        # customer's; R13 changes where the source lives, never what the
+        # bundle is called, and a re-point that dragged `web/` into the member
+        # column would rename three files in a shipped artifact.
+        self.assertEqual([m for _, _, m in got],
+                         ["site/closure.html", "site/benchmarks.html",
+                          "site/wall/wall.html"])
+        # THE DIRECTION.  A triple that names a page which is not on disk
+        # builds a bundle missing that page and reports success.
+        for label, rel, _ in got:
+            self.assertTrue((L.REPO / rel).is_file(),
+                            f"{label} is named at {rel}, which is not there")
+        # THE MUST-NOT-MATCH CONTROL.  `shoot.html` is a served page and is
+        # deliberately NOT in the bundle; a triple that became "every served
+        # page" would pass every assertion above.
+        self.assertNotIn("shoot.html", [label for label, _, _ in got])
+        self.assertEqual(3, len(got))
 
     def test_record_documents_never_loses_a_record_the_rglob_reached(self):
         """`self_audit._record_documents()` replaces `WEB.rglob("*.md")`.
@@ -828,10 +866,34 @@ class ItReplacesWhatItClaimsTo(TreeCase):
                 if a is not b:
                     self.assertNotIn(a, b.parents,
                                      f"{a} is inside {b}: double-counted")
-        web = L.REPO / _W
-        if web.exists():
-            self.assertTrue(any(r == web or r in web.parents
-                                or web in r.parents for r in roots))
+        # AMENDED 2026-08-18, EXECUTING BATCH 8.  This asserted against the
+        # LEGACY webroot literal, which R13 stops being a record root -- the
+        # third instrument in this map pinned to one side of a move it watches
+        # (batch 4's `SWEEP_ROOTS`, batch 5's `_record_documents`, this).
+        # The BOUND webroot is the thing under test, and it is asserted on
+        # BOTH sides so the test cannot pass merely by agreeing with wherever
+        # the tree happens to be.
+        bound = L._BOUND["WEB"]
+        self.assertIn(str(bound.relative_to(L.REPO)), (_W, "web"))
+        self.assertTrue(any(r == bound or r in bound.parents
+                            or bound in r.parents for r in roots),
+                        f"the bound webroot {bound} is not covered by any "
+                        f"record root; RECORD_ROOT_NAMES has lost WEB")
+        # AND THE DIRECTION, which is what the count cannot show.  R13 leaves
+        # the X3 trees (`latex/`, `motorbike-video/`) at the legacy webroot,
+        # and their markdown stops being swept when WEB moves.  Batch 8
+        # measured that as exactly one file and REPORTED it rather than
+        # widening a root mid-move; this asserts it stays exactly one, so the
+        # day it becomes many the test says so instead of the corpus quietly
+        # shrinking.  See L-138 and D404.
+        legacy = L.REPO / _W
+        if legacy.exists() and bound != legacy:
+            stranded = [p for p in legacy.rglob("*.md")
+                        if not any(r == p or r in p.parents for r in roots)]
+            self.assertLessEqual(
+                len(stranded), 1,
+                f"{len(stranded)} record(s) under the legacy webroot are "
+                f"reached by no record root: {stranded}")
 
     def test_the_solve_registry_constant_names_the_tree_four_modules_name(self):
         """MOVE_MAP section 4.3 names four consumers of the 1.51 GB tree that

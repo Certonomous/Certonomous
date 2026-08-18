@@ -3,7 +3,8 @@
 
     python3 analyse_k0b_mesh.py       # writes k0b_mesh_sensitivity.json here
 
-Answers proposal P2 of demo-output/website/campaign/THERMAL_K0_RESULTS.md:
+Answers proposal P2 of verification/campaign/THERMAL_K0_RESULTS.md (R21; it
+was `demo-output/website/campaign/THERMAL_K0_RESULTS.md` when this was written):
 "Every K0b number above is from a single 64x64 mesh. A single-mesh number is
 not a converged number."
 
@@ -45,9 +46,54 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
-K0B_64 = os.path.join(REPO, "demo-output", "website", "campaign",
-                      "THERMAL_K0_runs", "K0b_cavity_Ra1e5")
+
+
+def _find_repo(start):
+    """Walk up until `scripts/lab_paths.py` is found, and REFUSE otherwise.
+
+    NOT a counted chain of `..` segments.  A hand-counted chain is silent when
+    the count is wrong but the directory it lands on happens to be readable,
+    which is how a wrong repo root becomes a wrong answer rather than an error.
+    """
+    d = start
+    while True:
+        if os.path.isfile(os.path.join(d, "scripts", "lab_paths.py")):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            raise SystemExit(
+                f"REFUSE: no scripts/lab_paths.py in any parent of {start}")
+        d = parent
+
+
+REPO = _find_repo(HERE)
+sys.path.insert(0, os.path.join(REPO, "scripts"))
+import lab_paths as _lab_paths  # noqa: E402
+
+#: THE ARCHIVE IS ASKED FOR BY NAME, NOT SPELLED OUT.
+#:
+#: D403.  This line used to read `os.path.join(REPO, "demo-output", "website",
+#: "campaign", "THERMAL_K0_runs", "K0b_cavity_Ra1e5")` -- assembled from
+#: SEPARATE QUOTED SEGMENTS, so neither a literal scan for
+#: `demo-output/website/campaign/...` nor a depth scan for `parents[N]` could
+#: see it.  R20 moved that archive to `verification/runs/THERMAL_K0_runs` and
+#: this rung has been unrunnable since; `build_and_run.sh` REFUSED and this
+#: module named a directory that is not there.  It is the same blindness that
+#: hid the sealed-case corpus in `KV1_runs/mutate_advective.py` (L-137).
+#:
+#: `lab_paths.run_archive` probes every spelling the map knows and prefers the
+#: successor, so this is correct on both sides of that move and of the next
+#: one.  A miss REFUSES rather than naming an absent directory: the 64x64 leg
+#: is the MIDDLE mesh of the three-mesh triple, and a Richardson extrapolation
+#: that has quietly lost its middle mesh is arithmetic on two numbers, not a
+#: convergence statement.
+_THERMAL_K0 = _lab_paths.run_archive("THERMAL_K0_runs")
+if _THERMAL_K0 is None:
+    raise SystemExit(
+        "REFUSE: no `THERMAL_K0_runs` archive under any spelling `lab_paths` "
+        "knows. The 64x64 leg is the committed middle mesh of the triple; "
+        "without it there is no three-mesh Richardson estimate to make.")
+K0B_64 = os.path.join(str(_THERMAL_K0), "K0b_cavity_Ra1e5")
 FOAM_BASHRC = os.environ.get("FOAM_BASHRC",
                              "/usr/lib/openfoam/openfoam2606/etc/bashrc")
 L = 0.10

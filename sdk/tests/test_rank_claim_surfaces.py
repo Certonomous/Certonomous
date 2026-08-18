@@ -149,6 +149,24 @@ The leads over Reissmann and over Wu and Zhang are not statistically decided.
 # L-76. A guard may never be satisfied by a tombstone.
 _STRUCK = re.compile(r"<s>.*?</s>", re.S)
 
+
+def _live_closure_html() -> str:
+    """The live `closure.html`, wherever the map has it -- read, never guessed.
+
+    ADDED 2026-08-18, EXECUTING BATCH 8.  Two tests below read the page off the
+    tree, and both spelled it `REPO / "demo-output" / "website" / "closure.html"`
+    -- assembled from separate quoted segments, invisible to a scan for the
+    literal path.  R13 moves the page to `web/closure.html`.  `lab_paths`
+    resolves the name to whichever side of the move is on disk, so these tests
+    are correct before the move and after it with no flag day.
+
+    `require()` RAISES when the page is nowhere.  That is deliberate: a page
+    that cannot be read must not become an empty string that satisfies a
+    `assertEqual([], ...)`, which is how a guard reports a clean bill of health
+    on a surface it never opened.
+    """
+    return lab_paths.require("WEB_CLOSURE_HTML").read_text(encoding="utf-8")
+
 # The same compliant text with ONE difference: the token reflowed across a line
 # break. A reader sees no change. A line-bounded sweep sees the token vanish.
 WRAPPED = COMPLIANT.replace(
@@ -217,9 +235,18 @@ class RankClaimDetectionTests(unittest.TestCase):
         self.assertNotIn("2-100%", missing[0])
 
     def test_the_live_page_carries_what_the_rule_requires(self):
-        """closure.html in the tree, not a fixture. This is the regression."""
-        page = (REPO / "demo-output" / "website" / "closure.html"
-                ).read_text(encoding="utf-8")
+        """closure.html in the tree, not a fixture. This is the regression.
+
+        THE PAGE IS ASKED FOR BY NAME, NOT SPELLED OUT (batch 8, R13).  It was
+        `REPO / "demo-output" / "website" / "closure.html"` -- assembled from
+        separate quoted segments, so the literal scan for
+        `demo-output/website/closure.html` did not see it.  `lab_paths` binds
+        the name to whichever side of the move is on disk, so this reads the
+        live page before R13 and after it.  `require()` RAISES on a page that
+        is nowhere; it must never degrade to an unreadable file that some
+        caller turns into an empty string and a vacuous pass.
+        """
+        page = _live_closure_html()
         self.assertTrue(sa._rank_claim_lines(page))
         self.assertEqual([], sa._rank_companions_missing(page))
 
@@ -240,9 +267,11 @@ class RankClaimDetectionTests(unittest.TestCase):
         of a claim it had publicly withdrawn. Delete every <s>...</s> and the
         page must STILL carry what the rule asks; if it does not, the guard is
         reading the dead text again.
+
+        Reads the page through `lab_paths` for the reason given on the test
+        above (batch 8, R13).
         """
-        page = (REPO / "demo-output" / "website" / "closure.html"
-                ).read_text(encoding="utf-8")
+        page = _live_closure_html()
         live = _STRUCK.sub("", page)
         self.assertNotEqual(page, live, "the page carries no struck text at "
                                         "all; this control is not exercising "

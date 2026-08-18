@@ -740,7 +740,21 @@ def classify_unit(unit_text: str, suffix: str = ".md",
 _RULE_SURFACE_RE = re.compile(
     r"(?:^|/)(?:CLAUDE\.md|LESSONS\.md|DOCKET\.md|.*CHARTER.*|.*STANDARD.*|"
     r"docs/charters/.*|docs/standards/.*|.*_RULES.*|.*DOCTRINE.*)$")
-_SHIPPING_RE = re.compile(r"^(?:demo-output/website/|.*/latex/|.*\.tex$)")
+#: RE-POINTED 2026-08-18, EXECUTING BATCH 8, IN THE SAME COMMIT AS R13's MOVE.
+#: `web/` replaces `demo-output/website/` because that is where the five served
+#: files now are.  It could not land earlier: an alternative naming a directory
+#: that does not yet exist is a rule matching nothing, which is why batches 3-7
+#: each confirmed this line byte-identical and left it queued.
+#:
+#: NOT A FAIL-OPEN, and the ruling at `b0ab070d` is what says so.  This pattern
+#: feeds `blast_radius` alone, `blast` feeds severity RANKING alone, and no
+#: score it produces can flip a verdict.  Missing it degrades the ORDER findings
+#: are reported in; it does not turn a FAIL into a PASS.  A ranking repair,
+#: stated as one.
+#:
+#: The `.*/latex/` alternative already covers `demo-output/website/latex/`,
+#: which does not move (map X3), so dropping the old prefix strands nothing.
+_SHIPPING_RE = re.compile(r"^(?:web/|.*/latex/|.*\.tex$)")
 
 
 def blast_radius(path: str, suffix: str, kind: str) -> tuple[int, str]:

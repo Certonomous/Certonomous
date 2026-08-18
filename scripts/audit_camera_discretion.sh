@@ -138,8 +138,12 @@ reports > /dev/null
 
 # The three static pages are a fixed, known list rather than a glob, so an
 # absent one is an absence this script can name. It used to skip them silently.
-PAGES=("$ROOT/demo-output/website/closure.html"
-       "$ROOT/demo-output/website/benchmarks.html"
+# R13 / batch 8 re-point: the two served pages moved to `web/`.  Re-pointed in
+# the same commit as the move -- an ABSENT_PAGE here is a real absence this
+# script names, so a stale spelling would report the pages missing rather than
+# fail, which is the quiet direction.
+PAGES=("$ROOT/web/closure.html"
+       "$ROOT/web/benchmarks.html"
        "$ROOT/sdk/chief_engineer/control_room.html")
 
 # ---------------------------------------------------------------------------

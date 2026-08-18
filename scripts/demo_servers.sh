@@ -15,7 +15,16 @@
 set -u
 
 REPO=/home/ubuntu/Certonomous
-LOG=/home/ubuntu/demo_servers.log
+# 2026-08-18: the three server logs used to be written to /home/ubuntu directly
+# and were the last loose files at that root. They are re-pointed at
+# /home/ubuntu/logs/ here rather than merely moved, because a log that is moved
+# without re-pointing its writer is recreated at the old path by the next
+# @reboot launch -- and worse, a process ALREADY holding the old descriptor keeps
+# writing to the moved inode, so the file at the new path looks frozen while the
+# real output goes somewhere nobody is looking.
+LOGDIR=/home/ubuntu/logs
+mkdir -p "$LOGDIR"
+LOG=$LOGDIR/demo_servers.log
 
 # OpenFOAM lives behind the openfoam2606 launcher on this box, not on PATH.
 # cron @reboot hands this script a bare environment, so a server started that
@@ -34,7 +43,7 @@ if listening 8765; then
 else
     cd "$REPO/sdk" || exit 1
     setsid nohup python3 -u -m chief_engineer.server \
-        >> /home/ubuntu/control_room.log 2>&1 < /dev/null &
+        >> "$LOGDIR/control_room.log" 2>&1 < /dev/null &
     disown 2>/dev/null || true
     echo "$(stamp) started control room on 8765" >> "$LOG"
 fi
@@ -43,8 +52,11 @@ if listening 8080; then
     echo "$(stamp) static site already listening on 8080" >> "$LOG"
 else
     cd "$REPO" || exit 1
-    setsid nohup python3 -u -m http.server 8080 --directory demo-output/website \
-        >> /home/ubuntu/static_site.log 2>&1 < /dev/null &
+    # R13 / batch 8: the served root is `web/` -- the five files that were
+    # actually reachable from a page.  It was `demo-output/website`, whose
+    # 19,149 tracked files were served and 19,144 of them referenced by nothing.
+    setsid nohup python3 -u -m http.server 8080 --directory web \
+        >> "$LOGDIR/static_site.log" 2>&1 < /dev/null &
     disown 2>/dev/null || true
     echo "$(stamp) started static site on 8080" >> "$LOG"
 fi

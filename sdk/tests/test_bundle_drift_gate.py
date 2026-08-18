@@ -50,6 +50,19 @@ import zipfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
+if str(REPO / "scripts") not in sys.path:
+    sys.path.insert(0, str(REPO / "scripts"))
+import lab_paths  # noqa: E402
+
+#: Where the fixture plants the three site pages inside its hermetic tmp tree,
+#: as a repo-RELATIVE path.  DERIVED, NOT SPELLED (batch 8, R13).  It was
+#: `self.root / "demo-output" / "website"` -- assembled from quoted segments,
+#: so the literal scan for the webroot could not see it -- and R13 moved the
+#: three pages `_BUNDLE_PAGES` names to `web/`, at which point the gate looked
+#: in one place and the fixture wrote in another and seven arms of this module
+#: failed at once.  Deriving it means no future batch has to edit this file.
+_WEB_REL = lab_paths.WEB.relative_to(lab_paths.REPO)
+
 _SPEC = importlib.util.spec_from_file_location(
     "self_audit_under_test", REPO / "scripts" / "self_audit.py")
 sa = importlib.util.module_from_spec(_SPEC)
@@ -87,7 +100,7 @@ class _BundleFixture(unittest.TestCase):
         src.mkdir(parents=True, exist_ok=True)
         body = "print('MOVED')\n" if tree_moved else "print('control room')\n"
         (src / "server.py").write_text(body)
-        pages = self.root / "demo-output" / "website"
+        pages = self.root / _WEB_REL
         (pages / "wall").mkdir(parents=True, exist_ok=True)
         for rel in ("closure.html", "benchmarks.html", "wall/wall.html"):
             (pages / rel).write_text(f"<html>{rel}</html>\n")
