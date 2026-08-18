@@ -767,7 +767,13 @@ def main(argv=None):
         made.append(nm)
         funcs.append(nm)
 
-    shutil.rmtree(os.path.join(case, "postProcessing"), ignore_errors=True)
+    # D375: this removed the WHOLE postProcessing tree, including the solver's
+    # own in-pass function-object history -- which is the series this campaign's
+    # convergence criterion reads (physics_rules thermal.monitor_*). Twelve K2e
+    # cases lost it and K0c's committed archive shows the same hole. The audit
+    # only ever needs ITS OWN outputs clean, so it removes only those.
+    for _fo in funcs:
+        shutil.rmtree(os.path.join(case, "postProcessing", _fo), ignore_errors=True)
     clean_derived(case)
     try:
         proc = run_post(case, funcs, tspec)
