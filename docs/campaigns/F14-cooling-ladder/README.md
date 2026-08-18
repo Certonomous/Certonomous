@@ -125,3 +125,90 @@ public at inldigitallibrary.inl.gov and was not duplicated here for size).
 **Added 2026-08-17 with the K2 specifications:**
 `wibron_ljung_lundstrom_2018_en11030644` (CC-BY, fetched from the Luleå DiVA
 repository after the publisher host refused this box; SHA-256 in the K2c spec).
+
+---
+
+# Addendum 2026-08-18, K2c re-status (W-4: nothing above is edited)
+
+**Zero compute. No solver launched. No compute authorization requested or
+spent.** Frame: repository HEAD `9f3971f6`; every check below was run
+2026-08-18 between 16:50Z and 17:15Z. The tables above are left standing because
+they were true when written and because their value is that they can be diffed
+against their own commits. **The two K2c rungs moved; K0d did not.**
+
+## The ladder, re-stated
+
+| Rung | State at 2026-08-18 | What changed today |
+| --- | --- | --- |
+| K0c laminar (de Vahl Davis) | Verification only, TREND-ONLY ceiling | Nothing |
+| K0c turbulent (Betts and Bokhari) | **GATE FAIL**, 8 of 18 rows, executed 2026-08-18 | Nothing |
+| **K0d (Blay cavity)** | **TREND-ONLY. STILL BLOCKED, and deliberately restated so it is not lost among today's two unblockings.** See below | Nothing. **No part of today's work touches K0d** |
+| **K2c-A hard-floor rack-inlet (Wibron 2018)** | **Reference column ARMED and COMPLETE.** VALIDATED-ELIGIBLE on two rows, **VALIDATED on none** | The digitization row was closed **in full**: Figures 6 and 7 armed the column on 2026-08-17, and Figures 3 and 8 were tabulated with their increments on 2026-08-18 |
+| **K2c-B raised-floor / perforated-tile** | **GATE ROWS WRITTEN, reference column ARMED on three rows, and every row BLOCKED.** Not eligible for any tier | A measurement primary was obtained (VanGilder & Schmidt 2005) and seven gate rows were written against it |
+
+**Three sentences that must travel together, because either one alone
+misleads:**
+
+1. **K2c-B has gate rows and a reference for the first time.**
+2. **No rung can be graded against them**, because K2a v1 meshes no plenum and
+   imposes per-tile flow as an input, so a v1 solve against these rows would be
+   an **identity** and would report a clean PASS (`VERIFICATION_CHARTER.md`
+   §2a). Closing that gap is a **module revision that solves the plenum** — new
+   specification work, the owner's to authorize — not a solve of anything that
+   exists today.
+3. **Arming a reference column is not a grade.** The K2c-A precedent says so
+   explicitly and it governs K2c-B identically.
+
+## Closures to the "References NOT OBTAINED" table above
+
+**The table above is not rewritten.** The discipline its own preamble states
+runs both ways: *"a rung whose reference was never obtained must not later pass
+because someone forgot the reference is missing"* — and equally, **a reference
+that WAS obtained must be recorded loudly enough that the rung is not left
+artificially blocked either.** The closures:
+
+| Row of the table above | Status at 2026-08-18 | Where the record is |
+| --- | --- | --- |
+| Tabulated core temperature gradient, de Vahl Davis | **STILL NOT OBTAINED.** Untouched today | `K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md` §1 |
+| Measured Nusselt number, Betts and Bokhari | **STILL NOT OBTAINED.** Untouched today | `K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md` §2.3 |
+| Blay, Mergui and Niculae (1992) primary | **STILL NOT OBTAINED.** Untouched today. See the K0d block below | `K0d_TURBULENT_MIXED_CONVECTION_GATE.md` §2 |
+| Any raised-floor rack-inlet or tile-flow measurement primary | **DISCHARGED ON ITS TILE-FLOW HALF. ITS RACK-INLET-TEMPERATURE HALF IS UNTOUCHED AND REMAINS NOT OBTAINED.** VanGilder & Schmidt 2005 (`10.1115/ipack2005-73375`) was obtained in full text via the MIT access route against the ASME Digital Collection, 2026-08-18, and carries a CFD-versus-measurement tile-flow comparison. **Neither it nor Wibron 2019 measures a rack-inlet temperature**; Schmidt & Cruz 2002 (`10.1109/itherm.2002.1012507`) remains the exact-quantity candidate and remains paywalled (Unpaywall `is_oa: false`, 2026-08-17) | `K2c_RACK_ROW_VALIDATION_SEARCH.md` **§8** |
+| Digitized reference values from Wibron 2018 Figures 3, 6, 7, 8 | **DISCHARGED IN FULL.** Figures 6 and 7 on 2026-08-17; **Figures 3 and 8 on 2026-08-18**, tabulated with per-quantity increments. The completion also recorded that Figures 3 and 8 **could never have armed a row**: Figure 3 plots no experiment, and Figure 8's experimental markers are Figure 7's (control C6 measures the identity) | `K2c_DIGITIZATION_ADDENDUM.md` **§11** |
+
+## References NOT OBTAINED — two rows ADDED today
+
+Today's acquisitions removed one half-row from the list above and **added two
+references to it.** Both are named here so the list stays complete:
+
+| Missing reference | Which claim it blocks | Why not obtained | Acquisition path |
+| --- | --- | --- | --- |
+| Schmidt, R. et al. (2001). *Measurements and Predictions of the Flow Distribution Through Perforated Floor Tiles In a Raised-Floor Data Center.* InterPACK 2001, Kauai | **The stated experimental uncertainty of every K2c-B row.** VanGilder & Schmidt 2005 uses these measurements (its reference [6]) and states no instrument, no accuracy and no uncertainty for them anywhere — verified by exhaustive string search of the full text, 2026-08-18. The tolerances on rows B1 and B2 are therefore **PROVISIONAL**, derived from the published model's own deviation and **not** from an experimental uncertainty | **No DOI established.** Two CrossRef bibliographic queries, 2026-08-18, returned no matching record; ASME InterPACK proceedings of that era are largely unregistered, the same condition already recorded for Blay 1992 | The **same ASME Digital Collection / MIT access route that delivered the 2005 paper**, now demonstrated to work on ASME InterPACK proceedings; failing that, document delivery / ILL on the InterPACK 2001 volume |
+| VanGilder, J.W.; Zhang, X. (2008). *Coarse-Grid CFD: The Effect of Grid Size on Data Center Modeling.* ASHRAE Transactions 114, pp. 166–181 | The grid-size sanity floor cited in `K2a_RACK_ROW_MODULE_SPEC.md` §6. **This is Wibron 2018's reference [24]** — read from Wibron's own reference list, p. 14. `K2c_RACK_ROW_VALIDATION_SEARCH.md` §1 and §5 had attributed that citation to **VanGilder & Schmidt 2005/2006**, which is a different paper by a different pair of authors in a different venue three years earlier, and which is **not in Wibron's reference list at all**. **Obtaining the 2005 paper therefore did NOT discharge this claim** | **No DOI established.** CrossRef bibliographic query on title, authors, venue and year, 2026-08-18, returned no matching record; ASHRAE Transactions of that era are largely unregistered | ASHRAE Technology Portal, or document delivery / ILL on ASHRAE Transactions vol. 114. **Low priority: the claim was never graded on and still is not** |
+
+## K0d: explicitly STILL TREND-ONLY, and the unblock condition named
+
+**Restated at full volume because two other rungs moved today and K0d did not.**
+
+| K0d | State at 2026-08-18 |
+| --- | --- |
+| Tier | **TREND-ONLY.** Gate rows fixed, **reference numbers still awaiting the primary** |
+| The unblock condition, and it is the only one | **Blay, D., Mergui, S., Niculae, C. (1992). *Confined turbulent mixed convection in the presence of a horizontal buoyant wall jet.* Fundamentals of Mixed Convection, ASME HTD Vol. 213, pp. 65–72** |
+| Why it is not simply bought | **No DOI exists.** CrossRef bibliographic query on the full title, **2026-08-17**, returned no matching record; ASME HTD volumes of that era are unregistered. Venue metadata was independently corroborated by CiNii record CRID 1573105974176827520, fetched 2026-08-17. **A record with no DOI cannot be purchased through a DOI-resolving route**, so this needs a **document-delivery / interlibrary-loan** route against the physical ASME HTD Vol. 213 (1992) proceedings, not a purchase |
+| Papers on hand that people will be tempted to substitute | **Zhang, W. and Chen, Q. (2000)**, *Large eddy simulation of natural and mixed convection airflow indoors…*, Numerical Heat Transfer Part A 37(5), 447–463, at `docs/papers/buoyant_natural_convection/zhang_chen_2000_les_indoor.{pdf,txt}`; and **Kayne, A. and Agarwal, R.K. (2013)**, *Computational fluid dynamics modeling of mixed convection flows in buildings enclosures*, Int. J. Energy and Environment 4(6), 911–932, at `docs/papers/data_center_indoor_airflow/kayne_agarwal_2013_mixed_convection.{pdf,txt}`. Both arrived in this repository 2026-08-18 and **neither was read by the session writing this addendum** |
+| What they may and may not do | They may **CORROBORATE** K0d. They **may NOT GATE** it. **A gate never binds to a secondary source's replotted data**: both are CFD papers that reproduce Blay's case, so a gate bound to their figures would grade this lab against another lab's model, and the two boundary-condition discrepancies already recorded in `K0d_TURBULENT_MIXED_CONVECTION_GATE.md` §3.3 (floor temperature 35 vs 35.5 °C; inlet turbulence stated by one source and not the other) are exactly the damage that does |
+
+**K0d cannot rise above TREND-ONLY whatever a solve produces, and no solve of it
+is authorized.**
+
+## Files added or changed today
+
+| Path | What |
+| --- | --- |
+| `K2c_RACK_ROW_VALIDATION_SEARCH.md` §8 | **Appended.** K2c-B's seven gate rows with page-level citations, the NOT OBTAINED experimental uncertainty, the plenum precondition, and two mis-attributions closed |
+| `K2c_DIGITIZATION_ADDENDUM.md` §11 | **Appended.** Figures 3 and 8 tabulated with their increments; controls C9 and C10 added; the regression check on the two pre-existing `.dat` files |
+| `reference-data/wibron_2018_digitized/fig3_grid_convergence.dat` | **New.** CFD-only, marked `***NOT A REFERENCE VALUE.***` in its own header |
+| `reference-data/wibron_2018_digitized/fig8_position_sensitivity.dat` | **New.** CFD-only, same marking |
+| `digitize_wibron2018.py` | **Repaired and extended.** It was **BROKEN at HEAD**, exiting 1 on a `FileNotFoundError`, because `docs/papers/` had been reorganised into topic subfolders and the primary's path was assembled from string segments — a fresh instance of **L-137**'s class, invisible to both a literal scan and an idiom scan. The repair is L-137's own: resolve by name with the SHA-256 still deciding. `fig6_rack_temperatures.dat` and `fig7_velocity_profiles.dat` were verified **byte-identical** after the rerun |
+| `docs/papers/data_center_indoor_airflow/vangilder_schmidt_2005_ipack.{pdf,txt}` | **New primary**, 9 pages, SHA-256 `b515f9bb…`. Note: the byte stream carries a per-download watermark, so that hash identifies **this copy**, not the article |
+
+**No solver ran. Nothing was submitted, sent, filed, uploaded or registered.**

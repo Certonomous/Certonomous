@@ -96,9 +96,32 @@ import pypdf
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-PDF = os.path.join(ROOT, "docs", "papers",
-                   "wibron_ljung_lundstrom_2018_en11030644.pdf")
 PDF_SHA256 = "4de4798ed5eed60feda123c7a2398674a6a9177f44906175847d90f5227d7b77"
+PDF_BASENAME = "wibron_ljung_lundstrom_2018_en11030644.pdf"
+# The primary moved on 2026-08-18 when docs/papers/ was reorganised into topic
+# subfolders by a concurrent agent, and this script died on the hard-coded path.
+# Candidates are searched in order and the SHA-256 below is what actually
+# decides; a path that resolves to the wrong bytes is refused in main() exactly
+# as before.  Adding a candidate is the only edit a future move needs.
+PDF_CANDIDATES = [
+    os.path.join(ROOT, "docs", "papers", "data_center_indoor_airflow", PDF_BASENAME),
+    os.path.join(ROOT, "docs", "papers", PDF_BASENAME),
+]
+
+
+def _resolve_pdf():
+    for c in PDF_CANDIDATES:
+        if os.path.isfile(c):
+            return c
+    # Last resort: one walk of docs/papers/, so a further reorganisation that
+    # keeps the house filename is survived rather than reported as a mismatch.
+    for dirpath, _, names in os.walk(os.path.join(ROOT, "docs", "papers")):
+        if PDF_BASENAME in names:
+            return os.path.join(dirpath, PDF_BASENAME)
+    return PDF_CANDIDATES[0]
+
+
+PDF = _resolve_pdf()
 OUTDIR = os.path.join(HERE, "reference-data", "wibron_2018_digitized")
 
 RACKS = ["R%d" % i for i in range(1, 11)]
@@ -498,6 +521,132 @@ def fig3():
                 base_3b=[(ayb * y + byb, axb * x + bxb) for x, y in base])
 
 
+# ------------------------------------------------- Figures 3 and 8 in full
+# Added 2026-08-18.  fig3() above reads Figure 3 only for controls C2 and C5,
+# and fig8() only for control C6; neither TABULATES anything.  The campaign
+# README's acquisition row names "Figures 3, 6, 7, 8", so the two figures that
+# were read only as controls are tabulated here, with their own labels.
+#
+# NOTE, AND IT IS THE POINT OF THIS BLOCK: neither figure carries an
+# experimental value that Figure 7 does not already carry.  Control C6 measures
+# that Figure 8's markers ARE Figure 7a,b's markers.  Figure 3 plots no
+# experiment at all.  So nothing below can arm a gate row, and nothing below is
+# a reference value.  What they carry is the paper's own DISCRETIZATION
+# uncertainty as a function of height (Fig 3b) and the paper's own POSITION
+# sensitivity of the computed profile (Fig 8), which is the quantity the
+# mandatory +-0.15 m sweep of the K2c-A L1/L2/L4 row has to be read against.
+
+def sample(curve, h):
+    """Linear interpolation of a (height, velocity) polyline at height h."""
+    pts = sorted(curve)
+    if h <= pts[0][0] or h >= pts[-1][0]:
+        return None
+    for (h0, v0), (h1, v1) in zip(pts, pts[1:]):
+        if h0 <= h <= h1:
+            if h1 == h0:
+                return v0
+            return v0 + (v1 - v0) * (h - h0) / (h1 - h0)
+    return None
+
+
+def fig3_full():
+    """All four Figure 3a curves, and the Figure 3b band half-width vs height.
+
+    Curve identity in 3a is taken from the legend text in the same stream:
+    labels 'Coarse grid', 'Medium grid', 'Fine grid', 'Extrapolated' sit at
+    descending y against key segments of stroke gray 0.8008, 0.502, 0.0, 0.0.
+    The two black keys are separated by measurement, not by eye: the 500-vertex
+    black polyline is the one control C5 proves identical to Figure 7a's RSM
+    curve, and the paper's Figure 3 caption states 3a is RSM, so that polyline
+    is 'Fine grid' and the remaining black polyline is 'Extrapolated'.
+    """
+    XL = [0, .2, .4, .6, .8, 1.0, 1.2]
+    YL = [0, .5, 1.0, 1.5, 2.0, 2.5, 3.0]
+    pa, _ = replay(forms(6)["/Im5"])
+    boxa = plot_boxes(pa, 2000, 5600, 2000)[0]
+    xt, yt = ticks(pa, boxa)
+    axa, bxa, rxa = lsq(xt, XL)
+    aya, bya, rya = lsq(yt, YL)
+    x0, y0, w, h = boxa
+
+    def cal(seg):
+        return [(aya * yy + bya, axa * xx + bxa) for xx, yy in seg]
+
+    big = [p for p in pa if p.op == "S" and p.lw >= 25
+           and len(p.subpaths[0]) > 100 and x0 <= p.subpaths[0][0][0] <= x0 + w]
+    coarse = cal([p for p in big if abs(p.stroke - 0.800781) < 1e-3][0].subpaths[0])
+    medium = cal([p for p in big if abs(p.stroke - 0.501953) < 1e-3][0].subpaths[0])
+    blacks = [p.subpaths[0] for p in big if abs(p.stroke) < 1e-9]
+    fine = cal([s for s in blacks if len(s) >= 500][0])
+    # The Extrapolated curve is emitted as two subpaths with a gap between
+    # them (MATLAB splits it where the dashed pattern breaks); they are
+    # concatenated in height order, and their vertex count sums to 499 against
+    # the fine grid's 500.
+    pieces = sorted([s for s in blacks if len(s) < 500],
+                    key=lambda s: min(q[1] for q in s))
+    extrap = cal([pt for s in pieces for pt in s])
+
+    pb, _ = replay(forms(6)["/Im6"])
+    boxb = plot_boxes(pb, 2000, 5600, 2000)[0]
+    xt, yt = ticks(pb, boxb)
+    axb, bxb, rxb = lsq(xt, XL)
+    ayb, byb, ryb = lsq(yt, YL)
+    big_b = [p for p in pb if p.op == "S" and p.lw >= 25]
+    base = [p.subpaths[0] for p in big_b if abs(p.stroke) < 1e-9][0]
+    fam = [p.subpaths[0] for p in big_b if abs(p.stroke) > 1e-9]
+    by_y = {}
+    for s in fam:
+        for xx, yy in s:
+            by_y.setdefault(round(yy, 3), []).append(xx)
+    band = []
+    for xx, yy in base:
+        us = by_y.get(round(yy, 3))
+        if not us:
+            continue
+        band.append((ayb * yy + byb, max(abs(u - xx) for u in us) * axb))
+    return dict(coarse=coarse, medium=medium, fine=fine, extrap=extrap,
+                band=band, tick_resid=(rxa, rya, rxb, ryb),
+                vscale_a=1.0 / axa, hscale_a=1.0 / aya)
+
+
+def fig8_full():
+    """Figure 8's three SHIFTED computed profiles at L1 and L2.
+
+    Legend text in the same stream reads '5 cm', '10 cm', '15 cm', 'Exp.' at
+    descending y against key segments of stroke gray 0.8008, 0.502, 0.0 (the
+    'Exp.' key is a marker and has no line sample).  There is NO 0 cm curve in
+    Figure 8: the unshifted profile lives in Figure 7a,b and is fetched from
+    there.  The paper does not state which turbulence model Figure 8 plots;
+    control C9 bounds, rather than asserts, what can be said about that.
+    """
+    XL = [0, .2, .4, .6, .8, 1.0, 1.2, 1.4, 1.6]
+    YL = [0, .5, 1.0, 1.5, 2.0, 2.5, 3.0]
+    out = {}
+    for name, lab in (("/Im15", "L1"), ("/Im16", "L2")):
+        paths, _ = replay(forms(10)[name])
+        box = plot_boxes(paths, 2000, 5600, 2000)[0]
+        x0, y0, w, h = box
+        xt, yt = ticks(paths, box)
+        ax, bx, rx = lsq(xt, XL)
+        ay, by, ry = lsq(yt, YL)
+        curves = {}
+        for p in paths:
+            if p.op != "S" or p.lw < 25 or len(p.subpaths[0]) < 400:
+                continue
+            if not (x0 <= p.subpaths[0][0][0] <= x0 + w):
+                continue
+            shift = {0.800781: 5, 0.501953: 10, 0.0: 15}.get(round(p.stroke, 6))
+            if shift is None:
+                for k in (0.800781, 0.501953, 0.0):
+                    if abs(p.stroke - k) < 1e-3:
+                        shift = {0.800781: 5, 0.501953: 10, 0.0: 15}[k]
+            if shift is None:
+                continue
+            curves[shift] = [(ay * yy + by, ax * xx + bx) for xx, yy in p.subpaths[0]]
+        out[lab] = dict(curves=curves, tick_resid=(rx, ry))
+    return out
+
+
 # ---------------------------------------------------------------- controls
 def controls(f6a, f6b, f7, f8, f3):
     out = []
@@ -563,6 +712,54 @@ def controls(f6a, f6b, f7, f8, f3):
     return out, bounds
 
 
+def controls_38(f7, f3x, f8x):
+    """Controls added 2026-08-18 with the Figure 3 and Figure 8 tabulation.
+
+    C9  is an IDENTIFICATION bound, not an accuracy: the paper never states
+        which turbulence model Figure 8 plots.  Distance from Figure 8's 5 cm
+        curve to each of Figure 7a's three model curves is measured, and the
+        result is reported for what it is -- it can separate k-epsilon from
+        {RSM, DES} and cannot separate RSM from DES, because the paper's own
+        text says those two agree closely.
+    C10 is the semantic control on Figure 8, the same kind as C8 on Figure 6:
+        the digitized curves must reproduce the paper's own sentence "There is
+        very good agreement 10 cm closer to the center for L1 and 15 cm closer
+        to the center for L2" (Section 4.3, p. 12).  It is two-sided and fails
+        on a curve mix-up.
+    """
+    out = []
+    d5 = f8x["L1"]["curves"][5]
+    best = []
+    for gray, nm in ((0.800781, "k-epsilon"), (0.501953, "RSM"), (0.0, "DES")):
+        key = [k for k in f7["L1"]["curves"] if abs(k - gray) < 1e-2]
+        if not key:
+            continue
+        c = f7["L1"]["curves"][key[0]]
+        ds = [abs(v - sample(c, hh)) for hh, v in d5 if sample(c, hh) is not None]
+        best.append((math.sqrt(sum(d * d for d in ds) / len(ds)), nm))
+    best.sort()
+    out.append(("C9", "Fig 8 L1 5 cm curve vs Fig 7a model curves (rms over the curve)",
+                "not stated", "; ".join("%s %.4f" % (nm, r) for r, nm in best),
+                best[0][0], "m/s"))
+
+    # C10: which shift lands nearest the experiment, per location.
+    verdict = {}
+    for lab, want in (("L1", 10), ("L2", 15)):
+        pts = f7[lab]["exp"]
+        sc = {}
+        for sh, c in sorted(f8x[lab]["curves"].items()):
+            ds = [abs(v - sample(c, hh)) for hh, v in pts if sample(c, hh) is not None]
+            sc[sh] = math.sqrt(sum(d * d for d in ds) / len(ds))
+        verdict[lab] = (min(sc, key=sc.get), sc)
+    ok = all(verdict[l][0] == w for l, w in (("L1", 10), ("L2", 15)))
+    out.append(("C10", "Fig 8 nearest shift to the Exp. points, L1 and L2",
+                "10 cm (L1), 15 cm (L2)",
+                "%d cm (L1), %d cm (L2) -- %s" % (verdict["L1"][0], verdict["L2"][0],
+                                                  "REPRODUCED" if ok else "DOES NOT MATCH"),
+                0.0 if ok else 1.0, "flag"))
+    return out, verdict
+
+
 def v_band(v, dig):
     """Pass half-band on a velocity point, per K2c 3.1 row 3 with digitisation added."""
     inst = V_ACC_ABS + V_ACC_REL * v
@@ -577,7 +774,7 @@ def main():
 
     import hashlib
     h = hashlib.sha256(open(PDF, "rb").read()).hexdigest()
-    print("source  : docs/papers/wibron_ljung_lundstrom_2018_en11030644.pdf")
+    print("source  : %s" % os.path.relpath(PDF, ROOT))
     print("sha256  : %s  %s" % (h, "OK" if h == PDF_SHA256 else "MISMATCH -- STOP"))
     if h != PDF_SHA256:
         return 2
@@ -587,11 +784,13 @@ def main():
 
     f6a, f6b = fig6("a"), fig6("b")
     f7, f8, f3 = fig7(), fig8(), fig3()
+    f3x, f8x = fig3_full(), fig8_full()
     ctl, bnd = controls(f6a, f6b, f7, f8, f3)
+    ctl38, shift_verdict = controls_38(f7, f3x, f8x)
 
     print("== CONTROLS")
     print("%-4s %-62s %-16s %-42s %s" % ("id", "what", "reference", "recovered", "recovery error"))
-    for cid, what, ref, got, err, unit in ctl:
+    for cid, what, ref, got, err, unit in ctl + ctl38:
         print("%-4s %-62s %-16s %-42s %.3e %s" % (cid, what, ref, got, err, unit))
     print()
 
@@ -653,6 +852,60 @@ def main():
                   % (lab, h, v, V_ACC_ABS + V_ACC_REL * v, GCI_MAX_MPS, dig_V,
                      v_band(v, dig_V), "" if lab in ("L3", "L5") else "   [REPORT-ONLY row]"))
     print()
+
+    # ---------------------------------------------------------------- Fig 3
+    HL = [0.506, 0.998, 1.504, 1.996]     # the L1..L5 measurement height ladder
+    print("== FIGURE 3a -- L1 grid-convergence profiles, RSM (DIGITIZED, CFD ONLY)")
+    print("   The paper plots NO experiment in Figure 3.  Nothing here is a")
+    print("   reference value and no gate row may be armed on it.")
+    print("   %8s %10s %10s %10s %12s %12s %12s"
+          % ("h(m)", "coarse", "medium", "fine", "extrapolated", "|fine-extr|",
+             "GCI band 3b"))
+    band_at = dict(f3x["band"])
+    for hh in HL:
+        c = sample(f3x["coarse"], hh)
+        m = sample(f3x["medium"], hh)
+        fi = sample(f3x["fine"], hh)
+        ex = sample(f3x["extrap"], hh)
+        bd = sample([(a_, b_) for a_, b_ in f3x["band"]], hh)
+        print("   %8.3f %10.4f %10.4f %10.4f %12.4f %12.4f %12.4f"
+              % (hh, c, m, fi, ex, abs(fi - ex), bd))
+    dfe = [abs(v - sample(f3x["extrap"], hh)) for hh, v in f3x["fine"]
+           if sample(f3x["extrap"], hh) is not None]
+    bmax = max(b for _, b in f3x["band"])
+    bmin = min(b for _, b in f3x["band"])
+    print("   over the whole profile: max |fine - extrapolated| = %.4f m/s" % max(dfe))
+    print("   Figure 3b band half-width runs %.4f to %.4f m/s over the height;"
+          % (bmin, bmax))
+    print("   the paper states the MAXIMUM, 0.0521 m/s (Sec. 4.1), and that")
+    print("   maximum is the term the K2c-A velocity band already carries.")
+    print("   Paper's own caveat, TEXT-STATED, Sec. 4.1 p. 7: the local order of")
+    print("   accuracy p ranges 0.0197 to 27.70 with a global average of 6.583.")
+    print()
+
+    # ---------------------------------------------------------------- Fig 8
+    print("== FIGURE 8 -- position sensitivity of the computed profile (DIGITIZED, CFD ONLY)")
+    print("   Figure 8's EXPERIMENT markers are Figure 7a,b's markers; control C6")
+    print("   measures that.  Figure 8 therefore adds no reference value.  What it")
+    print("   adds is dv/dx, which the mandatory +-0.15 m sweep is read against.")
+    print("   %-3s %8s %10s %10s %10s %10s %14s"
+          % ("loc", "h(m)", "v_exp", "5 cm", "10 cm", "15 cm", "dv/dx (m/s per m)"))
+    for lab in ("L1", "L2"):
+        for hh, vexp in f7[lab]["exp"]:
+            vs = [sample(f8x[lab]["curves"][s], hh) for s in (5, 10, 15)]
+            grad = (vs[2] - vs[0]) / 0.10
+            print("   %-3s %8.3f %10.4f %10.4f %10.4f %10.4f %14.3f"
+                  % (lab, hh, vexp, vs[0], vs[1], vs[2], grad))
+    for lab in ("L1", "L2"):
+        sh, sc = shift_verdict[lab]
+        print("   %s: rms |curve - Exp.| = %s -> nearest %d cm"
+              % (lab, ", ".join("%d cm %.4f" % (k, v) for k, v in sorted(sc.items())), sh))
+    print("   C9 READ CORRECTLY: the model behind Figure 8 is NOT STATED by the")
+    print("   paper and C9 does NOT identify it.  C9's spread between candidates")
+    print("   is the same order as the shift effect itself (dv/dx above times")
+    print("   0.05 m is 0.1 to 0.2 m/s), so the comparison is not discriminating.")
+    print()
+
     print("== ADOPTED DIGITISATION INCREMENTS (derived from the controls above)")
     print("   %-28s %-14s %-12s %s" % ("quantity class", "measured bound", "adopted", "from"))
     print("   %-28s %-14s %-12s %s"
@@ -705,6 +958,48 @@ def main():
             for lab in ("L1", "L2", "L3", "L4", "L5"):
                 for hh, vv in f7[lab]["exp"]:
                     fh.write("%-4s %9.4f %9.4f\n" % (lab, hh, vv))
+        # Added 2026-08-18.  Both files below are CFD-ONLY.  They are written
+        # into the same directory as the reference values and are marked on
+        # every line of their own headers as NOT REFERENCE VALUES, because a
+        # .dat file that sits next to a reference file and does not say what it
+        # is will eventually be read as one.
+        with open(os.path.join(OUTDIR, "fig3_grid_convergence.dat"), "w") as fh:
+            fh.write(hdr)
+            fh.write("# Figure 3a (four computed L1 profiles, RSM) and Figure 3b\n"
+                     "# (fine-grid GCI band half-width).  ***NOT A REFERENCE VALUE.***\n"
+                     "# The paper plots NO experiment in Figure 3; every column below is\n"
+                     "# a CFD output or a discretisation-uncertainty estimate, and no gate\n"
+                     "# row may be armed on any of them.  Curve-class increment +-0.0001\n"
+                     "# m/s (control C5); heights +-0.005 m (control C6).\n"
+                     "# Paper's own caveat, Sec. 4.1 p. 7: local order of accuracy p runs\n"
+                     "# 0.0197 to 27.70, global average 6.583.\n"
+                     "# height_m  v_coarse  v_medium  v_fine  v_extrapolated  gci_halfwidth   (m/s)\n")
+            for hh, vfi in f3x["fine"]:
+                cc = sample(f3x["coarse"], hh)
+                mm = sample(f3x["medium"], hh)
+                ee = sample(f3x["extrap"], hh)
+                bb = sample(f3x["band"], hh)
+                if None in (cc, mm, ee, bb):
+                    continue
+                fh.write("%9.4f %9.4f %9.4f %9.4f %9.4f %9.4f\n"
+                         % (hh, cc, mm, vfi, ee, bb))
+        with open(os.path.join(OUTDIR, "fig8_position_sensitivity.dat"), "w") as fh:
+            fh.write(hdr)
+            fh.write("# Figure 8a,b: computed velocity profiles at L1 and L2 with the\n"
+                     "# comparison line moved 5, 10 and 15 cm toward the hot-aisle centre.\n"
+                     "# ***NOT A REFERENCE VALUE.***  Figure 8's experiment markers are\n"
+                     "# Figure 7a,b's markers (control C6 measures the identity), so this\n"
+                     "# figure adds no measurement.  What it adds is the position\n"
+                     "# sensitivity dv/dx that the K2c-A L1/L2/L4 row's mandatory +-0.15 m\n"
+                     "# sweep is read against.  The turbulence model behind these curves is\n"
+                     "# NOT STATED by the paper and control C9 does not identify it.\n"
+                     "# Curve velocities carried at the +-0.007 m/s marker-placement bound\n"
+                     "# of control C6, measured on this very figure; heights +-0.005 m.\n"
+                     "# loc  shift_cm  height_m  velocity_mps\n")
+            for lab in ("L1", "L2"):
+                for sh in (5, 10, 15):
+                    for hh, vv in f8x[lab]["curves"][sh]:
+                        fh.write("%-4s %5d %9.4f %9.4f\n" % (lab, sh, hh, vv))
         print("\nwrote %s" % OUTDIR)
     return 0
 

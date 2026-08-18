@@ -524,3 +524,217 @@ pypdf's `/Subtype` on the page resources.
 | A digitization of vector figure geometry, controlled against three text-stated values from the same paper, carries a reading uncertainty of 0.03 K and 0.007 m/s on this primary | VERIFIED, this addendum's own controls C1 to C7 at `fc1e3bac` | Any band built on these reference values | Any raster figure, any other paper, and the separate question of whether plotted equals measured, which no control here touches |
 | Figure 6 plots no experimental value for R5 and R6 (front) or R1, R5 and R6 (back) | **DIGITIZED from Wibron 2018 Fig 6a, 6b**; the paper's text does not remark on it | Scoping the rack-front row to 8 racks | Any claim about why the sensors are missing, which is not in the paper |
 | The advective path of `scripts/heat_balance.py` was UNVALIDATED and unimplemented at `fc1e3bac`, and `--allow-advective` neither computed the term nor stamped the report | VERIFIED by reading the HEAD blob, this session | KV1's scope, and any quotation of a K2b closure number | The sealed conduction path, which K1c validated and which is unaffected |
+
+---
+
+## 11. Completion addendum, appended 2026-08-18 (W-4: nothing above is edited)
+
+**Zero compute. No solver launched. No compute authorization requested or
+required.** Frame: repository HEAD `9f3971f6` at the time the measurements below
+were taken (2026-08-18T17:03Z). Every figure in this section was produced by the
+command of §9, extended as §11.4 records, and by nothing else.
+
+**Frame note.** HEAD moved to `e601e8d7` while this section was being written
+(three commits: a docket row, two personal documents leaving the tracked tree,
+and MOVE_MAP batch 8). `git diff --name-status 9f3971f6 e601e8d7` was read: it
+touches none of the objects measured here -- not the source PDF, not this
+document, not `digitize_wibron2018.py`, none of which appear in that diff at
+all. Every anchor below therefore stays at `9f3971f6`, the frame the
+measurements were taken at.
+
+**Why this section exists.** The campaign README's acquisition row named the
+extraction as *"Digitized reference values from Wibron et al. 2018 **Figures 3,
+6, 7, 8**"*. §§1-10 above armed the reference column from **Figures 6 and 7**
+and read **Figures 3 and 8 only as controls** (C2, C5, C6): neither was
+tabulated, neither carried a label a later reader could quote, and the README
+row was therefore not fully discharged even though §6 of
+`K2c_RACK_ROW_VALIDATION_SEARCH.md` recorded it as discharged. This section
+tabulates the two remaining figures and states their increments.
+
+### 11.1 The finding that governs how §11 may be read
+
+**Neither Figure 3 nor Figure 8 carries an experimental value that Figure 7 does
+not already carry, so neither can arm a gate row, and §11 arms none.**
+
+- **Figure 3 plots no experiment at all.** Its caption reads *"Velocity profiles
+  along L1 for (a) all the different grids and (b) the fine grid with error
+  bands. RSM is used as turbulence model"* (p. 7, READ IN FULL). All four
+  curves of 3a and the band of 3b are CFD outputs.
+- **Figure 8's experimental markers ARE Figure 7a,b's experimental markers.**
+  That is not an inference: control **C6** of §3 above measures the two
+  digitizations of the same six points against each other and finds them equal
+  to 0.0060 m/s in velocity and 0.0043 m in height, which is the same
+  marker-placement bound §2.2 already adopted.
+
+So the honest statement of what the README row was asking for is narrower than
+the row's own wording: **K2c-A's reference column was armed from Figures 6 and 7
+alone, and Figures 3 and 8 could never have armed it.** What they carry instead
+is two DERIVED quantities that the gate's bands and sweeps are read against, and
+those are tabulated below under labels that say what they are.
+
+### 11.2 Figure 3, tabulated: the paper's own discretization uncertainty
+
+DIGITIZED from Figure 3a and 3b, p. 7. **CFD ONLY. NOT A REFERENCE VALUE.**
+Sampled at the L1-L5 measurement height ladder of §4.2 by linear interpolation
+along the digitized polylines.
+
+| Height (m) | Coarse grid (m/s) | Medium grid (m/s) | Fine grid (m/s) | Richardson extrapolated (m/s) | \|fine − extrap\| (m/s) | Fig 3b GCI half-width (m/s) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0.506 | 0.4209 | 0.4189 | 0.4253 | 0.4266 | 0.0013 | 0.0016 |
+| 0.998 | 0.5423 | 0.5113 | 0.4980 | 0.4953 | 0.0027 | 0.0034 |
+| 1.504 | 0.7107 | 0.6400 | 0.6011 | 0.5932 | 0.0079 | 0.0099 |
+| 1.996 | 0.6860 | 0.2723 | 0.1153 | 0.0834 | 0.0319 | 0.0399 |
+
+Over the whole profile (500 vertices): **max \|fine − extrapolated\| = 0.0410
+m/s**, and the Figure 3b band half-width ran **0.0000 to 0.0521 m/s**. The
+maximum of the band is the paper's own text-stated *"maximum discretization
+uncertainty is 0.0521 m/s"* (§4.1, p. 7), recovered as control C2 at 0.052073
+m/s, and it is the term §5.2's additive floor already carried. **No band above
+is changed by this section**; the per-height band is recorded as an available
+refinement and is not adopted, because §5.2 deliberately used the paper's
+text-stated maximum rather than a digitized quantity.
+
+**Curve identification, derived rather than eyeballed.** The 3a legend text in
+the same content stream reads `Coarse grid`, `Medium grid`, `Fine grid`,
+`Extrapolated` at descending y against key segments of stroke gray 0.800781,
+0.501953, 0.0 and 0.0. The two black keys were separated by measurement, not by
+eye: the 500-vertex black polyline is the one **control C5** proves identical to
+Figure 7a's RSM curve to 1.2e-5 m/s, and the caption states 3a is RSM, so that
+polyline is `Fine grid` and the remaining black polyline (emitted as two
+subpaths of 331 and 168 vertices with a gap between them) is `Extrapolated`.
+
+**A caveat of the primary's, carried because it belongs next to the number.**
+§4.1, p. 7, READ IN FULL: *"The local order of accuracy p ranges from 0.0197 to
+27.70, with a global average of 6.583."* A GCI computed from an order of
+accuracy that ranges over three decades and averages 6.583 on a second-order
+scheme is not an asymptotic estimate. **This does not change the 0.0521 m/s
+term**, which is used here exactly as the authors published it and as an
+additive floor that only widens a band; it is recorded so that a later reader
+does not promote 0.0521 m/s into a claim about asymptotic convergence.
+
+### 11.3 Figure 8, tabulated: the position sensitivity the mandatory sweep is read against
+
+DIGITIZED from Figure 8a,b, p. 11. **CFD ONLY. NOT A REFERENCE VALUE.** The
+`v_exp` column is Figure 7's, repeated here only so the comparison is readable;
+it is the same datum, not a second one.
+
+| Location | Height (m) | v_exp, Fig 7 (m/s) | 5 cm (m/s) | 10 cm (m/s) | 15 cm (m/s) | dv/dx (m/s per m) |
+| --- | --- | --- | --- | --- | --- | --- |
+| L1 | 0.506 | 0.4800 | 0.4077 | 0.3823 | 0.3844 | −0.234 |
+| L1 | 0.998 | 0.7026 | 0.5481 | 0.6271 | 0.7355 | +1.874 |
+| L1 | 1.504 | 0.9113 | 0.7248 | 0.9120 | 1.1077 | +3.830 |
+| L2 | 0.506 | 0.5009 | 0.4479 | 0.4280 | 0.4084 | −0.394 |
+| L2 | 0.998 | 0.6678 | 0.5637 | 0.6044 | 0.6485 | +0.848 |
+| L2 | 1.504 | 0.9600 | 0.7425 | 0.8497 | 0.9389 | +1.964 |
+
+**There is no 0 cm curve in Figure 8**; the unshifted profile lives in Figure
+7a,b and was fetched from there. `dv/dx` is the secant over the 5-to-15 cm span,
+which is the span the figure spans, and it reached **+3.83 m/s per m at L1,
+1.504 m** — so the K2c-A row's mandatory ±0.15 m position sweep can move a
+computed velocity by more than 0.5 m/s at that point, against a reading of 0.911
+m/s. **That number is the reason the L1/L2/L4 row is REPORT-ONLY and not
+graded**, and until this section it was a qualitative statement in §5.3.
+
+**New control C10, semantic, and it passed.** The paper states (§4.3, p. 12,
+READ IN FULL): *"There is very good agreement 10 cm closer to the center for L1
+and 15 cm closer to the center for L2."* Digitized, the rms distance from each
+shifted curve to the experimental points was:
+
+| Location | 5 cm | 10 cm | 15 cm | Nearest | Paper's sentence |
+| --- | --- | --- | --- | --- | --- |
+| L1 | 0.1459 | **0.0713** | 0.1276 | **10 cm** | 10 cm |
+| L2 | 0.1425 | 0.0846 | **0.0559** | **15 cm** | 15 cm |
+
+**REPRODUCED, both locations.** C10 is two-sided in the same way C8 is: a curve
+mix-up or a calibration offset would move the minimum.
+
+**New control C9, and it FAILED to identify what it was built to identify —
+recorded as a failure rather than dropped.** The paper never states which
+turbulence model Figure 8 plots. C9 measured the rms distance from Figure 8's
+L1 5 cm curve to each of Figure 7a's three model curves: k-epsilon 0.1143, DES
+0.1953, RSM 0.2093 m/s. **This does not identify the model and is not reported
+as if it did.** The spread between candidates is the same order as the shift
+effect itself — `dv/dx` above times 0.05 m is 0.1 to 0.2 m/s — so the comparison
+is not discriminating. **The turbulence model behind Figure 8 is NOT OBTAINED**,
+and the machine copy's header says so on its own face.
+
+### 11.4 Increments adopted for the two new tables
+
+Each is the largest control-established bound for its quantity class, as §2.2
+required. **No increment was asserted and none was inherited from a different
+figure without saying so:**
+
+| Quantity class | Measured bound | Control it came from | **Adopted increment** |
+| --- | --- | --- | --- |
+| Velocity, Figure 3 computed polylines | 1.2e-5 m/s | **C5**, measured on Figure 3a's own fine-grid curve against Figure 7a's | **plus or minus 0.0001 m/s** |
+| Figure 3b GCI band half-width | 2.7e-5 m/s against the paper's text-stated value | **C2**, an independent text-stated cross-check | **plus or minus 0.0001 m/s** |
+| Velocity, Figure 8 computed polylines | 0.0060 m/s | **C6**, measured on **Figure 8's own** markers | **plus or minus 0.007 m/s** |
+| Height, both figures | 0.0043 m | **C6** | **plus or minus 0.005 m** |
+
+The Figure 8 curve increment is deliberately the **marker** bound and not the
+**curve** bound, and that is conservative by a factor of about 500. The reason
+is stated rather than hidden: no cross-figure identity exists for Figure 8's
+curves — they appear once and nowhere else — so no control measures those
+polylines directly. C6 is measured on the same panels, bounds any systematic
+offset of those panels, and over-states the path-geometry reading error. A
+tighter increment would claim a precision this extraction did not measure.
+
+### 11.5 Machine copies, and the regression check on the ones that already existed
+
+Written by the command of §11.6 into `reference-data/wibron_2018_digitized/`:
+
+| File | Lines | What it is |
+| --- | --- | --- |
+| `fig3_grid_convergence.dat` | 348 | Figure 3a's four curves and Figure 3b's band half-width, per height. Header marks it `***NOT A REFERENCE VALUE.***` |
+| `fig8_position_sensitivity.dat` | 3021 | Figure 8a,b's three shifted curves at L1 and L2. Header marks it `***NOT A REFERENCE VALUE.***` and records that the model is NOT STATED |
+
+Both headers carry that marking because a `.dat` file that sits beside a
+reference file and does not say what it is will eventually be read as one.
+
+**The two files that already existed were verified byte-identical after the
+rerun**, `fig6_rack_temperatures.dat` and `fig7_velocity_profiles.dat`, by
+copying them aside before `--write` and diffing after. **Every control value of
+§3 re-derived unchanged at HEAD `9f3971f6`** — C1 1.3e-7 °C, C2 2.7e-5 m/s, C3
+2.9e-6 m, C4 0.029 K, C5 1.2e-5 m/s, C6 0.0060 m/s, C7 6.5e-5 °C — and the
+adopted increments of §2.2 (±0.03 K, ±0.007 m/s, ±0.005 m) re-derived unchanged.
+**Nothing in §§1-10 moved.** This section is purely additive.
+
+### 11.6 A repair this section had to make first: the extraction command was BROKEN at HEAD
+
+**Verified by execution, not inferred.** At HEAD `9f3971f6` the command of §9
+exited **1** with `FileNotFoundError` on
+`/home/ubuntu/Certonomous/docs/papers/wibron_ljung_lundstrom_2018_en11030644.pdf`.
+`docs/papers/` had been reorganised into topic subfolders and the primary now
+sits at `docs/papers/data_center_indoor_airflow/wibron_ljung_lundstrom_2018_en11030644.pdf`,
+SHA-256 unchanged at `4de4798e…`.
+
+**This is a fresh instance of L-137's class in a different move batch.** The
+broken reference was `os.path.join(ROOT, "docs", "papers", PDF_BASENAME)` — a
+path **assembled from segments**, so a literal scan for `docs/papers` could not
+see it, and it counts no parents, so an idiom scan could not see it either. The
+**token** scan L-137 prescribes would have found it on the quoted basename.
+
+**The repair applied is L-137's own: ask for the thing by name, not by
+spelling.** `digitize_wibron2018.py` now resolves the primary through a
+candidate list and, failing that, one walk of `docs/papers/` for the house
+basename. **The SHA-256 gate is unchanged and still decides**: a path that
+resolves to the wrong bytes is refused with exit 2 exactly as before, so the
+resolver widens where the file may be found and does not widen what counts as
+the file.
+
+**Re-deriving §11 (and, with the repair, §§1-10 again):**
+
+```
+python3 docs/campaigns/F14-cooling-ladder/digitize_wibron2018.py
+python3 docs/campaigns/F14-cooling-ladder/digitize_wibron2018.py --write
+```
+
+### 11.7 What §11 did NOT change, stated as plainly as what it did
+
+| Question | Answer at HEAD `9f3971f6` |
+| --- | --- |
+| Are more gate rows armed than §5 armed? | **No.** §5's two armed rows — rack-front temperature on 8 racks at ±1.03 K, and 7 velocity points at L3/L5 — stand exactly as written. §11 armed nothing, because Figures 3 and 8 carry no experiment |
+| Did any band change? | **No.** The per-height GCI band was tabulated and explicitly not adopted |
+| Is K2c-A VALIDATED? | **No.** §8's answer is unchanged: a reference column is armed, no solve has run, and none is authorized. **Arming a reference column is not a grade** |
+| Is K2c-B reached by any of this? | **No.** §11 concerns Wibron 2018, a hard-floor facility. K2c-B is addressed by `K2c_RACK_ROW_VALIDATION_SEARCH.md` §8, written the same day |
+| Did a solver run? | **No.** Zero compute, as the header of this document states |

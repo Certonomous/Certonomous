@@ -445,3 +445,328 @@ of 80 degC is not a data-centre reading in any facility, the numeral matches the
 Fahrenheit reading of the limit the same sentence invokes, and the report states
 it in Celsius. What is corrected is the closeness claim, which was this
 session's arithmetic and was wrong by a factor of about three.
+
+---
+
+## 8. Rung K2c-B: the gate rows §3.2 could not write, appended 2026-08-18 (W-4: nothing above is edited)
+
+**Zero compute. No solver launched.** Frame: repository HEAD `9f3971f6`, checks
+run 2026-08-18 between 16:50Z and 17:10Z. **§3.2 above is left standing exactly
+as written** — it was true when written, and the value of a NOT OBTAINED record
+is that it can be diffed against its own commit. What follows supersedes it; it
+does not edit it.
+
+**Frame note.** HEAD moved to `e601e8d7` while this section was being written.
+`git diff --name-status 9f3971f6 e601e8d7` was read and touches none of the
+objects cited here. The anchor stays at `9f3971f6`.
+
+**One-line result.** A raised-floor perforated-tile measurement primary was
+obtained in full text. **K2c-B's gate rows are written below and its reference
+column is armed on three of them.** The rung is **NOT gradeable by the K2a
+module as specified**, for a reason §8.5 states and the K2a specification
+states first, and **arming a reference column is not a grade** — the K2c-A
+precedent of `K2c_DIGITIZATION_ADDENDUM.md` §8 governs here too.
+
+### 8.1 The primary, and how it arrived
+
+**Obtained, READ IN FULL.** VanGilder, J.W. (American Power Conversion Corp.);
+Schmidt, R.R. (IBM Corp.). *Airflow Uniformity Through Perforated Tiles in a
+Raised-Floor Data Center.* Proceedings of IPACK2005, ASME InterPACK '05, July
+17–22, San Francisco, California, paper **IPACK2005-73375**, in *Advances in
+Electronic Packaging, Parts A, B, and C*, **pp. 493-501** (CrossRef record,
+retrieved 2026-08-18). **DOI `10.1115/ipack2005-73375`.** Nine pages, letter,
+`Pages: 9` per `pdfinfo`. **Every page cite in this section is the paper's own
+printed page number, 1 to 9, which equals its PDF page number** -- not the
+proceedings pagination 493-501.
+Filed at `docs/papers/data_center_indoor_airflow/vangilder_schmidt_2005_ipack.{pdf,txt}`,
+SHA-256 `b515f9bb89a12caf82d1f5dc18e6debb31609d734deafad48f754aceb6e7f114`,
+693,825 bytes.
+
+| Provenance question | Answer, dated |
+| --- | --- |
+| Open access? | **No.** Unpaywall `is_oa: false`, no OA location, **checked 2026-08-18** on `10.1115/ipack2005-73375`. The journal version, `10.1016/j.buildenv.2005.03.005`, was checked the same day and is also `is_oa: false`. §1's 2026-08-17 checks stand and were not overturned; the paper was **bought access to, not found open** |
+| Route | The **MIT access route** that §4's acquisition path named, against the ASME Digital Collection. Every page carries the publisher's own stamp: *"Downloaded from asmedigitalcollection.asme.org/InterPACK/proceedings-pdf/InterPACK2005/42002/493/4532097/493_1.pdf by Massachusetts Inst Of Tech. user on 18 August 2026"* |
+| DOI verified | CrossRef bibliographic query, 2026-08-18, returned `10.1115/ipack2005-73375`, title *"Airflow Uniformity Through Perforated Tiles in a Raised-Floor Data Center"*, container *Advances in Electronic Packaging, Parts A, B, and C*, issued 2005 |
+| **Caveat on the SHA-256** | The file's `Producer` reads *"Acrobat Distiller 5.0 (Windows); modified using iTextSharp"* and its `ModDate` is 2026-08-18T16:22:20Z: **the byte stream carries a per-download watermark**. The SHA-256 identifies **this copy** and a second download would not match it. This is unlike the CC-BY Wibron files, whose SHA-256 is a property of the article. Any later integrity check must be run against **this** copy |
+
+**Tracking status at the time this section was written, 2026-08-18T17:15Z.**
+Both files were present in the working tree and **untracked** (`git status`
+reported `??`), because `docs/papers/` was mid-reorganisation by a concurrent
+session which had staged its own renames but had not yet committed these two.
+This section is committed with the campaign records and **not** with the PDF, so
+a reader at the commit that lands this section may find the citation resolvable
+only in the working tree until the papers reorganisation lands. The DOI, the
+CrossRef record and the SHA-256 above are what make the reference identifiable
+independently of any path.
+
+**Filename note, for the record.** The file landed briefly as
+`vangil der_schmidt_2005_ipack.pdf`, with a space, during a concurrent
+reorganisation of `docs/papers/` into topic subfolders. It had been corrected to
+`vangilder_schmidt_2005_ipack.pdf` by 16:57Z, by the agent doing the
+reorganisation and not by this session. Recorded because the SHA-256 above was
+first taken under the old name and is the same file.
+
+### 8.2 A label correction the dispatching order needed, and the repository won
+
+The day order that dispatched this work named VanGilder & Schmidt *"PRIMARY for
+K2c-A (raised-floor supply physics)"* and Wibron *"PRIMARY for K2c-B context"*.
+**The repository's labels are the reverse and the repository is authoritative.**
+Verified before anything below was written:
+
+- `README.md`, trust table: *"K2c-A hard-floor rack-inlet (Wibron 2018)"* and
+  *"K2c-B raised-floor / perforated-tile"*.
+- §3.1 above: *"Rung K2c-A: hard-floor rack-inlet validation (Wibron 2018)"*.
+- §3.2 above: *"Rung K2c-B: raised-floor / perforated-tile validation"*.
+
+**K2c-A is the hard-floor rung and its primary is Wibron 2018. K2c-B is the
+raised-floor rung and its primary is, from this section, VanGilder & Schmidt
+2005.** No rung was renamed and no existing row moved.
+
+### 8.3 What the paper measures, and what it does not
+
+All page numbers are the paper's own printed numbers, which equal the PDF page
+numbers. Tier **READ IN FULL** throughout this subsection.
+
+**The measured case.** One of the ten floor plans, **Floor Plan B**, is the only
+one with measurements; the other nine are CFD-only (p. 3: *"Of the nine actual
+data centers, one is a facility for which measurement data has been taken; this
+case is used to validate the CFD model"*). Floor Plan B, p. 5:
+
+| Property | Value, p. 5 |
+| --- | --- |
+| Facility | A portion of a large raised-floor data center at **IBM, Poughkeepsie, New York** |
+| Test area | 6.06 m (20 ft) × 20 m (66 ft) |
+| Raised-floor height | **29.2 cm (11.5 in)**, subfloor to bottom of tile |
+| Tiles | 610 mm (2 ft) square; the perforated array is **4 × 15 = 60 tiles** between two CRAC units (p. 5: *"an array of 4 x 15 perforated tiles situated between the 2 CRAC units"*) |
+| CRACs | 2, both operating, **neither with a turning vane**, blowers aimed at each other so the streams collide between them |
+| Sealing | The test area was blocked off around its perimeter from raised floor to concrete subfloor, *"carefully sealed with cardboard and duct tape"*, and electrical and plumbing openings sealed |
+| Tile open area | Nominally 25 %; **actual measurement gave 19.5 %** — *"Actual measurements of the tile showed an array of 0.64 cm (0.25 in) diameter holes resulting in a 19.5 % opening, not 25% as the manufacturer states"* |
+| Tile impedance | **Measured on a flow bench**, Eq. (7a) p. 6: `DP[Pa] = 419 {Q[m3/s]}^1.99` |
+
+**The measured results, Table 3, p. 6, quoted verbatim.** Percentage variation
+from the mean per-tile airflow rate over the 60-tile array:
+
+| | min. | max. | std. dev. |
+| --- | --- | --- | --- |
+| **Test** | **−141 %** | **85 %** | **62 %** |
+| CFD | −232 % | 75 % | 75 % |
+
+The paper defines the metric on p. 3: a negative percentage is flow below the
+mean, *"A value less than –100% implies 'backflow' from the room down into the
+plenum"*, and the standard deviation is its Eq. (5) over all n tiles. The paper's
+own verdict on the comparison, p. 6: *"The predicted flow rates from the model
+are in good agreement with the measured values."*
+
+**Figure 3, p. 6, carries the per-tile values** — four panels, one per tile row,
+Test and CFD airflow in cfm against tile number 1 to 15. **Not digitized today.**
+Measured, not assumed: printed p. 6 carries **no raster image object**
+(`pdfimages -list` reports images only on pp. 1, 4 and 7), and its page content
+stream carries 194 moveto/lineto pairs and 306 rectangles, so the figure is
+**vector and digitizable** by the method
+`K2c_DIGITIZATION_ADDENDUM.md` §1.2 already established. That extraction is a
+named, deferred, zero-compute route and **not a defect in this section**: §8.5
+explains why 60 per-tile reference values would arm a rung that still could not
+be graded.
+
+**What the paper does NOT carry, stated as plainly as what it does:**
+
+| Looked for | Found |
+| --- | --- |
+| A stated instrument, accuracy or uncertainty for the tile-flow measurements | **NOT OBTAINED.** §8.4 |
+| Rack-inlet temperatures | **None.** The paper models the **plenum only** (p. 5: *"Only the plenum airflow is modeled in this investigation with a zero pressure boundary condition imposed above the raised floor"*). No temperature is measured or predicted anywhere in it |
+| Plenum obstructions | Excluded by choice, p. 4: *"obstructions are not included in the CFD models"* |
+
+### 8.4 The stated experimental uncertainty is NOT OBTAINED, and this is the rows' binding defect
+
+**Verified by exhaustive search of the full text, not by impression.** The
+strings `accuracy`, `uncertaint`, `error`, `±`, `+/-`, `repeatab`, `calibrat`,
+`flow hood`, `balometer`, `velometer`, `anemometer` and `measurement device`
+were searched over the whole extracted text. **The only `±` in the paper is p. 7
+and p. 8, and both are about the spread of a normal distribution** (*"68% of all
+perforated tiles will have airflow within ±1s"*; *"68% of the 25%-open tiles
+will be within ±10% of the mean"*), which is a property of the tile population,
+**not an instrument accuracy**. No measuring instrument is named anywhere for
+the tile flow rates.
+
+**Where the uncertainty would live.** The measurements are not this paper's own.
+p. 5: *"In order to verify the modeling methodology used in this paper, the
+experimental results reported in [6] are used."* Reference **[6]**, p. 9:
+*"Schmidt, R. et al, 2001, 'Measurements and Predictions of the Flow
+Distribution Through Perforated Floor Tiles In a Raised-Floor Data Center',
+InterPACK 2001, Kauai, Hawaii."*
+
+| Question | Answer, dated 2026-08-18 |
+| --- | --- |
+| DOI for Schmidt et al. 2001 | **None established.** Two CrossRef queries — bibliographic on the full title plus venue and year, and title-plus-author — returned no matching record in the top results. ASME InterPACK proceedings of that era are largely unregistered, the same condition already recorded for Blay, Mergui and Niculae (1992) |
+| Copy in this repository | **None** |
+| Acquisition route | The **same ASME Digital Collection / MIT access route that delivered this paper**, which is now demonstrated to work on ASME InterPACK proceedings; failing that, document delivery / ILL on the InterPACK 2001 proceedings volume |
+
+**Consequence, applied and not argued around: no row below has an
+experimentally-stated tolerance, so no row below carries one.** Where a
+tolerance is quoted it is derived from **the published model's own deviation**
+and is labelled **PROVISIONAL** on its face. That is a weaker warrant than
+K2c-A's rows carry — those rest on the Raritan's ±1 °C and the Dantec's ±2 % ±
+0.02 m/s, both stated by the primary — and the difference is the point of this
+paragraph.
+
+### 8.5 Can the K2a module be graded against these rows? NO, and the K2a specification says so first
+
+**It cannot, and this is not a close call.** `K2a_RACK_ROW_MODULE_SPEC.md` §1,
+under **"No plenum"**, states it before this reference existed:
+
+> *"The under-floor plenum is not meshed in v1; tile supply is imposed at the
+> tile face (Section 3). Consequence, recorded here because it scopes K2c:
+> published tile-flow-**split** measurements (which tile gets how much of the
+> CRAC flow) validate a **plenum** model and cannot gate this module, whose
+> per-tile flows are inputs. What this module can be gated on is the **room
+> side**: rack-inlet temperatures and aisle temperature/velocity fields for
+> given tile flows."*
+
+And §3.2 above set the same condition from the other direction, before the
+reference arrived: a tile-flow reference is usable *"only by a rung that SOLVES
+the under-floor plenum and predicts the per-tile split"*.
+
+**So the state is exactly this, and it is not a soft blocker:**
+
+| | State at HEAD `9f3971f6` |
+| --- | --- |
+| K2c-B's reference column | **ARMED on three rows**, from a published measurement, at a stated page |
+| A rung that could be graded against it | **DOES NOT EXIST.** K2a v1 imposes per-tile flow as an input and meshes no plenum |
+| What a K2a-v1 solve against these rows would produce | **AN IDENTITY, and it would report a clean PASS.** Imposing the 60 tile flows and then reporting their min, max and standard deviation back is a restatement of the inputs. `VERIFICATION_CHARTER.md` §2a: *"A gate whose quantity is derivable by construction from its own inputs is an IDENTITY, not a control. It may be reported. It may never be gated on"* |
+
+**The honest sentence, and it is not the sentence the day's work was hoping
+for: arming K2c-B's reference column does not make the existing module
+gradeable against it.** What closes the gap is a **module revision that meshes
+the under-floor plenum and predicts the split** — new specification work, the
+owner's to authorize, not a solve of anything that exists today. The rows below
+are written now so that the revision has a gate to be written against, and so
+that the next reader does not have to buy the paper again to find out what it
+contains.
+
+**Nothing here is a purchase justified after the fact.** The acquisition also
+discharged §4's first NOT OBTAINED row on its tile-flow half and closed two
+mis-attributions (§8.7), both of which are worth the fetch independently of the
+rung.
+
+### 8.6 The gate rows
+
+Rung K2c-B, raised-floor / perforated-tile. **Every row is BLOCKED on the
+plenum-solving module of §8.5 and none may be graded before it exists.** Rows
+are numbered from B1 so they can never be confused with §3.1's K2c-A rows.
+
+**Case to build, when there is a module to build it in:** Floor Plan B as §8.3
+tabulates it — 6.06 × 20 m sealed test area, 29.2 cm plenum, 60 perforated tiles
+in a 4 × 15 array between two CRACs with no turning vanes, tiles at the
+**measured 19.5 % open area** and the **measured** impedance
+`DP[Pa] = 419 Q^1.99` (p. 6). The tile impedance and the open area are
+**measured boundary-condition data, not gate rows**: they are inputs to the
+solve and grading on them would be the same identity §8.5 names.
+
+| Row | Quantity graded | Reference value | Page | Stated experimental uncertainty | Tolerance | Why |
+| --- | --- | --- | --- | --- | --- | --- |
+| **B1** | **Standard deviation of per-tile airflow, as % of the mean**, over all 60 tiles | **62 %** | Table 3, **p. 6** | **NOT OBTAINED** (§8.4) | **PROVISIONAL, ±13 percentage points** | The paper's own primary uniformity metric (Eq. 5, p. 3). The band is **the published FLOVENT k-ε model's own deviation**: it gave 75 % against the measured 62 %, and the authors called the comparison *"good agreement"* (p. 6). A solve no worse than the published model passes; a solve worse than it fails. **The band is not an experimental uncertainty and must never be quoted as one** |
+| **B2** | **Maximum per-tile airflow, as % variation from the mean** | **+85 %** | Table 3, **p. 6** | **NOT OBTAINED** | **PROVISIONAL, ±10 percentage points** | Same basis: the published model gave +75 %, a 10-point miss, inside the same *"good agreement"* sentence |
+| **B3** | **Minimum per-tile airflow, as % variation from the mean** (the backflow row) | **−141 %** | Table 3, **p. 6** | **NOT OBTAINED** | **REPORT-ONLY. NOT GRADED** | The published model gave **−232 %**, a **91-percentage-point** miss on the one metric that decides whether backflow occurs, inside the same sentence that called the agreement good. Grading a solve on a quantity the reference paper's own model missed by 91 points would grade the reference, not the solve. Same discipline, and the same reason, as §3.1's rack-back temperature row |
+| **B4** | **Backflow present or absent at the tiles nearest the CRACs** | **PRESENT** | **p. 6**: *"The flow from some of the perforated tiles nearest the CRAC units showed some flow downward into the raised floor plenum"* | not applicable, qualitative | **REPORT: present / absent** | A sign, not a magnitude, and the one qualitative statement the measurement supports without an uncertainty. The counterpart of §3.1's above-rack low-velocity row |
+| **B5** | **Location of the maximum: near the centre of the tile array, minima nearest the CRACs** | maximum near centre, minima at the CRAC ends | **p. 6** | not applicable, qualitative | **REPORT: reproduced / not reproduced** | The paper attributes it to the two opposing CRAC jets colliding near the array centre (p. 6). A shape test that a wrong plenum treatment can fail |
+| **B6** | Independence of the uniformity metrics from the total airflow rate | Table 4, **p. 6**: halving and doubling the flow moved the standard deviation by ≤ 0.6 points | **p. 6** | not applicable | **IDENTITY. REPORT-ONLY, NEVER GRADED** | The paper **proves** it algebraically from the quadratic loss model, its Eqs. (2)–(4), p. 2: *"Equations (4a) and (4b) show that the fraction of total airflow along each path is independent of airflow rate."* A solve reproducing it reproduces its own discretised algebra. `VERIFICATION_CHARTER.md` §2a forbids gating it. It is worth **reporting** because a solve that failed it would have a bug |
+| **B7** | Per-tile airflow, all 60 tiles | Figure 3, **p. 6**, **NOT DIGITIZED TODAY** | **p. 6** | **NOT OBTAINED** | **UNARMED.** No band, because no reference value has been extracted | The figure is vector and digitizable (§8.3). The row is written unarmed and named so a later session extends it rather than rediscovering it. **It is not a gap being papered over: with no plenum-solving module, 60 reference values would arm a row that still could not be graded** |
+
+**No row above may be marked passed until a plenum-solving module exists AND
+the row's reference column is read against a solve of it.** B1 and B2 in
+addition carry the PROVISIONAL flag on their tolerance until the Schmidt et al.
+2001 primary supplies a measured uncertainty.
+
+### 8.7 Two mis-attributions this acquisition closed, one of them in this document
+
+**(a) §1's row on VanGilder & Schmidt cited it as Wibron 2018's reference [24].
+That attribution is WRONG, and the acquisition of the 2005 paper does NOT
+discharge the claim built on it.**
+
+§1 above wrote, in the VanGilder & Schmidt 2005/2006 row: *"Cited in the
+obtained primary as [24]: 'results are not totally grid independent even for a
+grid size as small as 2.5 cm, but do not change significantly below a grid size
+of about 15.2 cm'"*. §5's fourth claim row carries the same attribution as
+SECONDARY.
+
+**Read from Wibron 2018's own reference list, p. 14, entry 24 is:** *"VanGlider,
+J.W.; Zhang, X. Coarse-Grid CFD: The effect of Grid Size on Data Center
+Modeling. ASHRAE Trans. 2008, 114, 166–181."* Counted through the list in order,
+[24] is the twenty-fourth entry and is that paper. **It is a different paper by
+a different pair of authors in a different venue three years later**, and the
+VanGilder & Schmidt tile-uniformity papers of 2005 and 2006 are not in Wibron's
+reference list at all.
+
+**And the paraphrase does not match the 2005 paper either.** VanGilder & Schmidt
+2005, p. 5, READ IN FULL, states the opposite structure: *"The maximum length of
+any side of any grid cell was systematically reduced until predicted tile airflow
+results **stabilized**. Ultimately, a grid size was selected with the following
+characteristics: a maximum cell size of 15 cm (6 in), a minimum cell size of 2.5
+cm (1 in), and a minimum of 8 cells in the plenum-depth direction."* The two
+length scales in Wibron's sentence, 2.5 cm and about 15.2 cm (= 6 in), appear
+here as **the two ends of the selected grid's cell-size range**, not as a
+statement about where results stop changing. Whether Wibron's sentence is a fair
+paraphrase of the **2008** paper is **NOT OBTAINED**: that paper has not been
+read.
+
+| Status of the grid-size claim | Before 2026-08-18 | After |
+| --- | --- | --- |
+| Attributed to | VanGilder & Schmidt 2005/2006 | **VanGilder & Zhang 2008, ASHRAE Trans. 114, 166–181** |
+| Tier | SECONDARY, underlying study NOT OBTAINED | **SECONDARY, underlying study still NOT OBTAINED — a different study than the one named** |
+| DOI | assumed to be the 2005/2006 DOIs | **None established.** CrossRef bibliographic query on title, authors, venue and year, 2026-08-18, returned no matching record. ASHRAE Transactions of that era are largely unregistered |
+| Acquisition route | (the wrong paper's) | ASHRAE Technology Portal, or document delivery / ILL on ASHRAE Transactions vol. 114 |
+| Where it is used | §6 of `K2a_RACK_ROW_MODULE_SPEC.md`'s sanity floor for the 6 cm base cell | **Unchanged in effect**: it was never graded on, and it is still never graded on. Only the citation is corrected |
+
+**(b) §5's claim row is superseded, and the replacement is narrower.** The
+corrected row, in this document's §5 format:
+
+| Claim | Source and tier | Where it applies | Where it does not |
+| --- | --- | --- | --- |
+| A raised-floor plenum CFD of an actual facility was run with a maximum cell size of 15 cm, a minimum of 2.5 cm and at least 8 cells across the plenum depth, after reducing cell size until tile-airflow results stabilised | **VanGilder & Schmidt 2005, IPACK2005-73375, p. 5 (READ IN FULL, PDF in this repository)** — now **PRIMARY**, replacing the SECONDARY chain | A sanity floor for K2a §6's 6 cm base cell, which is finer than both ends of this range | Any claim about where results *stop changing*, which this paper does not make; any claim about hexahedral-versus-tetrahedral grids; anything about the 2008 coarse-grid study, which is NOT OBTAINED |
+| Measured tile open area was 19.5 % against a 25 % manufacturer nominal, and measured tile impedance was `DP[Pa] = 419 Q^1.99` | **same, p. 6, PRIMARY** | Boundary-condition data for any Floor-Plan-B case; a warrant that manufacturer-nominal open area is not a measurement | Any other tile type; the 56 %-open grates, whose loss coefficient 3.4 is from **manufacturer's published data** (p. 4), not measured here |
+| Perforated-tile airflow uniformity is independent of total airflow rate | **same, Eqs. (2)–(4) p. 2 and Table 4 p. 6, PRIMARY** | Reporting; scoping a plenum module's parameter sweeps | **Any gate row. It is an identity** (§8.6, row B6) |
+
+**(c) §7.1's 50 % open-area warrant is unchanged, and this paper does not
+upgrade it.** §7.1 recorded, via Wibron 2019 p. 4 citing Abdelmaksoud et al.
+2010, that *"a fully open tile model is however regarded to be adequate for
+tiles if the percentage of open area is 50 percent or more"*, with the SICS ICE
+facility's tiles at **56 % and 77 % open**, tier **SECONDARY**, *"a warrant for
+a modelling choice and not a reference value"*. That stands exactly as written.
+**VanGilder & Schmidt 2005 does not state that threshold and cannot be cited for
+it**; Abdelmaksoud et al. 2010 remains NOT OBTAINED. What the 2005 paper adds is
+adjacent and useful and is **not** the same claim: its two tile types are 25 %
+and 56 % open with loss coefficients **51.3 and 3.4** from manufacturer data
+(p. 4), and it states that with 56 %-open tiles *"the plenum and room (above the
+raised floor) airflow are somewhat coupled"* so that plenum-only results are
+*"strictly applicable only to the case of uniform room pressure above the tiles"*
+(p. 5). **That is a caution about the 56 %-open case, from a primary, sitting
+next to a SECONDARY warrant that 56 % is adequate.** Both are recorded; neither
+is a reference value; the tension between them is the reader's to see and is not
+resolved here.
+
+### 8.8 Supersession: what this section closes in §4 and what it leaves open
+
+**§4 is not edited.** Its status after this section:
+
+| §4 row | Status at 2026-08-18 |
+| --- | --- |
+| **Row 1**, any raised-floor rack-inlet or tile-flow measurement primary | **DISCHARGED ON ITS TILE-FLOW HALF, TWICE OVER.** §7.1 delivered Wibron 2019's Table 2 (imposed boundary conditions, usable only by a plenum-solving rung); this section delivers VanGilder & Schmidt 2005's Table 3 (a genuine CFD-versus-measurement comparison of the tile split). **Its rack-inlet-temperature half is UNTOUCHED and remains NOT OBTAINED**: neither paper measures a rack-inlet temperature. Schmidt & Cruz 2002, DOI `10.1109/itherm.2002.1012507`, remains the exact-quantity candidate. The row named VanGilder & Schmidt 2006 (`10.1016/j.buildenv.2005.03.005`) as one of three best candidates; **the 2005 conference version was obtained instead**, and the 2006 journal version is not separately pursued |
+| **Row 2**, digitized reference values from Wibron 2018 Figures 3, 6, 7, 8 | **DISCHARGED IN FULL, 2026-08-18.** Figures 6 and 7 armed the reference column on 2026-08-17 (`K2c_DIGITIZATION_ADDENDUM.md` §§4–5); Figures 3 and 8 were tabulated with their increments by that document's **§11**, which also records the finding that **neither could ever have armed a row** because neither carries an experiment Figure 7 does not already carry |
+| **Row 3**, Hamann et al. DOE final report | **CLOSED** by §7.2. Unchanged |
+| **New**, from §8.7 | **Two references were added to the NOT OBTAINED list by this section, not removed from it**: Schmidt et al. 2001 (InterPACK, no DOI established) for K2c-B's missing experimental uncertainty, and VanGilder & Zhang 2008 (ASHRAE Trans. 114, no DOI established) for the grid-size claim's true source |
+
+### 8.9 What still stands after this section
+
+- **§3.2's caveat is honoured, not evaded.** A tile-flow reference is usable only
+  by a rung that solves the plenum and predicts the split. **No such rung
+  exists**, so K2c-B's rows are written and **BLOCKED**, and any tile-supply
+  solve by the K2a module as specified is **TREND-ONLY however well it
+  converges** — unchanged from §3.2.
+- **No tier moved and no chip changed.** K2c-A is VALIDATED-ELIGIBLE on two rows
+  and VALIDATED on none. **K2c-B is not eligible for anything**, because a
+  reference without a rung that can be graded against it is a reference, not a
+  gate that has been reached.
+- **No solve has run.** This document's header prohibition is unchanged.
+- **The experimental uncertainty for every armed K2c-B row is NOT OBTAINED**,
+  and the tolerances on B1 and B2 are PROVISIONAL and derived from a published
+  model's deviation, which is a weaker warrant than K2c-A's rows carry.
