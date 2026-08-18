@@ -316,7 +316,18 @@ _ABSENT_SOURCE_CASES = (
     # nothing could say so -- L-45's defect class B1, which is exactly what this
     # file exists to refuse.
     ("check_evidence_paths_exist", ("WEB", "REPO")),
-    ("check_ungated_completed_runs", ("WEB",)),
+    # `REPO` ADDED 2026-08-18, EXECUTING MOVE_MAP BATCH 7, and it is the
+    # THIRD instance of the sentence above rather than a new defect.  This
+    # check reads ONE record, `F5a_cylinder_reynolds_ladder.md`, through
+    # `_at(lab_paths.CAMPAIGN / ...)`.  R21 moves `campaign/` out of the
+    # webroot to `verification/campaign/`, so `p.relative_to(lab_paths.WEB)`
+    # raises and the WEB re-rooting stops applying: the check went on
+    # reading the REAL ladder and returned WARN ("1 completed run(s) carry
+    # no gate verdict") where a blinded check must return UNKNOWN.  It
+    # failed LOUDLY, which is the good direction and is the whole reason
+    # this file exists; a guard that could no longer be blinded would
+    # otherwise have kept passing while proving nothing.
+    ("check_ungated_completed_runs", ("WEB", "REPO")),
     ("check_fd_grades_current_standard", ("ACTIVE", "WEB", "REPO")),
     ("check_statistical_labels", ("MISSION",)),
     ("check_campaign_json_citations", ("CAMPAIGN",)),

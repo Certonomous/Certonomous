@@ -417,6 +417,29 @@ OWNERS = (
     # the supervision charter's to do, not a mover's.
     ("cases/dafoam/", "DAFoam"),
     ("cases/", "Demo and website"),
+    # `verification/` did not exist until MOVE_MAP batch 7 (R20/R21/R24).
+    # Same defect class as the `ops/` row and the `cases/` rows above:
+    # measured before the move, 61 of the 255 waived paths below are under a
+    # batch-7 source -- 59 R20, 2 R21 -- and every one of them routed to
+    # UNASSIGNED at its successor, which is what
+    # `test_the_register_is_split_across_families_and_says_so` asserts
+    # cannot happen.  THE FAMILY ASSIGNMENT IS PRESERVED, NOT RE-DECIDED:
+    # all 61 were "Cases" under `demo-output/website/campaign/` and are
+    # "Cases" here.  The `verification/` catch-all answers for R24's
+    # `certificates/`, `credibility/` and `monitor/`, which were "Demo and
+    # website" under `demo-output/website/`; it answers for 0 register
+    # entries today and is here so the next waiver under one of them is not
+    # UNASSIGNED.
+    #
+    # ONE THING R25 WILL HAVE TO DECIDE RATHER THAN INHERIT: R25 sends
+    # `docs/campaigns/<campaign>/<tree>_runs` to
+    # `verification/runs/<campaign>/<tree>_runs`, and those files are
+    # "Infrastructure and Standards" under `docs/` and would become "Cases"
+    # here.  0 register entries are under `docs/campaigns/` today, so this
+    # is a decision R25 must make and not one batch 7 has silently made.
+    ("verification/campaign/", "Cases"),
+    ("verification/runs/", "Cases"),
+    ("verification/", "Demo and website"),
 )
 
 

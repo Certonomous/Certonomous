@@ -1106,14 +1106,27 @@ class LinearAlgebraRankIsNotAPlacementTests(unittest.TestCase):
         board, reason = sa._published_board()
         if board is None:
             self.skipTest(f"detector OFF, not a silent pass: {reason}")
-        for rel in ("demo-output/website/campaign/"
-                    "W2_POPE_1975_INTEGRITY_BASIS.md",
-                    "sdk/scripts/pope_1975_basis_check.py"):
-            path = REPO / rel
+        # THE LITERAL WAS THE DANGEROUS HALF, NOT THE `continue`.  R21
+        # (MOVE_MAP batch 7) moves the first of these to
+        # `verification/campaign/`, after which `path.exists()` is False,
+        # the loop `continue`s, and this test passes having asserted
+        # NOTHING about the real corpus -- the silent-zero failure this
+        # repository has recorded repeatedly.  The name follows the map now,
+        # and the floor below is what makes a corpus that shrank redden
+        # instead of going quiet.
+        checked = 0
+        for path in (lab_paths.CAMPAIGN / "W2_POPE_1975_INTEGRITY_BASIS.md",
+                     REPO / "sdk" / "scripts" / "pope_1975_basis_check.py"):
             if not path.exists():
                 continue
+            checked += 1
             self.assertEqual(([], []), sa.board_placement_faults(
-                path.read_text(encoding="utf-8", errors="replace"), board), rel)
+                path.read_text(encoding="utf-8", errors="replace"), board),
+                str(path))
+        self.assertEqual(2, checked,
+                         "both real-corpus instances must be read; a corpus "
+                         "that shrank to nothing satisfied this test silently "
+                         "before MOVE_MAP batch 7")
 
 
 class TheBoardIsParsedTests(unittest.TestCase):
@@ -1735,7 +1748,9 @@ class TheWordFormGuardIsRegisteredTests(unittest.TestCase):
         self.assertIn(f"{counted} RULE-A patterns", blind)
 
     def _held_out(self, name):
-        path = (REPO / "demo-output" / "website" / "campaign" / name)
+        # R21 moves these graders to `verification/campaign/`; the name
+        # follows the map, the literal did not.
+        path = (lab_paths.CAMPAIGN / name)
         self.assertTrue(path.exists(),
                         f"{name} is the evidence behind a published figure; "
                         f"without it this test asserts nothing")
@@ -2448,7 +2463,9 @@ class TheGraderPrecisionSetIsIndependentTests(unittest.TestCase):
     """
 
     def _held_out(self, name):
-        path = (REPO / "demo-output" / "website" / "campaign" / name)
+        # R21 moves these graders to `verification/campaign/`; the name
+        # follows the map, the literal did not.
+        path = (lab_paths.CAMPAIGN / name)
         self.assertTrue(path.exists(),
                         f"{name} is the evidence behind a published figure; "
                         f"without it this test asserts nothing")

@@ -1163,14 +1163,49 @@ def _rank_companions_missing(text: str) -> list[str]:
 
 
 def _tracked_files() -> list[Path] | None:
-    """Every path git tracks, or None if git cannot be asked."""
+    """Every path git tracks, or None if git cannot be asked.
+
+    `git ls-tree -r HEAD`, NEVER `git ls-files`, AND RESOLVED THROUGH THE MAP.
+    Two independent defects, both measured while MOVE_MAP batch 7 landed, and
+    both of them SHRINK THE CORPUS SILENTLY -- which is the one direction this
+    file exists to refuse.
+
+    (1) FRAME. `git ls-files` lists INDEX entries, and `docs/USING_THIS_LAB.md`
+    section 8.5's private-index protocol -- the mandated one -- never writes the
+    shared index. Everything a conforming agent lands is in HEAD and absent from
+    `git ls-files` until somebody runs `git add`. Docket D274 already ruled this
+    frame for `scripts/lab_check.py:486-496`, in the same words: the index is a
+    per-machine, per-moment scratch state no reader of the repository ever sees.
+
+    (2) SPELLING. Every caller below then does `if not path.is_file(): continue`,
+    so a path this frame names at a location the tree no longer uses is dropped
+    WITHOUT A WORD. Batch 7 moved 2,367 files out of `demo-output/website/`, and
+    with the old frame the two checks that sweep this list reported
+    **80 -> 45** lab-record placement faults and **35 -> 14** rank-value faults
+    across the move. Nothing was fixed; 2,367 surfaces stopped being read.
+    `lab_paths.resolve()` answers where each tracked path IS -- literal,
+    successor or predecessor -- so the sweep follows the map in the window
+    between a `git mv` and the commit that records it, and after it.
+
+    A path that resolves nowhere is still returned at its literal location, so
+    the callers' own `is_file()` guard still drops it and this function never
+    invents a file.
+    """
     try:
         out = subprocess.run(
-            ["git", "ls-files", "-z"], cwd=REPO, capture_output=True,
-            text=True, timeout=120, check=True).stdout
+            ["git", "ls-tree", "-r", "-z", "--name-only", "HEAD"], cwd=REPO,
+            capture_output=True, text=True, timeout=120, check=True).stdout
     except (OSError, subprocess.SubprocessError):
         return None
-    return [REPO / rel for rel in out.split("\0") if rel]
+    seen, paths = set(), []
+    for rel in out.split("\0"):
+        if not rel:
+            continue
+        here = lab_paths.resolve(rel) or (REPO / rel)
+        if here not in seen:
+            seen.add(here)
+            paths.append(here)
+    return paths
 
 
 def _shipping_archives() -> list[Path]:
@@ -3598,13 +3633,32 @@ def _ranking_board_date() -> str:
     for the pin, and for the same reason: the one thing a referent that exists
     to be current must not do is misreport its own age.
     """
-    try:
-        return subprocess.run(
-            ["git", "log", "-1", "--format=%cs", "--", _RANKING_RECORD],
-            cwd=REPO, capture_output=True, text=True, timeout=30,
-            check=True).stdout.strip()
-    except (OSError, subprocess.SubprocessError):
-        return ""
+    # EVERY SPELLING, because a MOVE re-dates a record for any instrument that
+    # reads history by path.  MOVE_MAP batch 7 (R21) moved this record from
+    # `demo-output/website/campaign/` to `verification/campaign/`, and
+    # `git log -- <new path>` returns NOTHING until the move commit lands and
+    # then returns the MOVE's date -- so this function, whose whole point is
+    # that "a referent that exists to be current must not misreport its own
+    # age", would have said "(date unreadable)" and then 2026-08-18 for a
+    # record dated 2026-08-11.  `lab_paths.unredirect` supplies the predecessor
+    # spelling; the OLDEST answer is the landing, which is the same rule
+    # `scripts/check_verdict_cells.py:_landed` uses.
+    spellings = [_RANKING_RECORD]
+    _back = lab_paths.unredirect(_RANKING_RECORD)
+    if _back and _back not in spellings:
+        spellings.append(_back)
+    dates = []
+    for _spelling in spellings:
+        try:
+            got = subprocess.run(
+                ["git", "log", "-1", "--format=%cs", "--", _spelling],
+                cwd=REPO, capture_output=True, text=True, timeout=30,
+                check=True).stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            continue
+        if got:
+            dates.append(got)
+    return min(dates) if dates else ""
 
 
 def _board_margin() -> tuple[int, int]:

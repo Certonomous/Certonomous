@@ -1,10 +1,25 @@
 """Build campaign/F6d_random_matrix_uq.json from the primary artifacts.
 Every field is read from a file this study produced; nothing is retyped."""
 import json
+import sys as _sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-CAMP = HERE.parents[1] / "campaign"
+# NOT `HERE.parents[1] / "campaign"`.  This generator WRITES
+# `campaign/F6d_random_matrix_uq.json`, and it reached the campaign root by
+# COUNTING two segments up from a path that has now moved twice.  MOVE_MAP
+# batch 6 (R22) moved this file from `demo-output/website/dafoam/...` to
+# `cases/dafoam/...`, at which point `parents[1] / "campaign"` became
+# `cases/campaign` -- a directory that does not exist -- and batch 7 (R21)
+# moves the real destination to `verification/campaign`.  There is no path
+# literal in the expression, so no prefix rewrite reached it in either
+# batch.  `lab_paths.CAMPAIGN` is bound to the pair and is correct on both
+# sides of the move.
+_sys.path.insert(0, str(next(
+    _p for _p in Path(__file__).resolve().parents
+    if (_p / "scripts" / "lab_paths.py").is_file()) / "scripts"))
+import lab_paths as _lab_paths                                # noqa: E402
+CAMP = _lab_paths.CAMPAIGN
 
 agg = json.loads((HERE / "aggregate_result.json").read_text())
 ver = json.loads((HERE / "verify_sampler_result.json").read_text())

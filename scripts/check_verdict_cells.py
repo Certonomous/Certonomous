@@ -277,6 +277,37 @@ def uncited_newer(rung: str, cited: list[Path]) -> list[Path]:
     return out, skipped
 
 
+def _history_spellings(p: Path) -> list[str]:
+    """Every name this repository has had, or will have, for one path.
+
+    A MOVE RE-DATES A RECORD FOR ANY INSTRUMENT THAT READS HISTORY BY PATH, and
+    that is the same defect `_landed` below was written to close, arriving by a
+    different door.  `git log --diff-filter=A -- <path>` reports a RENAME as an
+    ADD at the new path, so MOVE_MAP batch 7 (R21) would have re-dated all 264
+    campaign records to the move commit and, in the window between the `git mv`
+    and the commit, returned NO history at all -- `_landed` fell back to 0,
+    every record read as newer than every other, and this check went
+    PASS -> FAIL with two CELL-VS-RECORD findings that are artefacts of the
+    move rather than of the ledger.
+
+    The fix is the one `sdk/chief_engineer/exec_bits.py:_spellings` already
+    uses: teach the MATCH the map instead of re-writing history.  The EARLIEST
+    add across every spelling is taken, which is the same rule the docstring
+    below already states for a path added more than once.
+    """
+    out = [str(p)]
+    try:
+        rel = str(Path(p).resolve().relative_to(REPO))
+    except ValueError:
+        return out
+    for other in (lab_paths.unredirect(rel), lab_paths.redirect(rel)):
+        if other:
+            cand = str(REPO / other)
+            if cand not in out:
+                out.append(cand)
+    return out
+
+
 def _landed(p: Path) -> int:
     """When this grade LANDED -- the commit that ADDED it, not the last to touch it.
 
@@ -299,20 +330,28 @@ def _landed(p: Path) -> int:
     corpus's own sense of "landed", not a new convention invented here.
     """
     try:
-        out = subprocess.run(
-            ["git", "log", "--diff-filter=A", "--format=%ct", "--", str(p)],
-            cwd=REPO, capture_output=True, text=True, timeout=30,
-        ).stdout.split()
-        if out:
-            return int(out[-1])  # earliest ADD, if a path was added more than once
+        adds = []
+        for spelling in _history_spellings(p):
+            out = subprocess.run(
+                ["git", "log", "--diff-filter=A", "--format=%ct", "--", spelling],
+                cwd=REPO, capture_output=True, text=True, timeout=30,
+            ).stdout.split()
+            if out:
+                adds.append(int(out[-1]))  # earliest ADD at this spelling
+        if adds:
+            return min(adds)               # ...and the earliest across spellings
         # No add commit in history (a path only ever modified, or unreadable
         # history): fall back to last-touch rather than silently returning 0,
         # which would make every record for the rung look newer than it.
-        last = subprocess.run(
-            ["git", "log", "-1", "--format=%ct", "--", str(p)],
-            cwd=REPO, capture_output=True, text=True, timeout=30,
-        ).stdout.strip()
-        return int(last) if last else 0
+        lasts = []
+        for spelling in _history_spellings(p):
+            last = subprocess.run(
+                ["git", "log", "-1", "--format=%ct", "--", spelling],
+                cwd=REPO, capture_output=True, text=True, timeout=30,
+            ).stdout.strip()
+            if last:
+                lasts.append(int(last))
+        return min(lasts) if lasts else 0
     except (OSError, ValueError, subprocess.SubprocessError):
         return 0
 
@@ -613,14 +652,24 @@ def selftest() -> int:
     for name in ("LADDER_V_V6_V10_REGRADE_2026-08-15.md",
                  "LADDER_V_V12_V13_V14_GRADE_2026-08-15.md"):
         p = CAMPAIGN / name
-        add = subprocess.run(["git", "log", "--diff-filter=A", "--format=%ct",
-                              "--", str(p)], cwd=REPO, capture_output=True,
-                             text=True).stdout.split()
-        last = subprocess.run(["git", "log", "-1", "--format=%ct", "--", str(p)],
-                              cwd=REPO, capture_output=True, text=True).stdout.strip()
+        # THE CONTROL READS THE SAME SPELLINGS `_landed` DOES.  Reading only the
+        # literal path made this control print `SKIP ... no history` the moment
+        # R21 moved the record -- a control switching itself off in the batch
+        # that made it necessary.
+        add, last = [], []
+        for spelling in _history_spellings(p):
+            add += subprocess.run(["git", "log", "--diff-filter=A",
+                                   "--format=%ct", "--", spelling], cwd=REPO,
+                                  capture_output=True, text=True).stdout.split()
+            one = subprocess.run(["git", "log", "-1", "--format=%ct", "--",
+                                  spelling], cwd=REPO, capture_output=True,
+                                 text=True).stdout.strip()
+            if one:
+                last.append(one)
         if not add or not last:
             print(f"  SKIP    landing control {name[:36]:<38} -> no history")
             continue
+        add, last = sorted(add, key=int), str(max(int(x) for x in last))
         n_landing += 1
         add_ts, last_ts = int(add[-1]), int(last)
         if add_ts == last_ts:

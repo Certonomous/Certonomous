@@ -506,11 +506,21 @@ class TheEmptySelectionIsNotAgreementTests(unittest.TestCase):
             gate_table.rows = saved
 
     def test_ungated_completed_runs(self):
-        web = self.tmp / "lweb"
-        (web / "campaign").mkdir(parents=True, exist_ok=True)
-        (web / "campaign" / "F5a_cylinder_reynolds_ladder.md").write_text(
+        # THE PLANT FOLLOWS THE MAP.  This planted the record at
+        # `<web>/campaign/` and rebound `WEB`, which worked for exactly as
+        # long as `campaign/` was under the webroot.  MOVE_MAP batch 7
+        # (R21) sends it to `verification/campaign/`, after which the WEB
+        # re-rooting in `self_audit._at` no longer applies and the check
+        # read the real ladder instead of this plant.  The location is now
+        # DERIVED from `lab_paths.CAMPAIGN`, so it needs no edit at any
+        # future batch, and `REPO` is rebound because that is the handle
+        # `_at` re-roots on unconditionally.
+        root = self.tmp / "lrepo"
+        rel = sa.lab_paths.CAMPAIGN.relative_to(sa.lab_paths.REPO)
+        (root / rel).mkdir(parents=True, exist_ok=True)
+        (root / rel / "F5a_cylinder_reynolds_ladder.md").write_text(
             "# Ladder\n\nA real record. It names no completed run.\n")
-        with _Swap(WEB=web):
+        with _Swap(WEB=root / "demo-output" / "website", REPO=root):
             self._assert_empty_selection(sa.check_ungated_completed_runs())
 
     def test_the_closure_wall_empty_block(self):

@@ -146,12 +146,28 @@ class TheTwoReferentsAreDifferentObjectsTests(unittest.TestCase):
         It has to be IN the tree (a self-audit that needs the network is off
         whenever the network is) and it has to be able to say how old it is.
         """
-        tracked = subprocess.run(
-            ["git", "ls-files", "--", sa._RANKING_RECORD], cwd=REPO,
-            capture_output=True, text=True, timeout=60).stdout.strip()
-        self.assertEqual(sa._RANKING_RECORD, tracked,
-                         "the ranking record is not tracked, so the verdict is "
-                         "not reproducible from the tree")
+        # `git ls-tree -r HEAD`, NEVER `git ls-files`, and under EVERY
+        # spelling.  Two independent reasons, both measured at MOVE_MAP
+        # batch 7.  (1) FRAME: `git ls-files` lists INDEX entries, and this
+        # lab's private-index commit protocol never writes the shared
+        # index, so a landed file is invisible there until somebody runs
+        # `git add` -- D274, the repair `scripts/lab_check.py:486-496`
+        # already made for `tracked_frame`.  (2) SPELLING: R21 moved this
+        # record to `verification/campaign/`, so between the `git mv` and
+        # the commit that records it HEAD still holds the predecessor name.
+        # Asking under every name `lab_paths` knows keeps the assertion
+        # exactly as strong -- a record tracked under NO spelling still
+        # fails this, which is what it is for.
+        head = subprocess.run(
+            ["git", "ls-tree", "-r", "--name-only", "-z", "HEAD"], cwd=REPO,
+            capture_output=True, text=True, timeout=60).stdout.split("\0")
+        names = {sa._RANKING_RECORD,
+                 sa.lab_paths.unredirect(sa._RANKING_RECORD),
+                 sa.lab_paths.redirect(sa._RANKING_RECORD)} - {None}
+        self.assertTrue(names & set(head),
+                        "the ranking record is not tracked under any name "
+                        "this repository has had for it, so the verdict is "
+                        "not reproducible from the tree")
         self.assertRegex(
             sa._ranking_board_date(), r"^\d{4}-\d{2}-\d{2}$",
             "the ranking referent cannot state its own date; a referent that "

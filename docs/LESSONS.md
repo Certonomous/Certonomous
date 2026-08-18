@@ -6325,3 +6325,96 @@ when it happens.
 *what did I compromise to afford this?*; *what single-variable control isolates
 that compromise?*; *what will I do if the control fails?* Answer the third in
 writing, before running, and honour it.
+
+## L-135. One source root can become two destination roots, and a re-pointed ignore rule keeps its wording while changing its scope
+
+**The incident.** Batch 2 scoped its solver-output rules to two roots on
+purpose and wrote the reason into `.gitignore`: a repo-wide `**/log.*` would
+also reach `docs/campaigns/F14-cooling-ladder/`, and *"it WOULD silently ignore
+every solver log the lane writing that tree produces next."* Five of those rules
+read `demo-output/website/campaign/**/...`. MOVE_MAP batch 7 splits that one
+source root into **two** destinations: R20 sends `campaign/<tree>_runs` to
+`verification/runs/` and R21 sends everything else to `verification/campaign/`.
+
+**A prefix substitution therefore has no correct answer, and both wrong answers
+are silent.** Re-point to `verification/runs/**` and the R21 half stops being
+ignored; re-point to `verification/campaign/**` and the R20 half does. Re-point
+to both with `**` and the R20 spelling reaches, once R25 lands, exactly the F14
+trees batch 2 refused to reach — silently, to another lane's next solver log.
+
+**Measured rather than reasoned, before the rule was written.**
+`git check-ignore --no-index -v` over all **19,679 files on disk** under the 294
+sources: **8 ignored files sit under R21 territory** — one
+`motorBike_production.log.checkMesh` under `DRAW_SCATTER_RETROFIT/` and seven
+`*.log` under `MESH_CERT_RULINGS_2026-08-10/recheck_logs/`. Eight files is small
+and it is not the point: the point is that the count is not zero and nothing but
+the measurement said so. The rule that landed is
+`verification/runs/*_runs/**/...`, `verification/runs/*_work/**/...` and
+`verification/campaign/**/...` — three rules where there was one, the `*_runs`
+spelling chosen because R25's successors put a CAMPAIGN name in that segment and
+so match it not at all.
+
+**The rule.** When a move splits a root, a re-pointed ignore rule must be
+re-derived from what it **matches**, not from what it **says**. And the
+assertion is not a rule count and not the tracked side alone: it is the
+**per-file ignore decision on both sides, mapped forward, compared as a set
+difference in BOTH directions.** Here that read *0 files un-ignored, 78 newly
+ignored, and all 78 are the `MESH_AUDIT_runs` option-A closure this batch was
+supposed to land* — which is a sentence about the corpus, where "the rule count
+went from 5 to 12" would have been a sentence about the diff.
+
+**The corollary.** `git check-ignore` is silent about tracked files, so
+`--no-index` is mandatory here (`USING_THIS_LAB.md` §8.6) — and the interesting
+half of this measurement is the **untracked** side, 17,312 files of solver
+output that no `git status` would ever have shown leaving the ignore set.
+
+## L-136. A rename re-dates a record for every instrument that reads history by path, and a move batch is a rename
+
+**The incident.** `scripts/check_verdict_cells.py` went **PASS → FAIL** as a
+pure side effect of MOVE_MAP batch 7, with two `CELL-VS-RECORD` findings that
+were artefacts of the move and not of the ledger. Its `_landed(p)` asks
+`git log --diff-filter=A --format=%ct -- <path>` for the commit that ADDED a
+grade record. R21 moved all 264 campaign records to `verification/campaign/`,
+and:
+
+* **in the window between the `git mv` and the commit**, the new path has no
+  history at all, so `_landed` fell through to its last-touch fallback, got
+  nothing there either, and returned **0** — after which every record read as
+  newer than every other and the "newest cited record" comparison picked a
+  different record for two rungs;
+* **after the commit**, `git log -- <new path>` finds the move commit and
+  reports **today** as the landing date of a record dated 2026-08-11, because
+  without `--follow` a rename IS an add at the new path.
+
+**This is D356 arriving through a different door.** `_landed` exists precisely
+because `git log -1` reported the last EDIT rather than the landing, and a
+non-author's amendment re-dated two grade records and convicted three rungs
+that had not moved. Its docstring's rule is *"repairing a record must not
+re-date it, or the instrument punishes the repair it asked for."* **A MOVE must
+not re-date it either**, and the instrument could not tell the two apart.
+
+**It was not one instrument.** `scripts/self_audit.py:3603`
+`_ranking_board_date()` — whose own docstring says *"the one thing a referent
+that exists to be current must not do is misreport its own age"* — returned
+`''` for `BOARD_MOVED_2026-08-11.md` at its new spelling and printed
+*"(date unreadable)"* into the published-board provenance string.
+
+**The repair is the one `exec_bits._spellings` already uses: teach the MATCH the
+map, never re-write the history.** Both now ask every spelling the repository
+has had or will have for the path — literal, `lab_paths.unredirect()` of it,
+`lab_paths.redirect()` of it — and take the **earliest** answer, which is the
+same rule `_landed` already stated for a path added more than once. After the
+repair `check_verdict_cells` reads **exit 0, 16 rung rows, 0 FAIL, 3 WARN**, its
+own landing control reports **HELD** rather than SKIP with
+`_landed=1786822451` against `last=1786995260`, and the ranking date reads
+2026-08-11 again.
+
+**The rule, and the reason it generalises past `.gitignore` and past path
+literals.** Anything that asks git a question **about a path** — `git log`,
+`git log --diff-filter=A`, `git blame`, `--since`, a pickaxe scoped by
+pathspec — is answering about a NAME, and a move changes the name without
+changing the thing. Before a move batch, grep for `git log` and `git blame` with
+a `--` pathspec the same way you grep for path literals, and check each one
+**twice**: once in the pre-commit window where the new name has no history, and
+once after, where it has the wrong history. The first failure is loud; the
+second is a date that is merely wrong.

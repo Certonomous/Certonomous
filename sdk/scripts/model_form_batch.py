@@ -228,8 +228,12 @@ N_REGIMES = {"a0": 0.0, "a10": 10.0, "a15": 15.0}
 # campaign/MODEL_FORM_H_HILLS_PREREGISTRATION.md. The mesh is COMPLIANT
 # (non-ortho 39.66 / skew 0.226 vs gates 70 / 4) -- R12 is not involved.
 H_REGIMES = {"re10595": None}
-H_SOURCE_CASE = (REPO_ROOT / "demo-output" / "website" / "campaign"
-                 / "F6b_runs" / "medium")
+# R20 (MOVE_MAP batch 7) sends `campaign/F6b_runs` to
+# `verification/runs/F6b_runs`.  This literal is in a file batch 3b DID
+# convert -- `OUT_ROOT`, `BAND_JSON` and `BAND_MD` above are already
+# `lab_paths` names -- and it survived the conversion, which is why a census
+# of converted FILES is not a census of converted SITES.
+H_SOURCE_CASE = lab_paths.RUNS / "F6b_runs" / "medium"
 H_BACKSTOP = 12000   # ~2x both measured attainments (SST 5997, QCR 6177)
 H_NU = 9.438414346389807e-05
 H_K_INIT = 0.00375
@@ -1112,8 +1116,11 @@ def run_cell_N(cell: Cell, log: Callable[[str], None], *,
 def _hills_crossings(case_dir: Path, time_name: str) -> list[float]:
     """Bottom-wall skin-friction sign changes, x/h ascending, linear-
     interpolated -- the F6b gate.py logic, with the wall single-valued in x."""
-    sys.path.insert(0, str(REPO_ROOT / "demo-output" / "website" / "dafoam"
-                           / "f6b_periodic_hills" / "case_breuer_re10595"))
+    # BATCH-6 RESIDUE, found while repairing the batch-7 literal above and
+    # repaired here rather than left: R22 moved `demo-output/website/dafoam`
+    # to `cases/dafoam` and this literal has pointed at nothing since.
+    sys.path.insert(0, str(lab_paths.DAFOAM / "f6b_periodic_hills"
+                           / "case_breuer_re10595"))
     import foam_io as fio
     mesh = case_dir / "constant" / "polyMesh"
     pts = fio.read_points(str(mesh / "points"))
@@ -1141,8 +1148,11 @@ def _hills_first_crossing_is_separation(case_dir: Path, time_name: str,
                                         crossings: Sequence[float]) -> bool:
     """G3 direction check: the wall must be attached (Cf > 0) upstream of
     the first crossing."""
-    sys.path.insert(0, str(REPO_ROOT / "demo-output" / "website" / "dafoam"
-                           / "f6b_periodic_hills" / "case_breuer_re10595"))
+    # BATCH-6 RESIDUE, found while repairing the batch-7 literal above and
+    # repaired here rather than left: R22 moved `demo-output/website/dafoam`
+    # to `cases/dafoam` and this literal has pointed at nothing since.
+    sys.path.insert(0, str(lab_paths.DAFOAM / "f6b_periodic_hills"
+                           / "case_breuer_re10595"))
     import foam_io as fio
     mesh = case_dir / "constant" / "polyMesh"
     pts = fio.read_points(str(mesh / "points"))

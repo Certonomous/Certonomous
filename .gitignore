@@ -55,8 +55,8 @@ badFaces
 
 # OpenFOAM runtime-compiled code and solver time directories inside scratch runs
 **/dynamicCode/
-demo-output/website/campaign/D5_rsm_runs/*/[0-9]*/
-demo-output/website/campaign/*_runs/*/[0-9]*/
+verification/runs/D5_rsm_runs/*/[0-9]*/
+verification/runs/*_runs/*/[0-9]*/
 
 # --- mesh and sampled-field data (added 2026-07-29, after I committed 25M lines) ---
 # I ran `git add -A` on a directory that contained solver output and swept in
@@ -130,8 +130,8 @@ demo-output/website/latex/*.toc
 # case input, not solver output. A negation on the files alone cannot work --
 # git will not descend into an excluded directory -- so the directory is
 # re-included first and its contents second.
-!demo-output/website/campaign/THERMAL_K0_runs/*/0.orig/
-!demo-output/website/campaign/THERMAL_K0_runs/*/0.orig/**
+!verification/runs/THERMAL_K0_runs/*/0.orig/
+!verification/runs/THERMAL_K0_runs/*/0.orig/**
 
 # --- F14 cooling ladder, rungs K0b (mesh sensitivity) and K0c (2026-08-17) ---
 # Same policy as the K0 block above and for the same two reasons. Solver time
@@ -207,8 +207,29 @@ docs/campaigns/F14-cooling-ladder/K2b_runs/*/[0-9]*/
 # every directory segment on disk under both roots -- 577 distinct
 # digit-leading segments, of which exactly three are not purely numeric:
 # `0.orig`, `2026-08-08` and `4G_runs`, each handled below or not matched.
-demo-output/website/campaign/**/[1-9]*/
-demo-output/website/campaign/**/0.[0-9]*/
+# RE-POINTED 2026-08-18 BY MOVE_MAP BATCH 7 (R20/R21).  ONE SOURCE ROOT
+# BECAME TWO DESTINATION ROOTS, so each rule below became two rules and
+# the second one is load-bearing rather than defensive: 8 files under
+# `DRAW_SCATTER_RETROFIT/` and `MESH_CERT_RULINGS_2026-08-10/recheck_logs/`
+# are ignored by the log rules below and are R21, not R20.  Measured with
+# `git check-ignore --no-index -v` over all 19,679 files on disk under the
+# batch-7 sources before the move: dropping the `verification/campaign/`
+# spelling would have un-ignored those 8.
+#
+# THE R20 SPELLING IS `*_runs`/`*_work`, NOT `**`, AND THAT IS BATCH 2's
+# SCOPE RULING PRESERVED.  R25 lands `docs/campaigns/<campaign>/<tree>_runs`
+# at `verification/runs/<campaign>/<tree>_runs`, whose FIRST segment is a
+# campaign name.  A `verification/runs/**/log.*` would therefore reach the
+# F14 cooling-ladder lane's run trees the moment R25 lands -- which is
+# exactly what the block header above refused to do, and it would do it
+# silently, to another lane's next solver log.  `*_runs`/`*_work` matches
+# R20's territory exactly and R25's not at all.
+verification/runs/*_runs/**/[1-9]*/
+verification/runs/*_work/**/[1-9]*/
+verification/campaign/**/[1-9]*/
+verification/runs/*_runs/**/0.[0-9]*/
+verification/runs/*_work/**/0.[0-9]*/
+verification/campaign/**/0.[0-9]*/
 cases/dafoam/**/[1-9]*/
 cases/dafoam/**/0.[0-9]*/
 
@@ -217,28 +238,31 @@ cases/dafoam/**/0.[0-9]*/
 # excluded directory, so the directory itself is re-included; the time
 # directories inside it are still matched by the rules above, which come first
 # and are not negated for anything below `4G_runs`.
-!demo-output/website/campaign/4G_runs/
+!verification/runs/4G_runs/
 
 # Solver logs under the two roots.
-demo-output/website/campaign/**/log.*
-demo-output/website/campaign/**/*.log
-demo-output/website/campaign/**/*.log.*
+verification/runs/*_runs/**/log.*
+verification/runs/*_work/**/log.*
+verification/campaign/**/log.*
+verification/runs/*_runs/**/*.log
+verification/runs/*_work/**/*.log
+verification/campaign/**/*.log
+verification/runs/*_runs/**/*.log.*
+verification/runs/*_work/**/*.log.*
+verification/campaign/**/*.log.*
 cases/dafoam/**/log.*
 cases/dafoam/**/*.log
 cases/dafoam/**/*.log.*
 
-# NAMED EXCEPTION, and it is the ruling of 2026-08-17 written where a reader of
-# the rule will meet it. `MESH_AUDIT_runs` holds 78 tracked files and every one
-# is a `*.log.checkMesh` under a dated directory, so the rules above reach the
-# whole tree and batch 2 would take its last tracked file -- after which batch
-# 7's `git mv` of it aborts, taking every other source in that invocation with
-# it. Option A was ruled: batch 2 spares it, and it is untracked at
-# `verification/runs/MESH_AUDIT_runs` once batch 7 has moved it. The negation
-# lives here so the sparing is legible from the rule and not only from a
-# record, and it re-includes nothing that was ignored before it: 78 files on
-# disk, 78 tracked, 0 ignored. REMOVING IT IS PART OF BATCH 7.
-!demo-output/website/campaign/MESH_AUDIT_runs/
-!demo-output/website/campaign/MESH_AUDIT_runs/**
+# OPTION A IS CLOSED, 2026-08-18, EXECUTING BATCH 7.  `MESH_AUDIT_runs` held
+# 78 tracked files and every one was a `*.log.checkMesh` under a dated
+# directory, so batch 2 would have taken its last tracked file and batch 7's
+# `git mv` of the tree would then have aborted, taking every other source in
+# that invocation with it.  Batch 2 spared them; batch 7 has now `git mv`'d
+# the tree to `verification/runs/MESH_AUDIT_runs` and untracked all 78 there,
+# in the commit that moved it, so the negation that spared them is removed
+# with them.  Nothing was deleted: 78 files, 380,082 bytes, still on disk at
+# the new path, now matched by `verification/runs/*_runs/**/*.log.*` above.
 
 # --- F14 cooling ladder, rung K0c-T (turbulent, 2026-08-18) ---
 # Same policy as K0c above: time directories and meshes are rebuilt from the
