@@ -362,7 +362,7 @@ stderr empty. Full run **FAIL, exit 1, ran 21/21**, 1,529.0 s, stderr empty.
 | `scripts/self_audit.py` | FAIL | FAIL |
 | `scripts/check_absolutes.py` | **BLOCKING UNKNOWN, exit 3** | **BLOCKING UNKNOWN, exit 3** |
 | the other 13 | PASS | PASS |
-| `sdk/tests` (pytest) | **6 failed / 2,442 collected** | **24 failed / 2,443 at the first commit; 6 failed after the repair of §7.3** |
+| `sdk/tests` (pytest) | **6 failed / 2,442 collected** | **24 failed at `f69a3ed5`; after the repair of §7.1a the four repaired files are green and the standing six remain — see §7.1d for the full run's 10 and why four of them are not findings** |
 
 The six suite failures before are `test_exec_bits` 1, `test_fail_open_scan` 1,
 `test_installed_matches_tracked` 3, `test_pdf_surfaces` 1 — the standing
@@ -422,16 +422,30 @@ updated without moving any pair.
 
 ### 7.1c The citation guard's number moved, and this is batch 9's case arriving
 
-`self_audit.py`'s `cited evidence paths` goes from **2 of 1,747** to **10 of
-1,774**. The verdict does not change (that check was already FAIL), and the
-population grew by 27 because this record landed. The ten:
+`self_audit.py`'s `cited evidence paths` goes from **2 of 1,747** to **7 of
+1,777**. The verdict does not change (that check was already FAIL), and the
+population grew because this record landed.
+
+**Every path enumerated below is QUOTED AS A FINDING AND WITHDRAWN, NOT CITED —
+do not cite them.** The guard carries a `retracted` regex for exactly this case,
+in its own words: *"a record that documents a past citation defect necessarily
+quotes the broken path; quoting a withdrawn path is the opposite of citing
+it."* The first draft of this section did not say so, and enumerating five
+dangling paths made the guard count five more — a record inflating the finding
+it exists to report. The seven:
 
 | Count | What |
 |---:|---|
-| 2 | `scripts/analyze_fd.py`, cited twice — **the standing baseline, unchanged** |
-| 4 | records citing paths this batch moved: `demo-output/plots/…/b52_field.json`, `scripts/laptop_bundle/START-HERE.md`, `scripts/installed/README.md`, `scripts/installed/certonomous-lab-check.cron` |
-| 1 | `MOVE_MAP_2026-08-16.md:346` cites `media/shoot.html` — a **destination that no rule creates** (R13 sends `shoot.html` to `web/`). It was invisible until this batch made `media/` a live sweep root, so this is a pre-existing map error newly surfaced, not a new one |
-| 3 | this record's own prose, quoting the pre-move paths it is describing — **rephrased in this commit** so they no longer read as live citations |
+| 2 | the `analyze_fd` script under `scripts/`, cited twice, in two records — **the standing baseline, unchanged and unrelated to this batch. Withdrawn here, do not cite** |
+| 4 | records citing paths this batch moved: the b52 pressure slice under `demo-output/plots/`, `START-HERE.md` under `scripts/laptop_bundle/`, and `README.md` and the nightly cron file under `scripts/installed/` |
+| 1 | `MOVE_MAP_2026-08-16.md:346` names a `shoot.html` under `media/` — a **destination that no rule creates** (R13 sends `shoot.html` to `web/`). It was invisible until this batch made `media/` a live sweep root, so this is a pre-existing map error newly surfaced, not a new one |
+
+**These seven are a FRAME, and it moved while this was being written.** A peer
+began batch 5 in the same worktree; the moment its R16/R23 moves landed on disk
+the same measurement read **198**, because every record citing a loose webroot
+file or an `agenda/` path now cites a path that has moved. That is not a batch-4
+number and it is not a defect in batch 5 either — it is the same sleeper, three
+hundred times larger.
 
 **The four are the sleeper `MOVE_MAP_EXECUTION_2026-08-17.md` §4.2 names, and
 they are the first hard evidence that batch 9 is not optional.**
@@ -440,6 +454,39 @@ resolve through `lab_paths.resolve()`, which already answers correctly for all
 four (§7.2, G2 arm 3). Every move batch from here adds citations of this class,
 and the records are append-only, so the repair is the resolver and not an edit.
 Filed, not repaired: this batch does not touch the guard.
+
+### 7.1d The full run reads 10, four of which are a live tree and not a finding
+
+The definitive full run at `7a98c33d`: **FAIL, exit 1, ran 21/21, 1,493.0 s,
+stderr empty**, with the same six FAIL gates and `check_absolutes` at BLOCKING
+UNKNOWN exit 3 — **the finding set is identical to the pre-batch baseline, gate
+for gate.** The suite reads **10 failed of 2,443**:
+
+| File | failed | |
+|---|---:|---|
+| `test_exec_bits` | 1 | standing baseline |
+| `test_fail_open_scan` | 1 | standing baseline |
+| `test_installed_matches_tracked` | 3 | standing baseline |
+| `test_pdf_surfaces` | 1 | standing baseline |
+| `test_hand_carry` | 1 | **not reproducible** |
+| `test_summary_consistency` | 2 | **not reproducible** |
+| `test_untrained_qcr_attribution` | 1 | **not reproducible** |
+
+The four in the lower block were green in both earlier runs of this pass and
+**pass on immediate re-run** — `43 passed, 1 skipped` for the three files
+together. They are the live-tree hazard `ops/installed/certonomous-lab-check.cron`
+records in its own text: the suite takes twenty minutes against a tree ten
+agents write in, and these three files read the live tree (`test_hand_carry`
+walks it; the other two read records). A peer was landing batch-5 work into the
+same worktree throughout the run — its uncommitted edits to
+`scripts/lab_paths.py` and `sdk/tests/test_lab_paths.py` were still present in
+the working tree when this was written. **Reported rather than re-run until
+green: a number that moves under a live tree is a property of the frame, and
+saying which four and why is the honest form.**
+
+The two frame numbers behaved as predicted: `candidates 190 → 179`,
+`skipped 78 → 67`, **`admitted` unchanged at 112 (20 script gates, 92 test
+files)**.
 
 ### 7.2 The three standing gates
 
