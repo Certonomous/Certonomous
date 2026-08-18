@@ -1,0 +1,7 @@
+case K2bP_URelax
+cells 46400
+iterations 5000
+wall_clock_s 425.016674160
+cores 1
+core_minutes 7.0836
+cell_iter_per_core_s 545860.9

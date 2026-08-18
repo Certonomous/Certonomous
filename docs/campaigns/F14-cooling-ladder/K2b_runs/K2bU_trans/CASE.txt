@@ -1,0 +1,12 @@
+case               K2bU_trans
+kind               K2b-U TEST B -- the transient discriminator
+pre-registration   K2b_UNSTEADINESS_PREREGISTRATION.md sha256 932451ad...
+solver             buoyantBoussinesqPimpleFoam (transient), Euler ddt, PIMPLE
+identical to       K2bP_under in geometry, mesh, fluid and EVERY boundary condition
+started from       K2bP_under/5000 -- the oscillating state itself
+endTime            40.0 s physical, adjustable dt at maxCo 2.0
+monitor            T_in every 0.1 s
+graded on          T_in peak-to-peak over the FINAL 10 s, and whether that is
+                   smaller than over the preceding 10 s
+verdict thresholds >= 0.30 K non-decaying = PHYSICAL; <= 0.10 K or decaying =
+                   NUMERICAL; otherwise undecidable at this run length

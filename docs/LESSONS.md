@@ -6188,3 +6188,77 @@ nobody has seen, and this lab already has the rule for that shape:
 `VERIFICATION_CHARTER.md` section 14, *"an attribution is a claim, and it is a
 claim about a file. Name the file, and open it before the finding leaves the
 room."*
+
+## L-132. A pre-registration survives amendment; it does not survive a moved threshold. Amend the run, never the ruling
+
+**The rule.** When a pre-registered test has to change mid-flight — and it will,
+because the thing most often mis-estimated is its cost — **amend the RUN and
+never the THRESHOLDS or the outcome-to-meaning mapping.** Write each amendment
+down with its timestamp *and the state of the data at that moment*, so a reader
+can verify the amendment preceded the evidence it could have been fitted to. An
+amendment made before the window it changes has any data in it is a schedule
+change. The same amendment made afterwards is a result.
+
+**Why.** The K2b-U unsteadiness diagnosis was pre-registered and hashed before
+any diagnostic solver ran, and then amended **three times in ninety minutes** —
+every one of them forced by a wrong cost estimate:
+
+| # | what it changed | why | data in the affected window when written |
+|---|---|---|---|
+| 1 | 40 s → 20 s run | cost read as 1.7 core-min per second of physical time | none — t was 3.0 s, windows began at 5 s |
+| 2 | back to 40 s, original windows restored | the same cost measured against the process's own CPU time was **0.72**, not 1.7 | none — t was 5.2 s, windows began at 20 s |
+| 3 | grade BOTH window definitions | wall-clock, not CPU, was binding: ≈9× under contention | none — t was 12.2 s, the earliest window began at 12.5 s |
+
+**Not one threshold moved.** B ≥ 0.30 K non-decaying = physical, B ≤ 0.10 K or
+decaying = numerical, A ≤ 0.20 K / ≥ 0.51 K — all fixed before anything ran and
+all still standing at the verdict. That invariance is the property that makes it
+still a pre-registration rather than a narrative built around an answer.
+
+**Amendment 3 is the shape to copy** when a shortened run is unavoidable: rather
+than *choosing* the surviving window definition after seeing which one the data
+would reach, it graded **both**, each of which had itself been fixed before its
+own data existed. **A choice you can avoid making is better than a choice you can
+justify.**
+
+**And note what kept being wrong.** Three cost estimates on one rung: a
+100-iteration probe under-priced a long run by **1.9×**; an amendment priced CPU
+from contended wall-clock, **2.3×** out; the next priced wall-clock from CPU,
+**9×** out. **A cost estimate is a measurement and deserves the same suspicion as
+any other** — including the question every other measurement here gets asked:
+*which resource is this actually measuring, and is it the one that binds?*
+
+## L-133. When several independent measurements hit the same noise floor, stop improving the instruments and go and find the mechanism
+
+**The rule.** Two or more differential measurements failing at *the same*
+resolution, for reasons that look unrelated, is not two instrument problems. It
+is one signal. **Stop refining the instruments and go and test the thing they
+have in common** — usually the case itself. The cost of that test is almost
+always smaller than the cost of the plan it can invalidate.
+
+**Why.** Rung K2b hit the same wall three times before recognising it:
+
+| measurement | why it failed | the number |
+|---|---|---|
+| C3, planted-source recovery | the no-plant twin's ledger wandered | 48.313 W against a 0.500 W tolerance |
+| the wall-treatment comparison | the twins swung more than they differed | 0.5466 K spread against a 1.0832 K swing |
+| S13 and the closure audit | neither would settle on the recirculating case | 0.34553 % against 0.02 %, 0.7857 % against 0.5 % |
+
+Each was written up separately, and each was written up **as a limit of the
+measurement**. The first two even carried the correct sentence — *the
+unsteadiness is the binding limit, not the instrument* — without anyone drawing
+the conclusion that the unsteadiness was therefore the thing to measure.
+
+**What it cost to test, and what it saved.** A pre-registered diagnosis — a
+halved-under-relaxation twin and a 40 s transient — came back **physically
+unsteady**: a coherent 6.0 s limit cycle of ≈1.1 K that does not decay and that
+*grows* when under-relaxation is halved. **36.75 core-minutes**, against a
+374–697 core-minute graded pair that it invalidated, and which would have
+produced a converged-looking answer to a question the configuration cannot
+answer. Everything above it would have inherited that.
+
+**How to apply.** When you write "the instrument could not resolve it" for the
+second time in one rung, **stop and ask what the two cases share.** Then design
+the discriminator so it can come back either way, pre-register what each outcome
+means, and run it before spending anything that depends on the answer. The
+diagnosis that says "your plan is fine" is worth the same as the one that says it
+is void — and you cannot get either honestly unless both were possible.

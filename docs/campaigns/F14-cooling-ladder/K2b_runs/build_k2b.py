@@ -783,7 +783,7 @@ boundaryField
 # ---------------------------------------------------------------------------
 def build(name, h, end_time, write_interval, dt_rack=DT_RACK, gravity=True,
           plant=False, seed_from=None, qv_tile=QV_TILE,
-          nut_wall="nutkWallFunction"):
+          nut_wall="nutkWallFunction", relax=1.0):
     case = os.path.join(HERE, name)
     bmd, ncells = block_mesh_dict(h)
     w(case, "system/blockMeshDict", "dictionary", "blockMeshDict", bmd)
@@ -791,7 +791,39 @@ def build(name, h, end_time, write_interval, dt_rack=DT_RACK, gravity=True,
       control_dict(end_time, write_interval,
                    "latestTime" if seed_from else "startTime"))
     w(case, "system/fvSchemes", "dictionary", "fvSchemes", FV_SCHEMES)
-    w(case, "system/fvSolution", "dictionary", "fvSolution", FV_SOLUTION)
+    fvsol = FV_SOLUTION
+    if relax != 1.0:
+        # K2b-U Test A: strengthen under-relaxation. Under-relaxation is the
+        # direct remedy for a numerically unstable outer iteration and has NO
+        # counterpart in physics -- it cannot damp a real vortex, only the
+        # solver's pursuit of one. So an oscillation that survives it is not
+        # the iteration scheme's.
+        # MEASURED TWICE, AND BOTH FAILURES ARE WHY THE CHECK BELOW IS HERE.
+        # (1) A fixed-width string replacement matched a hard-coded run of
+        #     spaces and silently halved only p_rgh and (k|omega), leaving U and
+        #     T untouched -- a discriminator that changes two of four factors is
+        #     not the one that was pre-registered.
+        # (2) The regex that replaced it was applied to the TAIL of the file and
+        #     then reassembled wrongly, discarding the `solvers` block entirely.
+        #     The solver died with "Entry 'U' not found in dictionary" on
+        #     iteration 1, which is the good outcome: it failed loudly.
+        # So the rewrite is confined to the relaxationFactors block by slicing,
+        # the head is kept in a SEPARATE name, and the result is asserted to
+        # differ from the source in exactly the four intended numbers.
+        import re as _re
+        cut = fvsol.index("relaxationFactors")
+        head, tail = fvsol[:cut], fvsol[cut:]
+        tail = _re.sub(
+            r'^(\s+)("\(k\|omega\)"|p_rgh|U|T)(\s+)([0-9.]+);',
+            lambda m: f"{m.group(1)}{m.group(2)}{m.group(3)}{float(m.group(4)) * relax:g};",
+            tail, flags=_re.M)
+        fvsol = head + tail
+        got = _re.findall(r'^\s+("\(k\|omega\)"|p_rgh|U|T)\s+([0-9.]+);', tail, _re.M)
+        assert len(got) == 4, f"expected 4 relaxation factors, rewrote {len(got)}: {got}"
+        assert "solvers" in fvsol and "SIMPLE" in fvsol, "the rewrite ate a block"
+        assert fvsol.count("\n") == FV_SOLUTION.count("\n"), \
+            f"line count changed: {fvsol.count(chr(10))} vs {FV_SOLUTION.count(chr(10))}"
+    w(case, "system/fvSolution", "dictionary", "fvSolution", fvsol)
     w(case, "constant/transportProperties", "dictionary", "transportProperties",
       f"""transportModel  Newtonian;
 
@@ -955,6 +987,12 @@ CASES = {
     #                                              viscous sublayer is resolved
     "K2bP_WSpalding":  (0.0125,  5000,  500,  DT_RACK, True,  False, None,          0.245),
     "K2bP_WLowRe":     (0.0125,  5000,  500,  DT_RACK, True,  False, None,          0.245),
+    # ---- K2b-U TEST A: the under-relaxation discriminator ------------------
+    # Identical to K2bP_under in every byte except system/fvSolution, where
+    # every under-relaxation factor is HALVED. Pre-registered in
+    # K2b_UNSTEADINESS_PREREGISTRATION.md sha256 932451ad...: final-window T_in
+    # peak-to-peak <= 0.20 K reads NUMERICAL, >= 0.51 K reads PHYSICAL.
+    "K2bP_URelax":     (0.0125,  5000,  500,  DT_RACK, True,  False, None,          0.245),
 }
 
 
@@ -975,7 +1013,8 @@ def main(argv):
         h, end, wi, dt, g, plant, seed, qvt = CASES[name]
         nw = {"K2bP_WSpalding": "nutUSpaldingWallFunction",
               "K2bP_WLowRe": "nutLowReWallFunction"}.get(name, "nutkWallFunction")
-        case, n = build(name, h, end, wi, dt, g, plant, seed, qvt, nw)
+        rx = 0.5 if name == "K2bP_URelax" else 1.0
+        case, n = build(name, h, end, wi, dt, g, plant, seed, qvt, nw, rx)
         print(f"built {name:16s} {n:7d} cells  dT {dt:5.2f} K  "
               f"g {'on ' if g else 'off'}  plant {str(plant):5s} "
               f"Qv_tile {qvt:.4f} ({100*qvt/QV_RACK:.0f} %)  {nw}"

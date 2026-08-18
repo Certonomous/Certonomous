@@ -1,0 +1,7 @@
+case K2bU_trans
+cells 46400
+solver buoyantBoussinesqPimpleFoam
+physical_time_s 40.0
+time_steps 1978
+cores 1
+core_minutes 29.6667

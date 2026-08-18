@@ -12,6 +12,11 @@ number to decide against, not a request.
 
 Section 11 records a repair to the **standing** convergence criterion that this
 rung's own data forced, and which is lab-wide rather than local to K2b.
+Section 12 discharges the wall-treatment precondition. **Section 14 is the
+rung's most consequential result: the module at 70 % provisioning is
+PHYSICALLY UNSTEADY, so the steady formulation is the wrong tool and the §9
+cost estimate is VOID.** It was found for 36.75 core-minutes, against a plan
+it invalidated that would have cost 374–697.
 
 ---
 
@@ -872,6 +877,25 @@ faces, and the SST equations were already being solved in the 2D case.
 > graded pair with controls, against the 580–1,600 this document previously
 > could not narrow.** The upper bound fell by more than half.
 
+> ### ⚠ THIS ESTIMATE IS VOID. See §14.
+>
+> **The rack-row module at 70 % provisioning has no steady state** — a coherent
+> 6.0 s limit cycle of ≈1.1 K in rack-inlet temperature, non-decaying over 40 s
+> of physical time, growing when under-relaxation is halved. Every figure in the
+> table above prices **steady** runs of a configuration that does not converge,
+> so the arithmetic is sound and the thing it prices is the wrong thing.
+>
+> The rate measurement (3.968e5 cell·iter/(core·s)) **stands** — it is a property
+> of the machine and the mesh, not of the formulation, and it carries over to a
+> transient at the same cells-per-second. What does not carry over is the
+> iteration count: K2a §5 prices unsteady-with-averaging at **5–10×** the steady
+> cost, and this rung has not measured that multiplier.
+>
+> **No replacement number is offered here**, because offering one would repeat
+> the error this diagnosis just caught: pricing a formulation before knowing it
+> is the right formulation. §14.6 names the ≈11 core-minute 3D experiment that
+> must come first.
+
 **And the remaining uncertainty has changed identity, which matters more than
 the number.** The rate is now measured on the real geometry; what is left is the
 **iteration count**, and only half of that is measured. The coarse figure of
@@ -880,8 +904,9 @@ closed its heat balance, so it is a floor, not a converged count. The fine
 figure of 20,000 is the 1/N² *inference*, never measured on anything. That
 single unmeasured factor is what separates 374 from 697.
 
-**Nothing further is requested here.** The graded 3D pair remains unauthorized,
-and this section is the number to decide against, not a request.
+**Nothing further is requested here.** The graded 3D pair remains unauthorized —
+and after §14 it is not merely unauthorized but **unpriceable in this
+formulation**.
 
 ### The wall-treatment precondition, and its effect on this estimate: none
 
@@ -955,6 +980,17 @@ bash run_k2b.sh K2bP_C1_g0 K2bP_C2_dT13 K2bP_C3_plant K2bP_C3b_noplant
 # 3b. the wall-treatment pair (section 12). These are NOT restart twins: they
 #     start from 0.orig and differ from K2bP_under in one file, 0.orig/nut.
 bash run_k2b.sh K2bP_WSpalding K2bP_WLowRe
+
+# 3c. the unsteadiness diagnosis (section 14). Test A differs from K2bP_under in
+#     one file, system/fvSolution; Test B is the transient. Both are graded
+#     against K2b_UNSTEADINESS_PREREGISTRATION.md, written and hashed first.
+bash run_k2b.sh K2bP_URelax
+python3 build_k2bU.py     # REFUSES unless step 2 has produced K2bP_under/5000
+( . /usr/lib/openfoam/openfoam2606/etc/bashrc >/dev/null 2>&1
+  cd K2bU_trans && cp -r ../K2bP_under/constant/polyMesh constant/ \
+  && buoyantBoussinesqPimpleFoam > log.buoyantBoussinesqPimpleFoam 2>&1 )
+python3 analyse_k2bU.py --selftest     # the period extractor, on known answers
+python3 analyse_k2bU.py                # the graded diagnosis
 
 # 4. the measurements, read from the solver logs alone
 python3 analyse_k2b.py K2bP_coarse K2bP_under K2bP_fine \
@@ -1353,3 +1389,157 @@ The `aebbcac8` re-grade swept **fourteen** cases — K0c's eleven and K2b's thre
 the same tree.** They were not withheld; they were not looked for. Widening from
 14 to 49 is what exposed the false positive above. Recorded as a lesson, not
 quietly fixed.
+
+---
+
+## 14. Is this flow steady? The diagnosis that decides the 3D pair
+
+The 3D pair was held a second time, on this rung's own sentence: *on this
+configuration the unsteadiness is the binding limit on every differential
+measurement, in both cases — not the instrument.* C3 could not reach its
+tolerance because the twin's ledger wanders 48.313 W against 0.500 W; the
+wall-treatment comparison could not resolve 0.5466 K against a 1.0832 K swing.
+**If the flow is physically unsteady, a steady SIMPLE solver is the wrong tool
+and 374–697 core-minutes buys a converged-looking answer to the wrong
+question.**
+
+**Everything below was pre-registered before any diagnostic solver ran**, in
+`K2b_UNSTEADINESS_PREREGISTRATION.md`, hashed
+`932451adb8f4e57b6243777c239f9a93b56315a701455a8af7060460f5709e1d` and
+timestamped 2026-08-18T05:20:05Z. Two amendments and one limitation were recorded
+during execution, each timestamped and each written *before* the data it could
+have affected existed — §7, §9 and §10 of that file. The thresholds and the
+outcome-to-meaning mapping were never touched.
+
+### 14.1 The observation
+
+`K2bP_under` T_in peak-to-peak by 1000-iteration block: **3.1996 → 2.0271 →
+1.1444 → 1.0678 K**. It decays threefold and then **plateaus**. A plateau is what
+a limit cycle looks like — and also what a slowly-decaying numerical transient
+looks like at 5,000 iterations. That ambiguity is the question.
+
+### 14.2 Test A — under-relaxation halved
+
+`K2bP_URelax` is byte-identical to `K2bP_under` except `system/fvSolution`,
+where all four under-relaxation factors are halved (p_rgh 0.3→0.15, U, T and
+k/omega 0.5→0.25). Verified by a full diff of the generated dictionary: **exactly
+four numbers differ and nothing else.** **Under-relaxation is the direct remedy
+for an unstable outer iteration and has no counterpart in physics — it cannot
+damp a real vortex, only the solver's pursuit of one.**
+
+Pre-registered: A ≤ 0.20 K = numerical, A ≥ 0.51 K = physical.
+
+| reading | baseline | Test A | ratio |
+|---|---:|---:|---:|
+| final-window T_in p2p, equal iteration count | 1.0162 K | **1.8396 K** | **1.81** |
+| matched-state (baseline window of the same mean T_in, iter ≈3150) | 0.9652 K | **1.8396 K** | **1.91** |
+
+**Halving every under-relaxation factor made the oscillation 1.8× LARGER.** Both
+readings agree and both are far above the 0.51 K physical threshold.
+
+The matched-state reading exists because Test A carries a confound found during
+execution and recorded before grading (pre-registration §10): weaker relaxation
+also *slows development*, so equal iterations is not equal state, and the
+confound runs both ways — the baseline's own amplitude was 3.1996 K early and
+1.0678 K late. Matching on development rather than on iteration index removes it,
+and the verdict does not move.
+
+> **Test A: PHYSICAL.**
+
+### 14.3 Test B — the transient, and it is the decisive one
+
+`K2bU_trans` is `K2bP_under`'s geometry, mesh, fluid and **every** boundary
+condition — BC blocks verified byte-identical field by field — solved by
+`buoyantBoussinesqPimpleFoam` with `ddt` Euler, started from `K2bP_under/5000`,
+*the oscillating state itself*. 40 s of physical time, 1,978 adaptive steps at
+Courant ≤ 2, mean Δt 20.2 ms. Continuity errors ~1e-9. **A 6 s oscillation is
+resolved by ~300 time steps, so nothing here is a time-discretisation artefact.**
+
+Pre-registered: B ≥ 0.30 K and non-decaying = physical; B ≤ 0.10 K or decaying
+(final ≤ 0.5× previous) = numerical. **Both pre-registered window pairs were
+graded** (Amendment 3) so that no window definition was chosen after the fact:
+
+| window pair | final window | preceding | ratio | verdict |
+|---|---:|---:|---:|---|
+| §3 (30–40 s vs 20–30 s) | **1.1088 K** | 1.1293 K | **0.982** | **PHYSICAL** |
+| Amendment 1 (12.5–20 s vs 5–12.5 s) | **1.1508 K** | 1.2717 K | **0.905** | **PHYSICAL** |
+
+**The oscillation does not decay across 40 s of physical time.** Over the last
+two ten-second windows the amplitude ratio is 0.982 — no measurable decay at all.
+
+> **Test B: PHYSICAL, on both window definitions.**
+
+### 14.4 Test C — the period is a physical timescale, and it names the mechanism
+
+Dominant period from the full post-startup record (5–40 s, 351 samples), by
+autocorrelation: **6.000 s**. The autocorrelation reads **+0.96 at one period and
++0.94 at two** — a coherent limit cycle, not broadband wandering. (The extractor
+is validated against six known-answer synthetic signals via
+`analyse_k2bU.py --selftest`; its first form returned 15 s for a true 1 s period
+and was repaired before it was trusted.)
+
+| timescale from the case's own parameters | value | ratio to 6.000 s |
+|---|---:|---:|
+| **rack-face flow-through, H_r/U_face** | **6.856 s** | **0.875 — 12 % from 1:1** |
+| aisle transit, W_ca/U_face | 4.114 s | 1.46 |
+| tile jet rise, H/U_tile | 2.777 s | 2.16 |
+| buoyant, √(H/(g·β·ΔT)) | 2.623 s | 2.29 |
+| room turnover | 23.143 s | 0.26 — outside a factor of 3 |
+
+**Four of five within a factor of three, and the closest is the rack-face
+flow-through time to 12 %.** Test C's own pre-registered rule — a period matching
+any physical timescale within ~3× supports physical — is satisfied.
+
+**One sub-check failed and is reported as it fell.** The pre-registered Strouhal
+band was 0.05–0.5; measured **St = H_r/(U_face·T) = 1.14, OUT OF BAND.** That
+says the mechanism is **not classic bluff-body vortex shedding**. It does not say
+the oscillation is unphysical — the period sits on the rack-face flow-through
+time, which points at an oscillating recirculation cell rather than a shed
+wake. The failed sub-check is left in the record rather than re-scaled onto a
+length that would have passed.
+
+### 14.5 Outcome: O1 — PHYSICALLY UNSTEADY
+
+**Test A physical, Test B physical on both window pairs, Test C supporting.**
+Under the mapping fixed before anything ran, that is **O1**.
+
+> **The rack-row module at 70 % provisioning is physically unsteady. It carries a
+> coherent limit cycle of period 6.0 s and amplitude ≈1.1 K in rack-inlet
+> temperature, which does not decay over 40 s of physical time and which grows
+> when the solver's under-relaxation is halved.**
+
+**The steady formulation is the wrong tool for this configuration, and the §9
+estimate of 374–697 core-minutes is VOID** — it prices steady runs.
+
+**This explains three separate failures in this rung with one mechanism**, which
+is the strongest evidence that it is real:
+
+| what failed | why, under O1 |
+|---|---|
+| C3's plant recovery could not reach 0.500 W | the twin's ledger wanders 48.313 W because the flow is oscillating, not converging |
+| the wall-treatment comparison could not resolve 0.5466 K | the twins swing ≈1.1 K on a 6 s cycle |
+| `K2bP_under` never met S13; `K2bP_coarse`'s balance never closed | a steady solver cannot converge a flow that has no steady state |
+
+**Every steady-solver number this document reports for `K2bP_under` and its
+twins — θ, r, T_in, and the closure figures — is a mean over a limit cycle, not
+a converged value.** They are relabelled as such here rather than withdrawn: the
+window and the amplitude travel with each, and §12.3 already refused to read a
+difference smaller than the swing.
+
+**And this is a finding, not a setback.** It invalidates a 374–697 core-minute
+plan **before it was paid for**, at a diagnosis cost of 36.75 core-minutes.
+
+### 14.6 What the diagnosis cannot reach
+
+**This is the 2D slice.** A 2D slice suppresses spanwise instabilities and can
+also manufacture oscillations that a 3D flow would damp by three-dimensionalising
+— a 2D cylinder wake is the classic case. **So O1 is a warning about the 3D
+module, not a measurement of it.** What is measured is that *this* configuration,
+which is the one every K2b number came from, has no steady state.
+
+Whether the 3D module inherits the limit cycle is the first thing a 3D run must
+report, and it is now the cheapest useful 3D experiment there is: a coarse 3D
+transient long enough to see 6 s, which at the measured 3.968e5 cell·iter/(core·s)
+and ~2,000 steps is **≈11 core-minutes**. That is the experiment to authorise
+before any graded pair, and it is not requested here.
+
