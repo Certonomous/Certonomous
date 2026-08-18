@@ -2,7 +2,8 @@
 
 OFFLINE TOOL. This is the only thing in the pipeline that touches pyGeo, and
 it is never run by the act. It runs once, here, and writes
-``demo-output/website/dafoam/ladder-a/A2_shape_frames.json``, which the
+``<ladder-a>/A2_shape_frames.json`` (``lab_paths.DAFOAM / "ladder-a"``, which
+MOVE_MAP batch 6 moves to ``cases/dafoam/ladder-a``), which the
 adjoint-optimization act then streams to the control room with nothing but the
 standard library. The demo must run on a laptop with no OpenFOAM, no DAFoam
 and no internet, so the act may not import pyGeo, and does not.
@@ -31,7 +32,7 @@ Run it (host, needs Docker and the A2 run on disk)
 --------------------------------------------------
     sudo docker run --rm \
       -v /home/ubuntu/certonomous-runs/A2-mach-wing:/case \
-      -v /home/ubuntu/Certonomous/demo-output/website/dafoam/ladder-a:/out \
+      -v "$(python3 -c 'import sys;sys.path.insert(0,"/home/ubuntu/Certonomous/scripts");import lab_paths;print(lab_paths.DAFOAM/"ladder-a")')":/out \
       -v /home/ubuntu/Certonomous/sdk/scripts:/scripts \
       dafoam/opt-packages:latest \
       bash -lc 'source /home/dafoamuser/dafoam/loadDAFoam.sh &&

@@ -23,6 +23,17 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2] / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 from .adapters import SoftwareAdapterRegistry, synthetic_registry
 from .api import SyntheticApi
 from .events import EventBus
@@ -52,7 +63,7 @@ def _copy_set_root() -> Path:
     one is tracked and changes only by commit.
     """
     return Path(os.environ.get(
-        "CERTONOMOUS_SURFACES", HERE.parents[1] / "demo-surfaces")).resolve()
+        "CERTONOMOUS_SURFACES", lab_paths.DEMO_SURFACES)).resolve()
 
 
 def _staging_root() -> Path:

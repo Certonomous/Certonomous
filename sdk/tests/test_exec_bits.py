@@ -130,6 +130,46 @@ class AuditFiresOnPlantedSpecimensTests(unittest.TestCase):
         result = self._audit_with(repo, {}, ("kept.sh", "deleted.sh"))
         self.assertEqual(result["stale_waivers"], ["deleted.sh"])
 
+    # --- the register against a tree that has been REORGANISED --------------
+    #
+    # The register is a list of PATHS. MOVE_MAP batch 6 renames the tree under
+    # 137 of them in ONE commit, and batch 7 renames more. Matched by string
+    # equality against `git ls-tree -r HEAD`, every one of those reports twice
+    # -- once as a stale waiver at the old spelling and once as an
+    # unregistered file at the new one -- and the two CANCEL in any total, so
+    # a reader comparing counts sees nothing move. `exec_bits._spellings`
+    # matches through `lab_paths`; these three tests are what stop that
+    # matcher from degenerating into "everything is covered".
+
+    LEGACY_MOVED = "demo-output/website/dafoam/ladder-a/logs_A3/compare_cp.py"
+
+    def test_a_waived_path_is_still_matched_after_its_tree_moves(self):
+        successor = exec_bits.lab_paths.redirect(self.LEGACY_MOVED)
+        self.assertEqual(
+            successor, "cases/dafoam/ladder-a/logs_A3/compare_cp.py",
+            "R22's destination is the premise of this test; if the map moved, "
+            "this test has to be re-read rather than re-pointed")
+        repo = _scratch_repo({successor: (SHEBANG, False)})
+        result = self._audit_with(repo, {}, (self.LEGACY_MOVED,))
+        self.assertEqual(result["stale_waivers"], [])
+        self.assertEqual(result["unregistered"], [])
+
+    def test_a_waived_path_that_is_nowhere_under_either_spelling_is_still_stale(self):
+        """The must-not-match control. A matcher that answered "covered" to
+        every waived path would satisfy the test above and register nothing."""
+        repo = _scratch_repo({"kept.sh": (SHEBANG, False)})
+        result = self._audit_with(repo, {}, ("kept.sh", self.LEGACY_MOVED))
+        self.assertEqual(result["stale_waivers"], [self.LEGACY_MOVED])
+
+    def test_a_moved_waiver_that_gained_its_bit_is_still_stale(self):
+        """The second control: following the map must not also swallow the
+        finding the register exists to make. A waived file that is executable
+        at its NEW path is a stale waiver, exactly as at its old one."""
+        successor = exec_bits.lab_paths.redirect(self.LEGACY_MOVED)
+        repo = _scratch_repo({successor: (SHEBANG, True)})
+        result = self._audit_with(repo, {}, (self.LEGACY_MOVED,))
+        self.assertEqual(result["stale_waivers"], [self.LEGACY_MOVED])
+
 
 class ThisRepositoryTests(unittest.TestCase):
     """The real tree. Runs only after the checks above proved they can fire."""

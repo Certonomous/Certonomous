@@ -20,6 +20,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from check_convergence import classify  # noqa: E402
+import lab_paths  # noqa: E402
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -129,13 +130,35 @@ CASES = [
 ]
 
 
+def _located(rel: str) -> str:
+    """Where *rel* is now: literal, successor or predecessor. Never a default.
+
+    Falls back to the literal spelling under REPO when it resolves nowhere, so
+    `classify` reports `log file not found: <the path we looked for>` rather
+    than a bare None -- absence must stay legible as absence.
+    """
+    found = lab_paths.resolve(rel)
+    return str(found) if found is not None else str(REPO / rel)
+
+
 def main() -> int:
     failures = []
     for label, expected, log_rel, case_rel, why in CASES:
-        log_path = log_rel if log_rel.startswith("/") else str(REPO / log_rel)
+        # THE KNOWN ANSWERS ARE PINNED TO PATHS AND THE PATHS MOVE. Four of
+        # the thirteen sit under `demo-output/website/dafoam/`, which MOVE_MAP
+        # batch 6 (R22) sends to `cases/dafoam/`, and two more under
+        # `solve_registry/`, which batch 7H hand-carries to `evidence/`. A
+        # missing log classifies CANNOT_TELL, so a stale path turns a
+        # CONVERGED known answer into a loud failure -- and a CANNOT_TELL
+        # known answer into a SILENT PASS for the wrong reason.
+        # `lab_paths.resolve()` answers at the literal path, the successor or
+        # the predecessor, and returns None for something that is nowhere, so
+        # a genuinely absent log still fails.
+        log_path = log_rel if log_rel.startswith("/") else _located(log_rel)
         case_path = None
         if case_rel:
-            case_path = case_rel if case_rel.startswith("/") else str(REPO / case_rel)
+            case_path = (case_rel if case_rel.startswith("/")
+                         else _located(case_rel))
         result = classify(log_path, case_path)
         got = result["status"]
         ok = got == expected

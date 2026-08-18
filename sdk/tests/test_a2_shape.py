@@ -25,7 +25,26 @@ from workflows import _a2_shape
 doc = _a2_shape.load()
 pytestmark = pytest.mark.skipif(doc is None,
                                 reason="A2_shape_frames.json not on this host")
-_SDK = _a2_shape._LADDER.parents[3] / "sdk"
+# NOT `_LADDER.parents[3]`, AND THE REASON IS A DEFECT CLASS RATHER THAN A
+# TYPO. This was `_a2_shape._LADDER.parents[3] / "sdk"` -- a repository root
+# derived by counting segments UP from a path constant. `_LADDER` is
+# `lab_paths.DAFOAM / "ladder-a"`, and MOVE_MAP batch 6 (R22) moved `DAFOAM`
+# from `demo-output/website/dafoam` to `cases/dafoam`, which is TWO SEGMENTS
+# SHALLOWER: `parents[3]` went from the repository root to its parent
+# directory, and `_SDK` began pointing at `/home/ubuntu/sdk`, which does not
+# exist. A path literal is visible to a prefix rewrite; a DEPTH ASSUMPTION
+# about a moving path is not, and no grep for the old prefix would have found
+# this line.
+#
+# What it cost is the more interesting half.
+# `test_control_room_keeps_the_old_defaults_verbatim` failed loudly on the
+# missing file, but `test_hint_free_payloads_are_untouched_by_the_hint` glob-ed
+# an absent directory, got nothing, and went on asserting its projection
+# identity over the ten SYNTHETIC bodies it builds itself -- a green comparison
+# of no real geometry at all. The only thing that caught it was that test's own
+# `assert len(bodies) > 20` floor, which read 10. That floor is why this is a
+# finding and not a silent pass, and it is left exactly as it is.
+_SDK = _a2_shape.lab_paths.SDK
 
 
 def test_artifact_declares_its_own_checks():

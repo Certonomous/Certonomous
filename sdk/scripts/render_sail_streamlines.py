@@ -52,7 +52,7 @@ if str(SDK) not in sys.path:
 ROOT = SDK.parent
 CASE_DIR = ROOT / "mission-output" / "geometry-study" / "study-naca0015_sail"
 FIELD_JSON = ROOT / "mission-output" / "geometry-study" / "naca0015_sail_field.json"
-STL = ROOT / "demo-surfaces" / "naca0015_sail.stl"
+STL = lab_paths.DEMO_SURFACES / "naca0015_sail.stl"
 OUT_DIR = lab_paths.PLOTS / "pressure_slices"
 WSL_CASE = "/home/foam/certonomous-runs/study-naca0015_sail-16e5ff"
 WSL_VTU = (WSL_CASE + "/VTK/study-naca0015_sail-16e5ff_138/internal.vtu")

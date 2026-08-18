@@ -17,8 +17,12 @@ $env:CHIEF_ADAPTER       = "openfoam"
 $env:OPENFOAM_RUN_PREFIX = "wsl -d Ubuntu -- openfoam2606"
 $env:OPENVSP_RUN_PREFIX  = "wsl -d Ubuntu --"
 
-$ledger = Join-Path $repo "demo-output/website/mega-batch/ledger.jsonl"
-$work   = Join-Path $repo "demo-output/website/mega-batch/work"
+# MOVE_MAP batch 6 (R22) sends the mega-batch tree to `cases/mega-batch/`.
+# PowerShell cannot import `scripts/lab_paths.py`, so the one place that knows
+# is asked for the answer rather than the prefix being re-spelled here.
+$mb     = & python3 -c "import sys;sys.path.insert(0,r'$repo/scripts');import lab_paths;print(lab_paths.MEGA_BATCH)"
+$ledger = Join-Path $mb "ledger.jsonl"
+$work   = Join-Path $mb "work"
 
 Push-Location (Join-Path $repo "sdk")
 try {

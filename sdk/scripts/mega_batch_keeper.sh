@@ -19,9 +19,14 @@ set -u
 
 REPO=/home/ubuntu/Certonomous
 BATCH="$REPO/sdk/workflows/mega_batch.py"
-LOG="$REPO/demo-output/website/mega-batch/runner.log"
-ERR="$REPO/demo-output/website/mega-batch/runner.err.log"
-KEEPLOG="$REPO/demo-output/website/mega-batch/keeper.log"
+# The mega-batch tree is `demo-output/website/mega-batch/` before MOVE_MAP
+# batch 6 and `cases/mega-batch/` after it. Shell cannot import the shim, so
+# it is asked once, here, rather than spelled three times -- which is the
+# re-spelling `scripts/lab_paths.py`'s own header counts in this very file.
+MB="$(python3 -c 'import sys;sys.path.insert(0,"'"$REPO"'/scripts");import lab_paths;print(lab_paths.MEGA_BATCH)')"
+LOG="$MB/runner.log"
+ERR="$MB/runner.err.log"
+KEEPLOG="$MB/keeper.log"
 
 WORKERS="${WORKERS:-2}"        # 2, not 3: leaves headroom for concurrent adjoints
 RESTART_MEM_GB="${RESTART_MEM_GB:-8}"   # well above the batch's own 2 GB floor

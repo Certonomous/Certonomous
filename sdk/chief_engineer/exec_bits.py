@@ -48,6 +48,16 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).  The
+# waiver register below is a list of PATHS, and a path list is exactly what a
+# reorganisation invalidates.  See `_spellings`.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2] / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 #: Adoption date of the waiver register below.
@@ -399,7 +409,46 @@ OWNERS = (
     ("demo-output/website/campaign/", "Cases"),
     ("demo-output/website/dafoam/", "DAFoam"),
     ("demo-output/website/", "Demo and website"),
+    # `cases/` did not exist until MOVE_MAP batch 6, which is R22 sending ten
+    # physics families out of the webroot.  Same defect class as the `ops/` row
+    # above.  THE FAMILY ASSIGNMENT IS PRESERVED, NOT RE-DECIDED: every file
+    # these two rows answer for was answered for by the two rows above them
+    # before the move, and re-assigning a family across a family boundary is
+    # the supervision charter's to do, not a mover's.
+    ("cases/dafoam/", "DAFoam"),
+    ("cases/", "Demo and website"),
 )
+
+
+def _spellings(path: str) -> list[str]:
+    """Every name this repository has had, or will have, for one path.
+
+    THE REGISTER IS A LIST OF PATHS AND A MOVE INVALIDATES ONE.  MOVE_MAP
+    batch 6 sends 137 of the waived paths below out of the webroot to
+    `cases/`, and batch 7 sends more of them to `verification/`.  Matching the
+    register against `git ls-tree -r HEAD` by string equality therefore reports
+    every moved file as a STALE WAIVER and its successor as UNREGISTERED --
+    two findings, both spurious, in the batch that lands the move.  Worse, the
+    two cancel in the count, so a reader comparing totals sees nothing.
+
+    So the register keeps the spelling it was written with -- it is a dated
+    enumeration, `WAIVER_REGISTER_DATED`, and re-writing history's spellings is
+    not what makes it true -- and the MATCH is taught the map instead.  This is
+    the same repair `check_summary_consistency._in_commit` makes for a `git
+    show` into an immutable commit: probe every spelling rather than pick one.
+    Evidence: `test_a_waived_path_is_still_matched_after_its_tree_moves` and
+    its must-not-match control
+    `test_a_waived_path_that_is_nowhere_under_either_spelling_is_still_stale`.
+    """
+    out = [path]
+    for direction in (lab_paths.redirect, lab_paths.unredirect):
+        try:
+            other = direction(path)
+        except Exception:                      # pragma: no cover - defensive
+            other = None
+        if other and other not in out:
+            out.append(other)
+    return out
 
 
 def owner_of(path: str) -> str:
@@ -443,11 +492,20 @@ def tracked_shebang_scripts(root: Path | None = None) -> dict[str, str]:
         mode, kind, _sha = meta.split(None, 2)
         if kind != "blob":
             continue
-        try:
-            with open(root / path, "rb") as handle:
-                if handle.read(2) != b"#!":
-                    continue
-        except OSError:
+        # The shebang is read off the WORKING TREE, so between the `git mv`
+        # of a batch and the commit that records it, HEAD names a path that is
+        # no longer on disk.  Probe every spelling `_spellings` knows rather
+        # than dropping the file, because a file dropped here reads as a
+        # deleted waiver and as nothing else.
+        head = None
+        for cand in _spellings(path):
+            try:
+                with open(root / cand, "rb") as handle:
+                    head = handle.read(2)
+                break
+            except OSError:
+                continue
+        if head != b"#!":
             continue
         found[path] = mode
     return found
@@ -462,20 +520,28 @@ def audit(root: Path | None = None) -> dict[str, list]:
                             no longer exists, so the register is out of date.
     """
     modes = tracked_shebang_scripts(root)
-    waived = set(WAIVED_NO_EXEC_BIT)
 
     missing_required = sorted(
         path for path in REQUIRED_EXECUTABLE
         if modes.get(path) != "100755")
 
+    # A waived entry is matched against HEAD under every spelling the map
+    # knows for it (`_spellings`), so a batch that renames a tree neither
+    # invents a stale waiver nor an unregistered file.
+    covered: set[str] = set()
+    stale_list: list[str] = []
+    for path in WAIVED_NO_EXEC_BIT:
+        hits = [cand for cand in _spellings(path) if cand in modes]
+        covered.update(hits)
+        if not hits or any(modes[cand] == "100755" for cand in hits):
+            stale_list.append(path)
+
     unregistered = sorted(
         path for path, mode in modes.items()
-        if mode != "100755" and path not in waived
+        if mode != "100755" and path not in covered
         and path not in REQUIRED_EXECUTABLE)
 
-    stale = sorted(
-        path for path in waived
-        if path not in modes or modes[path] == "100755")
+    stale = sorted(stale_list)
 
     return {
         "missing_required": missing_required,

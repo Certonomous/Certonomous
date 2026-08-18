@@ -5874,3 +5874,122 @@ number, and the number is what was being registered.
 
 Found 2026-08-18 at F14 rung K0c-T, on a control whose verdict prediction held
 and whose value prediction did not.
+
+---
+
+## L-126. A mechanism that measures itself generates defects at the rate it closes them
+
+**The measurement.** Seven verifications ran over one package's own
+consistency checker, returning 35, 16, 14, converging, 11, 8 and 8 findings.
+The seventh was the one that decided anything: **six of its eight findings sat
+inside mechanisms the previous wave had built or repaired. Five mechanisms had
+changed in that wave; four of the five were defective.** That is not
+convergence. It is the same defect rate one level in, and the defects are now
+self-referential, because the mechanism under test is the mechanism doing the
+testing.
+
+**Two of the eight show why more care does not fix it.**
+
+**1. A derivation memoized by tree path, read by a control that mutates the
+tree.** The checker's newest control planted a defect in a copy of the package
+and asked, in the same process, whether the checker reported it. The function
+that chose the plant's target cached its answer under `str(root)`. The control
+called it once to pick a target, planted the defect, and called it again in the
+same process against the same path, getting the pre-plant answer back. In a
+fresh process the planted tree exits 1 with five failures. **The control's own
+stated failure condition was already met and the control could not say so.**
+
+**2. Publishing the size of a blind spot can close that blind spot.** The same
+wave published a count of the rewrites its census could not see, as a
+measurement rather than an assertion, on the reasoning that a number is more
+honest than a sentence. But the count's own outputs are published in the
+package, and every rewrite of the class moves them. **66 of 68 sampled members
+of the class were caught by the very publication that quantified them.** The
+sentence quantifying the hole was false for about 97 percent of the population
+it quantified, and the publisher had no way to notice, because the thing that
+would have told him was the number he was publishing.
+
+**How to apply it.**
+
+* **Run a planted copy in a separate PROCESS, always.** Not a fresh object, not
+  a cleared cache: a new interpreter. Any module-level state, any memo keyed by
+  a path a control edits, and any list a control mutates in place will otherwise
+  carry a value taken from the clean tree into the planted one. This single
+  change would have caught the first defect above on the day it was written.
+* **Never memoize by tree path a derivation that a control mutates the tree
+  under.** The key looks unique and is not: the same path names two different
+  trees before and after the plant.
+* **Do not publish a number about your own blind spot.** The act of publishing
+  it puts the number inside the population it measures. Publish what the run
+  measured about the OBJECT, and let the reader take the reading themselves.
+* **When the defect rate does not fall between waves, stop repairing and start
+  deleting.** The right move is the one the seventh verification recommended:
+  shrink the surface. The mechanisms with the best ratio of findings to lines
+  were the smallest and most hand-written ones; the worst were the ones that
+  measured themselves.
+
+**What was done with it, 2026-08-18.** The self-describing mechanisms were
+deleted rather than repaired: the checker's account of itself, the page's
+account of the checker's run, the blind-spot enumerator with the shape it
+planted, and the class of sentences stating what a check prevents, enforces,
+pins, catches or fails on. The checker went from 6305 lines to 4788 and from 22
+checks to 20; the sentence class went from 217 to 60 by a scanner that derives
+the population rather than listing it. Every one of the 25 retained planted
+shapes is still caught, by the same check that caught it before.
+
+Found 2026-08-18, on the closure-challenge submission package, after seven
+verification waves over the same checker.
+
+## L-127. A repository root derived by counting segments up from a path that moves is a path literal no grep can find
+
+**The incident.** MOVE_MAP batch 6 moved `demo-output/website/dafoam` to
+`cases/dafoam` — two segments shallower. `sdk/tests/test_a2_shape.py:28` read
+
+```python
+_SDK = _a2_shape._LADDER.parents[3] / "sdk"
+```
+
+and `_LADDER` is `lab_paths.DAFOAM / "ladder-a"`. Before the move `parents[3]`
+was the repository root. After it, `parents[3]` was `/home/ubuntu` — the
+repository's PARENT — and `_SDK` pointed at `/home/ubuntu/sdk`, which does not
+exist.
+
+**Why the standing defences did not see it.** Batch 3b converted ~150 path
+literals to the shim and every later batch runs a Class-1 scan over every
+tracked non-`.md` file with **no suffix filter** (D371). This line contains no
+path literal. `git grep 'demo-output/website/dafoam'` does not match it,
+`git grep 'parents\['` returns twenty lines of which nineteen are rooted at
+`Path(__file__)` and are correct, and the shim itself is used **correctly** —
+the constant followed the move exactly as designed. What did not follow is the
+**arithmetic performed on it**. A path constant that moves changes its DEPTH as
+well as its prefix, and only the prefix is visible to a text search.
+
+**What it cost, and which half is the lesson.** Two tests failed. One —
+`test_control_room_keeps_the_old_defaults_verbatim` — raised
+`FileNotFoundError` on the missing file: loud, immediate, unmissable. The other
+— `test_hint_free_payloads_are_untouched_by_the_hint` — globbed an absent
+directory, got **nothing**, and went on asserting its projection identity over
+the ten synthetic bodies it builds itself. **Every assertion in it passed while
+it compared no real geometry at all.** The only thing between that and a silent
+green was the test's own floor:
+
+```python
+assert len(bodies) > 20      # read 10
+```
+
+**The rule.** When a path constant moves, search for **arithmetic on it**, not
+only for its spelling: `.parents[N]`, `.relative_to(...)`, `str(...).split("/")`,
+any index into a path. Where a root can be named directly, name it — the repair
+here was `_SDK = _a2_shape.lab_paths.SDK`, a bound non-moving name, which is
+correct at every depth and needs no edit at any future batch.
+
+**And the corollary, which is the transferable half.** A sweep that finds
+nothing must be **floored**, not merely asserted over. `assert len(x) > N`
+before the loop is the difference between a finding and a green comparison of an
+empty set — the same shape as `RECORD_ROOTS` losing nineteen records at batch 5,
+`ArchiveSweepTests` naming its five logs individually rather than counting them
+at batch 6, and every silent zero this file records. **Whoever runs batch 7
+should expect this class**: seven modules under
+`demo-output/website/campaign/` derive the repository root by segment counting
+and every one of them lands on `/home/ubuntu` after R20/R21 — measured, not
+predicted (docket D385).

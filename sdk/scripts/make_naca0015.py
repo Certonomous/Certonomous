@@ -10,7 +10,7 @@ closes to a single TE point and the surface is watertight by construction.
 
 With no arguments it writes the three staged copies:
     sdk/geometry/naca0015_sail.stl
-    demo-surfaces/naca0015_sail.stl
+    the operator copy set (`lab_paths.DEMO_SURFACES`)
     models/curriculum/naca0015_sail/naca0015_sail.stl
 """
 
@@ -21,6 +21,17 @@ import struct
 import sys
 from pathlib import Path
 
+# The one module that names this repository's tree (MOVE_MAP batch 3).
+# Every name it exports is bound to a legacy/successor PAIR resolved
+# against the filesystem at import, so the constants below are correct
+# before the move, between batches and after it, with no edit here.
+import sys as _sys  # noqa: E402
+import pathlib as _pathlib  # noqa: E402
+_LAB_PATHS_DIR = str(_pathlib.Path(__file__).resolve().parents[2] / "scripts")
+if _LAB_PATHS_DIR not in _sys.path:
+    _sys.path.insert(0, _LAB_PATHS_DIR)
+import lab_paths  # noqa: E402
+
 CHORD = 1.2          # m
 SPAN = 1.8           # m
 N_CHORD = 110        # stations LE -> TE per side (cosine spaced)
@@ -29,7 +40,11 @@ N_SPAN = 48          # spanwise stations root -> tip
 REPO = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUTS = [
     REPO / "sdk" / "geometry" / "naca0015_sail.stl",
-    REPO / "demo-surfaces" / "naca0015_sail.stl",
+    # R5 sends `demo-surfaces/` to `cases/demo-surfaces/` in MOVE_MAP batch 6.
+    # THIS IS A GENERATOR AND THE CONSTANT IS ITS OUTPUT PATH: a literal here
+    # would re-create the old directory on the next run and leave the copy set
+    # the server actually reads frozen at its last build.
+    lab_paths.DEMO_SURFACES / "naca0015_sail.stl",
     REPO / "models" / "curriculum" / "naca0015_sail" / "naca0015_sail.stl",
 ]
 

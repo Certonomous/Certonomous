@@ -80,7 +80,7 @@ BODIES = {
         "span_axis": 2,
         "plane_axes": (0, 1),
         "body_label": "NACA 0015 sail",
-        "surface_file": REPO / "demo-surfaces" / "naca0015_sail.stl",
+        "surface_file": lab_paths.DEMO_SURFACES / "naca0015_sail.stl",
         "surface_scale": 1.0,
     },
     "naca4412_wing": {
@@ -89,7 +89,7 @@ BODIES = {
         "span_axis": 1,
         "plane_axes": (0, 2),
         "body_label": "NACA 4412 wing",
-        "surface_file": REPO / "demo-surfaces" / "naca4412_wing.stl",
+        "surface_file": lab_paths.DEMO_SURFACES / "naca4412_wing.stl",
         "surface_scale": 1.0,
     },
 }

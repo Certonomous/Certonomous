@@ -481,7 +481,18 @@ class ArchiveSweepTests(unittest.TestCase):
     the ceiling-clip-only set unnoticed.
     """
 
-    ROOT = lab_paths.DEMO_OUTPUT
+    #: THE ARCHIVE IS NO LONGER ONE DIRECTORY, and a sweep pinned to one root
+    #: does not fail when the region leaves it -- it scans a smaller corpus and
+    #: passes.  MOVE_MAP batch 6 (R22) moved the DAFoam log archive out of
+    #: `demo-output/` to `cases/dafoam/`; batch 7 moves the campaign run
+    #: archives to `verification/runs/` and 7H the solve registry to
+    #: `evidence/`.  Absent roots are skipped, so this list needs no edit at
+    #: either of those batches, and the `> 300` floor below is what reddens if
+    #: a region leaves without being named here.
+    #: Evidence: `test_the_sweep_names_only_the_withdrawn_run_and_the_audited_probe_points`,
+    #: which names its five logs INDIVIDUALLY rather than counting them, so a
+    #: root that stopped resolving removes a named expectation rather than
+    #: shrinking a number.
     WITHDRAWN = "A4_fine_primal_par4.log"
 
     # Ceiling clip only, and only in the SIMPLE startup transient. Each is one
@@ -499,6 +510,22 @@ class ArchiveSweepTests(unittest.TestCase):
         r"Solving for (\w+),.*Initial residual = ([0-9.eE+-]+)")
     _NORM = re.compile(
         r"^\s*(\w[\w.]*) Residual Norm2: (?:\(([^)]*)\)|([0-9.eE+-]+))")
+
+    @staticmethod
+    def _roots():
+        seen = []
+        for cand in (lab_paths.DEMO_OUTPUT, lab_paths.REPO / "cases",
+                     lab_paths.REPO / "verification", lab_paths.REPO / "evidence"):
+            if cand.is_dir() and cand not in seen:
+                seen.append(cand)
+        return tuple(seen)
+
+    @classmethod
+    def _archived_logs(cls):
+        out = []
+        for root in cls._roots():
+            out.extend(root.rglob("*.log"))
+        return sorted(set(out))
 
     def _sweep(self, path):
         series, norms, ceiling = {}, {}, set()
@@ -532,7 +559,7 @@ class ArchiveSweepTests(unittest.TestCase):
         return found
 
     def test_the_sweep_names_only_the_withdrawn_run_and_the_audited_probe_points(self):
-        logs = sorted(self.ROOT.rglob("*.log"))
+        logs = self._archived_logs()
         self.assertGreater(len(logs), 300, "the log archive did not resolve")
         named = {}
         for path in logs:
@@ -558,7 +585,7 @@ class ArchiveSweepTests(unittest.TestCase):
         The archive contains exactly one of the latter.
         """
         multi = {}
-        for path in sorted(self.ROOT.rglob("*.log")):
+        for path in self._archived_logs():
             found = self._sweep(path)
             if len(found) > 1:
                 multi[path.name] = found
@@ -811,7 +838,11 @@ class MagnitudeExplosionTests(unittest.TestCase):
                     if detect_magnitude_explosion(series):
                         fires.append(f"{dat}:1")
 
-        sweep(lab_paths.DEMO_OUTPUT)
+        # Same split as `ArchiveSweepTests._roots`, and for the same reason:
+        # the force/moment histories this replay grades left `demo-output/`
+        # with their case trees in MOVE_MAP batch 6 and leave again in batch 7.
+        for _root in ArchiveSweepTests._roots():
+            sweep(_root)
         expected = {f"{F8_SPECIMEN_DIR / 'moment.dat'}:1",
                     f"{F8_SPECIMEN_DIR / 'force.dat'}:1"}
         self.assertEqual(set(fires), expected,
