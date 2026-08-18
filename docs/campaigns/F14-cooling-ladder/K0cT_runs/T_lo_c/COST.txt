@@ -1,0 +1,8 @@
+case T_lo_c
+wall_clock_s 151.717
+cores 1
+core_minutes 2.5286
+case T_lo_c
+stage2_wall_clock_s 277.862
+cores 1
+stage2_core_minutes 4.6310

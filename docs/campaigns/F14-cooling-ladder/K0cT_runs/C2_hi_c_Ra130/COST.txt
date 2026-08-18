@@ -1,0 +1,8 @@
+case C2_hi_c_Ra130
+wall_clock_s 146.213
+cores 1
+core_minutes 2.4369
+case C2_hi_c_Ra130
+stage2_wall_clock_s 279.631
+cores 1
+stage2_core_minutes 4.6605

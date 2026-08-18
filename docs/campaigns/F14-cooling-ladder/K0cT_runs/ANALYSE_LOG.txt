@@ -1,0 +1,30 @@
+graded rows: 18   FAIL: 8
+convergence refusals: ['T_hi_c', 'C1_hi_c_laminar', 'S_hi_c_seed100']
+   lo core stratification S (bound)                 ref       0.0 solve     0.2209  dev    0.221 absolute band 0.07   FAIL
+   lo mid-height peak upward velocity (magnitude)   ref      0.14 solve     0.1623  dev   15.935 percent  band 15.0   FAIL
+   lo mid-height peak upward velocity (location)    ref      71.2 solve    71.0035  dev    0.196 mm       band 5.0    PASS
+   lo mid-height peak downward velocity (magnitude) ref    -0.135 solve    -0.1623  dev   20.225 percent  band 15.0   FAIL
+   lo mid-height peak downward velocity (location)  ref       6.2 solve     4.9965  dev    1.204 mm       band 5.0    PASS
+   lo mid-width temperature at y/H = 0.30           ref     25.07 solve    23.8623  dev    1.208 K        band 1.0    FAIL
+   lo mid-width temperature at y/H = 0.50           ref     25.26 solve    24.7703  dev    0.490 K        band 1.0    PASS
+   lo mid-width temperature at y/H = 0.70           ref     25.39 solve    25.6771  dev    0.287 K        band 1.0    PASS
+   lo antisymmetry defect of the two peaks          ref       3.6 solve     0.0032  dev    0.003 percent  band 10.0   PASS
+   hi core stratification S                         ref     0.095 solve     0.2353  dev    0.140 absolute band 0.05   FAIL
+   hi mid-height peak upward velocity (magnitude)   ref      0.19 solve     0.2211  dev   16.376 percent  band 15.0   FAIL
+   hi mid-height peak upward velocity (location)    ref      70.2 solve    71.6499  dev    1.450 mm       band 5.0    PASS
+   hi mid-height peak downward velocity (magnitude) ref    -0.189 solve    -0.2211  dev   16.998 percent  band 15.0   FAIL
+   hi mid-height peak downward velocity (location)  ref       5.0 solve     4.3501  dev    0.650 mm       band 5.0    PASS
+   hi mid-width temperature at y/H = 0.30           ref     34.58 solve    32.5511  dev    2.029 K        band 2.0    FAIL
+   hi mid-width temperature at y/H = 0.50           ref     34.74 solve    34.5132  dev    0.227 K        band 2.0    PASS
+   hi mid-width temperature at y/H = 0.70           ref     36.02 solve    36.4808  dev    0.461 K        band 2.0    PASS
+   hi antisymmetry defect of the two peaks          ref       0.5 solve     0.0055  dev    0.006 percent  band 10.0   PASS
+Nusselt (UNGRADED, reference NOT OBTAINED):
+  T_lo_c               Nu_hot 4.8561  Nu_cold 4.8527
+  T_lo_f               Nu_hot 4.8705  Nu_cold 4.8654
+  T_hi_c               Nu_hot 5.6684  Nu_cold 5.6694
+  T_hi_f               Nu_hot 5.6937  Nu_cold 5.6993
+  M_hi_f_LS            Nu_hot 7.9841  Nu_cold 7.9891
+  C1_hi_c_laminar      Nu_hot 4.7507  Nu_cold 4.6888
+  C2_hi_c_Ra130        Nu_hot 6.1449  Nu_cold 6.1479
+  B_hi_c_adiabatic     Nu_hot 5.6935  Nu_cold 5.6934
+  S_hi_c_seed100       Nu_hot 5.6672  Nu_cold 5.6702

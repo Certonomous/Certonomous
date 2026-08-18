@@ -1,0 +1,1477 @@
+{
+ "spec": "docs/campaigns/F14-cooling-ladder/K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md",
+ "reference_parsed_from_spec": {
+  "S": {
+   "lo": 0.016,
+   "hi": 0.095
+  },
+  "S_increment": {
+   "lo": 0.02,
+   "hi": 0.02
+  },
+  "Vup": {
+   "lo": 0.14,
+   "hi": 0.19
+  },
+  "Vup_x": {
+   "lo": 71.2,
+   "hi": 70.2
+  },
+  "Vdn": {
+   "lo": -0.135,
+   "hi": -0.189
+  },
+  "Vdn_x": {
+   "lo": 6.2,
+   "hi": 5.0
+  },
+  "asym": {
+   "lo": 3.6,
+   "hi": 0.5
+  },
+  "Tmid": {
+   "lo": [
+    25.07,
+    25.26,
+    25.39
+   ],
+   "hi": [
+    34.58,
+    34.74,
+    36.02
+   ]
+  }
+ },
+ "pass_bands_parsed_from_spec": {
+  "S_hi": 0.05,
+  "S_lo": 0.07,
+  "V_pct": 15.0,
+  "V_loc_mm": 5.0,
+  "T_lo_K": 1.0,
+  "T_hi_K": 2.0,
+  "asym_pct": 10.0
+ },
+ "reference_rederived_from_primary": {
+  "lo": {
+   "S": 0.01633858267716521,
+   "Vup": 0.14,
+   "Vup_x": 71.2,
+   "Vdn": -0.135,
+   "Vdn_x": 6.2,
+   "asym": 3.5714285714285743,
+   "Tmid": [
+    25.071259842519684,
+    25.26468503937008,
+    25.38803149606299
+   ]
+  },
+  "hi": {
+   "S": 0.09482564679415065,
+   "Vup": 0.19,
+   "Vup_x": 70.2,
+   "Vdn": -0.189,
+   "Vdn_x": 5.0,
+   "asym": 0.5263157894736846,
+   "Tmid": [
+    34.57992125984252,
+    34.738740157480315,
+    36.01602362204724
+   ]
+  }
+ },
+ "convergence_rules": {
+  "window": 400,
+  "interval": 50,
+  "min_samples": 9,
+  "Nu_pct": 0.02,
+  "S_abs": 0.001,
+  "Uy_pct": 0.02
+ },
+ "cases": {
+  "T_lo_c": {
+   "convergence": {
+    "Nu_pp_pct": 2.0996058328334664e-07,
+    "Nu_endpoint_pct": 8.381106650688476e-08,
+    "samples": 9,
+    "S_pp": 2.4674741777586107e-07,
+    "S_last": 0.22816351654986522,
+    "Uy_pp_pct": 2.576259663773468e-05,
+    "Uy_last": 0.1876423632222634,
+    "criterion_a_Nu": "PASS",
+    "criterion_b_S": "PASS",
+    "criterion_c_Uy": "PASS",
+    "pass": true
+   },
+   "log": {
+    "n_k_solves": 60000,
+    "n_omega_solves": 60000,
+    "n_epsilon_solves": 0,
+    "model_line": "Selecting RAS turbulence model kOmegaSST",
+    "hotT": 307.7207452830005,
+    "coldT": 288.1207452830002,
+    "dT_from_log": 19.600000000000307,
+    "iterations": 60000,
+    "logs": [
+     "log.buoyantBoussinesqSimpleFoam",
+     "log.buoyantBoussinesqSimpleFoam.stage2"
+    ]
+   },
+   "heat_balance": {
+    "exit": 0,
+    "stderr": "",
+    "imbalance_pct": 0.0009,
+    "Nu_hot_path3": 4.856116832053922,
+    "Nu_hot_path1": 4.856125546205091,
+    "path1_vs_path3_rel": 1.794469011128879e-06,
+    "report_stamped_UNVALIDATED": false
+   },
+   "measure": {
+    "time": "60000",
+    "cells": 4800,
+    "S": 0.22872113779576886,
+    "Tmid_C": [
+     23.830800098188263,
+     24.77042383439641,
+     25.7090436409394
+    ],
+    "Tprobe_K": [
+     296.98080009818824,
+     297.55710760736736,
+     297.9204238343964,
+     298.28355482266215,
+     298.8590436409394
+    ],
+    "Vup": 0.16308854343696405,
+    "Vup_x": 71.29253313599999,
+    "Vdn": -0.16308425901061896,
+    "Vdn_x": 4.707467121,
+    "asym": 0.0026270553742160294,
+    "Nu_hot": 4.856125546205091,
+    "Nu_cold": 4.852710776373874,
+    "H": 2.18,
+    "W": 0.076,
+    "dT": 19.6,
+    "yplus_max": 0.24940931301950447,
+    "nut_wall_max": 0.0,
+    "nut_max": 0.0002562881776596863,
+    "nut_over_nu_max": 16.757763983176076
+   }
+  },
+  "T_lo_f": {
+   "convergence": {
+    "Nu_pp_pct": 4.6314652536434243e-10,
+    "Nu_endpoint_pct": 4.6314652536537336e-10,
+    "samples": 9,
+    "S_pp": 1.429930618357389e-10,
+    "S_last": 0.2223305072695035,
+    "Uy_pp_pct": 1.0890336704673159e-08,
+    "Uy_last": 0.18709049817297027,
+    "criterion_a_Nu": "PASS",
+    "criterion_b_S": "PASS",
+    "criterion_c_Uy": "PASS",
+    "pass": true
+   },
+   "log": {
+    "n_k_solves": 40000,
+    "n_omega_solves": 40000,
+    "n_epsilon_solves": 0,
+    "model_line": "Selecting RAS turbulence model kOmegaSST",
+    "hotT": 307.7207452830004,
+    "coldT": 288.1207452830004,
+    "dT_from_log": 19.599999999999966,
+    "iterations": 40000,
+    "logs": [
+     "log.buoyantBoussinesqSimpleFoam",
+     "log.buoyantBoussinesqSimpleFoam.stage2",
+     "log.buoyantBoussinesqSimpleFoam.stage3"
+    ]
+   },
+   "heat_balance": {
+    "exit": 0,
+    "stderr": "",
+    "imbalance_pct": 0.0,
+    "Nu_hot_path3": 4.8705064594645195,
+    "Nu_hot_path1": 4.870511157034632,
+    "path1_vs_path3_rel": 9.644931490290361e-07,
+    "report_stamped_UNVALIDATED": false
+   },
+   "measure": {
+    "time": "42000",
+    "cells": 12288,
+    "S": 0.2208694606073862,
+    "Tmid_C": [
+     23.862302768962536,
+     24.770319405242333,
+     25.67709405450813
+    ],
+    "Tprobe_K": [
+     297.0123027689625,
+     297.57047487018957,
+     297.9203194052423,
+     298.26993372700315,
+     298.8270940545081
+    ],
+    "Vup": 0.16230930288247794,
+    "Vup_x": 71.003513793,
+    "Vdn": -0.16230416978520315,
+    "Vdn_x": 4.9964863930000005,
+    "asym": 0.003162540398874435,
+    "Nu_hot": 4.870511157034632,
+    "Nu_cold": 4.865431197416059,
+    "H": 2.18,
+    "W": 0.076,
+    "dT": 19.6,
+    "yplus_max": 0.15611596656450596,
+    "nut_wall_max": 0.0,
+    "nut_max": 0.0002550850832378944,
+    "nut_over_nu_max": 16.6790979574781
+   }
+  },
+  "T_hi_c": {
+   "convergence": {
+    "Nu_pp_pct": 0.05389807665939181,
+    "Nu_endpoint_pct": 0.027309940952759744,
+    "samples": 9,
+    "S_pp": 0.0003851511017582687,
+    "S_last": 0.24219986666032747,
+    "Uy_pp_pct": 0.08575004100134175,
+    "Uy_last": 0.2613224401671747,
+    "criterion_a_Nu": "FAIL",
+    "criterion_b_S": "PASS",
+    "criterion_c_Uy": "FAIL",
+    "pass": false
+   },
+   "log": {
+    "n_k_solves": 100000,
+    "n_omega_solves": 100000,
+    "n_epsilon_solves": 0,
+    "model_line": "Selecting RAS turbulence model kOmegaSST",
+    "hotT": 327.6119073450001,
+    "coldT": 287.711907345,
+    "dT_from_log": 39.90000000000009,
+    "iterations": 100000,
+    "logs": [
+     "log.buoyantBoussinesqSimpleFoam",
+     "log.buoyantBoussinesqSimpleFoam.stage2"
+    ]
+   },
+   "heat_balance": {
+    "exit": 0,
+    "stderr": "",
+    "imbalance_pct": 0.0501,
+    "Nu_hot_path3": 5.668431629532547,
+    "Nu_hot_path1": 5.668427529408119,
+    "path1_vs_path3_rel": 7.233260796614769e-07,
+    "report_stamped_UNVALIDATED": false
+   },
+   "measure": {
+    "time": "140000",
+    "cells": 4800,
+    "S": 0.24275483983896456,
+    "Tmid_C": [
+     32.48628706549772,
+     34.50989571119277,
+     36.53911241911487
+    ],
+    "Tprobe_K": [
+     305.6362870654977,
+     306.87037206024615,
+     307.65989571119275,
+     308.45063946258654,
+     309.68911241911485
+    ],
+    "Vup": 0.2225706734684772,
+    "Vup_x": 71.29253313599999,
+    "Vdn": -0.22273736430233806,
+    "Vdn_x": 4.707467121,
+    "asym": 0.0748373917339726,
+    "Nu_hot": 5.668427529408119,
+    "Nu_cold": 5.669393575156821,
+    "H": 2.18,
+    "W": 0.076,
+    "dT": 39.9,
+    "yplus_max": 0.3013769677645073,
+    "nut_wall_max": 0.0,
+    "nut_max": 0.0003640900680348129,
+    "nut_over_nu_max": 21.8646837698906
+   }
+  },
+  "T_hi_f": {
+   "convergence": {
+    "Nu_pp_pct": 1.7256506511447424e-10,
+    "Nu_endpoint_pct": 1.4674463833635462e-10,
+    "samples": 9,
+    "S_pp": 1.3526313402678625e-10,
+    "S_last": 0.23685837395237974,
+    "Uy_pp_pct": 6.260339779264787e-09,
+    "Uy_last": 0.2612562356034613,
+    "criterion_a_Nu": "PASS",
+    "criterion_b_S": "PASS",
+    "criterion_c_Uy": "PASS",
+    "pass": true
+   },
+   "log": {
+    "n_k_solves": 40000,
+    "n_omega_solves": 40000,
+    "n_epsilon_solves": 0,
+    "model_line": "Selecting RAS turbulence model kOmegaSST",
+    "hotT": 327.6119073450001,
+    "coldT": 287.7119073449991,
+    "dT_from_log": 39.900000000001,
+    "iterations": 40000,
+    "logs": [
+     "log.buoyantBoussinesqSimpleFoam",
+     "log.buoyantBoussinesqSimpleFoam.stage2",
+     "log.buoyantBoussinesqSimpleFoam.stage3"
+    ]
+   },
+   "heat_balance": {
+    "exit": 0,
+    "stderr": "",
+    "imbalance_pct": 0.0,
+    "Nu_hot_path3": 5.693674093490608,
+    "Nu_hot_path1": 5.693675170111101,
+    "path1_vs_path3_rel": 1.8909064261896976e-07,
+    "report_stamped_UNVALIDATED": false
+   },
+   "measure": {
+    "time": "40000",
+    "cells": 12288,
+    "S": 0.23527034341009084,
+    "Tmid_C": [
+     32.551115674967434,
+     34.5131977158926,
+     36.480778776314935
+    ],
+    "Tprobe_K": [
+     305.7011156749674,
+     306.8996400029254,
+     307.6631977158926,
+     308.42760050229305,
+     309.6307787763149
+    ],
+    "Vup": 0.22111407239346276,
+    "Vup_x": 71.649944156,
+    "Vdn": -0.22112631229411372,
+    "Vdn_x": 4.350056015,
+    "asym": 0.005535252916752736,
+    "Nu_hot": 5.693675170111101,
+    "Nu_cold": 5.699291492098775,
+    "H": 2.18,
+    "W": 0.076,
+    "dT": 39.9,
+    "yplus_max": 0.18876418756814697,
+    "nut_wall_max": 0.0,
+    "nut_max": 0.0003623799493141345,
+    "nut_over_nu_max": 21.761986090609145
+   }
+  },
+  "M_hi_f_LS": {
+   "convergence": {
+    "Nu_pp_pct": 2.7907673128836323e-09,
+    "Nu_endpoint_pct": 2.7907673128461698e-09,
+    "samples": 9,
+    "S_pp": 1.3766363049505514e-11,
+    "S_last": 0.01878957487118518,
+    "Uy_pp_pct": 1.947844294233726e-09,
+    "Uy_last": 0.2388267514428981,
+    "criterion_a_Nu": "PASS",
+    "criterion_b_S": "PASS",
+    "criterion_c_Uy": "PASS",
+    "pass": true
+   },
+   "log": {
+    "n_k_solves": 40000,
+    "n_omega_solves": 0,
+    "n_epsilon_solves": 40000,
+    "model_line": "Selecting RAS turbulence model LaunderSharmaKE",
+    "hotT": 327.6119073450001,
+    "coldT": 287.7119073449991,
+    "dT_from_log": 39.900000000001,
+    "iterations": 40000,
+    "logs": [
+     "log.buoyantBoussinesqSimpleFoam",
+     "log.buoyantBoussinesqSimpleFoam.stage2",
+     "log.buoyantBoussinesqSimpleFoam.stage3"
+    ]
+   },
+   "heat_balance": {
+    "exit": 0,
+    "stderr": "",
+    "imbalance_pct": 0.0,
+    "Nu_hot_path3": 7.984071647007426,
+    "Nu_hot_path1": 7.984068154348912,
+    "path1_vs_path3_rel": 4.3745330312918884e-07,
+    "report_stamped_UNVALIDATED": false
+   },
+   "measure": {
+    "time": "40000",
+    "cells": 12288,
+    "S": 0.01862657397888464,
+    "Tmid_C": [
+     34.343167667729745,
+     34.51164050956379,
+     34.676500015295744
+    ],
+    "Tprobe_K": [
+     307.4931676677297,
+     307.62306496853694,
+     307.66164050956377,
+     307.69960057516244,
+     307.8265000152957
+    ],
+    "Vup": 0.12668036367674806,
+    "Vup_x": 72.227182406,
+    "Vdn": -0.12667983792469714,
+    "Vdn_x": 3.7728177499999997,
+    "asym": 0.0004150225304565156,
+    "Nu_hot": 7.984068154348912,
+    "Nu_cold": 7.989065574538834,
+    "H": 2.18,
+    "W": 0.076,
+    "dT": 39.9,
+    "yplus_max": 0.18359272555110964,
+    "nut_wall_max": 0.0,
+    "nut_max": 0.0006643060453042545,
+    "nut_over_nu_max": 39.89353976449403
+   }
+  },
+  "C1_hi_c_laminar": {
+   "convergence": {
+    "Nu_pp_pct": 1.36858400057763,
+    "Nu_endpoint_pct": 0.5695074947407781,
+    "samples": 9,
+    "S_pp": 0.18472648822981352,
+    "S_last": 0.44136490878448364,
+    "Uy_pp_pct": 14.036582951438492,
+    "Uy_last": 0.5519579424280057,
+    "criterion_a_Nu": "FAIL",
+    "criterion_b_S": "FAIL",
+    "criterion_c_Uy": "FAIL",
+    "pass": false
+   },
+   "log": {
+    "n_k_solves": 0,
+    "n_omega_solves": 0,
+    "n_epsilon_solves": 0,
+    "model_line": "Selecting turbulence model type laminar",
+    "hotT": 327.6119073450001,
+    "coldT": 287.711907345,
+    "dT_from_log": 39.90000000000009,
+    "iterations": 60000,
+    "logs": [
+     "log.buoyantBoussinesqSimpleFoam",
+     "log.buoyantBoussinesqSimpleFoam.stage2"
+    ]
+   },
+   "heat_balance": {
+    "exit": 1,
+    "stderr": "",
+    "imbalance_pct": 1.3077,
+    "Nu_hot_path3": 4.750694626474442,
+    "Nu_hot_path1": 4.750692449555163,
+    "path1_vs_path3_rel": 4.5823178517407116e-07,
+    "report_stamped_UNVALIDATED": false
+   },
+   "measure": {
+    "time": "60000",
+    "cells": 4800,
+    "S": 0.41572934905244446,
+    "Tmid_C": [
+     31.918245109499082,
+     36.286127566183325,
+     38.138566022650025
+    ],
+    "Tprobe_K": [
+     305.06824510949906,
+     304.4877976788374,
+     309.4361275661833,
+     308.63475687972806,
+     311.28856602265
+    ],
+    "Vup": 0.49827894130398565,
+    "Vup_x": 68.764548534,
+    "Vdn": -0.452915211709049,
+    "Vdn_x": 7.235451792,
+    "asym": 9.104083242253962,
+    "Nu_hot": 4.750692449555163,
+    "Nu_cold": 4.688795227158199,
+    "H": 2.18,
+    "W": 0.076,
+    "dT": 39.9,
+    "yplus_max": 0.42312552428728345,
+    "nut_wall_max": 0.0,
+    "nut_max": 0.0,
+    "nut_over_nu_max": 0.0
+   }
+  },
+  "C2_hi_c_Ra130": {
+   "convergence": {
+    "Nu_pp_pct": 0.002921313600141786,
+    "Nu_endpoint_pct": 0.00037479741772127745,
+    "samples": 9,
+    "S_pp": 3.854902698985363e-05,
+    "S_last": 0.24893561254075341,
+    "Uy_pp_pct": 0.009449133584034796,
+    "Uy_last": 0.2974235130116622,
+    "criterion_a_Nu": "PASS",
+    "criterion_b_S": "PASS",
+    "criterion_c_Uy": "PASS",
+    "pass": true
+   },
+   "log": {
+    "n_k_solves": 60000,
+    "n_omega_solves": 60000,
+    "n_epsilon_solves": 0,
+    "model_line": "Selecting RAS turbulence model kOmegaSST",
+    "hotT": 333.5969073450001,
+    "coldT": 281.7269073449999,
+    "dT_from_log": 51.870000000000175,
+    "iterations": 60000,
+    "logs": [
+     "log.buoyantBoussinesqSimpleFoam",
+     "log.buoyantBoussinesqSimpleFoam.stage2"
+    ]
+   },
+   "heat_balance": {
+    "exit": 0,
+    "stderr": "",
+    "imbalance_pct": 0.0004,
+    "Nu_hot_path3": 6.144920522902176,
+    "Nu_hot_path1": 6.144921061321157,
+    "path1_vs_path3_rel": 8.76201700889067e-08,
+    "report_stamped_UNVALIDATED": false
+   },
+   "measure": {
+    "time": "60000",
+    "cells": 4800,
+    "S": 0.24948328418540092,
+    "Tmid_C": [
+     31.81078003905202,
+     34.51309303126618,
+     37.22104883788086
+    ],
+    "Tprobe_K": [
+     304.960780039052,
+     306.60347922060197,
+     307.66309303126616,
+     308.72363957364104,
+     310.37104883788083
+    ],
+    "Vup": 0.2490501753858947,
+    "Vup_x": 71.29253313599999,
+    "Vdn": -0.2490692536467049,
+    "Vdn_x": 4.707467121,
+    "asym": 0.0076598217286483064,
+    "Nu_hot": 6.144921061321157,
+    "Nu_cold": 6.147855867084648,
+    "H": 2.18,
+    "W": 0.076,
+    "dT": 51.87,
+    "yplus_max": 0.33217219195748354,
+    "nut_wall_max": 0.0,
+    "nut_max": 0.0004160921286575079,
+    "nut_over_nu_max": 24.98756107614327
+   }
+  },
+  "B_hi_c_adiabatic": {
+   "convergence": {
+    "Nu_pp_pct": 0.0010887202926490038,
+    "Nu_endpoint_pct": 0.00047641452047802633,
+    "samples": 9,
+    "S_pp": 2.063523653816901e-05,
+    "S_last": 0.25579905727721086,
+    "Uy_pp_pct": 0.016175322696027547,
+    "Uy_last": 0.2635558971757511,
+    "criterion_a_Nu": "PASS",
+    "criterion_b_S": "PASS",
+    "criterion_c_Uy": "PASS",
+    "pass": true
+   },
+   "log": {
+    "n_k_solves": 60000,
+    "n_omega_solves": 60000,
+    "n_epsilon_solves": 0,
+    "model_line": "Selecting RAS turbulence model kOmegaSST",
+    "hotT": 327.6119073450001,
+    "coldT": 287.711907345,
+    "dT_from_log": 39.90000000000009,
+    "iterations": 60000,
+    "logs": [
+     "log.buoyantBoussinesqSimpleFoam",
+     "log.buoyantBoussinesqSimpleFoam.stage2"
+    ]
+   },
+   "heat_balance": {
+    "exit": 0,
+    "stderr": "",
+    "imbalance_pct": 0.001,
+    "Nu_hot_path3": 5.693455657492356,
+    "Nu_hot_path1": 5.693453187296722,
+    "path1_vs_path3_rel": 4.338657894996407e-07,
+    "report_stamped_UNVALIDATED": false
+   },
+   "measure": {
+    "time": "60000",
+    "cells": 4800,
+    "S": 0.2564137471575295,
+    "Tmid_C": [
+     32.367000565190835,
+     34.51177740348072,
+     36.65674344136221
+    ],
+    "Tprobe_K": [
+     305.5170005651908,
+     306.8360681624429,
+     307.6617774034807,
+     308.4874909216856,
+     309.8067434413622
+    ],
+    "Vup": 0.22257039505523915,
+    "Vup_x": 71.29253313599999,
+    "Vdn": -0.2226080705810727,
+    "Vdn_x": 4.707467121,
+    "asym": 0.016924600143747675,
+    "Nu_hot": 5.693453187296722,
+    "Nu_cold": 5.693395084350478,
+    "H": 2.18,
+    "W": 0.076,
+    "dT": 39.9,
+    "yplus_max": 0.3023600843149218,
+    "nut_wall_max": 0.0,
+    "nut_max": 0.0003637068100970961,
+    "nut_over_nu_max": 21.8416679989422
+   }
+  },
+  "S_hi_c_seed100": {
+   "convergence": {
+    "Nu_pp_pct": 0.03497473445418431,
+    "Nu_endpoint_pct": 0.010440796662882463,
+    "samples": 9,
+    "S_pp": 0.00026978622203013836,
+    "S_last": 0.242103918439849,
+    "Uy_pp_pct": 0.05888629244600998,
+    "Uy_last": 0.2613467316811909,
+    "criterion_a_Nu": "FAIL",
+    "criterion_b_S": "PASS",
+    "criterion_c_Uy": "FAIL",
+    "pass": false
+   },
+   "log": {
+    "n_k_solves": 100000,
+    "n_omega_solves": 100000,
+    "n_epsilon_solves": 0,
+    "model_line": "Selecting RAS turbulence model kOmegaSST",
+    "hotT": 327.6119073450001,
+    "coldT": 287.711907345,
+    "dT_from_log": 39.90000000000009,
+    "iterations": 100000,
+    "logs": [
+     "log.buoyantBoussinesqSimpleFoam",
+     "log.buoyantBoussinesqSimpleFoam.stage2"
+    ]
+   },
+   "heat_balance": {
+    "exit": 0,
+    "stderr": "",
+    "imbalance_pct": 0.0144,
+    "Nu_hot_path3": 5.667199650502401,
+    "Nu_hot_path1": 5.667203120197268,
+    "path1_vs_path3_rel": 6.122415091241367e-07,
+    "report_stamped_UNVALIDATED": false
+   },
+   "measure": {
+    "time": "140000",
+    "cells": 4800,
+    "S": 0.24266187061189734,
+    "Tmid_C": [
+     32.48588415619162,
+     34.51046736470266,
+     36.53719628303736
+    ],
+    "Tprobe_K": [
+     305.6358841561916,
+     306.87071345910744,
+     307.66046736470264,
+     308.45029784283065,
+     309.68719628303734
+    ],
+    "Vup": 0.2227290935089786,
+    "Vup_x": 71.29253313599999,
+    "Vdn": -0.22255079176290807,
+    "Vdn_x": 4.707467121,
+    "asym": 0.08005319074463114,
+    "Nu_hot": 5.667203120197268,
+    "Nu_cold": 5.670214091497016,
+    "H": 2.18,
+    "W": 0.076,
+    "dT": 39.9,
+    "yplus_max": 0.30138028746549106,
+    "nut_wall_max": 0.0,
+    "nut_max": 0.0003640232040860859,
+    "nut_over_nu_max": 21.860668392315453
+   }
+  }
+ },
+ "graded_rows": [
+  {
+   "rung": "lo",
+   "quantity": "core stratification S (bound)",
+   "reference": 0.0,
+   "solved": 0.2208694606073862,
+   "deviation": 0.2208694606073862,
+   "band": 0.07,
+   "unit": "absolute",
+   "verdict": "FAIL",
+   "note": "reference indistinguishable from zero within 0.02; the row is a bound"
+  },
+  {
+   "rung": "lo",
+   "quantity": "mid-height peak upward velocity (magnitude)",
+   "reference": 0.14,
+   "solved": 0.16230930288247794,
+   "deviation": 15.935216344627088,
+   "band": 15.0,
+   "unit": "percent",
+   "verdict": "FAIL",
+   "note": ""
+  },
+  {
+   "rung": "lo",
+   "quantity": "mid-height peak upward velocity (location)",
+   "reference": 71.2,
+   "solved": 71.003513793,
+   "deviation": 0.19648620700000663,
+   "band": 5.0,
+   "unit": "mm",
+   "verdict": "PASS",
+   "note": ""
+  },
+  {
+   "rung": "lo",
+   "quantity": "mid-height peak downward velocity (magnitude)",
+   "reference": -0.135,
+   "solved": -0.16230416978520315,
+   "deviation": 20.225310952002324,
+   "band": 15.0,
+   "unit": "percent",
+   "verdict": "FAIL",
+   "note": ""
+  },
+  {
+   "rung": "lo",
+   "quantity": "mid-height peak downward velocity (location)",
+   "reference": 6.2,
+   "solved": 4.9964863930000005,
+   "deviation": 1.2035136069999997,
+   "band": 5.0,
+   "unit": "mm",
+   "verdict": "PASS",
+   "note": ""
+  },
+  {
+   "rung": "lo",
+   "quantity": "mid-width temperature at y/H = 0.30",
+   "reference": 25.07,
+   "solved": 23.862302768962536,
+   "deviation": 1.2076972310374643,
+   "band": 1.0,
+   "unit": "K",
+   "verdict": "FAIL",
+   "note": ""
+  },
+  {
+   "rung": "lo",
+   "quantity": "mid-width temperature at y/H = 0.50",
+   "reference": 25.26,
+   "solved": 24.770319405242333,
+   "deviation": 0.4896805947576688,
+   "band": 1.0,
+   "unit": "K",
+   "verdict": "PASS",
+   "note": ""
+  },
+  {
+   "rung": "lo",
+   "quantity": "mid-width temperature at y/H = 0.70",
+   "reference": 25.39,
+   "solved": 25.67709405450813,
+   "deviation": 0.2870940545081311,
+   "band": 1.0,
+   "unit": "K",
+   "verdict": "PASS",
+   "note": ""
+  },
+  {
+   "rung": "lo",
+   "quantity": "antisymmetry defect of the two peaks",
+   "reference": 3.6,
+   "solved": 0.003162540398874435,
+   "deviation": 0.003162540398874435,
+   "band": 10.0,
+   "unit": "percent",
+   "verdict": "PASS",
+   "note": "graded on the solve's own defect, not on its difference from the experiment's; the reference column is the experiment's own defect"
+  },
+  {
+   "rung": "hi",
+   "quantity": "core stratification S",
+   "reference": 0.095,
+   "solved": 0.23527034341009084,
+   "deviation": 0.14027034341009084,
+   "band": 0.05,
+   "unit": "absolute",
+   "verdict": "FAIL",
+   "note": ""
+  },
+  {
+   "rung": "hi",
+   "quantity": "mid-height peak upward velocity (magnitude)",
+   "reference": 0.19,
+   "solved": 0.22111407239346276,
+   "deviation": 16.37582757550671,
+   "band": 15.0,
+   "unit": "percent",
+   "verdict": "FAIL",
+   "note": ""
+  },
+  {
+   "rung": "hi",
+   "quantity": "mid-height peak upward velocity (location)",
+   "reference": 70.2,
+   "solved": 71.649944156,
+   "deviation": 1.4499441560000008,
+   "band": 5.0,
+   "unit": "mm",
+   "verdict": "PASS",
+   "note": ""
+  },
+  {
+   "rung": "hi",
+   "quantity": "mid-height peak downward velocity (magnitude)",
+   "reference": -0.189,
+   "solved": -0.22112631229411372,
+   "deviation": 16.998048832864406,
+   "band": 15.0,
+   "unit": "percent",
+   "verdict": "FAIL",
+   "note": ""
+  },
+  {
+   "rung": "hi",
+   "quantity": "mid-height peak downward velocity (location)",
+   "reference": 5.0,
+   "solved": 4.350056015,
+   "deviation": 0.6499439850000002,
+   "band": 5.0,
+   "unit": "mm",
+   "verdict": "PASS",
+   "note": ""
+  },
+  {
+   "rung": "hi",
+   "quantity": "mid-width temperature at y/H = 0.30",
+   "reference": 34.58,
+   "solved": 32.551115674967434,
+   "deviation": 2.028884325032564,
+   "band": 2.0,
+   "unit": "K",
+   "verdict": "FAIL",
+   "note": ""
+  },
+  {
+   "rung": "hi",
+   "quantity": "mid-width temperature at y/H = 0.50",
+   "reference": 34.74,
+   "solved": 34.5131977158926,
+   "deviation": 0.2268022841074,
+   "band": 2.0,
+   "unit": "K",
+   "verdict": "PASS",
+   "note": ""
+  },
+  {
+   "rung": "hi",
+   "quantity": "mid-width temperature at y/H = 0.70",
+   "reference": 36.02,
+   "solved": 36.480778776314935,
+   "deviation": 0.4607787763149318,
+   "band": 2.0,
+   "unit": "K",
+   "verdict": "PASS",
+   "note": ""
+  },
+  {
+   "rung": "hi",
+   "quantity": "antisymmetry defect of the two peaks",
+   "reference": 0.5,
+   "solved": 0.005535252916752736,
+   "deviation": 0.005535252916752736,
+   "band": 10.0,
+   "unit": "percent",
+   "verdict": "PASS",
+   "note": "graded on the solve's own defect, not on its difference from the experiment's; the reference column is the experiment's own defect"
+  }
+ ],
+ "controls": {
+  "C1": {
+   "kind": "RECOGNITION",
+   "prediction": "S_C1 >= 0.30 across the whole window, the S row FAILs; in-log: laminar model, zero k/omega solves",
+   "S_window_min": 0.41508208228198074,
+   "S_window_max": 0.5998085705117943,
+   "samples": 9,
+   "S_final": 0.41572934905244446,
+   "prediction_met": true,
+   "S_row_deviation": 0.32072934905244443,
+   "S_row_band": 0.05,
+   "S_row_verdict": "FAIL",
+   "in_log_model": "Selecting turbulence model type laminar",
+   "in_log_k_solves": 0,
+   "in_log_omega_solves": 0,
+   "converged": false,
+   "vacuity_check": {
+    "statement": "C1 would be vacuous if the graded kOmegaSST case produced the same laminarised core; it does not.",
+    "S_graded_case": 0.24275483983896456,
+    "separation": 0.1729745092134799,
+    "vacuous": false
+   }
+  },
+  "C2": {
+   "kind": "RECOGNITION at the gate's own scale",
+   "exponent_from_reference_table": {
+    "n_up": 0.6005570317254378,
+    "n_dn": 0.6616991164342632
+   },
+   "predicted_shift_pct": [
+    17.06565015717525,
+    18.958701656024914
+   ],
+   "measured_shift_pct": {
+    "up": 11.89712081325387,
+    "down": 11.821945288274405
+   },
+   "prediction_met": false,
+   "corrected_exponent_POST_HOC": {
+    "n_up": 0.4332253349853876,
+    "n_dn": 0.4943674196942129
+   },
+   "corrected_prediction_pct_POST_HOC": [
+    12.037432292032268,
+    13.84917321554775
+   ],
+   "corrected_prediction_met": true,
+   "corrected_note": "This second derivation was made AFTER the measurement was read. It is an explanation, NOT a registered prediction, and it is labelled so it can never be read as one.",
+   "velocity_row_deviation_pct": 31.079039676786678,
+   "velocity_row_band_pct": 15.0,
+   "velocity_row_verdict": "FAIL",
+   "baseline_velocity_row_deviation_pct": 17.142459720251157,
+   "limitation": "The graded rung ITSELF fails the velocity row, so C2 cannot show a PASS flipping to FAIL on that row. What it shows is that the row RESPONDS at the gate's own scale, and that the plant is in the running solver. The pass-to-fail flip is carried by C3, which drives the real comparator.",
+   "in_log_dT": 51.870000000000175,
+   "in_log_dT_baseline": 39.90000000000009,
+   "in_log_dT_ratio": 1.3000000000000014,
+   "converged": true
+  },
+  "C3": {
+   "kind": "REACHABILITY of every band, in BOTH directions",
+   "every_row_reachable": true,
+   "rows": [
+    {
+     "row": "core stratification S (bound)",
+     "rung": "lo",
+     "base_verdict": "FAIL",
+     "perturbation": "onto the reference",
+     "perturbed_value": 0.0,
+     "regraded_verdict": "PASS",
+     "required": "PASS",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "mid-height peak upward velocity (magnitude)",
+     "rung": "lo",
+     "base_verdict": "FAIL",
+     "perturbation": "onto the reference",
+     "perturbed_value": 0.14,
+     "regraded_verdict": "PASS",
+     "required": "PASS",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "mid-height peak upward velocity (location)",
+     "rung": "lo",
+     "base_verdict": "PASS",
+     "perturbation": "away from the reference by 1.5 bands",
+     "perturbed_value": 63.503513792999996,
+     "regraded_verdict": "FAIL",
+     "required": "FAIL",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "mid-height peak downward velocity (magnitude)",
+     "rung": "lo",
+     "base_verdict": "FAIL",
+     "perturbation": "onto the reference",
+     "perturbed_value": -0.135,
+     "regraded_verdict": "PASS",
+     "required": "PASS",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "mid-height peak downward velocity (location)",
+     "rung": "lo",
+     "base_verdict": "PASS",
+     "perturbation": "away from the reference by 1.5 bands",
+     "perturbed_value": -2.5035136069999995,
+     "regraded_verdict": "FAIL",
+     "required": "FAIL",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "mid-width temperature at y/H = 0.30",
+     "rung": "lo",
+     "base_verdict": "FAIL",
+     "perturbation": "onto the reference",
+     "perturbed_value": 25.07,
+     "regraded_verdict": "PASS",
+     "required": "PASS",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "mid-width temperature at y/H = 0.50",
+     "rung": "lo",
+     "base_verdict": "PASS",
+     "perturbation": "away from the reference by 1.5 bands",
+     "perturbed_value": 23.270319405242333,
+     "regraded_verdict": "FAIL",
+     "required": "FAIL",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "mid-width temperature at y/H = 0.70",
+     "rung": "lo",
+     "base_verdict": "PASS",
+     "perturbation": "away from the reference by 1.5 bands",
+     "perturbed_value": 27.17709405450813,
+     "regraded_verdict": "FAIL",
+     "required": "FAIL",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "antisymmetry defect of the two peaks",
+     "rung": "lo",
+     "base_verdict": "PASS",
+     "perturbation": "away from the reference by 1.5 bands",
+     "perturbed_value": 15.003162540398874,
+     "regraded_verdict": "FAIL",
+     "required": "FAIL",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "core stratification S",
+     "rung": "hi",
+     "base_verdict": "FAIL",
+     "perturbation": "onto the reference",
+     "perturbed_value": 0.095,
+     "regraded_verdict": "PASS",
+     "required": "PASS",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "mid-height peak upward velocity (magnitude)",
+     "rung": "hi",
+     "base_verdict": "FAIL",
+     "perturbation": "onto the reference",
+     "perturbed_value": 0.19,
+     "regraded_verdict": "PASS",
+     "required": "PASS",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "mid-height peak upward velocity (location)",
+     "rung": "hi",
+     "base_verdict": "PASS",
+     "perturbation": "away from the reference by 1.5 bands",
+     "perturbed_value": 79.149944156,
+     "regraded_verdict": "FAIL",
+     "required": "FAIL",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "mid-height peak downward velocity (magnitude)",
+     "rung": "hi",
+     "base_verdict": "FAIL",
+     "perturbation": "onto the reference",
+     "perturbed_value": -0.189,
+     "regraded_verdict": "PASS",
+     "required": "PASS",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "mid-height peak downward velocity (location)",
+     "rung": "hi",
+     "base_verdict": "PASS",
+     "perturbation": "away from the reference by 1.5 bands",
+     "perturbed_value": -3.149943985,
+     "regraded_verdict": "FAIL",
+     "required": "FAIL",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "mid-width temperature at y/H = 0.30",
+     "rung": "hi",
+     "base_verdict": "FAIL",
+     "perturbation": "onto the reference",
+     "perturbed_value": 34.58,
+     "regraded_verdict": "PASS",
+     "required": "PASS",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "mid-width temperature at y/H = 0.50",
+     "rung": "hi",
+     "base_verdict": "PASS",
+     "perturbation": "away from the reference by 1.5 bands",
+     "perturbed_value": 31.513197715892602,
+     "regraded_verdict": "FAIL",
+     "required": "FAIL",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "mid-width temperature at y/H = 0.70",
+     "rung": "hi",
+     "base_verdict": "PASS",
+     "perturbation": "away from the reference by 1.5 bands",
+     "perturbed_value": 39.480778776314935,
+     "regraded_verdict": "FAIL",
+     "required": "FAIL",
+     "flipped": true,
+     "other_rows_that_moved": []
+    },
+    {
+     "row": "antisymmetry defect of the two peaks",
+     "rung": "hi",
+     "base_verdict": "PASS",
+     "perturbation": "away from the reference by 1.5 bands",
+     "perturbed_value": 15.005535252916752,
+     "regraded_verdict": "FAIL",
+     "required": "FAIL",
+     "flipped": true,
+     "other_rows_that_moved": []
+    }
+   ],
+   "n_rows": 18
+  },
+  "C4": {
+   "kind": "RECOGNITION of a confound",
+   "prediction": "|dS| <= 0.005 and |dV|/V <= 1.5 percent",
+   "dS": 9.296922706722444e-05,
+   "dV_pct": 0.07117740986835042,
+   "prediction_met": true,
+   "k_seed_baseline": 0.0003625876728,
+   "k_seed_control": 0.03625876728,
+   "converged": false
+  },
+  "attribution": {
+   "S": {
+    "E": 0.14027034341009084,
+    "U_ref": 0.02,
+    "D_mesh": 0.0074844964288737215,
+    "D_model": 0.2166437694312062,
+    "D_bc": 0.01365890731856495,
+    "verdict": "PRIME SUSPECT: model (D = 0.2166 against E = 0.1403, within a factor of 2)"
+   },
+   "Vup": {
+    "E": 0.031114072393462755,
+    "U_ref": 0.00684,
+    "D_mesh": 0.001456601075014441,
+    "D_model": 0.09443370871671469,
+    "D_bc": 2.78413238047337e-07,
+    "verdict": "PRIME SUSPECT: model (D = 0.09443 against E = 0.03111, within a factor of 2)"
+   },
+   "Vdn": {
+    "E": 0.032126312294113724,
+    "U_ref": 0.006803999999999999,
+    "D_mesh": 0.0016110520082243396,
+    "D_model": 0.09444647436941658,
+    "D_bc": 0.00012929372126535554,
+    "verdict": "PRIME SUSPECT: model (D = 0.09445 against E = 0.03213, within a factor of 2)"
+   }
+  },
+  "boussinesq": {
+   "beta_dT_lo": 0.065789,
+   "beta_dT_hi": 0.129688,
+   "standing_limit": 0.1,
+   "hi_rung_exceeds_standing_limit": true,
+   "velocity_deviation_pct_lo": 15.935216344627088,
+   "velocity_deviation_pct_hi": 16.37582757550671,
+   "expected_if_first_order_dominant": "hi deviation about twice lo deviation, since beta.dT is twice as large",
+   "measured_ratio": 1.027650156819376,
+   "verdict": "Boussinesq error is NOT the dominant cause of the velocity deviation: it is essentially UNCHANGED (ratio 1.03) across a factor-of-two change in beta.dT. It remains a DECLARED LIMITATION of the hi rung, which runs above the lab's own 0.1 line, and it is not exonerated for quantities not measured here.",
+   "k2e_caution": "repo b845b603; numbers NOT imported, geometry differs"
+  },
+  "buoyancy_term_prediction": {
+   "registered": "OpenFOAM incompressible RAS models carry no buoyancy production/destruction term in k; in a stably stratified core that term is a SINK, so omitting it should bias S LOW.",
+   "S_kOmegaSST": 0.23527034341009084,
+   "S_LaunderSharmaKE": 0.01862657397888464,
+   "S_reference": 0.095,
+   "outcome": "FALSIFIED for kOmegaSST: S came out ABOVE the reference, not below, so the missing sink is exonerated as the dominant cause for that model. The two models lack the SAME term and land on OPPOSITE sides of the reference, which is itself the disproof that the shared missing term dominates."
+  }
+ },
+ "gate_table_md": "Reference values and pass bands parsed at run time out of `docs/campaigns/F14-cooling-ladder/K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md`, Sections 2.3 and 2.4, and re-derived independently from the primary ERCOFTAC Case 079 data files in `../reference-data/betts_bokhari/`.  \nReference tier: PRIMARY EXPERIMENTAL DATA (the database's own files; the paper is paywalled and was not read).  \nDeviation is graded on the FINE mesh of the mandatory pair; the COARSE mesh is carried in every row.\n\n| Ra | quantity | reference | coarse mesh | FINE mesh | **deviation** | band | unit | verdict |\n| ---: | --- | ---: | ---: | ---: | ---: | ---: | --- | --- |\n| 0.86e6 | core stratification S (bound) | 0 | 0.2287 | 0.2209 | **0.2209** | 0.07 | absolute | FAIL |\n| 0.86e6 | mid-height peak upward velocity (magnitude) | 0.14 | 0.1631 | 0.1623 | **15.9352** | 15 | percent | FAIL |\n| 0.86e6 | mid-height peak upward velocity (location) | 71.2 | 71.2925 | 71.0035 | **0.1965** | 5 | mm | PASS |\n| 0.86e6 | mid-height peak downward velocity (magnitude) | -0.135 | -0.1631 | -0.1623 | **20.2253** | 15 | percent | FAIL |\n| 0.86e6 | mid-height peak downward velocity (location) | 6.2 | 4.7075 | 4.9965 | **1.2035** | 5 | mm | PASS |\n| 0.86e6 | mid-width temperature at y/H = 0.30 | 25.07 | 23.8308 | 23.8623 | **1.2077** | 1 | K | FAIL |\n| 0.86e6 | mid-width temperature at y/H = 0.50 | 25.26 | 24.7704 | 24.7703 | **0.4897** | 1 | K | PASS |\n| 0.86e6 | mid-width temperature at y/H = 0.70 | 25.39 | 25.7090 | 25.6771 | **0.2871** | 1 | K | PASS |\n| 0.86e6 | antisymmetry defect of the two peaks | 3.6 | 0.0026 | 0.0032 | **0.0032** | 10 | percent | PASS |\n| 1.43e6 | core stratification S | 0.095 | 0.2428 | 0.2353 | **0.1403** | 0.05 | absolute | FAIL |\n| 1.43e6 | mid-height peak upward velocity (magnitude) | 0.19 | 0.2226 | 0.2211 | **16.3758** | 15 | percent | FAIL |\n| 1.43e6 | mid-height peak upward velocity (location) | 70.2 | 71.2925 | 71.6499 | **1.4499** | 5 | mm | PASS |\n| 1.43e6 | mid-height peak downward velocity (magnitude) | -0.189 | -0.2227 | -0.2211 | **16.9980** | 15 | percent | FAIL |\n| 1.43e6 | mid-height peak downward velocity (location) | 5 | 4.7075 | 4.3501 | **0.6499** | 5 | mm | PASS |\n| 1.43e6 | mid-width temperature at y/H = 0.30 | 34.58 | 32.4863 | 32.5511 | **2.0289** | 2 | K | FAIL |\n| 1.43e6 | mid-width temperature at y/H = 0.50 | 34.74 | 34.5099 | 34.5132 | **0.2268** | 2 | K | PASS |\n| 1.43e6 | mid-width temperature at y/H = 0.70 | 36.02 | 36.5391 | 36.4808 | **0.4608** | 2 | K | PASS |\n| 1.43e6 | antisymmetry defect of the two peaks | 0.5 | 0.0748 | 0.0055 | **0.0055** | 10 | percent | PASS |\n\n**GATE FAIL** -- 8 of 18 graded rows failed.",
+ "C3_every_row_reachable": true,
+ "C3_mutation": [
+  {
+   "row": "core stratification S (bound)",
+   "rung": "lo",
+   "base_verdict": "FAIL",
+   "perturbation": "onto the reference",
+   "perturbed_value": 0.0,
+   "regraded_verdict": "PASS",
+   "required": "PASS",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "mid-height peak upward velocity (magnitude)",
+   "rung": "lo",
+   "base_verdict": "FAIL",
+   "perturbation": "onto the reference",
+   "perturbed_value": 0.14,
+   "regraded_verdict": "PASS",
+   "required": "PASS",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "mid-height peak upward velocity (location)",
+   "rung": "lo",
+   "base_verdict": "PASS",
+   "perturbation": "away from the reference by 1.5 bands",
+   "perturbed_value": 63.503513792999996,
+   "regraded_verdict": "FAIL",
+   "required": "FAIL",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "mid-height peak downward velocity (magnitude)",
+   "rung": "lo",
+   "base_verdict": "FAIL",
+   "perturbation": "onto the reference",
+   "perturbed_value": -0.135,
+   "regraded_verdict": "PASS",
+   "required": "PASS",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "mid-height peak downward velocity (location)",
+   "rung": "lo",
+   "base_verdict": "PASS",
+   "perturbation": "away from the reference by 1.5 bands",
+   "perturbed_value": -2.5035136069999995,
+   "regraded_verdict": "FAIL",
+   "required": "FAIL",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "mid-width temperature at y/H = 0.30",
+   "rung": "lo",
+   "base_verdict": "FAIL",
+   "perturbation": "onto the reference",
+   "perturbed_value": 25.07,
+   "regraded_verdict": "PASS",
+   "required": "PASS",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "mid-width temperature at y/H = 0.50",
+   "rung": "lo",
+   "base_verdict": "PASS",
+   "perturbation": "away from the reference by 1.5 bands",
+   "perturbed_value": 23.270319405242333,
+   "regraded_verdict": "FAIL",
+   "required": "FAIL",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "mid-width temperature at y/H = 0.70",
+   "rung": "lo",
+   "base_verdict": "PASS",
+   "perturbation": "away from the reference by 1.5 bands",
+   "perturbed_value": 27.17709405450813,
+   "regraded_verdict": "FAIL",
+   "required": "FAIL",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "antisymmetry defect of the two peaks",
+   "rung": "lo",
+   "base_verdict": "PASS",
+   "perturbation": "away from the reference by 1.5 bands",
+   "perturbed_value": 15.003162540398874,
+   "regraded_verdict": "FAIL",
+   "required": "FAIL",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "core stratification S",
+   "rung": "hi",
+   "base_verdict": "FAIL",
+   "perturbation": "onto the reference",
+   "perturbed_value": 0.095,
+   "regraded_verdict": "PASS",
+   "required": "PASS",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "mid-height peak upward velocity (magnitude)",
+   "rung": "hi",
+   "base_verdict": "FAIL",
+   "perturbation": "onto the reference",
+   "perturbed_value": 0.19,
+   "regraded_verdict": "PASS",
+   "required": "PASS",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "mid-height peak upward velocity (location)",
+   "rung": "hi",
+   "base_verdict": "PASS",
+   "perturbation": "away from the reference by 1.5 bands",
+   "perturbed_value": 79.149944156,
+   "regraded_verdict": "FAIL",
+   "required": "FAIL",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "mid-height peak downward velocity (magnitude)",
+   "rung": "hi",
+   "base_verdict": "FAIL",
+   "perturbation": "onto the reference",
+   "perturbed_value": -0.189,
+   "regraded_verdict": "PASS",
+   "required": "PASS",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "mid-height peak downward velocity (location)",
+   "rung": "hi",
+   "base_verdict": "PASS",
+   "perturbation": "away from the reference by 1.5 bands",
+   "perturbed_value": -3.149943985,
+   "regraded_verdict": "FAIL",
+   "required": "FAIL",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "mid-width temperature at y/H = 0.30",
+   "rung": "hi",
+   "base_verdict": "FAIL",
+   "perturbation": "onto the reference",
+   "perturbed_value": 34.58,
+   "regraded_verdict": "PASS",
+   "required": "PASS",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "mid-width temperature at y/H = 0.50",
+   "rung": "hi",
+   "base_verdict": "PASS",
+   "perturbation": "away from the reference by 1.5 bands",
+   "perturbed_value": 31.513197715892602,
+   "regraded_verdict": "FAIL",
+   "required": "FAIL",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "mid-width temperature at y/H = 0.70",
+   "rung": "hi",
+   "base_verdict": "PASS",
+   "perturbation": "away from the reference by 1.5 bands",
+   "perturbed_value": 39.480778776314935,
+   "regraded_verdict": "FAIL",
+   "required": "FAIL",
+   "flipped": true,
+   "other_rows_that_moved": []
+  },
+  {
+   "row": "antisymmetry defect of the two peaks",
+   "rung": "hi",
+   "base_verdict": "PASS",
+   "perturbation": "away from the reference by 1.5 bands",
+   "perturbed_value": 15.005535252916752,
+   "regraded_verdict": "FAIL",
+   "required": "FAIL",
+   "flipped": true,
+   "other_rows_that_moved": []
+  }
+ ],
+ "nusselt_UNGRADED": {
+  "T_lo_c": {
+   "Nu_hot": 4.856125546205091,
+   "Nu_cold": 4.852710776373874
+  },
+  "T_lo_f": {
+   "Nu_hot": 4.870511157034632,
+   "Nu_cold": 4.865431197416059
+  },
+  "T_hi_c": {
+   "Nu_hot": 5.668427529408119,
+   "Nu_cold": 5.669393575156821
+  },
+  "T_hi_f": {
+   "Nu_hot": 5.693675170111101,
+   "Nu_cold": 5.699291492098775
+  },
+  "M_hi_f_LS": {
+   "Nu_hot": 7.984068154348912,
+   "Nu_cold": 7.989065574538834
+  },
+  "C1_hi_c_laminar": {
+   "Nu_hot": 4.750692449555163,
+   "Nu_cold": 4.688795227158199
+  },
+  "C2_hi_c_Ra130": {
+   "Nu_hot": 6.144921061321157,
+   "Nu_cold": 6.147855867084648
+  },
+  "B_hi_c_adiabatic": {
+   "Nu_hot": 5.693453187296722,
+   "Nu_cold": 5.693395084350478
+  },
+  "S_hi_c_seed100": {
+   "Nu_hot": 5.667203120197268,
+   "Nu_cold": 5.670214091497016
+  }
+ },
+ "control_predictions": "K0c TURBULENT RUNG -- CONTROL PREDICTIONS, REGISTERED BEFORE ANY CONTROL RESULT\n===============================================================================\nF14 cooling ladder, gate K0c Section 2.  Nothing below was written after a\ncontrol result was read.  This whole file is reproduced verbatim into\ngate_k0ct.json so the prediction and the outcome travel together.\n\nKIND definitions, carried unchanged from the laminar rung:\n  REACHABILITY -- the FAIL branch of this check is reachable at all; the band is\n                  not decorative.\n  RECOGNITION  -- the check tells a physically wrong answer from a right one, at\n                  the magnitude the gate cares about.\n  SENSITIVITY  -- not a control.  A measured difference used to attribute a\n                  deviation to a cause.  It cannot pass or fail.\n\nAND THE TRAP THIS RUNG INHERITS: KV1b passed while proving nothing, because a\nuniform field made its planted sum identically zero.  Every control below is\ntherefore stated with the thing that would make it vacuous, and that thing is\nchecked.\n\n-------------------------------------------------------------------------------\nC1 -- TURBULENCE OFF.  KIND: RECOGNITION.\nCase C1_hi_c_laminar: exact twin of T_hi_c with constant/turbulenceProperties\nset to `simulationType laminar` and nothing else changed.\n\nPREDICTION.  Without a turbulence model the cavity runs a laminar\nboundary-layer regime whose core is strongly and stably stratified.  The\nlaminar rung of this same gate measured core stratification S between +0.5187\n(Ra 1e3) and +1.0368 (Ra 1e5) on the square cavity, by the same definition\n(K0c_RESULTS.md, \"Core stratification -- MEASURED, UNGRADED\").  Predicted here:\n\n    S_C1  >=  0.30      -- at least 3x the reference 0.095, at least 4x outside\n                           the gate's 0.05 band\n    gate verdict on the S row for this case: FAIL\n\nWHAT WOULD MAKE IT VACUOUS: if the graded kOmegaSST case ALSO produces S >= 0.30,\nC1 distinguishes nothing, because both answers would be the laminarised one.\nThat is checked and reported either way.\nIN-LOG WITNESS OF THE PLANT: the running solver prints \"Selecting turbulence\nmodel type laminar\" and performs ZERO k or omega solves.  A plant living only in\na dictionary would leave the k/omega solve lines in the log.\n\n-------------------------------------------------------------------------------\nC2 -- RAYLEIGH NUMBER RAISED 30 PERCENT.  KIND: RECOGNITION AT THE GATE'S OWN SCALE.\nCase C2_hi_c_Ra130: exact twin of T_hi_c with dT (hence Ra) multiplied by 1.30.\n\nTHE PREDICTION IS DERIVED FROM THE REFERENCE'S OWN TWO-Ra PAIR, BEFORE THE RUN,\nand from nothing this rung produced.  Spec Section 2.3 gives the mid-height peak\nmean velocities at both Rayleigh numbers:\n\n    up-peak    +0.140 m/s at Ra 0.86e6   ->  +0.190 m/s at Ra 1.43e6\n    down-peak  -0.135 m/s at Ra 0.86e6   ->  -0.189 m/s at Ra 1.43e6\n\nso V_peak ~ Ra^n with\n    n_up = ln(0.190/0.140) / ln(1.43/0.86) = 0.6004\n    n_dn = ln(0.189/0.135) / ln(1.43/0.86) = 0.6615\n\nA 30 percent rise in Ra therefore gives 1.30^n:\n\n    PREDICTED shift in peak |V| against this case's own coarse twin:\n        +17.4 percent to +19.4 percent\n    which EXCEEDS the gate's 15 percent band on the velocity rows.\n    gate verdict on the velocity rows for this case: FAIL\n\nTHIS IS THE LOAD-BEARING CONTROL.  A 15 percent band that could not see a 30\npercent error in the driving parameter would make the rung's pass mean nothing.\nIN-LOG WITNESS OF THE PLANT: the hotT and coldT function objects make the\nRUNNING SOLVER print its own wall temperatures every 50 iterations.  Their\ndifference must read 51.87 K against the graded case's 39.90 K, a ratio of\nexactly 1.300.  A plant living only in 0.orig/T would not move those lines.\n\n-------------------------------------------------------------------------------\nC3 -- COMPARATOR MUTATION.  KIND: REACHABILITY of every band, one at a time.\nNo compute.\n\nPREDICTION: perturbing each solved value in turn by 1.5x its own band, in the\ndirection AWAY from the reference, flips THAT row and only that row to FAIL.\n    every_row_reachable = True\nC1 and C2 show that SOME rows can fail.  They say nothing about whether the\nother rows are wired to pass.  This is that check.\n\n-------------------------------------------------------------------------------\nC4 -- TURBULENCE SEED RAISED 100x.  KIND: RECOGNITION OF A CONFOUND.\nCase S_hi_c_seed100: exact twin of T_hi_c with the initial k multiplied by 100\n(and omega seeded consistently from the same mixing length).\n\nA RANS solve of a weakly turbulent buoyant cavity can be seed-determined: too\nlow a seed relaminarises, too high a seed leaves an eddy viscosity that never\ndecays.  Either way the \"answer\" would be an initial condition.\n\nPREDICTION: the converged answer does not move by a tenth of its own band.\n    |S_seed100 - S_baseline|            <= 0.005      (a tenth of the 0.05 band)\n    |V_peak_seed100/V_peak_baseline - 1| <= 1.5 percent (a tenth of the 15 percent band)\nIf either moves more, the answer is seed-determined and the graded rows are\nREFUSED, not graded.\n\n-------------------------------------------------------------------------------\nB -- END-WALL BOUNDARY CONDITION.  KIND: SENSITIVITY (not a control).\nCase B_hi_c_adiabatic: the two measured rubber-wall temperature profiles are\nreplaced by zeroGradient.\n\nREGISTERED IN ADVANCE: S moves by more than 0.02, the data's own resolvable\nincrement on S.  The purpose is to put a MEASURED number on the boundary\ncondition's leverage, so the attribution rule below is quantitative.\n\n-------------------------------------------------------------------------------\nM -- TURBULENCE MODEL.  KIND: SENSITIVITY (not a control).\nCase M_hi_f_LS: exact twin of T_hi_f with RASModel LaunderSharmaKE instead of\nkOmegaSST, differing in constant/turbulenceProperties and the k/epsilon vs\nk/omega field pair and in nothing else.\n\nNO VALUE IS PREDICTED.  What is registered before the run is the rule below.\n\n===============================================================================\nTHE ATTRIBUTION RULE, REGISTERED BEFORE ANY RESULT IS READ\n===============================================================================\nA deviation from the reference could be the mesh, the model, the boundary\nconditions, or the reference's own uncertainty.  A rung that cannot tell them\napart has not validated anything.  So, for each graded quantity q:\n\n    D_mesh  = |q(fine)          - q(coarse)|          same case\n    D_model = |q(kOmegaSST)     - q(LaunderSharmaKE)| fine mesh, hi Ra\n    D_bc    = |q(measured ends) - q(adiabatic ends)|  coarse mesh, hi Ra\n    U_ref   = the reference's OWN increment: 0.02 on S (its fit residual), and\n              3.6 percent on the velocity peaks (its measured antisymmetry defect)\n    E       = |q(solve) - q(reference)|\n\n  1. E <= U_ref                      -> agreement.  Nothing to attribute.\n  2. E > U_ref, and one of D_mesh, D_model, D_bc is within a factor of 2 of E\n                                     -> that one is the prime suspect, named.\n  3. E > U_ref and ALL of D_mesh, D_model, D_bc are below E/2\n                                     -> none of the three explains it.  The\n                                        deviation is charged to what is COMMON\n                                        to every case: the model CLASS, or the\n                                        case setup.\n\nAND ONE DIRECTIONAL PREDICTION, WHICH IS FALSIFIABLE AND IS REGISTERED NOW.\nOpenFOAM's INCOMPRESSIBLE RAS models carry NO buoyancy production or destruction\nterm in the k equation.  (`buoyantKEpsilon` exists only in the COMPRESSIBLE\nfamily -- src/TurbulenceModels/compressible/RAS/buoyantKEpsilon -- and cannot be\nselected by buoyantBoussinesqSimpleFoam, which constructs an\nincompressible::turbulenceModel.  Verified by reading the installed source, not\nrecalled.)  In a STABLY stratified core that term is a SINK: G_b = -beta g.grad(T)\nnut/Prt < 0.  Omitting a sink over-predicts core turbulence, over-mixes the core,\nand therefore biases the core stratification S LOW.\n\n    IF S comes out BELOW 0.095 in BOTH models by a similar amount, the missing\n    buoyancy sink is the prime suspect and the model twin CANNOT separate it,\n    because both models are missing the same term.\n    IF S comes out ABOVE 0.095, the missing sink is EXONERATED and the cause is\n    elsewhere.\n\n===============================================================================\nCONVERGENCE, REGISTERED BEFORE THE RUN\n===============================================================================\nStanding criterion, docs/physics_rules.yaml thermal block: PEAK-TO-PEAK SPREAD\nof the graded quantity over a FIXED window of 400 outer iterations sampled every\n50 (9 samples, the block's own minimum).  Not residuals.  Not an endpoint\ndifference.  Not a fraction of the run.\n\nApplied here to THREE quantities, ALL of which must pass:\n  (a) Nu_avg on the hot wall  -- p-p spread < 0.02 percent  (the standing number)\n  (b) core stratification S   -- p-p spread < 0.001 absolute (the S band 0.05\n      divided by 50, which is the same 1/50 rule the standing number itself was\n      derived by, applied to the quantity this gate actually grades)\n  (c) peak |Uy| in the domain -- p-p spread < 0.02 percent\n\nA case failing any of the three is REFUSED and not graded.  The criterion is not\nloosened and no averaging scheme is invented.  If a graded case cannot be\nconverged, that is reported as the result.\nregistered 2026-08-18T03:45:03Z\n",
+ "cost_proposal": "K0c TURBULENT RUNG -- COMPUTE COST ESTIMATE, WRITTEN BEFORE ANY GRADED RUN\n==========================================================================\nRegistered 2026-08-18. F14 cooling ladder, gate K0c Section 2.\nAuthorization: up to 150 core-minutes of a 300 core-minute overnight thermal\nceiling, 100 of which two other rungs are already drawing.\n\nTHE BASIS IS MEASURED, NOT RECALLED\n-----------------------------------\nTwo scratch pilots were run in the session scratchpad, OUTSIDE the case tree,\nbefore this estimate was written.  Both are charged below.  Machine: AMD EPYC\n9R14, single-core solves throughout, so core-minutes = wall clock.\n\n  mesh          cells    iterations   solver ExecutionTime   s/iteration   s/(cell.iteration)\n  40 x 120       4800       300            2.65 s            8.83e-03        1.84e-06\n  64 x 192      12288       300            6.39 s            2.13e-02        1.73e-06\n\nThe two rates agree to 6 percent per cell, which is the check that the number\nis a rate and not an artefact of one mesh.\n\nCONTINGENCY ON THE RATE: 1.6x.  The pilots are 300 iterations into a developing\nflow, where p_rgh converged in 3 PCG sweeps.  A developed buoyant field takes\nmore, and the rate is therefore an underestimate of the steady-state rate by an\namount this factor covers.  It is a stated multiplier, not a hidden one.\n\nITERATION COUNTS, and why they are what they are: the laminar rung of this same\ngate needed 3000 iterations at Ra 1e3 and 12000 at Ra 1e6 on a 192x192 mesh,\nand every one of its fine meshes had to be CONTINUED because an under-relaxed\nSIMPLE outer loop moves the smooth modes at a rate falling off like 1/N^2.\nThis cavity is 28.7 aspect ratios tall, so its slowest mode is longer still.\n20000 outer iterations are budgeted on every coarse mesh and 30000 on every\nfine mesh, which is roughly 2.5x the laminar rung's worst case.\n\nTHE ESTIMATE\n------------\n  coarse case: 20000 x 8.83e-03 s x 1.6 =  282.6 s =  4.71 core-minutes\n  fine case:   30000 x 2.13e-02 s x 1.6 = 1022.4 s = 17.04 core-minutes\n\n  6 coarse cases (T_lo_c, T_hi_c, C1, C2, B, S)          28.3 core-minutes\n  3 fine cases   (T_lo_f, T_hi_f, M_hi_f_LS)             51.1 core-minutes\n  pilots already spent (3.58 s + 7.61 s wall)             0.19 core-minutes\n                                                        --------------------\n  first pass                                             79.6 core-minutes\n  continuation reserve, one further stage at half length\n    on any case that misses the convergence criterion\n    (the laminar rung needed this on every fine mesh)     40.0 core-minutes\n                                                        --------------------\n  TOTAL PROPOSED                                        119.6 core-minutes\n\n  AUTHORIZED CEILING                                    150   core-minutes\n  HARD STOP                                             140   core-minutes\n\nSTOP RULE.  If the running total reaches 140 core-minutes, the remaining cases\nare abandoned and the rung reports what it has, with the unrun cases named.  A\nreduced run is not silently relabelled as the rung.\n\nWHAT WOULD BLOW THIS ESTIMATE, NAMED IN ADVANCE\n-----------------------------------------------\n1. The case does not reach steady state.  Betts and Bokhari's own authors could\n   not converge a steady solution on a related case and used transient\n   averaging.  If a graded case here cannot meet the convergence criterion, the\n   row is REPORTED AS REFUSED with its measured spread.  A transient leg is\n   NOT run inside this authorization: at the same mesh a transient solve needing\n   physical averaging over even 30 convective transits (H/V = 11.5 s each) is\n   several hundred core-minutes, which is more than the whole ceiling.  It is\n   proposed, not executed.\n2. LaunderSharmaKE is a low-Reynolds-number k-epsilon with exponential damping\n   functions and is stiffer than kOmegaSST.  If it needs a second stage it is\n   the most likely single consumer of the continuation reserve.\nregistered 2026-08-18T03:44:15Z\n"
+}

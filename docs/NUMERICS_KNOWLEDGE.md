@@ -1519,3 +1519,119 @@ one the spec names**, and this is measured rather than assumed exactly because
 the spec required it to be. On the 1.5×-refined mesh the per-patch averages fall
 further, to **3.3–5.4**: **refining moves y+ away from the band, not toward it**,
 so this is a wall-treatment decision and not something more cells will fix.
+
+---
+
+## Turbulent buoyant tall cavity, graded against a real experiment (added 2026-08-18, F14 rung K0c-T)
+
+Source: `docs/campaigns/F14-cooling-ladder/K0cT_RESULTS.md` and its run tree.
+Reference: ERCOFTAC Classic Collection Case 079, Betts and Bokhari, 2.18 x 0.076 m
+tall cavity, Ra 0.86e6 and 1.43e6, PRIMARY DATA FILES in the repository. The
+Nusselt reference for this case is **NOT OBTAINED** and every Nusselt figure below
+is therefore a MEASUREMENT with nothing to compare it against.
+
+**GATE FAIL: 8 of 18 graded rows.** Read every row below with that on its face.
+
+### 1. Two eddy-viscosity RANS models BRACKET the measured core stratification, and neither is inside the band
+
+| quantity | k-omega SST | LaunderSharmaKE | experiment | band | status |
+|---|---:|---:|---:|---:|---|
+| core stratification S, Ra 1.43e6 | **0.2353** | **0.0186** | **0.095 +/- 0.02** | 0.05 | **VERIFIED**, both FAIL |
+| mid-height peak vertical velocity, m/s | 0.2211 | 0.1267 | 0.190 | 15 % | **VERIFIED**, both FAIL |
+| peak LOCATION, mm from the cold plate | 4.35 | 3.77 | 5.0 | 5 mm | **VERIFIED**, both PASS |
+| Nu_avg (UNGRADED, no reference) | 5.694 | 7.984 | *not obtained* | — | **VERIFIED** as a measurement only |
+
+The two models differ by **0.217 in S**, which is **1.5x the whole deviation from
+the experiment** and **29x the mesh difference**. Identical mesh, boundary
+conditions and schemes; they differ in `constant/turbulenceProperties` and in the
+k/epsilon versus k/omega field pair and in nothing else.
+
+**What transfers:** on a weakly turbulent buoyant cavity the eddy-viscosity model
+choice dominates core stratification, and it dominates it by more than the answer
+itself. **Both models get the wall-layer structure right (peak location within
+1.5 mm) and the core mixing wrong, in opposite directions.** A single-model
+turbulent buoyant-cavity number carries a model uncertainty larger than the
+quantity; quote two models or quote none.
+
+**A Nusselt number from this case class carries a 40 % model-to-model spread**
+(5.694 against 7.984) with no reference to adjudicate it. **VERIFIED**; it is why
+the row is ungraded rather than merely uncertain.
+
+### 2. The buoyancy production term in k is ABSENT from every incompressible OpenFOAM RAS model, and it is NOT the dominant error here
+
+`buoyantKEpsilon` lives only in `src/TurbulenceModels/compressible/RAS/` and
+cannot be selected by a solver constructing an `incompressible::turbulenceModel`,
+which `buoyantBoussinesqSimpleFoam` does. **VERIFIED** by reading the installed
+v2606 source.
+
+Registered before the run: omitting `G_b = -beta g.grad(T) nut/Prt`, a SINK in a
+stably stratified core, should bias S LOW. **FALSIFIED, and the disproof is
+structural:** S came out HIGH for SST, and the two models — which lack the SAME
+term — land on OPPOSITE sides of the reference. A term both are missing cannot
+explain a 0.217 difference between them. **VERIFIED.**
+
+### 3. Wall resolution, and an instrument that reports zero because it cannot see the quantity
+
+| fact | value | basis |
+|---|---|---|
+| y+ at the first cell off the vertical plates, 64x192 mesh, first cell 0.125 mm | **0.189** (Ra 1.43e6), **0.156** (Ra 0.86e6) | **VERIFIED**, computed in the analyser from the solve's own near-wall velocity gradient |
+| `yPlus` function object on the same case | **exactly 0 on every patch** | **VERIFIED**. It reports the WALL FUNCTION's own y+, and `nutLowReWallFunction` has none. A zero from a check that cannot see the quantity looks like a perfectly resolved wall |
+| nut AT the wall under `nutLowReWallFunction` | **identically 0** on every patch | **VERIFIED** per case as `nut_wall_max` |
+| consequence for the wall heat flux | alphaEff at the wall is molecular, uniform, = nu/Pr | **VERIFIED**; it is why the raw-cell and postProcess snGrad paths agree to 1e-06 to 1e-07 |
+
+### 4. Cell Peclet number: the laminar rung's central scheme does NOT carry to a real cavity
+
+The laminar de Vahl Davis rung ran `bounded Gauss linear` on both convection terms
+because Pe_cell was below 2 everywhere. On a real 76 mm air cavity the vertical
+cell Peclet number at the buoyancy velocity scale is **70 to 165**. **VERIFIED**,
+printed at build time. Second-order LIMITED schemes were used instead
+(`linearUpwind grad(U)`, `limitedLinear 1`) and the numerical diffusion bounded by
+the mesh pair: D_mesh on S is 0.0075, **5 %** of the deviation being explained.
+
+### 5. A COARSER mesh can be the unsteady one
+
+At Ra 1.43e6 the **40x120** mesh never reaches steady state — 140 000 outer
+iterations, peak-to-peak spread rising rather than falling — while the **64x192**
+mesh converges to a fixed point with final U residuals ~4e-09. **VERIFIED.** The
+cause is not established: a different solution branch and a coarse-mesh mode the
+fine mesh damps are both live. **RECALLED-as-open, not resolved.**
+
+Practical consequence: **a peak-to-peak convergence criterion evaluated on one
+mesh says nothing about the other**, and a mesh pair whose coarse leg oscillates
+is still usable if its oscillation amplitude is quoted beside the mesh
+difference. Here the coarse leg's own spread on S is 0.000385 against a mesh
+difference of 0.0075 — a factor of 19.
+
+### 6. `residualControl` stopped three of nine cases early, and re-running past it changed nothing
+
+T_hi_f, T_lo_f and M_hi_f_LS met their own residual targets at 6688, 6237 and
+10 185 iterations. Removing the residual stop and running each to 40 000 moved
+the graded S by **0.0000**. **VERIFIED.** The residual stop cost nothing on THIS
+rung — and the coarse case in the same rung proves that is a measurement about
+these three cases, not a general licence.
+
+### 7. Cost of this case class
+
+| fact | value | basis |
+|---|---|---|
+| `buoyantBoussinesqSimpleFoam` + kOmegaSST, single core, AMD EPYC 9R14 | **1.73e-06 to 1.84e-06 s per cell per iteration** | **VERIFIED**, two pilots at 4800 and 12288 cells agreeing to 6 % |
+| whole nine-case rung: two graded mesh pairs, a model twin, a BC twin, three controls | **95.0 core-minutes** | **VERIFIED**, summed from the cases' own `COST.txt` |
+| the two most expensive cases | **16.3 and 16.0 core-minutes**, and both are the coarse cases that were run to 140 000 iterations to establish that they never converge | **VERIFIED** |
+
+**A negative convergence result is not cheap.** A third of this rung's compute
+went on proving that two coarse cases do not reach steady state.
+
+### 8. What none of this establishes
+
+- **Nothing about the wall heat transfer.** The Nusselt reference is NOT OBTAINED.
+  Every Nusselt figure here is a measurement against nothing.
+- **Nothing about a second-moment closure.** Only two eddy-viscosity models were
+  run. That the failure is an eddy-viscosity failure is an inference from the two
+  of them landing on opposite sides, not a measurement of a third model.
+- **Nothing about Prt.** It sat at the standing 0.85 default and was deliberately
+  NOT tuned; tuning it toward the reference would have converted the validation
+  into a calibration.
+- **Nothing about three-dimensionality or the spanwise stations.** Two-dimensional
+  at mid-span throughout.
+- **Nothing above Ra 1.43e6, and nothing about a rack row.** One geometry, one
+  aspect ratio, two Rayleigh numbers a factor of 1.66 apart.

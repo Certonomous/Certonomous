@@ -218,3 +218,26 @@ demo-output/website/dafoam/**/*.log.*
 # disk, 78 tracked, 0 ignored. REMOVING IT IS PART OF BATCH 7.
 !demo-output/website/campaign/MESH_AUDIT_runs/
 !demo-output/website/campaign/MESH_AUDIT_runs/**
+
+# --- F14 cooling ladder, rung K0c-T (turbulent, 2026-08-18) ---
+# Same policy as K0c above: time directories and meshes are rebuilt from the
+# committed dictionaries, and `0.orig/` is the initial-condition directory the
+# case is REBUILT FROM and is kept.  `build_cases.py` was verified from a fresh
+# temporary directory to regenerate all nine cases' dictionaries byte-identically.
+#
+# AND ONE THING THIS RUNG HAD TO DROP, RECORDED RATHER THAN LEFT SILENT: its nine
+# solver logs total 511 MB, because one case ran 140 000 outer iterations to
+# establish that it never reaches steady state.  Gzipped they are still ~90 MB.
+# They are ignored, and replaced by two GENERATED, COMMITTED artefacts per case:
+#   * `LOG_DIGEST.txt` -- the whole header verbatim (every control's in-log
+#     witness of its plant), the solve counts the controls are graded on, a
+#     decimated body, the last 120 lines, and the SHA-256 of the log it came from;
+#   * `MONITOR.tsv` -- the in-pass series the convergence verdict is actually
+#     taken on, which the blanket `**/postProcessing/` rule above would otherwise
+#     hide, as it hides the laminar rung's.
+# What is lost is the per-iteration residual trace between samples.
+docs/campaigns/F14-cooling-ladder/K0cT_runs/*/[0-9]*/
+docs/campaigns/F14-cooling-ladder/K0cT_runs/*/constant/polyMesh/
+docs/campaigns/F14-cooling-ladder/K0cT_runs/*/log.buoyantBoussinesqSimpleFoam*
+!docs/campaigns/F14-cooling-ladder/K0cT_runs/*/0.orig/
+!docs/campaigns/F14-cooling-ladder/K0cT_runs/*/0.orig/**

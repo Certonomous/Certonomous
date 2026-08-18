@@ -1,0 +1,60 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0.orig";
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 307.661907345;
+
+boundaryField
+{
+    hotWall
+    {
+        type            fixedValue;
+        value           uniform 333.596907345;
+    }
+    coldWall
+    {
+        type            fixedValue;
+        value           uniform 281.726907345;
+    }
+    topWall
+    {
+        type            uniformFixedValue;
+        uniformValue
+        {
+            type        expression;
+            expression  #{ (pos().x() < 0.03810000 ? (pos().x() <= 0.00100000 ? 288.210000 : (288.210000 + 587.870620*(pos().x() - 0.00100000))) : (pos().x() < 0.06720000 ? (310.020000 + 492.439863*(pos().x() - 0.03810000)) : (pos().x() < 0.07520000 ? (324.350000 + 445.000000*(pos().x() - 0.06720000)) : 327.910000))) #};
+        }
+        value           uniform 307.661907345;
+    }
+    bottomWall
+    {
+        type            uniformFixedValue;
+        uniformValue
+        {
+            type        expression;
+            expression  #{ (pos().x() < 0.00900000 ? (pos().x() <= 0.00100000 ? 287.560000 : (287.560000 + 502.500000*(pos().x() - 0.00100000))) : (pos().x() < 0.03810000 ? (291.580000 + 514.776632*(pos().x() - 0.00900000)) : (pos().x() < 0.06720000 ? (306.560000 + 551.890034*(pos().x() - 0.03810000)) : (pos().x() < 0.07520000 ? (322.620000 + 577.500000*(pos().x() - 0.06720000)) : 327.240000)))) #};
+        }
+        value           uniform 307.661907345;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,8 @@
+case B_hi_c_adiabatic
+wall_clock_s 165.443
+cores 1
+core_minutes 2.7574
+case B_hi_c_adiabatic
+stage2_wall_clock_s 330.490
+cores 1
+stage2_core_minutes 5.5082

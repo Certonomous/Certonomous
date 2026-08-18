@@ -1,0 +1,52 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : postProcess -func yPlus -latestTime
+Date   : Aug 18 2026
+Time   : 03:51:34
+Host   : ip-172-31-43-247
+PID    : 1239717
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/docs/campaigns/F14-cooling-ladder/K0cT_runs/T_hi_f
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 6688
+
+Time = 6688
+
+Reading fields:
+
+Executing functionObjects
+--> FOAM Warning : 
+    From virtual bool Foam::functionObjects::yPlus::execute()
+    in file yPlus/yPlus.C at line 173
+    Unable to find turbulence model in the database: yPlus will not be calculated
+--> FOAM Warning : 
+    From virtual bool Foam::functionObjects::yPlus::execute()
+    in file yPlus/yPlus.C at line 179
+    Please try to use the solver option -postProcess, e.g.: <solver> -postProcess -func yPlus
+yPlus yPlus write:
+    writing field yPlus
+    patch coldWall y+ : min = 0, max = 0, average = 0
+    patch hotWall y+ : min = 0, max = 0, average = 0
+    patch bottomWall y+ : min = 0, max = 0, average = 0
+    patch topWall y+ : min = 0, max = 0, average = 0
+
+End
+

@@ -1,0 +1,170 @@
+K0c TURBULENT RUNG -- CONTROL PREDICTIONS, REGISTERED BEFORE ANY CONTROL RESULT
+===============================================================================
+F14 cooling ladder, gate K0c Section 2.  Nothing below was written after a
+control result was read.  This whole file is reproduced verbatim into
+gate_k0ct.json so the prediction and the outcome travel together.
+
+KIND definitions, carried unchanged from the laminar rung:
+  REACHABILITY -- the FAIL branch of this check is reachable at all; the band is
+                  not decorative.
+  RECOGNITION  -- the check tells a physically wrong answer from a right one, at
+                  the magnitude the gate cares about.
+  SENSITIVITY  -- not a control.  A measured difference used to attribute a
+                  deviation to a cause.  It cannot pass or fail.
+
+AND THE TRAP THIS RUNG INHERITS: KV1b passed while proving nothing, because a
+uniform field made its planted sum identically zero.  Every control below is
+therefore stated with the thing that would make it vacuous, and that thing is
+checked.
+
+-------------------------------------------------------------------------------
+C1 -- TURBULENCE OFF.  KIND: RECOGNITION.
+Case C1_hi_c_laminar: exact twin of T_hi_c with constant/turbulenceProperties
+set to `simulationType laminar` and nothing else changed.
+
+PREDICTION.  Without a turbulence model the cavity runs a laminar
+boundary-layer regime whose core is strongly and stably stratified.  The
+laminar rung of this same gate measured core stratification S between +0.5187
+(Ra 1e3) and +1.0368 (Ra 1e5) on the square cavity, by the same definition
+(K0c_RESULTS.md, "Core stratification -- MEASURED, UNGRADED").  Predicted here:
+
+    S_C1  >=  0.30      -- at least 3x the reference 0.095, at least 4x outside
+                           the gate's 0.05 band
+    gate verdict on the S row for this case: FAIL
+
+WHAT WOULD MAKE IT VACUOUS: if the graded kOmegaSST case ALSO produces S >= 0.30,
+C1 distinguishes nothing, because both answers would be the laminarised one.
+That is checked and reported either way.
+IN-LOG WITNESS OF THE PLANT: the running solver prints "Selecting turbulence
+model type laminar" and performs ZERO k or omega solves.  A plant living only in
+a dictionary would leave the k/omega solve lines in the log.
+
+-------------------------------------------------------------------------------
+C2 -- RAYLEIGH NUMBER RAISED 30 PERCENT.  KIND: RECOGNITION AT THE GATE'S OWN SCALE.
+Case C2_hi_c_Ra130: exact twin of T_hi_c with dT (hence Ra) multiplied by 1.30.
+
+THE PREDICTION IS DERIVED FROM THE REFERENCE'S OWN TWO-Ra PAIR, BEFORE THE RUN,
+and from nothing this rung produced.  Spec Section 2.3 gives the mid-height peak
+mean velocities at both Rayleigh numbers:
+
+    up-peak    +0.140 m/s at Ra 0.86e6   ->  +0.190 m/s at Ra 1.43e6
+    down-peak  -0.135 m/s at Ra 0.86e6   ->  -0.189 m/s at Ra 1.43e6
+
+so V_peak ~ Ra^n with
+    n_up = ln(0.190/0.140) / ln(1.43/0.86) = 0.6004
+    n_dn = ln(0.189/0.135) / ln(1.43/0.86) = 0.6615
+
+A 30 percent rise in Ra therefore gives 1.30^n:
+
+    PREDICTED shift in peak |V| against this case's own coarse twin:
+        +17.4 percent to +19.4 percent
+    which EXCEEDS the gate's 15 percent band on the velocity rows.
+    gate verdict on the velocity rows for this case: FAIL
+
+THIS IS THE LOAD-BEARING CONTROL.  A 15 percent band that could not see a 30
+percent error in the driving parameter would make the rung's pass mean nothing.
+IN-LOG WITNESS OF THE PLANT: the hotT and coldT function objects make the
+RUNNING SOLVER print its own wall temperatures every 50 iterations.  Their
+difference must read 51.87 K against the graded case's 39.90 K, a ratio of
+exactly 1.300.  A plant living only in 0.orig/T would not move those lines.
+
+-------------------------------------------------------------------------------
+C3 -- COMPARATOR MUTATION.  KIND: REACHABILITY of every band, one at a time.
+No compute.
+
+PREDICTION: perturbing each solved value in turn by 1.5x its own band, in the
+direction AWAY from the reference, flips THAT row and only that row to FAIL.
+    every_row_reachable = True
+C1 and C2 show that SOME rows can fail.  They say nothing about whether the
+other rows are wired to pass.  This is that check.
+
+-------------------------------------------------------------------------------
+C4 -- TURBULENCE SEED RAISED 100x.  KIND: RECOGNITION OF A CONFOUND.
+Case S_hi_c_seed100: exact twin of T_hi_c with the initial k multiplied by 100
+(and omega seeded consistently from the same mixing length).
+
+A RANS solve of a weakly turbulent buoyant cavity can be seed-determined: too
+low a seed relaminarises, too high a seed leaves an eddy viscosity that never
+decays.  Either way the "answer" would be an initial condition.
+
+PREDICTION: the converged answer does not move by a tenth of its own band.
+    |S_seed100 - S_baseline|            <= 0.005      (a tenth of the 0.05 band)
+    |V_peak_seed100/V_peak_baseline - 1| <= 1.5 percent (a tenth of the 15 percent band)
+If either moves more, the answer is seed-determined and the graded rows are
+REFUSED, not graded.
+
+-------------------------------------------------------------------------------
+B -- END-WALL BOUNDARY CONDITION.  KIND: SENSITIVITY (not a control).
+Case B_hi_c_adiabatic: the two measured rubber-wall temperature profiles are
+replaced by zeroGradient.
+
+REGISTERED IN ADVANCE: S moves by more than 0.02, the data's own resolvable
+increment on S.  The purpose is to put a MEASURED number on the boundary
+condition's leverage, so the attribution rule below is quantitative.
+
+-------------------------------------------------------------------------------
+M -- TURBULENCE MODEL.  KIND: SENSITIVITY (not a control).
+Case M_hi_f_LS: exact twin of T_hi_f with RASModel LaunderSharmaKE instead of
+kOmegaSST, differing in constant/turbulenceProperties and the k/epsilon vs
+k/omega field pair and in nothing else.
+
+NO VALUE IS PREDICTED.  What is registered before the run is the rule below.
+
+===============================================================================
+THE ATTRIBUTION RULE, REGISTERED BEFORE ANY RESULT IS READ
+===============================================================================
+A deviation from the reference could be the mesh, the model, the boundary
+conditions, or the reference's own uncertainty.  A rung that cannot tell them
+apart has not validated anything.  So, for each graded quantity q:
+
+    D_mesh  = |q(fine)          - q(coarse)|          same case
+    D_model = |q(kOmegaSST)     - q(LaunderSharmaKE)| fine mesh, hi Ra
+    D_bc    = |q(measured ends) - q(adiabatic ends)|  coarse mesh, hi Ra
+    U_ref   = the reference's OWN increment: 0.02 on S (its fit residual), and
+              3.6 percent on the velocity peaks (its measured antisymmetry defect)
+    E       = |q(solve) - q(reference)|
+
+  1. E <= U_ref                      -> agreement.  Nothing to attribute.
+  2. E > U_ref, and one of D_mesh, D_model, D_bc is within a factor of 2 of E
+                                     -> that one is the prime suspect, named.
+  3. E > U_ref and ALL of D_mesh, D_model, D_bc are below E/2
+                                     -> none of the three explains it.  The
+                                        deviation is charged to what is COMMON
+                                        to every case: the model CLASS, or the
+                                        case setup.
+
+AND ONE DIRECTIONAL PREDICTION, WHICH IS FALSIFIABLE AND IS REGISTERED NOW.
+OpenFOAM's INCOMPRESSIBLE RAS models carry NO buoyancy production or destruction
+term in the k equation.  (`buoyantKEpsilon` exists only in the COMPRESSIBLE
+family -- src/TurbulenceModels/compressible/RAS/buoyantKEpsilon -- and cannot be
+selected by buoyantBoussinesqSimpleFoam, which constructs an
+incompressible::turbulenceModel.  Verified by reading the installed source, not
+recalled.)  In a STABLY stratified core that term is a SINK: G_b = -beta g.grad(T)
+nut/Prt < 0.  Omitting a sink over-predicts core turbulence, over-mixes the core,
+and therefore biases the core stratification S LOW.
+
+    IF S comes out BELOW 0.095 in BOTH models by a similar amount, the missing
+    buoyancy sink is the prime suspect and the model twin CANNOT separate it,
+    because both models are missing the same term.
+    IF S comes out ABOVE 0.095, the missing sink is EXONERATED and the cause is
+    elsewhere.
+
+===============================================================================
+CONVERGENCE, REGISTERED BEFORE THE RUN
+===============================================================================
+Standing criterion, docs/physics_rules.yaml thermal block: PEAK-TO-PEAK SPREAD
+of the graded quantity over a FIXED window of 400 outer iterations sampled every
+50 (9 samples, the block's own minimum).  Not residuals.  Not an endpoint
+difference.  Not a fraction of the run.
+
+Applied here to THREE quantities, ALL of which must pass:
+  (a) Nu_avg on the hot wall  -- p-p spread < 0.02 percent  (the standing number)
+  (b) core stratification S   -- p-p spread < 0.001 absolute (the S band 0.05
+      divided by 50, which is the same 1/50 rule the standing number itself was
+      derived by, applied to the quantity this gate actually grades)
+  (c) peak |Uy| in the domain -- p-p spread < 0.02 percent
+
+A case failing any of the three is REFUSED and not graded.  The criterion is not
+loosened and no averaging scheme is invented.  If a graded case cannot be
+converged, that is reported as the result.
+registered 2026-08-18T03:45:03Z

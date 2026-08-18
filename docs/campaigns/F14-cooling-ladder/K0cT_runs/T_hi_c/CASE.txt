@@ -1,0 +1,39 @@
+case              T_hi_c
+rung              hi  (spec Section 2, Ra 1.430e+06)
+turbulence_model  kOmegaSST
+Ra_target         1.430000e+06
+dT_multiplier     1.000000
+Ra_effective      1.430000e+06
+H                 2.18 m
+W                 0.076 m
+mesh              40 x 120 x 1, graded symmetric in x
+first_cell_x      2.000000000e-04 m
+expansion_ratio   32.690279 (cell-to-cell 1.201451)
+dy                1.816666667e-02 m
+dT                39.900000 K
+T_mean            307.661907 K
+T_hot             327.611907 K  (54.462 C)
+T_cold            287.711907 K  (14.562 C)
+beta              3.250321135e-03 1/K
+beta_dT           0.129688  ABOVE the 0.1 Boussinesq line
+nu                1.665197045e-05 m2/s
+nu_sutherland     1.640341333e-05 m2/s
+Pr                0.71
+Prt               0.85
+end_walls         measured rubber-wall profiles
+k_seed            3.625876728e-04 m2/s2  (seed multiplier 1.0)
+omega_seed        6.534829454e+00 1/s
+Vc_buoyancy       0.310950231 m/s
+Pe_y_at_peak      144.514
+endTime           20000
+top_wall_profile_points_x_m_T_K
+  0.001000 288.2100
+  0.038100 310.0200
+  0.067200 324.3500
+  0.075200 327.9100
+bottom_wall_profile_points_x_m_T_K
+  0.001000 287.5600
+  0.009000 291.5800
+  0.038100 306.5600
+  0.067200 322.6200
+  0.075200 327.2400

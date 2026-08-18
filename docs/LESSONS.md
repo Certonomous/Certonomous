@@ -5806,3 +5806,71 @@ read a public-domain NACA report, declare the bands that were never declared,
 record an extraction route, make a caption carry a qualifier that already exists
 in its own case record. The lab's binding constraint is reference acquisition and
 reference transmission, not compute and not solver capability.
+
+---
+
+## L-125. A scaling exponent read off two rows of a reference table belongs to the reference's own dimensionless variable, and a control that applies it to a dimensional quantity predicts the wrong number by half
+
+The load-bearing control on F14's K0c turbulent rung was the same shape as the
+laminar rung's: **derive the expected shift from the reference table's own
+numbers before the run, then plant the error and measure.** The laminar rung did
+it and measured +2.916 % against a predicted 2.76 to 2.90 %. It is the single
+practice that makes a gate's pass mean something, because a band that cannot see
+a known error is decorative.
+
+**Here the same practice produced a prediction that missed by 50 %, and the
+reason is worth more than the control was.**
+
+The reference tabulates a mid-height peak velocity at two Rayleigh numbers:
+**+0.140 m/s at Ra 0.86e6** and **+0.190 m/s at Ra 1.43e6**. Registered before
+the run, from those two rows and nothing else:
+
+    n = ln(0.190/0.140) / ln(1.43/0.86) = 0.600
+    a 30 % rise in Ra therefore gives 1.30^0.600 = +17.4 %
+
+The control planted a 30 % Rayleigh error and measured **+11.9 %**.
+
+**The exponent was never a Rayleigh exponent.** Velocity is dimensional:
+`V = (alpha/W) . f(Ra, Pr)`. The reference's two rows differ in *fluid properties*
+as well as in Rayleigh number — different mean temperature, therefore different
+`alpha` — so the ratio of the two tabulated velocities carries **both** changes,
+and reading it as an exponent of Ra alone silently attributes the property change
+to the Rayleigh number. Dividing `alpha` out first gives n = 0.433 to 0.494, and
+`1.30^n` = **+12.0 to +13.9 %** against the measured +11.9 %: agreement at the
+bottom of the range to within 0.14 points.
+
+**The plant in this control changed Ra at FIXED properties**, which is not the
+transformation the reference's two rows represent. Two different transformations
+were being called by the same name.
+
+**Three things follow, and the third is the one that generalises.**
+
+**1. Non-dimensionalise before you fit an exponent, always, even across two
+points.** The step feels pedantic on two rows of a table. It is exactly where the
+error hides, because with two points there is no residual to look wrong.
+
+**2. Name the transformation the plant performs, in the prediction, in words.**
+"Ra raised 30 %" is ambiguous: by dT at fixed properties, by properties at fixed
+dT, by length. The registered prediction said "a 30 percent rise in Ra" and the
+case did it by dT. Had the prediction been written as "dT x 1.30 at fixed nu and
+beta", the mismatch with a two-row fit spanning a property change would have been
+visible before the solver ran.
+
+**3. A missed prediction is worth reporting at full volume, and the correction
+must be labelled POST HOC in the artefact, not only in the prose.** The corrected
+derivation here was made after the measurement was read. It is an explanation and
+not a prediction, and an explanation that fits perfectly is exactly what a
+post-hoc derivation always produces. It is stored in `gate_k0ct.json` under keys
+ending `_POST_HOC` so that no later reader — and no later script — can mistake
+the two. **The registered prediction stays in the record, missed, beside it.**
+
+**And the control still did its job**, which is the part that is easy to lose:
+the in-log witness showed the running solver's own wall temperatures at
+51.870 K against 39.900 K, a ratio of **1.3000000**, so the plant was in the
+solver and not in a dictionary; and the graded row's deviation moved from 16.4 %
+to 31.1 % under it. What failed was the *magnitude* prediction, not the control.
+Reporting "control passed" would have been true of the verdict and false of the
+number, and the number is what was being registered.
+
+Found 2026-08-18 at F14 rung K0c-T, on a control whose verdict prediction held
+and whose value prediction did not.

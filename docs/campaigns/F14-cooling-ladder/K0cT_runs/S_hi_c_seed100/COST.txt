@@ -1,0 +1,12 @@
+case S_hi_c_seed100
+wall_clock_s 146.166
+cores 1
+core_minutes 2.4361
+case S_hi_c_seed100
+stage2_wall_clock_s 279.232
+cores 1
+stage2_core_minutes 4.6539
+case S_hi_c_seed100
+stage2_wall_clock_s 535.299
+cores 1
+stage2_core_minutes 8.9217

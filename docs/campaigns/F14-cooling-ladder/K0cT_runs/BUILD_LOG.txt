@@ -1,0 +1,33 @@
+==============================================================================
+K0c TURBULENT case build -- F14 cooling ladder, Betts and Bokhari tall cavity
+==============================================================================
+  parsed from the specification: H = 2.18 m, W = 0.076 m, D = 0.52 m
+  parsed from the specification: dT = 19.6 / 39.9 C, Ra = 8.600e+05 / 1.430e+06
+------------------------------------------------------------------------------
+  rung lo: T_mean from the four rubber-wall end extrapolations ['14.89', '34.66', '14.58', '34.95'] C
+           -> T_mean = 24.771 C = 297.921 K, T_hot = 34.571 C, T_cold = 14.971 C
+           beta = 1/T_mean = 3.356597e-03 1/K, beta.dT = 0.06579   (below the 0.1 Boussinesq line)
+           nu chosen so Ra is exact: 1.529370e-05 m2/s; Sutherland at T_mean 1.549676e-05 m2/s; difference -1.31 %
+  rung hi: T_mean from the four rubber-wall end extrapolations ['14.47', '55.12', '13.91', '54.55'] C
+           -> T_mean = 34.512 C = 307.662 K, T_hot = 54.462 C, T_cold = 14.562 C
+           beta = 1/T_mean = 3.250321e-03 1/K, beta.dT = 0.12969   *** ABOVE the 0.1 Boussinesq line of docs/physics_rules.yaml
+           nu chosen so Ra is exact: 1.665197e-05 m2/s; Sutherland at T_mean 1.640341e-05 m2/s; difference +1.52 %
+------------------------------------------------------------------------------
+case                 rung            model  nx   ny   cells    dT K   d1 mm      exp    Pe_y  iters
+T_lo_c                 lo        kOmegaSST  40  120    4800   19.60   0.200    32.69   112.1  20000
+T_lo_f                 lo        kOmegaSST  64  192   12288   19.60   0.125    33.43    70.0  30000
+T_hi_c                 hi        kOmegaSST  40  120    4800   39.90   0.200    32.69   144.5  20000
+T_hi_f                 hi        kOmegaSST  64  192   12288   39.90   0.125    33.43    90.3  30000
+M_hi_f_LS              hi  LaunderSharmaKE  64  192   12288   39.90   0.125    33.43    90.3  30000
+C1_hi_c_laminar        hi          laminar  40  120    4800   39.90   0.200    32.69   144.5  20000
+C2_hi_c_Ra130          hi        kOmegaSST  40  120    4800   51.87   0.200    32.69   164.8  20000
+B_hi_c_adiabatic       hi        kOmegaSST  40  120    4800   39.90   0.200    32.69   144.5  20000
+S_hi_c_seed100         hi        kOmegaSST  40  120    4800   39.90   0.200    32.69   144.5  20000
+------------------------------------------------------------------------------
+  Pe_y = 0.6 . Vc . dy / alpha, the vertical cell Peclet number on the T
+  equation at 60 percent of the buoyancy velocity scale.  It is FAR above
+  2, which is why the laminar rung's central scheme is not used here.
+==============================================================================
+  graded pairs (coarse, fine): lo: T_lo_c/T_lo_f, hi: T_hi_c/T_hi_f
+  grading on the FINE mesh of each pair, per spec Section 2.5.
+==============================================================================

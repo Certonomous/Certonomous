@@ -14,6 +14,13 @@ owner's and was not spent.
 > `K0b_mesh_sensitivity/`. The specifications themselves are untouched. The
 > result is `K0c_RESULTS.md`. **K0c's turbulent rung, K0d, K2b, the rack-row
 > module and any turbulent SST case remain unrun and unauthorized.**
+>
+> **Addendum 2026-08-18.** The **K0c turbulent rung has now been executed** under
+> its own compute authorization (150 core-minutes of the overnight thermal
+> ceiling; 95.0 spent). `K0cT_runs/` and `K0cT_RESULTS.md` have joined this
+> folder and the specification is again untouched. The result is a **GATE FAIL
+> against a real experiment**, which is why the trust table below no longer says
+> "eligible".
 
 ## Naming collision: ruled 2026-08-17. This campaign is F14
 
@@ -64,6 +71,8 @@ materials.
 | `compute_reference_metrics.py` | Recomputes every derived number in the K0c turbulent-rung table from the primary data files. The gate quotes nothing derived that this script does not print |
 | `reference-data/MANIFEST.md` | Provenance of the primary data: source URLs, archive SHA-256, file naming key |
 | `reference-data/betts_bokhari/` | The 22 primary data files the K0c gate names, byte-identical copies from the ERCOFTAC Case 079 archive |
+| `K0cT_RESULTS.md` | **Added 2026-08-18.** The executed **turbulent** rung against the Betts and Bokhari experiment: **GATE FAIL, 8 of 18 graded rows**, every deviation a number, the turbulence-model decision argued with its alternatives named, the deviation **attributed to the model** by a rule registered before the run using a model twin, a mesh pair and a boundary-condition twin, four controls with their kinds (one of which missed its registered prediction and says so at full volume), and the Nusselt number reported as an explicitly **UNGRADED** measurement. 95.0 core-minutes against a 119.6 estimate written first |
+| `K0cT_runs/` | **Added 2026-08-18.** The nine cases: two graded two-mesh pairs, the kOmegaSST/LaunderSharmaKE model twin, the adiabatic-ends boundary-condition twin, and three control twins. `COST_PROPOSAL.txt` and `CONTROL_PREDICTIONS.txt` are timestamped files written **before** any graded case ran, and both are reproduced verbatim into `gate_k0ct.json` |
 | `K0c_RESULTS.md` | **Added 2026-08-17.** The executed laminar rung: the gate table with every deviation as a number, the five controls and their kinds, the cost in core-minutes, and the core stratification reported as an explicitly ungraded measurement |
 | `K0c_runs/` | **Added 2026-08-17.** The eight graded cases (four Ra on a mandatory two-mesh pair each) plus three control twins, their dictionaries, `0.orig/` initial conditions, solver logs and `scripts/heat_balance.py` audits. Time directories and meshes are gitignored and rebuilt from the dictionaries |
 | `K0b_mesh_sensitivity/` | **Added 2026-08-17.** The K0b mesh-sensitivity pair (32x32 and 128x128) that completes the triple with the committed 64x64 leg, answering proposal P2 of `THERMAL_K0_RESULTS.md` |
@@ -76,7 +85,7 @@ materials.
 | Rung | Reference class | Tier ceiling today |
 | --- | --- | --- |
 | K0c laminar (de Vahl Davis) | Numerical benchmark, secondary reproductions cross-checked | Verification only; TREND ONLY ceiling (no experiment) |
-| K0c turbulent (Betts and Bokhari) | Experiment, primary data files in this folder | Eligible for VALIDATED on passing the gate |
+| K0c turbulent (Betts and Bokhari) | Experiment, primary data files in this folder | **EXECUTED 2026-08-18: GATE FAIL, 8 of 18 rows. NO row earns VALIDATED** — Section 2.5 conditions eligibility on passing every row. `kOmegaSST` and `LaunderSharmaKE` on buoyant cavity stratification stay **TREND ONLY**, now with measured error bars: core stratification over-predicted by 0.140 and under-predicted by 0.076 against a reference of 0.095 ± 0.02. See `K0cT_RESULTS.md` |
 | K0d (Blay cavity) | Experiment, primary not yet obtained | TREND-ONLY until the ASME HTD Vol. 213 paper is acquired; acquisition route named in the spec |
 | K2c-A hard-floor rack-inlet (Wibron 2018) | Experiment, primary READ IN FULL and in `docs/papers/`; reference values live in its figures | TREND-ONLY until the labelled digitization addendum arms the reference column; then eligible for VALIDATED |
 | K2c-B raised-floor / perforated-tile | No primary obtained; every candidate paywalled (checks dated 2026-08-17) | NOT OBTAINED — no gate rows exist; any tile-supply solve is TREND-ONLY whatever it produces |
@@ -91,7 +100,7 @@ named acquisition path closes and the row is extended by addendum.**
 | Missing reference | Which rung it blocks | Why not obtained | Acquisition path |
 | --- | --- | --- | --- |
 | Tabulated core temperature gradient for the de Vahl Davis square cavity | K0c **laminar** rung, stratification half of the K0c mandate | Neither primary carries it openly: de Vahl Davis 1983 (DOI `10.1002/fld.1650030305`) and Le Quere 1991 (*Computers and Fluids* 20, pp. 29-41, DOI `10.1016/0045-7930(91)90025-D`) are both paywalled; Unpaywall `is_oa: false`, checked 2026-08-17. No number was invented | Obtain either paper via the MIT access route (`docs/research/MIT_ACCESS_DOCKET.md` pattern), then extend the K0c laminar table by addendum |
-| Measured Nusselt number for the Betts and Bokhari tall cavity | K0c **turbulent** rung, heat transfer row | The ERCOFTAC database provides no Nusselt files; the paper carrying the measured heat transfer (DOI `10.1016/S0142-727X(00)00033-3`) is paywalled, Unpaywall `is_oa: false` | Obtain Betts and Bokhari (2000) full text, **or** derive wall heat flux from the near-wall temperature files with the derivation and its resolvable increment stated by addendum |
+| Measured Nusselt number for the Betts and Bokhari tall cavity | K0c **turbulent** rung, heat transfer row. **STILL NOT OBTAINED after the rung was executed 2026-08-18.** That rung reports Nu = 4.871 (Ra 0.86e6) and 5.694 (Ra 1.43e6) as **UNGRADED MEASUREMENTS**, and its model twin gives 7.984 on the identical case — a **40 percent** model-to-model spread with no reference to adjudicate it. `K0cT_runs/analyse_k0ct.py` re-reads this NOT OBTAINED statement out of the specification on every run and **exits 2 if it has been removed** | The ERCOFTAC database provides no Nusselt files; the paper carrying the measured heat transfer (DOI `10.1016/S0142-727X(00)00033-3`) is paywalled, Unpaywall `is_oa: false` | Obtain Betts and Bokhari (2000) full text, **or** derive wall heat flux from the near-wall temperature files with the derivation and its resolvable increment stated by addendum |
 | Blay, Mergui and Niculae (1992) primary, ASME HTD Vol. 213, pp. 65-72 | **All of K0d.** The rung is filed **TREND-ONLY**: gate rows fixed, reference numbers still awaiting the primary | No DOI exists (CrossRef query on the full title, 2026-08-17, no matching record; ASME HTD volumes of that era are unregistered) and no OA copy was found. The profiles exist today only as figures in secondary papers | Acquire the ASME HTD Vol. 213 proceedings paper; until then K0d cannot rise above TREND-ONLY whatever a solve produces |
 | Any raised-floor rack-inlet or tile-flow measurement primary (best candidates: Schmidt and Cruz 2002, DOI `10.1109/itherm.2002.1012507`; Abdelmaksoud et al. 2010, DOI `10.1109/itherm.2010.5501413`; VanGilder and Schmidt 2006, DOI `10.1016/j.buildenv.2005.03.005`) | **All of K2c-B** (raised-floor rung), and the tile-momentum arbitration of K2a section 2.2 | Every candidate Unpaywall `is_oa: false`, checked 2026-08-17; no repository copies found. Full candidate table in `K2c_RACK_ROW_VALIDATION_SEARCH.md` section 1 | Read Wibron et al. 2019 (`10.3390/en12081473`, OA via the DiVA route) first at zero cost; failing that, the MIT access route on the IEEE/Elsevier candidates |
 | Digitized reference values from Wibron et al. 2018 Figures 3, 6, 7, 8 | Arming K2c-A's reference column; the rung is TREND-ONLY until then | Not paywalled — the primary is in this repository; the labelled extraction has not been performed | Zero-compute digitization addendum against `docs/papers/wibron_ljung_lundstrom_2018_en11030644.pdf`, digitization increment stated per quantity |

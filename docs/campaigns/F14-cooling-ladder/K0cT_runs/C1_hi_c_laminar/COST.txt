@@ -1,0 +1,8 @@
+case C1_hi_c_laminar
+wall_clock_s 109.006
+cores 1
+core_minutes 1.8168
+case C1_hi_c_laminar
+stage2_wall_clock_s 208.628
+cores 1
+stage2_core_minutes 3.4771

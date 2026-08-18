@@ -1,0 +1,8 @@
+case T_hi_f
+wall_clock_s 179.019
+cores 1
+core_minutes 2.9836
+case T_hi_f
+stage3_wall_clock_s 489.506
+cores 1
+stage3_core_minutes 8.1584

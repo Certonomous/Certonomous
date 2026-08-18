@@ -1,0 +1,69 @@
+K0c TURBULENT RUNG -- COMPUTE COST ESTIMATE, WRITTEN BEFORE ANY GRADED RUN
+==========================================================================
+Registered 2026-08-18. F14 cooling ladder, gate K0c Section 2.
+Authorization: up to 150 core-minutes of a 300 core-minute overnight thermal
+ceiling, 100 of which two other rungs are already drawing.
+
+THE BASIS IS MEASURED, NOT RECALLED
+-----------------------------------
+Two scratch pilots were run in the session scratchpad, OUTSIDE the case tree,
+before this estimate was written.  Both are charged below.  Machine: AMD EPYC
+9R14, single-core solves throughout, so core-minutes = wall clock.
+
+  mesh          cells    iterations   solver ExecutionTime   s/iteration   s/(cell.iteration)
+  40 x 120       4800       300            2.65 s            8.83e-03        1.84e-06
+  64 x 192      12288       300            6.39 s            2.13e-02        1.73e-06
+
+The two rates agree to 6 percent per cell, which is the check that the number
+is a rate and not an artefact of one mesh.
+
+CONTINGENCY ON THE RATE: 1.6x.  The pilots are 300 iterations into a developing
+flow, where p_rgh converged in 3 PCG sweeps.  A developed buoyant field takes
+more, and the rate is therefore an underestimate of the steady-state rate by an
+amount this factor covers.  It is a stated multiplier, not a hidden one.
+
+ITERATION COUNTS, and why they are what they are: the laminar rung of this same
+gate needed 3000 iterations at Ra 1e3 and 12000 at Ra 1e6 on a 192x192 mesh,
+and every one of its fine meshes had to be CONTINUED because an under-relaxed
+SIMPLE outer loop moves the smooth modes at a rate falling off like 1/N^2.
+This cavity is 28.7 aspect ratios tall, so its slowest mode is longer still.
+20000 outer iterations are budgeted on every coarse mesh and 30000 on every
+fine mesh, which is roughly 2.5x the laminar rung's worst case.
+
+THE ESTIMATE
+------------
+  coarse case: 20000 x 8.83e-03 s x 1.6 =  282.6 s =  4.71 core-minutes
+  fine case:   30000 x 2.13e-02 s x 1.6 = 1022.4 s = 17.04 core-minutes
+
+  6 coarse cases (T_lo_c, T_hi_c, C1, C2, B, S)          28.3 core-minutes
+  3 fine cases   (T_lo_f, T_hi_f, M_hi_f_LS)             51.1 core-minutes
+  pilots already spent (3.58 s + 7.61 s wall)             0.19 core-minutes
+                                                        --------------------
+  first pass                                             79.6 core-minutes
+  continuation reserve, one further stage at half length
+    on any case that misses the convergence criterion
+    (the laminar rung needed this on every fine mesh)     40.0 core-minutes
+                                                        --------------------
+  TOTAL PROPOSED                                        119.6 core-minutes
+
+  AUTHORIZED CEILING                                    150   core-minutes
+  HARD STOP                                             140   core-minutes
+
+STOP RULE.  If the running total reaches 140 core-minutes, the remaining cases
+are abandoned and the rung reports what it has, with the unrun cases named.  A
+reduced run is not silently relabelled as the rung.
+
+WHAT WOULD BLOW THIS ESTIMATE, NAMED IN ADVANCE
+-----------------------------------------------
+1. The case does not reach steady state.  Betts and Bokhari's own authors could
+   not converge a steady solution on a related case and used transient
+   averaging.  If a graded case here cannot meet the convergence criterion, the
+   row is REPORTED AS REFUSED with its measured spread.  A transient leg is
+   NOT run inside this authorization: at the same mesh a transient solve needing
+   physical averaging over even 30 convective transits (H/V = 11.5 s each) is
+   several hundred core-minutes, which is more than the whole ceiling.  It is
+   proposed, not executed.
+2. LaunderSharmaKE is a low-Reynolds-number k-epsilon with exponential damping
+   functions and is stiffer than kOmegaSST.  If it needs a second stage it is
+   the most likely single consumer of the continuation reserve.
+registered 2026-08-18T03:44:15Z

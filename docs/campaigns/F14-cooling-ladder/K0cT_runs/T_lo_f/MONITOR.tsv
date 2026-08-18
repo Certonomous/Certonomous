@@ -1,0 +1,18 @@
+# T_lo_f: in-pass monitor series, written by write_monitor_tsv.py
+# every sample in the final 400-iteration window (the window the
+# convergence verdict is taken on) plus the history every 500 iterations
+# S = least-squares d(theta)/d(y/H) over the five mid-width probes at
+#     y/H = (0.3, 0.4, 0.5, 0.6, 0.7), theta = (T - T_cold)/dT, dT = 19.6 K
+iteration	hotWall_int_snGradT	S	Uy_max_m_per_s	in_final_window
+40500	2.738252653e+01	0.222330507	1.870904982e-01	no
+41000	2.738252653e+01	0.222330507	1.870904982e-01	no
+41500	2.738252653e+01	0.222330507	1.870904982e-01	no
+41600	2.738252653e+01	0.222330507	1.870904982e-01	yes
+41650	2.738252653e+01	0.222330507	1.870904982e-01	yes
+41700	2.738252653e+01	0.222330507	1.870904982e-01	yes
+41750	2.738252653e+01	0.222330507	1.870904982e-01	yes
+41800	2.738252653e+01	0.222330507	1.870904982e-01	yes
+41850	2.738252653e+01	0.222330507	1.870904982e-01	yes
+41900	2.738252653e+01	0.222330507	1.870904982e-01	yes
+41950	2.738252653e+01	0.222330507	1.870904982e-01	yes
+42000	2.738252653e+01	0.222330507	1.870904982e-01	yes
