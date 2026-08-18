@@ -77,11 +77,35 @@ if [ -f "$HOLD" ]; then
     fi
 fi
 
-# (1) Solvers and meshers, matched on PROCESS NAME. pgrep -x on the name cannot
-#     be triggered by a path, a comment, or a grep that mentions the name.
-if pgrep -x 'simpleFoam|pimpleFoam|rhoSimpleFoam|rhoCentralFoam|interFoam|potentialFoam|pisoFoam|blockMesh|snappyHexMesh|checkMesh|vspaero|vspaero_opt' >/dev/null 2>&1; then
-    keep "solver or mesher running"
-fi
+# (1) Solvers and meshers, matched on the EXECUTABLE the kernel resolved --
+#     /proc/<pid>/exe -- not on the process name and not on the command line.
+#
+#     2026-08-18: this clause previously used `pgrep -x` over /proc/<pid>/comm,
+#     and comm is TRUNCATED BY THE KERNEL TO 15 CHARACTERS. Every name in the
+#     old list happened to be 14 chars or fewer, so the defect was invisible --
+#     while the thermal campaign's own solvers are 17 and 27 characters:
+#     buoyantSimpleFoam, buoyantPimpleFoam, buoyantBoussinesqSimpleFoam. A live
+#     27-char solver was controlled and `pgrep -x` returned NO MATCH, so a
+#     detached overnight thermal solve with the control room closed satisfied
+#     no clause at all and the box powered off underneath it. Adding the names
+#     to the list would NOT have fixed it -- comm can never hold them.
+#
+#     /proc/<pid>/exe is a kernel-resolved symlink to the real binary and is not
+#     truncated, so the match is on identity rather than on a printable label.
+#     It also cannot be forged by a path, a comment, an editor buffer or a grep
+#     that merely mentions the name, which is the property the old `-x` was
+#     chosen for and which `pgrep -f` would have thrown away.
+SOLVERS='simpleFoam pimpleFoam rhoSimpleFoam rhoCentralFoam interFoam potentialFoam pisoFoam blockMesh snappyHexMesh checkMesh vspaero vspaero_opt buoyantSimpleFoam buoyantPimpleFoam buoyantBoussinesqSimpleFoam buoyantBoussinesqPimpleFoam chtMultiRegionFoam chtMultiRegionSimpleFoam decomposePar reconstructPar DASimpleFoam DAPimpleFoam'
+for pid in $(ls /proc 2>/dev/null | grep -E '^[0-9]+$'); do
+    exe=$(readlink "/proc/$pid/exe" 2>/dev/null) || continue
+    [ -n "$exe" ] || continue
+    base=${exe##*/}
+    for s in $SOLVERS; do
+        if [ "$base" = "$s" ]; then
+            keep "solver or mesher running ($base, pid $pid)"
+        fi
+    done
+done
 
 # (2) Any worker process whose CWD is inside the repo AND which is actually
 #     burning CPU. This is the clause the relative-path suite needed: a CWD is
