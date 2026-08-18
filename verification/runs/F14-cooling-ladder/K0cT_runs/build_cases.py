@@ -84,9 +84,38 @@ import shutil
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SPEC = os.path.abspath(os.path.join(HERE, "..",
-                                    "K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md"))
-DATA = os.path.abspath(os.path.join(HERE, "..", "reference-data", "betts_bokhari"))
+
+
+def _find_up(relpath):
+    """Resolve a repository-relative path by walking UP from this file.
+
+    NOT an assembled relative literal.  This run tree was written when it lived
+    under docs/campaigns/F14-cooling-ladder/ and was later moved to
+    verification/runs/F14-cooling-ladder/ by a repository reorganisation; the
+    "../" literals did not move with it and THIS SCRIPT WAS BROKEN AT HEAD --
+    exit 2, "gate specification not found", on a path two directories from
+    where the file actually is.  Verified by running it, not by reading it.
+
+    K0cT_NUSSELT_REGRADE.md Section 6.1 found and repaired exactly this in
+    analyse_k0ct.py beside this file on 2026-08-18 and did not repair the build
+    script.  Found again by the K0cX cross-geometry rung, 2026-08-18.  L-137.
+    """
+    d = HERE
+    while True:
+        cand = os.path.join(d, relpath)
+        if os.path.exists(cand):
+            return os.path.abspath(cand)
+        if os.path.isdir(os.path.join(d, ".git")):
+            return os.path.abspath(os.path.join(d, relpath))
+        parent = os.path.dirname(d)
+        if parent == d:
+            return os.path.abspath(relpath)
+        d = parent
+
+
+SPEC = _find_up("docs/campaigns/F14-cooling-ladder/"
+                "K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md")
+DATA = _find_up("docs/campaigns/F14-cooling-ladder/reference-data/betts_bokhari")
 
 GMAG = 9.81
 PR = 0.71          # air; the gate's own Prandtl number for the laminar rung and
