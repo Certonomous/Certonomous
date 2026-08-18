@@ -1,4 +1,12 @@
 {
+ "paper_path_forwarding": {
+  "added": "2026-08-18",
+  "why": "The records below were drawn at the commit this file names and are left byte-identical: each record's path and lineno describe the unit as it was drawn, and rewriting either would misdescribe the draw. Commit 5c0d2483 refiled docs/papers/ into topic subdirectories; these are the same blobs at their paths as of commit 4323d7e3.",
+  "pairs": {
+   "docs/papers/sapsis_mit_phd2011_dynamically_orthogonal.txt": "docs/papers/uncertainty_quantification/sapsis_mit_phd2011_dynamically_orthogonal.txt",
+   "docs/papers/zhao_akolekar_weatheritt_michelassi_sandberg_1902.09075.pdf": "docs/papers/data_driven_rans/zhao_akolekar_weatheritt_michelassi_sandberg_1902.09075.pdf"
+  }
+ },
  "what_this_is": "A hand-labelled sample of scripts/check_absolutes.py's own output over the tracked corpus, labelled by the SECOND B3 instance (dispatched concurrently by a second chief session). It is preserved for the consolidator; sdk/tests/fixtures/absolute_claims_labelled.json is the other instance's and is NOT this file.",
  "label_question": "Does this sentence assert a universal or an impossibility over a population the writer could not enumerate, doing load-bearing work, with no evidence named in its prose unit? 'needs-backing' = yes, 'legitimate' = no.",
  "legitimate_covers": [

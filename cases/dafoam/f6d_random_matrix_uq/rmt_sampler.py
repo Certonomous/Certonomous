@@ -6,8 +6,8 @@ stresses, implementing:
     Quantifying Model-Form Uncertainties in Turbulence Modeling",
     arXiv:1603.09656v1 (31 Mar 2016); also Comput. Methods Appl. Mech. Engrg.
     Local full-text copy (fetched this session, 42 pp.):
-      /home/ubuntu/Certonomous/docs/papers/xiao_wang_ghanem_1603.09656.pdf
-      /home/ubuntu/Certonomous/docs/papers/xiao_wang_ghanem_1603.09656.txt
+      /home/ubuntu/Certonomous/docs/papers/uncertainty_quantification/xiao_wang_ghanem_1603.09656.pdf
+      /home/ubuntu/Certonomous/docs/papers/uncertainty_quantification/xiao_wang_ghanem_1603.09656.txt
 
 Every equation number cited below is that paper's own numbering, read from the
 local text extract, not paraphrased from memory.

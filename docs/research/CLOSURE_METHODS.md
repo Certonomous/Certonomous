@@ -538,7 +538,7 @@ a turbulence-specific code release.
 3. **Mouzahir, S. (this project's own line of work) et al. "Sparse and Deep
    Gaussian Processes closure for 2-D fluids and ocean flows." MIT, OSM26.**
    **Tier (a)** — already present in this repo at
-   `docs/papers/Mouzahir_et_all_OSM26_Sparse_GP_Closure.pdf` and already read
+   `docs/papers/gaussian_processes_roms/mouzahir_lermusiaux_2026_osm26_closure.pdf` and already read
    and indexed in `docs/NUMERICS_KNOWLEDGE.md` ("Sparse Gaussian Processes
    closure ... targeting the truncation and discretisation error left by
    coarse resolution"). This is the direct, in-house representative of Class

@@ -208,3 +208,125 @@ Examples:
 
 Each PDF has a corresponding `.txt` file containing extracted text (where available for OCR/text searching).
 
+
+---
+
+## Where the pre-2026-08-18 paths went
+
+Before commit `5c0d2483` (2026-08-18) every paper sat directly in `docs/papers/`.
+That commit refiled 87 of them into the topic subdirectories above and renamed
+almost all of them; commit `4323d7e3` then lowercased an AIAA article number and a
+UROP filename. Citations written before those commits therefore name paths that no
+longer resolve, and 26 such paths were still standing in 40 tracked files when this
+table was written.
+
+**Every row below was derived by git blob identity, not by name similarity** — each
+old path's blob hash was matched to the new path carrying the identical hash — and
+every destination was then confirmed to exist on the filesystem at `4323d7e3`.
+Re-derive rather than quote:
+
+```
+git ls-tree -r 5c0d2483^ --format='%(objectname) %(path)' | grep ' docs/papers/'
+git ls-tree -r 5c0d2483  --format='%(objectname) %(path)' | grep ' docs/papers/'
+```
+
+Three destinations in that pairing were themselves renamed afterwards, so the
+right-hand column is the path that resolved on disk at `4323d7e3` and not
+`5c0d2483`'s destination. `python3 scripts/check_paper_citations.py` re-derives the
+whole table and exits non-zero if any destination stops resolving.
+
+**Older citations were not rewritten wholesale.** A sentence recording where a file
+was fetched to on a stated date is a statement about the past, and rewriting it
+would make the record false; those were left verbatim and given a dated forwarding
+note. Only pointers something must resolve now — source code, machine-read
+configuration, test constants, and see-also indexes — were repointed in place.
+
+| path before `5c0d2483` | path as of `4323d7e3` |
+| --- | --- |
+| `docs/papers/Mathieu_darcy.pdf` | `docs/papers/gaussian_processes_roms/yang_darcy_2025_gp_frg.pdf` |
+| `docs/papers/Mouzahir_et_all_OSM26_Sparse_GP_Closure.pdf` | `docs/papers/gaussian_processes_roms/mouzahir_lermusiaux_2026_osm26_closure.pdf` |
+| `docs/papers/Paper1.pdf` | `docs/papers/verification_validation/eca_hoekstra_2014_numerical_uncertainty.pdf` |
+| `docs/papers/Paper2.pdf` | `docs/papers/verification_validation/dowding_2016_asme_vv.pdf` |
+| `docs/papers/Paper3.pdf` | `docs/papers/verification_validation/oberkampf_roy_2011_verification_validation.pdf` |
+| `docs/papers/Rezaeiravesh et al. - 2021 - UQit A Python package for uncertainty quantification (UQ) in computational fluid dynamics (CFD).pdf` | `docs/papers/uncertainty_quantification/rezaeiravesh_2021_uqit.pdf` |
+| `docs/papers/Sahni et Rezaeiravesh - 2026 - Uncertainty Quantification and Sensitivity Analysis of Spalart Allmaras and Menter Shear Stress Mode.pdf` | `docs/papers/uncertainty_quantification/sahni_rezaeiravesh_2026_uq_spalart.pdf` |
+| `docs/papers/Schaefer et al. - 2017 - Uncertainty Quantification and Sensitivity Analysis of SA Turbulence Model Coefficients in Two and T.pdf` | `docs/papers/uncertainty_quantification/schaefer_2017_uq_sa_model.pdf` |
+| `docs/papers/Schaefer et al. - 2017 - Uncertainty Quantification of Turbulence Model Closure Coefficients for Transonic Wall-Bounded Flows.pdf` | `docs/papers/uncertainty_quantification/schaefer_2017_uq_closure_transonic.pdf` |
+| `docs/papers/Spalart et Allmaras - 1992 - A one-equation turbulence model for aerodynamic flows.pdf` | `docs/papers/turbulence_models/spalart_allmaras_1992_turbulence_model.pdf` |
+| `docs/papers/Urop_summer_2026.pdf` | `docs/papers/unsorted/urop_summer_2026.pdf` |
+| `docs/papers/breuer_peller_rapp_manhart_caf2009_periodic_hills.pdf` | `docs/papers/benchmark_test_cases/breuer_peller_rapp_manhart_caf2009_periodic_hills.pdf` |
+| `docs/papers/breuer_peller_rapp_manhart_caf2009_periodic_hills.txt` | `docs/papers/benchmark_test_cases/breuer_peller_rapp_manhart_caf2009_periodic_hills.txt` |
+| `docs/papers/dow_mit_sm2011_structural_uncertainties_rans.pdf` | `docs/papers/uncertainty_quantification/dow_mit_sm2011_structural_uncertainties_rans.pdf` |
+| `docs/papers/dow_mit_sm2011_structural_uncertainties_rans.txt` | `docs/papers/uncertainty_quantification/dow_mit_sm2011_structural_uncertainties_rans.txt` |
+| `docs/papers/dow_wang_aiaa2011_1762_komega_structural_uncertainty.pdf` | `docs/papers/uncertainty_quantification/dow_wang_aiaa2011_1762_komega_structural_uncertainty.pdf` |
+| `docs/papers/dow_wang_aiaa2011_1762_komega_structural_uncertainty.txt` | `docs/papers/uncertainty_quantification/dow_wang_aiaa2011_1762_komega_structural_uncertainty.txt` |
+| `docs/papers/emory_iaccarino_ctr2014_componentality_contours.pdf` | `docs/papers/turbulence_models/emory_iaccarino_ctr2014_componentality_contours.pdf` |
+| `docs/papers/emory_iaccarino_ctr2014_componentality_contours.txt` | `docs/papers/turbulence_models/emory_iaccarino_ctr2014_componentality_contours.txt` |
+| `docs/papers/gjesdal_wasberg_andreassen_2003_physics0305049.pdf` | `docs/papers/buoyant_natural_convection/gjesdal_wasberg_andreassen_2003_physics0305049.pdf` |
+| `docs/papers/gjesdal_wasberg_andreassen_2003_physics0305049.txt` | `docs/papers/buoyant_natural_convection/gjesdal_wasberg_andreassen_2003_physics0305049.txt` |
+| `docs/papers/greenblatt_et_al_cfdval2004_hump.pdf` | `docs/papers/benchmark_test_cases/greenblatt_et_al_cfdval2004_hump.pdf` |
+| `docs/papers/greenblatt_et_al_cfdval2004_hump.txt` | `docs/papers/benchmark_test_cases/greenblatt_et_al_cfdval2004_hump.txt` |
+| `docs/papers/hamann_klein_2012_osti_1044604.pdf` | `docs/papers/data_center_indoor_airflow/hamann_klein_2012_osti_1044604.pdf` |
+| `docs/papers/hamann_klein_2012_osti_1044604.txt` | `docs/papers/data_center_indoor_airflow/hamann_klein_2012_osti_1044604.txt` |
+| `docs/papers/han_xie_2019_1903.09506.pdf` | `docs/papers/buoyant_natural_convection/han_xie_2019_1903.09506.pdf` |
+| `docs/papers/han_xie_2019_1903.09506.txt` | `docs/papers/buoyant_natural_convection/han_xie_2019_1903.09506.txt` |
+| `docs/papers/hanna_dinh_youngblood_bolotnov_1710.09105.pdf` | `docs/papers/data_driven_rans/hanna_dinh_youngblood_bolotnov_1710.09105.pdf` |
+| `docs/papers/hanna_dinh_youngblood_bolotnov_1710.09105.txt` | `docs/papers/data_driven_rans/hanna_dinh_youngblood_bolotnov_1710.09105.txt` |
+| `docs/papers/he_mader_martins_maki_aiaaj2020_dafoam_J058853.pdf` | `docs/papers/adjoint_and_optimization/he_mader_martins_maki_aiaaj2020_dafoam_j058853.pdf` |
+| `docs/papers/he_mader_martins_maki_aiaaj2020_dafoam_J058853.txt` | `docs/papers/adjoint_and_optimization/he_mader_martins_maki_aiaaj2020_dafoam_j058853.txt` |
+| `docs/papers/he_mader_martins_maki_caf2018_discrete_adjoint_openfoam.pdf` | `docs/papers/adjoint_and_optimization/he_mader_martins_maki_caf2018_discrete_adjoint_openfoam.pdf` |
+| `docs/papers/he_mader_martins_maki_caf2018_discrete_adjoint_openfoam.txt` | `docs/papers/adjoint_and_optimization/he_mader_martins_maki_caf2018_discrete_adjoint_openfoam.txt` |
+| `docs/papers/jmse-13-00431-v2.pdf` | `docs/papers/gaussian_processes_roms/xia_iskandarani_2023_gpr_velocity.pdf` |
+| `docs/papers/kenway_mader_he_martins_pas2019_effective_adjoint_100542.pdf` | `docs/papers/adjoint_and_optimization/kenway_mader_he_martins_pas2019_effective_adjoint_100542.pdf` |
+| `docs/papers/kenway_mader_he_martins_pas2019_effective_adjoint_100542.txt` | `docs/papers/adjoint_and_optimization/kenway_mader_he_martins_pas2019_effective_adjoint_100542.txt` |
+| `docs/papers/ling_kurzawski_templeton_jfm2016_osti1333570.pdf` | `docs/papers/data_driven_rans/ling_kurzawski_templeton_jfm2016_osti1333570.pdf` |
+| `docs/papers/ling_kurzawski_templeton_jfm2016_osti1333570.txt` | `docs/papers/data_driven_rans/ling_kurzawski_templeton_jfm2016_osti1333570.txt` |
+| `docs/papers/liu_wang_zhao_xiao_2509.17189.pdf` | `docs/papers/data_driven_rans/liu_wang_zhao_xiao_2509.17189.pdf` |
+| `docs/papers/liu_wang_zhao_xiao_2509.17189.txt` | `docs/papers/data_driven_rans/liu_wang_zhao_xiao_2509.17189.txt` |
+| `docs/papers/martineau_et_al_2009_inl_ext_09_15333.txt` | `docs/papers/unsorted/martineau_et_al_2009_inl_ext_09_15333.txt` |
+| `docs/papers/mcconkey_et_al_closure_challenge_2603.28884.pdf` | `docs/papers/data_driven_rans/mcconkey_et_al_closure_challenge_2603.28884.pdf` |
+| `docs/papers/mcconkey_et_al_closure_challenge_2603.28884.txt` | `docs/papers/data_driven_rans/mcconkey_et_al_closure_challenge_2603.28884.txt` |
+| `docs/papers/nasa_turbmodels_2dhill_periodic_page.txt` | `docs/papers/unsorted/nasa_turbmodels_2dhill_periodic_page.txt` |
+| `docs/papers/nasa_turbmodels_nasahump_val_page.txt` | `docs/papers/unsorted/nasa_turbmodels_nasahump_val_page.txt` |
+| `docs/papers/nielsen_rong_olmedo_2010_clima_annex20.pdf` | `docs/papers/data_center_indoor_airflow/nielsen_rong_olmedo_2010_clima_annex20.pdf` |
+| `docs/papers/nielsen_rong_olmedo_2010_clima_annex20.txt` | `docs/papers/data_center_indoor_airflow/nielsen_rong_olmedo_2010_clima_annex20.txt` |
+| `docs/papers/oulghelou_beghein_allery_2020_2009.06724.pdf` | `docs/papers/data_driven_rans/oulghelou_beghein_allery_2020_2009.06724.pdf` |
+| `docs/papers/oulghelou_beghein_allery_2020_2009.06724.txt` | `docs/papers/data_driven_rans/oulghelou_beghein_allery_2020_2009.06724.txt` |
+| `docs/papers/oulghelou_cherroud_merle_cinnella_ftac2025_2410.14431.pdf` | `docs/papers/data_driven_rans/oulghelou_cherroud_merle_cinnella_ftac2025_2410.14431.pdf` |
+| `docs/papers/oulghelou_cherroud_merle_cinnella_ftac2025_2410.14431.txt` | `docs/papers/data_driven_rans/oulghelou_cherroud_merle_cinnella_ftac2025_2410.14431.txt` |
+| `docs/papers/pinelli_uhlmann_sekimoto_kawahara_jfm2010_square_duct.pdf` | `docs/papers/benchmark_test_cases/pinelli_uhlmann_sekimoto_kawahara_jfm2010_square_duct.pdf` |
+| `docs/papers/pinelli_uhlmann_sekimoto_kawahara_jfm2010_square_duct.txt` | `docs/papers/benchmark_test_cases/pinelli_uhlmann_sekimoto_kawahara_jfm2010_square_duct.txt` |
+| `docs/papers/pope_jfm1975_effective_viscosity_hypothesis.pdf` | `docs/papers/turbulence_models/pope_jfm1975_effective_viscosity_hypothesis.pdf` |
+| `docs/papers/pope_jfm1975_effective_viscosity_hypothesis.txt` | `docs/papers/turbulence_models/pope_jfm1975_effective_viscosity_hypothesis.txt` |
+| `docs/papers/poster_v3.pdf` | `docs/papers/gaussian_processes_roms/mouzahir_lermusiaux_2026_sparse_gp_poster.pdf` |
+| `docs/papers/poster_v3_pl.pdf` | `docs/papers/gaussian_processes_roms/mouzahir_lermusiaux_2026_sparse_gp_poster_pl.pdf` |
+| `docs/papers/reissmann_fang_ooi_sandberg_gpem2025_2409.07369.pdf` | `docs/papers/data_driven_rans/reissmann_fang_ooi_sandberg_gpem2025_2409.07369.pdf` |
+| `docs/papers/reissmann_fang_ooi_sandberg_gpem2025_2409.07369.txt` | `docs/papers/data_driven_rans/reissmann_fang_ooi_sandberg_gpem2025_2409.07369.txt` |
+| `docs/papers/roshko_1954_naca_tr_1191.pdf` | `docs/papers/turbulence_models/roshko_1954_naca_tr_1191.pdf` |
+| `docs/papers/roshko_1954_naca_tr_1191.txt` | `docs/papers/turbulence_models/roshko_1954_naca_tr_1191.txt` |
+| `docs/papers/sapsis_mit_phd2011_dynamically_orthogonal.pdf` | `docs/papers/uncertainty_quantification/sapsis_mit_phd2011_dynamically_orthogonal.pdf` |
+| `docs/papers/sapsis_mit_phd2011_dynamically_orthogonal.txt` | `docs/papers/uncertainty_quantification/sapsis_mit_phd2011_dynamically_orthogonal.txt` |
+| `docs/papers/schmelzer_dwight_cinnella_ftac2020_s10494-019-00089-x.pdf` | `docs/papers/data_driven_rans/schmelzer_dwight_cinnella_ftac2020_s10494-019-00089-x.pdf` |
+| `docs/papers/schmelzer_dwight_cinnella_ftac2020_s10494-019-00089-x.txt` | `docs/papers/data_driven_rans/schmelzer_dwight_cinnella_ftac2020_s10494-019-00089-x.txt` |
+| `docs/papers/singh_medida_duraisamy_1608.03990.pdf` | `docs/papers/data_driven_rans/singh_medida_duraisamy_1608.03990.pdf` |
+| `docs/papers/singh_medida_duraisamy_1608.03990.txt` | `docs/papers/data_driven_rans/singh_medida_duraisamy_1608.03990.txt` |
+| `docs/papers/vierendeels_merci_dick_2002_wit_afm02.pdf` | `docs/papers/buoyant_natural_convection/vierendeels_merci_dick_2002_wit_afm02.pdf` |
+| `docs/papers/vierendeels_merci_dick_2002_wit_afm02.txt` | `docs/papers/buoyant_natural_convection/vierendeels_merci_dick_2002_wit_afm02.txt` |
+| `docs/papers/vinuesa_et_al_jot2014_duct_aspect_ratio.pdf` | `docs/papers/benchmark_test_cases/vinuesa_et_al_jot2014_duct_aspect_ratio.pdf` |
+| `docs/papers/vinuesa_et_al_jot2014_duct_aspect_ratio.txt` | `docs/papers/benchmark_test_cases/vinuesa_et_al_jot2014_duct_aspect_ratio.txt` |
+| `docs/papers/wibron_ljung_lundstrom_2018_en11030644.pdf` | `docs/papers/data_center_indoor_airflow/wibron_ljung_lundstrom_2018_en11030644.pdf` |
+| `docs/papers/wibron_ljung_lundstrom_2018_en11030644.txt` | `docs/papers/data_center_indoor_airflow/wibron_ljung_lundstrom_2018_en11030644.txt` |
+| `docs/papers/wibron_ljung_lundstrom_2019_en12081473.pdf` | `docs/papers/data_center_indoor_airflow/wibron_ljung_lundstrom_2019_en12081473.pdf` |
+| `docs/papers/wibron_ljung_lundstrom_2019_en12081473.txt` | `docs/papers/data_center_indoor_airflow/wibron_ljung_lundstrom_2019_en12081473.txt` |
+| `docs/papers/wu_zhang_sst_qcrc_challenge_description.pdf` | `docs/papers/data_driven_rans/wu_zhang_sst_qcrc_challenge_description.pdf` |
+| `docs/papers/wu_zhang_sst_qcrc_challenge_description.txt` | `docs/papers/data_driven_rans/wu_zhang_sst_qcrc_challenge_description.txt` |
+| `docs/papers/wu_zhang_zhang_2402.16355.pdf` | `docs/papers/data_driven_rans/wu_zhang_zhang_2402.16355.pdf` |
+| `docs/papers/wu_zhang_zhang_2402.16355.txt` | `docs/papers/data_driven_rans/wu_zhang_zhang_2402.16355.txt` |
+| `docs/papers/xiao_wang_ghanem_1603.09656.pdf` | `docs/papers/uncertainty_quantification/xiao_wang_ghanem_1603.09656.pdf` |
+| `docs/papers/xiao_wang_ghanem_1603.09656.txt` | `docs/papers/uncertainty_quantification/xiao_wang_ghanem_1603.09656.txt` |
+| `docs/papers/xu_chen_2000_indoor_air_two_layer.pdf` | `docs/papers/buoyant_natural_convection/xu_chen_2000_indoor_air_two_layer.pdf` |
+| `docs/papers/xu_chen_2000_indoor_air_two_layer.txt` | `docs/papers/buoyant_natural_convection/xu_chen_2000_indoor_air_two_layer.txt` |
+| `docs/papers/zhao_akolekar_weatheritt_michelassi_sandberg_1902.09075.pdf` | `docs/papers/data_driven_rans/zhao_akolekar_weatheritt_michelassi_sandberg_1902.09075.pdf` |
+| `docs/papers/zhao_akolekar_weatheritt_michelassi_sandberg_1902.09075.txt` | `docs/papers/data_driven_rans/zhao_akolekar_weatheritt_michelassi_sandberg_1902.09075.txt` |
+| `docs/papers/zou_zhao_chen_2018_building_simulation.pdf` | `docs/papers/data_center_indoor_airflow/zou_zhao_chen_2018_building_simulation.pdf` |
+| `docs/papers/zou_zhao_chen_2018_building_simulation.txt` | `docs/papers/data_center_indoor_airflow/zou_zhao_chen_2018_building_simulation.txt` |

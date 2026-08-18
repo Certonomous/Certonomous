@@ -361,3 +361,28 @@ is blocked on it, so it is a library-list row and not a blocker.
   papers that rest on this basis.
 - `docs/research/CLOSURE_METHODS.md` — the taxonomy this corrects.
 - `docs/charters/LITERATURE_CHARTER.md` — sections 2, 3, 6, 7.
+
+
+---
+
+## Paper-library forwarding note — appended 2026-08-18
+
+**Nothing above this line was edited.** The `docs/papers/` paths cited above were
+correct when the sentences carrying them were written. Commit `5c0d2483`
+(2026-08-18) refiled the paper library into topic subdirectories and renamed most
+of its files, and `4323d7e3` lowercased two of the new names afterwards. Those
+citations were left exactly as they stood, because each records where a file was
+at the moment its statement was made; rewriting one would have changed what this
+record says happened.
+
+Each pair below was resolved by **git blob identity** — the old path's blob hash
+matched to the path carrying the identical hash — and not by name similarity, and
+each destination was then confirmed against the filesystem at commit `4323d7e3`.
+
+| as cited above | the same bytes, as of `4323d7e3` |
+| --- | --- |
+| `docs/papers/pope_jfm1975_effective_viscosity_hypothesis.pdf` | `docs/papers/turbulence_models/pope_jfm1975_effective_viscosity_hypothesis.pdf` |
+
+The whole 87-path table was appended to `docs/papers/README.md` in the same
+commit. `python3 scripts/check_paper_citations.py` re-derives the rows above and
+exits non-zero if any destination stops resolving.

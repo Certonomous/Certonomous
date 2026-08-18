@@ -3031,8 +3031,8 @@
     "demo-output/website/campaign/W2_DAFOAM_AIAAJ2020_VERIFICATION_READING.md",
     "demo-output/website/campaign/W2_DAFOAM_CAF2018_VERIFICATION_READING.md",
     "demo-output/website/campaign/W2_KENWAY_PAS2019_EFFECTIVE_ADJOINT_READING.md",
-    "Kenway, Mader, He, Martins, PAS 2019, Conclusions: only-in-serial sentence, tier READ IN FULL, docs/papers/kenway_mader_he_martins_pas2019_effective_adjoint_100542.pdf",
-    "He, Mader, Martins, Maki, C&F 2018, Tables 4-5 and section 2.9, tier READ IN FULL, docs/papers/he_mader_martins_maki_caf2018_discrete_adjoint_openfoam.pdf",
+    "Kenway, Mader, He, Martins, PAS 2019, Conclusions: only-in-serial sentence, tier READ IN FULL, docs/papers/adjoint_and_optimization/kenway_mader_he_martins_pas2019_effective_adjoint_100542.pdf",
+    "He, Mader, Martins, Maki, C&F 2018, Tables 4-5 and section 2.9, tier READ IN FULL, docs/papers/adjoint_and_optimization/he_mader_martins_maki_caf2018_discrete_adjoint_openfoam.pdf",
     "demo-output/website/dafoam/UPSTREAM_BUG_REPORT_decomposition_adjoint.md"
    ],
    "status": "done",
@@ -4040,7 +4040,7 @@
    "id": "w3-qcr-constitutive-term-for-rank2-parity",
    "well": "W3",
    "objective": "Add the untrained QCR2000 quadratic constitutive term (c_r = 0.3) the rank-2 closure entry carries, so a duct-score comparison against 0.0455/0.0399 can ever be like-for-like",
-   "rationale": "The rank-2 entry's own description document (docs/papers/wu_zhang_sst_qcrc_challenge_description.pdf, READ IN FULL 2026-08-04) names its model SST-QCRC: conditioned beta on the omega destruction term PLUS tau_ij = tau^l_ij - c_r(O_ik tau^l_kj - tau^l_ik O_kj) with c_r = 0.3 adopted untrained from Spalart 2000. No lab document mentioned the QCR half before the W2 reading; C2 and ACTIVE_RESEARCH characterize the entry as beta-on-destruction only. The beta patch (w3-beta-on-omega-destruction-model-patch) touches the omega equation; QCR touches the Reynolds stress the momentum equation sees, a structurally different change. Without it, any score from a patched-beta model set beside the entry's duct scores repeats at one level up exactly the not-like-for-like comparison ruling R6 forbade for the production hook.",
+   "rationale": "The rank-2 entry's own description document (docs/papers/data_driven_rans/wu_zhang_sst_qcrc_challenge_description.pdf, READ IN FULL 2026-08-04) names its model SST-QCRC: conditioned beta on the omega destruction term PLUS tau_ij = tau^l_ij - c_r(O_ik tau^l_kj - tau^l_ik O_kj) with c_r = 0.3 adopted untrained from Spalart 2000. No lab document mentioned the QCR half before the W2 reading; C2 and ACTIVE_RESEARCH characterize the entry as beta-on-destruction only. The beta patch (w3-beta-on-omega-destruction-model-patch) touches the omega equation; QCR touches the Reynolds stress the momentum equation sees, a structurally different change. Without it, any score from a patched-beta model set beside the entry's duct scores repeats at one level up exactly the not-like-for-like comparison ruling R6 forbade for the production hook.",
    "est_core_min": 30,
    "predicted_memory_gb": 12.0,
    "predicted_usd": 0.0,
@@ -4050,7 +4050,7 @@
    "source_kind": "capability",
    "citations": [
     "demo-output/website/campaign/W2_WU_ZHANG_DESTRUCTION_FIML_READING.md",
-    "docs/papers/wu_zhang_sst_qcrc_challenge_description.pdf",
+    "docs/papers/data_driven_rans/wu_zhang_sst_qcrc_challenge_description.pdf",
     "demo-output/website/dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md"
    ],
    "status": "done",
@@ -4727,7 +4727,7 @@
    "expected_knowledge_gain": "The second rung of the M2 reproduction ladder, standing up on data already in the tree. It also answers a question the taxonomy in docs/research/CLOSURE_METHODS.md left open by ranking TBNN on code availability alone: whether an invariant tensor-basis network trained only on low-Reynolds ducts transfers to the scored ducts at all. A negative result is worth as much as a positive one and costs the same hour.",
    "source_kind": "reading",
    "citations": [
-    "Ling, J., Kurzawski, A. & Templeton, J., Reynolds averaged turbulence modelling using deep neural networks with embedded invariance, Journal of Fluid Mechanics 807:155-166 (2016), DOI 10.1017/jfm.2016.615; read in full as Sandia accepted manuscript SAND2016-7345J, docs/papers/ling_kurzawski_templeton_jfm2016_osti1333570.pdf",
+    "Ling, J., Kurzawski, A. & Templeton, J., Reynolds averaged turbulence modelling using deep neural networks with embedded invariance, Journal of Fluid Mechanics 807:155-166 (2016), DOI 10.1017/jfm.2016.615; read in full as Sandia accepted manuscript SAND2016-7345J, docs/papers/data_driven_rans/ling_kurzawski_templeton_jfm2016_osti1333570.pdf",
     "Pope, S.B., A more general effective-viscosity hypothesis, Journal of Fluid Mechanics 72:331 (1975) - the ten-tensor integrity basis, cited by Ling as the source of Eq. 1 and Eq. 2; NOT read by this session, cited only as Ling attributes it",
     "sandialabs/tbnn, BSD-3-Clause reference implementation",
     "Closure challenge benchmark README train/validation/test table and case directories, read from the clone 2026-07-31",
@@ -4752,7 +4752,7 @@
    "expected_knowledge_gain": "The third rung of the M2 ladder, and the first closure correction this lab would extract from real high-fidelity data rather than from a synthetic tutorial. It also settles the open question the reading raised: whether the honest cost of SpaRTA is the one-minute regression the paper advertises or the thirty-seven core-hours of CFD cross-validation it does not price. Failing the gate is informative too, because the extraction step has no free parameters worth blaming.",
    "source_kind": "reading",
    "citations": [
-    "Schmelzer, M., Dwight, R.P. & Cinnella, P., Discovery of Algebraic Reynolds-Stress Models Using Sparse Symbolic Regression, Flow, Turbulence and Combustion 104:579-603 (2020), DOI 10.1007/s10494-019-00089-x; published CC-BY version of record read in full, docs/papers/schmelzer_dwight_cinnella_ftac2020_s10494-019-00089-x.pdf; Table 1, sections 2.1 and 2.2, Eqs. 3 to 6",
+    "Schmelzer, M., Dwight, R.P. & Cinnella, P., Discovery of Algebraic Reynolds-Stress Models Using Sparse Symbolic Regression, Flow, Turbulence and Combustion 104:579-603 (2020), DOI 10.1007/s10494-019-00089-x; published CC-BY version of record read in full, docs/papers/data_driven_rans/schmelzer_dwight_cinnella_ftac2020_s10494-019-00089-x.pdf; Table 1, sections 2.1 and 2.2, Eqs. 3 to 6",
     "Bentaleb, Y., Lardeau, S. & Leschziner, M.A., J. Turbulence 13(4) (2012) - the source of the CBFS13700 LES field, cited only as Schmelzer et al. attribute it; NOT read by this session",
     "Closure challenge benchmark clone, data/CBFS case directory and polyMesh header, read 2026-07-31",
     "Certonomous ladder-B rung B2 CBFS baseline run and Ofpp macro blocker, measured 2026-07-28, demo-output/website/dafoam/ladder-b/B2_duct_baseline.md",

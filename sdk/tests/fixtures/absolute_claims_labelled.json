@@ -1,4 +1,13 @@
 {
+ "paper_path_forwarding": {
+  "added": "2026-08-18",
+  "why": "The records below were drawn at the commit this file names and are left byte-identical: each record's path and lineno describe the unit as it was drawn, and rewriting either would misdescribe the draw. Commit 5c0d2483 refiled docs/papers/ into topic subdirectories; these are the same blobs at their paths as of commit 4323d7e3.",
+  "pairs": {
+   "docs/papers/sapsis_mit_phd2011_dynamically_orthogonal.txt": "docs/papers/uncertainty_quantification/sapsis_mit_phd2011_dynamically_orthogonal.txt",
+   "docs/papers/hanna_dinh_youngblood_bolotnov_1710.09105.txt": "docs/papers/data_driven_rans/hanna_dinh_youngblood_bolotnov_1710.09105.txt",
+   "docs/papers/oulghelou_cherroud_merle_cinnella_ftac2025_2410.14431.txt": "docs/papers/data_driven_rans/oulghelou_cherroud_merle_cinnella_ftac2025_2410.14431.txt"
+  }
+ },
  "what_this_is": "A hand-labelled sample of absolute expressions drawn from scripts/check_absolutes.py's own output over the tracked corpus. It exists so the checker's false-positive rate is MEASURED rather than asserted; a checker with an unstated rate is not finished.",
  "label_question": "Would a careful reader call this a defect -- an absolute claim of the kind that needs an executed check, with no such check named in its prose unit? 'needs-backing' = yes, 'legitimate' = no.",
  "legitimate_covers": [

@@ -301,3 +301,29 @@ this lab's records is sourced to any of them.
 access — Ling from the OSTI repository copy of Sandia accepted manuscript SAND2016-7345J, and
 SpaRTA as the CC-BY published version of record from Springer. `docs/research/MIT_ACCESS_DOCKET.md`
 gains a closed row for SpaRTA and its one open row, Parish & Duraisamy (2016), is unchanged.
+
+
+---
+
+## Paper-library forwarding note — appended 2026-08-18
+
+**Nothing above this line was edited.** The `docs/papers/` paths cited above were
+correct when the sentences carrying them were written. Commit `5c0d2483`
+(2026-08-18) refiled the paper library into topic subdirectories and renamed most
+of its files, and `4323d7e3` lowercased two of the new names afterwards. Those
+citations were left exactly as they stood, because each records where a file was
+at the moment its statement was made; rewriting one would have changed what this
+record says happened.
+
+Each pair below was resolved by **git blob identity** — the old path's blob hash
+matched to the path carrying the identical hash — and not by name similarity, and
+each destination was then confirmed against the filesystem at commit `4323d7e3`.
+
+| as cited above | the same bytes, as of `4323d7e3` |
+| --- | --- |
+| `docs/papers/ling_kurzawski_templeton_jfm2016_osti1333570.pdf` | `docs/papers/data_driven_rans/ling_kurzawski_templeton_jfm2016_osti1333570.pdf` |
+| `docs/papers/schmelzer_dwight_cinnella_ftac2020_s10494-019-00089-x.pdf` | `docs/papers/data_driven_rans/schmelzer_dwight_cinnella_ftac2020_s10494-019-00089-x.pdf` |
+
+The whole 87-path table was appended to `docs/papers/README.md` in the same
+commit. `python3 scripts/check_paper_citations.py` re-derives the rows above and
+exits non-zero if any destination stops resolving.

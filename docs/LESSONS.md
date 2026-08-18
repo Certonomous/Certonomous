@@ -6525,3 +6525,78 @@ move instead of reading it. A binding that resolves is the whole point of the
 module. A binding that resolves to a **smaller corpus** is this repository's
 most repeated failure wearing the module's face, and it arrives with a clean
 scan report attached.
+
+---
+
+## L-139. Coupling was measured before the small move I made by hand and skipped before the large move I delegated, 79 seconds apart
+
+`2a65fdd4` (2026-08-18 17:15:42) moved **eight** loose plots into `media/plots/`
+and, in the same commit message, refused to move four more:
+
+> *"Four filings violate the rules and were left alone, because `docs/LESSONS.md`
+> records that a webroot move broke 178 code files: `media/LAPTOP_SHOOT.md` (34
+> references), `FILMING_COMMANDS.md` (15), `valve.png` (3), `Gui_issue.png` (2).
+> They need a coordinated re-point, not a move. **The difference between these and
+> the eight that did move was MEASURED, not assumed.**"*
+
+`5c0d2483` (2026-08-18 17:14:23) — **79 seconds earlier**, same session, same
+author — refiled **87** paper paths into topic subdirectories and renamed almost
+all of them. It changed **0 files outside `docs/papers/`**, re-derived with
+`git show --name-only --format='' 5c0d2483 | grep -v '^docs/papers/'`. No reference
+count was taken for any of the 87. **26 distinct dead paths were left standing
+across 40 tracked files**, and the K2c lane's extraction command died with
+`FileNotFoundError` on one of them the same day
+(`K2c_DIGITIZATION_ADDENDUM.md` §11.6).
+
+**The discipline was not absent; it was selective.** Eight files were moved by hand
+and their inbound references counted one by one. Eighty-seven were handed to an
+agent and none was counted. The move that got the check was the one small enough
+that the check was cheap, and the move that skipped it was the one large enough to
+do real damage — the exact inversion of where the effort belonged.
+
+**The check that WAS run on the big move measured the other direction, and reads
+like coverage.** `5c0d2483`'s message is emphatic: *"CONSERVATION WAS VERIFIED AT
+THE BLOB LEVEL, NOT FROM THE MOVING AGENT'S REPORT ... every PDF blob reachable
+from the parent commit is reachable from this tree, 0 lost, 7 added."* That
+establishes that the **objects** survived. It establishes nothing about the
+**references into them**, and a reader of that paragraph would come away believing
+the move had been checked. **Conservation of the moved thing and survival of the
+pointers at it are two different measurements. Only one was taken, and the one that
+was taken is the one that reassures.**
+
+**A delegated move needs the coupling count in the BRIEF, not in the review.**
+Neither the agent's report nor a review of that report could have surfaced this.
+The report described the renames and the renames were correct; what was missing was
+never in the report's scope. The instruction that closes it is one line — *before
+you move a file, count what names it, and hand the count back with the move* — and
+it has to be given **before** the move, because afterwards the old paths are gone
+from the tree and only `git ls-tree` on the parent commit can reconstruct what they
+were.
+
+**Third instance of this class in this file, and the new part is the selectivity.**
+The webroot move that broke 178 code files is the same shape one campaign earlier;
+L-137 is the assembled-path variant, where the path is built from segments and no
+literal scan can match it. Neither of those was about *choosing* not to look. This
+one was, and the choice tracked how visible the move felt rather than how much of
+the tree it touched.
+
+**A fourth thing this repair had to get right, and it is the reason a
+find-and-replace would have been worse than the breakage.** Of the 74 broken
+occurrences, **57 were not pointers at all** — they were sentences recording where
+a file had been fetched to on a stated date, with a SHA-256 or an md5 beside it, or
+a command and the output it returned, or a pre-registration written before a run
+under *"nothing below is edited after the fact."* Rewriting those paths would have
+left every one of them resolving and every one of them **false**. They were left
+byte-identical and given a dated forwarding note appended below, per
+`docs/MEMORY_ARCHITECTURE.md` §8.1. **A repair that makes a record resolve by making
+it lie is not a repair**, and the blanket refusal that avoids it strands 40 files —
+so the classification has to be made per citation, not per file.
+
+**Repaired 2026-08-18 by the commit carrying this lesson.** The pairing was
+re-derived by **blob identity** rather than by name similarity, which matters: no
+name-based map would have produced `docs/papers/Paper1.pdf` ->
+`docs/papers/verification_validation/eca_hoekstra_2014_numerical_uncertainty.pdf`.
+17 live pointers were repointed in place, 57 historical statements were left
+verbatim and forwarded, and `scripts/check_paper_citations.py` re-derives the
+pairing from git on every run and fails on a citation that neither resolves nor
+carries a route in its own file.

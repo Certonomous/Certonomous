@@ -152,3 +152,29 @@ of a Moving Cantilever Beam"*, confirmed both by fetching the record and by
 downloading the PDF and reading its title page. Roshko's report is NTRS
 `19930092207`. The comment cites a real report by name and links a different
 one, and nothing in the repository was in a position to notice.
+
+
+---
+
+## Paper-library forwarding note — appended 2026-08-18
+
+**Nothing above this line was edited.** The `docs/papers/` paths cited above were
+correct when the sentences carrying them were written. Commit `5c0d2483`
+(2026-08-18) refiled the paper library into topic subdirectories and renamed most
+of its files, and `4323d7e3` lowercased two of the new names afterwards. Those
+citations were left exactly as they stood, because each records where a file was
+at the moment its statement was made; rewriting one would have changed what this
+record says happened.
+
+Each pair below was resolved by **git blob identity** — the old path's blob hash
+matched to the path carrying the identical hash — and not by name similarity, and
+each destination was then confirmed against the filesystem at commit `4323d7e3`.
+
+| as cited above | the same bytes, as of `4323d7e3` |
+| --- | --- |
+| `docs/papers/roshko_1954_naca_tr_1191.pdf` | `docs/papers/turbulence_models/roshko_1954_naca_tr_1191.pdf` |
+| `docs/papers/roshko_1954_naca_tr_1191.txt` | `docs/papers/turbulence_models/roshko_1954_naca_tr_1191.txt` |
+
+The whole 87-path table was appended to `docs/papers/README.md` in the same
+commit. `python3 scripts/check_paper_citations.py` re-derives the rows above and
+exits non-zero if any destination stops resolving.

@@ -5,7 +5,7 @@ Source, READ IN FULL this session (2026-08-05):
   Models", SM thesis, MIT Department of Aeronautics and Astronautics,
   submitted 18 August 2011, supervised by Qiqi Wang. DSpace handle
   1721.1/68407. Held at
-  docs/papers/dow_mit_sm2011_structural_uncertainties_rans.pdf with a text
+  docs/papers/uncertainty_quantification/dow_mit_sm2011_structural_uncertainties_rans.pdf with a text
   extraction alongside.
 
 Zero compute: no solver, no mesh, no fit. Pure arithmetic on eight rows of a

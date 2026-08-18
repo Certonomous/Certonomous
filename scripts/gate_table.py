@@ -120,7 +120,7 @@ REFERENT_CLASS = {
         "St = 0.198(1-19.7/Re) (sdk/workflows/_exact_theory.py:260). Roshko "
         "1954, NACA TR-1191 p. 11 eq (2a) gives St = 0.212(1-21.2/Re) for "
         "50<R<150, which is the range Re 100 sits in; neither 0.198 nor 19.7 "
-        "occurs anywhere in that report (docs/papers/roshko_1954_naca_tr_1191.txt)"),
+        "occurs anywhere in that report (docs/papers/turbulence_models/roshko_1954_naca_tr_1191.txt)"),
     "supersonic-wedge": (
         "EXACT THEORY",
         "theta-beta-M relation, own solver checked against NASA GRC oblshk.f"),

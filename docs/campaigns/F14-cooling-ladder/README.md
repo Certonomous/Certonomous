@@ -103,7 +103,7 @@ named acquisition path closes and the row is extended by addendum.**
 | Measured Nusselt number for the Betts and Bokhari tall cavity | K0c **turbulent** rung, heat transfer row. **STILL NOT OBTAINED after the rung was executed 2026-08-18.** That rung reports Nu = 4.871 (Ra 0.86e6) and 5.694 (Ra 1.43e6) as **UNGRADED MEASUREMENTS**, and its model twin gives 7.984 on the identical case — a **40 percent** model-to-model spread with no reference to adjudicate it. `K0cT_runs/analyse_k0ct.py` re-reads this NOT OBTAINED statement out of the specification on every run and **exits 2 if it has been removed** | The ERCOFTAC database provides no Nusselt files; the paper carrying the measured heat transfer (DOI `10.1016/S0142-727X(00)00033-3`) is paywalled, Unpaywall `is_oa: false` | Obtain Betts and Bokhari (2000) full text, **or** derive wall heat flux from the near-wall temperature files with the derivation and its resolvable increment stated by addendum |
 | Blay, Mergui and Niculae (1992) primary, ASME HTD Vol. 213, pp. 65-72 | **All of K0d.** The rung is filed **TREND-ONLY**: gate rows fixed, reference numbers still awaiting the primary | No DOI exists (CrossRef query on the full title, 2026-08-17, no matching record; ASME HTD volumes of that era are unregistered) and no OA copy was found. The profiles exist today only as figures in secondary papers | Acquire the ASME HTD Vol. 213 proceedings paper; until then K0d cannot rise above TREND-ONLY whatever a solve produces |
 | Any raised-floor rack-inlet or tile-flow measurement primary (best candidates: Schmidt and Cruz 2002, DOI `10.1109/itherm.2002.1012507`; Abdelmaksoud et al. 2010, DOI `10.1109/itherm.2010.5501413`; VanGilder and Schmidt 2006, DOI `10.1016/j.buildenv.2005.03.005`) | **All of K2c-B** (raised-floor rung), and the tile-momentum arbitration of K2a section 2.2 | Every candidate Unpaywall `is_oa: false`, checked 2026-08-17; no repository copies found. Full candidate table in `K2c_RACK_ROW_VALIDATION_SEARCH.md` section 1 | Read Wibron et al. 2019 (`10.3390/en12081473`, OA via the DiVA route) first at zero cost; failing that, the MIT access route on the IEEE/Elsevier candidates |
-| Digitized reference values from Wibron et al. 2018 Figures 3, 6, 7, 8 | Arming K2c-A's reference column; the rung is TREND-ONLY until then | Not paywalled — the primary is in this repository; the labelled extraction has not been performed | Zero-compute digitization addendum against `docs/papers/wibron_ljung_lundstrom_2018_en11030644.pdf`, digitization increment stated per quantity |
+| Digitized reference values from Wibron et al. 2018 Figures 3, 6, 7, 8 | Arming K2c-A's reference column; the rung is TREND-ONLY until then | Not paywalled — the primary is in this repository; the labelled extraction has not been performed | Zero-compute digitization addendum against `docs/papers/data_center_indoor_airflow/wibron_ljung_lundstrom_2018_en11030644.pdf`, digitization increment stated per quantity |
 
 The in-document statements these rows summarise are at
 `K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md` §1 ("Core stratification, laminar rung:
@@ -174,6 +174,61 @@ artificially blocked either.** The closures:
 | Blay, Mergui and Niculae (1992) primary | **STILL NOT OBTAINED.** Untouched today. See the K0d block below | `K0d_TURBULENT_MIXED_CONVECTION_GATE.md` §2 |
 | Any raised-floor rack-inlet or tile-flow measurement primary | **DISCHARGED ON ITS TILE-FLOW HALF. ITS RACK-INLET-TEMPERATURE HALF IS UNTOUCHED AND REMAINS NOT OBTAINED.** VanGilder & Schmidt 2005 (`10.1115/ipack2005-73375`) was obtained in full text via the MIT access route against the ASME Digital Collection, 2026-08-18, and carries a CFD-versus-measurement tile-flow comparison. **Neither it nor Wibron 2019 measures a rack-inlet temperature**; Schmidt & Cruz 2002 (`10.1109/itherm.2002.1012507`) remains the exact-quantity candidate and remains paywalled (Unpaywall `is_oa: false`, 2026-08-17) | `K2c_RACK_ROW_VALIDATION_SEARCH.md` **§8** |
 | Digitized reference values from Wibron 2018 Figures 3, 6, 7, 8 | **DISCHARGED IN FULL.** Figures 6 and 7 on 2026-08-17; **Figures 3 and 8 on 2026-08-18**, tabulated with per-quantity increments. The completion also recorded that Figures 3 and 8 **could never have armed a row**: Figure 3 plots no experiment, and Figure 8's experimental markers are Figure 7's (control C6 measures the identity) | `K2c_DIGITIZATION_ADDENDUM.md` **§11** |
+
+## Closure 2026-08-18, later the same day: the Betts and Bokhari Nusselt reference WAS OBTAINED
+
+**This supersedes one row of the closures table above by date, and that row is
+left standing unedited** (W-4). When it was written, "Measured Nusselt number,
+Betts and Bokhari — **STILL NOT OBTAINED.** Untouched today" was true. Later the
+same day the paper arrived and it stopped being true. Both statements are kept,
+in date order, because the specification's value is that it can be diffed against
+its own commit.
+
+| | |
+| --- | --- |
+| What arrived | Betts, P.L. and Bokhari, I.H. (2000), *Int. J. Heat and Fluid Flow* 21, pp. 675-683, full text, **READ IN FULL** |
+| How it was identified | **By content, not by path.** A concurrent lane reorganised `docs/papers/` into topic subdirectories the same day and the dispatched path no longer existed. Matched on the PII `S0142-727X(00)00033-3` in the PDF's own metadata. SHA-256 `905cce61e84bc485b086f9215277fd94bf823f3ffc12453084ab580423baeb94` |
+| The reference | **Table 1, p. 682: average Nusselt number 5.85 (Ra 0.86e6) and 7.57 (Ra 1.43e6)** |
+| Its stated uncertainty | The paper states none on Nu and **+/-5 %** on the wall temperature gradient Nu is computed from (p. 681) |
+| Where the record is | `K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md` **addendum A1**, appended; §2.3 above it untouched |
+| The verdict it produced | `K0cT_NUSSELT_REGRADE.md`: **kOmegaSST GATE FAIL at both Rayleigh numbers**, -16.79 % and -24.75 %, at 3.1 and 4.6 times the validation uncertainty |
+| The 40 percent model spread | **Resolved in favour of NEITHER model.** The reference sits 81.8 % of the way from kOmegaSST to LaunderSharmaKE. kOmegaSST is refuted; LaunderSharmaKE's error (+5.50 %) is the same size as the validation uncertainty (5.41 %), so it is neither confirmed nor refuted — and it is **NOT GRADED at all**, having been run on a single mesh against a grid-pair rule written the day before |
+| The tripwire | **Moved, not defeated.** §2.3's NOT OBTAINED sentence was not deleted; the guard in `K0cT_runs/analyse_k0ct.py` now requires **both** it and addendum A1's marker, and refuses (exit 2) if either is gone. Proven in three directions |
+
+**Two further references this one table supplied, which the campaign did not have:**
+
+- **A measured turbulent Prandtl number for the tall cavity**, derived from Table
+  1's centre-line eddy viscosity and eddy diffusivity ratios: **Prt = 1.07 at
+  Ra 0.86e6 and 1.28 at Ra 1.43e6**, against the **0.85** the executed rung used.
+- **A corroboration of `compute_reference_metrics.py`.** Its independently
+  derived peak mid-height velocities (0.140 and 0.190 m/s) sit **0.7 % and 0.5 %**
+  from Table 1's own 0.139 and 0.191 — a check against a source it never read.
+
+**What this does NOT close:** the core stratification row. Table 1's
+`Centre-line dT/dx` is a *horizontal* gradient (`x` is horizontal, notation
+p. 676), not the vertical stratification, and no vertical stratification figure
+appears in the paper (addendum A1.7).
+
+## K0cS: a new rung opened today against two primaries that arrived with Betts
+
+`K0cS_SQUARE_CAVITY_GATE.md` and `K0cS_PREREGISTRATION.md` were written and
+committed **before any of their results existed**, so they can be diffed against
+their own commit. The square-cavity turbulent rung is graded against **Ampofo and
+Karayiannis (2003)** and **Tian and Karayiannis (2000) Part I**, both READ IN
+FULL, both identified by content after the reorganisation, every number carrying
+its journal page.
+
+`K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md` §2.1 ruled on 2026-08-17 that this
+pair was "the stronger square-cavity dataset on paper, but no number from it can
+be carried today ... until then it earns no rung." **That ruling is superseded for
+these two papers only, by their arrival**, and §2.1 is left unedited.
+
+**The bands on that rung are NOT the papers' stated uncertainties, and the reason
+is measured:** the two experiments were run in the **same rig** and disagree with
+each other by **up to 8.8 %** on integral Nusselt, against stated uncertainties of
+0.25-1.13 % (Ampofo Table 1, p. 3555) and 0.33 % (Tian, p. 852). The
+reproducibility spread between two independent measurements is the honest
+uncertainty and the bands are built from it.
 
 ## References NOT OBTAINED — two rows ADDED today
 

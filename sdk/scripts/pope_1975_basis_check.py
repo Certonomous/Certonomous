@@ -3,7 +3,7 @@
 Source, READ IN FULL this session:
   S. B. Pope, "A more general effective-viscosity hypothesis",
   J. Fluid Mech. 72 (2), 331-340, 1975.
-  Held at docs/papers/pope_jfm1975_effective_viscosity_hypothesis.pdf
+  Held at docs/papers/turbulence_models/pope_jfm1975_effective_viscosity_hypothesis.pdf
   (text extraction alongside; the ten tensors and the Sec. 5 limit case were
   read off the PDF page images, p. 334 and p. 336, because the OCR mangles
   the fractions).

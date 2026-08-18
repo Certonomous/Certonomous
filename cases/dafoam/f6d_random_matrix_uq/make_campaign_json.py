@@ -39,7 +39,7 @@ out = {
         "citation": ("Xiao, H., Wang, J.-X. & Ghanem, R.G., A Random Matrix Approach for "
                      "Quantifying Model-Form Uncertainties in Turbulence Modeling, "
                      "arXiv:1603.09656 (2016); Comput. Methods Appl. Mech. Engrg. 313:941-965"),
-        "local_full_text": "docs/papers/xiao_wang_ghanem_1603.09656.pdf",
+        "local_full_text": "docs/papers/uncertainty_quantification/xiao_wang_ghanem_1603.09656.pdf",
         "configuration_follows_paper_table_1": {
             "N_KL": 30, "kl_mesh": [50, 30], "N_p": 3,
             "lx_over_H": 2.0, "ly_over_H": 1.0,
