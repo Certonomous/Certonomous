@@ -425,3 +425,23 @@ re-read.
 - Of §4's three rows: the first (any raised-floor primary) is **partly
   discharged on its tile-flow half and untouched on its rack-inlet half**; the
   second was discharged by the digitization addendum; the third is **closed**.
+
+### 7.4 Correction to 7.2, appended 2026-08-18 within the hour, by the same session
+
+**One sentence of section 7.2 above overstated its own arithmetic and is
+corrected here rather than edited.** That section wrote that the report's *"80
+degC"* is *"consistent with 80 degF, which is 26.7 degC and sits within a tenth
+of a degree of the recorded 27 degC upper."* **The gap is a third of a degree
+Celsius, not a tenth**, and the figure it is a third of a degree from is a
+converted one, so the comparison is worth stating in one direction only.
+
+Re-derived: this document's section 5 records the ASHRAE recommended rack-inlet
+upper limit as **27 degC** (tier SECONDARY, via Wibron 2018 p. 2, and it is not
+a measurement). `27 degC` is **80.60 degF**. The report's numeral **80** read as
+Fahrenheit is **26.667 degC**, which is **0.60 degF** or **0.333 degC** below the
+recorded limit; read as Celsius it is **53.0 degC above it**. **The finding is
+unchanged and does not rest on the tenth of a degree**: a rack-inlet temperature
+of 80 degC is not a data-centre reading in any facility, the numeral matches the
+Fahrenheit reading of the limit the same sentence invokes, and the report states
+it in Celsius. What is corrected is the closeness claim, which was this
+session's arithmetic and was wrong by a factor of about three.

@@ -906,3 +906,21 @@ document.
   were executed on the nine-act table only, by making that surface carry the
   referent, its class and the band. **The eleven other rows section 8 item 4
   names are untouched.**
+
+### 10.6 Correction to 10.4, appended 2026-08-18 within the hour, by the same session
+
+**Section 10.4 asserted a figure it did not source, and the assertion is
+corrected here rather than edited.** It wrote *"where the recommended upper
+limit is 80 degF, 26.7 degC"* as a bare statement of fact. This session read no
+ASHRAE document. The recommended upper limit this lab actually holds is
+**27 degC**, recorded at `docs/campaigns/F14-cooling-ladder/K2c_RACK_ROW_VALIDATION_SEARCH.md`
+section 5 at tier **SECONDARY** (via Wibron 2018 p. 2), and it is a guideline
+rather than a measurement. `27 degC` converts to **80.60 degF**; the report's
+numeral 80 read as Fahrenheit is **26.667 degC**, **0.333 degC** below that
+limit, and read as Celsius is **53.0 degC** above it.
+
+**The finding stands and the correction is to its warrant, not to its
+direction.** Stating a round Fahrenheit figure as though it had been read
+somewhere, in an addendum whose subject is constants quoted without a source, is
+the defect this page spent the night measuring, and it is recorded here for that
+reason rather than removed.
