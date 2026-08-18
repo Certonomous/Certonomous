@@ -1087,3 +1087,56 @@ than a value they get wrong.**
 - **No verdict in any rung moves.** `K0cS`, `K0cT` and `K0cX` keep their
   recorded verdicts.
 - **Submissions remain PARKED.**
+
+---
+
+## Dated addendum 2, 2026-08-18 22:45Z — X2 reported, and this document's central reading survived the experiment built to falsify it
+
+**Nothing above is edited.** W-4. Addendum 1 §A5 recorded that X2 had not
+reported when it was written. It has.
+
+**VERDICT: SMALL.** `K0cQ_RESULTS.md`, D418.
+
+`kOmegaSSTQCR` at Spalart's published `Ccr1 = 0.3`, against its own `kOmegaSST`
+twins on both cavities and both meshes, moved hot-wall Nusselt by **-0.194 %,
+-0.083 %, +0.022 % and +0.043 %** and stratification by at most **0.0124**.
+The registered falsifier was 10 % (square) and 5.41 % (tall). **The
+measurements fall short of it by a factor of 50 to 250.**
+
+Both `Ccr1 = 0` controls returned **exact machine zero** over 14 400 and 4 800
+cells, reproducing `W3_QCR_DUCT_FALSIFIER.md` on a different solver and two new
+geometries.
+
+### What it settles
+
+- **Section 6's rejection R3 was rejected for want of evidence in both
+  directions. It now has evidence and is rejected on it.** The buoyant failure
+  is not the square-duct anisotropy failure in another guise.
+- **Section 0's group-C reading survives the only experiment on the section 8
+  list that could have falsified it**, and it survived on a measurement rather
+  than on the absence of one.
+- **Section 4's placement of the cavities with the hump and the hills, and not
+  with the ducts, is now measured.** The force of it is the contrast: the same
+  library and coefficient take the ducts' in-plane secondary flow from
+  **5.5e-16 to 0.705** against a 0.813 reference, and leave the cavities' graded
+  integrals alone. **This correction is decisive where the failure is
+  structural and inconsequential where it is a mis-scaling.**
+- **Section 9's "it establishes no anisotropy result on either cavity" is
+  discharged in one direction only.** A constitutive anisotropy correction of
+  the family a two-equation model can carry does not move the graded integrals.
+  **Ampofo p. 3559's measurement that the isotropy assumption is false stands
+  untouched**, and no anisotropy tensor has been measured on either cavity.
+
+### What it opens
+
+**X3 was registered as not to be scheduled until X2 had said which hypothesis
+it is testing. X2 has said.** A constitutive correction is ruled out; a
+Reynolds-stress **transport** model is a different instrument and is not.
+X3's registered decisive outcome — *velocity improving while the Nusselt error
+stays* — is now the outcome that would separate the two halves of this
+document's central split, and X2's null makes that split the live question
+rather than one of several.
+
+**X2 says nothing about the heat-flux closure**, which is the other half. The
+section 8 rows that bear on it are X4 arm (b), X5 and X7, and X7 has since
+reported (addendum 1 §A4).
