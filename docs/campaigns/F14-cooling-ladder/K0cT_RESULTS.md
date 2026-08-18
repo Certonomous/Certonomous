@@ -417,7 +417,7 @@ gives n = 0.433 to 0.494 rather than 0.600 to 0.662, and a corrected prediction 
 **+12.0 % to +13.9 %** against a measured **+11.90 %** — agreeing at the bottom of
 the range to within 0.14 points. **This second derivation is an explanation, not
 a registered prediction, and it is marked `POST_HOC` in the JSON so it can never
-be read as one.** The lesson is at L-122.
+be read as one.** The lesson is at L-125.
 
 **C2's limitation, stated rather than glossed.** Because the graded rung *itself*
 fails the velocity row, C2 cannot demonstrate a PASS flipping to FAIL there. What
@@ -585,7 +585,7 @@ not state: ν_t is identically **zero** on every wall patch under
 `nutLowReWallFunction` (measured per case as `nut_wall_max = 0.000e+00`), so
 α_eff on every patch really is uniform at ν/Pr. That is why the path-1/path-3
 cross-check closes to 1e-06. **It would not close on a wall-function case**, where
-ν_t at the wall is non-zero. Docketed at D382. This is L-113's class in the file
+ν_t at the wall is non-zero. Docketed at D384. This is L-113's class in the file
 that documents itself most carefully, and its own docstring already records one
 previous instance of the same thing.
 
