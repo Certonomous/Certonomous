@@ -5496,3 +5496,118 @@ sentence and a different finding, and a weaker test that still looked green in
 the count. The fixture now derives its layout from the shim
 (`root / lab_paths.AGENDA.relative_to(lab_paths.REPO)`), so it follows every
 remaining batch with no edit.
+
+## L-116. A scalar admissibility limit on a MODEL is really a limit on a QUANTITY, and different quantities cross it at different orders
+
+`physics_rules.yaml` carries `boussinesq_beta_dT_max: 0.1` with a careful
+paragraph of reasoning and no measurement behind the number. F14 rung K2e ran
+the same cavity under `buoyantBoussinesqSimpleFoam` and under stock
+`buoyantSimpleFoam` at Ra held fixed, across eleven values of `beta.dT`, and the
+two models turned out not to separate on one quantity at all. The peak
+horizontal velocity diverges as **24.9 · (beta.dT)^1.005 %** — first order — and
+crosses 1 % at `beta.dT` between 0.033 and 0.050, half the limit. The hot-wall
+Nusselt number diverges as **6.36 · (beta.dT)^1.968 %** — second order — and does
+not reach 1 % until between 0.30 and 0.40, four times the limit. At the limit
+itself the two answers are 2.47 % apart on velocity and **0.063 %** apart on wall
+flux.
+
+**Why the orders differ, and why that is the general shape.** The cheap model
+possessed a symmetry the expensive one does not: the Boussinesq cavity is exactly
+centro-symmetric, and the integral wall flux is protected by that symmetry to
+leading order while the flow structure is not. Whenever an approximation is a
+truncated expansion, the quantities it protects and the quantities it does not
+sit at **different powers of the small parameter**, so one threshold on the small
+parameter cannot mean one thing.
+
+**The rule.** A threshold on a dimensionless group is not admissible until it
+names the quantity it protects and the accuracy it protects it to. Where a single
+number already exists, either split it per graded quantity or replace it with the
+measured law `D = a·(group)^n` and let each rung compute its own limit from the
+accuracy it needs. **And a rung that stays inside such a limit has NOT thereby
+established that its answer is inside any error band** — it has established that
+somebody once judged the regime plausible.
+
+**The cheap way to get the law rather than the point.** Sweep the group and fit
+the exponent, do not test the one value the rule names. The exponent is the
+transferable half: it says how a divergence measured at one value carries to
+another, which a table of points does not, and it survives a change of case class
+far better than the coefficient does. K2e's whole sweep cost 21 core-minutes,
+less than one fine-mesh case of the rung that wrote the limit.
+
+Found 2026-08-18 at F14 rung K2e, `docs/campaigns/F14-cooling-ladder/K2e_RESULTS.md`.
+
+## L-117. Parameterise a two-model comparison so that ONE model's answer is invariant, and the setup falsifies itself
+
+K2e had to sweep `beta.dT` while comparing two solvers. The obvious sweep — raise
+`dT` at fixed viscosity — also raises the Rayleigh number, so both models change
+together for an ordinary physical reason and the measured separation is
+confounded with a change of regime. The sweep was instead built to hold Ra fixed
+by moving `nu` with `dT`, which costs nothing.
+
+**What that bought was not just the removal of a confounder.** In non-dimensional
+form the Boussinesq problem depends only on (Ra, Pr). At fixed Ra and Pr its
+answer is therefore **identical at every point of the sweep — a flat line by
+theory**. So the cheap model's own branch became a live control: a mis-scaled
+viscosity, a mis-generated case, a wrong non-dimensionalisation, any of the
+errors that would have made the whole rung meaningless, all show up as a
+**sloped** line where a flat one is mandatory. Measured: peak-to-peak spread
+**2e-08 to 6e-08 %** across the whole sweep on both meshes. Nothing was asserted
+about the generator; the generator was watched.
+
+**The rule.** In any comparison of two models, look for a parameterisation in
+which one of them is invariant along the swept axis, and sweep that one. The
+invariant branch is then a control that costs no extra compute, runs on every
+point, and fails loudly on exactly the class of error a comparison cannot survive.
+Where no such parameterisation exists, say so, because it means every point of
+the sweep is carrying an unmonitored setup assumption.
+
+**Its companion is a null point, not a null argument.** The same sweep's smallest
+value (`beta.dT` = 0.001) is where the two models must agree because the
+difference between them is switched off. What they disagree by *there* is a
+MEASURED ceiling on any residual datum or property mismatch — 0.097 % on the
+Nusselt number, 0.209 % on velocity — and it is the number every later separation
+has to clear. An argument that two solvers share a datum is worth less than one
+run at the value where sharing it is the only thing that can make them agree.
+
+Found 2026-08-18 at F14 rung K2e, controls C-1 and C-2.
+
+## L-118. An instrument that MUTATES the case it audits destroys the evidence for the claim it is auditing, and it does so after the fact and in silence
+
+`scripts/heat_balance.py` is this lab's standing heat-balance check. At line 770
+it calls `shutil.rmtree(<case>/postProcessing, ignore_errors=True)` before
+running its own postProcess pass. That directory is the in-pass function-object
+history — which is exactly what this campaign's **own** convergence gate reads:
+`physics_rules.yaml` `thermal.monitor_*` and
+`scripts/check_convergence.py --monitor-regex` are built on it, and
+`physics_rules.yaml` refuses residuals as a criterion in writing precisely so
+that this history is the thing that decides.
+
+**So auditing a case deletes the proof that it converged.** Measured at K2e:
+twelve Boussinesq cases lost `hotFlux`, `coldFlux`, `Umax` and `Tcentre` the
+moment the auditor ran, with no error, no warning, and no exit code. K0c's
+committed archive carries the same hole — only `hbAudit_*` survives under
+`K0c_runs/*/postProcessing/` — and nothing in that rung's documents says why.
+The two instruments are on the same side, which is what made it invisible: the
+one that grades convergence and the one that grades closure were never run in the
+wrong order deliberately, so nobody found out that order matters.
+
+**The rule, in three parts.** (1) **Run an instrument on a copy** unless it is
+documented as a mutator; `analyse_k2e.py` now copies each case into a temporary
+directory before auditing it. (2) **An instrument's side effects are part of its
+contract and belong in its docstring beside its exit codes**, because a caller
+choosing between two checks cannot read 800 lines to find out that one of them
+deletes something. (3) **When an archive is missing a directory it should have,
+that is a finding, not tidiness** — the K0c hole sat in the repository for a day
+being read as normal.
+
+**The same path carried two more.** The auditor requires
+`constant/transportProperties` and so **refuses outright on any `rhoThermo`
+case** — it cannot audit the very solver class the Boussinesq limit tells a rung
+to move to. And six of its refusal sites `raise SystemExit("REFUSE: …")`, which
+exits **1**, while its own docstring promises exit **2** for a refusal and exit 1
+for "the balance did not close". Measured: a nonexistent case directory and an
+empty case both exit 1. A caller reading the exit status cannot tell a refusal
+from a finding — the failure mode L-113 names, in the file that documents itself
+most carefully.
+
+Found 2026-08-18 at F14 rung K2e, while auditing 30 cases; docketed.

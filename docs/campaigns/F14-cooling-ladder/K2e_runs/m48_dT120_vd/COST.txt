@@ -1,0 +1,5 @@
+case m48_dT120_vd
+application buoyantSimpleFoam
+wall_clock_s 15.998
+cores 1
+core_minutes 0.2666

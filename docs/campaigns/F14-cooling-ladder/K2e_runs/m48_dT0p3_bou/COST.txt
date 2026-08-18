@@ -1,0 +1,5 @@
+case m48_dT0p3_bou
+application buoyantBoussinesqSimpleFoam
+wall_clock_s 17.902
+cores 1
+core_minutes 0.2984

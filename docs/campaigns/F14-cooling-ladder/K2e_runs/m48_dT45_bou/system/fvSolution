@@ -1,0 +1,57 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p_rgh
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-10;
+        relTol          0.001;
+    }
+    "(U|T)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0.001;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 0;
+    pRefCell        0;
+    pRefValue       0;
+
+    // NO residualControl.  Every K2e case runs a FIXED iteration count and is
+    // graded by the governed peak-to-peak criterion on Nu_h instead
+    // (physics_rules.yaml thermal.monitor_*).  K0c measured four fine meshes
+    // that met their own residualControl while the graded quantity was still
+    // drifting 2.19 to 4.67 %, so residualControl is not the gate here; and an
+    // early residual exit would give the two solvers DIFFERENT iteration
+    // counts, which is a like-with-like defect in a comparison rung.
+}
+
+relaxationFactors
+{
+    fields    { p_rgh 0.3; }
+    equations { U 0.7; T 0.9; }
+}
+
+// ************************************************************************* //

@@ -1296,3 +1296,66 @@ tolerance is reported `ledger_complete: false` and cannot pass.
   and nothing here speaks to it either way.
 - **Compressible or variable-property flow.** The derivation assumes constant
   `rho` and `cp` throughout.
+
+## Boussinesq validity, measured against a variable-density solver (added 2026-08-18, F14 rung K2e)
+
+`docs/physics_rules.yaml` block `thermal` carries `boussinesq_beta_dT_max: 0.1`.
+Until K2e that number was a fence: no rung had measured what crossing it costs.
+K2e ran the K0c cavity under `buoyantBoussinesqSimpleFoam` and under stock
+`buoyantSimpleFoam` across eleven values of `eps = beta.dT`, at **Ra held fixed
+at 1e5**, on a 48²/96² pair. Everything here is **VERIFIED by measurement on
+this repository's own cases** unless the row says otherwise. Full result and its
+scope limits: `docs/campaigns/F14-cooling-ladder/K2e_RESULTS.md`. **Tier
+SOLVER-BACKED: there is no experimental reference and both models could be wrong
+together.**
+
+Case class throughout: sealed two-dimensional differentially heated square
+cavity, laminar, Ra = 1e5, Pr = 0.71, TRef 300 K, constant `mu` and `k`.
+
+### 1. The divergence is not one number, because the two models separate at different ORDERS
+
+| Fact | Value | Basis |
+|---|---|---|
+| Divergence of the hot-wall Nusselt number | **D = 6.355 · (beta.dT)^1.968 %**, worst residual 4.65 % over eps 0.05 to 0.40 | **VERIFIED**, F14 K2e, 11-point sweep, both meshes |
+| Divergence of the peak horizontal velocity on the vertical mid-plane | **D = 24.91 · (beta.dT)^1.005 %**, worst residual 0.51 % | **VERIFIED**, same |
+| Centro-symmetry defect of theta (zero under Boussinesq by construction) | **S_rms = 0.0831 · (beta.dT)^1.002** | **VERIFIED**, same |
+| Dimensionless temperature at the cavity centre (zero under Boussinesq) | **theta_c = −0.0343 · (beta.dT)^0.999** | **VERIFIED**, same |
+| Why the wall flux is second order and the rest first | the Boussinesq equations are exactly centro-symmetric on this cavity and the variable-density equations are not; the integral wall flux is protected to leading order by that symmetry, the flow structure is not | RECALLED as reasoning; **VERIFIED in consequence** by the four exponents above |
+| Where each quantity first exceeds 1 % (Class A) or 0.005 dT (Class B) | `u_max*` at beta.dT ∈ **(0.0333, 0.0500]**; `S_rms` at **(0.0500, 0.0667]**; `theta_c` at **(0.100, 0.150]**; **`Nu_h` at (0.300, 0.400]** | **VERIFIED**, brackets not interpolated |
+| At the standing limit `beta.dT = 0.1` exactly, 96² mesh | `Nu_h` **0.063 %**, `u_max*` **2.470 %**, `theta_c` **−0.00327**, `S_rms` **+0.00800** | **VERIFIED** |
+
+**Practice.** A rung graded on **wall heat flux** has roughly a factor of four of
+headroom in `beta.dT` beyond the standing 0.1 before it reaches 1 %. A rung
+graded on **velocity or flow structure** crosses 1 % at about **half** of it.
+Compute the admissible `beta.dT` from the law and the accuracy the rung needs;
+do not read one scalar limit and assume it protects the quantity being graded.
+
+### 2. Constructing like-with-like between the two solvers
+
+| Fact | Value | Basis |
+|---|---|---|
+| Equation of state that makes the comparison a Taylor truncation and not a change of fluid | `equationOfState incompressiblePerfectGas` with fixed `pRef`: rho = pRef/(R.T), so beta_true = 1/T = **3.33333e-03 1/K at 300 K**, exactly the Boussinesq `beta` | **VERIFIED**, and the solver's own `rho min/max` log line matches pRef/(R.T) at the witnessed wall temperatures to 6 decimal places on all 15 cases |
+| Why `perfectGas` is the wrong choice for a swept comparison in a SEALED cavity | its thermodynamic pressure moves to conserve mass, shifting rho_ref ~**1.4 %** and Ra ~**2.8 %** at dT = 120 K — the same order as the effect being measured | **VERIFIED** by derivation from ⟨1/T⟩ over the imposed range; `incompressiblePerfectGas` was used instead and holds Ra exactly fixed |
+| Holding Ra fixed while sweeping dT | `nu(dT) = sqrt(g.beta.dT.L³.Pr/Ra)`; at dT = 1.088162239 K this returns **1.589461e-05**, K0c's own Ra = 1e5 value | **VERIFIED**, and it is the generator's self-check |
+| Consequence, and it is the design's own falsifier | the non-dimensional Boussinesq problem depends only on (Ra, Pr), so its branch of every curve must be FLAT. Measured spread across the whole sweep: **2e-08 to 6e-08 %** on both meshes | **VERIFIED** |
+| Measured floor on any residual datum or property mismatch (eps → 0 null test) | **0.097 % on Nu_h, 0.209 % on u_max*, 0.080 % on v_max***, at eps = 0.001 | **VERIFIED**; every separation reported clears it by ≥ 5× |
+| Whether the two Nusselt definitions can differ | with `transport const` and constant `Pr`, `k` is constant, so the temperature-gradient Nusselt and the heat-flux Nusselt are the **same number** | **VERIFIED** by construction; there is no definitional choice to make |
+
+### 3. Cost, and what a mesh check is worth
+
+| Fact | Value | Basis |
+|---|---|---|
+| Cost of this case class, `buoyantBoussinesqSimpleFoam` | 48², 3000 iterations: **~0.14 core-min**; 96², 6000 iterations: **~1.24 core-min** | **VERIFIED**, `K2e_runs/*/COST.txt` |
+| Cost of the same case under `buoyantSimpleFoam` | **1.7 to 2.2× the Boussinesq solve** at the same mesh and iteration count | **VERIFIED**, same source |
+| Iterations to meet the governed 0.02 % peak-to-peak criterion, 48² | first met between **500** (0.305 %) and **750** (0.000160 %); flat at 0.000002 % from 1000 | **VERIFIED**, pilot solve |
+| A divergence that is really discretisation error | `v_max*` (peak vertical velocity, horizontal mid-plane) moved **24 to 26 %** between the 48² and 96² meshes at every eps, while its eps-exponent stayed at 1.02 — right scaling, mesh-dependent amplitude | **VERIFIED**; it was struck from every K2e conclusion, and the five other quantities moved 0.4 to 5.3 % |
+
+### 4. What none of this establishes
+
+- **Nothing about a real gas's `mu(T)` and `k(T)`.** Both were held constant.
+  Every coefficient above is a **lower bound** on the non-Boussinesq error.
+- **Nothing about which model is right.** There is no experimental reference.
+- **Nothing about a rack row.** Two-dimensional, laminar, steady, sealed, one
+  Rayleigh number. The **exponents** are the part most likely to transfer,
+  because they come from the structure of the expansion; the **coefficients** are
+  properties of this case.

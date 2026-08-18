@@ -1,0 +1,5 @@
+case m96_dT30_vd
+application buoyantSimpleFoam
+wall_clock_s 156.184
+cores 1
+core_minutes 2.6031
