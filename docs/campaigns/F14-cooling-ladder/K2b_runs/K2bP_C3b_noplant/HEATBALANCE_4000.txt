@@ -1,0 +1,64 @@
+==========================================================================
+HEAT BALANCE AUDIT   /home/ubuntu/Certonomous/docs/campaigns/F14-cooling-ladder/K2b_runs/K2bP_C3b_noplant
+time = 4000     regime: Ra = 3.1844e+10, Pr = 0.710000
+==========================================================================
+  properties: nu=1.589461e-05 m2/s  Pr=0.710000  alpha=2.238677e-05 m2/s
+              rho=1.1614 kg/m3  cp=1007 J/kg/K  -> k = rho.cp.alpha = 0.026182 W/m/K
+              |g| = 9.8100 m/s2   (TURBULENT)
+  thresholds: /home/ubuntu/Certonomous/docs/physics_rules.yaml
+              tolerance 0.5 % from /home/ubuntu/Certonomous/docs/physics_rules.yaml
+  fvOptions in the SOLVER LOG: none   (logs read: log.buoyantBoussinesqSimpleFoam)
+--------------------------------------------------------------------------
+patch           type        mdot kg/s      Q cond W       Q adv W   Q into dom. W
+floor           wall                0             0            -0               0
+ceiling         wall                0             0            -0               0
+wall_cold       wall                0             0            -0               0
+wall_hot        wall                0             0            -0               0
+rack_top        wall                0             0            -0               0
+tile            patch       -0.284543  -0.000301221      -3151.88        -3151.88
+return          patch        0.284836             0      -1796.72        -1796.72
+rack_in         patch         0.40649             0       2259.29         2259.29
+rack_out        patch        -0.40649    0.00489812       2652.32         2652.33
+--------------------------------------------------------------------------
+  heat IN   = +4.911624e+03 W
+  heat OUT  = -4.948599e+03 W
+  net       = -3.697510e+01 W
+  IMBALANCE = 0.7528 %  of heat in   (tolerance 0.5000 %)  -> FAIL
+--------------------------------------------------------------------------
+  ADVECTIVE TERM: computed on 4 open patch(es) (tile, return, rack_in, rack_out)
+      conduction  = +4.596902e-03 W
+      advection   = -3.697969e+01 W   (datum 300 K, TRef from case constant/transportProperties)
+      mass in/out = 6.910330e-01 / 6.913258e-01 kg/s, net +2.927996e-04 kg/s
+      mass imbalance 0.042353 % -> OK
+      one kelvin of datum error is worth 2.948492e-01 W in this ledger
+      READ THIS BEFORE QUOTING THE CLOSURE: on an open case closure
+      catches an unconverged energy field, a mis-set temperature offset, a
+      mismatched face pair and a patch omitted from the sum. It
+      establishes NOTHING about circulation -- a solve whose flow
+      structure is entirely wrong still closes perfectly once converged,
+      because closure tests conservation and not where the energy
+      travelled. Necessary, never sufficient.
+--------------------------------------------------------------------------
+  NOT of the identity class. The balance constrains something the discretisation
+  does not force -- but read what it does and does not reach:
+      every active patch is a wall: False; solver log says finite volume
+      options were none. The advective enthalpy flux is computed and
+      carried in the ledger, and it depends on the SOLUTION -- on the
+      outlet temperature and on phi -- so this closure is convergence- and
+      bookkeeping-sensitive rather than forced by the discretisation. It
+      catches an unconverged energy field, a mis-set temperature offset, a
+      mismatched face pair and a patch omitted from the sum. It
+      establishes NOTHING about circulation: a solve whose flow structure
+      is entirely wrong still closes perfectly once converged, because
+      closure tests conservation and not where the energy travelled.
+      Necessary, never sufficient (K2a section 8).
+--------------------------------------------------------------------------
+  max |U|        = 8.903801e-01 m/s
+  T range, cells = 289.000000 .. 306.604994 K
+  max dT used    = 17.604994 K (field 17.604994, wall-average 17.479587)
+  Prt            = 0.85   from case constant/transportProperties   (enters alphaEff on this solve)
+  BOUSSINESQ     : beta.dT = 5.868331e-02  -> SATISFIED (limit 0.1)
+                   at this beta the limit is reached at dT = 30.0000 K; this case runs at dT = 17.6050 K
+  Ra = 3.184443e+10   Gr = 4.485131e+10   Pr = 0.710000   (L = 2.7 m, dT = 17.604994 K)
+  Ri: not defined independently: no imposed velocity scale. With Re built from the buoyancy velocity, Ri = Gr/Re^2 = 1 identically, by construction. Ra and Pr carry the regime.
+==========================================================================

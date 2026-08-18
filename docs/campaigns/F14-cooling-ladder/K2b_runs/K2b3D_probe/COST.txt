@@ -1,0 +1,8 @@
+case K2b3D_probe
+cells 132840
+iterations 200
+wall_clock_s 66.959642105
+cores 1
+core_minutes 1.1160
+cell_iter_per_core_s 396776.3
+concurrent_solvers_at_launch 1

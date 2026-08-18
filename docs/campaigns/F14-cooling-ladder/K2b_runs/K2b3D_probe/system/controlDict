@@ -16,13 +16,13 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 application     buoyantBoussinesqSimpleFoam;
-startFrom       latestTime;
+startFrom       startTime;
 startTime       0;
 stopAt          endTime;
-endTime         5000;
+endTime         200;
 deltaT          1;
 writeControl    timeStep;
-writeInterval   500;
+writeInterval   200;
 purgeWrite      0;
 writeFormat     ascii;
 writePrecision  10;
@@ -33,12 +33,12 @@ runTimeModifiable false;
 
 functions
 {
-    T_rack_in_mdot
+    T_rack0_in_mdot
     {
         type            surfaceFieldValue;
         libs            (fieldFunctionObjects);
         regionType      patch;
-        name            rack_in;
+        name            rack0_in;
         operation       weightedAverage;
         fields          (T);
         weightField     phi;
@@ -50,44 +50,12 @@ functions
         writeControl    timeStep;
         writeInterval   50;
     }
-    T_rack_in_area
+    T_rack1_in_mdot
     {
         type            surfaceFieldValue;
         libs            (fieldFunctionObjects);
         regionType      patch;
-        name            rack_in;
-        operation       areaAverage;
-        fields          (T);
-        writeFields     false;
-        writeToFile     true;
-        log             true;
-        executeControl  timeStep;
-        executeInterval 50;
-        writeControl    timeStep;
-        writeInterval   50;
-    }
-    T_rack_out_area
-    {
-        type            surfaceFieldValue;
-        libs            (fieldFunctionObjects);
-        regionType      patch;
-        name            rack_out;
-        operation       areaAverage;
-        fields          (T);
-        writeFields     false;
-        writeToFile     true;
-        log             true;
-        executeControl  timeStep;
-        executeInterval 50;
-        writeControl    timeStep;
-        writeInterval   50;
-    }
-    T_rack_out_mdot
-    {
-        type            surfaceFieldValue;
-        libs            (fieldFunctionObjects);
-        regionType      patch;
-        name            rack_out;
+        name            rack1_in;
         operation       weightedAverage;
         fields          (T);
         weightField     phi;
@@ -99,12 +67,46 @@ functions
         writeControl    timeStep;
         writeInterval   50;
     }
-    T_tile_area
+    T_rack2_in_mdot
     {
         type            surfaceFieldValue;
         libs            (fieldFunctionObjects);
         regionType      patch;
-        name            tile;
+        name            rack2_in;
+        operation       weightedAverage;
+        fields          (T);
+        weightField     phi;
+        writeFields     false;
+        writeToFile     true;
+        log             true;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+    }
+    T_rack3_in_mdot
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            rack3_in;
+        operation       weightedAverage;
+        fields          (T);
+        weightField     phi;
+        writeFields     false;
+        writeToFile     true;
+        log             true;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+    }
+    T_rack0_out_area
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            rack0_out;
         operation       areaAverage;
         fields          (T);
         writeFields     false;
@@ -115,15 +117,46 @@ functions
         writeControl    timeStep;
         writeInterval   50;
     }
-    T_return_mdot
+    T_rack1_out_area
     {
         type            surfaceFieldValue;
         libs            (fieldFunctionObjects);
         regionType      patch;
-        name            return;
-        operation       weightedAverage;
+        name            rack1_out;
+        operation       areaAverage;
         fields          (T);
-        weightField     phi;
+        writeFields     false;
+        writeToFile     true;
+        log             true;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+    }
+    T_rack2_out_area
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            rack2_out;
+        operation       areaAverage;
+        fields          (T);
+        writeFields     false;
+        writeToFile     true;
+        log             true;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+    }
+    T_rack3_out_area
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            rack3_out;
+        operation       areaAverage;
+        fields          (T);
         writeFields     false;
         writeToFile     true;
         log             true;
@@ -164,12 +197,12 @@ functions
         writeControl    timeStep;
         writeInterval   50;
     }
-    phi_rack_in
+    phi_rack0_in
     {
         type            surfaceFieldValue;
         libs            (fieldFunctionObjects);
         regionType      patch;
-        name            rack_in;
+        name            rack0_in;
         operation       sum;
         fields          (phi);
         writeFields     false;
@@ -180,12 +213,108 @@ functions
         writeControl    timeStep;
         writeInterval   50;
     }
-    phi_rack_out
+    phi_rack1_in
     {
         type            surfaceFieldValue;
         libs            (fieldFunctionObjects);
         regionType      patch;
-        name            rack_out;
+        name            rack1_in;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeToFile     true;
+        log             true;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+    }
+    phi_rack2_in
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            rack2_in;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeToFile     true;
+        log             true;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+    }
+    phi_rack3_in
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            rack3_in;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeToFile     true;
+        log             true;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+    }
+    phi_rack0_out
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            rack0_out;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeToFile     true;
+        log             true;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+    }
+    phi_rack1_out
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            rack1_out;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeToFile     true;
+        log             true;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+    }
+    phi_rack2_out
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            rack2_out;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeToFile     true;
+        log             true;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    timeStep;
+        writeInterval   50;
+    }
+    phi_rack3_out
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            rack3_out;
         operation       sum;
         fields          (phi);
         writeFields     false;
@@ -208,43 +337,6 @@ functions
         executeInterval 50;
         writeControl    timeStep;
         writeInterval   50;
-    }
-    yplus
-    {
-        type            yPlus;
-        libs            (fieldFunctionObjects);
-        writeControl    writeTime;
-        executeControl  writeTime;
-        log             true;
-    }
-    aisleProfiles
-    {
-        type            sets;
-        libs            (sampling);
-        writeControl    writeTime;
-        executeControl  writeTime;
-        interpolationScheme cellPoint;
-        setFormat       raw;
-        fields          (T U);
-        sets
-        (
-            coldAisleMid
-            {
-                type    uniform;
-                axis    z;
-                start   (0.3000 0.6000 0.02);
-                end     (0.3000 0.6000 2.6800);
-                nPoints 68;
-            }
-            hotAisleMid
-            {
-                type    uniform;
-                axis    z;
-                start   (0.3000 2.9000 0.02);
-                end     (0.3000 2.9000 2.6800);
-                nPoints 68;
-            }
-        );
     }
 }
 

@@ -5993,3 +5993,47 @@ should expect this class**: seven modules under
 `demo-output/website/campaign/` derive the repository root by segment counting
 and every one of them lands on `/home/ubuntu` after R20/R21 — measured, not
 predicted (docket D385).
+
+## L-128. The identity defect is not a property of the heat balance; it migrates, and it arrived next in the convergence criterion
+
+**The rule.** Whenever a check returns a *score* rather than a verdict, ask what
+that check returns on an input where the quantity it measures **cannot vary**.
+If the answer is its best possible score, the check has an identity defect and
+must be taught to REFUSE that input, not to grade it. Ask this of every new
+check at the moment it is written, because this lab has now met the same defect
+three times in three different instruments.
+
+**Why.** The defect's history here is the argument:
+
+| where | the quantity that could not move | what the check returned |
+|---|---|---|
+| K0b, sealed heat balance | boundary conduction forced to sum to zero by the discretisation | 0.0128 % imbalance — a pass, at iteration 10, on an unconverged case |
+| KV1b, advective ledger | a uniform field, so the advective sum was identically zero | closure passed, and every mutation was correctly invisible |
+| **K2b, the S13 convergence criterion** | a graded temperature pinned at the supply value in a region the solve had not reached | **0.00000 %, the best score the criterion can return** |
+
+At K2b the graded rack-inlet temperature printed `289.0000002` falling to `289`
+across the whole 400-iteration window — **one unit in the last place of a
+ten-significant-figure print** — while the same case's heat balance was 2.6632 %
+out and its free boundary was swinging 0.23585 %. S13 asks *has the graded
+quantity stopped moving?* and cannot answer that on a quantity that never
+started, so it returned the most flattering answer available. Two of the rung's
+own controls read perfectly on the same case for the same reason, the rack face
+still being uniform.
+
+**How to apply.** The repair is always the same shape and it is worth stating as
+a pattern: **refuse the unresolvable input instead of scoring it**, exactly as
+`heat_balance.py` refuses an undefined imbalance ratio rather than renormalising
+it into a flattering 100.0000 %. At K2b that became `thermal.monitor_min_resolved_ulp`
+— a spread below ten units in the last place of the series *as printed* is
+`CANNOT_TELL`. Two properties made the repair safe to ship and both are worth
+copying: it was **proved in both directions** (the stalled case now refuses at
+1 ulp; the genuinely converged case still passes at 29,290 ulp), and the
+constant was shown **not to be load-bearing** by re-grading the whole affected
+corpus across it — the verdict set is identical for any floor from 2 to 13,161,
+3.8 orders of magnitude, and exactly one verdict of fourteen changed.
+
+**And the tell was already in the record, unread.** `MONITOR_STANDARD.md`'s own
+S13 replay line had recorded six K1c controls passing "at **0.000e+00** to
+1.793e-08%". A spread of literally zero is the defect, written down, in the
+standard that defines the rule, and nobody read it as one. **A number in your own
+replay line that is too good is a finding, not a trophy.**

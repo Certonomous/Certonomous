@@ -1,0 +1,15 @@
+case               K2b3D_probe
+kind               COST PROBE ONLY -- 200 iterations, not converged, grades nothing
+purpose            measure the 3D+SST derate K2a section 10 assumed at 2.7 and never measured
+domain             3.6 x 3.5 x 2.7 m, full 3D (no empty patches)
+racks              4, x in [0.6, 3.0], per-rack face pairs
+row ends           OPEN -- L_end 0.6 m each side; the 3D-only recirculation path
+                   the 2D slice structurally cannot have
+cells              132840   (spec section 6 says ~0.20 M; 0.66x, inside the 2x band)
+cell size          ~60 mm, divisions landing exactly on every geometric boundary
+solver             buoyantBoussinesqSimpleFoam, kOmegaSST, Prt 0.85
+Qv_rack            0.35 m3/s each, U_face 0.2917 m/s
+Qv_tile total      1.4 m3/s over 1.44 m2, U_tile 0.9722 m/s
+provisioning       100.0 % (balanced, spec default n_t = N)
+dT_rack            12.0 K   beta.dT 0.040000
+endTime            200

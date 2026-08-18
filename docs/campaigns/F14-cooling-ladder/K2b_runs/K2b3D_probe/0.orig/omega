@@ -1,0 +1,118 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0.orig";
+    object      omega;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 -1 0 0 0 0];
+
+internalField   uniform 3.623258e+00;
+
+boundaryField
+{
+    floor
+    {
+        type            omegaWallFunction;
+        value           uniform 3.623258e+00;
+    }
+    ceiling
+    {
+        type            omegaWallFunction;
+        value           uniform 3.623258e+00;
+    }
+    wall_cold
+    {
+        type            omegaWallFunction;
+        value           uniform 3.623258e+00;
+    }
+    wall_hot
+    {
+        type            omegaWallFunction;
+        value           uniform 3.623258e+00;
+    }
+    wall_x0
+    {
+        type            omegaWallFunction;
+        value           uniform 3.623258e+00;
+    }
+    wall_x1
+    {
+        type            omegaWallFunction;
+        value           uniform 3.623258e+00;
+    }
+    rack_top
+    {
+        type            omegaWallFunction;
+        value           uniform 3.623258e+00;
+    }
+    rack_end
+    {
+        type            omegaWallFunction;
+        value           uniform 3.623258e+00;
+    }
+    tile
+    {
+        type            turbulentMixingLengthFrequencyInlet;
+        mixingLength    0.06;
+        value           uniform 3.623258e+00;
+    }
+    return
+    {
+        type            inletOutlet;
+        inletValue      uniform 3.623258e+00;
+        value           uniform 3.623258e+00;
+    }
+    rack0_in
+    {
+        type            zeroGradient;
+    }
+    rack1_in
+    {
+        type            zeroGradient;
+    }
+    rack2_in
+    {
+        type            zeroGradient;
+    }
+    rack3_in
+    {
+        type            zeroGradient;
+    }
+    rack0_out
+    {
+        type            turbulentMixingLengthFrequencyInlet;
+        mixingLength    0.2;
+        value           uniform 3.260932e-01;
+    }
+    rack1_out
+    {
+        type            turbulentMixingLengthFrequencyInlet;
+        mixingLength    0.2;
+        value           uniform 3.260932e-01;
+    }
+    rack2_out
+    {
+        type            turbulentMixingLengthFrequencyInlet;
+        mixingLength    0.2;
+        value           uniform 3.260932e-01;
+    }
+    rack3_out
+    {
+        type            turbulentMixingLengthFrequencyInlet;
+        mixingLength    0.2;
+        value           uniform 3.260932e-01;
+    }
+}
+
+// ************************************************************************* //

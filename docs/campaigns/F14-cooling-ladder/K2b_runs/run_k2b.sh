@@ -45,6 +45,15 @@ for c in "${CASES[@]}"; do
   esac
   rm -rf postProcessing constant/polyMesh
   rm -f log.blockMesh log.checkMesh log.buoyantBoussinesqSimpleFoam
+  # MEASURED, 2026-08-18: COST.txt must go FIRST and unconditionally. It is
+  # written only after the solver exits, so a re-run that is killed -- or that
+  # is still going while somebody reads the tree -- leaves the PREVIOUS run's
+  # COST.txt sitting beside the new run's log, claiming a different iteration
+  # count and a different price. That happened here: a stale file reading
+  # "iterations 800 / 1.2083 core-min" sat next to a 5,000-iteration log, and a
+  # `until [ -f COST.txt ]` wait returned instantly against it. A cost record
+  # that outlives the run it describes is worse than no cost record.
+  rm -f COST.txt
   for d in [1-9]*; do [ -d "$d" ] && rm -rf "$d"; done
   blockMesh > log.blockMesh 2>&1
   checkMesh > log.checkMesh 2>&1

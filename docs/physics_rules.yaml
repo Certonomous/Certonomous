@@ -148,6 +148,53 @@ thermal:
   monitor_sample_interval_iterations: 50
   monitor_min_samples: 9
   #
+  # THE NULL-VARIATION REFUSAL (added 2026-08-18 at rung K2b).
+  # A SPREAD THAT IS NOT RESOLVED CANNOT PASS, AND THE REASON IS THE ONE K0b
+  # FOUND IN THE HEAT BALANCE, ARRIVING HERE.
+  #
+  # This criterion asks "has the graded quantity stopped moving?" It cannot
+  # answer that on a quantity that never STARTED, and until K2b it did not
+  # refuse -- it returned its BEST POSSIBLE SCORE. Measured on K2b's fine mesh:
+  # the graded rack-inlet temperature printed 289.0000002 falling to 289 across
+  # the whole 400-iteration window, a spread of 1e-07 K in the last place of a
+  # ten-significant-figure print, and scored 0.00000 percent against a 0.02
+  # percent band. The same case's heat balance was 2.6632 percent out and its
+  # free boundary was swinging 0.23585 percent. The quantity was PINNED at the
+  # supply temperature because the cold aisle had not been reached yet.
+  #
+  # That is the identity defect this file already records for the sealed-case
+  # heat balance, wearing the convergence criterion's clothes: A QUANTITY THAT
+  # CANNOT MOVE SCORES PERFECTLY ON A TEST OF WHETHER IT HAS STOPPED MOVING.
+  # Two of K2b's own controls read perfectly on that same case for the same
+  # reason -- the offset readback erred by 0.000e+00 and the mass-versus-area
+  # averaging comparison by -0.0001 percent -- because the rack face was still
+  # uniform. A monitor or a control is most flattering exactly where the case
+  # is least converged.
+  #
+  # THE RULE. The spread is compared against the resolution the series is
+  # PRINTED at, measured from the samples themselves (the most precise sample
+  # fixes the precision; OpenFOAM strips trailing zeros, so one sample reading
+  # `289` and the next `289.0000002` are the same ten-figure series). Below
+  # this many units in the last place the spread is not resolved by the log,
+  # so it cannot distinguish "stopped" from "never started" from "pinned by a
+  # boundary condition", and the criterion REFUSES rather than scoring -- the
+  # same refusal `heat_balance.py` makes on an undefined imbalance ratio
+  # instead of printing a flattering number for it.
+  #
+  # THE CONSTANT IS NOT LOAD-BEARING, AND THAT IS MEASURED RATHER THAN ASSERTED.
+  # Re-graded over all 14 cases graded under the old reading -- K0c's eleven and
+  # K2b's three -- the verdict set is IDENTICAL for every floor from 2 to
+  # 13,161 ulp, a span of 3.8 orders of magnitude. It breaks at 1 (too low to
+  # catch the defect at all) and at 13,200 (which begins refusing K0c's
+  # genuinely converged Ra1e3_m32, whose spread is 13,161 ulp). 10 sits inside
+  # that plateau, three orders clear of the nearest true positive.
+  #
+  # RE-GRADE OF THE 14 AFFECTED CASES: exactly ONE verdict changed. K2b's fine
+  # mesh moves CONVERGED -> CANNOT_TELL. K0c's eleven are untouched, four
+  # CONVERGED and seven NOT_CONVERGED as before, the closest of them 1,316x
+  # clear of this floor.
+  monitor_min_resolved_ulp: 10
+  #
   # ===========================================================================
   # 2. BOUSSINESQ VALIDITY -- A WARNING, AND IT IS NOT ACADEMIC
   # ===========================================================================

@@ -24,4 +24,4 @@ Ri_tile            0.2491
 Ri_rack            9.225
 Ra_H               2.171e+10
 planted_source     0.0 W  (S 0.000000000000e+00 K.m3/s)
-endTime            800
+endTime            5000

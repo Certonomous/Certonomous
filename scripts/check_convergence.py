@@ -500,7 +500,8 @@ def _thermal_rules() -> dict:
     source was used.
     """
     builtin = dict(monitor_peak_to_peak_max_pct=0.02, monitor_window_iterations=400,
-                   monitor_sample_interval_iterations=50, monitor_min_samples=9)
+                   monitor_sample_interval_iterations=50, monitor_min_samples=9,
+                   monitor_min_resolved_ulp=10)
     path = Path(__file__).resolve().parent.parent / "docs" / "physics_rules.yaml"
     try:
         import yaml  # noqa: PLC0415
@@ -531,6 +532,45 @@ def monitor_series(logs: list[str], regex: str) -> list[float]:
         for m in rx.finditer(text):
             out.append(float(m.group(1)))
     return out
+
+
+def monitor_series_raw(logs: list[str], regex: str) -> list[str]:
+    """The same series as `monitor_series`, as the RAW PRINTED STRINGS.
+
+    Needed because the null-variation refusal below has to know at what
+    precision the solver actually printed the quantity, and `float()` has
+    already thrown that away.  A spread of 2e-07 means one thing in a series
+    printed to 10 significant figures and quite another in one printed to 4.
+    """
+    rx = re.compile(regex)
+    out: list[str] = []
+    for p in logs:
+        text = _read(Path(p))
+        for m in rx.finditer(text):
+            out.append(m.group(1))
+    return out
+
+
+def print_resolution(raw: list[str], magnitude: float) -> float:
+    """One unit in the last place of the series AS PRINTED.
+
+    Measured from the samples themselves rather than assumed from
+    `writePrecision`, because the log is the artefact and a reader
+    re-deriving the verdict has only the log.  The MOST precise sample in the
+    set fixes the precision: OpenFOAM strips trailing zeros, so a converged
+    value can print as `289` in one sample and `289.0000002` in the next, and
+    only the longer one reveals that ten significant figures are being carried.
+    """
+    sig = 0
+    for s in raw:
+        mant = s.strip().lower().split("e")[0]
+        digits = mant.replace("-", "").replace("+", "").replace(".", "")
+        stripped = digits.lstrip("0")
+        sig = max(sig, len(stripped) if stripped else 1)
+    if sig == 0 or magnitude == 0:
+        return 0.0
+    import math  # noqa: PLC0415
+    return 10.0 ** (math.floor(math.log10(abs(magnitude))) - (sig - 1))
 
 
 def classify_monitor(logs, regex, tol_pct=None, window=None, interval=None,
@@ -573,6 +613,43 @@ def classify_monitor(logs, regex, tol_pct=None, window=None, interval=None,
                       reason="the last monitored value is zero; a relative spread "
                              "has no scale here.")
         return result
+    # ---------------------------------------------------------------------
+    # THE NULL-VARIATION REFUSAL (added 2026-08-18 at rung K2b).
+    # A criterion that asks "has it stopped moving?" cannot answer on a
+    # quantity that never started.  Measured on K2b's fine mesh: T_in printed
+    # 289.0000002 falling to 289 over the whole window -- a spread of 2e-07 K
+    # in the last place of a ten-figure print -- and scored 0.00000 percent,
+    # THE BEST SCORE THIS CRITERION CAN RETURN, on a case whose heat balance
+    # was 2.6632 percent out and whose free boundary was swinging 0.23585
+    # percent.  The quantity was pinned at the supply temperature because the
+    # cold aisle had not been reached yet.  That is K0b's identity defect
+    # wearing the convergence criterion's clothes: a quantity that CANNOT move
+    # scores perfectly on a test of whether it has STOPPED moving.
+    # So an unresolvable spread is REFUSED and never passed, exactly as
+    # heat_balance.py refuses an undefined imbalance ratio rather than printing
+    # a flattering number for it.
+    raw = monitor_series_raw(logs, regex)[-n_window:]
+    ulp = print_resolution(raw, last)
+    p2p_abs = max(win) - min(win)
+    min_ulp = float(rules.get("monitor_min_resolved_ulp", 10))
+    if ulp > 0 and p2p_abs < min_ulp * ulp:
+        result.update(
+            status="CANNOT_TELL",
+            peak_to_peak_pct=100.0 * p2p_abs / abs(last),
+            peak_to_peak_abs=p2p_abs, print_resolution=ulp,
+            resolved_ulp=p2p_abs / ulp, min_resolved_ulp=min_ulp,
+            reason=(
+                f"the spread over the window is {p2p_abs:.6g}, which is "
+                f"{p2p_abs / ulp:.3g} units in the last place of a series "
+                f"printed at a resolution of {ulp:.6g}. Below {min_ulp:g} ulp "
+                f"the spread is not RESOLVED by the log, so it cannot "
+                f"distinguish a quantity that has stopped moving from one that "
+                f"never started or is pinned by a boundary condition. REFUSED "
+                f"rather than scored -- and note that scoring it would have "
+                f"returned {100.0 * p2p_abs / abs(last):.6f} percent, i.e. a "
+                f"PASS, which is the failure mode this clause exists to stop."))
+        return result
+
     spread = 100.0 * (max(win) - min(win)) / abs(last)
     endpoint = 100.0 * abs(win[-1] - win[0]) / abs(last)
     q = series[int(0.75 * (len(series) - 1))]
@@ -580,6 +657,10 @@ def classify_monitor(logs, regex, tol_pct=None, window=None, interval=None,
 
     result.update(
         peak_to_peak_pct=spread,
+        peak_to_peak_abs=p2p_abs,
+        print_resolution=ulp,
+        resolved_ulp=(p2p_abs / ulp if ulp > 0 else None),
+        min_resolved_ulp=min_ulp,
         endpoint_drift_pct=endpoint,
         last_quarter_drift_pct=lastquarter,
         window_first=win[0], window_last=win[-1],

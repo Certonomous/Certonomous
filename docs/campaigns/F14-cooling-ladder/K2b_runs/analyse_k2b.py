@@ -71,7 +71,7 @@ def load_rules():
     want = ("monitor_peak_to_peak_max_pct", "monitor_window_iterations",
             "monitor_sample_interval_iterations", "monitor_min_samples",
             "boussinesq_beta_dT_max", "boussinesq_dT_max_K_at_TRef_300",
-            "heat_balance_tol_pct")
+            "heat_balance_tol_pct", "monitor_min_resolved_ulp")
     out = {}
     inblock = False
     with open(path) as fh:
@@ -160,6 +160,7 @@ def parse_log(path):
                 op, patch, fld, val = m.groups()
                 try:
                     samples.setdefault(it, {})[f"{op}:{patch}:{fld}"] = float(val)
+                    samples[it][f"raw:{op}:{patch}:{fld}"] = val
                 except ValueError:
                     pass
                 continue
@@ -179,7 +180,7 @@ def parse_log(path):
     return samples, yplus
 
 
-def s13(series, rules):
+def s13(series, rules, raw=None):
     """PEAK-TO-PEAK SPREAD over a FIXED window.  Not a residual reading, not an
     endpoint difference, not a fraction of the run -- physics_rules.yaml thermal
     section 1 states why each of those three failed on a measured case."""
@@ -201,6 +202,28 @@ def s13(series, rules):
     mean = sum(vals) / len(vals)
     p2p = max(vals) - min(vals)
     pct = 100.0 * p2p / abs(mean) if mean else float("inf")
+    # THE NULL-VARIATION REFUSAL (physics_rules thermal.monitor_min_resolved_ulp,
+    # MONITOR_STANDARD S13 clause added at v1.11). A spread the log cannot
+    # resolve cannot distinguish "stopped moving" from "never started"; it is
+    # REFUSED rather than scored, because scoring it returns the BEST POSSIBLE
+    # score on the LEAST converged case. Measured here on K2bP_fine.
+    if raw:
+        sig = 0
+        for t in raw:
+            d = t.strip().lower().split("e")[0].replace("-", "").replace(".", "").lstrip("0")
+            sig = max(sig, len(d) if d else 1)
+        import math
+        ulp = 10.0 ** (math.floor(math.log10(abs(mean))) - (sig - 1)) if mean and sig else 0.0
+        floor = rules.get("monitor_min_resolved_ulp", 10)
+        if ulp > 0 and p2p < floor * ulp:
+            return dict(verdict="REFUSED", peak_to_peak=p2p, peak_to_peak_pct=pct,
+                        print_resolution=ulp, resolved_ulp=p2p / ulp,
+                        min_resolved_ulp=floor, mean=mean, n_samples=len(win),
+                        reason=(f"spread {p2p:.6g} is {p2p/ulp:.3g} ulp of a series "
+                                f"printed at {ulp:.6g}; below {floor:g} ulp it is not "
+                                f"resolved by the log. Scoring it would have returned "
+                                f"{pct:.6f} % -- a PASS -- on a quantity that may never "
+                                f"have started moving."))
     return dict(verdict="PASS" if pct <= tol else "FAIL",
                 window_iterations=window, sample_interval=interval,
                 n_samples=len(win), first_iter=win[0][0], last_iter=win[-1][0],
@@ -241,7 +264,9 @@ def analyse(case, rules, rules_path):
              dT_rack_K=dt_rack, T_sup_K=t_sup, beta=beta)
 
     # ---- 1. S13 on the graded quantity
-    r["S13_T_in"] = s13(tin, rules)
+    r["S13_T_in"] = s13(tin, rules, [samples[i]["raw:weightedAverage:rack_in:T"]
+                                     for i in iters
+                                     if "raw:weightedAverage:rack_in:T" in samples[i]][-9:])
     r["S13_note"] = ("graded quantity is T_in = mass-flow-weighted T over "
                      "rack_in; with N = 1 in the slice this is T_in,max")
     # THE SAME CRITERION ON A SECOND QUANTITY, AND IT IS NOT DECORATION.
@@ -250,7 +275,9 @@ def analyse(case, rules, rules_path):
     # T_in alone is blind to a run that is still swinging everywhere else.
     # The return patch is the room's only free boundary and is the cheapest
     # second sentinel there is -- it is already printed at the same cadence.
-    r["S13_T_return"] = s13(tret, rules)
+    r["S13_T_return"] = s13(tret, rules, [samples[i]["raw:weightedAverage:return:T"]
+                                          for i in iters
+                                          if "raw:weightedAverage:return:T" in samples[i]][-9:])
 
     # ---- 2. the Boussinesq span, at EVERY sample, spec section 4
     spans = [(i, mx - mn) for (i, mx), (_, mn) in zip(tmax, tmin)]
@@ -348,6 +375,10 @@ def emit(r):
     print(f"  S13 (peak-to-peak of T_in over a fixed window): {s['verdict']}")
     if s["verdict"] == "REFUSED":
         print(f"      {s['reason']}")
+        if "resolved_ulp" in s:
+            print(f"      spread {s['peak_to_peak']:.3e}  print resolution "
+                  f"{s['print_resolution']:.3e}  = {s['resolved_ulp']:.3g} ulp "
+                  f"(floor {s['min_resolved_ulp']:g})")
     else:
         print(f"      window {s['window_iterations']} it @ every {s['sample_interval']}"
               f", {s['n_samples']} samples, iters {s['first_iter']}-{s['last_iter']}")

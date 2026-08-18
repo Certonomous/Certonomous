@@ -1,5 +1,15 @@
 # Certonomous Monitor Standard
 
+Version 1.11, dated 2026-08-18. **Adds no new rule. It repairs S13, which until
+now returned its BEST POSSIBLE SCORE on a quantity that had never moved** — the
+identity defect this standard already documents for the sealed-case heat balance
+(S14), arriving in the convergence criterion. Measured at rung K2b: a graded
+rack-inlet temperature pinned at the supply temperature scored **0.00000 %**
+against a 0.02 % band while the same case's heat balance was 2.6632 % out. S13
+now REFUSES an unresolved spread instead of passing it. Re-graded over all
+fourteen cases graded under the old reading, **exactly one verdict changes**.
+The 1.10 note follows.
+
 Version 1.10, dated 2026-08-17. **Adds exactly one rule, S16, and gives S14 the
 branch its own detection clause had always implied and never answered.** S14
 detects on a conjunction — no non-wall patch **and** no constructed source — and
@@ -740,7 +750,35 @@ stated once, here, rather than three times in weaker words.
   over 400 iterations sampled every 50, giving 9 samples). Fewer samples than
   span the window is `CANNOT_TELL`, never a score. The solver's own
   convergence statement is **not** evidence against this signature: S13 exists
-  precisely for runs that print it. Neither the endpoint difference over the
+  precisely for runs that print it.
+- **The null-variation clause (added 1.11, and it changes what this rule
+  does).** A spread that is not RESOLVED by the log is `CANNOT_TELL`, never a
+  pass. The spread is compared against the precision the series is actually
+  printed at — measured from the samples themselves, since the most precise
+  sample fixes it and OpenFOAM strips trailing zeros — and a spread below
+  `thermal.monitor_min_resolved_ulp` (10) units in the last place is refused.
+  **Why it is needed:** this rule asks *has the graded quantity stopped
+  moving?*, and it cannot answer that on a quantity that never STARTED. At rung
+  K2b the graded rack-inlet temperature of a fine-mesh case sat at exactly the
+  supply temperature — printing `289.0000002` falling to `289` across the whole
+  400-iteration window, a spread of 1 ulp in a ten-figure print — and **scored
+  0.00000 %, the best score this criterion can return**, on a case whose heat
+  balance was 2.6632 % out and whose free boundary was swinging 0.23585 %. Two
+  of that rung's controls read perfectly on the same case for the same reason:
+  the boundary-offset readback erred by 0.000e+00 and the mass-versus-area
+  averaging comparison by −0.0001 %, both because the face was still uniform.
+  **A monitor or a control is most flattering exactly where the case is least
+  converged** — which is S14's identity argument, and this clause is S14's
+  refusal transplanted into S13. The threshold is not load-bearing: re-graded
+  over all fourteen affected cases the verdict set is identical for any floor
+  from **2 to 13,161 ulp**, 3.8 orders of magnitude, breaking at 1 (too low to
+  catch it) and at 13,200 (which starts refusing K0c's genuinely converged
+  `Ra1e3_m32`, whose spread is 13,161 ulp).
+- **What the clause does NOT do**, stated because a refusal is easy to read as
+  a failure: `CANNOT_TELL` is not `NOT_CONVERGED`. It says the log cannot
+  support either verdict on this quantity, and the action is to run further, to
+  print more digits, or to grade a quantity that has actually responded — not
+  to declare the case bad. Neither the endpoint difference over the
   same window nor the drift over the last quarter of the run is gated, and
   both are printed beside the gated number labelled NOT GATED, because a
   reader who sees only the number that gates cannot tell a choice was made.
@@ -755,7 +793,9 @@ stated once, here, rather than three times in weaker words.
 - Action: continue the run, or report the drift beside the number. Never both
   quote the number and omit the drift.
 - Status: **wired**, `classify_monitor()` in `scripts/check_convergence.py`,
-  mode `--monitor-regex`. Thresholds read from `docs/physics_rules.yaml`.
+  mode `--monitor-regex`. Thresholds read from `docs/physics_rules.yaml`,
+  including `thermal.monitor_min_resolved_ulp` for the null-variation clause;
+  the print resolution is measured by `print_resolution()` in the same module.
 - **Replay line.** Corpus: the eleven committed K0c logs. Fires on **1 of 11**
   (`C3_Ra1e5_m64_source`, peak-to-peak 0.123720% against 0.02%); silent on the
   other ten, whose spreads run 0.000219% to 0.008403%. Fatal count on the
@@ -773,6 +813,20 @@ stated once, here, rather than three times in weaker words.
   at 0.000e+00 to 1.793e-08%, and the planted-source recovery error improved
   by **four orders of magnitude**, from -7.943e-05% to +2.388e-09%. The rule
   changed this rung's own numbers; it is not decorative.
+  **Re-grade under the 1.11 null-variation clause (2026-08-18).** Corpus: the
+  eleven committed K0c logs plus K2b's three. **Exactly one verdict changes** —
+  K2b's fine mesh moves `CONVERGED` → `CANNOT_TELL`. All eleven K0c cases are
+  untouched, four `CONVERGED` and seven `NOT_CONVERGED` as before, and the
+  closest of them to the new floor is `Ra1e3_m32` at **13,161 ulp**, three
+  orders clear of it. A repair that moved the K0c corpus would have been a new
+  criterion wearing the old one's name; this one does not.
+  **And the defect is visible in this replay line's own text, above, which
+  nobody read as a defect.** The K1c controls re-run to 4000 iterations are
+  recorded here as passing "at **0.000e+00** to 1.793e-08%". A spread of
+  literally zero is exactly what the 1.11 clause refuses. Those six cases would
+  be `CANNOT_TELL` under it — **stated and not measured**, because K1c's logs
+  are not in the committed tree and the re-grade could not be run against them.
+  Whoever next has those logs owes this line a number.
 
 ### S14. A closure number quoted as evidence on a sealed case
 

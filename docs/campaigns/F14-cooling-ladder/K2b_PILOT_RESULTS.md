@@ -1,11 +1,17 @@
 # K2b-pilot — the rack-row module as a 2D vertical slice
 
-Campaign F14, rung K2b, **the pilot only**. Executed 2026-08-18 against
-`K2a_RACK_ROW_MODULE_SPEC.md` section 6, under an authorisation of **60
-core-minutes for the 2D pilot and nothing else**. Spend: **≈52 core-minutes**,
-itemised in section 9. The 3D graded pair — ~1,600 core-minutes in the spec's own
-estimate — remains **unrun and unauthorized**; section 9 is a proposal with a
-measured cost, not a request already granted.
+Campaign F14, rung K2b. Executed 2026-08-18 against
+`K2a_RACK_ROW_MODULE_SPEC.md` section 6 under three authorisations: **60
+core-minutes for the 2D pilot**, then **1.4 for a 3D coarse cost probe** and
+**20 to finish control C3**. Spend: **65.4 of 81.4 core-minutes; 16.0 returned
+unspent**, itemised in section 9.
+
+**The 3D graded pair remains unrun and unauthorized.** Section 9 now carries a
+*measured* rate rather than an assumed one, and the estimate it supports is a
+number to decide against, not a request.
+
+Section 11 records a repair to the **standing** convergence criterion that this
+rung's own data forced, and which is lab-wide rather than local to K2b.
 
 ---
 
@@ -40,8 +46,9 @@ k-ω SST throughout, on the 2D vertical slice built by `K2b_runs/build_k2b.py`.
 | `K2bP_fine` | the same balanced case at 1.5× per direction, capped at the budget line | 104,400 | 1,500 | 6.66 |
 | `K2bP_C1_g0` | control C1: gravity off. Restart twin of `K2bP_under` | 46,400 | 800 | 2.76 |
 | `K2bP_C2_dT13` | control C2: the ΔT plant moved +10 % to 13.2 K. Restart twin | 46,400 | 800 | 1.22 |
-| `K2bP_C3_plant` | control C3: a planted volumetric source of 500.000 W. Restart twin | 46,400 | 800 | 1.10 |
-| `K2bP_C3b_noplant` | C3's negative twin: identical, no `fvOptions` | 46,400 | 800 | 1.21 |
+| `K2bP_C3_plant` | control C3: a planted volumetric source of 500.000 W. Restart twin | 46,400 | 5,000 | 6.63 |
+| `K2bP_C3b_noplant` | C3's negative twin: identical, no `fvOptions` | 46,400 | 5,000 | 6.88 |
+| `K2b3D_probe` | the 3D coarse cost probe — 4 racks, open row ends, 200 iterations | 132,840 | 200 | 1.12 |
 
 Geometry, one rack pitch deep (Δx = W_r = 0.60 m) so that per-slice flows **are**
 per-rack flows and no scaling factor is introduced anywhere:
@@ -290,10 +297,10 @@ from the rules file and none is copied into any case script.
 | `K2bP_under` | 4,600–5,000 | T_in | 294.094692 K | 1.016 K | **0.34553 %** | **FAIL** |
 | `K2bP_under` | 4,600–5,000 | T_return | 306.160028 K | 2.052e-01 K | **0.06702 %** | **FAIL** |
 
-| `K2bP_fine` | 1,100–1,500 | **T_in** | 289.000000 K | **1.0e-07 K** | **0.00000 %** | **PASS** |
+| `K2bP_fine` | 1,100–1,500 | **T_in** | 289.000000 K | **1.0e-07 K** | **0.00000 %** | **PASS** → **REFUSED** (§11) |
 | `K2bP_fine` | 1,100–1,500 | T_return | 300.613670 K | 7.090e-01 K | **0.23585 %** | **FAIL** |
 
-### The sharpest instance is the fine mesh, and it scores a perfect pass
+### The sharpest instance is the fine mesh, and it scored a perfect pass — until section 11 repaired the criterion
 
 `K2bP_fine` at 1,500 iterations is manifestly nowhere near converged: its heat
 balance reads **2.6632 %**, five times worse than the coarse mesh at the same
@@ -371,7 +378,7 @@ spec section 5 already prices the remedy (unsteady, 5–10×).
 | C0m mass ledger | **reachability** | yes — a mismatched face pair moves it |
 | C1 gravity-off twin | **reachability**, value-level | yes — reads exactly 0 on a g = 0 case |
 | C2 ΔT plant, +10 % | **reachability** | yes — reads 12.0 K if the offset is ignored |
-| C3 planted 500.000 W source | **reachability**, convergence-limited | yes — and it moved by a factor of 2 between two audits |
+| C3 planted 500.000 W source | **reachability**, noise-floor-limited | yes — readback travelled 155.55 → 536.47 W; **not landed**, see below |
 | C3b negative twin | **discriminating** | it is what makes C3 mean anything |
 | S15 fvOptions witness | **recognition** | yes — it reports the log, and it discriminates |
 
@@ -397,10 +404,17 @@ the mass-weighted average at the start of an outer iteration and the function
 object reports both faces at the end of it, so a case still swinging by a kelvin
 is read a fraction of a swing apart.
 
-**This control can fail, and the failure mode is real, not hypothetical.** The
+**This control can fail — but by construction, not by demonstration, and that
+distinction is the one this campaign holds itself to.** The
 `outletMappedUniformInlet` implementation has two branches (section 7.1) and the
 fallback branch **drops the offset entirely**: a rack that adds no heat would then
 read exactly like a converged rack, and this readback would print 0.000 K.
+**No K2b case ever entered that branch.** `gSum(phi)` on a rack front face never
+approached `SMALL`, so the readback has only ever been observed *passing*, and
+"it can fail" rests on reading the source rather than on having seen it fail.
+That is precisely the standard KV1b was held to and failed. The demonstration is
+cheap — a case with a zero or sign-reversed rack flow rate — and it is filed as
+**D391** rather than claimed here.
 
 ### C0m — the mass ledger (reachability)
 
@@ -499,18 +513,50 @@ does not exist, starts from the same seeded field and runs the same 800
 iterations, so the recovered plant is the **difference of two ledgers at matched
 state** and the closure error common to both subtracts out.
 
+**Run to 5,000 iterations on both twins under a separate 20 core-minute
+authorisation** (13.51 spent). The first pass, at 800 iterations, read 315.57 W
+and was still climbing; the question was whether it converges on the plant.
+
 | iteration | net, plant case | net, no-plant twin | recovered | error vs 500.000 W |
 |---:|---:|---:|---:|---:|
-| 400 | −151.785853 W | +3.764241 W | **155.5501 W** | −68.89 % |
-| 800 | −307.270487 W | +8.296449 W | **315.5669 W** | −36.89 % |
+| 1,000 | −311.0800 W | +42.2570 W | **353.337 W** | −29.33 % |
+| 2,000 | −399.1559 W | +7.1338 W | **406.290 W** | −18.74 % |
+| 3,000 | −496.2579 W | −35.8655 W | **460.392 W** | −7.92 % |
+| 4,000 | −573.4445 W | −36.9751 W | **536.469 W** | **+7.29 %** |
+| 5,000 | −454.9621 W | +11.3376 W | **466.300 W** | −6.74 % |
 
-**NOT ESTABLISHED, and reported as a trajectory rather than a pass.** The
-recovery doubled between two audits and is moving toward the plant at roughly the
-case's own closure rate — so the control is **not** degenerate, and it is **not**
-landed either. Reaching the 0.1 % band needs an estimated ~5,000 further
-iterations on both twins, ≈16 core-minutes, which is outside this pilot's
-authorisation. It is priced into section 9 and filed on the docket rather than
-rounded up into a pass.
+**It reaches the plant and then oscillates about it. It does not converge on
+it.** The recovery crosses 500 W between iterations 3,000 and 4,000, overshoots
+to +7.29 %, and falls back to −6.74 %. More iterations will not fix that, and the
+reason is measurable rather than a guess:
+
+> **The no-plant twin's own ledger net wanders by 48.313 W peak-to-peak** across
+> iterations 2,000–5,000 (+7.134, −35.866, −36.975, +11.338 W). The governed
+> recovery tolerance is 0.1 % of 500.000 W = **0.500 W**. **The noise floor is
+> 97× the tolerance.**
+
+**Verdict: the planted-source recovery control cannot be landed to its governed
+tolerance on this geometry, and the obstruction is the case's unsteadiness, not
+the instrument.** `K2bP_under` fails S13 at 0.34553 %; its ledger therefore
+oscillates by tens of watts, and the matched-twin difference does not cancel that
+because the plant perturbs the flow enough that the two twins no longer sit in
+the same phase of the same oscillation. On a **steady** case the same control is
+excellent — KV1a recovered its plant at +2.40e-08 % on a laminar duct.
+
+**What C3 does establish, stated at the accuracy it supports:** the boundary
+ledger recovers a planted volumetric source on the rack-row geometry **to about
+7 %**, from a starting error of −68.89 %, moving monotonically toward the plant
+across four decades of the run. That is a real result about the audit's
+bookkeeping on this geometry and it is not a pass against the 0.1 % rule.
+**The control is not degenerate** — its readback travelled from 155.55 W to
+536.47 W — and it is not a pass. Both halves are reported. Filed at **D381** and
+settled at **D388**, which supersedes D381's "needs ~16 more core-minutes": the
+obstruction is not iteration count.
+
+**Consequence for the 3D module:** a planted-source recovery control is only
+worth its compute on a case that meets S13. On an unsteady one it should either
+be run against a time-averaged ledger, or replaced by a control that does not
+depend on ledger closure.
 
 ---
 
@@ -670,9 +716,12 @@ variant, not for this one. Filed as **D378**.
 - **`K2bP_under` does not reach S13**, and running the steady solver longer will
   not fix an oscillation. Pre-registered by K2a section 5 risk 1; remedy priced
   there at 5–10× (unsteady with statistical averaging).
-- **C3's plant recovery is not landed.** Section 5. It moved from 155.55 W to
-  315.57 W against a planted 500.000 W and needed ~16 core-minutes more than the
-  authorisation held. Filed as **D381**.
+- **C3's plant recovery cannot be landed to its governed tolerance on this
+  geometry.** Section 5. Run to 5,000 iterations on both twins it reaches the
+  plant and oscillates about it, best reading 466.300 W of 500.000 W, because
+  the no-plant twin's own ledger wanders 48.313 W peak-to-peak against a
+  0.500 W tolerance — a floor 97× the tolerance. Not an iteration-count
+  problem. **D388**, settling **D381**.
 - **The mesh pair is not a mesh-convergence result and is not offered as one.**
   The fine mesh ran 1,500 iterations against the coarse mesh's 9,000, at
   3.92e5 cell·iter/(core·s) for 6.66 core-minutes. Per the rules block's own
@@ -700,6 +749,14 @@ variant, not for this one. Filed as **D378**.
   the full 5,000-iteration cases read 5.22e5 and 4.81e5. Mesh construction,
   `wallDist` and first-matrix assembly are amortised over 100 iterations instead
   of 5,000. Every figure in section 9 is priced at the long-run rate.
+- **A cost record almost outlived the run it described.** `run_k2b.sh` wrote
+  `COST.txt` only after the solver exited and never removed the previous one, so
+  when `K2bP_C3b_noplant` was re-run from 800 to 5,000 iterations the stale file
+  — `iterations 800`, `1.2083 core-min` — sat beside a log already past 3,460,
+  and a wait armed on that file returned instantly against it. Repaired in the
+  script; filed as **D390** with the general rule, since stale `HEATBALANCE_*`
+  reports from audits aimed at not-yet-written time directories bit the same way
+  in the same session.
 - **One operational stumble, recorded because it is already a documented trap.**
   A `pkill -f "run_k2b.sh ..."` issued to stop the over-running fine mesh matched
   its own invoking shell and killed the command that issued it —
@@ -727,6 +784,11 @@ variant, not for this one. Filed as **D378**.
 | `K2bP_C3_plant` | 66.2 | 1.10 |
 | `K2bP_C3b_noplant` | 72.5 | 1.21 |
 | 16 `heat_balance.py` audit passes, `blockMesh`/`checkMesh` | ~70 | ~1.2 |
+| **subtotal, the pilot as originally authorised (60)** | | **≈ 52** |
+| `K2b3D_probe`, authorised separately 2026-08-18 | 67.0 | 1.12 |
+| `K2bP_C3_plant` re-run to 5,000, authorised separately (20) | 397.6 | 6.63 |
+| `K2bP_C3b_noplant` re-run to 5,000, same authorisation | 412.7 | 6.88 |
+| **TOTAL, all three authorisations** | | **65.4** |
 | **total** | | **≈ 52** |
 
 Against an authorisation of **60 core-minutes**. The fine mesh was stopped twice
@@ -772,17 +834,54 @@ the 1/N² argument puts a 1.5× fine mesh at ≈2.25× that.
 | sensitivity block, 6 coarse deltas at 9,000 | 2.0e5 | | ≈ 375 | ~1,000 |
 | **everything specified** | | | **≈ 955** | ≈ 2,700 |
 
-**But the derate is still an assumption and it is now the only one.** K2a's 1.0e5
-planning rate is 2.7e5 derated ÷2.7 for 3D + SST. The 2D turbulent SST
-measurement is 4.8e5, so the **base** rate was 1.9× low and the **derate** has
-never been measured. If the true 3D derate is 2.7, the graded pair returns to
-≈1,570 core·min — the spec's own number.
+### THE DERATE IS NO LONGER AN ASSUMPTION — MEASURED 2026-08-18
 
-> **The honest range for the 3D graded pair with controls is 580 to 1,600
-> core·minutes**, and the single cheapest experiment that collapses it is a **3D
-> coarse mesh run for 200 iterations — ≈1.4 core·minutes** — which measures the
-> derate directly. **That is what a further authorisation should buy first**, and
-> it is not requested here.
+The paragraph this section originally ended with said the derate was the only
+remaining assumption and that a 200-iteration 3D coarse run would collapse the
+range for ≈1.4 core·minutes. **That probe was authorised and run.**
+`K2b3D_probe`: the full spec-default 3D module — N = 4 racks with per-rack
+`rack_i_in`/`rack_i_out` face pairs each carrying `outletMappedUniformInlet`,
+four supply tiles, ceiling return, k-ω SST, buoyancy on, **132,840 cells**,
+`checkMesh` OK (non-orthogonality 0, skewness 5.92e-14, max aspect 1.048).
+
+| | |
+|---|---|
+| measured | **3.968e5 cell·iter/(core·s)**, 200 iterations in 66.96 s = **1.12 core·min** |
+| against the 2D measurement of 4.8e5 | **the real 3D+SST derate is 1.21** |
+| against K2a section 10's planning rate of 1.0e5 | **K2a is 3.97× low** |
+
+K2a derated 2.7e5 by an assumed **2.7**. The measured derate is **1.21** — the
+assumption was pessimistic by a factor of 2.2, and going from a 2D slice to a
+full 3D room with eight rack faces costs only 21 % per cell·iteration. Two
+things explain most of it: the block-structured hex mesh has the same
+per-cell face count in 3D as in 2D once the `empty` pair is replaced by real
+faces, and the SST equations were already being solved in the 2D case.
+
+### The 3D estimate, at the measured rate
+
+| item | cells | iterations | core·min |
+|---|---:|---:|---:|
+| 3D coarse (spec's 0.20 M) | 2.0e5 | 9,000 | 75.6 |
+| 3D fine (spec's 0.70 M) | 7.0e5 | 20,000 | 588.0 |
+| controls ×5, coarse class, restart | 2.0e5 each | 800 | 33.6 |
+| **graded pair + controls, at the spec's cell counts** | | | **697** |
+| same, at the mesh this probe actually built (132,840 / 448,335) | | | **454** |
+| spec counts, if the fine mesh needs only 9,000 iterations | | | **374** |
+
+> **The range collapses to the LOW end: 374 to 697 core·minutes for the 3D
+> graded pair with controls, against the 580–1,600 this document previously
+> could not narrow.** The upper bound fell by more than half.
+
+**And the remaining uncertainty has changed identity, which matters more than
+the number.** The rate is now measured on the real geometry; what is left is the
+**iteration count**, and only half of that is measured. The coarse figure of
+9,000 comes from this pilot — and even at 9,000 the 2D coarse case had not
+closed its heat balance, so it is a floor, not a converged count. The fine
+figure of 20,000 is the 1/N² *inference*, never measured on anything. That
+single unmeasured factor is what separates 374 from 697.
+
+**Nothing further is requested here.** The graded 3D pair remains unauthorized,
+and this section is the number to decide against, not a request.
 
 ### Four things the pilot says the 3D module must carry
 
@@ -827,6 +926,13 @@ python3 build_k2b.py
 # 2. the two primaries and the recirculation bed
 bash run_k2b.sh K2bP_coarse K2bP_under K2bP_fine
 
+# 2b. the 3D coarse COST PROBE (200 iterations, ~1.1 core-min, grades nothing)
+python3 build_k2b3d.py
+( . /usr/lib/openfoam/openfoam2606/etc/bashrc >/dev/null 2>&1
+  cd K2b3D_probe && rm -rf 0 && cp -r 0.orig 0 && blockMesh > log.blockMesh 2>&1 \
+  && checkMesh > log.checkMesh 2>&1 \
+  && /usr/bin/time -f "%e s" buoyantBoussinesqSimpleFoam > log.buoyantBoussinesqSimpleFoam 2>&1 )
+
 # 3. the controls are RESTART twins and must be seeded from their parent first
 python3 seed_k2b.py
 bash run_k2b.sh K2bP_C1_g0 K2bP_C2_dT13 K2bP_C3_plant K2bP_C3b_noplant
@@ -839,8 +945,18 @@ python3 analyse_k2b.py K2bP_coarse K2bP_under K2bP_fine \
 #    so never run this against a case whose solver is still running.
 bash audit_k2b.sh K2bP_under  1000 3000 5000
 bash audit_k2b.sh K2bP_coarse 500 2500 5000 7000 9000
-bash audit_k2b.sh K2bP_C3_plant   400 800
-bash audit_k2b.sh K2bP_C3b_noplant 400 800
+bash audit_k2b.sh K2bP_C3_plant    1000 2000 3000 4000 5000
+bash audit_k2b.sh K2bP_C3b_noplant 1000 2000 3000 4000 5000
+
+# 6. the S13 repair, proved both ways and re-graded over all fourteen affected
+#    cases (K0c's eleven and K2b's three). Reads the committed logs only.
+cd ../../../..
+python3 scripts/check_convergence.py \
+  docs/campaigns/F14-cooling-ladder/K2b_runs/K2bP_fine/log.buoyantBoussinesqSimpleFoam \
+  --monitor-regex 'weightedAverage\(rack_in\) of T = ([-0-9.eE+]+)' --json    # CANNOT_TELL
+python3 scripts/check_convergence.py \
+  docs/campaigns/F14-cooling-ladder/K2b_runs/K2bP_coarse/log.buoyantBoussinesqSimpleFoam \
+  --monitor-regex 'weightedAverage\(rack_in\) of T = ([-0-9.eE+]+)' --json    # CONVERGED
 ```
 
 **The auditor mutates the case it audits, and this rung is arranged so that costs
@@ -880,6 +996,128 @@ silently starting a control from `0.orig`. Step 5's script reads
 `heat_balance.py`'s **own** exit status — piping it into `head` reports `head`'s
 status, and that mistake has cost this lab a false pass before.
 
-Approximate cost of a full reproduction at the measured 4.8e5 rate: **≈41
-core-minutes** (the two stopped `K2bP_fine` attempts and the superseded
+Approximate cost of a full reproduction: **≈55 core-minutes** — ≈41 for the 2D
+set, ≈1.1 for the 3D probe, ≈13.5 for the C3 pair at 5,000 iterations each (the two stopped `K2bP_fine` attempts and the superseded
 5,000-iteration `K2bP_coarse` pass are not part of the recipe).
+
+---
+
+## 11. The S13 repair — a criterion that scored perfectly on a field that never moved
+
+Section 4 reported that `K2bP_fine` scored **0.00000 %** on S13 — the best score
+the criterion can return — with its heat balance 2.6632 % out. That was reported
+as a finding about the case. **It is a defect in the standing criterion**, it is
+lab-wide, and it has been repaired there rather than worked around here.
+
+### The defect
+
+The raw samples, from the solver's own log, over the whole graded window:
+
+```
+289.0000002  289.0000002  289.0000002  289.0000001  289.0000001
+289.0000001  289.0000001  289          289          289
+```
+
+T_in is sitting at **exactly the supply temperature**, 289.000 K, because the
+cold aisle has not been reached. It moves by **1 unit in the last place of a
+ten-significant-figure print** across 400 iterations. S13 asks *has the graded
+quantity stopped moving?* and cannot answer that on a quantity that never
+started — so it returned the most flattering answer available.
+
+**This is the identity defect the physics rules already record for the
+sealed-case heat balance, arriving in the convergence criterion.** K0b's
+sealed-case closure was near-identity and therefore could not gate; here **a
+quantity that cannot move scores perfectly on a test of whether it has stopped
+moving.** Two of this rung's own controls read perfectly on the same case for
+the same reason — the offset readback erred by 0.000e+00 and the
+mass-versus-area comparison by −0.0001 %, both because the rack face was still
+uniform.
+
+### The repair
+
+A spread that the log cannot **resolve** is now `CANNOT_TELL`, never a pass —
+the same refusal `heat_balance.py` makes on an undefined imbalance ratio instead
+of printing a flattering number. The spread is compared against the precision
+the series is actually printed at, **measured from the samples themselves**
+(the most precise sample fixes it, since OpenFOAM strips trailing zeros, so
+`289` and `289.0000002` are the same ten-figure series). Below
+`thermal.monitor_min_resolved_ulp` = **10** units in the last place, it refuses.
+
+Landed in three places so every future thermal rung inherits it, not just this
+one: `docs/physics_rules.yaml` (the governed threshold and its reasoning),
+`docs/standards/MONITOR_STANDARD.md` **S13** (bumped to v1.11, no new rule), and
+`scripts/check_convergence.py` (`print_resolution()` and the refusal in
+`classify_monitor()`).
+
+### The two-way proof
+
+| case | spread | resolution | resolved ulp | verdict |
+|---|---:|---:|---:|---|
+| `K2bP_fine` — the stalled case, **must now refuse** | 1.0e-07 K | 1e-07 | **1.0** | **CANNOT_TELL** ✓ |
+| `K2bP_coarse` — genuinely converged, **must still pass** | 2.929e-03 K | 1e-07 | **29,290** | **CONVERGED** ✓ |
+
+Scoring the refused case would have returned 3.46e-08 %, a pass by five orders
+of magnitude.
+
+### The re-grade of all fourteen affected cases
+
+Every case ever graded under the old reading: K0c's eleven and K2b's three.
+
+| corpus | CONVERGED | NOT_CONVERGED | CANNOT_TELL | changed |
+|---|---:|---:|---:|---:|
+| K0c, eleven cases | 4 | 7 | 0 | **0** |
+| K2b, three cases | 1 | 1 | 1 | **1** |
+
+**Exactly one verdict changes: `K2bP_fine`, CONVERGED → CANNOT_TELL.** The
+eleven K0c cases are untouched — which is the point, because a repair that moved
+the existing corpus would be a new criterion wearing the old one's name. The
+closest K0c case to the new floor is `Ra1e3_m32` at **13,161 ulp**, three orders
+clear.
+
+Section 4's table is corrected by this: `K2bP_fine`'s row now reads REFUSED, and
+the sentence "it scores a perfect pass" describes what the criterion *did* before
+the repair, not what it does now.
+
+### The constant is not load-bearing, and that is measured
+
+Sweeping the floor across all fourteen cases, the verdict set is **identical for
+every value from 2 to 13,161 ulp — 3.8 orders of magnitude**:
+
+| floor | refuses |
+|---:|---|
+| 1 | nothing — too low to catch the defect at all |
+| **2 … 13,161** | **`K2bP_fine` only — the adopted plateau, 10 sits inside it** |
+| 13,200 and above | also `Ra1e3_m32`, a genuinely converged K0c case |
+
+### What the repair does not do, and one thing it does not reach
+
+`CANNOT_TELL` is **not** `NOT_CONVERGED`. It says the log cannot support either
+verdict on that quantity; the action is to run further, print more digits, or
+grade a quantity that has responded.
+
+And the clause is a **resolution** test, not a physics test: it fires when the
+log cannot express the spread. A quantity genuinely pinned by a boundary
+condition but printed at enough digits to show numerical noise would still pass.
+**A stronger test exists and is not adopted here** — requiring that the quantity
+have travelled further over the run than it now wiggles — because it would
+false-positive on legitimate restart twins like this rung's own controls, which
+begin from a converged field and are *supposed* to move very little. That is
+filed rather than shipped.
+
+### A second defect found on the way, reported and not repaired
+
+**S13 normalises the peak-to-peak spread by the MEAN of the quantity.** For K0c's
+Nusselt number, an O(1) dimensionless group, that is the right scale. For an
+absolute temperature it is not: the mean is ~289–300 K while the physically
+meaningful scale is ΔT_rack = 12 K, so **0.02 % of the mean is 0.058 K where
+0.02 % of the signal would be 0.0024 K — the criterion is 24× looser than it
+reads, purely because the quantity is reported in kelvin rather than as an
+excess over supply.** Measured consequence: `K2bP_coarse` passes at 2.929e-03 K
+against the mean-normalised band and would **fail** against the ΔT-normalised
+one — which would agree with its heat balance, still 0.7857 % out at 9,000
+iterations.
+
+**Not repaired here, deliberately.** Changing the gate's normalisation would move
+verdicts across the whole thermal corpus — K0c's eleven, K2e's thirty, KV1's
+three — and this rung is not the right place to take that decision unilaterally.
+Filed as **D389**, owner: chief.

@@ -1635,3 +1635,62 @@ went on proving that two coarse cases do not reach steady state.
   at mid-span throughout.
 - **Nothing above Ra 1.43e6, and nothing about a rack row.** One geometry, one
   aspect ratio, two Rayleigh numbers a factor of 1.66 apart.
+
+### 9. The 3D derate, MEASURED (F14 rung K2b, 2026-08-18)
+
+K2a section 10 priced the 3D module at 1.0e5 cell.iter/(core.s) -- 2.7e5 derated
+by an **assumed** factor of 2.7 for "3D + turbulence". The assumption is now
+replaced by a measurement.
+
+| Fact | Value | Basis |
+|---|---|---|
+| 3D rate, full spec-default module: N = 4 racks, per-rack `outletMappedUniformInlet` face pairs, four tiles, ceiling return, k-omega SST, buoyancy on, 132,840 cells | **3.968e5 cell.iter/(core.s)** | **VERIFIED**, `K2b3D_probe`, 200 iterations in 66.96 s |
+| the 2D turbulent SST rate on the same machine | 4.8e5 | **VERIFIED**, K2b's repeated 46,400-cell cases |
+| **the real 3D + SST derate** | **1.21** | **VERIFIED** by division; K2a assumed **2.7**, pessimistic by 2.2x |
+| K2a's planning rate against the measurement | **3.97x low** | **VERIFIED** |
+| 3D graded pair + controls at the measured rate | **374-697 core-min** (was an unnarrowed 580-1,600) | **VERIFIED** arithmetic on the measured rate; the residual spread is the ITERATION COUNT, not the rate |
+
+**Why the derate is so much smaller than assumed.** A block-structured hex mesh
+has the same per-cell face count in 3D as in 2D once the `empty` pair is replaced
+by real faces, and the two SST equations were already being solved in the 2D
+case. The assumed 2.7 counted both as new work and neither was.
+
+**What is still unmeasured, and it is now the dominant term.** The iteration
+count. 9,000 for the coarse mesh comes from K2b's own pilot -- and even at 9,000
+that case had not closed its heat balance, so it is a FLOOR. The fine mesh's
+20,000 is the 1/N^2 inference and has never been measured on anything. That one
+factor is the whole difference between 374 and 697 core-minutes.
+
+### 10. A planted-source recovery control needs a case that meets S13
+
+| Fact | Value | Basis |
+|---|---|---|
+| Recovery of a 500.000 W plant on the rack-row module, iterations 1,000-5,000 | 353.337, 406.290, 460.392, **536.469**, 466.300 W | **VERIFIED**, `K2bP_C3_plant` against its byte-identical no-plant twin |
+| Behaviour | **reaches the plant and oscillates about it**; crosses 500 W between 3,000 and 4,000, overshoots +7.29 %, falls back to -6.74 % | **VERIFIED** |
+| The no-plant twin's own ledger net over the same span | wanders **48.313 W peak-to-peak** (+7.134, -35.866, -36.975, +11.338 W) | **VERIFIED** |
+| Governed recovery tolerance | 0.1 % of 500.000 W = **0.500 W** -- the noise floor is **97x** it | **VERIFIED** by division |
+| Conclusion | the control is **not runnable to its governed tolerance on an unsteady open case**; more iterations do not help | **VERIFIED** by the trajectory |
+| What it does establish | the ledger recovers a planted source on this geometry **to about 7 %**, from -68.89 % at 400 iterations | **VERIFIED** |
+| The same control on a STEADY case | +2.40e-08 % | KV1a, **VERIFIED** there |
+
+**The mechanism, stated because it is the transferable part.** The matched-twin
+difference is supposed to cancel the ledger noise common to both twins. It does
+not here, because a 500 W plant perturbs the flow enough that the two twins leave
+the same PHASE of the same oscillation -- so the difference of two oscillating
+ledgers is not the difference of their means. On a case that meets S13 there is
+no oscillation and the cancellation is exact.
+
+### 11. Sizing a planted control: three numbers, always together
+
+Carried from K2b's own near-miss and stated as a procedure. Before running any
+planted-source control, state the **plant**, the **ledger it sits in**, and the
+**tolerance it is graded at**, and check two inequalities:
+
+- plant / ledger must be large enough that the plant is visible: KV1a's 5 mW in
+  this module's 4.914e+03 W ledger is **1.0e-06**, and an instrument returning
+  exactly zero would have "recovered" it. **VERIFIED** by arithmetic.
+- tolerance must exceed the case's own ledger noise: 0.500 W against a measured
+  **48.313 W** floor is unreachable whatever the instrument does. **VERIFIED**.
+
+K2b satisfied the first by re-sizing 5 mW -> 500 W and then failed the second,
+which is why the control is reported as a 7 % recovery rather than as a pass.

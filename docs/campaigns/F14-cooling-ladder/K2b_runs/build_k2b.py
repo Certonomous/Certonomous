@@ -916,7 +916,16 @@ CASES = {
     "K2bP_under":      (0.0125,  5000,  500,  DT_RACK, True,  False, None,          0.245),
     "K2bP_C1_g0":      (0.0125,   800,  400,  DT_RACK, False, False, "K2bP_under",  0.245),
     "K2bP_C2_dT13":    (0.0125,   800,  400,  13.2,    True,  False, "K2bP_under",  0.245),
-    "K2bP_C3_plant":   (0.0125,   800,  400,  DT_RACK, True,  True,  "K2bP_under",  0.245),
+    # C3 AND ITS TWIN RUN LONG, AND THE REASON IS THE FIRST RUN'S RESULT.
+    # At 800 iterations the recovery read 315.57 W of a planted 500.000 W and
+    # was still climbing -- moving, therefore not degenerate, and not landed
+    # either. 5,000 iterations each under a 20 core-minute authorisation to
+    # finish it. writeInterval 500 so the recovery has ten points and the
+    # TWIN-DIFFERENCE NOISE FLOOR can be measured rather than assumed: the
+    # governed recovery tolerance is 0.1 % = 0.5 W, and this case's own ledger
+    # carries several watts of wobble, so whether the tolerance is reachable
+    # here at all is itself a measurement.
+    "K2bP_C3_plant":   (0.0125,  5000,  500,  DT_RACK, True,  True,  "K2bP_under",  0.245),
     # C3's NEGATIVE TWIN, and it is not optional.  KV1 established that a
     # positive control run without its negative twin cannot tell "the instrument
     # recovered the plant" from "the instrument returns that number for
@@ -924,7 +933,7 @@ CASES = {
     # does not exist, starts from the same seed and runs the same 800
     # iterations, so the recovered plant is the DIFFERENCE of two ledgers taken
     # at the same convergence state and the common closure error subtracts out.
-    "K2bP_C3b_noplant":(0.0125,   800,  400,  DT_RACK, True,  False, "K2bP_under",  0.245),
+    "K2bP_C3b_noplant":(0.0125,  5000,  500,  DT_RACK, True,  False, "K2bP_under",  0.245),
 }
 
 
