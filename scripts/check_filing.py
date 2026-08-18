@@ -47,9 +47,29 @@ UPPER_SNAKE_MD = re.compile(r"^[A-Z0-9][A-Z0-9_-]*\.md$")
 # ever ran on the tree, which is the whole reason the negative controls exist.
 CAMPAIGN_RECORD_MD = re.compile(r"^[A-Z][A-Za-z0-9]*(_[A-Z0-9][A-Z0-9_-]*)?\.md$")
 LOWER_SNAKE_CODE = re.compile(r"^[a-z0-9][a-z0-9_]*\.(py|sh)$")
-# A paper is `author_year_identifier.pdf`; the year anchors it and is what makes
-# two papers by the same group distinguishable at a glance.
-PAPER_NAME = re.compile(r"^[a-z0-9][a-z0-9_.-]*_(1[89]|20)\d{2}[a-z0-9_.-]*\.(pdf|txt)$")
+# A paper carries its YEAR somewhere in the basename -- that is what makes two
+# papers by the same group distinguishable at a glance -- plus lowercase ASCII.
+#
+# The year is deliberately NOT required to be its own underscore-delimited field.
+# The first draft demanded `author_YEAR_rest` and flagged 49 correctly-named
+# files, because this library's established habit is to fuse the year into a
+# VENUE token: `breuer_..._caf2009_periodic_hills`, `pinelli_..._jfm2010_...`,
+# `he_..._aiaaj2020_dafoam_...`, `greenblatt_et_al_cfdval2004_hump`. Those names
+# are better than the rule was: they carry venue and year in one token.
+#
+# A check with a 49-file false-positive rate is a check people learn to scroll
+# past, which is worse than no check at all -- so the rule was widened to what
+# the convention actually is, not narrowed to what I first assumed.
+#
+# arXiv identifiers are accepted as year-carrying. `1710.09105`, `2402.16355`,
+# `2603.28884` encode YYMM, so the year is present and the identifier is the
+# CANONICAL name for the work -- more identifying than a bare year, not less.
+# Demanding a redundant `_2017_` beside `1710.09105` would degrade those names.
+PAPER_NAME = re.compile(
+    r"^[a-z0-9][a-z0-9_.-]*("
+    r"(1[89]|20)\d{2}"          # a plain or venue-fused year: 2003, caf2009, aiaaj2020
+    r"|\d{4}\.\d{4,5}"          # an arXiv identifier: 1710.09105, 2603.28884
+    r")[a-z0-9_.-]*\.(pdf|txt)$")
 
 
 BAD_CHARS = re.compile(r"[^A-Za-z0-9._/-]")
@@ -208,7 +228,15 @@ def check(root: Path, include_untracked: bool = True) -> list[Violation]:
                 ))
 
         # R8 -- papers are author_year_identifier, filed by topic.
-        if len(parts) >= 2 and parts[0] == "docs" and parts[1] == "papers":
+        #
+        # `unsorted/` is exempt BY DESIGN. It is the staging area for files whose
+        # identity has not been established, and a compliant name cannot be
+        # written for a work nobody has identified yet -- demanding one would
+        # only produce a confident wrong name. The cost of the exemption is that
+        # `unsorted/` must stay small; that is a matter for review, not for this
+        # rule.
+        if (len(parts) >= 2 and parts[0] == "docs" and parts[1] == "papers"
+                and "unsorted" not in parts):
             if base.endswith((".pdf", ".txt")) and not PAPER_NAME.match(base):
                 violations.append(Violation(
                     "R8-PAPER-NAME", p,
@@ -246,6 +274,11 @@ PLANTED = [
     (None,                 "docs/campaigns/X/K2b_3D_UNSTEADINESS_PREREGISTRATION.md", False),
     (None,                 "docs/campaigns/X/digitize_wibron2018.py",           False),
     (None,                 "docs/papers/buoyancy/betts_bokhari_2000_ijhff.pdf", False),
+    (None,                 "docs/papers/bench/breuer_peller_caf2009_hills.pdf",  False),
+    (None,                 "docs/papers/adj/he_mader_aiaaj2020_dafoam.txt",      False),
+    ("R8-PAPER-NAME",      "docs/papers/bench/no_year_in_this_name.pdf",         True),
+    (None,                 "docs/papers/rans/singh_medida_1608.03990.pdf",       False),
+    (None,                 "docs/papers/unsorted/UnidentifiedScan.pdf",          False),
     (None,                 "media/plots/figure.png",                            False),
     (None,                 "verification/runs/F14/case/system/controlDict",     False),
     (None,                 "README.md",                                         False),
