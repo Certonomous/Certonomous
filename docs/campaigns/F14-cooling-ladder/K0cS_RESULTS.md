@@ -430,3 +430,53 @@ and the next rung on this case class should carry a contingency nearer 1.2x.
   none did.
 - **Nothing here was submitted, sent, filed, uploaded or registered.**
   Submissions are PARKED.
+
+---
+
+## Dated correction, 2026-08-18 — the square-cavity turbulent Prandtl number was NOT missing
+
+**Nothing above is edited.** Appended under W-4, superseding one entry of §9.
+
+**§9 filed the square cavity's turbulent Prandtl number as NOT OBTAINED. It is
+reported by the primary this rung is graded against.** Ampofo and Karayiannis
+(2003), p. 3569, in the text beside Fig. 11:
+
+> *"In the comparatively wide region (X = 0.015–0.03 of Fig. 11), turbulent
+> viscosity and turbulent diffusivity have a similar profile and so the turbulent
+> Prandtl number takes a value of about unity."*
+
+Figure 11 plots the distribution alongside turbulent diffusivity and turbulent
+viscosity. **It was missed because it is prose and a figure rather than a table
+row**, and because the sweep that looked for it ran over a paper directory in
+which 13 PDFs had no extracted-text sidecar at all — a defect recorded and
+repaired the same day.
+
+**The paper says something sharper than "about unity", and it matters more.**
+Same page:
+
+> *"the distribution of turbulent viscosity for momentum has a discontinuity at
+> the maximum velocity location. On the other hand, turbulent diffusivity for
+> heat shows a continuous profile. As a consequence, the distribution of
+> turbulent Prandtl number ... also has a discontinuity at the maximum velocity
+> location."*
+
+**A constant turbulent Prandtl number cannot represent a discontinuous field**,
+whatever constant is chosen. That is a statement about the FORM of the closure,
+not about the value of a coefficient, and it is exactly the distinction control
+C3 could not reach: C3 varied the constant from 0.85 to 1.28 and moved the
+average Nusselt number by 1.75 %, which establishes that the integral heat
+transfer is insensitive to **the value**. It says nothing about the form.
+
+**Neither the C3 result nor this rung's verdict moves.** C3 closed negative and
+still closes negative: on this geometry, changing the constant does not recover
+the missing heat transfer. What changes is what may be concluded from it — the
+earlier reading, that constant-Prt is not where this geometry loses accuracy, is
+now bounded to *the value of the constant* and does not extend to the assumption
+of constancy itself. **An insensitivity to a parameter is not evidence that the
+parameter's functional form is adequate.**
+
+**Tier: PRIMARY** for the "about unity" value and for the discontinuity, both
+READ IN FULL from `docs/papers/buoyant_natural_convection/ampofo_karayiannis_2003_ijhmt_46.pdf`,
+p. 3569. **The numerical distribution itself remains NOT OBTAINED**: Fig. 11 has
+not been digitised, and no digitisation increment is stated here, so no reference
+column is armed by this correction. Recorded under D415.
