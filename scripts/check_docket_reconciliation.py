@@ -117,6 +117,15 @@ EXIT_PASS = 0
 EXIT_FAIL_WRITEBACK_OWED = 1
 EXIT_FAIL_UNLANDED = 2
 EXIT_UNKNOWN = 3
+# A duplicate id is NOT unlanded work and must not share its code. Reusing
+# EXIT_FAIL_UNLANDED for it (as the first version of this rule did) also
+# duplicated the assignment line that sets FAIL with the unlanded code, and the
+# mutation harness anchors M2 on exactly that line -- so the mutation silently
+# retargeted onto the new branch, which no test exercised, and M2 went from
+# KILLED to SURVIVED while the harness still exited 1 and nothing looked wrong.
+# Coverage fell and no exit code moved. A mutation anchored to a source literal
+# retargets when a copy is inserted above it.
+EXIT_FAIL_DUPLICATE = 4
 
 DEFAULT_PATH = "docs/DOCKET.md"
 DEFAULT_REV = "HEAD"
@@ -250,7 +259,7 @@ def reconcile(committed_text: str, worktree_text: str,
     if not committed_ids or not worktree_ids:
         verdict, code = "UNKNOWN", EXIT_UNKNOWN
     elif committed_dupes or worktree_dupes:
-        verdict, code = "FAIL", EXIT_FAIL_UNLANDED
+        verdict, code = "FAIL", EXIT_FAIL_DUPLICATE
     elif worktree_only:
         verdict, code = "FAIL", EXIT_FAIL_UNLANDED
     elif head_only:

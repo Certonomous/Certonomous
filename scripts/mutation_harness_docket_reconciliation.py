@@ -137,8 +137,13 @@ MUTANTS: list[tuple[str, str, str, str, tuple[str, ...]]] = [
         "verdict with no way to reproduce which rows it counted -- the defect "
         "that produced three different, all-defensible row totals for one "
         "commit on 2026-08-16.",
-        '        "id_pattern": ID_PATTERN,\n    }',
-        '        "id_pattern": "",\n    }',
+        # Re-aimed 2026-08-18. This anchored on the key followed immediately by
+        # the closing brace; the returned dict later grew keys after it, the
+        # literal stopped occurring, and the mutation went unapplied for as long
+        # as it took someone to notice the harness was scoring it a survivor.
+        # Anchored on the single line now, which survives the dict growing.
+        '        "id_pattern": ID_PATTERN,',
+        '        "id_pattern": "",',
         ("test_the_pattern_is_printed_in_both_output_modes",),
     ),
     (
@@ -161,6 +166,21 @@ MUTANTS: list[tuple[str, str, str, str, tuple[str, ...]]] = [
         "    committed_set = set(committed_ids)\n    worktree_set = set(worktree_ids)",
         "    committed_set = list(committed_ids)\n    worktree_set = list(worktree_ids)",
         ("test_equal_sets_pass_even_when_the_row_order_differs",),
+    ),
+    (
+        "M11-duplicate-check-disabled",
+        "the duplicate-id branch stops firing, so two rows wearing one id read "
+        "as reconciled -- the exact state two lanes reached on 2026-08-18, when "
+        "both wrote a row numbered D406 and this check returned PASS. Every "
+        "later citation of a duplicated id is ambiguous, and the docket is "
+        "append-only, so the ambiguity never expires.",
+        "    elif committed_dupes or worktree_dupes:",
+        "    elif False:",
+        (
+            "test_a_duplicate_id_in_the_worktree_is_a_fail",
+            "test_a_duplicate_id_already_committed_is_a_fail",
+            "test_a_duplicate_is_not_reported_as_unlanded_work",
+        ),
     ),
 ]
 
@@ -261,16 +281,35 @@ def main() -> int:
             return 1
         print("  control GREEN, 0 failures\n")
 
-        killed, survived = [], []
+        # NOT-APPLIED IS NOT SURVIVED, and conflating them is how a mutation
+        # harness rots silently. 2026-08-18: M8's anchor
+        # (`"id_pattern": ID_PATTERN,` immediately followed by the closing brace)
+        # had stopped existing -- the returned dict grew keys after it -- so the
+        # mutation was NEVER APPLIED, and the harness reported it as a SURVIVOR.
+        # "No test caught this defect" and "this defect was never injected" are
+        # opposite facts and were printed with the same word.
+        #
+        # The same day, M2's anchor went the other way: a copy of its literal was
+        # inserted ABOVE it, so the mutation WAS applied, to the wrong line, on a
+        # branch no test exercised. Coverage fell 9 killed to 8 and the harness
+        # still exited 1, so nothing in the exit code moved.
+        #
+        # Between them those two are the whole failure mode: a mutation anchored
+        # to a source literal silently retargets or silently vanishes as the
+        # subject evolves, and a harness that reports only killed/survived cannot
+        # tell you which happened. NOT_APPLIED is now its own bucket and is a
+        # HARNESS failure, not a subject failure -- the subject may be perfectly
+        # tested; it is the proof that has decayed.
+        killed, survived, not_applied = [], [], []
         for name, why, old, new, aimed in MUTANTS:
             if old not in original:
                 print(f"{name}: ANCHOR NOT FOUND -- mutation could not be applied")
-                survived.append((name, "anchor missing"))
+                not_applied.append((name, "anchor missing -- the literal this mutation aims at no longer occurs in the subject"))
                 continue
             mutated = original.replace(old, new, 1)
             if mutated == original:
                 print(f"{name}: NO-OP mutation")
-                survived.append((name, "no-op"))
+                not_applied.append((name, "no-op -- the substitution changed nothing"))
                 continue
             with tempfile.TemporaryDirectory() as tmp:
                 mirror = build_mirror(Path(tmp), mutated)
@@ -284,10 +323,18 @@ def main() -> int:
                 survived.append((name, f"new failures: {sorted(new_failures)}"))
                 print(f"{name}: SURVIVED -- aimed at {aimed}, new failures {sorted(new_failures)}")
 
-        print(f"\n{len(killed)} killed, {len(survived)} survived, {len(MUTANTS)} total")
+        print(f"\n{len(killed)} killed, {len(survived)} survived, "
+              f"{len(not_applied)} NOT APPLIED, {len(MUTANTS)} total")
         for name, detail in survived:
             print(f"  SURVIVOR {name}: {detail}")
-        return 0 if not survived else 1
+        for name, detail in not_applied:
+            print(f"  NOT APPLIED {name}: {detail}")
+        if not_applied:
+            print("\n  A mutation that was never applied proves NOTHING about the")
+            print("  subject. These are defects in this harness, not in the code it")
+            print("  grades: re-aim each anchor at the line it was written for, and")
+            print("  do not read the killed count as coverage until they are aimed.")
+        return 0 if not (survived or not_applied) else 1
     finally:
         after = hashlib.sha256(target_path.read_bytes()).hexdigest()
         if after != before:  # pragma: no cover - the guard that must never fire

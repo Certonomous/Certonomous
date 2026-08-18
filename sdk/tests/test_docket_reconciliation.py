@@ -155,6 +155,68 @@ class DirectionIdentityTests(unittest.TestCase):
         self.assertEqual(result["worktree_only"], [])
 
 
+class DuplicateIdTests(unittest.TestCase):
+    """A duplicate id was invisible to this check until 2026-08-18.
+
+    The verdict was taken over ID SETS, and a set cannot hold a duplicate:
+    {D1, D2, D2} and {D1, D2} are equal. Two lanes wrote a row numbered D406 on
+    the same day and the check returned PASS. The row counts that would have
+    disproved it were computed, printed, and annotated "diagnostic only".
+
+    These tests exist because the branch that fixes it was, for one commit,
+    itself untested -- which let a mutation retarget onto it unnoticed.
+    """
+
+    def test_a_duplicate_id_in_the_worktree_is_a_fail(self):
+        repo = TempDocketRepo(rows("D1", "D2"))
+        try:
+            repo.set_worktree(rows("D1", "D2", "D2"))
+            code, payload = run_check(repo.path)
+            self.assertEqual(payload["worktree_dupes"], ["D2"])
+            self.assertEqual(code, MOD.EXIT_FAIL_DUPLICATE)
+        finally:
+            repo.close()
+
+    def test_a_duplicate_id_already_committed_is_a_fail(self):
+        repo = TempDocketRepo(rows("D1", "D1", "D2"))
+        try:
+            repo.set_worktree(rows("D1", "D1", "D2"))
+            code, payload = run_check(repo.path)
+            self.assertEqual(payload["committed_dupes"], ["D1"])
+            self.assertEqual(code, MOD.EXIT_FAIL_DUPLICATE)
+        finally:
+            repo.close()
+
+    def test_a_duplicate_is_not_reported_as_unlanded_work(self):
+        """The two failures are different facts and must not share a code.
+
+        Sharing EXIT_FAIL_UNLANDED is exactly what duplicated the assignment
+        line the mutation harness anchors M2 on, so the mutation silently
+        retargeted onto the duplicate branch and M2 went from killed to
+        survived while the harness still exited 1.
+        """
+        repo = TempDocketRepo(rows("D1", "D2"))
+        try:
+            repo.set_worktree(rows("D1", "D2", "D2"))
+            code, _ = run_check(repo.path)
+            self.assertNotEqual(code, MOD.EXIT_FAIL_UNLANDED)
+            self.assertEqual(code, MOD.EXIT_FAIL_DUPLICATE)
+        finally:
+            repo.close()
+
+    def test_a_clean_tree_still_passes(self):
+        """The negative. A rule that fails everything is not a rule."""
+        repo = TempDocketRepo(rows("D1", "D2", "D3"))
+        try:
+            repo.set_worktree(rows("D1", "D2", "D3"))
+            code, payload = run_check(repo.path)
+            self.assertEqual(payload["worktree_dupes"], [])
+            self.assertEqual(payload["committed_dupes"], [])
+            self.assertEqual(code, MOD.EXIT_PASS)
+        finally:
+            repo.close()
+
+
 class PatternTests(unittest.TestCase):
     """The pattern, the trap it was built around, and its publication."""
 
