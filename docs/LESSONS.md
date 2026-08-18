@@ -6262,3 +6262,43 @@ the discriminator so it can come back either way, pre-register what each outcome
 means, and run it before spending anything that depends on the answer. The
 diagnosis that says "your plan is fine" is worth the same as the one that says it
 is void — and you cannot get either honestly unless both were possible.
+
+## L-134. Put the gate before the test, and let it stop you
+
+**The rule.** When the experiment you can afford differs from the one that
+produced the finding — coarser, shorter, cheaper — **build a control that varies
+only the thing you had to compromise on, run it FIRST, and pre-register that a
+failure stops the main test.** Otherwise a null result is unreadable: it means
+either "the effect is absent" or "my compromise hid it", and those are opposite
+conclusions that cost the same to produce.
+
+**Why.** A 2D slice showed a coherent limit cycle at a 12.5 mm cell. The question
+was whether it survives in 3D. The affordable 3D mesh was **100 mm — eight times
+coarser**, so a 3D run showing no oscillation would have been ambiguous between
+*three-dimensionality damped it* and *the coarse mesh damped it*.
+
+The gate was the same 2D slice at the 3D test's own 100 mm cell, asking whether
+the cycle survives **coarsening alone**. It did not: amplitude ratio **0.482**
+against a pre-registered 0.5 threshold. **The main test was never run**, and that
+was the correct outcome rather than a wasted design.
+
+**What the gate then bought, which is the part worth copying.** Having failed, it
+turned a shrug into a measurement. A resolution ladder — the same case at 100,
+50, 25 and 12.5 mm — located the phenomenon precisely: ratios 0.482, 0.318, 0.377
+and **0.982**. The cycle exists at 12.5 mm and at no coarser mesh tested. That
+converted "we cannot tell" into two hard statements: **the specified production
+mesh is on the wrong side of the threshold and would return a confidently wrong
+steady answer**, and **the un-confounded experiment costs ~50× the plan it would
+be checking**.
+
+**And the gate audited the finding that motivated it.** The same ladder showed
+that the original result rests on a **single** mesh, with no rung finer than the
+one it was found on — so the finding is not established as mesh-converged, and
+the write-up now says so against itself. **A control built to protect the new
+experiment ended up qualifying the old one.** Expect that, and do not suppress it
+when it happens.
+
+**How to apply.** Three questions before spending on a scaled-down experiment:
+*what did I compromise to afford this?*; *what single-variable control isolates
+that compromise?*; *what will I do if the control fails?* Answer the third in
+writing, before running, and honour it.

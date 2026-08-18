@@ -1543,3 +1543,140 @@ transient long enough to see 6 s, which at the measured 3.968e5 cell·iter/(core
 and ~2,000 steps is **≈11 core-minutes**. That is the experiment to authorise
 before any graded pair, and it is not requested here.
 
+---
+
+## 15. Does the oscillation survive in 3D? Outcome P3 — and a sharper finding underneath it
+
+§14.6 raised a warning against §14's own result: a 2D slice suppresses spanwise
+instability and can also manufacture oscillations a 3D flow would damp, so **O1
+is a warning about the 3D module, not a measurement of it.** This section tests
+that. Pre-registered in `K2b_3D_UNSTEADINESS_PREREGISTRATION.md`, sha256
+`91a26fc9327f3bc425a5c21bd9efe5d4e49c7127729aafc51dadd2652cc81695`, timestamped
+**2026-08-18T06:02:35Z, before either case was built.** Three outcomes were
+fixed, including **P2, the one that would have vindicated the original plan.**
+
+### 15.1 The gate, and why the test needed one
+
+The 3D mesh affordable inside ~11 core-minutes is **100 mm — eight times coarser
+than the 12.5 mm slice the limit cycle was found on.** A 3D run showing no
+oscillation would then be ambiguous between *three-dimensionality damped it* and
+*the coarse mesh damped it*, which are opposite conclusions. So the pre-registered
+design put a gate in front of the test: **the same 2D slice, at the 3D test's own
+100 mm cell.** Does the cycle survive coarsening *alone*?
+
+**The gate FAILED.** `K2bU3_M`, 725 cells, 80 s, 459 steps, Courant 2.0:
+
+| | final 60–80 s | preceding 40–60 s | ratio | verdict |
+|---|---:|---:|---:|---|
+| 2D slice at **100 mm** | 0.7792 K | 1.6156 K | **0.482** | **DAMPS** |
+
+Marginally — 0.482 against a 0.5 threshold — and marginal is enough: it means the
+100 mm mesh cannot be relied on to carry the cycle, so **Test D at 100 mm cannot
+separate mesh from dimensionality.** Per the pre-registration, **Test D was not
+run and no 3D verdict is claimed. Outcome P3.**
+
+**The aliasing guard passed on every rung** and was not the reason anything was
+refused: 34.4 steps and 29.9 samples per 6.000 s period at 100 mm, against
+pre-registered floors of 20 and 10.
+
+### 15.2 P3 owes a measured price, so the ladder was run
+
+The pre-registration says P3 must state *the cost of the un-confounded
+experiment*. Rather than estimate the resolution needed, it was **measured** — a
+2D transient ladder, each rung the same case at a finer cell:
+
+| 2D cell | cells | steps/period | mean T_in (60–80 s) | p2p | ratio | verdict |
+|---:|---:|---:|---:|---:|---:|---|
+| 100 mm | 725 | 34.4 | 296.0933 K | 0.7792 K | 0.482 | **DAMPS** |
+| 50 mm | 2,900 | 69.5 | 293.9410 K | 0.1334 K | 0.318 | **DAMPS** |
+| 25 mm | 11,600 | 143.8 | 293.9351 K | 0.1824 K | 0.377 | **DAMPS** |
+| **12.5 mm** | 46,400 | 288 | 294.0662 K | **1.1088 K** | **0.982** | **SURVIVES** |
+
+**The limit cycle exists only at 12.5 mm.** The threshold lies between 25 mm and
+12.5 mm, and all three coarser meshes decay at comfortably similar rates.
+
+### 15.3 Two consequences, and the second is the one that matters
+
+**(a) The time-mean is mesh-converged; the unsteadiness is not.**
+
+> Time-mean T_in across the three finest meshes: 293.9410, 293.9351, 294.0662 K
+> — a spread of **0.1311 K**. Across all four, including 100 mm, 2.1582 K.
+
+So a coarse mesh gets the **mean** roughly right and misses the **unsteadiness
+entirely.** The graded quantities of §7 — θ, T_in — are plausibly recoverable at
+coarse resolution. **Any claim about steadiness, and any differential measurement
+of the kind §12.3 and §5 attempted, is not.**
+
+**(b) The specified 3D mesh pair cannot see the phenomenon that decides its own
+formulation.** K2a §6 puts the 3D pair at **60 mm coarse and 40 mm fine.** Both
+are on the damping side of a threshold measured between 25 and 12.5 mm.
+
+> **A 3D graded pair built exactly to specification would return a converged,
+> steady-looking answer — and that steadiness would be an artefact of
+> under-resolution, not a result.** That is worse than the problem §14 found,
+> because it is a confident wrong answer rather than a refused one.
+
+### 15.4 The measured price of answering it
+
+At this rung's measured 3D transient rate of **4.261e4 cell·steps/(core·s)**:
+
+| 3D cell | cells | 80 s costs | against the 374–697 core-min graded pair |
+|---:|---:|---:|---|
+| 60 mm (spec coarse) | 132,840 | 42 core-min | affordable — **and blind to the cycle** |
+| 40 mm (spec fine) | 448,335 | 210 core-min | affordable — **and blind to the cycle** |
+| 25 mm | 1.84 M | 1,379 core-min | 2–4× the whole graded pair, still blind |
+| **12.5 mm** | **14.7 M** | **22,064 core-min ≈ 368 core-hours** | **32–59× the whole graded pair** |
+
+**The un-confounded 3D experiment costs roughly fifty times the plan it would be
+checking.** That is the answer P3 owed, and it is a number rather than a shrug.
+
+### 15.5 What this does to O1, stated against my own finding
+
+**The ladder weakens §14's conclusion and I am not going to bury that.**
+
+O1 was established at 12.5 mm on three legs: the oscillation grew 1.81× when
+under-relaxation was halved; it did not decay across 40 s; its 6.000 s period
+matched the rack-face flow-through time to 12 %. Those measurements stand.
+
+**What is now known that was not known then: the limit cycle has NOT been shown
+to be mesh-converged.** It exists at exactly one resolution on this ladder, and a
+physical instability should persist — and converge — under *further* refinement.
+The check that would establish it is a **6.25 mm** 2D rung, ≈460 core-minutes,
+which was not affordable inside this authorisation and was **not** run.
+
+**The reading that favours O1**, stated as an argument and not a measurement:
+under-resolution adds numerical diffusion, which damps instabilities rather than
+creating them, so coarse-damps/fine-sustains is the expected direction; and Test
+A's result — the oscillation *growing* when the solver's own damping was reduced
+— points the same way.
+
+**The reading that does not**: one point on the sustaining side is one point.
+
+> **O1 stands as a measurement at 12.5 mm and is now explicitly NOT established
+> as mesh-converged.** Every sentence in §14 that reads as a statement about *the
+> module* should be read as a statement about *the module at 12.5 mm* until a
+> 6.25 mm rung exists.
+
+### 15.6 Where this leaves the 3D module
+
+- **The §9 estimate stays VOID**, and P3 does not revive it.
+- **The specified 60/40 mm pair should not be run to decide steadiness**, because
+  §15.3(b) says in advance what it would report and why that report would be
+  worthless. It may still be worth running for the *mean* quantities, which
+  §15.3(a) suggests are recoverable — but that is a different claim, needing its
+  own authorisation and its own wording.
+- **The next cheap experiment is not 3D at all.** It is the **6.25 mm 2D rung**,
+  ≈460 core-minutes, which decides whether O1 is mesh-converged. Until that is
+  known, a 368 core-hour 3D run would be resolving a phenomenon whose existence
+  rests on a single mesh.
+- **Nothing here is requested.** Both numbers are stated so a decision can be
+  made against them.
+
+### 15.7 What P3 cannot reach
+
+- **The ladder is 2D.** The threshold resolution in 3D may differ, and
+  three-dimensionality may damp the mode independently of resolution — that is
+  precisely the question P3 could not answer.
+- **One provisioning, one geometry.** 70 % under-provisioning, N = 4.
+- **80 s cannot see a mode slower than ≈25 s.**
+

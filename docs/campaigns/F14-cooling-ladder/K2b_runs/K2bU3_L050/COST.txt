@@ -1,0 +1,4 @@
+case K2bU3_L050
+cells 2900
+cores 1
+core_minutes 0.2500

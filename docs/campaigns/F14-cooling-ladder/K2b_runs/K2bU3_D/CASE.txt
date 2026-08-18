@@ -1,0 +1,16 @@
+case               K2bU3_D
+kind               K2b-U3 TEST D -- does the 2D limit cycle survive in 3D?
+pre-registration   K2b_3D_UNSTEADINESS_PREREGISTRATION.md sha256 91a26fc9...
+gate               K2bU3_M must show the limit cycle surviving at this same
+                   100 mm cell in 2D, or mesh and dimensionality are confounded
+solver             buoyantBoussinesqPimpleFoam, Euler, PIMPLE 2/2
+cells              28740   (cell 0.1 m; the spec's 3D coarse is 60 mm)
+racks              4, row ends OPEN -- the spanwise path a slice cannot have
+provisioning       70 % (tile 0.245 m3/s each)
+endTime            80.0 s, maxCo 2.0, monitor every 0.2 s
+discard            first 40 s (3D room turnover ~35 s)
+graded             60-80 s against 40-60 s, on the mass-flow-weighted mean T_in
+                   over ALL FOUR rack front faces
+thresholds         p2p >= 0.30 K and ratio >= 0.8 = SURVIVES;
+                   p2p <= 0.10 K or ratio <= 0.5 = DAMPS; else UNDECIDABLE
+aliasing floor     >= 20 steps and >= 10 samples per 6.000 s period, measured
