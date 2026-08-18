@@ -6263,6 +6263,29 @@ means, and run it before spending anything that depends on the answer. The
 diagnosis that says "your plan is fine" is worth the same as the one that says it
 is void — and you cannot get either honestly unless both were possible.
 
+**THIS IS NOT A THERMAL LESSON, and the evidence above is only where it was
+caught.** The shape is: *several independent probes bottom out at the same
+resolution, each is written up as a limit of its own probe, and the common cause
+is never named because no single write-up is wrong.* It is a statement about how
+a lab reads its own records, and it is available in any domain that measures
+differences. The same pattern, outside CFD:
+
+- **Flaky tests.** Three suites each "occasionally time out under load", filed
+  three times as three flaky tests, when one shared fixture is serialising.
+- **Benchmarks.** Several latency comparisons all "within noise", each written up
+  as needing more samples, when one shared warm-up is dominating the variance and
+  no sample count will fix it.
+- **Evaluation.** Several graders "cannot separate the two models", reported as a
+  weak grader each time, when the prompt they share caps the achievable spread.
+- **Reconciliation.** Several audits "off by rounding", when one upstream feed is
+  quantised and the rounding is the quantisation.
+
+In every case the tell is the same and it is a *documentary* tell rather than a
+numerical one: **the phrase "the instrument was the limit" appearing twice, in
+two write-ups, about two different instruments.** That sentence is correct each
+time it is written, which is exactly why nobody re-reads it — and it is the
+signal. Search your own records for it before you buy another instrument.
+
 ## L-134. Put the gate before the test, and let it stop you
 
 **The rule.** When the experiment you can afford differs from the one that
