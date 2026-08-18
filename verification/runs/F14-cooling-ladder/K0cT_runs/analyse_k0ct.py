@@ -27,15 +27,23 @@ not, the specification and the data have drifted apart and it exits 2.  That is
 a check the laminar rung could not make, because its reference was a table in a
 paper rather than a file on disk.
 
-THE NUSSELT NUMBER IS MEASURED AND UNGRADED, AND THAT IS NOT NEGOTIABLE
-----------------------------------------------------------------------
-The specification records the turbulent-rung Nusselt reference as NOT OBTAINED:
-the ERCOFTAC database ships no Nusselt files and Betts and Bokhari (2000) is
-paywalled (`10.1016/S0142-727X(00)00033-3`, Unpaywall is_oa false, checked
-2026-08-17).  A Nusselt number computed here has nothing to compare against.
-It is reported as a MEASUREMENT, it appears in no graded row, and this script
-carries no band for it.  The same discipline the laminar rung applied to core
-stratification, applied here to Nusselt.
+THE NUSSELT NUMBER IS MEASURED HERE AND GRADED ELSEWHERE (updated 2026-08-18)
+----------------------------------------------------------------------------
+As executed on 2026-08-18 this rung reported Nusselt as an UNGRADED measurement,
+because the specification recorded its reference as NOT OBTAINED: the ERCOFTAC
+database ships no Nusselt files and Betts and Bokhari (2000) was paywalled.
+
+LATER THE SAME DAY THE PAPER ARRIVED and was read in full.  Its Table 1, p. 682,
+carries the average Nusselt number: 5.85 at Ra 0.86e6 and 7.57 at Ra 1.43e6.
+The reference now EXISTS, and the specification records it in addendum A1.
+
+This script still does not grade Nusselt, and that is a decision rather than an
+oversight.  The rung was already executed and its verdict published with Nusselt
+in no graded row.  Arming the row inside this comparator would change an
+executed rung's row count and verdict silently, from inside the tool that
+produced it.  The re-grade is therefore a NEW dated record with its own
+comparator: K0cT_NUSSELT_REGRADE.md and regrade_nusselt.py.  The guard below
+still refuses to run if the provenance chain is broken at either end.
 
 WHAT IS GRADED, ON WHICH MESH
 -----------------------------
@@ -63,10 +71,39 @@ import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SPEC = os.path.abspath(os.path.join(HERE, "..",
-                                    "K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md"))
-DATA = os.path.abspath(os.path.join(HERE, "..", "reference-data", "betts_bokhari"))
-REPO = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
+
+def _find_up(relpath, start=None):
+    """Resolve a repository-relative path by walking UP from this file.
+
+    NOT an assembled relative literal.  This rung's run tree was written when
+    it lived under docs/campaigns/F14-cooling-ladder/ and was later moved to
+    verification/runs/F14-cooling-ladder/ by a repository reorganisation.  The
+    "../" literals in the first version of this script did not move with it,
+    and this script was BROKEN AT HEAD as a result: exit 2, "gate
+    specification not found", on a path two directories from where the file
+    actually is.  Verified by running it, not by reading it.
+
+    That is the L-137 failure class, and the K2c lane hit a live instance of
+    the same class on the same day from the same reorganisation.  Resolving by
+    search from the repository root makes the reference survive the next move.
+    """
+    d = os.path.abspath(start or os.path.dirname(os.path.abspath(__file__)))
+    while True:
+        cand = os.path.join(d, relpath)
+        if os.path.exists(cand):
+            return os.path.abspath(cand)
+        if os.path.isdir(os.path.join(d, ".git")):
+            return os.path.abspath(os.path.join(d, relpath))
+        parent = os.path.dirname(d)
+        if parent == d:
+            return os.path.abspath(relpath)
+        d = parent
+
+
+SPEC = _find_up("docs/campaigns/F14-cooling-ladder/"
+                "K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md")
+DATA = _find_up("docs/campaigns/F14-cooling-ladder/reference-data/betts_bokhari")
+REPO = os.path.dirname(os.path.dirname(_find_up("docs/campaigns")))
 RULES = os.path.join(REPO, "docs", "physics_rules.yaml")
 HEAT_BALANCE = os.path.join(REPO, "scripts", "heat_balance.py")
 FOAM_BASHRC = os.environ.get("FOAM_BASHRC",
@@ -200,16 +237,68 @@ def read_spec():
         refuse("REFUSE: the two temperature differentials could not be read.")
     dT = {"lo": float(m.group(1)), "hi": float(m.group(2))}
 
-    # the NOT OBTAINED statement must still be in the specification.  If somebody
-    # quietly armed the Nusselt row, this script must not carry on as if nothing
-    # had changed.
-    if "Nusselt number, turbulent rung: reference NOT OBTAINED" not in txt:
+    # ---------------------------------------------------------------------
+    # THE NUSSELT PROVENANCE GUARD.  Updated 2026-08-18, in the same
+    # change-set as the addendum that made its old referent obsolete.
+    #
+    # Until 2026-08-18 this guard required the sentence "Nusselt number,
+    # turbulent rung: reference NOT OBTAINED" to be present in Section 2.3,
+    # and exited 2 if it had been removed, so that nobody could arm the
+    # Nusselt row by quietly editing the specification.
+    #
+    # On 2026-08-18 Betts and Bokhari (2000) arrived and was read in full.
+    # The reference EXISTS now.  The guard was NOT defeated to record that:
+    #   * Section 2.3's original sentence was NOT deleted.  It still stands,
+    #     unedited, because it was true when written (W-4).  It is asserted
+    #     below, so its removal is still an exit 2.
+    #   * The guard's REFERENT MOVED to addendum A1, which supersedes it by
+    #     date rather than by deletion.  A1's own marker sentence is
+    #     asserted below too.  Deleting the addendum now breaks this
+    #     analyser exactly as deleting the old sentence used to, so the rung
+    #     cannot silently lose its provenance in either direction.
+    #
+    # WHAT THIS ANALYSER STILL DOES NOT DO: grade Nusselt.  The K0cT rung was
+    # EXECUTED and its verdict published on 2026-08-18 with Nusselt in no
+    # graded row.  Arming the row here would silently change an executed
+    # rung's row count and verdict from inside its own comparator.  The
+    # re-grade against the newly obtained reference is a NEW dated record,
+    # K0cT_NUSSELT_REGRADE.md, with its own comparator regrade_nusselt.py.
+    # This analyser reports Nusselt as a measurement and names where it is
+    # graded.
+    # WHITESPACE IS NORMALISED BEFORE MATCHING, AND THAT IS NOT COSMETIC.
+    # The first version of this guard matched the raw text and REFUSED on an
+    # unmutated specification, because the addendum's marker sentence wraps
+    # across a line break in the markdown and the guard was looking for a
+    # single space.  Prose reflows; a provenance guard that breaks when a
+    # paragraph is rewrapped is a guard that will be deleted by the next
+    # person who hits it.  Found by the two-way control in
+    # K0cT_NUSSELT_REGRADE.md, not in review.
+    flat = " ".join(txt.split())
+    # ANCHORED ON SECTION 2.3's OWN CONTINUATION, not on the bare sentence.
+    # The bare sentence occurs THREE times in the specification now: once in
+    # Section 2.3 where it is the record, and twice inside addendum A1 where
+    # it is QUOTED while being superseded.  A guard matching the bare
+    # sentence therefore could not tell the record from a quotation of it,
+    # and the two-way control proved it: deleting Section 2.3's statement
+    # outright left the guard satisfied by A1's quotation of it.  The anchor
+    # below occurs exactly once, in Section 2.3.
+    OLD = "reference NOT OBTAINED.** The database provides no Nusselt files"
+    NEW = ("Nusselt number, turbulent rung: reference OBTAINED by addendum A1 "
+           "dated 2026-08-18")
+    if OLD not in flat:
         refuse(
-            "REFUSE: the specification no longer records the turbulent-rung "
-            "Nusselt reference as NOT OBTAINED. This analyser reports Nusselt as "
-            "an UNGRADED measurement on that basis and will not grade it "
-            "silently. Re-read the specification and rewrite this analyser "
-            "deliberately if the reference has genuinely been obtained.")
+            "REFUSE: Section 2.3's original 'reference NOT OBTAINED' sentence "
+            "has been REMOVED from the specification. It records what was true "
+            "on 2026-08-17 and is superseded by addendum A1 by date, never by "
+            "deletion (W-4). Restore it; do not delete history to make a guard "
+            "pass.")
+    if NEW not in flat:
+        refuse(
+            "REFUSE: the specification does not carry addendum A1's marker "
+            "sentence, which is this guard's referent since 2026-08-18. Either "
+            "the addendum was removed, or this analyser is being run against a "
+            "specification predating it. The Nusselt reference's provenance "
+            "cannot be established, so nothing is reported about it.")
 
     return ref, bands, dT
 
@@ -1099,7 +1188,8 @@ def main():
         print(f"  {r['rung']:>3} {r['quantity']:<45} ref {r['reference']:>9} "
               f"solve {r['solved']:>10.4f}  dev {r['deviation']:>8.3f} "
               f"{r['unit']:<8} band {r['band']:<6} {r['verdict']}")
-    print("Nusselt (UNGRADED, reference NOT OBTAINED):")
+    print("Nusselt (MEASURED here; reference OBTAINED 2026-08-18, GRADED in")
+    print("        docs/campaigns/F14-cooling-ladder/K0cT_NUSSELT_REGRADE.md):")
     for k, v in result["nusselt_UNGRADED"].items():
         print(f"  {k:<20} Nu_hot {v['Nu_hot']:.4f}  Nu_cold {v['Nu_cold']:.4f}")
     return 1 if fails else 0

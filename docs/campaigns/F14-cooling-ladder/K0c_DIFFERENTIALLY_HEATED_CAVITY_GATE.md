@@ -229,3 +229,198 @@ row replaced by a remembered value, is not graded at all.
 | de Vahl Davis extrema Nu_max at Ra 1e6 is about 2 percent high against modern solutions | INL/EXT-09-15333 Section 4.3.1 and Table 3 (READ IN FULL) | Grading Nu_max at Ra = 1e6 only | Nu_avg, which shows no such drift |
 | Betts and Bokhari profiles are 2D at mid-span and antisymmetric across the diagonal | ERCOFTAC Case 079 page (READ IN FULL) | Mid-span comparisons at z = 0 | Near front and back walls; spanwise stations exist in the dataset to check this |
 | The lo-Ra core stratification is indistinguishable from zero within S of 0.02 | DERIVED from primary data files, this directory | Gate row for S at Ra 0.86e6 | Any claim of a measured nonzero lo-Ra stratification below 0.02 |
+
+---
+
+# Addendum A1, 2026-08-18. The turbulent-rung Nusselt reference was OBTAINED
+
+**Nusselt number, turbulent rung: reference OBTAINED by addendum A1 dated
+2026-08-18.**
+
+This addendum is **append-only and supersedes nothing by deletion** (W-4).
+Section 2.3 above still carries the sentence "Nusselt number, turbulent rung:
+reference NOT OBTAINED", and it is **left standing and unedited** because it was
+true when written on 2026-08-17 and because the specification's value is that it
+can be diffed against its own commit. Everything above this line is as it was.
+What changed is the world, not the record: the paper arrived.
+
+## A1.1 What arrived, and how it was identified
+
+Betts and Bokhari (2000) was recorded in Section 2.1 as `is_oa: false`,
+paywalled, full text not seen. **On 2026-08-18 the full text arrived in the
+repository and was read in full.** It was located **by content**, not by path -
+a concurrent lane reorganised `docs/papers/` into topic subdirectories the same
+day, so the path given in the dispatch no longer existed. Identification was on
+the PII string carried in the PDF's own metadata:
+
+| Field | Value |
+| --- | --- |
+| Path as found 2026-08-18 | `docs/papers/buoyant_natural_convection/betts_bokhari_2000_ijhff_21.pdf` |
+| PDF metadata title | `PII: S0142-727X(00)00033-3` |
+| SHA-256 | `905cce61e84bc485b086f9215277fd94bf823f3ffc12453084ab580423baeb94` |
+| Pages | 9 (journal pp. 675-683) |
+| Tier | **READ IN FULL**, 2026-08-18 |
+
+That PII is the DOI `10.1016/S0142-727X(00)00033-3` named in Section 2.1. It is
+the same paper, and the acquisition path Section 2.1 named is now closed.
+
+## A1.2 The reference: Betts and Bokhari Table 1, p. 682
+
+Table 1 is headed "Summary of mid-height results" and p. 683 records that it
+"also contains derived results, such as average Nusselt number and an estimate of
+eddy viscosity at the centre-line". Transcribed complete, both columns:
+
+| Quantity | Lower Ra (0.86e6) | Higher Ra (1.43e6) |
+| --- | ---: | ---: |
+| Cold wall temperature (C) | 15.1 | 15.6 |
+| Hot wall temperature (C) | 34.7 | 54.7 |
+| Av. wall temp. gradient (C/m) | 1540 | 3900 |
+| **Average Nusselt number** | **5.85** | **7.57** |
+| Centre-line dT/dx (C/m) | 68 | 131 |
+| Mid-cavity rms temperature (C), uncorrected | 0.92 | 1.48 |
+| Max. vert. velocity (Av) (m/s) | 0.139 | 0.191 |
+| Mid-cavity rms, v (m/s) | 0.10 | 0.134 |
+| Mid-cavity dV/dx (1/s) | 4.8 | 5.1 |
+| Mid-cavity rms u (m/s) | 0.053 | 0.077 |
+| Mid-cavity u'v' (m2/s2 x 1e3) | 2.4-2.8 | 4.2-5.0 |
+| nu_T/nu at centre-line | 35 | 55 |
+| alpha_T/alpha at centre-line | 23 | 30 |
+
+Air properties, same table:
+
+| | 15.1 C | 34.7 C | 54.7 C |
+| --- | ---: | ---: | ---: |
+| Thermal conductivity (W/mK x 1e3) | 25.3 | 26.8 | 28.3 |
+| beta (1/K x 1e3) | 3.47 | 3.25 | 3.05 |
+| nu (m2/s x 1e6) | 14.6 | 16.5 | 18.4 |
+| Prandtl number | 0.704 | 0.700 | 0.697 |
+
+## A1.3 Stated experimental uncertainty on the Nusselt number
+
+The paper states no uncertainty on Nu directly. It states one on the quantity Nu
+is computed from, **p. 681**: after describing the fourth-order polynomial fit to
+the near-wall temperature profile with "typical standard errors of 0.07 C", and
+"taking into account also uncertainty in positional accuracy and thickness of the
+thermocouple", it records that **"the wall temperature gradients from this
+analysis are estimated to be accurate to +/-5%"**.
+
+Nu is directly proportional to that gradient (A1.4), so **+/-5 % is the stated
+experimental uncertainty on the reference Nusselt number**. It is the authors'
+own number, not one constructed here.
+
+Corroborating statements read in full:
+
+| Statement | Page |
+| --- | --- |
+| Integration of the fluxes over the cavity height gives heat transfer 1.1 % (lo Ra) and 3.3 % (hi Ra) higher on the hot wall than the cold, "within the estimated experimental error", against 14.7 % in Dafa'Alla and Betts and 20 % in Ziai | 681 |
+| Air-side wall temperatures vary +0.2/-0.4 C about the mean on the cold side and +/-0.2 C on the hot | 680 |
+| Digital accuracy of the temperature chain about 0.1 C | 678 |
+| Vibration effects on LDA under 0.1 mm/s | 679 |
+| Correcting the temperature record for the 0.07 s response time raised rms temperature by only 4 % | 682 |
+
+## A1.4 The Nusselt definition, checked rather than assumed
+
+**The paper gives no formula for Nu.** The definition was recovered from p. 677,
+where the rubber wall conductivity of 0.155 W/mK is described as "close to the
+effective mean conductivity across the cavity under the turbulent conditions
+(i.e. Nusselt number times molecular conductivity of air)". That fixes
+`k_eff = Nu . k`, hence `Nu = q W / (k dT)`, hence for a wall gradient `g`,
+`Nu = g W / dT`.
+
+That reconstruction was **tested against Table 1's own numbers**, because a
+definition inferred from a parenthetical is worth exactly as much as its check:
+
+| rung | g W / dT from Table 1 | tabulated Nu | agreement |
+| --- | ---: | ---: | ---: |
+| hi Ra, using Table 1 wall temps (dT = 54.7 - 15.6 = 39.1 K) | 3900 x 0.076 / 39.1 = **7.581** | 7.57 | **+0.14 %** |
+| lo Ra, using Table 1 wall temps (dT = 34.7 - 15.1 = 19.6 K) | 1540 x 0.076 / 19.6 = **5.971** | 5.85 | **+2.08 %** |
+
+**The definition is confirmed at the higher Ra to 0.14 percent. At the lower Ra
+the paper is internally inconsistent with itself by 2.08 percent** - Table 1's
+tabulated Nu cannot be recovered from Table 1's own tabulated gradient and wall
+temperatures. That inconsistency is recorded, not smoothed: it is carried into
+the validation uncertainty in A1.5 as an additional component rather than
+resolved in either direction, because nothing in the paper says which of the two
+entries is the rounded one.
+
+A second, smaller ambiguity, also carried: the **abstract** states temperature
+differentials of 19.6 C and **39.9** C, while **Table 1's wall temperatures give
+19.6 and 39.1** C. The 39.9 is what Section 2.2 above parsed and what the
+executed rung imposed. The two differ by 2.0 %.
+
+This definition is **commensurate with the one the executed rung used**
+(`K0cT_RESULTS.md` Section 6: `Nu = |dT/dn|_wall . W / dT`). They are the same
+formula. That is what makes the re-grade in `K0cT_NUSSELT_REGRADE.md` legitimate
+rather than a comparison of two different quantities wearing one name.
+
+## A1.5 Validation uncertainty on the re-grade
+
+Combined in quadrature from three independent components, all measured:
+
+| component | lo Ra | hi Ra | source |
+| --- | ---: | ---: | --- |
+| stated accuracy of the wall temperature gradient | 5.00 % | 5.00 % | Betts p. 681 |
+| Table 1 internal inconsistency (A1.4) | 2.09 % | 2.00 % | DERIVED from Table 1 |
+| grid, from the executed coarse/fine pair | 0.28 % | 0.49 % | `K0cT_RESULTS.md` Section 6 |
+| **u_val** | **5.43 %** | **5.41 %** | quadrature sum |
+
+## A1.6 Two further references this table supplies, which the gate did not have
+
+**(a) The reference Nusselt for the tall cavity now exists, so the Section 2.4
+gate can carry a Nusselt row.** The row and its verdict are in
+`K0cT_NUSSELT_REGRADE.md`, filed as a new dated record rather than by editing
+`K0cT_RESULTS.md` (W-4).
+
+**(b) A measured turbulent Prandtl number at the cavity centre-line, DERIVED from
+Table 1.** With `Prt = nu_T / alpha_T = (nu_T/nu) / (alpha_T/alpha) x Pr`:
+
+| rung | nu_T/nu | alpha_T/alpha | Pr | **Prt measured** | solve used | error |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| lo Ra 0.86e6 | 35 | 23 | 0.704 | **1.071** | 0.85 | **-21 %** |
+| hi Ra 1.43e6 | 55 | 30 | 0.700 | **1.283** | 0.85 | **-34 %** |
+
+**The executed rung's constant Prt of 0.85 was 21 to 34 percent below the value
+measured at the centre-line of the very cavity it was solving,** and the measured
+value is not constant between the two rungs - it rose by 20 percent when Ra rose
+by 66 percent. This is the "constant turbulent Prandtl number strains" failure
+mode named in the day order, and it is now a number rather than a suspicion. It
+is quantified by experiment in `K0cS_RESULTS.md`, control C3.
+
+**(c) A corroboration of the DERIVED velocity metrics in Section 2.3 above.**
+Section 2.3 derived peak mid-height vertical velocities of +0.140 m/s (lo) and
++0.190 m/s (hi) from the ERCOFTAC primary data files. Betts Table 1 gives "Max.
+vert. velocity (Av)" of **0.139 and 0.191 m/s**. The independently derived
+numbers and the paper's own table agree to **0.7 % and 0.5 %**, which validates
+`compute_reference_metrics.py` against a source it never read.
+
+## A1.7 One thing this addendum does NOT close
+
+Section 2.3's core stratification row is **not** superseded. Betts Table 1 gives
+`Centre-line dT/dx` of 68 and 131 C/m, but **`x` is the horizontal coordinate**
+(notation, p. 676: "x, y, z horizontal, vertical and depth-wise"), so that row is
+the horizontal traverse gradient at mid-height and **not** the vertical
+stratification `S` that Section 2.3 derives. No vertical stratification figure
+appears in Table 1.
+
+What the paper does add is a **qualitative corroboration**, p. 682: "A notable
+feature of the present results is the lack of any thermal stratification over the
+mid-height region of the cavity. The temperature on the vertical centre-line is
+effectively constant from y/H = 0.3 to 0.7." That supports Section 2.3's finding
+that the lo-Ra `S` of 0.016 is indistinguishable from zero. **It sits awkwardly
+with the hi-Ra derived `S` of 0.095**, which is not zero; the paper's sentence
+does not distinguish the two Rayleigh numbers and no reconciliation is asserted
+here. The Section 2.4 gate rows on `S` stand unchanged.
+
+## A1.8 The analyser guard was updated in the same change-set as this addendum
+
+`K0cT_runs/analyse_k0ct.py` re-read the sentence "Nusselt number, turbulent rung:
+reference NOT OBTAINED" out of Section 2.3 on every run and exited 2 if it had
+been removed. **That guard was deliberate and correct and was not defeated.** The
+sentence was not deleted; it still stands in Section 2.3.
+
+The guard's **referent was moved to this addendum** in the same change-set that
+created it: the analyser now requires the sentence at the head of A1 - "Nusselt
+number, turbulent rung: reference OBTAINED by addendum A1 dated 2026-08-18" - and
+**exits 2 if that is absent**, so the rung still cannot silently lose its
+provenance. Deleting the addendum breaks the analyser exactly as deleting the
+NOT OBTAINED statement used to.

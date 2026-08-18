@@ -1,0 +1,104 @@
+{
+ "generated_utc": "2026-08-18T17:27:31Z",
+ "reference_parsed_from_addendum": {
+  "lo": 5.85,
+  "hi": 7.57
+ },
+ "u_val_parsed_from_addendum": {
+  "lo": 5.43,
+  "hi": 5.41
+ },
+ "graded_rows": [
+  {
+   "rung": "lo",
+   "model": "kOmegaSST",
+   "case": "T_lo_f",
+   "coarse_case": "T_lo_c",
+   "Nu_coarse": 4.854418161289482,
+   "Nu_fine": 4.867971177225345,
+   "reference": 5.85,
+   "grid_pct": 0.2784120004504257,
+   "E_pct": -16.786817483327425,
+   "u_val_pct": 5.43,
+   "E_over_uval": 3.0914949324728225,
+   "verdict": "GATE FAIL"
+  },
+  {
+   "rung": "hi",
+   "model": "kOmegaSST",
+   "case": "T_hi_f",
+   "coarse_case": "T_hi_c",
+   "Nu_coarse": 5.66891055228247,
+   "Nu_fine": 5.696483331104938,
+   "reference": 7.57,
+   "grid_pct": 0.4840315896635785,
+   "E_pct": -24.749229443792107,
+   "u_val_pct": 5.41,
+   "E_over_uval": 4.574718936005935,
+   "verdict": "GATE FAIL"
+  }
+ ],
+ "reported_not_graded": [
+  {
+   "case": "M_hi_f_LS",
+   "model": "LaunderSharmaKE",
+   "rung": "hi",
+   "Nu": 7.986566864443873,
+   "reference": 7.57,
+   "E_pct": 5.502864787897919,
+   "u_val_pct": 5.41,
+   "E_over_uval": 1.017165395175216,
+   "not_graded_because": "fine mesh only; no coarse twin was run, so specification Section 2.5 forbids grading it"
+  },
+  {
+   "case": "C1_hi_c_laminar",
+   "model": "laminar",
+   "rung": "hi",
+   "Nu": 4.719743838356681,
+   "reference": 7.57,
+   "E_pct": -37.6519968512988,
+   "u_val_pct": 5.41,
+   "E_over_uval": 6.9597036693713115,
+   "not_graded_because": "control, not a graded case"
+  },
+  {
+   "case": "C2_hi_c_Ra130",
+   "model": "kOmegaSST",
+   "rung": "hi",
+   "Nu": 6.146388464202903,
+   "reference": 7.57,
+   "E_pct": -18.805964805774078,
+   "u_val_pct": 5.41,
+   "E_over_uval": 3.476148762619977,
+   "not_graded_because": "Ra raised 30 percent; not the reference case"
+  },
+  {
+   "case": "B_hi_c_adiabatic",
+   "model": "kOmegaSST",
+   "rung": "hi",
+   "Nu": 5.6934241358236,
+   "reference": 7.57,
+   "E_pct": -24.789641534694855,
+   "u_val_pct": 5.41,
+   "E_over_uval": 4.582188823418642,
+   "not_graded_because": "boundary-condition twin, not the reference case"
+  }
+ ],
+ "mutation_control": [
+  {
+   "rung": "lo",
+   "currently": "GATE FAIL",
+   "reachable_PASS": true,
+   "reachable_FAIL": true
+  },
+  {
+   "rung": "hi",
+   "currently": "GATE FAIL",
+   "reachable_PASS": true,
+   "reachable_FAIL": true
+  }
+ ],
+ "every_row_reachable_both_ways": true,
+ "model_twin_spread_pct": 40.201706916866044,
+ "reference_position_between_models_pct": 81.8099707552362
+}
