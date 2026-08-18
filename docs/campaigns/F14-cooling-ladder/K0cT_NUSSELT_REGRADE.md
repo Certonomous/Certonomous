@@ -231,3 +231,32 @@ reapplied whitespace-insensitively and the guard refused correctly.
   a passed gate.** `K0cT_RESULTS.md` Section 7 said so and it is still true.
 - **Nothing here is submitted, sent, filed, uploaded or registered.**
   Submissions are PARKED.
+
+---
+
+## Appended 2026-08-18: the repaired comparator was re-run, and it reproduces the published verdict
+
+Section 6.1 recorded that `analyse_k0ct.py` was **broken at HEAD** and repaired.
+A repair to a comparator is worthless unless the repaired comparator is shown to
+produce the same verdict the rung published, so it was executed end to end after
+the fix:
+
+```
+$ cd verification/runs/F14-cooling-ladder/K0cT_runs && python3 analyse_k0ct.py
+graded rows: 18   FAIL: 8
+convergence refusals: ['T_hi_c', 'C1_hi_c_laminar', 'S_hi_c_seed100']
+exit 1
+```
+
+`K0cT_RESULTS.md` published **GATE FAIL, 8 of 18 graded rows**. The repaired
+comparator returns **18 graded rows, 8 FAIL, exit 1**. **The path repair restored
+a comparator that could not run and changed no verdict**, which is the only
+outcome that would have made the repair safe to keep.
+
+The three convergence refusals are also unchanged, so the repair did not quietly
+alter what the rung refuses to grade either.
+
+**What this does not show.** It does not re-validate the eight failing rows
+against the literature; it shows only that the instrument returns what it
+returned before it was broken. The Nusselt rows graded in this document are a
+separate comparator (`regrade_nusselt.py`) and are not part of that 18.

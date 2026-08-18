@@ -1,0 +1,8 @@
+case=C1_laminar
+rc_blockMesh=0
+rc_checkMesh=0
+rc_solve=0
+iterations=30000
+exec_seconds=470.65
+wall_seconds=476
+finished_utc=2026-08-18T17:28:48Z

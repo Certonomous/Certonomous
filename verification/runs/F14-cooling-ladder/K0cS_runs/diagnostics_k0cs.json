@@ -1,0 +1,282 @@
+{
+ "S_SST_c": {
+  "case": "S_SST_c",
+  "model": null,
+  "wall_gradient_method": {
+   "two_point": 54.60522676652961,
+   "lsq_first_6": 54.41893287592822,
+   "lsq_first_9": 53.684642661912555,
+   "spread_pct": 1.685890086223999
+  },
+  "conductive_layer_linearity": {
+   "r2": 0.99999878236433,
+   "points": 7,
+   "max_dev_K": 0.0031196506806168145
+  },
+  "midheight_traverse_vs_ampofo_table2": {
+   "stations": 62,
+   "theta_rms_K_boundary_layers": 6.151045011446406,
+   "theta_rms_K_core": 0.9952445322716157,
+   "v_rms_ms_boundary_layers": 0.03452886472696385,
+   "v_rms_ms_core": 0.0009254078907456212
+  },
+  "antisymmetry_defect_pct": 0.28007455300624906,
+  "theta_centre": 0.49811613431073737,
+  "heat_balance_pct": 0.0852126279974151,
+  "nut_over_nu_max": 12.07384018288038,
+  "k_max": 0.001827110306477767,
+  "vrms_isotropic": 0.034900910269674124
+ },
+ "S_SST_f": {
+  "case": "S_SST_f",
+  "model": null,
+  "wall_gradient_method": {
+   "two_point": 54.95834687651473,
+   "lsq_first_6": 54.92007873739577,
+   "lsq_first_9": 54.791736760678525,
+   "spread_pct": 0.30315707313861007
+  },
+  "conductive_layer_linearity": {
+   "r2": 0.9999977400626178,
+   "points": 11,
+   "max_dev_K": 0.005645324735496615
+  },
+  "midheight_traverse_vs_ampofo_table2": {
+   "stations": 62,
+   "theta_rms_K_boundary_layers": 6.165597236531337,
+   "theta_rms_K_core": 0.8964636201494808,
+   "v_rms_ms_boundary_layers": 0.035433157529985916,
+   "v_rms_ms_core": 0.0018219062822432757
+  },
+  "antisymmetry_defect_pct": 0.05350166945742762,
+  "theta_centre": 0.4973238878535227,
+  "heat_balance_pct": 0.05752983778905515,
+  "nut_over_nu_max": 6.087951338799871,
+  "k_max": 0.001858561509635749,
+  "vrms_isotropic": 0.03520001429579018
+ },
+ "S_KE_c": {
+  "case": "S_KE_c",
+  "model": null,
+  "wall_gradient_method": {
+   "two_point": 74.32893248078378,
+   "lsq_first_6": 70.913556392583,
+   "lsq_first_9": 67.71221542405709,
+   "spread_pct": 8.901940113881363
+  },
+  "conductive_layer_linearity": {
+   "r2": 0.9999807117633456,
+   "points": 7,
+   "max_dev_K": 0.017396312504047273
+  },
+  "midheight_traverse_vs_ampofo_table2": {
+   "stations": 62,
+   "theta_rms_K_boundary_layers": 6.074266399575963,
+   "theta_rms_K_core": 0.9336705482896439,
+   "v_rms_ms_boundary_layers": 0.025403084606008215,
+   "v_rms_ms_core": 0.0017906631826220456
+  },
+  "antisymmetry_defect_pct": 0.3430683865031274,
+  "theta_centre": 0.49994657210064164,
+  "heat_balance_pct": 6.053951681881778e-08,
+  "nut_over_nu_max": 25.234848799204066,
+  "k_max": 0.004163410538601193,
+  "vrms_isotropic": 0.052684030082503455
+ },
+ "S_KE_f": {
+  "case": "S_KE_f",
+  "model": null,
+  "wall_gradient_method": {
+   "two_point": 76.48781486134791,
+   "lsq_first_6": 74.4360527693395,
+   "lsq_first_9": 74.26194496841934,
+   "spread_pct": 2.9100973755930695
+  },
+  "conductive_layer_linearity": {
+   "r2": 0.9998513720786472,
+   "points": 11,
+   "max_dev_K": 0.07259456066265102
+  },
+  "midheight_traverse_vs_ampofo_table2": {
+   "stations": 62,
+   "theta_rms_K_boundary_layers": 6.114600273007058,
+   "theta_rms_K_core": 0.9369931432034735,
+   "v_rms_ms_boundary_layers": 0.026985137851714323,
+   "v_rms_ms_core": 0.001880960576345134
+  },
+  "antisymmetry_defect_pct": 0.33822376278601435,
+  "theta_centre": 0.4999478003085997,
+  "heat_balance_pct": 4.310696542068366e-05,
+  "nut_over_nu_max": 26.376877355320854,
+  "k_max": 0.003519587063354981,
+  "vrms_isotropic": 0.04843956415545032
+ },
+ "S_LS_c": {
+  "case": "S_LS_c",
+  "model": null,
+  "wall_gradient_method": {
+   "two_point": 53.444853735198826,
+   "lsq_first_6": 53.066108656164296,
+   "lsq_first_9": 52.17148280486872,
+   "spread_pct": 2.3825884838963765
+  },
+  "conductive_layer_linearity": {
+   "r2": 0.9999986985282558,
+   "points": 7,
+   "max_dev_K": 0.0031997964507581855
+  },
+  "midheight_traverse_vs_ampofo_table2": {
+   "stations": 62,
+   "theta_rms_K_boundary_layers": 6.215644307470277,
+   "theta_rms_K_core": 1.5745083153454154,
+   "v_rms_ms_boundary_layers": 0.04558583462605638,
+   "v_rms_ms_core": 0.011328363830172945
+  },
+  "antisymmetry_defect_pct": 2.552517729728049,
+  "theta_centre": 0.5207331983922614,
+  "heat_balance_pct": 2.8373203974863737,
+  "nut_over_nu_max": 17.32245256292643,
+  "k_max": 0.0005731802036298303,
+  "vrms_isotropic": 0.0195478933840253
+ },
+ "S_LS_f": {
+  "case": "S_LS_f",
+  "model": null,
+  "wall_gradient_method": {
+   "two_point": 53.69405550095394,
+   "lsq_first_6": 53.64382897972853,
+   "lsq_first_9": 53.50201967693459,
+   "spread_pct": 0.3576482018869624
+  },
+  "conductive_layer_linearity": {
+   "r2": 0.9999997104269367,
+   "points": 11,
+   "max_dev_K": 0.001891725882501305
+  },
+  "midheight_traverse_vs_ampofo_table2": {
+   "stations": 62,
+   "theta_rms_K_boundary_layers": 6.228652370447785,
+   "theta_rms_K_core": 1.7752880012149965,
+   "v_rms_ms_boundary_layers": 0.04594898179557588,
+   "v_rms_ms_core": 0.01518011992218809
+  },
+  "antisymmetry_defect_pct": 1.8455072581731993,
+  "theta_centre": 0.480900853084205,
+  "heat_balance_pct": 1.6100497158662483,
+  "nut_over_nu_max": 0.0006124555423359047,
+  "k_max": 0.0002545619426760058,
+  "vrms_isotropic": 0.0130272008422379
+ },
+ "C1_laminar": {
+  "case": "C1_laminar",
+  "model": null,
+  "wall_gradient_method": {
+   "two_point": 55.264286006779905,
+   "lsq_first_6": 55.10682407508959,
+   "lsq_first_9": 54.35383387282925,
+   "spread_pct": 1.647451183643195
+  },
+  "conductive_layer_linearity": {
+   "r2": 0.9999855829406575,
+   "points": 7,
+   "max_dev_K": 0.010071844283004339
+  },
+  "midheight_traverse_vs_ampofo_table2": {
+   "stations": 62,
+   "theta_rms_K_boundary_layers": 6.276388498116078,
+   "theta_rms_K_core": 2.048299853913764,
+   "v_rms_ms_boundary_layers": 0.046041346864047,
+   "v_rms_ms_core": 0.01592887373897467
+  },
+  "antisymmetry_defect_pct": 9.607893022748476,
+  "theta_centre": 0.4876703042106712,
+  "heat_balance_pct": 8.966837405535665,
+  "nut_over_nu_max": 0.0,
+  "k_max": null,
+  "vrms_isotropic": null
+ },
+ "C2_seed_d100": {
+  "case": "C2_seed_d100",
+  "model": null,
+  "wall_gradient_method": {
+   "two_point": 54.592698219189906,
+   "lsq_first_6": 54.40748169782274,
+   "lsq_first_9": 53.67590577115326,
+   "spread_pct": 1.679331628482109
+  },
+  "conductive_layer_linearity": {
+   "r2": 0.9999986861793233,
+   "points": 7,
+   "max_dev_K": 0.0032586940412784315
+  },
+  "midheight_traverse_vs_ampofo_table2": {
+   "stations": 62,
+   "theta_rms_K_boundary_layers": 6.145422228986749,
+   "theta_rms_K_core": 0.8636493401179967,
+   "v_rms_ms_boundary_layers": 0.03443174921911858,
+   "v_rms_ms_core": 0.0007968854352472741
+  },
+  "antisymmetry_defect_pct": 0.6717547976990755,
+  "theta_centre": 0.5013843484002052,
+  "heat_balance_pct": 0.0631772990918458,
+  "nut_over_nu_max": 10.834853413550954,
+  "k_max": 0.001836037276159697,
+  "vrms_isotropic": 0.034986066523305125
+ },
+ "C3_prt128": {
+  "case": "C3_prt128",
+  "model": null,
+  "wall_gradient_method": {
+   "two_point": 53.65222201334767,
+   "lsq_first_6": 53.45860411452638,
+   "lsq_first_9": 52.71940601993587,
+   "spread_pct": 1.7386344095492139
+  },
+  "conductive_layer_linearity": {
+   "r2": 0.9999981348322428,
+   "points": 7,
+   "max_dev_K": 0.0037429362267289434
+  },
+  "midheight_traverse_vs_ampofo_table2": {
+   "stations": 62,
+   "theta_rms_K_boundary_layers": 6.169535240434815,
+   "theta_rms_K_core": 1.0365359796287053,
+   "v_rms_ms_boundary_layers": 0.0353933387381398,
+   "v_rms_ms_core": 0.0007814715600038815
+  },
+  "antisymmetry_defect_pct": 0.7722548785964218,
+  "theta_centre": 0.4972320673202205,
+  "heat_balance_pct": 0.023588799014588373,
+  "nut_over_nu_max": 19.235589974885475,
+  "k_max": 0.001912186885960338,
+  "vrms_isotropic": 0.03570421904070851
+ },
+ "C4_adiabatic": {
+  "case": "C4_adiabatic",
+  "model": null,
+  "wall_gradient_method": {
+   "two_point": 60.187289040030834,
+   "lsq_first_6": 59.73636634645335,
+   "lsq_first_9": 58.30065273775469,
+   "spread_pct": 3.1346092046467398
+  },
+  "conductive_layer_linearity": {
+   "r2": 0.9999969354534928,
+   "points": 7,
+   "max_dev_K": 0.0047824983883515415
+  },
+  "midheight_traverse_vs_ampofo_table2": {
+   "stations": 62,
+   "theta_rms_K_boundary_layers": 6.162675625944953,
+   "theta_rms_K_core": 0.9201559633209293,
+   "v_rms_ms_boundary_layers": 0.038027230806487525,
+   "v_rms_ms_core": 0.0026178714551300638
+  },
+  "antisymmetry_defect_pct": 0.1443858440200723,
+  "theta_centre": 0.49984064285785906,
+  "heat_balance_pct": 0.23090361890661268,
+  "nut_over_nu_max": 14.657926590036917,
+  "k_max": 0.001489135555988362,
+  "vrms_isotropic": 0.031508047183625564
+ }
+}

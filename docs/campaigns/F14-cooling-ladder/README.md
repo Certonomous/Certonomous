@@ -230,6 +230,54 @@ each other by **up to 8.8 %** on integral Nusselt, against stated uncertainties 
 reproducibility spread between two independent measurements is the honest
 uncertainty and the bands are built from it.
 
+### K0cS executed the same day: GATE FAIL, and a laminar solve beat kOmegaSST on it
+
+`K0cS_RESULTS.md` and `K0cS_runs/` joined this folder 2026-08-18.
+
+| Model | Verdict | Rows |
+| --- | --- | --- |
+| kOmegaSST | **GATE FAIL** | 8 of 10 |
+| kEpsilon | **GATE FAIL** | 6 of 10 |
+| LaunderSharmaKE | **REFUSED**, not graded | fine mesh missed the registered convergence criterion |
+
+**The registered headline prediction - no model passes - held.** 14 of 20 graded
+rows failed and every row was shown flippable in both directions.
+
+**Three findings worth reading the record for:**
+
+1. **Two of this gate's rows cannot tell a turbulence model from no model.** The
+   laminar control passes **four** rows; kOmegaSST passes **two**; and the set of
+   rows kOmegaSST passes that laminar does not is **empty**. Their hot-wall
+   Nusselt sits 1.21 percent apart. kOmegaSST's passed rows therefore carry no
+   evidential weight about turbulence closure on this case. kEpsilon is the only
+   model whose passes discriminate (three rows laminar fails).
+2. **Grid refinement moved the stratification AWAY from the experiment** for both
+   low-Re models - kOmegaSST 0.674 to 0.754, LaunderSharmaKE 0.620 to 0.778
+   against a reference of 0.481. Their coarse agreement was cancellation between
+   model error and discretisation error. A single-mesh solve would have reported
+   a better number and a worse result, which is what the grid-pair rule exists to
+   prevent.
+3. **LaunderSharmaKE was REFUSED rather than failed**: on mesh refinement its
+   damping function collapsed (0.887 to 0.034), `k` hit its floor on 25 996 of
+   40 000 iterations, and the eddy viscosity ended four orders below molecular.
+   The model left its own validity domain rather than losing to the data.
+
+**A named failure mode closed NEGATIVE.** Control C3 moved Prt from 0.85 to the
+1.28 derived from Betts Table 1 and hot-wall Nusselt moved **1.75 percent**
+against a registered 5-20 percent. **Constant turbulent Prandtl number is not
+where the square cavity loses accuracy.** That does not transfer to the tall
+cavity, whose measured centre-line Prt of 1.07-1.28 remains 21-34 percent above
+the 0.85 the K0cT rung used.
+
+**Cost: 206.5 core-minutes, $0.177** - 44 percent of the 470.8 core-minute
+pre-registered proposal and 0.71 percent of the $25 authorization. The
+continuation reserve was not drawn.
+
+**The pre-registration's per-model predictions were substantially wrong** and the
+results record tabulates registered-versus-measured for every one. Two were wrong
+in direction; the prediction that kEpsilon would be the worst performer was the
+most wrong on the page.
+
 ## References NOT OBTAINED — two rows ADDED today
 
 Today's acquisitions removed one half-row from the list above and **added two

@@ -1,0 +1,174 @@
+LOG_DIGEST for K0cS case S_SST_c
+written by write_digests.py; the raw log.solve is NOT committed (it is 5-11 MB per case)
+==============================================================================
+  bytes                   29291849
+  sha256                  de0883555b1af14617d13e48258ffedd2ce2b4ae3508e19df67ffee1553ffffb
+  outer iterations        30000
+  solves for Ux           30000
+  solves for Uy           30000
+  solves for T            30000
+  solves for k            30000
+  solves for omega        30000
+  solves for epsilon      0
+==============================================================================
+HEADER, VERBATIM
+------------------------------------------------------------------------------
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : buoyantBoussinesqSimpleFoam
+Date   : Aug 18 2026
+Time   : 17:20:52
+Host   : ip-172-31-43-247
+PID    : 2396460
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0cS_runs/S_SST_c
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: convergence criteria
+    field p_rgh	 tolerance 1e-30
+    field U	 tolerance 1e-30
+    field T	 tolerance 1e-30
+    field "(k|omega|epsilon)"	 tolerance 1e-30
+
+Reading thermophysical properties
+
+Reading field T
+
+Reading field p_rgh
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Selecting incompressible transport model Newtonian
+Creating turbulence model
+
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kOmegaSST
+Selecting patchDistMethod meshWave
+RAS
+{
+    RASModel        kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.5555555555555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;
+    decayControl    false;
+    kInf            0;
+    omegaInf        0;
+}
+
+Reading field alphat
+
+
+Reading g
+
+Reading hRef
+Calculating field g.h
+
+No MRF models present
+
+Radiation model not active: radiationProperties not found
+Selecting radiationModel none
+No finite volume options present
+
+Starting time loop
+
+surfaceFieldValue hotFlux:
+    operation     = areaNormalIntegrate
+
+
+surfaceFieldValue coldFlux:
+    operation     = areaNormalIntegrate
+
+
+surfaceFieldValue botFlux:
+    operation     = areaNormalIntegrate
+
+
+surfaceFieldValue topFlux:
+    operation     = areaNormalIntegrate
+
+
+------------------------------------------------------------------------------
+TAIL, VERBATIM (last 3000 chars)
+------------------------------------------------------------------------------
+ errors : sum local = 7.520111703415864e-05, global = -7.158512929640191e-19, cumulative = 8.310623498191125e-16
+DILUPBiCGStab:  Solving for omega, Initial residual = 5.956767848864261e-08, Final residual = 1.018848141162912e-10, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 9.647878530549895e-05, Final residual = 1.56626080118041e-08, No Iterations 1
+ExecutionTime = 696.67 s  ClockTime = 706 s
+
+Time = 29999
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.0002670920769198251, Final residual = 2.323842930227779e-06, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.0001019436407409599, Final residual = 1.280552122969566e-08, No Iterations 1
+DILUPBiCGStab:  Solving for T, Initial residual = 2.057894985559353e-05, Final residual = 2.672176949543396e-08, No Iterations 1
+DICPCG:  Solving for p_rgh, Initial residual = 0.003645064810280986, Final residual = 3.479732130992385e-05, No Iterations 14
+time step continuity errors : sum local = 7.815521759004228e-05, global = 4.230845015294803e-19, cumulative = 8.31485434320642e-16
+DILUPBiCGStab:  Solving for omega, Initial residual = 6.620114664228317e-08, Final residual = 1.018075292147121e-10, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 9.563068691051483e-05, Final residual = 1.544851375060313e-08, No Iterations 1
+ExecutionTime = 696.6900000000001 s  ClockTime = 706 s
+
+Time = 30000
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.000267734824954536, Final residual = 2.348917492120514e-06, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.0001016300803244191, Final residual = 1.31300748745484e-08, No Iterations 1
+DILUPBiCGStab:  Solving for T, Initial residual = 2.08477024591063e-05, Final residual = 2.698498046449797e-08, No Iterations 1
+DICPCG:  Solving for p_rgh, Initial residual = 0.003898019529377134, Final residual = 3.76399187865994e-05, No Iterations 8
+time step continuity errors : sum local = 8.459586296306415e-05, global = 9.466714385086686e-19, cumulative = 8.324321057591506e-16
+DILUPBiCGStab:  Solving for omega, Initial residual = 6.61738531491906e-08, Final residual = 9.998095701681324e-11, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 9.4834120317964e-05, Final residual = 1.525953962600805e-08, No Iterations 1
+ExecutionTime = 696.76 s  ClockTime = 706 s
+
+surfaceFieldValue hotFlux write:
+    areaNormalIntegrate(hotWall) of k0csGradT = 21.84209068569196
+
+surfaceFieldValue coldFlux write:
+    areaNormalIntegrate(coldWall) of k0csGradT = -21.73289109130862
+
+surfaceFieldValue botFlux write:
+    areaNormalIntegrate(bottomWall) of k0csGradT = 4.388095275184911
+
+surfaceFieldValue topFlux write:
+    areaNormalIntegrate(topWall) of k0csGradT = -4.478682649442591
+
+volFieldValue Uymax write:
+    max(region0) of U = (0.1592039135699096 0.2559065893796759 4.464501534071383e-22)
+
+volFieldValue Uymin write:
+    min(region0) of U = (-0.1572534898532782 -0.2552709961132036 -3.748685081260127e-22)
+
+End
+
+

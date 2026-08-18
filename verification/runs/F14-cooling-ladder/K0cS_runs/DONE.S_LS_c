@@ -1,0 +1,8 @@
+case=S_LS_c
+rc_blockMesh=0
+rc_checkMesh=0
+rc_solve=0
+iterations=30000
+exec_seconds=700.28
+wall_seconds=709
+finished_utc=2026-08-18T17:32:41Z

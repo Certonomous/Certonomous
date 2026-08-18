@@ -1,0 +1,8 @@
+case=C4_adiabatic
+rc_blockMesh=0
+rc_checkMesh=0
+rc_solve=0
+iterations=30000
+exec_seconds=712.77
+wall_seconds=722
+finished_utc=2026-08-18T17:32:54Z

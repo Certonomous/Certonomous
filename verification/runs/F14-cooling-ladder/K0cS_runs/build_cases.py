@@ -38,9 +38,34 @@ import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
-SPEC = os.path.join(REPO, "docs", "campaigns", "F14-cooling-ladder",
-                    "K0cS_SQUARE_CAVITY_GATE.md")
+
+
+def _find_up(relpath):
+    """Resolve a repository-relative path by walking UP from this file.
+
+    NOT an assembled "../../../.." literal.  The K0cT rung's analyser carried
+    one, a repository reorganisation moved its run tree, and the analyser was
+    BROKEN AT HEAD as a result -- exit 2, specification not found (see
+    K0cT_NUSSELT_REGRADE.md section 6.1).  This builder was written with the
+    same fragile literal and the reproducibility control below caught it:
+    rebuilding from a directory one level away refused with rc=2 and wrote
+    nothing, which the first version of that control misread as 120 differing
+    dictionaries.  Resolving by search survives the next move.
+    """
+    d = HERE
+    while True:
+        cand = os.path.join(d, relpath)
+        if os.path.exists(cand):
+            return os.path.abspath(cand)
+        if os.path.isdir(os.path.join(d, ".git")):
+            return os.path.abspath(os.path.join(d, relpath))
+        parent = os.path.dirname(d)
+        if parent == d:
+            return os.path.abspath(relpath)
+        d = parent
+
+
+SPEC = _find_up("docs/campaigns/F14-cooling-ladder/K0cS_SQUARE_CAVITY_GATE.md")
 
 GMAG = 9.81
 PR = 0.71

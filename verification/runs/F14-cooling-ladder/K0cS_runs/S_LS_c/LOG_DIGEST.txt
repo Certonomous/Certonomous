@@ -1,0 +1,165 @@
+LOG_DIGEST for K0cS case S_LS_c
+written by write_digests.py; the raw log.solve is NOT committed (it is 5-11 MB per case)
+==============================================================================
+  bytes                   31920387
+  sha256                  7159600f10042e2c80a6fa09a9c8f4a8a8458bbdb1ea8398e574c5df8ae2df7b
+  outer iterations        30000
+  solves for Ux           30000
+  solves for Uy           30000
+  solves for T            30000
+  solves for k            30000
+  solves for omega        0
+  solves for epsilon      30000
+==============================================================================
+HEADER, VERBATIM
+------------------------------------------------------------------------------
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : buoyantBoussinesqSimpleFoam
+Date   : Aug 18 2026
+Time   : 17:20:52
+Host   : ip-172-31-43-247
+PID    : 2396459
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0cS_runs/S_LS_c
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: convergence criteria
+    field p_rgh	 tolerance 1e-30
+    field U	 tolerance 1e-30
+    field T	 tolerance 1e-30
+    field "(k|omega|epsilon)"	 tolerance 1e-30
+
+Reading thermophysical properties
+
+Reading field T
+
+Reading field p_rgh
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Selecting incompressible transport model Newtonian
+Creating turbulence model
+
+Selecting turbulence model type RAS
+Selecting RAS turbulence model LaunderSharmaKE
+RAS
+{
+    RASModel        LaunderSharmaKE;
+    turbulence      on;
+    printCoeffs     on;
+    Cmu             0.09;
+    C1              1.44;
+    C2              1.92;
+    C3              0;
+    sigmak          1;
+    sigmaEps        1.3;
+}
+
+Reading field alphat
+
+
+Reading g
+
+Reading hRef
+Calculating field g.h
+
+No MRF models present
+
+Radiation model not active: radiationProperties not found
+Selecting radiationModel none
+No finite volume options present
+
+Starting time loop
+
+surfaceFieldValue hotFlux:
+    operation     = areaNormalIntegrate
+
+
+surfaceFieldValue coldFlux:
+    operation     = areaNormalIntegrate
+
+
+surfaceFieldValue botFlux:
+    operation     = areaNormalIntegrate
+
+
+surfaceFieldValue topFlux:
+    operation     = areaNormalIntegrate
+
+
+------------------------------------------------------------------------------
+TAIL, VERBATIM (last 3000 chars)
+------------------------------------------------------------------------------
+5
+ExecutionTime = 700.2 s  ClockTime = 709 s
+
+Time = 29999
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.02349685035964874, Final residual = 1.226640303288778e-05, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.01000301192539198, Final residual = 4.690447657179818e-06, No Iterations 1
+DILUPBiCGStab:  Solving for T, Initial residual = 0.001664785557618543, Final residual = 3.789282893079076e-06, No Iterations 1
+DICPCG:  Solving for p_rgh, Initial residual = 0.2350009407623716, Final residual = 0.002108765441986766, No Iterations 11
+time step continuity errors : sum local = 0.01681364305097545, global = 6.731963460784288e-19, cumulative = 2.059872261629079e-16
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0002146417942025254, Final residual = 4.245967925942851e-07, No Iterations 1
+bounding epsilon, min: 9.773844553867768e-16 max: 0.04384304254573893 average: 0.0004175333646569532
+DILUPBiCGStab:  Solving for k, Initial residual = 0.003731245127316957, Final residual = 9.613076521577428e-07, No Iterations 1
+bounding k, min: 7.195335998018812e-16 max: 0.0005725443336658769 average: 1.317074379270769e-05
+ExecutionTime = 700.22 s  ClockTime = 709 s
+
+Time = 30000
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.02327487167028402, Final residual = 1.207474951656488e-05, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.01043056276278535, Final residual = 5.144247773869332e-06, No Iterations 1
+DILUPBiCGStab:  Solving for T, Initial residual = 0.001555630168748115, Final residual = 3.340778031257295e-06, No Iterations 1
+DICPCG:  Solving for p_rgh, Initial residual = 0.2304387968685742, Final residual = 0.002293571437013042, No Iterations 11
+time step continuity errors : sum local = 0.01814703679036631, global = 3.072665782904766e-19, cumulative = 2.062944927411984e-16
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0002137885356690743, Final residual = 3.987653410683143e-07, No Iterations 1
+bounding epsilon, min: 9.78635083069726e-16 max: 0.04392398082828779 average: 0.0004177149665194189
+DILUPBiCGStab:  Solving for k, Initial residual = 0.00338353837138026, Final residual = 7.944410016161505e-07, No Iterations 1
+bounding k, min: 7.199413659102701e-16 max: 0.0005731802036298303 average: 1.312996452248634e-05
+ExecutionTime = 700.28 s  ClockTime = 709 s
+
+surfaceFieldValue hotFlux write:
+    areaNormalIntegrate(hotWall) of k0csGradT = 21.37794147360517
+
+surfaceFieldValue coldFlux write:
+    areaNormalIntegrate(coldWall) of k0csGradT = -20.54253087725493
+
+surfaceFieldValue botFlux write:
+    areaNormalIntegrate(bottomWall) of k0csGradT = 4.87256706539374
+
+surfaceFieldValue topFlux write:
+    areaNormalIntegrate(topWall) of k0csGradT = -5.101416967129285
+
+volFieldValue Uymax write:
+    max(region0) of U = (0.1893815243451078 0.2738383723150363 5.230428226222823e-20)
+
+volFieldValue Uymin write:
+    min(region0) of U = (-0.1764123785069928 -0.2672761937592091 -3.119521054847385e-20)
+
+End
+
+
