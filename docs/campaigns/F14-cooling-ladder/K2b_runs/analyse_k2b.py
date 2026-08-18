@@ -199,9 +199,15 @@ def s13(series, rules, raw=None):
                            f"not a spread",
                     n_samples=len(win))
     vals = [v for _, v in win]
+    allv = [v for _, v in series]
     mean = sum(vals) / len(vals)
     p2p = max(vals) - min(vals)
-    pct = 100.0 * p2p / abs(mean) if mean else float("inf")
+    # D389: the spread is a fraction of THE RANGE THE QUANTITY SPANNED over the
+    # run, not of its absolute mean. On an absolute temperature the mean is the
+    # offset (289 K) and the range is the signal (0.086 K), a factor of 3,343.
+    rng = max(allv) - min(allv)
+    pct = 100.0 * p2p / rng if rng > 0 else float("inf")
+    pct_vs_mean = 100.0 * p2p / abs(mean) if mean else float("inf")
     # THE NULL-VARIATION REFUSAL (physics_rules thermal.monitor_min_resolved_ulp,
     # MONITOR_STANDARD S13 clause added at v1.11). A spread the log cannot
     # resolve cannot distinguish "stopped moving" from "never started"; it is
@@ -215,22 +221,27 @@ def s13(series, rules, raw=None):
         import math
         ulp = 10.0 ** (math.floor(math.log10(abs(mean))) - (sig - 1)) if mean and sig else 0.0
         floor = rules.get("monitor_min_resolved_ulp", 10)
-        if ulp > 0 and p2p < floor * ulp:
+        # tests the RANGE, not the window spread: a spread of zero means "never
+        # started" on one case and "converged to the last bit" on another, and
+        # only the first is a defect. See MONITOR_STANDARD v1.12.
+        if ulp > 0 and rng < floor * ulp:
             return dict(verdict="REFUSED", peak_to_peak=p2p, peak_to_peak_pct=pct,
-                        print_resolution=ulp, resolved_ulp=p2p / ulp,
+                        print_resolution=ulp, resolved_ulp=rng / ulp, run_range=rng,
                         min_resolved_ulp=floor, mean=mean, n_samples=len(win),
-                        reason=(f"spread {p2p:.6g} is {p2p/ulp:.3g} ulp of a series "
-                                f"printed at {ulp:.6g}; below {floor:g} ulp it is not "
-                                f"resolved by the log. Scoring it would have returned "
-                                f"{pct:.6f} % -- a PASS -- on a quantity that may never "
-                                f"have started moving."))
+                        reason=(f"the quantity spanned {rng:.6g} over the whole run, "
+                                f"{rng/ulp:.3g} ulp of a series printed at {ulp:.6g}; "
+                                f"below {floor:g} ulp it never resolvably MOVED, so a "
+                                f"criterion asking whether it has stopped moving cannot "
+                                f"answer. Scoring it against the mean would have returned "
+                                f"{pct_vs_mean:.6f} % -- a PASS."))
     return dict(verdict="PASS" if pct <= tol else "FAIL",
                 window_iterations=window, sample_interval=interval,
                 n_samples=len(win), first_iter=win[0][0], last_iter=win[-1][0],
                 mean=mean, peak_to_peak=p2p, peak_to_peak_pct=pct,
+                run_range=rng, peak_to_peak_pct_vs_mean=pct_vs_mean,
                 threshold_pct=tol,
-                endpoint_diff_pct=100.0 * abs(vals[-1] - vals[0]) / abs(mean)
-                if mean else None)
+                endpoint_diff_pct=100.0 * abs(vals[-1] - vals[0]) / rng
+                if rng > 0 else None)
 
 
 def analyse(case, rules, rules_path):
@@ -382,8 +393,11 @@ def emit(r):
     else:
         print(f"      window {s['window_iterations']} it @ every {s['sample_interval']}"
               f", {s['n_samples']} samples, iters {s['first_iter']}-{s['last_iter']}")
-        print(f"      mean {s['mean']:.6f} K   peak-to-peak {s['peak_to_peak']:.3e} K"
-              f" = {s['peak_to_peak_pct']:.5f} %   threshold {s['threshold_pct']} %")
+        print(f"      mean {s['mean']:.6f} K   range spanned {s['run_range']:.4e} K"
+              f"   peak-to-peak {s['peak_to_peak']:.3e} K")
+        print(f"      spread = {s['peak_to_peak_pct']:.5f} % OF THE RANGE (D389)"
+              f"   threshold {s['threshold_pct']} %"
+              f"   [of the mean it would read {s['peak_to_peak_pct_vs_mean']:.5f} %]")
         print(f"      (endpoint difference over the same window: "
               f"{s['endpoint_diff_pct']:.5f} % -- never larger, which is why the "
               f"spread is the conservative reading)")

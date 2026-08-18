@@ -742,7 +742,7 @@ boundaryField
 """
 
 
-def field_nut():
+def field_nut(nut_wall='nutkWallFunction'):
     calc = "        type            calculated;\n        value           uniform 0;"
     return f"""dimensions      [0 2 -1 0 0 0 0];
 
@@ -750,7 +750,7 @@ internalField   uniform 0;
 
 boundaryField
 {{
-{_walls("        type            nutkWallFunction;" + chr(10) + "        value           uniform 0;")}
+{_walls("        type            " + nut_wall + ";" + chr(10) + "        value           uniform 0;")}
 {chr(10).join(f"    {p}{chr(10)}    {{{chr(10)}{calc}{chr(10)}    }}" for p in OPEN)}
     frontAndBack
     {{
@@ -782,7 +782,8 @@ boundaryField
 
 # ---------------------------------------------------------------------------
 def build(name, h, end_time, write_interval, dt_rack=DT_RACK, gravity=True,
-          plant=False, seed_from=None, qv_tile=QV_TILE):
+          plant=False, seed_from=None, qv_tile=QV_TILE,
+          nut_wall="nutkWallFunction"):
     case = os.path.join(HERE, name)
     bmd, ncells = block_mesh_dict(h)
     w(case, "system/blockMeshDict", "dictionary", "blockMeshDict", bmd)
@@ -838,7 +839,7 @@ RAS
     w(case, "0.orig/T", "volScalarField", "T", field_T(dt_rack))
     w(case, "0.orig/k", "volScalarField", "k", field_k(qv_tile))
     w(case, "0.orig/omega", "volScalarField", "omega", field_omega(qv_tile))
-    w(case, "0.orig/nut", "volScalarField", "nut", field_nut())
+    w(case, "0.orig/nut", "volScalarField", "nut", field_nut(nut_wall))
     w(case, "0.orig/alphat", "volScalarField", "alphat", field_alphat())
 
     with open(os.path.join(case, "CASE.txt"), "w") as fh:
@@ -852,6 +853,7 @@ RAS
             f"cells              {ncells}\n"
             f"solver             buoyantBoussinesqSimpleFoam\n"
             f"turbulence         kOmegaSST, Prt {PRT}\n"
+            f"nut wall treatment {nut_wall}\n"
             f"gravity            {'-%s m/s2 in z' % G if gravity else '0 (control C1)'}\n"
             f"Qv_rack            {QV_RACK} m3/s   U_face {U_RACK:.4f} m/s\n"
             f"Qv_tile            {qv_tile} m3/s   U_tile {qv_tile/A_TILE:.4f} m/s\n"
@@ -934,6 +936,25 @@ CASES = {
     # iterations, so the recovered plant is the DIFFERENCE of two ledgers taken
     # at the same convergence state and the common closure error subtracts out.
     "K2bP_C3b_noplant":(0.0125,  5000,  500,  DT_RACK, True,  False, "K2bP_under",  0.245),
+    # ---- THE WALL-TREATMENT PAIR (2026-08-18) -------------------------------
+    # K2a section 6 specifies wall functions with y+ in 30-300. MEASURED on this
+    # module: y+ averages 2.9-9.1, and REFINING MAKES IT WORSE (3.3-5.4 on the
+    # fine mesh). These two cases resolve which treatment is correct, and they
+    # do it by changing ONE THING: the `nut` wall function type. Same mesh, same
+    # dictionaries, same seed, same iteration count as `K2bP_under`, so anything
+    # that moves between them moves because of the wall treatment and nothing
+    # else. Coarsening the mesh to reach y+ >= 30 would also have changed the
+    # interior resolution, which changes the answer for a second reason and
+    # would have converted a precondition into a calibration.
+    #   K2bP_under      nutkWallFunction        -- assumes the log law; INVALID
+    #                                              at the measured y+
+    #   K2bP_WSpalding  nutUSpaldingWallFunction -- Spalding's law, continuous
+    #                                              through the buffer layer, VALID
+    #                                              at the measured y+
+    #   K2bP_WLowRe     nutLowReWallFunction     -- nut = 0 at the wall, i.e. the
+    #                                              viscous sublayer is resolved
+    "K2bP_WSpalding":  (0.0125,  5000,  500,  DT_RACK, True,  False, None,          0.245),
+    "K2bP_WLowRe":     (0.0125,  5000,  500,  DT_RACK, True,  False, None,          0.245),
 }
 
 
@@ -952,10 +973,12 @@ def main(argv):
         if name not in CASES:
             raise SystemExit(f"unknown case {name}")
         h, end, wi, dt, g, plant, seed, qvt = CASES[name]
-        case, n = build(name, h, end, wi, dt, g, plant, seed, qvt)
+        nw = {"K2bP_WSpalding": "nutUSpaldingWallFunction",
+              "K2bP_WLowRe": "nutLowReWallFunction"}.get(name, "nutkWallFunction")
+        case, n = build(name, h, end, wi, dt, g, plant, seed, qvt, nw)
         print(f"built {name:16s} {n:7d} cells  dT {dt:5.2f} K  "
               f"g {'on ' if g else 'off'}  plant {str(plant):5s} "
-              f"Qv_tile {qvt:.4f} ({100*qvt/QV_RACK:.0f} %)"
+              f"Qv_tile {qvt:.4f} ({100*qvt/QV_RACK:.0f} %)  {nw}"
               + (f"  seed {seed}" if seed else ""))
     return 0
 

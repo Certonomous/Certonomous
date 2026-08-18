@@ -171,15 +171,28 @@ thermal:
   # uniform. A monitor or a control is most flattering exactly where the case
   # is least converged.
   #
-  # THE RULE. The spread is compared against the resolution the series is
-  # PRINTED at, measured from the samples themselves (the most precise sample
-  # fixes the precision; OpenFOAM strips trailing zeros, so one sample reading
-  # `289` and the next `289.0000002` are the same ten-figure series). Below
-  # this many units in the last place the spread is not resolved by the log,
-  # so it cannot distinguish "stopped" from "never started" from "pinned by a
-  # boundary condition", and the criterion REFUSES rather than scoring -- the
-  # same refusal `heat_balance.py` makes on an undefined imbalance ratio
-  # instead of printing a flattering number for it.
+  # THE RULE, AS REVISED THE SAME DAY -- SEE THE CORRECTION BELOW. The RANGE
+  # THE QUANTITY SPANNED OVER THE WHOLE RUN is compared against the resolution
+  # the series is PRINTED at, measured from the samples themselves (the most
+  # precise sample fixes the precision; OpenFOAM strips trailing zeros, so one
+  # sample reading `289` and the next `289.0000002` are the same ten-figure
+  # series). Below this many units in the last place the quantity never
+  # resolvably MOVED, so a criterion asking whether it has stopped moving
+  # cannot answer, and it REFUSES rather than scoring -- the same refusal
+  # `heat_balance.py` makes on an undefined imbalance ratio instead of printing
+  # a flattering number for it.
+  #
+  # CORRECTION, 2026-08-18, SAME DAY, AND IT FIRED ON FOUR COMMITTED CASES.
+  # This clause first shipped comparing the WINDOW SPREAD against the print
+  # resolution. That form cannot distinguish "never moved" from "converged to
+  # the last bit" -- both give a spread of zero -- and it was a FALSE POSITIVE
+  # on the second. Measured on the committed corpus: K2e's four `m96_*_bou`
+  # cases print their graded quantity to SIXTEEN significant figures,
+  # bit-identical across the window, having travelled 0.53 to get there. The
+  # first form refused all four. K2b's fine mesh prints ten figures and never
+  # left its initial value by more than 2 ulp; only that one is a defect. The
+  # quantity that separates them is the RANGE OVER THE RUN -- which section
+  # 1b below independently requires as the normaliser. One repair, both faults.
   #
   # THE CONSTANT IS NOT LOAD-BEARING, AND THAT IS MEASURED RATHER THAN ASSERTED.
   # Re-graded over all 14 cases graded under the old reading -- K0c's eleven and
@@ -189,11 +202,57 @@ thermal:
   # genuinely converged Ra1e3_m32, whose spread is 13,161 ulp). 10 sits inside
   # that plateau, three orders clear of the nearest true positive.
   #
-  # RE-GRADE OF THE 14 AFFECTED CASES: exactly ONE verdict changed. K2b's fine
-  # mesh moves CONVERGED -> CANNOT_TELL. K0c's eleven are untouched, four
-  # CONVERGED and seven NOT_CONVERGED as before, the closest of them 1,316x
-  # clear of this floor.
+  # RE-GRADE, CORRECTED AND WIDENED. The first re-grade covered 14 cases and was
+  # UNDER-SCOPED: K2e's thirty were graded under the old reading too and were
+  # not looked at. Over all 49 committed cases (K0c 11, K2e 30, K2b 8), against
+  # the ORIGINAL criterion, exactly TWO verdicts change and both are K2b's:
+  # K2bP_fine CONVERGED -> CANNOT_TELL (it never resolvably moved) and
+  # K2bP_coarse CONVERGED -> NOT_CONVERGED (section 1b). K0c's eleven and K2e's
+  # thirty are ALL unchanged.
+  # Floor sensitivity under the corrected form: the verdict set is identical for
+  # any floor from 2 to 1e4 ulp, 3.7 orders, breaking at 1 (catches nothing) and
+  # at 1e6 (which starts refusing a genuinely converged case).
   monitor_min_resolved_ulp: 10
+  #
+  # ===========================================================================
+  # 1b. THE NORMALISER: THE RANGE THE QUANTITY SPANS, NOT ITS ABSOLUTE MEAN
+  #     (D389, added 2026-08-18 at rung K2b)
+  # ===========================================================================
+  # `monitor_peak_to_peak_max_pct` is a PERCENTAGE, and until now it was a
+  # percentage OF THE QUANTITY'S ABSOLUTE MEAN. A convergence criterion built
+  # that way measures the OFFSET rather than the signal whenever the quantity
+  # carries one.
+  #
+  # WHY IT WENT UNNOTICED FOR SO LONG. K0c and K2e both grade a Nusselt-like
+  # group -- an O(1) number with no offset, whose mean and whose range agree to
+  # within a factor of a few. Measured across the 49 committed cases the two
+  # normalisers differ by 0.1x to 12x on that corpus and the defect is invisible
+  # in it. K2b grades an ABSOLUTE TEMPERATURE: mean 289 K, range 0.086 K, a
+  # factor of 3,343. On the seven K2b cases the two normalisers differ by 51x to
+  # 1.4e9.
+  #
+  # THE RULE. The peak-to-peak spread over the window is referred to
+  # `max(series) - min(series)` over the WHOLE run: the distance the quantity
+  # actually travelled is what the residual wiggle has to be small against. The
+  # threshold NUMBER is unchanged at 0.02 percent and its original derivation
+  # carries over verbatim -- "one fiftieth of the tightest pass band K0c gated
+  # on (1.0 percent)" was always meant as a fraction of the thing being
+  # resolved, and the mean was only ever a proxy for that. Only the referent
+  # changes.
+  #
+  # THE VERDICT CHANGE, WHICH IS THE FINDING AND NOT A COST. K2bP_coarse passed
+  # at 0.00101 percent of its mean and FAILS at 3.3876 percent of its range.
+  # That agrees with the two independent instruments on the same run: its heat
+  # balance is still 0.7857 percent out at 9,000 iterations, and S13 read on the
+  # room's free boundary rather than on the contained cold aisle reads 0.03973
+  # percent. All three now say the same thing; only the mean-normalised form
+  # said otherwise.
+  #
+  # THRESHOLD SENSITIVITY, MEASURED OVER ALL 49 CASES: the verdict set is
+  # identical for any threshold in (0.0027, 0.0642] percent -- the highest
+  # scoring case that passes against the lowest scoring case that fails, a span
+  # of 24x. 0.02 sits inside it, 7.3x above the one and 3.2x below the other.
+  heat_monitor_normaliser: range_spanned_over_run
   #
   # ===========================================================================
   # 2. BOUSSINESQ VALIDITY -- A WARNING, AND IT IS NOT ACADEMIC

@@ -883,6 +883,21 @@ single unmeasured factor is what separates 374 from 697.
 **Nothing further is requested here.** The graded 3D pair remains unauthorized,
 and this section is the number to decide against, not a request.
 
+### The wall-treatment precondition, and its effect on this estimate: none
+
+The 3D pair was held on the y+ mismatch, not on the budget. Section 12 discharges
+it: **the specified 30–300 band is inapplicable to this flow** — y+ = 300 sits
+0.21–0.64 m from the wall and δ⁺ bottoms out at 560, so there is no log layer to
+host a cell centre — and the correction is a **one-line change of wall model**,
+`nutkWallFunction` → `nutUSpaldingWallFunction`, which is valid at the y+ these
+meshes already produce.
+
+**No extra cells, no grading, no re-mesh, so every figure in the table above is
+unchanged.** The one cost the discharge carries is on this rung's own numbers, not
+on the 3D estimate: θ is bounded within ≈11 % across the three applicable
+treatments, and that spread is not resolved against the configuration's own
+unsteadiness (section 12.3).
+
 ### Four things the pilot says the 3D module must carry
 
 1. **Two convergence sentinels, not one.** Section 4. The specified monitored
@@ -937,9 +952,14 @@ python3 build_k2b3d.py
 python3 seed_k2b.py
 bash run_k2b.sh K2bP_C1_g0 K2bP_C2_dT13 K2bP_C3_plant K2bP_C3b_noplant
 
+# 3b. the wall-treatment pair (section 12). These are NOT restart twins: they
+#     start from 0.orig and differ from K2bP_under in one file, 0.orig/nut.
+bash run_k2b.sh K2bP_WSpalding K2bP_WLowRe
+
 # 4. the measurements, read from the solver logs alone
 python3 analyse_k2b.py K2bP_coarse K2bP_under K2bP_fine \
-                       K2bP_C1_g0 K2bP_C2_dT13 K2bP_C3_plant K2bP_C3b_noplant
+                       K2bP_C1_g0 K2bP_C2_dT13 K2bP_C3_plant K2bP_C3b_noplant \
+                       K2bP_WSpalding K2bP_WLowRe
 
 # 5. the closure audits.  heat_balance.py DELETES and rebuilds postProcessing/,
 #    so never run this against a case whose solver is still running.
@@ -996,8 +1016,8 @@ silently starting a control from `0.orig`. Step 5's script reads
 `heat_balance.py`'s **own** exit status — piping it into `head` reports `head`'s
 status, and that mistake has cost this lab a false pass before.
 
-Approximate cost of a full reproduction: **≈55 core-minutes** — ≈41 for the 2D
-set, ≈1.1 for the 3D probe, ≈13.5 for the C3 pair at 5,000 iterations each (the two stopped `K2bP_fine` attempts and the superseded
+Approximate cost of a full reproduction: **≈71 core-minutes** — ≈41 for the 2D
+set, ≈1.1 for the 3D probe, ≈13.5 for the C3 pair, ≈16 for the wall-treatment pair (the two stopped `K2bP_fine` attempts and the superseded
 5,000-iteration `K2bP_coarse` pass are not part of the recipe).
 
 ---
@@ -1121,3 +1141,215 @@ iterations.
 verdicts across the whole thermal corpus — K0c's eleven, K2e's thirty, KV1's
 three — and this rung is not the right place to take that decision unilaterally.
 Filed as **D389**, owner: chief.
+
+---
+
+## 12. The wall-treatment precondition, discharged
+
+Section 8 reported y+ of 2.9–9.1 against K2a section 6's specified **30–300**,
+getting worse under refinement. That was filed as **D386** and the 3D graded pair
+was held on it: *a rung whose wall treatment is outside its own specification is
+not graded, whatever its residuals do.* This section resolves it. **Settled as
+D392.**
+
+### 12.1 The specified band does not fit inside the flow it describes
+
+Friction velocity is not assumed here; it is read back from the committed y+ data
+as u_τ = y⁺·ν/y_p, with y_p = h/2 the first cell-centre distance:
+
+| wall | y+ avg | u_τ (m/s) | viscous length ν/u_τ | y+ = 30 sits at | **y+ = 300 sits at** | δ⁺ upper bound |
+|---|---:|---:|---:|---:|---:|---:|
+| floor | 4.08 | 0.01039 | 1.53 mm | 46 mm | **0.46 m** | 2287 |
+| ceiling | 6.61 | 0.01680 | 0.95 mm | 28 mm | **0.28 m** | 3699 |
+| wall_cold | 2.92 | 0.00742 | 2.14 mm | 64 mm | **0.64 m** | **560** |
+| rack_top | 5.20 | 0.01323 | 1.20 mm | 36 mm | **0.36 m** | **916** |
+| wall_hot | 9.09 | 0.02311 | 0.69 mm | 21 mm | **0.21 m** | 1745 |
+
+δ⁺ is computed against the distance to the nearest opposing boundary — an
+**upper bound** on how thick the layer could possibly be, generous by
+construction.
+
+Two readings, and either one settles it:
+
+1. **y+ = 300, the top of the specified band, sits 0.21 to 0.64 m from the
+   wall.** On `wall_cold` that is **beyond the cold aisle's own mid-plane**
+   (0.60 m of a 1.2 m aisle). A wall function assumes the first cell centre lies
+   in a thin inner layer; here the band's outer edge lies outside the flow region
+   it is meant to describe.
+2. **δ⁺ is 560 on the cold-aisle wall and 916 on the rack top**, against the
+   δ⁺ ≫ 1000 a distinct log region needs before it exists at all — and those are
+   upper bounds.
+
+**There is no log layer to put a cell centre in.** Reaching y+ ≥ 30 would need a
+**41–128 mm first cell**, 3–10 % of the aisle width in a single cell. K2a section
+6 marks the 30–300 figure **RECALLED** — it is generic wall-function practice,
+not a number derived from this flow, and this is the first time the module has
+been asked whether it applies.
+
+### 12.2 The mesh was never the problem; the model was
+
+`nutkWallFunction` assumes a log law that is not present. `nutUSpaldingWallFunction`
+is continuous through the viscous and buffer layers and is **valid at exactly the
+y+ this mesh already produces**. So the correction is a one-line change of wall
+model, not a re-mesh.
+
+That distinction is what keeps this a precondition rather than a calibration.
+Coarsening the mesh to chase y+ ≥ 30 would have changed the interior resolution
+too, moving the answer for a second reason; changing only the wall model moves it
+for one. The three cases below are **byte-identical except for `0.orig/nut`** —
+verified file by file — and share the same mesh, dictionaries, iteration count
+and initial field.
+
+### 12.3 How much does correcting it move the answer? Bounded, NOT resolved
+
+The obvious way to report this is to read the graded quantity off each case at
+its last iteration and difference them. **That is wrong here, and this rung has
+already been bitten by the reason once.** `K2bP_under` and its twins do not meet
+S13 — they oscillate — so a single-snapshot difference measures the phase of an
+oscillation, not the effect of the change. Two readings of the same comparison
+make the point:
+
+| comparison, Spalding vs the log-law baseline | θ_in |
+|---|---:|
+| single snapshot at iteration 2,000 | **+20.6 %** |
+| single snapshot at iteration 5,000 | **−1.6 %** |
+
+Neither is the answer. The correct reading takes the **mean over the S13 window**
+and carries the window's own spread as the noise band:
+
+| case | wall treatment | valid at y+ ≈ 3–9? | window mean T_in | window p2p | θ | r |
+|---|---|---|---:|---:|---:|---:|
+| `K2bP_under` | `nutkWallFunction` | **no** — assumes a log law | 294.0947 K | 1.0162 K | 0.4246 | 0.2981 |
+| `K2bP_WSpalding` | `nutUSpaldingWallFunction` | **yes** — continuous, all y+ | 293.9360 K | 0.4563 K | 0.4113 | 0.2914 |
+| `K2bP_WLowRe` | `nutLowReWallFunction` | resolved-sublayer assumption | 294.4826 K | 1.0832 K | 0.4569 | 0.3137 |
+
+| against the baseline | ΔT_in | Δθ | noise band | resolved? |
+|---|---:|---:|---:|---|
+| Spalding | −0.1587 K | −3.12 % | 0.7363 K | **0.22× — NO** |
+| low-Re | +0.3879 K | +7.61 % | 1.0497 K | **0.37× — NO** |
+
+> **Neither difference is resolved.** The spread across all three treatments is
+> **0.5466 K** on the window mean, against a largest single-case swing of
+> **1.0832 K**: *the entire wall-treatment question moves T_in by less than one
+> case's own wobble.*
+>
+> What is established is a **bound**: the choice among the three treatments moves
+> θ over the range 0.4113–0.4569, a spread of **≈11 % of θ**, and that spread is
+> **not distinguishable from the configuration's own unsteadiness**.
+
+One observation, offered as an observation and not a claim: the treatment that is
+*valid* at this y+ also produced much the steadiest solution — window p2p 0.4563 K
+against 1.0162 and 1.0832 K. Whether an applicable near-wall model damps this
+configuration's oscillation, or whether that is one draw from a noisy
+distribution, is not established by a single run each.
+
+**And that is the same wall this rung hit at C3.** The planted-source recovery
+could not reach its governed tolerance because the no-plant twin's ledger wanders
+48.3 W; the wall-treatment sensitivity cannot be resolved because the twins'
+inlet temperature wanders a full kelvin. **On this configuration the unsteadiness
+is the binding limit on every differential measurement, not the instrument in
+either case.** Any future comparison of this kind must run on a case that meets
+S13, or on a time-averaged field — which is exactly the unsteady escalation K2a
+section 5 already prices at 5–10×.
+
+### 12.4 The resolution, and what it costs
+
+**The specification is wrong for this flow and is re-specified. That conclusion
+rests on section 12.1, which is arithmetic on measured friction velocities and
+needs no comparison run at all.**
+
+- **K2a section 6 should read**: a **continuous / low-Re wall treatment**
+  (`nutUSpaldingWallFunction`) with a y+ target of **≲ 5**, *not* wall functions
+  at 30–300 — because at this Rayleigh number and these velocities no log layer
+  exists to host a cell centre, and the 30–300 figure was RECALLED generic
+  practice rather than derived from this flow.
+- **Cost to the 3D module: zero.** No extra cells, no grading, no re-mesh — one
+  dictionary entry. The section 9 estimate is unchanged.
+- **Cost to this rung's numbers: bounded at ≈11 % of θ, and not resolved below
+  that.** Every θ and T_in in this document was produced with the inapplicable
+  treatment; that bound is what is known about how much it cost. It is not a
+  small number and it is not claimed to be — it is an honest ceiling set by the
+  configuration's unsteadiness, not by the instrument.
+- **What is still not established:** that `nutUSpaldingWallFunction` is *right*,
+  only that it is *applicable* where `nutkWallFunction` is not. Neither has been
+  graded against a measurement on this geometry; that is K2c's business. Every
+  wall here is adiabatic and reads exactly 0 W, so the thermal wall function
+  contributes nothing to any graded quantity either way.
+
+---
+
+## 13. D389: what the convergence percentage is a percentage of
+
+Section 8 filed **D389**: S13 normalises the peak-to-peak spread by the
+quantity's **absolute mean**, so on a quantity carrying a large offset it
+measures the offset. **Repaired, re-graded and settled as D393.**
+
+### 13.1 The defect, measured across the corpus
+
+| corpus | graded quantity | mean vs range | the two normalisers differ by |
+|---|---|---|---|
+| K0c (11) + K2e (30) | Nusselt-like gradT, O(1), no offset | comparable | **0.1× – 12×** |
+| K2b (8) | **absolute temperature** | 289 K vs 0.086 K | **51× – 1.4e9** |
+
+That is why it survived two rungs unnoticed: on a dimensionless O(1) group the
+mean *is* roughly the signal, and the defect is invisible.
+
+### 13.2 The repair, and the threshold that did not change
+
+The spread is now referred to `max(series) − min(series)` **over the whole run** —
+the distance the quantity actually travelled is what the residual wiggle must be
+small against. **The threshold number is unchanged at 0.02 %**: its original
+derivation, *"one fiftieth of the tightest pass band K0c gated on (1.0 %)"*, was
+always a fraction of the thing being resolved, and the mean was only ever a proxy
+for that. Only the referent changes.
+
+### 13.3 The same repair fixes a false positive I shipped hours earlier
+
+The v1.11 null-variation clause tested the **window spread** against print
+resolution. That cannot distinguish *never moved* from *converged to the last
+bit* — both give a spread of zero — and it **refused four committed K2e cases**
+(`m96_dT10/20/30/90_bou`), which print **sixteen significant figures**,
+bit-identical across the window, after travelling 0.53 to get there. As converged
+as a double-precision solve can be, and refused.
+
+The quantity that separates them is **the range over the whole run**, which is
+the same quantity D389 independently requires as the normaliser. One repair, both
+faults. **That fault was mine, it was live in HEAD, and widening the corpus is
+what found it.**
+
+### 13.4 The re-grade: all 49 committed cases
+
+| criterion | CONVERGED | NOT_CONVERGED | CANNOT_TELL |
+|---|---:|---:|---:|
+| original (mean-normalised, no refusal) | 36 | 13 | 0 |
+| as landed at `aebbcac8` (window-ulp refusal) | 31 | 13 | 5 |
+| **this repair (range-normalised)** | **34** | **14** | **1** |
+
+**Against the original criterion, exactly two verdicts change, both K2b's:**
+
+| case | was | now | reading |
+|---|---|---|---|
+| `K2bP_fine` | CONVERGED | **CANNOT_TELL** | never resolvably moved (range 2 ulp) |
+| `K2bP_coarse` | CONVERGED | **NOT_CONVERGED** | 3.3876 % of its range (0.00101 % of its mean) |
+
+**All 11 K0c and all 30 K2e verdicts are unchanged.** And the one substantive
+move is corroborated rather than isolated: `K2bP_coarse`'s heat balance is still
+0.7857 % out at 9,000 iterations and S13 read on the room's free boundary reads
+0.03973 %. **All three instruments now agree; only the mean-normalised form said
+otherwise.** The normaliser was not chosen to preserve verdicts — the verdict
+that moved, moved.
+
+### 13.5 Both constants shown non-load-bearing
+
+| constant | adopted | identical verdict set over | breaks at |
+|---|---:|---|---|
+| threshold, % of range | 0.02 | **(0.0027, 0.0642] %** — a 24× span | 0.0027 (highest pass) / 0.0642 (lowest fail) |
+| null-variation floor, ulp | 10 | **2 to 1e4** — 3.7 orders | 1 (catches nothing) / 1e6 (refuses a converged case) |
+
+### 13.6 The first re-grade was under-scoped, and that is the finding under the finding
+
+The `aebbcac8` re-grade swept **fourteen** cases — K0c's eleven and K2b's three.
+**K2e's thirty had been graded under the same old reading and were committed in
+the same tree.** They were not withheld; they were not looked for. Widening from
+14 to 49 is what exposed the false positive above. Recorded as a lesson, not
+quietly fixed.

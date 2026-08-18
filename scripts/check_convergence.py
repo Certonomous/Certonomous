@@ -614,6 +614,20 @@ def classify_monitor(logs, regex, tol_pct=None, window=None, interval=None,
                              "has no scale here.")
         return result
     # ---------------------------------------------------------------------
+    # THE NORMALISER (D389, 2026-08-18). The spread is referred to the RANGE THE
+    # QUANTITY ACTUALLY SPANNED over the run, not to its absolute mean.
+    #
+    # A convergence criterion on a quantity with a large offset measures the
+    # offset. K0c and K2e grade a Nusselt-like group, an O(1) number with no
+    # offset, where mean and range agree to within a factor of a few and the
+    # defect is invisible. K2b grades an ABSOLUTE TEMPERATURE: mean 289 K,
+    # range 0.086 K, a factor of 3,343. Measured across 48 committed cases the
+    # two normalisers differ by 0.1x-12x on the Nusselt-like corpus and by
+    # 51x-1.4e9 on the absolute-temperature one. The range is what the run
+    # actually resolved, so it is what the residual wiggle must be small
+    # against.
+    rng = max(series) - min(series)
+
     # THE NULL-VARIATION REFUSAL (added 2026-08-18 at rung K2b).
     # A criterion that asks "has it stopped moving?" cannot answer on a
     # quantity that never started.  Measured on K2b's fine mesh: T_in printed
@@ -628,38 +642,54 @@ def classify_monitor(logs, regex, tol_pct=None, window=None, interval=None,
     # So an unresolvable spread is REFUSED and never passed, exactly as
     # heat_balance.py refuses an undefined imbalance ratio rather than printing
     # a flattering number for it.
-    raw = monitor_series_raw(logs, regex)[-n_window:]
+    # REVISED 2026-08-18, SAME DAY, BECAUSE THE FIRST FORM HAD A FALSE POSITIVE
+    # AND IT FIRED ON FOUR COMMITTED CASES. The clause first shipped comparing
+    # the WINDOW SPREAD against the print resolution. That cannot distinguish
+    # "never moved" from "converged to the last bit": both give a spread of
+    # zero. Measured on the committed corpus -- K2e's m96_*_bou cases print
+    # their graded quantity to SIXTEEN significant figures, bit-identical across
+    # the window, having travelled 0.53 to get there; K2b's fine mesh prints ten
+    # figures and never left its initial value by more than 2 ulp. The first
+    # form refused all five. Only the second is a defect.
+    # So the refusal now tests THE RANGE OVER THE WHOLE RUN, which is the
+    # quantity that separates them, and which D389 independently requires as the
+    # normaliser. One repair, both defects.
+    raw = monitor_series_raw(logs, regex)
     ulp = print_resolution(raw, last)
     p2p_abs = max(win) - min(win)
     min_ulp = float(rules.get("monitor_min_resolved_ulp", 10))
-    if ulp > 0 and p2p_abs < min_ulp * ulp:
+    if ulp > 0 and rng < min_ulp * ulp:
         result.update(
             status="CANNOT_TELL",
             peak_to_peak_pct=100.0 * p2p_abs / abs(last),
-            peak_to_peak_abs=p2p_abs, print_resolution=ulp,
-            resolved_ulp=p2p_abs / ulp, min_resolved_ulp=min_ulp,
+            peak_to_peak_abs=p2p_abs, print_resolution=ulp, run_range=rng,
+            resolved_ulp=rng / ulp, min_resolved_ulp=min_ulp,
             reason=(
-                f"the spread over the window is {p2p_abs:.6g}, which is "
-                f"{p2p_abs / ulp:.3g} units in the last place of a series "
-                f"printed at a resolution of {ulp:.6g}. Below {min_ulp:g} ulp "
-                f"the spread is not RESOLVED by the log, so it cannot "
-                f"distinguish a quantity that has stopped moving from one that "
-                f"never started or is pinned by a boundary condition. REFUSED "
-                f"rather than scored -- and note that scoring it would have "
-                f"returned {100.0 * p2p_abs / abs(last):.6f} percent, i.e. a "
-                f"PASS, which is the failure mode this clause exists to stop."))
+                f"the quantity spanned {rng:.6g} over the WHOLE run, which is "
+                f"{rng / ulp:.3g} units in the last place of a series printed "
+                f"at a resolution of {ulp:.6g}. Below {min_ulp:g} ulp the "
+                f"quantity never resolvably MOVED, so a criterion asking "
+                f"whether it has stopped moving cannot answer. REFUSED rather "
+                f"than scored -- and note that scoring it would have returned "
+                f"{100.0 * p2p_abs / abs(last):.6f} percent against the mean, "
+                f"i.e. a PASS, which is the failure mode this clause exists to "
+                f"stop."))
         return result
 
-    spread = 100.0 * (max(win) - min(win)) / abs(last)
-    endpoint = 100.0 * abs(win[-1] - win[0]) / abs(last)
+    spread = 100.0 * p2p_abs / rng
+    endpoint = 100.0 * abs(win[-1] - win[0]) / rng
+    spread_vs_mean = 100.0 * p2p_abs / abs(last)
     q = series[int(0.75 * (len(series) - 1))]
-    lastquarter = 100.0 * abs(last - q) / abs(last)
+    lastquarter = 100.0 * abs(last - q) / rng
 
     result.update(
         peak_to_peak_pct=spread,
         peak_to_peak_abs=p2p_abs,
+        run_range=rng,
+        normaliser="range spanned over the run (D389); NOT the absolute mean",
+        peak_to_peak_pct_vs_mean=spread_vs_mean,
         print_resolution=ulp,
-        resolved_ulp=(p2p_abs / ulp if ulp > 0 else None),
+        resolved_ulp=(rng / ulp if ulp > 0 else None),
         min_resolved_ulp=min_ulp,
         endpoint_drift_pct=endpoint,
         last_quarter_drift_pct=lastquarter,
@@ -692,8 +722,10 @@ def classify_monitor(logs, regex, tol_pct=None, window=None, interval=None,
         ),
         status=("CONVERGED" if spread <= tol_pct else "NOT_CONVERGED"),
         reason=(f"peak-to-peak spread of the monitored quantity over the last "
-                f"{window} iterations is {spread:.6f} percent against a criterion "
-                f"of {tol_pct} percent"),
+                f"{window} iterations is {spread:.6f} percent OF THE RANGE IT "
+                f"SPANNED ({rng:.6g}), against a criterion of {tol_pct} percent. "
+                f"Referred to the absolute mean instead it would read "
+                f"{spread_vs_mean:.6f} percent, which is the D389 defect."),
     )
     return result
 

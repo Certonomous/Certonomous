@@ -1,5 +1,19 @@
 # Certonomous Monitor Standard
 
+Version 1.12, dated 2026-08-18. **Adds no new rule. It changes what S13's
+percentage is a percentage OF, and corrects a false positive v1.11 introduced
+hours earlier.** S13 normalised the peak-to-peak spread by the quantity's
+ABSOLUTE MEAN, so on a quantity carrying a large offset it measured the offset:
+K2b's rack-inlet temperature has a mean of 289 K and a range of 0.086 K, a
+factor of 3,343. The spread is now referred to **the range the quantity spanned
+over the run** (D389). The same change repairs v1.11, whose null-variation
+clause tested the WINDOW SPREAD against the print resolution and so could not
+tell "never moved" from "converged to the last bit" — it refused four committed
+K2e cases that print sixteen significant figures bit-identically after
+travelling 0.53. Re-graded over **all 49** committed cases, **two verdicts
+change against the original criterion**, both K2b's, and K0c's eleven and K2e's
+thirty are all unchanged. The 1.11 note follows.
+
 Version 1.11, dated 2026-08-18. **Adds no new rule. It repairs S13, which until
 now returned its BEST POSSIBLE SCORE on a quantity that had never moved** — the
 identity defect this standard already documents for the sealed-case heat balance
@@ -751,11 +765,34 @@ stated once, here, rather than three times in weaker words.
   span the window is `CANNOT_TELL`, never a score. The solver's own
   convergence statement is **not** evidence against this signature: S13 exists
   precisely for runs that print it.
-- **The null-variation clause (added 1.11, and it changes what this rule
-  does).** A spread that is not RESOLVED by the log is `CANNOT_TELL`, never a
-  pass. The spread is compared against the precision the series is actually
-  printed at — measured from the samples themselves, since the most precise
-  sample fixes it and OpenFOAM strips trailing zeros — and a spread below
+- **The normaliser (1.12, D389).** The peak-to-peak spread is a percentage of
+  **the range the quantity spanned over the whole run**, `max(series) −
+  min(series)`, and **not** of its absolute mean. A criterion normalised by the
+  mean measures the OFFSET on any quantity that carries one. It went unnoticed
+  because K0c and K2e both grade a Nusselt-like O(1) group whose mean and range
+  agree within a factor of a few — measured across 49 cases the two normalisers
+  differ by 0.1×–12× there, and by **51×–1.4e9** on K2b's absolute
+  temperatures. The threshold NUMBER is unchanged at 0.02 %: its original
+  derivation, "one fiftieth of the tightest pass band K0c gated on", was always
+  a fraction of the thing being resolved, and the mean was only a proxy.
+  **One verdict moves because of this and it is the finding, not the cost:**
+  `K2bP_coarse` passed at 0.00101 % of its mean and fails at 3.3876 % of its
+  range — agreeing with its heat balance (0.7857 % out) and with S13 read on the
+  room's free boundary (0.03973 %), both of which already said the run was not
+  converged. Threshold sensitivity over all 49 cases: identical verdict set for
+  any value in **(0.0027 %, 0.0642 %]**, a 24× span, with 0.02 % inside it.
+- **The null-variation clause (added 1.11, CORRECTED in 1.12).** A quantity that
+  never resolvably MOVED is `CANNOT_TELL`, never a pass. **1.11 tested the
+  window spread against the print resolution and that was wrong**: a spread of
+  zero means "never started" on one case and "converged to the last bit" on
+  another, and 1.11 refused both. It fired on four committed K2e cases
+  (`m96_dT10_bou`, `m96_dT20_bou`, `m96_dT30_bou`, `m96_dT90_bou`) which print
+  sixteen significant figures, bit-identical across the window, after travelling
+  0.53 — as converged as a double-precision solve can be. **1.12 tests the RANGE
+  OVER THE WHOLE RUN instead**, which is the quantity that separates the two and
+  is the same quantity D389 requires as the normaliser: one repair, both faults.
+  The range is compared against the precision the series is actually printed at — measured from the samples themselves, since the most precise
+  sample fixes it and OpenFOAM strips trailing zeros — and a **range** below
   `thermal.monitor_min_resolved_ulp` (10) units in the last place is refused.
   **Why it is needed:** this rule asks *has the graded quantity stopped
   moving?*, and it cannot answer that on a quantity that never STARTED. At rung
@@ -813,8 +850,22 @@ stated once, here, rather than three times in weaker words.
   at 0.000e+00 to 1.793e-08%, and the planted-source recovery error improved
   by **four orders of magnitude**, from -7.943e-05% to +2.388e-09%. The rule
   changed this rung's own numbers; it is not decorative.
-  **Re-grade under the 1.11 null-variation clause (2026-08-18).** Corpus: the
-  eleven committed K0c logs plus K2b's three. **Exactly one verdict changes** —
+  **Re-grade under 1.12 (2026-08-18), which supersedes the 1.11 re-grade
+  below.** Corpus widened to **all 49** committed cases — K0c's eleven, K2e's
+  thirty and K2b's eight. **Against the ORIGINAL criterion exactly TWO verdicts
+  change, both K2b's:** `K2bP_fine` `CONVERGED` → `CANNOT_TELL` (it never
+  resolvably moved) and `K2bP_coarse` `CONVERGED` → `NOT_CONVERGED` (3.3876 %
+  of its range). **All eleven K0c and all thirty K2e verdicts are unchanged.**
+  Against 1.11 as shipped, five change: those four K2e false positives are
+  repaired, plus `K2bP_coarse`.
+  **The 1.11 re-grade was UNDER-SCOPED and that is recorded rather than quietly
+  fixed:** it covered fourteen cases and omitted K2e's thirty, which had been
+  graded under the old reading too and were sitting in the tree at the time.
+  Widening the corpus is what exposed 1.11's false positive.
+
+  **Re-grade under the 1.11 null-variation clause (2026-08-18), superseded.**
+  Corpus: the eleven committed K0c logs plus K2b's three. **Exactly one verdict
+  changes** —
   K2b's fine mesh moves `CONVERGED` → `CANNOT_TELL`. All eleven K0c cases are
   untouched, four `CONVERGED` and seven `NOT_CONVERGED` as before, and the
   closest of them to the new floor is `Ra1e3_m32` at **13,161 ulp**, three

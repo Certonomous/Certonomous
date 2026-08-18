@@ -6037,3 +6037,57 @@ S13 replay line had recorded six K1c controls passing "at **0.000e+00** to
 1.793e-08%". A spread of literally zero is the defect, written down, in the
 standard that defines the rule, and nobody read it as one. **A number in your own
 replay line that is too good is a finding, not a trophy.**
+
+**AMENDED 2026-08-18, hours later, by the repair's own second pass.** Two things
+this entry got wrong or left short, both found by widening the corpus:
+
+- **The generalisation is bigger than one number.** *The instrument documents the
+  defect it contains, and the documentation reads as a strength.* This is the
+  same shape as the other findings of the same day: `heat_balance.py` printed
+  "NOT of the identity class, so the balance is a genuine constraint here" over a
+  ledger whose advective term it had never computed; the audit deleted the very
+  convergence history the campaign's own criterion reads (D375); and S13's replay
+  line published a spread of zero as evidence of rigour. **When an instrument
+  prints a claim about its own soundness, that sentence is the one to go and
+  check first**, precisely because nobody else will.
+- **The repair shipped in this entry had a false positive, and it fired on four
+  committed cases.** Testing the WINDOW SPREAD against the print resolution
+  cannot distinguish "never moved" from "converged to the last bit" — both give
+  a spread of zero. K2e's four `m96_*_bou` cases print sixteen significant
+  figures, bit-identical across the window, after travelling 0.53; they were
+  refused. The corrected clause tests **the range over the whole run**. The
+  lesson inside the lesson: **a refusal is a verdict too, and it needs its own
+  two-way proof — not just "does it catch the bad case?" but "does it leave the
+  good one alone?" on a corpus wide enough to contain one.**
+
+## L-129. A re-grade is only as good as the corpus you swept, and the corpus is every case that was graded under the old reading
+
+**The rule.** When you change a criterion, the re-grade must cover **every case
+that was ever graded under the old reading**, not the cases in front of you. Go
+and enumerate them — by searching the tree for committed monitor series, not by
+recalling which rungs you know about. If you cannot reach some of them, say which
+and why, in the record, at the time.
+
+**Why.** At rung K2b the S13 convergence criterion was repaired and re-graded
+over **fourteen** cases: K0c's eleven and K2b's three. That was the corpus the
+author had in hand. It was wrong. **K2e's thirty cases had been graded under the
+same old reading and were sitting in the same tree**, committed hours earlier by
+a peer working the same campaign. Nobody withheld them; they were simply not
+looked for.
+
+**What the omission cost, and it was not hypothetical.** Widening the corpus from
+14 to 49 immediately exposed a **false positive in the repair itself**: four of
+K2e's cases print their graded quantity to sixteen significant figures,
+bit-identical across the window, having travelled 0.53 to get there — as
+converged as a double-precision solve can be — and the new clause refused all
+four. The narrow corpus contained no case of that kind, so the repair looked
+clean, was written up as clean, and shipped. **The corpus that would have
+falsified it existed, was committed, and was one `find` away.**
+
+**How to apply.** Enumerate mechanically. The corpus is defined by *the artefact
+the criterion reads* — here, every committed log carrying a monitor series — so
+find it with a search over the tree, and state the count in the record so a
+reader can tell a swept corpus from a convenient one. And when a repair changes
+no verdicts anywhere, treat that as a reason to widen the corpus rather than as
+a result: a repair that cannot move anything may be a repair that has not met
+the case it is for.
