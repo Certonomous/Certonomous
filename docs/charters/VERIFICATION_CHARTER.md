@@ -1720,3 +1720,110 @@ absent, and it does not permit the reverse move of deleting a row because its
 reference was never found. Section 2's rule still governs: a gate not reached is
 stated as not reached. **`NOT OBTAINED` is how that sentence is spelled when the
 reason is a document.**
+
+---
+
+## 2c. The discrimination test: a row that grades a hypothesis separates it from that hypothesis being absent (added 2026-08-18)
+
+**Placed at the foot, and numbered 2c for where it belongs.** Section 6b's note
+above states the reason and this clause inherits it: other records cite this
+file by line and one of those citations sits inside an executable check, so an
+amendment that inserted itself next to section 2a would have moved every cited
+line below it. **Lines whose number changed above this section: 0.** This clause
+is read with section 2a and is filed beside it in every index.
+
+> **A gate row whose verdict is counted as evidence about a hypothesis is
+> DISCRIMINATING or it is not evidence. A row that returns the same verdict for
+> the hypothesis and for a registered trivial baseline of that hypothesis may be
+> reported. It may not be counted toward the hypothesis's verdict.**
+>
+> **The rule reaches GRADE rows only. A GUARD row is exempt, and the exemption
+> holds only while the row is counted toward no verdict.**
+
+**This is section 2a's rule reached by the other road.** 2a catches a row whose
+value is fixed by ALGEBRA: derivable by construction from its own inputs, so a
+wrong treatment reproduces it exactly. 2c catches a row whose value is fixed by
+nothing THE HYPOTHESIS CONTROLS: geometry, mesh, boundary conditions, anything
+but the thing under test. Both are rows that cannot come out differently. Both
+read exactly like a row that passed on merit.
+
+**The instance that earned the rule, on 2026-08-18.** The K0cS square-cavity
+rung graded three turbulence closures against Ampofo and Karayiannis (2003), and
+ran a RECOGNITION control, C1, registered before the run with the turbulence
+model switched off. **C1 passed four rows. kOmegaSST passed two. The set of rows
+kOmegaSST passed that no turbulence model at all did not pass was EMPTY.** On
+one of the two, local Nusselt at mid-height, the closure and its absence sat
+0.0055 percent of the reference apart on the same mesh. Docket **D411**.
+
+### The boundary, and it is the load-bearing half
+
+**A row that GRADES a hypothesis is not the same object as a row that GUARDS a
+run,** and the naive form of this rule -- every row must discriminate -- is
+section 17a's over-reach, which looks like rigour while it is happening.
+
+| | GRADE row | GUARD row |
+| --- | --- | --- |
+| Its verdict is evidence about | the **hypothesis** | the **run** |
+| Its referent is | outside the run: an experiment, exact theory, a benchmark | an invariant every valid run of any hypothesis satisfies: conservation, convergence, a boundary condition applied, a marker written |
+| A FAIL withdraws | the **hypothesis** | the **run**. The numbers are not evidence yet and it is re-run |
+| It is counted in the rung's "N of M rows" tally | **yes** | **never** |
+| It must discriminate | **yes** | **no, and it is supposed not to** |
+
+**The question that separates them is asked at creation, beside section 2a's
+two:** *if this row fails, what is withdrawn -- the hypothesis, or the run?*
+
+A guard MAY discriminate and is simply never required to. K0cS's heat-balance
+closure did, because its laminar arm was unsteady; K0cS's centre-cavity
+temperature did not, correctly, because Boussinesq symmetry fixes it at 0.5 and
+the row measures the non-Boussinesq defect rather than any closure.
+
+**The exemption has teeth or it is a loophole.** A row declared GUARD and then
+counted in a graded tally is the smuggling path, and it was found on real data
+the day this clause was written: `gate_k0c.json` carried all four
+energy-balance rows -- a demonstrated identity in
+`docs/VALIDATION_INVENTORY.md` section 7.1, excluded from the rung's evidence in
+its own prose -- inside `gate_rows`, its graded tally, with `passed: true`.
+
+### Where this rule does not reach, stated so nobody re-derives it by spending
+
+1. **A hypothesis with no runnable null.** "Does this solver solve the
+   equations" has no no-solver arm. The rule is then UNMEASURABLE, **not
+   satisfied**, and the row is recorded as unmeasured. A check reporting no
+   violations over a population it could not evaluate has not passed; it has not
+   run.
+2. **A rung that IS an A/B by construction.** Where every row is already a
+   difference between a treatment and its null on identical geometry -- F14's
+   K2e sweeps Boussinesq against variable density this way -- the discrimination
+   IS the measurement, and a discrimination test on top of it restates its own
+   input.
+3. **What counts as the trivial baseline is a judgement, not a datum.** For a
+   turbulence closure it is the model switched off; for a correction, the
+   uncorrected run; for a mesh claim, the coarser mesh. **The null arm is
+   registered before its own run, with the record that registered it, and a null
+   chosen after the numbers were read makes the instrument the thing it exists
+   to detect.**
+4. **A FAIL that both arms share is not automatically hollow.** Where the two
+   arms are separated by a band or more the row grades and both arms are simply
+   outside it. The hollow case is the one where they are not separated: the row
+   then fails for a reason the hypothesis does not control, and the FAIL is not
+   evidence against the hypothesis either.
+5. **This is not the mutation control and does not replace it.** A mutation
+   control perturbs the MEASURED NUMBER and asks whether the verdict can move; a
+   discrimination test perturbs the HYPOTHESIS and asks whether it does. K0cS's
+   mutation control stamped `every_row_reachable_both_ways: true` over twenty
+   graded rows, correctly, and eight of the twenty carried evidence under this
+   clause. **Both are required and neither implies the other.**
+
+### Enforcement
+
+`scripts/check_row_discrimination.py`, rules D1-HOLLOW-PASS, D2-INERT-ROW and
+D3-GUARD-GRADED, with `--selftest` planting five shapes that must fire and nine
+that must survive. The negative controls include a guard row displaying the
+exact hollow-pass signature on real data, because a check that condemns the
+whole inventory is scrolled past and has become the decoration it was built to
+detect.
+
+**What this clause does not do.** It withdraws no verdict already published, it
+does not license deleting a row whose null arm was never run, and it does not
+convert a discriminating row into a validated one. Section 2's rule still
+governs: a gate not reached is stated as not reached.
