@@ -5276,3 +5276,61 @@ rule with no enumeration behind it.
 
 Found at MOVE_MAP batch 4, 2026-08-18.
 `demo-output/website/campaign/MOVE_MAP_BATCH4_EXECUTION_2026-08-18.md` §2.
+
+---
+
+## L-112. A population defined by agreement loses its member the moment the member disagrees
+
+`scripts/check_consistency.py` in the closure package carries a numeric census:
+it scans every figure in every shipped document, maps each VALUE to the set of
+files stating it, and requires any value stated in three or more documents to be
+pinned, listed with a reason, or reported as unaccounted for. Below three
+documents a value is "low fanout, accounted for and unchecked", on the stated
+ground that a figure stated once cannot drift against another document.
+
+A fifth verification broke it in one move. **A drift does not reclassify a
+value; it splits one value into two.** A figure identical in exactly three
+documents and drifted in one of them becomes value A in two files and value B in
+one. Both are below the threshold, both are "low fanout", the census reports 0
+unaccounted for, and the script exits 0 with every check PASS. Proven by
+contrast on the same tree: identical in three FAILS, identical in four with one
+drifted FAILS, three with one drifted passes. Nine unpinned figures stood at
+exactly three documents that day, so the hole was occupied, not theoretical, and
+any figure a later wave adds at three inherits it.
+
+**The rule.** A fanout-based census must classify SITES, not values. Membership
+defined by agreement is not membership: it is a property the corpus can revoke
+by disagreeing, which is exactly the event the census exists to catch. Where the
+classification cannot be made site-local, publish the census's whole SHAPE,
+population and site totals and every class total, in a document, and check that
+document against the run. A split moves at least two of those numbers, so the
+page goes stale in the same edit and the run says which number moved.
+
+**What not to do, measured before it was rejected.** The obvious repair is to
+detect the split: cluster values that are one digit or one unit in the last
+place apart and treat the cluster as one figure. Measured over that corpus, that
+rule found 306 pairs among 392 values. It would have fired on correct prose
+constantly, and a check that fires on correct prose is worse than one that stays
+silent. The same verification settled the general form of this: deciding whether
+a cited document supports a citing sentence is open-ended entailment, so where a
+claim cannot be mechanised, DELETE THE CLAIM. Three of that wave's four prose
+findings were repaired by deletion, and the one mechanism added was a
+hand-written table of two pinned propositions, not an engine.
+
+**The second half of the same wave.** Nothing read the README's account of the
+run. The checker's account of ITSELF had been closed a wave earlier; the
+document describing the checker had not, and two of the roughly thirty numbers
+it restated from the run were false, one of them inside the sentence announcing
+that a class had been closed. A derived count published in prose is only as good
+as the check that reads the prose back.
+
+**Two mechanical notes for the entry that records this.** Re-derive the next
+free lesson ID on every commit ATTEMPT by comparing ID SETS with a
+period-anchored regex (`^## L-(\d+)\.`), never by adding one to a remembered
+maximum: this file has a hole at L-52 and blocks, distinct numbers and highest
+number are three different figures. And write this file back by MERGE, reading
+what is on disk at write time and appending to it. Overwriting from a buffer
+read earlier destroyed an unlanded tail here on 2026-08-18.
+
+Found 2026-08-18 in `Certonomous_closure_challenge`, fifth verification,
+findings 1 and 2 and 6.
