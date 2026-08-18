@@ -224,12 +224,33 @@ def reconcile(committed_text: str, worktree_text: str,
     head_only = sorted(committed_set - worktree_set, key=sort_key)
     worktree_only = sorted(worktree_set - committed_set, key=sort_key)
 
+    # DUPLICATE IDS, ON EITHER SIDE. Added 2026-08-18 after a live collision: two
+    # lanes independently wrote a row numbered D406, and this check returned
+    # PASS. A set difference CANNOT see a duplicate -- `{D001,D002,D002,D003}`
+    # and `{D001,D002,D003}` are the same set -- so the one thing an ID-keyed
+    # ledger most needs a reconciliation to catch was precisely the thing it
+    # could not. The row counts were already printed (3 against 4) and were
+    # explicitly labelled "diagnostic only", so the evidence was on screen and
+    # carried no weight, which is worse than not printing it.
+    #
+    # Proved by planting rather than by reading: a scratch repository whose
+    # worktree carried a second row wearing D002 exited 0 / PASS before this
+    # block existed.
+    #
+    # A duplicate is a FAIL on the side that carries it. Two different findings
+    # wearing one name means every later citation of that ID is ambiguous, and
+    # the docket is append-only, so the ambiguity is permanent unless caught here.
+    committed_dupes = sorted({i for i in committed_ids if committed_ids.count(i) > 1}, key=sort_key)
+    worktree_dupes = sorted({i for i in worktree_ids if worktree_ids.count(i) > 1}, key=sort_key)
+
     ledger = run_controls() if ledger is None else ledger
     hits = len(head_only) + len(worktree_only)
     zero_verdict, zero_why = ledger.verdict_for(hits)
 
     if not committed_ids or not worktree_ids:
         verdict, code = "UNKNOWN", EXIT_UNKNOWN
+    elif committed_dupes or worktree_dupes:
+        verdict, code = "FAIL", EXIT_FAIL_UNLANDED
     elif worktree_only:
         verdict, code = "FAIL", EXIT_FAIL_UNLANDED
     elif head_only:
@@ -249,6 +270,8 @@ def reconcile(committed_text: str, worktree_text: str,
         "exit_code": code,
         "head_only": head_only,
         "worktree_only": worktree_only,
+        "committed_dupes": committed_dupes,
+        "worktree_dupes": worktree_dupes,
         "committed_row_count": len(committed_ids),
         "worktree_row_count": len(worktree_ids),
         "id_pattern": ID_PATTERN,
@@ -275,6 +298,15 @@ def render(result: dict, rev: str, path: str, worktree_file: Path) -> str:
         f"{result['worktree_row_count']} in the working copy "
         "(counts are diagnostic only -- the verdict is over ID SETS)"
     )
+    for side, dupes in (("HEAD", result.get("committed_dupes") or []),
+                        ("THE WORKTREE", result.get("worktree_dupes") or [])):
+        if dupes:
+            out.append("-" * width)
+            out.append(f"DUPLICATE IDS IN {side} ({len(dupes)}): " + ", ".join(dupes))
+            out.append("    TWO ROWS WEAR ONE NAME. Every later citation of this id is ambiguous,")
+            out.append("    and the docket is append-only, so the ambiguity does not expire. The")
+            out.append("    later writer takes the next free id; renumbering another agent's row")
+            out.append("    is that agent's call, so ASK rather than renumbering it for them.")
     out.append("-" * width)
 
     if result["verdict"] == "UNKNOWN":
