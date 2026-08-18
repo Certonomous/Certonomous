@@ -1,0 +1,134 @@
+==============================================================================
+D406 REPAIR -- every deviation from the published rung, as a number
+==============================================================================
+
+Threshold, pre-registered before the first solve: < 0.1 % reproduced,
+> 1 % NOT REPRODUCED; the band between carries no verdict.
+
+--- leg 32x32  (cells 1024, t = 1386; published t = 1386) ---
+quantity                                               re-run              published    deviation %
+Nu_avg_hot                                  4.649689954678544      4.649689954678544   0.0000000000
+Nu_avg_cold                                 4.649691601422818      4.649691601422818   0.0000000000
+Nu_max_hot                                  8.261268761447337      8.261268761447337   0.0000000000
+Nu_min_hot                                 0.7171724305752056     0.7171724305752056   0.0000000000
+V_star_max                                  66.48400391509797      66.48400391509797   0.0000000000
+V_star_min                                  -66.4840141206842      -66.4840141206842   0.0000000000
+U_star_max                                  35.30734851105699      35.30734851105699   0.0000000000
+U_star_min                                -35.307367970597454    -35.307367970597454   0.0000000000
+x_over_L_at_v_max                                    0.078125               0.078125   0.0000000000
+stratification_S_leastsq_mid25pct           1.055148885271935      1.055148885271935   0.0000000000
+energy_balance_pct                      3.541621051551972e-05  3.541621051551972e-05   0.0000000000
+Pr                                                   0.706814               0.706814   0.0000000000
+dT_K                                       1.0930660000000216     1.0930660000000216   0.0000000000
+  time              re-run '1386'   published '1386'   MATCH
+  Nu history writes re-run 139   published 139   MATCH
+  Nu history values bit-identical: 139 of 139
+  13 of 13 quantities BIT-IDENTICAL; largest |deviation| 0.0000000000 %
+
+--- leg 64x64  (cells 4096, t = 4000; published t = 4000) ---
+quantity                                               re-run              published    deviation %
+Nu_avg_hot                                  4.553798947182756      4.553798947182756   0.0000000000
+Nu_avg_cold                                 4.553813035993334      4.553813035993334   0.0000000000
+Nu_max_hot                                  7.872590310194037      7.872590310194037   0.0000000000
+Nu_min_hot                                 0.7256681664259914     0.7256681664259914   0.0000000000
+V_star_max                                  68.37231218535561      68.37231218535561   0.0000000000
+V_star_min                                 -68.37239487506194     -68.37239487506194   0.0000000000
+U_star_max                                  34.88139501237987      34.88139501237987   0.0000000000
+U_star_min                                -34.881503876413234    -34.881503876413234   0.0000000000
+x_over_L_at_v_max                                   0.0703125              0.0703125   0.0000000000
+stratification_S_leastsq_mid25pct          1.0412910344685051     1.0412910344685051   0.0000000000
+energy_balance_pct                     0.00030938539333148557 0.00030938539333148557   0.0000000000
+Pr                                                   0.706814               0.706814   0.0000000000
+dT_K                                       1.0930660000000216     1.0930660000000216   0.0000000000
+  time              re-run '4000'   published '4000'   MATCH
+  Nu history writes re-run 6   published 6   MATCH
+  Nu history values bit-identical: 6 of 6
+  13 of 13 quantities BIT-IDENTICAL; largest |deviation| 0.0000000000 %
+
+--- leg 128x128  (cells 16384, t = 16000; published t = 16000) ---
+quantity                                               re-run              published    deviation %
+Nu_avg_hot                                  4.528816741169209      4.528816741169209   0.0000000000
+Nu_avg_cold                                 4.528823328145787      4.528823328145787   0.0000000000
+Nu_max_hot                                  7.757268454060864      7.757268454060864   0.0000000000
+Nu_min_hot                                 0.7276237665456766     0.7276237665456766   0.0000000000
+V_star_max                                  68.61124559259405      68.61124559259405   0.0000000000
+V_star_min                                 -68.61128579237598     -68.61128579237598   0.0000000000
+U_star_max                                 34.796801579570534     34.796801579570534   0.0000000000
+U_star_min                                 -34.79684938796164     -34.79684938796164   0.0000000000
+x_over_L_at_v_max                                  0.06640625             0.06640625   0.0000000000
+stratification_S_leastsq_mid25pct           1.037427457742603      1.037427457742603   0.0000000000
+energy_balance_pct                     0.00014544575690790288 0.00014544575690790288   0.0000000000
+Pr                                                   0.706814               0.706814   0.0000000000
+dT_K                                       1.0930660000000216     1.0930660000000216   0.0000000000
+  time              re-run '16000'   published '16000'   MATCH
+  Nu history writes re-run 406   published 406   MATCH
+  Nu history values bit-identical: 406 of 406
+  13 of 13 quantities BIT-IDENTICAL; largest |deviation| 0.0000000000 %
+
+--- the ladder: Richardson block, leaf by leaf ---
+quantity                               leaf                                   re-run              published
+Nu_avg_hot                             p                          1.9404946505323346     1.9404946505323346
+                                       GCI_fine_pct              0.24293309974126642    0.24293309974126642
+                                       change_64_to_128_pct       0.5516276643840857     0.5516276643840857
+                                       extrapolated                 4.52001514525647       4.52001514525647
+Nu_max_hot                             p                          1.7529111626888276     1.7529111626888276
+                                       GCI_fine_pct               0.7839617670424555     0.7839617670424555
+                                       change_64_to_128_pct       1.4866296920896558     1.4866296920896558
+                                       extrapolated                7.708617238983519      7.708617238983519
+Nu_min_hot                             p                           2.119127511846505      2.119127511846505
+                                       GCI_fine_pct              0.10045613981360221    0.10045613981360221
+                                       change_64_to_128_pct       0.2687652890956586     0.2687652890956586
+                                       extrapolated               0.7282085207442671     0.7282085207442671
+V_star_max                             p                           2.982413818865835      2.982413818865835
+                                       GCI_fine_pct              0.06305929198964849    0.06305929198964849
+                                       change_64_to_128_pct       0.3482423401219013     0.3482423401219013
+                                       extrapolated                68.64585820515082      68.64585820515082
+U_star_max                             p                          2.3320783671637337     2.3320783671637337
+                                       GCI_fine_pct              0.07530629317432147    0.07530629317432147
+                                       change_64_to_128_pct      0.24310692066307726    0.24310692066307726
+                                       extrapolated                34.77583823444029      34.77583823444029
+stratification_S_leastsq_mid25pct      p                          1.8426945755655852     1.8426945755655852
+                                       GCI_fine_pct              0.17996170618616536    0.17996170618616536
+                                       change_64_to_128_pct       0.3724189770636176     0.3724189770636176
+                                       extrapolated               1.0359338800198852     1.0359338800198852
+  Richardson leaves differing: 0
+
+--- end-to-end: 674 leaves in the published document, 674 in the re-run's; 11 differ ---
+  [case path string] 3
+      /legs/128x128/case
+          re-run   : 'verification/runs/F14-cooling-ladder/K0b_D406_repair/K0b_m128'
+          published: 'docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/K0b_m128'
+      /legs/32x32/case
+          re-run   : 'verification/runs/F14-cooling-ladder/K0b_D406_repair/K0b_m32'
+          published: 'docs/campaigns/F14-cooling-ladder/K0b_mesh_sensitivity/K0b_m32'
+      /legs/64x64/case
+          re-run   : 'verification/runs/THERMAL_K0_runs/K0b_cavity_Ra1e5'
+          published: 'demo-output/website/campaign/THERMAL_K0_runs/K0b_cavity_Ra1e5'
+  [wall clock and derived cost] 8
+      /cost/128x128/core_minutes
+          re-run   : 12.584878626183334
+          published: 12.757173874433333
+      /cost/128x128/wall_clock_s
+          re-run   : 755.0927175710001
+          published: 765.430432466
+      /cost/32x32/core_minutes
+          re-run   : 0.05885
+          published: 0.06038333333333334
+      /cost/32x32/wall_clock_s
+          re-run   : 3.531
+          published: 3.623
+      /cost/NEW_LEGS_TOTAL/core_minutes
+          re-run   : 12.643728626183334
+          published: 12.817557207766667
+      /cost/NEW_LEGS_TOTAL/core_seconds
+          re-run   : 758.623717571
+          published: 769.053432466
+      /legs/128x128/wall_clock_s
+          re-run   : 755.0927175710001
+          published: 765.430432466
+      /legs/32x32/wall_clock_s
+          re-run   : 3.531
+          published: 3.623
+
+PHYSICS LEAVES DIFFERING: 0
+WORST |deviation| over all graded quantities on all three legs: 0.0000000000 %

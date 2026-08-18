@@ -1,0 +1,22 @@
+P-D.1a  K0b_m128/log.buoyantBoussinesqSimpleFoam.continue exists         exit 0
+P-D.1b  continuation log opens at 'Create mesh for time = 4000'          exit 0
+P-D.1c  continuation log reaches 'Time = 16000'                          exit 0
+P-D.2   K0b_m128/COST.txt carries continue_wall_clock_s                  exit 0
+P-D.2b  ...and still carries the stage-1 wall_clock_s (appended, not rewritten) exit 0
+P-D.3a  controlDict.4000 byte-identical to the PUBLISHED one             exit 0
+P-D.3b  controlDict.4000 byte-identical to the ARCHIVE case's controlDict exit 0
+P-D.4   final controlDict byte-identical to the PUBLISHED one            exit 0
+P-B.1   K0b_m32 carries NO controlDict.4000 (it was not continued)       exit 0
+P-B.2   K0b_m32 has NO continuation log                                  exit 0
+P-B.3   K0b_m32/COST.txt has NO continue_wall_clock_s (expect exit 1)    exit 1
+P-B.4   K0b_m32/system/controlDict is still the archive case's own       exit 0
+P-B.5   K0b_m32 stopped itself on residualControl at 1386 iterations     exit 0
+        K0b_m32/system/blockMeshDict vs published                        exit 0
+        K0b_m32/system/fvSchemes vs published                            exit 0
+        K0b_m32/system/fvSolution vs published                           exit 0
+        K0b_m32/system/controlDict vs published                          exit 0
+        K0b_m128/system/blockMeshDict vs published                       exit 0
+        K0b_m128/system/fvSchemes vs published                           exit 0
+        K0b_m128/system/fvSolution vs published                          exit 0
+
+OVERALL: ALL CHECKS PASSED

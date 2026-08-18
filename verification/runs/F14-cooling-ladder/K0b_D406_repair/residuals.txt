@@ -1,0 +1,24 @@
+leg                                          stopped by            at            Ux            Uy             T         p_rgh   verdict
+32x32   (this run)                           residualControl     1386    9.6738e-09    7.4445e-09    8.1515e-09    1.2053e-08   CONVERGED
+                                               Ux     9.673764e-09  target U 1e-08  ratio     0.97x  MET
+                                               Uy     7.444531e-09  target U 1e-08  ratio     0.74x  MET
+                                               T      8.151501e-09  target T 1e-08  ratio     0.82x  MET
+                                               p_rgh  1.205280e-08  target p_rgh 1e-07  ratio     0.12x  MET
+128x128 stage 1 (this run)                   endTime             4000    8.7139e-05    9.3947e-05    5.2828e-05    6.7096e-05   stopped at endTime
+                                               Ux     8.713927e-05  target U 1e-08  ratio  8713.93x  ABOVE TARGET
+                                               Uy     9.394689e-05  target U 1e-08  ratio  9394.69x  ABOVE TARGET
+                                               T      5.282779e-05  target T 1e-08  ratio  5282.78x  ABOVE TARGET
+                                               p_rgh  6.709638e-05  target p_rgh 1e-07  ratio   670.96x  ABOVE TARGET
+128x128 continued (this run)                 endTime            16000    2.3577e-08    2.7662e-08    2.5149e-08    3.4423e-08   stopped at endTime
+                                               Ux     2.357706e-08  target U 1e-08  ratio     2.36x  ABOVE TARGET
+                                               Uy     2.766168e-08  target U 1e-08  ratio     2.77x  ABOVE TARGET
+                                               T      2.514862e-08  target T 1e-08  ratio     2.51x  ABOVE TARGET
+                                               p_rgh  3.442282e-08  target p_rgh 1e-07  ratio     0.34x  MET
+64x64   (committed archive, read in place)   endTime             4000    1.4795e-07    1.6214e-07    9.5931e-08    1.4765e-07   stopped at endTime
+                                               Ux     1.479456e-07  target U 1e-08  ratio    14.79x  ABOVE TARGET
+                                               Uy     1.621406e-07  target U 1e-08  ratio    16.21x  ABOVE TARGET
+                                               T      9.593143e-08  target T 1e-08  ratio     9.59x  ABOVE TARGET
+                                               p_rgh  1.476541e-07  target p_rgh 1e-07  ratio     1.48x  ABOVE TARGET
+
+residualControl targets are read from the case's own system/fvSolution:
+  p_rgh 1e-07, U 1e-08, T 1e-08.
