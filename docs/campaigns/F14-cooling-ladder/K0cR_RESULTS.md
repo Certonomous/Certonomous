@@ -236,3 +236,97 @@ scalars is the number a future rung should carry.**
   `SSG` now has no *isothermal* cavity comparison either.
 - **Nothing here was submitted, sent, filed, uploaded or registered.**
   Submissions are PARKED.
+
+---
+
+## Dated addendum, 2026-08-19 01:05Z — §4 said no mechanism is claimed. The mechanism is now measured, at zero compute
+
+**Nothing above is edited.** W-4. §4 recorded that the wall heat flux is not
+tracking the bulk eddy-viscosity level, that the answer must be in the near-wall
+distribution, and that **the rung did not instrument that**. It has now been
+instrumented, from fields already on disk.
+
+`K0cR_runs/near_wall_alphat.py`. **Zero compute, zero writes, grades nothing.**
+Square cavity only, and the scoping is a consequence of the no-writes rule: the
+square cases already carry `Cx`/`Cy`, the tall cases do not, and generating them
+would write into `K0cX_runs`. The contradiction being explained is on the square
+cavity in any case.
+
+### The redistribution, measured at mid-height off the hot wall
+
+`alpha_t/alpha`, SSG against its `kEpsilon` twin, cell by cell out from the wall:
+
+| cell | x/L (fine) | SSG | `kEpsilon` | ratio |
+| ---: | ---: | ---: | ---: | ---: |
+| **0** | 1.04e-04 | **0.01796** | **0.05242** | **0.343** |
+| 1 | 3.18e-04 | 0.03084 | 0.03851 | 0.801 |
+| 2 | 5.43e-04 | 0.05383 | 0.02952 | 1.824 |
+| 3 | 7.79e-04 | 0.08941 | 0.02432 | 3.677 |
+| 4 | 1.03e-03 | 0.13883 | 0.02265 | 6.129 |
+| 5 | 1.29e-03 | 0.20219 | 0.02531 | 7.987 |
+| 6 | 1.56e-03 | 0.27917 | 0.03465 | **8.057** |
+| 7 | 1.85e-03 | 0.36974 | 0.05514 | 6.706 |
+
+**SSG does not add turbulent diffusivity. It moves it.** At the wall-adjacent
+cell SSG carries **65 percent less** than `kEpsilon` — 0.343 of it on the fine
+mesh, 0.352 on the coarse. **The profiles cross within one or two cells**, and
+by cell 6 SSG carries **eight times more**.
+
+### The chain, closed quantitatively on both meshes
+
+**1. Less diffusivity at the wall, far more just outside it, pulls heat out of
+the near-wall region faster and cools the first cell.** Measured at the
+identical cell centre, with the hot wall at 323.15 K:
+
+| | SSG first cell | `kEpsilon` first cell | difference |
+| --- | ---: | ---: | ---: |
+| coarse | 322.5215 K | 322.6175 K | **-0.0961 K** |
+| fine | 322.7668 K | 322.8160 K | **-0.0492 K** |
+
+**2. A colder first cell at the same distance is a steeper wall gradient.**
+
+| | gradient ratio SSG/`kEpsilon` | `Nu_hot` ratio, measured | residual |
+| --- | ---: | ---: | ---: |
+| coarse | **1.1803** | **1.1208** | 1.0530 |
+| fine | **1.1473** | **1.0910** | 1.0516 |
+
+**3. The residual is the wall diffusivity factor, and it closes the books.**
+`K0cS`'s `wall_nu` forms `Nu` as the gradient times `1 + alpha_t,wall/alpha`, and
+that factor **favours `kEpsilon`**, whose near-wall `alpha_t` is the larger one —
+about `1.092/1.032 = 1.058` from the first-cell values. **The residual is 1.053
+and 1.052, on two different meshes.** Gradient ratio divided by the diffusivity
+factor reproduces the measured Nusselt ratio.
+
+**So the +11 to +14 point Nusselt degradation is fully accounted for: a steeper
+wall temperature gradient, produced by a near-wall diffusivity deficit, partly
+offset by that same deficit in the wall-flux factor.**
+
+### The finding this makes, which is sharper than the mechanism
+
+**`Prt_eff` measured exactly 0.8500 at every cell of every case, for both
+models.** `alpha_t` is rigidly slaved to `nu_t` by the same constant, which is
+what the rung registered and is now confirmed cell by cell rather than assumed.
+
+**That is the whole problem, stated as a measurement.** The stress closure
+improved and redistributed `nu_t`, and because `alpha_t = nu_t/0.85` the thermal
+field had **no freedom to respond differently**: the redistribution was
+transmitted verbatim onto the turbulent thermal diffusivity. **A better stress
+closure was forced, by a constant, into being a worse heat-flux closure.**
+
+**This is the direct argument for X4 arm (b)** — a generalised gradient-diffusion
+`alpha_t` that is not a constant multiple of `nu_t`. Section 9 listed arm (b) as
+a priority on the strength of an inference; it now rests on a measured
+transmission path.
+
+**And it sharpens D417.** Ampofo's measured `Prt` is **0.21 at the wall and 0.00
+at X = 0.0067** — precisely the region where this transmission does its damage,
+and precisely where the imposed 0.85 is most wrong.
+
+### What is still not claimed
+
+- **The tall cavity was not instrumented**, for the no-writes reason above. The
+  mechanism is established on the square cavity and is *expected* on the tall
+  one, which is not the same as measured.
+- **This explains the degradation; it does not show that fixing `Prt` would
+  remove it.** That is an experiment, not an inference, and it is X4 arm (b).
+- **No verdict moves.** K0cR stays WORSE by its registered rule.
