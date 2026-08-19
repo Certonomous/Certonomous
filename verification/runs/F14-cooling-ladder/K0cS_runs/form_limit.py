@@ -22,6 +22,17 @@ DAT = os.path.abspath(DAT)
 U_LEFT = 0.15      # reading uncertainty on alpha_t/nu and nu_t/nu, D417
 PRT_MIN_MEASURED = 0.21   # smallest Prt Ampofo's figure shows, at the wall
 
+# THE VELOCITY MAXIMUM MUST BE EXCLUDED, AND THE PAPER IS WHY.
+# Ampofo p. 3569: the Reynolds stress "has a positive value at the maximum
+# velocity location (ov/ox = 0) without u'v' becoming zero.  Therefore, the
+# distribution of turbulent viscosity for momentum has a DISCONTINUITY at the
+# maximum velocity location."  nu_t = -u'v' / (ov/ox) is singular there, so a
+# plotted value near zero at that X is the rendering of a discontinuity and not
+# a measurement of a small eddy viscosity.  G9 of the K0cS gate puts the
+# measured maximum at X = 0.00667.
+V_MAX_X = 0.00667
+V_MAX_GUARD = 0.0015     # exclusion half-width, about the digitisation spacing
+
 
 def main():
     if not os.path.isfile(DAT):
@@ -51,7 +62,10 @@ def main():
         need = (nt / at) if at not in (0.0,) else None
         s = f"{need:+.4f}" if need is not None else "undefined (alpha_t = 0)"
         flag = ""
-        if at - U_LEFT > best_hi:
+        near_vmax = abs(X - V_MAX_X) <= V_MAX_GUARD
+        if near_vmax:
+            flag = "  <-- EXCLUDED: at the velocity maximum, nu_t is discontinuous"
+        elif at - U_LEFT > best_hi:
             flag = "  <-- CANNOT BE REACHED"
             impossible.append((X, at, nt, best_hi))
         print("  %-9.4f %11.2f %11.2f | Prt = %s%s" % (X, at, nt, s, flag))
