@@ -52,8 +52,18 @@ WEDGE_DEG = 5.0
 # ---- mesh ladder, ratio 1.6 ------------------------------------------------
 LEVELS = {"c": (20, 200), "m": (32, 320), "f": (51, 512)}   # (radial, axial)
 
-END_TIME = 6000
-WRITE_INTERVAL = 1000     # STRICTLY < END_TIME.  See L-140.
+# AMENDED 2026-08-19, DISCLOSED.  The registered endTime of 6000 was measured to
+# be insufficient, not judged to be: at 6000 iterations the FINE constant-flux
+# case still moved its temperature field by 4.081 K between the last two
+# checkpoints, while the coarse and medium cases were BIT-IDENTICAL over the
+# same interval.  Graded as though converged it put Nu at 4.622 against an exact
+# 4.364 and turned the grid triple OSCILLATORY -- an iteration-count problem
+# impersonating a discretisation one.  The solver's own residualControl never
+# tripped on any of the six cases and the offending case's T residual was an
+# unremarkable 4e-05, so this was caught by comparing written fields, not by
+# reading residuals.
+END_TIME = 30000
+WRITE_INTERVAL = 2000     # STRICTLY < END_TIME.  See L-140.
 
 CASES = {}
 for lvl, (nr, nx) in LEVELS.items():

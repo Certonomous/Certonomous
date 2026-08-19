@@ -43,6 +43,51 @@ import exact_laminar_pipe as EXACT          # noqa: E402
 
 FS = 1.25
 R_REFINE = 1.6
+
+# ---------------------------------------------------------------------------
+# AMENDMENT, 2026-08-19, DISCLOSED (Charter 2b).  MADE AFTER RESULTS EXISTED.
+#
+# The pre-registration sampled BOTH arms at x/D = 40.  That station is WRONG for
+# the constant-wall-temperature arm, and the error is mine: I checked the
+# thermal ENTRY length (0.05 Re Pr = 3.55 D) and never checked the thermal
+# SATURATION length.  For a constant-Ts pipe the bulk temperature approaches the
+# wall temperature exponentially,
+#
+#     (Tw - Tm(x)) / (Tw - Tm(0)) = exp(-4 Nu (x/D) / (Re Pr)),
+#
+# which at x/D = 40, Re = 100, Pr = 0.71 has decayed by a factor of 3792 -- to
+# 0.0026 K out of 10 K.  Nu is then a ratio whose numerator and denominator both
+# vanish, so the three mesh levels returned round-off and the triple came back
+# DIVERGENT at an observed order of -0.80.
+#
+# WHY THIS IS AN AMENDMENT AND NOT A RESULT-DRIVEN CHOICE, which is the only
+# thing that makes it admissible: the decay law above is closed form, contains
+# no solved quantity, and could have been evaluated before a single case was
+# built.  The correction is derived from it and NOT from the observed Nusselt
+# numbers -- the station below is fixed by Re and Pr alone and does not consult
+# any solution.  The originally registered station is NOT deleted: it is graded
+# as well, and reports NOT A RESULT with the saturation as its stated reason.
+#
+# The constant-FLUX arm is untouched at x/D = 40 and needs no amendment, because
+# there Tw - Tb is CONSTANT in the fully developed region and never decays.
+SATURATION_FLOOR = 0.10      # the driving difference must remain >= 10 % of inlet
+ENTRY_SAFETY = 2.0           # and the station must be >= 2 entry lengths down
+REGISTERED_STATION = 40.0    # as pre-registered, kept and graded
+
+
+def amended_station(Re, Pr, Nu_ref):
+    """The constant-Ts station, derived from theory alone.
+
+    Lower bound: ENTRY_SAFETY x the thermal entry length 0.05 Re Pr, so the
+    profile is fully developed.  Upper bound: where the driving difference has
+    fallen to SATURATION_FLOOR of its inlet value.  The station is the geometric
+    mean of the two, which is deterministic and consults no solution.
+    """
+    lo = ENTRY_SAFETY * 0.05 * Re * Pr
+    hi = -math.log(SATURATION_FLOOR) / (4.0 * Nu_ref / (Re * Pr))
+    if hi <= lo:
+        return None, lo, hi
+    return math.sqrt(lo * hi), lo, hi
 LEVELS = ("c", "m", "f")
 ARMS = {"Ts": dict(cases={l: f"L_Ts_{l}" for l in LEVELS},
                    label="constant wall temperature"),
@@ -115,6 +160,78 @@ def read_patch(path, patch):
     return None
 
 
+def wall_radius(case_dir):
+    """The radius of the wall face, READ FROM THE MESH, never assumed to be D/2.
+
+    THIS FUNCTION EXISTS BECAUSE ASSUMING D/2 COST 9 PER CENT OF THE NUSSELT
+    NUMBER.  An OpenFOAM wedge approximates the pipe arc by a flat chord: the
+    vertices sit at (y, z) = (R cos(a/2), +/- R sin(a/2)), so the wall face lies
+    at y = R cos(2.5 deg) = 0.00999048, not at R = 0.01.  Taking the wall to be
+    at D/2 overstated the wall-normal distance h by a FIXED 9.5e-06 m.
+
+    That fixed absolute error is the whole trap.  h itself shrinks with
+    refinement -- 2.50e-04, 1.56e-04, 9.80e-05 across the three levels -- so the
+    RELATIVE error GREW, 3.8 % to 6.1 % to 9.7 %, and the wall gradient was
+    underestimated by proportionally more on every finer mesh.  Nusselt moved
+    AWAY from the exact answer under refinement and the grid triple reported
+    DIVERGENT at an observed order of -0.80, which looks exactly like a
+    discretisation failure and was not one: the temperature field was correct all
+    along, matching the Graetz eigenfunction to 0.03 % (theta(0)/theta_m =
+    1.80203 measured against 1.80262 analytic), and the velocity field was
+    Poiseuille to 0.17 %.
+
+    A 0.095 % error in a geometric constant produced a 9 % error in the graded
+    quantity and a false verdict about the numerics.
+    """
+    pts = os.path.join(case_dir, "constant", "polyMesh", "points")
+    if not os.path.isfile(pts):
+        refuse(f"REFUSE: no polyMesh/points in {case_dir}")
+    txt = open(pts, errors="replace").read()
+    ys = [float(m.group(1)) for m in
+          re.finditer(r"\(\s*[-0-9.eE+]+\s+([-0-9.eE+]+)\s+[-0-9.eE+]+\s*\)", txt)]
+    if not ys:
+        refuse(f"REFUSE: cannot parse points in {case_dir}")
+    return max(ys)
+
+
+def iterative_convergence(case_dir, field="T", tol=1e-6):
+    """Compare the last two written checkpoints of a field.
+
+    THIS CHECK EXISTS BECAUSE A NON-CONVERGED CASE IMPERSONATED A
+    DISCRETISATION FAILURE.  The fine constant-flux case reached endTime 6000
+    with its temperature field still moving by 4.081 K between iterations 5000
+    and 6000, while the coarse and medium cases were BIT-IDENTICAL across the
+    same interval.  Graded as if converged, it put Nu at 4.622 against a true
+    4.364 and turned the grid triple OSCILLATORY -- a verdict about the mesh
+    that was really a verdict about the iteration count.
+
+    Residuals alone would not have caught it cleanly: the solver's own
+    residualControl never tripped on ANY of the six cases, and the reported T
+    residual on the offending case was a merely unremarkable 4e-05.  Comparing
+    the written fields is the direct test.
+
+    It is only possible because writeInterval is strictly less than endTime.
+    The durability fix from LESSONS.md L-140 -- made after a crash destroyed a
+    whole run -- is what leaves two checkpoints on disk to compare.
+    """
+    ts = sorted((d for d in os.listdir(case_dir)
+                 if re.fullmatch(r"\d+(\.\d+)?", d) and float(d) != 0.0),
+                key=float)
+    if len(ts) < 2:
+        return dict(state="UNJUDGED",
+                    why=f"only {len(ts)} checkpoint(s) on disk; need two")
+    a = read_internal(os.path.join(case_dir, ts[-2], field))
+    b = read_internal(os.path.join(case_dir, ts[-1], field))
+    if len(a) != len(b):
+        return dict(state="UNJUDGED", why="checkpoint sizes differ")
+    dmax = max(abs(x - y) for x, y in zip(a, b))
+    rng = max(b) - min(b)
+    rel = dmax / rng if rng > 0 else 0.0
+    return dict(state="CONVERGED" if rel <= tol else "NOT_CONVERGED",
+                max_change=dmax, field_range=rng, relative=rel,
+                between=(ts[-2], ts[-1]), tol=tol)
+
+
 def measure(case_dir, sample_xD):
     """Nu at a given x/D, plus f.Re from the fully developed pressure gradient."""
     t = latest_time(case_dir)
@@ -130,7 +247,10 @@ def measure(case_dir, sample_xD):
     U = read_internal(os.path.join(case_dir, t, "U"), vector=True)
     P = read_internal(os.path.join(case_dir, t, "p_rgh"))
 
-    D = float(case_txt(case_dir, "D").split()[0])
+    D_nominal = float(case_txt(case_dir, "D").split()[0])
+    # the wall is where the MESH puts it, not where the nominal diameter does
+    R_wall = wall_radius(case_dir)
+    D = 2.0 * R_wall
     Lp = float(case_txt(case_dir, "L").split()[0])
     Ub = float(case_txt(case_dir, "U").split()[0])
     wall_kind = case_txt(case_dir, "wall_condition")
@@ -151,14 +271,20 @@ def measure(case_dir, sample_xD):
     den = sum(U[i][0] * V[i] for i in idx)
     T_bulk = num / den
 
-    # wall temperature and wall-normal gradient at this station
-    Tw_patch = read_patch(os.path.join(case_dir, t, "T"), "wall")
-    if Tw_patch is None:
-        refuse(f"REFUSE: no wall patch values for T in {case_dir}")
+    # wall temperature and wall-normal gradient at this station.
+    #
+    # A DEAD PRECONDITION WAS REMOVED HERE, AND IT BLOCKED A WHOLE ARM.
+    # This function used to read the wall patch and refuse when it came back
+    # empty -- then never use the value.  ESI v2606 writes a fixedGradient
+    # patch as `type fixedGradient; gradient uniform 500;` with NO `value`
+    # entry, so the check was structurally unsatisfiable for the ENTIRE
+    # constant-flux arm, which never reached grading.  Both branches below take
+    # the wall temperature from CASE.txt, not from the patch.  A gate on a
+    # quantity the code discards is not a safeguard, it is an outage.
     # the near-wall cell at this station
     iw = max(idx, key=lambda i: Cy[i])
     r_near = Cy[iw]
-    h = (D / 2.0) - r_near
+    h = R_wall - r_near
     if wall_kind == "fixedFlux":
         grad = float(case_txt(case_dir, "dTdn_wall").split()[0])
         Tw = T[iw] + grad * h
@@ -166,6 +292,13 @@ def measure(case_dir, sample_xD):
         Tw = float(case_txt(case_dir, "T_wall").split()[0])
         grad = (Tw - T[iw]) / h
     Nu = D * abs(grad) / abs(Tw - T_bulk)
+    # THE DRIVING DIFFERENCE, CARRIED OUT SO A CALLER CAN REFUSE ON IT.
+    # Nu is a ratio whose numerator and denominator BOTH vanish as the bulk
+    # temperature approaches the wall temperature, so a station deep in the
+    # thermally saturated region returns round-off dressed as a Nusselt number.
+    T_in = float(case_txt(case_dir, "T_in").split()[0])
+    driving = abs(Tw - T_bulk)
+    driving_frac = driving / abs(Tw - T_in) if Tw != T_in else float("nan")
 
     # f.Re from the pressure gradient over the fully developed stretch
     def p_at(xv):
@@ -178,6 +311,8 @@ def measure(case_dir, sample_xD):
     Re = Ub * D / nu
     f = -dpdx * D / (0.5 * Ub ** 2)
     return dict(Nu=Nu, T_bulk=T_bulk, T_wall=Tw, grad_wall=grad,
+                R_wall=R_wall, D_nominal=D_nominal, D_used=D,
+                driving_dT=driving, driving_fraction=driving_frac,
                 sample_x=xsel, sample_xD=xsel / D, n_cells_station=len(idx),
                 f=f, fRe=f * Re, Re=Re, dpdx=dpdx, time=t,
                 near_wall_r=r_near, near_wall_h=h)
@@ -220,8 +355,78 @@ def main():
 
     for arm, a in sorted(ARMS.items()):
         ref = NU_TS if arm == "Ts" else NU_Q
-        m = {l: measure(os.path.join(HERE, a["cases"][l]), 40.0) for l in LEVELS}
+        if arm == "Ts":
+            station, lo, hi = amended_station(100.0, 0.71, NU_TS)
+            if station is None:
+                refuse("REFUSE: no admissible constant-Ts station exists between "
+                       f"{lo:.2f} and {hi:.2f} D; the case design cannot be graded.")
+            print(f"\n[AMENDED, disclosed] constant-Ts station derived from theory:"
+                  f" admissible window x/D = [{lo:.2f}, {hi:.2f}], sampling at"
+                  f" {station:.3f} D.  The registered 40 D station is graded too,"
+                  f" below.")
+        else:
+            station = REGISTERED_STATION
+        m = {l: measure(os.path.join(HERE, a["cases"][l]), station)
+             for l in LEVELS}
         out["arms"][arm] = {l: m[l] for l in LEVELS}
+        out["arms"][arm]["station_xD"] = station
+
+        # ITERATIVE CONVERGENCE GATE, BEFORE ANY GRID CLAIM IS MADE.
+        # A grid triple only means something if every level has converged; one
+        # unconverged level makes the observed order a statement about iteration
+        # counts wearing the clothes of a statement about the mesh.
+        conv_it = {l: iterative_convergence(os.path.join(HERE, a["cases"][l]))
+                   for l in LEVELS}
+        out["arms"][arm]["iterative_convergence"] = conv_it
+        bad = [l for l in LEVELS if conv_it[l]["state"] != "CONVERGED"]
+        if bad:
+            for l in bad:
+                c = conv_it[l]
+                print(f"    level {l}: {c['state']} -- T moved "
+                      f"{c.get('max_change', float('nan')):.4g} K between "
+                      f"{c.get('between')}")
+            out["rows"].append(dict(row=f"L{tag}", arm=arm, quantity="Nu",
+                                    reference=ref, value=m["f"]["Nu"],
+                                    station_xD=station,
+                                    unconverged_levels=bad,
+                                    iterative_convergence=conv_it,
+                                    verdict="NOT A RESULT",
+                                    why="levels " + ",".join(bad) +
+                                        " had not converged iteratively; no grid "
+                                        "claim can be made from this triple"))
+            print(f"    ROW L{tag}: NOT A RESULT -- levels {bad} not converged")
+            tag += 1
+            continue
+
+        # SATURATION GUARD -- CONSTANT-Ts ONLY, and the restriction is the point.
+        # A constant-Ts station where the driving difference has collapsed
+        # returns round-off, not a Nusselt number.  A constant-FLUX station never
+        # can: there Tw - Tb is CONSTANT down the fully developed pipe, and the
+        # ratio to the inlet difference shrinks only because the whole fluid
+        # heats up, which is ordinary and harmless.
+        #
+        # Applied to both arms, this guard killed the constant-flux arm outright
+        # at a driving fraction of 0.089 while its wall-to-bulk difference was
+        # perfectly healthy -- a guard firing on the physics it was not written
+        # for, which is the same shape of defect as the dead precondition
+        # removed above: a check that blocks an arm it cannot actually judge.
+        sat = ([l for l in LEVELS if m[l]["driving_fraction"] < SATURATION_FLOOR]
+               if arm == "Ts" else [])
+        if sat:
+            out["rows"].append(dict(row=f"L{tag}", arm=arm, quantity="Nu",
+                                    reference=ref, value=m["f"]["Nu"],
+                                    station_xD=station,
+                                    driving_fraction=m["f"]["driving_fraction"],
+                                    verdict="NOT A RESULT",
+                                    why="the driving temperature difference has "
+                                        f"decayed to {m['f']['driving_fraction']:.2e} "
+                                        f"of its inlet value, below the "
+                                        f"{SATURATION_FLOOR} floor; Nu here is a "
+                                        "ratio of two vanishing quantities"))
+            print(f"    ROW L{tag}: NOT A RESULT -- thermally saturated "
+                  f"(driving difference {m['f']['driving_fraction']:.2e} of inlet)")
+            tag += 1
+            continue
         conv = gci(m["c"]["Nu"], m["m"]["Nu"], m["f"]["Nu"])
         print(f"\n### {a['label']}   reference Nu = {ref:.7f}")
         for l in LEVELS:
@@ -267,6 +472,29 @@ def main():
               f", band {fband if fband is None else round(fband,4)} "
               f"({fconv['state']})")
         tag += 1
+
+    # ---- the originally registered constant-Ts station, kept and graded -----
+    # NOT DELETED.  An amendment that quietly drops the station it replaces
+    # hides the error it was made for.
+    mreg = {l: measure(os.path.join(HERE, ARMS["Ts"]["cases"][l]),
+                       REGISTERED_STATION) for l in LEVELS}
+    creg = gci(mreg["c"]["Nu"], mreg["m"]["Nu"], mreg["f"]["Nu"])
+    out["rows"].append(dict(row=f"L{tag}", arm="Ts_as_registered",
+                            quantity="Nu", reference=NU_TS,
+                            value=mreg["f"]["Nu"],
+                            station_xD=REGISTERED_STATION,
+                            driving_fraction=mreg["f"]["driving_fraction"],
+                            convergence=creg["state"],
+                            verdict="NOT A RESULT",
+                            why="the station registered in the pre-registration "
+                                "lies in the thermally saturated region"))
+    print(f"\nROW L{tag} [as originally registered, x/D = {REGISTERED_STATION:.0f}]:"
+          f" Nu = {mreg['f']['Nu']:.6f} vs {NU_TS:.6f}, "
+          f"driving difference {mreg['f']['driving_fraction']:.2e} of inlet, "
+          f"grid triple {creg['state']}")
+    print("     NOT A RESULT.  Kept and reported rather than deleted: this is "
+          "the row the amendment was made for.")
+    tag += 1
 
     # ---- controls, each of which MUST fail if the rung is sound -------------
     # C1: sampled INSIDE the thermal entry length.
