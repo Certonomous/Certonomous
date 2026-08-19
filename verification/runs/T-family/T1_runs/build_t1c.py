@@ -187,8 +187,20 @@ Prt             0.85;
 """
 
 
-def momentum_transport():
-    return header("dictionary", "momentumTransport", "constant") + """
+def turbulence_properties():
+    # THE DICTIONARY NAME IS FORK-SPECIFIC AND THE FIRST BUILD GOT IT WRONG.
+    # `constant/momentumTransport` is the OpenFOAM Foundation (.org) name; the
+    # solver installed here is ESI OpenFOAM v2606, which reads
+    # `constant/turbulenceProperties` and dies at "Creating turbulence model"
+    # without it.  All six cases failed identically at startup, before any
+    # iteration, on the first build.
+    #
+    # Checked against this lab's OWN working cases rather than against a memory
+    # of which fork uses which name: K0cT/T_hi_c and the K0cG cases running at
+    # the time both carry constant/turbulenceProperties, as does the shipped
+    # buoyantBoussinesqSimpleFoam/hotRoom tutorial.  For a laminar run the ESI
+    # form is the bare `simulationType laminar;` with no sub-dictionary.
+    return header("dictionary", "turbulenceProperties", "constant") + """
 simulationType  laminar;
 """
 
@@ -319,7 +331,7 @@ def main():
         w("system/fvSchemes", fv_schemes())
         w("system/fvSolution", fv_solution())
         w("constant/transportProperties", transport())
-        w("constant/momentumTransport", momentum_transport())
+        w("constant/turbulenceProperties", turbulence_properties())
         w("constant/g", gravity())
         w("0.orig/U", field_U())
         w("0.orig/p_rgh", field_p())
