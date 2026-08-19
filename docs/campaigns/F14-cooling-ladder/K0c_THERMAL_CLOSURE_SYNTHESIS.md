@@ -1140,3 +1140,70 @@ rather than one of several.
 **X2 says nothing about the heat-flux closure**, which is the other half. The
 section 8 rows that bear on it are X4 arm (b), X5 and X7, and X7 has since
 reported (addendum 1 §A4).
+
+---
+
+## Dated addendum 3, 2026-08-19 01:00Z — X3 reported, and the central split now leans
+
+**Nothing above is edited.** W-4. `K0cR_RESULTS.md`, D423.
+
+**VERDICT: WORSE** by X3's own registered rule. `SSG` moved hot-wall Nusselt
+from +17.15 % to **+31.30 %** and +20.55 % to **+31.52 %** on the square cavity,
+and from +26.98 % to **+59.90 %** and +29.92 % to **+59.44 %** on the tall —
+roughly **doubling** the tall cavity's heat-transfer error.
+
+**And in the same solves the velocity field improved sharply.** Tall-cavity peak
+velocity went from **-29.67 % FAIL to -10.64 % PASS** and from **-30.06 % to
+-10.53 %**, **+19 points and into band**, on a row the laminar control fails —
+so the pass carries evidence under §2c.
+
+### What section 8 got right, and what it got wrong
+
+**Right:** X3 was the most informative experiment on the list, and section 8's
+decisive outcome was named correctly — *"velocity improving while the Nusselt
+error stays."*
+
+**Wrong:** it registered the thermal error as **inert** under a stress-side
+change. It was not inert. It was actively made worse, by more than the change
+that improved the velocity. **Registering four outcomes and meeting a fifth is a
+defect in the pre-registration, and the rung recorded it as one** rather than
+reporting whichever registered branch read best.
+
+### The reading, stated as narrowly as the evidence allows
+
+**A change that touched only the stress closure moved the momentum field toward
+the experiment and the thermal field away from it.** `SSG` replaces the
+tensorial stress form and keeps `alphat = nut/Prt` with the same constant `Prt`.
+
+**That is the strongest evidence this document now holds that the residual
+defect is on the heat-flux side**, and it is indirect: no heat-flux closure was
+varied. It bounds the stress closure's role rather than measuring the heat
+flux's.
+
+**The obvious mechanism is refuted by the measurement itself.** On the square
+cavity the peak `nu_t/nu` **fell 18-21 %** while the wall heat flux **rose 11-14
+points** — opposite directions — so the heat flux is not tracking the bulk
+eddy-viscosity level, and **no mechanism is claimed.** The near-wall `alphat`
+distribution was not instrumented, and that diagnostic is owed before the
+heat-flux experiments run.
+
+### Where this leaves the list
+
+| # | State |
+| --- | --- |
+| **X2** | DONE. SMALL. Anisotropy route ruled out; group-C reading survived |
+| **X3** | DONE. WORSE, with the velocity/thermal decoupling above |
+| **X7** | DONE at $0 |
+| **X4 arm (a)**, tall half | DONE inside `K0cX` |
+| **X4 arm (b)**, **X5** | **now the priority.** Both instrument the heat-flux closure directly, which is the side the evidence leans toward |
+| X1, X8 | open; X1's registered outcomes were narrowed by `K0cX` (addendum 1 §A3) |
+| X6 | parked; paywalled and outside the compute authorisation |
+
+**Owed before X4 arm (b) or X5 runs:** a near-wall `alphat` and turbulent
+heat-flux diagnostic on both models. Neither comparator carries it, and section
+4 of `K0cR_RESULTS.md` is the reason it is needed.
+
+**Three of the eight experiments have now reported. Two of them refuted a
+prediction this document registered, and the third refuted a claim this document
+made about a fourth. Nothing here was submitted, sent, filed, uploaded or
+registered. Submissions remain PARKED.**
