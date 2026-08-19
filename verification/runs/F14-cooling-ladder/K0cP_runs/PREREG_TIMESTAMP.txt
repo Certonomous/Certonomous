@@ -1,0 +1,6 @@
+pre-registration commit   4d4f9e782d1dad66003ea3f22227c08848d28a45
+committed_utc             2026-08-19T01:05:41Z
+first_graded_solve_utc    2026-08-19T01:06:11Z
+pilot                     none. This rung changes one dictionary scalar on a
+                          case class already solved four times, so nothing
+                          needed establishing before it ran.
