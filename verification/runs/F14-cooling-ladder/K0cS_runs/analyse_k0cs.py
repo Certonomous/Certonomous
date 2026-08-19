@@ -45,6 +45,26 @@ def _find_up(relpath):
 
 
 SPEC = _find_up("docs/campaigns/F14-cooling-ladder/K0cS_SQUARE_CAVITY_GATE.md")
+
+# ---------------------------------------------------------------------------
+# G9 (Vpeak_X) DOES NOT DISCRIMINATE, AND IS FLAGGED IN PLACE RATHER THAN
+# REMOVED.  Charter 2c: a graded row must separate the hypothesis from a
+# registered trivial baseline.  G9 does not -- scripts/check_row_discrimination
+# reports it D1-HOLLOW-PASS on every arm, and the arithmetic is plain: the band
+# is +/- 0.005 m about a reference 0.00667 m from the wall, so the tolerance is
+# 75 % of the measurand, and C1_laminar -- a LAMINAR solution of a turbulent
+# flow -- sits 0.00025 m from the reference and passes.  All ten cases pass.
+#
+# WHY IT IS FLAGGED AND NOT MOVED, WHICH DIFFERS FROM K0cT DELIBERATELY.
+# K0cS's graded_rows is a PUBLISHED INTERFACE: analyse_k0cg, analyse_k0cr and
+# analyse_k0cp each build their reference-and-band dictionary from it, and
+# analyse_k0cr grades its own Vpeak_X row against the entry found here.  Those
+# three comparators are FROZEN and belong to rungs that have already reported.
+# Removing the row would silently change what a frozen comparator reads; adding
+# a key cannot, because each of them copies the fields it names and ignores the
+# rest.  The row therefore stays exactly where its consumers look, carries
+# discriminating=False, and is excluded from THIS rung's tally and verdict.
+NON_DISCRIMINATING_ROWS = ("G9",)
 FOAM_BASHRC = os.environ.get("FOAM_BASHRC",
                              "/usr/lib/openfoam/openfoam2606/etc/bashrc")
 
@@ -467,7 +487,8 @@ def main():
                 row=tag, model=model, quantity=q, reference=ref,
                 coarse=cv, solved=sv, deviation=dev, band=spec["band"],
                 unit=spec["unit"], kind=spec["kind"],
-                verdict="PASS" if dev <= spec["band"] else "GATE FAIL"))
+                verdict="PASS" if dev <= spec["band"] else "GATE FAIL",
+                discriminating=tag not in NON_DISCRIMINATING_ROWS))
 
     # mutation control: every row must be flippable both ways
     mut = []
@@ -503,8 +524,9 @@ def main():
                    f"Nu {cases[fine]['convergence'].get('Nu_pct', float('nan')):.4f} %, "
                    f"V {cases[fine]['convergence'].get('V_pct', float('nan')):.4f} %.", ""]
             continue
-        nf = len([g for g in rs if g["verdict"] != "PASS"])
-        tl += [f"## {model} -- {nf} of {len(rs)} rows GATE FAIL", "",
+        gr = [g for g in rs if g["discriminating"]]
+        nf = len([g for g in gr if g["verdict"] != "PASS"])
+        tl += [f"## {model} -- {nf} of {len(gr)} rows GATE FAIL", "",
                "| row | quantity | reference | coarse | **fine** | deviation | band | verdict |",
                "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |"]
         for g in sorted(rs, key=lambda z: int(z["row"][1:])):
@@ -539,8 +561,12 @@ def main():
     with open(os.path.join(HERE, "gate_k0cs.json"), "w") as fh:
         json.dump(out, fh, indent=1, default=str)
 
-    fails = [g for g in graded if g["verdict"] != "PASS"]
-    print(f"graded rows: {len(graded)}   GATE FAIL: {len(fails)}")
+    discriminating = [g for g in graded if g["discriminating"]]
+    hollow = [g for g in graded if not g["discriminating"]]
+    fails = [g for g in discriminating if g["verdict"] != "PASS"]
+    print(f"graded rows: {len(discriminating)}   GATE FAIL: {len(fails)}"
+          f"   (+{len(hollow)} reported, never graded: "
+          f"{', '.join(sorted({g['row'] for g in hollow}))})")
     print(f"convergence refusals: {refused}")
     print(f"every row reachable both ways: {reachable}")
     for model in PAIRS:

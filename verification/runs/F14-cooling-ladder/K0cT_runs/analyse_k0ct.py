@@ -743,6 +743,33 @@ def heat_balance(case, Nu_hot_path1):
 # grading
 # ===========================================================================
 
+# ---------------------------------------------------------------------------
+# RETIRED FROM GRADING, 2026-08-19.  Charter 2c: a graded row must separate the
+# hypothesis from a registered trivial baseline.  These two do not.
+#
+# The band is +/- 5 mm on a cavity 76 mm wide, and the peak it locates sits
+# 4-6 mm from a wall -- so the tolerance is as large as the measurand.  The
+# consequences were checked on disk, not argued:
+#
+#   * the hi-Ra downward band [0.0, 10.0] mm admits 13 of the 20 cells in that
+#     half-width on the coarse mesh (21 of 32 on the fine);
+#   * the lo-Ra upward band [66.2, 76.2] mm has its upper edge OUTSIDE the
+#     76.0 mm cavity, so it cannot be failed from above at all;
+#   * all NINE cases pass both rows -- three turbulence models, both Rayleigh
+#     rungs, the adiabatic variant, the seed perturbation, the Ra perturbation,
+#     AND C1_hi_c_laminar, a LAMINAR solution of a turbulent flow, at
+#     68.765 / 7.235 mm.  Total spread across all nine is 3.46 mm against a
+#     10 mm-wide band.
+#
+# A row that a laminar control passes grades nothing.  These are REPORTED, with
+# their values and bands intact, and excluded from the tally and the verdict.
+# THE OTHER 14 ROWS ARE UNTOUCHED and every one keeps its verdict.
+NON_DISCRIMINATING = (
+    "mid-height peak upward velocity (location)",
+    "mid-height peak downward velocity (location)",
+)
+
+
 def grade_case(rung, meas, ref, bands):
     rows = []
 
@@ -1150,6 +1177,28 @@ def main():
     graded = []
     for rung, coarse, fine in PAIRS:
         graded += grade_case(rung, cases[fine]["measure"], ref, bands)
+
+    # STABLE ROW TAGS, ASSIGNED BEFORE ANY ROW IS RETIRED.
+    #
+    # K0cS already tags its rows (G1..G10) and they survive any change to the
+    # set.  K0cT did not, and scripts/check_row_discrimination.py therefore
+    # derived a tag from the row's POSITION -- f"R{i}" over graded_rows.  A
+    # positional tag is not an identifier: retiring the four location rows
+    # below renumbers every row after them, so a historical citation of
+    # "K0cT R11" would silently come to name a different quantity.  Verified,
+    # not supposed: before the retirement R11 and R13 were the two hi-rung
+    # LOCATION rows; after it the same two tags land on the mid-width
+    # temperature at y/H = 0.50 and the antisymmetry defect.
+    #
+    # Tagging here -- over the FULL list, in the order the rows were built and
+    # before the split -- reproduces the original numbering exactly and freezes
+    # it against every future retirement.
+    for i, r in enumerate(graded):
+        r["row"] = f"R{i}"
+
+    reported_never_graded = [r for r in graded
+                             if r["quantity"] in NON_DISCRIMINATING]
+    graded = [r for r in graded if r["quantity"] not in NON_DISCRIMINATING]
     reachable, mutation = mutate_reachability(cases, ref, bands)
     ctrl = controls(cases, ref, bands, rules, graded, reachable, mutation)
     table = gate_table(graded, cases, ref, bands, PAIRS)
@@ -1167,6 +1216,11 @@ def main():
                               if mk != "Uy_profile"}}
                for k, v in cases.items()},
         graded_rows=graded,
+        reported_never_graded=reported_never_graded,
+        retired_because=("Charter 2c: the +/- 5 mm band is as large as the 4-6 mm "
+                         "wall distance it locates; the lo-Ra upward band's upper "
+                         "edge lies outside the 76 mm cavity; and all nine cases "
+                         "pass, including the laminar control C1_hi_c_laminar."),
         controls=ctrl,
         gate_table_md=table,
         C3_every_row_reachable=reachable,

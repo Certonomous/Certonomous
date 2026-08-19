@@ -347,7 +347,13 @@ def load_k0ct(doc: dict, rung: str):
         if r["rung"] != rung:
             continue
         key, kind = K0CT_MAP[r["quantity"]]
-        rows.append({"row": f"R{i}", "quantity": key, "reference": r["reference"],
+        # PREFER THE ROW'S OWN TAG.  f"R{i}" is positional, so it renames every
+        # row after any retirement and silently re-points historical citations.
+        # Comparators that tag their own rows (K0cS as G1..G10, K0cT as R0..R17
+        # assigned before the split) are authoritative; the positional form is
+        # only a fallback for a document that carries no tag at all.
+        rows.append({"row": r.get("row") or f"R{i}",
+                     "quantity": key, "reference": r["reference"],
                      "band": r["band"], "kind": kind, "role": "GRADE",
                      "label": r["quantity"]})
     arms = {}

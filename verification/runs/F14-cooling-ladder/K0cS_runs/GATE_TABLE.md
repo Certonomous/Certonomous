@@ -4,7 +4,7 @@ Square cavity, Ra 1.58e9, against Ampofo and Karayiannis (2003) and
 Tian and Karayiannis (2000) Part I. Verdict taken on the FINE mesh of
 each two-mesh pair; the coarse value is carried in every row.
 
-## kOmegaSST -- 8 of 10 rows GATE FAIL
+## kOmegaSST -- 8 of 9 rows GATE FAIL
 
 | row | quantity | reference | coarse | **fine** | deviation | band | verdict |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
@@ -19,7 +19,7 @@ each two-mesh pair; the coarse value is carried in every row.
 | G9 | Vpeak_X | 0.00667 | 0.006077 | **0.005702** | 0.001 | 0.005 | **PASS** |
 | G10 | uv_peak | 0.00108 | 0.0004479 | **0.0004714** | 56.348 % | 40.0 % | **GATE FAIL** |
 
-## kEpsilon -- 6 of 10 rows GATE FAIL
+## kEpsilon -- 6 of 9 rows GATE FAIL
 
 | row | quantity | reference | coarse | **fine** | deviation | band | verdict |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |

@@ -723,7 +723,8 @@
    "band": 0.07,
    "unit": "absolute",
    "verdict": "FAIL",
-   "note": "reference indistinguishable from zero within 0.02; the row is a bound"
+   "note": "reference indistinguishable from zero within 0.02; the row is a bound",
+   "row": "R0"
   },
   {
    "rung": "lo",
@@ -734,18 +735,8 @@
    "band": 15.0,
    "unit": "percent",
    "verdict": "FAIL",
-   "note": ""
-  },
-  {
-   "rung": "lo",
-   "quantity": "mid-height peak upward velocity (location)",
-   "reference": 71.2,
-   "solved": 71.003513793,
-   "deviation": 0.19648620700000663,
-   "band": 5.0,
-   "unit": "mm",
-   "verdict": "PASS",
-   "note": ""
+   "note": "",
+   "row": "R1"
   },
   {
    "rung": "lo",
@@ -756,18 +747,8 @@
    "band": 15.0,
    "unit": "percent",
    "verdict": "FAIL",
-   "note": ""
-  },
-  {
-   "rung": "lo",
-   "quantity": "mid-height peak downward velocity (location)",
-   "reference": 6.2,
-   "solved": 4.9964863930000005,
-   "deviation": 1.2035136069999997,
-   "band": 5.0,
-   "unit": "mm",
-   "verdict": "PASS",
-   "note": ""
+   "note": "",
+   "row": "R3"
   },
   {
    "rung": "lo",
@@ -778,7 +759,8 @@
    "band": 1.0,
    "unit": "K",
    "verdict": "FAIL",
-   "note": ""
+   "note": "",
+   "row": "R5"
   },
   {
    "rung": "lo",
@@ -789,7 +771,8 @@
    "band": 1.0,
    "unit": "K",
    "verdict": "PASS",
-   "note": ""
+   "note": "",
+   "row": "R6"
   },
   {
    "rung": "lo",
@@ -800,7 +783,8 @@
    "band": 1.0,
    "unit": "K",
    "verdict": "PASS",
-   "note": ""
+   "note": "",
+   "row": "R7"
   },
   {
    "rung": "lo",
@@ -811,7 +795,8 @@
    "band": 10.0,
    "unit": "percent",
    "verdict": "PASS",
-   "note": "graded on the solve's own defect, not on its difference from the experiment's; the reference column is the experiment's own defect"
+   "note": "graded on the solve's own defect, not on its difference from the experiment's; the reference column is the experiment's own defect",
+   "row": "R8"
   },
   {
    "rung": "hi",
@@ -822,7 +807,8 @@
    "band": 0.05,
    "unit": "absolute",
    "verdict": "FAIL",
-   "note": ""
+   "note": "",
+   "row": "R9"
   },
   {
    "rung": "hi",
@@ -833,18 +819,8 @@
    "band": 15.0,
    "unit": "percent",
    "verdict": "FAIL",
-   "note": ""
-  },
-  {
-   "rung": "hi",
-   "quantity": "mid-height peak upward velocity (location)",
-   "reference": 70.2,
-   "solved": 71.649944156,
-   "deviation": 1.4499441560000008,
-   "band": 5.0,
-   "unit": "mm",
-   "verdict": "PASS",
-   "note": ""
+   "note": "",
+   "row": "R10"
   },
   {
    "rung": "hi",
@@ -855,18 +831,8 @@
    "band": 15.0,
    "unit": "percent",
    "verdict": "FAIL",
-   "note": ""
-  },
-  {
-   "rung": "hi",
-   "quantity": "mid-height peak downward velocity (location)",
-   "reference": 5.0,
-   "solved": 4.350056015,
-   "deviation": 0.6499439850000002,
-   "band": 5.0,
-   "unit": "mm",
-   "verdict": "PASS",
-   "note": ""
+   "note": "",
+   "row": "R12"
   },
   {
    "rung": "hi",
@@ -877,7 +843,8 @@
    "band": 2.0,
    "unit": "K",
    "verdict": "FAIL",
-   "note": ""
+   "note": "",
+   "row": "R14"
   },
   {
    "rung": "hi",
@@ -888,7 +855,8 @@
    "band": 2.0,
    "unit": "K",
    "verdict": "PASS",
-   "note": ""
+   "note": "",
+   "row": "R15"
   },
   {
    "rung": "hi",
@@ -899,7 +867,8 @@
    "band": 2.0,
    "unit": "K",
    "verdict": "PASS",
-   "note": ""
+   "note": "",
+   "row": "R16"
   },
   {
    "rung": "hi",
@@ -910,9 +879,61 @@
    "band": 10.0,
    "unit": "percent",
    "verdict": "PASS",
-   "note": "graded on the solve's own defect, not on its difference from the experiment's; the reference column is the experiment's own defect"
+   "note": "graded on the solve's own defect, not on its difference from the experiment's; the reference column is the experiment's own defect",
+   "row": "R17"
   }
  ],
+ "reported_never_graded": [
+  {
+   "rung": "lo",
+   "quantity": "mid-height peak upward velocity (location)",
+   "reference": 71.2,
+   "solved": 71.003513793,
+   "deviation": 0.19648620700000663,
+   "band": 5.0,
+   "unit": "mm",
+   "verdict": "PASS",
+   "note": "",
+   "row": "R2"
+  },
+  {
+   "rung": "lo",
+   "quantity": "mid-height peak downward velocity (location)",
+   "reference": 6.2,
+   "solved": 4.9964863930000005,
+   "deviation": 1.2035136069999997,
+   "band": 5.0,
+   "unit": "mm",
+   "verdict": "PASS",
+   "note": "",
+   "row": "R4"
+  },
+  {
+   "rung": "hi",
+   "quantity": "mid-height peak upward velocity (location)",
+   "reference": 70.2,
+   "solved": 71.649944156,
+   "deviation": 1.4499441560000008,
+   "band": 5.0,
+   "unit": "mm",
+   "verdict": "PASS",
+   "note": "",
+   "row": "R11"
+  },
+  {
+   "rung": "hi",
+   "quantity": "mid-height peak downward velocity (location)",
+   "reference": 5.0,
+   "solved": 4.350056015,
+   "deviation": 0.6499439850000002,
+   "band": 5.0,
+   "unit": "mm",
+   "verdict": "PASS",
+   "note": "",
+   "row": "R13"
+  }
+ ],
+ "retired_because": "Charter 2c: the +/- 5 mm band is as large as the 4-6 mm wall distance it locates; the lo-Ra upward band's upper edge lies outside the 76 mm cavity; and all nine cases pass, including the laminar control C1_hi_c_laminar.",
  "controls": {
   "C1": {
    "kind": "RECOGNITION",
@@ -1174,7 +1195,7 @@
      "other_rows_that_moved": []
     }
    ],
-   "n_rows": 18
+   "n_rows": 14
   },
   "C4": {
    "kind": "RECOGNITION of a confound",
@@ -1232,7 +1253,7 @@
    "outcome": "FALSIFIED for kOmegaSST: S came out ABOVE the reference, not below, so the missing sink is exonerated as the dominant cause for that model. The two models lack the SAME term and land on OPPOSITE sides of the reference, which is itself the disproof that the shared missing term dominates."
   }
  },
- "gate_table_md": "Reference values and pass bands parsed at run time out of `docs/campaigns/F14-cooling-ladder/K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md`, Sections 2.3 and 2.4, and re-derived independently from the primary ERCOFTAC Case 079 data files in `../reference-data/betts_bokhari/`.  \nReference tier: PRIMARY EXPERIMENTAL DATA (the database's own files; the paper is paywalled and was not read).  \nDeviation is graded on the FINE mesh of the mandatory pair; the COARSE mesh is carried in every row.\n\n| Ra | quantity | reference | coarse mesh | FINE mesh | **deviation** | band | unit | verdict |\n| ---: | --- | ---: | ---: | ---: | ---: | ---: | --- | --- |\n| 0.86e6 | core stratification S (bound) | 0 | 0.2287 | 0.2209 | **0.2209** | 0.07 | absolute | FAIL |\n| 0.86e6 | mid-height peak upward velocity (magnitude) | 0.14 | 0.1631 | 0.1623 | **15.9352** | 15 | percent | FAIL |\n| 0.86e6 | mid-height peak upward velocity (location) | 71.2 | 71.2925 | 71.0035 | **0.1965** | 5 | mm | PASS |\n| 0.86e6 | mid-height peak downward velocity (magnitude) | -0.135 | -0.1631 | -0.1623 | **20.2253** | 15 | percent | FAIL |\n| 0.86e6 | mid-height peak downward velocity (location) | 6.2 | 4.7075 | 4.9965 | **1.2035** | 5 | mm | PASS |\n| 0.86e6 | mid-width temperature at y/H = 0.30 | 25.07 | 23.8308 | 23.8623 | **1.2077** | 1 | K | FAIL |\n| 0.86e6 | mid-width temperature at y/H = 0.50 | 25.26 | 24.7704 | 24.7703 | **0.4897** | 1 | K | PASS |\n| 0.86e6 | mid-width temperature at y/H = 0.70 | 25.39 | 25.7090 | 25.6771 | **0.2871** | 1 | K | PASS |\n| 0.86e6 | antisymmetry defect of the two peaks | 3.6 | 0.0026 | 0.0032 | **0.0032** | 10 | percent | PASS |\n| 1.43e6 | core stratification S | 0.095 | 0.2428 | 0.2353 | **0.1403** | 0.05 | absolute | FAIL |\n| 1.43e6 | mid-height peak upward velocity (magnitude) | 0.19 | 0.2226 | 0.2211 | **16.3758** | 15 | percent | FAIL |\n| 1.43e6 | mid-height peak upward velocity (location) | 70.2 | 71.2925 | 71.6499 | **1.4499** | 5 | mm | PASS |\n| 1.43e6 | mid-height peak downward velocity (magnitude) | -0.189 | -0.2227 | -0.2211 | **16.9980** | 15 | percent | FAIL |\n| 1.43e6 | mid-height peak downward velocity (location) | 5 | 4.7075 | 4.3501 | **0.6499** | 5 | mm | PASS |\n| 1.43e6 | mid-width temperature at y/H = 0.30 | 34.58 | 32.4863 | 32.5511 | **2.0289** | 2 | K | FAIL |\n| 1.43e6 | mid-width temperature at y/H = 0.50 | 34.74 | 34.5099 | 34.5132 | **0.2268** | 2 | K | PASS |\n| 1.43e6 | mid-width temperature at y/H = 0.70 | 36.02 | 36.5391 | 36.4808 | **0.4608** | 2 | K | PASS |\n| 1.43e6 | antisymmetry defect of the two peaks | 0.5 | 0.0748 | 0.0055 | **0.0055** | 10 | percent | PASS |\n\n**GATE FAIL** -- 8 of 18 graded rows failed.",
+ "gate_table_md": "Reference values and pass bands parsed at run time out of `docs/campaigns/F14-cooling-ladder/K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md`, Sections 2.3 and 2.4, and re-derived independently from the primary ERCOFTAC Case 079 data files in `../reference-data/betts_bokhari/`.  \nReference tier: PRIMARY EXPERIMENTAL DATA (the database's own files; the paper is paywalled and was not read).  \nDeviation is graded on the FINE mesh of the mandatory pair; the COARSE mesh is carried in every row.\n\n| Ra | quantity | reference | coarse mesh | FINE mesh | **deviation** | band | unit | verdict |\n| ---: | --- | ---: | ---: | ---: | ---: | ---: | --- | --- |\n| 0.86e6 | core stratification S (bound) | 0 | 0.2287 | 0.2209 | **0.2209** | 0.07 | absolute | FAIL |\n| 0.86e6 | mid-height peak upward velocity (magnitude) | 0.14 | 0.1631 | 0.1623 | **15.9352** | 15 | percent | FAIL |\n| 0.86e6 | mid-height peak downward velocity (magnitude) | -0.135 | -0.1631 | -0.1623 | **20.2253** | 15 | percent | FAIL |\n| 0.86e6 | mid-width temperature at y/H = 0.30 | 25.07 | 23.8308 | 23.8623 | **1.2077** | 1 | K | FAIL |\n| 0.86e6 | mid-width temperature at y/H = 0.50 | 25.26 | 24.7704 | 24.7703 | **0.4897** | 1 | K | PASS |\n| 0.86e6 | mid-width temperature at y/H = 0.70 | 25.39 | 25.7090 | 25.6771 | **0.2871** | 1 | K | PASS |\n| 0.86e6 | antisymmetry defect of the two peaks | 3.6 | 0.0026 | 0.0032 | **0.0032** | 10 | percent | PASS |\n| 1.43e6 | core stratification S | 0.095 | 0.2428 | 0.2353 | **0.1403** | 0.05 | absolute | FAIL |\n| 1.43e6 | mid-height peak upward velocity (magnitude) | 0.19 | 0.2226 | 0.2211 | **16.3758** | 15 | percent | FAIL |\n| 1.43e6 | mid-height peak downward velocity (magnitude) | -0.189 | -0.2227 | -0.2211 | **16.9980** | 15 | percent | FAIL |\n| 1.43e6 | mid-width temperature at y/H = 0.30 | 34.58 | 32.4863 | 32.5511 | **2.0289** | 2 | K | FAIL |\n| 1.43e6 | mid-width temperature at y/H = 0.50 | 34.74 | 34.5099 | 34.5132 | **0.2268** | 2 | K | PASS |\n| 1.43e6 | mid-width temperature at y/H = 0.70 | 36.02 | 36.5391 | 36.4808 | **0.4608** | 2 | K | PASS |\n| 1.43e6 | antisymmetry defect of the two peaks | 0.5 | 0.0748 | 0.0055 | **0.0055** | 10 | percent | PASS |\n\n**GATE FAIL** -- 8 of 14 graded rows failed.",
  "C3_every_row_reachable": true,
  "C3_mutation": [
   {
