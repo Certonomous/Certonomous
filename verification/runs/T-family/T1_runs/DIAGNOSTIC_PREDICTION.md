@@ -74,3 +74,126 @@ plausible one.
 0.0301 % band whatever the cause turns out to be, and these two cases are
 **diagnostic, not graded** — they have no registered band and cannot pass or
 fail. Explaining a failure is not the same as excusing it.
+
+---
+
+# RESULTS, 2026-08-19 evening
+
+Both cases ran to `endTime` 30000, `rc = 0`, and are **byte-identical between
+checkpoints 28000 and 30000** — with the zero controlled by a **planted
+1.234e-03 K perturbation** recovered exactly, not trusted. Neither is void on
+convergence grounds.
+
+| case | change | Pe | Nu | excess over 48/11 | vs baseline |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `L_q_f` baseline | — | 71 | 4.365298 | **+0.0381 %** | — |
+| `D_Pe` | `Pr` → 2.84 | **284** | 4.366688 | **+0.0699 %** | **1.84×** |
+| `D_wedge` | wedge → 1° | 71 | 4.365298 | **+0.0381 %** | **1.000×** |
+
+## B — the wedge chord: REFUTED, decisively
+
+**Predicted a 25-fold reduction. Measured no change whatsoever.**
+
+`Nu` = **4.365297870135518** baseline against **4.365297870133508** at a fifth of
+the wedge angle — **identical to 12 significant figures**, with `f·Re` identical
+to 9. **And the mesh genuinely changed**: `R_wall` 0.00999048 → 0.00999962,
+`D_used`, near-wall spacing, `T_bulk` and `T_wall` all differ, and the wedge
+patch angle reads 0.5° per patch against the baseline's 2.5°.
+
+**The conclusion is stronger than "the wedge is not the cause".** An OpenFOAM
+wedge is an **exact axisymmetric discretisation, not a chord approximation of a
+3D sector**, so the solution is self-similar in `r/R_wall` and the wedge angle
+cannot enter a dimensionless result at all. **This also retroactively confirms
+the T1c fix**: reading `R_wall` from the mesh absorbed the entire geometric
+effect, and there is nothing left over.
+
+## A — axial conduction: NOT TESTED. The test was confounded, and the design error is mine.
+
+**Predicted a 16-fold reduction. Measured a 1.84-fold INCREASE.** That is not a
+refutation, because **the comparison does not isolate what it claimed to.**
+
+The registered design argued `Pr` was a clean lever because raising it at fixed
+`Re` **leaves the momentum solution untouched.** It does. **But leaving the
+momentum field untouched is not the same as leaving the THERMAL RESOLUTION
+untouched.** The thermal boundary layer scales as `Pr^(-1/3)`, so at `Pr` = 2.84
+it is **1.59× thinner**, and T1c's radial mesh is **uniform** — `simpleGrading
+(1 1 1)`, no wall clustering at all. A thinner thermal layer is therefore
+resolved by proportionally fewer cells and **the fine-mesh discretisation error
+grows.**
+
+**A single-mesh comparison mixes the physical term with a changed discretisation
+error and cannot decide between them.** The registered prediction compared
+`D_Pe`'s single-mesh excess against the baseline's **Richardson-extrapolated**
+excess of +0.0748 % — **comparing a value contaminated by discretisation against
+one with discretisation removed.** That is not a like-for-like test and should
+not have been registered as one.
+
+**The repair, which needs no re-solve of `D_Pe`:** `D_Pe_c` and `D_Pe_m` give the
+`Pr` = 2.84 arm its own three-level ladder, so its **`h → 0` excess** can be
+compared against the baseline's **`h → 0` excess**. That is the comparison the
+original design should have specified.
+
+## What stands right now
+
+- **The wedge contributes nothing.** Refuted at 12 significant figures.
+- **Axial conduction is untested**, not confirmed and not refuted.
+- **The T1c constant-`Ts` GATE FAIL therefore still has NO identified cause**,
+  and per the falsifying clause registered above, **that is what gets reported
+  until a test that actually isolates a mechanism says otherwise.**
+- **No T1c verdict has moved and none can move on this.**
+
+---
+
+# AMENDED DESIGN, 2026-08-19 evening. Registered before any case was built.
+
+## Two design errors in the original, both mine
+
+**1. `Re` is the clean Péclet lever, not `Pr`, and I had it backwards.** For
+fully developed **laminar** flow the velocity profile is exactly parabolic and the
+constant-`q″` temperature profile shape is **Reynolds-independent in normalised
+coordinates.** Changing `Re` therefore changes the Péclet number and **essentially
+nothing about what the mesh has to resolve.** Changing `Pr` changes the thermal
+layer thickness as `Pr^(-1/3)` — which is exactly the confound that voided the
+first test. **The original reasoning — "raising `Pr` at fixed `Re` leaves the
+momentum solution untouched" — was true and irrelevant.** What had to stay fixed
+was not the momentum field but the resolution demand.
+
+**2. The test suppressed the signal instead of amplifying it.** Raising Pe pushes
+the predicted effect **down toward the discretisation floor**, where it cannot be
+distinguished from numerical noise. **Lowering Pe raises it far above that
+floor.**
+
+## The amended test: a SCALING law, not a before-and-after
+
+If axial conduction is the cause, the excess is `O(1/Pe²)` and must scale as
+such across a sweep. Five points at the finest mesh, `Pr` = 0.71 throughout,
+**`Re` the only quantity changed**:
+
+| `Re` | Pe | `1/Pe²` relative to baseline | predicted excess if axial conduction |
+| ---: | ---: | ---: | ---: |
+| **25** | 17.75 | **16.0×** | **+1.197 %** |
+| 50 | 35.50 | 4.0× | +0.299 % |
+| 100 *(baseline)* | 71.00 | 1.0× | +0.075 % |
+| 200 | 142.00 | 0.25× | +0.019 % |
+| 400 | 284.00 | 0.062× | +0.005 % |
+
+**At `Re` = 25 the predicted excess is +1.20 %, THIRTY TIMES the fine-mesh
+discretisation error of about 0.04 %.** A single mesh suffices to detect a signal
+that large, which is the whole point of amplifying rather than suppressing.
+
+### REGISTERED PREDICTION
+
+**If axial conduction is the cause, a log–log fit of excess against Pe over the
+five points has slope −2**, and the `Re` = 25 point lands near +1.2 %.
+
+**Falsifying outcomes, stated in advance:**
+- **Slope ≈ 0** — the excess does not depend on Péclet at all, so axial
+  conduction is refuted and the cause remains unidentified.
+- **Slope significantly different from −2** — some other Péclet-dependent
+  mechanism, and `1/Pe²` is the wrong form; the fitted slope is then the finding.
+- **The `Re` = 400 point failing its development check** — at `Re` = 400 the
+  hydrodynamic entry length is 20 D against a 40 D station, the tightest margin
+  in the sweep, so `Nu` is measured at **30 D and 40 D** and the point is
+  **discarded** if those disagree by more than the excess being measured.
+
+**Still diagnostic, still not graded. No T1c verdict moves on this.**
