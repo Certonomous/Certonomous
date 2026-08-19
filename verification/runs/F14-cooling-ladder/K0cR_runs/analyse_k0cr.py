@@ -256,7 +256,13 @@ def main():
                    "Y" if r["in_band_baseline"] else "n",
                    ("Y" if r.get("in_band_control") else "n")
                    if "in_band_control" in r else "-",
-                   "" if r.get("pass_carries_evidence", True) else "   <- hollow pass, 2c"))
+                   # DISPLAY ONLY.  A row SSG FAILED is not a hollow pass; the
+                   # annotation belongs to a row SSG passed that the null arm
+                   # passed too.  pass_carries_evidence is False for both, so
+                   # the label must test in_band_ssg as well.
+                   "   <- hollow pass, 2c"
+                   if (r.get("in_band_ssg") and r.get("in_band_control"))
+                   else ""))
     print("-" * 104)
     print("  per geometry: " + ", ".join(f"{k}={v}" for k, v in sorted(per_geom.items())))
     print("  VERDICT: %s" % verdict)
