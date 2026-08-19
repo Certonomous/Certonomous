@@ -6600,3 +6600,68 @@ name-based map would have produced `docs/papers/Paper1.pdf` ->
 verbatim and forwarded, and `scripts/check_paper_citations.py` re-derives the
 pairing from git on every run and fails on a citation that neither resolves nor
 carries a route in its own file.
+
+---
+
+## L-140. `writeInterval == endTime` is not a monitoring choice, it is a decision that any interruption costs the whole run
+
+**2026-08-19. K0cG's two square-cavity cases reached 85 % and 60 % of their
+registered `endTime` and produced nothing at all.** The host went down under them
+at 03:53Z and stayed down about eleven hours. When it returned, each case held
+exactly one time directory: `0`.
+
+The builder had generated
+
+```
+writeControl    timeStep;
+writeInterval   40000;
+purgeWrite      0;
+```
+
+with `endTime 40000`. **One scheduled field write, at the last iteration.**
+
+**The recorded form of this hazard was too narrow and that is the lesson.** This
+campaign already carried a note that a non-`writeInterval` `endTime` writes no
+intermediate fields, filed as a reason **settle watchers go blind** — a
+monitoring inconvenience. **The same line is also a durability property, and in
+that role it is far more expensive: it converts every interruption into a total
+loss rather than a proportional one.** 34 165 iterations of `kOmegaSST` on a
+94 249-cell mesh were unrecoverable not because the solver failed but because
+nothing had been asked to persist. The cost is not the 15 % that remained. It is
+the 85 % that had already been paid for.
+
+**The asymmetry is what makes the default wrong.** Writing 20 checkpoints instead
+of 1 costs a bounded, measurable amount — here about 34 MB per write, capped to
+two retained sets by `purgeWrite 2`, on a filesystem with 345 GB free — and it is
+pure input/output: it cannot enter the discretisation, the schemes, the
+relaxation or the stopping criterion, and it cannot move a solution value.
+**Against that bounded cost sits an unbounded one.** There is no run length at
+which the trade reverses, and the longer the run the worse the default performs.
+
+**A second-order point about who is exposed.** The exposure is worst for exactly
+the runs a lab most wants: long, unattended, overnight. A host's idle detector
+does not necessarily recognise a running solver as activity — recorded here on
+2026-07-30 and demonstrated again by this loss — so the runs least likely to be
+watched are the runs most likely to be interrupted, **and a single-write
+`controlDict` gives them zero tolerance for it.**
+
+**What was done, and the shape of the disclosure.** Two lines per case were
+changed, `writeInterval` to 2000 and `purgeWrite` to 2, and **the claim that
+nothing else changed was verified rather than asserted**: the frozen builder was
+re-run into a scratch tree and diffed recursively against the staged cases, and
+the complete difference set was those two lines, the `blockMesh`-generated
+`constant/polyMesh`, and one self-describing annotation line per `CASE.txt` that
+predated the change. `endTime` stayed at the registered 40 000 and
+`runTimeModifiable` stayed `false`. **An input/output departure from a frozen
+builder is still a departure and is still disclosed** — the argument that it
+cannot move a number is a reason to make the change, never a reason to make it
+quietly.
+
+**What this does not license.** Checkpointing does not make a truncated run
+reportable. K0cG attempt 1 remains **NOT A RESULT**: no case reached `endTime`,
+no completion marker was written, and the surviving per-iteration
+`postProcessing` series are a convergence monitor — the area-normal integral of
+the *molecular* temperature gradient — **not the graded Nusselt row**, which
+needs the `alphaEff` factor read from a written `alphat` field. A checkpoint
+would have preserved a measurable state; it would not have preserved a
+*converged* one, and the two are graded differently.
