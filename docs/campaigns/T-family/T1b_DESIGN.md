@@ -114,6 +114,31 @@ discovered afterwards.**
 
 ---
 
+## 4a. The aspect ratio, recorded rather than waved through
+
+**`checkMesh` reports "Failed 1 mesh checks" on every resolved case**, and the
+failure is high aspect ratio: **3189 at `Re` = 3×10⁵**, 8320 cells affected. Only
+the wall-function meshes pass outright (max AR 64).
+
+**It is inherent to the design, not a defect in it.** A `y⁺ ≈ 1` first cell on a
+100 D pipe is 1.96e-05 m against an axial spacing of 0.03125 m — the ratio is
+what wall resolution on a long domain *means*. The metrics that govern accuracy
+are clean: **non-orthogonality max 0, skewness 0.331** on every case.
+
+**Why it is not hidden behind that reasoning.** The aspect ratio scales with
+Reynolds number — 78 at 10⁴, 593 at 10⁵, 1593 at 3×10⁵ from the first cell alone
+— so **if it degrades the solution it will do so worst exactly where the physics
+is most demanding**, and it would be easy to read that degradation as a model
+error. **Two instruments already catch it**: the observed order from the
+three-level ladder, which falls away from second order if the mesh anisotropy is
+hurting, and the friction row, which is a solver-and-mesh diagnostic independent
+of the thermal closure. **Both are reported per Reynolds number, so a mesh
+problem cannot be quietly absorbed into a Nusselt claim.**
+
+**Radial and axial counts both scale by 1.6 across the ladder, so the aspect
+ratio is approximately CONSTANT between levels** — which is what makes the
+refinement uniform and the observed order meaningful.
+
 ## 5. Carried forward from T1c, because they were paid for once
 
 - **The wall radius is READ from `polyMesh/points`, never taken as `D/2`.** In
