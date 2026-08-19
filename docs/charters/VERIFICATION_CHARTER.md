@@ -1908,3 +1908,64 @@ Per §17a, a rule over-reaches as easily as it under-reaches.
 **The boundary in one question, asked at the moment of the edit:** *could this
 change move a number that a verdict depends on?* If yes, it belongs before the
 first solve. If no, it belongs in the record with a date on it.
+
+---
+
+## 2d.1 Amendment to 2d: the repair exception, forced by the first case the rule was run against (added 2026-08-19)
+
+**Lines whose number changed above this section: 0.**
+
+**2d was written, an instrument was built to enforce it, and the instrument's
+first pass over the lab found a case the rule got wrong.** That sequence is
+recorded rather than tidied, because §17a says a rule over-reaches as easily as
+it under-reaches and this is what the over-reach looked like.
+
+`scripts/check_comparator_freeze.py` classed
+`K0cS_runs/analyse_k0cs.py` as **UNFROZEN**: first committed 17:36:53Z against a
+first completion marker at 17:28:48Z. The change it made after that marker was
+**on the grading path** — `wall_nu` went from an **arithmetic** mean of the local
+Nusselt over wall faces to an **area-weighted** one.
+
+**2d as written forbids that change. The change was correct and necessary.**
+The mesh is graded 117:1 and Ampofo's average Nusselt is an area average, so the
+arithmetic mean weighted the corner cells — where local Nu runs from 136 to 17 —
+about a hundredfold too heavily. **Every Nusselt number in the rung was wrong by
+10-27 percent before the fix** (`K0cS_RESULTS.md` §10). Obeying 2d would have
+meant publishing a knowingly wrong wall integral.
+
+> **A change on the grading path made after the first graded solve is permitted
+> when, and only when, all four hold: (1) it repairs a DEMONSTRABLE ERROR rather
+> than a preference; (2) the error was established by an instrument INDEPENDENT
+> OF THE HYPOTHESIS — one that grades nothing, such as a near-identity, a guard
+> or a control; (3) the record discloses it, names that instrument, and
+> QUANTIFIES WHAT MOVED; and (4) the pre-repair values are recorded beside the
+> published ones. Failing any of the four, 2d stands.**
+
+**Condition (2) is the load-bearing one and the other three are hygiene.** An
+error found by something that grades nothing **cannot have been selected to move
+a verdict in a wanted direction**, because the thing that found it does not know
+which direction that is. K0cS's repair was found by the **heat balance** — a
+near-identity on a sealed cavity, reported and never gated — whose closure sat
+at 2.5-8.4 percent before the fix and **0.0000 percent** after on the fully
+converged cases. That is the shape the exception is cut to fit.
+
+**What the exception still does not permit**, and the contrast is the whole
+point: *the numbers looked wrong, so the band was widened.* A band is not an
+instrument; it is the hypothesis's own scoring rule. **Nothing a verdict depends
+on may be repaired on the authority of the verdict it produces.**
+
+### The instrument's other three findings, since a rule amended by one case should say what the rest looked like
+
+- `K0cX_runs/analyse_k0cx.py`: **UNFROZEN**, first commit 50 seconds after its
+  first marker. Its §11 already discloses the edit and establishes it as
+  additive only, so it is 2d-compliant on the disclosure limb rather than on the
+  freeze limb.
+- `K0b_D403_rerun` and `K0b_D406_repair`: **AMENDED_AFTER** — first committed a
+  day before their runs and touched again afterwards. 2d's boundary clause
+  places W-4 corrections outside this rule, and the check reports that state
+  separately rather than as a violation.
+- `K0cQ_runs` and `K0cR_runs`: **FROZEN**, by +237 s and +422 s.
+
+**Two of six frozen is the honest baseline this rule starts from**, and it is
+recorded here so that later compliance is measured against a number rather than
+an impression.
