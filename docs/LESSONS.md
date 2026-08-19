@@ -6665,3 +6665,65 @@ the *molecular* temperature gradient — **not the graded Nusselt row**, which
 needs the `alphaEff` factor read from a written `alphat` field. A checkpoint
 would have preserved a measurable state; it would not have preserved a
 *converged* one, and the two are graded differently.
+
+---
+
+## L-141. In an axisymmetric wedge case `residualControl` can never be satisfied, so the solver's own convergence criterion is inoperative and something else has to do the job
+
+**2026-08-19. Across two rungs and every case in both — six in T1c, the T1b cases
+as they land — `residualControl` has never once fired.** Not one log contains
+`SIMPLE solution converged`. Every case runs to `endTime`.
+
+**They were not unconverged.** `R_300k_c` finishes with a relative field change of
+**7.3e-11** between its last two checkpoints. `L_q_f` and `L_Ts_f` finish
+**byte-identical** between theirs.
+
+**The cause is one velocity component that does not exist.** In an axisymmetric
+wedge the out-of-plane component is **identically zero by symmetry**, and it is:
+
+| case | `max|Ux|` | `max|Uz|` | ratio |
+| --- | ---: | ---: | ---: |
+| `R_300k_c` | 2.32e+01 | 4.14e-16 | **1.8e-17** |
+| `L_q_f` | 1.50e-01 | 1.68e-17 | **1.1e-16** |
+| `L_Ts_f` | 1.50e-01 | 1.68e-17 | **1.1e-16** |
+
+**Its reported residual, meanwhile, sits at 1e-2 to 1e-1 and never falls** —
+`Uz` initial residual 0.090 in `R_300k_c` while every other field is at 1e-6 to
+1e-9. **The residual is normalised by a reference built from the field itself, so
+for a field that is identically zero the ratio is O(1) noise carrying no
+information at all.**
+
+**`residualControl` takes the maximum over a vector's components, so listing `U`
+makes the criterion permanently unsatisfiable.** Not slow to satisfy —
+**unsatisfiable**, at any `endTime`, on any mesh, for any physics.
+
+### Why this is a lesson and not a curiosity
+
+**It silently converts a convergence criterion into a no-op.** A builder that
+sets `residualControl { U 1e-8; ... }` and an operator who reads "ran to
+`endTime`" as "did not converge" will both be wrong, in opposite directions and
+for the same reason. **I made the second error today**: the T1c fine
+constant-flux case genuinely had *not* converged, and it sat in a set of six that
+had all "failed" to trip `residualControl` — the true signal was invisible
+because the false one was universal. **A criterion that never fires cannot
+distinguish the case that should have failed it.**
+
+### What actually does the job
+
+**Comparing the written fields between the last two checkpoints.** That is the
+only convergence test that worked here, it caught the one genuinely unconverged
+case out of six, and it is now a gate in both comparators.
+
+**And it is only possible because `writeInterval < endTime`** — the durability
+change from **L-140**, made after a crash destroyed an 85 %-complete run. **Two
+independent needs, a crash and a convergence test, are met by the same dictionary
+line, and neither was the reason it was originally written.**
+
+### The practical rule
+
+- **Do not rely on `residualControl` in a wedge case.** Set a generous `endTime`
+  and gate on field comparison.
+- **A zero needs a live planted control.** Every convergence zero reported here
+  was checked by planting a known perturbation — 1.234e-03 K — and confirming the
+  parser recovers it exactly. A zero from a broken reader looks identical to a
+  zero from a converged solution.
