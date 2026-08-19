@@ -164,3 +164,76 @@ that is the difference between it and the aerodynamic side.
   population and states the tiers. This states the capability and the gaps.
 - **Nothing here was submitted, sent, filed, uploaded or registered.**
   Submissions are PARKED.
+
+---
+
+## Dated correction, 2026-08-19 02:20Z — §6 item 1 said this needed a decision outside the compute authorisation. It did not, and it is now done
+
+**Nothing above is edited.** W-4.
+
+**§6 ranked "obtain one forced-convection heat-transfer reference" as the
+highest-value action available and recorded its blocker as "requires a decision
+outside the compute authorisation."** That was wrong in the direction §5 of
+`K0cS_RESULTS.md` warns about and D415 has a name for: **the lab disclaimed a
+reference it could have had for nothing.** The reasoning assumed the class was
+paywalled because the four references already recorded as NOT OBTAINED are.
+**An open route existed and was not looked for.**
+
+### What was obtained
+
+**Bahrami, P. A. (2005). *Heat Transfer on a Flat Plate with Uniform and Step
+Temperature Distributions.* NASA/TM-2005-212841.** US government work, openly
+distributed by NTRS. Tier **READ IN FULL** — full text fetched and read this
+session.
+
+Filed as `docs/papers/forced_convection_heat_transfer/bahrami_2005_nasa_tm_212841.pdf`
+with its `.txt` sidecar, sha256
+`0cd29adb20c0f6c21c07f37f101f0f8d3f3a7f85a81a95abc023da25a66f8be6`.
+**It is the first entry in a topic folder this library did not have.**
+
+### What it carries, quoted rather than summarised
+
+| Item | Value, as printed |
+| --- | --- |
+| Reference correlation, uniform wall temperature | **`St = 0.0296 Re^-0.2 (Pr Tw/T_inf)^-0.4`**, eq. (1) |
+| Stanton definition | `St = q / (Cp_inf rho_inf U_inf dT)` |
+| Free-stream conditions | `U_inf = 19.39 m/s`, `T_inf = 309.4 K`, `rho_inf = 1.185 kg/m3` |
+| Mach, unit Reynolds | `Ma = 0.055`; `Re/x = 1 215 400 m^-1` |
+| Experimental uncertainties (Moretti & Kays) | temperature **3 %**, heat flux **2 %**, velocity **1 %** |
+| Reported model behaviour | SST closest to the Von Karman analogy; `k-omega` higher and Baldwin-Lomax lower, with **"deviations of approximately 10 percent"** |
+
+**The last row matters: this document states in advance roughly how far a
+two-equation model lands from the reference on this flow.** A thermal rung built
+here has a published expectation to be graded against, which no cavity rung had.
+
+### Three limits, stated before the rung is designed
+
+1. **The primary is still NOT OBTAINED.** Moretti & Kays (1965) exists here only
+   as figures inside a secondary. Any use of their data would be a digitisation
+   of a secondary, one tier below the Betts primary files.
+2. **A correlation is not a measurement.** Eq. (1) is an empirical fit. Grading
+   against it is grading against a fit, and the rung must say so.
+3. **The circularity caution, which is the important one.** Eq. (1) is a
+   Colburn-type correlation and sits in the same family as the Reynolds and Von
+   Karman analogies — **and the Reynolds analogy is very close to what a
+   constant-`Prt` gradient-diffusion closure asserts.** Agreement between a
+   `Prt = 0.85` RANS solve and eq. (1) is therefore **partly structural rather
+   than evidential**, and a rung that does not carry this caution would be
+   claiming as validation something it partly assumed. **`Pr^-0.4` in eq. (1)
+   against `Pr^-2/3` in the Colburn analogy is the gap that keeps it from being
+   fully circular**, and that gap is the only part of the comparison that is
+   genuinely a test.
+
+### What this changes
+
+- **§6 item 1 is closed.** The forced-convection class is now referenced.
+- **§0's "no second flow class" and §5's confound argument are unchanged**, and
+  become **actionable**: the lab has runnable TMR flat-plate cases and now has
+  something to grade them against.
+- **§4's last row — "any forced-convection heat-transfer reference: there is
+  none in the library at all" — is superseded** and is left standing above as the
+  state that was true when it was written.
+
+**The rung is NOT built.** What exists is a reference, a set of conditions, an
+uncertainty figure and a published expectation. **Naming that as a capability
+would be the same error in the other direction.**

@@ -1,0 +1,1070 @@
+NASA/TM–2005-212841
+
+Heat Transfer on a Flat Plate with Uniform and Step
+Temperature Distributions
+Parviz A. Bahrami
+
+May 2005
+
+The NASA STI Program Office . . . in Profile
+
+Since its founding, NASA has been dedicated to the
+advancement of aeronautics and space science. The
+NASA Scientific and Technical Information (STI)
+Program Office plays a key part in helping NASA
+maintain this important role.
+The NASA STI Program Office is operated by
+Langley Research Center, the Lead Center for
+NASA’s scientific and technical information. The
+NASA STI Program Office provides access to the
+NASA STI Database, the largest collection of
+aeronautical and space science STI in the world.
+The Program Office is also NASA’s institutional
+mechanism for disseminating the results of its
+research and development activities. These results
+are published by NASA in the NASA STI Report
+Series, which includes the following report types:
+• TECHNICAL PUBLICATION. Reports of
+completed research or a major significant phase
+of research that present the results of NASA
+programs and include extensive data or theoretical analysis. Includes compilations of significant
+scientific and technical data and information
+deemed to be of continuing reference value.
+NASA’s counterpart of peer-reviewed formal
+professional papers but has less stringent
+limitations on manuscript length and extent
+of graphic presentations.
+• TECHNICAL MEMORANDUM. Scientific and
+technical findings that are preliminary or of
+specialized interest, e.g., quick release reports,
+working papers, and bibliographies that contain
+minimal annotation. Does not contain extensive
+analysis.
+• CONTRACTOR REPORT. Scientific and
+technical findings by NASA-sponsored
+contractors and grantees.
+
+• CONFERENCE PUBLICATION. Collected
+papers from scientific and technical conferences, symposia, seminars, or other meetings
+sponsored or cosponsored by NASA.
+• SPECIAL PUBLICATION. Scientific, technical,
+or historical information from NASA programs,
+projects, and missions, often concerned with
+subjects having substantial public interest.
+• TECHNICAL TRANSLATION. Englishlanguage translations of foreign scientific and
+technical material pertinent to NASA’s mission.
+Specialized services that complement the STI
+Program Office’s diverse offerings include creating
+custom thesauri, building customized databases,
+organizing and publishing research results . . . even
+providing videos.
+For more information about the NASA STI
+Program Office, see the following:
+• Access the NASA STI Program Home Page at
+http://www.sti.nasa.gov
+• E-mail your question via the Internet to
+help@sti.nasa.gov
+• Fax your question to the NASA Access Help
+Desk at (301) 621-0134
+• Telephone the NASA Access Help Desk at
+(301) 621-0390
+• Write to:
+NASA Access Help Desk
+NASA Center for AeroSpace Information
+7121 Standard Drive
+Hanover, MD 21076-1320
+
+NASA/TM–2005-212841
+
+Heat Transfer on a Flat Plate with Uniform and Step
+Temperature Distributions
+Parviz A. Bahrami
+Ames Research Center, Moffett Field, California
+
+National Aeronautics and
+Space Administration
+Ames Research Center
+Moffett Field, California 94035-1000
+
+May 2005
+
+Available from:
+NASA Center for AeroSpace Information
+7121 Standard Drive
+Hanover, MD 21076-1320
+(301) 621-0390
+
+National Technical Information Service
+5285 Port Royal Road
+Springfield, VA 22161
+(703) 487-4650
+
+Table of Contents
+Nomenclature.............................................................................................................................................iv
+Abstract.....................................................................................................................................................1
+Introduction................................................................................................................................................1
+Non-Uniform Surface Temperature Correlation..................................................................................................2
+Geometry and Flow Description .....................................................................................................................2
+GASP Code and Turbulent Models..................................................................................................................3
+Description of Grid ......................................................................................................................................3
+Results and Discussion.................................................................................................................................4
+Concluding Remarks....................................................................................................................................5
+References..................................................................................................................................................6
+Figures .....................................................................................................................................................7
+
+iii
+
+Nomenclature
+Cp∞
+
+specific heat of free stream
+
+uτ
+
+friction velocity, (τw / ρw ) 0.5
+
+K
+
+turbulent kinetic energy
+
+U∞
+
+free-stream velocity
+
+k∞
+
+thermal conductivity of free stream
+
+x
+
+kt
+
+turbulent thermal conductivity
+
+stream-wise distance from the plate
+leading edge
+
+l
+
+overall length of the plate
+
+xo
+
+length of uncooled section
+
+Ma
+
+free-stream Mach number
+
+y
+
+distance perpendicular to the plate
+
+Pr
+
+Prandtl number, (Pr = Cp∞ µ∞ / k∞ )
+
+y+
+
+wall-related Reynolds number,
+(ρw uτ y / µw)
+
+Prt
+
+turbulent Prandtl number,
+(Prt = Cp∞ µt / kt )
+
+ε
+
+absolute rate of turbulent dissipation
+
+q
+
+heat flux
+
+ω
+
+Re
+
+Reynolds number, (Re= ρ∞ U∞ x / µ∞ )
+
+specific rate of turbulent dissipation,
+(ε/K )
+
+µ∞
+
+dynamic viscosity
+
+St
+
+Stanton number,
+(St = q / Cp∞ ρ∞ U∞ ∆T)
+
+µt
+
+turbulent dynamic viscosity
+
+T∞
+
+temperature of free stream
+
+ρw
+
+density at the wall
+
+To
+
+stagnation temperature of free stream
+
+ρ∞
+
+free-stream density
+
+Tw
+
+wall temperature
+
+τw
+
+wall shear
+
+Tr
+
+recovery temperature
+
+∆T
+
+free-stream to wall temperature
+difference, (T∞ - Tw )
+
+iv
+
+Heat Transfer on a Flat Plate With Uniform and Step
+Temperature Distributions
+PARVIZ A. BAHRAMI
+Ames Research Center
+
+Abstract
+Heat transfer associated with turbulent flow on a stepheated or cooled section of a flat plate at zero angle of
+attack with an insulated starting section was computationally modeled using the GASP Navier-Stokes code.
+The algebraic eddy viscosity model of Baldwin-Lomax and
+the turbulent two-equation models, the K-ω model and the
+Shear Stress Turbulent model (SST), were employed. The
+variations from uniformity of the imposed experimental
+temperature profile were incorporated in the computations.
+The computations yielded satisfactory agreement with the
+experimental results for all three models. The BaldwinLomax model showed the closest agreement in heat
+transfer, whereas the SST model was higher and the K-ω
+model was yet higher than the experiments. In addition to
+the step temperature distribution case, computations were
+also carried out for a uniformly heated or cooled plate. The
+SST model showed the closest agreement with the Von
+Karman analogy, whereas the K-ω model was higher and
+the Baldwin-Lomax was lower.
+
+Introduction
+Computational fluid dynamics and heat transfer (CFDHT)
+as an effective design tool for aerospace vehicles and
+systems has lead to widespread utilization of and reliance
+on computer solutions in place of laboratory and flight
+tests. When studying complex phenomena, laboratory
+experimentation, apparatus, and instrumentation may also
+be substituted by judicious use of computer experimentation by numerically modeling representative cases.
+Clearly, an integral and crucial element of CFDHT as a
+design tool for accurate simulations of flow field and heat
+transfer is turbulence modeling. CFDHT can be applied
+with confidence to a wide range of problems, provided its
+ability to produce accurate solutions to the actual
+problems under investigation is assessed. This assessment
+is generally referred to as experimental validation, which
+constitutes an impetus for the present research.
+
+Validation of a CFDHT code is not a trivial task. It is
+highly desirable to employ laboratory experimental results
+for validation and calibration of CFDHT codes. The
+picture that emerges from consideration of various
+experimental and computational studies indicates that the
+differences in definitions of Stanton number and the heat
+transfer coefficient, as well as experimental and computational factors, require careful consideration to enable
+precise comparisons. Furthermore, to assess the accuracy
+of the computational results likely obtainable for a
+particular problem under investigation, one should also
+compare the results obtained with selected turbulence
+models for related geometry with available experimental
+data.
+In an important class of problems, non-uniform surfaces
+are encountered in design of modern aerothermodynamic
+vehicles owing to, for example, material discontinuities or
+variations in surface emissivities. The situation may be
+analogous with jumps in surface catalytic efficiency,
+which accompany sudden surges in heat transfer. Computation by point-wise temperature specification for these
+important aerothermal applications may be necessary, for
+example, for cooled wall sections or situations where
+abrupt changes in the thermal conductivity of the wall
+material is encountered due to structural or manufacturing
+considerations.
+The present work is concerned with determination of heat
+transfer through turbulent flow on heated or cooled regions
+of a vehicle’s surface with step-wise wall temperature
+distribution and comparison with the experimental results
+reported in the open literature. In addition to the aforementioned important applications, a wide range of other
+applications can be associated with this study, for
+example, for application to hot spots, or when local
+cooling of portions of a vehicle may be needed because
+they are subjected to high or non-uniform temperature and
+the material limitations of the thermal protection material
+or the structure may necessitate temperature control.
+Thermal control can be employed by external means, for
+example, transpiration or film cooling, or with internal
+conductive or convective heat transfer. Transpiration and
+
+1
+
+film cooling, whereby fluid at a lower temperature than
+the surface is added to the boundary layer, are effective
+means of temperature control. A desirable feature of film
+cooling is that the cooling actually extends some distance
+downstream of the opening. The opening may, therefore,
+be placed where the structure allows it and away from such
+things as optical windows. In other applications it may be
+desirable to avoid employing openings in the vehicle
+walls for the purposes of film or transpiration cooling,
+while producing some of their salient features. In these
+cases portions of the wall may be held at specified
+temperatures. Internal cooling can be achieved in instances
+where the thermal conductivity of the wall material is
+sufficiently high to allow heat transfer to the interior
+region and removal by internal means.
+To assess the accuracy of the computations, the results are
+compared to available experimental data. Moretti and Kays
+(1965) reported heat transfer data for a step distribution in
+wall temperature (ref. 2). A more recent study by Orlando,
+Moffat, and Kays (1974) is concerned with step wall
+temperature distribution, but is limited to a strong adverse
+pressure gradient (ref. 3). Taylor, Love, Coleman, and
+Hosni (1990) presented experimental and computational
+data for incompressible turbulent flow of air with an
+unheated starting length followed by a constant wall heat
+flux length (ref. 4). The experimental data of Moretti and
+Kays (1965) was used in the present study to assess the
+validity and accuracy of the present computations when
+applied to variable wall temperature flow (ref. 2).
+
+St = 0.0296 Re -0.2 (Pr Tw / T∞ ) -0.4
+
+(1)
+
+Heat transfer rates and temperature profiles for flow over a
+flat plate with a stepwise temperature distribution were
+reported by Reynolds, Kays, and Klein (1958) (ref. 6). An
+integral analysis was conducted that allowed calculation of
+heat transfer from a flat plate with a step wall temperature
+distribution. The analysis was in agreement with all
+available data. The data were used in a differential analysis
+that allowed prediction of the temperature profiles. Other
+analyses of varying wall temperature are reported by
+Reynolds, Kays, and Klein (1958) and Kays, W. M., and
+M. E. Crawford (1980) (refs. 7, 9).
+Experimental results of Moretti and Kays (1965) and
+Moretti’s Ph. D. dissertation (1965) are of considerable
+interest to this study (refs. 2, 10). They extend the results
+of Reynolds, Kays, and Klein (1958) (refs. 5–8). The
+results agreed with the momentum integral method of
+Ambrok (1957) (ref. 11). The bulk of Moretti and Kays
+(1965) (ref. 2) experiments pertain to flow conditions with
+various rates of free-stream acceleration, but include an
+important step wall temperature distribution case with
+uniform free-stream conditions (ref. 2). The other reported
+cases are incompressible constant-density flows and
+include variations of longitudinal wall temperature and
+pressure distributions with non-zero rates of free-stream
+acceleration.
+
+Geometry and Flow Description
+Non-Uniform Surface Temperature
+Correlation
+Wall temperature is often variable in practical
+applications, while analyses are often carried out for
+constant wall temperature conditions. A considerable
+amount of work has been reported on heat transfer in
+turbulent boundary layers, but few heat transfer
+measurements have been reported that investigate heat
+transfer with imposed variable wall temperature. A
+comprehensive study of the turbulent flow over a flat plate
+conducted by Reynolds, Kays, and Klein (1958) was
+published in four reports (refs. 5–8). Heat transfer rates,
+velocity profiles, and temperature profiles for turbulent
+incompressible flow of air over a flat plate with a constant
+surface temperature were measured and reported by
+Reynolds, Kays, and Klein (1958) (ref. 5). The turbulent
+heat transfer measurements agreed well with their power
+representation of the Von Karman analogy for turbulent
+incompressible flow of air.
+
+2
+
+Flat plate geometry is fundamental to fluid dynamics, but
+more importantly, heat transfer from a flat plate with a
+step temperature distribution may provide the basis for
+analysis of complex wall temperature distribution
+problems by employment of superposition. For the
+present study, a flat plate geometry with the unheated
+starting length and non-uniform surface heat flux
+conditions was selected. Experimental data in the open
+literature appear to be limited to the experiments of
+Moretti and Kays (1965) (ref. 2), extending the results of
+Reynolds, Kays, and Klein (1958) (refs. 2, 6). They
+pertain to step wall temperature distributions of
+incompressible turbulent flow over a flat plate without
+pressure gradient. In the present computations, the flow
+conditions were chosen to correspond to the conditions
+attained in the laboratory wind tunnel experiments of
+Moretti and Kays (1965) (ref. 2). The flow was uniform
+and parallel to the plate in the free stream, and the
+boundary layer was tripped and fully turbulent.
+
+A schematic diagram of the physical problem under study
+is presented in figure 1. The sketch is a cross-sectional
+view of the configuration. As seen therein, the cooled
+region, enclosed by dashed lines, started at a distance xo
+from the leading edge of the plate and continued in the
+flow direction through the rest of the plate length.
+Figure 1 also contains the dimensional nomenclature, as
+well as the x, y coordinates used to identify the position
+on the computational domain. Although the actual
+dimensions in the computational domain will be indicated
+shortly, it is relevant to note that the results have more
+general applicability when they are expressed in terms of
+dimensionless quantities. The dimensionless quantities,
+which govern the heat transfer results, may be written as
+Stanton number, St, and Reynolds number, Re.
+St = q / Cp∞ ρ∞ U∞ ∆T
+
+(2)
+
+Re = ρ∞ U∞ x / µ∞
+
+(3)
+
+The present computations are for flow of air with the freestream velocity, U∞ = 19.39 m/s, free-stream temperature,
+T∞ = 309.4 K, and free-stream density, ρ∞ = 1.185 kg/m3.
+The laminar and turbulent Prandtl numbers are Pr = 0.72
+and Prt = 0.9, respectively. The starting length of the
+plate, leading edge to xo = 0.61 m, is insulated, whereas
+the rest of the length encounters spatially non-uniform
+heat flux conditions. The overall length dimension l of
+the plate is 1.83 m.
+
+GASP Code and Turbulent Models
+GASP, a commercially available finite-volume NavierStokes code, served as the means of computation. GASP
+is a fluid dynamics and heat transfer computational code
+that solves the integral form of time-dependent Reynolds
+Averaged Navier-Stokes (RANS) equations in three dimensions, employing the user-specified initial and boundary
+conditions. The code is fully conservative and shock
+capturing. The primitive variables, density, Cartesian
+velocity components, pressure, and temperature are stored
+throughout the code. A number of physical and thermodynamic models, as well as curve fits for transport properties, are selectable. In the present computations, a pointwise specification of the wall temperature was employed
+in the viscous no-slip boundary, and the Sutherland
+empirical formula for molecular viscosity was used.
+For the present research the algebraic or zero-equation
+turbulence model of Baldwin-Lomax (1978) (ref. 12), the
+turbulent two-equation models, K-ω model of Wilcox
+
+(1991) (ref. 13) and Shear Stress Turbulent model (SST)
+of Menter (1991) (ref. 14), were employed. All three
+models are eddy viscosity models. The zero-equation
+Baldwin-Lomax model is well adapted to attached flows,
+where a single well-defined layer can be identified. For
+more complex flows in which it may be difficult to define
+the velocity and length scales, the more advanced turbulence two-equation K-ω model has been developed. The
+two-equation K-ω model is one of several two-equation
+eddy viscosity models available.
+Although a detailed discussion of these models is beyond
+the scope of this paper, since the equations in the K-ω
+model are less stiff than the K-ε model near the wall and a
+damping function is not required in the viscous sublayer,
+the K-ω model was employed in the present research as an
+alternative to the algebraic turbulent eddy viscosity model
+of Baldwin-Lomax. The SST two-equation model was also
+used. It combines the K-ω and K-ε models and extracts
+some of the mixed derivatives, which allows determination of the specific rate of turbulence dissipation, ω, in
+the region between the wall and the boundary layer edge.
+The model constants, values used in Menter (1991)
+(ref 14.), were employed for all computations.
+The GASP code uses a finite-volume spatial discretization
+method. The computational grid can be structured so that
+the state variables are stored at the centers of each control
+volume. GASP solves for the control volume averages
+and interpolates the solution to the boundaries. The wall
+temperature boundary condition values are specified at the
+internal control volume wall face center.
+
+Description of Grid
+For the present solutions, a grid containing 8000 points
+was created that resolved the viscous and thermal
+phenomena associated with this problem. There were 100
+grid points in the stream-wise direction and 80 points in
+the normal direction to the free-stream direction. A simple
+stretching scheme was employed, which increased the
+spacing of the grid points with the distance from the wall
+in a fashion resembling a geometric series. As a guide,
+calculations were made to evaluate y+, which in essence is
+a wall-related Reynolds number. The first grid point was
+set to correspond to a y+ value of order unity or smaller
+than unity. By adjusting the values of the constants in the
+stretching functions, the grid could further be compressed
+near the wall. The resulting grid was more compressed in
+the y direction normal to the plate. It provided uniform,
+but relatively fine, spacing in the general flow direction,
+
+3
+
+x. This is a natural choice, since the flow is boundary
+layer in nature and strong gradients are generally expected
+to exist in the y direction. In the tangential direction, with
+the exception of the plate tip and near the step heat flux or
+temperature boundary condition, more gradual gradients are
+expected. Computational results for all flow quantities
+and heat transfer obtained were insensitive to the grid
+refinement.
+
+Results and Discussion
+The experimental heat transfer results of Moretti and Kays
+(1965) (ref. 2) for an approximate step function wall
+temperature distribution and non-accelerating flow conditions provided a unique opportunity for a substantive
+comparison with the present computations. Most of the
+pertinent data collected during experimentation was
+reported in Moretti (1965) (ref. 10). In their experiments,
+the starting length of the plate was insulated, whereas
+electrical currents to strip heaters further downstream were
+adjusted to achieve a pre-selected and relatively uniform
+temperature jump. In order to assess the accuracy of the
+present computations, the experimental conditions were
+computationally modeled in the present study. The actual
+experimental free-stream and surface temperature data were
+employed as boundary conditions in the GASP code.
+When the free-stream values for the three components of
+velocity, the air temperature, and density were set
+according to the experimental values stated earlier, the
+resulting Mach number was Ma = 0.055 and the unit
+Reynolds number was Re/x = 1,215,400 m–1.
+In order to discuss the variations of the wall temperature
+in Moretti (1965), the wall temperature data have been
+recast in the SI units and plotted as a function of the
+Reynolds number, Re, in figure 2 (ref. 8). The symbols
+are the measured data, and the Reynolds number is based
+on the length of the plate from the leading edge, using the
+free-stream conditions. A line is passed through the data
+points for clarity. Although the experiments were planned
+and carried out with care, some non-uniformity in the wall
+temperatures could not be avoided, due to experimental
+difficulties in completely insulating the starting section of
+the plate. There also existed a small, but non-zero, temperature difference between the starting section of the plate
+and the free stream. The temperature of this uncooled
+section of the plate was 2 K cooler than the free stream
+and somewhat non-uniform. The cooled section was also
+somewhat non-uniform in temperature, with the mean
+variations of order 2 K. Furthermore, as may be expected,
+nature provided a continuously varying temperature profile
+
+4
+
+in the region between the cooled and uncooled sections,
+rather than a sharp discontinuity. The overall uncertainties
+in measurement of temperature, heat flux, and velocity in
+the cooled section were estimated to be approximately 3%,
+2%, and 1%, respectively.
+From the foregoing discussion it should be clear that the
+conditions in the laboratory experiments deviated somewhat from the ideal: an adiabatic and uniform temperature
+starting section and a sharp step function temperature
+imposed in the non-adiabatic section. In order to model
+this experiment accurately, it was useful to incorporate the
+temperature profile of the entire length of the plate,
+especially since the temperature differences between the
+cooled section of the plate and the free stream, ∆T, were
+relatively small. This reduced the possibility that not
+accounting for the small temperature anomalies might
+affect the temperature history of the thermal boundary
+layer and alter the local heat flux in comparison to the
+ideal case. The point-wise plate temperature profile was
+entered into the GASP input file and the computations
+were initiated. The convergence criteria were set at 10-6 for
+successive values of all variables. The velocity and
+temperature fields converged in less than 4000 iterations
+and remained unchanged when the number of iterations
+were doubled. The laminar sub-layer was well defined and
+the velocity and temperature profiles were linear in the
+inner wall region.
+As mentioned earlier, the dimensionless quantities, which
+govern the heat transfer results, were chosen as Stanton
+number, St, and Reynolds number, Re. While the code
+determines the values of the physical properties for each
+control volume, the use of free-stream values in calculation of the Reynolds and Stanton numbers is preferred,
+since end users are more likely to possess the free-stream
+data. Use of the free-stream values in calculation of the
+dimensionless parameters also reduces the confusion often
+associated with the variations in reference temperature
+concept when employing CFDHT results.
+Before discussing the step temperature results, it is useful
+to examine the computational results that were obtained
+for the same conditions employed above, but with
+uniform wall temperature distribution on the entire plate.
+The results of these computations are shown in figure 3
+together with the curve of Reynolds, Kays, and Klein
+(1958) for the Von Karman analogy for comparison
+(ref. 5). As shown therein, the Shear Stress Turbulent
+two-equation model demonstrated the closest agreement
+with the Von Karman analogy, while the turbulent twoequation K-ω model was higher and the algebraic eddy
+viscosity model of Baldwin-Lomax was lower. Although a
+satisfactory level of agreement is evident for both
+
+Baldwin-Lomax and the K-ω turbulent models, deviations
+of approximately 10 percent were present.
+The results of the computations for the step temperature
+profile are shown in figure 4 together with the experimental data of Moretti and Kays (1965) (ref. 2). The
+experimental data are shown by circle symbols. It should
+be noted that, since Stanton number contains the ratio of
+the heat flux to the temperature difference, for small
+values of heat flux as a result of small temperature
+differences, small errors including neglecting the radiation
+effects, extraneous heat losses, and variations in physical
+properties, can alter its value markedly. This is indeed the
+case for the adiabatic section of the plate. For this reason
+only the Stanton number values for the heated or cooled
+section of the plate have significance, especially when
+comparisons between experiments and computations are
+made.
+As evident in figure 4, the algebraic eddy viscosity model
+of Baldwin-Lomax showed close agreement with the
+experiments, while the two-equation Shear Stress
+Turbulent model was higher and the K-ω was still higher.
+As with the uniform wall temperature distribution case, a
+similar trend of agreement is evident between the three
+models. The agreement of the SST model results are
+within approximately 10 percent, while the K-ω model
+results are within approximately 15 percent of the experimental data. As mentioned earlier, a detailed discussion of
+turbulent modeling is beyond the scope of the present
+report. However, it should be pointed out that the turbulent thermal conductivity, kt, is extracted from the
+definition of the turbulent Prandtl number,
+
+corresponding to the Reynolds number at the start of the
+cooled section. Figure 5 indicates that there is a remarkable level of agreement between each pair of curves,
+corresponding to each turbulent model far downstream
+from the step in wall temperature or the plate leading
+edge. This result indicates the diminishing influence of the
+early momentum boundary layer on the far downstream
+region. The heat transfer close to the leading edge and for
+some distance downstream from the leading edge, however, is higher due to the thinner momentum boundary
+layer of the uniform wall temperature case. One may, for
+first approximation purposes, reasonably (within 20
+percent) estimate the heat transfer in the cooled section of
+the step wall temperature problem by employing the
+results from the uniform wall temperature case.
+It should be noted that for the present conditions, the
+radiation effects had introduced only minor errors due to
+the relatively low temperatures employed in the experiments. The uncertainty in measurement of temperature,
+heat flux, and velocity in the cooled section were estimated by Moretti and Kays (ref. 2) to be approximately
+3%, 2%, and 1%, respectively. This appears to have
+caused only minor errors. The stagnation temperature of
+the free stream, To, and the recovery temperature, Tr , were
+very close in value to the free-stream temperature, T∞. The
+differences in definitions of Stanton number and the heat
+transfer coefficient, often encountered when attempting to
+compare reported experimental and computational results
+due to varied employment of Tr and To, did not come into
+play in the present investigations.
+
+Concluding Remarks
+Prt = Cp ∞ µ t / kt
+
+(4)
+
+and applied in the Boussinesq approximation of the
+turbulent heat transfer. The three models predict the heat
+transfer somewhat differently, not only because of the
+differences in the convective velocity, but also because of
+the implicit dependence of kt on µt.
+Inspection of figures 3 and 4 further reveals that the
+shapes of the curves for the heated or cooled section of the
+step temperature case resemble those for the uniform wall
+temperature case. This suggests that the results of the
+uniform wall temperature case may be applicable to the
+step wall temperature case, if the values of Reynolds
+number were shifted by the value at the start of the heated
+or cooled section. To investigate this possibility, the data
+of figures 3 and 4 are superimposed in figure 5, but the
+values of Reynolds number for the uniform wall temperature case were uniformly increased by 740,910, the value
+
+Heat transfer on a flat plate with uniform and step temperature distribution was successfully modeled. The pointwise wall temperature specification feature of the GASP
+code was employed to obtain the computational results.
+Employment of the algebraic eddy viscosity model of
+Baldwin-Lomax and the turbulent two-equation models,
+the K-ω model and the Shear Stress Turbulent model, for
+the local heat transfer on the plate with step temperature
+distribution resulted in solutions in agreement with the
+experiments of Moretti and Kays (1965) within 15 percent
+(ref. 2). The computational results obtained for uniform
+plate temperature were within 10 percent of the Von
+Karman analogy. For the present investigation, the full
+three-dimensional Navier-Stokes form was utilized, where
+primitive variables were density, Cartesian velocity
+components, pressure, and temperature. These agreements
+lend support to the applicability of the code and its
+
+5
+
+implementation of the turbulence models as a tool for
+engineering design application, as well as for computer
+experimentation in studying related problems with nonuniform wall temperature. It was shown that, for
+engineering design purposes, one could estimate the heat
+transfer to the cooled section of the step wall temperature
+problem by employing the results of the uniform wall
+temperature case if the magnitude of the temperature
+difference applied is relatively small.
+
+References
+1. AeroSoft, Inc.: GASP User's Manual, version 3,
+1996.
+2. Moretti, P. M.; and Kays, W. M.: Heat Transfer to a
+Turbulent Boundary Layer with Varying Freestream Velocity and Varying Surface Temperature
+-- an Experimental Study. Int. J. Heat and Mass
+Transfer, vol. 8, 1965, pp. 1187–1202.
+3. Orlando, A. F.; Moffat, R. J.; and Kays, W. M.:
+Turbulent Transport of Heat and Momentum in a
+Boundary Layer Subject to Deceleration, Suction
+and Variable Wall Temperature. NASA CR139655, 1974.
+4. Taylor, R. P.; Love, P. H.; Coleman, H. W.; and
+Hosni, M. H.: Step Heat Flux Effects on
+Turbulent Boundary Layer Heat Transfer. J. of
+Thermophysics and Heat Transfer, vol. 4, Jan.
+1990, pp. 121–123.
+5. Reynolds, W. C.; Kays, W. M.; and Klein, S. J.:
+Heat Transfer in the Turbulent Incompressible
+Boundary Layer: I - Constant Wall Temperature.
+NASA Mem. 12-1-58W, 1958a.
+6. Reynolds, W. C.; Kays, W. M.; and Klein, S. J.:
+Heat Transfer in the Turbulent Incompressible
+Boundary Layer: II - Step Wall Temperature
+Distribution. NASA Mem. 12-2-58W, 1958b.
+
+6
+
+7.
+
+Reynolds, W. C.; Kays, W. M.; and Klein, S. J.:
+Heat Transfer in the Turbulent Incompressible
+Boundary Layer: III - Arbitrary Wall Temperature
+and Heat Flux. NASA Mem. 12-3-58W, 1958c.
+8. Reynolds, W. C.; Kays, W. M.; and Klein, S. J.:
+Heat Transfer in the Turbulent Incompressible
+Boundary Layer: IV - Effects of Location of
+Transition and Prediction of Heat Transfer in a
+Known Transition Region. NASA Mem. 12-458W, 1958d.
+9. Kays, W. M.; and Crawford, M. E.: Convective Heat
+and Mass Transfer. McGraw-Hill, New York,
+N. Y., 1980.
+10. Moretti, P. M.: Ph. D. Dissertation, Dept. of
+Mechanical Engineering, Stanford University,
+1965.
+11. Ambrok, G. S.: The Effects of Surface Temperature
+Variability on Heat Exchange in a Laminar Flow
+in a Boundary Layer. Sov. Fiz-Tech. Fiz., vol. 2,
+1957, p. 1979.
+12. Baldwin, B. S.; and Lomax, H.: Thin Layer
+Approximation and Algebraic Model for
+Separated Turbulent Flows. AIAA Paper 78-257,
+16th Aerospace Sciences Meeting, Huntsville,
+AL, Jan. 1978.
+13. Wilcox, D. C.: A Half Century Historical Review of
+the K-ω Model. AIAA Paper 91-0615, 29th
+Aerospace Sciences Meeting, Reno, NV, Jan.
+1991.
+14. Menter, F. R.: Performance of Popular Turbulence
+Model for Attached and Separated Adverse
+Pressure Gradient Flows. AIAA Paper 91-1784,
+22nd Fuid Dynamics, Plasma Dynamics and
+Lasers Conference, Honolulu, HI, June 1991.
+
+y
+U∞
+
+ρ∞
+∆T
+
+T∞
+
+X
+x0
+
+l
+
+q=0
+q = q(x)
+Figure 1. Flat plate with step wall temperature distribution.
+
+14
+
+Temperature difference, K
+
+12
+
+10
+
+8
+
+6
+
+Experiment, Moretti
+
+4
+
+2
+
+0
+0.0
+
+0.5
+
+1.0
+
+1.5
+
+2.0
+
+2.5
+
+Reynolds number, Re x 10 E – 6
+Figure 2. Distribution of the free stream to wall temperature difference.
+
+7
+
+4.5
+
+4.0
+Baldwin-Lomax
+k–ω
+SST
+von Karman analogy
+
+St x 10 E3
+
+3.5
+
+3.0
+
+2.5
+
+2.0
+
+1.5
+
+1.0
+0.0
+
+0.5
+
+1.5
+
+1.0
+
+2.0
+
+2.5
+
+Re x 10E – 6
+
+Figure 3. Comparison of the heat-transfer results for uniform wall temperature with the Von Karman analogy.
+
+4.5
+
+4.0
+Experiment, Moretti
+Baldwin-Lomax
+k–ω
+SST
+
+St x 10E3
+
+3.5
+
+3.0
+
+2.5
+
+2.0
+
+1.5
+
+1.0
+0.0
+
+0.5
+
+1.5
+
+1.0
+
+2.0
+
+Re x 10 E – 6
+Figure 4. Comparison of the heat-transfer results for step wall temperature with the experiments.
+
+8
+
+2.5
+
+4.5
+
+4.0
+Experiment, Moretti
+Baldwin-Lomax, shifted
+K – ω, shifted
+SST, shifted
+von Karman analogy, shifted
+
+St x 10E3
+
+3.5
+
+3.0
+
+2.5
+
+2.0
+
+1.5
+
+1.0
+0.5
+
+1.0
+
+1.5
+
+2.0
+
+2.5
+
+Re x 10 E – 6
+Figure 5. Comparison of the heat-transfer results for step and uniform wall temperature, when the plates are shifted.
+
+9
+
+Form Approved
+OMB No. 0704-0188
+
+REPORT DOCUMENTATION PAGE
+
+The public reporting burden for this collection of information is estimated to average 1 hour per response, including the time for reviewing instructions, searching existing
+data sources, gathering and maintaining the data needed, and completing and reviewing the collection of information. Send comments regarding this burden estimate or
+any other aspect of this collection of information, including suggestions for reducing this burden, to Department of Defense, Washington Headquarters Services,
+Directorate for information Operations and Reports (0704-0188), 1215 Jefferson Davis Highway, Suite 1204, Arlington, VA 22202-4302. Respondents should be aware
+that notwithstanding any other provision of law, no person shall be subject to any penalty for failing to comply with a collection of information if it does not display a
+currently valid OMB control number.
+
+PLEASE DO NOT RETURN YOUR FORM TO THE ABOVE ADDRESS.
+
+1. REPORT DATE (DD-MM-YYYY)
+
+16-05-2005
+
+3. DATES COVERED (From - To)
+
+2. REPORT TYPE
+
+Technical Memorandum
+
+4. TITLE AND SUBTITLE
+
+5a. CONTRACT NUMBER
+
+Heat Transfer on a Flat Plate with Uniform and Step Temperature
+Distributions
+
+5b. GRANT NUMBER
+
+5c. PROGRAM ELEMENT NUMBER
+
+5d. PROJECT NUMBER
+
+6. AUTHOR(S)
+
+Parviz A. Bahrami
+5e. TASK NUMBER
+
+5f. WORK UNIT NUMBER
+
+376-70
+8. PERFORMING ORGANIZATION
+REPORT NUMBER
+
+7. PERFORMING ORGANIZATION NAME(S) AND ADDRESS(ES)
+
+Ames Research Center
+Moffett Field, CA 94035-1000
+
+A-0513611
+
+10. SPONSORING/MONITOR’S ACRONYM(S)
+
+9. SPONSORING/MONITORING AGENCY NAME(S) AND ADDRESS(ES)
+
+NASA
+
+National Aeronautics and Space Administration
+Washington, DC 20546-0001
+
+11. SPONSORING/MONITORING
+REPORT NUMBER
+
+NASA/TM-2005-212841
+12. DISTRIBUTION/AVAILABILITY STATEMENT
+
+Unclassified — Unlimited
+Distribution: Nonstandard
+Subject Category 05, 34
+Availability: NASA CASI (301) 621-0390
+13. SUPPLEMENTARY NOTES
+
+Point of Contact: Parviz A. Bahrami, Ames Research Center, MS 230-1, Moffett Field, CA 94035-1000
+(650) 604-3429
+14. ABSTRACT
+
+Heat transfer associated with turbulent flow on a step-heated or cooled section of a flat plate at zero angle of attack with an
+insulated starting section was computationally modeled using the GASP Navier-Stokes code. The algebraic eddy viscosity
+model of Baldwin-Lomax and the turbulent two-equation models, the K-ω model and the Shear Stress Turbulent model (SST),
+were employed. The variations from uniformity of the imposed experimental temperature profile were incorporated in the
+computations. The computations yielded satisfactory agreement with the experimental results for all three models. The BaldwinLomax model showed the closest agreement in heat transfer, whereas the SST model was higher and the K-ω model was yet
+higher than the experiments. In addition to the step temperature distribution case, computations were also carried out for a
+uniformly heated or cooled plate. The SST model showed the closest agreement with the Von Karman analogy, whereas the
+K-ω model was higher and the Baldwin-Lomax was lower.
+15. SUBJECT TERMS
+
+Turbulent flow, Heat transfer, Experimental fluid dynamics, Turbulence modeling
+
+16. SECURITY CLASSIFICATION OF:
+a. REPORT
+
+17. LIMITATION OF
+ABSTRACT
+
+b. ABSTRACT c. THIS PAGE
+
+Unclassified Unclassified Unclassified
+
+Unclassified
+
+18. NUMBER 19a. NAME OF RESPONSIBLE PERSON
+OF
+Parviz A. Bahrami
+PAGES
+
+14
+
+19b. TELEPHONE (Include area code)
+
+(650) 604-3429
+Standard Form 298 (Rev. 8-98)
+Prescribed by ANSI Std. Z39-18
+
+
