@@ -237,3 +237,76 @@ here has a published expectation to be graded against, which no cavity rung had.
 **The rung is NOT built.** What exists is a reference, a set of conditions, an
 uncertainty figure and a published expectation. **Naming that as a capability
 would be the same error in the other direction.**
+
+---
+
+## Addendum 3 — 2026-08-19, the evening. The forced-convection class is no longer just referenced: it is GRADED.
+
+**§0's headline — that every graded thermal result this lab owns is a
+buoyancy-driven cavity — stopped being true today.** It is left standing above
+as the state that was true when it was written.
+
+### What changed
+
+**T1c graded a thermal rung against a reference that cannot be wrong.** Fully
+developed laminar pipe flow: `Nu = 3.6567934` for constant wall temperature (the
+first Graetz eigenvalue, solved here by inverse iteration to `λ₀² = 7.313587`,
+agreeing with tabulation to **1.6e-08**), `Nu = 48/11` for constant wall heat
+flux, and `f·Re = 64`. **Each is derived twice in the rung's own code and the
+comparator refuses to run if the two derivations disagree.**
+
+| row | value | exact | deviation | band | verdict |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `f·Re` | 63.98771 | 64 | 0.0192 % | 0.0236 % (GCI) | **PASS** |
+| `Nu`, constant `q″` | 4.365298 | 4.3636364 | 0.0381 % | 0.0459 % (GCI) | **PASS** |
+| `Nu`, constant `Ts` | 3.659958 | 3.6567934 | 0.0865 % | 0.0301 % (GCI) | **GATE FAIL** |
+
+**The rung verdict is GATE FAIL and it is not excused.** Both arms overshoot even
+after Richardson extrapolation to zero mesh spacing (+0.111 %, +0.075 %), so the
+excess is **not discretisation error**; its cause is under test against a
+prediction registered before the diagnostic cases were built.
+
+### What this does and does not do to §5's confound argument
+
+**§5 said every thermal error this lab had measured was confounded, because on a
+buoyant cavity the momentum and thermal fields are both wrong and coupled.**
+T1c does not resolve that argument — **it removes the excuse for it.** The
+laminar rung establishes that the solver, the mesh and the boundary conditions
+reproduce exact theory to better than 0.1 % at second order, on **both** thermal
+boundary conditions **and** on friction. **That is the precondition every
+turbulent thermal claim above it rests on, and until today this lab had never
+checked it.**
+
+**T1c grades no turbulence model.** A laminar solution has no closure. The
+unconfounded turbulent test is **T1b**, whose 19 cases are running and whose
+comparator is frozen.
+
+### §6's ranking, revisited
+
+**§6 ranked "obtain one forced-convection heat-transfer reference" first, and
+called it "not compute — requires a decision outside the compute
+authorisation."** Addendum 2 closed that item by finding an open reference.
+**Today's work shows the ranking itself was too pessimistic in one specific
+way**: T1c needed **no reference at all**. Its constants are closed-form
+solutions of the governing equations. **The cheapest forced-convection rung
+available to this lab was one nobody had to obtain anything for**, and it sat
+unbuilt while the docket recorded the class as reference-blocked.
+
+**The generalisable form: "we are reference-limited" is true of the class, and
+was not true of every rung in it.** Before ranking a class as blocked on an
+acquisition, the exact-theory members of that class should be enumerated —
+they have no acquisition step.
+
+### And T1b arms the band K0e could not
+
+K0e is BLOCKED and PENDING by construction because **no band can be honestly
+derived from a single correlation**. T1b arms four, from a mechanism that costs
+nothing: **where two accepted correlations describe the same quantity, their
+disagreement is a measured band rather than a chosen one** — half-spreads of
+**2.84 / 3.89 / 5.33 / 5.75 %** across the Reynolds sweep, computed and committed
+before any case directory existed.
+
+**What that band is NOT**, stated so no later reader has to infer it: it is the
+disagreement between two correlations, **not either one's own accuracy**, which
+neither source states. A solution inside it is **consistent with the published
+canon — not verified to that tolerance.**
