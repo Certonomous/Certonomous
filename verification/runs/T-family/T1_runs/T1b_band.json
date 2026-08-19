@@ -1,0 +1,61 @@
+{
+ "Pr": 0.71,
+ "Re_sweep": [
+  10000.0,
+  30000.0,
+  100000.0,
+  300000.0
+ ],
+ "armed_before_any_case": true,
+ "min_half_spread_pct": 2.0,
+ "rows": [
+  {
+   "Pr": 0.71,
+   "Re": 10000.0,
+   "band": 0.8789035978385069,
+   "band_pct": 2.843726812626115,
+   "dittus_boelter": 31.78565574914168,
+   "gnielinski": 30.027848553464665,
+   "graded": true,
+   "petukhov_f": 0.03147980275674669,
+   "reference": 30.906752151303174,
+   "validity_violations": []
+  },
+  {
+   "Pr": 0.71,
+   "Re": 30000.0,
+   "band": 2.8627359947561217,
+   "band_pct": 3.885138844529179,
+   "dittus_boelter": 76.54700081291715,
+   "gnielinski": 70.8215288234049,
+   "graded": true,
+   "petukhov_f": 0.02363900753721858,
+   "reference": 73.68426481816103,
+   "validity_violations": []
+  },
+  {
+   "Pr": 0.71,
+   "Re": 100000.0,
+   "band": 10.155576943496982,
+   "band_pct": 5.333857572986172,
+   "dittus_boelter": 200.55392944040025,
+   "gnielinski": 180.2427755534063,
+   "graded": true,
+   "petukhov_f": 0.017992027544212322,
+   "reference": 190.39835249690327,
+   "validity_violations": []
+  },
+  {
+   "Pr": 0.71,
+   "Re": 300000.0,
+   "band": 26.256112316273573,
+   "band_pct": 5.748806862085763,
+   "dittus_boelter": 482.97892360841394,
+   "gnielinski": 430.4666989758668,
+   "graded": true,
+   "petukhov_f": 0.014435380226160793,
+   "reference": 456.72281129214036,
+   "validity_violations": []
+  }
+ ]
+}
