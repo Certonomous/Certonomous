@@ -1,0 +1,5 @@
+pre-registration commit   3b454b37312d80145083d07c8b00809e0f62177b
+committed_utc             2026-08-19T02:11:43Z
+first_solve_utc           2026-08-19T02:12:37Z
+pilot                     none. The builder is the K0cS builder with three
+                          constants changed; nothing needed establishing.
