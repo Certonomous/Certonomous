@@ -1827,3 +1827,84 @@ detect.
 does not license deleting a row whose null arm was never run, and it does not
 convert a discriminating row into a validated one. Section 2's rule still
 governs: a gate not reached is stated as not reached.
+
+---
+
+## 2d. The comparator is frozen before its cases can answer it (added 2026-08-19)
+
+**Placed at the foot, numbered 2d for where it belongs, and read with 2b.**
+Other records cite this file by line and one of those citations sits inside an
+executable check. **Lines whose number changed above this section: 0.**
+
+> **The grading path of a comparator — every band, every reference, every row
+> definition, every verdict rule, the discrimination test and the mutation
+> control — is fixed at the pre-registration commit and does not change once
+> the first graded solve has started. Instrumentation that is NOT on the
+> grading path may be added later, and when it is, the record carries a dated
+> disclosure naming what was added, when, what was readable at that moment, and
+> which findings rest on it and which do not.**
+
+**This is 2b's rule moved one step downstream.** 2b freezes the *prediction*
+while there is no answer to tune it to. **A comparator is where the prediction
+is cashed**, and freezing the prediction while leaving the instrument that
+evaluates it editable protects only half the distance.
+
+### Why this is a charter matter and not a practice note
+
+**Because the lab has now done it both ways in one day and the difference is
+recorded.**
+
+`K0cX_RESULTS.md` §11 discloses a comparator extended at 18:58-18:59Z, after the
+first graded solve at 18:43:23Z and after **six completion markers already
+existed**. The edit was **purely additive** — 55 lines added, 2 removed and both
+re-added extended, no band, reference, row definition, verdict rule,
+discrimination test or mutation control touched, verified by inspecting every
+removed line and by confirming the two newly parsed references are read by
+nothing. **Every verdict in that rung rests on instrumentation that predates its
+first solve.** The rung is sound and its own record says why.
+
+**And it still cost something.** Two of its readings — the `fMu` first-cell trap
+and the `Re_t` figure — rest on diagnostics chosen while some answers were
+visible, which is the condition under which a diagnostic gets chosen *because it
+will say something*. That rung had to spend a section of its own record
+establishing what would otherwise have been assumed.
+
+`K0cQ_RESULTS.md` §6 and `K0cR` did it the other way: comparator committed while
+every case was mid-solve and **no case had written a marker**, then verified
+byte-identical at analysis time. **K0cQ's finding is a null**, and a null is the
+result most easily produced by an instrument that was not looking properly, so
+the freeze is what makes it readable at all.
+
+### The test, which is why this rule can be enforced rather than merely urged
+
+**Compare the comparator's commit timestamp against the earliest completion
+marker in its own run tree.** Both are on disk, neither is written by the person
+being audited, and the comparison is one command. A comparator committed before
+the first marker is frozen by construction; one committed after is not, and owes
+the disclosure.
+
+**Verify the frozen file is the file that ran.** Hash the comparator at analysis
+time against the committed blob. A freeze that is claimed and not checked is a
+claim about intent.
+
+### What this rule does NOT reach (2c's boundary, applied to itself)
+
+Per §17a, a rule over-reaches as easily as it under-reaches.
+
+1. **A comparator that cannot run at all.** D419 found `analyse_k0c.py`
+   unrunnable at HEAD because a documentation move left its specification path
+   dangling. Repairing a path constant so the instrument executes is not tuning
+   an instrument to an answer, and this clause does not forbid it. **The test is
+   whether the repair can change a number**; a path either resolves or refuses.
+2. **Additive instrumentation, disclosed.** The clause requires the disclosure,
+   not abstention. A lab that may not add a diagnostic after seeing a partial
+   result will under-instrument its most interesting runs.
+3. **A rung whose defect is found after it reports.** D420 moved 18 rows out of
+   a graded tally after the rung had published. That is a correction to a
+   *published* record under W-4, made with every measurement shown byte-identical
+   across the re-run, and it is governed by the amendment rules and not by this
+   one.
+
+**The boundary in one question, asked at the moment of the edit:** *could this
+change move a number that a verdict depends on?* If yes, it belongs before the
+first solve. If no, it belongs in the record with a date on it.
