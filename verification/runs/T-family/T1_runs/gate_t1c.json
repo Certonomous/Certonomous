@@ -1,0 +1,285 @@
+{
+ "Fs": 1.25,
+ "arms": {
+  "Ts": {
+   "c": {
+    "D_nominal": 0.02,
+    "D_used": 0.019980964400000002,
+    "Nu": 3.6641114466995846,
+    "R_wall": 0.009990482200000001,
+    "Re": 99.904822,
+    "T_bulk": 308.8268078804055,
+    "T_wall": 310.0,
+    "dpdx": -0.09005923798613957,
+    "driving_dT": 1.1731921195944892,
+    "driving_fraction": 0.11731921195944892,
+    "f": 0.6398117077661094,
+    "fRe": 63.920274777889176,
+    "grad_wall": 215.14009977335806,
+    "n_cells_station": 20,
+    "near_wall_h": 0.00024762733658119894,
+    "near_wall_r": 0.009742854863418802,
+    "sample_x": 0.1775,
+    "sample_xD": 8.883455094890213,
+    "time": "30000"
+   },
+   "f": {
+    "D_nominal": 0.02,
+    "D_used": 0.019980964400000002,
+    "Nu": 3.6599578705095985,
+    "R_wall": 0.009990482200000001,
+    "Re": 99.904822,
+    "T_bulk": 308.8342448459245,
+    "T_wall": 310.0,
+    "dpdx": -0.09015425447224386,
+    "driving_dT": 1.165755154075498,
+    "driving_fraction": 0.1165755154075498,
+    "f": 0.6404867374643363,
+    "fRe": 63.98771349973524,
+    "grad_wall": 213.5339749289453,
+    "n_cells_station": 51,
+    "near_wall_h": 9.762265011324829e-05,
+    "near_wall_r": 0.009892859549886753,
+    "sample_x": 0.1787109375,
+    "sample_xD": 8.944059652095671,
+    "time": "30000"
+   },
+   "iterative_convergence": {
+    "c": {
+     "between": [
+      "28000",
+      "30000"
+     ],
+     "field_range": 10.077684950903915,
+     "max_change": 0.0,
+     "relative": 0.0,
+     "state": "CONVERGED",
+     "tol": 1e-06
+    },
+    "f": {
+     "between": [
+      "28000",
+      "30000"
+     ],
+     "field_range": 10.02104499459466,
+     "max_change": 0.0,
+     "relative": 0.0,
+     "state": "CONVERGED",
+     "tol": 1e-06
+    },
+    "m": {
+     "between": [
+      "28000",
+      "30000"
+     ],
+     "field_range": 10.044428926737396,
+     "max_change": 0.0,
+     "relative": 0.0,
+     "state": "CONVERGED",
+     "tol": 1e-06
+    }
+   },
+   "m": {
+    "D_nominal": 0.02,
+    "D_used": 0.019980964400000002,
+    "Nu": 3.6611831939171693,
+    "R_wall": 0.009990482200000001,
+    "Re": 99.904822,
+    "T_bulk": 308.8080871413799,
+    "T_wall": 310.0,
+    "dpdx": -0.09012761001377984,
+    "driving_dT": 1.1919128586201282,
+    "driving_fraction": 0.11919128586201282,
+    "f": 0.6402974460950822,
+    "fRe": 63.96880237918378,
+    "grad_wall": 218.39843359081223,
+    "n_cells_station": 32,
+    "near_wall_h": 0.00015527535165343886,
+    "near_wall_r": 0.009835206848346562,
+    "sample_x": 0.1765625,
+    "sample_xD": 8.836535437698892,
+    "time": "30000"
+   },
+   "station_xD": 8.908118491660645
+  },
+  "q": {
+   "c": {
+    "D_nominal": 0.02,
+    "D_used": 0.019980964400000002,
+    "Nu": 4.374511788675958,
+    "R_wall": 0.009990482200000001,
+    "Re": 99.904822,
+    "T_bulk": 322.4833595533234,
+    "T_wall": 324.7671531930758,
+    "dpdx": -0.09005923798613957,
+    "driving_dT": 2.283793639752389,
+    "driving_fraction": 0.09221058318446042,
+    "f": 0.6398117077661094,
+    "fRe": 63.920274777889176,
+    "grad_wall": 500.0,
+    "n_cells_station": 20,
+    "near_wall_h": 0.00024762733658119894,
+    "near_wall_r": 0.009742854863418802,
+    "sample_x": 0.7975,
+    "sample_xD": 39.9129883840842,
+    "time": "30000"
+   },
+   "f": {
+    "D_nominal": 0.02,
+    "D_used": 0.019980964400000002,
+    "Nu": 4.365297870135518,
+    "R_wall": 0.009990482200000001,
+    "Re": 99.904822,
+    "T_bulk": 322.5472373727736,
+    "T_wall": 324.83585145987826,
+    "dpdx": -0.09015425447224386,
+    "driving_dT": 2.2886140871046337,
+    "driving_fraction": 0.09214961245849923,
+    "f": 0.6404867374643363,
+    "fRe": 63.98771349973524,
+    "grad_wall": 500.0,
+    "n_cells_station": 51,
+    "near_wall_h": 9.762265011324656e-05,
+    "near_wall_r": 0.009892859549886755,
+    "sample_x": 0.7998046875,
+    "sample_xD": 40.028332541346195,
+    "time": "30000"
+   },
+   "iterative_convergence": {
+    "c": {
+     "between": [
+      "28000",
+      "30000"
+     ],
+     "field_range": 30.349524676180692,
+     "max_change": 0.0,
+     "relative": 0.0,
+     "state": "CONVERGED",
+     "tol": 1e-06
+    },
+    "f": {
+     "between": [
+      "28000",
+      "30000"
+     ],
+     "field_range": 30.408646811132087,
+     "max_change": 0.0,
+     "relative": 0.0,
+     "state": "CONVERGED",
+     "tol": 1e-06
+    },
+    "m": {
+     "between": [
+      "28000",
+      "30000"
+     ],
+     "field_range": 30.386015478718775,
+     "max_change": 0.0,
+     "relative": 0.0,
+     "state": "CONVERGED",
+     "tol": 1e-06
+    }
+   },
+   "m": {
+    "D_nominal": 0.02,
+    "D_used": 0.019980964400000002,
+    "Nu": 4.3678591393796635,
+    "R_wall": 0.009990482200000001,
+    "Re": 99.904822,
+    "T_bulk": 322.5089877744616,
+    "T_wall": 324.79625984098226,
+    "dpdx": -0.09012761001377984,
+    "driving_dT": 2.287272066520643,
+    "driving_fraction": 0.09224262373393635,
+    "f": 0.6402974460950822,
+    "fRe": 63.96880237918378,
+    "grad_wall": 500.0,
+    "n_cells_station": 32,
+    "near_wall_h": 0.0001552753516534406,
+    "near_wall_r": 0.00983520684834656,
+    "sample_x": 0.7984375,
+    "sample_xD": 39.95990804127552,
+    "time": "30000"
+   },
+   "station_xD": 40.0
+  }
+ },
+ "controls": [
+  {
+   "Nu": 6.281233524092952,
+   "control": "C1_thermally_developing",
+   "excess_pct": 43.94493492713017,
+   "met": true,
+   "must": "EXCEED the fully developed constant",
+   "reference": 4.363636363636363
+  },
+  {
+   "band_pct": 0.045913116730425536,
+   "control": "C2_wrong_boundary_condition",
+   "deviation_pct": 19.37502047929528,
+   "graded_against": 3.6567934,
+   "met": true,
+   "must": "FAIL -- the two constants differ by 19 %",
+   "value": 4.365297870135518
+  }
+ ],
+ "r": 1.6,
+ "rows": [
+  {
+   "arm": "Ts",
+   "band_pct": 0.030111940926733208,
+   "deviation_pct": 0.08653675948983987,
+   "order": 1.8536050694532107,
+   "quantity": "Nu",
+   "reference": 3.6567934,
+   "row": "L0",
+   "value": 3.6599578705095985,
+   "verdict": "GATE FAIL"
+  },
+  {
+   "arm": "Ts",
+   "band_pct": 0.023589269742053554,
+   "convergence": "CONVERGING",
+   "deviation_pct": 0.019197656663683116,
+   "quantity": "fRe",
+   "reference": 64.0,
+   "row": "L1",
+   "value": 63.98771349973524,
+   "verdict": "PASS"
+  },
+  {
+   "arm": "q",
+   "band_pct": 0.045913116730425536,
+   "deviation_pct": 0.03807619060563483,
+   "order": 2.0308614066772446,
+   "quantity": "Nu",
+   "reference": 4.363636363636363,
+   "row": "L2",
+   "value": 4.365297870135518,
+   "verdict": "PASS"
+  },
+  {
+   "arm": "q",
+   "band_pct": 0.023589269742053554,
+   "convergence": "CONVERGING",
+   "deviation_pct": 0.019197656663683116,
+   "quantity": "fRe",
+   "reference": 64.0,
+   "row": "L3",
+   "value": 63.98771349973524,
+   "verdict": "PASS"
+  },
+  {
+   "arm": "Ts_as_registered",
+   "convergence": "CONVERGING",
+   "driving_fraction": 0.00019382309524189622,
+   "quantity": "Nu",
+   "reference": 3.6567934,
+   "row": "L4",
+   "station_xD": 40.0,
+   "value": 3.658426543181223,
+   "verdict": "NOT A RESULT",
+   "why": "the station registered in the pre-registration lies in the thermally saturated region"
+  }
+ ]
+}
