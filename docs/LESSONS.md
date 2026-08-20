@@ -8104,7 +8104,7 @@ The tell that something was wrong: I had written L-179 — *write the falsifier 
 it can fire on the paper's own control* — an hour before I broke it. Writing the
 lesson is not the same as being governed by it.
 
-## L-186. The invariance embedding bought in-domain accuracy and bought out-of-domain catastrophe — and the unconstrained control was the only survivor
+## L-181. The invariance embedding bought in-domain accuracy and bought out-of-domain catastrophe — and the unconstrained control was the only survivor
 
 Ling et al.'s claim is that embedding Pope's tensor basis in a network makes it
 generalise better than an unconstrained network on the same inputs. Run against
@@ -8151,7 +8151,7 @@ Three things follow for closure work:
   beyond the training 99th percentile, against 0-0.7% elsewhere). Two independent
   cheap diagnostics, same answer.
 
-## L-181. A path is occupied until you have checked it is not, and a lost file lives in every transcript that ever carried its bytes, not only in Write calls
+## L-182. A path is occupied until you have checked it is not, and a lost file lives in every transcript that ever carried its bytes, not only in Write calls
 
 2026-08-20, cases/RANS_LES_closure_models/Kaandorp2020_TBRF/. Two sub-agents were assigned the same
 paper one hour apart after a harness restart. The second wrote its tensor-basis random forest to

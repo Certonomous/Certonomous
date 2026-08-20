@@ -2073,13 +2073,6 @@ the logarithmic boundary condition**", while the two-layer model succeeded on th
 ## Closure-modelling numerics, measured on this machine — appended 2026-08-20 (Lane B, reviewed by supervisor)
 
 
-**COLLISION NOTE for the supervisor:** a second agent with the same role wrote to
-`scratchpad/numerics_B.md` and `scratchpad/lessons_B.md` and overwrote this
-instance's versions. Both sets of content are real and complementary; neither
-should be dropped. This file and `lessons_B_opus.md` hold the Opus instance's
-entries. The lesson numbers below are renumbered to L-175+ to avoid the clash
-with the other instance's L-170..L-172.
-
 ---
 
 **N-B1. `beta*` and `C_mu` are the same constant with two provenances that agree.**
