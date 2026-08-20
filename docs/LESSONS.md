@@ -6727,3 +6727,88 @@ line, and neither was the reason it was originally written.**
   was checked by planting a known perturbation — 1.234e-03 K — and confirming the
   parser recovers it exactly. A zero from a broken reader looks identical to a
   zero from a converged solution.
+
+## L-142. blockMesh grades from the block's low face, so on an axis-to-wall block a `simpleGrading` above one puts the finest cell on the centreline — and the error hides at low Reynolds number
+
+T1b attempt 1 built 19 turbulent pipe cases with
+`simpleGrading (1 expansion 1)`, `expansion > 1`, on a wedge block whose radial
+direction runs from the axis at y = 0 to the wall at y = R. blockMesh reads that
+entry as the ratio of the **last** cell to the **first** along the direction, so
+the cells grew from axis to wall. The builder computed the correct wall-cell
+height and then placed it on the centreline. At Re = 3e5 the finest level had a
+1.96e-05 m cell at the axis and a **4.11e-03 m cell against the wall, 210 times
+too thick**, and a "resolved" arm designed for y+ = 0.625 achieved y+ = 52.3.
+
+Nothing in the build chain objected. The dictionary is legal; blockMesh emitted
+no warning; checkMesh returned rc = 0 on all 19; and the builder's summary table
+and every CASE.txt printed the *intended* wall cell, because they read it from
+the same variable the dictionary got it from. **A build chain cannot check
+itself — every link was quoting one number back to the others.** The mesh had to
+be read from the written points.
+
+Three things follow, and the third is the expensive one.
+
+**Reversing a geometric series does not change its sum.** Emitting
+`1/expansion` puts the fine cell at the wall and still fills R exactly, so the
+fix is one reciprocal. Verified against the written points: wall cell
+1.959909e-05 m against a designed 1.961777e-05 m, the 0.095 % being the wedge
+cos(θ/2) factor. `check_t1b_mesh.py` now asserts, before any solver runs, that
+the wall cell matches the design AND is the smallest radial cell in the mesh.
+
+**Cell count is blind to it.** The attempt-1 and attempt-2 meshes have
+*identical* cell counts — 81 920 at the finest level. They differ only in
+grading. Any guard built on mesh size sees nothing.
+
+**The error scales with the grading ratio, so it hides at low Re.** A higher
+Reynolds number demands a thinner wall cell against the same radius, so the
+ratio, and the damage, grow with it:
+
+| Re | axis/wall ratio | Nu error, finest level |
+|---|---:|---:|
+| 10 000  |   3.4 |  −2.7 % |
+| 30 000  |  14.6 |  +2.5 % |
+| 100 000 |  61.5 | −53.1 % |
+| 300 000 | 211.4 | −81.8 % |
+
+Against the registered band — the Dittus-Boelter/Gnielinski disagreement, ±2.84 %
+at 1e4 and ±3.89 % at 3e4 — **the two lowest Reynolds numbers PASS**, with
+friction rows of −6.0 % and −1.1 % sitting next to them looking healthy. A
+campaign validated at one Reynolds number would have shipped a passing gate and
+a published Nusselt number good to 3 % on a mesh wrong by a factor of three.
+**The sweep is what caught this. A single-point validation could not have.**
+
+What did catch it, once the sweep existed, was the comparator's registered
+attribution lever: it grades Nusselt and *reports* friction, on the stated
+reasoning that a friction error is a solver or mesh fault while a Nusselt error
+with correct friction is the thermal closure. Nu and f failed together and by
+nearly the same amount at every point (−34.0/−40.6, −77.4/−80.3, −91.9/−92.9,
+−81.8/−84.1). A wrong turbulent Prandtl number moves Nu and leaves f alone; it
+cannot do that. The lever pointed at momentum, which means the wall.
+
+## L-143. Moving a case directory does not redirect its running solver, and the stray write it leaves behind is invisible to every check except file age
+
+T1b attempt 1 was archived to `attempt1/` while two solvers were still running.
+The processes followed the moved inode for their working directory, as Linux
+guarantees — but **OpenFOAM writes fields to the absolute case path it resolved
+at startup**. When the archived `R_10k_f` reached its endTime it therefore wrote
+a complete `20000/` into the *freshly rebuilt* attempt-2 case at the old path.
+
+That stray directory had the right time, the right field list, the right length,
+and 81 920 values, because both attempts meshed the same cell count. It was a
+solution from a refuted mesh sitting inside the case built to replace it, and it
+would have satisfied every completion test in use: rc = 0, an `End` line, a
+final time directory equal to endTime, every field present.
+
+Only its age gives it away. Two guards, both cheap:
+
+- the runner refuses any case that already carries a numeric time directory
+  other than `0`, before it meshes or solves;
+- the completion marker refuses a case whose final-time fields are **older than
+  that case's own `0/T`**, which the runner writes at the start of the run that
+  is allowed to produce the answer.
+
+Related: the first version of the first guard used the glob `[0-9]*`, which
+matches `0.orig`, and refused all 18 cases in 45 seconds. That is the correct
+way for a guard to fail — loudly, immediately, and before spending anything.
+Test a guard against a planted positive as well as a clean case; this one was
+run against a contaminated directory and confirmed to fire only there.

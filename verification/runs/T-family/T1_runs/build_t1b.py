@@ -97,7 +97,11 @@ def first_cell(Re, yplus):
 
 
 def grading(first, N):
-    """Cell-to-cell ratio placing N cells of geometric growth across R."""
+    """Cell-to-cell ratio placing N cells of geometric growth across R.
+
+    `first` is the height of the cell AT THE WALL.  The direction in which that
+    cell ends up is decided in block_mesh(), not here -- see the note there.
+    """
     lo, hi = 1.0 + 1e-9, 2.0
     for _ in range(300):
         m = 0.5 * (lo + hi)
@@ -116,6 +120,36 @@ def header(cls, obj, loc):
 
 
 def block_mesh(nr, nx, expansion):
+    """
+    THE RECIPROCAL IN THE RADIAL simpleGrading IS THE POINT OF THIS FUNCTION.
+
+    Attempt 1 of T1b wrote `simpleGrading (1 expansion 1)` with expansion > 1 and
+    was refuted by its own mesh.  blockMesh reads a simpleGrading entry as the
+    ratio of the LAST cell to the FIRST cell along that direction, and the radial
+    direction of this block runs from the AXIS (vertices 0,1 at y = 0) to the
+    WALL (y = R).  A ratio above one therefore grows the cells from axis to wall
+    and puts the SMALLEST cell on the centreline, where nothing happens, and the
+    LARGEST cell against the wall, where the entire physics lives.
+
+    Measured on attempt 1's own points file, at Re = 3e5 on the finest level:
+
+        cell touching the axis   1.96e-05 m   <- the designed WALL cell
+        cell touching the wall   4.11e-03 m   <- 210 times too thick
+        achieved y+ at the wall  52.3         <- design asked for 0.625
+
+    and the consequences were not subtle: the Darcy friction factor came out
+    0.00230 against Petukhov's 0.01444, a factor of six low, and the Nusselt
+    number 83 against a two-correlation reference near 500.  Both improved
+    monotonically under refinement (Nu 37 -> 56 -> 83) without approaching
+    anything, because refinement of an inverted mesh moves the wall cell closer
+    to correct without ever getting there.
+
+    Emitting 1/expansion reverses the sequence.  The total is unchanged, because
+    a geometric series summed backwards has the same sum, so the mesh still fills
+    R exactly and the wall cell is `first` by construction.  Verified against the
+    written points file: wall cell 1.959909e-05 m against a designed
+    1.961777e-05 m, the 0.095 % being the wedge cos(theta/2) factor.
+    """
     h = math.radians(WEDGE_DEG / 2.0)
     y, z = R * math.cos(h), R * math.sin(h)
     return header("dictionary", "blockMeshDict", "system") + f"""
@@ -131,7 +165,7 @@ vertices
 );
 blocks
 (
-    hex (0 1 2 3 0 1 5 4) ({nx} {nr} 1) simpleGrading (1 {expansion:.6f} 1)
+    hex (0 1 2 3 0 1 5 4) ({nx} {nr} 1) simpleGrading (1 {1.0/expansion:.8f} 1)
 );
 edges ();
 boundary
