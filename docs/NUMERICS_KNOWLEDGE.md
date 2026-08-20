@@ -2234,3 +2234,16 @@ eighth by four to seven orders of magnitude (0.3664 against 197, 340 and 1.48e+0
 **Never rank closure models on a pooled error across a test set that mixes
 interpolation and extrapolation** — the pooled number is whichever regime has the
 larger magnitude, and here that is a single case out of eight.
+
+**N-B20. Name your cell masks; two counts that differ by 0.09% are not a typo.**
+Two training-cell counts circulated in this programme, 342,014 and 341,717, and
+looked like a discrepancy. They are different quantities: the first is the
+**LES-only** mask (`k_LES` above the anisotropy floor, so `b_LES` is defined) —
+correct for any model that never touches `b_RANS`; the second additionally
+requires a finite `b_RANS`. Every one of the 567 cells separating them across the
+40 cases is a non-finite `b_RANS`, because `b_RANS = tau_RANS/(2 k_RANS) - I/3`
+is undefined where the converged RANS `k` underflows although `k_LES` does not
+(5-52 cells on 34 of the 40 cases). The extended features and `b_LES` contribute
+none. Fix adopted: the masks are returned as `valid_les_only` and `valid` from
+`_common/score_prediction.py`, and every file that quotes a cell count now names
+the mask. **A bare cell count is not a specification.**
