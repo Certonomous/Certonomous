@@ -699,7 +699,7 @@ Since `b = -(nu_t/k) S`, and realisability needs `(nu_t/k) lambda_max(S) <= 1/3`
 and `0.31 < 1/3`, the limiter enforces realisability wherever it is active and
 wherever strain and vorticity magnitudes are comparable.
 
-**[MEASURED HERE]**, over the 41 benchmark cases (`BASELINES.md` section 5):
+**[MEASURED HERE]**, over the 40 benchmark cases (`BASELINES.md` section 5):
 
 | Quantity | Hills (29) | Ducts (8) | CBFS | NASA hump |
 |---|---|---|---|---|
@@ -1689,7 +1689,7 @@ benchmark commit, not merely recorded.
 | Recirculation too long | k-omega SST | curved backward-facing step, `Re_H` = 13700 | `x_reatt/H` = 5.891, +55% bubble, on the case with the **smallest** velocity error (0.052) | 4.241 | `BASELINES.md` s.3 |
 | Stagnation-point anomaly | unlimited linear eddy viscosity | NASA hump | `(nu_t/k) lambda_max(S)` reaches 262; 11.5% of cells non-realisable | bound is 1/3 | `BASELINES.md` s.5 |
 | Stagnation-point anomaly absent where there is no stagnation | same counterfactual | hills, ducts, step | ratio reaches only 0.16-0.53; 0-0.85% of cells | -- | `BASELINES.md` s.5 |
-| `a1` limiter as realisability enforcement | k-omega SST | all 41 cases | limiter active on 18-33% of cells; `b_RANS` realisable in 100% of hill/duct/step cells | -- | `BASELINES.md` s.5 |
+| `a1` limiter as realisability enforcement | k-omega SST | all 40 cases | limiter active on 18-33% of cells; `b_RANS` realisable in 100% of hill/duct/step cells | -- | `BASELINES.md` s.5 |
 | Turbulence kinetic energy error | k-omega SST | all | RMS `k` error 0.24-1.14 of mean `k_LES` | -- | `BASELINES.md` s.3-4 |
 | Anisotropy error comparable to the anisotropy | k-omega SST | ducts | `||b_RANS - b_LES||_F` RMS 0.54-0.65, against the realisable maximum `||b||_F = 0.8165` | -- | `BASELINES.md` s.4 |
 | Overall, in the challenge's own metric | k-omega SST identity | 8 held-out test cases | scaled MAE **0.1036** | leaderboard best 0.0595 | `BASELINES.md` s.2 |

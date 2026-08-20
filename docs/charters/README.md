@@ -14,10 +14,11 @@ deleted at the next revision.
 
 ---
 
-## 1. The nine
+## 1. The eleven
 
-Nine files match `docs/charters/*_CHARTER.md` at frame `8cefb4e9`. Re-derive with
-`ls docs/charters/*_CHARTER.md | wc -l`.
+Eleven files match `docs/charters/*_CHARTER.md` as of 2026-08-20. Re-derive with
+`ls docs/charters/*_CHARTER.md | wc -l`; **the command is the authority and this
+heading is not.** See the dated note at the foot of this section.
 
 | # | Charter | The one line it turns on |
 |---|---|---|
@@ -30,10 +31,25 @@ Nine files match `docs/charters/*_CHARTER.md` at frame `8cefb4e9`. Re-derive wit
 | 7 | [Escalation](ESCALATION_CHARTER.md) | The lab decides what is reversible and cheap. Everything else goes to the docket. |
 | 8 | [Reporting](REPORTING_CHARTER.md) | Six sections, fixed order, every morning, including the mornings with nothing good in them. From version 2.0 the headings are fixed strings, so a missing section fails a match rather than a taste test. |
 | 9 | [Supervision](SUPERVISION_CHARTER.md) | Every big task family has a standing supervisor, and four kinds of check are done by a supervisor personally or they have not been done. |
+| 10 | [Filing](FILING_CHARTER.md) | Respect the naming convention, and the check is the binding artifact — a rule nobody can fail is a preference. |
+| 11 | [Closure modelling](CLOSURE_MODELLING_CHARTER.md) | A closure is not a result until it has been re-solved, and a score against a baseline a constant can beat is not an evaluation. |
 
 `SUPERVISOR_RULINGS.md` sits in this directory and is not a charter, but it binds
 like one. `PROPOSALS_OPEN.md` and `CUSTODY_PROPOSAL.md` are proposals and bind
 nothing.
+
+**Dated note, 2026-08-20 — this count was already wrong before today.** The
+heading read "The nine" and the table listed nine rows, while
+`ls docs/charters/*_CHARTER.md | wc -l` returned **ten**:
+`FILING_CHARTER.md` was adopted 2026-08-18 and was never added to either. Today's
+`CLOSURE_MODELLING_CHARTER.md` makes it eleven, and both missing rows are added
+above. **The nine-to-ten step went undisclosed for two days, and that is the
+finding worth keeping**: section 5 of this file already warns, about `LESSONS.md`,
+that a hand-maintained count of a growing thing "schedules its own next
+correction" and gives commands instead of a figure. Section 1 carried exactly
+such a count and drifted within two days of the last charter landing. The
+re-derive command was correct throughout; only the prose was stale, which is why
+the command is now named as the authority.
 
 ---
 

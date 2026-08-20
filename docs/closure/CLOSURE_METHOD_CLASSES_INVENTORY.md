@@ -912,7 +912,7 @@ hyper-parameter search scored on training MSE selected the wrong architecture.**
   Guan 2022's controlled test); projection costs the learned structure (Beck 2019); capacity costs
   compute (Sirignano's `N_H >= 50`); data costs 30,000 samples (Guan 2022).
 - **Everything is isotropic or two-dimensional.** Beck and Sirignano are decaying HIT; both Mauliks
-  and Guan are 2-D. **`Park2021_neural_les.pdf` — the wall-bounded channel case — is
+  and Guan are 2-D. **`_WRONG_RETRIEVALS/Park2021_neural_les.pdf` — the wall-bounded channel case — is
   `WRONG-QUARANTINED`, so the corpus contains no learned SGS closure in a wall-bounded flow.**
 - **The closure absorbs the discretisation, so it does not port.** Sirignano's Table 1 measures the
   discretisation error at `Delta/dx = 32` as **larger than the mean velocity gradient itself**.

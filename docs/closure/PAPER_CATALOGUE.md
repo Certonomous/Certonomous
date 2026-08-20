@@ -598,7 +598,7 @@ The training Reynolds numbers for Scenario I are given as **Re = 1400 and 5600**
 
 - **Category**: B (primary). Secondary: A — the output is a closed-form algebraic stress model, i.e. a *discovered* EASM in the Pope/Gatski-Speziale sense.
 - **Version**: **arXiv preprint 1905.07510v2** (28 Feb 2020), 29 pp. Journal: *Flow, Turbulence and Combustion* 104:579-603. **All locations below are arXiv preprint page/Table numbers.**
-- **DUPLICATE ON DISK (`FLAG F13`)**: `Schmelzer2020_sparta_sparse_symbolic_regression.pdf` is **byte-identical** to this file (sha256 `7aca1f9a1f40dc4c67c12f83f2c05fe85cecf6527e1107129bb831b68def1208` for both). One catalogue entry, one manifest row; see the report at the end of this document for the recommended filename.
+- **DUPLICATE (`FLAG F13`, resolved)**: `_DUPLICATES/Schmelzer2020_sparta_sparse_symbolic_regression.pdf` is **byte-identical** to this file (sha256 `7aca1f9a1f40dc4c67c12f83f2c05fe85cecf6527e1107129bb831b68def1208` for both). One catalogue entry, one manifest row; see the report at the end of this document for the recommended filename.
 - **Method (one line)**: Deterministic **sparse symbolic regression** (elastic-net model *selection* followed by ridge-regression coefficient *inference*) over a library of tensor-polynomial candidates, fitted to two additive corrections to k-omega SST that are first extracted from full-field LES/DNS by a procedure the authors call **k-corrective-frozen-RANS**: an anisotropy correction `b_ij = -(nu_t/k) S_ij + b^Delta_ij` (arXiv preprint Eq. 3, p. 5) and a **residual `R` in the k-equation** that also enters the omega-equation, `R = 2k b^R_ij d_j U_i` (Eq. 11, p. 8).
 - **Data used**: full-field LES/DNS produced by other authors — **PH10595** periodic hills `Re = 10595` (Breuer LES, mesh 120 x 130), **CD12600** converging-diverging channel `Re = 12600` (Laval & Marquillie DNS, mesh 140 x 100), **CBFS13700** curved backward-facing step `Re = 13700` (Bentaleb LES, mesh 140 x 150). Extrapolation case: **PH37000**, periodic hills `Re = 37000`, Rapp & Manhart **experiment**. Data volume `K ~ 15000` points (p. 11). Cross-validation is **leave-one-case-out using CFD**, not point-wise.
 - **Cases / flows and Re**: three separating flows at `Re` 10595-13700 plus one `Re = 37000` extrapolation.
@@ -2035,16 +2035,27 @@ and `Guan2022_stable_aposteriori_les_cnn.pdf` are now **VERIFIED-PDF** and were 
 when the matrix was first written. `FEASIBILITY.md` has already been updated for Wu 2018; Guan 2022
 still needs its row moved.
 
-## 4. Two byte-identical duplicate pairs on disk
+## 4. Duplicates — resolved 2026-08-20: six files, now quarantined in `_DUPLICATES/`
 
-Both were found by `sha256sum` over the whole file, not by name similarity.
+Found by grouping the verified files by **sha256**, not by name similarity. **Two pairs were known
+when this catalogue was first written; the final corpus sweep found six.** All six have since been
+moved to `docs/papers/closure/_DUPLICATES/`, and **all six are byte-identical to their canonical
+twin** — verified by script, so the `_DUPLICATES/README.md` hedge that "arXiv version may differ" is
+disproven: in every case the arXiv version is the same too.
 
-| Pair | sha256 (both members) | Recommendation |
+| duplicate (now in `_DUPLICATES/`) | canonical name — **cite this one** | shared sha256 |
 |---|---|---|
-| `Schmelzer2020_algebraic_reynolds.pdf` = `Schmelzer2020_sparta_sparse_symbolic_regression.pdf` | `7aca1f9a1f40dc4c67c12f83f2c05fe85cecf6527e1107129bb831b68def1208` | **Keep `Schmelzer2020_algebraic_reynolds.pdf`** — it is the name already carried by the `RETRIEVED-VERIFIED` row in `MANIFEST.md`, by `FEASIBILITY.md` §1.1, and by the catalogue block above. Record `..._sparta_sparse_symbolic_regression.pdf` as an **alias**, or delete it. |
-| `Xiao2016_model_uncertainties.pdf` = `Xiao2016_bayesian_model_form_uncertainty.pdf` | `1577eabd0d5924146370256cbff8f37397d48953efd1e6589605b6583a40e739` | **Keep `Xiao2016_model_uncertainties.pdf`** — same reasoning: it is the `MANIFEST.md` row, the `FEASIBILITY.md` row, and the catalogue block. The second file arrived later in the same session. |
+| `Beck2019_deep_neural_les_closure.pdf` | `Beck2019_deep_neural_les.pdf` | `5e871ebae97db5cd…` |
+| `Duraisamy2021_perspectives_ml_rans_les.pdf` | `Duraisamy2021_perspectives_ml.pdf` | `ccb66cf93c004ea7…` |
+| `Maulik2017_blind_deconvolution_neural.pdf` | `Maulik_San2017_neural_deconvolution.pdf` | `92ee9bc6830b8ee1…` |
+| `Schmelzer2020_sparta_sparse_symbolic_regression.pdf` | `Schmelzer2020_algebraic_reynolds.pdf` | `7aca1f9a1f40dc4c…` |
+| `Sirignano2020_dpm_deep_learning_pde_augmentation.pdf` | `Sirignano2020_dpm_les.pdf` | `378bc5820fba092b…` |
+| `Xiao2016_bayesian_model_form_uncertainty.pdf` | `Xiao2016_model_uncertainties.pdf` | `1577eabd0d592414…` |
 
-Both duplicates are **harmless to correctness and harmful to counting**: a naive file count reports
-35 papers where there are 33 works, and a manifest with two rows for one document will eventually be
-read as two independent sources for the same number. Neither pair is a retrieval *error* — both
-members are the correct paper.
+Full hashes: `MANIFEST.md` §2. **Every block in this catalogue cites the canonical name only.**
+
+Duplicates are **harmless to correctness and harmful to counting**: a naive file count reported
+39 papers where there are 33 works, and a manifest with two rows for one document is eventually read
+as two independent sources for the same number. **None of the six is a retrieval error** — every one
+is the correct paper, which is exactly why title-page verification cannot detect them and a hash
+grouping must (LESSONS L-145).

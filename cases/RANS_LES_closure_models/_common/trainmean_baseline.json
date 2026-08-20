@@ -1,0 +1,147 @@
+{
+ "definition": "constant prediction b_pred(x) = mean of b_LES over the training cells",
+ "train_cases": [
+  "AR_10_Ret_180",
+  "AR_1_Ret_180",
+  "AR_3_Ret_180",
+  "AR_5_Ret_180",
+  "CBFS13700",
+  "PHLL10595",
+  "alpha_05_7071_2024",
+  "alpha_05_7071_3036",
+  "alpha_05_7071_4048",
+  "alpha_075",
+  "alpha_10_12000_2024",
+  "alpha_10_12000_3036",
+  "alpha_10_12000_4048",
+  "alpha_10_6000_2024",
+  "alpha_10_6000_3036",
+  "alpha_10_6000_4048",
+  "alpha_10_9000_2024",
+  "alpha_10_9000_3036",
+  "alpha_10_9000_4048",
+  "alpha_125",
+  "alpha_15_10929_2024",
+  "alpha_15_10929_3036",
+  "alpha_15_10929_4048"
+ ],
+ "n_train_cases": 23,
+ "n_train_cells": 341717,
+ "excluded_for_group_leak": [
+  "alpha_05_10071_3036",
+  "alpha_05_4071_3036",
+  "alpha_15_13929_3036",
+  "alpha_15_7929_3036"
+ ],
+ "val_cases": [
+  "AR_7_Ret_180",
+  "alpha_05_10071_2024",
+  "alpha_05_10071_4048",
+  "alpha_15_7929_2024",
+  "alpha_15_7929_4048"
+ ],
+ "test_cases": [
+  "AR_14_Ret_180",
+  "AR_1_Ret_360",
+  "AR_3_Ret_360",
+  "NASA_2DWMH",
+  "alpha_05_4071_2024",
+  "alpha_05_4071_4048",
+  "alpha_15_13929_2024",
+  "alpha_15_13929_4048"
+ ],
+ "b_mean": [
+  [
+   0.175565,
+   -0.038167,
+   0.001842
+  ],
+  [
+   -0.038167,
+   -0.147931,
+   -0.000625
+  ],
+  [
+   0.001842,
+   -0.000625,
+   -0.027617
+  ]
+ ],
+ "b_mean_frobenius": 0.23746639490127563,
+ "cell_mask": "valid = k_LES above the anisotropy floor AND b_LES, b_RANS and the 17 extended features all finite; the last condition drops 567 cells that BASELINES.md sections 3-5 keep, so these SST numbers differ in the fourth decimal from those tables and are the ones a Phase-3 reproduction must quote",
+ "per_case": {
+  "alpha_15_13929_4048": {
+   "n_cells": 15576,
+   "train_mean": 0.22580347955226898,
+   "sst": 0.28887248039245605,
+   "zero": 0.31279608607292175,
+   "viol_truth": 0.012519260400616333,
+   "viol_sst": 0.0
+  },
+  "alpha_15_13929_2024": {
+   "n_cells": 15573,
+   "train_mean": 0.2714325189590454,
+   "sst": 0.33388832211494446,
+   "zero": 0.33547112345695496,
+   "viol_truth": 0.022667437231105116,
+   "viol_sst": 0.0
+  },
+  "alpha_05_4071_4048": {
+   "n_cells": 15543,
+   "train_mean": 0.3013893961906433,
+   "sst": 0.3511527180671692,
+   "zero": 0.37909069657325745,
+   "viol_truth": 0.013703918162516888,
+   "viol_sst": 0.0
+  },
+  "alpha_05_4071_2024": {
+   "n_cells": 15503,
+   "train_mean": 0.2585604190826416,
+   "sst": 0.3271028399467468,
+   "zero": 0.34571900963783264,
+   "viol_truth": 0.023414822937495968,
+   "viol_sst": 0.0
+  },
+  "AR_1_Ret_360": {
+   "n_cells": 2955,
+   "train_mean": 0.422110915184021,
+   "sst": 0.5972346663475037,
+   "zero": 0.5995910167694092,
+   "viol_truth": 0.015905245346869712,
+   "viol_sst": 0.0
+  },
+  "AR_3_Ret_360": {
+   "n_cells": 8644,
+   "train_mean": 0.3865835666656494,
+   "sst": 0.5522687435150146,
+   "zero": 0.5579732060432434,
+   "viol_truth": 0.0041647385469689956,
+   "viol_sst": 0.0
+  },
+  "AR_14_Ret_180": {
+   "n_cells": 31624,
+   "train_mean": 0.4036054015159607,
+   "sst": 0.5799152851104736,
+   "zero": 0.5841749906539917,
+   "viol_truth": 0.0,
+   "viol_sst": 0.0
+  },
+  "NASA_2DWMH": {
+   "n_cells": 47102,
+   "train_mean": 0.2948560416698456,
+   "sst": 0.33175402879714966,
+   "zero": 0.3398211896419525,
+   "viol_truth": 0.0,
+   "viol_sst": 0.003269500233535731
+  }
+ },
+ "b_mean_realisable": true,
+ "pooled_TEST": {
+  "n_cells": 152520,
+  "train_mean": 0.3183218240737915,
+  "sst": 0.4138386845588684,
+  "zero": 0.4234473705291748
+ },
+ "n_test_cases_where_constant_beats_sst": 8,
+ "n_test_cases": 8
+}
