@@ -395,6 +395,20 @@ def main():
         A("otherwise leak a near-duplicate into training. The constant is itself")
         A("realisable: %s." % ("yes" if T["b_mean_realisable"] else "NO"))
         A("")
+        A("**Two training-cell counts appear in this programme and they are different**")
+        A("**quantities, not a discrepancy.** %d is the count on the *LES-only* mask" %
+          T["n_train_cells_LES_mask_only"])
+        A("(`k_LES` above the anisotropy floor, so `b_LES` is defined) -- what a model")
+        A("that never touches `b_RANS` can train on, and the number quoted by")
+        A("`Ling2016_TBNN`. **%d** is the count on the stricter mask used here, which" % T["n_train_cells"])
+        A("also requires `b_RANS` to be finite. The %d cells between them are all"
+          % (T["n_train_cells_LES_mask_only"] - T["n_train_cells"]))
+        A("non-finite `b_RANS`: `b_RANS = tau_RANS/(2 k_RANS) - I/3` is undefined where")
+        A("the converged RANS `k` underflows although `k_LES` does not (567 such cells")
+        A("across all 40 cases, 5-52 per case on 34 of them; the extended features and")
+        A("`b_LES` contribute none). The masks are named `valid_les_only` and `valid` in")
+        A("`score_prediction.py`; **quote the mask name, never just the count.**")
+        A("")
         A("| Case | cells | **train-mean (constant)** | k-omega SST | `b = 0` | constant beats SST? |")
         A("|---|---|---|---|---|---|")
         for c in T["test_cases"]:

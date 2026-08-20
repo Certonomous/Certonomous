@@ -53,18 +53,27 @@ def main():
         "train_cases": sorted(train_cases),
         "n_train_cases": len(train_cases),
         "n_train_cells": int(m_train.sum()),
+        "n_train_cells_LES_mask_only": None,  # filled below
         "excluded_for_group_leak": sorted(GROUP_EXCLUDED),
         "val_cases": sorted(VAL),
         "test_cases": sorted(TEST),
         "b_mean": [[round(float(x), 6) for x in row] for row in b_mean],
         "b_mean_frobenius": float(np.linalg.norm(b_mean)),
-        "cell_mask": ("valid = k_LES above the anisotropy floor AND b_LES, b_RANS and the "
-                      "17 extended features all finite; the last condition drops 567 cells "
-                      "that BASELINES.md sections 3-5 keep, so these SST numbers differ in "
-                      "the fourth decimal from those tables and are the ones a Phase-3 "
-                      "reproduction must quote"),
+        "mask_name": "cells with BOTH a defined LES and a defined RANS anisotropy",
+        "cell_mask": ("k_LES above the anisotropy floor (which defines b_LES) AND b_RANS "
+                      "finite. b_RANS = tau_RANS/(2 k_RANS) - I/3 is undefined where the "
+                      "converged RANS k underflows even though k_LES does not: 567 such "
+                      "cells across the 40 cases, 5-52 per case on 34 of them, and every "
+                      "one of the 567 is a non-finite b_RANS (the extended features and "
+                      "b_LES contribute none). Because this mask needs b_RANS it is "
+                      "STRICTER than the LES-only mask used where a model never touches "
+                      "b_RANS - see the note in this section - so the SST numbers here "
+                      "differ in the fourth decimal from BASELINES.md sections 3-5"),
         "per_case": {},
     }
+    # the looser, LES-only mask: what a model that never touches b_RANS can train on
+    m_train_les = np.isin(cid, [cid_of[c] for c in train_cases]) & d["valid_les_only"]
+    out["n_train_cells_LES_mask_only"] = int(m_train_les.sum())
     vio_mean, _ = realisability_violation(b_mean[None])
     out["b_mean_realisable"] = bool(not vio_mean[0])
 
@@ -92,7 +101,8 @@ def main():
     out["n_test_cases"] = len(TEST)
 
     json.dump(out, open(OUT, "w"), indent=1)
-    print(f"train cases {len(train_cases)}, train cells {out['n_train_cells']}")
+    print(f"train cases {len(train_cases)}, train cells {out['n_train_cells']} "
+          f"(mask: {out['mask_name']})")
     print("b_mean =\n", np.round(b_mean, 4))
     print(f"realisable: {out['b_mean_realisable']}")
     for c in TEST:

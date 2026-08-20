@@ -27,6 +27,7 @@
  ],
  "n_train_cases": 23,
  "n_train_cells": 341717,
+ "n_train_cells_LES_mask_only": 342014,
  "excluded_for_group_leak": [
   "alpha_05_10071_3036",
   "alpha_05_4071_3036",
@@ -68,7 +69,8 @@
   ]
  ],
  "b_mean_frobenius": 0.23746639490127563,
- "cell_mask": "valid = k_LES above the anisotropy floor AND b_LES, b_RANS and the 17 extended features all finite; the last condition drops 567 cells that BASELINES.md sections 3-5 keep, so these SST numbers differ in the fourth decimal from those tables and are the ones a Phase-3 reproduction must quote",
+ "mask_name": "cells with BOTH a defined LES and a defined RANS anisotropy",
+ "cell_mask": "k_LES above the anisotropy floor (which defines b_LES) AND b_RANS finite. b_RANS = tau_RANS/(2 k_RANS) - I/3 is undefined where the converged RANS k underflows even though k_LES does not: 567 such cells across the 40 cases, 5-52 per case on 34 of them, and every one of the 567 is a non-finite b_RANS (the extended features and b_LES contribute none). Because this mask needs b_RANS it is STRICTER than the LES-only mask used where a model never touches b_RANS - see the note in this section - so the SST numbers here differ in the fourth decimal from BASELINES.md sections 3-5",
  "per_case": {
   "alpha_15_13929_4048": {
    "n_cells": 15576,

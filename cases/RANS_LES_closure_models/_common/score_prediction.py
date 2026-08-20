@@ -19,13 +19,27 @@ FEXT = "/home/ubuntu/closure-data/tbnn/features_ext.npz"
 
 
 def load():
+    """Two cell masks, deliberately named apart because they differ by 567 cells.
+
+    `valid_les_only` -- k_LES above the anisotropy floor, so b_LES is defined.
+        This is what a model that never touches b_RANS can train and be scored on
+        (e.g. the TBNN, which regresses b_LES from RANS-side inputs only).
+    `valid` -- the same, AND b_RANS finite. b_RANS = tau_RANS/(2 k_RANS) - I/3 is
+        undefined where the converged RANS k underflows even though k_LES does
+        not. Required by anything that compares against, or corrects, b_RANS.
+
+    All 567 cells separating the two are non-finite b_RANS; the extended features
+    and b_LES contribute none. Quote the mask name, never just the count.
+    """
     z = np.load(DATA, allow_pickle=True)
     names = [str(x) for x in z["names"]]
     F = np.load(FEXT, allow_pickle=True)["F"]
+    valid_les_only = z["valid"]
     finite = (np.isfinite(z["b_LES"]).all(axis=(1, 2))
               & np.isfinite(z["b_RANS"]).all(axis=(1, 2)) & np.isfinite(F).all(axis=1))
     return dict(names=names, lam=z["lam"], T=z["T"], b_LES=z["b_LES"],
-                b_RANS=z["b_RANS"], valid=z["valid"] & finite, cid=z["case_id"], F=F)
+                b_RANS=z["b_RANS"], valid=valid_les_only & finite,
+                valid_les_only=valid_les_only, cid=z["case_id"], F=F)
 
 
 def frob_rms(x):

@@ -67,7 +67,7 @@ running** and the machine was carrying four concurrent jobs (load average ~31 on
 | Piece | Status |
 |---|---|
 | TBNN seeds 0-4 | **all complete**; predictions at `/home/ubuntu/closure-data/tbnn/ckpt/pred_TBNN_s{0..4}.npy` |
-| Plain-MLP control | **scored** from best checkpoints, both arms (sec. 4b). Seed 0 of 3 in the isolated dir; seeds 1-2 still to run, which would tighten the MLP's own spread but cannot change the pooled comparison |
+| Plain-MLP control | **seed 0 converged and scored** on the TEST set from its final prediction field (sec. 4b); seed 1 running. Seeds 1-2 would give the MLP a seed spread of its own but cannot change the pooled comparison, which fails by seven orders of magnitude |
 | TBRF sibling comparator (secs. 7b, 7b-i) | **5 of 6 forests complete**: all three 5-invariant seeds and two of three 17-feature seeds |
 
 Everything is bounded and restart-safe: a hard cap of 400 epochs, a wall-clock
@@ -135,7 +135,13 @@ comparable capacity on the same inputs.
 [assert] cells are never split across cases: every case contributes all of its cells to exactly one of train/val/test
 ```
 
-Cells: train 342,014, validation 77,611, test 152,634. Four hills
+Cells: train **342,014**, validation 77,611, test 152,634 — all on the
+**LES-only mask** (`valid_les_only` in `_common/score_prediction.py`: `k_LES`
+above the anisotropy floor, so `b_LES` is defined), which is the right mask here
+because the TBNN never touches `b_RANS`; `BASELINES.md` sec. 6.4 quotes **341,717**
+for the same training split on the stricter `valid` mask that additionally
+requires a finite `b_RANS`, and the 297-cell difference is entirely cells where
+the converged RANS `k` underflows although `k_LES` does not. Four hills
 (`alpha_15_13929_3036`, `alpha_05_4071_3036`, `alpha_05_10071_3036`,
 `alpha_15_7929_3036`) were **removed from training** although the benchmark
 permits them, because each differs from a TEST or VALIDATION hill only in domain
@@ -162,40 +168,40 @@ train-mean constant (B3, `BASELINES.md` sec. 6.4) on **7 of 8** - the same 7.
 ## 4b. Criterion (iii): the TBNN against Ling's own control
 
 The plain MLP (10 x 10, same five invariants, no tensor basis — Ling 2016 p. 6)
-was trained on the **identical** split. Two independent MLP runs exist, in
-separate checkpoint directories, and they agree to 0.001–0.013 per case, which is
-the cross-check that neither is mis-configured. Both are scored from their best
-checkpoint (`best_state`), the isolated one at epoch 300 of <= 400 with no
-improvement for 14 epochs, the main-sweep one at epoch 225.
+was trained on the **identical** split. **Seed 0 has now converged and
+early-stopped**; it is scored from its final saved prediction field, not from a
+mid-run checkpoint. Best validation `b_rms` 0.17271.
 
-| Case | TBNN (5 seeds) | TBNN seed spread | MLP (isolated) | MLP (main sweep) | TBNN advantage | beyond seed spread? |
-|---|---|---|---|---|---|---|
-| `AR_14_Ret_180` | 0.1105 | 0.0071 | 0.1301 | 0.1290 | 0.0196 | yes |
-| `AR_1_Ret_360` | 0.1222 | 0.0053 | 0.1778 | 0.1775 | 0.0556 | yes |
-| `AR_3_Ret_360` | 0.1229 | 0.0078 | 0.1668 | 0.1675 | 0.0440 | yes |
-| `NASA_2DWMH` | 1.48e+07 | 3.71e+07 | 0.3664 | 0.3765 | 1.48e+07 worse | n/a |
-| `alpha_05_4071_2024` | 0.1881 | 0.0029 | 0.1972 | 0.1968 | 0.0091 | yes |
-| `alpha_05_4071_4048` | 0.2364 | 0.0038 | 0.2487 | 0.2477 | 0.0123 | yes |
-| `alpha_15_13929_2024` | 0.2257 | 0.0090 | 0.2297 | 0.2328 | 0.0041 | no |
-| `alpha_15_13929_4048` | 0.1362 | 0.0038 | 0.1583 | 0.1569 | 0.0220 | yes |
+| Case | TBNN (5 seeds) | TBNN seed spread | MLP (converged) | TBNN advantage | beyond seed spread? |
+|---|---|---|---|---|---|
+| `AR_14_Ret_180` | 0.1105 | 0.0071 | 0.1258 | 0.0153 | yes |
+| `AR_1_Ret_360` | 0.1222 | 0.0053 | 0.1739 | 0.0517 | yes |
+| `AR_3_Ret_360` | 0.1229 | 0.0078 | 0.1632 | 0.0403 | yes |
+| `NASA_2DWMH` | 1.48e+07 | 3.71e+07 | 0.3563 | 1.48e+07 WORSE | n/a |
+| `alpha_05_4071_2024` | 0.1881 | 0.0029 | 0.1968 | 0.0087 | yes |
+| `alpha_05_4071_4048` | 0.2364 | 0.0038 | 0.2482 | 0.0119 | yes |
+| `alpha_15_13929_2024` | 0.2257 | 0.0090 | 0.2285 | 0.0029 | no |
+| `alpha_15_13929_4048` | 0.1362 | 0.0038 | 0.1550 | 0.0188 | yes |
 
 **Two readings of criterion (iii), both given:**
 
 * **Per case, in-domain (7 cases):** TBNN better on **7 of 7**, by more than the
   seed spread on **6 of 7**. Only `alpha_15_13929_2024` is inside the spread
-  (advantage 0.0041 against a spread of 0.0090). On this reading the invariance
+  (advantage 0.0029 against a spread of 0.0090). On this reading the invariance
   embedding earns its keep and criterion (iii) is met.
-* **Pooled over the whole test set, which is what was registered:** the TBNN's
-  pooled error is dominated by `NASA_2DWMH` (1.48e+07 against the MLP's 0.3664),
-  so the TBNN is worse by seven orders of magnitude and criterion (iii) fails.
+* **Pooled over the whole test set, which is what was registered:** TBNN
+  **8.56e+06** (seed 0) against MLP **0.2502**. The TBNN's pooled error is
+  entirely `NASA_2DWMH` (1.48e+07 against the MLP's 0.3563), so it is worse by
+  seven orders of magnitude and criterion (iii) fails.
 
 **The pooled reading governs.** It is what the preregistration says, and it is the
 one less favourable to the model. Both are printed so no reader has to take my
 word for which was chosen.
 
 **Realisability, the same comparison:** TBNN **6.5–15.3%** of test cells
-non-realisable, MLP **1.24%** (isolated) and **2.11%** (main sweep), truth
-**0.79%**, SST **0.10%**. The unconstrained network — which has no mechanism
+non-realisable, converged MLP **0.89%**, truth **0.79%**, SST **0.10%**. The
+unconstrained network lands within **1.13x** of the truth's own violation rate;
+the tensor-basis network is 8x to 19x worse than it. The unconstrained network — which has no mechanism
 enforcing anything — stays an order of magnitude closer to physically admissible
 states than the network built around an exactly-invariant tensor basis. The basis
 constrains the *form* of `b` and nothing about its *magnitude*, and on this
@@ -206,7 +212,8 @@ coefficients are multiplying directions the training data cannot pin down
 ## 5. The trivial baseline that beats k-omega SST on every test case
 
 Pre-registered baseline **B3** is a *single constant tensor*: the mean `b_LES`
-over all 342,014 training cells,
+over all 342,014 training cells (LES-only mask; 341,717 on the stricter mask
+`BASELINES.md` sec. 6.4 uses — see sec. 3),
 
 ```
 b_mean =  [  0.1756  -0.0382   0.0018 ]
@@ -237,13 +244,14 @@ sec. 5 requires:
 | **TBNN, seeds 0/1/2/3/4** | **15.34% / 9.84% / 6.47% / 14.79% / 9.10%** |
 | tensor-basis RF, 5 invariants, 3 seeds | 10.16% / 11.36% / 10.55% |
 | tensor-basis RF, 17 features, 2 seeds | 9.66% / 9.27% |
-| **plain MLP (no tensor basis), 2 arms** | **1.24% / 2.11%** |
+| **plain MLP (no tensor basis), converged seed 0** | **0.89%** |
 | Wu 2018 random forest, same split (sibling directory) | 1.54-1.60% |
 | the LES/DNS **truth** itself | **0.79%** |
 | k-omega SST | 0.10% (all of it on the hump) |
 
 **Every model built on the tensor basis is 8x-19x worse than the truth's own
-violation rate; every model without one is within 3x of it.** That is the
+violation rate; every model without one is within 2x of it — the converged MLP is
+within 1.13x.** That is the
 cleanest single line in this file: the structure that guarantees Galilean
 invariance is the same structure that destroys realisability, because it
 constrains the form of `b` and nothing about its magnitude.
@@ -465,15 +473,13 @@ this must pin the thread count.
 * **It cannot see 3-D behaviour**: rank-3 basis throughout (sec. 7b).
 * **It cannot see the truth's uncertainty**: the benchmark ships no error bar,
   and the truth is itself non-realisable in 0.79% of these cells.
-* **Criterion (iii) is now resolved (sec. 4b), but note what it cannot see.** The
-  MLP control is scored from its best checkpoint at epoch 300 of <= 400, with no
-  improvement for 14 epochs against a patience of 60. A fully converged MLP could
-  only get *better*, which would widen the gap on the pooled criterion the TBNN
-  already fails and narrow the per-case margins the TBNN wins. Seeds 1-2 of the
-  control have not run, so the MLP has **no seed spread of its own** here; the
-  spread used throughout is the TBNN's. Two independent MLP arms agreeing to
-  0.001-0.013 per case is a weaker check than a seed sweep, and is all that is
-  claimed.
+* **Criterion (iii) is resolved on a converged control, but note what it cannot
+  see.** MLP seed 0 ran to early-stop and is scored from its final prediction
+  field, not a checkpoint. Seeds 1-2 have not finished, so **the MLP has no seed
+  spread of its own here**; the spread used throughout is the TBNN's, which is
+  the conservative choice for a criterion the TBNN fails. A mid-run checkpoint
+  scored at epoch 300 gave the same verdict and per-case ordering, so the result
+  is not sensitive to where the control was stopped.
 * **A pre-sweep observation, recorded because it was seen early and must not be
   dropped now that the answer went the other way.** A 2-epoch smoke test before
   the sweep had the MLP *ahead* of the TBNN on validation (0.264 against 0.577).
