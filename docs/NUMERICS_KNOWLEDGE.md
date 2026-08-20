@@ -1719,3 +1719,352 @@ each destination was then confirmed against the filesystem at commit `4323d7e3`.
 The whole 87-path table was appended to `docs/papers/README.md` in the same
 commit. `python3 scripts/check_paper_citations.py` re-derives the rows above and
 exits non-zero if any destination stops resolving.
+
+
+## Closure-modelling numerics — appended 2026-08-20 (closure team, reviewed by supervisor)
+
+Drafted from title-verified PDFs in docs/papers/closure/; nothing below was reproduced on this machine unless a section says so. Basis tags: PAPER-VERIFIED / PAPER-GRAPHICAL / NOT STATED.
+
+## Data-driven closures: conditioning, coupling and a-posteriori stability (added 2026-08-20)
+
+### 1. Substituting an exact Reynolds-stress field does not give an exact velocity field, and the error grows with Reynolds number
+
+Wu, Xiao, Sun & Wang, *RANS Equations with Explicit Data-Driven Reynolds Stress Closure Can Be
+Ill-Conditioned*, **arXiv:1803.05581v3**, `docs/papers/closure/Wu2018_rans_explicit_closure_ill_conditioned.pdf`.
+DNS Reynolds stresses from Lee & Moser (2015) substituted into the RANS momentum equations and
+propagated in OpenFOAM; **no turbulence model is solved**; convergence criterion **1e-8 absolute**;
+2nd-order central differences except 2nd-order upwind on convection "to avoid the possible numerical
+instability when using central difference scheme for the convection term" (arXiv preprint pp. 12-13).
+
+| `Re_tau` | 180 | 550 | 1000 | 2000 | 5200 | Basis |
+|---|---|---|---|---|---|---|
+| Cells `N` (non-uniform, first cell `y+ < 1`) | 36 | 110 | 200 | 400 | 1040 | **PAPER-VERIFIED**, p. 13 |
+| Shear-stress error, volume-averaged | 0.17% | 0.21% | 0.03% | 0.15% | **0.31%** | **PAPER-VERIFIED**, Table 1, p. 4 |
+| Shear-stress error, maximum | 0.43% | 0.38% | 0.07% | 0.23% | 0.41% | **PAPER-VERIFIED**, Table 1 |
+| **Mean-velocity error, volume-averaged** | 0.25% | 1.61% | 0.17% | 2.85% | **21.6%** | **PAPER-VERIFIED**, Table 1 |
+| **Mean-velocity error, maximum** | 0.36% | 2.70% | 0.25% | 5.48% | **35.1%** | **PAPER-VERIFIED**, Table 1 |
+
+**Stress errors are non-monotonic in `Re` and the authors warn against reading the trend** ("such a
+coincidental trend should not be overly or literally interpreted", p. 4). **Velocity errors "clearly
+increase monotonically with the Reynolds number."** Third-party caveat quoted on p. 3: large
+propagated errors have been reported "at Reynolds number as low as **`Re_tau = 395`** depending on
+the DNS data used".
+
+**Consequence for this lab.** An a-priori improvement in a Reynolds-stress metric bounds nothing about
+the re-solved flow. Since `simpleFoam` is installed, every closure experiment here states whether it
+was re-solved; if not, it is labelled a-priori.
+
+### 2. The textbook matrix condition number cannot see this, and it is mesh-dependent
+
+Same paper. For plane channel flow the convection term vanishes, so the operator `A` comes only from
+diffusion, and:
+
+| Fact | Value | Basis |
+|---|---|---|
+| Matrix condition number `K_A = \|\|A\|\| \|\|A^-1\|\|` for the 1-D channel diffusion operator | **`4 n^2 / pi^2`** — a function of mesh count `n` alone, **independent of `nu` and `Re`** | **PAPER-VERIFIED**, Eq. 2.12 and p. 8 |
+| Stress-scaled version `K_tau = K_A \|\|div tau\|\|/\|\|b\|\|` across `Re_tau = 180 to 5200` | "**more or less the same across all Reynolds numbers**" | **PAPER-VERIFIED**, p. 7 |
+| `alpha = \|\|div tau\|\|/\|\|b\|\|` at both `Re_tau = 180` and 5200 | `O(1)` | **PAPER-VERIFIED**, p. 7 |
+| Numeric values of `K_A` and `alpha` | **NOT STATED** — Fig. 1 is graphical | **PAPER-GRAPHICAL** |
+
+Authors' rejection of the metric (p. 8): "**The mesh dependency is highly undesirable as the condition
+number is to measure the conditioning property of turbulence models at the PDE level, not any
+particular numerical discretization thereof.**"
+
+### 3. The local condition number: definition, cost, and the one number it produces
+
+Same paper. Built from the Green's function of the linearised RANS operator `L(u) = u_0 . grad u - nu grad^2 u`.
+
+| Item | Value | Basis |
+|---|---|---|
+| Bound | `\|delta u(x)\|/U_inf <= K(x) \|\|div delta tau\|\|_Omega / \|\|div tau\|\|_Omega` | **PAPER-VERIFIED**, Eq. 2.13, p. 9 |
+| Definition | `K(x) = \|\|G(x, xi)\|\|_Omega \|\|div tau\|\|_Omega / U_inf` | **PAPER-VERIFIED**, Eq. 2.14, p. 9 |
+| Discrete form | `K_j = \|\|r_j\|\|_n \|\|div tau\|\|_n / U_inf`, `r_j` = the `j`-th **row of `A^-1`** | **PAPER-VERIFIED**, Eq. 2.18, p. 10 |
+| Volume average | `K_x = sum_j K_j dV_j / V` | **PAPER-VERIFIED**, Eq. 2.19, p. 11 |
+| **Cost** | one row of `A^-1` per point via `A^T r_j = I_j`: **`O(n log n)` per row with multigrid, `O(n^2 log n)` for the field** — "much lower than the complexity of `O(n^3)` for typical algorithms of matrix inversions" | **PAPER-VERIFIED**, p. 10 |
+| **Mesh independence** | proved (Eqs. B1-B8, pp. 27-28); verified numerically over `Ny = 208, 416, 624, 832, 1040` | **PAPER-VERIFIED**, Fig. 17, p. 29 |
+
+**The headline conditioning result, and it is stated only as orders of magnitude:**
+
+| Coupling | Local condition number, channel `Re_tau = 5200` | Basis |
+|---|---|---|
+| **Explicit** (`tau` a fixed source term, Algorithm 1) | **`O(10^2)`** (at `Re_tau = 180` it is `O(1)`) | **PAPER-VERIFIED**, p. 14 |
+| **Implicit** (`tau = 2 nu_t^m S(u^(i)) + tau_perp`, Algorithm 2) | "**at the same order of magnitude for different Reynolds numbers**"; volume-averaged "**stays at `O(1)`**" | **PAPER-VERIFIED**, p. 16 |
+| Periodic hills `Re = 5600`, explicit | "**of the order `O(10^2)` in most areas**" | **PAPER-VERIFIED**, p. 20 |
+| Figures 4, 6, 7, 8, 13, 15, 18 | print no values | **PAPER-GRAPHICAL** |
+
+**The optimal eddy viscosity used in the implicit branch is
+`nu_t^m(x) = argmin_{nu_t} ||tau^DNS - 2 nu_t(x) S^DNS||`** (Eq. 2.22, p. 11) — **projected from the
+DNS field, not from a model.** A real closure must supply it from its own prediction, and the paper
+does not measure how much of the gain survives that substitution.
+
+### 4. The implicit/explicit split is the conditioning fix, and three papers implement it differently
+
+| Implementation | Form | Basis |
+|---|---|---|
+| **Wu, Xiao & Paterson 2018** (`Wu2018_physics_augmenting.pdf`) | `b = nu_t^L S + b_perp` with `nu_t^L = 2 (b:S)/(\|\|S\|\|\|\|S\|\|)` (Eq. 5, p. 7), defined as `argmin_{nu_t} \|\|b - nu_t S\|\|_F` (Eq. 4). Solver: modified `simpleFoam`, `tau^m = nu_t^L S + (tau - tau^L) + tr(tau)`, "**The strain rate tensor S is treated implicitly in the modified flow solver**" | **PAPER-VERIFIED**, arXiv preprint Appendix A, p. 35 |
+| **Stroefer & Xiao 2021** (`Strofer2021_differentiable.pdf`) | `u.grad u - div(nu_eff grad u) - grad u . grad nu_eff + div(a_NL) + grad p* = s`, with **`nu_eff = nu - g^(1) k t_tau`**, `a_NL = 2k sum_{i=2..10} g^(i) T^(i)`, `p* = p + 2k/3`; "**the term `div(nu_eff grad u)` is treated implicitly**" | **PAPER-VERIFIED**, arXiv preprint Eq. 2.4, p. 4 |
+| Their stated reason | "**explicit treatment of the divergence of Reynolds stress can make the RANS equations ill-conditioned (Wu et al. 2019; Brener et al. 2021). We treat part of the linear term implicitly by use of an effective viscosity `nu_eff` which is easily obtained since with the integrity basis representation the linear term is learned independently.**" | **PAPER-VERIFIED**, arXiv preprint p. 4 |
+
+**Note the dependency**: the implicit split is available *because* the tensor-basis representation
+isolates the linear coefficient. A closure that predicts `b` as an opaque tensor cannot perform it.
+
+**And the limit stated by Wu et al. 2018 (arXiv:1803.05581, p. 12)**: "In the extreme (albeit
+unlikely) situation where [the] Reynolds stress tensor is orthogonal to the strain rate tensor (i.e.,
+optimal eddy viscosity is zero across the flow domain), **the conditioning with implicit treatment and
+explicit treatment would be equivalent.**"
+
+### 5. Divergence, documented: a lagged-stress segregated coupling started from the exact answer
+
+Wu et al. 2018, Appendix C, arXiv preprint pp. 29-30. Algorithm 3 is the classic segregated
+Reynolds-stress-transport coupling, `tau^(i) = nu_t^m (grad u^(i-1) + grad u^(i-1)^T) + tau_perp^DNS`.
+
+| Fact | Value | Basis |
+|---|---|---|
+| Initial condition | **the DNS mean velocity** (so the starting error is small) | **PAPER-VERIFIED**, p. 30 |
+| Behaviour | `delta U_rms/U_rms^DNS` "**increases rapidly** during the first several iteration steps" | **PAPER-VERIFIED**, p. 30 |
+| Volume-averaged local condition number, first three iterations | **`O(10^2)`** | **PAPER-VERIFIED**, p. 30 |
+| Outcome | "**The error of the solved mean velocity grows rapidly and eventually leads to divergence of the simulation. Therefore, the solved mean velocity is not presented in this work since a converged solution was not achieved.**" | **PAPER-VERIFIED**, p. 30 |
+| Caveat the authors attach | "**The decrease of the condition number ... does not guarantee the decrease of the error in the mean velocity** in such a scenario ... the small condition number needs to be interpreted with caution when the source term in RANS equations changes during the simulation." | **PAPER-VERIFIED**, p. 30 |
+
+**Recommended stabilisations, from the same paper (pp. 23-24)**: (1) initialise from an
+eddy-viscosity-model solution; (2) use partial implicit treatment. **Their diagnosis of the mechanism:
+"the error can be amplified within each iteration ..., which is carried over to the Reynolds stresses
+in the next iteration step and further amplified."**
+
+### 6. Blending factors: three papers, one procedure, and the criterion that should replace it
+
+| Paper | Device | Value and how it was obtained | Basis |
+|---|---|---|---|
+| **Kaandorp & Dwight 2020** | `tau = (2/3)kI + 2k[(1-gamma) b^B + gamma b^ML]` (Eq. 15), ramped `gamma_n = gamma_max min(1, n/n_max)` | "**`gamma_max` was incremented in steps of 0.1 until the solver became unstable, yielding a value of `gamma_max = 0.8`**"; "**As this choice is ad hoc, further work related to this topic is necessary.**" `n_max` is **NOT STATED**. | **PAPER-VERIFIED**, arXiv preprint p. 26 |
+| Its stated trade-off | — | "A **lower value for `gamma` means that the linear eddy viscosity assumption becomes more dominant, resulting in a more stable solution, but impairing the accuracy of the solved mean velocity**" | **PAPER-VERIFIED**, p. 26 |
+| **Wu, Xiao & Paterson 2018** | rejects blending outright | "the specification of a blending factor `alpha` is **largely ad hoc and lacks physical basis**" — uses the implicit split instead, **no blending factor at all** | **PAPER-VERIFIED**, arXiv preprint p. 4 |
+| **Wu, Xiao, Sun & Wang 2018** | supplies the criterion | "**The metric proposed in this work can assess the model conditioning with any given blending factor, and thus it is possible to choose a minimum blending factor that maintains good conditioning.**" | **PAPER-VERIFIED**, arXiv:1803.05581 pp. 23-24 |
+| **de Zordo-Banliat 2023** | cost-function floor, not a blend | if all `g_m < C` the weights revert to uniform `1/N_M = 1/4`; **`C = 0.001`**, insensitive over `C in [0.001, 0.15]` | **PAPER-VERIFIED**, arXiv preprint p. 9 |
+| **Xiao et al. 2016** | over-implicitisation, considered and priced | increase `nu_t^m` by `Delta nu_t` and subtract it from the nonlinear part; "such a **purely numerical enhancement may introduce excessive errors** to iterative solvers when the chosen `Delta nu_t` is too large". **No value of `Delta nu_t` is given and no sweep is performed.** | **PAPER-VERIFIED**, arXiv:1803.05581 p. 16 |
+
+### 7. A pointwise regressor's output must be smoothed before it can be differentiated
+
+| Fact | Value | Basis |
+|---|---|---|
+| Why | "**Since the random forest is a piecewise constant approximation of `b`, and derivatives of `b` are needed in the N-S equation**, the predictions from the TBRF are smoothed spatially with a Gaussian filter, before they are propagated through the solver" | **PAPER-VERIFIED**, Kaandorp, arXiv preprint p. 21 |
+| Filter width | Gaussian, **standard deviation 3 cell lengths** | **PAPER-VERIFIED**, p. 21 |
+| Its status | "**This filter width is an ad hoc choice**, and can possibly be adjusted more specifically for numerical stability in future work by looking at e.g. **required condition numbers for the solver**" | **PAPER-VERIFIED**, p. 21 |
+| Why the raw field is rough | "The TBRF algorithm has **no explicit spatial correlation** in the predictions since these are based on local features of the flow" | **PAPER-VERIFIED**, p. 21 |
+| Aggregation choice, for the same reason | prediction is the **median** over trees, **not the mean**, because coefficient prediction means "**the values for the final predictions do not have to lie in-between the values of the points used for training**", which "manifested during testing as **highly irregular and inconsistent predictions in small regions of the spatial domain**" | **PAPER-VERIFIED**, p. 57 |
+
+**The same requirement reached independently.** Wang, Wu & Xiao 2017 (arXiv preprint p. 29): "**A small
+region with abnormal Reynolds stress corrections (e.g., non-smoothness or artificial peaks) can
+introduce large errors to the velocity predictions** ... **These fluctuations, despite being small in
+amplitude, can lead to abnormal behaviors in the divergence term** and thus in the predicted
+velocities", because "**the random forest regression used here only provides pointwise estimations but
+cannot consider the spatial information ... Therefore, the smoothness of the prediction cannot be
+guaranteed.**"
+
+**Two other smoothing mechanisms in the same corpus, serving the same purpose:** Xiao et al. 2016
+truncate to **16 (hills) / 8 (duct) Karhunen-Loeve modes**, chosen for "**at least 80% of the total
+variance**", which "correspond to **very smooth fields**" (arXiv preprint pp. 20-24); Schmelzer et al.
+2020 enforce sparsity for an explicitly numerical reason — models with large coefficients "are
+**unsuitable to be implemented in a CFD solver as they increase the numerical stiffness of the problem
+and impede convergence of the solution**" (arXiv preprint p. 10).
+
+### 8. Direct learned LES closures are unstable at any CFL, and the eddy-viscosity projection is the rescue
+
+Beck, Flad & Munz, `Beck2019_deep_neural_les.pdf`, **arXiv:1806.04482v3**. Decaying homogeneous
+isotropic turbulence, `Re_lambda ~ 180`, DNS `64^3` elements at `N = 7` (`512^3` DOF) coarsened **8x
+per direction** to `8^3` elements at `N = 5`; filter is an **L2 projection onto `P5` per element**;
+kinetic-energy-preserving DGSEM, low-dissipation Roe, CFL ~ 0.2 with 3rd-order Adams-Bashforth.
+
+| Fact | Value | Basis |
+|---|---|---|
+| Energy check first | relative energy-contribution error `d_e > 0` and **`O(1e-1)` for all networks** — the learned closures are net dissipative | **PAPER-VERIFIED**, Eq. 4.1, arXiv preprint p. 22 |
+| Direct closure behaviour | "initially dissipative, [but] they **lack long-term stability as high frequency errors accumulate**" | **PAPER-VERIFIED**, Fig. 10, p. 22 |
+| **CFL sweep** | **0.5, 0.05 and 0.005** tested; smaller steps improve short-term agreement but "later on **stability issues ensued even for very small timesteps**" | **PAPER-VERIFIED**, p. 22 |
+| **Root cause, structural** | in the perfect-LES formulation the coarse-grid inviscid operator **cancels exactly**, so an approximate learned term leaves **no stable numerical operator** | **PAPER-VERIFIED**, p. 22 |
+| Authors' verdict | "**it is unrealistic to assume that the learned terms can provide an accurate and stable closure**"; "a direct closure ... **is not practical**" | **PAPER-VERIFIED**, p. 22 |
+| **The rescue** | `R_tilde(F(U_i)) - R(F(U_i)) ~ mu_ANN . R_tilde(F_visc(U_i, grad U_i))`, with `mu_ANN = L(.)` a **linear least-squares fit with zero bias** over the three components, applied **at every time step and every grid point** | **PAPER-VERIFIED**, Eq. 4.2, p. 23 |
+| **Limiter** | **`mu_ANN in [-mu_0, 20 mu_0]`** (`mu_0` = physical viscosity). Without it the model "introduces **noticeable backscatter**" in the spectra | **PAPER-VERIFIED**, p. 23, Fig. 11 |
+| Result | both `mu_OP` and `mu_ANN` give a **stable** scheme; limited version gives "close agreement to the filtered DNS data" | **PAPER-VERIFIED**, p. 23 |
+| A-posteriori error metric | **NOT STATED** — all a-posteriori comparison is graphical | **PAPER-GRAPHICAL** |
+| Parameter count, numeric learning rate | **NOT STATED** | — |
+| Data-storage cost of the approach | `U` and `R(F(U))` at `dt = 4e-5 T*` for `0.2 T*` needs **~55 TByte** | **PAPER-VERIFIED**, Remark I, p. 7 |
+
+**A-priori correlations for context** (Table 3, p. 18): best network `CC = 0.477` overall,
+**0.767 on inner element points**, versus **0.254** for a single-hidden-layer MLP baseline; the most
+informative single input feature (the known coarse-grid operator) correlates with the target at
+**0.189**, and raw velocity at **-0.012** (Table 1, p. 11).
+
+### 9. Four other stabilisers for learned closures, each with its measured size
+
+| Paper | Device | Size / threshold | Basis |
+|---|---|---|---|
+| **Maulik et al. 2019** (2-D SGS) | hardwired sign truncation `Pi = 0` wherever `(grad^2 omega_bar)(Pi_tilde) <= 0` (Eq. 2.4, p. 5) | "**roughly half of the predicted sub-grid terms are truncated**"; it "**precludes the presence of a backscatter of enstrophy**" | **PAPER-VERIFIED**, arXiv preprint pp. 5, 11 |
+| **Sirignano/Freund 2020** (DPM) | **none** — "**No stabilizing limiters were used**" | but requires **`N_H >= 50`** hidden units for long-time (`t >= 1e-3`) stability with the divergence-free constraint, **`>= 100`** without. At `N_H = 5` the run "**has become unstable at this time**"; `N_H = 25` shows "**signs of high-wavenumber divergence**" | **PAPER-VERIFIED**, arXiv preprint pp. 21-22 |
+| **Guan et al. 2022** (2-D CNN SGS) | **none** — stable "**without any need for post-processing or additional eddy viscosity**" | but requires **`n_tr >= 30,000`** training samples; at 10,000 the a-posteriori LES is "**unphysical**", at 500-1000 it **blows up** | **PAPER-VERIFIED**, arXiv preprint Table 2, p. 13 |
+| **Schmelzer et al. 2020** (SpaRTA) | coefficient shrinkage on convergence failure | "if a model does not converge, we further decrease the coefficients by a factor **`xi = 0.1`**, for the model correcting `b^Delta_ij` only. **This ad-hoc intervention** is sufficient to achieve convergence for the studied cases." | **PAPER-VERIFIED**, arXiv preprint p. 13 |
+| **Stroefer & Xiao 2021** | pre-training, and a deleted adjoint term | "**The usual practice of random initialisation of the weights is not suitable in this case since it leads to divergence of the RANS solution**"; and the adjoint transpose convection term `grad u_hat . u` "**can result in instabilities** ... **here we eliminate it**" | **PAPER-VERIFIED**, arXiv preprint p. 5 |
+| **Bae & Koumoutsakos 2022** | bounded action + reward bonus + gradient clipping | action hard-bounded to a multiplicative **`[0.9, 1.1]`**; reward bonus if within **1%** of the true mean wall stress; **ReF-ER clips far-policy gradients to zero**, `C = 1.5`, `D = 0.05` | **PAPER-VERIFIED**, arXiv preprint pp. 5, 13 |
+| **Xiao et al. 2016** | realisability clip | perturbed `(xi, eta)` bounded to `[-1,1]^2`; "**admittedly an ad hoc modeling choice.** As a result, **the prior may become non-Gaussian and the perturbation sample may deviate from zero-mean** if a large number of perturbations are bounded"; and the optimal eddy viscosity elsewhere is "**capped to be positive for numerical stability**" | **PAPER-VERIFIED**, arXiv preprint pp. 9-10; arXiv:1803.05581 p. 12 |
+
+### 10. The a-priori correlation at which an LES closure becomes stable is a property of the case, not a number
+
+| Source | A-priori score | A-posteriori outcome | Basis |
+|---|---|---|---|
+| Guan 2022, `n_tr = 10,000` | correlation **0.90** (backscatter points **0.89**) | **unphysical** flows for some initial conditions | **PAPER-VERIFIED**, Table 2, arXiv preprint p. 13 |
+| Guan 2022, `n_tr = 30,000` | **0.92** (backscatter **0.91**) | **stable** | **PAPER-VERIFIED**, Table 2 |
+| Guan 2022's own stated threshold | "between **`c = 0.90` and `c = 0.92`**, or if `c_{T<0}` is a better metric, between **0.89 and 0.91**" — and "**these are just empirical thresholds in this testcase, and such thresholds might be case-dependent**" | | **PAPER-VERIFIED**, p. 13 |
+| Beck & Kurz 2021, GRU closure | "**99.9% cross correlation in a priori tests**" | "the **LES solution diverges strongly soon after**" | **PAPER-VERIFIED**, arXiv preprint p. 26 |
+| Guan 2022's a-posteriori rollout | `t = 50 tau` to `t = 200 tau`, **5 random initial conditions** | | **PAPER-VERIFIED**, Figs. 5-6, pp. 14-15 |
+
+**Do not carry a correlation threshold between problems.** The two rows above are 0.92 and 0.999 for
+opposite outcomes.
+
+**And the backscatter numbers behind Guan's mechanism** (Table 1, arXiv preprint p. 11), a-priori
+correlation computed separately on forward-transfer and backscatter points: dynamic Smagorinsky with
+positive clipping **0.55 / 0 exactly**; local ANN with sign truncation **0.86 / 0.83**; CNN with no
+clipping **0.96 / 0.92**. **Applying the truncation rule to the CNN makes it "excessively diffusive
+(with performance comparable to that of the LES-DSMAG)"** (Fig. 8, p. 17, **PAPER-GRAPHICAL**).
+
+### 11. Unrolled-step count and gradient sub-range are different quantities with different optima
+
+List, Chen & Thuerey, `List2022_learned_turbulence.pdf`, **arXiv:2202.06988v2**. Differentiable
+**second-order PISO** solver; correction injected at the **implicit predictor step** so continuity is
+still satisfied; downsampling **8x in space and 8x in time**.
+
+**Gradient sub-range within a 60-step rollout** (Tables 6-7, arXiv preprint p. 22):
+
+| Sub-range | Temporal mixing layer, MSE @ 512 dt | Spatial mixing layer, MSE @ 1000 dt | Basis |
+|---|---|---|---|
+| 10 | 2.36e-5 | **2.44e-3** | **PAPER-VERIFIED** |
+| 20 | 2.19e-5 | 2.73e-3 | **PAPER-VERIFIED** |
+| 30 | **1.93e-5** | 2.98e-3 | **PAPER-VERIFIED** |
+| **60 (full)** | **training unstable — no value reported** | **1.19e-2** | **PAPER-VERIFIED** |
+
+Optimum **20-30 steps**; "a split into 2 subranges of 30 steps each performed best"; saturation "at
+**circa 60 steps, which coincides with the integral timescales**" (p. 24). **No gradient clipping is
+used**, and the authors contrast their approach with it explicitly (p. 28).
+
+**Forward horizon, same paper (Table 1, p. 9)**: a supervised 1-step model has the **best** MSE at
+`t_1 = 64 dt` (1.52e-3) and **0.369 at `t_2 = 512 dt`, having diverged — 6.5x worse than the no-model
+baseline of 0.057.** The 10-step solver-in-the-loop model is **0.018** at `t_2`.
+
+**Forward-horizon optimum is set by predictability, not by the optimiser.** Um et al. 2020 find
+monotone improvement to `n = 128` on buoyancy (40% -> 54% -> 60%) but an optimum of **`n = 2`** on a
+randomly forced Burgers case, because "**the randomized forcing in this example severely limits the
+number of future steps that can accurately be predicted given one state**" (arXiv preprint p. 6). List
+find **no improvement at 120** and **reduced accuracy at 180 and 240** (p. 22).
+
+**The curriculum that makes long unrolls trainable** (Um, arXiv preprint p. 8): "an inferred
+correction can overly distort the physical state. Performing time integration via the PDE then
+typically leads to **exponential increases of existing oscillations and a diverging calculation**.
+Hence, we found it important to **pre-train networks with small look-aheads (we usually use SOL_2
+models), and then continue training with longer recurrent iterations**." Their 3-D model: **200k
+iterations at SOL_8, then 100k at SOL_16.**
+
+### 12. Coarsening and speed-up claims are only comparable at equal solver order
+
+| Paper | Solver | Effective coarsening | Speed-up | Basis |
+|---|---|---|---|---|
+| **Kochkov et al. 2021** | **first-order-in-time explicit Euler**, 2-D finite volume, JAX | **8-10x per spatial dimension** | **40-80x** | **PAPER-VERIFIED**, Abstract p. 1, p. 7 |
+| **List et al. 2022** | **second-order PISO** | "consistently outperforms simulations with a **2x higher resolution**", often on par with 4x | **3.3x** (IDT), **7.0x** (TML), **3.7x** (SML), **14.4x** (TML matching 4x for several hundred steps) | **PAPER-VERIFIED**, arXiv preprint pp. 26-27 |
+| List's own explanation of the gap | "**While other works have reported even larger performance improvements [Kochkov et al., 2021], we believe that our measurements are representative of real-world scenarios with higher-order solvers.**" | | | **PAPER-VERIFIED**, p. 27 |
+
+**Kochkov's speed-up is derived, and the derivation is the transferable part** (arXiv preprint p. 5):
+at grids `>= 256^2` the network achieves **12.5x higher FLOP throughput** than the baseline solver, so
+despite **150x more arithmetic operations** the ML solver is only **~12x slower at equal resolution**;
+a 10x gain in each of three dimensions (two space plus time via CFL) gives **`10^3/12 ~ 80`**. Cost
+model `T ~ (C_ML + C_physics)(N/K)^(d+1)` with **`C_ML/C_physics ~ 12`** (Eq. 2, p. 7). Benchmarked on
+**one core of a Google Cloud TPU v4**.
+
+**Never quote the two headline numbers side by side without the solver order.** `FEASIBILITY.md` §1.4
+additionally records that on this lab's 16-CPU machine the *speed-up* claim is not reproducible at all
+and any attempt would be NOT A RESULT; only the accuracy claim is reproducible here.
+
+**Overheads, measured**: List's network costs "**circa 10%**" over no-model at the same resolution
+(0.071 vs 0.066 s/step for IDT). Sirignano's network evaluation is "**almost 50%** of the total LES
+cost" (arXiv preprint p. 21). Lozano-Duran's wall model is **1.1 to 1.3x** the cost of the algebraic
+equilibrium wall model (arXiv preprint p. 13).
+
+### 13. Training cost, in the only units that decide anything
+
+| Paper | Cost | In units of the thing it replaces | Basis |
+|---|---|---|---|
+| **List et al. 2022** | 61 h, 78 h, 240 h on one GTX 1080Ti | **[120, 118, 22] full-length DNS solves** | **PAPER-VERIFIED**, arXiv preprint pp. 26-27 |
+| **Bae & Koumoutsakos 2022** | `O(1e3)` CPU-hours, **< 1 GB** storage | versus `O(1e7)` CPU-hours and **> 100 TB** to generate the equivalent DNS training data | **PAPER-VERIFIED**, arXiv preprint p. 10 |
+| **Xiao et al. 2016** | **600** forward RANS evaluations, each **10%** of a baseline solve | **60x one baseline RANS solve**, per case; on 60 cores the wall time equals one single-core baseline solve | **PAPER-VERIFIED**, arXiv preprint p. 40 |
+| **Lozano-Duran & Bae 2023** | **~12 h per ANN on 4x NVIDIA A100 40 GB** | not converted | **PAPER-VERIFIED**, arXiv preprint p. 13 |
+| **Schmelzer et al. 2020** | model selection at `K ~ 15000` points: "**of the order of a minute on a standard consumer laptop**" | the CFD cross-validation sweep (35-47 runs per test case) is the real cost and is **NOT STATED** | **PAPER-VERIFIED**, arXiv preprint p. 11 |
+| **Beck et al. 2019** | GPU-hours **NOT STATED**; storage **~55 TByte** | data-bound, by the authors' own conclusion | **PAPER-VERIFIED**, p. 7, p. 24 |
+| **Kochkov et al. 2021** | training wall-clock **NOT STATED** | — | — |
+
+### 14. Wall models: the log-layer mismatch is a numerics error of the first off-wall cells
+
+Larsson, Kawai, Bodart & Bermejo-Moreno, `Larsson2016_wall_stress.pdf`, **journal of record**,
+Mech. Eng. Reviews 3(1):15-00418. **Pagination hazard**: the printed folios extract with a spurious
+"2" prefix (PDF p. 3 prints as "23"), so **all citations below are PDF page numbers**.
+
+| Fact | Value | Basis |
+|---|---|---|
+| Grid criterion | `dx_i <~ (C_i/N) y` (Eq. 6) | **PAPER-VERIFIED**, pp. 10-11 |
+| Why it is always violated at the wall | kinematic wall damping gives `C_2 <~ 2` and Nyquist gives `N >~ 2`, so **`C_2/N < 1`** and the criterion is "**violated in the first LES grid-point, regardless of numerical accuracy in the LES**" | **PAPER-VERIFIED**, p. 11 |
+| Consequence | "**even a 'perfect' wall-model in one numerical code would suffer from a log-layer mismatch if implemented in a different numerical code!**" | **PAPER-VERIFIED**, p. 11 |
+| **Sign is code-dependent** | negative "generally ... for incompressible flow solved using a **staggered** grid"; positive for "codes using a **colocated** grid and/or some degree of numerical dissipation" | **PAPER-VERIFIED**, p. 10 |
+| **The fix** | set **`h_wm ~ 0.2 delta` independently of the grid**, then refine. **Converged results have zero log-layer mismatch.** | **PAPER-VERIFIED**, p. 11 |
+| Convergence thresholds (6th-order compact) | **`dy <~ 0.33 h_wm`**, **`dx ~ dz <~ 0.8 h_wm`** | **PAPER-VERIFIED**, p. 11 |
+| Independently confirmed (different method) | `dx <~ 0.6 h_wm`, `dy <~ 0.3 h_wm`, `dz <~ 0.4 h_wm` | **PAPER-VERIFIED**, p. 11 |
+| Demonstration case | supersonic flat plate `Re_delta = 6.1e5` (`Re_theta = 5e4`), fixed `h_wm/delta = 0.055`, fixed `dx/delta = dz/delta = 0.042`, sweeping `dy_w/h_wm = 1.0, 0.50, 0.33, 0.25, 0.20` | **PAPER-VERIFIED**, Fig. 9, p. 12 |
+| Error size (quoted from Wu & Meyers 2013) | a wall-tuned Smagorinsky constant reduced the mismatch "**from a typical 10-20% to only 5%**" | **PAPER-VERIFIED**, p. 11 |
+| Direct `C_f` link | "`c_f ~ U_inf^-2`, [so] the log-layer mismatch error has a **direct effect on the predicted skin friction**" | **PAPER-VERIFIED**, p. 10 |
+| **The cancellation trap** | "the results in Fig. 5 are best (smallest log-layer mismatch) for the **coarsest** grid", and "**a flawed model may produce 'perfect' results by introducing errors that exactly cancel those present in the outer layer LES.**" | **PAPER-VERIFIED**, p. 18 |
+| Grid-refinement pathology (hybrid LES/RANS) | channel, fixed `y_int/delta = 0.15`, refining `dx/delta` 0.25 -> 0.047: "**the mean velocity profile actually becomes less accurate during grid-refinement.**" | **PAPER-VERIFIED**, Fig. 5, p. 6 |
+| Mandatory practice | "**it is mandatory to test all wall-modeled LES approaches on different grids: both by refining the grid and by modifying the aspect ratio of the grid.**" | **PAPER-VERIFIED**, p. 18 |
+
+**Resolution recipes (pp. 2-3)**: wall-resolved LES viscous layer `(dx+, dz+) ~ (40, 20)`,
+`dy+_w ~ 1`; outer layer `(dx/delta, dz/delta) ~ (0.08, 0.05)`. **WMLES recommendation:
+`(dx/delta, dy_w/delta, dz/delta) ~ (0.08, 0.02, 0.05)`, stretched linearly to `y/delta = 0.2`.**
+
+**Cost scalings (pp. 2-3)**: wall-resolved LES outer layer **independent of `Re_tau`**; viscous and
+overlap layers **`O(Re_tau^2)`**; **WMLES grid independent of `Re_tau`**; below **`Re_tau <~ 600`**
+WMLES saves "at most 50% of the grid points" — i.e. it is not worth doing. **"WMLES incurs a cost
+10-100 times higher than DES97"** for `dx/delta = dz/delta >~ 0.5`.
+
+**Acceptance criterion, from Piomelli & Balaras 2002** (Annu. Rev. Fluid Mech. 34, journal of record,
+p. 370): "the mean skin-friction coefficient must be predicted accurately, perhaps **within 5%** of
+resolved calculations", followed immediately by "**Present models do not satisfy these requirements.**"
+Their cost exponents (pp. 351-354): wall-resolved LES **inner layer `~ Re^2.4`**, **outer layer
+`~ Re^0.5`**, **WMLES with equilibrium BCs `~ Re^0.5`**; and at `Re_L = O(1e6)`, **99% of the grid
+points resolve an inner layer only 10% of `delta` thick**.
+
+**A wall-model numerical instability, recorded**: Piomelli & Balaras p. 360 — in a rotating channel
+"the model based on the logarithmic law **failed entirely owing to numerical instability introduced by
+the logarithmic boundary condition**", while the two-layer model succeeded on the same case.
+
+### 15. Two wall-model implementation details worth carrying
+
+| Fact | Value | Basis |
+|---|---|---|
+| Wall stress imposed as an **eddy viscosity**, not a Neumann condition | `nu_t\|_w = (du/dy\|_w)^-1 (tau_w^m/rho) - nu`, "chosen over Neumann BC **to reduce log-layer mismatch**" | **PAPER-VERIFIED**, Bae & Koumoutsakos, arXiv preprint Eq. 9, p. 15 |
+| Sensitivity of `tau_w` to the sampling-point placement | wall-shear stress changes **~5%** when `y` is placed on a grid point rather than a midpoint — **against a headline model accuracy of <4%** | **PAPER-VERIFIED**, arXiv preprint p. 16 |
+| Non-monotonic grid convergence, reported and unexplained | pipe at `Re_tau ~ 40,000`, both models | **PAPER-VERIFIED**, Lozano-Duran, arXiv preprint pp. 18-19 |
+| Convergence caveat | "**WMLES might not converge to the DNS solution with grid refinements until the grid is in the DNS-like regime**, when the contribution of the wall model is negligible" | **PAPER-VERIFIED**, arXiv preprint p. 16 |
+
+### 16. What none of this establishes
+
+- **Nothing here has been run on this machine.** Every value is the paper's own, read from a
+  title-verified PDF at the location named. `FEASIBILITY.md` records which are reproducible here and
+  at what cost; none has been attempted.
+- **The conditioning results are orders of magnitude, not measurements.** `O(1)` versus `O(10^2)` is
+  the entire quantitative content of §3; Figs. 1, 4-8, 13, 15 and 18 of arXiv:1803.05581 print no
+  values. Table 1 (§1) is that paper's only numeric results table.
+- **The implicit-treatment demonstration uses an eddy viscosity projected from the DNS field**, not
+  from a model (§3). How much of the conditioning gain survives a modelled `nu_t^m` is unmeasured.
+- **Several a-posteriori claims here have no number attached and are marked PAPER-GRAPHICAL.** Beck
+  2019 has no a-posteriori error metric; Sirignano 2020 has no percentage against Smagorinsky
+  anywhere; Guan 2022's a-posteriori and transfer-learning results are figure-only; Bae 2022's
+  per-`Re` errors exist only as a plot.
+- **The condition number is an upper bound, not a forecast.** Wu et al. state it twice: the velocity
+  error depends on both the condition number and the stress error, so "the spatial pattern of mean
+  velocity error ... **can not be solely explained by** the local condition number" (arXiv preprint
+  p. 18); and a falling condition number "**does not guarantee the decrease of the error in the mean
+  velocity**" when the source term changes during the simulation (p. 30).
+- **Every flow in §§1-13 is canonical, incompressible and at low-to-moderate Reynolds number.** The
+  wall-model results of §§14-15 are the only entries touching engineering `Re`.

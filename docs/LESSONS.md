@@ -6851,3 +6851,953 @@ The cost of the defect: two full sub-agent reading passes, part of a paper
 catalogue and part of a foundational-models inventory written against wrong
 sources and now being re-audited line by line. The cost of the guard: one
 `pdftotext -l 1` per file.
+
+
+## L-145. A byte-identical duplicate is not a retrieval error, and that is exactly why it survives every check a retrieval failure would trip
+
+**2026-08-20. Two pairs of files in `docs/papers/closure/` are byte-identical**, found by `sha256sum`
+over whole files and by nothing else:
+
+| Pair | sha256 |
+|---|---|
+| `Schmelzer2020_algebraic_reynolds.pdf` = `Schmelzer2020_sparta_sparse_symbolic_regression.pdf` | `7aca1f9a...` |
+| `Xiao2016_model_uncertainties.pdf` = `Xiao2016_bayesian_model_form_uncertainty.pdf` | `1577eabd...` |
+
+**Both members of both pairs are the correct paper.** Every guard standing after L-144 passes on
+them: the bytes are a PDF, the page count is right, the hash is stable, and — the guard L-144
+installed — **the printed title page matches the intended citation.** Title-page verification is a
+test of *identity*, and both files have the right identity. It has nothing to say about *multiplicity*.
+
+**The damage is to counting, and counting is what a manifest is for.** A naive file count reports
+**35 papers where there are 33 works**. Worse, a manifest with two rows for one document will
+eventually be read by an agent as **two independent sources agreeing on a number**, which is the
+precise failure a corpus audit exists to prevent. The second Xiao file arrived *during* this
+cataloguing pass, four hours after the manifest was rebuilt — so the defect is not historical, it is
+what an active retrieval queue produces when two agents are given the same shelf and different
+naming conventions.
+
+**The guard is one line and it belongs in the manifest builder**: group the verified files by sha256
+and refuse to emit two rows for one hash; emit one row and an `alias` field. `sha256sum
+docs/papers/closure/*.pdf | sort | uniq -w64 -d` finds every case in under a second.
+
+**What this does not license.** It does not license deleting a file to make a count tidy. Both
+duplicates are correct documents and either name may be the one a future citation reaches for; the
+recommendation recorded in the catalogue is to keep the name already carried by the `MANIFEST.md`
+row and record the other as an alias. **A count that is wrong because two names point at one truth is
+a bookkeeping fault. A count made right by deleting evidence is a different and worse one.**
+
+---
+
+## L-146. A closure can be right to 0.3% and produce a flow wrong by 35%, so an a-priori error is not a bound on anything
+
+**Wu, Xiao, Sun & Wang, arXiv:1803.05581v3, Table 1, arXiv preprint p. 4.** DNS Reynolds stresses —
+the ideal data-driven closure, with zero modelling error — substituted into the RANS momentum
+equations and propagated:
+
+| `Re_tau` | 180 | 550 | 1000 | 2000 | **5200** |
+|---|---|---|---|---|---|
+| Error in turbulent shear stress (volume-averaged) | 0.17% | 0.21% | 0.03% | 0.15% | **0.31%** |
+| Error in mean velocity (volume-averaged) | 0.25% | 1.61% | 0.17% | 2.85% | **21.6%** |
+| Error in mean velocity (maximum) | 0.36% | 2.70% | 0.25% | 5.48% | **35.1%** |
+
+**The stress errors do not grow with Reynolds number. The velocity errors do, monotonically.** The
+authors flag the first point themselves — the stress column's non-monotonicity "**should not be
+overly or literally interpreted**" — and are unambiguous about the second: the velocity errors
+"clearly increase monotonically with the Reynolds number."
+
+**This is not a modelling result, it is a conditioning result**, and it says the map from stress to
+velocity amplifies. Their local condition number rises from `O(1)` at `Re_tau = 180` to `O(10^2)` at
+`Re_tau = 5200` under explicit coupling (arXiv preprint p. 14).
+
+**Why it is a lesson and not a curiosity.** Almost every data-driven closure result in the corpus is
+reported as an improvement in a *stress* metric: Ling's `b` RMSE 0.23 -> 0.13, Kaandorp's 0.0995 ->
+0.0521, Beck's cross-correlation 0.25 -> 0.48. **None of those numbers bounds the improvement in the
+solved flow, and this table is the proof.** Kaandorp measured the same thing from the other side
+(arXiv preprint pp. 39-40): propagating `b_ij,DNS` already misses, and "**Subsequently approximating
+`b_ij,DNS` by `b_ij,TBRF` causes additional errors, but these errors are of similar magnitude to the
+errors already made in the propagation.**" **Halving their ML error would have bought almost
+nothing.**
+
+**The practical rule for this lab**: OpenFOAM is installed, so an a-priori score is never the end of
+an experiment. Any closure result reported here states whether it was re-solved, and if it was not,
+it is a-priori and is labelled a-priori.
+
+**What this does not license.** It does not license ignoring a-priori scores. An a-priori score is
+cheap, it is a necessary condition, and Guan 2022 shows it can even be *predictive* within a single
+setup (L-152). It is simply not sufficient, and the size of the gap is not knowable in advance.
+
+---
+
+## L-147. Where a correction enters the equations predicts its stability better than what the correction is
+
+**Four papers, four regressors, one pattern.** The same learned quantity — a Reynolds-stress
+correction — is stable or unstable according to whether it enters as an **explicit source term** or
+through the **coefficient matrix**.
+
+| Method | Coupling | Stabiliser it needed |
+|---|---|---|
+| Singh 2017 FIML | multiplier `beta(x)` on the SA **production term** | **none**; convergence "comparable to the baseline" (arXiv preprint p. 22) |
+| Wu 2018 PIML | **implicit** `nu_t^L` split, `S` treated implicitly | **none** |
+| Schmelzer 2020 SpaRTA | additive to k-omega SST, linear term stays implicit | coefficients **x 0.1** on convergence failure |
+| Kaandorp 2020 TBRF | **explicit** `b_ML` into momentum | **`gamma_max = 0.8`** ceiling + Gaussian smoothing |
+| Ling 2016 TBNN | **explicit** `b` into momentum + `k`-production | none discussed; no conditioning analysis |
+
+Wu et al. state the mechanism (arXiv:1803.05581, arXiv preprint p. 16): under explicit treatment the
+local condition number reaches `O(10^2)` at `Re_tau = 5200`; under implicit treatment "**the
+volume-averaged local condition number stays at `O(1)`**". And the two runs use **nearly the same
+stress field** — "the difference between `u^imp` and `u^DNS` is about **0.1%**" (Appendix D, p. 31).
+
+**The sharpest form of it is their Appendix C (p. 30)**: the classic segregated lagged-stress
+coupling, **initialised with the exact DNS mean velocity**, "**leads to divergence of the simulation.
+Therefore, the solved mean velocity is not presented in this work since a converged solution was not
+achieved.**" *A closure that is exactly right, started from the exact answer, diverges because of how
+it is coupled.*
+
+**Singh 2017's placement is the cheapest insight here and it was arrived at for a different reason.**
+They chose a multiplier over an additive source because "**Inferring `beta` ... leads to a better
+conditioned inverse problem, as `beta` is non-dimensional and has a simple initial value of unity**"
+(arXiv preprint p. 7). They optimised the conditioning of the *inverse* problem and got the
+conditioning of the *forward* problem for free — because a multiplier on a production term cannot
+touch the stress-strain relation.
+
+**The design rule that follows**: before choosing a regressor, choose where the output lands. A
+correction that multiplies an existing, already-stable term is a different numerical object from one
+that adds a source to the momentum equation, and the difference is two orders of magnitude in
+condition number.
+
+**What this does not license.** Implicit treatment is not a guarantee. Wu et al. say so (p. 23):
+"**monolithic coupling is by no means a panacea** ... The conditioning and stability ultimately
+depend on the characteristics of the turbulence model itself." And it is not always available: for
+"**non-differentiable models, e.g., those based on random forests ..., a monolithic coupling is not
+straightforwardly viable**" (p. 24) — which is the situation of half the corpus.
+
+---
+
+## L-148. The best short-horizon model in a table can be the worst long-horizon one in the same table
+
+**List, Chen & Thuerey 2022, Table 1, arXiv preprint p. 9.** Isotropic decaying turbulence, one
+solver, one test set, MSE at two times:
+
+| Model | MSE @ `t_1 = 64 dt` | MSE @ `t_2 = 512 dt` |
+|---|---|---|
+| NoModel | 2.78e-3 | 0.057 |
+| Smagorinsky LES | 2.69e-3 | 0.051 |
+| **supervised, 1-step** | **1.52e-3 (best in the table)** | **0.369 — diverged, 6.5x worse than no model** |
+| 10-step solver-in-the-loop | 4.23e-4 | **0.018** |
+
+**The supervised model wins at `t_1` and is 20x worse than the solver-trained one at `t_2`, having
+diverged.** The authors: "the temporal advancement of the forward simulations greatly surpasses the
+unrolled training horizon, which leads to instabilities with the **supervised and 1-step model**, and
+ultimately to the **divergence of their simulations**".
+
+**Two more instances of the same inversion, from different groups and different physics.**
+Um et al. 2020 could not train a stable supervised model at all in 3-D: "we were **not able to train
+a stable NON version despite numerous tests**. While the models performed well for ca. **100 to 150
+time steps**, small scale oscillations induced by the corrections accumulate and start to strongly
+distort the flow" (arXiv preprint p. 33) — and their Fig. 26a records that it "**even slightly
+surpass[es] SOL_16 around frame 100**" before collapsing to worse than no model. Beck & Kurz 2021
+report a GRU closure at "**99.9% cross correlation in a priori tests**" whose "**LES solution
+diverges strongly soon after**" (arXiv preprint p. 26).
+
+**Why this is a lesson about evaluation design and not about neural networks.** A test that stops
+before the failure time reports the inversion as a success. List's `t_1` is 64 steps and `t_2` is
+512; Um's failure appears at frame 100 of 500. **A short evaluation horizon does not just
+under-report the error — it reverses the ranking.**
+
+**The rule**: a rollout metric is quoted with its horizon, and the horizon is stated as a multiple of
+the training horizon. List's forward runs "greatly surpass the unrolled training horizon" by design;
+Um's are 500 steps against training look-aheads of 2-32; Bae 2022's channel tests run **300
+`delta/u_tau`** against a training window of **`2 delta/u_tau`** — 150x — and that ratio is why "no
+instability" means something there.
+
+**What this does not license.** It does not mean supervised training is useless. Guan 2022's offline
+CNN is stable for 150 `tau` with no post-processing at all (L-152). It means a supervised model's
+short-horizon score is not evidence about its long-horizon behaviour, in either direction.
+
+---
+
+## L-149. When a learned closure improves, ask whether the model class or the feature set did the work — and the answer has been measured
+
+**Kaandorp & Dwight 2020, Table 3, arXiv preprint p. 37.** Square duct `Re = 3500`, anisotropy RMSE,
+two model classes crossed with two feature sets:
+
+| Feature set | Tensor-basis random forest | Tensor-basis neural network |
+|---|---|---|
+| 5 features (invariants of `S`, `R` only) | 0.0995 | **0.0871** |
+| 17 features (+ `grad k` invariants + 9 physical scalars) | **0.0521** | 0.0681 |
+
+**Adding features cuts the forest's error by 47.6% and the network's by 21.8%. Swapping the model
+class changes which one wins and moves the number by far less.** The authors say it plainly:
+"**the introduction of extra features has significantly more effect than the choice of
+neural-networks versus random-forests.**"
+
+**And they diagnose why the 5-feature set is so weak (p. 37)**: of its five features, "**3 are
+approximately scaled versions of the other 2 - effectively reducing the input space to two
+dimensions.**" That is Guyon & Elisseeff's §3.2 warning — "**Perfectly correlated variables are truly
+redundant in the sense that no additional information is gained by adding them**" (JMLR 3, p. 1164)
+— showing up in a turbulence feature set twenty years later.
+
+**The corollary from the same survey, which the corpus does not act on.** Guyon & Elisseeff, p. 1158:
+"**Selecting the most relevant variables is usually suboptimal for building a predictor, particularly
+if the variables are redundant.**" And their probe test (§6, p. 1173): insert a **random** variable
+into the candidate set and discard everything ranked at or below it — a near-free control that gives
+"**an upper bound on the fraction of falsely relevant variables**". **No paper in this corpus runs it
+on a turbulence feature set.**
+
+**What this does not license.** It is one case, one flow, one metric. It does not establish that
+features always dominate; it establishes that on the case where both axes were varied together, they
+did. **The transferable part is the experimental design — vary both axes — not the conclusion.**
+
+---
+
+## L-150. A hyper-parameter search scored on training loss can select the architecture that fails in deployment, and the loss will not tell you
+
+**Maulik, San, Rasheed & Vedula 2019, §5, arXiv preprint pp. 16-19.** Three ablations of a learned
+2-D sub-grid closure, each deployed in the solver:
+
+1. **Remove the two eddy-viscosity kernel inputs** (20 features -> 18): training loss "more or less"
+   unchanged; a-posteriori the model "**displayed an unconstrained behavior at the larger scales with
+   the formation of non-physical large scale structures.**"
+2. **The grid-search optimum is beaten by an architecture the search rejected**: "the utilization of
+   a deeper network actually leads to more accurate predictions of the Kraichnan turbulence spectrum
+   ... **This despite the fact that the deeper network displays a great[er] mean-squared-error during
+   the training phase (which was the root-cause of it being deemed ineligible in the hyper-parameter
+   tuning).**"
+3. **Reduce the stencil from 9 points to 5**: "**While training errors are more or less similar, the
+   reduced stencil fails** to capture the nonlinear relationship between the resolved and cut-off
+   scales."
+
+**In all three the training loss is flat and the deployed behaviour changes qualitatively.** The
+authors' own conclusion (p. 16): "This a-priori hyper-parameter selection is primarily devised on
+mean-squared-error minimization and is **susceptible to providing model architectures which are less
+resistant to over-fitting and more prone to extrapolation.**"
+
+**The mechanism in case 1 is worth keeping**: the two discarded inputs were the Smagorinsky and Leith
+kernels — 2 of 20 features — and the authors read their effect as "an **implicit regularization** of
+our model" (p. 17). **A feature can be doing structural work that no loss on the training set can
+see.**
+
+**The rule this produces**: an architecture or feature-set decision for a closure is made against a
+*deployment* score, not a training score, and the deployment run is part of the search loop — which
+is exactly what makes such searches expensive and is not a reason to skip them. Where a full search
+is unaffordable, the honest report is that the architecture was not searched.
+
+**What this does not license.** It does not mean training loss is meaningless — it correctly ordered
+nothing here, but it is the only signal available before a solver exists. It means a search *scored
+solely* on it will make selections it cannot justify, and the selection should be reported as
+unvalidated.
+
+---
+
+## L-151. Every learned closure that runs is buying its stability with something, and the price is always stated somewhere in the paper
+
+Seven papers, seven currencies. **Not one deployed learned closure in this corpus runs without a
+stabiliser, except the two whose corrections cannot destabilise the momentum equation by
+construction (Singh 2017, Wu 2018).**
+
+| Paper | What it pays | The number |
+|---|---|---|
+| Maulik 2019 | **backscatter** | `Pi = 0` wherever the sign test fails; "**roughly half of the predicted sub-grid terms are truncated**" (arXiv preprint p. 11) |
+| Beck 2019 | **the learned structure itself** | direct closure unstable at CFL 0.5, 0.05 **and 0.005**; rescued by least-squares projection onto an eddy viscosity, limiter `mu in [-mu_0, 20 mu_0]` |
+| Kaandorp 2020 | **20% of the correction** | `gamma_max = 0.8`, "**incremented in steps of 0.1 until the solver became unstable**", plus Gaussian smoothing `sigma = 3` cells |
+| Schmelzer 2020 | **coefficient magnitude** | "if a model does not converge, we further decrease the coefficients by a factor `xi = 0.1`" — "**This ad-hoc intervention**" |
+| Xiao 2016 | **the truth's location in the search space** | `(xi, eta)` clipped to `[-1,1]^2`, "**admittedly an ad hoc modeling choice**"; orientation not perturbed at all, so "**the assumed uncertainty space ... may not contain the truth**" |
+| Sirignano 2020 | **network capacity** | "**`N_H >= 50` required for long-time stability**" (`>= 100` without the divergence-free constraint); "**No stabilizing limiters were used**" |
+| Guan 2022 | **training data** | `n_tr = 10,000` gives unphysical flows; **`n_tr >= 30,000`** gives stability, with **no clipping, smoothing or added eddy viscosity** |
+| Stroefer 2021 | **gradient exactness** | the adjoint transpose convection term "**can result in instabilities** ... **here we eliminate it**"; random weight init "**leads to divergence of the RANS solution**", fixed by pre-training to an existing closure |
+| Um 2020 / List 2022 | **training curriculum / gradient length** | pre-train at short unroll then extend; gradient sub-range 20-30 of 60 steps, because full 60-step backprop is training-unstable |
+
+**Four of these are described by their own authors as ad hoc**, in those words. That is a strength of
+the literature, not a weakness — and it means a reproduction that omits the stabiliser is not
+reproducing the paper.
+
+**The rule for this lab**: a closure reproduction states its stabiliser and its value in the same
+sentence as its result. "TBRF reduced `b` RMSE by X%" is incomplete; "TBRF reduced `b` RMSE by X% with
+`gamma_max = 0.8` and `sigma = 3` cells" is the claim.
+
+**What this does not license.** A stabiliser is not a defect. Menter's `max()` limiter (AIAA J.
+p. 1600) and the WALE denominator's second term — which exists purely because "the ratio ... is **not
+well conditioned numerically**" (Flow Turb. Combust. 62, p. 189) — are the same kind of device in
+models nobody calls ad hoc. **The lesson is disclosure, not abstinence.**
+
+---
+
+## L-152. Two groups met the same instability and reached opposite diagnoses; both are right about their own case and neither generalises
+
+**Diagnosis A — the closure form is wrong, so constrain it.** Beck, Flad & Munz 2019 found their
+learned LES closure unstable at **every** time step they tried (CFL 0.5, 0.05, 0.005: "stability
+issues ensued **even for very small timesteps**", arXiv preprint p. 22) and traced it to structure:
+in the perfect-LES formulation the coarse-grid inviscid operator **cancels exactly**, so an
+approximate learned term leaves no stable numerical operator. Their fix is to change the
+mathematical object — project the closure onto an eddy-viscosity basis, with a limiter.
+
+**Diagnosis B — the model is under-trained, so add data.** Guan, Chattopadhyay, Subel & Hassanzadeh
+2022, Table 2, arXiv preprint p. 13. One architecture, one flow, one solver; the only variable is
+sample count:
+
+| `n_tr` | 500 | 1000 | 10000 | 30000 | 50000 |
+|---|---|---|---|---|---|
+| a-priori correlation `c` | 0.78 | 0.83 | 0.90 | 0.92 | 0.93 |
+| a-posteriori fate (5 ICs) | unstable | unstable | **unphysical** | **stable** | **stable** |
+
+Their conclusion: "the backscattering can be accurately captured and the a posteriori LES can be
+stable **without any further post-processing if the training set is large enough.**" **No clipping,
+no smoothing, no added eddy viscosity.**
+
+**The two diagnoses are not reconcilable from the corpus and should not be forced.** Guan et al.
+refuse to generalise their own result (p. 13): "**we do not claim that all instabilities in other a
+posteriori LES runs using data-driven SGS models (reported in other studies) are due to similar
+inaccuracies that could be reduced by enriching the training set.**"
+
+**And the threshold they found is not portable.** Their stability boundary sits between correlations
+of **0.90 and 0.92**. Beck & Kurz 2021 report a closure that diverges at **0.999**. They say so
+themselves: "**these are just empirical thresholds in this testcase, and such thresholds might be
+case-dependent.**"
+
+**The rule**: when a learned closure is unstable, "add data" and "change the form" are both live
+hypotheses, they are cheap to distinguish (vary `n_tr` with everything else fixed, as Guan did), and
+**the a-priori correlation at which stability appears is a property of the case, not a number to
+carry between problems.**
+
+---
+
+## L-153. A pointwise regressor produces a field with no controlled derivative, and the momentum equation needs one
+
+**Kaandorp & Dwight 2020, arXiv preprint p. 21, verbatim**: "**Since the random forest is a piecewise
+constant approximation of `b`, and derivatives of `b` are needed in the N-S equation**, the
+predictions from the TBRF are smoothed spatially with a Gaussian filter, before they are propagated
+through the solver ... The TBRF algorithm has **no explicit spatial correlation** in the predictions
+since these are based on local features of the flow, so filtering the predictions will introduce some
+spatial correlation." Filter width: **standard deviation 3 cell lengths**, and "**This filter width is
+an ad hoc choice.**"
+
+**The same wall, reached independently by a different group with a different regressor.** Wang, Wu &
+Xiao 2017, arXiv preprint p. 29: "**A small region with abnormal Reynolds stress corrections (e.g.,
+non-smoothness or artificial peaks) can introduce large errors to the velocity predictions.** ...
+**These fluctuations, despite being small in amplitude, can lead to abnormal behaviors in the
+divergence term** and thus in the predicted velocities." And their diagnosis of the cause: "**the
+random forest regression used here only provides pointwise estimations but cannot consider the
+spatial information of the Reynolds stress field. Therefore, the smoothness of the prediction cannot
+be guaranteed.**"
+
+**Three other papers reach the same requirement by other routes.** Xiao et al. 2016 truncate to
+**16 (or 8) Karhunen-Loeve modes**, which "correspond to **very smooth fields** of Reynolds stress
+discrepancies" (arXiv preprint p. 24). Beck 2019's least-squares eddy-viscosity projection is a
+smoothing operation in disguise. Schmelzer's sparsity requirement is explicitly numerical, not
+aesthetic (arXiv preprint p. 10): models with large coefficients "are **unsuitable to be implemented
+in a CFD solver as they increase the numerical stiffness of the problem and impede convergence.**"
+
+**This is why it is a lesson and not a footnote.** Only `div tau` enters the momentum equation. A
+regression scored on `tau` — every a-priori metric in the corpus — is scored on a quantity one
+derivative removed from the one that acts. **A model can win on `tau` and lose on `div tau`, and
+nothing in a pointwise regressor's training objective prevents it.**
+
+**The practical form**: any pointwise-predicted field this lab propagates gets its `div` inspected
+before its `U` is believed, and any smoothing applied is reported with its width. The lab has already
+recorded a ~10% RMS `div(U)` from its own post-hoc correction; that is the same mechanism seen from
+the output side.
+
+**What this does not license.** Smoothing is not free — it removes real structure along with noise,
+and Kaandorp flag the width as unjustified. The principled alternative they point to is choosing the
+filter width "**by looking at e.g. required condition numbers for the solver**", which is now
+possible: Wu et al.'s local condition number (arXiv:1803.05581, Eq. 2.14) is exactly such a criterion
+and costs `O(n^2 log n)`.
+
+---
+
+## L-154. Publish the ceiling next to the result, because the gap is the finding
+
+**Schmelzer, Dwight & Cinnella 2020 report both, on the same normalised metric.** Table 1 (arXiv
+preprint p. 6) injects the *extracted* correction as a static field — the best any model of that form
+could do. Table 2 (p. 15) reports the *discovered* sparse models, re-solved:
+
+| Case | Frozen-field ceiling `eps(U)/eps(U_0)` | Best discovered model |
+|---|---|---|
+| Periodic hills `Re = 10595` | **0.00165** | **0.22287** |
+| Converging-diverging channel `Re = 12600` | 0.0229 | 0.20828 |
+| Curved backward-facing step `Re = 13700` | **0.22703** | 0.30655 |
+
+**Read row by row the table says two different things.** On the hills the extractable correction
+would cut the velocity error by a factor of ~600 and the best symbolic model achieves ~4.5 — **the
+regression is the bottleneck.** On the curved step the ceiling is 0.227 and the model reaches 0.307 —
+**the model is near its ceiling and the ceiling is poor, so the correction *form* is the bottleneck.**
+Without both numbers, the two cases look like the same result ("about 4x better than baseline") and
+imply the same next action, which they do not.
+
+**Kaandorp report the same structure differently** (arXiv preprint pp. 39-40): propagating the DNS
+anisotropy itself already misses, and the additional ML error is "**of similar magnitude to the errors
+already made in the propagation**" — so their bottleneck is neither the regressor nor the form, it is
+the propagation.
+
+**The rule**: any closure experiment in this lab reports the frozen-field or perfect-model result
+alongside the learned one, on the same metric and the same case. It is cheap — it is one extra solve
+with the truth substituted — and it is the only way to distinguish "the model is bad" from "the model
+class cannot do this" from "the propagation destroys it".
+
+**What this does not license.** The ceiling is a ceiling for *that correction form*. Schmelzer's
+frozen field is `b^Delta` plus a `k`-equation residual; a different form has a different ceiling. And
+a ceiling computed with DNS data says nothing about what is reachable without it.
+
+---
+
+## L-155. Choose the state variable that is already invariant to the axis you want to extrapolate along, and the architecture stops mattering
+
+**Bae & Koumoutsakos 2022, arXiv preprint p. 7.** Same reinforcement-learning algorithm, same reward,
+same solver, same training Reynolds numbers (`Re_tau in {2000, 4200, 8000}`) — **two state spaces**:
+
+- **LLWM**, whose state is a log-law slope and intercept `{1/kappa_m, B_m}` — **dimensionless and
+  Reynolds-free by construction** — extrapolates to **`Re_tau = 1e6`**, a factor of **125** beyond
+  the largest training value, with "the prediction error in the friction velocity ... **less than
+  4%**".
+- **VWM**, whose state carries the wall-normal sampling height in wall units `(h_m)+` explicitly, was
+  trained over `150 < (h_m)+ < 1200`, and fails outside it: "Cases at `Re_tau = 2e4` and `5e4`
+  produce high errors as the `(h_m)+` is not within the trained range". **Two velocity profiles are
+  omitted from Fig. 4(a) because they lie outside the plotted range.** Refining the grid so that
+  `(h_m)+` re-enters the trained band makes "**errors decrease significantly**".
+
+**The failure is not a failure of learning. It is a failure of parameterisation, and the fix is a grid
+change, not a training change.**
+
+**The same principle appears twice more in the corpus, both times as the stated reason for a design
+choice.** Wu et al. 2018 normalise every feature as `alpha_hat = alpha/(|alpha| + |beta|)` so that
+each lies in `[-1, 1]` — a bounded, saturating map with no scale to leave. Singh et al. 2017
+non-dimensionalise by the local `nu + nu_hat` and wall distance, with the explicit rationale that
+dimensional quantities "**may have different numeric values even when two flows are dynamically
+similar**" (arXiv preprint pp. 11-12) — and that is what they credit for the model porting to a
+different solver.
+
+**The rule**: before choosing features, name the axis you intend to extrapolate along — Reynolds
+number, geometry, grid resolution — and check whether any input carries that axis in its units. If
+one does, the model has memorised a range, and its generalisation limit is that range regardless of
+how it was trained.
+
+**What this does not license.** A `Re`-free state is not a `Re`-free model: Bae's own error
+"**increases with Reynolds number**" even for the LLWM, and the paper's headline is a bound, not a
+constant. And the LLWM's state is only available because the flow *has* a log layer — the trick does
+not survive into flows where the assumed structure is absent, which is why neither wall model can do
+transition.
+
+---
+
+## L-156. Error cancellation makes the worse model look better, and a coarser grid look better, and both have been measured
+
+**Lozano-Duran & Bae 2023, arXiv preprint pp. 19-20.** On the adverse-pressure-gradient and
+separation cases, the classical equilibrium wall model beats the learned one on total wall-stress
+error — and the authors refuse the win: "**EQWM appears more accurate but for the wrong reasons**",
+because it **underpredicts `tau_w` while overpredicting the near-wall velocity** and the two errors
+cancel. The same explanation is offered for the one aerodynamic case where the classical model wins,
+`C_L` at low incidence on the NASA CRM High-Lift.
+
+**Larsson et al. 2016 state the general form of it, and it is worse than a per-case caveat**
+(PDF p. 18): "note specifically that the results in Fig. 5 are best (smallest log-layer mismatch) for
+the **coarsest** grid", and "**a flawed model may produce 'perfect' results by introducing errors
+that exactly cancel those present in the outer layer LES. For example, since most codes/numerics
+produce a positive log-layer mismatch, any modeling modification that by itself would produce a
+negative mismatch will lead to 'improved' results.**"
+
+**Read together, those two say a model can be selected *for* its ability to cancel the host code's
+error** — and it will then fail in any other code, or on any other grid, in the direction nobody
+tested.
+
+**Lozano-Duran's methodological answer is the transferable part**: split the error into an
+**internal** component (against the model's own consistent target) and a **total** component (against
+DNS or experiment), and report both. Their ZPG boundary layer: internal error **below 0.5%** for the
+learned model versus **~2%** for the classical one, while the **total** error is **5-15% for both**.
+The learned model is dramatically better at the thing it was trained on and tied on the thing the
+user cares about — and the authors name the reason (p. 29): "**the main limiting factor in the
+accuracy of the BFWM predictions originates from external modelling errors due to the poor
+performance of SGS models.**"
+
+**The rule**: an improvement measured on one grid, in one code, on one integral quantity is not
+evidence of a better model until the same comparison survives a grid change. Larsson makes it
+mandatory (p. 18): "**it is mandatory to test all wall-modeled LES approaches on different grids:
+both by refining the grid and by modifying the aspect ratio of the grid.**"
+
+**What this does not license.** Cancellation is not fraud and is not always avoidable — Menter's SST
+constants are hand-tuned to five flows and he says so. The lesson is that a single-configuration
+improvement cannot distinguish a better model from a better-cancelling one, so the claim must be
+sized accordingly.
+
+---
+
+## L-157. Two methods in this corpus provably cannot contain the right answer, and both say so in print
+
+**Case 1 — the search space excludes the truth for a stability reason.** Xiao et al. 2016 perturb the
+Reynolds stress in its invariants (magnitude, shape) but **not** its orientation, because "**Perturbing
+the orientations of the modeled Reynolds stress tensor can potentially cause instability in the RANS
+momentum equation**". The consequence, in the same paragraph (arXiv preprint p. 10): "**Consequently,
+the assumed uncertainty space of Reynolds stresses may not contain the truth** because the true
+Reynolds stresses are likely to have different orientations from those of the RANS predictions."
+
+And the error compounds in the same direction: their credible intervals are also too narrow
+(p. 28) — "**the 95% credible intervals ... failed to cover the truth** ... **The iterative ensemble
+Kalman method tends to underestimate uncertainties in the posterior distributions.**" **Both defects
+point at overconfidence.**
+
+**Case 2 — the answer lies outside the convex hull.** de Zordo-Banliat et al. 2023 aggregate four RANS
+models per cell. Because the combination is convex, the result is confined to the hull of its
+components. Their finding (arXiv preprint p. 17): "In the upper part of the wake, **all models
+exhibit relative consensus on the wrong solution, a known limitation inherent to mixture models.** In
+such a case, the variances (a measure of model consensus) are also small and **do not encompass the
+reference** either." **Wrong, and confident, and the confidence measure agrees with the error.**
+
+They are equally clear about what their variance is not (p. 19): "**the error bars must not be
+interpreted as the region where the true solution possibly lies, but simply as a measure of the
+uncertainty in the choice of a best-performing model.**"
+
+**Why this is one lesson and not two.** Both methods produce an interval; in both, the interval is a
+statement about the *method's internal disagreement*, not about the truth; and in both, the failure
+mode is silent — the interval narrows exactly when it should widen. **A narrow interval from a
+mixture or from an under-dispersed ensemble is a report about consensus, and consensus is not
+evidence.**
+
+**The rule**: when a method reports an uncertainty, state what the uncertainty is over. If it is over
+model choice, over ensemble spread, or over a parameterised subspace, say so, and say what is outside
+the space. The one thing that would fix Xiao's case — perturbing eigenvectors — is Iaccarino et al.
+2017, which is quarantined in this corpus, so the loop cannot currently be closed here.
+
+---
+
+## L-158. The learned object that ports to another solver is the one that modifies a term, not the one that modifies the answer
+
+**Two papers in this corpus tested portability and reached opposite results, and the difference is
+what they learned.**
+
+**Singh, Medida & Duraisamy 2017 (arXiv preprint pp. 20-21)** embedded their trained network — a
+multiplier `beta(x)` on the Spalart-Allmaras production term, keyed on locally non-dimensionalised
+features — in **AcuSolve**, an unstructured, dimensional, commercial Galerkin-least-squares
+finite-element code, having trained it in **ADTURNS**, a structured, non-dimensional, cell-centred
+finite-volume code. It reproduced the improvement. They credit the local non-dimensionalisation.
+
+**Lozano-Duran & Bae 2023 (arXiv preprint p. 29)**: "**Consistency between the model and the
+numerical/gridding schemes is solver-dependent. As such, the BFWM must be re-trained to yield accurate
+predictions in different flow solvers.**"
+
+**The mechanism is not subtle once both are on the table.** Lozano-Duran's training data are not
+filtered DNS — they are generated by wall-modelled LES **in the same solver**, deliberately, so that
+"solver and grid numerical errors" are part of the label. The model absorbs charLES's numerics
+because it was asked to. Singh's `beta` multiplies a physical production term and is a function of
+dimensionless local ratios; there is no solver in it to absorb.
+
+**The general statement is Larsson's, from the wall-model side** (PDF p. 11): "**even a 'perfect'
+wall-model in one numerical code would suffer from a log-layer mismatch if implemented in a different
+numerical code!**" — and the sign of the mismatch is set by the host code's grid arrangement and
+dissipation. **A model trained against one code's errors inherits that code's sign.**
+
+**And the same trade shows up in the differentiable family.** Sanderse et al. 2024, arXiv preprint
+p. 8: a-posteriori learning "**implicitly corrects for spatial and/or temporal discretization errors,
+which can be desirable but can also limit application to different grids or time steps.**" **The
+property that makes a solver-trained model accurate is the property that makes it non-portable.**
+
+**The design question this forces**: decide up front whether the closure is meant to be a *model* (to
+be used elsewhere) or a *correction* (to this code, this grid). Both are legitimate; they are graded
+differently, and a correction reported as a model will fail on first transfer.
+
+---
+
+## L-159. A constant found by "increase it until the solver breaks" is a measurement of the solver, and it should be reported that way until a criterion replaces it
+
+**Kaandorp & Dwight 2020, arXiv preprint p. 26, verbatim**: "**`gamma_max` was incremented in steps of
+0.1 until the solver became unstable, yielding a value of `gamma_max = 0.8`.** ... **As this choice is
+ad hoc, further work related to this topic is necessary.**" The learned anisotropy is therefore never
+applied at more than 80% strength, and the trade is stated: "A **lower value for `gamma` means that
+the linear eddy viscosity assumption becomes more dominant, resulting in a more stable solution, but
+impairing the accuracy of the solved mean velocity.**"
+
+**The same device, criticised by name, in the paper Kaandorp cites.** Wu, Xiao & Paterson 2018 reject
+blended RSM/eddy-viscosity stresses because "**the specification of a blending factor `alpha` is
+largely ad hoc and lacks physical basis**" (arXiv preprint p. 4) — and use an implicit split instead.
+
+**And then the criterion arrives.** Wu, Xiao, Sun & Wang, arXiv:1803.05581, pp. 23-24: "the choice of
+the blending factor is **largely ad hoc due to the lack of a quantitative method to evaluate the model
+conditioning** ... **The metric proposed in this work can assess the model conditioning with any given
+blending factor, and thus it is possible to choose a minimum blending factor that maintains good
+conditioning.**" Their local condition number costs `O(n^2 log n)` and is **provably
+mesh-independent**.
+
+**So the sequence is: a constant is found empirically; its author flags it as ad hoc; a second author
+rejects the whole device; a third supplies the measurable criterion that would set it.** That
+sequence is the normal life of a numerical constant and it is worth recognising in progress, because
+the useful action differs at each stage. At stage one the action is *disclose*; at stage three it is
+*replace*.
+
+**Three more constants in the same state in this corpus**: Schmelzer's convergence-rescue factor
+`xi = 0.1`; Kaandorp's Gaussian filter width `sigma = 3` cells ("**This filter width is an ad hoc
+choice**"); Xiao's realisability clip to `[-1,1]^2` ("**admittedly an ad hoc modeling choice**"). **All
+three authors say so themselves.** The literature's honesty here is better than its reputation.
+
+**The rule for this lab**: a constant obtained by incrementing until failure is recorded with the
+procedure that produced it, the failure it was avoiding, and the sensitivity around it — and it is
+flagged as replaceable. It is never quoted as if it were derived.
+
+---
+
+## L-160. When a paper reports no number, write "none reported" and stop
+
+**Five papers in the 33-paper closure corpus report no numeric error metric for the thing they are
+about.** This is not an accusation; it is a fact about what can be cited from them.
+
+| Paper | What is missing | What exists instead |
+|---|---|---|
+| Stroefer & Xiao 2021 (arXiv v1) | **all of it** — no MSE, no percentage, no reduction factor | "visually indistinguishable"; and **no ensemble-Kalman comparison at all** (0 hits for "kalman") |
+| Sirignano/Freund 2020 | **any % versus dynamic Smagorinsky** — a full `%` search returns 3 hits, none of them results | graphical spectra and decay curves |
+| Wu, Xiao & Paterson 2018 | any RMSE or L2 table | one separation-bubble extent in prose |
+| Maulik et al. 2019 | **every result** — the string "Table" does not appear in the paper | figures |
+| Singh et al. 2017 | any flow-field error | "<10% compute overhead"; "15% more accurate" bubble length on a different case |
+
+**And three more where the flagship result specifically is graphical**: Bae 2022's per-Reynolds-number
+errors (Fig. 3 only, ordinate -70% to +10%); Lozano-Duran 2023's NASA CRM `C_L`/`C_D`/`C_M`
+("moderate improvements", Fig. 15); de Zordo-Banliat 2023, where **one** number exists in the whole
+paper ("**approximately 1/3**", velocity MSE, extrapolation case).
+
+**Axis tick labels are not data.** A figure whose ordinate spans -70% to +10% tells you the plotting
+range, not the result. Digitising a plot is a measurement with its own error budget and is reported
+as such, not as the paper's number.
+
+**Why this needs to be a standing rule and not a per-case judgement.** The pressure to supply a
+number is strongest exactly where none exists — a catalogue row with an empty metric column looks
+like a gap in the cataloguer's work rather than a property of the source. **The row is correct when
+it says "none reported".** The lab's corpus defect of 2026-08-20 (L-144) was a citation failure of
+exactly this shape at one remove: text that reads as sourced but is not.
+
+**The operational form**: catalogue and inventory rows carry an explicit `metric: none reported` where
+that is the truth, with the sentence the paper does offer quoted verbatim beside it. Any downstream
+document that attaches a percentage to one of the five papers above has fabricated it.
+
+---
+
+## L-161. A model selected by looking at the deployed answer is not held out, however many candidates were rejected
+
+**Schmelzer, Dwight & Cinnella 2020.** Sparse regression produced **52, 114 and 136** candidate
+`b^Delta` models for the three training cases. The authors then, in their own words (arXiv preprint
+p. 15), "**In an ad-hoc way, we hand-select 5 models for `b^Delta` and 3 for `R`**", ran **35 to 47
+CFD simulations per test case**, and reported the best by re-solved velocity error. The headline
+numbers of Table 2 — `eps(U)/eps(U_0)` of 0.208 to 0.306 — are **post-selection**, and the selection
+criterion was the a-posteriori result.
+
+**Singh et al. 2017 do the same thing and flag it themselves** (arXiv preprint p. 20): "**the quality
+of the NN-augmented model is sensitive to the selection of the training-data. In this work, the best
+model 'P' is selected by exploring several combinations of the data-sets.**" Their Fig. 18 shows the
+eight-model spread that the selection collapsed; **the spread is not quantified**, and they add
+(p. 19) that the ensemble "**does not qualify as a formal uncertainty quantification technique**".
+
+**Neither paper hides it. Both report the procedure.** The lesson is about what the resulting number
+means, not about the authors' candour: **it is a best-of-N, and N belongs beside it.**
+
+**Where a genuinely held-out number does exist in the corpus, it is smaller and more useful.**
+Schmelzer's extrapolation to periodic hills at `Re = 37000` against experiment was never in the
+selection loop — and its result is reported graphically, with no number. Kaandorp's test cases are
+predicted by models trained on a fixed set of three flows with no per-case selection, and the
+reattachment result (**6.32** against DNS 6.28) is therefore a stronger number than its size
+suggests.
+
+**The rule for this lab's pre-registrations**: if a candidate set is filtered by a re-solved result,
+the filtering is part of the method and the reported error is a best-of-N. Either register the
+selection rule in advance, or report N, or hold out a case the selection never touched — and say
+which of the three was done.
+
+---
+
+## L-162. Quote a learned model's training cost in solves of the thing it replaces, because that is the only unit that decides anything
+
+**List, Chen & Thuerey 2022, arXiv preprint pp. 26-27** are the only authors in the corpus to do this,
+and it changes how their result reads. Training on one GTX 1080Ti: **61 h, 78 h and 240 h** for the
+three cases — which they convert to **[120, 118, 22] full-length DNS solves.**
+
+**So the model must be re-used 22 to 120 times before it repays its own training**, against a
+per-inference speed-up of 3.3-14.4x. That is a break-even calculation a lab can act on, and it is
+invisible in the wall-clock numbers alone.
+
+**Two other papers give the same kind of ratio for different quantities, and both are decision-grade.**
+Bae & Koumoutsakos 2022 (arXiv preprint p. 10): reinforcement learning trained a wall model with
+**`O(1e3)` CPU-hours and < 1 GB**, where "generating the DNS data would need **`O(1e7)` CPU-hours and
+> 100 TB**" — **four orders of magnitude**, and the argument for reward-based over label-based
+training. Xiao et al. 2016 (arXiv preprint p. 40): their UQ costs "**600 evaluations** of the forward
+RANS model", each "**only 10% as expensive as a baseline RANS simulation**", giving "**the total
+computational cost ... 60 times as that of the baseline simulation**."
+
+**And the counter-example that shows why the unit matters.** Beck et al. 2019 report a storage figure
+instead: holding `U` and `R(F(U))` at their sampling rate for `0.2 T*` needs **~55 TByte** (arXiv
+preprint p. 7). Their own conclusion is that the result is "**data-bound**" — "the performance of the
+prediction is likely limited by the available amount of data used for training, rather than network
+architectures" (p. 24). **A cost quoted in terabytes told them more than a cost quoted in GPU-hours
+would have.**
+
+**The rule**: every cost in this lab's closure work is quoted in the unit that bounds the decision —
+baseline-solve equivalents, DNS-solve equivalents, or storage — and never only in wall-clock, which
+is unportable across hardware and says nothing about whether the method is worth using.
+
+**What this does not license.** Amortisation arguments assume re-use, and re-use assumes portability
+(L-158). A model that must be retrained per solver, per grid and per Reynolds number never reaches
+its break-even, whatever its training cost.
+
+---
+
+## L-163. A corpus is a live dependency, and a paper arriving mid-task changes conclusions already written
+
+**2026-08-20, during a single cataloguing pass, three files landed in `docs/papers/closure/` after
+the pass began**, and two of them changed statements that had already been drafted:
+
+- **`Wu2018_rans_explicit_closure_ill_conditioned.pdf`** (arXiv:1803.05581v3). The session's own
+  verification flags recorded this paper as **not in the corpus**, with the instruction to add it to
+  the shelf. It is the source of the "0.31% stress error -> 35.1% velocity error" table (L-146) and of
+  the explicit-versus-implicit conditioning result (L-147) — **the two numbers on which four other
+  papers' framing depends.** Before it arrived, both were second-hand.
+- **`Guan2022_stable_aposteriori_les_cnn.pdf`** (arXiv:2102.11400v1). Recorded as `MISSING`. It is the
+  sole source for the training-set-size stability table (L-152), and it directly contradicts the
+  "learned SGS closures need a stabiliser" summary that the rest of the category supports.
+- **`Xiao2016_bayesian_model_form_uncertainty.pdf`** — a byte-identical duplicate of a file already
+  present (L-145).
+
+**The failure mode this creates is not a wrong statement; it is a stale one.** A document that says
+"the ill-conditioning paper is not in the corpus" was true when written and false four hours later,
+and nothing in it announces the change. Prose does not have a dependency graph.
+
+**Two guards, both cheap.**
+- **Re-derive counts from the filesystem at every phase boundary**, never from prose. The manifest is
+  script-generated (`S/verify_pdfs_A.py` + `S/build_manifest_A.py`); the catalogue's count table is
+  not, and is therefore the thing to re-check.
+- **Date the corpus state inside any document that reasons about absence.** A sentence of the form
+  "X is not on disk" carries a timestamp and a pointer to `MANIFEST.md` as the live authority, so a
+  reader knows whether to re-check rather than having to guess.
+
+**The related discipline, already standing from L-144**: the title-page check "**runs again at every
+phase boundary, because files keep arriving.**" This pass is the demonstration that the clause was
+load-bearing — all three arrivals were verified on arrival, and one of them was a duplicate that only
+a hash check would have caught.
+
+**What this does not license.** It is not an argument for freezing a corpus. The arrivals improved the
+work: two of the three closed genuine gaps, one of which had been flagged as the most damaging
+omission in the shelf. **The cost of a moving corpus is bookkeeping; the cost of a frozen one is
+reasoning from absence.**
+
+---
+
+## L-164. How far you roll forward and how far the gradient travels are two different lengths, and only one of them has an optimum
+
+**List, Chen & Thuerey 2022, §6, arXiv preprint p. 22.** On a **60-step** unrolled rollout, they vary
+only the sub-range over which the gradient is back-propagated:
+
+| Gradient sub-range | Temporal mixing layer, MSE @ 512 dt | Spatial mixing layer, MSE @ 1000 dt |
+|---|---|---|
+| 10 | 2.36e-5 | **2.44e-3** |
+| 20 | 2.19e-5 | 2.73e-3 |
+| 30 | **1.93e-5** | 2.98e-3 |
+| **60 (full)** | **training unstable — no value reported** | **1.19e-2** |
+
+**Full back-propagation through the whole rollout is training-unstable on one case and about four
+times worse on the other** — 1.19e-2 against a no-model baseline of 2.03e-2, i.e. barely better than
+no model at all. Their conclusion: the optimum sub-range is **20-30 steps**, "a split into 2 subranges
+of 30 steps each performed best", with saturation "at **circa 60 steps, which coincides with the
+integral timescales**".
+
+**And they explicitly distinguish this from the standard remedy (p. 28)**: "This approach differs from
+the common practice in machine learning, where gradients of early evaluations of the neural network
+are usually discarded or re-scaled when **gradient clipping** is applied." **No gradient clipping is
+used.**
+
+**The forward length behaves differently and has its own optimum, set by the physics.** Um et al. 2020
+find monotone improvement with look-ahead on their wake and buoyancy cases (40% at `n<=4`, 54% at 64,
+**60% at 128**) — but on the **randomly forced** Burgers case the optimum is `n = 2`, and they name
+the reason (arXiv preprint p. 6): "**Learned correction functions need to be able to anticipate future
+behavior ... The randomized forcing in this example severely limits the number of future steps that
+can accurately be predicted given one state.**" List find no improvement at 120 steps and **reduced
+accuracy at 180 and 240.**
+
+**Sanderse et al. 2024 give the general statement** (arXiv preprint p. 8): "**Unrolling too few time
+steps gives only limited gains over a priori learning, while unrolling too many time steps is
+computationally expensive, has the danger of exploding or vanishing gradients, and can be unrealistic
+given that turbulent flows are chaotic.**"
+
+**Two numbers to carry**: the useful **forward** horizon is bounded by the predictability of the
+physics; the useful **gradient** horizon is bounded near **one integral timescale**. They are not the
+same number, and reporting only one of them makes an unroll study unreproducible.
+
+---
+
+## L-165. An invariance defect survived peer review in the paper whose subject is invariance, so audit your own pipeline rather than your intentions
+
+**Wu, Xiao & Paterson 2018, Acknowledgment, arXiv preprint p. 33, verbatim**: "**one of the reviewers
+pointed out the lack of Galilean invariance in two of the normalization constants in our manuscript,
+which we fixed during the revision.**"
+
+This is a paper built on a 47-invariant minimal integrity basis, whose contribution is precisely the
+principled construction of invariant features. **The defect was not in the basis. It was in the
+normalisation constants dividing it** — and it reached submission.
+
+**Only one group in the corpus audits its own feature set and publishes the failures.** Kaandorp &
+Dwight 2020, Table 1 (arXiv preprint p. 25), marks four of nine physically-motivated features with a
+dagger: "**Features marked with † are rotationally invariant but not Galilean invariant**" — they are
+`k`, `u_k dp/dx_k`, `u_i dk/dx_i`, and `u_i u_j du_i/dx_j`. The model's *output* is Galilean invariant
+by the tensor basis; four of its *inputs* are not; both facts are printed on the same page.
+
+**Everyone else asserts invariance for the whole pipeline.** Ling et al. 2016 state that the
+architecture "guarantee[s] the Galilean invariance of the network predictions" — true of the output —
+while using "rotational invariance" and "Galilean invariance 'interchangeably in the same paragraph,
+and never discussing reflection. Schmelzer et al. use the word "Galilean" once, in a literature
+review. Sirignano et al. and List et al. state plainly that they do not enforce it.
+
+**Why the failure is systematic rather than careless.** Invariance is a property of a *composition*:
+the features, their normalisers, the basis, the output map, and any data augmentation. It is
+conventional to prove it for the piece one designed and inherit it for the rest. **The normalisation
+constants are the piece nobody designs.**
+
+**The check is mechanical and cheap**: apply a Galilean boost and a rotation to a stored field,
+recompute every input *and every normaliser*, and require the model output to transform correctly. It
+is a unit test, it runs in seconds on a frozen field, and it would have caught the defect above before
+submission.
+
+**What this does not license.** It is not evidence that invariance-by-construction fails — Ling et
+al.'s own controlled comparison (plain MLP `b` RMSE 0.33 versus TBNN 0.13 against a linear baseline of
+0.23, Table I, preprint p. 11) is the strongest argument for it in the corpus. It is evidence that the
+guarantee attaches to a specific composition and must be verified over the whole of it.
+
+---
+
+## L-166. The thing you clip away to get stability may be the entire advantage you were buying
+
+**Guan et al. 2022, arXiv preprint p. 11, Table 1.** A-priori correlation of the predicted sub-grid
+term, computed **separately** on grid points of forward energy transfer and of backscatter:
+
+| | Dynamic Smagorinsky (with positive clipping) | Local ANN (with sign truncation) | CNN (no clipping) |
+|---|---|---|---|
+| correlation on forward transfer | 0.55 | 0.86 | **0.96** |
+| **correlation on backscatter** | **0 exactly** | 0.83 | **0.92** |
+
+**The classical model's backscatter correlation is exactly zero by construction** — positive clipping
+enforces `nu_e >= 0`, so it cannot represent energy flowing from small scales to large ones at all.
+
+**And then the controlled test (Fig. 8, arXiv preprint p. 17): applying the same truncation rule to
+their own CNN makes it "excessively diffusive (with performance comparable to that of the
+LES-DSMAG)".** The learned model, stripped of backscatter, degrades to the baseline it was beating.
+
+**Maulik et al. 2019 apply exactly that truncation and state its size and its cost.** Their rule is
+`Pi = 0` wherever `(grad^2 omega_bar)(Pi_tilde) <= 0`, justified as ensuring "**numerical stability
+due to potentially negative eddy-viscosities**". Size of the intervention: "**roughly half of the
+predicted sub-grid terms are truncated**" (p. 11). Cost, in their words: it "**precludes the presence
+of a backscatter of enstrophy** for strict adherence to viscous stability requirements".
+
+**So the sequence is: train a model that can represent backscatter; discard the half of its output
+that does; obtain a positive-definite eddy viscosity with a learned magnitude.** That may still be an
+improvement — Maulik's deployed model does beat static Smagorinsky and Leith on the spectrum — but it
+is a different claim from "a learned closure captures backscatter", and the two are easily conflated.
+
+**The rule**: when a stabiliser removes a class of predictions, measure the model with and without it,
+and report what fraction of the output the stabiliser touched. Both papers above do exactly this,
+which is why the lesson is available at all.
+
+**What this does not license.** It is not an argument against clipping. Guan et al.'s alternative
+route — more training data — worked on *their* flow, at 30,000 samples, in 2-D, and they explicitly
+decline to generalise it (L-152). Clipping remains the only option when the data are not there.
+
+---
+
+## L-167. A confidence score is a triage tool, and the paper that built one says it is not a guarantee
+
+**Lozano-Duran & Bae 2023** ship a confidence score with their wall model: `p_conf = d_s/d_i`, the
+distance of the current input to the nearest training sample, normalised by that sample's own
+neighbourhood scale. **It behaves exactly as designed.** NASA Juncture Flow, Table 1 (arXiv preprint
+p. 29): confidence **98%** on the upstream fuselage, **82%** in the juncture, **22%** at the juncture
+trailing edge — and the diagnosed reason at the trailing edge is a grid fact, not a model fact: the
+separation bubble is `0.3 delta` thick against a grid spacing `Delta ~ 0.2 delta`, i.e. "**only one
+grid point across the separation bubble**".
+
+**And then the caveat, from the same authors (p. 28)**: "**This implies that low confidence scores may
+still result in accurate wall stress predictions and vice versa. Moreover, the confidence score does
+not provide an error bound on the value of the prediction**, which would be more representative of the
+model performance."
+
+**Beck & Kurz 2021 recommend precisely this device and stop at the same place** (arXiv preprint
+pp. 11-12): "**a means of measuring confidence in the model prediction should accompany any model - in
+its simplest form, this could be an estimate of the position of the input data in feature space and a
+comparison against the statistics gathered during training**", together with "**a consistent fallback
+mechanism in cases where the model is likely to fail**". Sanderse et al. 2024 close the loop by
+reporting that the general problem is open (arXiv preprint p. 21): distribution shift is a known
+limitation, "**Learning useful 'invariant' input features may assist with this but that is as yet a
+largely unsolved problem in machine learning.**"
+
+**A third instance, arrived at differently.** de Zordo-Banliat et al. 2023 find their aggregation
+weights become "**less sharp** ... i.e. the models are weighted more uniformly" on the extrapolation
+scenario (arXiv preprint p. 22) — an OOD signal that falls out of the method rather than being bolted
+on. **And it fails in the one case that matters most**: where all component models agree and are
+wrong, the variance is *small* (L-157).
+
+**The rule**: a confidence score earns its place as a *routing* device — where to refine the grid,
+where to distrust an integral quantity, where to ask for more data — and never as an error bar. Report
+it alongside the error, not instead of it, and state the two known failure modes: confident-and-wrong
+under consensus, and unconfident-and-right away from the training manifold.
+
+**The free asymptotic checks are cheaper and are not run.** Beck & Kurz, p. 12: "**The simplest case
+of generalization capability of an ML-augmented model should be at both limits of modeling: it should
+turn off in laminar flow and at the DNS resolution.**" **No paper in the corpus reports either test.**
+
+---
+
+## L-168. Two secondary descriptions of the same architecture disagree, so an architecture is quoted from the primary source or not at all
+
+**Ling, Kurzawski & Templeton's TBNN is described twice in this corpus and the descriptions are
+incompatible.**
+
+| Source | Layers | Learning rate | Optimiser | Batch |
+|---|---|---|---|---|
+| **The SAND2016-7345J preprint on disk**, p. 8 | **8 hidden x 30 nodes** | **2.5e-7** | **stochastic GD, per-point updates** | — |
+| Kaandorp & Dwight 2020, arXiv preprint pp. 16-17, "based on Ling et al." | **10 hidden** | **2.5e-5** | **Adam** | **1000** |
+
+The SAND preprint attributes 10 layers and `2.5e-6` to its *baseline MLP*, not to the TBNN — so the
+secondary description appears to have merged the two networks and shifted the learning rate by two
+orders of magnitude. **Both cannot be right, and the published JFM version may differ from the SAND
+preprint in ways neither this lab nor Kaandorp can see from here.**
+
+**The consequence is not academic.** Kaandorp's Table 3 — the corpus's best feature-versus-model-class
+comparison (L-149) — reports a TBNN column produced by *a* tensor-basis network. Whether it is *the*
+network of the SAND preprint is unknown. The comparison remains valid as a controlled experiment
+within that paper, because the same TBNN implementation is used in both rows; it is **not** valid as a
+statement about Ling et al.'s published model.
+
+**The rule, which is L-144's rule extended one step**: L-144 established that a *file* is verified by
+its printed title page. This adds that a *fact* is verified by the page it is printed on. An
+architecture, a hyper-parameter or a constant taken from another paper's description of a third paper
+is a second-hand claim and is labelled one. Where the primary source is on disk, quote it and note the
+discrepancy; where it is not, quote nothing.
+
+**Recorded and deliberately not resolved.** Guessing which description is right would be exactly the
+move that produced the corpus defect of 2026-08-20. For any reproduction here: **use the on-disk SAND
+numbers, and state that Kaandorp's differ.**
+
+---
+
+## L-169. A method's own baseline is the hardest thing to beat, and three papers in this corpus lose to theirs
+
+**Maulik & San 2017, Table 4, arXiv preprint p. 17.** Deviatoric sub-filter stress MSE on 3-D
+Kolmogorov turbulence, all `x 1e-5`:
+
+| Model | `tau_11` | `tau_12` | `tau_13` | `tau_22` | `tau_32` | `tau_33` |
+|---|---|---|---|---|---|---|
+| **ANN (theirs)** | 8.00 | 3.60 | 3.51 | 7.77 | 3.64 | 6.82 |
+| Scale similarity | 6.76 | 5.62 | 5.91 | 6.76 | 5.91 | 7.95 |
+| **AD3 (3-step approximate deconvolution)** | **2.46** | **1.69** | **1.82** | **2.46** | **1.83** | **2.91** |
+
+**The classical method wins every component by about a factor of three, and the authors say so**:
+"The AD3 approach can be seen to perform better (on average) than our proposed framework" (p. 16). On
+their stratified case (Table 6, p. 25), plain **scale similarity beats the neural network on five of
+six components.**
+
+They also state the mitigating fact, which is the interesting part: AD3 is advantaged because "**the
+specified filter utilized for the iterative deconvolution is the same as the one used for convolving
+the field**" — **AD3 knows the filter and the network does not, which is the entire premise of "blind"
+deconvolution.** So the comparison is not like-for-like, and the paper is honest about both halves.
+
+**Two more instances.** Menter 1994's own backward-facing-step table (AIAA J. p. 1603) shows the
+**original k-omega** at 6.4 step heights against SST's 6.5 and an experiment of ~6.4 — **the model SST
+was built to replace matches the experiment at least as well on that metric**, and Menter reports it.
+Lozano-Duran & Bae 2023 find the algebraic equilibrium wall model more accurate than their learned one
+on total wall stress in the adverse-pressure-gradient cases (L-156).
+
+**Why this is a lesson about reporting rather than about method quality.** All three papers publish the
+loss, which is why the corpus can see it. The failure mode is downstream: a summary that carries
+"neural network sub-grid model demonstrated on isotropic and stratified turbulence" without the table
+converts a candid partial result into an implied win.
+
+**The rule**: a closure result in this lab is reported against the strongest classical baseline
+available on the same case, with the baseline's advantages stated — and where the baseline wins, the
+row says so. **The corpus's most useful papers are the ones that did this.**

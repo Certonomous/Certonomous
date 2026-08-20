@@ -13,66 +13,107 @@ been measured rather than asserted. Those numbers come from
 (github.com/rmcconke/closure-challenge-benchmark at commit `deb91557`), and they
 are marked **[MEASURED HERE]**.
 
-## 0. How to read the citations, and the state of the source corpus
+## 0. Source status: what is verified, what is second-hand, what is blocked
 
-Three tags appear throughout:
+### 0.1 The four tags used throughout this document
 
-* **[ON DISK]** followed by a page or equation number: the source PDF is in
-  `docs/papers/closure/` and I read the cited page. Where the PDF is a journal
-  version the page number is the printed journal page; where it is an arXiv
-  preprint I write "arXiv preprint p./eq." because preprint numbering differs
-  from the published version.
-* **[NOT ON DISK - from memory; verify when PDF arrives]**: stated from
-  background knowledge, with the full reference given so it can be checked.
-* **[MEASURED HERE]**: computed from the benchmark data, with the script named.
+* **[VERIFIED-PDF: <ref>, p./eq.]** - the PDF is in `docs/papers/closure/`, I
+  opened it, its **printed title page** matches the paper named, and I read the
+  cited page. Where the file is the journal version the page number is the
+  printed journal page; where it is an arXiv preprint the tag says
+  "arXiv preprint", because preprint pagination differs from the published
+  version.
+* **[SECOND-HAND-UNVERIFIED: <ref>]** - stated from background knowledge or
+  quoted through another paper. No PDF of that source is on this machine. The
+  full reference is given so it can be checked. **Nothing tagged this way may be
+  used as evidence for a modelling decision without first obtaining the source.**
+* **[BLOCKED-ON-SOURCE: <ref>]** - the source is specifically needed for a claim
+  made here, retrieval was attempted, and it failed (paywall, no open-access
+  version, or no text layer). The claim stands as an unsupported placeholder.
+* **[MEASURED HERE]** - computed on this machine from the Closure Challenge
+  benchmark data, with the script named. Not a citation at all.
 
-### 0.1 Corpus defect found on ingestion, 2026-08-20
+### 0.2 Status of every source this document leans on
 
-I extracted the text of all 42 PDFs in `docs/papers/closure/` and compared each
-one's title page against its filename. **29 of the 42 files are unrelated
-papers.** The sha256 values recorded in `docs/papers/closure/MANIFEST.md` match
-the bytes on disk, so nothing was corrupted in transit; the arXiv identifiers
-recorded in the manifest are simply the wrong papers, and the retrieval was
-never checked against a title page. Evidence, machine-generated:
-`scratchpad/pdf_verification_B.txt`, reproducible with `scratchpad/verify_pdfs.py`.
+| § | Model | Source relied on | Status |
+|---|---|---|---|
+| 1 | Boussinesq hypothesis | Pope, JFM 72(2):331-340, 1975 | **VERIFIED-PDF** (journal) |
+| 1 | " (scope, failure framing) | Spalart, IJHFF 21:252-263, 2000 | **VERIFIED-PDF** (journal) |
+| 1.4 | realisability conditions | Schumann, Phys. Fluids 20(5):721-725, 1977; Banerjee et al., J. Turb. 8:N32, 2007 | SECOND-HAND-UNVERIFIED |
+| 2 | Spalart-Allmaras equations and the 9 constants | Spalart & Allmaras, AIAA 92-0439 / Rech. Aerosp. 1:5-21, 1994 | SECOND-HAND-UNVERIFIED |
+| 2 | SA design intent, calibration scope, "Challenge II was not considered" | Spalart 2000, Appendix A, p. 261 | **VERIFIED-PDF** |
+| 2.3 | QCR2000 equation, `c_nl1 = 0.3`, its calibration and its caveats | Spalart 2000, pp. 253-254, Fig. 1 | **VERIFIED-PDF** |
+| 3 | k-epsilon equations and constants | Launder & Spalding, CMAME 3:269-289, 1974; Jones & Launder, IJHMT 15:301-314, 1972 | SECOND-HAND-UNVERIFIED |
+| 3.4 | realisable k-epsilon | Shih et al., Comput. Fluids 24(3):227-238, 1995 | SECOND-HAND-UNVERIFIED |
+| 4 | Wilcox k-omega, as transcribed by Menter | Menter 1994, eqs. (A1),(A2),(A4),(A6), p. 1603 | **VERIFIED-PDF** |
+| 4 | Wilcox's own papers | Wilcox, AIAA J. 26(11):1299-1310, 1988; *Turbulence Modeling for CFD*, 1998 | SECOND-HAND-UNVERIFIED |
+| 5 | k-omega SST: every equation, every constant, the blending functions, the `a1` limiter, the "Important detail!" warning | Menter, AIAA J. 32(8):1598-1605, 1994 | **VERIFIED-PDF** (journal; eq. numbers below are the paper's own) |
+| 5.6 | SST-2003 production limiter | Menter, Kuntz & Langtry, THMT-4, 2003 | SECOND-HAND-UNVERIFIED |
+| 6 | tensor basis `T1..T10`, five invariants, the general effective-viscosity hypothesis | Pope 1975, §3, pp. 333-335 | **VERIFIED-PDF** |
+| 6.3 | Gatski & Speziale EASM coefficients and the Pade regularisation | Gatski & Speziale, JFM 254:59-78, 1993 | **BLOCKED-ON-SOURCE** - see §0.3 |
+| 7 | LRR and SSG pressure-strain closures | Launder, Reece & Rodi, JFM 68(3):537-566, 1975; Speziale, Sarkar & Gatski, JFM 227:245-272, 1991 | SECOND-HAND-UNVERIFIED |
+| 8 | Smagorinsky's equations, his constant `k_H = 0.28`, and his own `k ~ 0.1-1.0` disclaimer | Smagorinsky, Mon. Wea. Rev. 91(3):99-164, 1963 | **VERIFIED-PDF** (journal) |
+| 8.2 | Lilly's inertial-range value `C_s ~ 0.18`, and `C_s = 0.1` for channels | quoted *through* Nicoud & Ducros 1999, pp. 184-185 | **VERIFIED-PDF for the quotation**; Lilly 1967 itself SECOND-HAND-UNVERIFIED |
+| 8.3 | a-priori correlation of the Smagorinsky stress | Clark, Ferziger & Reynolds, JFM 91:1-16, 1979 | SECOND-HAND-UNVERIFIED |
+| 9 | dynamic procedure, Germano identity, Lilly least-squares | Germano, Piomelli, Moin & Cabot, Phys. Fluids A 3(7):1760-1765, 1991; Lilly, Phys. Fluids A 4(3):633-635, 1992 | **BLOCKED-ON-SOURCE** - see §0.3 |
+| 10 | WALE: eqs. (10)-(13), Table I, the two determinations of `C_w`, the grid dependence | Nicoud & Ducros, Flow Turb. Combust. 62:183-200, 1999 | **VERIFIED-PDF** (journal) |
+| 11 | Vreman's `B_beta` model and its constant | Vreman, Phys. Fluids 16(10):3670-3681, 2004 | **BLOCKED-ON-SOURCE** - see §0.3 |
+| 12 | sigma model | Nicoud, Toda, Cabrit, Bose & Lee, Phys. Fluids 23:085106, 2011 | SECOND-HAND-UNVERIFIED |
+| 13.1-13.4 | wall-model cost scaling, equilibrium stress model, the Deardorff/Schumann/Piomelli/Werner-Wengle lineage, zonal models | Piomelli & Balaras, Annu. Rev. Fluid Mech. 34:349-374, 2002 | **VERIFIED-PDF** (journal) |
+| 13.5 | log-layer mismatch as a *numerical* error; the `h_wm`-decoupling cure; the ODE wall model eqs. (3)-(5) | Larsson, Kawai, Bodart & Bermejo-Moreno, Mech. Eng. Rev. 3(1):15-00418, 2016, pp. 201-223 | **VERIFIED-PDF** (journal, open access) |
+| 13.5 | building-block-flow wall model; what a learned wall model is asked to do | Lozano-Duran & Bae, JFM 963:A35, 2023 | **VERIFIED-PDF** (arXiv:2211.07879v3 preprint) |
+| 13.5 | wall-modelled LES taxonomy and open problems | Bose & Park, Annu. Rev. Fluid Mech. 50:535-561, 2018 | **BLOCKED-ON-SOURCE** - see §0.3 |
+| 14 | barycentric map | Banerjee et al., J. Turb. 8:N32, 2007 | SECOND-HAND-UNVERIFIED (the *implementation* is verified against the benchmark data, `_common/of_read.py`) |
+| 1,5,14,16 | all quantified failure evidence | Closure Challenge benchmark, commit `deb91557` | **MEASURED HERE** (`_common/sst_baseline_metrics.py`, `BASELINES.md`) |
 
-**Verified genuine and used in this document:**
+Summary: **seven journal PDFs are VERIFIED-PDF** and carry real page/equation
+citations - Pope 1975, Menter 1994, Spalart 2000, Smagorinsky 1963,
+Nicoud & Ducros 1999, Piomelli & Balaras 2002, Larsson et al. 2016 - plus one
+verified arXiv preprint, Lozano-Duran & Bae 2023. **Five sources are
+BLOCKED-ON-SOURCE**: Gatski & Speziale 1993, Germano et al. 1991, Lilly 1992,
+Vreman 2004, Bose & Park 2018. Everything else is SECOND-HAND-UNVERIFIED. The
+practical reading: **every equation and constant in §§1, 4, 5, 6.1-6.2, 8, 10,
+13.1-13.5 is quoted off a page; every equation and constant in §§2.1-2.2, 3, 6.3,
+7, 9, 11, 12 is not.**
 
-| File | Actual paper | Version |
-|---|---|---|
-| `Pope1975_effective_viscosity_hypothesis.pdf` | Pope, *A more general effective-viscosity hypothesis*, J. Fluid Mech. 72(2):331-340, 1975 | journal |
-| `Menter1994_sst_two_equation.pdf` | Menter, *Two-equation eddy-viscosity turbulence models for engineering applications*, AIAA J. 32(8):1598-1605, 1994 | journal |
-| `Spalart2000_strategies_turbulence_modelling.pdf` | Spalart, *Strategies for turbulence modelling and simulations*, Int. J. Heat Fluid Flow 21:252-263, 2000 | journal |
-| `Smagorinsky1963_general_circulation.pdf` | Smagorinsky, *General circulation experiments with the primitive equations. I. The basic experiment*, Mon. Wea. Rev. 91(3):99-164, 1963 | journal |
-| `Nicoud1999_WALE_sgs.pdf` | Nicoud & Ducros, *Subgrid-scale stress modelling based on the square of the velocity gradient tensor*, Flow Turb. Combust. 62:183-200, 1999 | journal |
-| `Piomelli2002_wall_layer_models_les.pdf` | Piomelli & Balaras, *Wall-layer models for large-eddy simulations*, Annu. Rev. Fluid Mech. 34:349-374, 2002 | journal |
-| `Duraisamy2019_turbulence_age_data.pdf` | Duraisamy, Iaccarino & Xiao, *Turbulence modeling in the age of data*, Annu. Rev. Fluid Mech. 51, 2019 | arXiv preprint |
-| `Sanderse2024_ML_closure_models.pdf` | Sanderse, Stinis, Maulik & Ahmed, *Scientific machine learning for closure models in multiscale problems: a review* | arXiv preprint |
-| `Kochkov2021_ml_accelerated_cfd.pdf` | Kochkov et al., *Machine learning accelerated CFD*, PNAS 118:e2101784118 | arXiv preprint |
-| `deZordoBanliat2023_space_dependent_aggregation.pdf` | de Zordo-Banliat, Dergham, Merle & Cinnella, *Space-dependent turbulence model aggregation using machine learning* | arXiv preprint |
-| `Guyon2003_feature_selection.pdf` | Guyon & Elisseeff, JMLR 3:1157-1182, 2003 | journal |
+### 0.3 The corpus defect, and what was done about it
 
-**Mislabelled but a real turbulence source:**
-`Gatski1993_explicit_algebraic_stress.pdf` is **not** Gatski & Speziale (1993),
-J. Fluid Mech. 254:59-78. It is a 77-page image scan, with no text layer, of
-Gatski, T.B., *Turbulent flows: model equations and solution methodology*,
-chapter 6 of the *Handbook of Computational Fluid Mechanics*, Academic Press
-1996, ISBN 0-12-553010-2, pp. 339-414. PDF page 1 is printed page 339, so
-printed page = PDF page + 338. It is a legitimate EASM and Reynolds-stress
-reference but it is a different document from the 1993 paper, and reading it
-requires OCR or page-image inspection.
+On 2026-08-20 the text of all 42 PDFs then in `docs/papers/closure/` was
+extracted and each file's **printed title page** compared against its filename.
+**29 of the 42 were unrelated papers.** The sha256 values recorded in the
+manifest matched the bytes on disk, so nothing was corrupted in transit; the
+arXiv identifiers had simply been guessed and never checked against a title page.
+File type and hash prove integrity; only the printed title page proves identity.
+The wrong files are quarantined in `docs/papers/closure/_WRONG_RETRIEVALS/` and
+`_WRONG_DOWNLOADS/`; the corrected set was re-retrieved with title-page
+verification in the loop. Machine-generated evidence for the original defect:
+`scratchpad/pdf_verification_B.txt`.
 
-**Wrong paper, therefore unavailable for citation here** (29 files): Beck 2019,
-Beck 2021, Bose & Park 2018, Duraisamy 2021, Edeling 2014, Emory 2013,
-Holland 2019, Iaccarino 2017, Kaandorp 2020, Larsson 2016, Ling 2015, Ling 2016,
-List 2022, Lozano-Duran 2023, Maulik 2017, Maulik & San 2017, Parish &
-Duraisamy 2016, Park 2021, Schmelzer 2020, Singh 2016, Singh 2017,
-Sirignano 2020, Strofer 2021, Um 2020, Vreman 2004, Weatheritt 2016, Wang/Wu
-2017, Wu 2018, Xiao 2016, Yang 2019. Every claim in this document that would
-have rested on one of those carries the **[NOT ON DISK]** tag instead.
+Two consequences that survive the repair:
 
-**Never retrieved at all:** Bardina, Ferziger & Reynolds 1980; Germano,
-Piomelli, Moin & Cabot 1991; Lilly 1992; Bae & Koumoutsakos 2022.
+1. **`Gatski1993_explicit_algebraic_stress.pdf` was never Gatski & Speziale
+   (1993).** It is a 77-page image scan, with no text layer, of Gatski, T.B.,
+   *Turbulent flows: model equations and solution methodology*, chapter 6 of the
+   *Handbook of Computational Fluid Mechanics*, Academic Press 1996,
+   ISBN 0-12-553010-2, pp. 339-414. It has been renamed
+   `Gatski1996_handbook_chapter6.pdf`. PDF page 1 is printed page 339, so
+   printed page = PDF page + 338. It is a legitimate EASM and Reynolds-stress
+   reference, but it is a **different document** from the 1993 JFM paper, and
+   because it carries no text layer it cannot be quoted without OCR. The JFM
+   paper is behind a Cambridge paywall with no arXiv version. §6.3 is therefore
+   BLOCKED-ON-SOURCE.
+2. **Germano et al. (1991), Lilly (1992) and Vreman (2004) are Physics of Fluids
+   papers with no arXiv version**, and Bose & Park (2018) is an Annual Review;
+   automated open-access retrieval found none of them. §§9 and 11 and the second
+   §13.5c are BLOCKED-ON-SOURCE. What is written there is a structurally
+   correct account from background knowledge, flagged as such, and it must be
+   checked against the primary sources before any of it is used in a fitted
+   model. Cost to unblock: institutional access or ~USD 40-160 in article
+   purchases; no compute.
+
+**Rule adopted for the rest of this programme:** a retrieval counts as retrieved
+only when its printed title page has been read. Filename, hash, byte count and
+arXiv ID are integrity checks, not identity checks.
 
 ---
 
@@ -107,7 +148,7 @@ limitation visible at once. `b` is a *pointwise, linear, isotropic* function of
 
 Pope's opening line states the hypothesis and its scope exactly: "An
 effective-viscosity hypothesis relates the Reynolds stresses solely to the rates
-of strain of the fluid and to scalar quantities" [ON DISK: Pope 1975, JFM 72(2),
+of strain of the fluid and to scalar quantities" [VERIFIED-PDF: Pope 1975, JFM 72(2),
 p. 331, section 1].
 
 ### 1.2 Inputs and assumptions
@@ -125,7 +166,7 @@ Assumptions, in order of how often they break:
    most flows ... where the duration of a distortion is smaller than the
    intrinsic time scale of the turbulence, there is insufficient time for the
    turbulence to affect the mean flow and therefore an erroneous turbulence
-   model has little effect on the mean flow" [ON DISK: Spalart 2000, IJHFF 21,
+   model has little effect on the mean flow" [VERIFIED-PDF: Spalart 2000, IJHFF 21,
    p. 255].
 2. **Coaxiality of `b` and `S`.** Measured a priori, the principal axes of the
    Reynolds stress and of the mean strain are misaligned in most non-equilibrium
@@ -145,7 +186,7 @@ source: the secondary motion is identically zero. Spalart names it: non-Boussine
 constitutive relations "can, for instance, create secondary flows of the second
 kind in a square pipe (Speziale, 1987)" and later "This contrasts with the
 secondary vortices in a square duct, which are created by the turbulence. These
-vortices expose linear eddy-viscosity models" [ON DISK: Spalart 2000, IJHFF 21,
+vortices expose linear eddy-viscosity models" [VERIFIED-PDF: Spalart 2000, IJHFF 21,
 pp. 253 and 255].
 
 **[MEASURED HERE]** On the eight Closure Challenge ducts, a converged
@@ -159,7 +200,7 @@ structural zero. (`BASELINES.md` section 4.)
 **(b) The round-jet / plane-jet anomaly.** Standard k-epsilon with the constants
 below reproduces the plane-jet spreading rate and over-predicts the round-jet
 spreading rate by roughly 15-30%; a single constant set cannot fit both.
-[NOT ON DISK - from memory; verify when PDF arrives. Pope, S.B., *An explanation
+[SECOND-HAND-UNVERIFIED - no PDF on this machine; stated from background knowledge. Pope, S.B., *An explanation
 of the turbulent round-jet/plane-jet anomaly*, AIAA J. 16(3):279-281, 1978;
 Rodi, W., *Turbulence models and their application in hydraulics*, IAHR, 1980.]
 The mechanism Pope proposed is vortex stretching, absent from a two-equation
@@ -175,7 +216,7 @@ instead of strain in production terms (Kato and Launder, 1993). This step is
 neutral in thin shear flows, since both reduce to the shear rate, but it solves
 the long-standing problem of excessive turbulence levels in the approach to
 stagnation points. In two-equation models, using vorticity is not legitimate,
-because the exact production terms contain the strain rate instead" [ON DISK:
+because the exact production terms contain the strain rate instead" [VERIFIED-PDF:
 Spalart 2000, IJHFF 21, pp. 254-255].
 
 **[MEASURED HERE]** The stagnation-point anomaly can be read directly off the
@@ -201,7 +242,7 @@ be positive semi-definite with Cauchy-Schwarz-consistent off-diagonals; for the
 normalised anisotropy this is equivalent to the eigenvalue state lying inside the
 Lumley triangle, or in the Banerjee et al. (2007) barycentric map, to all three
 barycentric coordinates being non-negative.
-[NOT ON DISK - from memory; verify when PDF arrives. Schumann, U., *Realizability
+[SECOND-HAND-UNVERIFIED - no PDF on this machine; stated from background knowledge. Schumann, U., *Realizability
 of Reynolds-stress turbulence models*, Phys. Fluids 20(5):721-725, 1977;
 Banerjee, Krahl, Durst & Zenger, *Presentation of anisotropy properties of
 turbulence, invariants versus eigenvalue approaches*, J. Turbulence 8:N32, 2007.]
@@ -214,7 +255,7 @@ Shih's `C_mu(S k/eps, Omega k/eps)`, Durbin's bound, Menter's `a1` limiter -
 exists to enforce that inequality.
 
 Spalart's remark is worth keeping beside this: "note that the common one-equation
-models are far from giving realisable Reynolds-stress tensors" [ON DISK: Spalart
+models are far from giving realisable Reynolds-stress tensors" [VERIFIED-PDF: Spalart
 2000, IJHFF 21, p. 254].
 
 ### 1.5 Numerics
@@ -251,7 +292,7 @@ r    = nu~ / (S~ kappa^2 d^2)
 ```
 
 with `d` the distance to the nearest wall and `Omega` the vorticity magnitude.
-[NOT ON DISK - from memory; verify when PDF arrives. Spalart, P.R. & Allmaras,
+[SECOND-HAND-UNVERIFIED - no PDF on this machine; stated from background knowledge. Spalart, P.R. & Allmaras,
 S.R., *A one-equation turbulence model for aerodynamic flows*, AIAA Paper
 92-0439, 1992; La Recherche Aerospatiale 1:5-21, 1994.]
 
@@ -269,11 +310,11 @@ S.R., *A one-equation turbulence model for aerodynamic flows*, AIAA Paper
 | `cv1` | 7.1 | the viscous sublayer: makes `nu_t` recover the correct near-wall damping without a van Driest function |
 | `ct3, ct4` | 1.2, 0.5 | the `ft2` trip-damping term |
 
-[NOT ON DISK for the numerical values - from memory; verify when PDF arrives.]
+[SECOND-HAND-UNVERIFIED for the numerical values - no PDF of Spalart & Allmaras (1992/1994) on this machine.]
 
 **On disk, however, is Spalart's own account of what the model was calibrated on
 and what it therefore cannot be expected to do**, which is the part that matters
-for a closure-modelling programme [ON DISK: Spalart 2000, IJHFF 21, Appendix A,
+for a closure-modelling programme [VERIFIED-PDF: Spalart 2000, IJHFF 21, Appendix A,
 p. 261]:
 
 * "The model was inspired by the work of Baldwin and Barth ... In both cases the
@@ -305,7 +346,7 @@ p. 261]:
 ### 2.3 QCR2000: the quadratic constitutive relation
 
 Spalart's own non-Boussinesq extension, quoted in full because it is short and
-because our own closure-challenge entry rests on it [ON DISK: Spalart 2000,
+because our own closure-challenge entry rests on it [VERIFIED-PDF: Spalart 2000,
 IJHFF 21, pp. 253-254]:
 
 ```
@@ -369,7 +410,7 @@ generalising further needs its own evidence.
 * Wall treatment: `nu~ = 0` at the wall, and `nu_t ~ y^3` follows from `fv1`. The
   model is integrable to the wall and wants `y+ < 1`; it does not need a low-Re
   damping function of the k-epsilon kind.
-* "Its numerical stability is very satisfactory" [ON DISK: Spalart 2000, p. 261].
+* "Its numerical stability is very satisfactory" [VERIFIED-PDF: Spalart 2000, p. 261].
 
 ---
 
@@ -385,7 +426,7 @@ Deps/Dt = C_e1 (eps/k) P_k - C_e2 eps^2/k
 nu_t = C_mu k^2 / eps ,      P_k = 2 nu_t S_ij S_ij
 ```
 
-[NOT ON DISK - from memory; verify when PDF arrives. Launder, B.E. & Spalding,
+[SECOND-HAND-UNVERIFIED - no PDF on this machine; stated from background knowledge. Launder, B.E. & Spalding,
 D.B., *The numerical computation of turbulent flows*, Comput. Methods Appl. Mech.
 Eng. 3(2):269-289, 1974; Jones, W.P. & Launder, B.E., Int. J. Heat Mass Transfer
 15:301-314, 1972.]
@@ -405,7 +446,7 @@ The chain matters: only two of the five constants are independent measurements
 (`C_mu` from the log layer, `C_e2` from grid-turbulence decay). `C_e1` and
 `sigma_e` are then pinned by requiring that the log law be an exact solution.
 Menter's own SST set uses the same construction, `gamma = beta/beta* -
-sigma_omega kappa^2/sqrt(beta*)` [ON DISK: Menter 1994, AIAA J. 32(8), eq. (A4),
+sigma_omega kappa^2/sqrt(beta*)` [VERIFIED-PDF: Menter 1994, AIAA J. 32(8), eq. (A4),
 p. 1603].
 
 ### 3.3 Failure modes
@@ -413,7 +454,7 @@ p. 1603].
 * Everything in section 1.3, since it is a linear eddy-viscosity model.
 * **Adverse pressure gradient and separation.** Standard k-epsilon under-predicts
   separation badly; this was the specific motivation for the SST model. Menter's
-  abstract and his Rodi & Scheurer (1986) citation frame it [ON DISK: Menter
+  abstract and his Rodi & Scheurer (1986) citation frame it [VERIFIED-PDF: Menter
   1994, AIAA J. 32(8), p. 1598 and ref. 7].
 * **The near-wall region.** `eps` does not go to zero at a wall and its
   wall-limiting behaviour is singular, which is why every low-Re k-epsilon needs
@@ -429,7 +470,7 @@ p. 1603].
 `nu_t = C_mu k^2/eps` violates the eigenvalue bound whenever `S k/eps > 3.70`
 (section 1.4). Shih's realisable k-epsilon replaces the constant `C_mu` by
 `C_mu(U* k/eps)`, which is exactly a variable-`C_mu` enforcement of the bound.
-[NOT ON DISK - from memory; verify when PDF arrives. Shih, Liou, Shabbir, Yang &
+[SECOND-HAND-UNVERIFIED - no PDF on this machine; stated from background knowledge. Shih, Liou, Shabbir, Yang &
 Zhu, *A new k-eps eddy viscosity model for high Reynolds number turbulent flows*,
 Computers & Fluids 24(3):227-238, 1995.]
 
@@ -458,14 +499,14 @@ Domega/Dt = (gamma/nu_t) P_k - beta omega^2
 nu_t = k/omega ,          eps = beta* k omega
 ```
 
-The form above is the one Menter reproduces as his "set 1" [ON DISK: Menter 1994,
+The form above is the one Menter reproduces as his "set 1" [VERIFIED-PDF: Menter 1994,
 AIAA J. 32(8), eqs. (A1), (A2) and (A6), p. 1603 - note that Menter's (A2)
 carries the extra cross-diffusion term that makes it BSL rather than pure
 Wilcox; pure k-omega is (A2) with `F1 = 1`, which switches that term off].
 
 ### 4.2 Constants and their provenance
 
-From Menter's set 1, which he attributes to Wilcox [ON DISK: Menter 1994, eq.
+From Menter's set 1, which he attributes to Wilcox [VERIFIED-PDF: Menter 1994, eq.
 (A4), p. 1603]:
 
 ```
@@ -493,7 +534,7 @@ gamma_1  = beta_1/beta* - sigma_omega1 kappa^2 / sqrt(beta*)
   "the BSL model is very similar to the original k-omega model, but it avoids the
   strong freestream sensitivity of that model", and his Fig. 10 shows the
   original model's transonic-bump pressure distribution moving substantially when
-  `omega_f` is raised, while SST barely moves [ON DISK: Menter 1994, AIAA J.
+  `omega_f` is raised, while SST barely moves [VERIFIED-PDF: Menter 1994, AIAA J.
   32(8), p. 1603, and Fig. 10 on the same page; also his ref. 6, Menter 1992,
   AIAA J. 30(6):1651-1659, which is the dedicated study]. His own summary of the
   demonstration: "This example clearly shows the dangers of using the original
@@ -508,11 +549,11 @@ gamma_1  = beta_1/beta* - sigma_omega1 kappa^2 / sqrt(beta*)
   `y -> 0`, which is a known analytic limit that can be imposed directly, so no
   damping functions are needed. Menter gives the practical boundary condition:
   `omega = 10 * 6 nu/(beta_1 (Delta y_1)^2)` at `y = 0`, valid as long as
-  `Delta y_1^+ < 3` [ON DISK: Menter 1994, eq. (A12), p. 1604].
+  `Delta y_1^+ < 3` [VERIFIED-PDF: Menter 1994, eq. (A12), p. 1604].
 * The `y^-2` behaviour makes `omega` enormous in the first cell (the benchmark's
   duct cases carry `omega` values of order `4e6` in wall units), which is a real
   round-off consideration in single precision.
-* Recommended freestream values [ON DISK: Menter 1994, eq. (A11), p. 1604]:
+* Recommended freestream values [VERIFIED-PDF: Menter 1994, eq. (A11), p. 1604]:
   `omega_inf = (1 to 10) U_inf/L`, `nu_t,inf = 10^-(2 to 5) nu_inf`,
   `k_inf = nu_t,inf omega_inf`, with `L` the domain length.
 
@@ -526,7 +567,7 @@ Charter 2c trivial baseline. Every equation below is quoted from the paper.
 
 ### 5.1 The equations
 
-The transport equations are the BSL pair [ON DISK: Menter 1994, AIAA J. 32(8),
+The transport equations are the BSL pair [VERIFIED-PDF: Menter 1994, AIAA J. 32(8),
 eqs. (A1) and (A2), p. 1603]:
 
 ```
@@ -566,7 +607,7 @@ CD_komega = max( 2 rho sigma_omega2 (1/omega) dk/dx_j domega/dx_j , 1e-20 ) (A10
 ```
 
 Menter explains each argument, and this is the clearest statement of the design
-[ON DISK: Menter 1994, p. 1604]: "the first argument is the turbulent length
+[VERIFIED-PDF: Menter 1994, p. 1604]: "the first argument is the turbulent length
 scale divided by `y`. It is equal to 2.5 in the log layer and goes to zero towards
 the boundary-layer edge. The second argument ensures that `F1` is equal to one in
 the sublayer ... The third argument is an additional safeguard against the
@@ -592,7 +633,7 @@ numbers should say which it used.
 
 ### 5.2 Constants and their provenance
 
-**BSL set 1 (Wilcox)** and **set 2 (standard k-epsilon)** [ON DISK: Menter 1994,
+**BSL set 1 (Wilcox)** and **set 2 (standard k-epsilon)** [VERIFIED-PDF: Menter 1994,
 eqs. (A4) and (A5), p. 1603]:
 
 ```
@@ -622,9 +663,9 @@ Provenance, constant by constant:
 | `sigma_k2` | 1.0 | the k-epsilon `sigma_k = 1.0` |
 | `sigma_k1` | 0.85 in SST, 0.5 in BSL | **the one constant Menter re-tuned when going from BSL to SST**; changing it is what re-balances the `k` budget once the `a1` limiter caps `nu_t` |
 | `gamma_1`, `gamma_2` | 0.5532, 0.4404 | derived, not fitted: the formula is the exact log-layer consistency condition. `gamma_1 = 0.0750/0.09 - 0.5 x 0.41^2/sqrt(0.09) = 0.5532` |
-| `a1` | 0.31 | **Bradshaw's assumption**: in an equilibrium boundary layer the shear stress is a fixed fraction of `k`, `-<u'v'> = a1 k` with `a1 ~ 0.30-0.31` measured. Menter attributes the philosophy to Johnson-King: the model "is based on the philosophy underlying the Johnson-King model, which holds that the transport of the principal turbulent shear stress is of vital importance in the prediction of severe adverse pressure gradient flows" [ON DISK: Menter 1994, p. 1603] |
+| `a1` | 0.31 | **Bradshaw's assumption**: in an equilibrium boundary layer the shear stress is a fixed fraction of `k`, `-<u'v'> = a1 k` with `a1 ~ 0.30-0.31` measured. Menter attributes the philosophy to Johnson-King: the model "is based on the philosophy underlying the Johnson-King model, which holds that the transport of the principal turbulent shear stress is of vital importance in the prediction of severe adverse pressure gradient flows" [VERIFIED-PDF: Menter 1994, p. 1603] |
 
-**The production-term ambiguity Menter flags himself** [ON DISK: Menter 1994,
+**The production-term ambiguity Menter flags himself** [VERIFIED-PDF: Menter 1994,
 p. 1604, "Important detail!"]: the `omega` production is sometimes written
 
 ```
@@ -645,7 +686,7 @@ model wherever the `a1` limiter is active, which - **[MEASURED HERE]** - is
 "The SST model leads to a significant improvement for all flows involving adverse
 pressure gradients ... It is the only available two-equation model that has
 demonstrated the ability to accurately predict pressure-induced separation and
-the resulting viscous-inviscid interaction" [ON DISK: Menter 1994, p. 1603].
+the resulting viscous-inviscid interaction" [VERIFIED-PDF: Menter 1994, p. 1603].
 The supporting cases in the paper are the Samuel-Joubert adverse-pressure-gradient
 boundary layer, the Driver CS0 separated boundary layer, the NACA 4412 airfoil at
 13.87 deg (Fig. 9, p. 1603), and the Bachalo-Johnson transonic bump at M = 0.925
@@ -747,7 +788,7 @@ anisotropy itself.
   with one `omega` frozen).
 * `omega` wall boundary condition: the analytic `6 nu/(beta_1 y^2)` limit, or
   Menter's `omega = 10 x 6 nu/(beta_1 (Delta y_1)^2)`, valid for
-  `Delta y_1^+ < 3` [ON DISK: eq. (A12), p. 1604]. Menter's own mesh requirement
+  `Delta y_1^+ < 3` [VERIFIED-PDF: eq. (A12), p. 1604]. Menter's own mesh requirement
   is therefore `y+ ~ 1`, not `y+ ~ 30`.
 * `F1` and `F2` need the wall distance `y`, with the same cost and
   multiple-wall ambiguity as SA.
@@ -758,7 +799,7 @@ anisotropy itself.
 * A production limiter `P_k = min(P_k, c beta* k omega)` with `c = 10` is used in
   most implementations. **It is not in Menter 1994.** It is a later addition
   (Menter's 2003 "SST-2003" variant) and it changes results at stagnation points.
-  [NOT ON DISK - from memory; verify when PDF arrives. Menter, Kuntz & Langtry,
+  [SECOND-HAND-UNVERIFIED - no PDF on this machine; stated from background knowledge. Menter, Kuntz & Langtry,
   *Ten years of industrial experience with the SST turbulence model*, in
   Turbulence, Heat and Mass Transfer 4, Begell House, 2003.] Any reproduction
   reporting "SST" numbers should state whether the limiter and the strain-versus-
@@ -770,7 +811,7 @@ anisotropy itself.
 
 ### 6.1 The general effective-viscosity hypothesis
 
-Pope's argument, in his own structure [ON DISK: Pope 1975, JFM 72(2), section 3,
+Pope's argument, in his own structure [VERIFIED-PDF: Pope 1975, JFM 72(2), section 3,
 pp. 333-335]. Take the anisotropy to depend on the normalised strain and rotation
 tensors `s` and `w` alone:
 
@@ -826,7 +867,13 @@ duct, so the secondary flow can exist. Point (ii) is the rotation dependence tha
 
 Pope obtained his coefficients by solving the *algebraic* Reynolds-stress
 equation of Launder, Reece & Rodi (1975) - i.e. by taking the RSM transport
-equation, assuming the transport of `a` is negligible, and inverting. His
+equation, assuming the transport of `a` is negligible, and inverting. **He did so
+only for two-dimensional flows**, in his own words in the abstract: "For
+two-dimensional flows, the coefficients of this polynomial are evaluated from the
+modelled Reynolds-stress equations of Launder, Reece & Rodi (1975)"
+[VERIFIED-PDF: Pope 1975, JFM 72(2), abstract, p. 331]. The ten-coefficient
+three-dimensional case is set up in his section 3 and not solved. That matters
+for section 6.5 below. His
 simplified practical form is eq. (4.5), p. 336: "Equation (4.5) differs from an
 isotropic-viscosity hypothesis only by the inclusion of the last term."
 
@@ -835,10 +882,12 @@ isotropic-viscosity hypothesis only by the inclusion of the last term."
 Gatski & Speziale (1993) carried the same programme through with the SSG
 pressure-strain model, and regularised the singular denominator that appears when
 the implicit algebraic system is inverted at large strain.
-[NOT ON DISK - the file named `Gatski1993_explicit_algebraic_stress.pdf` is a
-different document, see section 0.1. Full reference: Gatski, T.B. & Speziale,
-C.G., *On explicit algebraic stress models for complex turbulent flows*,
-J. Fluid Mech. 254:59-78, 1993.] Their result has the structure
+**[BLOCKED-ON-SOURCE: Gatski, T.B. & Speziale, C.G., *On explicit algebraic
+stress models for complex turbulent flows*, J. Fluid Mech. 254:59-78, 1993.
+Cambridge paywall, no arXiv version; the file that carried this name was a
+different document (section 0.3). Everything in this subsection is from
+background knowledge and no equation number or coefficient below may be relied
+on until the paper is in hand.]** Their result has the structure
 
 ```
 b = - alpha_1 tau S* + alpha_2 tau^2 (S* W* - W* S*)
@@ -869,6 +918,44 @@ material but is a 77-page image scan with no text layer.
 * **No universal `G^lambda`.** Pope himself derived them from a specific RSM;
   change the pressure-strain model and the coefficients change.
 
+### 6.5 [MEASURED HERE] On this benchmark the ten-tensor basis has rank three
+
+Pope states that the basis collapses in two dimensions: "In the general
+three-dimensional case there are ten tensors and five invariants", against three
+tensors and two invariants in two dimensions [VERIFIED-PDF: Pope 1975, JFM 72(2),
+p. 335]. Every case in the Closure Challenge benchmark is a statistically
+two-dimensional mean flow, so this is testable directly.
+
+Measured: for each cell, flatten `T^(1..10)` to a 10 x 9 matrix and count the
+singular values above `1e-8 sigma_max`. Over 5,000 random training cells
+(`cases/RANS_LES_closure_models/Kaandorp2020_TBRF/train_log.json`):
+
+| rank | 3 | 4 | 5 | 6-10 |
+|---|---|---|---|---|
+| cells | 3,814 | 1,185 | 1 | 0 |
+
+**Mean rank 3.24. Not one cell reached rank 6.** Three consequences that belong
+in this inventory rather than in a reproduction's appendix:
+
+1. **Every least-squares fit over the basis on this data is rank-deficient by six
+   or seven.** A ridge parameter chosen for a well-conditioned basis - Kaandorp &
+   Dwight publish `Gamma = 1e-12` - then returns coefficients of order `1/Gamma`
+   along the null directions. Measured consequence: a first implementation of
+   their tensor-basis decision tree with that constant gave a *training*
+   `b_rms` of **0.81**, worse than predicting `b = 0` (0.33). Truncating the
+   eigendecomposition at `1e-8 lambda_max` moved it to 0.13 with no other change.
+2. **The architecture that guarantees Galilean invariance guarantees nothing
+   about boundedness.** `b = sum g^(n) T^(n)` is unbounded, and the coefficients
+   on null directions are unconstrained in-distribution. A trained tensor-basis
+   neural network produced `||b||` of order **1e7** on the NASA wall-mounted hump,
+   the one benchmark case with a stagnation region; a tensor-basis random forest
+   on the same split produced order **1e2** there. Both are far outside the
+   realisable bound `||b||_F <= 0.8165`.
+3. **A 2-D benchmark cannot test the claim that ten tensors are what these
+   methods need.** Results reported on periodic hills and ducts are results for a
+   three-tensor model. That is a limitation of the data, not of the models, and
+   it should be stated wherever such a result is quoted.
+
 ---
 
 ## 7. Reynolds-stress transport models (LRR, SSG), briefly
@@ -897,9 +984,9 @@ part linear in `b` and `S`, `W`; constants `C1 = 1.8` (Rotta's return-to-isotrop
 constant, calibrated on the decay of anisotropy in grid turbulence downstream of
 a contraction) and `C2 = 0.6` (the isotropisation-of-production coefficient, set
 by rapid distortion theory in the limit of small anisotropy). This is the model
-Pope inverted to get his coefficients [ON DISK: Pope 1975 cites it throughout,
+Pope inverted to get his coefficients [VERIFIED-PDF: Pope 1975 cites it throughout,
 e.g. abstract p. 331 and section 4].
-[NOT ON DISK for LRR itself - from memory; verify when PDF arrives. Launder,
+[SECOND-HAND-UNVERIFIED for LRR itself - no PDF on this machine. Launder,
 Reece & Rodi, *Progress in the development of a Reynolds-stress turbulence
 closure*, J. Fluid Mech. 68(3):537-566, 1975.]
 
@@ -907,7 +994,7 @@ closure*, J. Fluid Mech. 68(3):537-566, 1975.]
 coefficients fitted to homogeneous shear flow at equilibrium and to the
 return-to-isotropy data; it removes LRR's need for a separate wall-reflection
 term in many flows.
-[NOT ON DISK - from memory; verify when PDF arrives. Speziale, Sarkar & Gatski,
+[SECOND-HAND-UNVERIFIED - no PDF on this machine; stated from background knowledge. Speziale, Sarkar & Gatski,
 *Modelling the pressure-strain correlation of turbulence: an invariant dynamical
 systems approach*, J. Fluid Mech. 227:245-272, 1991.]
 
@@ -923,7 +1010,7 @@ systems approach*, J. Fluid Mech. 227:245-272, 1991.]
 * Their accuracy advantage over a good two-equation model in attached flows is
   small; Menter's own comparison against a full RSM on 3-D flows reports the SST
   results "compare very favorably with the results of a full Reynolds-stress
-  model" [ON DISK: Menter 1994, AIAA J. 32(8), p. 1603, citing his ref. 24].
+  model" [VERIFIED-PDF: Menter 1994, AIAA J. 32(8), p. 1603, citing his ref. 24].
 
 ---
 
@@ -935,8 +1022,8 @@ systems approach*, J. Fluid Mech. 227:245-272, 1991.]
 
 Smagorinsky's paper is a two-level global atmospheric general-circulation
 experiment, and the subgrid model occupies a few lines of it. The strains are
-defined as tension and shearing strains in a horizontal plane [ON DISK:
-Smagorinsky 1963, Mon. Wea. Rev. 91(3), eqs. (4.23) and (4.24), p. ~110]:
+defined as tension and shearing strains in a horizontal plane [VERIFIED-PDF:
+Smagorinsky 1963, Mon. Wea. Rev. 91(3), eqs. (4.23) and (4.24), p. 105]:
 
 ```
 D_T = du/dx - dv/dy ,     D_S = dv/dx + du/dy         (4.23)
@@ -951,25 +1038,26 @@ nu_sgs = (C_s Delta)^2 |S| ,    |S| = sqrt(2 S_ij S_ij)
 tau_ij - (1/3) tau_kk delta_ij = -2 nu_sgs S_ij
 ```
 
-which is the form Nicoud & Ducros write as their eq. (1) [ON DISK: Nicoud &
+which is the form Nicoud & Ducros write as their eq. (1) [VERIFIED-PDF: Nicoud &
 Ducros 1999, Flow Turb. Combust. 62, eq. (1), p. 184].
 
 ### 8.2 The constant, and how badly its provenance is usually stated
 
-**Smagorinsky did not derive a constant.** His own statement [ON DISK:
-Smagorinsky 1963, Mon. Wea. Rev. 91(3), p. 149]: "if we can assume that the grid
+**Smagorinsky did not derive a constant.** His own statement, in the discussion
+section [VERIFIED-PDF: Smagorinsky 1963, Mon. Wea. Rev. 91(3), p. 150]: "if we can assume that the grid
 scale lies within an inertial sub-range ... then we may express the exchange
 coefficient in the form `(k Delta)^2 |D|`, where `k ~ 0.1-1.0`, `Delta` is the
 grid size and `D` is the deformation measured on grid scale." A range spanning a
 factor of ten, offered as a plausibility argument.
 
-The value he actually ran is in his own parameter table [ON DISK: Smagorinsky
-1963, p. 163, "Lateral"]: **`k_H = 0.28`**, with a grid `Delta = 555 km`, a
-two-level model, a 20-minute time step, and horizontal-only deformation. His von
-Karman constant is listed separately as 0.4 (symbol list, p. 162).
+The value he actually ran is in his own table of computational parameters [VERIFIED-PDF
+: Smagorinsky 1963, p. 164, table "Parameters of the numerical model", entry "Small-scale eddy diffusion / Lateral"; the same value is also stated in the text on p. 105 immediately after eq. (4.24)]: **`k_H = 0.28`**, alongside
+`Delta = 555 km`, `J = 18` levels of latitude, `Delta t = 20 min`, a two-level
+model, and horizontal-only deformation. His von Karman constant appears
+separately in the symbol list as 0.4 (p. 162).
 
 So the number in every LES code descends not from Smagorinsky but from **Lilly's
-inertial-range argument**, which Nicoud & Ducros restate exactly [ON DISK:
+inertial-range argument**, which Nicoud & Ducros restate exactly [VERIFIED-PDF:
 Nicoud & Ducros 1999, p. 184]: "Following Lilly, the constant `C_s` may be
 obtained by assuming that the cut-off wave number `k_c = pi/Delta` lies within a
 `k^-5/3` Kolmogorov cascade for the energy spectrum `E(k) = C_K eps^(2/3)
@@ -983,11 +1071,11 @@ C_s = (1/pi) ( 3 C_K / 2 )^(-3/4)
 For a Kolmogorov constant of `C_K ~ 1.4, this yields `C_s ~ 0.18`."
 [Lilly, D.K., *The representation of small-scale turbulence in numerical
 simulation experiments*, IBM Scientific Computing Symposium on Environmental
-Sciences, 1967 - NOT ON DISK - from memory; verify when PDF arrives.]
+Sciences, 1967 - SECOND-HAND-UNVERIFIED; the quotation above is Nicoud & Ducros's restatement, which IS on disk.]
 
 And the value used in wall-bounded practice is different again: Nicoud & Ducros
 note that one must reduce "the constant (`C_s = 0.1`) in order to sustain
-turbulence in a channel flow" [ON DISK: Nicoud & Ducros 1999, p. 185, citing
+turbulence in a channel flow" [VERIFIED-PDF: Nicoud & Ducros 1999, p. 185, citing
 Deardorff]. Three numbers - 0.28, 0.18, 0.1 - for three different flows and three
 different arguments. **A "constant" that has to be halved between homogeneous
 turbulence and a channel is a model-form error wearing a coefficient's clothes.**
@@ -996,8 +1084,8 @@ turbulence and a channel is a model-form error wearing a coefficient's clothes.*
 
 * **Too dissipative in laminar and transitional flow.** `|S|` is non-zero in any
   sheared laminar flow, so `nu_sgs > 0` where there is no turbulence at all, and
-  linearly unstable waves are damped out. Nicoud & Ducros put it exactly [ON
-  DISK: Nicoud & Ducros 1999, p. 189]: "almost no eddy-viscosity would be
+  linearly unstable waves are damped out. Nicoud & Ducros put it exactly [VERIFIED-PDF
+  : Nicoud & Ducros 1999, p. 189]: "almost no eddy-viscosity would be
   produced in the case of a wall-bounded laminar flow (Poiseuille flow) ... This
   is a great advantage over the Smagorinsky model **which is unable to reproduce
   the laminar to turbulent transition of such flow because the invariant
@@ -1015,7 +1103,7 @@ turbulence and a channel is a model-form error wearing a coefficient's clothes.*
 * **Cannot represent the subgrid stress tensor's structure.** The Smagorinsky
   stress is coaxial with `S`; measured a priori correlation of the modelled and
   true subgrid stress in isotropic turbulence is low (order 0.2-0.4), even where
-  the dissipation is right. [NOT ON DISK - from memory; verify when PDF arrives.
+  the dissipation is right. [SECOND-HAND-UNVERIFIED - no PDF on this machine; stated from background knowledge.
   Clark, Ferziger & Reynolds, J. Fluid Mech. 91:1-16, 1979.]
 
 ### 8.4 Numerics
@@ -1028,3 +1116,612 @@ turbulence and a channel is a model-form error wearing a coefficient's clothes.*
   situation is detectable from the solution alone.
 * `Delta` is usually `(volume)^(1/3)` or `max(dx,dy,dz)`; on anisotropic cells
   these differ by large factors and the choice is a hidden model parameter.
+
+---
+
+## 9. Dynamic Smagorinsky (Germano 1991 / Lilly 1992)
+
+### 9.1 The identity and the procedure
+
+Apply a second, coarser test filter `^` of width `Delta^ = alpha Delta`
+(conventionally `alpha = 2`) on top of the grid filter. With
+`tau_ij = <u_i u_j>_bar - u~_i u~_j` the grid-level subgrid stress and
+`T_ij` the same at the test level, the Germano identity is exact:
+
+```
+L_ij  =  T_ij - tau^_ij  =  (u~_i u~_j)^ - u~^_i u~^_j
+```
+
+`L_ij` is computable entirely from the resolved field. Assuming the same
+Smagorinsky form at both levels with the same coefficient `C = C_s^2`,
+
+```
+L_ij - (1/3) L_kk delta_ij  =  -2 C M_ij ,
+M_ij = Delta^2 [ alpha^2 |S~^| S~^_ij - ( |S~| S~_ij )^ ]
+```
+
+Germano contracted this with `S~_ij`; Lilly replaced that with a least-squares
+minimisation over the five independent components, giving the form everyone
+actually uses:
+
+```
+C = ( L_ij M_ij ) / ( M_kl M_kl )
+```
+
+[SECOND-HAND-UNVERIFIED - no PDF on this machine; stated from background knowledge. Germano, Piomelli, Moin &
+Cabot, *A dynamic subgrid-scale eddy viscosity model*, Phys. Fluids A
+3(7):1760-1765, 1991; Lilly, D.K., *A proposed modification of the Germano
+subgrid-scale closure method*, Phys. Fluids A 4(3):633-635, 1992.]
+
+### 9.2 What it fixes
+
+* **No constant to calibrate.** `C` is computed from the resolved field, so the
+  0.28 / 0.18 / 0.1 problem of section 8.2 disappears: `C` adjusts itself between
+  homogeneous turbulence and a channel.
+* **Correct near-wall behaviour without damping.** `C` goes to zero at a wall
+  because `L_ij` does, so no van Driest function and no wall distance.
+* **Correct laminar behaviour.** `C -> 0` in laminar flow, so transition is
+  possible.
+* **Backscatter is representable**, because `C` can be negative.
+
+### 9.3 Failure modes and the clipping / averaging problem
+
+This is the model's defining practical difficulty and it must be stated plainly:
+
+* `M_kl M_kl` can vanish, so `C` is singular pointwise.
+* `C` computed pointwise is wildly noisy and frequently negative, and a large
+  negative `nu + C Delta^2 |S~| < 0` makes the momentum equation
+  anti-diffusive and blows up.
+* The standard fixes are all *ad hoc* and all change the model:
+  * **averaging over homogeneous directions** (Germano's own channel-flow
+    treatment) - restricted to flows that have such directions, which excludes
+    every geometry of interest;
+  * **clipping** `C >= 0`, or clipping `nu + nu_sgs >= 0` - removes backscatter,
+    which was one of the advertised advantages;
+  * **Lagrangian averaging along path lines** (Meneveau, Lund & Cabot,
+    J. Fluid Mech. 319:353-385, 1996) - geometry-free but adds two extra
+    transport equations and two relaxation time scales, i.e. new parameters;
+  * **local dynamic / scale-dependent variants** - relax the assumption that `C`
+    is the same at both filter levels, at further cost.
+  [All SECOND-HAND-UNVERIFIED - no PDFs on this machine.]
+* The `C = C(x,t)` field must be filtered before use in essentially every
+  implementation, which introduces a filter width that is itself unspecified.
+* The scale-invariance assumption (`C` the same at `Delta` and `alpha Delta`)
+  fails near walls and near the LES/DNS crossover.
+
+**The honest summary is that the dynamic procedure trades one calibrated constant
+for a set of undocumented regularisation choices.** For any reproduction, the
+averaging and clipping scheme must be reported as part of the model, not as an
+implementation detail.
+
+### 9.4 Numerics
+
+* Cost: one extra explicit filtering pass per component per time step, plus the
+  `M_ij` assembly - typically 10-30% over static Smagorinsky.
+* The test filter must be defined on the mesh; on unstructured meshes there is no
+  canonical choice, and the resulting `C` depends on it.
+* Negative `C` must be handled *before* the implicit diffusion assembly, or the
+  matrix loses diagonal dominance.
+
+---
+
+## 10. WALE (Nicoud & Ducros 1999)
+
+### 10.1 The equations, as published
+
+Build the traceless symmetric part of the square of the velocity-gradient tensor
+[VERIFIED-PDF: Nicoud & Ducros 1999, Flow Turb. Combust. 62, eq. (10), p. 188]:
+
+```
+S^d_ij = (1/2) ( g^2_ij + g^2_ji ) - (1/3) delta_ij g^2_kk ,
+g_ij = du_i/dx_j ,   g^2_ij = g_ik g_kj                                   (10)
+```
+
+which can be rewritten in terms of `S` and the rotation rate `Omega` [eq. (11),
+p. 188]:
+
+```
+S^d_ij = S_ik S_kj + Omega_ik Omega_kj
+         - (1/3) delta_ij [ S_mn S_mn - Omega_mn Omega_mn ]               (11)
+```
+
+and, by Cayley-Hamilton with incompressibility [eq. (12), p. 188]:
+
+```
+S^d_ij S^d_ij = (1/6)( S^2 S^2 + Omega^2 Omega^2 ) + (2/3) S^2 Omega^2 + 2 IV_SOmega
+S^2 = S_ij S_ij ,  Omega^2 = Omega_ij Omega_ij ,  IV_SOmega = S_ik S_kj Omega_jl Omega_li
+```
+
+The model [eq. (13), p. 189]:
+
+```
+nu_t = ( C_w Delta )^2  ( S^d_ij S^d_ij )^(3/2)
+                        / [ ( S_ij S_ij )^(5/2) + ( S^d_ij S^d_ij )^(5/4) ]   (13)
+```
+
+The denominator's second term is deliberate, and the authors explain why: the
+natural scaling `(S_ij S_ij)^(5/2)` alone "is not well conditioned numerically
+since the denominator can (locally) tend to zero while OP1 remains finite ...
+The second term in OP2 is negligible near a wall but it avoids numerical
+instabilities because OP2 does not go to zero for pure shear or (ir)rotational
+strain" [VERIFIED-PDF: p. 189].
+
+### 10.2 The constant and its provenance
+
+Two independent determinations, both on disk:
+
+1. **Matching the mean subgrid dissipation of Smagorinsky.** Requiring the two
+   models to give the same ensemble-averaged subgrid dissipation gives
+   `C_w^2 = C_s^2 sqrt(2)(S_ij S_ij)^(3/2) / <S_ij S_ij OP1/OP2>`, evaluated on
+   six homogeneous-isotropic fields (two decorrelated times of a 64^3 LES, plus
+   two of a 128^3 LES, computed with a sixth-order compact scheme and the
+   structure-function model). The measured ratio `C_w^2/C_s^2` is
+   **10.52, 10.55, 10.70, 10.81, 10.84, 11.27** [VERIFIED-PDF: Nicoud & Ducros 1999,
+   Table I, p. 190], which for `C_s = 0.18` gives **`0.55 <= C_w <= 0.60`**.
+2. **A posteriori on decaying isotropic turbulence.** LES of the
+   Comte-Bellot-Corrsin experiment, initialised by filtering a 256^3 simulation
+   onto 32^3, compared against the measured spectra at 42, 98 and 171 `M/U_0`:
+   "The best results were obtained with `C_w ~ 0.5`" [VERIFIED-PDF: p. 191]. On a
+   48^3 grid the best value was **0.45** instead - and the authors are candid
+   about what that means: "This dependence on the grid size is not surprising. It
+   is a feature which is shared by all the models with a constant fixed a priori
+   and promotes the derivation of a dynamic version of the WALE model."
+
+The value they adopt: "In the following, the constant `C_w` is set to 0.5" [VERIFIED-PDF
+: p. 192].
+
+### 10.3 What it fixes
+
+* **`y^3` near-wall scaling with no damping function and no wall distance.**
+  "In the limit `y ~ 0`, it can be shown from relation (9) that `S^d_ij S^d_ij`
+  behaves like `y^2`. Thus a simple way to build a spatial operator OP which
+  behaves like `y^3` near a wall is to take OP proportional to
+  `(S^d_ij S^d_ij)^(3/2)`" [VERIFIED-PDF: p. 188].
+* **Zero eddy viscosity in pure shear**, hence transition-capable: "In the case
+  of pure shear (e.g. `g_ij = 0` except `g_12`) ... the considered invariant is
+  zero" [VERIFIED-PDF: p. 189].
+* **Detects both strain and rotation**: "a LES model based on `S^d_ij S^d_ij`
+  will detect turbulence structures with either (large) strain rate, rotation
+  rate or both" [VERIFIED-PDF: p. 189].
+* No dynamic procedure, no averaging directions, no clipping: "neither (dynamic)
+  constant adjustment nor damping function are needed" [VERIFIED-PDF: p. 199].
+
+### 10.4 Failure modes
+
+* Still a purely dissipative, coaxial eddy-viscosity model: `nu_t >= 0`, no
+  backscatter, and the modelled stress is aligned with `S`, so the *structural*
+  a-priori correlation is no better than Smagorinsky's.
+* `C_w` is grid-dependent by the authors' own measurement (0.45 at 48^3 versus
+  0.50 at 32^3, section 10.2), so the "true constant" is not quite one.
+* The two determinations of `C_w` disagree: 0.55-0.60 from dissipation matching,
+  0.45-0.50 from spectra. The paper adopts the smaller.
+* Behaviour in strongly rotating flow, where `Omega^2` dominates `S^2` in
+  eq. (12), is not calibrated anywhere in the paper.
+
+---
+
+## 11. Vreman (2004)
+
+**[BLOCKED-ON-SOURCE: Vreman, A.W., *An eddy-viscosity subgrid-scale model for
+turbulent shear flow: algebraic theory and applications*, Phys. Fluids
+16(10):3670-3681, 2004. AIP paywall, no arXiv version; the file that carried this
+name was a different paper (section 0.3). Everything below is from background
+knowledge. It is written out because the model is a control this programme will
+want, not because it is verified.]**
+
+### 11.1 The equations
+
+```
+alpha_ij = du_j/dx_i                                 (the velocity gradient)
+beta_ij  = Delta_m^2 alpha_mi alpha_mj               (sum over m, per-direction widths)
+B_beta   = beta_11 beta_22 - beta_12^2
+           + beta_11 beta_33 - beta_13^2
+           + beta_22 beta_33 - beta_23^2
+
+nu_t = c sqrt( B_beta / (alpha_ij alpha_ij) ) ,   with nu_t = 0 if alpha_ij alpha_ij = 0
+```
+
+### 11.2 The constant
+
+`c ~ 2.5 C_s^2`. With `C_s = 0.17` this gives `c ~ 0.07`. The relation is derived
+by requiring the model to give the same average subgrid dissipation as
+Smagorinsky in isotropic turbulence - the same style of argument Nicoud & Ducros
+used for `C_w` (section 10.2), and it inherits the same weakness: the "constant"
+is tied to `C_s`, whose own value depends on the flow.
+
+### 11.3 What it fixes, and the claim to check
+
+The selling point is that `B_beta = 0` for a list of laminar and simple shear
+flows for which the true subgrid dissipation is zero, so `nu_t = 0` there: the
+model switches itself off in laminar and transitional regions and near a wall
+without any damping function, wall distance, test filter, averaging or clipping.
+It is cheaper than WALE (no fractional powers of two invariants), uses only
+first-order derivatives, and is local.
+
+**Claims that must be verified against the real paper when it arrives:** (i) the
+exact list of flows for which `B_beta` vanishes; (ii) the precise value and
+derivation of `c`; (iii) the transitional and channel results Vreman reports and
+the grids used; (iv) the near-wall asymptotic order of `nu_t` (my recollection is
+`y^1`, which is *worse* than WALE's `y^3`, and if so it is a real limitation that
+the usual summaries omit).
+
+### 11.4 Failure modes
+
+Same structural class as Smagorinsky and WALE: coaxial, non-negative, no
+backscatter, no representation of subgrid-stress structure.
+
+---
+
+## 12. The sigma model, briefly
+
+**[SECOND-HAND-UNVERIFIED - no PDF on this machine; stated from background knowledge. Nicoud, Toda, Cabrit,
+Bose & Lee, *Using singular values to build a subgrid-scale model for large eddy
+simulations*, Phys. Fluids 23:085106, 2011.]**
+
+```
+nu_t = ( C_sigma Delta )^2  sigma_3 ( sigma_1 - sigma_2 )( sigma_2 - sigma_3 )
+                            / sigma_1^2
+```
+
+with `sigma_1 >= sigma_2 >= sigma_3` the singular values of the velocity-gradient
+tensor `g`, and `C_sigma ~ 1.35`.
+
+Its point is that the operator is constructed to satisfy three properties by
+design rather than by accident: `nu_t = 0` for any two-component flow (hence
+`nu_t = 0` at a wall, with the correct `y^3` decay), `nu_t = 0` for any
+axisymmetric or isotropic contraction/expansion, and `nu_t = 0` for pure shear
+and pure rotation. It is the cleanest member of the "algebraic operator with the
+right vanishing set" family that WALE and Vreman started, and it is the natural
+control for any learned LES closure: if a neural subgrid model cannot beat the
+sigma model on the same grid, it has learned nothing structural.
+
+---
+
+## 13. Wall models for LES
+
+### 13.1 Why they exist: the cost argument, on disk
+
+Piomelli & Balaras give the standard scaling [VERIFIED-PDF: Piomelli & Balaras 2002,
+Annu. Rev. Fluid Mech. 34, eqs. (1)-(2), p. 351]. Inner-layer eddies scale in
+wall units, so a wall-resolved LES needs a constant grid spacing in wall units,
+in practice `Delta x+ ~ 100`, `Delta z+ ~ 20`. Chapman's (1979) estimate for the
+number of points needed to resolve the viscous sublayer is then
+
+```
+( N_x N_y N_z )_vs  proportional to  C_f Re_L^2                            (1)
+```
+
+which, with `C_f ~ Re_L^-0.2`, gives
+
+```
+( N_x N_y N_z )_vs  proportional to  Re_L^1.8                              (2)
+```
+
+against `Re_L^0.4` for the outer layer. The inner layer, which is a vanishing
+fraction of the volume, comes to dominate the cost at any aeronautical Reynolds
+number. That is the entire motivation for wall modelling.
+
+### 13.2 The equilibrium wall-stress model
+
+The derivation, in their words [VERIFIED-PDF: Piomelli & Balaras 2002, p. 354]: "The
+simplest approach to relate the wall stress to the outer velocity is to neglect
+all terms in the streamwise momentum equation except the Reynolds-stress
+gradient. This implies that the acceleration and pressure gradient at the first
+grid point are negligible and that the first grid point is far enough from the
+wall that viscous effects are negligible. If, in addition, the shear stress is
+assumed to be constant between the wall and the first point, one can derive a
+logarithmic velocity profile in the inner layer":
+
+```
+u+ = u/u_tau = (1/kappa) log y+ + B                                        (3)
+u+ = (1/kappa) log( y/y_0 )        (rough wall)                            (4)
+```
+
+Given the LES velocity at the first (or a matching) grid point, (3) is solved
+iteratively for `u_tau`, and `tau_w = rho u_tau^2` is imposed as a flux boundary
+condition instead of the no-slip condition. Constants: `kappa ~ 0.4`, `B ~ 5.0-5.2`.
+
+Four assumptions are therefore built in, and each is a failure mode: (i)
+negligible acceleration, (ii) negligible pressure gradient, (iii) constant stress
+between wall and matching point, (iv) an equilibrium log law with universal
+constants. Separation violates all four simultaneously - at separation `tau_w = 0`
+and `u_tau = 0`, so the log law is not merely inaccurate, it is undefined.
+
+### 13.3 The lineage, on disk
+
+[VERIFIED-PDF: Piomelli & Balaras 2002, section 2.1, pp. 354-358]:
+
+* **Deardorff (1970)** - the first, in channel flow; imposed a condition on the
+  *second* derivative of the velocity at the wall rather than on the stress.
+* **Schumann (1975)** - related the instantaneous wall stress to the
+  instantaneous velocity at the first point, with the *plane-averaged* wall
+  stress obtained by iterative solution of the log law. This is the template
+  every later stress model follows.
+* **Piomelli, Ferziger, Moin & Kim (1989)** - the "shifted" model: they
+  "required that the wall stress be correlated to the instantaneous velocity some
+  distance downstream of the point where the wall stress is required", to account
+  for the inclination of near-wall structures. "These changes yielded improved
+  results."
+* **Werner & Wengle (1993)** - they "fit the local horizontal velocity to a power
+  law matched to a linear profile near the wall to compute the local stress"
+  [VERIFIED-PDF: Piomelli & Balaras 2002, p. 357], which removes the iterative
+  solve for `u_tau`. Piomelli & Balaras's verdict on this whole family, same
+  page: "The results in both cases are not very different from the ones with the
+  other models discussed above."
+* **Mason & Callen (1986)** - enforcing the log law *locally and instantaneously*
+  rather than in the mean, "based on local equilibrium of the near-wall region;
+  its validity strongly depends on the size of the averaging volume (the grid
+  cell), which must contain ... a significant sample of inner-layer eddies"
+  [VERIFIED-PDF: pp. 356-357]. That last clause is the constraint that low-Reynolds-
+  number validation cases silently violate.
+
+### 13.4 Zonal / two-layer models
+
+[VERIFIED-PDF: Piomelli & Balaras 2002, section 2.2 "Zonal Approaches", p. 359 onward.] Solve the thin
+boundary-layer or full RANS equations on a separate, wall-refined grid embedded
+under the LES, exchanging velocity down and stress up. This removes assumptions
+(i)-(iii) of section 13.2 at the cost of a second mesh, a second turbulence
+model (usually a mixing length with van Driest damping), and a matching-location
+choice. Balaras, Benocci & Piomelli (1996), AIAA J. 34(6):1111, is the standard
+citation and is cited by Spalart as well [VERIFIED-PDF: Spalart 2000, reference list].
+
+### 13.5 Larsson et al. 2016: the log-layer mismatch is a numerics error
+
+Now VERIFIED-PDF: Larsson, Kawai, Bodart & Bermejo-Moreno, *Large eddy simulation
+with modeled wall-stress: recent progress and future directions*, Mechanical
+Engineering Reviews 3(1), paper 15-00418, pp. 201-223, 2016 (open access, JSME).
+
+**Their ODE wall model** [VERIFIED-PDF: Larsson et al. 2016, eqs. (3)-(5),
+p. 209], the compressible equilibrium form solved on `0 <= y <= h_wm`:
+
+```
+d/dy [ (mu + mu_t,wm) dU/dy ] = 0                                          (3)
+
+d/dy [ c_p ( mu/Pr + mu_t,wm/Pr_t,wm ) dT/dy ]
+        = - d/dy [ (mu + mu_t,wm) U dU/dy ]                                (4)
+
+mu_t,wm = kappa rho sqrt(tau_w/rho) y [ 1 - exp(-y+/A+) ]^2                (5)
+```
+
+with, in their words, "the common values `kappa = 0.41`, `A+ = 17` and
+`Pr_t,wm = 0.9`". At `y = h_wm` the LES supplies `U` and `T`; at the wall,
+no-slip plus a thermal condition. Note `A+ = 17`, not the van Driest 26 - the
+damping constant is itself a wall-model choice.
+
+**The central result** [VERIFIED-PDF: Larsson et al. 2016, §3.2, pp. 210-211]:
+
+* The log-layer mismatch has "a direct effect on the predicted skin friction",
+  because `c_f = 2 tau_w/(rho_inf U_inf^2)` scales as `U_inf^-2` (p. 210).
+* It is **code-dependent**, not model-dependent: "some studies find a positive
+  mismatch (cf. Piomelli et al., 1989; Kawai & Larsson, 2012) while others find a
+  negative mismatch (cf. Cabot & Moin, 1999; Nicoud et al., 2001; Lee et al.,
+  2013; Bose & Moin, 2014) ... the studies with a negative mismatch has generally
+  been for incompressible flow solved using a staggered grid, whereas most
+  results with codes using a colocated grid and/or some degree of numerical
+  dissipation have produced a positive mismatch. The main point of this
+  observation is, of course, that the log-layer mismatch is code-dependent"
+  (p. 210).
+* The mechanism is a resolution criterion the first off-wall cell **cannot**
+  satisfy. Stress-carrying eddies at height `y` have size `L_i = C_i y`, so
+  resolving them needs `Delta x_i <~ C_i y / N` with `N >~ 2` points per
+  wavelength (their eq. 6, p. 210). Since wall damping makes `C_2 <~ 2`, the
+  ratio `C_2/N` is below 1 and "the criterion (6) is violated in the first LES
+  grid-point, **regardless of numerical accuracy in the LES**". Hence: "the error
+  is not due to the wall-model, and thus even a 'perfect' wall-model in one
+  numerical code would suffer from a log-layer mismatch if implemented in a
+  different numerical code!" (p. 210).
+* The cure is to **decouple the wall-model height from the grid**: fix
+  `h_wm ~ 0.2 delta` on physical grounds and then refine the LES grid until it is
+  converged at that height, rather than setting `h_wm = Delta y`. "the converged
+  results have zero log-layer mismatch" (p. 210).
+* The quantitative grid requirement, for their sixth-order compact scheme
+  [p. 211]: `Delta y <~ 0.33 h_wm` and `Delta x ~ Delta z <~ 0.8 h_wm`;
+  independently confirmed by Lee et al. (2013) with a different method at
+  `Delta x <~ 0.6 h_wm`, `Delta y <~ 0.3 h_wm`, `Delta z <~ 0.4 h_wm`.
+* Size of the error being cured, from Wu & Meyers (2013) as they report it
+  [p. 211]: "from a typical 10-20% to only 5%".
+* And the methodological warning, which applies directly to any learned wall
+  model: "the effect of the wall-model must be isolated before any meaningful
+  assessment can be made (which is unfortunately sometimes bypassed in the
+  wall-modeling community)" (p. 211).
+
+**Consequence for this programme.** Any comparison of a learned wall model against
+an equilibrium wall model that does not hold `h_wm` fixed and demonstrate grid
+convergence at `h_wm` is measuring the code, not the model. That is a
+preregistration requirement, not a nicety.
+
+### 13.5b Lozano-Duran & Bae 2023: a learned wall model, and what it concedes
+
+VERIFIED-PDF (arXiv:2211.07879v3 preprint of J. Fluid Mech. 963:A35, 2023),
+*Machine learning building-block-flow wall model for large-eddy simulation*.
+
+From the abstract, verbatim: "The core assumption of the model is that a finite
+set of simple canonical flows contains the essential physics to predict the
+wall-shear stress in more complex scenarios ... implemented using two types of
+artificial neural networks: a classifier, which identifies the contribution of
+each building block in the flow, and a predictor, which estimates the wall-shear
+stress via combination of the building-block flows. The training data are
+directly obtained from wall-modelled LES (WMLES) optimised to reproduce the
+correct mean quantities. This approach guarantees the consistency of the training
+data with the numerical discretisation and the gridding strategy of the flow
+solver."
+
+Three points worth carrying:
+
+1. The training labels come from **WMLES tuned to give the right means**, not
+   from DNS. The model is therefore fitted to a particular solver and grid by
+   construction - which is presented, correctly, as a feature, because of exactly
+   the code-dependence Larsson et al. established above.
+2. The model ships a **confidence score** "that aids the detection of regions
+   where the model underperforms" - an extrapolation detector as part of the
+   model, which is the pattern this programme should copy.
+3. The paper's own conclusion bounds what a wall model can buy: "It is also
+   concluded that further improvements in WMLES should incorporate advances in
+   subgrid-scale modelling to minimise error propagation to the wall model."
+   The wall model is not the binding constraint.
+
+Validation set named in the abstract: laminar/turbulent boundary layers,
+turbulent channels, Poiseuille-Couette, pipe, plus the NASA Common Research Model
+High-lift and the NASA Juncture Flow experiment. The claim is that it
+"outperforms (or matches) the predictions by an equilibrium wall model" - a
+qualitative claim in the abstract; the numbers behind it are in the paper's
+figures and are recorded in `_common/FEASIBILITY.md`, not here.
+
+### 13.5c Bose & Park 2018: BLOCKED-ON-SOURCE
+
+**[BLOCKED-ON-SOURCE: Bose, S.T. & Park, G.I., *Wall-modeled large-eddy
+simulation for complex turbulent flows*, Annu. Rev. Fluid Mech. 50:535-561, 2018.
+Annual Reviews paywall, no open-access version found by automated retrieval; the
+file that carried this name was an unrelated paper (section 0.3).]** The taxonomy
+usually attributed to it - wall-stress models versus hybrid RANS/LES, and the
+dynamic slip-wall model as their own proposal - is **not** cited anywhere in this
+document as evidence, and the equivalent framing that *is* used comes from
+Piomelli & Balaras 2002 and Larsson et al. 2016, both verified above.
+
+### 13.6 Failure modes of wall models generally
+
+* **Log-layer mismatch**: an offset in `u+` between the wall model and the outer
+  LES, appearing directly as an error in `C_f` (which scales as `U_inf^-2`).
+  Larsson et al. report the size of the error being cured in one study as
+  "a typical 10-20%", reduced to "only 5%" [VERIFIED-PDF: Larsson et al. 2016,
+  p. 211], and show that its *sign* is set by the host code's numerics, not by
+  the wall model (section 13.5). It is a resolution failure of the first off-wall
+  cell that no wall model can fix and that grid refinement at fixed `h_wm` does
+  fix.
+* **Separation**: the equilibrium assumption fails, and `u_tau -> 0` makes the
+  log law singular. Every wall-modelled LES of a separating flow reports this.
+* **Roughness and pressure gradient** enter only through fitted extensions.
+* **Grid sensitivity**: the wall model's answer depends on the matching height,
+  which is a grid parameter, so the model and the discretisation are not
+  separable.
+
+---
+
+# PART C - CROSS-CUTTING
+
+## 14. Realisability, collected
+
+### 14.1 The conditions
+
+Schumann (1977): `tau_ij` must be positive semi-definite, i.e.
+
+```
+tau_alpha alpha >= 0                       (no sum)
+tau_alpha beta^2 <= tau_alpha alpha tau_beta beta
+det( tau ) >= 0
+```
+
+Equivalently, for `b_ij = tau_ij/(2k) - delta_ij/3` with eigenvalues
+`lambda_1 >= lambda_2 >= lambda_3`, realisability is
+`-1/3 <= lambda_i <= 2/3` with `sum lambda_i = 0`, which is the Lumley triangle
+in `(II, III)` invariant space and the barycentric triangle in the Banerjee et
+al. (2007) map:
+
+```
+C_1c = lambda_1 - lambda_2         (one-component)
+C_2c = 2 ( lambda_2 - lambda_3 )   (two-component)
+C_3c = 3 lambda_3 + 1              (three-component / isotropic)
+```
+
+`C_1c + C_2c + C_3c = 1` identically, and the state is realisable **iff all three
+are non-negative**. This is the test implemented in
+`_common/of_read.py:realisability_violation()`.
+
+### 14.2 Which models violate it, and when
+
+| Model | Realisable? | When it fails |
+|---|---|---|
+| Boussinesq with `nu_t` unbounded (standard k-eps, Wilcox k-omega, SA) | No | whenever `(nu_t/k) lambda_max(S) > 1/3`; for k-eps that is `S k/eps > 3.70` |
+| SST with the `a1 = 0.31` limiter | Yes, wherever the limiter binds | fails only where `F2 -> 0` away from walls with large strain, i.e. free stagnation regions - **[MEASURED HERE]: 0.26% of cells on the NASA hump, 0 cells on every hill, duct and step in the benchmark** |
+| Shih realisable k-eps, Durbin bound | Yes by construction | -- |
+| EASM / nonlinear | Not automatically | the regularised denominators are chosen partly to preserve it |
+| RSM (LRR, SSG) | Not automatically | naive integration can produce negative normal stresses near walls and at the two-component limit |
+| QCR2000 | Not guaranteed | Spalart's own note, p. 254: "the common one-equation models are far from giving realisable Reynolds-stress tensors" |
+| Smagorinsky / WALE / Vreman / sigma | N/A as posed | these model the *deviatoric* subgrid stress only; the trace is absorbed into pressure, so the realisability question is usually not asked, and `nu_t >= 0` guarantees only that the dissipation has the right sign |
+
+### 14.3 The truth is not realisable either - a caution for every data-driven method
+
+**[MEASURED HERE]** The interpolated LES/DNS truth in the Closure Challenge
+release is itself outside the barycentric triangle in **1.2% to 2.5%** of cells
+on the periodic hills, and up to **1.6%** on the `Ret_360` ducts
+(`BASELINES.md` section 5). A model trained to regress `b_LES` is therefore being
+handed a small fraction of physically impossible labels, and a model that
+enforces realisability on its output **cannot** reach zero error against this
+target. Any Phase 3 reproduction reporting a realisability violation rate must
+compare it against these numbers, not against zero.
+
+## 15. Numerics, collected
+
+| Issue | Where it bites | Standard treatment |
+|---|---|---|
+| Source-term stiffness | `eps^2/k`, `beta omega^2`, `(nu~/d)^2` | linearise, put the negative part on the diagonal (`-C phi_old phi_new`), clip both variables positive |
+| Explicit anisotropy | any non-Boussinesq or learned `b_ij` | deferred correction: keep a linear `nu_t` implicit, put only the residual in the source, and under-relax it. Applying a learned correction at full strength in one step generally diverges |
+| Wall distance | SA, SST `F1`/`F2`, van Driest, zonal wall models | Poisson or fast-marching `d`-field; ambiguous with multiple walls; a real cost in moving-geometry problems |
+| `y+` demands | SST/SA integrate to the wall, want `y+ ~ 1`; Menter's `omega` BC needs `Delta y_1^+ < 3` [VERIFIED-PDF: Menter 1994, eq. (A12)] | mesh the sublayer, or accept wall functions and their mesh-dependence |
+| Low-Re damping | k-eps only | `f_mu`, `f_1`, `f_2` fitted to channel DNS; the least transferable part of the model |
+| Freestream sensitivity | Wilcox k-omega | BSL/SST cross-diffusion; Menter's recommended freestream values, eq. (A11) |
+| Strain vs vorticity in the SST limiter | (A14) says `Omega` = vorticity magnitude; most codes use `sqrt(2 S_ij S_ij)` | undocumented in most codes; **state which you used** |
+| `P_omega` form | (A17) is a different model from (A2) once the `a1` limiter binds | Menter: "(A17) should therefore not be used" |
+| Production limiter | `P_k = min(P_k, 10 beta* k omega)` | **not in Menter 1994**; a 2003 addition. State whether it is on |
+| Dynamic-model clipping | Germano/Lilly `C` | averaging direction, Lagrangian averaging or clipping - report it as part of the model |
+| Filter width `Delta` | all LES SGS models | `V^(1/3)` vs `max(dx,dy,dz)` differ by large factors on anisotropic cells; a hidden parameter |
+| Numerical vs modelled dissipation | coarse LES | on a coarse grid a second-order scheme's dissipation can exceed `nu_sgs`, so the scheme *is* the model; not detectable from the solution |
+
+## 16. The measured failure-mode table
+
+Everything in this table is computed in
+`cases/RANS_LES_closure_models/_common/sst_baseline_metrics.py` from the Closure
+Challenge benchmark at commit `deb91557`, and reproduced in `BASELINES.md`. It is
+the Charter 2c trivial baseline.
+
+**Reproducibility check, 2026-08-20:** `sst_baseline_metrics.py` was re-run from
+a clean invocation and the resulting `sst_baseline_metrics.json` is **byte-identical**
+to the stored one (md5 `4fc917f2300bcada2fa6eb25f454e9b5` before and after).
+Every number below is therefore reproducible on this machine from the pinned
+benchmark commit, not merely recorded.
+
+| Failure mode | Model | Flow | Measured value | Truth | Source |
+|---|---|---|---|---|---|
+| No secondary flow of the second kind | k-omega SST (linear Boussinesq) | 8 square/rectangular ducts, `Re_tau` 164-342 | mean in-plane `|U|` = 4.0e-16 to 1.9e-15 of bulk; `b_23` RMS = 8.5e-18 to 5.4e-17 | 0.72-1.51% of bulk; `b_23` RMS 0.0083-0.0132 | `BASELINES.md` s.4 |
+| Recirculation too long | k-omega SST | periodic hill `Re_H` = 10595 | `x_reatt/H` = 7.643, bubble 7.384 | 4.566, bubble 4.376 | `BASELINES.md` s.3 |
+| Recirculation too long | k-omega SST | 29 parametric hills, `Re_H` = 5600 | bubble error +7% to +113%, always positive | -- | `BASELINES.md` s.3 |
+| Recirculation too long | k-omega SST | NASA wall-mounted hump, `Re_c` = 936000 | `x_reatt/c` = 1.253 (separation right at 0.655) | 1.062 (0.664) | `BASELINES.md` s.3 |
+| Recirculation too long | k-omega SST | curved backward-facing step, `Re_H` = 13700 | `x_reatt/H` = 5.891, +55% bubble, on the case with the **smallest** velocity error (0.052) | 4.241 | `BASELINES.md` s.3 |
+| Stagnation-point anomaly | unlimited linear eddy viscosity | NASA hump | `(nu_t/k) lambda_max(S)` reaches 262; 11.5% of cells non-realisable | bound is 1/3 | `BASELINES.md` s.5 |
+| Stagnation-point anomaly absent where there is no stagnation | same counterfactual | hills, ducts, step | ratio reaches only 0.16-0.53; 0-0.85% of cells | -- | `BASELINES.md` s.5 |
+| `a1` limiter as realisability enforcement | k-omega SST | all 41 cases | limiter active on 18-33% of cells; `b_RANS` realisable in 100% of hill/duct/step cells | -- | `BASELINES.md` s.5 |
+| Turbulence kinetic energy error | k-omega SST | all | RMS `k` error 0.24-1.14 of mean `k_LES` | -- | `BASELINES.md` s.3-4 |
+| Anisotropy error comparable to the anisotropy | k-omega SST | ducts | `||b_RANS - b_LES||_F` RMS 0.54-0.65, against the realisable maximum `||b||_F = 0.8165` | -- | `BASELINES.md` s.4 |
+| Overall, in the challenge's own metric | k-omega SST identity | 8 held-out test cases | scaled MAE **0.1036** | leaderboard best 0.0595 | `BASELINES.md` s.2 |
+
+Failure modes I could **not** measure from data on this machine, and why:
+
+* Round-jet/plane-jet anomaly - no free-shear case in the benchmark.
+* Smagorinsky over-dissipation in transition - no LES-in-the-loop capability here
+  and no transitional case in the benchmark; this would need an actual LES solve.
+* Dynamic-model clipping frequency - same reason.
+* Log-layer mismatch in wall-modelled LES - same reason.
+* Freestream sensitivity of Wilcox k-omega - would need a second solve at a
+  different freestream `omega`, i.e. a solver run, which is out of scope for a
+  frozen-field study.
+
+## 17. What this document cannot see
+
+* Every measured number is an **a-priori, frozen-field** error against the
+  challenge's own interpolation of LES/DNS onto the RANS mesh. It says nothing
+  about what a modified closure does when it is put back into the momentum
+  equation and re-converged. A model that halves `b_rms` may still diverge, or
+  may make the velocity field worse, because the map from `b` to `U` runs through
+  the momentum balance and is not monotone.
+* No solver was run for this document. All RANS fields are the ones the benchmark
+  ships.
+* The benchmark release carries no uncertainty estimate for the LES/DNS truth, so
+  none of the errors can be compared against a data uncertainty band.
+* The constants attributed to Spalart-Allmaras, standard k-epsilon, LRR, SSG,
+  Germano/Lilly, Vreman, Bose & Park and the sigma model are SECOND-HAND-UNVERIFIED
+  or BLOCKED-ON-SOURCE (section 0.2). They must be checked against the primary
+  sources before any of them is used in a fitted model. Concretely: nothing in
+  §2.2 (the nine SA constants), §3.2 (the five k-epsilon constants), §6.3
+  (the Gatski-Speziale coefficients), §9.1 (the Germano identity as written),
+  §11 (Vreman) or §12 (sigma) has been read off a page on this machine.
+* Nothing here evaluates any data-driven closure. That is Phase 3.
