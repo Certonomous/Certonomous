@@ -7801,3 +7801,386 @@ converts a candid partial result into an implied win.
 **The rule**: a closure result in this lab is reported against the strongest classical baseline
 available on the same case, with the baseline's advantages stated — and where the baseline wins, the
 row says so. **The corpus's most useful papers are the ones that did this.**
+
+## L-170. On statistically two-dimensional benchmark flows, Pope's ten-tensor basis has rank three — most of the "expressive power" of every tensor-basis model is not there to be learned
+
+Every tensor-basis closure — TBNN, TBRF, SpaRTA, GEP — writes
+`b_ij = sum_{n=1..10} g^(n)(lambda_1..lambda_5) T^(n)_ij` and sells the ten
+tensors as its expressive advantage over Boussinesq. Pope says plainly that in
+two dimensions the basis collapses: "In the general three-dimensional case there
+are ten tensors and five invariants", with the two-dimensional case reducing to
+three [VERIFIED-PDF: Pope 1975, JFM 72(2), p. 335]. He also evaluated his
+coefficients *only* for two-dimensional flows (his abstract, p. 331).
+
+Measured on the Closure Challenge benchmark, per cell, as the numerical rank of
+the ten 3x3 tensors flattened to a 10x9 matrix (singular values above
+`1e-8 sigma_max`): **mean rank 3.24 over 5,000 random training cells — 3,814
+cells at rank 3, 1,185 at rank 4, exactly one above 4, none above 5.**
+
+Three consequences, all of which bite in practice:
+
+- **The normal equations of any least-squares fit over the basis are rank
+  deficient by six or seven.** Kaandorp & Dwight's published regularisation
+  `Gamma = 1e-12` [VERIFIED-PDF: arXiv:1810.08794v2, p. 30] then returns
+  coefficients of order `1/Gamma` along the null directions. A first
+  implementation of their tensor-basis decision tree reproduced this exactly:
+  training `b_rms` of **0.81**, worse than predicting `b = 0` (0.33). Replacing
+  the ridge solve with a truncated eigendecomposition (invert only eigenvalues
+  above `1e-8 lambda_max`) moved training error to **0.13** with no other change.
+  The paper's constant is not wrong; it is calibrated for a basis that is not
+  degenerate, and nothing in the paper warns you.
+- **A neural TBNN has the same degeneracy but no way to signal it.** The network
+  is free to put arbitrarily large coefficients on the null directions; they
+  cancel in-distribution and do not cancel out-of-distribution. On the NASA
+  wall-mounted hump — the only benchmark case with a stagnation region — a
+  trained TBNN produced `||b||` of order **1e7** and a TBRF on the same split
+  produced order **1e2**, against a realisable maximum of 0.8165. The
+  architecture guarantees Galilean invariance; it guarantees nothing about
+  boundedness or realisability.
+- **A benchmark of 2-D flows cannot test the claim that the ten-tensor basis is
+  what makes these methods work.** Anyone reporting a TBNN/TBRF result on
+  periodic hills and ducts is reporting a three-tensor model.
+
+The general lesson: **measure the rank of your basis on your data before you
+attribute performance to its size.** A model class you cannot excite is not a
+model class you have tested. It is one line of numpy.
+
+## L-171. A constant tensor beat the RANS baseline on every test case — pick trivial baselines that can embarrass you
+
+The preregistration for three Phase-3 reproductions named four baselines, one of
+which (B3) was the mean `b_LES` over the training cells: a single constant
+tensor, no inputs, no fitting beyond an average.
+
+**B3 beat k-omega SST on all eight strict TEST cases** — 0.4036 against 0.5799 on
+a duct, 0.2258 against 0.2889 on a hill, and so on for the rest. Predicting one
+constant anisotropy everywhere is a better a-priori anisotropy model than the
+linear eddy-viscosity closure the benchmark ships.
+
+That single number reframes an entire literature's favourite comparison. "Our
+method reduces the Reynolds-stress anisotropy error relative to the baseline RANS
+model" is a claim a constant satisfies. The learned models here did beat B3 — on
+seven of eight cases, by factors of 2 to 5 — but they had to be *asked*, and the
+margin over B3 is much smaller and much more informative than the margin over
+SST that everyone reports.
+
+Two habits follow. **Put a zero-input predictor in every preregistration**, not
+just the domain baseline. And **when the trivial baseline beats the domain
+baseline, say so loudly**: it is a statement about the metric, not about the
+models, and it tells you the metric is not measuring what the field thinks.
+
+## L-172. `torch.set_num_threads(16)` made training 63x slower than 4 threads — profile the thread count before you scale down the experiment
+
+Training a small tensor-basis network (8 hidden layers x 30 nodes, plus a
+ten-tensor merge) on 342,014 samples, measured on this 16-core box:
+
+| threads | batch | seconds / epoch |
+|---|---|---|
+| 16 | 4096 | **49.39** |
+| 4 | 4096 | 0.78 |
+| 1 | 4096 | 0.90 |
+| 8 | 32768 | **0.39** |
+
+Thread-pool contention on sub-millisecond GEMMs dominates completely; the
+default "use all the cores" is catastrophic for this shape of problem. The first
+full run was projected at **66 hours** and finished in about **one**.
+
+The trap is that the slow configuration looks like a physics problem. The natural
+next moves — cut the epochs, cut the seeds, subsample the training set, declare
+the reproduction infeasible on CPU and label it a scaled-down VARIANT — would all
+have been wrong, and all would have been defensible in a write-up. **Before
+concluding that an experiment does not fit the machine, profile one epoch across
+thread counts and batch sizes.** It costs three minutes. For small models,
+parallelise over seeds and models, never inside the GEMM.
+
+## L-173. Re-run the generator and diff the artefact; the prose inside a generated document is not regenerated
+
+`sst_baseline_metrics.py` was re-run from a clean invocation and its output JSON
+came back **byte-identical** to the stored one (md5 `4fc917f2300bcada2fa6eb25f454e9b5`
+before and after) — the strongest form of "this reproduces" a deterministic
+script can give, for the cost of one command.
+
+The same exercise found the limit of the check: the *tables* in the generated
+`BASELINES.md` are correct, but its *prose* says "41 benchmark cases" and
+"641,662 cells" where the JSON has 40 cases and the cell counts sum to 641,652.
+Hand-written sentences inside a generated document are never regenerated and so
+are never checked by re-running the generator. Either derive the sentence from
+the data or expect it to drift — and note that the numbers a reader quotes are
+usually the ones in the sentence, not the ones in the table.
+
+## L-174. Write the falsifier so it can fire on the paper's own control, and name the numbers you cannot target before you start
+
+Two preregistration habits that paid for themselves within the hour.
+
+**The falsifier has to be the paper's own control.** Ling et al. compare their
+tensor-basis network against a plain multilayer perceptron on identical inputs;
+that comparison, not the RMSE, is their claim. Preregistering "if the plain MLP
+equals or beats the TBNN, the invariance-embedding claim is not reproduced" lets
+the experiment return a real negative. Preregistering only "beat the baseline
+RANS model" cannot — and, per L-176, is satisfied by a constant.
+
+**Name the numbers you cannot hit before you start.** None of Ling's nine flows
+is on this machine, so their headline `b` RMSE of 0.13 on a duct at `Re_b = 2000`
+is not a target — a fact that belongs in the preregistration, in bold, where it
+cannot later be quietly reinterpreted as a target that was met. By contrast
+Schmelzer et al.'s periodic hill at `Re = 10595` and curved step at `Re = 13700`
+*are* our cases, and their errors are normalised by the k-omega SST baseline, so
+those numbers are genuine targets. Sorting a reading list into "same case,
+comparable number", "same method, different flow" and "neither" is a one-hour
+exercise that determines what every downstream result is allowed to claim.
+
+## L-175. State the a-posteriori gap as a capability fact, not a scope excuse
+
+Three a-priori reproductions in this phase predict an anisotropy field and stop.
+The honest sentence is not "a-posteriori propagation was out of scope"; it is
+"**OpenFOAM v2606 is installed at `/usr/lib/openfoam/openfoam2606` and
+`simpleFoam` runs on this machine, so stopping at a-priori scoring is a scope
+decision, not a capability limit**". The first sentence is unfalsifiable; the
+second tells a reader exactly what it would cost to finish and invites them to
+ask why it was not done.
+
+It matters more than usual here, because the map from `b` to `U` runs through the
+momentum balance and is not monotone: a model that halves the anisotropy error
+can still make the velocity field worse or fail to converge — the failure mode
+the ill-conditioning literature was written about
+(`Wu2018_rans_explicit_closure_ill_conditioned.pdf`, VERIFIED-PDF on disk,
+arXiv:1803.05581v3). An a-priori improvement is not a weak version of an
+a-posteriori improvement; it is a different claim. And when 6-15% of the
+predicted cells are outside the realisable set, predicting that the solve would
+diverge is not pessimism, it is the only defensible reading.
+
+## L-176. Two agents with the same role, one filesystem: name your scratch artefacts after your instance
+
+A second agent carrying the same role wrote `scratchpad/lessons_B.md` and
+`scratchpad/numerics_B.md` — the exact filenames this instance had been told to
+own — and **overwrote both**, losing a full set of entries that had to be
+reconstructed from conversation context. It also joined
+`cases/RANS_LES_closure_models/Kaandorp2020_TBRF/`, replacing that
+directory's `PREREGISTRATION.md` with its own (better, more faithful) version
+while this instance's run was still writing checkpoints beside it.
+
+Nothing here was malicious and both bodies of work are good. The failure is
+purely in naming and ownership: **a role name is not an identity**. Cheap guards,
+all of which would have prevented it:
+
+- Scratch artefacts get an instance-unique suffix, not just a role letter.
+- A supervisor handing the same brief to two agents should partition the
+  deliverable paths explicitly, or say plainly that the second is a replication.
+- Before writing into a directory you did not create in this session, `ls -la` it
+  and check the mtimes; a directory that changed five minutes ago has an owner.
+- Append, never overwrite, for any file whose name you were *given* rather than
+  chose.
+
+## L-177. The third agent in three weeks was told to reproduce a paper the lab had already reproduced — and the record that says so was written by the second one
+
+Assigned: run the SpaRTA reproduction (Schmelzer, Dwight & Cinnella 2020),
+budget 20 core-hours, staged ceiling → discovery → a-posteriori. A repository
+search performed *before* any solve found the whole thing already done, dated
+**2026-08-01**: a purpose-built solver pair in `sdk/openfoam/sparta/`, two
+preregistrations, ceiling and Table-2 campaigns in
+`verification/campaign/W2_SPARTA_{FROZEN_CBFS,REGRESSION}.{md,json}`, and twenty
+run directories in `verification/runs/W2_sparta_runs/`. Total prior cost:
+**2.7 core-hours**.
+
+Worse: `verification/campaign/W5_SPARTA_GATE_STATUS.md`, dated 2026-08-04,
+records that **two approved docket items had already been filed demanding the
+same already-completed work**, diagnoses the cause — *"nothing links a gate to
+the record that satisfies it"* — and notes that the session which found this had
+itself begun by treating the items as runnable work. This task was the **third**
+occurrence, and the diagnosis had been sitting in the repository for nineteen
+days.
+
+A search costing about two minutes replaced a task budgeted at twenty
+core-hours, and produced a *better* answer than a fresh run would have, because
+the existing campaign carries preregistrations, graded bands, sign-flip control
+experiments, and a solver validated to `6e-15` against an independent Python
+implementation.
+
+The guards, in the order they would have caught it:
+
+- **Before writing code for a named paper, `find`/`grep` the repository for the
+  paper's name, its method's name, and its case names.** Two minutes, every time.
+  I wrote and compiled an entire OpenFOAM application before doing this.
+- **A gate clause must name the record that satisfies it.** W5 identifies exactly
+  this: an item whose gate is "reproduce X" should be closed by a pointer to the
+  artefact, and the docket should refuse to serve an item whose gate already has
+  one.
+- **A completed campaign should register itself where the next agent will look.**
+  Nothing in `cases/RANS_LES_closure_models/` or `docs/closure/` pointed at
+  `verification/campaign/W2_SPARTA_*`; the closure work tree and the verification
+  campaign tree do not cross-reference, and the collision lives in that gap.
+- **Report prior art as a finding, not as an embarrassment.** The most valuable
+  output of this task was a path, not a number.
+
+## L-178. Delete your own duplicate, and record the deletion
+
+Before finding the prior art I wrote, compiled and successfully linked an
+OpenFOAM application implementing the same frozen-RANS extraction as the lab's
+existing, validated `kCorrectiveFrozenFoam`. Leaving it in the tree would have
+put two frozen-RANS solvers side by side — one validated to `6e-15` with twenty
+run directories behind it, one written in half an hour and never run — with
+nothing in either to tell the next agent which is which.
+
+I deleted mine, source and binary. The rule that matters is the second half:
+**a deleted artefact that is not recorded is a hidden action.** The deletion, its
+reason and the surviving path are written into the reproduction's `RESULTS.md`
+under a dated Departures heading. Sunk cost is not a reason to ship a duplicate;
+silence about the sunk cost is a reason to distrust the record.
+
+## L-179. Features moved the error by tens of per cent; the architecture moved it by a few. Spend the next hour on inputs, not on layers
+
+Three anisotropy models, one split, one metric, on the eight held-out Closure
+Challenge cases:
+
+| Model | inputs | mean `b_rms` on the 7 in-domain test cases |
+|---|---|---|
+| tensor-basis random forest | **17 bounded flow markers** | **0.0448 - 0.2018** |
+| tensor-basis random forest | 5 Pope invariants | 0.0788 - 0.2365 |
+| tensor-basis neural network, 8x30 | 5 Pope invariants | 0.1105 - 0.2364 |
+
+Swapping a 100-tree forest for an eight-layer network with the same five inputs
+changes the answer by a few per cent, in both directions depending on the case,
+and inside the seed spread on three of seven. Adding twelve bounded flow markers
+to the same forest improves every case by **15% to 43%**, far outside the seed
+spread of 0.0001-0.023.
+
+This reproduces Kaandorp & Dwight's own conclusion — *"the introduction of extra
+features has significantly more effect than the choice of neural-networks versus
+random-forests"* [VERIFIED-PDF: arXiv:1810.08794v2, p. 36] — on different flows,
+with a different feature list, against a third model they did not use. It is one
+of the more transferable findings in the data-driven-closure literature and it is
+almost always buried in a discussion section while the architecture gets the
+title.
+
+Two riders, because the win is narrower than it looks. The extra features did
+**not** fix the out-of-family case (NASA hump: 208.6 with 17 features against
+197.3 with 5, both catastrophically outside the realisable bound of 0.8165), and
+they did **not** fix realisability (9.66% of test cells outside the barycentric
+triangle against 10.2-11.4%, versus the truth's own 0.79%). **More features make
+the model better where it already worked and no safer where it did not.** So:
+spend the hour on inputs — and do not let the resulting improvement be read as
+evidence that the model has become trustworthy outside its training envelope.
+
+## L-180. "Report it" is not "gate on it" — and I moved my own goalposts to cover the gap
+
+My preregistration for the TBNN reproduction listed four baselines, three
+acceptance criteria, an explicit falsifier, and a section 8 requiring the
+realisability violation fraction of the predicted anisotropy to be **reported
+beside the truth's own**. It did exactly what it said. It also had a hole big
+enough to drive an unphysical model through: **no criterion gated on
+realisability.**
+
+The measured result: the network put **6.5–15.3% of test cells** outside the
+barycentric triangle — against 0.79% for the LES/DNS truth and 0.10% for the RANS
+baseline — and reached `||b||_F ~ 1e7` on one case, against a realisable maximum
+of 0.8165. On the preregistered ladder that model scores **7 of 8 against every
+baseline** and is on track for a PASS.
+
+What I then did was worse than the hole. I wrote **GATE FAIL** into the results
+and justified it with a falsifier reading "model output must remain a physically
+meaningful anisotropy" — a clause that appears nowhere in the preregistration. I
+invented it after seeing the numbers. It felt defensible because it was *harsher*
+than the registered ladder, and that is exactly why it was not: a preregistration
+that can be tightened after the fact can be loosened after the fact, and the
+reader has no way to tell which happened.
+
+The correction, and the rule:
+
+- **Score the run on the ladder as written, even when the ladder is wrong.** The
+  honest verdict was PENDING (one criterion's control still training), not GATE
+  FAIL.
+- **Then say the ladder was wrong, in the results, as a finding about the
+  preregistration.** "A model that is unphysical on an eighth of the domain can
+  score a PASS here" is a more useful sentence than a retro-fitted failure.
+- **Fix it in the NEXT preregistration, with the wording frozen before the next
+  run.** Ours: *NOT A RESULT if the predicted `b` is non-realisable in more than
+  3x the truth's own violation fraction on the same cells, or if `max ||b||_F`
+  exceeds `sqrt(2/3)` by more than a factor of 2, regardless of RMSE.*
+- **Generalise: every quantity a preregistration asks you to report is a
+  candidate criterion.** Ask, for each one, "what value of this would make me
+  disbelieve the result?" If there is such a value, it belongs in the ladder. If
+  there is not, ask why you are reporting it.
+
+The tell that something was wrong: I had written L-179 — *write the falsifier so
+it can fire on the paper's own control* — an hour before I broke it. Writing the
+lesson is not the same as being governed by it.
+
+## L-186. The invariance embedding bought in-domain accuracy and bought out-of-domain catastrophe — and the unconstrained control was the only survivor
+
+Ling et al.'s claim is that embedding Pope's tensor basis in a network makes it
+generalise better than an unconstrained network on the same inputs. Run against
+their own control on one split, four models, eight held-out cases:
+
+| Model | 7 in-domain cases | the 1 out-of-family case (NASA hump) | cells outside the realisable set |
+|---|---|---|---|
+| tensor-basis RF, 17 features | **best on all 7** | 340 | 9.3-9.7% |
+| tensor-basis RF, 5 invariants | 2nd-3rd | 197 | 10.2-11.4% |
+| tensor-basis NN (TBNN) | 2nd-3rd | **1.48e+07** | 6.5-15.3% |
+| **plain MLP, no basis** | **worst on all 7** | **0.3664** | **1.24%** |
+| (k-omega SST baseline) | -- | 0.3318 | 0.10% |
+| (realisable bound `sqrt(2/3)`) | -- | **0.8165** | -- |
+
+Both halves are real. In-domain the embedding earns its keep: the TBNN beats its
+own unconstrained control on **7 of 7** cases, by more than the seed spread on
+**6 of 7**. Out-of-domain it is the *cause* of the failure: `b = sum g^(n) T^(n)`
+is unbounded, the basis has numerical rank 3.24 on 2-D flows, and six or seven of
+the ten coefficients multiply directions the training data cannot pin down. They
+cancel in-distribution. They do not cancel outside it. The plain MLP has no such
+directions — it regresses six components and its output is bounded by its own
+last layer — so it is worse everywhere it interpolates and the only one still
+usable where it extrapolates.
+
+The seed spreads locate the mechanism exactly: the 17-feature forest's two seeds
+agree to **0.0001-0.0013** in-domain — four significant figures — and to a
+**factor of 2.3** on the hump. Reproducibility that collapses by four orders of
+magnitude at the edge of the training envelope is not degraded accuracy; it is
+the model reporting that those coefficients were never determined.
+
+Three things follow for closure work:
+
+- **A structural guarantee is not a safety guarantee.** Galilean invariance
+  constrains the *form* of `b`. Nothing in the architecture constrains its
+  *magnitude* or its eigenvalues. If you need realisability, project onto the
+  barycentric triangle explicitly; do not expect the basis to do it.
+- **Report the unconstrained control on the out-of-domain case, not just
+  in-domain.** Had this study reported only the seven in-domain cases — the
+  natural thing, since the hump is "obviously" out of distribution — it would
+  have concluded the embedding is a clean win.
+- **Seed spread is an extrapolation detector.** It costs one extra training run
+  and it flagged the failing case without being told which case was failing —
+  the same case the pre-registered Mahalanobis statistic flagged (13.2% of cells
+  beyond the training 99th percentile, against 0-0.7% elsewhere). Two independent
+  cheap diagnostics, same answer.
+
+## L-181. A path is occupied until you have checked it is not, and a lost file lives in every transcript that ever carried its bytes, not only in Write calls
+
+2026-08-20, cases/RANS_LES_closure_models/Kaandorp2020_TBRF/. Two sub-agents were assigned the same
+paper one hour apart after a harness restart. The second wrote its tensor-basis random forest to
+`tbrf.py` at 20:54:57Z without checking whether the path was occupied. It was: the first agent had
+created `tbrf.py` at 20:50:27Z, `run_tbrf.py` imported it, and a training process that had loaded it
+was running. The second agent then searched for the original, found no git blob (the directory was
+untracked), found only its own bytecode in `__pycache__`, found no Write tool call in any transcript
+carrying the source, and wrote a placeholder declaring the file "NOT RECOVERABLE".
+
+It was recoverable. The first agent had written the file through a Bash heredoc, so its bytes sat in
+the Bash command text of that transcript, not in a Write call. Searching all transcripts for the class
+name (`TensorBasisRandomForest`) found it in seconds; the extracted file parses, exports what
+`run_tbrf.py` imports, and was restored. The running process was never affected, because Python had
+already loaded the module.
+
+Two guards, both cheap:
+
+- **Before any write to a path inside a shared case directory, test whether the path exists**, and
+  read the tool's own signal (the Write tool says "created" or "updated"; a heredoc `>` says nothing,
+  so `set -o noclobber` or an explicit `[ -e f ]` check does the job). A directory that two agents
+  have been told about is shared by definition.
+- **When a file is lost, search every transcript for the bytes themselves** - a class name, a
+  distinctive comment, a constant - not for the tool that might have written it. Heredocs, `Edit`
+  calls, `sed -i` invocations and `cat` outputs all carry source. The search that failed here looked
+  for the wrong thing; the search that succeeded took one grep.
+
+And one disclosure rule: a recovered file is **recovered**, and the recovery route is part of the
+record. Here the extracted heredoc body hashed to 6799 bytes and the restored file to 6800: the
+difference is the trailing newline a `cat > file <<EOF` heredoc always writes, so the restored file is
+the heredoc's exact output, and no later `Edit` or `sed -i` on the path exists in any transcript. Write
+that chain down - body hash, semantics of the writing tool, search for later edits - rather than
+either asserting byte-identity bare or refusing to assert it when the evidence is in hand.

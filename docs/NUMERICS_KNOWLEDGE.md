@@ -2068,3 +2068,176 @@ the logarithmic boundary condition**", while the two-layer model succeeded on th
   velocity**" when the source term changes during the simulation (p. 30).
 - **Every flow in §§1-13 is canonical, incompressible and at low-to-moderate Reynolds number.** The
   wall-model results of §§14-15 are the only entries touching engineering `Re`.
+
+
+## Closure-modelling numerics, measured on this machine — appended 2026-08-20 (Lane B, reviewed by supervisor)
+
+
+**COLLISION NOTE for the supervisor:** a second agent with the same role wrote to
+`scratchpad/numerics_B.md` and `scratchpad/lessons_B.md` and overwrote this
+instance's versions. Both sets of content are real and complementary; neither
+should be dropped. This file and `lessons_B_opus.md` hold the Opus instance's
+entries. The lesson numbers below are renumbered to L-175+ to avoid the clash
+with the other instance's L-170..L-172.
+
+---
+
+**N-B1. `beta*` and `C_mu` are the same constant with two provenances that agree.**
+`beta* = 0.09` in Menter's SST set [VERIFIED-PDF: Menter 1994, AIAA J. 32(8),
+eq. (A4), p. 1603] is `C_mu` from the equilibrium log layer, `(-<u'v'>/k)^2` with
+`k/u_tau^2 ~ 3.3`. `beta_2 = 0.0828` is exactly `beta* (C_e2 - 1) = 0.09 x 0.92`,
+i.e. the k-epsilon decay constant transformed into omega form. `sigma_omega2 =
+0.856` is fixed by requiring `gamma_2 = C_e1 - 1 = 0.44`; it is **not** `1/sigma_e`.
+Checked by hand: `0.0828/0.09 - 0.856 x 0.41^2/0.3 = 0.9200 - 0.4796 = 0.4404`.
+
+**N-B2. Menter's `a1` limiter uses the VORTICITY magnitude, not the strain-rate
+magnitude.** "where `Omega` is the absolute value of the vorticity"
+[VERIFIED-PDF: Menter 1994, p. 1604, eq. (A14)]. OpenFOAM's `kOmegaSST` and most
+other codes use `sqrt(2 S_ij S_ij)`. This is a real, usually undocumented,
+departure from the published model, active wherever strain and rotation differ.
+Any "SST" number must say which was used.
+
+**N-B3. The `a1` limiter is a realisability constraint, and it is load-bearing.**
+`a1 = 0.31 < 1/3` caps `(nu_t/k) lambda_max(S)`, which is exactly the linear-model
+realisability bound. Measured on the Closure Challenge benchmark
+(`_common/sst_baseline_metrics.py`): the limiter is active on **18-33% of cells**
+in all 40 cases; with it, `b_RANS` is realisable in 100% of hill/duct/step cells;
+without it (counterfactual at frozen `k`, `omega`) the ratio reaches **262** and
+**11.5% of cells** are non-realisable on the NASA hump - and only 0.16-0.53 on
+every case without a stagnation region.
+
+**N-B4. PyTorch on this box: 16 threads is ~63x SLOWER than 4 on small batches.**
+Measured, 342,014-sample epoch, 8x30 MLP + a 10-tensor `einsum` merge:
+`threads=16, batch=4096` -> **49.4 s/epoch**; `threads=4, batch=4096` -> **0.78 s**;
+`threads=1, batch=4096` -> 0.90 s; `threads=8, batch=32768` -> **0.39 s**.
+Thread-pool contention on sub-millisecond GEMMs dominates completely.
+**Default to `torch.set_num_threads(4)` and batches >= 8192 for anything of this
+shape on this machine**, and parallelise over seeds/models instead of within a
+GEMM. This single setting was worth a factor of 63 in wall clock; without it the
+TBNN sweep was on track for 66 hours instead of about one.
+
+**N-B5. The Pope tensor basis spans ~7 orders of magnitude and the high-order
+tensors are numerically dangerous.** On the benchmark training set the RMS
+Frobenius norms of `T^(1..10)` are
+`1.5e1, 3.5e3, 1.0e3, 1.0e3, 2.0e2, 5.3e5, 8.4e7, 8.4e7, 4.9e7, 1.4e6`.
+Rescaling each `T^(n)` to unit training RMS is an exact reparametrisation of the
+coefficients `g^(n)` and costs nothing, but it does **not** bound the model on
+unseen flows: `b = sum g^(n) T^(n)` is unbounded, and on the NASA wall-mounted
+hump - the only benchmark case with a stagnation region - a trained TBNN produced
+`||b||` of order **1e7** and a tensor-basis random forest on the same split
+produced order **1e2**, against a realisable maximum of 0.8165.
+
+**N-B6. The published TBRF ridge parameter is unusable on a rank-deficient basis.**
+Kaandorp & Dwight's `Gamma = 1e-12` [VERIFIED-PDF: arXiv:1810.08794v2, p. 30],
+applied to a basis of numerical rank 3-4 (see N-B10), returns coefficients of
+order `1/Gamma` along the null directions: measured *training* `b_rms` **0.81**,
+worse than predicting `b = 0` (0.33). Replacing the ridge solve with a symmetric
+eigendecomposition that inverts only eigenvalues above `1e-8 lambda_max` moved
+training error to **0.13** with no other change.
+
+**N-B7. OpenFOAM v2606 is installed and functional on this machine**
+(`/usr/lib/openfoam/openfoam2606`, `source etc/bashrc`, `simpleFoam` runs).
+A-posteriori (re-solved) propagation of a learned closure is therefore available.
+Any Phase-3 result that stops at a-priori scoring is making a scope choice, not
+hitting a capability limit, and must say so in those words.
+
+**N-B8. The benchmark has 40 cases and 641,652 cells with truth, not 41 and
+641,662.** `sst_baseline_metrics.json` contains 40 case entries; summing them
+gives 29 x 15600 (hills) + 101,026 (8 ducts) + 15,600 + 21,000 + 51,626 =
+641,652. `BASELINES.md` prose says "41 benchmark cases" and "641,662" in two
+places. The tables are right; the prose count is off by one case and ten cells.
+`make_baselines_md.py` generates that prose, so the fix belongs there.
+
+**N-B9. Smagorinsky's own constant, located.** `k_H = 0.28` appears twice in
+Smagorinsky 1963 [VERIFIED-PDF]: in the text on **printed p. 105**, immediately
+after eq. (4.24), and in the "Parameters of the numerical model" box on
+**printed p. 164** under "Small-scale eddy diffusion / Lateral". His
+`k ~ 0.1-1.0` disclaimer is on **printed p. 150**, not 149; von Karman's constant
+0.4 is in the notation list on **printed p. 162**. Earlier drafts of the
+inventory cited pp. 149 and 163; both were off by one page and are corrected.
+
+**N-B10. Per-cell rank of Pope's ten-tensor basis on this benchmark: 3.24.**
+Measured over 5,000 random training cells as the number of singular values of the
+flattened 10x9 tensor stack above `1e-8 sigma_max`: **3,814 cells at rank 3,
+1,185 at rank 4, 1 at rank 5, none above.** Expected, because every benchmark
+case is a statistically 2-D mean flow and Pope states the basis collapses to
+three tensors in two dimensions [VERIFIED-PDF: Pope 1975, JFM 72(2), p. 335]. One
+line of numpy; it should be run before any tensor-basis reproduction.
+
+**N-B11. A constant tensor beats k-omega SST on the a-priori anisotropy metric,
+on all 8 strict TEST cases.** The mean `b_LES` over the 342,014 training cells,
+predicted everywhere with no inputs, gives `b_rms` 0.2258-0.4221 against SST's
+0.2889-0.5972. "Beats the RANS baseline on `b_ij`" is a bar a constant clears,
+and every a-priori closure claim on this benchmark should be scored against that
+constant as well as against SST.
+
+**N-B12. Corrected page citations** found while auditing the inventory against
+verified PDFs: Piomelli & Balaras 2002 - the "simplest approach to relate the
+wall stress" derivation is on printed **p. 354** (not 353), the wall-model
+lineage runs **pp. 354-358**, and section 2.2 "Zonal Approaches" starts on
+**p. 359** (not 357). Kaandorp & Dwight 2020 - Table 2 is on preprint **p. 31**,
+Table 3 on **p. 37**, Table 4 on **p. 41** (hyper-parameters p. 30).
+
+**N-B13. The k-corrective-frozen-RANS extraction on PH10595 is exact, and I
+verified it independently from the written fields.** Schmelzer et al.'s eq. (3),
+`b_data_ij = -(nu_t/k) S_ij + b^Delta_ij`, evaluated on the 15,600 cells of
+`verification/runs/W2_sparta_runs/ph_frozen/1492` using OpenFOAM's own written
+`grad(U)`, closes to **relative L2 8.771e-14**, median cellwise `9.8e-15`, max
+`1.5e-12`. Using this directory's finite-difference gradient
+(`of_read.structured_gradient`) instead gives `3.7e-3` — that difference is the
+gradient reconstruction error and nothing else, and it is consistent with the
+0.47-0.96% interior figure in `BASELINES.md` sec. 1. **Useful pattern: an
+extraction that satisfies an algebraic identity can be audited from its written
+output alone, without re-running the solver.**
+
+**N-B14. The SpaRTA correction is the same size as the field it corrects, on both
+cases.** RMS `||b^Delta||_F` against RMS `||b_data||_F`: PH10595 **0.27919 /
+0.29699 = 0.94**; CBFS13700 **0.32781 / 0.35332 = 0.93**. RMS `R` = 0.0588
+(mean 0.0223) on PH, 0.00658 (mean 0.00153) on CBFS. A "correction" that is 93-94%
+of the signal is not a perturbation, and any argument that treats the discovered
+model as a small algebraic tweak to k-omega SST should be read against those
+ratios. Both extractions verify against their defining identity to 8.8e-14 (PH)
+and 1.7e-13 (CBFS) relative L2 — see N-B13.
+
+**N-B15. A published coefficient can be unreachable by the published method.**
+The lab's discovery campaign recovered SpaRTA's functional form for `R` exactly
+(`T1` on both cases) and matched the PH coefficient to **0.66%** (1.39917 against
+1.39), but on CBFS obtained **0.544787** against a published **0.93**, with the
+recorded rider that *0.93 is unreachable at any `lambda_r >= 0` from these fields
+(OLS bound 0.594)*. That is a bound, not a tuning shortfall: no setting of the
+regularisation reaches the published value. When a reproduction can prove a
+target is out of reach of the stated procedure, that bound is the result.
+
+**N-B16. OpenFOAM v2606 builds user applications on this box.** `g++ 13.3.0`,
+`wmake` from `/usr/lib/openfoam/openfoam2606/etc/bashrc`, user binaries land in
+`$FOAM_USER_APPBIN` = `/home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/bin`.
+A single-file solver compiles and links in about a minute. Two gotchas cost time:
+`Foam::sqrt(double)` is ambiguous against `Foam::sqrt(dimensionedScalar)` — use
+`::sqrt` for plain doubles — and `bound()` needs `#include "bound.H"`.
+
+**N-B17. Seed spread as a cheap extrapolation detector.** The 17-feature
+tensor-basis forest, two seeds, on the Closure Challenge test cases: in-domain the
+two seeds agree to **0.0001-0.0013** in `b_rms` (four significant figures); on the
+one out-of-family case they differ by a **factor of 2.3** (208.6 against 471.4).
+The collapse in reproducibility localises the extrapolation without any reference
+to the training distribution, and it agrees with the pre-registered Mahalanobis
+statistic (13.2% of that case's cells beyond the training 99th percentile, against
+0.00-0.70% on every other test case). **Two independent, near-free diagnostics,
+same answer — run both.**
+
+**N-B18. Scoring a model from its `best_state` checkpoint mid-run is legitimate
+and should be labelled with the epoch and the patience counter.** The MLP control
+here was scored at epoch 300 of <= 400 with 14 epochs since its last improvement
+against a patience of 60. Stating those three numbers lets a reader bound the
+error: a converged control could only have been better, which in this case would
+have widened the gap on the criterion the model already failed and narrowed the
+margins it won. Checkpoint-scoring without those numbers is not interpretable.
+
+**N-B19. Model ranking reverses between interpolation and extrapolation.** On the
+same split, the same metric and the same eight cases, the ordering of four
+anisotropy models is exactly inverted between the seven in-domain cases and the
+one out-of-family case: the plain MLP is worst on all seven and best on the
+eighth by four to seven orders of magnitude (0.3664 against 197, 340 and 1.48e+07).
+**Never rank closure models on a pooled error across a test set that mixes
+interpolation and extrapolation** — the pooled number is whichever regime has the
+larger magnitude, and here that is a single case out of eight.
