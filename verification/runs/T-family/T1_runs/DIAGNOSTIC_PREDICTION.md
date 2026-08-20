@@ -352,3 +352,254 @@ baseline's 1/Pe²) lands near **+1.78 %** against the baseline's +0.111 %.
 
 Each Re needs its own three-level ladder for an h→0 excess, so this is 12 cases,
 not 4. **Still diagnostic, still ungraded, and no T1c verdict can move on it.**
+
+---
+
+# RESULTS OF THE CONSTANT-Ts Re SWEEP, 2026-08-20 evening
+
+Instrument: `analyse_dts.py`, written after the nine `D_Ts_*` cases had solved
+but importing the frozen `analyse_t1c.py` for every number it reports — the
+station rule, the measurement, the GCI and the planted-zero control are the
+committed ones, not new ones. Output: `dts.json`.
+
+## Completion and convergence, before anything is measured
+
+All nine `D_Ts_*` cases met the strict rule (`rc = 0`, `End` in `log.solve`,
+last time directory = `endTime` = 30000 holding `T U p_rgh alphat phi`, one
+`ExecutionTime` line per iteration, every field newer than `0/T`) and got a
+`DONE` marker; the Re = 100 ladder `L_Ts_c/m/f` already had its markers from
+T1c. **All twelve cases are bit-identical between checkpoints 28000 and 30000**
+(max change 0.000e+00 K), and on every one of the twelve the **planted
+1.234e-03 K perturbation was recovered** by the reader (`PES.planted_zero_control`,
+planting by line index and reading back from disk). Nothing is void on
+convergence grounds and nothing is carried with a drift.
+
+**No case is DISCARDED.** The driving difference at each case's own station is
+0.117–0.132 of its inlet value, above the registered 0.10 floor on every level
+of every ladder. All four grid triples are CONVERGING, so all four Re points
+carry an h→0 excess.
+
+## The measurement, each Re at its own station
+
+| Re | Pe | station x/D | Nu coarse | Nu medium | Nu fine | p | GCI | Richardson | **h→0 excess** | fine excess |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 25 | 17.75 | 2.227 | 3.681432 | 3.675830 | 3.675264 | 4.88 | 0.0022 % | 3.675328 | **+0.5068 %** | +0.5051 % |
+| 50 | 35.50 | 4.454 | 3.667528 | 3.664146 | 3.663023 | 2.35 | 0.0191 % | 3.663581 | **+0.1856 %** | +0.1704 % |
+| 100 | 71.00 | 8.908 | 3.664111 | 3.661183 | 3.659958 | 1.85 | 0.0301 % | 3.660840 | **+0.1106 %** | +0.0865 % |
+| 200 | 142.00 | 17.816 | 3.663260 | 3.660368 | 3.659208 | 1.94 | 0.0265 % | 3.659985 | **+0.0873 %** | +0.0660 % |
+
+`f·Re` on the fine level is 63.9877 at Re = 25, 50 and 100 and 63.9984 at
+Re = 200, CONVERGING at p ≈ 2.0 on every ladder: the momentum solution did not
+move across the sweep.
+
+**The Re = 25 observed order of 4.88 is not believed**, and is reported rather
+than used: the nearest cell centres to the 2.227 D station sit at 2.127 / 2.268
+/ 2.199 D on c/m/f, the excess varies by about −0.32 pp per D there, and the
+station offset contributes −0.022 pp to a medium-to-fine difference of
++0.016 pp. The Richardson value is nevertheless within 1e-4 of the fine value,
+so the h→0 excess at Re = 25 is insensitive to this; its 0.002 % GCI is not. At
+the other three Re the station offset is under a tenth of the level-to-level
+differences.
+
+## The registered prediction against what was measured
+
+| | registered | measured |
+| --- | ---: | ---: |
+| log–log slope of h→0 excess against Pe | **−2** | **−0.836 ± 0.176** (R² = 0.918) |
+| h→0 excess at Re = 25 | **+1.78 %** | **+0.507 %** |
+| Re = 25 relative to Re = 100 | 16× | 4.58× |
+
+The fitted slope is **6.6 standard errors from −2 and 4.7 standard errors from
+zero.** The secondary fit on the fine-mesh excess alone gives −0.978 ± 0.186,
+5.5 standard errors from −2. Independently re-fitted by the supervisor from the
+four Richardson values: −0.8359 ± 0.1763, the same.
+
+## Verdict, by the clauses registered before the cases were built
+
+- **"Slope ≈ 0 → axial conduction refuted on the constant-Ts arm too" did NOT
+  fire.** The excess on this arm depends on Péclet number — unlike the
+  constant-flux arm, where Nu was identical to seven figures over the same Re
+  range. That is the first positive Péclet dependence this line of inquiry has
+  produced, and it is on the arm where the mechanism can act.
+- **"Slope far from −2 → the fitted slope is the finding, and 1/Pe² is the wrong
+  form" FIRED.** The registered prediction of a pure O(1/Pe²) scaling is
+  rejected at 6.6 standard errors, and the Re = 25 point is 3.5 times smaller
+  than predicted.
+- **No case was discarded**, so the third clause did not arise.
+
+**The finding is therefore the slope, −0.84 ± 0.18, and the form it rejects.**
+It does not name the mechanism. The adjacent-pair slopes are −1.45 (Re 25→50),
+−0.75 (50→100) and −0.34 (100→200): the four points steepen towards low Pe and
+flatten towards high Pe, which is **not the signature of any single power law**,
+and the R² of 0.918 with structured residuals says the same.
+
+## Exploratory, post hoc, NOT registered and NOT a verdict
+
+Because the local slope runs from −0.34 to −1.45, a two-term form was tried
+after the fact. A **Pe-independent floor plus a 1/Pe² term**, excess = A + B/Pe²,
+fits the four Richardson values to an RMS residual of **0.0017 pp** with
+**A = +0.082 %** and B = 134 %·Pe² (leave-one-out A = 0.080–0.083 %); the
+alternative A + B/Pe fits to 0.033 pp RMS, twenty times worse. Read as a
+hypothesis and nothing more: **the constant-Ts excess looks like a floor of
+about +0.08 % that does not depend on Pe, with a 1/Pe² term on top** — the
+registered form, but sitting on a floor the registration did not allow for. The
+floor is numerically close to the constant-flux arm's Re-independent h→0 excess
+of +0.0748 %, which the previous round found depends on Pr and not on Re.
+**That coincidence is noted, not claimed.** A model chosen after seeing four
+points, with two free parameters, fitting four points, is not evidence; it is a
+prediction for the next test, and it is registered as one below.
+
+## The Graetz entry residual at the station, computed rather than recalled
+
+The station rule puts every Re at x* = x/(D·Pe) ≈ 0.1255, so whatever
+thermal-entry residual remains there is common to all four points — but its
+size still matters for the floor. A Crank–Nicolson march of the classical Graetz
+problem (parabolic flow from the inlet, no axial conduction), verified to
+reproduce 3.6567934 at x* = 0.5 to 1.6e-6 and the bulk decay slope −2λ₀² =
+−14.627 to 1.2e-6, with a grid-halving change of 5e-6, gives a local excess at
+x* = 0.1255 of **+0.0051 %** — +0.0057 / +0.0051 / +0.0049 / +0.0050 % at the
+actual fine sample points of Re = 25 / 50 / 100 / 200. **The station is clear
+of the thermal entry by a factor of sixteen against the smallest excess
+measured.** Subtracting it moves the slope to −0.859 ± 0.177; nothing changes.
+
+**What the same computation rules out is the x-dependence.** Across the
+admissible window Graetz decays from +0.034 % (x* = 0.10) to +0.0003 %
+(x* = 0.157), a drop of 0.034 pp. The cases drop 0.315 / 0.174 / 0.145 /
+0.133 pp over the same window — four to nine times steeper. **The decline of Nu
+along x that the station sensitivity shows is not thermal entry development.**
+Something else is still developing along the pipe at 1.4–2.2 nominal
+hydrodynamic entry lengths, and the slug inlet velocity profile is the named
+candidate (see "cannot see", item 1, and the next test). The c/m/f station
+mismatch, put through the same curve, contributes at most 0.0036 pp to any
+level-to-level difference, 2 % of the smallest one it enters.
+
+## Heat-balance closure, every case
+
+Computed from the written fields and the mesh read from `polyMesh/points`,
+`faces`, `owner`, `boundary` — face areas validated against the wedge's chord
+geometry to 2e-16 (wall strip `L·2R_wall·tan(θ/2)`, inlet triangle
+`R_wall²·tan(θ/2)`, θ = 5.000000° read from the points) before any flux was
+summed. Kinematic units (W per ρc_p).
+
+| case | Q_wall | Q_inlet,cond / Q_wall | closure residual (Q_wall + Q_inlet,cond − Q_conv,net) / Q_wall |
+| --- | ---: | ---: | ---: |
+| `D_Ts_Re25_c` | 9.502e-07 | −14.01 % | +2.3e-10 |
+| `D_Ts_Re25_m` | 9.834e-07 | −16.91 % | +5.3e-10 |
+| `D_Ts_Re25_f` | 1.019e-06 | −19.80 % | +1.2e-09 |
+| `D_Ts_Re50_c` | 1.739e-06 | −6.01 % | +2.4e-10 |
+| `D_Ts_Re50_m` | 1.766e-06 | −7.48 % | +5.5e-10 |
+| `D_Ts_Re50_f` | 1.796e-06 | −9.00 % | +1.3e-09 |
+| `L_Ts_c` | 3.346e-06 | −2.33 % | −8.6e-13 |
+| `L_Ts_m` | 3.369e-06 | −2.98 % | +5.4e-10 |
+| `L_Ts_f` | 3.394e-06 | −3.70 % | +1.3e-09 |
+| `D_Ts_Re200_c` | 6.565e-06 | −0.85 % | −8.6e-14 |
+| `D_Ts_Re200_m` | 6.582e-06 | −1.11 % | +1.2e-11 |
+| `D_Ts_Re200_f` | 6.602e-06 | −1.42 % | +1.2e-09 |
+
+**Every case closes to 1.3e-09 or better**; mass flux in and out agree to
+1e-13; the phi-weighted outlet bulk temperature equals the last cell column's
+U- and V-weighted bulk to 1e-13 K; `alphat` is identically zero everywhere (the
+solution is laminar as declared). The naive column cross-check
+`ṁ(T_b,last − T_b,first)` under-reads by 6–26 % only because the first cell
+column, half a cell from the inlet, is already 0.6–2.6 K above T_in — the same
+fact as the next paragraph.
+
+**The inlet plane carries a conduction flux against the flow, and it grows
+with refinement.** It is −14.0 / −16.9 / −19.8 % of the wall heat input at
+Re = 25 on c/m/f, −6.0 / −7.5 / −9.0 % at Re = 50, −2.3 / −3.0 / −3.7 % at
+Re = 100, −0.85 / −1.11 / −1.42 % at Re = 200. It grows like log(1/h): the
+inlet is `fixedValue 300 K` and the wall `fixedValue 310 K`, so the corner cell
+sees a 10 K jump over a distance that halves with every refinement. **This is
+axial conduction, and it is the inlet boundary condition's, not the developed
+pipe's**: the extended-Graetz problem of the literature has an unheated upstream
+section into which the fluid may conduct, and these cases do not. The wall flux
+rises by exactly the same amount, because the outlet bulk is saturated at the
+wall temperature in every case and Q_conv,net = ṁ·10 K is fixed.
+
+## Station sensitivity, reported and never used to discard
+
+On the fine level the excess falls monotonically across the admissible window
+at every Re: from the 100 %-of-window bound to the 10 % bound it drops
+0.315 / 0.174 / 0.145 / 0.133 pp at Re = 25 / 50 / 100 / 200, which is 0.62,
+0.94, 1.31 and 1.52 times the h→0 excess being measured. The station rule fixes
+x* = x/(D·Pe) = 0.1255 at every Re, so this sensitivity is the same kind of
+thing at every point and does not bias the comparison across Re — but it is of
+the order of the signal and the registration did not anticipate it.
+
+## What this result cannot see
+
+1. **Which Péclet-dependent mechanism it is.** The Re lever moves Pe, but at
+   low Re it also moves the hydrodynamic development: the inlet is a uniform
+   slug, the station is 1.76–1.79 nominal hydrodynamic entry lengths down at
+   every Re, and the centreline velocity there is 1.9942 / 1.9958 / 1.9963 /
+   1.9964 times the bulk at Re = 25 / 50 / 100 / 200 against 1.99966 for the
+   exact parabola at that cell — a 0.29 % deficit at Re = 25 against 0.18 % at
+   Re = 200, because the creeping-flow correction to the entry length grows as
+   Re falls. A fuller profile raises Nu, and the Nu decline along x across the
+   window is four to nine times steeper than thermal entry allows, which is
+   what a profile still filling out would do. **Thermal axial conduction and
+   hydrodynamic under-development both scale the right way with Re and this
+   sweep cannot separate them.**
+2. **Whether the Pe-dependent part lives in the developed pipe or at the inlet
+   corner.** The inlet conduction flux is mesh-dependent and does not converge,
+   so part of what is measured downstream may be the corner singularity's
+   upstream reach rather than the developed-flow axial-conduction eigenvalue
+   shift of the extended Graetz problem.
+3. **The floor.** Whatever sits under the Pe term — about +0.08 % if the
+   post-hoc form is right — is exactly the size of the T1c constant-Ts GATE FAIL
+   (0.0865 % against a 0.0301 % band), and this sweep says nothing about what
+   it is, only that it does not move with Re.
+4. **Anything graded.** No band, no verdict, no T1c row moves.
+
+## Cost
+
+Nine serial solves, 14 419 s of wall = **4.00 core-hours, $0.21** at
+$0.0513/core-hour, plus about 25 s of post-processing per analysis run.
+
+## Standing verdict
+
+- **The wedge contributes nothing** (refuted at 12 significant figures).
+- **Axial conduction is refuted on the constant-flux arm** (empirically and
+  analytically).
+- **On the constant-Ts arm the excess IS Péclet-dependent, with a fitted
+  log–log slope of −0.84 ± 0.18 — the registered pure 1/Pe² form is rejected at
+  6.6 σ, and the slope is the finding.**
+- **The T1c constant-Ts GATE FAIL still has NO identified cause.** The part of
+  the excess that does not move with Re is the part the GATE FAIL turns on, and
+  it is unexplained on both arms.
+- **No T1c verdict has moved and none can move on this.**
+
+---
+
+# NEXT TEST, REGISTERED BEFORE IT IS BUILT, 2026-08-20 evening
+
+**`D_Ts_Re25_P` and `L_Ts_P`: the same two ladders with a PARABOLIC inlet
+velocity profile** (`fixedProfile`/coded Poiseuille `U = 2U_b(1 − (r/R)²)` at
+the inlet; T inlet, wall, mesh, Re, Pr, station rule all unchanged). Six cases,
+about 2.5 core-hours. With a parabolic inlet there is no hydrodynamic
+development at all, so the first thing this result cannot see is removed by
+construction, and the configuration becomes exactly the Graetz one (thermal
+entry only) that the reference 3.6567934 describes.
+
+**REGISTERED PREDICTIONS, both ladders compared h→0 against h→0 at the same
+stations:**
+
+- **If the Pe-dependent part is thermal (axial conduction) and the floor is not
+  hydrodynamic:** the Re = 25 h→0 excess stays at **+0.51 %** and the Re = 100
+  one at **+0.11 %**, each within its own GCI band of the slug-inlet value, and
+  their difference stays near 0.40 pp.
+- **If the Pe-dependent part is hydrodynamic under-development:** the Re = 25
+  excess falls towards the Re = 100 value and the difference shrinks to well
+  under 0.40 pp — by how much is not predicted, only the direction.
+- **If the floor is hydrodynamic:** the Re = 100 excess falls from +0.11 %
+  towards the Graetz entry residual at x* = 0.1255 quoted above.
+
+**Falsifying outcomes, registered now:** if both excesses move by less than
+their GCI bands, the hydrodynamic explanation is refuted for both the floor and
+the Pe term, and the inlet-corner hypothesis (item 2 above) is next. If the
+post-hoc floor + 1/Pe² form is right and hydrodynamics are not involved, the
+Re = 25 parabolic-inlet point lands at **+0.082 % + 134/17.75² = +0.507 %**; if
+it lands elsewhere, that form is dropped without a replacement being fitted to
+the same four points again.
+
+**Still diagnostic, still ungraded, and no T1c verdict can move on it.**
