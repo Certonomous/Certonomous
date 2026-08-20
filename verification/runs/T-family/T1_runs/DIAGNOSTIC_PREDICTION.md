@@ -473,6 +473,36 @@ candidate (see "cannot see", item 1, and the next test). The c/m/f station
 mismatch, put through the same curve, contributes at most 0.0036 pp to any
 level-to-level difference, 2 % of the smallest one it enters.
 
+## Addendum, 2026-08-20 evening: two independent checks of the above
+
+Two verification agents, briefed separately and using different numerical
+methods, re-derived the numbers in this section after it was drafted.
+
+- **Measurement**: re-running the frozen `analyse_t1c.measure` at
+  `amended_station` reproduces every Nu in `dts.json` bit for bit; the log–log
+  slope refits to −0.8359 ± 0.1763 in both hands.
+- **Graetz residual**: a second solver (L-stable BDF2 march, cross-checked
+  against a 40-eigenpair shift-invert expansion whose first five eigenvalues
+  match Graetz's 2.704364 / 6.679032 / 10.67338 / 14.67108 / 18.66987 to
+  1e-5) gives +0.00522 % at x* = 0.1255 against the +0.0051 % above. Its
+  first attempt, a Crank–Nicolson march, was wrong at large x* (Nu = 4.93 at
+  x* = 1 from parasitic non-decaying modes) and was discarded before any
+  number was reported — which is why the verification checks are stated
+  beside the numbers.
+- **The Re = 25 observed order**: correcting the c/m/f Nusselt differences for
+  the station mismatch using the measured fine-level x-slope (−0.32 pp/D)
+  takes the Re = 25 order from 4.88 to **2.25**, and the other three ladders
+  to 2.13 / 2.15 / 2.10. The 4.88 was a station-mismatch artefact, as the
+  section above suspected; the Re = 25 h→0 excess changes by 0.002 pp under
+  the correction and its 0.002 % GCI should be read as understated.
+- **Still exploratory**: leaving the exponent free in excess = A + B·Pe^s
+  lands at **s = −2.03** with A = +0.083 % on the h→0 values (one degree of
+  freedom) and at s = −2.003 with A = +0.059 % on the fine-level values (RMS
+  0.00015 pp). The floor differs between the fine level and h→0 (0.059 against
+  0.082 %), so it carries its own mesh dependence. Four points and three
+  parameters remain four points and three parameters; the registered next
+  test, not this fit, decides.
+
 ## Heat-balance closure, every case
 
 Computed from the written fields and the mesh read from `polyMesh/points`,
