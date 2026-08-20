@@ -2247,3 +2247,155 @@ is undefined where the converged RANS `k` underflows although `k_LES` does not
 none. Fix adopted: the masks are returned as `valid_les_only` and `valid` from
 `_common/score_prediction.py`, and every file that quotes a cell count now names
 the mask. **A bare cell count is not a specification.**
+
+
+## Closure-modelling numerics from the Kaandorp 2020 TBRF reproduction — appended 2026-08-20 (CLOSURE-REPRO, reviewed by supervisor)
+
+## The Pope tensor basis is rank-3 to rank-4 on every flow in this benchmark, and that is where a tensor-basis model's extrapolation error comes from
+
+Pope's integrity basis has 10 tensors `T^(1..10)`, so a tensor-basis model fits 10
+coefficients `g^(m)` per leaf/sample. **The 10 flattened basis tensors do not span
+10 dimensions on real data.** Measured here as the mean numerical rank (tol
+`1e-8 * max|T|`) of the 9x10 matrix `[T^(1) ... T^(10)]` at a cell, averaged over
+a 500-cell sample per case:
+
+| case | mean rank of the 10-tensor basis at a cell |
+|---|---|
+| `AR_1_Ret_360` (square duct) | **3.089** |
+| `AR_1_Ret_180` (square duct) | **3.09** |
+| `CBFS13700` (curved step) | **3.99** |
+| periodic hills | **3.82 - 3.98** |
+
+Pope's own statement that a 2-D mean flow needs only `T^(1..4)` is confirmed, and
+the ducts are *worse*, not better, despite being geometrically 3-D: their mean
+flow is 2-D in the cross-plane with a single dominant streamwise gradient.
+
+Two consequences, both measured:
+
+1. **Six of the ten fitted coefficients are unconstrained by the training data.**
+   With Kaandorp's regularisation `Gamma = 1e-12` the ridge does nothing at these
+   magnitudes, and the least-squares solution wanders freely in the null space.
+   Over all leaves of a 100-tree forest: `median |g| = 2.6e-5`, `p99 |g| = 3.4e4`,
+   `max |g| = 4.0e6`. Nine orders between the median and the 99th percentile.
+2. **Those coefficients are harmless in-distribution and catastrophic out of it**,
+   because the null directions differ between the training flow and the
+   prediction flow. Frobenius norms of the individual basis tensors, p99 over cells:
+
+   | | `T^(1)` | `T^(2)` | `T^(6)` | `T^(7)` | `T^(8)` | `T^(9)` |
+   |---|---|---|---|---|---|---|
+   | training pool (hills) | 34.6 | 1.69e3 | 4.15e4 | **1.02e6** | 1.02e6 | 5.86e5 |
+   | `AR_1_Ret_360` (duct) | 223 | 7.02e4 | 1.11e7 | **1.74e9** | 1.74e9 | 1.01e9 |
+
+   Three decades of extrapolation in `T^(7..9)`, multiplied by coefficients that
+   the training data never pinned down.
+
+**Practical rule.** Any model of the form `b = sum_m g^(m)(features) T^(m)` must
+either (a) report the numerical rank of `T` on the *prediction* case, (b) fit `g`
+in a basis truncated to that rank, or (c) regularise `g` at a magnitude that is
+meaningful relative to `sum T^T T` — `Gamma = 1e-12` against normal-equation
+entries of order `1e4` is `Gamma = 0`. Doing none of these produces a model that
+is excellent in-sample and unbounded out of it, which is exactly what was measured.
+
+## An RMS on a closure prediction hides the failure mode; report the distribution
+
+The preregistered metric was `b_rms_F = sqrt(mean ||b_pred - b_LES||_F^2)`, the
+convention of `_common/BASELINES.md`. On `CBFS13700`, the 16-feature TBRF gives
+(percentiles are 5-seed means of the per-seed percentiles):
+
+| statistic of `||b_pred - b_LES||_F` | value |
+|---|---|
+| median | **0.170** (SST's own `b_rms` is 0.319) |
+| p90 | 3.40 |
+| p99 | 153.9 |
+| max | 1.24e3 (single seed) |
+| **RMS (the reported metric)** | **47.68** (5-seed mean; the single seed shown above gives 37.96) |
+
+The median cell is *better than the industrial closure it is meant to replace*;
+the RMS is 156x worse. The two statements are about the same prediction. The
+mechanism is visible in one further number: **15.0 % of the predicted cells
+violate the hard bound `||b||_F <= sqrt(2/3) = 0.8165`**, which no realisable
+Reynolds stress can violate. Rescaling those cells onto the bound (a post-hoc
+projection, not a model) drops the RMS from 47.68 to **0.567**; on the held-out
+duct `AR_1_Ret_360` the same rescaling takes 6.38 to **0.411**.
+
+Report the median, p90, p99 and the fraction over `sqrt(2/3)` next to any
+anisotropy RMS. An RMS alone cannot distinguish a uniformly mediocre model from a
+good model with an unbounded tail, and only the second one diverges when you put
+it in a solver.
+
+## Durbin's time-scale bound is not Reynolds-similar and must not be applied across cases of different physical scale
+
+`_common/tensor_basis.py` bounds the turbulent time scale as
+`T = max(k/eps, 6 sqrt(nu/eps))` (Durbin). For the tensor-basis normalisation
+`S_hat = T * S`, that bound is **not** a small correction:
+
+| case | fraction of cells where the Durbin bound is the active branch | `k/eps` p99 | `T` actually used, p99 |
+|---|---|---|---|
+| `PHLL10595` | 8.85 % | 16.5 | 16.5 |
+| `alpha_15_13929_4048` | 11.3 % | 31.7 | 31.7 |
+| `CBFS13700` | **45.97 %** | 170.4 | **4045** (24x) |
+| `AR_1_Ret_360` | **71.77 %** | 2.27e-4 | 5.34e-3 -- max 0.559 (**2500x**) |
+
+`k/eps` is Reynolds-similar: it is a ratio of the flow's own quantities and its
+invariants are dimensionless whatever the units. `6 sqrt(nu/eps)` is not: it
+introduces `nu` explicitly, so it scales with the case's physical size and
+Reynolds number. The hills are non-dimensional (`H = 1`, `nu = 1.786e-4`); the
+ducts are dimensional (`h = 1 mm`, `nu = 1.5e-5`). Applying the bound to both puts
+their normalised strain tensors in different regimes and **destroys the very
+similarity a tensor-basis feature set exists to exploit**.
+
+The bound is correct for its own purpose — preventing `T -> 0` at a wall where `k
+-> 0` at finite `eps`. It is wrong wherever `k` and `eps` vanish together, because
+then `6 sqrt(nu/eps) -> infinity` while `k/eps` stays finite. Kaandorp's eq. (7)
+uses `k/eps` with no bound and is right to.
+
+**The effect was isolated by rerunning the identical pipeline with the bound
+removed**, same seeds, same splits, same code. On the strictly held-out square
+duct `AR_1_Ret_360`, the 16-feature TBRF's held-out anisotropy error goes from
+`b_rms_F = 6.382 +/- 2.110` (bound on) to **`0.3160 +/- 0.0080`** (bound off) --
+from 10.9x worse than the k-omega SST baseline (0.5843) to **45.9 % better** than
+it. The extrapolation statistic moves with it: the Mahalanobis p95 of the duct's
+feature vectors against the training cloud falls from **36.00** to **6.20**,
+against a training-sample p95 of 6.59. One `np.maximum` in a shared helper module
+was the difference between a model that extrapolates and one that does not.
+
+## Storing an anisotropy tensor as float32 fabricates realisability violations
+
+`b_LES` on `CBFS13700` has **4.60 % of cells sitting exactly on an edge of the
+barycentric triangle** — minimum barycentric coordinate exactly `0.0` in float64.
+Round-tripping through float32 moves them to `-2.98e-8`, and a zero-tolerance
+Schumann realisability test then reports 4.60 % of the *reference DNS/LES data* as
+unrealisable. It is not; the same data in float64 reports 0.00000 %.
+
+Any realisability fraction quoted from a float32 array needs a tolerance above
+`3e-8`. This run uses `tol = 1e-7`, which is six orders below any physically
+meaningful violation and clears the float32 floor. `BASELINES.md` sec. 5 computes
+in float64 and is unaffected; its CBFS truth row (0.0000) is the correct one.
+
+## Wall distance from `polyMesh` wall patches: exact in the median, 0.5 % in L2
+
+The `DUCT`, `PH_Breuer` and `CBFS` cases ship no `walldist`. Computing it as the
+distance from each cell centre to the nearest face centre **or vertex** of a
+patch of `type wall`, and checking against the `walldist` OpenFOAM itself wrote on
+the 29 hills:
+
+* median cellwise relative error **2e-15 to 1e-14** — machine precision,
+* relative L2 over the whole field **0.055 % to 0.47 %**,
+* worst absolute error 0.004 to 0.049 hill-heights,
+
+i.e. exact everywhere except a handful of cells where the true nearest point on a
+wall face is neither its centre nor one of its vertices. Good enough for a
+wall-distance Reynolds number; not good enough for a `y+`-critical quantity
+without refining the target point set.
+
+## Cost, measured
+
+100 tensor-basis decision trees on 21,000 samples x 16 features, 10x10
+least-squares at every candidate split, exact brute-force threshold search below
+2048 samples per node and 128 quantile candidates above it, `min_samples_leaf = 9`:
+**85 s wall on 16 cores** (~0.38 core-hours per forest), 1817 leaves per tree.
+Fully grown (`min_samples_leaf = 1`): 127 s, 13,201 leaves per tree. The prefix-sum
+trick — accumulating `A_i = That_i^T That_i` and `c_i = That_i^T bhat_i` once per
+sample and taking a cumulative sum over the feature-sorted order — makes an exact
+brute-force split search cheaper than the paper's Brent 1-D search and removes the
+paper's own 150-sample fallback threshold entirely.

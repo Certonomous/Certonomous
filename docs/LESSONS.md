@@ -8184,3 +8184,100 @@ difference is the trailing newline a `cat > file <<EOF` heredoc always writes, s
 the heredoc's exact output, and no later `Edit` or `sed -i` on the path exists in any transcript. Write
 that chain down - body hash, semantics of the writing tool, search for later edits - rather than
 either asserting byte-identity bare or refusing to assert it when the evidence is in hand.
+
+## L-183. A second moment is not a verdict: the same closure prediction was 156x worse than the baseline and better than it, depending on which statistic of the same error field was reported
+
+The Kaandorp & Dwight 2020 TBRF reproduction preregistered
+`b_rms_F = sqrt(mean ||b_pred - b_LES||_F^2)` as its metric, because that is the
+convention `_common/BASELINES.md` uses for the k-omega SST comparator and the
+comparison had to be apples to apples. On the curved backward-facing step the
+16-feature forest returned `b_rms_F = 47.68 +/- 46.40` (5 seeds) against an SST
+baseline of 0.3051. Read as a verdict that is a rout: the machine-learned closure
+is 156x worse than the industrial model it is meant to replace.
+
+The error field says something else. Its **median** is 0.170 — better than SST's
+own `b_rms` of 0.319. Its p90 is 3.40 and its p99 is 153.9. The RMS is a report on
+the tail, and the tail is **15.0 % of cells** whose predicted anisotropy violates
+`||b||_F <= sqrt(2/3)`, a bound no realisable Reynolds stress can violate at all.
+Projecting exactly those cells back onto the bound — a post-hoc rescaling that
+adds no information — takes the RMS from 47.68 to **0.567**.
+
+Neither number is wrong. "The model is 156x worse than the baseline" and "the
+model beats the baseline in the median cell and is unbounded in a seventh of them"
+are both true, and only the second one tells you what to fix. A single moment
+cannot distinguish uniform mediocrity from a good model with a divergent tail, and
+those two failures need opposite responses: retrain versus constrain.
+
+Standing rule for this lab's closure work, now applied in
+`Kaandorp2020_TBRF/RESULTS.md`: **report the median, p90, p99 and max of the error
+field beside any RMS, and beside them the fraction of predictions that violate a
+hard physical bound.** If a physical bound exists for the quantity — and for the
+anisotropy tensor one does — the violating fraction is the first number, not a
+footnote, because it is the one that predicts what happens in a solver.
+
+The preregistered verdict still stands on the preregistered metric. It has to:
+choosing the statistic after seeing which one flatters the model is the whole
+reason preregistration exists. The distribution goes *next to* the verdict, not
+in place of it.
+
+## L-184. The stabiliser inherited from a sibling pipeline was the destabiliser, and the preregistration is what made that finding legible instead of embarrassing
+
+`_common/tensor_basis.py` bounds the turbulent time scale below by Durbin's
+`6 sqrt(nu/eps)`. It was written for the sibling TBNN reproduction, it is a
+standard and defensible guard against `T -> 0` at a wall, and this reproduction
+inherited it and **disclosed it as departure D2 in `PREREGISTRATION.md`, with the
+stated reason "`k/eps` is unbounded in the low-`k` freestream"**.
+
+That reason was wrong, and the departure was the single largest error source in
+the run. `k/eps = 1/(0.09 omega)` is bounded wherever `omega` is; it is
+`6 sqrt(nu/eps)` that diverges when `k` and `eps` vanish together. Worse, `k/eps`
+is Reynolds-similar and `6 sqrt(nu/eps)` is not — it carries `nu` explicitly, so
+it means something different on a non-dimensional periodic hill (`H = 1`) than on
+a duct meshed in millimetres. The bound was the active branch in **72 % of duct
+cells and 46 % of step cells** against 9-11 % of the training hills, and it
+inflated the normalised time scale by up to **2500x** on the duct. A feature set
+whose entire purpose is to make different flows comparable was being handed
+features that were not comparable.
+
+What made this recoverable rather than a silent bias:
+
+- The departure was **written down before the run**, with its rationale, so when
+  the results came back wrong the rationale could be checked and found false.
+  An undocumented `np.maximum` in a helper module would have been invisible.
+- The rationale was **falsifiable and cheap to test**: one script measuring which
+  branch of the `max` is active, per case. Four minutes.
+- The fix was run as a **labelled post-hoc diagnostic**, not swapped into the
+  headline. The preregistered configuration keeps its verdict; the corrected
+  configuration is reported beside it as "post-hoc, would have been". Relabelling
+  the better run as the headline is how a tuned result gets published as a
+  preregistered one.
+
+The general shape: **a numerical guard copied from a neighbouring case is an
+untested assumption about the new case**, and guards that mention a material
+property (`nu`, `rho`, a length) rather than only the flow's own quantities are
+the ones that break similarity between cases. Check which branch of every
+`max`/`min`/clip is actually active, per case, and report the fraction.
+
+## L-185. Reproducing a paper's headline contrast means reproducing its confound too, and the honest move is to run both arms
+
+Kaandorp & Dwight's Table 3 is the evidence for the claim this lab flagged as F18
+— that the feature set matters more than the model class. Their case C3 (5
+features) and case C4 (17 features) are the two arms. But the paper states, in the
+same paragraph, that C3 also used **fully grown trees and all features per split**
+while C4 used **9 samples per leaf and 11 of 17 features**. The two arms differ in
+the feature set *and* in the tree depth *and* in the split randomisation.
+
+A reproduction has two defensible choices and they answer different questions:
+run the paper's exact pair, and you reproduce a confounded contrast; hold
+everything but the feature set fixed, and you test the claim the contrast is used
+to support but no longer reproduce the paper.
+
+We preregistered the second as the headline and the first as a secondary, said so
+before running, and got numbers that differ: the paper-faithful fully-grown
+5-feature configuration beat the depth-matched one on every held-out case. Had we
+run only one arm we would have reported either "the claim reproduces" or "it does
+not" with equal confidence and no way to tell which effect we had measured.
+
+**When a paper's headline comparison changes more than one thing, say which one
+you are testing, run both if they are cheap, and never let the choice be made
+after the numbers are in.** Here both arms together cost under two core-hours.
