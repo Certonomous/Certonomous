@@ -6812,3 +6812,42 @@ matches `0.orig`, and refused all 18 cases in 45 seconds. That is the correct
 way for a guard to fail — loudly, immediately, and before spending anything.
 Test a guard against a planted positive as well as a clean case; this one was
 run against a contaminated directory and confirmed to fire only there.
+
+## L-144. A retrieved paper is verified by its printed title page, never by its file type or its hash — a manifest can be internally consistent and externally false
+
+The closure-modelling paper corpus (`docs/papers/closure/`, 42 PDFs) was
+built by a retrieval agent that *guessed* arXiv identifiers from author and
+year, downloaded whatever each identifier resolved to, checked that the bytes
+were a PDF, and recorded a sha256 beside the intended citation. Every guessed
+identifier resolves to a real paper — just not the intended one. Thirty of the
+42 files were unrelated papers. `Beck2019_deep_neural_les.pdf` (sha256
+`babf0415...`) was Kurth et al., *Exascale Deep Learning for Climate
+Analytics*; the 77-page "Gatski & Speziale 1993" was a 1996 handbook chapter;
+a paper uploaded by hand as "Parish & Duraisamy 2016" was a Schrodinger-Poisson
+solver paper from the same journal volume. The manifest certified all of them:
+right filename, right size, right hash, wrong document.
+
+**Nothing downstream of a wrong PDF can be right, and nothing downstream can
+detect it.** A catalogue entry, an equation number, a "headline result with
+numbers" extracted from the wrong paper is not an error in the extraction; it
+is fiction with a citation. The defect was caught only because a sub-agent
+extracted page 1 of every file and read the printed title against the manifest
+claim before citing anything — which is the one check the retriever never did.
+
+Guards, all cheap, all now standing for the closure team:
+
+- A manifest row is `RETRIEVED-VERIFIED` only when the **printed title on
+  page 1** has been extracted and matched to the intended citation; the
+  verified title is recorded beside the hash. File type, size, hash and a
+  successful HTTP 200 prove that *a* file arrived, not *which* file.
+- The check runs again at every phase boundary, because files keep arriving,
+  and anything cited from a file not yet on disk is tagged
+  `SECOND-HAND-UNVERIFIED` (from memory) or `BLOCKED-ON-SOURCE` (not written).
+- Hand uploads are not exempt: the "Parish 2016" upload was wrong too.
+- The retrieval agent's supervisor verifies a *sample of title pages*, not the
+  manifest's tidiness. A tidy manifest is what this failure mode looks like.
+
+The cost of the defect: two full sub-agent reading passes, part of a paper
+catalogue and part of a foundational-models inventory written against wrong
+sources and now being re-audited line by line. The cost of the guard: one
+`pdftotext -l 1` per file.
