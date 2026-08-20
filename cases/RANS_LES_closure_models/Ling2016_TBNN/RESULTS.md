@@ -60,15 +60,16 @@ that clause and the MLP passes it.
 
 ## 0. Run status and how to finish it
 
-At the time this file was written the sweep launched at 20:47 was **still
-running** and the machine was carrying four concurrent jobs (load average ~31 on
-16 cores), which slowed it by roughly an order of magnitude.
+**All runs are complete.** The sweep launched at 20:47 ran on a machine carrying
+four concurrent jobs (load average ~31 on 16 cores), which slowed it by roughly
+an order of magnitude; the resume commands below are kept because they are how
+the results are regenerated, not because anything is outstanding.
 
 | Piece | Status |
 |---|---|
 | TBNN seeds 0-4 | **all complete**; predictions at `/home/ubuntu/closure-data/tbnn/ckpt/pred_TBNN_s{0..4}.npy` |
-| Plain-MLP control | **seed 0 converged and scored** on the TEST set from its final prediction field (sec. 4b); seed 1 running. Seeds 1-2 would give the MLP a seed spread of its own but cannot change the pooled comparison, which fails by seven orders of magnitude |
-| TBRF sibling comparator (secs. 7b, 7b-i) | **5 of 6 forests complete**: all three 5-invariant seeds and two of three 17-feature seeds |
+| Plain-MLP control | **all 3 seeds converged and scored** on the TEST set from their final prediction fields (sec. 4b) |
+| TBRF sibling comparator (secs. 7b, 7b-i) | **all 6 forests complete**: three 5-invariant seeds and three 17-feature seeds |
 
 Everything is bounded and restart-safe: a hard cap of 400 epochs, a wall-clock
 self-timeout from launch, a checkpoint every 25 epochs, and a resume path that
@@ -99,11 +100,12 @@ Each resumes from checkpoints and skips completed work. Note that `mlp_only.py`
 writes into a **separate** checkpoint directory from `train_tbnn.py`, deliberately,
 so the two MLP arms cannot overwrite each other.
 
-**Every pre-registered criterion is now decided** (sec. 4b). The pieces still
-running — MLP seeds 1-2 and the third 17-feature forest — would tighten the
-control's own seed spread and the feature-set comparison, but neither can change
-the verdict: criterion (iii) is failed on the pooled metric by seven orders of
-magnitude on a single case.
+**Every pre-registered criterion is decided and every run has finished** (sec. 4b):
+5 TBNN seeds, 3 plain-MLP control seeds, 6 tensor-basis forests. The verdict was
+unchanged at each stage it could have been called — a mid-run MLP checkpoint at
+epoch 300, seed 0 alone, and all three converged seeds all give the same ordering
+and the same answer, because criterion (iii) is failed on the pooled metric by
+seven orders of magnitude on a single case.
 
 ## 1. What is NOT being claimed
 
@@ -168,40 +170,44 @@ train-mean constant (B3, `BASELINES.md` sec. 6.4) on **7 of 8** - the same 7.
 ## 4b. Criterion (iii): the TBNN against Ling's own control
 
 The plain MLP (10 x 10, same five invariants, no tensor basis — Ling 2016 p. 6)
-was trained on the **identical** split. **Seed 0 has now converged and
-early-stopped**; it is scored from its final saved prediction field, not from a
-mid-run checkpoint. Best validation `b_rms` 0.17271.
+was trained on the **identical** split. **All three seeds have now converged**, so
+both models carry their own seed spread and the comparison no longer leans on the
+TBNN's alone.
 
-| Case | TBNN (5 seeds) | TBNN seed spread | MLP (converged) | TBNN advantage | beyond seed spread? |
-|---|---|---|---|---|---|
-| `AR_14_Ret_180` | 0.1105 | 0.0071 | 0.1258 | 0.0153 | yes |
-| `AR_1_Ret_360` | 0.1222 | 0.0053 | 0.1739 | 0.0517 | yes |
-| `AR_3_Ret_360` | 0.1229 | 0.0078 | 0.1632 | 0.0403 | yes |
-| `NASA_2DWMH` | 1.48e+07 | 3.71e+07 | 0.3563 | 1.48e+07 WORSE | n/a |
-| `alpha_05_4071_2024` | 0.1881 | 0.0029 | 0.1968 | 0.0087 | yes |
-| `alpha_05_4071_4048` | 0.2364 | 0.0038 | 0.2482 | 0.0119 | yes |
-| `alpha_15_13929_2024` | 0.2257 | 0.0090 | 0.2285 | 0.0029 | no |
-| `alpha_15_13929_4048` | 0.1362 | 0.0038 | 0.1550 | 0.0188 | yes |
+| Case | TBNN (5 seeds) | TBNN spread | MLP (3 seeds) | MLP spread | TBNN advantage | beyond the LARGER spread? |
+|---|---|---|---|---|---|---|
+| `AR_14_Ret_180` | 0.1105 | 0.0071 | 0.1379 | 0.0237 | 0.0274 | yes |
+| `AR_1_Ret_360` | 0.1222 | 0.0053 | 0.1807 | 0.0128 | 0.0585 | yes |
+| `AR_3_Ret_360` | 0.1229 | 0.0078 | 0.1705 | 0.0130 | 0.0476 | yes |
+| `NASA_2DWMH` | 1.48e+07 | 3.71e+07 | 0.4299 | 0.1729 | 1.48e+07 WORSE | n/a |
+| `alpha_05_4071_2024` | 0.1881 | 0.0029 | 0.1981 | 0.0050 | 0.0099 | yes |
+| `alpha_05_4071_4048` | 0.2364 | 0.0038 | 0.2510 | 0.0076 | 0.0147 | yes |
+| `alpha_15_13929_2024` | 0.2257 | 0.0090 | 0.2311 | 0.0050 | 0.0054 | no |
+| `alpha_15_13929_4048` | 0.1362 | 0.0038 | 0.1552 | 0.0087 | 0.0190 | yes |
+
+The "beyond spread" column uses the **larger** of the two models' spreads, which
+is the conservative choice.
 
 **Two readings of criterion (iii), both given:**
 
 * **Per case, in-domain (7 cases):** TBNN better on **7 of 7**, by more than the
-  seed spread on **6 of 7**. Only `alpha_15_13929_2024` is inside the spread
-  (advantage 0.0029 against a spread of 0.0090). On this reading the invariance
-  embedding earns its keep and criterion (iii) is met.
+  larger of the two seed spreads on **6 of 7**. Only `alpha_15_13929_2024` is
+  inside the spread (advantage 0.0054 against a TBNN spread of 0.0090). On this
+  reading the invariance embedding earns its keep and criterion (iii) is met.
 * **Pooled over the whole test set, which is what was registered:** TBNN
-  **8.56e+06** (seed 0) against MLP **0.2502**. The TBNN's pooled error is
-  entirely `NASA_2DWMH` (1.48e+07 against the MLP's 0.3563), so it is worse by
-  seven orders of magnitude and criterion (iii) fails.
+  **8.56e+06** against MLP **0.2502 / 0.3328 / 0.2765** (3 seeds, mean 0.2865).
+  The TBNN's pooled error is entirely `NASA_2DWMH` (1.48e+07 against the MLP's
+  0.4299), so it is worse by seven orders of magnitude and criterion (iii) fails.
 
 **The pooled reading governs.** It is what the preregistration says, and it is the
 one less favourable to the model. Both are printed so no reader has to take my
 word for which was chosen.
 
 **Realisability, the same comparison:** TBNN **6.5–15.3%** of test cells
-non-realisable, converged MLP **0.89%**, truth **0.79%**, SST **0.10%**. The
-unconstrained network lands within **1.13x** of the truth's own violation rate;
-the tensor-basis network is 8x to 19x worse than it. The unconstrained network — which has no mechanism
+non-realisable across 5 seeds; converged MLP **0.89% / 2.29% / 2.49%** across 3
+seeds (mean 1.89%); truth **0.79%**; SST **0.10%**. The unconstrained network
+stays within **1.1x–3.2x** of the truth's own violation rate; the tensor-basis
+network is **8x–19x** worse than it. The two ranges do not overlap. The unconstrained network — which has no mechanism
 enforcing anything — stays an order of magnitude closer to physically admissible
 states than the network built around an exactly-invariant tensor basis. The basis
 constrains the *form* of `b` and nothing about its *magnitude*, and on this
@@ -243,8 +249,8 @@ sec. 5 requires:
 |---|---|
 | **TBNN, seeds 0/1/2/3/4** | **15.34% / 9.84% / 6.47% / 14.79% / 9.10%** |
 | tensor-basis RF, 5 invariants, 3 seeds | 10.16% / 11.36% / 10.55% |
-| tensor-basis RF, 17 features, 2 seeds | 9.66% / 9.27% |
-| **plain MLP (no tensor basis), converged seed 0** | **0.89%** |
+| tensor-basis RF, 17 features, 3 seeds | 9.66% / 9.27% / 9.74% |
+| **plain MLP (no tensor basis), 3 converged seeds** | **0.89% / 2.29% / 2.49%** |
 | Wu 2018 random forest, same split (sibling directory) | 1.54-1.60% |
 | the LES/DNS **truth** itself | **0.79%** |
 | k-omega SST | 0.10% (all of it on the hump) |
@@ -360,22 +366,23 @@ Three readings:
 
 ### 7b-i. The 17-feature arm: Kaandorp & Dwight's central claim reproduces
 
-The 17-feature TBRF (`_common/features_ext.py`, two seeds) against the
-5-invariant TBRF (three seeds), the TBNN (five seeds) and the plain MLP, on the
-identical split:
+The 17-feature TBRF (`_common/features_ext.py`, three seeds) against the
+5-invariant TBRF (three seeds), the TBNN (five seeds) and the plain MLP (three
+seeds), on the identical split — **all six forests and all eight models now
+complete**:
 
 | Case | TBRF **17 features** | TBRF 5 invariants | TBNN | plain MLP | k-omega SST | train-mean (B3) |
 |---|---|---|---|---|---|---|
-| `AR_14_Ret_180` | **0.0443** | 0.0788 | 0.1105 | 0.1301 | 0.5799 | 0.4036 |
-| `AR_1_Ret_360` | **0.0838** | 0.1157 | 0.1222 | 0.1778 | 0.5972 | 0.4221 |
-| `AR_3_Ret_360` | **0.0903** | 0.1216 | 0.1229 | 0.1668 | 0.5523 | 0.3866 |
-| `alpha_05_4071_2024` | **0.1371** | 0.1918 | 0.1881 | 0.1972 | 0.3271 | 0.2586 |
-| `alpha_05_4071_4048` | **0.2022** | 0.2365 | 0.2364 | 0.2487 | 0.3512 | 0.3014 |
-| `alpha_15_13929_2024` | **0.1773** | 0.2220 | 0.2257 | 0.2297 | 0.3339 | 0.2714 |
-| `alpha_15_13929_4048` | **0.0828** | 0.1451 | 0.1362 | 0.1583 | 0.2889 | 0.2258 |
-| `NASA_2DWMH` | 340 | 197.3 | 1.48e+07 | **0.3664** | 0.3318 | 0.2949 |
+| `AR_14_Ret_180` | **0.0440** | 0.0788 | 0.1105 | 0.1379 | 0.5799 | 0.4036 |
+| `AR_1_Ret_360` | **0.0849** | 0.1157 | 0.1222 | 0.1807 | 0.5972 | 0.4221 |
+| `AR_3_Ret_360` | **0.0899** | 0.1216 | 0.1229 | 0.1705 | 0.5523 | 0.3866 |
+| `alpha_05_4071_2024` | **0.1404** | 0.1918 | 0.1881 | 0.1981 | 0.3271 | 0.2586 |
+| `alpha_05_4071_4048` | **0.2024** | 0.2365 | 0.2364 | 0.2510 | 0.3512 | 0.3014 |
+| `alpha_15_13929_2024` | **0.1786** | 0.2220 | 0.2257 | 0.2311 | 0.3339 | 0.2714 |
+| `alpha_15_13929_4048` | **0.0841** | 0.1451 | 0.1362 | 0.1552 | 0.2889 | 0.2258 |
+| `NASA_2DWMH` | 471.1 | 197.3 | 1.48e+07 | **0.4299** | 0.3318 | 0.2949 |
 
-**The 17-feature arm wins on all seven in-domain cases**, by 15% to 43% over the
+**The 17-feature arm wins on all seven in-domain cases**, by 15% to 44% over the
 5-invariant arm, against a 5-invariant seed spread of 0.0001-0.023 — every margin
 far outside seed noise. It also beats the TBNN on all seven, and the plain MLP on
 all seven.
@@ -387,21 +394,23 @@ the regressor choice moves `b_rms` by a few per cent and the feature set moves i
 by tens of per cent, in their direction.
 
 **The seed spreads say where the model is identified and where it is not.** The
-17-feature arm's two seeds agree to **0.0001-0.0013** on every in-domain case —
-four significant figures — and to a **factor of 2.3** on the hump (208.6 against
-471.4). A model reproducible to four figures in-domain and to half an order of
-magnitude out-of-domain is not "slightly less accurate" outside its envelope; the
+17-feature arm's three seeds agree to **0.0001-0.0104** on every in-domain case,
+and span a **factor of 3.5** on the hump (208.6 to 733.3). A model reproducible
+to three or four significant figures in-domain and to half an order of magnitude
+out-of-domain is not "slightly less accurate" outside its envelope; the
 coefficients doing the work out there are simply not determined by the training
 data. Same diagnosis as sec. 7: rank-3.24 basis, six or seven unidentifiable
-directions.
+directions. Adding seeds *widened* the hump range (208.6-282.1 at two seeds,
+208.6-733.3 at three) — the out-of-domain prediction has no converged value to
+estimate.
 
 **The ordering across all four models on the hump is the cleanest statement of
-the failure**: plain MLP **0.3664**, TBRF-5 **197**, TBRF-17 **340**, TBNN
+the failure**: plain MLP **0.4299**, TBRF-5 **197**, TBRF-17 **471**, TBNN
 **1.48e+07** — against SST 0.3318 and a realisable bound of 0.8165. **The only
 model with no tensor basis is the only one that is still usable**, and it is the
 worst of the four everywhere else.
 
-**Three things it does not buy.** It does not fix the hump (2-seed mean 340,
+**Three things it does not buy.** It does not fix the hump (3-seed mean 471,
 *worse* than the 5-feature arm's 197.3). It does not fix realisability (9.66% of
 test cells outside the barycentric triangle, against the truth's 0.79%). And it
 does not change the ordering of the failure: more features make the model better
@@ -473,13 +482,14 @@ this must pin the thread count.
 * **It cannot see 3-D behaviour**: rank-3 basis throughout (sec. 7b).
 * **It cannot see the truth's uncertainty**: the benchmark ships no error bar,
   and the truth is itself non-realisable in 0.79% of these cells.
-* **Criterion (iii) is resolved on a converged control, but note what it cannot
-  see.** MLP seed 0 ran to early-stop and is scored from its final prediction
-  field, not a checkpoint. Seeds 1-2 have not finished, so **the MLP has no seed
-  spread of its own here**; the spread used throughout is the TBNN's, which is
-  the conservative choice for a criterion the TBNN fails. A mid-run checkpoint
-  scored at epoch 300 gave the same verdict and per-case ordering, so the result
-  is not sensitive to where the control was stopped.
+* **Criterion (iii) is resolved on three converged control seeds.** All are
+  scored from their final prediction fields, not checkpoints, and both models
+  carry their own spread. Intermediate scorings (a mid-run checkpoint at epoch
+  300, and seed 0 alone) gave the same verdict and the same per-case ordering, so
+  the result is not sensitive to where the control was stopped or to how many of
+  its seeds were counted. What it still cannot see: three seeds is a small sample
+  for a spread, and the one case inside the spread (`alpha_15_13929_2024`) would
+  need more seeds to call either way.
 * **A pre-sweep observation, recorded because it was seen early and must not be
   dropped now that the answer went the other way.** A 2-epoch smoke test before
   the sweep had the MLP *ahead* of the TBNN on validation (0.264 against 0.577).

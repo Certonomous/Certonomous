@@ -1,11 +1,15 @@
 # Certonomous Closure Modelling Charter
 
-Version 1.0, dated 2026-08-20. Governs every data-driven turbulence closure this lab
+Version 1.1, dated 2026-08-20. Governs every data-driven turbulence closure this lab
 trains, scores, reproduces or reports: RANS anisotropy models, field inversion, LES
 subgrid-scale models, wall models, differentiable and solver-in-the-loop training, and the
 uncertainty and aggregation methods filed beside them. It binds the four case directories
 under `cases/RANS_LES_closure_models/`, the corpus under `docs/papers/closure/`, and any
 closure claim that reaches a record, a certificate or a camera surface.
+
+**Version 1.1 adds section 22**, the binding half of Sanaa's closure-line restart ruling of
+2026-08-18. It is additive: **nothing in 1.0 was weakened**, and §22.2 tightens §7 rather than
+replacing it. Sections 20 and 21 are unchanged; the old §22 and §23 are renumbered 23 and 24.
 
 It is the **eleventh** charter — the tenth was `FILING_CHARTER.md`, whose adoption on
 2026-08-18 was never reflected in `README.md` §1 (see §21.2). It exists because the first phase of closure work produced, in one
@@ -689,6 +693,12 @@ take:**
 > **(a) is preferred**: it fixes the instrument rather than restating the rule the instrument
 > already failed to apply.
 
+**Added in version 1.1, and disclosed here as well as at the head of the section itself:**
+**§22** records the binding half of Sanaa's closure-line restart ruling of 2026-08-18. It changes
+no other charter. Inside this one it **strengthens §7** — continuity stops being a reporting duty
+and becomes a design constraint — and it **adds two standing gates to §5**. Both are tightenings;
+no clause was relaxed. The old §22 and §23 became §23 and §24.
+
 **No other charter sentence was contradicted by the closure work.** Three were checked closely
 and each holds as written: `VERIFICATION_CHARTER.md` §2c's trivial-baseline rule (§3 above is
 its closure instance, not a competitor), §2b's amendment rule (§11 above adds a step and
@@ -713,7 +723,131 @@ undisclosed at the time.
 
 ---
 
-# 22. Related
+# 22. Closure line restart doctrine (Sanaa, 2026-08-18) — added 2026-08-20
+
+**Added in version 1.1.** This section records the **binding** half of Sanaa's closure-line
+restart ruling of 2026-08-18, amended by her the same day, relayed by the coordinator on
+2026-08-20 and recorded after Phases 1-4 closed. **The full ruling — the eight-shelf library, the
+ingestion protocol, the R1-R6 rebuild program, the FS1-FS6 feature-selection program and the
+two-repo doctrine — is `docs/closure/CLOSURE_LINE_RESTART_DOCTRINE.md`.** Every clause below points
+at it.
+
+**It is additive.** §22.2 **strengthens §7** and §22.5 **adds two standing gates to §5**; nothing in
+version 1.0 was weakened. **Recording it started nothing**: no shortlist was drawn, no
+feature-selection run was made, no repository was created.
+
+## 22.1 One model, applied uniformly to all eight cases
+
+> **The closure line runs ONE closure model applied uniformly to all eight cases. Per-case
+> switching is not a model. A mixture is permitted only when the same mixture law is applied
+> everywhere and was learned once — the mixture law is then the single model.**
+
+The round-5 heterogeneous entry is **NOT SENT**. Its record stays internal R&D with full honest
+documentation, and external surfaces drop leaderboard claims or keep only the internal-scoring
+phrasing Sanaa approves.
+
+Doctrine file: **The ruling**, and **Part 1/1b**, note on shelf H.
+
+## 22.2 Corrections live inside the solved equations — re-solve, not post-hoc
+
+> **A correction is applied inside the equations that are then solved, and the field is
+> re-solved. A post-hoc correction applied to a converged field is not a closure model and may
+> not be entered in a scoring round.**
+
+**This strengthens §7 and does not replace it.** §7 makes RMS `div(U)` a **reporting duty** for any
+post-hoc correction; §22.2 makes continuity a **design constraint** — R1's words are "continuity by
+construction". §7 continues to bind every post-hoc correction the lab makes for diagnostic or
+comparison purposes, and the number it requires is the one that shows why this clause exists: the
+lab's own published floor is **10.5%** RMS `div(U)`.
+
+Doctrine file: **The ruling** (2), and **Part 3, R1**.
+
+## 22.3 Zero-shot transfer discipline
+
+> **Train on training flows only. A test family is touched ONCE per scoring round, and nothing is
+> touched per case.**
+
+Doctrine file: **Part 3, R1**.
+
+**Cross-reference.** `VERIFICATION_CHARTER.md` §11 owns the rule that nothing fitted may be a
+scored case of a benchmark the lab reports against; §10 above owns the in-family / out-of-family
+label. This clause fixes the **budget**: one touch per family per round.
+
+## 22.4 Every prediction ships the model-form band
+
+> **No prediction is reported without its model-form uncertainty band, derived from the shelf-D
+> lineage.**
+
+Doctrine file: **Part 3, R1**, and **Part 1/1b**, shelf D — including that shelf D is also the
+uncertainty envelope around any mixture.
+
+**Open action, recorded not resolved:** the canonical implementation paper for shelf D is
+**FABLE's to select**, and is not selected. **Emory 2013 and Iaccarino 2017 are both PENDING-MIT**
+(`MANIFEST.md` §4), so this clause cannot yet be executed from a title-verified source.
+
+## 22.5 FS2 degeneracy audit and FS5 extrapolation-coverage check are standing gates
+
+> **FS2 — before any training, and per family: per-feature variance, range coverage and
+> feature-matrix rank. Anything algebraically zero or near-constant is flagged BEFORE training,
+> and a coverage report ships with every model.**
+>
+> **FS5 — every feature's test-family range is checked against its training range. Beyond a
+> declared factor the response is retrain-coverage expansion, or explicit documented
+> acceptance.**
+
+**These add to §5, which already requires a feature-distance statistic, the tensor-basis rank check
+and the two asymptotic tests.** §5 detects extrapolation at deployment; FS2 detects degeneracy
+before training; FS5 declares the factor in advance and names the two permitted responses.
+
+The named mistake these exist to prevent, from the ruling: **"a feature set was selected once and
+treated as the only possible set."** Feature selection is a **first-class research capability**.
+
+Doctrine file: **Part 4**, FS2 and FS5.
+
+## 22.6 Feature sets are selected per model class, under a frozen protocol
+
+> **Features are selected PER MODEL CLASS, under a pre-registered protocol that uses training and
+> validation families only, and are frozen before any scoring.**
+
+Doctrine file: **Part 4**, FS4.
+
+**Cross-reference.** §11 owns preregistration freezing generally. This clause fixes what is frozen
+for feature selection specifically, and that the selection may see training and validation
+families only.
+
+## 22.7 R3 is Sanaa's decision
+
+> **The lab does NOT pick the model class. FABLE ranks three candidate classes and writes the
+> shortlist memo; SANAA picks, as a docket decision.**
+
+An agent that selects a model class has taken a decision that is not the lab's, however well
+argued. **Ranking is the lab's work; choosing is not.**
+
+Doctrine file: **Part 3**, R2 and R3, and **Open actions** rows 2 and 3.
+
+## 22.8 The two-repo content boundary, and releases are Sanaa-gated
+
+> **Repo 1 (`Certonomous_closure_challenge`) stays PRIVATE, full history, nothing removed. Repo 2
+> is public and PURE SCIENCE ONLY. The boundary is absolute: no agent names or roles, no docket,
+> rung or charter references, no session or process narrative, no orchestration language, no
+> internal paths. A reader must not be able to tell HOW, only WHAT and WHY.**
+>
+> **Nothing lands in Repo 2 except through a release gate Sanaa approves, and history is squashed
+> release-by-release. Repo 2 is not created or pushed by the lab.**
+
+Enforcement, as ruled: a **SONNET cold-reader gate before any push** — the science stands alone, and
+a **leakage-vocabulary grep plus a human-register read returns zero**; **HAIKU maintains the leakage
+vocabulary list**.
+
+**This extends §19 and agrees with it.** §19 parks submissions and reserves sending to Sanaa;
+§22.8 adds the destination, the content boundary and the gate that guards it. **Both hold: nothing
+leaves this machine, and the public repository does not exist until Sanaa creates it.**
+
+Doctrine file: **Part 5**.
+
+---
+
+# 23. Related
 
 | Document | What it owns that this charter does not |
 |---|---|
@@ -723,14 +857,16 @@ undisclosed at the time.
 | [`SUPERVISION_CHARTER.md`](SUPERVISION_CHARTER.md) | Who supervises what; the four checks a supervisor performs personally; model designation. |
 | [`FILING_CHARTER.md`](FILING_CHARTER.md) | Where files go and what they are called; R8/R9 for papers and sidecars. |
 | [`RESULT_PRIORITY_CHARTER.md`](RESULT_PRIORITY_CHARTER.md) | When two methods validate different quantities, the declared ordering picks and the trade is recorded. |
+| `docs/closure/CLOSURE_LINE_RESTART_DOCTRINE.md` | **The full ruling of 2026-08-18**: the eight-shelf library with corpus status, the ingestion protocol, the R1-R6 rebuild program, the FS1-FS6 feature-selection program, the two-repo doctrine, and the open actions. §22 above is its binding half. |
 | `docs/closure/README.md` | The lane's map: what exists, in what order to read it, and the current verdict of every case. |
 | `docs/papers/closure/MANIFEST.md` | The corpus of record: 33 canonical works, 6 duplicates, 30 quarantined, 16 PENDING-MIT. |
 | `cases/RANS_LES_closure_models/_common/BASELINES.md` | The baseline numbers, including §6.4's train-mean tensor. |
 | `cases/RANS_LES_closure_models/_common/FEASIBILITY.md` | Per-paper reproducibility verdicts and core-hour estimates. |
 | `docs/UNCERTAINTY-DOCTRINE.md` | The three uncertainty channels and their recipes. |
 
-# 23. Amendment record
+# 24. Amendment record
 
 | Version | Date | Change |
 |---|---|---|
+| 1.1 | 2026-08-20 | Adds **§22**, the binding half of Sanaa's closure-line restart ruling of 2026-08-18 (amended by her the same day, relayed by the coordinator 2026-08-20, recorded after Phases 1-4 closed at `b8ba7460`, `9e567786`, `20666e97`). Eight clauses: one model applied uniformly; corrections inside the solved equations; zero-shot transfer discipline; the shelf-D model-form band on every prediction; FS2 and FS5 as standing gates; per-model-class feature selection under a frozen protocol; R3 reserved to Sanaa; the two-repo content boundary and its release gate. **Additive — nothing in 1.0 was weakened**: §22.2 strengthens §7 from a reporting duty into a design constraint, and §22.5 adds two gates to §5. Old §22 and §23 renumbered to §23 and §24. Full ruling: `docs/closure/CLOSURE_LINE_RESTART_DOCTRINE.md`. |
 | 1.0 | 2026-08-20 | First issue. Written after Phase 1-2 of the closure programme produced the realisability-gate hole (§4), the invented falsifier (§11), the third duplicate SpaRTA task in nineteen days (§13) and the `tbrf.py` overwrite (§14). Clauses trace to `LESSONS.md` L-140, L-144, L-145, L-163, L-168, L-179, L-182 through L-185, to the title-verified corpus under `docs/papers/closure/`, and to the lab's own measurements in `_common/BASELINES.md` §6.4 and `Certonomous_closure_challenge/description/METHOD.md` §6. Records one gap in `FILING_CHARTER.md`'s enforcement (§21.1) and one stale count in `README.md` §1 (§21.2). |

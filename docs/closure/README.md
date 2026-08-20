@@ -15,6 +15,7 @@ writing code or a preregistration. Its line:
 
 | Document | What it is | Size |
 |---|---|---|
+| `docs/closure/CLOSURE_LINE_RESTART_DOCTRINE.md` | **Sanaa's closure-line restart ruling of 2026-08-18**, recorded in full: one model applied uniformly, corrections inside the solved equations, the eight-shelf library with corpus status, the R1-R6 rebuild and FS1-FS6 feature-selection programs, and the two-repo doctrine. | 317 lines |
 | `docs/charters/CLOSURE_MODELLING_CHARTER.md` | **The standing rules.** 19 clauses, each with the incident or paper that earned it. | — |
 | `docs/papers/closure/MANIFEST.md` | **The corpus of record.** 33 canonical title-verified works with script-generated hashes, 6 byte-identical duplicates, 30 quarantined wrong retrievals, 16 PENDING-MIT. | 33 PDFs |
 | `docs/closure/PAPER_CATALOGUE.md` | One block per work: method, data, cases, headline numbers with page citations, author-stated limitations, and what each cannot see. | 33 blocks |
@@ -31,18 +32,20 @@ writing code or a preregistration. Its line:
 
 ## 2. Reading order for a new team member
 
-1. **This file**, then `docs/charters/CLOSURE_MODELLING_CHARTER.md` in full. Nothing else is
-   worth reading until you know what a result has to be here.
-2. **`_common/BASELINES.md` §6.4.** Twenty lines. It is the single fact that reframes the
+1. **`CLOSURE_LINE_RESTART_DOCTRINE.md`** — Sanaa's ruling of 2026-08-18. It is the decision the
+   rest of the work serves, and it is read before anything else.
+2. **This file**, then `docs/charters/CLOSURE_MODELLING_CHARTER.md` in full — §22 is the binding
+   half of that ruling. Nothing else is worth reading until you know what a result has to be here.
+3. **`_common/BASELINES.md` §6.4.** Twenty lines. It is the single fact that reframes the
    whole lane: a constant tensor beats the shipped RANS closure on 8 of 8 held-out cases.
-3. **`_common/FEASIBILITY.md` §2 and §3.** What is affordable, and what the matrix cannot see.
-4. **`docs/closure/CLOSURE_METHOD_CLASSES_INVENTORY.md` §0.** The three axes — where invariance
+4. **`_common/FEASIBILITY.md` §2 and §3.** What is affordable, and what the matrix cannot see.
+5. **`docs/closure/CLOSURE_METHOD_CLASSES_INVENTORY.md` §0.** The three axes — where invariance
    comes from, how the closure enters the momentum equation, what the training loss can see —
    before any individual paper.
-5. **One case directory, end to end.** `Wu2018_PIML_RF/` is the cleanest: preregistration,
+6. **One case directory, end to end.** `Wu2018_PIML_RF/` is the cleanest: preregistration,
    results, verdict, and an explicit "what it cannot see".
-6. **`PAPER_CATALOGUE.md` by category**, as needed. Do not read it cold; it is 2,000+ lines.
-7. **`FOUNDATIONAL_MODELS_INVENTORY.md`** when you need an equation or a constant's provenance.
+7. **`PAPER_CATALOGUE.md` by category**, as needed. Do not read it cold; it is 2,000+ lines.
+8. **`FOUNDATIONAL_MODELS_INVENTORY.md`** when you need an equation or a constant's provenance.
 
 ---
 
