@@ -175,3 +175,41 @@ this**.  Only the file ages give it away.  Two guards were added:
 * `mark_done_t1b.py` refuses to mark a case done if any field in its final time
   directory is older than that case's own `0/T`, which the runner writes at the
   start of the run allowed to produce the answer.
+
+## 8. Blast radius: how far the fault reaches
+
+Swept with `find`, not `grep -r`, because `grep -r` here is ugrep honouring
+ignore files and is blind to exactly the gitignored case archives this needed to
+read (L-136). Meshes were read from written `constant/polyMesh/points`, never
+inferred from the builder that wrote them — that inference is what failed in the
+first place.
+
+**Confined to T1b.** Specifically:
+
+* **T1c** (`build_t1c.py`) emits `simpleGrading (1 1 1)`. Read from disk, its
+  radial cells are uniform. The apparent 0.75 ratio in a naive centroid check is
+  the wedge sector's 2/3 centroid offset for the innermost cell, not grading.
+  **T1c's GATE FAIL is not this fault.**
+* **The T1 diagnostic ladder** — `D_Pe`, `D_Pe_c`, `D_Pe_m`, `D_wedge`,
+  `D_Re25/50/200/400` — all uniform, verified from disk, ratio 1.0000 to four
+  decimals. **The Péclet sweep and the Pr ladder are unaffected.**
+* **The square cavity ladder** (`K0cG_runs`, `K0cS_runs`, `K0cT_runs`) is
+  **correct**, and correct for an instructive reason. It uses blockMesh
+  *multi*-grading, `( (0.5 0.5 ex) (0.5 0.5 1/ex) )`, splitting each direction
+  into two half-blocks and writing the reciprocal by hand for the second. Read
+  from disk: `S_SST_x` has 9.77e-05 m cells at both walls against 1.16e-02 m at
+  the centre, a ratio of 119, and `S_KE_c` 2.50e-04 m against 2.93e-02 m, ratio
+  117. Fine at both walls, coarse in the middle, which is what a cavity needs.
+  Its author had to think about grading direction to write that reciprocal at
+  all. T1b's builder had a single direction and never did. **D436 stands.**
+* `THERMAL_K0_runs` is uniform throughout.
+
+**Not swept, and named rather than passed over:** the graded meshes outside the
+thermal ladders — `F3_runs`, `F4_runs`, `F6b_runs`, `F7_runs`, `F11_runs`,
+`DMR_runs`, `R4_runs`, `B52_RUNG6_REPLICATE_runs`, `K2b_runs`, `K2e_runs`,
+`KV1_runs`, `cases/hlpw6`, and the `sdk/workflows` templates. Several carry
+non-unit gradings such as `(40 1 1)`, `(1 6 1)` and `(0.25 1.6 1)`; the presence
+of reciprocals like `0.25` suggests direction was considered there, but that is
+an inference from a literal, which is the class of reasoning this record exists
+to distrust. **They have not been read from disk and no claim is made about
+them.**

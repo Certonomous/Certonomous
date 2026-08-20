@@ -197,3 +197,158 @@ five points has slope −2**, and the `Re` = 25 point lands near +1.2 %.
   **discarded** if those disagree by more than the excess being measured.
 
 **Still diagnostic, still not graded. No T1c verdict moves on this.**
+
+---
+
+# RESULTS OF THE AMENDED DESIGN, 2026-08-20
+
+## Convergence, and one point carried with its drift disclosed
+
+Every zero below is controlled by a **1.234e-03 K perturbation planted by line
+index into the earlier checkpoint and read back off disk before the reader is
+asked anything.** The control caught two of its own faults before it caught
+anything else: the first version demanded the reader return exactly the plant
+and so declared `D_Re25` BROKEN for really moving 2.761e-01 K, and the second
+version located the internal field by looking for a numeric line whose
+predecessor was all digits — but an OpenFOAM field is `<count>`, then `(`, then
+the values, so nothing was ever planted and a perfectly good reader was reported
+BROKEN on a genuine zero. **A control that is not itself controlled is
+decoration.**
+
+| case | max change, 28000 → 30000 | state |
+| --- | ---: | --- |
+| `D_Re25` | 2.761e-01 K | **NOT CONVERGED** |
+| `D_Re50` | 0.000e+00 | CONVERGED |
+| `L_q_f` | 0.000e+00 | CONVERGED |
+| `D_Re200` | 0.000e+00 | CONVERGED |
+| `D_Re400` | 0.000e+00 | CONVERGED |
+
+`D_Re25` is **kept, with its drift located and quantified rather than waved
+through**. All five largest changes are in the outlet cell column at x/D = 50.00;
+within 1 D of the 40 D measuring station the largest change is 1.324e-04 K. Its
+**Nusselt number moves 2.211e-05 between the last two checkpoints, against an
+excess being measured of 1.662e-03 — a factor of 75.** The point is used; the
+drift is on the record.
+
+## The measurement
+
+| case | Re | Pe | Nu | excess over 48/11 | f·Re |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `D_Re25` | 25 | 17.73 | 4.365298 | **+0.0381 %** | 63.9877 |
+| `D_Re50` | 50 | 35.47 | 4.365298 | **+0.0381 %** | 63.9877 |
+| `L_q_f` | 100 | 70.93 | 4.365298 | **+0.0381 %** | 63.9877 |
+| `D_Re200` | 200 | 141.86 | 4.365305 | **+0.0382 %** | 63.9984 |
+| `D_Re400` | 400 | 283.73 | 4.369223 | +0.1280 % | 64.4809 |
+
+**`D_Re400` is DISCARDED under the clause registered for it**: Nu at 30 D and
+40 D differ by 0.3581 pp, which exceeds the 0.1280 pp excess being measured. At
+Pe = 284 the 40 D station is only 0.141 thermal development lengths in, so the
+point is still developing. That was registered as the tightest margin in the
+sweep and it failed exactly there.
+
+## A — axial conduction: REFUTED on this arm
+
+**Registered prediction: slope −2, and the Re = 25 point near +1.20 %.**
+
+| | predicted | measured |
+| --- | ---: | ---: |
+| log–log slope of excess against Pe | **−2** | **+0.0017 ± 0.0011** |
+| excess at Re = 25 | **+1.197 %** | **+0.0381 %** |
+
+The fitted slope is **1894 standard errors from −2**, and the Re = 25 point is
+**31 times smaller** than predicted. The registered falsifying outcome
+"slope ≈ 0 → axial conduction is refuted" has fired.
+
+The measurement is blunter than the fit makes it sound. **Nu is 4.365298 at
+Re = 25, 50 and 100 — identical to seven significant figures across a 16-fold
+change in 1/Pe² — with f·Re identical to 63.9877 at all three.** There is no
+small effect to fit. There is no effect.
+
+## Why there is no effect, which the design should have foreseen
+
+For **fully developed flow with a constant wall flux**, the temperature rises
+linearly in x at every radius: T(x, r) = T_wall(x) + g(r) with dT_wall/dx
+constant. Therefore **∂²T/∂x² ≡ 0, and the axial conduction term is not small —
+it is identically zero.** Measured over 202 stations in the developed window,
+near-wall row:
+
+| | `L_q_f` (constant q″) | `L_Ts_f` (constant Ts) |
+| --- | ---: | ---: |
+| dT/dx | +28.196 K/m, spread 4.7e-06 | +1.86e-03 K/m, spread 7.5e-03 |
+| ∂²T/∂x² | **−1.23e-05 K/m²** | **−1.91e-02 K/m²** |
+| α·∂²T/∂x² ÷ u·∂T/∂x | **1.2e-10** | **2.9e-03** |
+
+**The diagnostic was run on the one arm where the mechanism it was testing
+cannot act, and it was chosen for that arm because 48/11 is a clean rational
+reference and it has no saturation complication.** Convenience of the reference
+picked the arm; nobody checked whether the hypothesis was alive there. It was
+not.
+
+## The repaired Pr test agrees, from the other direction
+
+The `Pr` = 2.84 arm now has its own three-level ladder, so h→0 can be compared
+against h→0 — the like-for-like comparison the original design failed to make.
+
+| arm | Pe | coarse | medium | fine | p | Richardson | **h→0 excess** |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Pr = 0.71 | 71 | +0.2492 % | +0.0968 % | +0.0381 % | 2.031 | 4.3669013 | **+0.0748 %** |
+| Pr = 2.84 | 284 | +0.3444 % | +0.1346 % | +0.0699 % | 2.506 | 4.3679436 | **+0.0987 %** |
+
+Raising Pe fourfold was predicted to cut the excess sixteenfold, to about
++0.005 %. **It increased it by 1.32×.** Caveat, stated rather than buried: the
+Pr arm's observed order is 2.506 against the baseline's 2.031, above formal
+second order, which usually means its coarsest level is outside the asymptotic
+range — so its Richardson value is indicative, not exact.
+
+## What the two levers say together
+
+**The excess does not depend on Re at all** (identical to seven figures over
+Re = 25–200) **and does depend on Pr** (+0.0748 % → +0.0987 %). A quantity that
+varies with Pr at fixed Re, and not at all with Re at fixed Pr, **is not a
+function of Pe = Re·Pr.** Péclet number is refuted as the governing parameter by
+two independent levers that were designed to move it in the same direction.
+
+## Standing verdict
+
+- **The wedge contributes nothing** — refuted at 12 significant figures (above).
+- **Axial conduction is refuted for the constant-flux arm**, empirically and
+  analytically.
+- **It has never been tested on the constant-Ts arm**, where ∂²T/∂x² is seven
+  orders of magnitude larger and the ratio to convection is 2.9e-03 — the right
+  order of magnitude for the +0.111 % excess that the GATE FAIL turns on.
+- **The T1c constant-Ts GATE FAIL therefore still has NO identified cause**, per
+  the falsifying clause registered before any of this ran. What has changed is
+  that the candidate is now located on the arm where it can act, instead of
+  being refuted on the arm where it cannot.
+- **No T1c verdict has moved and none can move on this.**
+
+---
+
+# NEXT TEST, REGISTERED BEFORE IT IS BUILT, 2026-08-20
+
+**`D_Ts_Re25/50/200`: the Re sweep, on the constant-Ts arm.**
+
+The station cannot be held at 40 D: on the constant-Ts arm the driving
+difference decays as exp(−4·Nu·x / (D·Re·Pr)), so a fixed physical station sits
+at a different point of the decay for every Re, and at low Re it lands in the
+saturated region where Nu is round-off over round-off. **The station moves with
+Re** by `analyse_t1c.amended_station`, which places it at the geometric centre of
+the window where the driving difference is between 100 % and 10 % of its inlet
+value — the same rule already used and already committed for T1c.
+
+**REGISTERED PREDICTION.** If axial conduction is the cause of the constant-Ts
+excess, the h→0 excess scales as 1/Pe², so a log–log fit against Pe over
+Re = 25, 50, 100, 200 has **slope −2**, and Re = 25 (Pe = 17.7, 16× the
+baseline's 1/Pe²) lands near **+1.78 %** against the baseline's +0.111 %.
+
+**Falsifying outcomes, registered in advance:**
+- **slope ≈ 0** — axial conduction is refuted on the constant-Ts arm too, and the
+  excess is then unexplained on **both** arms, which is the end of this line of
+  inquiry and gets reported as such.
+- **slope far from −2** — the fitted slope is the finding, and 1/Pe² is the wrong
+  form.
+- **any case whose driving difference at its own station falls below the 10 %
+  saturation floor is DISCARDED**, not rescued by moving its station again.
+
+Each Re needs its own three-level ladder for an h→0 excess, so this is 12 cases,
+not 4. **Still diagnostic, still ungraded, and no T1c verdict can move on it.**
