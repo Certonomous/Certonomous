@@ -41,7 +41,7 @@
 #   .so built    : 2026-08-01 00:04 UTC, after the .f90 edits of 2026-07-31 23:59
 #
 # BUILD CONTEXT is the clone itself, so no binary enters the git repo:
-#   sudo -n docker build -f cases/dafoam/patched_build/Dockerfile \
+#   sudo -n docker build -f cases/dafoam/patched_build/idwarp_rot/Dockerfile \
 #        -t dafoam-idwarp-rot:v1 /home/ubuntu/certonomous-runs/W5-patch/idwarp
 #
 # NOT FILED ANYWHERE. This is a local proof-of-concept hand-edit of generated

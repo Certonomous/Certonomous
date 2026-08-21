@@ -21,7 +21,7 @@ Two things make this worth the ~5 core-minutes it costs:
    **limiter/freestream transplant** arms (`W4-defect-robustness/a1fs_np1.log` etc.), which are a
    *different case setup*. **There is no np=1 stock-A1 `check_totals` on record.** This run creates
    the first one, and it is the arm that removes the decomposition axis entirely.
-2. **The patched image is new** (`dafoam-idwarp-rot:v1`, built today, `../../patched_build/BUILD.md`).
+2. **The patched image is new** (`dafoam-idwarp-rot:v1`, built today, `../../patched_build/idwarp_rot/BUILD.md`).
    Every prior patched number came from `-v W5-patch:/patch` + `PYTHONPATH`. If the image is a
    faithful delivery of the same patch, it must reproduce the bind-mount's numbers; if it does not,
    the image is wrong and must not be used. **This run is as much a test of the image as of A1.**

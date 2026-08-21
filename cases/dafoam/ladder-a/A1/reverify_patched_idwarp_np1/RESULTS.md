@@ -25,7 +25,7 @@ Ledger: `.../ledger.txt`. Staged case copies: `.../{stock,patched,wrongstep}/` �
 Each arm printed the md5 of the `libidwarp.so` **it actually loaded**, from inside the process that
 loaded it. Since the version string reads `2.6.2` on both stacks and the two `.so` files are the
 same 491,344 bytes, that hash is the only thing that identifies the stack
-(`../../patched_build/BUILD.md` §2). Arm 3 differs from arm 2 by exactly one line of `runScript.py`
+(`../../patched_build/idwarp_rot/BUILD.md` §2). Arm 3 differs from arm 2 by exactly one line of `runScript.py`
 (`step=1e-3` → `step=1e-8`), verified by `diff` before launch.
 
 ## 2. Verdict rows — SHIPPED and PATCHED separate
@@ -177,7 +177,7 @@ Registered ceiling: **20 core-min / $0.02.**
 | 2 PATCHED | 1 | 104 s | 1.733 | $0.0015 |
 | 3 TRIVIAL BASELINE | 1 | 54 s | 0.900 | $0.0008 |
 | **total solve** | | **256 s** | **4.267** | **$0.0036** |
-| image build (one-off, `../../patched_build/BUILD.md`) | — | 208 s | 0 (no solve) | ≈$0.00 |
+| image build (one-off, `../../patched_build/idwarp_rot/BUILD.md`) | — | 208 s | 0 (no solve) | ≈$0.00 |
 
 **4.27 core-min against a 20 core-min ceiling — 21% of budget.** Predicted ~6.6; measured 4.27, i.e.
 **35% under the prediction**, because np=1 turned out cheaper than the np=2 anchor scaled. Arm 3 is

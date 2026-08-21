@@ -1,5 +1,10 @@
 # `dafoam-idwarp-rot:v1` — reproducible patched-IDWarp build
 
+**Moved 2026-08-21 (same day) from `cases/dafoam/patched_build/` into `cases/dafoam/patched_build/idwarp_rot/`,
+to match the per-image subdirectory convention already used by `subpclu/` and `kspopts/`. The
+build command in §5.1 is quoted with the post-move path; the image built on 2026-08-21 was built
+with the identical Dockerfile at the pre-move path and is unaffected.**
+
 **Built 2026-08-21, Lane A. Local image only: nothing pushed, nothing filed, no registry involved.**
 
 ## 1. Why this image exists, and what it fixes about how we work
@@ -47,9 +52,9 @@ v2b += ( axial(mib - mib^T) x v1 ) / (|v1| |v2|)
 ```
 
 **The primal is untouched** — `vectorUtils.f90` is unchanged and `warpMesh` output is md5-identical
-patched vs unpatched (`../PATCH_getRotationMatrix3d.md` §9.5, md5
+patched vs unpatched (`../../PATCH_getRotationMatrix3d.md` §9.5, md5
 `8fafe12f848af490a5041c865112b5fb`, max|diff| = 0.0). Derivation and acceptance tests:
-`../PATCH_getRotationMatrix3d.md`. Root cause: `../ROOTCAUSE_getRotationMatrix3d.md`.
+`../../PATCH_getRotationMatrix3d.md`. Root cause: `../../ROOTCAUSE_getRotationMatrix3d.md`.
 
 **This is a proof-of-concept hand-edit of generated code.** Upstream should fix the primal's
 parameterisation and regenerate with Tapenade, not merge a hand edit. **Nothing has been filed.**
@@ -92,7 +97,7 @@ The **build context is the clone itself**, so no binary enters the git repo:
 
 ```bash
 $ sudo -n docker build \
-      -f /home/ubuntu/Certonomous/cases/dafoam/patched_build/Dockerfile \
+      -f /home/ubuntu/Certonomous/cases/dafoam/patched_build/idwarp_rot/Dockerfile \
       -t dafoam-idwarp-rot:v1 \
       /home/ubuntu/certonomous-runs/W5-patch/idwarp
 ...
@@ -195,7 +200,7 @@ so the append cannot clobber anything.
    from-source image is a separate, larger piece of work and is **not** what this is.
 2. **It fixes regime 1 only.** The near-threshold ill-conditioned regime survives the patch by
    design and by prediction — ~1.26% on IDWarp's own `onera_m6` test mesh
-   (`../ROOTCAUSE_getRotationMatrix3d.md` §6.4, `../PATCH_getRotationMatrix3d.md` §6, §9.4). An
+   (`../../ROOTCAUSE_getRotationMatrix3d.md` §6.4, `../../PATCH_getRotationMatrix3d.md` §6, §9.4). An
    optimiser leaves the baseline at iteration 1 and spends the rest of the run in regime 2.
 3. **It does not touch DAFoam**, so the decomposition defect and the `cellLimited` limiter defect
    are entirely unaffected. This image is not "the fixed toolchain"; it is one defect removed.
