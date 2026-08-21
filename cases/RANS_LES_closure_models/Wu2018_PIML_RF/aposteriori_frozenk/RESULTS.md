@@ -23,6 +23,7 @@ lane's finding.
 | `AR_3_Ret_360` | L | 0.3556 | **0.2530** | **-28.9%** | **FAIL** | **FAIL** |
 | `CBFS13700` | S | 0.0516 | **0.1085** | **+110.2%** | **FAIL** | **FAIL** |
 | `CBFS13700` | L | 0.0498 | **0.1179** | **+136.6%** | **FAIL** | **FAIL** |
+
 **Six of six fail.** Freezing `k` at the shipped SST value (arm S) leaves TRUTH
 *worse* than doing nothing, on all three cases. Freezing at `k_LES` (arm L) — which
 also removes the SST `k` error, and uses information unavailable at prediction
@@ -65,7 +66,7 @@ The injected stress reached momentum: `max|U_truth − U_null| = 8.89` on
 | `S_ml_s0` | **0.3087** | 0.2246 | 0.4962 | 1.000 | 0.1346 | 0.0003 | 1.23e-04 | **BREACH** | 466 | **NOT CONVERGED** |
 | `S_ml_s1` | **0.3124** | 0.2273 | 0.5161 | 1.000 | 0.1347 | 0.0000 | 1.57e-04 | **BREACH** | 490 | **NOT CONVERGED** |
 | `S_ml_s2` | **0.3183** | 0.2308 | 0.4946 | 1.000 | 0.1356 | 0.0000 | 1.67e-04 | **BREACH** | 478 | **NOT CONVERGED** |
-| `L_null` | **0.3686** | 0.2658 | 0.0000 | 1.627 | 0.5942 | 0.0000 | 5.23e-13 | ok | 113,379 | **no** |
+| `L_null` | **0.3686** | 0.2658 | 0.0000 | 1.627 | 0.5942 | 0.0000 | 8.65e-14 | ok | 200,000 | **no** |
 | `L_truth` | **0.2869** | 0.2011 | 0.4334 | 1.627 | 0.0443 | 0.0138 | 5.51e-05 | ok | 620 | yes |
 | `L_mean` | **0.3626** | 0.3176 | 3.1125 | 1.627 | 0.4392 | 0.0000 | 8.83e-05 | ok | 524 | yes |
 | `L_ml_s0` | **0.3506** | 0.2599 | 0.9849 | 1.627 | 0.1349 | 0.0000 | 2.16e-04 | **BREACH** | 721 | **NOT CONVERGED** |
@@ -74,17 +75,17 @@ The injected stress reached momentum: `max|U_truth − U_null| = 8.89` on
 
 ### AR_3_Ret_360 — n = 8,748, DNS secondary flow **1.411%** of bulk
 
-**Comparators.** Shipped **BASE** `U_rms` = **0.1846**. **S_null** = STAGNATED-NOT-CONVERGED at 43,001 iters, residuals `Ux`=9.0e-12, `Uy`=4.3e-01, `Uz`=5.2e-01, `p`=3.0e-01. **NULL − BASE = +0.0035** (N-B23).
+**Comparators.** Shipped **BASE** `U_rms` = **0.1846**. **S_null** = STAGNATED-NOT-CONVERGED at 123,096 iters, residuals `Ux`=9.7e-16, `Uy`=3.7e-01, `Uz`=3.2e-01, `p`=2.6e-01. **NULL − BASE = +0.0035** (N-B23).
 
 | cfg | `U_rms` | `U_mae` | sec% | `k`/`k`base | `b_rms` vs LES | viol | continuity | gate 1e-4 | iters | converged |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `S_null` | **0.1880** | 0.1425 | 0.0000 | 1.000 | 0.5530 | 0.0000 | 5.87e-13 | ok | 43,001 | **no** |
+| `S_null` | **0.1880** | 0.1425 | 0.0000 | 1.000 | 0.5530 | 0.0000 | 9.43e-13 | ok | 123,096 | **no** |
 | `S_truth` | **0.1941** | 0.1613 | 0.4632 | 1.000 | 0.0466 | 0.0033 | 1.06e-05 | ok | 1,534 | yes |
 | `S_mean` | **0.7283** | 0.6299 | 1.0316 | 1.000 | 0.4088 | 0.0000 | 1.34e-05 | ok | 4,668 | yes |
 | `S_ml_s0` | **0.2767** | 0.2105 | 0.4428 | 1.000 | 0.1240 | 0.0000 | 1.59e-05 | ok | 1,836 | yes |
 | `S_ml_s1` | **0.2774** | 0.2105 | 0.4418 | 1.000 | 0.1242 | 0.0000 | 1.46e-05 | ok | 1,815 | yes |
 | `S_ml_s2` | **0.2786** | 0.2113 | 0.4698 | 1.000 | 0.1258 | 0.0000 | 1.82e-05 | ok | 1,898 | yes |
-| `L_null` | **0.3556** | 0.2786 | 0.0000 | 1.683 | 0.5489 | 0.0000 | 7.26e-13 | ok | 41,044 | **no** |
+| `L_null` | **0.3556** | 0.2786 | 0.0000 | 1.683 | 0.5489 | 0.0000 | 1.91e-12 | ok | 122,898 | **no** |
 | `L_truth` | **0.2530** | 0.1880 | 0.4094 | 1.683 | 0.0458 | 0.0033 | 1.37e-05 | ok | 2,619 | yes |
 | `L_mean` | **0.5296** | 0.4774 | 2.1190 | 1.683 | 0.4062 | 0.0000 | 1.78e-05 | ok | 5,313 | yes |
 | `L_ml_s0` | **0.3348** | 0.2490 | 0.5254 | 1.683 | 0.1244 | 0.0000 | 1.96e-05 | ok | 3,352 | yes |
@@ -99,7 +100,7 @@ The injected stress reached momentum: `max|U_truth − U_null| = 8.89` on
 |---|---|---|---|---|---|---|---|---|---|---|
 | `S_null` | **0.0516** | 0.0291 | -- | 1.000 | 0.3187 | 0.0000 | 5.66e-15 | ok | 12 | yes |
 | `S_truth` | **0.1085** | 0.0620 | -- | 1.000 | 0.0403 | 0.0002 | 9.88e-14 | ok | 2,586 | yes |
-| `S_mean` | **0.2693** | 0.1814 | -- | 1.000 | 0.3483 | 0.0083 | 2.60e-09 | ok | 13,808 | **no** |
+| `S_mean` | **0.2732** | 0.1858 | -- | 1.000 | 0.3428 | 0.0027 | 2.59e-09 | ok | 22,757 | **no** |
 | `S_ml_s0` | **0.0921** | 0.0520 | -- | 1.000 | 0.0494 | 0.0004 | 8.45e-14 | ok | 2,313 | yes |
 | `S_ml_s1` | **0.0892** | 0.0502 | -- | 1.000 | 0.0488 | 0.0013 | 9.01e-14 | ok | 2,247 | yes |
 | `S_ml_s2` | **0.0904** | 0.0510 | -- | 1.000 | 0.0491 | 0.0006 | 8.08e-14 | ok | 2,262 | yes |
@@ -109,6 +110,7 @@ The injected stress reached momentum: `max|U_truth − U_null| = 8.89` on
 | `L_ml_s0` | **0.0415** | 0.0188 | -- | 1.343 | 0.0536 | 0.0062 | 4.87e-14 | ok | 2,199 | yes |
 | `L_ml_s1` | **0.0422** | 0.0195 | -- | 1.343 | 0.0549 | 0.0071 | 5.16e-14 | ok | 2,150 | yes |
 | `L_ml_s2` | **0.0418** | 0.0190 | -- | 1.343 | 0.0542 | 0.0064 | 5.75e-14 | ok | 2,173 | yes |
+
 ## 4. The result that matters most, and it is not the ceiling
 
 **On `CBFS13700` arm L the learned anisotropy beats both the baseline and the
@@ -175,9 +177,9 @@ data it is built from.
 
 ## 8. Compute
 
-Measured from `log.solve.done`: **1.08 core-hours** for the 33 arm-S/arm-L solves
-that completed inside their caps, plus two duct `L_null` runs that ran to their
-registered iteration cap, plus G0a. **Total ≈ 3.5 core-hours of the 10-hour cap.**
+Measured from `log.solve.done`, summed over every completed solve: **18,835 core-seconds
+= 5.23 core-hours**, plus gate G0a (600 iterations over three cases) and one duct
+`L_null` still executing. **Total ≈ 5.8 core-hours of the 10-hour cap.**
 Arm L was **not** dropped: the registered trigger was 8 core-hours and it was
 never approached. Nothing was killed by hand.
 
@@ -200,11 +202,16 @@ never approached. Nothing was killed by hand.
   diagnostic output is absent. `b_total = −(nu_t/k) S + bijDelta` is therefore
   reconstructed in `score.py` from written fields. Caught because reading a
   `uniform` field raised an `IndexError` rather than silently returning zeros.
-* **D-3. Two duct `L_null` runs were still executing when the lane was scored.**
-  Both had written time directories (`writeInterval 1000` was registered from the
-  start for exactly this reason) and both are STAGNATED-NOT-CONVERGED by the
-  registered rule; their `U_rms` is reported from the last written state. Neither
-  is a TRUTH row and neither affects H0.
+* **D-3. Duct `L_null` runs outlasted the first scoring pass.**
+  `AR_1_Ret_360/L_null` has since run to its registered 200,000-iteration cap
+  (2,202 s) and the tables are refreshed from that final state. Its `U_rms` is
+  **0.3686 — unchanged** from the 113,379-iteration scoring, because the run is
+  STAGNATED and the field had stopped moving; only the iteration count, wall time
+  and continuity figure changed. `AR_3_Ret_360/L_null` is still executing and its
+  row is reported from its last written state. Both were scorable throughout
+  because `writeInterval 1000` was registered from the start for exactly this
+  reason. Neither is a TRUTH row, and **the refresh confirms H0 and the verdict
+  are unaffected**.
 
 ## 10. What this result cannot see
 
