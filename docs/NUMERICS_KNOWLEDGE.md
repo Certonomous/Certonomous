@@ -2730,3 +2730,55 @@ Re-solving buys between **2.5e4x** and **1.7e16x** on continuity. Charter §22.2
 "continuity by construction" is not a figure of speech; it is five to sixteen
 orders of magnitude, and the cheapest way to earn it is to put the correction
 inside the equations rather than on top of the answer.
+
+## DAFoam-team numerics, continued — appended 2026-08-21 by Lane B
+
+**Placement note.** The `N-D` block proper sits above, ending with `N-D5`. This entry is
+appended at end-of-file rather than inserted after `N-D5` because the closure team is
+committing into this file concurrently — the file grew 2,555 -> 2,732 lines during this
+session — and an in-place insert is not an append-only edit. The id is re-derived by
+command, never quoted: `grep -o 'N-D[0-9]*\.' docs/NUMERICS_KNOWLEDGE.md | sort -n | tail -1`.
+
+**N-D6. An exactly singular incomplete factorization is not reachable by any shift,
+fill or pivot tolerance, and the log banner that seems to prove otherwise is emitted by
+the caller.** Measured on CBFS, 21,000 cells, `dRdWTPC` 210,592 x 210,592 with
+**13,710,468** nonzeros, np = 4, ASM + sub-block ILU, image `dafoam-kspopts:v1`
+(`d9d2aed02e36`) — the build in which PETSc runtime options are *not* discarded.
+Five arms, each with `-ksp_view`:
+
+| `PETSC_OPTIONS` | deployed sub-PC | iterations | reason |
+|---|---|---|---|
+| control, none | `type: ilu`, `1 level of fill`, `[NONZERO]`, zero-pivot tol `2.22045e-14` | 0 | **-9** |
+| `-sub_pc_factor_shift_type nonzero` | **identical to control** | 0 | **-9** |
+| ` + -sub_pc_factor_shift_amount 1e-10` | **identical to control** | 0 | **-9** |
+| ` + -sub_pc_factor_shift_amount 1e-8` | **identical to control** | 0 | **-9** |
+| `-sub_pc_factor_levels 2` | **identical to control — dump still reads `1 level of fill`** | 0 | **-9** |
+
+Iteration-0 residual `7.091590452305e-04` to all 13 digits in all five, and the whole
+`-ksp_view` region is byte-identical across arms apart from wall-clock stamps. PETSc emitted
+**no** unused-option warning: the options were consumed at `KSPSetUp` and then **overwritten**
+by the application's own `PCASMGetSubKSP` loop, which calls `PCFactorSetShiftType`,
+`PCFactorSetShiftAmount` and `PCFactorSetLevels` per block afterwards. **Last write wins, and
+the application writes last.**
+
+**Two numbers to carry.** (i) The banner `using diagonal shift to prevent zero pivot
+[NONZERO]` appears in the **control**, which set no shift option — it is the application's
+own `MAT_SHIFT_NONZERO`, so its presence proves nothing about whether a command-line shift
+landed. The discriminating tell is a requested value the application also sets to something
+*different*: fill level 2 requested, `1 level of fill` deployed. (ii) The one factor option
+the application never sets, `zeropivot`, **does** reach the deployed factor — verified
+visible in `PCView` at `1e-08`, six decades up — and still returns `-9`.
+
+**Mechanism, reproduced with no DAFoam and no PETSc in the loop:**
+`scipy.sparse.linalg.spilu` on the dumped matrix raises `RuntimeError: Factor is exactly
+singular` at drop_tol/fill of 1e-2/3, 1e-3/5, 1e-4/5 and 1e-5/10 — the whole strength axis —
+while `splu` solves at every `diag_pivot_thresh` (residual 2.3769e-10, 6.4063e-12,
+2.535461e-12). The matrix has **0 zero rows, 0 zero columns, 0 zero diagonal entries** and a
+diagonal spread of only **log10 8.67** (against 14.17 on a case that fails for a different
+reason), so this is not ill-conditioning either.
+
+**The rule: a shift, a drop tolerance and extra fill all perturb an incomplete factorization.
+If the factor is *exactly* singular rather than *nearly* singular, none of them is the right
+lever, and a sweep over them buys a closed axis, not a fix.** Complete factorization with
+pivoting is what works — `splu` offline, `PCLU` in-solver — and in this stack that costs a
+source rebuild: 0 iterations / `-9` becomes **667 iterations / `reason 2`**.

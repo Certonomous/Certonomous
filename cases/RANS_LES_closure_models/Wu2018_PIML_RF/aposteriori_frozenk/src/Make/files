@@ -1,0 +1,3 @@
+wu2018FrozenKModels.C
+
+LIB = $(FOAM_USER_LIBBIN)/libwu2018FrozenK
