@@ -1,6 +1,6 @@
 # Certonomous Closure Modelling Charter
 
-Version 1.1, dated 2026-08-20. Governs every data-driven turbulence closure this lab
+Version 1.1.1, dated 2026-08-21 (section 17 amended; see its dated note). Governs every data-driven turbulence closure this lab
 trains, scores, reproduces or reports: RANS anisotropy models, field inversion, LES
 subgrid-scale models, wall models, differentiable and solver-in-the-loop training, and the
 uncertainty and aggregation methods filed beside them. It binds the four case directories
@@ -570,11 +570,11 @@ report **no numeric error metric at all** for the thing they are about.
 
 ## 17. How lessons and numerics facts are filed
 
-> **Lesson drafts go to the session scratchpad. The supervisor reviews and appends them to
+> **Lesson drafts live under the case directory they belong to, never in the session scratchpad. The supervisor reviews and appends them to
 > `docs/LESSONS.md` with the next `L-` number. Numerics facts go to
 > `docs/NUMERICS_KNOWLEDGE.md`. A sub-agent never appends to either live file.**
 
-The route is: draft to `scratchpad/lessons_<lane>.md` and `scratchpad/numerics_<lane>.md`;
+The route is: draft to `<case>/LESSONS_DRAFT.md` and `<case>/NUMERICS_DRAFT.md` (or `_common/LESSONS_DRAFT_<role>.md`);
 supervisor reviews; supervisor appends and commits. Closure Phase 1-2 filed **L-145 to L-169**
 this way.
 
@@ -587,6 +587,8 @@ carry a count.
 (the paper plots it and prints no number), `NOT STATED`. **A fact whose basis is
 `PAPER-GRAPHICAL` may be described and may not be quoted as a number.**
 
+
+**Amended 2026-08-21 (v1.1.1).** The original route sent drafts to the session scratchpad. That directory was cleared by another workstream three times in one day (L-186); nothing was lost only because everything that mattered was already committed. Drafts now live in the repository tree under the case directory, and the private git index the commit helper uses lives under `/home/ubuntu/closure-data/`, which no session cleaner touches. A repository document never cites a scratch path.
 ## 18. Compute: 487 core-hours pre-authorised; above it, stop and cost it
 
 > **Closure work under 487 core-hours is pre-authorised. A projected spend at or above that

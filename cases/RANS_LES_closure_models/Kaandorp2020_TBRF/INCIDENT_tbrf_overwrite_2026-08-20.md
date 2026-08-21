@@ -58,7 +58,7 @@ eigendecomposition inverting only eigenvalues above rcond*lambda_max). That patc
 transcript search for Edit calls. The author re-applied it from its own context; the file is now
 7478 bytes, sha256 d84220e27f045950..., and is the version the running run_tbrf.py (pid 153860) used.
 The pre-patch heredoc output (6800 B, b39536ebde4bd481...) is kept at
-scratchpad/tbrf_recovered_prepatch.py. Status, final: RECOVERED from the creating heredoc and
+tbrf_original_recovered.py in this directory (the scratchpad copy was wiped 2026-08-21; the two were the same bytes). Status, final: RECOVERED from the creating heredoc and
 RE-PATCHED by the author; the earlier statement "no subsequent edits found in transcripts" was
 incomplete - the transcript search missed the in-place patch. Byte-identity with the destroyed file
 is therefore asserted only on the author's word plus the training score matching its run log.

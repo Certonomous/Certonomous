@@ -68,7 +68,7 @@ the results are regenerated, not because anything is outstanding.
 | Piece | Status |
 |---|---|
 | TBNN seeds 0-4 | **all complete**; predictions at `/home/ubuntu/closure-data/tbnn/ckpt/pred_TBNN_s{0..4}.npy` |
-| Plain-MLP control | **all 3 seeds converged and scored** on the TEST set from their final prediction fields (sec. 4b) |
+| Plain-MLP control | **4 distinct seeds converged and scored** on the TEST set from their final prediction fields (sec. 4b); a 5th is training. Seeds 0-2 were run twice, in two independent processes, and came out bit-identical |
 | TBRF sibling comparator (secs. 7b, 7b-i) | **all 6 forests complete**: three 5-invariant seeds and three 17-feature seeds |
 
 Everything is bounded and restart-safe: a hard cap of 400 epochs, a wall-clock
@@ -100,8 +100,10 @@ Each resumes from checkpoints and skips completed work. Note that `mlp_only.py`
 writes into a **separate** checkpoint directory from `train_tbnn.py`, deliberately,
 so the two MLP arms cannot overwrite each other.
 
-**Every pre-registered criterion is decided and every run has finished** (sec. 4b):
-5 TBNN seeds, 3 plain-MLP control seeds, 6 tensor-basis forests. The verdict was
+**Every pre-registered criterion is decided** (sec. 4b): 5 TBNN seeds, 4 distinct
+plain-MLP seeds, 6 tensor-basis forests. **One job is still running** — the main
+sweep's fifth and last MLP seed, at epoch 50 of <= 400, bounded by a 3-hour
+self-timeout from its 20:47 launch. It cannot change the verdict. The verdict was
 unchanged at each stage it could have been called — a mid-run MLP checkpoint at
 epoch 300, seed 0 alone, and all three converged seeds all give the same ordering
 and the same answer, because criterion (iii) is failed on the pooled metric by
@@ -170,44 +172,52 @@ train-mean constant (B3, `BASELINES.md` sec. 6.4) on **7 of 8** - the same 7.
 ## 4b. Criterion (iii): the TBNN against Ling's own control
 
 The plain MLP (10 x 10, same five invariants, no tensor basis — Ling 2016 p. 6)
-was trained on the **identical** split. **All three seeds have now converged**, so
-both models carry their own seed spread and the comparison no longer leans on the
-TBNN's alone.
+was trained on the **identical** split. **Four distinct seeds have converged**, so
+both models carry their own seed spread.
 
-| Case | TBNN (5 seeds) | TBNN spread | MLP (3 seeds) | MLP spread | TBNN advantage | beyond the LARGER spread? |
+| Case | TBNN (5 seeds) | TBNN spread | MLP (4 seeds) | MLP spread | TBNN advantage | beyond the LARGER spread? |
 |---|---|---|---|---|---|---|
-| `AR_14_Ret_180` | 0.1105 | 0.0071 | 0.1379 | 0.0237 | 0.0274 | yes |
-| `AR_1_Ret_360` | 0.1222 | 0.0053 | 0.1807 | 0.0128 | 0.0585 | yes |
-| `AR_3_Ret_360` | 0.1229 | 0.0078 | 0.1705 | 0.0130 | 0.0476 | yes |
-| `NASA_2DWMH` | 1.48e+07 | 3.71e+07 | 0.4299 | 0.1729 | 1.48e+07 WORSE | n/a |
-| `alpha_05_4071_2024` | 0.1881 | 0.0029 | 0.1981 | 0.0050 | 0.0099 | yes |
-| `alpha_05_4071_4048` | 0.2364 | 0.0038 | 0.2510 | 0.0076 | 0.0147 | yes |
-| `alpha_15_13929_2024` | 0.2257 | 0.0090 | 0.2311 | 0.0050 | 0.0054 | no |
-| `alpha_15_13929_4048` | 0.1362 | 0.0038 | 0.1552 | 0.0087 | 0.0190 | yes |
+| `AR_14_Ret_180` | 0.1105 | 0.0071 | 0.1377 | 0.0237 | 0.0272 | yes |
+| `AR_1_Ret_360` | 0.1222 | 0.0053 | 0.1812 | 0.0128 | 0.0590 | yes |
+| `AR_3_Ret_360` | 0.1229 | 0.0078 | 0.1707 | 0.0130 | 0.0479 | yes |
+| `NASA_2DWMH` | 1.48e+07 | 3.71e+07 | 0.4182 | 0.1729 | 1.48e+07 WORSE | n/a |
+| `alpha_05_4071_2024` | 0.1881 | 0.0029 | 0.1977 | 0.0050 | 0.0095 | yes |
+| `alpha_05_4071_4048` | 0.2364 | 0.0038 | 0.2501 | 0.0086 | 0.0137 | yes |
+| `alpha_15_13929_2024` | 0.2257 | 0.0090 | 0.2310 | 0.0050 | 0.0053 | no |
+| `alpha_15_13929_4048` | 0.1362 | 0.0038 | 0.1546 | 0.0087 | 0.0184 | yes |
 
 The "beyond spread" column uses the **larger** of the two models' spreads, which
 is the conservative choice.
+
+**Determinism check, unplanned and worth recording.** MLP seed 0 was trained twice
+by two independent processes, in separate checkpoint directories, minutes apart on
+a loaded machine (one as part of the main sweep after five TBNN runs, one in an
+isolated control run). The two prediction fields over all 641,652 cells are
+**bit-identical** (`max|diff| = 0.0`), and both report validation `b_rms`
+0.17271. `torch.manual_seed` is re-set per (model, seed) inside the loop, so the
+preceding TBNN runs do not perturb the control — which is what makes the two
+arms comparable rather than merely similar.
 
 **Two readings of criterion (iii), both given:**
 
 * **Per case, in-domain (7 cases):** TBNN better on **7 of 7**, by more than the
   larger of the two seed spreads on **6 of 7**. Only `alpha_15_13929_2024` is
-  inside the spread (advantage 0.0054 against a TBNN spread of 0.0090). On this
+  inside the spread (advantage 0.0053 against a TBNN spread of 0.0090). On this
   reading the invariance embedding earns its keep and criterion (iii) is met.
 * **Pooled over the whole test set, which is what was registered:** TBNN
-  **8.56e+06** against MLP **0.2502 / 0.3328 / 0.2765** (3 seeds, mean 0.2865).
-  The TBNN's pooled error is entirely `NASA_2DWMH` (1.48e+07 against the MLP's
-  0.4299), so it is worse by seven orders of magnitude and criterion (iii) fails.
+  **8.56e+06** against MLP **0.2502 / 0.3328 / 0.2765 / 0.2636** (4 seeds, mean
+  0.2808). The TBNN's pooled error is entirely `NASA_2DWMH` (1.48e+07 against the
+  MLP's 0.4182), so it is worse by seven orders of magnitude and (iii) fails.
 
 **The pooled reading governs.** It is what the preregistration says, and it is the
 one less favourable to the model. Both are printed so no reader has to take my
 word for which was chosen.
 
 **Realisability, the same comparison:** TBNN **6.5–15.3%** of test cells
-non-realisable across 5 seeds; converged MLP **0.89% / 2.29% / 2.49%** across 3
-seeds (mean 1.89%); truth **0.79%**; SST **0.10%**. The unconstrained network
-stays within **1.1x–3.2x** of the truth's own violation rate; the tensor-basis
-network is **8x–19x** worse than it. The two ranges do not overlap. The unconstrained network — which has no mechanism
+non-realisable across 5 seeds; converged MLP **0.89% / 2.29% / 2.49% / 2.66%**
+across 4 seeds (mean 2.08%); truth **0.79%**; SST **0.10%**. The unconstrained
+network stays within **1.1x–3.4x** of the truth's own violation rate; the
+tensor-basis network is **8x–19x** worse than it. The two ranges do not overlap. The unconstrained network — which has no mechanism
 enforcing anything — stays an order of magnitude closer to physically admissible
 states than the network built around an exactly-invariant tensor basis. The basis
 constrains the *form* of `b` and nothing about its *magnitude*, and on this
@@ -250,7 +260,7 @@ sec. 5 requires:
 | **TBNN, seeds 0/1/2/3/4** | **15.34% / 9.84% / 6.47% / 14.79% / 9.10%** |
 | tensor-basis RF, 5 invariants, 3 seeds | 10.16% / 11.36% / 10.55% |
 | tensor-basis RF, 17 features, 3 seeds | 9.66% / 9.27% / 9.74% |
-| **plain MLP (no tensor basis), 3 converged seeds** | **0.89% / 2.29% / 2.49%** |
+| **plain MLP (no tensor basis), 4 converged seeds** | **0.89% / 2.29% / 2.49% / 2.66%** |
 | Wu 2018 random forest, same split (sibling directory) | 1.54-1.60% |
 | the LES/DNS **truth** itself | **0.79%** |
 | k-omega SST | 0.10% (all of it on the hump) |
@@ -432,7 +442,7 @@ version that scores training `b_rms` 0.81. The running process (pid 153860) had
 already loaded the patched module and its results are unaffected, but the file on
 disk could not have reproduced them. The eigendecomposition patch has been
 re-applied; the file is now 7,478 bytes, `sha256 d84220e27f045950...`. The
-pre-patch recovery is kept at `scratchpad/tbrf_recovered_prepatch.py` (6,800
+pre-patch recovery is kept at `Kaandorp2020_TBRF/tbrf_original_recovered.py` (same bytes; the scratchpad copy was wiped 2026-08-21) (6,800
 bytes, `sha256 b39536ebde4bd481...`) so the difference is auditable.
 
 The TBRF's own `Gamma = 1e-12` ridge (VERIFIED-PDF: arXiv:1810.08794v2, p. 30)
@@ -466,7 +476,7 @@ the method work at all on this data - with their published constant the *trainin
 `torch.set_num_threads(4)`, batch 8192. Measured on this machine: **0.78 s per
 epoch at 4 threads against 49.4 s at 16** - a factor of 63, and the reason the
 sweep took about an hour instead of the 66 hours the first configuration was on
-track for. Full numbers in `scratchpad/numerics_B.md`, N-B4. Anyone repeating
+track for. Full numbers in `docs/NUMERICS_KNOWLEDGE.md`, closure section, N-B4. Anyone repeating
 this must pin the thread count.
 
 ## 10. What this result cannot see

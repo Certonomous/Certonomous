@@ -87,7 +87,7 @@ File type and hash prove integrity; only the printed title page proves identity.
 The wrong files are quarantined in `docs/papers/closure/_WRONG_RETRIEVALS/` and
 `_WRONG_DOWNLOADS/`; the corrected set was re-retrieved with title-page
 verification in the loop. Machine-generated evidence for the original defect:
-`scratchpad/pdf_verification_B.txt`.
+the title-page verification recorded in `docs/papers/closure/MANIFEST.md` (the scratch log it was first written to was wiped 2026-08-21).
 
 Two consequences that survive the repair:
 

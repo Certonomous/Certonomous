@@ -117,6 +117,12 @@ paper every a-posteriori verdict in this programme should be read against.
 | **Approaching or over the 487-core-hour authorisation - STOP and cost first** | Xiao 2016 full EnKF (~450 for **one** case), Weatheritt 2016 GEP full sweep, Beck 2019 at published resolution, List 2022 full unroll sweep |
 | **Not reproducible on this machine at any scale that would mean anything** | Sirignano 2020 DPM, Bae 2022 SciMARL, Lozano-Duran 2023 BBF-WM, Kochkov 2021 *speed-up* claim |
 
+**GPU-blocked rows stay BLOCKED pending the AWS quota appeal filed 2026-08-21**
+(Sirignano 2020, Bae 2022, Lozano-Duran 2023, Beck 2019 at published resolution,
+List 2022 full unroll sweep, and the Kochkov 2021 speed-up claim). No scaled-down
+substitute is to be reported in their rows; a CPU variant is a different
+experiment and is labelled as one.
+
 Solve-cost basis: a `simpleFoam` run on a 15,600-cell structured hill to a
 converged steady state is ~5-20 minutes on one core; ~0.3 core-hours is used
 throughout as the per-case figure, and it should be re-measured before any sweep
@@ -137,7 +143,7 @@ table below is an estimate and is labelled as one.
 thread count the TBNN sweep was on track for **66 hours**, not one - 16 threads
 measured **49.4 s/epoch** against **0.78 s** at 4 threads on the same problem.
 Any core-hour estimate for a small-model workload on this machine is meaningless
-until the thread count is pinned; see `scratchpad/numerics_B.md`, N-B4.
+until the thread count is pinned; see `docs/NUMERICS_KNOWLEDGE.md`, closure section, N-B4.
 
 ## 2.1b BEFORE COSTING ANY ROW: check `verification/campaign/` first
 

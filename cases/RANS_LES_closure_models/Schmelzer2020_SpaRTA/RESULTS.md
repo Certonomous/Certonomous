@@ -23,7 +23,7 @@ repository and found a complete, pre-registered SpaRTA reproduction dated
 `W5_SPARTA_GATE_STATUS.md` records that **two approved docket items had already
 been filed asking for work that was already complete**, and states the cause:
 "nothing links a gate to the record that satisfies it". This task is the **third**
-occurrence of the same collision. See `scratchpad/lessons_B_opus.md`, L-182.
+occurrence of the same collision. See `docs/LESSONS.md`, L-177.
 
 I therefore did **not** re-run the campaign. What I did instead: read the record,
 verify the artefacts are on disk, and **independently re-derive one of its central

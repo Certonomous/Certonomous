@@ -8281,3 +8281,33 @@ not" with equal confidence and no way to tell which effect we had measured.
 **When a paper's headline comparison changes more than one thing, say which one
 you are testing, run both if they are cheap, and never let the choice be made
 after the numbers are in.** Here both arms together cost under two core-hours.
+
+## L-186. The session scratchpad is not a handoff channel: it was wiped three times in one day, and the only things that survived were the ones already in the repository
+
+2026-08-21. The closure team's supervisor and two lanes used the session scratchpad
+(`/tmp/claude-.../scratchpad/`) to pass drafts between agents: lesson and numerics drafts
+awaiting review, the commit helper script, the verification flag list, the verbatim relay of
+Sanaa's restart ruling, the recovered pre-patch copy of an overwritten source file. Another
+workstream sharing the same session cleared and repopulated that directory mid-task. It was the
+third overwrite on that path in a day; the first two were agents with the same role writing the
+same filenames.
+
+Nothing was lost, and that is the lesson rather than a consolation: every item that mattered had
+already been committed (lessons L-145..185, the doctrine file, the incident record, the
+pre-patch copy under its repository name), and every item that had not been committed was
+reconstructable from an agent's context. The scratchpad held no unique bytes, by luck.
+
+The rule, applied from that hour:
+
+- **Drafts that another agent must read live under the case directory they belong to** -
+  `<case>/aposteriori/LESSONS_DRAFT.md`, `NUMERICS_DRAFT.md` - and the supervisor commits from
+  there. A draft in the repository tree is uncommitted but not unowned; a draft in `/tmp` is both.
+- **Tools the team depends on live in the repository** (`_common/commit_private.sh`), and any
+  state they need at run time (the private git index) lives under a path no session cleaner
+  touches (`/home/ubuntu/closure-data/`).
+- **A repository document never cites a scratch path.** The doctrine file, the incident record
+  and the flag list all pointed at `/tmp/...` files; after the wipe those were dangling
+  pointers inside committed history. The source a document cites must be as durable as the
+  document.
+- **The scratchpad is for one agent's own intermediates** - extracted text, run logs, a JSON it
+  will read back in the same task - and nothing a second agent, or a later session, will need.

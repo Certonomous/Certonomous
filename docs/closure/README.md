@@ -92,7 +92,7 @@ Full text and provenance: `docs/charters/CLOSURE_MODELLING_CHARTER.md`.
 | 14 | Check a shared path is unoccupied before writing. A recovered file carries its recovery chain. |
 | 15 | Cite only from a **title-verified** PDF. Duplicates by sha256. Never state a number from memory. |
 | 16 | **"What it cannot see"** is a mandatory section of every `RESULTS.md` and catalogue block. |
-| 17 | Lesson drafts to scratchpad; the supervisor appends to `LESSONS.md`. Numerics facts to `NUMERICS_KNOWLEDGE.md`. |
+| 17 | Lesson drafts under the case directory (never the scratchpad, charter section 17 as amended 2026-08-21); the supervisor appends to `LESSONS.md`. Numerics facts to `NUMERICS_KNOWLEDGE.md`. |
 | 18 | **Under 487 core-hours pre-authorised**; above it, stop and cost it. Runs bounded and checkpointed — kill is unavailable. |
 | 19 | **Submissions parked.** Nothing leaves the machine; sending is Sanaa's alone. |
 
