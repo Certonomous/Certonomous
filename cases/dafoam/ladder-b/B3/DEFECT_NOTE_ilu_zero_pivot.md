@@ -210,6 +210,94 @@ Martins, PAS 2019 §5.1). The honest framing is: *a wall-resolved separated case
 outside the region the published protocol covers, the failure has a named mechanism, and
 the remedy is one option away from being reachable.*
 
+## 11. Measured today — 2026-08-21: which intervention lifts the `-9`, and what it costs
+
+> **STILL NOT FILED — filing reserved to Sanaa.** Nothing below changes that. No issue has
+> been opened, no maintainer contacted, nothing posted, nothing pushed. This section was
+> appended by DAFoam team Lane B after the arms of
+> `adjoint_unblock_reproduce/` returned; the sections above it are unchanged.
+
+Everything in sections 1 to 10 was written from records dated 2026-07-28 to 2026-08-11. This
+section is what a deliberate re-measurement on **2026-08-21** added, from a **rebuilt** image
+rather than the `docker commit` one, seventeen days after the original. Full grading, arm by
+arm, in `adjoint_unblock_reproduce/RESULTS.md`.
+
+### 11.1 The ladder of interventions, cheapest first, each measured
+
+| # | intervention | image | what it changes | result | price |
+|---|---|---|---|---|---|
+| **0** | nothing (negative control) | `dafoam/opt-packages:latest`, np = 4 | — | **`-9` at iteration 0**, residual `7.091590452305e-04`, all 13 digits | 5.93 core-min |
+| **1** | **run serially** | `dafoam/opt-packages:latest`, np = **1** | ASM collapses to a single block over the whole 210,592² operator | **`-9` persists.** Residual `7.091589775454e-04`, primal 1584 iterations. **The decomposition is not the mechanism** | 7.22 core-min |
+| **2** | **PETSc runtime option**, `-sub_pc_type lu`, on the image built to let runtime options through | `dafoam-kspopts:v1`, np = 4 | relocates the outer `KSPSetFromOptions` from `DALinearEqn.C:138` to line 351 | **`-9` persists — and `-ksp_view` prints `PC Object: (sub_) … type: ilu` in the same log.** The option was consumed and then overwritten | 11.33 core-min |
+| **3** | **the source change**, `PCSetType(MLRsubpc, PCLU)` behind an env switch | `dafoam-subpclu:v2`, np = 4, `DAFOAM_SUBPC_TYPE=lu` | one hunk in the ASM sub-block loop | **`PetscConvergedReason: 2`, 667 iterations**, every printed residual bit-identical to 2026-08-04 | 18.60 core-min (`patchV`) / 27.60 (21,000-cell `beta`) |
+
+**The minimum intervention that lifts the `-9` is number 3: the source change.** Nothing
+cheaper works. Serial does not work, and the sanctioned PETSc runtime option does not work
+even on a build that honours PETSc runtime options.
+
+**Its price, measured rather than estimated.**
+
+- **To produce the fix:** a one-hunk patch and a rebuild of three AD modes —
+  **284 s wall, 18.93 core-min, \$0.016** on this box, from the reproducible `Dockerfile` at
+  `cases/dafoam/patched_build/subpclu/` (`BUILD.md` §4.1). It is not a research project.
+- **To run with it:** the CBFS adjoint converges in **272 s** at np = 4 against a control that
+  fails in 82 s, so the fix costs roughly **3.3x the wall time of failing**, plus memory. The
+  measured **peak RSS is 9.044 GiB** for the 21,000-cell beta-DV adjoint under complete LU,
+  inside a **12 GiB** container cap with 2.96 GiB to spare — the first peak-RSS figure this lab
+  has for this configuration, and it is **lower than the 22 GiB cap the original runs were
+  given**, which had been carried as if it were a requirement. (Per-container figure, named:
+  `docker stats` on a shared box also reports the other lane's containers, and the raw maximum
+  in the same watcher log belongs to one of those.)
+- **To the user who does not want it:** nothing. With `DAFOAM_SUBPC_TYPE` unset the rebuilt
+  image reproduces the stock `-9` **to all 13 residual digits** (arm R), so the switch is
+  behaviour-neutral by default — which is precisely what §7's **F1** asks upstream for.
+
+### 11.2 What this changes in the sections above
+
+**§8 is confirmed in-solver, and its evidence is now direct rather than inferred.** It was
+written from program-order reading of `createMLRKSP` and from W4's offline harness. Arm K
+measures it inside the deployed solver: `-sub_pc_type lu` on the command line, and
+`type: ilu` in the same run's own `-ksp_view` dump, with no PETSc "unused option" warning
+because the option **was** applied — to sub-KSPs that `PCASMGetSubKSP`'s loop then overwrote.
+**The report's ask stands unchanged and is now measured: F1 + F2 + F3 together, and F2 alone
+would look like a fix and would not be one.**
+
+**§3's "not the decomposition" row is now positive evidence, not an absence.** The table above
+ruled out primal convergence, the objective, fill level, mesh quality, poisoned state, variable
+bounds, the SST adjoint as such and the reordering — but every one of those ran at np = 4. Arm
+N1 removes MPI from the question inside the solver, and the `-9` survives. Together with
+`PROOF.md` §25.3's `spilu` result on the assembled whole matrix — `RuntimeError: Factor is
+exactly singular`, no MPI anywhere — **two independent routes now say the failure is a property
+of the incomplete factorization.** If the report is filed, this is the sentence a maintainer
+will want, because it removes the first thing they would ask about.
+
+**§4's mechanism is untouched and needs no revision.** Nothing measured today bears on the
+matrix evidence; the dump, the `spilu`/`splu` sweep and the diagonal-spread comparison stand
+as written, including the caution that `dRdWTPC` is the assembled preconditioner and not the
+matrix-free transpose Jacobian.
+
+**One thing this note should say if it is filed, and could not say before.** The unblock is now
+**reproduced from a rebuilt image**, not only observed once: `reason 2`, `667` iterations, and
+a 21,000-component gradient whose norm, min and max reproduce to every printed digit, on an
+image whose provenance is a committed `Dockerfile` rather than a `docker commit` from a scratch
+tree that no longer exists. A maintainer's first question about a one-off patched result is
+whether it reproduces. **It does.**
+
+### 11.3 What is still not measured
+
+- The **FD re-anchor** of the resulting gradient on the rebuilt image is **`PENDING`** — the
+  nine registered primal-only points did not complete, for host-contention reasons recorded in
+  `adjoint_unblock_reproduce/RESULTS.md` §8. **§7's "0.085 % / 0.059 % / 0.199 %" is therefore
+  still the 2026-08-04 figure, on `v1`, and is quoted here as that and not as today's.**
+- The **NASA hump** remains uncharacterised. §2's hump row is a `-9` signature, which is
+  measured; the *boundary* of the hump adjoint is not, and M1 + M2 at **40 core-min** are the
+  cheapest measurements that would settle it.
+- Three of the four runtime factor options DAFoam never touches — `nonzeros_along_diagonal`,
+  `diagonal_fill`, `mat_solver_type` — were not re-measured today. Only `zeropivot` has a
+  direct measurement (W4 §2: reaches the factor, still `-9`).
+
+---
+
 ---
 
 ## Provenance of every number above

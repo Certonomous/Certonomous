@@ -14,9 +14,9 @@ deleted at the next revision.
 
 ---
 
-## 1. The eleven
+## 1. The twelve
 
-Eleven files match `docs/charters/*_CHARTER.md` as of 2026-08-20. Re-derive with
+Twelve files match `docs/charters/*_CHARTER.md` as of 2026-08-21. Re-derive with
 `ls docs/charters/*_CHARTER.md | wc -l`; **the command is the authority and this
 heading is not.** See the dated note at the foot of this section.
 
@@ -33,6 +33,7 @@ heading is not.** See the dated note at the foot of this section.
 | 9 | [Supervision](SUPERVISION_CHARTER.md) | Every big task family has a standing supervisor, and four kinds of check are done by a supervisor personally or they have not been done. |
 | 10 | [Filing](FILING_CHARTER.md) | Respect the naming convention, and the check is the binding artifact — a rule nobody can fail is a preference. |
 | 11 | [Closure modelling](CLOSURE_MODELLING_CHARTER.md) | A closure is not a result until it has been re-solved, and a score against a baseline a constant can beat is not an evaluation. |
+| 12 | [DAFoam](DAFOAM_CHARTER.md) | A DAFoam gradient is not a result until a finite-difference table stands beside it at a step proved to lie in the plateau, and a DAFoam verdict is two rows — shipped and patched — or it is not a verdict about DAFoam. |
 
 `SUPERVISOR_RULINGS.md` sits in this directory and is not a charter, but it binds
 like one. `PROPOSALS_OPEN.md` and `CUSTODY_PROPOSAL.md` are proposals and bind
@@ -50,6 +51,18 @@ correction" and gives commands instead of a figure. Section 1 carried exactly
 such a count and drifted within two days of the last charter landing. The
 re-derive command was correct throughout; only the prose was stale, which is why
 the command is now named as the authority.
+
+**Dated note, 2026-08-21 — twelve, and the correction took one day rather than
+two.** `DAFOAM_CHARTER.md` was adopted today and row 12 is added above with the
+heading. `ls docs/charters/*_CHARTER.md | wc -l` returns **12**, pasted from the
+command rather than counted by hand. **The thing worth recording is that this is
+the second count correction in two days**, which is the pattern yesterday's note
+predicted rather than a repeat of the failure it described: yesterday's drift was
+a charter adopted on 2026-08-18 and disclosed on 2026-08-20; today's is same-day,
+disclosed by the charter that caused it, in its own `# 14. Changes to other
+charters`. That is where an amendment to this file now goes — the new charter
+carries it, and this section records it — and it is why the nine-to-ten step is
+still the finding and the eleven-to-twelve step is only bookkeeping.
 
 ---
 
