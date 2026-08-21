@@ -27,7 +27,7 @@ the two stdouts** (§6). The repair touches only the control-report path, which
 executes after all six graded rows are computed and printed; it can change no
 graded number, and did not. `gate_t10a.json` (sha256 `02060f39c34f…94b7c29`)
 was first written by the post-repair run — the pre-repair crash occurred
-before the JSON write. Docket D447 (number provisional).
+before the JSON write. Docket D447.
 
 **Rung verdict: GATE FAIL — the box enclosure grades 3 of 4 rows PASS and one
 GATE FAIL; the spheres return no result. B0 floor 6483.263010 vs 6484.920941,
