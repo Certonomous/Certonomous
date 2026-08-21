@@ -1,0 +1,116 @@
+{
+  "rung": "T10a",
+  "tier": "EXACT",
+  "source": "docs/campaigns/T-family/T10a_PREREGISTRATION.md (supersedes T10a_PREREGISTRATION_DRAFT.md)",
+  "armed_before_any_solve": true,
+  "written": "2026-08-21",
+  "approval": "INTERPRETATION 1..7 approved by Sanaa 2026-08-21 on the team's recommendation, each in the draft's recommended reading",
+  "verdict_vocabulary": ["PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING"],
+  "grid": {
+    "r": 1.6,
+    "Fs": 1.25,
+    "rule": "three levels at nominal ratio 1.6 in radiating-face edge count, Roache GCI at Fs = 1.25 on the finest, using analyse_t1c.py's gci imported from T1_runs; a graded row whose triple is not CONVERGING (OSCILLATORY, STAGNANT, DIVERGENT or EXACT) returns NOT A RESULT, never PASS; a row any of whose levels is not iteratively CONVERGED returns NOT A RESULT before the triple is even formed"
+  },
+  "sigma": {
+    "graded_against": "sigma_OF, rebuilt from the k, h, c that etc/controlDict carries and READ from that file by exact_t10a.py",
+    "sigma_OF": 5.670408558e-08,
+    "sigma_SI": 5.670374419e-08,
+    "relative_difference": 6.02e-06
+  },
+  "spheres": {
+    "r1": 0.05, "r2": 0.10, "eps1": 0.6, "eps2": 0.4, "T1": 600.0, "T2": 300.0,
+    "A1": 0.03141593, "A2": 0.12566371, "F12": 1.0, "F21": 0.25, "F22": 0.75,
+    "denominator": 2.041666667,
+    "q1_net_leaving": 3374.471705, "q2_net_leaving": -843.617926, "Q": 106.012155,
+    "q1_net_leaving_sigma_SI": 3374.451389,
+    "qr_openfoam_sign": "qr is the net flux INTO the wall (viewFactor.C: C q = b with b_i = -sigma T_i^4 + sum_j F_ij sigma T_j^4): registered qr is -3374.471705 on inner and +843.617926 on outer",
+    "patches": {"inner": {"T": 600.0, "eps": 0.6}, "outer": {"T": 300.0, "eps": 0.4}}
+  },
+  "box": {
+    "Lx": 1.0, "Ly": 1.0, "Lz": 0.5, "eps": 1.0,
+    "patches": {"floor": {"T": 600.0, "A": 1.0}, "ceiling": {"T": 300.0, "A": 1.0},
+                "x0": {"T": 400.0, "A": 0.5}, "x1": {"T": 400.0, "A": 0.5},
+                "y0": {"T": 350.0, "A": 0.5}, "y1": {"T": 350.0, "A": 0.5}},
+    "F_floor_ceiling": 0.415253284, "F_floor_wall": 0.146186679, "F_wall_floor": 0.292373358,
+    "F_wall_opposite": 0.116653692, "F_wall_adjacent": 0.149299796,
+    "q_floor": 6484.920941, "q_ceiling": -3265.532221, "q_xwall": -1254.691645, "q_ywall": -1964.697075,
+    "q_floor_sigma_SI": 6484.881898
+  },
+  "hottel_2d_reported_only": {
+    "w": 1.0, "h": 0.5, "T_floor": 600.0, "T_ceiling": 300.0, "T_wall": 400.0,
+    "F_floor_ceiling": 0.618033989, "F_floor_wall": 0.190983006, "F_wall_floor": 0.381966011, "F_wall_wall": 0.236067977,
+    "q_floor": 6510.513314, "q_ceiling": -4637.006925, "q_wall": -1873.506388,
+    "status": "identity under Charter 2a (reference and tool share the crossed-strings closed form): REPORTED, never gated, not counted"
+  },
+  "rows": {
+    "S0": {"case_prefix": "S", "patch": "inner", "quantity": "inner sphere net leaving flux [W/m2]", "reference": 3374.471705, "C2_departure_pct": 35.53},
+    "S1": {"case_prefix": "S", "patch": "outer", "quantity": "outer sphere net leaving flux [W/m2]", "reference": -843.617926, "C2_departure_pct": 157.90},
+    "B0": {"case_prefix": "B", "patch": "floor", "quantity": "box floor net leaving flux [W/m2]", "reference": 6484.920941, "C2_departure_pct": 2.30},
+    "B1": {"case_prefix": "B", "patch": "ceiling", "quantity": "box ceiling net leaving flux [W/m2]", "reference": -3265.532221, "C2_departure_pct": 40.89},
+    "B2": {"case_prefix": "B", "patch": ["x0", "x1"], "quantity": "box x-walls net leaving flux, mean of both [W/m2]", "reference": -1254.691645, "C2_departure_pct": 40.95},
+    "B3": {"case_prefix": "B", "patch": ["y0", "y1"], "quantity": "box y-walls net leaving flux, mean of both [W/m2]", "reference": -1964.697075, "C2_departure_pct": 25.59}
+  },
+  "floors": {
+    "sigma": {"size_rel": 6.02e-06, "handling": "graded against sigma_OF; not a floor in practice"},
+    "sphere_faceting": {"handling": "O(h^2), read from mesh areas at every level, inside the ladder, not a floor"},
+    "quadrature": {"handling": "GaussQuadTol 0.01, distTol 8, alpha 0.21, intTol 0.01 held fixed across the ladder; measured by the raw row-sum defect of the written F at every level and by the finest-level GaussQuadTol 0.001 twins S_f_q, B_f_q; REGISTERED CONDITION: if a row's armed band is smaller than the relative change the twin produces on that row, the row is REPORTED AND NOT GRADED, verdict GATE REACHED"},
+    "smoothing": {"handling": "graded with smoothing false; smoothing true twins S_f_s, B_f_s REPORTED"},
+    "truncation": {"handling": "none; both geometries are closed and exact"}
+  },
+  "discrimination": {
+    "rule": "a row is graded only if its armed band is less than one tenth of its C2 departure; otherwise REPORTED, GATE REACHED, not counted",
+    "factor": 0.1
+  },
+  "guards": {
+    "iterative_convergence": "qr on every viewFactorWall patch at the last two written checkpoints must be identical value for value (max change 0.0); the zero is controlled by planting 1.234e-03 W/m2 into a scratch copy of the earlier checkpoint by line index and reading it back off disk; a level that is not CONVERGED makes every row using it NOT A RESULT",
+    "closure": {
+      "threshold_rel": 1e-2,
+      "referent": "|c_raw - c_F| where c_raw = |sum_f A_f qr_f| / sum_f |A_f qr_f| from the solver's written qr and c_F is the same quantity from the comparator's own radiosity solve on the written F with the same areas and emissivities; a run whose closure departs from what its own view-factor matrix implies by more than 1e-2 is VOID and every row using it is NOT A RESULT; c_raw is ALWAYS printed beside the written F's row-sum defect, and c_raw > 1e-2 is flagged REPORTED",
+      "why_this_referent": "INTERPRETATION 6 approved 1e-2 and asked for the number to be revisited once the first level's row-sum defect was known, before any graded solve. MEASURED at build (viewFactorsGen, no solve, 2026-08-21, second instance) from the written F of every level with smoothing false: max |sum_j F_ij - 1| per patch is 0.11-0.48 % on the inner sphere, 4.3-4.8 % on the outer sphere AT EVERY LEVEL (the fixed quadrature tolerance does not converge, as registered), 1.9-3.9 % on the box patches, 2.7-3.3 % on H_2d. A raw-closure threshold of 1e-2 would therefore void a correct run for the utility's own quadrature defect, which the ladder and the GaussQuadTol twins already measure. The guard's job is to withdraw a RUN whose assembly or addressing is broken (Charter 2c GUARD row), and that is what |c_raw - c_F| measures; recorded at freeze, 2026-08-21, with no solve in the tree. The first instance's draft of this entry asserted '2-5 % at the coarse levels' before any build existed; corrected to the measured figures by the second instance before the freeze"
+    },
+    "row_sums_and_reciprocity": "max|sum_j F_ij - 1| per patch and max|A_i F_ij - A_j F_ji| from the written constant/F, REPORTED at every level",
+    "mesh_readback": "patch areas and vertex radii from constant/polyMesh/points (+faces, boundary): sphere vertices on their radii to 1e-9 relative, box extents exact to 1e-12; refusal on mismatch",
+    "stale_write": "runner refuses any numeric time directory other than 0; marker refuses final-time fields older than the case's own 0/T (L-143)"
+  },
+  "controls": {
+    "C1": {"what": "black-body: S_f inner flux graded against sigma(T1^4 - T2^4) = 6889.546", "must": "FAIL", "expected_departure_pct": 104.17},
+    "C1_live": {"what": "S_C1, the finest sphere case re-run with eps1 = eps2 = 1, graded against the grey reference 3374.471705 (must fail) and against the black value 6889.546 (reported); if S_C1 reproduces S_f's inner flux within S0's band the emissivity dictionary is not read and every sphere row is VOID / BLOCKED", "must": "FAIL against grey; NOT reproduce S_f"},
+    "C2_spheres": {"what": "S_f inner flux graded against the parallel-plate network 2175.646", "must": "FAIL", "expected_departure_pct": -35.53},
+    "C2_box": {"what": "B_f rows graded against the fluxes of the cube matrix (F_opp 0.19982490, F_adj 0.20004378)", "must": "FAIL on every graded box row", "expected_departure_pct": {"B0": -2.30, "B1": -40.89, "B2": -40.95, "B3": -25.59}},
+    "C2b_box": {"what": "B_f rows against the opposite-only matrix (F_opp 1)", "must": "REPORTED", "expected_departure_pct": {"B0": 6.24, "B1": 110.98, "B2": -100.0, "B3": -100.0}},
+    "C3a": {"what": "trivial baseline, radiation off: a qr = 0 field through the identical pipeline", "must": "FAIL on every row, -100 %"},
+    "C3b": {"what": "trivial baseline, B_C3: the finest box solved with all six patches at 300 K; every registered flux is 0 by symmetry; also the cleanest test that the solver's qr is identically zero when it must be", "must": "FAIL on every graded box row"}
+  },
+  "solver": {
+    "application": "buoyantSimpleFoam (ESI v2606), single region, laminar, g = (0 0 0), every wall fixedValue T, radiationModel viewFactor, useDirectSolver true, nBands 1, solverFreq 1, absorptionEmissionModel none, constantEmissivity true",
+    "endTime": 20, "writeInterval": 5, "purgeWrite": 0, "deltaT": 1,
+    "residualControl": "none (L-141)",
+    "viewFactorsDict": {"writeViewFactorMatrix": true, "GaussQuadTol": 0.01, "distTol": 8, "alpha": 0.21, "intTol": 0.01},
+    "faceAgglomerate": "NOT run (INTERPRETATION 4): finalAgglom absent, identity agglomeration, one radiating face per mesh face; note viewFactor.C ignores the diagonal F_ii, which is exact only for planar (unagglomerated) faces",
+    "fluid": "carrier only: with every wall T fixed, qr is determined by T, eps and F at the first radiation solve and cannot move afterwards"
+  },
+  "cases": {
+    "S_c":   {"kind": "spheres", "N": 10, "nr": 4,  "faces": 1200, "cells": 2400,  "role": "graded level c", "eps": [0.6, 0.4], "GaussQuadTol": 0.01,  "smoothing": false},
+    "S_m":   {"kind": "spheres", "N": 16, "nr": 6,  "faces": 3072, "cells": 9216,  "role": "graded level m", "eps": [0.6, 0.4], "GaussQuadTol": 0.01,  "smoothing": false},
+    "S_f":   {"kind": "spheres", "N": 26, "nr": 10, "faces": 8112, "cells": 40560, "role": "graded level f", "eps": [0.6, 0.4], "GaussQuadTol": 0.01,  "smoothing": false},
+    "S_C1":  {"kind": "spheres", "N": 26, "nr": 10, "faces": 8112, "cells": 40560, "role": "control C1-live", "eps": [1.0, 1.0], "GaussQuadTol": 0.01, "smoothing": false},
+    "S_f_q": {"kind": "spheres", "N": 26, "nr": 10, "faces": 8112, "cells": 40560, "role": "twin GaussQuadTol 0.001 (quadrature floor)", "eps": [0.6, 0.4], "GaussQuadTol": 0.001, "smoothing": false},
+    "S_f_s": {"kind": "spheres", "N": 26, "nr": 10, "faces": 8112, "cells": 40560, "role": "twin smoothing true (reported)", "eps": [0.6, 0.4], "GaussQuadTol": 0.01, "smoothing": true},
+    "B_c":   {"kind": "box", "N": 16, "faces": 1024, "cells": 2048,  "role": "graded level c", "T_uniform": null, "GaussQuadTol": 0.01,  "smoothing": false},
+    "B_m":   {"kind": "box", "N": 26, "faces": 2704, "cells": 8788,  "role": "graded level m", "T_uniform": null, "GaussQuadTol": 0.01,  "smoothing": false},
+    "B_f":   {"kind": "box", "N": 42, "faces": 7056, "cells": 37044, "role": "graded level f", "T_uniform": null, "GaussQuadTol": 0.01,  "smoothing": false},
+    "B_C3":  {"kind": "box", "N": 42, "faces": 7056, "cells": 37044, "role": "control C3b, all patches 300 K", "T_uniform": 300.0, "GaussQuadTol": 0.01, "smoothing": false},
+    "B_f_q": {"kind": "box", "N": 42, "faces": 7056, "cells": 37044, "role": "twin GaussQuadTol 0.001 (quadrature floor)", "T_uniform": null, "GaussQuadTol": 0.001, "smoothing": false},
+    "B_f_s": {"kind": "box", "N": 42, "faces": 7056, "cells": 37044, "role": "twin smoothing true (reported)", "T_uniform": null, "GaussQuadTol": 0.01, "smoothing": true},
+    "H_2d":  {"kind": "hottel", "N": 32, "faces": 96, "cells": 512, "role": "T10a-3 2D Hottel rectangle, createViewFactors viewFactorHottel, REPORTED ONLY, not counted", "smoothing": false}
+  },
+  "levels": {"spheres": {"c": "S_c", "m": "S_m", "f": "S_f"}, "box": {"c": "B_c", "m": "B_m", "f": "B_f"}},
+  "required_markers": ["S_c", "S_m", "S_f", "S_C1", "S_f_q", "S_f_s", "B_c", "B_m", "B_f", "B_C3", "B_f_q", "B_f_s"],
+  "optional_cases": ["H_2d"],
+  "planted_control_value": 1.234e-03,
+  "measurement": {
+    "row_value": "area-weighted mean of the written qr over the patch's faces, sign flipped to net LEAVING, areas from constant/polyMesh; B2/B3 are the mean over both walls of the pair, each wall also reported with their difference as a symmetry guard",
+    "attribution_lever": "the comparator solves the radiosity system itself (numpy) on the written constant/F with the mesh areas and the dictionary emissivities, in the exact viewFactor.C form, and compares face by face with the solver's qr: python-on-F == solver != exact -> the view factors are wrong; python-on-F != solver -> the assembly or BC is wrong",
+    "convergence": "last two written checkpoints of qr compared value for value; never residualControl"
+  }
+}
