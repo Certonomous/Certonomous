@@ -293,3 +293,70 @@ registered residual criterion or by its own `timeout`.
 Data, case copies and solver output live outside the repo at
 `/home/ubuntu/closure-data/aposteriori/wu2018/`; `scores.json` and
 `fields_report.json` there carry every number in this file.
+
+---
+
+# DATED ADDENDUM, 2026-08-21 — continuity gate, graded
+
+Appended, not an edit of frozen text. Prompted by a review item; the item's two
+premises were checked before acting and one of them does not hold.
+
+## A1. The premise "the RESULTS file reports no div(U) rows at all" is incorrect
+
+Every per-case table in sec. 4 carries a **`continuity`** column, populated on
+every case x configuration row from OpenFOAM's own
+`time step continuity errors : sum local` at the final iteration. Nothing was
+missing.
+
+## A2. What WAS missing: the rows were reported but never GRADED
+
+`PREREGISTRATION.md` sec. 4 registered: *"a field not satisfying continuity to
+`<= 1e-4` is reported as not converged, whatever its `U_rms`."* The numbers were
+printed; **the gate was never applied to them.** Applying it now:
+
+| case | configuration | continuity (sum local) | registered gate | as-published | **regraded** |
+|---|---|---|---|---|---|
+| `AR_1_Ret_360` | `truth` | **1.61e-04** | > 1e-4 | converged: yes | **NOT CONVERGED** |
+| `AR_1_Ret_360` | `ml_s0` | **1.84e-04** | > 1e-4 | converged: yes | **NOT CONVERGED** |
+| `AR_1_Ret_360` | `ml_s2` | **1.58e-04** | > 1e-4 | converged: yes | **NOT CONVERGED** |
+| `AR_1_Ret_360` | `ml_s1` | 8.87e-05 | ok | yes | yes |
+| `AR_1_Ret_360` | `mean`, `null` | 6.8e-06, 3.9e-13 | ok | — | unchanged |
+| `AR_3_Ret_360` | all six | 6.0e-13 to 4.2e-05 | ok | — | unchanged |
+| `CBFS13700` | all six | 4.5e-14 to 2.7e-07 | ok | — | unchanged |
+
+**Effect on the verdict: none, and it strengthens rather than weakens it.** The
+lane returned **NOT A RESULT** because the TRUTH ceiling failed on all three
+cases. On `AR_1_Ret_360` the TRUTH row is now additionally **NOT CONVERGED**, so
+that ceiling row was never a valid converged solve to begin with. The two ducts'
+and CBFS's ceiling failures are unaffected and were all comfortably inside the
+gate.
+
+## A3. The instrument distinction, because adopting the review's grading would have been wrong
+
+The review asked that continuity on `CBFS13700` be graded **NOT MEASURABLE**, on
+the ground that a chain-rule `div(U)` estimator has a floor of ~5e-3 on that mesh.
+**That floor is real, and it does not apply to the instrument this lane used.**
+Measured here, both ways, on the same fields:
+
+| field | chain-rule `div(U)` (numpy, `structured_gradient`) | OpenFOAM `sum local` |
+|---|---|---|
+| CBFS shipped SST `U` | **9.88e-03** | **1.45e-13** |
+| CBFS LES truth `U_LES` | **6.83e-03** | n/a (no solver log) |
+| `AR_1_Ret_360` shipped SST `U` | 4.27e-12 | — |
+| `AR_1_Ret_360` LES truth `U_LES` | 7.98e+01 | n/a |
+
+The chain-rule estimator does have a CBFS floor of order `1e-2` — the same
+finding, and the LES truth field sits on it. But this lane's `continuity` column
+is OpenFOAM's **own discrete continuity residual on the actual finite-volume
+mesh**, which for the same CBFS field reads **1.45e-13**: eight orders of
+magnitude below that floor, because it is a flux balance over real cell faces
+rather than a finite-difference reconstruction on a curvilinear structured index
+space. **CBFS continuity is measurable here and was measured.** Grading it NOT
+MEASURABLE would have discarded a valid measurement and hidden the three rows
+that genuinely breach the gate — all of which are on a **duct**, the family the
+review believed was the measurable one.
+
+The caveat that does transfer: **any `div(U)` computed for a field with no solver
+log — the LES truth in particular — must use the chain-rule estimator and is
+therefore floored at ~1e-2 on the CBFS mesh.** No continuity claim about a truth
+field on that mesh can be made below that floor.
