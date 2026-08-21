@@ -177,7 +177,7 @@ a-priori anisotropy improvement should be read against that constant, not agains
 SST, and any reproduction here that reports only the SST comparison has not been
 evaluated.
 
-**F2. Pope's ten-tensor basis has per-cell rank 3.24 on this benchmark, never
+**F2. Pope's ten-tensor basis has per-cell rank 3.006-3.987 by case mean on this benchmark, never
 above 5**, because every case is a statistically 2-D mean flow and the basis
 collapses to three tensors in two dimensions [VERIFIED-PDF: Pope 1975, JFM 72(2),
 p. 335]. Consequences: the published ridge parameter of the TBRF
@@ -213,3 +213,47 @@ on a tenth of the domain will not converge.
 * **No GPU.** Everything CNN-shaped or RL-shaped is out of reach at published
   scale, and saying so is more useful than shipping a 1/8-scale version and
   calling it a reproduction.
+
+
+---
+
+**Provenance repair, 2026-08-21.** An earlier figure of "3.24 on average, never above 5" for the per-cell rank of Pope's ten-tensor basis was quoted here from `Kaandorp2020_TBRF/train_log.json`, **which does not exist** (charter section 5(b)). It has been replaced by a live re-measurement: per-cell rank of **3.006-3.987 by case mean** (mean of case means **3.738**), **never above 5 in any cell**, source `_common/features/FS2_DEGENERACY_REPORT.md` sec. 4 and `/home/ubuntu/closure-data/features/fs2_audit.json` -> `tensor_basis_rank`. 3.24 was a pooled-sample statistic over randomly drawn training cells, which the low-rank duct family pulls down; the case-mean statistic is 3.738. They are different statistics and are not interchangeable. **The bound that carries the argument is unchanged: never above 5, against a nominal basis size of 10.**
+
+
+---
+
+**Dated note appended 2026-08-21 — the NASA hump BLOCK is liftable by equivalence gate, and the gate PASSED.**
+*Appended note; nothing above this line was edited.*
+
+The hump's shipped baseline was blocked because `constant/turbulenceProperties`
+selects **`AugmentedkOmegaSST`**, whose library is absent on this machine. That
+model is not a mystery: `data/NASA_2DWMH/log.run` line 153 selects it and prints
+its full coefficient dictionary — `baseline true`, `usekDeficit false`,
+`usebijDelta false`, `useSigma false`, `modelbijDelta false`,
+`modelkDeficit false`, `modelSigma false`, with every printed coefficient the
+stock Menter SST value (`alphaK1 0.85`, `alphaOmega2 0.856`, `gamma1 0.555556`,
+`beta1 0.075`, `betaStar 0.09`, `a1 0.31`, `b1 1`, `c1 10`, `F3 false`). It is a
+SpaRTA-style corrected SST **run with every augmentation switched off**.
+
+A preregistered equivalence gate
+(`cases/RANS_LES_closure_models/NASA_hump_gate/`) tested that behaviourally:
+
+* **B-G0a** (two-sided, 200 identical iterations) is **BLOCKED** — the shipped
+  model cannot be instantiated here at all (`Unknown RAS model type
+  AugmentedkOmegaSST`), which the preregistration registered as BLOCKED rather
+  than failed.
+* **B-G0b** (converged NULL against the published row) **PASSES**:
+  `kOmegaSSTCorrected` with `bijDelta = 0`, `kDeficit = 0`, `omegaMin 0.1` and the
+  shipped `fvOptions`, restarted from the shipped `2000/` field, **converged in
+  156 iterations** to `U_rms` = **0.1261769** against the published **0.1260**
+  (Δ **1.77e-4**, band 5e-3) and `U_mae` = **0.0621203** against **0.0620**
+  (Δ 1.2e-4). `kOmegaSSTCorrected(0,0)` is separately measured **bit-identical**
+  (rel-L2 = 0.0) to stock `kOmegaSST`.
+
+**Consequence: the hump is scorable comparably through the `kOmegaSSTCorrected`
+path**, so a lane that previously recorded it as BLOCKED-on-a-missing-library may
+now run it — as **UNBLOCKABLE-BY-EQUIVALENCE-GATE**, citing this note. The
+limitation stands and is not erased: equivalence is **behavioural, one-sided, on
+one case, from one restart**, because the shipped model could not be loaded to
+compare against. Details and the full 'cannot see' list:
+`cases/RANS_LES_closure_models/NASA_hump_gate/RESULTS.md`.
