@@ -2857,3 +2857,55 @@ converges; **6 outer x 2,000 = 967.6 s = 0.269 core-hours** at the registered ca
 when it does not. A 60-member, 10-iteration ensemble is therefore **16.6 to 161.3
 core-hours** — a band, not a number, because it is bounded by caps rather than by
 a convergence guarantee, and the honest costing says so.
+
+**N-D7. Three ways to measure a decomposition effect that is not there, and the numbers each
+one produces.** Measured 2026-08-21 on CBFS, 21,000 cells, DAFoam + `PCLU` sub-blocks,
+comparing `scotch`, `simple (4 1 1)` and serial np=1 against each other
+(`cases/dafoam/ladder-b/B3/decomposition_np4/RESULTS.md`). **The true answer is that the
+gradient is decomposition-invariant at ~1e-04**: 1.680861e-04 (scotch vs serial),
+1.415579e-04 (simple vs serial), 1.132033e-04 (simple vs scotch), all PASS against a <1e-3
+band, all landing exactly on the "invariant at ~1e-04" a prior reach matrix predicted.
+**Each of the three errors below produces a confident wrong answer instead.**
+
+**(i) Setting the partitioner by editing `system/decomposeParDict` does nothing, silently.**
+`pyDAFoam._writeDecomposeParDict()` (`pyDAFoam.py:2212`, called from `:1463`) **rewrites that
+file on every run** from `daOptions["decomposeParDict"]`, default
+`{"method": "scotch", "simpleCoeffs": {"n": [2,2,1]}}`. An arm staged by editing the file ran
+`scotch` and returned `reason 2`, **667** iterations, objective `1.5279278906359758e-02` and
+`‖g‖ 1.4558046603e-05` — **bit-identical to the scotch reference in every digit**. On a case
+whose registered prediction is *invariant*, that is precisely the answer that gets believed.
+**Set it in `daOptions`, and read the decomposition back out of the arm's own directory
+afterwards.** A second tell: the three partitionings have **different cold-start continuity
+errors** (`9.30211816115683e-06` scotch / `1.19187582101953e-05` simple / `1.12896526821488e-05`
+serial) and stop at **1580 / 1582 / 1584** primal iterations — an arm matching the reference's
+cold start to all 15 digits did not repartition.
+
+**(ii) Comparing distributed-ordered gradients without the permutation inflates the answer
+9,977x.** The per-cell DV index is a distributed ordering (rank-concatenated local cells; DV
+index k -> serial cell `cellProcAddressing_r[c]`). Same two vectors, same norm:
+**unmapped 1.412254e+00 = 141.2 % (GATE FAIL), mapped 1.415579e-04 = 0.01416 % (PASS)**;
+they differ in **20,930 of 21,000** positions. **This is a headline-grade false positive** —
+it would have moved the case out of the clean column and put a cloud over every gradient
+downstream of it. Assert the permutation is a bijection onto `0..N-1` in code, not in review.
+
+**(iii) A reused Jacobian-coloring file is the one that fails safely.**
+`dRdWColoring_<nranks>.bin` is keyed on **rank count only**, so a coloring computed under
+`scotch` loads happily under `simple`. DAFoam validates it and **aborts** —
+`Conflicting Colors Found!`, `DAColoring/DAColoring.C:1021`, `row: 105370 col1: 52784
+col2: 52785 color: 0` — rather than returning a wrong Jacobian. Delete
+`dRdWColoring_*.bin` whenever the decomposition changes.
+
+**A fourth number worth carrying, about the ASM rather than the errors: removing the block
+boundaries is worth 4.09x in Krylov iterations.** Serial np=1 with `PCLU` over the whole
+210,592² operator converges in **163** iterations against **667** at np=4 under `scotch` and
+**766** under `simple` — and its predicted 10-14 GiB peak never materialised, the cap was never
+approached, because a single ASM block with PETSc's own LU is not the same object as an offline
+SuperLU factorization of the same matrix.
+
+**And the gate that was wrong: "objective bit-identical" is only defensible between runs that
+share a decomposition.** Across np=1/4 and across two partitioners the objectives spread
+**1.9e-07** (`1.5279275989724403e-02` / `1.5279278906359758e-02` / `1.5279278602317540e-02`),
+because the primal stops on a **1e-06 residual tolerance**, not at a fixed point, and the
+parallel reduction tree differs. That is ~3 decades below where the graded gradient rows sit
+and is reconvergence noise, not a finding — but it was registered as bit-identical, so it is
+recorded as **GATE FAIL and a missed prediction** rather than rewritten after the fact.

@@ -318,3 +318,74 @@ whether it reproduces. **It does.**
 | arm K, the F2-insufficiency measurement | `cases/dafoam/ladder-b/B3/adjoint_unblock_reproduce/RESULTS.md` |
 
 **Nothing in this note was sent anywhere. Filing is Sanaa's call alone.**
+
+---
+
+## 12. chain4 scored — 2026-08-21: the runtime factor options, and why the shift axis is closed
+
+**Appended 2026-08-21 ~19:0x UTC by the DAFoam team, Lane B.** Source of every number:
+`cases/dafoam/ladder-b/B3/ilu_shift_runtime/{PREREGISTRATION.md,RESULTS.md}` and the run root
+`/home/ubuntu/certonomous-runs/B3-ilu-shift-runtime/`. **Still NOT FILED; the banner at the
+top of this note stands unchanged.**
+
+§11 left one cheap hypothesis alive: that PETSc's *factor* options — as opposed to the sub-PC
+*type* — might survive DAFoam's `PCASMGetSubKSP` loop, and that a diagonal shift might carry
+the incomplete factorisation past the pivot. **Both halves are now measured, on
+`dafoam-kspopts:v1` (`d9d2aed02e36`), the image built so that PETSc runtime options are not
+silently discarded, np = 4, `DAFOAM_SUBPC_TYPE` unset, `-ksp_view` on every arm.**
+
+| arm | `PETSC_OPTIONS` | reached the deployed factor? | iterations | reason | core-min |
+|---|---|---|---|---|---|
+| **C** control | `-ksp_view` only | n/a | 0 | **-9** | 125.60 *(load-contended; ~6.8 uncontended)* |
+| **S-T** | `-sub_pc_factor_shift_type nonzero` | **no** | 0 | **-9** | 6.80 |
+| **S-A10** | `+ shift_amount 1e-10` | **no** | 0 | **-9** | 6.60 |
+| **S-A8** | `+ shift_amount 1e-8` | **no** | 0 | **-9** | 6.60 |
+| **L-2** | `-sub_pc_factor_levels 2` | **no — proven** | 0 | **-9** | 6.93 |
+
+**Every arm's `-ksp_view` dump is byte-identical to the control's, timings excepted.** The
+proof that the options were overwritten rather than merely ineffective is arm **L-2**: it
+requested fill level 2 and its own dump reads **`1 level of fill`**
+(`logs/arm_L2.log:12084`), with DAFoam's echo reading `ILU PC Fill Level: 1` (`:12055`).
+Requested value and deployed value differ visibly, and the deployed one is DAFoam's.
+
+**A correction that belongs in this note because it would otherwise mislead a maintainer.**
+These logs contain `using diagonal shift to prevent zero pivot [NONZERO]`, which reads like
+evidence that the shift landed. **It is not.** That line is present in the **control arm,
+which set no shift option at all** (`logs/arm_C.log:12086`); it is DAFoam's own
+`PCFactorSetShiftType(MLRsubpc, MAT_SHIFT_NONZERO)` printing. The pre-registration flagged
+this row as non-discriminating **before the runs**, and it is recorded here so that anyone
+reading a `[NONZERO]` banner in a `-9` log does not draw the conclusion this lane briefly drew.
+
+**What it discriminates, and it is the point of §4 of this note.** Shift type, shift amount at
+two magnitudes, and extra fill are all *perturbations of an incomplete factorisation*.
+`PROOF.md` §25.3 already showed `spilu` returns **`Factor is exactly singular`** at every
+drop-tolerance/fill setting swept, while `splu` **always** solves. **A perturbation of a
+singular factor is a different singular factor.** The runtime axis is now closed from both
+ends: the one factor option DAFoam does *not* set — `zeropivot`, raised six decades to `1e-8`
+and **verified landed** in the deployed factor (§11, W4 §2) — **does not help**; and the
+options that might have helped **cannot land**, because the `PCASMGetSubKSP` loop rewrites them
+after PETSc has applied them at `KSPSetUp`. **This is not a small-pivot perturbation problem,
+and no tuning of the shift can be the remedy.**
+
+**The minimum working intervention, restated with today's arms folded in:**
+
+| route | source change? | reason | iterations | FD agreement | verdict |
+|---|---|---|---|---|---|
+| serial, np = 1, stock | no | **-9** | 0 | n/a | **BLOCKED** |
+| runtime PC **type** — `-sub_pc_type lu` | no | **-9** | 0 | n/a | **BLOCKED** |
+| runtime factor **options** — shift type / amount / levels | no | **-9** | 0 | n/a | **BLOCKED** (this section) |
+| runtime `zeropivot 1e-8` *(does reach the factor)* | no | **-9** | 0 | n/a | **BLOCKED** |
+| **`PCLU` source rebuild**, one hunk | **YES** | **2** | **667** | **0.0854 % / 0.0589 % / 0.1989 %**, zero sign flips | **PASS** |
+
+> **Minimum working intervention = the source rebuild. Nothing cheaper works.** The upstream
+> ask stays **F1 + F2 + F3 together**; **F2 alone is now measured insufficient twice over**,
+> because relocating `KSPSetFromOptions` cannot help while the block loop overwrites both the
+> sub-PC type *and* its factor settings downstream of it.
+
+**Scoring.** Five predictions were registered before the runs; **five hit, zero missed.**
+The registered 56.7 core-min came in at **152.53 measured**, of which arm C alone is 125.60 —
+an 18.5x load-contention artefact against its own uncontended twins at 99–104 s. **The honest
+computational cost of the five arms is 33.7 core-min; 152.53 is what the box charged**, and
+both are reported rather than reconciled.
+
+**Nothing in this section was sent anywhere. Filing is Sanaa's call alone.**
